@@ -54,18 +54,16 @@ public class GlobalEnvironment {
 	/**
 	 * Retrieve a module from the heap
 	 */
-	public ModuleEnvironment getModule(String name, AbstractAST ast) {
-		ModuleEnvironment result = moduleEnvironment.get(Names.unescape(name));
-		
-		if (result == null) {
-			throw new UndeclaredModuleError(name, ast);
-		}
-		
-		return result;
+	public ModuleEnvironment getModule(String name) {
+		return moduleEnvironment.get(Names.unescape(name));
 	}
 
 	public ModuleEnvironment getModule(QualifiedName name, AbstractAST ast) {
-		return getModule(name.toString(), ast);
+		ModuleEnvironment module = getModule(name.toString());
+		if (module == null) {
+			throw new UndeclaredModuleError(name.toString(), ast);
+		}
+		return module;
 	}
 	
 

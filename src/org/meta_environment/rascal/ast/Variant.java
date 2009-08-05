@@ -1,7 +1,10 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Variant extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.TypeArg> getArguments() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasArguments() { return false; }
+public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); }
+	public java.util.List<org.meta_environment.rascal.ast.TypeArg> getArguments() { throw new UnsupportedOperationException(); }
+public boolean hasName() { return false; }
+	public boolean hasArguments() { return false; }
 public boolean isNAryConstructor() { return false; }
 static public class NAryConstructor extends Variant {
 /** name:Name "(" arguments:{TypeArg ","}* ")" -> Variant {cons("NAryConstructor")} */
@@ -52,32 +55,5 @@ static public class Ambiguity extends Variant {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitVariantAmbiguity(this);
   }
-} public boolean isNillaryConstructor() { return false; }
-static public class NillaryConstructor extends Variant {
-/** name:Name -> Variant {cons("NillaryConstructor")} */
-	private NillaryConstructor() {
-		super();
-	}
-	public NillaryConstructor(INode node, org.meta_environment.rascal.ast.Name name) {
-		this.node = node;
-		this.name = name;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitVariantNillaryConstructor(this);
-	}
-
-	public boolean isNillaryConstructor() { return true; }
-
-	public boolean hasName() { return true; }
-
-private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public NillaryConstructor setName(org.meta_environment.rascal.ast.Name x) { 
-		NillaryConstructor z = new NillaryConstructor();
- 		z.$setName(x);
-		return z;
-	}	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
 }

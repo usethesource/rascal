@@ -5,6 +5,7 @@ package org.meta_environment.rascal.interpreter;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -16,21 +17,22 @@ import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.Import.Default;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
+import org.meta_environment.rascal.ast.ShellCommand.Test;
+import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class CommandEvaluator extends Evaluator {
-//	private final ConsoleReader console;
 	private ConsoleParser parser;
 
 	
 	public CommandEvaluator(IValueFactory f, Writer errorWriter,
 			ModuleEnvironment scope, GlobalEnvironment heap) {
 		this(f, errorWriter, scope, heap, new ConsoleParser());
-//		this.console = console;
 	}
 	
 	
@@ -39,7 +41,6 @@ public class CommandEvaluator extends Evaluator {
 			ConsoleParser consoleParser) {
 		super(vf, errorWriter, root, heap, consoleParser);
 		this.parser = consoleParser;
-//		console = null;
 	}
 	
 	public IConstructor parseCommand(String command) throws IOException {
@@ -82,6 +83,12 @@ public class CommandEvaluator extends Evaluator {
 		return null;
 	}
 
+	@Override
+	public Result<IValue> visitShellCommandTest(Test x) {
+		List<FailedTestError> report = runTests();
+		return ResultFactory.makeResult(tf.stringType(), vf.string(report(report)), this);
+	}
+	
 //	@Override
 //	public Result<IValue> visitShellCommandHistory(History x) {
 //		try {

@@ -97,10 +97,7 @@ public class TypeDeclarationEvaluator {
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredTypeError(altName, var);
 				}
-			} else if (var.isNillaryConstructor()) {
-				ConstructorFunction cons = env.constructor(var, eval, adt, altName, new Object[] {});
-				cons.setPublic(true); // TODO: implement declared visibility
-			}
+			} 
 		}
 	}
 

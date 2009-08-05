@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.env;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
+import org.meta_environment.rascal.ast.Test;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
@@ -39,6 +41,7 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<Type, List<Type>> extensions;
 	protected final TypeStore typeStore;
 	protected final Map<String, ConcreteSyntaxType> concreteSyntaxTypes;
+	protected final List<Test> tests;
 	private Set<String> importedSDFModules = new HashSet<String>();
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -49,6 +52,7 @@ public class ModuleEnvironment extends Environment {
 		this.extensions = new HashMap<Type, List<Type>>();
 		this.concreteSyntaxTypes = new HashMap<String, ConcreteSyntaxType>();
 		this.typeStore = new TypeStore();
+		this.tests = new LinkedList<Test>();
 	}
 	
 	public boolean isModuleEnvironment() {
@@ -58,6 +62,22 @@ public class ModuleEnvironment extends Environment {
 	public void addImport(String name, ModuleEnvironment env) {
 		importedModules.put(name, env);
 		typeStore.importStore(env.typeStore);
+	}
+	
+	public void addTest(Test test) {
+		tests.add(0, test);
+	}
+	
+	public List<Test> getTests() {
+		LinkedList<Test> all = new LinkedList<Test>();
+		
+		all.addAll(tests);
+		
+		for (String i : getImports()) {
+			all.addAll(getImport(i).getTests());
+		}
+		
+		return all;
 	}
 	
 	public void addSDFImport(String name) {

@@ -1,50 +1,7 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Type extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); }
-public boolean hasSymbol() { return false; }
-public boolean isSymbol() { return false; }
-static public class Symbol extends Type {
-/** symbol:Symbol -> Type {cons("Symbol")} */
-	private Symbol() {
-		super();
-	}
-	public Symbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitTypeSymbol(this);
-	}
-
-	public boolean isSymbol() { return true; }
-
-	public boolean hasSymbol() { return true; }
-
-private org.meta_environment.rascal.ast.Symbol symbol;
-	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
-	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
-	public Symbol setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
-		Symbol z = new Symbol();
- 		z.$setSymbol(x);
-		return z;
-	}	
-}
-static public class Ambiguity extends Type {
-  private final java.util.List<org.meta_environment.rascal.ast.Type> alternatives;
-  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Type> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.meta_environment.rascal.ast.Type> getAlternatives() {
-	return alternatives;
-  }
-  
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitTypeAmbiguity(this);
-  }
-} 
-public org.meta_environment.rascal.ast.BasicType getBasic() { throw new UnsupportedOperationException(); }
+  public org.meta_environment.rascal.ast.BasicType getBasic() { throw new UnsupportedOperationException(); }
 public boolean hasBasic() { return false; }
 public boolean isBasic() { return false; }
 static public class Basic extends Type {
@@ -72,7 +29,22 @@ private org.meta_environment.rascal.ast.BasicType basic;
  		z.$setBasic(x);
 		return z;
 	}	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.StructuredType getStructured() { throw new UnsupportedOperationException(); }
+}
+static public class Ambiguity extends Type {
+  private final java.util.List<org.meta_environment.rascal.ast.Type> alternatives;
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Type> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.node = node;
+  }
+  public java.util.List<org.meta_environment.rascal.ast.Type> getAlternatives() {
+	return alternatives;
+  }
+  
+  public <T> T accept(IASTVisitor<T> v) {
+     return v.visitTypeAmbiguity(this);
+  }
+} 
+public org.meta_environment.rascal.ast.StructuredType getStructured() { throw new UnsupportedOperationException(); }
 public boolean hasStructured() { return false; }
 public boolean isStructured() { return false; }
 static public class Structured extends Type {
@@ -100,8 +72,7 @@ private org.meta_environment.rascal.ast.StructuredType structured;
  		z.$setStructured(x);
 		return z;
 	}	
-} 
-public org.meta_environment.rascal.ast.FunctionType getFunction() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.FunctionType getFunction() { throw new UnsupportedOperationException(); }
 public boolean hasFunction() { return false; }
 public boolean isFunction() { return false; }
 static public class Function extends Type {
@@ -243,6 +214,35 @@ private org.meta_environment.rascal.ast.Type type;
 	public Bracket setType(org.meta_environment.rascal.ast.Type x) { 
 		Bracket z = new Bracket();
  		z.$setType(x);
+		return z;
+	}	
+} 
+public org.meta_environment.rascal.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); }
+public boolean hasSymbol() { return false; }
+public boolean isSymbol() { return false; }
+static public class Symbol extends Type {
+/** symbol:Symbol -> Type {cons("Symbol")} */
+	private Symbol() {
+		super();
+	}
+	public Symbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
+		this.node = node;
+		this.symbol = symbol;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeSymbol(this);
+	}
+
+	public boolean isSymbol() { return true; }
+
+	public boolean hasSymbol() { return true; }
+
+private org.meta_environment.rascal.ast.Symbol symbol;
+	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
+	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
+	public Symbol setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
+		Symbol z = new Symbol();
+ 		z.$setSymbol(x);
 		return z;
 	}	
 }
