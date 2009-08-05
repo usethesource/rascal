@@ -36,6 +36,11 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
+	public boolean hasNext() {
+		return pat.hasNext();
+	}
+	
+	@Override
 	public Type getType(Environment env) {
 		CallOrTree prod = (CallOrTree) callOrTree.getArguments().get(0);
 		
