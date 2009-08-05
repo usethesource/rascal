@@ -191,6 +191,12 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::ReachingDefs;");
 		assertTrue(runTestInSameEvaluator("demo::ReachingDefs::test();"));
 	}
+	
+	@Test
+	public void Slicing() {
+		prepare("import demo::Slicing;");
+		assertTrue(runTestInSameEvaluator("demo::Slicing::test();"));
+	}
 
 	@Test
 	public void Squares() {
