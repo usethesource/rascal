@@ -1,4 +1,4 @@
-module experiment::Parsing::LRGen
+module experiments::Parsing::LRGen
 
 import List;
 import Set;

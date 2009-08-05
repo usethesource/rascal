@@ -1,8 +1,11 @@
-module experiment::Parsing::GRD
+module experiments::Parsing::GRD
 
 
 // Experiment: Generalized Recursive Descent Parsing.
-// See A. Johnstone & Elisabeth Scott, Generalised Recursive Descent Parsing and Follow Determinism,
+// See A. Johnstone & Elisabeth Scott, 
+// Generalised Recursive Descent Parsing and Follow Determinism,
+// Proceedings of Compiler Construction 98,
+// LNCS 1383, pp. 16-30, 1998
 //
 
 import List;
