@@ -1,21 +1,25 @@
 module demo::Trans
 
-// Compute transitive closure using solve
+import UnitTest;
+
+// Compute transitive closure: R+ = R + (R o R) + (R o R o R) + ...
 
 public rel[int,int] trans(rel[int,int] R){
 
-	rel[int,int] R1 =  R;
-
-    rel[int,int] T = R1;
+  rel[int,int] T = R;
 	
-	solve (T) 
-	  T = T + (T o R1);
+  solve (T) {
+    T = T + (T o R);
+  }
 
-	return T;
+  return T;
 }
 
 public bool test()
 {
-	return trans({<1,2>, <2,3>, <3,4>}) ==  {<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};
+  assertEqual(trans({<1,2>, <2,3>, <3,4>}),
+              {<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>}
+             );
+  return report("Trans");
 }
 
