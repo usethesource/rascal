@@ -5,6 +5,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
 import static org.meta_environment.rascal.interpreter.utils.Utils.unescape;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.MalformedURLException;
@@ -201,6 +202,7 @@ import org.meta_environment.rascal.interpreter.utils.Profiler;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.utils.Symbols;
 import org.meta_environment.rascal.parser.ModuleParser;
+import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
@@ -263,6 +265,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				java.util.List<String> result = new LinkedList<String>();
 				//System.err.println("getproperty user.dir: " + System.getProperty("user.dir"));
 				result.add(System.getProperty("user.dir"));
+				result.add(new File(System.getProperty("user.dir"),"src").getAbsolutePath()); // hack for demo directory
 				result.add(Configuration.getSdfLibraryPathProperty());
 				return result;
 			}
@@ -840,9 +843,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitPatternWithActionArbitrary(Arbitrary x) {
 		IMatchingResult pv = x.getPattern().accept(makePatternEvaluator(x));
 		Type pt = pv.getType(getCurrentEnvt());
+		
+		// TODO store rules for concrete syntax on production rule and
+		// create Lambda's for production rules to speed up matching and
+		// rewrite rule look up
+		if (pt instanceof ConcreteSyntaxType) {
+			pt = Factory.Tree_Appl;
+		}
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		heap.storeRule(pv.getType(getCurrentModuleEnvironment()), x, getCurrentModuleEnvironment());
+		heap.storeRule(pt, x, getCurrentModuleEnvironment());
 		return ResultFactory.nothing();
 	}
 
@@ -854,9 +864,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitPatternWithActionReplacing(Replacing x) {
 		IMatchingResult pv = x.getPattern().accept(makePatternEvaluator(x));
 		Type pt = pv.getType(getCurrentEnvt());
+		
+		if (pt instanceof ConcreteSyntaxType) {
+			pt = Factory.Tree_Appl;
+		}
+		
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		heap.storeRule(pv.getType(getCurrentModuleEnvironment()), x, getCurrentModuleEnvironment());
+		heap.storeRule(pt, x, getCurrentModuleEnvironment());
 		return ResultFactory.nothing();
 	}
 

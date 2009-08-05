@@ -18,7 +18,6 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.ASTStatistics;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Command;
-
 import org.meta_environment.rascal.ast.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.IntegerLiteral;
@@ -32,11 +31,8 @@ import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
-import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.Symbols;
-import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.ProductionAdapter;
@@ -140,7 +136,12 @@ public class ASTBuilder {
 	private AbstractAST buildContextFreeNode(IConstructor in)  {
 		TreeAdapter tree = new TreeAdapter(in);
 
-		String cons = capitalize(tree.getConstructorName());
+		String constructorName = tree.getConstructorName();
+		if (constructorName == null) {
+			throw new ImplementationError("All Rascal productions should have a constructor name: " + tree.getProduction().getTree());
+		}
+		
+		String cons = capitalize(constructorName);
 		String sort = sortName(tree);
 		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 
