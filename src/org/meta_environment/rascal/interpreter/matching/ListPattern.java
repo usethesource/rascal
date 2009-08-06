@@ -46,7 +46,7 @@ public class ListPattern extends AbstractMatchingResult  {
 	private boolean firstMatch;						// First match after initialization?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = false;
+	private boolean debug = true;
 
 	
 	public ListPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list){
@@ -153,27 +153,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				if(!patVar.isAnonymous() && allVars.contains(name)){
 					throw new RedeclaredVariableError(name, getAST());
 				}
-				
-				// TODO JURGEN thinks this code is dead, it is handled by the AbstractPatternConcreteListVariable case
-				if (listSubject.getType().isListType() && childType instanceof ConcreteSyntaxType) {
-					throw new ImplementationError("We thought this code was dead");
-					
-//					ConcreteSyntaxType cType = (ConcreteSyntaxType)childType;
-//					if (cType.isConcreteCFList()) {
-//						ConcreteSyntaxType eType = cType.getConcreteCFListElementType();
-//						if (listSubject.getType().getElementType().comparable(eType)) {
-//							// Copied from below
-//							if(!patVar.isAnonymous()) {
-//								allVars.add(name);
-//							}
-//							isListVar[i] = true;
-//							isBindingVar[i] = true;
-//							listVarOccurrences[i] = 1;
-//							nListVar++;
-//						}
-//					}
-				}
-				else if(childType.comparable(listSubject.getType())){                                       // <------- change to let this work for concrete lists as well
+				else if(childType.comparable(listSubject.getType())){                                   
 					/*
 					 * An explicitly declared list variable.
 					 */
