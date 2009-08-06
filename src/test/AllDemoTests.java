@@ -17,7 +17,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Rules::AbstractBoolVisit;");
 		assertTrue(runTestInSameEvaluator("demo::Rules::AbstractBoolVisit::test();"));
 	}
-
+	
 	@Test
 	public void AbstractInteger() {
 		prepare("import demo::Rules::AbstractInteger;");
@@ -29,7 +29,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::AbstractPico::Assembly;");
 		assertTrue(runTestInSameEvaluator("demo::AbstractPico::Assembly::test();"));
 	}
-	
+
 	@Test
 	public void AbstractPicoCommonSubexpression() {
 		prepare("import demo::AbstractPico::CommonSubexpression;");
@@ -41,13 +41,13 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::AbstractPico::ConstantPropagation;");
 		assertTrue(runTestInSameEvaluator("demo::AbstractPico::ConstantPropagation::test();"));
 	}
-
+	
 	@Test
 	public void AbstractPicoControlflow() {
 		prepare("import demo::AbstractPico::Controlflow;");
 		assertTrue(runTestInSameEvaluator("demo::AbstractPico::Controlflow::test();"));
 	}
-
+	
 	@Test
 	public void AbstractPicoEval() {
 		prepare("import demo::AbstractPico::Eval;");
@@ -89,7 +89,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Bubble;");
 		assertTrue(runTestInSameEvaluator("demo::Bubble::test();"));
 	}
-	
+
 	@Test
 	public void Calls() {
 		prepare("import demo::Calls;");
@@ -101,7 +101,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::CarFDL;");
 		assertTrue(runTestInSameEvaluator("demo::CarFDL::test();"));
 	}
-
+	
 	@Test
 	public void ColoredTrees() {
 		prepare("import demo::ColoredTrees;");
@@ -113,13 +113,19 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Rules::ConcreteBool;");
 		assertTrue(runTestInSameEvaluator("demo::Rules::ConcreteBool::test();"));
 	}
-	
+
+	@Test
+	public void ConcretePicoTypecheck() {
+		prepare("import demo::ConcretePico::Typecheck;");
+		assertTrue(runTestInSameEvaluator("demo::ConcretePico::Typecheck::test();"));
+	}
+
 	@Test
 	public void Cycles() {
 		prepare("import demo::Cycles;");
 		assertTrue(runTestInSameEvaluator("demo::Cycles::test();"));
 	}
-
+	
 	@Test
 	public void Dominators() {
 		prepare("import demo::Dominators;");
@@ -131,7 +137,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Factorial;");
 		assertTrue(runTestInSameEvaluator("demo::Factorial::test();"));
 	}
-	
+
 	@Test
 	public void FunAbstract() {
 		prepare("import demo::Fun::FunAbstract;");
@@ -167,17 +173,35 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Lift;");
 		assertTrue(runTestInSameEvaluator("demo::Lift::test();"));
 	}
-
+	
 	@Test
 	public void LRGen() {
 		prepare("import experiments::Parsing::LRGen;");
 		assertTrue(runTestInSameEvaluator("experiments::Parsing::LRGen::test();"));
 	}
-
+	
 	@Test
 	public void McCabe() {
 		prepare("import demo::McCabe;");
 		assertTrue(runTestInSameEvaluator("demo::McCabe::test();"));
+	}
+
+	@Test
+	public void ModelTransformationsBook2Publication() {
+		prepare("import experiments::ModelTransformations::Book2Publication;");
+		assertTrue(runTestInSameEvaluator("test();"));
+	}
+
+	@Test
+	public void ModelTransformationsFamilies2Persons() {
+		prepare("import experiments::ModelTransformations::Families2Persons;");
+		assertTrue(runTestInSameEvaluator("test();"));
+	}
+	
+	@Test
+	public void ModelTransformationsTree2List() {
+		prepare("import experiments::ModelTransformations::Tree2List;");
+		assertTrue(runTestInSameEvaluator("test();"));
 	}
 
 	@Test
