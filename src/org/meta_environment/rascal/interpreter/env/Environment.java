@@ -213,9 +213,7 @@ public class Environment {
 		if (result == null) {
 			return parent.getAllFunctions(name);
 		}
-		else {
-			return parent.getAllFunctions(name).join(result);
-		}
+		return parent.getAllFunctions(name).join(result);
 	}
 
 	public void storeParameterType(Type par, Type type) {

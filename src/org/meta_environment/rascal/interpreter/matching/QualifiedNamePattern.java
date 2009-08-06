@@ -89,42 +89,38 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 			ctx.getCurrentEnvt().storeVariable(name, subject);
 			return true;
 		}
+		// either bind the variable or check for equality
+		
+		Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(name);
+		if (varRes == null) {
+			// inferred declaration
+			declaredType = subject.getType();
+			if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
+				throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
+			}
+			ctx.getCurrentEnvt().storeVariable(name, subject);
+			iWroteItMySelf = true;
+			return true;
+		}
+		else if (varRes.getValue() == null) {
+			declaredType = varRes.getType();
+			if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
+				throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
+			}
+			ctx.getCurrentEnvt().storeVariable(name, subject);
+			iWroteItMySelf = true;
+			return true;
+		}
 		else {
-			// either bind the variable or check for equality
-			
-			Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(name);
-			if (varRes == null) {
-				// inferred declaration
-				declaredType = subject.getType();
-				if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
-					throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
+			// equality check
+			if (subject.getValue().getType().isSubtypeOf(varRes.getType())) {
+				if(debug) {
+					System.err.println("returns " + subject.equals(varRes));
 				}
-				ctx.getCurrentEnvt().storeVariable(name, subject);
-				iWroteItMySelf = true;
-				return true;
-			}
-			else if (varRes.getValue() == null) {
-				declaredType = varRes.getType();
-				if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
-					throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
-				}
-				ctx.getCurrentEnvt().storeVariable(name, subject);
-				iWroteItMySelf = true;
-				return true;
-			}
-			else {
-				// equality check
-				if (subject.getValue().getType().isSubtypeOf(varRes.getType())) {
-					if(debug) {
-						System.err.println("returns " + subject.equals(varRes));
-					}
 //					iWroteItMySelf = false;
-					return subject.equals(varRes, ctx).isTrue();
-				}
-				else {
-					return false;
-				}
+				return subject.equals(varRes, ctx).isTrue();
 			}
+			return false;
 		}
 	}
 	

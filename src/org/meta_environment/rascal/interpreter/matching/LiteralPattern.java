@@ -45,9 +45,8 @@ public class LiteralPattern extends AbstractMatchingResult {
 			if (literal.getType().isBoolType()) {
 				return ((IBool) literal).getValue(); 
 			}
-			else {
-				throw new UnexpectedTypeError(tf.boolType(), literal.getType(), ctx.getCurrentAST());
-			}
+			
+			throw new UnexpectedTypeError(tf.boolType(), literal.getType(), ctx.getCurrentAST());
 		}
 		
 		

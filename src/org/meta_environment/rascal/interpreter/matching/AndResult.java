@@ -51,9 +51,7 @@ public class AndResult extends AbstractBooleanResult {
 				right.init();
 				return right.next();
 			}
-			else {
-				return false;
-			}
+			return false;
 		}
 		
 		if (leftResult && right.hasNext()) {
@@ -70,8 +68,6 @@ public class AndResult extends AbstractBooleanResult {
 			right.init();
 			return right.next();
 		}
-		else {
-			return false;
-		}
+		return false;
 	}
 }

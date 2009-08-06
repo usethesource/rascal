@@ -98,23 +98,22 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 				System.err.println("matches");
 			}
 			return true;
-		} 
-		else {
-			TreeAdapter subjectTree = new TreeAdapter((IConstructor) subject.getValue());
-			if (subjectTree.isList()) {
-				if (((IList)subjectTree.getArgs()).isEmpty()) {
-					SymbolAdapter sym = new SymbolAdapter(declaredType.getSymbol()).getSymbol();
-					if (sym.isIterPlus() || sym.isIterPlusSep()) {
-						return false;
-					}
+		}
+		
+		TreeAdapter subjectTree = new TreeAdapter((IConstructor) subject.getValue());
+		if (subjectTree.isList()) {
+			if ((subjectTree.getArgs()).isEmpty()) {
+				SymbolAdapter sym = new SymbolAdapter(declaredType.getSymbol()).getSymbol();
+				if (sym.isIterPlus() || sym.isIterPlusSep()) {
+					return false;
 				}
-				if (subjectTree.getProduction().getRhs().getTree().isEqual(declaredType.getSymbol())) {
-					ctx.getCurrentEnvt().storeVariable(name, subject);
-				}
-				if (debug)
-					System.err.println("matches");
-				return true;
 			}
+			if (subjectTree.getProduction().getRhs().getTree().isEqual(declaredType.getSymbol())) {
+				ctx.getCurrentEnvt().storeVariable(name, subject);
+			}
+			if (debug)
+				System.err.println("matches");
+			return true;
 		}
 		
 // 		if (debug)

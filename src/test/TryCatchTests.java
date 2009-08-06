@@ -7,7 +7,6 @@ import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
-import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class TryCatchTests extends TestFramework {

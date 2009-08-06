@@ -115,9 +115,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 			if (rhs.isIterPlusSep() || rhs.isIterStarSep()) {
 				return 1;
 			}
-			else {
-				return 0;
-			}
+			return 0;
 		}
 		else if (rhs.isCf()) {
 			rhs = rhs.getSymbol();
@@ -125,9 +123,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 			if (rhs.isIterPlusSep() || rhs.isIterStarSep()) {
 				return 3;
 			}
-			else {
-				return 1;
-			}
+			return 1;
 		}
 		else {
 			return 0;

@@ -62,7 +62,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 		
 		firstTime = true;
 		hasNext = true;
-	};
+	}
 	
 	private void makeIterator(Type subjectType, IValue subjectValue){
 		Type patType = pat.getType(ctx.getCurrentEnvt());

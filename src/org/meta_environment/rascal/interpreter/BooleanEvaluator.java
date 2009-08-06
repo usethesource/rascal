@@ -87,9 +87,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 	public IBooleanResult visitExpressionLiteral(Literal x) {
 		if (x.getLiteral().isBoolean()) {
 			return new BasicBooleanResult(vf, ctx, x);
-		} else {
-			throw new UnexpectedTypeError(tf.boolType(), x.accept(ctx.getEvaluator()).getType(), x);
 		}
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -415,15 +414,12 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionEnumerator(Enumerator x) {
-		return new EnumeratorResult(vf, ctx, (IMatchingResult) x.getPattern()
-				.accept(pe), null, x.getExpression());
+		return new EnumeratorResult(vf, ctx, x.getPattern().accept(pe), null, x.getExpression());
 	}
 
 	@Override
-	public IBooleanResult visitExpressionEnumeratorWithStrategy(
-			EnumeratorWithStrategy x) {
-		return new EnumeratorResult(vf, ctx, (IMatchingResult) x.getPattern()
-				.accept(pe), x.getStrategy(), x.getExpression());
+	public IBooleanResult visitExpressionEnumeratorWithStrategy(EnumeratorWithStrategy x){
+		return new EnumeratorResult(vf, ctx, x.getPattern().accept(pe), x.getStrategy(), x.getExpression());
 	}
 
 	@Override

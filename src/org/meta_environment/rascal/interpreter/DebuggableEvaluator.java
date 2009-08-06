@@ -170,17 +170,17 @@ public class DebuggableEvaluator extends Evaluator {
 		suspendExpression(x);
 		if (!stepOver) {
 			return super.visitExpressionCallOrTree(x);
-		} else {
-			boolean oldStatementStepMode = statementStepMode;
-			boolean oldExpressionStepMode = expressionStepMode;
-			setStatementStepMode(false);
-			setExpressionStepMode(false);
-			Result<IValue> res = super.visitExpressionCallOrTree(x);
-			setStatementStepMode(oldStatementStepMode);
-			setExpressionStepMode(oldExpressionStepMode);
-			stepOver = false;
-			return res;
 		}
+		
+		boolean oldStatementStepMode = statementStepMode;
+		boolean oldExpressionStepMode = expressionStepMode;
+		setStatementStepMode(false);
+		setExpressionStepMode(false);
+		Result<IValue> res = super.visitExpressionCallOrTree(x);
+		setStatementStepMode(oldStatementStepMode);
+		setExpressionStepMode(oldExpressionStepMode);
+		stepOver = false;
+		return res;
 	}
 
 	@Override
