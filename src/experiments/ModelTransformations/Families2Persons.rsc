@@ -29,7 +29,7 @@ alias Persons = set[Person];
 // families2persons
 
 public Persons families2persons(Families families){
-   return {person(gender(m), m.firstName, f.lastName) | f <- families, m <- fam.members};
+   return {person(gender(m), m.firstName, f.lastName) | f <- families, m <- f.members};
 }
 
 Gender gender(Member mem){
@@ -55,6 +55,6 @@ public bool test(){
                      person(mr(),  "Dylan",   "Sailor"),
                      person(mrs(), "Kelly",   "Sailor")
                    };
-  assertEqual(families2persons(inp), outp);
+  assertEqual(families2persons(input), output);
   return report();       
 }
