@@ -111,11 +111,11 @@ public class ListPattern extends AbstractMatchingResult  {
 		if (!subject.getType().isListType()) {
 			hasNext = false;
 			return;
-		} else {
-			listSubject = (IList) subject.getValue();
-			listSubjectType = listSubject.getType();
-			listSubjectElementType = listSubject.getElementType();
 		}
+		listSubject = (IList) subject.getValue();
+		listSubjectType = listSubject.getType();
+		listSubjectElementType = listSubject.getElementType();
+		
 		subjectCursor = 0;
 		patternCursor = 0;
 		subjectSize = ((IList) subject.getValue()).length();
@@ -341,11 +341,9 @@ public class ListPattern extends AbstractMatchingResult  {
 		 
 		
 		// TODO: wrap concrete lists in an appl(list( )) again.
-		if(start > subjectSize)
-			return listSubject.sublist(0,0);
-		else {
-			return listSubject.sublist(start, length);
-		}
+		if(start > subjectSize) return listSubject.sublist(0,0);
+		
+		return listSubject.sublist(start, length);
 	}
 	
 	/*

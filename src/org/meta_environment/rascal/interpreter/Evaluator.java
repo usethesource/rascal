@@ -1477,13 +1477,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						return body.accept(this);
-					} else {
-						i++;
-						gens[i] = makeBooleanResult(generators.get(i));
-						gens[i].init();
-						olds[i] = getCurrentEnvt();
-						goodPushEnv();
 					}
+					
+					i++;
+					gens[i] = makeBooleanResult(generators.get(i));
+					gens[i].init();
+					olds[i] = getCurrentEnvt();
+					goodPushEnv();
 				} else {
 					unwind(olds[i]);
 					goodPushEnv();
@@ -1520,13 +1520,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						return body.accept(this);
-					} else {
-						i++;
-						gens[i] = makeBooleanResult(generators.get(i));
-						gens[i].init();
-						olds[i] = getCurrentEnvt();
-						goodPushEnv();
 					}
+					
+					i++;
+					gens[i] = makeBooleanResult(generators.get(i));
+					gens[i].init();
+					olds[i] = getCurrentEnvt();
+					goodPushEnv();
 				} else {
 					unwind(olds[i]);
 					goodPushEnv();
@@ -1664,7 +1664,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new UndeclaredVariableError(name.toString(), x);
 		}
 		
-		if (variable != null && variable.getValue() == null) {
+		if (variable.getValue() == null) {
 			throw new UninitializedVariableError(name.toString(), x);
 		}
 		

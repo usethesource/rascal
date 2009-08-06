@@ -4,7 +4,6 @@ import org.eclipse.imp.pdb.facts.INode;
 public class ASTFactory {
 private MappingCache<INode, Object> ambCache = new MappingCache<INode, Object>();
 private MappingCache<INode, Object> sortCache = new MappingCache<INode, Object>();
-private MappingCache<INode, Object> otherSortCache = new MappingCache<INode, Object>();
 private MappingCache<INode, Object> lexCache = new MappingCache<INode, Object>();
 
 public org.meta_environment.rascal.ast.Marker.Ambiguity makeMarkerAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Marker> alternatives) { 

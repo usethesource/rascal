@@ -35,7 +35,7 @@ public class MatchResult extends AbstractBooleanResult {
 		Type subjectType = result.getType();
 
 		if (mp == null) {
-			mp = (IMatchingResult) pattern.accept(new PatternEvaluator(vf, ctx));
+			mp = pattern.accept(new PatternEvaluator(vf, ctx));
 		}
 		
     	mp.initMatch(expression.accept(ctx.getEvaluator()));

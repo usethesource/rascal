@@ -51,9 +51,7 @@ public class OrResult extends AbstractBooleanResult {
 				hasNext = false;
 				return true;
 			}
-			else {
-				ctx.unwind(old);
-			}
+			ctx.unwind(old);
 		}
 		
 		if (right.hasNext()) {
@@ -63,9 +61,7 @@ public class OrResult extends AbstractBooleanResult {
 				hasNext = false;
 				return true;
 			}
-			else {
-				ctx.unwind(old);
-			}
+			ctx.unwind(old);
 		}
 		
 		hasNext = false;

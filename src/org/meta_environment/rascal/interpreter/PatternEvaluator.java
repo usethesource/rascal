@@ -260,7 +260,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		
 		int i = 0;
 		for(org.meta_environment.rascal.ast.Expression e : elements){
-			args.add(i++, (IMatchingResult) e.accept(this));
+			args.add(i++, e.accept(this));
 		}
 		return args;
 	}
@@ -271,7 +271,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		
 		int i = 0;
 		for(org.meta_environment.rascal.ast.Expression e : elements){
-			args.add(i++, (IMatchingResult) e.accept(this));
+			args.add(i++, e.accept(this));
 		}
 		return args;
 	}
@@ -368,13 +368,13 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	public IMatchingResult visitExpressionGuarded(Guarded x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		Type type =  te.eval(x.getType(), ctx.getCurrentEnvt());
-		IMatchingResult absPat = (IMatchingResult) x.getPattern().accept(this);
+		IMatchingResult absPat = x.getPattern().accept(this);
 		return new GuardedPattern(vf, ctx, type, absPat);
 	}
 	
 	@Override
 	public IMatchingResult visitExpressionAnti(Anti x) {
-		IMatchingResult absPat = (IMatchingResult) x.getPattern().accept(this);
+		IMatchingResult absPat = x.getPattern().accept(this);
 		return new AntiPattern(vf, ctx, absPat);
 	}
 	
@@ -385,7 +385,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	
 	@Override
 	public IMatchingResult visitExpressionDescendant(Descendant x) {
-		IMatchingResult absPat = (IMatchingResult) x.getPattern().accept(this);
+		IMatchingResult absPat = x.getPattern().accept(this);
 		return new DescendantPattern(vf,ctx, absPat);
 	}
 	
@@ -587,12 +587,12 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	}
 	@Override
 	public IMatchingResult visitExpressionEnumerator(Enumerator x) {
-		return new EnumeratorResult(vf, ctx, (IMatchingResult) x.getPattern().accept(this), null, x.getExpression());
+		return new EnumeratorResult(vf, ctx, x.getPattern().accept(this), null, x.getExpression());
 	}
 	@Override
 	public IMatchingResult visitExpressionEnumeratorWithStrategy(
 			EnumeratorWithStrategy x) {
-		return new EnumeratorResult(vf, ctx, (IMatchingResult) x.getPattern().accept(this), x.getStrategy(), x.getExpression());
+		return new EnumeratorResult(vf, ctx, x.getPattern().accept(this), x.getStrategy(), x.getExpression());
 	}
 	
 	@Override

@@ -6,8 +6,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
-import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
-
 
 public class ComprehensionTests extends TestFramework {
 	
