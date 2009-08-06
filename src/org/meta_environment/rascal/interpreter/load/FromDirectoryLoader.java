@@ -10,7 +10,7 @@ import java.io.InputStream;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
 
-public class FromDirectoryLoader{
+public class FromDirectoryLoader implements IModuleFileLoader{
 	private final String directory;
 	
 	public FromDirectoryLoader(String directory){
