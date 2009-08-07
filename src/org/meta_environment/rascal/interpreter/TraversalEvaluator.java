@@ -330,25 +330,35 @@ public class TraversalEvaluator {
 	public TraverseResult applyCasesOrRules(Result<IValue> subject, CasesOrRules casesOrRules) {
 		if(casesOrRules.hasCases()){
 			for (Case cs : casesOrRules.getCases()) {
-				eval.setCurrentAST(cs);
-				if (cs.isDefault()) {
-					cs.getStatement().accept(eval);
-					return new TraverseResult(true,subject);
-				}
+				Environment old = eval.getCurrentEnvt();
+				
+				try {
+					eval.goodPushEnv();
+					eval.setCurrentAST(cs);
+					if (cs.isDefault()) {
+						cs.getStatement().accept(eval);
+						return new TraverseResult(true,subject);
+					}
 
-				TraverseResult tr = applyOneRule(subject, cs.getPatternWithAction());
-				if(tr.matched){
-					return tr;
+					TraverseResult tr = applyOneRule(subject, cs.getPatternWithAction());
+					if(tr.matched){
+						return tr;
+					}
+				}
+				finally {
+					eval.unwind(old);
 				}
 			}
 		} else {
 			//System.err.println("hasRules");
 			for(RewriteRule rule : casesOrRules.getRules()){
-				eval.setCurrentAST(rule.getRule());
 				Environment oldEnv = eval.getCurrentEnvt();
-				eval.setCurrentEnvt(rule.getEnvironment());
-				eval.goodPushEnv();
+				
 				try {
+					eval.setCurrentAST(rule.getRule());
+					eval.setCurrentEnvt(rule.getEnvironment());
+					eval.goodPushEnv();
+
 					TraverseResult tr = applyOneRule(subject, rule.getRule());
 					if(tr.matched){
 						return tr;
