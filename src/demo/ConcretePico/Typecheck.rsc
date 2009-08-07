@@ -1,5 +1,6 @@
 module demo::ConcretePico::Typecheck
 
+import demo::ConcretePico::Programs;
 import languages::pico::syntax::Pico;
 import languages::pico::syntax::Identifiers;
 import languages::pico::syntax::Types;
@@ -87,7 +88,7 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
     return [message("Type error: expected <Type> got <E>")];
 }
 
-public bool test(){
+public bool test() {
   assertEqual(tcp(small), []);
   assertEqual(tcp(fac), []);
   assertEqual(tcp(big), []);

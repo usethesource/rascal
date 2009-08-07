@@ -70,9 +70,9 @@ public BLOCK cflow(STATEMENT Stat){
 
 public bool test(){
   
-	assertEqual(cflow(annotate(small)), block({0},{<9,6>,<1,6>,<3,1>,<0,9>,<6,3>},{6}));
+	assertEqual(cflow(annotate(small)), block({0},{<0,1>,<3,7>,<7,12>,<12,3>,<1,12>},{12}));
           
-	assertEqual(cflow(annotate(fac)), block({0},{<11,18>,<1,16>,<3,18>,<13,11>,<23,16>,<16,13>,<0,25>,<18,5>,<5,3>,<25,23>,<18,1>},{16}));
+	assertEqual(cflow(annotate(fac)), block({0},{<1,3>,<5,7>,<7,37>,<3,32>,<0,1>,<9,13>,<32,5>,<27,32>,<13,37>,<37,27>,<37,9>},{32}));
 
 	return report("AbstractPico::ControlFlow");
 }
