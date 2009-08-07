@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -261,23 +262,32 @@ public class PatternTests extends TestFramework {
 		runTestInSameEvaluator("{p = or(t,t); and(t,t) := p;}");
 	}
 	
-	@Test(expected=StaticError.class)
+	@Test(expected=RedeclaredVariableError.class)
+	public void matchListError12() {
+		runTest("{list[int] x = [1,2,3]; [1, list[int] L, 2, list[int] L] := x;}");
+	}
+	
+	@Test(expected=UnexpectedTypeError.class)
 	public void matchListError1() {
-		runTest("[1, list[int] L, 2, list[int] L] := [1,2,3];");
+		runTest("{list[int] x = [1,2,3]; [1, list[int] L, 2, list[int] M] := x;}");
+	}
+	
+	public void matchListError11() {
+		assertFalse(runTest("[1, list[int] L, 2, list[int] L] := [1,2,3];"));
 	}
 	
 	public void matchListError2() {
 		assertFalse(runTest("[1, list[str] L, 2] := [1,2,3];"));
 	}
 	
-	@Test(expected=StaticError.class)
+	@Test(expected=UnexpectedTypeError.class)
 	public void matchListError22() {
 		runTest("{ list[int] l = [1,2,3]; [1, list[str] L, 2] := l; }");
 	}
 	
 	@Test
 	public void matchListFalse3() {
-		assertFalse(runTest("[1, str S, 2] := [1,2,3];"));
+		assertFalse(runTest("{ list[value] l = [1,2,3]; [1, str S, 2] := l;}"));
 	}
 	
 	@Test(expected=StaticError.class)
