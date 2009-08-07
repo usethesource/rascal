@@ -31,14 +31,12 @@ import IO;
      list[Element] mediumElements = [];
      list[Element] largeElements = [];
      visit(t.children){
-        case leaf(str name, small()): smallElements += common(name);
+        case leaf(str name, small()):  smallElements  += common(name);
         case leaf(str name, medium()): mediumElements += common(name);
-        case leaf(str name, large()): largeElements += common(name);
+        case leaf(str name, large()):  largeElements  += common(name);
      }
-     //TODO is the travesal order of this visit really leftmost innermost?
-     
-     println("largeElements: <largeElements>\nmediumElements: <mediumElements>\nsmallElements: <smallElements>");
-     return [root] + largeElements + mediumElements + smallElements;
+        
+     return [root, largeElements, mediumElements, smallElements];
    }
    // "Root element is not a treeNode";
  }
