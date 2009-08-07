@@ -267,9 +267,8 @@ public class PatternTests extends TestFramework {
 		runTest("{list[int] x = [1,2,3]; [1, list[int] L, 2, list[int] L] := x;}");
 	}
 	
-	@Test(expected=UnexpectedTypeError.class)
 	public void matchListError1() {
-		runTest("{list[int] x = [1,2,3]; [1, list[int] L, 2, list[int] M] := x;}");
+		assertTrue(runTest("{list[int] x = [1,2,3]; [1, list[int] L, 2, list[int] M] := x;}"));
 	}
 	
 	public void matchListError11() {
