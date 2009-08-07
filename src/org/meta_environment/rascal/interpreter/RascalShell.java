@@ -95,7 +95,13 @@ public class RascalShell {
 			}
 			catch (Throw e) {
 				console.printString("Uncaught Rascal Exception: " + e.getMessage() + "\n");
-				console.printString(e.getTrace());
+				String trace = e.getTrace();
+				if (trace != null) {
+					console.printString(trace);
+				}
+				else {
+					e.printStackTrace();
+				}
 			}
 			catch (ImplementationError e) {
 				e.printStackTrace();
