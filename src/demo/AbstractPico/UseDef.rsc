@@ -56,13 +56,13 @@ public rel[PicoId, ProgramPoint] defs(PROGRAM P) {
  
 public bool test(){
 
-  assertEqual(uses(annotate(small)), {<"x",3>,<"s",1>,<"x",6>});  
+  assertEqual(uses(annotate(small)), {<"x",3>,<"x",12>,<"s",7>} );  
   
-  assertEqual(defs(annotate(small)), {<"s",1>,<"x",3>,<"x",9>});
+  assertEqual(defs(annotate(small)), {<"s",7>,<"x",1>,<"x",3>});
   
-  assertEqual(uses(annotate(fac)), {<"output",5>,<"rep",5>,<"input",11>,<"output",13>,<"input",16>,<"input",1>,<"repnr",3>,<"repnr",18>}); 
+  assertEqual(uses(annotate(fac)), {<"repnr",37>,<"rep",9>,<"output",5>,<"repnr",13>,<"input",27>,<"input",32>,<"output",9>,<"input",7>}); 
 
-  assertEqual(defs(annotate(fac)), {<"output",23>,<"output",5>,<"input",25>,<"repnr",11>,<"input",1>,<"rep",13>,<"repnr",3>});
+  assertEqual(defs(annotate(fac)), {<"repnr",7>,<"output",9>,<"input",1>,<"repnr",13>,<"input",27>,<"rep",5>,<"output",3>} );
 
   return report("AbstractPico::UseDef");
 }
