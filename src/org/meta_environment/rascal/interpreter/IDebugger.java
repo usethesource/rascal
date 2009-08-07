@@ -16,4 +16,6 @@ public interface IDebugger {
 
 	public void stopStepping();
 
+	public void destroy();
+
 }
