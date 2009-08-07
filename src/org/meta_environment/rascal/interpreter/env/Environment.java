@@ -213,6 +213,7 @@ public class Environment {
 		if (result == null) {
 			return parent.getAllFunctions(name);
 		}
+		
 		return parent.getAllFunctions(name).join(result);
 	}
 

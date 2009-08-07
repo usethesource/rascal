@@ -191,7 +191,7 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			funs = funs.join(mod.getLocalPublicFunctions(name));
+			funs = mod.getLocalPublicFunctions(name).join(funs);
 		}
 
 		return funs;
