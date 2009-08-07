@@ -2108,7 +2108,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		try {
 			IMatchingResult mp = pat.accept(makePatternEvaluator(pat));
 			mp.initMatch(subject);
-			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
+	        //System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
 			while (mp.hasNext()){
 				//System.err.println("mp.hasNext()==true; mp=" + mp);
@@ -2125,11 +2125,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 							}
 						}
 						if(trueConditions){
-							//System.err.println("evaluating replacement expression: " + replacementExpr);
+						   //System.err.println("evaluating replacement expression: " + replacementExpr);
 							throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(replacementExpr.accept(this), mp);		
 						}
 					} catch (Failure e){
-						//System.err.println("failure occurred");
+						System.err.println("failure occurred");
 					}
 				}
 			}
