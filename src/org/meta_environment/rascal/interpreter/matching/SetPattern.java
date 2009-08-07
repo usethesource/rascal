@@ -138,7 +138,7 @@ public class SetPattern extends AbstractMatchingResult {
 		}
 		
 		setSubject = (ISet) subject.getValue();
-		setSubjectType = setSubject.getType();
+		setSubjectType = subject.getType(); // have to use static type here
 		setSubjectElementType = setSubject.getElementType();
 		Environment env = ctx.getCurrentEnvt();
 		fixedSetElements = vf.set(getType(env).getElementType());
