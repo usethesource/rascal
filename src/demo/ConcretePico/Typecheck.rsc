@@ -1,6 +1,6 @@
 module demo::ConcretePico::Typecheck
 
-//import languages::pico::syntax::Pico;
+import languages::pico::syntax::Pico;
 import languages::pico::syntax::Identifiers;
 import languages::pico::syntax::Types;
 import basic::NatCon;
@@ -14,35 +14,33 @@ import UnitTest;
  * Typechecker for Pico.
  */
  
+\PICO-ID P = [|x|];  //HACK: force introduction of type PICO-ID
+ 
 alias PICO_ID = \PICO-ID;
 
-PICO_ID P = [|x|];
+\ID-TYPE IT = [|x:natural|]; //HACK: force introduction of type \ID-TYPE
+
+alias ID_TYPE = \ID-TYPE;
 
 /***********************************
 
 alias Env = map[PICO_ID, TYPE];
 
 public list[Message] tcp(PROGRAM P) {
-    if([| begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
-           Env Env = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
-         return tcs(Stats, Env);
- /  }
-    return [message("Malformed Pico program")];
+    if([| begin declare <{ID_TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
+       Env Env = (Id : Type | [| <PICO_ID Id> : <TYPE Type> |] <- Decls);
+       return tcs(Stats, Env);
+   }
+   return [message("Malformed Pico program")];
 }
 
-
-
 public list[Message] tcs(list[STATEMENT] Stats, Env Env){
-    list[Message] messages = [];
-    for(STATEMENT S <- Stats){
-    	messages = [messages, tcst(S, Env)];
-    }
-    return messages;
+    return [tcst(S, Env) | STATEMENT S <- Stats];
 }
 
 public list[Message] tcst(STATEMENT Stat, Env Env) {
     switch (Stat) {
-      case [| <\PICO-ID Id> : <EXP Exp> |]:
+      case [| <PICO_ID Id> : <EXP Exp> |]:
         return requireType(Exp, Env[Id], Env);  // TODO: undefined variable
 
       case [| if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
@@ -62,7 +60,7 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
 
       case StrCon S: if(Type == string) { return []; } else fail;
 
-      case \PICO-ID Id: {
+      case PICO_ID Id: {
          TYPE Type2 = Env[Id];
          if(Type2 == Type) { return []; } else fail;
       }
@@ -84,16 +82,17 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
           return requireType(E1, string, Env) + 
                  requireType(E2, string, Env);
         } else fail;
-      
-      }
+    }
     
-      return [message("Type error: expected <Type> got <E>")];
+    return [message("Type error: expected <Type> got <E>")];
+}
+
+public bool test(){
+  assertEqual(tcp(small), []);
+  assertEqual(tcp(fac), []);
+  assertEqual(tcp(big), []);
+  
+  return report("ConcretePico::Typecheck");
 }
 
 *************************/
-
-public bool test(){
-    println("P = <P>");
-	return true;
-}
-

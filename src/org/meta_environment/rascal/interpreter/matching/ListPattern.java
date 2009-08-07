@@ -46,7 +46,7 @@ public class ListPattern extends AbstractMatchingResult  {
 	private boolean firstMatch;						// First match after initialization?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 
 	
 	public ListPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list){
@@ -540,6 +540,7 @@ public class ListPattern extends AbstractMatchingResult  {
 						if(debug)System.err.println("AbstractPatternList.match: child matches, subjectCursor=" + subjectCursor);
 					} else {
 						forward = false;
+						//  why is here no subjectCursor -= delta;  needed?
 						patternCursor -= delta;
 					}
 				} else {
@@ -549,6 +550,7 @@ public class ListPattern extends AbstractMatchingResult  {
 						subjectCursor += delta;
 						patternCursor += delta;
 					} else {
+						if(debug)System.err.println("child has no next:" + child);
 						forward = false;
 						subjectCursor -= delta;
 						patternCursor -= delta;

@@ -485,7 +485,8 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	private String QmoduleM = "module M\n" +
 	                         "import languages::pico::syntax::Pico;\n" +
-	                         "public Tree t1 = [|begin declare x: natural; x := 10 end|];\n";
+	                         "public Tree t1 = [|begin declare x: natural; x := 10 end|];\n" +
+	                         "public Tree t2 = [|declare x : natural;|];\n";
 	
 	@Test
 	public void PicoQuoted0() {
@@ -532,6 +533,20 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepareModule(QmoduleM + "public bool match6() { return [|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := t1; }");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match6();"));
+	}
+	
+	@Test
+	public void PicoQuoted7(){
+		prepareModule(QmoduleM + "public bool match7() { return [| begin declare <{\\ID-TYPE \",\" }* decls>; <{STATEMENT \";\"}* Stats> end |] := t1; }");
+		prepareMore("import M;");
+		assertTrue(runTestInSameEvaluator("match7();"));
+	}
+	
+	@Test
+	public void PicoQuoted8(){
+		prepareModule(QmoduleM + "public bool match8() { return [| declare <{\\ID-TYPE \",\" }* decls>; |] := t2; }");
+		prepareMore("import M;");
+		assertTrue(runTestInSameEvaluator("match8();"));
 	}
 	
 	private String UQmoduleM = "module M\n" +

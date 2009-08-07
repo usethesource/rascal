@@ -162,16 +162,24 @@ public class NodePattern extends AbstractMatchingResult {
 		
 		if(!(firstMatch || hasNext))
 			return false;
-		firstMatch = false;
 
 		if (name != null) {
 			boolean nameNext = name.next();
 			if (!nameNext) {
+				firstMatch = hasNext = false;
 				return false;
 			}
 		}
+		
+		if(children.size() == 0){
+			boolean res = firstMatch;
+			firstMatch = hasNext = false;
+			return res;	
+		}
+	   
+		firstMatch = false;
 		hasNext = matchChildren(treeSubject.getChildren().iterator(), children.iterator());
-
+		
 		return hasNext;
 	}
 	

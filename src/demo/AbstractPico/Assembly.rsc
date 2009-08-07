@@ -4,6 +4,10 @@ import demo::AbstractPico::AbstractSyntax;
 import Integer;
 import UnitTest;
 
+// Compile Pico to Assembly
+
+// The abstract syntax of assembly language for a stack-based machine
+
 public data Instr =
       dclNat(PicoId Id)
     | dclStr(PicoId Id)
@@ -22,6 +26,8 @@ public data Instr =
 	| gotrue(str label)
 	| gofalse(str label)
 	;
+	
+// Generate unique labels
 
 private int nLabel = 0;
 
@@ -29,6 +35,9 @@ private str nextLabel(){
 	nLabel += 1;
 	return "L" + toString(nLabel);
 }
+
+// Actual code generation defined by functions for different syntactic
+// categories. Each function returns a lsit of instructions
 
 public list[Instr] compileProgram(PROGRAM P){
     nLabel = 0;

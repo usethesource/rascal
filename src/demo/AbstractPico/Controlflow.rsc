@@ -19,7 +19,7 @@ public BLOCK cflow(PROGRAM P){
             CFG = ({0} * ControlFlow.entry) + ControlFlow.graph;
             return block({0}, CFG, ControlFlow.exit);
     }
-    return false;
+    throw("Malformed Pcio program");;
 }
 
 public BLOCK cflow(list[STATEMENT] Stats){ 
@@ -37,7 +37,7 @@ public BLOCK cflow(list[STATEMENT] Stats){
       }
       case []: return block({}, {}, {});
     }
-     println("cflow returns no value");
+    throw("cflow returns no value");
 }
 
 public BLOCK cflow(STATEMENT Stat){
@@ -65,7 +65,7 @@ public BLOCK cflow(STATEMENT Stat){
          
       case STATEMENT Stat1: return block({Stat1@pos}, {}, {Stat1@pos});
     }
-    println("cflowstat returns no value");
+    throw("cflowstat returns no value");
 }
 
 public bool test(){
