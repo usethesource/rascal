@@ -343,11 +343,11 @@ public class TraversalEvaluator {
 			}
 		} else {
 			//System.err.println("hasRules");
-
 			for(RewriteRule rule : casesOrRules.getRules()){
 				eval.setCurrentAST(rule.getRule());
 				Environment oldEnv = eval.getCurrentEnvt();
 				eval.setCurrentEnvt(rule.getEnvironment());
+				eval.goodPushEnv();
 				try {
 					TraverseResult tr = applyOneRule(subject, rule.getRule());
 					if(tr.matched){
@@ -589,8 +589,8 @@ public class TraversalEvaluator {
 		 */
 
 		// weird side-effect but it works
-		declareConcreteSyntaxType(tr.value.getValue());
-
+		// I don't think we need this anymore
+//		declareConcreteSyntaxType(tr.value.getValue());
 		return tr.value;
 	}
 
