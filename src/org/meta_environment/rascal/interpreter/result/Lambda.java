@@ -167,7 +167,7 @@ public class Lambda extends Result<IValue> implements IValue {
 		
 		try {
 			ctx.setCurrentEnvt(new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), name));
-			ctx.goodPushEnv();
+			ctx.pushEnv();
 			
 			bindTypeParameters(actualTypesTuple, instantiatedFormals, ctx.getCurrentEnvt());
 

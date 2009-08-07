@@ -439,44 +439,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		return makeResult(instance, v, this);
 	}
-
-
-
-	public Environment pushEnv() {
-		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
-		setCurrentEnvt(env);
-		return env;
-	}
 	
 	public void unwind(Environment old) {
+		// TODO why not just replace the current env with the old one??
 		while (getCurrentEnvt() != old) {
-			goodPopEnv();
+			setCurrentEnvt(getCurrentEnvt().getParent());
+			getCurrentEnvt();
 		}
 	}
 
-	public void goodPushEnv() {
+	public void pushEnv() {
 		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
 		setCurrentEnvt(env);
 	}
 
-	public Environment goodPopEnv() {
-		setCurrentEnvt(getCurrentEnvt().getParent());
-		return getCurrentEnvt();
-	}
-
-	public Environment popEnv() {
-		setCurrentEnvt(getCurrentEnvt().getParent());
-		return getCurrentEnvt();
-	}
-
 	Environment pushEnv(Statement s) {
-		/* use the same name as the current envt */
-		Environment env = new Environment(getCurrentEnvt(), s.getLocation(), getCurrentEnvt().getName());
-		setCurrentEnvt(env);
-		return env;
-	}
-	
-	Environment goodPushEnv(Statement s) {
 		/* use the same name as the current envt */
 		Environment env = new Environment(getCurrentEnvt(), s.getLocation(), getCurrentEnvt().getName());
 		setCurrentEnvt(env);
@@ -1038,7 +1015,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Environment old = getCurrentEnvt();
 		
 		try {
-			goodPushEnv();
+			pushEnv();
 			return x.getExpression().accept(this);
 		}
 		finally {
@@ -1257,7 +1234,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> r = nothing();
 		Environment old = getCurrentEnvt();
 
-		goodPushEnv(x);
+		pushEnv(x);
 		try {
 			for (Statement stat : x.getStatements()) {
 				setCurrentAST(stat);
@@ -1472,7 +1449,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			gens[0] = makeBooleanResult(generators.get(0));
 			gens[0].init();
 			olds[0] = getCurrentEnvt();
-			goodPushEnv();
+			pushEnv();
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
@@ -1483,10 +1460,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					gens[i] = makeBooleanResult(generators.get(i));
 					gens[i].init();
 					olds[i] = getCurrentEnvt();
-					goodPushEnv();
+					pushEnv();
 				} else {
 					unwind(olds[i]);
-					goodPushEnv();
+					pushEnv();
 					i--;
 				}
 			}
@@ -1514,7 +1491,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			gens[0] = makeBooleanResult(generators.get(0));
 			gens[0].init();
 			olds[0] = getCurrentEnvt();
-			goodPushEnv();
+			pushEnv();
 			
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
@@ -1526,10 +1503,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					gens[i] = makeBooleanResult(generators.get(i));
 					gens[i].init();
 					olds[i] = getCurrentEnvt();
-					goodPushEnv();
+					pushEnv();
 				} else {
 					unwind(olds[i]);
-					goodPushEnv();
+					pushEnv();
 					i--;
 				}
 			}
@@ -1556,7 +1533,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			try {
 				gen = makeBooleanResult(generator);
 				gen.init();
-				goodPushEnv();
+				pushEnv();
 				if(gen.hasNext() && gen.next()){
 					result = body.accept(this);
 				}
@@ -2085,14 +2062,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	boolean matchAndEval(Result<IValue> subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
 		Environment old = getCurrentEnvt();
-		goodPushEnv();
+		pushEnv();
 		
 		try {
 			IMatchingResult mp = pat.accept(makePatternEvaluator(pat));
 			mp.initMatch(subject);
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
-				goodPushEnv();
+				pushEnv();
 				//System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
 					//System.err.println("matchAndEval: mp.next()==true");
@@ -2590,21 +2567,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			gens[0] = makeBooleanResult(generators.get(0));
 			gens[0].init();
 			olds[0] = getCurrentEnvt();
-			goodPushEnv();
+			pushEnv();
 
 			while (i >= 0 && i < size) {
 				if (gens[i].hasNext() && gens[i].next()) {
 					if(i == size - 1){
 						w.append();
 						unwind(olds[i]);
-						goodPushEnv();
+						pushEnv();
 					} 
 					else {
 						i++;
 						gens[i] = makeBooleanResult(generators.get(i));
 						gens[i].init();
 						olds[i] = getCurrentEnvt();
-						goodPushEnv();
+						pushEnv();
 					}
 				} else {
 					unwind(olds[i]);
@@ -2661,7 +2638,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			gens[0] = makeBooleanResult(generators.get(0));
 			gens[0].init();
 			olds[0] = getCurrentEnvt();
-			goodPushEnv();
+			pushEnv();
 			
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
@@ -2672,12 +2649,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 						gens[i] = makeBooleanResult(generators.get(i));
 						gens[i].init();
 						olds[i] = getCurrentEnvt();
-						goodPushEnv();
+						pushEnv();
 					}
 				} else {
 					unwind(olds[i]);
 					i--;
-					goodPushEnv();
+					pushEnv();
 				}
 			}
 		} finally {
@@ -2762,7 +2739,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				currentValue[i] = getCurrentEnvt().getVariable(var).getValue();
 			}
 
-			goodPushEnv();
+			pushEnv();
 			Statement body = x.getBody();
 
 			int max = -1;

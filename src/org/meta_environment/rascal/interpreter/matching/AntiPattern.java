@@ -44,7 +44,7 @@ public class AntiPattern extends AbstractMatchingResult {
 
 		while (pat.hasNext()) {
 			try {
-				ctx.goodPushEnv();
+				ctx.pushEnv();
 				if (pat.next()) {
 					stop = true;
 					return false;

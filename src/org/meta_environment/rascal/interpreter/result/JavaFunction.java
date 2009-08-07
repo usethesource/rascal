@@ -44,7 +44,7 @@ public class JavaFunction extends Lambda {
 
 		Environment old = ctx.getCurrentEnvt();
 		try {
-			ctx.goodPushEnv();
+			ctx.pushEnv();
 			IValue result = invoke(actuals);
 
 			Type actualTypesTuple;
