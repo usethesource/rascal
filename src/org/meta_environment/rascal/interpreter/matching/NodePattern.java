@@ -42,6 +42,10 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public void initMatch(Result<IValue> subject){
+		if(debug){
+			System.err.println("AbstractPatternNode: initMatch");
+			System.err.println("AbstractPatternNode: subject type=" + subject.getType());
+		}
 		super.initMatch(subject);
 		hasNext = false;
 		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){

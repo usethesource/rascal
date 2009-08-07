@@ -172,7 +172,7 @@ public class TraversalEvaluator {
 		boolean changed = false;
 		Result<IValue> result = subject;
 
-		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
+		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType() + ", direction=" + direction + ", progress=" + progress);
 		if(subjectType.isStringType()){
 			return traverseString(subject, casesOrRules);
 		}
@@ -301,7 +301,7 @@ public class TraversalEvaluator {
 							}
 
 		if(direction == DIRECTION.BottomUp){
-			
+			//System.err.println("traverseOnce: bottomup: changed=" + changed);
 			if((progress == PROGRESS.Breaking) && changed){
 				return new TraverseResult(matched, result, changed);
 			}
@@ -328,6 +328,7 @@ public class TraversalEvaluator {
 	 */
 
 	public TraverseResult applyCasesOrRules(Result<IValue> subject, CasesOrRules casesOrRules) {
+		//System.err.println("applyCasesOrRules: " + subject.getValue());
 		if(casesOrRules.hasCases()){
 			for (Case cs : casesOrRules.getCases()) {
 				Environment old = eval.getCurrentEnvt();
@@ -341,6 +342,7 @@ public class TraversalEvaluator {
 					}
 
 					TraverseResult tr = applyOneRule(subject, cs.getPatternWithAction());
+					//System.err.println("applyCasesOrRules: matches");
 					if(tr.matched){
 						return tr;
 					}
@@ -382,7 +384,7 @@ public class TraversalEvaluator {
 		try {
 			return applyCasesOrRules(subject, casesOrRules);	
 		} catch (org.meta_environment.rascal.interpreter.control_exceptions.Insert e) {
-
+			//System.err.println("traversTop(" + subject + "): replacement: " + e.getValue());
 			return replacement(subject, e.getValue());
 		}
 	}
@@ -548,9 +550,11 @@ public class TraversalEvaluator {
 			}
 			 */
 		} else if (rule.isReplacing()) {
+			//System.err.println("applyOneRule: subject=" + subject + ", replacing");
 			Replacement repl = rule.getReplacement();
 			java.util.List<Expression> conditions = repl.isConditional() ? repl.getConditions() : new ArrayList<Expression>();
 			if(eval.matchEvalAndReplace(subject, rule.getPattern(), conditions, repl.getReplacementExpression())){
+				//System.err.println("applyOneRule: matches");
 				return new TraverseResult(true, subject);
 			}
 		} else {
