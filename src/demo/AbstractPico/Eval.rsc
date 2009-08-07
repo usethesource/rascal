@@ -19,7 +19,7 @@ alias VEnv = map[PicoId, PicoValue];
 
 // The global environment
 
-VEnv Env = ();
+public VEnv Env = ();
 
 // The actual evaluation functions
 
