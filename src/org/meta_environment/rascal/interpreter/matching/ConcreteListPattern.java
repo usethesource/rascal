@@ -73,17 +73,6 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			return;
 		}
 		TreeAdapter tree = new TreeAdapter((IConstructor) subject.getValue());
-// Disabled because singletons should matched against list 
-// variables: [|d <D+ Xs>|] := [|d d|];
-// The variable will be a AbstractPatternList...
-//		if (!tree.isCFList()) {
-//			hasNext = false;
-//			return;
-//		}
-//		if (!tree.getProduction().tree.isEqual(prod)) {
-//			hasNext = false;
-//			return;
-//		}
 		pat.initMatch(ResultFactory.makeResult(Factory.Args, tree.getArgs(), ctx));
 		hasNext = true;
 	}
