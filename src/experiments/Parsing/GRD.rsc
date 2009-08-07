@@ -6,7 +6,6 @@ module experiments::Parsing::GRD
 // Generalised Recursive Descent Parsing and Follow Determinism,
 // Proceedings of Compiler Construction 98,
 // LNCS 1383, pp. 16-30, 1998
-//
 
 import List;
 import Set;

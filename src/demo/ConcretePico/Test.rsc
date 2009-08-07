@@ -1,5 +1,7 @@
 module demo::ConcretePico::Test
 
-import languages::pico::syntax::Types;
+import languages::pico::syntax::Identifiers;
 
-TYPE T = [|natural|];
+PICOID P = [|x|];  //HACK: force introduction of type PICOID
+ 
+alias PICO_ID = PICOID;

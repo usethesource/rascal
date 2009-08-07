@@ -9,11 +9,19 @@ import IO;
  * Evaluator for Pico.
  */
  
+ // Define the run-time representation of values
+ 
 data PicoValue = intval(int i) | strval(str s);
+
+// Define the global execution state as a map from identifiers to values
 
 alias VEnv = map[PicoId, PicoValue];
 
+// The global environment
+
 VEnv Env = ();
+
+// The actual evaluation functions
 
 public void evalProgram(PROGRAM P){
     Env = ();

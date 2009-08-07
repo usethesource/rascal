@@ -3,7 +3,7 @@ module demo::AbstractPico::Analysis
 import demo::AbstractPico::AbstractSyntax;
 
 /*
- * Comman abstractions for source code analysis
+ * Common abstractions for source code analysis
  */
 
 alias ProgramPoint = int;
