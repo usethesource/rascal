@@ -7,6 +7,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
 public class PatternTests extends TestFramework {
 
@@ -265,24 +266,42 @@ public class PatternTests extends TestFramework {
 		runTest("[1, list[int] L, 2, list[int] L] := [1,2,3];");
 	}
 	
-	@Test(expected=StaticError.class)
 	public void matchListError2() {
-		runTest("[1, list[str] L, 2] := [1,2,3];");
+		assertFalse(runTest("[1, list[str] L, 2] := [1,2,3];"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchListError22() {
+		runTest("{ list[int] l = [1,2,3]; [1, list[str] L, 2] := l; }");
+	}
+	
+	@Test
+	public void matchListFalse3() {
+		assertFalse(runTest("[1, str S, 2] := [1,2,3];"));
 	}
 	
 	@Test(expected=StaticError.class)
 	public void matchListError3() {
-		runTest("[1, str S, 2] := [1,2,3];");
+		runTest("{ list[int] x = [1,2,3] ; [1, str S, 2] := x;}");
 	}
 	
-	@Test(expected=StaticError.class)
+	
 	public void matchListError4() {
-		runTest("{str S = \"a\"; [1, S, 2] := [1,2,3];}");
+		assertFalse(runTest("{str S = \"a\"; [1, S, 2] := [1,2,3];}"));
 	}
 	
 	@Test(expected=StaticError.class)
+	public void matchListError42() {
+		runTest("{str S = \"a\"; list[int] x = [1,2,3]; [1, S, 2] := x;}");
+	}
+	
 	public void matchListError5() {
-		runTest("{list[str] S = [\"a\"]; [1, S, 2] := [1,2,3];}");
+		assertFalse(runTest("{list[str] S = [\"a\"]; [1, S, 2] := [1,2,3];}"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchListError55() {
+		runTest("{list[str] S = [\"a\"]; list[int] x = [1,2,3]; [1, S, 2] := x;}");
 	}
 	
 	@Test
