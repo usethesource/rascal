@@ -113,8 +113,8 @@ public class ListPattern extends AbstractMatchingResult  {
 			return;
 		}
 		listSubject = (IList) subject.getValue();
-		listSubjectType = listSubject.getType();
-		listSubjectElementType = listSubject.getElementType();
+		listSubjectType = subject.getType(); // use static type here!
+		listSubjectElementType = subject.getType().getElementType(); // use static type here!
 		
 		subjectCursor = 0;
 		patternCursor = 0;
