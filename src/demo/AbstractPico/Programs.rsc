@@ -24,7 +24,7 @@ public PROGRAM annotate(PROGRAM P)
    return bottom-up visit(P){
    case STATEMENT S:
          { N = N + 1; M = N;
-           S1 = top-down-break visit(S){
+           S1 = top-down visit(S){
                 case EXP e: 
                      { N = N + 1; insert e[@pos=N]; }
                 };
