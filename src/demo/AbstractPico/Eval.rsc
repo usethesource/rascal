@@ -35,10 +35,12 @@ public void evalProgram(PROGRAM P){
 
 void evalDecls(list[DECL] Decls){
     visit (Decls) {
-      case decl(PicoId Id, string): { 
+      case decl(PicoId Id, string()): { 
+           println("adding <Id> : string");
            Env[Id] = strval(""); 
       }
-      case decl(PicoId Id, natural): { 
+      case decl(PicoId Id, natural()): {
+           println("adding <Id> : natural") ;
            Env[Id] = intval(0);  
       }
     };
