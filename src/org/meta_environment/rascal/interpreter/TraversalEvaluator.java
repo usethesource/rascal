@@ -230,12 +230,12 @@ public class TraversalEvaluator {
 						IListWriter w = list.getType().writer(vf);
 						Type elemType = list.getType().getElementType();
 						
-						for(int i = len - 1; i >= 0; i--){
+						for(int i = 0; i < len; i++){
 							IValue elem = list.get(i);
 							TraverseResult tr = traverseOnce(ResultFactory.makeResult(elemType, elem, eval), casesOrRules, direction, progress);
 							matched |= tr.matched;
 							changed |= tr.changed;
-							w.insert(tr.value.getValue());
+							w.append(tr.value.getValue());
 						}
 						result = makeResult(subjectType, w.done(), eval);
 					} else {
