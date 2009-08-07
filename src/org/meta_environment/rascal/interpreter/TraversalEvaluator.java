@@ -333,7 +333,7 @@ public class TraversalEvaluator {
 				Environment old = eval.getCurrentEnvt();
 				
 				try {
-					eval.goodPushEnv();
+					eval.pushEnv();
 					eval.setCurrentAST(cs);
 					if (cs.isDefault()) {
 						cs.getStatement().accept(eval);
@@ -357,7 +357,7 @@ public class TraversalEvaluator {
 				try {
 					eval.setCurrentAST(rule.getRule());
 					eval.setCurrentEnvt(rule.getEnvironment());
-					eval.goodPushEnv();
+					eval.pushEnv();
 
 					TraverseResult tr = applyOneRule(subject, rule.getRule());
 					if(tr.matched){

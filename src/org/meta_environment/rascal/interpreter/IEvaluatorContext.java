@@ -12,7 +12,7 @@ public interface IEvaluatorContext {
 	public String getStackTrace();
 	public Evaluator getEvaluator();
 	public Environment getCurrentEnvt();
-	public void goodPushEnv();
+	public void pushEnv();
 	public void unwind(Environment old);
 	public GlobalEnvironment getHeap();
 	public void setCurrentEnvt(Environment environment);

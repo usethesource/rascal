@@ -44,7 +44,7 @@ public class AndResult extends AbstractBooleanResult {
 	public boolean next() {
 		if (firstMatch) {
 			firstMatch = false;
-			ctx.goodPushEnv();
+			ctx.pushEnv();
 			leftResult = left.next();
 			
 			if (leftResult) {
@@ -61,7 +61,7 @@ public class AndResult extends AbstractBooleanResult {
 			return leftResult && rightResult;
 		}
 
-		ctx.goodPushEnv();
+		ctx.pushEnv();
 		leftResult = left.next();
 
 		if (leftResult) {

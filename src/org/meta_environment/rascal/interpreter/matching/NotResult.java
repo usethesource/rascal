@@ -33,7 +33,7 @@ public class NotResult extends AbstractBooleanResult {
 	@Override
 	public boolean next() {
 		Environment old = ctx.getCurrentEnvt();
-		ctx.goodPushEnv();
+		ctx.pushEnv();
 		try {
 			return !arg.next();
 		}

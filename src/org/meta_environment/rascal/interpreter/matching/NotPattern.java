@@ -29,7 +29,7 @@ public class NotPattern extends AbstractMatchingResult {
 	@Override
 	public boolean next() {
 		Environment old = ctx.getCurrentEnvt();
-		ctx.goodPushEnv();
+		ctx.pushEnv();
 		try {
 			return !arg.next();
 		}

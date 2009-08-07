@@ -42,14 +42,14 @@ public class EquivalenceResult extends AbstractBooleanResult {
 			Environment old = ctx.getCurrentEnvt();
 			boolean rightResult;
 			try {
-				ctx.goodPushEnv();
+				ctx.pushEnv();
 				leftResult = left.next();
 			}
 			finally {
 				ctx.unwind(old);
 			}
 			try {
-				ctx.goodPushEnv();
+				ctx.pushEnv();
 				rightResult = right.next();
 			}
 			finally {
@@ -62,7 +62,7 @@ public class EquivalenceResult extends AbstractBooleanResult {
 		if (right.hasNext()) {
 			Environment old = ctx.getCurrentEnvt();
 			try {
-				ctx.goodPushEnv();
+				ctx.pushEnv();
 				return leftResult == right.next();
 			}
 			finally {
@@ -72,7 +72,7 @@ public class EquivalenceResult extends AbstractBooleanResult {
 		
 		Environment old = ctx.getCurrentEnvt();
 		try {
-			ctx.goodPushEnv();
+			ctx.pushEnv();
 			leftResult = left.next();
 		}
 		finally {

@@ -46,7 +46,7 @@ public class OrResult extends AbstractBooleanResult {
 		// note how we clean up introduced variables, but only if one of the branches fails
 		if (left.hasNext()) {
 			Environment old = ctx.getCurrentEnvt();
-			ctx.goodPushEnv();
+			ctx.pushEnv();
 			if (left.next()) {
 				hasNext = false;
 				return true;
@@ -56,7 +56,7 @@ public class OrResult extends AbstractBooleanResult {
 		
 		if (right.hasNext()) {
 			Environment old = ctx.getCurrentEnvt();
-			ctx.goodPushEnv();
+			ctx.pushEnv();
 			if (right.next()) {
 				hasNext = false;
 				return true;

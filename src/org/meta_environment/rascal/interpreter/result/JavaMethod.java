@@ -47,7 +47,7 @@ public class JavaMethod extends Lambda {
 		Environment old = ctx.getCurrentEnvt();
 		
 		try {
-			ctx.goodPushEnv();
+			ctx.pushEnv();
 	
 			IValue result = invoke(actuals);
 
