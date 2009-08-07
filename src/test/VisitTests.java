@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class VisitTests extends TestFramework {
 	
 	@Test
-	public void testCnt()  {
+	public void Cnt()  {
 		String cnt =
 		"int cnt(NODE1 T) {" +
 		"   int C = 0;" +
@@ -31,7 +31,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testDrepl()  {
+	public void Drepl()  {
 		String drepl =
 			
 		// Deep replacement of g by h
@@ -51,7 +51,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testFrepA()  {
+	public void FrepA()  {
 		String frepa =
 		// Replace all nodes g(_,_) by h(_,_)
 		// Using insert
@@ -77,7 +77,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testFrepB()  {
+	public void FrepB()  {
 		String frepb =
 		// Replace all nodes g(_,_) by h(_,_)
 		// Using replacement rule
@@ -102,7 +102,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testFrepG2H3a()  {
+	public void FrepG2H3a()  {
 		String frepG2H3a =
 		// Replace all nodes g(_,_) by h(_,_,_)
 		// Using insert
@@ -128,7 +128,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testFrepG2H3b()  {
+	public void FrepG2H3b()  {
 		String frepG2H3b =
 		// Replace all nodes g(_,_) by h(_,_,_)
 		// Using replacement rule
@@ -152,7 +152,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testInc()  {
+	public void Inc()  {
 		String inc =
 		"	NODE7 inc(NODE7 T) {" +
 		"    return visit(T) {" +
@@ -173,7 +173,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testIncAndCount()  {
+	public void IncAndCount()  {
 		String inc_and_count =
 		// Accumulating transformer that increments integer leaves with 
 		// amount D and counts them as well.
@@ -201,7 +201,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testSrepl()  {
+	public void Srepl()  {
 		String srepl =
 		// Ex6: shallow replacement of g by h (i.e. only outermost 
 		// g's are replaced); 
@@ -221,7 +221,28 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testStringVisit1a()  {
+	public void Order()  {
+		String order =
+		// Extract integers from structure 
+
+		"list[int] order(NODE10 T) {" +
+		"    res = [];" +
+		"    visit (T) {" +
+		"       case int N:  res += N;" +
+		"    };" +
+		"    return res;" +
+		"}";
+		
+		prepare("data NODE10 = f(int I) | g(list[NODE10] L) | h(NODE10 N1, NODE10 N2);");
+	
+		assertTrue(runTestInSameEvaluator("{" + order + "order(f(3)) == [3];}"));
+		assertTrue(runTestInSameEvaluator("{" + order + "order(g([f(1),f(2)])) == [1,2];}"));
+		assertTrue(runTestInSameEvaluator("{" + order + "order(h(f(1),h(f(2),f(3)))) == [1,2,3];}"));
+		assertTrue(runTestInSameEvaluator("{" + order + "order(h(f(1),g([h(f(2),f(3)),f(4),f(5)]))) == [1,2,3,4,5];}"));
+	}
+	
+	@Test
+	public void StringVisit1a()  {
 
 		assertTrue(runTestInSameEvaluator("visit(\"\"){ case /b/: insert \"B\";} == \"\";"));
 		assertTrue(runTestInSameEvaluator("visit(\"a\"){ case /b/: insert \"B\";} == \"a\";"));
@@ -231,7 +252,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testStringVisit1b()  {
+	public void tringVisit1b()  {
 		
 		assertTrue(runTestInSameEvaluator("visit(\"\"){ case /b/ => \"B\"} == \"\";"));
 		assertTrue(runTestInSameEvaluator("visit(\"a\"){ case /b/ => \"B\"} == \"a\";"));
@@ -241,7 +262,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testStringVisit2()  {
+	public void StringVisit2()  {
 		
 		assertTrue(runTestInSameEvaluator("visit(\"\"){ case /b/: insert \"BB\";} == \"\";"));
 		assertTrue(runTestInSameEvaluator("visit(\"a\"){ case /b/: insert \"BB\";} == \"a\";"));
@@ -251,7 +272,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testStringVisit3()  {
+	public void StringVisit3()  {
 		
 		assertTrue(runTestInSameEvaluator("visit(\"\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"\";"));
 		assertTrue(runTestInSameEvaluator("visit(\"a\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AA\";"));
@@ -262,7 +283,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void testStringVisit4()  {
+	public void StringVisit4()  {
 		
 		assertTrue(runTestInSameEvaluator("visit(\"\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"\";"));
 		assertTrue(runTestInSameEvaluator("visit(\"a\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"AA\";"));
@@ -273,7 +294,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test(expected=UnexpectedTypeError.class)
-	public void testWrongInsert()  {
+	public void WrongInsert()  {
 		String vs = "visit ([1,2,3]) {case 1: insert \"abc\";}";
 		assertTrue(runTestInSameEvaluator(vs + " == [\"abc\", 2, 3];"));
 	}
