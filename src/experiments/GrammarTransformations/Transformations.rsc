@@ -10,6 +10,7 @@ import basic::Whitespace;
  * - add a rule
  * - delete a rule
  * - remove all rules for unused non-terminals
+ * - xxxxs
  */
 
 // renameNonTerminal: rename a given non-terminal
