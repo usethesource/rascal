@@ -4,18 +4,17 @@ imports basic/Whitespace
 %% Definition of grammars as used in in grammar transformation examples
 
 exports
-  context-free start-symbols Grammar Rule Symbol NonTerminal Terminal Alternative
+  context-free start-symbols Grammar Rule Symbol NonTerminal Terminal
 
   sorts Grammar Rule Symbol NonTerminal Terminal Alternative
   lexical syntax
-    "<" [A-Za-z0-9\-\_]+ ">"                                           -> NonTerminal
-    "\"" [a-zA-Z\-]+ "\""                                              -> Terminal
+    "<" [A-Za-z0-9\-\_]+ ">"                          -> NonTerminal
+    "\"" [a-zA-Z\-]+ "\""                             -> Terminal
    
   context-free syntax
-    rules: Rule+                                                        -> Grammar
-    symbols: Symbol*                                                    -> Alternative
-    lhs:NonTerminal "::=" rhs:{Alternative "|"}* ";"  -> Rule
-    nonterminal: NonTerminal                                            -> Symbol
-    terminal: Terminal                                                  -> Symbol
+    "grammar" start:NonTerminal "rules" rules: Rule+  -> Grammar
+    lhs:NonTerminal "::=" symbols: Symbol* ";"        -> Rule
+    nonterminal: NonTerminal                          -> Symbol
+    terminal: Terminal                                -> Symbol
    
    
