@@ -1,12 +1,15 @@
 module experiments::GrammarTransformations::Transformations
 
 import Grammar;
+import basic::Whitespace;
 
 /*
  * Simple grammar transformations including:
- * - renaming of terminals
- * - renaming of non-terminals
- * - removal of rules for unused non-terminals
+ * - rename terminal
+ * - rename non-terminal
+ * - add a rule
+ * - delete a rule
+ * - remove all rules for unused non-terminals
  */
 
 // renameNonTerminal: rename a given non-terminal
@@ -14,7 +17,7 @@ import Grammar;
 Grammar renameNonTerminal(Grammar G, NonTerminal from, NonTerminal to){
   return visit(G){
     case [|<from>|] => to;
-  }
+  };
 }
 
 // renameTerminal: rename a given terminal
@@ -22,7 +25,27 @@ Grammar renameNonTerminal(Grammar G, NonTerminal from, NonTerminal to){
 Grammar renameTerminal(Grammar G, Terminal from, Terminal to){
   return visit(G){
     case [|<from>|] => to;
+  };
+}
+
+// addRule: add a rule to a grammar
+
+Grammar addRule(Grammar G, Rule r){
+  if([| grammar <NonTerminal N> rules <Rule+ rules> |] := G){
+    rules2 += rule;
+    return [| grammar N rules <rules2> |];
   }
+  // cannot happen
+}
+
+// delRule: delete a rule from a grammar
+
+Grammar delRule(Grammar G, Rule r){
+  if([| grammar <NonTerminal N> rules <Rule+ rules> |] := G){
+    rules2 -= rule;
+    return [| grammar N rules <rules2> |];
+  }
+  // cannot happen
 }
 
 // getNonTerminalUse: construct a relation that relates each non-terminal at the
@@ -31,8 +54,8 @@ Grammar renameTerminal(Grammar G, Terminal from, Terminal to){
 rel[NonTerminal, NonTerminal] getNonTerminalUse(Grammar G){
   rel[NonTerminal, NonTerminal] use = {};
   visit(G){
-    case [|<Nonterminal N1> ::= <{Alternative "|"}+ alts>;|]: {
-      use += { <N1, N2> | <NonTerminal N2> <- alts };
+    case [|<Nonterminal N1> ::= <Symbol* symbols>;|]: {
+      use += { <N1, N2> | NonTerminal N2 <- symbols };
     }
   }
   return use
@@ -41,7 +64,7 @@ rel[NonTerminal, NonTerminal] getNonTerminalUse(Grammar G){
 // getStart: get the start symbol from the grammar
 
 NonTerminal getStart(Grammar G){
-  if([|<Nonterminal N> ::= <{Alternative "|"}+ alts>; <Rule* rules>|] := G)
+  if([| grammar N rules <Rule+ rules> |] := G)
     return N;
   // cannot happen
 }
@@ -66,11 +89,11 @@ Grammar removeUnused(Grammar G){
 }
 
 public bool test(){
-  Grammar As = [| <A> ::= <A> "a" | ; <C> ::= "c"; |];
+  Grammar As = [| grammar <A> rules <A> ::= <A> "a"; <A> ::= ; <C> ::= "c"; |];
      
-  assertEqual(renameNonTerminal(As, <A>, <B>), [|<B> ::= <B> "a" | ; <C> ::= "c";|]);
-  assertEqual(renameTerminal(As, [|"a"|], [|"b"|]), [|<A> ::= <A> "b" | ; <C> ::= "c";|]);
-  assertEqual(removeUnused(As),  [| <A> ::= <A> "a" | ; |]);
+  assertEqual(renameNonTerminal(As, <A>, <B>), [|grammar <B> rules <B> ::= <B> "a"; <B> ::= ; <C> ::= "c";|]);
+  assertEqual(renameTerminal(As, [|"a"|], [|"b"|]), [|grammar <A> rules <A> ::= <A> "b"; <A> ::= ; <C> ::= "c";|]);
+  assertEqual(removeUnused(As),  [| grammar <A> rules <A> ::= <A> "a"; <A> ::= ; |]);
   
   Grammar Exp = [|
      <Exp> ::= <Exp> "+" <Exp>;
