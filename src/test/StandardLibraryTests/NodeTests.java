@@ -80,43 +80,74 @@ public class NodeTests extends TestFramework {
 	}
 	
 	@Test
-	public void readATermFromFileInt() {
+	public void readATermFromFileInt1() {
 		assertTrue(atermWriteRead("f(1)", "", "makeNode(\"f\", 1)"));
 	}
 	
 	@Test
-	public void readATermFromFileStr() {
+	public void readATermFromFileInt2() {
+		assertTrue(atermWriteRead("f(1)", "", "\"f\"(1)"));
+	}
+	
+	@Test
+	public void readATermFromFileStr1() {
 		assertTrue(atermWriteRead("f(\"abc\")", "", "makeNode(\"f\", \"abc\")"));
 	}
 	
 	@Test
-	public void readATermFromFileList() {
-		assertTrue(atermWriteRead("f([1,2,3])", "", "makeNode(\"f\", 1,2,3)"));
+	public void readATermFromFileStr2() {
+		assertTrue(atermWriteRead("f(\"abc\")", "", "\"f\"(\"abc\")"));
 	}
 	
 	@Test
-	public void readATermFromFileFun() {
-		assertTrue(atermWriteRead("fn()", "", "\"fn()\""));
+	public void readATermFromFileList1() {
+		assertTrue(atermWriteRead("f([1,2,3])", "", "makeNode(\"f\", [1,2,3])"));
 	}
 	
 	@Test
-	public void readATermFromFileFunWithArgs() {
-		assertTrue(atermWriteRead("fn(1,2,3)", "", "makeNode(\"fn\",1,2,3)"));
+	public void readATermFromFileList2() {
+		assertTrue(atermWriteRead("f([1,2,3])", "", "\"f\"([1,2,3])"));
+	}
+	
+	@Test
+	public void readATermFromFileFun1() {
+		assertTrue(atermWriteRead("f()", "", "makeNode(\"f\")"));
+	}
+	
+	@Test
+	public void readATermFromFileFun2() {
+		assertTrue(atermWriteRead("f()", "", "\"f\"()"));
+	}
+	
+	@Test
+	public void readATermFromFileFunWithArgs1() {
+		assertTrue(atermWriteRead("f(1,2,3)", "", "makeNode(\"f\",1,2,3)"));
+	}
+	
+	@Test
+	public void readATermFromFileFunWithArgs2() {
+		assertTrue(atermWriteRead("f(1,2,3)", "", "\"f\"(1,2,3)"));
 	}
 	
 	@Test
 	public void readATermFromFileADT1() {
-		assertTrue(atermWriteRead("fn(1,2,3)", "data FUN = f(int A, int B, int C);", "makeNode(\"fn\",1,2,3)"));
+		assertTrue(atermWriteRead("f(1,2,3)", "data FUN = f(int A, int B, int C);", "makeNode(\"f\",1,2,3)"));
 	}
 	
 	@Test
 	public void readATermFromFileADT2() {
-		assertTrue(atermWriteRead("fn(1,2,3)", "data FUN = f(int A, int B, int C);", "f(1,2,3)"));
+		assertTrue(atermWriteRead("f(1,2,3)", "data FUN = f(int A, int B, int C);", "\"f\"(1,2,3)"));
+	}
+	
+	@Test
+	public void readATermFromFileADT3() {
+		assertTrue(atermWriteRead("f(1,2,3)", "data FUN = f(int A, int B, int C);", "f(1,2,3)"));
 	}
 	
 	@Test
 	public void toStringTest() {
-		assertTrue(runTestInSameEvaluator("{node n = makeNode(\"f\", 1, 2, 3); toString(n) == \"f(1,2,3)\";}"));
+		prepare("import Node;");
+		assertTrue(runTestInSameEvaluator("{node n = \"f\"(1, 2, 3); toString(n) == \"f(1,2,3)\";}"));
 	}
 
 }
