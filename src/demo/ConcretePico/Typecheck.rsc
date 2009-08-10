@@ -23,8 +23,6 @@ alias PICO_ID = \PICO-ID;
 
 alias ID_TYPE = \ID-TYPE;
 
-/***********************************
-
 alias Env = map[PICO_ID, TYPE];
 
 public list[Message] tcp(PROGRAM P) {
@@ -96,4 +94,3 @@ public bool test() {
   return report("ConcretePico::Typecheck");
 }
 
-*************************/
