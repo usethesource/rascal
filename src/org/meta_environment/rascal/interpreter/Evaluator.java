@@ -564,6 +564,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// handleSDFModule only loads the ParseTree module,
 		// yet the SDF module *will* have been loaded
 
+// TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
+		
 		if (isSDFModule(name)) {
 			handleSDFModule(x);
 			return nothing();
