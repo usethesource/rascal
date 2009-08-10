@@ -111,7 +111,12 @@ public class ModuleLoader{
 			
 //			loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
 			
-			return new ASTBuilder(new ASTFactory()).buildModule(tree);
+			Module moduleAst = new ASTBuilder(new ASTFactory()).buildModule(tree);
+			
+			if (moduleAst == null) {
+				throw new ImplementationError("Unexpected implementation error, all ambiguous ast's have been filtered for module " + name, ast.getLocation());
+			}
+			return moduleAst;
 		}catch (FactTypeUseException e){
 			throw new ImplementationError("Unexpected PDB typecheck exception", e);
 		}catch (IOException e){

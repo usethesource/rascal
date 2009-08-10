@@ -644,7 +644,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			module.accept(this);
 			return module;
 		}
-		return null;
+		
+		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
+//		return null;
 		// it was an SDF module
 	}
 
