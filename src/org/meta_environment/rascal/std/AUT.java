@@ -1,25 +1,18 @@
 package org.meta_environment.rascal.std;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
@@ -48,9 +41,10 @@ public class AUT {
 		Type tupleType = types.tupleType(intType, strType, intType);
 		java.lang.String fileName = nameAUTFile.getValue();
 		IRelationWriter rw = values.relationWriter(tupleType);
-		try {
+		BufferedReader bufRead = null;
+		try{
 			FileReader input = new FileReader(fileName);
-			BufferedReader bufRead = new BufferedReader(input);
+			bufRead = new BufferedReader(input);
 			java.lang.String line = bufRead.readLine();
 			line = bufRead.readLine();
 			while (line != null) {
@@ -61,11 +55,14 @@ public class AUT {
 						.integer(field2[1])));
 				line = bufRead.readLine();
 			}
-			bufRead.close();
-
-		} 
-		catch (java.io.IOException e){
+		}catch(java.io.IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}finally{
+			if(bufRead != null){
+				try{
+					bufRead.close();
+				}catch(IOException ioex){/* Ignore. */}
+			}
 		}
 		return rw.done();
 	}
