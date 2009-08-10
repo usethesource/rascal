@@ -17,17 +17,14 @@ import UnitTest;
  
 \PICO-ID P = [|x|];  //HACK: force introduction of type PICO-ID
  
-alias PICO_ID = \PICO-ID;
-
 \ID-TYPE IT = [|x:natural|]; //HACK: force introduction of type \ID-TYPE
 
-alias ID_TYPE = \ID-TYPE;
+alias Env = map[\PICO-ID, TYPE];
 
-alias Env = map[PICO_ID, TYPE];
 
 public list[Message] tcp(PROGRAM P) {
-    if([| begin declare <{ID_TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
-       Env Env = (Id : Type | [| <PICO_ID Id> : <TYPE Type> |] <- Decls);
+   if( [| begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
+       Env Env = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
        return tcs(Stats, Env);
    }
    return [message("Malformed Pico program")];
@@ -37,9 +34,10 @@ public list[Message] tcs(list[STATEMENT] Stats, Env Env){
     return [tcst(S, Env) | STATEMENT S <- Stats];
 }
 
+
 public list[Message] tcst(STATEMENT Stat, Env Env) {
     switch (Stat) {
-      case [| <PICO_ID Id> : <EXP Exp> |]:
+      case [| <\PICO-ID Id> := <EXP Exp> |]:
         return requireType(Exp, Env[Id], Env);  // TODO: undefined variable
 
       case [| if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
@@ -59,7 +57,7 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
 
       case StrCon S: if(Type == string) { return []; } else fail;
 
-      case PICO_ID Id: {
+      case \PICO-ID Id: {
          TYPE Type2 = Env[Id];
          if(Type2 == Type) { return []; } else fail;
       }
