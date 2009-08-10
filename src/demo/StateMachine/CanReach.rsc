@@ -12,17 +12,17 @@ import Relation;
 // (2) Concrete State Machine syntax occurs in the initialization value
 
 {Decl ";"}+ example = 
-    	    state S1;
+    	 [|   state S1;
     	    state S2;
 	    state S3;
 	    trans a: S1 -> S2;
 	    trans b: S2 -> S1;
-	    trans a: S1 -> S3;
+	    trans a: S1 -> S3 |];
 
 // Extract from a give FSM all transitions as a relation
 
 public rel[State, State] getTransitions({Decl ";"}+ fsm){
-   return { <from, to> | trans <IdCon a>: <IdCon from> -> <IdCon to> <- fsm };
+   return { <from, to> | [| trans <IdCon a>: <IdCon from> -> <IdCon to> |] <- fsm };
 }
 
 // Finally print all states that can be reached
@@ -31,7 +31,7 @@ public map[IdCon, set[IdCon]] printCanReach(){
   return ( s: trTransitions[State] | IdCon s <- carrier(getTransitions(fileName)+) );
 }
 
-public boolean test(){
+public bool test(){
   return true;  //TODO
 }
 
