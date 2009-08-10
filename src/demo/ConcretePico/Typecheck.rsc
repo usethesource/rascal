@@ -24,7 +24,7 @@ alias Env = map[\PICO-ID, TYPE];
 
 public list[Message] tcp(PROGRAM P) {
    if( [| begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
-       Env Env = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
+       Env Env = (Id : Type | / [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
        return tcs(Stats, Env);
    }
    return [message("Malformed Pico program")];
