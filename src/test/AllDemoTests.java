@@ -209,12 +209,6 @@ public class AllDemoTests extends TestFramework {
 		prepare("import experiments::Parsing::GRD;");
 		assertTrue(runTestInSameEvaluator("experiments::Parsing::GRD::test();"));
 	}
-	
-	@Test
-	public void ParsingLRGen(){
-		prepare("import experiments::Parsing::LRGen;");
-		assertTrue(runTestInSameEvaluator("experiments::Parsing::LRGen::test();"));
-	}
 
 	@Test
 	public void Queens() {
