@@ -91,6 +91,9 @@ public class ASTBuilder {
 	private AbstractAST buildValue(IValue arg)  {
 		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
 		
+		if (tree.isList()) {
+			throw new ImplementationError("buildValue should not be called on a list");
+		}
 		
 		if (tree.isAmb()) {
 			return filter(tree);
@@ -123,12 +126,21 @@ public class ASTBuilder {
 		IList args = new TreeAdapter(in).getListASTArgs();
 		List<AbstractAST> result = new ArrayList<AbstractAST>(args.length());
 		for (IValue arg: args) {
-			AbstractAST elem = buildValue(arg);
-			
-			if (elem == null) {
-				return null; // filtered
+			TreeAdapter adapter = new TreeAdapter((IConstructor) arg);
+
+			if (adapter.isAmbiguousList()) {
+				// unflattened list due to nested ambiguity
+				List<AbstractAST> elems = filterList(adapter);
+				result.addAll(elems);
 			}
-			result.add(elem);
+			else {
+				AbstractAST elem = buildValue(arg);
+
+				if (elem == null) {
+					return null; // filtered
+				}
+				result.add(elem);
+			}
 		}
 		return result;
 	}
@@ -238,7 +250,6 @@ public class ASTBuilder {
 
 		if (altsOut.size() == 0) {
 			throw new SyntaxError("concrete syntax pattern", tree.getLocation());
-//			throw new ImplementationError("Accidentally all ambiguous alternatives were removed");
 		}
 		
 		if (altsOut.size() == 1) {
@@ -317,7 +328,7 @@ public class ASTBuilder {
 		// we don't support ambiguous lists in Rascal AST's.
 		// if filtering was not successful we have to bail out
 		// the hypothesis is that this can never happen
-		throw new ImplementationError("Unexpected ambiguous list after filtering");
+		throw new ImplementationError("Unexpected ambiguous list after filtering", argTree.getLocation());
 	}
 
 	/**
