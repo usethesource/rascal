@@ -88,7 +88,7 @@ public class ModuleLoader{
 		return tree;
 	}
 
-	public Module loadModule(String name, AbstractAST ast){
+	public Module loadModule(String name, AbstractAST ast) {
 		if(isSdfModule(name)){
 			return null;
 		}

@@ -20,6 +20,7 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.ast.ShellCommand.Test;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -43,8 +44,8 @@ public class CommandEvaluator extends Evaluator {
 		this.parser = consoleParser;
 	}
 	
-	public IConstructor parseCommand(String command) throws IOException {
-		return parser.parseCommand(command);
+	public IConstructor parseCommand(String command, Environment env) throws IOException {
+		return parser.parseCommand(command, env);
 	}
 	
 	public Result<IValue> eval(Command command) {

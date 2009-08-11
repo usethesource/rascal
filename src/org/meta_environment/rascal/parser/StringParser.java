@@ -19,8 +19,8 @@ public class StringParser extends ModuleParser {
 	private static final String OBJECT_LANGUAGE_KEY = "obj";
 
 	public IConstructor parseString(List<String> sdfSearchPath, Set<String> sdfImports, String source) throws IOException {
-		String table = getOrConstructParseTable(sdfImports, sdfSearchPath);
-		IConstructor result = parseFromString(table, "-", source);
+		TableInfo table = getOrConstructParseTable(sdfImports, sdfSearchPath);
+		IConstructor result = parseFromString(table.getTableName(), "-", source);
 		if (result.getConstructorType() == Factory.ParseTree_Summary) {
 			//System.err.println("RESULT = " + result);
 			SubjectAdapter x = new SummaryAdapter(result).getInitialSubject();
@@ -33,29 +33,29 @@ public class StringParser extends ModuleParser {
 		return result;
 	}
 	
-	private String getOrConstructParseTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+	private TableInfo getOrConstructParseTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		if (sdfImports.isEmpty()) {
-			return Configuration.getDefaultParsetableProperty();
+			return new TableInfo(Configuration.getDefaultParsetableProperty());
 		}
 
-		String table = getTable(OBJECT_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		TableInfo table = getTable(OBJECT_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 
 		if (table == null) {
 			return constructUserDefinedSyntaxTable(sdfImports, sdfSearchPath);
 		}
 
-		return table;
+		return table; 
 	}
 	
-	private String constructUserDefinedSyntaxTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
-		String tablefileName = getTableLocation(OBJECT_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+	private TableInfo constructUserDefinedSyntaxTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+		TableInfo tablefileName = getTableLocation(OBJECT_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		
 		Process p = Runtime.getRuntime().exec(new String[] {
 				Configuration.getRascal2TableCommandProperty(),
 				"-u",
 				"-s", getImportParameter(sdfImports),
 				"-p", getSdfSearchPath(sdfSearchPath),
-				"-o", tablefileName
+				"-o", tablefileName.getTableName()
 			}, new String[0], new File(Configuration.getRascal2TableBinDirProperty())
 		);
 		
