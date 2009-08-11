@@ -653,6 +653,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	protected Module evalRascalModule(AbstractAST x,
 			String name) {
 		ModuleEnvironment env = heap.getModule(name);
+		if (env == null) {
+			env = new ModuleEnvironment(name);
+			heap.addModule(env);
+		}
 		Module module = loader.loadModule(name, x, env);
 
 		if (module != null) {
