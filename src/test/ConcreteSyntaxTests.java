@@ -446,6 +446,36 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [| e, <{E \",\"}+ Xs> |] := [|e, e, e|] && [| e, <{E \",\"}+ Xs> |] == [| e, e, e |]; }"));
 	}
+	
+	@Test
+	public void sortsInGrammar(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{A vA; B vB; C vC; D vD; DS vDS; E vE; Es vEs; {E \",\"}+ vES2; true;}"));
+	}
+	
+	@Test
+	public void enumeratorDsUntyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|d d d|]; L == [[|d|], [|d|], [|d|]];}"));
+	}
+	
+	@Test
+	public void enumeratorDsTyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{L = [X | D X <- [|d d d|]; L == [[|d|], [|d|], [|d|]];}"));
+	}
+	
+	@Test
+	public void enumeratorEsUntyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|e, e, e|]; L == [[|e|], [|e|], [|e|]];}"));
+	}
+	
+	@Test
+	public void enumeratorEsTyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{L = [X | E X <- [|e, e, e|]; L == [[|e|], [|e|], [|e|]];}"));
+	}
 
 	@Test
 	public void EvarsTypedInsert3Empty(){
