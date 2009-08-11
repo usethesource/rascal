@@ -499,6 +499,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			return false;
 		}
+		if(large instanceof ConcreteSyntaxType && small instanceof ConcreteSyntaxType){
+			//TODO: Until we have more precise info about the types in the concrete syntax
+			// we just return true here.
+			return true;
+		}
 		if(large.isConstructorType()){
 			for(int i = 0; i < large.getArity(); i++){
 				if(mayOccurIn(small, large.getFieldType(i), seen))
