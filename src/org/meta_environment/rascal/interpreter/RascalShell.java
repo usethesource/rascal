@@ -133,7 +133,7 @@ public class RascalShell {
 
 	private String handleInput(final CommandEvaluator command, StringBuffer statement) throws IOException {
 		StringBuilder result = new StringBuilder();
-		IConstructor tree = evaluator.parseCommand(statement.toString());
+		IConstructor tree = evaluator.parseCommand(statement.toString(), evaluator.getCurrentEnvt());
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			SubjectAdapter s = new SummaryAdapter(tree).getInitialSubject();
@@ -170,7 +170,7 @@ public class RascalShell {
 
 	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException, IOException {
 		String command = statement.toString();
-		IConstructor tree = evaluator.parseCommand(command);
+		IConstructor tree = evaluator.parseCommand(command, evaluator.getCurrentEnvt());
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();

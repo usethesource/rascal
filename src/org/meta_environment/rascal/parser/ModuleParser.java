@@ -2,6 +2,7 @@ package org.meta_environment.rascal.parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
@@ -18,19 +21,47 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
+import org.meta_environment.uptr.SymbolAdapter;
 
 import sglr.IInvoker;
 import sglr.LegacySGLRInvoker;
 import sglr.SGLRInvoker;
 
 public class ModuleParser {
+	private static final String TBL_EXTENSION = ".tbl";
+	private static final String SYMBOLS_EXTENSION = ".symbols";
+	
 	protected static final String META_LANGUAGE_KEY = "meta";
 	private final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
+	
+	public class TableInfo {
+		private String tableName;
+		private String symbolsName;
+		
+		public TableInfo(String defaultParsetableProperty) {
+			this.tableName = defaultParsetableProperty;
+			this.symbolsName = null;
+		}
+		
+		public TableInfo(String tablefileName, String symbolsFileName) {
+			this.tableName = tablefileName;
+			this.symbolsName = symbolsFileName;
+		}
+
+		public String getSymbolsName() {
+			return symbolsName;
+		}
+		
+		public String getTableName() {
+			return tableName;
+		}
+	}
 	
 	private final static IInvoker sglrInvoker;
 	static{
@@ -64,35 +95,95 @@ public class ModuleParser {
 	}
 
 	public IConstructor parseCommand(Set<String> sdfImports, List<String> sdfSearchPath, String fileName, String command) throws IOException {
-		String table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
-		return parseFromString(table, fileName, command);
+		TableInfo table = lookupTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		
+		return parseFromString(table.getTableName(), fileName, command);
 	}
 
-
+	public void generateModuleParser(List<String> sdfSearchPath, Set<String> sdfImports, Environment env) throws IOException {
+		TableInfo info = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		declareConcreteSyntaxTypes(info.getSymbolsName(), env);
+	}
+	
 	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, String fileName, InputStream source) throws IOException {
-		String table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		TableInfo table;
+		if (sdfImports.isEmpty()) {
+			table = new TableInfo(Configuration.getDefaultParsetableProperty());
+		}
+		else {
+			table = getTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		}
+		
+		if (table == null) {
+			throw new ImplementationError("Should have generated table first");
+		}
+		
 		try {
-			return parseFromStream(table, fileName, source);
+			return parseFromStream(table.getTableName(), fileName, source);
 		} catch (FactParseError e) {
 			throw new ImplementationError("parse tree format error", e);
 		} 
 	}
 
+	protected void declareConcreteSyntaxTypes(String symbolsName, Environment env) throws IOException {
+		if (symbolsName == null) {
+			return;
+		}
+		ATermReader reader = new ATermReader();
+		
+		IList symbols = (IList) reader.read(valueFactory, Factory.uptr, Factory.Symbols, new FileInputStream(symbolsName));
+		
+		SymbolAdapter sym;
+		
+		// TODO: should actually also declare all complex symbols, since ones that are used but not present
+		// in any SDF module won't work anyway. 
+		
+		for (IValue symbol : symbols) {
+			sym = new SymbolAdapter((IConstructor) symbol);
+			
+			if (sym.isCf() || sym.isLex()) {
+				sym = sym.getSymbol();
+			}
+			
+			if (sym.isSort()) {
+				String name = sym.getName();
+				
+				if (!name.startsWith("_")) {
+					env.concreteSyntaxType(sym.getName(), (IConstructor) symbol);
+				}
+			}
+		}
+	}
+
 	public IConstructor parseObjectLanguageFile(List<String> sdfSearchPath, Set<String> sdfImports, String fileName) throws IOException {
-		String table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		TableInfo table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		try {
-			return parseFromFile(table, fileName);
+			return parseFromFile(table.getTableName(), fileName);
 		} catch (FactParseError e) {
 			throw new ImplementationError("parse tree format error", e);
 		} 
 	}
 	
-	protected String getOrConstructParseTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+	protected TableInfo lookupTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		if (sdfImports.isEmpty()) {
-			return Configuration.getDefaultParsetableProperty();
+			return new TableInfo(Configuration.getDefaultParsetableProperty());
 		}
 
-		String table = getTable(key, sdfImports, sdfSearchPath);
+		TableInfo table = getTable(key, sdfImports, sdfSearchPath);
+
+		if (table == null) {
+			throw new ImplementationError("Should first generate a table");
+		}
+		
+		return table;
+	}
+	
+	protected TableInfo getOrConstructParseTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+		if (sdfImports.isEmpty()) {
+			return new TableInfo(Configuration.getDefaultParsetableProperty());
+		}
+
+		TableInfo table = getTable(key, sdfImports, sdfSearchPath);
 
 		if (table == null) {
 			return constructUserDefinedSyntaxTable(key, sdfImports, sdfSearchPath);
@@ -126,8 +217,8 @@ public class ModuleParser {
 		return bytesToParseTree(fileName, result);
 	}
 
-	protected String constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
-		String tablefileName = getTableLocation(key, sdfImports, sdfSearchPath);
+	protected TableInfo constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+		TableInfo info = getTableLocation(key, sdfImports, sdfSearchPath);
 
 		//System.err.println(Configuration.getRascal2TableCommandProperty() + " -s " + getImportParameter(sdfImports) + " -p " 
 		//		+ getSdfSearchPath(sdfSearchPath) + " -o " + tablefileName);
@@ -135,7 +226,8 @@ public class ModuleParser {
 				Configuration.getRascal2TableCommandProperty(),
 				"-s", getImportParameter(sdfImports),
 				"-p", getSdfSearchPath(sdfSearchPath),
-				"-o", tablefileName
+				"-o", info.getTableName(),
+				"-S", info.getSymbolsName(),
 		}, new String[0], new File(Configuration.getRascal2TableBinDirProperty()));
 		
 		try{
@@ -149,7 +241,7 @@ public class ModuleParser {
 			p.destroy();
 		}
 
-		return tablefileName;
+		return info;
 	}
 
 	private String joinAsPath(Collection<?> list) {
@@ -173,17 +265,17 @@ public class ModuleParser {
 		return joinAsPath(sdfImports);
 	}
 
-	protected String getTable(String key, Set<String> imports, List<String> sdfSearchPath) throws IOException {
-		String filename = getTableLocation(key, imports, sdfSearchPath);
+	protected TableInfo getTable(String key, Set<String> imports, List<String> sdfSearchPath) throws IOException {
+		TableInfo info = getTableLocation(key, imports, sdfSearchPath);
 
-		if (!new File(filename).canRead()) {
+		if (!new File(info.getTableName()).canRead()) {
 			return null;
 		}
 
-		return filename;
+		return info;
 	}
 
-	protected String getTableLocation(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+	protected TableInfo getTableLocation(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		List<String> sorted = new ArrayList<String>(sdfImports);
 		Collections.sort(sorted);
 		InputStream in = null;
@@ -207,7 +299,9 @@ public class ModuleParser {
 			byte[] result = new byte[32];
 			in.read(result);
 
-			return new File(Configuration.getTableCacheDirectoryProperty(), parseTableFileName(key, result)).getAbsolutePath();
+			String tableFile = new File(Configuration.getTableCacheDirectoryProperty(), parseTableFileName(key, result)).getAbsolutePath();
+			String symbolsFile = new File(Configuration.getTableCacheDirectoryProperty(), symbolsFileName(result)).getAbsolutePath();
+			return new TableInfo(tableFile, symbolsFile);
 		}catch(InterruptedException e){
 			throw new IOException("could not compute table location: " + e.getMessage());
 		}finally{
@@ -217,8 +311,12 @@ public class ModuleParser {
 		}
 	}
 
+	private String symbolsFileName(byte[] result) {
+		return new String(result) + SYMBOLS_EXTENSION;
+	}
+
 	private String parseTableFileName(String key, byte[] result){
-		return new String(result) + "-" + key + ".tbl";
+		return new String(result) + "-" + key + TBL_EXTENSION;
 	}
 
 }

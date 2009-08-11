@@ -81,7 +81,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void addSDFImport(String name) {
-		importedSDFModules.add(name);	
+		importedSDFModules.add(name);
 	}
 	
 	public Set<String> getSDFImports() {

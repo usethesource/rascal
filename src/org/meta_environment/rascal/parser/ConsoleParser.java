@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.meta_environment.rascal.ast.Import.Default;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 
 public class ConsoleParser extends ModuleParser {
@@ -28,9 +29,9 @@ public class ConsoleParser extends ModuleParser {
 		this.loader = loader;
 	}
 	
-	public IConstructor parseCommand(String command) throws IOException {
-		String table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, getSdfSearchPath());
-		return parseFromString(table, "-", command);
+	public IConstructor parseCommand(String command, Environment env) throws IOException {
+		TableInfo table = lookupTable(META_LANGUAGE_KEY, sdfImports, getSdfSearchPath());
+		return parseFromString(table.getTableName(), "-", command);
 	}
 	
 	public void addSdfImportForImportDefault(Default x) {

@@ -230,6 +230,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private java.util.List<ClassLoader> classLoaders;
 	protected ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
+	private ModuleParser parser;
 
 	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, errorWriter, scope, new GlobalEnvironment());
@@ -248,6 +249,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
 		loader = new ModuleLoader(parser);
+		this.parser = parser;
 		parser.setLoader(loader);
 
 		// cwd loader
@@ -585,6 +587,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Import.Default x) {
 		loadParseTreeModule(x);
 		getCurrentModuleEnvironment().addSDFImport(getUnescapedModuleName(x));
+		try {
+			parser.generateModuleParser(loader.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), getCurrentModuleEnvironment());
+		} catch (IOException e) {
+			RuntimeExceptionFactory.io(vf.string("IO exception while importing module " + x), x, getStackTrace());
+		}
 	}
 
 	private void addImportToCurrentModule(
@@ -646,8 +653,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		
 		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
-//		return null;
-		// it was an SDF module
 	}
 
 

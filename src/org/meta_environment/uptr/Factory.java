@@ -15,7 +15,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  * 
  */
 public class Factory {
-	private static TypeStore uptr = new TypeStore(
+	public static TypeStore uptr = new TypeStore(
 			org.meta_environment.errors.Factory.getStore(), 
 			org.meta_environment.locations.Factory.getStore());
 	private static TypeFactory tf = TypeFactory.getInstance();
