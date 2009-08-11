@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.utils;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -10,6 +11,8 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.uptr.TreeAdapter;
 
 public final class Utils {
 	public static Result<IValue> truth(boolean b) {
@@ -40,7 +43,11 @@ public final class Utils {
 				
 				if(val.getType().isStringType()){
 					replacement = ((IString)val.getValue()).getValue();
-				} else {
+				} 
+				else if (val.getType() instanceof ConcreteSyntaxType) {
+					replacement = new TreeAdapter((IConstructor) val.getValue()).yield();
+				} 
+				else {
 					replacement = val.getValue().toString();
 				}
 //				replacement = replacement.replaceAll("<", "\\\\<"); TODO: maybe we need this after all?
