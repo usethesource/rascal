@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.PrintStream;
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
@@ -13,7 +14,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
+import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.TreeAdapter;
 
 public class IO{
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
@@ -33,9 +37,13 @@ public class IO{
 			while(valueIterator.hasNext()){
 				IValue arg = valueIterator.next();
 				
-				if(arg.getType().isStringType()){
+				if (arg.getType().isStringType()){
 					currentOutStream.print(((IString) arg).getValue().toString());
-				}else{
+				}
+				else if (arg.getType().isSubtypeOf(Factory.Tree)) {
+					currentOutStream.print(new TreeAdapter((IConstructor) arg).yield());
+				}
+				else{
 					currentOutStream.print(arg.toString());
 				}
 			}
