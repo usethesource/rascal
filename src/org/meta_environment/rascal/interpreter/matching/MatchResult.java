@@ -52,12 +52,11 @@ public class MatchResult extends AbstractBooleanResult {
     	if (positive) {
     		return mp.hasNext();
     	}
-    	else {
-    		if (firstTime) {
-    			return true;
-    		}
-    		return mp.hasNext();
-    	}
+    	
+		if (firstTime) {
+			return true;
+		}
+		return mp.hasNext();
 	}
 
     @Override
