@@ -20,7 +20,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testFun() {
 		
-		prepareModule("module M" +
+		prepareModule("M", "module M" +
 				         " public int f(int n) {return 2 * n;}" +
 				         " private int g(int n) { return 2 * n;}");
 		
@@ -33,7 +33,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testVar() {
 		
-		prepareModule("module M\n" +
+		prepareModule("M", "module M\n" +
 				         "public int n = 3;\n" +
 				         "private int m = 3;");
 		assertTrue(runTestInSameEvaluator("import M;"));
@@ -44,14 +44,14 @@ public class ImportTests extends TestFramework {
 	
 	@Test(expected=UndeclaredVariableError.class)
 	public void UndefinedPrivateVar1(){
-		prepareModule("module M\n" +
+		prepareModule("M", "module M\n" +
 		         "private int m = 3;");
 		runTestInSameEvaluator("m != 3;");
 	}
 	
 	@Ignore @Test(expected=UninitializedVariableError.class)
 	public void UndefinedPrivateVar2(){
-		prepareModule("module M\n" +
+		prepareModule("M", "module M\n" +
 		         "private int m = 3;");
 		prepareMore("import M;");
 		runTestInSameEvaluator("int n = m;");
@@ -59,7 +59,7 @@ public class ImportTests extends TestFramework {
 	
 	@Test(expected=UndeclaredFunctionError.class)
 	public void UndefinedPrivateFunction(){
-		prepareModule("module M\n" +
+		prepareModule("M", "module M\n" +
 		         "private int f() {return 3;}");
 		runTestInSameEvaluator("f();");
 	}
@@ -79,7 +79,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testMbase2() {
 		
-		prepareModule("module M " +
+		prepareModule("M", "module M " +
 						 "import Mbase; " +
 						 "public int m = n;" +
 						 "public int f() { return n; }"	 +
@@ -95,7 +95,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testMbase3() {
 		
-		prepareModule("module M " +
+		prepareModule("M", "module M " +
 						 "import Mbase;" +
 						 "public int g(int n) {return 3 * n;}" +
 						 "public int h(int n) {return f(n);}" +
@@ -116,7 +116,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testSize() {
 		
-		prepareModule("module Msize \n" +
+		prepareModule("Msize", "module Msize \n" +
 				         "import Set;\n" +
 						 "public set[int] Procs = {1, 2, 3};\n" +
 						 "public int f() {int nProcs = Set::size(Procs); return nProcs;}\n" +
@@ -130,7 +130,7 @@ public class ImportTests extends TestFramework {
 	
 	@Test
 	public void testDataImport(){
-		prepareModule("module Mdata\n" +
+		prepareModule("Mdata", "module Mdata\n" +
 				      "public data TYPE = natural() | string();");
 		
 		runTestInSameEvaluator("import Mdata;");

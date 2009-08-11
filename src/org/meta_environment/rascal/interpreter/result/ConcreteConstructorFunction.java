@@ -41,13 +41,6 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		Result<?> appl = makeResult(Factory.Tree_Appl, Factory.Tree_Appl.make(getValueFactory(), actuals), ctx);
 	    ConcreteSyntaxType concreteType = new ConcreteSyntaxType((IConstructor) appl.getValue());
 	    
-	    // This implicitly declares all sorts as public types in the ParseTree module, which all modules
-	    // that contain parse trees automatically import.
-	    String sort = prodAdapter.getSortName();
-	    if (sort.length() > 0) {
-	    	declarationEnvironment.concreteSyntaxType(sort, (IConstructor) appl.getValue());
-	    }
-	    
 		return re.applyRules(ResultFactory.makeResult(concreteType, (IConstructor) appl.getValue(), ctx), ctx);
 	}
 

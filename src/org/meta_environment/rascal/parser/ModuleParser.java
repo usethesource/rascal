@@ -22,6 +22,7 @@ import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
@@ -105,18 +106,10 @@ public class ModuleParser {
 		declareConcreteSyntaxTypes(info.getSymbolsName(), env);
 	}
 	
-	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, String fileName, InputStream source) throws IOException {
-		TableInfo table;
-		if (sdfImports.isEmpty()) {
-			table = new TableInfo(Configuration.getDefaultParsetableProperty());
-		}
-		else {
-			table = getTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
-		}
-		
-		if (table == null) {
-			throw new ImplementationError("Should have generated table first");
-		}
+	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, String fileName, InputStream source, ModuleEnvironment env) throws IOException {
+//		TableInfo table = lookupTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		TableInfo table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		declareConcreteSyntaxTypes(table.getSymbolsName(), env);
 		
 		try {
 			return parseFromStream(table.getTableName(), fileName, source);

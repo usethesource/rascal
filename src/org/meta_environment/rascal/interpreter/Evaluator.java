@@ -566,10 +566,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// handleSDFModule only loads the ParseTree module,
 		// yet the SDF module *will* have been loaded
 
-// TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
+//		TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
+		
+		if (!heap.existsModule(name)) {
+			heap.addModule(new ModuleEnvironment(name));
+		}
 		
 		if (isSDFModule(name)) {
-			handleSDFModule(x);
+			evalSDFModule(x);
 			return nothing();
 		}
 
@@ -583,10 +587,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return nothing();
 	}
 
-	protected void handleSDFModule(
+	protected void evalSDFModule(
 			org.meta_environment.rascal.ast.Import.Default x) {
 		loadParseTreeModule(x);
 		getCurrentModuleEnvironment().addSDFImport(getUnescapedModuleName(x));
+		
 		try {
 			parser.generateModuleParser(loader.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), getCurrentModuleEnvironment());
 		} catch (IOException e) {
@@ -637,12 +642,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	private boolean isNonExistingRascalModule(String name) {
-		return !heap.existsModule(name) && !isSDFModule(name);
+		return (!heap.existsModule(name) || !heap.getModule(name).isInitialized()) && !isSDFModule(name);
 	}
 
 	protected Module evalRascalModule(AbstractAST x,
 			String name) {
-		Module module = loader.loadModule(name, x);
+		ModuleEnvironment env = heap.getModule(name);
+		Module module = loader.loadModule(name, x, env);
 
 		if (module != null) {
 			if (!getModuleName(module).equals(name)) {
@@ -682,9 +688,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitModuleDefault(
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = getModuleName(x);
+		ModuleEnvironment env;
 
 		if (!heap.existsModule(name)) {
-			ModuleEnvironment env = new ModuleEnvironment(name);
+			env = new ModuleEnvironment(name);
+			heap.addModule(env);
+		}
+		else {
+			env = heap.getModule(name);
+		}
+		
+		if (!env.isInitialized()) {
 			Environment oldEnv = getCurrentEnvt();
 			setCurrentEnvt(env); // such that declarations end up in the module scope
 			try {
@@ -697,8 +711,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					l.accept(this);
 				}
 
-				// only after everything was successful add the module
-				heap.addModule(env);
+				// only after everything was successful mark the module initialized
+				env.setInitialized();
 			}
 			finally {
 				setCurrentEnvt(oldEnv);
@@ -1439,8 +1453,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (!typeValue.getType().isStringType()) {
 			throw new NonWellformedTypeError("result type of parser functions must be sorts", type);
 		}
-		String sortName = ((IString)cfSym.get(0)).getValue(); 
-		getCurrentEnvt().concreteSyntaxType(sortName, cons);
 		return Names.name(x.getSignature().getName());
 	}
 

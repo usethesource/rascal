@@ -73,14 +73,14 @@ public class ScopeTests extends TestFramework {
 	
 	@Test(expected=RedeclaredVariableError.class)
 	public void moduleRedeclarationError1(){
-		prepareModule("module XX public int n = 1; public int n = 2;");
+		prepareModule("XX", "module XX public int n = 1; public int n = 2;");
 		runTestInSameEvaluator("import XX;");
 		assertTrue(runTestInSameEvaluator("n == 1;"));
 	}
 	
 	@Test
 	public void moduleAndLocalVarDeclaration(){
-		prepareModule("module XX public int n = 1;");
+		prepareModule("XX", "module XX public int n = 1;");
 		prepare("import XX;");
 		assertTrue(runTestInSameEvaluator("{int n = 2; n == 2;}"));
 	}

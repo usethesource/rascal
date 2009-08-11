@@ -35,8 +35,6 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-import org.meta_environment.uptr.Factory;
-import org.meta_environment.uptr.SymbolAdapter;
 
 
 // TODO: this class is still too tightly coupled with evaluator
@@ -592,8 +590,6 @@ public class TraversalEvaluator {
 
 		java.util.List<RewriteRule> rules = eval.getHeap().getRules(typeToSearchFor);
 		if(rules.isEmpty()){
-			// weird side-effect but it works
-			declareConcreteSyntaxType(v.getValue());
 			return v;
 		}
 
@@ -602,27 +598,7 @@ public class TraversalEvaluator {
 		 * when intermediate results are produced.
 		 */
 
-		// weird side-effect but it works
-		// I don't think we need this anymore
-//		declareConcreteSyntaxType(tr.value.getValue());
 		return tr.value;
-	}
-
-	void declareConcreteSyntaxType(IValue value) {
-		// if somebody constructs a sort, then this implicitly declares
-		// a corresponding Rascal type.
-		Type type = value.getType();
-
-		if (type == Factory.Symbol) {
-			IConstructor symbol = (IConstructor) value;
-
-			if (symbol.getConstructorType() == Factory.Symbol_Sort) {
-				Environment root = eval.getCurrentEnvt().getRoot();
-				root.concreteSyntaxType(new SymbolAdapter(symbol).getName(), 
-						(IConstructor) Factory.Symbol_Cf.make(vf, value));
-			}
-		}
-
 	}
 
 	/*

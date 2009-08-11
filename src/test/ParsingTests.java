@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Module.Default;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
@@ -34,7 +35,7 @@ public class ParsingTests extends TestCase {
 		
 		for (File file : tests) {
 			try {
-				IConstructor tree = parser.parseModule(Collections.<String>emptyList(), Collections.<String>emptySet(), file.getAbsolutePath(), new FileInputStream(file));
+				IConstructor tree = parser.parseModule(Collections.<String>emptyList(), Collections.<String>emptySet(), file.getAbsolutePath(), new FileInputStream(file), new ModuleEnvironment("***dummy***"));
 				
 				if (tree.getConstructorType() == Factory.ParseTree_Top) {
 					Module.Default module = (Default) new ASTBuilder(new ASTFactory()).buildModule(tree);
