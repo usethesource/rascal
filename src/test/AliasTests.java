@@ -69,7 +69,7 @@ public class AliasTests extends TestFramework{
 	
 	@Test
 	public void aliasAndADT1() {
-		prepareModule("module Test alias INTEGER0 = INTEGER1; data INTEGER1 = f(int);");
+		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1; data INTEGER1 = f(int);");
 		prepareMore("import Test;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = f(0); x == f(0); }"));
 	}
@@ -88,31 +88,31 @@ public class AliasTests extends TestFramework{
 	
 	@Test
 	public void outofOrderDeclaration() {
-		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = int;");
+		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = int;");
 		prepareMore("import Test;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 
 	@Test(expected=StaticError.class) 
 	public void longCycle() {
-		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER2; alias INTEGER2 = INTEGER0;");
+		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER2; alias INTEGER2 = INTEGER0;");
 	}
 	
 	@Test(expected=StaticError.class) 
 	public void undeclaredTypeInDefinition() {
-		prepareModule("module Test alias INTEGER0 = INTEGER1;");
+		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1;");
 	}
 	
 	@Test(expected=StaticError.class)
 	public void anotherCircularity() {
-		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER0;");
+		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER0;");
 		prepareMore("import Test;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 	
 	@Test
 	public void transitiveAliasAcrossTuplesBug() {
-		prepareModule("module B\n" +
+		prepareModule("B", "module B\n" +
 				"alias trans = tuple[str, str, str];\n" +
 				"/* alias trans = str; */\n" +
 				"alias block = set[trans];\n" +

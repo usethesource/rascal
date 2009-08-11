@@ -125,10 +125,12 @@ public class TestFramework {
 		return this;
 	}
 
-	public boolean prepareModule(String module) throws FactTypeUseException {
+	public boolean prepareModule(String name, String module) throws FactTypeUseException {
 		try {
 			// TODO: this dummy might not work, it's to catch the concrete syntax definitions
-			IConstructor tree = evaluator.parseModule(module);
+			ModuleEnvironment env = new ModuleEnvironment(name);
+			evaluator.getHeap().addModule(env);
+			IConstructor tree = evaluator.parseModule(module, env);
 			if (tree.getType() == Factory.ParseTree_Summary) {
 				System.err.println(tree);
 				return false;
@@ -145,7 +147,7 @@ public class TestFramework {
 	}
 
 	private boolean execute(String command) throws IOException {
-		IConstructor tree = evaluator.parseCommand(command, evaluator.getCurrentEnvt());
+		IConstructor tree = evaluator.parseCommand(command);
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);

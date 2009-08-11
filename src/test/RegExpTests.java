@@ -56,21 +56,21 @@ public class RegExpTests extends TestFramework{
 	
 	@Test 
 	public void matchWithExternalModuleVariable(){
-		prepareModule("module XX str x = \"abc\";");
+		prepareModule("XX", "module XX str x = \"abc\";");
 		runTestInSameEvaluator("import XX;");
 		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
 	}
 	
 	@Test 
 	public void nomatchWithExternalModuleVariable(){
-		prepareModule("module XX public str x = \"abc\";");
+		prepareModule("XX", "module XX public str x = \"abc\";");
 		runTestInSameEvaluator("import XX;");
 		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ !:= \"pqr\") && (x == \"abc\");"));
 	}
 	
 	@Test 
 	public void matchWithExternalModuleVariableOfWrongType(){
-		prepareModule("module XX int x = 123;");
+		prepareModule("XX", "module XX int x = 123;");
 		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
 	}
 	

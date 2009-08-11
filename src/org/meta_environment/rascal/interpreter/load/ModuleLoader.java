@@ -23,6 +23,7 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleLoadError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.utils.Names;
@@ -88,7 +89,7 @@ public class ModuleLoader{
 		return tree;
 	}
 
-	public Module loadModule(String name, AbstractAST ast) {
+	public Module loadModule(String name, AbstractAST ast, ModuleEnvironment env) {
 		if(isSdfModule(name)){
 			return null;
 		}
@@ -106,7 +107,9 @@ public class ModuleLoader{
 			}
 			
 			if(tree == null){
-				tree = parseModule(loader, fileName, name, ast);
+//				List<String> path = getSdfSearchPath();
+//				parser.generateModuleParser(path, env.getSDFImports(), env);
+				tree = parseModule(loader, fileName, name, ast, env);
 			}
 			
 //			loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
@@ -170,7 +173,7 @@ public class ModuleLoader{
 	}
 
 
-	public IConstructor parseModule(IModuleFileLoader loader, String fileName, String name, AbstractAST ast) throws IOException{
+	public IConstructor parseModule(IModuleFileLoader loader, String fileName, String name, AbstractAST ast, ModuleEnvironment env) throws IOException{
 		InputStream inputStream = null;
 		Set<String> sdfImports;
 		try{
@@ -189,7 +192,7 @@ public class ModuleLoader{
 		try{
 			List<String> sdfSearchPath = getSdfSearchPath();
 			secondInputStream = loader.getInputStream(fileName);
-			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream);
+			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream, env);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw parseError(tree, fileName, name);
@@ -203,7 +206,7 @@ public class ModuleLoader{
 		}
 	}
 
-	public IConstructor parseModule(String fileName, String name, String moduleString) throws IOException{
+	public IConstructor parseModule(String fileName, String name, String moduleString, ModuleEnvironment env) throws IOException{
 		List<String> sdfSearchPath = getSdfSearchPath();
 		
 		InputStream inputStream = null;
@@ -221,7 +224,7 @@ public class ModuleLoader{
 		InputStream secondInputStream = null;
 		try{
 			secondInputStream = new ByteArrayInputStream(moduleString.getBytes());
-			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream);
+			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream, env);
 
 			if(tree.getConstructorType() == Factory.ParseTree_Summary){
 				throw parseError(tree, fileName, name);

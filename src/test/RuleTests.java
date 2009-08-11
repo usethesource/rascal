@@ -16,7 +16,7 @@ public class RuleTests extends TestFramework{
 	
 	@Test
 	public void useOfGlobalVariableInRuleLhs(){
-		prepareModule("module A public int j = 0;\n" + 
+		prepareModule("A", "module A public int j = 0;\n" + 
 				      "data Int = i(int i);\n" +
 		              "rule test i(j) => i(1);"
 				      );
@@ -26,7 +26,7 @@ public class RuleTests extends TestFramework{
 	
 	@Test
 	public void useOfGlobalVariableInRuleLhsNested(){
-		prepareModule("module A public int j = 0;\n" + 
+		prepareModule("A", "module A public int j = 0;\n" + 
 				      "data Int = i(int i) | i(Int j);\n" +
 				      "public Int Example = i(0);\n" +
 		              "rule test i(Example) => i(1);"

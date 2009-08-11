@@ -622,7 +622,7 @@ public class PatternTests extends TestFramework {
 	@Ignore @Test
 	public void matchConstructor2(){
 	
-		prepareModule("module Bool " +
+		prepareModule("Bool", "module Bool " +
 				  "data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 
 		assertTrue(runTestInSameEvaluator("import Bool;"));

@@ -43,6 +43,7 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<String, ConcreteSyntaxType> concreteSyntaxTypes;
 	protected final List<Test> tests;
 	private Set<String> importedSDFModules = new HashSet<String>();
+	private boolean initialized;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -53,6 +54,7 @@ public class ModuleEnvironment extends Environment {
 		this.concreteSyntaxTypes = new HashMap<String, ConcreteSyntaxType>();
 		this.typeStore = new TypeStore();
 		this.tests = new LinkedList<Test>();
+		this.initialized = false;
 	}
 	
 	public boolean isModuleEnvironment() {
@@ -423,6 +425,11 @@ public class ModuleEnvironment extends Environment {
 		return typeStore.lookupFirstConstructor(cons, args);
 	}
 
+	public boolean isInitialized() {
+		return initialized;
+	}
 	
-	
+	public void setInitialized() {
+		this.initialized = true;
+	}
 }

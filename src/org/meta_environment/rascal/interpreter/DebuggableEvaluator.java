@@ -97,7 +97,6 @@ import org.meta_environment.rascal.ast.Statement.TryFinally;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
-import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -758,8 +757,8 @@ public class DebuggableEvaluator extends Evaluator {
 		return debugger;
 	}
 	
-	public IConstructor parseCommand(String command, Environment env) throws IOException {
-		return parser.parseCommand(command, env);
+	public IConstructor parseCommand(String command) throws IOException {
+		return parser.parseCommand(command);
 	}
 
 }

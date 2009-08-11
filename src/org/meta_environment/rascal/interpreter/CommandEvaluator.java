@@ -20,7 +20,6 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.ast.ShellCommand.Test;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
-import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -33,9 +32,8 @@ public class CommandEvaluator extends Evaluator {
 	
 	public CommandEvaluator(IValueFactory f, Writer errorWriter,
 			ModuleEnvironment scope, GlobalEnvironment heap) {
-		this(f, errorWriter, scope, heap, new ConsoleParser());
+		this(f, errorWriter, scope, heap, new ConsoleParser(scope));
 	}
-	
 	
 	public CommandEvaluator(IValueFactory vf, Writer errorWriter,
 			ModuleEnvironment root, GlobalEnvironment heap,
@@ -44,8 +42,8 @@ public class CommandEvaluator extends Evaluator {
 		this.parser = consoleParser;
 	}
 	
-	public IConstructor parseCommand(String command, Environment env) throws IOException {
-		return parser.parseCommand(command, env);
+	public IConstructor parseCommand(String command) throws IOException {
+		return parser.parseCommand(command);
 	}
 	
 	public Result<IValue> eval(Command command) {
@@ -102,15 +100,15 @@ public class CommandEvaluator extends Evaluator {
 //	}
 	
 	@Override
-	protected void handleSDFModule(Default x) {
+	protected void evalSDFModule(Default x) {
 		if (currentEnvt == rootScope) {
 			parser.addSdfImportForImportDefault(x);
 		}
-		super.handleSDFModule(x);
+		super.evalSDFModule(x);
 	}
 	
-	public IConstructor parseModule(String module) throws IOException {
-		return loader.parseModule("-", "-", module);
+	public IConstructor parseModule(String module, ModuleEnvironment env) throws IOException {
+		return loader.parseModule("-", "-", module, env);
 	}
 
 
