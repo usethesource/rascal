@@ -389,4 +389,21 @@ public class TreeAdapter {
 		return isAppl() && isContextFree() && (getProduction().getRhs().isPlusList() ||
 				getProduction().getRhs().isStarList());
 	}
+
+	/**
+	 * @return true iff the tree does not have any characters, it's just an empty derivation
+	 */
+	public boolean isEpsilon() {
+		// TODO: optimize this
+//		return false;
+		return yield().length() == 0;
+	}
+
+	public boolean hasPreferAttribute() {
+		return getProduction().hasPreferAttribute();
+	}
+
+	public boolean hasAvoidAttribute() {
+		return getProduction().hasAvoidAttribute();
+	}
 }
