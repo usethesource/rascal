@@ -76,19 +76,23 @@ public class EnumeratorResult extends AbstractMatchingResult {
 		// List
 		if(subjectType.isListType()){
 			checkNoStrategy(subjectType);
-			checkMayOccur(patType, subjectType.getElementType());
+			//TODO: we could do this more precisely
+			if(((IList)subjectValue).length() > 0)
+				checkMayOccur(patType, subjectType.getElementType());
 			iterator = ((IList) subjectValue).iterator();
 			
 		// Set
 		} else 	if(subjectType.isSetType()){
 			checkNoStrategy(subjectType);
-			checkMayOccur(patType, subjectType.getElementType());
+			if(((ISet)subjectValue).size() > 0)
+				checkMayOccur(patType, subjectType.getElementType());
 			iterator = ((ISet) subjectValue).iterator();
 		
 		// Map
 		} else if(subjectType.isMapType()){
 			checkNoStrategy(subjectType);
-			checkMayOccur(patType, subjectType.getKeyType());
+			if(((IMap)subjectValue).size() > 0)
+				checkMayOccur(patType, subjectType.getKeyType());
 			iterator = ((IMap) subjectValue).iterator();
 			
 		// Node and ADT
@@ -112,7 +116,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 			}
 			iterator = new SingleIValueIterator(subjectValue);
 		} else {
-			throw new UnsupportedOperationError("EnumerateAndMatch", subjectType, ctx.getCurrentAST());
+			throw new UnsupportedOperationError("makeIterator", subjectType, ctx.getCurrentAST());
 		}
 	}
 	
