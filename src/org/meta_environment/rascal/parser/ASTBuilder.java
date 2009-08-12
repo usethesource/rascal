@@ -268,6 +268,11 @@ public class ASTBuilder {
 		Object actuals[] = new Object[] { tree.getTree(), altsOut };
 
 		AbstractAST ast = callMakerMethod(sort, "Ambiguity", formals, actuals);
+		
+		System.err.println("Ambiguity left after filtering [" + actuals.length + "] for sort: " + sort);
+		for (int i = 1; i < actuals.length; i++) {
+			System.err.println("\talt: " + ((AbstractAST) actuals[i]).getTree().get(0));
+		}
 		ast.setStats(ref != null ? ref : new ASTStatistics());
 		return ast;
 	}
@@ -360,6 +365,11 @@ public class ASTBuilder {
 		if (result.size() == 1) {
 			return result.get(0);
 		}
+		
+		if (result.size() == 0) {
+			return null;
+		}
+		
 		return new Expression.Ambiguity(antiQuote.getTree(), result);
 	}
 
