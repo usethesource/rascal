@@ -92,6 +92,7 @@ public class RascalShell {
 			}
 			catch (StaticError e) {
 				console.printString("Static Error: " + e.getMessage() + "\n");
+				e.printStackTrace();
 			}
 			catch (Throw e) {
 				console.printString("Uncaught Rascal Exception: " + e.getMessage() + "\n");
@@ -112,7 +113,7 @@ public class RascalShell {
 				break next;
 			}
 			catch (Throwable e) {
-				console.printString("ImplementationError (generic Throwable): " + e.getMessage() + "\n");
+				console.printString("Unexpected exception (generic Throwable): " + e.getMessage() + "\n");
 				printStacktrace(console, e);
 			}
 		}

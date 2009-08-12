@@ -79,13 +79,31 @@ public class ASTBuilder {
 	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
 		IConstructor top = (IConstructor) parseTree.get("top");
 		TreeAdapter start = new TreeAdapter(top);
-		IConstructor tree = (IConstructor) start.getArgs().get(1);
-		TreeAdapter treeAdapter = new TreeAdapter(tree); 
+		
+		if (start.isAppl()) {
+			IConstructor tree = (IConstructor) start.getArgs().get(1);
+			TreeAdapter treeAdapter = new TreeAdapter(tree); 
 
-		if (sortName(treeAdapter).equals(sort)) {
-			return (T) buildValue(tree);
+			if (sortName(treeAdapter).equals(sort)) {
+				return (T) buildValue(tree);
+			}
 		}
-		throw new ImplementationError("This is not a" + sort +  ": " + new TreeAdapter(tree).yield());
+		else if (start.isAmb()) {
+			for (IValue alt : start.getAlternatives()) {
+				IConstructor tree = (IConstructor) alt;
+				TreeAdapter treeAdapter = new TreeAdapter(tree); 
+
+				if (sortName(treeAdapter).equals(sort)) {
+					AbstractAST value = buildValue(tree);
+					if (value != null) {
+						return (T) value;
+					}
+				}
+			}
+			throw new SyntaxError(sort, start.getLocation());
+		}
+		
+		throw new ImplementationError("This is not a " + sort +  ": " + start);
 	}
 	
 	private AbstractAST buildValue(IValue arg)  {
@@ -206,11 +224,29 @@ public class ASTBuilder {
 
 				ASTStatistics stats = ((AbstractAST) actuals[i]).getStats();
 				total.add(stats);
+				total.setAvoided(stats.isAvoided());
+				total.setPreferred(stats.isPreferred());
+					
 			}
 			i++;
 		}
 
 		AbstractAST ast = callMakerMethod(sort, cons, formals, actuals);
+
+		if (arity > 2) { // is not an injection so kill accumulation of prefer and avoid
+			total.setAvoided(false);
+			total.setPreferred(false);
+		}
+		
+		if (tree.hasPreferAttribute()) {
+			total.setAvoided(false);
+			total.setPreferred(true);
+		}
+		if (tree.hasAvoidAttribute()) {
+			total.setAvoided(true);
+			total.setPreferred(false);
+		}
+		
 		ast.setStats(total);
 		return ast;
 	}
@@ -249,7 +285,8 @@ public class ASTBuilder {
 		}
 
 		if (altsOut.size() == 0) {
-			throw new SyntaxError("concrete syntax pattern", tree.getLocation());
+			return null; // this could happen in case of nested ambiguity
+//			throw new SyntaxError("concrete syntax pattern", tree.getLocation());
 		}
 		
 		if (altsOut.size() == 1) {
@@ -370,6 +407,10 @@ public class ASTBuilder {
 	}
 
 	private AbstractAST lift(TreeAdapter tree, boolean match) {
+		if (tree.isEpsilon()) {
+			return null;
+		}
+		
 		IConstructor pattern = getConcretePattern(tree);
 		Expression ast = lift(pattern, pattern, match, false);
 		
@@ -653,6 +694,10 @@ public class ASTBuilder {
 			}
 	
 			return sortName;
+		}
+		if (tree.isAmb()) {
+			// all alternatives in an amb cluster have the same sort
+			return sortName(new TreeAdapter((IConstructor) tree.getAlternatives().iterator().next()));
 		}
 		return "";
 	}

@@ -149,5 +149,22 @@ public class ProductionAdapter {
 		return tree;
 	}
 
+	public boolean hasPreferAttribute() {
+		return hasAttribute(Factory.Attr_Prefer.make(ValueFactoryFactory.getValueFactory()));
+	}
+
+	private boolean hasAttribute(IValue wanted) {
+		for (IValue attr : getAttributes()) {
+			if (attr.isEqual(wanted)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean hasAvoidAttribute() {
+		return hasAttribute(Factory.Attr_Avoid.make(ValueFactoryFactory.getValueFactory()));
+	}
+
 
 }

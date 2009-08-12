@@ -5,7 +5,25 @@ public class ASTStatistics implements Comparable<ASTStatistics> {
 	private int concreteFragmentSize = 0;
 	private int nestedMetaVariables = 0;
 	private int injections = 0;
+	private boolean preferred = false;
+	private boolean avoided = false;
 
+	public boolean isPreferred() {
+		return preferred;
+	}
+	
+	public boolean isAvoided() {
+		return avoided;
+	}
+	
+	public void setAvoided(boolean avoided) {
+		this.avoided = avoided;
+	}
+	
+	public void setPreferred(boolean preferred) {
+		this.preferred = preferred;
+	}
+	
 	public int getInjections() {
 		return injections;
 	}
@@ -51,7 +69,7 @@ public class ASTStatistics implements Comparable<ASTStatistics> {
 	}
 
 	public int compareTo(ASTStatistics other) {
-		return compareConcreteFragmentCount(other);
+		return compareFragmentSize(other);
 	}
 
 	private int compareConcreteFragmentCount(ASTStatistics other) {
@@ -82,11 +100,31 @@ public class ASTStatistics implements Comparable<ASTStatistics> {
 			return -1;
 		}
 		else if (nestedMetaVariables == other.nestedMetaVariables) {
-			return compareInjections(other);
+			return comparePrefences(other);
 		}
 		else {
 			return 1;
 		}
+	}
+	
+	private int comparePrefences(ASTStatistics other) {
+		if (avoided && other.avoided) {
+			return compareInjections(other);	
+		}
+		
+		if (preferred && other.preferred) {
+			return compareInjections(other);
+		}
+		
+		if (preferred || other.avoided) {
+			return 1;
+		}
+		
+		if (avoided || other.preferred) {
+			return -1;
+		}
+		
+		return compareInjections(other);
 	}
 
 	private int compareInjections(ASTStatistics other) {
