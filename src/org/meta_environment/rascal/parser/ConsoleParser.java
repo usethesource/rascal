@@ -35,7 +35,7 @@ public class ConsoleParser extends ModuleParser {
 	public IConstructor parseCommand(String command) throws IOException {
 		generateModuleParser(getSdfSearchPath(), sdfImports, shell);
 		TableInfo table = lookupTable(META_LANGUAGE_KEY, sdfImports, getSdfSearchPath());
-		return parseFromString(table.getTableName(), "-", command);
+		return parseFromString(table.getTableName(), "-", command, false);
 	}
 	
 	public void addSdfImportForImportDefault(Default x) {
