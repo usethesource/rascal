@@ -3,6 +3,7 @@ package test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
@@ -450,31 +451,56 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void sortsInGrammar(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{A vA; B vB; C vC; D vD; DS vDS; E vE; Es vEs; {E \",\"}+ vES2; true;}"));
+		assertTrue(runTestInSameEvaluator("{A vA; B vB; C vC; D vD; DS vDS; E vE; ES vES; {E \",\"}+ vES2; true;}"));
+	}
+	
+	
+	@Test
+	public void enumeratorDs1Untyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|d|] ]; L == [[|d|]];}"));
 	}
 	
 	@Test
-	public void enumeratorDsUntyped(){
+	public void enumeratorDs1Typed(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|d d d|]; L == [[|d|], [|d|], [|d|]];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | D X <- [|d|] ]; L == [ [|d|] ];}"));
+	}
+	
+	@Test
+	public void enumeratorDsUnyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|d d d|] ]; L == [[|d|], [|d|], [|d|]];}"));
 	}
 	
 	@Test
 	public void enumeratorDsTyped(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{L = [X | D X <- [|d d d|]; L == [[|d|], [|d|], [|d|]];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | D X <- [|d d d|] ]; L == [[|d|], [|d|], [|d|]];}"));
+	}
+	
+	@Test
+	public void enumeratorEs1Untyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|e|] ]; L == [ [|e|] ];}"));
+	}
+	
+	@Test
+	public void enumeratorEs1Typed(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{L = [X | E X <- [|e|] ]; L == [ [|e|] ];}"));
 	}
 	
 	@Test
 	public void enumeratorEsUntyped(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|e, e, e|]; L == [[|e|], [|e|], [|e|]];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|e, e, e|] ]; L == [[|e|], [|e|], [|e|]];}"));
 	}
 	
 	@Test
 	public void enumeratorEsTyped(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{L = [X | E X <- [|e, e, e|]; L == [[|e|], [|e|], [|e|]];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | E X <- [|e, e, e|] ]; L == [[|e|], [|e|], [|e|]];}"));
 	}
 
 	@Test
@@ -623,5 +649,29 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepareModule("M", UQmoduleM + "public bool match6() { return begin <DECLS decls> <{STATEMENT \";\"}* stats> end := t1; }");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match6();"));
+	}
+	
+	@Ignore @Test
+	public void enumeratorPicoStatement1Untyped(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|a:=1|] ]; L == [ [|a|], [|1|], [|a:=1|] ];}"));
+	}
+	
+	@Test
+	public void enumeratorPicoStatement1Typed(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- [|a:=1|] ]; L == [ [|a:=1|] ];}"));
+	}
+	
+	@Ignore @Test
+	public void enumeratorPicoStatementsUntyped(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [X | X <- [|a:=1;a:=2;a:=3|] ]; L == [[|a:=1|], [|a:=2|], [|a:=2|]];}"));
+	}
+	
+	@Test
+	public void enumeratorPicoStatementsTyped(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- [|a:=1;a:=2;a:=3|] ]; L == [[|a:=1|], [|a:=2|], [|a:=3|]];}"));
 	}
 }

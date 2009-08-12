@@ -17,7 +17,7 @@ import IO;
 
 //TODO All types {Decl ";"}+ should actually be FSM
 
-{Decl ";"}+ example = 
+public {Decl ";"}+ example = 
     	 [| state S1;
     	    state S2;
 	        state S3;
