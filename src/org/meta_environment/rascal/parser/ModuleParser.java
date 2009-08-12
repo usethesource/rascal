@@ -65,8 +65,8 @@ public class ModuleParser {
 	}
 	
 	private final static IInvoker sglrInvoker;
-	protected static final int SGLR_OPTIONS_NO_INDIRECT_PREFERENCE = IInvoker.FILTERS_DEFAULT & ~IInvoker.FILTERS_INDIRECT_PREFERENCE;
-	protected static final int DEFAULT_SGLR_OPTIONS = IInvoker.FILTERS_DEFAULT;
+	protected static final int SGLR_OPTIONS_NO_INDIRECT_PREFERENCE = IInvoker.FILTERS_DEFAULT | IInvoker.FILTERS_REJECT | IInvoker.FILTERS_PRIORITY;
+	protected static final int DEFAULT_SGLR_OPTIONS = IInvoker.FILTERS_DEFAULT | IInvoker.FILTERS_INDIRECT_PREFERENCE | IInvoker.FILTERS_REJECT | IInvoker.FILTERS_PRIORITY;
 	
 	static{
 		String osName = System.getProperty("os.name");
