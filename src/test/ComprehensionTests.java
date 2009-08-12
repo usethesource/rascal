@@ -3,18 +3,20 @@ package test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 
 public class ComprehensionTests extends TestFramework {
 	
-	@Test(expected=StaticError.class)
+	// We allow the following cases now:
+	@Ignore @Test(expected=StaticError.class)
 	public void emptySetGeneratorError1(){
 		assertTrue(runTest("{ X | int X <- {} } == {};"));
 	}
 	
-	@Test(expected=StaticError.class)
+	@Ignore @Test(expected=StaticError.class)
 	public void emptySetGeneratorError2(){
 		assertTrue(runTest("{ X | int X <- [] } == {};"));
 	}
@@ -258,17 +260,18 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{{5*n, f(n)} | n <- [ 1 .. 3 ]} == {{5,1,3},{10,2,6},{15,3,9}};"));
 	}
 	
-	@Test(expected=StaticError.class)
+	// We allow the following cases now
+	@Ignore @Test(expected=StaticError.class)
 	public void emptySetGeneratorError(){
 		assertTrue(runTest("[ X | int X <- {} ] == [];"));
 	}
 	
-	@Test(expected=StaticError.class)
+	@Ignore @Test(expected=StaticError.class)
 	public void emptyListGeneratorError1(){
 		assertTrue(runTest("[ X | int X <- [] ] == [];"));
 	}
 	
-	@Test(expected=StaticError.class)
+	@Ignore @Test(expected=StaticError.class)
 	public void emptyListGeneratorError2(){
 		assertTrue(runTest("[ X |     X <- [] ] == [];"));
 	}
@@ -369,22 +372,23 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("[[5*n, f(n)] | n <- [ 1 .. 3 ]] == [[5,1,3],[10,2,6],[15,3,9]];"));
 	}
 	
-	@Test(expected=StaticError.class)
+	// We allow the following cases now
+	@Ignore @Test(expected=StaticError.class)
 	public void emptyTupleGeneratorError1(){
 		assertTrue(runTest("{<X,Y> | <int X, int Y> <- {}} == {} ;"));
 	}
 	
-	@Test(expected=StaticError.class)
+	@Ignore @Test(expected=StaticError.class)
 	public void emptyTupleGeneratorError2(){
 		assertTrue(runTest("{<X,Y> | <int X, int Y> <- []} == {} ;"));
 	}
 	
-	@Test(expected=StaticError.class)
+	@Ignore @Test(expected=StaticError.class)
 	public void emptyTupleGeneratorError3(){
 		assertTrue(runTest("{<X,Y> | int X <- {}, int Y <- {}} == {};"));
 	}
 	
-	@Test(expected=StaticError.class)
+	@Ignore @Test(expected=StaticError.class)
 	public void emptyTupleGeneratorError4(){
 		assertTrue(runTest("{<X,Y> | int X <- [], int Y <- []} == {};"));
 	}
@@ -417,13 +421,13 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{<X,Y> | int X <- [1,2,3], <X, str Y> <- [<1,\"a\">, <7,\"b\">, <3,\"c\">,<5,\"d\">]} == {<1, \"a\">, <3, \"c\">};"));
 		
 		}
-	
-	@Test(expected=StaticError.class)
+	// We allow the following cases now
+	@Ignore @Test(expected=StaticError.class)
 	public void emptyMapGeneratorError1(){
 		assertTrue(runTest("( X : 2 * X | int X <- {} ) == ();"));
 	}
 	
-	@Test(expected=StaticError.class)
+	@Ignore @Test(expected=StaticError.class)
 	public void emptyMapGeneratorError2(){
 		assertTrue(runTest("( X : 2 * X | int X <- [] ) == ();"));
 	}
