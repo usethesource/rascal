@@ -65,6 +65,9 @@ public class ModuleParser {
 	}
 	
 	private final static IInvoker sglrInvoker;
+	protected static final int SGLR_OPTIONS_NO_INDIRECT_PREFERENCE = IInvoker.FILTERS_DEFAULT & ~IInvoker.FILTERS_INDIRECT_PREFERENCE;
+	protected static final int DEFAULT_SGLR_OPTIONS = IInvoker.FILTERS_DEFAULT;
+	
 	static{
 		String osName = System.getProperty("os.name");
 		
@@ -83,7 +86,7 @@ public class ModuleParser {
 	
 	public Set<String> getSdfImports(List<String> sdfSearchPath, String fileName, InputStream source) throws IOException {
 		try {
-			IConstructor tree= parseFromStream(Configuration.getHeaderParsetableProperty(), fileName, source);
+			IConstructor tree= parseFromStream(Configuration.getHeaderParsetableProperty(), fileName, source, false);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw new SyntaxError(fileName, new SummaryAdapter(tree).getInitialSubject().getLocation());
@@ -98,7 +101,7 @@ public class ModuleParser {
 	public IConstructor parseCommand(Set<String> sdfImports, List<String> sdfSearchPath, String fileName, String command) throws IOException {
 		TableInfo table = lookupTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		
-		return parseFromString(table.getTableName(), fileName, command);
+		return parseFromString(table.getTableName(), fileName, command, false);
 	}
 
 	public void generateModuleParser(List<String> sdfSearchPath, Set<String> sdfImports, Environment env) throws IOException {
@@ -112,7 +115,7 @@ public class ModuleParser {
 		declareConcreteSyntaxTypes(table.getSymbolsName(), env);
 		
 		try {
-			return parseFromStream(table.getTableName(), fileName, source);
+			return parseFromStream(table.getTableName(), fileName, source, false);
 		} catch (FactParseError e) {
 			throw new ImplementationError("parse tree format error", e);
 		} 
@@ -151,7 +154,7 @@ public class ModuleParser {
 	public IConstructor parseObjectLanguageFile(List<String> sdfSearchPath, Set<String> sdfImports, String fileName) throws IOException {
 		TableInfo table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		try {
-			return parseFromFile(table.getTableName(), fileName);
+			return parseFromFile(table.getTableName(), fileName, true);
 		} catch (FactParseError e) {
 			throw new ImplementationError("parse tree format error", e);
 		} 
@@ -185,8 +188,8 @@ public class ModuleParser {
 		return table;
 	}
 
-	private IConstructor parseFromStream(String table, String fileName, InputStream source) throws FactParseError, IOException {
-		byte[] result = sglrInvoker.parseFromStream(source, table);
+	private IConstructor parseFromStream(String table, String fileName, InputStream source, boolean filter) throws FactParseError, IOException {
+		byte[] result = sglrInvoker.parseFromStream(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
 		return bytesToParseTree(fileName, result);
 	}
@@ -199,13 +202,13 @@ public class ModuleParser {
 		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
 	}
 	
-	protected IConstructor parseFromFile(String table, String fileName) throws FactParseError, IOException {
-		byte[] result = sglrInvoker.parseFromFile(new File(fileName), table);
+	protected IConstructor parseFromFile(String table, String fileName, boolean filter) throws FactParseError, IOException {
+		byte[] result = sglrInvoker.parseFromFile(new File(fileName), table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 		return bytesToParseTree(fileName, result);
 	}
 
-	protected IConstructor parseFromString(String table, String fileName, String source) throws FactParseError, IOException {
-		byte[] result = sglrInvoker.parseFromString(source, table);
+	protected IConstructor parseFromString(String table, String fileName, String source, boolean filter) throws FactParseError, IOException {
+		byte[] result = sglrInvoker.parseFromString(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
 		return bytesToParseTree(fileName, result);
 	}
