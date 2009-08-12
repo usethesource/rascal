@@ -32,7 +32,10 @@ public list[Message] tcs({STATEMENT ";"}* Stats, Env Env){
 public list[Message] tcst(STATEMENT Stat, Env Env) {
     switch (Stat) {
       case [| <\PICO-ID Id> := <EXP Exp> |]:
-        return requireType(Exp, Env[Id], Env);  // TODO: undefined variable
+        if(Env[Id]?)
+        	return requireType(Exp, Env[Id], Env);
+        else
+            return [message("Undeclared variable <Id>")];
 
       case [| if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
                            else <{STATEMENT ";"}* Stats1>
@@ -75,7 +78,7 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
         } else fail;
     }
     
-    return [];   //message("Type error: expected <Type> got <E>")];
+    return [message("Type error: expected <Type> got <E>")];
 }
 
 public bool test() {

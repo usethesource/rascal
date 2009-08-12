@@ -2465,6 +2465,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			int k = 0;
 			for(Expression resExpr : resultExprs){
 				Result<IValue> res = resExpr.accept(ev);
+				//System.err.println("ListWriter: res = " + res);
 				if(splicing[k++]){
 					/*
 					 * Splice elements of the value of the result expression in the result list
