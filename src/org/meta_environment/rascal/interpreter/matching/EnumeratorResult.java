@@ -77,21 +77,21 @@ public class EnumeratorResult extends AbstractMatchingResult {
 		if(subjectType.isListType()){
 			checkNoStrategy(subjectType);
 			//TODO: we could do this more precisely
-			if(((IList)subjectValue).length() > 0)
+			if(!subjectType.getElementType().isVoidType())
 				checkMayOccur(patType, subjectType.getElementType());
 			iterator = ((IList) subjectValue).iterator();
 			
 		// Set
 		} else 	if(subjectType.isSetType()){
 			checkNoStrategy(subjectType);
-			if(((ISet)subjectValue).size() > 0)
+			if(!subjectType.getElementType().isVoidType())
 				checkMayOccur(patType, subjectType.getElementType());
 			iterator = ((ISet) subjectValue).iterator();
 		
 		// Map
 		} else if(subjectType.isMapType()){
 			checkNoStrategy(subjectType);
-			if(((IMap)subjectValue).size() > 0)
+			if(!subjectType.getElementType().isVoidType())
 				checkMayOccur(patType, subjectType.getKeyType());
 			iterator = ((IMap) subjectValue).iterator();
 			
