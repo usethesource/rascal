@@ -674,4 +674,29 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepare("import languages::pico::syntax::Pico;");
 		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- [|a:=1;a:=2;a:=3|] ]; L == [[|a:=1|], [|a:=2|], [|a:=3|]];}"));
 	}
+	
+	@Test
+	public void enumeratorPicoStatementsConcretePattern1(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [X | [|<\\PICO-ID X>:=1|] <- [|a:=1;b:=2;c:=1|] ]; L == [ [|a|], [|c|] ];}"));
+	}
+	
+	@Test
+	public void enumeratorPicoStatementsConcretePattern2(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [X | [|b:=<EXP X>|] <- [|a:=1;b:=2;c:=3|] ]; L == [ EXP[|2|] ];}"));
+	}
+	
+	@Test
+	public void enumeratorPicoStatementsConcretePattern3(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [Id | [|<\\PICO-ID Id> : <TYPE Tp>|] <- [|x : natural, y : string|] ]; L == [ [|x|], [|y|] ];}"));
+	}
+	
+	@Test
+	public void enumeratorPicoStatementsConcretePattern4(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = []; for([|<\\PICO-ID Id> : <TYPE Tp>|] <- [|x : natural, y : string|]){L += Id;} L == [ [|x|], [|y|] ];}"));
+	}
+	
 }
