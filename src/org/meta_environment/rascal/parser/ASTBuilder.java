@@ -126,7 +126,9 @@ public class ASTBuilder {
 		}
 		
 		if (sortName(tree).equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
-			return new JavaFunctionBody((INode) arg, tree.yield());
+			JavaFunctionBody javaAST = new JavaFunctionBody((INode) arg, tree.yield());
+			javaAST.getStats().setAvoided(true);
+			return javaAST;
 		}
 
 		if (sortName(tree).equals("Pattern") && isEmbedding(tree)) {
