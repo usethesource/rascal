@@ -2,10 +2,6 @@ module demo::ConcretePico::Typecheck
 
 import demo::ConcretePico::Programs;
 import languages::pico::syntax::Pico;
-import languages::pico::syntax::Identifiers;
-import languages::pico::syntax::Types;
-import basic::NatCon;
-import basic::StrCon;
 
 import demo::AbstractPico::Message;
 import IO;
@@ -38,11 +34,11 @@ public list[Message] tcst(STATEMENT Stat, Env Env) {
             return [message("Undeclared variable <Id>")];
 
       case [| if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
-                           else <{STATEMENT ";"}* Stats1>
+                           else <{STATEMENT ";"}* Stats2>
               fi |]:
         return requireType(Exp, [|natural|], Env) + tcs(Stats1, Env) + tcs(Stats2, Env);
 
-      case [| while <EXP Exp> do <{STATEMENT ";"}* Stats1> od |]:
+      case [| while <EXP Exp> do <{STATEMENT ";"}* Stats> od |]:
         return requireType(Exp, [|natural|], Env) + tcs(Stats, Env);
     }
     return [message("Unknown statement: <Stat>")];
