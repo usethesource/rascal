@@ -117,11 +117,11 @@ public class ASTStatistics implements Comparable<ASTStatistics> {
 		}
 		
 		if (preferred || other.avoided) {
-			return 1;
+			return -1;
 		}
 		
 		if (avoided || other.preferred) {
-			return -1;
+			return 1;
 		}
 		
 		return compareInjections(other);
