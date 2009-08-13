@@ -91,7 +91,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 		// Map
 		} else if(subjectType.isMapType()){
 			checkNoStrategy(subjectType);
-			if(!subjectType.getElementType().isVoidType())
+			if(!subjectType.getKeyType().isVoidType())
 				checkMayOccur(patType, subjectType.getKeyType());
 			iterator = ((IMap) subjectValue).iterator();
 			
