@@ -14,12 +14,31 @@ import UnitTest;
 alias Env = map[\PICO-ID, TYPE];
 
 public list[Message] tcp(PROGRAM P) {
-   if( [| begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
+     
+   {\ID-TYPE "," }* Decls;
+   {STATEMENT ";"}* Stats;
+   if( [| begin declare <Decls>; <Stats> end |] := P){
+       println("tcp: ", Decls);
+       println("tcp: Decls=<Decls>\nStats=<Stats>");
        Env Env = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
+       println("Env = ", Env);
        return tcs(Stats, Env);
    }
    return [message("Malformed Pico program")];
 }
+
+/*
+public list[Message] tcp(PROGRAM P) {
+   if( [| begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
+       println("tcp: ", Decls);
+       println("tcp: Decls=<Decls>\nStats=<Stats>");
+       Env Env = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
+       println("Env = ", Env);
+       return tcs(Stats, Env);
+   }
+   return [message("Malformed Pico program")];
+}
+*/
 
 public list[Message] tcs({STATEMENT ";"}* Stats, Env Env){
     return [tcst(S, Env) | STATEMENT S <- Stats];
