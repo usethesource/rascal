@@ -313,7 +313,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 			if (type instanceof ConcreteSyntaxType) {
 				ConcreteSyntaxType cType = (ConcreteSyntaxType) type;
 				if (cType.isConcreteListType()) {
-					return new ConcreteListVariablePattern(vf, ctx, type, x.getName());
+					return new ConcreteListVariablePattern(vf, ctx, type, Names.lastName(name));
 				}
 			}
 			
