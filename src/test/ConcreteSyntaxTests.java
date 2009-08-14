@@ -116,6 +116,12 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("[|<A someA>|] := [|a|];"));
 	}
 	
+	@Test
+	public void varAQuotedDeclaredBefore(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{A someA; A[|<someA>|] := [|a|];}"));
+	}
+	
 	public void VarATypedInsertAmbiguous(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|] && someA == [|a|]; }"));
@@ -539,6 +545,38 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := [|begin declare x: natural; x := 10 end|];}"));
 	}
 	
+	@Test
+	public void Pico6(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{DECLS decls; {STATEMENT \";\"}* stats; [|begin <decls> <stats> end|] := [|begin declare x: natural; x := 10 end|];}"));
+	}
+	
+	@Test
+	public void Pico7a(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := [|begin declare x: natural; x := 1; x := 2 end|] &&" +
+				                          "(decls == [|declare x: natural;|]);}"));
+	}
+	
+	@Test
+	public void Pico7b(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := [|begin declare x: natural; x := 1; x := 2 end|] &&" +
+				                          "(decls == [|declare x: natural;|]) && (stats == {STATEMENT \";\"}*[|x := 1; x := 2|]);}"));
+	}
+	
+	@Test
+	public void Pico8(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{ bool B;" +
+				                          "  if([|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := [|begin declare x: natural; x := 1; x := 2 end|]){" +
+				                          "            B = (decls == [|declare x: natural;|]);" +
+				                          "  } else" +
+				                          "     B = false; " +
+				                          "  B;" +
+				                          "}"));
+	}
+	
 	private String QmoduleM = "module M\n" +
 	                         "import languages::pico::syntax::Pico;\n" +
 	                         "public Tree t1 = [|begin declare x: natural; x := 10 end|];\n" +
@@ -697,6 +735,12 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void enumeratorPicoStatementsConcretePattern4(){
 		prepare("import languages::pico::syntax::Pico;");
 		assertTrue(runTestInSameEvaluator("{L = []; for([|<\\PICO-ID Id> : <TYPE Tp>|] <- [|x : natural, y : string|]){L += Id;} L == [ [|x|], [|y|] ];}"));
+	}
+	
+	@Test
+	public void forPicoStatementsTyped(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- [|a:=1;a:=2;a:=3|] ]; L == [[|a:=1|], [|a:=2|], [|a:=3|]];}"));
 	}
 	
 }
