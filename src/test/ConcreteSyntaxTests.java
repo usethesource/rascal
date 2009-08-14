@@ -554,15 +554,15 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void Pico7a(){
 		prepare("import languages::pico::syntax::Pico;");
-		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := [|begin declare x: natural; x := 1; x := 2 end|] &&" +
+		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}+ stats> end|] := [|begin declare x: natural; x := 1; x := 2 end|] &&" +
 				                          "(decls == [|declare x: natural;|]);}"));
 	}
 	
 	@Test
 	public void Pico7b(){
 		prepare("import languages::pico::syntax::Pico;");
-		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := [|begin declare x: natural; x := 1; x := 2 end|] &&" +
-				                          "(decls == [|declare x: natural;|]) && (stats == {STATEMENT \";\"}*[|x := 1; x := 2|]);}"));
+		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}+ stats> end|] := [|begin declare x: natural; x := 1; x := 2 end|] &&" +
+				                          "(decls == [|declare x: natural;|]) && (stats == {STATEMENT \";\"}+[|x := 1; x := 2|]);}"));
 	}
 	
 	@Test
@@ -647,7 +647,7 @@ public class ConcreteSyntaxTests extends TestFramework {
     "import languages::pico::syntax::Pico;\n" +
     "public Tree t1 = begin declare x: natural; x := 10 end;\n";
 
-	@Test(expected=SyntaxError.class) // Directly antiquoting without quotes not allowed.
+	@Test(expected=StaticError.class) // Directly antiquoting without quotes not allowed.
 	public void PicoUnQuoted1(){
 		prepareModule("M", UQmoduleM + "public bool match1() { return <PROGRAM program> := t1; }\n");
 		prepareMore("import M;");
