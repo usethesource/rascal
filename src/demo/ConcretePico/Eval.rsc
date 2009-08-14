@@ -17,6 +17,9 @@ alias VEnv = map[\PICO-ID, PICO_VALUE];
 public VEnv evalProgram(PROGRAM P){
 
    if( [| begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
+   
+        L = [ Id | [|<\PICO-ID Id>:<TYPE Type>|] <- Decls];
+        println("L = ", L);
        VEnv Env = evalDecls(Decls);
        println("Declaration env:", Env);
        return evalStatements(Stats, Env);
@@ -26,10 +29,18 @@ public VEnv evalProgram(PROGRAM P){
 VEnv evalDecls({\ID-TYPE "," }* Decls){
     VEnv Env = ();
     println("evalDecls: ", Decls);
-    for([|<\PICO-ID Id> : <TYPE Type>|] <- Decls){
+    
+    L = [ Id | [|<\PICO-ID Id>:<TYPE Type>|] <- Decls];
+    println("L = ", L);
+    
+    M = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
+    println("M = ", M);
+    
+    for([| <\PICO-ID Id> : <TYPE Type>|] <- Decls){
         println("in loop", Id);
         Env[Id] = (Type == [|natural|]) ? intval(0) : strval(""); 
     }
+    println("evalDecls returns: ", Env);
     return Env;
 }
 
@@ -100,8 +111,8 @@ PICO_VALUE evalExp(EXP exp, VEnv Env) {
    } 
 }
 
-public bool test(){
+public void main(){
    println(evalProgram(small));
-   println(evalProgram(fac));
-   return true;
+   //println(evalProgram(fac));
+   return;
 }
