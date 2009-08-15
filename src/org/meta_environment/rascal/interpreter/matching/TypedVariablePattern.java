@@ -17,7 +17,7 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 	private String name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
-	private boolean debug = false;
+	private boolean debug = true;
 	private boolean iDeclaredItMyself;
 
 	public TypedVariablePattern(IValueFactory vf, IEvaluatorContext ctx, 
