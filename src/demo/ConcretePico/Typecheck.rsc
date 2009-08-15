@@ -14,15 +14,22 @@ import UnitTest;
 alias Env = map[\PICO-ID, TYPE];
 
 public list[Message] tcp(PROGRAM P) {
-     
-   {\ID-TYPE "," }* Decls;
-   {STATEMENT ";"}* Stats;
-   if( [| begin declare <Decls>; <Stats> end |] := P){
-       println("tcp: ", Decls);
+   
+   if( [| begin declare <{\ID-TYPE "," }+ Decls>; <{STATEMENT ";"}* Stats> end |] := P){
+       println("tcp1: ", Decls);
+       println("tcp1: ", Stats);
+       
        println("tcp: Decls=<Decls>\nStats=<Stats>");
-       Env Env = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
-       println("Env = ", Env);
-       return tcs(Stats, Env);
+       L = [Id | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls];
+       
+       
+      println("L =", L);
+       Env E = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
+       println("tcp2: ", Decls);
+       println("tcp2: ", Stats);
+       
+       println("Env = ", E);
+       return tcs(Stats, E);
    }
    return [message("Malformed Pico program")];
 }
@@ -97,9 +104,10 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
 }
 
 public bool test() {
-  assertEqual(tcp(small), []);
-  assertEqual(tcp(fac), []);
-  assertEqual(tcp(big), []);
+  assertEqual(tcp([|begin declare x : natural; x := "a"  end|]), message("Type error: expected int got str"));
+  //assertEqual(tcp(small), []);
+  //assertEqual(tcp(fac), []);
+  //assertEqual(tcp(big), []);
   
   return report("ConcretePico::Typecheck");
 }

@@ -26,7 +26,7 @@ public class NodeReader implements Iterator<IValue> {
 	}
 	
 	private void initSpine(INode node){
-		//System.err.println("initSpine: " + node.getType() + ", " + node);
+		System.err.println("initSpine: " + node.getType() + ", " + node);
 		
 		if(node.getType() instanceof ConcreteSyntaxType ||
 		   node.getType().getName().equals("Tree")){
@@ -43,33 +43,33 @@ public class NodeReader implements Iterator<IValue> {
 	}
 	
 	private void pushConcreteSyntaxNode(IConstructor tree){
-		//System.err.println("pushConcreteSyntaxNode: " + tree);
+		System.err.println("pushConcreteSyntaxNode: " + tree);
 			
 		ConcreteSyntaxType ctype = new ConcreteSyntaxType(tree);
-		//System.err.println("ctype.getSymbol=" + ctype.getSymbol());
+		System.err.println("ctype.getSymbol=" + ctype.getSymbol());
 		SymbolAdapter sym = new SymbolAdapter(ctype.getSymbol());
         if(sym.isAnyList()){
         	sym = sym.getSymbol();
         	int delta = 1;
         	IList listElems = (IList) tree.get(1);
 			if(sym.isIterPlus() || sym.isIterStar()){
-				//System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
+				System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
 				delta = 2;
 			} else if(sym.isIterPlusSep() || sym.isIterStarSep()){
-				//System.err.println("pushConcreteSyntaxChildren: isIterPlusSep or isIterStarSep");
+				System.err.println("pushConcreteSyntaxChildren: isIterPlusSep or isIterStarSep");
 				delta = 4;
 			}
-			//for(int i = 0; i < listElems.length(); i++){
-			//	System.err.println("#" + i + ": " + listElems.get(i));
-			//}
+			for(int i = 0; i < listElems.length(); i++){
+				System.err.println("#" + i + ": " + listElems.get(i));
+			}
         	
 			for(int i = listElems.length() - 1; i >= 0 ; i -= delta){
-				//System.err.println("adding: " + listElems.get(i));
+				System.err.println("adding: " + listElems.get(i));
 				spine.push(listElems.get(i));
 			}
 			return;
 		} else {
-			//System.err.println("pushConcreteSyntaxNode: appl");
+			System.err.println("pushConcreteSyntaxNode: appl");
 			/*
 			 * appl(prod(...), [child0, layout0, child1, ...])
 			 */

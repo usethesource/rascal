@@ -46,7 +46,7 @@ public class ListPattern extends AbstractMatchingResult  {
 	private boolean firstMatch;						// First match after initialization?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = false;
+	private boolean debug = true;
 
 	
 	public ListPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list){
@@ -235,7 +235,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				}
 			} else {
 				if (debug) {
-					System.err.println("List: child " + child + " " + child);
+					System.err.println("List: child " + child);
 					System.err.println("List: child is a" + child.getClass());
 				}
 				Type childType = child.getType(env);

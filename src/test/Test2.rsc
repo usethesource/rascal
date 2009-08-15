@@ -1,20 +1,14 @@
 module test::Test2
 import IO;
+import languages::pico::syntax::Pico;
 
-
-public void test()
-{
-    println("case 1");
-    cmds = [];
-    for(c <- cmds) println(c);
-    
-    println("case 2");
-    list[str] cmds1 = [];
-    for(c1 <- cmds1) println(c1);
-    
-    println("case 3");
-    for(str c2 <- cmds) println(c2);
-    
-    println("case 4");
-    for(str c2 <- cmds1) println(c2);
+public void test(){
+  if([|declare <{\ID-TYPE "," }* decls>;|] := [|declare x: natural, y : string;|]){
+     
+       println("decls: ", decls);
+      
+       L = [Id | [| <\PICO-ID Id> : <TYPE Type> |] <- decls];
+       
+      println("L =", L);
+  }
 }
