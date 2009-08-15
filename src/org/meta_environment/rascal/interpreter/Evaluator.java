@@ -983,7 +983,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			return (Result<IValue>) function.call(types, actuals, this);
 		}
 		catch (UndeclaredVariableError e) {
-			throw new UndeclaredFunctionError(e.getName(), e.getLocation());
+			throw new UndeclaredVariableError(e.getName(), x);
 		}
 	}
 
