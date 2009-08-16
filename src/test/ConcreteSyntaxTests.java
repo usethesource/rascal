@@ -566,6 +566,13 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	public void Pico7c(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := [|begin declare x: natural; x := 1; x := 2 end|] &&" +
+				                          "(decls == [|declare x: natural;|]) && (stats == {STATEMENT \";\"}+[|x := 1; x := 2|]);}"));
+	}
+	
+	@Test
 	public void Pico8(){
 		prepare("import languages::pico::syntax::Pico;");
 		assertTrue(runTestInSameEvaluator("{ bool B;" +
@@ -741,6 +748,18 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void forPicoStatementsTyped(){
 		prepare("import languages::pico::syntax::Pico;");
 		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- [|a:=1;a:=2;a:=3|] ]; L == [[|a:=1|], [|a:=2|], [|a:=3|]];}"));
+	}
+	
+	@Test
+	public void PicoStringDoesNotOverrideRascalString1(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{str s = \"abc\"; s == \"abc\";}"));
+	}
+	
+	@Test
+	public void PicoStringDoesNotOverrideRascalString2(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{int n = 3; s = \"abc<n>\"; s == \"abc3\";}"));
 	}
 	
 }
