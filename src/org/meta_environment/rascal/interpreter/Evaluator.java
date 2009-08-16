@@ -983,7 +983,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			return (Result<IValue>) function.call(types, actuals, this);
 		}
 		catch (UndeclaredVariableError e) {
-			throw new UndeclaredVariableError(e.getName(), x);
+			throw new UndeclaredFunctionError(e.getName(), x);
 		}
 	}
 
@@ -2094,21 +2094,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	boolean matchAndEval(Result<IValue> subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
+		boolean debug = false;
 		Environment old = getCurrentEnvt();
 		pushEnv();
 		
 		try {
 			IMatchingResult mp = pat.accept(makePatternEvaluator(pat));
 			mp.initMatch(subject);
-			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
+			if(debug)System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
 				pushEnv();
-				//System.err.println("matchAndEval: mp.hasNext()==true");
+				if(debug)System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
-					//System.err.println("matchAndEval: mp.next()==true");
+					if(debug)System.err.println("matchAndEval: mp.next()==true");
 					try {
 						checkPoint(getCurrentEnvt());
-						//System.err.println(stat.toString());
+						if(debug)System.err.println(stat.toString());
 						try {
 							stat.accept(this);
 						} catch (org.meta_environment.rascal.interpreter.control_exceptions.Insert e){
@@ -2121,13 +2122,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 						commit(getCurrentEnvt());
 						return true;
 					} catch (Failure e){
-						//System.err.println("failure occurred");
+						if(debug) System.err.println("failure occurred");
 						rollback(getCurrentEnvt());
-//						unwind(old); can not clean up because you don't know how far to roll back
+						// unwind(old); // can not clean up because you don't know how far to roll back
 					}
 				}
 			}
 		} finally {
+			if(debug)System.err.println("Unwind to old env");
 			unwind(old);
 		}
 		return false;
