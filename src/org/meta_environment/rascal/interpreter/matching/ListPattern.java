@@ -46,7 +46,7 @@ public class ListPattern extends AbstractMatchingResult  {
 	private boolean firstMatch;						// First match after initialization?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 
 	
 	public ListPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list){
