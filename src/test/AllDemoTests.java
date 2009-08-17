@@ -113,6 +113,13 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Rules::ConcreteBool;");
 		assertTrue(runTestInSameEvaluator("demo::Rules::ConcreteBool::test();"));
 	}
+	
+	@Test
+	public void ConcreteBoolVisit() {
+		prepare("import demo::Rules::ConcreteBoolVisit;");
+		assertTrue(runTestInSameEvaluator("demo::Rules::ConcreteBoolVisit::test();"));
+	}
+
 
 	@Test
 	public void ConcretePicoTypecheck() {

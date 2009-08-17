@@ -2,6 +2,9 @@ module demo::Rules::AbstractBoolVisit
 
 import UnitTest;
 
+// A definition of Booleans and the operators band and bor using a visit function.
+// See AbstractBool for a definition using rewrite rules.
+
 data Bool = btrue();
 data Bool = bfalse();
 data Bool = band(Bool left, Bool right);
@@ -9,8 +12,8 @@ data Bool = bor(Bool left, Bool right);
 
 public Bool reduce(Bool B) {
     return innermost visit(B) {
-      case band(btrue(), Bool B1) => B1		// Use variables
-      case band(bfalse(), Bool B1)=> bfalse()   //TODO: should become B1!
+      case band(btrue(),  B1)       => B1		  // Use variables
+      case band(bfalse(), B1)       => bfalse()
       
       case bor(btrue(), btrue())    => btrue()    // Use a truth table
       case bor(btrue(), bfalse())   => btrue()

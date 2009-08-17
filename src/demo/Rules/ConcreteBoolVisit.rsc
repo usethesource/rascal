@@ -1,16 +1,25 @@
-module Rules::ConcreteBoolVisit
+module demo::Rules::ConcreteBoolVisit
 
 import demo::Rules::BoolSyntax;
+import UnitTest;
 
 Bool reduce(Bool B) {
-    Bool B1, B2;
-    return bottom-up visit(B) {
-      case true & <B2>   => <B2>;
-      case false & <B2>  => false;
+    Bool B2;
+    return innermost visit(B) {
+      case [|btrue & <B2>|]   => B2            // TODO: does work when B2 is declared here
+      case [|bfalse & <B2>|]  => [|bfalse|]
 
-      case true | true   => true;
-      case true | false  => true;
-      case false | true  => true;
-      case false | false => false;
+      case [|btrue | btrue|]   => [|btrue|]
+      case [|btrue | bfalse|]  => [|btrue|]
+      case [|bfalse | btrue|]  => [|btrue|]
+      case [|bfalse | bfalse|] => [|bfalse|]
     };
+}
+
+public bool test(){
+  assertEqual(reduce([|btrue|]), [|btrue|]);
+  assertEqual(reduce([|btrue | btrue|]), [|btrue|]);
+  assertEqual(reduce([|bfalse | btrue|]), [|btrue|]);
+  assertEqual(reduce([|bfalse & bfalse|]), [|bfalse|]);
+  return report("ConcreteBoolVisit");
 }
