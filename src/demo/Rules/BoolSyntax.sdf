@@ -1,5 +1,6 @@
 module demo/Rules/BoolSyntax
 
+%% Concrete syntax for a small language of Booleans.
 exports 
   imports basic/Whitespace
   sorts Bool
@@ -8,5 +9,5 @@ exports
   context-free syntax
     "btrue"        -> Bool
     "bfalse"       -> Bool
-    Bool "&" Bool -> Bool {left}
-    Bool "|" Bool -> Bool {right}
+    Bool "&" Bool  -> Bool {left}
+    Bool "|" Bool  -> Bool {right}
