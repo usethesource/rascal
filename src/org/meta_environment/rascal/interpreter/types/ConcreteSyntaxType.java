@@ -90,7 +90,7 @@ public class ConcreteSyntaxType extends Type {
 			SymbolAdapter sym = new SymbolAdapter(symbol);
 			SymbolAdapter otherSym = new SymbolAdapter(((ConcreteSyntaxType)other).symbol);
 			if (sym.isPlusList() && otherSym.isStarList()) {
-				return true;
+				return true; // TODO add check if they have the same element type
 			}
 		}
 		
