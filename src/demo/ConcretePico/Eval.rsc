@@ -1,58 +1,61 @@
 module demo::ConcretePico::Eval
 
-import languages::pico::syntax::Pico;
-import demo::ConcretePico::Programs;
+import languages::pico::syntax::Pico;   // Pico concrete syntax
+import demo::ConcretePico::Programs;    // Example programs
 
 import IO;
+import String;
 import UnitTest;
+import Exception;
 
 /*
  * Evaluator for Pico
  */
- 
+
+// PICO_VALUE: the runtime representation of Pico values
+
 data PICO_VALUE = intval(int ival) | strval(str sval);
 
-alias VEnv = map[\PICO-ID, PICO_VALUE];
+// ValueEnv: Value environments that map PICO-IDs to their runtime PICO_VALUE
+// Note that we define ValueEnv as an alias (= abbreviation) for the more complex 
+// type map[\PICO-ID, PICO_VALUE] in order to avoid repeating that type.
+// Also note that we write \PICO-ID since the character - is not valid in
+// Rascal identifiers and type names (but it is in SDF).
 
-public VEnv evalProgram(PROGRAM P){
+alias ValueEnv = map[\PICO-ID, PICO_VALUE];                                   
+
+TYPE naturalType = TYPE[|natural|];     // Two useful constants
+TYPE stringType  = TYPE[|string|];
+
+// evalProgram: evaluate a Pico program and return a value environment
+
+public ValueEnv evalProgram(PROGRAM P){
 
    if( [| begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
-   
-        L = [ Id | [|<\PICO-ID Id>:<TYPE Type>|] <- Decls];
-        println("L = ", L);
-       VEnv Env = evalDecls(Decls);
-       println("Declaration env:", Env);
-       return evalStatements(Stats, Env);
-   }
+       return evalStatements(Stats, evalDecls(Decls));
+   } else
+       throw IllegalArgument(P);
 }
 
-VEnv evalDecls({\ID-TYPE "," }* Decls){
-    VEnv Env = ();
-    println("evalDecls: ", Decls);
-    
-    L = [ Id | [|<\PICO-ID Id>:<TYPE Type>|] <- Decls];
-    println("L = ", L);
-    
-    M = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
-    println("M = ", M);
+// evalDecls: evaluate all declaration and retrun a value environment with default initalizations
+
+ValueEnv evalDecls({\ID-TYPE "," }* Decls){
+    ValueEnv Env = ();
     
     for([| <\PICO-ID Id> : <TYPE Type>|] <- Decls){
-        println("in loop", Id);
-        Env[Id] = (Type == [|natural|]) ? intval(0) : strval(""); 
+        Env[Id] = (Type == naturalType) ? intval(0) : strval(""); 
     }
-    println("evalDecls returns: ", Env);
     return Env;
 }
 
-VEnv evalStatements({STATEMENT ";"}* Series, VEnv Env){
+ValueEnv evalStatements({STATEMENT ";"}* Series, ValueEnv Env){
     for(STATEMENT Stat <- Series){
         Env = evalStatement(Stat, Env);
     }
     return Env;
 }
 
-VEnv evalStatement(STATEMENT Stat, VEnv Env){
-    println(Stat);
+ValueEnv evalStatement(STATEMENT Stat, ValueEnv Env){
     switch (Stat) {
       case [| <\PICO-ID Id> := <EXP Exp> |]: {
         Env[Id] = evalExp(Exp, Env);
@@ -61,7 +64,7 @@ VEnv evalStatement(STATEMENT Stat, VEnv Env){
 
       case [| if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
                        else <{STATEMENT ";"}* Stats2> fi |]:{
-        if(evalExp(Exp, Env) != intval(0)){
+        if(evalExp(Exp, Env) == intval(0)){
           return evalStatments(Stats1, Env);
         } else {
           return evalStatements(Stats2, Env);
@@ -69,10 +72,10 @@ VEnv evalStatement(STATEMENT Stat, VEnv Env){
       }
 
       case [| while <EXP Exp> do <{STATEMENT ";"}* Stats> od |]: {
-        if(evalExp(Exp, Env) != intval(0)){
+        if(evalExp(Exp, Env) == intval(0)){
           return Env;
         } else {
-          VEnv Env2 = evalStatements(Stats, Env);
+          ValueEnv Env2 = evalStatements(Stats, Env);
           return evalStatement(Stat, Env2);
         }
       }
@@ -80,15 +83,21 @@ VEnv evalStatement(STATEMENT Stat, VEnv Env){
     }
 }
 
-PICO_VALUE evalExp(EXP exp, VEnv Env) {
+// evalExp: evaluate an expression and return its value
+
+PICO_VALUE evalExp(EXP exp, ValueEnv Env) {
     switch (exp) {
-      case [| <NatCon N> |]: 
-           return intval(toInt(unparseToString(N)));
+      case EXP[| <NatCon N> |]: 
+           return intval(toInt("<N>"));
 
-      case [| <StrCon S> |]: 
-           return strval(unparseToString(S));
+      case EXP[| <StrCon S> |]: {
+           if(/"<sval:.*>"/ := "<S>")
+              return strval(sval);
+           else
+              println("Ill formed string value");
+      }
 
-      case [| <\PICO-ID Id> |]: 
+      case EXP[| <\PICO-ID Id> |]: 
            return Env[Id];
 
       case <EXP exp1> + <EXP exp2>:
@@ -111,8 +120,23 @@ PICO_VALUE evalExp(EXP exp, VEnv Env) {
    } 
 }
 
-public void main(){
-   println(evalProgram(small));
-   //println(evalProgram(fac));
-   return;
+public bool test(){
+   E = evalProgram([|begin declare x : natural; x := 10 end|]);
+   assertEqual(E[ [|x|] ], intval(10));
+   
+   E = evalProgram([|begin declare x : natural, y : natural; x := 10; y := x + 1 end|]);
+   assertEqual(E[ [|x|] ], intval(10));
+   assertEqual(E[ [|y|] ], intval(11));
+   
+   E = evalProgram([|begin declare x : string, y : string; x := "a"; y := x || "b" end|]);
+   assertEqual(E[ [|x|] ], strval("a"));
+   assertEqual(E[ [|y|] ], strval("ab"));
+   
+   E = evalProgram(small);
+   assertEqual(E[ [|s|] ], strval("##########"));
+   
+   E = evalProgram(fac);
+   assertEqual(E[ [|output|] ], intval(3628800));
+   
+   return report("ConcretePicoEval");
 }
