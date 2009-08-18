@@ -495,6 +495,23 @@ public class Environment {
 		functions.addAll(functionEnvironment.entrySet());
 		return functions;
 	}
+	
+	public List<Entry<String, CalleeCandidatesResult>> getAllFunctions() {
+		ArrayList<Entry<String, CalleeCandidatesResult>> functions = new ArrayList<Entry<String, CalleeCandidatesResult>>();
+		functions.addAll(getFunctions());
+		
+		for (String i : getImports()) {
+			for (Entry<String, CalleeCandidatesResult> cand : getImport(i).getFunctions()) {
+				for (Lambda func : cand.getValue()) {
+					if (func.isPublic()) {
+						functions.add(cand);
+					}
+				}
+			}
+		}
+		return functions;
+	}
+	
 
 	public Environment getParent() {
 		return parent;

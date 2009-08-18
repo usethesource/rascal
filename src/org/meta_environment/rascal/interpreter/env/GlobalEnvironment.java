@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.env;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -86,6 +87,16 @@ public class GlobalEnvironment {
 	}
 
 	
+	public List<RewriteRule> getRules() {
+		List<RewriteRule> result = new LinkedList<RewriteRule>();
+		
+		for (Type t : ruleEnvironment.keySet()) {
+			result.addAll(ruleEnvironment.get(t));
+		}
+		
+		return result;
+	}
+
 	public boolean existsModule(String name) {
 		return moduleEnvironment.containsKey(name);
 	}
