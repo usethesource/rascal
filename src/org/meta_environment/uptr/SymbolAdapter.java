@@ -133,7 +133,7 @@ public class SymbolAdapter {
 		if (!(obj instanceof SymbolAdapter)) {
 			return false;
 		}
-		return tree.equals(((SymbolAdapter)obj).tree);
+		return tree.isEqual(((SymbolAdapter)obj).tree);
 	}
 
 	public IConstructor getTree() {
