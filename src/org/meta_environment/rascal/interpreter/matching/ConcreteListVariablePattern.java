@@ -124,7 +124,18 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 
 
 	private IValue wrapWithListProd(IValue subject) {
-		return Factory.Tree_Appl.make(vf, Factory.Production_List.make(vf, declaredType.getSymbol()), subject);
+		IList args = (IList) subject;
+		IValue prod = Factory.Production_List.make(vf, declaredType.getSymbol());
+		
+		if (args.length() == 1) {
+			TreeAdapter arg = new TreeAdapter((IConstructor) args.get(0));
+			
+			if (arg.isList() && arg.getProduction().getTree().isEqual(prod)) {
+				return arg.getTree();
+			}
+		}
+		
+		return Factory.Tree_Appl.make(vf, prod, subject);
 	}
 
 	@Override
