@@ -4,6 +4,7 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Writer;
 import java.util.List;
 
@@ -16,8 +17,10 @@ import org.meta_environment.rascal.ast.Command.Import;
 import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.Import.Default;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
+import org.meta_environment.rascal.ast.ShellCommand.Help;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.ast.ShellCommand.Test;
+import org.meta_environment.rascal.ast.ShellCommand.Unimport;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
@@ -70,6 +73,44 @@ public class CommandEvaluator extends Evaluator {
 	@Override
 	public Result<IValue> visitCommandImport(Import x) {
 		return x.getImported().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitShellCommandHelp(Help x) {
+		printHelpMessage(System.out);
+		return ResultFactory.nothing();
+	}
+	
+	@Override
+	public Result<IValue> visitShellCommandUnimport(Unimport x) {
+		((ModuleEnvironment) getCurrentEnvt().getRoot()).unImport(x.getName().toString());
+		return ResultFactory.nothing();
+	}
+
+	protected void printHelpMessage(PrintStream out) {
+		out.println("Welcome to the Rascal command shell.");
+		out.println();
+		out.println("Shell commands:");
+		out.println(":help                      Prints this message");
+		out.println(":quit or EOF               Quits the shell");
+		out.println(":list                      Lists all visible functions and variables");
+		out.println(":set <option> <expression> Sets an option");
+		out.println(":edit <modulename>         Opens an editor for that module");
+		out.println(":modules                   Lists all imported modules");
+		out.println(":test                      Runs all unit tests currently loaded");
+		out.println(":unimport <modulename>     Undo an import");
+		out.println(":undeclare <name>          Undeclares a variable or function introduced in the shell");
+		out.println(":history                   Print the command history");
+		out.println();
+		out.println("Example rascal statements and declarations:");
+		out.println("1 + 1;                     Expressions simply print their output and (static) type");
+		out.println("int a;                     Declarations allocate a name in the current scope");
+		out.println("a = 1;                     Assignments store a value in a (optionally previously declared) variable");
+		out.println("int a = 1;                 Declaration with initialization");
+		out.println("import IO;                 Importing a module makes its public members available");
+		out.println("println(\"Hello World\")     Function calling");
+		out.println();
+		out.println("Please read the manual for further information");
 	}
 
 	@Override

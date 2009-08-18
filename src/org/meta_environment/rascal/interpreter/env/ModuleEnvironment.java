@@ -94,6 +94,10 @@ public class ModuleEnvironment extends Environment {
 	public Set<String> getImports() {
 		return importedModules.keySet();
 	}
+	
+	public void unImport(String moduleName) {
+		importedModules.remove(moduleName);
+	}
 
 	public String getName() {
 		return name;
