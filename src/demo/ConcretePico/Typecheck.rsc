@@ -47,7 +47,7 @@ public list[Message] tcst(STATEMENT Stat, Env Env) {
         return requireType(Exp, [|natural|], Env) + tcs(Stats1, Env) + tcs(Stats2, Env);
 
       case [| while <EXP Exp> do <{STATEMENT ";"}* Stats> od |]:
-        return requireType(Exp, [|natural|], Env) + tcs(Stats, Env);
+        return requireType(Exp, TYPE [|natural|], Env) + tcs(Stats, Env);
     }
     return [message("Unknown statement: <Stat>")];
 }
@@ -65,7 +65,7 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
 
       case EXP[|<\PICO-ID Id>|]: {
          TYPE Type2 = Env[Id];
-         println("Type2 = ". Type2);
+         println("Type2 = <Type2>");
          if(Type2 == Type) { return []; } else fail;
       }
 

@@ -745,7 +745,7 @@ public class ASTBuilder {
 			if (rhs.isCf()) {
 				rhs = rhs.getSymbol();
 			}
-			if (rhs.isParameterizedSort() && rhs.getName().equals("_Literal")) {
+			if (rhs.isParameterizedSort() && rhs.getName().equals("_WrappedLiteral")) {
 				return true;
 			}
 		}
