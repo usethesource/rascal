@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -18,6 +20,7 @@ import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.Import.Default;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.Help;
+import org.meta_environment.rascal.ast.ShellCommand.ListDeclarations;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.ast.ShellCommand.Test;
 import org.meta_environment.rascal.ast.ShellCommand.Unimport;
@@ -25,6 +28,9 @@ import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestErro
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+import org.meta_environment.rascal.interpreter.env.RewriteRule;
+import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
+import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.parser.ConsoleParser;
@@ -93,7 +99,7 @@ public class CommandEvaluator extends Evaluator {
 		out.println("Shell commands:");
 		out.println(":help                      Prints this message");
 		out.println(":quit or EOF               Quits the shell");
-		out.println(":list                      Lists all visible functions and variables");
+		out.println(":list                      Lists all visible rules, functions and variables");
 		out.println(":set <option> <expression> Sets an option");
 		out.println(":edit <modulename>         Opens an editor for that module");
 		out.println(":modules                   Lists all imported modules");
@@ -128,17 +134,47 @@ public class CommandEvaluator extends Evaluator {
 		List<FailedTestError> report = runTests();
 		return ResultFactory.makeResult(tf.stringType(), vf.string(report(report)), this);
 	}
-	
-//	@Override
-//	public Result<IValue> visitShellCommandHistory(History x) {
-//		try {
-//			console.printString(console.getHistory().toString());
-//		} catch (IOException e) {
-//			// should not happen
-//		}
-//		
-//		return null;
-//	}
+
+	@Override
+	public Result<IValue> visitShellCommandListDeclarations(ListDeclarations x) {
+		PrintStream out = System.out;
+		printVisibleDeclaredObjects(out);
+		return ResultFactory.nothing();
+	}
+
+	protected void printVisibleDeclaredObjects(PrintStream out) {
+		List<Entry<String, CalleeCandidatesResult>> functions = getCurrentEnvt().getAllFunctions();
+		if (functions.size() != 0) {
+			out.println("Functions:");
+
+			for (Entry<String, CalleeCandidatesResult> cand : functions) {
+				for (Lambda func : cand.getValue()) {
+					out.print('\t');
+					out.println(func.getHeader());
+				}
+			}
+		}
+		
+
+		List<RewriteRule> rules = getHeap().getRules();
+		if (rules.size() != 0) {
+			out.println("Rules:");
+			for (RewriteRule rule : rules) {
+				out.print('\t');
+				out.println(rule.getRule().getPattern().toString());
+			}
+		}
+		
+		Map<String, Result<IValue>> variables = getCurrentEnvt().getVariables();
+		if (variables.size() != 0) {
+			out.println("Variables:");
+			for (String name : variables.keySet()) {
+				out.print('\t');
+				Result<IValue> value = variables.get(name);
+				out.println(value.getType() + " " + name + " = " + value.getValue());
+			}
+		}
+	}
 	
 	@Override
 	protected void evalSDFModule(Default x) {
