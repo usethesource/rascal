@@ -569,7 +569,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void Pico7c(){
 		prepare("import languages::pico::syntax::Pico;");
 		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := [|begin declare x: natural; x := 1; x := 2 end|] &&" +
-				                          "(decls == [|declare x: natural;|]) && (stats == {STATEMENT \";\"}+[|x := 1; x := 2|]);}"));
+				                          "(decls == [|declare x: natural;|]) && (stats == {STATEMENT \";\"}*[|x := 1; x := 2|]);}"));
 	}
 	
 	@Test
