@@ -60,7 +60,9 @@ public class ParserFunction extends Lambda {
 		try {
 			Environment env = ctx.getCurrentEnvt();
 			IConstructor ptree = ((StringParser)parser).parseString(sdfSearchPath, sdfImports, source); 
-			IConstructor tree = (IConstructor) new ParsetreeAdapter(ptree).getTop().getArgs().get(1);
+			ParsetreeAdapter parsetreeAdapter = new ParsetreeAdapter(ptree);
+			parsetreeAdapter = new ParsetreeAdapter(parsetreeAdapter.addPositionInformation(source));
+			IConstructor tree = (IConstructor) parsetreeAdapter.getTop().getArgs().get(1);
 			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 			
 			return ResultFactory.makeResult(resultType, tree, eval);
