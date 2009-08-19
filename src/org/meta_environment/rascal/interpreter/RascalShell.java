@@ -175,6 +175,10 @@ public class RascalShell {
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
+			
+			if (subject == null) {
+				return false;
+			}
 			String[] commandLines = command.split("\n");
 			int lastLine = commandLines.length;
 			int lastColumn = commandLines[lastLine - 1].length();

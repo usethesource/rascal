@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Command.Declaration;
+import org.meta_environment.rascal.ast.Command.Expression;
 import org.meta_environment.rascal.ast.Command.Import;
 import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.Import.Default;
@@ -74,6 +75,12 @@ public class CommandEvaluator extends Evaluator {
 			org.meta_environment.rascal.ast.Command.Statement x) {
 		setCurrentAST(x.getStatement());
 		return x.getStatement().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitCommandExpression(Expression x) {
+		setCurrentAST(x.getExpression());
+		return x.getExpression().accept(this);
 	}
 	
 	@Override
