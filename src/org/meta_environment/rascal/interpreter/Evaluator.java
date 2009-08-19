@@ -195,7 +195,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedInsertError
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.Profiler;
@@ -500,7 +500,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			return false;
 		}
 
-		if(large instanceof ConcreteSyntaxType && small instanceof ConcreteSyntaxType){
+		if(large instanceof NonTerminalType && small instanceof NonTerminalType){
 			//TODO: Until we have more precise info about the types in the concrete syntax
 			// we just return true here.
 			return true;
@@ -859,7 +859,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// TODO store rules for concrete syntax on production rule and
 		// create Lambda's for production rules to speed up matching and
 		// rewrite rule look up
-		if (pt instanceof ConcreteSyntaxType) {
+		if (pt instanceof NonTerminalType) {
 			pt = Factory.Tree_Appl;
 		}
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
@@ -877,7 +877,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IMatchingResult pv = x.getPattern().accept(makePatternEvaluator(x));
 		Type pt = pv.getType(getCurrentEnvt());
 		
-		if (pt instanceof ConcreteSyntaxType) {
+		if (pt instanceof NonTerminalType) {
 			pt = Factory.Tree_Appl;
 		}
 		
@@ -1703,8 +1703,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 
 			Type resultType = resultElem.getType();
-			if (splicing && resultType instanceof ConcreteSyntaxType) {
-				SymbolAdapter sym = new SymbolAdapter(((ConcreteSyntaxType)resultType).getSymbol());
+			if (splicing && resultType instanceof NonTerminalType) {
+				SymbolAdapter sym = new SymbolAdapter(((NonTerminalType)resultType).getSymbol());
 
 				if (sym.isAnyList()) {
 					IConstructor appl = ((IConstructor)resultElem.getValue());

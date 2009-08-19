@@ -16,10 +16,10 @@ import org.meta_environment.uptr.TreeAdapter;
  * that implements the mapping between SDF's sort names and Rascal types. These
  * types should never escape into the PDB, that would break a lot...
  */
-public class ConcreteSyntaxType extends Type {
+public class NonTerminalType extends Type {
 	private IConstructor symbol;
 
-	public ConcreteSyntaxType(IConstructor cons) {
+	public NonTerminalType(IConstructor cons) {
 		if (cons.getType() == Factory.Symbol) {
 			this.symbol = cons;
 		}
@@ -38,7 +38,7 @@ public class ConcreteSyntaxType extends Type {
 		}
 	}
 	
-	public ConcreteSyntaxType(org.meta_environment.rascal.ast.Type type) {
+	public NonTerminalType(org.meta_environment.rascal.ast.Type type) {
 		this((IConstructor) Symbols.typeToSymbol(type));
 	}
 	
@@ -86,9 +86,9 @@ public class ConcreteSyntaxType extends Type {
 			return true;
 		}
 
-		if (other instanceof ConcreteSyntaxType) {
+		if (other instanceof NonTerminalType) {
 			SymbolAdapter sym = new SymbolAdapter(symbol);
-			SymbolAdapter otherSym = new SymbolAdapter(((ConcreteSyntaxType)other).symbol);
+			SymbolAdapter otherSym = new SymbolAdapter(((NonTerminalType)other).symbol);
 			if (sym.isPlusList() && otherSym.isStarList()) {
 				return true; // TODO add check if they have the same element type
 			}
@@ -132,7 +132,7 @@ public class ConcreteSyntaxType extends Type {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj.getClass() == getClass()) {
-			ConcreteSyntaxType other = (ConcreteSyntaxType) obj;
+			NonTerminalType other = (NonTerminalType) obj;
 			return symbol.equals(other.symbol);
 		}
 		
@@ -144,10 +144,10 @@ public class ConcreteSyntaxType extends Type {
 		return symbol.toString();
 	}
 
-	public ConcreteSyntaxType getConcreteCFListElementType() {
+	public NonTerminalType getConcreteCFListElementType() {
 		SymbolAdapter sym = new SymbolAdapter(symbol);
 		// We assume it is cfListType
 		// cf(iter...(SYM)) -> SYM
-		return new ConcreteSyntaxType(sym.getSymbol().getSymbol().getTree());
+		return new NonTerminalType(sym.getSymbol().getSymbol().getTree());
 	}
 }

@@ -24,7 +24,7 @@ import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
 import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 
@@ -40,7 +40,7 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<String, ModuleEnvironment> importedModules;
 	protected final Map<Type, List<Type>> extensions;
 	protected final TypeStore typeStore;
-	protected final Map<String, ConcreteSyntaxType> concreteSyntaxTypes;
+	protected final Map<String, NonTerminalType> concreteSyntaxTypes;
 	protected final List<Test> tests;
 	private Set<String> importedSDFModules = new HashSet<String>();
 	private boolean initialized;
@@ -51,7 +51,7 @@ public class ModuleEnvironment extends Environment {
 		super(name);
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
 		this.extensions = new HashMap<Type, List<Type>>();
-		this.concreteSyntaxTypes = new HashMap<String, ConcreteSyntaxType>();
+		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.typeStore = new TypeStore();
 		this.tests = new LinkedList<Test>();
 		this.initialized = false;
@@ -237,13 +237,13 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Type concreteSyntaxType(String name, org.meta_environment.rascal.ast.Type type) {
-		ConcreteSyntaxType sort = new ConcreteSyntaxType(type);
+		NonTerminalType sort = new NonTerminalType(type);
 		concreteSyntaxTypes.put(name, sort);
 		return sort;
 	}
 	
 	public Type concreteSyntaxType(String name, IConstructor symbol) {
-		ConcreteSyntaxType sort = new ConcreteSyntaxType(symbol);
+		NonTerminalType sort = new NonTerminalType(symbol);
 		concreteSyntaxTypes.put(name, sort);
 		return sort;
 	}

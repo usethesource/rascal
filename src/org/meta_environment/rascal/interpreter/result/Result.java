@@ -15,7 +15,7 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.uptr.Factory;
 
 
@@ -59,7 +59,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	protected Result(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
-		if (value != null && !value.getType().isSubtypeOf(type) && !(type instanceof ConcreteSyntaxType && value.getType() == Factory.Tree)) {
+		if (value != null && !value.getType().isSubtypeOf(type) && !(type instanceof NonTerminalType && value.getType() == Factory.Tree)) {
 			throw new UnexpectedTypeError(type, value.getType(), ctx.getCurrentAST());
 		}
 	

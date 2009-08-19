@@ -10,7 +10,7 @@ import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
@@ -58,7 +58,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		}
 		
 		try {
-			return new ConcreteSyntaxType(rhs.accept(new IUPTRAstToSymbolConstructor(vf)));
+			return new NonTerminalType(rhs.accept(new IUPTRAstToSymbolConstructor(vf)));
 		}
 		catch (NonGroundSymbolException e) {
 			return Factory.Tree;

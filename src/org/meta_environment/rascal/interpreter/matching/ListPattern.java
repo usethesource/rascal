@@ -14,7 +14,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.uptr.SymbolAdapter;
 
 public class ListPattern extends AbstractMatchingResult  {
@@ -92,8 +92,8 @@ public class ListPattern extends AbstractMatchingResult  {
 	
 	public static boolean isConcreteListType(Type type){                      // <--- this code does not work because I donot understand the type structure of Tree
 		
-		if (type instanceof ConcreteSyntaxType) {
-			SymbolAdapter sym = new SymbolAdapter(((ConcreteSyntaxType)type).getSymbol());
+		if (type instanceof NonTerminalType) {
+			SymbolAdapter sym = new SymbolAdapter(((NonTerminalType)type).getSymbol());
 			return sym.isAnyList();
 		}
 		
@@ -242,7 +242,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				
 			    // TODO: pattern matching should be specialized such that matching appl(prod...)'s does not
 				// need to use list matching on the fixed arity children of the application of a production
-				if(!(childType instanceof ConcreteSyntaxType) && !childType.comparable(listSubjectElementType)){
+				if(!(childType instanceof NonTerminalType) && !childType.comparable(listSubjectElementType)){
 					throw new UnexpectedTypeError(listSubjectElementType,childType, getAST());
 				}
 				java.util.List<String> childVars = child.getVariables();

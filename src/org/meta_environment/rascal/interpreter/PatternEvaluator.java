@@ -96,7 +96,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePat
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
@@ -310,8 +310,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 			}
 			
 			Type type = r.getType();
-			if (type instanceof ConcreteSyntaxType) {
-				ConcreteSyntaxType cType = (ConcreteSyntaxType) type;
+			if (type instanceof NonTerminalType) {
+				NonTerminalType cType = (NonTerminalType) type;
 				if (cType.isConcreteListType()) {
 					return new ConcreteListVariablePattern(vf, ctx, type, Names.lastName(name));
 				}
@@ -335,8 +335,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		Type type = te.eval(x.getType(), ctx.getCurrentEnvt());
 		
-		if (type instanceof ConcreteSyntaxType) {
-			ConcreteSyntaxType cType = (ConcreteSyntaxType) type;
+		if (type instanceof NonTerminalType) {
+			NonTerminalType cType = (NonTerminalType) type;
 			if (cType.isConcreteListType()) {
 				return new ConcreteListVariablePattern(vf,  ctx, type, x.getName());
 			}
