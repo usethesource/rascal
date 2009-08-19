@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class Test extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; } public boolean isUnlabeled() { return false; }
 static public class Unlabeled extends Test {
-/** "test" expression:Expression ";" -> Test {cons("Unlabeled")} */
+/** "test" expression:Expression -> Test {cons("Unlabeled")} */
 	private Unlabeled() {
 		super();
 	}
@@ -44,7 +44,7 @@ static public class Ambiguity extends Test {
 } public org.meta_environment.rascal.ast.StringLiteral getLabeled() { throw new UnsupportedOperationException(); } public boolean hasLabeled() { return false; }
 public boolean isLabeled() { return false; }
 static public class Labeled extends Test {
-/** "test" expression:Expression ":" labeled:StringLiteral ";" -> Test {cons("Labeled")} */
+/** "test" expression:Expression ":" labeled:StringLiteral -> Test {cons("Labeled")} */
 	private Labeled() {
 		super();
 	}

@@ -4,6 +4,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public class ASTFactory {
 private MappingCache<INode, Object> ambCache = new MappingCache<INode, Object>();
 private MappingCache<INode, Object> sortCache = new MappingCache<INode, Object>();
+private MappingCache<INode, Object> otherSortCache = new MappingCache<INode, Object>();
 private MappingCache<INode, Object> lexCache = new MappingCache<INode, Object>();
 
 public org.meta_environment.rascal.ast.Marker.Ambiguity makeMarkerAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Marker> alternatives) { 
@@ -2762,6 +2763,14 @@ public org.meta_environment.rascal.ast.Command.Declaration makeCommandDeclaratio
 org.meta_environment.rascal.ast.Command.Declaration x = (org.meta_environment.rascal.ast.Command.Declaration) sortCache.get(node);
        if(x == null){
           x = new org.meta_environment.rascal.ast.Command.Declaration(node, declaration);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.Command.Expression makeCommandExpression(INode node, org.meta_environment.rascal.ast.Expression expression) { 
+org.meta_environment.rascal.ast.Command.Expression x = (org.meta_environment.rascal.ast.Command.Expression) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Command.Expression(node, expression);
           sortCache.putUnsafe(node, x);
        }
        return x; 

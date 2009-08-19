@@ -72,7 +72,36 @@ private org.meta_environment.rascal.ast.Statement statement;
  		z.$setStatement(x);
 		return z;
 	}	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Declaration getDeclaration() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
+public boolean hasExpression() { return false; }
+public boolean isExpression() { return false; }
+static public class Expression extends Command {
+/** expression:Expression -> Command {prefer, cons("Expression")} */
+	private Expression() {
+		super();
+	}
+	public Expression(INode node, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
+		this.expression = expression;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitCommandExpression(this);
+	}
+
+	public boolean isExpression() { return true; }
+
+	public boolean hasExpression() { return true; }
+
+private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public Expression setExpression(org.meta_environment.rascal.ast.Expression x) { 
+		Expression z = new Expression();
+ 		z.$setExpression(x);
+		return z;
+	}	
+} 
+public org.meta_environment.rascal.ast.Declaration getDeclaration() { throw new UnsupportedOperationException(); }
 public boolean hasDeclaration() { return false; }
 public boolean isDeclaration() { return false; }
 static public class Declaration extends Command {
