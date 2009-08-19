@@ -482,6 +482,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> compareMap(MapResult that, IEvaluatorContext ctx) {
 		return that.undefinedError(COMPARE_STRING, this, ctx);
 	}
+	
+	protected <U extends IValue> Result<U> compareNode(NodeResult that, IEvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
 
 	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that, IEvaluatorContext ctx) {
 		return that.undefinedError(EQUALS_STRING, this, ctx);
