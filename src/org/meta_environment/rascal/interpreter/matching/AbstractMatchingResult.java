@@ -10,7 +10,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.uptr.Factory;
 
 public abstract class AbstractMatchingResult extends AbstractBooleanResult implements IMatchingResult {
@@ -73,15 +73,15 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 		if(small.isSubtypeOf(large) || large.isSubtypeOf(small))
 			return true;
 
-		if (small instanceof ConcreteSyntaxType && large instanceof ConcreteSyntaxType) {
+		if (small instanceof NonTerminalType && large instanceof NonTerminalType) {
 			return small.equals(large);
 		}
 		
-		if (small instanceof ConcreteSyntaxType) {
+		if (small instanceof NonTerminalType) {
 			return large.isSubtypeOf(Factory.Tree);
 		}
 		
-		if (large instanceof ConcreteSyntaxType) {
+		if (large instanceof NonTerminalType) {
 			return small.isSubtypeOf(Factory.Tree);
 		}
 		

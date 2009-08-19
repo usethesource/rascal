@@ -10,7 +10,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
@@ -18,7 +18,7 @@ import org.meta_environment.uptr.TreeAdapter;
 
 public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	private String name;
-	private ConcreteSyntaxType declaredType;
+	private NonTerminalType declaredType;
 	
 	private boolean anonymous = false;
 	private boolean debug = false;
@@ -28,7 +28,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, ctx);
 		this.name = Names.name(name);
-		this.declaredType = (ConcreteSyntaxType) type;
+		this.declaredType = (NonTerminalType) type;
 		this.anonymous = name.toString().equals("_");
 		this.iDeclaredItMyself = false;
 	}

@@ -46,7 +46,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 
@@ -418,7 +418,7 @@ public class TypeEvaluator {
 		
 		@Override
 		public Type visitTypeSymbol(Symbol x) {
-			return new ConcreteSyntaxType(x);
+			return new NonTerminalType(x);
 		}
 	}
 }

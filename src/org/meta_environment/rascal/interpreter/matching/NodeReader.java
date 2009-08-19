@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.uptr.SymbolAdapter;
 
 public class NodeReader implements Iterator<IValue> {
@@ -29,7 +29,7 @@ public class NodeReader implements Iterator<IValue> {
 	private void initSpine(INode node){
 		if(debug)System.err.println("initSpine: " + node.getType() + ", " + node);
 		
-		if(node.getType() instanceof ConcreteSyntaxType ||
+		if(node.getType() instanceof NonTerminalType ||
 		   node.getType().getName().equals("Tree")){
 			pushConcreteSyntaxNode((IConstructor) node);
 		} else {
@@ -46,7 +46,7 @@ public class NodeReader implements Iterator<IValue> {
 	private void pushConcreteSyntaxNode(IConstructor tree){
 		if(debug)System.err.println("pushConcreteSyntaxNode: " + tree);
 			
-		ConcreteSyntaxType ctype = new ConcreteSyntaxType(tree);
+		NonTerminalType ctype = new NonTerminalType(tree);
 		if(debug)System.err.println("ctype.getSymbol=" + ctype.getSymbol());
 		SymbolAdapter sym = new SymbolAdapter(ctype.getSymbol());
         if(sym.isAnyList()){

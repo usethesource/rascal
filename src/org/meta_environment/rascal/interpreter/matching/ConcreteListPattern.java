@@ -13,7 +13,7 @@ import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
-import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor;
 import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.uptr.Factory;
@@ -35,8 +35,8 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			IEvaluatorContext ctx, List<IMatchingResult> list) {
 		Type type = getType(null);
 		
-		if (type instanceof ConcreteSyntaxType) {
-			IConstructor sym = ((ConcreteSyntaxType) type).getSymbol();
+		if (type instanceof NonTerminalType) {
+			IConstructor sym = ((NonTerminalType) type).getSymbol();
 			SymbolAdapter rhs = new SymbolAdapter(sym);
 
 			if (rhs.isCf()) {	
@@ -83,7 +83,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 		CallOrTree rhs = (CallOrTree) prod.getArguments().get(0);
 		
 		try {
-			return new ConcreteSyntaxType(rhs.accept(new IUPTRAstToSymbolConstructor(vf)));
+			return new NonTerminalType(rhs.accept(new IUPTRAstToSymbolConstructor(vf)));
 		}
 		catch (NonGroundSymbolException e) {
 			return Factory.Tree;
