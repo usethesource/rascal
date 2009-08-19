@@ -5,6 +5,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -47,6 +48,12 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
 		return result.greaterThanOrEqualNode(this, ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> compare(
+			Result<V> that, IEvaluatorContext ctx) {
+		return that.compareNode(this, ctx);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -101,6 +108,29 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that, IEvaluatorContext ctx) {
 		return that.nonEqualityBoolean(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> compareNode(NodeResult that,
+			IEvaluatorContext ctx) {
+		// Note reversed args
+		INode left = that.getValue();
+		INode right = this.getValue();
+		
+		if (left.isEqual(right)) {
+			return makeIntegerResult(0, ctx);
+		}
+		
+		int str = left.getName().compareTo(right.getName());
+		
+		if (str == 0) {
+			if (left.arity() < right.arity()) {
+				return makeIntegerResult(-1, ctx);
+			}
+			return makeIntegerResult(1, ctx);
+		}
+		
+		return makeIntegerResult(str, ctx);
 	}
 	
 }
