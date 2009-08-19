@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Configuration;
@@ -15,8 +16,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 
 public class StringParser extends ModuleParser {
-
-	private static final String OBJECT_LANGUAGE_KEY = "obj";
+	
 
 	public IConstructor parseString(List<String> sdfSearchPath, Set<String> sdfImports, String source) throws IOException {
 		TableInfo table = getOrConstructParseTable(sdfImports, sdfSearchPath);

@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,18 +15,22 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
@@ -33,11 +39,16 @@ import sglr.IInvoker;
 import sglr.LegacySGLRInvoker;
 import sglr.SGLRInvoker;
 
+
+// TODO refactor the hierarchy with this class at the root. The inheritance does not make any sense, and methods
+// available from the superclass won't work correctly for the subclasses.
+
 public class ModuleParser {
 	private static final String TBL_EXTENSION = ".tbl";
 	private static final String SYMBOLS_EXTENSION = ".symbols";
 	
 	protected static final String META_LANGUAGE_KEY = "meta";
+	protected static final String OBJECT_LANGUAGE_KEY = "obj";
 	private final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
 	
@@ -152,13 +163,16 @@ public class ModuleParser {
 	}
 
 	public IConstructor parseObjectLanguageFile(List<String> sdfSearchPath, Set<String> sdfImports, String fileName) throws IOException {
-		TableInfo table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		TableInfo table = getOrConstructParseTable(OBJECT_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		try {
 			return parseFromFile(table.getTableName(), fileName, true);
 		} catch (FactParseError e) {
 			throw new ImplementationError("parse tree format error", e);
 		} 
 	}
+	
+	
+
 	
 	protected TableInfo lookupTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		if (sdfImports.isEmpty()) {
