@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
@@ -124,9 +125,28 @@ public class NodeResult extends ElementResult<INode> {
 		int str = left.getName().compareTo(right.getName());
 		
 		if (str == 0) {
+			int leftArity = left.arity();
+			int rightArity = right.arity();
+			
+			if (leftArity == rightArity) {
+				Type valueType = getTypeFactory().valueType();
+				
+				for (int i = 0; i < leftArity; i++) {
+					Result<IInteger> comp = makeResult(valueType, left.get(i), ctx).compare(makeResult(valueType, right.get(i), ctx), ctx);
+					int val = comp.getValue().intValue();
+					
+					if (val != 0) {
+						return makeIntegerResult(val, ctx);
+					}
+				}
+				
+				throw new ImplementationError("This should not happen, all children are equal");
+			}
+			
 			if (left.arity() < right.arity()) {
 				return makeIntegerResult(-1, ctx);
 			}
+			
 			return makeIntegerResult(1, ctx);
 		}
 		
