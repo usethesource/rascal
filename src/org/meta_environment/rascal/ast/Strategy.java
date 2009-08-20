@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Strategy extends AbstractAST { 
   public boolean isTopDown() { return false; }
 static public class TopDown extends Strategy {

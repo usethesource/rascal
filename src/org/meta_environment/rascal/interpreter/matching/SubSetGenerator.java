@@ -6,9 +6,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.ValueFactoryFactory;
-/*
- * SubSetGenerator produces all subsets of a given set.
- */
 
 class SubSetGenerator implements Iterator<ISet> {
 	

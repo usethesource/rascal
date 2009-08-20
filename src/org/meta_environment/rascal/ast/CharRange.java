@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class CharRange extends AbstractAST { 
   public org.meta_environment.rascal.ast.Character getCharacter() { throw new UnsupportedOperationException(); }
 public boolean hasCharacter() { return false; }

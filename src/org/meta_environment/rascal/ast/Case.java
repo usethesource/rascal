@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Case extends AbstractAST { 
   public org.meta_environment.rascal.ast.PatternWithAction getPatternWithAction() { throw new UnsupportedOperationException(); }
 public boolean hasPatternWithAction() { return false; }

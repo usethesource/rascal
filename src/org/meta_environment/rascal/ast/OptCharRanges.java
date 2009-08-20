@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class OptCharRanges extends AbstractAST { 
   public boolean isAbsent() { return false; }
 static public class Absent extends OptCharRanges {

@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -8,8 +10,6 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 public class LiteralPattern extends AbstractMatchingResult {
 	private IValue literal;

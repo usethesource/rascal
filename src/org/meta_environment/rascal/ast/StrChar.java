@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class StrChar extends AbstractAST { 
   public boolean isnewline() { return false; }
 static public class newline extends StrChar {

@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Formals extends AbstractAST { 
 public java.util.List<org.meta_environment.rascal.ast.Formal> getFormals() { throw new UnsupportedOperationException(); }
 public boolean hasFormals() { return false; }

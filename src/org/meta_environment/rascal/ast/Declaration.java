@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Declaration extends AbstractAST { 
   public org.meta_environment.rascal.ast.Name getView() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Name getSuperType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Alternative> getAlts() { throw new UnsupportedOperationException(); }

@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Header extends AbstractAST { 
   public org.meta_environment.rascal.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Import> getImports() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasTags() { return false; } public boolean hasImports() { return false; } public boolean isDefault() { return false; }
 static public class Default extends Header {

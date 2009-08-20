@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Kind extends AbstractAST { 
   public boolean isModule() { return false; }
 static public class Module extends Kind {

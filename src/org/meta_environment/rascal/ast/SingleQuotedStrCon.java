@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class SingleQuotedStrCon extends AbstractAST { 
 static public class Lexical extends SingleQuotedStrCon {
 	private String string;

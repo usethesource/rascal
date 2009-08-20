@@ -3,9 +3,9 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
-import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 public class SubscriptTests extends TestFramework {
 

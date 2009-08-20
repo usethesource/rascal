@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class FunctionDeclaration extends AbstractAST { 
   public org.meta_environment.rascal.ast.Signature getSignature() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.FunctionBody getBody() { throw new UnsupportedOperationException(); } public boolean hasSignature() { return false; } public boolean hasTags() { return false; } public boolean hasBody() { return false; }
 public boolean isDefault() { return false; }

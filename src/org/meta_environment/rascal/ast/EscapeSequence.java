@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class EscapeSequence extends AbstractAST { 
   static public class Lexical extends EscapeSequence {
 	private String string;

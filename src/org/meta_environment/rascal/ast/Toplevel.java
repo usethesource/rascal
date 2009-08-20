@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Toplevel extends AbstractAST { 
   public org.meta_environment.rascal.ast.Visibility getVisibility() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Declaration getDeclaration() { throw new UnsupportedOperationException(); } public boolean hasVisibility() { return false; } public boolean hasDeclaration() { return false; } public boolean isGivenVisibility() { return false; }
 static public class GivenVisibility extends Toplevel {

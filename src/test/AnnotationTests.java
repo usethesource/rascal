@@ -3,7 +3,9 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.staticErrors.*;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 
 public class AnnotationTests extends TestFramework{

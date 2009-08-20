@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Symbol extends AbstractAST { 
   public boolean isEmpty() { return false; }
 static public class Empty extends Symbol {
