@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Visibility extends AbstractAST { 
   public boolean isPublic() { return false; }
 static public class Public extends Visibility {

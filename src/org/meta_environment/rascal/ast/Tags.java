@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Tags extends AbstractAST { 
 public java.util.List<org.meta_environment.rascal.ast.Tag> getAnnotations() { throw new UnsupportedOperationException(); }
 public boolean hasAnnotations() { return false; }

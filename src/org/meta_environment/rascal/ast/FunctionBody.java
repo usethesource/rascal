@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class FunctionBody extends AbstractAST { 
 public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); }
 public boolean hasStatements() { return false; }

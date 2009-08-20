@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class Return extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
 public boolean hasExpression() { return false; }

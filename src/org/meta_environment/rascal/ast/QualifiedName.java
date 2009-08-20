@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class QualifiedName extends AbstractAST { 
 public java.util.List<org.meta_environment.rascal.ast.Name> getNames() { throw new UnsupportedOperationException(); }
 public boolean hasNames() { return false; }

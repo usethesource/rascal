@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class NoElseMayFollow extends AbstractAST { 
 public boolean isDefault() { return false; }
 static public class Default extends NoElseMayFollow {

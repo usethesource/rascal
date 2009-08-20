@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.interpreter.result;
 
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;

@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class ShellCommand extends AbstractAST { 
   public boolean isHelp() { return false; }
 static public class Help extends ShellCommand {

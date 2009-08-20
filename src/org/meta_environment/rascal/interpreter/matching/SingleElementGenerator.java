@@ -5,9 +5,6 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.ValueFactoryFactory;
-/*
- * SingleElementGenerator produces all elements of a set as (single element) set.
- */
 
 class SingleElementGenerator implements Iterator<ISet> {
 	private Iterator<IValue> elementIter;

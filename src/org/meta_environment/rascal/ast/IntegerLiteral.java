@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class IntegerLiteral extends AbstractAST { 
   public org.meta_environment.rascal.ast.DecimalIntegerLiteral getDecimal() { throw new UnsupportedOperationException(); }
 public boolean hasDecimal() { return false; }

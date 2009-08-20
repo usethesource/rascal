@@ -1,9 +1,11 @@
 package test.StandardLibraryTests;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import test.TestFramework;
-import static org.junit.Assert.*;
 
 public class StringTests extends TestFramework {
 

@@ -1,11 +1,10 @@
 package org.meta_environment.rascal.interpreter.result;
 
 
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;

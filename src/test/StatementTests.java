@@ -1,11 +1,11 @@
 package test;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
-import org.meta_environment.rascal.interpreter.staticErrors.*;
-
-
-import static org.junit.Assert.*;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 
 public class StatementTests extends TestFramework {
 

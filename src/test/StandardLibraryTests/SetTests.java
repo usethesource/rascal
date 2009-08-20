@@ -1,10 +1,11 @@
 package test.StandardLibraryTests;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 import test.TestFramework;
-import static org.junit.Assert.*;
 
 public class SetTests extends TestFramework {
 

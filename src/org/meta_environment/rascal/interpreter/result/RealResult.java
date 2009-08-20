@@ -6,7 +6,6 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 public class RealResult extends ElementResult<IReal> {

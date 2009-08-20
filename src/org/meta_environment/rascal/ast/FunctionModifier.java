@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
+import org.eclipse.imp.pdb.facts.INode;
 public abstract class FunctionModifier extends AbstractAST { 
 public boolean isJava() { return false; }
 static public class Java extends FunctionModifier {

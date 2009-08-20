@@ -1,5 +1,8 @@
 package org.meta_environment.rascal.interpreter.result;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -12,9 +15,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptError;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 public class TupleResult extends ElementResult<ITuple> {
 	
