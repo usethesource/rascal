@@ -3,6 +3,7 @@ module demo::ConcretePico::Eval
 import languages::pico::syntax::Pico;   // Pico concrete syntax
 import demo::ConcretePico::Programs;    // Example programs
 
+import String;
 import IO;
 import String;
 import UnitTest;
