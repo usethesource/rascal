@@ -114,6 +114,8 @@ public list[Message] requireType(EXP E, TYPE Type, TypeEnv Env) {
 }
 
 public bool test() {
+
+  
   assertEqual(checkProgram([|begin declare x : natural; x := 3  end|]), []);
   
   assertEqual(checkProgram([|begin declare x : natural; y := "a"  end|]), 
