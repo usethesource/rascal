@@ -744,9 +744,21 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
-	public void forPicoStatementsTyped(){
+	public void forPicoStatementsTyped1(){
 		prepare("import languages::pico::syntax::Pico;");
 		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- [|a:=1;a:=2;a:=3|] ]; L == [[|a:=1|], [|a:=2|], [|a:=3|]];}"));
+	}
+	
+	@Test
+	public void forPicoStatementsTyped2(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- [|begin declare a : natural; a:=1;a:=2;a:=3 end|] ]; L == [[|a:=1|], [|a:=2|], [|a:=3|]];}"));
+	}
+	
+	@Test
+	public void forPicoStatementsTyped3(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{L = [X | EXP X <- [|begin declare a : natural; a:=1;b:=2;c:=3 end|] ]; L == [EXP[|1|], EXP[|2|], EXP[|3|] ];}"));
 	}
 	
 	@Test
