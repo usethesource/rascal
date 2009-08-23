@@ -19,7 +19,7 @@ public class NodeReader implements Iterator<IValue> {
 	Stack<Object> spine = new Stack<Object>();
 	
 	private boolean bottomup;
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	NodeReader(INode node, boolean bottomup){
 		this.bottomup = bottomup;
