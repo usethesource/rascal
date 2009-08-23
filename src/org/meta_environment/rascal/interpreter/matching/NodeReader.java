@@ -45,13 +45,24 @@ public class NodeReader implements Iterator<IValue> {
 	
 	private void pushConcreteSyntaxNode(IConstructor tree){
 		if(debug)System.err.println("pushConcreteSyntaxNode: " + tree);
+		String name = tree.getName();
+		
+		if(name.equals("sort") || name.equals("lit") || 
+		   name.equals("char") || name.equals("single")){
+			/*
+			 * Don't recurse
+			 */
+			spine.push(tree);
+			return;
+		}
 			
 		NonTerminalType ctype = new NonTerminalType(tree);
 		if(debug)System.err.println("ctype.getSymbol=" + ctype.getSymbol());
 		SymbolAdapter sym = new SymbolAdapter(ctype.getSymbol());
         if(sym.isAnyList()){
         	sym = sym.getSymbol();
-        	int delta = 1;
+        	
+        	int delta = 1;          // distance between "real" list elements, e.g. non-layout and non-separator
         	IList listElems = (IList) tree.get(1);
 			if(sym.isIterPlus() || sym.isIterStar()){
 				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
@@ -75,25 +86,15 @@ public class NodeReader implements Iterator<IValue> {
 			/*
 			 * appl(prod(...), [child0, layout0, child1, ...])
 			 */
-			INode prod = (IConstructor) tree.get(0);
-			IList cfelems = (IList) prod.get(0);
-			if(cfelems.length() == 1){
-				IConstructor cfelem0 = (IConstructor) cfelems.get(0);
-				if(cfelem0.getName().equals("lit")){
-					/*
-					 * Don't recurse in literals
-					 */
-					spine.push(tree);
-					return;
-				}
-			}
 			if(bottomup) {
 				spine.push(tree);
 			}
 			IList applArgs = (IList) tree.get(1);
+			int delta = (sym.isLiteral()) ? 1 : 2;   // distance between elements
 			
-			for(int i = applArgs.length() - 1; i >= 0 ; i -= 2){
-				spine.push(applArgs.get(i));
+			for(int i = applArgs.length() - 1; i >= 0 ; i -= delta){
+				//spine.push(applArgs.get(i));
+				pushConcreteSyntaxNode((IConstructor) applArgs.get(i));
 			}
 			if(!bottomup) {
 				spine.push(tree);
