@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.uptr.SymbolAdapter;
 
@@ -54,6 +55,10 @@ public class NodeReader implements Iterator<IValue> {
 			 */
 			spine.push(tree);
 			return;
+		}
+		
+		if(name.equals("amb")){
+			throw new ImplementationError("Cannot handle ambiguous subject");
 		}
 			
 		NonTerminalType ctype = new NonTerminalType(tree);
