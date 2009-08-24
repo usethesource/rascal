@@ -19,7 +19,7 @@ public class NodeReader implements Iterator<IValue> {
 	Stack<Object> spine = new Stack<Object>();
 	
 	private boolean bottomup;
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	NodeReader(INode node, boolean bottomup){
 		this.bottomup = bottomup;
@@ -78,7 +78,7 @@ public class NodeReader implements Iterator<IValue> {
         	
 			for(int i = listElems.length() - 1; i >= 0 ; i -= delta){
 				if(debug)System.err.println("adding: " + listElems.get(i));
-				spine.push(listElems.get(i));
+				pushConcreteSyntaxNode((IConstructor)listElems.get(i));
 			}
 			return;
 		} else {
