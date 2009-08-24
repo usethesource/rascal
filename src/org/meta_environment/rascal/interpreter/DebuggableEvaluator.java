@@ -103,7 +103,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class DebuggableEvaluator extends Evaluator {
-	
+
 	private final ConsoleParser parser;
 
 	protected final IDebugger debugger;
@@ -168,21 +168,20 @@ public class DebuggableEvaluator extends Evaluator {
 	@Override
 	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
 		suspendExpression(x);
-		if (!stepOver) {
+		if (stepOver) {
+			/* desactivate the stepping mode when evaluating the call */
+			boolean oldStatementStepMode = statementStepMode;
+			boolean oldExpressionStepMode = expressionStepMode;
+			setStatementStepMode(false);
+			setExpressionStepMode(false);
+			Result<IValue> res = super.visitExpressionCallOrTree(x);
+			setStatementStepMode(oldStatementStepMode);
+			setExpressionStepMode(oldExpressionStepMode);
+			return res;
+		} else {
 			return super.visitExpressionCallOrTree(x);
-		}
-		
-		boolean oldStatementStepMode = statementStepMode;
-		boolean oldExpressionStepMode = expressionStepMode;
-		setStatementStepMode(false);
-		setExpressionStepMode(false);
-		Result<IValue> res = super.visitExpressionCallOrTree(x);
-		setStatementStepMode(oldStatementStepMode);
-		setExpressionStepMode(oldExpressionStepMode);
-		stepOver = false;
-		return res;
+		} 
 	}
-
 	@Override
 	public Result<IValue> visitExpressionClosure(Closure x) {
 		suspendExpression(x);
@@ -752,11 +751,11 @@ public class DebuggableEvaluator extends Evaluator {
 	public void setStepOver(boolean value) {
 		stepOver = value;
 	}
-	
+
 	public IDebugger getDebugger() {
 		return debugger;
 	}
-	
+
 	public IConstructor parseCommand(String command) throws IOException {
 		return parser.parseCommand(command);
 	}
