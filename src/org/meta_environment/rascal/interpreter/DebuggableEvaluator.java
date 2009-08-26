@@ -714,11 +714,12 @@ public class DebuggableEvaluator extends Evaluator {
 			setCurrentAST(x);
 			debugger.notifySuspend();
 			suspendRequest = false;
-		} else if (mode) {
-			if (debugger.isStepping() || debugger.hasEnabledBreakpoint(getCurrentAST().getLocation())) {
-				setCurrentAST(x);
-				debugger.notifySuspend();
-			}
+		} else if (mode && debugger.isStepping()) {
+			setCurrentAST(x);
+			debugger.notifySuspend();
+		} else if (debugger.hasEnabledBreakpoint(getCurrentAST().getLocation())) {
+			setCurrentAST(x);
+			debugger.notifySuspend();
 		}
 	}
 
