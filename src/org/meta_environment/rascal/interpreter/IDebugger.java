@@ -8,7 +8,7 @@ public interface IDebugger {
 
 	public boolean isTerminated();
 
-	public void notifySuspend() throws QuitException;
+	public void notifySuspend(DebugSuspendMode mode) throws QuitException;
 	
 	public boolean hasEnabledBreakpoint(ISourceLocation sourceLocation);
 	
