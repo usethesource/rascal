@@ -95,7 +95,6 @@ import org.meta_environment.rascal.ast.Statement.Try;
 import org.meta_environment.rascal.ast.Statement.TryFinally;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
-import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.parser.ConsoleParser;

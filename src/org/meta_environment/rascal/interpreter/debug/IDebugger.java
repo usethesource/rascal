@@ -1,8 +1,7 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.debug;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
-import org.meta_environment.rascal.interpreter.debug.DebugSuspendMode;
 
 public interface IDebugger {
 
