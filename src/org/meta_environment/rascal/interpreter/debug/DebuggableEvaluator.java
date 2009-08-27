@@ -588,10 +588,12 @@ public class DebuggableEvaluator extends Evaluator {
 
 	@Override
 	public Result<IValue> visitStatementExpression(Expression x) {
-		//avoid to stop twice when stepping into
+		/**		
+		 //should avoid to stop twice when stepping into
 		if (! stepMode.equals(DebugStepMode.STEP_INTO)) {
 			suspend(x);
 		}
+		*/
 		return super.visitStatementExpression(x);
 	}
 
