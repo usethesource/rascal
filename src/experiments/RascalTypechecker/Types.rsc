@@ -125,39 +125,47 @@ void declare(Identifier id, Type t){
   currentScope[Id] = t;
 }
 
-Type checkExp(Expression E){
+// Type annotations
 
-    switch(E){
+anno Type Expression@type
+
+// Error
+
+data error = error(str, Type, loc)
+           | error(str, Type, Type, loc)
+           ;
+           
+anno error Expression@error
+
+Expression checkExp(Expression Exp){
+
+    visit Exp {
     
-    case Integer N: return IntType();
+    case E:Integer N => E@IntType();
     
-    case Identifier Id:
-            return declaration(id);
+    case E:Identifier Id => E@declaration(id);
     
-    case [|<Expression E1> + <Expression E2>|]:
-         t1 = checkType(E1);
-         t2 = checkType(E2);
-         switch(<t1, t2>){
+    case E:[|<Expression E1> + <Expression E2>|]:
+         switch(<E1@type, E2@type>){
          
-         case <IntType(), IntType()>: return IntType();
+         case <IntType(), IntType()> => E@IntType();
          
-         case <RealType(), RealType()>: return RealType();
+         case <RealType(), RealType()> => E@RealType();
          
-         case <StrType(), StrType()>: return StrType();
+         case <StrType(), StrType()> => E@StrType();
          
-         case <ListType(Type et1), ListType(Type et2):
-              return ListType(lub(et1, et2));
+         case <ListType(Type et1), ListType(Type et2) =>
+              E@ListType(lub(et1, et2));
               
-         case <SetType(Type et1), SetType(Type et2):
-              return SetType(lub(et1, et2));
+         case <SetType(Type et1), SetType(Type et2) =>
+              E@SetType(lub(et1, et2));
               
-         case <TupleType(list[NamedType] elmTypes1), TupleType(list[NamedType] elmTypes2)>:
-              return TupleType(elmTypes1 + elmTypes2);
+         case <TupleType(list[NamedType] elmTypes1), TupleType(list[NamedType] elmTypes2)> =>
+              E@TupleType(elmTypes1 + elmTypes2);
               
-         case <MapType(Type fromType1, Type toType1), MapType(Type fromType2, Type toType2)>:
-              return mapType(lub(fromType1, fromType2), lub(toType1, toType2));
-         default:
-              throw IncompatibleOperands("+", t1, t2, E@posinfo);
+         case <MapType(Type fromType1, Type toType1), MapType(Type fromType2, Type toType2)> =>
+              E@mapType(lub(fromType1, fromType2), lub(toType1, toType2));
+         default => E@error("+", t1, t2, E@posinfo);
          }
     }
 }
