@@ -174,10 +174,15 @@ public class DebuggableEvaluator extends Evaluator {
 			/* desactivate the stepping mode when evaluating the call */
 			setStepMode(DebugStepMode.NO_STEP);
 			Result<IValue> res = super.visitExpressionCallOrTree(x);
-			setStepMode(DebugStepMode.STEP_OVER);			
+			setStepMode(DebugStepMode.STEP_OVER);
+			// suspend when returning to the calling statement
+			suspend(x);
 			return res;
 		} else {
-			return super.visitExpressionCallOrTree(x);
+			Result<IValue> res = super.visitExpressionCallOrTree(x);
+			// suspend when returning to the calling statement
+			suspend(x);
+			return res;
 		} 
 	}
 	@Override
