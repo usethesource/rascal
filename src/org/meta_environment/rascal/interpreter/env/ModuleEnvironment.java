@@ -26,6 +26,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
+import org.meta_environment.uptr.Factory;
 
 
 /**
@@ -285,7 +286,11 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Type getAnnotationType(Type type, String label) {
-		return typeStore.getAnnotationType(type, label);
+		Type anno = typeStore.getAnnotationType(type, label);
+		if (anno == null && type instanceof NonTerminalType) {
+			return typeStore.getAnnotationType(Factory.Tree, label);
+		}
+		return anno;
 	}
 	
 	@Override
