@@ -19,9 +19,9 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Test;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
-import org.meta_environment.rascal.interpreter.result.Lambda;
+import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
@@ -116,12 +116,12 @@ public class ModuleEnvironment extends Environment {
 		Type adt = getAbstractDataType(modulename);
 		
 		if (adt != null) {
-			CalleeCandidatesResult candidates = getAllFunctions(cons);
-			CalleeCandidatesResult result = new CalleeCandidatesResult(cons);
+			OverloadedFunctionResult candidates = getAllFunctions(cons);
+			OverloadedFunctionResult result = new OverloadedFunctionResult(cons);
 			
-			for (Lambda candidate : candidates) {
+			for (AbstractFunction candidate : candidates.iterable()) {
 				if (candidate.getReturnType() == adt) {
-					result.add(candidate);
+					result = result.add(candidate);
 				}
 			}
 			
@@ -147,8 +147,8 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void storeVariable(String name, Result<IValue> value) {
-		if (value instanceof Lambda) {
-			storeFunction(name, (Lambda) value);
+		if (value instanceof AbstractFunction) {
+			storeFunction(name, (AbstractFunction) value);
 			return;
 		}
 		
@@ -192,8 +192,8 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	protected CalleeCandidatesResult getAllFunctions(String name) {
-		CalleeCandidatesResult funs = super.getAllFunctions(name);
+	protected OverloadedFunctionResult getAllFunctions(String name) {
+		OverloadedFunctionResult funs = super.getAllFunctions(name);
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
@@ -213,17 +213,17 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 	
-	private CalleeCandidatesResult getLocalPublicFunctions(String name) {
-		CalleeCandidatesResult all = functionEnvironment.get(name);
-		CalleeCandidatesResult result = new CalleeCandidatesResult(name);
+	private OverloadedFunctionResult getLocalPublicFunctions(String name) {
+		OverloadedFunctionResult all = functionEnvironment.get(name);
+		OverloadedFunctionResult result = new OverloadedFunctionResult(name);
 		
 		if (all == null) {
-			return new CalleeCandidatesResult(name);
+			return new OverloadedFunctionResult(name);
 		}
 		
-		for (Lambda l : all) {
+		for (AbstractFunction l : all.iterable()) {
 			if (l.isPublic()) {
-				result.add(l);
+				result = result.add(l);
 			}
 		}
 		

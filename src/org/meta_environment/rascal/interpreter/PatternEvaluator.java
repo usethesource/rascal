@@ -90,13 +90,15 @@ import org.meta_environment.rascal.interpreter.matching.SetPattern;
 import org.meta_environment.rascal.interpreter.matching.TuplePattern;
 import org.meta_environment.rascal.interpreter.matching.TypedVariablePattern;
 import org.meta_environment.rascal.interpreter.matching.VariableBecomesPattern;
-import org.meta_environment.rascal.interpreter.result.Lambda;
+import org.meta_environment.rascal.interpreter.result.AbstractFunction;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
+import org.meta_environment.rascal.interpreter.types.OverloadedFunctionType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
@@ -245,7 +247,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		if (nameExpr.isQualifiedName() && prefix == null) {
 			return new NodePattern(vf, ctx, null, nameExpr.getQualifiedName(), visitArguments(x));
 		}
-		else if (nameExpr.isQualifiedName() && (prefix instanceof Lambda)) {
+		else if (nameExpr.isQualifiedName() && ((prefix instanceof AbstractFunction) || prefix instanceof OverloadedFunctionResult)) {
 			return new NodePattern(vf, ctx, null,nameExpr.getQualifiedName(), visitArguments(x));
 		}
 		else {

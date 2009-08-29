@@ -2,7 +2,6 @@ package org.meta_environment.rascal.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -12,21 +11,20 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 
-public class JavaFunction extends Lambda {
+public class JavaFunction extends NamedFunction {
 	private final Method method;
 	private FunctionDeclaration func;
 	
-	@SuppressWarnings("unchecked")
 	public JavaFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
 		super(func, eval,
-				TE.eval(func.getSignature().getType(),env),
+				(FunctionType) TE.eval(func.getSignature(), env),
 				Names.name(func.getSignature().getName()), 
-				TE.eval(func.getSignature().getParameters(), env),
-				varargs, Collections.EMPTY_LIST, env);
+				varargs, env);
 		this.method = javaBridge.compileJavaMethod(func, env);
 		this.func = func;
 	}
@@ -34,6 +32,9 @@ public class JavaFunction extends Lambda {
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
 			IEvaluatorContext ctx) {
+		Type formals = getFormals();
+		Type returnType = getReturnType();
+		
 		if (hasVarArgs) {
 			actuals = computeVarArgsActuals(actuals, formals);
 		}

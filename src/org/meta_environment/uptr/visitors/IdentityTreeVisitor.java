@@ -24,5 +24,4 @@ public abstract class IdentityTreeVisitor extends TreeVisitor {
 	public IConstructor visitTreeCycle(IConstructor arg)  throws VisitorException {
 		return arg;
 	}
-
 }

@@ -127,7 +127,7 @@ public class TestFramework {
 
 	public boolean prepareModule(String name, String module) throws FactTypeUseException {
 		try {
-			// TODO: this dummy might not work, it's to catch the concrete syntax definitions
+			reset();
 			ModuleEnvironment env = new ModuleEnvironment(name);
 			evaluator.getHeap().addModule(env);
 			IConstructor tree = evaluator.parseModule(module, env);
@@ -136,7 +136,6 @@ public class TestFramework {
 				return false;
 			}
 			
-			reset();
 			Module mod = new ASTBuilder(new ASTFactory()).buildModule(tree);
 			mod.accept(evaluator);
 			return true;

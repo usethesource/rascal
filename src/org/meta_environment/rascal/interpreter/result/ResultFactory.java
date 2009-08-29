@@ -17,6 +17,8 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
+import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
+import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.uptr.Factory;
 
 public class ResultFactory {
@@ -76,8 +78,8 @@ public class ResultFactory {
 			if (type.equals(Factory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
 			}
-			if (type.equals(Lambda.getClosureType())) {
-				return (Lambda)value;
+			if (type instanceof FunctionType) {
+				return (AbstractFunction)value;
 			}
 			return new ConstructorResult(declaredType.getAbstractDataType(), (IConstructor)value, ctx);
 		}
@@ -135,6 +137,16 @@ public class ResultFactory {
 
 		public VoidResult visitVoid(Type type) {
 			return new VoidResult(declaredType, ctx);
+		}
+
+		@SuppressWarnings("unchecked")
+		public Result<? extends IValue> visitExternal(Type externalType) {
+			if (externalType instanceof FunctionType) {
+				// the weird thing is, that value is also a result in that case.
+				return (Result<? extends IValue>) value;
+			}
+			
+			throw new NotYetImplemented("visitExternal in result factory: " + externalType);
 		}
 	}
 }

@@ -30,8 +30,8 @@ import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RewriteRule;
-import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
-import org.meta_environment.rascal.interpreter.result.Lambda;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
+import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.parser.ConsoleParser;
@@ -150,12 +150,12 @@ public class CommandEvaluator extends Evaluator {
 	}
 
 	protected void printVisibleDeclaredObjects(PrintStream out) {
-		List<Entry<String, CalleeCandidatesResult>> functions = getCurrentEnvt().getAllFunctions();
+		List<Entry<String, OverloadedFunctionResult>> functions = getCurrentEnvt().getAllFunctions();
 		if (functions.size() != 0) {
 			out.println("Functions:");
 
-			for (Entry<String, CalleeCandidatesResult> cand : functions) {
-				for (Lambda func : cand.getValue()) {
+			for (Entry<String, OverloadedFunctionResult> cand : functions) {
+				for (AbstractFunction func : cand.getValue().iterable()) {
 					out.print('\t');
 					out.println(func.getHeader());
 				}
