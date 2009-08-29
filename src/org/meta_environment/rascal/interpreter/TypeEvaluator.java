@@ -8,6 +8,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Parameters;
+import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
 import org.meta_environment.rascal.ast.BasicType.Bool;
@@ -43,10 +44,11 @@ import org.meta_environment.rascal.ast.UserType.Name;
 import org.meta_environment.rascal.ast.UserType.Parametric;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
+import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 
@@ -91,6 +93,11 @@ public class TypeEvaluator {
 	public Type eval(org.meta_environment.rascal.ast.Formal formal, Environment env) {
 		this.env = env;
 		return formal.accept(visitor);
+	}
+	
+	public Type eval(Signature signature, Environment env) {
+		this.env = env;
+		return signature.accept(visitor);
 	}
 
 	private class Visitor extends NullASTVisitor<Type> {
@@ -177,12 +184,12 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitSignatureNoThrows(NoThrows x) {
-			return x.getParameters().accept(this);
+			return RascalTypeFactory.getInstance().functionType(x.getType().accept(this), x.getParameters().accept(this));
 		}
 
 		@Override
 		public Type visitSignatureWithThrows(WithThrows x) {
-			return x.getParameters().accept(this);
+			return RascalTypeFactory.getInstance().functionType(x.getType().accept(this), x.getParameters().accept(this));
 		}
 
 		@Override
@@ -207,12 +214,14 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitTypeFunction(Function x) {
-			return Lambda.getClosureType();
+			return x.getFunction().accept(this);
 		}
-
+		
 		@Override
 		public Type visitFunctionTypeTypeArguments(TypeArguments x) {
-			return getArgumentTypes(x.getArguments());
+			Type returnType = x.getType().accept(this);
+			Type argTypes = getArgumentTypes(x.getArguments());
+			return new FunctionType(returnType, argTypes);
 		}
 
 		@Override
@@ -273,7 +282,26 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitStructuredTypeRelation(Relation x) {
-			return getArgumentTypes(x.getArguments());
+			return getRelationFieldTypes(x.getArguments());
+		}
+
+		private Type getRelationFieldTypes(java.util.List<TypeArg> args) {
+			Type[] fieldTypes = new Type[args.size()];
+			java.lang.String[] fieldLabels = new java.lang.String[args.size()];
+
+			int i = 0;
+			for (TypeArg arg : args) {
+				fieldTypes[i] = arg.getType().accept(this);
+
+				if (arg.isNamed()) {
+					fieldLabels[i] = arg.getName().toString();
+				} else {
+					fieldLabels[i] = "field" + Integer.toString(i);
+				}
+				i++;
+			}
+
+			return tf.relTypeFromTuple(tf.tupleType(fieldTypes, fieldLabels));
 		}
 
 		private Type getArgumentTypes(java.util.List<TypeArg> args) {
@@ -292,7 +320,7 @@ public class TypeEvaluator {
 				i++;
 			}
 
-			return tf.relTypeFromTuple(tf.tupleType(fieldTypes, fieldLabels));
+			return tf.tupleType(fieldTypes, fieldLabels);
 		}
 
 		@Override
@@ -421,4 +449,6 @@ public class TypeEvaluator {
 			return new NonTerminalType(x);
 		}
 	}
+
+	
 }

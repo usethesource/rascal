@@ -173,7 +173,7 @@ import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.FileParserFunction;
 import org.meta_environment.rascal.interpreter.result.JavaFunction;
-import org.meta_environment.rascal.interpreter.result.Lambda;
+import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ParserFunction;
 import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -195,7 +195,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedInsertError
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
+import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.Profiler;
@@ -464,7 +466,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 
 	private void checkType(Type given, Type expected) {
-		if (expected == org.meta_environment.rascal.interpreter.result.Lambda.getClosureType()) {
+		if (expected instanceof FunctionType) {
 			return;
 		}
 		if (!given.isSubtypeOf(expected)){
@@ -1391,7 +1393,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result visitFunctionDeclarationDefault(
 			org.meta_environment.rascal.ast.FunctionDeclaration.Default x) {
-		Lambda lambda;
+		AbstractFunction lambda;
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 
 		if (hasJavaModifier(x)) {
@@ -1413,7 +1415,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result visitFunctionDeclarationAbstract(Abstract x) {
-		Lambda lambda = null;
+		AbstractFunction lambda = null;
 		String funcName;
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 
@@ -1850,13 +1852,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IMapWriter w = type.writer(vf);
 		w.putAll(result);
 
-		//return makeResult(type, applyRules(w.done()));
 		return makeResult(type, w.done(), this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		return new Lambda(x, this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), getCurrentEnvt());
+		return new org.meta_environment.rascal.interpreter.result.AnonymousFunction(x, this, (FunctionType) RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleEmpty()), false, x.getStatements(), getCurrentEnvt());
 	}
 
 	@Override
@@ -2042,13 +2043,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionClosure(Closure x) {
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
 		Type returnType = evalType(x.getType());
-		return new Lambda(x, this, returnType, "", formals, x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
+		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+		return new org.meta_environment.rascal.interpreter.result.AnonymousFunction(x, this, (FunctionType) RTF.functionType(returnType, formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
 	}
 
 	@Override
 	public Result<IValue> visitExpressionVoidClosure(VoidClosure x) {
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
-		return new Lambda(x, this, tf.voidType(), "", formals, x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
+		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+		return new org.meta_environment.rascal.interpreter.result.AnonymousFunction(x, this, (FunctionType) RTF.functionType(tf.voidType(), formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
+
 	}
 
 	@Override

@@ -17,13 +17,14 @@ import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.ArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.rascal.parser.StringParser;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
-public class ParserFunction extends Lambda {
+public class ParserFunction extends NamedFunction {
 
 	protected ModuleLoader loader;
 	protected ModuleParser parser;
@@ -35,9 +36,9 @@ public class ParserFunction extends Lambda {
 	
 	protected ParserFunction(Evaluator eval, Abstract func,
 			Environment env, ModuleLoader loader, ModuleParser parser) {
-		super(func, eval, TE.eval(func.getSignature().getType(),env),
-				Names.name(func.getSignature().getName()), TF.tupleType(TF.stringType()), 
-				false, null, env);
+		super(func, eval,
+				(FunctionType) TE.eval(func.getSignature(),env), Names.name(func.getSignature().getName()), 
+				false, env);
 		this.loader = loader;
 		this.parser = parser;
 	}
@@ -63,7 +64,7 @@ public class ParserFunction extends Lambda {
 			ParsetreeAdapter parsetreeAdapter = new ParsetreeAdapter(ptree);
 			parsetreeAdapter = new ParsetreeAdapter(parsetreeAdapter.addPositionInformation(source));
 			IConstructor tree = (IConstructor) parsetreeAdapter.getTop().getArgs().get(1);
-			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
+			Type resultType = getReturnType().instantiate(env.getStore(), env.getTypeBindings());
 			
 			return ResultFactory.makeResult(resultType, tree, eval);
 		}

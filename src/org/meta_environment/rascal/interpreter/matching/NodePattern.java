@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -10,11 +11,14 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
-import org.meta_environment.rascal.interpreter.result.Lambda;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
+import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.types.FunctionType;
+import org.meta_environment.rascal.interpreter.types.OverloadedFunctionType;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class NodePattern extends AbstractMatchingResult {
@@ -64,10 +68,20 @@ public class NodePattern extends AbstractMatchingResult {
 		
 		if (name != null) {
 			Environment env = ctx.getCurrentEnvt();
-			if (!name.getType(env).isStringType()) {
-				throw new UnexpectedTypeError(tf.stringType(), name.getType(env), name.getAST());
+			Type nameType = name.getType(env);
+			
+			if (nameType.isStringType()) {
+				name.initMatch(ResultFactory.makeResult(tf.stringType(), vf.string(treeSubject.getName()), ctx));
 			}
-			name.initMatch(ResultFactory.makeResult(tf.stringType(), vf.string(treeSubject.getName()), ctx));
+			else if (nameType.isExternalType()) {
+				if (treeSubject instanceof IConstructor) {
+					Result<IValue> funcSubject = ctx.getCurrentEnvt().getVariable(treeSubject.getName());
+					name.initMatch(funcSubject);
+				}
+			}
+			else {
+				throw new UnexpectedTypeError(tf.stringType(), nameType, name.getAST());
+			}
 		}
 		else {
 			if(!Names.name(Names.lastName(qname)).equals(treeSubject.getName().toString())) {
@@ -96,8 +110,8 @@ public class NodePattern extends AbstractMatchingResult {
 		 if (qname != null) {
 			 Result<IValue> constructors = env.getVariable(qname);
 			 
-			 if (constructors != null && constructors instanceof CalleeCandidatesResult) {
-				 for (Lambda d : (CalleeCandidatesResult) constructors) {
+			 if (constructors != null && constructors instanceof OverloadedFunctionResult) {
+				 for (AbstractFunction d : ((OverloadedFunctionResult) constructors).iterable()) {
 					 if (d.match(signature)) {
 						 return env.getConstructor(d.getReturnType(), Names.name(Names.lastName(qname)), signature);
 					 }

@@ -62,7 +62,7 @@ public class FileParserFunction extends ParserFunction {
 			}
 			else {
 				IConstructor tree = (IConstructor) pt.getTop().getArgs().get(1);
-				Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
+				Type resultType = getReturnType().instantiate(env.getStore(), env.getTypeBindings());
 				return ResultFactory.makeResult(resultType, tree, eval);
 			}
 		}

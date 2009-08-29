@@ -296,6 +296,7 @@ public class TreeAdapter {
 			}
 			return arg;
 		}
+
 	}
 	
 	public void unparse(OutputStream stream) throws IOException, FactTypeUseException {

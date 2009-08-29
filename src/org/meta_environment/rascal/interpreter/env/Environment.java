@@ -19,9 +19,9 @@ import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
-import org.meta_environment.rascal.interpreter.result.Lambda;
+import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.utils.Names;
@@ -32,7 +32,7 @@ import org.meta_environment.rascal.interpreter.utils.Names;
  */
 public class Environment {
 	protected final Map<String, Result<IValue>> variableEnvironment;
-	protected final Map<String, CalleeCandidatesResult> functionEnvironment;
+	protected final Map<String, OverloadedFunctionResult> functionEnvironment;
 	protected final Map<Type, Type> typeParameters;
 	protected final Environment parent;
 	protected final Environment callerScope;
@@ -59,7 +59,7 @@ public class Environment {
 	
 	protected Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, Cache cache, ISourceLocation loc, String name) {
 		this.variableEnvironment = new HashMap<String, Result<IValue>>();
-		this.functionEnvironment = new HashMap<String, CalleeCandidatesResult>();
+		this.functionEnvironment = new HashMap<String, OverloadedFunctionResult>();
 		this.typeParameters = new HashMap<Type, Type>();
 		this.parent = parent;
 		this.cache = cache;
@@ -114,7 +114,7 @@ public class Environment {
 	}
 
 	private void updateFunctionCache(String name,
-			Map<String, CalleeCandidatesResult> env, CalleeCandidatesResult list) {
+			Map<String, OverloadedFunctionResult> env, OverloadedFunctionResult list) {
 		if (cache == null) {
 			return;
 		}
@@ -177,7 +177,7 @@ public class Environment {
 			return t;
 		}
 		
-		CalleeCandidatesResult funs = getAllFunctions(name);
+		OverloadedFunctionResult funs = getAllFunctions(name);
 		
 		if (funs.size() == 0) {
 			return null;
@@ -200,12 +200,12 @@ public class Environment {
 		return null;
 	}
 	
-	protected CalleeCandidatesResult getAllFunctions(String name) {
-		CalleeCandidatesResult result = functionEnvironment.get(name);
+	protected OverloadedFunctionResult getAllFunctions(String name) {
+		OverloadedFunctionResult result = functionEnvironment.get(name);
 		
 		if (isRootScope()) {
 			if (result == null) {
-				result = new CalleeCandidatesResult(name);
+				result = new OverloadedFunctionResult(name);
 			}
 			return result;
 		}
@@ -311,21 +311,21 @@ public class Environment {
 	public void storeVariable(Name name, Result<IValue> r) {
 		storeVariable(Names.name(name), r);
 	}
-
-	public void storeFunction(String name, Lambda function) {
-		CalleeCandidatesResult list = functionEnvironment.get(name);
+ 
+	public void storeFunction(String name, AbstractFunction function) {
+		OverloadedFunctionResult list = functionEnvironment.get(name);
 		if (list == null) {
 			// NB: we store null in the cache so that rollback will remove the table entry on name
 			// instead of restoring an empty list.
 			updateFunctionCache(name, functionEnvironment, null);
-			list = new CalleeCandidatesResult(name);
+			list = new OverloadedFunctionResult(name);
 			functionEnvironment.put(name, list);
 		}
 		else {
 			updateFunctionCache(name, functionEnvironment, list);
 		}
 
-		list.add(function);
+		functionEnvironment.put(name, list.add(function));
 	}
 
 	public boolean declareVariable(Type type, Name name) {
@@ -487,8 +487,8 @@ public class Environment {
 		return vars;
 	}
 
-	public List<Entry<String, CalleeCandidatesResult>> getFunctions() {
-		ArrayList<Entry<String, CalleeCandidatesResult>> functions = new ArrayList<Entry<String, CalleeCandidatesResult>>();
+	public List<Entry<String, OverloadedFunctionResult>> getFunctions() {
+		ArrayList<Entry<String, OverloadedFunctionResult>> functions = new ArrayList<Entry<String, OverloadedFunctionResult>>();
 		if (parent != null) {
 			functions.addAll(parent.getFunctions());
 		}
@@ -496,13 +496,13 @@ public class Environment {
 		return functions;
 	}
 	
-	public List<Entry<String, CalleeCandidatesResult>> getAllFunctions() {
-		ArrayList<Entry<String, CalleeCandidatesResult>> functions = new ArrayList<Entry<String, CalleeCandidatesResult>>();
+	public List<Entry<String, OverloadedFunctionResult>> getAllFunctions() {
+		ArrayList<Entry<String, OverloadedFunctionResult>> functions = new ArrayList<Entry<String, OverloadedFunctionResult>>();
 		functions.addAll(getFunctions());
 		
 		for (String i : getImports()) {
-			for (Entry<String, CalleeCandidatesResult> cand : getImport(i).getFunctions()) {
-				for (Lambda func : cand.getValue()) {
+			for (Entry<String, OverloadedFunctionResult> cand : getImport(i).getFunctions()) {
+				for (AbstractFunction func : cand.getValue().iterable()) {
 					if (func.isPublic()) {
 						functions.add(cand);
 					}

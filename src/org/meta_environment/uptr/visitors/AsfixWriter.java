@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -88,5 +89,7 @@ public class AsfixWriter extends IdentityTreeVisitor {
 		throw new UnsupportedOperationException("no support for cycles");
 	}
 
-
+	public IValue visitExternal(IExternalValue externalValue) {
+		throw new UnsupportedOperationException();
+	}
 }

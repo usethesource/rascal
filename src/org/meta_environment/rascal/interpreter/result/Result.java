@@ -529,6 +529,23 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(EQUALS_STRING, this, ctx);
 	}
 	
+	public <U extends IValue> Result<U> equalToOverloadedFunction(
+			OverloadedFunctionResult that,
+			IEvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	
+	public <U extends IValue> Result<U> equalToConstructorFunction(
+			ConstructorFunction that,
+			IEvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	
+	public <U extends IValue> Result<U> equalToRascalFunction(
+			RascalFunction that,
+			IEvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
 
 	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that, IEvaluatorContext ctx) {
 		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
@@ -749,6 +766,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean hasInferredType() {
 		return inferredType;
 	}
+
 	
 	
 	

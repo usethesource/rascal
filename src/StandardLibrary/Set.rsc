@@ -9,7 +9,7 @@ public bool java isEmpty(set[&T] st)
  @javaClass{org.meta_environment.rascal.std.Set};
 
 
-public set[&T] mapper(set[&T] st, &T (&T,&T) fn)
+public set[&T] mapper(set[&T] st, &T (&T) fn)
 @doc{mapper -- apply a function to each element of a set}
 {
   return {fn(elm) | &T elm <- st};

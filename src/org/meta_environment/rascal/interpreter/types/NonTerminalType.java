@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.types;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -16,7 +17,7 @@ import org.meta_environment.uptr.TreeAdapter;
  * that implements the mapping between SDF's sort names and Rascal types. These
  * types should never escape into the PDB, that would break a lot...
  */
-public class NonTerminalType extends Type {
+public class NonTerminalType extends ExternalType {
 	private IConstructor symbol;
 
 	public NonTerminalType(IConstructor cons) {
@@ -137,6 +138,11 @@ public class NonTerminalType extends Type {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return symbol.hashCode();
 	}
 	
 	@Override

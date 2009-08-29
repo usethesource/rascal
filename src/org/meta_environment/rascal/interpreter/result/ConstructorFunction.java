@@ -12,14 +12,16 @@ import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TraversalEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.types.FunctionType;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.uptr.Factory;
 
-public class ConstructorFunction extends Lambda {
+public class ConstructorFunction extends NamedFunction {
 	private Type constructorType;
 	private TraversalEvaluator te;
 
 	public ConstructorFunction(AbstractAST ast, Evaluator eval, Environment env, Type constructorType) {
-		super(ast, eval, constructorType.getAbstractDataType(), constructorType.getName(), constructorType.getFieldTypes(), false, null, env);
+		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, env);
 		this.constructorType = constructorType;
 		this.te = new TraversalEvaluator(eval.vf, eval);
 	}
@@ -41,6 +43,11 @@ public class ConstructorFunction extends Lambda {
 	}
 	
 	@Override
+	public int hashCode() {
+		return constructorType.hashCode();
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ConstructorFunction) {
 			return constructorType == ((ConstructorFunction) obj).constructorType;
@@ -51,5 +58,17 @@ public class ConstructorFunction extends Lambda {
 	@Override
 	public String toString() {
 		return constructorType.toString();
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> equals(
+			Result<V> that, IEvaluatorContext ctx) {
+		return that.equalToConstructorFunction(this, ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> equalToConstructorFunction(
+			ConstructorFunction that, IEvaluatorContext ctx) {
+		return ResultFactory.bool(constructorType == that.constructorType);
 	}
 }

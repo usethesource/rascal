@@ -300,6 +300,11 @@ public class JavaBridge {
 		public String visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
+
+		public String visitExternal(
+				org.eclipse.imp.pdb.facts.type.Type externalType) {
+			return "IValue";
+		}
 	}
 	
 	private Class<?>[] getJavaTypes(Parameters parameters, Environment env) {
@@ -396,6 +401,11 @@ public class JavaBridge {
 
 		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
+		}
+
+		public Class<?> visitExternal(
+				org.eclipse.imp.pdb.facts.type.Type externalType) {
+			return IValue.class;
 		}
 	}
 

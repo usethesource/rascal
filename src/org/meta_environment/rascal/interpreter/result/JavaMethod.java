@@ -2,7 +2,6 @@ package org.meta_environment.rascal.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -12,21 +11,20 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 
-public class JavaMethod extends Lambda {
+public class JavaMethod extends NamedFunction {
 	private final Method method;
 	private FunctionDeclaration func;
 	
-	@SuppressWarnings("unchecked")
 	public JavaMethod(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
 		super(func, eval,
-				TE.eval(func.getSignature().getType(),env),
-				Names.name(func.getSignature().getName()), 
-				TE.eval(func.getSignature().getParameters(), env),
-				varargs, Collections.EMPTY_LIST, env);
+				(FunctionType) TE.eval(func.getSignature(),env), 
+				Names.name(func.getSignature().getName()),
+				varargs, env);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env);
 		this.func = func;
 	}
@@ -35,6 +33,7 @@ public class JavaMethod extends Lambda {
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
 			IEvaluatorContext ctx) {
 		Type actualTypesTuple;
+		Type formals = getFormals();
 		
 		if (hasVarArgs) {
 			actuals = computeVarArgsActuals(actuals, formals);
@@ -60,7 +59,7 @@ public class JavaMethod extends Lambda {
 
 			Environment env = ctx.getCurrentEnvt();
 			bindTypeParameters(actualTypesTuple, formals, env); 
-			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
+			Type resultType = getReturnType().instantiate(env.getStore(), env.getTypeBindings());
 			return ResultFactory.makeResult(resultType, result, eval);
 		}
 		catch (Throw t) {

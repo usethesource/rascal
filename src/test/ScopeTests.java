@@ -81,7 +81,7 @@ public class ScopeTests extends TestFramework {
 	@Test
 	public void moduleAndLocalVarDeclaration(){
 		prepareModule("XX", "module XX public int n = 1;");
-		prepare("import XX;");
+		prepareMore("import XX;");
 		assertTrue(runTestInSameEvaluator("{int n = 2; n == 2;}"));
 	}
 	
