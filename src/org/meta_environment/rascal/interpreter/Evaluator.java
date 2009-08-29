@@ -829,7 +829,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitDeclarationAnnotation(Annotation x) {
 		Type annoType = te.eval(x.getAnnoType(), getCurrentModuleEnvironment());
-		String name = x.getName().toString();
+		String name = Names.name(x.getName());
 
 		Type onType = te.eval(x.getOnType(), getCurrentModuleEnvironment());
 		getCurrentModuleEnvironment().declareAnnotation(onType, name, annoType);	
@@ -1882,7 +1882,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionGetAnnotation(
 			org.meta_environment.rascal.ast.Expression.GetAnnotation x) {
 		Result<IValue> base = x.getExpression().accept(this);
-		String annoName = x.getName().toString();
+		String annoName = Names.name(x.getName());
 		return base.getAnnotation(annoName, getCurrentEnvt(), this);
 	}
 
