@@ -52,3 +52,4 @@ data Symbol =
      \layout()  | 
      \char-class(list[CharRange] ranges);
 
+anno loc Tree@\loc;
