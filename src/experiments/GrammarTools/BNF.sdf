@@ -8,8 +8,8 @@ exports
 
   sorts BNF Rule Element NonTerminal Terminal
   lexical syntax
-    "<" [A-Za-z0-9\-\_]+ ">"                          -> NonTerminal
-    "\"" [a-zA-Z\-]+ "\""                             -> Terminal
+    [A-Z][A-Za-z0-9\-\_]*                             -> NonTerminal
+    "\"" ~[\"]* "\""                                  -> Terminal
    
   context-free syntax
     "grammar" start:NonTerminal "rules" rules: Rule+  -> BNF
