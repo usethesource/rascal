@@ -1,0 +1,20 @@
+module experiments/GrammarTools/BNF
+imports basic/Whitespace
+
+%% Definition of grammars as used in in grammar transformation examples
+
+exports
+  context-free start-symbols BNF Rule Element NonTerminal Terminal
+
+  sorts BNF Rule Element NonTerminal Terminal
+  lexical syntax
+    "<" [A-Za-z0-9\-\_]+ ">"                          -> NonTerminal
+    "\"" [a-zA-Z\-]+ "\""                             -> Terminal
+   
+  context-free syntax
+    "grammar" start:NonTerminal "rules" rules: Rule+  -> BNF
+    lhs:NonTerminal "::=" elements: Element* ";"      -> Rule
+    nonterminal: NonTerminal                          -> Element
+    terminal: Terminal                                -> Element
+   
+   
