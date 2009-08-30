@@ -109,108 +109,105 @@ bool isDeclared(Identifer id){
     return currentScope[id]? || any(scope[id]? | scope <- Env);
 }
 
-Type declaration(Identifier id){
+Type getType(Identifier id){
     if(currentScope[id]?)
        return currentScope[id];
      for(scope <- Env){
        if(scope[id]?)
          return scope[id];
      }
-     throw UndeclaredVariable(id, id@pos);
+     return ErrorType("Undeclared variable <id>", id@posinfo);
 }
 
-void declare(Identifier id, Type t){
-  if(currentScope[id]?)
-     throw DoubleDeclaration(id, id@posinfo);
+Statement declare(Identifier id, Type t, Statement stat){
+  if(currentScope[id]?){
+     return stat@error("Double declaration of variable <id>", id@posinfo);
+  }
   currentScope[Id] = t;
+  return stat;
 }
 
 // Type annotations
 
-anno Type Expression@type
+anno Type Expression@type;
+anno Type Statement@type;
 
-// Error
+Type expected(Type t1, Type 2){
+  return ErrorType("Expected type <t1> but got <t2>");
+}
 
-data error = error(str, Type, loc)
-           | error(str, Type, Type, loc)
-           ;
-           
-anno error Expression@error
+Type incompatible(Type t1, Type t2){
+  return ErrorType("Incompatible types <t1> and <t2>");
+}
+
+Type noOperator(str op, Type t1, Type t2){
+  return ErrorType("Operator <op> not defined on operands of type <t1> and <t2>");
+}
 
 Expression checkExp(Expression Exp){
 
-    visit Exp {
+    return bottom-up visit Exp {
     
     case E:Integer N => E@IntType();
     
-    case E:Identifier Id => E@declaration(id);
+    case E:Identifier Id => E@getType(id);
     
     case E:[|<Expression E1> + <Expression E2>|]:
          switch(<E1@type, E2@type>){
          
-         case <IntType(), IntType()> => E@IntType();
-         
-         case <RealType(), RealType()> => E@RealType();
-         
-         case <StrType(), StrType()> => E@StrType();
-         
-         case <ListType(Type et1), ListType(Type et2) =>
-              E@ListType(lub(et1, et2));
-              
-         case <SetType(Type et1), SetType(Type et2) =>
-              E@SetType(lub(et1, et2));
-              
-         case <TupleType(list[NamedType] elmTypes1), TupleType(list[NamedType] elmTypes2)> =>
-              E@TupleType(elmTypes1 + elmTypes2);
-              
-         case <MapType(Type fromType1, Type toType1), MapType(Type fromType2, Type toType2)> =>
-              E@mapType(lub(fromType1, fromType2), lub(toType1, toType2));
-         default => E@error("+", t1, t2, E@posinfo);
+         case <IntType(), IntType()>                  => E@IntType();   
+         case <RealType(), RealType()>                => E@RealType();
+         case <StrType(), StrType()>                  => E@StrType();
+         case <ListType(Type et1), ListType(Type et2) => E@ListType(lub(et1, et2));  
+         case <SetType(Type et1), SetType(Type et2)   => E@SetType(lub(et1, et2));  
+         case <TupleType(list[NamedType] elmTypes1), TupleType(list[NamedType] elmTypes2)>
+                                                      => E@TupleType(elmTypes1 + elmTypes2);
+         case <MapType(Type fromType1, Type toType1), MapType(Type fromType2, Type toType2)>
+                                                      => E@mapType(lub(fromType1, fromType2), lub(toType1, toType2));
+         default                                      => E@noOperator("+", E1@type, E2@type);
          }
+     // all the other operators
+     default => E@ErrorType("Cannot check expression <Exp>");    
     }
 }
 
-bool checkStatement(Statement S){
-    switch(S){
+Statement checkStatement(Statement Stat){
+    return bottom-up visit(Stat){
     
-    case [|<Type t> <Identifier id>|]:
-         declare(id, t);
-         return true;
+    case S: [|<Type t> <Identifier id>|] => declare(id, t, S);
          
-    case [|<Type t1> <Identifier id> = <Expression E>;|]:
-         t2 = checkExp(E);
-         if(subtypeOf(t2, 1))
-            declare(id, t1);
+    case S2: [|<Type t1> <Identifier id> = <Expression E>;|]:{
+         if(subtypeOf(E@type, t1))
+            insert declare(id, t1, S2);
          else
-            throw IncompatibleOperands(":=", t1, t2, E@posinfo);
+            insert S2@incompatible(":=", t1, t2, E@posinfo);
     
-    case [|<Identifier Id> = <Expression E>|]:
-         t = checkExp(E);
-         if(isDeclared(id) && subtypeOf(t, declaration(id))
-            return true;
-         declare(id, t)
-         return true;
+    case S: [|<Identifier Id> = <Expression E>|]:
+         if(isDeclared(id)){
+            t = getType(id);
+            insert subtypeOf(E@type, t)) ? S : S@incompatible(E@type, t);
+         } else {  
+         	insert declare(id, E@type, S);
+         }
          
-    case Statement[|<Expression E>|]:
-         checkExp(E);
-         return true;
+    case S: Statement[|<Expression E>|] => S;
          
-    case [|if(<Expression E>)<Block B1>else<Block2>;|]:
-         return checkExp(E) == BoolType() && checkBlock(B1) && checkBlock(B2);
-         
-    case [|while(<Expression E>)<Block B>;|]:
-         return checkExp(E) == BoolType() && checkBlock(B);  
+    case S: [|if(<Expression E>)<Block B1>else<Block B2>;|] =>
+           	(E@type == BoolType()) ? S : S@expected(BoolType(), E@type);
+            
+    case S: [|while(<Expression E>)<Block B>;|] =>
+         	(E@type == BoolType()) ? S : S@expected(BoolType(), E@type);
     
     }
 }
 
-bool checkBlock(Block B){
+Block checkBlock(Block B){
     enterScope();
-    try
-       for(Statement S <- B)
-           checkStatement(S);
-    finally:
-       leaveScope();
+    B1 = topdown-break visit(B){
+         case Statement S => checkStatement(S);
+    }
+    leaveScope();
+    return B1;
 }
 
 
