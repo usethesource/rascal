@@ -1,4 +1,4 @@
-module Factorial
+module Factorial2
 
 imports basic/Whitespace basic/Integers
 
