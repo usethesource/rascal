@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Tag extends AbstractAST { 
   public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.TagString getContents() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasContents() { return false; }
 public boolean isDefault() { return false; }
@@ -52,7 +52,44 @@ static public class Ambiguity extends Tag {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitTagAmbiguity(this);
   }
-} public boolean isEmpty() { return false; }
+} public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; }
+public boolean isExpression() { return false; }
+static public class Expression extends Tag {
+/** "@" name:Name "=" expression:Expression -> Tag {cons("Expression")} */
+	private Expression() {
+		super();
+	}
+	public Expression(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
+		this.name = name;
+		this.expression = expression;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTagExpression(this);
+	}
+
+	public boolean isExpression() { return true; }
+
+	public boolean hasName() { return true; }
+	public boolean hasExpression() { return true; }
+
+private org.meta_environment.rascal.ast.Name name;
+	public org.meta_environment.rascal.ast.Name getName() { return name; }
+	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
+	public Expression setName(org.meta_environment.rascal.ast.Name x) { 
+		Expression z = new Expression();
+ 		z.$setName(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public Expression setExpression(org.meta_environment.rascal.ast.Expression x) { 
+		Expression z = new Expression();
+ 		z.$setExpression(x);
+		return z;
+	}	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isEmpty() { return false; }
 static public class Empty extends Tag {
 /** "@" name:Name -> Tag {cons("Empty")} */
 	private Empty() {
@@ -79,5 +116,4 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
 }

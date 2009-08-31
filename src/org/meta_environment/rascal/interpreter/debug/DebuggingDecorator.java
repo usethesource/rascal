@@ -54,7 +54,6 @@ import org.meta_environment.rascal.ast.Expression.NoMatch;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEquals;
 import org.meta_environment.rascal.ast.Expression.NotIn;
-import org.meta_environment.rascal.ast.Expression.OperatorAsValue;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
 import org.meta_environment.rascal.ast.Expression.QualifiedName;
@@ -424,11 +423,6 @@ public class DebuggingDecorator extends NullASTVisitor<Result<IValue>> {
 		return visitor.visitExpressionNotIn(x);
 	}
 
-	@Override
-	public Result<IValue> visitExpressionOperatorAsValue(OperatorAsValue x) {
-		suspendExpression(x);
-		return visitor.visitExpressionOperatorAsValue(x);
-	}
 	@Override
 	public Result<IValue> visitExpressionOr(Or x) {
 		suspendExpression(x);

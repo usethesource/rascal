@@ -7,62 +7,44 @@ import IO;
 
 alias lgraph[&T,&L] = rel[&T from, &L label, &T to];
 
+@doc{Return the bottom nodes of a lgraph}
 public set[&T] bottom(lgraph[&T,&L] G)
-@doc{bottom -- return the bottom nodes of a lgraph}
 {
   return G.to - G.from;
 }
 
+@doc{The predecessors of a single node in a lgraph}
 public set[&T] predecessors(lgraph[&T,&L] G, &T From)
-@doc{predecessors -- the predecessors of a single node in a lgraph}
 {
-  //return G[_,From];
   return invert(G<from,to>)[From];
 }
 
-/*
-public set[&T] predecessors(graph[&T] G, set[&T] From)
-@doc{predecessors -- the predecessors of a set of nodes in a lgraph}
-{
-  //return G[_,From];
-  return invert(G)[From];
-}
-*/
-
-public set[&T] reach(lgraph[&T,&L] G, set[&T] Start)
 @doc{Reachability from start set}
+public set[&T] reach(lgraph[&T,&L] G, set[&T] Start)
 {
 	return reach(G<from,to>, Start);
 }
 
-public set[&T] reachR(lgraph[&T,&L] G, set[&T] Start, set[&T] Restr)
 @doc{Reachability with restriction}
+public set[&T] reachR(lgraph[&T,&L] G, set[&T] Start, set[&T] Restr)
 {
 	return reachR(G<from,to>, Start, Restr);
 }
 
-public set[&T] reachX(lgraph[&T,&L] G, set[&T] Start, set[&T] Excl)
 @doc{Reachability with exclusion}
+public set[&T] reachX(lgraph[&T,&L] G, set[&T] Start, set[&T] Excl)
 {
    return reachX(G<from,to>, Start, Excl);
 }
 
+@doc{The successor of a single node in a lgraph}
 public set[&T] successors(lgraph[&T, &L] G, &T From)
-@doc{successors -- the successor of a single node in a lgraph}
 {
   return G<from,to>[From];
 }
 
-/*
-public set[&T] successors(graph[&T] G, set[&T] From)
-@doc{successors -- the successor of a set of nodes in a lgraph}
-{
-  return G[From];
-}
-*/
-
+@doc{Return the top nodes of a lgraph}
 public set[&T] top(lgraph[&T,&L] G)
-@doc{top -- return the top nodes of a lgraph}
 {
   return G.from - G.to;
 }

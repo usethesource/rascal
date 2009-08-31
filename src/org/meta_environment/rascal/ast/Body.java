@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Body extends AbstractAST { 
   public org.meta_environment.rascal.ast.Marker getMarker() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Rest getRest() { throw new UnsupportedOperationException(); }

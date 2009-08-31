@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Replacement extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getReplacementExpression() { throw new UnsupportedOperationException(); } public boolean hasReplacementExpression() { return false; } public boolean isUnconditional() { return false; }
 static public class Unconditional extends Replacement {

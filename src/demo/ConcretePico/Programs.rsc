@@ -9,7 +9,7 @@ import UnitTest;
  */
  
 
-public PROGRAM small = [|
+public PROGRAM small = `
 begin
   declare x : natural,
           s : string;
@@ -20,11 +20,11 @@ begin
    s := s || "#"
   od
 end
-|];
+`;
 
 /*********************************************/
 
-public PROGRAM smallUninit =[|
+public PROGRAM smallUninit =`
 begin
   declare x : natural,
           s : string;
@@ -34,11 +34,11 @@ begin
    s := s || "#"
   od
 end
-|];
+`;
        
 /*********************************************/
 
-public PROGRAM fac = [|
+public PROGRAM fac = `
 begin
   declare
     input : natural,
@@ -59,11 +59,11 @@ begin
     input := input - 1
   od
 end
-|];
+`;
 
 /*********************************************/
        
-public PROGRAM facUninit = [|
+public PROGRAM facUninit = `
 begin
   declare
     input : natural,
@@ -84,11 +84,11 @@ begin
     input := input - 1
   od
 end
-|];
+`;
 
 /*********************************************/
 
-public PROGRAM big = [|
+public PROGRAM big = `
 begin
   declare
     input: natural,
@@ -123,6 +123,6 @@ begin
     output := "0"
   fi
 end
-|];
+`;
 
 /*********************************************/

@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class StructuredType extends AbstractAST { 
   public org.meta_environment.rascal.ast.TypeArg getTypeArg() { throw new UnsupportedOperationException(); } public boolean hasTypeArg() { return false; } public boolean isList() { return false; }
 static public class List extends StructuredType {
@@ -209,6 +209,32 @@ private org.meta_environment.rascal.ast.TypeArg typeArg;
 	private void $setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { this.typeArg = x; }
 	public Lex setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { 
 		Lex z = new Lex();
+ 		z.$setTypeArg(x);
+		return z;
+	}	
+} public boolean isReifiedType() { return false; }
+static public class ReifiedType extends StructuredType {
+/** "type" "[" typeArg:TypeArg "]" -> StructuredType {cons("ReifiedType")} */
+	private ReifiedType() {
+		super();
+	}
+	public ReifiedType(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) {
+		this.node = node;
+		this.typeArg = typeArg;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStructuredTypeReifiedType(this);
+	}
+
+	public boolean isReifiedType() { return true; }
+
+	public boolean hasTypeArg() { return true; }
+
+private org.meta_environment.rascal.ast.TypeArg typeArg;
+	public org.meta_environment.rascal.ast.TypeArg getTypeArg() { return typeArg; }
+	private void $setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { this.typeArg = x; }
+	public ReifiedType setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { 
+		ReifiedType z = new ReifiedType();
  		z.$setTypeArg(x);
 		return z;
 	}	

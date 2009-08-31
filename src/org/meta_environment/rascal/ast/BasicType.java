@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class BasicType extends AbstractAST { 
   public boolean isBool() { return false; }
 static public class Bool extends BasicType {

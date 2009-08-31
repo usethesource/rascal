@@ -7,350 +7,6 @@ private MappingCache<INode, Object> sortCache = new MappingCache<INode, Object>(
 private MappingCache<INode, Object> otherSortCache = new MappingCache<INode, Object>();
 private MappingCache<INode, Object> lexCache = new MappingCache<INode, Object>();
 
-public org.meta_environment.rascal.ast.Marker.Ambiguity makeMarkerAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Marker> alternatives) { 
-org.meta_environment.rascal.ast.Marker.Ambiguity amb = (org.meta_environment.rascal.ast.Marker.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.Marker.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.Marker.Lexical makeMarkerLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.Marker.Lexical x = (org.meta_environment.rascal.ast.Marker.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.Marker.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.Rest.Ambiguity makeRestAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Rest> alternatives) { 
-org.meta_environment.rascal.ast.Rest.Ambiguity amb = (org.meta_environment.rascal.ast.Rest.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.Rest.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.Rest.Lexical makeRestLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.Rest.Lexical x = (org.meta_environment.rascal.ast.Rest.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.Rest.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.Body.Toplevels makeBodyToplevels(INode node, java.util.List<org.meta_environment.rascal.ast.Toplevel> toplevels) { 
-org.meta_environment.rascal.ast.Body.Toplevels x = (org.meta_environment.rascal.ast.Body.Toplevels) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.Body.Toplevels(node, toplevels);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.Body.Ambiguity makeBodyAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Body> alternatives) { 
-org.meta_environment.rascal.ast.Body.Ambiguity amb = (org.meta_environment.rascal.ast.Body.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.Body.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.Body.Anything makeBodyAnything(INode node, org.meta_environment.rascal.ast.Marker marker, org.meta_environment.rascal.ast.Rest rest) { 
-org.meta_environment.rascal.ast.Body.Anything x = (org.meta_environment.rascal.ast.Body.Anything) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.Body.Anything(node, marker, rest);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity makeUnicodeEscapeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.UnicodeEscape> alternatives) { 
-org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity amb = (org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.UnicodeEscape.Lexical makeUnicodeEscapeLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.UnicodeEscape.Lexical x = (org.meta_environment.rascal.ast.UnicodeEscape.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.UnicodeEscape.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.DecimalIntegerLiteral.Ambiguity makeDecimalIntegerLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.DecimalIntegerLiteral> alternatives) { 
-org.meta_environment.rascal.ast.DecimalIntegerLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.DecimalIntegerLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.DecimalIntegerLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical makeDecimalIntegerLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical x = (org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.HexIntegerLiteral.Ambiguity makeHexIntegerLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.HexIntegerLiteral> alternatives) { 
-org.meta_environment.rascal.ast.HexIntegerLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.HexIntegerLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.HexIntegerLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.HexIntegerLiteral.Lexical makeHexIntegerLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.HexIntegerLiteral.Lexical x = (org.meta_environment.rascal.ast.HexIntegerLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.HexIntegerLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OctalIntegerLiteral.Ambiguity makeOctalIntegerLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.OctalIntegerLiteral> alternatives) { 
-org.meta_environment.rascal.ast.OctalIntegerLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.OctalIntegerLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.OctalIntegerLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.OctalIntegerLiteral.Lexical makeOctalIntegerLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.OctalIntegerLiteral.Lexical x = (org.meta_environment.rascal.ast.OctalIntegerLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OctalIntegerLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.DecimalLongLiteral.Ambiguity makeDecimalLongLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.DecimalLongLiteral> alternatives) { 
-org.meta_environment.rascal.ast.DecimalLongLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.DecimalLongLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.DecimalLongLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.DecimalLongLiteral.Lexical makeDecimalLongLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.DecimalLongLiteral.Lexical x = (org.meta_environment.rascal.ast.DecimalLongLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.DecimalLongLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.HexLongLiteral.Ambiguity makeHexLongLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.HexLongLiteral> alternatives) { 
-org.meta_environment.rascal.ast.HexLongLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.HexLongLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.HexLongLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.HexLongLiteral.Lexical makeHexLongLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.HexLongLiteral.Lexical x = (org.meta_environment.rascal.ast.HexLongLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.HexLongLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OctalLongLiteral.Ambiguity makeOctalLongLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.OctalLongLiteral> alternatives) { 
-org.meta_environment.rascal.ast.OctalLongLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.OctalLongLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.OctalLongLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.OctalLongLiteral.Lexical makeOctalLongLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.OctalLongLiteral.Lexical x = (org.meta_environment.rascal.ast.OctalLongLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OctalLongLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.RealLiteral.Ambiguity makeRealLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.RealLiteral> alternatives) { 
-org.meta_environment.rascal.ast.RealLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.RealLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.RealLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.RealLiteral.Lexical makeRealLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.RealLiteral.Lexical x = (org.meta_environment.rascal.ast.RealLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.RealLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.BooleanLiteral.Ambiguity makeBooleanLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.BooleanLiteral> alternatives) { 
-org.meta_environment.rascal.ast.BooleanLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.BooleanLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.BooleanLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.BooleanLiteral.Lexical makeBooleanLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.BooleanLiteral.Lexical x = (org.meta_environment.rascal.ast.BooleanLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.BooleanLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.SingleCharacter.Ambiguity makeSingleCharacterAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.SingleCharacter> alternatives) { 
-org.meta_environment.rascal.ast.SingleCharacter.Ambiguity amb = (org.meta_environment.rascal.ast.SingleCharacter.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.SingleCharacter.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.SingleCharacter.Lexical makeSingleCharacterLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.SingleCharacter.Lexical x = (org.meta_environment.rascal.ast.SingleCharacter.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.SingleCharacter.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.CharacterLiteral.Ambiguity makeCharacterLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharacterLiteral> alternatives) { 
-org.meta_environment.rascal.ast.CharacterLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.CharacterLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.CharacterLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.CharacterLiteral.Lexical makeCharacterLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.CharacterLiteral.Lexical x = (org.meta_environment.rascal.ast.CharacterLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.CharacterLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.EscapeSequence.Ambiguity makeEscapeSequenceAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.EscapeSequence> alternatives) { 
-org.meta_environment.rascal.ast.EscapeSequence.Ambiguity amb = (org.meta_environment.rascal.ast.EscapeSequence.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.EscapeSequence.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.EscapeSequence.Lexical makeEscapeSequenceLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.EscapeSequence.Lexical x = (org.meta_environment.rascal.ast.EscapeSequence.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.EscapeSequence.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.StringCharacter.Ambiguity makeStringCharacterAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringCharacter> alternatives) { 
-org.meta_environment.rascal.ast.StringCharacter.Ambiguity amb = (org.meta_environment.rascal.ast.StringCharacter.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.StringCharacter.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.StringCharacter.Lexical makeStringCharacterLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.StringCharacter.Lexical x = (org.meta_environment.rascal.ast.StringCharacter.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.StringCharacter.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.StringLiteral.Ambiguity makeStringLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringLiteral> alternatives) { 
-org.meta_environment.rascal.ast.StringLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.StringLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.StringLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.StringLiteral.Lexical makeStringLiteralLexical(INode node, String string) { 
-org.meta_environment.rascal.ast.StringLiteral.Lexical x = (org.meta_environment.rascal.ast.StringLiteral.Lexical) lexCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.StringLiteral.Lexical(node, string);
-          lexCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral makeIntegerLiteralOctalIntegerLiteral(INode node, org.meta_environment.rascal.ast.OctalIntegerLiteral octal) { 
-org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral x = (org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral(node, octal);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral makeIntegerLiteralHexIntegerLiteral(INode node, org.meta_environment.rascal.ast.HexIntegerLiteral hex) { 
-org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral x = (org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral(node, hex);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.IntegerLiteral.Ambiguity makeIntegerLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> alternatives) { 
-org.meta_environment.rascal.ast.IntegerLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.IntegerLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.IntegerLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral makeIntegerLiteralDecimalIntegerLiteral(INode node, org.meta_environment.rascal.ast.DecimalIntegerLiteral decimal) { 
-org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral x = (org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral(node, decimal);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.LongLiteral.OctalLongLiteral makeLongLiteralOctalLongLiteral(INode node, org.meta_environment.rascal.ast.OctalLongLiteral octalLong) { 
-org.meta_environment.rascal.ast.LongLiteral.OctalLongLiteral x = (org.meta_environment.rascal.ast.LongLiteral.OctalLongLiteral) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.LongLiteral.OctalLongLiteral(node, octalLong);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.LongLiteral.HexLongLiteral makeLongLiteralHexLongLiteral(INode node, org.meta_environment.rascal.ast.HexLongLiteral hexLong) { 
-org.meta_environment.rascal.ast.LongLiteral.HexLongLiteral x = (org.meta_environment.rascal.ast.LongLiteral.HexLongLiteral) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.LongLiteral.HexLongLiteral(node, hexLong);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.LongLiteral.Ambiguity makeLongLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.LongLiteral> alternatives) { 
-org.meta_environment.rascal.ast.LongLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.LongLiteral.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.LongLiteral.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral makeLongLiteralDecimalLongLiteral(INode node, org.meta_environment.rascal.ast.DecimalLongLiteral decimalLong) { 
-org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral x = (org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral(node, decimalLong);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
 public org.meta_environment.rascal.ast.Formal.Ambiguity makeFormalAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Formal> alternatives) { 
 org.meta_environment.rascal.ast.Formal.Ambiguity amb = (org.meta_environment.rascal.ast.Formal.Ambiguity) ambCache.get(node);
      if(amb == null){
@@ -863,10 +519,10 @@ org.meta_environment.rascal.ast.Expression.CallOrTree x = (org.meta_environment.
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Expression.OperatorAsValue makeExpressionOperatorAsValue(INode node, org.meta_environment.rascal.ast.OperatorAsValue operator) { 
-org.meta_environment.rascal.ast.Expression.OperatorAsValue x = (org.meta_environment.rascal.ast.Expression.OperatorAsValue) sortCache.get(node);
+public org.meta_environment.rascal.ast.Expression.ReifyType makeExpressionReifyType(INode node, org.meta_environment.rascal.ast.Type type) { 
+org.meta_environment.rascal.ast.Expression.ReifyType x = (org.meta_environment.rascal.ast.Expression.ReifyType) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Expression.OperatorAsValue(node, operator);
+          x = new org.meta_environment.rascal.ast.Expression.ReifyType(node, type);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -927,142 +583,6 @@ org.meta_environment.rascal.ast.Expression.Closure x = (org.meta_environment.ras
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.OperatorAsValue.NotIn makeOperatorAsValueNotIn(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.NotIn x = (org.meta_environment.rascal.ast.OperatorAsValue.NotIn) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.NotIn(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.In makeOperatorAsValueIn(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.In x = (org.meta_environment.rascal.ast.OperatorAsValue.In) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.In(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.Not makeOperatorAsValueNot(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Not x = (org.meta_environment.rascal.ast.OperatorAsValue.Not) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.Not(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.Or makeOperatorAsValueOr(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Or x = (org.meta_environment.rascal.ast.OperatorAsValue.Or) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.Or(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.And makeOperatorAsValueAnd(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.And x = (org.meta_environment.rascal.ast.OperatorAsValue.And) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.And(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.GreaterThanOrEq makeOperatorAsValueGreaterThanOrEq(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.GreaterThanOrEq x = (org.meta_environment.rascal.ast.OperatorAsValue.GreaterThanOrEq) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.GreaterThanOrEq(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.GreaterThan makeOperatorAsValueGreaterThan(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.GreaterThan x = (org.meta_environment.rascal.ast.OperatorAsValue.GreaterThan) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.GreaterThan(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.LessThanOrEq makeOperatorAsValueLessThanOrEq(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.LessThanOrEq x = (org.meta_environment.rascal.ast.OperatorAsValue.LessThanOrEq) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.LessThanOrEq(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.LessThan makeOperatorAsValueLessThan(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.LessThan x = (org.meta_environment.rascal.ast.OperatorAsValue.LessThan) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.LessThan(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.NotEquals makeOperatorAsValueNotEquals(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.NotEquals x = (org.meta_environment.rascal.ast.OperatorAsValue.NotEquals) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.NotEquals(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.Equals makeOperatorAsValueEquals(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Equals x = (org.meta_environment.rascal.ast.OperatorAsValue.Equals) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.Equals(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.Intersection makeOperatorAsValueIntersection(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Intersection x = (org.meta_environment.rascal.ast.OperatorAsValue.Intersection) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.Intersection(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.Division makeOperatorAsValueDivision(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Division x = (org.meta_environment.rascal.ast.OperatorAsValue.Division) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.Division(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.Product makeOperatorAsValueProduct(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Product x = (org.meta_environment.rascal.ast.OperatorAsValue.Product) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.Product(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.Subtraction makeOperatorAsValueSubtraction(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Subtraction x = (org.meta_environment.rascal.ast.OperatorAsValue.Subtraction) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.Subtraction(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.Ambiguity makeOperatorAsValueAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.OperatorAsValue> alternatives) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Ambiguity amb = (org.meta_environment.rascal.ast.OperatorAsValue.Ambiguity) ambCache.get(node);
-     if(amb == null){
-     	amb = new org.meta_environment.rascal.ast.OperatorAsValue.Ambiguity(node, alternatives);
-     	ambCache.putUnsafe(node, amb);
-     }
-     return amb; 
-}
-public org.meta_environment.rascal.ast.OperatorAsValue.Addition makeOperatorAsValueAddition(INode node) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Addition x = (org.meta_environment.rascal.ast.OperatorAsValue.Addition) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.OperatorAsValue.Addition(node);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
 public org.meta_environment.rascal.ast.Field.Index makeFieldIndex(INode node, org.meta_environment.rascal.ast.IntegerLiteral fieldIndex) { 
 org.meta_environment.rascal.ast.Field.Index x = (org.meta_environment.rascal.ast.Field.Index) sortCache.get(node);
        if(x == null){
@@ -1083,6 +603,350 @@ public org.meta_environment.rascal.ast.Field.Name makeFieldName(INode node, org.
 org.meta_environment.rascal.ast.Field.Name x = (org.meta_environment.rascal.ast.Field.Name) sortCache.get(node);
        if(x == null){
           x = new org.meta_environment.rascal.ast.Field.Name(node, fieldName);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.Marker.Ambiguity makeMarkerAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Marker> alternatives) { 
+org.meta_environment.rascal.ast.Marker.Ambiguity amb = (org.meta_environment.rascal.ast.Marker.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.Marker.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.Marker.Lexical makeMarkerLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.Marker.Lexical x = (org.meta_environment.rascal.ast.Marker.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Marker.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.Rest.Ambiguity makeRestAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Rest> alternatives) { 
+org.meta_environment.rascal.ast.Rest.Ambiguity amb = (org.meta_environment.rascal.ast.Rest.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.Rest.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.Rest.Lexical makeRestLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.Rest.Lexical x = (org.meta_environment.rascal.ast.Rest.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Rest.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.Body.Toplevels makeBodyToplevels(INode node, java.util.List<org.meta_environment.rascal.ast.Toplevel> toplevels) { 
+org.meta_environment.rascal.ast.Body.Toplevels x = (org.meta_environment.rascal.ast.Body.Toplevels) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Body.Toplevels(node, toplevels);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.Body.Ambiguity makeBodyAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Body> alternatives) { 
+org.meta_environment.rascal.ast.Body.Ambiguity amb = (org.meta_environment.rascal.ast.Body.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.Body.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.Body.Anything makeBodyAnything(INode node, org.meta_environment.rascal.ast.Marker marker, org.meta_environment.rascal.ast.Rest rest) { 
+org.meta_environment.rascal.ast.Body.Anything x = (org.meta_environment.rascal.ast.Body.Anything) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Body.Anything(node, marker, rest);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity makeUnicodeEscapeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.UnicodeEscape> alternatives) { 
+org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity amb = (org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.UnicodeEscape.Lexical makeUnicodeEscapeLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.UnicodeEscape.Lexical x = (org.meta_environment.rascal.ast.UnicodeEscape.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.UnicodeEscape.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.DecimalIntegerLiteral.Ambiguity makeDecimalIntegerLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.DecimalIntegerLiteral> alternatives) { 
+org.meta_environment.rascal.ast.DecimalIntegerLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.DecimalIntegerLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.DecimalIntegerLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical makeDecimalIntegerLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical x = (org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.HexIntegerLiteral.Ambiguity makeHexIntegerLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.HexIntegerLiteral> alternatives) { 
+org.meta_environment.rascal.ast.HexIntegerLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.HexIntegerLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.HexIntegerLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.HexIntegerLiteral.Lexical makeHexIntegerLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.HexIntegerLiteral.Lexical x = (org.meta_environment.rascal.ast.HexIntegerLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.HexIntegerLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.OctalIntegerLiteral.Ambiguity makeOctalIntegerLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.OctalIntegerLiteral> alternatives) { 
+org.meta_environment.rascal.ast.OctalIntegerLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.OctalIntegerLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.OctalIntegerLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.OctalIntegerLiteral.Lexical makeOctalIntegerLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.OctalIntegerLiteral.Lexical x = (org.meta_environment.rascal.ast.OctalIntegerLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.OctalIntegerLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.DecimalLongLiteral.Ambiguity makeDecimalLongLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.DecimalLongLiteral> alternatives) { 
+org.meta_environment.rascal.ast.DecimalLongLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.DecimalLongLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.DecimalLongLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.DecimalLongLiteral.Lexical makeDecimalLongLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.DecimalLongLiteral.Lexical x = (org.meta_environment.rascal.ast.DecimalLongLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.DecimalLongLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.HexLongLiteral.Ambiguity makeHexLongLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.HexLongLiteral> alternatives) { 
+org.meta_environment.rascal.ast.HexLongLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.HexLongLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.HexLongLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.HexLongLiteral.Lexical makeHexLongLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.HexLongLiteral.Lexical x = (org.meta_environment.rascal.ast.HexLongLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.HexLongLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.OctalLongLiteral.Ambiguity makeOctalLongLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.OctalLongLiteral> alternatives) { 
+org.meta_environment.rascal.ast.OctalLongLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.OctalLongLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.OctalLongLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.OctalLongLiteral.Lexical makeOctalLongLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.OctalLongLiteral.Lexical x = (org.meta_environment.rascal.ast.OctalLongLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.OctalLongLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.RealLiteral.Ambiguity makeRealLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.RealLiteral> alternatives) { 
+org.meta_environment.rascal.ast.RealLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.RealLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.RealLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.RealLiteral.Lexical makeRealLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.RealLiteral.Lexical x = (org.meta_environment.rascal.ast.RealLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.RealLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BooleanLiteral.Ambiguity makeBooleanLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.BooleanLiteral> alternatives) { 
+org.meta_environment.rascal.ast.BooleanLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.BooleanLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.BooleanLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.BooleanLiteral.Lexical makeBooleanLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.BooleanLiteral.Lexical x = (org.meta_environment.rascal.ast.BooleanLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BooleanLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.SingleCharacter.Ambiguity makeSingleCharacterAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.SingleCharacter> alternatives) { 
+org.meta_environment.rascal.ast.SingleCharacter.Ambiguity amb = (org.meta_environment.rascal.ast.SingleCharacter.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.SingleCharacter.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.SingleCharacter.Lexical makeSingleCharacterLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.SingleCharacter.Lexical x = (org.meta_environment.rascal.ast.SingleCharacter.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.SingleCharacter.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.CharacterLiteral.Ambiguity makeCharacterLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharacterLiteral> alternatives) { 
+org.meta_environment.rascal.ast.CharacterLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.CharacterLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.CharacterLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.CharacterLiteral.Lexical makeCharacterLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.CharacterLiteral.Lexical x = (org.meta_environment.rascal.ast.CharacterLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.CharacterLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.EscapeSequence.Ambiguity makeEscapeSequenceAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.EscapeSequence> alternatives) { 
+org.meta_environment.rascal.ast.EscapeSequence.Ambiguity amb = (org.meta_environment.rascal.ast.EscapeSequence.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.EscapeSequence.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.EscapeSequence.Lexical makeEscapeSequenceLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.EscapeSequence.Lexical x = (org.meta_environment.rascal.ast.EscapeSequence.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.EscapeSequence.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.StringCharacter.Ambiguity makeStringCharacterAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringCharacter> alternatives) { 
+org.meta_environment.rascal.ast.StringCharacter.Ambiguity amb = (org.meta_environment.rascal.ast.StringCharacter.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.StringCharacter.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.StringCharacter.Lexical makeStringCharacterLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.StringCharacter.Lexical x = (org.meta_environment.rascal.ast.StringCharacter.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.StringCharacter.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.StringLiteral.Ambiguity makeStringLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringLiteral> alternatives) { 
+org.meta_environment.rascal.ast.StringLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.StringLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.StringLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.StringLiteral.Lexical makeStringLiteralLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.StringLiteral.Lexical x = (org.meta_environment.rascal.ast.StringLiteral.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.StringLiteral.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral makeIntegerLiteralOctalIntegerLiteral(INode node, org.meta_environment.rascal.ast.OctalIntegerLiteral octal) { 
+org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral x = (org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral(node, octal);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral makeIntegerLiteralHexIntegerLiteral(INode node, org.meta_environment.rascal.ast.HexIntegerLiteral hex) { 
+org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral x = (org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral(node, hex);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.IntegerLiteral.Ambiguity makeIntegerLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> alternatives) { 
+org.meta_environment.rascal.ast.IntegerLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.IntegerLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.IntegerLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral makeIntegerLiteralDecimalIntegerLiteral(INode node, org.meta_environment.rascal.ast.DecimalIntegerLiteral decimal) { 
+org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral x = (org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral(node, decimal);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.LongLiteral.OctalLongLiteral makeLongLiteralOctalLongLiteral(INode node, org.meta_environment.rascal.ast.OctalLongLiteral octalLong) { 
+org.meta_environment.rascal.ast.LongLiteral.OctalLongLiteral x = (org.meta_environment.rascal.ast.LongLiteral.OctalLongLiteral) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.LongLiteral.OctalLongLiteral(node, octalLong);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.LongLiteral.HexLongLiteral makeLongLiteralHexLongLiteral(INode node, org.meta_environment.rascal.ast.HexLongLiteral hexLong) { 
+org.meta_environment.rascal.ast.LongLiteral.HexLongLiteral x = (org.meta_environment.rascal.ast.LongLiteral.HexLongLiteral) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.LongLiteral.HexLongLiteral(node, hexLong);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.LongLiteral.Ambiguity makeLongLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.LongLiteral> alternatives) { 
+org.meta_environment.rascal.ast.LongLiteral.Ambiguity amb = (org.meta_environment.rascal.ast.LongLiteral.Ambiguity) ambCache.get(node);
+     if(amb == null){
+     	amb = new org.meta_environment.rascal.ast.LongLiteral.Ambiguity(node, alternatives);
+     	ambCache.putUnsafe(node, amb);
+     }
+     return amb; 
+}
+public org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral makeLongLiteralDecimalLongLiteral(INode node, org.meta_environment.rascal.ast.DecimalLongLiteral decimalLong) { 
+org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral x = (org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral(node, decimalLong);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -1187,6 +1051,14 @@ public org.meta_environment.rascal.ast.TypeArg.Default makeTypeArgDefault(INode 
 org.meta_environment.rascal.ast.TypeArg.Default x = (org.meta_environment.rascal.ast.TypeArg.Default) sortCache.get(node);
        if(x == null){
           x = new org.meta_environment.rascal.ast.TypeArg.Default(node, type);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.StructuredType.ReifiedType makeStructuredTypeReifiedType(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) { 
+org.meta_environment.rascal.ast.StructuredType.ReifiedType x = (org.meta_environment.rascal.ast.StructuredType.ReifiedType) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.StructuredType.ReifiedType(node, typeArg);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -2287,10 +2159,10 @@ org.meta_environment.rascal.ast.ModuleParameters.Default x = (org.meta_environme
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Header.Parameters makeHeaderParameters(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleParameters params, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
+public org.meta_environment.rascal.ast.Header.Parameters makeHeaderParameters(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleParameters params, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
 org.meta_environment.rascal.ast.Header.Parameters x = (org.meta_environment.rascal.ast.Header.Parameters) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Header.Parameters(node, name, params, tags, imports);
+          x = new org.meta_environment.rascal.ast.Header.Parameters(node, tags, name, params, imports);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -2303,10 +2175,10 @@ org.meta_environment.rascal.ast.Header.Ambiguity amb = (org.meta_environment.ras
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.Header.Default makeHeaderDefault(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
+public org.meta_environment.rascal.ast.Header.Default makeHeaderDefault(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.QualifiedName name, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
 org.meta_environment.rascal.ast.Header.Default x = (org.meta_environment.rascal.ast.Header.Default) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Header.Default(node, name, tags, imports);
+          x = new org.meta_environment.rascal.ast.Header.Default(node, tags, name, imports);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -2751,6 +2623,14 @@ org.meta_environment.rascal.ast.QualifiedName.Default x = (org.meta_environment.
        }
        return x; 
 }
+public org.meta_environment.rascal.ast.Command.Lexical makeCommandLexical(INode node, String string) { 
+org.meta_environment.rascal.ast.Command.Lexical x = (org.meta_environment.rascal.ast.Command.Lexical) lexCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Command.Lexical(node, string);
+          lexCache.putUnsafe(node, x);
+       }
+       return x; 
+}
 public org.meta_environment.rascal.ast.Command.Import makeCommandImport(INode node, org.meta_environment.rascal.ast.Import imported) { 
 org.meta_environment.rascal.ast.Command.Import x = (org.meta_environment.rascal.ast.Command.Import) sortCache.get(node);
        if(x == null){
@@ -2959,6 +2839,14 @@ org.meta_environment.rascal.ast.Tag.Empty x = (org.meta_environment.rascal.ast.T
        }
        return x; 
 }
+public org.meta_environment.rascal.ast.Tag.Expression makeTagExpression(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Expression expression) { 
+org.meta_environment.rascal.ast.Tag.Expression x = (org.meta_environment.rascal.ast.Tag.Expression) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Tag.Expression(node, name, expression);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
 public org.meta_environment.rascal.ast.Tag.Ambiguity makeTagAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Tag> alternatives) { 
 org.meta_environment.rascal.ast.Tag.Ambiguity amb = (org.meta_environment.rascal.ast.Tag.Ambiguity) ambCache.get(node);
      if(amb == null){
@@ -2983,10 +2871,10 @@ org.meta_environment.rascal.ast.Tags.Ambiguity amb = (org.meta_environment.rasca
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.Tags.Default makeTagsDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Tag> annotations) { 
+public org.meta_environment.rascal.ast.Tags.Default makeTagsDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Tag> tags) { 
 org.meta_environment.rascal.ast.Tags.Default x = (org.meta_environment.rascal.ast.Tags.Default) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Tags.Default(node, annotations);
+          x = new org.meta_environment.rascal.ast.Tags.Default(node, tags);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -3087,6 +2975,14 @@ org.meta_environment.rascal.ast.NamedBackslash.Lexical x = (org.meta_environment
        }
        return x; 
 }
+public org.meta_environment.rascal.ast.Visibility.Default makeVisibilityDefault(INode node) { 
+org.meta_environment.rascal.ast.Visibility.Default x = (org.meta_environment.rascal.ast.Visibility.Default) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Visibility.Default(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
 public org.meta_environment.rascal.ast.Visibility.Private makeVisibilityPrivate(INode node) { 
 org.meta_environment.rascal.ast.Visibility.Private x = (org.meta_environment.rascal.ast.Visibility.Private) sortCache.get(node);
        if(x == null){
@@ -3111,14 +3007,6 @@ org.meta_environment.rascal.ast.Visibility.Public x = (org.meta_environment.rasc
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Toplevel.DefaultVisibility makeToplevelDefaultVisibility(INode node, org.meta_environment.rascal.ast.Declaration declaration) { 
-org.meta_environment.rascal.ast.Toplevel.DefaultVisibility x = (org.meta_environment.rascal.ast.Toplevel.DefaultVisibility) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.Toplevel.DefaultVisibility(node, declaration);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
 public org.meta_environment.rascal.ast.Toplevel.Ambiguity makeToplevelAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Toplevel> alternatives) { 
 org.meta_environment.rascal.ast.Toplevel.Ambiguity amb = (org.meta_environment.rascal.ast.Toplevel.Ambiguity) ambCache.get(node);
      if(amb == null){
@@ -3127,42 +3015,42 @@ org.meta_environment.rascal.ast.Toplevel.Ambiguity amb = (org.meta_environment.r
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.Toplevel.GivenVisibility makeToplevelGivenVisibility(INode node, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Declaration declaration) { 
+public org.meta_environment.rascal.ast.Toplevel.GivenVisibility makeToplevelGivenVisibility(INode node, org.meta_environment.rascal.ast.Declaration declaration) { 
 org.meta_environment.rascal.ast.Toplevel.GivenVisibility x = (org.meta_environment.rascal.ast.Toplevel.GivenVisibility) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Toplevel.GivenVisibility(node, visibility, declaration);
+          x = new org.meta_environment.rascal.ast.Toplevel.GivenVisibility(node, declaration);
           sortCache.putUnsafe(node, x);
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Declaration.Tag makeDeclarationTag(INode node, org.meta_environment.rascal.ast.Kind kind, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) { 
+public org.meta_environment.rascal.ast.Declaration.Tag makeDeclarationTag(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Kind kind, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Type> types) { 
 org.meta_environment.rascal.ast.Declaration.Tag x = (org.meta_environment.rascal.ast.Declaration.Tag) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Declaration.Tag(node, kind, name, tags, types);
+          x = new org.meta_environment.rascal.ast.Declaration.Tag(node, tags, visibility, kind, name, types);
           sortCache.putUnsafe(node, x);
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Declaration.Annotation makeDeclarationAnnotation(INode node, org.meta_environment.rascal.ast.Type annoType, org.meta_environment.rascal.ast.Type onType, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags) { 
+public org.meta_environment.rascal.ast.Declaration.Annotation makeDeclarationAnnotation(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Type annoType, org.meta_environment.rascal.ast.Type onType, org.meta_environment.rascal.ast.Name name) { 
 org.meta_environment.rascal.ast.Declaration.Annotation x = (org.meta_environment.rascal.ast.Declaration.Annotation) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Declaration.Annotation(node, annoType, onType, name, tags);
+          x = new org.meta_environment.rascal.ast.Declaration.Annotation(node, tags, visibility, annoType, onType, name);
           sortCache.putUnsafe(node, x);
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Declaration.Rule makeDeclarationRule(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.PatternWithAction patternAction) { 
+public org.meta_environment.rascal.ast.Declaration.Rule makeDeclarationRule(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.PatternWithAction patternAction) { 
 org.meta_environment.rascal.ast.Declaration.Rule x = (org.meta_environment.rascal.ast.Declaration.Rule) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Declaration.Rule(node, name, tags, patternAction);
+          x = new org.meta_environment.rascal.ast.Declaration.Rule(node, tags, name, patternAction);
           sortCache.putUnsafe(node, x);
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Declaration.Variable makeDeclarationVariable(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) { 
+public org.meta_environment.rascal.ast.Declaration.Variable makeDeclarationVariable(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) { 
 org.meta_environment.rascal.ast.Declaration.Variable x = (org.meta_environment.rascal.ast.Declaration.Variable) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Declaration.Variable(node, type, variables);
+          x = new org.meta_environment.rascal.ast.Declaration.Variable(node, tags, visibility, type, variables);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -3183,18 +3071,18 @@ org.meta_environment.rascal.ast.Declaration.Test x = (org.meta_environment.rasca
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Declaration.Data makeDeclarationData(INode node, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Variant> variants) { 
+public org.meta_environment.rascal.ast.Declaration.Data makeDeclarationData(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.UserType user, java.util.List<org.meta_environment.rascal.ast.Variant> variants) { 
 org.meta_environment.rascal.ast.Declaration.Data x = (org.meta_environment.rascal.ast.Declaration.Data) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Declaration.Data(node, user, tags, variants);
+          x = new org.meta_environment.rascal.ast.Declaration.Data(node, tags, visibility, user, variants);
           sortCache.putUnsafe(node, x);
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Declaration.Alias makeDeclarationAlias(INode node, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.Tags tags) { 
+public org.meta_environment.rascal.ast.Declaration.Alias makeDeclarationAlias(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Type base) { 
 org.meta_environment.rascal.ast.Declaration.Alias x = (org.meta_environment.rascal.ast.Declaration.Alias) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Declaration.Alias(node, user, base, tags);
+          x = new org.meta_environment.rascal.ast.Declaration.Alias(node, tags, visibility, user, base);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -3207,10 +3095,10 @@ org.meta_environment.rascal.ast.Declaration.Ambiguity amb = (org.meta_environmen
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.Declaration.View makeDeclarationView(INode node, org.meta_environment.rascal.ast.Name view, org.meta_environment.rascal.ast.Name superType, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Alternative> alts) { 
+public org.meta_environment.rascal.ast.Declaration.View makeDeclarationView(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Name view, org.meta_environment.rascal.ast.Name superType, java.util.List<org.meta_environment.rascal.ast.Alternative> alts) { 
 org.meta_environment.rascal.ast.Declaration.View x = (org.meta_environment.rascal.ast.Declaration.View) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Declaration.View(node, view, superType, tags, alts);
+          x = new org.meta_environment.rascal.ast.Declaration.View(node, tags, visibility, view, superType, alts);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -3247,10 +3135,10 @@ org.meta_environment.rascal.ast.Variant.NAryConstructor x = (org.meta_environmen
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Test.Labeled makeTestLabeled(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringLiteral labeled) { 
+public org.meta_environment.rascal.ast.Test.Labeled makeTestLabeled(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringLiteral labeled) { 
 org.meta_environment.rascal.ast.Test.Labeled x = (org.meta_environment.rascal.ast.Test.Labeled) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Test.Labeled(node, expression, labeled);
+          x = new org.meta_environment.rascal.ast.Test.Labeled(node, tags, expression, labeled);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -3263,10 +3151,10 @@ org.meta_environment.rascal.ast.Test.Ambiguity amb = (org.meta_environment.rasca
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.Test.Unlabeled makeTestUnlabeled(INode node, org.meta_environment.rascal.ast.Expression expression) { 
+public org.meta_environment.rascal.ast.Test.Unlabeled makeTestUnlabeled(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Expression expression) { 
 org.meta_environment.rascal.ast.Test.Unlabeled x = (org.meta_environment.rascal.ast.Test.Unlabeled) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Test.Unlabeled(node, expression);
+          x = new org.meta_environment.rascal.ast.Test.Unlabeled(node, tags, expression);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -3327,10 +3215,10 @@ org.meta_environment.rascal.ast.Signature.NoThrows x = (org.meta_environment.ras
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.FunctionDeclaration.Abstract makeFunctionDeclarationAbstract(INode node, org.meta_environment.rascal.ast.Signature signature, org.meta_environment.rascal.ast.Tags tags) { 
+public org.meta_environment.rascal.ast.FunctionDeclaration.Abstract makeFunctionDeclarationAbstract(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Signature signature) { 
 org.meta_environment.rascal.ast.FunctionDeclaration.Abstract x = (org.meta_environment.rascal.ast.FunctionDeclaration.Abstract) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.FunctionDeclaration.Abstract(node, signature, tags);
+          x = new org.meta_environment.rascal.ast.FunctionDeclaration.Abstract(node, tags, visibility, signature);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -3343,10 +3231,10 @@ org.meta_environment.rascal.ast.FunctionDeclaration.Ambiguity amb = (org.meta_en
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.FunctionDeclaration.Default makeFunctionDeclarationDefault(INode node, org.meta_environment.rascal.ast.Signature signature, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.FunctionBody body) { 
+public org.meta_environment.rascal.ast.FunctionDeclaration.Default makeFunctionDeclarationDefault(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Signature signature, org.meta_environment.rascal.ast.FunctionBody body) { 
 org.meta_environment.rascal.ast.FunctionDeclaration.Default x = (org.meta_environment.rascal.ast.FunctionDeclaration.Default) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.FunctionDeclaration.Default(node, signature, tags, body);
+          x = new org.meta_environment.rascal.ast.FunctionDeclaration.Default(node, tags, visibility, signature, body);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -3367,10 +3255,10 @@ org.meta_environment.rascal.ast.FunctionBody.Default x = (org.meta_environment.r
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Variable.Initialized makeVariableInitialized(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Expression initial) { 
+public org.meta_environment.rascal.ast.Variable.Initialized makeVariableInitialized(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Expression initial) { 
 org.meta_environment.rascal.ast.Variable.Initialized x = (org.meta_environment.rascal.ast.Variable.Initialized) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Variable.Initialized(node, name, tags, initial);
+          x = new org.meta_environment.rascal.ast.Variable.Initialized(node, name, initial);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -3383,10 +3271,10 @@ org.meta_environment.rascal.ast.Variable.Ambiguity amb = (org.meta_environment.r
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.Variable.UnInitialized makeVariableUnInitialized(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags) { 
+public org.meta_environment.rascal.ast.Variable.UnInitialized makeVariableUnInitialized(INode node, org.meta_environment.rascal.ast.Name name) { 
 org.meta_environment.rascal.ast.Variable.UnInitialized x = (org.meta_environment.rascal.ast.Variable.UnInitialized) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Variable.UnInitialized(node, name, tags);
+          x = new org.meta_environment.rascal.ast.Variable.UnInitialized(node, name);
           sortCache.putUnsafe(node, x);
        }
        return x; 

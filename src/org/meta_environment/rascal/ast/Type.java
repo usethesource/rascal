@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Type extends AbstractAST { 
   public org.meta_environment.rascal.ast.BasicType getBasic() { throw new UnsupportedOperationException(); }
 public boolean hasBasic() { return false; }

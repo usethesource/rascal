@@ -18,7 +18,6 @@ import org.meta_environment.rascal.ast.UserType;
 import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Data;
-import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -206,11 +205,6 @@ public class TypeDeclarationEvaluator {
 			this.abstractDataTypes = abstractDataTypes;
 			this.constructorDecls = constructorDecls;
 			this.aliasDecls = aliasDecls;
-		}
-
-		@Override
-		public Declaration visitToplevelDefaultVisibility(DefaultVisibility x) {
-			return x.getDeclaration().accept(this);
 		}
 
 		@Override

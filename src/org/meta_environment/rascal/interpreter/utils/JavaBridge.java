@@ -153,8 +153,8 @@ public class JavaBridge {
 	private String getImports(FunctionDeclaration declaration) {
 		Tags tags = declaration.getTags();
 		
-		if (tags.hasAnnotations()) {
-			for (Tag tag : tags.getAnnotations()) {
+		if (tags.hasTags()) {
+			for (Tag tag : tags.getTags()) {
 				if (tag.getName().toString().equals(JAVA_IMPORTS_TAG)) {
 					String contents = tag.getContents().toString();
 					
@@ -172,8 +172,8 @@ public class JavaBridge {
 	private String getClassName(FunctionDeclaration declaration) {
 		Tags tags = declaration.getTags();
 		
-		if (tags.hasAnnotations()) {
-			for (Tag tag : tags.getAnnotations()) {
+		if (tags.hasTags()) {
+			for (Tag tag : tags.getTags()) {
 				if (tag.getName().toString().equals(JAVA_CLASS_TAG)) {
 					String contents = tag.getContents().toString();
 					

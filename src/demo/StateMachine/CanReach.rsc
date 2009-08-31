@@ -18,17 +18,17 @@ import IO;
 //TODO All types {Decl ";"}+ should actually be FSM
 
 public {Decl ";"}+ example = 
-    	 [| state S1;
+    	 ` state S1;
     	    state S2;
 	        state S3;
 	        trans a: S1 -> S2;
 	        trans b: S2 -> S1;
-	        trans a: S1 -> S3 |];
+	        trans a: S1 -> S3 `;
 
 // Extract from a give FSM all transitions as a relation
 
 public rel[IdCon, IdCon] getTransitions({Decl ";"}+ fsm){
-   r = { <from, to> | [| trans <IdCon a>: <IdCon from> -> <IdCon to> |] <- fsm };
+   r = { <from, to> | ` trans <IdCon a>: <IdCon from> -> <IdCon to> ` <- fsm };
    return r;
 }
 
@@ -40,14 +40,14 @@ public map[IdCon, set[IdCon]] canReach({Decl ";"}+ fsm){
 }
 
 public bool test(){
-  //assertEqual(getTransitions(example), {<IdCon[|S1|], IdCon[|S2|]>, <IdCon[|S2|], IdCon[|S1|]>, <IdCon[|S1|], IdCon[|S3|]>});
+  //assertEqual(getTransitions(example), {<IdCon`S1`, IdCon`S2`>, <IdCon`S2`, IdCon`S1`>, <IdCon`S1`, IdCon`S3`>});
  
   map[IdCon, set[IdCon]] cr = canReach(example);
   
   for(IdCon a <- domain(cr)){
       println(a, cr[a]);
   }
-  assertEqual(canReach(example), ([|S1|] :{[|S1|], [|S2|], [|S3|]}, [|S2|] : {[|S1|], [|S2|], [|S3|]}, [|S3|] : {}));
+  assertEqual(canReach(example), (`S1` :{`S1`, `S2`, `S3`}, `S2` : {`S1`, `S2`, `S3`}, `S3` : {}));
   return report();
 }
 

@@ -6,30 +6,30 @@ import IO;
 
 alias graph[&T] = rel[&T from, &T to];
 
+@doc{ return the bottom nodes of a graph.}
 public set[&T] bottom(graph[&T] G)
-@doc{bottom -- return the bottom nodes of a graph.}
 {
   return range(G) - domain(G);
 }
 
+@doc{ the predecessors of a single node in a graph}
 public set[&T] predecessors(graph[&T] G, &T From)
-@doc{predecessors -- the predecessors of a single node in a graph}
 {
   //return G[_,From];
   return invert(G)[From];
 }
 
 /*
+@doc{ the predecessors of a set of nodes in a graph}
 public set[&T] predecessors(graph[&T] G, set[&T] From)
-@doc{predecessors -- the predecessors of a set of nodes in a graph}
 {
   //return G[_,From];
   return invert(G)[From];
 }
 */
 
+@doc{ Reachability from set of start nodes.}
 public set[&T] reach(graph[&T] G, set[&T] Start)
-@doc{reach -- Reachability from set of start nodes.}
 {
     set[&T] R = Start;
 	
@@ -40,26 +40,24 @@ public set[&T] reach(graph[&T] G, set[&T] Start)
 	return R;
 }
 
+@doc{ Reachability from set of start nodes with restriction to certain nodes.}
 public set[&T] reachR(graph[&T] G, set[&T] Start, set[&T] Restr)
-@doc{reachR -- Reachability from set of start nodes with restriction to certain nodes.}
 {
 	return (carrierR(G, Restr)+)[Start];
 }
 
+@doc{ Reachability from set of start nodes with exclusion of certain nodes.}
 public set[&T] reachX(graph[&T] G, set[&T] Start, set[&T] Excl)
-@doc{reachX -- Reachability from set of start nodes with exclusion of certain nodes.}
 {
    return (carrierX(G, Excl)+)[Start];
 }
 
-// Shortest Path functions
+@doc{ Shortest path between pair of nodes.}
+@javaClass{org.meta_environment.rascal.std.Graph}
+public list[&T] java shortestPathPair(graph[&T] G, &T From, &T To);
 
-public list[&T] java shortestPathPair(graph[&T] G, &T From, &T To)
-@doc{shortestPathPair -- Shortest path between pair of nodes.}
-@javaClass{org.meta_environment.rascal.std.Graph};
-
-/*
-
+/* TODO: replace upper builtin by lower code, but refactor it to not
+   use global variables.
 private graph[&T] Graph ={};
 private map[int, int] distance =();
 private map[int, int] pred = ();
@@ -67,8 +65,8 @@ private set[int] settled = {};
 private set[int] Q = {};
 private int MAXDISTANCE = 10000;
 
-public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
 @doc{Shortest path between pair of nodes}
+public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
 {
     Graph = G;
     for(int edge <- carrier(G)){
@@ -129,33 +127,14 @@ private list[int] extractPath(int start, int u)
 public rel[int,int] examp = {<1,2>,<2,3>,<3,4>,<2,4>};
 */
 
-/* TODO
-public set[list[&T]] shortestPathFrom(graph[&T] G, &T From)
-  @doc{Shortest path between one node and all others}
-  @primitive{"Graph.shortestPathFrom"}
-
-public set[list[&T]] shortestPathAll(graph[&T] G)
-  @doc{Shortest path between all nodes}
-  @primitive{"Graph.shortestPathAll"}
-
-*/
-
+@doc{The successor of a single node in a graph}
 public set[&T] successors(graph[&T] G, &T From)
-@doc{successors -- the successor of a single node in a graph}
 {
   return G[From];
 }
 
-/*
-public set[&T] successors(graph[&T] G, set[&T] From)
-@doc{successors -- the successor of a set of nodes in a graph}
-{
-  return G[From];
-}
-*/
-
+@doc{Return the top nodes of a graph.}
 public set[&T] top(graph[&T] G)
-@doc{top -- return the top nodes of a graph.}
 {
   return domain(G) - range(G);
 }

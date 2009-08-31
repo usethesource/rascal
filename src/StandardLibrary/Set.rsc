@@ -1,22 +1,21 @@
 module Set
  
-public &T java getOneFrom(set[&T] st)
-@doc{getOneFrom -- pick a random element from a set}
-@javaClass{org.meta_environment.rascal.std.Set};
+@doc{Pick a random element from a set}
+@javaClass{org.meta_environment.rascal.std.Set}
+public &T java getOneFrom(set[&T] st);
 
-public bool java isEmpty(set[&T] st)
- @doc{isEmpty -- is set empty?}
- @javaClass{org.meta_environment.rascal.std.Set};
+@doc{is set empty?}
+@javaClass{org.meta_environment.rascal.std.Set}
+public bool java isEmpty(set[&T] st);
 
-
+@doc{Apply a function to each element of a set}
 public set[&T] mapper(set[&T] st, &T (&T) fn)
-@doc{mapper -- apply a function to each element of a set}
 {
   return {fn(elm) | &T elm <- st};
 }
 
+@doc{Largest element of a set}
 public &T max(set[&T] st)
-@doc{max -- largest element of a set}
 {
   &T result = getOneFrom(st);
   for(&T elm <- st){
@@ -27,8 +26,8 @@ public &T max(set[&T] st)
   return result;
 }
 
+@doc{Smallest element of a set}
 public &T min(set[&T] st)
-@doc{min -- smallest element of a set}
 {
   &T result = getOneFrom(st);
   for(&T elm <- st){
@@ -39,8 +38,8 @@ public &T min(set[&T] st)
   return result;
 }
 
+@doc{Return all subsets of a set}
 public set[set[&T]] power(set[&T] st)
-@doc{power -- return all subsets of a set}
 {
 
   set[set[&T]] result = {{st}};
@@ -54,14 +53,14 @@ public set[set[&T]] power(set[&T] st)
   return result;
 }
 
+@doc{Return all subsets (excluding empty set) of a set}
 public set[set[&T]] power1(set[&T] st)
-@doc{power1-- return all subsets (excluding empty set) of a set}
 {
 	return power(st) - {{}};
 }
 
+@doc{Apply function F to successive elements of a set}
 public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit)
-@doc{reducer -- apply function F to successive elements of a set}
 {
   &T result = unit;
   for(&T elm <- st){
@@ -70,26 +69,26 @@ public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit)
   return result;
 }
 
-public int java size(set[&T] st)
-@doc{size -- number of elements in a set}
-@javaClass{org.meta_environment.rascal.std.Set};
+@doc{Number of elements in a set}
+@javaClass{org.meta_environment.rascal.std.Set}
+public int java size(set[&T] st);
 
-public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
-@doc{takeOneFrom -- remove an arbitrary element from a set, returns the element and the modified set}
-@javaClass{org.meta_environment.rascal.std.Set};
+@doc{Remove an arbitrary element from a set, returns the element and the modified set}
+@javaClass{org.meta_environment.rascal.std.Set}
+public tuple[&T, set[&T]] java takeOneFrom(set[&T] st);
   
-public list[&T] java toList(set[&T] st)
-@doc{toList -- convert a set to a list}
-@javaClass{org.meta_environment.rascal.std.Set};
+@doc{Convert a set to a list}
+@javaClass{org.meta_environment.rascal.std.Set}
+public list[&T] java toList(set[&T] st);
 
-public map[&A,set[&B]] java toMap(rel[&A, &B] st)
-@doc{toMap -- convert a set of tuples to a map; values should be unique}
-@javaClass{org.meta_environment.rascal.std.Set};
+@doc{Convert a set of tuples to a map; values should be unique}
+@javaClass{org.meta_environment.rascal.std.Set}
+public map[&A,set[&B]] java toMap(rel[&A, &B] st);
 
-public map[&A,&B] java toMapUnique(rel[&A, &B] st)
-@doc{toMap -- convert a set of tuples to a map; values in relation are associated with a set of keys}
-@javaClass{org.meta_environment.rascal.std.Set};
+@doc{Convert a set of tuples to a map; values in relation are associated with a set of keys}
+@javaClass{org.meta_environment.rascal.std.Set}
+public map[&A,&B] java toMapUnique(rel[&A, &B] st);
 
-public str java toString(set[&T] st)
-@doc{toString -- convert a set to a string}
-@javaClass{org.meta_environment.rascal.std.Set};
+@doc{Convert a set to a string}
+@javaClass{org.meta_environment.rascal.std.Set}
+public str java toString(set[&T] st);

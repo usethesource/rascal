@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Expression extends AbstractAST { 
   public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Parameters getParameters() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasParameters() { return false; } public boolean hasStatements() { return false; } public boolean isClosure() { return false; }
 static public class Closure extends Expression {
@@ -230,33 +230,30 @@ private org.meta_environment.rascal.ast.Expression first;
  		z.$setLast(x);
 		return z;
 	}	
-} 
-public org.meta_environment.rascal.ast.OperatorAsValue getOperator() { throw new UnsupportedOperationException(); }
-public boolean hasOperator() { return false; }
-public boolean isOperatorAsValue() { return false; }
-static public class OperatorAsValue extends Expression {
-/** operator:OperatorAsValue -> Expression {cons("OperatorAsValue")} */
-	private OperatorAsValue() {
+} public boolean isReifyType() { return false; }
+static public class ReifyType extends Expression {
+/** "#" type:Type -> Expression {cons("ReifyType")} */
+	private ReifyType() {
 		super();
 	}
-	public OperatorAsValue(INode node, org.meta_environment.rascal.ast.OperatorAsValue operator) {
+	public ReifyType(INode node, org.meta_environment.rascal.ast.Type type) {
 		this.node = node;
-		this.operator = operator;
+		this.type = type;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionOperatorAsValue(this);
+		return visitor.visitExpressionReifyType(this);
 	}
 
-	public boolean isOperatorAsValue() { return true; }
+	public boolean isReifyType() { return true; }
 
-	public boolean hasOperator() { return true; }
+	public boolean hasType() { return true; }
 
-private org.meta_environment.rascal.ast.OperatorAsValue operator;
-	public org.meta_environment.rascal.ast.OperatorAsValue getOperator() { return operator; }
-	private void $setOperator(org.meta_environment.rascal.ast.OperatorAsValue x) { this.operator = x; }
-	public OperatorAsValue setOperator(org.meta_environment.rascal.ast.OperatorAsValue x) { 
-		OperatorAsValue z = new OperatorAsValue();
- 		z.$setOperator(x);
+private org.meta_environment.rascal.ast.Type type;
+	public org.meta_environment.rascal.ast.Type getType() { return type; }
+	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
+	public ReifyType setType(org.meta_environment.rascal.ast.Type x) { 
+		ReifyType z = new ReifyType();
+ 		z.$setType(x);
 		return z;
 	}	
 } public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasArguments() { return false; } public boolean isCallOrTree() { return false; } static public class CallOrTree extends Expression {
