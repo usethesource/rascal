@@ -822,9 +822,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 			}
 			else {
-				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
-					throw new RedeclaredVariableError(var.getName().toString(), var);
-				}
+				throw new UninitializedVariableError(Names.name(var.getName()), var);
 			}
 		}
 
