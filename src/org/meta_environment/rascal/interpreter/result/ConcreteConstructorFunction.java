@@ -13,6 +13,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TraversalEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
@@ -39,7 +40,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		}
 		
 		Result<?> appl = makeResult(Factory.Tree_Appl, Factory.Tree_Appl.make(getValueFactory(), actuals), ctx);
-	    NonTerminalType concreteType = new NonTerminalType((IConstructor) appl.getValue());
+	    NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType((IConstructor) appl.getValue());
 	    
 		return re.applyRules(ResultFactory.makeResult(concreteType, (IConstructor) appl.getValue(), ctx), ctx);
 	}

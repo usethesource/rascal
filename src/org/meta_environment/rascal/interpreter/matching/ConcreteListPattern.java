@@ -14,6 +14,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor;
 import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.uptr.Factory;
@@ -83,7 +84,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 		CallOrTree rhs = (CallOrTree) prod.getArguments().get(0);
 		
 		try {
-			return new NonTerminalType(rhs.accept(new IUPTRAstToSymbolConstructor(vf)));
+			return RascalTypeFactory.getInstance().nonTerminalType(rhs.accept(new IUPTRAstToSymbolConstructor(vf)));
 		}
 		catch (NonGroundSymbolException e) {
 			return Factory.Tree;

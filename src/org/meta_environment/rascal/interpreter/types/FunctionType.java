@@ -19,7 +19,7 @@ public class FunctionType extends ExternalType {
 	private final Type returnType;
 	private final Type argumentTypes;
 	
-	public FunctionType(Type returnType, Type argumentTypes) {
+	/*package*/ FunctionType(Type returnType, Type argumentTypes) {
 		this.argumentTypes = argumentTypes.isTupleType() ? argumentTypes : TypeFactory.getInstance().tupleType(argumentTypes);
 		this.returnType = returnType;
 	}

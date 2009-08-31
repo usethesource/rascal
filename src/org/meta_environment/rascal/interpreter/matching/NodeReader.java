@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.uptr.SymbolAdapter;
 
 public class NodeReader implements Iterator<IValue> {
@@ -61,7 +62,7 @@ public class NodeReader implements Iterator<IValue> {
 			throw new ImplementationError("Cannot handle ambiguous subject");
 		}
 			
-		NonTerminalType ctype = new NonTerminalType(tree);
+		NonTerminalType ctype = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(tree);
 		if(debug)System.err.println("ctype.getSymbol=" + ctype.getSymbol());
 		SymbolAdapter sym = new SymbolAdapter(ctype.getSymbol());
         if(sym.isAnyList()){

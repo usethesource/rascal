@@ -21,15 +21,15 @@ public class RascalTypeFactory {
 		return tf.externalType(new FunctionType(returnType, argumentTypes));
 	}
 	
-	Type nonTerminalType(IConstructor cons) {
+	public Type nonTerminalType(IConstructor cons) {
 		return tf.externalType(new NonTerminalType(cons));
 	}
 	
-	Type nonTerminalType(org.meta_environment.rascal.ast.Type symbol) {
+	public Type nonTerminalType(org.meta_environment.rascal.ast.Type symbol) {
 		return tf.externalType(new NonTerminalType(symbol));
 	}
 	
-	Type overloadedFunctionType(Set<FunctionType> newAlternatives) {
+	public Type overloadedFunctionType(Set<FunctionType> newAlternatives) {
 		return tf.externalType(new OverloadedFunctionType(newAlternatives));
 	}
 }

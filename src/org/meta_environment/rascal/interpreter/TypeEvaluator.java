@@ -46,7 +46,6 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
-import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.Names;
@@ -221,7 +220,7 @@ public class TypeEvaluator {
 		public Type visitFunctionTypeTypeArguments(TypeArguments x) {
 			Type returnType = x.getType().accept(this);
 			Type argTypes = getArgumentTypes(x.getArguments());
-			return new FunctionType(returnType, argTypes);
+			return RascalTypeFactory.getInstance().functionType(returnType, argTypes);
 		}
 
 		@Override
