@@ -1,16 +1,15 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Variable extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasTags() { return false; } public boolean isUnInitialized() { return false; }
+  public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isUnInitialized() { return false; }
 static public class UnInitialized extends Variable {
-/** name:Name tags:Tags -> Variable {cons("UnInitialized")} */
+/** name:Name -> Variable {cons("UnInitialized")} */
 	private UnInitialized() {
 		super();
 	}
-	public UnInitialized(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags) {
+	public UnInitialized(INode node, org.meta_environment.rascal.ast.Name name) {
 		this.node = node;
 		this.name = name;
-		this.tags = tags;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVariableUnInitialized(this);
@@ -19,7 +18,6 @@ static public class UnInitialized extends Variable {
 	public boolean isUnInitialized() { return true; }
 
 	public boolean hasName() { return true; }
-	public boolean hasTags() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
@@ -27,14 +25,6 @@ private org.meta_environment.rascal.ast.Name name;
 	public UnInitialized setName(org.meta_environment.rascal.ast.Name x) { 
 		UnInitialized z = new UnInitialized();
  		z.$setName(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Tags tags;
-	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public UnInitialized setTags(org.meta_environment.rascal.ast.Tags x) { 
-		UnInitialized z = new UnInitialized();
- 		z.$setTags(x);
 		return z;
 	}	
 }
@@ -54,14 +44,13 @@ static public class Ambiguity extends Variable {
 } public org.meta_environment.rascal.ast.Expression getInitial() { throw new UnsupportedOperationException(); } public boolean hasInitial() { return false; }
 public boolean isInitialized() { return false; }
 static public class Initialized extends Variable {
-/** name:Name tags:Tags "=" initial:Expression -> Variable {cons("Initialized")} */
+/** name:Name "=" initial:Expression -> Variable {cons("Initialized")} */
 	private Initialized() {
 		super();
 	}
-	public Initialized(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Expression initial) {
+	public Initialized(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Expression initial) {
 		this.node = node;
 		this.name = name;
-		this.tags = tags;
 		this.initial = initial;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -71,7 +60,6 @@ static public class Initialized extends Variable {
 	public boolean isInitialized() { return true; }
 
 	public boolean hasName() { return true; }
-	public boolean hasTags() { return true; }
 	public boolean hasInitial() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
@@ -80,14 +68,6 @@ private org.meta_environment.rascal.ast.Name name;
 	public Initialized setName(org.meta_environment.rascal.ast.Name x) { 
 		Initialized z = new Initialized();
  		z.$setName(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Tags tags;
-	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public Initialized setTags(org.meta_environment.rascal.ast.Tags x) { 
-		Initialized z = new Initialized();
- 		z.$setTags(x);
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression initial;

@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Statement extends AbstractAST { 
   public java.util.List<org.meta_environment.rascal.ast.QualifiedName> getVariables() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Bound getBound() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Statement getBody() { throw new UnsupportedOperationException(); } public boolean hasVariables() { return false; }

@@ -1,17 +1,17 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Tags extends AbstractAST { 
-public java.util.List<org.meta_environment.rascal.ast.Tag> getAnnotations() { throw new UnsupportedOperationException(); }
-public boolean hasAnnotations() { return false; }
+public java.util.List<org.meta_environment.rascal.ast.Tag> getTags() { throw new UnsupportedOperationException(); }
+public boolean hasTags() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Tags {
-/** annotations:Tag* -> Tags {cons("Default")} */
+/** tags:Tag* -> Tags {cons("Default")} */
 	private Default() {
 		super();
 	}
-	public Default(INode node, java.util.List<org.meta_environment.rascal.ast.Tag> annotations) {
+	public Default(INode node, java.util.List<org.meta_environment.rascal.ast.Tag> tags) {
 		this.node = node;
-		this.annotations = annotations;
+		this.tags = tags;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTagsDefault(this);
@@ -19,14 +19,14 @@ static public class Default extends Tags {
 
 	public boolean isDefault() { return true; }
 
-	public boolean hasAnnotations() { return true; }
+	public boolean hasTags() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Tag> annotations;
-	public java.util.List<org.meta_environment.rascal.ast.Tag> getAnnotations() { return annotations; }
-	private void $setAnnotations(java.util.List<org.meta_environment.rascal.ast.Tag> x) { this.annotations = x; }
-	public Default setAnnotations(java.util.List<org.meta_environment.rascal.ast.Tag> x) { 
+private java.util.List<org.meta_environment.rascal.ast.Tag> tags;
+	public java.util.List<org.meta_environment.rascal.ast.Tag> getTags() { return tags; }
+	private void $setTags(java.util.List<org.meta_environment.rascal.ast.Tag> x) { this.tags = x; }
+	public Default setTags(java.util.List<org.meta_environment.rascal.ast.Tag> x) { 
 		Default z = new Default();
- 		z.$setAnnotations(x);
+ 		z.$setTags(x);
 		return z;
 	}	
 }

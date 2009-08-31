@@ -18,7 +18,7 @@ CFSEGMENT cflow({STATEMENT ";"}* Stats){
                    CF2.exit>;
       }
 
-      case [| |]: return <{}, {}, {}>;
+      case ` `: return <{}, {}, {}>;
     }
 }
 

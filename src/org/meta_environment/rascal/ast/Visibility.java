@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Visibility extends AbstractAST { 
   public boolean isPublic() { return false; }
 static public class Public extends Visibility {
@@ -44,6 +44,19 @@ static public class Private extends Visibility {
 	}
 
 	public boolean isPrivate() { return true; }	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isDefault() { return false; }
+static public class Default extends Visibility {
+/**  -> Visibility {cons("Default")} */
+	private Default() {
+		super();
+	}
+	public Default(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitVisibilityDefault(this);
+	}
+
+	public boolean isDefault() { return true; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
 }

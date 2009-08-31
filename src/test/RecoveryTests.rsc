@@ -1,7 +1,7 @@
 module RecoveryTests
 
-public int recoveryOfLocalVariable()
 @should{return 0}
+public int recoveryOfLocalVariable()
 {
 	x = 0;
 	l = [1, 2, 3];
@@ -14,8 +14,8 @@ public int recoveryOfLocalVariable()
     return x;
 }
 
-public int nestedRecoveryOfLocalVariable() 
 @should{return 3}
+public int nestedRecoveryOfLocalVariable() 
 {
 	x = 0;
 	l = [1, 2, 3];
@@ -33,8 +33,8 @@ public int nestedRecoveryOfLocalVariable()
     return x;
 }
 
-public int noNestedRecovery()
 @should{return 12} // but why?
+public int noNestedRecovery()
 {
 	int x = 0;
 	l = [1, 2, 3];
@@ -51,8 +51,8 @@ public int noNestedRecovery()
     return x;
 }
 
-public int recoveryOfLocalVariableUsingIfThen()
 @should{return 0}
+public int recoveryOfLocalVariableUsingIfThen()
 {
 	x = 0;
 	l = [1, 2, 3];
@@ -70,8 +70,8 @@ public int recoveryOfLocalVariableUsingIfThen()
 
 public int gx = 0;
 
-public int recoveryOfGlobalVariable() 
 @should{return 0}
+public int recoveryOfGlobalVariable() 
 {
     //global int gx;
 	l = [1, 2, 3];

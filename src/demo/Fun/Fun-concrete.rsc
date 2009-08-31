@@ -31,15 +31,15 @@ Exp subst(Var V1, Exp E1, Exp E2) {
       case <Var V2>: insert (V1==V2) ? E1 : V2;
 
       case <Exp Ea> <Exp Eb>:
-        insert [| <subst(V, E, Ea)> <subst(V, E, Eb)> |];
+        insert ` <subst(V, E, Ea)> <subst(V, E, Eb)> `;
 
       case fn <Var V2> => <Var Ea>:
-        if (V1 == V2) { insert [| fn <V2> =\> <Ea> |]; }
+        if (V1 == V2) { insert ` fn <V2> =\> <Ea> `; }
 
       case fn <Var V2> => <Exp Ea>:
         if(V1 != V2 && !(V1 in freeVars(E2) && 
            V2 in freeVars(E1))){
-           insert [| fn <V2> =\> <subst(V1, E1, Ea)> |];
+           insert ` fn <V2> =\> <subst(V1, E1, Ea)> `;
         }              
  
       case fn <Var V2> => <Exp Ea>: 
@@ -47,7 +47,7 @@ Exp subst(Var V1, Exp E1, Exp E2) {
            V2 in freeVars(E1)){
            Var V3 = fresh(V2, freeVars(Ea) + freeVars(E1));
            Exp EaS = subst(V1, E1, subst(V2, V3, E2));
-           insert [| fn <V3> =\> <EaS> |];
+           insert ` fn <V3> =\> <EaS> `;
         }
     };
 }

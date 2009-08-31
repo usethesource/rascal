@@ -42,7 +42,6 @@ import org.meta_environment.rascal.ast.Expression.NoMatch;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEquals;
 import org.meta_environment.rascal.ast.Expression.NotIn;
-import org.meta_environment.rascal.ast.Expression.OperatorAsValue;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.Range;
@@ -348,12 +347,6 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 	@Override
 	public IBooleanResult visitExpressionNotIn(NotIn x) {
 		return new BasicBooleanResult(vf, ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionOperatorAsValue(OperatorAsValue x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override

@@ -16,8 +16,8 @@ private set[int] settled = {};
 private PriorityQueue Q = priorityQueue();
 private int MAXDISTANCE = 10000;
 
-public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
 @doc{Shortest path between pair of nodes}
+public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
 {
     Graph = G;
     for(int edge <- carrier(G)){

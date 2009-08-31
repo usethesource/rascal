@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Comprehension extends AbstractAST { 
   public java.util.List<org.meta_environment.rascal.ast.Expression> getResults() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasResults() { return false; } public boolean hasGenerators() { return false; } public boolean isSet() { return false; }
 static public class Set extends Comprehension {

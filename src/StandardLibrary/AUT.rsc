@@ -10,10 +10,11 @@ module AUT
 	 * readAUT takes an AUT file nameAUTFile and generates rel[int, str,int]].
 	 */
 
-public rel[int, str, int] java readAUT(str nameAUTFile)
-@doc{readAUT -- read an AUT file}
-@javaClass{org.meta_environment.rascal.std.AUT};
+@doc{read an AUT file}
+@javaClass{org.meta_environment.rascal.std.AUT}
+public rel[int, str, int] java readAUT(str nameAUTFile);
 
-public void java writeAUT(str nameAUTFile, rel[int, str, int] r)
-@doc{writeAUT -- write an AUT file}
-@javaClass{org.meta_environment.rascal.std.AUT};
+@doc{write an AUT file}
+@javaClass{org.meta_environment.rascal.std.AUT}
+public void java writeAUT(str nameAUTFile, rel[int, str, int] r);
+

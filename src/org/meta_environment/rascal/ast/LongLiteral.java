@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class LongLiteral extends AbstractAST { 
   public org.meta_environment.rascal.ast.DecimalLongLiteral getDecimalLong() { throw new UnsupportedOperationException(); }
 public boolean hasDecimalLong() { return false; }

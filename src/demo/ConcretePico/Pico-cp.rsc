@@ -20,7 +20,7 @@ PROGRAM cp(PROGRAM P) {
 
     map[PICO-ID, EXP] replacements = 
       {<Id2 -> E> | STATEMENT S : P,
-                  [| <PICO-ID Id> := <EXP E> |] ~~ S,
+                  ` <PICO-ID Id> := <EXP E> ` ~~ S,
                   is_constant(E),
                   PICO-ID Id2 : reachX({S},Defs[Id],Pred),
                   Id2 == Id 

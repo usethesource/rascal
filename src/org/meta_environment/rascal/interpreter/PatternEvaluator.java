@@ -49,7 +49,6 @@ import org.meta_environment.rascal.ast.Expression.NoMatch;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEquals;
 import org.meta_environment.rascal.ast.Expression.NotIn;
-import org.meta_environment.rascal.ast.Expression.OperatorAsValue;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.Range;
@@ -98,7 +97,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableEr
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
-import org.meta_environment.rascal.interpreter.types.OverloadedFunctionType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
@@ -541,10 +539,6 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	}
 	@Override
 	public IMatchingResult visitExpressionNotIn(NotIn x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
-	@Override
-	public IMatchingResult visitExpressionOperatorAsValue(OperatorAsValue x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override

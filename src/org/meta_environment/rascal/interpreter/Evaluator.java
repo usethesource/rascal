@@ -100,7 +100,6 @@ import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NoMatch;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NotIn;
-import org.meta_environment.rascal.ast.Expression.OperatorAsValue;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
 import org.meta_environment.rascal.ast.Expression.Range;
@@ -146,7 +145,6 @@ import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
 import org.meta_environment.rascal.ast.Test.Labeled;
 import org.meta_environment.rascal.ast.Test.Unlabeled;
-import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
@@ -170,10 +168,10 @@ import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.matching.IBooleanResult;
 import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
+import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.FileParserFunction;
 import org.meta_environment.rascal.interpreter.result.JavaFunction;
-import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ParserFunction;
 import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -776,18 +774,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	@Override
-	public Result<IValue> visitToplevelDefaultVisibility(DefaultVisibility x) {
-		Result<IValue> r = x.getDeclaration().accept(this);
-		r.setPublic(false);
-		return r;
-	}
-
-	@Override
 	public Result<IValue> visitToplevelGivenVisibility(GivenVisibility x) {
-		Result<IValue> r = x.getDeclaration().accept(this);
-		r.setPublic(x.getVisibility().isPublic());
-		setCurrentAST(x);
-		return r;
+		return x.getDeclaration().accept(this);
 	}
 
 	@Override
@@ -826,6 +814,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 		}
 
+		r.setPublic(x.getVisibility().isPublic());
 		return r;
 	}
 
@@ -1413,6 +1402,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		String name = Names.name(x.getSignature().getName());
 		getCurrentEnvt().storeFunction(name, lambda);
 
+		lambda.setPublic(x.getVisibility().isPublic());
 		return lambda;
 	}
 
@@ -1432,6 +1422,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				lambda = new FileParserFunction(this, x, getCurrentEnvt(), loader);	
 			}
 			getCurrentEnvt().storeFunction(funcName, lambda);
+			
+			lambda.setPublic(x.getVisibility().isPublic());
 			return lambda;
 		}
 
@@ -1443,14 +1435,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		String name = Names.name(x.getSignature().getName());
 		getCurrentEnvt().storeFunction(name, lambda);
 
+		lambda.setPublic(x.getVisibility().isPublic());
 		return lambda;
 	}
 
 	private boolean hasTag(Abstract x, String tagName) {
 		// TODO: check type and arity of of signature
 		Tags tags = x.getTags();
-		if (tags.hasAnnotations()) {
-			for (org.meta_environment.rascal.ast.Tag tag : tags.getAnnotations()) {
+		if (tags.hasTags()) {
+			for (org.meta_environment.rascal.ast.Tag tag : tags.getTags()) {
 				if (tag.getName().toString().equals(tagName)) {
 					return true; 
 				}
@@ -2002,12 +1995,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.equals(right, this);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionOperatorAsValue(OperatorAsValue x) {
-		// TODO
-		throw new NotYetImplemented(x);
 	}
 
 	@Override

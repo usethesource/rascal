@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Command extends AbstractAST { 
   public org.meta_environment.rascal.ast.ShellCommand getCommand() { throw new UnsupportedOperationException(); }
 public boolean hasCommand() { return false; }
@@ -158,5 +158,19 @@ private org.meta_environment.rascal.ast.Import imported;
  		z.$setImported(x);
 		return z;
 	}	
+} 
+static public class Lexical extends Command {
+	private String string;
+         public Lexical(INode node, String string) {
+		this.node = node;
+		this.string = string;
+	}
+	public String getString() {
+		return string;
+	}
+
+ 	public <T> T accept(IASTVisitor<T> v) {
+     		return v.visitCommandLexical(this);
+  	}
 }
 }

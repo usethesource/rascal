@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class ImportedModule extends AbstractAST { 
   public org.meta_environment.rascal.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.ModuleActuals getActuals() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Renamings getRenamings() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasActuals() { return false; } public boolean hasRenamings() { return false; } public boolean isActualsRenaming() { return false; }
 static public class ActualsRenaming extends ImportedModule {
