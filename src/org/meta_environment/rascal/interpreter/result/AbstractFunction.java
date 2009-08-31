@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -260,7 +261,45 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public boolean isIdentical(IValue other) throws FactTypeUseException {
 		return other == this;
 	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> compare(
+			Result<V> that, IEvaluatorContext ctx) {
+		return that.compareFunction(this, ctx);
+	}
 
+	@Override
+	public <U extends IValue> Result<U> compareFunction(AbstractFunction that,
+			IEvaluatorContext ctx) {
+		if (that == this) {
+			return ResultFactory.makeResult(TF.integerType(), VF.integer(0), ctx);
+		}
+		
+		int result;
+		
+		result = getName().compareTo(that.getName());
+		
+		if (result != 0) {
+			return ResultFactory.makeResult(TF.integerType(), VF.integer(result), ctx);
+		}
+		
+		result = getType().compareTo(that.getType());
+		
+		return ResultFactory.makeResult(TF.integerType(), VF.integer(result), ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> compose(
+			Result<V> right, IEvaluatorContext ctx) {
+		return right.composeFunction(this, ctx);
+	}
+	
+	@Override
+	public AbstractFunction composeFunction(AbstractFunction that,
+			IEvaluatorContext ctx) {
+		return new ComposedFunctionResult(that, this, ctx);
+	}
+	
 	@Override
 	public String toString() {
 		return getHeader() + ";";
@@ -274,6 +313,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			sep = ", ";
 		}
 		return getReturnType() + " " + getName() + "(" + strFormals + ")";
+	}
+	
+	public FunctionType getFunctionType() {
+		return (FunctionType) getType();
 	}
 	
 	public String getName() {
