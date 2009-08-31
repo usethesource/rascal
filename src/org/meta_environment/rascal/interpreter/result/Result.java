@@ -444,6 +444,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this, ctx);
 	}
 	
+	public <U extends IValue> Result<U> composeMap(MapResult that, IEvaluatorContext ctx) {
+		return that.undefinedError(COMPOSE_STRING, this, ctx);
+	}
+	
 	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, IEvaluatorContext ctx) {
 		return that.undefinedError(COMPOSE_STRING, this, ctx);
 	}
@@ -786,6 +790,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean hasInferredType() {
 		return inferredType;
 	}
+
+	
 
 
 
