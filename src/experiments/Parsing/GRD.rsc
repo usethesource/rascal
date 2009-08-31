@@ -12,7 +12,7 @@ import Set;
 import IO;
 import UnitTest;
 
-list[str] input;   // The global input of the parser
+list[str] input = [];   // The global input of the parser
 int current = 0;   // Current position in input
 bool debug = false;
 
