@@ -374,7 +374,7 @@ public class ASTBuilder {
 	/**
 	 * Removes patterns like <PROGRAM p> where the <...> hole is not nested in a place
 	 * where a PROGRAM is expected. Also, patterns that directly nest concrete syntax patterns
-	 * again, like [| <[| ... |]> |] are filtered.
+	 * again, like `<`...`>` are filtered.
 	 */
 	private Expression filterNestedPattern(TreeAdapter antiQuote, TreeAdapter pattern) {
 		ISet alternatives = pattern.getAlternatives();
