@@ -297,6 +297,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	@Override
 	public AbstractFunction composeFunction(AbstractFunction that,
 			IEvaluatorContext ctx) {
+		if (!getTypeFactory().tupleType(getReturnType()).isSubtypeOf(that.getFunctionType().getArgumentTypes())) {
+			undefinedError("composition", ctx);
+		}
 		return new ComposedFunctionResult(that, this, ctx);
 	}
 	
