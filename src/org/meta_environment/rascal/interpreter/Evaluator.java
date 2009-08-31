@@ -801,11 +801,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		setCurrentAST(x);
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
+			Type declaredType = te.eval(x.getType(), getCurrentModuleEnvironment());
 			
 			if (var.isInitialized()) {  
 				Result<IValue> v = var.getInitial().accept(this);
 				
-				Type declaredType = te.eval(x.getType(), getCurrentModuleEnvironment());
 				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 					throw new RedeclaredVariableError(var.getName().toString(), var);
 				}
@@ -819,6 +819,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					getCurrentModuleEnvironment().storeVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
+				}
+			}
+			else {
+				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
+					throw new RedeclaredVariableError(var.getName().toString(), var);
 				}
 			}
 		}
