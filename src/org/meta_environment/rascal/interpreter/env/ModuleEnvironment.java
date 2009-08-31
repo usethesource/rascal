@@ -25,6 +25,7 @@ import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.uptr.Factory;
 
@@ -244,7 +245,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public Type concreteSyntaxType(String name, IConstructor symbol) {
-		NonTerminalType sort = new NonTerminalType(symbol);
+		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(symbol);
 		concreteSyntaxTypes.put(name, sort);
 		return sort;
 	}

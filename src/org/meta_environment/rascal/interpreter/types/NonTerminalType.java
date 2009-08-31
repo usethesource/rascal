@@ -20,7 +20,7 @@ import org.meta_environment.uptr.TreeAdapter;
 public class NonTerminalType extends ExternalType {
 	private IConstructor symbol;
 
-	public NonTerminalType(IConstructor cons) {
+	/*package*/ NonTerminalType(IConstructor cons) {
 		if (cons.getType() == Factory.Symbol) {
 			this.symbol = cons;
 		}

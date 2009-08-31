@@ -12,7 +12,7 @@ public class OverloadedFunctionType extends ExternalType {
 	private final Set<FunctionType> alternatives;
 	private final Type returnType;
 
-	public OverloadedFunctionType(Set<FunctionType> alternatives) {
+	/*package*/ OverloadedFunctionType(Set<FunctionType> alternatives) {
 		this.alternatives = alternatives;
 		this.returnType = alternatives.iterator().next().getReturnType();
 	}
