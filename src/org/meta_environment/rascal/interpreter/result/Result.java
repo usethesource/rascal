@@ -205,6 +205,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(COMPARE_STRING, that, ctx);
 	}
 	
+	public <U extends IValue> Result<U> compareFunction(AbstractFunction that,
+			IEvaluatorContext ctx) {
+		return undefinedError(COMPARE_STRING, that, ctx);
+	}
+	
 	
 	
 	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, IEvaluatorContext ctx) {
@@ -439,6 +444,16 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this, ctx);
 	}
 	
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, IEvaluatorContext ctx) {
+		return that.undefinedError(COMPOSE_STRING, this, ctx);
+	}
+	
+	public <U extends IValue> Result<U> composeOverloadedFunction(
+			OverloadedFunctionResult that,
+			IEvaluatorContext ctx) {
+		return that.undefinedError(COMPOSE_STRING, this, ctx);
+	}
+	
 	protected <U extends IValue> Result<U> compareInteger(IntegerResult that, IEvaluatorContext ctx) {
 		return that.undefinedError(COMPARE_STRING, this, ctx);
 	}
@@ -472,6 +487,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> Result<U> compareBool(BoolResult that, IEvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	public <U extends IValue> Result<U> compareOverloadedFunction(
+			OverloadedFunctionResult that, IEvaluatorContext ctx) {
 		return that.undefinedError(COMPARE_STRING, this, ctx);
 	}
 	
@@ -766,6 +786,13 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean hasInferredType() {
 		return inferredType;
 	}
+
+
+
+	
+
+
+
 
 	
 	

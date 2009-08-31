@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -137,5 +138,83 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		return ResultFactory.bool(candidates.equals(that.candidates));
 	}
 	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> compare(
+			Result<V> that, IEvaluatorContext ctx) {
+		return that.compareOverloadedFunction(this, ctx);
+	}
 	
+	@Override
+	public <U extends IValue> Result<U> compareOverloadedFunction(
+			OverloadedFunctionResult that, IEvaluatorContext ctx) {
+		if (that == this) {
+			return ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(0), ctx);
+		}
+		
+		if (candidates.size() > that.candidates.size()) {
+			return  ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(1), ctx);
+		}
+		
+		if (candidates.size() < that.candidates.size()) {
+			 ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(-1), ctx);
+		}
+		
+		for (AbstractFunction f : candidates) {
+			for (AbstractFunction g : that.candidates) {
+				Result<U> result = f.compare(g, ctx);
+				
+				if (!((IInteger) result.getValue()).getStringRepresentation().equals("0")) {
+					return result;
+				}
+			}
+		}
+		
+		return ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(0), ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> compose(
+			Result<V> right, IEvaluatorContext ctx) {
+		return right.composeOverloadedFunction(this, ctx);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <U extends IValue> Result<U> composeOverloadedFunction(
+			OverloadedFunctionResult that, IEvaluatorContext ctx) {
+		List<AbstractFunction> newAlternatives = new LinkedList<AbstractFunction>();
+		
+		for (AbstractFunction f : candidates) {
+			for (AbstractFunction g : that.candidates) {
+				if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
+					newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
+				}
+			}
+		}
+		
+		if (newAlternatives.size() == 0) {
+			return undefinedError("composition", that, ctx);
+		}
+		
+		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction g,
+			IEvaluatorContext ctx) {
+		List<AbstractFunction> newAlternatives = new LinkedList<AbstractFunction>();
+
+		for (AbstractFunction f : candidates) {
+			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
+				newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
+			}
+		}
+		
+		if (newAlternatives.size() == 0) {
+			return undefinedError("composition", g, ctx);
+		}
+		
+		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives);
+	}
 }
