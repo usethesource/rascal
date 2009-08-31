@@ -177,4 +177,21 @@ public class MapResult extends ElementResult<IMap> {
 		return makeIntegerResult(1, ctx);
 	}
 	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> compose(
+			Result<V> right, IEvaluatorContext ctx) {
+		return right.composeMap(this, ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> composeMap(MapResult left,
+			IEvaluatorContext ctx) {
+		if (left.getType().getValueType().isSubtypeOf(getType().getKeyType())) {
+			Type mapType = getTypeFactory().mapType(left.getType().getKeyType(), getType().getValueType());
+			return ResultFactory.makeResult(mapType, left.getValue().compose(getValue()), ctx);
+		}
+		
+		return undefinedError("composition", left, ctx);
+	}
+	
 }
