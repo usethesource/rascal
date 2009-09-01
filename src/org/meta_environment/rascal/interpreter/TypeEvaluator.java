@@ -26,6 +26,7 @@ import org.meta_environment.rascal.ast.Signature.NoThrows;
 import org.meta_environment.rascal.ast.Signature.WithThrows;
 import org.meta_environment.rascal.ast.StructuredType.List;
 import org.meta_environment.rascal.ast.StructuredType.Map;
+import org.meta_environment.rascal.ast.StructuredType.ReifiedType;
 import org.meta_environment.rascal.ast.StructuredType.Relation;
 import org.meta_environment.rascal.ast.StructuredType.Set;
 import org.meta_environment.rascal.ast.StructuredType.Tuple;
@@ -130,6 +131,11 @@ public class TypeEvaluator {
 		@Override
 		public Type visitTypeSelector(Selector x) {
 			return x.getSelector().accept(this);
+		}
+		
+		@Override
+		public Type visitStructuredTypeReifiedType(ReifiedType x) {
+			return RascalTypeFactory.getInstance().reifiedType(x.getTypeArg().accept(this));
 		}
 		
 		@Override
@@ -379,7 +385,7 @@ public class TypeEvaluator {
 		public Type visitTypeUser(User x) {
 			return x.getUser().accept(this);
 		}
-
+		
 		@Override
 		public Type visitUserTypeParametric(Parametric x) {
 			java.lang.String name = Names.name(x.getName());

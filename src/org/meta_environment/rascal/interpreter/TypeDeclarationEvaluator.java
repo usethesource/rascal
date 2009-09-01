@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
@@ -25,6 +26,7 @@ import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 
@@ -61,6 +63,16 @@ public class TypeDeclarationEvaluator {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		TypeFactory tf = TypeFactory.getInstance();
 
+		for (Tag tag : x.getTags().getTags()) {
+			if (Names.name(tag.getName()).equals("reified")) {
+				// The definition marked @reified is totally ignored and replaced
+				// by this hard coded declaration
+				// TODO: allow the definition of the necessary representation in Rascal itself? Is that possible?
+				RascalTypeFactory.getInstance().declareReifiedTypes(env);
+				return;
+			}
+		}
+		
 		// needs to be done just in case the declaration came
 		// from a shell instead of from a module
 		Type adt = declareAbstractDataType(x.getUser(), env);
