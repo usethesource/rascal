@@ -103,6 +103,7 @@ import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
 import org.meta_environment.rascal.ast.Expression.Range;
+import org.meta_environment.rascal.ast.Expression.ReifyType;
 import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.ast.Expression.StepRange;
 import org.meta_environment.rascal.ast.Expression.Subscript;
@@ -2059,6 +2060,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		throw new NotYetImplemented(x);// TODO
 	}
 
+	@Override
+	public Result<IValue> visitExpressionReifyType(ReifyType x) {
+		Type t = te.eval(x.getType());
+		return t.accept(new TypeReifier(this));
+	}
+	
 	@Override
 	public Result<IValue> visitExpressionRange(Range x) {
 		//IListWriter w = vf.listWriter(tf.integerType());
