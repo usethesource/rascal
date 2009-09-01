@@ -239,18 +239,19 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 			//			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
 		}
 
-		Result<IValue> prefix = ctx.getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
+		if (nameExpr.isQualifiedName()) {
+			Result<IValue> prefix = ctx.getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
 		
-		// TODO: get rid of this if-then-else by introducing subclasses for NodePattern for each case.
-		if (nameExpr.isQualifiedName() && prefix == null) {
-			return new NodePattern(vf, ctx, null, nameExpr.getQualifiedName(), visitArguments(x));
+			// TODO: get rid of this if-then-else by introducing subclasses for NodePattern for each case.
+			if (nameExpr.isQualifiedName() && prefix == null) {
+				return new NodePattern(vf, ctx, null, nameExpr.getQualifiedName(), visitArguments(x));
+			}
+			else if (nameExpr.isQualifiedName() && ((prefix instanceof AbstractFunction) || prefix instanceof OverloadedFunctionResult)) {
+				return new NodePattern(vf, ctx, null,nameExpr.getQualifiedName(), visitArguments(x));
+			}
 		}
-		else if (nameExpr.isQualifiedName() && ((prefix instanceof AbstractFunction) || prefix instanceof OverloadedFunctionResult)) {
-			return new NodePattern(vf, ctx, null,nameExpr.getQualifiedName(), visitArguments(x));
-		}
-		else {
-			return new NodePattern(vf, ctx, nameExpr.accept(this), null, visitArguments(x));
-		}
+		
+		return new NodePattern(vf, ctx, nameExpr.accept(this), null, visitArguments(x));
 	}
 	
 	private java.util.List<IMatchingResult> visitArguments(CallOrTree x){
