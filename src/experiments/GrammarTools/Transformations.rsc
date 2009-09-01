@@ -1,6 +1,6 @@
 module experiments::GrammarTransformations::Transformations
 
-import Grammar;
+import BNF;
 import basic::Whitespace;
 
 /*
@@ -15,7 +15,7 @@ import basic::Whitespace;
 
 // renameNonTerminal: rename a given non-terminal
 
-Grammar renameNonTerminal(Grammar G, NonTerminal from, NonTerminal to){
+BNF renameNonTerminal(BNF G, NonTerminal from, NonTerminal to){
   return visit(G){
     case [|<from>|] => to;
   };
@@ -23,7 +23,7 @@ Grammar renameNonTerminal(Grammar G, NonTerminal from, NonTerminal to){
 
 // renameTerminal: rename a given terminal
 
-Grammar renameTerminal(Grammar G, Terminal from, Terminal to){
+BNF renameTerminal(BNF G, Terminal from, Terminal to){
   return visit(G){
     case [|<from>|] => to;
   };
@@ -34,7 +34,7 @@ Grammar renameTerminal(Grammar G, Terminal from, Terminal to){
 Grammar addRule(Grammar G, Rule r){
   if([| grammar <NonTerminal N> rules <Rule+ rules> |] := G){
     rules2 += rule;
-    return [| grammar N rules <rules2> |];
+    return [| grammar <N> rules <rules2> |];
   }
   // cannot happen
 }
