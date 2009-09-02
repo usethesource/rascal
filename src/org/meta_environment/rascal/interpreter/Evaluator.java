@@ -2062,7 +2062,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionReifyType(ReifyType x) {
-		Type t = te.eval(x.getType());
+		Type t = te.eval(x.getType(), getCurrentEnvt());
 		return t.accept(new TypeReifier(this));
 	}
 	

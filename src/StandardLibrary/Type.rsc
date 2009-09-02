@@ -47,6 +47,8 @@ public data Type =
   \func(Type \return, Type t1, Type t2, Type t3, Type t4, Type t5, Type t6, Type t7) |  
   \node() |
   \non-terminal(Symbol symbol) |
+  \adt(str name) |
+  \adt(str name, list[Type] parameters) |
   \adt(str name, list[Constructor] constructors) |
   \adt(str name, list[Type] parameters, list[constructor] constructors) | 
   \loc() |
