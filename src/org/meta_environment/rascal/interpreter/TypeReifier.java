@@ -3,7 +3,9 @@ package org.meta_environment.rascal.interpreter;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -47,6 +49,8 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	private final Type listAdt;
 	private final Type listCons;
 	
+	private Set<IValue> visiting = new HashSet<IValue>();
+	
 	public TypeReifier(IEvaluatorContext ctx) {
 		this.ctx = ctx;
 		this.env = ctx.getCurrentEnvt();
@@ -63,6 +67,7 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	    this.valueAdt = adt.instantiate(store, bindings);
 	    this.listAdt = tf.listType(valueAdt);
 	    this.listCons = tf.listType(cons);
+	    
 	}
 
 	/**
@@ -75,12 +80,31 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		Type params = type.getTypeParameters();
 		Type staticType;
 		IValue result;
+		IValue stub;
+		
+		if (params.isVoidType()) {
+			staticType = tf.constructor(store, adt.instantiate(store, bindings), "adt", tf.stringType(), "name");
+			stub = staticType.make(vf, vf.string(name));
+		}
+		else {
+			staticType = tf.constructor(store, adt.instantiate(store, bindings), "adt", tf.stringType(), "name", listAdt, "parameters");
+			stub = staticType.make(vf, vf.string(name), getTypeParameterList(params));
+		}
+		
+		if (visiting.contains(stub)) {
+			// we break an infinite recursion here
+			return makeResult(staticType, stub, ctx);
+		}
+		
+		visiting.add(stub);
 		
 		IListWriter constructorListW = vf.listWriter(cons);
 		for (Type alt : store.lookupAlternatives(type)) {
 			constructorListW.append(alt.accept(this).getValue());
 		}
 		IList constructorList = constructorListW.done();
+		
+		visiting.remove(stub);
 		
 		if (params.isVoidType()) {
 			staticType = tf.constructor(store, adt.instantiate(store, bindings), "adt", tf.stringType(), "name", listCons, "constructors");
@@ -147,8 +171,8 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		
 		IValue[] values = new IValue[argumentTypes.getArity() + 1];
 		values[0] = vf.string(type.getName());
-		for (int i = 1; i < values.length; i++) {
-			values[i] = argumentTypes.getFieldType(i).accept(this).getValue();
+		for (int j = 0, i = 1; i < values.length; i++, j++) {
+			values[i] = argumentTypes.getFieldType(j).accept(this).getValue();
 		}
 		
 		Type staticType = tf.constructor(store, cons, "constructor", fields);
