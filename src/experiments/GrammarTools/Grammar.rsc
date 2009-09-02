@@ -13,13 +13,37 @@ public data Symbol  = t(str text) | nt(str name) | epsilon();
 public alias Rule   = tuple[Symbol name, list[Symbol] symbols];
 public data Grammar = grammar(Symbol start, set[Rule] rules);
 
-// Given a grammar in BNF notation, convert it to internal representation
+// Utility predicates on Symbols
 
-public Grammar importGrammar(BNF bnfGrammar){
-    if(`grammar <NonTerminal Start> rules <Rule+ Rules>` := bnfGrammar){
+public bool isTermSymbol(Symbol s){
+   return t(_) := s;
+}
+
+public bool isNonTermSymbol(Symbol s){
+   return nt(_) := s;
+}
+
+// Utilities on grammars
+
+public set[Symbol] symbols(Grammar G){
+   return { sym | Rule r <- G.rules, Symbol sym <- r.symbols};
+}
+
+public set[Symbol] terminals(Grammar G){
+   return { sym | Rule r <- G.rules, Symbol sym <- r.symbols, isTermSymbol(sym)};
+}
+
+public set[Symbol] nonTerminals(Grammar G){
+   return { sym | Rule r <- G.rules, Symbol sym <- r.symbols, isNonTermSymbol(sym)};
+}
+
+// Import a grammar in BNF notation
+
+public Grammar importBNF(BNF bnfGrammar){
+    if(`grammar <NonTerminal Start> rules <BNFRule+ Rules>` := bnfGrammar){
        rules = {};
-       for(`<NonTerminal L> ::= <Element* Elements> ; ` <- Rules){
-            rules += <toSymbol(L), [toSymbol(S) | Element S <- Elements]>;
+       for(`<NonTerminal L> ::= <BNFElement* Elements> ; ` <- Rules){
+            rules += <toSymbol(L), [toSymbol(E) | BNFElement E <- Elements]>;
        }
        return grammar(toSymbol(Start), rules); 
     }
@@ -38,7 +62,7 @@ Symbol toSymbol(NonTerminal E){
   return nt("<E>");
 }
 
-Symbol toSymbol(Element E){
+Symbol toSymbol(BNFElement E){
    visit(E){
      case Terminal T: return toSymbol(T);
      case NonTerminal NT: return toSymbol(NT);
@@ -46,11 +70,19 @@ Symbol toSymbol(Element E){
    throw IllegalArgument(E);
 }
 
-// Extract all symbols from a grammar
+// Export a grammar to BNF
+public BNF exportBNF(Grammar G){
 
-public set[Symbol] symbols(Grammar G){
-   return { sym | Rule r <- G.rules, Symbol sym <- r.symbols};
 }
+
+BNFElement toElement(Symbol s){
+   if(t(str name) := s)
+      return Terminal `'<name>'`;
+   if (nt(str name) := s)
+      return NonTerminal `<name>`;
+    throw IllegalArgument(s);  
+}
+
 
 BNF G1 = `grammar E 
             rules
