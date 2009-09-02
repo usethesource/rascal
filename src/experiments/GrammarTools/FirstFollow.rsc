@@ -12,16 +12,14 @@ import UnitTest;
 public set[Symbol] firstNonEmpty(list[Symbol] symbols, map[Symbol, set[Symbol]] FIRST){
     set[Symbol] result = {};
 	for(Symbol sym <- symbols){
-	    switch(sym){
-	    case t(_):
+	    if(isTermSymbol(sym))
 	    	return result + {sym};
-	    case nt(str name): {
-	    		f = FIRST[sym] ? {};
-	 			if(epsilon() notin f)
-					return (result + f) - {epsilon()};
-				else
-				    result += f;
-			}
+	    else {
+	        f = FIRST[sym] ? {};
+	 		if(epsilon() notin f)
+			   return (result + f) - {epsilon()};
+			else
+			   result += f;
 		}
 	}
 	return result;
@@ -30,26 +28,24 @@ public set[Symbol] firstNonEmpty(list[Symbol] symbols, map[Symbol, set[Symbol]] 
 // Compute the first sets for a grammar
 
 public map[Symbol, set[Symbol]] first(Grammar G){
-	gsymbols = symbols(G);
-	
-	map[Symbol, set[Symbol]] FIRST = ();
-	
+    map[Symbol, set[Symbol]] FIRST = ();
+    set[Symbol] ntSymbols = {};   // NB: removing type leads to error in += below
+    
+    for(Symbol sym <- symbols(G))
+        if(isTermSymbol(sym))
+		    FIRST[sym] = {sym};
+		else {
+		    FIRST[sym] = {};
+		    ntSymbols += {sym};
+		}
+			
 	solve (FIRST) {
-		for(Symbol sym <- gsymbols){
-		    switch(sym){
-		    case t(_):
-		    	FIRST[sym] = {sym};
-		    case nt(str name):
-		    	{
-	        		if(!FIRST[sym]?)
-	        			FIRST[sym] = {};
-					for(list[Symbol] symbols <- G.rules[sym]){
-					    if(isEmpty(symbols))
-					    	FIRST[sym] += {epsilon()};
-					    else
-						    FIRST[sym] += firstNonEmpty(symbols, FIRST);
-					}
-				}
+		for(Symbol sym <- ntSymbols){
+			for(list[Symbol] symbols <- G.rules[sym]){
+				if(isEmpty(symbols))
+				   FIRST[sym] += {epsilon()};
+				else
+				   FIRST[sym] += firstNonEmpty(symbols, FIRST);
 			}
 		}
 	}	
@@ -66,44 +62,42 @@ public set[Symbol] first(list[Symbol] symbols, map[Symbol, set[Symbol]] FIRST){
       if(epsilon() notin f)
          return result;
   }
-  return result;
+  return result + {epsilon()};
 }
 
 // Compute the follow sets for a grammar
 
 public map[Symbol, set[Symbol]] follow(Grammar G, map[Symbol, set[Symbol]] FIRST){
-	gsymbols = symbols(G);
+	map[Symbol, set[Symbol]] FOLLOW = (); 
 	
-	map[Symbol, set[Symbol]] FOLLOW = (G.start : {t("$")});
-	
-	/////  Work in progress
+	for(Symbol sym <- symbols(G))  /* all non-terminals have empoty follow set */
+	    if(isNonTermSymbol(sym))
+	       FOLLOW[sym] = {};
+	       
+	FOLLOW[G.start] = {t("$")};   /* start symbol has eof marker in follow set */     
 	
 	solve (FOLLOW) {
-		for(Symbol sym <- gsymbols){
-		    switch(sym){
-		    case t(_):
-		    	FIRST[sym] = {sym};
-		    case nt(str name):
-		    	{
-	        		if(!FIRST[sym]?)
-	        			FIRST[sym] = {};
-					for(list[Symbol] symbols <- G.rules[sym]){
-					    if(isEmpty(symbols))
-					    	FIRST[sym] += {epsilon()};
-					    else
-						    FIRST[sym] += firstNonEmpty(symbols, FIRST);
-					}
-				}
+	    for(<Symbol A, list[Symbol] symbols> <- G){  /* A ::= alpha B beta; */
+	        while(!isEmpty(symbols)){ 
+	            B = head(symbols);
+	            beta = tail(symbols);
+	           
+		        if(isNonTermSymbol(B)){
+		           firstBeta =  first(beta, FIRST);
+		           FOLLOW[B] += firstBeta - {epsilon()};
+			       if(isEmpty(beta) || epsilon() in firstBeta)
+			           FOLLOW[B] += FOLLOW[A];
+			    }
+			    symbols = beta;
 			}
 		}
 	}	
-	return FIRST;
+	return FOLLOW;
 }
 
-
-BNF G2 = `grammar E
+BNF G2 = grammar E
           rules 
-            E ::= T E1;
+            E  ::= T E1;
             E1 ::= '+' T E1;
             E1 ::= ;
             T  ::= F T1;
@@ -111,17 +105,34 @@ BNF G2 = `grammar E
             T1 ::= ;
             F  ::= '(' E ')';
             F  ::= 'id';
-            `;  
+            ;  
 
 public bool test(){
 
-    assertEqual(first(importGrammar(G2)), 
+    grammarG2 = importBNF(G2);
+    firstG2 = first(grammarG2);
+    assertEqual(firstG2,
                 (nt("T1"):{epsilon(),t("*")},
                  t("*"):{t("*")},t("id"):{t("id")},t("+"):{t("+")},t("("):{t("(")},t(")"):{t(")")},
                  nt("E1"):{epsilon(),t("+")},
                  nt("E"):{t("id"),t("(")},
                  nt("T"):{t("id"),t("(")},
-                 nt("F"):{t("id"),t("(")}));    
+                 nt("F"):{t("id"),t("(")})
+                );    
+     
+     assertEqual(first([nt("T1")], firstG2), {epsilon(),t("*")});
+     
+     assertEqual(first([nt("F"), nt("T1")], firstG2), {t("id"),t("(")});
+     
+     followG2 = follow(grammarG2, firstG2);
+ 
+     assertEqual(followG2,
+                 (nt("E"):  {t(")"), t("$")},
+                  nt("E1"): {t(")"), t("$")},
+                  nt("T"):  {t("+"), t(")"), t("$")},
+                  nt("T1"): {t("+"), t(")"), t("$")},
+                  nt("F"):  {t("+"), t("*"), t(")"), t("$")})
+                );  
    
 	return report("GrammarTools::FirstFollow");
 }
