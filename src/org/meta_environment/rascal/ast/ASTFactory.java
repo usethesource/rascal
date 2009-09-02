@@ -519,10 +519,10 @@ org.meta_environment.rascal.ast.Expression.CallOrTree x = (org.meta_environment.
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Expression.ReifiedType makeExpressionReifiedType(INode node, org.meta_environment.rascal.ast.BasicType type, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) { 
+public org.meta_environment.rascal.ast.Expression.ReifiedType makeExpressionReifiedType(INode node, org.meta_environment.rascal.ast.BasicType basicType, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) { 
 org.meta_environment.rascal.ast.Expression.ReifiedType x = (org.meta_environment.rascal.ast.Expression.ReifiedType) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Expression.ReifiedType(node, type, arguments);
+          x = new org.meta_environment.rascal.ast.Expression.ReifiedType(node, basicType, arguments);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -959,6 +959,38 @@ org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral x = (org.meta_env
        }
        return x; 
 }
+public org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType makeBasicTypeReifiedReifiedType(INode node) { 
+org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType x = (org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal makeBasicTypeReifiedNonTerminal(INode node) { 
+org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal x = (org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.ReifiedConstructor makeBasicTypeReifiedConstructor(INode node) { 
+org.meta_environment.rascal.ast.BasicType.ReifiedConstructor x = (org.meta_environment.rascal.ast.BasicType.ReifiedConstructor) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.ReifiedConstructor(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.ReifiedAdt makeBasicTypeReifiedAdt(INode node) { 
+org.meta_environment.rascal.ast.BasicType.ReifiedAdt x = (org.meta_environment.rascal.ast.BasicType.ReifiedAdt) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.ReifiedAdt(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
 public org.meta_environment.rascal.ast.BasicType.ReifiedType makeBasicTypeReifiedType(INode node) { 
 org.meta_environment.rascal.ast.BasicType.ReifiedType x = (org.meta_environment.rascal.ast.BasicType.ReifiedType) sortCache.get(node);
        if(x == null){
@@ -1127,10 +1159,10 @@ org.meta_environment.rascal.ast.StructuredType.Ambiguity amb = (org.meta_environ
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.StructuredType.Default makeStructuredTypeDefault(INode node, org.meta_environment.rascal.ast.BasicType basic, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) { 
+public org.meta_environment.rascal.ast.StructuredType.Default makeStructuredTypeDefault(INode node, org.meta_environment.rascal.ast.BasicType basicType, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) { 
 org.meta_environment.rascal.ast.StructuredType.Default x = (org.meta_environment.rascal.ast.StructuredType.Default) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.StructuredType.Default(node, basic, arguments);
+          x = new org.meta_environment.rascal.ast.StructuredType.Default(node, basicType, arguments);
           sortCache.putUnsafe(node, x);
        }
        return x; 

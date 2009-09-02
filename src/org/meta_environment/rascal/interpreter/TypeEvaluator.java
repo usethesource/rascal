@@ -2,6 +2,10 @@ package org.meta_environment.rascal.interpreter;
 
 import java.util.HashMap;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -19,6 +23,10 @@ import org.meta_environment.rascal.ast.BasicType.Loc;
 import org.meta_environment.rascal.ast.BasicType.Map;
 import org.meta_environment.rascal.ast.BasicType.Node;
 import org.meta_environment.rascal.ast.BasicType.Real;
+import org.meta_environment.rascal.ast.BasicType.ReifiedAdt;
+import org.meta_environment.rascal.ast.BasicType.ReifiedConstructor;
+import org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal;
+import org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType;
 import org.meta_environment.rascal.ast.BasicType.ReifiedType;
 import org.meta_environment.rascal.ast.BasicType.Relation;
 import org.meta_environment.rascal.ast.BasicType.Set;
@@ -53,6 +61,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.Names;
+import org.meta_environment.uptr.Factory;
 
 
 public class TypeEvaluator {
@@ -341,7 +350,7 @@ public class TypeEvaluator {
 		@Override
 		public Type visitStructuredTypeDefault(
 				org.meta_environment.rascal.ast.StructuredType.Default x) {
-		   return x.getBasic().accept(new BasicTypeEvaluator(getArgumentTypes(x.getArguments())));
+		   return x.getBasicType().accept(new BasicTypeEvaluator(env, getArgumentTypes(x.getArguments()), null));
 		}
 
 		@Override
@@ -352,6 +361,26 @@ public class TypeEvaluator {
 		@Override
 		public Type visitTypeArgNamed(Named x) {
 			return x.getType().accept(this);
+		}
+		
+		@Override
+		public Type visitBasicTypeReifiedAdt(ReifiedAdt x) {
+			throw new NonWellformedTypeError("a reified adt should be one of adt(str name), adt(str name, list[type[&T]] parameters), adt(str name, list[Constructor] constructors).", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeReifiedConstructor(ReifiedConstructor x) {
+			throw new NonWellformedTypeError("a reified constructor declaration should look like contructor(str name, type[&T1] arg1, ...)", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeReifiedNonTerminal(ReifiedNonTerminal x) {
+			throw new NonWellformedTypeError("a reified non-terminal type should look like non-terminal(Symbol symbol, x)", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeReifiedReifiedType(ReifiedReifiedType x) {
+			throw new NonWellformedTypeError("a reified reified type should look like reified(type[&T] arg)", x);
 		}
 
 		@Override
@@ -448,11 +477,15 @@ public class TypeEvaluator {
 }
 
 class BasicTypeEvaluator extends NullASTVisitor<Type> {
-	private static TypeFactory tf = TypeFactory.getInstance();
-	private Type arguments;
+	private final static TypeFactory tf = TypeFactory.getInstance();
+	private final Type typeArgument;
+	private final IValue[] valueArguments; // for adt, constructor and non-terminal representations
+	private final Environment env;
 	
-	public BasicTypeEvaluator(Type argumentTypes) {
-		this.arguments = argumentTypes;
+	public BasicTypeEvaluator(Environment env, Type argumentTypes, IValue[] valueArguments) {
+		this.env = env;
+		this.typeArgument = argumentTypes;
+		this.valueArguments = valueArguments;
 	}
 	
 	@Override
@@ -463,8 +496,8 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitBasicTypeList(
 			org.meta_environment.rascal.ast.BasicType.List x) {
-		if (arguments.getArity() == 1) {
-			return tf.listType(arguments.getFieldType(0));
+		if (typeArgument.getArity() == 1) {
+			return tf.listType(typeArgument.getFieldType(0));
 		}
 		throw new NonWellformedTypeError("list should have exactly one type argument, like list[value]", x);
 	}
@@ -472,11 +505,14 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitBasicTypeTuple(
 			org.meta_environment.rascal.ast.BasicType.Tuple x) {
-		return arguments;
+		return typeArgument;
 	}
 	
 	@Override
 	public Type visitBasicTypeInt(Int x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.integerType();
+		}
 		throw new NonWellformedTypeError("int does not have type arguments.", x);
 	}
 	
@@ -488,6 +524,9 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 	
 	@Override
 	public Type visitBasicTypeBool(Bool x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.boolType();
+		}
 		throw new NonWellformedTypeError("bool does not have type arguments.", x);
 	}
 	
@@ -498,60 +537,164 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 	
 	@Override
 	public Type visitBasicTypeLoc(Loc x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.sourceLocationType();
+		}
 		throw new NonWellformedTypeError("loc does not have type arguments.", x);
 	}
 	
 	@Override
 	public Type visitBasicTypeMap(Map x) {
-		if (arguments.getArity() == 2) {
-			return tf.mapType(arguments.getFieldType(0), arguments.getFieldType(1));
+		if (typeArgument.getArity() == 2) {
+			return tf.mapType(typeArgument.getFieldType(0), typeArgument.getFieldType(1));
 		}
 		throw new NonWellformedTypeError("map should have exactly two type arguments, like map[value,value]", x);
 	}
 	
 	@Override
 	public Type visitBasicTypeNode(Node x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.nodeType();
+		}
 		throw new NonWellformedTypeError("node does not have type arguments.", x);
 	}
 	
 	@Override
 	public Type visitBasicTypeReal(Real x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.realType();
+		}
 		throw new NonWellformedTypeError("real does not have type arguments.", x);
 	}
 	
 	@Override
 	public Type visitBasicTypeReifiedType(ReifiedType x) {
-		if (arguments.getArity() == 1) {
-			return RascalTypeFactory.getInstance().reifiedType(arguments.getFieldType(0));
+		if (typeArgument.getArity() == 1) {
+			return RascalTypeFactory.getInstance().reifiedType(typeArgument.getFieldType(0));
 		}
 		throw new NonWellformedTypeError("type should have exactly one type argument, like type[value]", x);
 	}
 	
 	@Override
 	public Type visitBasicTypeRelation(Relation x) {
-		return tf.relTypeFromTuple(arguments);
+		return tf.relTypeFromTuple(typeArgument);
 	}
 	
 	@Override
 	public Type visitBasicTypeSet(Set x) {
-		if (arguments.getArity() == 1) {
-			return tf.setType(arguments.getFieldType(0));
+		if (typeArgument.getArity() == 1) {
+			return tf.setType(typeArgument.getFieldType(0));
 		}
 		throw new NonWellformedTypeError("set should have exactly one type argument, like set[value]", x);
 	}
 	
 	@Override
 	public Type visitBasicTypeString(String x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.stringType();
+		}
 		throw new NonWellformedTypeError("string does not have type arguments.", x);
 	}
 	
 	@Override
 	public Type visitBasicTypeValue(Value x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.valueType();
+		}
 		throw new NonWellformedTypeError("value does not have type arguments.", x);
 	}
 	
 	@Override
 	public Type visitBasicTypeVoid(Void x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.voidType();
+		}
 		throw new NonWellformedTypeError("void does not have type arguments.", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeReifiedAdt(ReifiedAdt x) {
+		java.lang.String name;
+		
+		if (valueArguments == null) {
+			throw new ImplementationError("missing value arguments to construct adt type");
+		}
+		
+		if (valueArguments.length >= 1) {
+			if (valueArguments[0].getType().isStringType()) {
+				name = ((IString) valueArguments[0]).getValue();
+				Type adt = env.lookupAbstractDataType(name);
+				
+				if (adt == null) {
+					// TODO this should be a dynamic error, not a static one
+					throw new UndeclaredTypeError(name, x);
+				}
+			}
+			else {
+				throw new NonWellformedTypeError("a reified adt should have a name as first argument, like adt(str name)", x);
+			}
+			
+			if (valueArguments.length == 1) {
+				return tf.abstractDataType(env.getStore(), name);
+			}
+			
+			if (valueArguments.length == 2) {
+				if (valueArguments[1].getType().isListType()) {
+					IList list = (IList) valueArguments[1];
+					Type[] args = new Type[list.length()];
+					int i = 0;
+					for (IValue arg : list) {
+						Type argType = arg.getType();
+
+						if (argType instanceof org.meta_environment.rascal.interpreter.types.ReifiedType) {
+							args[i++] = argType.getTypeParameters().getFieldType(0);
+						}
+						else {
+							throw new NonWellformedTypeError("type parameters of an adt should be reified types, as in adt(str name, list[type[value]] parameters", x);
+						}
+					}
+					
+					return tf.abstractDataType(env.getStore(), name, args);
+				}
+			}
+		}
+		
+		
+		throw new NonWellformedTypeError("a reified adt should be one of adt(str name), adt(str name, list[type[value]] parameters).", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeReifiedConstructor(ReifiedConstructor x) {
+		throw new ImplementationError("Did not expect to handle constructors in type evaluator");
+	}
+	
+	@Override
+	public Type visitBasicTypeReifiedNonTerminal(ReifiedNonTerminal x) {
+		if (valueArguments == null) {
+			throw new ImplementationError("missing value arguments to construct non-terminal type");
+		}
+		
+		if (valueArguments.length == 1) {
+			if (valueArguments[0].getType() == Factory.Symbol) {
+				return RascalTypeFactory.getInstance().reifiedType(RascalTypeFactory.getInstance().nonTerminalType((IConstructor) valueArguments[0]));
+			}
+		}
+		
+		throw new NonWellformedTypeError("a reified non-terminal type should look like non-terminal(Symbol symbol, x)", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeReifiedReifiedType(ReifiedReifiedType x) {
+		if (valueArguments == null) {
+			throw new ImplementationError("missing value arguments to construct non-terminal type");
+		}
+		
+		if (valueArguments.length == 1) {
+			if (valueArguments[0].getType() instanceof org.meta_environment.rascal.interpreter.types.ReifiedType) {
+				return RascalTypeFactory.getInstance().reifiedType(new Typeifier().toType((IConstructor) valueArguments[0]));
+			}
+		}
+		
+		throw new NonWellformedTypeError("a reified reified type should look like reified(type[&T] arg)", x);
 	}
 }
