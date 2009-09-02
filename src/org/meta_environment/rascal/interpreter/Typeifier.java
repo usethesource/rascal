@@ -101,13 +101,12 @@ public class Typeifier {
 				}
 
 				public Type visitConstructor(Type type) {
-					// TODO Auto-generated method stub
-					return null;
+					throw new ImplementationError("should not have to typeify this: " + type);
 				}
 
 				public Type visitExternal(Type externalType) {
-					// TODO Auto-generated method stub
-					return null;
+					// TODO: deal with function types??
+					throw new ImplementationError("should not have to typeify this: " + externalType);
 				}
 
 				public Type visitInteger(Type type) {
