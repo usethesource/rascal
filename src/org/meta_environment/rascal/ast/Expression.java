@@ -256,7 +256,42 @@ private org.meta_environment.rascal.ast.Type type;
  		z.$setType(x);
 		return z;
 	}	
-} public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasArguments() { return false; } public boolean isCallOrTree() { return false; } static public class CallOrTree extends Expression {
+} public org.meta_environment.rascal.ast.BasicType getBasicType() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasArguments() { return false; } public boolean isReifiedType() { return false; } static public class ReifiedType extends Expression {
+/** basicType:BasicType "(" arguments:{Expression ","}* ")" -> Expression {cons("ReifiedType")} */
+	private ReifiedType() {
+		super();
+	}
+	public ReifiedType(INode node, org.meta_environment.rascal.ast.BasicType type, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
+		this.node = node;
+		this.basicType = type;
+		this.arguments = arguments;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionReifiedType(this);
+	}
+
+	public boolean isReifiedType() { return true; }
+
+	public boolean hasType() { return true; }
+	public boolean hasArguments() { return true; }
+
+private org.meta_environment.rascal.ast.BasicType basicType;
+	public org.meta_environment.rascal.ast.BasicType getBasicType() { return basicType; }
+	private void $setType(org.meta_environment.rascal.ast.BasicType x) { this.basicType = x; }
+	public ReifiedType setType(org.meta_environment.rascal.ast.BasicType x) { 
+		ReifiedType z = new ReifiedType();
+ 		z.$setType(x);
+		return z;
+	}
+	private java.util.List<org.meta_environment.rascal.ast.Expression> arguments;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { return arguments; }
+	private void $setArguments(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.arguments = x; }
+	public ReifiedType setArguments(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
+		ReifiedType z = new ReifiedType();
+ 		z.$setArguments(x);
+		return z;
+	}	
+} public boolean isCallOrTree() { return false; } static public class CallOrTree extends Expression {
 /** expression:Expression "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
 	private CallOrTree() {
 		super();

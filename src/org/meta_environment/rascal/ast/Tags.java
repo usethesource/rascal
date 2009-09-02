@@ -5,7 +5,7 @@ public java.util.List<org.meta_environment.rascal.ast.Tag> getTags() { throw new
 public boolean hasTags() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Tags {
-/** tags:Tag* -> Tags {cons("Default")} */
+/** tags:Tag* -> Tags {cons("Default"), category("Comment")} */
 	private Default() {
 		super();
 	}
