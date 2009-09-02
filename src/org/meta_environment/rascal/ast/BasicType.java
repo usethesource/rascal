@@ -253,5 +253,65 @@ static public class ReifiedType extends BasicType {
 	}
 
 	public boolean isReifiedType() { return true; }	
+} 
+public boolean isReifiedAdt() { return false; }
+static public class ReifiedAdt extends BasicType {
+/** "adt" -> BasicType {cons("ReifiedAdt")} */
+	private ReifiedAdt() {
+		super();
+	}
+	public ReifiedAdt(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeReifiedAdt(this);
+	}
+
+	public boolean isReifiedAdt() { return true; }	
+} 
+public boolean isReifiedConstructor() { return false; }
+static public class ReifiedConstructor extends BasicType {
+/** "constructor" -> BasicType {cons("ReifiedConstructor")} */
+	private ReifiedConstructor() {
+		super();
+	}
+	public ReifiedConstructor(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeReifiedConstructor(this);
+	}
+
+	public boolean isReifiedConstructor() { return true; }	
+} 
+public boolean isReifiedNonTerminal() { return false; }
+static public class ReifiedNonTerminal extends BasicType {
+/** "non-terminal" -> BasicType {cons("ReifiedNonTerminal")} */
+	private ReifiedNonTerminal() {
+		super();
+	}
+	public ReifiedNonTerminal(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeReifiedNonTerminal(this);
+	}
+
+	public boolean isReifiedNonTerminal() { return true; }	
+} 
+public boolean isReifiedReifiedType() { return false; }
+static public class ReifiedReifiedType extends BasicType {
+/** "reified" -> BasicType {cons("ReifiedReifiedType")} */
+	private ReifiedReifiedType() {
+		super();
+	}
+	public ReifiedReifiedType(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeReifiedReifiedType(this);
+	}
+
+	public boolean isReifiedReifiedType() { return true; }	
 }
 }

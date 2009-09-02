@@ -36,6 +36,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.ast.BasicType;
 import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Catch;
@@ -55,6 +56,7 @@ import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
+import org.meta_environment.rascal.ast.BasicType.Int;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
@@ -103,6 +105,7 @@ import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
 import org.meta_environment.rascal.ast.Expression.Range;
+import org.meta_environment.rascal.ast.Expression.ReifiedType;
 import org.meta_environment.rascal.ast.Expression.ReifyType;
 import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.ast.Expression.StepRange;
@@ -1625,6 +1628,35 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	// Expressions -----------------------------------------------------------
 
+	@Override
+	public Result<IValue> visitExpressionReifiedType(ReifiedType x) {
+		BasicType basic = x.getBasicType();
+		java.util.List<Expression> args = x.getArguments();
+		Type[] fieldTypes = new Type[args.size()];
+		IValue[] fieldValues = new IValue[args.size()];
+		
+		int i = 0;
+		boolean valued = false;
+		for (Expression a : args) {
+			Result<IValue> argResult = a.accept(this);
+			Type argType = argResult.getType();
+			
+			if (argType instanceof org.meta_environment.rascal.interpreter.types.ReifiedType) {
+				fieldTypes[i] = argType.getTypeParameters().getFieldType(0);
+				i++;
+			}
+			else {
+				valued = true;
+				fieldValues[i] = argResult.getValue();
+				i++;
+			}
+		}
+		
+		Type type = basic.accept(new BasicTypeEvaluator(getCurrentEnvt(), valued ? null : tf.tupleType(fieldTypes), valued ? fieldValues : null));
+		
+		return type.accept(new TypeReifier(this));
+	}
+	
 	@Override
 	public Result<IValue> visitExpressionLiteral(Literal x) {
 		return x.getLiteral().accept(this);

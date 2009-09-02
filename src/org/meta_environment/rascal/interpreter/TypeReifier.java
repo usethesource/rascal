@@ -166,7 +166,14 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		fields[1] = "name";
 		for (int i = 0, j = 2; j < fields.length; j+=2, i++) {
 			fields[j] = argumentTypes.getFieldType(i);
-			fields[j+1] = argumentTypes.getFieldName(i);
+			String fieldName = argumentTypes.getFieldName(i);
+			
+			if (fieldName != null) {
+				fields[j+1] = fieldName;
+			}
+			else {
+				fields[j+1] = "field" + i;
+			}
 		}
 		
 		IValue[] values = new IValue[argumentTypes.getArity() + 1];
@@ -272,7 +279,14 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		
 		for (int i = 0, j = 0; j < fields.length; j+=2, i++) {
 			fields[j] = argumentTypes.getFieldType(i);
-			fields[j+1] = argumentTypes.getFieldName(i);
+			String fieldName = argumentTypes.getFieldName(i);
+			
+			if (fieldName != null) {
+				fields[j+1] = fieldName;
+			}
+			else {
+				fields[j+1] = "field" + i;
+			}
 		}
 		
 		IValue[] values = new IValue[argumentTypes.getArity()];

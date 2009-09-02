@@ -256,14 +256,14 @@ private org.meta_environment.rascal.ast.Type type;
  		z.$setType(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.BasicType getBasicType() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasArguments() { return false; } public boolean isReifiedType() { return false; } static public class ReifiedType extends Expression {
+} public org.meta_environment.rascal.ast.BasicType getBasicType() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasBasicType() { return false; } public boolean hasArguments() { return false; } public boolean isReifiedType() { return false; } static public class ReifiedType extends Expression {
 /** basicType:BasicType "(" arguments:{Expression ","}* ")" -> Expression {cons("ReifiedType")} */
 	private ReifiedType() {
 		super();
 	}
-	public ReifiedType(INode node, org.meta_environment.rascal.ast.BasicType type, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
+	public ReifiedType(INode node, org.meta_environment.rascal.ast.BasicType basicType, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
 		this.node = node;
-		this.basicType = type;
+		this.basicType = basicType;
 		this.arguments = arguments;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -272,15 +272,15 @@ private org.meta_environment.rascal.ast.Type type;
 
 	public boolean isReifiedType() { return true; }
 
-	public boolean hasType() { return true; }
+	public boolean hasBasicType() { return true; }
 	public boolean hasArguments() { return true; }
 
 private org.meta_environment.rascal.ast.BasicType basicType;
 	public org.meta_environment.rascal.ast.BasicType getBasicType() { return basicType; }
-	private void $setType(org.meta_environment.rascal.ast.BasicType x) { this.basicType = x; }
-	public ReifiedType setType(org.meta_environment.rascal.ast.BasicType x) { 
+	private void $setBasicType(org.meta_environment.rascal.ast.BasicType x) { this.basicType = x; }
+	public ReifiedType setBasicType(org.meta_environment.rascal.ast.BasicType x) { 
 		ReifiedType z = new ReifiedType();
- 		z.$setType(x);
+ 		z.$setBasicType(x);
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Expression> arguments;
