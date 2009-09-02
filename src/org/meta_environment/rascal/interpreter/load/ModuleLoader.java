@@ -103,16 +103,14 @@ public class ModuleLoader{
 			
 			IConstructor tree = null;
 			if(loader.supportsLoadingBinaries()){
-				tree = tryLoadBinary(loader, binaryName); // <-- NOTE: Don't do this if you want to generate new binaries.
+//				tree = tryLoadBinary(loader, binaryName); // <-- NOTE: Don't do this if you want to generate new binaries.
 			}
 			
 			if(tree == null){
-//				List<String> path = getSdfSearchPath();
-//				parser.generateModuleParser(path, env.getSDFImports(), env);
 				tree = parseModule(loader, fileName, name, ast, env);
 			}
 			
-//			loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
+			loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
 			
 			Module moduleAst = new ASTBuilder(new ASTFactory()).buildModule(tree);
 			

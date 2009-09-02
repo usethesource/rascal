@@ -134,19 +134,124 @@ static public class Loc extends BasicType {
 
 	public boolean isLoc() { return true; }	
 } 
-public boolean isArea() { return false; }
-static public class Area extends BasicType {
-/** "area" -> BasicType {cons("Area")} */
-	private Area() {
+public boolean isList() { return false; }
+static public class List extends BasicType {
+/** "list" -> BasicType {cons("List")} */
+	private List() {
 		super();
 	}
-	public Area(INode node) {
+	public List(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeArea(this);
+		return visitor.visitBasicTypeList(this);
 	}
 
-	public boolean isArea() { return true; }	
+	public boolean isList() { return true; }	
+} 
+public boolean isSet() { return false; }
+static public class Set extends BasicType {
+/** "set" -> BasicType {cons("Set")} */
+	private Set() {
+		super();
+	}
+	public Set(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeSet(this);
+	}
+
+	public boolean isSet() { return true; }	
+} 
+public boolean isBag() { return false; }
+static public class Bag extends BasicType {
+/** "bag" -> BasicType {cons("Bag")} */
+	private Bag() {
+		super();
+	}
+	public Bag(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeBag(this);
+	}
+
+	public boolean isBag() { return true; }	
+} 
+public boolean isMap() { return false; }
+static public class Map extends BasicType {
+/** "map" -> BasicType {cons("Map")} */
+	private Map() {
+		super();
+	}
+	public Map(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeMap(this);
+	}
+
+	public boolean isMap() { return true; }	
+} 
+public boolean isRelation() { return false; }
+static public class Relation extends BasicType {
+/** "rel" -> BasicType {cons("Relation")} */
+	private Relation() {
+		super();
+	}
+	public Relation(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeRelation(this);
+	}
+
+	public boolean isRelation() { return true; }	
+} 
+public boolean isTuple() { return false; }
+static public class Tuple extends BasicType {
+/** "tuple" -> BasicType {cons("Tuple")} */
+	private Tuple() {
+		super();
+	}
+	public Tuple(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeTuple(this);
+	}
+
+	public boolean isTuple() { return true; }	
+} 
+public boolean isLex() { return false; }
+static public class Lex extends BasicType {
+/** "lex" -> BasicType {cons("Lex")} */
+	private Lex() {
+		super();
+	}
+	public Lex(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeLex(this);
+	}
+
+	public boolean isLex() { return true; }	
+} 
+public boolean isReifiedType() { return false; }
+static public class ReifiedType extends BasicType {
+/** "type" -> BasicType {cons("ReifiedType")} */
+	private ReifiedType() {
+		super();
+	}
+	public ReifiedType(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeReifiedType(this);
+	}
+
+	public boolean isReifiedType() { return true; }	
 }
 }

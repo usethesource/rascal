@@ -11,12 +11,19 @@ import org.meta_environment.rascal.ast.Parameters;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
+import org.meta_environment.rascal.ast.BasicType.Bag;
 import org.meta_environment.rascal.ast.BasicType.Bool;
 import org.meta_environment.rascal.ast.BasicType.Int;
+import org.meta_environment.rascal.ast.BasicType.Lex;
 import org.meta_environment.rascal.ast.BasicType.Loc;
+import org.meta_environment.rascal.ast.BasicType.Map;
 import org.meta_environment.rascal.ast.BasicType.Node;
 import org.meta_environment.rascal.ast.BasicType.Real;
+import org.meta_environment.rascal.ast.BasicType.ReifiedType;
+import org.meta_environment.rascal.ast.BasicType.Relation;
+import org.meta_environment.rascal.ast.BasicType.Set;
 import org.meta_environment.rascal.ast.BasicType.String;
+import org.meta_environment.rascal.ast.BasicType.Tuple;
 import org.meta_environment.rascal.ast.BasicType.Value;
 import org.meta_environment.rascal.ast.BasicType.Void;
 import org.meta_environment.rascal.ast.Formal.TypeName;
@@ -24,12 +31,6 @@ import org.meta_environment.rascal.ast.FunctionType.TypeArguments;
 import org.meta_environment.rascal.ast.Parameters.VarArgs;
 import org.meta_environment.rascal.ast.Signature.NoThrows;
 import org.meta_environment.rascal.ast.Signature.WithThrows;
-import org.meta_environment.rascal.ast.StructuredType.List;
-import org.meta_environment.rascal.ast.StructuredType.Map;
-import org.meta_environment.rascal.ast.StructuredType.ReifiedType;
-import org.meta_environment.rascal.ast.StructuredType.Relation;
-import org.meta_environment.rascal.ast.StructuredType.Set;
-import org.meta_environment.rascal.ast.StructuredType.Tuple;
 import org.meta_environment.rascal.ast.Type.Ambiguity;
 import org.meta_environment.rascal.ast.Type.Basic;
 import org.meta_environment.rascal.ast.Type.Bracket;
@@ -44,8 +45,10 @@ import org.meta_environment.rascal.ast.TypeArg.Named;
 import org.meta_environment.rascal.ast.UserType.Name;
 import org.meta_environment.rascal.ast.UserType.Parametric;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
+import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
@@ -131,11 +134,6 @@ public class TypeEvaluator {
 		@Override
 		public Type visitTypeSelector(Selector x) {
 			return x.getSelector().accept(this);
-		}
-		
-		@Override
-		public Type visitStructuredTypeReifiedType(ReifiedType x) {
-			return RascalTypeFactory.getInstance().reifiedType(x.getTypeArg().accept(this));
 		}
 		
 		@Override
@@ -268,45 +266,57 @@ public class TypeEvaluator {
 		public Type visitBasicTypeVoid(Void x) {
 			return tf.voidType();
 		}
+		
+		@Override
+		public Type visitBasicTypeAmbiguity(
+				org.meta_environment.rascal.ast.BasicType.Ambiguity x) {
+			throw new ImplementationError("Ambiguity detected in BasicType", x.getLocation());
+		}
+		
+		@Override
+		public Type visitBasicTypeBag(Bag x) {
+			throw new NonWellformedTypeError("bag should have one type argument, like bag[value].", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeLex(Lex x) {
+			throw new NonWellformedTypeError("lex should have one type argument, like lex[Id].", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeList(
+				org.meta_environment.rascal.ast.BasicType.List x) {
+			throw new NonWellformedTypeError("list should have one type argument, like list[value].", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeMap(Map x) {
+			throw new NonWellformedTypeError("map should have at two type arguments, like map[value,value].", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeReifiedType(ReifiedType x) {
+			throw new NonWellformedTypeError("type should have at one type argument, like type[value].", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeRelation(Relation x) {
+			throw new NonWellformedTypeError("rel should have at least one type argument, like rel[value,value].", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeSet(Set x) {
+			throw new NonWellformedTypeError("set should have one type argument, like set[value].", x);
+		}
+		
+		@Override
+		public Type visitBasicTypeTuple(Tuple x) {
+			throw new NonWellformedTypeError("tuple should have type arguments, like tuple[value,value].", x);
+		}
 
 		@Override
 		public Type visitTypeStructured(Structured x) {
 			return x.getStructured().accept(this);
-		}
-
-		@Override
-		public Type visitStructuredTypeList(List x) {
-			return tf.listType(x.getTypeArg().accept(this));
-		}
-
-		@Override
-		public Type visitStructuredTypeMap(Map x) {
-			return tf.mapType(x.getFirst().accept(this), x.getSecond().accept(
-					this));
-		}
-
-		@Override
-		public Type visitStructuredTypeRelation(Relation x) {
-			return getRelationFieldTypes(x.getArguments());
-		}
-
-		private Type getRelationFieldTypes(java.util.List<TypeArg> args) {
-			Type[] fieldTypes = new Type[args.size()];
-			java.lang.String[] fieldLabels = new java.lang.String[args.size()];
-
-			int i = 0;
-			for (TypeArg arg : args) {
-				fieldTypes[i] = arg.getType().accept(this);
-
-				if (arg.isNamed()) {
-					fieldLabels[i] = arg.getName().toString();
-				} else {
-					fieldLabels[i] = "field" + Integer.toString(i);
-				}
-				i++;
-			}
-
-			return tf.relTypeFromTuple(tf.tupleType(fieldTypes, fieldLabels));
 		}
 
 		private Type getArgumentTypes(java.util.List<TypeArg> args) {
@@ -329,28 +339,9 @@ public class TypeEvaluator {
 		}
 
 		@Override
-		public Type visitStructuredTypeSet(Set x) {
-			return tf.setType(x.getTypeArg().accept(this));
-		}
-
-		@Override
-		public Type visitStructuredTypeTuple(Tuple x) {
-			java.util.List<TypeArg> args = x.getArguments();
-			Type[] fieldTypes = new Type[args.size()];
-			java.lang.String[] fieldLabels = new java.lang.String[args.size()];
-			
-			int i = 0;
-			for (TypeArg arg : args) {
-				fieldTypes[i] = arg.getType().accept(this);
-
-				if (arg.isNamed()) {
-					fieldLabels[i] = Names.name(arg.getName());
-				} else {
-					fieldLabels[i] = "field" + Integer.toString(i);
-				}
-				i++;
-			}
-			return tf.tupleType(fieldTypes, fieldLabels);
+		public Type visitStructuredTypeDefault(
+				org.meta_environment.rascal.ast.StructuredType.Default x) {
+		   return x.getBasic().accept(new BasicTypeEvaluator(getArgumentTypes(x.getArguments())));
 		}
 
 		@Override
@@ -454,6 +445,113 @@ public class TypeEvaluator {
 			return new NonTerminalType(x);
 		}
 	}
+}
 
+class BasicTypeEvaluator extends NullASTVisitor<Type> {
+	private static TypeFactory tf = TypeFactory.getInstance();
+	private Type arguments;
 	
+	public BasicTypeEvaluator(Type argumentTypes) {
+		this.arguments = argumentTypes;
+	}
+	
+	@Override
+	public Type visitBasicTypeBag(Bag x) {
+		throw new NotYetImplemented(x);
+	}
+	
+	@Override
+	public Type visitBasicTypeList(
+			org.meta_environment.rascal.ast.BasicType.List x) {
+		if (arguments.getArity() == 1) {
+			return tf.listType(arguments.getFieldType(0));
+		}
+		throw new NonWellformedTypeError("list should have exactly one type argument, like list[value]", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeTuple(
+			org.meta_environment.rascal.ast.BasicType.Tuple x) {
+		return arguments;
+	}
+	
+	@Override
+	public Type visitBasicTypeInt(Int x) {
+		throw new NonWellformedTypeError("int does not have type arguments.", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeAmbiguity(
+			org.meta_environment.rascal.ast.BasicType.Ambiguity x) {
+		throw new ImplementationError("Detected ambiguity in BasicType", x.getLocation());
+	}
+	
+	@Override
+	public Type visitBasicTypeBool(Bool x) {
+		throw new NonWellformedTypeError("bool does not have type arguments.", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeLex(Lex x) {
+		throw new NotYetImplemented(x);
+	}
+	
+	@Override
+	public Type visitBasicTypeLoc(Loc x) {
+		throw new NonWellformedTypeError("loc does not have type arguments.", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeMap(Map x) {
+		if (arguments.getArity() == 2) {
+			return tf.mapType(arguments.getFieldType(0), arguments.getFieldType(1));
+		}
+		throw new NonWellformedTypeError("map should have exactly two type arguments, like map[value,value]", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeNode(Node x) {
+		throw new NonWellformedTypeError("node does not have type arguments.", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeReal(Real x) {
+		throw new NonWellformedTypeError("real does not have type arguments.", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeReifiedType(ReifiedType x) {
+		if (arguments.getArity() == 1) {
+			return RascalTypeFactory.getInstance().reifiedType(arguments.getFieldType(0));
+		}
+		throw new NonWellformedTypeError("type should have exactly one type argument, like type[value]", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeRelation(Relation x) {
+		return tf.relTypeFromTuple(arguments);
+	}
+	
+	@Override
+	public Type visitBasicTypeSet(Set x) {
+		if (arguments.getArity() == 1) {
+			return tf.setType(arguments.getFieldType(0));
+		}
+		throw new NonWellformedTypeError("set should have exactly one type argument, like set[value]", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeString(String x) {
+		throw new NonWellformedTypeError("string does not have type arguments.", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeValue(Value x) {
+		throw new NonWellformedTypeError("value does not have type arguments.", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeVoid(Void x) {
+		throw new NonWellformedTypeError("void does not have type arguments.", x);
+	}
 }

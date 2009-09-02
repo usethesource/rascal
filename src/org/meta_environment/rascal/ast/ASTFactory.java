@@ -519,6 +519,14 @@ org.meta_environment.rascal.ast.Expression.CallOrTree x = (org.meta_environment.
        }
        return x; 
 }
+public org.meta_environment.rascal.ast.Expression.ReifiedType makeExpressionReifiedType(INode node, org.meta_environment.rascal.ast.BasicType type, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) { 
+org.meta_environment.rascal.ast.Expression.ReifiedType x = (org.meta_environment.rascal.ast.Expression.ReifiedType) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Expression.ReifiedType(node, type, arguments);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
 public org.meta_environment.rascal.ast.Expression.ReifyType makeExpressionReifyType(INode node, org.meta_environment.rascal.ast.Type type) { 
 org.meta_environment.rascal.ast.Expression.ReifyType x = (org.meta_environment.rascal.ast.Expression.ReifyType) sortCache.get(node);
        if(x == null){
@@ -951,10 +959,66 @@ org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral x = (org.meta_env
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.BasicType.Area makeBasicTypeArea(INode node) { 
-org.meta_environment.rascal.ast.BasicType.Area x = (org.meta_environment.rascal.ast.BasicType.Area) sortCache.get(node);
+public org.meta_environment.rascal.ast.BasicType.ReifiedType makeBasicTypeReifiedType(INode node) { 
+org.meta_environment.rascal.ast.BasicType.ReifiedType x = (org.meta_environment.rascal.ast.BasicType.ReifiedType) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.BasicType.Area(node);
+          x = new org.meta_environment.rascal.ast.BasicType.ReifiedType(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.Lex makeBasicTypeLex(INode node) { 
+org.meta_environment.rascal.ast.BasicType.Lex x = (org.meta_environment.rascal.ast.BasicType.Lex) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.Lex(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.Tuple makeBasicTypeTuple(INode node) { 
+org.meta_environment.rascal.ast.BasicType.Tuple x = (org.meta_environment.rascal.ast.BasicType.Tuple) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.Tuple(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.Relation makeBasicTypeRelation(INode node) { 
+org.meta_environment.rascal.ast.BasicType.Relation x = (org.meta_environment.rascal.ast.BasicType.Relation) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.Relation(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.Map makeBasicTypeMap(INode node) { 
+org.meta_environment.rascal.ast.BasicType.Map x = (org.meta_environment.rascal.ast.BasicType.Map) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.Map(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.Bag makeBasicTypeBag(INode node) { 
+org.meta_environment.rascal.ast.BasicType.Bag x = (org.meta_environment.rascal.ast.BasicType.Bag) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.Bag(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.Set makeBasicTypeSet(INode node) { 
+org.meta_environment.rascal.ast.BasicType.Set x = (org.meta_environment.rascal.ast.BasicType.Set) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.Set(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.BasicType.List makeBasicTypeList(INode node) { 
+org.meta_environment.rascal.ast.BasicType.List x = (org.meta_environment.rascal.ast.BasicType.List) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.List(node);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -1055,62 +1119,6 @@ org.meta_environment.rascal.ast.TypeArg.Default x = (org.meta_environment.rascal
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.StructuredType.ReifiedType makeStructuredTypeReifiedType(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) { 
-org.meta_environment.rascal.ast.StructuredType.ReifiedType x = (org.meta_environment.rascal.ast.StructuredType.ReifiedType) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.StructuredType.ReifiedType(node, typeArg);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.StructuredType.Lex makeStructuredTypeLex(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) { 
-org.meta_environment.rascal.ast.StructuredType.Lex x = (org.meta_environment.rascal.ast.StructuredType.Lex) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.StructuredType.Lex(node, typeArg);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.StructuredType.Tuple makeStructuredTypeTuple(INode node, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) { 
-org.meta_environment.rascal.ast.StructuredType.Tuple x = (org.meta_environment.rascal.ast.StructuredType.Tuple) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.StructuredType.Tuple(node, arguments);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.StructuredType.Relation makeStructuredTypeRelation(INode node, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) { 
-org.meta_environment.rascal.ast.StructuredType.Relation x = (org.meta_environment.rascal.ast.StructuredType.Relation) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.StructuredType.Relation(node, arguments);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.StructuredType.Map makeStructuredTypeMap(INode node, org.meta_environment.rascal.ast.TypeArg first, org.meta_environment.rascal.ast.TypeArg second) { 
-org.meta_environment.rascal.ast.StructuredType.Map x = (org.meta_environment.rascal.ast.StructuredType.Map) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.StructuredType.Map(node, first, second);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.StructuredType.Bag makeStructuredTypeBag(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) { 
-org.meta_environment.rascal.ast.StructuredType.Bag x = (org.meta_environment.rascal.ast.StructuredType.Bag) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.StructuredType.Bag(node, typeArg);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.StructuredType.Set makeStructuredTypeSet(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) { 
-org.meta_environment.rascal.ast.StructuredType.Set x = (org.meta_environment.rascal.ast.StructuredType.Set) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.StructuredType.Set(node, typeArg);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
 public org.meta_environment.rascal.ast.StructuredType.Ambiguity makeStructuredTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StructuredType> alternatives) { 
 org.meta_environment.rascal.ast.StructuredType.Ambiguity amb = (org.meta_environment.rascal.ast.StructuredType.Ambiguity) ambCache.get(node);
      if(amb == null){
@@ -1119,10 +1127,10 @@ org.meta_environment.rascal.ast.StructuredType.Ambiguity amb = (org.meta_environ
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.StructuredType.List makeStructuredTypeList(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) { 
-org.meta_environment.rascal.ast.StructuredType.List x = (org.meta_environment.rascal.ast.StructuredType.List) sortCache.get(node);
+public org.meta_environment.rascal.ast.StructuredType.Default makeStructuredTypeDefault(INode node, org.meta_environment.rascal.ast.BasicType basic, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) { 
+org.meta_environment.rascal.ast.StructuredType.Default x = (org.meta_environment.rascal.ast.StructuredType.Default) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.StructuredType.List(node, typeArg);
+          x = new org.meta_environment.rascal.ast.StructuredType.Default(node, basic, arguments);
           sortCache.putUnsafe(node, x);
        }
        return x; 
