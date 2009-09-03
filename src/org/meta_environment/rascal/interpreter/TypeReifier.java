@@ -34,7 +34,41 @@ import org.meta_environment.uptr.Factory;
  * of type representations. Therefore it can not be declared or represented in Rascal itself.
  * <br>
  * However, see the Type module in the standard library for a sketch of the kind of values it generates. 
- * 
+ *
+ * This is the shape of the values that type reification produces:
+<pre>
+data type[&T] =
+  \value() |
+  \int() |
+  \real() |
+  \bool() |
+  \map(Type \key, Type \value) |
+  \list(Type element) |
+  \set(Type element) |
+  \rel() | 
+  \rel(Type t1, ...) | 
+  \tuple() | 
+  \tuple(Type t1) | 
+  \tuple(Type t1, ...) |
+  \void() |
+  \func(Type \return) | 
+  \func(Type \return, Type t1) | 
+  \func(Type \return, Type t1, ...) |  
+  \node() |
+  \non-terminal(Symbol symbol) |
+  \adt(str name) |
+  \adt(str name, list[Type] parameters) |
+  \adt(str name, list[Constructor] constructors) |
+  \adt(str name, list[Type] parameters, list[constructor] constructors) | 
+  \loc() |
+  \alias(str name, Type aliased) |
+  \alias(str name, list[Type] parameters, Type aliased) |
+  \reified(Type reified)
+
+data constructor[&T] = 
+  \constructor(str name) | 
+  \constructor(str name, Type t1, ...)
+</pre>
  */
 public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	private final IEvaluatorContext ctx;

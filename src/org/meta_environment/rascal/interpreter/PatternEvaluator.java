@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.BasicType;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -52,6 +53,7 @@ import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.Range;
+import org.meta_environment.rascal.ast.Expression.ReifiedType;
 import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.ast.Expression.SetAnnotation;
 import org.meta_environment.rascal.ast.Expression.StepRange;
@@ -71,6 +73,7 @@ import org.meta_environment.rascal.ast.Literal.String;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.matching.AntiPattern;
+import org.meta_environment.rascal.interpreter.matching.ReifiedTypePattern;
 import org.meta_environment.rascal.interpreter.matching.ConcreteApplicationPattern;
 import org.meta_environment.rascal.interpreter.matching.ConcreteListPattern;
 import org.meta_environment.rascal.interpreter.matching.ConcreteListVariablePattern;
@@ -108,7 +111,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		this.vf = vf;
 		this.ctx = ctx;
 	}
-
+	
 	@Override
 	public IMatchingResult visitExpressionLiteral(Literal x) {
 		return x.getLiteral().accept(this);
@@ -222,6 +225,14 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	}
 	
 	@Override
+	public IMatchingResult visitExpressionReifiedType(ReifiedType x) {
+		BasicType basic = x.getBasicType();
+		java.util.List<IMatchingResult> args = visitElements(x.getArguments());
+		
+		return new ReifiedTypePattern(vf, ctx, basic, args);
+	}
+	
+	@Override
 	public IMatchingResult visitExpressionCallOrTree(CallOrTree x) {
 		Expression nameExpr = x.getExpression();
 
@@ -255,15 +266,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	}
 	
 	private java.util.List<IMatchingResult> visitArguments(CallOrTree x){
-
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getArguments();
-		ArrayList<IMatchingResult> args = new java.util.ArrayList<IMatchingResult>(elements.size());
-		
-		int i = 0;
-		for(org.meta_environment.rascal.ast.Expression e : elements){
-			args.add(i++, e.accept(this));
-		}
-		return args;
+		return visitElements(elements);
 	}
 	
 	
