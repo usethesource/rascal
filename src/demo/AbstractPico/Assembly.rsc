@@ -48,7 +48,7 @@ public list[Instr] compileProgram(PROGRAM P){
 }
 
 private list[Instr] compileDecls(list[DECL] Decls){
-    return [ (type == natural()) ? dclNat(Id) : dclStr(Id)  | decl(PicoId Id, TYPE type) <- Decls];
+    return [ (t == natural()) ? dclNat(Id) : dclStr(Id)  | decl(PicoId Id, TYPE t) <- Decls];
 }
 
 private list[Instr] compileStatements(list[STATEMENT] Stats){
