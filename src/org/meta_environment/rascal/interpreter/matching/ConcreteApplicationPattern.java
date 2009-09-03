@@ -10,7 +10,6 @@ import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor;
 import org.meta_environment.rascal.interpreter.utils.Names;

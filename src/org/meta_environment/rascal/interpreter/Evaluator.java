@@ -56,7 +56,6 @@ import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
-import org.meta_environment.rascal.ast.BasicType.Int;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
