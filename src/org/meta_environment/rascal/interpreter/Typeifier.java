@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
+import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.types.ReifiedType;
 
 /**
@@ -106,8 +107,7 @@ public class Typeifier {
 				}
 
 				public Type visitExternal(Type externalType) {
-					// TODO: deal with function types??
-					throw new NotYetImplemented("function typeifier");
+					throw new ImplementationError("should not have to typeify this: " + externalType);
 				}
 
 				public Type visitInteger(Type type) {
