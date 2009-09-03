@@ -1,9 +1,11 @@
 package org.meta_environment.rascal.interpreter.utils;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.INode;
+import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.IASTVisitor;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
@@ -63,6 +65,12 @@ public class Names {
 	
 	static public Name toName(String name) {
 		return new InventedName(name);
+	}
+	
+	static public QualifiedName toQualifiedName(String name) {
+		List<Name> list = new LinkedList<Name>();
+		list.add(toName(name));
+		return new ASTFactory().makeQualifiedNameDefault(null, list);
 	}
 	
 	static class InventedName extends Name {
