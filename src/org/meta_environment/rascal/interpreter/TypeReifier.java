@@ -48,12 +48,10 @@ data type[&T] =
   \rel() | 
   \rel(Type t1, ...) | 
   \tuple() | 
-  \tuple(Type t1) | 
   \tuple(Type t1, ...) |
   \void() |
-  \func(Type \return) | 
-  \func(Type \return, Type t1) | 
-  \func(Type \return, Type t1, ...) |  
+  \fun(Type \return) | 
+  \fun(Type \return, Type t1, ...) |  
   \node() |
   \non-terminal(Symbol symbol) |
   \adt(str name) |
@@ -262,7 +260,7 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 			values[i] = argumentTypes.getFieldType(i).accept(this).getValue();
 		}
 		
-		Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "func", fields);
+		Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "fun", fields);
 		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, values), ctx);
 	}
 
