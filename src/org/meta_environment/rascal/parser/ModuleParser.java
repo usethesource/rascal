@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
+import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Configuration;
@@ -165,9 +166,6 @@ public class ModuleParser {
 		} 
 	}
 	
-	
-
-	
 	protected TableInfo lookupTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		if (sdfImports.isEmpty()) {
 			return new TableInfo(Configuration.getDefaultParsetableProperty());
@@ -202,9 +200,8 @@ public class ModuleParser {
 		return bytesToParseTree(fileName, result);
 	}
 
-	private IConstructor bytesToParseTree(String fileName, byte[] result)
-			throws IOException {
-		ATermReader reader = new ATermReader();
+	private IConstructor bytesToParseTree(String fileName, byte[] result) throws IOException {
+		PBFReader reader = new PBFReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
