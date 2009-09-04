@@ -194,17 +194,17 @@ public class ModuleParser {
 		return table;
 	}
 
-	private IConstructor parseFromStream(String table, String fileName, InputStream source, boolean filter) throws FactParseError, IOException {
-		byte[] result = sglrInvoker.parseFromStream(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
-
-		return bytesToParseTree(fileName, result);
-	}
-
 	private IConstructor bytesToParseTree(String fileName, byte[] result) throws IOException {
 		PBFReader reader = new PBFReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
+	}
+
+	private IConstructor parseFromStream(String table, String fileName, InputStream source, boolean filter) throws FactParseError, IOException {
+		byte[] result = sglrInvoker.parseFromStream(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
+
+		return bytesToParseTree(fileName, result);
 	}
 	
 	protected IConstructor parseFromFile(String table, String fileName, boolean filter) throws FactParseError, IOException {
