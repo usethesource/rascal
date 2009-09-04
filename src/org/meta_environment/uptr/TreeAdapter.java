@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.ast.MappingCache;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
 
@@ -174,21 +175,6 @@ public class TreeAdapter {
 		}
 		return null;
 	}
-
-	private static class Position {
-		public int col = 0;
-		public int line = 1;
-		public int offset = 0;
-		
-		@Override
-		public Position clone() {
-			Position tmp = new Position();
-			tmp.col = col;
-			tmp.line = line;
-			tmp.offset = offset;
-			return tmp;
-		}
-	}
 	
 	public int getCharacter() {
 		return ((IInteger) tree.get("character")).intValue();
@@ -196,11 +182,13 @@ public class TreeAdapter {
 	
 	protected static class PositionAnnotator{
 		private final IConstructor tree;
+		private final MappingCache<PositionNode, IConstructor> cache;
 		
 		public PositionAnnotator(IConstructor tree){
 			super();
 			
 			this.tree = tree;
+			this.cache = new MappingCache<PositionNode, IConstructor>();
 		}
 		
 		public IConstructor addPositionInformation(String filename) {
@@ -213,22 +201,20 @@ public class TreeAdapter {
 		}
 		
 		// TODO this code breaks in the presence of cycles
-		private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException {
+		private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException{
 			IValueFactory factory = ValueFactoryFactory.getValueFactory();
 			TreeAdapter tree = new TreeAdapter(t);
 			
-			if (tree.isChar()) {
+			if(tree.isChar()){
 				int val = tree.getCharacter();
 				
-				if (val == '\n') {
+				if(val == '\n'){
 					cur.col = 0;
 					cur.line++;
 					cur.offset++;
-				}
-				else if (val == '\r') {
+				}else if(val == '\r'){
 					cur.offset++;
-				}
-				else {
+				}else {
 					cur.col++;
 					cur.offset++;
 				}
@@ -238,23 +224,22 @@ public class TreeAdapter {
 			
 			Position start = cur.clone();
 			
-			if (tree.isAppl()) {
+			if(tree.isAppl()){
 				IList args = tree.getArgs();
 				IListWriter newArgs = factory.listWriter(Factory.Tree);
 				
-				for (IValue arg : args) {
+				for(IValue arg : args){
 					newArgs.append(addPosInfo((IConstructor) arg, filename, cur));
 				}
 				
 				t = t.set("args", newArgs.done());
-			}
-			else if (tree.isAmb()) {
+			}else if(tree.isAmb()){
 				ISet alts = tree.getAlternatives();
 				ISetWriter newAlts = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
 				
 				Position tmpCur = null; // there are always at least 2 alternatives
 				
-				for (IValue arg : alts) {
+				for(IValue arg : alts){
 					tmpCur = start.clone();
 					newAlts.insert(addPosInfo((IConstructor) arg, filename, tmpCur));
 				}
@@ -265,12 +250,50 @@ public class TreeAdapter {
 				t = t.set("alternatives", newAlts.done());
 			}
 			
-			if (!tree.isLayout() && !tree.isLexical()) {
+			if(!tree.isLayout() && !tree.isLexical()){
 				ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
 				t = t.setAnnotation(Factory.Location, loc);
 			}
 			
-			return t;
+			return cache.store(new PositionNode(cur, t), t);
+		}
+
+		private static class Position{
+			public int col = 0;
+			public int line = 1;
+			public int offset = 0;
+			
+			public Position clone() {
+				Position tmp = new Position();
+				tmp.col = col;
+				tmp.line = line;
+				tmp.offset = offset;
+				return tmp;
+			}
+		}
+		
+		private static class PositionNode{
+			private final Position position;
+			private final IConstructor tree;
+			
+			public PositionNode(Position position, IConstructor tree){
+				super();
+				
+				this.position = position;
+				this.tree = tree;
+			}
+			
+			public int hashCode(){
+				return (position.hashCode() ^ tree.hashCode());
+			}
+			
+			public boolean equals(Object o){
+				if(o.getClass() == getClass()) return false;
+				
+				PositionNode other = (PositionNode) o;
+				
+				return (position.equals(other.position) && tree.equals(other.tree));
+			}
 		}
 	}
 	
