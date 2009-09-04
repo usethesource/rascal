@@ -222,7 +222,11 @@ public class TreeAdapter {
 				return t;
 			}
 			
+			IConstructor original = t;
 			Position start = cur.clone();
+			PositionNode positionNode = new PositionNode(start, original);
+			IConstructor cached = cache.get(positionNode);
+			if(cached != null) return cached;
 			
 			if(tree.isAppl()){
 				IList args = tree.getArgs();
@@ -255,7 +259,7 @@ public class TreeAdapter {
 				t = t.setAnnotation(Factory.Location, loc);
 			}
 			
-			return cache.store(new PositionNode(cur, t), t);
+			return cache.store(positionNode, t);
 		}
 
 		private static class Position{
