@@ -154,8 +154,6 @@ public class TreeAdapter {
 		return isAppl() ? getProduction().isCILiteral() : false;
 	}
 	
-	
-
 	public ISet getAlternatives() {
 		if (isAmb()) {
 		  return (ISet) tree.get("alternatives");
@@ -184,6 +182,9 @@ public class TreeAdapter {
 		private final IConstructor tree;
 		private final MappingCache<PositionNode, IConstructor> cache;
 		
+		private boolean inLayout = false;
+		private boolean labelLayout = false;
+		
 		public PositionAnnotator(IConstructor tree){
 			super();
 			
@@ -200,66 +201,99 @@ public class TreeAdapter {
 			}
 		}
 		
-		// TODO this code breaks in the presence of cycles
 		private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException{
 			IValueFactory factory = ValueFactoryFactory.getValueFactory();
 			TreeAdapter tree = new TreeAdapter(t);
-			
+
+			int startLine = cur.line;
+			int startCol = cur.col;
+			int startOffset = cur.offset;
+			PositionNode positionNode = new PositionNode(t, cur.offset);
+			IConstructor result = cache.get(positionNode);
+
+			if(result != null){
+				ISourceLocation loc = (ISourceLocation) result.getAnnotation(Factory.Location);
+				cur.col = loc.getEndColumn();
+				cur.line = loc.getEndLine();
+				cur.offset += loc.getLength();
+				return result;
+			}
+
 			if(tree.isChar()){
-				int val = tree.getCharacter();
-				
-				if(val == '\n'){
+				cur.offset++;
+				if(((char) tree.getCharacter()) == '\n'){
 					cur.col = 0;
 					cur.line++;
-					cur.offset++;
-				}else if(val == '\r'){
-					cur.offset++;
-				}else {
+				}else{
 					cur.col++;
-					cur.offset++;
 				}
-				
 				return t;
 			}
-			
-			IConstructor original = t;
-			Position start = cur.clone();
-			PositionNode positionNode = new PositionNode(start, original);
-			IConstructor cached = cache.get(positionNode);
-			if(cached != null) return cached;
-			
+
 			if(tree.isAppl()){
+				boolean outermost_layout = false;
 				IList args = tree.getArgs();
+
+				if(tree.isLayout()){
+					inLayout = true;
+					outermost_layout = true;
+				}
+
 				IListWriter newArgs = factory.listWriter(Factory.Tree);
-				
 				for(IValue arg : args){
 					newArgs.append(addPosInfo((IConstructor) arg, filename, cur));
 				}
-				
 				t = t.set("args", newArgs.done());
+
+				if(!labelLayout && outermost_layout){
+					inLayout = false;
+					return t;
+				}else if(!labelLayout && inLayout){
+					return t;
+				}
+
 			}else if(tree.isAmb()){
 				ISet alts = tree.getAlternatives();
 				ISetWriter newAlts = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
-				
-				Position tmpCur = null; // there are always at least 2 alternatives
-				
+				Position save = cur;
+				Position newPos = save;
+				ISetWriter cycles = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
+
 				for(IValue arg : alts){
-					tmpCur = start.clone();
-					newAlts.insert(addPosInfo((IConstructor) arg, filename, tmpCur));
+					cur = save.clone();
+
+					IValue newArg = addPosInfo((IConstructor) arg, filename, cur);
+
+					if(cur.offset != save.offset){
+						newPos = cur;
+						newAlts.insert(newArg);
+					}else if(newPos.offset == save.offset){
+						cycles.insert(arg);
+					}else{
+						newAlts.insert(newArg);
+					}
 				}
-				
-				cur.col = tmpCur.col;
-				cur.line = tmpCur.line;
-				cur.offset = tmpCur.offset;
+
+				cur.col = newPos.col;
+				cur.line = newPos.line;
+				cur.offset = newPos.offset;
+
+				for(IValue arg : cycles.done()){
+					IValue newArg = addPosInfo((IConstructor) arg, filename, cur);
+					newAlts.insert(newArg);
+				}
+
 				t = t.set("alternatives", newAlts.done());
+			}else if(!tree.isCycle()){
+				System.err.println("unhandled tree: " + t + "\n");
 			}
+
+			ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
+			result = t.setAnnotation(Factory.Location, loc);
 			
-			if(!tree.isLayout() && !tree.isLexical()){
-				ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
-				t = t.setAnnotation(Factory.Location, loc);
-			}
-			
-			return cache.store(positionNode, t);
+			cache.putUnsafe(positionNode, result);
+
+			return result;
 		}
 
 		private static class Position{
@@ -274,33 +308,21 @@ public class TreeAdapter {
 				tmp.offset = offset;
 				return tmp;
 			}
-			
-			public int hashCode(){
-				return (col * -127 + line * 51 + offset * 37);
-			}
-			
-			public boolean equals(Object o){
-				if(o.getClass() != getClass()) return false;
-				
-				Position other = (Position) o;
-				
-				return (col == other.col && line == other.line && offset == other.offset);
-			}
 		}
 		
 		private static class PositionNode{
-			private final Position position;
 			private final IConstructor tree;
+			private final int offset;
 			
-			public PositionNode(Position position, IConstructor tree){
+			public PositionNode(IConstructor tree, int offset){
 				super();
 				
-				this.position = position;
 				this.tree = tree;
+				this.offset = offset;
 			}
 			
 			public int hashCode(){
-				return (position.hashCode() ^ tree.hashCode());
+				return ((offset << 32) ^ tree.hashCode());
 			}
 			
 			public boolean equals(Object o){
@@ -308,7 +330,7 @@ public class TreeAdapter {
 				
 				PositionNode other = (PositionNode) o;
 				
-				return (position.equals(other.position) && tree.equals(other.tree));
+				return (offset == other.offset && tree.equals(other.tree));
 			}
 		}
 	}
@@ -440,7 +462,7 @@ public class TreeAdapter {
 	}
 
 	/**
-	 * @return true iff the tree does not have any characters, it's just an empty derivation
+	 * @return true if the tree does not have any characters, it's just an empty derivation
 	 */
 	public boolean isEpsilon() {
 		// TODO: optimize this
