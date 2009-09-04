@@ -130,8 +130,7 @@ public class DebuggingDecorator extends NullASTVisitor<Result<IValue>> {
 		suspendExpression(x);
 		return visitor.visitExpressionAddition(x);
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public Result<IValue> visitExpressionAll(All x) {
 		suspendExpression(x);
@@ -149,9 +148,7 @@ public class DebuggingDecorator extends NullASTVisitor<Result<IValue>> {
 		suspendExpression(x);
 		return visitor.visitExpressionAnd(x);
 	}
-
-
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public Result<IValue> visitExpressionAny(Any x) {
 		suspendExpression(x);
