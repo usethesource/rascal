@@ -163,15 +163,6 @@ public class TreeAdapter {
 		throw new ImplementationError("Node has no alternatives");
 	}
 	
-	public IConstructor addPositionInformation(String filename) {
-		Factory.getInstance(); // make sure everything is declared
-		try {
-			return addPosInfo(tree, filename, new Position());
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
 	public ISourceLocation getLocation() {
 		return (ISourceLocation) tree.getAnnotation(Factory.Location);
 	}
@@ -184,7 +175,7 @@ public class TreeAdapter {
 		return null;
 	}
 
-	private class Position {
+	private static class Position {
 		public int col = 0;
 		public int line = 1;
 		public int offset = 0;
@@ -203,66 +194,84 @@ public class TreeAdapter {
 		return ((IInteger) tree.get("character")).intValue();
 	}
 	
-	// TODO this code breaks in the presence of cycles
-	private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException {
-		IValueFactory factory = ValueFactoryFactory.getValueFactory();
-		TreeAdapter tree = new TreeAdapter(t);
+	protected static class PositionAnnotator{
+		private final IConstructor tree;
 		
-		if (tree.isChar()) {
-			int val = tree.getCharacter();
+		public PositionAnnotator(IConstructor tree){
+			super();
 			
-			if (val == '\n') {
-				cur.col = 0;
-				cur.line++;
-				cur.offset++;
+			this.tree = tree;
+		}
+		
+		public IConstructor addPositionInformation(String filename) {
+			Factory.getInstance(); // make sure everything is declared
+			try {
+				return addPosInfo(tree, filename, new Position());
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(e);
 			}
-			else if (val == '\r') {
-				cur.offset++;
+		}
+		
+		// TODO this code breaks in the presence of cycles
+		private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException {
+			IValueFactory factory = ValueFactoryFactory.getValueFactory();
+			TreeAdapter tree = new TreeAdapter(t);
+			
+			if (tree.isChar()) {
+				int val = tree.getCharacter();
+				
+				if (val == '\n') {
+					cur.col = 0;
+					cur.line++;
+					cur.offset++;
+				}
+				else if (val == '\r') {
+					cur.offset++;
+				}
+				else {
+					cur.col++;
+					cur.offset++;
+				}
+				
+				return t;
 			}
-			else {
-				cur.col++;
-				cur.offset++;
+			
+			Position start = cur.clone();
+			
+			if (tree.isAppl()) {
+				IList args = tree.getArgs();
+				IListWriter newArgs = factory.listWriter(Factory.Tree);
+				
+				for (IValue arg : args) {
+					newArgs.append(addPosInfo((IConstructor) arg, filename, cur));
+				}
+				
+				t = t.set("args", newArgs.done());
+			}
+			else if (tree.isAmb()) {
+				ISet alts = tree.getAlternatives();
+				ISetWriter newAlts = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
+				
+				Position tmpCur = null; // there are always at least 2 alternatives
+				
+				for (IValue arg : alts) {
+					tmpCur = start.clone();
+					newAlts.insert(addPosInfo((IConstructor) arg, filename, tmpCur));
+				}
+				
+				cur.col = tmpCur.col;
+				cur.line = tmpCur.line;
+				cur.offset = tmpCur.offset;
+				t = t.set("alternatives", newAlts.done());
+			}
+			
+			if (!tree.isLayout() && !tree.isLexical()) {
+				ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
+				t = t.setAnnotation(Factory.Location, loc);
 			}
 			
 			return t;
 		}
-		
-		Position start = cur.clone();
-		
-		if (tree.isAppl()) {
-			IList args = tree.getArgs();
-			IListWriter newArgs = factory.listWriter(Factory.Tree);
-			
-			for (IValue arg : args) {
-				newArgs.append(addPosInfo((IConstructor) arg, filename, cur));
-			}
-			
-			t = t.set("args", newArgs.done());
-		}
-		else if (tree.isAmb()) {
-			Position tmpCur = null; // there are always at least 2 alternatives
-			
-			ISet alts = tree.getAlternatives();
-			assert alts.size() >= 2;
-			ISetWriter newAlts = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
-			
-			for (IValue arg : alts) {
-				tmpCur = start.clone();
-				newAlts.insert(addPosInfo((IConstructor) arg, filename, tmpCur));
-			}
-			
-			cur.col = tmpCur.col;
-			cur.line = tmpCur.line;
-			cur.offset = tmpCur.offset;
-			t = t.set("alternatives", newAlts.done());
-		}
-		
-		if (!tree.isLayout() && !tree.isLexical()) {
-			ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
-			return t.setAnnotation(Factory.Location, loc);
-		}
-		
-		return t;
 	}
 	
 	private static class Unparser extends IdentityTreeVisitor {

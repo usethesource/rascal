@@ -267,8 +267,7 @@ public class JavaBridge {
 		public String visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "ISourceLocation";
 		}
-
-		@SuppressWarnings("unused")
+		
 		public String visitSourceRange(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "ISourceRange";
 		}

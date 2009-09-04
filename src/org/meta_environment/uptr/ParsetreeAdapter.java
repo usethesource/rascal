@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-
+import org.meta_environment.uptr.TreeAdapter.PositionAnnotator;
 
 public class ParsetreeAdapter {
 	IConstructor parseTree;
@@ -19,7 +19,7 @@ public class ParsetreeAdapter {
 	public IConstructor addPositionInformation(String filename) {
 		if (isParseTree()) {
 			IConstructor tree = (IConstructor) parseTree.get("top");
-			tree = new TreeAdapter(tree).addPositionInformation(filename);
+			tree = new PositionAnnotator(tree).addPositionInformation(filename);
 			return parseTree.set("top", tree);
 		}
 		
