@@ -1,8 +1,7 @@
 module demo::ConcretePico::Typecheck
 
 import languages::pico::syntax::Pico;  // Pico concrete syntax
-import demo::AbstractPico::Message;    // Error messages
-
+import demo::ConcretePico::Message;    // Error messages
 import demo::ConcretePico::Programs;   // Example programs
 
 import IO;
@@ -34,7 +33,7 @@ public list[Message] checkProgram(PROGRAM P) {
        // Use the type environment to typecheck the program
        return checkStatements(Stats, Env);
    }
-   return [message("Malformed Pico program")];
+   return [message(P@\loc, "Malformed Pico program")];
 }
 
 public list[Message] checkStatements({STATEMENT ";"}* Stats, TypeEnv Env){
@@ -50,7 +49,8 @@ public list[Message] checkStatement(STATEMENT Stat, TypeEnv Env) {
          if(Env[Id]?)
             return requireType(Exp, Env[Id], Env);
          else {
-            return [message("Undeclared variable <Id>")];
+            pos = Stat@\loc;
+            return [message(Stat@\loc, "Undeclared variable <Id>")];
          }
 
       case ` if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
@@ -64,7 +64,7 @@ public list[Message] checkStatement(STATEMENT Stat, TypeEnv Env) {
          return requireType(Exp, naturalType, Env) 
                 + checkStatements(Stats, Env);
     }
-    return [message("Unknown statement: <Stat>")];
+    return [message(Stat@\loc, "Unknown statement: <Stat>")];
 }
 
 list[Message] OK = [];                 // The empty list of error messages
@@ -86,7 +86,7 @@ public list[Message] requireType(EXP E, TYPE Type, TypeEnv Env) {
         	   return OK;
             } else fail;
          } else
-            return [message("Undeclared variable <Id>")];
+            return [message(Id@\loc, "Undeclared variable <Id>")];
       }
 
       case ` <EXP E1> + <EXP E2> `:
@@ -108,24 +108,27 @@ public list[Message] requireType(EXP E, TYPE Type, TypeEnv Env) {
          } else fail;
         
       default: {
-         return [message("Type error: expected <Type> got <E>")];
+         return [message(E@\loc, "Expected type <Type> but got <E>")];
       }
     } 
 }
 
 public bool test() {
-
   
   assertEqual(checkProgram(`begin declare x : natural; x := 3  end`), []);
-  
+ 
   assertEqual(checkProgram(`begin declare x : natural; y := "a"  end`), 
-                  [message("Undeclared variable y")]);
-                  
+              [message(loc(file://-?off=46&len=3&start=1,1&end=46,49), "Undeclared variable y")]
+             );
+  
   assertEqual(checkProgram(`begin declare x : natural; x := "a"  end`), 
-                  [message("Type error: expected natural got \"a\"")]);
-                  
+              [message(loc(file://-?off=46&len=3&start=1,1&end=46,49), "Expected type natural but got \"a\"")]
+             );
+                 
   assertEqual(checkProgram(`begin declare x : natural; x := 2 + "a"  end`), 
-                  [message("Type error: expected natural got \"a\"")]);
+              [message("Expected type natural but got \"a\"")]
+             );
+ */
                   
   assertEqual(checkProgram(small), []);
   
