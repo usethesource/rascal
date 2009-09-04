@@ -2,7 +2,10 @@ module experiments::GrammarTools::ExportBNF
 
 import experiments::GrammarTools::BNF;
 import experiments::GrammarTools::Grammar;
-import basic::Whitespace;
+
+import experiments::GrammarTools::Grammars;     // for testing
+import experiments::GrammarTools::BNFGrammars;  // for testing
+
 import Set;
 import IO;
 import UnitTest;
@@ -37,26 +40,6 @@ BNFElement* toElements(list[Symbol] symbols){
    }
    return result;
 }
-
-
-BNF G1BNF = `grammar E 
-            rules
-            	E ::= E '*' B;
-           		E ::= E '+' B;
-            	E ::= B;
-            	B ::= '0';
-            	B ::= '1';`;
-            	
-/*	  This list is too ambiguous ...          	
-public Grammar G1 = grammar("E",
-{
-<nt("E"), [nt("E"), t("*"), nt("B")]>,
-<nt("E"), [nt("E"), t("+"), nt("B")]>,
-<nt("E"), [nt("B")]>,
-<nt("B"), [t("0")]>,
-<nt("B"), [t("1")]>
-});
-*/
 
 public bool test(){
     println(exportBNF(G1));

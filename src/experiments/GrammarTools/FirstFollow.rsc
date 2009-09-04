@@ -1,7 +1,7 @@
 module experiments::GrammarTools::FirstFollow
 
 import experiments::GrammarTools::Grammar;
-import experiments::GrammarTools::BNF;
+import experiments::GrammarTools::Grammars; // for testing
 import List;
 import Set;
 import IO;
@@ -95,22 +95,10 @@ public map[Symbol, set[Symbol]] follow(Grammar G, map[Symbol, set[Symbol]] FIRST
 	return FOLLOW;
 }
 
-BNF G2 = grammar E
-          rules 
-            E  ::= T E1;
-            E1 ::= '+' T E1;
-            E1 ::= ;
-            T  ::= F T1;
-            T1 ::= '*' F T1;
-            T1 ::= ;
-            F  ::= '(' E ')';
-            F  ::= 'id';
-            ;  
-
 public bool test(){
 
-    grammarG2 = importBNF(G2);
-    firstG2 = first(grammarG2);
+    firstG2 = first(G2);
+    
     assertEqual(firstG2,
                 (nt("T1"):{epsilon(),t("*")},
                  t("*"):{t("*")},t("id"):{t("id")},t("+"):{t("+")},t("("):{t("(")},t(")"):{t(")")},
@@ -123,10 +111,8 @@ public bool test(){
      assertEqual(first([nt("T1")], firstG2), {epsilon(),t("*")});
      
      assertEqual(first([nt("F"), nt("T1")], firstG2), {t("id"),t("(")});
-     
-     followG2 = follow(grammarG2, firstG2);
  
-     assertEqual(followG2,
+     assertEqual(follow(G2, firstG2),
                  (nt("E"):  {t(")"), t("$")},
                   nt("E1"): {t(")"), t("$")},
                   nt("T"):  {t("+"), t(")"), t("$")},

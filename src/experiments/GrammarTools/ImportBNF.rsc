@@ -2,7 +2,10 @@ module experiments::GrammarTools::ImportBNF
 
 import experiments::GrammarTools::BNF;
 import experiments::GrammarTools::Grammar;
-import basic::Whitespace;
+
+import experiments::GrammarTools::BNFGrammars;  // for testing
+import experiments::GrammarTools::Grammars;     // for testing
+
 import Set;
 import IO;
 import UnitTest;
@@ -41,27 +44,9 @@ Symbol toSymbol(BNFElement E){
    throw IllegalArgument(E);
 }
 
-BNF G1 = `grammar E 
-            rules
-            	E ::= E '*' B;
-           		E ::= E '+' B;
-            	E ::= B;
-            	B ::= '0';
-            	B ::= '1';`;
-            	
-/*	  This list is too ambiguous ...          	
-public Grammar G1converted = grammar("E",
-{
-<nt("E"), [nt("E"), t("*"), nt("B")]>,
-<nt("E"), [nt("E"), t("+"), nt("B")]>,
-<nt("E"), [nt("B")]>,
-<nt("B"), [t("0")]>,
-<nt("B"), [t("1")]>
-});
-*/
-
 public bool test(){
-    println(importBNF(G1));
     
+    assertEqual(importBNF(G1BNF), G1);
+    assertEqual(importBNF(G2BNF), G2);
 	return report("GrammarTools::ImportBNF");
 }
