@@ -231,12 +231,12 @@ public class TreeAdapter {
 			}
 
 			if(tree.isAppl()){
-				boolean outermost_layout = false;
+				boolean outermostLayout = false;
 				IList args = tree.getArgs();
 
 				if(tree.isLayout()){
 					inLayout = true;
-					outermost_layout = true;
+					outermostLayout = true;
 				}
 
 				IListWriter newArgs = factory.listWriter(Factory.Tree);
@@ -245,7 +245,7 @@ public class TreeAdapter {
 				}
 				t = t.set("args", newArgs.done());
 
-				if(!labelLayout && outermost_layout){
+				if(!labelLayout && outermostLayout){
 					inLayout = false;
 					return t;
 				}else if(!labelLayout && inLayout){
