@@ -270,6 +270,18 @@ public class TreeAdapter {
 				tmp.offset = offset;
 				return tmp;
 			}
+			
+			public int hashCode(){
+				return (col * -127 + line * 51 + offset * 37);
+			}
+			
+			public boolean equals(Object o){
+				if(o.getClass() != getClass()) return false;
+				
+				Position other = (Position) o;
+				
+				return (col == other.col && line == other.line && offset == other.offset);
+			}
 		}
 		
 		private static class PositionNode{
@@ -288,7 +300,7 @@ public class TreeAdapter {
 			}
 			
 			public boolean equals(Object o){
-				if(o.getClass() == getClass()) return false;
+				if(o.getClass() != getClass()) return false;
 				
 				PositionNode other = (PositionNode) o;
 				
