@@ -19,15 +19,6 @@ public set[&T] predecessors(graph[&T] G, &T From)
   return invert(G)[From];
 }
 
-/*
-@doc{ the predecessors of a set of nodes in a graph}
-public set[&T] predecessors(graph[&T] G, set[&T] From)
-{
-  //return G[_,From];
-  return invert(G)[From];
-}
-*/
-
 @doc{ Reachability from set of start nodes.}
 public set[&T] reach(graph[&T] G, set[&T] Start)
 {
