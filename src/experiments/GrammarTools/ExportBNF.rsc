@@ -13,18 +13,27 @@ import String;
 
 // Export a grammar to BNF
 public BNF exportBNF(Grammar G){
-   BNFRule* bnfRules = BNFRule* ``;
+
+   // Problem: `` is ambiguous but the disambiguation BNFRule* `` is also ambiguous!
+   // (e.g., * can also be multiplication)
+   // Potential solution: require in the Rascal syntax extra parentheses as in (BNFRule*) ``.
+   // This resembles casts.
+   
+   println("exportBNF 1");
+   BNFRule* bnfRules =  ``;
+   println("exportBNF 2");
   
    for(<Symbol A, list[Symbol] symbols> <- G.rules){
        NT = toElement(A);
        Elems = toElements(symbols);
-       bnfRules = `<bnfRules> <NT> ::= <Elems>;`;
+       bnfRules = BNFRule* `<bnfRules> <NT> ::= <Elems>;`;
    }
    bnfStart = toElement(G.start);
-   return `grammar <bnfStart> rules <bnfRules>`;
+   return BNF `grammar <bnfStart> rules <bnfRules>`;
 }
 
 BNFElement toElement(Symbol s){
+   println("toElement<s>");
    if(t(str name) := s)
       return Terminal `'<name>'`;
    if (nt(str name) := s)
@@ -33,10 +42,11 @@ BNFElement toElement(Symbol s){
 }
 
 BNFElement* toElements(list[Symbol] symbols){
-   BNFElement* result = ``;
+   println("toElements<symbols>");
+   BNFElement* result = BNFElement*``;
    for(Symbol sym <- symbols){
        elm = toElement(sym);
-       result = `<result> <sym>`;
+       result = BNFElement* `<result> <sym>`;
    }
    return result;
 }
