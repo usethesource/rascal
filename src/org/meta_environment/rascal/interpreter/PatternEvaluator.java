@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -72,6 +73,7 @@ import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.Literal.String;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.matching.AntiPattern;
 import org.meta_environment.rascal.interpreter.matching.ReifiedTypePattern;
 import org.meta_environment.rascal.interpreter.matching.ConcreteApplicationPattern;
@@ -97,7 +99,9 @@ import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
@@ -105,7 +109,7 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	private IValueFactory vf;
 	private IEvaluatorContext ctx;
-	private boolean debug = false;
+	private boolean debug = true;
 
 	public PatternEvaluator(IValueFactory vf, IEvaluatorContext ctx){
 		this.vf = vf;
@@ -171,20 +175,62 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		}
 		
 		/*
-		 * Find all pattern variables. Take escaped \< characters into account.
+		 * Find all pattern variables. There are two cases:
+		 * (1) <X:regexp>
+		 *     - a true pattern variable that will match regexp. Introduces a new local variable.
+		 * (2) <X>
+		 *     - if x did not occur earlier in the regexp, we do a string interpolation of the current value of X.
+		 *     - otherwise x should have been introduced before by a pattern variable and we ensure at match time
+		 *       that both values are the same (non-linear pattern).
+		 * We take escaped \< characters into account.
 		 */
-		Pattern replacePat = Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)\\s*:\\s*([^>]*)>");
+		Pattern replacePat = Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)\\s*(:\\s*([^>]*))?>");
 		Matcher m = replacePat.matcher(subjectPat);
 		
+		// The resulting regexp that we are constructing
 		java.lang.String resultRegExp = "";
-		java.util.List<java.lang.String> names = new ArrayList<java.lang.String>();
+		
+		// Declared pattern variables with associated regexp
+		java.util.HashMap<java.lang.String,java.lang.String> varRegExps =
+               new java.util.HashMap<java.lang.String,java.lang.String>();
+		
+		// List of variable occurrences
+		java.util.List<java.lang.String> vars = new ArrayList<java.lang.String>();
 
 		while(m.find()){
 			java.lang.String varName = m.group(1);
-			if(names.contains(varName))
-				throw new RedeclaredVariableError(varName, x);
-			names.add(varName);
-			resultRegExp += subjectPat.substring(start, m.start(0)) + "(" + m.group(2) + ")";
+		    
+			System.err.println("0: " + m.end(0) + "; 1: " + m.end(1) + "; 2: " + m.end(2) +"; 3: " + m.end(3));
+			
+			if (m.end(3) > -1){       /* case (1): <X:regexp> */
+				
+				if(varRegExps.containsKey(varName))
+					throw new RedeclaredVariableError(varName, x);
+
+				java.lang.String varRegExp = subjectPat.substring(start, m.start(0)) + "(" + m.group(3) + ")";
+				varRegExps.put(varName, varRegExp);
+				vars.add(varName);
+				resultRegExp += varRegExp;
+				System.err.println("resultRegExp = " + resultRegExp);	
+			} else {                   /* case (2): <X> */
+				System.err.println("case only var");
+				if(vars.contains(varName)){
+					resultRegExp += subjectPat.substring(start, m.start(0)) + varRegExps.get(varName);
+					vars.add(varName);
+				} else {
+				    Environment env = ctx.getCurrentEnvt();
+				    Result<IValue> res = env.getVariable(varName);
+				    if(res != null && res.getValue() != null){
+				    	java.lang.String ins;
+				    	if(res.getType().isStringType())
+				    		ins = ((IString)res.getValue()).getValue(); 
+				    	else
+				    		ins = res.getValue().toString();	
+				    	resultRegExp += ins; /* interpolate variable value */ // TODO: escape special chars!
+				    } else
+				    	throw new UninitializedVariableError(varName, x);  
+				}
+			}
 			start = m.end(0);
 		}
 		resultRegExp += subjectPat.substring(start, end);
@@ -194,8 +240,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
 		if(debug)System.err.println("resultRegExp: " + resultRegExp);
 		
-		// TODO: add string interpolation into the pattern
-		return new RegExpPatternValue(vf, ctx, x, resultRegExp, modifier, names);
+		return new RegExpPatternValue(vf, ctx, x, resultRegExp, modifier, vars);
 	}
 
 	

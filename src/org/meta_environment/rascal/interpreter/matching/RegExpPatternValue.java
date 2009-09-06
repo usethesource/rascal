@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
@@ -113,57 +115,37 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private boolean findMatch(){
 		while(matcher.find()){
 			boolean matches = true;
-			Map<String,String> bindings = getBindings();
-			for (String name : bindings.keySet()) {
-				if (firstTime) { 
+			int nVar = 1;
+			java.util.List<java.lang.String> seen = new ArrayList<java.lang.String>();
+			System.err.println("# patternVars: " + patternVars.size());
+			for (String name : patternVars) {
+				System.err.println("---- name = " + name + ", nVar = " + nVar);
+				System.err.println("start=" + matcher.start(nVar) + ", end=" + matcher.end(nVar));
+				
+				java.lang.String binding = matcher.group(nVar);
+				nVar++;
+				if(!seen.contains(name)){ /* first occurrence of var in pattern */
+					System.err.println("first occ of " + name + ", binding = " + binding);
+					if(firstTime && !ctx.getCurrentEnvt().declareVariable(tf.stringType(), name)) {
+						throw new RedeclaredVariableError(name, ctx.getCurrentAST());
+					}
+					ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(binding), ctx));
+				} else {                  /* repeated occurrence of var in pattern */
 					Result<IValue> val = ctx.getCurrentEnvt().getVariable(name);
+					System.err.println("repeated occ of " + name + ", binding = " + binding);
 					if (val != null && val.getValue() != null) {
-						boundBeforeConstruction.add(name);
-						
+						System.err.println("previous val = " + val.getValue());
 						if (!val.getType().isSubtypeOf(tf.stringType())) {
 							throw new UnexpectedTypeError(tf.stringType(), val.getType(), ctx.getCurrentAST());
 						}
 						
-						if(!val.equals(ResultFactory.makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx), ctx).isTrue()) {
+						if(!val.equals(ResultFactory.makeResult(tf.stringType(), vf.string(binding), ctx), ctx).isTrue()) {
 							matches = false;
 							break;
 						}
 					}
-					else {
-						if (val != null) {
-							if (!val.getType().isSubtypeOf(tf.stringType())) {
-								throw new UnexpectedTypeError(tf.stringType(), val.getType(), ctx.getCurrentAST());
-							}
-						}
-						
-						ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx));
-					}
 				}
-				else {
-					if (boundBeforeConstruction.contains(name)) {
-						Result<IValue> val = ctx.getCurrentEnvt().getVariable(name);
-						if (val == null) {
-							throw new ImplementationError("??? we just said that it was bound before construction");
-						}
-
-						if (!val.getType().isSubtypeOf(tf.stringType())) {
-							throw new UnexpectedTypeError(tf.stringType(), val.getType(), ctx.getCurrentAST());
-						}
-
-						if(!val.equals(ResultFactory.makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx), ctx).isTrue()){
-							matches = false;
-							break;
-						}
-					}
-					else {
-						/*
-						 * Note that regular expressions cannot be non-linear, e.g. duplicate occurrences 
-						 * of variables are not allowed. Otherwise we would have to check here for the
-						 * previous local value of the variable.
-						 */
-						ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx));			
-					}
-				}
+				seen.add(name);
 			}
 			
 			if(matches){
@@ -177,6 +159,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		return false;
 	}
 	
+	@Override
 	public boolean next(){
 		if(firstMatch){
 			firstMatch = false;
@@ -190,18 +173,9 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		}
 	}
 	
+	@Override
 	public java.util.List<String> getVariables(){
 		return patternVars;
-	}
-	
-	private Map<String,String> getBindings(){
-		Map<String,String> bindings = new HashMap<String,String>();
-		int k = 1;
-		for(String nm : patternVars){
-			bindings.put(nm, matcher.group(k));
-			k++;
-		}
-		return bindings;
 	}
 	
 	@Override

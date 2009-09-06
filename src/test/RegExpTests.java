@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class RegExpTests extends TestFramework{
 
@@ -26,32 +27,39 @@ public class RegExpTests extends TestFramework{
 
 		assertTrue(runTest("(/<l:.*>[Rr][Aa][Ss][Cc][Aa][Ll]<r:.*>/ := \"RASCAL is marvelous\")" +
 				            "&& (l == \"\") && (r == \" is marvelous\");"));
+		
+		assertTrue(runTest("{str x = \"abc\"; /<x>/ := \"abc\";}"));
+		assertTrue(runTest("{str x = \"abc\"; int n = 3; /<x><n>/ := \"abc3\";}"));
+		
+		assertTrue(runTest("(/<x:[a-z]+>-<x>/ := \"abc-abc\") && (x == \"abc\");"));
+		assertTrue(runTest("(/<x:[a-z]+>-<x>-<x>/ := \"abc-abc-abc\") && (x == \"abc\");"));
+		assertFalse(runTest("(/<x:[a-z]+>-<x>/ := \"abc-def\");"));
 
 	}
 	
 	@Test(expected=RedeclaredVariableError.class)
-	public void matchNonLinearError(){
+	public void RedeclaredError(){
 		assertTrue(runTest("(/<x:[a-z]+>-<x:[a-z]+>/ := \"abc-abc\") && (x == \"abc\");"));
 	}
 	
 	@Test
-	public void matchWithLocalVariableError(){
-		assertFalse(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+	public void matchWithLocalVariable(){
+		assertTrue(runTest("{ str x;           (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ := \"abc\"); (x == \"123\");}"));
 	}
 	
 	@Test
-	public void matchWithLocalUnitializedVariable(){
-		assertTrue(runTest("{ str x; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
-	}
-	
-	@Test(expected=UnexpectedTypeError.class)
-	public void matchWithLocalVariableOfWrongType(){
-		assertTrue(runTest("{ int x; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+	public void matchWithLocalVariableOfNonStringType(){
+		assertTrue(runTest("{ int x;       (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+		assertTrue(runTest("{ int x = 123; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+		assertTrue(runTest("{ int x = 123; (/<x:[a-z]+>/ := \"abc\"); (x == 123);}"));
 	}
 	
 	@Test
-	public void nomatchWithLocalVariableError(){
-		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\" && x == \"123\");}"));
+	public void nomatchWithLocalVariable(){
+		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\" && x == \"abc\");}"));
+		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\");  (x == \"123\");}"));
 	}
 	
 	@Test 
@@ -65,7 +73,8 @@ public class RegExpTests extends TestFramework{
 	public void nomatchWithExternalModuleVariable(){
 		prepareModule("XX", "module XX public str x = \"abc\";");
 		runTestInSameEvaluator("import XX;");
-		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ !:= \"pqr\") && (x == \"abc\");"));
+		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ !:= \"pqr\") && (x == \"pqr\");"));
+		assertTrue(runTestInSameEvaluator("{(/<x:[a-z]+>/ !:= \"pqr\") ; (x == \"abc\");}"));
 	}
 	
 	@Test 
