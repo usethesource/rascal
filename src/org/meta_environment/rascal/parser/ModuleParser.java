@@ -116,7 +116,6 @@ public class ModuleParser {
 	}
 	
 	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, String fileName, InputStream source, ModuleEnvironment env) throws IOException {
-//		TableInfo table = lookupTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		TableInfo table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		declareConcreteSyntaxTypes(table.getSymbolsName(), env);
 		

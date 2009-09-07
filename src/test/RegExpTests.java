@@ -7,8 +7,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
-import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class RegExpTests extends TestFramework{
 

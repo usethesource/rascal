@@ -3,10 +3,7 @@ package org.meta_environment.rascal.interpreter.matching;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -18,7 +15,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
-import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -36,7 +32,6 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private Pattern pat;						// The Pattern resulting from compiling the regexp
 
 	private List<String> patternVars;			// The variables occurring in the regexp
-	private HashSet<String> boundBeforeConstruction = new HashSet<String>();
 												// The variable (and their value) that were already bound 
 												// when the  pattern was constructed
 	private Matcher matcher;					// The actual regexp matcher

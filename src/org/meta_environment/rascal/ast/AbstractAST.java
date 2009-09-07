@@ -11,10 +11,6 @@ public abstract class AbstractAST implements IVisitable {
 
 	abstract public <T> T accept(IASTVisitor<T> v);
 
-	public String getSourcePath() {
-		return TreeAdapter.getPath((IConstructor) node);
-	}
-
 	public ISourceLocation getLocation() {
 		return TreeAdapter.getLocation((IConstructor) node);
 	}

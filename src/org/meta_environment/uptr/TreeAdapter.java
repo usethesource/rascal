@@ -153,14 +153,6 @@ public class TreeAdapter{
 		return (ISourceLocation) tree.getAnnotation(Factory.Location);
 	}
 	
-	public static String getPath(IConstructor tree) {
-		ISourceLocation loc = getLocation(tree);
-		if (loc != null) {
-			return loc.getURL().getPath();
-		}
-		return null;
-	}
-	
 	public static int getCharacter(IConstructor tree) {
 		return ((IInteger) tree.get("character")).intValue();
 	}
