@@ -36,24 +36,21 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		IConstructor left = this.getValue();
 		IConstructor right = that.getValue();
 		
-		TreeAdapter t1 = new TreeAdapter(left);
-		TreeAdapter t2 = new TreeAdapter(right);
-		
-		if (t1.isLayout() && t2.isLayout()) {
+		if (TreeAdapter.isLayout(left) && TreeAdapter.isLayout(right)) {
 			return bool(true);
 		}
 		
-		if (t1.isAppl() && t2.isAppl()) {
-			ProductionAdapter p1 = t1.getProduction();
-			ProductionAdapter p2 = t2.getProduction();
+		if (TreeAdapter.isAppl(left) && TreeAdapter.isAppl(right)) {
+			IConstructor p1 = TreeAdapter.getProduction(left);
+			IConstructor p2 = TreeAdapter.getProduction(right);
 			
 			// NB: using ordinary equals here...
-			if (!p1.getTree().equals(p2.getTree())) {
+			if (!ProductionAdapter.getTree(p1).equals(ProductionAdapter.getTree(p2))) {
 				return bool(false);
 			}
 			
-			IList l1 = t1.getArgs();
-			IList l2 = t2.getArgs();
+			IList l1 = TreeAdapter.getArgs(left);
+			IList l2 = TreeAdapter.getArgs(right);
 			
 			if (l1.length() != l2.length()) {
 				return bool(false);
@@ -67,7 +64,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				if (!result.getValue().getValue()) {
 					return bool(false);
 				}
-				if (t1.isContextFree()) {
+				if (TreeAdapter.isContextFree(left)) {
 					i++; // skip layout
 				}
 			}
@@ -75,13 +72,13 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		}
 		
 		
-		if (t1.isChar() && t2.isChar()) {
-			return bool(t1.getCharacter() == t2.getCharacter());
+		if (TreeAdapter.isChar(left) && TreeAdapter.isChar(right)) {
+			return bool(TreeAdapter.getCharacter(left) == TreeAdapter.getCharacter(right));
 		}
 		
-		if (t1.isAmb() && t2.isAmb()) {
-			ISet alts1 = t1.getAlternatives();
-			ISet alts2 = t2.getAlternatives();
+		if (TreeAdapter.isAmb(left) && TreeAdapter.isAmb(right)) {
+			ISet alts1 = TreeAdapter.getAlternatives(left);
+			ISet alts2 = TreeAdapter.getAlternatives(right);
 
 			if (alts1.size() != alts2.size()) {
 				return bool(false);

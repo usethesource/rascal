@@ -31,12 +31,11 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	@Override
 	public Result<?> call(Type[] actualTypes, IValue[] actuals,
 			IEvaluatorContext ctx) {
-		IValue prod = actuals[0];
+		IConstructor prod = (IConstructor) actuals[0];
 		IList args = (IList) actuals[1];
 		
-		ProductionAdapter prodAdapter = new ProductionAdapter((IConstructor) prod);
-		if (prodAdapter.isList()) {
-			actuals[1] = flatten(prodAdapter, args);
+		if (ProductionAdapter.isList(prod)) {
+			actuals[1] = flatten(prod, args);
 		}
 		
 		IConstructor newAppl = (IConstructor) Factory.Tree_Appl.make(getValueFactory(), actuals);
@@ -48,16 +47,15 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		return re.applyRules(ResultFactory.makeResult(concreteType, (IConstructor) appl.getValue(), ctx), ctx);
 	}
 
-	private IValue flatten(ProductionAdapter prodAdapter, IList args) {
+	private IValue flatten(IConstructor prod, IList args) {
 		IListWriter result = Factory.Args.writer(VF);
-		int delta = getDelta(prodAdapter);
+		int delta = getDelta(prod);
 		
 		for (int i = 0; i < args.length(); i++) {
-			IValue elem = args.get(i);
-			TreeAdapter tree = new TreeAdapter((IConstructor) elem);
-			if (tree.isList() && tree.isAppl()) {
-				if (shouldFlatten(tree.getProduction(), prodAdapter)) {
-					IList nestedArgs = tree.getArgs();
+			IConstructor tree = (IConstructor) args.get(i);
+			if (TreeAdapter.isList(tree) && TreeAdapter.isAppl(tree)) {
+				if (shouldFlatten(TreeAdapter.getProduction(tree), prod)) {
+					IList nestedArgs = TreeAdapter.getArgs(tree);
 					if (nestedArgs.length() > 0) {
 						result.appendAll(nestedArgs);
 					}
@@ -67,57 +65,57 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 					}
 				}
 				else {
-					result.append(elem);
+					result.append(tree);
 				}
 			}
 			else {
-				result.append(elem);
+				result.append(tree);
 			}
 		}
 		
 		return result.done();
 	}
 
-	private boolean shouldFlatten(ProductionAdapter nested, ProductionAdapter surrounding) {
-		if (nested.isList()) {
-			SymbolAdapter nestedRhs = nested.getRhs();
-			SymbolAdapter surroundingRhs = surrounding.getRhs();
+	private boolean shouldFlatten(IConstructor nested, IConstructor surrounding) {
+		if (ProductionAdapter.isList(nested)) {
+			IConstructor nestedRhs = ProductionAdapter.getRhs(nested);
+			IConstructor surroundingRhs = ProductionAdapter.getRhs(surrounding);
 			
-			if (surroundingRhs.getTree().isEqual(nestedRhs.getTree())) {
+			if (surroundingRhs.isEqual(nestedRhs)) {
 				return true;
 			}
 			
-			if ((surroundingRhs.isCf() && nestedRhs.isCf()) || (surroundingRhs.isLex() && nestedRhs.isLex())) {
-				nestedRhs = nestedRhs.getSymbol();
-				surroundingRhs = surroundingRhs.getSymbol();
+			if ((SymbolAdapter.isCf(surroundingRhs) && SymbolAdapter.isCf(nestedRhs)) || (SymbolAdapter.isLex(surroundingRhs) && SymbolAdapter.isLex(nestedRhs))) {
+				nestedRhs = SymbolAdapter.getSymbol(nestedRhs);
+				surroundingRhs = SymbolAdapter.getSymbol(surroundingRhs);
 			}
 			
-			if ((surroundingRhs.isIterPlusSep() && nestedRhs.isIterStarSep()) || (surroundingRhs.isIterStarSep() && nestedRhs.isIterPlusSep())) {
-				return surroundingRhs.getSymbol().equals(nestedRhs.getSymbol()) && surroundingRhs.getSeparator().equals(nestedRhs.getSeparator());
+			if ((SymbolAdapter.isIterPlusSep(surroundingRhs) && SymbolAdapter.isIterStarSep(nestedRhs)) || (SymbolAdapter.isIterStarSep(surroundingRhs) && SymbolAdapter.isIterPlusSep(nestedRhs))) {
+				return SymbolAdapter.getSymbol(surroundingRhs).equals(SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparator(surroundingRhs).equals(SymbolAdapter.getSeparator(nestedRhs));
 			}
 
-			if ((surroundingRhs.isIterPlus() && nestedRhs.isIterStar()) || (surroundingRhs.isIterStar() && nestedRhs.isIterPlus())) {
-				return surroundingRhs.getSymbol().equals(nestedRhs.getSymbol());
+			if ((SymbolAdapter.isIterPlus(surroundingRhs) && SymbolAdapter.isIterStar(nestedRhs)) || (SymbolAdapter.isIterStar(surroundingRhs) && SymbolAdapter.isIterPlus(nestedRhs))) {
+				return SymbolAdapter.getSymbol(surroundingRhs).equals(SymbolAdapter.getSymbol(nestedRhs));
 			}
 		}
 		return false;
 	}
 
-	private int getDelta(ProductionAdapter prodAdapter) {
-		SymbolAdapter rhs = prodAdapter.getRhs();
+	private int getDelta(IConstructor prod) {
+		IConstructor rhs = ProductionAdapter.getRhs(prod);
 		
-		if (rhs.isLex()) {
-			rhs = rhs.getSymbol();
+		if (SymbolAdapter.isLex(rhs)) {
+			rhs = SymbolAdapter.getSymbol(rhs);
 			
-			if (rhs.isIterPlusSep() || rhs.isIterStarSep()) {
+			if (SymbolAdapter.isIterPlusSep(rhs) || SymbolAdapter.isIterStarSep(rhs)) {
 				return 1;
 			}
 			return 0;
 		}
-		else if (rhs.isCf()) {
-			rhs = rhs.getSymbol();
+		else if (SymbolAdapter.isCf(rhs)) {
+			rhs = SymbolAdapter.getSymbol(rhs);
 
-			if (rhs.isIterPlusSep() || rhs.isIterStarSep()) {
+			if (SymbolAdapter.isIterPlusSep(rhs) || SymbolAdapter.isIterStarSep(rhs)) {
 				return 3;
 			}
 			return 1;

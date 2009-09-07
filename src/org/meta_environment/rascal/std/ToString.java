@@ -9,13 +9,12 @@ import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
 
 public class ToString {
-private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
+	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	
 	public static IString toString(IValue value)
 	{
 		if (value.getType() == Factory.Tree) {
-			TreeAdapter tree = new TreeAdapter((IConstructor) value);
-			return values.string(tree.yield());
+			return values.string(TreeAdapter.yield((IConstructor) value));
 		}
 		return values.string(value.toString());
 	}

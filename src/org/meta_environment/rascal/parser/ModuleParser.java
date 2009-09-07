@@ -135,23 +135,21 @@ public class ModuleParser {
 		
 		IList symbols = (IList) reader.read(valueFactory, Factory.uptr, Factory.Symbols, new FileInputStream(symbolsName));
 		
-		SymbolAdapter sym;
-		
 		// TODO: should actually also declare all complex symbols, since ones that are used but not present
 		// in any SDF module won't work anyway. 
 		
 		for (IValue symbol : symbols) {
-			sym = new SymbolAdapter((IConstructor) symbol);
+			IConstructor sym = (IConstructor) symbol;
 			
-			if (sym.isCf() || sym.isLex()) {
-				sym = sym.getSymbol();
+			if (SymbolAdapter.isCf(sym) || SymbolAdapter.isLex(sym)) {
+				sym = SymbolAdapter.getSymbol(sym);
 			}
 			
-			if (sym.isSort()) {
-				String name = sym.getName();
+			if (SymbolAdapter.isSort(sym)) {
+				String name = SymbolAdapter.getName(sym);
 				
 				if (!name.startsWith("_")) {
-					env.concreteSyntaxType(sym.getName(), (IConstructor) symbol);
+					env.concreteSyntaxType(SymbolAdapter.getName(sym), (IConstructor) symbol);
 				}
 			}
 		}
@@ -198,7 +196,7 @@ public class ModuleParser {
 		PBFReader reader = new PBFReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
-		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
+		return ParsetreeAdapter.addPositionInformation(tree, fileName);
 	}
 
 	private IConstructor parseFromStream(String table, String fileName, InputStream source, boolean filter) throws FactParseError, IOException {

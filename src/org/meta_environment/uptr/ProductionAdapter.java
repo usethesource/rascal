@@ -6,21 +6,15 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-
 
 public class ProductionAdapter {
-	public final IConstructor tree;
-
-	public ProductionAdapter(IConstructor tree) {
-		if (tree.getType() != Factory.Production) {
-			throw new ImplementationError("ProductionWrapper only wraps UPTR productions, not " + tree.getType());
-		}
-		this.tree = tree;
+	
+	private ProductionAdapter() {
+		super();
 	}
 	
-	public String getConstructorName() {
-		for (IValue attr : getAttributes()) {
+	public static String getConstructorName(IConstructor tree) {
+		for (IValue attr : getAttributes(tree)) {
 			if (attr.getType().isAbstractDataType() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Term) {
 				IValue value = ((IConstructor)attr).get("term");
 				if (value.getType().isNodeType() && ((INode) value).getName().equals("cons")) {
@@ -31,47 +25,48 @@ public class ProductionAdapter {
 		return null;
 	}
 	
-	public SymbolAdapter getRhs() {
-		return new SymbolAdapter((IConstructor) tree.get("rhs"));
+	public static IConstructor getRhs(IConstructor tree) {
+		return (IConstructor) tree.get("rhs");
 	}
 	
-	public IList getLhs() {
+	public static IList getLhs(IConstructor tree) {
 		return (IList) tree.get("lhs");
 	}
 	
-	public boolean isContextFree() {
-		return getRhs().isCf();
+	public static boolean isContextFree(IConstructor tree) {
+		return SymbolAdapter.isCf(getRhs(tree));
 	}
 	
-	public boolean isLayout() {
-		return getRhs().isLayout();
+	public static boolean isLayout(IConstructor tree) {
+		return SymbolAdapter.isLayout(getRhs(tree));
 	}
 	
-	public boolean hasSortName() {
-		SymbolAdapter rhs = getRhs();
-		if (rhs.isCf() || rhs.isLex()) {
-			rhs = rhs.getSymbol();
-			if (rhs.isSort() || rhs.isParameterizedSort()){
+	public static boolean hasSortName(IConstructor tree) {
+		IConstructor rhs = getRhs(tree);
+		if (SymbolAdapter.isCf(rhs) || SymbolAdapter.isLex(rhs)) {
+			rhs = SymbolAdapter.getSymbol(rhs);
+			if (SymbolAdapter.isSort(rhs) || SymbolAdapter.isParameterizedSort(rhs)){
 				return true;
 			}
 		}
 		return false;
 	}
 	
-	public String getSortName() {
-		SymbolAdapter rhs = getRhs();
-		if (rhs.isCf() || rhs.isLex()) {
-			rhs = rhs.getSymbol();
-			if (rhs.isSort() || rhs.isParameterizedSort()){
-				return rhs.getName();
+	public static String getSortName(IConstructor tree) {
+		IConstructor rhs = getRhs(tree);
+		
+		if (SymbolAdapter.isCf(rhs) || SymbolAdapter.isLex(rhs)) {
+			rhs = SymbolAdapter.getSymbol(rhs);
+			if (SymbolAdapter.isSort(rhs) || SymbolAdapter.isParameterizedSort(rhs)){
+				return SymbolAdapter.getName(rhs);
 			} 
 		}
 		
 		return "";
 	}
 	
-	public IList getAttributes() {
-		if (isList()) {
+	public static IList getAttributes(IConstructor tree) {
+		if (isList(tree)) {
 			return (IList) Factory.Attrs.make(ValueFactoryFactory.getValueFactory());
 		}
 		IConstructor attributes = (IConstructor) tree.get("attributes");
@@ -83,57 +78,57 @@ public class ProductionAdapter {
 		return (IList) Factory.Attrs.make(ValueFactoryFactory.getValueFactory());
 	}
 
-	public boolean isLiteral() {
-		return getRhs().isLiteral();
+	public static boolean isLiteral(IConstructor tree) {
+		return SymbolAdapter.isLiteral(getRhs(tree));
 	}
 
-	public boolean isCILiteral() {
-		return getRhs().isCILiteral();
+	public static boolean isCILiteral(IConstructor tree) {
+		return SymbolAdapter.isCILiteral(getRhs(tree));
 	}
 
-	public boolean isList() {
+	public static boolean isList(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Production_List;
 	}
 
-	public boolean isSeparatedList() {
-		SymbolAdapter rhsSym = getRhs();
-		if (rhsSym.isLex() || rhsSym.isCf()) {
-			rhsSym = rhsSym.getSymbol();
+	public static boolean isSeparatedList(IConstructor tree) {
+		IConstructor rhs = getRhs(tree);
+		if (SymbolAdapter.isLex(rhs) || SymbolAdapter.isCf(rhs)) {
+			rhs = SymbolAdapter.getSymbol(rhs);
 		}
-		return rhsSym.isIterPlusSep() || rhsSym.isIterStarSep();
+		return SymbolAdapter.isIterPlusSep(rhs) || SymbolAdapter.isIterStarSep(rhs);
 	}
 
-	public boolean isLexical() {
-		SymbolAdapter rhsSym = getRhs();
-		if (rhsSym.isLex() || rhsSym.isCf()) {
-			rhsSym = rhsSym.getSymbol();
+	public static boolean isLexical(IConstructor tree) {
+		IConstructor rhs = getRhs(tree);
+		if (SymbolAdapter.isLex(rhs) || SymbolAdapter.isCf(rhs)) {
+			rhs = SymbolAdapter.getSymbol(rhs);
 		}
-		return rhsSym.isLayout();
+		return SymbolAdapter.isLayout(rhs);
 	}
 
-	public boolean isLexToCf() {
-		if (!isContextFree()) {
+	public static boolean isLexToCf(IConstructor tree) {
+		if (!isContextFree(tree)) {
 			return false;
 		}
-		if (isList()) {
+		if (isList(tree)) {
 			return false;
 		}
 		
-		IList lhs = getLhs();
+		IList lhs = getLhs(tree);
 		if (lhs.length() != 1) {
 			return false;
 		}
-		SymbolAdapter lhsSym = new SymbolAdapter((IConstructor)lhs.get(0));
-		if (!lhsSym.isLex()) {
+		IConstructor lhsSym = (IConstructor) lhs.get(0);
+		if (!SymbolAdapter.isLex(lhsSym)) {
 			return false;
 		}
-		SymbolAdapter rhsSym = getRhs();
-		return lhsSym.getSymbol().equals(rhsSym.getSymbol());
+		IConstructor rhsSym = getRhs(tree);
+		return SymbolAdapter.getSymbol(lhsSym).equals(SymbolAdapter.getSymbol(rhsSym));
 	}
 
-	public String getCategory() {
-		if (!isList()) {
-			for (IValue attr : getAttributes()) {
+	public static String getCategory(IConstructor tree) {
+		if (!isList(tree)) {
+			for (IValue attr : getAttributes(tree)) {
 				if (attr.getType().isAbstractDataType() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Term) {
 					IValue value = ((IConstructor)attr).get("term");
 					if (value.getType().isNodeType() && ((INode) value).getName().equals("category")) {
@@ -145,16 +140,16 @@ public class ProductionAdapter {
 		return null;
 	}
 
-	public IConstructor getTree() {
+	public static IConstructor getTree(IConstructor tree) {
 		return tree;
 	}
 
-	public boolean hasPreferAttribute() {
-		return hasAttribute(Factory.Attr_Prefer.make(ValueFactoryFactory.getValueFactory()));
+	public static boolean hasPreferAttribute(IConstructor tree) {
+		return hasAttribute(tree, Factory.Attr_Prefer.make(ValueFactoryFactory.getValueFactory()));
 	}
 
-	private boolean hasAttribute(IValue wanted) {
-		for (IValue attr : getAttributes()) {
+	private static boolean hasAttribute(IConstructor tree, IValue wanted) {
+		for (IValue attr : getAttributes(tree)) {
 			if (attr.isEqual(wanted)) {
 				return true;
 			}
@@ -162,8 +157,8 @@ public class ProductionAdapter {
 		return false;
 	}
 
-	public boolean hasAvoidAttribute() {
-		return hasAttribute(Factory.Attr_Avoid.make(ValueFactoryFactory.getValueFactory()));
+	public static boolean hasAvoidAttribute(IConstructor tree) {
+		return hasAttribute(tree, Factory.Attr_Avoid.make(ValueFactoryFactory.getValueFactory()));
 	}
 
 

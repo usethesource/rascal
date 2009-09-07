@@ -64,16 +64,16 @@ public class NodeReader implements Iterator<IValue> {
 			
 		NonTerminalType ctype = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(tree);
 		if(debug)System.err.println("ctype.getSymbol=" + ctype.getSymbol());
-		SymbolAdapter sym = new SymbolAdapter(ctype.getSymbol());
-        if(sym.isAnyList()){
-        	sym = sym.getSymbol();
+		IConstructor sym = ctype.getSymbol();
+        if(SymbolAdapter.isAnyList(sym)){
+        	sym = SymbolAdapter.getSymbol(sym);
         	
         	int delta = 1;          // distance between "real" list elements, e.g. non-layout and non-separator
         	IList listElems = (IList) tree.get(1);
-			if(sym.isIterPlus() || sym.isIterStar()){
+			if(SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterStar(sym)){
 				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
 				delta = 2;
-			} else if(sym.isIterPlusSep() || sym.isIterStarSep()){
+			} else if(SymbolAdapter.isIterPlusSep(sym) || SymbolAdapter.isIterStarSep(sym)){
 				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlusSep or isIterStarSep");
 				delta = 4;
 			}
@@ -96,7 +96,7 @@ public class NodeReader implements Iterator<IValue> {
 				spine.push(tree);
 			}
 			IList applArgs = (IList) tree.get(1);
-			int delta = (sym.isLiteral()) ? 1 : 2;   // distance between elements
+			int delta = (SymbolAdapter.isLiteral(sym)) ? 1 : 2;   // distance between elements
 			
 			for(int i = applArgs.length() - 1; i >= 0 ; i -= delta){
 				//spine.push(applArgs.get(i));

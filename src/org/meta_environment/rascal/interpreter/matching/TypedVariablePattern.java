@@ -11,6 +11,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableEr
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
 public class TypedVariablePattern extends AbstractMatchingResult {
@@ -78,8 +79,8 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 		if (declaredType instanceof NonTerminalType) {
 			Type subjectType = subject.getValue().getType(); 
 			if (subjectType.isSubtypeOf(Factory.Tree) && ((IConstructor)subject.getValue()).getConstructorType() == Factory.Tree_Appl) {
-				TreeAdapter tree = new TreeAdapter((IConstructor)subject.getValue());
-				if (((NonTerminalType)declaredType).getSymbol().isEqual(tree.getProduction().getRhs().getTree())) {
+				IConstructor tree = (IConstructor)subject.getValue();
+				if (((NonTerminalType)declaredType).getSymbol().isEqual(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)))) {
 					if(anonymous) {
 						return true;
 					}				

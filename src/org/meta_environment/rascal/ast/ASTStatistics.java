@@ -71,19 +71,7 @@ public class ASTStatistics implements Comparable<ASTStatistics> {
 	public int compareTo(ASTStatistics other) {
 		return compareFragmentSize(other);
 	}
-
-	private int compareConcreteFragmentCount(ASTStatistics other) {
-		if (concreteFragmentCount < other.concreteFragmentCount) {
-			return -1;
-		}
-		else if (concreteFragmentCount == other.concreteFragmentCount) {
-			return compareFragmentSize(other);
-		}
-		else {
-			return 1;
-		}
-	}
-
+	
 	private int compareFragmentSize(ASTStatistics other) {
 		if (concreteFragmentSize < other.concreteFragmentSize) {
 			return -1;

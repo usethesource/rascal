@@ -160,7 +160,7 @@ public class RascalShell {
 			Type type = value.getType();
 			
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
-				return "`" + new TreeAdapter((IConstructor) v).yield() + "`\n" + type + ": " + v.toString();
+				return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + type + ": " + v.toString();
 			}
 			
 			return type + ": " + ((v != null) ? v.toString() : null);

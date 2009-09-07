@@ -4,50 +4,45 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 
-
 public class SymbolAdapter {
-	private IConstructor tree;
-
-	public SymbolAdapter(IConstructor tree) {
-		if (tree.getType() != Factory.Symbol) {
-			throw new ImplementationError("TreeWrapper will only wrap UPTR symbols, not " +  tree.getType());
-		}
-		this.tree = tree;
+	
+	private SymbolAdapter() {
+		super();
 	}
 
-	public boolean isCf() {
+	public static boolean isCf(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Cf;
 	}
 
-	public boolean isLex() {
+	public static boolean isLex(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Lex;
 	}
 	
-	public boolean isSort() {
+	public static boolean isSort(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Sort;
 	}
 
-	public SymbolAdapter getSymbol() {
-		if (isCf() || isLex() || isOpt() || isIterPlus() || isIterPlusSep() || isIterStar() || isIterStarSep()) {
-			return new SymbolAdapter((IConstructor) tree.get("symbol"));
+	public static IConstructor getSymbol(IConstructor tree) {
+		if (isCf(tree) || isLex(tree) || isOpt(tree) || isIterPlus(tree) || isIterPlusSep(tree) || isIterStar(tree) || isIterStarSep(tree)) {
+			return ((IConstructor) tree.get("symbol"));
 		}
 		
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
 	
-	public SymbolAdapter getSeparator() {
-		if (isIterPlusSep() || isIterStarSep()) {
-			return new SymbolAdapter((IConstructor) tree.get("separator"));
+	public static IConstructor getSeparator(IConstructor tree) {
+		if (isIterPlusSep(tree) || isIterStarSep(tree)) {
+			return (IConstructor) tree.get("separator");
 		}
 		
 		throw new ImplementationError("Symbol does not have a child named separator: " + tree);
 	}
 	
-	public String getName() {
-		if (isSort()) {
+	public static String getName(IConstructor tree) {
+		if (isSort(tree)) {
 			return ((IString) tree.get("string")).getValue();
 		}
-		else if (isParameterizedSort()) {
+		else if (isParameterizedSort(tree)) {
 			return ((IString) tree.get("sort")).getValue();
 		}
 		else {
@@ -55,64 +50,59 @@ public class SymbolAdapter {
 		}
 	}
 
-	public boolean isParameterizedSort() {
+	public static boolean isParameterizedSort(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_ParameterizedSort;
 	}
 	
-	public boolean isLiteral() {
+	public static boolean isLiteral(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Lit;
 	}
 
-	public boolean isCILiteral() {
+	public static boolean isCILiteral(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_CiLit;
 	}
 
-	public boolean isIterPlusSep() {
+	public static boolean isIterPlusSep(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_IterPlusSep;
 	}
 	
-	public boolean isIterStar() {
+	public static boolean isIterStar(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_IterStar;
 	}
 	
-	public boolean isIterPlus() {
+	public static boolean isIterPlus(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_IterPlus;
 	}
 	
-	public boolean isLayout() {
+	public static boolean isLayout(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Layout;
 	}
 	
-	public boolean isStarList() {
-		SymbolAdapter sym = this;
-		
-		if (sym.isCf() || sym.isLex()) {
-			sym = sym.getSymbol();
+	public static boolean isStarList(IConstructor tree) {
+		if (isCf(tree) || SymbolAdapter.isLex(tree)) {
+			tree = SymbolAdapter.getSymbol(tree);
 		}
 		
-		return sym.isIterStar() || sym.isIterStarSep();
+		return isIterStar(tree) || isIterStarSep(tree);
 	}
 	
-	public boolean isPlusList() {
-		SymbolAdapter sym = this;
-		
-		if (sym.isCf() || sym.isLex()) {
-			sym = sym.getSymbol();
+	public static boolean isPlusList(IConstructor tree) {
+		if (isCf(tree) || SymbolAdapter.isLex(tree)) {
+			tree = getSymbol(tree);
 		}
 		
-		return sym.isIterPlus() || sym.isIterPlusSep();
+		return isIterPlus(tree) || isIterPlusSep(tree);
 	}
 	
-	public boolean isAnyList() {
-		return isStarList() || isPlusList();
+	public static boolean isAnyList(IConstructor tree) {
+		return isStarList(tree) || isPlusList(tree);
 	}
 	
-	public boolean isCfOptLayout() {
-		if (isCf()) {
-			SymbolAdapter sym = getSymbol();
-			if (sym.isOpt()) {
-				sym = sym.getSymbol();
-				if (sym.isLayout()) {
+	public static boolean isCfOptLayout(IConstructor tree) {
+		if (isCf(tree)) {
+			if (isOpt(tree)) {
+				tree = getSymbol(tree);
+				if (isLayout(tree)) {
 					return true;
 				}
 			}
@@ -120,32 +110,11 @@ public class SymbolAdapter {
 		
 		return false;
 	}
-	private boolean isOpt() {
+	private static boolean isOpt(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Opt;
 	}
 
-	public boolean isIterStarSep() {
+	public static boolean isIterStarSep(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_IterStarSep;
 	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SymbolAdapter)) {
-			return false;
-		}
-		return tree.isEqual(((SymbolAdapter)obj).tree);
-	}
-
-	public IConstructor getTree() {
-		return tree;
-	}
-
-	public IConstructor setSymbol(IConstructor sym) {
-		if (isCf() || isLex() || isOpt() || isIterPlus() || isIterPlusSep() || isIterStar() || isIterStarSep()) {
-			return ((IConstructor) tree.set("symbol", sym));
-		}
-		
-		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
-	}
-
 }

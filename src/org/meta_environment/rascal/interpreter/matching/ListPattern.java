@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter.matching;
 import java.util.HashSet;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -93,8 +94,8 @@ public class ListPattern extends AbstractMatchingResult  {
 	public static boolean isConcreteListType(Type type){                      // <--- this code does not work because I donot understand the type structure of Tree
 		
 		if (type instanceof NonTerminalType) {
-			SymbolAdapter sym = new SymbolAdapter(((NonTerminalType)type).getSymbol());
-			return sym.isAnyList();
+			IConstructor sym = ((NonTerminalType)type).getSymbol();
+			return SymbolAdapter.isAnyList(sym);
 		}
 		
 		return false;

@@ -6,18 +6,17 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
-	// protected ISourceLocation location;
 	protected INode node;
 	protected ASTStatistics stats = new ASTStatistics();
 
 	abstract public <T> T accept(IASTVisitor<T> v);
 
 	public String getSourcePath() {
-		return new TreeAdapter((IConstructor) node).getPath();
+		return TreeAdapter.getPath((IConstructor) node);
 	}
 
 	public ISourceLocation getLocation() {
-		return new TreeAdapter((IConstructor) node).getLocation();
+		return TreeAdapter.getLocation((IConstructor) node);
 	}
 
 	public ASTStatistics getStats() {
@@ -60,10 +59,6 @@ public abstract class AbstractAST implements IVisitable {
 
 	@Override
 	public String toString() {
-		return new TreeAdapter((IConstructor) node).yield();
+		return TreeAdapter.yield((IConstructor) node);
 	}
-
-	
-
-	
 }

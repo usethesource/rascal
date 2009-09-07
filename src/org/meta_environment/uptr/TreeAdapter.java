@@ -23,125 +23,112 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
 
 
-public class TreeAdapter {
-	private IConstructor tree;
-	private ProductionAdapter prod;
+public class TreeAdapter{
 	
-	public TreeAdapter(IConstructor tree) {
-		if (tree.getType() != Factory.Tree) {
-			throw new ImplementationError("TreeWrapper will only wrap UPTR Trees, not " +  tree.getType());
-		}
-		this.tree = tree;
+	private TreeAdapter(){
+		super();
 	}
 	
-	public boolean isAppl() {
+	public static boolean isAppl(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Appl;
 	}
 	
-	public boolean isAmb() {
+	public static boolean isAmb(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Amb;
 	}
 	
-	public boolean isChar() {
+	public static boolean isChar(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Char;
 	}
 	
-	public boolean isCycle() {
+	public static boolean isCycle(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Cycle;
 	}
 	
-	public ProductionAdapter getProduction() {
-		if (prod == null) {
-		  prod = new ProductionAdapter((IConstructor) tree.get("prod"));
-		}	
-		return prod;
+	public static IConstructor getProduction(IConstructor tree) {
+		return (IConstructor) tree.get("prod");
 	}
 	
-	public boolean hasSortName() {
-		return getProduction().hasSortName();
+	public static boolean hasSortName(IConstructor tree) {
+		return ProductionAdapter.hasSortName(getProduction(tree));
 	}
 	
-	public String getSortName() throws FactTypeUseException {
-		return getProduction().getSortName();
+	public static String getSortName(IConstructor tree) throws FactTypeUseException {
+		return ProductionAdapter.getSortName(getProduction(tree));
 	}
 	
-	public String getConstructorName() {
-		return getProduction().getConstructorName();
+	public static String getConstructorName(IConstructor tree) {
+		return ProductionAdapter.getConstructorName(getProduction(tree));
 	}
 	
-	public boolean isProduction(String sortName, String consName) {
-		ProductionAdapter prod = getProduction();
-		return prod.getSortName().equals(sortName) &&
-		prod.getConstructorName().equals(consName);
+	public static boolean isProduction(IConstructor tree, String sortName, String consName) {
+		IConstructor prod = getProduction(tree);
+		return ProductionAdapter.getSortName(prod).equals(sortName) && ProductionAdapter.getConstructorName(prod).equals(consName);
 	}
 
-	public boolean isLexToCf() {
-		return isAppl() ? getProduction().isLexToCf() : false;
+	public static boolean isLexToCf(IConstructor tree) {
+		return isAppl(tree) ? ProductionAdapter.isLexToCf(getProduction(tree)) : false;
 	}
 	
-	public boolean isContextFree() {
-		return isAppl() ? getProduction().isContextFree() : false;
+	public static boolean isContextFree(IConstructor tree) {
+		return isAppl(tree) ? ProductionAdapter.isContextFree(getProduction(tree)) : false;
 	}
 	
-	public boolean isList() {
-		return isAppl() ? getProduction().isList() : false;
+	public static boolean isList(IConstructor tree) {
+		return isAppl(tree) ? ProductionAdapter.isList(getProduction(tree)) : false;
 	}
 	
-	public IList getArgs() {
-		if (isAppl()) {
+	public static IList getArgs(IConstructor tree) {
+		if (isAppl(tree)) {
 		  return (IList) tree.get("args");
 		}
 		
 		throw new ImplementationError("Node has no args");
 	}
 	
-	public boolean isLiteral() {
-		return isAppl() ? getProduction().isLiteral() : false;
+	public static boolean isLiteral(IConstructor tree) {
+		return isAppl(tree) ? ProductionAdapter.isLiteral(getProduction(tree)) : false;
 	}
 	
-	
-	public IList getListASTArgs() {
-		if (!isContextFree() || !isList()) {
-			throw new ImplementationError("This is not a context-free list production: "
-					+ tree);
+	public static IList getListASTArgs(IConstructor tree) {
+		if (!isContextFree(tree) || !isList(tree)) {
+			throw new ImplementationError("This is not a context-free list production: " + tree);
 		}
-		IList children = getArgs();
+		IList children = getArgs(tree);
 		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
 		
 		for (int i = 0; i < children.length(); i++) {
 			IValue kid = children.get(i);
 			writer.append(kid);	
 			// skip layout and/or separators
-			i += (isSeparatedList() ? 3 : 1);
+			i += (isSeparatedList(tree) ? 3 : 1);
 		}
 		return writer.done();
 	}
 	
-	public boolean isLexical() {
-		return isAppl() ? getProduction().isLexical() : false;
+	public static boolean isLexical(IConstructor tree) {
+		return isAppl(tree) ? ProductionAdapter.isLexical(getProduction(tree)) : false;
 	}
 	
-	public boolean isLayout() {
-		return isAppl() ? getProduction().isLayout() : false;
+	public static boolean isLayout(IConstructor tree) {
+		return isAppl(tree) ? ProductionAdapter.isLayout(getProduction(tree)) : false;
 	}
 
-	private boolean isSeparatedList() {
-		return isAppl() ? isList() && getProduction().isSeparatedList() : false;
+	private static boolean isSeparatedList(IConstructor tree) {
+		return isAppl(tree) ? isList(tree) && ProductionAdapter.isSeparatedList(getProduction(tree)) : false;
 	}
 
-	public IList getASTArgs() {
-		if (!isContextFree()) {
-			throw new ImplementationError("This is not a context-free production: "
-					+ tree);
+	public static IList getASTArgs(IConstructor tree) {
+		if (!isContextFree(tree)) {
+			throw new ImplementationError("This is not a context-free production: " + tree);
 		}
 
-		IList children = getArgs();
+		IList children = getArgs(tree);
 		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
 
 		for (int i = 0; i < children.length(); i++) {
-			IValue kid = children.get(i);
-			TreeAdapter treeAdapter = new TreeAdapter((IConstructor) kid);
-			if (!treeAdapter.isLiteral() && !treeAdapter.isCILiteral()) {
+			IConstructor kid = (IConstructor) children.get(i);
+			if (!isLiteral(kid) && !isCILiteral(kid)) {
 				writer.append(kid);	
 			} 
 			// skip layout
@@ -150,31 +137,31 @@ public class TreeAdapter {
 		return writer.done();
 	}
 
-	public boolean isCILiteral() {
-		return isAppl() ? getProduction().isCILiteral() : false;
+	public static boolean isCILiteral(IConstructor tree) {
+		return isAppl(tree) ? ProductionAdapter.isCILiteral(getProduction(tree)) : false;
 	}
 	
-	public ISet getAlternatives() {
-		if (isAmb()) {
+	public static ISet getAlternatives(IConstructor tree) {
+		if (isAmb(tree)) {
 		  return (ISet) tree.get("alternatives");
 		}
 		
 		throw new ImplementationError("Node has no alternatives");
 	}
 	
-	public ISourceLocation getLocation() {
+	public static ISourceLocation getLocation(IConstructor tree) {
 		return (ISourceLocation) tree.getAnnotation(Factory.Location);
 	}
 	
-	public String getPath() {
-		ISourceLocation loc = getLocation();
+	public static String getPath(IConstructor tree) {
+		ISourceLocation loc = getLocation(tree);
 		if (loc != null) {
 			return loc.getURL().getPath();
 		}
 		return null;
 	}
 	
-	public int getCharacter() {
+	public static int getCharacter(IConstructor tree) {
 		return ((IInteger) tree.get("character")).intValue();
 	}
 	
@@ -201,40 +188,39 @@ public class TreeAdapter {
 			}
 		}
 		
-		private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException{
+		private IConstructor addPosInfo(IConstructor tree, String filename, Position cur) throws MalformedURLException{
 			IValueFactory factory = ValueFactoryFactory.getValueFactory();
-			TreeAdapter tree = new TreeAdapter(t);
-
+			
 			int startLine = cur.line;
 			int startCol = cur.col;
 			int startOffset = cur.offset;
-			PositionNode positionNode = new PositionNode(t, cur.offset);
+			PositionNode positionNode = new PositionNode(tree, cur.offset);
 			IConstructor result = cache.get(positionNode);
 
 			if(result != null){
-				ISourceLocation loc = (ISourceLocation) result.getAnnotation(Factory.Location);
+				ISourceLocation loc = getLocation(result);
 				cur.col = loc.getEndColumn();
 				cur.line = loc.getEndLine();
 				cur.offset += loc.getLength();
 				return result;
 			}
 
-			if(tree.isChar()){
+			if(isChar(tree)){
 				cur.offset++;
-				if(((char) tree.getCharacter()) == '\n'){
+				if(((char) getCharacter(tree)) == '\n'){
 					cur.col = 0;
 					cur.line++;
 				}else{
 					cur.col++;
 				}
-				return t;
+				return tree;
 			}
 
-			if(tree.isAppl()){
+			if(isAppl(tree)){
 				boolean outermostLayout = false;
-				IList args = tree.getArgs();
+				IList args = getArgs(tree);
 
-				if(tree.isLayout()){
+				if(isLayout(tree)){
 					inLayout = true;
 					outermostLayout = true;
 				}
@@ -243,17 +229,17 @@ public class TreeAdapter {
 				for(IValue arg : args){
 					newArgs.append(addPosInfo((IConstructor) arg, filename, cur));
 				}
-				t = t.set("args", newArgs.done());
+				tree = tree.set("args", newArgs.done());
 
 				if(!labelLayout && outermostLayout){
 					inLayout = false;
-					return t;
+					return tree;
 				}else if(!labelLayout && inLayout){
-					return t;
+					return tree;
 				}
 
-			}else if(tree.isAmb()){
-				ISet alts = tree.getAlternatives();
+			}else if(isAmb(tree)){
+				ISet alts = getAlternatives(tree);
 				ISetWriter newAlts = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
 				Position save = cur;
 				Position newPos = save;
@@ -283,13 +269,13 @@ public class TreeAdapter {
 					newAlts.insert(newArg);
 				}
 
-				t = t.set("alternatives", newAlts.done());
-			}else if(!tree.isCycle()){
-				System.err.println("unhandled tree: " + t + "\n");
+				tree = tree.set("alternatives", newAlts.done());
+			}else if(!isCycle(tree)){
+				System.err.println("unhandled tree: " + tree + "\n");
 			}
 
 			ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
-			result = t.setAnnotation(Factory.Location, loc);
+			result = tree.setAnnotation(Factory.Location, loc);
 			
 			cache.putUnsafe(positionNode, result);
 
@@ -369,7 +355,7 @@ public class TreeAdapter {
 
 	}
 	
-	public void unparse(OutputStream stream) throws IOException, FactTypeUseException {
+	public static void unparse(IConstructor tree, OutputStream stream) throws IOException, FactTypeUseException {
 		try {
 			if (tree.getConstructorType() == Factory.ParseTree_Top) {
 				tree.get("top").accept(new Unparser(stream));
@@ -391,90 +377,84 @@ public class TreeAdapter {
 		}
 	}
 	
-	public String yield() throws FactTypeUseException {
+	public static String yield(IConstructor tree) throws FactTypeUseException {
 		try {
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			unparse(stream);
+			unparse(tree, stream);
 			return stream.toString();
 		} catch (IOException e) {
 			throw new ImplementationError("Method yield failed", e);
 		}
 	}
 
-	public IConstructor getTree() {
-		return tree;
-	}
-
-	public boolean isContextFreeInjectionOrSingleton() {
-		if (isAppl()) {
-			ProductionAdapter prod = getProduction();
-			if (!prod.isList() && prod.getLhs().length() == 1) {
-				SymbolAdapter rhs = prod.getRhs();
-				if (rhs.isCf()) {
-					rhs = rhs.getSymbol();
-					if (rhs.isSort()) {
+	public static boolean isContextFreeInjectionOrSingleton(IConstructor tree) {
+		IConstructor prod = getProduction(tree);
+		if (isAppl(tree)) {
+			if (!ProductionAdapter.isList(prod) && ProductionAdapter.getLhs(prod).length() == 1) {
+				IConstructor rhs = ProductionAdapter.getRhs(prod);
+				if (SymbolAdapter.isCf(rhs)) {
+					rhs = SymbolAdapter.getSymbol(rhs);
+					if (SymbolAdapter.isSort(rhs)) {
 						return true;
 					}
 				}
 			}
 		}
-		else if (isList() && getProduction().getRhs().isCf()) {
-			if (getArgs().length() == 1) {
+		else if (isList(tree) && SymbolAdapter.isCf(ProductionAdapter.getRhs(prod))) {
+			if (getArgs(tree).length() == 1) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public boolean isAmbiguousList() {
-		if (isAmb()) {
-			IConstructor first = (IConstructor) getAlternatives().iterator().next();
-			TreeAdapter tree = new TreeAdapter(first);
-			if (tree.isList()) {
+	public static boolean isAmbiguousList(IConstructor tree) {
+		if (isAmb(tree)) {
+			IConstructor first = (IConstructor) getAlternatives(tree).iterator().next();
+			if (isList(first)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public boolean isNonEmptyStarList() {
-		if (isAppl()) {
-			ProductionAdapter prod = getProduction();
+	public static boolean isNonEmptyStarList(IConstructor tree) {
+		if (isAppl(tree)) {
+			IConstructor prod = getProduction(tree);
 			
-			if (prod.isList()) {
-				SymbolAdapter sym = prod.getRhs();
+			if (ProductionAdapter.isList(prod)) {
+				IConstructor sym = ProductionAdapter.getRhs(prod);
 				
-				if (sym.isCf() || sym.isLex()) {
-					sym = sym.getSymbol();
+				if (SymbolAdapter.isCf(sym) || SymbolAdapter.isLex(sym)) {
+					sym = SymbolAdapter.getSymbol(sym);
 				}
 				
-				if (sym.isIterStar() || sym.isIterStarSep()) {
-					return getArgs().length() > 0;
+				if (SymbolAdapter.isIterStar(sym) || SymbolAdapter.isIterStarSep(sym)) {
+					return getArgs(tree).length() > 0;
 				}
 			}
 		}
 		return false;
 	}
 
-	public boolean isCFList() {
-		return isAppl() && isContextFree() && (getProduction().getRhs().isPlusList() ||
-				getProduction().getRhs().isStarList());
+	public static boolean isCFList(IConstructor tree) {
+		return isAppl(tree) && isContextFree(tree) && (SymbolAdapter.isPlusList(ProductionAdapter.getRhs(getProduction(tree))) ||
+				SymbolAdapter.isStarList(ProductionAdapter.getRhs(getProduction(tree))));
 	}
 
 	/**
 	 * @return true if the tree does not have any characters, it's just an empty derivation
 	 */
-	public boolean isEpsilon() {
+	public static boolean isEpsilon(IConstructor tree) {
 		// TODO: optimize this
-//		return false;
-		return yield().length() == 0;
+		return yield(tree).length() == 0;
 	}
 
-	public boolean hasPreferAttribute() {
-		return getProduction().hasPreferAttribute();
+	public static boolean hasPreferAttribute(IConstructor tree) {
+		return ProductionAdapter.hasPreferAttribute(getProduction(tree));
 	}
 
-	public boolean hasAvoidAttribute() {
-		return getProduction().hasAvoidAttribute();
+	public static boolean hasAvoidAttribute(IConstructor tree) {
+		return ProductionAdapter.hasAvoidAttribute(getProduction(tree));
 	}
 }

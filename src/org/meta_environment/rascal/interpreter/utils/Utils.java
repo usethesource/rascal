@@ -45,7 +45,7 @@ public final class Utils {
 					replacement = ((IString)val.getValue()).getValue();
 				} 
 				else if (val.getType() instanceof NonTerminalType) {
-					replacement = new TreeAdapter((IConstructor) val.getValue()).yield();
+					replacement = TreeAdapter.yield((IConstructor) val.getValue());
 				} 
 				else {
 					replacement = val.getValue().toString();

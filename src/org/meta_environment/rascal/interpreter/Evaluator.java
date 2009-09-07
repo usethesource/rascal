@@ -1734,12 +1734,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 			Type resultType = resultElem.getType();
 			if (splicing && resultType instanceof NonTerminalType) {
-				SymbolAdapter sym = new SymbolAdapter(((NonTerminalType)resultType).getSymbol());
+				IConstructor sym = ((NonTerminalType)resultType).getSymbol();
 
-				if (sym.isAnyList()) {
+				if (SymbolAdapter.isAnyList(sym)) {
 					IConstructor appl = ((IConstructor)resultElem.getValue());
-					TreeAdapter tree = new TreeAdapter(appl);
-					IList listElems = tree.getArgs();
+					IList listElems = TreeAdapter.getArgs(appl);
 					// Splice elements in list if element types permit this
 					
 					if (!listElems.isEmpty()) {
@@ -1751,38 +1750,38 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					else {
 						// make sure to remove surrounding sep
 						if (!first) {
-							if (sym.isCf()) {
-								SymbolAdapter listSym = sym.getSymbol();
-								if (listSym.isIterStar()) {
+							if (SymbolAdapter.isCf(sym)) {
+								IConstructor listSym = SymbolAdapter.getSymbol(sym);
+								if (SymbolAdapter.isIterStar(listSym)) {
 									results.remove(results.size() - 1);
 								}
-								else if (listSym.isIterStarSep()) {
+								else if (SymbolAdapter.isIterStarSep(listSym)) {
 									results.remove(results.size() - 1);
 									results.remove(results.size() - 1);
 									results.remove(results.size() - 1);
 								}
 							}
-							if (sym.isLex()) {
-								SymbolAdapter listSym = sym.getSymbol();
-								if (listSym.isIterStarSep()) {
+							if (SymbolAdapter.isLex(sym)) {
+								IConstructor listSym = SymbolAdapter.getSymbol(sym);
+								if (SymbolAdapter.isIterStarSep(listSym)) {
 									results.remove(results.size() - 1);
 									results.remove(results.size() - 1);
 								}
 							}
 						}
 						else {
-							if (sym.isCf()) {
-								SymbolAdapter listSym = sym.getSymbol();
-								if (listSym.isIterStar()) {
+							if (SymbolAdapter.isCf(sym)) {
+								IConstructor listSym = SymbolAdapter.getSymbol(sym);
+								if (SymbolAdapter.isIterStar(listSym)) {
 									skip = 1;
 								}
-								else if (listSym.isIterStarSep()) {
+								else if (SymbolAdapter.isIterStarSep(listSym)) {
 									skip = 3;
 								}
 							}
-							if (sym.isLex()) {
-								SymbolAdapter listSym = sym.getSymbol();
-								if (listSym.isIterStarSep()) {
+							if (SymbolAdapter.isLex(sym)) {
+								IConstructor listSym = SymbolAdapter.getSymbol(sym);
+								if (SymbolAdapter.isIterStarSep(listSym)) {
 									skip = 2;
 								}
 							}
