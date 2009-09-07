@@ -6,10 +6,10 @@ import IO;
 import UnitTest;
 import String;
 
-// Data structure for representing the grammar
+// Data structure for representing a grammar
 
 public data Symbol  = t(str text) | nt(str name) | epsilon();
-public alias Rule   = tuple[Symbol name, list[Symbol] symbols];
+public alias Rule   = tuple[Symbol lhs, list[Symbol] symbols];
 public data Grammar = grammar(Symbol start, set[Rule] rules);
 
 // Utility predicates on Symbols
