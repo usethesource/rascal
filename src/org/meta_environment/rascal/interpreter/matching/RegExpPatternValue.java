@@ -32,8 +32,6 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private Pattern pat;						// The Pattern resulting from compiling the regexp
 
 	private List<String> patternVars;			// The variables occurring in the regexp
-												// The variable (and their value) that were already bound 
-												// when the  pattern was constructed
 	private Matcher matcher;					// The actual regexp matcher
 	String subject;								// Subject string to be matched
 	private boolean initialized = false;		// Has matcher been initialized?
@@ -43,6 +41,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
 	private boolean firstTime;
+	private boolean debug = true;
 	
 	
 	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, String s){
@@ -112,24 +111,24 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 			boolean matches = true;
 			int nVar = 1;
 			java.util.List<java.lang.String> seen = new ArrayList<java.lang.String>();
-			System.err.println("# patternVars: " + patternVars.size());
+			if(debug)System.err.println("# patternVars: " + patternVars.size());
 			for (String name : patternVars) {
-				System.err.println("---- name = " + name + ", nVar = " + nVar);
-				System.err.println("start=" + matcher.start(nVar) + ", end=" + matcher.end(nVar));
+				if(debug)System.err.println("---- name = " + name + ", nVar = " + nVar);
+				if(debug)System.err.println("start=" + matcher.start(nVar) + ", end=" + matcher.end(nVar));
 				
 				java.lang.String binding = matcher.group(nVar);
 				nVar++;
 				if(!seen.contains(name)){ /* first occurrence of var in pattern */
-					System.err.println("first occ of " + name + ", binding = " + binding);
+					if(debug)System.err.println("first occ of " + name + ", binding = " + binding);
 					if(firstTime && !ctx.getCurrentEnvt().declareVariable(tf.stringType(), name)) {
 						throw new RedeclaredVariableError(name, ctx.getCurrentAST());
 					}
 					ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(binding), ctx));
 				} else {                  /* repeated occurrence of var in pattern */
 					Result<IValue> val = ctx.getCurrentEnvt().getVariable(name);
-					System.err.println("repeated occ of " + name + ", binding = " + binding);
+					if(debug)System.err.println("repeated occ of " + name + ", binding = " + binding);
 					if (val != null && val.getValue() != null) {
-						System.err.println("previous val = " + val.getValue());
+						if(debug)System.err.println("previous val = " + val.getValue());
 						if (!val.getType().isSubtypeOf(tf.stringType())) {
 							throw new UnexpectedTypeError(tf.stringType(), val.getType(), ctx.getCurrentAST());
 						}

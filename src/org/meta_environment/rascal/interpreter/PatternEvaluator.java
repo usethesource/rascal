@@ -108,7 +108,7 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	private IValueFactory vf;
 	private IEvaluatorContext ctx;
-	private boolean debug = true;
+	private boolean debug = false;
 
 	public PatternEvaluator(IValueFactory vf, IEvaluatorContext ctx){
 		this.vf = vf;
@@ -151,6 +151,41 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		return new RegExpPatternValue(vf, ctx, x.getString());
 	}
 	
+	/*
+	 * Get the value of a variable as string
+	 */
+	
+	private java.lang.String getValueAsString(java.lang.String varName){
+		Environment env = ctx.getCurrentEnvt();
+	    Result<IValue> res = env.getVariable(varName);
+	    if(res != null && res.getValue() != null){
+	    	if(res.getType().isStringType())
+	    		return ((IString)res.getValue()).getValue(); 
+	    	else
+	    		return res.getValue().toString();	
+	    } else
+	    	throw new UninitializedVariableError(varName, ctx.getCurrentAST());  
+	}
+	
+	/*
+	 * Interpolate all occurrences of <X> by the value of X
+	 */
+	private java.lang.String interpolate(java.lang.String re){
+		Pattern replacePat = Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)>");
+		Matcher m = replacePat.matcher(re);
+		StringBuffer result = new StringBuffer();
+		int start = 0;
+		while(m.find()){
+		    result.append(re.substring(start, m.start(0))).
+		           append(getValueAsString(m.group(1))); // TODO: escape special chars?
+		    start = m.end(0);
+		}
+		result.append(re.substring(start,re.length()));
+		
+		if(debug)System.err.println("interpolate: " + re + " -> " + result);
+		return result.toString();
+	}
+	
 	@Override
 	public IMatchingResult visitRegExpLiteralLexical(
 			org.meta_environment.rascal.ast.RegExpLiteral.Lexical x) {
@@ -177,17 +212,33 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		 * Find all pattern variables. There are two cases:
 		 * (1) <X:regexp>
 		 *     - a true pattern variable that will match regexp. Introduces a new local variable.
+		 *     - regexp may contain references to variables <V> in the surrounding scope (but not to
+		 *       pattern variables!) These values are interpolated in regexp
 		 * (2) <X>
-		 *     - if x did not occur earlier in the regexp, we do a string interpolation of the current value of X.
+		 *     - if x did not occur earlier in the pattern, we do a string interpolation of the current value of X.
 		 *     - otherwise x should have been introduced before by a pattern variable and we ensure at match time
 		 *       that both values are the same (non-linear pattern).
 		 * We take escaped \< characters into account.
 		 */
-		Pattern replacePat = Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)\\s*(:\\s*([^>]*))?>");
+		
+		java.lang.String Name = "[a-zA-Z0-9]+";
+		java.lang.String NR1 = "[^\\\\<>]";
+		java.lang.String NR2 = "(?:\\\\[\\\\<>])";
+		java.lang.String NR3 = "(?:\\\\)";
+		java.lang.String NR4 = "(?:<" + Name + ">)";
+		
+		java.lang.String NamedRegexp = "(?:" + NR1 + "|" + NR2 + "|" + NR3 + "|" + NR4 + ")";
+		
+		java.lang.String RE = "(?<!\\\\)<(" + Name + ")(?:\\s*:\\s*(" + NamedRegexp + "*))?" + ">";
+		//                               |                         |
+		//                       group   1                         2
+		
+		Pattern replacePat = Pattern.compile(RE);
+		
 		Matcher m = replacePat.matcher(subjectPat);
 		
 		// The resulting regexp that we are constructing
-		java.lang.String resultRegExp = "";
+		StringBuffer resultRegExp = new StringBuffer();
 		
 		// Declared pattern variables with associated regexp
 		java.util.HashMap<java.lang.String,java.lang.String> varRegExps =
@@ -198,48 +249,39 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 
 		while(m.find()){
 			java.lang.String varName = m.group(1);
-		    
-			System.err.println("0: " + m.end(0) + "; 1: " + m.end(1) + "; 2: " + m.end(2) +"; 3: " + m.end(3));
 			
-			if (m.end(3) > -1){       /* case (1): <X:regexp> */
+			if (m.end(2) > -1){       /* case (1): <X:regexp> */
 				
 				if(varRegExps.containsKey(varName))
 					throw new RedeclaredVariableError(varName, x);
 
-				java.lang.String varRegExp = subjectPat.substring(start, m.start(0)) + "(" + m.group(3) + ")";
+				java.lang.String re = interpolate(m.group(2));
+				java.lang.String varRegExp = subjectPat.substring(start, m.start(0)) + "(" + re + ")";
 				varRegExps.put(varName, varRegExp);
 				vars.add(varName);
-				resultRegExp += varRegExp;
-				System.err.println("resultRegExp = " + resultRegExp);	
+				resultRegExp.append(varRegExp);
+				if(debug)System.err.println("resultRegExp = " + resultRegExp);	
 			} else {                   /* case (2): <X> */
-				System.err.println("case only var");
+				if(debug)System.err.println("case only var");
+				resultRegExp.append(subjectPat.substring(start, m.start(0)));
 				if(vars.contains(varName)){
-					resultRegExp += subjectPat.substring(start, m.start(0)) + varRegExps.get(varName);
+					resultRegExp.append(varRegExps.get(varName));
 					vars.add(varName);
-				} else {
-				    Environment env = ctx.getCurrentEnvt();
-				    Result<IValue> res = env.getVariable(varName);
-				    if(res != null && res.getValue() != null){
-				    	java.lang.String ins;
-				    	if(res.getType().isStringType())
-				    		ins = ((IString)res.getValue()).getValue(); 
-				    	else
-				    		ins = res.getValue().toString();	
-				    	resultRegExp += ins; /* interpolate variable value */ // TODO: escape special chars!
-				    } else
-				    	throw new UninitializedVariableError(varName, x);  
-				}
+				} else {	
+				    resultRegExp.append(getValueAsString(varName)); // TODO: escape special chars?
+				} 
+				if(debug)System.err.println("resultRegExp = " + resultRegExp);
 			}
 			start = m.end(0);
 		}
-		resultRegExp += subjectPat.substring(start, end);
+		resultRegExp.append(subjectPat.substring(start, end));
 		/*
 		 * Replace in the final regexp all occurrences of \< by <
 		 */
-		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
-		if(debug)System.err.println("resultRegExp: " + resultRegExp);
+		java.lang.String result = (resultRegExp.toString()).replaceAll("(\\\\<)", "<");
+		if(debug)System.err.println("result: " + result);
 		
-		return new RegExpPatternValue(vf, ctx, x, resultRegExp, modifier, vars);
+		return new RegExpPatternValue(vf, ctx, x, result, modifier, vars);
 	}
 
 	

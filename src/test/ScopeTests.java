@@ -56,7 +56,7 @@ public class ScopeTests extends TestFramework {
 		assertTrue(runTest("{list[int] n; [list[int] n] := [1,2,3] && n == [1,2,3];}"));
 	}
 	
-	@Test(expected=UnexpectedTypeError.class)
+	@Test
 	public void localRedeclarationError9(){
 		runTest("{int n; /<n:[0-9]*>/ := \"123\";}");
 	}

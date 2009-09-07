@@ -60,6 +60,36 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\");  (x == \"123\");}"));
 	}
 	
+	@Test
+	public void InterpolateInPatternVarDecl(){
+		
+		assertTrue(runTest("{ int n = 3; (/<x:<n>>/ := \"3\" && x == \"3\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:<n>><x>/ := \"33\" && x == \"3\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:a<n>>/ := \"a3\" && x == \"a3\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:<n>b>/ := \"3b\" && x == \"3b\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:a<n>b>/ := \"a3b\" && x == \"a3b\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:a<n>b>/ := \"a3b\" && x == \"a3b\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:a<n>b<n>c>/ := \"a3b3c\" && x == \"a3b3c\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:a<n>b<n>c><x>/ := \"a3b3ca3b3c\" && x == \"a3b3c\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:a{<n>}>/ := \"aaa\" && x == \"aaa\");}"));
+		assertTrue(runTest("{ str a = \"a\"; int n = 3; (/<x:<a>{<n>}>/ := \"aaa\" && x == \"aaa\");}"));
+		assertTrue(runTest("{ str a = \"abc\"; int n = 3; (/<x:(<a>){<n>}>/ := \"abcabcabc\" && x == \"abcabcabc\");}"));
+	
+		assertTrue(runTest("{ int n = 3; (/<x:\\\\>/ := \"\\\\\" && x == \"\\\\\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:\\>>/ := \">\" && x == \">\");}"));
+		
+		// \< is not handled properly by the Rascal grammar ...
+		assertTrue(runTest("{ int n = 3; (/<x:\\<>/ := \"<\" && x == \"<\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:\\<<n>>/ := \"<3\" && x == \"<3\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:\\<<n>\\>>/ := \"<3>\" && x == \"<3>\");}"));
+	}
+	
+	@Test
+	public void backtracking(){
+		assertTrue(runTest("[x | /^<x:[a-z]*?>/ := \"abcd\", x == \"abc\"];"));
+	}
+	
+	
 	@Test 
 	public void matchWithExternalModuleVariable(){
 		prepareModule("XX", "module XX str x = \"abc\";");
@@ -108,14 +138,12 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("{" + cnt + "cnt(\"abc def ghi\") == 3;}"));
 	}
 	
-	@Test @Ignore // ignored because the semantics of regular expressions needs to be discussed firsts
+	@Test
 	public void wordCount2(){
 	
 	String cnt = 
 		      "int cnt(str S){" +
 		      "  int count = 0;" +
-		      "  str word;" +
-		      "  str rest;" +
 		      "  while (/^\\W*<word:\\w+><rest:.*$>/ := S) { " +
 		      "         count = count + 1;" +
 		      "         S = rest;" +
