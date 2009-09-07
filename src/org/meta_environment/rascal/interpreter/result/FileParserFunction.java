@@ -25,6 +25,7 @@ import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.uptr.ParsetreeAdapter;
+import org.meta_environment.uptr.TreeAdapter;
 
 public class FileParserFunction extends ParserFunction {
 
@@ -54,14 +55,13 @@ public class FileParserFunction extends ParserFunction {
 		
 		try {
 			IConstructor ptree = parser.parseObjectLanguageFile(sdfSearchPath, sdfImports, source); 
-			ParsetreeAdapter pt = new ParsetreeAdapter(ptree);
-			pt = new ParsetreeAdapter(pt.addPositionInformation(source));
+			ptree = ParsetreeAdapter.addPositionInformation(ptree, source);
 			
 			if (ptree.getConstructorType() == org.meta_environment.uptr.Factory.ParseTree_Summary) {
 				throw parseError(ptree, source, ctx);
 			}
 			else {
-				IConstructor tree = (IConstructor) pt.getTop().getArgs().get(1);
+				IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
 				Type resultType = getReturnType().instantiate(env.getStore(), env.getTypeBindings());
 				return ResultFactory.makeResult(resultType, tree, eval);
 			}

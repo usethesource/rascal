@@ -37,24 +37,23 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 		Type type = getType(null);
 		
 		if (type instanceof NonTerminalType) {
-			IConstructor sym = ((NonTerminalType) type).getSymbol();
-			SymbolAdapter rhs = new SymbolAdapter(sym);
+			IConstructor rhs = ((NonTerminalType) type).getSymbol();
 
-			if (rhs.isCf()) {	
-				SymbolAdapter cfSym = rhs.getSymbol();
-				if (cfSym.isIterPlus() || cfSym.isIterStar()) {
+			if (SymbolAdapter.isCf(rhs)) {	
+				IConstructor cfSym = SymbolAdapter.getSymbol(rhs);
+				if (SymbolAdapter.isIterPlus(cfSym) || SymbolAdapter.isIterStar(cfSym)) {
 					pat = new ListPattern(vf, ctx, list, 2);
 				}
-				else if (cfSym.isIterPlusSep() || cfSym.isIterStarSep()) {
+				else if (SymbolAdapter.isIterPlusSep(cfSym) || SymbolAdapter.isIterStarSep(cfSym)) {
 					pat = new ListPattern(vf, ctx, list, 4);
 				}
 			}
-			else if (rhs.isLex()){
-				SymbolAdapter lexSym = rhs.getSymbol();
-				if (lexSym.isIterPlus() || lexSym.isIterStar()) {
+			else if (SymbolAdapter.isLex(rhs)){
+				IConstructor lexSym = SymbolAdapter.getSymbol(rhs);
+				if (SymbolAdapter.isIterPlus(lexSym) || SymbolAdapter.isIterStar(lexSym)) {
 					pat = new ListPattern(vf, ctx, list, 1);
 				}
-				else if (lexSym.isIterPlusSep() || lexSym.isIterStarSep()) {
+				else if (SymbolAdapter.isIterPlusSep(lexSym) || SymbolAdapter.isIterStarSep(lexSym)) {
 					pat = new ListPattern(vf, ctx, list, 2);
 				}
 			}
@@ -73,8 +72,8 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			hasNext = false;
 			return;
 		}
-		TreeAdapter tree = new TreeAdapter((IConstructor) subject.getValue());
-		pat.initMatch(ResultFactory.makeResult(Factory.Args, tree.getArgs(), ctx));
+		IConstructor tree = (IConstructor) subject.getValue();
+		pat.initMatch(ResultFactory.makeResult(Factory.Args, TreeAdapter.getArgs(tree), ctx));
 		hasNext = true;
 	}
 	

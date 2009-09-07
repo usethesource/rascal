@@ -40,7 +40,7 @@ public class IO{
 					currentOutStream.print(((IString) arg).getValue().toString());
 				}
 				else if (arg.getType().isSubtypeOf(Factory.Tree)) {
-					currentOutStream.print(new TreeAdapter((IConstructor) arg).yield());
+					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 				}
 				else{
 					currentOutStream.print(arg.toString());

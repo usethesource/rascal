@@ -56,8 +56,8 @@ public class ASTBuilder {
 	}
 	
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
-		TreeAdapter tree = new ParsetreeAdapter(parseTree).getTop();
-		if (tree.isAppl()) {
+		IConstructor tree = ParsetreeAdapter.getTop(parseTree);
+		if (TreeAdapter.isAppl(tree)) {
 			return buildSort(parseTree, "Module");
 		}
 		throw new ImplementationError("Ambiguous module?");
@@ -78,46 +78,43 @@ public class ASTBuilder {
 	@SuppressWarnings("unchecked")
 	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
 		IConstructor top = (IConstructor) parseTree.get("top");
-		TreeAdapter start = new TreeAdapter(top);
 		
-		if (start.isAppl()) {
-			IConstructor tree = (IConstructor) start.getArgs().get(1);
-			TreeAdapter treeAdapter = new TreeAdapter(tree); 
-
-			if (sortName(treeAdapter).equals(sort)) {
+		if (TreeAdapter.isAppl(top)) {
+			IConstructor tree = (IConstructor) TreeAdapter.getArgs(top).get(1);
+			
+			if (sortName(tree).equals(sort)) {
 				return (T) buildValue(tree);
 			}
 		}
-		else if (start.isAmb()) {
-			for (IValue alt : start.getAlternatives()) {
+		else if (TreeAdapter.isAmb(top)) {
+			for (IValue alt : TreeAdapter.getAlternatives(top)) {
 				IConstructor tree = (IConstructor) alt;
-				TreeAdapter treeAdapter = new TreeAdapter(tree); 
 
-				if (sortName(treeAdapter).equals(sort)) {
+				if (sortName(tree).equals(sort)) {
 					AbstractAST value = buildValue(tree);
 					if (value != null) {
 						return (T) value;
 					}
 				}
 			}
-			throw new SyntaxError(sort, start.getLocation());
+			throw new SyntaxError(sort, TreeAdapter.getLocation(top)); // TODO Always @ offset = 0?
 		}
 		
-		throw new ImplementationError("This is not a " + sort +  ": " + start);
+		throw new ImplementationError("This is not a " + sort +  ": " + top);
 	}
 	
 	private AbstractAST buildValue(IValue arg)  {
-		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
+		IConstructor tree = (IConstructor) arg;
 		
-		if (tree.isList()) {
+		if (TreeAdapter.isList(tree)) {
 			throw new ImplementationError("buildValue should not be called on a list");
 		}
 		
-		if (tree.isAmb()) {
+		if (TreeAdapter.isAmb(tree)) {
 			return filter(tree);
 		}
 		
-		if (!tree.isAppl()) {
+		if (!TreeAdapter.isAppl(tree)) {
 			throw new UnsupportedOperationException();
 		}	
 		
@@ -125,8 +122,8 @@ public class ASTBuilder {
 			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
 		}
 		
-		if (sortName(tree).equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
-			JavaFunctionBody javaAST = new JavaFunctionBody((INode) arg, tree.yield());
+		if (sortName(tree).equals("FunctionBody") && TreeAdapter.getConstructorName(tree).equals("Java")) {
+			JavaFunctionBody javaAST = new JavaFunctionBody((INode) arg, TreeAdapter.yield(tree));
 			javaAST.getStats().setAvoided(true);
 			return javaAST;
 		}
@@ -143,14 +140,14 @@ public class ASTBuilder {
 	}
 
 	private List<AbstractAST> buildList(IConstructor in)  {
-		IList args = new TreeAdapter(in).getListASTArgs();
+		IList args = TreeAdapter.getListASTArgs(in);
 		List<AbstractAST> result = new ArrayList<AbstractAST>(args.length());
 		for (IValue arg: args) {
-			TreeAdapter adapter = new TreeAdapter((IConstructor) arg);
+			IConstructor tree = (IConstructor) arg;
 
-			if (adapter.isAmbiguousList()) {
+			if (TreeAdapter.isAmbiguousList(tree)) {
 				// unflattened list due to nested ambiguity
-				List<AbstractAST> elems = filterList(adapter);
+				List<AbstractAST> elems = filterList(tree);
 				
 				if (elems != null) {
 					result.addAll(elems);
@@ -171,12 +168,10 @@ public class ASTBuilder {
 		return result;
 	}
 
-	private AbstractAST buildContextFreeNode(IConstructor in)  {
-		TreeAdapter tree = new TreeAdapter(in);
-
-		String constructorName = tree.getConstructorName();
+	private AbstractAST buildContextFreeNode(IConstructor tree)  {
+		String constructorName = TreeAdapter.getConstructorName(tree);
 		if (constructorName == null) {
-			throw new ImplementationError("All Rascal productions should have a constructor name: " + tree.getProduction().getTree());
+			throw new ImplementationError("All Rascal productions should have a constructor name: " + ProductionAdapter.getTree(TreeAdapter.getProduction(tree)));
 		}
 		
 		String cons = capitalize(constructorName);
@@ -189,15 +184,15 @@ public class ASTBuilder {
 		Object actuals[] = new Object[arity];
 
 		formals[0] = INode.class;
-		actuals[0] = in;
+		actuals[0] = tree;
 
 		ASTStatistics total = new ASTStatistics();
 
 		int i = 1;
 		for (IValue arg : args) {
-			TreeAdapter argTree = new TreeAdapter((IConstructor) arg);
+			IConstructor argTree = (IConstructor) arg;
 
-			if (argTree.isList()) {
+			if (TreeAdapter.isList(argTree)) {
 				actuals[i] = buildList((IConstructor) arg);
 				formals[i] = List.class;
 
@@ -209,7 +204,7 @@ public class ASTBuilder {
 					total.add(((AbstractAST) ast).getStats());
 				}
 			}
-			else if (argTree.isAmbiguousList()) {
+			else if (TreeAdapter.isAmbiguousList(argTree)) {
 				actuals[i] = filterList(argTree);
 				formals[i] = List.class;
 
@@ -246,11 +241,11 @@ public class ASTBuilder {
 			total.setPreferred(false);
 		}
 		
-		if (tree.hasPreferAttribute()) {
+		if (TreeAdapter.hasPreferAttribute(tree)) {
 			total.setAvoided(false);
 			total.setPreferred(true);
 		}
-		if (tree.hasAvoidAttribute()) {
+		if (TreeAdapter.hasAvoidAttribute(tree)) {
 			total.setAvoided(true);
 			total.setPreferred(false);
 		}
@@ -259,19 +254,17 @@ public class ASTBuilder {
 		return ast;
 	}
 	
-	private AbstractAST buildLexicalNode(IConstructor in) {
-		TreeAdapter tree = new TreeAdapter(in);
-
+	private AbstractAST buildLexicalNode(IConstructor tree) {
 		String sort = capitalize(sortName(tree));
 
 		Class<?> formals[] = new Class<?>[] { INode.class, String.class };
-		Object actuals[] = new Object[] { in, new String(new TreeAdapter(in).yield()) };
+		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
 
 		return callMakerMethod(sort, "Lexical", formals, actuals);
 	}
 	
-	private AbstractAST filter(TreeAdapter tree) {
-		ISet altsIn = tree.getAlternatives();
+	private AbstractAST filter(IConstructor tree) {
+		ISet altsIn = TreeAdapter.getAlternatives(tree);
 		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
 		String sort = "";
 		ASTStatistics ref = null;
@@ -310,7 +303,7 @@ public class ASTBuilder {
 		}
 
 		Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
-		Object actuals[] = new Object[] { tree.getTree(), altsOut };
+		Object actuals[] = new Object[] { tree, altsOut };
 
 		AbstractAST ast = callMakerMethod(sort, "Ambiguity", formals, actuals);
 		
@@ -340,8 +333,8 @@ public class ASTBuilder {
 		return ref;
 	}
 
-	private List<AbstractAST> filterList(TreeAdapter argTree) {
-		ISet alts = argTree.getAlternatives();
+	private List<AbstractAST> filterList(IConstructor argTree) {
+		ISet alts = TreeAdapter.getAlternatives(argTree);
 		ASTStatistics ref = new ASTStatistics();
 		List<List<AbstractAST>> result = new ArrayList<List<AbstractAST>>(/* size unknown */);
 	
@@ -375,7 +368,7 @@ public class ASTBuilder {
 			return null;
 //			throw new ImplementationError("Accidentally all ambiguous derivations of a list have been filtered", argTree.getLocation());
 		default:
-			throw new ImplementationError("Unexpected ambiguous list after filtering", argTree.getLocation());
+			throw new ImplementationError("Unexpected ambiguous list after filtering", TreeAdapter.getLocation(argTree));
 		}
 	}
 
@@ -384,17 +377,17 @@ public class ASTBuilder {
 	 * where a PROGRAM is expected. Also, patterns that directly nest concrete syntax patterns
 	 * again, like `<`...`>` are filtered.
 	 */
-	private Expression filterNestedPattern(TreeAdapter antiQuote, TreeAdapter pattern) {
-		ISet alternatives = pattern.getAlternatives();
+	private Expression filterNestedPattern(IConstructor antiQuote, IConstructor pattern) {
+		ISet alternatives = TreeAdapter.getAlternatives(pattern);
 		List<Expression> result = new ArrayList<Expression>(alternatives.size());
 		 
-		SymbolAdapter expected = antiQuote.getProduction().getRhs();
+		IConstructor expected = ProductionAdapter.getRhs(TreeAdapter.getProduction(antiQuote));
 		
 		// any alternative that is a typed variable must be parsed using a 
 		// MetaVariable that produced exactly the same type as is declared inside
 		// the < > brackets.
 		for (IValue alt : alternatives) {
-			if (isEmbedding(new TreeAdapter((IConstructor) alt))) {
+			if (isEmbedding((IConstructor) alt)) {
 				continue; // filter direct nesting
 			}
 			
@@ -413,11 +406,11 @@ public class ASTBuilder {
 			return null;
 		}
 		
-		return new Expression.Ambiguity(antiQuote.getTree(), result);
+		return new Expression.Ambiguity(antiQuote, result);
 	}
 
-	private AbstractAST lift(TreeAdapter tree, boolean match) {
-		if (tree.isEpsilon()) {
+	private AbstractAST lift(IConstructor tree, boolean match) {
+		if (TreeAdapter.isEpsilon(tree)) {
 			return null;
 		}
 		
@@ -427,7 +420,7 @@ public class ASTBuilder {
 		if (ast != null) {
 			ASTStatistics stats = ast.getStats();
 			stats.setConcreteFragmentCount(1);
-			stats.setConcreteFragmentSize(new TreeAdapter(pattern).yield().length());
+			stats.setConcreteFragmentSize(TreeAdapter.yield(pattern).length());
 		}
 		
 		return ast;
@@ -441,22 +434,19 @@ public class ASTBuilder {
 			boolean isAmb = false;
 			
 			if (type.isAbstractDataType()) {
-				IConstructor constr = (IConstructor) pattern;
+				IConstructor tree = (IConstructor) pattern;
 
-				if (constr.getConstructorType() == Factory.Tree_Appl) {
-					TreeAdapter tree = new TreeAdapter(constr);
-					
-					
-					if (tree.isList()) {
+				if (tree.getConstructorType() == Factory.Tree_Appl) {
+					if (TreeAdapter.isList(tree)) {
 						inlist = true;
 					}
 					
 					// list variables
-					if (tree.isList() && tree.getArgs().length() == 1) {
-					   TreeAdapter child = new TreeAdapter((IConstructor) tree.getArgs().get(0));
+					if (TreeAdapter.isList(tree) && TreeAdapter.getArgs(tree).length() == 1) {
+					   IConstructor child = (IConstructor) TreeAdapter.getArgs(tree).get(0);
 					   
-					   if (child.isAppl()) {
-						   String cons = child.getConstructorName();
+					   if (TreeAdapter.isAppl(child)) {
+						   String cons = TreeAdapter.getConstructorName(child);
 						   if (cons != null && (cons.equals("MetaVariable")
 								   // TODO: TypedMetaVariable does not exist in grammar
 								   || cons.equals("TypedMetaVariable"))) {
@@ -466,30 +456,30 @@ public class ASTBuilder {
 					}
 					
 					// normal variables
-					String cons = tree.getConstructorName();
+					String cons = TreeAdapter.getConstructorName(tree);
 					if (cons != null && (cons.equals("MetaVariable")
 							// TODO: TypedMetaVariable does not exist in grammar
 							|| cons.equals("TypedMetaVariable"))) {
 						return liftVariable(tree);
 					}
 					
-					if (match && tree.getProduction().getRhs().isCfOptLayout()) {
-						return wildCard(constr);
+					if (match && SymbolAdapter.isCfOptLayout(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)))) {
+						return wildCard(tree);
 					}
 					
-					if (tree.isContextFreeInjectionOrSingleton()) {
+					if (TreeAdapter.isContextFreeInjectionOrSingleton(tree)) {
 						stats.setInjections(1);
 					}
-					else if (tree.isNonEmptyStarList()) {
+					else if (TreeAdapter.isNonEmptyStarList(tree)) {
 						stats.setInjections(1);
 					}
 					else {
 						stats.setInjections(0); // bug
 					}
 
-					source = constr;
+					source = tree;
 				}
-				else if (constr.getConstructorType() == Factory.Tree_Amb) {
+				else if (tree.getConstructorType() == Factory.Tree_Amb) {
 					isAmb = true;
 				}
 			}
@@ -612,18 +602,18 @@ public class ASTBuilder {
 		return name.equals("list");
 	}
 
-	private Expression liftVariable(TreeAdapter tree) {
-		String cons = tree.getConstructorName();
+	private Expression liftVariable(IConstructor tree) {
+		String cons = TreeAdapter.getConstructorName(tree);
 		
 		if (cons.equals("MetaVariable")) {
 			IConstructor arg = (IConstructor) getASTArgs(tree).get(0);
 			
 			if (arg.getConstructorType() == Factory.Tree_Amb) {
-				return filterNestedPattern(tree, new TreeAdapter(arg)); 
+				return filterNestedPattern(tree, arg); 
 			}
 			Expression result = (Expression) buildValue(arg);
 		
-			if (correctlyNestedPattern(tree.getProduction().getRhs(), result)) {
+			if (correctlyNestedPattern(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)), result)) {
 				return result;
 			}
 			return null;
@@ -639,14 +629,14 @@ public class ASTBuilder {
 		return new Expression.QualifiedName(node, new QualifiedName.Default(node, list));
 	}
 
-	private boolean correctlyNestedPattern(SymbolAdapter expected, Expression exp) {
+	private boolean correctlyNestedPattern(IConstructor expected, Expression exp) {
 		if (exp.isTypedVariable()) {
 			Expression.TypedVariable var = (Expression.TypedVariable) exp;
 			IValue type = Symbols.typeToSymbol(var.getType());
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" Pattern ">" -> STAT in the grammar and "<STAT t>" in the pattern. STAT == STAT.
-			if (type.equals(expected.getTree())) {
+			if (type.equals(expected)) {
 				return true;
 			}
 			return false;
@@ -655,8 +645,8 @@ public class ASTBuilder {
 		return true;
 	}
 
-	private IConstructor getConcretePattern(TreeAdapter tree) {
-		String cons = tree.getConstructorName();
+	private IConstructor getConcretePattern(IConstructor tree) {
+		String cons = TreeAdapter.getConstructorName(tree);
 		
 		if (cons.equals("ConcreteQuoted")) {
 			return (IConstructor) getASTArgs(tree).get(0);
@@ -667,25 +657,24 @@ public class ASTBuilder {
 		}
 		
 		if (cons.equals("ConcreteTypedQuoted")) {
-			 return (IConstructor) tree.getArgs().get(4);
+			 return (IConstructor) TreeAdapter.getArgs(tree).get(4);
 		}
 		
 		throw new ImplementationError("Unexpected embedding syntax");
 	}
 
-	private  IList getASTArgs(TreeAdapter tree) {
-		if (!tree.isContextFree()) {
+	private IList getASTArgs(IConstructor tree) {
+		if (!TreeAdapter.isContextFree(tree)) {
 			throw new ImplementationError("This is not a context-free production: "
 					+ tree);
 		}
 	
-		IList children = tree.getArgs();
+		IList children = TreeAdapter.getArgs(tree);
 		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
 	
 		for (int i = 0; i < children.length(); i++) {
-			IValue kid = children.get(i);
-			TreeAdapter treeAdapter = new TreeAdapter((IConstructor) kid);
-			if (!treeAdapter.isLiteral() && !treeAdapter.isCILiteral() && !isRascalLiteral(treeAdapter)) {
+			IConstructor kid = (IConstructor) children.get(i);
+			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !isRascalLiteral(kid)) {
 				writer.append(kid);	
 			} 
 			// skip layout
@@ -695,19 +684,19 @@ public class ASTBuilder {
 		return writer.done();
 	}
 
-	private String sortName(TreeAdapter tree) {
-		if (tree.isAppl()) {
-			String sortName = tree.getSortName();
-	
+	private String sortName(IConstructor tree) {
+		if (TreeAdapter.isAppl(tree)) {
+			String sortName = TreeAdapter.getSortName(tree);
+			
 			if (isRascalSort(sortName)) {
 				sortName = sortName.substring(1);
 			}
-	
+			
 			return sortName;
 		}
-		if (tree.isAmb()) {
+		if (TreeAdapter.isAmb(tree)) {
 			// all alternatives in an amb cluster have the same sort
-			return sortName(new TreeAdapter((IConstructor) tree.getAlternatives().iterator().next()));
+			return sortName((IConstructor) TreeAdapter.getAlternatives(tree).iterator().next());
 		}
 		return "";
 	}
@@ -731,29 +720,29 @@ public class ASTBuilder {
 		return new ImplementationError("Unexpected error in AST construction: " + e, e);
 	}
 
-	private boolean isEmbedding(TreeAdapter tree) {
-		String name = tree.getConstructorName();
+	private boolean isEmbedding(IConstructor tree) {
+		String name = TreeAdapter.getConstructorName(tree);
 		return name.equals("ConcreteQuoted") 
 		|| name.equals("ConcreteUnquoted") 
 		|| name.equals("ConcreteTypedQuoted");
 	}
 
-	private boolean isLexical(TreeAdapter tree) {
-		if (tree.isLexToCf()) {
+	private boolean isLexical(IConstructor tree) {
+		if (TreeAdapter.isLexToCf(tree)) {
 			return !isRascalLiteral(tree);
 		}
 		return false;
 	}
 
-	private boolean isRascalLiteral(TreeAdapter tree) {
-		if (tree.isAppl()) {
-			ProductionAdapter prod = tree.getProduction();
-			SymbolAdapter rhs = prod.getRhs();
+	private boolean isRascalLiteral(IConstructor tree) {
+		if (TreeAdapter.isAppl(tree)) {
+			IConstructor prod = TreeAdapter.getProduction(tree);
+			IConstructor rhs = ProductionAdapter.getRhs(prod);
 			
-			if (rhs.isCf()) {
-				rhs = rhs.getSymbol();
+			if (SymbolAdapter.isCf(rhs)) {
+				rhs = SymbolAdapter.getSymbol(rhs);
 			}
-			if (rhs.isParameterizedSort() && rhs.getName().equals("_WrappedLiteral")) {
+			if (SymbolAdapter.isParameterizedSort(rhs) && SymbolAdapter.getName(rhs).equals("_WrappedLiteral")) {
 				return true;
 			}
 		}

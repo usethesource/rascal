@@ -26,7 +26,7 @@ public class AsfixWriter extends IdentityTreeVisitor {
 	public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
 		try {
 			writer.write("amb([\n");
-			ISet set = new TreeAdapter(arg).getAlternatives();
+			ISet set = TreeAdapter.getAlternatives(arg);
 			int len = set.size();
 			int i = 0;
 			for (IValue x: set) {
@@ -49,9 +49,9 @@ public class AsfixWriter extends IdentityTreeVisitor {
 		arg = arg.removeAnnotations();
 		try {
 			writer.write("appl(");
-			writer.write(new TreeAdapter(arg).getProduction().tree.toString());
+			writer.write(TreeAdapter.getProduction(arg).toString());
 			writer.write(", [");
-			IList list = new TreeAdapter(arg).getArgs();
+			IList list = TreeAdapter.getArgs(arg);
 			int len = list.length();
 			int i = 0;
 			nesting++;
@@ -77,7 +77,7 @@ public class AsfixWriter extends IdentityTreeVisitor {
 	@Override
 	public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
 		try {
-			writer.write(new Integer(new TreeAdapter(arg).getCharacter()).toString());
+			writer.write(new Integer(TreeAdapter.getCharacter(arg)).toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

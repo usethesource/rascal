@@ -23,6 +23,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.rascal.parser.StringParser;
 import org.meta_environment.uptr.ParsetreeAdapter;
+import org.meta_environment.uptr.TreeAdapter;
 
 public class ParserFunction extends NamedFunction {
 
@@ -60,10 +61,9 @@ public class ParserFunction extends NamedFunction {
 		
 		try {
 			Environment env = ctx.getCurrentEnvt();
-			IConstructor ptree = ((StringParser)parser).parseString(sdfSearchPath, sdfImports, source); 
-			ParsetreeAdapter parsetreeAdapter = new ParsetreeAdapter(ptree);
-			parsetreeAdapter = new ParsetreeAdapter(parsetreeAdapter.addPositionInformation(source));
-			IConstructor tree = (IConstructor) parsetreeAdapter.getTop().getArgs().get(1);
+			IConstructor ptree = ((StringParser)parser).parseString(sdfSearchPath, sdfImports, source);
+			ptree = ParsetreeAdapter.addPositionInformation(ptree, source);
+			IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
 			Type resultType = getReturnType().instantiate(env.getStore(), env.getTypeBindings());
 			
 			return ResultFactory.makeResult(resultType, tree, eval);

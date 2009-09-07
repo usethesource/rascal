@@ -13,6 +13,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableEr
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
@@ -86,8 +87,8 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 		
 		if (subject.getType().isSubtypeOf(Factory.Args)) {
 			if (((IList)subject.getValue()).isEmpty()) {
-				SymbolAdapter sym = new SymbolAdapter(declaredType.getSymbol()).getSymbol();
-				if (sym.isIterPlus() || sym.isIterPlusSep()) {
+				IConstructor sym = SymbolAdapter.getSymbol(declaredType.getSymbol());
+				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSep(sym)) {
 					return false;
 				}
 			}
@@ -100,15 +101,15 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 			return true;
 		}
 		
-		TreeAdapter subjectTree = new TreeAdapter((IConstructor) subject.getValue());
-		if (subjectTree.isList()) {
-			if ((subjectTree.getArgs()).isEmpty()) {
-				SymbolAdapter sym = new SymbolAdapter(declaredType.getSymbol()).getSymbol();
-				if (sym.isIterPlus() || sym.isIterPlusSep()) {
+		IConstructor subjectTree = (IConstructor) subject.getValue();
+		if (TreeAdapter.isList(subjectTree)) {
+			if ((TreeAdapter.getArgs(subjectTree)).isEmpty()) {
+				IConstructor sym = SymbolAdapter.getSymbol(declaredType.getSymbol());
+				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSep(sym)) {
 					return false;
 				}
 			}
-			if (subjectTree.getProduction().getRhs().getTree().isEqual(declaredType.getSymbol())) {
+			if (ProductionAdapter.getRhs(TreeAdapter.getProduction(subjectTree)).isEqual(declaredType.getSymbol())) {
 				ctx.getCurrentEnvt().storeVariable(name, subject);
 			}
 			if (debug)
@@ -128,10 +129,10 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 		IValue prod = Factory.Production_List.make(vf, declaredType.getSymbol());
 		
 		if (args.length() == 1) {
-			TreeAdapter arg = new TreeAdapter((IConstructor) args.get(0));
+			IConstructor arg = (IConstructor) args.get(0);
 			
-			if (arg.isList() && arg.getProduction().getTree().isEqual(prod)) {
-				return arg.getTree();
+			if (TreeAdapter.isList(arg) && ProductionAdapter.getTree(TreeAdapter.getProduction(arg)).isEqual(prod)) {
+				return arg;
 			}
 		}
 		

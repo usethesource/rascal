@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter.types;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -25,14 +24,14 @@ public class NonTerminalType extends ExternalType {
 			this.symbol = cons;
 		}
 		else if (cons.getType() == Factory.Production) {
-			this.symbol = new ProductionAdapter(cons).getRhs().getTree();
+			this.symbol = ProductionAdapter.getRhs(TreeAdapter.getProduction(cons));
 		}
 		else if (cons.getConstructorType() == Factory.Tree_Appl) {
-			this.symbol = new TreeAdapter(cons).getProduction().getRhs().getTree();
+			this.symbol = ProductionAdapter.getRhs(TreeAdapter.getProduction(cons));
 		}
 		else if (cons.getConstructorType() == Factory.Tree_Amb) {
-			IConstructor first = (IConstructor) new TreeAdapter(cons).getAlternatives().iterator().next();
-			this.symbol = new TreeAdapter(first).getProduction().getRhs().getTree();
+			IConstructor first = (IConstructor) TreeAdapter.getAlternatives(cons).iterator().next();
+			this.symbol = ProductionAdapter.getRhs(TreeAdapter.getProduction(first));
 		}
 		else {
 			throw new ImplementationError("Invalid concrete syntax type constructor");
@@ -58,7 +57,7 @@ public class NonTerminalType extends ExternalType {
 	}
 	
 	public boolean isConcreteListType() {
-		return new SymbolAdapter(getSymbol()).isAnyList();
+		return SymbolAdapter.isAnyList(getSymbol());
 	}
 	
 	@Override
@@ -88,9 +87,8 @@ public class NonTerminalType extends ExternalType {
 		}
 
 		if (other instanceof NonTerminalType) {
-			SymbolAdapter sym = new SymbolAdapter(symbol);
-			SymbolAdapter otherSym = new SymbolAdapter(((NonTerminalType)other).symbol);
-			if (sym.isPlusList() && otherSym.isStarList()) {
+			IConstructor otherSym = ((NonTerminalType)other).symbol;
+			if (SymbolAdapter.isPlusList(symbol) && SymbolAdapter.isStarList(otherSym)) {
 				return true; // TODO add check if they have the same element type
 			}
 		}
@@ -100,23 +98,7 @@ public class NonTerminalType extends ExternalType {
 	}
 	
 	public boolean isConcreteCFList() {
-		SymbolAdapter sym = new SymbolAdapter(symbol); 
-		return sym.isCf() && (sym.isPlusList() || sym.isStarList());
-	}
-	
-	public boolean isCompatibleWith(ProductionAdapter prod) {
-		return prod.getRhs().equals(symbol);
-	}
-	
-	public boolean isCompatibleWith(TreeAdapter tree) {
-		if (tree.isAppl()) {
-			return isCompatibleWith(tree.getProduction());
-		}
-		else if (tree.isAmb()) {
-			IValue first = tree.getAlternatives().iterator().next();
-			return isCompatibleWith(new TreeAdapter((IConstructor) first));
-		}
-		return false;
+		return SymbolAdapter.isCf(symbol) && (SymbolAdapter.isPlusList(symbol) || SymbolAdapter.isStarList(symbol));
 	}
 	
 	@Override
@@ -148,12 +130,5 @@ public class NonTerminalType extends ExternalType {
 	@Override
 	public String toString() {
 		return symbol.toString();
-	}
-
-	public NonTerminalType getConcreteCFListElementType() {
-		SymbolAdapter sym = new SymbolAdapter(symbol);
-		// We assume it is cfListType
-		// cf(iter...(SYM)) -> SYM
-		return new NonTerminalType(sym.getSymbol().getSymbol().getTree());
 	}
 }
