@@ -7,18 +7,19 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 
-public class StrategyFunction implements Strategy {
+public class StrategyFunction extends AbstractFunction {
 	
-	private AbstractFunction function;
+	protected AbstractFunction function;
 
 	public StrategyFunction(AbstractFunction function) {
+		super(function.getAst(), function.getEval(), function.getFunctionType(), function.hasVarArgs(), function.getEnv());
 		this.function = function;
 	}
-
-	public Visitable apply(Visitable v) {
-		IValue arg = v.getValue();
-	    Result<IValue> res = (Result<IValue>) function.call(new Type[]{arg.getType()}, new IValue[]{arg}, function.getEval());
-	    return VisitableFactory.make(res.getValue());
+	
+	@Override
+	public Result<?> call(Type[] argTypes, IValue[] argValues,
+			IEvaluatorContext ctx) {
+		return function.call(argTypes, argValues, ctx);
 	}
 
 }
