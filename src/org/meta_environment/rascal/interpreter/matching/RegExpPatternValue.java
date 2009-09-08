@@ -41,7 +41,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
 	private boolean firstTime;
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	
 	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, String s){
@@ -109,15 +109,15 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private boolean findMatch(){
 		while(matcher.find()){
 			boolean matches = true;
-			int nVar = 1;
 			java.util.List<java.lang.String> seen = new ArrayList<java.lang.String>();
 			if(debug)System.err.println("# patternVars: " + patternVars.size());
-			for (String name : patternVars) {
+			
+			for (int nVar = 0; nVar < patternVars.size(); nVar++){
+				java.lang.String name = patternVars.get(nVar);
 				if(debug)System.err.println("---- name = " + name + ", nVar = " + nVar);
-				if(debug)System.err.println("start=" + matcher.start(nVar) + ", end=" + matcher.end(nVar));
+				if(debug)System.err.println("start=" + matcher.start(1+nVar) + ", end=" + matcher.end(1+nVar));
 				
-				java.lang.String binding = matcher.group(nVar);
-				nVar++;
+				java.lang.String binding = matcher.group(1+nVar);
 				if(!seen.contains(name)){ /* first occurrence of var in pattern */
 					if(debug)System.err.println("first occ of " + name + ", binding = " + binding);
 					if(firstTime && !ctx.getCurrentEnvt().declareVariable(tf.stringType(), name)) {
