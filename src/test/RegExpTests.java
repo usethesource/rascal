@@ -88,6 +88,7 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("[<x, y> | /<x:[a-z]+?><y:[a-z]+?>/ := \"abcd\"] == [<\"a\", \"b\">, <\"c\", \"d\">];"));
 		assertTrue(runTest("[y | /<x:abc><y:...>/ := \"abc111abc222abc333\"] == [\"111\", \"222\", \"333\"];"));
 		assertTrue(runTest("{int n = 3; [y | /<x:abc><y:.{<n>}>/ := \"abc111abc222abc333\"] == [\"111\", \"222\", \"333\"];}"));
+		assertTrue(runTest("[s | /<s:.>/ := \"abcdef\"] ==  [\"a\",\"b\",\"c\",\"d\",\"e\",\"f\"];"));
 	}
 	
 	

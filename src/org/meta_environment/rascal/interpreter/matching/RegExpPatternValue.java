@@ -41,7 +41,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
 	private boolean firstTime;
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	
 	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, String s){
