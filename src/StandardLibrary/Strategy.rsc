@@ -21,10 +21,23 @@ public &T1(&T1) top_down(&T2(&T2) strategy) {
 public &T1(&T1) innermost(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
 	   &T3 temp =  makeAll(innermost(strategy))(subject);
-	   while(temp != subject) {
-	    subject = temp;
-	    temp = innermost(strategy)(subject);
-	   }
-	   return temp;
+	   do {
+	    	subject = temp;
+	   		temp = strategy(subject);
+	   	} while (subject != temp);
+		return temp;
 	};
 }
+
+public &T1(&T1) outermost(&T2(&T2) strategy) { 
+	return &T3(&T3 subject) {
+	   &T3 temp = subject;
+	   do {
+	    	subject = temp;
+	   		temp = strategy(subject);
+	   	} while (subject != temp);
+		return makeAll(outermost(strategy))(temp);
+	};
+}
+
+
