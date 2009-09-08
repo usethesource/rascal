@@ -82,6 +82,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			String path = getValue().getURI().getPath();
 			return makeResult(getTypeFactory().stringType(), vf.string(path != null ? path : ""), ctx);
 		}
+		else if (name.equals("extension")) {
+			String path = getValue().getURI().getPath();
+			int i = path.lastIndexOf('.');
+			if (i != -1) {
+				return makeResult(getTypeFactory().stringType(), vf.string(path.substring(i + 1)), ctx);
+			}
+			return makeResult(getTypeFactory().stringType(), vf.string(""), ctx);
+		}
 		else if (name.equals("fragment")) {
 			String fragment = getValue().getURI().getFragment();
 			return makeResult(getTypeFactory().stringType(), vf.string(fragment != null ? fragment : ""), ctx);
@@ -165,6 +173,22 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());
+			}
+			else if (name.equals("extension")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				String path = uri.getPath();
+				String ext = ((IString) repl.getValue()).getValue();
+				int index = path.lastIndexOf('.');
+				
+				if (index == -1) {
+					path = path + '.' + ext;
+				}
+				else {
+					path = path.substring(0, index) + '.' + ext;
+				}
+				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
 			}
 			else if (name.equals("fragment")) {
 				if (!replType.isStringType()) {
