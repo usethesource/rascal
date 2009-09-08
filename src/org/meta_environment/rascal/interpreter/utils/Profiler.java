@@ -1,6 +1,6 @@
 package org.meta_environment.rascal.interpreter.utils;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -108,7 +108,7 @@ public class Profiler extends Thread {
         long nTicks = 0;
         
         for(Map.Entry<AbstractAST, Count> e : sortedData){
-        	URL url = e.getKey().getLocation().getURL();
+        	URI url = e.getKey().getLocation().getURI();
         	int sz = url.toString().length();
         	if(sz > maxURL)
         		maxURL = sz;
@@ -121,10 +121,10 @@ public class Profiler extends Thread {
         for(Map.Entry<AbstractAST, Count> e : sortedData){
         	ISourceLocation L = e.getKey().getLocation();
         	
-        	String url = L.getURL().toString();
+        	String uri = L.getURI().toString();
         	String filePrefix = "file://";
-        	if(url.startsWith(filePrefix))
-        		url = url.substring(filePrefix.length());
+        	if(uri.startsWith(filePrefix))
+        		uri = uri.substring(filePrefix.length());
         	
         	int bgn = L.getBeginLine();
         	int end = L.getEndLine();
@@ -135,7 +135,7 @@ public class Profiler extends Thread {
         	
         	String source = String.format("%-30.30s", e.getKey().toString().replaceFirst("^[\\s]+", "").replaceAll("[\\s]+", " "));
  
-        	System.err.printf(URLFormat + "%11s%8d%8.1f%%  %s\n", url, range, ticks, perc, source);
+        	System.err.printf(URLFormat + "%11s%8d%8.1f%%  %s\n", uri, range, ticks, perc, source);
         }
 	}
 

@@ -27,7 +27,7 @@ public class SubjectAdapter {
 	public String getPath() {
 		ISourceLocation loc = getLocation();
 		if (loc != null) {
-			return loc.getURL().getPath();
+			return loc.getURI().getPath();
 		}
 		return null;
 	}

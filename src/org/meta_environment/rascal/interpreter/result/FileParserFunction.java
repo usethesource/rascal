@@ -1,8 +1,6 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
@@ -83,11 +81,10 @@ public class FileParserFunction extends ParserFunction {
 		}
 	}
 	
-	private Throw parseError(IConstructor tree, String file, IEvaluatorContext ctx) throws MalformedURLException{
+	private Throw parseError(IConstructor tree, String file, IEvaluatorContext ctx) {
 		SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		URL url = new URL("file://" + file);
-		ISourceLocation loc = vf.sourceLocation(url, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
+		ISourceLocation loc = vf.sourceLocation(file, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
 
 		return RuntimeExceptionFactory.parseError(loc, ctx.getCurrentAST(), ctx.getStackTrace());
 	}

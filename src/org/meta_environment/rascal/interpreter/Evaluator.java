@@ -8,8 +8,8 @@ import static org.meta_environment.rascal.interpreter.utils.Utils.unescape;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +35,7 @@ import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.BasicType;
 import org.meta_environment.rascal.ast.Bound;
@@ -93,7 +94,6 @@ import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.Lexical;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
-import org.meta_environment.rascal.ast.Expression.Location;
 import org.meta_environment.rascal.ast.Expression.Match;
 import org.meta_environment.rascal.ast.Expression.Modulo;
 import org.meta_environment.rascal.ast.Expression.Negation;
@@ -121,10 +121,14 @@ import org.meta_environment.rascal.ast.Header.Parameters;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Integer;
+import org.meta_environment.rascal.ast.Literal.Location;
 import org.meta_environment.rascal.ast.Literal.Real;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
 import org.meta_environment.rascal.ast.PatternWithAction.Arbitrary;
 import org.meta_environment.rascal.ast.PatternWithAction.Replacing;
+import org.meta_environment.rascal.ast.ProtocolPart.Interpolated;
+import org.meta_environment.rascal.ast.ProtocolPart.NonInterpolated;
+import org.meta_environment.rascal.ast.ProtocolTail.Post;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.AssertWithMessage;
 import org.meta_environment.rascal.ast.Statement.Assignment;
@@ -341,9 +345,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			ISourceLocation loc = env.getLocation();
 			String name = env.getName();
 			if (name != null && loc != null) {
-				URL url = loc.getURL();
+				URI uri = loc.getURI();
 				b.append('\t');
-				b.append(url.getAuthority() + url.getPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + ": " + name);
+				b.append(uri.getRawPath()+ ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + ": " + name);
 				b.append('\n');
 			}
 			env = env.getParent();
@@ -457,6 +461,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// TODO why not just replace the current env with the old one??
 		while (getCurrentEnvt() != old) {
 			setCurrentEnvt(getCurrentEnvt().getParent());
+			getCurrentEnvt();
 		}
 	}
 
@@ -1317,6 +1322,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			int index = node.getFieldIndex(label);
 			return makeResult(node.getFieldType(index), cons.get(index), this);
 		}
+		else if (receiver.getType().isSourceLocationType()) {
+			return receiver.fieldAccess(label, new TypeStore(), this);
+		}
 		else {
 			throw new UndeclaredFieldError(label, receiver.getType(), x);
 		}
@@ -2036,37 +2044,113 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	@Override
-	public Result<IValue> visitExpressionLocation(Location x){
-
-		String urlText = x.getUrl().toString();
-
-		Result<IValue> length = x.getLength().accept(this);
-		int iLength = ((IInteger) length.getValue()).intValue();
-
-		Result<IValue> offset = x.getOffset().accept(this);	
-		int iOffset = ((IInteger) offset.getValue()).intValue();
-
-		Result<IValue> beginLine = x.getBeginLine().accept(this);
-		int iBeginLine = ((IInteger) beginLine.getValue()).intValue();
-
-		Result<IValue> endLine = x.getEndLine().accept(this);
-		int iEndLine = ((IInteger) endLine.getValue()).intValue();
-
-		Result<IValue> beginColumn = x.getBeginColumn().accept(this);
-		int iBeginColumn = ((IInteger) beginColumn.getValue()).intValue();
-
-		Result<IValue> endColumn = x.getEndColumn().accept(this);
-		int iEndColumn = ((IInteger) endColumn.getValue()).intValue();
-
+	public Result<IValue> visitLiteralLocation(Location x) {
+		return x.getLocationLiteral().accept(this);
+	}
+	
+	public org.meta_environment.rascal.interpreter.result.Result<IValue> visitLocationLiteralDefault(org.meta_environment.rascal.ast.LocationLiteral.Default x) {
+		Result<IValue> protocolPart = x.getProtocolPart().accept(this);
+		Result<IValue> pathPart = x.getPathPart().accept(this);
+		
 		try {
-			URL url = new URL(urlText);
-			ISourceLocation r = vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+			String uri = ((IString) protocolPart.getValue()).getValue() + ((IString) pathPart.getValue()).getValue();
+			URI url = new URI(uri);
+			ISourceLocation r = vf.sourceLocation(url, 0, 0, 1, 1, 0, 0);
 			return makeResult(tf.sourceLocationType(), r, this);
-		} catch (MalformedURLException e){
-			throw new SyntaxError("location (malformed URL)", x.getLocation());
+		} catch (URISyntaxException e) {
+			throw new SyntaxError("location (malformed URI)", x.getLocation());
 		}
 	}
-
+	
+	@Override
+	public Result<IValue> visitProtocolPartNonInterpolated(NonInterpolated x) {
+		return x.getProtocolChars().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitProtocolCharsLexical(
+			org.meta_environment.rascal.ast.ProtocolChars.Lexical x) {
+		return makeResult(tf.stringType(), vf.string(x.getString().substring(1)), this);
+	}
+	
+	@Override
+	public Result<IValue> visitProtocolPartInterpolated(Interpolated x) {
+		Result<IValue> pre = x.getPre().accept(this);
+		Result<IValue> expr = x.getExpression().accept(this);
+		Result<IValue> tail = x.getTail().accept(this);
+		
+		if (!expr.getType().isSubtypeOf(tf.stringType())) {
+			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
+		}
+		
+		String result = ((IString) pre.getValue()).getValue() + ((IString) expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		
+		return makeResult(tf.stringType(), vf.string(result), this);
+	}
+	
+	@Override
+	public Result<IValue> visitProtocolTailMid(
+			org.meta_environment.rascal.ast.ProtocolTail.Mid x) {
+		Result<IValue> pre = x.getMid().accept(this);
+		Result<IValue> expr = x.getExpression().accept(this);
+		Result<IValue> tail = x.getTail().accept(this);
+		
+		if (!expr.getType().isSubtypeOf(tf.stringType())) {
+			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
+		}
+		
+		String result = ((IString) pre.getValue()).getValue() + ((IString) expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		
+		return makeResult(tf.stringType(), vf.string(result), this);
+	}
+	
+	@Override
+	public Result<IValue> visitProtocolTailPost(Post x) {
+		return x.getPost().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitPathPartInterpolated(
+			org.meta_environment.rascal.ast.PathPart.Interpolated x) {
+		Result<IValue> pre = x.getPre().accept(this);
+		Result<IValue> expr = x.getExpression().accept(this);
+		Result<IValue> tail = x.getTail().accept(this);
+		
+		if (!expr.getType().isSubtypeOf(tf.stringType())) {
+			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
+		}
+		
+		String result = ((IString) pre.getValue()).getValue() + ((IString) expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		
+		return makeResult(tf.stringType(), vf.string(result), this);
+	}
+	
+	@Override
+	public Result<IValue> visitPathPartNonInterpolated(
+			org.meta_environment.rascal.ast.PathPart.NonInterpolated x) {
+		return x.getPathChars().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitPreProtocolCharsLexical(
+			org.meta_environment.rascal.ast.PreProtocolChars.Lexical x) {
+		return makeResult(tf.stringType(), vf.string(x.getString()), this);
+	}
+	
+	@Override
+	public Result<IValue> visitPostProtocolCharsLexical(
+			org.meta_environment.rascal.ast.PostProtocolChars.Lexical x) {
+		String str = x.getString();
+		return makeResult(tf.stringType(), vf.string(str), this);
+	}
+	
+	@Override
+	public Result<IValue> visitPathCharsLexical(
+			org.meta_environment.rascal.ast.PathChars.Lexical x) {
+		String str = x.getString();
+		return makeResult(tf.stringType(), vf.string(str.substring(0, str.length() - 1)), this);
+	}
+	
 	@Override
 	public Result<IValue> visitExpressionClosure(Closure x) {
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());

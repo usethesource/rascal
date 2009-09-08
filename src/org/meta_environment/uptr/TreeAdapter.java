@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -266,7 +265,7 @@ public class TreeAdapter{
 				System.err.println("unhandled tree: " + tree + "\n");
 			}
 
-			ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
+			ISourceLocation loc = factory.sourceLocation(filename, startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
 			result = tree.setAnnotation(Factory.Location, loc);
 			
 			cache.putUnsafe(positionNode, result);

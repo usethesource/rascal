@@ -43,7 +43,6 @@ import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.Lexical;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
-import org.meta_environment.rascal.ast.Expression.Location;
 import org.meta_environment.rascal.ast.Expression.Map;
 import org.meta_environment.rascal.ast.Expression.Match;
 import org.meta_environment.rascal.ast.Expression.Modulo;
@@ -352,12 +351,6 @@ public class DebuggingDecorator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitExpressionLiteral(Literal x) {
 		suspendExpression(x);
 		return visitor.visitExpressionLiteral(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionLocation(Location x) {
-		suspendExpression(x);
-		return visitor.visitExpressionLocation(x);
 	}
 
 	@Override

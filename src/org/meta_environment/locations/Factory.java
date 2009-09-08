@@ -1,8 +1,5 @@
 package org.meta_environment.locations;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -50,12 +47,11 @@ public class Factory {
 
 	public ISourceLocation toSourceLocation(IValueFactory factory,
 			IConstructor loc) {
-		try {
 		Type type = loc.getConstructorType();
 
 		if (type == Location_File) {
 			String filename = ((IString) loc.get("filename")).getValue();
-			return factory.sourceLocation(new URL("file://" + filename), 0, 0,
+			return factory.sourceLocation(filename, 0, 0,
 					0, 0, 0, 0);
 		} else if (type == Location_Area) {
 			String filename = "/";
@@ -68,7 +64,7 @@ public class Factory {
 				int endCol = ((IInteger) area.get("endColumn")).intValue();
 				int length = ((IInteger) area.get("length")).intValue();
 
-				return factory.sourceLocation(new URL("file://" + filename),
+				return factory.sourceLocation(filename,
 						offset, length, startLine, endLine, startCol, endCol);
 			}
 			throw new UnexpectedConstructorTypeException(Area, area.getType());
@@ -83,7 +79,7 @@ public class Factory {
 				int endCol = ((IInteger) area.get("endColumn")).intValue();
 				int length = ((IInteger) area.get("length")).intValue();
 
-				return factory.sourceLocation(new URL("file://" + filename),
+				return factory.sourceLocation(filename,
 						offset, length, startLine, endLine, startCol, endCol);
 			}
 
@@ -92,9 +88,5 @@ public class Factory {
 		}
 
 		throw new UnexpectedConstructorTypeException(Location, type);
-		} 
-		catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
 	}
 }
