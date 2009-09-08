@@ -329,4 +329,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public Type getReturnType() {
 		return functionType.getReturnType();
 	}
+
+	public IEvaluatorContext getEval() {
+		return eval;
+	}
+	
 }
