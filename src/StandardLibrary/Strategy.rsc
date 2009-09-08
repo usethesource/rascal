@@ -4,23 +4,23 @@ module Strategy
 @javaClass{org.meta_environment.rascal.interpreter.strategy.All}
 public &T(&T) java makeAll(&T(&T) strategy);
 
-public &T(&T) bottom_up(&T(&T) strategy) { 
-	return &T(&T subject) {
-		&T res = makeAll(bottom_up(strategy))(subject);
+public &T1(&T1) bottom_up(&T2(&T2) strategy) { 
+	return &T3(&T3 subject) {
+		&T3 res = makeAll(bottom_up(strategy))(subject);
 		return strategy(res);
 	};
 }
 
-public &T(&T) top_down(&T(&T) strategy) { 
-	return &T(&T subject) {
-		&T res = strategy(subject);
+public &T1(&T1) top_down(&T2(&T2) strategy) { 
+	return &T3(&T3 subject) {
+		&T3 res = strategy(subject);
 		return makeAll(top_down(strategy))(res);
 	};
 }
 
-public &T(&T) innermost(&T(&T) strategy) { 
-	return &T(&T subject) {
-	   &T temp =  makeAll(innermost(strategy))(subject);
+public &T1(&T1) innermost(&T2(&T2) strategy) { 
+	return &T3(&T3 subject) {
+	   &T3 temp =  makeAll(innermost(strategy))(subject);
 	   while(temp != subject) {
 	    subject = temp;
 	    temp = innermost(strategy)(subject);
