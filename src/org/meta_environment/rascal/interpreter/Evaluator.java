@@ -165,6 +165,8 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.FromCurrentWorkingDirectoryLoader;
+import org.meta_environment.rascal.interpreter.load.FromDefinedRascalPathLoader;
+import org.meta_environment.rascal.interpreter.load.FromDefinedSdfSearchPathPathContributor;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
@@ -264,6 +266,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// everything rooted at the src directory 
 		loader.addFileLoader(new FromResourceLoader(this.getClass()));
 
+		// loads from -Drascal.path=/colon-separated/path
+		loader.addFileLoader(new FromDefinedRascalPathLoader());
+		
 		// add current wd and sdf-library to search path for SDF modules
 		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
@@ -275,6 +280,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				return result;
 			}
 		});
+		
+		// adds folders using -Drascal.sdf.path=/colon-separated/path
+		loader.addSdfSearchPathContributor(new FromDefinedSdfSearchPathPathContributor());
 
 		// load Java classes from the current jar (for the standard library)
 		classLoaders.add(getClass().getClassLoader());

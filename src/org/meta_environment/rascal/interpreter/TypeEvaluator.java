@@ -25,6 +25,7 @@ import org.meta_environment.rascal.ast.BasicType.Node;
 import org.meta_environment.rascal.ast.BasicType.Real;
 import org.meta_environment.rascal.ast.BasicType.ReifiedAdt;
 import org.meta_environment.rascal.ast.BasicType.ReifiedConstructor;
+import org.meta_environment.rascal.ast.BasicType.ReifiedFunction;
 import org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal;
 import org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType;
 import org.meta_environment.rascal.ast.BasicType.ReifiedType;
@@ -681,6 +682,15 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		}
 		
 		throw new NonWellformedTypeError("a reified non-terminal type should look like non-terminal(Symbol symbol, x)", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeReifiedFunction(ReifiedFunction x) {
+		if (typeArgument.getArity() < 1) {
+			throw new ImplementationError("a reified function type has at least a return type, as in fun(int).");
+		}
+
+		throw new NotYetImplemented(x);
 	}
 	
 	@Override
