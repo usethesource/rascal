@@ -1,6 +1,6 @@
 package org.meta_environment.rascal.interpreter.control_exceptions;
 
-import java.net.URL;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -58,9 +58,9 @@ public final class Throw extends ControlException {
 	@Override
 	public String getMessage() {
 		if (loc != null) {
-			URL url = loc.getURL();
+			URI url = loc.getURI();
 			
-			return (url.getProtocol().equals("file") ? (url.getAuthority() + url.getPath()) : url) 
+			return (url.getScheme().equals("file") ? (url.getAuthority() + url.getPath()) : url) 
 					+ ":" + loc.getBeginLine() 
 					+ "," + loc.getBeginColumn() 
 					+ ": " + super.getMessage();

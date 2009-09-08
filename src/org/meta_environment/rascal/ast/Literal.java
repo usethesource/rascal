@@ -158,5 +158,34 @@ private org.meta_environment.rascal.ast.StringLiteral stringLiteral;
  		z.$setStringLiteral(x);
 		return z;
 	}	
+} 
+public org.meta_environment.rascal.ast.LocationLiteral getLocationLiteral() { throw new UnsupportedOperationException(); }
+public boolean hasLocationLiteral() { return false; }
+public boolean isLocation() { return false; }
+static public class Location extends Literal {
+/** locationLiteral:LocationLiteral -> Literal {cons("Location")} */
+	private Location() {
+		super();
+	}
+	public Location(INode node, org.meta_environment.rascal.ast.LocationLiteral locationLiteral) {
+		this.node = node;
+		this.locationLiteral = locationLiteral;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitLiteralLocation(this);
+	}
+
+	public boolean isLocation() { return true; }
+
+	public boolean hasLocationLiteral() { return true; }
+
+private org.meta_environment.rascal.ast.LocationLiteral locationLiteral;
+	public org.meta_environment.rascal.ast.LocationLiteral getLocationLiteral() { return locationLiteral; }
+	private void $setLocationLiteral(org.meta_environment.rascal.ast.LocationLiteral x) { this.locationLiteral = x; }
+	public Location setLocationLiteral(org.meta_environment.rascal.ast.LocationLiteral x) { 
+		Location z = new Location();
+ 		z.$setLocationLiteral(x);
+		return z;
+	}	
 }
 }

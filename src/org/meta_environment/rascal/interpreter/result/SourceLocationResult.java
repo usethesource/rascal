@@ -2,13 +2,15 @@ package org.meta_environment.rascal.interpreter.result;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
@@ -18,9 +20,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class SourceLocationResult extends ElementResult<ISourceLocation> {
+	private final Type intTuple;
 
 	protected SourceLocationResult(Type type, ISourceLocation loc, IEvaluatorContext ctx) {
 		super(type, loc, ctx);
+		intTuple = getTypeFactory().tupleType(getTypeFactory().integerType(), "line", getTypeFactory().integerType(), "column");
 	}
 
 	@Override
@@ -28,36 +32,78 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		return that.equalToSourceLocation(this, ctx);
 	}
 
+	@Override
+	public Result<?> call(Type[] argTypes, IValue[] actuals,
+			IEvaluatorContext ctx) {
+		if (actuals.length != 4) {
+			throw new SyntaxError("location constructor", ctx.getCurrentAST().getLocation());
+		}
+		
+		if (!argTypes[0].isSubtypeOf(getTypeFactory().integerType())) {
+			throw new UnexpectedTypeError(getTypeFactory().integerType(), argTypes[0], ctx.getCurrentAST());
+		}
+		if (!argTypes[1].isSubtypeOf(getTypeFactory().integerType())) {
+			throw new UnexpectedTypeError(getTypeFactory().integerType(), argTypes[1], ctx.getCurrentAST());
+		}
+		if (!argTypes[2].isSubtypeOf(intTuple)) {
+			throw new UnexpectedTypeError(intTuple, argTypes[2], ctx.getCurrentAST());
+		}
+		if (!argTypes[3].isSubtypeOf(intTuple)) {
+			throw new UnexpectedTypeError(intTuple, argTypes[3], ctx.getCurrentAST());
+		}
+		
+		int iLength = Integer.parseInt(actuals[1].toString());
+		int iOffset = Integer.parseInt(actuals[0].toString());
+		int iBeginLine = Integer.parseInt(((ITuple) actuals[2]).get(0).toString());
+		int iBeginColumn = Integer.parseInt(((ITuple) actuals[2]).get(1).toString());
+		int iEndLine = Integer.parseInt(((ITuple) actuals[3]).get(0).toString());
+		int iEndColumn = Integer.parseInt(((ITuple) actuals[3]).get(1).toString());
+		URI uri = getValue().getURI();
+		
+		return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+		
+	}
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
+		IValueFactory vf = getValueFactory();
+		if (name.equals("scheme")) {
+			return makeResult(getTypeFactory().stringType(), vf.string(getValue().getURI().getScheme()), ctx);
+		}
 		if (name.equals("length")) {
-			return makeResult(getTypeFactory().integerType(), getValueFactory()
+			return makeResult(getTypeFactory().integerType(), vf
 					.integer(getValue().getLength()), ctx);
 		} 
 		else if (name.equals("offset")) {
-			return makeResult(getTypeFactory().integerType(), getValueFactory()
+			return makeResult(getTypeFactory().integerType(), vf
 					.integer(getValue().getOffset()), ctx);
 		} 
 		else if (name.equals("beginLine")) {
-			return makeResult(getTypeFactory().integerType(), getValueFactory()
+			return makeResult(getTypeFactory().integerType(), vf
 					.integer(getValue().getBeginLine()), ctx);
 		} 
+		else if (name.equals("begin")) {
+			return makeResult(intTuple, vf.tuple(vf.integer(getValue().getBeginLine()), vf.integer(getValue().getBeginColumn())), ctx);
+		}
+		else if (name.equals("end")) {
+			return makeResult(intTuple, vf.tuple(vf.integer(getValue().getEndLine()), vf.integer(getValue().getEndColumn())), ctx);
+		}
+	
 		else if (name.equals("beginColumn")) {
-			return makeResult(getTypeFactory().integerType(), getValueFactory()
+			return makeResult(getTypeFactory().integerType(), vf
 					.integer(getValue().getBeginColumn()), ctx);
 		} 
 		else if (name.equals("endLine")) {
-			return makeResult(getTypeFactory().integerType(), getValueFactory()
+			return makeResult(getTypeFactory().integerType(), vf
 					.integer(getValue().getEndLine()), ctx);
 		} 
 		else if (name.equals("endColumn")) {
-			return makeResult(getTypeFactory().integerType(), getValueFactory()
+			return makeResult(getTypeFactory().integerType(), vf
 					.integer(getValue().getEndColumn()), ctx);
 		} 
-		else if (name.equals("url")) {
-			return makeResult(getTypeFactory().stringType(), getValueFactory()
-					.string(getValue().getURL().toString()), ctx);
+		else if (name.equals("uri")) {
+			return makeResult(getTypeFactory().stringType(), vf
+					.string(getValue().getURI().toString()), ctx);
 		} 
 		else {
 			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
@@ -73,36 +119,74 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		int iBeginColumn = loc.getBeginColumn();
 		int iEndLine = loc.getEndLine();
 		int iEndColumn = loc.getEndColumn();
-		String urlText = loc.getURL().toString();
+		String urlText = loc.getURI().toString();
 		
 		Type replType = repl.getType();
 		IValue replValue = repl.getValue();
-		if (name.equals("url")) {
+		if (name.equals("uri")) {
 			if (!replType.isStringType()) {
 				throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 			}
 			urlText = ((IString)repl.getValue()).getValue();
 		} 
 		else {
-			if (!replType.isIntegerType()) {
-				throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
+			
+			if (name.equals("scheme")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				
+				String oldScheme = loc.getURI().getScheme();
+				urlText = ((IString) repl.getValue()).getValue() + loc.getURI().toString().substring(oldScheme.length());
 			}
-			if (name.equals("length")){
+			else if (name.equals("length")){
+				if (!replType.isIntegerType()) {
+					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
+				}
 				iLength = ((IInteger) replValue).intValue();
 			} 
 			else if (name.equals("offset")){
+				if (!replType.isIntegerType()) {
+					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
+				}
 				iOffset = ((IInteger) replValue).intValue();
 			} 
 			else if (name.equals("beginLine")){
+				if (!replType.isIntegerType()) {
+					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
+				}
 				iBeginLine = ((IInteger) replValue).intValue();
 			} 
+			else if (name.equals("begin")) {
+				if (!replType.isSubtypeOf(intTuple)) {
+					throw new UnexpectedTypeError(intTuple, replType, ctx.getCurrentAST());
+				}
+				iBeginLine = ((IInteger) ((ITuple) replValue).get(0)).intValue();
+				iBeginColumn = ((IInteger) ((ITuple) replValue).get(1)).intValue();
+			}
+			else if (name.equals("end")) {
+				if (!replType.isSubtypeOf(intTuple)) {
+					throw new UnexpectedTypeError(intTuple, replType, ctx.getCurrentAST());
+				}
+				iEndLine = ((IInteger) ((ITuple) replValue).get(0)).intValue();
+				iEndColumn = ((IInteger) ((ITuple) replValue).get(1)).intValue();
+			}
 			else if (name.equals("beginColumn")){
+				if (!replType.isIntegerType()) {
+					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
+				}
 				iBeginColumn = ((IInteger) replValue).intValue();
 			} 
 			else if (name.equals("endLine")){
+				if (!replType.isIntegerType()) {
+					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
+				}
 				iEndLine = ((IInteger) replValue).intValue();
 			} 
 			else if (name.equals("endColumn")){
+				if (!replType.isIntegerType()) {
+					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
+				}
 				iEndColumn = ((IInteger) replValue).intValue();
 			} 
 			else {
@@ -111,15 +195,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 		}
 		try {
-			URL url = new URL(urlText);
+			URI url = new URI(urlText);
 			ISourceLocation nloc = getValueFactory().sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
 			return makeResult(getType(), nloc, ctx);
 		} 
-		catch (MalformedURLException e) {
-			throw new SyntaxError("URL", ctx.getCurrentAST().getLocation());
-		} 
 		catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), null);
+		} catch (URISyntaxException e) {
+			throw RuntimeExceptionFactory.parseError(ctx.getCurrentAST().getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
 	
@@ -143,7 +226,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		if (left.isEqual(right)) {
 			return makeIntegerResult(0, ctx);
 		}
-		int compare = left.getURL().toString().compareTo(right.getURL().toString());
+		int compare = left.getURI().toString().compareTo(right.getURI().toString());
 		if (compare != 0) {
 			return makeIntegerResult(compare, ctx);
 		}

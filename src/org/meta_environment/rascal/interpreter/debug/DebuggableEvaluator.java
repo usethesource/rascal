@@ -44,7 +44,6 @@ import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.Lexical;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
-import org.meta_environment.rascal.ast.Expression.Location;
 import org.meta_environment.rascal.ast.Expression.Map;
 import org.meta_environment.rascal.ast.Expression.Match;
 import org.meta_environment.rascal.ast.Expression.Modulo;
@@ -358,12 +357,6 @@ public class DebuggableEvaluator extends Evaluator {
 	public Result<IValue> visitExpressionLiteral(Literal x) {
 		suspend(x);
 		return super.visitExpressionLiteral(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionLocation(Location x) {
-		suspend(x);
-		return super.visitExpressionLocation(x);
 	}
 
 	@Override
