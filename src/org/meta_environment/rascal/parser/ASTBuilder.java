@@ -25,7 +25,6 @@ import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.IntegerLiteral;
 import org.meta_environment.rascal.ast.JavaFunctionBody;
 import org.meta_environment.rascal.ast.Literal;
-import org.meta_environment.rascal.ast.MappingCache;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
@@ -46,7 +45,6 @@ import org.meta_environment.uptr.TreeAdapter;
 /**
  * Uses reflection to construct an AST hierarchy from a 
  * UPTR parse node of a rascal program.
- *
  */
 public class ASTBuilder {
 	private static final String RASCAL_SORT_PREFIX = "_";
