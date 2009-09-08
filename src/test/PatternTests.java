@@ -801,6 +801,17 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{[1, /g(int N3), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N3 == 3;}"));
 	}
 	
+	@Test
+	public void descendant3(){
+		assertTrue(runTestInSameEvaluator("[n | /int n <- [1,2,3]] == [1,2,3];"));
+		assertTrue(runTestInSameEvaluator("[b | /bool b <- [true,false,true]] == [true,false,true];"));
+		assertTrue(runTestInSameEvaluator("[s | /str s <- [\"a\",\"b\"]] == [\"a\",\"b\"];"));
+		
+		assertTrue(runTestInSameEvaluator("{n | /int n <- {1,2,3}} == {1,2,3};"));
+		assertTrue(runTestInSameEvaluator("{n | /int n <- {<1,2,3>}} == {1,2,3};"));
+		assertTrue(runTestInSameEvaluator("{v | /value v <- {<1,\"b\",true>}} == {1,\"b\",true};"));
+	}
+	
 	@Test(expected=StaticError.class)
 	public void descendantWrongType(){
 		prepare("data F = f(F left, F right) | g(int N);");

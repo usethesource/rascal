@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -109,7 +110,21 @@ public class EnumeratorResult extends AbstractMatchingResult {
 			}
 			checkMayOccur(patType, subjectType);
 			iterator = new NodeReader((INode) subjectValue, bottomup);
-		} else if(subjectType.isStringType()){
+		} else if(subjectType.isTupleType()){
+			checkNoStrategy(subjectType);
+			int nElems = subjectType.getArity();
+			for(int i = 0; i < nElems; i++){
+				if(!subjectType.getFieldType(i).isSubtypeOf(patType)) {
+					throw new UnexpectedTypeError(patType, subjectType.getFieldType(i), ctx.getCurrentAST());
+				}
+			}
+			iterator = new TupleElementGenerator((ITuple)subjectValue);
+			
+		} else if(subjectType.isBoolType() ||
+				subjectType.isIntegerType() ||
+				subjectType.isStringType() ||
+				subjectType.isSourceLocationType())
+				{
 			checkNoStrategy(subjectType);
 			if(!subjectType.isSubtypeOf(patType)) {
 				throw new UnexpectedTypeError(patType, subjectType, ctx.getCurrentAST());
