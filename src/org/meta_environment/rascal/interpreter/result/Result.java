@@ -774,6 +774,12 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
 	}
 	
+	protected <U extends IValue> Result<U> addSourceLocation(
+			SourceLocationResult that, IEvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
+	}
+
+	
 	
 	public boolean isPublic() {
 		return isPublic;
@@ -791,6 +797,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return inferredType;
 	}
 
+	
 	
 
 
