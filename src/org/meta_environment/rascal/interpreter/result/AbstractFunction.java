@@ -21,6 +21,7 @@ import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.types.FunctionType;
+import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 
 /**
  * Lambda implements the basic functionality of callable functions. Since functions are
@@ -56,6 +57,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		this.hasVarArgs = varargs;
 		this.declarationEnvironment = env;
 	}
+	
+	
     
 	public Type getFormals() {
 		return functionType.getArgumentTypes();
@@ -84,6 +87,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 		
 		return false;
+	}
+	
+	public boolean hasVarArgs() {
+		return hasVarArgs;
 	}
 	
 	public boolean isAmbiguous(AbstractFunction other) {
@@ -322,6 +329,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return (FunctionType) getType();
 	}
 	
+	/* test if a function is of type &T(&T) */
+	public boolean isTypePreserving() {
+		Type t = TypeFactory.getInstance().parameterType("T");
+		return getFunctionType().comparable(RascalTypeFactory.getInstance().functionType(t,t));
+	}
+	
 	public String getName() {
 		return "";
 	}
@@ -330,7 +343,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return functionType.getReturnType();
 	}
 
-	public IEvaluatorContext getEval() {
+	public Evaluator getEval() {
 		return eval;
 	}
 	
