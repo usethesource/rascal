@@ -3,6 +3,7 @@ package org.meta_environment.rascal.parser;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -11,6 +12,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.ValueFactoryFactory;
@@ -23,6 +25,7 @@ import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.IntegerLiteral;
 import org.meta_environment.rascal.ast.JavaFunctionBody;
 import org.meta_environment.rascal.ast.Literal;
+import org.meta_environment.rascal.ast.MappingCache;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
@@ -50,9 +53,23 @@ public class ASTBuilder {
 	private ASTFactory factory;
     private Class<? extends ASTFactory> clazz;
     
+    private final Expression dummyEmptyTree;
+    
+    private MappingCache<INode, AbstractAST> ambCache = new MappingCache<INode, AbstractAST>();
+    private MappingCache<INode, AbstractAST> sortCache = new MappingCache<INode, AbstractAST>();
+    private MappingCache<INode, AbstractAST> lexCache = new MappingCache<INode, AbstractAST>();
+    private MappingCache<IValue, Expression> matchCache = new MappingCache<IValue, Expression>();
+    private MappingCache<IValue, Expression> constructorCache = new MappingCache<IValue, Expression>();
+    
 	public ASTBuilder(ASTFactory factory) {
 		this.factory = factory;
 		this.clazz = factory.getClass();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+		
+		// this tree should never appear in "nature", so we can use it as a dummy
+		this.dummyEmptyTree = factory.makeExpressionAmbiguity(
+				(INode) Factory.Tree_Amb.make(vf, vf.list()), 
+				Collections.<Expression>emptyList());
 	}
 	
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
@@ -169,6 +186,12 @@ public class ASTBuilder {
 	}
 
 	private AbstractAST buildContextFreeNode(IConstructor tree)  {
+		AbstractAST cached = sortCache.get(tree);
+		
+		if (cached != null) {
+			return cached;
+		}
+		
 		String constructorName = TreeAdapter.getConstructorName(tree);
 		if (constructorName == null) {
 			throw new ImplementationError("All Rascal productions should have a constructor name: " + ProductionAdapter.getTree(TreeAdapter.getProduction(tree)));
@@ -235,7 +258,7 @@ public class ASTBuilder {
 		}
 
 		AbstractAST ast = callMakerMethod(sort, cons, formals, actuals);
-
+		
 		if (arity > 2) { // is not an injection so kill accumulation of prefer and avoid
 			total.setAvoided(false);
 			total.setPreferred(false);
@@ -251,19 +274,31 @@ public class ASTBuilder {
 		}
 		
 		ast.setStats(total);
+		
+		sortCache.putUnsafe(tree, ast);
 		return ast;
 	}
 	
 	private AbstractAST buildLexicalNode(IConstructor tree) {
+		AbstractAST cached = lexCache.get(tree);
+		if (cached != null) {
+			return cached;
+		}
 		String sort = capitalize(sortName(tree));
 
 		Class<?> formals[] = new Class<?>[] { INode.class, String.class };
 		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
 
-		return callMakerMethod(sort, "Lexical", formals, actuals);
+		AbstractAST result = callMakerMethod(sort, "Lexical", formals, actuals);
+		lexCache.putUnsafe(tree, result);
+		return result;
 	}
 	
 	private AbstractAST filter(IConstructor tree) {
+		AbstractAST cached = ambCache.get(tree);
+		if (cached != null) {
+			return cached;
+		}
 		ISet altsIn = TreeAdapter.getAlternatives(tree);
 		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
 		String sort = "";
@@ -308,6 +343,8 @@ public class ASTBuilder {
 		AbstractAST ast = callMakerMethod(sort, "Ambiguity", formals, actuals);
 		
 		ast.setStats(ref != null ? ref : new ASTStatistics());
+		
+		ambCache.putUnsafe(tree, ast);
 		return ast;
 	}
 
@@ -410,7 +447,18 @@ public class ASTBuilder {
 	}
 
 	private AbstractAST lift(IConstructor tree, boolean match) {
+		AbstractAST cached = (match ? matchCache : constructorCache).get(tree);
+		if (cached != null) {
+			if (cached == dummyEmptyTree) {
+				return null;
+			}
+			return cached;
+		}
+		
+		
 		if (TreeAdapter.isEpsilon(tree)) {
+			matchCache.putUnsafe(tree, dummyEmptyTree);
+			constructorCache.putUnsafe(tree, dummyEmptyTree);
 			return null;
 		}
 		
@@ -423,10 +471,21 @@ public class ASTBuilder {
 			stats.setConcreteFragmentSize(TreeAdapter.yield(pattern).length());
 		}
 		
+		if (match) {
+			matchCache.putUnsafe(tree, ast);
+		}
+		else {
+			constructorCache.putUnsafe(tree, ast);
+		}
 		return ast;
 	}
 
 	private Expression lift(IValue pattern, IConstructor source, boolean match, boolean inlist) {
+		Expression cached = (match ? matchCache : constructorCache).get(pattern);
+		if (cached != null) {
+			return cached;
+		}
+		
 		Type type = pattern.getType();
 		if (type.isNodeType()) {
 			INode node = (INode) pattern;
@@ -450,7 +509,9 @@ public class ASTBuilder {
 						   if (cons != null && (cons.equals("MetaVariable")
 								   // TODO: TypedMetaVariable does not exist in grammar
 								   || cons.equals("TypedMetaVariable"))) {
-							   return liftVariable(child);
+							   Expression result = liftVariable(child);
+							   (match ? matchCache : constructorCache).putUnsafe(pattern, result);
+							   return result;
 						   }
 					   }
 					}
@@ -460,11 +521,15 @@ public class ASTBuilder {
 					if (cons != null && (cons.equals("MetaVariable")
 							// TODO: TypedMetaVariable does not exist in grammar
 							|| cons.equals("TypedMetaVariable"))) {
-						return liftVariable(tree);
+						Expression result = liftVariable(tree);
+						(match ? matchCache : constructorCache).putUnsafe(pattern, result);
+						return result;
 					}
 					
 					if (match && SymbolAdapter.isCfOptLayout(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)))) {
-						return wildCard(tree);
+						Expression result = wildCard(tree);
+						(match ? matchCache : constructorCache).putUnsafe(pattern, result);
+						return result;
 					}
 					
 					if (TreeAdapter.isContextFreeInjectionOrSingleton(tree)) {
@@ -497,11 +562,15 @@ public class ASTBuilder {
 			}
 			
 			if (isAmb && ((Expression.Set)args.get(0)).getElements().size() == 1) {
-				return ((Expression.Set)args.get(0)).getElements().get(0);
+				Expression result = ((Expression.Set)args.get(0)).getElements().get(0);
+				(match ? matchCache : constructorCache).putUnsafe(pattern, result);
+				return result;
 			}
 
 			Expression.CallOrTree ast = new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
 			ast.setStats(stats);
+			
+			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
 			return ast;
 		}
 		else if (type.isListType()) {
@@ -536,13 +605,20 @@ public class ASTBuilder {
 			}
 			Expression.List ast = new Expression.List(source, result);
 			ast.setStats(stats);
+			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
 			return ast;
 		}
 		else if (type.isStringType()) {
-			return new Expression.Literal(source, new Literal.String(source, new StringLiteral.Lexical(source, pattern.toString())));
+			Expression result = new Expression.Literal(source, new Literal.String(source, new StringLiteral.Lexical(source, pattern.toString())));
+			matchCache.putUnsafe(pattern, result);
+			constructorCache.putUnsafe(pattern, result);
+			return result;
 		}
 		else if (type.isIntegerType()) {
-			return new Expression.Literal(source, new Literal.Integer(source, new IntegerLiteral.DecimalIntegerLiteral(source, new DecimalIntegerLiteral.Lexical(source, pattern.toString()))));
+			Expression result = new Expression.Literal(source, new Literal.Integer(source, new IntegerLiteral.DecimalIntegerLiteral(source, new DecimalIntegerLiteral.Lexical(source, pattern.toString()))));
+			matchCache.putUnsafe(pattern, result);
+			constructorCache.putUnsafe(pattern, result);
+			return result;
 		}
 		else if (type.isSetType()) {
 			// this code depends on the fact that only amb nodes can contain sets
@@ -571,6 +647,7 @@ public class ASTBuilder {
 			
 			Expression.Set ast = new Expression.Set(source, result);
 			ast.setStats(ref != null ? ref : new ASTStatistics());
+			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
 			return ast;
 		}
 		else {
