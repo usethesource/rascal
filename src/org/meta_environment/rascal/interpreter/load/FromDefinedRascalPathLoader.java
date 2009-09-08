@@ -11,17 +11,22 @@ public class FromDefinedRascalPathLoader implements IModuleFileLoader {
 	
 	public FromDefinedRascalPathLoader() {
 		String property = System.getProperty("rascal.path");
-		loaders = new LinkedList<FromDirectoryLoader>();
 		
-		for (String path : property.split(":")) {
-			loaders.add(new FromDirectoryLoader(path));
+		if (property != null) {
+			loaders = new LinkedList<FromDirectoryLoader>();
+
+			for (String path : property.split(":")) {
+				loaders.add(new FromDirectoryLoader(path));
+			}
 		}
 	}
 
 	public boolean fileExists(String filename) {
-		for (FromDirectoryLoader loader : loaders) {
-			if (loader.fileExists(filename)) {
-				return true;
+		if (loaders != null) {
+			for (FromDirectoryLoader loader : loaders) {
+				if (loader.fileExists(filename)) {
+					return true;
+				}
 			}
 		}
 		
@@ -29,9 +34,11 @@ public class FromDefinedRascalPathLoader implements IModuleFileLoader {
 	}
 
 	public InputStream getInputStream(String filename) {
-		for (FromDirectoryLoader loader : loaders) {
-			if (loader.fileExists(filename)) {
-				return loader.getInputStream(filename);
+		if (loaders != null) {
+			for (FromDirectoryLoader loader : loaders) {
+				if (loader.fileExists(filename)) {
+					return loader.getInputStream(filename);
+				}
 			}
 		}
 		
@@ -44,9 +51,11 @@ public class FromDefinedRascalPathLoader implements IModuleFileLoader {
 
 	public boolean tryWriteBinary(String filename, String binaryName,
 			IConstructor tree) {
-		for (FromDirectoryLoader loader : loaders) {
-			if (loader.fileExists(filename)) {
-				return loader.tryWriteBinary(filename, binaryName, tree);
+		if (loaders != null) {
+			for (FromDirectoryLoader loader : loaders) {
+				if (loader.fileExists(filename)) {
+					return loader.tryWriteBinary(filename, binaryName, tree);
+				}
 			}
 		}
 		

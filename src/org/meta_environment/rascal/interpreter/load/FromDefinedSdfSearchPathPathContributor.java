@@ -8,8 +8,10 @@ public class FromDefinedSdfSearchPathPathContributor implements ISdfSearchPathCo
 		String path = System.getProperty("rascal.sdf.path");
 		List<String> paths = new LinkedList<String>();
 		
-		for (String p : path.split(":")) {
-			paths.add(p);
+		if (path != null) {
+			for (String p : path.split(":")) {
+				paths.add(p);
+			}
 		}
 		
 		return paths;
