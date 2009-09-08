@@ -1,7 +1,5 @@
 package org.meta_environment.rascal.ast;
 
-import org.eclipse.imp.pdb.facts.INode;
-
 public interface IASTVisitor<T> {
 	public T visitExpressionVisit(Expression.Visit x);
 
