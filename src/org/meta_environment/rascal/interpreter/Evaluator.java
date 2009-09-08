@@ -2070,7 +2070,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitProtocolCharsLexical(
 			org.meta_environment.rascal.ast.ProtocolChars.Lexical x) {
-		return makeResult(tf.stringType(), vf.string(x.getString().substring(1)), this);
+		String str = x.getString();
+		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 3)), this);
 	}
 	
 	@Override
