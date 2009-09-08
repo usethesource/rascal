@@ -284,6 +284,21 @@ static public class ReifiedConstructor extends BasicType {
 
 	public boolean isReifiedConstructor() { return true; }	
 } 
+public boolean isReifiedFunction() { return false; }
+static public class ReifiedFunction extends BasicType {
+/** "fun" -> BasicType {cons("ReifiedFunction")} */
+	private ReifiedFunction() {
+		super();
+	}
+	public ReifiedFunction(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeReifiedFunction(this);
+	}
+
+	public boolean isReifiedFunction() { return true; }	
+} 
 public boolean isReifiedNonTerminal() { return false; }
 static public class ReifiedNonTerminal extends BasicType {
 /** "non-terminal" -> BasicType {cons("ReifiedNonTerminal")} */

@@ -974,6 +974,14 @@ org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal x = (org.meta_envir
        }
        return x; 
 }
+public org.meta_environment.rascal.ast.BasicType.ReifiedFunction makeBasicTypeReifiedFunction(INode node) { 
+org.meta_environment.rascal.ast.BasicType.ReifiedFunction x = (org.meta_environment.rascal.ast.BasicType.ReifiedFunction) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.BasicType.ReifiedFunction(node);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
 public org.meta_environment.rascal.ast.BasicType.ReifiedConstructor makeBasicTypeReifiedConstructor(INode node) { 
 org.meta_environment.rascal.ast.BasicType.ReifiedConstructor x = (org.meta_environment.rascal.ast.BasicType.ReifiedConstructor) sortCache.get(node);
        if(x == null){

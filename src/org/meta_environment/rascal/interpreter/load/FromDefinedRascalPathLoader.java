@@ -1,0 +1,56 @@
+package org.meta_environment.rascal.interpreter.load;
+
+import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.eclipse.imp.pdb.facts.IConstructor;
+
+public class FromDefinedRascalPathLoader implements IModuleFileLoader {
+	private List<FromDirectoryLoader> loaders;
+	
+	public FromDefinedRascalPathLoader() {
+		String property = System.getProperty("rascal.path");
+		loaders = new LinkedList<FromDirectoryLoader>();
+		
+		for (String path : property.split(":")) {
+			loaders.add(new FromDirectoryLoader(path));
+		}
+	}
+
+	public boolean fileExists(String filename) {
+		for (FromDirectoryLoader loader : loaders) {
+			if (loader.fileExists(filename)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	public InputStream getInputStream(String filename) {
+		for (FromDirectoryLoader loader : loaders) {
+			if (loader.fileExists(filename)) {
+				return loader.getInputStream(filename);
+			}
+		}
+		
+		return null;
+	}
+
+	public boolean supportsLoadingBinaries() {
+		return true;
+	}
+
+	public boolean tryWriteBinary(String filename, String binaryName,
+			IConstructor tree) {
+		for (FromDirectoryLoader loader : loaders) {
+			if (loader.fileExists(filename)) {
+				return loader.tryWriteBinary(filename, binaryName, tree);
+			}
+		}
+		
+		return false;
+	}
+
+}
