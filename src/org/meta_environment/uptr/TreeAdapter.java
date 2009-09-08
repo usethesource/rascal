@@ -438,8 +438,28 @@ public class TreeAdapter{
 	 * @return true if the tree does not have any characters, it's just an empty derivation
 	 */
 	public static boolean isEpsilon(IConstructor tree) {
-		// TODO: optimize this
-		return yield(tree).length() == 0;
+		if (isAppl(tree)) {
+			for (IValue arg : getArgs(tree)) {
+				boolean argResult = isEpsilon((IConstructor) arg);
+				
+				if (argResult == false) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
+	
+		if (isAmb(tree)) {
+			return isEpsilon((IConstructor) getAlternatives(tree).iterator().next());
+		}
+		
+		if (isCycle(tree)) {
+			return true;
+		}
+
+		// is a character
+		return false;
 	}
 
 	public static boolean hasPreferAttribute(IConstructor tree) {
