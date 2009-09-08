@@ -6,6 +6,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
@@ -125,5 +126,9 @@ public class StringResult extends ElementResult<IString> {
 		return bool(that.comparisonInts(this, ctx) >= 0);
 	}
 
-	
+	protected <U extends IValue> Result<U> addSourceLocation(
+			SourceLocationResult that, IEvaluatorContext ctx) {
+		Result<IValue> path = that.fieldAccess("path", new TypeStore(), ctx);
+		return that.fieldUpdate("path", path.add(this, ctx), new TypeStore(), ctx);
+	}	
 }

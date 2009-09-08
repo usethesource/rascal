@@ -274,4 +274,16 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		} 
 		return makeIntegerResult(1, ctx);
 	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that,
+			IEvaluatorContext ctx) {
+		return that.addSourceLocation(this, ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addString(StringResult that,
+			IEvaluatorContext ctx) {
+		return that.addSourceLocation(this, ctx);
+	}
 }
