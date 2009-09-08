@@ -18,8 +18,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.ast.MappingCache;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.parser.MappingCache;
 import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
 
 
