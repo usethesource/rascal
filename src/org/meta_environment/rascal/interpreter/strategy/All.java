@@ -19,7 +19,8 @@ public class All extends StrategyFunction {
 			IEvaluatorContext ctx) {
 		Visitable result = VisitableFactory.make(argValues[0]);
 		for (int i = 0; i < result.arity(); i++) {
-			result = result.set(i, VisitableFactory.make(function.call(argTypes, new IValue[]{result.get(i).getValue()}, ctx).getValue()));
+			IValue child = result.get(i).getValue();
+			result = result.set(i, VisitableFactory.make(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue()));
 		}
 		return new ElementResult(result.getValue().getType(), result.getValue(), ctx);
 	}
