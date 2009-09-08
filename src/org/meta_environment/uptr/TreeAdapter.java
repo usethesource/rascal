@@ -308,7 +308,7 @@ public class TreeAdapter{
 				
 				PositionNode other = (PositionNode) o;
 				
-				return (offset == other.offset && tree.equals(other.tree));
+				return (offset == other.offset && tree == other.tree); // NOTE: trees are shared, so they are pointer equal.
 			}
 		}
 	}

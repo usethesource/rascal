@@ -111,7 +111,7 @@ public class MappingCache<K, V>{
 		if(startEntry != null){
 			Entry<K, V> entry = startEntry;
 			do{
-				if(hash == entry.hash && key.equals(entry.key)) return entry.value; // The key is already present.
+				if(key == entry.key || (hash == entry.hash && key.equals(entry.key))) return entry.value; // The key is already present.
 				
 				entry = entry.next;
 			}while(entry != null);
@@ -133,7 +133,7 @@ public class MappingCache<K, V>{
 		
 		Entry<K, V> entry = data[position];
 		while(entry != null){
-			if(hash == entry.hash && key.equals(entry.key)) return entry.value;
+			if(key == entry.key || (hash == entry.hash && key.equals(entry.key))) return entry.value;
 			
 			entry = entry.next;
 		}
