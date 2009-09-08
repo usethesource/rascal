@@ -2053,7 +2053,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> pathPart = x.getPathPart().accept(this);
 		
 		try {
-			String uri = ((IString) protocolPart.getValue()).getValue() + ((IString) pathPart.getValue()).getValue();
+			String uri = ((IString) protocolPart.getValue()).getValue() + "://" + ((IString) pathPart.getValue()).getValue();
 			URI url = new URI(uri);
 			ISourceLocation r = vf.sourceLocation(url, 0, 0, 1, 1, 0, 0);
 			return makeResult(tf.sourceLocationType(), r, this);
@@ -2134,14 +2134,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitPreProtocolCharsLexical(
 			org.meta_environment.rascal.ast.PreProtocolChars.Lexical x) {
-		return makeResult(tf.stringType(), vf.string(x.getString()), this);
+		String str = x.getString();
+		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 1)), this);
 	}
 	
 	@Override
 	public Result<IValue> visitPostProtocolCharsLexical(
 			org.meta_environment.rascal.ast.PostProtocolChars.Lexical x) {
 		String str = x.getString();
-		return makeResult(tf.stringType(), vf.string(str), this);
+		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 3)), this);
 	}
 	
 	@Override
