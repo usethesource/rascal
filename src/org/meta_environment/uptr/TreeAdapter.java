@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.parser.MappingCache;
+import org.meta_environment.rascal.parser.MappingsCache;
 import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
 
 
@@ -159,7 +159,7 @@ public class TreeAdapter{
 	
 	protected static class PositionAnnotator{
 		private final IConstructor tree;
-		private final MappingCache<PositionNode, IConstructor> cache;
+		private final MappingsCache<PositionNode, IConstructor> cache;
 		
 		private boolean inLayout = false;
 		private boolean labelLayout = false;
@@ -168,7 +168,7 @@ public class TreeAdapter{
 			super();
 			
 			this.tree = tree;
-			this.cache = new MappingCache<PositionNode, IConstructor>();
+			this.cache = new MappingsCache<PositionNode, IConstructor>();
 		}
 		
 		public IConstructor addPositionInformation(String filename) {

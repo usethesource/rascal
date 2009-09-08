@@ -41,7 +41,6 @@ import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
-
 /**
  * Uses reflection to construct an AST hierarchy from a 
  * UPTR parse node of a rascal program.
@@ -53,11 +52,12 @@ public class ASTBuilder {
     
     private final Expression dummyEmptyTree;
     
-    private MappingCache<INode, AbstractAST> ambCache = new MappingCache<INode, AbstractAST>();
-    private MappingCache<INode, AbstractAST> sortCache = new MappingCache<INode, AbstractAST>();
-    private MappingCache<INode, AbstractAST> lexCache = new MappingCache<INode, AbstractAST>();
-    private MappingCache<IValue, Expression> matchCache = new MappingCache<IValue, Expression>();
-    private MappingCache<IValue, Expression> constructorCache = new MappingCache<IValue, Expression>();
+    private PointerEqualMappingsCache<INode, AbstractAST> ambCache = new PointerEqualMappingsCache<INode, AbstractAST>();
+    private PointerEqualMappingsCache<INode, AbstractAST> sortCache = new PointerEqualMappingsCache<INode, AbstractAST>();
+    private PointerEqualMappingsCache<INode, AbstractAST> lexCache = new PointerEqualMappingsCache<INode, AbstractAST>();
+    
+    private PointerEqualMappingsCache<IValue, Expression> matchCache = new PointerEqualMappingsCache<IValue, Expression>();
+    private PointerEqualMappingsCache<IValue, Expression> constructorCache = new PointerEqualMappingsCache<IValue, Expression>();
     
 	public ASTBuilder(ASTFactory factory) {
 		this.factory = factory;
