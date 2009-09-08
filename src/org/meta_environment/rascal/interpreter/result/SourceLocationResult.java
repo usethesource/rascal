@@ -70,7 +70,34 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		if (name.equals("scheme")) {
 			return makeResult(getTypeFactory().stringType(), vf.string(getValue().getURI().getScheme()), ctx);
 		}
-		if (name.equals("length")) {
+		else if (name.equals("authority")) {
+			String authority = getValue().getURI().getAuthority();
+			return makeResult(getTypeFactory().stringType(), vf.string(authority != null ? authority : ""), ctx);
+		}
+		else if (name.equals("host")) {
+			String host = getValue().getURI().getHost();
+			return makeResult(getTypeFactory().stringType(), vf.string(host != null ? host : ""), ctx);
+		}
+		else if (name.equals("path")) {
+			String path = getValue().getURI().getPath();
+			return makeResult(getTypeFactory().stringType(), vf.string(path != null ? path : ""), ctx);
+		}
+		else if (name.equals("fragment")) {
+			String fragment = getValue().getURI().getFragment();
+			return makeResult(getTypeFactory().stringType(), vf.string(fragment != null ? fragment : ""), ctx);
+		}
+		else if (name.equals("query")) {
+			String query = getValue().getURI().getQuery();
+			return makeResult(getTypeFactory().stringType(), vf.string(query != null ? query : ""), ctx);
+		}
+		else if (name.equals("user")) {
+			String user = getValue().getURI().getUserInfo();
+			return makeResult(getTypeFactory().stringType(), vf.string(user != null ? user : ""), ctx);
+		}
+		else if (name.equals("port")) {
+			return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getURI().getPort()), ctx);
+		}
+		else if (name.equals("length")) {
 			return makeResult(getTypeFactory().integerType(), vf
 					.integer(getValue().getLength()), ctx);
 		} 
@@ -78,29 +105,12 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().integerType(), vf
 					.integer(getValue().getOffset()), ctx);
 		} 
-		else if (name.equals("beginLine")) {
-			return makeResult(getTypeFactory().integerType(), vf
-					.integer(getValue().getBeginLine()), ctx);
-		} 
 		else if (name.equals("begin")) {
 			return makeResult(intTuple, vf.tuple(vf.integer(getValue().getBeginLine()), vf.integer(getValue().getBeginColumn())), ctx);
 		}
 		else if (name.equals("end")) {
 			return makeResult(intTuple, vf.tuple(vf.integer(getValue().getEndLine()), vf.integer(getValue().getEndColumn())), ctx);
 		}
-	
-		else if (name.equals("beginColumn")) {
-			return makeResult(getTypeFactory().integerType(), vf
-					.integer(getValue().getBeginColumn()), ctx);
-		} 
-		else if (name.equals("endLine")) {
-			return makeResult(getTypeFactory().integerType(), vf
-					.integer(getValue().getEndLine()), ctx);
-		} 
-		else if (name.equals("endColumn")) {
-			return makeResult(getTypeFactory().integerType(), vf
-					.integer(getValue().getEndColumn()), ctx);
-		} 
 		else if (name.equals("uri")) {
 			return makeResult(getTypeFactory().stringType(), vf
 					.string(getValue().getURI().toString()), ctx);
@@ -109,7 +119,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 		}
 	}
-	
+
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, IEvaluatorContext ctx) {
 		ISourceLocation loc = getValue();
@@ -119,25 +129,67 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		int iBeginColumn = loc.getBeginColumn();
 		int iEndLine = loc.getEndLine();
 		int iEndColumn = loc.getEndColumn();
-		String urlText = loc.getURI().toString();
-		
+		URI uri = loc.getURI();
+
 		Type replType = repl.getType();
 		IValue replValue = repl.getValue();
-		if (name.equals("uri")) {
-			if (!replType.isStringType()) {
-				throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
-			}
-			urlText = ((IString)repl.getValue()).getValue();
-		} 
-		else {
-			
-			if (name.equals("scheme")) {
+
+		try {
+			if (name.equals("uri")) {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				
-				String oldScheme = loc.getURI().getScheme();
-				urlText = ((IString) repl.getValue()).getValue() + loc.getURI().toString().substring(oldScheme.length());
+				uri = new URI(((IString)repl.getValue()).getValue());
+			} 
+			else if (name.equals("scheme")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+
+				uri = new URI(((IString) repl.getValue()).getValue(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+			}
+			else if (name.equals("authority")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				uri = new URI(uri.getScheme(), ((IString) repl.getValue()).getValue(), uri.getPath(), uri.getQuery(), uri.getFragment());
+			}
+			else if (name.equals("host")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				uri = new URI(uri.getScheme(), uri.getUserInfo(), ((IString) repl.getValue()).getValue(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+			}
+			else if (name.equals("path")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());
+			}
+			else if (name.equals("fragment")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), ((IString) repl.getValue()).getValue());
+			}
+			else if (name.equals("query")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), ((IString) repl.getValue()).getValue(), uri.getFragment());
+			}
+			else if (name.equals("user")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				uri = new URI(uri.getScheme(), ((IString) repl.getValue()).getValue(),  uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+			}
+			else if (name.equals("port")) {
+				if (!replType.isIntegerType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				int port = Integer.parseInt(((IInteger) repl.getValue()).getStringRepresentation());
+				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), port, uri.getPath(), uri.getQuery(), uri.getFragment());
 			}
 			else if (name.equals("length")){
 				if (!replType.isIntegerType()) {
@@ -150,12 +202,6 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				iOffset = ((IInteger) replValue).intValue();
-			} 
-			else if (name.equals("beginLine")){
-				if (!replType.isIntegerType()) {
-					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
-				}
-				iBeginLine = ((IInteger) replValue).intValue();
 			} 
 			else if (name.equals("begin")) {
 				if (!replType.isSubtypeOf(intTuple)) {
@@ -171,32 +217,12 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				iEndLine = ((IInteger) ((ITuple) replValue).get(0)).intValue();
 				iEndColumn = ((IInteger) ((ITuple) replValue).get(1)).intValue();
 			}
-			else if (name.equals("beginColumn")){
-				if (!replType.isIntegerType()) {
-					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
-				}
-				iBeginColumn = ((IInteger) replValue).intValue();
-			} 
-			else if (name.equals("endLine")){
-				if (!replType.isIntegerType()) {
-					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
-				}
-				iEndLine = ((IInteger) replValue).intValue();
-			} 
-			else if (name.equals("endColumn")){
-				if (!replType.isIntegerType()) {
-					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
-				}
-				iEndColumn = ((IInteger) replValue).intValue();
-			} 
 			else {
 				// TODO: is this the right exception? How so "undeclared"?
 				throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
-		}
-		try {
-			URI url = new URI(urlText);
-			ISourceLocation nloc = getValueFactory().sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+
+			ISourceLocation nloc = getValueFactory().sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
 			return makeResult(getType(), nloc, ctx);
 		} 
 		catch (IllegalArgumentException e) {
@@ -248,7 +274,4 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		} 
 		return makeIntegerResult(1, ctx);
 	}
-	
-
-	
 }
