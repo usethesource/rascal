@@ -85,8 +85,10 @@ public class RegExpTests extends TestFramework{
 	}
 	
 	@Test
-	public void backtracking(){
-		assertTrue(runTest("[x | /^<x:[a-z]*?>/ := \"abcd\", x == \"abc\"];"));
+	public void multipleMatches(){
+		assertTrue(runTest("[<x, y> | /<x:[a-z]+?><y:[a-z]+?>/ := \"abcd\"] == [<\"a\", \"b\">, <\"c\", \"d\">];"));
+		assertTrue(runTest("[y | /<x:abc><y:...>/ := \"abc111abc222abc333\"] == [\"111\", \"222\", \"333\"];"));
+		assertTrue(runTest("{int n = 3; [y | /<x:abc><y:.{<n>}>/ := \"abc111abc222abc333\"] == [\"111\", \"222\", \"333\"];}"));
 	}
 	
 	
