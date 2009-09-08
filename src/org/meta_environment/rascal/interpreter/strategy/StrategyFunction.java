@@ -10,7 +10,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 public class StrategyFunction extends AbstractFunction {
 	
 	protected AbstractFunction function;
-
+	
 	public StrategyFunction(AbstractFunction function) {
 		super(function.getAst(), function.getEval(), function.getFunctionType(), function.hasVarArgs(), function.getEnv());
 		this.function = function;
