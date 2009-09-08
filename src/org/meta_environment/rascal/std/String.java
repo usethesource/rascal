@@ -144,6 +144,4 @@ public class String {
 	public static IValue substring(IString s, IInteger begin, IInteger end) {
 		return values.string(s.getValue().substring(begin.intValue(), end.intValue()));
 	}
-
-
 }

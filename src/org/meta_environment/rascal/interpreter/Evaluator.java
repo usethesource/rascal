@@ -457,7 +457,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// TODO why not just replace the current env with the old one??
 		while (getCurrentEnvt() != old) {
 			setCurrentEnvt(getCurrentEnvt().getParent());
-			getCurrentEnvt();
 		}
 	}
 
