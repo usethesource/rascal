@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.parser;
 
-public class MappingCache<K, V>{
-	private final static int DEFAULT_INITIAL_LOG_SIZE = 10;
+public class MappingsCache<K, V>{
+	private final static int DEFAULT_INITIAL_LOG_SIZE = 5;
 	
 	private int hashMask;
 	
@@ -11,7 +11,7 @@ public class MappingCache<K, V>{
 	
 	private int load;
 	
-	public MappingCache(){
+	public MappingsCache(){
 		super();
 		
 		int tableSize = 1 << DEFAULT_INITIAL_LOG_SIZE;
@@ -23,7 +23,7 @@ public class MappingCache<K, V>{
 		load = 0;
 	}
 	
-	public MappingCache(int initialLogSize){
+	public MappingsCache(int initialLogSize){
 		super();
 		
 		int tableSize = 1 << initialLogSize;
@@ -35,7 +35,7 @@ public class MappingCache<K, V>{
 		load = 0;
 	}
 	
-	public MappingCache(int initialLogSize, float loadFactor){
+	public MappingsCache(int initialLogSize, float loadFactor){
 		super();
 		
 		int tableSize = 1 << initialLogSize;
