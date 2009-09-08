@@ -100,6 +100,7 @@ public class SymbolAdapter {
 	
 	public static boolean isCfOptLayout(IConstructor tree) {
 		if (isCf(tree)) {
+			tree = getSymbol(tree);
 			if (isOpt(tree)) {
 				tree = getSymbol(tree);
 				if (isLayout(tree)) {
