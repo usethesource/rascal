@@ -2,10 +2,8 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.meta_environment.ValueFactoryFactory;
 
 class TupleElementGenerator implements Iterator<IValue> {
 	private ITuple tuple;
