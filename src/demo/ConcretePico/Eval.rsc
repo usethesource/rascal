@@ -25,8 +25,8 @@ data PICO_VALUE = intval(int ival) | strval(str sval);
 
 alias ValueEnv = map[\PICO-ID, PICO_VALUE];                                   
 
-TYPE naturalType = TYPE`natural`;     // Two useful constants
-TYPE stringType  = TYPE`string`;
+TYPE naturalType = (TYPE) `natural`;     // Two useful constants
+TYPE stringType  = (TYPE) `string`;
 
 // evalProgram: evaluate a Pico program and return a value environment
 
@@ -88,17 +88,17 @@ ValueEnv evalStatement(STATEMENT Stat, ValueEnv Env){
 
 PICO_VALUE evalExp(EXP exp, ValueEnv Env) {
     switch (exp) {
-      case EXP` <NatCon N> `: 
+      case (EXP) ` <NatCon N> `: 
            return intval(toInt("<N>"));
 
-      case EXP` <StrCon S> `: {
+      case (EXP) ` <StrCon S> `: {
            if(/"<sval:.*>"/ := "<S>")
               return strval(sval);
            else
               println("Ill formed string value");
       }
 
-      case EXP` <\PICO-ID Id> `: 
+      case (EXP) ` <\PICO-ID Id> `: 
            return Env[Id];
 
       case <EXP exp1> + <EXP exp2>:
