@@ -10,7 +10,7 @@ import Relation;
  */
  
 data Exp =
-       fun(str name, Exp exp)             // Function application
+       fnc(str name, Exp exp)             // Function application
      | var(str name)                      // Variable occurrence
      | intcon(int ival)                   // Integer constant
      | strcon(str sval)                   // String constant
@@ -27,7 +27,7 @@ public set[str] allVars(Exp E) {
 // Find all bound variables in an expression
 
 public set[str] boundVars(Exp E) {
-    return {Name | fun(str Name, Exp E1) <- E};
+    return {Name | fnc(str Name, Exp E1) <- E};
 } 
 
 // Find all free variables in an expression
@@ -61,9 +61,9 @@ public str fresh(str V, set[str] S) {
 
 public Exp rename(Exp E, map[str,str] Rn) {
     switch (E) {
-    case fun(str Name, Exp E1): {
+    case fnc(str Name, Exp E1): {
     	 	str Y = genSym();
-         	return fun(Y, rename(E1, Rn + (Name: Y)));
+         	return fnc(Y, rename(E1, Rn + (Name: Y)));
          }
          
     case apply(Exp E1, Exp E2):
@@ -96,13 +96,13 @@ public Exp subst(str V1, Exp Repl, Exp Org) {
       case apply(Exp Ea, Exp Eb):
         insert apply(subst(V1, Repl, Ea), subst(V1, Repl, Eb));
         
-      case fun(str V2, Exp Body):
+      case fnc(str V2, Exp Body):
         if(V1 != V2)
            if(V2 in freeVars(Repl)){
               str V2f = fresh(V2, freeVars(Body) + freeVars(Repl));
-              insert fun(V2f, subst(V1, Repl, subst(V2, var(V2f), Body)));        
+              insert fnc(V2f, subst(V1, Repl, subst(V2, var(V2f), Body)));        
            } else
-             insert fun(V2, subst(V1, Repl, Body)); 
+             insert fnc(V2, subst(V1, Repl, Body)); 
        case op(str Name, Exp E1, Exp E2):
            insert op(Name, subst(V1, Repl, E1), subst(V2, Repl, E2));     
     };
@@ -196,29 +196,29 @@ public bool assertEqual(value E1, value E2)
 
 public bool test(){
    nError = 0;
-   assertEqual(rename(apply(fun("a", var("a")),  intcon(3))),
-                      apply(fun("_x1",var("_x1")),intcon(3)));
+   assertEqual(rename(apply(fnc("a", var("a")),  intcon(3))),
+                      apply(fnc("_x1",var("_x1")),intcon(3)));
          
-   assertEqual(rename(apply(fun("a", var("b")),  intcon(3))),
-                      apply(fun("_x1",var("b")),intcon(3)));
+   assertEqual(rename(apply(fnc("a", var("b")),  intcon(3))),
+                      apply(fnc("_x1",var("b")),intcon(3)));
          
-   assertEqual(rename(apply(fun("a", apply(fun("b", var("b")), intcon(2))), intcon(1))),
-                      apply(fun("_x1",apply(fun("_x2",var("_x2")),intcon(2))),intcon(1)));
+   assertEqual(rename(apply(fnc("a", apply(fnc("b", var("b")), intcon(2))), intcon(1))),
+                      apply(fnc("_x1",apply(fnc("_x2",var("_x2")),intcon(2))),intcon(1)));
           
-   assertEqual(rename(apply(fun("a", apply(fun("b", var("a")), intcon(2))), intcon(1))),
-                      apply(fun("_x1",apply(fun("_x2",var("_x1")),intcon(2))),intcon(1)));
+   assertEqual(rename(apply(fnc("a", apply(fnc("b", var("a")), intcon(2))), intcon(1))),
+                      apply(fnc("_x1",apply(fnc("_x2",var("_x1")),intcon(2))),intcon(1)));
          
-   assertEqual(rename(apply(fun("a", apply(fun("b", var("a")), intcon(2))), var("c"))),
-                      apply(fun("_x1",apply(fun("_x2",var("_x1")),intcon(2))),var("c")));
+   assertEqual(rename(apply(fnc("a", apply(fnc("b", var("a")), intcon(2))), var("c"))),
+                      apply(fnc("_x1",apply(fnc("_x2",var("_x1")),intcon(2))),var("c")));
  /*                     
-   assertEqual(subst("a", intcon(1), apply(fun("a", var("a")),  intcon(3))),
-                                     apply(fun("a", intcon(1)),intcon(3)));
+   assertEqual(subst("a", intcon(1), apply(fnc("a", var("a")),  intcon(3))),
+                                     apply(fnc("a", intcon(1)),intcon(3)));
                                      
-   assertEqual(subst("a", var("b"), apply(fun("a", var("b")),  var("a"))),
-                                    apply(fun("a",var("b")),var("b")));
+   assertEqual(subst("a", var("b"), apply(fnc("a", var("b")),  var("a"))),
+                                    apply(fnc("a",var("b")),var("b")));
                                     
-   assertEqual(subst("a", op("add", intcon(3),var("b")), apply(fun("b", var("b")),  var("a"))),
-                                                  apply(fun("_x1",var("_x1")),op("add", intcon(3),var("b"))));
+   assertEqual(subst("a", op("add", intcon(3),var("b")), apply(fnc("b", var("b")),  var("a"))),
+                                                  apply(fnc("_x1",var("_x1")),op("add", intcon(3),var("b"))));
   */
    return nError == 0;
 }
