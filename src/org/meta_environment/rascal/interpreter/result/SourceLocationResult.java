@@ -180,15 +180,19 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 				String path = uri.getPath();
 				String ext = ((IString) repl.getValue()).getValue();
-				int index = path.lastIndexOf('.');
 				
-				if (index == -1) {
-					path = path + '.' + ext;
+				if (path.length() > 1) {
+					int index = path.lastIndexOf('.');
+
+					if (index == -1) {
+						path = path + '.' + ext;
+					}
+					else {
+						path = path.substring(0, index) + '.' + ext;
+					}
+					
+					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
 				}
-				else {
-					path = path.substring(0, index) + '.' + ext;
-				}
-				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
 			}
 			else if (name.equals("fragment")) {
 				if (!replType.isStringType()) {
@@ -206,14 +210,20 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = new URI(uri.getScheme(), ((IString) repl.getValue()).getValue(),  uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+				
+				if (uri.getHost() != null) {
+					uri = new URI(uri.getScheme(), ((IString) repl.getValue()).getValue(),  uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+				}
 			}
 			else if (name.equals("port")) {
 				if (!replType.isIntegerType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				int port = Integer.parseInt(((IInteger) repl.getValue()).getStringRepresentation());
-				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), port, uri.getPath(), uri.getQuery(), uri.getFragment());
+				
+				if (uri.getHost() != null) {
+					int port = Integer.parseInt(((IInteger) repl.getValue()).getStringRepresentation());
+					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), port, uri.getPath(), uri.getQuery(), uri.getFragment());
+				}
 			}
 			else if (name.equals("length")){
 				if (!replType.isIntegerType()) {
