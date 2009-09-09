@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -148,7 +149,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	@Override
 	public IMatchingResult visitRegExpLexical(Lexical x) {
 		if(debug)System.err.println("visitRegExpLexical: " + x.getString());
-		return new RegExpPatternValue(vf, ctx, x.getString());
+		//return new RegExpPatternValue(vf, ctx, x.getString()); // TODO Disabled because of compilation error.
+		return new RegExpPatternValue(vf, ctx, x.getString(), Collections.<java.lang.String>emptyList());
 	}
 	
 	/*
@@ -281,7 +283,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		java.lang.String result = (resultRegExp.toString()).replaceAll("(\\\\<)", "<");
 		if(debug)System.err.println("result: " + result);
 		
-		return new RegExpPatternValue(vf, ctx, x, result, modifier, vars);
+		//return new RegExpPatternValue(vf, ctx, x, result, modifier, vars); // TODO Disabled because of compilation error.
+		return new RegExpPatternValue(vf, ctx, result, vars);
 	}
 
 	

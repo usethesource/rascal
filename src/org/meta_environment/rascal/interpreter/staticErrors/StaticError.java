@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter.staticErrors;
 
 import java.net.URI;
-import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.ast.AbstractAST;

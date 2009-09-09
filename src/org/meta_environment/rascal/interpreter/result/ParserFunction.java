@@ -58,11 +58,10 @@ public class ParserFunction extends NamedFunction {
 		List<String> sdfSearchPath = loader.getSdfSearchPath();
 		Set<String> sdfImports = ((ModuleEnvironment)this.getEnv()).getSDFImports();
 		
-		
 		try {
 			Environment env = ctx.getCurrentEnvt();
 			IConstructor ptree = ((StringParser)parser).parseString(sdfSearchPath, sdfImports, source);
-			ptree = ParsetreeAdapter.addPositionInformation(ptree, source);
+			ptree = ParsetreeAdapter.addPositionInformation(ptree, "-");
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
 			Type resultType = getReturnType().instantiate(env.getStore(), env.getTypeBindings());
 			

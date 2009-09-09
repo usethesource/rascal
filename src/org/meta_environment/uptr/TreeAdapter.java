@@ -264,12 +264,12 @@ public class TreeAdapter{
 			}else if(!isCycle(tree)){
 				System.err.println("unhandled tree: " + tree + "\n");
 			}
-
+			
 			ISourceLocation loc = factory.sourceLocation(filename, startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
 			result = tree.setAnnotation(Factory.Location, loc);
 			
 			cache.putUnsafe(positionNode, result);
-
+			
 			return result;
 		}
 
