@@ -26,5 +26,4 @@ Export-Package: org.meta_environment,
  org.meta_environment.uptr,
  org.meta_environment.uptr.visitors
 Require-Bundle: sglr_invoker,
- pdb_shared,
  org.eclipse.imp.pdb.values
