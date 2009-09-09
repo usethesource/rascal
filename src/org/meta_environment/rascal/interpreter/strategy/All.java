@@ -8,7 +8,7 @@ import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 
-public class All extends StrategyFunction {
+public class All extends Strategy {
 
 	public All(AbstractFunction function) {
 		super(function);
@@ -22,7 +22,7 @@ public class All extends StrategyFunction {
 			IValue child = result.get(i).getValue();
 			result = result.set(i, VisitableFactory.make(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue()));
 		}
-		return new ElementResult(result.getValue().getType(), result.getValue(), ctx);
+		return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
 	}
 
 	public static IValue makeAll(IValue arg) {
