@@ -109,6 +109,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 				}
 			}
 			checkMayOccur(patType, subjectType);
+			//iterator = new NodeChildGenerator((INode) subjectValue);
 			iterator = new NodeReader((INode) subjectValue, bottomup);
 		} else if(subjectType.isTupleType()){
 			checkNoStrategy(subjectType);
