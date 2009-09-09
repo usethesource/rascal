@@ -715,14 +715,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitModuleDefault(
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = getModuleName(x);
-		ModuleEnvironment env;
+		
+		ModuleEnvironment env = heap.getModule(name);
 
-		if (!heap.existsModule(name)) {
+		if (env == null) {
 			env = new ModuleEnvironment(name);
 			heap.addModule(env);
-		}
-		else {
-			env = heap.getModule(name);
 		}
 		
 		if (!env.isInitialized()) {
