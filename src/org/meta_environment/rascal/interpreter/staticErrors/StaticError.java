@@ -40,7 +40,7 @@ public abstract class StaticError extends RuntimeException {
 		if (loc != null) {
 			URI url = loc.getURI();
 			
-			return (url.getScheme().equals("file") ? (url.getAuthority() + url.getPath()) : url) 
+			return (url.getScheme().equals("file") ? url.getPath() : url) 
 					+ ":" + loc.getBeginLine() 
 					+ "," + loc.getBeginColumn() 
 					+ ": " + super.getMessage();
