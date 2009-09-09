@@ -34,7 +34,9 @@ public class RuntimeExceptionFactory {
 	private static Type IllegalArgument = TF.constructor(TS,E,"IllegalArgument",TF.valueType(), "v");
 	private static Type AnonymousIllegalArgument = TF.constructor(TS,E,"IllegalArgument");
 	private static Type IO = TF.constructor(TS,E,"IO",TF.stringType(), "message");
-	private static Type FileNotFound = TF.constructor(TS,E,"FileNotFound",TF.stringType(), "filename");
+	private static Type PathNotFound = TF.constructor(TS,E,"PathNotFound",TF.sourceLocationType(), "location");
+	private static Type fileNotFound = TF.constructor(TS,E,"FileNotFound",TF.stringType(), "file");
+	
 	private static Type LocationNotFound = TF.constructor(TS,E,"LocationNotFound",TF.sourceLocationType(), "location");
 	private static Type PermissionDenied = TF.constructor(TS,E,"PermissionDenied",TF.stringType(), "message");
 	private static Type AnonymousPermissionDenied = TF.constructor(TS,E,"PermissionDenied");
@@ -45,6 +47,8 @@ public class RuntimeExceptionFactory {
 	private static Type NoSuchField = TF.constructor(TS, E, "NoSuchField", TF.stringType(), "label");
 	private static Type ParseError = TF.constructor(TS, E, "ParseError", TF.sourceLocationType(), "location");
 	private static Type IllegalIdentifier = TF.constructor(TS, E, "IllegalIdentifier", TF.stringType(), "name");
+	private static Type SchemeNotSupported = TF.constructor(TS, E, "SchemeNotSupported", TF.sourceLocationType(), "location");
+
 	
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
 
@@ -84,8 +88,13 @@ public class RuntimeExceptionFactory {
 		return new Throw(AnonymousIllegalArgument.make(VF), ast, trace);	
 	}
 	
-	public static Throw fileNotFound(IString name, AbstractAST ast, String trace) {
-		return new Throw(FileNotFound.make(VF, name), ast, trace);
+	public static Throw pathNotFound(ISourceLocation loc, AbstractAST ast, String trace) {
+		return new Throw(PathNotFound.make(VF, loc), ast, trace);
+	}
+	
+	@Deprecated
+	public static Throw fileNotFound(IString loc, AbstractAST ast, String trace) {
+		return new Throw(PathNotFound.make(VF, loc), ast, trace);
 	}
 	
 	public static Throw locationNotFound(ISourceLocation loc, AbstractAST ast, String trace) {
@@ -135,5 +144,10 @@ public class RuntimeExceptionFactory {
 	public static Throw illegalIdentifier(String name,
 			AbstractAST ast, String trace) {
 		return new Throw(IllegalIdentifier.make(VF, VF.string(name)), ast, trace);
+	}
+
+	public static Throw schemeNotSupported(ISourceLocation file,
+			AbstractAST ast, String trace) {
+		return new Throw(SchemeNotSupported.make(VF, file), ast, trace);
 	}
 }
