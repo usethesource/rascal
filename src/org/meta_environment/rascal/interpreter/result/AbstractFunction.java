@@ -330,8 +330,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	/* test if a function is of type &T(&T) */
-	public boolean isTypePreserving() {
+	public boolean isStrategy() {
 		Type t = TypeFactory.getInstance().parameterType("T");
+		return getFunctionType().comparable(RascalTypeFactory.getInstance().functionType(t,t));
+	}
+	
+	/* test if a function is of type T(T) for a given T */
+	public boolean isTypePreserving() {
+		Type t = getReturnType();
 		return getFunctionType().comparable(RascalTypeFactory.getInstance().functionType(t,t));
 	}
 	
