@@ -149,7 +149,6 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	@Override
 	public IMatchingResult visitRegExpLexical(Lexical x) {
 		if(debug)System.err.println("visitRegExpLexical: " + x.getString());
-		//return new RegExpPatternValue(vf, ctx, x.getString()); // TODO Disabled because of compilation error.
 		return new RegExpPatternValue(vf, ctx, x.getString(), Collections.<java.lang.String>emptyList());
 	}
 	
@@ -188,13 +187,16 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		return result.toString();
 	}
 	
+	/*
+	 * Compile a Rascal regular expression into a Java regexp by appropriately replacing all
+	 * pattern variables by java regexp code.
+	 */
 	@Override
 	public IMatchingResult visitRegExpLiteralLexical(
 			org.meta_environment.rascal.ast.RegExpLiteral.Lexical x) {
 		if(debug)System.err.println("visitRegExpLiteralLexical: " + x.getString());
 
 		java.lang.String subjectPat = x.getString();
-		Character modifier = null;
 		
 		if(subjectPat.charAt(0) != '/'){
 			throw new SyntaxError("Malformed Regular expression: " + subjectPat, x.getLocation());
@@ -202,13 +204,21 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		
 		int start = 1;
 		int end = subjectPat.length()-1;
-		if(subjectPat.charAt(end) != '/'){
-			modifier = Character.valueOf(subjectPat.charAt(end));
+		
+		while(end > 0 && subjectPat.charAt(end) != '/'){
 			end--;
 		}
+		java.lang.String modifiers = subjectPat.substring(end+1);
+		
 		if(subjectPat.charAt(end) != '/'){
 			throw new SyntaxError("Regular expression does not end with /", x.getLocation());
 		}
+		
+		// The resulting regexp that we are constructing
+		StringBuffer resultRegExp = new StringBuffer();
+		
+		if(modifiers.length() > 0)
+			resultRegExp.append("(?").append(modifiers).append(")");
 		
 		/*
 		 * Find all pattern variables. There are two cases:
@@ -234,45 +244,34 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		java.lang.String RE = "(?<!\\\\)<(" + Name + ")(?:\\s*:\\s*(" + NamedRegexp + "*))?" + ">";
 		//                               |                         |
 		//                       group   1                         2
+		//                               variable name             regular expression to be matched
 		
 		Pattern replacePat = Pattern.compile(RE);
 		
 		Matcher m = replacePat.matcher(subjectPat);
 		
-		// The resulting regexp that we are constructing
-		StringBuffer resultRegExp = new StringBuffer();
-		
-		// Declared pattern variables with associated regexp
-		java.util.HashMap<java.lang.String,java.lang.String> varRegExps =
-               new java.util.HashMap<java.lang.String,java.lang.String>();
-		
-		// List of variable occurrences
-		java.util.List<java.lang.String> vars = new ArrayList<java.lang.String>();
+		// List of variable introductions
+		java.util.List<java.lang.String> patternVars = new ArrayList<java.lang.String>();
 
 		while(m.find()){
 			java.lang.String varName = m.group(1);
 			
+			resultRegExp.append(subjectPat.substring(start, m.start(0))); // add regexp before < ... > 
+			
 			if (m.end(2) > -1){       /* case (1): <X:regexp> */
 				
-				if(varRegExps.containsKey(varName))
+				if(patternVars.contains(varName))
 					throw new RedeclaredVariableError(varName, x);
-
-				java.lang.String re = interpolate(m.group(2));
-				java.lang.String varRegExp = subjectPat.substring(start, m.start(0)) + "(" + re + ")";
-				varRegExps.put(varName, varRegExp);
-				vars.add(varName);
-				resultRegExp.append(varRegExp);
-				if(debug)System.err.println("resultRegExp = " + resultRegExp);	
+				patternVars.add(varName);
+				resultRegExp.append("(").append(interpolate(m.group(2))).append(")");
 			} else {                   /* case (2): <X> */
-				if(debug)System.err.println("case only var");
-				resultRegExp.append(subjectPat.substring(start, m.start(0)));
-				if(vars.contains(varName)){
-					resultRegExp.append(varRegExps.get(varName));
-					vars.add(varName);
+				int varIndex = patternVars.indexOf(varName);
+				if(varIndex >= 0){
+					/* Generate reference to previous occurrence */
+					resultRegExp.append("(?:\\").append(1+varIndex).append(")");
 				} else {	
 				    resultRegExp.append(getValueAsString(varName)); // TODO: escape special chars?
 				} 
-				if(debug)System.err.println("resultRegExp = " + resultRegExp);
 			}
 			start = m.end(0);
 		}
@@ -283,8 +282,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		java.lang.String result = (resultRegExp.toString()).replaceAll("(\\\\<)", "<");
 		if(debug)System.err.println("result: " + result);
 		
-		//return new RegExpPatternValue(vf, ctx, x, result, modifier, vars); // TODO Disabled because of compilation error.
-		return new RegExpPatternValue(vf, ctx, result, vars);
+		return new RegExpPatternValue(vf, ctx, result, patternVars);
 	}
 
 	

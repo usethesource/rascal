@@ -118,11 +118,13 @@ public class RegExpTests extends TestFramework{
 		runTest("/[a-/ := \"abc\";");
 	}
 	
+	@Test
 	public void modifiers() {
 		assertTrue(runTest("/abc/i := \"ABC\";"));
 		assertTrue(runTest("/abc/i := \"ABC\";"));
-		
-	//TODO:	assertTrue(runTest("/ab.*c/m := \"ab\nc\";"));
+		assertTrue(runTest("/ab.*c/s := \"ab\\nc\";"));
+		assertTrue(runTest("/ab.*c/si := \"AB\\nc\";"));
+	    assertTrue(runTest("/^ab.*c$/smd := \"ab\\r\\nc\";"));
 	}
 	
 	@Test
