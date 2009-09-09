@@ -2,7 +2,6 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,10 +16,8 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
-import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
 public class RegExpPatternValue extends AbstractMatchingResult  {
 //	private AbstractAST ast;					// The AST for this regexp
@@ -36,15 +33,12 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
-	private boolean firstTime;
-	private boolean debug = true;
 	
 	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, String s, List<String> patternVars) {
 		super(vf, ctx);
 		RegExpAsString = s;
 		this.patternVars = patternVars;
 		initialized = false;
-		firstTime = true;
 	}
 	
 	@Override
@@ -92,48 +86,14 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	
 	private boolean findMatch(){
 		while(matcher.find()){
-			boolean matches = true;
-			java.util.List<java.lang.String> seen = new ArrayList<java.lang.String>();
-			if(debug)System.err.println("# patternVars: " + patternVars.size());
-			
 			for (int nVar = 0; nVar < patternVars.size(); nVar++){
-				java.lang.String name = patternVars.get(nVar);
-				if(debug)System.err.println("---- name = " + name + ", nVar = " + nVar);
-				if(debug)System.err.println("start=" + matcher.start(nVar) + ", end=" + matcher.end(nVar));
-				
+				java.lang.String name = patternVars.get(nVar);				
 				java.lang.String binding = matcher.group(1+nVar);
-				if(!seen.contains(name)){ /* first occurrence of var in pattern */
-					if(debug)System.err.println("first occ of " + name + ", binding = " + binding);
-					if(firstTime && !ctx.getCurrentEnvt().declareVariable(tf.stringType(), name)) {
-						throw new RedeclaredVariableError(name, ctx.getCurrentAST());
-					}
-					ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(binding), ctx));
-				} else {                  /* repeated occurrence of var in pattern */
-					Result<IValue> val = ctx.getCurrentEnvt().getVariable(name);
-					if(debug)System.err.println("repeated occ of " + name + ", binding = " + binding);
-					if (val != null && val.getValue() != null) {
-						if(debug)System.err.println("previous val = " + val.getValue());
-						if (!val.getType().isSubtypeOf(tf.stringType())) {
-							throw new UnexpectedTypeError(tf.stringType(), val.getType(), ctx.getCurrentAST());
-						}
-						
-						if(!val.equals(ResultFactory.makeResult(tf.stringType(), vf.string(binding), ctx), ctx).isTrue()) {
-							matches = false;
-							break;
-						}
-					}
-				}
-				seen.add(name);
+				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(binding), ctx));
 			}
-			
-			if(matches){
-				start = matcher.start();
-				end = matcher.end();
-				return true;
-			}
+			return true;
 		}
 		hasNext = false;
-		start = end = -1;
 		return false;
 	}
 	
@@ -142,13 +102,16 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		if(firstMatch){
 			firstMatch = false;
 			matcher = pat.matcher(subject);
+			IString empty = vf.string("");
+			
+			// Initialize all pattern variables to ""
+			for(String name : patternVars){
+				if(!ctx.getCurrentEnvt().declareVariable(tf.stringType(), name))
+					throw new RedeclaredVariableError(name, ctx.getCurrentAST());
+				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), empty, ctx));
+			}
 		}
-		try {
-			return findMatch();
-		}
-		finally {
-			firstTime = false;
-		}
+		return findMatch();
 	}
 	
 	@Override
@@ -161,11 +124,13 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		return "RegExpPatternValue(" + RegExpAsString + ", " + patternVars + ")";
 	}
 
+	@Override
 	public IValue toIValue(Environment env) {
 		// TODO implement
 		throw new NotYetImplemented(ctx.getCurrentAST());
 	}
 
+	@Override
 	public AbstractAST getAST() {
 		return ctx.getCurrentAST();
 	}
