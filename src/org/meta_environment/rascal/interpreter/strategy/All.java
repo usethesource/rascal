@@ -28,7 +28,7 @@ public class All extends Strategy {
 	public static IValue makeAll(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
-			if (function.isTypePreserving()) {
+			if (function.isStrategy()) {
 				return new All(new StrategyFunction(function));	
 			}
 		} else if (arg instanceof OverloadedFunctionResult) {

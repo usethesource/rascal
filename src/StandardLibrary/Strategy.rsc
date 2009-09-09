@@ -4,6 +4,8 @@ module Strategy
 @javaClass{org.meta_environment.rascal.interpreter.strategy.All}
 public &T(&T) java makeAll(&T(&T) strategy);
 
+public &T(&T) java makeStrategy(IValue typePreservingFunction);
+
 public &T1(&T1) bottom_up(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
 		&T3 res = makeAll(bottom_up(strategy))(subject);
