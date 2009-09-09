@@ -98,7 +98,7 @@ public class ModuleLoader{
 		
 		try{
 			IModuleFileLoader loader = getModuleLoader(fileName);
-			if(loader == null) throw new ModuleLoadError("Unable to load module: "+name, null, ast);
+			if(loader == null) throw new ModuleLoadError(name, null, ast);
 			
 			IConstructor tree = null;
 			if(loader.supportsLoadingBinaries()){

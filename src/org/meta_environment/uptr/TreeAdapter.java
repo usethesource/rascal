@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -265,7 +267,18 @@ public class TreeAdapter{
 				System.err.println("unhandled tree: " + tree + "\n");
 			}
 			
-			ISourceLocation loc = factory.sourceLocation(filename, startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
+			ISourceLocation loc;
+			if (!filename.equals("-")) {
+				loc = factory.sourceLocation(filename, startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
+			}
+			else {
+				try {
+					loc = factory.sourceLocation(new URI("console", null, "/", null), startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
+				} catch (URISyntaxException e) {
+					throw new ImplementationError("should always construct valid URI's", e);
+				} 
+			}
+			
 			result = tree.setAnnotation(Factory.Location, loc);
 			
 			cache.putUnsafe(positionNode, result);
