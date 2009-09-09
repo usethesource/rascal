@@ -23,12 +23,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableEr
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
-// TODO: add non-linear matching, and add string interpolation into the patterns.
-
 public class RegExpPatternValue extends AbstractMatchingResult  {
-	private AbstractAST ast;					// The AST for this regexp
+//	private AbstractAST ast;					// The AST for this regexp
 	private String RegExpAsString;				// The regexp represented as string
-	//private Character modifier;				// Optional modifier following the pattern
 	private Pattern pat;						// The Pattern resulting from compiling the regexp
 
 	private List<String> patternVars;			// The variables occurring in the regexp
@@ -43,21 +40,10 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private boolean firstTime;
 	private boolean debug = true;
 	
-	
-	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, String s){
+	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, String s, List<String> patternVars) {
 		super(vf, ctx);
 		RegExpAsString = s;
-	//	modifier = null;
-		patternVars = null;
-		initialized = false;
-		firstTime = true;
-	}
-	
-	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, AbstractAST ast, String s, Character mod, List<String> names) {
-		super(vf, ctx);
-		this.ast = ast;
-		RegExpAsString = (mod == null) ? s : "(?" + mod + ")" + s;
-		patternVars = names;
+		this.patternVars = patternVars;
 		initialized = false;
 		firstTime = true;
 	}
@@ -81,8 +67,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		try {
 			pat = Pattern.compile(RegExpAsString);
 		} catch (PatternSyntaxException e){
-			ISourceLocation loc = ast.getLocation();
-			throw new SyntaxError(e.getMessage(), loc);
+			throw new SyntaxError(e.getMessage(), ctx.getCurrentAST().getLocation());
 		}
 		
 		// do NOT reinit firstTime here!
@@ -115,7 +100,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 			for (int nVar = 0; nVar < patternVars.size(); nVar++){
 				java.lang.String name = patternVars.get(nVar);
 				if(debug)System.err.println("---- name = " + name + ", nVar = " + nVar);
-				if(debug)System.err.println("start=" + matcher.start(1+nVar) + ", end=" + matcher.end(1+nVar));
+				if(debug)System.err.println("start=" + matcher.start(nVar) + ", end=" + matcher.end(nVar));
 				
 				java.lang.String binding = matcher.group(1+nVar);
 				if(!seen.contains(name)){ /* first occurrence of var in pattern */
@@ -179,10 +164,10 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 
 	public IValue toIValue(Environment env) {
 		// TODO implement
-		throw new NotYetImplemented(ast);
+		throw new NotYetImplemented(ctx.getCurrentAST());
 	}
 
 	public AbstractAST getAST() {
-		return ast;
+		return ctx.getCurrentAST();
 	}
 }
