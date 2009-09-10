@@ -175,7 +175,7 @@ public class TreeAdapter{
 		public IConstructor addPositionInformation(String filename) {
 			Factory.getInstance(); // make sure everything is declared
 			try {
-				return addPosInfo(tree, filename, new Position());
+				return addPosInfo(tree, filename.startsWith("/") ? filename : "./"+filename, new Position()); // Fix filename so URI's work.
 			} catch (MalformedURLException e) {
 				throw new RuntimeException(e);
 			}
@@ -269,7 +269,6 @@ public class TreeAdapter{
 			
 			ISourceLocation loc;
 			if (!filename.equals("-")) {
-				filename = filename.startsWith("/") ? filename : "./"+filename; // TODO Fix properly.
 				loc = factory.sourceLocation(filename, startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
 			}
 			else {
