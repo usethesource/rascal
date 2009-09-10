@@ -133,7 +133,7 @@ public class TryCatchTests extends TestFramework {
 	public void emptyListException(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"  try {" +
 		"     head([]);" +
 		"  } catch EmptyList():" +
@@ -144,14 +144,14 @@ public class TryCatchTests extends TestFramework {
 		prepare("import Exception;");
 		prepareMore("import List;");
 	
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Test
 	public void emptyMapException(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"  try {" +
 		"     getOneFrom(());" +
 		"  } catch EmptyMap():" +
@@ -162,14 +162,14 @@ public class TryCatchTests extends TestFramework {
 		prepare("import Exception;");
 		prepareMore("import Map;");
 		
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Test
 	public void emptySetException(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"  try {" +
 		"     getOneFrom({});" +
 		"  } catch EmptySet:" +
@@ -180,14 +180,14 @@ public class TryCatchTests extends TestFramework {
 		prepareMore("import Exception;");
 		prepare("import Set;");
 		
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Test
 	public void IndexOutOfBoundsException(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"  try {" +
 		"     [0,1,2][3];" +
 		"  } catch IndexOutOfBounds(int i):" +
@@ -196,26 +196,26 @@ public class TryCatchTests extends TestFramework {
 		"}";
 	
 		prepare("import Exception;");
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Test(expected=StaticError.class)
 	public void NoSuchAnnotationException(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"     1@pos;" +
 		"}";
 	
 		prepare("import Exception;");
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Test
 	public void NoSuchFileException(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"  try {" +
 		"      S = readFile(\"DoesNotExist\");" +
 		"  } catch FileNotFound(str name):" +
@@ -225,14 +225,14 @@ public class TryCatchTests extends TestFramework {
 	
 		prepare("import Exception;");
 		prepareMore("import IO;");
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Ignore @Test(expected=SyntaxError.class)
 	public void SubscriptException(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"  try {" +
 		"      [1,2,3][1,2];" +
 		"  } catch SubscriptException(str e):" +
@@ -241,38 +241,38 @@ public class TryCatchTests extends TestFramework {
 		"}";
 	
 		prepare("import Exception;");
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Test(expected=UndeclaredFunctionError.class)
 	public void UndefinedValueException(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"      X + 3;" +
 		"}";
 	
 		prepare("import Exception;");
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedvariableException(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"      X[2] = 3;" +
 		"}";
 	
 		prepare("import Exception;");
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Test(expected=StaticError.class)
 	public void UnknownExceptionError1(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"  try {" +
 		"      X[2] = 3;" +
 		"  } catch StrangeException e:" +
@@ -281,14 +281,14 @@ public class TryCatchTests extends TestFramework {
 		"}";
 	
 		prepare("import Exception;");
-		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
+		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
 	@Ignore @Test(expected=StaticError.class)
 	public void UnknownExceptionError2(){
 		String fun =
 			
-		"bool fun() {" +
+		"bool function() {" +
 		"  try {" +
 		"      X[2] = 3;" +
 		"  } catch StrangeException(str e):" +
@@ -297,6 +297,6 @@ public class TryCatchTests extends TestFramework {
 		"}";
 	
 		prepare("import Exception;");
-		runTestInSameEvaluator("{" + fun + "fun();}");
+		runTestInSameEvaluator("{" + fun + "function();}");
 	}
 }
