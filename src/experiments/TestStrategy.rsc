@@ -50,12 +50,9 @@ public bool test() {
      assertEqual(once_top_down(rules2)(t2), c());
      assertEqual(once_bottom_up(rules2)(t2), g(b()));
  
-     /**
-     // need to fix a bug in pdb list implementation
-     list[B] l = [g(c()),c(),c(),g(c())];
+     list[B] l = [g(c()),c()];
      assertEqual(makeAll(rules2)(l),[c(),b()]);
-     */
-
+ 
      tuple[A,B] t3 = <a(),c()>;
      assertEqual(top_down(rules2)(t3),<a(),b()>);
 
