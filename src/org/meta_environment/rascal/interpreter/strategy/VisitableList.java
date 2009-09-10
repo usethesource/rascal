@@ -21,16 +21,20 @@ public class VisitableList implements Visitable {
 
 	public Visitable set(int i, Visitable newChild)
 	throws IndexOutOfBoundsException {
-		// we need to reconstruct the list
-		if (i>0) {
-			IList prefix = list.sublist(0, i-1);
-			IList suffix = list.sublist(i+1, arity());
-			IList newlist = prefix.append(newChild.getValue()).concat(suffix);
-			return VisitableFactory.make(newlist);
+		if (i<0 || i>=arity()) throw new IndexOutOfBoundsException();
+		if (i==0) {
+			IList suffix = list.sublist(1, arity()-1);
+			return new VisitableList(suffix.insert(newChild.getValue()));
 		} else {
-			IList suffix = list.sublist(i+1, arity());
-			return VisitableFactory.make(suffix.insert(newChild.getValue()));
-		}
+			IList newlist = list.sublist(0, i);
+			if (i<arity()-1) {
+				IList suffix = list.sublist(i+1, arity()-i-1);
+				newlist = newlist.append(newChild.getValue()).concat(suffix);
+			} else {
+				newlist = newlist.append(newChild.getValue());
+			}
+			return new VisitableList(newlist);
+		} 
 	}
 
 	public IValue getValue() {

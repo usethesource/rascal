@@ -21,7 +21,7 @@ public class VisitableNode implements Visitable {
 
 	public Visitable set(int i, Visitable newChild)
 			throws IndexOutOfBoundsException {
-		return VisitableFactory.make(node.set(i, newChild.getValue()));
+		return new VisitableNode(node.set(i, newChild.getValue()));
 	}
 
 	public IValue getValue() {
