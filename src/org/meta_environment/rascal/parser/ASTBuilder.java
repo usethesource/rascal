@@ -732,7 +732,7 @@ public class ASTBuilder {
 		}
 		
 		if (cons.equals("ConcreteTypedQuoted")) {
-			 return (IConstructor) TreeAdapter.getArgs(tree).get(4);
+			 return (IConstructor) TreeAdapter.getArgs(tree).get(8);
 		}
 		
 		throw new ImplementationError("Unexpected embedding syntax");
