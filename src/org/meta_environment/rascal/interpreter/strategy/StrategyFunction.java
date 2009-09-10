@@ -11,8 +11,6 @@ import org.meta_environment.rascal.interpreter.result.Result;
 
 public class StrategyFunction extends Strategy {
 	
-	protected AbstractFunction function;
-	
 	public StrategyFunction(AbstractFunction function) {
 		super(function);
 	}
@@ -32,13 +30,13 @@ public class StrategyFunction extends Strategy {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
 			if (function.isTypePreserving()) {
-				return new All(new StrategyFunction(function));	
+				return new StrategyFunction(function);	
 			}
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
 				if (function.isTypePreserving()) {
-					return new All(new StrategyFunction(function));	
+					return new StrategyFunction(function);	
 				}
 			}
 		}
