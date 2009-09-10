@@ -256,7 +256,7 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
-	public void tringVisit1b()  {
+	public void StringVisit1b()  {
 		
 		assertTrue(runTestInSameEvaluator("visit(\"\"){ case /b/ => \"B\"} == \"\";"));
 		assertTrue(runTestInSameEvaluator("visit(\"a\"){ case /b/ => \"B\"} == \"a\";"));
