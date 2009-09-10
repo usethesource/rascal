@@ -26,6 +26,14 @@ data B = g(B I)
     };
  };
 
+&T(&T) rules3 = &T(&T t) {
+    switch (t) {
+	case b(): return c();
+	default: return t;
+    };
+ };
+
+
 
 public void main() {
     test();
@@ -41,5 +49,19 @@ public bool test() {
      B t2 = g(c());
      assertEqual(once_top_down(rules2)(t2), c());
      assertEqual(once_bottom_up(rules2)(t2), g(b()));
+ 
+     /**
+     // need to fix a bug in pdb list implementation
+     list[B] l = [g(c()),c(),c(),g(c())];
+     assertEqual(makeAll(rules2)(l),[c(),b()]);
+     */
+
+     tuple[A,B] t3 = <a(),c()>;
+     assertEqual(top_down(rules2)(t3),<a(),b()>);
+
+     rel[A, B] r = {<a(), b()>, <f(b(),b()), c()>};
+     assertEqual(top_down(rules3)(r),{<a(), c()>, <f(c(),c()), c()>});
+ 
      return report("Strategies");
+
 }
