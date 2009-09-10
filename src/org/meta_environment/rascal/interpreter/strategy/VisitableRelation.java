@@ -49,7 +49,7 @@ public class VisitableRelation implements Visitable {
 			newrelation.insert(e);
 			index++;
 		}
-		return new VisitableSet(newrelation);
+		return new VisitableRelation(newrelation);
 	}
 
 
