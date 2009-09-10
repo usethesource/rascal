@@ -19,16 +19,16 @@ public class VisitableFactory {
 	public static Visitable make(IValue iValue) {
 		if (iValue instanceof INode) {
 			return new VisitableNode((INode) iValue);
-		} else if (iValue instanceof IList) {
-			return new VisitableList((IList) iValue);
-		} else if (iValue instanceof ISet) {
-			return new VisitableSet((ISet) iValue);
+		} else if (iValue instanceof ITuple) {
+			return new VisitableTuple((ITuple) iValue);
 		} else if (iValue instanceof IMap) {
 			return new VisitableMap((IMap) iValue);
 		} else if (iValue instanceof IRelation) {
 			return new VisitableRelation((IRelation) iValue);
-		} else if (iValue instanceof ITuple) {
-			return new VisitableTuple((ITuple) iValue);
+		} else if (iValue instanceof IList) {
+			return new VisitableList((IList) iValue);
+		} else if (iValue instanceof ISet) {
+			return new VisitableSet((ISet) iValue);
 		} else if (iValue instanceof ISourceLocation || iValue instanceof IExternalValue || iValue instanceof IBool || iValue instanceof IInteger || iValue instanceof ISourceLocation || iValue instanceof IReal || iValue instanceof IString) {
 			return new VisitableConstant(iValue);
 		}

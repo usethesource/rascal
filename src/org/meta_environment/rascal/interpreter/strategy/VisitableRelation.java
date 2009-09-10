@@ -39,14 +39,15 @@ public class VisitableRelation implements Visitable {
 			throw new IndexOutOfBoundsException();
 		}
 		int index = 0;
-		IRelation newrelation = ValueFactory.getInstance().relation(relation.getType());
+		IRelation newrelation = ValueFactory.getInstance().relation(relation.getFieldTypes());
 		Iterator<IValue> elts = relation.iterator();
 		while (elts.hasNext()) {
 			IValue e = elts.next();
 			if (index == i) {
-				newrelation.insert(newChild.getValue());
+				newrelation = newrelation.insert(newChild.getValue());
+			} else {
+				newrelation = newrelation.insert(e);
 			}
-			newrelation.insert(e);
 			index++;
 		}
 		return new VisitableRelation(newrelation);

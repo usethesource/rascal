@@ -55,8 +55,9 @@ public class VisitableMap implements Visitable {
 				// because strategies are type preserving
 				ITuple newtuple = (ITuple) (newChild.getValue());
 				map.put(newtuple.get(0), newtuple.get(1));
+			} else {
+				map.put(key, value);
 			}
-			map.put(key, value);
 			index ++;
 		}
 		return new VisitableMap(newmap);
