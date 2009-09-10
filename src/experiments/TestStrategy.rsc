@@ -34,6 +34,12 @@ data B = g(B I)
  };
 
 
+public B rules4(B t) {
+   switch (t) {
+	case b(): return c();
+	default: return t;
+   };
+}
 
 public void main() {
     test();
@@ -58,6 +64,9 @@ public bool test() {
 
      rel[A, B] r = {<a(), b()>, <f(b(),b()), c()>};
      assertEqual(top_down(rules3)(r),{<a(), c()>, <f(c(),c()), c()>});
+
+     A t4 = f(g(b()),g(b()));
+     assertEqual(top_down(makeStrategy(rules4))(t4),f(g(c()),g(c())));
  
      return report("Strategies");
 
