@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter.strategy;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 
@@ -39,18 +40,18 @@ public class VisitableRelation implements Visitable {
 			throw new IndexOutOfBoundsException();
 		}
 		int index = 0;
-		IRelation newrelation = ValueFactory.getInstance().relation(relation.getFieldTypes());
+		IRelationWriter writer = ValueFactory.getInstance().relationWriter(relation.getFieldTypes());
 		Iterator<IValue> elts = relation.iterator();
 		while (elts.hasNext()) {
 			IValue e = elts.next();
 			if (index == i) {
-				newrelation = newrelation.insert(newChild.getValue());
+				writer.insert(newChild.getValue());
 			} else {
-				newrelation = newrelation.insert(e);
+				writer.insert(e);
 			}
 			index++;
 		}
-		return new VisitableRelation(newrelation);
+		return new VisitableRelation(writer.done());
 	}
 
 

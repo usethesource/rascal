@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter.strategy;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 
@@ -39,18 +40,18 @@ public class VisitableSet implements Visitable {
 			throw new IndexOutOfBoundsException();
 		}
 		int index = 0;
-		ISet newset = ValueFactory.getInstance().set(set.getType());
+		ISetWriter writer = ValueFactory.getInstance().setWriter(set.getElementType());
 		Iterator<IValue> elts = set.iterator();
 		while (elts.hasNext()) {
 			IValue e = elts.next();
 			if (index == i) {
-				newset.insert(newChild.getValue());
+				writer.insert(newChild.getValue());
 			} else {
-				newset.insert(e);
+				writer.insert(e);
 			}
 			index++;
 		}
-		return new VisitableSet(newset);
+		return new VisitableSet(writer.done());
 	}
 
 }
