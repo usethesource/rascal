@@ -269,6 +269,7 @@ public class TreeAdapter{
 			
 			ISourceLocation loc;
 			if (!filename.equals("-")) {
+				filename = filename.startsWith("/") ? filename : "./"+filename; // TODO Fix properly.
 				loc = factory.sourceLocation(filename, startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
 			}
 			else {
