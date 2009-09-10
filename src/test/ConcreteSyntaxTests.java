@@ -16,7 +16,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void parseDS(){
 		prepare("import src::test::GrammarABCDE;");
 		prepareMore("@stringParser DS parse(str input) ;");
-		assertTrue(runTestInSameEvaluator("parse(\"d d d\") == (DS)`d d d`;"));
+		assertTrue(runTestInSameEvaluator("parse(\"d d d\") == DS`d d d`;"));
 	}
 
 	@Test
@@ -24,7 +24,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepareModule("M", "module M " +
 				"import src::test::GrammarABCDE;" +
 				"@stringParser public DS parse(str input);" +
-				"public DS ds = (DS)`d d d`;");
+				"public DS ds = DS`d d d`;");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("parse(\"d d d\") == ds;"));
 	}
@@ -34,7 +34,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void parseDSfromFile(){
 		prepare("import src::test::GrammarABCDE;");
 		prepareMore("@fileParser DS parse(str filename) ;");
-		assertTrue(runTestInSameEvaluator("parse(\"src/test/DS.trm\") == (DS)`d d d`;"));
+		assertTrue(runTestInSameEvaluator("parse(\"src/test/DS.trm\") == DS`d d d`;"));
 	}
 
 	@Test(expected=NonWellformedTypeError.class)
@@ -64,7 +64,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void singleATyped(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("(A)`a` := `a`;"));
+		assertTrue(runTestInSameEvaluator("A`a` := `a`;"));
 	}
 	
 	@Test
@@ -118,7 +118,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void varAQuotedDeclaredBefore(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{A someA; (A)`<someA>` := `a`;}"));
+		assertTrue(runTestInSameEvaluator("{A someA; A`<someA>` := `a`;}"));
 	}
 	
 	public void VarATypedInsertAmbiguous(){
@@ -169,7 +169,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void ABvars2TypedInsertWithTypes(){ 
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ `<A someA><B someB>` := `a b` && (C)`<someA><someB>` == `a b`;}"));
+		assertTrue(runTestInSameEvaluator("{ `<A someA><B someB>` := `a b` && C`<someA><someB>` == `a b`;}"));
 	}
 	
 	@Test
@@ -223,19 +223,19 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test(expected=StaticError.class)
 	public void D3(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("(DS)`d d` := `d d`;"));
+		assertTrue(runTestInSameEvaluator("DS`d d` := `d d`;"));
 	}
 
 	@Test(expected=StaticError.class)
 	public void D4(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("`d d` := (DS)`d d`;"));
+		assertTrue(runTestInSameEvaluator("`d d` := DS`d d`;"));
 	}
 
 	@Test
 	public void D5(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("(DS)`d d` := (DS)`d d`;"));
+		assertTrue(runTestInSameEvaluator("DS`d d` := DS`d d`;"));
 	}
 
 	
@@ -261,13 +261,13 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void DvarsTypedInsert2(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ (DS)`<D+ Xs>` := (DS)`d`; }"));
+		assertTrue(runTestInSameEvaluator("{ DS`<D+ Xs>` := DS`d`; }"));
 	}
 	
 	@Test
 	public void DvarsTypedInsert3(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ (DS)`<D+ Xs>` := (DS)`d d`; }"));
+		assertTrue(runTestInSameEvaluator("{ DS`<D+ Xs>` := DS`d d`; }"));
 	}
 
 	
@@ -293,7 +293,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void DvarsTypedInsert4(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("(DS)`d <D+ Xs>` := (DS)`d d` && (DS)` d <D+ Xs> ` == (DS)` d d `;"));
+		assertTrue(runTestInSameEvaluator("DS`d <D+ Xs>` := DS`d d` && DS` d <D+ Xs> ` == DS` d d `;"));
 	}
 	
 	
@@ -306,7 +306,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test 
 	public void DvarsTypedInsert5(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)` d <D+ Xs> ` == (DS)`d d d`; }"));
+		assertTrue(runTestInSameEvaluator("{ DS`d <D+ Xs>` := DS`d d d` && DS` d <D+ Xs> ` == DS`d d d`; }"));
 	}
 
 	@Test
@@ -354,30 +354,30 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void NoStarSubjectToPlusVar(){
 		prepare("import src::test::GrammarABCDE;");
-		assertFalse(runTestInSameEvaluator("{E \",\"}+ Xs := ({E \",\"}*) ` `;"));
+		assertFalse(runTestInSameEvaluator("{E \",\"}+ Xs := {E \",\"}* ` `;"));
 	}
 	
 	public void plusListShouldNotMatchEmptyList() {
 		prepare("import src::test::GrammarABCDE;");
-		assertFalse(runTestInSameEvaluator("` e, <{E \",\"}+ Es> ` := ({E \",\"}+) ` e `;"));
+		assertFalse(runTestInSameEvaluator("` e, <{E \",\"}+ Es> ` := {E \",\"}+ ` e `;"));
 	}
 	
 	@Test
 	public void starListPatternShouldMatchPlusListSubject() {
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{E \",\"}* Zs := ({E \",\"}+) ` e, e `;"));
+		assertTrue(runTestInSameEvaluator("{E \",\"}* Zs := {E \",\"}+ ` e, e `;"));
 	}
 	
 	@Test
 	public void plusListPatternShouldMatchPStarListSubjectIfNotEmpty() {
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{E \",\"}+ Zs := ({E \",\"}*) ` e, e `;"));
+		assertTrue(runTestInSameEvaluator("{E \",\"}+ Zs := {E \",\"}* ` e, e `;"));
 	}
 	
 	@Test
 	public void plusListPatternShouldNotMatchPStarListSubjectIfEmpty() {
 		prepare("import src::test::GrammarABCDE;");
-		assertFalse(runTestInSameEvaluator("{E \",\"}+ Zs := ({E \",\"}*) ` `;"));
+		assertFalse(runTestInSameEvaluator("{E \",\"}+ Zs := {E \",\"}* ` `;"));
 	}
 	
 	@Test
@@ -389,20 +389,20 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void emptyListVariablePatternShouldBeSplicedInbetweenSeparatorsAndBindToEmptyList() {
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("`e, <{E \",\"}* Xs>, e` := ` e, e ` && Xs == ({E \",\"}*) ` `;"));
+		assertTrue(runTestInSameEvaluator("`e, <{E \",\"}* Xs>, e` := ` e, e ` && Xs == {E \",\"}* ` `;"));
 	}
 	
 	@Test
 	public void emptySepListShouldSpliceCorrectly(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{E \",\"}* Xs := ({E \",\"})* ` ` && `e, <{E \",\"}* Xs>, e ` == ` e, e `;"));
+		assertTrue(runTestInSameEvaluator("{E \",\"}* Xs := {E \",\"}* ` ` && `e, <{E \",\"}* Xs>, e ` == ` e, e `;"));
 	}
 	
 	
 	@Test
 	public void Evars2Typed(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ `e, <{E \",\"}+ Xs>` := `e, e` && Xs == ({E \",\"}+) ` e `;}"));
+		assertTrue(runTestInSameEvaluator("{ `e, <{E \",\"}+ Xs>` := `e, e` && Xs == {E \",\"}+ ` e `;}"));
 	}
 	
 	@Test(expected=AmbiguousConcretePattern.class)
@@ -414,7 +414,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void Evars3Typed(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ `e, <{E \",\"}+ Xs>` := `e, e` && Xs == ({E \",\"}+) ` e ` && ({E \",\"}+) ` e, <{E \",\"}+ Xs> ` == ` e, e`; }"));
+		assertTrue(runTestInSameEvaluator("{ `e, <{E \",\"}+ Xs>` := `e, e` && Xs == {E \",\"}+ ` e ` && {E \",\"}+ ` e, <{E \",\"}+ Xs> ` == ` e, e`; }"));
 	}
 	
 	@Test(expected=AmbiguousConcretePattern.class)
@@ -511,7 +511,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void EvarsTypedInsert3Empty(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("` e, <{E \",\"}* Xs> ` := ({E \",\"}+) `e`;"));
+		assertTrue(runTestInSameEvaluator("` e, <{E \",\"}* Xs> ` := {E \",\"}+ `e`;"));
 	}
 
 	@Test
@@ -561,14 +561,14 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void Pico7b(){
 		prepare("import languages::pico::syntax::Pico;");
 		assertTrue(runTestInSameEvaluator("{`begin <DECLS decls> <{STATEMENT \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
-				                          "(decls == `declare x: natural;`) && (stats == ({STATEMENT \";\"}+)`x := 1; x := 2`);}"));
+				                          "(decls == `declare x: natural;`) && (stats == {STATEMENT \";\"}+`x := 1; x := 2`);}"));
 	}
 	
 	@Test
 	public void Pico7c(){
 		prepare("import languages::pico::syntax::Pico;");
 		assertTrue(runTestInSameEvaluator("{`begin <DECLS decls> <{STATEMENT \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
-				                          "(decls == `declare x: natural;`) && (stats == ({STATEMENT \";\"}*)`x := 1; x := 2`);}"));
+				                          "(decls == `declare x: natural;`) && (stats == {STATEMENT \";\"}*`x := 1; x := 2`);}"));
 	}
 	
 	@Test
@@ -728,7 +728,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void enumeratorPicoStatementsConcretePattern2(){
 		prepare("import languages::pico::syntax::Pico;");
-		assertTrue(runTestInSameEvaluator("{L = [X | `b:=<EXP X>` <- `a:=1;b:=2;c:=3` ]; L == [ (EXP)`2` ];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | `b:=<EXP X>` <- `a:=1;b:=2;c:=3` ]; L == [ EXP`2` ];}"));
 	}
 	
 	@Test
@@ -758,7 +758,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void forPicoStatementsTyped3(){
 		prepare("import languages::pico::syntax::Pico;");
-		assertTrue(runTestInSameEvaluator("{L = [X | EXP X <- `begin declare a : natural; a:=1;b:=2;c:=3 end` ]; L == [(EXP)`1`, (EXP)`2`, (EXP)`3` ];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | EXP X <- `begin declare a : natural; a:=1;b:=2;c:=3 end` ]; L == [EXP`1`, EXP`2`, EXP`3` ];}"));
 	}
 	
 	@Test
