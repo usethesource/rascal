@@ -34,7 +34,7 @@ public class VisitableSet implements Visitable {
 	}
 
 	public Visitable set(int i, Visitable newChild)
-			throws IndexOutOfBoundsException {
+	throws IndexOutOfBoundsException {
 		if (i >= arity()) {
 			throw new IndexOutOfBoundsException();
 		}
@@ -45,8 +45,9 @@ public class VisitableSet implements Visitable {
 			IValue e = elts.next();
 			if (index == i) {
 				newset.insert(newChild.getValue());
+			} else {
+				newset.insert(e);
 			}
-			newset.insert(e);
 			index++;
 		}
 		return new VisitableSet(newset);
