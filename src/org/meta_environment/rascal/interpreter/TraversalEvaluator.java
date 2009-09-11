@@ -24,11 +24,9 @@ import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Replacement;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.RewriteRule;
 import org.meta_environment.rascal.interpreter.matching.IBooleanResult;
-import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.matching.LiteralPattern;
 import org.meta_environment.rascal.interpreter.matching.RegExpPatternValue;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -50,27 +48,6 @@ public class TraversalEvaluator {
 	public TraversalEvaluator(IValueFactory vf, Evaluator eval) {
 		this.vf = vf;
 		this.eval = eval;
-	}
-	
-	/*
-	 * StringReplacement represents a single replacement in the subject string.
-	 */
-
-	public class StringReplacement {
-		int start;
-		int end;
-		String replacement;
-
-		public StringReplacement(int start, int end, String repl){
-			this.start = start;
-			this.end = end;
-			replacement = repl;
-		}
-
-		@Override
-		public String toString(){
-			return "StringReplacement(" + start + ", " + end + ", " + replacement + ")";
-		}
 	}
 	
 	/*
@@ -388,117 +365,67 @@ public class TraversalEvaluator {
 	}
 	
 	/*
-	 * traverString implements a visit of a string subject and applies the set of cases
-	 * for all substrings of the subject. At the end, all replacements are applied and the modified
-	 * subject is returned.
+	 * traverString implements a visit of a string subject by visiting subsequent substrings 
+	 * subject[0,len], subject[1,len] ...and trying to match the cases. If a case matches
+	 * the subject cursor is advanced by the length of the match and the matched substring may be replaced.
+	 * At the end, the subject string including all replacements is returned.
+	 * 
+	 * Performance issue: we create a lot of garbage by producing all these substrings.
 	 */
 
-	// TODO: decouple visiting of strings from case statement
+	@SuppressWarnings("null")
 	public TraverseResult traverseString(Result<IValue> subject, CasesOrRules casesOrRules){
 		String subjectString = ((IString) subject.getValue()).getValue();
 		int len = subjectString.length();
-		java.util.List<StringReplacement> replacements = new ArrayList<StringReplacement>();
 		boolean matched = false;
 		boolean changed = false;
-		int cursor = 0;
+		int subjectCursor = 0;
+		int subjectCursorforResult = 0;
+		StringBuffer replacementString = null; 
 
-		Case cs = (Case) singleCase(casesOrRules);
-
-//		PatternEvaluator re = new PatternEvaluator(vf, this, getCurrentEnvt());
-		
-		if(cs != null && cs.isPatternWithAction() && cs.getPatternWithAction().getPattern().isLiteral() && cs.getPatternWithAction().getPattern().getLiteral().isRegExp()){
-			/*
-			 * In the frequently occurring case that there is one case with a regexp as pattern,
-			 * we can delegate all the work to the regexp matcher.
-			 */
-			org.meta_environment.rascal.ast.PatternWithAction rule = cs.getPatternWithAction();
-
-			Expression patexp = rule.getPattern();
-			IMatchingResult mp = patexp.accept(eval.makePatternEvaluator(patexp));
-			mp.initMatch(subject);
-			Environment old = eval.getCurrentEnvt();
+		while(subjectCursor < len){
+			//System.err.println("cursor = " + cursor);
 			try {
-				while(mp.hasNext()){
-					if(mp.next()){
-						try {
-							if(rule.isReplacing()){
-								Replacement repl = rule.getReplacement();
-								boolean trueConditions = true;
-								if(repl.isConditional()){
-									for(Expression cond : repl.getConditions()){
-										Result<IValue> res = cond.accept(eval);
-										if(!res.isTrue()){         // TODO: How about alternatives?
-											trueConditions = false;
-											break;
-										}
-									}
-								}
-								if(trueConditions){
-									throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(repl.getReplacementExpression().accept(eval), mp);
-								}
-
-							} else {
-								rule.getStatement().accept(eval);
-							}
-						} catch (org.meta_environment.rascal.interpreter.control_exceptions.Insert e){
-							changed = true;
-							IValue repl = e.getValue().getValue();
-							if(repl.getType().isStringType()){
-								int start = ((RegExpPatternValue) mp).getStart();
-								int end = ((RegExpPatternValue) mp).getEnd();
-								replacements.add(new StringReplacement(start, end, ((IString)repl).getValue()));
-							} else {
-								throw new UnexpectedTypeError(tf.stringType(),repl.getType(), rule);
-							}
-						} catch (Failure e){
-							//System.err.println("failure occurred");
-						}
-					}
-				}
-			} finally {
-				eval.unwind(old);
-			}
-		} else {
-			/*
-			 * In all other cases we generate subsequent substrings subject[0,len], subject[1,len] ...
-			 * and try to match all the cases.
-			 * Performance issue: we create a lot of garbage by producing all these substrings.
-			 */
-
-			while(cursor < len){
-				//System.err.println("cursor = " + cursor);
-				try {
-					IString substring = vf.string(subjectString.substring(cursor, len));
-					Result<IValue> subresult  = ResultFactory.makeResult(tf.stringType(), substring, eval);
-					TraverseResult tr = applyCasesOrRules(subresult, casesOrRules);
-					matched |= tr.matched;
-					changed |= tr.changed;
-					//System.err.println("matched=" + matched + ", changed=" + changed);
-					cursor++;
-				} catch (org.meta_environment.rascal.interpreter.control_exceptions.Insert e){
-					IValue repl = e.getValue().getValue();
-					if(repl.getType().isStringType()){
-						int start;
-						int end;
-						IBooleanResult lastPattern = e.getMatchPattern();
-						if(lastPattern == null)
-							throw new ImplementationError("no last pattern known");
-						if(lastPattern instanceof RegExpPatternValue){
-							start = ((RegExpPatternValue)lastPattern).getStart();
-							end = ((RegExpPatternValue)lastPattern).getEnd();
-						} else if(lastPattern instanceof LiteralPattern){
-							start = 0;
-							end = ((IString)repl).getValue().length();
-						} else {
-							throw new SyntaxError("Illegal pattern " + lastPattern + " in string visit", eval.getCurrentAST().getLocation());
-						}
-
-						replacements.add(new StringReplacement(cursor + start, cursor + end, ((IString)repl).getValue()));
-						matched = changed = true;
-						cursor += end;
+				IString substring = vf.string(subjectString.substring(subjectCursor, len));
+				Result<IValue> subresult  = ResultFactory.makeResult(tf.stringType(), substring, eval);
+				TraverseResult tr = applyCasesOrRules(subresult, casesOrRules);
+				matched |= tr.matched;
+				changed |= tr.changed;
+				//System.err.println("matched=" + matched + ", changed=" + changed);
+				subjectCursor++;
+			} catch (org.meta_environment.rascal.interpreter.control_exceptions.Insert e){
+				IValue repl = e.getValue().getValue();
+				if(repl.getType().isStringType()){
+					int start;
+					int end;
+					IBooleanResult lastPattern = e.getMatchPattern();
+					if(lastPattern == null)
+						throw new ImplementationError("No last pattern known");
+					if(lastPattern instanceof RegExpPatternValue){
+						start = ((RegExpPatternValue)lastPattern).getStart();
+						end = ((RegExpPatternValue)lastPattern).getEnd();
+					} else if(lastPattern instanceof LiteralPattern){
+						start = 0;
+						end = ((IString)repl).getValue().length();
 					} else {
-						throw new UnexpectedTypeError(tf.stringType(),repl.getType(), eval.getCurrentAST());
+						throw new SyntaxError("Illegal pattern " + lastPattern + " in string visit", eval.getCurrentAST().getLocation());
 					}
+					
+					// Create replacementString when this is the first replacement
+					if(replacementString == null)
+						replacementString = new StringBuffer();
+					
+					// Copy replacement into replacement string
+					for(; subjectCursorforResult < subjectCursor + start; subjectCursorforResult++){
+						replacementString.append(subjectString.charAt(subjectCursorforResult));
+					}
+					subjectCursorforResult = subjectCursor + end;
+					replacementString.append(((IString)repl).getValue());
+
+					matched = changed = true;
+					subjectCursor += end;
+				} else {
+					throw new UnexpectedTypeError(tf.stringType(),repl.getType(), eval.getCurrentAST());
 				}
 			}
 		}
@@ -506,23 +433,12 @@ public class TraversalEvaluator {
 		if(!changed){
 			return new TraverseResult(matched, subject, changed);
 		}
-		/*
-		 * The replacements are now known. Create a version of the subject with all replacement applied.
-		 */
-		StringBuffer res = new StringBuffer();
-		cursor = 0;
-		for(StringReplacement sr : replacements){
-			for( ;cursor < sr.start; cursor++){
-				res.append(subjectString.charAt(cursor));
-			}
-			cursor = sr.end;
-			res.append(sr.replacement);
+		
+		// Copy remaining characters of subject string into replacement string
+		for(; subjectCursorforResult < len; subjectCursorforResult++){
+			replacementString.append(subjectString.charAt(subjectCursorforResult));
 		}
-		for( ; cursor < len; cursor++){
-			res.append(subjectString.charAt(cursor));
-		}
-
-		return new TraverseResult(matched, ResultFactory.makeResult(tf.stringType(), vf.string(res.toString()), eval), changed);
+		return new TraverseResult(matched, ResultFactory.makeResult(tf.stringType(), vf.string(replacementString.toString()), eval), changed);
 	}
 
 	/*
