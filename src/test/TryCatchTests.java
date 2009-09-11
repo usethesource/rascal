@@ -212,13 +212,13 @@ public class TryCatchTests extends TestFramework {
 	}
 	
 	@Test
-	public void NoSuchFileException(){
+	public void PathNotFoundException(){
 		String fun =
 			
 		"bool function() {" +
 		"  try {" +
 		"      S = readFile(\"DoesNotExist\");" +
-		"  } catch FileNotFound(str name):" +
+		"  } catch PathNotFound(str name):" +
 		"      return true;" +
 		"  return false;" +
 		"}";
