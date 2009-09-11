@@ -129,6 +129,6 @@ public class NonTerminalType extends ExternalType {
 	
 	@Override
 	public String toString() {
-		return symbol.toString();
+		return SymbolAdapter.toString(symbol);
 	}
 }
