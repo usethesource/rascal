@@ -365,7 +365,7 @@ public class TraversalEvaluator {
 	}
 	
 	/*
-	 * traverString implements a visit of a string subject by visiting subsequent substrings 
+	 * traverseString implements a visit of a string subject by visiting subsequent substrings 
 	 * subject[0,len], subject[1,len] ...and trying to match the cases. If a case matches
 	 * the subject cursor is advanced by the length of the match and the matched substring may be replaced.
 	 * At the end, the subject string including all replacements is returned.
@@ -380,7 +380,7 @@ public class TraversalEvaluator {
 		boolean matched = false;
 		boolean changed = false;
 		int subjectCursor = 0;
-		int subjectCursorforResult = 0;
+		int subjectCursorForResult = 0;
 		StringBuffer replacementString = null; 
 
 		while(subjectCursor < len){
@@ -416,10 +416,10 @@ public class TraversalEvaluator {
 						replacementString = new StringBuffer();
 					
 					// Copy replacement into replacement string
-					for(; subjectCursorforResult < subjectCursor + start; subjectCursorforResult++){
-						replacementString.append(subjectString.charAt(subjectCursorforResult));
+					for(; subjectCursorForResult < subjectCursor + start; subjectCursorForResult++){
+						replacementString.append(subjectString.charAt(subjectCursorForResult));
 					}
-					subjectCursorforResult = subjectCursor + end;
+					subjectCursorForResult = subjectCursor + end;
 					replacementString.append(((IString)repl).getValue());
 
 					matched = changed = true;
@@ -435,8 +435,8 @@ public class TraversalEvaluator {
 		}
 		
 		// Copy remaining characters of subject string into replacement string
-		for(; subjectCursorforResult < len; subjectCursorforResult++){
-			replacementString.append(subjectString.charAt(subjectCursorforResult));
+		for(; subjectCursorForResult < len; subjectCursorForResult++){
+			replacementString.append(subjectString.charAt(subjectCursorForResult));
 		}
 		return new TraverseResult(matched, ResultFactory.makeResult(tf.stringType(), vf.string(replacementString.toString()), eval), changed);
 	}
