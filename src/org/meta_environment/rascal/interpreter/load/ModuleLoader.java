@@ -34,6 +34,7 @@ public class ModuleLoader{
 	private List<IModuleFileLoader> loaders = new ArrayList<IModuleFileLoader>();
 	private List<ISdfSearchPathContributor> contributors = new ArrayList<ISdfSearchPathContributor>();
 	private ModuleParser parser;
+	private final boolean saveParsedModules = (System.getProperty("rascal.options.saveBinaries") != null ? System.getProperty("rascal.options.saveBinaries").equals("true") : false);
 	
 	public ModuleLoader(){
 		this(new ModuleParser());
@@ -102,14 +103,18 @@ public class ModuleLoader{
 			
 			IConstructor tree = null;
 			if(loader.supportsLoadingBinaries()){
-				tree = tryLoadBinary(loader, binaryName); // <-- NOTE: Don't do this if you want to generate new binaries.
+				if (!saveParsedModules) {
+					tree = tryLoadBinary(loader, binaryName);
+				}
 			}
 			
 			if(tree == null){
 				tree = parseModule(loader, fileName, name, ast, env);
 			}
 			
-//			loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
+			if (saveParsedModules) {
+				loader.tryWriteBinary(fileName, binaryName, tree);
+			}
 			
 			Module moduleAst = new ASTBuilder(new ASTFactory()).buildModule(tree);
 			
