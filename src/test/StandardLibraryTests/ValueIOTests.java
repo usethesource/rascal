@@ -15,9 +15,9 @@ public class ValueIOTests extends TestFramework {
 		boolean success = false;
 		try{
 			prepare("import ValueIO;");
-			prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
+			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, " + exp + ");");
 			
-			success = runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\") && N == " + exp + ";}");
+			success = runTestInSameEvaluator("{" + type + " N := readBinaryValueFile(|file:///tmp/xxx|) && N == " + exp + ";}");
 		}finally{
 			// Clean up.
 			removeTempFile();
@@ -26,7 +26,7 @@ public class ValueIOTests extends TestFramework {
 	}
 	
 	public void removeTempFile(){
-		new File("xxx").delete();
+		new File("/tmp/xxx").delete();
 	}
 	
 	@Test public void binBool() { assertTrue(binaryWriteRead("bool", "true")); }
@@ -39,7 +39,7 @@ public class ValueIOTests extends TestFramework {
 	
 	@Test public void binStr2() { assertTrue(binaryWriteRead("str", "\"ab\\nc\"")); }
 	
-	@Test public void binLoc() { assertTrue(binaryWriteRead("loc",  "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)"));	}
+	@Test public void binLoc() { assertTrue(binaryWriteRead("loc",  "|file:///home/paulk/pico.trm|(0,1,<2,3>,4,5>)"));	}
 	
 	@Test public void binList() { assertTrue(binaryWriteRead("list[int]", "[1,2,3]")); }
 	
@@ -55,8 +55,8 @@ public class ValueIOTests extends TestFramework {
 			String exp = "band(bor(btrue(),bfalse()),band(btrue(),btrue()))";
 			prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 			prepareMore("import ValueIO;");
-			prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
-			assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\") && N == " + exp + ";}"));
+			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, " + exp + ");");
+			assertTrue(runTestInSameEvaluator("{" + type + " N := readBinaryValueFile(|file:///tmp/xxx|) && N == " + exp + ";}"));
 		}finally{
 			// Clean up.
 			removeTempFile();
@@ -67,9 +67,9 @@ public class ValueIOTests extends TestFramework {
 		boolean success = false;
 		try{
 			prepare("import ValueIO;");
-			prepareMore("writeValueToTextFile(\"xxx\", " + exp + ");");
+			prepareMore("writeTextValueFile(|file:///tmp/xxx|, " + exp + ");");
 			
-			success = runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\") && N == " + exp + ";}");
+			success = runTestInSameEvaluator("{" + type + " N := readTextValueFile(#" + type + ", |file:///tmp/xxx|) && N == " + exp + ";}");
 		}finally{
 			// Clean up.
 			removeTempFile();
@@ -83,28 +83,28 @@ public class ValueIOTests extends TestFramework {
 	
 	@Test public void textReal() { assertTrue(textWriteRead("real", "2.5")); }
 	
-	@Ignore @Test public void textStr1() { assertTrue(textWriteRead("str", "\"abc\"")); }
+	@Test public void textStr1() { assertTrue(textWriteRead("str", "\"abc\"")); }
 	
-	@Ignore @Test public void textStr2() { assertTrue(textWriteRead("str", "\"ab\\nc\"")); }
+	@Test public void textStr2() { assertTrue(textWriteRead("str", "\"ab\\nc\"")); }
 	
-	@Ignore @Test public void textLoc() { assertTrue(textWriteRead("loc",  "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)"));	}
+	@Test public void textLoc() { assertTrue(textWriteRead("loc",  "|file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>)"));	}
 	
-	@Ignore @Test public void textList() { assertTrue(textWriteRead("list[int]", "[1,2,3]")); }
+	@Test public void textList() { assertTrue(textWriteRead("list[int]", "[1,2,3]")); }
 	
-	@Ignore @Test public void textSet() { assertTrue(textWriteRead("set[int]", "{1,2,3}")); }
+	@Test public void textSet() { assertTrue(textWriteRead("set[int]", "{1,2,3}")); }
 	
-	@Ignore @Test public void textMap() { assertTrue(textWriteRead("map[int,int]", "(1:10,2:20)")); }
+	@Test public void textMap() { assertTrue(textWriteRead("map[int,int]", "(1:10,2:20)")); }
 	
-	@Ignore @Test public void textTuple() { assertTrue(textWriteRead("tuple[int,bool,str]", "<1,true,\"abc\">")); }
+	@Test public void textTuple() { assertTrue(textWriteRead("tuple[int,bool,str]", "<1,true,\"abc\">")); }
 	
-	@Ignore @Test public void textADT(){
+	@Test public void textADT(){
 		try{
 			String type = "Bool";
 			String exp = "band(bor(btrue(),bfalse()),band(btrue(),btrue()))";
 			prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 			prepareMore("import ValueIO;");
-			prepareMore("writeValueToTextFile(\"xxx\", " + exp + ");");
-			assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\"); N == " + exp + ";}"));
+			prepareMore("writeTextValueFile(|file:///tmp/xxx|, " + exp + ");");
+			assertTrue(runTestInSameEvaluator("{" + type + " N := readTextValueFile(#" + type + ", |file:///tmp/xxx|) && N == " + exp + ";}"));
 		}finally{
 			// Clean up.
 			removeTempFile();

@@ -1,10 +1,11 @@
 package org.meta_environment.rascal.std;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Iterator;
 
@@ -17,11 +18,12 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.locations.URIResolverRegistry;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
 
-public class IO{
+public class IO {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();	
 	
@@ -30,7 +32,7 @@ public class IO{
 	public static void setOutputStream(PrintStream out){
 		IO.out = out;
 	}
-
+	
 	public static void println(IValue V){
 		PrintStream currentOutStream = out;
 		
@@ -96,25 +98,26 @@ public class IO{
 	}
 	
 	public static IValue readFile(ISourceLocation file) {
-		if (!file.getURI().getScheme().equals("file")) {
-			throw RuntimeExceptionFactory.schemeNotSupported(file, null, null);
-		}
-		
-		java.lang.String fileName = file.getURI().getPath();
-		
 		StringBuilder result = new StringBuilder();
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(fileName));
-			java.lang.String line;
+			InputStream in = URIResolverRegistry.getInstance().getInputStream(file.getURI());
+			byte[] buf = new byte[4096];
+			int count;
 
-			do {
-				line = in.readLine();
-				if(line != null){
-					result.append(line);
-					result.append('\n');
-				}
-			} while (line != null);
+			while ((count = in.read(buf)) != -1) {
+				result.append(new java.lang.String(buf, 0, count));
+			}
+			
 			in.close();
+			
+			java.lang.String str = result.toString();
+			
+			if (file.getOffset() != -1) {
+				str = str.substring(file.getOffset(), file.getOffset() + file.getLength());
+			}
+			
+			return values.string(str);
+
 		}
 		catch (FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
@@ -123,36 +126,21 @@ public class IO{
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 
-		java.lang.String str = result.toString();
-		
-		if (file.getOffset() != -1) {
-			str = str.substring(file.getOffset(), file.getOffset() + file.getLength());
-		}
-		
-		return values.string(str);
 	}
 	
 	public static void writeFile(ISourceLocation file, IValue V) {
-		if (!file.getURI().getScheme().equals("file")) {
-			throw RuntimeExceptionFactory.schemeNotSupported(file, null, null);
-		}
-		
-		java.lang.String fileName = file.getURI().getPath();
-		
-		
-		
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
-
+			OutputStream out = URIResolverRegistry.getInstance().getOutputStream(file.getURI());
+			
 			for (IValue elem : (IList) V) {
 				if (elem.getType().isStringType()){
-					out.write(((IString) elem).getValue().toString());
+					out.write(((IString) elem).getValue().toString().getBytes());
 				}
 				else if (elem.getType().isSubtypeOf(Factory.Tree)) {
-					out.write(TreeAdapter.yield((IConstructor) elem));
+					out.write(TreeAdapter.yield((IConstructor) elem).getBytes());
 				}
 				else{
-					out.write(elem.toString());
+					out.write(elem.toString().getBytes());
 				}
 				out.write('\n');
 			}
@@ -171,16 +159,11 @@ public class IO{
 	
 	public static IList readFileLines(ISourceLocation file)
 	{
-		if (!file.getURI().getScheme().equals("file")) {
-			throw RuntimeExceptionFactory.schemeNotSupported(file, null, null);
-		}
-		
-		java.lang.String fileName = file.getURI().getPath();
-		
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(fileName));
+			InputStream stream = URIResolverRegistry.getInstance().getInputStream(file.getURI());
+			BufferedReader in = new BufferedReader(new InputStreamReader(stream));
 			java.lang.String line;
 			
 			int i = 0;

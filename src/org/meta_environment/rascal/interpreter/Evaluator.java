@@ -36,6 +36,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.meta_environment.locations.FileURIResolver;
+import org.meta_environment.locations.URIResolverRegistry;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.BasicType;
 import org.meta_environment.rascal.ast.Bound;
@@ -290,12 +292,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		// load Java classes from the current jar (for the standard library)
 		classLoaders.add(getClass().getClassLoader());
+		
+		// register some schemes
+		URIResolverRegistry registry = URIResolverRegistry.getInstance();
+	    FileURIResolver files = new FileURIResolver();
+	    registry.registerInput(files.scheme(), files);
+	    registry.registerOutput(files.scheme(), files);
 	}
-
-
-	//	public IConstructor parseCommand(String command, String fileName) throws IOException {
-	//		return loader.parseCommand(command, fileName);
-	//	}
 
 	/**
 	 * In interactive mode this flag should be set to true, such that re-importing

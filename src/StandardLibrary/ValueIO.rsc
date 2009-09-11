@@ -1,18 +1,31 @@
 module ValueIO
 
 @doc{Read  a value from a binary file in PBF format}
+public value readValueFile(loc file) {
+  return readValueFile(#value, file);
+}
+
+@doc{Read a type value from a binary file.}
 @javaClass{org.meta_environment.rascal.std.ValueIO}
-public value java readValueFromBinaryFile(str namePBFFile);
+public &T java readBinaryValueFile(type[&T] result, loc file);
+
+public value readBinaryValueFile(loc file) {
+  return readBinaryValueFile(#value, file);
+}
+
+@doc{Read a type value from a text file.}
+@javaClass{org.meta_environment.rascal.std.ValueIO}
+public &T java readTextValueFile(type[&T] result, loc file);
+
+public value readTextValueFile(loc file) {
+  return readTextValueFile(#value, file);
+}
 	
-@doc{Read a value from a text file}
+@doc{Write a value to a fast binary file format}
 @javaClass{org.meta_environment.rascal.std.ValueIO}
-public value java readValueFromTextFile(str namePBFFile);
+public void java writeBinaryValueFile(loc file, value val);
 	
-@doc{Write a value to a binary file in PBF format}
+@doc{Write a value to a fast binary file format}
 @javaClass{org.meta_environment.rascal.std.ValueIO}
-public void java writeValueToBinaryFile(str namePBFFile, value val);
-	
-@doc{Write a value to a binary file in PBF format}
-@javaClass{org.meta_environment.rascal.std.ValueIO}
-public void java writeValueToTextFile(str namePBFFile, value val);
+public void java writeTextValueFile(loc file, value val);
 	

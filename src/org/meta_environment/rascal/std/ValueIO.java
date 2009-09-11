@@ -1,34 +1,33 @@
 package org.meta_environment.rascal.std;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.locations.URIResolverRegistry;
+import org.meta_environment.rascal.interpreter.Typeifier;
+import org.meta_environment.rascal.interpreter.types.ReifiedType;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class ValueIO {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	
-	public static IValue readValueFromBinaryFile(IString namePBFFile)
-	//@doc{readValueFromBinaryFile -- read  a value from a binary file in PBF format}
-	{
-		java.lang.String fileName = namePBFFile.getValue();
+	public static IValue readBinaryValueFile(IConstructor type, ISourceLocation loc)	{
+		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
+		TypeStore store = new TypeStore();
+		new Typeifier().declare((IConstructor) type, store);
 		
 		try {
-			File file = new File(fileName);
-			// TODO: We need to use the TypeStore from the current environment,
-			// but how can we get access to it?
-			return PBFReader.readValueFromFile(values, new TypeStore(), file);
+			return new PBFReader().read(values, store, start, URIResolverRegistry.getInstance().getInputStream(loc.getURI()));
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		} catch (Exception e){
@@ -37,65 +36,34 @@ public class ValueIO {
 		}
 	}
 	
-	public static IValue readValueFromTextFile(IString namePTFFile)
-	//@doc{readValueFromTextFile -- read a value from a text file}
-	{
-		java.lang.String fileName = namePTFFile.getValue();
-		
-		FileInputStream fis = null;
-		try {
-			File file = new File(fileName);
-			fis = new FileInputStream(file);
-			// TODO: We need to use the TypeStore from the current environment,
-			// but how can we get access to it?
-			return new StandardTextReader().read(values, fis);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}finally{
-			if(fis != null){
-				try{
-					fis.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-				}
-			}
-		}
-	}
-	
-	public static void writeValueToBinaryFile(IString namePBFFile, IValue value)
-	//@doc{writeValueToBinaryFile -- write a value to a binary file in PBF format}
-	{
-		java.lang.String fileName = namePBFFile.getValue();
+	public static IValue readTextValueFile(IConstructor type, ISourceLocation loc) {
+		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
+		TypeStore store = new TypeStore();
+		new Typeifier().declare((IConstructor) type, store);
 		
 		try {
-			File file = new File(fileName);
-			PBFWriter.writeValueToFile(value, file, new TypeStore()); // TODO Use the proper type store.
-		} catch (IOException e) {
+			return new StandardTextReader().read(values, store, start, URIResolverRegistry.getInstance().getInputStream(loc.getURI()));
+		} 
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 	
-	public static void writeValueToTextFile(IString namePTFFile, IValue value)
-	//@doc{writeValueToTextFile -- write a value to a binary file in PBF format}
-	{
-		java.lang.String fileName = namePTFFile.getValue();
-		
-		FileOutputStream fos = null;
-		
+	public static void writeBinaryValueFile(ISourceLocation loc, IValue value) {
 		try {
-			File file = new File(fileName);
-			fos = new FileOutputStream(file);
-			new StandardTextWriter().write(value, fos);
-		} catch (IOException e) {
+			new PBFWriter().write(value, URIResolverRegistry.getInstance().getOutputStream(loc.getURI()));
+		} 
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}finally{
-			if(fos != null){
-				try{
-					fos.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-				}
-			}
+		}
+	}
+	
+	public static void writeTextValueFile(ISourceLocation loc, IValue value) {
+		try {
+			new StandardTextWriter().write(value, URIResolverRegistry.getInstance().getOutputStream(loc.getURI()));
+		} 
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 }
