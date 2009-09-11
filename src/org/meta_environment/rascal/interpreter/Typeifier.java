@@ -191,7 +191,7 @@ public class Typeifier {
 							args[i - 1] = toType(arg);
 						}
 						
-						tf.constructor(store, adt, name, tf.tupleType(args));
+						tf.constructorFromTuple(store, adt, name, tf.tupleType(args));
 					}
 				}
 

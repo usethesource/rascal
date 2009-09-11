@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-public interface IURIResolver {
-	InputStream resolve(URI uri) throws IOException;  
+public interface IURIInputStreamResolver {
+	InputStream getInputStream(URI uri) throws IOException;  
+	String scheme();
 }

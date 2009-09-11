@@ -53,3 +53,11 @@ data Symbol =
      \char-class(list[CharRange] ranges);
 
 anno loc Tree@\loc;
+
+@doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree.}
+@javaClass{org.meta_environment.rascal.std.ParseTree}
+public &T<:Tree java parse(type[&T<:Tree] start, loc input);
+
+@doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree.}
+@javaClass{org.meta_environment.rascal.std.ParseTree}
+public Tree java parse(loc input);

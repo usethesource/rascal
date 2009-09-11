@@ -2,40 +2,50 @@ package org.meta_environment.locations;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-public class URIResolverRegistry implements IURIResolver {
-	private final static Map<String,IURIResolver> resolvers = new HashMap<String, IURIResolver>();
+public class URIResolverRegistry {
+	private static Map<String,IURIInputStreamResolver> resolvers = new HashMap<String, IURIInputStreamResolver>();
+	private static Map<String,IURIOutputStreamResolver> outputResolvers = new HashMap<String, IURIOutputStreamResolver>();
 	
 	private static class InstanceKeeper {
 		public final static URIResolverRegistry sInstance = new URIResolverRegistry();
 	}
 	
-	private URIResolverRegistry() {
-		super();
-	}
+	private URIResolverRegistry() { }
 	
 	public static URIResolverRegistry getInstance() {
 		return InstanceKeeper.sInstance;
 	}
 	
-	public void register(String scheme, IURIResolver resolver) {
+	public void registerInput(String scheme, IURIInputStreamResolver resolver) {
 		resolvers.put(scheme, resolver);
 	}
 	
-	public IURIResolver getResolver(String scheme) {
-		return resolvers.get(scheme);
+	public void registerOutput(String scheme, IURIOutputStreamResolver resolver) {
+		outputResolvers.put(scheme, resolver);
 	}
 	
-	public InputStream resolve(URI uri) throws IOException {
-		IURIResolver resolver = resolvers.get(uri.getScheme());
+	public InputStream getInputStream(URI uri) throws IOException {
+		IURIInputStreamResolver resolver = resolvers.get(uri.getScheme());
 		
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 		
-		return resolver.resolve(uri);
+		return resolver.getInputStream(uri);
+	}
+	
+	public OutputStream getOutputStream(URI uri) throws IOException {
+		IURIOutputStreamResolver resolver = outputResolvers.get(uri.getScheme());
+		
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+		
+		return resolver.getOutputStream(uri);
 	}
 }
