@@ -1,6 +1,7 @@
 package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -179,8 +180,64 @@ public class SymbolAdapter {
 			b.append(']');
 		}
 		
+		if (isEmpty(symbol)) {
+			return "()";
+		}
+		
+		if (isCharClass(symbol)) {
+			for (IValue range : getRanges(symbol)) {
+				IConstructor r = (IConstructor) range;
+				if (r.getConstructorType() == Factory.CharRange_Single) {
+					return decode((IInteger) r.get("start"));
+				}
+				if (r.getConstructorType() == Factory.CharRange_Range) {
+					return '[' +  decode((IInteger) r.get("start")) + '-' + decode((IInteger) r.get("end"))+ ']';
+				}
+			}
+		}
+		
 		// TODO more variants
 		return symbol.toString();
+	}
+
+
+	private static String decode(IInteger iInteger) {
+		char ch = (char) iInteger.intValue();
+		
+		if (Character.isLetterOrDigit(ch)) {
+			return String.valueOf(ch);
+		}
+		
+		switch (ch) {
+		case '\n':
+			return "\\n";
+		case '\t':
+			return "\\t";
+		case '\r':
+			return "\\r"; 
+		case ' ':
+			return "\\ ";
+		}
+
+		int digit1 = ch % 10;
+		ch = (char) (ch / 10);
+		int digit2 = ch % 10;
+		ch = (char) (ch / 10);
+		int digit3 = ch % 10;
+		
+		return "\\" + digit1 + digit2 + digit3;
+	}
+
+	private static IList getRanges(IConstructor symbol) {
+		return (IList) symbol.get("ranges");
+	}
+
+	private static boolean isCharClass(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_CharClass;
+	}
+
+	private static boolean isEmpty(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Empty;
 	}
 
 	private static IList getSymbols(IConstructor symbol) {
