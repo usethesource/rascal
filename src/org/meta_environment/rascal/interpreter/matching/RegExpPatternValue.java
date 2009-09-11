@@ -20,7 +20,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableEr
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 
 public class RegExpPatternValue extends AbstractMatchingResult  {
-//	private AbstractAST ast;					// The AST for this regexp
 	private String RegExpAsString;				// The regexp represented as string
 	private Pattern pat;						// The Pattern resulting from compiling the regexp
 
@@ -62,8 +61,6 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		} catch (PatternSyntaxException e){
 			throw new SyntaxError(e.getMessage(), ctx.getCurrentAST().getLocation());
 		}
-		
-		// do NOT reinit firstTime here!
 	}
 	
 	@Override
