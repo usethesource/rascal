@@ -405,6 +405,7 @@ public class TraversalEvaluator {
 		Case cs = (Case) singleCase(casesOrRules);
 
 //		PatternEvaluator re = new PatternEvaluator(vf, this, getCurrentEnvt());
+		
 		if(cs != null && cs.isPatternWithAction() && cs.getPatternWithAction().getPattern().isLiteral() && cs.getPatternWithAction().getPattern().getLiteral().isRegExp()){
 			/*
 			 * In the frequently occurring case that there is one case with a regexp as pattern,

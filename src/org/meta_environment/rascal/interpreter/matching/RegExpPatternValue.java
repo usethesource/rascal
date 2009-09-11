@@ -91,6 +91,8 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 				java.lang.String binding = matcher.group(1+nVar);
 				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(binding), ctx));
 			}
+			start = matcher.start(0);
+			end = matcher.end(0);
 			return true;
 		}
 		hasNext = false;
