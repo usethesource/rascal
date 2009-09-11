@@ -7,13 +7,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class URIResolverRegistry implements IURIResolver {
-	private static Map<String,IURIResolver> resolvers = new HashMap<String, IURIResolver>();
+	private final static Map<String,IURIResolver> resolvers = new HashMap<String, IURIResolver>();
 	
 	private static class InstanceKeeper {
 		public final static URIResolverRegistry sInstance = new URIResolverRegistry();
 	}
 	
-	private URIResolverRegistry() { }
+	private URIResolverRegistry() {
+		super();
+	}
 	
 	public static URIResolverRegistry getInstance() {
 		return InstanceKeeper.sInstance;

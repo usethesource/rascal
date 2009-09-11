@@ -207,7 +207,7 @@ public class ModuleLoader{
 		}
 	}
 
-	public IConstructor parseModule(String fileName, String name, String moduleString, ModuleEnvironment env) throws IOException{
+	public IConstructor parseModule(String fileName, String moduleString, ModuleEnvironment env) throws IOException{
 		List<String> sdfSearchPath = getSdfSearchPath();
 		
 		InputStream inputStream = null;
@@ -228,7 +228,7 @@ public class ModuleLoader{
 			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream, env);
 
 			if(tree.getConstructorType() == Factory.ParseTree_Summary){
-				throw parseError(tree, fileName, name);
+				throw parseError(tree, fileName, "-");
 			}
 
 			return tree;
