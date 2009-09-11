@@ -1,7 +1,9 @@
 package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 
 public class SymbolAdapter {
@@ -117,5 +119,87 @@ public class SymbolAdapter {
 
 	public static boolean isIterStarSep(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_IterStarSep;
+	}
+
+	public static String toString(IConstructor symbol) {
+		if (isCf(symbol) || isLex(symbol)) {
+			return toString(getSymbol(symbol));
+		}
+		if (isSort(symbol)) {
+			return getName(symbol);
+		}
+		if (isIterPlus(symbol)) {
+			return toString(getSymbol(symbol)) + '+';
+		}
+		if (isIterStar(symbol)) {
+			return toString(getSymbol(symbol)) + '*';
+		}
+		if (isIterStarSep(symbol)) {
+			return '{' + toString(getSymbol(symbol)) + ' ' + toString(getSeparator(symbol)) + '}' + '*';
+		}
+		if (isIterPlusSep(symbol)) {
+			return '{' + toString(getSymbol(symbol)) + ' ' + toString(getSeparator(symbol)) + '}' + '+';
+		}
+		if (isOpt(symbol)) {
+			return toString(getSymbol(symbol)) + '?';
+		}
+		if (isLayout(symbol)) {
+			return "LAYOUT";
+		}
+		if (isLiteral(symbol)) {
+			return '\"' + ((IString) symbol.get("string")).getValue() + '\"';
+		}
+		if (isCILiteral(symbol)) {
+			return '\'' + ((IString) symbol.get("string")).getValue() + '\'';
+		}
+		if (isAlt(symbol)) {
+			return toString(getLhs(symbol)) + ' ' + '|' + ' ' + toString(getRhs(symbol));
+		}
+		if (isSeq(symbol)) {
+			StringBuilder b = new StringBuilder();
+			b.append('(');
+			b.append(' ');
+			for (IValue elem : getSymbols(symbol)) {
+				b.append(toString((IConstructor) elem));
+				b.append(' ');
+			}
+			b.append(')');
+		}
+		
+		if (isParameterizedSort(symbol)) {
+			StringBuilder b = new StringBuilder();
+			b.append(getName(symbol));
+			b.append('[');
+			b.append('[');
+			for (IValue elem : getSymbols(symbol)) {
+				b.append(toString((IConstructor) elem));
+				b.append(',');
+			}
+			b.append(']');
+			b.append(']');
+		}
+		
+		// TODO more variants
+		return symbol.toString();
+	}
+
+	private static IList getSymbols(IConstructor symbol) {
+		return (IList) symbol.get("symbols");
+	}
+
+	private static boolean isSeq(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Seq;
+	}
+
+	private static IConstructor getRhs(IConstructor symbol) {
+		return (IConstructor) symbol.get("rhs");
+	}
+
+	private static IConstructor getLhs(IConstructor symbol) {
+		return (IConstructor) symbol.get("lhs");
+	}
+
+	private static boolean isAlt(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Alt;
 	}
 }
