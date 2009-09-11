@@ -192,7 +192,7 @@ public class CommandEvaluator extends Evaluator {
 	}
 	
 	public IConstructor parseModule(String module, ModuleEnvironment env) throws IOException {
-		return loader.parseModule("-", "-", module, env);
+		return loader.parseModule("-", module, env);
 	}
 
 

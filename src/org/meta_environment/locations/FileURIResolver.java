@@ -6,6 +6,11 @@ import java.io.InputStream;
 import java.net.URI;
 
 public class FileURIResolver implements IURIResolver {
+	
+	public FileURIResolver(){
+		super();
+	}
+	
 	public InputStream resolve(URI uri) throws IOException {
 		return new FileInputStream(uri.getPath());
 	}
