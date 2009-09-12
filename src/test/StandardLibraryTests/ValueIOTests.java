@@ -39,7 +39,7 @@ public class ValueIOTests extends TestFramework {
 	
 	@Test public void binStr2() { assertTrue(binaryWriteRead("str", "\"ab\\nc\"")); }
 	
-	@Test public void binLoc() { assertTrue(binaryWriteRead("loc",  "|file:///home/paulk/pico.trm|(0,1,<2,3>,4,5>)"));	}
+	@Test public void binLoc() { assertTrue(binaryWriteRead("loc",  "|file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>)"));	}
 	
 	@Test public void binList() { assertTrue(binaryWriteRead("list[int]", "[1,2,3]")); }
 	
