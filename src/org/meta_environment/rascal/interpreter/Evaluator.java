@@ -127,6 +127,7 @@ import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.Literal.Location;
 import org.meta_environment.rascal.ast.Literal.Real;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
+import org.meta_environment.rascal.ast.PathTail.Mid;
 import org.meta_environment.rascal.ast.PatternWithAction.Arbitrary;
 import org.meta_environment.rascal.ast.PatternWithAction.Replacing;
 import org.meta_environment.rascal.ast.ProtocolPart.Interpolated;
@@ -2126,7 +2127,46 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
 		}
 		
-		String result = ((IString) pre.getValue()).getValue() + ((IString) expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		String preString = ((IString) pre.getValue()).getValue();
+		String exprString = ((IString) expr.getValue()).getValue();
+		String tailString = ((IString) tail.getValue()).getValue();
+		String result = preString + exprString + tailString;
+		
+		return makeResult(tf.stringType(), vf.string(result), this);
+	}
+	
+	@Override
+	public Result<IValue> visitPrePathCharsLexical(
+			org.meta_environment.rascal.ast.PrePathChars.Lexical x) {
+		String str = x.getString();
+		return makeResult(tf.stringType(), vf.string(str.substring(1)), this);
+	}
+	
+	@Override
+	public Result<IValue> visitPostPathCharsLexical(
+			org.meta_environment.rascal.ast.PostPathChars.Lexical x) {
+		String str = x.getString();
+		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 1)), this);
+	}
+	
+	@Override
+	public Result<IValue> visitPathTailPost(
+			org.meta_environment.rascal.ast.PathTail.Post x) {
+		return x.getPost().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitPathTailMid(Mid x) {
+		Result<IValue> expr = x.getMid().accept(this);
+		Result<IValue> tail = x.getTail().accept(this);
+		
+		if (!expr.getType().isSubtypeOf(tf.stringType())) {
+			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
+		}
+		
+		String exprString = ((IString) expr.getValue()).getValue();
+		String tailString = ((IString) tail.getValue()).getValue();
+		String result = exprString + tailString;
 		
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
