@@ -6,8 +6,8 @@ import UnitTest;
 Bool reduce(Bool B) {
     Bool B2;
     return innermost visit(B) {
-      case `btrue & <B2>`   => B2            // TODO: does work when B2 is declared here
-      case `bfalse & <B2>`  => `bfalse`
+      case `btrue & <B2>`   => B2
+      case `bfalse & <B3>`  => `bfalse`
 
       case `btrue | btrue`   => `btrue`
       case `btrue | bfalse`  => `btrue`
