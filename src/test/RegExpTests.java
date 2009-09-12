@@ -19,8 +19,8 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("/@.*@/ := \"@ abc @\";"));
 		
 		assertTrue(runTest("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
-		assertTrue(runTest("(/if<tst:.*>then<th:.*>fi/ := \"if a > b then c fi\") " +
-				           "&& (tst == \" a > b \") && (th == \" c \");"));
+		assertTrue(runTest("(/if<tst:.*>then<th:.*>fi/ := \"if a \\> b then c fi\") " +
+				           "&& (tst == \" a \\> b \") && (th == \" c \");"));
 
 		assertTrue(runTest("(/<l:.*>[Rr][Aa][Ss][Cc][Aa][Ll]<r:.*>/ := \"RASCAL is marvelous\")" +
 				            "&& (l == \"\") && (r == \" is marvelous\");"));
