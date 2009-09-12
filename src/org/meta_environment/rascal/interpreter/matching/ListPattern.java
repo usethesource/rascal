@@ -212,7 +212,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				} else {
 					Result<IValue> varRes = env.getVariable(name);
 					
-					if(varRes == null){
+					if(varRes == null || varRes.getValue() == null){
 						// A completely new variable, nothing to do
 					} else {
 				        Type varType = varRes.getType();
