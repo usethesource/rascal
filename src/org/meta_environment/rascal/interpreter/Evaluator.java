@@ -2058,13 +2058,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> protocolPart = x.getProtocolPart().accept(this);
 		Result<IValue> pathPart = x.getPathPart().accept(this);
 		
+		String uri = ((IString) protocolPart.getValue()).getValue() + "://" + ((IString) pathPart.getValue()).getValue();
+		
 		try {
-			String uri = ((IString) protocolPart.getValue()).getValue() + "://" + ((IString) pathPart.getValue()).getValue();
 			URI url = new URI(uri);
 			ISourceLocation r = vf.sourceLocation(url);
 			return makeResult(tf.sourceLocationType(), r, this);
 		} catch (URISyntaxException e) {
-			throw new SyntaxError("location (malformed URI)", x.getLocation());
+			throw RuntimeExceptionFactory.malformedURI(uri, x, getStackTrace());
 		}
 	}
 	

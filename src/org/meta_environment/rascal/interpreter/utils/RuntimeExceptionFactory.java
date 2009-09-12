@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.ast.LocationLiteral.Default;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 /**
@@ -48,6 +49,7 @@ public class RuntimeExceptionFactory {
 	private static Type ParseError = TF.constructor(TS, E, "ParseError", TF.sourceLocationType(), "location");
 	private static Type IllegalIdentifier = TF.constructor(TS, E, "IllegalIdentifier", TF.stringType(), "name");
 	private static Type SchemeNotSupported = TF.constructor(TS, E, "SchemeNotSupported", TF.sourceLocationType(), "location");
+	private static Type MalFormedURI = TF.constructor(TS, E, "MalFormedURI", TF.stringType(), "uri");
 
 	
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
@@ -149,5 +151,9 @@ public class RuntimeExceptionFactory {
 	public static Throw schemeNotSupported(ISourceLocation file,
 			AbstractAST ast, String trace) {
 		return new Throw(SchemeNotSupported.make(VF, file), ast, trace);
+	}
+
+	public static Throw malformedURI(String uri, Default x, String trace) {
+		return new Throw(MalFormedURI.make(VF, VF.string(uri)), x, trace);
 	}
 }
