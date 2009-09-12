@@ -79,6 +79,9 @@ public final class Utils {
 				case '<':
 					b = '<'; 
 					break;
+				case '>':
+					b = '>';
+					break;
 				case '0':
 				case '1':
 				case '2':
