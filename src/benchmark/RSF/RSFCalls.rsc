@@ -41,7 +41,7 @@ public bool measure(list[str] names){
 		size1 = size(res1); size2= size(res2); size3 = size(res3);
 		println("Size (elms): trans <size1>, reachFromTop1 <size2>, reachFromTop2 <size3>");
 		if(res2 != res3){
-			println("***> res2 != res3");
+			println("***\> res2 != res3");
 		}
 		
     }
