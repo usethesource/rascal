@@ -37,6 +37,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.locations.FileURIResolver;
+import org.meta_environment.locations.HttpURIResolver;
 import org.meta_environment.locations.URIResolverRegistry;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.BasicType;
@@ -298,6 +299,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	    FileURIResolver files = new FileURIResolver();
 	    registry.registerInput(files.scheme(), files);
 	    registry.registerOutput(files.scheme(), files);
+	    
+	    HttpURIResolver http = new HttpURIResolver();
+	    registry.registerInput(http.scheme(), http);
 	}
 
 	/**
