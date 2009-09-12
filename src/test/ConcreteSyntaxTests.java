@@ -460,7 +460,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	
-	@Test
+	@Ignore @Test
 	public void enumeratorDs1Untyped(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `d` ]; L == [`d`];}"));
@@ -472,7 +472,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{L = [X | D X <- `d` ]; L == [ `d` ];}"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void enumeratorDsUnyped(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `d d d` ]; L == [`d`, `d`, `d`];}"));
@@ -484,7 +484,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{L = [X | D X <- `d d d` ]; L == [`d`, `d`, `d`];}"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void enumeratorEs1Untyped(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `e` ]; L == [ `e` ];}"));
@@ -496,7 +496,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{L = [X | E X <- `e` ]; L == [ `e` ];}"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void enumeratorEsUntyped(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `e, e, e` ]; L == [`e`, `e`, `e`];}"));
