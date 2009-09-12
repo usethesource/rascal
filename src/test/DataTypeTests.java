@@ -335,6 +335,42 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("\"def\" > \"abc\";"));
 	}
 	
+	@Test
+	public void stringEscapes() {
+		assertTrue(runTest("\"\\b\" == \"\\b\";"));
+		assertTrue(runTest("\"\\t\" == \"\\t\";"));
+		assertTrue(runTest("\"\\n\" == \"\\n\";"));
+		assertTrue(runTest("\"\\f\" == \"\\f\";"));
+		assertTrue(runTest("\"\\r\" == \"\\r\";"));
+		
+		assertTrue(runTest("\"\\\"\" == \"\\\"\";"));
+		assertTrue(runTest("\"\\\'\" == \"\\\'\";"));
+		assertTrue(runTest("\"\\\\\" == \"\\\\\";"));
+		assertTrue(runTest("\"\\<\" == \"\\<\";"));
+		assertTrue(runTest("\"\\>\" == \"\\>\";"));
+		
+		assertTrue(runTest("\"\\123\" == \"\\123\";"));
+	}
+	
+	@Test
+	public void stringInterpolation(){
+		assertTrue(runTest("{str a = \"abc\"; \"1<a>2\" == \"1abc2\";}"));
+		assertTrue(runTest("{int a = 789; \"1<a>2\" == \"17892\";}"));
+		
+		assertTrue(runTest("{str a = \"a\\bc\"; \"1<a>2\" == \"1a\\bc2\";}"));
+		assertTrue(runTest("{str a = \"a\\tc\"; \"1<a>2\" == \"1a\\tc2\";}"));
+		assertTrue(runTest("{str a = \"a\\nc\"; \"1<a>2\" == \"1a\\nc2\";}"));
+		assertTrue(runTest("{str a = \"a\\fc\"; \"1<a>2\" == \"1a\\fc2\";}"));
+		assertTrue(runTest("{str a = \"a\\rc\"; \"1<a>2\" == \"1a\\rc2\";}"));
+		
+		assertTrue(runTest("{str a = \"a\\\"c\"; \"1<a>2\" == \"1a\\\"c2\";}"));
+		assertTrue(runTest("{str a = \"a\\\'c\"; \"1<a>2\" == \"1a\\\'c2\";}"));
+		assertTrue(runTest("{str a = \"a\\\\c\"; \"1<a>2\" == \"1a\\\\c2\";}"));
+		
+		assertTrue(runTest("{str a = \"a\\<c\"; \"1<a>2\" == \"1a\\<c2\";}"));
+		assertTrue(runTest("{str a = \"a\\>c\"; \"1<a>2\" == \"1a\\>c2\";}"));
+	
+	}
 
 	@Test(expected=StaticError.class)
 	public void orError() {

@@ -75,12 +75,11 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("{ str a = \"abc\"; int n = 3; (/<x:(<a>){<n>}>/ := \"abcabcabc\" && x == \"abcabcabc\");}"));
 	
 		assertTrue(runTest("{ int n = 3; (/<x:\\\\>/ := \"\\\\\" && x == \"\\\\\");}"));
-		assertTrue(runTest("{ int n = 3; (/<x:\\>>/ := \">\" && x == \">\");}"));
-		
-		// \< is not handled properly by the Rascal grammar ...
-		assertTrue(runTest("{ int n = 3; (/<x:\\<>/ := \"<\" && x == \"<\");}"));
-		assertTrue(runTest("{ int n = 3; (/<x:\\<<n>>/ := \"<3\" && x == \"<3\");}"));
-		assertTrue(runTest("{ int n = 3; (/<x:\\<<n>\\>>/ := \"<3>\" && x == \"<3>\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:\\>>/ := \"\\>\" && x == \"\\>\");}"));
+
+		assertTrue(runTest("{ int n = 3; (/<x:\\<>/ := \"\\<\" && x == \"\\<\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:\\<<n>>/ := \"\\<3\" && x == \"\\<3\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:\\<<n>\\>>/ := \"\\<3\\>\" && x == \"\\<3\\>\");}"));
 	}
 	
 	@Test
