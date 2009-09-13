@@ -88,16 +88,14 @@ public class ListPattern extends AbstractMatchingResult  {
 	}
 	
 	public static boolean isAnyListType(Type type){
-		return type.isListType()|| isConcreteListType(type);        //<------ disabled to let other tests work.
+		return type.isListType()|| isConcreteListType(type); 
 	}
 	
-	public static boolean isConcreteListType(Type type){                      // <--- this code does not work because I donot understand the type structure of Tree
-		
+	public static boolean isConcreteListType(Type type){
 		if (type instanceof NonTerminalType) {
 			IConstructor sym = ((NonTerminalType)type).getSymbol();
 			return SymbolAdapter.isAnyList(sym);
 		}
-		
 		return false;
 	}
 	
@@ -212,15 +210,15 @@ public class ListPattern extends AbstractMatchingResult  {
 				} else {
 					Result<IValue> varRes = env.getVariable(name);
 					
-					if(varRes == null || varRes.getValue() == null){
-						// A completely new variable, nothing to do
+					if(varRes == null){ 
+						// A completely new non-list variable, nothing to do
 					} else {
 				        Type varType = varRes.getType();
-				        if (isAnyListType(varType)){                                   // <-----
+				        if (isAnyListType(varType)){  
 				        	/*
 				        	 * A variable declared in the current scope.
 				        	 */
-				        	if(varType.comparable(listSubjectType)){                   // <-- let this also work for concrete lists
+				        	if(varType.comparable(listSubjectType)){     
 				        		isListVar[i] = true;
 				        		isBindingVar[i] = varRes.getValue() == null;
 				        		nListVar++;			        		
@@ -228,6 +226,10 @@ public class ListPattern extends AbstractMatchingResult  {
 				        		throw new UnexpectedTypeError(listSubjectType,varType, getAST());
 				        	}
 				        } else {
+				        	if(varType instanceof NonTerminalType){
+				        		// suppress comparable test for Nonterminal types
+				        		// TODO: this should be done better
+				        	} else
 				        	if(!varType.comparable(listSubjectElementType)){
 				        		throw new UnexpectedTypeError(listSubjectType, varType, getAST());
 				        	}
