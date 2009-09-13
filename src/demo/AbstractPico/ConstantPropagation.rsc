@@ -22,7 +22,7 @@ PROGRAM constantPropagation(PROGRAM P) {
     
     rel[ProgramPoint, PicoId, EXP] replacements = {};
     
-    for(STATEMENT S <- P, asgStat(PicoId Id, EXP E) := S, is_constant(E)){
+    for(/STATEMENT S <- P, asgStat(PicoId Id, EXP E) := S, is_constant(E)){
         ConstantUses = reachX(CFG, {S@pos}, Defs[Id] - S@pos);
         
         for(ProgramPoint C <- ConstantUses){

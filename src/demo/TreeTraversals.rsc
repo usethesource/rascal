@@ -17,7 +17,7 @@ data NODE = i(int N)
 // a list and return the size of the list
 
 public int cnta(NODE T) {
-    return size([N | int N <- T]);
+    return size([N | /int N <- T]);
 }
 
 // cntb: alternative solution using a visit statement
@@ -38,7 +38,7 @@ public int cntb(NODE T) {
 
 public int sumtreea(NODE T) {
     int C = 0;
-    for(int N <- T){
+    for(/int N <- T){
       C += N;
     }
     return C;

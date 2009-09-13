@@ -43,14 +43,14 @@ public ValueEnv evalProgram(PROGRAM P){
 ValueEnv evalDecls({\ID-TYPE "," }* Decls){
     ValueEnv Env = ();
     
-    for(` <\PICO-ID Id> : <TYPE Type>` <- Decls){
+    for(/`<\PICO-ID Id> : <TYPE Type>` <- Decls){
         Env[Id] = (Type == naturalType) ? intval(0) : strval(""); 
     }
     return Env;
 }
 
 ValueEnv evalStatements({STATEMENT ";"}* Series, ValueEnv Env){
-    for(STATEMENT Stat <- Series){
+    for(/STATEMENT Stat <- Series){
         Env = evalStatement(Stat, Env);
     }
     return Env;
@@ -58,13 +58,13 @@ ValueEnv evalStatements({STATEMENT ";"}* Series, ValueEnv Env){
 
 ValueEnv evalStatement(STATEMENT Stat, ValueEnv Env){
     switch (Stat) {
-      case ` <\PICO-ID Id> := <EXP Exp> `: {
+      case `<\PICO-ID Id> := <EXP Exp>`: {
         Env[Id] = evalExp(Exp, Env);
         return Env;
       }
 
-      case ` if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
-                       else <{STATEMENT ";"}* Stats2> fi `:{
+      case `if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
+                         else <{STATEMENT ";"}* Stats2> fi`:{
         if(evalExp(Exp, Env) == intval(0)){
           return evalStatments(Stats1, Env);
         } else {
@@ -72,7 +72,7 @@ ValueEnv evalStatement(STATEMENT Stat, ValueEnv Env){
         }
       }
 
-      case ` while <EXP Exp> do <{STATEMENT ";"}* Stats> od `: {
+      case `while <EXP Exp> do <{STATEMENT ";"}* Stats> od`: {
         if(evalExp(Exp, Env) == intval(0)){
           return Env;
         } else {
@@ -88,17 +88,17 @@ ValueEnv evalStatement(STATEMENT Stat, ValueEnv Env){
 
 PICO_VALUE evalExp(EXP exp, ValueEnv Env) {
     switch (exp) {
-      case (EXP) ` <NatCon N> `: 
+      case (EXP) `<NatCon N>`: 
            return intval(toInt("<N>"));
 
-      case (EXP) ` <StrCon S> `: {
+      case (EXP) `<StrCon S>`: {
            if(/"<sval:.*>"/ := "<S>")
               return strval(sval);
            else
               println("Ill formed string value");
       }
 
-      case (EXP) ` <\PICO-ID Id> `: 
+      case (EXP) `<\PICO-ID Id>`: 
            return Env[Id];
 
       case <EXP exp1> + <EXP exp2>:

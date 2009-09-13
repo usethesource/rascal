@@ -13,7 +13,7 @@ import IO;
 
 private set[PicoId] getVarUses(EXP E){
     println("getVarUses: <E>");
-    res = {Id | id(PicoId Id) <- E};
+    res = {Id | /id(PicoId Id) <- E};
     println("getVarUses: <res>");
     return res;
 }
@@ -51,7 +51,7 @@ public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
  */
  
 public rel[PicoId, ProgramPoint] defs(PROGRAM P) { 
-  return {<Id, S@pos> | STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
+  return {<Id, S@pos> | /STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
 }        
  
 public bool test(){
