@@ -13,12 +13,12 @@ import UnitTest;
  */
 public rel[\PICO-ID, Tree] uses(PROGRAM P) {
   println("Expressions: ", {E | EXP E <- P});
-  return {Id | EXP E <- P, `<\PICO-ID Id>` <- E};
+  return {Id | /EXP E <- P, `<\PICO-ID Id>` <- E};
   //return {Id | EXP E <- P, `<\PICO-ID Id>` <- E};
 }
 
 public rel[\PICO-ID, STATEMENT] defs(PROGRAM P) { 
-  return {<Id, S> | STATEMENT S <- P, ` <\PICO-ID Id> := <EXP Exp> ` := S};
+  return {<Id, S> | /STATEMENT S <- P, ` <\PICO-ID Id> := <EXP Exp> ` := S};
 }
 
 public bool test(){

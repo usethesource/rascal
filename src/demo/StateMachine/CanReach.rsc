@@ -11,7 +11,7 @@ import IO;
 // Extract from a give FSM all transitions as a relation
 
 public rel[IdCon, IdCon] getTransitions(FSM fsm){
-   return { <from, to> | `trans <IdCon a>: <IdCon from> -> <IdCon to>` <- fsm };
+   return { <from, to> | /`trans <IdCon a>: <IdCon from> -> <IdCon to>` <- fsm };
 }
 
 // Compute all states that can be reached

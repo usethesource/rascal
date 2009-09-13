@@ -16,7 +16,7 @@ import String;
 public Grammar importBNF(BNF bnfGrammar){
     if(`grammar <NonTerminal Start> rules <BNFRule+ Rules>` := bnfGrammar){
        rules = {};
-       for(`<NonTerminal L> ::= <BNFElement* Elements> ; ` <- Rules){
+       for(/`<NonTerminal L> ::= <BNFElement* Elements> ; ` <- Rules){
             rules += <toSymbol(L), [toSymbol(E) | BNFElement E <- Elements]>;
        }
        return grammar(toSymbol(Start), rules); 
