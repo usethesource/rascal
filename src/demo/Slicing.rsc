@@ -44,7 +44,7 @@ set[use] BackwardSlice(
 	rel[stat, set[stat]] CONTROLDOMINATOR = domainR(dominators(PRED, 1), CONTROLSTATEMENT); //TODO 1 is ad hoc
 
 	rel[def,use] control_dependence  =
-	   { <<S2, "EXEC">,<S1,"TEST">> | <stat S1, stat S2> <- CONTROLDOMINATOR};
+	   { <<S2, "EXEC">,<S1,"TEST">> | <stat S1, set[stat] S2s> <- CONTROLDOMINATOR, stat S2 <- S2s};
 
 	// Control and data dependence: use-control-def
 
