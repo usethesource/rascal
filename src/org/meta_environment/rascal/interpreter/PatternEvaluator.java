@@ -25,8 +25,6 @@ import org.meta_environment.rascal.ast.Expression.Closure;
 import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Descendant;
-import org.meta_environment.rascal.ast.Expression.Enumerator;
-import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Equals;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldProject;
@@ -80,7 +78,6 @@ import org.meta_environment.rascal.interpreter.matching.ConcreteApplicationPatte
 import org.meta_environment.rascal.interpreter.matching.ConcreteListPattern;
 import org.meta_environment.rascal.interpreter.matching.ConcreteListVariablePattern;
 import org.meta_environment.rascal.interpreter.matching.DescendantPattern;
-import org.meta_environment.rascal.interpreter.matching.EnumeratorResult;
 import org.meta_environment.rascal.interpreter.matching.GuardedPattern;
 import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.matching.ListPattern;
@@ -673,6 +670,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 			TransitiveReflexiveClosure x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
+	/*
 	@Override
 	public IMatchingResult visitExpressionEnumerator(Enumerator x) {
 		return new EnumeratorResult(vf, ctx, x.getPattern().accept(this), null, x.getExpression());
@@ -682,6 +680,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 			EnumeratorWithStrategy x) {
 		return new EnumeratorResult(vf, ctx, x.getPattern().accept(this), x.getStrategy(), x.getExpression());
 	}
+	*/
 	
 	@Override
 	public IMatchingResult visitExpressionVisit(Visit x) {

@@ -5,11 +5,11 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 
-class NodeChildGenerator implements Iterator<IValue> {
+class NodeChildIterator implements Iterator<IValue> {
 	private INode node;
 	private int index;
 	
-	NodeChildGenerator(INode node){
+	NodeChildIterator(INode node){
 		this.node = node;
 		index = 0;
 	}

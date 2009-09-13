@@ -6,10 +6,10 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.ValueFactoryFactory;
 
-class SingleElementGenerator implements Iterator<ISet> {
+class SingleElementIterator implements Iterator<ISet> {
 	private Iterator<IValue> elementIter;
 	
-	SingleElementGenerator(ISet elements){
+	SingleElementIterator(ISet elements){
 		this.elementIter = elements.iterator();
 	}
 
