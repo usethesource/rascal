@@ -2,14 +2,11 @@ module demo::StateMachine::CanReach
 
 // A simple state machine FSM as suggested by Gorel Hedin at GTTSE09
 
-// First import its concrete syntax
-
 import demo::StateMachine::Syntax;
 import Relation;
 import Map;
 import UnitTest;
 import IO;
-
 
 // Extract from a give FSM all transitions as a relation
 
