@@ -10,44 +10,49 @@ import Map;
 import UnitTest;
 import IO;
 
-// Next declare and initialize example. Note that 
-// (1) This variable has the syntactic type {Decl ";"}+
-// (2) Concrete State Machine syntax occurs in the initialization value
-
-
-//TODO All types {Decl ";"}+ should actually be FSM
-
-public {Decl ";"}+ example = 
-    	 ` state S1;
-    	    state S2;
-	        state S3;
-	        trans a: S1 -> S2;
-	        trans b: S2 -> S1;
-	        trans a: S1 -> S3 `;
 
 // Extract from a give FSM all transitions as a relation
 
-public rel[IdCon, IdCon] getTransitions({Decl ";"}+ fsm){
-   r = { <from, to> | ` trans <IdCon a>: <IdCon from> -> <IdCon to> ` <- fsm };
-   return r;
+public rel[IdCon, IdCon] getTransitions(FSM fsm){
+   return { <from, to> | `trans <IdCon a>: <IdCon from> -> <IdCon to>` <- fsm };
 }
 
-// Finally compute all states that can be reached
+// Compute all states that can be reached
 
-public map[IdCon, set[IdCon]] canReach({Decl ";"}+ fsm){
+public map[IdCon, set[IdCon]] canReach(FSM fsm){
   transitions = getTransitions(fsm);
-  return ( s: transitions[s] | IdCon s <- carrier(transitions+) );
+  return ( s: (transitions+)[s] | IdCon s <- carrier(transitions) );
 }
+
+// Examples and tests
+
+public FSM example0 =
+	   finite-state machine
+	      state S1;
+    	  state S2;
+	      trans a: S1 -> S2;
+
+public FSM example = 
+       finite-state machine
+          state S1;
+    	  state S2;
+	      state S3;
+	      trans a: S1 -> S2;
+	      trans b: S2 -> S1;
+	      trans a: S1 -> S3;
+
+IdCon S1 = (IdCon) `S1`;
+IdCon S2 = (IdCon) `S2`;
+IdCon S3 = (IdCon) `S3`;
 
 public bool test(){
-  //assertEqual(getTransitions(example), {<IdCon`S1`, IdCon`S2`>, <IdCon`S2`, IdCon`S1`>, <IdCon`S1`, IdCon`S3`>});
- 
-  map[IdCon, set[IdCon]] cr = canReach(example);
+  assertEqual(getTransitions(example0), {<S1, S2>});
   
-  for(IdCon a <- domain(cr)){
-      println(a, cr[a]);
-  }
-  assertEqual(canReach(example), (`S1` :{`S1`, `S2`, `S3`}, `S2` : {`S1`, `S2`, `S3`}, `S3` : {}));
+  assertEqual(getTransitions(example), {<S1, S2>, <S2, S1>, <S1, S3>});
+  
+  assertEqual(canReach(example), (S1 : {S1, S2, S3}, 
+                                  S2 : {S1, S2, S3},
+                                  S3 : {}));
   return report();
 }
 

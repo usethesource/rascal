@@ -14,8 +14,8 @@ exports
   sorts FSM Decl Trans State IdCon
 
   context-free syntax
-    "state" IdCon                       -> State
-    "trans" IdCon ":" IdCon  "->" IdCon -> Trans
-    State                               -> Decl
-    Trans                               -> Decl
-    {Decl ";"}+                         -> FSM
+    "state" IdCon                         -> State
+    "trans" IdCon ":" IdCon  "->" IdCon   -> Trans
+    State                                 -> Decl
+    Trans                                 -> Decl
+    "finite-state" "machine" {Decl ";"}+  -> FSM
