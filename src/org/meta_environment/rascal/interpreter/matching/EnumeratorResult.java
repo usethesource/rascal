@@ -15,7 +15,7 @@ public class EnumeratorResult extends BasicBooleanResult {
 	private Iterator<?> iterator;
 	private Strategy strategy;
 	private Expression expression;
-	private boolean firstTime;
+	private boolean firstTime;    // TODO: can probably be removed.
 
 	/*
 	 * Constructor for a standard enumerator
