@@ -1,22 +1,22 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
 public class DescendantPattern extends AbstractMatchingResult  {
 	private IMatchingResult pat;
-	private IMatchingResult enumAndMatch;
+	private Iterator<?> iterator;
 
 	public DescendantPattern(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult pat) {
 		super(vf, ctx);
 		this.pat = pat;
-		// nice trick, we reuse the enumerator here because that does traversal, 
-		// in the future, we may put the traversal in this class and remove it from enumerator
-		this.enumAndMatch = new EnumeratorResult(vf, ctx, pat, null, null);
 	}
 
 	@Override
@@ -30,24 +30,55 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	}
 	
 	@Override
-	public void initMatch(Result<IValue> subject){
+	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
-		enumAndMatch.initMatch(subject);
+		iterator = IteratorFactory.make(ctx, pat, subject, null, false);
+		hasNext = true;
 	}
 	
 	@Override
 	public boolean hasNext(){
-		boolean r =  initialized &&  enumAndMatch.hasNext();
-		return r;
-	}
-
-	@Override
-	public boolean next() {
-		if(enumAndMatch.next()){
-			return true;
+		if(!initialized)
+			return false;
+		
+		if(hasNext){
+			boolean hn = pat.hasNext() || iterator.hasNext();
+			if(!hn){
+				hasNext = false;
+			}
+			return hn;
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean next() {
+		/*
+		 * First, explore alternatives that remain to be matched by the current pattern
+		 */
+		while(pat.hasNext()){
+			if(pat.next()){
+				return true;
+			}
+		}
+		/*
+		 * Next, fetch a new data element (if any) and create a new pattern.
+		 */
+		while(iterator.hasNext()){
+			IValue v = (IValue) iterator.next();
+			
+			// TODO: extract the proper static element type that will be generated
+			pat.initMatch(ResultFactory.makeResult(v.getType(), v, ctx));
+			while(pat.hasNext()){
+				if(pat.next()){
+					return true;						
+				}	
+			}
+		}
+		hasNext = false;
+		return false;
+	}
+
 
 	@Override
 	public IValue toIValue(Environment env) {

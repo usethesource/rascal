@@ -314,9 +314,9 @@ public class SetPattern extends AbstractMatchingResult {
 			QualifiedNamePattern qualName = (QualifiedNamePattern) varPat[i];
 			String name = qualName.getName();
 			if(qualName.isAnonymous()){
-				varGen[i] = new SingleElementGenerator(elements);
+				varGen[i] = new SingleElementIterator(elements);
 			} else if(env.getVariable(name) == null){
-				varGen[i] = new SingleElementGenerator(elements);
+				varGen[i] = new SingleElementIterator(elements);
 			} else {
 				varGen[i] = new SingleIValueIterator(env.getVariable(name).getValue());
 			}
@@ -326,7 +326,7 @@ public class SetPattern extends AbstractMatchingResult {
 		} else {
 			if(elements.size() == 0)
 				return false;
-			varGen[i] = new SingleElementGenerator(elements);
+			varGen[i] = new SingleElementIterator(elements);
 		}
 		return true;
 	}

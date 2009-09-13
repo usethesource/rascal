@@ -5,11 +5,11 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 
-class TupleElementGenerator implements Iterator<IValue> {
+class TupleElementIterator implements Iterator<IValue> {
 	private ITuple tuple;
 	private int index;
 	
-	TupleElementGenerator(ITuple tuple){
+	TupleElementIterator(ITuple tuple){
 		this.tuple = tuple;
 		index = 0;
 	}
