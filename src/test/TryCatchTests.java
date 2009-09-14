@@ -218,7 +218,7 @@ public class TryCatchTests extends TestFramework {
 		"bool function() {" +
 		"  try {" +
 		"      S = readFile(\"DoesNotExist\");" +
-		"  } catch PathNotFound(str name):" +
+		"  } catch PathNotFound(loc location):" +
 		"      return true;" +
 		"  return false;" +
 		"}";

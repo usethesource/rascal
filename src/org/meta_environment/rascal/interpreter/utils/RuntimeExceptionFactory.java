@@ -36,7 +36,6 @@ public class RuntimeExceptionFactory {
 	private static Type AnonymousIllegalArgument = TF.constructor(TS,E,"IllegalArgument");
 	private static Type IO = TF.constructor(TS,E,"IO",TF.stringType(), "message");
 	private static Type PathNotFound = TF.constructor(TS,E,"PathNotFound",TF.sourceLocationType(), "location");
-	private static Type fileNotFound = TF.constructor(TS,E,"FileNotFound",TF.stringType(), "file");
 	
 	private static Type LocationNotFound = TF.constructor(TS,E,"LocationNotFound",TF.sourceLocationType(), "location");
 	private static Type PermissionDenied = TF.constructor(TS,E,"PermissionDenied",TF.stringType(), "message");
@@ -92,11 +91,6 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw pathNotFound(ISourceLocation loc, AbstractAST ast, String trace) {
 		return new Throw(PathNotFound.make(VF, loc), ast, trace);
-	}
-	
-	@Deprecated
-	public static Throw fileNotFound(IString loc, AbstractAST ast, String trace) {
-		return new Throw(fileNotFound.make(VF, loc), ast, trace);
 	}
 	
 	public static Throw locationNotFound(ISourceLocation loc, AbstractAST ast, String trace) {
