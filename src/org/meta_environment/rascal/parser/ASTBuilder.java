@@ -466,13 +466,12 @@ public class ASTBuilder {
 		if (ast != null) {
 			ASTStatistics stats = ast.getStats();
 			stats.setConcreteFragmentCount(1);
-			stats.setConcreteFragmentSize(TreeAdapter.yield(pattern).length());
+			stats.setConcreteFragmentSize(TreeAdapter.getLocation(pattern).getLength());
 		}
 		
 		if (match) {
 			matchCache.putUnsafe(tree, ast);
-		}
-		else {
+		} else {
 			constructorCache.putUnsafe(tree, ast);
 		}
 		return ast;
