@@ -90,7 +90,7 @@ public class IO{
 				}
 			} while (line != null);
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.fileNotFound(filename, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(values.sourceLocation(filename.getValue()), null, null);
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}finally{
