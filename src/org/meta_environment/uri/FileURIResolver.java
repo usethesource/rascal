@@ -7,8 +7,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 public class FileURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver {
+	public final static URI STDIN_URI;
+	static{ // Stupid construction to fool the compiler (twice).
+		URI stdURI = null;
+		try{
+			stdURI = new URI("file://-");
+		}catch(URISyntaxException usex){
+			// Ignore, never happens.
+		}finally{
+			STDIN_URI = stdURI;
+		}
+	}
+	
+	public FileURIResolver(){
+		super();
+	}
+	
 	public InputStream getInputStream(URI uri) throws IOException {
 		String path = uri.getPath();
 		if (path != null) {

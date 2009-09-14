@@ -96,7 +96,7 @@ public class RuntimeExceptionFactory {
 	
 	@Deprecated
 	public static Throw fileNotFound(IString loc, AbstractAST ast, String trace) {
-		return new Throw(PathNotFound.make(VF, loc), ast, trace);
+		return new Throw(fileNotFound.make(VF, loc), ast, trace);
 	}
 	
 	public static Throw locationNotFound(ISourceLocation loc, AbstractAST ast, String trace) {
