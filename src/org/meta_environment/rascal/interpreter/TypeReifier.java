@@ -314,7 +314,7 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	}
 
 	public Result<IValue> visitTuple(Type type) {
-		Type argumentTypes = type.getFieldTypes();
+		Type argumentTypes = type;
 		Map<Type,Type> bindings = bind(type);
 		
 		if (argumentTypes.hasFieldNames()) {

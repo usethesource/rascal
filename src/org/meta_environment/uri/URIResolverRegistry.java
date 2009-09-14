@@ -1,4 +1,4 @@
-package org.meta_environment.locations;
+package org.meta_environment.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +13,7 @@ public class URIResolverRegistry {
 	
 	private static class InstanceKeeper {
 		public final static URIResolverRegistry sInstance = new URIResolverRegistry();
-	}
+	} 
 	
 	private URIResolverRegistry() { }
 	

@@ -36,9 +36,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.locations.FileURIResolver;
-import org.meta_environment.locations.HttpURIResolver;
-import org.meta_environment.locations.URIResolverRegistry;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.BasicType;
 import org.meta_environment.rascal.ast.Bound;
@@ -56,7 +53,6 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.ast.StringLiteral;
-import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
@@ -183,16 +179,13 @@ import org.meta_environment.rascal.interpreter.matching.IBooleanResult;
 import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
-import org.meta_environment.rascal.interpreter.result.FileParserFunction;
 import org.meta_environment.rascal.interpreter.result.JavaFunction;
-import org.meta_environment.rascal.interpreter.result.ParserFunction;
 import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
-import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
@@ -212,11 +205,14 @@ import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.Profiler;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.rascal.interpreter.utils.Symbols;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
+import org.meta_environment.uri.CWDURIResolver;
+import org.meta_environment.uri.FileURIResolver;
+import org.meta_environment.uri.HttpURIResolver;
+import org.meta_environment.uri.URIResolverRegistry;
 
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluatorContext {
@@ -302,6 +298,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	    
 	    HttpURIResolver http = new HttpURIResolver();
 	    registry.registerInput(http.scheme(), http);
+	    
+	    CWDURIResolver cwd = new CWDURIResolver();
+	    registry.registerInput(cwd.scheme(), cwd);
+	    registry.registerOutput(cwd.scheme(), cwd);
 	}
 
 	/**
@@ -1431,23 +1431,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result visitFunctionDeclarationAbstract(Abstract x) {
 		AbstractFunction lambda = null;
-		String funcName;
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
-
-		if (hasTag(x, "stringParser") || hasTag(x, "fileParser")) {
-			funcName = setupParserFunction(x);
-			if (hasTag(x, "stringParser")) {
-				lambda = new ParserFunction(this, x, getCurrentEnvt(), loader);	
-			}
-			
-			if (hasTag(x, "fileParser")) {
-				lambda = new FileParserFunction(this, x, getCurrentEnvt(), loader);	
-			}
-			getCurrentEnvt().storeFunction(funcName, lambda);
-			
-			lambda.setPublic(x.getVisibility().isPublic());
-			return lambda;
-		}
 
 		if (!hasJavaModifier(x)) {
 			throw new MissingModifierError("java", x);
@@ -1459,33 +1443,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		lambda.setPublic(x.getVisibility().isPublic());
 		return lambda;
-	}
-
-	private boolean hasTag(Abstract x, String tagName) {
-		// TODO: check type and arity of of signature
-		Tags tags = x.getTags();
-		if (tags.hasTags()) {
-			for (org.meta_environment.rascal.ast.Tag tag : tags.getTags()) {
-				if (tag.getName().toString().equals(tagName)) {
-					return true; 
-				}
-			}
-		}
-		return false;
-	}
-
-	
-	private String setupParserFunction(Abstract x) {
-		org.meta_environment.rascal.ast.Type type = x.getSignature().getType();
-		// TODO: how should we get at the name, and why???
-		// Why isn't the constructor representing the concrete syntax type enough?
-		IConstructor cons = (IConstructor) Symbols.typeToSymbol(type);
-		IConstructor cfSym = (IConstructor) cons.get(0);
-		IValue typeValue = cfSym.get(0);
-		if (!typeValue.getType().isStringType()) {
-			throw new NonWellformedTypeError("result type of parser functions must be sorts", type);
-		}
-		return Names.name(x.getSignature().getName());
 	}
 
 	@Override

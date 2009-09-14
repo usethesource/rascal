@@ -198,7 +198,7 @@ public class ModuleParser {
 		return ParsetreeAdapter.addPositionInformation(tree, fileName);
 	}
 
-	private IConstructor parseFromStream(String table, String fileName, InputStream source, boolean filter) throws FactParseError, IOException {
+	protected IConstructor parseFromStream(String table, String fileName, InputStream source, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromStream(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
 		return bytesToParseTree(fileName, result);

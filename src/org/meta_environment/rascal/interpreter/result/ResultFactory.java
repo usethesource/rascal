@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.types.FunctionType;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.uptr.Factory;
 
 public class ResultFactory {
@@ -144,6 +145,10 @@ public class ResultFactory {
 			if (externalType instanceof FunctionType) {
 				// the weird thing is, that value is also a result in that case.
 				return (Result<? extends IValue>) value;
+			}
+			
+			if (externalType instanceof NonTerminalType) {
+				return new ConcreteSyntaxResult(externalType, (IConstructor) value, ctx);
 			}
 			
 			throw new NotYetImplemented("visitExternal in result factory: " + externalType);

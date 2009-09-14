@@ -13,10 +13,10 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.locations.URIResolverRegistry;
 import org.meta_environment.rascal.interpreter.Typeifier;
 import org.meta_environment.rascal.interpreter.types.ReifiedType;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
+import org.meta_environment.uri.URIResolverRegistry;
 
 public class ValueIO {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
