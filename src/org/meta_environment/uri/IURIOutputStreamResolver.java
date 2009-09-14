@@ -1,4 +1,4 @@
-package org.meta_environment.locations;
+package org.meta_environment.uri;
 
 import java.io.IOException;
 import java.io.OutputStream;

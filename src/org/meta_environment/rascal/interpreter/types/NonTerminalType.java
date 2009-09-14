@@ -72,7 +72,7 @@ public class NonTerminalType extends ExternalType {
 	
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
-		return visitor.visitAbstractData(Factory.Tree);
+		return visitor.visitExternal(this);
 	}
 	
 	@Override
@@ -82,7 +82,7 @@ public class NonTerminalType extends ExternalType {
 			return true;
 		}
 		
-		if (other == Factory.Tree) {
+		if (other.isSubtypeOf(Factory.Tree)) {
 			return true;
 		}
 

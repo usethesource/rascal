@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
+import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -17,27 +18,45 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 
 
 public class JavaMethod extends NamedFunction {
-	
 	private final Method method;
 	private final FunctionDeclaration func;
+	private final boolean hasReflectiveAccess;
 	
 	public JavaMethod(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
 		super(func, eval,
 				(FunctionType) TE.eval(func.getSignature(),env), 
 				Names.name(func.getSignature().getName()),
 				varargs, env);
-		this.method = javaBridge.lookupJavaMethod(eval, func, env);
+		this.hasReflectiveAccess = hasReflectiveAccess(func);
+		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 		this.func = func;
 	}
 	
+	private boolean hasReflectiveAccess(FunctionDeclaration func) {
+		for (Tag tag : func.getTags().getTags()) {
+			if (Names.name(tag.getName()).equals("reflect")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
 			IEvaluatorContext ctx) {
 		Type actualTypesTuple;
 		Type formals = getFormals();
+		Object[] oActuals;
 		
 		if (hasVarArgs) {
-			actuals = computeVarArgsActuals(actuals, formals);
+			oActuals = computeVarArgsActuals(actuals, formals);
+		}
+		else {
+			oActuals = actuals;
+		}
+		
+		if (hasReflectiveAccess) {
+			oActuals = addCtxActual(oActuals, ctx);
 		}
 		
 		if (callTracing) {
@@ -49,7 +68,7 @@ public class JavaMethod extends NamedFunction {
 		try {
 			ctx.pushEnv();
 	
-			IValue result = invoke(actuals);
+			IValue result = invoke(oActuals);
 
 			if (hasVarArgs) {
 				actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
@@ -76,9 +95,16 @@ public class JavaMethod extends NamedFunction {
 		}
 	}
 	
-	public IValue invoke(IValue[] actuals) {
+	private Object[] addCtxActual(Object[] oActuals, IEvaluatorContext ctx) {
+		Object[] newActuals = new Object[oActuals.length + 1];
+		System.arraycopy(oActuals, 0, newActuals, 0, oActuals.length);
+		newActuals[oActuals.length] = ctx;
+		return newActuals;
+	}
+
+	public IValue invoke(Object[] oActuals) {
 		try {
-			return (IValue) method.invoke(null, (Object[]) actuals);
+			return (IValue) method.invoke(null, oActuals);
 		} catch (SecurityException e) {
 			throw new ImplementationError("Unexpected security exception", e);
 		} catch (IllegalArgumentException e) {

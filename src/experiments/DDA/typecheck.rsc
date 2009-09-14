@@ -44,8 +44,9 @@ Identifier checkSym(map[Identifier,Type] symbols, Identifier name,
   return name;
 }
 
-@fileParser
-public Program parseProgram(str filename);
+public Program parseProgram(str filename) {
+  return parse(#Program, |cwd:///<filename>|);
+}
 
 public bool test(){
    P = parseProgram("src/experiments/DDA/example.dda");

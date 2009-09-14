@@ -1,4 +1,4 @@
-package org.meta_environment.locations;
+package org.meta_environment.uri;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,7 +9,11 @@ import java.net.URI;
 
 public class FileURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver {
 	public InputStream getInputStream(URI uri) throws IOException {
-		return new FileInputStream(uri.getPath());
+		String path = uri.getPath();
+		if (path != null) {
+			return new FileInputStream(path);
+		}
+		throw new IOException("uri has no path: " + uri);
 	}
 	
 	public OutputStream getOutputStream(URI uri) throws IOException {

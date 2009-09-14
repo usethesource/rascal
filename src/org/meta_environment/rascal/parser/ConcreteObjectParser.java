@@ -2,6 +2,7 @@ package org.meta_environment.rascal.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -14,12 +15,26 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 
-public class StringParser extends ModuleParser {
+public class ConcreteObjectParser extends ModuleParser {
 	
-
 	public IConstructor parseString(List<String> sdfSearchPath, Set<String> sdfImports, String source) throws IOException {
 		TableInfo table = getOrConstructParseTable(sdfImports, sdfSearchPath);
 		IConstructor result = parseFromString(table.getTableName(), "-", source, true);
+		if (result.getConstructorType() == Factory.ParseTree_Summary) {
+			//System.err.println("RESULT = " + result);
+			SubjectAdapter x = new SummaryAdapter(result).getInitialSubject();
+			ISourceLocation loc = x.getLocation();
+			if (loc != null) {
+				throw new SyntaxError("-", new SummaryAdapter(result).getInitialSubject().getLocation());
+			}
+			throw new SyntaxError("-", null);
+		}
+		return result;
+	}
+
+	public IConstructor parseStream(List<String> sdfSearchPath, Set<String> sdfImports, InputStream source) throws IOException {
+		TableInfo table = getOrConstructParseTable(sdfImports, sdfSearchPath);
+		IConstructor result = parseFromStream(table.getTableName(), "-", source, true);
 		if (result.getConstructorType() == Factory.ParseTree_Summary) {
 			//System.err.println("RESULT = " + result);
 			SubjectAdapter x = new SummaryAdapter(result).getInitialSubject();

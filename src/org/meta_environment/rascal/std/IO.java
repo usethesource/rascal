@@ -18,10 +18,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.locations.URIResolverRegistry;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
+import org.meta_environment.uri.URIResolverRegistry;
 
 public class IO {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();

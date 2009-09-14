@@ -15,16 +15,15 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void parseDS(){
 		prepare("import src::test::GrammarABCDE;");
-		prepareMore("@stringParser DS parse(str input) ;");
-		assertTrue(runTestInSameEvaluator("parse(\"d d d\") == (DS)`d d d`;"));
+		assertTrue(runTestInSameEvaluator("parse(#DS, \"d d d\") == (DS)`d d d`;"));
 	}
 
 	@Test
 	public void parseDSInModule(){
 		prepareModule("M", "module M " +
 				"import src::test::GrammarABCDE;" +
-				"@stringParser public DS parse(str input);" +
-				"public DS ds = (DS)`d d d`;");
+				"public DS ds = (DS)`d d d`;" +
+				"public DS parse(str input) { return parse(#DS, input); }");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("parse(\"d d d\") == ds;"));
 	}
@@ -33,16 +32,9 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void parseDSfromFile(){
 		prepare("import src::test::GrammarABCDE;");
-		prepareMore("@fileParser DS parse(str filename) ;");
-		assertTrue(runTestInSameEvaluator("parse(\"src/test/DS.trm\") == (DS)`d d d`;"));
+		assertTrue(runTestInSameEvaluator("parse(#DS, |cwd:///src/test/DS.trm|) == (DS)`d d d`;"));
 	}
 
-	@Test(expected=NonWellformedTypeError.class)
-	public void parseDList(){
-		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("@stringParser D+ parse(str input) ;"));
-	}
-	
 	@Test
 	public void singleA(){
 		prepare("import src::test::GrammarABCDE;");
@@ -220,16 +212,14 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("`d d` := `d d`;"));
 	}
 
-	@Test(expected=StaticError.class)
 	public void D3(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("(DS)`d d` := `d d`;"));
+		assertFalse(runTestInSameEvaluator("(DS)`d d` := `d d`;"));
 	}
 
-	@Test(expected=StaticError.class)
 	public void D4(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("`d d` := (DS)`d d`;"));
+		assertFalse(runTestInSameEvaluator("`d d` := (DS)`d d`;"));
 	}
 
 	@Test

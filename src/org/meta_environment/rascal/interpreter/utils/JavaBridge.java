@@ -30,6 +30,7 @@ import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -87,7 +88,7 @@ public class JavaBridge {
 		}
 		
 		Parameters parameters = declaration.getSignature().getParameters();
-		Class<?>[] javaTypes = getJavaTypes(parameters, env);
+		Class<?>[] javaTypes = getJavaTypes(parameters, env, false);
 		
 		try {
 			if (javaTypes.length > 0) { // non-void
@@ -268,10 +269,6 @@ public class JavaBridge {
 			return "ISourceLocation";
 		}
 		
-		public String visitSourceRange(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "ISourceRange";
-		}
-
 		public String visitString(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IString";
 		}
@@ -306,15 +303,20 @@ public class JavaBridge {
 		}
 	}
 	
-	private Class<?>[] getJavaTypes(Parameters parameters, Environment env) {
+	private Class<?>[] getJavaTypes(Parameters parameters, Environment env, boolean hasReflectiveAccess) {
 		List<Formal> formals = parameters.getFormals().getFormals();
-		Class<?>[] classes = new Class<?>[formals.size()];
-		for (int i = 0; i < classes.length;) {
+		int arity = formals.size();
+		Class<?>[] classes = new Class<?>[arity + (hasReflectiveAccess ? 1 : 0)];
+		for (int i = 0; i < arity;) {
 			Class<?> clazz = toJavaClass(formals.get(i), env);
 			
 			if (clazz != null) {
 			  classes[i++] = clazz;
 			}
+		}
+		
+		if (hasReflectiveAccess) {
+			classes[arity] = IEvaluatorContext.class;
 		}
 		
 		return classes;
@@ -408,7 +410,7 @@ public class JavaBridge {
 		}
 	}
 
-	public Method lookupJavaMethod(Evaluator eval, FunctionDeclaration func, Environment env) {
+	public Method lookupJavaMethod(Evaluator eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess) {
 		if (!func.isAbstract()) {
 			throw new NonAbstractJavaFunctionError(func);
 		}
@@ -424,7 +426,7 @@ public class JavaBridge {
 			try {
 				Class<?> clazz = loader.loadClass(className);
 				Parameters parameters = func.getSignature().getParameters();
-				Class<?>[] javaTypes = getJavaTypes(parameters, env);
+				Class<?>[] javaTypes = getJavaTypes(parameters, env, hasReflectiveAccess);
 
 				try {
 					Method m;
