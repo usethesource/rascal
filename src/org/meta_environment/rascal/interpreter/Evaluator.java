@@ -1422,8 +1422,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			lambda = new RascalFunction(this, x, varArgs, getCurrentEnvt());
 		}
 
-		String name = Names.name(x.getSignature().getName());
-		getCurrentEnvt().storeFunction(name, lambda);
+		getCurrentEnvt().storeFunction(lambda.getName(), lambda);
 
 		lambda.setPublic(x.getVisibility().isPublic());
 		return lambda;
@@ -1904,7 +1903,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		return new org.meta_environment.rascal.interpreter.result.AnonymousFunction(x, this, (FunctionType) RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleEmpty()), false, x.getStatements(), getCurrentEnvt());
+		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleEmpty()), false, x.getStatements(), getCurrentEnvt());
 	}
 
 	@Override
@@ -2203,14 +2202,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
 		Type returnType = evalType(x.getType());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-		return new org.meta_environment.rascal.interpreter.result.AnonymousFunction(x, this, (FunctionType) RTF.functionType(returnType, formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
+		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(returnType, formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
 	}
 
 	@Override
 	public Result<IValue> visitExpressionVoidClosure(VoidClosure x) {
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-		return new org.meta_environment.rascal.interpreter.result.AnonymousFunction(x, this, (FunctionType) RTF.functionType(tf.voidType(), formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
+		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(tf.voidType(), formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
 
 	}
 

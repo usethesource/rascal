@@ -17,8 +17,9 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 
 
 public class JavaFunction extends NamedFunction {
+	
 	private final Method method;
-	private FunctionDeclaration func;
+	private final FunctionDeclaration func;
 	
 	public JavaFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
 		super(func, eval,
