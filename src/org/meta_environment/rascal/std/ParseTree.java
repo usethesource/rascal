@@ -2,6 +2,8 @@ package org.meta_environment.rascal.std;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -38,7 +40,7 @@ public class ParseTree {
 		try {
 			InputStream stream = URIResolverRegistry.getInstance().getInputStream(input.getURI());
 			ptree = parser.parseStream(loader.getSdfSearchPath(), ((ModuleEnvironment) ctx.getCurrentEnvt().getRoot()).getSDFImports(), stream);
-			ptree = ParsetreeAdapter.addPositionInformation(ptree, "-");
+			ptree = ParsetreeAdapter.addPositionInformation(ptree, input.getURI());
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
 
 			IConstructor prod = TreeAdapter.getProduction(tree);
@@ -67,7 +69,7 @@ public class ParseTree {
 		IConstructor ptree;
 		try {
 			ptree = parser.parseString(loader.getSdfSearchPath(), ((ModuleEnvironment) ctx.getCurrentEnvt().getRoot()).getSDFImports(), input.getValue());
-			ptree = ParsetreeAdapter.addPositionInformation(ptree, "-");
+			ptree = ParsetreeAdapter.addPositionInformation(ptree, new URI("file://-"));
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
 
 			IConstructor prod = TreeAdapter.getProduction(tree);
@@ -78,10 +80,11 @@ public class ParseTree {
 			}
 			
 			return tree;
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
+		}catch(IOException ioex){
+			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(ioex.getMessage()), null, null);
+		}catch(URISyntaxException usex){
+			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(usex.getMessage()), null, null);
 		}
-		
 	}
 
 	private static IConstructor checkPreconditions(IConstructor start, Type reified) {

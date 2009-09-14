@@ -1,5 +1,6 @@
 package org.meta_environment.uri;
 
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class FileURIResolver implements IURIInputStreamResolver, IURIOutputStrea
 	}
 	
 	public OutputStream getOutputStream(URI uri) throws IOException {
-		return new FileOutputStream(uri.getPath());
+		return new BufferedOutputStream(new FileOutputStream(uri.getPath()));
 	}
 	
 	public String scheme() {

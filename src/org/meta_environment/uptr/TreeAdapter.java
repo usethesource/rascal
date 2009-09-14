@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -172,16 +171,16 @@ public class TreeAdapter{
 			this.cache = new MappingsCache<PositionNode, IConstructor>();
 		}
 		
-		public IConstructor addPositionInformation(String filename) {
+		public IConstructor addPositionInformation(URI location) {
 			Factory.getInstance(); // make sure everything is declared
 			try {
-				return addPosInfo(tree, filename.startsWith("/") ? filename : "./"+filename, new Position()); // Fix filename so URI's work.
+				return addPosInfo(tree, location, new Position()); // Fix filename so URI's work.
 			} catch (MalformedURLException e) {
 				throw new RuntimeException(e);
 			}
 		}
 		
-		private IConstructor addPosInfo(IConstructor tree, String filename, Position cur) throws MalformedURLException{
+		private IConstructor addPosInfo(IConstructor tree, URI location, Position cur) throws MalformedURLException{
 			IValueFactory factory = ValueFactoryFactory.getValueFactory();
 			
 			int startLine = cur.line;
@@ -220,7 +219,7 @@ public class TreeAdapter{
 
 				IListWriter newArgs = factory.listWriter(Factory.Tree);
 				for(IValue arg : args){
-					newArgs.append(addPosInfo((IConstructor) arg, filename, cur));
+					newArgs.append(addPosInfo((IConstructor) arg, location, cur));
 				}
 				tree = tree.set("args", newArgs.done());
 
@@ -241,7 +240,7 @@ public class TreeAdapter{
 				for(IValue arg : alts){
 					cur = save.clone();
 
-					IValue newArg = addPosInfo((IConstructor) arg, filename, cur);
+					IValue newArg = addPosInfo((IConstructor) arg, location, cur);
 
 					if(cur.offset != save.offset){
 						newPos = cur;
@@ -258,7 +257,7 @@ public class TreeAdapter{
 				cur.offset = newPos.offset;
 
 				for(IValue arg : cycles.done()){
-					IValue newArg = addPosInfo((IConstructor) arg, filename, cur);
+					IValue newArg = addPosInfo((IConstructor) arg, location, cur);
 					newAlts.insert(newArg);
 				}
 
@@ -267,18 +266,7 @@ public class TreeAdapter{
 				System.err.println("unhandled tree: " + tree + "\n");
 			}
 			
-			ISourceLocation loc;
-			if (!filename.equals("-")) {
-				loc = factory.sourceLocation(filename, startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
-			}
-			else {
-				try {
-					loc = factory.sourceLocation(new URI("console", null, "/", null), startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
-				} catch (URISyntaxException e) {
-					throw new ImplementationError("should always construct valid URI's", e);
-				} 
-			}
-			
+			ISourceLocation loc = factory.sourceLocation(location, startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
 			result = tree.setAnnotation(Factory.Location, loc);
 			
 			cache.putUnsafe(positionNode, result);

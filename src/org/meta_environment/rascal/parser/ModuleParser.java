@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -190,29 +192,38 @@ public class ModuleParser {
 
 		return table;
 	}
+	
+	private URI constructURI(String filename){
+		try{
+			if(filename == "-") return new URI("file://-");
+			return new URI("file://" + (filename.startsWith("/") ? filename : "./"+filename));
+		}catch(URISyntaxException usex){
+			throw new RuntimeException(usex);
+		}
+	}
 
-	private IConstructor bytesToParseTree(String fileName, byte[] result) throws IOException {
+	private IConstructor bytesToParseTree(URI location, byte[] result) throws IOException {
 		PBFReader reader = new PBFReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
-		return ParsetreeAdapter.addPositionInformation(tree, fileName);
+		return ParsetreeAdapter.addPositionInformation(tree, location);
 	}
 
 	protected IConstructor parseFromStream(String table, String fileName, InputStream source, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromStream(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
-		return bytesToParseTree(fileName, result);
+		return bytesToParseTree(constructURI(fileName), result);
 	}
 	
 	protected IConstructor parseFromFile(String table, String fileName, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromFile(new File(fileName), table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
-		return bytesToParseTree(fileName, result);
+		return bytesToParseTree(constructURI(fileName), result);
 	}
 
 	protected IConstructor parseFromString(String table, String fileName, String source, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromString(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
-		return bytesToParseTree(fileName, result);
+		return bytesToParseTree(constructURI(fileName), result);
 	}
 
 	protected TableInfo constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
