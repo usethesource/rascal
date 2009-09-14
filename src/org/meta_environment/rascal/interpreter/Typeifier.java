@@ -22,6 +22,10 @@ import org.meta_environment.rascal.interpreter.types.ReifiedType;
  * See also {@link TypeReifier}.
  */
 public class Typeifier {
+	
+	private Typeifier(){
+		super();
+	}
 
 	/**
 	 * Retrieve the type that is reified by the given value
@@ -29,7 +33,7 @@ public class Typeifier {
 	 * @param typeValue a reified type value produced by {@link TypeReifier}.
 	 * @return the plain Type that typeValue represented
 	 */
-	public Type toType(IConstructor typeValue) {
+	public static Type toType(IConstructor typeValue) {
 		Type anonymous = typeValue.getType();
 
 		if (anonymous instanceof ReifiedType) {
@@ -49,7 +53,7 @@ public class Typeifier {
 	 * @param store     a TypeStore to collect declarations in
 	 * @return the plain Type that typeValue represented
 	 */
-	public Type declare(IConstructor typeValue, final TypeStore store) {
+	public static Type declare(IConstructor typeValue, final TypeStore store) {
 		final List<IConstructor> todo = new LinkedList<IConstructor>();
 		todo.add(typeValue);
 

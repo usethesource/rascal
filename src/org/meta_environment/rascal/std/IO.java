@@ -3,6 +3,7 @@ package org.meta_environment.rascal.std;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -23,7 +24,7 @@ import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
 import org.meta_environment.uri.URIResolverRegistry;
 
-public class IO {
+public class IO{
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();	
 	
@@ -37,133 +38,148 @@ public class IO {
 		PrintStream currentOutStream = out;
 		
 		synchronized(currentOutStream){
-			Iterator<IValue> valueIterator = ((IList) V).iterator();
-			while(valueIterator.hasNext()){
-				IValue arg = valueIterator.next();
-				
-				if (arg.getType().isStringType()){
-					currentOutStream.print(((IString) arg).getValue().toString());
+			try{
+				Iterator<IValue> valueIterator = ((IList) V).iterator();
+				while(valueIterator.hasNext()){
+					IValue arg = valueIterator.next();
+					
+					if(arg.getType().isStringType()){
+						currentOutStream.print(((IString) arg).getValue().toString());
+					}else if(arg.getType().isSubtypeOf(Factory.Tree)){
+						currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+					}else{
+						currentOutStream.print(arg.toString());
+					}
 				}
-				else if (arg.getType().isSubtypeOf(Factory.Tree)) {
-					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-				}
-				else{
-					currentOutStream.print(arg.toString());
-				}
+				currentOutStream.println();
+			}finally{
+				currentOutStream.flush();
 			}
-			currentOutStream.println();
 		}
-		return;
 	}
 	
-	public static void rawPrintln(IValue V) {
+	public static void rawPrintln(IValue V){
 		PrintStream currentOutStream = out;
 		
 		synchronized(currentOutStream){
-			Iterator<IValue> valueIterator = ((IList) V).iterator();
-			while(valueIterator.hasNext()){
-				currentOutStream.print(valueIterator.next().toString());
+			try{
+				Iterator<IValue> valueIterator = ((IList) V).iterator();
+				while(valueIterator.hasNext()){
+					currentOutStream.print(valueIterator.next().toString());
+				}
+				currentOutStream.println();
+			}finally{
+				currentOutStream.flush();
 			}
-			currentOutStream.println();
 		}
-		return;
 	}
 
 	@Deprecated
-	public static IValue readFile(IString filename)
-	{
-		IList res = null;
-		try {
-			BufferedReader in = new BufferedReader(new FileReader(filename.getValue()));
+	public static IValue readFile(IString filename){
+		IListWriter w = types.listType(types.stringType()).writer(values);
+		
+		BufferedReader in = null;
+		try{
+			in = new BufferedReader(new FileReader(filename.getValue()));
 			java.lang.String line;
 
-			IListWriter w = types.listType(types.stringType()).writer(values);
 			do {
 				line = in.readLine();
 				if(line != null){
 					w.append(values.string(line));
 				}
 			} while (line != null);
-			in.close();
-			res =  w.done();
-		}
-		catch (FileNotFoundException e){
+		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.fileNotFound(filename, null, null);
+		}catch(IOException ioex){
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+		}finally{
+			if(in != null){
+				try{
+					in.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				}
+			}
 		}
-		catch (java.io.IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-
-		return res;
+		
+		return w.done();
 	}
 	
-	public static IValue readFile(ISourceLocation file) {
+	public static IValue readFile(ISourceLocation file){
 		StringBuilder result = new StringBuilder();
-		try {
-			InputStream in = URIResolverRegistry.getInstance().getInputStream(file.getURI());
+		
+		InputStream in = null;
+		try{
+			in = URIResolverRegistry.getInstance().getInputStream(file.getURI());
 			byte[] buf = new byte[4096];
 			int count;
 
-			while ((count = in.read(buf)) != -1) {
+			while((count = in.read(buf)) != -1){
 				result.append(new java.lang.String(buf, 0, count));
 			}
 			
-			in.close();
-			
 			java.lang.String str = result.toString();
 			
-			if (file.getOffset() != -1) {
+			if(file.getOffset() != -1){
 				str = str.substring(file.getOffset(), file.getOffset() + file.getLength());
 			}
 			
 			return values.string(str);
-
-		}
-		catch (FileNotFoundException e){
+		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
+		}catch(IOException ioex){
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+		}finally{
+			if(in != null){
+				try{
+					in.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				}
+			}
 		}
-		catch (java.io.IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-
 	}
 	
-	public static void writeFile(ISourceLocation file, IValue V) {
-		try {
-			OutputStream out = URIResolverRegistry.getInstance().getOutputStream(file.getURI());
+	public static void writeFile(ISourceLocation file, IValue V){
+		OutputStream out = null;
+		try{
+			out = URIResolverRegistry.getInstance().getOutputStream(file.getURI());
 			
-			for (IValue elem : (IList) V) {
+			for(IValue elem : (IList) V){
 				if (elem.getType().isStringType()){
 					out.write(((IString) elem).getValue().toString().getBytes());
-				}
-				else if (elem.getType().isSubtypeOf(Factory.Tree)) {
+				}else if (elem.getType().isSubtypeOf(Factory.Tree)) {
 					out.write(TreeAdapter.yield((IConstructor) elem).getBytes());
-				}
-				else{
+				}else{
 					out.write(elem.toString().getBytes());
 				}
 				out.write('\n');
 			}
-			out.flush();
-			out.close();
-		}
-		catch (FileNotFoundException e){
+		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
-		}
-		catch (java.io.IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}catch(IOException ioex){
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+		}finally{
+			if(out != null){
+				try{
+					out.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				}
+			}
 		}
 
 		return;
 	}
 	
-	public static IList readFileLines(ISourceLocation file)
-	{
+	public static IList readFileLines(ISourceLocation file){
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
-		try {
+		BufferedReader in = null;
+		try{
 			InputStream stream = URIResolverRegistry.getInstance().getInputStream(file.getURI());
-			BufferedReader in = new BufferedReader(new InputStreamReader(stream));
+			in = new BufferedReader(new InputStreamReader(stream));
 			java.lang.String line;
 			
 			int i = 0;
@@ -173,43 +189,45 @@ public class IO {
 			int endLine = file.getEndLine();
 			int endColumn = file.getEndColumn();
 
-			do {
+			do{
 				line = in.readLine();
 				i++;
 				if(line != null){
-					if (offset == -1) {
+					if(offset == -1){
 						w.append(values.string(line));
-					}
-					else {
-						if (endColumn == -1) {
+					}else{
+						if(endColumn == -1){
 							endColumn = line.length();
 						}
-						if (i == beginLine) {
-							if (i == endLine) {
+						if(i == beginLine){
+							if(i == endLine){
 								w.append(values.string(line.substring(beginColumn, endColumn)));
-							}
-							else {
+							}else{
 								w.append(values.string(line.substring(beginColumn)));
 							}
-						}
-						else if (i > beginLine) {
-							if (i == endLine) {
+						}else if(i > beginLine){
+							if(i == endLine){
 								w.append(values.string(line.substring(0, endColumn)));
 							}
-							else if (i < endLine) {
+							else if(i < endLine){
 								w.append(values.string(line));
 							}
 						}
 					}
 				}
-			} while (line != null);
-			in.close();
-		}
-		catch (FileNotFoundException e){
+			}while(line != null);
+		}catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
-		}
-		catch (java.io.IOException e){
+		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}finally{
+			if(in != null){
+				try{
+					in.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				}
+			}
 		}
 
 		return w.done();

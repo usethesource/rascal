@@ -1,5 +1,7 @@
 package org.meta_environment.uptr;
 
+import java.net.URI;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.meta_environment.errors.SummaryAdapter;
@@ -11,10 +13,10 @@ public class ParsetreeAdapter {
 		super();
 	}
 	
-	public static IConstructor addPositionInformation(IConstructor parseTree, String filename) {
+	public static IConstructor addPositionInformation(IConstructor parseTree, URI location) {
 		if (isParseTree(parseTree)) {
 			IConstructor tree = (IConstructor) parseTree.get("top");
-			tree = new PositionAnnotator(tree).addPositionInformation(filename);
+			tree = new PositionAnnotator(tree).addPositionInformation(location);
 			return parseTree.set("top", tree);
 		}
 		

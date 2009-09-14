@@ -701,7 +701,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		
 		if (valueArguments.length == 1) {
 			if (valueArguments[0].getType() instanceof org.meta_environment.rascal.interpreter.types.ReifiedType) {
-				return RascalTypeFactory.getInstance().reifiedType(new Typeifier().toType((IConstructor) valueArguments[0]));
+				return RascalTypeFactory.getInstance().reifiedType(Typeifier.toType((IConstructor) valueArguments[0]));
 			}
 		}
 		

@@ -19,7 +19,7 @@ import org.meta_environment.ValueFactoryFactory;
 // TODO: Why is this code in the library? This should be done in pure Rascal.
 
 class Distance {
-	int intval;
+	public int intval;
 	
 	Distance(int n){
 		intval = n;
