@@ -31,6 +31,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
+import org.meta_environment.uri.FileURIResolver;
 
 import sglr.IInvoker;
 import sglr.LegacySGLRInvoker;
@@ -195,7 +196,7 @@ public class ModuleParser {
 	
 	private URI constructURI(String filename){
 		try{
-			if(filename == "-") return new URI("file://-");
+			if(filename == "-") return FileURIResolver.STDIN_URI;
 			return new URI("file://" + (filename.startsWith("/") ? filename : "./"+filename));
 		}catch(URISyntaxException usex){
 			throw new RuntimeException(usex);

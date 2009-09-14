@@ -8,14 +8,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class URIResolverRegistry {
-	private static Map<String,IURIInputStreamResolver> resolvers = new HashMap<String, IURIInputStreamResolver>();
-	private static Map<String,IURIOutputStreamResolver> outputResolvers = new HashMap<String, IURIOutputStreamResolver>();
+	private final static Map<String,IURIInputStreamResolver> resolvers = new HashMap<String, IURIInputStreamResolver>();
+	private final static Map<String,IURIOutputStreamResolver> outputResolvers = new HashMap<String, IURIOutputStreamResolver>();
 	
 	private static class InstanceKeeper {
 		public final static URIResolverRegistry sInstance = new URIResolverRegistry();
 	} 
 	
-	private URIResolverRegistry() { }
+	private URIResolverRegistry() {
+		super();
+	}
 	
 	public static URIResolverRegistry getInstance() {
 		return InstanceKeeper.sInstance;

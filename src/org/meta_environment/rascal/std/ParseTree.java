@@ -2,8 +2,6 @@ package org.meta_environment.rascal.std;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -22,6 +20,7 @@ import org.meta_environment.rascal.parser.ConcreteObjectParser;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.TreeAdapter;
+import org.meta_environment.uri.FileURIResolver;
 import org.meta_environment.uri.URIResolverRegistry;
 
 public class ParseTree {
@@ -69,7 +68,7 @@ public class ParseTree {
 		IConstructor ptree;
 		try {
 			ptree = parser.parseString(loader.getSdfSearchPath(), ((ModuleEnvironment) ctx.getCurrentEnvt().getRoot()).getSDFImports(), input.getValue());
-			ptree = ParsetreeAdapter.addPositionInformation(ptree, new URI("file://-"));
+			ptree = ParsetreeAdapter.addPositionInformation(ptree, FileURIResolver.STDIN_URI);
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
 
 			IConstructor prod = TreeAdapter.getProduction(tree);
@@ -82,8 +81,6 @@ public class ParseTree {
 			return tree;
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(ioex.getMessage()), null, null);
-		}catch(URISyntaxException usex){
-			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(usex.getMessage()), null, null);
 		}
 	}
 
