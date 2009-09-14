@@ -82,6 +82,7 @@ import org.meta_environment.rascal.ast.Expression.FieldProject;
 import org.meta_environment.rascal.ast.Expression.FieldUpdate;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
+import org.meta_environment.rascal.ast.Expression.Guarded;
 import org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise;
 import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.In;
@@ -207,6 +208,7 @@ import org.meta_environment.rascal.interpreter.utils.Profiler;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 import org.meta_environment.uri.CWDURIResolver;
@@ -2002,6 +2004,39 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.equals(right, this);
+	}
+	
+	@Override
+	public Result<IValue> visitExpressionGuarded(Guarded x) {
+		Result<IValue> result = x.getPattern().accept(this);
+		Type expected = te.eval(x.getType(), getCurrentEnvt());
+
+		// TODO: clean up this hack
+		if (expected instanceof NonTerminalType && result.getType().isSubtypeOf(tf.stringType())) {
+			try {
+				String command = '(' + expected.toString() + ')' + '`' + ((IString) result.getValue()).getValue() + '`';
+				IConstructor tree = parser.parseCommand(((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), loader.getSdfSearchPath(), x.getLocation().getURI().getPath(), command);
+				
+				if (tree.getConstructorType() == Factory.ParseTree_Summary) {
+					throw RuntimeExceptionFactory.parseError(x.getPattern().getLocation(), x.getPattern(), getStackTrace());
+				}
+				else {
+					tree = ParsetreeAdapter.getTop(tree); // start rule
+			        tree = (IConstructor) TreeAdapter.getArgs(tree).get(1); // top command expression
+			        tree = (IConstructor) TreeAdapter.getArgs(tree).get(0); // typed quoted embedded fragment
+			        tree = (IConstructor) TreeAdapter.getArgs(tree).get(8); // wrapped string between `...`
+			        return makeResult(expected, tree, this);
+				}
+				
+			} catch (IOException e) {
+				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), x.getPattern(), getStackTrace());
+			}
+		}
+		if (!result.getType().isSubtypeOf(expected)) {
+			throw new UnexpectedTypeError(expected, result.getType(), x.getPattern());
+		}
+		
+		return makeResult(expected, result.getValue(), this);
 	}
 
 	@Override

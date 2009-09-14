@@ -715,6 +715,17 @@ public class ASTBuilder {
 			}
 			return false;
 		}
+		else if (exp.isGuarded()) {
+			Expression.Guarded var = (Expression.Guarded) exp;
+			IValue type = Symbols.typeToSymbol(var.getType());
+
+			// the declared type inside the pattern must match the produced type outside the brackets
+			// "<" [Type] Pattern ">" -> STAT in the grammar and "<[STAT] pattern>" in the pattern. STAT == STAT.
+			if (type.equals(expected)) {
+				return true;
+			}
+			return false;
+		}
 		
 		return true;
 	}
