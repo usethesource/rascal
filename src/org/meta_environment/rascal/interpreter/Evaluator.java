@@ -194,7 +194,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
-import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;

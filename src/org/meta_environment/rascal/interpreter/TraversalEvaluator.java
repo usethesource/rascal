@@ -372,8 +372,6 @@ public class TraversalEvaluator {
 	 * 
 	 * Performance issue: we create a lot of garbage by producing all these substrings.
 	 */
-
-	@SuppressWarnings("null")
 	public TraverseResult traverseString(Result<IValue> subject, CasesOrRules casesOrRules){
 		String subjectString = ((IString) subject.getValue()).getValue();
 		int len = subjectString.length();
