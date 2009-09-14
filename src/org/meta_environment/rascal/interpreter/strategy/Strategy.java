@@ -4,7 +4,7 @@ import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 
 public class Strategy extends AbstractFunction {
 
-    protected AbstractFunction function;
+    protected final AbstractFunction function;
 	
 	public Strategy(AbstractFunction function) {
 		super(function.getAst(), function.getEval(), function.getFunctionType(), function.hasVarArgs(), function.getEnv());
