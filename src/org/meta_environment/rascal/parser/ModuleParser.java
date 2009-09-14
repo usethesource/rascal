@@ -48,8 +48,8 @@ public class ModuleParser {
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
 	
 	public class TableInfo {
-		private String tableName;
-		private String symbolsName;
+		private final String tableName;
+		private final String symbolsName;
 		
 		public TableInfo(String defaultParsetableProperty) {
 			this.tableName = defaultParsetableProperty;
