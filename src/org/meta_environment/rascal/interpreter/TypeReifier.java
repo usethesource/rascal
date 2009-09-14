@@ -45,27 +45,21 @@ data type[&T] =
   \map(Type \key, Type \value) |
   \list(Type element) |
   \set(Type element) |
-  \rel() | 
-  \rel(Type t1, ...) | 
-  \tuple() | 
-  \tuple(Type t1, ...) |
+  \rel(list[tuple[Type \type, str label]] fields) | // with labels
+  \rel(list[Type] arguments) |  // without labels
+  \tuple(list[tuple[Type \type, str label]] fields) | // with labels
+  \tuple(list[Type] arguments) | // without labels
   \void() |
-  \fun(Type \return) | 
-  \fun(Type \return, Type t1, ...) |  
+  \fun(Type \return, list[tuple[Type \type, str label]]) |  
   \node() |
   \non-terminal(Symbol symbol) |
-  \adt(str name) |
-  \adt(str name, list[Type] parameters) |
-  \adt(str name, list[Constructor] constructors) |
   \adt(str name, list[Type] parameters, list[constructor] constructors) | 
   \loc() |
-  \alias(str name, Type aliased) |
   \alias(str name, list[Type] parameters, Type aliased) |
   \reified(Type reified)
 
 data constructor[&T] = 
-  \constructor(str name) | 
-  \constructor(str name, Type t1, ...)
+  \constructor(str name, list[tuple[Type \type, str label]] fields)
 </pre>
  */
 public class TypeReifier implements ITypeVisitor<Result<IValue>> {
@@ -80,6 +74,7 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	private final Type valueAdt;
 	private final Type listAdt;
 	private final Type listCons;
+	private final Type fieldType;
 	
 	private Set<IValue> visiting = new HashSet<IValue>();
 	
@@ -98,6 +93,7 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	    Map<Type,Type> bindings = bind(tf.valueType());
 	    this.valueAdt = adt.instantiate(store, bindings);
 	    this.listAdt = tf.listType(valueAdt);
+	    this.fieldType = tf.tupleType(adt, "type", tf.stringType(), "label");
 	    this.listCons = tf.listType(cons);
 	    
 	}
@@ -114,14 +110,8 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		IValue result;
 		IValue stub;
 		
-		if (params.isVoidType()) {
-			staticType = tf.constructor(store, adt.instantiate(store, bindings), "adt", tf.stringType(), "name");
-			stub = staticType.make(vf, vf.string(name));
-		}
-		else {
-			staticType = tf.constructor(store, adt.instantiate(store, bindings), "adt", tf.stringType(), "name", listAdt, "parameters");
-			stub = staticType.make(vf, vf.string(name), getTypeParameterList(params));
-		}
+		staticType = tf.constructor(store, adt.instantiate(store, bindings), "adt", tf.stringType(), "name", listAdt, "parameters", listCons, "constructors");
+		stub = staticType.make(vf, vf.string(name), getTypeParameterList(params), vf.list());
 		
 		if (visiting.contains(stub)) {
 			// we break an infinite recursion here
@@ -138,19 +128,16 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		
 		visiting.remove(stub);
 		
-		if (params.isVoidType()) {
-			staticType = tf.constructor(store, adt.instantiate(store, bindings), "adt", tf.stringType(), "name", listCons, "constructors");
-			result = staticType.make(vf, vf.string(name), constructorList);
-		}
-		else {
-			staticType = tf.constructor(store, adt.instantiate(store, bindings), "adt", tf.stringType(), "name", listAdt, "parameters", listCons, "constructors");
-			result = staticType.make(vf, name, getTypeParameterList(params), constructorList);
-		}
+		result = staticType.make(vf, vf.string(name), getTypeParameterList(params), constructorList);
 		
 		return makeResult(staticType.getAbstractDataType(), result, ctx);
 	}
 
 	private IList getTypeParameterList(Type params) {
+		if (params.isVoidType()) {
+			return vf.list();
+		}
+		
 		Type paramListType = tf.listType(valueAdt);
 		IListWriter reifiedW = paramListType.writer(vf);
 		
@@ -174,14 +161,8 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		Map<Type,Type> bindings = bind(type);
 		Result<IValue> aliased = type.getAliased().accept(this);
 		
-		if (params.isVoidType()) {
-			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "alias", tf.stringType(), "name", aliased.getType(), "aliased");
-			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, vf.string(name), aliased.getValue()), ctx);
-		}
-		else {
-			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "alias", tf.stringType(), "name", tf.listType(valueAdt), "parameters", aliased.getType(), "aliased");
-			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, vf.string(name), getTypeParameterList(params), aliased.getValue()), ctx);
-		}
+		Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "alias", tf.stringType(), "name", tf.listType(valueAdt), "parameters", aliased.getType(), "aliased");
+		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, vf.string(name), getTypeParameterList(params), aliased.getValue()), ctx);
 	}
 
 	public Result<IValue> visitBool(Type boolType) {
@@ -192,31 +173,17 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 
 	public Result<IValue> visitConstructor(Type type) {
 		Type argumentTypes = type.getFieldTypes();
-		Object[] fields = new Object[2 + argumentTypes.getArity() * 2];
+		IListWriter fields = vf.listWriter(fieldType);
 		
-		fields[0] = tf.stringType();
-		fields[1] = "name";
-		for (int i = 0, j = 2; j < fields.length; j+=2, i++) {
-			fields[j] = argumentTypes.getFieldType(i);
-			String fieldName = argumentTypes.getFieldName(i);
-			
-			if (fieldName != null) {
-				fields[j+1] = fieldName;
-			}
-			else {
-				fields[j+1] = "field" + i;
-			}
+		for (int i = 0; i < type.getArity(); i++) {
+			IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
+			IValue argLabel = vf.string(argumentTypes.getFieldName(i));
+			fields.append(vf.tuple(argType, argLabel));
 		}
 		
-		IValue[] values = new IValue[argumentTypes.getArity() + 1];
-		values[0] = vf.string(type.getName());
-		for (int j = 0, i = 1; i < values.length; i++, j++) {
-			values[i] = argumentTypes.getFieldType(j).accept(this).getValue();
-		}
-		
-		Type staticType = tf.constructor(store, cons, "constructor", fields);
-		
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, values), ctx);
+		Type staticType = tf.constructor(store, cons, "constructor", tf.stringType(), "name", tf.listType(fieldType), "fields");
+
+		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, vf.string(type.getName()), fields.done()), ctx);
 	}
 
 	public Result<IValue> visitExternal(Type externalType) {
@@ -240,27 +207,24 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, nt.getSymbol()), ctx);
 	}
 
-	private Result<IValue> visitFunction(Type externalType) {
-		FunctionType func = (FunctionType) externalType;
-		Type argumentTypes = func.getArgumentTypes();
-		Result<IValue> returnTypeValue = func.getReturnType().accept(this);
-		Map<Type,Type> bindings = bind(func);
+	private Result<IValue> visitFunction(Type type) {
+		Type argumentTypes = ((FunctionType) type).getArgumentTypes();
+		IListWriter fields = vf.listWriter(fieldType);
 		
-		Object[] fields = new Object[2 + argumentTypes.getArity() * 2];
-		
-		fields[0] = returnTypeValue.getType();
-		fields[1] = "return";
-		for (int i = 0, j = 2; j < fields.length; j+=2, i++) {
-			fields[j] = argumentTypes.getFieldType(i);
-			fields[j+1] = argumentTypes.getFieldName(i);
+		for (int i = 0; i < argumentTypes.getArity(); i++) {
+			IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
+			IValue argLabel = vf.string(argumentTypes.getFieldName(i));
+			fields.append(vf.tuple(argType, argLabel));
 		}
 		
-		IValue[] values = new IValue[argumentTypes.getArity()];
-		for (int i = 0; i < values.length; i++) {
-			values[i] = argumentTypes.getFieldType(i).accept(this).getValue();
+		IValue[] values = new IValue[argumentTypes.getArity() + 1];
+		values[0] = ((FunctionType) type).getReturnType().accept(this).getValue();
+		for (int j = 0, i = 1; i < values.length; i++, j++) {
+			values[i] = argumentTypes.getFieldType(j).accept(this).getValue();
 		}
 		
-		Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "fun", fields);
+		Type staticType = tf.constructor(store, cons, "fun", adt, "return", tf.listType(fieldType), "fields");
+		
 		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, values), ctx);
 	}
 
@@ -307,27 +271,27 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		Type argumentTypes = type.getFieldTypes();
 		Map<Type,Type> bindings = bind(type);
 		
-		Object[] fields = new Object[argumentTypes.getArity() * 2];
-		
-		for (int i = 0, j = 0; j < fields.length; j+=2, i++) {
-			fields[j] = argumentTypes.getFieldType(i);
-			String fieldName = argumentTypes.getFieldName(i);
+		if (argumentTypes.hasFieldNames()) {
+			IListWriter fields = vf.listWriter(fieldType);
+			for (int i = 0; i < argumentTypes.getArity(); i++) {
+				IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
+				IValue argLabel = vf.string(argumentTypes.getFieldName(i));
+				fields.append(vf.tuple(argType, argLabel));
+			}
 			
-			if (fieldName != null) {
-				fields[j+1] = fieldName;
-			}
-			else {
-				fields[j+1] = "field" + i;
-			}
+			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "rel", tf.listType(fieldType), "fields");
+			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
 		}
-		
-		IValue[] values = new IValue[argumentTypes.getArity()];
-		for (int i = 0; i < values.length; i++) {
-			values[i] = argumentTypes.getFieldType(i).accept(this).getValue();
+		else {
+			IListWriter fields = vf.listWriter(adt);
+			for (int i = 0; i < argumentTypes.getArity(); i++) {
+				IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
+				fields.append(argType);
+			}
+			
+			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "rel", tf.listType(adt), "arguments");
+			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
 		}
-		
-		Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "rel", fields);
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, values), ctx);
 	}
 
 	public Result<IValue> visitSet(Type type) {
@@ -350,22 +314,30 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	}
 
 	public Result<IValue> visitTuple(Type type) {
+		Type argumentTypes = type.getFieldTypes();
 		Map<Type,Type> bindings = bind(type);
 		
-		Object[] fields = new Object[type.getArity() * 2];
-		
-		for (int i = 0, j = 0; j < fields.length; j+=2, i++) {
-			fields[j] = type.getFieldType(i);
-			fields[j+1] = type.getFieldName(i);
+		if (argumentTypes.hasFieldNames()) {
+			IListWriter fields = vf.listWriter(fieldType);
+			for (int i = 0; i < argumentTypes.getArity(); i++) {
+				IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
+				IValue argLabel = vf.string(argumentTypes.getFieldName(i));
+				fields.append(vf.tuple(argType, argLabel));
+			}
+			
+			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "tuple", tf.listType(fieldType), "fields");
+			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
 		}
-		
-		IValue[] values = new IValue[type.getArity()];
-		for (int i = 0; i < values.length; i++) {
-			values[i] = type.getFieldType(i).accept(this).getValue();
+		else {
+			IListWriter fields = vf.listWriter(adt);
+			for (int i = 0; i < argumentTypes.getArity(); i++) {
+				IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
+				fields.append(argType);
+			}
+			
+			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "tuple", tf.listType(adt), "arguments");
+			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
 		}
-		
-		Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "tuple", fields);
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, values), ctx);
 	}
 
 	public Result<IValue> visitValue(Type type) {

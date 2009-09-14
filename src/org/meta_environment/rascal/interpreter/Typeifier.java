@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -36,12 +37,8 @@ public class Typeifier {
 
 			return reified.getTypeParameters().getFieldType(0);
 		}
-		// TODO: add functionality to reconstruct a reified type from a node or
-		// a adt that
-		// follows the signature of reified types?
-		else {
-			throw new ImplementationError("Not a reified type: " + typeValue);
-		}
+		
+		throw new UnsupportedOperationException("Not a reified type: " + typeValue.getType());
 	}
 
 	/**
@@ -66,34 +63,16 @@ public class Typeifier {
 
 				public Type visitAbstractData(Type type) {
 					store.declareAbstractDataType(type);
-					
-					switch (next.arity()) {
-					case 1: // stub
-						break;
-					case 2: // either parameterized stub, or unparameterized adt with constructors
-						if (next.has("parameters")) {
-							declareParameters(next);
-						}
-						if (next.has("constructors")) {
-							declareConstructors(type, next);
-						}
-						break;
-					case 3: // parameterized adt with constructors
-						declareParameters(next);
-						declareConstructors(type, next);
-					default:
-						throw new ImplementationError("Unexpected reified type representation: " + next);
-					}
-					
+					declareParameters(next);
+					declareConstructors(type, next);
 					return type;
 				}
 
 				public Type visitAlias(Type type) {
-					String name = getName(next);
 					IConstructor aliased = getAliased(next);
 					todo.add(aliased);
-					// TODO deal with parameterized
-					return tf.aliasType(store, name, toType(aliased));
+					declareParameters(aliased);
+					return type;
 				}
 
 				public Type visitBool(Type boolType) {
@@ -176,22 +155,23 @@ public class Typeifier {
 					}
 				}
 
-				// TODO deal with labels
 				private void declareConstructors(Type adt, IConstructor next) {
 					IList constructors = getConstructors(next);
 					
 					for (IValue c : constructors) {
 						IConstructor cons = (IConstructor) c;
+						IList fields = (IList) cons.get(1);
 						String name = getName(cons);
-						Type[] args = new Type[cons.arity() - 1];
-						
-						for (int i = 1; i < cons.arity(); i++) {
-							IConstructor arg = (IConstructor) cons.get(i);
-							todo.add(arg);
-							args[i - 1] = toType(arg);
+						Object[] args = new Object[fields.length() * 2];
+
+						int i = 0;
+						for (IValue field : fields) {
+							ITuple tuple = (ITuple) field;
+							args[i++] = toType((IConstructor) tuple.get(0));
+							args[i++] = ((IString) tuple.get(1)).getValue();
 						}
 						
-						tf.constructorFromTuple(store, adt, name, tf.tupleType(args));
+						tf.constructor(store, adt, name, args);
 					}
 				}
 
