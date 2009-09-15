@@ -11,8 +11,10 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.Assignment;
+import org.meta_environment.rascal.ast.IASTVisitor;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Assignable.Annotation;
@@ -23,8 +25,10 @@ import org.meta_environment.rascal.ast.Assignable.Subscript;
 import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
@@ -39,7 +43,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
  * implemented by Evaluator.
  * TODO: does not implement type checking completely
  */
-/*package*/ class AssignableEvaluator extends NullASTVisitor<Result<IValue>> {
+/*package*/ class AssignableEvaluator extends NullASTVisitor<Result<IValue>> implements IASTVisitor<Result<IValue>>{
 	enum AssignmentOperator {Default, Addition, Subtraction, Product, Division, Intersection, IsDefined}
 	private AssignmentOperator operator;
     private Result<IValue> value;
@@ -336,4 +340,49 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 	public Result<IValue> visitAssignableConstructor(Constructor x) {
 		throw new ImplementationError("Constructor assignables not yet implemented");
 	}
+	
+	public AbstractAST getCurrentAST() {
+		return eval.getCurrentAST();
+	}
+
+	public Environment getCurrentEnvt() {
+		return eval.getCurrentEnvt();
+	}
+
+	public Evaluator getEvaluator() {
+		return eval.getEvaluator();
+	}
+
+	public GlobalEnvironment getHeap() {
+		return eval.getHeap();
+	}
+
+	public java.lang.String getStackTrace() {
+		return eval.getStackTrace();
+	}
+
+	public void pushEnv() {
+		eval.pushEnv();		
+	}
+
+	public java.lang.String report(java.util.List<FailedTestError> failedTests) {
+		return eval.report(failedTests);
+	}
+
+	public java.util.List<FailedTestError> runTests() {
+		return eval.runTests();
+	}
+
+	public java.util.List<FailedTestError> runTests(java.lang.String module) {
+		return eval.runTests(module);
+	}
+
+	public void setCurrentEnvt(Environment environment) {
+		eval.setCurrentEnvt(environment);
+	}
+
+	public void unwind(Environment old) {
+		eval.unwind(old);
+	}
+
 }
