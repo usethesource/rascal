@@ -43,14 +43,14 @@ public ValueEnv evalProgram(PROGRAM P){
 ValueEnv evalDecls({\ID-TYPE "," }* Decls){
     ValueEnv Env = ();
     
-    for(/`<\PICO-ID Id> : <TYPE Type>` <- Decls){
+    for(`<\PICO-ID Id> : <TYPE Type>` <- Decls){
         Env[Id] = (Type == naturalType) ? intval(0) : strval(""); 
     }
     return Env;
 }
 
 ValueEnv evalStatements({STATEMENT ";"}* Series, ValueEnv Env){
-    for(/STATEMENT Stat <- Series){
+    for(STATEMENT Stat <- Series){
         Env = evalStatement(Stat, Env);
     }
     return Env;

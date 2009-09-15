@@ -470,7 +470,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void enumeratorDsTyped(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{L = [X | /D X <- `d d d` ]; L == [`d`, `d`, `d`];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | D X <- `d d d` ]; L == [`d`, `d`, `d`];}"));
 	}
 	
 	@Ignore @Test
@@ -494,7 +494,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void enumeratorEsTyped(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{L = [X | /E X <- `e, e, e` ]; L == [`e`, `e`, `e`];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | E X <- `e, e, e` ]; L == [`e`, `e`, `e`];}"));
 	}
 
 	@Test
@@ -705,13 +705,13 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void enumeratorPicoStatementsTyped(){
 		prepare("import languages::pico::syntax::Pico;");
-		assertTrue(runTestInSameEvaluator("{L = [X | /STATEMENT X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
 	
 	@Test
 	public void enumeratorPicoStatementsConcretePattern1(){
 		prepare("import languages::pico::syntax::Pico;");
-		assertTrue(runTestInSameEvaluator("{L = [X | /`<\\PICO-ID X>:=1` <- `a:=1;b:=2;c:=1` ]; L == [ `a`, `c` ];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | `<\\PICO-ID X>:=1` <- `a:=1;b:=2;c:=1` ]; L == [ `a`, `c` ];}"));
 	}
 	
 	@Test

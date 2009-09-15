@@ -2,18 +2,22 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
+import org.meta_environment.rascal.interpreter.types.NonTerminalType;
+import org.meta_environment.uptr.*;
 
 public class IteratorFactory {
 	
@@ -23,6 +27,8 @@ public class IteratorFactory {
 		Type subjectType = subject.getType();
 		IValue subjectValue = subject.getValue();
 		Type patType = matchPattern.getType(ctx.getCurrentEnvt());
+		
+		System.err.println("make: " + subjectType);
 		
 		// TODO: this should be a visitor design as well..
 		
@@ -53,6 +59,25 @@ public class IteratorFactory {
 			if(!subjectType.getKeyType().isVoidType())
 				checkMayOccur(patType, subjectType.getKeyType(), ctx);
 			return ((IMap) subjectValue).iterator();
+			
+		// NonTerminal	
+		} else if(subjectType.isExternalType()){
+			if(subjectType instanceof NonTerminalType){
+				System.err.println("NonTerminalType");
+				IConstructor tree = (IConstructor) subjectValue;
+				checkMayOccur(patType, subjectType, ctx);
+				NonTerminalType nt = (NonTerminalType) subjectType;
+				if(nt.isConcreteListType()){
+					System.err.println("AnyList: " + nt.isConcreteCFList());
+					int delta = 2;
+					if(SymbolAdapter.isIterStarSep(tree)|| SymbolAdapter.isIterPlusSep(tree)){
+						System.err.println("with sep");
+						delta = 4;
+					}
+					return new CFListIterator((IList)tree.get(1), delta);
+				}
+			}
+			return new SingleIValueIterator(subjectValue);
 			
 		// Node and ADT
 		} else if(subjectType.isNodeType() || subjectType.isAbstractDataType()){
