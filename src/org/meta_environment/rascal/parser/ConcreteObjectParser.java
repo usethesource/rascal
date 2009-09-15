@@ -14,6 +14,7 @@ import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.uri.FileURIResolver;
 
 public class ConcreteObjectParser extends ModuleParser {
 	
@@ -34,7 +35,7 @@ public class ConcreteObjectParser extends ModuleParser {
 
 	public IConstructor parseStream(List<String> sdfSearchPath, Set<String> sdfImports, InputStream source) throws IOException {
 		TableInfo table = getOrConstructParseTable(sdfImports, sdfSearchPath);
-		IConstructor result = parseFromStream(table.getTableName(), "-", source, true);
+		IConstructor result = parseFromStream(table.getTableName(), FileURIResolver.STDIN_URI, source, true);
 		if (result.getConstructorType() == Factory.ParseTree_Summary) {
 			//System.err.println("RESULT = " + result);
 			SubjectAdapter x = new SummaryAdapter(result).getInitialSubject();
