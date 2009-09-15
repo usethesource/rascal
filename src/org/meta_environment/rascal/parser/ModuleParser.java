@@ -155,15 +155,6 @@ public class ModuleParser {
 			}
 		}
 	}
-
-	public IConstructor parseObjectLanguageFile(List<String> sdfSearchPath, Set<String> sdfImports, String fileName) throws IOException {
-		TableInfo table = getOrConstructParseTable(OBJECT_LANGUAGE_KEY, sdfImports, sdfSearchPath);
-		try {
-			return parseFromFile(table.getTableName(), fileName, true);
-		} catch (FactParseError e) {
-			throw new ImplementationError("parse tree format error", e);
-		} 
-	}
 	
 	protected TableInfo lookupTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		if (sdfImports.isEmpty()) {
@@ -204,11 +195,6 @@ public class ModuleParser {
 		byte[] result = sglrInvoker.parseFromStream(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
 		return bytesToParseTree(location, result);
-	}
-	
-	protected IConstructor parseFromFile(String table, String fileName, boolean filter) throws FactParseError, IOException {
-		byte[] result = sglrInvoker.parseFromFile(new File(fileName), table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
-		return bytesToParseTree(FileURIResolver.constructFileURI(fileName), result);
 	}
 
 	protected IConstructor parseFromString(String table, URI location, String source, boolean filter) throws FactParseError, IOException {
