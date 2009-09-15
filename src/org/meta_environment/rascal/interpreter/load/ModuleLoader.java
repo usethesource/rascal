@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,8 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.uri.FileURIResolver;
+import org.meta_environment.uri.URIResolverRegistry;
 
 public class ModuleLoader{
 	private List<IModuleFileLoader> loaders = new ArrayList<IModuleFileLoader>();
@@ -177,12 +180,13 @@ public class ModuleLoader{
 	public IConstructor parseModule(IModuleFileLoader loader, String fileName, String name, AbstractAST ast, ModuleEnvironment env) throws IOException{
 		InputStream inputStream = null;
 		Set<String> sdfImports;
+		URI location = FileURIResolver.constructFileURI(fileName);
 		try{
 			inputStream = loader.getInputStream(fileName);
 			if (inputStream == null) {
 				throw new ModuleLoadError(name, "not in path", ast);
 			}
-			sdfImports = parser.getSdfImports(getSdfSearchPath(), fileName, inputStream);
+			sdfImports = parser.getSdfImports(getSdfSearchPath(), location, inputStream);
 		}finally{
 			if(inputStream != null){
 				inputStream.close();
@@ -193,7 +197,7 @@ public class ModuleLoader{
 		try{
 			List<String> sdfSearchPath = getSdfSearchPath();
 			secondInputStream = loader.getInputStream(fileName);
-			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream, env);
+			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, secondInputStream, env);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw parseError(tree, fileName, name);
@@ -207,7 +211,7 @@ public class ModuleLoader{
 		}
 	}
 
-	public IConstructor parseModule(String fileName, String moduleString, ModuleEnvironment env) throws IOException{
+	public IConstructor parseModule(URI location, String moduleString, ModuleEnvironment env) throws IOException{
 		List<String> sdfSearchPath = getSdfSearchPath();
 		
 		InputStream inputStream = null;
@@ -215,7 +219,7 @@ public class ModuleLoader{
 		try{
 			inputStream = new ByteArrayInputStream(moduleString.getBytes());
 			
-			sdfImports = parser.getSdfImports(sdfSearchPath, fileName, inputStream);
+			sdfImports = parser.getSdfImports(sdfSearchPath, location, inputStream);
 		}finally{
 			if(inputStream != null){
 				inputStream.close();
@@ -225,10 +229,42 @@ public class ModuleLoader{
 		InputStream secondInputStream = null;
 		try{
 			secondInputStream = new ByteArrayInputStream(moduleString.getBytes());
-			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream, env);
+			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, secondInputStream, env);
 
 			if(tree.getConstructorType() == Factory.ParseTree_Summary){
-				throw parseError(tree, fileName, "-");
+				throw parseError(tree, location.toString(), "-");
+			}
+
+			return tree;
+		}finally{
+			if (secondInputStream != null) {
+				secondInputStream.close();
+			}
+		}
+	}
+
+	public IConstructor parseModule(URI location, ModuleEnvironment env) throws IOException{
+		List<String> sdfSearchPath = getSdfSearchPath();
+		
+		InputStream inputStream = null;
+		Set<String> sdfImports;
+		try{
+			inputStream = URIResolverRegistry.getInstance().getInputStream(location);
+			
+			sdfImports = parser.getSdfImports(sdfSearchPath, location, inputStream);
+		}finally{
+			if(inputStream != null){
+				inputStream.close();
+			}
+		}
+
+		InputStream secondInputStream = null;
+		try{
+			secondInputStream = URIResolverRegistry.getInstance().getInputStream(location);
+			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, secondInputStream, env);
+
+			if(tree.getConstructorType() == Factory.ParseTree_Summary){
+				throw parseError(tree, location.toString(), "-");
 			}
 
 			return tree;
@@ -242,5 +278,4 @@ public class ModuleLoader{
 	public void setParser(ModuleParser parser) {
 		this.parser = parser;
 	}
-	
 }

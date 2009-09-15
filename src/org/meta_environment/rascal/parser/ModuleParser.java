@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -93,12 +92,12 @@ public class ModuleParser {
 		// nop
 	}
 	
-	public Set<String> getSdfImports(List<String> sdfSearchPath, String fileName, InputStream source) throws IOException {
+	public Set<String> getSdfImports(List<String> sdfSearchPath, URI location, InputStream source) throws IOException {
 		try {
-			IConstructor tree= parseFromStream(Configuration.getHeaderParsetableProperty(), constructURI(fileName), source, false);
+			IConstructor tree= parseFromStream(Configuration.getHeaderParsetableProperty(), location, source, false);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-				throw new SyntaxError(fileName, new SummaryAdapter(tree).getInitialSubject().getLocation());
+				throw new SyntaxError(location.toString(), new SummaryAdapter(tree).getInitialSubject().getLocation());
 			}
 			return importExtractor.extractImports(tree, sdfSearchPath);
 		}
@@ -118,12 +117,12 @@ public class ModuleParser {
 		declareConcreteSyntaxTypes(info.getSymbolsName(), env);
 	}
 	
-	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, String fileName, InputStream source, ModuleEnvironment env) throws IOException {
+	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, URI location, InputStream source, ModuleEnvironment env) throws IOException {
 		TableInfo table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		declareConcreteSyntaxTypes(table.getSymbolsName(), env);
 		
 		try {
-			return parseFromStream(table.getTableName(), constructURI(fileName), source, false);
+			return parseFromStream(table.getTableName(), location, source, false);
 		} catch (FactParseError e) {
 			throw new ImplementationError("parse tree format error", e);
 		} 
@@ -193,15 +192,6 @@ public class ModuleParser {
 
 		return table;
 	}
-	
-	private URI constructURI(String filename){
-		try{
-			if(filename == "-") return FileURIResolver.STDIN_URI;
-			return new URI("file://" + (filename.startsWith("/") ? filename : "./"+filename));
-		}catch(URISyntaxException usex){
-			throw new RuntimeException(usex);
-		}
-	}
 
 	private IConstructor bytesToParseTree(URI location, byte[] result) throws IOException {
 		PBFReader reader = new PBFReader();
@@ -218,13 +208,13 @@ public class ModuleParser {
 	
 	protected IConstructor parseFromFile(String table, String fileName, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromFile(new File(fileName), table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
-		return bytesToParseTree(constructURI(fileName), result);
+		return bytesToParseTree(FileURIResolver.constructFileURI(fileName), result);
 	}
 
 	protected IConstructor parseFromString(String table, String fileName, String source, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromString(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
-		return bytesToParseTree(constructURI(fileName), result);
+		return bytesToParseTree(FileURIResolver.constructFileURI(fileName), result);
 	}
 
 	protected TableInfo constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {

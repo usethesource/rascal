@@ -35,6 +35,7 @@ import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.parser.ConsoleParser;
+import org.meta_environment.uri.FileURIResolver;
 
 public class CommandEvaluator extends Evaluator {
 	private ConsoleParser parser;
@@ -192,7 +193,7 @@ public class CommandEvaluator extends Evaluator {
 	}
 	
 	public IConstructor parseModule(String module, ModuleEnvironment env) throws IOException {
-		return loader.parseModule("-", module, env);
+		return loader.parseModule(FileURIResolver.STDIN_URI, module, env);
 	}
 
 
