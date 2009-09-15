@@ -17,11 +17,6 @@ public class ConsoleParser extends ModuleParser {
 	private ModuleLoader loader = null;
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
 	private final ModuleEnvironment shell;
-	
-	public ConsoleParser(ModuleLoader loader, ModuleEnvironment shell) {
-		setLoader(loader);
-		this.shell = shell;
-	}
 
 	public ConsoleParser(ModuleEnvironment shell) {
 		super();
