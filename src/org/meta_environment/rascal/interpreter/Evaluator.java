@@ -2013,7 +2013,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (expected instanceof NonTerminalType && result.getType().isSubtypeOf(tf.stringType())) {
 			try {
 				String command = '(' + expected.toString() + ')' + '`' + ((IString) result.getValue()).getValue() + '`';
-				IConstructor tree = parser.parseCommand(((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), loader.getSdfSearchPath(), x.getLocation().getURI().getPath(), command);
+				IConstructor tree = parser.parseCommand(((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), loader.getSdfSearchPath(), x.getLocation().getURI(), command);
 				
 				if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 					throw RuntimeExceptionFactory.parseError(x.getPattern().getLocation(), x.getPattern(), getStackTrace());
