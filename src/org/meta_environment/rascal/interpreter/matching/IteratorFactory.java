@@ -26,6 +26,8 @@ public class IteratorFactory {
 		
 		// TODO: this should be a visitor design as well..
 		
+		//TODO: why should be managed by the getAliased() method or 
+		// directly by the constructor of AliasType?
 		while (subjectType.isAliasType()) {
 			subjectType = subjectType.getAliased();
 		}

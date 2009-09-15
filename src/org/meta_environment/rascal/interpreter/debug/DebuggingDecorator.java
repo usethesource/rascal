@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.debug;
 import java.io.IOException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Statement;
@@ -93,75 +92,78 @@ import org.meta_environment.rascal.ast.Statement.Try;
 import org.meta_environment.rascal.ast.Statement.TryFinally;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
+import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.IEvaluator;
+import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
-import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.parser.ConsoleParser;
 
-public class DebuggingDecorator extends NullASTVisitor<Result<IValue>> {
-
+public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluator<T> {
 
 	private final IDebugger debugger;
 	private final ConsoleParser parser;
-	private final NullASTVisitor<Result<IValue>> visitor;
+	private final IEvaluator<T> evaluator;
 	private boolean suspendRequest;
 	private boolean statementStepMode;
 	private boolean expressionStepMode;
 	private boolean stepOver;
 
-	public DebuggingDecorator(NullASTVisitor<Result<IValue>> visitor,
+	public DebuggingDecorator(IEvaluator<T> evaluator,
 			ConsoleParser consoleParser,
 			IDebugger debugger) {
 		super();
 		this.parser = consoleParser;
-		this.visitor = visitor;
+		this.evaluator = evaluator;
 		this.debugger = debugger;
 	}
 
 
 	@Override
-	public Result<IValue> visitExpressionAnti(Anti x) {
+	public T visitExpressionAnti(Anti x) {
 		suspendExpression(x);
-		return visitor.visitExpressionAnti(x);
+		return evaluator.visitExpressionAnti(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionAddition(Addition x) {
+	public T visitExpressionAddition(Addition x) {
 		suspendExpression(x);
-		return visitor.visitExpressionAddition(x);
-	}
-	
-	@Override
-	public Result<IValue> visitExpressionAll(All x) {
-		suspendExpression(x);
-		return visitor.visitExpressionAll(x);
+		return evaluator.visitExpressionAddition(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionAmbiguity(Ambiguity x) {
+	public T visitExpressionAll(All x) {
 		suspendExpression(x);
-		return visitor.visitExpressionAmbiguity(x);
+		return evaluator.visitExpressionAll(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionAnd(And x) {
+	public T visitExpressionAmbiguity(Ambiguity x) {
 		suspendExpression(x);
-		return visitor.visitExpressionAnd(x);
-	}
-	
-	@Override
-	public Result<IValue> visitExpressionAny(Any x) {
-		suspendExpression(x);
-		return visitor.visitExpressionAny(x);
+		return evaluator.visitExpressionAmbiguity(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionBracket(Bracket x) {
+	public T visitExpressionAnd(And x) {
 		suspendExpression(x);
-		return visitor.visitExpressionBracket(x);
+		return evaluator.visitExpressionAnd(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
+	public T visitExpressionAny(Any x) {
+		suspendExpression(x);
+		return evaluator.visitExpressionAny(x);
+	}
+
+	@Override
+	public T visitExpressionBracket(Bracket x) {
+		suspendExpression(x);
+		return evaluator.visitExpressionBracket(x);
+	}
+
+	@Override
+	public T visitExpressionCallOrTree(CallOrTree x) {
 		suspendExpression(x);
 		if (stepOver) {
 			/* desactivate the stepping mode when evaluating the call */
@@ -169,516 +171,516 @@ public class DebuggingDecorator extends NullASTVisitor<Result<IValue>> {
 			boolean oldExpressionStepMode = expressionStepMode;
 			setStatementStepMode(false);
 			setExpressionStepMode(false);
-			Result<IValue> res = visitor.visitExpressionCallOrTree(x);
+			T res = evaluator.visitExpressionCallOrTree(x);
 			setStatementStepMode(oldStatementStepMode);
 			setExpressionStepMode(oldExpressionStepMode);
 			return res;
 		} else {
-			return visitor.visitExpressionCallOrTree(x);
+			return evaluator.visitExpressionCallOrTree(x);
 		} 
 	}
 	@Override
-	public Result<IValue> visitExpressionClosure(Closure x) {
+	public T visitExpressionClosure(Closure x) {
 		suspendExpression(x);
-		return visitor.visitExpressionClosure(x);
+		return evaluator.visitExpressionClosure(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionComposition(Composition x) {
+	public T visitExpressionComposition(Composition x) {
 		suspendExpression(x);
-		return visitor.visitExpressionComposition(x);
+		return evaluator.visitExpressionComposition(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionComprehension(Comprehension x) {
+	public T visitExpressionComprehension(Comprehension x) {
 		suspendExpression(x);
-		return visitor.visitExpressionComprehension(x);
+		return evaluator.visitExpressionComprehension(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionDescendant(Descendant x) {
+	public T visitExpressionDescendant(Descendant x) {
 		suspendExpression(x);
-		return visitor.visitExpressionDescendant(x);
+		return evaluator.visitExpressionDescendant(x);
 	}
 
 
 	@Override
-	public Result<IValue> visitExpressionDivision(Division x) {
+	public T visitExpressionDivision(Division x) {
 		suspendExpression(x);
-		return visitor.visitExpressionDivision(x);
+		return evaluator.visitExpressionDivision(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionEnumerator(Enumerator x) {
+	public T visitExpressionEnumerator(Enumerator x) {
 		suspendExpression(x);
-		return visitor.visitExpressionEnumerator(x);
+		return evaluator.visitExpressionEnumerator(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionEnumeratorWithStrategy(
+	public T visitExpressionEnumeratorWithStrategy(
 			EnumeratorWithStrategy x) {
 		suspendExpression(x);
-		return visitor.visitExpressionEnumeratorWithStrategy(x);
+		return evaluator.visitExpressionEnumeratorWithStrategy(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionEquals(Equals x) {
+	public T visitExpressionEquals(Equals x) {
 		suspendExpression(x);
-		return visitor.visitExpressionEquals(x);
+		return evaluator.visitExpressionEquals(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionEquivalence(Equivalence x) {
+	public T visitExpressionEquivalence(Equivalence x) {
 		suspendExpression(x);
-		return visitor.visitExpressionEquivalence(x);
+		return evaluator.visitExpressionEquivalence(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionFieldAccess(FieldAccess x) {
+	public T visitExpressionFieldAccess(FieldAccess x) {
 		suspendExpression(x);
-		return visitor.visitExpressionFieldAccess(x);
+		return evaluator.visitExpressionFieldAccess(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionFieldProject(FieldProject x) {
+	public T visitExpressionFieldProject(FieldProject x) {
 		suspendExpression(x);
-		return visitor.visitExpressionFieldProject(x);
+		return evaluator.visitExpressionFieldProject(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionFieldUpdate(FieldUpdate x) {
+	public T visitExpressionFieldUpdate(FieldUpdate x) {
 		suspendExpression(x);
-		return visitor.visitExpressionFieldUpdate(x);
+		return evaluator.visitExpressionFieldUpdate(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionGetAnnotation(GetAnnotation x) {
+	public T visitExpressionGetAnnotation(GetAnnotation x) {
 		suspendExpression(x);
-		return visitor.visitExpressionGetAnnotation(x);
+		return evaluator.visitExpressionGetAnnotation(x);
 	}
 
 
 	@Override
-	public Result<IValue> visitExpressionGreaterThan(GreaterThan x) {
+	public T visitExpressionGreaterThan(GreaterThan x) {
 		suspendExpression(x);
-		return visitor.visitExpressionGreaterThan(x);
+		return evaluator.visitExpressionGreaterThan(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
+	public T visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
 		suspendExpression(x);
-		return visitor.visitExpressionGreaterThanOrEq(x);
+		return evaluator.visitExpressionGreaterThanOrEq(x);
 	}
 
 
 	@Override
-	public Result<IValue> visitExpressionGuarded(Guarded x) {
+	public T visitExpressionGuarded(Guarded x) {
 		suspendExpression(x);
-		return visitor.visitExpressionGuarded(x);
+		return evaluator.visitExpressionGuarded(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionIfDefinedOtherwise(IfDefinedOtherwise x) {
+	public T visitExpressionIfDefinedOtherwise(IfDefinedOtherwise x) {
 		suspendExpression(x);
-		return visitor.visitExpressionIfDefinedOtherwise(x);
+		return evaluator.visitExpressionIfDefinedOtherwise(x);
 	}
 
 
 
 
 	@Override
-	public Result<IValue> visitExpressionIfThenElse(IfThenElse x) {
+	public T visitExpressionIfThenElse(IfThenElse x) {
 		suspendExpression(x);
-		return visitor.visitExpressionIfThenElse(x);
+		return evaluator.visitExpressionIfThenElse(x);
 	}
 
 
 	@Override
-	public Result<IValue> visitExpressionImplication(Implication x) {
+	public T visitExpressionImplication(Implication x) {
 		suspendExpression(x);
-		return visitor.visitExpressionImplication(x);
+		return evaluator.visitExpressionImplication(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionIn(In x) {
+	public T visitExpressionIn(In x) {
 		suspendExpression(x);
-		return visitor.visitExpressionIn(x);
+		return evaluator.visitExpressionIn(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionIntersection(Intersection x) {
+	public T visitExpressionIntersection(Intersection x) {
 		suspendExpression(x);
-		return visitor.visitExpressionIntersection(x);
+		return evaluator.visitExpressionIntersection(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionIsDefined(IsDefined x) {
+	public T visitExpressionIsDefined(IsDefined x) {
 		suspendExpression(x);
-		return visitor.visitExpressionIsDefined(x);
+		return evaluator.visitExpressionIsDefined(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionJoin(Join x) {
+	public T visitExpressionJoin(Join x) {
 		suspendExpression(x);
-		return visitor.visitExpressionJoin(x);
+		return evaluator.visitExpressionJoin(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionLessThan(LessThan x) {
+	public T visitExpressionLessThan(LessThan x) {
 		suspendExpression(x);
-		return visitor.visitExpressionLessThan(x);
+		return evaluator.visitExpressionLessThan(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionLessThanOrEq(LessThanOrEq x) {
+	public T visitExpressionLessThanOrEq(LessThanOrEq x) {
 		suspendExpression(x);
-		return visitor.visitExpressionLessThanOrEq(x);
+		return evaluator.visitExpressionLessThanOrEq(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionLexical(Lexical x) {
+	public T visitExpressionLexical(Lexical x) {
 		suspendExpression(x);
-		return visitor.visitExpressionLexical(x);
+		return evaluator.visitExpressionLexical(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionList(List x) {
+	public T visitExpressionList(List x) {
 		suspendExpression(x);
-		return visitor.visitExpressionList(x);
+		return evaluator.visitExpressionList(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionLiteral(Literal x) {
+	public T visitExpressionLiteral(Literal x) {
 		suspendExpression(x);
-		return visitor.visitExpressionLiteral(x);
+		return evaluator.visitExpressionLiteral(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionMap(Map x) {
+	public T visitExpressionMap(Map x) {
 		suspendExpression(x);
-		return visitor.visitExpressionMap(x);
+		return evaluator.visitExpressionMap(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionMatch(Match x) {
+	public T visitExpressionMatch(Match x) {
 		suspendExpression(x);
-		return visitor.visitExpressionMatch(x);
+		return evaluator.visitExpressionMatch(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionModulo(Modulo x) {
+	public T visitExpressionModulo(Modulo x) {
 		suspendExpression(x);
-		return visitor.visitExpressionModulo(x);
+		return evaluator.visitExpressionModulo(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionMultiVariable(MultiVariable x) {
+	public T visitExpressionMultiVariable(MultiVariable x) {
 		suspendExpression(x);
-		return visitor.visitExpressionMultiVariable(x);
+		return evaluator.visitExpressionMultiVariable(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionNegation(Negation x) {
+	public T visitExpressionNegation(Negation x) {
 		suspendExpression(x);
-		return visitor.visitExpressionNegation(x);
+		return evaluator.visitExpressionNegation(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionNegative(Negative x) {
+	public T visitExpressionNegative(Negative x) {
 		suspendExpression(x);
-		return visitor.visitExpressionNegative(x);
+		return evaluator.visitExpressionNegative(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionNoMatch(NoMatch x) {
+	public T visitExpressionNoMatch(NoMatch x) {
 		suspendExpression(x);
-		return visitor.visitExpressionNoMatch(x);
+		return evaluator.visitExpressionNoMatch(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+	public T visitExpressionNonEmptyBlock(NonEmptyBlock x) {
 		suspendExpression(x);
-		return visitor.visitExpressionNonEmptyBlock(x);
+		return evaluator.visitExpressionNonEmptyBlock(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionNonEquals(NonEquals x) {
+	public T visitExpressionNonEquals(NonEquals x) {
 		suspendExpression(x);
-		return visitor.visitExpressionNonEquals(x);
+		return evaluator.visitExpressionNonEquals(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionNotIn(NotIn x) {
+	public T visitExpressionNotIn(NotIn x) {
 		suspendExpression(x);
-		return visitor.visitExpressionNotIn(x);
+		return evaluator.visitExpressionNotIn(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionOr(Or x) {
+	public T visitExpressionOr(Or x) {
 		suspendExpression(x);
-		return visitor.visitExpressionOr(x);
+		return evaluator.visitExpressionOr(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionProduct(Product x) {
+	public T visitExpressionProduct(Product x) {
 		suspendExpression(x);
-		return visitor.visitExpressionProduct(x);
+		return evaluator.visitExpressionProduct(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionQualifiedName(QualifiedName x) {
+	public T visitExpressionQualifiedName(QualifiedName x) {
 		suspendExpression(x);
-		return visitor.visitExpressionQualifiedName(x);
+		return evaluator.visitExpressionQualifiedName(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionRange(Range x) {
+	public T visitExpressionRange(Range x) {
 		suspendExpression(x);
-		return visitor.visitExpressionRange(x);
+		return evaluator.visitExpressionRange(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionSet(Set x) {
+	public T visitExpressionSet(Set x) {
 		suspendExpression(x);
-		return visitor.visitExpressionSet(x);
+		return evaluator.visitExpressionSet(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionSetAnnotation(SetAnnotation x) {
+	public T visitExpressionSetAnnotation(SetAnnotation x) {
 		suspendExpression(x);
-		return visitor.visitExpressionSetAnnotation(x);
+		return evaluator.visitExpressionSetAnnotation(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionStepRange(StepRange x) {
+	public T visitExpressionStepRange(StepRange x) {
 		suspendExpression(x);
-		return visitor.visitExpressionStepRange(x);
+		return evaluator.visitExpressionStepRange(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionSubscript(Subscript x) {
+	public T visitExpressionSubscript(Subscript x) {
 		suspendExpression(x);
-		return visitor.visitExpressionSubscript(x);
+		return evaluator.visitExpressionSubscript(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionSubtraction(Subtraction x) {
+	public T visitExpressionSubtraction(Subtraction x) {
 		suspendExpression(x);
-		return visitor.visitExpressionSubtraction(x);
+		return evaluator.visitExpressionSubtraction(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionTransitiveClosure(TransitiveClosure x) {
+	public T visitExpressionTransitiveClosure(TransitiveClosure x) {
 		suspendExpression(x);
-		return visitor.visitExpressionTransitiveClosure(x);
+		return evaluator.visitExpressionTransitiveClosure(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionTransitiveReflexiveClosure(
+	public T visitExpressionTransitiveReflexiveClosure(
 			TransitiveReflexiveClosure x) {
 		suspendExpression(x);
-		return visitor.visitExpressionTransitiveReflexiveClosure(x);
+		return evaluator.visitExpressionTransitiveReflexiveClosure(x);
 	}
 
 
 	@Override
-	public Result<IValue> visitExpressionTuple(Tuple x) {
+	public T visitExpressionTuple(Tuple x) {
 		suspendExpression(x);
-		return visitor.visitExpressionTuple(x);
+		return evaluator.visitExpressionTuple(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionTypedVariable(TypedVariable x) {
+	public T visitExpressionTypedVariable(TypedVariable x) {
 		suspendExpression(x);
-		return visitor.visitExpressionTypedVariable(x);
+		return evaluator.visitExpressionTypedVariable(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionTypedVariableBecomes(
+	public T visitExpressionTypedVariableBecomes(
 			TypedVariableBecomes x) {
 		suspendExpression(x);
-		return visitor.visitExpressionTypedVariableBecomes(x);
+		return evaluator.visitExpressionTypedVariableBecomes(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionVariableBecomes(VariableBecomes x) {
+	public T visitExpressionVariableBecomes(VariableBecomes x) {
 		suspendExpression(x);
-		return visitor.visitExpressionVariableBecomes(x);
+		return evaluator.visitExpressionVariableBecomes(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionVisit(Visit x) {
+	public T visitExpressionVisit(Visit x) {
 		suspendExpression(x);
-		return visitor.visitExpressionVisit(x);
+		return evaluator.visitExpressionVisit(x);
 	}
 
 	@Override
-	public Result<IValue> visitExpressionVoidClosure(VoidClosure x) {
+	public T visitExpressionVoidClosure(VoidClosure x) {
 		suspendExpression(x);
-		return visitor.visitExpressionVoidClosure(x);
+		return evaluator.visitExpressionVoidClosure(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementAmbiguity(
+	public T visitStatementAmbiguity(
 			org.meta_environment.rascal.ast.Statement.Ambiguity x) {
 		suspendStatement(x);
-		return visitor.visitStatementAmbiguity(x);
+		return evaluator.visitStatementAmbiguity(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementAssert(Assert x) {
+	public T visitStatementAssert(Assert x) {
 		suspendStatement(x);
-		return visitor.visitStatementAssert(x);
+		return evaluator.visitStatementAssert(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementAssertWithMessage(AssertWithMessage x) {
+	public T visitStatementAssertWithMessage(AssertWithMessage x) {
 		suspendStatement(x);
-		return visitor.visitStatementAssertWithMessage(x);
+		return evaluator.visitStatementAssertWithMessage(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementAssignment(Assignment x) {
+	public T visitStatementAssignment(Assignment x) {
 		suspendStatement(x);
-		return visitor.visitStatementAssignment(x);
+		return evaluator.visitStatementAssignment(x);
 	}
 	@Override
-	public Result<IValue> visitStatementBlock(Block x) {
+	public T visitStatementBlock(Block x) {
 		/* no need to supend on a block */
 		//suspendStatement(x);
-		return visitor.visitStatementBlock(x);
+		return evaluator.visitStatementBlock(x);
 	}
 	@Override
-	public Result<IValue> visitStatementBreak(Break x) {
+	public T visitStatementBreak(Break x) {
 		suspendStatement(x);
-		return visitor.visitStatementBreak(x);
+		return evaluator.visitStatementBreak(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementContinue(Continue x) {
+	public T visitStatementContinue(Continue x) {
 		suspendStatement(x);
-		return visitor.visitStatementContinue(x);
+		return evaluator.visitStatementContinue(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementDoWhile(DoWhile x) {
+	public T visitStatementDoWhile(DoWhile x) {
 		suspendStatement(x);
-		return visitor.visitStatementDoWhile(x);
+		return evaluator.visitStatementDoWhile(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementEmptyStatement(EmptyStatement x) {
+	public T visitStatementEmptyStatement(EmptyStatement x) {
 		suspendStatement(x);
-		return visitor.visitStatementEmptyStatement(x);
+		return evaluator.visitStatementEmptyStatement(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementExpression(Expression x) {
+	public T visitStatementExpression(Expression x) {
 		//do not need to call suspendStatement if expressionMode is enabled
 		if (! expressionStepModeEnabled()) {
 			suspendStatement(x);
 		}
-		return visitor.visitStatementExpression(x);
+		return evaluator.visitStatementExpression(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementFail(Fail x) {
+	public T visitStatementFail(Fail x) {
 		suspendStatement(x);
-		return visitor.visitStatementFail(x);
+		return evaluator.visitStatementFail(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementFor(For x) {
+	public T visitStatementFor(For x) {
 		suspendStatement(x);
-		return visitor.visitStatementFor(x);
+		return evaluator.visitStatementFor(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementFunctionDeclaration(
+	public T visitStatementFunctionDeclaration(
 			FunctionDeclaration x) {
 		suspendStatement(x);
-		return visitor.visitStatementFunctionDeclaration(x);
+		return evaluator.visitStatementFunctionDeclaration(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementGlobalDirective(GlobalDirective x) {
+	public T visitStatementGlobalDirective(GlobalDirective x) {
 		suspendStatement(x);
-		return visitor.visitStatementGlobalDirective(x);
+		return evaluator.visitStatementGlobalDirective(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementIfThen(IfThen x) {
+	public T visitStatementIfThen(IfThen x) {
 		suspendStatement(x);
-		return visitor.visitStatementIfThen(x);
+		return evaluator.visitStatementIfThen(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementIfThenElse(
+	public T visitStatementIfThenElse(
 			org.meta_environment.rascal.ast.Statement.IfThenElse x) {
 		suspendStatement(x);
-		return visitor.visitStatementIfThenElse(x);
+		return evaluator.visitStatementIfThenElse(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementInsert(Insert x) {
+	public T visitStatementInsert(Insert x) {
 		suspendStatement(x);
-		return visitor.visitStatementInsert(x);
+		return evaluator.visitStatementInsert(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementReturn(Return x) {
+	public T visitStatementReturn(Return x) {
 		suspendStatement(x);
-		return visitor.visitStatementReturn(x);
+		return evaluator.visitStatementReturn(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementSolve(Solve x) {
+	public T visitStatementSolve(Solve x) {
 		suspendStatement(x);
-		return visitor.visitStatementSolve(x);
+		return evaluator.visitStatementSolve(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementSwitch(Switch x) {
+	public T visitStatementSwitch(Switch x) {
 		suspendStatement(x);
-		return visitor.visitStatementSwitch(x);
+		return evaluator.visitStatementSwitch(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementThrow(Throw x) {
+	public T visitStatementThrow(Throw x) {
 		suspendStatement(x);
-		return visitor.visitStatementThrow(x);
+		return evaluator.visitStatementThrow(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementTry(Try x) {
+	public T visitStatementTry(Try x) {
 		suspendStatement(x);
-		return visitor.visitStatementTry(x);
+		return evaluator.visitStatementTry(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementTryFinally(TryFinally x) {
+	public T visitStatementTryFinally(TryFinally x) {
 		suspendStatement(x);
-		return visitor.visitStatementTryFinally(x);
+		return evaluator.visitStatementTryFinally(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementVariableDeclaration(
+	public T visitStatementVariableDeclaration(
 			VariableDeclaration x) {
 		suspendStatement(x);
-		return visitor.visitStatementVariableDeclaration(x);
+		return evaluator.visitStatementVariableDeclaration(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementVisit(
+	public T visitStatementVisit(
 			org.meta_environment.rascal.ast.Statement.Visit x) {
 		suspendStatement(x);
-		return visitor.visitStatementVisit(x);
+		return evaluator.visitStatementVisit(x);
 	}
 
 	@Override
-	public Result<IValue> visitStatementWhile(While x) {
+	public T visitStatementWhile(While x) {
 		suspendStatement(x);
-		return visitor.visitStatementWhile(x);
+		return evaluator.visitStatementWhile(x);
 	}
 
 
@@ -746,15 +748,53 @@ public class DebuggingDecorator extends NullASTVisitor<Result<IValue>> {
 		return parser.parseCommand(command);
 	}
 
-	private AbstractAST getCurrentAST() {
-		// TODO Auto-generated method stub
-		return null;
+	public AbstractAST getCurrentAST() {
+		return evaluator.getCurrentAST();
 	}
 
-	private void setCurrentAST(AbstractAST x) {
-		// TODO Auto-generated method stub
-
+	public Environment getCurrentEnvt() {
+		return evaluator.getCurrentEnvt();
 	}
 
+	public Evaluator getEvaluator() {
+		return evaluator.getEvaluator();
+	}
+
+	public GlobalEnvironment getHeap() {
+		return evaluator.getHeap();
+	}
+
+	public java.lang.String getStackTrace() {
+		return evaluator.getStackTrace();
+	}
+
+	public void pushEnv() {
+		evaluator.pushEnv();		
+	}
+
+	public java.lang.String report(java.util.List<FailedTestError> failedTests) {
+		return evaluator.report(failedTests);
+	}
+
+	public java.util.List<FailedTestError> runTests() {
+		return evaluator.runTests();
+	}
+
+	public java.util.List<FailedTestError> runTests(java.lang.String module) {
+		return evaluator.runTests(module);
+	}
+
+	public void setCurrentEnvt(Environment environment) {
+		evaluator.setCurrentEnvt(environment);
+	}
+
+	public void unwind(Environment old) {
+		evaluator.unwind(old);
+	}
+
+
+	public void setCurrentAST(AbstractAST ast) {
+		evaluator.setCurrentAST(ast);
+	}
 
 }

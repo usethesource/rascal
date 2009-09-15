@@ -217,7 +217,7 @@ import org.meta_environment.uri.HttpURIResolver;
 import org.meta_environment.uri.URIResolverRegistry;
 
 @SuppressWarnings("unchecked")
-public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluatorContext {
+public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
 	public final IValueFactory vf;
 	public final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();

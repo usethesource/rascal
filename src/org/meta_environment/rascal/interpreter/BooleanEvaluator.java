@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.All;
@@ -57,6 +58,9 @@ import org.meta_environment.rascal.ast.Expression.VariableBecomes;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
+import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.matching.AndResult;
 import org.meta_environment.rascal.interpreter.matching.BasicBooleanResult;
 import org.meta_environment.rascal.interpreter.matching.EnumeratorResult;
@@ -70,7 +74,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
-public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
+public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements IEvaluator<IBooleanResult>{
 	private final IValueFactory vf;
 	private final IEvaluatorContext ctx;
 	private final TypeFactory tf = TypeFactory.getInstance();
@@ -321,7 +325,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 	public IBooleanResult visitExpressionIsDefined(IsDefined x) {
 		return new BasicBooleanResult(vf, ctx, x);
 	}
-	
+
 	@Override
 	public IBooleanResult visitExpressionNegative(Negative x) {
 		throw new UnexpectedTypeError(tf.boolType(), x.accept(
@@ -403,7 +407,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 			TransitiveReflexiveClosure x) {
 		throw new UnexpectedTypeError(tf.boolType(), x.accept(
 				ctx.getEvaluator()).getType(), x);
-		}
+	}
 
 	@Override
 	public IBooleanResult visitExpressionEnumerator(Enumerator x) {
@@ -425,4 +429,53 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 		throw new UnexpectedTypeError(tf.boolType(), x.accept(
 				ctx.getEvaluator()).getType(), x);
 	}
+
+	public AbstractAST getCurrentAST() {
+		return ctx.getCurrentAST();
+	}
+
+	public Environment getCurrentEnvt() {
+		return ctx.getCurrentEnvt();
+	}
+
+	public Evaluator getEvaluator() {
+		return ctx.getEvaluator();
+	}
+
+	public GlobalEnvironment getHeap() {
+		return ctx.getHeap();
+	}
+
+	public java.lang.String getStackTrace() {
+		return ctx.getStackTrace();
+	}
+
+	public void pushEnv() {
+		ctx.pushEnv();		
+	}
+
+	public java.lang.String report(java.util.List<FailedTestError> failedTests) {
+		return ctx.report(failedTests);
+	}
+
+	public java.util.List<FailedTestError> runTests() {
+		return ctx.runTests();
+	}
+
+	public java.util.List<FailedTestError> runTests(java.lang.String module) {
+		return ctx.runTests(module);
+	}
+
+	public void setCurrentEnvt(Environment environment) {
+		ctx.setCurrentEnvt(environment);
+	}
+
+	public void unwind(Environment old) {
+		ctx.unwind(old);
+	}
+
+	public void setCurrentAST(AbstractAST ast) {
+		ctx.setCurrentAST(ast);		
+	}
+
 }
