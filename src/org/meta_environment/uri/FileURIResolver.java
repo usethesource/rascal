@@ -27,7 +27,7 @@ public class FileURIResolver implements IURIInputStreamResolver, IURIOutputStrea
 			if(filename == "-") return FileURIResolver.STDIN_URI;
 			return new URI("file://" + (filename.startsWith("/") ? filename : "./"+filename));
 		}catch(URISyntaxException usex){
-			throw new RuntimeException(usex);
+			throw new BadURIException(usex);
 		}
 	}
 	
