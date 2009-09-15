@@ -235,6 +235,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private boolean doProfiling = false;
 
 	private final TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator(this);
+	private final PatternEvaluator patternEvaluator;
 	protected final ModuleLoader loader;
 
 	private java.util.List<ClassLoader> classLoaders;
@@ -252,6 +253,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
+		patternEvaluator = new PatternEvaluator(vf, this);
 		this.heap = heap;
 		currentEnvt = scope;
 		rootScope = scope;
@@ -869,7 +871,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitPatternWithActionArbitrary(Arbitrary x) {
-		IMatchingResult pv = x.getPattern().accept(makePatternEvaluator(x));
+		IMatchingResult pv = x.getPattern().accept(patternEvaluator);
 		Type pt = pv.getType(getCurrentEnvt());
 		
 		// TODO store rules for concrete syntax on production rule and
@@ -884,13 +886,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return ResultFactory.nothing();
 	}
 
-	PatternEvaluator makePatternEvaluator(AbstractAST ast) {
-		return new PatternEvaluator(vf, this);
-	}
-
 	@Override
 	public Result<IValue> visitPatternWithActionReplacing(Replacing x) {
-		IMatchingResult pv = x.getPattern().accept(makePatternEvaluator(x));
+		IMatchingResult pv = x.getPattern().accept(patternEvaluator);
 		Type pt = pv.getType(getCurrentEnvt());
 		
 		if (pt instanceof NonTerminalType) {
@@ -2259,7 +2257,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		pushEnv();
 		
 		try {
-			IMatchingResult mp = pat.accept(makePatternEvaluator(pat));
+			IMatchingResult mp = pat.accept(patternEvaluator);
 			mp.initMatch(subject);
 			if(debug)System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
@@ -2301,7 +2299,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			Expression replacementExpr){
 		Environment old = getCurrentEnvt();
 		try {
-			IMatchingResult mp = pat.accept(makePatternEvaluator(pat));
+			IMatchingResult mp = pat.accept(patternEvaluator);
 			mp.initMatch(subject);
 	        //System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
