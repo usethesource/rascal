@@ -30,7 +30,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
-import org.meta_environment.uri.FileURIResolver;
 
 import sglr.IInvoker;
 import sglr.LegacySGLRInvoker;
@@ -92,16 +91,15 @@ public class ModuleParser {
 		// nop
 	}
 	
-	public Set<String> getSdfImports(List<String> sdfSearchPath, URI location, InputStream source) throws IOException {
-		try {
-			IConstructor tree= parseFromStream(Configuration.getHeaderParsetableProperty(), location, source, false);
+	public Set<String> getSdfImports(List<String> sdfSearchPath, URI location, byte[] data) throws IOException {
+		try{
+			IConstructor tree= parseFromData(Configuration.getHeaderParsetableProperty(), location, data, false);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw new SyntaxError(location.toString(), new SummaryAdapter(tree).getInitialSubject().getLocation());
 			}
 			return importExtractor.extractImports(tree, sdfSearchPath);
-		}
-		catch (FactParseError p) {
+		}catch(FactParseError p){
 			throw new ImplementationError("unexpected error: " + p.getMessage());
 		}
 	}
@@ -123,6 +121,17 @@ public class ModuleParser {
 		
 		try {
 			return parseFromStream(table.getTableName(), location, source, false);
+		} catch (FactParseError e) {
+			throw new ImplementationError("parse tree format error", e);
+		} 
+	}
+	
+	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, URI location, byte[] data, ModuleEnvironment env) throws IOException {
+		TableInfo table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		declareConcreteSyntaxTypes(table.getSymbolsName(), env);
+		
+		try {
+			return parseFromData(table.getTableName(), location, data, false);
 		} catch (FactParseError e) {
 			throw new ImplementationError("parse tree format error", e);
 		} 
@@ -199,6 +208,12 @@ public class ModuleParser {
 
 	protected IConstructor parseFromString(String table, URI location, String source, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromString(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
+
+		return bytesToParseTree(location, result);
+	}
+
+	protected IConstructor parseFromData(String table, URI location, byte[] data, boolean filter) throws FactParseError, IOException {
+		byte[] result = sglrInvoker.parseFromData(data, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
 		return bytesToParseTree(location, result);
 	}

@@ -1,6 +1,6 @@
 package org.meta_environment.rascal.interpreter.load;
 
-import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -175,9 +175,23 @@ public class ModuleLoader{
 
 		return new SyntaxError("module " + mod, loc);
 	}
-
+	
+	private byte[] readModule(InputStream inputStream) throws IOException{
+		byte[] buffer = new byte[8192];
+		
+		ByteArrayOutputStream inputStringData = new ByteArrayOutputStream();
+		
+		int bytesRead;
+		while((bytesRead = inputStream.read(buffer)) != -1){
+			inputStringData.write(buffer, 0, bytesRead);
+		}
+		
+		return inputStringData.toByteArray();
+	}
 
 	public IConstructor parseModule(IModuleFileLoader loader, String fileName, String name, AbstractAST ast, ModuleEnvironment env) throws IOException{
+		byte[] data;
+		
 		InputStream inputStream = null;
 		Set<String> sdfImports;
 		URI location = FileURIResolver.constructFileURI(fileName);
@@ -186,93 +200,65 @@ public class ModuleLoader{
 			if (inputStream == null) {
 				throw new ModuleLoadError(name, "not in path", ast);
 			}
-			sdfImports = parser.getSdfImports(getSdfSearchPath(), location, inputStream);
+			data = readModule(inputStream);
 		}finally{
 			if(inputStream != null){
 				inputStream.close();
 			}
 		}
+		
+		sdfImports = parser.getSdfImports(getSdfSearchPath(), location, data);
+		
+		List<String> sdfSearchPath = getSdfSearchPath();
+		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
 
-		InputStream secondInputStream = null;
-		try{
-			List<String> sdfSearchPath = getSdfSearchPath();
-			secondInputStream = loader.getInputStream(fileName);
-			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, secondInputStream, env);
-
-			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-				throw parseError(tree, fileName, name);
-			}
-
-			return tree;
-		}finally{
-			if(secondInputStream != null){
-				secondInputStream.close();
-			}
+		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
+			throw parseError(tree, fileName, name);
 		}
+
+		return tree;
 	}
 
 	public IConstructor parseModule(URI location, String moduleString, ModuleEnvironment env) throws IOException{
-		List<String> sdfSearchPath = getSdfSearchPath();
+		byte[] data = moduleString.getBytes();
 		
-		InputStream inputStream = null;
+		List<String> sdfSearchPath = getSdfSearchPath();
 		Set<String> sdfImports;
-		try{
-			inputStream = new ByteArrayInputStream(moduleString.getBytes());
-			
-			sdfImports = parser.getSdfImports(sdfSearchPath, location, inputStream);
-		}finally{
-			if(inputStream != null){
-				inputStream.close();
-			}
+		sdfImports = parser.getSdfImports(sdfSearchPath, location, data);
+
+		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
+
+		if(tree.getConstructorType() == Factory.ParseTree_Summary){
+			throw parseError(tree, location.toString(), "-");
 		}
 
-		InputStream secondInputStream = null;
-		try{
-			secondInputStream = new ByteArrayInputStream(moduleString.getBytes());
-			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, secondInputStream, env);
-
-			if(tree.getConstructorType() == Factory.ParseTree_Summary){
-				throw parseError(tree, location.toString(), "-");
-			}
-
-			return tree;
-		}finally{
-			if (secondInputStream != null) {
-				secondInputStream.close();
-			}
-		}
+		return tree;
 	}
 
 	public IConstructor parseModule(URI location, ModuleEnvironment env) throws IOException{
-		List<String> sdfSearchPath = getSdfSearchPath();
+		byte[] data;
 		
 		InputStream inputStream = null;
+		List<String> sdfSearchPath = getSdfSearchPath();
 		Set<String> sdfImports;
 		try{
 			inputStream = URIResolverRegistry.getInstance().getInputStream(location);
-			
-			sdfImports = parser.getSdfImports(sdfSearchPath, location, inputStream);
+			data = readModule(inputStream);
 		}finally{
 			if(inputStream != null){
 				inputStream.close();
 			}
 		}
+		
+		sdfImports = parser.getSdfImports(sdfSearchPath, location, data);
 
-		InputStream secondInputStream = null;
-		try{
-			secondInputStream = URIResolverRegistry.getInstance().getInputStream(location);
-			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, secondInputStream, env);
-
-			if(tree.getConstructorType() == Factory.ParseTree_Summary){
-				throw parseError(tree, location.toString(), "-");
-			}
-
-			return tree;
-		}finally{
-			if (secondInputStream != null) {
-				secondInputStream.close();
-			}
+		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
+		
+		if(tree.getConstructorType() == Factory.ParseTree_Summary){
+			throw parseError(tree, location.toString(), "-");
 		}
+		
+		return tree;
 	}
 
 	public void setParser(ModuleParser parser) {
