@@ -106,10 +106,10 @@ public class ModuleParser {
 		}
 	}
 
-	public IConstructor parseCommand(Set<String> sdfImports, List<String> sdfSearchPath, String fileName, String command) throws IOException {
+	public IConstructor parseCommand(Set<String> sdfImports, List<String> sdfSearchPath, URI location, String command) throws IOException {
 		TableInfo table = lookupTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		
-		return parseFromString(table.getTableName(), fileName, command, false);
+		return parseFromString(table.getTableName(), location, command, false);
 	}
 
 	public void generateModuleParser(List<String> sdfSearchPath, Set<String> sdfImports, Environment env) throws IOException {
@@ -211,10 +211,10 @@ public class ModuleParser {
 		return bytesToParseTree(FileURIResolver.constructFileURI(fileName), result);
 	}
 
-	protected IConstructor parseFromString(String table, String fileName, String source, boolean filter) throws FactParseError, IOException {
+	protected IConstructor parseFromString(String table, URI location, String source, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromString(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
-		return bytesToParseTree(FileURIResolver.constructFileURI(fileName), result);
+		return bytesToParseTree(location, result);
 	}
 
 	protected TableInfo constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {

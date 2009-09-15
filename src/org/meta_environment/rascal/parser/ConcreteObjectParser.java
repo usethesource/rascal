@@ -20,7 +20,7 @@ public class ConcreteObjectParser extends ModuleParser {
 	
 	public IConstructor parseString(List<String> sdfSearchPath, Set<String> sdfImports, String source) throws IOException {
 		TableInfo table = getOrConstructParseTable(sdfImports, sdfSearchPath);
-		IConstructor result = parseFromString(table.getTableName(), "-", source, true);
+		IConstructor result = parseFromString(table.getTableName(), FileURIResolver.STDIN_URI, source, true);
 		if (result.getConstructorType() == Factory.ParseTree_Summary) {
 			//System.err.println("RESULT = " + result);
 			SubjectAdapter x = new SummaryAdapter(result).getInitialSubject();
