@@ -95,7 +95,7 @@ public class ModuleParser {
 	
 	public Set<String> getSdfImports(List<String> sdfSearchPath, String fileName, InputStream source) throws IOException {
 		try {
-			IConstructor tree= parseFromStream(Configuration.getHeaderParsetableProperty(), fileName, source, false);
+			IConstructor tree= parseFromStream(Configuration.getHeaderParsetableProperty(), constructURI(fileName), source, false);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw new SyntaxError(fileName, new SummaryAdapter(tree).getInitialSubject().getLocation());
@@ -123,7 +123,7 @@ public class ModuleParser {
 		declareConcreteSyntaxTypes(table.getSymbolsName(), env);
 		
 		try {
-			return parseFromStream(table.getTableName(), fileName, source, false);
+			return parseFromStream(table.getTableName(), constructURI(fileName), source, false);
 		} catch (FactParseError e) {
 			throw new ImplementationError("parse tree format error", e);
 		} 
@@ -210,10 +210,10 @@ public class ModuleParser {
 		return ParsetreeAdapter.addPositionInformation(tree, location);
 	}
 
-	protected IConstructor parseFromStream(String table, String fileName, InputStream source, boolean filter) throws FactParseError, IOException {
+	protected IConstructor parseFromStream(String table, URI location, InputStream source, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromStream(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
-		return bytesToParseTree(constructURI(fileName), result);
+		return bytesToParseTree(location, result);
 	}
 	
 	protected IConstructor parseFromFile(String table, String fileName, boolean filter) throws FactParseError, IOException {
