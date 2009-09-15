@@ -35,8 +35,11 @@ public class ParsingTests extends TestCase {
 		boolean failed = false;
 		
 		for (File file : tests) {
+			FileInputStream fis = null;
 			try {
-				IConstructor tree = parser.parseModule(Collections.<String>emptyList(), Collections.<String>emptySet(), FileURIResolver.constructFileURI(file.getAbsolutePath()), new FileInputStream(file), new ModuleEnvironment("***dummy***"));
+				fis = new FileInputStream(file);
+				
+				IConstructor tree = parser.parseModule(Collections.<String>emptyList(), Collections.<String>emptySet(), FileURIResolver.constructFileURI(file.getAbsolutePath()), fis, new ModuleEnvironment("***dummy***"));
 				
 				if (tree.getConstructorType() == Factory.ParseTree_Top) {
 					Module.Default module = (Default) new ASTBuilder(new ASTFactory()).buildModule(tree);
@@ -54,7 +57,14 @@ public class ParsingTests extends TestCase {
 				System.err.println("FAILED: " + file);
 				e.printStackTrace();
 				failed = true;
-
+			}finally{
+				if(fis != null){
+					try{
+						fis.close();
+					}catch(IOException ioex){
+						// Don't care.
+					}
+				}
 			}
 		}
 		if (failed) fail();
