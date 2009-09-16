@@ -85,6 +85,10 @@ public class NonTerminalType extends ExternalType {
 		if (other == Factory.Tree) {
 			return true;
 		}
+		
+		if (other.isParameterType()) {
+			return isSubtypeOf(other.getBound());
+		}
 
 		if (other instanceof NonTerminalType) {
 			IConstructor otherSym = ((NonTerminalType)other).symbol;
