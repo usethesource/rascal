@@ -60,18 +60,14 @@ public class IteratorFactory {
 		// NonTerminal	
 		} else if(subjectType.isExternalType()){
 			if(subjectType instanceof NonTerminalType){
-				System.err.println("NonTerminalType");
+				
 				IConstructor tree = (IConstructor) subjectValue;
 				checkMayOccur(patType, subjectType, ctx);
 				NonTerminalType nt = (NonTerminalType) subjectType;
-				IConstructor listSymbol = nt.getSymbol();
+				
 				if(nt.isConcreteListType()){
-					System.err.println("AnyList");
-					int delta = 2;
-					if(SymbolAdapter.isIterStarSep(listSymbol)|| SymbolAdapter.isIterPlusSep(listSymbol)){
-						System.err.println("with sep");
-						delta = 4;
-					}
+					IConstructor listSymbol = nt.getSymbol();
+					int delta = SymbolAdapter.isSepList(listSymbol)? 4 : 2;
 					return new CFListIterator((IList)tree.get(1), delta);
 				}
 			}
