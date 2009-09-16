@@ -178,7 +178,7 @@ public class TraversalEvaluator {
 					args[i] = tr.value.getValue();
 				}
 				IConstructor rcons = vf.constructor(cons.getConstructorType(), args);
-				result = applyRules(makeResult(subjectType, rcons.setAnnotations(cons.getAnnotations()), eval));
+				result = applyRules(rcons.setAnnotations(cons.getAnnotations()), eval);
 			}
 		} else
 			if(subjectType.isNodeType()){
@@ -195,7 +195,7 @@ public class TraversalEvaluator {
 						changed |= tr.changed;
 						args[i] = tr.value.getValue();
 					}
-					result = applyRules(makeResult(tf.nodeType(), vf.node(node.getName(), args).setAnnotations(node.getAnnotations()), eval));
+					result = applyRules(vf.node(node.getName(), args).setAnnotations(node.getAnnotations()), eval);
 				}
 			} else
 				if(subjectType.isListType()){
@@ -476,62 +476,42 @@ public class TraversalEvaluator {
 		return new TraverseResult(subject);
 	}
 	
-	public Result<IValue> applyRules(Result<IValue> v, IEvaluatorContext ctx) {
+	public Result<IValue> applyRules(IValue value, IEvaluatorContext ctx) {
 		//System.err.println("applyRules(" + v + ")");
 		// we search using the run-time type of a value
 		
-		Type typeToSearchFor = v.getValue().getType();
+		Type type = value.getType();
+		if (type.isAbstractDataType()) {
+			type = ((IConstructor) value).getConstructorType();
+		}
+
+		java.util.List<RewriteRule> rules = ctx.getHeap().getRules(type);
+		
+		Result<IValue> result = ResultFactory.makeResult(type, value, ctx);
+		
+		if (rules.size() > 0) {
+			TraverseResult tr = traverseTop(result, new CasesOrRules(rules));
+			return tr.value;
+		}
+
+		return result;
+	}
+	
+	public Result<IValue> applyRules(Type concreteType, IValue value, IEvaluatorContext ctx){
+		Type typeToSearchFor = value.getType();
 		if (typeToSearchFor.isAbstractDataType()) {
-			typeToSearchFor = ((IConstructor) v.getValue()).getConstructorType();
+			typeToSearchFor = ((IConstructor) value).getConstructorType();
 		}
 
 		java.util.List<RewriteRule> rules = ctx.getHeap().getRules(typeToSearchFor);
 		
+		Result<IValue> result = ResultFactory.makeResult(concreteType, value, ctx);
+		
 		if (rules.size() > 0) {
-			TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
+			TraverseResult tr = traverseTop(result, new CasesOrRules(rules));
 			return tr.value;
 		}
 
-		return v;
+		return result;
 	}
-
-	Result<IValue> applyRules(Result<IValue> v) {
-		//System.err.println("applyRules(" + v + ")");
-		// we search using the run-time type of a value
-		Type typeToSearchFor = v.getValue().getType();
-		if (typeToSearchFor.isAbstractDataType()) {
-			typeToSearchFor = ((IConstructor) v.getValue()).getConstructorType();
-		}
-
-		java.util.List<RewriteRule> rules = eval.getHeap().getRules(typeToSearchFor);
-		if(rules.isEmpty()){
-			return v;
-		}
-
-		TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
-		/* innermost is achieved by repeated applications of applyRules
-		 * when intermediate results are produced.
-		 */
-
-		return tr.value;
-	}
-
-	/*
-	 *  singleCase returns a single case or rules if casesOrRueles has length 1 and null otherwise.
-	 */
-
-	private Object singleCase(CasesOrRules casesOrRules){
-		if(casesOrRules.length() == 1){
-			if(casesOrRules.hasCases()){
-				return casesOrRules.getCases().get(0);
-			}
-
-			return casesOrRules.getRules().get(0);
-		}
-		return null;
-	}
-
-
 }
-
-

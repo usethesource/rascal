@@ -44,7 +44,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		Result<?> appl = makeResult(Factory.Tree_Appl, newAppl, ctx);
 	    NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType((IConstructor) appl.getValue());
 	    
-		return re.applyRules(ResultFactory.makeResult(concreteType, (IConstructor) appl.getValue(), ctx), ctx);
+		return re.applyRules(concreteType, appl.getValue(), ctx);
 	}
 
 	private IValue flatten(IConstructor prod, IList args) {
