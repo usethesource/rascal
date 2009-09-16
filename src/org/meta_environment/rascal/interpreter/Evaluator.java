@@ -2371,11 +2371,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		java.util.List<Case> cases = x.getCases();
 		TraversalEvaluator te = new TraversalEvaluator(vf, this);
 
-		TraverseResult tr = te.traverse(subject, te.new CasesOrRules(cases), 
+		TraverseResult tr = te.traverse(subject.getValue(), te.new CasesOrRules(cases), 
 				DIRECTION.BottomUp,
 				PROGRESS.Continuing,
-				FIXEDPOINT.No);
-		return tr.value;
+				FIXEDPOINT.No, this);
+		return makeResult(tr.value.getType(), tr.value, this);
 	}
 
 	@Override
@@ -2417,8 +2417,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		TraversalEvaluator te = new TraversalEvaluator(vf, this);
-		TraverseResult tr = te.traverse(subject, te.new CasesOrRules(cases), direction, progress, fixedpoint);
-		return tr.value;
+		TraverseResult tr = te.traverse(subject.getValue(), te.new CasesOrRules(cases), direction, progress, fixedpoint, this);
+		return makeResult(tr.value.getType(), tr.value, this);
 	}
 
 	@Override
