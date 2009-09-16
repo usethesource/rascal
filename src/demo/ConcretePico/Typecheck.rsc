@@ -28,7 +28,7 @@ public list[Message] checkProgram(PROGRAM P) {
    if( `begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end` := P){
    
        // Collect all declarations and put them in a type environment
-       TypeEnv Env = (Id : Type | /`<\PICO-ID Id> : <TYPE Type>` <- Decls);
+       TypeEnv Env = (Id : Type | `<\PICO-ID Id> : <TYPE Type>` <- Decls);
        
        // Use the type environment to typecheck the program
        return checkStatements(Stats, Env);
@@ -38,7 +38,7 @@ public list[Message] checkProgram(PROGRAM P) {
 
 public list[Message] checkStatements({STATEMENT ";"}* Stats, TypeEnv Env){
     // Collect all errors produced by typechecking the statements
-    return [checkStatement(S, Env) | /STATEMENT S <- Stats];
+    return [checkStatement(S, Env) | STATEMENT S <- Stats];
 }
 
 // checkStatement: typecheck a statement
@@ -115,30 +115,29 @@ public list[Message] requireType(EXP E, TYPE Type, TypeEnv Env) {
 
 public bool test() {
   
-  assertEqual(checkProgram(`begin declare x : natural; x := 3  end`), []);
-  
-  println(checkProgram(`begin declare x : natural; y := "a"  end`));
-  
- /*
+  assertEqual(checkProgram(`begin declare x : natural; x := 3  end`), []);  
+ 
   assertEqual(checkProgram(`begin declare x : natural; y := "a"  end`), 
-              [message(loc(file://-?off=46&len=3&start=1,1&end=46,49), "Undeclared variable y")]
+              [message(|file://./demo/ConcretePico/Typecheck.rsc|(1166,24,<32,14>,<32,38>), "Undeclared variable y")]
              );
   
   assertEqual(checkProgram(`begin declare x : natural; x := "a"  end`), 
-              [message(loc(file://-?off=46&len=3&start=1,1&end=46,49), "Expected type natural but got \"a\"")]
+              [message(|file://./demo/ConcretePico/Typecheck.rsc|(1166,24,<32,14>,<32,38>), "Expected type natural but got \"a\"")]
              );
-                 
+  
   assertEqual(checkProgram(`begin declare x : natural; x := 2 + "a"  end`), 
-              [message("Expected type natural but got \"a\"")]
+              [message(|file://./demo/ConcretePico/Typecheck.rsc|(1166,24,<32,14>,<32,38>), "Expected type natural but got \"a\"")]
              );
  
   assertEqual(checkProgram(small), []);
   
+  assertEqual(checkProgram(exampleTypeErrors),
+              [message(|file://./demo/ConcretePico/Programs.rsc|(279,3,<20,13>,<20,16>),"Expected type natural but got \"abc\""),
+               message(|file://./demo/ConcretePico/Programs.rsc|(405,1,<30,7>,<30,8>),"Expected type string but got 3")]);
+  
   assertEqual(checkProgram(fac), []);
   
   assertEqual(checkProgram(big), []);
-  
-  */
   
   return report("ConcretePico::Typecheck");
 }
