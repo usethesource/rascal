@@ -122,10 +122,10 @@ public class TraversalEvaluator {
 	}
 
 	public TraverseResult traverse(IValue subject, CasesOrRules casesOrRules,
-			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, Evaluator ctx) {
+			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint) {
 		//System.err.println("traverse: subject=" + subject + ", casesOrRules=" + casesOrRules);
 		do {
-			TraverseResult tr = traverseOnce(subject, casesOrRules, direction, progress, ctx);
+			TraverseResult tr = traverseOnce(subject, casesOrRules, direction, progress);
 			if(fixedpoint == FIXEDPOINT.Yes){
 				if (!tr.changed) {
 					return tr;
@@ -138,7 +138,7 @@ public class TraversalEvaluator {
 	}
 
 	private TraverseResult traverseOnce(IValue subject, CasesOrRules casesOrRules, 
-			DIRECTION direction, PROGRESS progress, Evaluator ctx){
+			DIRECTION direction, PROGRESS progress){
 		Type subjectType = subject.getType();
 		boolean matched = false;
 		boolean changed = false;
@@ -146,11 +146,11 @@ public class TraversalEvaluator {
 
 		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType() + ", direction=" + direction + ", progress=" + progress);
 		if(subjectType.isStringType()){
-			return traverseString(subject, casesOrRules, ctx);
+			return traverseString(subject, casesOrRules);
 		}
 
 		if(direction == DIRECTION.TopDown){
-			TraverseResult tr = traverseTop(subjectType, subject, casesOrRules, ctx);
+			TraverseResult tr = traverseTop(subjectType, subject, casesOrRules);
 			matched |= tr.matched;
 			changed |= tr.changed;
 			if((progress == PROGRESS.Breaking) && changed){
@@ -169,7 +169,7 @@ public class TraversalEvaluator {
 				for(int i = 0; i < cons.arity(); i++){
 					IValue child = cons.get(i);
 //					Type childType = cons.getConstructorType().getFieldType(i);
-					TraverseResult tr = traverseOnce(child, casesOrRules, direction, progress, ctx);
+					TraverseResult tr = traverseOnce(child, casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					args[i] = tr.value;
@@ -177,7 +177,7 @@ public class TraversalEvaluator {
 				Type t = cons.getConstructorType();
 				IConstructor rcons = vf.constructor(t, args);
 				if(cons.hasAnnotations()) rcons = rcons.setAnnotations(cons.getAnnotations());
-				result = applyRules(t, rcons, eval);
+				result = applyRules(t, rcons);
 			}
 		} else if(subjectType.isNodeType()){
 			INode node = (INode)subject;
@@ -188,14 +188,14 @@ public class TraversalEvaluator {
 
 				for(int i = 0; i < node.arity(); i++){
 					IValue child = node.get(i);
-					TraverseResult tr = traverseOnce(child, casesOrRules, direction, progress, ctx);
+					TraverseResult tr = traverseOnce(child, casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					args[i] = tr.value;
 				}
 				INode n = vf.node(node.getName(), args);
 				if(node.hasAnnotations()) n = n.setAnnotations(node.getAnnotations());
-				result = applyRules(tf.nodeType(), n, eval);
+				result = applyRules(tf.nodeType(), n);
 			}
 		} else if(subjectType.isListType()){
 			IList list = (IList) subject;
@@ -205,7 +205,7 @@ public class TraversalEvaluator {
 				
 				for(int i = 0; i < len; i++){
 					IValue elem = list.get(i);
-					TraverseResult tr = traverseOnce(elem, casesOrRules, direction, progress, ctx);
+					TraverseResult tr = traverseOnce(elem, casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					w.append(tr.value);
@@ -220,7 +220,7 @@ public class TraversalEvaluator {
 				ISetWriter w = set.getType().writer(vf);
 				
 				for (IValue v : set){
-					TraverseResult tr = traverseOnce(v, casesOrRules, direction, progress, ctx);
+					TraverseResult tr = traverseOnce(v, casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					w.insert(tr.value);
@@ -237,11 +237,11 @@ public class TraversalEvaluator {
 				
 				while (iter.hasNext()) {
 					Entry<IValue,IValue> entry = iter.next();
-					TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, direction, progress, ctx);
+					TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					IValue newKey = tr.value;
-					tr = traverseOnce(entry.getValue(), casesOrRules, direction, progress, ctx);
+					tr = traverseOnce(entry.getValue(), casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					IValue newValue = tr.value;
@@ -256,7 +256,7 @@ public class TraversalEvaluator {
 			int arity = tuple.arity();
 			IValue args[] = new IValue[arity];
 			for(int i = 0; i < arity; i++){
-				TraverseResult tr = traverseOnce(tuple.get(i), casesOrRules, direction, progress, ctx);
+				TraverseResult tr = traverseOnce(tuple.get(i), casesOrRules, direction, progress);
 				matched |= tr.matched;
 				changed |= tr.changed;
 				args[i] = tr.value;
@@ -272,7 +272,7 @@ public class TraversalEvaluator {
 				return new TraverseResult(matched, result, changed);
 			}
 
-			TraverseResult tr = traverseTop(subjectType, result, casesOrRules, ctx);
+			TraverseResult tr = traverseTop(subjectType, result, casesOrRules);
 			matched |= tr.matched;
 			changed |= tr.changed;
 			return new TraverseResult(matched, tr.value, changed);
@@ -293,7 +293,7 @@ public class TraversalEvaluator {
 	 * Loop over all cases or rules.
 	 */
 
-	public TraverseResult applyCasesOrRules(Type type, IValue subject, CasesOrRules casesOrRules, IEvaluatorContext ctx) {
+	public TraverseResult applyCasesOrRules(Type type, IValue subject, CasesOrRules casesOrRules) {
 		//System.err.println("applyCasesOrRules: " + subject.getValue());
 		if(casesOrRules.hasCases()){
 			for (Case cs : casesOrRules.getCases()) {
@@ -307,7 +307,7 @@ public class TraversalEvaluator {
 						return new TraverseResult(true,subject);
 					}
 
-					TraverseResult tr = applyOneRule(type, subject, cs.getPatternWithAction(), ctx);
+					TraverseResult tr = applyOneRule(type, subject, cs.getPatternWithAction());
 					//System.err.println("applyCasesOrRules: matches");
 					if(tr.matched){
 						return tr;
@@ -327,7 +327,7 @@ public class TraversalEvaluator {
 					eval.setCurrentEnvt(rule.getEnvironment());
 					eval.pushEnv();
 
-					TraverseResult tr = applyOneRule(type, subject, rule.getRule(), ctx);
+					TraverseResult tr = applyOneRule(type, subject, rule.getRule());
 					if(tr.matched){
 						return tr;
 					}
@@ -345,10 +345,10 @@ public class TraversalEvaluator {
 	 * traverseTop: traverse the outermost symbol of the subject.
 	 */
 
-	public TraverseResult traverseTop(Type type, IValue subject, CasesOrRules casesOrRules, IEvaluatorContext ctx) {
+	public TraverseResult traverseTop(Type type, IValue subject, CasesOrRules casesOrRules) {
 		//System.err.println("traversTop(" + subject + ")");
 		try {
-			return applyCasesOrRules(type, subject, casesOrRules, ctx);	
+			return applyCasesOrRules(type, subject, casesOrRules);	
 		} catch (org.meta_environment.rascal.interpreter.control_exceptions.Insert e) {
 			//System.err.println("traversTop(" + subject + "): replacement: " + e.getValue());
 			return replacement(type, subject, e.getValue().getValue());
@@ -363,7 +363,7 @@ public class TraversalEvaluator {
 	 * 
 	 * Performance issue: we create a lot of garbage by producing all these substrings.
 	 */
-	public TraverseResult traverseString(IValue subject, CasesOrRules casesOrRules, Evaluator ctx){
+	public TraverseResult traverseString(IValue subject, CasesOrRules casesOrRules){
 		String subjectString = ((IString) subject).getValue();
 		int len = subjectString.length();
 		boolean matched = false;
@@ -377,7 +377,7 @@ public class TraversalEvaluator {
 			try {
 				IString substring = vf.string(subjectString.substring(subjectCursor, len));
 				IValue subresult  = substring;
-				TraverseResult tr = applyCasesOrRules(subresult.getType(), subresult, casesOrRules, ctx);
+				TraverseResult tr = applyCasesOrRules(subresult.getType(), subresult, casesOrRules);
 				matched |= tr.matched;
 				changed |= tr.changed;
 				//System.err.println("matched=" + matched + ", changed=" + changed);
@@ -434,12 +434,12 @@ public class TraversalEvaluator {
 	 * applyOneRule: try to apply one rule to the subject.
 	 */
 
-	private TraverseResult applyOneRule(Type type, IValue subject, org.meta_environment.rascal.ast.PatternWithAction rule, IEvaluatorContext ctx) {
+	private TraverseResult applyOneRule(Type type, IValue subject, org.meta_environment.rascal.ast.PatternWithAction rule) {
 
 		//System.err.println("applyOneRule: subject=" + subject + ", type=" + subject.getType() + ", rule=" + rule);
 
 		if (rule.isArbitrary()){
-			if(eval.matchAndEval(makeResult(type, subject, ctx), rule.getPattern(), rule.getStatement())) {
+			if(eval.matchAndEval(makeResult(type, subject, eval), rule.getPattern(), rule.getStatement())) {
 				return new TraverseResult(true, subject);
 			}
 			/*
@@ -456,7 +456,7 @@ public class TraversalEvaluator {
 			//System.err.println("applyOneRule: subject=" + subject + ", replacing");
 			Replacement repl = rule.getReplacement();
 			java.util.List<Expression> conditions = repl.isConditional() ? repl.getConditions() : new ArrayList<Expression>();
-			if(eval.matchEvalAndReplace(makeResult(type, subject, ctx), rule.getPattern(), conditions, repl.getReplacementExpression())){
+			if(eval.matchEvalAndReplace(makeResult(type, subject, eval), rule.getPattern(), conditions, repl.getReplacementExpression())){
 				//System.err.println("applyOneRule: matches");
 				return new TraverseResult(true, subject);
 			}
@@ -466,16 +466,16 @@ public class TraversalEvaluator {
 		return new TraverseResult(subject);
 	}
 	
-	public IValue applyRules(Type type, IValue value, IEvaluatorContext ctx){
+	public IValue applyRules(Type type, IValue value){
 		Type typeToSearchFor = value.getType();
 		if (typeToSearchFor.isAbstractDataType()) {
 			typeToSearchFor = ((IConstructor) value).getConstructorType();
 		}
 
-		java.util.List<RewriteRule> rules = ctx.getHeap().getRules(typeToSearchFor);
+		java.util.List<RewriteRule> rules = eval.getHeap().getRules(typeToSearchFor);
 		
 		if (rules.size() > 0) {
-			TraverseResult tr = traverseTop(type, value, new CasesOrRules(rules), ctx);
+			TraverseResult tr = traverseTop(type, value, new CasesOrRules(rules));
 			return tr.value;
 		}
 
