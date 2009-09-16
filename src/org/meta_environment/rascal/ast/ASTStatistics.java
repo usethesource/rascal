@@ -7,7 +7,16 @@ public class ASTStatistics implements Comparable<ASTStatistics> {
 	private int injections = 0;
 	private boolean preferred = false;
 	private boolean avoided = false;
+	private boolean ambiguous = false;
 
+	public boolean isAmbiguous() {
+		return ambiguous;
+	}
+	
+	public void setAmbiguous(boolean ambiguous) {
+		this.ambiguous = ambiguous;
+	}
+	
 	public boolean isPreferred() {
 		return preferred;
 	}
@@ -61,6 +70,7 @@ public class ASTStatistics implements Comparable<ASTStatistics> {
 		this.concreteFragmentSize += other.concreteFragmentSize;
 		this.injections += other.injections;
 		this.nestedMetaVariables += other.nestedMetaVariables;
+		this.ambiguous = this.ambiguous || other.ambiguous;
 	}
 	
 	@Override

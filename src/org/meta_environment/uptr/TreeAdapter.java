@@ -428,6 +428,26 @@ public class TreeAdapter{
 		}
 		return false;
 	}
+	
+	public static boolean isPlusList(IConstructor tree) {
+		if (isAppl(tree)) {
+			IConstructor prod = getProduction(tree);
+			
+			if (ProductionAdapter.isList(prod)) {
+				IConstructor sym = ProductionAdapter.getRhs(prod);
+				
+				if (SymbolAdapter.isCf(sym) || SymbolAdapter.isLex(sym)) {
+					sym = SymbolAdapter.getSymbol(sym);
+				}
+				
+				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSep(sym)) {
+					return true;
+				}
+			}
+		}
+		return false;
+
+	}
 
 	public static boolean isCFList(IConstructor tree) {
 		return isAppl(tree) && isContextFree(tree) && (SymbolAdapter.isPlusList(ProductionAdapter.getRhs(getProduction(tree))) ||
@@ -469,4 +489,6 @@ public class TreeAdapter{
 	public static boolean hasAvoidAttribute(IConstructor tree) {
 		return ProductionAdapter.hasAvoidAttribute(getProduction(tree));
 	}
+
+	
 }

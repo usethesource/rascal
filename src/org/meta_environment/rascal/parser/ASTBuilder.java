@@ -32,6 +32,7 @@ import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.Symbols;
@@ -467,6 +468,10 @@ public class ASTBuilder {
 			ASTStatistics stats = ast.getStats();
 			stats.setConcreteFragmentCount(1);
 			stats.setConcreteFragmentSize(TreeAdapter.getLocation(pattern).getLength());
+			
+			if (stats.isAmbiguous()) {
+				throw new AmbiguousConcretePattern(ast);
+			}
 		}
 		
 		if (match) {
@@ -562,6 +567,10 @@ public class ASTBuilder {
 				Expression result = ((Expression.Set)args.get(0)).getElements().get(0);
 				(match ? matchCache : constructorCache).putUnsafe(pattern, result);
 				return result;
+			}
+			
+			if (isAmb) {
+				stats.setAmbiguous(true);
 			}
 
 			Expression.CallOrTree ast = new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
