@@ -22,9 +22,9 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepareModule("M", "module M " +
 				"import src::test::GrammarABCDE;" +
 				"public DS ds = (DS)`d d d`;" +
-				"public DS parse(str input) { return parse(#DS, input); }");
+				"public DS parseDS(str input) { return parse(#DS, input); }");
 		prepareMore("import M;");
-		assertTrue(runTestInSameEvaluator("parse(\"d d d\") == ds;"));
+		assertTrue(runTestInSameEvaluator("parseDS(\"d d d\") == ds;"));
 	}
 
 	
@@ -699,7 +699,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void enumeratorPicoStatementsUntyped(){
 		prepare("import languages::pico::syntax::Pico;");
-		assertTrue(runTestInSameEvaluator("{L = [X | X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=2`];}"));
+		assertTrue(runTestInSameEvaluator("{L = [X | X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
 	
 	@Test
