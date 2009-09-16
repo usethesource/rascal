@@ -114,6 +114,8 @@ public list[Message] requireType(EXP E, TYPE Type, TypeEnv Env) {
 }
 
 public bool test() {
+
+  println("TEST: ", `begin declare x : natural; x := 3  end`@\loc);
   
   assertEqual(checkProgram(`begin declare x : natural; x := 3  end`), []);  
  
