@@ -97,6 +97,13 @@ public class SymbolAdapter {
 		return isIterPlus(tree) || isIterPlusSep(tree);
 	}
 	
+	public static boolean isSepList(IConstructor tree){
+		if (isCf(tree) || SymbolAdapter.isLex(tree)) {
+			tree = getSymbol(tree);
+		}
+		return isIterStarSep(tree) || isIterPlusSep(tree);
+	}
+	
 	public static boolean isAnyList(IConstructor tree) {
 		return isStarList(tree) || isPlusList(tree);
 	}
