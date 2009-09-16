@@ -11,6 +11,7 @@ import org.meta_environment.rascal.ast.Test.Labeled;
 import org.meta_environment.rascal.ast.Test.Unlabeled;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
@@ -32,6 +33,10 @@ public class TestEvaluator {
 	private void test(String moduleName, List<FailedTestError> report) {
 		List<Test> tests = eval.getHeap().getModule(moduleName).getTests();
 		
+		runTests(report, tests);
+	}
+
+	private void runTests(List<FailedTestError> report, List<Test> tests) {
 		for (Test t : tests) {
 			try {
 				t.accept(visitor);
@@ -49,6 +54,8 @@ public class TestEvaluator {
 		for (String module : eval.getCurrentEnvt().getImports()) {
 			test(module, report);
 		}
+		
+		runTests(report, ((ModuleEnvironment) eval.getCurrentEnvt().getRoot()).getTests());
 		
 		return report;
 	}
