@@ -175,8 +175,9 @@ public class TraversalEvaluator {
 					changed |= tr.changed;
 					args[i] = tr.value;
 				}
-				IConstructor rcons = vf.constructor(cons.getConstructorType(), args);
-				result = applyRules(rcons.setAnnotations(cons.getAnnotations()), eval);
+				Type t = cons.getConstructorType();
+				IConstructor rcons = vf.constructor(t, args);
+				result = applyRules(t, rcons.setAnnotations(cons.getAnnotations()), eval);
 			}
 		} else
 			if(subjectType.isNodeType()){
@@ -193,7 +194,7 @@ public class TraversalEvaluator {
 						changed |= tr.changed;
 						args[i] = tr.value;
 					}
-					result = applyRules(vf.node(node.getName(), args).setAnnotations(node.getAnnotations()), eval);
+					result = applyRules(tf.nodeType(), vf.node(node.getName(), args).setAnnotations(node.getAnnotations()), eval);
 				}
 			} else
 				if(subjectType.isListType()){
@@ -468,28 +469,7 @@ public class TraversalEvaluator {
 		return new TraverseResult(subject);
 	}
 	
-	public IValue applyRules(IValue value, IEvaluatorContext ctx) {
-		//System.err.println("applyRules(" + v + ")");
-		// we search using the run-time type of a value
-		
-		Type type = value.getType();
-		if (type.isAbstractDataType()) {
-			type = ((IConstructor) value).getConstructorType();
-		}
-
-		java.util.List<RewriteRule> rules = ctx.getHeap().getRules(type);
-		
-		IValue result = value;
-		
-		if (rules.size() > 0) {
-			TraverseResult tr = traverseTop(result.getType(), result, new CasesOrRules(rules), ctx);
-			return tr.value;
-		}
-
-		return result;
-	}
-	
-	public IValue applyRules(Type concreteType, IValue value, IEvaluatorContext ctx){
+	public IValue applyRules(Type type, IValue value, IEvaluatorContext ctx){
 		Type typeToSearchFor = value.getType();
 		if (typeToSearchFor.isAbstractDataType()) {
 			typeToSearchFor = ((IConstructor) value).getConstructorType();
@@ -497,13 +477,11 @@ public class TraversalEvaluator {
 
 		java.util.List<RewriteRule> rules = ctx.getHeap().getRules(typeToSearchFor);
 		
-		IValue result = value;
-		
 		if (rules.size() > 0) {
-			TraverseResult tr = traverseTop(concreteType, result, new CasesOrRules(rules), ctx);
+			TraverseResult tr = traverseTop(type, value, new CasesOrRules(rules), ctx);
 			return tr.value;
 		}
 
-		return result;
+		return value;
 	}
 }
