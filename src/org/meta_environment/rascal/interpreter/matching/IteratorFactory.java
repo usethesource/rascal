@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
@@ -17,7 +16,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
-import org.meta_environment.uptr.*;
+import org.meta_environment.uptr.SymbolAdapter;
 
 public class IteratorFactory {
 	
