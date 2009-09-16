@@ -27,8 +27,6 @@ public class IteratorFactory {
 		IValue subjectValue = subject.getValue();
 		Type patType = matchPattern.getType(ctx.getCurrentEnvt());
 		
-		//System.err.println("make: " + subjectType);
-		
 		// TODO: this should be a visitor design as well..
 		
 		//TODO: why should be managed by the getAliased() method or 
@@ -62,15 +60,16 @@ public class IteratorFactory {
 		// NonTerminal	
 		} else if(subjectType.isExternalType()){
 			if(subjectType instanceof NonTerminalType){
-				//System.err.println("NonTerminalType");
+				System.err.println("NonTerminalType");
 				IConstructor tree = (IConstructor) subjectValue;
 				checkMayOccur(patType, subjectType, ctx);
 				NonTerminalType nt = (NonTerminalType) subjectType;
+				IConstructor listSymbol = nt.getSymbol();
 				if(nt.isConcreteListType()){
-					//System.err.println("AnyList: " + nt.isConcreteCFList());
+					System.err.println("AnyList");
 					int delta = 2;
-					if(SymbolAdapter.isIterStarSep(tree)|| SymbolAdapter.isIterPlusSep(tree)){
-						//System.err.println("with sep");
+					if(SymbolAdapter.isIterStarSep(listSymbol)|| SymbolAdapter.isIterPlusSep(listSymbol)){
+						System.err.println("with sep");
 						delta = 4;
 					}
 					return new CFListIterator((IList)tree.get(1), delta);
