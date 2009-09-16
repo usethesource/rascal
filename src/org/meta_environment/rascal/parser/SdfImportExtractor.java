@@ -10,9 +10,12 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Module;
+import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Import.Default;
 import org.meta_environment.rascal.interpreter.Configuration;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class SdfImportExtractor {
 	
@@ -68,7 +71,17 @@ public class SdfImportExtractor {
 
 		@Override
 		public AbstractAST visitImportDefault(Default x) {
-			imports.add(x.getModule().toString());
+			QualifiedName name = x.getModule().getName();
+			StringBuilder builder = new StringBuilder();
+			
+			int i = 0;
+			for (Name part : name.getNames()) {
+				if (i++ != 0) {
+					builder.append("::");
+				}
+				builder.append(Names.name(part));
+			}
+			imports.add(builder.toString());
 			return x;
 		}
 	}
