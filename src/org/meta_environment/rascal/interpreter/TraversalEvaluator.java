@@ -56,9 +56,9 @@ public class TraversalEvaluator {
 
 	// TODO: can this be put in the result hierarchy?
 	public class TraverseResult {
-		public boolean matched;   // Some rule matched;
-		public IValue value; 		// Result<IValue> of the 
-		public boolean changed;   // Original subject has been changed
+		public final boolean matched;   // Some rule matched;
+		public final IValue value; 		// Result<IValue> of the 
+		public final boolean changed;   // Original subject has been changed
 
 		public TraverseResult(boolean someMatch, IValue value){
 			this.matched = someMatch;
@@ -138,8 +138,7 @@ public class TraversalEvaluator {
 	}
 
 	private TraverseResult traverseOnce(IValue subject, CasesOrRules casesOrRules, 
-			DIRECTION direction, 
-			PROGRESS progress, Evaluator ctx){
+			DIRECTION direction, PROGRESS progress, Evaluator ctx){
 		Type subjectType = subject.getType();
 		boolean matched = false;
 		boolean changed = false;
@@ -177,97 +176,95 @@ public class TraversalEvaluator {
 				}
 				Type t = cons.getConstructorType();
 				IConstructor rcons = vf.constructor(t, args);
-				result = applyRules(t, rcons.setAnnotations(cons.getAnnotations()), eval);
+				if(cons.hasAnnotations()) rcons = rcons.setAnnotations(cons.getAnnotations());
+				result = applyRules(t, rcons, eval);
 			}
-		} else
-			if(subjectType.isNodeType()){
-				INode node = (INode)subject;
-				if(node.arity() == 0){
-					result = subject;
-				} else {
-					IValue args[] = new IValue[node.arity()];
+		} else if(subjectType.isNodeType()){
+			INode node = (INode)subject;
+			if(node.arity() == 0){
+				result = subject;
+			} else {
+				IValue args[] = new IValue[node.arity()];
 
-					for(int i = 0; i < node.arity(); i++){
-						IValue child = node.get(i);
-						TraverseResult tr = traverseOnce(child, casesOrRules, direction, progress, ctx);
-						matched |= tr.matched;
-						changed |= tr.changed;
-						args[i] = tr.value;
-					}
-					result = applyRules(tf.nodeType(), vf.node(node.getName(), args).setAnnotations(node.getAnnotations()), eval);
+				for(int i = 0; i < node.arity(); i++){
+					IValue child = node.get(i);
+					TraverseResult tr = traverseOnce(child, casesOrRules, direction, progress, ctx);
+					matched |= tr.matched;
+					changed |= tr.changed;
+					args[i] = tr.value;
 				}
-			} else
-				if(subjectType.isListType()){
-					IList list = (IList) subject;
-					int len = list.length();
-					if(len > 0){
-						IListWriter w = list.getType().writer(vf);
-						
-						for(int i = 0; i < len; i++){
-							IValue elem = list.get(i);
-							TraverseResult tr = traverseOnce(elem, casesOrRules, direction, progress, ctx);
-							matched |= tr.matched;
-							changed |= tr.changed;
-							w.append(tr.value);
-						}
-						result = w.done();
-					} else {
-						result = subject;
-					}
-				} else 
-					if(subjectType.isSetType()){
-						ISet set = (ISet) subject;
-						if(!set.isEmpty()){
-							ISetWriter w = set.getType().writer(vf);
-							
-							for (IValue v : set){
-								TraverseResult tr = traverseOnce(v, casesOrRules, direction, progress, ctx);
-								matched |= tr.matched;
-								changed |= tr.changed;
-								w.insert(tr.value);
-							}
-							result = w.done();
-						} else {
-							result = subject;
-						}
-					} else
-						if (subjectType.isMapType()) {
-							IMap map = (IMap) subject;
-							if(!map.isEmpty()){
-								IMapWriter w = map.getType().writer(vf);
-								Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
-								
-								while (iter.hasNext()) {
-									Entry<IValue,IValue> entry = iter.next();
-									TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, direction, progress, ctx);
-									matched |= tr.matched;
-									changed |= tr.changed;
-									IValue newKey = tr.value;
-									tr = traverseOnce(entry.getValue(), casesOrRules, direction, progress, ctx);
-									matched |= tr.matched;
-									changed |= tr.changed;
-									IValue newValue = tr.value;
-									w.put(newKey, newValue);
-								}
-								result = w.done();
-							} else {
-								result = subject;
-							}
-						} else
-							if(subjectType.isTupleType()){
-								ITuple tuple = (ITuple) subject;
-								int arity = tuple.arity();
-								IValue args[] = new IValue[arity];
-								for(int i = 0; i < arity; i++){
-									TraverseResult tr = traverseOnce(tuple.get(i), casesOrRules, direction, progress, ctx);
-									matched |= tr.matched;
-									changed |= tr.changed;
-									args[i] = tr.value;
-								}
-								result = vf.tuple(args);
-							} else {
-								result = subject;
-							}
+				INode n = vf.node(node.getName(), args);
+				if(node.hasAnnotations()) n = n.setAnnotations(node.getAnnotations());
+				result = applyRules(tf.nodeType(), n, eval);
+			}
+		} else if(subjectType.isListType()){
+			IList list = (IList) subject;
+			int len = list.length();
+			if(len > 0){
+				IListWriter w = list.getType().writer(vf);
+				
+				for(int i = 0; i < len; i++){
+					IValue elem = list.get(i);
+					TraverseResult tr = traverseOnce(elem, casesOrRules, direction, progress, ctx);
+					matched |= tr.matched;
+					changed |= tr.changed;
+					w.append(tr.value);
+				}
+				result = w.done();
+			} else {
+				result = subject;
+			}
+		} else if(subjectType.isSetType()){
+			ISet set = (ISet) subject;
+			if(!set.isEmpty()){
+				ISetWriter w = set.getType().writer(vf);
+				
+				for (IValue v : set){
+					TraverseResult tr = traverseOnce(v, casesOrRules, direction, progress, ctx);
+					matched |= tr.matched;
+					changed |= tr.changed;
+					w.insert(tr.value);
+				}
+				result = w.done();
+			} else {
+				result = subject;
+			}
+		} else if (subjectType.isMapType()) {
+			IMap map = (IMap) subject;
+			if(!map.isEmpty()){
+				IMapWriter w = map.getType().writer(vf);
+				Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
+				
+				while (iter.hasNext()) {
+					Entry<IValue,IValue> entry = iter.next();
+					TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, direction, progress, ctx);
+					matched |= tr.matched;
+					changed |= tr.changed;
+					IValue newKey = tr.value;
+					tr = traverseOnce(entry.getValue(), casesOrRules, direction, progress, ctx);
+					matched |= tr.matched;
+					changed |= tr.changed;
+					IValue newValue = tr.value;
+					w.put(newKey, newValue);
+				}
+				result = w.done();
+			} else {
+				result = subject;
+			}
+		} else if(subjectType.isTupleType()){
+			ITuple tuple = (ITuple) subject;
+			int arity = tuple.arity();
+			IValue args[] = new IValue[arity];
+			for(int i = 0; i < arity; i++){
+				TraverseResult tr = traverseOnce(tuple.get(i), casesOrRules, direction, progress, ctx);
+				matched |= tr.matched;
+				changed |= tr.changed;
+				args[i] = tr.value;
+			}
+			result = vf.tuple(args);
+		} else {
+			result = subject;
+		}
 
 		if(direction == DIRECTION.BottomUp){
 			//System.err.println("traverseOnce: bottomup: changed=" + changed);

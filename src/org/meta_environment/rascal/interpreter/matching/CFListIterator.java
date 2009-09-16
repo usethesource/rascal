@@ -22,7 +22,7 @@ class CFListIterator implements Iterator<IValue> {
 
 	public IValue next() {
 		IValue v = list.get(index);
-		System.err.println("index = " + index + ": " + v);
+		//System.err.println("index = " + index + ": " + v);
 		index += delta;
 		return v;
 	}
