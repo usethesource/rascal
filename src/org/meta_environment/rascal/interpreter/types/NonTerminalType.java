@@ -82,7 +82,7 @@ public class NonTerminalType extends ExternalType {
 			return true;
 		}
 		
-		if (other.isSubtypeOf(Factory.Tree)) {
+		if (other == Factory.Tree) {
 			return true;
 		}
 
