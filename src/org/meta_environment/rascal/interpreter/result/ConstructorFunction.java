@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.result;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +39,7 @@ public class ConstructorFunction extends NamedFunction {
 		Type instantiated = constructorType.instantiate(ctx.getCurrentEnvt().getStore(), bindings);
 		
 		// TODO: the actual construction of the tree before applying rules should be avoided here!
-		return te.applyRules(instantiated.make(getValueFactory(), actuals), ctx);
+		return makeResult(instantiated, te.applyRules(instantiated.make(getValueFactory(), actuals), ctx), ctx);
 	}
 	
 	@Override
