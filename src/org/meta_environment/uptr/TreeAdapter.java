@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -187,7 +188,7 @@ public class TreeAdapter{
 			int startCol = cur.col;
 			int startOffset = cur.offset;
 			PositionNode positionNode = new PositionNode(tree, cur.offset);
-			IConstructor result = cache.get(positionNode);
+			IConstructor result = null; // cache.get(positionNode);
 
 			if(result != null){
 				ISourceLocation loc = getLocation(result);
@@ -252,9 +253,9 @@ public class TreeAdapter{
 					}
 				}
 
-				cur.col = newPos.col;
-				cur.line = newPos.line;
-				cur.offset = newPos.offset;
+				save.col = newPos.col;
+				save.line = newPos.line;
+				save.offset = newPos.offset;
 
 				for(IValue arg : cycles.done()){
 					IValue newArg = addPosInfo((IConstructor) arg, location, cur);
@@ -263,7 +264,7 @@ public class TreeAdapter{
 
 				tree = tree.set("alternatives", newAlts.done());
 			}else if(!isCycle(tree)){
-				System.err.println("unhandled tree: " + tree + "\n");
+				throw new ImplementationError("unhandled tree: " + tree + "\n");
 			}
 			
 			ISourceLocation loc = factory.sourceLocation(location, startOffset, cur.offset - startOffset, startLine, cur.line, startCol, cur.col);
@@ -285,6 +286,12 @@ public class TreeAdapter{
 				tmp.line = line;
 				tmp.offset = offset;
 				return tmp;
+			}
+			
+			@Override
+			public String toString() {
+				return "offset: " + offset + ", line: " + line + ", col:" + col;
+			
 			}
 		}
 		
@@ -364,8 +371,7 @@ public class TreeAdapter{
 				throw (IOException) cause;
 			}
 			
-			System.err.println("Unexpected error in unparse: " + e.getMessage());
-			e.printStackTrace();
+			throw new ImplementationError("Unexpected error in unparse: " + e.getMessage());
 		}
 	}
 	
