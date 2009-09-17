@@ -86,6 +86,10 @@ public class NonTerminalType extends ExternalType {
 			return true;
 		}
 		
+		if (other.isVoidType()) {
+			return false;
+		}
+		
 		if (other.isParameterType()) {
 			return isSubtypeOf(other.getBound());
 		}
