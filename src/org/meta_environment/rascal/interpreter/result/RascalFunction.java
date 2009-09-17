@@ -44,7 +44,7 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<?> call(Type[] actualTypes, IValue[] actuals, IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IEvaluatorContext ctx) {
 		Map<Type,Type> bindings = declarationEnvironment.getTypeBindings();
 		Type instantiatedFormals = getFormals().instantiate(declarationEnvironment.getStore(), bindings);
 		

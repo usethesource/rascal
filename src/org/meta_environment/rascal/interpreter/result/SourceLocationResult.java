@@ -33,7 +33,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 
 	@Override
-	public Result<?> call(Type[] argTypes, IValue[] actuals,
+	public Result<IValue> call(Type[] argTypes, IValue[] actuals,
 			IEvaluatorContext ctx) {
 		if (actuals.length != 4) {
 			throw new SyntaxError("location constructor", ctx.getCurrentAST().getLocation());

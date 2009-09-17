@@ -26,9 +26,9 @@ public class ComposedFunctionResult extends AbstractFunction implements IExterna
 	}
 	
 	@Override
-	public Result<?> call(Type[] argTypes, IValue[] argValues,
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
-		Result<?> rightResult = right.call(argTypes, argValues, ctx);
+		Result<IValue> rightResult = right.call(argTypes, argValues, ctx);
 		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, ctx);
 	}
 

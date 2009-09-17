@@ -15,7 +15,7 @@ public class All extends Strategy {
 	}
 
 	@Override
-	public Result<?> call(Type[] argTypes, IValue[] argValues,
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
 		Visitable result = VisitableFactory.make(argValues[0]);
 		for (int i = 0; i < result.arity(); i++) {
