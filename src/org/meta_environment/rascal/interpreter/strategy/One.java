@@ -30,20 +30,8 @@ public class One extends Strategy {
 	}
 
 	public static IValue makeOne(IValue arg) {
-		if (arg instanceof AbstractFunction) {
-			AbstractFunction function = (AbstractFunction) arg;
-			if (function.isStrategy()) {
-				return new One(function);	
-			}
-		} else if (arg instanceof OverloadedFunctionResult) {
-			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
-			for (AbstractFunction function: res.iterable()) {
-				if (function.isStrategy()) {
-					return new One (function);	
-				}
-			}
-		}
-		throw new RuntimeException("Unexpected strategy argument "+arg);
+		if (! Strategy.checkType(arg)) throw new RuntimeException("Unexpected strategy argument "+arg);
+		return new One((AbstractFunction) arg);
 	}
 
 }
