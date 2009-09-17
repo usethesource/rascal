@@ -2982,9 +2982,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		System.setProperty(name, value);
 		
-		// TODO Notify update?
+		updateProperties();
 		
 		return ResultFactory.nothing();
+	}
+	
+	private void updateProperties(){
+		String profiling = System.getProperty("rascal_profiling");
+		if(profiling != null) doProfiling = profiling.equals("true");
 	}
 	
 	public Stack<Environment> getCallStack() {
