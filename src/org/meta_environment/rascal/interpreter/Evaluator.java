@@ -2977,10 +2977,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public Result<IValue> visitShellCommandSetOption(ShellCommand.SetOption x){
+		String name = x.getName().toString();
+		String value = x.getExpression().accept(this).getValue().toString();
 		
-		return null; // Temp.
+		System.setProperty(name, value);
+		
+		// TODO Notify update?
+		
+		return ResultFactory.nothing();
 	}
-
+	
 	public Stack<Environment> getCallStack() {
 		Stack<Environment> stack = new Stack<Environment>();
 		Environment env = currentEnvt;
