@@ -22,6 +22,16 @@ begin
 end
 `;
 
+public PROGRAM exampleTypeErrors = `
+begin
+  declare x : natural,
+          s : string;
+  x := "abc";
+  s := 3
+end
+`;
+
+
 /*********************************************/
 
 public PROGRAM smallUninit =`
