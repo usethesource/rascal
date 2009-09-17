@@ -27,7 +27,7 @@ public class ConstructorFunction extends NamedFunction {
 	}
 
 	@Override
-	public Result<?> call(Type[] actualTypes, IValue[] actuals,
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
 			IEvaluatorContext ctx) {
 
 		if (constructorType == Factory.Tree_Appl) {

@@ -136,7 +136,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	///////
 	
-	public Result<?> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
 		throw new UnsupportedOperationError("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	

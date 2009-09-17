@@ -55,7 +55,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	}
 
 	@Override
-	public Result<?> call(Type[] argTypes, IValue[] argValues,
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
 		Type tuple = getTypeFactory().tupleType(argTypes);
 		

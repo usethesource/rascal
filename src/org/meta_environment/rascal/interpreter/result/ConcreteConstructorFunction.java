@@ -29,7 +29,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	}
 	
 	@Override
-	public Result<?> call(Type[] actualTypes, IValue[] actuals,
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
 			IEvaluatorContext ctx) {
 		IConstructor prod = (IConstructor) actuals[0];
 		IList args = (IList) actuals[1];

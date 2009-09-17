@@ -16,7 +16,7 @@ public class StrategyFunction extends Strategy {
 	}
 	
 	@Override
-	public Result<?> call(Type[] argTypes, IValue[] argValues,
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
 		if (argTypes[0].comparable(function.getFormals().getFieldType(0))) {
 			return function.call(argTypes, argValues, ctx);

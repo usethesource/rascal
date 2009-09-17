@@ -25,10 +25,11 @@ public class ConstructorResult extends NodeResult {
 	}
 	
 	@Override
-	public Result<?> call(Type[] argTypes, IValue[] argValues,
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
 		throw new UnsupportedOperationError("Can not call a constructed " + getType() + " node as a function", ctx.getCurrentAST());
 	}
+	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
 		if (!getType().hasField(name, store)) {
