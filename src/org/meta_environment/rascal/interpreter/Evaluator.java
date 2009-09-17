@@ -219,6 +219,10 @@ import org.meta_environment.uri.URIResolverRegistry;
 
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
+	static{
+		updateProperties(); // TODO Put this in a better place.
+	}
+	
 	public final IValueFactory vf;
 	public final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
@@ -232,8 +236,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private AbstractAST currentAST; 	// used in runtime errormessages
 
+	private static boolean doProfiling = false;
 	private Profiler profiler;
-	private boolean doProfiling = false;
 
 	private final TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator(this);
 	private final PatternEvaluator patternEvaluator;
@@ -2977,7 +2981,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public Result<IValue> visitShellCommandSetOption(ShellCommand.SetOption x){
-		String name = x.getName().toString();
+		String name = "rascal.config."+x.getName().toString();
 		String value = x.getExpression().accept(this).getValue().toString();
 		
 		System.setProperty(name, value);
@@ -2987,9 +2991,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return ResultFactory.nothing();
 	}
 	
-	private void updateProperties(){
-		String profiling = System.getProperty("rascal_profiling");
+	private static void updateProperties(){
+		String profiling = System.getProperty("rascal.config.profiling");
 		if(profiling != null) doProfiling = profiling.equals("true");
+		
+		String tracing = System.getProperty("rascal.config.tracing");
+		if(tracing != null) AbstractFunction.setCallTracing(tracing.equals("true"));
 	}
 	
 	public Stack<Environment> getCallStack() {

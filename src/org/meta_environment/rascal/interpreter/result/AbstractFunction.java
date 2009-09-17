@@ -58,7 +58,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		this.declarationEnvironment = env;
 	}
 	
-	
+	public static void setCallTracing(boolean value){
+		callTracing = value;
+	}
     
 	public Type getFormals() {
 		return functionType.getArgumentTypes();
