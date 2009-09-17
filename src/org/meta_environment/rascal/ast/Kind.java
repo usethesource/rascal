@@ -4,9 +4,6 @@ public abstract class Kind extends AbstractAST {
   public boolean isModule() { return false; }
 static public class Module extends Kind {
 /** "module" -> Kind {cons("Module")} */
-	private Module() {
-		super();
-	}
 	public Module(INode node) {
 		this.node = node;
 	}
@@ -33,9 +30,6 @@ static public class Ambiguity extends Kind {
 public boolean isFunction() { return false; }
 static public class Function extends Kind {
 /** "function" -> Kind {cons("Function")} */
-	private Function() {
-		super();
-	}
 	public Function(INode node) {
 		this.node = node;
 	}
@@ -47,9 +41,6 @@ static public class Function extends Kind {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isRule() { return false; }
 static public class Rule extends Kind {
 /** "rule" -> Kind {cons("Rule")} */
-	private Rule() {
-		super();
-	}
 	public Rule(INode node) {
 		this.node = node;
 	}
@@ -62,9 +53,6 @@ static public class Rule extends Kind {
 public boolean isVariable() { return false; }
 static public class Variable extends Kind {
 /** "variable" -> Kind {cons("Variable")} */
-	private Variable() {
-		super();
-	}
 	public Variable(INode node) {
 		this.node = node;
 	}
@@ -77,9 +65,6 @@ static public class Variable extends Kind {
 public boolean isData() { return false; }
 static public class Data extends Kind {
 /** "data" -> Kind {cons("Data")} */
-	private Data() {
-		super();
-	}
 	public Data(INode node) {
 		this.node = node;
 	}
@@ -92,9 +77,6 @@ static public class Data extends Kind {
 public boolean isView() { return false; }
 static public class View extends Kind {
 /** "view" -> Kind {cons("View")} */
-	private View() {
-		super();
-	}
 	public View(INode node) {
 		this.node = node;
 	}
@@ -107,9 +89,6 @@ static public class View extends Kind {
 public boolean isAlias() { return false; }
 static public class Alias extends Kind {
 /** "alias" -> Kind {cons("Alias")} */
-	private Alias() {
-		super();
-	}
 	public Alias(INode node) {
 		this.node = node;
 	}
@@ -122,9 +101,6 @@ static public class Alias extends Kind {
 public boolean isAnno() { return false; }
 static public class Anno extends Kind {
 /** "anno" -> Kind {cons("Anno")} */
-	private Anno() {
-		super();
-	}
 	public Anno(INode node) {
 		this.node = node;
 	}
@@ -137,9 +113,6 @@ static public class Anno extends Kind {
 public boolean isTag() { return false; }
 static public class Tag extends Kind {
 /** "tag" -> Kind {cons("Tag")} */
-	private Tag() {
-		super();
-	}
 	public Tag(INode node) {
 		this.node = node;
 	}
@@ -152,9 +125,6 @@ static public class Tag extends Kind {
 public boolean isAll() { return false; }
 static public class All extends Kind {
 /** "all" -> Kind {cons("All")} */
-	private All() {
-		super();
-	}
 	public All(INode node) {
 		this.node = node;
 	}

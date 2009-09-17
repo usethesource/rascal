@@ -6,9 +6,6 @@ public boolean hasTags() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Tags {
 /** tags:Tag* -> Tags {cons("Default"), category("Comment")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, java.util.List<org.meta_environment.rascal.ast.Tag> tags) {
 		this.node = node;
 		this.tags = tags;
@@ -21,14 +18,8 @@ static public class Default extends Tags {
 
 	public boolean hasTags() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Tag> tags;
-	public java.util.List<org.meta_environment.rascal.ast.Tag> getTags() { return tags; }
-	private void $setTags(java.util.List<org.meta_environment.rascal.ast.Tag> x) { this.tags = x; }
-	public Default setTags(java.util.List<org.meta_environment.rascal.ast.Tag> x) { 
-		Default z = new Default();
- 		z.$setTags(x);
-		return z;
-	}	
+private final java.util.List<org.meta_environment.rascal.ast.Tag> tags;
+	public java.util.List<org.meta_environment.rascal.ast.Tag> getTags() { return tags; }	
 }
 static public class Ambiguity extends Tags {
   private final java.util.List<org.meta_environment.rascal.ast.Tags> alternatives;

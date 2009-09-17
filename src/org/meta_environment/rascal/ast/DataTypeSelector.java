@@ -8,9 +8,6 @@ public boolean hasSort() { return false; }
 public boolean isSelector() { return false; }
 static public class Selector extends DataTypeSelector {
 /** sort:Name "." production:Name -> DataTypeSelector {cons("Selector")} */
-	private Selector() {
-		super();
-	}
 	public Selector(INode node, org.meta_environment.rascal.ast.Name sort, org.meta_environment.rascal.ast.Name production) {
 		this.node = node;
 		this.sort = sort;
@@ -25,22 +22,10 @@ static public class Selector extends DataTypeSelector {
 	public boolean hasSort() { return true; }
 	public boolean hasProduction() { return true; }
 
-private org.meta_environment.rascal.ast.Name sort;
+private final org.meta_environment.rascal.ast.Name sort;
 	public org.meta_environment.rascal.ast.Name getSort() { return sort; }
-	private void $setSort(org.meta_environment.rascal.ast.Name x) { this.sort = x; }
-	public Selector setSort(org.meta_environment.rascal.ast.Name x) { 
-		Selector z = new Selector();
- 		z.$setSort(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Name production;
-	public org.meta_environment.rascal.ast.Name getProduction() { return production; }
-	private void $setProduction(org.meta_environment.rascal.ast.Name x) { this.production = x; }
-	public Selector setProduction(org.meta_environment.rascal.ast.Name x) { 
-		Selector z = new Selector();
- 		z.$setProduction(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Name production;
+	public org.meta_environment.rascal.ast.Name getProduction() { return production; }	
 }
 static public class Ambiguity extends DataTypeSelector {
   private final java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> alternatives;

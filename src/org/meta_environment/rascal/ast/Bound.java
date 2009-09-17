@@ -4,9 +4,6 @@ public abstract class Bound extends AbstractAST {
   public boolean isEmpty() { return false; }
 static public class Empty extends Bound {
 /**  -> Bound {cons("Empty")} */
-	private Empty() {
-		super();
-	}
 	public Empty(INode node) {
 		this.node = node;
 	}
@@ -35,9 +32,6 @@ public boolean hasExpression() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Bound {
 /** ";" expression:Expression -> Bound {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
 		this.expression = expression;
@@ -50,14 +44,8 @@ static public class Default extends Bound {
 
 	public boolean hasExpression() { return true; }
 
-private org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
-	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
-	public Default setExpression(org.meta_environment.rascal.ast.Expression x) { 
-		Default z = new Default();
- 		z.$setExpression(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

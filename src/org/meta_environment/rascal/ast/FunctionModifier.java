@@ -4,9 +4,6 @@ public abstract class FunctionModifier extends AbstractAST {
 public boolean isJava() { return false; }
 static public class Java extends FunctionModifier {
 /** "java" -> FunctionModifier {cons("Java")} */
-	private Java() {
-		super();
-	}
 	public Java(INode node) {
 		this.node = node;
 	}

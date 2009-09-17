@@ -6,9 +6,6 @@ public boolean hasCharacter() { return false; }
 public boolean isCharacter() { return false; }
 static public class Character extends CharRange {
 /** character:Character -> CharRange {cons("Character")} */
-	private Character() {
-		super();
-	}
 	public Character(INode node, org.meta_environment.rascal.ast.Character character) {
 		this.node = node;
 		this.character = character;
@@ -21,14 +18,8 @@ static public class Character extends CharRange {
 
 	public boolean hasCharacter() { return true; }
 
-private org.meta_environment.rascal.ast.Character character;
-	public org.meta_environment.rascal.ast.Character getCharacter() { return character; }
-	private void $setCharacter(org.meta_environment.rascal.ast.Character x) { this.character = x; }
-	public Character setCharacter(org.meta_environment.rascal.ast.Character x) { 
-		Character z = new Character();
- 		z.$setCharacter(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Character character;
+	public org.meta_environment.rascal.ast.Character getCharacter() { return character; }	
 }
 static public class Ambiguity extends CharRange {
   private final java.util.List<org.meta_environment.rascal.ast.CharRange> alternatives;
@@ -51,9 +42,6 @@ public boolean hasStart() { return false; }
 public boolean isRange() { return false; }
 static public class Range extends CharRange {
 /** start:Character "-" end:Character -> CharRange {cons("Range")} */
-	private Range() {
-		super();
-	}
 	public Range(INode node, org.meta_environment.rascal.ast.Character start, org.meta_environment.rascal.ast.Character end) {
 		this.node = node;
 		this.start = start;
@@ -68,22 +56,10 @@ static public class Range extends CharRange {
 	public boolean hasStart() { return true; }
 	public boolean hasEnd() { return true; }
 
-private org.meta_environment.rascal.ast.Character start;
+private final org.meta_environment.rascal.ast.Character start;
 	public org.meta_environment.rascal.ast.Character getStart() { return start; }
-	private void $setStart(org.meta_environment.rascal.ast.Character x) { this.start = x; }
-	public Range setStart(org.meta_environment.rascal.ast.Character x) { 
-		Range z = new Range();
- 		z.$setStart(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Character end;
-	public org.meta_environment.rascal.ast.Character getEnd() { return end; }
-	private void $setEnd(org.meta_environment.rascal.ast.Character x) { this.end = x; }
-	public Range setEnd(org.meta_environment.rascal.ast.Character x) { 
-		Range z = new Range();
- 		z.$setEnd(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Character end;
+	public org.meta_environment.rascal.ast.Character getEnd() { return end; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

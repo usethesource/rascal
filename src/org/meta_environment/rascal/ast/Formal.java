@@ -8,9 +8,6 @@ public boolean hasType() { return false; }
 public boolean isTypeName() { return false; }
 static public class TypeName extends Formal {
 /** type:Type name:Name -> Formal {cons("TypeName")} */
-	private TypeName() {
-		super();
-	}
 	public TypeName(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) {
 		this.node = node;
 		this.type = type;
@@ -25,22 +22,10 @@ static public class TypeName extends Formal {
 	public boolean hasType() { return true; }
 	public boolean hasName() { return true; }
 
-private org.meta_environment.rascal.ast.Type type;
+private final org.meta_environment.rascal.ast.Type type;
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
-	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
-	public TypeName setType(org.meta_environment.rascal.ast.Type x) { 
-		TypeName z = new TypeName();
- 		z.$setType(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public TypeName setName(org.meta_environment.rascal.ast.Name x) { 
-		TypeName z = new TypeName();
- 		z.$setName(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Name name;
+	public org.meta_environment.rascal.ast.Name getName() { return name; }	
 }
 static public class Ambiguity extends Formal {
   private final java.util.List<org.meta_environment.rascal.ast.Formal> alternatives;

@@ -10,9 +10,6 @@ public boolean hasMid() { return false; }
 public boolean isMid() { return false; }
 static public class Mid extends PathTail {
 /** mid:MidPathChars expression:Expression tail:PathTail -> PathTail {cons("Mid")} */
-	private Mid() {
-		super();
-	}
 	public Mid(INode node, org.meta_environment.rascal.ast.MidPathChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.PathTail tail) {
 		this.node = node;
 		this.mid = mid;
@@ -29,30 +26,12 @@ static public class Mid extends PathTail {
 	public boolean hasExpression() { return true; }
 	public boolean hasTail() { return true; }
 
-private org.meta_environment.rascal.ast.MidPathChars mid;
+private final org.meta_environment.rascal.ast.MidPathChars mid;
 	public org.meta_environment.rascal.ast.MidPathChars getMid() { return mid; }
-	private void $setMid(org.meta_environment.rascal.ast.MidPathChars x) { this.mid = x; }
-	public Mid setMid(org.meta_environment.rascal.ast.MidPathChars x) { 
-		Mid z = new Mid();
- 		z.$setMid(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression expression;
+	private final org.meta_environment.rascal.ast.Expression expression;
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
-	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
-	public Mid setExpression(org.meta_environment.rascal.ast.Expression x) { 
-		Mid z = new Mid();
- 		z.$setExpression(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.PathTail tail;
-	public org.meta_environment.rascal.ast.PathTail getTail() { return tail; }
-	private void $setTail(org.meta_environment.rascal.ast.PathTail x) { this.tail = x; }
-	public Mid setTail(org.meta_environment.rascal.ast.PathTail x) { 
-		Mid z = new Mid();
- 		z.$setTail(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.PathTail tail;
+	public org.meta_environment.rascal.ast.PathTail getTail() { return tail; }	
 }
 static public class Ambiguity extends PathTail {
   private final java.util.List<org.meta_environment.rascal.ast.PathTail> alternatives;
@@ -73,9 +52,6 @@ public boolean hasPost() { return false; }
 public boolean isPost() { return false; }
 static public class Post extends PathTail {
 /** post:PostPathChars -> PathTail {cons("Post")} */
-	private Post() {
-		super();
-	}
 	public Post(INode node, org.meta_environment.rascal.ast.PostPathChars post) {
 		this.node = node;
 		this.post = post;
@@ -88,14 +64,8 @@ static public class Post extends PathTail {
 
 	public boolean hasPost() { return true; }
 
-private org.meta_environment.rascal.ast.PostPathChars post;
-	public org.meta_environment.rascal.ast.PostPathChars getPost() { return post; }
-	private void $setPost(org.meta_environment.rascal.ast.PostPathChars x) { this.post = x; }
-	public Post setPost(org.meta_environment.rascal.ast.PostPathChars x) { 
-		Post z = new Post();
- 		z.$setPost(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.PostPathChars post;
+	public org.meta_environment.rascal.ast.PostPathChars getPost() { return post; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

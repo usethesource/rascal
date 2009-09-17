@@ -5,9 +5,6 @@ public abstract class PatternWithAction extends AbstractAST {
 public boolean isReplacing() { return false; }
 static public class Replacing extends PatternWithAction {
 /** pattern:Expression "=>" replacement:Replacement -> PatternWithAction {cons("Replacing")} */
-	private Replacing() {
-		super();
-	}
 	public Replacing(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Replacement replacement) {
 		this.node = node;
 		this.pattern = pattern;
@@ -22,22 +19,10 @@ static public class Replacing extends PatternWithAction {
 	public boolean hasPattern() { return true; }
 	public boolean hasReplacement() { return true; }
 
-private org.meta_environment.rascal.ast.Expression pattern;
+private final org.meta_environment.rascal.ast.Expression pattern;
 	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
-	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
-	public Replacing setPattern(org.meta_environment.rascal.ast.Expression x) { 
-		Replacing z = new Replacing();
- 		z.$setPattern(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Replacement replacement;
-	public org.meta_environment.rascal.ast.Replacement getReplacement() { return replacement; }
-	private void $setReplacement(org.meta_environment.rascal.ast.Replacement x) { this.replacement = x; }
-	public Replacing setReplacement(org.meta_environment.rascal.ast.Replacement x) { 
-		Replacing z = new Replacing();
- 		z.$setReplacement(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Replacement replacement;
+	public org.meta_environment.rascal.ast.Replacement getReplacement() { return replacement; }	
 }
 static public class Ambiguity extends PatternWithAction {
   private final java.util.List<org.meta_environment.rascal.ast.PatternWithAction> alternatives;
@@ -56,9 +41,6 @@ static public class Ambiguity extends PatternWithAction {
 public boolean isArbitrary() { return false; }
 static public class Arbitrary extends PatternWithAction {
 /** pattern:Expression ":" statement:Statement -> PatternWithAction {cons("Arbitrary")} */
-	private Arbitrary() {
-		super();
-	}
 	public Arbitrary(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement statement) {
 		this.node = node;
 		this.pattern = pattern;
@@ -73,22 +55,10 @@ static public class Arbitrary extends PatternWithAction {
 	public boolean hasPattern() { return true; }
 	public boolean hasStatement() { return true; }
 
-private org.meta_environment.rascal.ast.Expression pattern;
+private final org.meta_environment.rascal.ast.Expression pattern;
 	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
-	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
-	public Arbitrary setPattern(org.meta_environment.rascal.ast.Expression x) { 
-		Arbitrary z = new Arbitrary();
- 		z.$setPattern(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Statement statement;
-	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }
-	private void $setStatement(org.meta_environment.rascal.ast.Statement x) { this.statement = x; }
-	public Arbitrary setStatement(org.meta_environment.rascal.ast.Statement x) { 
-		Arbitrary z = new Arbitrary();
- 		z.$setStatement(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Statement statement;
+	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

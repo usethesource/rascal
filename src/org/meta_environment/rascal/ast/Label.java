@@ -4,9 +4,6 @@ public abstract class Label extends AbstractAST {
   public boolean isEmpty() { return false; }
 static public class Empty extends Label {
 /**  -> Label {cons("Empty")} */
-	private Empty() {
-		super();
-	}
 	public Empty(INode node) {
 		this.node = node;
 	}
@@ -35,9 +32,6 @@ public boolean hasName() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Label {
 /** name:Name ":" -> Label {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, org.meta_environment.rascal.ast.Name name) {
 		this.node = node;
 		this.name = name;
@@ -50,14 +44,8 @@ static public class Default extends Label {
 
 	public boolean hasName() { return true; }
 
-private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public Default setName(org.meta_environment.rascal.ast.Name x) { 
-		Default z = new Default();
- 		z.$setName(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Name name;
+	public org.meta_environment.rascal.ast.Name getName() { return name; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

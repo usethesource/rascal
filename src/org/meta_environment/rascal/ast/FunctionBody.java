@@ -6,9 +6,6 @@ public boolean hasStatements() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends FunctionBody {
 /** "{" statements:Statement* "}" -> FunctionBody {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
 		this.node = node;
 		this.statements = statements;
@@ -21,14 +18,8 @@ static public class Default extends FunctionBody {
 
 	public boolean hasStatements() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
-	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }
-	private void $setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { this.statements = x; }
-	public Default setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { 
-		Default z = new Default();
- 		z.$setStatements(x);
-		return z;
-	}	
+private final java.util.List<org.meta_environment.rascal.ast.Statement> statements;
+	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }	
 }
 static public class Ambiguity extends FunctionBody {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionBody> alternatives;

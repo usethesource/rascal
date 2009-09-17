@@ -5,9 +5,6 @@ public abstract class FunctionDeclaration extends AbstractAST {
 public boolean isDefault() { return false; }
 static public class Default extends FunctionDeclaration {
 /** tags:Tags visibility:Visibility signature:Signature body:FunctionBody -> FunctionDeclaration {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Signature signature, org.meta_environment.rascal.ast.FunctionBody body) {
 		this.node = node;
 		this.tags = tags;
@@ -26,38 +23,14 @@ static public class Default extends FunctionDeclaration {
 	public boolean hasSignature() { return true; }
 	public boolean hasBody() { return true; }
 
-private org.meta_environment.rascal.ast.Tags tags;
+private final org.meta_environment.rascal.ast.Tags tags;
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public Default setTags(org.meta_environment.rascal.ast.Tags x) { 
-		Default z = new Default();
- 		z.$setTags(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Visibility visibility;
+	private final org.meta_environment.rascal.ast.Visibility visibility;
 	public org.meta_environment.rascal.ast.Visibility getVisibility() { return visibility; }
-	private void $setVisibility(org.meta_environment.rascal.ast.Visibility x) { this.visibility = x; }
-	public Default setVisibility(org.meta_environment.rascal.ast.Visibility x) { 
-		Default z = new Default();
- 		z.$setVisibility(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Signature signature;
+	private final org.meta_environment.rascal.ast.Signature signature;
 	public org.meta_environment.rascal.ast.Signature getSignature() { return signature; }
-	private void $setSignature(org.meta_environment.rascal.ast.Signature x) { this.signature = x; }
-	public Default setSignature(org.meta_environment.rascal.ast.Signature x) { 
-		Default z = new Default();
- 		z.$setSignature(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.FunctionBody body;
-	public org.meta_environment.rascal.ast.FunctionBody getBody() { return body; }
-	private void $setBody(org.meta_environment.rascal.ast.FunctionBody x) { this.body = x; }
-	public Default setBody(org.meta_environment.rascal.ast.FunctionBody x) { 
-		Default z = new Default();
- 		z.$setBody(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.FunctionBody body;
+	public org.meta_environment.rascal.ast.FunctionBody getBody() { return body; }	
 }
 static public class Ambiguity extends FunctionDeclaration {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionDeclaration> alternatives;
@@ -75,9 +48,6 @@ static public class Ambiguity extends FunctionDeclaration {
 } public boolean isAbstract() { return false; }
 static public class Abstract extends FunctionDeclaration {
 /** tags:Tags visibility:Visibility signature:Signature ";" -> FunctionDeclaration {cons("Abstract")} */
-	private Abstract() {
-		super();
-	}
 	public Abstract(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Signature signature) {
 		this.node = node;
 		this.tags = tags;
@@ -94,30 +64,12 @@ static public class Abstract extends FunctionDeclaration {
 	public boolean hasVisibility() { return true; }
 	public boolean hasSignature() { return true; }
 
-private org.meta_environment.rascal.ast.Tags tags;
+private final org.meta_environment.rascal.ast.Tags tags;
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public Abstract setTags(org.meta_environment.rascal.ast.Tags x) { 
-		Abstract z = new Abstract();
- 		z.$setTags(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Visibility visibility;
+	private final org.meta_environment.rascal.ast.Visibility visibility;
 	public org.meta_environment.rascal.ast.Visibility getVisibility() { return visibility; }
-	private void $setVisibility(org.meta_environment.rascal.ast.Visibility x) { this.visibility = x; }
-	public Abstract setVisibility(org.meta_environment.rascal.ast.Visibility x) { 
-		Abstract z = new Abstract();
- 		z.$setVisibility(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Signature signature;
-	public org.meta_environment.rascal.ast.Signature getSignature() { return signature; }
-	private void $setSignature(org.meta_environment.rascal.ast.Signature x) { this.signature = x; }
-	public Abstract setSignature(org.meta_environment.rascal.ast.Signature x) { 
-		Abstract z = new Abstract();
- 		z.$setSignature(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Signature signature;
+	public org.meta_environment.rascal.ast.Signature getSignature() { return signature; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

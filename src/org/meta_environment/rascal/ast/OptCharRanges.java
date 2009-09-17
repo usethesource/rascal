@@ -4,9 +4,6 @@ public abstract class OptCharRanges extends AbstractAST {
   public boolean isAbsent() { return false; }
 static public class Absent extends OptCharRanges {
 /**  -> OptCharRanges {cons("Absent")} */
-	private Absent() {
-		super();
-	}
 	public Absent(INode node) {
 		this.node = node;
 	}
@@ -35,9 +32,6 @@ public boolean hasRanges() { return false; }
 public boolean isPresent() { return false; }
 static public class Present extends OptCharRanges {
 /** ranges:CharRanges -> OptCharRanges {cons("Present")} */
-	private Present() {
-		super();
-	}
 	public Present(INode node, org.meta_environment.rascal.ast.CharRanges ranges) {
 		this.node = node;
 		this.ranges = ranges;
@@ -50,14 +44,8 @@ static public class Present extends OptCharRanges {
 
 	public boolean hasRanges() { return true; }
 
-private org.meta_environment.rascal.ast.CharRanges ranges;
-	public org.meta_environment.rascal.ast.CharRanges getRanges() { return ranges; }
-	private void $setRanges(org.meta_environment.rascal.ast.CharRanges x) { this.ranges = x; }
-	public Present setRanges(org.meta_environment.rascal.ast.CharRanges x) { 
-		Present z = new Present();
- 		z.$setRanges(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.CharRanges ranges;
+	public org.meta_environment.rascal.ast.CharRanges getRanges() { return ranges; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

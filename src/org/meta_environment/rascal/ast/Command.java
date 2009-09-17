@@ -6,9 +6,6 @@ public boolean hasCommand() { return false; }
 public boolean isShell() { return false; }
 static public class Shell extends Command {
 /** ":" command:ShellCommand -> Command {cons("Shell")} */
-	private Shell() {
-		super();
-	}
 	public Shell(INode node, org.meta_environment.rascal.ast.ShellCommand command) {
 		this.node = node;
 		this.command = command;
@@ -21,14 +18,8 @@ static public class Shell extends Command {
 
 	public boolean hasCommand() { return true; }
 
-private org.meta_environment.rascal.ast.ShellCommand command;
-	public org.meta_environment.rascal.ast.ShellCommand getCommand() { return command; }
-	private void $setCommand(org.meta_environment.rascal.ast.ShellCommand x) { this.command = x; }
-	public Shell setCommand(org.meta_environment.rascal.ast.ShellCommand x) { 
-		Shell z = new Shell();
- 		z.$setCommand(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.ShellCommand command;
+	public org.meta_environment.rascal.ast.ShellCommand getCommand() { return command; }	
 }
 static public class Ambiguity extends Command {
   private final java.util.List<org.meta_environment.rascal.ast.Command> alternatives;
@@ -49,9 +40,6 @@ public boolean hasStatement() { return false; }
 public boolean isStatement() { return false; }
 static public class Statement extends Command {
 /** statement:Statement -> Command {cons("Statement")} */
-	private Statement() {
-		super();
-	}
 	public Statement(INode node, org.meta_environment.rascal.ast.Statement statement) {
 		this.node = node;
 		this.statement = statement;
@@ -64,22 +52,13 @@ static public class Statement extends Command {
 
 	public boolean hasStatement() { return true; }
 
-private org.meta_environment.rascal.ast.Statement statement;
-	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }
-	private void $setStatement(org.meta_environment.rascal.ast.Statement x) { this.statement = x; }
-	public Statement setStatement(org.meta_environment.rascal.ast.Statement x) { 
-		Statement z = new Statement();
- 		z.$setStatement(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Statement statement;
+	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }	
 } public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
 public boolean hasExpression() { return false; }
 public boolean isExpression() { return false; }
 static public class Expression extends Command {
 /** expression:Expression -> Command {prefer, cons("Expression")} */
-	private Expression() {
-		super();
-	}
 	public Expression(INode node, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
 		this.expression = expression;
@@ -92,23 +71,14 @@ static public class Expression extends Command {
 
 	public boolean hasExpression() { return true; }
 
-private org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
-	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
-	public Expression setExpression(org.meta_environment.rascal.ast.Expression x) { 
-		Expression z = new Expression();
- 		z.$setExpression(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
 } 
 public org.meta_environment.rascal.ast.Declaration getDeclaration() { throw new UnsupportedOperationException(); }
 public boolean hasDeclaration() { return false; }
 public boolean isDeclaration() { return false; }
 static public class Declaration extends Command {
 /** declaration:Declaration -> Command {avoid, cons("Declaration")} */
-	private Declaration() {
-		super();
-	}
 	public Declaration(INode node, org.meta_environment.rascal.ast.Declaration declaration) {
 		this.node = node;
 		this.declaration = declaration;
@@ -121,23 +91,14 @@ static public class Declaration extends Command {
 
 	public boolean hasDeclaration() { return true; }
 
-private org.meta_environment.rascal.ast.Declaration declaration;
-	public org.meta_environment.rascal.ast.Declaration getDeclaration() { return declaration; }
-	private void $setDeclaration(org.meta_environment.rascal.ast.Declaration x) { this.declaration = x; }
-	public Declaration setDeclaration(org.meta_environment.rascal.ast.Declaration x) { 
-		Declaration z = new Declaration();
- 		z.$setDeclaration(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Declaration declaration;
+	public org.meta_environment.rascal.ast.Declaration getDeclaration() { return declaration; }	
 } 
 public org.meta_environment.rascal.ast.Import getImported() { throw new UnsupportedOperationException(); }
 public boolean hasImported() { return false; }
 public boolean isImport() { return false; }
 static public class Import extends Command {
 /** imported:Import -> Command {cons("Import")} */
-	private Import() {
-		super();
-	}
 	public Import(INode node, org.meta_environment.rascal.ast.Import imported) {
 		this.node = node;
 		this.imported = imported;
@@ -150,17 +111,11 @@ static public class Import extends Command {
 
 	public boolean hasImported() { return true; }
 
-private org.meta_environment.rascal.ast.Import imported;
-	public org.meta_environment.rascal.ast.Import getImported() { return imported; }
-	private void $setImported(org.meta_environment.rascal.ast.Import x) { this.imported = x; }
-	public Import setImported(org.meta_environment.rascal.ast.Import x) { 
-		Import z = new Import();
- 		z.$setImported(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Import imported;
+	public org.meta_environment.rascal.ast.Import getImported() { return imported; }	
 } 
 static public class Lexical extends Command {
-	private String string;
+	private final String string;
          public Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;

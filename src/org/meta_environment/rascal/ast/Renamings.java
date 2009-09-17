@@ -6,9 +6,6 @@ public boolean hasRenamings() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Renamings {
 /** "renaming" renamings:{Renaming ","}+ -> Renamings {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, java.util.List<org.meta_environment.rascal.ast.Renaming> renamings) {
 		this.node = node;
 		this.renamings = renamings;
@@ -21,14 +18,8 @@ static public class Default extends Renamings {
 
 	public boolean hasRenamings() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Renaming> renamings;
-	public java.util.List<org.meta_environment.rascal.ast.Renaming> getRenamings() { return renamings; }
-	private void $setRenamings(java.util.List<org.meta_environment.rascal.ast.Renaming> x) { this.renamings = x; }
-	public Default setRenamings(java.util.List<org.meta_environment.rascal.ast.Renaming> x) { 
-		Default z = new Default();
- 		z.$setRenamings(x);
-		return z;
-	}	
+private final java.util.List<org.meta_environment.rascal.ast.Renaming> renamings;
+	public java.util.List<org.meta_environment.rascal.ast.Renaming> getRenamings() { return renamings; }	
 }
 static public class Ambiguity extends Renamings {
   private final java.util.List<org.meta_environment.rascal.ast.Renamings> alternatives;

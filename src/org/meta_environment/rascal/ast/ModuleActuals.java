@@ -6,9 +6,6 @@ public boolean hasTypes() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends ModuleActuals {
 /** "[" types:{Type ","}+ "]" -> ModuleActuals {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, java.util.List<org.meta_environment.rascal.ast.Type> types) {
 		this.node = node;
 		this.types = types;
@@ -21,14 +18,8 @@ static public class Default extends ModuleActuals {
 
 	public boolean hasTypes() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Type> types;
-	public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { return types; }
-	private void $setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { this.types = x; }
-	public Default setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { 
-		Default z = new Default();
- 		z.$setTypes(x);
-		return z;
-	}	
+private final java.util.List<org.meta_environment.rascal.ast.Type> types;
+	public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { return types; }	
 }
 static public class Ambiguity extends ModuleActuals {
   private final java.util.List<org.meta_environment.rascal.ast.ModuleActuals> alternatives;
