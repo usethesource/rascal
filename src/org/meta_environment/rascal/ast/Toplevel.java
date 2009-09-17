@@ -6,9 +6,6 @@ public boolean hasDeclaration() { return false; }
 public boolean isGivenVisibility() { return false; }
 static public class GivenVisibility extends Toplevel {
 /** declaration:Declaration -> Toplevel {cons("GivenVisibility")} */
-	private GivenVisibility() {
-		super();
-	}
 	public GivenVisibility(INode node, org.meta_environment.rascal.ast.Declaration declaration) {
 		this.node = node;
 		this.declaration = declaration;
@@ -21,14 +18,8 @@ static public class GivenVisibility extends Toplevel {
 
 	public boolean hasDeclaration() { return true; }
 
-private org.meta_environment.rascal.ast.Declaration declaration;
-	public org.meta_environment.rascal.ast.Declaration getDeclaration() { return declaration; }
-	private void $setDeclaration(org.meta_environment.rascal.ast.Declaration x) { this.declaration = x; }
-	public GivenVisibility setDeclaration(org.meta_environment.rascal.ast.Declaration x) { 
-		GivenVisibility z = new GivenVisibility();
- 		z.$setDeclaration(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Declaration declaration;
+	public org.meta_environment.rascal.ast.Declaration getDeclaration() { return declaration; }	
 }
 static public class Ambiguity extends Toplevel {
   private final java.util.List<org.meta_environment.rascal.ast.Toplevel> alternatives;

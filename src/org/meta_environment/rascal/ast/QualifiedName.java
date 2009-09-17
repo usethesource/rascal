@@ -6,9 +6,6 @@ public boolean hasNames() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends QualifiedName {
 /** names:{Name "::"}+ -> QualifiedName {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, java.util.List<org.meta_environment.rascal.ast.Name> names) {
 		this.node = node;
 		this.names = names;
@@ -21,14 +18,8 @@ static public class Default extends QualifiedName {
 
 	public boolean hasNames() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Name> names;
-	public java.util.List<org.meta_environment.rascal.ast.Name> getNames() { return names; }
-	private void $setNames(java.util.List<org.meta_environment.rascal.ast.Name> x) { this.names = x; }
-	public Default setNames(java.util.List<org.meta_environment.rascal.ast.Name> x) { 
-		Default z = new Default();
- 		z.$setNames(x);
-		return z;
-	}	
+private final java.util.List<org.meta_environment.rascal.ast.Name> names;
+	public java.util.List<org.meta_environment.rascal.ast.Name> getNames() { return names; }	
 }
 static public class Ambiguity extends QualifiedName {
   private final java.util.List<org.meta_environment.rascal.ast.QualifiedName> alternatives;

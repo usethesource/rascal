@@ -6,9 +6,6 @@ public boolean hasFormals() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Formals {
 /** formals:{Formal ","}* -> Formals {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, java.util.List<org.meta_environment.rascal.ast.Formal> formals) {
 		this.node = node;
 		this.formals = formals;
@@ -21,14 +18,8 @@ static public class Default extends Formals {
 
 	public boolean hasFormals() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Formal> formals;
-	public java.util.List<org.meta_environment.rascal.ast.Formal> getFormals() { return formals; }
-	private void $setFormals(java.util.List<org.meta_environment.rascal.ast.Formal> x) { this.formals = x; }
-	public Default setFormals(java.util.List<org.meta_environment.rascal.ast.Formal> x) { 
-		Default z = new Default();
- 		z.$setFormals(x);
-		return z;
-	}	
+private final java.util.List<org.meta_environment.rascal.ast.Formal> formals;
+	public java.util.List<org.meta_environment.rascal.ast.Formal> getFormals() { return formals; }	
 }
 static public class Ambiguity extends Formals {
   private final java.util.List<org.meta_environment.rascal.ast.Formals> alternatives;

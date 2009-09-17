@@ -8,9 +8,6 @@ public boolean hasName() { return false; }
 public boolean isNamedType() { return false; }
 static public class NamedType extends Alternative {
 /** name:Name type:Type -> Alternative {cons("NamedType")} */
-	private NamedType() {
-		super();
-	}
 	public NamedType(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Type type) {
 		this.node = node;
 		this.name = name;
@@ -25,22 +22,10 @@ static public class NamedType extends Alternative {
 	public boolean hasName() { return true; }
 	public boolean hasType() { return true; }
 
-private org.meta_environment.rascal.ast.Name name;
+private final org.meta_environment.rascal.ast.Name name;
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public NamedType setName(org.meta_environment.rascal.ast.Name x) { 
-		NamedType z = new NamedType();
- 		z.$setName(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Type type;
-	public org.meta_environment.rascal.ast.Type getType() { return type; }
-	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
-	public NamedType setType(org.meta_environment.rascal.ast.Type x) { 
-		NamedType z = new NamedType();
- 		z.$setType(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Type type;
+	public org.meta_environment.rascal.ast.Type getType() { return type; }	
 }
 static public class Ambiguity extends Alternative {
   private final java.util.List<org.meta_environment.rascal.ast.Alternative> alternatives;

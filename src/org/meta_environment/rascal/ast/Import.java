@@ -4,9 +4,6 @@ public abstract class Import extends AbstractAST {
   public org.meta_environment.rascal.ast.ImportedModule getModule() { throw new UnsupportedOperationException(); } public boolean hasModule() { return false; } public boolean isDefault() { return false; }
 static public class Default extends Import {
 /** "import" module:ImportedModule ";" -> Import {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, org.meta_environment.rascal.ast.ImportedModule module) {
 		this.node = node;
 		this.module = module;
@@ -19,14 +16,8 @@ static public class Default extends Import {
 
 	public boolean hasModule() { return true; }
 
-private org.meta_environment.rascal.ast.ImportedModule module;
-	public org.meta_environment.rascal.ast.ImportedModule getModule() { return module; }
-	private void $setModule(org.meta_environment.rascal.ast.ImportedModule x) { this.module = x; }
-	public Default setModule(org.meta_environment.rascal.ast.ImportedModule x) { 
-		Default z = new Default();
- 		z.$setModule(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.ImportedModule module;
+	public org.meta_environment.rascal.ast.ImportedModule getModule() { return module; }	
 }
 static public class Ambiguity extends Import {
   private final java.util.List<org.meta_environment.rascal.ast.Import> alternatives;
@@ -44,9 +35,6 @@ static public class Ambiguity extends Import {
 } public boolean isExtend() { return false; }
 static public class Extend extends Import {
 /** "extend" module:ImportedModule ";" -> Import {cons("Extend")} */
-	private Extend() {
-		super();
-	}
 	public Extend(INode node, org.meta_environment.rascal.ast.ImportedModule module) {
 		this.node = node;
 		this.module = module;
@@ -59,14 +47,8 @@ static public class Extend extends Import {
 
 	public boolean hasModule() { return true; }
 
-private org.meta_environment.rascal.ast.ImportedModule module;
-	public org.meta_environment.rascal.ast.ImportedModule getModule() { return module; }
-	private void $setModule(org.meta_environment.rascal.ast.ImportedModule x) { this.module = x; }
-	public Extend setModule(org.meta_environment.rascal.ast.ImportedModule x) { 
-		Extend z = new Extend();
- 		z.$setModule(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.ImportedModule module;
+	public org.meta_environment.rascal.ast.ImportedModule getModule() { return module; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

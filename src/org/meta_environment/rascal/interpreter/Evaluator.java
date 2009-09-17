@@ -50,6 +50,7 @@ import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
+import org.meta_environment.rascal.ast.ShellCommand;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.ast.StringLiteral;
@@ -2973,6 +2974,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		finally {
 			unwind(old);
 		}
+	}
+	
+	public Result<IValue> visitShellCommandSetOption(ShellCommand.SetOption x){
+		
+		return null; // Temp.
 	}
 
 	public Stack<Environment> getCallStack() {

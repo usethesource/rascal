@@ -4,9 +4,6 @@ public abstract class ImportedModule extends AbstractAST {
   public org.meta_environment.rascal.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.ModuleActuals getActuals() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Renamings getRenamings() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasActuals() { return false; } public boolean hasRenamings() { return false; } public boolean isActualsRenaming() { return false; }
 static public class ActualsRenaming extends ImportedModule {
 /** name:QualifiedName actuals:ModuleActuals renamings:Renamings -> ImportedModule {cons("ActualsRenaming")} */
-	private ActualsRenaming() {
-		super();
-	}
 	public ActualsRenaming(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals, org.meta_environment.rascal.ast.Renamings renamings) {
 		this.node = node;
 		this.name = name;
@@ -23,30 +20,12 @@ static public class ActualsRenaming extends ImportedModule {
 	public boolean hasActuals() { return true; }
 	public boolean hasRenamings() { return true; }
 
-private org.meta_environment.rascal.ast.QualifiedName name;
+private final org.meta_environment.rascal.ast.QualifiedName name;
 	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
-	public ActualsRenaming setName(org.meta_environment.rascal.ast.QualifiedName x) { 
-		ActualsRenaming z = new ActualsRenaming();
- 		z.$setName(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.ModuleActuals actuals;
+	private final org.meta_environment.rascal.ast.ModuleActuals actuals;
 	public org.meta_environment.rascal.ast.ModuleActuals getActuals() { return actuals; }
-	private void $setActuals(org.meta_environment.rascal.ast.ModuleActuals x) { this.actuals = x; }
-	public ActualsRenaming setActuals(org.meta_environment.rascal.ast.ModuleActuals x) { 
-		ActualsRenaming z = new ActualsRenaming();
- 		z.$setActuals(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Renamings renamings;
-	public org.meta_environment.rascal.ast.Renamings getRenamings() { return renamings; }
-	private void $setRenamings(org.meta_environment.rascal.ast.Renamings x) { this.renamings = x; }
-	public ActualsRenaming setRenamings(org.meta_environment.rascal.ast.Renamings x) { 
-		ActualsRenaming z = new ActualsRenaming();
- 		z.$setRenamings(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Renamings renamings;
+	public org.meta_environment.rascal.ast.Renamings getRenamings() { return renamings; }	
 }
 static public class Ambiguity extends ImportedModule {
   private final java.util.List<org.meta_environment.rascal.ast.ImportedModule> alternatives;
@@ -64,9 +43,6 @@ static public class Ambiguity extends ImportedModule {
 } public boolean isActuals() { return false; }
 static public class Actuals extends ImportedModule {
 /** name:QualifiedName actuals:ModuleActuals -> ImportedModule {cons("Actuals")} */
-	private Actuals() {
-		super();
-	}
 	public Actuals(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals) {
 		this.node = node;
 		this.name = name;
@@ -81,28 +57,13 @@ static public class Actuals extends ImportedModule {
 	public boolean hasName() { return true; }
 	public boolean hasActuals() { return true; }
 
-private org.meta_environment.rascal.ast.QualifiedName name;
+private final org.meta_environment.rascal.ast.QualifiedName name;
 	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
-	public Actuals setName(org.meta_environment.rascal.ast.QualifiedName x) { 
-		Actuals z = new Actuals();
- 		z.$setName(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.ModuleActuals actuals;
-	public org.meta_environment.rascal.ast.ModuleActuals getActuals() { return actuals; }
-	private void $setActuals(org.meta_environment.rascal.ast.ModuleActuals x) { this.actuals = x; }
-	public Actuals setActuals(org.meta_environment.rascal.ast.ModuleActuals x) { 
-		Actuals z = new Actuals();
- 		z.$setActuals(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.ModuleActuals actuals;
+	public org.meta_environment.rascal.ast.ModuleActuals getActuals() { return actuals; }	
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isRenamings() { return false; }
 static public class Renamings extends ImportedModule {
 /** name:QualifiedName renamings:Renamings -> ImportedModule {cons("Renamings")} */
-	private Renamings() {
-		super();
-	}
 	public Renamings(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Renamings renamings) {
 		this.node = node;
 		this.name = name;
@@ -117,28 +78,13 @@ static public class Renamings extends ImportedModule {
 	public boolean hasName() { return true; }
 	public boolean hasRenamings() { return true; }
 
-private org.meta_environment.rascal.ast.QualifiedName name;
+private final org.meta_environment.rascal.ast.QualifiedName name;
 	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
-	public Renamings setName(org.meta_environment.rascal.ast.QualifiedName x) { 
-		Renamings z = new Renamings();
- 		z.$setName(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Renamings renamings;
-	public org.meta_environment.rascal.ast.Renamings getRenamings() { return renamings; }
-	private void $setRenamings(org.meta_environment.rascal.ast.Renamings x) { this.renamings = x; }
-	public Renamings setRenamings(org.meta_environment.rascal.ast.Renamings x) { 
-		Renamings z = new Renamings();
- 		z.$setRenamings(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Renamings renamings;
+	public org.meta_environment.rascal.ast.Renamings getRenamings() { return renamings; }	
 } public boolean isDefault() { return false; }
 static public class Default extends ImportedModule {
 /** name:QualifiedName -> ImportedModule {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, org.meta_environment.rascal.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
@@ -151,13 +97,7 @@ static public class Default extends ImportedModule {
 
 	public boolean hasName() { return true; }
 
-private org.meta_environment.rascal.ast.QualifiedName name;
-	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
-	public Default setName(org.meta_environment.rascal.ast.QualifiedName x) { 
-		Default z = new Default();
- 		z.$setName(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.QualifiedName name;
+	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }	
 }
 }

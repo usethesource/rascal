@@ -4,9 +4,6 @@ public abstract class NoElseMayFollow extends AbstractAST {
 public boolean isDefault() { return false; }
 static public class Default extends NoElseMayFollow {
 /**  -> NoElseMayFollow {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node) {
 		this.node = node;
 	}

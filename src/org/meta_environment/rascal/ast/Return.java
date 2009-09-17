@@ -6,9 +6,6 @@ public boolean hasExpression() { return false; }
 public boolean isWithExpression() { return false; }
 static public class WithExpression extends Return {
 /** "return" expression:Expression ";" -> Return {cons("WithExpression")} */
-	private WithExpression() {
-		super();
-	}
 	public WithExpression(INode node, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
 		this.expression = expression;
@@ -21,14 +18,8 @@ static public class WithExpression extends Return {
 
 	public boolean hasExpression() { return true; }
 
-private org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
-	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
-	public WithExpression setExpression(org.meta_environment.rascal.ast.Expression x) { 
-		WithExpression z = new WithExpression();
- 		z.$setExpression(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
 }
 static public class Ambiguity extends Return {
   private final java.util.List<org.meta_environment.rascal.ast.Return> alternatives;
@@ -47,9 +38,6 @@ static public class Ambiguity extends Return {
 public boolean isNoExpression() { return false; }
 static public class NoExpression extends Return {
 /** "return" ";" -> Return {cons("NoExpression")} */
-	private NoExpression() {
-		super();
-	}
 	public NoExpression(INode node) {
 		this.node = node;
 	}

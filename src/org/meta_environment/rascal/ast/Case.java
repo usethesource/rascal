@@ -6,9 +6,6 @@ public boolean hasPatternWithAction() { return false; }
 public boolean isPatternWithAction() { return false; }
 static public class PatternWithAction extends Case {
 /** "case" patternWithAction:PatternWithAction -> Case {cons("PatternWithAction")} */
-	private PatternWithAction() {
-		super();
-	}
 	public PatternWithAction(INode node, org.meta_environment.rascal.ast.PatternWithAction patternWithAction) {
 		this.node = node;
 		this.patternWithAction = patternWithAction;
@@ -21,14 +18,8 @@ static public class PatternWithAction extends Case {
 
 	public boolean hasPatternWithAction() { return true; }
 
-private org.meta_environment.rascal.ast.PatternWithAction patternWithAction;
-	public org.meta_environment.rascal.ast.PatternWithAction getPatternWithAction() { return patternWithAction; }
-	private void $setPatternWithAction(org.meta_environment.rascal.ast.PatternWithAction x) { this.patternWithAction = x; }
-	public PatternWithAction setPatternWithAction(org.meta_environment.rascal.ast.PatternWithAction x) { 
-		PatternWithAction z = new PatternWithAction();
- 		z.$setPatternWithAction(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.PatternWithAction patternWithAction;
+	public org.meta_environment.rascal.ast.PatternWithAction getPatternWithAction() { return patternWithAction; }	
 }
 static public class Ambiguity extends Case {
   private final java.util.List<org.meta_environment.rascal.ast.Case> alternatives;
@@ -49,9 +40,6 @@ public boolean hasStatement() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Case {
 /** "default" ":" statement:Statement -> Case {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, org.meta_environment.rascal.ast.Statement statement) {
 		this.node = node;
 		this.statement = statement;
@@ -64,14 +52,8 @@ static public class Default extends Case {
 
 	public boolean hasStatement() { return true; }
 
-private org.meta_environment.rascal.ast.Statement statement;
-	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }
-	private void $setStatement(org.meta_environment.rascal.ast.Statement x) { this.statement = x; }
-	public Default setStatement(org.meta_environment.rascal.ast.Statement x) { 
-		Default z = new Default();
- 		z.$setStatement(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Statement statement;
+	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

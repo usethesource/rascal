@@ -46,16 +46,11 @@ public class RascalShell {
 				new PrintWriter(System.err), root, heap);
 	}
 	
-
 	public RascalShell(InputStream inputStream, Writer out) throws IOException {
 		console = new ConsoleReader(inputStream, out);
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
 		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), out, root, heap);
-	}
-
-	public void setInputStream(InputStream in) {
-		console.setInput(in);
 	}
 	
 	public void run() throws IOException {

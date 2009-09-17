@@ -8,9 +8,6 @@ public boolean hasFrom() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Renaming {
 /** from:Name "=>" to:Name -> Renaming {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, org.meta_environment.rascal.ast.Name from, org.meta_environment.rascal.ast.Name to) {
 		this.node = node;
 		this.from = from;
@@ -25,22 +22,10 @@ static public class Default extends Renaming {
 	public boolean hasFrom() { return true; }
 	public boolean hasTo() { return true; }
 
-private org.meta_environment.rascal.ast.Name from;
+private final org.meta_environment.rascal.ast.Name from;
 	public org.meta_environment.rascal.ast.Name getFrom() { return from; }
-	private void $setFrom(org.meta_environment.rascal.ast.Name x) { this.from = x; }
-	public Default setFrom(org.meta_environment.rascal.ast.Name x) { 
-		Default z = new Default();
- 		z.$setFrom(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Name to;
-	public org.meta_environment.rascal.ast.Name getTo() { return to; }
-	private void $setTo(org.meta_environment.rascal.ast.Name x) { this.to = x; }
-	public Default setTo(org.meta_environment.rascal.ast.Name x) { 
-		Default z = new Default();
- 		z.$setTo(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Name to;
+	public org.meta_environment.rascal.ast.Name getTo() { return to; }	
 }
 static public class Ambiguity extends Renaming {
   private final java.util.List<org.meta_environment.rascal.ast.Renaming> alternatives;

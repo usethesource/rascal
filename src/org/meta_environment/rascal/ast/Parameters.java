@@ -4,9 +4,6 @@ public abstract class Parameters extends AbstractAST {
   public org.meta_environment.rascal.ast.Formals getFormals() { throw new UnsupportedOperationException(); } public boolean hasFormals() { return false; } public boolean isDefault() { return false; }
 static public class Default extends Parameters {
 /** "(" formals:Formals ")" -> Parameters {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, org.meta_environment.rascal.ast.Formals formals) {
 		this.node = node;
 		this.formals = formals;
@@ -19,14 +16,8 @@ static public class Default extends Parameters {
 
 	public boolean hasFormals() { return true; }
 
-private org.meta_environment.rascal.ast.Formals formals;
-	public org.meta_environment.rascal.ast.Formals getFormals() { return formals; }
-	private void $setFormals(org.meta_environment.rascal.ast.Formals x) { this.formals = x; }
-	public Default setFormals(org.meta_environment.rascal.ast.Formals x) { 
-		Default z = new Default();
- 		z.$setFormals(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Formals formals;
+	public org.meta_environment.rascal.ast.Formals getFormals() { return formals; }	
 }
 static public class Ambiguity extends Parameters {
   private final java.util.List<org.meta_environment.rascal.ast.Parameters> alternatives;
@@ -44,9 +35,6 @@ static public class Ambiguity extends Parameters {
 } public boolean isVarArgs() { return false; }
 static public class VarArgs extends Parameters {
 /** "(" formals:Formals "..." ")" -> Parameters {cons("VarArgs")} */
-	private VarArgs() {
-		super();
-	}
 	public VarArgs(INode node, org.meta_environment.rascal.ast.Formals formals) {
 		this.node = node;
 		this.formals = formals;
@@ -59,14 +47,8 @@ static public class VarArgs extends Parameters {
 
 	public boolean hasFormals() { return true; }
 
-private org.meta_environment.rascal.ast.Formals formals;
-	public org.meta_environment.rascal.ast.Formals getFormals() { return formals; }
-	private void $setFormals(org.meta_environment.rascal.ast.Formals x) { this.formals = x; }
-	public VarArgs setFormals(org.meta_environment.rascal.ast.Formals x) { 
-		VarArgs z = new VarArgs();
- 		z.$setFormals(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Formals formals;
+	public org.meta_environment.rascal.ast.Formals getFormals() { return formals; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

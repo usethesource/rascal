@@ -4,9 +4,6 @@ public abstract class UserType extends AbstractAST {
   public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isName() { return false; }
 static public class Name extends UserType {
 /** name:Name -> UserType {cons("Name")} */
-	private Name() {
-		super();
-	}
 	public Name(INode node, org.meta_environment.rascal.ast.Name name) {
 		this.node = node;
 		this.name = name;
@@ -19,14 +16,8 @@ static public class Name extends UserType {
 
 	public boolean hasName() { return true; }
 
-private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public Name setName(org.meta_environment.rascal.ast.Name x) { 
-		Name z = new Name();
- 		z.$setName(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Name name;
+	public org.meta_environment.rascal.ast.Name getName() { return name; }	
 }
 static public class Ambiguity extends UserType {
   private final java.util.List<org.meta_environment.rascal.ast.UserType> alternatives;
@@ -45,9 +36,6 @@ static public class Ambiguity extends UserType {
 public boolean isParametric() { return false; }
 static public class Parametric extends UserType {
 /** name:Name "[" parameters:{Type ","}+ "]" -> UserType {cons("Parametric")} */
-	private Parametric() {
-		super();
-	}
 	public Parametric(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Type> parameters) {
 		this.node = node;
 		this.name = name;
@@ -62,22 +50,10 @@ static public class Parametric extends UserType {
 	public boolean hasName() { return true; }
 	public boolean hasParameters() { return true; }
 
-private org.meta_environment.rascal.ast.Name name;
+private final org.meta_environment.rascal.ast.Name name;
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public Parametric setName(org.meta_environment.rascal.ast.Name x) { 
-		Parametric z = new Parametric();
- 		z.$setName(x);
-		return z;
-	}
-	private java.util.List<org.meta_environment.rascal.ast.Type> parameters;
-	public java.util.List<org.meta_environment.rascal.ast.Type> getParameters() { return parameters; }
-	private void $setParameters(java.util.List<org.meta_environment.rascal.ast.Type> x) { this.parameters = x; }
-	public Parametric setParameters(java.util.List<org.meta_environment.rascal.ast.Type> x) { 
-		Parametric z = new Parametric();
- 		z.$setParameters(x);
-		return z;
-	}	
+	private final java.util.List<org.meta_environment.rascal.ast.Type> parameters;
+	public java.util.List<org.meta_environment.rascal.ast.Type> getParameters() { return parameters; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

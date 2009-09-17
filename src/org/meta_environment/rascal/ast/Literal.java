@@ -6,9 +6,6 @@ public boolean hasRegExpLiteral() { return false; }
 public boolean isRegExp() { return false; }
 static public class RegExp extends Literal {
 /** regExpLiteral:RegExpLiteral -> Literal {cons("RegExp")} */
-	private RegExp() {
-		super();
-	}
 	public RegExp(INode node, org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral) {
 		this.node = node;
 		this.regExpLiteral = regExpLiteral;
@@ -21,14 +18,8 @@ static public class RegExp extends Literal {
 
 	public boolean hasRegExpLiteral() { return true; }
 
-private org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral;
-	public org.meta_environment.rascal.ast.RegExpLiteral getRegExpLiteral() { return regExpLiteral; }
-	private void $setRegExpLiteral(org.meta_environment.rascal.ast.RegExpLiteral x) { this.regExpLiteral = x; }
-	public RegExp setRegExpLiteral(org.meta_environment.rascal.ast.RegExpLiteral x) { 
-		RegExp z = new RegExp();
- 		z.$setRegExpLiteral(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral;
+	public org.meta_environment.rascal.ast.RegExpLiteral getRegExpLiteral() { return regExpLiteral; }	
 }
 static public class Ambiguity extends Literal {
   private final java.util.List<org.meta_environment.rascal.ast.Literal> alternatives;
@@ -49,9 +40,6 @@ public boolean hasBooleanLiteral() { return false; }
 public boolean isBoolean() { return false; }
 static public class Boolean extends Literal {
 /** booleanLiteral:BooleanLiteral -> Literal {cons("Boolean")} */
-	private Boolean() {
-		super();
-	}
 	public Boolean(INode node, org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral) {
 		this.node = node;
 		this.booleanLiteral = booleanLiteral;
@@ -64,22 +52,13 @@ static public class Boolean extends Literal {
 
 	public boolean hasBooleanLiteral() { return true; }
 
-private org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral;
-	public org.meta_environment.rascal.ast.BooleanLiteral getBooleanLiteral() { return booleanLiteral; }
-	private void $setBooleanLiteral(org.meta_environment.rascal.ast.BooleanLiteral x) { this.booleanLiteral = x; }
-	public Boolean setBooleanLiteral(org.meta_environment.rascal.ast.BooleanLiteral x) { 
-		Boolean z = new Boolean();
- 		z.$setBooleanLiteral(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral;
+	public org.meta_environment.rascal.ast.BooleanLiteral getBooleanLiteral() { return booleanLiteral; }	
 } public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.IntegerLiteral getIntegerLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasIntegerLiteral() { return false; }
 public boolean isInteger() { return false; }
 static public class Integer extends Literal {
 /** integerLiteral:IntegerLiteral -> Literal {cons("Integer")} */
-	private Integer() {
-		super();
-	}
 	public Integer(INode node, org.meta_environment.rascal.ast.IntegerLiteral integerLiteral) {
 		this.node = node;
 		this.integerLiteral = integerLiteral;
@@ -92,23 +71,14 @@ static public class Integer extends Literal {
 
 	public boolean hasIntegerLiteral() { return true; }
 
-private org.meta_environment.rascal.ast.IntegerLiteral integerLiteral;
-	public org.meta_environment.rascal.ast.IntegerLiteral getIntegerLiteral() { return integerLiteral; }
-	private void $setIntegerLiteral(org.meta_environment.rascal.ast.IntegerLiteral x) { this.integerLiteral = x; }
-	public Integer setIntegerLiteral(org.meta_environment.rascal.ast.IntegerLiteral x) { 
-		Integer z = new Integer();
- 		z.$setIntegerLiteral(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.IntegerLiteral integerLiteral;
+	public org.meta_environment.rascal.ast.IntegerLiteral getIntegerLiteral() { return integerLiteral; }	
 } 
 public org.meta_environment.rascal.ast.RealLiteral getRealLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasRealLiteral() { return false; }
 public boolean isReal() { return false; }
 static public class Real extends Literal {
 /** realLiteral:RealLiteral -> Literal {cons("Real")} */
-	private Real() {
-		super();
-	}
 	public Real(INode node, org.meta_environment.rascal.ast.RealLiteral realLiteral) {
 		this.node = node;
 		this.realLiteral = realLiteral;
@@ -121,23 +91,14 @@ static public class Real extends Literal {
 
 	public boolean hasRealLiteral() { return true; }
 
-private org.meta_environment.rascal.ast.RealLiteral realLiteral;
-	public org.meta_environment.rascal.ast.RealLiteral getRealLiteral() { return realLiteral; }
-	private void $setRealLiteral(org.meta_environment.rascal.ast.RealLiteral x) { this.realLiteral = x; }
-	public Real setRealLiteral(org.meta_environment.rascal.ast.RealLiteral x) { 
-		Real z = new Real();
- 		z.$setRealLiteral(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.RealLiteral realLiteral;
+	public org.meta_environment.rascal.ast.RealLiteral getRealLiteral() { return realLiteral; }	
 } 
 public org.meta_environment.rascal.ast.StringLiteral getStringLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasStringLiteral() { return false; }
 public boolean isString() { return false; }
 static public class String extends Literal {
 /** stringLiteral:StringLiteral -> Literal {cons("String")} */
-	private String() {
-		super();
-	}
 	public String(INode node, org.meta_environment.rascal.ast.StringLiteral stringLiteral) {
 		this.node = node;
 		this.stringLiteral = stringLiteral;
@@ -150,23 +111,14 @@ static public class String extends Literal {
 
 	public boolean hasStringLiteral() { return true; }
 
-private org.meta_environment.rascal.ast.StringLiteral stringLiteral;
-	public org.meta_environment.rascal.ast.StringLiteral getStringLiteral() { return stringLiteral; }
-	private void $setStringLiteral(org.meta_environment.rascal.ast.StringLiteral x) { this.stringLiteral = x; }
-	public String setStringLiteral(org.meta_environment.rascal.ast.StringLiteral x) { 
-		String z = new String();
- 		z.$setStringLiteral(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.StringLiteral stringLiteral;
+	public org.meta_environment.rascal.ast.StringLiteral getStringLiteral() { return stringLiteral; }	
 } 
 public org.meta_environment.rascal.ast.LocationLiteral getLocationLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasLocationLiteral() { return false; }
 public boolean isLocation() { return false; }
 static public class Location extends Literal {
 /** locationLiteral:LocationLiteral -> Literal {cons("Location")} */
-	private Location() {
-		super();
-	}
 	public Location(INode node, org.meta_environment.rascal.ast.LocationLiteral locationLiteral) {
 		this.node = node;
 		this.locationLiteral = locationLiteral;
@@ -179,13 +131,7 @@ static public class Location extends Literal {
 
 	public boolean hasLocationLiteral() { return true; }
 
-private org.meta_environment.rascal.ast.LocationLiteral locationLiteral;
-	public org.meta_environment.rascal.ast.LocationLiteral getLocationLiteral() { return locationLiteral; }
-	private void $setLocationLiteral(org.meta_environment.rascal.ast.LocationLiteral x) { this.locationLiteral = x; }
-	public Location setLocationLiteral(org.meta_environment.rascal.ast.LocationLiteral x) { 
-		Location z = new Location();
- 		z.$setLocationLiteral(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.LocationLiteral locationLiteral;
+	public org.meta_environment.rascal.ast.LocationLiteral getLocationLiteral() { return locationLiteral; }	
 }
 }

@@ -6,9 +6,6 @@ public boolean hasModifiers() { return false; }
 public boolean isList() { return false; }
 static public class List extends FunctionModifiers {
 /** modifiers:FunctionModifier* -> FunctionModifiers {cons("List")} */
-	private List() {
-		super();
-	}
 	public List(INode node, java.util.List<org.meta_environment.rascal.ast.FunctionModifier> modifiers) {
 		this.node = node;
 		this.modifiers = modifiers;
@@ -21,14 +18,8 @@ static public class List extends FunctionModifiers {
 
 	public boolean hasModifiers() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.FunctionModifier> modifiers;
-	public java.util.List<org.meta_environment.rascal.ast.FunctionModifier> getModifiers() { return modifiers; }
-	private void $setModifiers(java.util.List<org.meta_environment.rascal.ast.FunctionModifier> x) { this.modifiers = x; }
-	public List setModifiers(java.util.List<org.meta_environment.rascal.ast.FunctionModifier> x) { 
-		List z = new List();
- 		z.$setModifiers(x);
-		return z;
-	}	
+private final java.util.List<org.meta_environment.rascal.ast.FunctionModifier> modifiers;
+	public java.util.List<org.meta_environment.rascal.ast.FunctionModifier> getModifiers() { return modifiers; }	
 }
 static public class Ambiguity extends FunctionModifiers {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionModifiers> alternatives;

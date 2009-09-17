@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class SingleQuotedStrChar extends AbstractAST { 
   static public class Lexical extends SingleQuotedStrChar {
-	private String string;
+	private final String string;
          public Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;

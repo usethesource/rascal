@@ -8,9 +8,6 @@ public boolean hasType() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Declarator {
 /** type:Type variables:{Variable ","}+ -> Declarator {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) {
 		this.node = node;
 		this.type = type;
@@ -25,22 +22,10 @@ static public class Default extends Declarator {
 	public boolean hasType() { return true; }
 	public boolean hasVariables() { return true; }
 
-private org.meta_environment.rascal.ast.Type type;
+private final org.meta_environment.rascal.ast.Type type;
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
-	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
-	public Default setType(org.meta_environment.rascal.ast.Type x) { 
-		Default z = new Default();
- 		z.$setType(x);
-		return z;
-	}
-	private java.util.List<org.meta_environment.rascal.ast.Variable> variables;
-	public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() { return variables; }
-	private void $setVariables(java.util.List<org.meta_environment.rascal.ast.Variable> x) { this.variables = x; }
-	public Default setVariables(java.util.List<org.meta_environment.rascal.ast.Variable> x) { 
-		Default z = new Default();
- 		z.$setVariables(x);
-		return z;
-	}	
+	private final java.util.List<org.meta_environment.rascal.ast.Variable> variables;
+	public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() { return variables; }	
 }
 static public class Ambiguity extends Declarator {
   private final java.util.List<org.meta_environment.rascal.ast.Declarator> alternatives;

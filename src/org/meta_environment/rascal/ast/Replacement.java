@@ -4,9 +4,6 @@ public abstract class Replacement extends AbstractAST {
   public org.meta_environment.rascal.ast.Expression getReplacementExpression() { throw new UnsupportedOperationException(); } public boolean hasReplacementExpression() { return false; } public boolean isUnconditional() { return false; }
 static public class Unconditional extends Replacement {
 /** replacementExpression:Expression -> Replacement {cons("Unconditional")} */
-	private Unconditional() {
-		super();
-	}
 	public Unconditional(INode node, org.meta_environment.rascal.ast.Expression replacementExpression) {
 		this.node = node;
 		this.replacementExpression = replacementExpression;
@@ -19,14 +16,8 @@ static public class Unconditional extends Replacement {
 
 	public boolean hasReplacementExpression() { return true; }
 
-private org.meta_environment.rascal.ast.Expression replacementExpression;
-	public org.meta_environment.rascal.ast.Expression getReplacementExpression() { return replacementExpression; }
-	private void $setReplacementExpression(org.meta_environment.rascal.ast.Expression x) { this.replacementExpression = x; }
-	public Unconditional setReplacementExpression(org.meta_environment.rascal.ast.Expression x) { 
-		Unconditional z = new Unconditional();
- 		z.$setReplacementExpression(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.Expression replacementExpression;
+	public org.meta_environment.rascal.ast.Expression getReplacementExpression() { return replacementExpression; }	
 }
 static public class Ambiguity extends Replacement {
   private final java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives;
@@ -45,9 +36,6 @@ static public class Ambiguity extends Replacement {
 public boolean isConditional() { return false; }
 static public class Conditional extends Replacement {
 /** replacementExpression:Expression "when" conditions:{Expression ","}+ -> Replacement {cons("Conditional")} */
-	private Conditional() {
-		super();
-	}
 	public Conditional(INode node, org.meta_environment.rascal.ast.Expression replacementExpression, java.util.List<org.meta_environment.rascal.ast.Expression> conditions) {
 		this.node = node;
 		this.replacementExpression = replacementExpression;
@@ -62,22 +50,10 @@ static public class Conditional extends Replacement {
 	public boolean hasReplacementExpression() { return true; }
 	public boolean hasConditions() { return true; }
 
-private org.meta_environment.rascal.ast.Expression replacementExpression;
+private final org.meta_environment.rascal.ast.Expression replacementExpression;
 	public org.meta_environment.rascal.ast.Expression getReplacementExpression() { return replacementExpression; }
-	private void $setReplacementExpression(org.meta_environment.rascal.ast.Expression x) { this.replacementExpression = x; }
-	public Conditional setReplacementExpression(org.meta_environment.rascal.ast.Expression x) { 
-		Conditional z = new Conditional();
- 		z.$setReplacementExpression(x);
-		return z;
-	}
-	private java.util.List<org.meta_environment.rascal.ast.Expression> conditions;
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() { return conditions; }
-	private void $setConditions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.conditions = x; }
-	public Conditional setConditions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
-		Conditional z = new Conditional();
- 		z.$setConditions(x);
-		return z;
-	}	
+	private final java.util.List<org.meta_environment.rascal.ast.Expression> conditions;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() { return conditions; }	
 }
  public abstract <T> T accept(IASTVisitor<T> visitor);
 }

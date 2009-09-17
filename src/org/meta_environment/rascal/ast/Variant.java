@@ -8,9 +8,6 @@ public boolean hasName() { return false; }
 public boolean isNAryConstructor() { return false; }
 static public class NAryConstructor extends Variant {
 /** name:Name "(" arguments:{TypeArg ","}* ")" -> Variant {cons("NAryConstructor")} */
-	private NAryConstructor() {
-		super();
-	}
 	public NAryConstructor(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) {
 		this.node = node;
 		this.name = name;
@@ -25,22 +22,10 @@ static public class NAryConstructor extends Variant {
 	public boolean hasName() { return true; }
 	public boolean hasArguments() { return true; }
 
-private org.meta_environment.rascal.ast.Name name;
+private final org.meta_environment.rascal.ast.Name name;
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public NAryConstructor setName(org.meta_environment.rascal.ast.Name x) { 
-		NAryConstructor z = new NAryConstructor();
- 		z.$setName(x);
-		return z;
-	}
-	private java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments;
-	public java.util.List<org.meta_environment.rascal.ast.TypeArg> getArguments() { return arguments; }
-	private void $setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { this.arguments = x; }
-	public NAryConstructor setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { 
-		NAryConstructor z = new NAryConstructor();
- 		z.$setArguments(x);
-		return z;
-	}	
+	private final java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments;
+	public java.util.List<org.meta_environment.rascal.ast.TypeArg> getArguments() { return arguments; }	
 }
 static public class Ambiguity extends Variant {
   private final java.util.List<org.meta_environment.rascal.ast.Variant> alternatives;

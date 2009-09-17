@@ -4,9 +4,6 @@ public abstract class BasicType extends AbstractAST {
   public boolean isBool() { return false; }
 static public class Bool extends BasicType {
 /** "bool" -> BasicType {cons("Bool")} */
-	private Bool() {
-		super();
-	}
 	public Bool(INode node) {
 		this.node = node;
 	}
@@ -33,9 +30,6 @@ static public class Ambiguity extends BasicType {
 public boolean isInt() { return false; }
 static public class Int extends BasicType {
 /** "int" -> BasicType {cons("Int")} */
-	private Int() {
-		super();
-	}
 	public Int(INode node) {
 		this.node = node;
 	}
@@ -47,9 +41,6 @@ static public class Int extends BasicType {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isReal() { return false; }
 static public class Real extends BasicType {
 /** "real" -> BasicType {cons("Real")} */
-	private Real() {
-		super();
-	}
 	public Real(INode node) {
 		this.node = node;
 	}
@@ -62,9 +53,6 @@ static public class Real extends BasicType {
 public boolean isString() { return false; }
 static public class String extends BasicType {
 /** "str" -> BasicType {cons("String")} */
-	private String() {
-		super();
-	}
 	public String(INode node) {
 		this.node = node;
 	}
@@ -77,9 +65,6 @@ static public class String extends BasicType {
 public boolean isValue() { return false; }
 static public class Value extends BasicType {
 /** "value" -> BasicType {cons("Value")} */
-	private Value() {
-		super();
-	}
 	public Value(INode node) {
 		this.node = node;
 	}
@@ -92,9 +77,6 @@ static public class Value extends BasicType {
 public boolean isNode() { return false; }
 static public class Node extends BasicType {
 /** "node" -> BasicType {cons("Node")} */
-	private Node() {
-		super();
-	}
 	public Node(INode node) {
 		this.node = node;
 	}
@@ -107,9 +89,6 @@ static public class Node extends BasicType {
 public boolean isVoid() { return false; }
 static public class Void extends BasicType {
 /** "void" -> BasicType {cons("Void")} */
-	private Void() {
-		super();
-	}
 	public Void(INode node) {
 		this.node = node;
 	}
@@ -122,9 +101,6 @@ static public class Void extends BasicType {
 public boolean isLoc() { return false; }
 static public class Loc extends BasicType {
 /** "loc" -> BasicType {cons("Loc")} */
-	private Loc() {
-		super();
-	}
 	public Loc(INode node) {
 		this.node = node;
 	}
@@ -137,9 +113,6 @@ static public class Loc extends BasicType {
 public boolean isList() { return false; }
 static public class List extends BasicType {
 /** "list" -> BasicType {cons("List")} */
-	private List() {
-		super();
-	}
 	public List(INode node) {
 		this.node = node;
 	}
@@ -152,9 +125,6 @@ static public class List extends BasicType {
 public boolean isSet() { return false; }
 static public class Set extends BasicType {
 /** "set" -> BasicType {cons("Set")} */
-	private Set() {
-		super();
-	}
 	public Set(INode node) {
 		this.node = node;
 	}
@@ -167,9 +137,6 @@ static public class Set extends BasicType {
 public boolean isBag() { return false; }
 static public class Bag extends BasicType {
 /** "bag" -> BasicType {cons("Bag")} */
-	private Bag() {
-		super();
-	}
 	public Bag(INode node) {
 		this.node = node;
 	}
@@ -182,9 +149,6 @@ static public class Bag extends BasicType {
 public boolean isMap() { return false; }
 static public class Map extends BasicType {
 /** "map" -> BasicType {cons("Map")} */
-	private Map() {
-		super();
-	}
 	public Map(INode node) {
 		this.node = node;
 	}
@@ -197,9 +161,6 @@ static public class Map extends BasicType {
 public boolean isRelation() { return false; }
 static public class Relation extends BasicType {
 /** "rel" -> BasicType {cons("Relation")} */
-	private Relation() {
-		super();
-	}
 	public Relation(INode node) {
 		this.node = node;
 	}
@@ -212,9 +173,6 @@ static public class Relation extends BasicType {
 public boolean isTuple() { return false; }
 static public class Tuple extends BasicType {
 /** "tuple" -> BasicType {cons("Tuple")} */
-	private Tuple() {
-		super();
-	}
 	public Tuple(INode node) {
 		this.node = node;
 	}
@@ -227,9 +185,6 @@ static public class Tuple extends BasicType {
 public boolean isLex() { return false; }
 static public class Lex extends BasicType {
 /** "lex" -> BasicType {cons("Lex")} */
-	private Lex() {
-		super();
-	}
 	public Lex(INode node) {
 		this.node = node;
 	}
@@ -242,9 +197,6 @@ static public class Lex extends BasicType {
 public boolean isReifiedType() { return false; }
 static public class ReifiedType extends BasicType {
 /** "type" -> BasicType {cons("ReifiedType")} */
-	private ReifiedType() {
-		super();
-	}
 	public ReifiedType(INode node) {
 		this.node = node;
 	}
@@ -257,9 +209,6 @@ static public class ReifiedType extends BasicType {
 public boolean isReifiedAdt() { return false; }
 static public class ReifiedAdt extends BasicType {
 /** "adt" -> BasicType {cons("ReifiedAdt")} */
-	private ReifiedAdt() {
-		super();
-	}
 	public ReifiedAdt(INode node) {
 		this.node = node;
 	}
@@ -272,9 +221,6 @@ static public class ReifiedAdt extends BasicType {
 public boolean isReifiedConstructor() { return false; }
 static public class ReifiedConstructor extends BasicType {
 /** "constructor" -> BasicType {cons("ReifiedConstructor")} */
-	private ReifiedConstructor() {
-		super();
-	}
 	public ReifiedConstructor(INode node) {
 		this.node = node;
 	}
@@ -287,9 +233,6 @@ static public class ReifiedConstructor extends BasicType {
 public boolean isReifiedFunction() { return false; }
 static public class ReifiedFunction extends BasicType {
 /** "fun" -> BasicType {cons("ReifiedFunction")} */
-	private ReifiedFunction() {
-		super();
-	}
 	public ReifiedFunction(INode node) {
 		this.node = node;
 	}
@@ -302,9 +245,6 @@ static public class ReifiedFunction extends BasicType {
 public boolean isReifiedNonTerminal() { return false; }
 static public class ReifiedNonTerminal extends BasicType {
 /** "non-terminal" -> BasicType {cons("ReifiedNonTerminal")} */
-	private ReifiedNonTerminal() {
-		super();
-	}
 	public ReifiedNonTerminal(INode node) {
 		this.node = node;
 	}
@@ -317,9 +257,6 @@ static public class ReifiedNonTerminal extends BasicType {
 public boolean isReifiedReifiedType() { return false; }
 static public class ReifiedReifiedType extends BasicType {
 /** "reified" -> BasicType {cons("ReifiedReifiedType")} */
-	private ReifiedReifiedType() {
-		super();
-	}
 	public ReifiedReifiedType(INode node) {
 		this.node = node;
 	}

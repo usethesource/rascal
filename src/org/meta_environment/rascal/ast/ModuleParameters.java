@@ -6,9 +6,6 @@ public boolean hasParameters() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends ModuleParameters {
 /** "[" parameters:{TypeVar ","}+ "]" -> ModuleParameters {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node, java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters) {
 		this.node = node;
 		this.parameters = parameters;
@@ -21,14 +18,8 @@ static public class Default extends ModuleParameters {
 
 	public boolean hasParameters() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters;
-	public java.util.List<org.meta_environment.rascal.ast.TypeVar> getParameters() { return parameters; }
-	private void $setParameters(java.util.List<org.meta_environment.rascal.ast.TypeVar> x) { this.parameters = x; }
-	public Default setParameters(java.util.List<org.meta_environment.rascal.ast.TypeVar> x) { 
-		Default z = new Default();
- 		z.$setParameters(x);
-		return z;
-	}	
+private final java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters;
+	public java.util.List<org.meta_environment.rascal.ast.TypeVar> getParameters() { return parameters; }	
 }
 static public class Ambiguity extends ModuleParameters {
   private final java.util.List<org.meta_environment.rascal.ast.ModuleParameters> alternatives;

@@ -4,9 +4,6 @@ public abstract class ShellCommand extends AbstractAST {
   public boolean isHelp() { return false; }
 static public class Help extends ShellCommand {
 /** "help" -> ShellCommand {cons("Help")} */
-	private Help() {
-		super();
-	}
 	public Help(INode node) {
 		this.node = node;
 	}
@@ -33,9 +30,6 @@ static public class Ambiguity extends ShellCommand {
 public boolean isQuit() { return false; }
 static public class Quit extends ShellCommand {
 /** "quit" -> ShellCommand {cons("Quit")} */
-	private Quit() {
-		super();
-	}
 	public Quit(INode node) {
 		this.node = node;
 	}
@@ -47,9 +41,6 @@ static public class Quit extends ShellCommand {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isEdit() { return false; }
 static public class Edit extends ShellCommand {
 /** "edit" name:QualifiedName -> ShellCommand {cons("Edit")} */
-	private Edit() {
-		super();
-	}
 	public Edit(INode node, org.meta_environment.rascal.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
@@ -62,21 +53,12 @@ static public class Edit extends ShellCommand {
 
 	public boolean hasName() { return true; }
 
-private org.meta_environment.rascal.ast.QualifiedName name;
-	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
-	public Edit setName(org.meta_environment.rascal.ast.QualifiedName x) { 
-		Edit z = new Edit();
- 		z.$setName(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.QualifiedName name;
+	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }	
 } 
 public boolean isListModules() { return false; }
 static public class ListModules extends ShellCommand {
 /** "modules" -> ShellCommand {cons("ListModules")} */
-	private ListModules() {
-		super();
-	}
 	public ListModules(INode node) {
 		this.node = node;
 	}
@@ -89,9 +71,6 @@ static public class ListModules extends ShellCommand {
 public boolean isListDeclarations() { return false; }
 static public class ListDeclarations extends ShellCommand {
 /** "declarations" -> ShellCommand {cons("ListDeclarations")} */
-	private ListDeclarations() {
-		super();
-	}
 	public ListDeclarations(INode node) {
 		this.node = node;
 	}
@@ -104,9 +83,6 @@ static public class ListDeclarations extends ShellCommand {
 public boolean isTest() { return false; }
 static public class Test extends ShellCommand {
 /** "test" -> ShellCommand {cons("Test")} */
-	private Test() {
-		super();
-	}
 	public Test(INode node) {
 		this.node = node;
 	}
@@ -118,9 +94,6 @@ static public class Test extends ShellCommand {
 } public boolean isUnimport() { return false; }
 static public class Unimport extends ShellCommand {
 /** "unimport" name:QualifiedName -> ShellCommand {cons("Unimport")} */
-	private Unimport() {
-		super();
-	}
 	public Unimport(INode node, org.meta_environment.rascal.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
@@ -133,20 +106,11 @@ static public class Unimport extends ShellCommand {
 
 	public boolean hasName() { return true; }
 
-private org.meta_environment.rascal.ast.QualifiedName name;
-	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
-	public Unimport setName(org.meta_environment.rascal.ast.QualifiedName x) { 
-		Unimport z = new Unimport();
- 		z.$setName(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.QualifiedName name;
+	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }	
 } public boolean isUndeclare() { return false; }
 static public class Undeclare extends ShellCommand {
 /** "undeclare" name:QualifiedName -> ShellCommand {cons("Undeclare")} */
-	private Undeclare() {
-		super();
-	}
 	public Undeclare(INode node, org.meta_environment.rascal.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
@@ -159,21 +123,12 @@ static public class Undeclare extends ShellCommand {
 
 	public boolean hasName() { return true; }
 
-private org.meta_environment.rascal.ast.QualifiedName name;
-	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
-	public Undeclare setName(org.meta_environment.rascal.ast.QualifiedName x) { 
-		Undeclare z = new Undeclare();
- 		z.$setName(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.QualifiedName name;
+	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }	
 } 
 public boolean isHistory() { return false; }
 static public class History extends ShellCommand {
 /** "history" -> ShellCommand {cons("History")} */
-	private History() {
-		super();
-	}
 	public History(INode node) {
 		this.node = node;
 	}
@@ -186,9 +141,6 @@ static public class History extends ShellCommand {
 public boolean isSetOption() { return false; }
 static public class SetOption extends ShellCommand {
 /** "set" name:QualifiedName expression:Expression -> ShellCommand {cons("SetOption")} */
-	private SetOption() {
-		super();
-	}
 	public SetOption(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
 		this.name = name;
@@ -203,21 +155,9 @@ static public class SetOption extends ShellCommand {
 	public boolean hasName() { return true; }
 	public boolean hasExpression() { return true; }
 
-private org.meta_environment.rascal.ast.QualifiedName name;
+private final org.meta_environment.rascal.ast.QualifiedName name;
 	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
-	public SetOption setName(org.meta_environment.rascal.ast.QualifiedName x) { 
-		SetOption z = new SetOption();
- 		z.$setName(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
-	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
-	public SetOption setExpression(org.meta_environment.rascal.ast.Expression x) { 
-		SetOption z = new SetOption();
- 		z.$setExpression(x);
-		return z;
-	}	
+	private final org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
 }
 }

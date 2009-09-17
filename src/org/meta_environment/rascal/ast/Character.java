@@ -6,9 +6,6 @@ public boolean hasNumChar() { return false; }
 public boolean isNumeric() { return false; }
 static public class Numeric extends Character {
 /** numChar:NumChar -> Character {cons("Numeric")} */
-	private Numeric() {
-		super();
-	}
 	public Numeric(INode node, org.meta_environment.rascal.ast.NumChar numChar) {
 		this.node = node;
 		this.numChar = numChar;
@@ -21,14 +18,8 @@ static public class Numeric extends Character {
 
 	public boolean hasNumChar() { return true; }
 
-private org.meta_environment.rascal.ast.NumChar numChar;
-	public org.meta_environment.rascal.ast.NumChar getNumChar() { return numChar; }
-	private void $setNumChar(org.meta_environment.rascal.ast.NumChar x) { this.numChar = x; }
-	public Numeric setNumChar(org.meta_environment.rascal.ast.NumChar x) { 
-		Numeric z = new Numeric();
- 		z.$setNumChar(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.NumChar numChar;
+	public org.meta_environment.rascal.ast.NumChar getNumChar() { return numChar; }	
 }
 static public class Ambiguity extends Character {
   private final java.util.List<org.meta_environment.rascal.ast.Character> alternatives;
@@ -49,9 +40,6 @@ public boolean hasShortChar() { return false; }
 public boolean isShort() { return false; }
 static public class Short extends Character {
 /** shortChar:ShortChar -> Character {cons("Short")} */
-	private Short() {
-		super();
-	}
 	public Short(INode node, org.meta_environment.rascal.ast.ShortChar shortChar) {
 		this.node = node;
 		this.shortChar = shortChar;
@@ -64,20 +52,11 @@ static public class Short extends Character {
 
 	public boolean hasShortChar() { return true; }
 
-private org.meta_environment.rascal.ast.ShortChar shortChar;
-	public org.meta_environment.rascal.ast.ShortChar getShortChar() { return shortChar; }
-	private void $setShortChar(org.meta_environment.rascal.ast.ShortChar x) { this.shortChar = x; }
-	public Short setShortChar(org.meta_environment.rascal.ast.ShortChar x) { 
-		Short z = new Short();
- 		z.$setShortChar(x);
-		return z;
-	}	
+private final org.meta_environment.rascal.ast.ShortChar shortChar;
+	public org.meta_environment.rascal.ast.ShortChar getShortChar() { return shortChar; }	
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isTop() { return false; }
 static public class Top extends Character {
 /** "\\TOP" -> Character {cons("Top")} */
-	private Top() {
-		super();
-	}
 	public Top(INode node) {
 		this.node = node;
 	}
@@ -90,9 +69,6 @@ static public class Top extends Character {
 public boolean isEOF() { return false; }
 static public class EOF extends Character {
 /** "\\EOF" -> Character {cons("EOF")} */
-	private EOF() {
-		super();
-	}
 	public EOF(INode node) {
 		this.node = node;
 	}
@@ -105,9 +81,6 @@ static public class EOF extends Character {
 public boolean isBottom() { return false; }
 static public class Bottom extends Character {
 /** "\\BOT" -> Character {cons("Bottom")} */
-	private Bottom() {
-		super();
-	}
 	public Bottom(INode node) {
 		this.node = node;
 	}

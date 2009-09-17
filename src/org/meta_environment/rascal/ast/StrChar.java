@@ -4,9 +4,6 @@ public abstract class StrChar extends AbstractAST {
   public boolean isnewline() { return false; }
 static public class newline extends StrChar {
 /** "\\n" -> StrChar {cons("newline")} */
-	private newline() {
-		super();
-	}
 	public newline(INode node) {
 		this.node = node;
 	}
@@ -30,7 +27,7 @@ static public class Ambiguity extends StrChar {
      return v.visitStrCharAmbiguity(this);
   }
 } static public class Lexical extends StrChar {
-	private String string;
+	private final String string;
          public Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;

@@ -4,9 +4,6 @@ public abstract class Visibility extends AbstractAST {
   public boolean isPublic() { return false; }
 static public class Public extends Visibility {
 /** "public" -> Visibility {cons("Public")} */
-	private Public() {
-		super();
-	}
 	public Public(INode node) {
 		this.node = node;
 	}
@@ -33,9 +30,6 @@ static public class Ambiguity extends Visibility {
 public boolean isPrivate() { return false; }
 static public class Private extends Visibility {
 /** "private" -> Visibility {cons("Private")} */
-	private Private() {
-		super();
-	}
 	public Private(INode node) {
 		this.node = node;
 	}
@@ -47,9 +41,6 @@ static public class Private extends Visibility {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isDefault() { return false; }
 static public class Default extends Visibility {
 /**  -> Visibility {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node) {
 		this.node = node;
 	}

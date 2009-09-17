@@ -4,9 +4,6 @@ public abstract class Assignment extends AbstractAST {
   public boolean isDefault() { return false; }
 static public class Default extends Assignment {
 /** "=" -> Assignment {cons("Default")} */
-	private Default() {
-		super();
-	}
 	public Default(INode node) {
 		this.node = node;
 	}
@@ -33,9 +30,6 @@ static public class Ambiguity extends Assignment {
 public boolean isAddition() { return false; }
 static public class Addition extends Assignment {
 /** "+=" -> Assignment {cons("Addition")} */
-	private Addition() {
-		super();
-	}
 	public Addition(INode node) {
 		this.node = node;
 	}
@@ -47,9 +41,6 @@ static public class Addition extends Assignment {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isSubtraction() { return false; }
 static public class Subtraction extends Assignment {
 /** "-=" -> Assignment {cons("Subtraction")} */
-	private Subtraction() {
-		super();
-	}
 	public Subtraction(INode node) {
 		this.node = node;
 	}
@@ -62,9 +53,6 @@ static public class Subtraction extends Assignment {
 public boolean isProduct() { return false; }
 static public class Product extends Assignment {
 /** "*=" -> Assignment {cons("Product")} */
-	private Product() {
-		super();
-	}
 	public Product(INode node) {
 		this.node = node;
 	}
@@ -77,9 +65,6 @@ static public class Product extends Assignment {
 public boolean isDivision() { return false; }
 static public class Division extends Assignment {
 /** "/=" -> Assignment {cons("Division")} */
-	private Division() {
-		super();
-	}
 	public Division(INode node) {
 		this.node = node;
 	}
@@ -92,9 +77,6 @@ static public class Division extends Assignment {
 public boolean isIntersection() { return false; }
 static public class Intersection extends Assignment {
 /** "&=" -> Assignment {cons("Intersection")} */
-	private Intersection() {
-		super();
-	}
 	public Intersection(INode node) {
 		this.node = node;
 	}
@@ -107,9 +89,6 @@ static public class Intersection extends Assignment {
 public boolean isIfDefined() { return false; }
 static public class IfDefined extends Assignment {
 /** "?=" -> Assignment {cons("IfDefined")} */
-	private IfDefined() {
-		super();
-	}
 	public IfDefined(INode node) {
 		this.node = node;
 	}
