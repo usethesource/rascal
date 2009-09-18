@@ -8,6 +8,10 @@ public &T(&T) java makeStrategy(value typePreservingFunction);
 @javaClass{org.meta_environment.rascal.interpreter.strategy.All}
 public &T(&T) java makeAll(&T(&T) strategy);
 
+@doc{Apply the strategy in argument to all the children of the subject using a topological order for binary relations.}
+@javaClass{org.meta_environment.rascal.interpreter.strategy.topological.TopologicalAll}
+public &T(&T) java makeTopologicalAll(&T(&T) strategy);
+
 @doc{Apply the strategy given in argument to one of the children of the subject.}
 @javaClass{org.meta_environment.rascal.interpreter.strategy.One}
 public &T(&T) java makeOne(&T(&T) strategy);
