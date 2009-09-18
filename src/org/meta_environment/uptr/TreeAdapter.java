@@ -187,7 +187,7 @@ public class TreeAdapter{
 			int startCol = cur.col;
 			int startOffset = cur.offset;
 			PositionNode positionNode = new PositionNode(tree, cur.offset);
-			IConstructor result = null; // cache.get(positionNode);
+			IConstructor result = cache.get(positionNode);
 
 			if(result != null){
 				ISourceLocation loc = getLocation(result);
@@ -229,7 +229,6 @@ public class TreeAdapter{
 				}else if(!labelLayout && inLayout){
 					return tree;
 				}
-
 			}else if(isAmb(tree)){
 				ISet alts = getAlternatives(tree);
 				ISetWriter newAlts = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
