@@ -16,7 +16,6 @@ import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Descendant;
 import org.meta_environment.rascal.ast.Expression.Enumerator;
-import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Equals;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldProject;
@@ -412,11 +411,6 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 	@Override
 	public IBooleanResult visitExpressionEnumerator(Enumerator x) {
 		return new EnumeratorResult(vf, ctx, x.getPattern().accept(pe), null, x.getExpression());
-	}
-
-	@Override
-	public IBooleanResult visitExpressionEnumeratorWithStrategy(EnumeratorWithStrategy x){
-		return new EnumeratorResult(vf, ctx, x.getPattern().accept(pe), x.getStrategy(), x.getExpression());
 	}
 
 	@Override
