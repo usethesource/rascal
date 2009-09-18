@@ -21,24 +21,26 @@ public class VisitableRelationNode extends AbstractVisitable {
 
 	@Override
 	public Visitable set(int i, Visitable newChild)
-			throws IndexOutOfBoundsException {
+	throws IndexOutOfBoundsException {
 		if (i >= arity()) throw new IndexOutOfBoundsException();
 		relation = relation.delete(ValueFactory.getInstance().tuple(getValue(),get(i).getValue()));
 		children.set(i,newChild);
 		relation = relation.insert(ValueFactory.getInstance().tuple(getValue(),get(i).getValue()));
 		return this;
 	}
-	
-	
+
+
 	public static VisitableRelationNode makeVisitableRelationNode(IRelation relation, IValue node) {
 		HashMap<IValue, LinkedList<IValue>> adjacencies = computeAdjacencies(relation);
 		List<Visitable> successors = new ArrayList<Visitable>();
-		for (IValue s: adjacencies.get(node)) {
-			successors.add(makeVisitableRelationNode(relation, s));
+		if (adjacencies.get(node) != null) {
+			for (IValue s: adjacencies.get(node)) {
+				successors.add(makeVisitableRelationNode(relation, s));
+			}
 		}
 		return new VisitableRelationNode(relation, node, successors);
 	}
-	
+
 	private static HashMap<IValue, LinkedList<IValue>> computeAdjacencies(IRelation relation) {
 		HashMap<IValue, LinkedList<IValue>> adjacencies = new HashMap<IValue, LinkedList<IValue>> ();
 		for(IValue v : relation){
@@ -53,7 +55,7 @@ public class VisitableRelationNode extends AbstractVisitable {
 		}  
 		return adjacencies;
 	}
-	
+
 	public IRelation getRelation() {
 		return relation;
 	}
