@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -25,8 +26,13 @@ import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.IntegerLiteral;
 import org.meta_environment.rascal.ast.JavaFunctionBody;
 import org.meta_environment.rascal.ast.Literal;
+import org.meta_environment.rascal.ast.LocationLiteral;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Name;
+import org.meta_environment.rascal.ast.PathChars;
+import org.meta_environment.rascal.ast.PathPart;
+import org.meta_environment.rascal.ast.ProtocolChars;
+import org.meta_environment.rascal.ast.ProtocolPart;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringLiteral;
@@ -493,11 +499,15 @@ public class ASTBuilder {
 			INode node = (INode) pattern;
 			ASTStatistics stats = new ASTStatistics();
 			boolean isAmb = false;
+			ISourceLocation loc = null;
 			
 			if (type.isAbstractDataType()) {
 				IConstructor tree = (IConstructor) pattern;
 
 				if (tree.getConstructorType() == Factory.Tree_Appl) {
+					loc = TreeAdapter.getLocation(tree);
+					// TODO: get location information, if its there and build ast for annotation setting
+					
 					if (TreeAdapter.isList(tree)) {
 						inlist = true;
 					}
@@ -573,7 +583,12 @@ public class ASTBuilder {
 				stats.setAmbiguous(true);
 			}
 
-			Expression.CallOrTree ast = new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
+			Expression ast = new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
+			
+			if (loc != null) {
+				ast = addLocationAnnotationSetterExpression(source, loc, ast);
+			}
+			
 			ast.setStats(stats);
 			
 			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
@@ -659,6 +674,44 @@ public class ASTBuilder {
 		else {
 			throw new ImplementationError("Illegal value encountered while lifting a concrete syntax pattern:" + pattern);
 		}
+	}
+
+	private Expression addLocationAnnotationSetterExpression(
+			IConstructor source, ISourceLocation loc, Expression ast) {
+		List<Expression> positions = new ArrayList<Expression>(4);
+		positions.add(createIntegerExpression(source, loc.getOffset()));
+		positions.add(createIntegerExpression(source, loc.getLength()));
+		
+		List<Expression> begin = new ArrayList<Expression>(2);
+		begin.add(createIntegerExpression(source, loc.getBeginLine()));
+		begin.add(createIntegerExpression(source, loc.getBeginColumn()));
+		positions.add(new Expression.Tuple(source, begin));
+		
+		List<Expression> end = new ArrayList<Expression>(2);
+		end.add(createIntegerExpression(source, loc.getEndLine()));
+		end.add(createIntegerExpression(source, loc.getEndColumn()));
+		positions.add(new Expression.Tuple(source, end));
+		
+		String host = loc.getURI().getAuthority();
+		String uriPath = loc.getURI().getPath();
+		String path = host != null ? host : "" + "/" + uriPath != null ? uriPath : "";
+		ast = new Expression.SetAnnotation(source, ast, Names.toName("loc"), 
+				new Expression.CallOrTree(source, new Expression.Literal(source, 
+						new Literal.Location(source, 
+								new LocationLiteral.Default(source, 
+										new ProtocolPart.NonInterpolated(source, 
+												new ProtocolChars.Lexical(source, "|" + loc.getURI().getScheme() + "://")
+										), 
+										new PathPart.NonInterpolated(source, 
+												new PathChars.Lexical(source, path + "|"))))),
+												positions
+												));
+		return ast;
+	}
+
+	private org.meta_environment.rascal.ast.Expression.Literal createIntegerExpression(
+			IConstructor source, int offset) {
+		return new Expression.Literal(source, new Literal.Integer(source, new IntegerLiteral.DecimalIntegerLiteral(source, new DecimalIntegerLiteral.Lexical(source, Integer.toString(offset)))));
 	}
 
 	// TODO: optimize, this can be really slowing things down
