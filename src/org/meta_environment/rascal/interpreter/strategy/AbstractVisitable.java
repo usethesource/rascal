@@ -2,15 +2,14 @@ package org.meta_environment.rascal.interpreter.strategy;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
-public abstract class AbstractVisitable implements Visitable {
+public abstract class AbstractVisitable extends VisitableConstructor {
 
-	private IValue value;
 	protected List<Visitable> children;
 
-	public AbstractVisitable(IValue value, List<Visitable> children) {
-		this.value = value;
+	public AbstractVisitable(IConstructor Node, List<Visitable> children) {
+		super(Node);
 		this.children = children;
 	}
 
@@ -18,12 +17,8 @@ public abstract class AbstractVisitable implements Visitable {
 		return children.size();
 	}
 
-	public Visitable get(int i) throws IndexOutOfBoundsException {
+	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
 		return children.get(i);
-	}
-
-	public IValue getValue() {
-		return value;
 	}
 
 	public String toString() {
@@ -39,7 +34,7 @@ public abstract class AbstractVisitable implements Visitable {
 		return buffer.toString();
 	}
 
-	public abstract Visitable set(int i, Visitable newChild)
+	public abstract Visitable setChildAt(int i, Visitable newChild)
 	throws IndexOutOfBoundsException;
 
 }

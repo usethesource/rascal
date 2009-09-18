@@ -21,7 +21,7 @@ public class VisitableMap implements Visitable {
 		return map.size();
 	}
 
-	public Visitable get(int i) throws IndexOutOfBoundsException {
+	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
 		int index = 0;
 		Iterator<Entry<IValue, IValue>> entries = map.entryIterator();
 		while(entries.hasNext()) {
@@ -39,7 +39,7 @@ public class VisitableMap implements Visitable {
 		return map;
 	}
 
-	public Visitable set(int i, Visitable newChild)
+	public Visitable setChildAt(int i, Visitable newChild)
 	throws IndexOutOfBoundsException {
 		if (i>=arity()) {
 			throw new IndexOutOfBoundsException();

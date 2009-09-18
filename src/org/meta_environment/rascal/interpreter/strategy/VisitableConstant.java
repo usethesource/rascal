@@ -14,7 +14,7 @@ public class VisitableConstant implements Visitable {
 		return 0;
 	}
 
-	public Visitable get(int i) throws IndexOutOfBoundsException {
+	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
 		throw new IndexOutOfBoundsException();
 	}
 
@@ -22,7 +22,7 @@ public class VisitableConstant implements Visitable {
 		return value;
 	}
 
-	public Visitable set(int i, Visitable newChild)
+	public Visitable setChildAt(int i, Visitable newChild)
 	throws IndexOutOfBoundsException {
 		throw new IndexOutOfBoundsException();
 	}
