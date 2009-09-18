@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
@@ -14,9 +15,8 @@ public class TopologicalAll extends All {
 		super(function);
 	}
 	
-	private static VisitableRelationNode getRoot(IRelation relation) {
-		//TODO: not implemented yet
-		return null;
+	private static ISet getRoots(IRelation relation) {
+		return relation.domain().subtract(relation.range());
 	}
 
 	@Override
@@ -24,9 +24,14 @@ public class TopologicalAll extends All {
 			IEvaluatorContext ctx) {
 		if (argValues[0] instanceof IRelation) {
 			IRelation relation = ((IRelation) argValues[0]);
-			VisitableRelationNode root = getRoot(relation);
-			function.call(new Type[]{root.getValue().getType()}, new IValue[]{root.getValue()}, ctx);
-			return new ElementResult<IValue>(root.getRelation().getType(), root.getRelation(), ctx);
+			ISet roots = getRoots(relation);
+			IRelation tmp = relation;
+			for (IValue root: roots) {
+				VisitableRelationNode visitableroot = VisitableRelationNode.makeVisitableRelationNode(tmp, root);
+				function.call(new Type[]{visitableroot.getValue().getType()}, new IValue[]{visitableroot.getValue()}, ctx);
+				tmp = visitableroot.getRelation();
+			}
+			return new ElementResult<IValue>(tmp.getType(), tmp, ctx);
 		} else {
 			return super.call(argTypes, argValues, ctx);
 		}
