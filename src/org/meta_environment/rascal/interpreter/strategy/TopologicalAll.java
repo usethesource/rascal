@@ -1,11 +1,6 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
@@ -18,21 +13,10 @@ public class TopologicalAll extends All {
 	public TopologicalAll(AbstractFunction function) {
 		super(function);
 	}
-
-
-	private HashMap<IValue, LinkedList<IValue>> computeAdjacencies(IRelation relation) {
-		HashMap<IValue, LinkedList<IValue>> adjacencies = new HashMap<IValue, LinkedList<IValue>> ();
-		for(IValue v : relation){
-			ITuple tup = (ITuple) v;
-			IValue from = tup.get(0);
-			IValue to = tup.get(1);
-			LinkedList<IValue> children = adjacencies.get(from);
-			if(children == null)
-				children = new LinkedList<IValue>();
-			children.add(to);
-			adjacencies.put(from, children);
-		}  
-		return adjacencies;
+	
+	private static VisitableRelationNode getRoot(IRelation relation) {
+		//TODO: not implemented yet
+		return null;
 	}
 
 	@Override
@@ -40,13 +24,9 @@ public class TopologicalAll extends All {
 			IEvaluatorContext ctx) {
 		if (argValues[0] instanceof IRelation) {
 			IRelation relation = ((IRelation) argValues[0]);
-			HashMap<IValue, LinkedList<IValue>> adjacencies = computeAdjacencies(relation);
-			Visitable result = VisitableFactory.make(argValues[0]);
-			for (int i = 0; i < result.arity(); i++) {
-				IValue child = result.get(i).getValue();
-				result = result.set(i, VisitableFactory.make(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue()));
-			}
-			return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
+			VisitableRelationNode root = getRoot(relation);
+			function.call(new Type[]{root.getValue().getType()}, new IValue[]{root.getValue()}, ctx);
+			return new ElementResult<IValue>(root.getRelation().getType(), root.getRelation(), ctx);
 		} else {
 			return super.call(argTypes, argValues, ctx);
 		}
