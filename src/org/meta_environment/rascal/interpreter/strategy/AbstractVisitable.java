@@ -1,23 +1,25 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IValue;
 
 public abstract class AbstractVisitable implements Visitable {
 	
 	private IValue value;
-	private Visitable[] children;
+	protected List<Visitable> children;
 
-	public AbstractVisitable(IValue value, Visitable[] children) {
+	public AbstractVisitable(IValue value, List<Visitable> children) {
 		this.value = value;
 		this.children = children;
 	}
 
 	public int arity() {
-		return children.length;
+		return children.size();
 	}
 
 	public Visitable get(int i) throws IndexOutOfBoundsException {
-		return children[i];
+		return children.get(i);
 	}
 
 	public IValue getValue() {
