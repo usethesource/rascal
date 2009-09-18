@@ -251,10 +251,11 @@ public class TreeAdapter{
 						newAlts.insert(newArg);
 					}
 				}
-
-				save.col = newPos.col;
-				save.line = newPos.line;
-				save.offset = newPos.offset;
+				
+				cur = save;
+				cur.col = newPos.col;
+				cur.line = newPos.line;
+				cur.offset = newPos.offset;
 
 				for(IValue arg : cycles.done()){
 					IValue newArg = addPosInfo((IConstructor) arg, location, cur);

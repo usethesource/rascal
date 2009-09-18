@@ -439,11 +439,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param imp
 	 * @return
 	 */
-	public IValue eval(org.meta_environment.rascal.ast.Import imp) {
+	public Result<IValue> eval(org.meta_environment.rascal.ast.Import imp) {
 		currentAST = imp;
 		Result<IValue> r = imp.accept(this);
 		if(r != null){
-			return r.getValue();
+			return r;
 		}
 
 		throw new ImplementationError("Not yet implemented: " + imp.getTree());
