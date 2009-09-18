@@ -14,7 +14,7 @@ public class TopologicalAll extends All {
 	public TopologicalAll(AbstractFunction function) {
 		super(function);
 	}
-	
+
 	private static ISet getRoots(IRelation relation) {
 		return relation.domain().subtract(relation.range());
 	}
@@ -24,17 +24,20 @@ public class TopologicalAll extends All {
 			IEvaluatorContext ctx) {
 		if (argValues[0] instanceof IRelation) {
 			IRelation relation = ((IRelation) argValues[0]);
-			ISet roots = getRoots(relation);
-			IRelation tmp = relation;
-			for (IValue root: roots) {
-				VisitableRelationNode visitableroot = VisitableRelationNode.makeVisitableRelationNode(tmp, root);
-				function.call(new Type[]{visitableroot.getValue().getType()}, new IValue[]{visitableroot.getValue()}, ctx);
-				tmp = visitableroot.getRelation();
+			//only for binary relations
+			if (relation.getType().getArity() == 2) {
+				ISet roots = getRoots(relation);
+				IRelation tmp = relation;
+				for (IValue root: roots) {
+					VisitableRelationNode visitableroot = VisitableRelationNode.makeVisitableRelationNode(tmp, root);
+					function.call(new Type[]{visitableroot.getValue().getType()}, new IValue[]{visitableroot.getValue()}, ctx);
+					tmp = visitableroot.getRelation();
+				}
+				return new ElementResult<IValue>(tmp.getType(), tmp, ctx);
 			}
-			return new ElementResult<IValue>(tmp.getType(), tmp, ctx);
-		} else {
-			return super.call(argTypes, argValues, ctx);
 		}
+		return super.call(argTypes, argValues, ctx);
+
 	}
 
 	public static IValue makeTopologicalAll(IValue arg) {
