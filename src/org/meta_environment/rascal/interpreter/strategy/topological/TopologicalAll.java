@@ -1,6 +1,5 @@
-package org.meta_environment.rascal.interpreter.strategy;
+package org.meta_environment.rascal.interpreter.strategy.topological;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -10,6 +9,8 @@ import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.strategy.All;
+import org.meta_environment.rascal.interpreter.strategy.VisitableFactory;
 
 public class TopologicalAll extends All {
 
@@ -31,7 +32,7 @@ public class TopologicalAll extends All {
 				ISet roots = getRoots(relation);
 				IRelation tmp = relation;
 				for (IValue root: roots) {
-					VisitableRelationNode visitableroot = VisitableRelationNode.makeVisitableRelationNode(tmp, (IConstructor)root);
+					TopologicalVisitable<?> visitableroot = VisitableFactory.makeTopologicalVisitable(tmp,root);
 					function.call(new Type[]{visitableroot.getType()}, new IValue[]{visitableroot}, ctx);
 					tmp = visitableroot.getRelation();
 				}
@@ -39,7 +40,6 @@ public class TopologicalAll extends All {
 			}
 		}
 		return super.call(argTypes, argValues, ctx);
-
 	}
 
 	public static IValue makeTopologicalAll(IValue arg) {

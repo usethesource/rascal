@@ -2,7 +2,7 @@ package org.meta_environment.rascal.interpreter.strategy;
 
 import org.eclipse.imp.pdb.facts.IValue;
 
-public interface Visitable {
+public interface IVisitable extends IValue {
 
 	/**
 	 * Get a child
@@ -11,7 +11,7 @@ public interface Visitable {
 	 *            the zero based index of the child
 	 * @return a value
 	 */
-	public Visitable getChildAt(int i) throws IndexOutOfBoundsException;
+	public IVisitable getChildAt(int i) throws IndexOutOfBoundsException;
 
 	/**
 	 * Set a different child at a certain position.
@@ -22,7 +22,7 @@ public interface Visitable {
 	 *            the new value for the child
 	 * @return a new visitable with the new child at position i
 	 */
-	public Visitable setChildAt(int i, Visitable newChild)
+	public IVisitable setChildAt(int i, IVisitable newChild)
 			throws IndexOutOfBoundsException;
 
 	/**

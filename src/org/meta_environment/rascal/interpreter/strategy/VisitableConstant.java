@@ -1,8 +1,11 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public class VisitableConstant implements Visitable {
+public class VisitableConstant implements IVisitable, IValue {
 
 	private IValue value;
 
@@ -14,7 +17,7 @@ public class VisitableConstant implements Visitable {
 		return 0;
 	}
 
-	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
+	public IVisitable getChildAt(int i) throws IndexOutOfBoundsException {
 		throw new IndexOutOfBoundsException();
 	}
 
@@ -22,9 +25,29 @@ public class VisitableConstant implements Visitable {
 		return value;
 	}
 
-	public Visitable setChildAt(int i, Visitable newChild)
+	public IVisitable setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
 		throw new IndexOutOfBoundsException();
+	}
+
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+		return value.accept(v);
+	}
+
+	public boolean equals(Object other) {
+		return value.equals(other);
+	}
+
+	public Type getType() {
+		return value.getType();
+	}
+
+	public boolean isEqual(IValue other) {
+		return value.isEqual(other);
+	}
+
+	public String toString() {
+		return value.toString();
 	}
 
 }
