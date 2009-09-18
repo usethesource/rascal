@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ElementResult;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 public class TopologicalAll extends All {
@@ -41,8 +42,19 @@ public class TopologicalAll extends All {
 	}
 
 	public static IValue makeTopologicalAll(IValue arg) {
-		if (! Strategy.checkType(arg)) throw new RuntimeException("Unexpected strategy argument "+arg);
-		return new TopologicalAll((AbstractFunction) arg);
+		if (arg instanceof AbstractFunction) {
+			AbstractFunction function = (AbstractFunction) arg;
+			if (function.isStrategy()) {
+				return new TopologicalAll((AbstractFunction) arg);			}
+		} else if (arg instanceof OverloadedFunctionResult) {
+			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
+			for (AbstractFunction function: res.iterable()) {
+				if (function.isStrategy()) {
+					return new TopologicalAll((AbstractFunction) function);
+				}
+			}
+		}
+		throw new RuntimeException("Unexpected strategy argument "+arg);
 	}
 
 }
