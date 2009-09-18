@@ -10,7 +10,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public class VisitableNode implements Visitable,INode {
+public class VisitableNode implements IVisitable,INode {
 
 	private INode node;
 
@@ -26,11 +26,11 @@ public class VisitableNode implements Visitable,INode {
 		return node.get(i);
 	}
 
-	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
-		return VisitableFactory.make(node.get(i));
+	public IVisitable getChildAt(int i) throws IndexOutOfBoundsException {
+		return VisitableFactory.makeVisitable(node.get(i));
 	}
 
-	public Visitable setChildAt(int i, Visitable newChild)
+	public IVisitable setChildAt(int i, IVisitable newChild)
 			throws IndexOutOfBoundsException {
 		return new VisitableNode(node.set(i, newChild.getValue()));
 	}

@@ -1,5 +1,10 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
@@ -14,12 +19,20 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitable;
+import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitableConstructor;
+import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitableList;
+import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitableMap;
+import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitableNode;
+import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitableRelation;
+import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitableSet;
+import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitableTuple;
 
 public class VisitableFactory {
 
-	public static Visitable make(IValue iValue) {
-		if (iValue instanceof Visitable) {
-			return (Visitable) iValue;
+	public static IVisitable makeVisitable(IValue iValue) {
+		if (iValue instanceof IVisitable) {
+			return (IVisitable) iValue;
 		} else if (iValue instanceof IConstructor) {
 			return new VisitableConstructor((IConstructor) iValue);
 		} else if (iValue instanceof INode) {
@@ -39,5 +52,51 @@ public class VisitableFactory {
 		}
 		return null;
 	}
+
+	public static TopologicalVisitable<?> makeTopologicalVisitable(IRelation relation, IValue iValue) {
+		HashMap<IValue, LinkedList<IValue>> adjacencies = computeAdjacencies(relation);
+		List<IVisitable> successors = new ArrayList<IVisitable>();
+		if (adjacencies.get(iValue) != null) {
+			for (IValue s: adjacencies.get(iValue)) {
+				successors.add(makeTopologicalVisitable(relation, s));
+			}
+		}
+		if (iValue instanceof TopologicalVisitable<?>) {
+			return (TopologicalVisitable<?>) iValue;
+		} else if (iValue instanceof IConstructor) {
+			return new TopologicalVisitableConstructor(relation, (IConstructor) iValue, successors);
+		} else if (iValue instanceof INode) {
+			return new TopologicalVisitableNode(relation, (INode) iValue, successors);
+		} else if (iValue instanceof ITuple) {
+			return new TopologicalVisitableTuple(relation, (ITuple) iValue, successors);
+		} else if (iValue instanceof IMap) {
+			return new TopologicalVisitableMap(relation, (IMap) iValue, successors);
+		} else if (iValue instanceof IRelation) {
+			return new TopologicalVisitableRelation(relation, (IRelation) iValue, successors);
+		} else if (iValue instanceof IList) {
+			return new TopologicalVisitableList(relation, (IList) iValue, successors);
+		} else if (iValue instanceof ISet) {
+			return new TopologicalVisitableSet(relation, (ISet) iValue, successors);
+		} else if (iValue instanceof ISourceLocation || iValue instanceof IExternalValue || iValue instanceof IBool || iValue instanceof IInteger || iValue instanceof ISourceLocation || iValue instanceof IReal || iValue instanceof IString) {
+			return new TopologicalVisitable<IValue>(relation, iValue, successors);
+		}
+		return null;
+	}
+
+	private static HashMap<IValue, LinkedList<IValue>> computeAdjacencies(IRelation relation) {
+		HashMap<IValue, LinkedList<IValue>> adjacencies = new HashMap<IValue, LinkedList<IValue>> ();
+		for(IValue v : relation){
+			ITuple tup = (ITuple) v;
+			IValue from = tup.get(0);
+			IValue to = tup.get(1);
+			LinkedList<IValue> children = adjacencies.get(from);
+			if(children == null)
+				children = new LinkedList<IValue>();
+			children.add(to);
+			adjacencies.put(from, children);
+		}  
+		return adjacencies;
+	}
+
 
 }

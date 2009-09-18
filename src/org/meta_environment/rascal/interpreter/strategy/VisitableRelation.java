@@ -4,10 +4,15 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public class VisitableRelation implements Visitable {
+public class VisitableRelation implements IVisitable, IRelation {
 
 	private IRelation relation;
 
@@ -19,11 +24,11 @@ public class VisitableRelation implements Visitable {
 		return relation.size();
 	}
 
-	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
+	public IVisitable getChildAt(int i) throws IndexOutOfBoundsException {
 		int index = 0;
 		for (IValue v : relation) {
 			if (index == i) {
-				return VisitableFactory.make(v);
+				return VisitableFactory.makeVisitable(v);
 			}
 			index++;
 		}
@@ -34,7 +39,7 @@ public class VisitableRelation implements Visitable {
 		return relation;
 	}
 
-	public Visitable setChildAt(int i, Visitable newChild)
+	public IVisitable setChildAt(int i, IVisitable newChild)
 			throws IndexOutOfBoundsException {
 		if (i >= arity()) {
 			throw new IndexOutOfBoundsException();
@@ -52,6 +57,110 @@ public class VisitableRelation implements Visitable {
 			index++;
 		}
 		return new VisitableRelation(writer.done());
+	}
+
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+		return relation.accept(v);
+	}
+
+	public ISet carrier() {
+		return relation.carrier();
+	}
+
+	public IRelation closure() throws FactTypeUseException {
+		return relation.closure();
+	}
+
+	public IRelation closureStar() throws FactTypeUseException {
+		return relation.closureStar();
+	}
+
+	public IRelation compose(IRelation rel) throws FactTypeUseException {
+		return relation.compose(rel);
+	}
+
+	public boolean contains(IValue element) {
+		return relation.contains(element);
+	}
+
+	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
+		return relation.delete(elem);
+	}
+
+	public ISet domain() {
+		return relation.domain();
+	}
+
+	public boolean equals(Object other) {
+		return relation.equals(other);
+	}
+
+	public Type getElementType() {
+		return relation.getElementType();
+	}
+
+	public Type getFieldTypes() {
+		return relation.getFieldTypes();
+	}
+
+	public Type getType() {
+		return relation.getType();
+	}
+
+	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
+		return relation.insert(element);
+	}
+
+	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
+		return relation.intersect(set);
+	}
+
+	public boolean isEmpty() {
+		return relation.isEmpty();
+	}
+
+	public boolean isEqual(IValue other) {
+		return relation.isEqual(other);
+	}
+
+	public boolean isSubsetOf(ISet other) {
+		return relation.isSubsetOf(other);
+	}
+
+	public Iterator<IValue> iterator() {
+		return relation.iterator();
+	}
+
+	public IRelation product(ISet set) {
+		return relation.product(set);
+	}
+
+	public ISet range() {
+		return relation.range();
+	}
+
+	public ISet select(int... fields) {
+		return relation.select(fields);
+	}
+
+	public ISet select(String... fields) throws FactTypeUseException {
+		return relation.select(fields);
+	}
+
+	public int size() {
+		return relation.size();
+	}
+
+	public <SetOrRel extends ISet> SetOrRel subtract(ISet set) {
+		return relation.subtract(set);
+	}
+
+	public String toString() {
+		return relation.toString();
+	}
+
+	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
+		return relation.union(set);
 	}
 
 

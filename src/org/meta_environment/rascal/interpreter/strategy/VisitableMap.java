@@ -8,8 +8,11 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public class VisitableMap implements Visitable {
+public class VisitableMap implements IVisitable, IMap {
 
 	private IMap map;
 
@@ -21,7 +24,7 @@ public class VisitableMap implements Visitable {
 		return map.size();
 	}
 
-	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
+	public IVisitable getChildAt(int i) throws IndexOutOfBoundsException {
 		int index = 0;
 		Iterator<Entry<IValue, IValue>> entries = map.entryIterator();
 		while(entries.hasNext()) {
@@ -39,7 +42,7 @@ public class VisitableMap implements Visitable {
 		return map;
 	}
 
-	public Visitable setChildAt(int i, Visitable newChild)
+	public IVisitable setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
 		if (i>=arity()) {
 			throw new IndexOutOfBoundsException();
@@ -62,6 +65,90 @@ public class VisitableMap implements Visitable {
 			index ++;
 		}
 		return new VisitableMap(writer.done());
+	}
+
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+		return map.accept(v);
+	}
+
+	public IMap common(IMap other) {
+		return map.common(other);
+	}
+
+	public IMap compose(IMap other) {
+		return map.compose(other);
+	}
+
+	public boolean containsKey(IValue key) {
+		return map.containsKey(key);
+	}
+
+	public boolean containsValue(IValue value) {
+		return map.containsValue(value);
+	}
+
+	public Iterator<Entry<IValue, IValue>> entryIterator() {
+		return map.entryIterator();
+	}
+
+	public boolean equals(Object other) {
+		return map.equals(other);
+	}
+
+	public IValue get(IValue key) {
+		return map.get(key);
+	}
+
+	public Type getKeyType() {
+		return map.getKeyType();
+	}
+
+	public Type getType() {
+		return map.getType();
+	}
+
+	public Type getValueType() {
+		return map.getValueType();
+	}
+
+	public boolean isEmpty() {
+		return map.isEmpty();
+	}
+
+	public boolean isEqual(IValue other) {
+		return map.isEqual(other);
+	}
+
+	public boolean isSubMap(IMap other) {
+		return map.isSubMap(other);
+	}
+
+	public Iterator<IValue> iterator() {
+		return map.iterator();
+	}
+
+	public IMap join(IMap other) {
+		return map.join(other);
+	}
+
+	public IMap put(IValue key, IValue value) {
+		return map.put(key, value);
+	}
+
+	public IMap remove(IMap other) {
+		return map.remove(other);
+	}
+
+	public int size() {
+		return map.size();
+	}
+
+	public String toString() {
+		return map.toString();
+	}
+
+	public Iterator<IValue> valueIterator() {
+		return map.valueIterator();
 	}
 
 

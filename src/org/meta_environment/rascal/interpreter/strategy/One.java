@@ -17,12 +17,12 @@ public class One extends Strategy {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
-		Visitable result = VisitableFactory.make(argValues[0]);
+		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		for (int i = 0; i < result.arity(); i++) {
 			IValue child = result.getChildAt(i).getValue();
 			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue();
 			if (!newchild.equals(child)) {
-				result =  result.setChildAt(i, VisitableFactory.make(newchild));
+				result =  result.setChildAt(i, VisitableFactory.makeVisitable(newchild));
 				break;
 			}
 		}
