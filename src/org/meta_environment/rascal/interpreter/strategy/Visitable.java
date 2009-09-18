@@ -11,7 +11,7 @@ public interface Visitable {
 	 *            the zero based index of the child
 	 * @return a value
 	 */
-	public Visitable get(int i) throws IndexOutOfBoundsException;
+	public Visitable getChildAt(int i) throws IndexOutOfBoundsException;
 
 	/**
 	 * Set a different child at a certain position.
@@ -22,7 +22,7 @@ public interface Visitable {
 	 *            the new value for the child
 	 * @return a new visitable with the new child at position i
 	 */
-	public Visitable set(int i, Visitable newChild)
+	public Visitable setChildAt(int i, Visitable newChild)
 			throws IndexOutOfBoundsException;
 
 	/**

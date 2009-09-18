@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -17,7 +18,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 public class VisitableFactory {
 
 	public static Visitable make(IValue iValue) {
-		if (iValue instanceof INode) {
+		if (iValue instanceof Visitable) {
+			return (Visitable) iValue;
+		} else if (iValue instanceof IConstructor) {
+			return new VisitableConstructor((IConstructor) iValue);
+		} else if (iValue instanceof INode) {
 			return new VisitableNode((INode) iValue);
 		} else if (iValue instanceof ITuple) {
 			return new VisitableTuple((ITuple) iValue);

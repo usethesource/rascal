@@ -15,11 +15,11 @@ public class VisitableTuple implements Visitable {
 		return tuple.arity();
 	}
 
-	public Visitable get(int i) throws IndexOutOfBoundsException {
+	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
 		return VisitableFactory.make(tuple.get(i));
 	}
 
-	public Visitable set(int i, Visitable newChild)
+	public Visitable setChildAt(int i, Visitable newChild)
 			throws IndexOutOfBoundsException {
 		return new VisitableTuple(tuple.set(i, newChild.getValue()));
 	}

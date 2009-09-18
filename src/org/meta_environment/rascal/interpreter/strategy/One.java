@@ -19,10 +19,10 @@ public class One extends Strategy {
 			IEvaluatorContext ctx) {
 		Visitable result = VisitableFactory.make(argValues[0]);
 		for (int i = 0; i < result.arity(); i++) {
-			IValue child = result.get(i).getValue();
+			IValue child = result.getChildAt(i).getValue();
 			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue();
 			if (!newchild.equals(child)) {
-				result =  result.set(i, VisitableFactory.make(newchild));
+				result =  result.setChildAt(i, VisitableFactory.make(newchild));
 				break;
 			}
 		}

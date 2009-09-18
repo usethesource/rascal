@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -30,8 +31,8 @@ public class TopologicalAll extends All {
 				ISet roots = getRoots(relation);
 				IRelation tmp = relation;
 				for (IValue root: roots) {
-					VisitableRelationNode visitableroot = VisitableRelationNode.makeVisitableRelationNode(tmp, root);
-					function.call(new Type[]{visitableroot.getValue().getType()}, new IValue[]{visitableroot.getValue()}, ctx);
+					VisitableRelationNode visitableroot = VisitableRelationNode.makeVisitableRelationNode(tmp, (IConstructor)root);
+					function.call(new Type[]{visitableroot.getType()}, new IValue[]{visitableroot}, ctx);
 					tmp = visitableroot.getRelation();
 				}
 				return new ElementResult<IValue>(tmp.getType(), tmp, ctx);

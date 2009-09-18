@@ -16,11 +16,11 @@ public class VisitableList implements Visitable {
 		return list.length();
 	}
 
-	public Visitable get(int i) throws IndexOutOfBoundsException {
+	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
 		return VisitableFactory.make(list.get(i));
 	}
 
-	public Visitable set(int i, Visitable newChild) throws IndexOutOfBoundsException {
+	public Visitable setChildAt(int i, Visitable newChild) throws IndexOutOfBoundsException {
 		return new VisitableList(list.put(i, newChild.getValue()));
 	}
 

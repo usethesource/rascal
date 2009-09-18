@@ -19,7 +19,7 @@ public class VisitableSet implements Visitable {
 		return set.size();
 	}
 
-	public Visitable get(int i) throws IndexOutOfBoundsException {
+	public Visitable getChildAt(int i) throws IndexOutOfBoundsException {
 		int index = 0;
 		for (IValue v : set) {
 			if (index == i) {
@@ -34,7 +34,7 @@ public class VisitableSet implements Visitable {
 		return set;
 	}
 
-	public Visitable set(int i, Visitable newChild)
+	public Visitable setChildAt(int i, Visitable newChild)
 	throws IndexOutOfBoundsException {
 		if (i >= arity()) {
 			throw new IndexOutOfBoundsException();
