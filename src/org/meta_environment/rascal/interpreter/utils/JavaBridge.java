@@ -1,6 +1,6 @@
 package org.meta_environment.rascal.interpreter.utils;
 
-import java.io.Writer;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
@@ -57,7 +57,7 @@ public class JavaBridge {
 	private final static JavaClasses javaClasses = new JavaClasses();
 	
 
-	public JavaBridge(Writer outputWriter, List<ClassLoader> classLoaders) {
+	public JavaBridge(OutputStream outputWriter, List<ClassLoader> classLoaders) {
 //		this.out = outputWriter;
 		this.loaders = classLoaders;
 		

@@ -2,8 +2,8 @@ package org.meta_environment.rascal.interpreter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 
 import jline.ConsoleReader;
 
@@ -42,15 +42,14 @@ public class RascalShell {
 		console = new ConsoleReader();
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
-		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), 
-				new PrintWriter(System.err), root, heap);
+		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), System.err, root, heap);
 	}
 	
-	public RascalShell(InputStream inputStream, Writer out) throws IOException {
-		console = new ConsoleReader(inputStream, out);
+	public RascalShell(InputStream inputStream, OutputStream outputStream) throws IOException {
+		console = new ConsoleReader(inputStream, new PrintWriter(outputStream));
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
-		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), out, root, heap);
+		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), outputStream, root, heap);
 	}
 	
 	public void run() throws IOException {

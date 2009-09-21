@@ -1,10 +1,13 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Test;
 import org.meta_environment.rascal.ast.Test.Labeled;
@@ -15,13 +18,40 @@ import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
-public class TestEvaluator {
-	private Visitor visitor;
-	private Evaluator eval;
+public class TestEvaluator{
+	private final Evaluator eval;
+	private final Visitor visitor;
+	
+	private final TestResultListener testResultListener;
 
-	public TestEvaluator(Evaluator eval) {
+	public TestEvaluator(Evaluator eval, OutputStream errorStream) {
 		this.eval = eval;
 		this.visitor = new Visitor(eval);
+		
+		this.testResultListener = new TestResultListener(errorStream);
+	}
+	
+	private static class TestResultListener{
+		private final PrintStream err;
+		
+		public TestResultListener(OutputStream errorStream){
+			super();
+			
+			this.err = new PrintStream(errorStream);
+		}
+		
+		public void report(boolean successful, Expression test){
+			synchronized(err){
+				err.print(successful ? "success : " : "failed  : ");
+				String expr = test.toString();
+				if(expr.length() <= 50){
+					err.println(expr);
+				}else{
+					err.println(expr.substring(0, 47));
+					err.println("...");
+				}
+			}
+		}
 	}
 	
 	public List<FailedTestError> test(String moduleName) {

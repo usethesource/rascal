@@ -7,7 +7,7 @@ import static org.meta_environment.rascal.interpreter.utils.Utils.unescape;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -246,17 +246,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private java.util.List<ClassLoader> classLoaders;
 	protected ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
-	private ModuleParser parser;
+	private final ModuleParser parser;
+	
+	private final OutputStream errorStream;
 
-	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope) {
-		this(f, errorWriter, scope, new GlobalEnvironment());
-	}
-
-	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap) {
-		this(f, errorWriter, scope, new GlobalEnvironment(), new ModuleParser());
-	}
-
-	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
+	public Evaluator(IValueFactory f, OutputStream errorStream, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
 		patternEvaluator = new PatternEvaluator(vf, this);
 		this.heap = heap;
@@ -264,10 +258,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		rootScope = scope;
 		heap.addModule(scope);
 		this.classLoaders = new LinkedList<ClassLoader>();
-		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
+		this.javaBridge = new JavaBridge(errorStream, classLoaders);
 		loader = new ModuleLoader(parser);
 		this.parser = parser;
 		parser.setLoader(loader);
+		
+		this.errorStream = errorStream;
 
 		// cwd loader
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
@@ -3034,14 +3030,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public String report(java.util.List<FailedTestError> failedTests) {
-		return new TestEvaluator(this).report(failedTests);
+		return new TestEvaluator(this, errorStream).report(failedTests);
 	}
 
 	public java.util.List<FailedTestError> runTests(String module) {
-		return new TestEvaluator(this).test(module);
+		return new TestEvaluator(this, errorStream).test(module);
 	}
 	
 	public java.util.List<FailedTestError> runTests() {
-		return new TestEvaluator(this).test();
+		return new TestEvaluator(this, errorStream).test();
 	}
 }

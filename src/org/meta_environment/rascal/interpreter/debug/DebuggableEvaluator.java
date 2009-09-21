@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.interpreter.debug;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -112,10 +112,10 @@ public class DebuggableEvaluator extends Evaluator {
 
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 
-	public DebuggableEvaluator(IValueFactory vf, PrintWriter printWriter,
+	public DebuggableEvaluator(IValueFactory vf, OutputStream errorStream,
 			ModuleEnvironment moduleEnvironment, ConsoleParser consoleParser,
 			IDebugger debugger) {
-		super(vf, printWriter, moduleEnvironment, new GlobalEnvironment(), consoleParser);
+		super(vf, errorStream, moduleEnvironment, new GlobalEnvironment(), consoleParser);
 		this.parser = consoleParser;
 		this.debugger = debugger;
 	}
