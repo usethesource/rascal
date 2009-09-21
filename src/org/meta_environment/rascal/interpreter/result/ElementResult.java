@@ -191,7 +191,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult<V> that, IEvaluatorContext ctx) {
 		// Do not delegate to comparison here, since it takes runtime types into account
 		return bool(((IInteger)compare(that, ctx).getValue()).intValue() == 0);
 	}

@@ -86,10 +86,9 @@ public class IteratorFactory {
 				}
 			}
 			checkMayOccur(patType, subjectType, ctx);
-			if(shallow)
-				return	new NodeChildIterator((INode) subjectValue);
-			else
-				return new NodeReader((INode) subjectValue, bottomup);
+			if(shallow) return	new NodeChildIterator((INode) subjectValue);
+			
+			return new NodeReader((INode) subjectValue, bottomup);
 		} else if(subjectType.isTupleType()){
 			checkNoStrategy(subjectType, strategy, ctx);
 			int nElems = subjectType.getArity();

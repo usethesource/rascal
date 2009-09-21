@@ -30,11 +30,8 @@ public final class ImplementationError extends AssertionError {
 	
 	@Override
 	public String getMessage() {
-		if (location != null) {
-			return location + ":" + super.getMessage();
-		}
-		else {
-			return super.getMessage();
-		}
+		if (location != null) return location + ":" + super.getMessage();
+		
+		return super.getMessage();
 	}
 }

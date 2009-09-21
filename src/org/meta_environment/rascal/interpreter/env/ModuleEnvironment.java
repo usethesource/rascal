@@ -19,7 +19,6 @@ import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Test;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
@@ -29,7 +28,6 @@ import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.uptr.Factory;
-
 
 /**
  * A module environment represents a module object (i.e. a running module).
@@ -344,15 +342,6 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public ModuleEnvironment getImport(String moduleName) {
 		return importedModules.get(moduleName);
-	}
-	
-	@SuppressWarnings("unused")
-	private void checkModuleName(QualifiedName name) {
-		String moduleName = Names.moduleName(name);
-		
-		if (moduleName != null && !moduleName.equals(getName())) {
-			throw new ImplementationError("Attempt to access variable " + name + " of different module");
-		}
 	}
 	
 	@Override

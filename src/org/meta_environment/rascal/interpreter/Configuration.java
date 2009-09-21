@@ -18,8 +18,6 @@ public class Configuration {
 	private final static String SDF_LIBRARY_PATH_PROPERTY = "rascal.sdf.library.dir";
 	private static final String SDF2TABLE_PROPERTY = "rascal.sdf.sdf2table.command";
 	private final static String PROFILING_PROPERTY = "rascal.profiling";
-	@SuppressWarnings("unused")
-	private final static String UNITTEST_PROPERTY = "rascal.unittest";
 	
 	private volatile static String basePath = null;
 	

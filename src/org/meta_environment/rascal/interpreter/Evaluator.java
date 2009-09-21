@@ -994,7 +994,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				actuals[i] = resultElem.getValue();
 			}
 
-			return (Result<IValue>) function.call(types, actuals, this);
+			return function.call(types, actuals, this);
 		}
 		catch (UndeclaredVariableError e) {
 			throw new UndeclaredFunctionError(e.getName(), x);
@@ -2018,13 +2018,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 					throw RuntimeExceptionFactory.parseError(x.getPattern().getLocation(), x.getPattern(), getStackTrace());
 				}
-				else {
-					tree = ParsetreeAdapter.getTop(tree); // start rule
-			        tree = (IConstructor) TreeAdapter.getArgs(tree).get(1); // top command expression
-			        tree = (IConstructor) TreeAdapter.getArgs(tree).get(0); // typed quoted embedded fragment
-			        tree = (IConstructor) TreeAdapter.getArgs(tree).get(8); // wrapped string between `...`
-			        return makeResult(expected, tree, this);
-				}
+				
+				tree = ParsetreeAdapter.getTop(tree); // start rule
+		        tree = (IConstructor) TreeAdapter.getArgs(tree).get(1); // top command expression
+		        tree = (IConstructor) TreeAdapter.getArgs(tree).get(0); // typed quoted embedded fragment
+		        tree = (IConstructor) TreeAdapter.getArgs(tree).get(8); // wrapped string between `...`
+		        return makeResult(expected, tree, this);
 				
 			} catch (IOException e) {
 				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), x.getPattern(), getStackTrace());

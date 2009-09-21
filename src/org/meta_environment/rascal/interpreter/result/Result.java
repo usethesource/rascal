@@ -227,8 +227,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, IEvaluatorContext ctx) {
 		return undefinedError(GREATER_THAN_OR_EQUAL_STRING, that, ctx);
 	}
-
-
+	
 	public Result<IValue> ifThenElse(Result<IValue> then, Result<IValue> _else, IEvaluatorContext ctx) {
 		return undefinedError(IF_THEN_ELSE_STRING, ctx);
 	}

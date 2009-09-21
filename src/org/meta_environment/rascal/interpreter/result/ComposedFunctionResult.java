@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.interpreter.result;
 
-import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -10,7 +9,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 
-public class ComposedFunctionResult extends AbstractFunction implements IExternalValue {
+public class ComposedFunctionResult extends AbstractFunction{
 	private final AbstractFunction left;
 	private final AbstractFunction right;
 

@@ -14,7 +14,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.Assignment;
-import org.meta_environment.rascal.ast.IASTVisitor;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Assignable.Annotation;
@@ -42,7 +41,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
  * implemented by Evaluator.
  * TODO: does not implement type checking completely
  */
-/*package*/ class AssignableEvaluator extends NullASTVisitor<Result<IValue>> implements IASTVisitor<Result<IValue>>{
+/*package*/ class AssignableEvaluator extends NullASTVisitor<Result<IValue>>{
 	enum AssignmentOperator {Default, Addition, Subtraction, Product, Division, Intersection, IsDefined}
 	private AssignmentOperator operator;
     private Result<IValue> value;

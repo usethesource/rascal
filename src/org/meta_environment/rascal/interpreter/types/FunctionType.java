@@ -94,17 +94,16 @@ public class FunctionType extends ExternalType {
 				alts.add(o);
 				return RascalTypeFactory.getInstance().overloadedFunctionType(alts);
 			}
-			else {
-				Type newReturnType = this.returnType.lub(o.returnType);
+			
+			Type newReturnType = this.returnType.lub(o.returnType);
 
-				switch(argumentTypes.compareTo(o.argumentTypes)) {
-				case -1:
-					return RascalTypeFactory.getInstance().functionType(newReturnType, argumentTypes);
-				case 1:
-					return RascalTypeFactory.getInstance().functionType(newReturnType, o.argumentTypes);
-				case 0:
-					return TypeFactory.getInstance().valueType();
-				}
+			switch(argumentTypes.compareTo(o.argumentTypes)) {
+			case -1:
+				return RascalTypeFactory.getInstance().functionType(newReturnType, argumentTypes);
+			case 1:
+				return RascalTypeFactory.getInstance().functionType(newReturnType, o.argumentTypes);
+			case 0:
+				return TypeFactory.getInstance().valueType();
 			}
 		}
 		

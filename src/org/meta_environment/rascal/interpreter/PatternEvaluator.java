@@ -159,12 +159,12 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		Environment env = ctx.getCurrentEnvt();
 		Result<IValue> res = env.getVariable(varName);
 		if(res != null && res.getValue() != null){
-			if(res.getType().isStringType())
-				return ((IString)res.getValue()).getValue(); 
-			else
-				return res.getValue().toString();	
-		} else
-			throw new UninitializedVariableError(varName, ctx.getCurrentAST());  
+			if(res.getType().isStringType()) return ((IString)res.getValue()).getValue(); 
+			
+			return res.getValue().toString();	
+		}
+		
+		throw new UninitializedVariableError(varName, ctx.getCurrentAST());  
 	}
 
 	/*

@@ -26,7 +26,7 @@ public class ValueIO{
 	public static IValue readBinaryValueFile(IConstructor type, ISourceLocation loc){
 		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
-		Typeifier.declare((IConstructor) type, store);
+		Typeifier.declare(type, store);
 		
 		InputStream in = null;
 		try{
@@ -51,7 +51,7 @@ public class ValueIO{
 	public static IValue readTextValueFile(IConstructor type, ISourceLocation loc){
 		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
-		Typeifier.declare((IConstructor) type, store);
+		Typeifier.declare(type, store);
 		
 		InputStream in = null;
 		try{

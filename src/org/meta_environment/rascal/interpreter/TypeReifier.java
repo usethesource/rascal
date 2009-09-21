@@ -282,16 +282,15 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "rel", tf.listType(fieldType), "fields");
 			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
 		}
-		else {
-			IListWriter fields = vf.listWriter(adt);
-			for (int i = 0; i < argumentTypes.getArity(); i++) {
-				IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
-				fields.append(argType);
-			}
-			
-			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "rel", tf.listType(adt), "arguments");
-			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
+		
+		IListWriter fields = vf.listWriter(adt);
+		for (int i = 0; i < argumentTypes.getArity(); i++) {
+			IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
+			fields.append(argType);
 		}
+		
+		Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "rel", tf.listType(adt), "arguments");
+		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
 	}
 
 	public Result<IValue> visitSet(Type type) {
@@ -328,16 +327,15 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "tuple", tf.listType(fieldType), "fields");
 			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
 		}
-		else {
-			IListWriter fields = vf.listWriter(adt);
-			for (int i = 0; i < argumentTypes.getArity(); i++) {
-				IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
-				fields.append(argType);
-			}
-			
-			Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "tuple", tf.listType(adt), "arguments");
-			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
+		
+		IListWriter fields = vf.listWriter(adt);
+		for (int i = 0; i < argumentTypes.getArity(); i++) {
+			IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
+			fields.append(argType);
 		}
+		
+		Type staticType = tf.constructor(store, adt.instantiate(store, bindings), "tuple", tf.listType(adt), "arguments");
+		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
 	}
 
 	public Result<IValue> visitValue(Type type) {

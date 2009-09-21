@@ -254,18 +254,6 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			return makeResult(resultType, left.getValue().compose(right.getValue()), ctx);
 		}
 
-		
-		@SuppressWarnings("unused")
-		private void checkCompatibleArity(RelationResult that, IEvaluatorContext ctx) {
-			checkArity(getType().getArity(), that.getType().getArity(), ctx);
-		}
-		
-		private static void checkArity(int expected, int given, IEvaluatorContext ctx) {
-			if (expected != given) {
-				throw new ArityError(expected, given, ctx.getCurrentAST());
-			}
-		}
-
 		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple, IEvaluatorContext ctx) {
 			// TODO: check arity 
 			Type newType = getTypeFactory().setType(tuple.getType().lub(getType().getElementType()));
