@@ -1,7 +1,5 @@
 package org.meta_environment.rascal.interpreter;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -17,48 +15,13 @@ import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
 public class TestEvaluator{
 	private final Evaluator eval;
-
-	private final TestResultListener testResultListener;
-
-	public TestEvaluator(Evaluator eval, OutputStream errorStream){
+	private final ITestResultListener testResultListener;
+	
+	public TestEvaluator(Evaluator eval, ITestResultListener testResultListener){
+		super();
+		
 		this.eval = eval;
-
-		this.testResultListener = new TestResultListener(errorStream);
-	}
-
-	private static class TestResultListener{
-		private final PrintStream err;
-
-		public TestResultListener(OutputStream errorStream){
-			super();
-
-			this.err = new PrintStream(errorStream);
-		}
-
-		public void report(boolean successful, String test){
-			synchronized (err) {
-				err.print(successful ? "success : " : "failed  : ");
-				if(test.length() <= 50){
-					err.println(test);
-				}else{
-					err.println(test.substring(0, 47));
-					err.println("...");
-				}
-			}
-		}
-
-		public void report(boolean successful, String test, Throwable t){
-			synchronized(err){
-				err.print(successful ? "success : " : "failed  : ");
-				if(test.length() <= 50){
-					err.println(test);
-				}else{
-					err.println(test.substring(0, 47));
-					err.println("...");
-				}
-				t.printStackTrace(err);
-			}
-		}
+		this.testResultListener = testResultListener;
 	}
 	
 	public void test(){
@@ -66,18 +29,17 @@ public class TestEvaluator{
 			List<Test> tests = eval.getHeap().getModule(module).getTests();
 			runTests(tests);
 		}
-
+		
 		runTests(((ModuleEnvironment) eval.getCurrentEnvt().getRoot()).getTests());
 	}
-
+	
 	private void runTests(List<Test> tests){
 		Visitor visitor = new Visitor();
-		int size = tests.size();
-		for(int i = 0; i < size; i++){
+		for(int i = tests.size() - 1; i >= 0; i--){
 			tests.get(i).accept(visitor);
 		}
 	}
-
+	
 	private class Visitor extends NullASTVisitor<Result<IBool>>{
 		
 		public Visitor(){
@@ -86,7 +48,7 @@ public class TestEvaluator{
 		
 		public Result<IBool> visitTestLabeled(Labeled x){
 			Result<IValue> result = ResultFactory.bool(true);
-
+			
 			try{
 				result = x.getExpression().accept(eval);
 			}catch(Throw e){
@@ -94,15 +56,15 @@ public class TestEvaluator{
 			}catch(Throwable e){
 				testResultListener.report(result.isTrue(), x.toString(), e);
 			}
-
+			
 			testResultListener.report(result.isTrue(), x.toString());
-
+			
 			return ResultFactory.bool(true);
 		}
 		
 		public Result<IBool> visitTestUnlabeled(Unlabeled x){
 			Result<IValue> result = ResultFactory.bool(true);
-
+			
 			try{
 				result = x.getExpression().accept(eval);
 			}catch(Throw e){
@@ -110,11 +72,10 @@ public class TestEvaluator{
 			}catch(Throwable e){
 				testResultListener.report(result.isTrue(), x.toString(), e);
 			}
-
+			
 			testResultListener.report(result.isTrue(), x.toString());
-
+			
 			return ResultFactory.bool(true);
 		}
 	}
-
 }

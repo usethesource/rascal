@@ -3028,6 +3028,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public void runTests(){
-		new TestEvaluator(this, errorStream).test();
+		new TestEvaluator(this, new DefaultTestResultListener(errorStream)).test();
 	}
 }
