@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter.env;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -19,9 +20,9 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Test;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
-import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
+import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
@@ -73,7 +74,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public List<Test> getTests() {
-		LinkedList<Test> all = new LinkedList<Test>();
+		ArrayList<Test> all = new ArrayList<Test>();
 		
 		all.addAll(tests);
 		

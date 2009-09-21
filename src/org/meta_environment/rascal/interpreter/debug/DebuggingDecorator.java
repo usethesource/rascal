@@ -94,7 +94,6 @@ import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IEvaluator;
-import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
@@ -772,16 +771,8 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		evaluator.pushEnv();		
 	}
 
-	public java.lang.String report(java.util.List<FailedTestError> failedTests) {
-		return evaluator.report(failedTests);
-	}
-
-	public java.util.List<FailedTestError> runTests() {
-		return evaluator.runTests();
-	}
-
-	public java.util.List<FailedTestError> runTests(java.lang.String module) {
-		return evaluator.runTests(module);
+	public void runTests() {
+		evaluator.runTests();
 	}
 
 	public void setCurrentEnvt(Environment environment) {

@@ -164,7 +164,6 @@ import org.meta_environment.rascal.interpreter.TraversalEvaluator.TraverseResult
 import org.meta_environment.rascal.interpreter.asserts.Ambiguous;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
-import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -3028,16 +3027,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public GlobalEnvironment getHeap() {
 		return heap;
 	}
-
-	public String report(java.util.List<FailedTestError> failedTests) {
-		return new TestEvaluator(this, errorStream).report(failedTests);
-	}
-
-	public java.util.List<FailedTestError> runTests(String module) {
-		return new TestEvaluator(this, errorStream).test(module);
-	}
 	
-	public java.util.List<FailedTestError> runTests() {
-		return new TestEvaluator(this, errorStream).test();
+	public void runTests(){
+		new TestEvaluator(this, errorStream).test();
 	}
 }

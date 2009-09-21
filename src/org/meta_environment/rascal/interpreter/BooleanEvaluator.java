@@ -57,7 +57,6 @@ import org.meta_environment.rascal.ast.Expression.VariableBecomes;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.matching.AndResult;
@@ -448,16 +447,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 		ctx.pushEnv();		
 	}
 
-	public java.lang.String report(java.util.List<FailedTestError> failedTests) {
-		return ctx.report(failedTests);
-	}
-
-	public java.util.List<FailedTestError> runTests() {
-		return ctx.runTests();
-	}
-
-	public java.util.List<FailedTestError> runTests(java.lang.String module) {
-		return ctx.runTests(module);
+	public void runTests() {
+		ctx.runTests();
 	}
 
 	public void setCurrentEnvt(Environment environment) {
