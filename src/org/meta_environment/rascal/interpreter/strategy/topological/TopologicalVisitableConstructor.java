@@ -25,10 +25,6 @@ public class TopologicalVisitableConstructor extends TopologicalVisitable<IConst
 		return value.accept(v);
 	}
 
-	public int arity() {
-		return value.arity();
-	}
-
 	public boolean declaresAnnotation(TypeStore store, String label) {
 		return value.declaresAnnotation(store, label);
 	}

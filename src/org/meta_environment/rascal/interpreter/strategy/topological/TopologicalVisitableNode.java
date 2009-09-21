@@ -25,10 +25,6 @@ INode {
 		return value.accept(v);
 	}
 
-	public int arity() {
-		return value.arity();
-	}
-
 	public boolean equals(Object other) {
 		return value.equals(other);
 	}
