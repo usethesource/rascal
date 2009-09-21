@@ -16,6 +16,10 @@ public &T(&T) java makeTopologicalAll(&T(&T) strategy);
 @javaClass{org.meta_environment.rascal.interpreter.strategy.One}
 public &T(&T) java makeOne(&T(&T) strategy);
 
+@doc{Apply the strategy in argument to one of the children of the subject using a topological order for binary relations.}
+@javaClass{org.meta_environment.rascal.interpreter.strategy.topological.TopologicalOne}
+public &T(&T) java makeTopologicalOne(&T(&T) strategy);
+
 public &T1(&T1) top_down(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
 		&T3 res = strategy(subject);
