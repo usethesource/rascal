@@ -19,7 +19,7 @@ public class All extends Strategy {
 			IEvaluatorContext ctx) {
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		for (int i = 0; i < result.arity(); i++) {
-			IValue child = result.getChildAt(i).getValue();
+			IValue child = result.getChildAt(i);
 			result = result.setChildAt(i, VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue()));
 		}
 		return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
