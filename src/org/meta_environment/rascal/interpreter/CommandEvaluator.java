@@ -4,8 +4,8 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,8 +30,8 @@ import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RewriteRule;
-import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.parser.ConsoleParser;
@@ -41,15 +41,15 @@ public class CommandEvaluator extends Evaluator {
 	private ConsoleParser parser;
 
 	
-	public CommandEvaluator(IValueFactory f, Writer errorWriter,
+	public CommandEvaluator(IValueFactory f, OutputStream errorStream,
 			ModuleEnvironment scope, GlobalEnvironment heap) {
-		this(f, errorWriter, scope, heap, new ConsoleParser(scope));
+		this(f, errorStream, scope, heap, new ConsoleParser(scope));
 	}
 	
-	public CommandEvaluator(IValueFactory vf, Writer errorWriter,
+	public CommandEvaluator(IValueFactory vf, OutputStream errorStream,
 			ModuleEnvironment root, GlobalEnvironment heap,
 			ConsoleParser consoleParser) {
-		super(vf, errorWriter, root, heap, consoleParser);
+		super(vf, errorStream, root, heap, consoleParser);
 		this.parser = consoleParser;
 	}
 	
