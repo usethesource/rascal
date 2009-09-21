@@ -585,7 +585,7 @@ public class ASTBuilder {
 
 			Expression ast = new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
 			
-			if (loc != null) {
+			if (loc != null && !match) {
 				ast = addLocationAnnotationSetterExpression(source, loc, ast);
 			}
 			
