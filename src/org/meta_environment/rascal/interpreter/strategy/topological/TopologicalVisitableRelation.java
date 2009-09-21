@@ -24,10 +24,6 @@ implements IRelation {
 		return value.accept(v);
 	}
 
-	public int arity() {
-		return value.arity();
-	}
-
 	public ISet carrier() {
 		return value.carrier();
 	}

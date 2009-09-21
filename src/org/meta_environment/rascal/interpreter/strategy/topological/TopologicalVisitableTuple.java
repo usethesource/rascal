@@ -23,11 +23,7 @@ implements ITuple {
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return value.accept(v);
 	}
-
-	public int arity() {
-		return value.arity();
-	}
-
+	
 	public boolean equals(Object o) {
 		return value.equals(o);
 	}
