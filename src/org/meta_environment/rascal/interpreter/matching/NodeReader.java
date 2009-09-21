@@ -86,7 +86,6 @@ public class NodeReader implements Iterator<IValue> {
 				if(debug)System.err.println("adding: " + listElems.get(i));
 				pushConcreteSyntaxNode((IConstructor)listElems.get(i));
 			}
-			return;
 		} else {
 			if(debug)System.err.println("pushConcreteSyntaxNode: appl");
 			/*
@@ -105,7 +104,6 @@ public class NodeReader implements Iterator<IValue> {
 			if(!bottomup) {
 				spine.push(tree);
 			}
-			return;
 		}
 	}
 
@@ -135,9 +133,9 @@ public class NodeReader implements Iterator<IValue> {
 			if(type.getName().equals("Tree")){
 				pushConcreteSyntaxNode((IConstructor) v);
 				return next();
-			} else {
-				return insertAndNext(v,  ((INode) v).getChildren().iterator());
 			}
+			
+			return insertAndNext(v,  ((INode) v).getChildren().iterator());
 		}
 		if(type.isListType()){
 			return insertAndNext(v, ((IList) v).iterator());

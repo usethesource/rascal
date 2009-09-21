@@ -386,7 +386,6 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{E \",\"}* Xs := ({E \",\"}*) ` ` && `e, <{E \",\"}* Xs>, e ` == ` e, e `;"));
 	}
 	
-	
 	@Test
 	public void Evars2Typed(){
 		prepare("import src::test::GrammarABCDE;");

@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -168,7 +167,7 @@ public class ModuleLoader{
 		return fileName;
 	}
 
-	private SyntaxError parseError(IConstructor tree, String file, String mod) throws MalformedURLException{
+	private SyntaxError parseError(IConstructor tree, String file, String mod){
 		SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		ISourceLocation loc = vf.sourceLocation(file, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());

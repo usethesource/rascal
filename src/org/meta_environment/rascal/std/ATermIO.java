@@ -24,7 +24,7 @@ public class ATermIO {
 	public static IValue readTextATermFile(IConstructor type, ISourceLocation loc){
 		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
-		Typeifier.declare((IConstructor) type, store);
+		Typeifier.declare(type, store);
 		
 		InputStream in = null;
 		try{

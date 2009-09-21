@@ -174,9 +174,9 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 			setStatementStepMode(oldStatementStepMode);
 			setExpressionStepMode(oldExpressionStepMode);
 			return res;
-		} else {
-			return evaluator.visitExpressionCallOrTree(x);
-		} 
+		}
+		
+		return evaluator.visitExpressionCallOrTree(x);
 	}
 	@Override
 	public T visitExpressionClosure(Closure x) {

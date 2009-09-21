@@ -176,12 +176,12 @@ public class DebuggableEvaluator extends Evaluator {
 			// suspend when returning to the calling statement
 			suspend(x);
 			return res;
-		} else {
-			Result<IValue> res = super.visitExpressionCallOrTree(x);
-			// suspend when returning to the calling statement
-			suspend(x);
-			return res;
-		} 
+		}
+		
+		Result<IValue> res = super.visitExpressionCallOrTree(x);
+		// suspend when returning to the calling statement
+		suspend(x);
+		return res;
 	}
 	@Override
 	public Result<IValue> visitExpressionClosure(Closure x) {

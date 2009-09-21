@@ -16,14 +16,13 @@ public class StrategyFunction extends Strategy {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
-			IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
 		if (argTypes[0].comparable(function.getFormals().getFieldType(0))) {
 			return function.call(argTypes, argValues, ctx);
-		} else {
-			// identity
-			return new ElementResult<IValue>(argValues[0].getType(), argValues[0], ctx);
 		}
+		
+		// identity
+		return new ElementResult<IValue>(argValues[0].getType(), argValues[0], ctx);
 	}
 	
 	public static IValue makeStrategy(IValue arg) {
