@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.utils;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -28,7 +27,6 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Parameters;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
-import org.meta_environment.rascal.ast.Type;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
@@ -41,7 +39,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredJavaMethod
 
 
 public class JavaBridge {
-	private static final String JAVA_IMPORTS_TAG = "javaImports";
+//	private static final String JAVA_IMPORTS_TAG = "javaImports";
 	private static final String JAVA_CLASS_TAG = "javaClass";
 	
 //	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
@@ -53,12 +51,12 @@ public class JavaBridge {
 	
 	private final static Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
 	private final static TypeEvaluator TE = TypeEvaluator.getInstance();
-	private final static JavaTypes javaTypes = new JavaTypes();
+//	private final static JavaTypes javaTypes = new JavaTypes();
 	private final static JavaClasses javaClasses = new JavaClasses();
 	
 
-	public JavaBridge(OutputStream outputWriter, List<ClassLoader> classLoaders) {
-//		this.out = outputWriter;
+	public JavaBridge(OutputStream outputStream, List<ClassLoader> classLoaders) {
+//		this.out = new PrintWriter(outputStream);
 		this.loaders = classLoaders;
 		
 //		Commented out while we wait for a 1.6 JVM on MacOSX 
@@ -149,26 +147,25 @@ public class JavaBridge {
 //
 //		return compilation.getOutputClass(fullClassName);
 	}
-
-	@SuppressWarnings("unused")
-	private String getImports(FunctionDeclaration declaration) {
-		Tags tags = declaration.getTags();
-		
-		if (tags.hasTags()) {
-			for (Tag tag : tags.getTags()) {
-				if (tag.getName().toString().equals(JAVA_IMPORTS_TAG)) {
-					String contents = tag.getContents().toString();
-					
-					if (contents.length() > 2 && contents.startsWith("{")) {
-						contents = contents.substring(1, contents.length() - 1);
-					}
-					return contents;
-				}
-			}
-		}
-		
-		return "";
-	}
+//
+//	private String getImports(FunctionDeclaration declaration) {
+//		Tags tags = declaration.getTags();
+//		
+//		if (tags.hasTags()) {
+//			for (Tag tag : tags.getTags()) {
+//				if (tag.getName().toString().equals(JAVA_IMPORTS_TAG)) {
+//					String contents = tag.getContents().toString();
+//					
+//					if (contents.length() > 2 && contents.startsWith("{")) {
+//						contents = contents.substring(1, contents.length() - 1);
+//					}
+//					return contents;
+//				}
+//			}
+//		}
+//		
+//		return "";
+//	}
 	
 	private String getClassName(FunctionDeclaration declaration) {
 		Tags tags = declaration.getTags();
@@ -189,119 +186,109 @@ public class JavaBridge {
 		return "";
 	}
 	
-
-	@SuppressWarnings("unused")
-	private String getJavaFormals(Parameters parameters) {
-		StringBuffer buf = new StringBuffer();
-		List<Formal> formals = parameters.getFormals().getFormals();
-		Iterator<Formal> iter = formals.iterator();
-
-		while (iter.hasNext()) {
-			Formal f = iter.next();
-			String javaType = toJavaType(f.getType());
-			
-			if (javaType != null) { // not void
-			  buf.append(javaType + " " + f.getName());
-
-			  if (iter.hasNext()) {
-				  buf.append(", ");
-			  }
-			}
-		}
-
-		return buf.toString();
-	}
+//	private String getJavaFormals(Parameters parameters) {
+//		StringBuffer buf = new StringBuffer();
+//		List<Formal> formals = parameters.getFormals().getFormals();
+//		Iterator<Formal> iter = formals.iterator();
+//
+//		while (iter.hasNext()) {
+//			Formal f = iter.next();
+//			String javaType = toJavaType(f.getType());
+//			
+//			if (javaType != null) { // not void
+//			  buf.append(javaType + " " + f.getName());
+//
+//			  if (iter.hasNext()) {
+//				  buf.append(", ");
+//			  }
+//			}
+//		}
+//
+//		return buf.toString();
+//	}
 	
+//	private org.eclipse.imp.pdb.facts.type.Type toValueType(Type type) {
+//		return TE.eval(type);
+//	}
 	
-
+//	private String toJavaType(Type type) {
+//		return toValueType(type).accept(javaTypes);
+//	}
 	
-	
-	private org.eclipse.imp.pdb.facts.type.Type toValueType(Type type) {
-		return TE.eval(type);
-	}
-	
-	
-
-	private String toJavaType(Type type) {
-		return toValueType(type).accept(javaTypes);
-	}
-	
-	
-	
-	private static class JavaTypes implements ITypeVisitor<String> {
-		public String visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
-			return "IBool";
-		}
-
-		public String visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IReal";
-		}
-
-		public String visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IInteger";
-		}
-
-		public String visitList(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IList";
-		}
-
-		public String visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IMap";
-		}
-
-		public String visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IValue";
-		}
-
-		public String visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IConstructor";
-		}
-
-		public String visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IRelation";
-		}
-
-		public String visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "ISet";
-		}
-
-		public String visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "ISourceLocation";
-		}
-		
-		public String visitString(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IString";
-		}
-
-		public String visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "INode";
-		}
-
-		public String visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IConstructor";
-		}
-
-		public String visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "ITuple";
-		}
-
-		public String visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IValue";
-		}
-
-		public String visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
-			return null;
-		}
-
-		public String visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
-			return parameterType.getBound().accept(this);
-		}
-
-		public String visitExternal(
-				org.eclipse.imp.pdb.facts.type.Type externalType) {
-			return "IValue";
-		}
-	}
+//	private static class JavaTypes implements ITypeVisitor<String> {
+//		public String visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
+//			return "IBool";
+//		}
+//
+//		public String visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IReal";
+//		}
+//
+//		public String visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IInteger";
+//		}
+//
+//		public String visitList(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IList";
+//		}
+//
+//		public String visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IMap";
+//		}
+//
+//		public String visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IValue";
+//		}
+//
+//		public String visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IConstructor";
+//		}
+//
+//		public String visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IRelation";
+//		}
+//
+//		public String visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "ISet";
+//		}
+//
+//		public String visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "ISourceLocation";
+//		}
+//		
+//		public String visitString(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IString";
+//		}
+//
+//		public String visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "INode";
+//		}
+//
+//		public String visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IConstructor";
+//		}
+//
+//		public String visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "ITuple";
+//		}
+//
+//		public String visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return "IValue";
+//		}
+//
+//		public String visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
+//			return null;
+//		}
+//
+//		public String visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
+//			return parameterType.getBound().accept(this);
+//		}
+//
+//		public String visitExternal(
+//				org.eclipse.imp.pdb.facts.type.Type externalType) {
+//			return "IValue";
+//		}
+//	}
 	
 	private Class<?>[] getJavaTypes(Parameters parameters, Environment env, boolean hasReflectiveAccess) {
 		List<Formal> formals = parameters.getFormals().getFormals();
