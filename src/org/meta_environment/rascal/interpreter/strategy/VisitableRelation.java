@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -40,7 +41,7 @@ public class VisitableRelation implements IVisitable, IRelation {
 	}
 
 	public IVisitable setChildAt(int i, IVisitable newChild)
-			throws IndexOutOfBoundsException {
+	throws IndexOutOfBoundsException {
 		if (i >= arity()) {
 			throw new IndexOutOfBoundsException();
 		}
@@ -163,5 +164,13 @@ public class VisitableRelation implements IVisitable, IRelation {
 		return relation.union(set);
 	}
 
+	public IVisitable setChildren(List<IVisitable> newchildren)
+	throws IndexOutOfBoundsException {
+		relation = ValueFactory.getInstance().relation(relation.getFieldTypes());
+		for (IVisitable iVisitable : newchildren) {
+			relation = relation.insert(iVisitable.getValue());
+		}
+		return new VisitableRelation(relation);
+	}
 
 }

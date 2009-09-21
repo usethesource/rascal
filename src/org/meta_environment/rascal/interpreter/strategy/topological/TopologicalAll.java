@@ -30,13 +30,12 @@ public class TopologicalAll extends All {
 			//only for binary relations
 			if (relation.getType().getArity() == 2) {
 				ISet roots = getRoots(relation);
-				IRelation tmp = relation;
+				RelationContext context = new RelationContext(relation);
 				for (IValue root: roots) {
-					TopologicalVisitable<?> visitableroot = VisitableFactory.makeTopologicalVisitable(tmp,root);
+					TopologicalVisitable<?> visitableroot = VisitableFactory.makeTopologicalVisitable(context,root);
 					function.call(new Type[]{visitableroot.getType()}, new IValue[]{visitableroot}, ctx);
-					tmp = visitableroot.getRelation();
 				}
-				return new ElementResult<IValue>(tmp.getType(), tmp, ctx);
+				return new ElementResult<IValue>(context.getRelation().getType(), context.getRelation(), ctx);
 			}
 		}
 		return super.call(argTypes, argValues, ctx);

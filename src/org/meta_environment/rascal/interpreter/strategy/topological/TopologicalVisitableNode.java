@@ -5,20 +5,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.strategy.IVisitable;
 
 public class TopologicalVisitableNode extends TopologicalVisitable<INode> implements
 INode {
 
-	public TopologicalVisitableNode(IRelation root, INode value,
-			List<IVisitable> children) {
-		super(root, value, children);
+	public TopologicalVisitableNode(RelationContext context, INode value,
+			List<TopologicalVisitable<?>> children) {
+		super(context, value, children);
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

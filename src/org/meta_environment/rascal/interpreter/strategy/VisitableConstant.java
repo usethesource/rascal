@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -48,6 +50,11 @@ public class VisitableConstant implements IVisitable, IValue {
 
 	public String toString() {
 		return value.toString();
+	}
+
+	public IVisitable setChildren(List<IVisitable> newchildren) {
+		if (newchildren.size() != 0) throw new IndexOutOfBoundsException();
+		return this;
 	}
 
 }

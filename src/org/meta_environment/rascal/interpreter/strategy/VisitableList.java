@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -110,5 +111,11 @@ public class VisitableList implements IVisitable, IList {
 
 	public String toString() {
 		return list.toString();
+	}
+
+	public IVisitable setChildren(List<IVisitable> newchildren)
+			throws IndexOutOfBoundsException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

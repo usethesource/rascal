@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.meta_environment.rascal.interpreter.strategy.topological.RelationContext;
 import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitable;
 import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitableConstructor;
 import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitableList;
@@ -53,32 +54,32 @@ public class VisitableFactory {
 		return null;
 	}
 
-	public static TopologicalVisitable<?> makeTopologicalVisitable(IRelation relation, IValue iValue) {
-		HashMap<IValue, LinkedList<IValue>> adjacencies = computeAdjacencies(relation);
-		List<IVisitable> successors = new ArrayList<IVisitable>();
+	public static TopologicalVisitable<?> makeTopologicalVisitable(RelationContext context, IValue iValue) {
+		HashMap<IValue, LinkedList<IValue>> adjacencies = computeAdjacencies(context.getRelation());
+		List<TopologicalVisitable<?>> successors = new ArrayList<TopologicalVisitable<?>>();
 		if (adjacencies.get(iValue) != null) {
 			for (IValue s: adjacencies.get(iValue)) {
-				successors.add(makeTopologicalVisitable(relation, s));
+				successors.add(makeTopologicalVisitable(context, s));
 			}
 		}
 		if (iValue instanceof TopologicalVisitable<?>) {
 			return (TopologicalVisitable<?>) iValue;
 		} else if (iValue instanceof IConstructor) {
-			return new TopologicalVisitableConstructor(relation, (IConstructor) iValue, successors);
+			return new TopologicalVisitableConstructor(context, (IConstructor) iValue, successors);
 		} else if (iValue instanceof INode) {
-			return new TopologicalVisitableNode(relation, (INode) iValue, successors);
+			return new TopologicalVisitableNode(context, (INode) iValue, successors);
 		} else if (iValue instanceof ITuple) {
-			return new TopologicalVisitableTuple(relation, (ITuple) iValue, successors);
+			return new TopologicalVisitableTuple(context, (ITuple) iValue, successors);
 		} else if (iValue instanceof IMap) {
-			return new TopologicalVisitableMap(relation, (IMap) iValue, successors);
+			return new TopologicalVisitableMap(context, (IMap) iValue, successors);
 		} else if (iValue instanceof IRelation) {
-			return new TopologicalVisitableRelation(relation, (IRelation) iValue, successors);
+			return new TopologicalVisitableRelation(context, (IRelation) iValue, successors);
 		} else if (iValue instanceof IList) {
-			return new TopologicalVisitableList(relation, (IList) iValue, successors);
+			return new TopologicalVisitableList(context, (IList) iValue, successors);
 		} else if (iValue instanceof ISet) {
-			return new TopologicalVisitableSet(relation, (ISet) iValue, successors);
+			return new TopologicalVisitableSet(context, (ISet) iValue, successors);
 		} else if (iValue instanceof ISourceLocation || iValue instanceof IExternalValue || iValue instanceof IBool || iValue instanceof IInteger || iValue instanceof ISourceLocation || iValue instanceof IReal || iValue instanceof IString) {
-			return new TopologicalVisitable<IValue>(relation, iValue, successors);
+			return new TopologicalVisitable<IValue>(context, iValue, successors);
 		}
 		return null;
 	}

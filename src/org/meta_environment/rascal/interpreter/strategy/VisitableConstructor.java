@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -137,6 +138,14 @@ public class VisitableConstructor implements IVisitable, IConstructor {
 
 		public String toString() {
 			return constructor.toString();
+		}
+
+		public IVisitable setChildren(List<IVisitable> newchildren)
+		throws IndexOutOfBoundsException {
+			for (int j = 0; j < constructor.arity(); j++) {
+				constructor = constructor.set(j,newchildren.get(j));
+			}
+			return this;
 		}
 
 	}

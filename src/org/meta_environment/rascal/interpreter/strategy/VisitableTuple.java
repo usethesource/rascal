@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -80,6 +81,14 @@ public class VisitableTuple implements IVisitable, ITuple {
 
 	public String toString() {
 		return tuple.toString();
+	}
+
+	public IVisitable setChildren(List<IVisitable> newchildren)
+			throws IndexOutOfBoundsException {
+		for (int j = 0; j < tuple.arity(); j++) {
+			tuple = tuple.set(j,newchildren.get(j));
+		}
+		return this;
 	}
 
 }
