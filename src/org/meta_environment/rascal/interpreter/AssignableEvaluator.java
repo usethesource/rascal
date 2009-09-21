@@ -25,7 +25,6 @@ import org.meta_environment.rascal.ast.Assignable.Subscript;
 import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
@@ -365,16 +364,8 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		eval.pushEnv();		
 	}
 
-	public java.lang.String report(java.util.List<FailedTestError> failedTests) {
-		return eval.report(failedTests);
-	}
-
-	public java.util.List<FailedTestError> runTests() {
-		return eval.runTests();
-	}
-
-	public java.util.List<FailedTestError> runTests(java.lang.String module) {
-		return eval.runTests(module);
+	public void runTests() {
+		eval.runTests();
 	}
 
 	public void setCurrentEnvt(Environment environment) {

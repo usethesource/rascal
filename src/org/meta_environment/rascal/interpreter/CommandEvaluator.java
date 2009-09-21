@@ -25,7 +25,6 @@ import org.meta_environment.rascal.ast.ShellCommand.ListDeclarations;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.ast.ShellCommand.Test;
 import org.meta_environment.rascal.ast.ShellCommand.Unimport;
-import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
@@ -139,8 +138,8 @@ public class CommandEvaluator extends Evaluator {
 
 	@Override
 	public Result<IValue> visitShellCommandTest(Test x) {
-		List<FailedTestError> report = runTests();
-		return ResultFactory.makeResult(tf.stringType(), vf.string(report(report)), this);
+		runTests();
+		return ResultFactory.nothing();
 	}
 
 	@Override
