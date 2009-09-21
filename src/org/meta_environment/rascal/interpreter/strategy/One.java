@@ -19,9 +19,9 @@ public class One extends Strategy {
 			IEvaluatorContext ctx) {
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		for (int i = 0; i < result.arity(); i++) {
-			IValue child = result.getChildAt(i).getValue();
+			IVisitable child = result.getChildAt(i);
 			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue();
-			if (!newchild.equals(child)) {
+			if (!newchild.equals(child.getValue())) {
 				result =  result.setChildAt(i, VisitableFactory.makeVisitable(newchild));
 				break;
 			}
