@@ -4,20 +4,18 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.strategy.IVisitable;
 
 public class TopologicalVisitableList extends TopologicalVisitable<IList> implements
 IList {
 
-	public TopologicalVisitableList(IRelation root, IList value,
-			List<IVisitable> children) {
-		super(root, value, children);
+	public TopologicalVisitableList(RelationContext context, IList value,
+			List<TopologicalVisitable<?>> children) {
+		super(context, value, children);
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

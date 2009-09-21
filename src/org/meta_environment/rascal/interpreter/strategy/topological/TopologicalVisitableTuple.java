@@ -3,21 +3,19 @@ package org.meta_environment.rascal.interpreter.strategy.topological;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.strategy.IVisitable;
 
 public class TopologicalVisitableTuple extends TopologicalVisitable<ITuple>
 implements ITuple {
 
-	public TopologicalVisitableTuple(IRelation root, ITuple value,
-			List<IVisitable> children) {
-		super(root, value, children);
+	public TopologicalVisitableTuple(RelationContext context, ITuple value,
+			List<TopologicalVisitable<?>> children) {
+		super(context, value, children);
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

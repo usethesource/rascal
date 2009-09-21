@@ -9,14 +9,13 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.strategy.IVisitable;
 
 public class TopologicalVisitableSet extends TopologicalVisitable<ISet> implements
 ISet {
 
-	public TopologicalVisitableSet(IRelation root, ISet value,
-			List<IVisitable> children) {
-		super(root, value, children);
+	public TopologicalVisitableSet(RelationContext context, ISet value,
+			List<TopologicalVisitable<?>> children) {
+		super(context, value, children);
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

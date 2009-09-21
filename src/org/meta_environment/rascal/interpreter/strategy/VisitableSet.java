@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -124,6 +125,12 @@ public class VisitableSet implements IVisitable, ISet {
 
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
 		return set.union(set);
+	}
+
+	public IVisitable setChildren(List<IVisitable> newchildren)
+			throws IndexOutOfBoundsException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

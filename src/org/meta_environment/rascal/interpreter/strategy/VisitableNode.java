@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.INode;
@@ -31,7 +32,7 @@ public class VisitableNode implements IVisitable,INode {
 	}
 
 	public IVisitable setChildAt(int i, IVisitable newChild)
-			throws IndexOutOfBoundsException {
+	throws IndexOutOfBoundsException {
 		return new VisitableNode(node.set(i, newChild.getValue()));
 	}
 
@@ -100,7 +101,7 @@ public class VisitableNode implements IVisitable,INode {
 	}
 
 	public INode setAnnotation(String label, IValue newValue)
-			throws FactTypeUseException {
+	throws FactTypeUseException {
 		return node.setAnnotation(label, newValue);
 	}
 
@@ -110,6 +111,14 @@ public class VisitableNode implements IVisitable,INode {
 
 	public String toString() {
 		return node.toString();
+	}
+
+	public IVisitable setChildren(List<IVisitable> newchildren)
+	throws IndexOutOfBoundsException {
+		for (int j = 0; j < node.arity(); j++) {
+			node = node.set(j,newchildren.get(j));
+		}
+		return this;
 	}
 
 }

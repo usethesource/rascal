@@ -5,19 +5,17 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.strategy.IVisitable;
 
 public class TopologicalVisitableMap extends TopologicalVisitable<IMap> implements
 		IMap {
 	
-	public TopologicalVisitableMap(IRelation root, IMap value,
-			List<IVisitable> children) {
-		super(root, value, children);
+	public TopologicalVisitableMap(RelationContext context, IMap value,
+			List<TopologicalVisitable<?>> children) {
+		super(context, value, children);
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

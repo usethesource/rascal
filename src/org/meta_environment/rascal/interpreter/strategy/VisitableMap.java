@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IMap;
@@ -149,6 +150,12 @@ public class VisitableMap implements IVisitable, IMap {
 
 	public Iterator<IValue> valueIterator() {
 		return map.valueIterator();
+	}
+
+	public IVisitable setChildren(List<IVisitable> newchildren)
+			throws IndexOutOfBoundsException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

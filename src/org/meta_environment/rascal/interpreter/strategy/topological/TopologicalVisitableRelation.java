@@ -10,14 +10,13 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.strategy.IVisitable;
 
 public class TopologicalVisitableRelation extends TopologicalVisitable<IRelation>
 implements IRelation {
 	
-	public TopologicalVisitableRelation(IRelation root, IRelation value,
-			List<IVisitable> children) {
-		super(root, value, children);
+	public TopologicalVisitableRelation(RelationContext context, IRelation value,
+			List<TopologicalVisitable<?>> children) {
+		super(context, value, children);
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

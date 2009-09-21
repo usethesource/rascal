@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IValue;
 
 public interface IVisitable extends IValue {
@@ -34,5 +36,10 @@ public interface IVisitable extends IValue {
 	 * @return the concrete value
 	 */
 	public IValue getValue();
+
+	public IVisitable setChildren(List<IVisitable> newchildren)
+			throws IndexOutOfBoundsException;
+
+	
 
 }
