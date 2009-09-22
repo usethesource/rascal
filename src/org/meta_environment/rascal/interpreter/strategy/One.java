@@ -20,9 +20,11 @@ public class One extends Strategy {
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		for (int i = 0; i < result.getChildrenNumber(); i++) {
 			IVisitable child = result.getChildAt(i);
+			IValue oldvalue = child.getValue();
 			IVisitable newchild = VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue());
-			if (!newchild.equals(child.getValue())) {
-				result.update(child.getValue(), newchild.getValue());
+			IValue newvalue = newchild.getValue();
+			if (!newvalue.equals(oldvalue)) {
+				result.update(oldvalue, newvalue);
 				result.setChildAt(i, newchild);
 				break;
 			}
