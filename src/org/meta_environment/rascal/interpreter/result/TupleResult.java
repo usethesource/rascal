@@ -32,6 +32,11 @@ public class TupleResult extends ElementResult<ITuple> {
 			if (!getType().hasFieldNames()) {
 				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 			}
+			
+			if (getType().hasField(name, store)) {
+				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+			}
+			
 			try {
 				int index = getType().getFieldIndex(name);
 				Type type = getType().getFieldType(index);

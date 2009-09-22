@@ -1096,6 +1096,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Expression.FieldAccess x) {
 		Result<IValue> expr = x.getExpression().accept(this);
 		String field = x.getField().toString();
+		
+		
 		return expr.fieldAccess(field, getCurrentEnvt().getStore(), this);
 	}
 

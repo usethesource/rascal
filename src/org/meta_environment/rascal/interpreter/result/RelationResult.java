@@ -217,7 +217,16 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		@Override
 		public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
-			Type tupleType = getType().getFieldTypes();			
+			Type tupleType = getType().getFieldTypes();	
+			
+			if (!getType().hasFieldNames()) {
+				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+			}
+			
+			if (getType().hasField(name, store)) {
+				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+			}
+			
 			try {
 				ISetWriter w = getValueFactory().setWriter(tupleType.getFieldType(name));
 				for (IValue e : getValue()) {
