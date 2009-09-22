@@ -39,7 +39,7 @@ public class All extends Strategy {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
 				if (function.isStrategy()) {
-					return new All((AbstractFunction) function);
+					return new All(function);
 				}
 			}
 		}

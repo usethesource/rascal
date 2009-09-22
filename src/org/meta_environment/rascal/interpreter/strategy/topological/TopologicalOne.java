@@ -53,7 +53,7 @@ public class TopologicalOne extends One {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
 				if (function.isStrategy()) {
-					return new TopologicalOne((AbstractFunction) function);
+					return new TopologicalOne(function);
 				}
 			}
 		}

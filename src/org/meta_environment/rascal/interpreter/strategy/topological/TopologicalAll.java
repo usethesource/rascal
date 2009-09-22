@@ -50,7 +50,7 @@ public class TopologicalAll extends All {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
 				if (function.isStrategy()) {
-					return new TopologicalAll((AbstractFunction) function);
+					return new TopologicalAll(function);
 				}
 			}
 		}
