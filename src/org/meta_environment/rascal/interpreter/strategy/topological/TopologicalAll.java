@@ -33,7 +33,11 @@ public class TopologicalAll extends All {
 				RelationContext context = new RelationContext(relation);
 				for (IValue root: roots) {
 					TopologicalVisitable<?> visitableroot = VisitableFactory.makeTopologicalVisitable(context,root);
-					function.call(new Type[]{visitableroot.getType()}, new IValue[]{visitableroot}, ctx);
+					IValue oldvalue = visitableroot.getValue();
+					IValue newvalue = function.call(new Type[]{visitableroot.getType()}, new IValue[]{visitableroot}, ctx).getValue();
+					if (!newvalue.equals(oldvalue)) {
+						visitableroot.update(oldvalue, newvalue);
+					}
 				}
 				return new ElementResult<IValue>(context.getRelation().getType(), context.getRelation(), ctx);
 			}
