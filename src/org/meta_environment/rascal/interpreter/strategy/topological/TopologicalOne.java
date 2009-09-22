@@ -33,8 +33,10 @@ public class TopologicalOne extends One {
 				RelationContext context = new RelationContext(relation);
 				for (IValue root: roots) {
 					TopologicalVisitable<?> visitableroot = VisitableFactory.makeTopologicalVisitable(context,root);
-					IValue newroot = function.call(new Type[]{visitableroot.getType()}, new IValue[]{visitableroot}, ctx).getValue();
-					if (!newroot.equals(visitableroot.getValue())) {
+					IValue oldvalue = visitableroot.getValue();
+					IValue newvalue = function.call(new Type[]{visitableroot.getType()}, new IValue[]{visitableroot}, ctx).getValue();
+					if (!newvalue.equals(oldvalue)) {
+						visitableroot.update(oldvalue, newvalue);
 						break;
 					}
 				}
