@@ -38,7 +38,7 @@ public class One extends Strategy {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
 				if (function.isStrategy()) {
-					return new One((AbstractFunction) function);
+					return new One(function);
 				}
 			}
 		}
