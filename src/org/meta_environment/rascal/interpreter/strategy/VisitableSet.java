@@ -68,7 +68,7 @@ public class VisitableSet implements IVisitable, ISet {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
-		return set.delete(elem);
+		return (SetOrRel) set.delete(elem);
 	}
 
 	public boolean equals(Object other) {
