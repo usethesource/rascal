@@ -57,4 +57,9 @@ public class VisitableConstant implements IVisitable, IValue {
 		return this;
 	}
 
+	public void update(IValue oldvalue, IValue newvalue) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -91,4 +91,9 @@ public class VisitableTuple implements IVisitable, ITuple {
 		return this;
 	}
 
+	public void update(IValue oldvalue, IValue newvalue) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

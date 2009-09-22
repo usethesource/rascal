@@ -158,6 +158,11 @@ public class VisitableMap implements IVisitable, IMap {
 		return null;
 	}
 
+	public void update(IValue oldvalue, IValue newvalue) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 }
