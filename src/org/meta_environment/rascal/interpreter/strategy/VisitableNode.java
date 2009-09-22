@@ -19,7 +19,7 @@ public class VisitableNode implements IVisitable,INode {
 		this.node = node;
 	}
 
-	public int arity() {
+	public int getChildrenNumber() {
 		return node.arity();
 	}
 
@@ -125,5 +125,11 @@ public class VisitableNode implements IVisitable,INode {
 		// TODO Auto-generated method stub
 		
 	}
+	
+
+	public int arity() {
+		return node.arity();
+	}
+
 
 }

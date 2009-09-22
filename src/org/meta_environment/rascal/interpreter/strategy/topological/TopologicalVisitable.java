@@ -25,7 +25,7 @@ public class TopologicalVisitable<T extends IValue> implements IVisitable, IValu
 		this.context = root;
 	}
 
-	public int arity() {
+	public int getChildrenNumber() {
 		return children.size();
 	}
 
@@ -35,7 +35,7 @@ public class TopologicalVisitable<T extends IValue> implements IVisitable, IValu
 
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(getValue().toString());
-		if (arity() != 0) {
+		if (getChildrenNumber() != 0) {
 			buffer.append("[");
 			for (IVisitable v : children) {
 				buffer.append(v.toString());
@@ -48,7 +48,7 @@ public class TopologicalVisitable<T extends IValue> implements IVisitable, IValu
 
 	public IVisitable setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
-		if (i >= arity()) throw new IndexOutOfBoundsException();
+		if (i >= getChildrenNumber()) throw new IndexOutOfBoundsException();
 		update(getChildAt(i).getValue(), newChild.getValue());
 		children.set(i,VisitableFactory.makeTopologicalVisitable(context,newChild));
 		return this;

@@ -15,7 +15,7 @@ public class VisitableConstant implements IVisitable, IValue {
 		this.value = value;
 	}
 
-	public int arity() {
+	public int getChildrenNumber() {
 		return 0;
 	}
 

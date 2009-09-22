@@ -122,5 +122,11 @@ implements IRelation {
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
 		return (SetOrRel) value.union(set);
 	}
+	
+
+	public int arity() {
+		return value.arity();
+	}
+
 
 }

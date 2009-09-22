@@ -18,7 +18,7 @@ public class One extends Strategy {
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
-		for (int i = 0; i < result.arity(); i++) {
+		for (int i = 0; i < result.getChildrenNumber(); i++) {
 			IVisitable child = result.getChildAt(i);
 			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue();
 			if (!newchild.equals(child.getValue())) {

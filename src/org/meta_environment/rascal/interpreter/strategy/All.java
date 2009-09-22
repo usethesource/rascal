@@ -22,7 +22,7 @@ public class All extends Strategy {
 			IEvaluatorContext ctx) {
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		List<IVisitable> newchildren = new ArrayList<IVisitable>();
-		for (int i = 0; i < result.arity(); i++) {
+		for (int i = 0; i < result.getChildrenNumber(); i++) {
 			IVisitable child = result.getChildAt(i);
 			IVisitable newchild = VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue());
 			result.update(child.getValue(), newchild.getValue());

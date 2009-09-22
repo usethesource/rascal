@@ -65,6 +65,12 @@ implements ITuple {
 	public String toString() {
 		return value.toString();
 	}
+	
+
+	public int arity() {
+		return value.arity();
+	}
+
 
 
 }
