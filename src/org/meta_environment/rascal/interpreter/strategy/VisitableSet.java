@@ -133,4 +133,9 @@ public class VisitableSet implements IVisitable, ISet {
 		return null;
 	}
 
+	public void update(IValue oldvalue, IValue newvalue) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -173,4 +173,9 @@ public class VisitableRelation implements IVisitable, IRelation {
 		return new VisitableRelation(relation);
 	}
 
+	public void update(IValue oldvalue, IValue newvalue) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

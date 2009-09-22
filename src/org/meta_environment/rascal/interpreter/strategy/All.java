@@ -23,8 +23,10 @@ public class All extends Strategy {
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		List<IVisitable> newchildren = new ArrayList<IVisitable>();
 		for (int i = 0; i < result.arity(); i++) {
-			IValue child = result.getChildAt(i);
-			newchildren.add(VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue()));
+			IVisitable child = result.getChildAt(i);
+			IVisitable newchild = VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue());
+			result.update(child.getValue(), newchild.getValue());
+			newchildren.add(newchild);
 		}
 		result = result.setChildren(newchildren);
 		return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
