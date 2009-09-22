@@ -59,7 +59,9 @@ public &T1(&T1) once_bottom_up(&T2(&T2) strategy) {
 public &T1(&T1) repeat_strat(&T2(&T2) strategy) { 
   return &T3(&T3 subject) {
 	   &T3 temp = strategy(subject);
+	   println(temp);
 	   while (temp != subject) {
+	   		println(temp);
 	    	subject = temp;
 	   		temp = strategy(subject);
 	   	}
