@@ -46,7 +46,7 @@ public class VisitableConstructor implements IVisitable, IConstructor {
 			this.constructor = node;
 		}
 
-		public int arity() {
+		public int getChildrenNumber() {
 			return constructor.arity();
 		}
 
@@ -152,5 +152,11 @@ public class VisitableConstructor implements IVisitable, IConstructor {
 			// TODO Auto-generated method stub
 			
 		}
+		
+
+		public int arity() {
+			return constructor.arity();
+		}
+
 
 	}

@@ -21,7 +21,7 @@ public class VisitableMap implements IVisitable, IMap {
 		this.map = map;
 	}
 
-	public int arity() {
+	public int getChildrenNumber() {
 		return map.size();
 	}
 
@@ -45,7 +45,7 @@ public class VisitableMap implements IVisitable, IMap {
 
 	public IVisitable setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
-		if (i>=arity()) {
+		if (i>=getChildrenNumber()) {
 			throw new IndexOutOfBoundsException();
 		}
 		int index = 0;

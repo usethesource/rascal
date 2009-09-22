@@ -20,7 +20,7 @@ public class VisitableList implements IVisitable, IList {
 		this.list = list;
 	}
 
-	public int arity() {
+	public int getChildrenNumber() {
 		return list.length();
 	}
 

@@ -30,7 +30,7 @@ public interface IVisitable extends IValue {
 	/**
 	 * @return the (fixed) number of children
 	 */
-	public int arity();
+	public int getChildrenNumber();
 
 	/**
 	 * @return the concrete value

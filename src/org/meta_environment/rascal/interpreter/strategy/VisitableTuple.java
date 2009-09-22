@@ -18,7 +18,7 @@ public class VisitableTuple implements IVisitable, ITuple {
 		this.tuple = tuple;
 	}
 
-	public int arity() {
+	public int getChildrenNumber() {
 		return tuple.arity();
 	}
 
@@ -95,5 +95,11 @@ public class VisitableTuple implements IVisitable, ITuple {
 		// TODO Auto-generated method stub
 		
 	}
+	
+
+	public int arity() {
+		return tuple.arity();
+	}
+
 
 }

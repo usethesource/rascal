@@ -96,5 +96,9 @@ INode {
 		return value.toString();
 	}
 
+	public int arity() {
+		return value.arity();
+	}
+
 
 }

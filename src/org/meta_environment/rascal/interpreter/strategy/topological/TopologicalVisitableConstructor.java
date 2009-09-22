@@ -13,7 +13,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class TopologicalVisitableConstructor extends TopologicalVisitable<IConstructor> implements IConstructor  {
-	
+
 	public TopologicalVisitableConstructor(RelationContext context, IConstructor value,
 			List<TopologicalVisitable<?>> children) {
 		super(context, value, children);
@@ -97,19 +97,19 @@ public class TopologicalVisitableConstructor extends TopologicalVisitable<IConst
 
 	public IConstructor removeAnnotations() {
 		return value.removeAnnotations();
-	}
+	}	
 
 	public IConstructor set(int i, IValue newChild) throws IndexOutOfBoundsException {
 		return value.set(i, newChild);
 	}
 
 	public IConstructor set(String label, IValue newChild)
-			throws FactTypeUseException {
+	throws FactTypeUseException {
 		return value.set(label, newChild);
 	}
 
 	public IConstructor setAnnotation(String label, IValue newValue)
-			throws FactTypeUseException {
+	throws FactTypeUseException {
 		return value.setAnnotation(label, newValue);
 	}
 
@@ -120,5 +120,9 @@ public class TopologicalVisitableConstructor extends TopologicalVisitable<IConst
 	public String toString() {
 		return value.toString();
 	}
-	
+
+	public int arity() {
+		return value.arity();
+	}
+
 }

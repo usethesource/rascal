@@ -21,7 +21,7 @@ public class VisitableRelation implements IVisitable, IRelation {
 		this.relation = relation;
 	}
 
-	public int arity() {
+	public int getChildrenNumber() {
 		return relation.size();
 	}
 
@@ -42,7 +42,7 @@ public class VisitableRelation implements IVisitable, IRelation {
 
 	public IVisitable setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
-		if (i >= arity()) {
+		if (i >= getChildrenNumber()) {
 			throw new IndexOutOfBoundsException();
 		}
 		int index = 0;
@@ -177,5 +177,11 @@ public class VisitableRelation implements IVisitable, IRelation {
 		// TODO Auto-generated method stub
 		
 	}
+	
+
+	public int arity() {
+		return relation.arity();
+	}
+
 
 }

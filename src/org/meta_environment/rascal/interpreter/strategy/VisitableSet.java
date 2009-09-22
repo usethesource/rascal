@@ -20,7 +20,7 @@ public class VisitableSet implements IVisitable, ISet {
 		this.set = set;
 	}
 
-	public int arity() {
+	public int getChildrenNumber() {
 		return set.size();
 	}
 
@@ -41,7 +41,7 @@ public class VisitableSet implements IVisitable, ISet {
 
 	public IVisitable setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
-		if (i >= arity()) {
+		if (i >= getChildrenNumber()) {
 			throw new IndexOutOfBoundsException();
 		}
 		int index = 0;
