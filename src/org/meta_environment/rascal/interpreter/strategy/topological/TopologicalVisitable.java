@@ -46,12 +46,11 @@ public class TopologicalVisitable<T extends IValue> implements IVisitable, IValu
 		return buffer.toString();
 	}
 
-	public IVisitable setChildAt(int i, IVisitable newChild)
+	public void setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
 		if (i >= getChildrenNumber()) throw new IndexOutOfBoundsException();
 		update(getChildAt(i).getValue(), newChild.getValue());
 		children.set(i,VisitableFactory.makeTopologicalVisitable(context,newChild));
-		return this;
 	}
 
 	public void update(IValue oldvalue, IValue newvalue) {

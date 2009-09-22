@@ -44,7 +44,7 @@ public class VisitableMap implements IVisitable, IMap {
 		return map;
 	}
 
-	public IVisitable setChildAt(int i, IVisitable newChild)
+	public void setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
 		if (i>=getChildrenNumber()) {
 			throw new IndexOutOfBoundsException();
@@ -66,7 +66,7 @@ public class VisitableMap implements IVisitable, IMap {
 			}
 			index ++;
 		}
-		return new VisitableMap(writer.done());
+		map = writer.done();
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

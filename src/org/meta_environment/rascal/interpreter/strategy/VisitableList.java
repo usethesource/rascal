@@ -32,8 +32,8 @@ public class VisitableList implements IVisitable, IList {
 		return VisitableFactory.makeVisitable(list.get(i));
 	}
 
-	public IVisitable setChildAt(int i, IVisitable newChild) throws IndexOutOfBoundsException {
-		return new VisitableList(list.put(i, newChild.getValue()));
+	public void setChildAt(int i, IVisitable newChild) throws IndexOutOfBoundsException {
+		list = list.put(i, newChild.getValue());
 	}
 
 	public IValue getValue() {
