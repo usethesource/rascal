@@ -52,14 +52,10 @@ public class VisitableConstant implements IVisitable, IValue {
 		return value.toString();
 	}
 
-	public IVisitable setChildren(List<IVisitable> newchildren) {
+	public void setChildren(List<IVisitable> newchildren) {
 		if (newchildren.size() != 0) throw new IndexOutOfBoundsException();
-		return this;
 	}
 
-	public void update(IValue oldvalue, IValue newvalue) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void update(IValue oldvalue, IValue newvalue) {}
 
 }

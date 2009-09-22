@@ -86,16 +86,13 @@ public class TopologicalVisitable<T extends IValue> implements IVisitable, IValu
 		return value.equals(other);
 	}
 
-	public IVisitable setChildren(List<IVisitable> newchildren)
+	public void setChildren(List<IVisitable> newchildren)
 			throws IndexOutOfBoundsException {
 		int i = 0;
 		for (IVisitable v : newchildren) {
 			children.set(i, VisitableFactory.makeTopologicalVisitable(context, v));
 			i++;
 		}
-		return this;
 	}
-	
-	
 
 }

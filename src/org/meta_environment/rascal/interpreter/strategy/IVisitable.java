@@ -37,7 +37,7 @@ public interface IVisitable extends IValue {
 	 */
 	public IValue getValue();
 
-	public IVisitable setChildren(List<IVisitable> newchildren)
+	public void setChildren(List<IVisitable> newchildren)
 			throws IndexOutOfBoundsException;
 
 	public void update(IValue oldvalue, IValue newvalue);

@@ -23,9 +23,14 @@ public class VisitableNode implements IVisitable,INode {
 		return node.arity();
 	}
 
-	public IValue get(int i) throws IndexOutOfBoundsException {
-		return node.get(i);
+	public void setChildren(List<IVisitable> newchildren)
+	throws IndexOutOfBoundsException {
+		for (int j = 0; j < node.arity(); j++) {
+			node = node.set(j,newchildren.get(j));
+		}
 	}
+
+	public void update(IValue oldvalue, IValue newvalue) {}
 
 	public IVisitable getChildAt(int i) throws IndexOutOfBoundsException {
 		return VisitableFactory.makeVisitable(node.get(i));
@@ -38,6 +43,10 @@ public class VisitableNode implements IVisitable,INode {
 
 	public IValue getValue() {
 		return node;
+	}
+
+	public IValue get(int i) throws IndexOutOfBoundsException {
+		return node.get(i);
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
@@ -113,23 +122,8 @@ public class VisitableNode implements IVisitable,INode {
 		return node.toString();
 	}
 
-	public IVisitable setChildren(List<IVisitable> newchildren)
-	throws IndexOutOfBoundsException {
-		for (int j = 0; j < node.arity(); j++) {
-			node = node.set(j,newchildren.get(j));
-		}
-		return this;
-	}
-
-	public void update(IValue oldvalue, IValue newvalue) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-
 	public int arity() {
 		return node.arity();
 	}
-
 
 }

@@ -3,9 +3,11 @@ package org.meta_environment.rascal.interpreter.strategy;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -83,18 +85,14 @@ public class VisitableTuple implements IVisitable, ITuple {
 		return tuple.toString();
 	}
 
-	public IVisitable setChildren(List<IVisitable> newchildren)
+	public void setChildren(List<IVisitable> newchildren)
 			throws IndexOutOfBoundsException {
 		for (int j = 0; j < tuple.arity(); j++) {
 			tuple = tuple.set(j,newchildren.get(j));
 		}
-		return this;
 	}
 
-	public void update(IValue oldvalue, IValue newvalue) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void update(IValue oldvalue, IValue newvalue) {}
 	
 
 	public int arity() {
