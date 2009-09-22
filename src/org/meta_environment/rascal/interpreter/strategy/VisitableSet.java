@@ -84,11 +84,11 @@ public class VisitableSet implements IVisitable, ISet {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
-		return set.insert(element);
+		return (SetOrRel) set.insert(element);
 	}
 
 	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
-		return set.intersect(set);
+		return (SetOrRel) set.intersect(set);
 	}
 
 	public boolean isEmpty() {
@@ -116,7 +116,7 @@ public class VisitableSet implements IVisitable, ISet {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel subtract(ISet set) {
-		return set.subtract(set);
+		return (SetOrRel) set.subtract(set);
 	}
 
 	public String toString() {
@@ -124,7 +124,7 @@ public class VisitableSet implements IVisitable, ISet {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
-		return set.union(set);
+		return (SetOrRel) set.union(set);
 	}
 
 	public IVisitable setChildren(List<IVisitable> newchildren)

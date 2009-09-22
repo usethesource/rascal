@@ -27,7 +27,7 @@ ISet {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
-		return value.delete(elem);
+		return (SetOrRel) value.delete(elem);
 	}
 
 	public boolean equals(Object other) {
@@ -43,11 +43,11 @@ ISet {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
-		return value.insert(element);
+		return (SetOrRel) value.insert(element);
 	}
 
 	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
-		return value.intersect(set);
+		return (SetOrRel) value.intersect(set);
 	}
 
 	public boolean isEmpty() {
@@ -75,7 +75,7 @@ ISet {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel subtract(ISet set) {
-		return value.subtract(set);
+		return (SetOrRel) value.subtract(set);
 	}
 
 	public String toString() {
@@ -83,7 +83,6 @@ ISet {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
-		return value.union(set);
+		return (SetOrRel) value.union(set);
 	}
-
 }

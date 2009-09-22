@@ -85,7 +85,7 @@ public class VisitableRelation implements IVisitable, IRelation {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
-		return relation.delete(elem);
+		return (SetOrRel) relation.delete(elem);
 	}
 
 	public ISet domain() {
@@ -109,11 +109,11 @@ public class VisitableRelation implements IVisitable, IRelation {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
-		return relation.insert(element);
+		return (SetOrRel) relation.insert(element);
 	}
 
 	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
-		return relation.intersect(set);
+		return (SetOrRel) relation.intersect(set);
 	}
 
 	public boolean isEmpty() {
@@ -153,7 +153,7 @@ public class VisitableRelation implements IVisitable, IRelation {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel subtract(ISet set) {
-		return relation.subtract(set);
+		return (SetOrRel) relation.subtract(set);
 	}
 
 	public String toString() {
@@ -161,7 +161,7 @@ public class VisitableRelation implements IVisitable, IRelation {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
-		return relation.union(set);
+		return (SetOrRel) relation.union(set);
 	}
 
 	public IVisitable setChildren(List<IVisitable> newchildren)

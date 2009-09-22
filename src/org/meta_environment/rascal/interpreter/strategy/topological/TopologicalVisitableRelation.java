@@ -44,7 +44,7 @@ implements IRelation {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
-		return value.delete(elem);
+		return (SetOrRel) value.delete(elem);
 	}
 
 	public ISet domain() {
@@ -68,11 +68,11 @@ implements IRelation {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
-		return value.insert(element);
+		return (SetOrRel) value.insert(element);
 	}
 
 	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
-		return value.intersect(set);
+		return (SetOrRel) value.intersect(set);
 	}
 
 	public boolean isEmpty() {
@@ -112,7 +112,7 @@ implements IRelation {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel subtract(ISet set) {
-		return value.subtract(set);
+		return (SetOrRel) value.subtract(set);
 	}
 
 	public String toString() {
@@ -120,7 +120,7 @@ implements IRelation {
 	}
 
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
-		return value.union(set);
+		return (SetOrRel) value.union(set);
 	}
 
 }
