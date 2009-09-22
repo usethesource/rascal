@@ -2,10 +2,17 @@ module TestStrategy
 	
 import IO;
 import Strategy;
+import TopologicalStrategy;
 import UnitTest;
 
-data A = a()
-       | f(B I, B J);
+data A = f(B I, B J)
+       | a()
+       | d()
+       | e()
+       | aa()
+       | dd()
+       | ee();
+
        
 data B = g(B I)
        | b()
@@ -33,6 +40,10 @@ data B = g(B I)
     };
  };
 
+&T(&T) debug = &T(&T t) { 
+    println(t);
+    return t;
+ };
 
 public B rules4(B t) {
    switch (t) {
@@ -41,11 +52,18 @@ public B rules4(B t) {
    };
 }
 
-public void main() {
-    test();
+
+public &T rules5(&T t) {
+   switch (t) {
+	case a(): return aa();
+	case d(): return dd();
+	case e(): return ee();
+	default: return t;
+   };
 }
- 
-public bool test() {
+
+public void main() {
+
      A t = f(g(g(b())),g(g(b())));
      assertEqual(top_down(rules)(t), f(g(b()),g(b())));
      assertEqual(bottom_up(rules)(t), f(b(),b()));
@@ -67,7 +85,15 @@ public bool test() {
 
      A t4 = f(g(b()),g(b()));
      assertEqual(top_down(makeStrategy(rules4))(t4),f(g(c()),g(c())));
- 
-     return report("Strategies");
+
+
+     rel[A, A] r2 = {<a(), d()>, <a(), e()>, <d(), e()>};
+     assertEqual(topological_top_down(rules5)(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
+     assertEqual(topological_bottom_up(rules5)(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
+
+     assertEqual( topological_once_top_down(rules5)(r2), {<aa(),e()>,<aa(),d()>,<d(),e()>});
+     assertEqual( topological_once_bottom_up(rules5)(r2), {<a(),ee()>,<a(),d()>,<d(),ee()>});
+
+    report("Strategies");
 
 }
