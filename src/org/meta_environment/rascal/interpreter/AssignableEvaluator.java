@@ -117,8 +117,9 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			case Default:
 			case IsDefined:
 				return rhsValue;
+			default:
+				throw new UninitializedVariableError("assignment operator", eval.getCurrentAST());
 		}
-		throw new UninitializedVariableError("assignment operator", eval.getCurrentAST());
 	}
 	
 	private Result<IValue> newResult(IValue oldValue, Result<IValue> rhsValue){
@@ -130,8 +131,9 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		case Default:
 		case IsDefined:
 				return rhsValue;
+		default:
+			throw new UninitializedVariableError("assignment operator", eval.getCurrentAST());
 		}
-		throw new UninitializedVariableError("assignment operator", eval.getCurrentAST());
 	}
 	
 	@Override
@@ -155,8 +157,9 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 //				env.declareVariable(value.getType(), qname.toString());
 				env.storeVariable(qname, value);
 				return value;
+		default:
+			throw new UninitializedVariableError(x.toString(), x);
 		}
-		throw new UninitializedVariableError(x.toString(), x);
 		
 		// TODO implement semantics of global keyword, when not given the
 		// variable should be inserted in the local scope.
