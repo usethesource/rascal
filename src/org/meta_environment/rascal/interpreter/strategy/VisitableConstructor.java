@@ -140,20 +140,15 @@ public class VisitableConstructor implements IVisitable, IConstructor {
 			return constructor.toString();
 		}
 
-		public IVisitable setChildren(List<IVisitable> newchildren)
+		public void setChildren(List<IVisitable> newchildren)
 		throws IndexOutOfBoundsException {
 			for (int j = 0; j < constructor.arity(); j++) {
 				constructor = constructor.set(j,newchildren.get(j));
 			}
-			return this;
 		}
 
-		public void update(IValue oldvalue, IValue newvalue) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void update(IValue oldvalue, IValue newvalue) {}
 		
-
 		public int arity() {
 			return constructor.arity();
 		}

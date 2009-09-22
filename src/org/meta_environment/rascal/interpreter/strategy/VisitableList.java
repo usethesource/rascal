@@ -4,15 +4,19 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class VisitableList implements IVisitable, IList {
 	
-	private final IList list;
+	private IList list;
 
 	public VisitableList(IList list) {
 		super();
@@ -113,14 +117,15 @@ public class VisitableList implements IVisitable, IList {
 		return list.toString();
 	}
 
-	public IVisitable setChildren(List<IVisitable> newchildren)
+	public void setChildren(List<IVisitable> newchildren)
 			throws IndexOutOfBoundsException {
-		// TODO Auto-generated method stub
-		return null;
+		IListWriter writer = ValueFactory.getInstance().listWriter(list.getElementType());
+		for (int j = 0; j < list.length(); j++) {
+			writer.append(newchildren.get(j).getValue());
+		}
+		list = writer.done();
 	}
 
-	public void update(IValue oldvalue, IValue newvalue) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void update(IValue oldvalue, IValue newvalue) {}
+	
 }

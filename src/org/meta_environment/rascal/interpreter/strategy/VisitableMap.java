@@ -8,6 +8,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.MapWriter;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -152,17 +153,16 @@ public class VisitableMap implements IVisitable, IMap {
 		return map.valueIterator();
 	}
 
-	public IVisitable setChildren(List<IVisitable> newchildren)
+	public void setChildren(List<IVisitable> newchildren)
 			throws IndexOutOfBoundsException {
-		// TODO Auto-generated method stub
-		return null;
+		IMapWriter writer = ValueFactory.getInstance().mapWriter(map.getKeyType(), map.getValueType());
+		for (int j = 0; j < map.size(); j++) {
+			ITuple newtuple = (ITuple) (newchildren.get(j).getValue());
+			writer.put(newtuple.get(0), newtuple.get(1));
+		}
+		map = writer.done();
 	}
 
-	public void update(IValue oldvalue, IValue newvalue) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
+	public void update(IValue oldvalue, IValue newvalue) {}
 
 }

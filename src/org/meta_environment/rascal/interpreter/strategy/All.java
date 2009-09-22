@@ -28,7 +28,7 @@ public class All extends Strategy {
 			result.update(child.getValue(), newchild.getValue());
 			newchildren.add(newchild);
 		}
-		result = result.setChildren(newchildren);
+		result.setChildren(newchildren);
 		return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
 	}
 
