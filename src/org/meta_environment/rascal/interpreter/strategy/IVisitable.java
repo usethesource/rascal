@@ -22,9 +22,8 @@ public interface IVisitable extends IValue {
 	 *            the zero based index of the child to be replaced
 	 * @param newChild
 	 *            the new value for the child
-	 * @return a new visitable with the new child at position i
 	 */
-	public IVisitable setChildAt(int i, IVisitable newChild)
+	public void setChildAt(int i, IVisitable newChild)
 			throws IndexOutOfBoundsException;
 
 	/**

@@ -36,9 +36,9 @@ public class VisitableNode implements IVisitable,INode {
 		return VisitableFactory.makeVisitable(node.get(i));
 	}
 
-	public IVisitable setChildAt(int i, IVisitable newChild)
+	public void setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
-		return new VisitableNode(node.set(i, newChild.getValue()));
+		node = node.set(i, newChild.getValue());
 	}
 
 	public IValue getValue() {

@@ -28,9 +28,9 @@ public class VisitableTuple implements IVisitable, ITuple {
 		return VisitableFactory.makeVisitable(tuple.get(i));
 	}
 
-	public IVisitable setChildAt(int i, IVisitable newChild)
+	public void setChildAt(int i, IVisitable newChild)
 			throws IndexOutOfBoundsException {
-		return new VisitableTuple(tuple.set(i, newChild.getValue()));
+		tuple = tuple.set(i, newChild.getValue());
 	}
 
 	public IValue getValue() {

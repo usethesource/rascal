@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.strategy;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -40,7 +39,7 @@ public class VisitableSet implements IVisitable, ISet {
 		return set;
 	}
 
-	public IVisitable setChildAt(int i, IVisitable newChild)
+	public void setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
 		if (i >= getChildrenNumber()) {
 			throw new IndexOutOfBoundsException();
@@ -57,7 +56,7 @@ public class VisitableSet implements IVisitable, ISet {
 			}
 			index++;
 		}
-		return new VisitableSet(writer.done());
+		set = writer.done();
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

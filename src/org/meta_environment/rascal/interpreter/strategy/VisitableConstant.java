@@ -27,7 +27,7 @@ public class VisitableConstant implements IVisitable, IValue {
 		return value;
 	}
 
-	public IVisitable setChildAt(int i, IVisitable newChild)
+	public void setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
 		throw new IndexOutOfBoundsException();
 	}

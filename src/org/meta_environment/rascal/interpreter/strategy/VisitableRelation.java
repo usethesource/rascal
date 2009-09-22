@@ -41,7 +41,7 @@ public class VisitableRelation implements IVisitable, IRelation {
 		return relation;
 	}
 
-	public IVisitable setChildAt(int i, IVisitable newChild)
+	public void setChildAt(int i, IVisitable newChild)
 	throws IndexOutOfBoundsException {
 		if (i >= getChildrenNumber()) {
 			throw new IndexOutOfBoundsException();
@@ -58,7 +58,7 @@ public class VisitableRelation implements IVisitable, IRelation {
 			}
 			index++;
 		}
-		return new VisitableRelation(writer.done());
+		relation = writer.done();
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

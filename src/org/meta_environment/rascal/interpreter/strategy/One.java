@@ -23,7 +23,7 @@ public class One extends Strategy {
 			IVisitable newchild = VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue());
 			if (!newchild.equals(child.getValue())) {
 				result.update(child.getValue(), newchild.getValue());
-				result =  result.setChildAt(i, newchild);
+				result.setChildAt(i, newchild);
 				break;
 			}
 		}

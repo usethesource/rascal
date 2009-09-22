@@ -58,9 +58,9 @@ public class VisitableConstructor implements IVisitable, IConstructor {
 			return VisitableFactory.makeVisitable(constructor.get(i));
 		}
 
-		public IVisitable setChildAt(int i, IVisitable newChild)
+		public void setChildAt(int i, IVisitable newChild)
 				throws IndexOutOfBoundsException {
-			return new VisitableNode(constructor.set(i, newChild.getValue()));
+			constructor = constructor.set(i, newChild.getValue());
 		}
 
 		public IValue getValue() {
