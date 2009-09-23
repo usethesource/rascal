@@ -65,6 +65,9 @@ public class TopologicalVisitable<T extends IValue> implements IVisitable, IValu
 				writer.insert(newt);
 			}
 		}
+		for (IVisitable child : children) {
+			child.update(oldvalue, newvalue);
+		}
 		context.setRelation(writer.done());
 	}
 
@@ -86,7 +89,7 @@ public class TopologicalVisitable<T extends IValue> implements IVisitable, IValu
 	}
 
 	public void setChildren(List<IVisitable> newchildren)
-			throws IndexOutOfBoundsException {
+	throws IndexOutOfBoundsException {
 		int i = 0;
 		for (IVisitable v : newchildren) {
 			children.set(i, VisitableFactory.makeTopologicalVisitable(context, v));
