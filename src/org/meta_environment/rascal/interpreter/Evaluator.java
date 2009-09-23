@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -23,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -38,6 +40,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.BasicType;
+import org.meta_environment.rascal.ast.BooleanLiteral;
 import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Catch;
@@ -50,6 +53,7 @@ import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Label;
 import org.meta_environment.rascal.ast.MidStringChars;
 import org.meta_environment.rascal.ast.Module;
+import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.PostStringChars;
 import org.meta_environment.rascal.ast.PreStringChars;
@@ -1710,7 +1714,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				result += expressionToString(lit.getExpression());
 			}
 			if (lit.isTemplate()) {
-				Statement stat = lit.getTemplate().accept(new StringTemplateConverter());
+				// We put a for loop around it to allow append without explicit enclosing for
+				Statement stat = surroundWithSingleIterForLoop(lit.getTree(), lit.getTemplate().accept(new StringTemplateConverter()));
 				Result<IValue> value = stat.accept(this);
 				if (!value.getType().isListType()) {
 					throw new ImplementationError("template eval returns non-list");
@@ -1735,6 +1740,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// example: x = "abc <for (i <- [1,2,3]) {> print <i> <}> cde";
 	}
 	
+
+	private Statement surroundWithSingleIterForLoop(INode src, Statement body) {
+		Name dummy = new Name.Lexical(src, "_");
+		Expression var = new Expression.QualifiedName(src, new QualifiedName.Default(src, Arrays.asList(dummy)));
+		Expression truth = new Expression.Literal(src, new org.meta_environment.rascal.ast.Literal.Boolean(src, new BooleanLiteral.Lexical(src, "true")));
+		Expression list = new Expression.List(src, Arrays.asList(truth));
+		Expression enumerator = new Expression.Enumerator(src, var, list);
+		Statement stat = new Statement.For(src, new Label.Empty(src), Arrays.asList(enumerator), body);
+		return stat;
+	}
 
 	private String expressionToString(Expression x) {
 		Result<IValue> r = x.accept(this);
