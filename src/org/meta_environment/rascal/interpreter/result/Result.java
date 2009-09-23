@@ -130,7 +130,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected <U extends IValue> Result<U> undefinedError(String operator, Result arg, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> undefinedError(String operator, Result<?> arg, IEvaluatorContext ctx) {
 		throw new UnsupportedOperationError(operator, getType(), arg.getType(), ctx.getCurrentAST());
 	}
 	

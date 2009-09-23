@@ -80,7 +80,6 @@ import org.meta_environment.rascal.ast.Statement.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Statement.GlobalDirective;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.Insert;
-import org.meta_environment.rascal.ast.Statement.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Statement.Return;
 import org.meta_environment.rascal.ast.Statement.Solve;
 import org.meta_environment.rascal.ast.Statement.Switch;
