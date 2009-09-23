@@ -16,6 +16,9 @@ public class ToString {
 		if (value.getType() == Factory.Tree) {
 			return values.string(TreeAdapter.yield((IConstructor) value));
 		}
+		if (value.getType().isStringType()) {
+			return (IString) value;
+		}
 		return values.string(value.toString());
 	}
 }

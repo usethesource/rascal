@@ -48,13 +48,18 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Label;
+import org.meta_environment.rascal.ast.MidStringChars;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.PostStringChars;
+import org.meta_environment.rascal.ast.PreStringChars;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.ShellCommand;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.ast.StringConstant;
+import org.meta_environment.rascal.ast.StringLiteral;
+import org.meta_environment.rascal.ast.StringTail;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
@@ -207,6 +212,7 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.Profiler;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.rascal.parser.ModuleParser;
+import org.meta_environment.rascal.std.ToString;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
@@ -1690,19 +1696,40 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
-		// TODO: interpolation etc.
 		if (x.getStringLiteral().isNonInterpolated()) {
 			String str = ((StringConstant.Lexical) x.getStringLiteral().getConstant()).getString();
 			return makeResult(tf.stringType(), vf.string(unescape(str, x, getCurrentEnvt())), this);
 		}
 		if (x.getStringLiteral().isInterpolated()) {
-			// TODO;
+			StringLiteral lit = x.getStringLiteral();
+			String result = "";
+			PreStringChars.Lexical pre = (org.meta_environment.rascal.ast.PreStringChars.Lexical) lit.getPre();
+			result += unescape(pre.getString(), pre, getCurrentEnvt());
+			result += expressionToString(lit.getExpression());
+			StringTail tail = lit.getTail();
+			while (tail.isMid()) {
+				MidStringChars.Lexical mid = (org.meta_environment.rascal.ast.MidStringChars.Lexical) tail.getMid();
+				result += unescape(mid.getString(), mid, getCurrentEnvt());
+				result += expressionToString(tail.getExpression());
+				tail = tail.getTail();
+			}
+			PostStringChars.Lexical post = (org.meta_environment.rascal.ast.PostStringChars.Lexical) tail.getPost();
+			result += unescape(post.getString(), post, getCurrentEnvt());
+			return makeResult(tf.stringType(), vf.string(result), this);
 		}
-		throw new ImplementationError("string interpolation needs to be reimplemented");
+		if (x.getStringLiteral().isTemplate()) {
+			throw new NotYetImplemented(x);
+		}
+		throw new ImplementationError("invalid string literal");
 	}
 
 
-
+	private String expressionToString(Expression x) {
+		Result<IValue> r = x.accept(this);
+		return ToString.toString(r.getValue()).getValue(); // Stdlib behaviour
+	}
+	
+	
 	@Override
 	public Result<IValue> visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
