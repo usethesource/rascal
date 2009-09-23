@@ -269,11 +269,17 @@ return new org.meta_environment.rascal.ast.StringLiteral.Ambiguity(node, alterna
 public org.meta_environment.rascal.ast.StringLiteral.Interpolated makeStringLiteralInterpolated(INode node, org.meta_environment.rascal.ast.PreStringChars pre, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringTail tail) { 
 return new org.meta_environment.rascal.ast.StringLiteral.Interpolated(node, pre, expression, tail); 
 }
+public org.meta_environment.rascal.ast.StringMiddle.Template makeStringMiddleTemplate(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.StringTemplate template, org.meta_environment.rascal.ast.StringMiddle tail) { 
+return new org.meta_environment.rascal.ast.StringMiddle.Template(node, mid, template, tail); 
+}
+public org.meta_environment.rascal.ast.StringMiddle.Interpolated makeStringMiddleInterpolated(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringMiddle tail) { 
+return new org.meta_environment.rascal.ast.StringMiddle.Interpolated(node, mid, expression, tail); 
+}
 public org.meta_environment.rascal.ast.StringMiddle.Ambiguity makeStringMiddleAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringMiddle> alternatives) { 
 return new org.meta_environment.rascal.ast.StringMiddle.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.StringMiddle.Lexical makeStringMiddleLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.StringMiddle.Lexical(node, string); 
+public org.meta_environment.rascal.ast.StringMiddle.Mid makeStringMiddleMid(INode node, org.meta_environment.rascal.ast.MidStringChars mid) { 
+return new org.meta_environment.rascal.ast.StringMiddle.Mid(node, mid); 
 }
 public org.meta_environment.rascal.ast.StringTemplate.DoWhile makeStringTemplateDoWhile(INode node, org.meta_environment.rascal.ast.Expression condition) { 
 return new org.meta_environment.rascal.ast.StringTemplate.DoWhile(node, condition); 
