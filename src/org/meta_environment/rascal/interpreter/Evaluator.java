@@ -215,6 +215,7 @@ import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.Profiler;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
+import org.meta_environment.rascal.interpreter.utils.Utils;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.rascal.std.ToString;
 import org.meta_environment.uptr.Factory;
@@ -1701,43 +1702,66 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
 		StringLiteral lit = x.getStringLiteral();
+		
+		StringBuilder result = new StringBuilder();
+
+		// To prevent infinite recursion detect non-interpolated strings
+		// first. TODO: design flaw?
 		if (lit.isNonInterpolated()) {
-			String str = ((StringConstant.Lexical) x.getStringLiteral().getConstant()).getString();
-			return makeResult(tf.stringType(), vf.string(unescape(str, x, getCurrentEnvt())), this);
+			String str = Utils.unescape(((StringConstant.Lexical)lit.getConstant()).getString());
+			result.append(str);
 		}
-		if (lit.isInterpolated() || lit.isTemplate()) {
-			String result = "";
-			PreStringChars.Lexical pre = (org.meta_environment.rascal.ast.PreStringChars.Lexical) lit.getPre();
-			result += unescape(pre.getString(), pre, getCurrentEnvt());
-			
-			if (lit.isInterpolated()) {
-				result += expressionToString(lit.getExpression());
+		else {
+			Statement stat = StringTemplateConverter.convert(lit);
+			Result<IValue> value = stat.accept(this);
+			if (!value.getType().isListType()) {
+				throw new ImplementationError("template eval returns non-list");
 			}
-			if (lit.isTemplate()) {
-				// We put a for loop around it to allow append without explicit enclosing for
-				Statement stat = StringTemplateConverter.convert(lit.getTemplate());
-				Result<IValue> value = stat.accept(this);
-				if (!value.getType().isListType()) {
-					throw new ImplementationError("template eval returns non-list");
-				}
-				IList list = (IList)value.getValue();
-				for (IValue elt: list) {
-					result += ToString.toString(elt).getValue();
-				}
+			IList list = (IList)value.getValue();
+			for (IValue elt: list) {
+				result.append(ToString.toString(elt).getValue());
 			}
-			StringTail tail = lit.getTail();
-			while (tail.isMid()) {
-				MidStringChars.Lexical mid = (org.meta_environment.rascal.ast.MidStringChars.Lexical) tail.getMid();
-				result += unescape(mid.getString(), mid, getCurrentEnvt());
-				result += expressionToString(tail.getExpression());
-				tail = tail.getTail();
-			}
-			PostStringChars.Lexical post = (org.meta_environment.rascal.ast.PostStringChars.Lexical) tail.getPost();
-			result += unescape(post.getString(), post, getCurrentEnvt());
-			return makeResult(tf.stringType(), vf.string(result), this);
 		}
-		throw new ImplementationError("invalid string literal");	
-		// example: x = "abc <for (i <- [1,2,3]) {> print <i> <}> cde";
+		
+		return makeResult(tf.stringType(), vf.string(result.toString()), this);
+		
+//		if (lit.isNonInterpolated()) {
+//			String str = ((StringConstant.Lexical) x.getStringLiteral().getConstant()).getString();
+//			return makeResult(tf.stringType(), vf.string(unescape(str, x, getCurrentEnvt())), this);
+//		}
+//		if (lit.isInterpolated() || lit.isTemplate()) {
+//			String result = "";
+//			PreStringChars.Lexical pre = (org.meta_environment.rascal.ast.PreStringChars.Lexical) lit.getPre();
+//			result += unescape(pre.getString(), pre, getCurrentEnvt());
+//			
+//			if (lit.isInterpolated()) {
+//				result += expressionToString(lit.getExpression());
+//			}
+//			if (lit.isTemplate()) {
+//				// We put a for loop around it to allow append without explicit enclosing for
+//				Statement stat = StringTemplateConverter.convert(lit.getTemplate());
+//				Result<IValue> value = stat.accept(this);
+//				if (!value.getType().isListType()) {
+//					throw new ImplementationError("template eval returns non-list");
+//				}
+//				IList list = (IList)value.getValue();
+//				for (IValue elt: list) {
+//					result += ToString.toString(elt).getValue();
+//				}
+//			}
+//			StringTail tail = lit.getTail();
+//			while (tail.isMid()) {
+//				MidStringChars.Lexical mid = (org.meta_environment.rascal.ast.MidStringChars.Lexical) tail.getMid();
+//				result += unescape(mid.getString(), mid, getCurrentEnvt());
+//				result += expressionToString(tail.getExpression());
+//				tail = tail.getTail();
+//			}
+//			PostStringChars.Lexical post = (org.meta_environment.rascal.ast.PostStringChars.Lexical) tail.getPost();
+//			result += unescape(post.getString(), post, getCurrentEnvt());
+//			return makeResult(tf.stringType(), vf.string(result), this);
+//		}
+//		throw new ImplementationError("invalid string literal");	
+//		// example: x = "abc <for (i <- [1,2,3]) {> print <i> <}> cde";
 	}
 	
 	private String expressionToString(Expression x) {

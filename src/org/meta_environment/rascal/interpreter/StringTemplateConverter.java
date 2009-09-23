@@ -1,15 +1,12 @@
 package org.meta_environment.rascal.interpreter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.meta_environment.rascal.ast.BooleanLiteral;
 import org.meta_environment.rascal.ast.DataTarget;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Label;
-import org.meta_environment.rascal.ast.MidStringChars;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
@@ -17,14 +14,17 @@ import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringConstant;
 import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.MidStringChars.Lexical;
+import org.meta_environment.rascal.ast.StringLiteral.NonInterpolated;
 import org.meta_environment.rascal.ast.StringMiddle.Interpolated;
 import org.meta_environment.rascal.ast.StringMiddle.Mid;
 import org.meta_environment.rascal.ast.StringMiddle.Template;
+import org.meta_environment.rascal.ast.StringTail.Post;
 import org.meta_environment.rascal.ast.StringTemplate.DoWhile;
 import org.meta_environment.rascal.ast.StringTemplate.For;
 import org.meta_environment.rascal.ast.StringTemplate.IfThen;
 import org.meta_environment.rascal.ast.StringTemplate.IfThenElse;
 import org.meta_environment.rascal.ast.StringTemplate.While;
+import org.meta_environment.rascal.interpreter.utils.Utils;
 
 public class StringTemplateConverter {
 	private static final Name OUTER_FOR_LOOP_LABEL = new Name.Lexical(null, "#");
@@ -39,12 +39,57 @@ public class StringTemplateConverter {
 		return stat;
 	}
 
-	public static Statement convert(org.meta_environment.rascal.ast.StringTemplate template) {
-		return surroundWithSingleIterForLoop(template.getTree(), template.accept(new Visitor()));
+
+	public static Statement convert(org.meta_environment.rascal.ast.StringLiteral str) {
+		return surroundWithSingleIterForLoop(str.getTree(), str.accept(new Visitor()));
 	}
 	
 	private static class Visitor extends NullASTVisitor<Statement> {
 
+		private static Statement makeBlock(INode src, Statement ...stats) {
+			return new Statement.NonEmptyBlock(src, new Label.Empty(src),
+					Arrays.asList(stats));
+		}
+		
+		private static Statement makeAppend(Expression exp) {
+			return new Statement.Append(exp.getTree(), new DataTarget.Labeled(null, OUTER_FOR_LOOP_LABEL),
+					new Statement.Expression(exp.getTree(), exp)); 
+		}
+		
+		private static Expression makeLit(INode src, String str) {
+			// Note: we don't unescape here this happens
+			// in the main evaluator; also, we pretend 
+			// "...< etc. to be "..." stringliterals...
+			return new Expression.Literal(src, 
+					new org.meta_environment.rascal.ast.Literal.String(src, 
+							new StringLiteral.NonInterpolated(src, 
+									new StringConstant.Lexical(src, str))));
+		}
+		
+		
+		@Override
+		public Statement visitStringLiteralInterpolated(
+				org.meta_environment.rascal.ast.StringLiteral.Interpolated x) {
+			Statement pre = x.getPre().accept(this);
+			Statement exp = makeAppend(x.getExpression());
+			Statement tail = x.getTail().accept(this);
+			return makeBlock(x.getTree(), pre, exp, tail);
+		}
+		
+		@Override
+		public Statement visitStringLiteralNonInterpolated(NonInterpolated x) {
+			return makeAppend(makeLit(x.getTree(), ((StringConstant.Lexical)x.getConstant()).getString()));
+		}
+		
+		@Override
+		public Statement visitStringLiteralTemplate(
+				org.meta_environment.rascal.ast.StringLiteral.Template x) {
+			Statement pre = x.getPre().accept(this);
+			Statement template = x.getTemplate().accept(this);
+			Statement tail = x.getTail().accept(this);
+			return makeBlock(x.getTree(), pre, template, tail);
+		}
+		
 		@Override
 		public Statement visitStringTemplateDoWhile(DoWhile x) {
 			Statement body = x.getBody().accept(this);
@@ -81,34 +126,9 @@ public class StringTemplateConverter {
 		public Statement visitStringMiddleInterpolated(Interpolated x) {
 			INode src = x.getTree();
 			Statement mid = x.getMid().accept(this);
-			Statement exp = new Statement.Append(src, new DataTarget.Labeled(src, OUTER_FOR_LOOP_LABEL), 
-					new Statement.Expression(src, x.getExpression()));
+			Statement exp = makeAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
-			List<Statement> stats = new ArrayList<Statement>();
-			stats.add(mid);
-			stats.add(exp);
-			stats.add(tail);
-			return new Statement.NonEmptyBlock(src, new Label.Empty(src), stats);
-		}
-
-		@Override
-		public Statement visitStringMiddleMid(Mid x) {
-			INode src = x.getTree();
-			return new Statement.Append(src, new DataTarget.Labeled(src, OUTER_FOR_LOOP_LABEL),
-					new Statement.Expression(src, new Expression.Literal(src, 
-							new org.meta_environment.rascal.ast.Literal.String(src, 
-									new StringLiteral.NonInterpolated(src, 
-											new StringConstant.Lexical(src, ((MidStringChars.Lexical)x.getMid()).getString()))))));	
-		}
-
-		@Override
-		public Statement visitMidStringCharsLexical(Lexical x) {
-			INode src = x.getTree();
-			return new Statement.Append(src, new DataTarget.Labeled(src, OUTER_FOR_LOOP_LABEL),
-					new Statement.Expression(src, new Expression.Literal(src, 
-							new org.meta_environment.rascal.ast.Literal.String(src, 
-									new StringLiteral.NonInterpolated(src, 
-											new StringConstant.Lexical(src, x.getString()))))));	
+			return makeBlock(x.getTree(), mid, exp, tail);
 		}
 
 		@Override
@@ -116,11 +136,54 @@ public class StringTemplateConverter {
 			Statement mid = x.getMid().accept(this);
 			Statement tmp = x.getTemplate().accept(this);
 			Statement tail = x.getTail().accept(this);
-			List<Statement> stats = new ArrayList<Statement>();
-			stats.add(mid);
-			stats.add(tmp);
-			stats.add(tail);
-			return new Statement.NonEmptyBlock(x.getTree(), new Label.Empty(x.getTree()), stats);
+			return makeBlock(x.getTree(), mid, tmp, tail);
 		}
+		
+		@Override
+		public Statement visitStringMiddleMid(Mid x) {
+			return x.getMid().accept(this);
+		}
+
+		@Override
+		public Statement visitMidStringCharsLexical(Lexical x) {
+			return makeAppend(makeLit(x.getTree(), x.getString()));
+		}
+
+		@Override
+		public Statement visitPreStringCharsLexical(
+				org.meta_environment.rascal.ast.PreStringChars.Lexical x) {
+			return makeAppend(makeLit(x.getTree(), x.getString()));
+		}
+		
+		@Override
+		public Statement visitPostStringCharsLexical(
+				org.meta_environment.rascal.ast.PostStringChars.Lexical x) {
+			return makeAppend(makeLit(x.getTree(), x.getString()));
+		}
+
+		@Override
+		public Statement visitStringTailMidInterpolated(
+				org.meta_environment.rascal.ast.StringTail.MidInterpolated x) {
+			Statement mid = x.getMid().accept(this);
+			Statement exp = x.getExpression().accept(this);
+			Statement tail = x.getTail().accept(this);
+			return makeBlock(x.getTree(), mid, exp, tail);
+		}
+
+		@Override
+		public Statement visitStringTailMidTemplate(
+				org.meta_environment.rascal.ast.StringTail.MidTemplate x) {
+			Statement mid = x.getMid().accept(this);
+			Statement template = x.getTemplate().accept(this);
+			Statement tail = x.getTail().accept(this);
+			return makeBlock(x.getTree(), mid, template, tail);
+		}
+		
+		@Override
+		public Statement visitStringTailPost(Post x) {
+			return x.getPost().accept(this);
+		}
+		
+	
 	}
 }

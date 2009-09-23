@@ -1,26 +1,20 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class StringTail extends AbstractAST { 
-  public org.meta_environment.rascal.ast.MidStringChars getMid() { throw new UnsupportedOperationException(); }
-	public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
-	public org.meta_environment.rascal.ast.StringTail getTail() { throw new UnsupportedOperationException(); }
-public boolean hasMid() { return false; }
-	public boolean hasExpression() { return false; }
-	public boolean hasTail() { return false; }
-public boolean isMid() { return false; }
-static public class Mid extends StringTail {
-/** mid:MidStringChars expression:Expression tail:StringTail -> StringTail {cons("Mid")} */
-	public Mid(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringTail tail) {
+  public org.meta_environment.rascal.ast.MidStringChars getMid() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.StringTail getTail() { throw new UnsupportedOperationException(); } public boolean hasMid() { return false; } public boolean hasExpression() { return false; } public boolean hasTail() { return false; } public boolean isMidInterpolated() { return false; }
+static public class MidInterpolated extends StringTail {
+/** mid:MidStringChars expression:Expression tail:StringTail -> StringTail {cons("MidInterpolated")} */
+	public MidInterpolated(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringTail tail) {
 		this.node = node;
 		this.mid = mid;
 		this.expression = expression;
 		this.tail = tail;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStringTailMid(this);
+		return visitor.visitStringTailMidInterpolated(this);
 	}
 
-	public boolean isMid() { return true; }
+	public boolean isMidInterpolated() { return true; }
 
 	public boolean hasMid() { return true; }
 	public boolean hasExpression() { return true; }
@@ -46,8 +40,32 @@ static public class Ambiguity extends StringTail {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitStringTailAmbiguity(this);
   }
-} 
-public org.meta_environment.rascal.ast.PostStringChars getPost() { throw new UnsupportedOperationException(); }
+} public org.meta_environment.rascal.ast.StringTemplate getTemplate() { throw new UnsupportedOperationException(); } public boolean hasTemplate() { return false; } public boolean isMidTemplate() { return false; }
+static public class MidTemplate extends StringTail {
+/** mid:MidStringChars template:StringTemplate tail:StringTail -> StringTail {cons("MidTemplate")} */
+	public MidTemplate(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.StringTemplate template, org.meta_environment.rascal.ast.StringTail tail) {
+		this.node = node;
+		this.mid = mid;
+		this.template = template;
+		this.tail = tail;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStringTailMidTemplate(this);
+	}
+
+	public boolean isMidTemplate() { return true; }
+
+	public boolean hasMid() { return true; }
+	public boolean hasTemplate() { return true; }
+	public boolean hasTail() { return true; }
+
+private final org.meta_environment.rascal.ast.MidStringChars mid;
+	public org.meta_environment.rascal.ast.MidStringChars getMid() { return mid; }
+	private final org.meta_environment.rascal.ast.StringTemplate template;
+	public org.meta_environment.rascal.ast.StringTemplate getTemplate() { return template; }
+	private final org.meta_environment.rascal.ast.StringTail tail;
+	public org.meta_environment.rascal.ast.StringTail getTail() { return tail; }	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.PostStringChars getPost() { throw new UnsupportedOperationException(); }
 public boolean hasPost() { return false; }
 public boolean isPost() { return false; }
 static public class Post extends StringTail {
@@ -67,5 +85,4 @@ static public class Post extends StringTail {
 private final org.meta_environment.rascal.ast.PostStringChars post;
 	public org.meta_environment.rascal.ast.PostStringChars getPost() { return post; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
 }

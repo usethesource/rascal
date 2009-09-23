@@ -251,11 +251,14 @@ return new org.meta_environment.rascal.ast.PathPart.Interpolated(node, pre, expr
 public org.meta_environment.rascal.ast.StringTail.Post makeStringTailPost(INode node, org.meta_environment.rascal.ast.PostStringChars post) { 
 return new org.meta_environment.rascal.ast.StringTail.Post(node, post); 
 }
+public org.meta_environment.rascal.ast.StringTail.MidTemplate makeStringTailMidTemplate(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.StringTemplate template, org.meta_environment.rascal.ast.StringTail tail) { 
+return new org.meta_environment.rascal.ast.StringTail.MidTemplate(node, mid, template, tail); 
+}
 public org.meta_environment.rascal.ast.StringTail.Ambiguity makeStringTailAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringTail> alternatives) { 
 return new org.meta_environment.rascal.ast.StringTail.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.StringTail.Mid makeStringTailMid(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringTail tail) { 
-return new org.meta_environment.rascal.ast.StringTail.Mid(node, mid, expression, tail); 
+public org.meta_environment.rascal.ast.StringTail.MidInterpolated makeStringTailMidInterpolated(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringTail tail) { 
+return new org.meta_environment.rascal.ast.StringTail.MidInterpolated(node, mid, expression, tail); 
 }
 public org.meta_environment.rascal.ast.StringLiteral.NonInterpolated makeStringLiteralNonInterpolated(INode node, org.meta_environment.rascal.ast.StringConstant constant) { 
 return new org.meta_environment.rascal.ast.StringLiteral.NonInterpolated(node, constant); 
