@@ -61,7 +61,23 @@ private final org.meta_environment.rascal.ast.Parameters parameters;
 	public org.meta_environment.rascal.ast.Parameters getParameters() { return parameters; }
 	private final java.util.List<org.meta_environment.rascal.ast.Statement> statements;
 	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; } public boolean isBracket() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isNonEmptyBlock() { return false; } static public class NonEmptyBlock extends Expression {
+/** "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
+	public NonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		this.node = node;
+		this.statements = statements;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionNonEmptyBlock(this);
+	}
+
+	public boolean isNonEmptyBlock() { return true; }
+
+	public boolean hasStatements() { return true; }
+
+private final java.util.List<org.meta_environment.rascal.ast.Statement> statements;
+	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }	
+} public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; } public boolean isBracket() { return false; }
 static public class Bracket extends Expression {
 /** "(" expression:Expression ")" -> Expression {cons("Bracket"), bracket} */
 	public Bracket(INode node, org.meta_environment.rascal.ast.Expression expression) {

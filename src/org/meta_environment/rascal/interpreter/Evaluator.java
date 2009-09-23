@@ -47,6 +47,7 @@ import org.meta_environment.rascal.ast.Field;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Import;
+import org.meta_environment.rascal.ast.Label;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
@@ -99,6 +100,7 @@ import org.meta_environment.rascal.ast.Expression.Modulo;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NoMatch;
+import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
@@ -1200,14 +1202,35 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Statement.Return x) {
 		throw new Return(x.getStatement().accept(this));
 	}
+	
+	@Override
+	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+		return new Statement.NonEmptyBlock(x.getTree(), new Label.Empty(x.getTree()), x.getStatements()).accept(this);
+	}
 
 	@Override
 	public Result<IValue> visitStatementAppend(Append x) {
+		Accumulator target = null;
 		if (forAccumulators.empty()) {
 			throw new AppendWithoutFor(x);
 		}
+		if (!x.getDataTarget().isEmpty()) {
+			String label = Names.name(x.getDataTarget().getLabel());
+			for (Accumulator accu: forAccumulators) {
+				if (accu.hasLabel(label)) {
+					target = accu;
+					break;
+				}
+			}
+			if (target == null) {
+				throw new AppendWithoutFor(x); // TODO: better error message
+			}
+		}
+		else {
+			target = forAccumulators.peek();
+		}
 		Result<IValue> result = x.getStatement().accept(this);
-		forAccumulators.peek().append(result);
+		target.append(result);
 		return result;
 	}
 	

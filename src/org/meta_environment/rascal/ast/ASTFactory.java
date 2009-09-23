@@ -200,6 +200,9 @@ return new org.meta_environment.rascal.ast.Expression.Range(node, first, last);
 public org.meta_environment.rascal.ast.Expression.Bracket makeExpressionBracket(INode node, org.meta_environment.rascal.ast.Expression expression) { 
 return new org.meta_environment.rascal.ast.Expression.Bracket(node, expression); 
 }
+public org.meta_environment.rascal.ast.Expression.NonEmptyBlock makeExpressionNonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) { 
+return new org.meta_environment.rascal.ast.Expression.NonEmptyBlock(node, statements); 
+}
 public org.meta_environment.rascal.ast.Expression.VoidClosure makeExpressionVoidClosure(INode node, org.meta_environment.rascal.ast.Parameters parameters, java.util.List<org.meta_environment.rascal.ast.Statement> statements) { 
 return new org.meta_environment.rascal.ast.Expression.VoidClosure(node, parameters, statements); 
 }
@@ -1144,6 +1147,9 @@ return new org.meta_environment.rascal.ast.QualifiedName.Ambiguity(node, alterna
 }
 public org.meta_environment.rascal.ast.QualifiedName.Default makeQualifiedNameDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Name> names) { 
 return new org.meta_environment.rascal.ast.QualifiedName.Default(node, names); 
+}
+public org.meta_environment.rascal.ast.Command.Lexical makeCommandLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.Command.Lexical(node, string); 
 }
 public org.meta_environment.rascal.ast.Command.Import makeCommandImport(INode node, org.meta_environment.rascal.ast.Import imported) { 
 return new org.meta_environment.rascal.ast.Command.Import(node, imported); 
