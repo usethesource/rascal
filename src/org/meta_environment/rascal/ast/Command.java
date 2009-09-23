@@ -113,5 +113,19 @@ static public class Import extends Command {
 
 private final org.meta_environment.rascal.ast.Import imported;
 	public org.meta_environment.rascal.ast.Import getImported() { return imported; }	
+} 
+static public class Lexical extends Command {
+	private final String string;
+         public Lexical(INode node, String string) {
+		this.node = node;
+		this.string = string;
+	}
+	public String getString() {
+		return string;
+	}
+
+ 	public <T> T accept(IASTVisitor<T> v) {
+     		return v.visitCommandLexical(this);
+  	}
 }
 }

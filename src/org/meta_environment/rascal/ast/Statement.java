@@ -298,7 +298,7 @@ private final org.meta_environment.rascal.ast.Expression expression;
 } public org.meta_environment.rascal.ast.Expression getMessage() { throw new UnsupportedOperationException(); } public boolean hasMessage() { return false; }
 public boolean isAssertWithMessage() { return false; }
 static public class AssertWithMessage extends Statement {
-/** "assert" expression:Expression ":" message:Expression -> Statement {cons("AssertWithMessage")} */
+/** "assert" expression:Expression ":" message:Expression ";" -> Statement {cons("AssertWithMessage")} */
 	public AssertWithMessage(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression message) {
 		this.node = node;
 		this.expression = expression;
