@@ -10,5 +10,9 @@ public abstract class Strategy extends AbstractFunction {
 		super(function.getAst(), function.getEval(), function.getFunctionType(), function.hasVarArgs(), function.getEnv());
 		this.function = function;
 	}
+	
+	public AbstractFunction getFunction() {
+		return function;
+	}
 
 }

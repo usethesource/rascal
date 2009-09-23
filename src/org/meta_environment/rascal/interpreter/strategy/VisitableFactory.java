@@ -55,33 +55,48 @@ public class VisitableFactory {
 	}
 
 	public static TopologicalVisitable<?> makeTopologicalVisitable(RelationContext context, IValue iValue) {
-		HashMap<IValue, LinkedList<IValue>> adjacencies = computeAdjacencies(context.getRelation());
-		List<TopologicalVisitable<?>> successors = new ArrayList<TopologicalVisitable<?>>();
-		if (adjacencies.get(iValue) != null) {
-			for (IValue s: adjacencies.get(iValue)) {
-				successors.add(makeTopologicalVisitable(context, s));
-			}
-		}
 		if (iValue instanceof TopologicalVisitable<?>) {
 			return (TopologicalVisitable<?>) iValue;
-		} else if (iValue instanceof IConstructor) {
-			return new TopologicalVisitableConstructor(context, (IConstructor) iValue, successors);
-		} else if (iValue instanceof INode) {
-			return new TopologicalVisitableNode(context, (INode) iValue, successors);
-		} else if (iValue instanceof ITuple) {
-			return new TopologicalVisitableTuple(context, (ITuple) iValue, successors);
-		} else if (iValue instanceof IMap) {
-			return new TopologicalVisitableMap(context, (IMap) iValue, successors);
-		} else if (iValue instanceof IRelation) {
-			return new TopologicalVisitableRelation(context, (IRelation) iValue, successors);
-		} else if (iValue instanceof IList) {
-			return new TopologicalVisitableList(context, (IList) iValue, successors);
-		} else if (iValue instanceof ISet) {
-			return new TopologicalVisitableSet(context, (ISet) iValue, successors);
-		} else if (iValue instanceof ISourceLocation || iValue instanceof IExternalValue || iValue instanceof IBool || iValue instanceof IInteger || iValue instanceof ISourceLocation || iValue instanceof IReal || iValue instanceof IString) {
-			return new TopologicalVisitable<IValue>(context, iValue, successors);
+		} else if (context.getRelation().equals(iValue)) {
+			// special case for the root of the context
+			IRelation relation = (IRelation) iValue;
+			return new TopologicalVisitableRelation(context, relation, computeRoots(context, relation));
+		} else {
+			HashMap<IValue, LinkedList<IValue>> adjacencies = computeAdjacencies(context.getRelation());
+			List<TopologicalVisitable<?>> successors = new ArrayList<TopologicalVisitable<?>>();
+			if (adjacencies.get(iValue) != null) {
+				for (IValue s: adjacencies.get(iValue)) {
+					successors.add(makeTopologicalVisitable(context, s));
+				}
+			}
+			 if (iValue instanceof IConstructor) {
+				return new TopologicalVisitableConstructor(context, (IConstructor) iValue, successors);
+			} else if (iValue instanceof INode) {
+				return new TopologicalVisitableNode(context, (INode) iValue, successors);
+			} else if (iValue instanceof ITuple) {
+				return new TopologicalVisitableTuple(context, (ITuple) iValue, successors);
+			} else if (iValue instanceof IMap) {
+				return new TopologicalVisitableMap(context, (IMap) iValue, successors);
+			} else if (iValue instanceof IRelation) {
+				return new TopologicalVisitableRelation(context, (IRelation) iValue, successors);
+			} else if (iValue instanceof IList) {
+				return new TopologicalVisitableList(context, (IList) iValue, successors);
+			} else if (iValue instanceof ISet) {
+				return new TopologicalVisitableSet(context, (ISet) iValue, successors);
+			} else if (iValue instanceof ISourceLocation || iValue instanceof IExternalValue || iValue instanceof IBool || iValue instanceof IInteger || iValue instanceof ISourceLocation || iValue instanceof IReal || iValue instanceof IString) {
+				return new TopologicalVisitable<IValue>(context, iValue, successors);
+			}
 		}
 		return null;
+	}
+
+	private static List<TopologicalVisitable<?>> computeRoots(RelationContext context, IRelation relation) {
+		ISet roots = relation.domain().subtract(relation.range());
+		List<TopologicalVisitable<?>> res = new ArrayList<TopologicalVisitable<?>>();
+		for (IValue v: roots) {
+			res.add(makeTopologicalVisitable(context, v));
+		}
+		return res;
 	}
 
 	private static HashMap<IValue, LinkedList<IValue>> computeAdjacencies(IRelation relation) {
