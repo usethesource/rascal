@@ -14,6 +14,12 @@ public class InterpolationTests extends TestFramework {
 	}
 
 	@Test
+	public void interpolateDoWhile() {
+		assertTrue(runTest("{ x = 10; \"<do {> <{x -= 1; x; }> <} while (x > 0)>\" == " +
+				" \" 9  8  7  6  5  4  3  2  1  0 \"; }"));
+	}
+
+	@Test
 	public void interpolateIfThenElse() {
 		assertTrue(runTest("\"abc <if (1 > 0) {> GT <} else {> LT <}> cde\" == " +
 				" \"abc  GT  cde\";"));

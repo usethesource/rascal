@@ -281,8 +281,8 @@ return new org.meta_environment.rascal.ast.StringMiddle.Ambiguity(node, alternat
 public org.meta_environment.rascal.ast.StringMiddle.Mid makeStringMiddleMid(INode node, org.meta_environment.rascal.ast.MidStringChars mid) { 
 return new org.meta_environment.rascal.ast.StringMiddle.Mid(node, mid); 
 }
-public org.meta_environment.rascal.ast.StringTemplate.DoWhile makeStringTemplateDoWhile(INode node, org.meta_environment.rascal.ast.Expression condition) { 
-return new org.meta_environment.rascal.ast.StringTemplate.DoWhile(node, condition); 
+public org.meta_environment.rascal.ast.StringTemplate.DoWhile makeStringTemplateDoWhile(INode node, org.meta_environment.rascal.ast.StringMiddle body, org.meta_environment.rascal.ast.Expression condition) { 
+return new org.meta_environment.rascal.ast.StringTemplate.DoWhile(node, body, condition); 
 }
 public org.meta_environment.rascal.ast.StringTemplate.While makeStringTemplateWhile(INode node, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.StringMiddle body) { 
 return new org.meta_environment.rascal.ast.StringTemplate.While(node, condition, body); 
