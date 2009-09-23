@@ -53,7 +53,7 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.ShellCommand;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
-import org.meta_environment.rascal.ast.StringLiteral;
+import org.meta_environment.rascal.ast.StringConstant;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
@@ -77,7 +77,6 @@ import org.meta_environment.rascal.ast.Expression.Closure;
 import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
-import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldProject;
 import org.meta_environment.rascal.ast.Expression.FieldUpdate;
@@ -100,7 +99,6 @@ import org.meta_environment.rascal.ast.Expression.Modulo;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NoMatch;
-import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
@@ -115,7 +113,6 @@ import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
 import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
-import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.FunctionDeclaration.Abstract;
 import org.meta_environment.rascal.ast.Header.Parameters;
@@ -131,10 +128,10 @@ import org.meta_environment.rascal.ast.PatternWithAction.Replacing;
 import org.meta_environment.rascal.ast.ProtocolPart.Interpolated;
 import org.meta_environment.rascal.ast.ProtocolPart.NonInterpolated;
 import org.meta_environment.rascal.ast.ProtocolTail.Post;
+import org.meta_environment.rascal.ast.Statement.Append;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.AssertWithMessage;
 import org.meta_environment.rascal.ast.Statement.Assignment;
-import org.meta_environment.rascal.ast.Statement.Block;
 import org.meta_environment.rascal.ast.Statement.Break;
 import org.meta_environment.rascal.ast.Statement.Continue;
 import org.meta_environment.rascal.ast.Statement.DoWhile;
@@ -1047,8 +1044,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new UnexpectedTypeError(tf.boolType(),r.getType(), x);	
 		}
 		if(r.getValue().isEqual(vf.bool(false))){
-			String str = x.getMessage().toString();
-			IString msg = vf.string(unescape(str, x, getCurrentEnvt()));
+			Result<IValue> msgValue = x.getMessage().accept(this);
+			IString msg = vf.string(unescape(msgValue.getValue().toString(), x, getCurrentEnvt()));
 			throw RuntimeExceptionFactory.assertionFailed(msg, getCurrentAST(), getStackTrace());
 		}
 		return r;	
@@ -1185,10 +1182,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return ResultFactory.nothing();
 	}
 
+	
 	@Override
 	public Result<IValue> visitStatementFail(Fail x) {
-		if (x.getFail().isWithLabel()) {
-			throw new Failure(x.getFail().getLabel().toString());
+		if (!x.getTarget().isEmpty()) {
+			throw new Failure(x.getTarget().getName().toString());
 		}
 
 		throw new Failure();
@@ -1197,19 +1195,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitStatementReturn(
 			org.meta_environment.rascal.ast.Statement.Return x) {
-		org.meta_environment.rascal.ast.Return r = x.getRet();
-		if (r.isWithExpression()) {
-			throw new Return(x.getRet().getExpression().accept(this));
-		}
-
-		throw new Return(nothing());
+		throw new Return(x.getStatement().accept(this));
 	}
 
+	@Override
+	public Result<IValue> visitStatementAppend(Append x) {
+		throw new NotYetImplemented(x.toString()); // TODO
+	}
+	
 	@Override
 	public Result<IValue> visitStatementBreak(Break x) {
 		throw new NotYetImplemented(x.toString()); // TODO
 	}
 
+	
 	@Override
 	public Result<IValue> visitStatementContinue(Continue x) {
 		throw new NotYetImplemented(x.toString()); // TODO
@@ -1222,7 +1221,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitStatementThrow(Throw x) {
-		throw new org.meta_environment.rascal.interpreter.control_exceptions.Throw(x.getExpression().accept(this).getValue(), getCurrentAST(), getStackTrace());
+		throw new org.meta_environment.rascal.interpreter.control_exceptions.Throw(x.getStatement().accept(this).getValue(), getCurrentAST(), getStackTrace());
 	}
 
 	@Override
@@ -1276,12 +1275,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitStatementAssignment(Assignment x) {
-		Result<IValue> right = x.getExpression().accept(this);
+		Result<IValue> right = x.getStatement().accept(this);
 		return x.getAssignable().accept(new AssignableEvaluator(getCurrentEnvt(), x.getOperator(), right, this));
 	}
 
 	@Override
-	public Result<IValue> visitStatementBlock(Block x) {
+	public Result<IValue> visitStatementNonEmptyBlock(
+			org.meta_environment.rascal.ast.Statement.NonEmptyBlock x) {
 		Result<IValue> r = nothing();
 		Environment old = getCurrentEnvt();
 
@@ -1659,8 +1659,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
-		String str = ((StringLiteral.Lexical) x.getStringLiteral()).getString();
-		return makeResult(tf.stringType(), vf.string(unescape(str, x, getCurrentEnvt())), this);
+		// TODO: interpolation etc.
+		if (x.getStringLiteral().isNonInterpolated()) {
+			String str = ((StringConstant.Lexical) x.getStringLiteral().getConstant()).getString();
+			return makeResult(tf.stringType(), vf.string(unescape(str, x, getCurrentEnvt())), this);
+		}
+		if (x.getStringLiteral().isInterpolated()) {
+			// TODO;
+		}
+		throw new ImplementationError("string interpolation needs to be reimplemented");
 	}
 
 
@@ -1860,10 +1867,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return makeResult(type, w.done(), this);
 	}
 
-	@Override
-	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleEmpty()), false, x.getStatements(), getCurrentEnvt());
-	}
+//	@Override
+//	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+//		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleEmpty()), false, x.getStatements(), getCurrentEnvt());
+//	}
 
 	@Override
 	public Result<IValue> visitExpressionTuple(Tuple x) {
@@ -2361,11 +2368,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	@Override
-	public Result<IValue> visitExpressionVisit(Visit x) {
-		return x.getVisit().accept(this);
-	}
-
-	@Override
 	public Result<IValue> visitVisitDefaultStrategy(DefaultStrategy x) {
 
 		Result<IValue> subject = x.getSubject().accept(this);
@@ -2544,12 +2546,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitExpressionEnumerator(
 			org.meta_environment.rascal.ast.Expression.Enumerator x) {
-		return evalBooleanExpression(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionEnumeratorWithStrategy(
-			EnumeratorWithStrategy x) {
 		return evalBooleanExpression(x);
 	}
 

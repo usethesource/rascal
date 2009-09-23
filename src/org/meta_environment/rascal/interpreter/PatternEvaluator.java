@@ -48,7 +48,6 @@ import org.meta_environment.rascal.ast.Expression.MultiVariable;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NoMatch;
-import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEquals;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
@@ -64,7 +63,6 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.TypedVariableBecomes;
 import org.meta_environment.rascal.ast.Expression.VariableBecomes;
-import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Integer;
@@ -621,10 +619,6 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	}
 
 	@Override
-	public IMatchingResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
-	@Override
 	public IMatchingResult visitExpressionNonEquals(NonEquals x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
@@ -684,10 +678,11 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	}
 	 */
 
-	@Override
-	public IMatchingResult visitExpressionVisit(Visit x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
+//	@Override
+//	public IMatchingResult visitExpressionVisit(Visit x) {
+//		throw new UnsupportedPatternError(x.toString(), x);
+//	}
+	
 	@Override
 	public IMatchingResult visitExpressionVoidClosure(VoidClosure x) {
 		throw new UnsupportedPatternError(x.toString(), x);

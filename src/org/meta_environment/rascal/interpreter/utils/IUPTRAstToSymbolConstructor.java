@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.StringConstant;
 import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Expression.Anti;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -70,7 +71,8 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		String name = Names.name(Names.lastName(namePart.getQualifiedName()));
 		
 		if (name.equals("lit")) {
-			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();
+			StringConstant.Lexical arg = 
+				(org.meta_environment.rascal.ast.StringConstant.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral().getConstant();
 			// TODO: escaping etc.
 			String str = arg.getString();
 			str = str.substring(1, str.length() - 1);
@@ -78,7 +80,7 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		}
 		
 		if (name.equals("cilit")) {
-			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();
+			StringConstant.Lexical arg = (org.meta_environment.rascal.ast.StringConstant.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral().getConstant();
 			// TODO: escaping etc.
 			String str = arg.getString();
 			str = str.substring(1, str.length() - 1);
@@ -131,7 +133,8 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		}
 		
 		if (name.equals("sort")) {
-			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();
+			StringConstant.Lexical arg = (org.meta_environment.rascal.ast.StringConstant.Lexical) 
+				x.getArguments().get(0).getLiteral().getStringLiteral().getConstant();
 			String str = arg.getString();
 			str = str.substring(1, str.length() - 1);
 			return vf.constructor(Factory.Symbol_Sort, vf.string(str));
@@ -187,7 +190,8 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		
 		if (name.equals("parameterized-sort")) {
 			java.util.List<Expression> args = x.getArguments();
-			StringLiteral.Lexical sort = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();
+			StringConstant.Lexical sort = (org.meta_environment.rascal.ast.StringConstant.Lexical) 
+				x.getArguments().get(0).getLiteral().getStringLiteral().getConstant();
 			IList rest = vf.list(Factory.Symbol);
 			for (Expression arg: ((Expression.List)args.get(1)).getElements()) {
 				rest = rest.append(arg.accept(this));
@@ -203,7 +207,8 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		}
 		
 		if (name.equals("lit")) {
-			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();
+			StringConstant.Lexical arg = (org.meta_environment.rascal.ast.StringConstant.Lexical) 
+				x.getArguments().get(0).getLiteral().getStringLiteral().getConstant();
 			// TODO: escaping etc.
 			return vf.constructor(Factory.Symbol_Lit, vf.string(arg.getString()));
 		}

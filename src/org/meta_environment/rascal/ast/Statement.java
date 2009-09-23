@@ -203,6 +203,28 @@ private final org.meta_environment.rascal.ast.Label label;
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private final java.util.List<org.meta_environment.rascal.ast.Case> cases;
 	public java.util.List<org.meta_environment.rascal.ast.Case> getCases() { return cases; }	
+} public org.meta_environment.rascal.ast.Visit getVisit() { throw new UnsupportedOperationException(); } public boolean hasVisit() { return false; }
+public boolean isVisit() { return false; }
+static public class Visit extends Statement {
+/** label:Label visit:Visit -> Statement {cons("Visit")} */
+	public Visit(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Visit visit) {
+		this.node = node;
+		this.label = label;
+		this.visit = visit;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementVisit(this);
+	}
+
+	public boolean isVisit() { return true; }
+
+	public boolean hasLabel() { return true; }
+	public boolean hasVisit() { return true; }
+
+private final org.meta_environment.rascal.ast.Label label;
+	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
+	private final org.meta_environment.rascal.ast.Visit visit;
+	public org.meta_environment.rascal.ast.Visit getVisit() { return visit; }	
 } 
 public boolean isEmptyStatement() { return false; }
 static public class EmptyStatement extends Statement {
@@ -215,7 +237,8 @@ static public class EmptyStatement extends Statement {
 	}
 
 	public boolean isEmptyStatement() { return true; }	
-} public boolean isExpression() { return false; } static public class Expression extends Statement {
+} public boolean isExpression() { return false; }
+static public class Expression extends Statement {
 /** expression:Expression ";" -> Statement {cons("Expression")} */
 	public Expression(INode node, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
@@ -231,36 +254,13 @@ static public class EmptyStatement extends Statement {
 
 private final org.meta_environment.rascal.ast.Expression expression;
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
-} public org.meta_environment.rascal.ast.Visit getVisit() { throw new UnsupportedOperationException(); }
-public boolean hasVisit() { return false; }
-public boolean isVisit() { return false; }
-static public class Visit extends Statement {
-/** visit:Visit -> Statement {cons("Visit")} */
-	public Visit(INode node, org.meta_environment.rascal.ast.Visit visit) {
-		this.node = node;
-		this.visit = visit;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStatementVisit(this);
-	}
-
-	public boolean isVisit() { return true; }
-
-	public boolean hasVisit() { return true; }
-
-private final org.meta_environment.rascal.ast.Visit visit;
-	public org.meta_environment.rascal.ast.Visit getVisit() { return visit; }	
-} 
-public org.meta_environment.rascal.ast.Assignable getAssignable() { throw new UnsupportedOperationException(); }
-	public org.meta_environment.rascal.ast.Assignment getOperator() { throw new UnsupportedOperationException(); } public boolean hasAssignable() { return false; }
-	public boolean hasOperator() { return false; } public boolean isAssignment() { return false; }
-static public class Assignment extends Statement {
-/** assignable:Assignable operator:Assignment expression:Expression ";" -> Statement {cons("Assignment")} */
-	public Assignment(INode node, org.meta_environment.rascal.ast.Assignable assignable, org.meta_environment.rascal.ast.Assignment operator, org.meta_environment.rascal.ast.Expression expression) {
+} public org.meta_environment.rascal.ast.Assignable getAssignable() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Assignment getOperator() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Statement getStatement() { throw new UnsupportedOperationException(); } public boolean hasAssignable() { return false; } public boolean hasOperator() { return false; } public boolean hasStatement() { return false; } public boolean isAssignment() { return false; } static public class Assignment extends Statement {
+/** assignable:Assignable operator:Assignment statement:Statement -> Statement {cons("Assignment")} */
+	public Assignment(INode node, org.meta_environment.rascal.ast.Assignable assignable, org.meta_environment.rascal.ast.Assignment operator, org.meta_environment.rascal.ast.Statement statement) {
 		this.node = node;
 		this.assignable = assignable;
 		this.operator = operator;
-		this.expression = expression;
+		this.statement = statement;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementAssignment(this);
@@ -270,86 +270,14 @@ static public class Assignment extends Statement {
 
 	public boolean hasAssignable() { return true; }
 	public boolean hasOperator() { return true; }
-	public boolean hasExpression() { return true; }
+	public boolean hasStatement() { return true; }
 
 private final org.meta_environment.rascal.ast.Assignable assignable;
 	public org.meta_environment.rascal.ast.Assignable getAssignable() { return assignable; }
 	private final org.meta_environment.rascal.ast.Assignment operator;
 	public org.meta_environment.rascal.ast.Assignment getOperator() { return operator; }
-	private final org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
-} 
-public org.meta_environment.rascal.ast.Break getBrk() { throw new UnsupportedOperationException(); }
-public boolean hasBrk() { return false; }
-public boolean isBreak() { return false; }
-static public class Break extends Statement {
-/** brk:Break -> Statement {cons("Break")} */
-	public Break(INode node, org.meta_environment.rascal.ast.Break brk) {
-		this.node = node;
-		this.brk = brk;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStatementBreak(this);
-	}
-
-	public boolean isBreak() { return true; }
-
-	public boolean hasBrk() { return true; }
-
-private final org.meta_environment.rascal.ast.Break brk;
-	public org.meta_environment.rascal.ast.Break getBrk() { return brk; }	
-} 
-public org.meta_environment.rascal.ast.Fail getFail() { throw new UnsupportedOperationException(); }
-public boolean hasFail() { return false; }
-public boolean isFail() { return false; }
-static public class Fail extends Statement {
-/** fail:Fail -> Statement {cons("Fail")} */
-	public Fail(INode node, org.meta_environment.rascal.ast.Fail fail) {
-		this.node = node;
-		this.fail = fail;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStatementFail(this);
-	}
-
-	public boolean isFail() { return true; }
-
-	public boolean hasFail() { return true; }
-
-private final org.meta_environment.rascal.ast.Fail fail;
-	public org.meta_environment.rascal.ast.Fail getFail() { return fail; }	
-} 
-public org.meta_environment.rascal.ast.Return getRet() { throw new UnsupportedOperationException(); }
-public boolean hasRet() { return false; }
-public boolean isReturn() { return false; }
-static public class Return extends Statement {
-/** ret:Return -> Statement {cons("Return")} */
-	public Return(INode node, org.meta_environment.rascal.ast.Return ret) {
-		this.node = node;
-		this.ret = ret;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStatementReturn(this);
-	}
-
-	public boolean isReturn() { return true; }
-
-	public boolean hasRet() { return true; }
-
-private final org.meta_environment.rascal.ast.Return ret;
-	public org.meta_environment.rascal.ast.Return getRet() { return ret; }	
-} 
-public boolean isContinue() { return false; }
-static public class Continue extends Statement {
-/** "continue" ";" -> Statement {cons("Continue")} */
-	public Continue(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStatementContinue(this);
-	}
-
-	public boolean isContinue() { return true; }	
+	private final org.meta_environment.rascal.ast.Statement statement;
+	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }	
 } public boolean isAssert() { return false; }
 static public class Assert extends Statement {
 /** "assert" expression:Expression ";" -> Statement {cons("Assert")} */
@@ -367,11 +295,11 @@ static public class Assert extends Statement {
 
 private final org.meta_environment.rascal.ast.Expression expression;
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
-} public org.meta_environment.rascal.ast.StringLiteral getMessage() { throw new UnsupportedOperationException(); } public boolean hasMessage() { return false; }
+} public org.meta_environment.rascal.ast.Expression getMessage() { throw new UnsupportedOperationException(); } public boolean hasMessage() { return false; }
 public boolean isAssertWithMessage() { return false; }
 static public class AssertWithMessage extends Statement {
-/** "assert" expression:Expression ":" message:StringLiteral ";" -> Statement {cons("AssertWithMessage")} */
-	public AssertWithMessage(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringLiteral message) {
+/** "assert" expression:Expression ":" message:Expression -> Statement {cons("AssertWithMessage")} */
+	public AssertWithMessage(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression message) {
 		this.node = node;
 		this.expression = expression;
 		this.message = message;
@@ -387,31 +315,29 @@ static public class AssertWithMessage extends Statement {
 
 private final org.meta_environment.rascal.ast.Expression expression;
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
-	private final org.meta_environment.rascal.ast.StringLiteral message;
-	public org.meta_environment.rascal.ast.StringLiteral getMessage() { return message; }	
-} public boolean isInsert() { return false; }
-static public class Insert extends Statement {
-/** "insert" expression:Expression ";" -> Statement {cons("Insert")} */
-	public Insert(INode node, org.meta_environment.rascal.ast.Expression expression) {
+	private final org.meta_environment.rascal.ast.Expression message;
+	public org.meta_environment.rascal.ast.Expression getMessage() { return message; }	
+} public boolean isReturn() { return false; } static public class Return extends Statement {
+/** "return" statement:Statement -> Statement {cons("Return")} */
+	public Return(INode node, org.meta_environment.rascal.ast.Statement statement) {
 		this.node = node;
-		this.expression = expression;
+		this.statement = statement;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStatementInsert(this);
+		return visitor.visitStatementReturn(this);
 	}
 
-	public boolean isInsert() { return true; }
+	public boolean isReturn() { return true; }
 
-	public boolean hasExpression() { return true; }
+	public boolean hasStatement() { return true; }
 
-private final org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
-} public boolean isThrow() { return false; }
-static public class Throw extends Statement {
-/** "throw" expression:Expression ";" -> Statement {cons("Throw")} */
-	public Throw(INode node, org.meta_environment.rascal.ast.Expression expression) {
+private final org.meta_environment.rascal.ast.Statement statement;
+	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }	
+} public boolean isThrow() { return false; } static public class Throw extends Statement {
+/** "throw" statement:Statement -> Statement {cons("Throw")} */
+	public Throw(INode node, org.meta_environment.rascal.ast.Statement statement) {
 		this.node = node;
-		this.expression = expression;
+		this.statement = statement;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementThrow(this);
@@ -419,10 +345,133 @@ static public class Throw extends Statement {
 
 	public boolean isThrow() { return true; }
 
-	public boolean hasExpression() { return true; }
+	public boolean hasStatement() { return true; }
 
-private final org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
+private final org.meta_environment.rascal.ast.Statement statement;
+	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }	
+} public org.meta_environment.rascal.ast.DataTarget getDataTarget() { throw new UnsupportedOperationException(); } public boolean hasDataTarget() { return false; } public boolean isInsert() { return false; } static public class Insert extends Statement {
+/** "insert" dataTarget:DataTarget statement:Statement -> Statement {non-assoc, cons("Insert")} */
+	public Insert(INode node, org.meta_environment.rascal.ast.DataTarget dataTarget, org.meta_environment.rascal.ast.Statement statement) {
+		this.node = node;
+		this.dataTarget = dataTarget;
+		this.statement = statement;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementInsert(this);
+	}
+
+	public boolean isInsert() { return true; }
+
+	public boolean hasDataTarget() { return true; }
+	public boolean hasStatement() { return true; }
+
+private final org.meta_environment.rascal.ast.DataTarget dataTarget;
+	public org.meta_environment.rascal.ast.DataTarget getDataTarget() { return dataTarget; }
+	private final org.meta_environment.rascal.ast.Statement statement;
+	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }	
+} public boolean isAppend() { return false; } static public class Append extends Statement {
+/** "append" dataTarget:DataTarget statement:Statement -> Statement {non-assoc, cons("Append")} */
+	public Append(INode node, org.meta_environment.rascal.ast.DataTarget dataTarget, org.meta_environment.rascal.ast.Statement statement) {
+		this.node = node;
+		this.dataTarget = dataTarget;
+		this.statement = statement;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementAppend(this);
+	}
+
+	public boolean isAppend() { return true; }
+
+	public boolean hasDataTarget() { return true; }
+	public boolean hasStatement() { return true; }
+
+private final org.meta_environment.rascal.ast.DataTarget dataTarget;
+	public org.meta_environment.rascal.ast.DataTarget getDataTarget() { return dataTarget; }
+	private final org.meta_environment.rascal.ast.Statement statement;
+	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }	
+} public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() { throw new UnsupportedOperationException(); } public boolean hasFunctionDeclaration() { return false; } public boolean isFunctionDeclaration() { return false; } static public class FunctionDeclaration extends Statement {
+/** functionDeclaration:FunctionDeclaration -> Statement {cons("FunctionDeclaration")} */
+	public FunctionDeclaration(INode node, org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) {
+		this.node = node;
+		this.functionDeclaration = functionDeclaration;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementFunctionDeclaration(this);
+	}
+
+	public boolean isFunctionDeclaration() { return true; }
+
+	public boolean hasFunctionDeclaration() { return true; }
+
+private final org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration;
+	public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() { return functionDeclaration; }	
+} public org.meta_environment.rascal.ast.LocalVariableDeclaration getDeclaration() { throw new UnsupportedOperationException(); } public boolean hasDeclaration() { return false; } public boolean isVariableDeclaration() { return false; } static public class VariableDeclaration extends Statement {
+/** declaration:LocalVariableDeclaration ";" -> Statement {cons("VariableDeclaration")} */
+	public VariableDeclaration(INode node, org.meta_environment.rascal.ast.LocalVariableDeclaration declaration) {
+		this.node = node;
+		this.declaration = declaration;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementVariableDeclaration(this);
+	}
+
+	public boolean isVariableDeclaration() { return true; }
+
+	public boolean hasDeclaration() { return true; }
+
+private final org.meta_environment.rascal.ast.LocalVariableDeclaration declaration;
+	public org.meta_environment.rascal.ast.LocalVariableDeclaration getDeclaration() { return declaration; }	
+} public org.meta_environment.rascal.ast.Target getTarget() { throw new UnsupportedOperationException(); } public boolean hasTarget() { return false; } public boolean isBreak() { return false; }
+static public class Break extends Statement {
+/** "break" target:Target -> Statement {cons("Break")} */
+	public Break(INode node, org.meta_environment.rascal.ast.Target target) {
+		this.node = node;
+		this.target = target;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementBreak(this);
+	}
+
+	public boolean isBreak() { return true; }
+
+	public boolean hasTarget() { return true; }
+
+private final org.meta_environment.rascal.ast.Target target;
+	public org.meta_environment.rascal.ast.Target getTarget() { return target; }	
+} public boolean isFail() { return false; }
+static public class Fail extends Statement {
+/** "fail" target:Target -> Statement {cons("Fail")} */
+	public Fail(INode node, org.meta_environment.rascal.ast.Target target) {
+		this.node = node;
+		this.target = target;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementFail(this);
+	}
+
+	public boolean isFail() { return true; }
+
+	public boolean hasTarget() { return true; }
+
+private final org.meta_environment.rascal.ast.Target target;
+	public org.meta_environment.rascal.ast.Target getTarget() { return target; }	
+} public boolean isContinue() { return false; }
+static public class Continue extends Statement {
+/** "continue" target:Target -> Statement {cons("Continue")} */
+	public Continue(INode node, org.meta_environment.rascal.ast.Target target) {
+		this.node = node;
+		this.target = target;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementContinue(this);
+	}
+
+	public boolean isContinue() { return true; }
+
+	public boolean hasTarget() { return true; }
+
+private final org.meta_environment.rascal.ast.Target target;
+	public org.meta_environment.rascal.ast.Target getTarget() { return target; }	
 } public java.util.List<org.meta_environment.rascal.ast.Catch> getHandlers() { throw new UnsupportedOperationException(); } public boolean hasHandlers() { return false; } public boolean isTry() { return false; }
 static public class Try extends Statement {
 /** "try" body:Statement handlers:Catch+ -> Statement {non-assoc, cons("Try")} */
@@ -471,19 +520,19 @@ private final org.meta_environment.rascal.ast.Statement body;
 	private final org.meta_environment.rascal.ast.Statement finallyBody;
 	public org.meta_environment.rascal.ast.Statement getFinallyBody() { return finallyBody; }	
 } public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasStatements() { return false; }
-public boolean isBlock() { return false; }
-static public class Block extends Statement {
-/** label:Label "{" statements:Statement+ "}" -> Statement {cons("Block")} */
-	public Block(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+public boolean isNonEmptyBlock() { return false; }
+static public class NonEmptyBlock extends Statement {
+/** label:Label "{" statements:Statement+ "}" -> Statement {cons("NonEmptyBlock")} */
+	public NonEmptyBlock(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
 		this.node = node;
 		this.label = label;
 		this.statements = statements;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStatementBlock(this);
+		return visitor.visitStatementNonEmptyBlock(this);
 	}
 
-	public boolean isBlock() { return true; }
+	public boolean isNonEmptyBlock() { return true; }
 
 	public boolean hasLabel() { return true; }
 	public boolean hasStatements() { return true; }
@@ -492,46 +541,6 @@ private final org.meta_environment.rascal.ast.Label label;
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
 	private final java.util.List<org.meta_environment.rascal.ast.Statement> statements;
 	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }	
-} 
-public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() { throw new UnsupportedOperationException(); }
-public boolean hasFunctionDeclaration() { return false; }
-public boolean isFunctionDeclaration() { return false; }
-static public class FunctionDeclaration extends Statement {
-/** functionDeclaration:FunctionDeclaration -> Statement {cons("FunctionDeclaration")} */
-	public FunctionDeclaration(INode node, org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) {
-		this.node = node;
-		this.functionDeclaration = functionDeclaration;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStatementFunctionDeclaration(this);
-	}
-
-	public boolean isFunctionDeclaration() { return true; }
-
-	public boolean hasFunctionDeclaration() { return true; }
-
-private final org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration;
-	public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() { return functionDeclaration; }	
-} 
-public org.meta_environment.rascal.ast.LocalVariableDeclaration getDeclaration() { throw new UnsupportedOperationException(); }
-public boolean hasDeclaration() { return false; }
-public boolean isVariableDeclaration() { return false; }
-static public class VariableDeclaration extends Statement {
-/** declaration:LocalVariableDeclaration ";" -> Statement {cons("VariableDeclaration")} */
-	public VariableDeclaration(INode node, org.meta_environment.rascal.ast.LocalVariableDeclaration declaration) {
-		this.node = node;
-		this.declaration = declaration;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStatementVariableDeclaration(this);
-	}
-
-	public boolean isVariableDeclaration() { return true; }
-
-	public boolean hasDeclaration() { return true; }
-
-private final org.meta_environment.rascal.ast.LocalVariableDeclaration declaration;
-	public org.meta_environment.rascal.ast.LocalVariableDeclaration getDeclaration() { return declaration; }	
 } 
 public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); }
 	public java.util.List<org.meta_environment.rascal.ast.QualifiedName> getNames() { throw new UnsupportedOperationException(); }
