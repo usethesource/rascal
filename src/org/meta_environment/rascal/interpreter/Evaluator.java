@@ -1696,16 +1696,30 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
-		if (x.getStringLiteral().isNonInterpolated()) {
+		StringLiteral lit = x.getStringLiteral();
+		if (lit.isNonInterpolated()) {
 			String str = ((StringConstant.Lexical) x.getStringLiteral().getConstant()).getString();
 			return makeResult(tf.stringType(), vf.string(unescape(str, x, getCurrentEnvt())), this);
 		}
-		if (x.getStringLiteral().isInterpolated()) {
-			StringLiteral lit = x.getStringLiteral();
+		if (lit.isInterpolated() || lit.isTemplate()) {
 			String result = "";
 			PreStringChars.Lexical pre = (org.meta_environment.rascal.ast.PreStringChars.Lexical) lit.getPre();
 			result += unescape(pre.getString(), pre, getCurrentEnvt());
-			result += expressionToString(lit.getExpression());
+			
+			if (lit.isInterpolated()) {
+				result += expressionToString(lit.getExpression());
+			}
+			if (lit.isTemplate()) {
+				Statement stat = lit.getTemplate().accept(new StringTemplateConverter());
+				Result<IValue> value = stat.accept(this);
+				if (!value.getType().isListType()) {
+					throw new ImplementationError("template eval returns non-list");
+				}
+				IList list = (IList)value.getValue();
+				for (IValue elt: list) {
+					result += ToString.toString(elt).getValue();
+				}
+			}
 			StringTail tail = lit.getTail();
 			while (tail.isMid()) {
 				MidStringChars.Lexical mid = (org.meta_environment.rascal.ast.MidStringChars.Lexical) tail.getMid();
@@ -1717,12 +1731,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			result += unescape(post.getString(), post, getCurrentEnvt());
 			return makeResult(tf.stringType(), vf.string(result), this);
 		}
-		if (x.getStringLiteral().isTemplate()) {
-			throw new NotYetImplemented(x);
-		}
-		throw new ImplementationError("invalid string literal");
+		throw new ImplementationError("invalid string literal");	
+		// example: x = "abc <for (i <- [1,2,3]) {> print <i> <}> cde";
 	}
-
+	
 
 	private String expressionToString(Expression x) {
 		Result<IValue> r = x.accept(this);
