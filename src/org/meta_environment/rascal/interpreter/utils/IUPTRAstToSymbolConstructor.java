@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.StringConstant;
-import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Expression.Anti;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.List;

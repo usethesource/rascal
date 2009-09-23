@@ -186,7 +186,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.AppendWithoutFor;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
-import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
@@ -1417,7 +1416,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	@Override
-	public Result visitFunctionDeclarationDefault(
+	public Result<IValue> visitFunctionDeclarationDefault(
 			org.meta_environment.rascal.ast.FunctionDeclaration.Default x) {
 		AbstractFunction lambda;
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
@@ -1440,7 +1439,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	@Override
-	public Result visitFunctionDeclarationAbstract(Abstract x) {
+	public Result<IValue> visitFunctionDeclarationAbstract(Abstract x) {
 		AbstractFunction lambda = null;
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 
