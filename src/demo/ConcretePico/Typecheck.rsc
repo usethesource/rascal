@@ -120,22 +120,22 @@ public bool test() {
   assertEqual(checkProgram(`begin declare x : natural; x := 3  end`), []);  
  
   assertEqual(checkProgram(`begin declare x : natural; y := "a"  end`), 
-              [message(|file://./demo/ConcretePico/Typecheck.rsc|(1166,24,<32,14>,<32,38>), "Undeclared variable y")]
+              [message(|file://.|(3983,8,<122,55>,<122,63>), "Undeclared variable y")]
              );
   
   assertEqual(checkProgram(`begin declare x : natural; x := "a"  end`), 
-              [message(|file://./demo/ConcretePico/Typecheck.rsc|(1166,24,<32,14>,<32,38>), "Expected type natural but got \"a\"")]
+              [message(|file://.|(4167,3,<126,60>,<126,63>), "Expected type natural but got \"a\"")]
              );
   
   assertEqual(checkProgram(`begin declare x : natural; x := 2 + "a"  end`), 
-              [message(|file://./demo/ConcretePico/Typecheck.rsc|(1166,24,<32,14>,<32,38>), "Expected type natural but got \"a\"")]
+              [message(|file://.|(4364,3,<130,64>,<130,67>), "Expected type natural but got \"a\"")]
              );
  
   assertEqual(checkProgram(small), []);
   
   assertEqual(checkProgram(exampleTypeErrors),
-              [message(|file://./demo/ConcretePico/Programs.rsc|(279,3,<20,13>,<20,16>),"Expected type natural but got \"abc\""),
-               message(|file://./demo/ConcretePico/Programs.rsc|(405,1,<30,7>,<30,8>),"Expected type string but got 3")]);
+              [message(|file://.|(391,5,<29,7>,<29,12>),"Expected type natural but got \"abc\""),
+               message(|file://.|(405,1,<30,7>,<30,8>),"Expected type string but got 3")]);
   
   assertEqual(checkProgram(fac), []);
   
