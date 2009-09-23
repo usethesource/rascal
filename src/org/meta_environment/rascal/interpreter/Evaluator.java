@@ -1715,7 +1715,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			if (lit.isTemplate()) {
 				// We put a for loop around it to allow append without explicit enclosing for
-				Statement stat = surroundWithSingleIterForLoop(lit.getTree(), lit.getTemplate().accept(new StringTemplateConverter()));
+				Statement stat = StringTemplateConverter.convert(lit.getTemplate());
 				Result<IValue> value = stat.accept(this);
 				if (!value.getType().isListType()) {
 					throw new ImplementationError("template eval returns non-list");
@@ -1740,17 +1740,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// example: x = "abc <for (i <- [1,2,3]) {> print <i> <}> cde";
 	}
 	
-
-	private Statement surroundWithSingleIterForLoop(INode src, Statement body) {
-		Name dummy = new Name.Lexical(src, "_");
-		Expression var = new Expression.QualifiedName(src, new QualifiedName.Default(src, Arrays.asList(dummy)));
-		Expression truth = new Expression.Literal(src, new org.meta_environment.rascal.ast.Literal.Boolean(src, new BooleanLiteral.Lexical(src, "true")));
-		Expression list = new Expression.List(src, Arrays.asList(truth));
-		Expression enumerator = new Expression.Enumerator(src, var, list);
-		Statement stat = new Statement.For(src, new Label.Empty(src), Arrays.asList(enumerator), body);
-		return stat;
-	}
-
 	private String expressionToString(Expression x) {
 		Result<IValue> r = x.accept(this);
 		return ToString.toString(r.getValue()).getValue(); // Stdlib behaviour
