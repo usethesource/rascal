@@ -182,9 +182,11 @@ import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
+import org.meta_environment.rascal.interpreter.staticErrors.AppendWithoutFor;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
@@ -245,6 +247,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private final ModuleParser parser;
 	
 	private final OutputStream errorStream;
+	
+	private Stack<Accumulator> forAccumulators = new Stack<Accumulator>();
 
 	public Evaluator(IValueFactory f, OutputStream errorStream, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
@@ -1200,7 +1204,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitStatementAppend(Append x) {
-		throw new NotYetImplemented(x.toString()); // TODO
+		if (forAccumulators.empty()) {
+			throw new AppendWithoutFor(x);
+		}
+		Result<IValue> result = x.getStatement().accept(this);
+		forAccumulators.peek().append(result);
+		return result;
 	}
 	
 	@Override
@@ -2820,11 +2829,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IBooleanResult[] gens = new IBooleanResult[size];
 		Environment old = getCurrentEnvt();
 		Environment[] olds = new Environment[size];
-		Result<IValue> result = nothing();
 
+		Result<IValue> result = makeResult(tf.voidType(), vf.list(), this);
+		
+		String label = null;
+		if (!x.getLabel().isEmpty()) {
+			label = Names.name(x.getLabel().getName());
+		}
+		forAccumulators.push(new Accumulator(vf, label));
+		
+		
 		// TODO: does this prohibit that the body influences the behavior of the generators??
 		
 		int i = 0;
+		boolean normalCflow = false;
 		try {
 			gens[0] = makeBooleanResult(generators.get(0));
 			gens[0].init();
@@ -2834,7 +2852,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
-						result = body.accept(this);
+						// NB: no result handling here.
+						body.accept(this);
 					} else {
 						i++;
 						gens[i] = makeBooleanResult(generators.get(i));
@@ -2848,7 +2867,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					pushEnv();
 				}
 			}
+			normalCflow = true;
 		} finally {
+			IValue value = forAccumulators.pop().done();
+			if (normalCflow) {
+				result = makeResult(value.getType(), value, this);
+			}
 			unwind(old);
 		}
 		return result;
