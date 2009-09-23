@@ -108,9 +108,10 @@ private final org.meta_environment.rascal.ast.Expression condition;
 	public org.meta_environment.rascal.ast.StringMiddle getBody() { return body; }	
 } public boolean isDoWhile() { return false; }
 static public class DoWhile extends StringTemplate {
-/** "do" "{" StringMiddle  "}" "while" "(" condition:Expression ")" -> StringTemplate {cons("DoWhile")} */
-	public DoWhile(INode node, org.meta_environment.rascal.ast.Expression condition) {
+/** "do" "{" body:StringMiddle  "}" "while" "(" condition:Expression ")" -> StringTemplate {cons("DoWhile")} */
+	public DoWhile(INode node, org.meta_environment.rascal.ast.StringMiddle body, org.meta_environment.rascal.ast.Expression condition) {
 		this.node = node;
+		this.body = body;
 		this.condition = condition;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -119,9 +120,12 @@ static public class DoWhile extends StringTemplate {
 
 	public boolean isDoWhile() { return true; }
 
+	public boolean hasBody() { return true; }
 	public boolean hasCondition() { return true; }
 
-private final org.meta_environment.rascal.ast.Expression condition;
+private final org.meta_environment.rascal.ast.StringMiddle body;
+	public org.meta_environment.rascal.ast.StringMiddle getBody() { return body; }
+	private final org.meta_environment.rascal.ast.Expression condition;
 	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }	
 }
 }
