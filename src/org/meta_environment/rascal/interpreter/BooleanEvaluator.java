@@ -39,7 +39,6 @@ import org.meta_environment.rascal.ast.Expression.MultiVariable;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NoMatch;
-import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEquals;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
@@ -54,7 +53,6 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.TypedVariableBecomes;
 import org.meta_environment.rascal.ast.Expression.VariableBecomes;
-import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -335,11 +333,11 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 		return new MatchResult(vf, ctx, x.getPattern(), false, x.getExpression());
 	}
 
-	@Override
-	public IBooleanResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
+//	@Override
+//	public IBooleanResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+//		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+//				ctx.getEvaluator()).getType(), x);
+//	}
 
 	@Override
 	public IBooleanResult visitExpressionNonEquals(NonEquals x) {
@@ -412,10 +410,11 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 		return new EnumeratorResult(vf, ctx, x.getPattern().accept(pe), null, x.getExpression());
 	}
 
-	@Override
-	public IBooleanResult visitExpressionVisit(Visit x) {
-		return new BasicBooleanResult(vf, ctx, x);
-	}
+	
+//	@Override
+//	public IBooleanResult visitExpressionVisit(Visit x) {
+//		return new BasicBooleanResult(vf, ctx, x);
+//	}
 
 	@Override
 	public IBooleanResult visitExpressionVoidClosure(VoidClosure x) {

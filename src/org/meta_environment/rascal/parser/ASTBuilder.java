@@ -35,6 +35,7 @@ import org.meta_environment.rascal.ast.ProtocolChars;
 import org.meta_environment.rascal.ast.ProtocolPart;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
+import org.meta_environment.rascal.ast.StringConstant;
 import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -630,7 +631,10 @@ public class ASTBuilder {
 			return ast;
 		}
 		else if (type.isStringType()) {
-			Expression result = new Expression.Literal(source, new Literal.String(source, new StringLiteral.Lexical(source, pattern.toString())));
+			Expression result = new Expression.Literal(source, 
+									new Literal.String(source,
+											new StringLiteral.NonInterpolated(source, 
+													new StringConstant.Lexical(source, pattern.toString()))));
 			matchCache.putUnsafe(pattern, result);
 			constructorCache.putUnsafe(pattern, result);
 			return result;

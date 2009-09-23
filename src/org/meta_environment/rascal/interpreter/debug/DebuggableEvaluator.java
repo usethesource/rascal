@@ -22,7 +22,6 @@ import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Descendant;
 import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.Enumerator;
-import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Equals;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldAccess;
@@ -51,7 +50,6 @@ import org.meta_environment.rascal.ast.Expression.MultiVariable;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NoMatch;
-import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEquals;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
@@ -69,12 +67,10 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.TypedVariableBecomes;
 import org.meta_environment.rascal.ast.Expression.VariableBecomes;
-import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.AssertWithMessage;
 import org.meta_environment.rascal.ast.Statement.Assignment;
-import org.meta_environment.rascal.ast.Statement.Block;
 import org.meta_environment.rascal.ast.Statement.Break;
 import org.meta_environment.rascal.ast.Statement.Continue;
 import org.meta_environment.rascal.ast.Statement.DoWhile;
@@ -220,12 +216,12 @@ public class DebuggableEvaluator extends Evaluator {
 		return super.visitExpressionEnumerator(x);
 	}
 
-	@Override
-	public Result<IValue> visitExpressionEnumeratorWithStrategy(
-			EnumeratorWithStrategy x) {
-		suspend(x);
-		return super.visitExpressionEnumeratorWithStrategy(x);
-	}
+//	@Override
+//	public Result<IValue> visitExpressionEnumeratorWithStrategy(
+//			EnumeratorWithStrategy x) {
+//		suspend(x);
+//		return super.visitExpressionEnumeratorWithStrategy(x);
+//	}
 
 	@Override
 	public Result<IValue> visitExpressionEquals(Equals x) {
@@ -402,12 +398,6 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	@Override
-	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		suspend(x);
-		return super.visitExpressionNonEmptyBlock(x);
-	}
-
-	@Override
 	public Result<IValue> visitExpressionNonEquals(NonEquals x) {
 		suspend(x);
 		return super.visitExpressionNonEquals(x);
@@ -513,12 +503,6 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	@Override
-	public Result<IValue> visitExpressionVisit(Visit x) {
-		suspend(x);
-		return super.visitExpressionVisit(x);
-	}
-
-	@Override
 	public Result<IValue> visitExpressionVoidClosure(VoidClosure x) {
 		suspend(x);
 		return super.visitExpressionVoidClosure(x);
@@ -549,10 +533,10 @@ public class DebuggableEvaluator extends Evaluator {
 		return super.visitStatementAssignment(x);
 	}
 	@Override
-	public Result<IValue> visitStatementBlock(Block x) {
+	public Result<IValue> visitStatementNonEmptyBlock(Statement.NonEmptyBlock x) {
 		/* no need to supend on a block */
 		//suspend(x);
-		return super.visitStatementBlock(x);
+		return super.visitStatementNonEmptyBlock(x);
 	}
 	@Override
 	public Result<IValue> visitStatementBreak(Break x) {

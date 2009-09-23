@@ -20,7 +20,6 @@ import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Descendant;
 import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.Enumerator;
-import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Equals;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldAccess;
@@ -49,7 +48,6 @@ import org.meta_environment.rascal.ast.Expression.MultiVariable;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NoMatch;
-import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEquals;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
@@ -67,12 +65,10 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.TypedVariableBecomes;
 import org.meta_environment.rascal.ast.Expression.VariableBecomes;
-import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.AssertWithMessage;
 import org.meta_environment.rascal.ast.Statement.Assignment;
-import org.meta_environment.rascal.ast.Statement.Block;
 import org.meta_environment.rascal.ast.Statement.Break;
 import org.meta_environment.rascal.ast.Statement.Continue;
 import org.meta_environment.rascal.ast.Statement.DoWhile;
@@ -84,6 +80,7 @@ import org.meta_environment.rascal.ast.Statement.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Statement.GlobalDirective;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.Insert;
+import org.meta_environment.rascal.ast.Statement.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Statement.Return;
 import org.meta_environment.rascal.ast.Statement.Solve;
 import org.meta_environment.rascal.ast.Statement.Switch;
@@ -215,12 +212,12 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		return evaluator.visitExpressionEnumerator(x);
 	}
 
-	@Override
-	public T visitExpressionEnumeratorWithStrategy(
-			EnumeratorWithStrategy x) {
-		suspendExpression(x);
-		return evaluator.visitExpressionEnumeratorWithStrategy(x);
-	}
+//	@Override
+//	public T visitExpressionEnumeratorWithStrategy(
+//			EnumeratorWithStrategy x) {
+//		suspendExpression(x);
+//		return evaluator.visitExpressionEnumeratorWithStrategy(x);
+//	}
 
 	@Override
 	public T visitExpressionEquals(Equals x) {
@@ -397,12 +394,6 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 	}
 
 	@Override
-	public T visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		suspendExpression(x);
-		return evaluator.visitExpressionNonEmptyBlock(x);
-	}
-
-	@Override
 	public T visitExpressionNonEquals(NonEquals x) {
 		suspendExpression(x);
 		return evaluator.visitExpressionNonEquals(x);
@@ -508,9 +499,9 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 	}
 
 	@Override
-	public T visitExpressionVisit(Visit x) {
-		suspendExpression(x);
-		return evaluator.visitExpressionVisit(x);
+	public T visitStatementVisit(org.meta_environment.rascal.ast.Statement.Visit x) {
+		suspendStatement(x);
+		return evaluator.visitStatementVisit(x);
 	}
 
 	@Override
@@ -544,10 +535,10 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		return evaluator.visitStatementAssignment(x);
 	}
 	@Override
-	public T visitStatementBlock(Block x) {
+	public T visitStatementNonEmptyBlock(Statement.NonEmptyBlock x) {
 		/* no need to supend on a block */
 		//suspendStatement(x);
-		return evaluator.visitStatementBlock(x);
+		return evaluator.visitStatementNonEmptyBlock(x);
 	}
 	@Override
 	public T visitStatementBreak(Break x) {
@@ -667,13 +658,6 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 			VariableDeclaration x) {
 		suspendStatement(x);
 		return evaluator.visitStatementVariableDeclaration(x);
-	}
-
-	@Override
-	public T visitStatementVisit(
-			org.meta_environment.rascal.ast.Statement.Visit x) {
-		suspendStatement(x);
-		return evaluator.visitStatementVisit(x);
 	}
 
 	@Override

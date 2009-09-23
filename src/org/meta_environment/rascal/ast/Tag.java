@@ -4,7 +4,7 @@ public abstract class Tag extends AbstractAST {
   public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.TagString getContents() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasContents() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Tag {
-/** "@" name:Name contents:TagString -> Tag {cons("Default")} */
+/** "@" name:Name contents:TagString -> Tag {cons("Default"), category("Comment")} */
 	public Default(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.TagString contents) {
 		this.node = node;
 		this.name = name;
@@ -40,7 +40,7 @@ static public class Ambiguity extends Tag {
 } public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; }
 public boolean isExpression() { return false; }
 static public class Expression extends Tag {
-/** "@" name:Name "=" expression:Expression -> Tag {cons("Expression")} */
+/** "@" name:Name "=" expression:Expression -> Tag {cons("Expression"), category("Comment")} */
 	public Expression(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
 		this.name = name;
@@ -61,7 +61,7 @@ private final org.meta_environment.rascal.ast.Name name;
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isEmpty() { return false; }
 static public class Empty extends Tag {
-/** "@" name:Name -> Tag {cons("Empty")} */
+/** "@" name:Name -> Tag {cons("Empty"), category("Comment")} */
 	public Empty(INode node, org.meta_environment.rascal.ast.Name name) {
 		this.node = node;
 		this.name = name;
