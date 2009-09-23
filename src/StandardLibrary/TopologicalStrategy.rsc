@@ -11,6 +11,8 @@ public &T(&T) java makeTopologicalAll(&T(&T) strategy);
 @javaClass{org.meta_environment.rascal.interpreter.strategy.topological.TopologicalOne}
 public &T(&T) java makeTopologicalOne(&T(&T) strategy);
 
+@javaClass{org.meta_environment.rascal.interpreter.strategy.topological.TopologicalStrategy}
+public &T(&T) java makeTopologicalStrategy(&T(&T) strategy, value relation);
 
 
 public &T1(&T1) topological_top_down(&T2(&T2) strategy) { 
