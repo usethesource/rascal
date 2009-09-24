@@ -50,6 +50,7 @@ import org.meta_environment.rascal.ast.Expression.MultiVariable;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NoMatch;
+import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEquals;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
@@ -532,12 +533,21 @@ public class DebuggableEvaluator extends Evaluator {
 		suspend(x);
 		return super.visitStatementAssignment(x);
 	}
+	
 	@Override
 	public Result<IValue> visitStatementNonEmptyBlock(Statement.NonEmptyBlock x) {
 		/* no need to supend on a block */
 		//suspend(x);
 		return super.visitStatementNonEmptyBlock(x);
 	}
+	
+	@Override
+	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+		/* no need to supend on a block */
+		//suspend(x);
+		return super.visitExpressionNonEmptyBlock(x);
+	}
+
 	@Override
 	public Result<IValue> visitStatementBreak(Break x) {
 		suspend(x);
@@ -665,6 +675,13 @@ public class DebuggableEvaluator extends Evaluator {
 			org.meta_environment.rascal.ast.Statement.Visit x) {
 		suspend(x);
 		return super.visitStatementVisit(x);
+	}
+
+	@Override
+	public Result<IValue> visitExpressionVisit(
+			org.meta_environment.rascal.ast.Expression.Visit x) {
+		suspend(x);
+		return super.visitExpressionVisit(x);
 	}
 
 	@Override
