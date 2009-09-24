@@ -15,12 +15,14 @@ public str capitalize(str s) {
 public str genClass(str name, map[str,str] fields) {
   return "
     public class <name> {
-      <for (x <- fields) {>
-        private <fields[x]> <x>;
-        public void set<capitalize(x)>(<fields[x]> <x>) {
+      <for (x <- fields) {
+          t = fields[x];
+          n = capitalize(x); >
+        private <t> <x>;
+        public void set<n>(<t> <x>) {
           this.<x> = <x>;
         }
-        public <fields[x]> get<capitalize(x)>() {
+        public <t> get<n>() {
           return <x>;
         }
       <}>

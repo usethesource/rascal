@@ -1,6 +1,8 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.meta_environment.rascal.ast.BooleanLiteral;
@@ -24,7 +26,6 @@ import org.meta_environment.rascal.ast.StringTemplate.For;
 import org.meta_environment.rascal.ast.StringTemplate.IfThen;
 import org.meta_environment.rascal.ast.StringTemplate.IfThenElse;
 import org.meta_environment.rascal.ast.StringTemplate.While;
-import org.meta_environment.rascal.interpreter.utils.Utils;
 
 public class StringTemplateConverter {
 	private static final Name OUTER_FOR_LOOP_LABEL = new Name.Lexical(null, "#");
@@ -47,14 +48,28 @@ public class StringTemplateConverter {
 	private static class Visitor extends NullASTVisitor<Statement> {
 
 		private static Statement makeBlock(INode src, Statement ...stats) {
-			return new Statement.NonEmptyBlock(src, new Label.Empty(src),
-					Arrays.asList(stats));
+			return makeBlock(src, Arrays.asList(stats));
 		}
+		
+		private static Statement makeBlock(INode src, List<Statement> stats) {
+			return new Statement.NonEmptyBlock(src, new Label.Empty(src),
+					stats);
+		}
+
 		
 		private static Statement makeAppend(Expression exp) {
 			return new Statement.Append(exp.getTree(), new DataTarget.Labeled(null, OUTER_FOR_LOOP_LABEL),
 					new Statement.Expression(exp.getTree(), exp)); 
 		}
+		
+		private static Statement combinePreBodyPost(INode src, List<Statement> pre, Statement body, List<Statement> post) {
+			List<Statement> stats = new ArrayList<Statement>();
+			stats.addAll(pre);
+			stats.add(body);
+			stats.addAll(post);
+			return makeBlock(src, stats);
+		}
+		
 		
 		private static Expression makeLit(INode src, String str) {
 			// Note: we don't unescape here this happens
@@ -90,22 +105,27 @@ public class StringTemplateConverter {
 			return makeBlock(x.getTree(), pre, template, tail);
 		}
 		
+	
 		@Override
 		public Statement visitStringTemplateDoWhile(DoWhile x) {
 			Statement body = x.getBody().accept(this);
-			return new Statement.DoWhile(x.getTree(), new Label.Empty(x.getTree()), body , x.getCondition());
+			return new Statement.DoWhile(x.getTree(), new Label.Empty(x.getTree()), 
+					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()) , x.getCondition());
 		}
+
 
 		@Override
 		public Statement visitStringTemplateFor(For x) {
 			Statement body = x.getBody().accept(this);
-			return new Statement.For(x.getTree(), new Label.Empty(x.getTree()), x.getGenerators(), body);
+			return new Statement.For(x.getTree(), new Label.Empty(x.getTree()), x.getGenerators(), 
+					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThen(IfThen x) {
 			Statement body = x.getBody().accept(this);
-			return new Statement.IfThen(x.getTree(), new Label.Empty(x.getTree()), x.getConditions(), body, null);
+			return new Statement.IfThen(x.getTree(), new Label.Empty(x.getTree()), x.getConditions(), 
+					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()), null);
 		}
 
 		@Override
@@ -113,13 +133,16 @@ public class StringTemplateConverter {
 			Statement t = x.getThenString().accept(this);
 			Statement e = x.getElseString().accept(this);
 			return new Statement.IfThenElse(x.getTree(), new Label.Empty(x.getTree()), 
-					x.getConditions(), t, e);
+					x.getConditions(), 
+						combinePreBodyPost(x.getTree(), x.getPreStatsThen(), t, x.getPostStatsThen()),
+						combinePreBodyPost(x.getTree(), x.getPreStatsElse(), e, x.getPostStatsElse()));
 		}
 
 		@Override
 		public Statement visitStringTemplateWhile(While x) {
 			Statement body = x.getBody().accept(this);
-			return new Statement.While(x.getTree(), new Label.Empty(x.getTree()), x.getCondition(), body);
+			return new Statement.While(x.getTree(), new Label.Empty(x.getTree()), x.getCondition(), 
+					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
