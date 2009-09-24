@@ -147,7 +147,6 @@ public class StringTemplateConverter {
 
 		@Override
 		public Statement visitStringMiddleInterpolated(Interpolated x) {
-			INode src = x.getTree();
 			Statement mid = x.getMid().accept(this);
 			Statement exp = makeAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
@@ -188,11 +187,17 @@ public class StringTemplateConverter {
 		public Statement visitStringTailMidInterpolated(
 				org.meta_environment.rascal.ast.StringTail.MidInterpolated x) {
 			Statement mid = x.getMid().accept(this);
-			Statement exp = x.getExpression().accept(this);
+			Statement exp = makeAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
 			return makeBlock(x.getTree(), mid, exp, tail);
 		}
 
+		@Override
+		public Statement visitStringConstantLexical(
+				org.meta_environment.rascal.ast.StringConstant.Lexical x) {
+			return makeAppend(makeLit(x.getTree(), x.getString()));
+		}
+		
 		@Override
 		public Statement visitStringTailMidTemplate(
 				org.meta_environment.rascal.ast.StringTail.MidTemplate x) {
