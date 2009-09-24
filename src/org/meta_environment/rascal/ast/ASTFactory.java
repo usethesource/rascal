@@ -200,6 +200,9 @@ return new org.meta_environment.rascal.ast.Expression.Range(node, first, last);
 public org.meta_environment.rascal.ast.Expression.Bracket makeExpressionBracket(INode node, org.meta_environment.rascal.ast.Expression expression) { 
 return new org.meta_environment.rascal.ast.Expression.Bracket(node, expression); 
 }
+public org.meta_environment.rascal.ast.Expression.Visit makeExpressionVisit(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Visit visit) { 
+return new org.meta_environment.rascal.ast.Expression.Visit(node, label, visit); 
+}
 public org.meta_environment.rascal.ast.Expression.NonEmptyBlock makeExpressionNonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) { 
 return new org.meta_environment.rascal.ast.Expression.NonEmptyBlock(node, statements); 
 }
@@ -284,23 +287,23 @@ return new org.meta_environment.rascal.ast.StringMiddle.Ambiguity(node, alternat
 public org.meta_environment.rascal.ast.StringMiddle.Mid makeStringMiddleMid(INode node, org.meta_environment.rascal.ast.MidStringChars mid) { 
 return new org.meta_environment.rascal.ast.StringMiddle.Mid(node, mid); 
 }
-public org.meta_environment.rascal.ast.StringTemplate.DoWhile makeStringTemplateDoWhile(INode node, org.meta_environment.rascal.ast.StringMiddle body, org.meta_environment.rascal.ast.Expression condition) { 
-return new org.meta_environment.rascal.ast.StringTemplate.DoWhile(node, body, condition); 
+public org.meta_environment.rascal.ast.StringTemplate.DoWhile makeStringTemplateDoWhile(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats, org.meta_environment.rascal.ast.Expression condition) { 
+return new org.meta_environment.rascal.ast.StringTemplate.DoWhile(node, preStats, body, postStats, condition); 
 }
-public org.meta_environment.rascal.ast.StringTemplate.While makeStringTemplateWhile(INode node, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.StringMiddle body) { 
-return new org.meta_environment.rascal.ast.StringTemplate.While(node, condition, body); 
+public org.meta_environment.rascal.ast.StringTemplate.While makeStringTemplateWhile(INode node, org.meta_environment.rascal.ast.Expression condition, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats) { 
+return new org.meta_environment.rascal.ast.StringTemplate.While(node, condition, preStats, body, postStats); 
 }
-public org.meta_environment.rascal.ast.StringTemplate.IfThenElse makeStringTemplateIfThenElse(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.StringMiddle thenString, org.meta_environment.rascal.ast.StringMiddle elseString) { 
-return new org.meta_environment.rascal.ast.StringTemplate.IfThenElse(node, conditions, thenString, elseString); 
+public org.meta_environment.rascal.ast.StringTemplate.IfThenElse makeStringTemplateIfThenElse(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, java.util.List<org.meta_environment.rascal.ast.Statement> preStatsThen, org.meta_environment.rascal.ast.StringMiddle thenString, java.util.List<org.meta_environment.rascal.ast.Statement> postStatsThen, java.util.List<org.meta_environment.rascal.ast.Statement> preStatsElse, org.meta_environment.rascal.ast.StringMiddle elseString, java.util.List<org.meta_environment.rascal.ast.Statement> postStatsElse) { 
+return new org.meta_environment.rascal.ast.StringTemplate.IfThenElse(node, conditions, preStatsThen, thenString, postStatsThen, preStatsElse, elseString, postStatsElse); 
 }
-public org.meta_environment.rascal.ast.StringTemplate.IfThen makeStringTemplateIfThen(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.StringMiddle body) { 
-return new org.meta_environment.rascal.ast.StringTemplate.IfThen(node, conditions, body); 
+public org.meta_environment.rascal.ast.StringTemplate.IfThen makeStringTemplateIfThen(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats) { 
+return new org.meta_environment.rascal.ast.StringTemplate.IfThen(node, conditions, preStats, body, postStats); 
 }
 public org.meta_environment.rascal.ast.StringTemplate.Ambiguity makeStringTemplateAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringTemplate> alternatives) { 
 return new org.meta_environment.rascal.ast.StringTemplate.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.StringTemplate.For makeStringTemplateFor(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators, org.meta_environment.rascal.ast.StringMiddle body) { 
-return new org.meta_environment.rascal.ast.StringTemplate.For(node, generators, body); 
+public org.meta_environment.rascal.ast.StringTemplate.For makeStringTemplateFor(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats) { 
+return new org.meta_environment.rascal.ast.StringTemplate.For(node, generators, preStats, body, postStats); 
 }
 public org.meta_environment.rascal.ast.Field.Index makeFieldIndex(INode node, org.meta_environment.rascal.ast.IntegerLiteral fieldIndex) { 
 return new org.meta_environment.rascal.ast.Field.Index(node, fieldIndex); 

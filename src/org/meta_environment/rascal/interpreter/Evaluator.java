@@ -159,6 +159,7 @@ import org.meta_environment.rascal.ast.Statement.Throw;
 import org.meta_environment.rascal.ast.Statement.Try;
 import org.meta_environment.rascal.ast.Statement.TryFinally;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
+import org.meta_environment.rascal.ast.Statement.Visit;
 import org.meta_environment.rascal.ast.Statement.While;
 import org.meta_environment.rascal.ast.Test.Labeled;
 import org.meta_environment.rascal.ast.Test.Unlabeled;
@@ -2317,6 +2318,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return expr.fieldUpdate(name, repl, getCurrentEnvt().getStore(), this);
 	}
 
+	@Override
+	public Result<IValue> visitExpressionVisit(Expression.Visit x) {
+		return x.getVisit().accept(this);
+	}
 
 	@Override
 	public Result<IValue> visitExpressionLexical(Lexical x) {

@@ -77,6 +77,26 @@ private final org.meta_environment.rascal.ast.Parameters parameters;
 
 private final java.util.List<org.meta_environment.rascal.ast.Statement> statements;
 	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }	
+} public org.meta_environment.rascal.ast.Label getLabel() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Visit getVisit() { throw new UnsupportedOperationException(); } public boolean hasLabel() { return false; } public boolean hasVisit() { return false; } public boolean isVisit() { return false; } static public class Visit extends Expression {
+/** label:Label visit:Visit -> Expression {cons("Visit")} */
+	public Visit(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Visit visit) {
+		this.node = node;
+		this.label = label;
+		this.visit = visit;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionVisit(this);
+	}
+
+	public boolean isVisit() { return true; }
+
+	public boolean hasLabel() { return true; }
+	public boolean hasVisit() { return true; }
+
+private final org.meta_environment.rascal.ast.Label label;
+	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
+	private final org.meta_environment.rascal.ast.Visit visit;
+	public org.meta_environment.rascal.ast.Visit getVisit() { return visit; }	
 } public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; } public boolean isBracket() { return false; }
 static public class Bracket extends Expression {
 /** "(" expression:Expression ")" -> Expression {cons("Bracket"), bracket} */
