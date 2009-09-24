@@ -50,4 +50,16 @@ public class InterpolationTests extends TestFramework {
 		
 	}
 	
+	@Test
+	public void interpolatePreFor() {
+		assertTrue(runTest("\"<for (i <- [1,2,3]) { j = i + 1;> <j> <}>\" == " +
+			"\" 2  3  4 \";"));
+	}
+
+	@Test
+	public void interpolatePostWhile() {
+		assertTrue(runTest("{ x = 5; \"<while (x > 0) {> <x> < x -= 1; }>\" == " +
+			"\" 5  4  3  2  1 \";}"));
+	}
+
 }
