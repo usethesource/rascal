@@ -237,8 +237,7 @@ static public class EmptyStatement extends Statement {
 	}
 
 	public boolean isEmptyStatement() { return true; }	
-} public boolean isExpression() { return false; }
-static public class Expression extends Statement {
+} public boolean isExpression() { return false; } static public class Expression extends Statement {
 /** expression:Expression ";" -> Statement {cons("Expression")} */
 	public Expression(INode node, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
