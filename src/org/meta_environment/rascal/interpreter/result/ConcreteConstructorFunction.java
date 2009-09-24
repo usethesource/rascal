@@ -46,7 +46,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	}
 
 	private IValue flatten(IConstructor prod, IList args) {
-		IListWriter result = Factory.Args.writer(VF);
+		IListWriter result = Factory.Args.writer(vf);
 		int delta = getDelta(prod);
 		
 		for (int i = 0; i < args.length(); i++) {

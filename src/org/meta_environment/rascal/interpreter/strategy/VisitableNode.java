@@ -125,5 +125,11 @@ public class VisitableNode implements IVisitable,INode {
 	public int arity() {
 		return node.arity();
 	}
+	
+	public IVisitable setValue(IValue value) {
+		this.node = (INode) value;
+		return this;
+	}
+
 
 }

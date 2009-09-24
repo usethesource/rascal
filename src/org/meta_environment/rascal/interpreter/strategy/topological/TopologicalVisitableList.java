@@ -18,6 +18,10 @@ IList {
 		super(context, value, children);
 	}
 
+	public TopologicalVisitableList(RelationContext context, IList list) {
+		super(context, list);
+	}
+
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return value.accept(v);
 	}

@@ -152,6 +152,11 @@ public class VisitableConstructor implements IVisitable, IConstructor {
 		public int arity() {
 			return constructor.arity();
 		}
+		
+		public IVisitable setValue(IValue value) {
+			this.constructor = (IConstructor) value;
+			return this;
+		}
 
 
 	}

@@ -56,6 +56,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected T value;
 	private boolean isPublic;
 	private boolean inferredType = false;
+	private IEvaluatorContext ctx;
 
 	protected Result(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
@@ -66,6 +67,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	    this.type = type;
 		this.iterator = iter;
 		this.value = value;
+		this.ctx = ctx;
 	}
 	
 	protected Result(Type type, T value, IEvaluatorContext ctx) {
@@ -101,7 +103,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected IValueFactory getValueFactory() {
-		return ValueFactoryFactory.getValueFactory();
+		return ctx.getIValueFactory();
 	}
 	
 	//////// The iterator interface

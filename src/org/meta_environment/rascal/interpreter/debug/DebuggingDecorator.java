@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter.debug;
 import java.io.IOException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Statement;
@@ -769,6 +770,11 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 
 	public void setCurrentAST(AbstractAST ast) {
 		evaluator.setCurrentAST(ast);
+	}
+
+
+	public IValueFactory getIValueFactory() {
+		return evaluator.getIValueFactory();
 	}
 
 }

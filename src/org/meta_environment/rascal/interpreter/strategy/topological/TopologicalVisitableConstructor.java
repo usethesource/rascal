@@ -18,6 +18,10 @@ public class TopologicalVisitableConstructor extends TopologicalVisitable<IConst
 			List<TopologicalVisitable<?>> children) {
 		super(context, value, children);
 	}
+	
+	public TopologicalVisitableConstructor(RelationContext context, IConstructor value) {
+		super(context, value);
+	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return value.accept(v);

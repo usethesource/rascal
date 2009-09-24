@@ -232,8 +232,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	static{
 		updateProperties(); // TODO Put this in a better place.
 	}
-	
-	public final IValueFactory vf;
+
+	public IValueFactory vf;
 	public final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
 	protected Environment currentEnvt;
@@ -257,9 +257,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	protected ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
 	private final ModuleParser parser;
-	
+
 	private final OutputStream errorStream;
-	
+
 	private Stack<Accumulator> forAccumulators = new Stack<Accumulator>();
 
 	public Evaluator(IValueFactory f, OutputStream errorStream, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
@@ -274,7 +274,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		loader = new ModuleLoader(parser);
 		this.parser = parser;
 		parser.setLoader(loader);
-		
+
 		this.errorStream = errorStream;
 
 		// cwd loader
@@ -288,7 +288,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		// loads from -Drascal.path=/colon-separated/path
 		loader.addFileLoader(new FromDefinedRascalPathLoader());
-		
+
 		// add current wd and sdf-library to search path for SDF modules
 		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
@@ -300,25 +300,25 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				return result;
 			}
 		});
-		
+
 		// adds folders using -Drascal.sdf.path=/colon-separated/path
 		loader.addSdfSearchPathContributor(new FromDefinedSdfSearchPathPathContributor());
 
 		// load Java classes from the current jar (for the standard library)
 		classLoaders.add(getClass().getClassLoader());
-		
+
 		// register some schemes
 		URIResolverRegistry registry = URIResolverRegistry.getInstance();
-	    FileURIResolver files = new FileURIResolver();
-	    registry.registerInput(files.scheme(), files);
-	    registry.registerOutput(files.scheme(), files);
-	    
-	    HttpURIResolver http = new HttpURIResolver();
-	    registry.registerInput(http.scheme(), http);
-	    
-	    CWDURIResolver cwd = new CWDURIResolver();
-	    registry.registerInput(cwd.scheme(), cwd);
-	    registry.registerOutput(cwd.scheme(), cwd);
+		FileURIResolver files = new FileURIResolver();
+		registry.registerInput(files.scheme(), files);
+		registry.registerOutput(files.scheme(), files);
+
+		HttpURIResolver http = new HttpURIResolver();
+		registry.registerInput(http.scheme(), http);
+
+		CWDURIResolver cwd = new CWDURIResolver();
+		registry.registerInput(cwd.scheme(), cwd);
+		registry.registerOutput(cwd.scheme(), cwd);
 	}
 
 	/**
@@ -480,7 +480,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		return makeResult(instance, v, this);
 	}
-	
+
 	public void unwind(Environment old) {
 		// TODO why not just replace the current env with the old one??
 		while (getCurrentEnvt() != old) {
@@ -517,7 +517,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	boolean mayOccurIn(Type small, Type large, java.util.Set<Type> seen){
 		// TODO: this should probably be a visitor as well
-		
+
 		if(small.isVoidType())
 			return true;
 		if(large.isVoidType())
@@ -546,7 +546,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		if(large.isConstructorType()){
-			
+
 			for(int i = 0; i < large.getArity(); i++){
 				if(mayOccurIn(small, large.getFieldType(i), seen))
 					return true;
@@ -575,7 +575,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return small.isSubtypeOf(large);
 	}
 
-	
+
 
 
 	// Ambiguity ...................................................
@@ -584,17 +584,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionAmbiguity(Ambiguity x) {
 		// TODO: assuming that that is the only reason for an expression to be ambiguous
 		// we might also check if this is an "appl" constructor...
-		
-//			System.err.println("Env: " + currentEnvt);
-//			int i = 0;
-//			for (Expression exp: x.getAlternatives()) {
-//				System.err.println("Alt " + i++ + ": " + exp.getTree());
-//			}
+
+		//			System.err.println("Env: " + currentEnvt);
+		//			int i = 0;
+		//			for (Expression exp: x.getAlternatives()) {
+		//				System.err.println("Alt " + i++ + ": " + exp.getTree());
+		//			}
 		throw new AmbiguousConcretePattern(x);
 	}
-	
-	
-		
+
+
+
 	@Override
 	public Result<IValue> visitStatementAmbiguity(
 			org.meta_environment.rascal.ast.Statement.Ambiguity x) {
@@ -613,12 +613,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// handleSDFModule only loads the ParseTree module,
 		// yet the SDF module *will* have been loaded
 
-//		TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
-		
+		//		TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
+
 		if (!heap.existsModule(name)) {
 			heap.addModule(new ModuleEnvironment(name));
 		}
-		
+
 		if (isSDFModule(name)) {
 			evalSDFModule(x);
 			return nothing();
@@ -638,7 +638,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Import.Default x) {
 		loadParseTreeModule(x);
 		getCurrentModuleEnvironment().addSDFImport(getUnescapedModuleName(x));
-		
+
 		try {
 			parser.generateModuleParser(loader.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), getCurrentModuleEnvironment());
 		} catch (IOException e) {
@@ -708,7 +708,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			module.accept(this);
 			return module;
 		}
-		
+
 		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
 	}
 
@@ -739,14 +739,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitModuleDefault(
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = getModuleName(x);
-		
+
 		ModuleEnvironment env = heap.getModule(name);
 
 		if (env == null) {
 			env = new ModuleEnvironment(name);
 			heap.addModule(env);
 		}
-		
+
 		if (!env.isInitialized()) {
 			Environment oldEnv = getCurrentEnvt();
 			setCurrentEnvt(env); // such that declarations end up in the module scope
@@ -827,14 +827,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			Type declaredType = te.eval(x.getType(), getCurrentModuleEnvironment());
-			
+
 			if (var.isInitialized()) {  
 				Result<IValue> v = var.getInitial().accept(this);
-				
+
 				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 					throw new RedeclaredVariableError(var.getName().toString(), var);
 				}
-								
+
 				if(v.getType().isSubtypeOf(declaredType)){
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
@@ -886,7 +886,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitPatternWithActionArbitrary(Arbitrary x) {
 		IMatchingResult pv = x.getPattern().accept(patternEvaluator);
 		Type pt = pv.getType(getCurrentEnvt());
-		
+
 		// TODO store rules for concrete syntax on production rule and
 		// create Lambda's for production rules to speed up matching and
 		// rewrite rule look up
@@ -903,11 +903,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitPatternWithActionReplacing(Replacing x) {
 		IMatchingResult pv = x.getPattern().accept(patternEvaluator);
 		Type pt = pv.getType(getCurrentEnvt());
-		
+
 		if (pt instanceof NonTerminalType) {
 			pt = Factory.Tree_Appl;
 		}
-		
+
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
 		heap.storeRule(pt, x, getCurrentModuleEnvironment());
@@ -919,19 +919,19 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitDeclarationTest(Test x) {
 		return x.getTest().accept(this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitTestLabeled(Labeled x) {
 		getCurrentModuleEnvironment().addTest(x);
 		return nothing();
 	}
-	
+
 	@Override
 	public Result<IValue> visitTestUnlabeled(Unlabeled x) {
 		getCurrentModuleEnvironment().addTest(x);
 		return nothing();
 	}
-	
+
 	@Override
 	public Result<IValue> visitDeclarationTag(Tag x) {
 		throw new NotYetImplemented("tags");
@@ -952,7 +952,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			String varAsString = var.getName().toString();
-			
+
 			if (var.isInitialized()) {  // variable declaration without initialization
 				// first evaluate the initialization, in case the left hand side will shadow something
 				// that is used on the right hand side.
@@ -991,7 +991,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
 		setCurrentAST(x);
-		
+
 		try {
 			Result<IValue> function = x.getExpression().accept(this);
 
@@ -1075,7 +1075,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitStatementExpression(Statement.Expression x) {
 		Environment old = getCurrentEnvt();
-		
+
 		try {
 			pushEnv();
 			return x.getExpression().accept(this);
@@ -1109,8 +1109,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Expression.FieldAccess x) {
 		Result<IValue> expr = x.getExpression().accept(this);
 		String field = x.getField().toString();
-		
-		
+
+
 		return expr.fieldAccess(field, getCurrentEnvt().getStore(), this);
 	}
 
@@ -1149,10 +1149,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
 
-		//	if(duplicateIndices(selectedFields)){
-				// TODO: what does it matter if there are duplicate indices???
-		//		throw new ImplementationError("Duplicate fields in projection");
-		//	}
+			//	if(duplicateIndices(selectedFields)){
+			// TODO: what does it matter if there are duplicate indices???
+			//		throw new ImplementationError("Duplicate fields in projection");
+			//	}
 			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
 
 			// Was: return makeResult(resultType, applyRules(((ITuple)base.getValue()).select(selectedFields)));
@@ -1179,11 +1179,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
-		////	if(duplicateIndices(selectedFields)){
-				// TODO: what does it matter if there are duplicate indices? Duplicate
-				// field names may be a problem, but not this.
-		//		throw new ImplementationError("Duplicate fields in projection");
-		//	}
+			////	if(duplicateIndices(selectedFields)){
+			// TODO: what does it matter if there are duplicate indices? Duplicate
+			// field names may be a problem, but not this.
+			//		throw new ImplementationError("Duplicate fields in projection");
+			//	}
 			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
 
 			//return makeResult(resultType, applyRules(((IRelation)base.getValue()).select(selectedFields)));	
@@ -1198,7 +1198,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return ResultFactory.nothing();
 	}
 
-	
+
 	@Override
 	public Result<IValue> visitStatementFail(Fail x) {
 		if (!x.getTarget().isEmpty()) {
@@ -1213,7 +1213,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Statement.Return x) {
 		throw new Return(x.getStatement().accept(this));
 	}
-	
+
 	@Override
 	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
 		return new Statement.NonEmptyBlock(x.getTree(), new Label.Empty(x.getTree()), x.getStatements()).accept(this);
@@ -1244,13 +1244,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		target.append(result);
 		return result;
 	}
-	
+
 	@Override
 	public Result<IValue> visitStatementBreak(Break x) {
 		throw new NotYetImplemented(x.toString()); // TODO
 	}
 
-	
+
 	@Override
 	public Result<IValue> visitStatementContinue(Continue x) {
 		throw new NotYetImplemented(x.toString()); // TODO
@@ -1509,7 +1509,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					if(i == size - 1){
 						return body.accept(this);
 					}
-					
+
 					i++;
 					gens[i] = makeBooleanResult(generators.get(i));
 					gens[i].init();
@@ -1546,13 +1546,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			gens[0].init();
 			olds[0] = getCurrentEnvt();
 			pushEnv();
-			
+
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						return body.accept(this);
 					}
-					
+
 					i++;
 					gens[i] = makeBooleanResult(generators.get(i));
 					gens[i].init();
@@ -1582,7 +1582,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// variables that are used to test the condition of the loop
 		// while does not iterate over all possible matches, rather it produces every time the first match
 		// that makes the condition true
-		
+
 		while (true) {
 			try {
 				gen = makeBooleanResult(generator);
@@ -1599,7 +1599,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 		}
 	}
-	
+
 	@Override
 	public Result<IValue> visitStatementDoWhile(DoWhile x) {
 		Statement body = x.getBody();
@@ -1611,7 +1611,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		while (true) {
 			try {
 				result = body.accept(this);
-				
+
 				gen = makeBooleanResult(generator);
 				gen.init();
 				if(!(gen.hasNext() && gen.next())) {
@@ -1653,13 +1653,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		java.util.List<Expression> args = x.getArguments();
 		Type[] fieldTypes = new Type[args.size()];
 		IValue[] fieldValues = new IValue[args.size()];
-		
+
 		int i = 0;
 		boolean valued = false;
 		for (Expression a : args) {
 			Result<IValue> argResult = a.accept(this);
 			Type argType = argResult.getType();
-			
+
 			if (argType instanceof org.meta_environment.rascal.interpreter.types.ReifiedType) {
 				fieldTypes[i] = argType.getTypeParameters().getFieldType(0);
 				i++;
@@ -1670,12 +1670,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				i++;
 			}
 		}
-		
+
 		Type type = basic.accept(new BasicTypeEvaluator(getCurrentEnvt(), valued ? null : tf.tupleType(fieldTypes), valued ? fieldValues : null));
-		
+
 		return type.accept(new TypeReifier(this));
 	}
-	
+
 	@Override
 	public Result<IValue> visitExpressionLiteral(Literal x) {
 		return x.getLiteral().accept(this);
@@ -1768,8 +1768,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> r = x.accept(this);
 		return ToString.toString(r.getValue()).getValue(); // Stdlib behaviour
 	}
-	
-	
+
+
 	@Override
 	public Result<IValue> visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
@@ -1782,15 +1782,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
 		QualifiedName name = x.getQualifiedName();
 		Result<IValue> variable = getCurrentEnvt().getVariable(name);
-		
+
 		if (variable == null) {
 			throw new UndeclaredVariableError(name.toString(), x);
 		}
-		
+
 		if (variable.getValue() == null) {
 			throw new UninitializedVariableError(name.toString(), x);
 		}
-		
+
 		return variable;
 	}
 
@@ -1806,10 +1806,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		boolean splicing = concreteListsShouldBeSpliced;
 		boolean first = true;
 		int skip = 0;
-		
+
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			Result<IValue> resultElem = expr.accept(this);
-			
+
 			if (skip > 0) {
 				skip--;
 				continue;
@@ -1823,7 +1823,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					IConstructor appl = ((IConstructor)resultElem.getValue());
 					IList listElems = TreeAdapter.getArgs(appl);
 					// Splice elements in list if element types permit this
-					
+
 					if (!listElems.isEmpty()) {
 						for(IValue val : listElems){
 							elementType = elementType.lub(val.getType());
@@ -1896,8 +1896,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					results.add(results.size(), resultElem.getValue());
 				}
 			}
-			
-			
+
+
 			first = false;
 		}
 		Type resultType = tf.listType(elementType);
@@ -1965,10 +1965,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return makeResult(type, w.done(), this);
 	}
 
-//	@Override
-//	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-//		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleEmpty()), false, x.getStatements(), getCurrentEnvt());
-//	}
+	//	@Override
+	//	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+	//		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleEmpty()), false, x.getStatements(), getCurrentEnvt());
+	//	}
 
 	@Override
 	public Result<IValue> visitExpressionTuple(Tuple x) {
@@ -2087,7 +2087,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		return ResultFactory.bool(false);
 	}
-	
+
 	@Override
 	public Result<IValue> visitExpressionNegation(Negation x) {
 		return evalBooleanExpression(x);
@@ -2110,7 +2110,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.equals(right, this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitExpressionGuarded(Guarded x) {
 		Result<IValue> result = x.getPattern().accept(this);
@@ -2121,17 +2121,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			try {
 				String command = '(' + expected.toString() + ')' + '`' + ((IString) result.getValue()).getValue() + '`';
 				IConstructor tree = parser.parseCommand(((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), loader.getSdfSearchPath(), x.getLocation().getURI(), command);
-				
+
 				if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 					throw RuntimeExceptionFactory.parseError(x.getPattern().getLocation(), x.getPattern(), getStackTrace());
 				}
-				
+
 				tree = ParsetreeAdapter.getTop(tree); // start rule
-		        tree = (IConstructor) TreeAdapter.getArgs(tree).get(1); // top command expression
-		        tree = (IConstructor) TreeAdapter.getArgs(tree).get(0); // typed quoted embedded fragment
-		        tree = (IConstructor) TreeAdapter.getArgs(tree).get(8); // wrapped string between `...`
-		        return makeResult(expected, tree, this);
-				
+				tree = (IConstructor) TreeAdapter.getArgs(tree).get(1); // top command expression
+				tree = (IConstructor) TreeAdapter.getArgs(tree).get(0); // typed quoted embedded fragment
+				tree = (IConstructor) TreeAdapter.getArgs(tree).get(8); // wrapped string between `...`
+				return makeResult(expected, tree, this);
+
 			} catch (IOException e) {
 				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), x.getPattern(), getStackTrace());
 			}
@@ -2139,7 +2139,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (!result.getType().isSubtypeOf(expected)) {
 			throw new UnexpectedTypeError(expected, result.getType(), x.getPattern());
 		}
-		
+
 		return makeResult(expected, result.getValue(), this);
 	}
 
@@ -2147,13 +2147,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitLiteralLocation(Location x) {
 		return x.getLocationLiteral().accept(this);
 	}
-	
+
 	public org.meta_environment.rascal.interpreter.result.Result<IValue> visitLocationLiteralDefault(org.meta_environment.rascal.ast.LocationLiteral.Default x) {
 		Result<IValue> protocolPart = x.getProtocolPart().accept(this);
 		Result<IValue> pathPart = x.getPathPart().accept(this);
-		
+
 		String uri = ((IString) protocolPart.getValue()).getValue() + "://" + ((IString) pathPart.getValue()).getValue();
-		
+
 		try {
 			URI url = new URI(uri);
 			ISourceLocation r = vf.sourceLocation(url);
@@ -2162,137 +2162,137 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw RuntimeExceptionFactory.malformedURI(uri, x, getStackTrace());
 		}
 	}
-	
+
 	@Override
 	public Result<IValue> visitProtocolPartNonInterpolated(NonInterpolated x) {
 		return x.getProtocolChars().accept(this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitProtocolCharsLexical(
 			org.meta_environment.rascal.ast.ProtocolChars.Lexical x) {
 		String str = x.getString();
 		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 3)), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitProtocolPartInterpolated(Interpolated x) {
 		Result<IValue> pre = x.getPre().accept(this);
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
-		
+
 		if (!expr.getType().isSubtypeOf(tf.stringType())) {
 			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
 		}
-		
+
 		String result = ((IString) pre.getValue()).getValue() + ((IString) expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
-		
+
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitProtocolTailMid(
 			org.meta_environment.rascal.ast.ProtocolTail.Mid x) {
 		Result<IValue> pre = x.getMid().accept(this);
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
-		
+
 		if (!expr.getType().isSubtypeOf(tf.stringType())) {
 			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
 		}
-		
+
 		String result = ((IString) pre.getValue()).getValue() + ((IString) expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
-		
+
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitProtocolTailPost(Post x) {
 		return x.getPost().accept(this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitPathPartInterpolated(
 			org.meta_environment.rascal.ast.PathPart.Interpolated x) {
 		Result<IValue> pre = x.getPre().accept(this);
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
-		
+
 		if (!expr.getType().isSubtypeOf(tf.stringType())) {
 			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
 		}
-		
+
 		String preString = ((IString) pre.getValue()).getValue();
 		String exprString = ((IString) expr.getValue()).getValue();
 		String tailString = ((IString) tail.getValue()).getValue();
 		String result = preString + exprString + tailString;
-		
+
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitPrePathCharsLexical(
 			org.meta_environment.rascal.ast.PrePathChars.Lexical x) {
 		String str = x.getString();
 		return makeResult(tf.stringType(), vf.string(str.substring(1)), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitPostPathCharsLexical(
 			org.meta_environment.rascal.ast.PostPathChars.Lexical x) {
 		String str = x.getString();
 		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 1)), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitPathTailPost(
 			org.meta_environment.rascal.ast.PathTail.Post x) {
 		return x.getPost().accept(this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitPathTailMid(Mid x) {
 		Result<IValue> expr = x.getMid().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
-		
+
 		if (!expr.getType().isSubtypeOf(tf.stringType())) {
 			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
 		}
-		
+
 		String exprString = ((IString) expr.getValue()).getValue();
 		String tailString = ((IString) tail.getValue()).getValue();
 		String result = exprString + tailString;
-		
+
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitPathPartNonInterpolated(
 			org.meta_environment.rascal.ast.PathPart.NonInterpolated x) {
 		return x.getPathChars().accept(this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitPreProtocolCharsLexical(
 			org.meta_environment.rascal.ast.PreProtocolChars.Lexical x) {
 		String str = x.getString();
 		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 1)), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitPostProtocolCharsLexical(
 			org.meta_environment.rascal.ast.PostProtocolChars.Lexical x) {
 		String str = x.getString();
 		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 3)), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitPathCharsLexical(
 			org.meta_environment.rascal.ast.PathChars.Lexical x) {
 		String str = x.getString();
 		return makeResult(tf.stringType(), vf.string(str.substring(0, str.length() - 1)), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitExpressionClosure(Closure x) {
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
@@ -2328,7 +2328,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Type t = te.eval(x.getType(), getCurrentEnvt());
 		return t.accept(new TypeReifier(this));
 	}
-	
+
 	@Override
 	public Result<IValue> visitExpressionRange(Range x) {
 		//IListWriter w = vf.listWriter(tf.integerType());
@@ -2361,7 +2361,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		boolean debug = false;
 		Environment old = getCurrentEnvt();
 		pushEnv();
-		
+
 		try {
 			IMatchingResult mp = pat.accept(patternEvaluator);
 			mp.initMatch(subject);
@@ -2407,11 +2407,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		try {
 			IMatchingResult mp = pat.accept(patternEvaluator);
 			mp.initMatch(subject);
-	        //System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
+			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
 			while (mp.hasNext()){
 				//System.err.println("mp.hasNext()==true; mp=" + mp);
- 
+
 				if(mp.next()){
 					try {
 						boolean trueConditions = true;
@@ -2424,7 +2424,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 							}
 						}
 						if(trueConditions){
-						   //System.err.println("evaluating replacement expression: " + replacementExpr);
+							//System.err.println("evaluating replacement expression: " + replacementExpr);
 							throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(replacementExpr.accept(this), mp);		
 						}
 					} catch (Failure e){
@@ -2482,7 +2482,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitVisitGivenStrategy(GivenStrategy x) {
 		Result<IValue> subject = x.getSubject().accept(this);
-		
+
 		// TODO: warning switched to static type here, but not sure if that's correct...
 		Type subjectType = subject.getType();
 
@@ -2570,7 +2570,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (cval.isTrue()) {
 			return x.getThenExp().accept(this);
 		}
-		
+
 		return x.getElseExp().accept(this);	
 	}
 
@@ -2690,8 +2690,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	ComprehensionWriter {
 
 		private boolean splicing[];
-			
-			ListComprehensionWriter(
+
+		ListComprehensionWriter(
 				java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs,
 				Evaluator ev) {
 			super(resultExprs, ev);
@@ -2748,7 +2748,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private class SetComprehensionWriter extends
 	ComprehensionWriter {
-		
+
 		private boolean splicing[];
 
 		SetComprehensionWriter(
@@ -2757,7 +2757,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			super(resultExprs, ev);
 			splicing = new boolean[resultExprs.size()];
 		}
-		
+
 		@Override
 		public void append() {
 			if(writer == null){
@@ -2797,7 +2797,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 			}
 		}
-	
+
 		@Override
 		public Result<IValue> done() {
 			return (writer == null) ? makeResult(tf.setType(tf.voidType()), vf.set(), getContext(resultExprs.get(0))) : 
@@ -2851,7 +2851,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Environment[] olds = new Environment[size];
 		Environment old = getCurrentEnvt();
 		int i = 0;
-		
+
 		try {
 			gens[0] = makeBooleanResult(generators.get(0));
 			gens[0].init();
@@ -2920,16 +2920,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Environment[] olds = new Environment[size];
 
 		Result<IValue> result = makeResult(tf.voidType(), vf.list(), this);
-		
+
 		String label = null;
 		if (!x.getLabel().isEmpty()) {
 			label = Names.name(x.getLabel().getName());
 		}
 		forAccumulators.push(new Accumulator(vf, label));
-		
-		
+
+
 		// TODO: does this prohibit that the body influences the behavior of the generators??
-		
+
 		int i = 0;
 		boolean normalCflow = false;
 		try {
@@ -2937,7 +2937,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			gens[0].init();
 			olds[0] = getCurrentEnvt();
 			pushEnv();
-			
+
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
@@ -3025,12 +3025,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		int size = x.getVariables().size();
 		QualifiedName vars[] = new QualifiedName[size];
 		IValue currentValue[] = new IValue[size];
-		
+
 		Environment old = getCurrentEnvt();
 
 		try {
 			java.util.List<QualifiedName> varList = x.getVariables();
-			
+
 			for (int i = 0; i < size; i++) {
 				QualifiedName var = varList.get(i);
 				vars[i] = var;
@@ -3084,26 +3084,26 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			unwind(old);
 		}
 	}
-	
+
 	public Result<IValue> visitShellCommandSetOption(ShellCommand.SetOption x){
 		String name = "rascal.config."+x.getName().toString();
 		String value = x.getExpression().accept(this).getValue().toString();
-		
+
 		System.setProperty(name, value);
-		
+
 		updateProperties();
-		
+
 		return ResultFactory.nothing();
 	}
-	
+
 	private static void updateProperties(){
 		String profiling = System.getProperty("rascal.config.profiling");
 		if(profiling != null) doProfiling = profiling.equals("true");
-		
+
 		String tracing = System.getProperty("rascal.config.tracing");
 		if(tracing != null) AbstractFunction.setCallTracing(tracing.equals("true"));
 	}
-	
+
 	public Stack<Environment> getCallStack() {
 		Stack<Environment> stack = new Stack<Environment>();
 		Environment env = currentEnvt;
@@ -3137,8 +3137,19 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public GlobalEnvironment getHeap() {
 		return heap;
 	}
-	
+
 	public void runTests(){
 		new TestEvaluator(this, new DefaultTestResultListener(errorStream)).test();
 	}
+
+	public IValueFactory getIValueFactory() {
+		return vf;
+	}
+
+	public void setIValueFactory(
+			IValueFactory factory) {
+		vf = factory;
+	}
+
+
 }
