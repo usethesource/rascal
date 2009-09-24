@@ -223,7 +223,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 			}
 			
-			if (getType().hasField(name, store)) {
+			if (!getType().hasField(name, store)) {
 				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 			}
 			
