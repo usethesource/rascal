@@ -1312,7 +1312,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitStatementInsert(Insert x) {
-		throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(x.getExpression().accept(this));
+		throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(x.getStatement().accept(this));
 	}
 
 	@Override
