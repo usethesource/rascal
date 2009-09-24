@@ -178,6 +178,12 @@ public class VisitableRelation implements IVisitable, IRelation {
 	public int arity() {
 		return relation.arity();
 	}
+	
+	public IVisitable setValue(IValue value) {
+		this.relation = (IRelation) value;
+		return this;
+	}
+
 
 
 }

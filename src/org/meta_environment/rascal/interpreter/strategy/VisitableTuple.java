@@ -96,6 +96,12 @@ public class VisitableTuple implements IVisitable, ITuple {
 	public int arity() {
 		return tuple.arity();
 	}
+	
+	public IVisitable setValue(IValue value) {
+		this.tuple = (ITuple) value;
+		return this;
+	}
+
 
 
 }

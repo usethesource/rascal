@@ -31,7 +31,6 @@ import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
  * escapes beyond the reach of the Rascal interpreter. This is useless, but safe behavior.
  */
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue {
-    protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected static final TypeEvaluator TE = TypeEvaluator.getInstance();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
@@ -44,6 +43,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected final static TypeStore hiddenStore = new TypeStore();
 
 	protected final AbstractAST ast;
+	protected IValueFactory vf;
 	
 	protected static int callNesting = 0;
 	protected static boolean callTracing = false;
@@ -56,6 +56,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		this.eval = eval;
 		this.hasVarArgs = varargs;
 		this.declarationEnvironment = env;
+		this.vf = eval.getIValueFactory();
 	}
 	
 	public static void setCallTracing(boolean value){
@@ -198,7 +199,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			lub = lub.lub(actuals[j].getType());
 		}
 		
-		IListWriter list = VF.listWriter(lub);
+		IListWriter list = vf.listWriter(lub);
 		list.insertAt(0, actuals, i, actuals.length - arity + 1);
 		newActuals[i] = list.done();
 		return newActuals;
@@ -281,7 +282,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public <U extends IValue> Result<U> compareFunction(AbstractFunction that,
 			IEvaluatorContext ctx) {
 		if (that == this) {
-			return ResultFactory.makeResult(TF.integerType(), VF.integer(0), ctx);
+			return ResultFactory.makeResult(TF.integerType(), vf.integer(0), ctx);
 		}
 		
 		int result;
@@ -289,12 +290,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		result = getName().compareTo(that.getName());
 		
 		if (result != 0) {
-			return ResultFactory.makeResult(TF.integerType(), VF.integer(result), ctx);
+			return ResultFactory.makeResult(TF.integerType(), vf.integer(result), ctx);
 		}
 		
 		result = getType().compareTo(that.getType());
 		
-		return ResultFactory.makeResult(TF.integerType(), VF.integer(result), ctx);
+		return ResultFactory.makeResult(TF.integerType(), vf.integer(result), ctx);
 	}
 	
 	@Override

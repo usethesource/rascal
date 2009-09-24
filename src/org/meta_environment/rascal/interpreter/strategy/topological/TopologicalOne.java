@@ -9,7 +9,6 @@ import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.strategy.One;
-import org.meta_environment.rascal.interpreter.strategy.VisitableFactory;
 
 public class TopologicalOne extends One {
 
@@ -25,7 +24,7 @@ public class TopologicalOne extends One {
 			//only for binary relations
 			if (relation.getType().getArity() == 2) {
 				RelationContext context = new RelationContext(relation);
-				TopologicalVisitable<?> r = VisitableFactory.makeTopologicalVisitable(context,relation);
+				TopologicalVisitable<?> r = TopologicalVisitableFactory.makeTopologicalVisitable(context,relation);
 				super.call(new Type[]{r.getType()}, new IValue[]{r}, ctx).getValue();
 				return new ElementResult<IValue>(context.getRelation().getType(), context.getRelation(), ctx);
 			}

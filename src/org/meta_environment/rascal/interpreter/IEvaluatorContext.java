@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter;
 
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
@@ -15,4 +16,5 @@ public interface IEvaluatorContext {
 	public GlobalEnvironment getHeap();
 	public void setCurrentEnvt(Environment environment);
 	public void runTests();
+	public IValueFactory getIValueFactory();
 }

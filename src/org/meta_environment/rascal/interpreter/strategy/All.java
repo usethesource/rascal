@@ -13,13 +13,17 @@ import org.meta_environment.rascal.interpreter.result.Result;
 
 public class All extends Strategy {
 
-	public All(AbstractFunction function) {
+	protected boolean isStrategy;
+
+	public All(AbstractFunction function, boolean isStrategy) {
 		super(function);
+		this.isStrategy = isStrategy;
 	}
 
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
+		ctx.getEvaluator().setIValueFactory( new VisitableFactory(ctx.getEvaluator().getIValueFactory()));
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		List<IVisitable> newchildren = new ArrayList<IVisitable>();
 		for (int i = 0; i < result.getChildrenNumber(); i++) {
@@ -29,19 +33,28 @@ public class All extends Strategy {
 			newchildren.add(newchild);
 		}
 		result.setChildren(newchildren);
+		if (isStrategy) {
+			return new ElementResult<IValue>(result.getType(), result, ctx);
+		} 
 		return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
+
 	}
 
 	public static IValue makeAll(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
-			if (function.isStrategy()) {
-				return new All((AbstractFunction) arg);			}
+			if (function instanceof Strategy) {
+				return new All((AbstractFunction) arg, true);	
+			} else if (function.isStrategy()) {
+				return new All((AbstractFunction) arg, false);
+			}
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
-				if (function.isStrategy()) {
-					return new All(function);
+				if (function instanceof Strategy) {
+					return new All((AbstractFunction) arg, true);	
+				} else if (function.isStrategy()) {
+					return new All((AbstractFunction) arg, false);
 				}
 			}
 		}

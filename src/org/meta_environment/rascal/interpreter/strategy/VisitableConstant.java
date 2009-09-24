@@ -58,4 +58,9 @@ public class VisitableConstant implements IVisitable, IValue {
 
 	public void update(IValue oldvalue, IValue newvalue) {}
 
+	public IVisitable setValue(IValue value) {
+		this.value = value;
+		return this;
+	}
+
 }

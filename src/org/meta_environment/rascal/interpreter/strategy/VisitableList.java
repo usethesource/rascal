@@ -126,4 +126,9 @@ public class VisitableList implements IVisitable, IList {
 
 	public void update(IValue oldvalue, IValue newvalue) {}
 	
+	public IVisitable setValue(IValue value) {
+		this.list = (IList) value;
+		return this;
+	}
+
 }

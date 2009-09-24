@@ -28,3 +28,4 @@ Export-Package: org.meta_environment,
  org.meta_environment.uri
 Require-Bundle: sglr_invoker,
  org.eclipse.imp.pdb.values
+Import-Package: org.meta_environment.rascal.interpreter.staticErrors

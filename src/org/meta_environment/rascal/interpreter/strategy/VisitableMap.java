@@ -164,4 +164,9 @@ public class VisitableMap implements IVisitable, IMap {
 
 	public void update(IValue oldvalue, IValue newvalue) {}
 
+		public IVisitable setValue(IValue value) {
+			this.map = (IMap) value;
+			return this;
+		}
+
 }

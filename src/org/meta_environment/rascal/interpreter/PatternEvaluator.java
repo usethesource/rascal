@@ -728,4 +728,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		ctx.setCurrentAST(ast);
 	}
 
+	public IValueFactory getIValueFactory() {
+		return ctx.getIValueFactory();
+	}
+
 }

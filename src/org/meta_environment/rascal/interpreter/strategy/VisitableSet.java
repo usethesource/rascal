@@ -138,4 +138,9 @@ public class VisitableSet implements IVisitable, ISet {
 
 	public void update(IValue oldvalue, IValue newvalue) {}
 
+	public IVisitable setValue(IValue value) {
+		this.set = (ISet) value;
+		return this;
+	}
+
 }

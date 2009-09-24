@@ -18,6 +18,10 @@ implements IRelation {
 			List<TopologicalVisitable<?>> children) {
 		super(context, value, children);
 	}
+	
+	public TopologicalVisitableRelation(RelationContext context, IRelation value) {
+		super(context, value);
+	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return value.accept(v);

@@ -12,20 +12,20 @@ public &T(&T) java makeTopologicalAll(&T(&T) strategy);
 public &T(&T) java makeTopologicalOne(&T(&T) strategy);
 
 @javaClass{org.meta_environment.rascal.interpreter.strategy.topological.TopologicalStrategy}
-public &T(&T) java makeTopologicalStrategy(&T(&T) strategy, value relation);
+public &T(&T) java makeTopologicalStrategy(&T(&T) strategy);
 
 
 public &T1(&T1) topological_top_down(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
-		&T3 res = strategy(subject);
-		return makeTopologicalAll(topological_top_down(strategy))(res);
+		&T3 res = makeTopologicalStrategy(strategy)(subject);
+		return makeTopologicalAll(makeTopologicalStrategy(topological_top_down(makeTopologicalStrategy(strategy))))(res);
 	};
 }
 
 public &T1(&T1) topological_bottom_up(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
-		&T3 res = makeTopologicalAll(topological_bottom_up(strategy))(subject);
-		return strategy(res);
+		&T3 res = makeTopologicalAll(makeTopologicalStrategy(topological_bottom_up)(makeTopologicalStrategy(strategy)))(subject);
+		return makeTopologicalStrategy(strategy)(res);
 	};
 }
 
