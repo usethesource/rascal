@@ -27,7 +27,7 @@ public class IteratorFactory {
 		IValue subjectValue = subject.getValue();
 		Type patType = matchPattern.getType(ctx.getCurrentEnvt());
 		
-		System.err.println("make: " + subjectType + ", " + patType);
+		//System.err.println("make: " + subjectType + ", " + patType);
 		
 		// TODO: this should be a visitor design as well..
 		
