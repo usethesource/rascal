@@ -55,7 +55,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected T value;
 	private boolean isPublic;
 	private boolean inferredType = false;
-	private IEvaluatorContext ctx;
+	protected IEvaluatorContext ctx;
 
 	protected Result(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
@@ -89,7 +89,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> Result<U> makeIntegerResult(int i, IEvaluatorContext ctx) {
-		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i), null);
+		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i), ctx);
 	}
 	
 	
