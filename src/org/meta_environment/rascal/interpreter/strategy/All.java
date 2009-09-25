@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
@@ -23,6 +24,7 @@ public class All extends Strategy {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
+		IValueFactory oldFactory = ctx.getEvaluator().getIValueFactory();
 		ctx.getEvaluator().setIValueFactory( new VisitableFactory(ctx.getEvaluator().getIValueFactory()));
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		List<IVisitable> newchildren = new ArrayList<IVisitable>();
@@ -33,6 +35,7 @@ public class All extends Strategy {
 			newchildren.add(newchild);
 		}
 		result.setChildren(newchildren);
+		ctx.getEvaluator().setIValueFactory(oldFactory);
 		if (isStrategy) {
 			return new ElementResult<IValue>(result.getType(), result, ctx);
 		} 
