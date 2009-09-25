@@ -55,7 +55,7 @@ public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G)
 public set[&V] java range(map[&K, &V] M);
 
 @doc{Restrict the map to elements with value in S} 
-public map[&K, &V] rangeR(map[&K, &V] M, set[&K] S) {
+public map[&K, &V] rangeR(map[&K, &V] M, set[&V] S) {
 	map[&K, &V] result = ();
 	for(&K key <- M) {
 		if(M[key] in S) {
@@ -67,7 +67,7 @@ public map[&K, &V] rangeR(map[&K, &V] M, set[&K] S) {
 }
 
 @doc{Restrict the map to elements with value not in S}
-public map[&K, &V] rangeX(map[&K, &V] M, set[&K] S) {
+public map[&K, &V] rangeX(map[&K, &V] M, set[&V] S) {
 	map[&K, &V] result = ();
 	for(&K key <- M) {
 		if(M[key] notin S) {
