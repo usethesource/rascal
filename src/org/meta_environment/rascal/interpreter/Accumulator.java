@@ -22,10 +22,10 @@ public class Accumulator {
 	}
 	
 	public boolean hasLabel(String label) {
-		if (label == null) {
+		if (this.label == null) {
 			return false;
 		}
-		return label.equals(label);
+		return this.label.equals(label);
 	}
 	
 	public void append(Result<IValue> value) {
@@ -43,5 +43,6 @@ public class Accumulator {
 		}
 		return writer.done();
 	}
+	
 	
 }
