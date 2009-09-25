@@ -407,7 +407,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionEnumerator(Enumerator x) {
-		return new EnumeratorResult(vf, ctx, x.getPattern().accept(pe), null, x.getExpression());
+		return new EnumeratorResult(vf, ctx, x.getPattern().accept(pe), x.getExpression());
 	}
 
 	

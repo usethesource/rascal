@@ -13,7 +13,6 @@ import org.meta_environment.rascal.interpreter.result.ResultFactory;
 public class EnumeratorResult extends BasicBooleanResult {
 	private IMatchingResult pat;
 	private Iterator<?> iterator;
-	private Strategy strategy;
 	private Expression expression;
 	private boolean firstTime;    // TODO: can probably be removed.
 
@@ -21,10 +20,9 @@ public class EnumeratorResult extends BasicBooleanResult {
 	 * Constructor for a standard enumerator
 	 */
 	
-	public EnumeratorResult(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult matchPattern, Strategy strategy, Expression expression){
+	public EnumeratorResult(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult matchPattern, Expression expression){
 		super(vf, ctx, expression);
 		this.pat = matchPattern;
-		this.strategy = strategy;
 		this.expression = expression;
 	}
 	
@@ -55,7 +53,7 @@ public class EnumeratorResult extends BasicBooleanResult {
 		if (firstTime) {
 			firstTime = false;
 			Result<IValue> result = expression.accept(ctx.getEvaluator());
-			iterator = IteratorFactory.make(ctx, pat, result, strategy, true);
+			iterator = IteratorFactory.make(ctx, pat, result, true);
 		}
 		/*
 		 * First, explore alternatives that remain to be matched by the current pattern

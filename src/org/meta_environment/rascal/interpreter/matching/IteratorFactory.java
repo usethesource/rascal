@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -21,7 +20,7 @@ import org.meta_environment.uptr.SymbolAdapter;
 public class IteratorFactory {
 	
 	public static Iterator<IValue> make(IEvaluatorContext ctx, IMatchingResult matchPattern, 
-			                              Result<IValue> subject, Strategy strategy, boolean shallow){
+			                              Result<IValue> subject, boolean shallow){
 		
 		Type subjectType = subject.getType();
 		IValue subjectValue = subject.getValue();
@@ -39,7 +38,6 @@ public class IteratorFactory {
 		
 		// List
 		if(subjectType.isListType()){
-			checkNoStrategy(subjectType, strategy, ctx);
 			//TODO: we could do this more precisely
 			if(!subjectType.getElementType().isVoidType())
 				checkMayOccur(patType, subjectType.getElementType(), ctx, shallow);
@@ -47,14 +45,12 @@ public class IteratorFactory {
 			
 		// Set
 		} else 	if(subjectType.isSetType()){
-			checkNoStrategy(subjectType, strategy, ctx);
 			if(!subjectType.getElementType().isVoidType())
 				checkMayOccur(patType, subjectType.getElementType(), ctx, shallow);
 			return ((ISet) subjectValue).iterator();
 		
 		// Map
 		} else if(subjectType.isMapType()){
-			checkNoStrategy(subjectType, strategy, ctx);
 			if(!subjectType.getKeyType().isVoidType())
 				checkMayOccur(patType, subjectType.getKeyType(), ctx, shallow);
 			return ((IMap) subjectValue).iterator();
@@ -77,22 +73,12 @@ public class IteratorFactory {
 			
 		// Node and ADT
 		} else if(subjectType.isNodeType() || subjectType.isAbstractDataType()){
-			boolean bottomup = true;
-			if(strategy != null){
-				if(strategy.isTopDown()){
-					bottomup = false;
-				} else if(strategy.isBottomUp()){
-						bottomup = true;
-				} else {
-					throw new UnsupportedOperationError(strategy.toString(), subjectType, strategy);
-				}
-			}
+
 			checkMayOccur(patType, subjectType, ctx, shallow);
 			if(shallow) return	new NodeChildIterator((INode) subjectValue);
 			
-			return new NodeReader((INode) subjectValue, bottomup);
+			return new NodeReader((INode) subjectValue, true);
 		} else if(subjectType.isTupleType()){
-			checkNoStrategy(subjectType, strategy, ctx);
 			int nElems = subjectType.getArity();
 			for(int i = 0; i < nElems; i++){
 				if(!subjectType.getFieldType(i).isSubtypeOf(patType)) {
@@ -107,19 +93,12 @@ public class IteratorFactory {
 				subjectType.isStringType() ||
 				subjectType.isSourceLocationType())
 				{
-			checkNoStrategy(subjectType, strategy, ctx);
 			if(shallow && !subjectType.isSubtypeOf(patType)) {
 				throw new UnexpectedTypeError(patType, subjectType, ctx.getCurrentAST());
 			}
 			return new SingleIValueIterator(subjectValue);
 		} else {
 			throw new UnsupportedOperationError("makeIterator", subjectType, ctx.getCurrentAST());
-		}
-	}
-	
-	private static void checkNoStrategy(Type rType, Strategy strategy, IEvaluatorContext ctx){
-		if(strategy != null) {
-			throw new UnsupportedOperationError(strategy.toString(), rType, ctx.getCurrentAST());
 		}
 	}
 	
