@@ -4,6 +4,30 @@ module Map
 @javaClass{org.meta_environment.rascal.std.Map}
 public set[&K] java domain(map[&K, &V] M);
 
+@doc{Restrict the map to elements with keys in S}
+public map[&K, &V] domainR(map[&K, &V] M, set[&K] S) {
+	map[&K, &V] result = ();
+	for(&K key <- M) {
+		if(key in S) {
+			result += (key: M[key]);
+		}
+	}
+
+	return result;
+}
+
+@doc{Restrict the map to elements with keys not in S}
+public map[&K, &V] domainX(map[&K, &V] M, set[&K] S) {
+	map[&K, &V] result = ();
+	for(&K key <- M) {
+		if(key notin S) {
+			result += (key: M[key]);
+		}
+	}
+
+	return result;
+}
+
 @doc{ return arbitrary key of a map}
 @javaClass{org.meta_environment.rascal.std.Map}
 public &K java getOneFrom(map[&K, &V] M)  ;
@@ -29,6 +53,30 @@ public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G)
 @doc{Return the range (values) of a map}
 @javaClass{org.meta_environment.rascal.std.Map}
 public set[&V] java range(map[&K, &V] M);
+
+@doc{Restrict the map to elements with value in S} 
+public map[&K, &V] rangeR(map[&K, &V] M, set[&K] S) {
+	map[&K, &V] result = ();
+	for(&K key <- M) {
+		if(M[key] in S) {
+			result += (key: M[key]);
+		}
+	}
+
+	return result;
+}
+
+@doc{Restrict the map to elements with value not in S}
+public map[&K, &V] rangeX(map[&K, &V] M, set[&K] S) {
+	map[&K, &V] result = ();
+	for(&K key <- M) {
+		if(M[key] notin S) {
+			result += (key: M[key]);
+		}
+	}
+
+	return result;
+}
 
 @doc{Number of elements in a map.}
 @javaClass{org.meta_environment.rascal.std.Map}
