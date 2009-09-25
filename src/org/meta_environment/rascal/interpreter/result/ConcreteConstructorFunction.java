@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TraversalEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
@@ -29,8 +28,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
-			IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
 		IConstructor prod = (IConstructor) actuals[0];
 		IList args = (IList) actuals[1];
 		

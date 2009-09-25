@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
@@ -22,15 +21,14 @@ public class All extends Strategy {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
-			IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		IValueFactory oldFactory = ctx.getEvaluator().getIValueFactory();
 		ctx.getEvaluator().setIValueFactory( new VisitableFactory(ctx.getEvaluator().getIValueFactory()));
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		List<IVisitable> newchildren = new ArrayList<IVisitable>();
 		for (int i = 0; i < result.getChildrenNumber(); i++) {
 			IVisitable child = result.getChildAt(i);
-			IVisitable newchild = VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue());
+			IVisitable newchild = VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue());
 			result.update(child.getValue(), newchild.getValue());
 			newchildren.add(newchild);
 		}

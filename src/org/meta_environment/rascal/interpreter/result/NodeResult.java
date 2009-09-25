@@ -21,44 +21,44 @@ public class NodeResult extends ElementResult<INode> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToNode(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToNode(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
-		return that.nonEqualToNode(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		return that.nonEqualToNode(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanNode(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
+		return result.lessThanNode(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanOrEqualNode(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+		return result.lessThanOrEqualNode(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanNode(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
+		return result.greaterThanNode(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanOrEqualNode(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
+		return result.greaterThanOrEqualNode(this);
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compare(
-			Result<V> that, IEvaluatorContext ctx) {
-		return that.compareNode(this, ctx);
+			Result<V> that) {
+		return that.compareNode(this);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, IEvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
 			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
 		}
@@ -77,48 +77,47 @@ public class NodeResult extends ElementResult<INode> {
 	//////
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanNode(NodeResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanNode(NodeResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this, ctx) < 0);
+		return bool(that.comparisonInts(this) < 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this, ctx) <= 0);
+		return bool(that.comparisonInts(this) <= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this, ctx) > 0);
+		return bool(that.comparisonInts(this) > 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this, ctx) >= 0);
+		return bool(that.comparisonInts(this) >= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> equalToNode(NodeResult that, IEvaluatorContext ctx) {
-		return that.equalityBoolean(this, ctx);
+	protected <U extends IValue> Result<U> equalToNode(NodeResult that) {
+		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> compareNode(NodeResult that,
-			IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareNode(NodeResult that) {
 		// Note reversed args
 		INode left = that.getValue();
 		INode right = this.getValue();
 		
 		if (left.isEqual(right)) {
-			return makeIntegerResult(0, ctx);
+			return makeIntegerResult(0);
 		}
 		
 		int str = left.getName().compareTo(right.getName());
@@ -131,11 +130,11 @@ public class NodeResult extends ElementResult<INode> {
 				Type valueType = getTypeFactory().valueType();
 				
 				for (int i = 0; i < leftArity; i++) {
-					Result<IInteger> comp = makeResult(valueType, left.get(i), ctx).compare(makeResult(valueType, right.get(i), ctx), ctx);
+					Result<IInteger> comp = makeResult(valueType, left.get(i), ctx).compare(makeResult(valueType, right.get(i), ctx));
 					int val = comp.getValue().intValue();
 					
 					if (val != 0) {
-						return makeIntegerResult(val, ctx);
+						return makeIntegerResult(val);
 					}
 				}
 				
@@ -143,13 +142,13 @@ public class NodeResult extends ElementResult<INode> {
 			}
 			
 			if (left.arity() < right.arity()) {
-				return makeIntegerResult(-1, ctx);
+				return makeIntegerResult(-1);
 			}
 			
-			return makeIntegerResult(1, ctx);
+			return makeIntegerResult(1);
 		}
 		
-		return makeIntegerResult(str, ctx);
+		return makeIntegerResult(str);
 	}
 	
 }

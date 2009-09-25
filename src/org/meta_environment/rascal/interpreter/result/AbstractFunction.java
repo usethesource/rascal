@@ -15,7 +15,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -272,14 +271,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(
-			Result<V> that, IEvaluatorContext ctx) {
-		return that.compareFunction(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
+		return that.compareFunction(this);
 	}
 
 	@Override
-	public <U extends IValue> Result<U> compareFunction(AbstractFunction that,
-			IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> compareFunction(AbstractFunction that) {
 		if (that == this) {
 			return ResultFactory.makeResult(TF.integerType(), vf.integer(0), ctx);
 		}
@@ -298,16 +295,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compose(
-			Result<V> right, IEvaluatorContext ctx) {
-		return right.composeFunction(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
+		return right.composeFunction(this);
 	}
 	
 	@Override
-	public AbstractFunction composeFunction(AbstractFunction that,
-			IEvaluatorContext ctx) {
+	public AbstractFunction composeFunction(AbstractFunction that) {
 		if (!getTypeFactory().tupleType(getReturnType()).isSubtypeOf(that.getFunctionType().getArgumentTypes())) {
-			undefinedError("composition", ctx);
+			undefinedError("composition");
 		}
 		return new ComposedFunctionResult(that, this, ctx);
 	}

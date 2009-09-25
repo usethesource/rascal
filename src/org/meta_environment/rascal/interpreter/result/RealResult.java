@@ -20,199 +20,198 @@ public class RealResult extends ElementResult<IReal> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> result, IEvaluatorContext ctx) {
-		return result.addReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> result) {
+		return result.addReal(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> result, IEvaluatorContext ctx) {
-		return result.multiplyReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> result) {
+		return result.multiplyReal(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> divide(Result<V> result, IEvaluatorContext ctx) {
-		return result.divideReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> divide(Result<V> result) {
+		return result.divideReal(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result, IEvaluatorContext ctx) {
-		return result.subtractReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
+		return result.subtractReal(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> modulo(Result<V> result, IEvaluatorContext ctx) {
-		return result.moduloReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> modulo(Result<V> result) {
+		return result.moduloReal(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToReal(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
-		return that.nonEqualToReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		return that.nonEqualToReal(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
+		return result.lessThanReal(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanOrEqualReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+		return result.lessThanOrEqualReal(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
+		return result.greaterThanReal(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanOrEqualReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
+		return result.greaterThanOrEqualReal(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
-		return result.compareReal(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
+		return result.compareReal(this);
 	}
 	
 	/// real impls start here
 	
 	@Override
-	public <U extends IValue> Result<U> negative(IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> negative() {
 		return makeResult(type, getValue().negate(), ctx);
 	}
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> addInteger(IntegerResult n, IEvaluatorContext ctx) {
-		return n.widenToReal().add(this, ctx);
+	protected <U extends IValue> Result<U> addInteger(IntegerResult n) {
+		return n.widenToReal().add(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> subtractInteger(IntegerResult n, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> subtractInteger(IntegerResult n) {
 		// Note reversed args: we need n - this
-		return n.widenToReal().subtract(this, ctx);
+		return n.widenToReal().subtract(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> multiplyInteger(IntegerResult n, IEvaluatorContext ctx) {
-		return n.widenToReal().multiply(this, ctx);
+	protected <U extends IValue> Result<U> multiplyInteger(IntegerResult n) {
+		return n.widenToReal().multiply(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> divideInteger(IntegerResult n, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> divideInteger(IntegerResult n) {
 		// Note reversed args: we need n / this
-		return n.widenToReal().divide(this, ctx);
+		return n.widenToReal().divide(this);
 	}
 	
 	@Override  
-	protected <U extends IValue> Result<U> addReal(RealResult n, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> addReal(RealResult n) {
 		return makeResult(type, getValue().add(n.getValue()), ctx);
 	}
 	
 	@Override 
-	protected <U extends IValue> Result<U> subtractReal(RealResult n, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> subtractReal(RealResult n) {
 		// note the reverse subtraction.
 		return makeResult(type, n.getValue().subtract(getValue()), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> multiplyReal(RealResult n, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> multiplyReal(RealResult n) {
 		return makeResult(type, getValue().multiply(n.getValue()), ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> divideReal(RealResult n, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> divideReal(RealResult n) {
 		// note the reverse division
 		return makeResult(type, n.getValue().divide(getValue(), PRECISION), ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToReal(RealResult that, IEvaluatorContext ctx) {
-		return that.equalityBoolean(this, ctx);
+	protected <U extends IValue> Result<U> equalToReal(RealResult that) {
+		return that.equalityBoolean(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanReal(RealResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanReal(RealResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this, ctx) < 0);
+		return bool(that.comparisonInts(this) < 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualReal(RealResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanOrEqualReal(RealResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this, ctx) <= 0);
+		return bool(that.comparisonInts(this) <= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanReal(RealResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanReal(RealResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this, ctx) > 0);
+		return bool(that.comparisonInts(this) > 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualReal(RealResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanOrEqualReal(RealResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this, ctx) >= 0);
+		return bool(that.comparisonInts(this) >= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that, IEvaluatorContext ctx) {
-		return that.widenToReal().equals(this, ctx);
+	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
+		return that.widenToReal().equals(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that, IEvaluatorContext ctx) {
-		return that.widenToReal().nonEquals(this, ctx);
+	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that) {
+		return that.widenToReal().nonEquals(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanInteger(IntegerResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanInteger(IntegerResult that) {
 		// note reversed args: we need that < this
-		return that.widenToReal().lessThan(this, ctx);
+		return that.widenToReal().lessThan(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualInteger(IntegerResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanOrEqualInteger(IntegerResult that) {
 		// note reversed args: we need that <= this
-		return that.widenToReal().lessThanOrEqual(this, ctx);
+		return that.widenToReal().lessThanOrEqual(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanInteger(IntegerResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanInteger(IntegerResult that) {
 		// note reversed args: we need that > this
-		return that.widenToReal().greaterThan(this, ctx);
+		return that.widenToReal().greaterThan(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that) {
 		// note reversed args: we need that >= this
-		return that.widenToReal().greaterThanOrEqual(this, ctx);
+		return that.widenToReal().greaterThanOrEqual(this);
 	}
 
 	
 	@Override
-	protected <U extends IValue> Result<U> compareReal(RealResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareReal(RealResult that) {
 		// note reverse arguments
 		IReal left = that.getValue();
 		IReal right = this.getValue();
 		int result = left.compare(right);
-		return makeIntegerResult(result, ctx);
+		return makeIntegerResult(result);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> compareInteger(IntegerResult that,
-			IEvaluatorContext ctx) {
-		return that.widenToReal().compare(this, ctx);
+	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
+		return that.widenToReal().compare(this);
 	}
 
 	

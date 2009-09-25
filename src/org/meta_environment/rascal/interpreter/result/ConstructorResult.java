@@ -25,13 +25,12 @@ public class ConstructorResult extends NodeResult {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
-			IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		throw new UnsupportedOperationError("Can not call a constructed " + getType() + " node as a function", ctx.getCurrentAST());
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		if (!getType().hasField(name, store)) {
 			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 		}
@@ -44,7 +43,7 @@ public class ConstructorResult extends NodeResult {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, IEvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		if (!getType().hasField(name, store)) {
 			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 		}
@@ -62,21 +61,21 @@ public class ConstructorResult extends NodeResult {
 
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
-		return result.compareConstructor(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
+		return result.compareConstructor(this);
 	}
 	
 	//
 	
 	@Override
-	protected <U extends IValue> Result<U> compareConstructor(NodeResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareConstructor(NodeResult that) {
 		// Note reversed args
 		INode left = that.getValue();
 		INode right = this.getValue();
-		return makeIntegerResult(compareNodes(left, right, ctx), ctx);
+		return makeIntegerResult(compareNodes(left, right));
 	}
 	
-	private int compareNodes(INode left, INode right, IEvaluatorContext ctx) {
+	private int compareNodes(INode left, INode right) {
 		// NOTE: left and right are in normal (non-reversed) order
 		int compare = left.getName().compareTo(right.getName());
 		if (compare != 0){
@@ -86,10 +85,10 @@ public class ConstructorResult extends NodeResult {
 		if (compare != 0) {
 			return compare;
 		}
-		return compareChildren(left, right, ctx);
+		return compareChildren(left, right);
 	}
 	
-	private int compareChildren(INode left, INode right, IEvaluatorContext ctx) {
+	private int compareChildren(INode left, INode right) {
 		// NOTE: left and right are in normal (non-reversed) order
 		int i = 0;
 		for (IValue leftKid: left.getChildren()) {

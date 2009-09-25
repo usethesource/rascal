@@ -19,31 +19,31 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 
 	
 	@Override
-	protected <U extends IValue> Result<U> addReal(RealResult n, IEvaluatorContext ctx) {
-		return insertElement(n, ctx);
+	protected <U extends IValue> Result<U> addReal(RealResult n) {
+		return insertElement(n);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> addInteger(IntegerResult n, IEvaluatorContext ctx) {
-		return insertElement(n, ctx);
+	protected <U extends IValue> Result<U> addInteger(IntegerResult n) {
+		return insertElement(n);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> addString(StringResult n, IEvaluatorContext ctx) {
-		return insertElement(n, ctx);
+	protected <U extends IValue> Result<U> addString(StringResult n) {
+		return insertElement(n);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> addBool(BoolResult n, IEvaluatorContext ctx) {
-		return insertElement(n, ctx);
+	protected <U extends IValue> Result<U> addBool(BoolResult n) {
+		return insertElement(n);
 	}
 	
 	@Override 
-	protected <U extends IValue> Result<U> addTuple(TupleResult t, IEvaluatorContext ctx) {
-		return insertElement(t, ctx);
+	protected <U extends IValue> Result<U> addTuple(TupleResult t) {
+		return insertElement(t);
 	}
 	
-	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> result, IEvaluatorContext ctx) {
+	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> result) {
 		throw new ImplementationError("this method should be specialized in subclasses");
 	}
 

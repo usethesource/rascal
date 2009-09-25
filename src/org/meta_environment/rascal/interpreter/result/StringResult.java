@@ -25,70 +25,69 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> result, IEvaluatorContext ctx) {
-		return result.addString(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> result) {
+		return result.addString(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
-		return result.compareString(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
+		return result.compareString(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToString(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToString(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
-		return that.nonEqualToString(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		return that.nonEqualToString(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanString(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
+		return result.lessThanString(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanOrEqualString(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+		return result.lessThanOrEqualString(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanString(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
+		return result.greaterThanString(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanOrEqualString(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
+		return result.greaterThanOrEqualString(this);
 	}
 	
 	//////////////////////
 	
 	@Override
-	protected <U extends IValue> Result<U> addString(StringResult s, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> addString(StringResult s) {
 		// Note the reverse concat.
 		return makeResult(type, s.getValue().concat(getValue()), ctx);
 	}	
 	
 	@Override
-	protected <U extends IValue> Result<U> compareString(StringResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareString(StringResult that) {
 		// note reversed args
 		IString left = that.getValue();
 		IString right = this.getValue();
 		int result = left.compare(right);
-		return makeIntegerResult(result, ctx);
+		return makeIntegerResult(result);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToString(StringResult that, IEvaluatorContext ctx) {
-		return that.equalityBoolean(this, ctx);
+	protected <U extends IValue> Result<U> equalToString(StringResult that) {
+		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
-			IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		String name = getValue().getValue();
 		if (!getTypeFactory().isIdentifier(name)) {
 			throw RuntimeExceptionFactory.illegalIdentifier(name, ctx.getCurrentAST(), ctx.getStackTrace());
@@ -98,37 +97,37 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToString(StringResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> nonEqualToString(StringResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanString(StringResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanString(StringResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this, ctx) < 0);
+		return bool(that.comparisonInts(this) < 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualString(StringResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanOrEqualString(StringResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this, ctx) <= 0);
+		return bool(that.comparisonInts(this) <= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanString(StringResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanString(StringResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this, ctx) > 0);
+		return bool(that.comparisonInts(this) > 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualString(StringResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanOrEqualString(StringResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this, ctx) >= 0);
+		return bool(that.comparisonInts(this) >= 0);
 	}
 
 	protected <U extends IValue> Result<U> addSourceLocation(
-			SourceLocationResult that, IEvaluatorContext ctx) {
-		Result<IValue> path = that.fieldAccess("path", new TypeStore(), ctx);
-		return that.fieldUpdate("path", path.add(this, ctx), new TypeStore(), ctx);
+			SourceLocationResult that) {
+		Result<IValue> path = that.fieldAccess("path", new TypeStore());
+		return that.fieldUpdate("path", path.add(this), new TypeStore());
 	}	
 }

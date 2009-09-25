@@ -8,7 +8,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -42,8 +41,7 @@ public class JavaMethod extends NamedFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
-			IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
 		Type actualTypesTuple;
 		Type formals = getFormals();
 		Object[] oActuals;
@@ -56,7 +54,7 @@ public class JavaMethod extends NamedFunction {
 		}
 		
 		if (hasReflectiveAccess) {
-			oActuals = addCtxActual(oActuals, ctx);
+			oActuals = addCtxActual(oActuals);
 		}
 		
 		if (callTracing) {
@@ -95,7 +93,7 @@ public class JavaMethod extends NamedFunction {
 		}
 	}
 	
-	private Object[] addCtxActual(Object[] oActuals, IEvaluatorContext ctx) {
+	private Object[] addCtxActual(Object[] oActuals) {
 		Object[] newActuals = new Object[oActuals.length + 1];
 		System.arraycopy(oActuals, 0, newActuals, 0, oActuals.length);
 		newActuals[oActuals.length] = ctx;

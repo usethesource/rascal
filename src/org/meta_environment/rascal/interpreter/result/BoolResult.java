@@ -30,49 +30,49 @@ public class BoolResult extends ElementResult<IBool> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToBool(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
-		return that.nonEqualToBool(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		return that.nonEqualToBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanBool(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
+		return result.lessThanBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanOrEqualBool(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+		return result.lessThanOrEqualBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanBool(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
+		return result.greaterThanBool(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanOrEqualBool(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
+		return result.greaterThanOrEqualBool(this);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> negate(IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> negate() {
 		return bool(getValue().not().getValue());
 	}
 	
 	/////
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that, IEvaluatorContext ctx) {
-		return that.compareBool(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
+		return that.compareBool(this);
 	}
 	
 	@Override
-	public Result<IValue> ifThenElse(Result<IValue> then, Result<IValue> _else, IEvaluatorContext ctx) {
+	public Result<IValue> ifThenElse(Result<IValue> then, Result<IValue> _else) {
 		if (isTrue()) {
 			return then;
 		}
@@ -82,55 +82,52 @@ public class BoolResult extends ElementResult<IBool> {
 	///
 	
 	@Override
-	protected <U extends IValue> Result<U> compareBool(BoolResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareBool(BoolResult that) {
 		// note:  that <=> this
 		BoolResult left = that;
 		BoolResult right = this;
 		boolean lb = left.getValue().getValue();
 		boolean rb = right.getValue().getValue();
 		int result = (lb == rb) ? 0 : ((!lb && rb) ? -1 : 1);
-		return makeIntegerResult(result, ctx);
+		return makeIntegerResult(result);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToBool(BoolResult that, IEvaluatorContext ctx) {
-		return that.equalityBoolean(this, ctx);
+	protected <U extends IValue> Result<U> equalToBool(BoolResult that) {
+		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToBool(BoolResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> nonEqualToBool(BoolResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanBool(BoolResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanBool(BoolResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this, ctx) < 0);
+		return bool(that.comparisonInts(this) < 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualBool(BoolResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanOrEqualBool(BoolResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this, ctx) <= 0);
+		return bool(that.comparisonInts(this) <= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanBool(BoolResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanBool(BoolResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this, ctx) > 0);
+		return bool(that.comparisonInts(this) > 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualBool(BoolResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanOrEqualBool(BoolResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this, ctx) >= 0);
+		return bool(that.comparisonInts(this) >= 0);
 	}
 	
 	@Override
 	public boolean isTrue() {
 		return getValue().getValue();
 	}
-
-
-
 }

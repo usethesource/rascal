@@ -22,69 +22,69 @@ public class ListResult extends CollectionResult<IList> {
 	}
 		
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> result, IEvaluatorContext ctx) {
-		return result.addList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> result) {
+		return result.addList(this);
 	}
 	
 	@Override 
-	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result, IEvaluatorContext ctx) {
-		return result.subtractList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
+		return result.subtractList(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> result, IEvaluatorContext ctx) {
-		return result.multiplyList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> result) {
+		return result.multiplyList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result, IEvaluatorContext ctx) {
-		return result.inList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result) {
+		return result.inList(this);
 	}	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> result, IEvaluatorContext ctx) {
-		return result.notInList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> result) {
+		return result.notInList(this);
 	}	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
-		return result.compareList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
+		return result.compareList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToList(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
-		return that.nonEqualToList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		return that.nonEqualToList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, IEvaluatorContext ctx) {
-		return that.lessThanList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+		return that.lessThanList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, IEvaluatorContext ctx) {
-		return that.lessThanOrEqualList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+		return that.lessThanOrEqualList(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, IEvaluatorContext ctx) {
-		return that.greaterThanList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+		return that.greaterThanList(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, IEvaluatorContext ctx) {
-		return that.greaterThanOrEqualList(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+		return that.greaterThanOrEqualList(this);
 	}
 
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, IEvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
 			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
 		}
@@ -102,13 +102,13 @@ public class ListResult extends CollectionResult<IList> {
 	/////
 	
 	@Override
-	protected <U extends IValue> Result<U> addList(ListResult l, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> addList(ListResult l) {
 		// Note the reverse concat
 		return makeResult(getType().lub(l.getType()), l.getValue().concat(getValue()), ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> subtractList(ListResult l, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> subtractList(ListResult l) {
 		// Note the reversal of args
 		IList list = l.getValue();
 		for (IValue v: getValue()) {
@@ -120,7 +120,7 @@ public class ListResult extends CollectionResult<IList> {
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> multiplyList(ListResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> multiplyList(ListResult that) {
 		Type t1 = that.type.getElementType();
 		Type t2 = type.getElementType();
 		// Note: reverse
@@ -136,52 +136,52 @@ public class ListResult extends CollectionResult<IList> {
 	
 	
 	@Override
-	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> that, IEvaluatorContext ctx) {
+	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> that) {
 		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
 		return makeResult(newType, value.insert(that.getValue()), ctx);
 	}
 	
-	<U extends IValue, V extends IValue> Result<U> appendElement(ElementResult<V> that, IEvaluatorContext ctx) {
+	<U extends IValue, V extends IValue> Result<U> appendElement(ElementResult<V> that) {
 		// this is called by addLists in element types.
 		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
 		return makeResult(newType, value.append(that.getValue()), ctx);
 	}
 
-	<U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value, IEvaluatorContext ctx) {
+	<U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value) {
 		throw new ImplementationError("NYI: pdb has no remove on list");
 		//return new ListResult(list.remove(value.getValue())
 	}
 
-	<U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult, IEvaluatorContext ctx) {
+	<U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
 		return bool(getValue().contains(elementResult.getValue()));
 	}
 
-	<U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult, IEvaluatorContext ctx) {
+	<U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
 		return bool(!getValue().contains(elementResult.getValue()));
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToList(ListResult that, IEvaluatorContext ctx) {
-		return that.equalityBoolean(this, ctx);
+	protected <U extends IValue> Result<U> equalToList(ListResult that) {
+		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToList(ListResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> nonEqualToList(ListResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanList(ListResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanList(ListResult that) {
 		// note reverse of arguments: we need that < this
 		// TODO: move to PDB:
 		if (that.getValue().isEqual(getValue())) {
 			return bool(false);
 		}
-		return lessThanOrEqualList(that, ctx);
+		return lessThanOrEqualList(that);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that) {
 		for (IValue value: that.getValue()) {
 			if (!getValue().contains(value)) {
 				return bool(false);
@@ -191,34 +191,34 @@ public class ListResult extends CollectionResult<IList> {
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanList(ListResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanList(ListResult that) {
 		// note double reversal of arguments: that >  this
-		return that.lessThanList(this, ctx);
+		return that.lessThanList(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that) {
 		// note double reversal of arguments: that >=  this
-		return that.lessThanOrEqualList(this, ctx);
+		return that.lessThanOrEqualList(this);
 	}
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> compareList(ListResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareList(ListResult that) {
 		// Note reversed args
 		IList left = that.getValue();
 		IList right = this.getValue();
 		int compare = Integer.valueOf(left.length()).compareTo(Integer.valueOf(right.length()));
 		if (compare != 0) {
-			return makeIntegerResult(compare, ctx);
+			return makeIntegerResult(compare);
 		}
 		for (int i = 0; i < left.length(); i++) {
 			compare = compareIValues(left.get(i), right.get(i), ctx);
 			if (compare != 0) {
-				return makeIntegerResult(compare, ctx);
+				return makeIntegerResult(compare);
 			}
 		}
-		return makeIntegerResult(0, ctx);
+		return makeIntegerResult(0);
 	}
 
 	

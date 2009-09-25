@@ -25,16 +25,14 @@ public class ComposedFunctionResult extends AbstractFunction{
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
-			IEvaluatorContext ctx) {
-		Result<IValue> rightResult = right.call(argTypes, argValues, ctx);
-		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, ctx);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+		Result<IValue> rightResult = right.call(argTypes, argValues);
+		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() });
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compose(
-			Result<V> right, IEvaluatorContext ctx) {
-		return right.composeFunction(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
+		return right.composeFunction(this);
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

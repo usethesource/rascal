@@ -118,7 +118,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 					System.err.println("returns " + subject.equals(varRes));
 				}
 //					iWroteItMySelf = false;
-				return subject.equals(varRes, ctx).isTrue();
+				return subject.equals(varRes).isTrue();
 			}
 			return false;
 		}
