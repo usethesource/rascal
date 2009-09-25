@@ -32,7 +32,7 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
-		iterator = IteratorFactory.make(ctx, pat, subject, null, false);
+		iterator = IteratorFactory.make(ctx, pat, subject, false);
 		hasNext = true;
 	}
 	
