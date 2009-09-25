@@ -10,16 +10,16 @@ import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.strategy.Strategy;
 
 public class TopologicalStrategy extends Strategy {
-	
+
 	public TopologicalStrategy(AbstractFunction function) {
 		super(function);
 	}
-	
+
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
 		if (argValues[0] instanceof TopologicalVisitable<?>) {
 			TopologicalVisitable<?> visitable = (TopologicalVisitable<?>)argValues[0];
-RelationContext context = visitable.getContext();
+			RelationContext context = visitable.getContext();
 			IValue v = visitable.getValue();	
 			Result<IValue> res = function.call(argTypes, new IValue[]{v}, ctx);
 			return ResultFactory.makeResult(res.getType(), TopologicalVisitableFactory.makeTopologicalVisitable(context, res.getValue()), ctx);
@@ -27,7 +27,7 @@ RelationContext context = visitable.getContext();
 			return function.call(argTypes, argValues, ctx);
 		}
 	}
-	
+
 	public static IValue makeTopologicalStrategy(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
