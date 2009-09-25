@@ -27,6 +27,8 @@ public class IteratorFactory {
 		IValue subjectValue = subject.getValue();
 		Type patType = matchPattern.getType(ctx.getCurrentEnvt());
 		
+		System.err.println("make: " + subjectType + ", " + patType);
+		
 		// TODO: this should be a visitor design as well..
 		
 		//TODO: why should be managed by the getAliased() method or 
@@ -40,21 +42,21 @@ public class IteratorFactory {
 			checkNoStrategy(subjectType, strategy, ctx);
 			//TODO: we could do this more precisely
 			if(!subjectType.getElementType().isVoidType())
-				checkMayOccur(patType, subjectType.getElementType(), ctx);
+				checkMayOccur(patType, subjectType.getElementType(), ctx, shallow);
 			return ((IList) subjectValue).iterator();
 			
 		// Set
 		} else 	if(subjectType.isSetType()){
 			checkNoStrategy(subjectType, strategy, ctx);
 			if(!subjectType.getElementType().isVoidType())
-				checkMayOccur(patType, subjectType.getElementType(), ctx);
+				checkMayOccur(patType, subjectType.getElementType(), ctx, shallow);
 			return ((ISet) subjectValue).iterator();
 		
 		// Map
 		} else if(subjectType.isMapType()){
 			checkNoStrategy(subjectType, strategy, ctx);
 			if(!subjectType.getKeyType().isVoidType())
-				checkMayOccur(patType, subjectType.getKeyType(), ctx);
+				checkMayOccur(patType, subjectType.getKeyType(), ctx, shallow);
 			return ((IMap) subjectValue).iterator();
 			
 		// NonTerminal	
@@ -62,7 +64,7 @@ public class IteratorFactory {
 			if(subjectType instanceof NonTerminalType){
 				
 				IConstructor tree = (IConstructor) subjectValue;
-				checkMayOccur(patType, subjectType, ctx);
+				checkMayOccur(patType, subjectType, ctx, shallow);
 				NonTerminalType nt = (NonTerminalType) subjectType;
 				
 				if(nt.isConcreteListType()){
@@ -85,7 +87,7 @@ public class IteratorFactory {
 					throw new UnsupportedOperationError(strategy.toString(), subjectType, strategy);
 				}
 			}
-			checkMayOccur(patType, subjectType, ctx);
+			checkMayOccur(patType, subjectType, ctx, shallow);
 			if(shallow) return	new NodeChildIterator((INode) subjectValue);
 			
 			return new NodeReader((INode) subjectValue, bottomup);
@@ -106,7 +108,7 @@ public class IteratorFactory {
 				subjectType.isSourceLocationType())
 				{
 			checkNoStrategy(subjectType, strategy, ctx);
-			if(!subjectType.isSubtypeOf(patType)) {
+			if(shallow && !subjectType.isSubtypeOf(patType)) {
 				throw new UnexpectedTypeError(patType, subjectType, ctx.getCurrentAST());
 			}
 			return new SingleIValueIterator(subjectValue);
@@ -121,8 +123,8 @@ public class IteratorFactory {
 		}
 	}
 	
-	private static void checkMayOccur(Type patType, Type rType, IEvaluatorContext ctx){
-		if(!ctx.getEvaluator().mayOccurIn(patType, rType))
+	private static void checkMayOccur(Type patType, Type rType, IEvaluatorContext ctx, boolean shallow){
+		if(shallow && !ctx.getEvaluator().mayOccurIn(patType, rType))
 			throw new UnexpectedTypeError(patType, rType, ctx.getCurrentAST());
 	}
 
