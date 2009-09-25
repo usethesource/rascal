@@ -59,7 +59,7 @@ public class VisitableFactory implements IValueFactory {
 
 
 	public IBool bool(boolean value) {
-		return bool(value);
+		return factory.bool(value);
 	}
 
 

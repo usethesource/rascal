@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
@@ -17,6 +18,8 @@ public class One extends Strategy {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
+		IValueFactory oldFactory = ctx.getEvaluator().getIValueFactory();
+		ctx.getEvaluator().setIValueFactory( new VisitableFactory(ctx.getEvaluator().getIValueFactory()));
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		for (int i = 0; i < result.getChildrenNumber(); i++) {
 			IVisitable child = result.getChildAt(i);
@@ -29,6 +32,7 @@ public class One extends Strategy {
 				break;
 			}
 		}
+		ctx.getEvaluator().setIValueFactory(oldFactory);
 		return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
 	}
 
