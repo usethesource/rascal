@@ -23,12 +23,12 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, IEvaluatorContext ctx) {
-		return that.addTuple(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
+		return that.addTuple(this);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 			if (!getType().hasFieldNames()) {
 				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 			}
@@ -48,7 +48,7 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 		
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, IEvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		if (!getType().hasFieldNames()) {
 			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 		}
@@ -67,7 +67,7 @@ public class TupleResult extends ElementResult<ITuple> {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, IEvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length > 1) {
 			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
 		}
@@ -91,44 +91,44 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
-		return result.compareTuple(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
+		return result.compareTuple(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToTuple(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToTuple(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
-		return that.nonEqualToTuple(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		return that.nonEqualToTuple(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanTuple(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result) {
+		return result.lessThanTuple(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.lessThanOrEqualTuple(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result) {
+		return result.lessThanOrEqualTuple(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanTuple(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
+		return result.greaterThanTuple(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
-		return result.greaterThanOrEqualTuple(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result) {
+		return result.greaterThanOrEqualTuple(this);
 	}
 	
 	///
 
 	@Override
-	protected <U extends IValue> Result<U> addTuple(TupleResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> addTuple(TupleResult that) {
 		// Note reversed args
 		TupleResult left = that;
 		TupleResult right = this;
@@ -167,59 +167,59 @@ public class TupleResult extends ElementResult<ITuple> {
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> addRelation(RelationResult that, IEvaluatorContext ctx) {
-		return that.insertTuple(this, ctx);
+	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
+		return that.insertTuple(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToTuple(TupleResult that, IEvaluatorContext ctx) {
-		return that.equalityBoolean(this, ctx);
+	protected <U extends IValue> Result<U> equalToTuple(TupleResult that) {
+		return that.equalityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> compareTuple(TupleResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareTuple(TupleResult that) {
 		// Note reversed args
 		ITuple left = that.getValue();
 		ITuple right = this.getValue();
 		int compare = Integer.valueOf(left.arity()).compareTo(Integer.valueOf(right.arity()));
 		if (compare != 0) {
-			return makeIntegerResult(compare, ctx);
+			return makeIntegerResult(compare);
 		}
 		for (int i = 0; i < left.arity(); i++) {
 			compare = compareIValues(left.get(i), right.get(i), ctx);
 			if (compare != 0) {
-				return makeIntegerResult(compare, ctx);
+				return makeIntegerResult(compare);
 			}
 		}
-		return makeIntegerResult(0, ctx);
+		return makeIntegerResult(0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this, ctx) < 0);
+		return bool(that.comparisonInts(this) < 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this, ctx) <= 0);
+		return bool(that.comparisonInts(this) <= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this, ctx) > 0);
+		return bool(that.comparisonInts(this) > 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this, ctx) >= 0);
+		return bool(that.comparisonInts(this) >= 0);
 	}
 }

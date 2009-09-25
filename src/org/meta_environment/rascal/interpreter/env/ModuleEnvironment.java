@@ -117,12 +117,14 @@ public class ModuleEnvironment extends Environment {
 		Type adt = getAbstractDataType(modulename);
 		
 		if (adt != null) {
-			OverloadedFunctionResult candidates = getAllFunctions(cons);
 			OverloadedFunctionResult result = new OverloadedFunctionResult(cons);
+			OverloadedFunctionResult candidates = getAllFunctions(cons);
 			
-			for (AbstractFunction candidate : candidates.iterable()) {
-				if (candidate.getReturnType() == adt) {
-					result = result.add(candidate);
+			if(candidates != null){
+				for(AbstractFunction candidate : candidates.iterable()){
+					if (candidate.getReturnType() == adt) {
+						result = result.add(candidate);
+					}
 				}
 			}
 			
@@ -196,9 +198,11 @@ public class ModuleEnvironment extends Environment {
 	protected OverloadedFunctionResult getAllFunctions(String name) {
 		OverloadedFunctionResult funs = super.getAllFunctions(name);
 		
-		for (String moduleName : getImports()) {
-			ModuleEnvironment mod = getImport(moduleName);
-			funs = mod.getLocalPublicFunctions(name).join(funs);
+		if(funs != null){
+			for (String moduleName : getImports()) {
+				ModuleEnvironment mod = getImport(moduleName);
+				funs = mod.getLocalPublicFunctions(name).join(funs);
+			}
 		}
 
 		return funs;

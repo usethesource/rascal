@@ -999,7 +999,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				actuals[i] = resultElem.getValue();
 			}
 
-			return function.call(types, actuals, this);
+			return function.call(types, actuals);
 		}
 		catch (UndeclaredVariableError e) {
 			throw new UndeclaredFunctionError(e.getName(), x);
@@ -1093,7 +1093,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			Expression subsExpr = x.getSubscripts().get(i);
 			subscripts[i] = isWildCard(subsExpr.toString()) ? null : subsExpr.accept(this);
 		}
-		return expr.subscript(subscripts, this);
+		return expr.subscript(subscripts);
 	}
 
 	@Override
@@ -1103,7 +1103,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		String field = x.getField().toString();
 
 
-		return expr.fieldAccess(field, getCurrentEnvt().getStore(), this);
+		return expr.fieldAccess(field, getCurrentEnvt().getStore());
 	}
 
 	private boolean isWildCard(String fieldName){
@@ -1364,7 +1364,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			return makeResult(node.getFieldType(index), cons.get(index), this);
 		}
 		else if (receiver.getType().isSourceLocationType()) {
-			return receiver.fieldAccess(label, new TypeStore(), this);
+			return receiver.fieldAccess(label, new TypeStore());
 		}
 		else {
 			throw new UndeclaredFieldError(label, receiver.getType(), x);
@@ -1947,7 +1947,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Expression.GetAnnotation x) {
 		Result<IValue> base = x.getExpression().accept(this);
 		String annoName = Names.name(x.getName());
-		return base.getAnnotation(annoName, getCurrentEnvt(), this);
+		return base.getAnnotation(annoName, getCurrentEnvt());
 	}
 
 	@Override
@@ -1956,14 +1956,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> base = x.getExpression().accept(this);
 		String annoName = x.getName().toString();
 		Result<IValue> anno = x.getValue().accept(this);
-		return base.setAnnotation(annoName, anno, getCurrentEnvt(), this);
+		return base.setAnnotation(annoName, anno, getCurrentEnvt());
 	}
 
 	@Override
 	public Result<IValue> visitExpressionAddition(Addition x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.add(right, this);
+		return left.add(right);
 
 	}
 
@@ -1971,42 +1971,42 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionSubtraction(Subtraction x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.subtract(right, this);
+		return left.subtract(right);
 
 	}
 
 	@Override
 	public Result<IValue> visitExpressionNegative(Negative x) {
 		Result<IValue> arg = x.getArgument().accept(this);
-		return arg.negative(this);
+		return arg.negative();
 	}
 
 	@Override
 	public Result<IValue> visitExpressionProduct(Product x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.multiply(right, this);
+		return left.multiply(right);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionJoin(Join x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.join(right, this);
+		return left.join(right);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionDivision(Division x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.divide(right, this);
+		return left.divide(right);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionModulo(Modulo x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.modulo(right, this);
+		return left.modulo(right);
 	}
 
 	@Override
@@ -2018,7 +2018,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionIntersection(Intersection x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.intersect(right, this);
+		return left.intersect(right);
 	}
 
 	@Override
@@ -2062,7 +2062,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Expression.Equals x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.equals(right, this);
+		return left.equals(right);
 	}
 
 	@Override
@@ -2268,7 +2268,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> repl = x.getReplacement().accept(this);
 		String name = x.getKey().toString();
-		return expr.fieldUpdate(name, repl, getCurrentEnvt().getStore(), this);
+		return expr.fieldUpdate(name, repl, getCurrentEnvt().getStore());
 	}
 
 	@Override
@@ -2292,7 +2292,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		//IListWriter w = vf.listWriter(tf.integerType());
 		Result<IValue> from = x.getFirst().accept(this);
 		Result<IValue> to = x.getLast().accept(this);
-		return from.makeRange(to, this);
+		return from.makeRange(to);
 	}
 
 	@Override
@@ -2300,7 +2300,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> from = x.getFirst().accept(this);
 		Result<IValue> to = x.getLast().accept(this);
 		Result<IValue> second = x.getSecond().accept(this);
-		return from.makeStepRange(to, second, this);
+		return from.makeStepRange(to, second);
 	}
 
 	@Override
@@ -2485,7 +2485,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.nonEquals(right, this);
+		return left.nonEquals(right);
 	}
 
 
@@ -2493,27 +2493,27 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionLessThan(LessThan x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.lessThan(right, this);
+		return left.lessThan(right);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionLessThanOrEq(LessThanOrEq x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.lessThanOrEqual(right, this);
+		return left.lessThanOrEqual(right);
 	}
 	@Override
 	public Result<IValue> visitExpressionGreaterThan(GreaterThan x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.greaterThan(right, this);
+		return left.greaterThan(right);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.greaterThanOrEqual(right, this);
+		return left.greaterThanOrEqual(right);
 	}
 
 	@Override
@@ -2565,31 +2565,31 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionIn(In x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return right.in(left, this);
+		return right.in(left);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionNotIn(NotIn x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return right.notIn(left, this);
+		return right.notIn(left);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionComposition(Composition x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.compose(right, this);
+		return left.compose(right);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionTransitiveClosure(TransitiveClosure x) {
-		return x.getArgument().accept(this).transitiveClosure(this);
+		return x.getArgument().accept(this).transitiveClosure();
 	}
 
 	@Override
 	public Result<IValue> visitExpressionTransitiveReflexiveClosure(TransitiveReflexiveClosure x) {
-		return x.getArgument().accept(this).transitiveReflexiveClosure(this);
+		return x.getArgument().accept(this).transitiveReflexiveClosure();
 	}
 
 	// Comprehensions ----------------------------------------------------

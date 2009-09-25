@@ -179,7 +179,7 @@ public class Environment {
 		
 		OverloadedFunctionResult funs = getAllFunctions(name);
 		
-		if (funs.size() == 0) {
+		if (funs == null || funs.size() == 0) {
 			return null;
 		}
 		
@@ -214,7 +214,10 @@ public class Environment {
 			return parent.getAllFunctions(name);
 		}
 		
-		return parent.getAllFunctions(name).join(result);
+		OverloadedFunctionResult resultFromParent = parent.getAllFunctions(name);
+		if(resultFromParent == null) return result;
+		
+		return result.join(resultFromParent);
 	}
 
 	public void storeParameterType(Type par, Type type) {
@@ -318,7 +321,7 @@ public class Environment {
 			// NB: we store null in the cache so that rollback will remove the table entry on name
 			// instead of restoring an empty list.
 			updateFunctionCache(name, functionEnvironment, null);
-			list = new OverloadedFunctionResult(name);
+			list = new OverloadedFunctionResult(name, function.getEvaluatorContext());
 			functionEnvironment.put(name, list);
 		}
 		else {

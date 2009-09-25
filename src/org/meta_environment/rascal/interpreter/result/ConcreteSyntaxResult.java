@@ -21,18 +21,17 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToConcreteSyntax(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToConcreteSyntax(this);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
-		return that.nonEqualToConcreteSyntax(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		return that.nonEqualToConcreteSyntax(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToConcreteSyntax(
-			ConcreteSyntaxResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> equalToConcreteSyntax(ConcreteSyntaxResult that) {
 		IConstructor left = this.getValue();
 		IConstructor right = that.getValue();
 		
@@ -59,8 +58,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				IValue kid1 = l1.get(i);
 				IValue kid2 = l2.get(i);
 				// Recurse here on kids to reuse layout handling etc.
-				Result<IBool> result = makeResult(kid1.getType(), kid1, ctx)
-					.equals(makeResult(kid2.getType(), kid2, ctx), ctx);
+				Result<IBool> result = makeResult(kid1.getType(), kid1, ctx).equals(makeResult(kid2.getType(), kid2, ctx));
 				if (!result.getValue().getValue()) {
 					return bool(false);
 				}
@@ -87,8 +85,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			// TODO: this is very inefficient
 			again: for (IValue alt1: alts1) {
 				for (IValue alt2: alts2) {
-					Result<IBool> result = makeResult(alt1.getType(), alt1, ctx)
-						.equals(makeResult(alt2.getType(), alt2, ctx), ctx);
+					Result<IBool> result = makeResult(alt1.getType(), alt1, ctx).equals(makeResult(alt2.getType(), alt2, ctx));
 					if (result.getValue().getValue()) {
 						// As soon an alt1 is equal to an alt2
 						// continue the outer loop.

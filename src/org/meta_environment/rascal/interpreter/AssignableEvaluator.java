@@ -81,15 +81,15 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			case Default:
 				newValue = rhsValue; break;
 			case Addition:
-				newValue = oldValue.add(rhsValue, eval); break;
+				newValue = oldValue.add(rhsValue); break;
 			case Subtraction:
-				newValue = oldValue.subtract(rhsValue, eval); break;
+				newValue = oldValue.subtract(rhsValue); break;
 			case Product:
-				newValue = oldValue.multiply(rhsValue, eval); break;
+				newValue = oldValue.multiply(rhsValue); break;
 			case Division:
-				newValue = oldValue.divide(rhsValue, eval); break;
+				newValue = oldValue.divide(rhsValue); break;
 			case Intersection:
-				newValue = oldValue.intersect(rhsValue, eval); break;
+				newValue = oldValue.intersect(rhsValue); break;
 			case IsDefined:
 				return oldValue;
 			default:
@@ -178,11 +178,11 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		}
 		
 		try {
-			value = newResult(result.getAnnotation(label, env, eval), value);
+			value = newResult(result.getAnnotation(label, env), value);
 		} catch (Throw e){
 			// NoSuchAnnotation
 		}
-		return recur(x, result.setAnnotation(label, value, env, eval));
+		return recur(x, result.setAnnotation(label, value, env));
 //		result.setValue(((IConstructor) result.getValue()).setAnnotation(label, value.getValue()));
 		//return recur(x, result);
 	}
@@ -299,8 +299,8 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		else if (receiver.getType().isSourceLocationType()){
 //			ISourceLocation loc = (ISourceLocation) receiver.getValue();
 			
-			value = newResult(receiver.fieldAccess(label, env.getStore(), eval), value);
-			return recur(x, receiver.fieldUpdate(label, value, env.getStore(), eval));
+			value = newResult(receiver.fieldAccess(label, env.getStore()), value);
+			return recur(x, receiver.fieldUpdate(label, value, env.getStore()));
 			//return recur(x, eval.sourceLocationFieldUpdate(loc, label, value.getValue(), value.getType(), x));
 		}
 		else {

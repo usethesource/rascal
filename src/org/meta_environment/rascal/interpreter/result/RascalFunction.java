@@ -9,7 +9,6 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -44,7 +43,7 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
 		Map<Type,Type> bindings = declarationEnvironment.getTypeBindings();
 		Type instantiatedFormals = getFormals().instantiate(declarationEnvironment.getStore(), bindings);
 		
@@ -127,14 +126,12 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(
-			Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToRascalFunction(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToRascalFunction(this);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> equalToRascalFunction(
-			RascalFunction that, IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> equalToRascalFunction(RascalFunction that) {
 		return ResultFactory.bool(this == that);
 	}
 }

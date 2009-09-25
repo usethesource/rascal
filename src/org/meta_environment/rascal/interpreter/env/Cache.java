@@ -27,7 +27,7 @@ public class Cache {
 	public void save(Map<String, OverloadedFunctionResult> env, String name, OverloadedFunctionResult other) {
 		OverloadedFunctionResult list = null;
 		if (other != null) {
-			list = new OverloadedFunctionResult(name).join(other);
+			list = new OverloadedFunctionResult(name, other.getEvaluatorContext()).join(other);
 		}
 		functions.put(new FunctionCacheEntry(env, name), list);
 	}

@@ -2,7 +2,6 @@ package org.meta_environment.rascal.interpreter.strategy;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -23,15 +22,15 @@ public class Strategy extends AbstractFunction {
 	
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		if (argValues[0] instanceof IVisitable) {
 			IVisitable visitable = (IVisitable) argValues[0];
 			IValue v = visitable.getValue();	
-			Result<IValue> res = function.call(argTypes, new IValue[]{v}, ctx);
+			Result<IValue> res = function.call(argTypes, new IValue[]{v});
 			return ResultFactory.makeResult(res.getType(), VisitableFactory.makeVisitable(res.getValue()), ctx);
-		} else {
-			return function.call(argTypes, argValues, ctx);
 		}
+		
+		return function.call(argTypes, argValues);
 	}
 
 	public static IValue makeStrategy(IValue arg) {

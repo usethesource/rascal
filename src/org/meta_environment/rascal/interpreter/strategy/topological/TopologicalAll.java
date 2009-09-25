@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
@@ -23,8 +22,7 @@ public class TopologicalAll extends Strategy {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
-			IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		if (argValues[0] instanceof IRelation) {
 			IRelation relation = ((IRelation) argValues[0]);
 			//only for binary relations
@@ -37,7 +35,7 @@ public class TopologicalAll extends Strategy {
 				for (int i = 0; i < result.getChildrenNumber(); i++) {
 					IVisitable child = result.getChildAt(i);
 					context.setCurrentNode(child);
-					IVisitable newchild = (TopologicalVisitable<?>) function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue();
+					IVisitable newchild = (TopologicalVisitable<?>) function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
 					result.update(child.getValue(), newchild.getValue());
 					newchildren.add(newchild);
 					context.setCurrentNode(result);
@@ -53,7 +51,7 @@ public class TopologicalAll extends Strategy {
 			for (int i = 0; i < result.getChildrenNumber(); i++) {
 				IVisitable child = result.getChildAt(i);
 				context.setCurrentNode(child);
-				IVisitable newchild = (TopologicalVisitable<?>) function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue();
+				IVisitable newchild = (TopologicalVisitable<?>) function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
 				result.update(child.getValue(), newchild.getValue());
 				newchildren.add(newchild);
 				context.setCurrentNode(result);
@@ -66,7 +64,7 @@ public class TopologicalAll extends Strategy {
 		List<IVisitable> newchildren = new ArrayList<IVisitable>();
 		for (int i = 0; i < result.getChildrenNumber(); i++) {
 			IVisitable child = result.getChildAt(i);
-			IVisitable newchild = VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}, ctx).getValue());
+			IVisitable newchild = VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue());
 			result.update(child.getValue(), newchild.getValue());
 			newchildren.add(newchild);
 		}

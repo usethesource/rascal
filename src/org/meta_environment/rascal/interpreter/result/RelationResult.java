@@ -27,83 +27,83 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> add(Result<V> result, IEvaluatorContext ctx) {
-			return result.addRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> add(Result<V> result) {
+			return result.addRelation(this);
 		}
 		
 		@Override
-		public  <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result, IEvaluatorContext ctx) {
-			return result.subtractRelation(this, ctx);
+		public  <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
+			return result.subtractRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result, IEvaluatorContext ctx) {
-			return result.intersectRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result) {
+			return result.intersectRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
-			return that.equalToRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+			return that.equalToRelation(this);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
-			return that.nonEqualToRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+			return that.nonEqualToRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, IEvaluatorContext ctx) {
-			return that.lessThanRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+			return that.lessThanRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, IEvaluatorContext ctx) {
-			return that.lessThanOrEqualRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+			return that.lessThanOrEqualRelation(this);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, IEvaluatorContext ctx) {
-			return that.greaterThanRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+			return that.greaterThanRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, IEvaluatorContext ctx) {
-			return that.greaterThanOrEqualRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+			return that.greaterThanOrEqualRelation(this);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
-			return result.compareRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
+			return result.compareRelation(this);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, IEvaluatorContext ctx) {
-			return right.composeRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
+			return right.composeRelation(this);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> that, IEvaluatorContext ctx) {
-			return that.multiplyRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> that) {
+			return that.multiplyRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, IEvaluatorContext ctx) {
-			return that.joinRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> join(Result<V> that) {
+			return that.joinRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> in(Result<V> that, IEvaluatorContext ctx) {
-			return that.inRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> in(Result<V> that) {
+			return that.inRelation(this);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that, IEvaluatorContext ctx) {
-			return that.notInRelation(this, ctx);
+		public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that) {
+			return that.notInRelation(this);
 		}
 		
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, IEvaluatorContext ctx) {
+		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 			if(getType().getElementType().isVoidType()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			
 			// TODO: must go to PDB
@@ -188,17 +188,17 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		
 		@Override
-		protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult, IEvaluatorContext ctx) {
+		protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
 			return bool(getValue().contains(elementResult.getValue()));
 		}
 
 		@Override
-		protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult, IEvaluatorContext ctx) {
+		protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
 			return bool(!getValue().contains(elementResult.getValue()));
 		}
 		
 		@Override
-		public  <U extends IValue> Result<U> transitiveClosure(IEvaluatorContext ctx) {
+		public  <U extends IValue> Result<U> transitiveClosure() {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
 				return makeResult(type, getValue().closure(), ctx);
 			}
@@ -207,7 +207,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 
 		@Override
-		public  <U extends IValue> Result<U> transitiveReflexiveClosure(IEvaluatorContext ctx) {
+		public  <U extends IValue> Result<U> transitiveReflexiveClosure() {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
 				return makeResult(type, getValue().closureStar(), ctx);
 			}
@@ -216,7 +216,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		
 		@Override
-		public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
+		public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 			Type tupleType = getType().getFieldTypes();	
 			
 			if (!getType().hasFieldNames()) {
@@ -244,7 +244,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		///
 
 		@Override
-		protected <U extends IValue> Result<U> composeRelation(RelationResult that, IEvaluatorContext ctx) {
+		protected <U extends IValue> Result<U> composeRelation(RelationResult that) {
 			RelationResult left = that;
 			RelationResult right = this;
 			Type leftrelType = left.getType(); 
@@ -263,14 +263,14 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			return makeResult(resultType, left.getValue().compose(right.getValue()), ctx);
 		}
 
-		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple, IEvaluatorContext ctx) {
+		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple) {
 			// TODO: check arity 
 			Type newType = getTypeFactory().setType(tuple.getType().lub(getType().getElementType()));
 			return makeResult(newType, (IRelation) getValue().insert(tuple.getValue()), ctx);
 		}
 
 		@Override
-		protected <U extends IValue> Result<U> joinRelation(RelationResult that, IEvaluatorContext ctx) {
+		protected <U extends IValue> Result<U> joinRelation(RelationResult that) {
 			// Note the reverse of arguments, we need "that join this"
 			int arity1 = that.getValue().arity();
 			int arity2 = this.getValue().arity();
@@ -302,7 +302,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 
 		@Override
-		protected <U extends IValue> Result<U> joinSet(SetResult that, IEvaluatorContext ctx) {
+		protected <U extends IValue> Result<U> joinSet(SetResult that) {
 			// Note the reverse of arguments, we need "that join this"
 			int arity2 = this.getValue().arity();
 			Type eltType = that.getType().getElementType();

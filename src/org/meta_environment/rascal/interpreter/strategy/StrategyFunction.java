@@ -2,12 +2,10 @@ package org.meta_environment.rascal.interpreter.strategy;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
-
 
 public class StrategyFunction extends Strategy {
 	
@@ -16,9 +14,9 @@ public class StrategyFunction extends Strategy {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		if (argTypes[0].comparable(function.getFormals().getFieldType(0))) {
-			return function.call(argTypes, argValues, ctx);
+			return function.call(argTypes, argValues);
 		}
 		
 		// identity

@@ -28,13 +28,12 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToSourceLocation(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToSourceLocation(this);
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] actuals,
-			IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] actuals) {
 		if (actuals.length != 4) {
 			throw new SyntaxError("location constructor", ctx.getCurrentAST().getLocation());
 		}
@@ -65,7 +64,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		IValueFactory vf = getValueFactory();
 		if (name.equals("scheme")) {
 			return makeResult(getTypeFactory().stringType(), vf.string(getValue().getURI().getScheme()), ctx);
@@ -129,7 +128,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, IEvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ISourceLocation loc = getValue();
 		int iLength = loc.getLength();
 		int iOffset = loc.getOffset();
@@ -267,28 +266,28 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
-		return result.compareSourceLocation(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
+		return result.compareSourceLocation(this);
 	}
 	
 	/////
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, IEvaluatorContext ctx) {
-		return that.equalityBoolean(this, ctx);
+	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that) {
+		return that.equalityBoolean(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that, IEvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that) {
 		// Note reverse of args
 		ISourceLocation left = that.getValue();
 		ISourceLocation right = this.getValue();
 		if (left.isEqual(right)) {
-			return makeIntegerResult(0, ctx);
+			return makeIntegerResult(0);
 		}
 		int compare = left.getURI().toString().compareTo(right.getURI().toString());
 		if (compare != 0) {
-			return makeIntegerResult(compare, ctx);
+			return makeIntegerResult(compare);
 		}
 		int lBeginLine = left.getBeginLine();
 		int rBeginLine = right.getBeginLine();
@@ -304,20 +303,18 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			
 		if ((lBeginLine > rBeginLine || (lBeginLine == rBeginLine && lBeginColumn > rBeginColumn)) &&
 				(lEndLine < rEndLine || ((lEndLine == rEndLine) && lEndColumn < rEndColumn))) {
-			return makeIntegerResult(-1, ctx);
+			return makeIntegerResult(-1);
 		} 
-		return makeIntegerResult(1, ctx);
+		return makeIntegerResult(1);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that,
-			IEvaluatorContext ctx) {
-		return that.addSourceLocation(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
+		return that.addSourceLocation(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> addString(StringResult that,
-			IEvaluatorContext ctx) {
-		return that.addSourceLocation(this, ctx);
+	protected <U extends IValue> Result<U> addString(StringResult that) {
+		return that.addSourceLocation(this);
 	}
 }

@@ -20,19 +20,25 @@ import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionEr
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 
 public class OverloadedFunctionResult extends Result<IValue> implements IExternalValue {
-	private static final TypeFactory TF = TypeFactory.getInstance();
+	private final static TypeFactory TF = TypeFactory.getInstance();
+	private final static Type DEFAULT_FUNCTION_TYPE = RascalTypeFactory.getInstance().functionType(TF.voidType(), TF.voidType());
+	
 	private final Set<AbstractFunction> candidates;
 	private final String name;
 
-	public OverloadedFunctionResult(String name, Type type, List<AbstractFunction> candidates) {
-		super(type, null, null);
+	public OverloadedFunctionResult(String name, Type type, List<AbstractFunction> candidates, IEvaluatorContext ctx) {
+		super(type, null, ctx);
 		this.candidates = new HashSet<AbstractFunction>();
 		this.candidates.addAll(candidates);
 		this.name = name;
 	}
 	
-	public OverloadedFunctionResult(String name) {
-		this(name, RascalTypeFactory.getInstance().functionType(TF.voidType(), TF.voidType()), Collections.<AbstractFunction>emptyList());
+	public OverloadedFunctionResult(String name, IEvaluatorContext ctx) {
+		this(name, DEFAULT_FUNCTION_TYPE, Collections.<AbstractFunction>emptyList(), ctx);
+	}
+	
+	public OverloadedFunctionResult(String name) { // TODO This constructor is a bit 'weird', in the sense that it doesn't associate a ctx with this result. It should only be used by 'special' cases; like it is now.
+		this(name, DEFAULT_FUNCTION_TYPE, Collections.<AbstractFunction>emptyList(), null);
 	}
 	
 	@Override
@@ -55,13 +61,12 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
-			IEvaluatorContext ctx) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		Type tuple = getTypeFactory().tupleType(argTypes);
 		
 		for (AbstractFunction candidate : candidates) {
 			if (candidate.match(tuple)) {
-				return candidate.call(argTypes, argValues, ctx);
+				return candidate.call(argTypes, argValues);
 			}
 		}
 		
@@ -72,12 +77,12 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		List<AbstractFunction> joined = new LinkedList<AbstractFunction>();
 		joined.addAll(candidates);
 		joined.addAll(0, other.candidates);
-		return new OverloadedFunctionResult(name, lub(joined), joined);
+		return new OverloadedFunctionResult(name, lub(joined), joined, ctx);
 	}
 	
 	public OverloadedFunctionResult add(AbstractFunction candidate) {
 		for (AbstractFunction other : iterable()) {
-			if (!other.equals(candidate) && candidate.isAmbiguous(other)) {
+			if (!other.equals((Object) candidate) && candidate.isAmbiguous(other)) {
 				throw new RedeclaredFunctionError(candidate.getHeader(), other.getHeader(), candidate.getAst());
 			}
 		}
@@ -85,7 +90,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		List<AbstractFunction> joined = new LinkedList<AbstractFunction>();
 		joined.addAll(candidates);
 		joined.add(0, candidate);
-		return new OverloadedFunctionResult(name, lub(joined), joined);
+		return new OverloadedFunctionResult(name, lub(joined), joined, ctx);
 	}
 
 	public Iterable<AbstractFunction> iterable() {
@@ -128,25 +133,25 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> equals(
-			Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToOverloadedFunction(this, ctx);
+			Result<V> that) {
+		return that.equalToOverloadedFunction(this);
 	}
 	
 	@Override
 	public <U extends IValue> Result<U> equalToOverloadedFunction(
-			OverloadedFunctionResult that, IEvaluatorContext ctx) {
+			OverloadedFunctionResult that) {
 		return ResultFactory.bool(candidates.equals(that.candidates));
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compare(
-			Result<V> that, IEvaluatorContext ctx) {
-		return that.compareOverloadedFunction(this, ctx);
+			Result<V> that) {
+		return that.compareOverloadedFunction(this);
 	}
 	
 	@Override
 	public <U extends IValue> Result<U> compareOverloadedFunction(
-			OverloadedFunctionResult that, IEvaluatorContext ctx) {
+			OverloadedFunctionResult that) {
 		if (that == this) {
 			return ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(0), ctx);
 		}
@@ -161,7 +166,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		
 		for (AbstractFunction f : candidates) {
 			for (AbstractFunction g : that.candidates) {
-				Result<U> result = f.compare(g, ctx);
+				Result<U> result = f.compare(g);
 				
 				if (!((IInteger) result.getValue()).getStringRepresentation().equals("0")) {
 					return result;
@@ -173,15 +178,13 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compose(
-			Result<V> right, IEvaluatorContext ctx) {
-		return right.composeOverloadedFunction(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
+		return right.composeOverloadedFunction(this);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue> Result<U> composeOverloadedFunction(
-			OverloadedFunctionResult that, IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunctionResult that) {
 		List<AbstractFunction> newAlternatives = new LinkedList<AbstractFunction>();
 		
 		for (AbstractFunction f : candidates) {
@@ -193,16 +196,15 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		}
 		
 		if (newAlternatives.size() == 0) {
-			return undefinedError("composition", that, ctx);
+			return undefinedError("composition", that);
 		}
 		
-		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives);
+		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, ctx);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction g,
-			IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction g) {
 		List<AbstractFunction> newAlternatives = new LinkedList<AbstractFunction>();
 
 		for (AbstractFunction f : candidates) {
@@ -212,9 +214,9 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		}
 		
 		if (newAlternatives.size() == 0) {
-			return undefinedError("composition", g, ctx);
+			return undefinedError("composition", g);
 		}
 		
-		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives);
+		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, ctx);
 	}
 }

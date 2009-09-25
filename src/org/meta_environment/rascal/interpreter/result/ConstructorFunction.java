@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TraversalEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.types.FunctionType;
@@ -27,11 +26,9 @@ public class ConstructorFunction extends NamedFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
-			IEvaluatorContext ctx) {
-
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
 		if (constructorType == Factory.Tree_Appl) {
-			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, ctx);
+			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals);
 		}
 		
 		Map<Type,Type> bindings = new HashMap<Type,Type>();
@@ -61,14 +58,12 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(
-			Result<V> that, IEvaluatorContext ctx) {
-		return that.equalToConstructorFunction(this, ctx);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToConstructorFunction(this);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> equalToConstructorFunction(
-			ConstructorFunction that, IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> equalToConstructorFunction(ConstructorFunction that) {
 		return ResultFactory.bool(constructorType == that.constructorType);
 	}
 }

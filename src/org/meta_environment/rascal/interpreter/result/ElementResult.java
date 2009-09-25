@@ -21,70 +21,77 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class ElementResult<T extends IValue> extends Result<T> {
 
+	public ElementResult(Type type, T value, IEvaluatorContext ctx) {
+		super(type, value, ctx);
+	}
+	
+	public ElementResult(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
+		super(type, value, iter, ctx);
+	}
+	
 	@Override
-	protected <U extends IValue> Result<U> inSet(SetResult s, IEvaluatorContext ctx) {
-		return s.elementOf(this, ctx);
+	protected <U extends IValue> Result<U> inSet(SetResult s) {
+		return s.elementOf(this);
 	}
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> notInSet(SetResult s, IEvaluatorContext ctx) {
-		return s.notElementOf(this, ctx);
+	protected <U extends IValue> Result<U> notInSet(SetResult s) {
+		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inRelation(RelationResult s, IEvaluatorContext ctx) {
-		return s.elementOf(this, ctx);
+	protected <U extends IValue> Result<U> inRelation(RelationResult s) {
+		return s.elementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInRelation(RelationResult s, IEvaluatorContext ctx) {
-		return s.notElementOf(this, ctx);
+	protected <U extends IValue> Result<U> notInRelation(RelationResult s) {
+		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inList(ListResult s, IEvaluatorContext ctx) {
-		return s.elementOf(this, ctx);
+	protected <U extends IValue> Result<U> inList(ListResult s) {
+		return s.elementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInList(ListResult s, IEvaluatorContext ctx) {
-		return s.notElementOf(this, ctx);
+	protected <U extends IValue> Result<U> notInList(ListResult s) {
+		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inMap(MapResult s, IEvaluatorContext ctx) {
-		return s.elementOf(this, ctx);
+	protected <U extends IValue> Result<U> inMap(MapResult s) {
+		return s.elementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInMap(MapResult s, IEvaluatorContext ctx) {
-		return s.notElementOf(this, ctx);
+	protected <U extends IValue> Result<U> notInMap(MapResult s) {
+		return s.notElementOf(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> addSet(SetResult s, IEvaluatorContext ctx) {
-		return s.addElement(this, ctx);
+	protected <U extends IValue> Result<U> addSet(SetResult s) {
+		return s.addElement(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> subtractSet(SetResult s, IEvaluatorContext ctx) {
-		return s.removeElement(this, ctx);
+	protected <U extends IValue> Result<U> subtractSet(SetResult s) {
+		return s.removeElement(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> addList(ListResult s, IEvaluatorContext ctx) {
-		return s.appendElement(this, ctx);
+	protected <U extends IValue> Result<U> addList(ListResult s) {
+		return s.appendElement(this);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> subtractList(ListResult s, IEvaluatorContext ctx) {
-		return s.removeElement(this, ctx);
+	protected <U extends IValue> Result<U> subtractList(ListResult s) {
+		return s.removeElement(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> setAnnotation(
-			String annoName, Result<V> anno, Environment env, IEvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> setAnnotation(String annoName, Result<V> anno, Environment env) {
 				Type annoType = env.getAnnotationType(getType(), annoName);
 			
 				if (annoType == null) {
@@ -101,7 +108,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			}
 
 	@Override
-	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env, IEvaluatorContext ctx) {
+	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {
 		Type annoType = env.getAnnotationType(getType(), annoName);
 	
 		if (annoType == null) {
@@ -118,15 +125,15 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 
 	@Override
-	protected <U extends IValue> Result<U> equalToValue(ValueResult that, IEvaluatorContext ctx) {
-		return that.equalityBoolean(this, ctx);
+	protected <U extends IValue> Result<U> equalToValue(ValueResult that) {
+		return that.equalityBoolean(this);
 	}
 
 	
 	protected static int compareIValues(IValue left, IValue right, IEvaluatorContext ctx) {
 		Result<IValue> leftResult = makeResult(left.getType(), left, ctx);
 		Result<IValue> rightResult = makeResult(right.getType(), right, ctx);
-		Result<IValue> resultResult = leftResult.compare(rightResult, ctx);
+		Result<IValue> resultResult = leftResult.compare(rightResult);
 		// compare always returns IntegerResult so we can cast its value.
 		return ((IInteger)resultResult.getValue()).intValue();
 	}
@@ -177,23 +184,15 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		}
 		return 0;
 	}
-
-	public ElementResult(Type type, T value, IEvaluatorContext ctx) {
-		super(type, value, ctx);
-	}
 	
-	public ElementResult(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
-		super(type, value, iter, ctx);
-	}
-	
-	protected <V extends IValue> int comparisonInts(Result<V> that, IEvaluatorContext ctx) {
-		return ((IInteger)compare(that, ctx).getValue()).intValue();
+	protected <V extends IValue> int comparisonInts(Result<V> that) {
+		return ((IInteger)compare(that).getValue()).intValue();
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult<V> that, IEvaluatorContext ctx) {
+	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult<V> that) {
 		// Do not delegate to comparison here, since it takes runtime types into account
-		return bool(((IInteger)compare(that, ctx).getValue()).intValue() == 0);
+		return bool(((IInteger)compare(that).getValue()).intValue() == 0);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> nonEqualityBoolean(ElementResult<V> that) {

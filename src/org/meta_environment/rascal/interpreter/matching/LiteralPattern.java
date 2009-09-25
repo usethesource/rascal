@@ -39,7 +39,7 @@ public class LiteralPattern extends AbstractMatchingResult {
 		hasNext = false;
 	
 		if (isPattern && subject.getType().comparable(literal.getType())) {
-			return subject.equals(makeResult(literal.getType(), literal, ctx), ctx).isTrue();
+			return subject.equals(makeResult(literal.getType(), literal, ctx)).isTrue();
 		}
 		else if (!isPattern) {
 			if (literal.getType().isBoolType()) {

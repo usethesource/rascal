@@ -25,15 +25,13 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	private ListPattern pat;
 	private CallOrTree callOrTree;
 
-	public ConcreteListPattern(IValueFactory vf,
-			IEvaluatorContext ctx, CallOrTree x, List<IMatchingResult> list) {
+	public ConcreteListPattern(IValueFactory vf, IEvaluatorContext ctx, CallOrTree x, List<IMatchingResult> list) {
 		super(vf, ctx);
 		callOrTree = x;
-		initListPatternDelegate(vf, ctx, list);
+		initListPatternDelegate(vf, list);
 	}
 
-	private void initListPatternDelegate(IValueFactory vf,
-			IEvaluatorContext ctx, List<IMatchingResult> list) {
+	private void initListPatternDelegate(IValueFactory vf, List<IMatchingResult> list) {
 		Type type = getType(null);
 		
 		if (type instanceof NonTerminalType) {
