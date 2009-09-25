@@ -279,7 +279,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 
 	
 	<U extends IValue> Result<U> widenToReal() {
-		return makeResult(getTypeFactory().realType(), getValue().toReal(), null);
+		return makeResult(getTypeFactory().realType(), getValue().toReal(), ctx);
 	}
 	
 
