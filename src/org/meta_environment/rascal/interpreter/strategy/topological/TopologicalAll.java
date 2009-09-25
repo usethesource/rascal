@@ -18,11 +18,8 @@ import org.meta_environment.rascal.interpreter.strategy.VisitableFactory;
 
 public class TopologicalAll extends Strategy {
 
-	private boolean isStrategy;
-	
-	public TopologicalAll(AbstractFunction function, boolean isStrategy) {
+	public TopologicalAll(AbstractFunction function) {
 		super(function);
-		this.isStrategy = isStrategy;
 	}
 
 	@Override
@@ -36,7 +33,6 @@ public class TopologicalAll extends Strategy {
 				IValueFactory oldFactory = ctx.getEvaluator().getIValueFactory();
 				ctx.getEvaluator().setIValueFactory( new TopologicalVisitableFactory(context, oldFactory));
 				TopologicalVisitable<?> result = TopologicalVisitableFactory.makeTopologicalVisitable(context,relation);
-				//super.call(new Type[]{r.getType()}, new IValue[]{r}, ctx).getValue();
 				List<IVisitable> newchildren = new ArrayList<IVisitable>();
 				for (int i = 0; i < result.getChildrenNumber(); i++) {
 					IVisitable child = result.getChildAt(i);
@@ -53,8 +49,6 @@ public class TopologicalAll extends Strategy {
 		} else if (argValues[0] instanceof TopologicalVisitable<?>) {
 			TopologicalVisitable<?> result = (TopologicalVisitable<?>) argValues[0];
 			RelationContext context = result.getContext();
-			IValueFactory oldFactory = ctx.getEvaluator().getIValueFactory();
-			//ctx.getEvaluator().setIValueFactory( new TopologicalVisitableFactory(context, ctx.getEvaluator().getIValueFactory()));
 			List<IVisitable> newchildren = new ArrayList<IVisitable>();
 			for (int i = 0; i < result.getChildrenNumber(); i++) {
 				IVisitable child = result.getChildAt(i);
@@ -65,14 +59,10 @@ public class TopologicalAll extends Strategy {
 				context.setCurrentNode(result);
 			}
 			result.setChildren(newchildren);
-			//ctx.getEvaluator().setIValueFactory(oldFactory);
-			if (isStrategy) {
-				return new ElementResult<IValue>(result.getType(), result, ctx);
-			} 
-			return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
+			return new ElementResult<IValue>(result.getType(), result, ctx);
 		} 
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
-		
+
 		List<IVisitable> newchildren = new ArrayList<IVisitable>();
 		for (int i = 0; i < result.getChildrenNumber(); i++) {
 			IVisitable child = result.getChildAt(i);
@@ -81,28 +71,21 @@ public class TopologicalAll extends Strategy {
 			newchildren.add(newchild);
 		}
 		result.setChildren(newchildren);
-		if (isStrategy) {
-			return new ElementResult<IValue>(result.getType(), result, ctx);
-		} 
-		return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
+		return new ElementResult<IValue>(result.getType(), result, ctx);
 	}
 
 	public static IValue makeTopologicalAll(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
 			if (function instanceof Strategy) {
-				return new TopologicalAll((AbstractFunction) arg, true);	
-			} else if (function.isStrategy()) {
-				return new TopologicalAll((AbstractFunction) arg, false);
-			}
+				return new TopologicalAll((AbstractFunction) arg);	
+			} 
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
 				if (function instanceof Strategy) {
-					return new TopologicalAll((AbstractFunction) arg, true);	
-				} else if (function.isStrategy()) {
-					return new TopologicalAll((AbstractFunction) arg, false);
-				}
+					return new TopologicalAll((AbstractFunction) arg);	
+				} 
 			}
 		}
 		throw new RuntimeException("Unexpected strategy argument "+arg);
