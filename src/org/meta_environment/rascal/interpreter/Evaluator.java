@@ -1718,12 +1718,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return makeResult(tf.stringType(), vf.string(result.toString()), this);
 	}
 	
-	private String expressionToString(Expression x) {
-		Result<IValue> r = x.accept(this);
-		return ToString.toString(r.getValue()).getValue(); // Stdlib behaviour
-	}
-
-
 	@Override
 	public Result<IValue> visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
