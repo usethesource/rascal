@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 
-import org.eclipse.imp.pdb.facts.INode;
 
 public class NullASTVisitor<T> implements IASTVisitor<T> {
 	public T visitFormalTypeName(Formal.TypeName x) {
