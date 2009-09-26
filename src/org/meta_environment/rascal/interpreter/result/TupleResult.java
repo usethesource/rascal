@@ -28,6 +28,11 @@ public class TupleResult extends ElementResult<ITuple> {
 	}
 	
 	@Override
+	public Result<IValue> fieldSelect(int[] selectedFields) {
+		return makeResult(type.select(selectedFields), value.select(selectedFields), ctx);
+	}
+	
+	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 			if (!getType().hasFieldNames()) {
 				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
@@ -143,25 +148,36 @@ public class TupleResult extends ElementResult<ITuple> {
 		String fieldNames[] = new String[newArity];
 		IValue fieldValues[] = new IValue[newArity];
 		
+		boolean consistentLabels = true;
 		for(int i = 0; i < leftArity; i++){
 			fieldTypes[i] = leftType.getFieldType(i);
 			fieldNames[i] = leftType.getFieldName(i);
 			fieldValues[i] = left.getValue().get(i);
+			consistentLabels = fieldNames[i] != null;
 		}
 		
 		for(int i = 0; i < rightArity; i++){
 			fieldTypes[leftArity + i] = rightType.getFieldType(i);
 			fieldNames[leftArity + i] = rightType.getFieldName(i);
 			fieldValues[leftArity + i] = right.getValue().get(i);
-		}
-		
-		// TODO: avoid null fieldnames
-		for(int i = 0; i < newArity; i++){
-			if(fieldNames[i] == null){
-				fieldNames[i] = "f" + String.valueOf(i);
+			consistentLabels = fieldNames[i] != null;
+			if (consistentLabels) {
+				for (int j = 0; j < leftArity; j++) {
+					if (fieldNames[j].equals(fieldNames[i])) {
+						// duplicate field name, so degenerate to unlabeled tuple
+						consistentLabels = false;
+					}
+				}
 			}
 		}
-		Type newTupleType = getTypeFactory().tupleType(fieldTypes, fieldNames);
+		
+		Type newTupleType;
+		if (consistentLabels) {
+			newTupleType = getTypeFactory().tupleType(fieldTypes, fieldNames);
+		}
+		else {
+			newTupleType = getTypeFactory().tupleType(fieldTypes);
+		}
 		return makeResult(newTupleType, getValueFactory().tuple(fieldValues), ctx);
 	}
 	

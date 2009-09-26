@@ -58,6 +58,7 @@ import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.PartiallyLabeledFieldsError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
@@ -334,18 +335,33 @@ public class TypeEvaluator {
 			java.lang.String[] fieldLabels = new java.lang.String[args.size()];
 
 			int i = 0;
+			boolean allLabeled = true;
+			boolean someLabeled = false;
+	
 			for (TypeArg arg : args) {
 				fieldTypes[i] = arg.getType().accept(this);
 
 				if (arg.isNamed()) {
 					fieldLabels[i] = arg.getName().toString();
+					someLabeled = true;
 				} else {
-					fieldLabels[i] = "field" + Integer.toString(i);
+					fieldLabels[i] = null;
+					allLabeled = false;
 				}
 				i++;
 			}
 
-			return tf.tupleType(fieldTypes, fieldLabels);
+			if (someLabeled && !allLabeled) {
+				// TODO: this ast is not the root of the cause
+				throw new PartiallyLabeledFieldsError(args.get(0));
+			}
+			
+			if (!allLabeled) {
+				return tf.tupleType(fieldTypes);
+			}
+			else {
+				return tf.tupleType(fieldTypes, fieldLabels);
+			}
 		}
 
 		@Override
@@ -547,7 +563,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitBasicTypeMap(Map x) {
 		if (typeArgument.getArity() == 2) {
-			return tf.mapType(typeArgument.getFieldType(0), typeArgument.getFieldType(1));
+			return tf.mapTypeFromTuple(typeArgument);
 		}
 		throw new NonWellformedTypeError("map should have exactly two type arguments, like map[value,value]", x);
 	}

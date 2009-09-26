@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -1114,75 +1113,36 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionFieldProject(FieldProject x) {
 		// TODO: move to result classes
 		Result<IValue>  base = x.getExpression().accept(this);
+		
+		Type baseType = base.getType();
+		if (!baseType.isTupleType() && !baseType.isRelationType() && !baseType.isMapType()) {
+			throw new UnsupportedOperationError("projection", baseType, x);
+		}
 
 		java.util.List<Field> fields = x.getFields();
 		int nFields = fields.size();
 		int selectedFields[] = new int[nFields];
 
-		if(base.getType().isTupleType()){
-			Type fieldTypes[] = new Type[nFields];
-
-			for(int i = 0 ; i < nFields; i++){
-				Field f = fields.get(i);
-				if(f.isIndex()){
-					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).intValue();
-				} else {
-					String fieldName = f.getFieldName().toString();
-					try {
-						selectedFields[i] = base.getType().getFieldIndex(fieldName);
-					} catch (UndeclaredFieldException e){
-						throw new UndeclaredFieldError(fieldName, base.getType(), x);
-					}
+		for(int i = 0 ; i < nFields; i++){
+			Field f = fields.get(i);
+			if (f.isIndex()) {
+				selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).intValue();
+			} 
+			else {
+				String fieldName = Names.name(f.getFieldName());
+				try {
+					selectedFields[i] = baseType.getFieldIndex(fieldName);
+				} catch (UndeclaredFieldException e){
+					throw new UndeclaredFieldError(fieldName, baseType, x);
 				}
-
-				if (selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
-				}
-				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
 
-			//	if(duplicateIndices(selectedFields)){
-			// TODO: what does it matter if there are duplicate indices???
-			//		throw new ImplementationError("Duplicate fields in projection");
-			//	}
-			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
-
-			// Was: return makeResult(resultType, applyRules(((ITuple)base.getValue()).select(selectedFields)));
-			return makeResult(resultType, ((ITuple)base.getValue()).select(selectedFields), this);
-		}
-		if(base.getType().isRelationType()){
-
-			Type fieldTypes[] = new Type[nFields];
-
-			for(int i = 0 ; i < nFields; i++){
-				Field f = fields.get(i);
-				if(f.isIndex()){
-					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).intValue();
-				} else {
-					String fieldName = f.getFieldName().toString();
-					try {
-						selectedFields[i] = base.getType().getFieldIndex(fieldName);
-					} catch (Exception e){
-						throw new UndeclaredFieldError(fieldName, base.getType(), x);
-					}
-				}
-				if(selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
-				}
-				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
+			if (selectedFields[i] < 0 || selectedFields[i] > baseType.getArity()) {
+				throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
 			}
-			////	if(duplicateIndices(selectedFields)){
-			// TODO: what does it matter if there are duplicate indices? Duplicate
-			// field names may be a problem, but not this.
-			//		throw new ImplementationError("Duplicate fields in projection");
-			//	}
-			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
-
-			//return makeResult(resultType, applyRules(((IRelation)base.getValue()).select(selectedFields)));	
-			return makeResult(resultType, ((IRelation)base.getValue()).select(selectedFields), this);	
 		}
-
-		throw new UnsupportedOperationError("projection", base.getType(), x);
+		
+		return base.fieldSelect(selectedFields);
 	}
 
 	@Override
