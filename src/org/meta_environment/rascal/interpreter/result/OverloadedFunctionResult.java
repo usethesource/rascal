@@ -70,7 +70,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			}
 		}
 		
-		throw new UndeclaredFunctionError(name, ctx.getCurrentAST());
+		throw new UndeclaredFunctionError(name, ctx != null ? ctx.getCurrentAST() : null);
 	}
 	
 	public OverloadedFunctionResult join(OverloadedFunctionResult other) {

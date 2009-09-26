@@ -19,7 +19,21 @@ public node java makeNode(str N, value V...);
 @doc{Read an ATerm from a named file}
 @javaClass{org.meta_environment.rascal.std.Node}
 public value java readATermFromFile(str fileName);
-
+  
 @doc{Convert a node to a string}
 @javaClass{org.meta_environment.rascal.std.Node}
 public str java toString(node T);
+
+@doc{retrieve the annnotations of a node value as a map}
+@javaClass{org.meta_environment.rascal.std.Node}
+public map[str,value] java getAnnotations(node x);
+
+@doc{
+  Set a whole map of annotations on a value.
+  
+  WARNING: Note that this function may result in run-time type errors later if
+  you store a value with a label that has an incomparable annotation type
+  declared.
+}
+@javaClass{org.meta_environment.rascal.std.Node}
+public &T <: node java setAnnotations(&T <: node x, map[str, value] annotations);

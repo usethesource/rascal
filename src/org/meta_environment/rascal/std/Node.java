@@ -2,9 +2,13 @@ package org.meta_environment.rascal.std;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -76,5 +80,27 @@ public class Node {
 	//@doc{toString -- convert a node to a string}
 	{
 		return values.string(T.toString());
+	}
+	
+	public static IMap getAnnotations(INode node) {
+		java.util.Map<java.lang.String,IValue> map = node.getAnnotations();
+		IMapWriter w = values.mapWriter(types.stringType(), types.valueType());
+		
+		for (Entry<java.lang.String,IValue> entry : map.entrySet()) {
+			w.put(values.string(entry.getKey()), entry.getValue());
+		}
+		
+		return w.done();
+	}
+	
+	public static INode setAnnotations(INode node, IMap annotations) {
+		java.util.Map<java.lang.String,IValue> map = new HashMap<java.lang.String,IValue>();
+		
+		for (IValue key : annotations) {
+			IValue value = annotations.get(key);
+			map.put(((IString) key).getValue(), value);
+		}
+		
+		return node.setAnnotations(map);
 	}
 }
