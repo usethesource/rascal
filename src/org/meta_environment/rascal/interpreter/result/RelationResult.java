@@ -328,7 +328,10 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			return makeResult(resultType, writer.done(), ctx);
 		}
 		
-		
+		@Override
+		public Result<IValue> fieldSelect(int[] selectedFields) {
+		   return makeResult(type.select(selectedFields), value.select(selectedFields), ctx);
+		}
 		
 }
 

@@ -49,6 +49,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String COMPOSE_STRING = "composition";
 	private static final String NEGATE_STRING = "negation";
 	private static final String JOIN_STRING = "join";
+	private static final String FIELD_SELECT_STRING = "field selection";
 	
 	private Iterator<Result<IValue>> iterator = null;
 	protected Type type;
@@ -342,7 +343,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> addBool(BoolResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
-
+	
+	public Result<IValue> fieldSelect(int[] selectedFields) {
+		return undefinedError(FIELD_SELECT_STRING, this);
+	}
+	
 	protected <U extends IValue> Result<U> subtractSet(SetResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
@@ -789,6 +794,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean hasInferredType() {
 		return inferredType;
 	}
+
+	
 
 	
 	
