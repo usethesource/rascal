@@ -10,6 +10,7 @@ import Set;
 import IO;
 import UnitTest;
 import String;
+import Exception;
 
 // Import a grammar in BNF notation
 
