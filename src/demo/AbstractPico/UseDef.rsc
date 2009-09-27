@@ -14,7 +14,7 @@ import IO;
 private set[PicoId] getVarUses(EXP E){
     println("getVarUses: <E>");
     res = {Id | /id(PicoId Id) <- E};
-    println("getVarUses: <res>");
+    println("getVarUses returns: <res>");
     return res;
 }
 
