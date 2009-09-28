@@ -42,10 +42,6 @@ public class TopologicalVisitableMap extends TopologicalVisitable<IMap> implemen
 		return value.entryIterator();
 	}
 
-	public boolean equals(Object other) {
-		return value.equals(other);
-	}
-
 	public IValue get(IValue key) {
 		return value.get(key);
 	}

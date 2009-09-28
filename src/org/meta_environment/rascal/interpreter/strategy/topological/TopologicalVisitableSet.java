@@ -30,10 +30,6 @@ ISet {
 		return (SetOrRel) value.delete(elem);
 	}
 
-	public boolean equals(Object other) {
-		return value.equals(other);
-	}
-
 	public Type getElementType() {
 		return value.getElementType();
 	}

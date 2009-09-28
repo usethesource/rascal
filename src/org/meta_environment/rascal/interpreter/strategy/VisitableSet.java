@@ -71,10 +71,6 @@ public class VisitableSet implements IVisitable, ISet {
 		return (SetOrRel) set.delete(elem);
 	}
 
-	public boolean equals(Object other) {
-		return set.equals(other);
-	}
-
 	public Type getElementType() {
 		return set.getElementType();
 	}

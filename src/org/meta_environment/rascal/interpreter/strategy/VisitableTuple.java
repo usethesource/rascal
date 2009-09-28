@@ -39,10 +39,6 @@ public class VisitableTuple implements IVisitable, ITuple {
 		return tuple.accept(v);
 	}
 
-	public boolean equals(Object o) {
-		return tuple.equals(o);
-	}
-
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		return tuple.get(i);
 	}

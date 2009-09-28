@@ -54,11 +54,7 @@ implements IRelation {
 	public ISet domain() {
 		return value.domain();
 	}
-
-	public boolean equals(Object other) {
-		return value.equals(other);
-	}
-
+	
 	public Type getElementType() {
 		return value.getElementType();
 	}

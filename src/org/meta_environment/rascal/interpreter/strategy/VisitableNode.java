@@ -53,10 +53,6 @@ public class VisitableNode implements IVisitable,INode {
 		return node.accept(v);
 	}
 
-	public boolean equals(Object other) {
-		return node.equals(other);
-	}
-
 	public IValue getAnnotation(String label) throws FactTypeUseException {
 		return node.getAnnotation(label);
 	}
