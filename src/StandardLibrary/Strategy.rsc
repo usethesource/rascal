@@ -2,6 +2,9 @@ module Strategy
 
 @doc{Apply the function if the argument is of the same type and returns identity otherwise.}
 @javaClass{org.meta_environment.rascal.interpreter.strategy.StrategyFunction}
+public &T(&T) java functionToStrategy(value function);
+
+@javaClass{org.meta_environment.rascal.interpreter.strategy.Strategy}
 public &T(&T) java makeStrategy(value typePreservingFunction);
 
 @doc{Apply the strategy given in argument to all the children of the subject.}
