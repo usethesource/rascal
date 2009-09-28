@@ -18,20 +18,20 @@ public &T(&T) java makeTopologicalStrategy(&T(&T) strategy);
 public &T1(&T1) topological_top_down(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
 		&T3 res = makeTopologicalStrategy(strategy)(subject);
-		return makeTopologicalAll(makeTopologicalStrategy(topological_top_down(makeTopologicalStrategy(strategy))))(res);
+		return makeTopologicalAll(topological_top_down(strategy))(res);
 	};
 }
 
 public &T1(&T1) topological_bottom_up(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
-		&T3 res = makeTopologicalAll(makeTopologicalStrategy(topological_bottom_up)(makeTopologicalStrategy(strategy)))(subject);
+		&T3 res = makeTopologicalAll(topological_bottom_up(strategy))(subject);
 		return makeTopologicalStrategy(strategy)(res);
 	};
 }
 
 public &T1(&T1) topological_once_top_down(&T2(&T2) strategy) {
  	return &T3(&T3 subject) {
-		&T3 res = strategy(subject);
+		&T3 res = makeTopologicalStrategy(strategy)(subject);
 		if (res == subject) {
 			return makeTopologicalOne(topological_top_down(strategy))(res);
 		} else {
@@ -44,35 +44,9 @@ public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
   return &T3(&T3 subject) {
 		&T3 res = makeTopologicalOne(topological_once_bottom_up(strategy))(subject);
 		if (res == subject) {
-			return strategy(res);
+			return makeTopologicalStrategy(strategy)(res);
 		} else {
 			return res;
 		}
 	};
-}
-
-public &T1(&T1) topological_repeat_strat(&T2(&T2) strategy) { 
-  return &T3(&T3 subject) {
-	   &T3 temp = strategy(subject);
-	   while (temp != subject) {
-	    	subject = temp;
-	   		temp = strategy(subject);
-	   	}
-		return temp;
-	};
-}
-
-public &T1(&T1) topological_innermost(&T2(&T2) strategy) { 
-	return &T3(&T3 subject) {
-	   &T3 temp =  makeTopologicalAll(topological_innermost(strategy))(subject);
-	   do {
-	    	subject = temp;
-	   		temp = strategy(subject);
-	   	} while (subject != temp);
-		return temp;
-	};
-}
-
-public &T1(&T1) topological_outermost(&T2(&T2) strategy) { 
-	return topological_repeat_strat(topological_once_top_down(strategy));
 }
