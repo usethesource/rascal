@@ -462,8 +462,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 		ctx.setCurrentAST(ast);		
 	}
 
-	public IValueFactory getIValueFactory() {
-		return ctx.getIValueFactory();
+	public IValueFactory getValueFactory() {
+		return ctx.getValueFactory();
 	}
 
 }

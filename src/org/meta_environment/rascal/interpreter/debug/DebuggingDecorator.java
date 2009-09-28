@@ -773,8 +773,8 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 	}
 
 
-	public IValueFactory getIValueFactory() {
-		return evaluator.getIValueFactory();
+	public IValueFactory getValueFactory() {
+		return evaluator.getValueFactory();
 	}
 
 }

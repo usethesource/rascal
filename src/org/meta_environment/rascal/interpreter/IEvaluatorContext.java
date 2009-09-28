@@ -16,5 +16,5 @@ public interface IEvaluatorContext {
 	public GlobalEnvironment getHeap();
 	public void setCurrentEnvt(Environment environment);
 	public void runTests();
-	public IValueFactory getIValueFactory();
+	public IValueFactory getValueFactory();
 }

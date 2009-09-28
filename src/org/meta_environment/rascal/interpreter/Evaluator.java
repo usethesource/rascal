@@ -3054,7 +3054,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		new TestEvaluator(this, new DefaultTestResultListener(errorStream)).test();
 	}
 
-	public IValueFactory getIValueFactory() {
+	public IValueFactory getValueFactory() {
 		return vf;
 	}
 
