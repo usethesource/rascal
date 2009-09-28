@@ -140,7 +140,7 @@ public class Typeifier {
 
 				public Type visitTuple(Type type) {
 					for (IValue child : (IList) next.get(0)) {
-						todo.add((IConstructor) ((ITuple) child).get(0));
+						todo.add((IConstructor) child);
 					}
 					return type;
 				}
