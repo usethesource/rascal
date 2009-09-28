@@ -396,8 +396,8 @@ public class Processing {
 	
 	public static EnumMap<callback,OverloadedFunctionResult> callbacks = new EnumMap<callback,OverloadedFunctionResult>(callback.class);
 	
-	public static void start(IEvaluatorContext ctx){
-		System.err.println("entering start ...");
+	public static void processing(IEvaluatorContext ctx){
+		System.err.println("entering Processing ...");
 		EnumMap<callback,OverloadedFunctionResult> callbacks = new EnumMap<callback,OverloadedFunctionResult>(callback.class);
 		
 		Environment env = ctx.getCurrentEnvt();
@@ -440,8 +440,6 @@ public class Processing {
 		myPApplet.noLoop();
 	}
 	
-
-	
 }
 
 class RascalFrame extends Frame {
@@ -456,7 +454,6 @@ class RascalFrame extends Frame {
 		setLayout(new BorderLayout());
 		add(pa, BorderLayout.CENTER);
 		pa.init();
-		pa.noLoop();
 		pack();
 		setLocation(100,100);
 		setVisible(true);

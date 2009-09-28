@@ -1,7 +1,7 @@
 module experiments::Processing::wordfreq
 
-import Processing::Core;
-import Processing::TreeMap;
+import Processing;
+import TreeMap;
 import IO;
 import Map;
 
@@ -113,8 +113,8 @@ public void drawItem(int x, int y, int w, int h, str word){
 private map[str,int] facts = ();
 
 /*
- * Standard setup function for the treemap visualization
- * (Implicitly called by start)
+ * Standard setup function for this visualization
+ * (Implicitly called by processing in main)
  */
  
 public void setup() {
@@ -129,8 +129,8 @@ public void setup() {
 }
 
 /* 
- * Standard draw function for the treemap visualization
- * (Implicitly called by start)
+ * Standard draw function for this visualization
+ * (Implicitly called by processing in main)
  */
 
 public void draw() { 
@@ -147,16 +147,17 @@ public void main(){
     facts = collectData(Jabberwocky);
     
     /*
-     * Start the visualization
+     * Start the visualization using processing
      * Uses the locally defined functions like setup and draw
      * (and others for mouse handling).
      * This is how Processing does things, but is very implicit.
      
      * Discussion: possible alternatives are:
      * - separate register functions, e.g. registerSetup(setup)
-     * - start has a list of (upto 8!) function parameters
-     * - starts has a map argument: start(("setup" : setup))
+     * - processing has a list of (upto 8!) function parameters
+     * - processing has a map argument: start(("setup" : setup))
+     * - introduce @setup etc. tags.
      * - other
      */
-	start();
+	processing();
 }

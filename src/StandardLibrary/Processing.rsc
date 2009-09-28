@@ -260,10 +260,10 @@ public void java strokeWeight(real weight);
 
 // ---- start/stop ----
 
-@doc{start a visualization}
+@doc{start Processing}
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.meta_environment.rascal.std.Processing}
-public void java start();
+public void java processing();
 
 @doc{stop a visualization}
 @javaClass{org.meta_environment.rascal.std.Processing}
