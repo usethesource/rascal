@@ -359,9 +359,8 @@ public class TypeEvaluator {
 			if (!allLabeled) {
 				return tf.tupleType(fieldTypes);
 			}
-			else {
-				return tf.tupleType(fieldTypes, fieldLabels);
-			}
+			
+			return tf.tupleType(fieldTypes, fieldLabels);
 		}
 
 		@Override
