@@ -81,7 +81,7 @@ public void main() {
      assertEqual(top_down(rules3)(r),{<a(), c()>, <f(c(),c()), c()>});
 
      A t4 = f(g(b()),g(b()));
-     assertEqual(top_down(makeStrategy(rules4))(t4),f(g(c()),g(c())));
+     assertEqual(top_down(functionToStrategy(rules4))(t4),f(g(c()),g(c())));
 
      assertEqual(innermost(rules)(t), f(b(),b()));
      assertEqual(outermost(rules)(t), f(b(),b()));
