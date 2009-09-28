@@ -23,12 +23,26 @@ public class TopologicalAll extends Strategy {
 
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		if (argValues[0] instanceof IRelation) {
+		if (argValues[0] instanceof TopologicalVisitable<?>) {
+			TopologicalVisitable<?> result = (TopologicalVisitable<?>) argValues[0];
+			RelationContext context = result.getContext();
+			List<IVisitable> newchildren = new ArrayList<IVisitable>();
+			for (int i = 0; i < result.getChildrenNumber(); i++) {
+				IVisitable child = result.getChildAt(i);
+				context.setCurrentNode(child);
+				IVisitable newchild = (TopologicalVisitable<?>) function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
+				result.update(child.getValue(), newchild.getValue());
+				newchildren.add(newchild);
+				context.setCurrentNode(result);
+			}
+			result.setChildren(newchildren);
+			return new ElementResult<IValue>(result.getType(), result, ctx);
+		} else if (argValues[0] instanceof IRelation) {
 			IRelation relation = ((IRelation) argValues[0]);
 			//only for binary relations
 			if (relation.getType().getArity() == 2) {
 				RelationContext context = new RelationContext(relation);
-				IValueFactory oldFactory = ctx.getEvaluator().getValueFactory();
+				IValueFactory oldFactory = ctx.getEvaluator().getIValueFactory();
 				ctx.getEvaluator().setIValueFactory( new TopologicalVisitableFactory(context, oldFactory));
 				TopologicalVisitable<?> result = TopologicalVisitableFactory.makeTopologicalVisitable(context,relation);
 				List<IVisitable> newchildren = new ArrayList<IVisitable>();
@@ -44,21 +58,7 @@ public class TopologicalAll extends Strategy {
 				ctx.getEvaluator().setIValueFactory(oldFactory);
 				return new ElementResult<IValue>(context.getRelation().getType(), context.getRelation(), ctx);
 			}
-		} else if (argValues[0] instanceof TopologicalVisitable<?>) {
-			TopologicalVisitable<?> result = (TopologicalVisitable<?>) argValues[0];
-			RelationContext context = result.getContext();
-			List<IVisitable> newchildren = new ArrayList<IVisitable>();
-			for (int i = 0; i < result.getChildrenNumber(); i++) {
-				IVisitable child = result.getChildAt(i);
-				context.setCurrentNode(child);
-				IVisitable newchild = (TopologicalVisitable<?>) function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
-				result.update(child.getValue(), newchild.getValue());
-				newchildren.add(newchild);
-				context.setCurrentNode(result);
-			}
-			result.setChildren(newchildren);
-			return new ElementResult<IValue>(result.getType(), result, ctx);
-		} 
+		}
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 
 		List<IVisitable> newchildren = new ArrayList<IVisitable>();
@@ -75,13 +75,13 @@ public class TopologicalAll extends Strategy {
 	public static IValue makeTopologicalAll(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
-			if (function instanceof Strategy) {
+			if (function.isStrategy()) {
 				return new TopologicalAll((AbstractFunction) arg);	
 			} 
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
-				if (function instanceof Strategy) {
+				if (function.isStrategy()) {
 					return new TopologicalAll((AbstractFunction) arg);	
 				} 
 			}
