@@ -1,7 +1,7 @@
 module experiments::Processing::wordfreq
 
-import Processing;
-import TreeMap;
+import Processing::Core;
+import Processing::TreeMap;
 import IO;
 import Map;
 

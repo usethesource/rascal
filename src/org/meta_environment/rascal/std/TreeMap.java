@@ -32,7 +32,7 @@ public class TreeMap {
 		myMap = new RascalSimpleMapModel(m, (OverloadedFunctionResult)  draw, true);
 
 		myTreemap = new Treemap(myMap, x.intValue(), y.intValue(), width.intValue(), height.intValue());
-}
+	}
 	
 	public static void treemap(IMap m, IReal x, IReal y, IReal width, IReal height, 
 			                     IValue draw, IEvaluatorContext ctx){
@@ -45,6 +45,22 @@ public class TreeMap {
 	
 	public static void drawTreeMap(){
 		myTreemap.draw();
+	}
+}
+
+class RascalSimpleMapModel extends SimpleMapModel {
+	public RascalSimpleMapModel(IMap m, OverloadedFunctionResult drawItem, boolean intArgs){
+		Mappable[] items = new Mappable[m.size()];
+		
+		Iterator<Entry<IValue,IValue>> iter = m.entryIterator();
+		int k = 0;
+		while (iter.hasNext()) {
+			Entry<IValue,IValue> entry = iter.next();
+			IValue key = entry.getKey();
+			IValue val = entry.getValue();
+		    items[k++] = new RascalSimpleMapItem((IString)key, (IInteger)val, drawItem, intArgs);
+		}
+		setItems(items);
 	}
 }
 
@@ -101,18 +117,4 @@ class RascalSimpleMapItem extends SimpleMapItem {
 	}
 }
 
-class RascalSimpleMapModel extends SimpleMapModel {
-	public RascalSimpleMapModel(IMap m, OverloadedFunctionResult drawItem, boolean intArgs){
-		Mappable[] items = new Mappable[m.size()];
-		
-		Iterator<Entry<IValue,IValue>> iter = m.entryIterator();
-		int k = 0;
-		while (iter.hasNext()) {
-			Entry<IValue,IValue> entry = iter.next();
-			IValue key = entry.getKey();
-			IValue val = entry.getValue();
-		    items[k++] = new RascalSimpleMapItem((IString)key, (IInteger)val, drawItem, intArgs);
-		}
-		setItems(items);
-	}
-}
+
