@@ -59,7 +59,7 @@ public class RSF {
 			bufRead.close();
 
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 
 		IMapWriter mw = values.mapWriter(strType, types.relType(strType, strType));
