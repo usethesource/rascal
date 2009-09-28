@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.Evaluator;
@@ -24,6 +25,7 @@ import org.meta_environment.uri.FileURIResolver;
 import org.meta_environment.uri.URIResolverRegistry;
 
 public class ParseTree {
+	private final static IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final ConcreteObjectParser parser = new ConcreteObjectParser();
 
 	static public IValue parse(IConstructor start, ISourceLocation input, IEvaluatorContext ctx) {
@@ -51,7 +53,7 @@ public class ParseTree {
 			
 			return tree;
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 		
 	}
@@ -80,7 +82,7 @@ public class ParseTree {
 			
 			return tree;
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}
 	}
 
