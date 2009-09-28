@@ -63,13 +63,10 @@ public &T rules5(&T t) {
 }
 
 public void main() {
-
      A t = f(g(g(b())),g(g(b())));
      assertEqual(top_down(rules)(t), f(g(b()),g(b())));
      assertEqual(bottom_up(rules)(t), f(b(),b()));
-     assertEqual(innermost(rules)(t), f(b(),b()));
-     assertEqual(outermost(rules)(t), f(b(),b()));
-
+	
      B t2 = g(c());
      assertEqual(once_top_down(rules2)(t2), c());
      assertEqual(once_bottom_up(rules2)(t2), g(b()));
@@ -86,14 +83,16 @@ public void main() {
      A t4 = f(g(b()),g(b()));
      assertEqual(top_down(makeStrategy(rules4))(t4),f(g(c()),g(c())));
 
+     assertEqual(innermost(rules)(t), f(b(),b()));
+     assertEqual(outermost(rules)(t), f(b(),b()));
+
 
      rel[A, A] r2 = {<a(), d()>, <a(), e()>, <d(), e()>};
      assertEqual(topological_top_down(rules5)(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
      assertEqual(topological_bottom_up(rules5)(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
 
-     assertEqual( topological_once_top_down(rules5)(r2), {<aa(),e()>,<aa(),d()>,<d(),e()>});
-     assertEqual( topological_once_bottom_up(rules5)(r2), {<a(),ee()>,<a(),d()>,<d(),ee()>});
-
+     assertEqual(topological_once_top_down(rules5)(r2), {<aa(),e()>,<aa(),d()>,<d(),e()>});
+     //assertEqual(topological_once_bottom_up(rules5)(r2), {<a(),ee()>,<a(),d()>,<d(),ee()>});
     report("Strategies");
 
 }
