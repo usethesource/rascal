@@ -71,10 +71,6 @@ public class VisitableConstructor implements IVisitable, IConstructor {
 			return constructor.accept(v);
 		}
 
-		public boolean equals(Object other) {
-			return constructor.equals(other);
-		}
-
 		public IValue getAnnotation(String label) throws FactTypeUseException {
 			return constructor.getAnnotation(label);
 		}

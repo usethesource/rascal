@@ -31,13 +31,6 @@ public class TopologicalVisitableConstructor extends TopologicalVisitable<IConst
 		return value.declaresAnnotation(store, label);
 	}
 
-	public boolean equals(Object other) {
-		if (other instanceof TopologicalVisitableConstructor) {
-			return value.equals(((TopologicalVisitableConstructor) other).getValue());	
-		}
-		return value.equals(other);
-	}
-
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		return value.get(i);
 	}
@@ -87,6 +80,9 @@ public class TopologicalVisitableConstructor extends TopologicalVisitable<IConst
 	}
 
 	public boolean isEqual(IValue other) {
+		if (other instanceof TopologicalVisitableConstructor) {
+			return value.isEqual(((TopologicalVisitableConstructor) other).getValue());	
+		}
 		return value.isEqual(other);
 	}
 

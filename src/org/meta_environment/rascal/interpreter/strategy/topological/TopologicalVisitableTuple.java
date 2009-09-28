@@ -21,10 +21,6 @@ implements ITuple {
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return value.accept(v);
 	}
-	
-	public boolean equals(Object o) {
-		return value.equals(o);
-	}
 
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		return value.get(i);

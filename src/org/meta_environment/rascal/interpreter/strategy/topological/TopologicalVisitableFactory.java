@@ -41,7 +41,7 @@ public class TopologicalVisitableFactory implements IValueFactory {
 	public static TopologicalVisitable<?> makeTopologicalVisitable(RelationContext context, IValue iValue) {
 		if (iValue instanceof TopologicalVisitable<?>) {
 			return (TopologicalVisitable<?>) iValue;
-		} else if (context.getRelation().equals(iValue)) {
+		} else if (context.getRelation().isEqual(iValue)) {
 			// special case for the root of the context
 			IRelation relation = (IRelation) iValue;
 			return new TopologicalVisitableRelation(context, relation, computeRoots(context, relation));

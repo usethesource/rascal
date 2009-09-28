@@ -92,10 +92,6 @@ public class VisitableRelation implements IVisitable, IRelation {
 		return relation.domain();
 	}
 
-	public boolean equals(Object other) {
-		return relation.equals(other);
-	}
-
 	public Type getElementType() {
 		return relation.getElementType();
 	}

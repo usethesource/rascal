@@ -92,10 +92,6 @@ public class VisitableMap implements IVisitable, IMap {
 		return map.entryIterator();
 	}
 
-	public boolean equals(Object other) {
-		return map.equals(other);
-	}
-
 	public IValue get(IValue key) {
 		return map.get(key);
 	}

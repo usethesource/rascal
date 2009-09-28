@@ -23,10 +23,6 @@ INode {
 		return value.accept(v);
 	}
 
-	public boolean equals(Object other) {
-		return value.equals(other);
-	}
-
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		return value.get(i);
 	}

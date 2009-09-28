@@ -62,10 +62,6 @@ public class VisitableList implements IVisitable, IList {
 		return list.delete(e);
 	}
 
-	public boolean equals(Object other) {
-		return list.equals(other);
-	}
-
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		return list.get(i);
 	}

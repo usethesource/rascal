@@ -120,7 +120,7 @@ public class TopologicalVisitable<T extends IValue> implements IVisitable, IValu
 	}
 
 	public boolean isEqual(IValue other) {
-		return value.equals(other);
+		return value.isEqual(other);
 	}
 
 	public void setChildren(List<IVisitable> newchildren)
