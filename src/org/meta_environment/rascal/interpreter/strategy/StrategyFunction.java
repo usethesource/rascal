@@ -16,14 +16,14 @@ public class StrategyFunction extends Strategy {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		if (argTypes[0].comparable(function.getFormals().getFieldType(0))) {
-			return function.call(argTypes, argValues);
+			return super.call(argTypes, argValues);
 		}
 		
 		// identity
 		return new ElementResult<IValue>(argValues[0].getType(), argValues[0], ctx);
 	}
 	
-	public static IValue makeStrategy(IValue arg) {
+	public static IValue functionToStrategy(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
 			if (function.isTypePreserving()) {
