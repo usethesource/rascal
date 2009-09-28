@@ -20,8 +20,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Parameters;
@@ -54,10 +54,13 @@ public class JavaBridge {
 //	private final static JavaTypes javaTypes = new JavaTypes();
 	private final static JavaClasses javaClasses = new JavaClasses();
 	
+	private final IValueFactory vf;
+	
 
-	public JavaBridge(OutputStream outputStream, List<ClassLoader> classLoaders) {
+	public JavaBridge(OutputStream outputStream, List<ClassLoader> classLoaders, IValueFactory valueFactory) {
 //		this.out = new PrintWriter(outputStream);
 		this.loaders = classLoaders;
+		this.vf = valueFactory;
 		
 //		Commented out while we wait for a 1.6 JVM on MacOSX 
 //		if (ToolProvider.getSystemJavaCompiler() == null) {
@@ -432,7 +435,7 @@ public class JavaBridge {
 
 					return m;
 				} catch (SecurityException e) {
-					throw RuntimeExceptionFactory.permissionDenied(ValueFactoryFactory.getValueFactory().string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
+					throw RuntimeExceptionFactory.permissionDenied(vf.string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
 				} catch (NoSuchMethodException e) {
 					throw new UndeclaredJavaMethodError(className + "." + name, func);
 				}

@@ -314,19 +314,19 @@ public class SetPattern extends AbstractMatchingResult {
 			QualifiedNamePattern qualName = (QualifiedNamePattern) varPat[i];
 			String name = qualName.getName();
 			if(qualName.isAnonymous()){
-				varGen[i] = new SingleElementIterator(elements);
+				varGen[i] = new SingleElementIterator(elements, vf);
 			} else if(env.getVariable(name) == null){
-				varGen[i] = new SingleElementIterator(elements);
+				varGen[i] = new SingleElementIterator(elements, vf);
 			} else {
 				varGen[i] = new SingleIValueIterator(env.getVariable(name).getValue());
 			}
 		}
 		if(isSetVar[i]){
-			varGen[i] = new SubSetGenerator(elements);
+			varGen[i] = new SubSetGenerator(elements, vf);
 		} else {
 			if(elements.size() == 0)
 				return false;
-			varGen[i] = new SingleElementIterator(elements);
+			varGen[i] = new SingleElementIterator(elements, vf);
 		}
 		return true;
 	}

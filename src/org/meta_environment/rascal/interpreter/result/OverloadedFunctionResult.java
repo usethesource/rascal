@@ -140,7 +140,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	@Override
 	public <U extends IValue> Result<U> equalToOverloadedFunction(
 			OverloadedFunctionResult that) {
-		return ResultFactory.bool(candidates.equals(that.candidates));
+		return ResultFactory.bool(candidates.equals(that.candidates), ctx);
 	}
 	
 	@Override

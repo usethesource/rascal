@@ -1,12 +1,8 @@
 package org.meta_environment.rascal.interpreter.utils;
 
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -15,9 +11,6 @@ import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.uptr.TreeAdapter;
 
 public final class Utils {
-	public static Result<IValue> truth(boolean b) {
-		return makeResult(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b), null); 
-	}
 	
 	// TODO remove this one
 	public static String unescape(String str, AbstractAST ast, Environment env) {

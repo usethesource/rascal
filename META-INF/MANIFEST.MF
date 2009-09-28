@@ -7,6 +7,8 @@ Bundle-ClassPath: rascal.jar,
  lib/hickory_check.jar,
  lib/jline-0.9.94.jar,
  lib/junit-4.5.jar,
+ lib/core.jar,
+ lib/treemap.jar,
  .,
  src
 Export-Package: org.meta_environment,

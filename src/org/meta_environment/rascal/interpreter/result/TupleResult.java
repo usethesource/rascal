@@ -218,24 +218,24 @@ public class TupleResult extends ElementResult<ITuple> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this) < 0);
+		return bool((that.comparisonInts(this) < 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this) <= 0);
+		return bool((that.comparisonInts(this) <= 0), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this) > 0);
+		return bool((that.comparisonInts(this) > 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this) >= 0);
+		return bool((that.comparisonInts(this) >= 0), ctx);
 	}
 }

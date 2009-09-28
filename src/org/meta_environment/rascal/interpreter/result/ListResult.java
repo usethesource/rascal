@@ -153,11 +153,11 @@ public class ListResult extends CollectionResult<IList> {
 	}
 
 	<U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
-		return bool(getValue().contains(elementResult.getValue()));
+		return bool((getValue().contains(elementResult.getValue())), ctx);
 	}
 
 	<U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
-		return bool(!getValue().contains(elementResult.getValue()));
+		return bool((!getValue().contains(elementResult.getValue())), ctx);
 	}
 	
 	@Override
@@ -175,7 +175,7 @@ public class ListResult extends CollectionResult<IList> {
 		// note reverse of arguments: we need that < this
 		// TODO: move to PDB:
 		if (that.getValue().isEqual(getValue())) {
-			return bool(false);
+			return bool(false, ctx);
 		}
 		return lessThanOrEqualList(that);
 	}
@@ -184,10 +184,10 @@ public class ListResult extends CollectionResult<IList> {
 	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that) {
 		for (IValue value: that.getValue()) {
 			if (!getValue().contains(value)) {
-				return bool(false);
+				return bool(false, ctx);
 			}
 		}
-		return bool(true);
+		return bool(true, ctx);
 	}
 
 	@Override

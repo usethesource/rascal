@@ -4,13 +4,15 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.meta_environment.ValueFactoryFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 class SingleElementIterator implements Iterator<ISet> {
-	private Iterator<IValue> elementIter;
+	private final IValueFactory vf;
+	private final Iterator<IValue> elementIter;
 	
-	SingleElementIterator(ISet elements){
+	SingleElementIterator(ISet elements, IValueFactory valueFactory){
 		this.elementIter = elements.iterator();
+		this.vf = valueFactory;
 	}
 
 	public boolean hasNext() {
@@ -18,7 +20,7 @@ class SingleElementIterator implements Iterator<ISet> {
 	}
 
 	public ISet next() {
-		return ValueFactoryFactory.getValueFactory().set(elementIter.next());
+		return vf.set(elementIter.next());
 	}
 
 	public void remove() {

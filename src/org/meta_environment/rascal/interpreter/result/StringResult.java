@@ -104,25 +104,25 @@ public class StringResult extends ElementResult<IString> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanString(StringResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this) < 0);
+		return bool((that.comparisonInts(this) < 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualString(StringResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this) <= 0);
+		return bool((that.comparisonInts(this) <= 0), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanString(StringResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this) > 0);
+		return bool((that.comparisonInts(this) > 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualString(StringResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this) >= 0);
+		return bool((that.comparisonInts(this) >= 0), ctx);
 	}
 
 	protected <U extends IValue> Result<U> addSourceLocation(

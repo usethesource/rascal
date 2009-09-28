@@ -64,6 +64,6 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public <U extends IValue> Result<U> equalToConstructorFunction(ConstructorFunction that) {
-		return ResultFactory.bool(constructorType == that.constructorType);
+		return ResultFactory.bool((constructorType == that.constructorType), ctx);
 	}
 }

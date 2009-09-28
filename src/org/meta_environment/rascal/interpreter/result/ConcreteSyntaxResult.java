@@ -36,7 +36,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		IConstructor right = that.getValue();
 		
 		if (TreeAdapter.isLayout(left) && TreeAdapter.isLayout(right)) {
-			return bool(true);
+			return bool(true, ctx);
 		}
 		
 		if (TreeAdapter.isAppl(left) && TreeAdapter.isAppl(right)) {
@@ -45,14 +45,14 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			
 			// NB: using ordinary equals here...
 			if (!ProductionAdapter.getTree(p1).equals(ProductionAdapter.getTree(p2))) {
-				return bool(false);
+				return bool(false, ctx);
 			}
 			
 			IList l1 = TreeAdapter.getArgs(left);
 			IList l2 = TreeAdapter.getArgs(right);
 			
 			if (l1.length() != l2.length()) {
-				return bool(false);
+				return bool(false, ctx);
 			}
 			for (int i = 0; i < l1.length(); i++) {
 				IValue kid1 = l1.get(i);
@@ -60,18 +60,18 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				// Recurse here on kids to reuse layout handling etc.
 				Result<IBool> result = makeResult(kid1.getType(), kid1, ctx).equals(makeResult(kid2.getType(), kid2, ctx));
 				if (!result.getValue().getValue()) {
-					return bool(false);
+					return bool(false, ctx);
 				}
 				if (TreeAdapter.isContextFree(left)) {
 					i++; // skip layout
 				}
 			}
-			return bool(true);
+			return bool(true, ctx);
 		}
 		
 		
 		if (TreeAdapter.isChar(left) && TreeAdapter.isChar(right)) {
-			return bool(TreeAdapter.getCharacter(left) == TreeAdapter.getCharacter(right));
+			return bool((TreeAdapter.getCharacter(left) == TreeAdapter.getCharacter(right)), ctx);
 		}
 		
 		if (TreeAdapter.isAmb(left) && TreeAdapter.isAmb(right)) {
@@ -79,7 +79,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			ISet alts2 = TreeAdapter.getAlternatives(right);
 
 			if (alts1.size() != alts2.size()) {
-				return bool(false);
+				return bool(false, ctx);
 			}
 			
 			// TODO: this is very inefficient
@@ -93,12 +93,12 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 					}
 				}
 				// If an alt1 is not equal to any of the the alt2's return false;
-				return bool(false);
+				return bool(false, ctx);
 			}
-			return bool(true);
+			return bool(true, ctx);
 		}
 
-		return bool(false);
+		return bool(false, ctx);
 	}
 
 }

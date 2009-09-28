@@ -15,7 +15,6 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -78,12 +77,12 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	
 	private Set<IValue> visiting = new HashSet<IValue>();
 	
-	public TypeReifier(IEvaluatorContext ctx) {
+	public TypeReifier(IEvaluatorContext ctx, IValueFactory valueFactory) {
 		this.ctx = ctx;
 		this.env = ctx.getCurrentEnvt();
 		this.store = env.getStore();
 		this.tf = TypeFactory.getInstance();
-		this.vf = ValueFactoryFactory.getValueFactory();
+		this.vf = valueFactory;
 		this.param = tf.parameterType("T");
 		this.adt = RascalTypeFactory.getInstance().reifiedType(param);
 		this.cons = env.abstractDataType("constructor");
