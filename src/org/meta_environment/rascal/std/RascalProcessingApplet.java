@@ -92,4 +92,5 @@ public class RascalProcessingApplet extends PApplet {
 			mouseReleased.call(argtypes, argvals);
 		}
 	}
+	
 }
