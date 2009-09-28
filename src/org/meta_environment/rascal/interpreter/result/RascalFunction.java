@@ -132,6 +132,6 @@ public class RascalFunction extends NamedFunction {
 	
 	@Override
 	public <U extends IValue> Result<U> equalToRascalFunction(RascalFunction that) {
-		return ResultFactory.bool(this == that);
+		return ResultFactory.bool((this == that), ctx);
 	}
 }

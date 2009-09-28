@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -23,7 +24,6 @@ import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.uptr.Factory;
 
 public class ResultFactory {
-
 	// TODO: do apply rules here and introduce normalizedResult. 
 	
 	@SuppressWarnings("unchecked")
@@ -44,8 +44,10 @@ public class ResultFactory {
 	
 
 	@SuppressWarnings("unchecked")
-	public static <T extends IValue> Result<T> bool(boolean b) {
-		return (Result<T>) new BoolResult(b, null, null);
+	public static <T extends IValue> Result<T> bool(boolean b, IEvaluatorContext ctx) {
+		IValueFactory vf = ctx.getIValueFactory();
+		IBool result = vf.bool(b);
+		return (Result<T>) new BoolResult(result.getType(), result, ctx);
 	}
 	
 	private static class Visitor implements ITypeVisitor<Result<? extends IValue>> {
@@ -72,7 +74,7 @@ public class ResultFactory {
 		}
 
 		public BoolResult visitBool(Type boolType) {
-			return new BoolResult(declaredType, (IBool)value, null, ctx);
+			return new BoolResult(declaredType, (IBool)value, ctx);
 		}
 
 		public Result<? extends IValue> visitConstructor(Type type) {

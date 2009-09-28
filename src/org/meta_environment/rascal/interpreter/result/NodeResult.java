@@ -79,25 +79,25 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanNode(NodeResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this) < 0);
+		return bool((that.comparisonInts(this) < 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this) <= 0);
+		return bool((that.comparisonInts(this) <= 0), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this) > 0);
+		return bool((that.comparisonInts(this) > 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this) >= 0);
+		return bool((that.comparisonInts(this) >= 0), ctx);
 	}
 
 	@Override

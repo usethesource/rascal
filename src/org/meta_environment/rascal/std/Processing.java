@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.util.EnumMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -19,7 +18,8 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PFont;
 
 public class Processing {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();

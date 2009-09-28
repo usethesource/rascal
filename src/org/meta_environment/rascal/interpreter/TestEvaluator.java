@@ -47,7 +47,7 @@ public class TestEvaluator{
 		}
 		
 		public Result<IBool> visitTestLabeled(Labeled x){
-			Result<IValue> result = ResultFactory.bool(true);
+			Result<IValue> result = ResultFactory.bool(true, eval);
 			
 			try{
 				result = x.getExpression().accept(eval);
@@ -59,11 +59,11 @@ public class TestEvaluator{
 			
 			testResultListener.report(result.isTrue(), x.toString());
 			
-			return ResultFactory.bool(true);
+			return ResultFactory.bool(true, eval);
 		}
 		
 		public Result<IBool> visitTestUnlabeled(Unlabeled x){
-			Result<IValue> result = ResultFactory.bool(true);
+			Result<IValue> result = ResultFactory.bool(true, eval);
 			
 			try{
 				result = x.getExpression().accept(eval);
@@ -75,7 +75,7 @@ public class TestEvaluator{
 			
 			testResultListener.report(result.isTrue(), x.toString());
 			
-			return ResultFactory.bool(true);
+			return ResultFactory.bool(true, eval);
 		}
 	}
 }

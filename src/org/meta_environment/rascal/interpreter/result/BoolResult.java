@@ -7,26 +7,16 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 public class BoolResult extends ElementResult<IBool> {
-
+	
 	public BoolResult(Type type, IBool bool, IEvaluatorContext ctx) {
 		this(type, bool, null, ctx);
 	}
 		
 	public BoolResult(Type type, IBool bool, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		super(type, bool, iter, ctx);
-	}
-	
-	public BoolResult(boolean b, IEvaluatorContext ctx) {
-		this(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b), ctx);
-	}
-	
-	public BoolResult(boolean b, Iterator<Result<IValue>> iter, IEvaluatorContext ctx){
-		this(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b), iter, ctx);
 	}
 	
 	@Override
@@ -61,7 +51,7 @@ public class BoolResult extends ElementResult<IBool> {
 	
 	@Override
 	public <U extends IValue> Result<U> negate() {
-		return bool(getValue().not().getValue());
+		return bool(getValue().not().getValue(), ctx);
 	}
 	
 	/////
@@ -105,25 +95,25 @@ public class BoolResult extends ElementResult<IBool> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanBool(BoolResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this) < 0);
+		return bool(that.comparisonInts(this) < 0, ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualBool(BoolResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this) <= 0);
+		return bool(that.comparisonInts(this) <= 0, ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanBool(BoolResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this) > 0);
+		return bool(that.comparisonInts(this) > 0, ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualBool(BoolResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this) >= 0);
+		return bool(that.comparisonInts(this) >= 0, ctx);
 	}
 	
 	@Override

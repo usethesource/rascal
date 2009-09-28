@@ -192,11 +192,11 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	@SuppressWarnings("unchecked")
 	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult<V> that) {
 		// Do not delegate to comparison here, since it takes runtime types into account
-		return bool(((IInteger)compare(that).getValue()).intValue() == 0);
+		return bool((((IInteger)compare(that).getValue()).intValue() == 0), ctx);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> nonEqualityBoolean(ElementResult<V> that) {
-		return bool(!that.getValue().isEqual(this.getValue()));
+		return bool((!that.getValue().isEqual(this.getValue())), ctx);
 	}
 
 }

@@ -227,25 +227,25 @@ public class IntegerResult extends ElementResult<IInteger> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanInteger(IntegerResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this) < 0);
+		return bool((that.comparisonInts(this) < 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualInteger(IntegerResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this) <= 0);
+		return bool((that.comparisonInts(this) <= 0), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanInteger(IntegerResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this) > 0);
+		return bool((that.comparisonInts(this) > 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this) >= 0);
+		return bool((that.comparisonInts(this) >= 0), ctx);
 	}
 
 	@Override

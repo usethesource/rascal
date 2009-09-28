@@ -154,11 +154,11 @@ public class MapResult extends ElementResult<IMap> {
 	////
 	
 	protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
-		return bool(getValue().containsValue(elementResult.getValue()));
+		return bool(getValue().containsValue(elementResult.getValue()), ctx);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
-		return bool(!getValue().containsValue(elementResult.getValue()));
+		return bool(!getValue().containsValue(elementResult.getValue()), ctx);
 	}
 	
 	@Override
@@ -193,25 +193,25 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanMap(MapResult that) {
 		// note reversed args: we need that < this
-		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().isEqual(getValue()));
+		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().isEqual(getValue()), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualMap(MapResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.getValue().isSubMap(getValue()));
+		return bool(that.getValue().isSubMap(getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanMap(MapResult that) {
 		// note reversed args: we need that > this
-		return bool(getValue().isSubMap(that.getValue()) && !getValue().isEqual(that.getValue()));
+		return bool(getValue().isSubMap(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualMap(MapResult that) {
 		// note reversed args: we need that >= this
-		return bool(getValue().isSubMap(that.getValue()));
+		return bool(getValue().isSubMap(that.getValue()), ctx);
 	}
 	
 	@Override

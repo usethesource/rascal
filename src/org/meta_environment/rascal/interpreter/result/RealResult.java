@@ -144,25 +144,25 @@ public class RealResult extends ElementResult<IReal> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanReal(RealResult that) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this) < 0);
+		return bool((that.comparisonInts(this) < 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualReal(RealResult that) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this) <= 0);
+		return bool((that.comparisonInts(this) <= 0), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanReal(RealResult that) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this) > 0);
+		return bool((that.comparisonInts(this) > 0), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualReal(RealResult that) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this) >= 0);
+		return bool((that.comparisonInts(this) >= 0), ctx);
 	}
 
 	@Override

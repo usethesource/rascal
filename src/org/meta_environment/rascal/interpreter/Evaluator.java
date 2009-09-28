@@ -261,7 +261,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		rootScope = scope;
 		heap.addModule(scope);
 		this.classLoaders = new LinkedList<ClassLoader>();
-		this.javaBridge = new JavaBridge(errorStream, classLoaders);
+		this.javaBridge = new JavaBridge(errorStream, classLoaders, vf);
 		loader = new ModuleLoader(parser);
 		this.parser = parser;
 		parser.setLoader(loader);
@@ -1625,7 +1625,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		Type type = basic.accept(new BasicTypeEvaluator(getCurrentEnvt(), valued ? null : tf.tupleType(fieldTypes), valued ? fieldValues : null));
 
-		return type.accept(new TypeReifier(this));
+		return type.accept(new TypeReifier(this, vf));
 	}
 
 	@Override
@@ -1990,10 +1990,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		mp.init();
 		while(mp.hasNext()){
 			if(mp.next()) {
-				return ResultFactory.bool(true);
+				return ResultFactory.bool(true, this);
 			}
 		}
-		return ResultFactory.bool(false);
+		return ResultFactory.bool(false, this);
 	}
 
 	@Override
@@ -2238,7 +2238,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitExpressionReifyType(ReifyType x) {
 		Type t = te.eval(x.getType(), getCurrentEnvt());
-		return t.accept(new TypeReifier(this));
+		return t.accept(new TypeReifier(this, vf));
 	}
 
 	@Override
@@ -2891,7 +2891,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		while (i >= 0 && i < size) {
 			if (gens[i].hasNext() && gens[i].next()) {
 				if (i == size - 1) {
-					return new BoolResult(true, null, null);
+					return new BoolResult(tf.boolType(), vf.bool(true), this);
 				}
 
 				i++;
@@ -2901,7 +2901,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				i--;
 			}
 		}
-		return new BoolResult(false, null, null);
+		return new BoolResult(tf.boolType(), vf.bool(false), this);
 	}
 
 	@Override
@@ -2916,7 +2916,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		while (i >= 0 && i < size) {
 			if (gens[i].hasNext()) {
 				if (!gens[i].next()) {
-					return new BoolResult(false, null, null);
+					return new BoolResult(tf.boolType(), vf.bool(false), this);
 				}
 				if (i < size - 1) {
 					i++;
@@ -2927,7 +2927,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				i--;
 			}
 		}
-		return new BoolResult(true, null, null);
+		return new BoolResult(tf.boolType(), vf.bool(true), this);
 	}
 
 	// ------------ solve -----------------------------------------

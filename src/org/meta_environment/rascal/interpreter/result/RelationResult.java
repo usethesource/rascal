@@ -189,12 +189,12 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		@Override
 		protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
-			return bool(getValue().contains(elementResult.getValue()));
+			return bool((getValue().contains(elementResult.getValue())), ctx);
 		}
 
 		@Override
 		protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
-			return bool(!getValue().contains(elementResult.getValue()));
+			return bool((!getValue().contains(elementResult.getValue())), ctx);
 		}
 		
 		@Override

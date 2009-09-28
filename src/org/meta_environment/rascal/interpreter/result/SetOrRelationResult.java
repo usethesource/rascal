@@ -16,12 +16,12 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 
 	protected <U extends IValue, V extends IValue> Result<U> elementOf(
 			ElementResult<V> elementResult) {
-				return bool(getValue().contains(elementResult.getValue()));
+				return bool(getValue().contains(elementResult.getValue()), ctx);
 			}
 
 	protected <U extends IValue, V extends IValue> Result<U> notElementOf(
 			ElementResult<V> elementResult) {
-				return bool(!getValue().contains(elementResult.getValue()));
+				return bool(!getValue().contains(elementResult.getValue()), ctx);
 			}
 
 	@Override
@@ -112,50 +112,50 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanSet(SetResult that) {
 		// note reversed args: we need that < this
-		return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()));
+		return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualSet(SetResult that) {
 				// note reversed args: we need that <= this
-				return bool(that.getValue().isSubsetOf(getValue()));
+				return bool(that.getValue().isSubsetOf(getValue()), ctx);
 			}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanSet(SetResult that) {
 		// note reversed args: we need that > this
-		return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()));
+		return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualSet(SetResult that) {
 				// note reversed args: we need that >= this
-				return bool(getValue().isSubsetOf(that.getValue()));
+				return bool(getValue().isSubsetOf(that.getValue()), ctx);
 			}
 
 	@Override
 	protected <U extends IValue> Result<U> lessThanRelation(RelationResult that) {
 				// note reversed args: we need that < this
-				return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()));
+				return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()), ctx);
 			}
 
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualRelation(RelationResult that) {
 				// note reversed args: we need that <= this
-				return bool(that.getValue().isSubsetOf(getValue()));
+				return bool(that.getValue().isSubsetOf(getValue()), ctx);
 			}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanRelation(RelationResult that) {
 				// note reversed args: we need that > this
-				return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()));
+				return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
 			}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualRelation(
 			RelationResult that) {
 				// note reversed args: we need that >= this
-				return bool(getValue().isSubsetOf(that.getValue()));
+				return bool(getValue().isSubsetOf(that.getValue()), ctx);
 			}
 
 	@Override
