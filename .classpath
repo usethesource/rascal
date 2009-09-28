@@ -8,5 +8,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jline-0.9.94.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="lib/core.jar"/>
+	<classpathentry kind="lib" path="lib/treemap.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
