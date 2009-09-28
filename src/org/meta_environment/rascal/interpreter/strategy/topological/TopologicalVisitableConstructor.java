@@ -18,7 +18,7 @@ public class TopologicalVisitableConstructor extends TopologicalVisitable<IConst
 			List<TopologicalVisitable<?>> children) {
 		super(context, value, children);
 	}
-	
+
 	public TopologicalVisitableConstructor(RelationContext context, IConstructor value) {
 		super(context, value);
 	}
@@ -32,6 +32,9 @@ public class TopologicalVisitableConstructor extends TopologicalVisitable<IConst
 	}
 
 	public boolean equals(Object other) {
+		if (other instanceof TopologicalVisitableConstructor) {
+			return value.equals(((TopologicalVisitableConstructor) other).getValue());	
+		}
 		return value.equals(other);
 	}
 

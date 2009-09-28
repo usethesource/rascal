@@ -22,8 +22,8 @@ public class All extends Strategy {
 
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		IValueFactory oldFactory = ctx.getEvaluator().getValueFactory();
-		ctx.getEvaluator().setIValueFactory( new VisitableFactory(ctx.getEvaluator().getValueFactory()));
+		IValueFactory oldFactory = ctx.getEvaluator().getIValueFactory();
+		ctx.getEvaluator().setIValueFactory( new VisitableFactory(ctx.getEvaluator().getIValueFactory()));
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		List<IVisitable> newchildren = new ArrayList<IVisitable>();
 		for (int i = 0; i < result.getChildrenNumber(); i++) {
@@ -53,9 +53,9 @@ public class All extends Strategy {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
 				if (function instanceof Strategy) {
-					return new All((AbstractFunction) arg, true);	
+					return new All((AbstractFunction) function, true);	
 				} else if (function.isStrategy()) {
-					return new All((AbstractFunction) arg, false);
+					return new All((AbstractFunction) function, false);
 				}
 			}
 		}
