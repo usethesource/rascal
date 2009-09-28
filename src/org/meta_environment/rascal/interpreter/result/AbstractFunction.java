@@ -54,7 +54,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		this.eval = eval;
 		this.hasVarArgs = varargs;
 		this.declarationEnvironment = env;
-		this.vf = eval.getIValueFactory();
+		this.vf = eval.getValueFactory();
 	}
 	
 	public static void setCallTracing(boolean value){

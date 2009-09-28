@@ -45,7 +45,7 @@ public class ResultFactory {
 
 	@SuppressWarnings("unchecked")
 	public static <T extends IValue> Result<T> bool(boolean b, IEvaluatorContext ctx) {
-		IValueFactory vf = ctx.getIValueFactory();
+		IValueFactory vf = ctx.getValueFactory();
 		IBool result = vf.bool(b);
 		return (Result<T>) new BoolResult(result.getType(), result, ctx);
 	}

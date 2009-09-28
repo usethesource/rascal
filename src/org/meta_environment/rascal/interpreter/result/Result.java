@@ -107,7 +107,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected IValueFactory getValueFactory() {
-		return ctx.getIValueFactory();
+		return ctx.getValueFactory();
 	}
 	
 	//////// The iterator interface

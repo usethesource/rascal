@@ -28,7 +28,7 @@ public class TopologicalAll extends Strategy {
 			//only for binary relations
 			if (relation.getType().getArity() == 2) {
 				RelationContext context = new RelationContext(relation);
-				IValueFactory oldFactory = ctx.getEvaluator().getIValueFactory();
+				IValueFactory oldFactory = ctx.getEvaluator().getValueFactory();
 				ctx.getEvaluator().setIValueFactory( new TopologicalVisitableFactory(context, oldFactory));
 				TopologicalVisitable<?> result = TopologicalVisitableFactory.makeTopologicalVisitable(context,relation);
 				List<IVisitable> newchildren = new ArrayList<IVisitable>();
