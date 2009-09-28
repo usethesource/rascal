@@ -16,7 +16,7 @@ public class One extends Strategy {
 
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		IValueFactory oldFactory = ctx.getEvaluator().getIValueFactory();
+		IValueFactory oldFactory = ctx.getEvaluator().getValueFactory();
 		ctx.getEvaluator().setIValueFactory( new VisitableFactory(oldFactory));
 		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
 		for (int i = 0; i < result.getChildrenNumber(); i++) {
