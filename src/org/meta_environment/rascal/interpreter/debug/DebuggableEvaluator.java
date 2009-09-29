@@ -95,6 +95,7 @@ import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.parser.ConsoleParser;
 
@@ -113,6 +114,7 @@ public class DebuggableEvaluator extends Evaluator {
 			ModuleEnvironment moduleEnvironment, ConsoleParser consoleParser,
 			IDebugger debugger) {
 		super(vf, errorStream, moduleEnvironment, new GlobalEnvironment(), consoleParser);
+		this.patternEvaluator = new DebuggingDecorator<IMatchingResult>(patternEvaluator, consoleParser, debugger);
 		this.parser = consoleParser;
 		this.debugger = debugger;
 	}
