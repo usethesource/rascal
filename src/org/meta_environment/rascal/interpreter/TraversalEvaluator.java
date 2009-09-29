@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Case;
@@ -40,11 +39,9 @@ public class TraversalEvaluator {
 	public enum PROGRESS   {Continuing, Breaking}
 	
 	private final Evaluator eval;
-	private final IValueFactory vf;
-	private final TypeFactory tf = TypeFactory.getInstance();
+	private static final TypeFactory tf = TypeFactory.getInstance();
 
-	public TraversalEvaluator(IValueFactory vf, Evaluator eval) {
-		this.vf = vf;
+	public TraversalEvaluator(Evaluator eval) {
 		this.eval = eval;
 	}
 	
@@ -175,7 +172,7 @@ public class TraversalEvaluator {
 					args[i] = tr.value;
 				}
 				Type t = cons.getConstructorType();
-				IConstructor rcons = vf.constructor(t, args);
+				IConstructor rcons = eval.getValueFactory().constructor(t, args);
 				if(cons.hasAnnotations()) rcons = rcons.setAnnotations(cons.getAnnotations());
 				result = applyRules(t, rcons);
 			}
@@ -193,7 +190,7 @@ public class TraversalEvaluator {
 					changed |= tr.changed;
 					args[i] = tr.value;
 				}
-				INode n = vf.node(node.getName(), args);
+				INode n = eval.getValueFactory().node(node.getName(), args);
 				if(node.hasAnnotations()) n = n.setAnnotations(node.getAnnotations());
 				result = applyRules(tf.nodeType(), n);
 			}
@@ -201,7 +198,7 @@ public class TraversalEvaluator {
 			IList list = (IList) subject;
 			int len = list.length();
 			if(len > 0){
-				IListWriter w = list.getType().writer(vf);
+				IListWriter w = list.getType().writer(eval.getValueFactory());
 				
 				for(int i = 0; i < len; i++){
 					IValue elem = list.get(i);
@@ -217,7 +214,7 @@ public class TraversalEvaluator {
 		} else if(subjectType.isSetType()){
 			ISet set = (ISet) subject;
 			if(!set.isEmpty()){
-				ISetWriter w = set.getType().writer(vf);
+				ISetWriter w = set.getType().writer(eval.getValueFactory());
 				
 				for (IValue v : set){
 					TraverseResult tr = traverseOnce(v, casesOrRules, direction, progress);
@@ -232,7 +229,7 @@ public class TraversalEvaluator {
 		} else if (subjectType.isMapType()) {
 			IMap map = (IMap) subject;
 			if(!map.isEmpty()){
-				IMapWriter w = map.getType().writer(vf);
+				IMapWriter w = map.getType().writer(eval.getValueFactory());
 				Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
 				
 				while (iter.hasNext()) {
@@ -261,7 +258,7 @@ public class TraversalEvaluator {
 				changed |= tr.changed;
 				args[i] = tr.value;
 			}
-			result = vf.tuple(args);
+			result = eval.getValueFactory().tuple(args);
 		} else {
 			result = subject;
 		}
@@ -375,7 +372,7 @@ public class TraversalEvaluator {
 		while(subjectCursor < len){
 			//System.err.println("cursor = " + cursor);
 			try {
-				IString substring = vf.string(subjectString.substring(subjectCursor, len));
+				IString substring = eval.getValueFactory().string(subjectString.substring(subjectCursor, len));
 				IValue subresult  = substring;
 				TraverseResult tr = applyCasesOrRules(subresult.getType(), subresult, casesOrRules);
 				matched |= tr.matched;
@@ -427,7 +424,7 @@ public class TraversalEvaluator {
 		for(; subjectCursorForResult < len; subjectCursorForResult++){
 			replacementString.append(subjectString.charAt(subjectCursorForResult));
 		}
-		return new TraverseResult(matched, vf.string(replacementString.toString()), changed);
+		return new TraverseResult(matched, eval.getValueFactory().string(replacementString.toString()), changed);
 	}
 
 	/*

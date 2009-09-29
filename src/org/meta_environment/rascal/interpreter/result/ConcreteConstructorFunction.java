@@ -24,7 +24,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	public ConcreteConstructorFunction(AbstractAST ast, Evaluator eval,
 			Environment env) {
 		super(ast, eval, env, Factory.Tree_Appl);
-		this.re = new TraversalEvaluator(eval.vf, eval);
+		this.re = new TraversalEvaluator(eval);
 	}
 	
 	@Override

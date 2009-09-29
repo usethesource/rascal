@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.BasicType;
 import org.meta_environment.rascal.ast.Expression;
@@ -104,8 +105,10 @@ import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements IEvaluator<IMatchingResult> {
-	private IEvaluatorContext ctx;
+	private final IEvaluatorContext ctx;
 	private boolean debug = false;
+	private static final TypeFactory tf = TypeFactory.getInstance();
+
 
 	public PatternEvaluator(IEvaluatorContext ctx){
 		this.ctx = ctx;
@@ -386,7 +389,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	@Override
 	public IMatchingResult visitExpressionQualifiedName(QualifiedName x) {
 		org.meta_environment.rascal.ast.QualifiedName name = x.getQualifiedName();
-		Type signature = ctx.getEvaluator().tf.tupleType(new Type[0]);
+		Type signature = tf.tupleType(new Type[0]);
 
 		Result<IValue> r = ctx.getEvaluator().getCurrentEnvt().getVariable(name);
 

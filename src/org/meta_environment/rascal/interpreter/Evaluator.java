@@ -224,9 +224,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		updateProperties(); // TODO Put this in a better place.
 	}
 
-	public IValueFactory vf;
-	public final TypeFactory tf = TypeFactory.getInstance();
-	private final TypeEvaluator te = TypeEvaluator.getInstance();
+	private IValueFactory vf;
+	private static final TypeFactory tf = TypeFactory.getInstance();
+	private static final TypeEvaluator te = TypeEvaluator.getInstance();
 	protected Environment currentEnvt;
 
 	protected final GlobalEnvironment heap;
@@ -2382,7 +2382,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		Result<IValue> subject = x.getSubject().accept(this);
 		java.util.List<Case> cases = x.getCases();
-		TraversalEvaluator te = new TraversalEvaluator(vf, this);
+		TraversalEvaluator te = new TraversalEvaluator(this);
 
 		TraverseResult tr = te.traverse(subject.getValue(), te.new CasesOrRules(cases), 
 				DIRECTION.BottomUp,
@@ -2429,7 +2429,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new ImplementationError("Unknown strategy " + s);
 		}
 
-		TraversalEvaluator te = new TraversalEvaluator(vf, this);
+		TraversalEvaluator te = new TraversalEvaluator(this);
 		TraverseResult tr = te.traverse(subject.getValue(), te.new CasesOrRules(cases), direction, progress, fixedpoint);
 		return makeResult(tr.value.getType(), tr.value, this);
 	}
