@@ -241,7 +241,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private Profiler profiler;
 
 	private final TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator(this);
-	private final PatternEvaluator patternEvaluator;
+	protected  IEvaluator<IMatchingResult> patternEvaluator;
 	protected final ModuleLoader loader;
 
 	private java.util.List<ClassLoader> classLoaders;
@@ -255,7 +255,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public Evaluator(IValueFactory f, OutputStream errorStream, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
-		patternEvaluator = new PatternEvaluator(this);
+		this.patternEvaluator = new PatternEvaluator(this);
 		this.heap = heap;
 		currentEnvt = scope;
 		rootScope = scope;
@@ -1113,7 +1113,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionFieldProject(FieldProject x) {
 		// TODO: move to result classes
 		Result<IValue>  base = x.getExpression().accept(this);
-		
+
 		Type baseType = base.getType();
 		if (!baseType.isTupleType() && !baseType.isRelationType() && !baseType.isMapType()) {
 			throw new UnsupportedOperationError("projection", baseType, x);
@@ -1141,7 +1141,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
 			}
 		}
-		
+
 		return base.fieldSelect(selectedFields);
 	}
 
@@ -1654,7 +1654,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
 		StringLiteral lit = x.getStringLiteral();
-		
+
 		StringBuilder result = new StringBuilder();
 
 		// To prevent infinite recursion detect non-interpolated strings
@@ -1674,10 +1674,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				result.append(ToString.toString(elt).getValue());
 			}
 		}
-		
+
 		return makeResult(tf.stringType(), vf.string(result.toString()), this);
 	}
-	
+
 	@Override
 	public Result<IValue> visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
