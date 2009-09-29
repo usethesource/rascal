@@ -5,14 +5,15 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 class SingleElementIterator implements Iterator<ISet> {
-	private final IValueFactory vf;
+	private final IEvaluatorContext ctx;
 	private final Iterator<IValue> elementIter;
 	
-	SingleElementIterator(ISet elements, IValueFactory valueFactory){
+	SingleElementIterator(ISet elements, IEvaluatorContext ctx){
 		this.elementIter = elements.iterator();
-		this.vf = valueFactory;
+		this.ctx = ctx;
 	}
 
 	public boolean hasNext() {
@@ -20,7 +21,7 @@ class SingleElementIterator implements Iterator<ISet> {
 	}
 
 	public ISet next() {
-		return vf.set(elementIter.next());
+		return ctx.getValueFactory().set(elementIter.next());
 	}
 
 	public void remove() {

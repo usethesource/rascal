@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -11,8 +10,8 @@ public class AntiPattern extends AbstractMatchingResult {
 	private IMatchingResult pat;
 	private boolean stop;
 
-	public AntiPattern(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult pat) {
-		super(vf, ctx);
+	public AntiPattern(IEvaluatorContext ctx, IMatchingResult pat) {
+		super(ctx);
 		this.pat = pat;
 	}
 

@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
@@ -17,8 +16,8 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private boolean iWroteItMySelf;
 	
-	public QualifiedNamePattern(IValueFactory vf, IEvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
-		super(vf, ctx);
+	public QualifiedNamePattern(IEvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
+		super(ctx);
 		this.name = name;
 		this.anonymous = getName().equals("_");
 		Environment env = ctx.getCurrentEnvt();

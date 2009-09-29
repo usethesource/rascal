@@ -10,8 +10,8 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 /* package */ class MapPattern extends AbstractMatchingResult {
 	private java.util.List<IMatchingResult> children;
 	
-	MapPattern(IValueFactory vf, IEvaluatorContext ctx, java.util.List<IMatchingResult> children){
-		super(vf, ctx);
+	MapPattern(IEvaluatorContext ctx, java.util.List<IMatchingResult> children){
+		super(ctx);
 		this.children = children;
 	}
 	

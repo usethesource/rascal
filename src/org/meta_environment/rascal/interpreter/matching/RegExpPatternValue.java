@@ -9,7 +9,6 @@ import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
@@ -33,8 +32,8 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
 	
-	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, String s, List<String> patternVars) {
-		super(vf, ctx);
+	public RegExpPatternValue(IEvaluatorContext ctx, String s, List<String> patternVars) {
+		super(ctx);
 		RegExpAsString = s;
 		this.patternVars = patternVars;
 		initialized = false;
@@ -86,7 +85,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 			for (int nVar = 0; nVar < patternVars.size(); nVar++){
 				java.lang.String name = patternVars.get(nVar);				
 				java.lang.String binding = matcher.group(1+nVar);
-				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(binding), ctx));
+				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), ctx.getValueFactory().string(binding), ctx));
 			}
 			start = matcher.start(0);
 			end = matcher.end(0);
@@ -101,7 +100,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		if(firstMatch){
 			firstMatch = false;
 			matcher = pat.matcher(subject);
-			IString empty = vf.string("");
+			IString empty = ctx.getValueFactory().string("");
 			
 			// Initialize all pattern variables to ""
 			for(String name : patternVars){

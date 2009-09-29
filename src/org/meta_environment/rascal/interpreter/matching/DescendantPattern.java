@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.matching;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -14,8 +13,8 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	private IMatchingResult pat;
 	private Iterator<?> iterator;
 
-	public DescendantPattern(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult pat) {
-		super(vf, ctx);
+	public DescendantPattern(IEvaluatorContext ctx, IMatchingResult pat) {
+		super(ctx);
 		this.pat = pat;
 	}
 

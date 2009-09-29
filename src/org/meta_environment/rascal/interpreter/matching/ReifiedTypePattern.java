@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.BasicType;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
@@ -13,10 +12,10 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 	private final BasicType basic;
 	private final NodePattern nodePattern;
 
-	public ReifiedTypePattern(IValueFactory vf, IEvaluatorContext ctx, BasicType type, java.util.List<IMatchingResult> arguments) {
-		super(vf, ctx);
+	public ReifiedTypePattern(IEvaluatorContext ctx, BasicType type, java.util.List<IMatchingResult> arguments) {
+		super(ctx);
 		this.basic = type;
-        this.nodePattern = new NodePattern(vf, ctx, new LiteralPattern(vf, ctx, vf.string(basic.toString())), null, arguments);
+        this.nodePattern = new NodePattern(ctx, new LiteralPattern(ctx, ctx.getValueFactory().string(basic.toString())), null, arguments);
 	}
 
 	@Override

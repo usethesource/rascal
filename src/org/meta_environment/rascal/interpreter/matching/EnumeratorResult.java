@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.matching;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -19,8 +18,8 @@ public class EnumeratorResult extends BasicBooleanResult {
 	 * Constructor for a standard enumerator
 	 */
 	
-	public EnumeratorResult(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult matchPattern, Expression expression){
-		super(vf, ctx, expression);
+	public EnumeratorResult(IEvaluatorContext ctx, IMatchingResult matchPattern, Expression expression){
+		super(ctx, expression);
 		this.pat = matchPattern;
 		this.expression = expression;
 	}

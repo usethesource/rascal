@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.matching;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -20,12 +19,12 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private AbstractMatchingResult pat;
 	private Expression.CallOrTree callOrTree;
 
-	public ConcreteApplicationPattern(IValueFactory vf,
+	public ConcreteApplicationPattern(
 			IEvaluatorContext ctx, CallOrTree x,
 			List<IMatchingResult> list) {
-		super(vf, ctx);
+		super(ctx);
 		org.meta_environment.rascal.ast.QualifiedName N = x.getExpression().getQualifiedName();
-		pat = new NodePattern(vf, ctx, null, N, list);
+		pat = new NodePattern(ctx, null, N, list);
 		callOrTree = x;
 	}
 
@@ -58,7 +57,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		}
 		
 		try {
-			return RascalTypeFactory.getInstance().nonTerminalType(rhs.accept(new IUPTRAstToSymbolConstructor(vf)));
+			return RascalTypeFactory.getInstance().nonTerminalType(rhs.accept(new IUPTRAstToSymbolConstructor(ctx.getValueFactory())));
 		}
 		catch (NonGroundSymbolException e) {
 			return Factory.Tree;

@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -47,8 +46,8 @@ public class SetPattern extends AbstractMatchingResult {
 	
 	private boolean debug = false;
 	
-	public SetPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list){
-		super(vf, ctx);
+	public SetPattern(IEvaluatorContext ctx, List<IMatchingResult> list){
+		super(ctx);
 		this.patternChildren = list;
 		this.patternSize = list.size();
 	}
@@ -77,7 +76,7 @@ public class SetPattern extends AbstractMatchingResult {
 		for (int i = 0; i < patternChildren.size(); i++) {
 			 vals[i] =  patternChildren.get(i).toIValue(env);
 		 }
-		return vf.set(vals);
+		return ctx.getValueFactory().set(vals);
 	}
 	
 	@Override
@@ -141,7 +140,7 @@ public class SetPattern extends AbstractMatchingResult {
 		setSubjectType = subject.getType(); // have to use static type here
 		setSubjectElementType = setSubject.getElementType();
 		Environment env = ctx.getCurrentEnvt();
-		fixedSetElements = vf.set(getType(env).getElementType());
+		fixedSetElements = ctx.getValueFactory().set(getType(env).getElementType());
 		
 		nVar = 0;
 		patVars = new HashSet<String>();
@@ -314,19 +313,19 @@ public class SetPattern extends AbstractMatchingResult {
 			QualifiedNamePattern qualName = (QualifiedNamePattern) varPat[i];
 			String name = qualName.getName();
 			if(qualName.isAnonymous()){
-				varGen[i] = new SingleElementIterator(elements, vf);
+				varGen[i] = new SingleElementIterator(elements, ctx);
 			} else if(env.getVariable(name) == null){
-				varGen[i] = new SingleElementIterator(elements, vf);
+				varGen[i] = new SingleElementIterator(elements, ctx);
 			} else {
 				varGen[i] = new SingleIValueIterator(env.getVariable(name).getValue());
 			}
 		}
 		if(isSetVar[i]){
-			varGen[i] = new SubSetGenerator(elements, vf);
+			varGen[i] = new SubSetGenerator(elements, ctx);
 		} else {
 			if(elements.size() == 0)
 				return false;
-			varGen[i] = new SingleElementIterator(elements, vf);
+			varGen[i] = new SingleElementIterator(elements, ctx);
 		}
 		return true;
 	}

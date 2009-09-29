@@ -22,8 +22,8 @@ public class OrResult extends AbstractBooleanResult {
 	private final IBooleanResult left;
 	private final IBooleanResult right;
 
-	public OrResult(IValueFactory vf, IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
-		super(vf, ctx);
+	public OrResult(IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
+		super(ctx);
 		this.left = left;
 		this.right = right;
 	}

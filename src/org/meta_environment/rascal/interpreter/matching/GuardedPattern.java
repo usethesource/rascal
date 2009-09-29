@@ -2,7 +2,6 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -16,8 +15,8 @@ public class GuardedPattern extends AbstractMatchingResult {
 	private Type type;
 	private IMatchingResult pat;
 	
-	public GuardedPattern(IValueFactory vf, IEvaluatorContext ctx, Type type, IMatchingResult pat){
-		super(vf, ctx);
+	public GuardedPattern(IEvaluatorContext ctx, Type type, IMatchingResult pat){
+		super(ctx);
 		this.type = type;
 		this.pat = pat;
 	}
@@ -34,7 +33,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 		Environment env = ctx.getCurrentEnvt();
 		
 		if (type instanceof NonTerminalType && pat.getType(env).isSubtypeOf(tf.stringType())) {
-			subject = ResultFactory.makeResult(tf.stringType(), vf.string(TreeAdapter.yield((IConstructor) subject.getValue())), ctx);
+			subject = ResultFactory.makeResult(tf.stringType(), ctx.getValueFactory().string(TreeAdapter.yield((IConstructor) subject.getValue())), ctx);
 			pat.initMatch(subject);
 		}
 		else {
