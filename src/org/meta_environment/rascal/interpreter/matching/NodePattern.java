@@ -5,7 +5,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.QualifiedName;
@@ -27,8 +26,8 @@ public class NodePattern extends AbstractMatchingResult {
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final QualifiedName qname;
 	
-	public NodePattern(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
-		super(vf, ctx);
+	public NodePattern(IEvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
+		super(ctx);
 		this.name = matchPattern;
 		this.qname = name;
 		this.children = list;
@@ -68,7 +67,7 @@ public class NodePattern extends AbstractMatchingResult {
 			Type nameType = name.getType(env);
 			
 			if (nameType.isStringType()) {
-				name.initMatch(ResultFactory.makeResult(tf.stringType(), vf.string(treeSubject.getName()), ctx));
+				name.initMatch(ResultFactory.makeResult(tf.stringType(), ctx.getValueFactory().string(treeSubject.getName()), ctx));
 			}
 			else if (nameType.isExternalType()) {
 				if (treeSubject instanceof IConstructor) {
@@ -134,10 +133,10 @@ public class NodePattern extends AbstractMatchingResult {
 			if(env.isTreeConstructorName(qname, signature)){
 				Type consType = env.getConstructor(Names.name(Names.lastName(qname)), signature);
 
-				return vf.constructor(consType, vals);
+				return ctx.getValueFactory().constructor(consType, vals);
 			}
 		}
-		return vf.node(name.toString(), vals);
+		return ctx.getValueFactory().node(name.toString(), vals);
 	}
 
 	@Override

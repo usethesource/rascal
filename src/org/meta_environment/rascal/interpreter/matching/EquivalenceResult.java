@@ -15,8 +15,8 @@ public class EquivalenceResult extends AbstractBooleanResult {
 	private boolean firstMatch = true;
 	private boolean leftResult;
 
-	public EquivalenceResult(IValueFactory vf, IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
-		super(vf, ctx);
+	public EquivalenceResult(IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
+		super(ctx);
 		this.left = left;
 		this.right = right;
 	}

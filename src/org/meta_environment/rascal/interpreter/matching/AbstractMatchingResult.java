@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.matching;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
@@ -16,8 +15,8 @@ import org.meta_environment.uptr.Factory;
 public abstract class AbstractMatchingResult extends AbstractBooleanResult implements IMatchingResult {
 	protected Result<IValue> subject = null;
 	
-	public AbstractMatchingResult(IValueFactory vf, IEvaluatorContext ctx) {
-		super(vf, ctx);
+	public AbstractMatchingResult(IEvaluatorContext ctx) {
+		super(ctx);
 	}
 	
 	public AbstractAST getAST(){

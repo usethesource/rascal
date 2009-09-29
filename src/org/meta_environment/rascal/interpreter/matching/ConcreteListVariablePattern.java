@@ -5,7 +5,6 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -25,9 +24,9 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private boolean iDeclaredItMyself;
 	
-	public ConcreteListVariablePattern(IValueFactory vf, IEvaluatorContext ctx, 
+	public ConcreteListVariablePattern(IEvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
-		super(vf, ctx);
+		super(ctx);
 		this.name = Names.name(name);
 		this.declaredType = (NonTerminalType) type;
 		this.anonymous = name.toString().equals("_");
@@ -126,7 +125,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 
 	private IValue wrapWithListProd(IValue subject) {
 		IList args = (IList) subject;
-		IValue prod = Factory.Production_List.make(vf, declaredType.getSymbol());
+		IValue prod = Factory.Production_List.make(ctx.getValueFactory(), declaredType.getSymbol());
 		
 		if (args.length() == 1) {
 			IConstructor arg = (IConstructor) args.get(0);
@@ -136,7 +135,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 			}
 		}
 		
-		return Factory.Tree_Appl.make(vf, prod, subject);
+		return Factory.Tree_Appl.make(ctx.getValueFactory(), prod, subject);
 	}
 
 	@Override

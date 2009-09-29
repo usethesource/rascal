@@ -4,20 +4,20 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 class SubSetGenerator implements Iterator<ISet> {
-	private final IValueFactory vf;
+	private final IEvaluatorContext ctx;
 	private ISet remainingElements;
 	private Iterator<IValue> elementGen;
 	private SubSetGenerator subsetGen;
 	private IValue currentElement;
 	private boolean hasNext;
 
-	SubSetGenerator(ISet elements, IValueFactory valueFactory){
+	SubSetGenerator(ISet elements, IEvaluatorContext ctx){
 		this.remainingElements = elements;
 		elementGen = elements.iterator();
-		this.vf = valueFactory;
+		this.ctx = ctx;
 		this.hasNext = true;
 	}
 	
@@ -29,11 +29,11 @@ class SubSetGenerator implements Iterator<ISet> {
 		if(subsetGen == null || !subsetGen.hasNext()){
 			if(elementGen.hasNext()){
 				currentElement = elementGen.next();
-				remainingElements = remainingElements.subtract(vf.set(currentElement));
-				subsetGen = new SubSetGenerator(remainingElements, vf);
+				remainingElements = remainingElements.subtract(ctx.getValueFactory().set(currentElement));
+				subsetGen = new SubSetGenerator(remainingElements, ctx);
 			} else {
 				hasNext = false;
-				return vf.set();
+				return ctx.getValueFactory().set();
 			}
 		}
 		return subsetGen.next().insert(currentElement);

@@ -71,28 +71,26 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements IEvaluator<IBooleanResult>{
-	private final IValueFactory vf;
 	private final IEvaluatorContext ctx;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final PatternEvaluator pe;
 
-	public BooleanEvaluator(IValueFactory vf, IEvaluatorContext ctx) {
-		this.vf = vf;
+	public BooleanEvaluator(IEvaluatorContext ctx) {
 		this.ctx = ctx;
-		this.pe = new PatternEvaluator(vf, ctx);
+		this.pe = new PatternEvaluator(ctx);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionLiteral(Literal x) {
 		if (x.getLiteral().isBoolean()) {
-			return new BasicBooleanResult(vf, ctx, x);
+			return new BasicBooleanResult(ctx, x);
 		}
 		throw new UnexpectedTypeError(tf.boolType(), x.accept(ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionCallOrTree(CallOrTree x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
@@ -121,7 +119,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionQualifiedName(QualifiedName x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
@@ -168,7 +166,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionAll(All x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
@@ -179,13 +177,13 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionAnd(And x) {
-		return new AndResult(vf, ctx, x.getLhs().accept(this), x.getRhs()
+		return new AndResult(ctx, x.getLhs().accept(this), x.getRhs()
 				.accept(this));
 	}
 
 	@Override
 	public IBooleanResult visitExpressionAny(Any x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
@@ -220,18 +218,18 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionEquals(Equals x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionEquivalence(Equivalence x) {
-		return new EquivalenceResult(vf, ctx, x.getLhs().accept(this), x.getRhs().accept(this));
+		return new EquivalenceResult(ctx, x.getLhs().accept(this), x.getRhs().accept(this));
 	}
 
 	@Override
 	public IBooleanResult visitExpressionFieldAccess(
 			org.meta_environment.rascal.ast.Expression.FieldAccess x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
@@ -248,33 +246,33 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionGetAnnotation(GetAnnotation x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionGreaterThan(GreaterThan x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionIfThenElse(IfThenElse x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionImplication(Implication x) {
-		return new OrResult(vf, ctx, new NotResult(vf, ctx, x.getLhs().accept(
+		return new OrResult(ctx, new NotResult(ctx, x.getLhs().accept(
 				this)), x.getRhs().accept(this));
 	}
 
 	@Override
 	public IBooleanResult visitExpressionIn(In x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
@@ -286,12 +284,12 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionLessThan(LessThan x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionLessThanOrEq(LessThanOrEq x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
@@ -303,7 +301,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionMatch(Match x) {
-		return new MatchResult(vf, ctx, x.getPattern(), true, x.getExpression());
+		return new MatchResult(ctx, x.getPattern(), true, x.getExpression());
 	}
 
 	@Override
@@ -314,12 +312,12 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionNegation(Negation x) {
-		return new NotResult(vf, ctx, x.getArgument().accept(this));
+		return new NotResult(ctx, x.getArgument().accept(this));
 	}
 
 	@Override
 	public IBooleanResult visitExpressionIsDefined(IsDefined x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
@@ -330,7 +328,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionNoMatch(NoMatch x) {
-		return new MatchResult(vf, ctx, x.getPattern(), false, x.getExpression());
+		return new MatchResult(ctx, x.getPattern(), false, x.getExpression());
 	}
 
 //	@Override
@@ -341,17 +339,17 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionNonEquals(NonEquals x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionNotIn(NotIn x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionOr(Or x) {
-		return new OrResult(vf, ctx, x.getLhs().accept(this), x.getRhs()
+		return new OrResult(ctx, x.getLhs().accept(this), x.getRhs()
 				.accept(this));
 	}
 
@@ -383,7 +381,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 	@Override
 	public IBooleanResult visitExpressionSubscript(
 			org.meta_environment.rascal.ast.Expression.Subscript x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		return new BasicBooleanResult(ctx, x);
 	}
 
 	@Override
@@ -407,13 +405,13 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	@Override
 	public IBooleanResult visitExpressionEnumerator(Enumerator x) {
-		return new EnumeratorResult(vf, ctx, x.getPattern().accept(pe), x.getExpression());
+		return new EnumeratorResult(ctx, x.getPattern().accept(pe), x.getExpression());
 	}
 
 	
 //	@Override
 //	public IBooleanResult visitExpressionVisit(Visit x) {
-//		return new BasicBooleanResult(vf, ctx, x);
+//		return new BasicBooleanResult(ctx, x);
 //	}
 
 	@Override

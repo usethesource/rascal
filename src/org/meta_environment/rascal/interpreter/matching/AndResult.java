@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.interpreter.matching;
 
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 /**
@@ -20,8 +19,8 @@ public class AndResult extends AbstractBooleanResult {
 	private boolean firstMatch = true;
 	private boolean leftResult;
 
-	public AndResult(IValueFactory vf, IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
-		super(vf, ctx);
+	public AndResult(IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
+		super(ctx);
 		this.left = left;
 		this.right = right;
 	}

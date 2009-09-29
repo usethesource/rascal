@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -11,8 +10,8 @@ import org.meta_environment.rascal.interpreter.result.Result;
 public class NotPattern extends AbstractMatchingResult {
 	private final IMatchingResult arg;
 
-	public NotPattern(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult arg) {
-		super(vf, ctx);
+	public NotPattern(IEvaluatorContext ctx, IMatchingResult arg) {
+		super(ctx);
 		this.arg = arg;
 	}
 

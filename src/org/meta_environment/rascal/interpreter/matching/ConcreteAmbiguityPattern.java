@@ -9,10 +9,10 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 
 class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 
-	public ConcreteAmbiguityPattern(IValueFactory vf,
+	public ConcreteAmbiguityPattern(
 			IEvaluatorContext ctx, CallOrTree x,
 			java.util.List<AbstractBooleanResult> args) {
-		super(vf, ctx);
+		super(ctx);
 	}
 
 	@Override

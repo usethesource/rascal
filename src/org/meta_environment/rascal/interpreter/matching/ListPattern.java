@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -50,12 +49,12 @@ public class ListPattern extends AbstractMatchingResult  {
 	private boolean debug = false;
 
 	
-	public ListPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list){
-		this(vf,ctx, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
+	public ListPattern(IEvaluatorContext ctx, List<IMatchingResult> list){
+		this(ctx, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
 	}
 	
-	ListPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list, int delta){
-		super(vf, ctx);
+	ListPattern(IEvaluatorContext ctx, List<IMatchingResult> list, int delta){
+		super(ctx);
 		if(delta < 1)
 			throw new ImplementationError("Wrong delta");
 		this.delta = delta;
@@ -84,7 +83,7 @@ public class ListPattern extends AbstractMatchingResult  {
 		for (int i = 0; i < patternChildren.size(); i += delta) {
 			 vals[i] =  patternChildren.get(i).toIValue(env);
 		 }
-		return vf.list(vals);
+		return ctx.getValueFactory().list(vals);
 	}
 	
 	public static boolean isAnyListType(Type type){

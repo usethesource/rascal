@@ -255,7 +255,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public Evaluator(IValueFactory f, OutputStream errorStream, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
-		patternEvaluator = new PatternEvaluator(vf, this);
+		patternEvaluator = new PatternEvaluator(this);
 		this.heap = heap;
 		currentEnvt = scope;
 		rootScope = scope;
@@ -1593,7 +1593,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new AmbiguousConcretePattern(pat);
 		}
 
-		BooleanEvaluator pe = new BooleanEvaluator(vf, this);
+		BooleanEvaluator pe = new BooleanEvaluator(this);
 		return pat.accept(pe);
 	}
 

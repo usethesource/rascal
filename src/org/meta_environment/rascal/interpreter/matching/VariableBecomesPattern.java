@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -11,9 +10,9 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	private IMatchingResult pat;
 	private IMatchingResult var;
 
-	public VariableBecomesPattern(IValueFactory vf, IEvaluatorContext ctx, 
+	public VariableBecomesPattern(IEvaluatorContext ctx, 
 			IMatchingResult var, IMatchingResult pat){
-		super(vf, ctx);
+		super(ctx);
 		this.pat = pat;
 		this.var = var;
 	}

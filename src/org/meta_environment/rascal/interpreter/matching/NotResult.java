@@ -14,8 +14,8 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 public class NotResult extends AbstractBooleanResult {
 	private final IBooleanResult arg;
 
-	public NotResult(IValueFactory vf, IEvaluatorContext ctx, IBooleanResult arg) {
-		super(vf, ctx);
+	public NotResult(IEvaluatorContext ctx, IBooleanResult arg) {
+		super(ctx);
 		this.arg = arg;
 	}
 

@@ -2,7 +2,6 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -21,9 +20,9 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private boolean iDeclaredItMyself;
 
-	public TypedVariablePattern(IValueFactory vf, IEvaluatorContext ctx, 
+	public TypedVariablePattern(IEvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
-		super(vf, ctx);
+		super(ctx);
 		this.name = Names.name(name);
 		this.declaredType = type;
 		this.anonymous = name.toString().equals("_");
