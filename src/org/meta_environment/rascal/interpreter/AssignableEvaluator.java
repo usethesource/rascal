@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.Assignment;
@@ -46,10 +47,10 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 	private AssignmentOperator operator;
     private Result<IValue> value;
     private final Environment env;
-    private final Evaluator eval;
- 
+    private final IEvaluator<Result<IValue>> eval;
+	private static final TypeFactory tf = TypeFactory.getInstance();
     
-	public AssignableEvaluator(Environment env, Assignment operator, Result<IValue> value, Evaluator eval) {
+	public AssignableEvaluator(Environment env, Assignment operator, Result<IValue> value, IEvaluator<Result<IValue>> eval) {
 		if(operator == null || operator.isDefault())
 			this.operator = AssignmentOperator.Default;
 		else if(operator.isAddition())
@@ -315,7 +316,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		
 		if (!value.getType().isTupleType()) {
 			// TODO construct a better expected type
-			throw new UnexpectedTypeError(eval.tf.tupleEmpty(), value.getType(), x);
+			throw new UnexpectedTypeError(tf.tupleEmpty(), value.getType(), x);
 		}
 		
 		Type tupleType = value.getType();
@@ -333,7 +334,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			resultTypes[i] = argResult.getType();
 		}
 		
-		return makeResult(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results), eval);
+		return makeResult(tf.tupleType(resultTypes), tupleType.make(eval.getValueFactory(), results), eval);
 	}
 	
 	
