@@ -2,21 +2,23 @@ package org.meta_environment.rascal.interpreter.result;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.LimitedResultOutputStream.IOLimitReachedException;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.uptr.Factory;
-
 
 // TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).
 
@@ -84,9 +86,22 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return value;
 	}
 	
-	@Override
-	public String toString() {
-		return getType().toString() + ": " + getValue().toString();
+	public String toString(){
+		return getType().toString() + ": " + value.toString();
+	}
+	
+	public String toString(int length){
+		StandardTextWriter stw = new StandardTextWriter();
+		LimitedResultOutputStream lros = new LimitedResultOutputStream(length);
+		try{
+			stw.write(getValue(), lros);
+		}catch(IOLimitReachedException iolrex){
+			// This is fine, ignore.
+		}catch(IOException ioex){
+			// This can never happen.
+		}
+		
+		return getType().toString() + ": " + lros.toString();
 	}
 	
 	public Type getType() { 
@@ -96,7 +111,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> makeIntegerResult(int i) {
 		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i), ctx);
 	}
-	
 	
 	/// TODO: Factory access:
 	//this should probably access fields initialized by constructor invocations
@@ -112,7 +126,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	//////// The iterator interface
 	
-	
 	public boolean hasNext(){
 		return iterator != null && iterator.hasNext();
 	}
@@ -127,7 +140,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public void remove() {
 		throw new ImplementationError("remove() not implemented for (iterable) result");		
 	}
-
 	
 	// Error aux methods
 	
@@ -178,12 +190,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(NOTIN_STRING, that);
 	}
 	
-
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
 		return undefinedError(COMPOSE_STRING, right);
 	}
-
-
+	
 	public <U extends IValue> Result<U> negative() {
 		return undefinedError(NEGATIVE_STRING);
 	}
@@ -212,8 +222,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public <U extends IValue> Result<U> compareFunction(AbstractFunction that) {
 		return undefinedError(COMPARE_STRING, that);
 	}
-	
-	
 	
 	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
 		return undefinedError(LESS_THAN_STRING, that);
@@ -251,12 +259,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(FIELD_UPDATE_STRING);
 	}
 	
-	
 	public <U extends IValue, V extends IValue, W extends IValue> Result<U> makeStepRange(Result<V> to, Result<W> second) {
 		return undefinedError(RANGE_STRING);
 	}
-
-
+	
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		return undefinedError(SUBSCRIPT_STRING);
 	}
@@ -270,7 +276,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(SET_ANNO_STRING);
 	}
 	
-	
 	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) { 
 		return undefinedError(NON_EQUALS_STRING, that);
 	}
@@ -278,8 +283,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean isTrue() {
 		return false;
 	}
-
-
 	
 	///////
 	
@@ -306,8 +309,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> multiplyReal(RealResult that) {
 		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
-
-
+	
 	protected <U extends IValue> Result<U> divideReal(RealResult that) {
 		return that.undefinedError(DIVISION_STRING, this);
 	}
@@ -359,8 +361,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> joinSet(SetResult that) {
 		return that.undefinedError(JOIN_STRING, this);
 	}
-
-
+	
 	protected <U extends IValue> Result<U> multiplyRelation(RelationResult that) {
 		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
@@ -518,33 +519,43 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToReal(RealResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToString(StringResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToList(ListResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToSet(SetResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToMap(MapResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToNode(NodeResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToConcreteSyntax(ConcreteSyntaxResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToRelation(RelationResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> equalToTuple(TupleResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
@@ -572,33 +583,43 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToString(StringResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToList(ListResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToSet(SetResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToMap(MapResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToConcreteSyntax(ConcreteSyntaxResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToRelation(RelationResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
+	
 	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
@@ -626,7 +647,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
-
 	
 	protected <U extends IValue> Result<U> lessThanReal(RealResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
@@ -776,9 +796,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 			SourceLocationResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
-
-	
-	
 	public boolean isPublic() {
 		return isPublic;
 	}
@@ -794,20 +811,4 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean hasInferredType() {
 		return inferredType;
 	}
-
-	
-
-	
-	
-
-
-
-	
-
-
-
-
-	
-	
-	
 }

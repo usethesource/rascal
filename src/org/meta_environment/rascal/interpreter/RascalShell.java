@@ -30,7 +30,7 @@ import org.meta_environment.uptr.TreeAdapter;
 public class RascalShell {
 	private final static String PROMPT = "rascal>";
 	private final static String CONTINUE_PROMPT = ">>>>>>>";
-	private final static int MAX_CONSOLE_LINE = 100;
+	private final static int LINE_LIMIT = 200;
 	private static final String SHELL_MODULE = "***shell***";
 	
 	private final ConsoleReader console;
@@ -78,9 +78,6 @@ public class RascalShell {
 				} while (!completeStatement(input));
 
 				String output = handleInput(evaluator, input);
-				if(output.length() > MAX_CONSOLE_LINE) {
-					output = output.substring(0, MAX_CONSOLE_LINE) + " ...";
-				}
 				console.printString(output);
 				console.printNewline();
 			}
@@ -154,10 +151,10 @@ public class RascalShell {
 			Type type = value.getType();
 			
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
-				return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + type + ": " + v.toString();
+				return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT);
 			}
 			
-			return type + ": " + ((v != null) ? v.toString() : null);
+			return ((v != null) ? value.toString(LINE_LIMIT) : null);
 		}
 		
 		return result.toString();
