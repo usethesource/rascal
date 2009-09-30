@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 class SingleElementIterator implements Iterator<ISet> {
