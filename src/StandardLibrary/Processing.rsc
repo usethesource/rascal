@@ -1,5 +1,7 @@
 module Processing
 
+
+
 public int LEFT = 37;
 public int CENTER = 3;
 public int RIGHT = 39;
@@ -13,8 +15,6 @@ public int java height();
 @doc{width of current sketch}
 @javaClass{org.meta_environment.rascal.std.Processing}
 public int java width();
-
-
 
 @doc{size of current sketch}
 @javaClass{org.meta_environment.rascal.std.Processing}
@@ -260,14 +260,33 @@ public void java strokeWeight(real weight);
 
 // ---- start/stop ----
 
+/*
+ * Identity returned for processing object that results from processing call.
+ */
+ 
+alias Processing = node;
+
+/*
+ * Tags for all possible callback functions.
+ */
+ /*
+tag void setup on function;
+tag void draw on function;
+tag void mouseClicked on function;
+tag void mouseDragged on function;
+tag void mouseMoved on function;
+tag void mousePressed on function;
+tag void mouseReleased on function;
+*/
+
 @doc{start Processing}
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.meta_environment.rascal.std.Processing}
-public void java processing();
+public Processing java processing();
 
-@doc{stop a visualization}
-@javaClass{org.meta_environment.rascal.std.Processing}
-public void java stop();
+//@doc{stop a visualization}
+//@javaClass{org.meta_environment.rascal.std.Processing}
+//public void java stop(Processing P);
 
 @doc{noLoop, draw once}
 @javaClass{org.meta_environment.rascal.std.Processing}
