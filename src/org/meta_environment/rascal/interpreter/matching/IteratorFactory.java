@@ -30,60 +30,63 @@ public class IteratorFactory {
 		
 		//TODO: why should be managed by the getAliased() method or 
 		// directly by the constructor of AliasType?
-		while (subjectType.isAliasType()) {
-			subjectType = subjectType.getAliased();
-		}
+//		while (subjectType.isAliasType()) {
+//			subjectType = subjectType.getAliased();
+//		}
 		
 		// List
 		if(subjectType.isListType()){
-			//TODO: we could do this more precisely
-			if(!subjectType.getElementType().isVoidType())
-				checkMayOccur(patType, subjectType.getElementType(), ctx, shallow);
-			if(shallow)
+			//TODO: we could do this more precisely				
+			if(shallow){
+				checkMayOccur(patType, subjectType.getElementType(), ctx);
 				return ((IList) subjectValue).iterator();
+			}
 			return new DescendantReader(subjectValue);
 			
 		// Set
-		} else 	if(subjectType.isSetType()){
-			if(!subjectType.getElementType().isVoidType())
-				checkMayOccur(patType, subjectType.getElementType(), ctx, shallow);
-			if(shallow)
+		} else 	if(subjectType.isSetType()){				
+			if(shallow){
+				checkMayOccur(patType, subjectType.getElementType(), ctx);
 				return ((ISet) subjectValue).iterator();
+			}
 			return new DescendantReader(subjectValue);
 		
 		// Map
-		} else if(subjectType.isMapType()){
-			if(!subjectType.getKeyType().isVoidType())
-				checkMayOccur(patType, subjectType.getKeyType(), ctx, shallow);
-			if(shallow)
+		} else if(subjectType.isMapType()){				
+			if(shallow){
+				checkMayOccur(patType, subjectType.getKeyType(), ctx);
 				return ((IMap) subjectValue).iterator();
+			}
 			return new DescendantReader(subjectValue);
 			
 		// NonTerminal	
 		} else if(subjectType.isExternalType()){
 			if(subjectType instanceof NonTerminalType){
-				
 				IConstructor tree = (IConstructor) subjectValue;
-				checkMayOccur(patType, subjectType, ctx, shallow);
 				NonTerminalType nt = (NonTerminalType) subjectType;
 				
 				if(nt.isConcreteListType()){
-					IConstructor listSymbol = nt.getSymbol();
-					int delta = SymbolAdapter.isSepList(listSymbol)? 4 : 2;
-					// TODO !shallow case?
-					return new CFListIterator((IList)tree.get(1), delta);
+					if(shallow){
+						checkMayOccur(patType, subjectType, ctx);
+						IConstructor listSymbol = nt.getSymbol();
+						int delta = SymbolAdapter.isSepList(listSymbol)? 4 : 2;
+						return new CFListIterator((IList)tree.get(1), delta);
+					}
+					return new DescendantReader(tree);
 				}
+				if(shallow)
+					checkMayOccur(patType, subjectType, ctx);
 			}
 			return new SingleIValueIterator(subjectValue);
 			
 		// Node and ADT
-		} else if(subjectType.isNodeType() || subjectType.isAbstractDataType()){
-
-			checkMayOccur(patType, subjectType, ctx, shallow);
-			if(shallow)
+		} else if(subjectType.isNodeType() || subjectType.isAbstractDataType()){			
+			if(shallow){
+				checkMayOccur(patType, subjectType, ctx);
 				return new NodeChildIterator((INode) subjectValue);
-			
+			}
 			return new DescendantReader(subjectValue);
+			
 		} else if(subjectType.isTupleType()){
 			if(shallow){
 				int nElems = subjectType.getArity();
@@ -111,8 +114,8 @@ public class IteratorFactory {
 		}
 	}
 	
-	private static void checkMayOccur(Type patType, Type rType, IEvaluatorContext ctx, boolean shallow){
-		if(shallow && !ctx.getEvaluator().mayOccurIn(rType, patType))
+	private static void checkMayOccur(Type patType, Type rType, IEvaluatorContext ctx){
+		if(!ctx.getEvaluator().mayOccurIn(patType, rType))
 			throw new UnexpectedTypeError(patType, rType, ctx.getCurrentAST());
 	}
 	
