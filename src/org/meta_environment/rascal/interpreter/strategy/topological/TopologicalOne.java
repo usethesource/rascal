@@ -10,12 +10,11 @@ import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.strategy.ContextualStrategy;
-import org.meta_environment.rascal.interpreter.strategy.IContextualVisitable;
 
 public class TopologicalOne extends ContextualStrategy {
 
-	public TopologicalOne(IContextualVisitable v, AbstractFunction function) {
-		super(v, function);
+	public TopologicalOne(AbstractFunction function) {
+		super(new TopologicalVisitable(function), function);
 	}
 
 	@Override
@@ -23,7 +22,7 @@ public class TopologicalOne extends ContextualStrategy {
 		if (argValues[0] instanceof IRelation) {
 			IRelation relation = ((IRelation) argValues[0]);
 			IValue lastContext = v.getContext();
-			v.initContext(relation);
+			v.setContext(relation);
 			//only for binary relations
 			if (relation.getType().getArity() == 2) {
 				Iterator<IValue> roots = relation.domain().subtract(relation.range()).iterator();
@@ -35,7 +34,7 @@ public class TopologicalOne extends ContextualStrategy {
 						break;
 					}
 				}
-				v.initContext(lastContext);
+				v.setContext(lastContext);
 				return new ElementResult<IValue>(v.getContext().getType(), v.getContext(), ctx);
 			}
 		}
@@ -55,18 +54,14 @@ public class TopologicalOne extends ContextualStrategy {
 	public static IValue makeTopologicalOne(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
-			if (function instanceof ContextualStrategy) {
-				return new TopologicalOne(((ContextualStrategy)function).getVisitable(), function);	
-			} else if (function.isStrategy()) {
-				return new TopologicalOne(new TopologicalVisitable(), function);	
+			if (function.isStrategy()) {
+				return new TopologicalOne(function);	
 			} 
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
-				if (function instanceof ContextualStrategy) {
-					return new TopologicalOne(((ContextualStrategy)function).getVisitable(), function);	
-				} else if (function.isStrategy()) {
-					return new TopologicalOne(new TopologicalVisitable(), function);	
+				if (function.isStrategy()) {
+					return new TopologicalOne(function);	
 				} 
 			}
 		}
