@@ -3,11 +3,13 @@ package org.meta_environment.rascal.std;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -20,14 +22,13 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 import processing.core.PApplet;
 import processing.core.PFont;
+import treemap.Treemap;
 
 public class Processing {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
-	//private static final TypeFactory types = TypeFactory.getInstance();
-	//private static final Random random = new Random();
 	
 	static PApplet myPApplet;
-	static RascalFrame myFrame;
+	//static RascalFrame myFrame;
 	
 	public static IInteger height(){
 		return values.integer(myPApplet.height);
@@ -37,7 +38,6 @@ public class Processing {
 		return values.integer(myPApplet.width);
 	}
 	
-
 	
 	public static void size(IInteger x, IInteger y){
 		 myPApplet.size(x.intValue(), y.intValue());
@@ -383,7 +383,7 @@ public class Processing {
 		return values.integer(myPApplet.pmouseY);
 	}
 	
-	// -----
+	// ----- start/stop Processing visualization
 	
 	protected static void checkRascalFunction(IValue f, IEvaluatorContext ctx){
 		if(f.getType().isExternalType() && (f instanceof OverloadedFunctionResult))
@@ -395,15 +395,21 @@ public class Processing {
 	public static enum callback {setup, draw, mouseClicked, mouseDragged, mouseMoved, mousePressed, mouseReleased}
 	
 	public static EnumMap<callback,OverloadedFunctionResult> callbacks = new EnumMap<callback,OverloadedFunctionResult>(callback.class);
+
+	private static HashMap<INode, RascalFrame> frames = new HashMap<INode, RascalFrame>();
+	private static java.lang.String frameCons = "frame";
+	private static int frameCnt = 0;
 	
-	public static void processing(IEvaluatorContext ctx){
+	public static INode processing(IEvaluatorContext ctx){
 		System.err.println("entering Processing ...");
 		EnumMap<callback,OverloadedFunctionResult> callbacks = new EnumMap<callback,OverloadedFunctionResult>(callback.class);
 		
 		Environment env = ctx.getCurrentEnvt();
 		for(Entry<java.lang.String, OverloadedFunctionResult> e : env.getFunctions()){
-			if(e.getKey().equals("setup"))
+			
+			if(e.getKey().equals("setup")){
 				callbacks.put(callback.setup, e.getValue());
+			}
 			if(e.getKey().equals("draw"))
 				callbacks.put(callback.draw, e.getValue());
 			if(e.getKey().equals("mouseClicked"))
@@ -418,10 +424,16 @@ public class Processing {
 				callbacks.put(callback.mouseReleased, e.getValue());
 		}
 		
-		
 		myPApplet = new RascalProcessingApplet(callbacks);
-		myFrame = new RascalFrame(myPApplet);
+		RascalFrame myFrame = new RascalFrame(myPApplet);
 		
+		IValue args[] = new IValue[1];
+		args[0] = values.integer(frameCnt++);
+		INode nd = values.node(frameCons, args);
+		frames.put(nd, myFrame);
+		
+		return nd;
+/*		
 		// A hack: Cannot return before setup is finished
 		try {
 			Thread.sleep(500000L);
@@ -430,10 +442,22 @@ public class Processing {
 			e.printStackTrace();
 		}
 		System.err.println("Returning from start");
+		*/
 	}
 	
-	public static void stop(){
-		myFrame.dispose();
+	private static RascalFrame getFrame(INode PO, IEvaluatorContext ctx){
+		if(!PO.getName().equals(frameCons))
+			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), ctx.getStackTrace());
+		RascalFrame frame = frames.get(PO);
+		if(frame == null)
+			throw RuntimeExceptionFactory.noSuchElement(PO, ctx.getCurrentAST(), ctx.getStackTrace());
+		return frame;
+	}
+	
+	public static void stop(INode PO, IEvaluatorContext ctx){
+		RascalFrame frame = getFrame(PO, ctx);
+		frame.dispose();
+		frames.remove(PO);
 	}
 	
 	public static void noLoop(){

@@ -1,10 +1,12 @@
 package org.meta_environment.rascal.std;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -14,6 +16,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 import treemap.Mappable;
 import treemap.SimpleMapItem;
@@ -22,30 +25,52 @@ import treemap.Treemap;
 
 public class TreeMap {
 	
-	static SimpleMapModel myMap;
-	static Treemap myTreemap;
+	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
+	private static final TypeFactory types = TypeFactory.getInstance();
+	private static final java.lang.String treemapCons = "treemap";
 	
-	public static void treemap(IMap m, IInteger x, IInteger y, IInteger width, IInteger height, 
+	static Treemap myTreemap;
+	private static final HashMap<INode, Treemap> treemaps = new HashMap<INode, Treemap>();
+	private static int tmCnt = 0;
+	
+	public static INode treemap(IMap m, IInteger x, IInteger y, IInteger width, IInteger height, 
             IValue draw, IEvaluatorContext ctx){
 
 		Processing.checkRascalFunction(draw, ctx);
-		myMap = new RascalSimpleMapModel(m, (OverloadedFunctionResult)  draw, true);
+		SimpleMapModel myMap = new RascalSimpleMapModel(m, (OverloadedFunctionResult)  draw, true);
 
 		myTreemap = new Treemap(myMap, x.intValue(), y.intValue(), width.intValue(), height.intValue());
+		IValue args[] = new IValue[1];
+		args[0] = values.integer(tmCnt++);
+		INode nd = values.node(treemapCons, args);
+		treemaps.put(nd, myTreemap);
+		
+		return nd;
 	}
 	
 	public static void treemap(IMap m, IReal x, IReal y, IReal width, IReal height, 
 			                     IValue draw, IEvaluatorContext ctx){
 		
 		Processing.checkRascalFunction(draw, ctx);
-		myMap = new RascalSimpleMapModel(m, (OverloadedFunctionResult)  draw, false);
+		SimpleMapModel myMap = new RascalSimpleMapModel(m, (OverloadedFunctionResult)  draw, false);
 			
 		myTreemap = new Treemap(myMap, x.floatValue(), y.floatValue(), width.floatValue(), height.floatValue());
 	}
 	
-	public static void drawTreeMap(){
-		myTreemap.draw();
+	private static Treemap getTreemap(INode PO, IEvaluatorContext ctx){
+		if(!PO.getName().equals(treemapCons))
+			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), ctx.getStackTrace());
+		Treemap tm = treemaps.get(PO);
+		if(tm == null)
+			throw RuntimeExceptionFactory.noSuchElement(PO, ctx.getCurrentAST(), ctx.getStackTrace());
+		return tm;
 	}
+	
+	public static void draw(INode PO, IEvaluatorContext ctx){
+		Treemap tm = getTreemap(PO, ctx);
+		tm.draw();
+	}
+	
 }
 
 class RascalSimpleMapModel extends SimpleMapModel {
