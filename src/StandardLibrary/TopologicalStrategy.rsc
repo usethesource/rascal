@@ -14,39 +14,41 @@ public &T(&T) java makeTopologicalOne(&T(&T) strategy);
 @javaClass{org.meta_environment.rascal.interpreter.strategy.topological.TopologicalStrategy}
 public &T(&T) java makeTopologicalStrategy(&T(&T) strategy);
 
+@javaClass{org.meta_environment.rascal.interpreter.strategy.topological.TopologicalStrategy}
+public &T(&T) java propagateContext(&T(&T) strategy, &T(&T) strategy);
 
 public &T1(&T1) topological_top_down(&T2(&T2) strategy) { 
-	return &T3(&T3 subject) {
-		&T3 res = makeTopologicalStrategy(strategy)(subject);
+	return propagateContext(&T3(&T3 subject) {
+		&T3 res = strategy(subject);
 		return makeTopologicalAll(topological_top_down(strategy))(res);
-	};
+	}, strategy);
 }
 
 public &T1(&T1) topological_bottom_up(&T2(&T2) strategy) { 
-	return &T3(&T3 subject) {
+	return propagateContext(&T3(&T3 subject) {
 		&T3 res = makeTopologicalAll(topological_bottom_up(strategy))(subject);
-		return makeTopologicalStrategy(strategy)(res);
-	};
+		return strategy(res);
+	}, strategy);
 }
 
 public &T1(&T1) topological_once_top_down(&T2(&T2) strategy) {
- 	return &T3(&T3 subject) {
-		&T3 res = makeTopologicalStrategy(strategy)(subject);
+ 	return propagateContext(&T3(&T3 subject) {
+		&T3 res = strategy(subject);
 		if (res == subject) {
-			return makeTopologicalOne(topological_top_down(strategy))(res);
+			return makeTopologicalOne(topological_once_top_down(strategy))(res);
 		} else {
 			return res;
 		}
-	};
+	}, strategy);
 }
 
 public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
-  return &T3(&T3 subject) {
+  return propagateContext(&T3(&T3 subject) {
 		&T3 res = makeTopologicalOne(topological_once_bottom_up(strategy))(subject);
 		if (res == subject) {
-			return makeTopologicalStrategy(strategy)(res);
+			return strategy(res);
 		} else {
 			return res;
 		}
-	};
+	}, strategy);
 }
