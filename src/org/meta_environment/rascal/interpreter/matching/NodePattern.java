@@ -109,7 +109,7 @@ public class NodePattern extends AbstractMatchingResult {
 			 if (constructors != null && constructors instanceof OverloadedFunctionResult) {
 				 for (AbstractFunction d : ((OverloadedFunctionResult) constructors).iterable()) {
 					 if (d.match(signature)) {
-						 return env.getConstructor(d.getReturnType(), Names.name(Names.lastName(qname)), signature);
+						 return env.getConstructor(d.getReturnType(), Names.name(Names.lastName(qname)), signature).getAbstractDataType();
 					 }
 				 }
 			 }
