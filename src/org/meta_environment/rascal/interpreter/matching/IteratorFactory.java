@@ -26,8 +26,6 @@ public class IteratorFactory {
 		IValue subjectValue = subject.getValue();
 		Type patType = matchPattern.getType(ctx.getCurrentEnvt());
 		
-		//System.err.println("make: " + subjectType + ", " + patType);
-		
 		// TODO: this should be a visitor design as well..
 		
 		//TODO: why should be managed by the getAliased() method or 
@@ -41,19 +39,25 @@ public class IteratorFactory {
 			//TODO: we could do this more precisely
 			if(!subjectType.getElementType().isVoidType())
 				checkMayOccur(patType, subjectType.getElementType(), ctx, shallow);
-			return ((IList) subjectValue).iterator();
+			if(shallow)
+				return ((IList) subjectValue).iterator();
+			return new DescendantReader(subjectValue);
 			
 		// Set
 		} else 	if(subjectType.isSetType()){
 			if(!subjectType.getElementType().isVoidType())
 				checkMayOccur(patType, subjectType.getElementType(), ctx, shallow);
-			return ((ISet) subjectValue).iterator();
+			if(shallow)
+				return ((ISet) subjectValue).iterator();
+			return new DescendantReader(subjectValue);
 		
 		// Map
 		} else if(subjectType.isMapType()){
 			if(!subjectType.getKeyType().isVoidType())
 				checkMayOccur(patType, subjectType.getKeyType(), ctx, shallow);
-			return ((IMap) subjectValue).iterator();
+			if(shallow)
+				return ((IMap) subjectValue).iterator();
+			return new DescendantReader(subjectValue);
 			
 		// NonTerminal	
 		} else if(subjectType.isExternalType()){
@@ -66,6 +70,7 @@ public class IteratorFactory {
 				if(nt.isConcreteListType()){
 					IConstructor listSymbol = nt.getSymbol();
 					int delta = SymbolAdapter.isSepList(listSymbol)? 4 : 2;
+					// TODO !shallow case?
 					return new CFListIterator((IList)tree.get(1), delta);
 				}
 			}
@@ -75,17 +80,21 @@ public class IteratorFactory {
 		} else if(subjectType.isNodeType() || subjectType.isAbstractDataType()){
 
 			checkMayOccur(patType, subjectType, ctx, shallow);
-			if(shallow) return	new NodeChildIterator((INode) subjectValue);
+			if(shallow)
+				return new NodeChildIterator((INode) subjectValue);
 			
-			return new NodeReader((INode) subjectValue, true);
+			return new DescendantReader(subjectValue);
 		} else if(subjectType.isTupleType()){
-			int nElems = subjectType.getArity();
-			for(int i = 0; i < nElems; i++){
-				if(!subjectType.getFieldType(i).isSubtypeOf(patType)) {
-					throw new UnexpectedTypeError(patType, subjectType.getFieldType(i), ctx.getCurrentAST());
+			if(shallow){
+				int nElems = subjectType.getArity();
+				for(int i = 0; i < nElems; i++){
+					if(!subjectType.getFieldType(i).isSubtypeOf(patType)) {
+						throw new UnexpectedTypeError(patType, subjectType.getFieldType(i), ctx.getCurrentAST());
+					}
 				}
+				return new TupleElementIterator((ITuple)subjectValue);
 			}
-			return new TupleElementIterator((ITuple)subjectValue);
+			return new DescendantReader(subjectValue);
 			
 		} else if(subjectType.isBoolType() ||
 				subjectType.isIntegerType() ||
@@ -106,6 +115,5 @@ public class IteratorFactory {
 		if(shallow && !ctx.getEvaluator().mayOccurIn(rType, patType))
 			throw new UnexpectedTypeError(patType, rType, ctx.getCurrentAST());
 	}
-
 	
 }

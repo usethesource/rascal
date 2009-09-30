@@ -16,32 +16,67 @@ import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.uptr.SymbolAdapter;
 
-public class NodeReader implements Iterator<IValue> {
+public class DescendantReader implements Iterator<IValue> {
 
 	Stack<Object> spine = new Stack<Object>();
-	
-	private boolean bottomup;
+
 	private boolean debug = false;
 	
-	NodeReader(INode node, boolean bottomup){
-		this.bottomup = bottomup;
-		initSpine(node);
+	DescendantReader(IValue val){
+		if(debug)System.err.println("DescendantReader: " + val);
+		push(val);
+	}
+
+	@SuppressWarnings("unchecked")
+	public boolean hasNext() {
+		while((spine.size() > 0) &&
+			   (spine.peek() instanceof Iterator && !((Iterator<Object>) spine.peek()).hasNext())){
+			spine.pop();
+		}		
+		return spine.size() > 0;
 	}
 	
-	private void initSpine(INode node){
-		if(debug)System.err.println("initSpine: " + node.getType() + ", " + node);
-		
-		if(node.getType() instanceof NonTerminalType ||
-		   node.getType().getName().equals("Tree")){
-			pushConcreteSyntaxNode((IConstructor) node);
+	@SuppressWarnings("unchecked")
+	public IValue next() {
+		if(spine.peek() instanceof Iterator){
+			Iterator<Object> iter = (Iterator<Object>) spine.peek();
+			if(!iter.hasNext()){
+				spine.pop();
+				return next();
+			}
+			push((IValue) iter.next());
+			return next();
+		}
+		return (IValue) spine.pop();
+	}
+	
+	private void push(IValue v, Iterator<IValue> children){
+		spine.push(v);
+		spine.push(children);
+	}
+	
+	private void push(IValue v){
+		Type type = v.getType();
+		if(type.isNodeType() || type.isConstructorType() || type.isAbstractDataType()){
+			if(type.getName().equals("Tree")){
+				pushConcreteSyntaxNode((IConstructor) v);
+				return;
+			}
+			push(v,  ((INode) v).getChildren().iterator());
+		} else
+		if(type.isListType()){
+			push(v, ((IList) v).iterator());
+		} else
+		if(type.isSetType()){
+			push(v, ((ISet) v).iterator());
+		} else
+		if(type.isMapType()){
+			push(v, new MapKeyValueIterator((IMap) v));
+		} else
+		if(type.isTupleType()){
+			push(v, new TupleElementIterator((ITuple) v));
 		} else {
-			if(bottomup) {
-				spine.push(node);
-			}
-			spine.push(node.getChildren().iterator());
-			if(!bottomup) {
-				spine.push(node);
-			}
+			spine.push(v);
 		}
 	}
 	
@@ -91,9 +126,7 @@ public class NodeReader implements Iterator<IValue> {
 			/*
 			 * appl(prod(...), [child0, layout0, child1, ...])
 			 */
-			if(bottomup) {
-				spine.push(tree);
-			}
+			spine.push(tree);
 			IList applArgs = (IList) tree.get(1);
 			int delta = (SymbolAdapter.isLiteral(sym)) ? 1 : 2;   // distance between elements
 			
@@ -101,84 +134,10 @@ public class NodeReader implements Iterator<IValue> {
 				//spine.push(applArgs.get(i));
 				pushConcreteSyntaxNode((IConstructor) applArgs.get(i));
 			}
-			if(!bottomup) {
-				spine.push(tree);
-			}
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public boolean hasNext() {
-		while((spine.size() > 0) &&
-			   (spine.peek() instanceof Iterator && !((Iterator<Object>) spine.peek()).hasNext())){
-			spine.pop();
-		}		
-		return spine.size() > 0;
-	}
-	
-	private IValue insertAndNext(IValue v, Iterator<IValue> children){
-		if(bottomup){
-			spine.push(v);
-			spine.push(children);
-		} else {
-			spine.push(children);
-			spine.push(v);
-		}
-		return next();
-	}
-	
-	private IValue expand(IValue v){
-		Type type = v.getType();
-		if(type.isNodeType() || type.isConstructorType() || type.isAbstractDataType()){
-			if(type.getName().equals("Tree")){
-				pushConcreteSyntaxNode((IConstructor) v);
-				return next();
-			}
-			
-			return insertAndNext(v,  ((INode) v).getChildren().iterator());
-		}
-		if(type.isListType()){
-			return insertAndNext(v, ((IList) v).iterator());
-		}
-		if(type.isSetType()){
-			return insertAndNext(v, ((ISet) v).iterator());
-		}
-		if(type.isMapType()){
-			return insertAndNext(v, ((IMap) v).iterator());
-		}
-		if(type.isTupleType()){
-			ITuple tp = (ITuple) v;
-			int arity = tp.arity();
-			if(bottomup){
-				spine.push(tp);
-			}
-			for(int i = arity - 1; i >= 0; i--){
-				spine.push(tp.get(i));
-			}
-			if(!bottomup){
-				spine.push(tp);
-			}
-			return next();
-		}
-		
-		return v;
-	}
-
-	@SuppressWarnings("unchecked")
-	public IValue next() {
-		if(spine.peek() instanceof Iterator){
-			Iterator<Object> iter = (Iterator<Object>) spine.peek();
-			if(!iter.hasNext()){
-				spine.pop();
-				return next();
-			}
-			return expand((IValue) iter.next());
-		}
-		
-		return (IValue) spine.pop();
 	}
 
 	public void remove() {
-		throw new UnsupportedOperationException("remove from INodeReader");
+		throw new UnsupportedOperationException("remove from DescendantReader");
 	}
 }

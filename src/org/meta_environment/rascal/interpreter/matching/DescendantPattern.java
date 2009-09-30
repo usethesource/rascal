@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -20,7 +21,8 @@ public class DescendantPattern extends AbstractMatchingResult  {
 
 	@Override
 	public Type getType(Environment env) {
-		return pat.getType(env);
+		return TypeFactory.getInstance().valueType();
+		// TODO: return pat.getType(env) is too restrictive, reconsider this.
 	}
 	
 	@Override
