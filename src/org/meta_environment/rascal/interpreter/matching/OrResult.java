@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.interpreter.matching;
 
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
