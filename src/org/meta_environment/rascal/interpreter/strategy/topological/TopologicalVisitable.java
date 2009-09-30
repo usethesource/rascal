@@ -8,14 +8,20 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.interpreter.result.AbstractFunction;
+import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.strategy.IContextualVisitable;
 
 public class TopologicalVisitable implements IContextualVisitable {
 
-	protected IRelation context;
+	private AbstractFunction function;
 
-	public TopologicalVisitable() {}
+	public TopologicalVisitable(AbstractFunction function) {
+		this.function = function;
+	}
 
 	protected static HashMap<IValue, List<ITuple>> computeAdjacencies(IRelation relation) {
 		HashMap<IValue, List<ITuple>> adjacencies = new HashMap<IValue, List<ITuple>> ();
@@ -30,20 +36,10 @@ public class TopologicalVisitable implements IContextualVisitable {
 		return adjacencies;
 	}
 
-	public void initContext(IValue v) {
-		if (v instanceof IRelation) {
-			IRelation relation = ((IRelation) v);
-			//only for binary relations
-			if (relation.getType().getArity() == 2) {
-				context = relation;
-			}
-		}
-	}
-
 	public void updateContext(IValue oldvalue, IValue newvalue) {
-		if (context != null) {
-			IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(context.getElementType());
-			for (IValue v : context) {
+		if (getContext() != null) {
+			IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(getRelationContext().getElementType());
+			for (IValue v : getRelationContext()) {
 				if (v.getType().isTupleType()) {
 					ITuple t = (ITuple) v;
 					ITuple newt = t;
@@ -52,18 +48,38 @@ public class TopologicalVisitable implements IContextualVisitable {
 					writer.insert(newt);
 				}
 			}
-			context = writer.done();
+			setContext(writer.done());
 		}
 	}
 
+	public IValue getContext() {
+		Result<IValue>  res = function.getEvaluatorContext().getCurrentEnvt().getVariable("rascal_context");
+		if (res!= null && res.getValue() instanceof IRelation) {
+			return res.getValue();
+		}
+		throw new RuntimeException("No Strategy context");
+	}
+
+	private IRelation getRelationContext() {
+		return (IRelation) getContext();
+	}
+
+	public void setContext(IValue value) {
+		if (value!= null && value instanceof IRelation) {
+			Type contextType = function.getEvaluatorContext().getCurrentEnvt().getVariable("rascal_context").getValue().getType();
+			function.getEvaluatorContext().getCurrentEnvt().storeVariable("rascal_context", ResultFactory.makeResult(contextType, value, function.getEvaluatorContext()));
+		}
+		throw new RuntimeException("No Strategy context");
+	}
+
 	public IValue getChildAt(IValue v, int i) throws IndexOutOfBoundsException {
-		List<ITuple> children = computeAdjacencies(context).get(v);
+		List<ITuple> children = computeAdjacencies(getRelationContext()).get(v);
 		return children.get(i).get(1);
 	}
 
 	public <T extends IValue> T setChildAt(T v, int i, IValue newchild)
 	throws IndexOutOfBoundsException {
-		List<ITuple> adjacencies = computeAdjacencies(context).get(v);
+		List<ITuple> adjacencies = computeAdjacencies(getRelationContext()).get(v);
 		List<IValue> newchildren = new ArrayList<IValue>();
 		for (ITuple t : adjacencies) newchildren.add(t.get(1));
 		newchildren.set(i, newchild);
@@ -72,9 +88,9 @@ public class TopologicalVisitable implements IContextualVisitable {
 
 
 	public int getChildrenNumber(IValue v) {
-		List<ITuple> adjacencies = computeAdjacencies(context).get(v);
+		List<ITuple> adjacencies = computeAdjacencies(getRelationContext()).get(v);
 		if (adjacencies == null) {
-			throw new RuntimeException("Unexpected value "+v+" in the context "+context);
+			throw new RuntimeException("Unexpected value "+v+" in the getContext() "+getContext());
 		}
 		return adjacencies.size();
 	}
@@ -82,19 +98,15 @@ public class TopologicalVisitable implements IContextualVisitable {
 
 	public <T extends IValue> T setChildren(T v, List<IValue> children)
 	throws IndexOutOfBoundsException {
-		List<ITuple> oldchildren = computeAdjacencies(context).get(v);
+		List<ITuple> oldchildren = computeAdjacencies(getRelationContext()).get(v);
 		IRelation oldvalues = ValueFactoryFactory.getValueFactory().relation(oldchildren.toArray(new ITuple[]{}));
 		List<ITuple> newchildren = new ArrayList<ITuple>();
 		for (IValue child: children) {
 			newchildren.add(ValueFactoryFactory.getValueFactory().tuple(v,child));
 		}
 		IRelation newvalues = ValueFactoryFactory.getValueFactory().relation(newchildren.toArray(new ITuple[]{}));
-		context =  context.subtract(oldvalues).union(newvalues);
+		setContext(getRelationContext().subtract(oldvalues).union(newvalues));
 		return v;
-	}
-
-	public IValue getContext() {
-		return context;
 	}
 
 }
