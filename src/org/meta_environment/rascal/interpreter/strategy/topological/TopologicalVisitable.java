@@ -2,144 +2,99 @@ package org.meta_environment.rascal.interpreter.strategy.topological;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.strategy.IVisitable;
+import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.interpreter.strategy.IContextualVisitable;
 
-public class TopologicalVisitable<T extends IValue> implements IVisitable, IValue {
+public class TopologicalVisitable implements IContextualVisitable {
 
-	protected RelationContext context;
-	protected T value;
-	protected final List<TopologicalVisitable<?>> children;
+	protected IRelation context;
 
-	public TopologicalVisitable(RelationContext root, T value, List<TopologicalVisitable<?>> children) {
-		this.value = value;
-		this.children = children;
-		this.context = root;
-	}
-	
-	public TopologicalVisitable(RelationContext context, T value) {
-		this(context, value, computeChildren(context, value));
-	}
+	public TopologicalVisitable() {}
 
-	public int getChildrenNumber() {
-		return children.size();
-	}
-
-	public IVisitable getChildAt(int i) throws IndexOutOfBoundsException {
-		return children.get(i);
-	}
-
-	public String toString() {
-		StringBuffer buffer = new StringBuffer(getValue().toString());
-		if (getChildrenNumber() != 0) {
-			buffer.append("[");
-			for (IVisitable v : children) {
-				buffer.append(v.toString());
-				buffer.append(",");
-			}
-			buffer.replace(buffer.length()-1, buffer.length(), "]");
+	protected static HashMap<IValue, List<ITuple>> computeAdjacencies(IRelation relation) {
+		HashMap<IValue, List<ITuple>> adjacencies = new HashMap<IValue, List<ITuple>> ();
+		for(IValue v : relation.domain().union(relation.range())){
+			adjacencies.put(v, new ArrayList<ITuple>());
 		}
-		return buffer.toString();
-	}
-
-	public void setChildAt(int i, IVisitable newChild)
-	throws IndexOutOfBoundsException {
-		if (i >= getChildrenNumber()) throw new IndexOutOfBoundsException();
-		update(getChildAt(i).getValue(), newChild.getValue());
-		children.set(i,TopologicalVisitableFactory.makeTopologicalVisitable(context,newChild));
-	}
-
-	public void update(IValue oldvalue, IValue newvalue) {
-		if (oldvalue instanceof IVisitable || newvalue instanceof IVisitable) {
-			throw new RuntimeException(oldvalue.getClass() + "->" + newvalue.getClass());
-		}
-		IRelation relation = context.getRelation();
-		IRelationWriter writer = ValueFactory.getInstance().relationWriter(relation.getElementType());
-		for (IValue v : relation) {
-			if (v.getType().isTupleType()) {
-				ITuple t = (ITuple) v;
-				ITuple newt = t;
-				if (t.get(0).isEqual(oldvalue)) newt = t.set(0, newvalue);
-				if (t.get(1).isEqual(oldvalue)) newt = t.set(1, newvalue);
-				writer.insert(newt);
-			}
-		}
-		for (IVisitable child : children) {
-			child.update(oldvalue, newvalue);
-		}
-		context.setRelation(writer.done());
-	}
-	
-	protected static List<TopologicalVisitable<?>> computeChildren(RelationContext context, IValue v) {
-		HashMap<IValue, LinkedList<IValue>> adjacencies = computeAdjacencies(context.getRelation());
-		List<TopologicalVisitable<?>> successors = new ArrayList<TopologicalVisitable<?>>();
-		if (adjacencies.get(v) != null) {
-			for (IValue s: adjacencies.get(v)) {
-				successors.add(TopologicalVisitableFactory.makeTopologicalVisitable(context, s));
-			}
-		}
-		return successors;
-	}
-
-	protected static HashMap<IValue, LinkedList<IValue>> computeAdjacencies(IRelation relation) {
-		HashMap<IValue, LinkedList<IValue>> adjacencies = new HashMap<IValue, LinkedList<IValue>> ();
 		for(IValue v : relation){
 			ITuple tup = (ITuple) v;
 			IValue from = tup.get(0);
-			IValue to = tup.get(1);
-			LinkedList<IValue> children = adjacencies.get(from);
-			if(children == null)
-				children = new LinkedList<IValue>();
-			children.add(to);
-			adjacencies.put(from, children);
+			adjacencies.get(from).add(tup);
 		}  
 		return adjacencies;
 	}
 
-	public IValue getValue() {
-		return value;
-	}
-
-	@SuppressWarnings("hiding")
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-		return value.accept(v);
-	}
-
-	public Type getType() {
-		return value.getType();
-	}
-
-	public boolean isEqual(IValue other) {
-		return value.isEqual(other);
-	}
-
-	public void setChildren(List<IVisitable> newchildren)
-	throws IndexOutOfBoundsException {
-		int i = 0;
-		for (IVisitable v : newchildren) {
-			children.set(i, TopologicalVisitableFactory.makeTopologicalVisitable(context, v));
-			i++;
+	public void initContext(IValue v) {
+		if (v instanceof IRelation) {
+			IRelation relation = ((IRelation) v);
+			//only for binary relations
+			if (relation.getType().getArity() == 2) {
+				context = relation;
+			}
 		}
 	}
 
-	public RelationContext getContext() {
-		return context;
+	public void updateContext(IValue oldvalue, IValue newvalue) {
+		if (context != null) {
+			IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(context.getElementType());
+			for (IValue v : context) {
+				if (v.getType().isTupleType()) {
+					ITuple t = (ITuple) v;
+					ITuple newt = t;
+					if (t.get(0).isEqual(oldvalue)) newt = newt.set(0, newvalue);
+					if (t.get(1).isEqual(oldvalue)) newt = newt.set(1, newvalue);
+					writer.insert(newt);
+				}
+			}
+			context = writer.done();
+		}
 	}
 
-	public IVisitable setValue(IValue value) {
-		update(getValue(),value);
-		this.value = (T) value;
-		return this;
+	public IValue getChildAt(IValue v, int i) throws IndexOutOfBoundsException {
+		List<ITuple> children = computeAdjacencies(context).get(v);
+		return children.get(i).get(1);
+	}
+
+	public <T extends IValue> T setChildAt(T v, int i, IValue newchild)
+	throws IndexOutOfBoundsException {
+		List<ITuple> adjacencies = computeAdjacencies(context).get(v);
+		List<IValue> newchildren = new ArrayList<IValue>();
+		for (ITuple t : adjacencies) newchildren.add(t.get(1));
+		newchildren.set(i, newchild);
+		return setChildren(v, newchildren);
+	}
+
+
+	public int getChildrenNumber(IValue v) {
+		List<ITuple> adjacencies = computeAdjacencies(context).get(v);
+		if (adjacencies == null) {
+			throw new RuntimeException("Unexpected value "+v+" in the context "+context);
+		}
+		return adjacencies.size();
+	}
+
+
+	public <T extends IValue> T setChildren(T v, List<IValue> children)
+	throws IndexOutOfBoundsException {
+		List<ITuple> oldchildren = computeAdjacencies(context).get(v);
+		IRelation oldvalues = ValueFactoryFactory.getValueFactory().relation(oldchildren.toArray(new ITuple[]{}));
+		List<ITuple> newchildren = new ArrayList<ITuple>();
+		for (IValue child: children) {
+			newchildren.add(ValueFactoryFactory.getValueFactory().tuple(v,child));
+		}
+		IRelation newvalues = ValueFactoryFactory.getValueFactory().relation(newchildren.toArray(new ITuple[]{}));
+		context =  context.subtract(oldvalues).union(newvalues);
+		return v;
+	}
+
+	public IValue getContext() {
+		return context;
 	}
 
 }

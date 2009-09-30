@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter.strategy;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ElementResult;
@@ -13,32 +12,28 @@ public class One extends Strategy {
 	public One(AbstractFunction function) {
 		super(function);
 	}
+	
+	IVisitable v = Visitable.getInstance();
 
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		IValueFactory oldFactory = ctx.getEvaluator().getValueFactory();
-		ctx.getEvaluator().setIValueFactory( new VisitableFactory(oldFactory));
-		IVisitable result = VisitableFactory.makeVisitable(argValues[0]);
-		for (int i = 0; i < result.getChildrenNumber(); i++) {
-			IVisitable child = result.getChildAt(i);
-			IValue oldvalue = child.getValue();
-			IVisitable newchild = VisitableFactory.makeVisitable(function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue());
-			IValue newvalue = newchild.getValue();
-			if (! newvalue.isEqual(oldvalue)) {
-				result.update(oldvalue, newvalue);
-				result.setChildAt(i, newchild);
+		IValue res = argValues[0];
+		for (int i = 0; i < v.getChildrenNumber(res); i++) {
+			IValue child = v.getChildAt(res, i);
+			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
+			if (! newchild.isEqual(child)) {
+				res = v.setChildAt(res, i, newchild);
 				break;
 			}
 		}
-		ctx.getEvaluator().setIValueFactory(oldFactory);
-		return new ElementResult<IValue>(result.getValue().getType(), result.getValue(), ctx);
+		return new ElementResult<IValue>(res.getType(), res, ctx);
 	}
 
 	public static IValue makeOne(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
 			if (function.isStrategy()) {
-				return new One((AbstractFunction) arg);			}
+				return new One(function);			}
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {

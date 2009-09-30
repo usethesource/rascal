@@ -5,43 +5,18 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IValue;
 
 
-public interface IVisitable extends IValue {
+public interface IVisitable {
 
-	/**
-	 * Get a child
-	 * 
-	 * @param i
-	 *            the zero based index of the child
-	 * @return a value
-	 */
-	public IVisitable getChildAt(int i) throws IndexOutOfBoundsException;
+	public IValue getChildAt(IValue v, int i) throws IndexOutOfBoundsException;
 
-	/**
-	 * Set a different child at a certain position.
-	 * 
-	 * @param i
-	 *            the zero based index of the child to be replaced
-	 * @param newChild
-	 *            the new value for the child
-	 */
-	public void setChildAt(int i, IVisitable newChild)
-			throws IndexOutOfBoundsException;
+	public int getChildrenNumber(IValue v);
 
-	/**
-	 * @return the (fixed) number of children
-	 */
-	public int getChildrenNumber();
+	public <T extends IValue> T setChildren(T v, List<IValue> newchildren)
+	throws IndexOutOfBoundsException;
 
-	/**
-	 * @return the concrete value
-	 */
-	public IValue getValue();
+	public <T extends IValue> T setChildAt(T v, int i, IValue newchild)
+	throws IndexOutOfBoundsException;
 	
-	public IVisitable setValue(IValue value);
-
-	public void setChildren(List<IVisitable> newchildren)
-			throws IndexOutOfBoundsException;
-
-	public void update(IValue oldvalue, IValue newvalue);
+	
 
 }
