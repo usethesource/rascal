@@ -447,58 +447,31 @@ public class ComprehensionTests extends TestFramework {
 		prepare("data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);");
 		
 		assertTrue(runTestInSameEvaluator("[ X | /int X <- f(i(1),g(i(2),i(3))) ] == [1,2,3];"));
-		assertTrue(runTestInSameEvaluator("[ X | int X <- f(i(1),g(i(2),i(3))) ] == [];"));
-		
 		
 		assertTrue(runTestInSameEvaluator("[ X | /value X <- f(i(1),g(i(2),i(3))) ] == [1,i(1),2,i(2),3,i(3),g(i(2),i(3))];"));
 		assertTrue(runTestInSameEvaluator("[ X | value X <- f(i(1),g(i(2),i(3))) ] == [i(1),g(i(2),i(3))];"));
 
-		
 		assertTrue(runTestInSameEvaluator("[N | /value N <- f(i(1),i(2))] == [1,i(1),2,i(2)];"));
 		assertTrue(runTestInSameEvaluator("[N | value N <- f(i(1),i(2))] == [i(1), i(2)];"));
-		
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up /value N <- f(i(1),i(2))] == [1,i(1),2,i(2)];"));
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up value N <- f(i(1),i(2))] == [i(1), i(2)];"));
-		
-//		assertTrue(runTestInSameEvaluator("[N | top-down /value N <- f(i(1),i(2))] == [i(1),1,i(2),2];"));
-//		assertTrue(runTestInSameEvaluator("[N | top-down value N <- f(i(1),i(2))] == [i(1), i(2)];"));
 		
 		assertTrue(runTestInSameEvaluator("[N | /TREE N <- f(i(1),i(2))] == [i(1),i(2)];"));
 		assertTrue(runTestInSameEvaluator("[N | TREE N <- f(i(1),i(2))] == [i(1),i(2)];"));
 		
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up /TREE N <- f(i(1),i(2))] == [i(1),i(2)];"));
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up TREE N <- f(i(1),i(2))] == [i(1),i(2)];"));
-		
-//		assertTrue(runTestInSameEvaluator("[N | top-down TREE N <- f(i(1),i(2))] == [f(i(1),i(2)),i(1),i(2)];"));
-		
 		assertTrue(runTestInSameEvaluator("[N | /int N <- f(i(1),i(2))] == [1,2];"));
-		assertTrue(runTestInSameEvaluator("[N | int N <- f(i(1),i(2))] == [];"));
 		
 		assertTrue(runTestInSameEvaluator("[N | /value N <- f(i(1),g(i(2),i(3)))] == [1,i(1),2,i(2),3,i(3),g(i(2),i(3))];"));
 		assertTrue(runTestInSameEvaluator("[N | value N <- f(i(1),g(i(2),i(3)))] == [i(1),g(i(2),i(3))];"));
-
-		
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up /value N <- f(i(1),g(i(2),i(3)))] == [1,i(1),2,i(2),3,i(3),g(i(2),i(3))];"));
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up value N <- f(i(1),g(i(2),i(3)))] == [i(1),g(i(2),i(3))];"));
-		
-//		assertTrue(runTestInSameEvaluator("[N | top-down value N <- f(i(1),g(i(2),i(3)))] == [f(i(1),g(i(2),i(3))),i(1),1,g(i(2),i(3)),i(2),2,i(3),3];"));
 		
 		assertTrue(runTestInSameEvaluator("[N | /TREE N <- f(i(1),g(i(2),i(3)))] == [i(1),i(2),i(3),g(i(2),i(3))];"));
 		assertTrue(runTestInSameEvaluator("[N | TREE N <- f(i(1),g(i(2),i(3)))] == [i(1),g(i(2),i(3))];"));
-
-		
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up /TREE N <- f(i(1),g(i(2),i(3)))] == [i(1),i(2),i(3),g(i(2),i(3))];"));
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up TREE N <- f(i(1),g(i(2),i(3)))] == [i(1),g(i(2),i(3))];"));
-		
-//		assertTrue(runTestInSameEvaluator("[N | top-down TREE N <- f(i(1),g(i(2),i(3)))] == [f(i(1),g(i(2),i(3))), i(1),g(i(2),i(3)),i(2),i(3)];"));		
 		
 		assertTrue(runTestInSameEvaluator("[N | /int N <- f(i(1),g(i(2),i(3)))] == [1,2,3];"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void nodeGeneratorTypeError(){
+		prepare("data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);");
 		assertTrue(runTestInSameEvaluator("[N | int N <- f(i(1),g(i(2),i(3)))] == [];"));
-		
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up /int N <- f(i(1),g(i(2),i(3)))] == [1,2,3];"));
-//		assertTrue(runTestInSameEvaluator("[N | bottom-up int N <- f(i(1),g(i(2),i(3)))] == [];"));
-		
-//		assertTrue(runTestInSameEvaluator("[N | top-down int N <- f(i(1),g(i(2),i(3)))] == [1,2,3];"));
 	}
 	
 	@Test public void regularGenerators() {
