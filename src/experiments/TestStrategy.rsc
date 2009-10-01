@@ -76,7 +76,7 @@ public void main() {
  
      tuple[A,B] t3 = <a(),c()>;
      assertEqual(top_down(rules2)(t3),<a(),b()>);
-
+	
      rel[A, B] r = {<a(), b()>, <f(b(),b()), c()>};
      assertEqual(top_down(rules3)(r),{<a(), c()>, <f(c(),c()), c()>});
 
@@ -86,13 +86,14 @@ public void main() {
      assertEqual(innermost(rules)(t), f(b(),b()));
      assertEqual(outermost(rules)(t), f(b(),b()));
 
-
      rel[A, A] r2 = {<a(), d()>, <a(), e()>, <d(), e()>};
-     assertEqual(topological_top_down(rules5)(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
-     assertEqual(topological_bottom_up(rules5)(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
-
-     assertEqual(topological_once_top_down(rules5)(r2), {<aa(),e()>,<aa(),d()>,<d(),e()>});
-     //assertEqual(topological_once_bottom_up(rules5)(r2), {<a(),ee()>,<a(),d()>,<d(),ee()>});
-    report("Strategies");
+     
+     assertEqual(topological_top_down(makeTopologicalStrategy(rules5))(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>}); 
+     assertEqual(topological_bottom_up(makeTopologicalStrategy(rules5))(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
+     assertEqual(topological_once_top_down(makeTopologicalStrategy(rules5))(r2), {<aa(),e()>,<aa(),d()>,<d(),e()>});
+     
+     // need to test the context in the rascal definition
+     assertEqual(topological_once_bottom_up(makeTopologicalStrategy(rules5))(r2), {<a(),ee()>,<a(),d()>,<d(),ee()>});
+     report("Strategies");
 
 }
