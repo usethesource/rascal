@@ -1,8 +1,6 @@
 package org.meta_environment.rascal.interpreter.strategy.topological;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -29,20 +27,15 @@ public class TopologicalAll extends ContextualStrategy {
 				Iterator<IValue> roots = relation.domain().subtract(relation.range()).iterator();
 				while (roots.hasNext()) {
 					IValue child = roots.next();
-					IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
-					v.getContext().update(child, newchild);
+					function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
 				}
 				return new ElementResult<IValue>(v.getContext().getValue().getType(), v.getContext().getValue(), ctx);
 			}
 		}
-		List<IValue> newchildren = new ArrayList<IValue>();
 		for (int i = 0; i < v.getChildrenNumber(argValues[0]); i++) {
 			IValue child = v.getChildAt(argValues[0], i);
-			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
-			newchildren.add(newchild);
-			v.getContext().update(child, newchild);
+			function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
 		}
-		//IValue res = v.setChildren(argValues[0], newchildren);
 		return new ElementResult<IValue>(argValues[0].getType(), argValues[0], ctx);
 	}
 

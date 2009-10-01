@@ -41,7 +41,6 @@ public class TopologicalOne extends ContextualStrategy {
 			IValue child = v.getChildAt(argValues[0], i);
 			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
 			if (! child.isEqual(newchild)) {
-				//res = v.setChildAt(res, i, newchild);
 				v.getContext().update(child, newchild);
 				break;
 			}
