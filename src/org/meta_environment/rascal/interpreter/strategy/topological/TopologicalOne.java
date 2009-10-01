@@ -21,8 +21,7 @@ public class TopologicalOne extends ContextualStrategy {
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		if (argValues[0] instanceof IRelation) {
 			IRelation relation = ((IRelation) argValues[0]);
-			IValue lastContext = v.getContext();
-			v.setContext(relation);
+			v.setContext(new TopologicalContext(relation));
 			//only for binary relations
 			if (relation.getType().getArity() == 2) {
 				Iterator<IValue> roots = relation.domain().subtract(relation.range()).iterator();
@@ -30,12 +29,11 @@ public class TopologicalOne extends ContextualStrategy {
 					IValue child = roots.next();
 					IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
 					if (! child.isEqual(newchild)) {
-						v.updateContext(child, newchild);
+						v.getContext().update(child, newchild);
 						break;
 					}
 				}
-				v.setContext(lastContext);
-				return new ElementResult<IValue>(v.getContext().getType(), v.getContext(), ctx);
+				return new ElementResult<IValue>(v.getContext().getValue().getType(), v.getContext().getValue(), ctx);
 			}
 		}
 		IValue res = argValues[0];
@@ -44,7 +42,7 @@ public class TopologicalOne extends ContextualStrategy {
 			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
 			if (! child.isEqual(newchild)) {
 				//res = v.setChildAt(res, i, newchild);
-				v.updateContext(child, newchild);
+				v.getContext().update(child, newchild);
 				break;
 			}
 		}

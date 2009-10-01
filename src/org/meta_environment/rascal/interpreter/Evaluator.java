@@ -199,6 +199,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedInsertError
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
+import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
@@ -228,6 +229,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private static final TypeEvaluator te = TypeEvaluator.getInstance();
 	protected Environment currentEnvt;
+	private IStrategyContext strategyContext;
 
 	protected final GlobalEnvironment heap;
 
@@ -3062,6 +3064,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			IValueFactory factory) {
 		vf = factory;
 	}
+
+	public IStrategyContext getStrategyContext() {
+		return strategyContext;
+	}
+	
+	public void setStrategyContext(IStrategyContext strategyContext) {
+		this.strategyContext  = strategyContext;
+	}
+
 
 
 }

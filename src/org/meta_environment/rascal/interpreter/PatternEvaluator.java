@@ -101,6 +101,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableEr
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
+import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
@@ -731,6 +732,14 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 	public IValueFactory getValueFactory() {
 		return ctx.getValueFactory();
+	}
+
+	public IStrategyContext getStrategyContext() {
+		return ctx.getStrategyContext();
+	}
+
+	public void setStrategyContext(IStrategyContext strategyContext) {
+		ctx.setStrategyContext(strategyContext);
 	}
 
 }

@@ -23,18 +23,16 @@ public class TopologicalAll extends ContextualStrategy {
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		if (argValues[0] instanceof IRelation) {
 			IRelation relation = ((IRelation) argValues[0]);
-			IValue lastContext = v.getContext();
-			v.setContext(relation);
+			v.setContext(new TopologicalContext(relation));
 			//only for binary relations
 			if (relation.getType().getArity() == 2) {
 				Iterator<IValue> roots = relation.domain().subtract(relation.range()).iterator();
 				while (roots.hasNext()) {
 					IValue child = roots.next();
 					IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
-					v.updateContext(child, newchild);
+					v.getContext().update(child, newchild);
 				}
-				v.setContext(lastContext);
-				return new ElementResult<IValue>(v.getContext().getType(), v.getContext(), ctx);
+				return new ElementResult<IValue>(v.getContext().getValue().getType(), v.getContext().getValue(), ctx);
 			}
 		}
 		List<IValue> newchildren = new ArrayList<IValue>();
@@ -42,10 +40,10 @@ public class TopologicalAll extends ContextualStrategy {
 			IValue child = v.getChildAt(argValues[0], i);
 			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
 			newchildren.add(newchild);
-			v.updateContext(child, newchild);
+			v.getContext().update(child, newchild);
 		}
-		IValue res = v.setChildren(argValues[0], newchildren);
-		return new ElementResult<IValue>(res.getType(), res, ctx);
+		//IValue res = v.setChildren(argValues[0], newchildren);
+		return new ElementResult<IValue>(argValues[0].getType(), argValues[0], ctx);
 	}
 
 	public static IValue makeTopologicalAll(IValue arg) {
