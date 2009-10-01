@@ -63,6 +63,18 @@ public class TopologicalVisitable implements IContextualVisitable {
 		}
 		return null;	
 	}
+	
+	public Environment getContextEnvironment() {
+		Environment envt = function.getEvaluatorContext().getCurrentEnvt();
+		while (envt != null) {
+			Result<IValue> res = envt.getVariable("rascal_strategy_context");
+			if (res != null) {
+				return envt;
+			}
+			envt = envt.getCallerScope();
+		}
+		return function.getEvaluatorContext().getCurrentEnvt();	
+	}
 
 	private IRelation getRelationContext() {
 		return (IRelation) getContext();
@@ -70,7 +82,7 @@ public class TopologicalVisitable implements IContextualVisitable {
 
 	public void setContext(IValue value) {
 		if (value!= null && value instanceof IRelation) {
-			function.getEvaluatorContext().getCurrentEnvt().storeVariable("rascal_strategy_context", ResultFactory.makeResult(value.getType(), value, function.getEvaluatorContext()));
+			getContextEnvironment().storeVariable("rascal_strategy_context", ResultFactory.makeResult(value.getType(), value, function.getEvaluatorContext()));
 		}
 	}
 
