@@ -8,8 +8,8 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
@@ -53,11 +53,15 @@ public class TopologicalVisitable implements IContextualVisitable {
 	}
 
 	public IValue getContext() {
-		Result<IValue>  res = function.getEvaluatorContext().getCurrentEnvt().getVariable("rascal_context");
-		if (res!= null && res.getValue() instanceof IRelation) {
-			return res.getValue();
+		Environment envt = function.getEvaluatorContext().getCurrentEnvt();
+		while (envt != null) {
+			Result<IValue> res = envt.getVariable("rascal_strategy_context");
+			if (res != null) {
+				return res.getValue();
+			}
+			envt = envt.getCallerScope();
 		}
-		throw new RuntimeException("No Strategy context");
+		return null;	
 	}
 
 	private IRelation getRelationContext() {
@@ -66,10 +70,8 @@ public class TopologicalVisitable implements IContextualVisitable {
 
 	public void setContext(IValue value) {
 		if (value!= null && value instanceof IRelation) {
-			Type contextType = function.getEvaluatorContext().getCurrentEnvt().getVariable("rascal_context").getValue().getType();
-			function.getEvaluatorContext().getCurrentEnvt().storeVariable("rascal_context", ResultFactory.makeResult(contextType, value, function.getEvaluatorContext()));
+			function.getEvaluatorContext().getCurrentEnvt().storeVariable("rascal_strategy_context", ResultFactory.makeResult(value.getType(), value, function.getEvaluatorContext()));
 		}
-		throw new RuntimeException("No Strategy context");
 	}
 
 	public IValue getChildAt(IValue v, int i) throws IndexOutOfBoundsException {
@@ -90,7 +92,7 @@ public class TopologicalVisitable implements IContextualVisitable {
 	public int getChildrenNumber(IValue v) {
 		List<ITuple> adjacencies = computeAdjacencies(getRelationContext()).get(v);
 		if (adjacencies == null) {
-			throw new RuntimeException("Unexpected value "+v+" in the getContext() "+getContext());
+			throw new RuntimeException("Unexpected value "+v+" in the context "+getContext());
 		}
 		return adjacencies.size();
 	}
