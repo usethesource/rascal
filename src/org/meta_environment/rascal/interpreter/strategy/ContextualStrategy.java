@@ -13,11 +13,13 @@ public class ContextualStrategy extends Strategy {
 		super(function);
 		this.v = v;
 	}
-	
+
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		Result<IValue> res = function.call(argTypes, argValues);
-		v.updateContext(argValues[0], res.getValue());
+		if (v.getContext() != null) {
+			v.getContext().update(argValues[0], res.getValue());
+		}
 		return res;
 	}
 

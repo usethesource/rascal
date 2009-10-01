@@ -69,6 +69,7 @@ import org.meta_environment.rascal.interpreter.matching.OrResult;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 
 public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements IEvaluator<IBooleanResult>{
 	private final IEvaluatorContext ctx;
@@ -462,6 +463,14 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	public IValueFactory getValueFactory() {
 		return ctx.getValueFactory();
+	}
+
+	public IStrategyContext getStrategyContext() {
+		return ctx.getStrategyContext();
+	}
+
+	public void setStrategyContext(IStrategyContext strategyContext) {
+		ctx.setStrategyContext(strategyContext);
 	}
 
 }

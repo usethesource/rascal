@@ -98,6 +98,7 @@ import org.meta_environment.rascal.interpreter.IEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
+import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluator<T> {
@@ -126,7 +127,7 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		suspend(x);
 		return evaluator.visitRegExpLiteralLexical(x);
 	}
-	
+
 	@Override
 	public T visitExpressionAnti(Anti x) {
 		suspend(x);
@@ -810,6 +811,14 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 
 	public void unwind(Environment old) {
 		evaluator.unwind(old);
+	}
+
+	public IStrategyContext getStrategyContext() {
+		return evaluator.getStrategyContext();
+	}
+
+	public void setStrategyContext(IStrategyContext strategyContext) {
+		evaluator.setStrategyContext(strategyContext);		
 	}
 
 
