@@ -1,7 +1,7 @@
 module experiments::Processing::wordfreq
 
-import Processing;
-import TreeMap;
+import Processing::Core;
+import Processing::TreeMap;
 import IO;
 import Map;
 
@@ -92,7 +92,6 @@ private map[str,int] collectData(list[str] lines){
  * Draw an item in a treemap.
  */
 
-@drawItem{}
 public void drawItem(int x, int y, int w, int h, str word){
 	fill(100);
 	rect(x, y, w, h);
@@ -120,8 +119,7 @@ private map[str,int] facts = ();
 
 TreeMap TM = "xxx"();
 
-@setup{}
-public void setup() {
+public void treeMapSetup() {
 	size(1024, 768);                 // size of the screen
 	font = createFont("Serif", 13);  // create and set font
 	textFont(font);
@@ -138,7 +136,7 @@ public void setup() {
  */
 
 @draw{}
-public void draw() { 
+public void treeMapDraw() { 
     draw(TM);                      // draw the treemap
 }
 
@@ -164,5 +162,5 @@ public void main(){
      * - introduce @setup etc. tags.
      * - other
      */
-	processing();
+	processing(setup(treeMapSetup), draw(treeMapDraw));
 }
