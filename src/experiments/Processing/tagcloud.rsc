@@ -1,6 +1,6 @@
 module experiments::Processing::tagcloud
 
-import TagCloud;
+import Processing::TagCloud;
 
 map[str,int] words =
     ("Family Guy": 50, "House": 20, "30 Rock" : 10, "The Simpsons" : 10, "The Angry Beavers" : 50,
