@@ -92,7 +92,6 @@ public void main() {
      assertEqual(topological_bottom_up(makeTopologicalStrategy(rules5))(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
      assertEqual(topological_once_top_down(makeTopologicalStrategy(rules5))(r2), {<aa(),e()>,<aa(),d()>,<d(),e()>});
      
-     // need to test the context in the rascal definition
      assertEqual(topological_once_bottom_up(makeTopologicalStrategy(rules5))(r2), {<a(),ee()>,<a(),d()>,<d(),ee()>});
      report("Strategies");
 
