@@ -48,31 +48,33 @@ public class TopologicalContext implements IStrategyContext {
 
 	public void update(IValue oldvalue, IValue newvalue) {
 		if (relation != null) {
-			//update the relation itself
-			IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(relation.getElementType());
-			for (IValue v : relation) {
-				if (v.getType().isTupleType()) {
-					ITuple t = (ITuple) v;
-					ITuple newt = t;
-					if (t.get(0).isEqual(oldvalue)) newt = newt.set(0, newvalue);
-					if (t.get(1).isEqual(oldvalue)) newt = newt.set(1, newvalue);
-					writer.insert(newt);
+			if (! oldvalue.isEqual(newvalue)) {
+				//update the relation itself
+				IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(relation.getElementType());
+				for (IValue v : relation) {
+					if (v.getType().isTupleType()) {
+						ITuple t = (ITuple) v;
+						ITuple newt = t;
+						if (t.get(0).isEqual(oldvalue)) newt = newt.set(0, newvalue);
+						if (t.get(1).isEqual(oldvalue)) newt = newt.set(1, newvalue);
+						writer.insert(newt);
+					}
 				}
-			}
-			relation = writer.done();
-			//update the adjacencies
-			if (adjacencies.containsKey(oldvalue)) {
-				if (adjacencies.containsKey(newvalue)) {
-					adjacencies.get(newvalue).addAll(adjacencies.get(oldvalue));
-				} else {
-					adjacencies.put(newvalue, adjacencies.get(oldvalue));
+				relation = writer.done();
+				//update the adjacencies
+				if (adjacencies.containsKey(oldvalue)) {
+					if (adjacencies.containsKey(newvalue)) {
+						adjacencies.get(newvalue).addAll(adjacencies.get(oldvalue));
+					} else {
+						adjacencies.put(newvalue, adjacencies.get(oldvalue));
+					}
+					adjacencies.remove(oldvalue);
 				}
-				adjacencies.remove(oldvalue);
-			}
-			for(IValue key : adjacencies.keySet()) {
-				List<IValue> children = adjacencies.get(key);
-				if (children.contains(oldvalue)) {
-					children.set(children.indexOf(oldvalue), newvalue);
+				for(IValue key : adjacencies.keySet()) {
+					List<IValue> children = adjacencies.get(key);
+					if (children.contains(oldvalue)) {
+						children.set(children.indexOf(oldvalue), newvalue);
+					}
 				}
 			}
 		}
