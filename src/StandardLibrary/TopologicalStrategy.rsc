@@ -55,3 +55,33 @@ public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
 		}
 	};
 }
+
+public &T1(&T1) topological_repeat_strat(&T2(&T2) strategy) { 
+  return &T3(&T3 subject) {
+       value ctx = getCurrentStratCtx();
+       &T3 temp = strategy(subject);
+	   while (ctx != getCurrentStratCtx()) {
+	    	subject = temp;
+	    	ctx = getCurrentStratCtx();
+	    	temp = strategy(subject);
+	   	}
+		return temp;
+	};
+}
+
+public &T1(&T1) topological_innermost(&T2(&T2) strategy) { 
+	return &T3(&T3 subject) {
+	   value ctx = getCurrentStratCtx();
+	   &T3 temp =  makeTopologicalAll(topological_innermost(strategy))(subject);
+	   do {
+	    	subject = temp;
+	    	ctx = getCurrentStratCtx();
+	    	temp = strategy(subject);
+	   	} while (ctx != getCurrentStratCtx());
+		return temp;
+	};
+}
+
+public &T1(&T1) topological_outermost(&T2(&T2) strategy) { 
+	return topological_repeat_strat(topological_once_top_down(strategy));
+}
