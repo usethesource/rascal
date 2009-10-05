@@ -170,4 +170,9 @@ public class Visitable implements IVisitable {
 		throw new IndexOutOfBoundsException();
 	}
 
+	public void init(IValue v) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
