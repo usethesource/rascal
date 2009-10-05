@@ -11,7 +11,8 @@ data A = f(B I, B J)
        | e()
        | aa()
        | dd()
-       | ee();
+       | ee()
+       | h(A a);
 
        
 data B = g(B I)
@@ -62,6 +63,19 @@ public &T rules5(&T t) {
    };
 }
 
+
+public &T rules6(&T t) {
+   switch (t) {
+	case a(): return aa();
+	case d(): return dd();
+	case e(): return ee(); 
+        case aa(): return h(aa());
+	case dd(): return h(dd());
+	case ee(): return h(ee());
+        default: return t;
+   };
+}
+
 public void main() {
      A t = f(g(g(b())),g(g(b())));
      assertEqual(top_down(rules)(t), f(g(b()),g(b())));
@@ -93,6 +107,9 @@ public void main() {
      assertEqual(topological_once_top_down(makeTopologicalStrategy(rules5))(r2), {<aa(),e()>,<aa(),d()>,<d(),e()>});
      
      assertEqual(topological_once_bottom_up(makeTopologicalStrategy(rules5))(r2), {<a(),ee()>,<a(),d()>,<d(),ee()>});
+     assertEqual(topological_innermost(makeTopologicalStrategy(rules6))(r2), {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>});
+     assertEqual(topological_outermost(makeTopologicalStrategy(rules6))(r2), {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>});
+
      report("Strategies");
 
 }

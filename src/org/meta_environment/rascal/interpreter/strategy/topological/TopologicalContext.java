@@ -40,7 +40,7 @@ public class TopologicalContext implements IStrategyContext {
 		IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(type);
 		for (IValue v1: adjacencies.keySet()) {
 			for (IValue v2: adjacencies.get(v1) ) {
-				writer.insert(v1,v2);
+				writer.insert(ValueFactoryFactory.getValueFactory().tuple(v1,v2));
 			}
 			
 		}
