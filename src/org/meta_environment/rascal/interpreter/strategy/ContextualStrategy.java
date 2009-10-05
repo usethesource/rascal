@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.strategy;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 
@@ -25,6 +26,10 @@ public class ContextualStrategy extends Strategy {
 
 	public IContextualVisitable getVisitable() {
 		return v;
+	}
+	
+	public static IValue getCurrentStratCtx(IEvaluatorContext ctx) {
+		return ctx.getStrategyContext().getValue();
 	}
 
 }

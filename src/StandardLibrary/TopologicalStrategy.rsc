@@ -14,6 +14,11 @@ public &T(&T) java makeTopologicalOne(&T(&T) strategy);
 @javaClass{org.meta_environment.rascal.interpreter.strategy.topological.TopologicalStrategy}
 public &T(&T) java makeTopologicalStrategy(&T(&T) strategy);
 
+
+@javaClass{org.meta_environment.rascal.interpreter.strategy.ContextualStrategy}
+@reflect{use the current strategy context}
+public value java getCurrentStratCtx();
+
 public &T1(&T1) topological_top_down(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
 		&T3 res = strategy(subject);
@@ -41,8 +46,9 @@ public &T1(&T1) topological_once_top_down(&T2(&T2) strategy) {
 
 public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
   return &T3(&T3 subject) {
+       value oldctx = getCurrentStratCtx();
 		&T3 res = makeTopologicalOne(topological_once_bottom_up(strategy))(subject);
-		if (res == subject) {
+		if (oldctx == getCurrentStratCtx()) {
 			return strategy(res);
 		} else {
 			return res;
