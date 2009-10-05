@@ -54,11 +54,14 @@ public class TopologicalVisitable implements IContextualVisitable {
 
 	public void init(IValue v) {
 		if (v instanceof IRelation) {
+			//initialize a new context
+			//TODO: manage a stack of contexts
 			IStrategyContext context = new TopologicalContext();
 			IRelation relation = ((IRelation) v);
 			context.setValue(relation);
 			setContext(context);
 		}
+		((TopologicalContext)getContext()).mark(v);
 	}
 
 }
