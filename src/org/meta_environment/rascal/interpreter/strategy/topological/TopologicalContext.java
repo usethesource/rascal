@@ -2,7 +2,9 @@ package org.meta_environment.rascal.interpreter.strategy.topological;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -16,10 +18,12 @@ import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 public class TopologicalContext implements IStrategyContext {
 
 	private HashMap<IValue, List<IValue>> adjacencies;
+	private HashMap<IValue, Integer> visits;
 	private Type type;
 
 	public TopologicalContext() {
 		adjacencies = new HashMap<IValue, List<IValue>>();
+		visits = new HashMap<IValue, Integer>();
 	}
 
 
@@ -36,14 +40,14 @@ public class TopologicalContext implements IStrategyContext {
 	}
 
 	public IValue getValue() {
-			IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(type);
-			for (IValue v1: adjacencies.keySet()) {
-				for (IValue v2: adjacencies.get(v1) ) {
-					writer.insert(ValueFactoryFactory.getValueFactory().tuple(v1,v2));
-				}
-
+		IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(type);
+		for (IValue v1: adjacencies.keySet()) {
+			for (IValue v2: adjacencies.get(v1) ) {
+				writer.insert(ValueFactoryFactory.getValueFactory().tuple(v1,v2));
 			}
-			return writer.done();
+
+		}
+		return writer.done();
 	}
 
 	public void setValue(IValue value) {
@@ -87,9 +91,20 @@ public class TopologicalContext implements IStrategyContext {
 			}
 			return res;
 		}
-		List<IValue> res =  adjacencies.get(v);
-		if (res != null) return res;
+		if (visits.get(v) <= 1)  {
+			List<IValue> res =  adjacencies.get(v);
+			if (res != null) return res;
+		}
 		return new ArrayList<IValue>();
+	}
+
+
+	public void mark(IValue v) {
+		if (visits.containsKey(v)) {
+			visits.put(v, visits.get(v)+1);	
+		} else {
+			visits.put(v, 0);
+		}
 	}
 
 }
