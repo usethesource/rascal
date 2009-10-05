@@ -88,3 +88,30 @@ public str java substring(str s, int begin);
 @javaClass{org.meta_environment.rascal.std.String}
 public str java substring(str s, int begin, int end);
 
+@doc{Replace all occurences of (regex) find in input by replacement}
+public str replaceAll(str input, str find, str replacement) {
+	if(/^<pre:.*><find><post:.*>$/ := input) {	
+		return replaceAll(pre, find, replacement) + replacement + replaceAll(post, find, replacement);
+	}	
+	
+	return input;
+}
+
+@doc{Replace the first occurence of (regex) find in input by replacement}
+public str replaceFirst(str input, str find, str replacement) {
+	if(/^<pre:.*?><find><post:.*>$/ := input) {	
+		return pre + replacement + post;
+	}	
+	
+	return input;
+}
+
+
+@doc{Replace the last occurence of (regex) find in input by replacement}
+public str replaceLast(str input, str find, str replacement) {
+	if(/^<pre:.*><find><post:.*?>$/ := input) {	
+		return pre + replacement + post;
+	}	
+	
+	return input;
+}
