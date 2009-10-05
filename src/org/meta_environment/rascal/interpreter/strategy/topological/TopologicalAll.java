@@ -10,6 +10,7 @@ import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.strategy.ContextualStrategy;
+import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 
 public class TopologicalAll extends ContextualStrategy {
 
@@ -21,7 +22,9 @@ public class TopologicalAll extends ContextualStrategy {
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		if (argValues[0] instanceof IRelation) {
 			IRelation relation = ((IRelation) argValues[0]);
-			v.setContext(new TopologicalContext(relation));
+			IStrategyContext context = new TopologicalContext();
+			context.setValue(relation);
+			v.setContext(context);
 			//only for binary relations
 			if (relation.getType().getArity() == 2) {
 				Iterator<IValue> roots = relation.domain().subtract(relation.range()).iterator();

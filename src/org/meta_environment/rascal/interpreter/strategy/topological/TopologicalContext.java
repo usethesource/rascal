@@ -8,17 +8,21 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 
 public class TopologicalContext implements IStrategyContext {
 
 	private HashMap<IValue, List<IValue>> adjacencies;
-	private IRelation relation;
+	private Type type;
 
-	public TopologicalContext(IRelation relation) {
-		setValue(relation);
+	public TopologicalContext() {
+		adjacencies = new HashMap<IValue, List<IValue>>();
+		type = TypeFactory.getInstance().valueType();
 	}
+
 
 	private static HashMap<IValue, List<IValue>> computeAdjacencies(IRelation relation) {
 		HashMap<IValue, List<IValue>> adjacencies = new HashMap<IValue, List<IValue>> ();
@@ -33,13 +37,21 @@ public class TopologicalContext implements IStrategyContext {
 	}
 
 	public IValue getValue() {
-		return relation;
+		IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(type);
+		for (IValue v1: adjacencies.keySet()) {
+			for (IValue v2: adjacencies.get(v1) ) {
+				writer.insert(v1,v2);
+			}
+			
+		}
+		return writer.done();
 	}
 
 	public void setValue(IValue value) {
 		if (value instanceof IRelation) {
-			relation = (IRelation) value;
+			IRelation relation = (IRelation) value;
 			adjacencies = computeAdjacencies(relation);
+			type =relation.getElementType();
 		} else {
 			throw new RuntimeException("Unexpected context type "+value.getType());
 		}
@@ -47,34 +59,20 @@ public class TopologicalContext implements IStrategyContext {
 	}
 
 	public void update(IValue oldvalue, IValue newvalue) {
-		if (relation != null) {
-			if (! oldvalue.isEqual(newvalue)) {
-				//update the relation itself
-				IRelationWriter writer = ValueFactoryFactory.getValueFactory().relationWriter(relation.getElementType());
-				for (IValue v : relation) {
-					if (v.getType().isTupleType()) {
-						ITuple t = (ITuple) v;
-						ITuple newt = t;
-						if (t.get(0).isEqual(oldvalue)) newt = newt.set(0, newvalue);
-						if (t.get(1).isEqual(oldvalue)) newt = newt.set(1, newvalue);
-						writer.insert(newt);
-					}
+		if (! oldvalue.isEqual(newvalue)) {
+			//update the adjacencies
+			if (adjacencies.containsKey(oldvalue)) {
+				if (adjacencies.containsKey(newvalue)) {
+					adjacencies.get(newvalue).addAll(adjacencies.get(oldvalue));
+				} else {
+					adjacencies.put(newvalue, adjacencies.get(oldvalue));
 				}
-				relation = writer.done();
-				//update the adjacencies
-				if (adjacencies.containsKey(oldvalue)) {
-					if (adjacencies.containsKey(newvalue)) {
-						adjacencies.get(newvalue).addAll(adjacencies.get(oldvalue));
-					} else {
-						adjacencies.put(newvalue, adjacencies.get(oldvalue));
-					}
-					adjacencies.remove(oldvalue);
-				}
-				for(IValue key : adjacencies.keySet()) {
-					List<IValue> children = adjacencies.get(key);
-					if (children.contains(oldvalue)) {
-						children.set(children.indexOf(oldvalue), newvalue);
-					}
+				adjacencies.remove(oldvalue);
+			}
+			for(IValue key : adjacencies.keySet()) {
+				List<IValue> children = adjacencies.get(key);
+				if (children.contains(oldvalue)) {
+					children.set(children.indexOf(oldvalue), newvalue);
 				}
 			}
 		}
