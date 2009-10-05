@@ -47,8 +47,9 @@ public &T1(&T1) topological_once_top_down(&T2(&T2) strategy) {
 public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
   return &T3(&T3 subject) {
        value oldctx = getCurrentStratCtx();
-		&T3 res = makeTopologicalOne(topological_once_bottom_up(strategy))(subject);
-		if (oldctx == getCurrentStratCtx()) {
+	   &T3 res = makeTopologicalOne(topological_once_bottom_up(strategy))(subject);
+	   value newctx = getCurrentStratCtx();
+	   if (oldctx == newctx) {
 			return strategy(res);
 		} else {
 			return res;
