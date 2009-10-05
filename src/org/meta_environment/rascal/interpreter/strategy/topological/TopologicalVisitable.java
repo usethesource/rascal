@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.strategy.topological;
 
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.strategy.IContextualVisitable;
@@ -21,6 +22,7 @@ public class TopologicalVisitable implements IContextualVisitable {
 
 	public <T extends IValue> T setChildAt(T v, int i, IValue newchild)
 	throws IndexOutOfBoundsException {
+		if (v instanceof IRelation) return (T) getContext().getValue();
 		IValue oldchild = getChildAt(v,i);
 		getContext().update(oldchild, newchild);
 		return v;
@@ -38,11 +40,7 @@ public class TopologicalVisitable implements IContextualVisitable {
 
 	public <T extends IValue> T setChildren(T v, List<IValue> children)
 	throws IndexOutOfBoundsException {
-		int i = 0;
-		for (IValue newchild : children) {
-			setChildAt(v, i, newchild);
-			i++;
-		}
+		if (v instanceof IRelation) return (T) getContext().getValue();
 		return v;
 	}
 
@@ -52,6 +50,15 @@ public class TopologicalVisitable implements IContextualVisitable {
 
 	public void setContext(IStrategyContext context) {
 		function.getEvaluatorContext().setStrategyContext(context);		
+	}
+
+	public void init(IValue v) {
+		if (v instanceof IRelation) {
+			IStrategyContext context = new TopologicalContext();
+			IRelation relation = ((IRelation) v);
+			context.setValue(relation);
+			setContext(context);
+		}
 	}
 
 }

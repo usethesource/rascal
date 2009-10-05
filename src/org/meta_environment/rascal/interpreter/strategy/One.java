@@ -6,18 +6,21 @@ import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitable;
 
 public class One extends Strategy {
 
-	public One(AbstractFunction function) {
+	private IVisitable v;
+
+	public One(AbstractFunction function, IVisitable v) {
 		super(function);
+		this.v = v;
 	}
 	
-	IVisitable v = Visitable.getInstance();
-
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		IValue res = argValues[0];
+		v.init(res);
 		for (int i = 0; i < v.getChildrenNumber(res); i++) {
 			IValue child = v.getChildAt(res, i);
 			IValue newchild = function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue();
@@ -33,16 +36,34 @@ public class One extends Strategy {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
 			if (function.isStrategy()) {
-				return new One(function);			}
+				return new One(function, Visitable.getInstance());			}
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
 				if (function.isStrategy()) {
-					return new One(function);
+					return new One(function, Visitable.getInstance());
 				}
 			}
 		}
 		throw new RuntimeException("Unexpected strategy argument "+arg);
 	}
+	
+	public static IValue makeTopologicalOne(IValue arg) {
+		if (arg instanceof AbstractFunction) {
+			AbstractFunction function = (AbstractFunction) arg;
+			if (function.isStrategy()) {
+				return new One(function, new TopologicalVisitable(function));	
+			} 
+		} else if (arg instanceof OverloadedFunctionResult) {
+			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
+			for (AbstractFunction function: res.iterable()) {
+				if (function.isStrategy()) {
+					return new One(function, new TopologicalVisitable(function));	
+				} 
+			}
+		}
+		throw new RuntimeException("Unexpected strategy argument "+arg);
+	}
+
 
 }
