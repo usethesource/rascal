@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.strategy;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
-import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitable;
@@ -40,7 +39,7 @@ public class One extends Strategy {
 				}
 			}
 		}
-		return new ElementResult<IValue>(res.getType(), res, ctx);
+		return makeResult(res, ctx);
 	}
 
 	public static IValue makeOne(IValue arg) {

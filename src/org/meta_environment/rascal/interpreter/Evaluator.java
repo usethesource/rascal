@@ -244,11 +244,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private Profiler profiler;
 
 	private final TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator(this);
-	protected  IEvaluator<IMatchingResult> patternEvaluator;
+	protected IEvaluator<IMatchingResult> patternEvaluator;
 	protected final ModuleLoader loader;
 
-	private java.util.List<ClassLoader> classLoaders;
-	protected ModuleEnvironment rootScope;
+	private final java.util.List<ClassLoader> classLoaders;
+	protected final ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
 	private final ModuleParser parser;
 
@@ -279,6 +279,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		// everything rooted at the src directory 
 		loader.addFileLoader(new FromResourceLoader(this.getClass()));
+		loader.addFileLoader(new FromResourceLoader(this.getClass(), "test"));
 
 		// loads from -Drascal.path=/colon-separated/path
 		loader.addFileLoader(new FromDefinedRascalPathLoader());
