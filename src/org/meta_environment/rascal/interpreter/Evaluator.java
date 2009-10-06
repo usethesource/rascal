@@ -1321,17 +1321,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> receiver = x.getReceiver().accept(this);
 		String label = x.getField().toString();
 
-		if (receiver.getType().isTupleType()) {
-			IValue result = ((ITuple) receiver.getValue()).get(label);
-			Type type = ((ITuple) receiver.getValue()).getType().getFieldType(label);
+		Type receiverType = receiver.getType();
+		if (receiverType.isTupleType()) {
+			// the run-time tuple may not have labels, the static type can have labels,
+			// so we use the static type here. 
+			int index = receiverType.getFieldIndex(label);
+			IValue result = ((ITuple) receiver.getValue()).get(index);
+			Type type = receiverType.getFieldType(index);
 			return makeResult(type, result, this);
 		}
-		else if (receiver.getType().isConstructorType() || receiver.getType().isAbstractDataType()) {
+		else if (receiverType.isConstructorType() || receiverType.isAbstractDataType()) {
 			IConstructor cons = (IConstructor) receiver.getValue();
 			Type node = cons.getConstructorType();
 
-			if (!receiver.getType().hasField(label)) {
-				throw new UndeclaredFieldError(label, receiver.getType(), x);
+			if (!receiverType.hasField(label)) {
+				throw new UndeclaredFieldError(label, receiverType, x);
 			}
 
 			if (!node.hasField(label)) {
@@ -1341,11 +1345,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			int index = node.getFieldIndex(label);
 			return makeResult(node.getFieldType(index), cons.get(index), this);
 		}
-		else if (receiver.getType().isSourceLocationType()) {
+		else if (receiverType.isSourceLocationType()) {
 			return receiver.fieldAccess(label, new TypeStore());
 		}
 		else {
-			throw new UndeclaredFieldError(label, receiver.getType(), x);
+			throw new UndeclaredFieldError(label, receiverType, x);
 		}
 	}
 
