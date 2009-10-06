@@ -180,6 +180,7 @@ import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.JavaFunction;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
@@ -999,8 +1000,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				types[i] = resultElem.getType();
 				actuals[i] = resultElem.getValue();
 			}
+			Result<IValue> res = function.call(types, actuals);
+			// we need to update the strategy context when the function is of type Strategy
+			if (function.getValue() instanceof AbstractFunction) {
+				AbstractFunction f = (AbstractFunction) (function.getValue());
+				if (f.isStrategy() && getStrategyContext() != null) {
+					getStrategyContext().update(actuals[0], res.getValue());
+				}
 
-			return function.call(types, actuals);
+			} else if (function.getValue() instanceof OverloadedFunctionResult) {
+				OverloadedFunctionResult fun = (OverloadedFunctionResult) (function.getValue());
+				for (AbstractFunction f: fun.iterable()) {
+					if (f.isStrategy() && getStrategyContext() != null) {
+						getStrategyContext().update(actuals[0], res.getValue());
+					}
+				}
+			}
+			return res;
 		}
 		catch (UndeclaredVariableError e) {
 			throw new UndeclaredFunctionError(e.getName(), x);
@@ -3068,7 +3084,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IStrategyContext getStrategyContext() {
 		return strategyContext;
 	}
-	
+
 	public void setStrategyContext(IStrategyContext strategyContext) {
 		this.strategyContext  = strategyContext;
 	}

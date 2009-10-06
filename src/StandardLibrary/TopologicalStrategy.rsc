@@ -11,11 +11,7 @@ public &T(&T) java makeTopologicalAll(&T(&T) strategy);
 @javaClass{org.meta_environment.rascal.interpreter.strategy.One}
 public &T(&T) java makeTopologicalOne(&T(&T) strategy);
 
-@javaClass{org.meta_environment.rascal.interpreter.strategy.ContextualStrategy}
-public &T(&T) java makeTopologicalStrategy(&T(&T) strategy);
-
-
-@javaClass{org.meta_environment.rascal.interpreter.strategy.ContextualStrategy}
+@javaClass{org.meta_environment.rascal.interpreter.strategy.Strategy}
 @reflect{use the current strategy context}
 public value java getCurrentStratCtx();
 
@@ -46,6 +42,7 @@ public &T1(&T1) topological_once_top_down(&T2(&T2) strategy) {
 
 public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
   return &T3(&T3 subject) {
+       // TODO: the ctx is not intialized at the first call (for the moment, it returns a special value)
        value oldctx = getCurrentStratCtx();
 	   &T3 res = makeTopologicalOne(topological_once_bottom_up(strategy))(subject);
 	   value newctx = getCurrentStratCtx();
@@ -59,6 +56,7 @@ public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
 
 public &T1(&T1) topological_repeat_strat(&T2(&T2) strategy) { 
   return &T3(&T3 subject) {
+       // TODO: the ctx is not intialized at the first call (for the moment, it returns a special value)
        value ctx = getCurrentStratCtx();
        &T3 temp = strategy(subject);
 	   while (ctx != getCurrentStratCtx()) {
@@ -72,6 +70,7 @@ public &T1(&T1) topological_repeat_strat(&T2(&T2) strategy) {
 
 public &T1(&T1) topological_innermost(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
+	   // TODO: the ctx is not intialized at the first call (for the moment, it returns a special value)
 	   value ctx = getCurrentStratCtx();
 	   &T3 temp =  makeTopologicalAll(topological_innermost(strategy))(subject);
 	   do {
