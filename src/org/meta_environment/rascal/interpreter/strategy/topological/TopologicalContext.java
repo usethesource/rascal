@@ -2,9 +2,7 @@ package org.meta_environment.rascal.interpreter.strategy.topological;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -103,7 +101,7 @@ public class TopologicalContext implements IStrategyContext {
 		if (visits.containsKey(v)) {
 			visits.put(v, visits.get(v)+1);	
 		} else {
-			visits.put(v, 0);
+			visits.put(v, 1);
 		}
 	}
 
