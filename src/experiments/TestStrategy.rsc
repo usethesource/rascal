@@ -41,10 +41,7 @@ data B = g(B I)
     };
  };
 
-&T(&T) debug = &T(&T t) { 
-    println(t);
-    return t;
- };
+
 
 public B rules4(B t) {
    switch (t) {
@@ -101,15 +98,25 @@ public void main() {
      assertEqual(outermost(rules)(t), f(b(),b()));
 
      rel[A, A] r2 = {<a(), d()>, <a(), e()>, <d(), e()>};
-     
-     assertEqual(topological_top_down(makeTopologicalStrategy(rules5))(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>}); 
-     assertEqual(topological_bottom_up(makeTopologicalStrategy(rules5))(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
-     assertEqual(topological_once_top_down(makeTopologicalStrategy(rules5))(r2), {<aa(),e()>,<aa(),d()>,<d(),e()>});
-     
-     assertEqual(topological_once_bottom_up(makeTopologicalStrategy(rules5))(r2), {<a(),ee()>,<a(),d()>,<d(),ee()>});
-     assertEqual(topological_innermost(makeTopologicalStrategy(rules6))(r2), {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>});
-     assertEqual(topological_outermost(makeTopologicalStrategy(rules6))(r2), {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>});
+     assertEqual(topological_once_bottom_up(rules5)(r2), {<a(),ee()>,<a(),d()>,<d(),ee()>});
+     assertEqual(topological_once_top_down(rules5)(r2), {<aa(),e()>,<aa(),d()>,<d(),e()>});
 
+     assertEqual(topological_top_down(rules5)(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>}); 
+  
+     assertEqual(topological_bottom_up(rules5)(r2), {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>});
+     assertEqual(topological_innermost(rules6)(r2), {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>});
+
+     assertEqual(topological_outermost(rules6)(r2), {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>});
+     
+     // test Top-Down in a cyclic relation
+     rel[A, A] r3 = {<a(), d()>, <d(), e()>, <e(), d()>};
+     list[value] elts = [];
+     &T(&T) collect = &T(&T t) { 
+      elts += [t];
+      return t;
+     };
+     topological_top_down(collect)(r3);
+     assertEqual(elts,[{<e(),d()>,<d(),e()>,<a(),d()>},a(),d(),e(),d()]);
      report("Strategies");
 
 }
