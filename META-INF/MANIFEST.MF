@@ -9,6 +9,9 @@ Bundle-ClassPath: rascal.jar,
  lib/junit-4.5.jar,
  lib/core.jar,
  lib/treemap.jar,
+ jcommon-1.0.16.jar,
+ jfreechart-1.0.13.jar,
+ jfreechart-1.0.13-swt.jar,
  .,
  src
 Export-Package: org.meta_environment,
@@ -29,5 +32,7 @@ Export-Package: org.meta_environment,
  org.meta_environment.uptr.visitors,
  org.meta_environment.uri
 Require-Bundle: sglr_invoker,
- org.eclipse.imp.pdb.values
-Import-Package: org.meta_environment.rascal.interpreter.staticErrors
+ org.eclipse.imp.pdb.values,
+ org.eclipse.swt
+Import-Package: org.eclipse.swt,
+ org.meta_environment.rascal.interpreter.staticErrors
