@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.strategy;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
-import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 
@@ -20,7 +19,7 @@ public class StrategyFunction extends Strategy {
 		}
 		
 		// identity
-		return new ElementResult<IValue>(argValues[0].getType(), argValues[0], ctx);
+		return makeResult(argValues[0], ctx);
 	}
 	
 	public static IValue functionToStrategy(IValue arg) {

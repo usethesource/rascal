@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
-import org.meta_environment.rascal.interpreter.result.ElementResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitable;
@@ -30,7 +29,7 @@ public class All extends Strategy {
 			newchildren.add(function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue());
 		}
 		res = v.setChildren(res, newchildren);
-		return new ElementResult<IValue>(res.getType(), res, ctx);
+		return makeResult(res, ctx);
 	}
 
 	public static IValue makeAll(IValue arg) {

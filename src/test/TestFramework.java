@@ -164,7 +164,13 @@ public class TestFramework {
 			evaluator.eval(cmd.getDeclaration());
 			return true;
 		} else {
-			throw new ImplementationError("Unexpected case in eval: " + cmd);
+			IValue value = evaluator.eval(cmd).getValue();
+			if (value == null || !value.getType().isBoolType())
+				return false;
+			return value.isEqual(evaluator.getValueFactory()
+					.bool(true)) ? true : false;
+			
+			//throw new ImplementationError("Unexpected case in eval: " + cmd);
 		}
 	}
 }

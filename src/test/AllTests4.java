@@ -22,7 +22,8 @@ import test.StandardLibraryTests.ValueIOTests;
 	StatementTests.class,
 	TryCatchTests.class,
 	ValueIOTests.class,
-	VisitTests.class
+	VisitTests.class,
+	StrategyTests.class
 })
 
 public class AllTests4 {

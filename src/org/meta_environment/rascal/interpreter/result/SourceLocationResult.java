@@ -22,7 +22,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	private final Type intTuple;
 
-	protected SourceLocationResult(Type type, ISourceLocation loc, IEvaluatorContext ctx) {
+	public SourceLocationResult(Type type, ISourceLocation loc, IEvaluatorContext ctx) {
 		super(type, loc, ctx);
 		intTuple = getTypeFactory().tupleType(getTypeFactory().integerType(), "line", getTypeFactory().integerType(), "column");
 	}
