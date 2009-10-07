@@ -131,7 +131,8 @@ public class BarChart {
      */
     public static void barchart(IString title, IString domainLabel, IString rangeLabel, IList series, IList categories, IList facts)
     {
-       PieChart.display(title.getValue(), makeBarchart(title, domainLabel, rangeLabel, series, categories, facts));
+    	DisplayChart dc = new DisplayChart(title.getValue(), makeBarchart(title, domainLabel, rangeLabel, series, categories, facts));
+    	dc.run();
     }
 
 }
