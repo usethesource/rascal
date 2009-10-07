@@ -57,6 +57,8 @@ import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
 import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.Range;
+import org.meta_environment.rascal.ast.Expression.ReifiedType;
+import org.meta_environment.rascal.ast.Expression.ReifyType;
 import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.ast.Expression.SetAnnotation;
 import org.meta_environment.rascal.ast.Expression.StepRange;
@@ -194,6 +196,18 @@ public class DebuggableEvaluator extends Evaluator {
 		return super.visitExpressionComposition(x);
 	}
 
+	@Override
+	public Result<IValue> visitExpressionReifiedType(ReifiedType x) {
+		suspend(x);
+		return super.visitExpressionReifiedType(x);
+	}
+	
+	@Override
+	public Result<IValue> visitExpressionReifyType(ReifyType x) {
+		suspend(x);
+		return super.visitExpressionReifyType(x);
+	}
+	
 	@Override
 	public Result<IValue> visitExpressionComprehension(Comprehension x) {
 		suspend(x);
