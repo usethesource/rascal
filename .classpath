@@ -9,5 +9,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="lib/core.jar"/>
 	<classpathentry kind="lib" path="lib/treemap.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.13-swt.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.13.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
