@@ -96,7 +96,8 @@ public class PieChart {
      */
     public static void piechart(IString title, IMap facts)
     {
-       display(title.getValue(), makePiechart(title, facts));
+    	DisplayChart dc = new DisplayChart(title.getValue(), makePiechart(title, facts));
+    	dc.run();
     }
     
     /**
