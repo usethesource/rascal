@@ -1400,7 +1400,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		else if (receiver.getType().isMapType()) {
 			Type keyType = receiver.getType().getKeyType();
 
-			if (subscript.getType().isSubtypeOf(keyType)) {
+			if (receiver.hasInferredType() || subscript.getType().isSubtypeOf(keyType)) {
 				IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
 				
 				if (result == null) {
@@ -1410,7 +1410,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				return makeResult(type, result, this);
 			}
 
-			throw new UnexpectedTypeError(keyType, subscript.getType(), x);
+			throw new UnexpectedTypeError(keyType, subscript.getType(), x.getSubscript());
 		}
 		// TODO implement other subscripts
 		throw new UnsupportedOperationError("subscript", receiver.getType(), x);
