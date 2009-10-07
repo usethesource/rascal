@@ -213,14 +213,14 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		else if (rec.getType().isMapType()) {
 			Type keyType = rec.getType().getKeyType();
 			
-			if (subscript.getType().isSubtypeOf(keyType)) {
+			if (rec.hasInferredType() || subscript.getType().isSubtypeOf(keyType)) {
 				IValue oldValue = ((IMap) rec.getValue()).get(subscript.getValue());
 				value = newResult(oldValue, value);
 				IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), value.getValue());
 				result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map, eval);
 			}
 			else {
-				throw new UnexpectedTypeError(keyType, subscript.getType(), x);
+				throw new UnexpectedTypeError(keyType, subscript.getType(), x.getSubscript());
 			}
 			
 		} else if (rec.getType().isNodeType() && subscript.getType().isIntegerType()) {
