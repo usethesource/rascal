@@ -1402,6 +1402,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 			if (subscript.getType().isSubtypeOf(keyType)) {
 				IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
+				
+				if (result == null) {
+					throw RuntimeExceptionFactory.noSuchKey(subscript.getValue(), x, getStackTrace());
+				}
 				Type type = receiver.getType().getValueType();
 				return makeResult(type, result, this);
 			}

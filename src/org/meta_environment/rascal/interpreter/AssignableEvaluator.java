@@ -214,7 +214,8 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			Type keyType = rec.getType().getKeyType();
 			
 			if (subscript.getType().isSubtypeOf(keyType)) {
-				value = newResult(((IMap) rec.getValue()).get(subscript.getValue()), value);
+				IValue oldValue = ((IMap) rec.getValue()).get(subscript.getValue());
+				value = newResult(oldValue, value);
 				IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), value.getValue());
 				result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map, eval);
 			}
@@ -246,13 +247,16 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 	
 	@Override
 	public Result<IValue> visitAssignableIfDefinedOrDefault(IfDefinedOrDefault x) {
-		Result<IValue> cond = x.getDefaultExpression().accept(eval);
-		
-		if (((IBool) cond.getValue()).getValue()) {
+		try {
+			x.getReceiver().accept(eval); // notice we use 'eval' here not 'this'
+			// if it was not defined, this would have thrown an exception, so now we can just go on
 			return x.getReceiver().accept(this);
 		}
-		
-		return x.getReceiver().accept(eval);
+		catch (Throw e) {
+			value = newResult(x.getDefaultExpression().accept(eval), value);
+			operator = AssignmentOperator.Default;
+			return x.getReceiver().accept(this);
+		}
 	}
 	
 	@Override
@@ -260,8 +264,10 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		Result<IValue> receiver = x.getReceiver().accept(eval);
 		String label = x.getField().toString();
 		
-		if(receiver == null || receiver.getValue() == null)
+		if(receiver == null || receiver.getValue() == null) {
 			throw new UninitializedVariableError(x.getReceiver().toString(), x.getReceiver());
+		}
+		
 		if (receiver.getType().isTupleType()) {
 			
 			int idx = receiver.getType().getFieldIndex(label);
