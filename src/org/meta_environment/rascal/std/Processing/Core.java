@@ -6,7 +6,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -19,10 +18,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.fast.Constructor;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
-import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
-import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
-import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 import processing.core.PApplet;
@@ -459,9 +455,9 @@ public class Core {
 		OverloadedFunctionResult fn = (OverloadedFunctionResult) cons.get(0);
 		if(cname.equals("draw"))
 			return fn;
-		else {
-			System.err.println("TODO: add exception");
-		}
+		
+		System.err.println("TODO: add exception");
+		
 		return null;		
 	}
 	
