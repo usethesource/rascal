@@ -46,22 +46,22 @@ public class Settings {
 	private static int lastInteger(){
 		if(lastSetting != null && lastSetting.getType().isIntegerType()){
 			return ((IInteger) lastSetting).intValue();
-		} else
-			throw new ImplementationError("Last used setting not an integer");
+		}
+		throw new ImplementationError("Last used setting not an integer");
 	}
 	
 	@SuppressWarnings("unused")
 	private static float lastReal(){
 		if(lastSetting != null && lastSetting.getType().isRealType()){
 			return ((IReal) lastSetting).floatValue();
-		} else
-			throw new ImplementationError("Last used setting not a real");
+		}
+		throw new ImplementationError("Last used setting not a real");
 	}
 	@SuppressWarnings("unused")
 	private static String lastString(){
 		if(lastSetting != null && lastSetting.getType().isStringType()){
 			return ((IString) lastSetting).getValue();
-		} else
-			throw new ImplementationError("Last used setting not a string");
+		}
+		throw new ImplementationError("Last used setting not a string");
 	}
 }
