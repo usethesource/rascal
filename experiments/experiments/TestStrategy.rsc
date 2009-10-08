@@ -1,4 +1,4 @@
-module TestStrategy
+module experiments::TestStrategy
 	
 import IO;
 import Strategy;
