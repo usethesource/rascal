@@ -1,4 +1,4 @@
-module demo::Dashti 
+module experiments::Dashti 
 
 import List;
 import Set;

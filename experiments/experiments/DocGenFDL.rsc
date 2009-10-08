@@ -1,4 +1,4 @@
-module demo::DocGenFDL
+module experiments::DocGenFDL
 
 import Set;
 
