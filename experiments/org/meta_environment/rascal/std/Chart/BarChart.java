@@ -1,16 +1,20 @@
 package org.meta_environment.rascal.std.Chart;
 
+import java.awt.Color;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
@@ -25,67 +29,165 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
  */
 public class BarChart {
 
+	private static String[] supportedSettings = {
+		"dim3",
+		"domainLabel", 
+		"horizontal",
+		"noLegend",
+		"noToolTips",
+		"rangeLabel",  
+		"seriesLabels",
+		"stacked",
+		"subtitle",
+		"vertical",
+	};
+
+	/*
+	 * Add value to a dataset
+	 */
+	private static void setValue(DefaultCategoryDataset dataset, IValue val, String series, String category){
+	    if(val.getType().isIntegerType()){
+	    	dataset.setValue(((IInteger) val).intValue(), series, category);
+	    } else if (val.getType().isRealType()){
+	    	dataset.setValue(((IReal) val).floatValue(), series, category);
+	    } else {
+	    	throw RuntimeExceptionFactory.illegalArgument(val, null,null);
+	    } 	
+	}
+	
+	/*
+	 * Get the possible categories (= column names)
+	 */
+	
+	private static String[] getCategories(Type t){
+ 		int nField = t.getArity();
+ 		
+ 		String [] categories = new String[nField];
+ 		for(int i = 1; i < nField; i++){
+ 			String fname = t.getFieldName(i);
+ 			categories[i] = (fname != null) ? fname : ("Series " + Integer.toString(i));
+ 		}
+ 		if(Settings.has("seriesLabels")){
+ 			String[] setCategories = Settings.getListString();
+ 			for(int i = 0; i < setCategories.length && i < nField; i++){
+ 				categories[i+1] = setCategories[i];
+ 			}
+ 		}
+ 		return categories;
+	}
+
     /**
-     * Returns a dataset.
+     * Transform an IValue into a dataset
      *
      * @return The dataset.
      */
-    private static CategoryDataset createDataset(IList series, IList categories, IList data) {
- 
-		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		int nSeries = series.length();
-		int nCategories = categories.length();
-
-		int seriesCnt = -1;
-	    Iterator<IValue> iter = data.iterator();
-        while (iter.hasNext()) {
-        	seriesCnt++;
-        	String seriesName = seriesCnt < nSeries ? ((IString)series.get(seriesCnt)).getValue() : "";
-        	
-    	    IList list = (IList)iter.next();
-    	    Iterator<IValue> subiter = list.iterator();
-    	    int categoryCnt = -1;
-    	    
-    	    while(subiter.hasNext()){
-    	    	IValue val = subiter.next();
-    	    	categoryCnt++;
-    	  
-    	    	String categoryName = categoryCnt < nCategories ? ((IString)categories.get(categoryCnt)).getValue() : "";
-    	    
-    	    	if(val.getType().isIntegerType()){
-    	    		dataset.setValue(((IInteger) val).intValue(), seriesName, categoryName);
-    	    	} else if (val.getType().isRealType()){
-    	    		dataset.setValue(((IReal) val).floatValue(), seriesName, categoryName);
-    	    	} else {
-    	    		throw RuntimeExceptionFactory.illegalArgument(val, null,null);
-    	    	} 	
-    	    }
-        }
-        return dataset; 
+    
+    private static CategoryDataset createDataset(IValue facts) {
+    	DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    	
+    	 if(facts.getType().isMapType()){
+         	IMap factMap = (IMap) facts;
+ 	        Iterator<Entry<IValue,IValue>> iter = factMap.entryIterator();
+ 	        while (iter.hasNext()) {
+ 	    	    Entry<IValue,IValue> entry = iter.next();
+ 	    	    String v = ((IString) entry.getKey()).getValue();
+ 	    	    setValue(dataset, entry.getValue(), "default", v);
+ 	        }
+ 	        return dataset;
+         } else if(facts.getType().isListType()){
+         	IList factList = (IList) facts;
+         	if(factList.getElementType().isTupleType()){
+         		String[] categories = getCategories(factList.getElementType());         			
+         		for(IValue v : factList){
+         			ITuple tup = (ITuple) v;
+         			for(int i = 1; i < tup.arity(); i++){
+         				setValue(dataset, tup.get(i), ((IString) tup.get(0)).getValue(), categories[i]);
+         			}
+         		}
+         		return dataset;
+         	}
+         } else if(facts.getType().isSetType()){
+         	ISet factSet = (ISet) facts;
+         	if(factSet.getElementType().isTupleType()){
+         		String[] categories = getCategories(factSet.getElementType());   
+         		for(IValue v : factSet){
+         			ITuple tup = (ITuple) v;
+         			for(int i = 1; i < tup.arity(); i++){
+         				setValue(dataset, tup.get(i), ((IString) tup.get(0)).getValue(), categories[i]);
+         			}
+     			}
+         		return dataset;
+         	}
+         }
+        throw RuntimeExceptionFactory.illegalArgument(facts, null,null);       
     }
 
     /**
-     * Creates a sample chart.
+     * Creates a chart.
      *
      * @param dataset  the dataset.
      *
      * @return The chart.
      */
-    private static JFreeChart createChart(java.lang.String title, 
-    		java.lang.String domainLabel, java.lang.String rangeLabel, 
-    		CategoryDataset dataset) {
+    private static JFreeChart createChart(java.lang.String title, 	CategoryDataset dataset) {
+    	
+    	String domainLabel = Settings.has("domainLabel") ? Settings.getString() : "";
+    	String rangeLabel = Settings.has("rangeLabel") ? Settings.getString() : "";
+    	PlotOrientation orientation = Settings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
 
+    	JFreeChart chart;
+    	
         // create the chart...
-        JFreeChart chart = ChartFactory.createBarChart(
-            title,                    // chart title
-            domainLabel,              // domain axis label
-            rangeLabel,               // range axis label
-            dataset,                  // data
-            PlotOrientation.VERTICAL, // orientation
-            true,                    // include legend
-            true,                    // tooltips?
-            false                    // URLs?
-        );
+    	
+    	if(Settings.has("dim3") && Settings.has("stacked")){
+	        chart = ChartFactory.createStackedBarChart3D(
+	            title,                    	// chart title
+	            domainLabel,              	// domain axis label
+	            rangeLabel,               	// range axis label
+	            dataset,                  	// data
+	            orientation,             	// orientation
+	            !Settings.has("noLegend"),  // include legend
+	            !Settings.has("noToolTips"),//tooltips?
+	            false                    	// URLs?
+	        );
+    	} else if(Settings.has("dim3") && !Settings.has("stacked")){
+	        chart = ChartFactory.createBarChart3D(
+	            title,                    	// chart title
+	            domainLabel,              	// domain axis label
+	            rangeLabel,               	// range axis label
+	            dataset,                  	// data
+	            orientation,             	// orientation
+	            !Settings.has("noLegend"),  // include legend
+	            !Settings.has("noToolTips"),//tooltips?
+	            false                    	// URLs?
+	        );
+    	} else if(!Settings.has("dim3") && Settings.has("stacked")){
+	        chart = ChartFactory.createStackedBarChart(
+	            title,                    	// chart title
+	            domainLabel,              	// domain axis label
+	            rangeLabel,               	// range axis label
+	            dataset,                  	// data
+	            orientation,             	// orientation
+	            !Settings.has("noLegend"),  // include legend
+	            !Settings.has("noToolTips"),//tooltips?
+	            false                    	// URLs?
+	        );
+        } else	{
+	        chart = ChartFactory.createBarChart(
+	            title,                    	// chart title
+	            domainLabel,              	// domain axis label
+	            rangeLabel,               	// range axis label
+	            dataset,                  	// data
+	            orientation,             	// orientation
+	            !Settings.has("noLegend"),  // include legend
+	            !Settings.has("noToolTips"),//tooltips?
+	            false                    	// URLs?
+	        );
+		}
+    	
+    	if(Settings.has("subtitle")){
+    		Common.setSubtitle(chart, Settings.getString());
+    	}
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
@@ -105,10 +207,10 @@ public class BarChart {
         // standard painter...
         renderer.setBarPainter(new StandardBarPainter());
 
-        CategoryAxis domainAxis = plot.getDomainAxis();
-        domainAxis.setCategoryLabelPositions(
-                CategoryLabelPositions.createUpRotationLabelPositions(
-                        Math.PI / 6.0));
+      //  CategoryAxis domainAxis = plot.getDomainAxis();
+      //  domainAxis.setCategoryLabelPositions(
+      //          CategoryLabelPositions.createUpRotationLabelPositions(
+      //                  Math.PI / 6.0));
         // OPTIONAL CUSTOMISATION COMPLETED.
 
         return chart;
@@ -119,8 +221,9 @@ public class BarChart {
      * makeBarchart: a reusable function to a create a barchart
      */
     
-    public static JFreeChart makeBarchart(IString title, IString domainLabel, IString rangeLabel, IList series, IList categories, IList facts){
-    	return createChart(title.getValue(), domainLabel.getValue(), rangeLabel.getValue(), createDataset(series, categories, facts));
+    public static JFreeChart makeBarchart(IString title, IValue facts, IValue settings){
+    	Settings.validate(supportedSettings, (IList)settings);
+    	return createChart(title.getValue(), createDataset(facts));
     }
     
     /**
@@ -129,9 +232,9 @@ public class BarChart {
      * @param title title of the chart
      * @param facts the data (a map)
      */
-    public static void barchart(IString title, IString domainLabel, IString rangeLabel, IList series, IList categories, IList facts)
+    public static void barChart(IString title, IValue facts, IValue settings)
     {
-    	DisplayChart dc = new DisplayChart(title.getValue(), makeBarchart(title, domainLabel, rangeLabel, series, categories, facts));
+    	DisplayChart dc = new DisplayChart(title.getValue(), makeBarchart(title, facts, settings));
     	dc.run();
     }
 

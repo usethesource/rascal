@@ -41,27 +41,37 @@ public class Settings {
 		}
 		return false;
 	}
-	
-	@SuppressWarnings("unused")
-	private static int lastInteger(){
+
+	static int getInteger(){
 		if(lastSetting != null && lastSetting.getType().isIntegerType()){
 			return ((IInteger) lastSetting).intValue();
-		}
-		throw new ImplementationError("Last used setting not an integer");
+		} else
+			throw new ImplementationError("Last used setting not an integer");
 	}
 	
-	@SuppressWarnings("unused")
-	private static float lastReal(){
+	static float getReal(){
 		if(lastSetting != null && lastSetting.getType().isRealType()){
 			return ((IReal) lastSetting).floatValue();
-		}
-		throw new ImplementationError("Last used setting not a real");
+		} else
+			throw new ImplementationError("Last used setting not a real");
 	}
-	@SuppressWarnings("unused")
-	private static String lastString(){
+
+	static String getString(){
 		if(lastSetting != null && lastSetting.getType().isStringType()){
 			return ((IString) lastSetting).getValue();
-		}
-		throw new ImplementationError("Last used setting not a string");
+		} else
+			throw new ImplementationError("Last used setting not a string");
+	}
+	
+	static String[] getListString(){
+		if(lastSetting != null && lastSetting.getType().isListType() &&
+				lastSetting.getType().getElementType().isStringType()){
+			IList lst = (IList) lastSetting;
+			String[] result = new String[lst.length()];
+			for(int i = 0; i < lst.length(); i++)
+				result[i] = ((IString) lst.get(i)).getValue();
+			return result;
+		} else
+			throw new ImplementationError("Last used setting not a list of strings");
 	}
 }
