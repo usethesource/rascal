@@ -311,6 +311,7 @@ public class ASTBuilder {
 		ASTStatistics ref = null;
 		
 		for (IValue alt : altsIn) {
+			sort = TreeAdapter.getSortName((IConstructor) alt);
 			AbstractAST ast = buildValue(alt);
 			
 			if (ast == null) {
