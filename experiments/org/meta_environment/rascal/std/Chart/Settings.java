@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.std.Chart;
 
+import java.awt.Color;
+
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IReal;
@@ -10,6 +12,9 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class Settings {
+	
+	public static final Color LighterGrey = new Color(0.9435f,0.9348f,0.9435f);
+	
 	static IList settings;
 	private static IValue lastSetting;
 	

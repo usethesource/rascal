@@ -1,4 +1,4 @@
-module experiments::Chart::xychart
+module experiments::Charts::xychart
 
 import Chart;
 

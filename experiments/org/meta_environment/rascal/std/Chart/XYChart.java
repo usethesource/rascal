@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.std.Chart;
 
+import java.awt.Color;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -14,6 +15,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
@@ -138,8 +140,18 @@ public class XYChart {
 	    		Common.setSubtitle(chart, Settings.getString());
 	    	}
 	        plot = (XYPlot) chart.getPlot();
-	     
 	        plot.setNoDataMessage("No data available");
+	        
+	        plot.setBackgroundPaint(Settings.LighterGrey);
+	        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+	        
+	        for(int k = 0; k < allSeries.size(); k++){
+	        	renderer.setSeriesLinesVisible(k, true);
+	        	renderer.setSeriesShapesVisible(k, true);
+	        	k++;
+	        }
+	        plot.setRenderer(renderer);
+	        
 	        return chart;
 	    }
 	  
