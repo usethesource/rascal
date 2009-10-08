@@ -2,7 +2,6 @@ package org.meta_environment.rascal.interpreter;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
