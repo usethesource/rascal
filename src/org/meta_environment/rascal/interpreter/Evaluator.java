@@ -2936,24 +2936,35 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		java.util.List<Expression> producers = x.getGenerators();
 		int size = producers.size();
 		IBooleanResult[] gens = new IBooleanResult[size];
+		Environment[] olds = new Environment[size];
 		Environment old = getCurrentEnvt();
-
 		int i = 0;
+
 		try {
-			pushEnv();
 			gens[0] = makeBooleanResult(producers.get(0));
 			gens[0].init();
+			olds[0] = getCurrentEnvt();
+			pushEnv();
+
 			while (i >= 0 && i < size) {
 				if (gens[i].hasNext()) {
 					if (!gens[i].next()) {
 						return new BoolResult(tf.boolType(), vf.bool(false), this);
 					}
-					if (i < size - 1) {
+					
+					if(i == size - 1){
+						unwind(olds[i]);
+						pushEnv();
+					} 
+					else {
 						i++;
 						gens[i] = makeBooleanResult(producers.get(i));
 						gens[i].init();
+						olds[i] = getCurrentEnvt();
+						pushEnv();
 					}
 				} else {
+					unwind(olds[i]);
 					i--;
 				}
 			}
@@ -2961,7 +2972,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		finally {
 			unwind(old);
 		}
-
+		
 		return new BoolResult(tf.boolType(), vf.bool(true), this);
 	}
 
