@@ -8,8 +8,11 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
@@ -23,9 +26,22 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
  */
 public class PieChart {
 	private static String[] provides = {
-		  "noSectionLabels", "noLegend", "noToolTips", "dim3", "circular"
+		"dim3", 
+		"noSectionLabels", 
+		"noLegend", 
+		"noToolTips", 
+		"ring"
 	};
-
+	
+	private static float getFloat(IValue val){
+		 if(val.getType().isIntegerType()){
+ 	    	return ((IInteger) val).intValue();
+ 	    } else if (val.getType().isRealType()){
+ 	    	return ((IReal) val).floatValue();
+ 	    } else {
+ 	    	throw RuntimeExceptionFactory.illegalArgument(val, null,null);
+ 	    } 		
+	}
 		
     /**
      * Converts a Rascal Map to a PieDataset.
@@ -33,23 +49,47 @@ public class PieChart {
      * @param  facts as Rascal map
      * @return A dataset.
      */
-    private static PieDataset createDataset(IMap facts) {
+    private static PieDataset createDataset(IValue facts) {
         DefaultPieDataset dataset = new DefaultPieDataset();
         
-        Iterator<Entry<IValue,IValue>> iter = facts.entryIterator();
-        while (iter.hasNext()) {
-    	    Entry<IValue,IValue> entry = iter.next();
-    	    String keyString = ((IString) entry.getKey()).getValue();
-    	    IValue val = entry.getValue();
-    	    if(val.getType().isIntegerType()){
-    	    	dataset.setValue(keyString, ((IInteger) val).intValue());
-    	    } else if (val.getType().isRealType()){
-    	    	dataset.setValue(keyString, ((IReal) val).floatValue());
-    	    } else {
-    	    	throw RuntimeExceptionFactory.illegalArgument(val, null,null);
-    	    } 		
+        if(facts.getType().isMapType()){
+        	IMap factMap = (IMap) facts;
+	        Iterator<Entry<IValue,IValue>> iter = factMap.entryIterator();
+	        while (iter.hasNext()) {
+	    	    Entry<IValue,IValue> entry = iter.next();
+	    	    String keyString = ((IString) entry.getKey()).getValue();
+	    	    IValue val = entry.getValue();
+	    	    dataset.setValue(keyString, getFloat(val));	
+	        }
+        } else if(facts.getType().isListType()){
+        	IList factList = (IList) facts;
+        	if(facts.getType().getElementType().isTupleType()){
+        		Type et = facts.getType().getElementType();
+        		if(et.getFieldType(0).isStringType() && et.getArity() > 1){
+        			for(IValue v : factList){
+        				ITuple tup = (ITuple) v;
+        				String keyString = ((IString) tup.get(0)).getValue();
+        				dataset.setValue(keyString, getFloat(tup.get(1)));	
+        			}
+        		} 
+        		return dataset;
+        	}
+        	
+        } else if(facts.getType().isSetType()){
+        	ISet factList = (ISet) facts;
+        	if(facts.getType().getElementType().isTupleType()){
+        		Type et = facts.getType().getElementType();
+        		if(et.getFieldType(0).isStringType() && et.getArity() > 1){
+        			for(IValue v : factList){
+        				ITuple tup = (ITuple) v;
+        				String keyString = ((IString) tup.get(0)).getValue();
+        				dataset.setValue(keyString, getFloat(tup.get(1)));	
+        			}
+        		}  
+        		return dataset;
+        	}
         }
-        return dataset;        
+        throw RuntimeExceptionFactory.illegalArgument(facts, null,null);
     }
     
     /**
@@ -81,8 +121,12 @@ public class PieChart {
          				false);
         	 plot = (PiePlot) chart.getPlot();
     	}
-     
+    	
         plot.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+
+    	if(Settings.has("subtitle")){
+    		Common.setSubtitle(chart, Settings.getString());
+    	}    
         plot.setNoDataMessage("No data available");
         plot.setCircular(Settings.has("circular"));
         plot.setSectionOutlinesVisible(false);
@@ -100,7 +144,7 @@ public class PieChart {
      * makePiechart: a reusable function to a create a piechart
      */
     
-    public static JFreeChart makePiechart(IString title, IMap facts, IValue settings){
+    public static JFreeChart makePiechart(IString title, IValue facts, IValue settings){
     	String titleString = title.getValue();
     	Settings.validate(provides, (IList)settings);
     	return createChart(titleString, createDataset(facts));
@@ -112,7 +156,7 @@ public class PieChart {
      * @param title title of the chart
      * @param facts the data (a map)
      */
-    public static void pieChart(IString title, IMap facts, IValue settings)
+    public static void pieChart(IString title, IValue facts, IValue settings)
     {
     	DisplayChart dc = new DisplayChart(title.getValue(), makePiechart(title, facts, settings));
     	dc.run();
