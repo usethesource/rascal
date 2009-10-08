@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.std.Chart;
 
-import java.awt.Color;
 import java.util.Iterator;
 import java.util.Map.Entry;
 

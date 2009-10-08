@@ -45,22 +45,19 @@ public class Settings {
 	static int getInteger(){
 		if(lastSetting != null && lastSetting.getType().isIntegerType()){
 			return ((IInteger) lastSetting).intValue();
-		} else
-			throw new ImplementationError("Last used setting not an integer");
+		}throw new ImplementationError("Last used setting not an integer");
 	}
 	
 	static float getReal(){
 		if(lastSetting != null && lastSetting.getType().isRealType()){
 			return ((IReal) lastSetting).floatValue();
-		} else
-			throw new ImplementationError("Last used setting not a real");
+		}throw new ImplementationError("Last used setting not a real");
 	}
 
 	static String getString(){
 		if(lastSetting != null && lastSetting.getType().isStringType()){
 			return ((IString) lastSetting).getValue();
-		} else
-			throw new ImplementationError("Last used setting not a string");
+		}throw new ImplementationError("Last used setting not a string");
 	}
 	
 	static String[] getListString(){
@@ -71,7 +68,6 @@ public class Settings {
 			for(int i = 0; i < lst.length(); i++)
 				result[i] = ((IString) lst.get(i)).getValue();
 			return result;
-		} else
-			throw new ImplementationError("Last used setting not a list of strings");
+		}throw new ImplementationError("Last used setting not a list of strings");
 	}
 }
