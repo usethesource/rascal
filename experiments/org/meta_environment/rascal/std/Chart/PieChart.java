@@ -61,6 +61,7 @@ public class PieChart {
 	    	    IValue val = entry.getValue();
 	    	    dataset.setValue(keyString, getFloat(val));	
 	        }
+	        return dataset;
         } else if(facts.getType().isListType()){
         	IList factList = (IList) facts;
         	if(facts.getType().getElementType().isTupleType()){
@@ -123,6 +124,8 @@ public class PieChart {
     	}
     	
         plot.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+        
+        plot.setBackgroundPaint(Settings.LighterGrey);
 
     	if(Settings.has("subtitle")){
     		Common.setSubtitle(chart, Settings.getString());

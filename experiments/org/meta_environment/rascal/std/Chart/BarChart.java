@@ -192,6 +192,8 @@ public class BarChart {
 
         // get a reference to the plot for further customisation...
         CategoryPlot plot = (CategoryPlot) chart.getPlot();
+        
+        plot.setBackgroundPaint(Settings.LighterGrey);
 
         // set the range axis to display integers only...
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
