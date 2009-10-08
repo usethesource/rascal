@@ -2936,24 +2936,32 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		java.util.List<Expression> producers = x.getGenerators();
 		int size = producers.size();
 		IBooleanResult[] gens = new IBooleanResult[size];
+		Environment old = getCurrentEnvt();
 
 		int i = 0;
-		gens[0] = makeBooleanResult(producers.get(0));
-		gens[0].init();
-		while (i >= 0 && i < size) {
-			if (gens[i].hasNext()) {
-				if (!gens[i].next()) {
-					return new BoolResult(tf.boolType(), vf.bool(false), this);
+		try {
+			pushEnv();
+			gens[0] = makeBooleanResult(producers.get(0));
+			gens[0].init();
+			while (i >= 0 && i < size) {
+				if (gens[i].hasNext()) {
+					if (!gens[i].next()) {
+						return new BoolResult(tf.boolType(), vf.bool(false), this);
+					}
+					if (i < size - 1) {
+						i++;
+						gens[i] = makeBooleanResult(producers.get(i));
+						gens[i].init();
+					}
+				} else {
+					i--;
 				}
-				if (i < size - 1) {
-					i++;
-					gens[i] = makeBooleanResult(producers.get(i));
-					gens[i].init();
-				}
-			} else {
-				i--;
 			}
 		}
+		finally {
+			unwind(old);
+		}
+
 		return new BoolResult(tf.boolType(), vf.bool(true), this);
 	}
 
