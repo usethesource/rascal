@@ -36,5 +36,4 @@ Export-Package:
 Require-Bundle: sglr_invoker,
  org.eclipse.imp.pdb.values,
  org.eclipse.swt
-Import-Package: org.eclipse.swt,
- org.meta_environment.rascal.interpreter.staticErrors
+Import-Package: org.eclipse.swt
