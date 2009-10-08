@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
@@ -115,7 +116,10 @@ public class ResultFactory {
 		}
 
 		public SetOrRelationResult<?> visitRelationType(Type type) {
-				return new RelationResult(declaredType, (IRelation)value, ctx);
+			if (!(value instanceof IRelation)) {
+				throw new ImplementationError("somehow a relation value turned into a set, but its type did not change with it", ctx.getCurrentAST().getLocation());
+			}
+			return new RelationResult(declaredType, (IRelation)value, ctx);
 		}
 
 		public SetOrRelationResult<ISet> visitSet(Type type) {
