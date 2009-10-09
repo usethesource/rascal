@@ -116,7 +116,7 @@ public class ResultFactory {
 		}
 
 		public SetOrRelationResult<?> visitRelationType(Type type) {
-			if (!(value instanceof IRelation)) {
+			if (value != null && !(value instanceof IRelation)) {
 				throw new ImplementationError("somehow a relation value turned into a set, but its type did not change with it", ctx.getCurrentAST().getLocation());
 			}
 			return new RelationResult(declaredType, (IRelation)value, ctx);
