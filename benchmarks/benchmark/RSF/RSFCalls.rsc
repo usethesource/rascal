@@ -17,7 +17,7 @@ public bool measureOne(){
 }
 public bool measure(list[str] names){
 
-	str dir = "src/benchmark/RSF/";
+	str dir = "benchmarks/benchmark/RSF/";
 	
 	for(str name <- names){
 		map[str, rel[str,str]] values = readRSF(dir + name);
