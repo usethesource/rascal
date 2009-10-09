@@ -781,6 +781,11 @@ public class DataTypeTests extends TestFramework {
 	 public void NoKeyError(){
 		 runTest("(1:10, 2:20)[3];");
 	 }
+	 
+	 @Test(expected=Throw.class)  // MultipleKey
+	 public void MultipleKeyError(){
+		 runTest("(1:10, 1:10);");
+	 }
 	
 	@Test
 	public void testTuple() {
