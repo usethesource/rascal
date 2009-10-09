@@ -348,7 +348,11 @@ public class Environment {
 		Map<Type, Type> result = new HashMap<Type,Type>();
 
 		while (env != null) {
-			result.putAll(env.typeParameters);
+			for (Type key : env.typeParameters.keySet()) {
+				if (!result.containsKey(key)) {
+					result.put(key, env.typeParameters.get(key));
+				}
+			}
 			env = env.parent;
 		}
 
