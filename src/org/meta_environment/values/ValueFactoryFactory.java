@@ -1,4 +1,4 @@
-package org.meta_environment;
+package org.meta_environment.values;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;

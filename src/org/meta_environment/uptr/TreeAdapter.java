@@ -17,10 +17,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.parser.MappingsCache;
 import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
+import org.meta_environment.values.ValueFactoryFactory;
 
 
 public class TreeAdapter{

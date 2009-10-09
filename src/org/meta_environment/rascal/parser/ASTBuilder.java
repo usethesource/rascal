@@ -16,7 +16,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.ASTStatistics;
 import org.meta_environment.rascal.ast.AbstractAST;
@@ -48,6 +47,7 @@ import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
+import org.meta_environment.values.ValueFactoryFactory;
 
 /**
  * Uses reflection to construct an AST hierarchy from a 

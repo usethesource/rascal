@@ -14,7 +14,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 // TODO: Why is this code in the library? This should be done in pure Rascal.
 

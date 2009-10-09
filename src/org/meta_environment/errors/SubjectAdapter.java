@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class SubjectAdapter {
 	private IConstructor subject;

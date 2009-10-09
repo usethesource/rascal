@@ -17,8 +17,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class Node {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();

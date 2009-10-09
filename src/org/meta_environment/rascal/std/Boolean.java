@@ -4,7 +4,7 @@ import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class Boolean {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();

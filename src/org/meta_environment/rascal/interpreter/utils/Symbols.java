@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.CharClass;
 import org.meta_environment.rascal.ast.CharRange;
 import org.meta_environment.rascal.ast.CharRanges;
@@ -23,6 +22,7 @@ import org.meta_environment.rascal.ast.NumChar.Lexical;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class Symbols {
 	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();

@@ -19,7 +19,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -30,6 +29,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
+import org.meta_environment.values.ValueFactoryFactory;
 
 import sglr.IInvoker;
 import sglr.LegacySGLRInvoker;

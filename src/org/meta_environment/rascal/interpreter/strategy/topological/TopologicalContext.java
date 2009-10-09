@@ -10,8 +10,8 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class TopologicalContext implements IStrategyContext {
 
