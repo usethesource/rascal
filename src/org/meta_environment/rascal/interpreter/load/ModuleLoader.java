@@ -14,7 +14,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -31,6 +30,7 @@ import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uri.FileURIResolver;
 import org.meta_environment.uri.URIResolverRegistry;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class ModuleLoader{
 	private List<IModuleFileLoader> loaders = new ArrayList<IModuleFileLoader>();

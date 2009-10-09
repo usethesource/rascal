@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class ProductionAdapter {
 	

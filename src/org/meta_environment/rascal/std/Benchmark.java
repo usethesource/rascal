@@ -2,7 +2,7 @@ package org.meta_environment.rascal.std;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class Benchmark {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();

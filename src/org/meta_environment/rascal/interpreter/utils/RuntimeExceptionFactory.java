@@ -8,10 +8,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.LocationLiteral.Default;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
+import org.meta_environment.values.ValueFactoryFactory;
 
 /**
  * This class defines and implements all dynamic (run-time) exceptions that

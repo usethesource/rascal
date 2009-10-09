@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
@@ -23,6 +22,7 @@ import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 import org.meta_environment.uri.FileURIResolver;
 import org.meta_environment.uri.URIResolverRegistry;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class ParseTree {
 	private final static IValueFactory values = ValueFactoryFactory.getValueFactory();
