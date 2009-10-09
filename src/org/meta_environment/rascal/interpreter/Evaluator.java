@@ -1889,6 +1889,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 			keyType = keyType.lub(keyResult.getType());
 			valueType = valueType.lub(valueResult.getType());
+			
+			IValue keyValue = result.get(keyResult.getValue());
+			if(keyValue != null){
+				throw RuntimeExceptionFactory.MultipleKey(keyValue, mapping.getFrom(), getStackTrace());
+			}
 
 			result.put(keyResult.getValue(), valueResult.getValue());
 		}
