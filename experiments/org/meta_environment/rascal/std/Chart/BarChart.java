@@ -7,11 +7,9 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -32,15 +30,14 @@ public class BarChart {
 		"dim3",
 		"domainLabel", 
 		"horizontal",
-		"noLegend",
-		"noToolTips",
 		"rangeLabel",  
-		"seriesLabels",
 		"stacked",
 		"subtitle",
 		"vertical",
 	};
-
+	
+	private static IList categories;
+	
 	/*
 	 * Add value to a dataset
 	 */
@@ -58,21 +55,12 @@ public class BarChart {
 	 * Get the possible categories (= column names)
 	 */
 	
-	private static String[] getCategories(Type t){
- 		int nField = t.getArity();
- 		
- 		String [] categories = new String[nField];
- 		for(int i = 1; i < nField; i++){
- 			String fname = t.getFieldName(i);
- 			categories[i] = (fname != null) ? fname : ("Series " + Integer.toString(i));
- 		}
- 		if(Settings.has("seriesLabels")){
- 			String[] setCategories = Settings.getListString();
- 			for(int i = 0; i < setCategories.length && i < nField; i++){
- 				categories[i+1] = setCategories[i];
- 			}
- 		}
- 		return categories;
+	private static void getCategories(IList categories){
+ 		BarChart.categories = categories;
+	}
+	
+	private static String getCategoryLabel(int i){
+		return (i < categories.length()) ? ((IString)categories.get(i)).getValue() : "Cat " + String.valueOf(i);
 	}
 
     /**
@@ -80,46 +68,34 @@ public class BarChart {
      *
      * @return The dataset.
      */
-    
-    private static CategoryDataset createDataset(IValue facts) {
+	
+	private static CategoryDataset createDataset(IMap facts) {
     	DefaultCategoryDataset dataset = new DefaultCategoryDataset();
     	
-    	 if(facts.getType().isMapType()){
-         	IMap factMap = (IMap) facts;
- 	        Iterator<Entry<IValue,IValue>> iter = factMap.entryIterator();
- 	        while (iter.hasNext()) {
- 	    	    Entry<IValue,IValue> entry = iter.next();
- 	    	    String v = ((IString) entry.getKey()).getValue();
- 	    	    setValue(dataset, entry.getValue(), "default", v);
- 	        }
- 	        return dataset;
-         } else if(facts.getType().isListType()){
-         	IList factList = (IList) facts;
-         	if(factList.getElementType().isTupleType()){
-         		String[] categories = getCategories(factList.getElementType());         			
-         		for(IValue v : factList){
-         			ITuple tup = (ITuple) v;
-         			for(int i = 1; i < tup.arity(); i++){
-         				setValue(dataset, tup.get(i), ((IString) tup.get(0)).getValue(), categories[i]);
-         			}
-         		}
-         		return dataset;
-         	}
-         } else if(facts.getType().isSetType()){
-         	ISet factSet = (ISet) facts;
-         	if(factSet.getElementType().isTupleType()){
-         		String[] categories = getCategories(factSet.getElementType());   
-         		for(IValue v : factSet){
-         			ITuple tup = (ITuple) v;
-         			for(int i = 1; i < tup.arity(); i++){
-         				setValue(dataset, tup.get(i), ((IString) tup.get(0)).getValue(), categories[i]);
-         			}
-     			}
-         		return dataset;
-         	}
-         }
-        throw RuntimeExceptionFactory.illegalArgument(facts, null,null);       
-    }
+        Iterator<Entry<IValue,IValue>> iter = facts.entryIterator();
+        while (iter.hasNext()) {
+    	    Entry<IValue,IValue> entry = iter.next();
+    	    String v = ((IString) entry.getKey()).getValue();
+    	    setValue(dataset, entry.getValue(), "default", v);
+        }
+        return dataset;
+     } 
+
+    private static CategoryDataset createDataset(IList facts, IList categories) {
+    	DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    	
+ 		getCategories(categories);         			
+ 		for(IValue v : facts){
+ 			ITuple tup = (ITuple) v;
+ 			String name = ((IString) tup.get(0)).getValue();
+ 			IList elms = (IList) tup.get(1);
+ 			int nelms = elms.length();
+ 			for(int i = 0; i < nelms; i++){
+ 				setValue(dataset, elms.get(i), name, getCategoryLabel(i));
+ 			}
+ 		}
+ 		return dataset;
+ 	}
 
     /**
      * Creates a chart.
@@ -145,9 +121,9 @@ public class BarChart {
 	            rangeLabel,               	// range axis label
 	            dataset,                  	// data
 	            orientation,             	// orientation
-	            !Settings.has("noLegend"),  // include legend
-	            !Settings.has("noToolTips"),//tooltips?
-	            false                    	// URLs?
+	            true,                      // include legend
+	            true,                      // include tooltips
+	            false                    	// no URLs
 	        );
     	} else if(Settings.has("dim3") && !Settings.has("stacked")){
 	        chart = ChartFactory.createBarChart3D(
@@ -156,9 +132,9 @@ public class BarChart {
 	            rangeLabel,               	// range axis label
 	            dataset,                  	// data
 	            orientation,             	// orientation
-	            !Settings.has("noLegend"),  // include legend
-	            !Settings.has("noToolTips"),//tooltips?
-	            false                    	// URLs?
+	            true,                      // include legend
+	            true,                      // include tooltips
+	            false                    	// no URLs
 	        );
     	} else if(!Settings.has("dim3") && Settings.has("stacked")){
 	        chart = ChartFactory.createStackedBarChart(
@@ -167,9 +143,9 @@ public class BarChart {
 	            rangeLabel,               	// range axis label
 	            dataset,                  	// data
 	            orientation,             	// orientation
-	            !Settings.has("noLegend"),  // include legend
-	            !Settings.has("noToolTips"),//tooltips?
-	            false                    	// URLs?
+	            true,                      // include legend
+	            true,                      // include tooltips
+	            false                    	// no URLs
 	        );
         } else	{
 	        chart = ChartFactory.createBarChart(
@@ -178,9 +154,9 @@ public class BarChart {
 	            rangeLabel,               	// range axis label
 	            dataset,                  	// data
 	            orientation,             	// orientation
-	            !Settings.has("noLegend"),  // include legend
-	            !Settings.has("noToolTips"),//tooltips?
-	            false                    	// URLs?
+	            true,                      // include legend
+	            true,                      // include ooltips
+	            false                    	// no URLs
 	        );
 		}
     	
@@ -222,9 +198,14 @@ public class BarChart {
      * makeBarchart: a reusable function to a create a barchart
      */
     
-    public static JFreeChart makeBarchart(IString title, IValue facts, IValue settings){
+    public static JFreeChart makeBarchart(IString title, IMap facts, IValue settings){
     	Settings.validate(supportedSettings, (IList)settings);
     	return createChart(title.getValue(), createDataset(facts));
+    }
+    
+    public static JFreeChart makeBarchart(IString title, IList categories, IList facts, IValue settings){
+    	Settings.validate(supportedSettings, (IList)settings);
+    	return createChart(title.getValue(), createDataset(facts, categories));
     }
     
     /**
@@ -233,9 +214,15 @@ public class BarChart {
      * @param title title of the chart
      * @param facts the data (a map)
      */
-    public static void barChart(IString title, IValue facts, IValue settings)
+    public static void barChart(IString title, IMap facts, IValue settings)
     {
     	DisplayChart dc = new DisplayChart(title.getValue(), makeBarchart(title, facts, settings));
+    	dc.run();
+    }
+    
+    public static void barChart(IString title, IList categories, IList facts, IValue settings)
+    {
+    	DisplayChart dc = new DisplayChart(title.getValue(), makeBarchart(title, categories, facts, settings));
     	dc.run();
     }
 
