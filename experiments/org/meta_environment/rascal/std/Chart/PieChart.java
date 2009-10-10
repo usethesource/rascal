@@ -87,56 +87,56 @@ public class PieChart {
      */
     private static JFreeChart createChart(java.lang.String title, PieDataset dataset) {
     	JFreeChart chart;
-    	 PiePlot plot;
-    	
-    	 if(Settings.has("dim3")){
-    		 chart = ChartFactory.createPieChart3D(
-    				 title,  						// chart title
-    				 dataset,    					// data
-    				 true,                         // include legend
-    				 true,                         // include tooltips
-    				 false                         // no URLs
-    				 );
-    		 plot = (PiePlot3D) chart.getPlot();
+    	PiePlot plot;
 
-    	 } else if(Settings.has("ring")){
-    		 chart = ChartFactory.createRingChart(
-    				 title,  						// chart title
-    				 dataset,    					// data
-    				 true,                         // include legend
-    				 true,                         // include tooltips
-    				 false                         // no URLs
-    				 );
-    		 plot = (RingPlot) chart.getPlot();
+    	if(Settings.has("dim3")){
+    		chart = ChartFactory.createPieChart3D(
+    				title,  					  // chart title
+    				dataset,    				  // data
+    				true,                         // include legend
+    				true,                         // include tooltips
+    				false                         // no URLs
+    		);
+    		plot = (PiePlot3D) chart.getPlot();
 
-    	 } else {
-    		 chart = ChartFactory.createPieChart(
-    				 title,  						// chart title
-    				 dataset,    					// data
-    				 true,                         // include legend
-    				 true,                         // include tooltips
-    				 false                         // no URLs
-    				 );
-    		 plot = (PiePlot) chart.getPlot();
-    	 }
+    	} else if(Settings.has("ring")){
+    		chart = ChartFactory.createRingChart(
+    				title,  					  // chart title
+    				dataset,    				  // data
+    				true,                         // include legend
+    				true,                         // include tooltips
+    				false                         // no URLs
+    		);
+    		plot = (RingPlot) chart.getPlot();
 
-        plot.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
-        
-        plot.setBackgroundPaint(Settings.LighterGrey);
+    	} else {
+    		chart = ChartFactory.createPieChart(
+    				title,  					  // chart title
+    				dataset,    				  // data
+    				true,                         // include legend
+    				true,                         // include tooltips
+    				false                         // no URLs
+    		);
+    		plot = (PiePlot) chart.getPlot();
+    	}
+
+    	plot.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+
+    	plot.setBackgroundPaint(Settings.LighterGrey);
 
     	if(Settings.has("subtitle")){
     		Common.setSubtitle(chart, Settings.getString());
     	}    
-        plot.setNoDataMessage("No data available");
-        plot.setSectionOutlinesVisible(false);
-        if(Settings.has("noSectionLabels")){
-        	 plot.setInteriorGap(0.0);
-             plot.setLabelGenerator(null);
-        } else {
-        	plot.setLabelGap(0.02);
-        }
-        plot.setForegroundAlpha(0.5f);
-        return chart;
+    	plot.setNoDataMessage("No data available");
+    	plot.setSectionOutlinesVisible(false);
+    	if(Settings.has("noSectionLabels")){
+    		plot.setInteriorGap(0.0);
+    		plot.setLabelGenerator(null);
+    	} else {
+    		plot.setLabelGap(0.02);
+    	}
+    	//plot.setForegroundAlpha(0.5f);
+    	return chart;
     }
     
     /*
