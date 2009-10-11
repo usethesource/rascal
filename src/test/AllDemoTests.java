@@ -264,6 +264,12 @@ public class AllDemoTests extends TestFramework {
 	}
 	
 	@Test
+	public void StringTemplate() {
+		prepare("import demo::StringTemplate;");
+		assertTrue(runTestInSameEvaluator("test();"));
+	}
+	
+	@Test
 	public void Squares() {
 		prepare("import demo::Squares;");
 		assertTrue(runTestInSameEvaluator("test();"));
