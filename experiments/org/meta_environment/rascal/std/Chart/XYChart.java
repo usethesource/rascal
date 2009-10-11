@@ -8,9 +8,12 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYDotRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
@@ -22,6 +25,7 @@ public class XYChart {
 		"domainLabel",
 		"horizontal",
 		"rangeLabel",
+		"scatter",
 		"subtitle",
 		"vertical",
 	};
@@ -67,7 +71,19 @@ public class XYChart {
     	PlotOrientation orientation = Settings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
 
     	JFreeChart chart;
-    
+    	
+    	if(Settings.has("scatter")){
+       	 chart = ChartFactory.createScatterPlot(
+        				title,  						// chart title
+        				domainLabel,                    // xAxis
+        				rangeLabel,                     // yAxis
+        				datasets,    					// data sets
+        				orientation,                    // hor or vertical orientation
+        				true,                          // include legend
+        				true,   	                    // include tooltips
+        				false                          // no URLs
+        			);
+    	} else    
     	if(Settings.has("area")){
         	 chart = ChartFactory.createXYAreaChart(
          				title,  						// chart title
@@ -100,6 +116,10 @@ public class XYChart {
         
         plot.setBackgroundPaint(Settings.LighterGrey);
         
+        if(Settings.has("scatter")){
+        	// nothing to do
+        } else 
+
         if(!Settings.has("area")){
 	        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 	        
