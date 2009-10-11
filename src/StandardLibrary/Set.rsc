@@ -1,4 +1,22 @@
 module Set
+
+/*
+ * Library functions for sets:
+ * - getOneFrom
+ * - isEmpty
+ * - mapper
+ * - max
+ * - min
+ * - power
+ * - power1
+ * - reducer
+ * - size
+ * - takeOneFrom
+ * - toList
+ * - toMap
+ * - toMapUnique
+ * - toString
+ */
  
 @doc{Pick a random element from a set}
 @javaClass{org.meta_environment.rascal.std.Set}

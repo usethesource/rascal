@@ -1,5 +1,18 @@
 module Chart
 
+/*
+ * Library functions for chart drawing:
+ * - barChart
+ * - boxPlot
+ * - histogram
+ * - pieChart
+ * - xyChart
+ */
+ 
+ /*
+  * Settings to refine the actual chart
+  */
+
 data chartSetting =            // supported by
                                // barChart pieChart xyChart histogram boxplot
      area()                    //                   x
@@ -14,6 +27,10 @@ data chartSetting =            // supported by
    | vertical()                // x                 x       x         x
 
    ;
+   
+/*
+ * Data formats used in chart functions
+ */
 
 // A named series of int or real values
 

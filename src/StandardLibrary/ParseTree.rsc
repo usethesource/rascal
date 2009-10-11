@@ -1,5 +1,14 @@
 module ParseTree
 
+/*
+ * Functions for parsing:
+ * - parse
+ */
+ 
+ /*
+  * The universal parse tree format. Parsse functions always return values of type Tree.
+  */
+ 
 data ParseTree = 
      parsetree(Tree top, int amb_cnt);
 

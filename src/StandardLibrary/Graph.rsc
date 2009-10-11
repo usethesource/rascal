@@ -1,5 +1,17 @@
 module Graph
 
+/*
+ * Library functions for manipulating graphs:
+ * - bottom
+ * - predecessors
+ * - reach
+ * - reachR
+ * - reachR
+ * - shortestPathPair
+ * - successors
+ * - top
+ */
+
 import Set;
 import Relation;
 import IO;

@@ -1,5 +1,26 @@
 module String
 
+/*
+ * Library functions for strings:
+ * - charAt
+ * - endsWith
+ * - center
+ * - isEmpty
+ * - left
+ * - replaceAll
+ * - replaceFirst
+ * - replaceLast
+ * - reverse
+ * - right
+ * - size
+ * - startsWith
+ * - toInt
+ * - toLowerCase
+ * - toReal
+ * - toUpperCase
+ * - substring
+ */
+
 @doc{Return the character at position i in string s.}
 @javaClass{org.meta_environment.rascal.std.String}
 public int java charAt(str s, int i) throws out_of_range(str msg);
@@ -40,21 +61,49 @@ public str left(str s, int n, str pad)
   return format(s, "left", n, pad);
 }
 
+@doc{Replace all occurences of (regex) find in input by replacement}
+public str replaceAll(str input, str find, str replacement) {
+	if(/^<pre:.*><find><post:.*>$/ := input) {	
+		return replaceAll(pre, find, replacement) + replacement + replaceAll(post, find, replacement);
+	}	
+	
+	return input;
+}
+
+@doc{Replace the first occurence of (regex) find in input by replacement}
+public str replaceFirst(str input, str find, str replacement) {
+	if(/^<pre:.*?><find><post:.*>$/ := input) {	
+		return pre + replacement + post;
+	}	
+	
+	return input;
+}
+
+
+@doc{Replace the last occurence of (regex) find in input by replacement}
+public str replaceLast(str input, str find, str replacement) {
+	if(/^<pre:.*><find><post:.*?>$/ := input) {	
+		return pre + replacement + post;
+	}	
+	
+	return input;
+}
+
 @doc{Right align s in string of length n using spaces}
 public str right(str s, int n)
 {
   return format(s, "right", n, " ");
 }
 
+@doc{Return string with all characters in reverse order.}
+@javaClass{org.meta_environment.rascal.std.String}
+public str java reverse(str s);
+
 @doc{Right align s in string of length n using pad}
 public str right(str s, int n, str pad)
 {
   return format(s, "right", n, pad);
 }
-
-@doc{Return string with all characters in reverse order.}
-@javaClass{org.meta_environment.rascal.std.String}
-public str java reverse(str s);
 
 @doc{Return the length of string s.}
 @javaClass{org.meta_environment.rascal.std.String}
@@ -88,30 +137,4 @@ public str java substring(str s, int begin);
 @javaClass{org.meta_environment.rascal.std.String}
 public str java substring(str s, int begin, int end);
 
-@doc{Replace all occurences of (regex) find in input by replacement}
-public str replaceAll(str input, str find, str replacement) {
-	if(/^<pre:.*><find><post:.*>$/ := input) {	
-		return replaceAll(pre, find, replacement) + replacement + replaceAll(post, find, replacement);
-	}	
-	
-	return input;
-}
 
-@doc{Replace the first occurence of (regex) find in input by replacement}
-public str replaceFirst(str input, str find, str replacement) {
-	if(/^<pre:.*?><find><post:.*>$/ := input) {	
-		return pre + replacement + post;
-	}	
-	
-	return input;
-}
-
-
-@doc{Replace the last occurence of (regex) find in input by replacement}
-public str replaceLast(str input, str find, str replacement) {
-	if(/^<pre:.*><find><post:.*?>$/ := input) {	
-		return pre + replacement + post;
-	}	
-	
-	return input;
-}
