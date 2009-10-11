@@ -60,22 +60,6 @@ public class PieChart {
         }
         return dataset;
     }
-	
-	
-    private static PieDataset createDataset(IList facts) {
-        DefaultPieDataset dataset = new DefaultPieDataset();
-    
-		for(IValue v : facts){
-			ITuple tup = (ITuple) v;
-			String keyString = ((IString) tup.get(0)).getValue();
-			IList elms = (IList) tup.get(0);
-			int nelms = elms.length();
-			for(int i = 0; i < nelms; i++){
-				dataset.setValue(keyString, getFloat(elms.get(i)));	
-			}
-		}
-		return dataset;
-    }
     
     /**
      * Creates a chart.

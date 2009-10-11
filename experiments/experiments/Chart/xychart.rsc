@@ -20,3 +20,13 @@ public void p2(){
                      rangeLabel("Y-axis")
            );
 }
+
+public void p3(){
+
+	xyChart("test", [<"f", [1,1, 2,2, 3,5]>, 
+                     <"g", [2,50, 5,100] >],
+                     scatter(),
+                     domainLabel("X-axis"),
+                     rangeLabel("Y-axis")
+           );
+}

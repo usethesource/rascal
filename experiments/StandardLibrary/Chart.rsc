@@ -22,6 +22,7 @@ data chartSetting =            // supported by
    | noSectionLabels()         //          x
    | rangeLabel(str txt)       // x                 x       x         x
    | ring()                    //          x
+   | scatter()                 //                   x           
    | stacked()                 // x  
    | subtitle(str txt)         // x        x        x       x         x
    | vertical()                // x                 x       x         x
