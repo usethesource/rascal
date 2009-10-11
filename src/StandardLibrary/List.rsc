@@ -1,5 +1,31 @@
 module List
 
+/* 
+ * Library functions for lists:
+ * - average
+ * - delete
+ * - domain
+ * - head
+ * - getOneFrom
+ * - insertAT
+ * - isEmpty
+ * - mapper
+ * - max
+ * - min
+ * - permutations
+ * - reducer
+ * - reverse
+ * - size
+ * - slice
+ * - sort
+ * - tail
+ * - takeOneFrom
+ * - toMap
+ * - toMapUnique
+ * - toSet
+ * - toString
+ */
+
 @doc{Average of elements of a list}
 public &T average(list[&T] lst, &T zero)
 {

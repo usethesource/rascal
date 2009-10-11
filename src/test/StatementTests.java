@@ -49,12 +49,11 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{<x, y, z> = <3, 4, 5>; (x == 3) && (y == 4) && (z == 5);}"));
 		assertTrue(runTest("{<x, y> = <3, 4>; x = 5; (x == 5) && (y == 4);}"));
 
-		// assertTrue(runTest("{int x = 3; x += 2; x == 5;}"));
-		// assertTrue(runTest("{int x = 3; x -= 2; x == 1;}"));
-		// assertTrue(runTest("{int x = 3; x *= 2; x == 6;}"));
-		// assertTrue(runTest("{int x = 3; x /= 2; x == 1;}"));
-		// assertTrue(runTest("{int x = 3; x %= 2; x == 1;}"));
-
+		assertTrue(runTest("{int x = 3; x += 2; x == 5;}"));
+		assertTrue(runTest("{int x = 3; x -= 2; x == 1;}"));
+		assertTrue(runTest("{int x = 3; x *= 2; x == 6;}"));
+		assertTrue(runTest("{int x = 3; x /= 2; x == 1;}"));
+		
 		assertTrue(runTest("{list[int] x = [0,1,2]; x == [0,1,2];}"));
 		assertTrue(runTest("{list[int] x = [0,1,2]; x[0] == 0;}"));
 		assertTrue(runTest("{list[int] x = [0,1,2]; x[1] == 1;}"));
@@ -62,7 +61,7 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{list[int] x = [0,1,2]; x[1] = 10; (x[0] == 0) && (x[1] == 10) && (x[2] == 2);}"));
 
 		assertTrue(runTest("{map[int,int] x = (0:0,1:10,2:20); x == (0:0,1:10,2:20);}"));
-		// assertTrue(runTest("{map[int,int] x = (0:0,1:10,2:20); x[1] = 15; (x[0] == 0) && (x[1] == 15) && (x[2] == 20);}"));
+		assertTrue(runTest("{map[int,int] x = (0:0,1:10,2:20); x[1] = 15; (x[0] == 0) && (x[1] == 15) && (x[2] == 20);}"));
 
 		assertTrue(runTest("{set[int] x = {0,1,2}; x == {0,1,2};}"));
 		assertTrue(runTest("{set[int] x = {0,1,2}; x = x + {3,4}; x == {0,1,2, 3,4};}"));
@@ -73,6 +72,8 @@ public class StatementTests extends TestFramework {
 
 	@Test
 	public void block() {
+		assertTrue(runTest("{int x = 3; x = 4; x ==4;}"));
+		assertTrue(runTest("{int x = 3; x = 4; x;} == 4"));
 	}
 
 	@Test
@@ -118,6 +119,13 @@ public class StatementTests extends TestFramework {
 	public void testFor() {
 		assertTrue(runTest("{int n = 0; for(int i <- [1,2,3,4]){ n = n + i;} n == 10;}"));
 		assertTrue(runTest("{int n = 0; for(int i <- [1,2,3,4], n <= 3){ n = n + i;} n == 6;}"));
+	}
+	
+	@Test
+	public void testAppend(){
+		//assertTrue(runTest("for(int i <- [1,2,3,4]){ 3 * i; } == 12;"));
+		assertTrue(runTest("{ L = for(int i <- [1,2,3,4]){ append 3 * i; }; L == [3,6,9,12];}"));
+		assertTrue(runTest("{ L = for(int i <- [1,2,3,4]){ append 3 * i; append 4 *i;}; L == [3,4,6,8,9,12,12,16];}"));
 	}
 
 	@Test

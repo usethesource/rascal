@@ -1,12 +1,18 @@
 module IO
 
+/*
+ * Library functions for reading/writing values:
+ * - println
+ * - print
+ * - rawPrintln
+ * - readFile
+ * - readFileLines
+ * - writeFile
+ */
+
 @doc{Print a list of values on the output stream.}
 @javaClass{org.meta_environment.rascal.std.IO}
 public void java println(value V...);
-
-@doc{Print a list of values on the output stream, but do not convert parse trees or remove quotes from strings}
-@javaClass{org.meta_environment.rascal.std.IO}
-public void java rawPrintln(value V...);
 
 @doc{Print and return true, for debugging complex expressions}
 public bool print(value V...) 
@@ -14,6 +20,10 @@ public bool print(value V...)
   println(V);
   return true;
 }
+
+@doc{Print a list of values on the output stream, but do not convert parse trees or remove quotes from strings}
+@javaClass{org.meta_environment.rascal.std.IO}
+public void java rawPrintln(value V...);
 
 @doc{Read a named file as list of strings.}
 @deprecated{Use @see str readFile(loc file)}

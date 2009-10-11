@@ -1,5 +1,12 @@
 module UnitTest
 
+/*
+ * Library functions for unit testing:
+ * - assertTrue
+ * - assertEqual
+ * - report 
+ */
+
 import IO;
 
 private int nAssertions = 0;

@@ -1,8 +1,22 @@
 module Node
 
+/* Functions for nodes:
+ * - arity
+ * - getAnnotations
+ * - getChildren
+ * - getName
+ * - makeNode
+ * - setAnnotations
+ * - toString
+ */
+
 @doc{Number of children of a node}
 @javaClass{org.meta_environment.rascal.std.Node}
 public int java arity(node T);
+
+@doc{retrieve the annnotations of a node value as a map}
+@javaClass{org.meta_environment.rascal.std.Node}
+public map[str,value] java getAnnotations(node x);
 
 @doc{Get the children of a node}
 @javaClass{org.meta_environment.rascal.std.Node}
@@ -19,14 +33,6 @@ public node java makeNode(str N, value V...);
 @doc{Read an ATerm from a named file}
 @javaClass{org.meta_environment.rascal.std.Node}
 public value java readATermFromFile(str fileName);
-  
-@doc{Convert a node to a string}
-@javaClass{org.meta_environment.rascal.std.Node}
-public str java toString(node T);
-
-@doc{retrieve the annnotations of a node value as a map}
-@javaClass{org.meta_environment.rascal.std.Node}
-public map[str,value] java getAnnotations(node x);
 
 @doc{
   Set a whole map of annotations on a value.
@@ -37,3 +43,11 @@ public map[str,value] java getAnnotations(node x);
 }
 @javaClass{org.meta_environment.rascal.std.Node}
 public &T <: node java setAnnotations(&T <: node x, map[str, value] annotations);
+  
+@doc{Convert a node to a string}
+@javaClass{org.meta_environment.rascal.std.Node}
+public str java toString(node T);
+
+
+
+

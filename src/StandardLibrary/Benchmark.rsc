@@ -1,5 +1,11 @@
 module Benchmark
 
+/*
+ * A rudimentary benchmarking framework:
+ * - currentTimeMillis
+ * - benchmark
+ */
+
 import IO;
 
 @doc{Current time in milliseconds since January 1, 1970 GMT.}

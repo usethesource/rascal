@@ -1,7 +1,9 @@
 module Exception
 
-// This data type declares all exceptions that are thrown by the
-// Rascal run-time environment which can be caught by a Rascal program.
+/*
+ * This data type declares all exceptions that are thrown by the
+ * Rascal run-time environment which can be caught by a Rascal program.
+ */
 
 data RuntimeException = 
 	  EmptyList()

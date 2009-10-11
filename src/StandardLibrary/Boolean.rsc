@@ -1,5 +1,15 @@
 module Boolean
 
+/*
+ * Functions on Booleans:
+ * - arbBool
+ * - fromInt
+ * - fromString
+ * - toInt
+ * - toReal
+ * - toString
+ */
+
 @doc{Get an arbitrary boolean value.}
 @javaClass{org.meta_environment.rascal.std.Boolean}
 public bool java arbBool();
