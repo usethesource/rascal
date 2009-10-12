@@ -117,13 +117,13 @@ public class ModuleEnvironment extends Environment {
 		Type adt = getAbstractDataType(modulename);
 		
 		if (adt != null) {
-			OverloadedFunctionResult result = new OverloadedFunctionResult(cons);
+			OverloadedFunctionResult result = null;
 			OverloadedFunctionResult candidates = getAllFunctions(cons);
 			
 			if(candidates != null){
 				for(AbstractFunction candidate : candidates.iterable()){
 					if (candidate.getReturnType() == adt) {
-						result = result.add(candidate);
+						result = result == null ? new OverloadedFunctionResult(candidate) : result.add(candidate);
 					}
 				}
 			}
@@ -198,10 +198,14 @@ public class ModuleEnvironment extends Environment {
 	protected OverloadedFunctionResult getAllFunctions(String name) {
 		OverloadedFunctionResult funs = super.getAllFunctions(name);
 		
-		if(funs != null){
-			for (String moduleName : getImports()) {
-				ModuleEnvironment mod = getImport(moduleName);
-				funs = mod.getLocalPublicFunctions(name).join(funs);
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			OverloadedFunctionResult locals = mod.getLocalPublicFunctions(name);
+			if (locals != null && funs != null) {
+				funs = locals.join(funs);
+			}
+			else if (funs == null && locals != null) {
+				funs = locals;
 			}
 		}
 
@@ -220,15 +224,15 @@ public class ModuleEnvironment extends Environment {
 	
 	private OverloadedFunctionResult getLocalPublicFunctions(String name) {
 		OverloadedFunctionResult all = functionEnvironment.get(name);
-		OverloadedFunctionResult result = new OverloadedFunctionResult(name);
+		OverloadedFunctionResult result = null;
 		
 		if (all == null) {
-			return new OverloadedFunctionResult(name);
+			return null;
 		}
 		
 		for (AbstractFunction l : all.iterable()) {
 			if (l.isPublic()) {
-				result = result.add(l);
+				result = result == null ? new OverloadedFunctionResult(l) : result.add(l);
 			}
 		}
 		

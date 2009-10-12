@@ -57,7 +57,7 @@ public class ImportTests extends TestFramework {
 		runTestInSameEvaluator("int n = m;");
 	}
 	
-	@Test(expected=UndeclaredFunctionError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void UndefinedPrivateFunction(){
 		prepareModule("M", "module M\n" +
 		         "private int f() {return 3;}");
