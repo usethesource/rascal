@@ -46,8 +46,13 @@ public class ArgumentsMismatchError extends StaticError {
 	private static void argumentTypes(Type argTypes, StringBuilder b) {
 		int i = 0;
 		for (Type arg : argTypes) {
-			if (i != 0) b.append(',');
+			if (i != 0) b.append(", ");
 			b.append(arg);
+			if (argTypes.hasFieldNames()) {
+				b.append(' ');
+				b.append(argTypes.getFieldName(i));
+			}
+			i++;
 		}
 	}
 
