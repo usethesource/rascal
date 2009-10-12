@@ -1,10 +1,9 @@
 package org.meta_environment.rascal.interpreter.result;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -17,14 +16,11 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.ArgumentsMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
-import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
-import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 
 public class OverloadedFunctionResult extends Result<IValue> implements IExternalValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final static Type DEFAULT_FUNCTION_TYPE = RascalTypeFactory.getInstance().functionType(TF.voidType(), TF.voidType());
 	
-	private final Set<AbstractFunction> candidates;
+	private final List<AbstractFunction> candidates; // it should be a list to allow proper shadowing
 	private final String name;
 
 	public OverloadedFunctionResult(String name, Type type, List<AbstractFunction> candidates, IEvaluatorContext ctx) {
@@ -33,20 +29,20 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		if (candidates.size() <= 0) {
 			throw new ImplementationError("at least need one function");
 		}
-		this.candidates = new HashSet<AbstractFunction>();
+		this.candidates = new LinkedList<AbstractFunction>();
 		this.candidates.addAll(candidates);
 		this.name = name;
 	}
 	
 	public OverloadedFunctionResult(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
-		this.candidates = new HashSet<AbstractFunction>();
+		this.candidates = new LinkedList<AbstractFunction>();
 		this.candidates.add(function);
 		this.name = function.getName();
 	}
 	
-	public Set<AbstractFunction> getCandidates() {
-		return candidates;
+	public List<AbstractFunction> getCandidates() {
+		return Collections.unmodifiableList(candidates);
 	}
 
 	@Override
@@ -84,7 +80,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	public OverloadedFunctionResult join(OverloadedFunctionResult other) {
 		List<AbstractFunction> joined = new LinkedList<AbstractFunction>();
 		joined.addAll(candidates);
-		joined.addAll(0, other.candidates);
+		joined.addAll(other.candidates);
 		return new OverloadedFunctionResult(name, lub(joined), joined, ctx);
 	}
 	
@@ -97,7 +93,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		
 		List<AbstractFunction> joined = new LinkedList<AbstractFunction>();
 		joined.addAll(candidates);
-		joined.add(0, candidate);
+		joined.add(candidate);
 		return new OverloadedFunctionResult(name, lub(joined), joined, ctx);
 	}
 

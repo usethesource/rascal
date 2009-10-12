@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleLoadError;
-import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
