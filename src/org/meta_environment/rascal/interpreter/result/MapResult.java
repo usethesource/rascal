@@ -154,11 +154,11 @@ public class MapResult extends ElementResult<IMap> {
 	////
 	
 	protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {
-		return bool(getValue().containsValue(elementResult.getValue()), ctx);
+		return bool(getValue().containsKey(elementResult.getValue()), ctx);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult) {
-		return bool(!getValue().containsValue(elementResult.getValue()), ctx);
+		return bool(!getValue().containsKey(elementResult.getValue()), ctx);
 	}
 	
 	@Override
