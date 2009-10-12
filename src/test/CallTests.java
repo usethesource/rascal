@@ -7,13 +7,14 @@ import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
 
 
 public class CallTests extends TestFramework{
 	
 	
-	@Test(expected=UndeclaredFunctionError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void callError1() {
 		runTest("zap(1,2);");
 	}

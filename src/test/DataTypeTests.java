@@ -758,11 +758,11 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("(1:10, 2:20) > (1:10);"));
 		
 		
-		assertTrue(runTest("20 in (1:10, 2:20);"));
-		assertFalse(runTest("15 in (1:10, 2:20);"));
+		assertTrue(runTest("1 in (1:10, 2:20);"));
+		assertFalse(runTest("3 in (1:10, 2:20);"));
 		
-		assertTrue(runTest("15 notin (1:10, 2:20);"));
-		assertFalse(runTest("20 notin (1:10, 2:20);"));
+		assertTrue(runTest("3 notin (1:10, 2:20);"));
+		assertFalse(runTest("2 notin (1:10, 2:20);"));
 		
 		assertTrue(runTest("{map[str,list[int]] m = (\"a\": [1,2], \"b\": [], \"c\": [4,5,6]); m[\"a\"] == [1,2];}"));
 	}

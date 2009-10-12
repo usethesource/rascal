@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.interpreter.result;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,6 +14,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
@@ -28,19 +28,26 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 
 	public OverloadedFunctionResult(String name, Type type, List<AbstractFunction> candidates, IEvaluatorContext ctx) {
 		super(type, null, ctx);
+		
+		if (candidates.size() <= 0) {
+			throw new ImplementationError("at least need one function");
+		}
 		this.candidates = new HashSet<AbstractFunction>();
 		this.candidates.addAll(candidates);
 		this.name = name;
 	}
 	
-	public OverloadedFunctionResult(String name, IEvaluatorContext ctx) {
-		this(name, DEFAULT_FUNCTION_TYPE, Collections.<AbstractFunction>emptyList(), ctx);
+	public OverloadedFunctionResult(AbstractFunction function) {
+		super(function.getType(), null, function.getEval());
+		this.candidates = new HashSet<AbstractFunction>();
+		this.candidates.add(function);
+		this.name = function.getName();
 	}
 	
-	public OverloadedFunctionResult(String name) { // TODO This constructor is a bit 'weird', in the sense that it doesn't associate a ctx with this result. It should only be used by 'special' cases; like it is now.
-		this(name, DEFAULT_FUNCTION_TYPE, Collections.<AbstractFunction>emptyList(), null);
+	public Set<AbstractFunction> getCandidates() {
+		return candidates;
 	}
-	
+
 	@Override
 	public IValue getValue() {
 		return this;
@@ -70,7 +77,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			}
 		}
 		
-		throw new UndeclaredFunctionError(name, ctx != null ? ctx.getCurrentAST() : null);
+		throw new UndeclaredFunctionError(name, argTypes, ctx, ctx.getCurrentAST());
 	}
 	
 	public OverloadedFunctionResult join(OverloadedFunctionResult other) {

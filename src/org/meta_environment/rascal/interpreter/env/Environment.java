@@ -204,9 +204,6 @@ public class Environment {
 		OverloadedFunctionResult result = functionEnvironment.get(name);
 		
 		if (isRootScope()) {
-			if (result == null) {
-				result = new OverloadedFunctionResult(name);
-			}
 			return result;
 		}
 		
@@ -321,7 +318,8 @@ public class Environment {
 			// NB: we store null in the cache so that rollback will remove the table entry on name
 			// instead of restoring an empty list.
 			updateFunctionCache(name, functionEnvironment, null);
-			list = new OverloadedFunctionResult(name, function.getEvaluatorContext());
+			
+			list = new OverloadedFunctionResult(function);
 			functionEnvironment.put(name, list);
 		}
 		else {
