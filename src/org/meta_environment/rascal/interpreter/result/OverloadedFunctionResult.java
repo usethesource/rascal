@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.staticErrors.ArgumentsMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
@@ -77,7 +78,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			}
 		}
 		
-		throw new UndeclaredFunctionError(name, argTypes, ctx, ctx.getCurrentAST());
+		throw new ArgumentsMismatchError(name, candidates, argTypes, ctx.getCurrentAST());
 	}
 	
 	public OverloadedFunctionResult join(OverloadedFunctionResult other) {
