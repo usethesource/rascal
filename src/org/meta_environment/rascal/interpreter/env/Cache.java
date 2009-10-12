@@ -1,13 +1,10 @@
 package org.meta_environment.rascal.interpreter.env;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 
@@ -17,7 +14,6 @@ public class Cache {
 	
 	private final HashMap<VariableCacheEntry,Result<IValue>> variables;
 	private final Map<FunctionCacheEntry, OverloadedFunctionResult> functions;
-//	private final Map<CacheEntry<Map<String,List<Lambda>>>, List<Lambda>> functions2;
 	private boolean enabled;
 	
 	
@@ -30,9 +26,7 @@ public class Cache {
 	public void save(Map<String, OverloadedFunctionResult> env, String name, OverloadedFunctionResult other) {
 		OverloadedFunctionResult list = null;
 		if (other != null) {
-			List<AbstractFunction> cands = new LinkedList<AbstractFunction>();
-			cands.addAll(other.getCandidates());
-			list = new OverloadedFunctionResult(name, other.getType(), cands, other.getEvaluatorContext()); 
+			list = new OverloadedFunctionResult(name, other.getType(), other.getCandidates(), other.getEvaluatorContext()); 
 		}
 		functions.put(new FunctionCacheEntry(env, name), list);
 	}

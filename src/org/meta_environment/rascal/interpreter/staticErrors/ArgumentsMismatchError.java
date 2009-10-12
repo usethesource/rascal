@@ -1,6 +1,6 @@
 package org.meta_environment.rascal.interpreter.staticErrors;
 
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -11,13 +11,13 @@ public class ArgumentsMismatchError extends StaticError {
 	private static final long serialVersionUID = -641438732779898646L;
 
 	public ArgumentsMismatchError(String name,
-			Set<AbstractFunction> candidates, Type[] argTypes,
+			List<AbstractFunction> candidates, Type[] argTypes,
 			AbstractAST ast) {
 		super(computeMessage(name, candidates, argTypes), ast);
 	}
 
 	private static String computeMessage(String name,
-			Set<AbstractFunction> candidates, Type[] argTypes) {
+			List<AbstractFunction> candidates, Type[] argTypes) {
 		StringBuilder b = new StringBuilder();
 		
 		b.append("The called signature: " + name);
