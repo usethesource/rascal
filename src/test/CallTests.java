@@ -4,8 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.staticErrors.ArgumentsMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
-import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
@@ -19,7 +19,7 @@ public class CallTests extends TestFramework{
 		runTest("zap(1,2);");
 	}
 	
-	@Test(expected=UndeclaredFunctionError.class)
+	@Test(expected=ArgumentsMismatchError.class)
 	public void callError2() {
 		runTest("{ int f(int n) {return 2*n;}  f(\"abc\");}");
 	}
