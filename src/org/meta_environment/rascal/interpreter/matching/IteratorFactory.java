@@ -115,8 +115,8 @@ public class IteratorFactory {
 	}
 	
 	private static void checkMayOccur(Type patType, Type rType, IEvaluatorContext ctx){
-		if(!ctx.getEvaluator().mayOccurIn(patType, rType))
-			throw new UnexpectedTypeError(patType, rType, ctx.getCurrentAST());
+		if(!ctx.getEvaluator().mayOccurIn(rType, patType))
+			throw new UnexpectedTypeError(rType, patType, ctx.getCurrentAST());
 	}
 	
 }
