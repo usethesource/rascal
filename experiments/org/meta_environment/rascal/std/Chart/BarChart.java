@@ -203,8 +203,8 @@ public class BarChart {
     	return createChart(title.getValue(), createDataset(facts));
     }
     
-    public static JFreeChart makeBarchart(IString title, IList categories, IList facts, IValue settings){
-    	Settings.validate(supportedSettings, (IList)settings);
+    public static JFreeChart makeBarchart(IString title, IList categories, IList facts, IList settings){
+    	Settings.validate(supportedSettings, settings);
     	return createChart(title.getValue(), createDataset(facts, categories));
     }
     
@@ -214,13 +214,13 @@ public class BarChart {
      * @param title title of the chart
      * @param facts the data (a map)
      */
-    public static void barChart(IString title, IMap facts, IValue settings)
+    public static void barChart(IString title, IMap facts, IList settings)
     {
     	DisplayChart dc = new DisplayChart(title.getValue(), makeBarchart(title, facts, settings));
     	dc.run();
     }
     
-    public static void barChart(IString title, IList categories, IList facts, IValue settings)
+    public static void barChart(IString title, IList categories, IList facts, IList settings)
     {
     	DisplayChart dc = new DisplayChart(title.getValue(), makeBarchart(title, categories, facts, settings));
     	dc.run();

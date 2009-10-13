@@ -8,12 +8,9 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYDotRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
@@ -137,8 +134,8 @@ public class XYChart {
      * makeXYChart: a reusable function to a create an XYChart
      */
     
-    public static JFreeChart makeXYChart(IString title, IList facts, IValue settings){
-    	Settings.validate(supportedSettings, (IList)settings);
+    public static JFreeChart makeXYChart(IString title, IList facts, IList settings){
+    	Settings.validate(supportedSettings, settings);
     	return createChart(title.getValue(), createAllSeries(facts));
     }
     
@@ -148,7 +145,7 @@ public class XYChart {
      * @param title title of the chart
      * @param facts the data (a map)
      */
-    public static void xyChart(IString title, IList facts, IValue settings)
+    public static void xyChart(IString title, IList facts, IList settings)
     {
     	DisplayChart dc = new DisplayChart(title.getValue(), makeXYChart(title, facts, settings));
     	dc.run();
