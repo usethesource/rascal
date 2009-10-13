@@ -113,6 +113,10 @@ public class GlobalEnvironment {
 		return res.toString();
 	}
 
+	public void removeModule(ModuleEnvironment env) {
+		moduleEnvironment.remove(env.getName());
+	}
+
 
 	
 

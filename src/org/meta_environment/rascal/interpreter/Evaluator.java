@@ -200,6 +200,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.AppendWithoutFor;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
@@ -230,8 +231,6 @@ import org.meta_environment.uri.CWDURIResolver;
 import org.meta_environment.uri.FileURIResolver;
 import org.meta_environment.uri.HttpURIResolver;
 import org.meta_environment.uri.URIResolverRegistry;
-
-import treemap.OrderedTreemap;
 
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
@@ -844,12 +843,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		Module module = loader.loadModule(name, x, env);
 
-		if (module != null) {
-			if (!getModuleName(module).equals(name)) {
-				throw new ModuleNameMismatchError(getModuleName(module), name, x);
+		try {
+			if (module != null) {
+				if (!getModuleName(module).equals(name)) {
+					throw new ModuleNameMismatchError(getModuleName(module), name, x);
+				}
+				module.accept(this);
+				return module;
 			}
-			module.accept(this);
-			return module;
+		}
+		catch (StaticError e) {
+			heap.removeModule(env);
+			throw e;
 		}
 
 		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
