@@ -349,5 +349,4 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public Evaluator getEval() {
 		return eval;
 	}
-	
 }

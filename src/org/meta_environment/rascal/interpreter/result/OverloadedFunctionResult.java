@@ -80,7 +80,13 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	public OverloadedFunctionResult join(OverloadedFunctionResult other) {
 		List<AbstractFunction> joined = new LinkedList<AbstractFunction>();
 		joined.addAll(candidates);
-		joined.addAll(other.candidates);
+		
+		for (AbstractFunction cand : other.candidates) {
+			if (!joined.contains(cand)) {
+				joined.add(cand);
+			}
+		}
+		
 		return new OverloadedFunctionResult(name, lub(joined), joined, ctx);
 	}
 	
@@ -93,7 +99,10 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		
 		List<AbstractFunction> joined = new LinkedList<AbstractFunction>();
 		joined.addAll(candidates);
-		joined.add(candidate);
+		
+		if (!joined.contains(candidate)) {
+			joined.add(candidate);
+		}
 		return new OverloadedFunctionResult(name, lub(joined), joined, ctx);
 	}
 
@@ -108,7 +117,9 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof OverloadedFunctionResult) {
-			return candidates.equals(((OverloadedFunctionResult) obj).candidates);
+			OverloadedFunctionResult other = (OverloadedFunctionResult) obj;
+			return candidates.containsAll(other.candidates)
+			&& other.candidates.containsAll(candidates);
 		}
 		return false;
 	}
@@ -223,4 +234,5 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		
 		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, ctx);
 	}
+	
 }
