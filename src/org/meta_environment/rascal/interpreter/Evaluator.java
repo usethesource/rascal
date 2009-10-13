@@ -7,7 +7,7 @@ import static org.meta_environment.rascal.interpreter.utils.Utils.unescape;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Stack;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -58,6 +59,7 @@ import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
+import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
@@ -130,6 +132,11 @@ import org.meta_environment.rascal.ast.PatternWithAction.Replacing;
 import org.meta_environment.rascal.ast.ProtocolPart.Interpolated;
 import org.meta_environment.rascal.ast.ProtocolPart.NonInterpolated;
 import org.meta_environment.rascal.ast.ProtocolTail.Post;
+import org.meta_environment.rascal.ast.ShellCommand.Edit;
+import org.meta_environment.rascal.ast.ShellCommand.Help;
+import org.meta_environment.rascal.ast.ShellCommand.ListDeclarations;
+import org.meta_environment.rascal.ast.ShellCommand.Quit;
+import org.meta_environment.rascal.ast.ShellCommand.Unimport;
 import org.meta_environment.rascal.ast.Statement.Append;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.AssertWithMessage;
@@ -164,10 +171,12 @@ import org.meta_environment.rascal.interpreter.asserts.Ambiguous;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
+import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+import org.meta_environment.rascal.interpreter.env.RewriteRule;
 import org.meta_environment.rascal.interpreter.load.FromCurrentWorkingDirectoryLoader;
 import org.meta_environment.rascal.interpreter.load.FromDefinedRascalPathLoader;
 import org.meta_environment.rascal.interpreter.load.FromDefinedSdfSearchPathPathContributor;
@@ -252,11 +261,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private boolean concreteListsShouldBeSpliced;
 	private final ModuleParser parser;
 
-	private final OutputStream errorStream;
+	private PrintWriter stderr;
+	private PrintWriter stdout;
 
 	private Stack<Accumulator> forAccumulators = new Stack<Accumulator>();
 
-	public Evaluator(IValueFactory f, OutputStream errorStream, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
+	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
 		this.patternEvaluator = new PatternEvaluator(this);
 		this.heap = heap;
@@ -264,12 +274,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		rootScope = scope;
 		heap.addModule(scope);
 		this.classLoaders = new LinkedList<ClassLoader>();
-		this.javaBridge = new JavaBridge(errorStream, classLoaders, vf);
+		this.javaBridge = new JavaBridge(stderr, classLoaders, vf);
 		loader = new ModuleLoader(parser);
 		this.parser = parser;
 		parser.setLoader(loader);
 
-		this.errorStream = errorStream;
+		this.stderr = stderr;
+		this.stdout = stdout;
 
 		// cwd loader
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
@@ -596,6 +607,132 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		throw new Ambiguous(x.toString());
 	}
 
+	// Commands 
+	@Override
+	public Result<IValue> visitCommandShell(Shell x) {
+		return x.getCommand().accept(this);
+	}
+
+	@Override
+	public Result<IValue> visitCommandDeclaration(org.meta_environment.rascal.ast.Command.Declaration x) {
+		return x.getDeclaration().accept(this);
+	}
+
+	@Override
+	public Result<IValue> visitCommandStatement(
+			org.meta_environment.rascal.ast.Command.Statement x) {
+		setCurrentAST(x.getStatement());
+		return x.getStatement().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitCommandExpression(org.meta_environment.rascal.ast.Command.Expression x) {
+		setCurrentAST(x.getExpression());
+		return x.getExpression().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitCommandImport(org.meta_environment.rascal.ast.Command.Import x) {
+		return x.getImported().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitShellCommandHelp(Help x) {
+		printHelpMessage(stdout);
+		return ResultFactory.nothing();
+	}
+	
+	@Override
+	public Result<IValue> visitShellCommandUnimport(Unimport x) {
+		((ModuleEnvironment) getCurrentEnvt().getRoot()).unImport(x.getName().toString());
+		return ResultFactory.nothing();
+	}
+
+	protected void printHelpMessage(PrintWriter out) {
+		out.println("Welcome to the Rascal command shell.");
+		out.println();
+		out.println("Shell commands:");
+		out.println(":help                      Prints this message");
+		out.println(":quit or EOF               Quits the shell");
+		out.println(":declarations              Lists all visible rules, functions and variables");
+		out.println(":set <option> <expression> Sets an option");
+		out.println(":edit <modulename>         Opens an editor for that module");
+		out.println(":modules                   Lists all imported modules");
+		out.println(":test                      Runs all unit tests currently loaded");
+		out.println(":unimport <modulename>     Undo an import");
+		out.println(":undeclare <name>          Undeclares a variable or function introduced in the shell");
+		out.println(":history                   Print the command history");
+		out.println();
+		out.println("Example rascal statements and declarations:");
+		out.println("1 + 1;                     Expressions simply print their output and (static) type");
+		out.println("int a;                     Declarations allocate a name in the current scope");
+		out.println("a = 1;                     Assignments store a value in a (optionally previously declared) variable");
+		out.println("int a = 1;                 Declaration with initialization");
+		out.println("import IO;                 Importing a module makes its public members available");
+		out.println("println(\"Hello World\")     Function calling");
+		out.println();
+		out.println("Please read the manual for further information");
+		out.flush();
+	}
+
+	@Override
+	public Result<IValue> visitShellCommandQuit(Quit x) {
+		throw new QuitException();
+	}
+
+	@Override
+	public Result<IValue> visitShellCommandEdit(Edit x) {
+		return ResultFactory.nothing();
+	}
+
+	@Override
+	public Result<IValue> visitShellCommandTest(ShellCommand.Test x) {
+		runTests();
+		return ResultFactory.nothing();
+	}
+
+	@Override
+	public Result<IValue> visitShellCommandListDeclarations(ListDeclarations x) {
+		printVisibleDeclaredObjects(stdout);
+		return ResultFactory.nothing();
+	}
+
+	protected void printVisibleDeclaredObjects(PrintWriter out) {
+		java.util.List<Entry<String, OverloadedFunctionResult>> functions = getCurrentEnvt().getAllFunctions();
+		if (functions.size() != 0) {
+			out.println("Functions:");
+
+			for (Entry<String, OverloadedFunctionResult> cand : functions) {
+				for (AbstractFunction func : cand.getValue().iterable()) {
+					out.print('\t');
+					out.println(func.getHeader());
+				}
+			}
+		}
+		
+
+		java.util.List<RewriteRule> rules = getHeap().getRules();
+		if (rules.size() != 0) {
+			out.println("Rules:");
+			for (RewriteRule rule : rules) {
+				out.print('\t');
+				out.println(rule.getRule().getPattern().toString());
+			}
+		}
+		
+		Map<String, Result<IValue>> variables = getCurrentEnvt().getVariables();
+		if (variables.size() != 0) {
+			out.println("Variables:");
+			for (String name : variables.keySet()) {
+				out.print('\t');
+				Result<IValue> value = variables.get(name);
+				out.println(value.getType() + " " + name + " = " + value.getValue());
+			}
+		}
+		
+		out.flush();
+	}
+	
 	// Modules -------------------------------------------------------------
 
 	@Override
@@ -3103,7 +3240,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public void runTests(){
-		new TestEvaluator(this, new DefaultTestResultListener(errorStream)).test();
+		new TestEvaluator(this, new DefaultTestResultListener(stderr)).test();
 	}
 
 	public IValueFactory getValueFactory() {
@@ -3121,6 +3258,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public void setStrategyContext(IStrategyContext strategyContext) {
 		this.strategyContext  = strategyContext;
+	}
+
+	public void setStdErr(PrintWriter printWriter) {
+		stderr = printWriter;
+	}  
+	
+	public void setStdOut(PrintWriter printWriter) {
+		stdout = printWriter;
 	}
 
 

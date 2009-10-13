@@ -2,6 +2,7 @@ package test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,7 +33,9 @@ public class TestFramework {
 	protected CommandEvaluator getTestEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***test***"));
-		CommandEvaluator eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), System.err, root, heap);
+		PrintWriter stderr = new PrintWriter(System.err);
+		PrintWriter stdout = new PrintWriter(System.out);
+		CommandEvaluator eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 
 		// to load modules from benchmarks and demo's
 		eval.addModuleLoader(new FromResourceLoader(getClass()));
