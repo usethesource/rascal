@@ -34,7 +34,7 @@ public class IO{
 		IO.out = out;
 	}
 	
-	public static void println(IValue V){
+	public static void println(IList V){
 		PrintStream currentOutStream = out;
 		
 		synchronized(currentOutStream){
@@ -58,12 +58,12 @@ public class IO{
 		}
 	}
 	
-	public static void rawPrintln(IValue V){
+	public static void rawPrintln(IList V){
 		PrintStream currentOutStream = out;
 		
 		synchronized(currentOutStream){
 			try{
-				Iterator<IValue> valueIterator = ((IList) V).iterator();
+				Iterator<IValue> valueIterator = V.iterator();
 				while(valueIterator.hasNext()){
 					currentOutStream.print(valueIterator.next().toString());
 				}
@@ -141,12 +141,12 @@ public class IO{
 		}
 	}
 	
-	public static void writeFile(ISourceLocation file, IValue V){
+	public static void writeFile(ISourceLocation file, IList V){
 		OutputStream out = null;
 		try{
 			out = URIResolverRegistry.getInstance().getOutputStream(file.getURI());
 			
-			for(IValue elem : (IList) V){
+			for(IValue elem : V){
 				if (elem.getType().isStringType()){
 					out.write(((IString) elem).getValue().toString().getBytes());
 				}else if (elem.getType().isSubtypeOf(Factory.Tree)) {
