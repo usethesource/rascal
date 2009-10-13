@@ -1,15 +1,14 @@
 package org.meta_environment.rascal.interpreter;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 public class DefaultTestResultListener implements ITestResultListener{
-	private final PrintStream err;
+	private final PrintWriter err;
 	
-	public DefaultTestResultListener(OutputStream errorStream){
+	public DefaultTestResultListener(PrintWriter errorStream){
 		super();
 
-		this.err = new PrintStream(errorStream);
+		this.err = errorStream;
 	}
 	
 	public void report(boolean successful, String test){
