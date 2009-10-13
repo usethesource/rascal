@@ -506,10 +506,11 @@ public class Environment {
 		functions.addAll(getFunctions());
 		
 		for (String i : getImports()) {
-			for (Entry<String, OverloadedFunctionResult> cand : getImport(i).getFunctions()) {
+			next:for (Entry<String, OverloadedFunctionResult> cand : getImport(i).getFunctions()) {
 				for (AbstractFunction func : cand.getValue().iterable()) {
 					if (func.isPublic()) {
 						functions.add(cand);
+						continue next;
 					}
 				}
 			}

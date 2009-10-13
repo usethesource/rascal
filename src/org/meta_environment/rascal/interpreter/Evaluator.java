@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -228,6 +230,8 @@ import org.meta_environment.uri.CWDURIResolver;
 import org.meta_environment.uri.FileURIResolver;
 import org.meta_environment.uri.HttpURIResolver;
 import org.meta_environment.uri.URIResolverRegistry;
+
+import treemap.OrderedTreemap;
 
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
@@ -699,6 +703,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	protected void printVisibleDeclaredObjects(PrintWriter out) {
 		java.util.List<Entry<String, OverloadedFunctionResult>> functions = getCurrentEnvt().getAllFunctions();
+		Collections.sort(functions, new Comparator<Entry<String, OverloadedFunctionResult>>() {
+			public int compare(Entry<String, OverloadedFunctionResult> o1,
+					Entry<String, OverloadedFunctionResult> o2) {
+				return o1.getKey().compareTo(o2.getKey());
+			}
+		});
+		
 		if (functions.size() != 0) {
 			out.println("Functions:");
 
