@@ -54,56 +54,56 @@ public alias realSeriesMultipleData =
 
 @doc{draw a bar chart}
 @javaClass{org.meta_environment.rascal.std.Chart.BarChart}
-public void java barChart(str title, map[str,int] facts, value settings...);
+public void java barChart(str title, map[str,int] facts, chartSetting settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.meta_environment.rascal.std.Chart.BarChart}
-public void java barChart(str title, map[str,real] facts, value settings...);
+public void java barChart(str title, map[str,real] facts, chartSetting settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.meta_environment.rascal.std.Chart.BarChart}
-public void java barChart(str title, list[str] categories, list[intSeries] facts, value settings...);
+public void java barChart(str title, list[str] categories, list[intSeries] facts, chartSetting settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.meta_environment.rascal.std.Chart.BarChart}
-public void java barChart(str title, list[str] categories, list[realSeries] facts, value settings...);
+public void java barChart(str title, list[str] categories, list[realSeries] facts, chartSetting settings...);
 
 // boxPlot aka BoxAndWiskerPlot
 
 @doc{draw a boxPlot}
 @javaClass{org.meta_environment.rascal.std.Chart.BoxPlot}
-public void java boxplot(str title, list[intSeriesMultipleData] facts, value settings...);
+public void java boxplot(str title, list[intSeriesMultipleData] facts, chartSetting settings...);
 
 @doc{draw a boxplot}
 @javaClass{org.meta_environment.rascal.std.Chart.BoxPlot}
-public void java boxplot(str title, list[realSeriesMultipleData] facts, value settings...);
+public void java boxplot(str title, list[realSeriesMultipleData] facts, chartSetting settings...);
 
 // histogram
 
 @doc{draw a histogram}
 @javaClass{org.meta_environment.rascal.std.Chart.Histogram}
-public void java histogram(str title, list[intSeries] facts, int nbins, value settings...);
+public void java histogram(str title, list[intSeries] facts, int nbins, chartSetting settings...);
 
 @doc{draw a histogram}
 @javaClass{org.meta_environment.rascal.std.Chart.Histogram}
-public void java histogram(str title, list[realSeries] facts, int nbins, value settings...);
+public void java histogram(str title, list[realSeries] facts, int nbins, chartSetting settings...);
 
 // piechart
 
 @doc{draw a pie chart}
 @javaClass{org.meta_environment.rascal.std.Chart.PieChart}
-public void java pieChart(str title, map[str,int] facts, value settings...);  // TODO value -> chartSetting
+public void java pieChart(str title, map[str,int] facts, chartSetting settings...);  
 
 @doc{draw a pie chart}
 @javaClass{org.meta_environment.rascal.std.Chart.PieChart}
-public void java pieChart(str title, map[str,real] facts, value settings...);  // TODO value -> chartSetting
+public void java pieChart(str title, map[str,real] facts, chartSetting settings...);   
 
 // xyChart
 
 @doc{draw an xy chart}
 @javaClass{org.meta_environment.rascal.std.Chart.XYChart}
-public void java xyChart(str title, list[intSeries] facts, value settings...);
+public void java xyChart(str title, list[intSeries] facts, chartSetting settings...);
 
 @doc{draw an xy chart}
 @javaClass{org.meta_environment.rascal.std.Chart.XYChart}
-public void java xyChart(str title, list[realSeries] facts, value settings...);
+public void java xyChart(str title, list[realSeries] facts, chartSetting settings...);

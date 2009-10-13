@@ -115,9 +115,9 @@ public class BoxPlot {
      * makePiechart: a reusable function to a create a boxplot
      */
     
-    public static JFreeChart makeBoxPlot(IString title, IList facts, IValue settings){
+    public static JFreeChart makeBoxPlot(IString title, IList facts, IList settings){
     	String titleString = title.getValue();
-    	Settings.validate(provides, (IList)settings);
+    	Settings.validate(provides, settings);
     	return createChart(titleString, createDataset(facts));
     }
     
@@ -127,7 +127,7 @@ public class BoxPlot {
      * @param title title of the chart
      * @param facts the data (a map)
      */
-    public static void boxplot(IString title, IList facts, IValue settings)
+    public static void boxplot(IString title, IList facts, IList settings)
     {
     	DisplayChart dc = new DisplayChart(title.getValue(), makeBoxPlot(title, facts, settings));
     	dc.run();

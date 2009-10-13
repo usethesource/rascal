@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -127,9 +126,9 @@ public class PieChart {
      * makePiechart: a reusable function to a create a piechart
      */
     
-    public static JFreeChart makePiechart(IString title, IMap facts, IValue settings){
+    public static JFreeChart makePiechart(IString title, IMap facts, IList settings){
     	String titleString = title.getValue();
-    	Settings.validate(provides, (IList)settings);
+    	Settings.validate(provides, settings);
     	return createChart(titleString, createDataset(facts));
     }
     
@@ -139,7 +138,7 @@ public class PieChart {
      * @param title title of the chart
      * @param facts the data (a map)
      */
-    public static void pieChart(IString title, IMap facts, IValue settings)
+    public static void pieChart(IString title, IMap facts, IList settings)
     {
     	DisplayChart dc = new DisplayChart(title.getValue(), makePiechart(title, facts, settings));
     	dc.run();

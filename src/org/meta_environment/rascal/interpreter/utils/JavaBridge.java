@@ -298,7 +298,14 @@ public class JavaBridge {
 		int arity = formals.size();
 		Class<?>[] classes = new Class<?>[arity + (hasReflectiveAccess ? 1 : 0)];
 		for (int i = 0; i < arity;) {
-			Class<?> clazz = toJavaClass(formals.get(i), env);
+			Class<?> clazz;
+			
+			if (i == arity - 1 && parameters.isVarArgs()) {
+				clazz = IList.class;
+			}
+			else {
+				clazz = toJavaClass(formals.get(i), env);
+			}
 			
 			if (clazz != null) {
 			  classes[i++] = clazz;
@@ -437,7 +444,7 @@ public class JavaBridge {
 				} catch (SecurityException e) {
 					throw RuntimeExceptionFactory.permissionDenied(vf.string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
 				} catch (NoSuchMethodException e) {
-					throw new UndeclaredJavaMethodError(className + "." + name, func);
+					throw new UndeclaredJavaMethodError(e.getMessage(), func);
 				}
 			} catch (ClassNotFoundException e) {
 				continue;

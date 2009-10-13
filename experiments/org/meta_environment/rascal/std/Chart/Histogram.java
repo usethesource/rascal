@@ -107,9 +107,9 @@ public class Histogram {
      * makePiechart: a reusable function to a create a piechart
      */
     
-    public static JFreeChart makeHistogram(IString title, IList facts, IInteger nbins, IValue settings){
+    public static JFreeChart makeHistogram(IString title, IList facts, IInteger nbins, IList settings){
     	String titleString = title.getValue();
-    	Settings.validate(provides, (IList)settings);
+    	Settings.validate(provides, settings);
     	return createChart(titleString, createDataset(facts, nbins.intValue()));
     }
     
@@ -119,7 +119,7 @@ public class Histogram {
      * @param title title of the chart
      * @param facts the data (a map)
      */
-    public static void histogram(IString title, IList facts, IInteger nbins, IValue settings)
+    public static void histogram(IString title, IList facts, IInteger nbins, IList settings)
     {
     	DisplayChart dc = new DisplayChart(title.getValue(), makeHistogram(title, facts, nbins, settings));
     	dc.run();
