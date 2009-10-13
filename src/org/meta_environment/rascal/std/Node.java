@@ -48,7 +48,7 @@ public class Node {
 		return values.string(T.getName());
 	}
 
-	public static IValue makeNode(IString N, IValue V)
+	public static IValue makeNode(IString N, IList V)
 	//@doc{makeNode -- create a node given its function name and arguments}
 	{
 	    IList argList = (IList) V;
