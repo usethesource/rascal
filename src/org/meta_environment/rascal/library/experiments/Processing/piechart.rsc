@@ -1,9 +1,9 @@
 module experiments::Processing::piechart
 
-import Processing::Core;
+import experiments::Processing::Core;
 
 public void pieChartSetup() {
-	size(200, 200);
+	//size(200, 200);
 	background(100);
 	smooth();
 	noStroke();
