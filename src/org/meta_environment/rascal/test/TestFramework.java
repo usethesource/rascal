@@ -37,17 +37,17 @@ public class TestFramework {
 		PrintWriter stdout = new PrintWriter(System.out);
 		CommandEvaluator eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 
-		// to load modules from benchmarks and demo's
-		eval.addModuleLoader(new FromResourceLoader(getClass()));
+		// to load modules from benchmarks
+		eval.addModuleLoader(new FromResourceLoader(getClass(), "src/org/meta_environment/rascal/benchmark"));
 
-		// to load modules from the test directory without qualification
-		eval.addModuleLoader(new FromResourceLoader(getClass(), "org/meta_envirnonment/rascal/test"));
+		// to load modules from the test directory
+		eval.addModuleLoader(new FromResourceLoader(getClass(), "src/org/meta_envirnonment/rascal/test/data"));
 
-		// to find sdf modules in src/demo etc.
+		// to find sdf modules in the test directory
 		eval.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public List<String> contributePaths() {
 				List<String> result = new LinkedList<String>();
-				File srcDir = new File(System.getProperty("user.dir"), "src/meta_environment/rascal/test");
+				File srcDir = new File(System.getProperty("user.dir"), "src/org/meta_environment/rascal/test/data");
 				result.add(srcDir.getAbsolutePath());
 				return result;
 			}

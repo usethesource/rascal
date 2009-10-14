@@ -12,14 +12,14 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void parseDS(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("parse(#DS, \"d d d\") == (DS)`d d d`;"));
 	}
 
 	@Test
 	public void parseDSInModule(){
 		prepareModule("M", "module M " +
-				"import src::test::GrammarABCDE;" +
+				"import GrammarABCDE;" +
 				"public DS ds = (DS)`d d d`;" +
 				"public DS parseDS(str input) { return parse(#DS, input); }");
 		prepareMore("import M;");
@@ -29,475 +29,475 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void parseDSfromFile(){
-		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("parse(#DS, |cwd:///src/test/DS.trm|) == (DS)`d d d`;"));
+		prepare("import GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("parse(#DS, |cwd:///src/org/meta_environment/rascal/test/data/DS.trm|) == (DS)`d d d`;"));
 	}
 
 	@Test
 	public void singleA(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a` := `a`;"));
 	}
 	
 	@Test
 	public void singleAspaces1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("` a ` := `a`;"));
 	}
 	
 	@Test
 	public void singleAspaces2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a` := ` a `;"));
 	}
 	
 	@Test
 	public void singleATyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("(A)`a` := `a`;"));
 	}
 	
 	@Test
 	public void singleAUnquoted1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("a := `a`;"));
 	}
 	
 	@Test(expected=UndeclaredVariableError.class)
 	public void singleAUnquoted2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("a := a;"));
 	}
 	
 	@Test
 	public void AB(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a b` := `a b`;"));
 	}
 	
 	@Test
 	public void ABspaces1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a b` := `a   b`;"));
 	}
 	
 	@Test
 	public void ABspaces2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a b` := `  a   b  `;"));
 	}
 	
 	@Test(expected=AmbiguousConcretePattern.class)
 	public void varAQuoted(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		runTestInSameEvaluator("`<someA>` := `a`;");
 	}
 	
 	@Test
 	public void varAassign(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		runTestInSameEvaluator("{someA := `a` && someA == `a`;}");
 	}
 	
 	@Test
 	public void varAQuotedTyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`<A someA>` := `a`;"));
 	}
 	
 	@Test
 	public void varAQuotedDeclaredBefore(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{A someA; (A)`<someA>` := `a`;}"));
 	}
 	
 	public void VarATypedInsertAmbiguous(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA>` := `a` && someA == `a`; }"));
 	}
 	
 	public void VarATypedInsert(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA>` := `a` && someA == `a`; }"));
 	}
 	
 	@Test
 	public void ABvars1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a <someB>` := `a b`;"));
 	}
 	
 	@Test
 	public void ABvars1Typed(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a <B someB>` := `a b`;"));
 	}
 	
 	@Test(expected=AmbiguousConcretePattern.class)
 	public void ABvars2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`<someA> <someB>` := `a b`;"));
 	}
 	
 	public void ABvars2Typed(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`<A someA> <B someB>` := `a b`;"));
 	}
 	
 	@Test
 	public void ABvars2TypedEq(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{`<A someA> <B someB>` := `a b` && someA ==`a` && someB == `b`;}"));
 	}
 	
 	@Test(expected=AmbiguousConcretePattern.class)
 	public void ABvars2TypedInsertWithoutTypes(){ 
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA><B someB>` := `a b` &&  `<someA><someB>` == `a b`;}"));
 	}
 	
 	@Test
 	public void ABvars2TypedInsertWithTypes(){ 
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA><B someB>` := `a b` && (C)`<someA><someB>` == `a b`;}"));
 	}
 	
 	@Test
 	public void ABequal1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a b` == `a b`;"));
 	}
 	
 	@Test
 	public void ABequal2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a b` == ` a b`;"));
 	}
 	
 	@Test
 	public void ABequal3(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a b` == `a b `;"));
 	}
 	
 	@Test
 	public void ABequal4(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a b` == ` a b `;"));
 	}
 	
 	@Test
 	public void ABequal5(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a b` == `a  b`;"));
 	}
 	
 	@Test
 	public void ABequal6(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`a b` == ` a  b `;"));
 	}
 	
 	@Test
 	public void D1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`d` := `d`;"));
 	}
 	
 	@Test
 	public void D2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`d d` := `d d`;"));
 	}
 
 	public void D3(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertFalse(runTestInSameEvaluator("(DS)`d d` := `d d`;"));
 	}
 
 	public void D4(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertFalse(runTestInSameEvaluator("`d d` := (DS)`d d`;"));
 	}
 
 	@Test
 	public void D5(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("(DS)`d d` := (DS)`d d`;"));
 	}
 
 	
 	@Test(expected=AmbiguousConcretePattern.class)
 	public void Dvars(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`<Xs>` := `d d`;"));
 	}
 	
 	@Test
 	public void DvarsTyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ D+ Xs := `d d` && Xs == ` d d `; }"));
 	}
 	
 	@Test
 	public void DvarsTypedInsert1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ D+ Xs := `d d` && Xs == ` d d `; }"));
 	}
 
 	
 	@Test
 	public void DvarsTypedInsert2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ (DS)`<D+ Xs>` := (DS)`d`; }"));
 	}
 	
 	@Test
 	public void DvarsTypedInsert3(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ (DS)`<D+ Xs>` := (DS)`d d`; }"));
 	}
 
 	
 	@Test(expected=StaticError.class)
 	public void DvarsTypedInsert2Untyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<D+ Xs>` := `d`; }"));
 	}
 	
 	@Test
 	public void DvarsTypedInsert3Untyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<D+ Xs>` := `d d`; }"));
 	}
 
 	
 	@Test
 	public void DvarsTypedInsert4UnTyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("(`d <D+ Xs>` := `d d`)  && ` d <D+ Xs> ` == ` d d `;"));
 	}
 	
 	@Test
 	public void DvarsTypedInsert4(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("(DS)`d <D+ Xs>` := (DS)`d d` && (DS)` d <D+ Xs> ` == (DS)` d d `;"));
 	}
 	
 	
 	@Test
 	public void DvarsTypedInsert5Untyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `d <D+ Xs>` := `d d d` && ` d <D+ Xs> ` == `d d d`; }"));
 	}
 
 	@Test 
 	public void DvarsTypedInsert5(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)` d <D+ Xs> ` == (DS)`d d d`; }"));
 	}
 
 	@Test
 	public void E1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`e` := `e`;"));
 	}
 	
 	@Test
 	public void E2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`e, e` := `e, e`;"));
 	}
 	
 	@Test
 	public void E2spaces1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`e, e` := `e , e`;"));
 	}
 	
 	@Test
 	public void E2spaces2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`e, e` := `e ,  e`;"));
 	}
 	
 	@Test
 	public void Evars1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ Xs := `e, e` && Xs == ` e, e`;}"));
 	}
 	
 	@Test
 	public void Evar1Typed(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ {E \",\"}+ Xs := `e, e` && Xs == ` e, e`;}"));
 	}
 	
 	@Test(expected=AmbiguousConcretePattern.class)
 	public void Evars2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `e, <Xs>` := `e, e` && Xs == ` e `;}"));
 	}
 	
 	@Test
 	public void NoStarSubjectToPlusVar(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertFalse(runTestInSameEvaluator("{E \",\"}+ Xs := ({E \",\"}*) ` `;"));
 	}
 	
 	public void plusListShouldNotMatchEmptyList() {
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertFalse(runTestInSameEvaluator("` e, <{E \",\"}+ Es> ` := ({E \",\"}+) ` e `;"));
 	}
 	
 	@Test
 	public void starListPatternShouldMatchPlusListSubject() {
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{E \",\"}* Zs := ({E \",\"}+) ` e, e `;"));
 	}
 	
 	@Test
 	public void plusListPatternShouldMatchPStarListSubjectIfNotEmpty() {
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{E \",\"}+ Zs := ({E \",\"}*) ` e, e `;"));
 	}
 	
 	@Test
 	public void plusListPatternShouldNotMatchPStarListSubjectIfEmpty() {
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertFalse(runTestInSameEvaluator("{E \",\"}+ Zs := ({E \",\"}*) ` `;"));
 	}
 	
 	@Test
 	public void emptyListVariablePatternShouldBeSplicedInbetweenSeparators() {
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`e, <{E \",\"}* Xs>, e` := ` e, e `;"));
 	}
 
 	@Test
 	public void emptyListVariablePatternShouldBeSplicedInbetweenSeparatorsAndBindToEmptyList() {
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`e, <{E \",\"}* Xs>, e` := ` e, e ` && Xs == ({E \",\"}*) ` `;"));
 	}
 	
 	@Test
 	public void emptySepListShouldSpliceCorrectly(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{E \",\"}* Xs := ({E \",\"}*) ` ` && `e, <{E \",\"}* Xs>, e ` == ` e, e `;"));
 	}
 	
 	@Test
 	public void Evars2Typed(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `e, <{E \",\"}+ Xs>` := `e, e` && Xs == ({E \",\"}+) ` e `;}"));
 	}
 	
 	@Test(expected=AmbiguousConcretePattern.class)
 	public void Evars3(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `e, <Xs>` := `e, e`; Xs == ` e ` && ` e, <Xs> ` == ` e, e`; }"));
 	}
 	
 	@Test
 	public void Evars3Typed(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `e, <{E \",\"}+ Xs>` := `e, e` && Xs == ({E \",\"}+) ` e ` && ({E \",\"}+) ` e, <{E \",\"}+ Xs> ` == ` e, e`; }"));
 	}
 	
 	@Test(expected=AmbiguousConcretePattern.class)
 	public void Evars4(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `e, <Xs>` := `e`; Xs == ` ` && ` e, <Xs> ` == ` e `; }"));
 	}
 	
 	@Test
 	public void EvarsTyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{E \",\"}+ Xs := `e, e`;"));
 	}
 	
 	@Test
 	public void EvarsTypedInsert1(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<{E \",\"}+ Xs>` := `e, e` && ` e, <{E \",\"}+ Xs> ` == ` e, e, e `; }"));
 	}
 	
 	@Test
 	public void EvarsTypedInsert1Typed(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<{E \",\"}+ Xs>` := `e, e` && ` e, <{E \",\"}+ Xs> ` == ` e, e, e `; }"));
 	}
 	
 	@Test
 	public void EvarsTypedInsert2(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<{E \",\"}+ Xs>` := `e, e` && ` e, <{E \",\"}+ Xs> ` == ` e, e, e `; }"));
 	}
 	
 	@Test
 	public void EvarsTypedInsert3(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ ` e, <{E \",\"}+ Xs> ` := `e, e, e` && ` e, <{E \",\"}+ Xs> ` == ` e, e, e `; }"));
 	}
 	
 	@Test
 	public void sortsInGrammar(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{A vA; B vB; C vC; D vD; DS vDS; E vE; ES vES; {E \",\"}+ vES2; true;}"));
 	}
 	
 	
     @Test
 	public void enumeratorDs1Untyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `d` ]; L == [`d`];}"));
 	}
 	
 	@Test
 	public void enumeratorDs1Typed(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | D X <- `d` ]; L == [ `d` ];}"));
 	}
 	
 	@Test
 	public void enumeratorDsUnyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `d d d` ]; L == [`d`, `d`, `d`];}"));
 	}
 	
 	@Test
 	public void enumeratorDsTyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | D X <- `d d d` ]; L == [`d`, `d`, `d`];}"));
 	}
 	
 	@Test
 	public void enumeratorEs1Untyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `e` ]; L == [ `e` ];}"));
 	}
 	
 	@Test
 	public void enumeratorEs1Typed(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | E X <- `e` ]; L == [ `e` ];}"));
 	}
 	
 	@Test
 	public void enumeratorEsUntyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `e, e, e` ]; L == [`e`, `e`, `e`];}"));
 	}
 	
 	@Test
 	public void enumeratorEsTyped(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | E X <- `e, e, e` ]; L == [`e`, `e`, `e`];}"));
 	}
 
 	@Test
 	public void EvarsTypedInsert3Empty(){
-		prepare("import src::test::GrammarABCDE;");
+		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("` e, <{E \",\"}* Xs> ` := ({E \",\"}+) `e`;"));
 	}
 

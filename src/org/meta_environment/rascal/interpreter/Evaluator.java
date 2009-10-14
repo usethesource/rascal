@@ -302,9 +302,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new LinkedList<String>();
-				//System.err.println("getproperty user.dir: " + System.getProperty("user.dir"));
 				result.add(System.getProperty("user.dir"));
-				result.add(new File(System.getProperty("user.dir"),"src").getAbsolutePath()); // hack for demo directory
 				result.add(Configuration.getSdfLibraryPathProperty());
 				return result;
 			}

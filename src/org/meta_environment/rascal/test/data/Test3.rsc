@@ -1,4 +1,4 @@
-module test::Test3
+module Test3
 import languages::pico::syntax::Pico;
 
 str f(str s) { return s; }

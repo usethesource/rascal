@@ -1,4 +1,4 @@
-module test::Test
+module Test
 
 import IO;
 

@@ -1,4 +1,4 @@
-module src/test/GrammarABCDE
+module GrammarABCDE
 
 exports
 
