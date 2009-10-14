@@ -27,7 +27,7 @@ public &T java getOneFrom(set[&T] st);
 public bool java isEmpty(set[&T] st);
 
 @doc{Apply a function to each element of a set}
-public set[&T] mapper(set[&T] st, &T (&T) fn)
+public set[&U] mapper(set[&T] st, &U (&T) fn)
 {
   return {fn(elm) | &T elm <- st};
 }

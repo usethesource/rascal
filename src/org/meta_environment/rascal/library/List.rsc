@@ -61,7 +61,7 @@ public list[&T] java insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBoun
 public bool java isEmpty(list[&T] lst);
 
 @doc{Apply a function to each element of a list}
-public list[&T] mapper(list[&T] lst, &T (&T) fn)
+public list[&U] mapper(list[&T] lst, &U (&T) fn)
 {
   return [fn(elm) | &T elm <- lst];
 }
