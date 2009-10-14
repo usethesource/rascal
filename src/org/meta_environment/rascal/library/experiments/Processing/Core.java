@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.library.experiments.Processing;
 
 import java.awt.BorderLayout;
+import java.awt.Canvas;
 import java.awt.Frame;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -16,6 +17,16 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.fast.Constructor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.jfree.chart.JFreeChart;
+import org.jfree.experimental.chart.swt.ChartComposite;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
@@ -422,7 +433,7 @@ public class Core {
 	
 	public static enum callback {setup, draw, mouseClicked, mouseDragged, mouseMoved, mousePressed, mouseReleased}
 
-	private static HashMap<INode, RascalFrame> frames = new HashMap<INode, RascalFrame>();
+	private static HashMap<INode, RascalFrameSWT> frames = new HashMap<INode, RascalFrameSWT>();
 	private static java.lang.String frameCons = "frame";
 	private static int frameCnt = 0;
 	
@@ -461,7 +472,7 @@ public class Core {
 		return null;		
 	}
 	
-	public static INode processing(IValue V, IEvaluatorContext ctx){
+	public static INode processing(IList V, IEvaluatorContext ctx){
 		System.err.println("entering Processing ...");
 		EnumMap<callback,OverloadedFunctionResult> callbacks = new EnumMap<callback,OverloadedFunctionResult>(callback.class);
 
@@ -471,7 +482,7 @@ public class Core {
 		}
 		
 		myPApplet = new RascalProcessingApplet(callbacks);
-		RascalFrame myFrame = new RascalFrame(myPApplet);
+		RascalFrameSWT myFrame = new RascalFrameSWT(myPApplet);
 		
 		IValue args[] = new IValue[1];
 		args[0] = values.integer(frameCnt++);
@@ -490,18 +501,18 @@ public class Core {
 		return nd;
 	}
 	
-	private static RascalFrame getFrame(INode PO, IEvaluatorContext ctx){
+	private static RascalFrameSWT getFrame(INode PO, IEvaluatorContext ctx){
 		if(!PO.getName().equals(frameCons))
 			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), ctx.getStackTrace());
-		RascalFrame frame = frames.get(PO);
+		RascalFrameSWT frame = frames.get(PO);
 		if(frame == null)
 			throw RuntimeExceptionFactory.noSuchElement(PO, ctx.getCurrentAST(), ctx.getStackTrace());
 		return frame;
 	}
 	
 	public static void stop(INode PO, IEvaluatorContext ctx){
-		RascalFrame frame = getFrame(PO, ctx);
-		frame.dispose();
+		RascalFrameSWT frame = getFrame(PO, ctx);
+		//frame.dispose();
 		frames.remove(PO);
 	}
 	
@@ -526,5 +537,44 @@ class RascalFrame extends Frame {
 		pack();
 		setLocation(100,100);
 		setVisible(true);
+	}
+}
+
+class RascalFrameSWT   {
+
+	RascalFrameSWT (final PApplet pa){
+
+		Display display = new Display();
+		final Canvas canvas = new Canvas(); // AWT canvas;
+		canvas.setVisible(true);
+		
+		Frame frame = new Frame();
+		frame.add(canvas, BorderLayout.CENTER);
+		frame.add(pa, BorderLayout.CENTER);
+		frame.setVisible(true);
+		
+		frame.setSize(600,600);
+		frame.setLocation(100,100);
+
+		Shell swtShell = SWT_AWT.new_Shell(display, canvas);
+
+		swtShell.setSize(600, 600);
+		swtShell.setLayout(new FillLayout());
+		swtShell.setText("Test for Processing running with SWT");
+		swtShell.addPaintListener(new PaintListener(){
+
+			public void paintControl(PaintEvent e) {
+				canvas.repaint();
+				
+			} });
+		frame.pack();
+		pa.setSize(600, 600);
+		pa.init();
+		
+		swtShell.open();
+		while (!swtShell.isDisposed()) {
+			if (!display.readAndDispatch())
+				display.sleep();
+		}
 	}
 }
