@@ -1,4 +1,4 @@
-module test::Test2
+module Test2
 import IO;
 import languages::pico::syntax::Pico;
 
