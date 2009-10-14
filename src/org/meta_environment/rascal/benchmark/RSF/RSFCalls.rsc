@@ -1,4 +1,4 @@
-module benchmark::RSF::RSFCalls
+module RSF::RSFCalls
 
 import Relation;
 import Integer;
