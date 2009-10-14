@@ -38,10 +38,10 @@ public class TestFramework {
 		CommandEvaluator eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 
 		// to load modules from benchmarks
-		eval.addModuleLoader(new FromResourceLoader(getClass(), "src/org/meta_environment/rascal/benchmark"));
+		eval.addModuleLoader(new FromResourceLoader(getClass(), "org/meta_environment/rascal/benchmark"));
 
 		// to load modules from the test directory
-		eval.addModuleLoader(new FromResourceLoader(getClass(), "src/org/meta_envirnonment/rascal/test/data"));
+		eval.addModuleLoader(new FromResourceLoader(getClass(), "org/meta_environment/rascal/test/data"));
 
 		// to find sdf modules in the test directory
 		eval.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
