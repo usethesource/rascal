@@ -751,9 +751,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// TODO support for full complexity of import declarations
 		String name = getUnescapedModuleName(x);
 
-		// TODO: this logic cannot be understood...
-		// handleSDFModule only loads the ParseTree module,
-		// yet the SDF module *will* have been loaded
+		
 
 		//		TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
 
@@ -770,7 +768,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			evalRascalModule(x, name);
 		}
 		else {
-			reloadAllIfNeeded(x);
+			reloadAllIfNeeded(x, name);
 		}
 		addImportToCurrentModule(x, name);
 		return nothing();
@@ -780,7 +778,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.meta_environment.rascal.ast.Import.Default x) {
 		loadParseTreeModule(x);
 		getCurrentModuleEnvironment().addSDFImport(getUnescapedModuleName(x));
-
+		
+		// TODO: this logic cannot be understood...
+		// handleSDFModule only loads the ParseTree module,
+		// yet the SDF module *will* have been loaded
+		
 		try {
 			parser.generateModuleParser(loader.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), getCurrentModuleEnvironment());
 		} catch (IOException e) {
@@ -861,14 +863,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 
-	protected void reloadAllIfNeeded(AbstractAST cause) {
+	protected void reloadAllIfNeeded(AbstractAST cause, String toBeImported) {
 		if (!reloadNeeded()) {
 			return;
 		}
 		heap.clear();
 
 		java.util.Set<String> topModules = getCurrentModuleEnvironment().getImports();
-		for (String mod : topModules) {
+		java.util.Set<String> moduleSet = new HashSet<String>();
+		moduleSet.addAll(topModules);
+		moduleSet.add(toBeImported);
+		
+		for (String mod : moduleSet) {
 			Module module = evalRascalModule(cause, mod);
 			if (module != null) {
 				ModuleEnvironment module2 = heap.getModule(mod);
