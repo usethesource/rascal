@@ -63,7 +63,7 @@ public map[&V, &K] java invertUnique(map[&K, &V] M)  ;
 public bool java isEmpty(map[&K, &V] M);
 
 @doc{Apply two functions to each key/value pair in a map.}
-public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G)
+public map[&K, &V] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)
 {
   return (F(key) : G(M[key]) | &K key <- M);
 }
