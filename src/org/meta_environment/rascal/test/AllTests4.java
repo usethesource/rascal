@@ -2,12 +2,12 @@ package org.meta_environment.rascal.test;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.meta_environment.rascal.test.StandardLibraryTests.NodeTests;
-import org.meta_environment.rascal.test.StandardLibraryTests.RealTests;
-import org.meta_environment.rascal.test.StandardLibraryTests.RelationTests;
-import org.meta_environment.rascal.test.StandardLibraryTests.SetTests;
-import org.meta_environment.rascal.test.StandardLibraryTests.StringTests;
-import org.meta_environment.rascal.test.StandardLibraryTests.ValueIOTests;
+import org.meta_environment.rascal.test.library.NodeTests;
+import org.meta_environment.rascal.test.library.RealTests;
+import org.meta_environment.rascal.test.library.RelationTests;
+import org.meta_environment.rascal.test.library.SetTests;
+import org.meta_environment.rascal.test.library.StringTests;
+import org.meta_environment.rascal.test.library.ValueIOTests;
 
 
 @RunWith(Suite.class)

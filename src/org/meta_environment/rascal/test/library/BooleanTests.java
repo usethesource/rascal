@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.test.StandardLibraryTests;
+package org.meta_environment.rascal.test.library;
 
 import static org.junit.Assert.assertTrue;
 

@@ -2,11 +2,11 @@ package org.meta_environment.rascal.test;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.meta_environment.rascal.test.StandardLibraryTests.BooleanTests;
-import org.meta_environment.rascal.test.StandardLibraryTests.GraphTests;
-import org.meta_environment.rascal.test.StandardLibraryTests.IntegerTests;
-import org.meta_environment.rascal.test.StandardLibraryTests.ListTests;
-import org.meta_environment.rascal.test.StandardLibraryTests.MapTests;
+import org.meta_environment.rascal.test.library.BooleanTests;
+import org.meta_environment.rascal.test.library.GraphTests;
+import org.meta_environment.rascal.test.library.IntegerTests;
+import org.meta_environment.rascal.test.library.ListTests;
+import org.meta_environment.rascal.test.library.MapTests;
 
 
 @RunWith(Suite.class)
