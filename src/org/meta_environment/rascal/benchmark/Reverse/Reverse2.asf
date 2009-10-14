@@ -1,0 +1,10 @@
+equations
+
+[r10] rev1()        =
+[r11] rev1(X, L)    = rev1(L), X
+
+[r20] rev2()        =
+[r21] rev2(L, X)    = X, rev2(L)
+
+[r30] rev3()        =
+[r31] rev3(X, L, Y) = Y, rev3(L), Y

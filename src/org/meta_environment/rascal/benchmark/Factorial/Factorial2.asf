@@ -1,0 +1,15 @@
+equations
+
+[a0] add(N, z)	= N
+[a1] add(z, N)	= N
+[a2] add(s(N), M)	= s(add(N, M))
+
+[m0] mul(N, z)	= z
+[m1] mul(z, N)	= z
+[m2] mul(s(N), M)	= add(M, mul(N, M))
+
+[f10] fac1(s(z))   = s(z)
+[f11] fac1(s(N))   = mul(s(N), fac1(N))
+
+[f20] fac2(0)   	= 1
+[default-f21] fac2(I)   = I * fac2(I - 1)
