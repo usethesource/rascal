@@ -221,8 +221,8 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.Profiler;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.utils.Utils;
+import org.meta_environment.rascal.library.ToString;
 import org.meta_environment.rascal.parser.ModuleParser;
-import org.meta_environment.rascal.std.ToString;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
@@ -289,7 +289,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
 
 		// library
-		loader.addFileLoader(new FromResourceLoader(this.getClass(), "StandardLibrary"));
+		loader.addFileLoader(new FromResourceLoader(this.getClass(), "org/meta_environment/rascal/library"));
 
 		// everything rooted at the src directory 
 		loader.addFileLoader(new FromResourceLoader(this.getClass()));
