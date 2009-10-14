@@ -1,4 +1,4 @@
-module benchmark::CompareShortestPath
+module CompareShortestPath
 
 import Graph;/* currently contains a Java version of the algorithm below */
 import Relation;
