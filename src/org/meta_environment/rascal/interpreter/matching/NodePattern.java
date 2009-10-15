@@ -95,7 +95,12 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public Type getType(Environment env) {
-		return getConstructorType(env).getAbstractDataType();
+		Type type = getConstructorType(env);
+		
+		if (type.isConstructorType()) {
+			return getConstructorType(env).getAbstractDataType();
+		}
+		return type;
 	}
 	
 	public Type getConstructorType(Environment env) {
