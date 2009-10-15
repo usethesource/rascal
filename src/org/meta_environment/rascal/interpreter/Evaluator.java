@@ -186,8 +186,10 @@ import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
+import org.meta_environment.rascal.interpreter.matching.ConcreteApplicationPattern;
 import org.meta_environment.rascal.interpreter.matching.IBooleanResult;
 import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
+import org.meta_environment.rascal.interpreter.matching.NodePattern;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.JavaFunction;
@@ -1037,16 +1039,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitPatternWithActionArbitrary(Arbitrary x) {
 		IMatchingResult pv = x.getPattern().accept(patternEvaluator);
+		
 		Type pt = pv.getType(getCurrentEnvt());
-
+		
+		if (pv instanceof NodePattern) {
+			pt = ((NodePattern) pv).getConstructorType(getCurrentEnvt());
+		}
+		
 		// TODO store rules for concrete syntax on production rule and
 		// create Lambda's for production rules to speed up matching and
 		// rewrite rule look up
 		if (pt instanceof NonTerminalType) {
 			pt = Factory.Tree_Appl;
 		}
+		
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
+		
 		heap.storeRule(pt, x, getCurrentModuleEnvironment());
 		return ResultFactory.nothing();
 	}
@@ -1056,12 +1065,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IMatchingResult pv = x.getPattern().accept(patternEvaluator);
 		Type pt = pv.getType(getCurrentEnvt());
 
+		if (pv instanceof NodePattern) {
+			pt = ((NodePattern) pv).getConstructorType(getCurrentEnvt());
+		}
+		
 		if (pt instanceof NonTerminalType) {
 			pt = Factory.Tree_Appl;
 		}
 
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
+		
 		heap.storeRule(pt, x, getCurrentModuleEnvironment());
 		return ResultFactory.nothing();
 	}
