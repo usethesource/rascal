@@ -95,6 +95,10 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public Type getType(Environment env) {
+		return getConstructorType(env).getAbstractDataType();
+	}
+	
+	public Type getConstructorType(Environment env) {
 		 Type[] types = new Type[children.size()];
 
 		 for (int i = 0; i < children.size(); i++) {
@@ -109,7 +113,7 @@ public class NodePattern extends AbstractMatchingResult {
 			 if (constructors != null && constructors instanceof OverloadedFunctionResult) {
 				 for (AbstractFunction d : ((OverloadedFunctionResult) constructors).iterable()) {
 					 if (d.match(signature)) {
-						 return env.getConstructor(d.getReturnType(), Names.name(Names.lastName(qname)), signature).getAbstractDataType();
+						 return env.getConstructor(d.getReturnType(), Names.name(Names.lastName(qname)), signature);
 					 }
 				 }
 			 }

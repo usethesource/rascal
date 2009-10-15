@@ -71,6 +71,10 @@ public class GlobalEnvironment {
 	public void storeRule(Type forType, PatternWithAction rule, Environment env) {
 		List<RewriteRule> rules = ruleEnvironment.get(forType);
 		
+		if (!forType.isConstructorType()) {
+			throw new IllegalArgumentException();
+		}
+		
 		//System.err.println("storeRule: type=" + forType + ",rule=" + rule);
 		if (rules == null) {
 			rules = new ArrayList<RewriteRule>();
