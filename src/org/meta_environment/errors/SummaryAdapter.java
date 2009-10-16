@@ -42,6 +42,10 @@ public class SummaryAdapter implements Iterable<ErrorAdapter> {
 		};
 	}
 	
+	public ErrorAdapter getInitialError() {
+		return this.iterator().next();
+	}
+	
 	public SubjectAdapter getInitialSubject() {
 		for (ErrorAdapter error : this) {
 			for (SubjectAdapter subject : error) {

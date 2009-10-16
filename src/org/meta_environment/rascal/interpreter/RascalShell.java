@@ -84,7 +84,7 @@ public class RascalShell {
 			}
 			catch (StaticError e) {
 				console.printString("Static Error: " + e.getMessage() + "\n");
-				e.printStackTrace();
+//				e.printStackTrace(); // for debugging only
 			}
 			catch (Throw e) {
 				console.printString("Uncaught Rascal Exception: " + e.getMessage() + "\n");
@@ -93,7 +93,7 @@ public class RascalShell {
 					console.printString(trace);
 				}
 				else {
-					e.printStackTrace();
+//					e.printStackTrace(); // for debugging only
 				}
 			}
 			catch (ImplementationError e) {
