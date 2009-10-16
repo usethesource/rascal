@@ -319,7 +319,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			strFormals = strFormals + sep + tp;
 			sep = ", ";
 		}
-		return getReturnType() + " " + getName() + "(" + strFormals + ")";
+		
+		String name = getName();
+		if (name == null) {
+			name = "";
+		}
+		return getReturnType() + " " + name + "(" + strFormals + ")";
 	}
 	
 	public FunctionType getFunctionType() {
