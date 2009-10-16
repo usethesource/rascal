@@ -1,6 +1,6 @@
 module experiments::viz::Chart::boxplot
 
-import Chart;         
+import viz::Chart;         
 
 public void p1(){
   D = [ <"series1", [<"Type 0", [1, 5, 4, 3, 5, 5, 6, 5, 6, 5, 10, 20, 30]>, 

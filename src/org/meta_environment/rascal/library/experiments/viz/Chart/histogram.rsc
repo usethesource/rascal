@@ -1,6 +1,6 @@
 module experiments::viz::Chart::histogram
 
-import Chart;
+import viz::Chart;
 
 public void p1(){
 

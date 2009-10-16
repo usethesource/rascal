@@ -1,6 +1,6 @@
 module experiments::viz::Chart::xychart
 
-import Chart;
+import viz::Chart;
 
 public void p1(){
 
