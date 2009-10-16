@@ -2837,6 +2837,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				resultType = tf.listType(elementType1);		
 				writer = resultType.writer(vf);
 			}
+			else {
 			int k = 0;
 			for(Expression resExpr : resultExprs){
 				Result<IValue> res = resExpr.accept(ev);
@@ -2856,6 +2857,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					elementType1 = elementType1.lub(res.getType());
 					((IListWriter) writer).append(res.getValue());
 				}
+			}
 			}
 		}
 
@@ -2897,6 +2899,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				resultType = tf.setType(elementType1);		
 				writer = resultType.writer(vf);
 			}
+			else {
 			int k = 0;
 			for(Expression resExpr : resultExprs){
 				Result<IValue> res = resExpr.accept(ev);
@@ -2915,6 +2918,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					elementType1 = elementType1.lub(res.getType());
 					((ISetWriter) writer).insert(res.getValue());
 				}
+			}
 			}
 		}
 
