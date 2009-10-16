@@ -168,11 +168,17 @@ public class ModuleLoader{
 	}
 
 	private SyntaxError parseError(IConstructor tree, String file, String mod){
-		SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
+		SummaryAdapter summary = new SummaryAdapter(tree);
+		SubjectAdapter subject = summary.getInitialSubject();
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		ISourceLocation loc = vf.sourceLocation(file, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
-
-		return new SyntaxError("module " + mod, loc);
+		
+		if (subject != null) {
+			ISourceLocation loc = vf.sourceLocation(file, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
+			return new SyntaxError("module " + mod, loc);
+		}
+		else {
+			return new SyntaxError("unknown location, maybe you used a keyword as an identifier)", vf.sourceLocation(file, 0,1,1,1,0,1));
+		}
 	}
 	
 	private byte[] readModule(InputStream inputStream) throws IOException{
