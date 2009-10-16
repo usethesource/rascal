@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
+import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Declaration;
@@ -22,6 +23,7 @@ import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
@@ -95,6 +97,8 @@ public class TypeDeclarationEvaluator {
 					cons.setPublic(true); // TODO: implement declared visibility
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredTypeError(altName, var);
+				} catch (RedeclaredFieldNameException e) {
+					throw new RedeclaredFieldError(e.getMessage(), var);
 				}
 			} 
 		}
