@@ -858,6 +858,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			heap.removeModule(env);
 			throw e;
 		}
+		catch (org.meta_environment.rascal.interpreter.control_exceptions.Throw e) {
+			heap.removeModule(env);
+			throw e;
+		}
 
 		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
 	}
