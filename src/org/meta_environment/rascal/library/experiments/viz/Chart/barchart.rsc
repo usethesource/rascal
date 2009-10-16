@@ -1,6 +1,6 @@
 module experiments::viz::Chart::barchart
 
-import Chart;
+import viz::Chart;
 
 public void b1(){
   barChart("Sales Prognosis 1", 

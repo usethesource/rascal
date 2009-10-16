@@ -1,6 +1,6 @@
 module experiments::viz::Chart::piechart
 
-import Chart;
+import viz::Chart;
 
 public void p1(){
  	pieChart("p1", ("a" : 1, "b" : 2, "c" : 10, "z": 50));
