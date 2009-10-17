@@ -1,7 +1,5 @@
 module demo::Ackermann
 
-import UnitTest;
-
 // Ackermann's function: a standard example of a double recursive function.
 // See http://en.wikipedia.org/wiki/Ackermann_function
 
@@ -15,8 +13,7 @@ public int ack(int m, int n)
 		return ack(m - 1, ack(m, n - 1));
 }
 
-public bool test(){
-    assertEqual(ack(2,5), 13);
-    assertEqual(ack(3,4), 125);
-    return report();
-}
+// Tests
+
+test ack(2,5) == 13;
+test ack(3,4) == 125;

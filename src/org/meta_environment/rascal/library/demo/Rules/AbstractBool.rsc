@@ -1,7 +1,5 @@
 module demo::Rules::AbstractBool
 
-import UnitTest;
-
 // An atypical Rascal example that reminds us of algebraic specifications.
 // We define the data type Bool with constants btrue and bfalse and constructors
 // band and bor.
@@ -24,18 +22,16 @@ rule o2 bor(btrue(), bfalse())    => btrue();
 rule o3 bor(bfalse(), btrue())    => btrue();
 rule o4 bor(bfalse(), bfalse())   => bfalse();
 
-public bool test()
-{
-  assertEqual(bor(band(btrue(),btrue()),band(btrue(), bfalse())), btrue());
-  assertEqual(btrue(), btrue());
-  assertEqual(bfalse(), bfalse());
-  assertTrue(btrue() != bfalse());
-  assertEqual(band(btrue(),bfalse()), bfalse());	
-  assertEqual(band(band(btrue(),btrue()),band(btrue(), bfalse())), bfalse());
-  assertEqual(bor(btrue(),bfalse()), btrue());
-  assertEqual(bor(bor(btrue(),btrue()),bor(btrue(), bfalse())), btrue());
-  assertEqual(bor(bor(bfalse(),bfalse()),bor(bfalse(), bfalse())), bfalse());
-  assertEqual(bor(band(btrue(),btrue()),band(btrue(), bfalse())), btrue());
-  assertEqual(band(bor(btrue(),btrue()),band(btrue(), bfalse())), bfalse());
-  return report("AbstractBool");
-}
+// Tests
+
+test bor(band(btrue(),btrue()),band(btrue(), bfalse())) ==  btrue();
+test btrue() == btrue();
+test bfalse() == bfalse();
+test btrue() != bfalse();
+test band(btrue(),bfalse()) == bfalse();
+test band(band(btrue(),btrue()),band(btrue(), bfalse())) == bfalse();
+test bor(btrue(),bfalse()) == btrue();
+test bor(bor(btrue(),btrue()),bor(btrue(), bfalse())) == btrue();
+test bor(bor(bfalse(),bfalse()),bor(bfalse(), bfalse())) == bfalse();
+test bor(band(btrue(),btrue()),band(btrue(), bfalse())) == btrue();
+test band(bor(btrue(),btrue()),band(btrue(), bfalse())) == bfalse();

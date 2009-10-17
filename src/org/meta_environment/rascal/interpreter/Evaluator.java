@@ -3281,8 +3281,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return heap;
 	}
 
-	public void runTests(){
-		new TestEvaluator(this, new DefaultTestResultListener(stderr)).test();
+	public boolean runTests(){
+		DefaultTestResultListener listener = new DefaultTestResultListener(stderr);
+		new TestEvaluator(this, listener).test();
+		stderr.println(listener.getNumberOfTests() + " tests, " + listener.getFailures() + " failures, " +
+				listener.getErrors() + " errors");
+		return listener.allOk();
 	}
 
 	public IValueFactory getValueFactory() {

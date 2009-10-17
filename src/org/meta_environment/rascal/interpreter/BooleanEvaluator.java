@@ -445,8 +445,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 		ctx.pushEnv();		
 	}
 
-	public void runTests() {
-		ctx.runTests();
+	public boolean runTests() {
+		return ctx.runTests();
 	}
 
 	public void setCurrentEnvt(Environment environment) {

@@ -2,7 +2,6 @@ module demo::AbstractPico::Eval
 
 import demo::AbstractPico::AbstractSyntax;
 import demo::AbstractPico::Programs;
-import UnitTest;
 import IO;
 
 /*
@@ -112,13 +111,22 @@ public int myFac(int N)
 		return N * myFac(N - 1);
 }
 
-public bool test(){
-	assertEqual(evalExp(natCon(3)), intval(3));
-	assertEqual(evalExp(add(natCon(3), natCon(4))), intval(7));
-	assertEqual(evalExp(sub(natCon(7), natCon(4))), intval(3));
-	assertEqual(evalExp(conc(strCon("abc"), strCon("def"))), strval("abcdef"));
-	
-	evalProgram(small); assertEqual(Env["s"], strval("###"));
-	evalProgram(fac); assertEqual(Env["output"], intval(myFac(13)));
-	return report("AbstractPico::Eval");
+// Tests
+
+test evalExp(natCon(3)) == intval(3);
+test evalExp(add(natCon(3), natCon(4))) == intval(7);
+test evalExp(sub(natCon(7), natCon(4))) == intval(3);
+test evalExp(conc(strCon("abc"), strCon("def"))) == strval("abcdef");
+
+bool testSmall(){
+	evalProgram(small); return Env["s"] == strval("###");
 }
+
+test testSmall();
+
+bool testFac(){	
+	evalProgram(fac); return Env["output"] == intval(myFac(13));
+}
+
+test testFac();
+
