@@ -2,7 +2,6 @@ module demo::Bubble
 
 import List;
 import IO;
-import UnitTest;
 
 // Three variations on Bubble sort
 
@@ -46,13 +45,12 @@ public list[int] sort3(list[int] Numbers){
     };
 }
 
-public bool test(){
-    unsorted = [10,9,8,7,6,5,4,3,2,1];
-    sorted = [1,2,3,4,5,6,7,8,9,10];
+// Tests
+
+list[int] unsorted = [10,9,8,7,6,5,4,3,2,1];
+list[int] sorted = [1,2,3,4,5,6,7,8,9,10];
     
-    assertEqual(sort1(unsorted), sorted);
-	assertEqual(sort2(unsorted), sorted);
-	assertEqual(sort3(unsorted), sorted);
-	return report("Bubble");
-}
+test sort1(unsorted) == sorted;
+test sort2(unsorted) == sorted;
+test sort3(unsorted) == sorted;
 

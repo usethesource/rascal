@@ -714,8 +714,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		ctx.pushEnv();		
 	}
 
-	public void runTests() {
-		ctx.runTests();
+	public boolean runTests() {
+		return ctx.runTests();
 	}
 
 	public void setCurrentEnvt(Environment environment) {

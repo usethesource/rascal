@@ -68,12 +68,9 @@ public BLOCK cflow(STATEMENT Stat){
     throw("cflowstat returns no value");
 }
 
-public bool test(){
+// Tests
   
-	assertEqual(cflow(annotate(small)), block({0},{<0,1>,<3,7>,<7,12>,<12,3>,<1,12>},{12}));
+test cflow(annotate(small)) == block({0},{<0,1>,<3,7>,<7,12>,<12,3>,<1,12>},{12});
           
-	assertEqual(cflow(annotate(fac)), block({0},{<1,3>,<5,7>,<7,37>,<3,32>,<0,1>,<9,13>,<32,5>,<27,32>,<13,37>,<37,27>,<37,9>},{32}));
-
-	return report("AbstractPico::ControlFlow");
-}
+test cflow(annotate(fac)) == block({0},{<1,3>,<5,7>,<7,37>,<3,32>,<0,1>,<9,13>,<32,5>,<27,32>,<13,37>,<37,27>,<37,9>},{32});
 

@@ -797,8 +797,8 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		evaluator.pushEnv();
 	}
 
-	public void runTests() {
-		evaluator.runTests();
+	public boolean runTests() {
+		return evaluator.runTests();
 	}
 
 	public void setCurrentAST(AbstractAST ast) {

@@ -8,20 +8,17 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void AbstractBool() {
-		prepare("import demo::Rules::AbstractBool;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Rules::AbstractBool;"));
 	}
 	
 	@Test
 	public void AbstractBoolVisit() {
-		prepare("import demo::Rules::AbstractBoolVisit;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Rules::AbstractBoolVisit;"));
 	}
 	
 	@Test
 	public void AbstractInteger() {
-		prepare("import demo::Rules::AbstractInteger;");
-		assertTrue(runTestInSameEvaluator("testInt();"));
+		assertTrue(runRascalTests("import demo::Rules::AbstractInteger;"));
 	}
 	
 	@Test
@@ -32,8 +29,7 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void AbstractPicoCommonSubexpression() {
-		prepare("import demo::AbstractPico::CommonSubexpression;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::AbstractPico::CommonSubexpression;"));
 	}
 	
 	@Test
@@ -44,14 +40,12 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void AbstractPicoControlflow() {
-		prepare("import demo::AbstractPico::Controlflow;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::AbstractPico::Controlflow;"));
 	}
 	
 	@Test
 	public void AbstractPicoEval() {
-		prepare("import demo::AbstractPico::Eval;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::AbstractPico::Eval;"));
 	}
 
 	@Test
@@ -80,14 +74,12 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void Ackermann() {
-		prepare("import demo::Ackermann;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Ackermann;"));
 	}
 
 	@Test
 	public void Bubble() {
-		prepare("import demo::Bubble;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Bubble;"));
 	}
 
 	@Test

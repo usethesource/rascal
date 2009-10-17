@@ -20,7 +20,3 @@ PROGRAM cse(PROGRAM P) {
                     }
     };
 }
-
-public bool test(){
-	return true;
-}

@@ -1,7 +1,5 @@
 module demo::Rules::AbstractInteger
 
-import UnitTest;
-
 // We continue our exploration of algebraic specification by
 // first importing the Bool data type and then introducing
 // zero/successor integer with various arithmetic operations
@@ -41,13 +39,10 @@ rule e2 eq(s(Integer N),z())             => bfalse();
 rule e2 eq(z(),s(Integer N))             => bfalse();
 rule e3 eq(s(Integer N), s(Integer M))   => eq(N,M);
 
-public bool testInt(){
+// Tests
 		  
-  assertEqual(add(s(s(z())), s(s(s(z())))), s(s(s(s(s(z()))))));
-  assertEqual(mul(s(s(z())), s(s(s(z())))), s(s(s(s(s(s(z())))))));
-  assertEqual(exp(s(s(z())), s(s(s(z())))), s(s(s(s(s(s(s(s(z())))))))));
-  assertEqual(eq(s(s(z())),  s(s(s(z())))), bfalse());
-  assertEqual(eq(s(s(s(z()))), s(s(s(z())))), btrue());
-
-  return report("AbstractInteger");
-}
+test add(s(s(z())), s(s(s(z())))) == s(s(s(s(s(z())))));
+test mul(s(s(z())), s(s(s(z())))) == s(s(s(s(s(s(z()))))));
+test exp(s(s(z())), s(s(s(z())))) == s(s(s(s(s(s(s(s(z()))))))));
+test eq(s(s(z())),  s(s(s(z())))) == bfalse();
+test eq(s(s(s(z()))), s(s(s(z())))) == btrue();

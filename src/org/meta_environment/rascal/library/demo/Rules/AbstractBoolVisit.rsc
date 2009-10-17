@@ -1,7 +1,5 @@
 module demo::Rules::AbstractBoolVisit
 
-import UnitTest;
-
 // A definition of Booleans and the operators band and bor using a visit function.
 // See AbstractBool for a definition using rewrite rules.
 
@@ -22,10 +20,6 @@ public Bool reduce(Bool B) {
     };
 }
 
-public bool test(){
+// Tests
 	
-   assertEqual(reduce(bor(band(btrue(),btrue()),band(btrue(), bfalse()))),
-               btrue()
-              );
-   return report("AbstractBoolVisit");
-}
+test reduce(bor(band(btrue(),btrue()),band(btrue(), bfalse()))) == btrue();

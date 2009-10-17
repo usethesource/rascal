@@ -26,10 +26,11 @@ public class TestEvaluator{
 	
 	public void test(){
 		for(String module : eval.getCurrentEnvt().getImports()){
+			System.err.println("tests in module = " + module);
 			List<Test> tests = eval.getHeap().getModule(module).getTests();
 			runTests(tests);
 		}
-		
+		System.err.println("tests in current module");
 		runTests(((ModuleEnvironment) eval.getCurrentEnvt().getRoot()).getTests());
 	}
 	
@@ -59,11 +60,12 @@ public class TestEvaluator{
 			
 			testResultListener.report(result.isTrue(), x.toString());
 			
-			return ResultFactory.bool(true, eval);
+			return ResultFactory.bool(result.isTrue(), eval);
 		}
 		
 		public Result<IBool> visitTestUnlabeled(Unlabeled x){
 			Result<IValue> result = ResultFactory.bool(true, eval);
+			System.err.println("visitTestUnlabeled: " + x);
 			
 			try{
 				result = x.getExpression().accept(eval);
@@ -75,7 +77,7 @@ public class TestEvaluator{
 			
 			testResultListener.report(result.isTrue(), x.toString());
 			
-			return ResultFactory.bool(true, eval);
+			return ResultFactory.bool(result.isTrue(), eval);
 		}
 	}
 }

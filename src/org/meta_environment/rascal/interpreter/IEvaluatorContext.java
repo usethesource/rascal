@@ -16,7 +16,7 @@ public interface IEvaluatorContext {
 	public void unwind(Environment old);
 	public GlobalEnvironment getHeap();
 	public void setCurrentEnvt(Environment environment);
-	public void runTests();
+	public boolean runTests();
 	public IValueFactory getValueFactory();
 	public IStrategyContext getStrategyContext();
 	public void setStrategyContext(IStrategyContext strategyContext);

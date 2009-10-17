@@ -80,6 +80,17 @@ public class TestFramework {
 			throw new ImplementationError("Exception while running test", e);
 		}
 	}
+	
+	public boolean runRascalTests(String command) {
+		try {
+			reset();
+			execute(command);
+			return evaluator.runTests();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new ImplementationError("Exception while running test", e);
+		}
+	}
 
 	public boolean runTestInSameEvaluator(String command) {
 		try {
