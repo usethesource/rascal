@@ -9,11 +9,12 @@ import org.meta_environment.rascal.ast.Test;
 import org.meta_environment.rascal.ast.Test.Labeled;
 import org.meta_environment.rascal.ast.Test.Unlabeled;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
-public class TestEvaluator{
+public class TestEvaluator {
 	private final Evaluator eval;
 	private final ITestResultListener testResultListener;
 	
@@ -23,21 +24,50 @@ public class TestEvaluator{
 		this.eval = eval;
 		this.testResultListener = testResultListener;
 	}
-	
-	public void test(){
-		for(String module : eval.getCurrentEnvt().getImports()){
-			System.err.println("tests in module = " + module);
-			List<Test> tests = eval.getHeap().getModule(module).getTests();
-			runTests(tests);
+
+	public void test(String moduleName) {
+		Environment old = eval.getCurrentEnvt();
+		
+		try {
+			ModuleEnvironment module = eval.getHeap().getModule(moduleName);
+			if (module == null) {
+				throw new IllegalArgumentException();
+			}
+			eval.setCurrentEnvt(module);
+			
+			test();
 		}
-		System.err.println("tests in current module");
-		runTests(((ModuleEnvironment) eval.getCurrentEnvt().getRoot()).getTests());
+		finally {
+			if (old != null) {
+				eval.setCurrentEnvt(old);
+			}
+		}
 	}
 	
-	private void runTests(List<Test> tests){
-		Visitor visitor = new Visitor();
-		for(int i = tests.size() - 1; i >= 0; i--){
-			tests.get(i).accept(visitor);
+	public void test() {
+		ModuleEnvironment topModule = (ModuleEnvironment) eval.getCurrentEnvt().getRoot();
+		
+		runTests(topModule, topModule.getTests());
+		
+		for (String i : topModule.getImports()) {
+			ModuleEnvironment mod = topModule.getImport(i);
+			runTests(mod, mod.getTests());
+		}
+	}
+	
+	private void runTests(ModuleEnvironment env, List<Test> tests){
+		Environment old = eval.getCurrentEnvt();
+		try {
+			eval.setCurrentEnvt(env);
+			Visitor visitor = new Visitor();
+			for(int i = tests.size() - 1; i >= 0; i--){
+				tests.get(i).accept(visitor);
+			}
+		}
+		finally {
+			if (old != null) {
+				eval.setCurrentEnvt(old);
+			}
 		}
 	}
 	
