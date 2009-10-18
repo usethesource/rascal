@@ -1,7 +1,6 @@
 module demo::WordReplacement
 
 import String;
-import UnitTest;
 
 // capitalize: convert first letter to uppercase
 
@@ -37,12 +36,7 @@ public str capAll2(str S)
    };
 }
 
-public bool test()
-{
-  assertEqual(capitalize("1"), "1");
-  assertEqual(capitalize("rascal"), "Rascal");
-  assertEqual(capAll1("turn this into a title"), "Turn This Into A Title");
-  assertEqual(capAll2("turn this into a title"), "Turn This Into A Title");
-  
-  return report("WordReplacement");
-}
+test capitalize("1") == "1";
+test capitalize("rascal") == "Rascal";
+test capAll1("turn this into a title") == "Turn This Into A Title";
+test capAll2("turn this into a title") == "Turn This Into A Title";

@@ -3,7 +3,6 @@ module experiments::GrammarTools::Grammar
 import Set;
 import IO;
 // import experiments::GrammarTools::Grammars; // for testing
-import UnitTest;
 import String;
 
 // Data structure for representing a grammar
@@ -78,27 +77,27 @@ public Grammar G2 = grammar(nt("E"),
 });
 
 public bool test(){
-    assertEqual(symbols(G1), {nt("E"),t("1"),t("0"),nt("B"),t("+"),t("*")});
-    assertEqual(terminals(G1), {t("1"),t("0"),t("+"),t("*")});
-    assertEqual(nonTerminals(G1), {nt("E"),nt("B")});
-    assertEqual(nonTerminalUse(G1), {<nt("E"), nt("E")>, <nt("E"), nt("B")>});
-    assertEqual(reachable(G1), {nt("E"), nt("B")});
-    assertEqual(nonReachable(G1), {});
+    test symbols(G1) == {nt("E"),t("1"),t("0"),nt("B"),t("+"),t("*")});
+    test terminals(G1)  == {t("1"),t("0"),t("+"),t("*")});
+    test nonTerminals(G1) == {nt("E"),nt("B")});
+    test nonTerminalUse(G1) == {<nt("E"), nt("E")>, <nt("E"), nt("B")>});
+    test reachable(G1), {nt("E"), nt("B")});
+    test nonReachable(G1), {});
     
-    assertEqual(symbols(G2), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1"),t(")"),t("("),t("+"),t("id"),t("*")});
-    assertEqual(terminals(G2), {t(")"),t("("),t("+"),t("id"),t("*")});
-    assertEqual(nonTerminals(G2), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1")});
-    assertEqual(nonTerminalUse(G2), {<nt("T1"),nt("F")>,<nt("E1"),nt("E1")>,<nt("E1"),nt("T")>,
+    test symbols(G2), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1"),t(")"),t("("),t("+"),t("id"),t("*")});
+    test terminals(G2), {t(")"),t("("),t("+"),t("id"),t("*")});
+    test nonTerminals(G2), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1")});
+    test nonTerminalUse(G2), {<nt("T1"),nt("F")>,<nt("E1"),nt("E1")>,<nt("E1"),nt("T")>,
                                      <nt("T1"),nt("T1")>,<nt("T"),nt("F")>,<nt("F"),nt("E")>,
                                      <nt("E"),nt("E1")>,<nt("E"),nt("T")>,<nt("T"),nt("T1")>});
-    assertEqual(reachable(G2), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1")});
-    assertEqual(nonReachable(G2), {});
+    test reachable(G2), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1")});
+    test nonReachable(G2), {});
     
     G2x = grammar(G2.start, G2.rules + {<nt("X"),  [t("x")]>});
   
-    assertEqual(nonTerminals(G2x), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1"), nt("X")});
-    assertEqual(reachable(G2x), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1")});
-    assertEqual(nonReachable(G2x), {nt("X")});
+    test nonTerminals(G2x), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1"), nt("X")});
+    test reachable(G2x), {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1")});
+    test nonReachable(G2x), {nt("X")});
     
 	return report("GrammarTools::Grammar");
 }

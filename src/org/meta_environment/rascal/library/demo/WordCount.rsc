@@ -4,7 +4,6 @@ import IO;
 import Map;
 import List;
 import Exception;
-import UnitTest;
  
 // Various ways to count words in a string.
 
@@ -145,10 +144,6 @@ public list[str] Jabberwocky = [
 	"And the mome raths outgrabe."
 ];
 
-public bool test(){
-	assertEqual(wordCount(Jabberwocky, countLine1), 216);
-	assertEqual(wordCount(Jabberwocky, countLine2), 216);
-	assertEqual(wordCount(Jabberwocky, countLine3), 216);
-	
-	return report("WordCount");
-}
+test wordCount(Jabberwocky, countLine1) == 216;
+test wordCount(Jabberwocky, countLine2) == 216;
+test wordCount(Jabberwocky, countLine3) == 216;
