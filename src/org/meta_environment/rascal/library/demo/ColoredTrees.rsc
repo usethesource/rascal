@@ -1,6 +1,4 @@
 module demo::ColoredTrees
-import UnitTest;
-
 
 // ColoredTrees, see Rascal user manual.
 

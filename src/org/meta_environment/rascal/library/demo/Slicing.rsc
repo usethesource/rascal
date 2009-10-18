@@ -94,7 +94,7 @@ test Example1 ==
 	        <6, "sum">, <6, "i">, <6, "EXEC">, <8, "i">, <8, "EXEC">, 
 	       <9, "sum"> };
 
-	test Example2 ==
+test Example2 ==
             { <1, "EXEC">,  <2, "EXEC">, <4, "EXEC">, <5, "i">, <5, "n">, 
 	      <7, "i">, <7, "product">, <7, "EXEC">, 
 	       <8, "i">, <8, "EXEC">, <10,  "product">  };

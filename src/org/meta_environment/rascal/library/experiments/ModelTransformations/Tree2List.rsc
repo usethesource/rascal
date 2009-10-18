@@ -1,6 +1,5 @@
 module experiments::ModelTransformations::Tree2List
 
-import UnitTest;
 import IO;
 
 /*
@@ -41,11 +40,12 @@ import IO;
    // "Root element is not a treeNode";
  }
  
- public bool test(){
-   // See http://www.eclipse.org/m2m/atl/basicExamples_Patterns/article.php?file=Tree2List/index.html
-   // for a picture of this example
+// Tests
+// See http://www.eclipse.org/m2m/atl/basicExamples_Patterns/article.php?file=Tree2List/index.html
+// for a picture of this example
    
-   input = treeNode("0",
+private TreeElement input = 
+           treeNode("0",
                     [ leaf("1", small()),
                       treeNode("2",
                                [ leaf("6", medium()),
@@ -58,8 +58,7 @@ import IO;
                       leaf("5", medium())
                     ]);
  
-  output = [root("0"), common("7"), common("6"), common("9"), common("5"), common("1"), 
+private ElementList output = [root("0"), common("7"), common("6"), common("9"), common("5"), common("1"), 
             common("8"), common("10"), common("4")];
-  assertEqual(treenode2elementlist(input), output);
-  return report();
-}
+            
+test treenode2elementlist(input) == output;

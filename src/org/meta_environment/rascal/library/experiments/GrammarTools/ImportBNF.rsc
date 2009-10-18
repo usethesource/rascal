@@ -8,7 +8,6 @@ import experiments::GrammarTools::Grammars;     // for testing
 
 import Set;
 import IO;
-import UnitTest;
 import String;
 import Exception;
 

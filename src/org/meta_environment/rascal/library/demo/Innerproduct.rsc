@@ -24,13 +24,15 @@ public int inner2(list[int] V1, list[int] V2){
        return 0;
     }
 }
+
+// Tests
  
-    test inner1([], []) == 0;
-   	test inner1([1],[1]) == 1;
-   	test inner1([1,2] == [3,4])  == 11;
-   	test inner1([1,2,3],[4,5,6])  == 32;
-    	
-   	test inner2([], [])  == 0;
-    test inner2([1],[1]) == 1;
-    test inner2([1,2], [3,4]) == 11;
-    test inner2([1,2,3],[4,5,6]) == 32;
+test inner1([], []) == 0;
+test inner1([1],[1]) == 1;
+test inner1([1,2], [3,4])  == 11;
+test inner1([1,2,3],[4,5,6])  == 32;
+   	
+test inner2([], [])  == 0;
+test inner2([1],[1]) == 1;
+test inner2([1,2], [3,4]) == 11;
+test inner2([1,2,3],[4,5,6]) == 32;

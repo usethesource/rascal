@@ -25,5 +25,5 @@ public rel[varname,expr] UNINIT =
    
 public set[varname] UNUSED = domain(DEFS) - domain(USES);
    
-   test UNINIT == {<"q", 5>, <"y", 6>, <"z", 10>};
-   test UNUSED == {"p"};
+test UNINIT == {<"q", 5>, <"y", 6>, <"z", 10>};
+test UNUSED == {"p"};

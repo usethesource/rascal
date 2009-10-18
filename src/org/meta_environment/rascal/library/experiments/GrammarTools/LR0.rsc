@@ -1,6 +1,5 @@
 module experiments::GrammarTools::LR0
 
-
 import experiments::GrammarTools::Grammar;
 import experiments::GrammarTools::ItemSet;
 import experiments::GrammarTools::Grammars; // for testing
@@ -8,7 +7,6 @@ import experiments::GrammarTools::Grammars; // for testing
 import List;
 import Set;
 import IO;
-import UnitTest;
 
 public ItemSet closure(Grammar G, ItemSet I){
 	//println("closure(<G>, <I>)");
@@ -49,9 +47,7 @@ public set[ItemSet] items(Grammar G){
 	return C;      
 }
 
-public bool test(){
-
-	assertEqual(items(G1),
+test items(G1) ==
 	{
 	//0
 	{item(nt("B"),[],[t("1")]),item(nt("E"),[],[nt("E"),t("*"),nt("B")]),item(nt("E"),[],[nt("E"),t("+"),nt("B")]), item(nt("START"),[],[nt("E")]),item(nt("E"),[],[nt("B")]),item(nt("B"),[],[t("0")])},
@@ -71,8 +67,4 @@ public bool test(){
 	{item(nt("E"),[nt("E"),t("*"),nt("B")],[])},
 	//8
 	{item(nt("E"),[nt("E"),t("+"),nt("B")],[])}
-	});
-	
-	return report("GrammarTools::LR0");
-}
-
+	};

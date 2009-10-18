@@ -4,7 +4,6 @@ import demo::AbstractPico::AbstractSyntax;
 import demo::AbstractPico::Analysis;
 import demo::AbstractPico::Programs;
 import IO;
-import UnitTest;
       
 /*
  * Extract the control flow graph from a program.

@@ -3,7 +3,6 @@ module experiments::Parsing::LRGen
 import List;
 import Set;
 import IO;
-import UnitTest;
 
 /* Very simple LR parser generator */
 
@@ -182,16 +181,16 @@ public Grammar G2 = grammar( "E",
 <"F",  [t("id")]>
 });
 
-public bool test(){
+// Tests
 
-    assertEqual(first(G2), (nt("T1"):{epsilon(),t("*")},
-                            t("*"):{t("*")},t("id"):{t("id")},t("+"):{t("+")},t("("):{t("(")},t(")"):{t(")")},
-                            nt("E1"):{epsilon(),t("+")},
-                            nt("E"):{t("id"),t("(")},
-                            nt("T"):{t("id"),t("(")},
-                            nt("F"):{t("id"),t("(")}));    
+test first(G2) == (nt("T1"):{epsilon(),t("*")},
+                   t("*"):{t("*")},t("id"):{t("id")},t("+"):{t("+")},t("("):{t("(")},t(")"):{t(")")},
+                   nt("E1"):{epsilon(),t("+")},
+                   nt("E"):{t("id"),t("(")},
+                   nt("T"):{t("id"),t("(")},
+                   nt("F"):{t("id"),t("(")});    
     
-	assertEqual(items(G1),
+test items(G1) ==
 	{
 	//0
 	{item("B",[],[t("1")]),item("E",[],[nt("E"),t("*"),nt("B")]),item("E",[],[nt("E"),t("+"),nt("B")]), item("START",[],[nt("E")]),item("E",[],[nt("B")]),item("B",[],[t("0")])},
@@ -211,8 +210,4 @@ public bool test(){
 	{item("E",[nt("E"),t("*"),nt("B")],[])},
 	//8
 	{item("E",[nt("E"),t("+"),nt("B")],[])}
-	});
-	
-	return report("Parsing::LRGen");
-}
-
+	};

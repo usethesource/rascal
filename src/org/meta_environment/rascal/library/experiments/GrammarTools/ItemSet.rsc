@@ -6,7 +6,6 @@ import experiments::GrammarTools::Grammars; // for testing
 import List;
 import Set;
 import IO;
-import UnitTest;
 
 // ------------ Items ------------------------------
 data Item = item(Symbol lhs, list[Symbol] left, list[Symbol] right);

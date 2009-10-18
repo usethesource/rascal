@@ -23,8 +23,7 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void AbstractPicoAssembly(){
-		prepare("import demo::AbstractPico::Assembly;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::AbstractPico::Assembly;"));
 	}
 
 	@Test
@@ -34,8 +33,7 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void AbstractPicoConstantPropagation() {
-		prepare("import demo::AbstractPico::ConstantPropagation;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::AbstractPico::ConstantPropagation;"));
 	}
 	
 	@Test
@@ -50,26 +48,22 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void AbstractPicoPrograms() {
-		prepare("import demo::AbstractPico::Programs;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::AbstractPico::Programs;"));
 	}
 
 	@Test
 	public void AbstractPicoTypecheck() {
-		prepare("import demo::AbstractPico::Typecheck;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::AbstractPico::Typecheck;"));
 	}
 
 	@Test
 	public void AbstractPicoUninit() {
-		prepare("import demo::AbstractPico::Uninit;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::AbstractPico::Uninit;"));
 	}
 
 	@Test
 	public void AbstractPicoUseDef() {
-		prepare("import demo::AbstractPico::UseDef;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::AbstractPico::UseDef;"));
 	}
 
 	@Test
@@ -84,8 +78,7 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void Calls() {
-		prepare("import demo::Calls;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Calls;"));
 	}
 
 	@Test
@@ -100,25 +93,22 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void ConcreteBool() {
-		prepare("import demo::Rules::ConcreteBool;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Rules::ConcreteBool;"));
 	}
 	
 	@Test
 	public void ConcreteBoolVisit() {
-		prepare("import demo::Rules::ConcreteBoolVisit;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Rules::ConcreteBoolVisit;"));
 	}
 
 	@Test
 	public void ConcretePicoEval() {
-		prepare("import demo::ConcretePico::Eval;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::ConcretePico::Eval;"));
 	}
+	
 	@Test
 	public void ConcretePicoTypecheck() {
-		prepare("import demo::ConcretePico::Typecheck;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::ConcretePico::Typecheck;"));
 	}
 
 	@Test
@@ -163,134 +153,112 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void GrammarToolsFirstFollow() {
-		prepare("import experiments::GrammarTools::FirstFollow;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import experiments::GrammarTools::FirstFollow;"));
 	}
 	
 	@Test
 	public void GraphDataType() {
-		prepare("import demo::GraphDataType;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::GraphDataType;"));
 	}
 	
 	@Test
 	public void Hello() {
-		prepare("import demo::Hello;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Hello;"));
 	}
 	
 	@Test
 	public void Innerproduct() {
-		prepare("import demo::Innerproduct;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import  demo::Innerproduct;"));
 	}
 	
 	@Test
 	public void Lift() {
-		prepare("import demo::Lift;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import  demo::Lift;"));
 	}
 	
 	@Test
 	public void LRGen() {
-		prepare("import experiments::Parsing::LRGen;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import  experiments::Parsing::LRGen;"));
 	}
 	
 	@Test
 	public void McCabe() {
-		prepare("import demo::McCabe;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import   demo::McCabe;"));
 	}
 
 	@Test
 	public void ModelTransformationsBook2Publication() {
-		prepare("import experiments::ModelTransformations::Book2Publication;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import  experiments::ModelTransformations::Book2Publication;"));
 	}
 
 	@Test
 	public void ModelTransformationsFamilies2Persons() {
-		prepare("import experiments::ModelTransformations::Families2Persons;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import experiments::ModelTransformations::Families2Persons;"));
 	}
 	
 	@Test
 	public void ModelTransformationsTree2List() {
-		prepare("import experiments::ModelTransformations::Tree2List;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import experiments::ModelTransformations::Tree2List;"));
 	}
 
 	@Test
 	public void ParsingGRD(){
-		prepare("import experiments::Parsing::GRD;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import experiments::Parsing::GRD;"));
 	}
 
 	@Test
 	public void Queens() {
-		prepare("import demo::Queens;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Queens;"));
 	}
 	
 	@Test
 	public void ReachingDefs() {
-		prepare("import demo::ReachingDefs;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::ReachingDefs;"));
 	}
 
 	@Test
 	public void Slicing() {
-		prepare("import demo::Slicing;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Slicing;"));
 	}
 	
 	@Test
 	public void StringTemplate() {
-		prepare("import demo::StringTemplate;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::StringTemplate;"));
 	}
 	
 	@Test
 	public void Squares() {
-		prepare("import demo::Squares;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Squares;"));
 	}
 
 	@Test
 	public void StateMachine(){
-		prepare("import demo::StateMachine::CanReach;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::StateMachine::CanReach;"));
 	}
 
 	@Test
 	public void Trans() {
-		prepare("import demo::Trans;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Trans;"));
 	}
 	
 	@Test
 	public void TreeTraversals() {
-		prepare("import demo::TreeTraversals;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::TreeTraversals;"));
 	}
 	
 	@Test
 	public void Uninit() {
-		prepare("import demo::Uninit;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Uninit;"));
 	}
 	
 	@Test
 	public void WordCount() {
-		prepare("import demo::WordCount;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::WordCount;"));
 	}
 	
 	@Test
 	public void WordReplacement() {
-		prepare("import demo::WordReplacement;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::WordReplacement;"));
 	}
 
 }

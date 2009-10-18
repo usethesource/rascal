@@ -41,11 +41,11 @@ IdCon S1 = (IdCon) `S1`;
 IdCon S2 = (IdCon) `S2`;
 IdCon S3 = (IdCon) `S3`;
 
-  test getTransitions(example0) == {<S1, S2>};
-  
-  test getTransitions(example) == {<S1, S2>, <S2, S1>, <S1, S3>};
-  
-  test canReach(example) == (S1 : {S1, S2, S3}, 
-                                  S2 : {S1, S2, S3},
-                                  S3 : {});
+test getTransitions(example0) == {<S1, S2>};
+
+test getTransitions(example) == {<S1, S2>, <S2, S1>, <S1, S3>};
+ 
+test canReach(example) == (S1 : {S1, S2, S3}, 
+                           S2 : {S1, S2, S3},
+                           S3 : {});
 

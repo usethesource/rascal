@@ -1,7 +1,5 @@
 module experiments::ModelTransformations::Book2Publication
 
-import UnitTest;
-
 /*
  * Example taken from "ATL Basic Examples and Patterns" at
  * http://www.eclipse.org/m2m/atl/basicExamples_Patterns/
@@ -27,8 +25,10 @@ public Publication book2publication(Book b){
   return publication(b.title, nbPages);
 }
 
-public bool test(){
-  Book input = book("The Unbearable Lightness of Being", 
+// Tests
+
+
+private Book input = book("The Unbearable Lightness of Being", 
                     [ chapter("PART ONE Lightness and Weight", 36), 
                      chapter("PART TWO Soul and Body", 42), 
                      chapter("PART THREE Words Misunderstood", 50), 
@@ -38,8 +38,6 @@ public bool test(){
                      chapter("PART SEVEN Karenin's Smile", 30)
                     ]);
                
-  Publication output = publication("The Unbearable Lightness of Being", 308);
+private Publication output = publication("The Unbearable Lightness of Being", 308);
   
-  assertEqual(book2publication(input), output);
-  return report();       
-}
+test book2publication(input) == output;
