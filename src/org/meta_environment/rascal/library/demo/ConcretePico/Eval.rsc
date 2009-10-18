@@ -6,7 +6,6 @@ import demo::ConcretePico::Programs;    // Example programs
 import String;
 import IO;
 import String;
-import UnitTest;
 import Exception;
 
 /*
@@ -121,23 +120,12 @@ PICO_VALUE evalExp(EXP exp, ValueEnv Env) {
    } 
 }
 
-public bool test(){
-   E = evalProgram(`begin declare x : natural; x := 10 end`);
-   assertEqual(E[ `x` ], intval(10));
+   test E := evalProgram(`begin declare x : natural; x := 10 end`) && E[`x`] == intVal(10);
    
-   E = evalProgram(`begin declare x : natural, y : natural; x := 10; y := x + 1 end`);
-   assertEqual(E[ `x` ], intval(10));
-   assertEqual(E[ `y` ], intval(11));
+   test E := evalProgram(`begin declare x : natural, y : natural; x := 10; y := x + 1 end`) && E[`x`] == intVal(10) && E[`y`] == intVal(11);
    
-   E = evalProgram(`begin declare x : string, y : string; x := "a"; y := x || "b" end`);
-   assertEqual(E[ `x` ], strval("a"));
-   assertEqual(E[ `y` ], strval("ab"));
+   test E := evalProgram(`begin declare x : string, y : string; x := "a"; y := x || "b" end`) && E[`x`] == strval("a") && E[`y`] == strval("ab");
    
-   E = evalProgram(small);
-   assertEqual(E[ `s` ], strval("##########"));
+   test E := evalProgram(small) && E[`s`] == strval("##########");
    
-   E = evalProgram(fac);
-   assertEqual(E[ `output` ], intval(3628800));
-   
-   return report("ConcretePicoEval");
-}
+   test E := evalProgram(fac) && E[`output`] == intval(3628800);

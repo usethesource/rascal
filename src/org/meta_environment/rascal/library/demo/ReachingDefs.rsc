@@ -3,7 +3,6 @@ module demo::ReachingDefs
 import Relation;
 import Graph;
 import IO;
-import UnitTest;
 
 /*
  * Reaching definitions and life variables, see 
@@ -142,10 +141,6 @@ public bool testLive(){
 		       <4, <7, "u3">>, <4, <6, "u2">>, <4, <5, "j">>, <4, <4, "i">>};
 }
 
-public bool test(){
-	assertTrue(testReaching1());
-	assertTrue(testReaching2());
-	assertTrue(testLive());
-	
-	return report("ReachingDefs");
-}
+	test testReaching1();
+	test testReaching2();
+	test testLive();

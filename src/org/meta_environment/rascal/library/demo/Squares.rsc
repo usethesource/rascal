@@ -12,7 +12,3 @@ public void squares(int N){
   } 
 }
 
-public bool test(){
-  squares(10);
-  return true;
-}

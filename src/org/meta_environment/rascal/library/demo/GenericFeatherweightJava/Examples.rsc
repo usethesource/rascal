@@ -71,7 +71,7 @@ public Class Example1 = class("Example1",<[],[]>, Object,
                              );
 
   
-public void init() {
+public bool init() {
   demo::GenericFeatherweightJava::Types::ClassTable += 
               ("A":A, 
                "B":B, 
@@ -84,9 +84,10 @@ public void init() {
                "Example1":Example1
                );
   registerLibraries({"Tuple", "Collection", "Map"});
+  return true;
 }
 
-public bool test() {
+public bool testAll() {
   init();
   
   assert fields(typeLit("A",[])) == <[],[]>;   
@@ -100,4 +101,6 @@ public bool test() {
          == Set({typeLit("Tuple",[typeLit("Zero",[]),typeLit("Succ",[])])});
   return true; 
 }  
+
+test testAll();
 

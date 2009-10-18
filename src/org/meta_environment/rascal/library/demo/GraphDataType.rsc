@@ -61,6 +61,3 @@ data Node = subgraph(NodeId id,
                      EdgeList edges, 
                      AttributeList attributes);      
                    
-public bool test() {
-     return true;
-}

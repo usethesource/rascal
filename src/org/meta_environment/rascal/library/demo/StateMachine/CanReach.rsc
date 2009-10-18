@@ -5,7 +5,6 @@ module demo::StateMachine::CanReach
 import demo::StateMachine::Syntax;
 import Relation;
 import Map;
-import UnitTest;
 import IO;
 
 // Extract from a give FSM all transitions as a relation
@@ -42,14 +41,11 @@ IdCon S1 = (IdCon) `S1`;
 IdCon S2 = (IdCon) `S2`;
 IdCon S3 = (IdCon) `S3`;
 
-public bool test(){
-  assertEqual(getTransitions(example0), {<S1, S2>});
+  test getTransitions(example0) == {<S1, S2>};
   
-  assertEqual(getTransitions(example), {<S1, S2>, <S2, S1>, <S1, S3>});
+  test getTransitions(example) == {<S1, S2>, <S2, S1>, <S1, S3>};
   
-  assertEqual(canReach(example), (S1 : {S1, S2, S3}, 
+  test canReach(example) == (S1 : {S1, S2, S3}, 
                                   S2 : {S1, S2, S3},
-                                  S3 : {}));
-  return report();
-}
+                                  S3 : {});
 

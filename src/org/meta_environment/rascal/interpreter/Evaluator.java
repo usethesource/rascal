@@ -690,8 +690,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitShellCommandTest(ShellCommand.Test x) {
-		runTests();
-		return ResultFactory.nothing();
+		return ResultFactory.bool(runTests(), this);
 	}
 
 	@Override

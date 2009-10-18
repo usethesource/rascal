@@ -1,7 +1,6 @@
 module demo::Rules::ConcreteBool
 
 import demo::Rules::BoolSyntax;
-import UnitTest;
 
 // An atypical Rascal example that reminds us of algebraic specifications
 // with concrete syntax in the style of ASF+SDF.
@@ -23,10 +22,7 @@ rule o2 ` btrue | bfalse `      =>` btrue`;
 rule o3 ` bfalse | btrue `      => `btrue`;
 rule o4 ` bfalse | bfalse `     => `bfalse`;
 
-public bool test(){
-  assertEqual(`btrue`, `btrue`);
-  assertEqual(`btrue | btrue`, `btrue`);
-  assertEqual(`bfalse | btrue`, `btrue`);
-  assertEqual(`bfalse & bfalse`, `bfalse`);
-  return report("ConcreteBool");
-}
+  test  `btrue` == `btrue`;
+  test `btrue | btrue` == `btrue`;
+  test `bfalse | btrue` == `btrue`;
+  test `bfalse & bfalse` == `bfalse`;
