@@ -32,6 +32,8 @@ public class DefaultTestResultListener implements ITestResultListener{
 				err.print(test.substring(0, 47));
 				err.println("...");
 			}
+			
+			err.flush();
 		}
 	}
 	
@@ -49,6 +51,7 @@ public class DefaultTestResultListener implements ITestResultListener{
 				err.println("...");
 			}
 			t.printStackTrace(err);
+			err.flush();
 		}
 	}
 	
