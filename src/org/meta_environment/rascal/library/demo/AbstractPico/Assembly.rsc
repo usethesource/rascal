@@ -2,7 +2,6 @@ module demo::AbstractPico::Assembly
 
 import demo::AbstractPico::AbstractSyntax;
 import Integer;
-import UnitTest;
 
 // Compile Pico to Assembly
 
@@ -108,14 +107,11 @@ private list[Instr] compileExp(EXP exp) {
    } 
 }
 
-public bool test(){
-  P = program([],[]);
-  R = [];
-  assertEqual(compileProgram(P), R);
-  
-  P = program([decl("x", natural())], [ifStat(natCon(5), [asgStat("x", natCon(3))], [asgStat("x", natCon(4))])]);
-       
-   R = [dclNat("x"),
+test compileProgram(program([])) == [];
+
+test compileProgram([decl("x", natural())], [ifStat(natCon(5), [asgStat("x", natCon(3))], [asgStat("x", natCon(4))])]) 
+     ==
+     [dclNat("x"),
         pushNat(5),
         gofalse("L4"),
         lvalue("x"),
@@ -127,11 +123,10 @@ public bool test(){
         pushNat(4),
         assign(),
         label("L3")];
-  assertEqual(compileProgram(P), R);
-  
-  P = program([decl("x", natural())], [whileStat(natCon(5), [asgStat("x", natCon(3))])]);
-       
-  R = [dclNat("x"),
+        
+test  compileProgram(program([decl("x", natural())], [whileStat(natCon(5), [asgStat("x", natCon(3))])]))
+      ==
+      [dclNat("x"),
        label("L3"),
        pushNat(5),
        gofalse("L4"),
@@ -140,13 +135,10 @@ public bool test(){
        assign(),
        go("L3"),
        label("L4")];
-       
-   assertEqual(compileProgram(P), R);
-   
-   
-   P = program([decl("x", string())], [whileStat(natCon(5), [asgStat("x", strCon("abc"))])]);
-       
-  R = [dclStr("x"),
+      
+test compileProgram(program([decl("x", string())], [whileStat(natCon(5), [asgStat("x", strCon("abc"))])])) 
+     ==
+     [dclStr("x"),
        label("L3"),
        pushNat(5),
        gofalse("L4"),
@@ -155,7 +147,3 @@ public bool test(){
        assign(),
        go("L3"),
        label("L4")];
-       
-   assertEqual(compileProgram(P), R);
-  return report("AbstractPico::Assembly");
-}
