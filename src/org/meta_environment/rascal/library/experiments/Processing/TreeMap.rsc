@@ -1,20 +1,16 @@
 module experiments::Processing::TreeMap
 
-alias TreeMap = node;
+import experiments::Processing::Core;
+
+data Treemap = treemap(int id);
 
 @doc{create a treemap}
 @reflect{Needs calling context when calling argument function}
-@javaClass{org.meta_environment.rascal.std.Processing.TreeMap}
-public TreeMap java treemap(map[str,int] m, int x, int y, int width, int height, 
-			                     void (int x, int y, int w, int h, str word) drawItem);
-			                     
-@doc{create a treemap}
-@reflect{Needs calling context when calling argument function}
-@javaClass{org.meta_environment.rascal.std.Processing.TreeMap}
-public TreeMap java treemap(map[str,int] m, real x, real y, real width, real height, 
-			                     void (real x, real y, real w, real h, str word) drawItem);
+@javaClass{org.meta_environment.rascal.library.experiments.Processing.TreeMap}
+public Treemap java treemap(str title, map[str,int] m,  list[CallBack] items, list[CallBack] treemap);
+			                    
 			                     
 @doc{draw a treemap}
 @reflect{Needs calling context for error exceptions}
-@javaClass{org.meta_environment.rascal.std.Processing.TreeMap}	                     
-public void java draw(TreeMap tm);
+@javaClass{org.meta_environment.rascal.library.experiments.Processing.TreeMap}	                     
+public void java draw(Treemap tm);

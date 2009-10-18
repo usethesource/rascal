@@ -1,5 +1,5 @@
 module experiments::Processing::mouse1
-import Processing::Core;
+import experiments::Processing::Core;
 import IO;
 
 public void mySetup() {
@@ -13,5 +13,6 @@ public void myDraw() {
 }
 
 public void main(){
-	P = processing(setup(mySetup), draw(myDraw));
+	s = sketch("mouse1", setup(mySetup), draw(myDraw));
+	draw(s);
 }

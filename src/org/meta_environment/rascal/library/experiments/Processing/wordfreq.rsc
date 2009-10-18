@@ -1,7 +1,7 @@
 module experiments::Processing::wordfreq
 
-import Processing::Core;
-import Processing::TreeMap;
+import experiments::Processing::Core;
+import experiments::Processing::TreeMap;
 import IO;
 import Map;
 
@@ -92,16 +92,22 @@ private map[str,int] collectData(list[str] lines){
  * Draw an item in a treemap.
  */
 
-public void drawItem(int x, int y, int w, int h, str word){
+public void drawItem(){
+println("drawItem called");
+	//int x = getX();
+	//int y = getY();
+	//int w = width();
+	//int h = height();
+//	str key = "xxx";
 	fill(100);
 	rect(x, y, w, h);
 	fill(0);  // black
 	
 	// Draw the word if space permits this
-	if(w > textWidth(word) + 6){
+	if(w > textWidth(key) + 6){
 	    if(h > textAscent() + 6){
 			textAlign(CENTER, CENTER);
-			text(word, x + w/2, y + h/2);
+			text(key, x + w/2, y + h/2);
 		}
 	}
 }
@@ -114,28 +120,24 @@ private map[str,int] facts = ();
 
 /*
  * Standard setup function for this visualization
- * (Implicitly called by processing in main)
+ * (Explicitly passed as argument to Processing in main)
  */
-
-TreeMap TM = "xxx"();
 
 public void treeMapSetup() {
 	size(1024, 768);                 // size of the screen
+	println("treeMapSetup called");
 	font = createFont("Serif", 13);  // create and set font
 	textFont(font);
 	stroke(255);                     // all strokes will be white
-	                                 // create the treemap
-	                                 // Discussion should this also be an implict function?
-	TM = treemap(facts, 0, 0, width(), height(), drawItem);
+
 	noLoop();                        // only draw once
 }
 
 /* 
  * Standard draw function for this visualization
- * (Implicitly called by processing in main)
+ * (Explicitly passed as argument to Processing in main)
  */
 
-@draw{}
 public void treeMapDraw() { 
     draw(TM);                      // draw the treemap
 }
@@ -150,17 +152,26 @@ public void main(){
     facts = collectData(Jabberwocky);
     
     /*
-     * Start the visualization using processing
-     * Uses the locally defined functions like setup and draw
-     * (and others for mouse handling).
-     * This is how Processing does things, but is very implicit.
-     
-     * Discussion: possible alternatives are:
-     * - separate register functions, e.g. registerSetup(setup)
-     * - processing has a list of (upto 8!) function parameters
-     * - processing has a map argument: start(("setup" : setup))
-     * - introduce @setup etc. tags.
-     * - other
+     * Start the visualization using Processing
+     * Uses the locally defined functions treeMapSetUp and treeMapDraw
      */
-	processing(setup(treeMapSetup), draw(treeMapDraw));
+	TM = treemap("Word Frequencies", facts, drawItem);
+	
+	S = sketch("Word Frequencies", 
+			void setup() {
+				size(1024, 768);                 // size of the screen
+				println("treeMapSetup called");
+				font = createFont("Serif", 13);  // create and set font
+				textFont(font);
+				stroke(255);                     // all strokes will be white
+
+				noLoop();                        // only draw once
+			},
+			void draw(){
+		    	TM.draw();
+			}
+		)
+}
+
+	draw(TM);
 }
