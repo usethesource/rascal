@@ -48,9 +48,11 @@ public Program parseProgram(str filename) {
   return parse(#Program, |cwd:///<filename>|);
 }
 
-public bool test(){
+public bool testExample(){
    P = parseProgram("src/experiments/DDA/example.dda");
    println(P);
    typeCheck(P);
    return true;
 }
+
+test testExample();

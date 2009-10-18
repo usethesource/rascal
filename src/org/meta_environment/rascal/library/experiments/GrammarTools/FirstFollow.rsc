@@ -5,7 +5,6 @@ import experiments::GrammarTools::Grammars; // for testing
 import List;
 import Set;
 import IO;
-import UnitTest;
 
 // First and follow
 
@@ -95,31 +94,24 @@ public map[Symbol, set[Symbol]] follow(Grammar G, map[Symbol, set[Symbol]] FIRST
 	return FOLLOW;
 }
 
-public bool test(){
-
-    firstG2 = first(G2);
-    
-    assertEqual(firstG2,
+    test first(G2) == 
                 (nt("T1"):{epsilon(),t("*")},
                  t("*"):{t("*")},t("id"):{t("id")},t("+"):{t("+")},t("("):{t("(")},t(")"):{t(")")},
                  nt("E1"):{epsilon(),t("+")},
                  nt("E"):{t("id"),t("(")},
                  nt("T"):{t("id"),t("(")},
                  nt("F"):{t("id"),t("(")})
-                );    
+                ;    
      
-     assertEqual(first([nt("T1")], firstG2), {epsilon(),t("*")});
+     test first([nt("T1")], first(G2)) == {epsilon(),t("*")};
      
-     assertEqual(first([nt("F"), nt("T1")], firstG2), {t("id"),t("(")});
+     test first([nt("F"), nt("T1")], first(G2)) == {t("id"),t("(")};
  
-     assertEqual(follow(G2, firstG2),
+     test follow(G2, first(G2)) == 
                  (nt("E"):  {t(")"), t("$")},
                   nt("E1"): {t(")"), t("$")},
                   nt("T"):  {t("+"), t(")"), t("$")},
                   nt("T1"): {t("+"), t(")"), t("$")},
                   nt("F"):  {t("+"), t("*"), t(")"), t("$")})
-                );  
-   
-	return report("GrammarTools::FirstFollow");
-}
+                ;  
 

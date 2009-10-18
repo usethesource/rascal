@@ -8,7 +8,6 @@ import experiments::GrammarTools::BNFGrammars;  // for testing
 
 import Set;
 import IO;
-import UnitTest;
 import String;
 
 // Export a grammar to BNF
@@ -51,9 +50,7 @@ BNFElement* toElements(list[Symbol] symbols){
    return result;
 }
 
-public bool test(){
-    println(exportBNF(G1));
-    
-	return report("GrammarTools::ExportBNF");
-}
+
+// TODO: this test always succeeds
+test BNF b := exportBNF(G1);
 
