@@ -1,7 +1,6 @@
 module demo::Innerproduct
 
 import List;
-import UnitTest;
 
 // Compute innerproduct of two vectors that are represented as a list of integers
 
@@ -26,16 +25,12 @@ public int inner2(list[int] V1, list[int] V2){
     }
 }
  
-public bool test(){
-    assertEqual(inner1([], []), 0);
-   	assertEqual(inner1([1],[1]), 1);
-   	assertEqual(inner1([1,2], [3,4]), 11);
-   	assertEqual(inner1([1,2,3],[4,5,6]), 32);
+    test inner1([], []) == 0;
+   	test inner1([1],[1]) == 1;
+   	test inner1([1,2] == [3,4])  == 11;
+   	test inner1([1,2,3],[4,5,6])  == 32;
     	
-   	assertEqual(inner2([], []), 0);
-    assertEqual(inner2([1],[1]), 1);
-    assertEqual(inner2([1,2], [3,4]), 11);
-    assertEqual(inner2([1,2,3],[4,5,6]), 32);
-    
-    return report("Innerproduct");
- }
+   	test inner2([], [])  == 0;
+    test inner2([1],[1]) == 1;
+    test inner2([1,2], [3,4]) == 11;
+    test inner2([1,2,3],[4,5,6]) == 32;

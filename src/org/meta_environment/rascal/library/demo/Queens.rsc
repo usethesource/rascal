@@ -97,9 +97,10 @@ public int queens3(int B ...)
   return nsolutions;
 }
 
-public bool test()
+public bool testQueens()
 {
    N = 5;
-   assertEqual(queens3(), 10);
-   return report("Queens");
+   return queens3() == 10;
 }
+
+test testQueens();

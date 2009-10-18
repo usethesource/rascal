@@ -4,7 +4,6 @@ import Set;
 import Relation;
 import demo::ReachingDefs;
 import demo::Dominators;
-import UnitTest;
 
 // A relational definition of program slicing
 //
@@ -57,8 +56,6 @@ set[use] BackwardSlice(
 	return USE_USE[Criterion];
 }
 
-public bool test(){
-
 	// Example from Frank Tip's slicing survey
 
 	//       1: read(n)
@@ -74,36 +71,33 @@ public bool test(){
 	//       9: write(sum)
 	//	 10: write(product)
 
-	rel[stat,stat] PRED	= {<1,2>, <2,3>, <3,4>, <4,5>, <5,6>, <5,9>, <6,7>,
+private	rel[stat,stat] PRED	= {<1,2>, <2,3>, <3,4>, <4,5>, <5,6>, <5,9>, <6,7>,
 			    <7,8>,<8,5>, <8,9>, <9,10>};
 
-	rel[stat,var] DEFS	= {<1, "n">, <2, "i">, <3, "sum">, <4,"product">,
+private	rel[stat,var] DEFS	= {<1, "n">, <2, "i">, <3, "sum">, <4,"product">,
 			  <6, "sum">, <7, "product">, <8, "i">};
 
-	rel[stat,var] USES	= {<5, "i">, <5, "n">, <6, "sum">, <6,"i">,
+private	rel[stat,var] USES	= {<5, "i">, <5, "n">, <6, "sum">, <6,"i">,
 			   <7, "product">, <7, "i">, <8, "i">, <9, "sum">, 
 			   <10, "product">};
 
-	set[int] CONTROLSTATEMENT = { 5 };
+private	set[int] CONTROLSTATEMENT = { 5 };
 
-	set[use] Example1 = 
+private	set[use] Example1 = 
 		BackwardSlice(CONTROLSTATEMENT, PRED, USES, DEFS, <9, "sum">);
 
-	set[use] Example2 =
+private	set[use] Example2 =
 		BackwardSlice(CONTROLSTATEMENT, PRED, USES, DEFS,<10, "product">);
 
-
-	assertEqual(Example1, 
+test Example1 ==  
 	     { <1, "EXEC">, <2, "EXEC">,  <3, "EXEC">, <5, "i">, <5, "n">,  
 	        <6, "sum">, <6, "i">, <6, "EXEC">, <8, "i">, <8, "EXEC">, 
-	       <9, "sum"> });
+	       <9, "sum"> };
 
-	assertEqual(Example2,
+	test Example2 ==
             { <1, "EXEC">,  <2, "EXEC">, <4, "EXEC">, <5, "i">, <5, "n">, 
 	      <7, "i">, <7, "product">, <7, "EXEC">, 
-	       <8, "i">, <8, "EXEC">, <10,  "product">  });
-	 return report("Slicing");
-}
+	       <8, "i">, <8, "EXEC">, <10,  "product">  };
 
 /*
 

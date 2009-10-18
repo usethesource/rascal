@@ -1,7 +1,6 @@
 module demo::StringTemplate
 
 import String;
-import UnitTest;
 
 // Illustrating of template-based code generation
 
@@ -29,15 +28,15 @@ public str genClass(str name, map[str,str] fields) {
 ";
 }
 
-public bool test(){
 
-  map[str, str] fields = (
+private  map[str, str] fields = (
      "name" : "String",
      "age" : "Integer",
      "address" : "String"
   );
+  
   // Beware, in the generated code each empty line contains 6 spaces!
-  assertEqual(genClass("Person", fields),
+  test genClass("Person", fields) ==
               "
     public class Person {
       
@@ -66,6 +65,4 @@ public bool test(){
         }
       
     }
-");
-    return report("StringTemplate");
-}
+";

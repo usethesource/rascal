@@ -131,10 +131,7 @@ public bool test2(){
 	return example2() == RESULT;
 }
 
-public bool test(){
-	assertTrue(test1());
-	assertTrue(test2());
-	return report("Dominators");
-}
+test test1();
+test test2();
 
 

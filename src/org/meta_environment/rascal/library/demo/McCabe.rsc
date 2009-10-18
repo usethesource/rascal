@@ -2,7 +2,6 @@ module demo::McCabe
 import Graph;
 import Set;
 import Relation;
-import UnitTest;
 
 // McCabe Complexity (also Cyclomatic Complexity) is a measure for source code
 // complexity, see http://en.wikipedia.org/wiki/Cyclomatic_complexity
@@ -21,9 +20,6 @@ graph[int] G3 = {<1,2>, <1,3>, <2,6>, <3,4>, <3,5>, <4,7>, <5,8>, <6,7>, <7,8>};
 graph[int] G5 = {<1,2>, <2,3>, <2,4>, <3,6>, <4,2>, <4,5>, <5, 10>, <6, 7>, 
                  <7, 8>, <7,9>, <8,9>, <9, 7>, <9,10>};
 
-public bool test(){
-  assertEqual(cyclomaticComplexity(G1), 1);
-  assertEqual(cyclomaticComplexity(G3), 3);
-  assertEqual(cyclomaticComplexity(G5), 5);
-  return report("McCabe");
-}
+  test cyclomaticComplexity(G1) == 1;
+  test cyclomaticComplexity(G3) == 3;
+  test cyclomaticComplexity(G5) == 5;

@@ -1,7 +1,6 @@
 module demo::Rules::ConcreteBoolVisit
 
 import demo::Rules::BoolSyntax;
-import UnitTest;
 
 Bool reduce(Bool B) {
     Bool B2;
@@ -16,10 +15,7 @@ Bool reduce(Bool B) {
     };
 }
 
-public bool test(){
-  assertEqual(reduce(`btrue`), `btrue`);
-  assertEqual(reduce(`btrue | btrue`), `btrue`);
-  assertEqual(reduce(`bfalse | btrue`), `btrue`);
-  assertEqual(reduce(`bfalse & bfalse`), `bfalse`);
-  return report("ConcreteBoolVisit");
-}
+  test reduce(`btrue`) == `btrue`;
+  test reduce(`btrue | btrue`) == `btrue`;
+  test reduce(`bfalse | btrue`) ==  `btrue`;
+  test reduce(`bfalse & bfalse`) == `bfalse`;
