@@ -26,9 +26,9 @@ public set[feature] Transmission    = { "automatic", "manual" };
 
 public set[set[feature]] Engine     = power({"electric", "gasoline"}) - {{}};
 
-set[feature] HorsePower      = {"lowPower", "mediumPower", "highPower"};
+public set[feature] HorsePower      = {"lowPower", "mediumPower", "highPower"};
 
-set[feature] PullsTrailerOpt = {"pullsTrailer", "pullsNoTrailer"};
+public set[feature] PullsTrailerOpt = {"pullsTrailer", "pullsNoTrailer"};
 
 // Calculate all possible feature sets
 

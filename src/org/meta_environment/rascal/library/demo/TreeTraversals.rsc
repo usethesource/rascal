@@ -134,7 +134,7 @@ public tuple[int, NODE] count_and_inc(NODE T, int D) {
 
 // Tests
 
-private   NODE N = f(g(i(1),g(i(2),i(3))),i(4));
+private NODE N = f(g(i(1),g(i(2),i(3))),i(4));
    
 test cnta(N) == 4;
 test cntb(N) == 4;
@@ -152,4 +152,4 @@ test freplG2H3b(N) == f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4));
 test drepl(N) == f(g(i(1),h(i(2),i(3))),i(4));
 test srepl(N) == f(h(i(1),g(i(2),i(3))),i(4));
    
-   test count_and_inc(N,3) == <4, f(g(i(4),g(i(5),i(6))),i(7))>;
+test count_and_inc(N,3) == <4, f(g(i(4),g(i(5),i(6))),i(7))>;
