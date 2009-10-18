@@ -148,20 +148,17 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void GrammarToolsGrammar() {
-		prepare("import experiments::GrammarTools::Grammar;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import experiments::GrammarTools::Grammar;"));
 	}
 	
 	@Test
 	public void GrammarToolsImportBNF() {
-		prepare("import experiments::GrammarTools::ImportBNF;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import experiments::GrammarTools::ImportBNF;"));
 	}
 	
 	@Test
 	public void GrammarToolsItemSet() {
-		prepare("import experiments::GrammarTools::ItemSet;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import experiments::GrammarTools::ItemSet;"));
 	}
 	
 	@Test

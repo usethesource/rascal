@@ -54,34 +54,31 @@ private bool isEmpty(Item it){
 
 alias ItemSet = set[Item];
 
+// Tests
 
-public bool test(){
+private Item IT = item(nt("E"),[],[nt("E"),t("*"),nt("B")]);
+    
+test getSymbol(IT) == nt("E");
+test atNonTerminal(IT);
+test !atTerminal(IT);
+test canMove(IT, nt("E"));
+test !atEnd(IT);
+    
+private Item IT1 = item(nt("E"),[nt("E")], [t("*"),nt("B")]);
 
-    IT = item(nt("E"),[],[nt("E"),t("*"),nt("B")]);
+test moveRight(IT) == IT1;
     
-    assertEqual(getSymbol(IT), nt("E"));
-    assertTrue(atNonTerminal(IT));
-    assertTrue(!atTerminal(IT));
-    assertTrue(canMove(IT, nt("E")));
-    assertTrue(!atEnd(IT));
+test getSymbol(IT1) == t("*");
+test !atNonTerminal(IT1);
+test atTerminal(IT1);
+test canMove(IT1, t("*"));
+test !atEnd(IT1);
     
-    IT1 = item(nt("E"),[nt("E")], [t("*"),nt("B")]);
-    assertEqual(moveRight(IT), IT1);
+private Item IT2 = moveRight(IT1);
+private Item IT3 = moveRight(IT2);
     
-    assertEqual(getSymbol(IT1), t("*"));
-    assertTrue(!atNonTerminal(IT1));
-    assertTrue(atTerminal(IT1));
-    assertTrue(canMove(IT1, t("*")));
-    assertTrue(!atEnd(IT1));
-    
-    IT2 = moveRight(IT1);
-    IT3 = moveRight(IT2);
-    
-    assertTrue(!atNonTerminal(IT3));
-    assertTrue(!atTerminal(IT3));
-    assertTrue(!canMove(IT3, nt("B")));
-    assertTrue(atEnd(IT3));
-	
-	return report("GrammarTools::ItemSet");
-}
+test !atNonTerminal(IT3);
+test !atTerminal(IT3);
+test !canMove(IT3, nt("B"));
+test atEnd(IT3);
 
