@@ -45,9 +45,7 @@ Symbol toSymbol(BNFElement E){
    throw IllegalArgument(E);
 }
 
-public bool test(){
+// Tests
     
-    assertEqual(importBNF(G1BNF), G1);
-    assertEqual(importBNF(G2BNF), G2);
-	return report("GrammarTools::ImportBNF");
-}
+test importBNF(G1BNF) == G1;
+test importBNF(G2BNF) == G2;
