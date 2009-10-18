@@ -171,43 +171,26 @@ public bool typecheck(Exp E)
    return solveConstraints(collect(E));
 }
 
-public bool test1(){
-   return typecheck(
-          op("seq", op("add", var("a"), var("b")),
-                    op("conc", var("a"), op("conc", var("b"), strcon("abc")))));
-}
+// Tests
+
+test typecheck(op("seq", op("add", var("a"), var("b")),
+                         op("conc", var("a"), op("conc", var("b"), strcon("abc")))));
 
 
-/*
- * Test
- */
- 
-int nError = 0;
-public bool assertEqual(value E1, value E2)
-{
-  Cnt = 0;
-  if(E1 != E2){
-  	println("test fails: <E1> != <E2>");
-  	nError = nError + 1;
-  	return false;
-  }
-  return true;
-}
-
-   test rename(apply(fnc("a", var("a")),  intcon(3))) == 
-                      apply(fnc("_x1",var("_x1")),intcon(3));
+test rename(apply(fnc("a", var("a")),  intcon(3))) == 
+            apply(fnc("_x1",var("_x1")),intcon(3));
          
-   test rename(apply(fnc("a", var("b")),  intcon(3))) ==
-                      apply(fnc("_x1",var("b")),intcon(3));
+test rename(apply(fnc("a", var("b")),  intcon(3))) ==
+            apply(fnc("_x1",var("b")),intcon(3));
          
-   test rename(apply(fnc("a", apply(fnc("b", var("b")), intcon(2))), intcon(1))) ==
-                      apply(fnc("_x1",apply(fnc("_x2",var("_x2")),intcon(2))),intcon(1));
+test rename(apply(fnc("a", apply(fnc("b", var("b")), intcon(2))), intcon(1))) ==
+            apply(fnc("_x1",apply(fnc("_x2",var("_x2")),intcon(2))),intcon(1));
           
-   test rename(apply(fnc("a", apply(fnc("b", var("a")), intcon(2))), intcon(1))) ==
-                      apply(fnc("_x1",apply(fnc("_x2",var("_x1")),intcon(2))),intcon(1));
+test rename(apply(fnc("a", apply(fnc("b", var("a")), intcon(2))), intcon(1))) ==
+            apply(fnc("_x1",apply(fnc("_x2",var("_x1")),intcon(2))),intcon(1));
          
-   test rename(apply(fnc("a", apply(fnc("b", var("a")), intcon(2))), var("c"))) ==
-                      apply(fnc("_x1",apply(fnc("_x2",var("_x1")),intcon(2))),var("c"));
+test rename(apply(fnc("a", apply(fnc("b", var("a")), intcon(2))), var("c"))) ==
+            apply(fnc("_x1",apply(fnc("_x2",var("_x1")),intcon(2))),var("c"));
  /*                     
    test subst("a", intcon(1), apply(fnc("a", var("a")),  intcon(3))) ==
                                      apply(fnc("a", intcon(1)),intcon(3));
@@ -218,5 +201,3 @@ public bool assertEqual(value E1, value E2)
    test subst("a", op("add", intcon(3),var("b")), apply(fnc("b", var("b")),  var("a"))) ==
                                                   apply(fnc("_x1",var("_x1")),op("add", intcon(3),var("b")));
   */
-
-

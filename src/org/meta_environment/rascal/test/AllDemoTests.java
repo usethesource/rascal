@@ -123,32 +123,27 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void Cycles() {
-		prepare("import demo::Cycles;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Cycles;"));
 	}
 	
 	@Test
 	public void Dominators() {
-		prepare("import demo::Dominators;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Dominators;"));
 	}
 	
 	@Test
 	public void Factorial() {
-		prepare("import demo::Factorial;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Factorial;"));
 	}
 
 	@Test
 	public void FunAbstract() {
-		prepare("import demo::Fun::FunAbstract;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::Fun::FunAbstract;"));
 	}
 	
 	@Test
 	public void GenericFeatherweightJava() {
-		prepare("import demo::GenericFeatherweightJava::Examples;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::GenericFeatherweightJava::Examples;"));
 	}
 	
 	@Test
