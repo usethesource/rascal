@@ -3284,8 +3284,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public boolean runTests(){
 		DefaultTestResultListener listener = new DefaultTestResultListener(stderr);
 		new TestEvaluator(this, listener).test();
-		stderr.println(listener.getNumberOfTests() + " tests, " + listener.getFailures() + " failures, " +
-				listener.getErrors() + " errors");
+// TODO: this debug output should be done by the DefaultTestResultListener
+//		stderr.println(listener.getNumberOfTests() + " tests, " + listener.getFailures() + " failures, " +
+//				listener.getErrors() + " errors");
 		return listener.allOk();
 	}
 

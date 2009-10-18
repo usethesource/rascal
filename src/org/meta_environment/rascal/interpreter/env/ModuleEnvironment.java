@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.env;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -72,15 +73,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public List<Test> getTests() {
-		ArrayList<Test> all = new ArrayList<Test>();
-		
-		all.addAll(tests);
-		
-		for (String i : getImports()) {
-			all.addAll(getImport(i).getTests());
-		}
-		
-		return all;
+		return Collections.unmodifiableList(tests);
 	}
 	
 	public void addSDFImport(String name) {
