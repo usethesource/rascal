@@ -73,8 +73,5 @@ program([decl("x", natural()), decl("s", string()), decl("d", natural()), decl("
         ]
        );
        
-public bool test(){
-  P = constantPropagation(annotate(smallCP));
-  println("P=<P>");
-  return true;
-}
+// TODO: this test always succeeds
+test PROGRAM P := constantPropagation(annotate(smallCP));

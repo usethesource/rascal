@@ -2,7 +2,6 @@ module demo::AbstractPico::Programs
 
 import demo::AbstractPico::AbstractSyntax;
 import IO;
-import UnitTest;
 
 /*
  * A bunch of sample Pico programs.
@@ -215,8 +214,4 @@ program([ decl("input", natural()),
         ]
        );
        
-public bool test(){
-   assertEqual( annotate(small), small);
-   
-   return report("AbstractPico::Programs");
-}
+test small == annotate(small);
