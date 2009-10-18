@@ -50,8 +50,8 @@ public class RuntimeExceptionFactory {
 	private static Type SchemeNotSupported = TF.constructor(TS, E, "SchemeNotSupported", TF.sourceLocationType(), "location");
 	private static Type MalFormedURI = TF.constructor(TS, E, "MalFormedURI", TF.stringType(), "uri");
 
-	
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
+	private static Type Subversion = TF.constructor(TS, E, "Subversion", TF.stringType(), "message");
 
     public static Throw indexOutOfBounds(IInteger i, AbstractAST ast, String trace) {
     	return new Throw(IndexOutOfBounds.make(VF, i), ast, trace);
@@ -149,5 +149,9 @@ public class RuntimeExceptionFactory {
 
 	public static Throw malformedURI(String uri, Default x, String trace) {
 		return new Throw(MalFormedURI.make(VF, VF.string(uri)), x, trace);
+	}
+	
+	public static Throw subversionException(String message, AbstractAST ast, String trace) {
+		return new Throw(Subversion.make(VF, VF.string(message)), ast, trace);
 	}
 }
