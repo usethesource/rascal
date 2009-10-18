@@ -1,7 +1,6 @@
 module demo::CarFDL
 
 import Set;
-import UnitTest;
 
 // Feature Description Language (FDL) is a formalism to describe the features
 // of a system, see
@@ -41,8 +40,7 @@ set[set[feature]] CarFeatures = { {{T} + E + {H} + {PT}} |
 			(PT == "pullsTrailer") ==> (H == "highPower")
 };
 
-public bool test(){
-   assertEqual(size(CarFeatures), 24);
-   return report("CarFDL");
-}
+// Tests
+
+test size(CarFeatures) == 24;
 

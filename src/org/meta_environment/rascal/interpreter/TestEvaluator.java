@@ -49,13 +49,14 @@ public class TestEvaluator{
 		
 		public Result<IBool> visitTestLabeled(Labeled x){
 			Result<IValue> result = ResultFactory.bool(true, eval);
+			System.err.println("visitTestLabeled: " + x);
 			
 			try{
 				result = x.getExpression().accept(eval);
 			}catch(Throw e){
-				testResultListener.report(result.isTrue(), x.toString(), e);
+				testResultListener.report(false, x.toString(), e);
 			}catch(Throwable e){
-				testResultListener.report(result.isTrue(), x.toString(), e);
+				testResultListener.report(false, x.toString(), e);
 			}
 			
 			testResultListener.report(result.isTrue(), x.toString());
@@ -70,9 +71,9 @@ public class TestEvaluator{
 			try{
 				result = x.getExpression().accept(eval);
 			}catch(Throw e){
-				testResultListener.report(result.isTrue(), x.toString(), e);
+				testResultListener.report(false, x.toString(), e);
 			}catch(Throwable e){
-				testResultListener.report(result.isTrue(), x.toString(), e);
+				testResultListener.report(false, x.toString(), e);
 			}
 			
 			testResultListener.report(result.isTrue(), x.toString());

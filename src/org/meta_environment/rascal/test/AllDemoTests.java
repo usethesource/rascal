@@ -90,8 +90,7 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void CarFDL() {
-		prepare("import demo::CarFDL;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::CarFDL;"));
 	}
 	
 	@Test
