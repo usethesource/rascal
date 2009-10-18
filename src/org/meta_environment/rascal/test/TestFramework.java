@@ -25,6 +25,8 @@ import org.meta_environment.values.ValueFactoryFactory;
 
 public class TestFramework {
 	private CommandEvaluator evaluator;
+	private PrintWriter stderr;
+	private PrintWriter stdout;
 
 	public TestFramework() {
 		reset();
@@ -33,8 +35,8 @@ public class TestFramework {
 	protected CommandEvaluator getTestEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***test***"));
-		PrintWriter stderr = new PrintWriter(System.err);
-		PrintWriter stdout = new PrintWriter(System.out);
+		stderr = new PrintWriter(System.err);
+		stdout = new PrintWriter(System.out);
 		CommandEvaluator eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 
 		// to load modules from benchmarks
@@ -86,9 +88,14 @@ public class TestFramework {
 			reset();
 			execute(command);
 			return evaluator.runTests();
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			e.printStackTrace();
 			throw new ImplementationError("Exception while running test", e);
+		}
+		finally {
+			stderr.flush();
+			stdout.flush();
 		}
 	}
 
