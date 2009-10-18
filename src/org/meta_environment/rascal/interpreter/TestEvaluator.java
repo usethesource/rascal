@@ -79,7 +79,7 @@ public class TestEvaluator {
 		
 		public Result<IBool> visitTestLabeled(Labeled x){
 			Result<IValue> result = ResultFactory.bool(true, eval);
-			System.err.println("visitTestLabeled: " + x);
+//			System.err.println("visitTestLabeled: " + x);
 			
 			try{
 				result = x.getExpression().accept(eval);
@@ -96,7 +96,7 @@ public class TestEvaluator {
 		
 		public Result<IBool> visitTestUnlabeled(Unlabeled x){
 			Result<IValue> result = ResultFactory.bool(true, eval);
-			System.err.println("visitTestUnlabeled: " + x);
+//			System.err.println("visitTestUnlabeled: " + x);
 			
 			try{
 				result = x.getExpression().accept(eval);

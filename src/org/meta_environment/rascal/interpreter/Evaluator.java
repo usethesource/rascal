@@ -1895,11 +1895,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> variable = getCurrentEnvt().getVariable(name);
 
 		if (variable == null) {
-			throw new UndeclaredVariableError(name.toString(), x);
+			throw new UndeclaredVariableError(name.toString(), name);
 		}
 
 		if (variable.getValue() == null) {
-			throw new UninitializedVariableError(name.toString(), x);
+			throw new UninitializedVariableError(name.toString(), name);
 		}
 
 		return variable;
