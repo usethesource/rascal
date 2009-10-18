@@ -1357,7 +1357,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitStatementReturn(
 			org.meta_environment.rascal.ast.Statement.Return x) {
-		throw new Return(x.getStatement().accept(this));
+		throw new Return(x.getStatement().accept(this), x.getStatement().getLocation());
 	}
 
 	@Override
