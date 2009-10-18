@@ -5,7 +5,7 @@ Description:
 Version: 0.1
 Requires: sglr-invoker,rascal-grammar,sdf-library
 JarFile=rascal.jar
-LocalJars=lib/hickory_check.jar:lib/jline-0.9.94.jar:lib/junit-4.5.jar:lib/pdb_values.jar:lib/jcommon-1.0.16.jar:lib/jfreechart-1.0.13-swt.jar:lib/jfreechart-1.0.13.jar:lib/core.jar:lib/treemap.jar:.
+LocalJars=lib/hickory_check.jar:lib/jline-0.9.94.jar:lib/junit-4.5.jar:lib/pdb_values.jar:lib/jcommon-1.0.16.jar:lib/jfreechart-1.0.13-swt.jar:lib/jfreechart-1.0.13.jar:lib/core.jar:lib/treemap.jar:lib/svnkit.jar:.
 Jars=${prefix}/share/${JarFile}
 Packages=org.meta_environment.rascal.ast,org.meta_environment.errors,org.meta_environment.locations,org.meta_environment.rascal.interpreter,org.meta_environment.rascal.parser,org.meta_environment.uptr,org.meta_environment.rascal.interpreter.env,org.meta_environment.uptr.visitors,org.meta_environment.rascal.interpreter.staticErrors,org.meta_environment.rascal.interpreter.control_exceptions,org.meta_environment.rascal.interpreter.load,org.meta_environment.rascal.interpreter.result,org.meta_environment.rascal.std,org.meta_environment
 TestClass=test/All
