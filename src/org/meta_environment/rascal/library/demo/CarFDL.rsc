@@ -32,7 +32,7 @@ set[feature] PullsTrailerOpt = {"pullsTrailer", "pullsNoTrailer"};
 
 // Calculate all possible feature sets
 
-set[set[feature]] CarFeatures = { {{T} + E + {H} + {PT}} | 
+public set[set[feature]] CarFeatures = { {{T} + E + {H} + {PT}} | 
 			feature T <- Transmission, 
 			set[feature] E <- Engine, 
 			feature H <- HorsePower, 

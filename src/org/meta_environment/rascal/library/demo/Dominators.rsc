@@ -3,7 +3,6 @@ module demo::Dominators
 import Set;
 import Relation;
 import Graph;
-import UnitTest;
 
 /*
  *  A dominator tree describes the dominance relationship between nodes in a control flow graph
@@ -75,8 +74,7 @@ public rel[str,set[str]] example1(){
 	return dominators(PRED, ROOT);
 }
 
-public bool test1(){
-	rel[str, set[str]] RESULT =
+test example1() ==
  	{
 		<"R", {"A", "B", "C", "D", "E", "F", "G", "L", "H", "I", "J", "K"}>, 
 		<"A", {}>, 
@@ -92,8 +90,7 @@ public bool test1(){
 		<"J", {}>, 
 		<"K", {}>
 	};
-	return example1() == RESULT;
-}
+	
 
 // Example 2 taken from Aho, Sethi Ullman, p603
 
@@ -115,8 +112,8 @@ public rel[int,set[int]] example2(){
 	return dominators(PRED, ROOT);
 }
 
-public bool test2(){
-	rel[int, set[int]] RESULT = {
+test example2() ==
+	{
 		<1, {2, 3, 4, 5, 6, 7, 8, 9, 10}>, 
 		<2, {}>,
 		<3, {4, 5, 6, 7, 8, 9, 10}>,
@@ -128,10 +125,4 @@ public bool test2(){
 		<9, {}>,
 		<10, {}>
 	};
-	return example2() == RESULT;
-}
-
-test test1();
-test test2();
-
 
