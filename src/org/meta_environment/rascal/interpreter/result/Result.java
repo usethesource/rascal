@@ -14,10 +14,11 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.result.LimitedResultOutputStream.IOLimitReachedException;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
+import org.meta_environment.rascal.interpreter.utils.LimitedResultOutputStream;
+import org.meta_environment.rascal.interpreter.utils.LimitedResultOutputStream.IOLimitReachedException;
 import org.meta_environment.uptr.Factory;
 
 // TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).

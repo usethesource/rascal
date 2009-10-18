@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.result;
+package org.meta_environment.rascal.interpreter.utils;
 
 import java.io.IOException;
 import java.io.OutputStream;
