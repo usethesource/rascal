@@ -93,6 +93,10 @@ public class RascalFunction extends NamedFunction {
 			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
 				throw new UnexpectedTypeError(returnType, result.getType(), ast);
 			}
+			
+			if (!returnType.isVoidType() && result.getType().isVoidType()) {
+				throw new UnexpectedTypeError(returnType, result.getType(), ast);
+			}
 
 			return ResultFactory.makeResult(instantiatedReturnType, result.getValue(), eval);
 		} 
