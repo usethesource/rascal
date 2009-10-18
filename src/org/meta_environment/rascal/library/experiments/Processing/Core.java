@@ -1,10 +1,9 @@
 package org.meta_environment.rascal.library.experiments.Processing;
 
 import java.awt.BorderLayout;
-import java.awt.Canvas;
 import java.awt.Frame;
-import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -19,14 +18,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.fast.Constructor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.jfree.chart.JFreeChart;
-import org.jfree.experimental.chart.swt.ChartComposite;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
@@ -41,6 +36,14 @@ public class Core {
 	static PApplet myPApplet;
 	//static RascalFrame myFrame;
 	
+	public static IInteger getX(){
+		return values.integer(myPApplet.getX());
+	}
+	
+	public static IInteger getY(){
+		return values.integer(myPApplet.getY());
+	}
+	
 	public static IInteger height(){
 		return values.integer(myPApplet.height);
 	}
@@ -48,7 +51,6 @@ public class Core {
 	public static IInteger width(){
 		return values.integer(myPApplet.width);
 	}
-	
 	
 	public static void size(IInteger x, IInteger y){
 		 myPApplet.size(x.intValue(), y.intValue());
@@ -431,105 +433,98 @@ public class Core {
 		
 	}
 	
-	public static enum callback {setup, draw, mouseClicked, mouseDragged, mouseMoved, mousePressed, mouseReleased}
-
-	private static HashMap<INode, RascalFrameSWT> frames = new HashMap<INode, RascalFrameSWT>();
-	private static java.lang.String frameCons = "frame";
-	private static int frameCnt = 0;
+	public static HashSet<String>  callbackNames = new HashSet<String>();
 	
-	public static void addCallBack(Constructor cons, EnumMap<callback,OverloadedFunctionResult> callbacks){
-		String cname = cons.getName();
-		OverloadedFunctionResult fn = (OverloadedFunctionResult) cons.get(0);
-		
-		if(cname.equals("setup"))
-			callbacks.put(callback.setup, fn);
-		else if(cname.equals("draw"))
-			callbacks.put(callback.draw, fn);
-		else if(cname.equals("mouseClicked"))
-			callbacks.put(callback.mouseClicked, fn);
-		else if(cname.equals("mouseDragged"))
-			callbacks.put(callback.mouseDragged, fn);
-		else if(cname.equals("mouseMoved"))
-			callbacks.put(callback.mouseMoved, fn);
-		else if(cname.equals("mousePressed"))
-			callbacks.put(callback.mousePressed, fn);
-		else if(cname.equals("mouseReleased"))
-			callbacks.put(callback.mouseReleased, fn);
-		else {
-			System.err.println("TODO: add exception");
+	public static void registerCallbackName(String name){
+		if(!callbackNames.contains(name)){
+			callbackNames.add(name);
 		}
 	}
 	
-	public static OverloadedFunctionResult getDrawCallBack(IValue V){
-		Constructor cons = (Constructor) V;
-		String cname = cons.getName();
-		OverloadedFunctionResult fn = (OverloadedFunctionResult) cons.get(0);
-		if(cname.equals("draw"))
-			return fn;
-		
-		System.err.println("TODO: add exception");
-		
-		return null;		
+	private static boolean isCallbackName(String name){
+		return callbackNames.contains(name);
 	}
-	
-	public static INode processing(IList V, IEvaluatorContext ctx){
-		System.err.println("entering Processing ...");
-		EnumMap<callback,OverloadedFunctionResult> callbacks = new EnumMap<callback,OverloadedFunctionResult>(callback.class);
 
-		Iterator<IValue> valueIterator = ((IList) V).iterator();
+	private static HashMap<INode, SketchSWT> sketches = new HashMap<INode, SketchSWT>();
+	private static java.lang.String sketchCons = "sketch";
+	private static int sketchCnt = 0;
+	
+	public static HashMap<String,OverloadedFunctionResult> getCallBacks(IList V){
+		HashMap<String,OverloadedFunctionResult> callbacks = new HashMap<String,OverloadedFunctionResult>();
+		registerCallbackName("setup");
+		registerCallbackName("draw");
+		registerCallbackName("mouseClicked");
+		registerCallbackName("mouseDragged");
+		registerCallbackName("mouseMoved");
+		registerCallbackName("mousePressed");
+		registerCallbackName("mouseReleased");
+
+		Iterator<IValue> valueIterator = V.iterator();
 		while(valueIterator.hasNext()){
-			addCallBack((Constructor) valueIterator.next(), callbacks);
+			Constructor cons = (Constructor) valueIterator.next();
+			String cname = cons.getName();
+			OverloadedFunctionResult fn = (OverloadedFunctionResult) cons.get(0);
+
+			if(isCallbackName(cname)) {
+				callbacks.put(cname, fn);
+			} else {
+				System.err.println("TODO: add exception");
+			}
+
 		}
+		return callbacks;
+	}
+	
+	public static INode sketch(IString title, IList V, IEvaluatorContext ctx){
+		System.err.println("entering Sketch ...");
 		
-		myPApplet = new RascalProcessingApplet(callbacks);
-		RascalFrameSWT myFrame = new RascalFrameSWT(myPApplet);
+		myPApplet = new RascalPApplet(title.getValue(), getCallBacks(V));
+		SketchSWT mySketch = new SketchSWT(myPApplet);
 		
+		return addSketch(sketchCons, mySketch, ctx);
+	}
+	
+	public static void draw(INode PO, IEvaluatorContext ctx){
+		SketchSWT s = getSketch(sketchCons, PO, ctx);
+		s.getApplet().draw();
+	}
+	
+	protected static INode addSketch(String type, SketchSWT sketch, IEvaluatorContext ctx){
 		IValue args[] = new IValue[1];
-		args[0] = values.integer(frameCnt++);
-		INode nd = values.node(frameCons, args);
-		frames.put(nd, myFrame);
-		
-		// A hack: Cannot return before setup is finished
-		try {
-			Thread.sleep(500000L);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.err.println("Returning from start");
-		
+		args[0] = values.integer(sketchCnt++);
+		INode nd = values.node(type, args);
+		sketches.put(nd, sketch);
 		return nd;
 	}
 	
-	private static RascalFrameSWT getFrame(INode PO, IEvaluatorContext ctx){
-		if(!PO.getName().equals(frameCons))
+	static SketchSWT getSketch(String type, INode PO, IEvaluatorContext ctx){
+		if(!PO.getName().equals(type))
 			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), ctx.getStackTrace());
-		RascalFrameSWT frame = frames.get(PO);
-		if(frame == null)
+		SketchSWT sketch = sketches.get(PO);
+		if(sketch == null)
 			throw RuntimeExceptionFactory.noSuchElement(PO, ctx.getCurrentAST(), ctx.getStackTrace());
-		return frame;
+		return sketch;
 	}
 	
 	public static void stop(INode PO, IEvaluatorContext ctx){
-		RascalFrameSWT frame = getFrame(PO, ctx);
-		//frame.dispose();
-		frames.remove(PO);
+		SketchSWT sketch = getSketch(sketchCons, PO, ctx);
+		//sketch.dispose();
+		sketches.remove(PO);
 	}
 	
 	public static void noLoop(){
 		myPApplet.noLoop();
 	}
-	
 }
 
-class RascalFrame extends Frame {
+class RascalFrameAWT extends Frame {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3251377159535885219L;
 
-	RascalFrame (PApplet pa){
+	RascalFrameAWT (PApplet pa){
 		super("Rascal Visualization");
 		setLayout(new BorderLayout());
 		add(pa, BorderLayout.CENTER);
@@ -540,41 +535,36 @@ class RascalFrame extends Frame {
 	}
 }
 
-class RascalFrameSWT   {
+class SketchSWT   {
+	
+	private PApplet applet;
 
-	RascalFrameSWT (final PApplet pa){
-
+	SketchSWT (final PApplet pa){
+		this. applet = pa;
 		Display display = new Display();
-		final Canvas canvas = new Canvas(); // AWT canvas;
-		canvas.setVisible(true);
+		Shell shell = new Shell(display);
+
+		shell.setSize(600, 600);
+		shell.setLayout(new FillLayout());
+		shell.setText("Rascal Visualization");
 		
-		Frame frame = new Frame();
-		frame.add(canvas, BorderLayout.CENTER);
-		frame.add(pa, BorderLayout.CENTER);
-		frame.setVisible(true);
-		
-		frame.setSize(600,600);
+		Composite composite = new Composite(shell, SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
+
+		Frame frame = SWT_AWT.new_Frame(composite); 
 		frame.setLocation(100,100);
-
-		Shell swtShell = SWT_AWT.new_Shell(display, canvas);
-
-		swtShell.setSize(600, 600);
-		swtShell.setLayout(new FillLayout());
-		swtShell.setText("Test for Processing running with SWT");
-		swtShell.addPaintListener(new PaintListener(){
-
-			public void paintControl(PaintEvent e) {
-				canvas.repaint();
-				
-			} });
-		frame.pack();
-		pa.setSize(600, 600);
+		frame.add(pa);
 		pa.init();
-		
-		swtShell.open();
-		while (!swtShell.isDisposed()) {
+		frame.setVisible(true);
+		frame.pack();
+
+		shell.open();
+		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
+	}
+	
+	public PApplet getApplet(){
+		return applet;
 	}
 }

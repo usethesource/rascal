@@ -4,19 +4,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
+import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.IntegerResult;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
-import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
+import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
 import treemap.Mappable;
 import treemap.SimpleMapItem;
@@ -25,55 +28,29 @@ import treemap.Treemap;
 
 public class TreeMap {
 	
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final java.lang.String treemapCons = "treemap";
 	
-	static Treemap myTreemap;
-	private static final HashMap<INode, Treemap> treemaps = new HashMap<INode, Treemap>();
-	private static int tmCnt = 0;
-	
-	public static INode treemap(IMap m, IInteger x, IInteger y, IInteger width, IInteger height, 
-			IValue draw, IEvaluatorContext ctx){
+	public static INode treemap(IString title, IMap m, IList itemCallbacks, IList groupCallbacks, IEvaluatorContext ctx){
 
-		Core.checkRascalFunction(draw, ctx);
-		SimpleMapModel myMap = new RascalSimpleMapModel(m,  (OverloadedFunctionResult) draw, true);
+		SimpleMapModel myMap = new RascalSimpleMapModel(m,  Core.getCallBacks(itemCallbacks), ctx);
 
-		myTreemap = new Treemap(myMap, x.intValue(), y.intValue(), width.intValue(), height.intValue());
-		IValue args[] = new IValue[1];
-		args[0] = values.integer(tmCnt++);
-		INode nd = values.node(treemapCons, args);
-		treemaps.put(nd, myTreemap);
+		Treemap myTreemap = new Treemap(myMap, 0, 0, 600, 600);
 		
-		return nd;
-	}
-	
-	public static void treemap(IMap m, IReal x, IReal y, IReal width, IReal height, 
-			                     IValue draw, IEvaluatorContext ctx){
+		RascalPApplet myPApplet = new RascalTreemapPApplet(title.getValue(), myTreemap, Core.getCallBacks(groupCallbacks));
+		SketchSWT mySketch = new SketchSWT(myPApplet);
 		
-		Core.checkRascalFunction(draw, ctx);
-		SimpleMapModel myMap = new RascalSimpleMapModel(m, (OverloadedFunctionResult)  draw, false);
-			
-		myTreemap = new Treemap(myMap, x.floatValue(), y.floatValue(), width.floatValue(), height.floatValue());
+		return Core.addSketch(treemapCons, mySketch, ctx);
 	}
 	
-	private static Treemap getTreemap(INode PO, IEvaluatorContext ctx){
-		if(!PO.getName().equals(treemapCons))
-			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), ctx.getStackTrace());
-		Treemap tm = treemaps.get(PO);
-		if(tm == null)
-			throw RuntimeExceptionFactory.noSuchElement(PO, ctx.getCurrentAST(), ctx.getStackTrace());
-		return tm;
+	public static void draw(IConstructor PO, IEvaluatorContext ctx){
+		SketchSWT s = Core.getSketch(treemapCons, PO, ctx);
+		s.getApplet().draw();
 	}
-	
-	public static void draw(INode PO, IEvaluatorContext ctx){
-		Treemap tm = getTreemap(PO, ctx);
-		tm.draw();
-	}
-	
 }
 
 class RascalSimpleMapModel extends SimpleMapModel {
-	public RascalSimpleMapModel(IMap m, OverloadedFunctionResult drawItem, boolean intArgs){
+	
+	public RascalSimpleMapModel(IMap m, HashMap<String,OverloadedFunctionResult> callbacks, IEvaluatorContext ctx){
 		Mappable[] items = new Mappable[m.size()];
 		
 		Iterator<Entry<IValue,IValue>> iter = m.entryIterator();
@@ -82,7 +59,7 @@ class RascalSimpleMapModel extends SimpleMapModel {
 			Entry<IValue,IValue> entry = iter.next();
 			IValue key = entry.getKey();
 			IValue val = entry.getValue();
-		    items[k++] = new RascalSimpleMapItem((IString)key, (IInteger)val, drawItem, intArgs);
+		    items[k++] = new RascalSimpleMapItem((IString)key, (IInteger)val, callbacks, ctx);
 		}
 		setItems(items);
 	}
@@ -90,54 +67,58 @@ class RascalSimpleMapModel extends SimpleMapModel {
 
 class RascalSimpleMapItem extends SimpleMapItem {
 	
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
-	private static final TypeFactory types = TypeFactory.getInstance();
-
-	private static OverloadedFunctionResult myDraw;
-	
-	/*
-	 * Represent argument types of:
-	 *  	drawItem(int x, int y, int w, int h, str word)
-	 * or
-	 * 		drawItem(real x, real y, real w, real h, str word)
-	 */
-	
-	private static Type[] intargtypes = new Type[]  {types.integerType(), types.integerType(), types.integerType(), types.integerType(), types.stringType()};
-	private static Type[] realargtypes = new Type[] {types.realType(),    types.realType(),    types.realType(),    types.realType(),    types.stringType()};
-
-	private static IValue[] argvals = new IValue[5];
-	
 	private IString key;
-	private boolean intArgs;
+	private OverloadedFunctionResult myDraw;
+	private IEvaluatorContext ctx;
+	protected static Type[] argtypes = new Type[] {};
+	protected static IValue[] argvals = new IValue[] {};
 	
-	public RascalSimpleMapItem(IString key, IInteger val, OverloadedFunctionResult draw, boolean intArgs){
+	private TypeFactory types = TypeFactory.getInstance();
+	private ValueFactory values = ValueFactory.getInstance();
+	private Type intType = types.integerType();
+	private Type strType = types.stringType();
+	
+	public RascalSimpleMapItem(IString key, IInteger val, HashMap<String,OverloadedFunctionResult> callbacks, IEvaluatorContext ctx){
 		this.key = key;
 		setSize(val.intValue());
-		myDraw = draw;
-		this.intArgs = intArgs;
+		myDraw = callbacks.get("draw");
+		this.ctx = ctx;
 	}
 	
 	@Override
 	public void draw(){
-		// System.err.println("RascalSimpleMapItem.draw: about to call ... " + myDraw);
-		if(intArgs){
-			argvals[0] = values.integer(Math.round(x));
-			argvals[1] = values.integer(Math.round(y));
-			argvals[2] = values.integer(Math.round(w));
-			argvals[3] = values.integer(Math.round(h));
-			argvals[4] = key;
-			
-			myDraw.call(intargtypes, argvals);
-			
-		} else {
-			argvals[0] = values.real(x);
-			argvals[1] = values.real(y);
-			argvals[2] = values.real(w);
-			argvals[3] = values.real(h);
-			argvals[4] = key;
-			
-			myDraw.call(realargtypes, argvals);
+		System.err.println("RascalSimpleMapItem.draw: about to call(" + key + ") ... " + myDraw);
+		if(myDraw != null){
+			Environment env = myDraw.getEvaluatorContext().getCurrentEnvt();
+			env.storeVariable("x", ResultFactory.makeResult(intType, values.integer(Math.round(x)), ctx));
+			env.storeVariable("y", ResultFactory.makeResult(intType, values.integer(Math.round(y)), ctx));
+			env.storeVariable("h", ResultFactory.makeResult(intType, values.integer(Math.round(h)), ctx));
+			env.storeVariable("w", ResultFactory.makeResult(intType, values.integer(Math.round(w)), ctx));
+			env.storeVariable("key", ResultFactory.makeResult(strType, key, ctx));
+			myDraw.call(argtypes, argvals);
 		}
+	}
+
+}
+
+class RascalTreemapPApplet extends RascalPApplet {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6880697390030412081L;
+	private Treemap treemap;
+
+	RascalTreemapPApplet(String title, Treemap tm, HashMap<String,OverloadedFunctionResult> callbacks){
+		super(title, callbacks);
+		this.treemap = tm;
+	}
+	
+	@Override
+	public void draw(){
+		Core.myPApplet = this;
+		System.err.println("RascalTreemapPApplet.draw: about to call ... treemap.draw");
+		treemap.draw();
 	}
 }
 

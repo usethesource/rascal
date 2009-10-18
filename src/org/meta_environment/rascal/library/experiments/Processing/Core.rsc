@@ -6,6 +6,14 @@ public int RIGHT = 39;
 
 public alias PFont = int;
 
+@doc{current X position}
+@javaClass{org.meta_environment.rascal.library.experiments.Processing.Core}
+public int java getX();
+
+@doc{current Y position}
+@javaClass{org.meta_environment.rascal.library.experiments.Processing.Core}
+public int java getY();
+
 @doc{height of current sketch}
 @javaClass{org.meta_environment.rascal.library.experiments.Processing.Core}
 public int java height();
@@ -278,7 +286,7 @@ public void java strokeWeight(real weight);
  * Identity returned for processing object that results from processing call.
  */
  
-public alias Processing = node;
+public data Sketch = sketch(int id);
 
 /*
  * Tags for all possible callback functions.
@@ -293,14 +301,14 @@ public data CallBack =
      | mouseReleased(void () mouseReleased)
      ;
 
-@doc{start Processing}
+@doc{Create a sketch}
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.meta_environment.rascal.library.experiments.Processing.Core}
-public Processing java processing(CallBack callbacks ...);
+public Sketch java sketch(str title, CallBack callbacks ...);
 
 //@doc{stop a visualization}
 //@javaClass{org.meta_environment.rascal.library.experiments.Processing.Core}
-//public void java stop(Processing P);
+//public void java stop(Sketch P);
 
 @doc{noLoop, draw once}
 @javaClass{org.meta_environment.rascal.library.experiments.Processing.Core}

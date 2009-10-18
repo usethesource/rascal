@@ -3,11 +3,11 @@ module experiments::Processing::piechart
 import experiments::Processing::Core;
 
 public void pieChartSetup() {
-	//size(200, 200);
+	size(200, 200);
 	background(100);
 	smooth();
 	noStroke();
-	noLoop();
+	//noLoop();
 }
 
 real diameter = 150.0;
