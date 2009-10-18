@@ -5,7 +5,6 @@ import demo::AbstractPico::Analysis;
 import demo::AbstractPico::Controlflow;
 import demo::AbstractPico::UseDef;
 import demo::AbstractPico::Programs;
-import UnitTest;
 import IO;
 import Graph;
 
@@ -36,11 +35,6 @@ public rel[PicoId, ProgramPoint] uninit(PROGRAM P) {
     return result;
 }
 
-public bool test(){
-   
-	assertEqual(uninit(annotate(smallUninit)), {<"x",10>, <"x", 1>, <"s", 5>});
-	
-	assertEqual(uninit(annotate(facUninit)), {<"output", 7>, <"output", 3>});
+test uninit(annotate(smallUninit)) == {<"x",10>, <"x", 1>, <"s", 5>};
+test uninit(annotate(facUninit)) == {<"output", 7>, <"output", 3>};
 
-	return report("AbstractPico::Uninit");
-}

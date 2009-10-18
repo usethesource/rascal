@@ -4,7 +4,6 @@ import demo::AbstractPico::AbstractSyntax;
 import demo::AbstractPico::Message;
 import IO;
 import demo::AbstractPico::Programs;
-import UnitTest;
 
 /*
  * Typechecker for Pico.
@@ -76,14 +75,12 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
       return [message("Type error: expected <Type> got <E>")];
 }
 
-public bool test(){
+test requireType(natCon(3), natural(), ()) == [];
+test requireType(strCon("a"), string(), ())  == [];
+test requireType(id("x"), string(), ("x" : string())) ==  [];
+test requireType(id("x"), string(), ("x" : natural())) == [message("Type error: expected string() got id(\"x\")")];
 
-	assertEqual(requireType(natCon(3), natural(), ()), []);
-	assertEqual(requireType(strCon("a"), string(), ()), []);
-	assertEqual(requireType(id("x"), string(), ("x" : string())), []);
-	assertEqual(requireType(id("x"), string(), ("x" : natural())), [message("Type error: expected string() got id(\"x\")")]);
-
-   PROGRAM mySmall =
+private PROGRAM mySmall =
    program([decl("x", natural()), decl("s", string())],
         [ asgStat("x", natCon(1)) ,
          whileStat(id("x"),
@@ -93,8 +90,7 @@ public bool test(){
                    ) 
         ]
        );
-  assertEqual(tcp(mySmall), []);
-  assertEqual(tcp(fac), []);
-  assertEqual(tcp(big), []);
-  return report("AbstractPico::Typecheck");
-}
+       
+test tcp(mySmall) == [];
+test tcp(fac) == [];
+test tcp(big) == [];
