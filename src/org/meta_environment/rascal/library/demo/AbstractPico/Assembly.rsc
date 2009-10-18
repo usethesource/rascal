@@ -107,9 +107,9 @@ private list[Instr] compileExp(EXP exp) {
    } 
 }
 
-test compileProgram(program([])) == [];
+test compileProgram(program([],[])) == [];
 
-test compileProgram([decl("x", natural())], [ifStat(natCon(5), [asgStat("x", natCon(3))], [asgStat("x", natCon(4))])]) 
+test compileProgram(program([decl("x", natural())], [ifStat(natCon(5), [asgStat("x", natCon(3))], [asgStat("x", natCon(4))])])) 
      ==
      [dclNat("x"),
         pushNat(5),
