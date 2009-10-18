@@ -2,7 +2,6 @@ module demo::ConcretePico::Programs
 
 import languages::pico::syntax::Pico;
 import IO;
-import UnitTest;
 
 /*
  * A bunch of sample Pico programs.

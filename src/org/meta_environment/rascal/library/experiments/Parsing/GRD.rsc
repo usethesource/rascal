@@ -10,7 +10,6 @@ module experiments::Parsing::GRD
 import List;
 import Set;
 import IO;
-import UnitTest;
 
 list[str] input = [];   // The global input of the parser
 int current = 0;   // Current position in input
@@ -19,9 +18,10 @@ bool debug = false;
 
 // Definine new input
 
-public void defInput(list[str] inp){
+public bool defInput(list[str] inp){
   input = inp;
   current = 0;
+  return true;
 }
 
 // Match a token and advance current when it matches.
@@ -101,12 +101,9 @@ public set[int] C (){
   return return_set;
 }
 
-public bool test(){
+// Tests
 
-  defInput(["d"]);  assertEqual(A(), {1});
-  defInput(["c"]); assertEqual(A(), {1});
-  defInput(["c", "d"]); assertEqual(A(), {1, 2});
-  defInput(["a", "b", "b", "c", "d"]); assertEqual(A(), {4, 5});
-  
-  return report("Parsing::GRD");
-}
+test defInput(["d"]) &&  (A() == {1});
+test defInput(["c"]) && (A() == {1});
+test defInput(["c", "d"]) && (A() == {1, 2});
+test defInput(["a", "b", "b", "c", "d"]) && (A() == {4, 5});

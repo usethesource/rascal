@@ -141,6 +141,6 @@ public bool testLive(){
 		       <4, <7, "u3">>, <4, <6, "u2">>, <4, <5, "j">>, <4, <4, "i">>};
 }
 
-	test testReaching1();
-	test testReaching2();
-	test testLive();
+test testReaching1();
+test testReaching2();
+test testLive();

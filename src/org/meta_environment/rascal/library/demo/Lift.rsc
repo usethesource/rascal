@@ -25,10 +25,10 @@ rel[proc, comp] PartOf = {<"main", "Appl">, <"a", "Appl">, <"b", "DB">,
 
 rel[comp,comp] ComponentCalls = lift(Calls, PartOf);
 
-	test ComponentCalls ==
-	            { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
-			      < "Appl" , "DB" > , < "Appl" , "Appl" > }
-			   ;
+// Tests
+
+test ComponentCalls == { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
+			             < "Appl" , "DB" > , < "Appl" , "Appl" > };
 
 
 

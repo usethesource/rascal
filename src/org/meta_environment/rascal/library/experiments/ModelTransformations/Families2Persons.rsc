@@ -1,7 +1,5 @@
 module experiments::ModelTransformations::Families2Persons
 
-import UnitTest;
-
 /*
  * Example taken from "ATL Basic Examples and Patterns" at
  * http://www.eclipse.org/m2m/atl/basicExamples_Patterns/
@@ -41,11 +39,13 @@ Gender gender(Member mem){
    } 
 }
 
-public bool test(){
-  Families input = { family("March", {father("Jim"), mother("Cindy"), son("Brandon"), daughter("Brenda")}),
-                     family("Sailor",{father("Peter"), mother("Jacky"), son("David"), son("Dylan"), daughter("Kelly")})
-                   };
-  Persons output = { person(mr(),  "Jim",     "March"),
+// Tests
+
+private Families input = { 
+                 family("March", {father("Jim"), mother("Cindy"), son("Brandon"), daughter("Brenda")}),
+                 family("Sailor",{father("Peter"), mother("Jacky"), son("David"), son("Dylan"), daughter("Kelly")})
+               };
+private Persons output = { person(mr(),  "Jim",     "March"),
                      person(mrs(), "Cindy",   "March"),
                      person(mr(),  "Brandon", "March"),
                      person(mrs(), "Brenda",  "March"),
@@ -55,6 +55,4 @@ public bool test(){
                      person(mr(),  "Dylan",   "Sailor"),
                      person(mrs(), "Kelly",   "Sailor")
                    };
-  assertEqual(families2persons(input), output);
-  return report();       
-}
+test families2persons(input) == output;

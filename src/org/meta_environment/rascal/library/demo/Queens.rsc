@@ -3,7 +3,6 @@ module demo::Queens
 import Integer;
 import List;
 import IO;
-import UnitTest;
 
 /*
  * Experiments with the 8-queens puzzle.
