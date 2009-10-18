@@ -95,8 +95,7 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void ColoredTrees() {
-		prepare("import demo::ColoredTrees;");
-		assertTrue(runTestInSameEvaluator("test();"));
+		assertTrue(runRascalTests("import demo::ColoredTrees;"));
 	}
 
 	@Test

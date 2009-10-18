@@ -43,13 +43,10 @@ public ColoredTree makeGreen(ColoredTree t){
    };
 }
 
-public bool test(){
-  rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
-  
-  assertEqual(cntRed(rb), 2);
-  assertEqual(addLeaves(rb), 13);
-  assertEqual(makeGreen(rb),
-              green(black(leaf(1),green(leaf(2),leaf(3))),black(leaf(3),leaf(4)))
-             );
-  return report("ColoredTrees");
-}
+// Tests
+
+ColoredTree  rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+
+test cntRed(rb) == 2;
+test addLeaves(rb) == 13;
+test makeGreen(rb) == green(black(leaf(1),green(leaf(2),leaf(3))),black(leaf(3),leaf(4)));
