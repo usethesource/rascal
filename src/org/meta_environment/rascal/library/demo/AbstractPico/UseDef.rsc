@@ -10,9 +10,9 @@ import IO;
  */
 
 
-private set[PicoId] getVarUses(EXP E){
+public set[PicoId] getVarUses(EXP E){
     println("getVarUses: <E>");
-    res = {Id | /id(PicoId Id) <- E};
+    res = {Id | /id(PicoId Id) := E};
     println("getVarUses returns: <res>");
     return res;
 }
@@ -25,21 +25,25 @@ private set[PicoId] getVarUses(EXP E){
 
 public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
   rel[PicoId, ProgramPoint] result = {};
-  visit(P) {
+  visit (P) {
    case ifStat(EXP Exp, _,  _):{
    			println("case ifStat: <Exp>");
         	result = result + getVarUses(Exp) * {Exp@pos};
+        	println("result:", result);
         }                    
    case whileStat(EXP Exp, _):{
    			println("case whileStat: <Exp>");
         	result = result + getVarUses(Exp) * {Exp@pos};
+        	println("result:", result);
          }
          
    case asg: asgStat(PicoId _, EXP Exp):{
    		println("case asgStat: <Exp>");
         result = result + getVarUses(Exp) * {asg@pos};
+        println("result:", result);
         } 
    };
+   
    return result;                  
   }
   
