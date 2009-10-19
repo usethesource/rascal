@@ -13,6 +13,7 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.utils.Names;
+import org.meta_environment.uptr.Factory;
 
 
 /**
@@ -71,8 +72,8 @@ public class GlobalEnvironment {
 	public void storeRule(Type forType, PatternWithAction rule, Environment env) {
 		List<RewriteRule> rules = ruleEnvironment.get(forType);
 		
-		if (!forType.isConstructorType()) {
-			throw new IllegalArgumentException();
+		if (!forType.isConstructorType() && !forType.isNodeType() && forType != Factory.Tree && forType != Factory.Tree_Appl) {
+			throw new IllegalArgumentException("forType should be a constructor type, instead it is :" + forType);
 		}
 		
 		//System.err.println("storeRule: type=" + forType + ",rule=" + rule);
