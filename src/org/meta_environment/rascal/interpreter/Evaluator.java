@@ -2829,7 +2829,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				for(Expression resExpr : resultExprs){
 					rawElements[k] = resExpr.accept(ev);
 					Type elementType = rawElements[k].getType();
-					elementType1 = elementType1.lub(elementType);
 					
 					if (elementType.isListType() && !resExpr.isList()){
 						elementType = elementType.getElementType();
@@ -2838,6 +2837,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					else {
 						splicing[k] = false;
 					}
+					elementType1 = elementType1.lub(elementType);
 					k++;
 				}
 				
@@ -2904,8 +2904,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				for(Expression resExpr : resultExprs){
 					rawElements[k] = resExpr.accept(ev);
 					Type elementType = rawElements[k].getType();
-					elementType1 = elementType1.lub(elementType);
-					
+				
 					if (elementType.isSetType() && !resExpr.isSet()){
 						elementType = elementType.getElementType();
 						splicing[k] = true;
@@ -2913,6 +2912,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					else {
 						splicing[k] = false;
 					}
+					elementType1 = elementType1.lub(elementType);
 					k++;
 				}
 				
