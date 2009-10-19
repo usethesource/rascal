@@ -14,8 +14,8 @@ data NUM = z() | s(NUM);
  */
 
 data NUM = add(NUM L,NUM R);
-rule a0 add(NUM N, z)          => N;
-rule a1 add(z, NUM N)          => N;
+rule a0 add(NUM N, z())          => N;
+rule a1 add(z(), NUM N)          => N;
 rule a2 add(s(NUM N), NUM M)   => s(add(N, M));
 
 /*
