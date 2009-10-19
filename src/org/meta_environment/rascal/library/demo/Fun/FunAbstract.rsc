@@ -21,13 +21,13 @@ data Exp =
 // Find all the variables in an expression
 
 public set[str] allVars(Exp E) {
-    return {Name | var(str Name) <- E};
+    return {Name | / var(str Name) := E};
 }
 
 // Find all bound variables in an expression
 
 public set[str] boundVars(Exp E) {
-    return {Name | fnc(str Name, Exp E1) <- E};
+    return {Name | / fnc(str Name, Exp E1) := E};
 } 
 
 // Find all free variables in an expression
