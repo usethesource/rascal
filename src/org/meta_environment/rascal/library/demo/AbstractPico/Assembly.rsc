@@ -2,6 +2,7 @@ module demo::AbstractPico::Assembly
 
 import demo::AbstractPico::AbstractSyntax;
 import Integer;
+import IO;
 
 // Compile Pico to Assembly
 
@@ -40,14 +41,16 @@ private str nextLabel(){
 
 public list[Instr] compileProgram(PROGRAM P){
     nLabel = 0;
-    if(program(list[DECL] Decls, list[STATEMENT] Series) := P){
+    if (program(list[DECL] Decls, list[STATEMENT] Series) := P){
            return [compileDecls(Decls), compileStatements(Series)];
-    } else
+    } 
+    else {
        throw Exception("Cannot happen");
+    }
 }
 
 private list[Instr] compileDecls(list[DECL] Decls){
-    return [ (t == natural()) ? dclNat(Id) : dclStr(Id)  | decl(PicoId Id, TYPE t) <- Decls];
+    return [ (t == natural()) ? dclNat(Id) : dclStr(Id)  | decl(PicoId Id, TYPE t) <- Decls, print(Id)];
 }
 
 private list[Instr] compileStatements(list[STATEMENT] Stats){
@@ -113,37 +116,37 @@ test compileProgram(program([decl("x", natural())], [ifStat(natCon(5), [asgStat(
      ==
      [dclNat("x"),
         pushNat(5),
-        gofalse("L4"),
+        gofalse("L2"),
         lvalue("x"),
         pushNat(3),
         assign(),
-        go("L3"),
-        label("L4"),
+        go("L1"),
+        label("L2"),
         lvalue("x"),
         pushNat(4),
         assign(),
-        label("L3")];
+        label("L1")];
         
 test  compileProgram(program([decl("x", natural())], [whileStat(natCon(5), [asgStat("x", natCon(3))])]))
       ==
       [dclNat("x"),
-       label("L3"),
+       label("L1"),
        pushNat(5),
-       gofalse("L4"),
+       gofalse("L2"),
        lvalue("x"),
        pushNat(3),
        assign(),
-       go("L3"),
-       label("L4")];
+       go("L1"),
+       label("L2")];
       
 test compileProgram(program([decl("x", string())], [whileStat(natCon(5), [asgStat("x", strCon("abc"))])])) 
      ==
      [dclStr("x"),
-       label("L3"),
+       label("L1"),
        pushNat(5),
-       gofalse("L4"),
+       gofalse("L2"),
        lvalue("x"),
        pushStr("abc"),
        assign(),
-       go("L3"),
-       label("L4")];
+       go("L1"),
+       label("L2")];
