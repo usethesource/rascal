@@ -22,7 +22,7 @@ rule o2 ` btrue | bfalse `      =>` btrue`;
 rule o3 ` bfalse | btrue `      => `btrue`;
 rule o4 ` bfalse | bfalse `     => `bfalse`;
 
-  test  `btrue` == `btrue`;
-  test `btrue | btrue` == `btrue`;
-  test `bfalse | btrue` == `btrue`;
-  test `bfalse & bfalse` == `bfalse`;
+test  `btrue` == `btrue`;
+test `btrue | btrue` == `btrue`;
+test `bfalse | btrue` == `btrue`;
+test `bfalse & bfalse` == `bfalse`;

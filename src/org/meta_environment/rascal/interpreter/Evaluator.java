@@ -305,6 +305,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new LinkedList<String>();
 				result.add(System.getProperty("user.dir"));
+				result.add(new File(System.getProperty("user.dir"), "src/org/meta_environment/rascal/library").getAbsolutePath());
 				result.add(Configuration.getSdfLibraryPathProperty());
 				return result;
 			}
