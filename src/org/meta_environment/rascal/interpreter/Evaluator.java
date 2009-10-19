@@ -2809,54 +2809,68 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	ComprehensionWriter {
 
 		private boolean splicing[];
-
+		private Result<IValue> rawElements[];
+		
 		ListComprehensionWriter(
 				java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs,
 				Evaluator ev) {
 			super(resultExprs, ev);
 			splicing = new boolean[resultExprs.size()];
+			rawElements = new Result[resultExprs.size()];
 		}
 
 		@Override
 		public void append() {
-			if(writer == null){
+			// the first time we need to find out the type of the elements first, and whether or not to splice them, and evaluate them
+			if(writer == null) {
 				int k = 0;
 				elementType1 = tf.voidType();
+				
 				for(Expression resExpr : resultExprs){
-					Result<IValue> res = resExpr.accept(ev);
-					Type elementType = res.getType();
-					if(elementType.isListType() && !resExpr.isList()){
+					rawElements[k] = resExpr.accept(ev);
+					Type elementType = rawElements[k].getType();
+					elementType1 = elementType1.lub(elementType);
+					
+					if (elementType.isListType() && !resExpr.isList()){
 						elementType = elementType.getElementType();
 						splicing[k] = true;
-					} else
+					} 
+					else {
 						splicing[k] = false;
+					}
 					k++;
-					elementType1 = elementType1.lub(elementType);
 				}
+				
 				resultType = tf.listType(elementType1);		
 				writer = resultType.writer(vf);
 			}
+			// the second time we only need to evaluate and add the elements
 			else {
+				int k = 0;
+				for (Expression resExpr : resultExprs) {
+					rawElements[k++] = resExpr.accept(ev);
+				}
+			}
+			
+			// here we finally add the elements
 			int k = 0;
-			for(Expression resExpr : resultExprs){
-				Result<IValue> res = resExpr.accept(ev);
-				// System.err.println("ListWriter: res = " + res);
-				if(splicing[k++]){
+			for (Expression resExpr : resultExprs) {
+				if(splicing[k]){
 					/*
 					 * Splice elements of the value of the result expression in the result list
 					 */
-					for(IValue val : ((IList) res.getValue())){
-						if(!val.getType().isSubtypeOf(elementType1))
-							throw new UnexpectedTypeError(elementType1, val.getType(), resExpr);
-						elementType1 = elementType1.lub(val.getType());
+					if (!rawElements[k].getType().getElementType().isSubtypeOf(elementType1)) {
+						throw new UnexpectedTypeError(elementType1, rawElements[k].getType().getElementType(), resExpr);
+					}
+					
+					for(IValue val : ((IList) rawElements[k].getValue())){
 						((IListWriter) writer).append(val);
 					}
 				} else {
-					check(res, elementType1, "list", resExpr);
-					elementType1 = elementType1.lub(res.getType());
-					((IListWriter) writer).append(res.getValue());
+					check(rawElements[k], elementType1, "list", resExpr);
+					((IListWriter) writer).append(rawElements[k].getValue());
 				}
-			}
+				k++;
 			}
 		}
 
@@ -2869,55 +2883,69 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private class SetComprehensionWriter extends
 	ComprehensionWriter {
-
 		private boolean splicing[];
-
+		private Result<IValue> rawElements[];
+		
 		SetComprehensionWriter(
 				java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs,
 				Evaluator ev) {
 			super(resultExprs, ev);
 			splicing = new boolean[resultExprs.size()];
+			rawElements = new Result[resultExprs.size()];
 		}
 
 		@Override
 		public void append() {
-			if(writer == null){
+			// the first time we need to find out the type of the elements first, and whether or not to splice them, and evaluate them
+			if(writer == null) {
 				int k = 0;
 				elementType1 = tf.voidType();
+				
 				for(Expression resExpr : resultExprs){
-					Result<IValue> res = resExpr.accept(ev);
-					Type elementType = res.getType();
-					if(elementType.isSetType() && !resExpr.isSet()){
+					rawElements[k] = resExpr.accept(ev);
+					Type elementType = rawElements[k].getType();
+					elementType1 = elementType1.lub(elementType);
+					
+					if (elementType.isSetType() && !resExpr.isSet()){
 						elementType = elementType.getElementType();
 						splicing[k] = true;
-					} else
+					} 
+					else {
 						splicing[k] = false;
+					}
 					k++;
-					elementType1 = elementType1.lub(elementType);
 				}
+				
 				resultType = tf.setType(elementType1);		
 				writer = resultType.writer(vf);
 			}
+			// the second time we only need to evaluate and add the elements
 			else {
+				int k = 0;
+				for (Expression resExpr : resultExprs) {
+					rawElements[k++] = resExpr.accept(ev);
+				}
+			}
+			
+			// here we finally add the elements
 			int k = 0;
-			for(Expression resExpr : resultExprs){
-				Result<IValue> res = resExpr.accept(ev);
-				if(splicing[k++]){
+			for (Expression resExpr : resultExprs) {
+				if(splicing[k]){
 					/*
-					 * Splice elements of the value of the result expression in the result set
+					 * Splice elements of the value of the result expression in the result list
 					 */
-					for(IValue val : ((ISet) res.getValue())){
-						if(!val.getType().isSubtypeOf(elementType1))
-							throw new UnexpectedTypeError(elementType1, val.getType(), resExpr);
-						elementType1 = elementType1.lub(val.getType());
+					if (!rawElements[k].getType().getElementType().isSubtypeOf(elementType1)) {
+						throw new UnexpectedTypeError(elementType1, rawElements[k].getType().getElementType(), resExpr);
+					}
+					
+					for(IValue val : ((ISet) rawElements[k].getValue())){
 						((ISetWriter) writer).insert(val);
 					}
 				} else {
-					check(res, elementType1, "set", resExpr);
-					elementType1 = elementType1.lub(res.getType());
-					((ISetWriter) writer).insert(res.getValue());
+					check(rawElements[k], elementType1, "list", resExpr);
+					((ISetWriter) writer).insert(rawElements[k].getValue());
 				}
-			}
+				k++;
 			}
 		}
 
