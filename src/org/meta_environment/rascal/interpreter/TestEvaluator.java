@@ -28,16 +28,18 @@ public class TestEvaluator {
 	public void test(String moduleName) {
 		Environment old = eval.getCurrentEnvt();
 		
+		ModuleEnvironment module = eval.getHeap().getModule(moduleName);
+		if (module == null) {
+			throw new IllegalArgumentException();
+		}
+		
 		try {
-			ModuleEnvironment module = eval.getHeap().getModule(moduleName);
-			if (module == null) {
-				throw new IllegalArgumentException();
-			}
 			eval.setCurrentEnvt(module);
-			
+			eval.pushEnv();
 			test();
 		}
 		finally {
+			eval.unwind(module);
 			if (old != null) {
 				eval.setCurrentEnvt(old);
 			}
@@ -59,9 +61,16 @@ public class TestEvaluator {
 		Environment old = eval.getCurrentEnvt();
 		try {
 			eval.setCurrentEnvt(env);
+			
 			Visitor visitor = new Visitor();
 			for(int i = tests.size() - 1; i >= 0; i--){
-				tests.get(i).accept(visitor);
+				try {
+					eval.pushEnv();
+					tests.get(i).accept(visitor);
+				}
+				finally {
+					eval.unwind(env);
+				}
 			}
 		}
 		finally {
