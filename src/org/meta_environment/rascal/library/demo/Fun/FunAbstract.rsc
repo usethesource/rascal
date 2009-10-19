@@ -126,7 +126,7 @@ public Constraints collect(Exp E)
    		cons = cons  + [c(E1, intType()), c(E2, intType())];
    	
    case op("conc", Exp E1, Exp E2):
-   	    constraints = constraints + [c(E1, strType()), c(E2, strType())];
+   	    cons = cons + [c(E1, strType()), c(E2, strType())];
    }   /* Put here a ";" and you get an ambiguous list */
    
    println("constraints: <cons>");
