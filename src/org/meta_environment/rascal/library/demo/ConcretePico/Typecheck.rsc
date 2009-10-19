@@ -113,27 +113,18 @@ public list[Message] requireType(EXP E, TYPE Type, TypeEnv Env) {
 }
 
   
-  test checkProgram(`begin declare x : natural; x := 3  end`) == [];  
+test checkProgram(`begin declare x : natural; x := 3  end`) == [];  
  
- test checkProgram(`begin declare x : natural; y := "a"  end`) ==  
-              [message(|file://.|(3983,8,<122,55>,<122,63>), "Undeclared variable y")]
-             ;
+test [/"Undeclared variable y"] := checkProgram(`begin declare x : natural; y := "a"  end`);
   
-  test checkProgram(`begin declare x : natural; x := "a"  end`) == 
-              [message(|file://.|(4167,3,<126,60>,<126,63>), "Expected type natural but got \"a\"")]
-             ;
+test [/"Expected type natural but got \"a\""] := checkProgram(`begin declare x : natural; x := "a"  end`); 
+              
+test [/"Expected type natural but got \"a\""] := checkProgram(`begin declare x : natural; x := 2 + "a"  end`);
+              
+test checkProgram(small) == [];
   
-  test checkProgram(`begin declare x : natural; x := 2 + "a"  end`) ==  
-              [message(|file://.|(4364,3,<130,64>,<130,67>), "Expected type natural but got \"a\"")]
-             ;
- 
-  test checkProgram(small) == [];
+test [/"Expected type natural but got \"abc\"", /"Expected type string but got 3"] := checkProgram(exampleTypeErrors); 
+             
+test checkProgram(fac) == [];
   
-  test checkProgram(exampleTypeErrors) == 
-              [message(|file://.|(391,5,<29,7>,<29,12>),"Expected type natural but got \"abc\""),
-               message(|file://.|(405,1,<30,7>,<30,8>),"Expected type string but got 3")];
-  
-  test checkProgram(fac) == [];
-  
-  test checkProgram(big) == [];
-
+test checkProgram(big) == [];
