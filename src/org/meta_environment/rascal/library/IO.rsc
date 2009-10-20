@@ -1,15 +1,5 @@
 module IO
 
-/*
- * Library functions for reading/writing values:
- * - println
- * - print
- * - rawPrintln
- * - readFile
- * - readFileLines
- * - writeFile
- */
-
 @doc{Print a list of values on the output stream.}
 @javaClass{org.meta_environment.rascal.library.IO}
 public void java println(value V...);
@@ -49,4 +39,14 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 }
 @javaClass{org.meta_environment.rascal.library.IO}
 public void java writeFile(loc file, value V...)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+
+@doc{Write a textual representation of some values to a file
+   * If a value is a simple string, the quotes are removed and the contents are de-escaped.
+   * If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+   * All other values are printed as-is.
+   * Each value is terminated by a newline character
+}
+@javaClass{org.meta_environment.rascal.library.IO}
+public void java appendToFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);

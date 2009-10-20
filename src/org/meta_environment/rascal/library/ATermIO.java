@@ -46,7 +46,7 @@ public class ATermIO {
 	public static void writeTextATermFile(ISourceLocation loc, IValue value){
 		OutputStream out = null;
 		try{
-			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI());
+			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
 			new ATermWriter().write(value, out);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);

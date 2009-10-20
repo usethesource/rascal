@@ -41,13 +41,13 @@ public class URIResolverRegistry {
 		return resolver.getInputStream(uri);
 	}
 	
-	public OutputStream getOutputStream(URI uri) throws IOException {
+	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
 		IURIOutputStreamResolver resolver = outputResolvers.get(uri.getScheme());
 		
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 		
-		return resolver.getOutputStream(uri);
+		return resolver.getOutputStream(uri, append);
 	}
 }

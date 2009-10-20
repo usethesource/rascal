@@ -141,10 +141,14 @@ public class IO{
 		}
 	}
 	
-	public static void writeFile(ISourceLocation file, IList V){
+	public static void writeFile(ISourceLocation file, IList V) {
+		writeFile(file, V, false);
+	}
+	
+	private static void writeFile(ISourceLocation file, IList V, boolean append){
 		OutputStream out = null;
 		try{
-			out = URIResolverRegistry.getInstance().getOutputStream(file.getURI());
+			out = URIResolverRegistry.getInstance().getOutputStream(file.getURI(), append);
 			
 			for(IValue elem : V){
 				if (elem.getType().isStringType()){
@@ -171,6 +175,10 @@ public class IO{
 		}
 
 		return;
+	}
+	
+	public static void appendToFile(ISourceLocation file, IList V){
+		writeFile(file, V, true);
 	}
 	
 	public static IList readFileLines(ISourceLocation file){
