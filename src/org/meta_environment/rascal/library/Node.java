@@ -103,4 +103,12 @@ public class Node {
 		
 		return node.setAnnotations(map);
 	}
+	
+	public static INode delAnnotations(INode node) {
+		return node.removeAnnotations();
+	}
+	
+	public static INode delAnnotation(INode node, IString label) {
+		return node.removeAnnotation(label.getValue());
+	}
 }

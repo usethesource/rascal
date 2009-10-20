@@ -43,7 +43,21 @@ public value java readATermFromFile(str fileName);
 }
 @javaClass{org.meta_environment.rascal.library.Node}
 public &T <: node java setAnnotations(&T <: node x, map[str, value] annotations);
-  
+
+@doc{remove annotation on a node}
+@javaClass{org.meta_environment.rascal.library.Node}
+public &T <: node java delAnnotation(&T <: node x, str label);
+
+@doc{removes all annotations on all nodes in a value}
+@javaClass{org.meta_environment.rascal.library.Node}
+public &T delAnnotationsRec(&T v) {
+  return visit(v) { case node n => delAnnotations(n) };
+}
+
+@doc{remove all annotations on a node}
+@javaClass{org.meta_environment.rascal.library.Node}
+public &T <: node java delAnnotations(&T <: node x);
+
 @doc{Convert a node to a string}
 @javaClass{org.meta_environment.rascal.library.Node}
 public str java toString(node T);
