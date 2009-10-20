@@ -73,7 +73,7 @@ public class ValueIO{
 	public static void writeBinaryValueFile(ISourceLocation loc, IValue value){
 		OutputStream out = null;
 		try{
-			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI());
+			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
 			new PBFWriter().write(value, out);
 		}catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
@@ -91,7 +91,7 @@ public class ValueIO{
 	public static void writeTextValueFile(ISourceLocation loc, IValue value){
 		OutputStream out = null;
 		try{
-			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI());
+			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
 			new StandardTextWriter().write(value, out);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);

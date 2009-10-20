@@ -43,8 +43,8 @@ public class FileURIResolver implements IURIInputStreamResolver, IURIOutputStrea
 		throw new IOException("uri has no path: " + uri);
 	}
 	
-	public OutputStream getOutputStream(URI uri) throws IOException {
-		return new BufferedOutputStream(new FileOutputStream(uri.getPath()));
+	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
+		return new BufferedOutputStream(new FileOutputStream(uri.getPath(), append));
 	}
 	
 	public String scheme() {

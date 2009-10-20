@@ -26,8 +26,8 @@ public class CWDURIResolver implements IURIInputStreamResolver,
 		return "cwd";
 	}
 
-	public OutputStream getOutputStream(URI uri) throws IOException {
-		return new FileOutputStream(getAbsolutePath(uri));
+	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
+		return new FileOutputStream(getAbsolutePath(uri), append);
 	}
 
 }
