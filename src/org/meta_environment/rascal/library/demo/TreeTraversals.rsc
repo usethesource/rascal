@@ -1,5 +1,6 @@
 module demo::TreeTraversals
 import List;
+import IO;
 
 // Various examples of tree traversal and replacement
 
