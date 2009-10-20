@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
@@ -19,6 +20,7 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 	private boolean anonymous = false;
 	private boolean debug = false;
 	private boolean iDeclaredItMyself;
+	private Environment cachedEnv;
 
 	public TypedVariablePattern(IEvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
@@ -70,7 +72,14 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 		if (!anonymous && !iDeclaredItMyself && !ctx.getCurrentEnvt().declareVariable(declaredType, name)) {
 			throw new RedeclaredVariableError(name, ctx.getCurrentAST());
 		}
+
+		// in some circumstances, apparently, the environment that held the declared variable is cleaned up between
+		// calls to next. In this case, we need to redeclare it. 
+		if (cachedEnv != ctx.getCurrentEnvt()) {
+			ctx.getCurrentEnvt().declareVariable(declaredType, name);
+		}
 		
+		cachedEnv = ctx.getCurrentEnvt();
 		iDeclaredItMyself = true;
 		
 		// isSubtypeOf does not know about concrete syntax types
