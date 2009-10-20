@@ -1,2 +1,2 @@
-data_DATA = hickory_check.jar jline-0.9.94.jar pdb_values.jar
+data_DATA = $(wildcard *.jar)
 EXTRA_DIST = $(wildcard *.jar)
