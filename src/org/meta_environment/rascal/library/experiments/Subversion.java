@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.library.experiments;
 
 import java.io.ByteArrayOutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -12,7 +13,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
+import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNProperties;
 import org.tmatesoft.svn.core.SVNURL;
@@ -20,7 +23,6 @@ import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
-import org.tmatesoft.svn.core.io.SVNFileRevision;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
@@ -63,12 +65,13 @@ public class Subversion {
 		try {
 			SVNRepository repository = createRepository(l);
 			// Create collection to pass in (and not use returned) to prevent an unchecked cast warning.
-			ArrayList<SVNFileRevision> revisions = new ArrayList<SVNFileRevision>();
-			repository.getFileRevisions("", revisions, 0, repository.getLatestRevision());
-			for (SVNFileRevision revision : revisions) {
+			ArrayList<SVNLogEntry> entries = new ArrayList<SVNLogEntry>();
+			// SVNRepository.log instead of SVNRepository.getFileRevisions because it supports directories.
+			repository.log(new String[] {""}, entries, 0, repository.getLatestRevision(), false, false);
+			for (SVNLogEntry entry : entries) {
 				// TODO: Use long factory method if it gets added.
 				// For now, convert to string instead of casting to int to prevent data loss.
-				writer.append(_valueFactory.integer(Long.toString(revision.getRevision())));
+				writer.append(_valueFactory.integer(Long.toString(entry.getRevision())));
 			}
 		} catch (SVNException e) {
 			throw RuntimeExceptionFactory.subversionException(e.getMessage(), null, null);
@@ -106,20 +109,69 @@ public class Subversion {
 		return writer.done();
 	}
 
+	/**
+	 * Retrieves a list of file locations present in the provided directory at the provided revision number.
+	 * May throw an exception of type <b>Subversion</b> in case of a Subversion-related error, or if the
+	 * provided combination of location and revision number does not point to a directory.
+	 * @param directory A location that points to a directory in the provided revision.
+	 * @param revision A valid revision of the repository referenced in the provided directory location.
+	 * @return A list of file locations.
+	 */
+	public static IList getRepositoryFileList(ISourceLocation directory, IInteger revision) {
+		return getRepositoryEntryList(directory, revision, SVNNodeKind.FILE);
+	}
+
+	/**
+	 * Retrieves a list of directory locations present in the provided directory at the provided revision
+	 * number. May throw an exception of type <b>Subversion</b> in case of a Subversion-related error, or if
+	 * the provided combination of location and revision number does not point to a directory.
+	 * @param directory A location that points to a directory in the provided revision.
+	 * @param revision A valid revision of the repository referenced in the provided directory location.
+	 * @return A list of directory locations.
+	 */
+	public static IList getRepositoryDirectoryList(ISourceLocation directory, IInteger revision) {
+		return getRepositoryEntryList(directory, revision, SVNNodeKind.DIR);
+	}
+
+	private static IList getRepositoryEntryList(ISourceLocation directory, IInteger revision, SVNNodeKind type) {
+		IListWriter writer = _valueFactory.listWriter(_typeFactory.sourceLocationType());
+		try {
+			SVNRepository repository = createRepository(directory);
+			checkPathType(repository, "", revision.longValue(), SVNNodeKind.DIR);
+			// Create collection to pass in (and not use returned) to prevent an unchecked cast warning.
+			ArrayList<SVNDirEntry> entries = new ArrayList<SVNDirEntry>();
+			repository.getDir("", revision.longValue(), false, entries);
+			for (SVNDirEntry entry : entries) {
+				if (entry.getKind() == type) {
+					writer.append(_valueFactory.sourceLocation(URI.create(entry.getURL().toString())));
+				}
+			}
+		} catch (SVNException e) {
+			throw RuntimeExceptionFactory.subversionException(e.getMessage(), null, null);
+		}
+		return writer.done();
+	}
+
     private static SVNRepository createRepository(ISourceLocation l) throws SVNException {
 		SVNRepository repository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(l.getURI().toString()));
 		repository.setAuthenticationManager(_authenticationManager);
 		return repository;
     }
 
+	private static void checkPathType(SVNRepository repository, String path, long revision, SVNNodeKind type) throws SVNException {
+		if (repository.checkPath("", revision) != type) {
+			// TODO: Decide whether this should be a Subversion or other type of exception.
+			// A typical FileNotFoundException doesn't include the revision component.
+			throw RuntimeExceptionFactory.subversionException("Combination of location and revision does not point to a " + type.toString() + ".", null, null);
+		}
+	}
+
 	private static String readRepositoryFileContents(ISourceLocation file, IInteger revision) {
 		SVNProperties properties = new SVNProperties();
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		try {
 			SVNRepository repository = createRepository(file);
-			if (repository.checkPath("", revision.longValue()) != SVNNodeKind.FILE) {
-				throw RuntimeExceptionFactory.subversionException("Location does not point to a file.", null, null);
-			}
+			checkPathType(repository, "", revision.longValue(), SVNNodeKind.FILE);
 			repository.getFile("", revision.longValue(), properties, outStream);
 		} catch (SVNException e) {
 			throw RuntimeExceptionFactory.subversionException(e.getMessage(), null, null);
