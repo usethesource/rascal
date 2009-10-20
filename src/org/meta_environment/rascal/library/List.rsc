@@ -1,31 +1,5 @@
 module List
 
-/* 
- * Library functions for lists:
- * - average
- * - delete
- * - domain
- * - head
- * - getOneFrom
- * - insertAT
- * - isEmpty
- * - mapper
- * - max
- * - min
- * - permutations
- * - reducer
- * - reverse
- * - size
- * - slice
- * - sort
- * - tail
- * - takeOneFrom
- * - toMap
- * - toMapUnique
- * - toSet
- * - toString
- */
-
 @doc{Average of elements of a list}
 public &T average(list[&T] lst, &T zero)
 {
@@ -147,6 +121,30 @@ public list[&T] sort(list[&T] lst)
   
   for(&T elm <- lst){
      if(elm <= pivot){
+       less = elm + less;
+     } else {
+       greater = elm + greater;
+     }
+  }
+  
+  return sort(less) + pivot + sort(greater);
+}
+
+@doc{Sort the elements of a list}
+public list[&T] sort(list[&T] lst, bool (&T a, &T b) lessThanOrEqual)
+{
+  if(size(lst) <= 1){
+  	return lst;
+  }
+  
+  list[&T] less = [];
+  list[&T] greater = [];
+  &T pivot = lst[0];
+  
+  <pivot, lst> = takeOneFrom(lst);
+  
+  for(&T elm <- lst){
+     if(lessThanOrEqual(elm,pivot)){
        less = elm + less;
      } else {
        greater = elm + greater;
