@@ -6,15 +6,14 @@ import demo::StateMachine::Syntax;
 import Relation;
 import Map;
 import IO;
+import Node;
 
-// Extract from a give FSM all transitions as a relation
-
+@doc{Extract from a give FSM all transitions as a relation}
 public rel[IdCon, IdCon] getTransitions(FSM fsm){
-   return { <from, to> | /`trans <IdCon a>: <IdCon from> -> <IdCon to>` <- fsm };
+   return { <delAnnotationsRec(from), delAnnotationsRec(to)> | /`trans <IdCon a>: <IdCon from> -> <IdCon to>` <- fsm };
 }
 
-// Compute all states that can be reached
-
+@doc{Compute all states that can be reached}
 public map[IdCon, set[IdCon]] canReach(FSM fsm){
   transitions = getTransitions(fsm);
   return ( s: (transitions+)[s] | IdCon s <- carrier(transitions) );
@@ -40,6 +39,14 @@ public FSM example =
 IdCon S1 = (IdCon) `S1`;
 IdCon S2 = (IdCon) `S2`;
 IdCon S3 = (IdCon) `S3`;
+
+public set[str] readable(set[IdCon] i) {
+  return { "<a>" | a <- i };
+}
+
+public rel[str,str] readable(rel[IdCon,IdCon] r) {
+  return { <"<from>","<to>"> | <from, to> <- r };
+}
 
 test getTransitions(example0) == {<S1, S2>};
 
