@@ -10,7 +10,7 @@ import Relation;
  */
  
 data Exp =
-       fnc(str name, Exp exp)             // Function application
+       fnc(str name, Exp exp)             // Function definition
      | var(str name)                      // Variable occurrence
      | intcon(int ival)                   // Integer constant
      | strcon(str sval)                   // String constant
@@ -36,12 +36,9 @@ public set[str] freeVars(Exp E) {
     return allVars(E) - boundVars(E);
 }
 
-/*
- * Gensym, a unique name generator.
- */
- 
 int Cnt = 0;
 
+@doc{a unique name generator}
 public str genSym()
 {
 	Cnt = Cnt + 1;
@@ -173,7 +170,7 @@ public bool typecheck(Exp E)
 
 // Tests
 
-test typecheck(op("seq", op("add", var("a"), var("b")),
+test !typecheck(op("seq", op("add", var("a"), var("b")),
                          op("conc", var("a"), op("conc", var("b"), strcon("abc")))));
 
 
@@ -181,16 +178,16 @@ test rename(apply(fnc("a", var("a")),  intcon(3))) ==
             apply(fnc("_x1",var("_x1")),intcon(3));
          
 test rename(apply(fnc("a", var("b")),  intcon(3))) ==
-            apply(fnc("_x1",var("b")),intcon(3));
+            apply(fnc("_x2",var("b")),intcon(3));
          
 test rename(apply(fnc("a", apply(fnc("b", var("b")), intcon(2))), intcon(1))) ==
-            apply(fnc("_x1",apply(fnc("_x2",var("_x2")),intcon(2))),intcon(1));
+            apply(fnc("_x3",apply(fnc("_x4",var("_x4")),intcon(2))),intcon(1));
           
 test rename(apply(fnc("a", apply(fnc("b", var("a")), intcon(2))), intcon(1))) ==
-            apply(fnc("_x1",apply(fnc("_x2",var("_x1")),intcon(2))),intcon(1));
+            apply(fnc("_x5",apply(fnc("_x6",var("_x5")),intcon(2))),intcon(1));
          
 test rename(apply(fnc("a", apply(fnc("b", var("a")), intcon(2))), var("c"))) ==
-            apply(fnc("_x1",apply(fnc("_x2",var("_x1")),intcon(2))),var("c"));
+            apply(fnc("_x7",apply(fnc("_x8",var("_x7")),intcon(2))),var("c"));
  /*                     
    test subst("a", intcon(1), apply(fnc("a", var("a")),  intcon(3))) ==
                                      apply(fnc("a", intcon(1)),intcon(3));
