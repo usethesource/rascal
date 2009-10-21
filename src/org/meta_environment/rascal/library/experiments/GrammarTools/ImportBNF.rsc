@@ -25,21 +25,13 @@ public Grammar importBNF(BNF bnfGrammar){
 
 // Convert a BNF Element to a Symbol value
 
-Symbol toSymbol(Terminal E){
-  if(/'<text:[^']*>'/ := "<E>")
-      return t(text);
-  else
-      throw IllegalArgument(E);
-}
-
-Symbol toSymbol(NonTerminal E){
-  return nt("<E>");
-}
-
 Symbol toSymbol(BNFElement E){
    visit(E){
-     case Terminal T: return toSymbol(T);
-     case NonTerminal NT: return toSymbol(NT);
+     case Terminal T:
+          if(/'<text:[^']*>'/ := "<T>")
+            return t(text);
+     case NonTerminal NT:
+          return nt("<NT>");
    }
    throw IllegalArgument(E);
 }
