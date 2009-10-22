@@ -1,22 +1,21 @@
 module demo::StateMachine::CanReach
 
-// A simple state machine FSM as suggested by Gorel Hedin at GTTSE09
+// A simple state machine FSM as suggested by Goerel Hedin at GTTSE09
 
 import demo::StateMachine::Syntax;
 import Relation;
 import Map;
-import IO;
-import Node;
 
 @doc{Extract from a give FSM all transitions as a relation}
-public rel[IdCon, IdCon] getTransitions(FSM fsm){
-   return { <delAnnotationsRec(from), delAnnotationsRec(to)> | /`trans <IdCon a>: <IdCon from> -> <IdCon to>` <- fsm };
+public rel[str, str] getTransitions(FSM fsm){
+   return {<"<from>", "<to>"> | 
+           /`trans <IdCon a>: <IdCon from> -> <IdCon to>` <- fsm };
 }
 
 @doc{Compute all states that can be reached}
-public map[IdCon, set[IdCon]] canReach(FSM fsm){
+public map[str, set[str]] canReach(FSM fsm){
   transitions = getTransitions(fsm);
-  return ( s: (transitions+)[s] | IdCon s <- carrier(transitions) );
+  return ( s: (transitions+)[s] | str s <- carrier(transitions) );
 }
 
 // Examples and tests
@@ -36,23 +35,12 @@ public FSM example =
 	      trans b: S2 -> S1;
 	      trans a: S1 -> S3;
 
-IdCon S1 = (IdCon) `S1`;
-IdCon S2 = (IdCon) `S2`;
-IdCon S3 = (IdCon) `S3`;
 
-public set[str] readable(set[IdCon] i) {
-  return { "<a>" | a <- i };
-}
+test getTransitions(example0) == {<"S1", "S2">};
 
-public rel[str,str] readable(rel[IdCon,IdCon] r) {
-  return { <"<from>","<to>"> | <from, to> <- r };
-}
-
-test getTransitions(example0) == {<S1, S2>};
-
-test getTransitions(example) == {<S1, S2>, <S2, S1>, <S1, S3>};
+test getTransitions(example) == {<"S1", "S2">, <"S2", "S1">, <"S1", "S3">};
  
-test canReach(example) == (S1 : {S1, S2, S3}, 
-                           S2 : {S1, S2, S3},
-                           S3 : {});
+test canReach(example) == ("S1" : {"S1", "S2", "S3"}, 
+                           "S2" : {"S1", "S2", "S3"},
+                           "S3" : {});
 

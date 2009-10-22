@@ -235,6 +235,11 @@ public class AllDemoTests extends TestFramework {
 	public void StateMachine(){
 		assertTrue(runRascalTests("import demo::StateMachine::CanReach;"));
 	}
+	
+	@Test
+	public void StateMachineOld(){
+		assertTrue(runRascalTests("import demo::StateMachine::OldCanReach;"));
+	}
 
 	@Test
 	public void Trans() {
