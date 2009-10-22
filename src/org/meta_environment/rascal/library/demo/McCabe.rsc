@@ -11,15 +11,15 @@ import Relation;
 // It is defined as a metric on the control flow graph:
 //   number_of_edges - number_of_nodes + 2
 
-public int cyclomaticComplexity(graph[&T] CFG){
+public int cyclomaticComplexity(Graph[&T] CFG){
     return size(CFG) - size(carrier(CFG)) + 2;
 }
 
 // Tests
 
-graph[int] G1 = {<1,2>, <2,3>};
-graph[int] G3 = {<1,2>, <1,3>, <2,6>, <3,4>, <3,5>, <4,7>, <5,8>, <6,7>, <7,8>};
-graph[int] G5 = {<1,2>, <2,3>, <2,4>, <3,6>, <4,2>, <4,5>, <5, 10>, <6, 7>, 
+Graph[int] G1 = {<1,2>, <2,3>};
+Graph[int] G3 = {<1,2>, <1,3>, <2,6>, <3,4>, <3,5>, <4,7>, <5,8>, <6,7>, <7,8>};
+Graph[int] G5 = {<1,2>, <2,3>, <2,4>, <3,6>, <4,2>, <4,5>, <5, 10>, <6, 7>, 
                  <7, 8>, <7,9>, <8,9>, <9, 7>, <9,10>};
 
 test cyclomaticComplexity(G1) == 1;

@@ -1,7 +1,7 @@
 module Graph
 
 /*
- * Library functions for manipulating graphs:
+ * Library functions for manipulating Graphs:
  * - bottom
  * - predecessors
  * - reach
@@ -16,23 +16,23 @@ import Set;
 import Relation;
 import IO;
 
-alias graph[&T] = rel[&T from, &T to];
+alias Graph[&T] = rel[&T from, &T to];
 
-@doc{ return the bottom nodes of a graph.}
-public set[&T] bottom(graph[&T] G)
+@doc{ return the bottom nodes of a Graph.}
+public set[&T] bottom(Graph[&T] G)
 {
   return range(G) - domain(G);
 }
 
-@doc{ the predecessors of a single node in a graph}
-public set[&T] predecessors(graph[&T] G, &T From)
+@doc{ the predecessors of a single node in a Graph}
+public set[&T] predecessors(Graph[&T] G, &T From)
 {
   //return G[_,From];
   return invert(G)[From];
 }
 
 @doc{ Reachability from set of start nodes.}
-public set[&T] reach(graph[&T] G, set[&T] Start)
+public set[&T] reach(Graph[&T] G, set[&T] Start)
 {
     set[&T] R = Start;
 	
@@ -44,24 +44,24 @@ public set[&T] reach(graph[&T] G, set[&T] Start)
 }
 
 @doc{ Reachability from set of start nodes with restriction to certain nodes.}
-public set[&T] reachR(graph[&T] G, set[&T] Start, set[&T] Restr)
+public set[&T] reachR(Graph[&T] G, set[&T] Start, set[&T] Restr)
 {
 	return (carrierR(G, Restr)+)[Start];
 }
 
 @doc{ Reachability from set of start nodes with exclusion of certain nodes.}
-public set[&T] reachX(graph[&T] G, set[&T] Start, set[&T] Excl)
+public set[&T] reachX(Graph[&T] G, set[&T] Start, set[&T] Excl)
 {
    return (carrierX(G, Excl)+)[Start];
 }
 
 @doc{ Shortest path between pair of nodes.}
 @javaClass{org.meta_environment.rascal.library.Graph}
-public list[&T] java shortestPathPair(graph[&T] G, &T From, &T To);
+public list[&T] java shortestPathPair(Graph[&T] G, &T From, &T To);
 
 /* TODO: replace upper builtin by lower code, but refactor it to not
    use global variables.
-private graph[&T] Graph ={};
+private Graph[&T] Graph ={};
 private map[int, int] distance =();
 private map[int, int] pred = ();
 private set[int] settled = {};
@@ -130,14 +130,14 @@ private list[int] extractPath(int start, int u)
 public rel[int,int] examp = {<1,2>,<2,3>,<3,4>,<2,4>};
 */
 
-@doc{The successor of a single node in a graph}
-public set[&T] successors(graph[&T] G, &T From)
+@doc{The successor of a single node in a Graph}
+public set[&T] successors(Graph[&T] G, &T From)
 {
   return G[From];
 }
 
-@doc{Return the top nodes of a graph.}
-public set[&T] top(graph[&T] G)
+@doc{Return the top nodes of a Graph.}
+public set[&T] top(Graph[&T] G)
 {
   return domain(G) - range(G);
 }

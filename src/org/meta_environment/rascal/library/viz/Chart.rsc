@@ -13,7 +13,7 @@ module viz::Chart
   * Settings to refine the actual chart
   */
 
-data chartSetting =            // supported by
+data ChartSetting =            // supported by
                                // barChart pieChart xyChart histogram boxplot
      area()                    //                   x
    | dim3()                    // x        x                              
@@ -54,56 +54,56 @@ public alias realSeriesMultipleData =
 
 @doc{draw a bar chart}
 @javaClass{org.meta_environment.rascal.library.viz.BarChart}
-public void java barChart(str title, map[str,int] facts, chartSetting settings...);
+public void java barChart(str title, map[str,int] facts, ChartSetting settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.meta_environment.rascal.library.viz.BarChart}
-public void java barChart(str title, map[str,real] facts, chartSetting settings...);
+public void java barChart(str title, map[str,real] facts, ChartSetting settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.meta_environment.rascal.library.viz.BarChart}
-public void java barChart(str title, list[str] categories, list[intSeries] facts, chartSetting settings...);
+public void java barChart(str title, list[str] categories, list[intSeries] facts, ChartSetting settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.meta_environment.rascal.library.viz.BarChart}
-public void java barChart(str title, list[str] categories, list[realSeries] facts, chartSetting settings...);
+public void java barChart(str title, list[str] categories, list[realSeries] facts, ChartSetting settings...);
 
 // boxPlot aka BoxAndWiskerPlot
 
 @doc{draw a boxPlot}
 @javaClass{org.meta_environment.rascal.library.viz.BoxPlot}
-public void java boxplot(str title, list[intSeriesMultipleData] facts, chartSetting settings...);
+public void java boxplot(str title, list[intSeriesMultipleData] facts, ChartSetting settings...);
 
 @doc{draw a boxplot}
 @javaClass{org.meta_environment.rascal.library.viz.BoxPlot}
-public void java boxplot(str title, list[realSeriesMultipleData] facts, chartSetting settings...);
+public void java boxplot(str title, list[realSeriesMultipleData] facts, ChartSetting settings...);
 
 // histogram
 
 @doc{draw a histogram}
 @javaClass{org.meta_environment.rascal.library.viz.Histogram}
-public void java histogram(str title, list[intSeries] facts, int nbins, chartSetting settings...);
+public void java histogram(str title, list[intSeries] facts, int nbins, ChartSetting settings...);
 
 @doc{draw a histogram}
 @javaClass{org.meta_environment.rascal.library.viz.Histogram}
-public void java histogram(str title, list[realSeries] facts, int nbins, chartSetting settings...);
+public void java histogram(str title, list[realSeries] facts, int nbins, ChartSetting settings...);
 
 // piechart
 
 @doc{draw a pie chart}
 @javaClass{org.meta_environment.rascal.library.viz.PieChart}
-public void java pieChart(str title, map[str,int] facts, chartSetting settings...);  
+public void java pieChart(str title, map[str,int] facts, ChartSetting settings...);  
 
 @doc{draw a pie chart}
 @javaClass{org.meta_environment.rascal.library.viz.PieChart}
-public void java pieChart(str title, map[str,real] facts, chartSetting settings...);   
+public void java pieChart(str title, map[str,real] facts, ChartSetting settings...);   
 
 // xyChart
 
 @doc{draw an xy chart}
 @javaClass{org.meta_environment.rascal.library.viz.XYChart}
-public void java xyChart(str title, list[intSeries] facts, chartSetting settings...);
+public void java xyChart(str title, list[intSeries] facts, ChartSetting settings...);
 
 @doc{draw an xy chart}
 @javaClass{org.meta_environment.rascal.library.viz.XYChart}
-public void java xyChart(str title, list[realSeries] facts, chartSetting settings...);
+public void java xyChart(str title, list[realSeries] facts, ChartSetting settings...);
