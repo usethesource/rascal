@@ -10,7 +10,7 @@ alias varname = str;
 
 public expr ROOT = 1;
 
-public graph[expr] PRED = { <1,3>, <3,4>, <4,5>, <5,6>, <5,8>, 
+public Graph[expr] PRED = { <1,3>, <3,4>, <4,5>, <5,6>, <5,8>, 
                         <6,10>, <8,10> 
                       };
 
