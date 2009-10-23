@@ -2,6 +2,8 @@ package org.meta_environment.rascal.interpreter;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -28,11 +30,13 @@ import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptError;
+import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 
@@ -345,7 +349,54 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 	
 	@Override
 	public Result<IValue> visitAssignableConstructor(Constructor x) {
-		throw new ImplementationError("Constructor assignables not yet implemented");
+		Type valueType = value.getType();
+		
+		if (!valueType.isNodeType() && !valueType.isAbstractDataType() && !valueType.isConstructorType()) {
+			throw new UnexpectedTypeError(tf.nodeType(), value.getType(), x);
+		}
+		
+		INode node = (INode) value.getValue();
+		Type nodeType = node.getType();
+		
+		if (nodeType.isAbstractDataType()) {
+			nodeType = ((IConstructor) value.getValue()).getConstructorType();
+		}
+		
+		if (!node.getName().equals(Names.name(x.getName()))) {
+			throw RuntimeExceptionFactory.nameMismatch(node.getName(), Names.name(x.getName()), x.getName(), eval.getStackTrace());
+		}
+		
+		List<Assignable> arguments = x.getArguments();
+		
+		if (node.arity() != arguments.size()) {
+			throw RuntimeExceptionFactory.arityMismatch(node.arity(), arguments.size(), x, eval.getStackTrace());
+		}
+		
+		IValue[] results = new IValue[arguments.size()];
+		Type [] resultTypes = new Type[arguments.size()];
+		
+		for (int i = 0; i < arguments.size(); i++) {
+			Type argType = !nodeType.isConstructorType() ? tf.valueType() : nodeType.getFieldType(i);
+			IValue arg = node.get(i);
+			Result<IValue> result = makeResult(argType, arg, eval);
+			AssignableEvaluator ae = new AssignableEvaluator(env,null, result, eval);
+			Result<IValue> argResult = arguments.get(i).accept(ae);
+			results[i] = argResult.getValue();
+			resultTypes[i] = argType;
+		}
+		
+		if (!nodeType.isAbstractDataType() && !nodeType.isConstructorType()) {
+			return makeResult(nodeType, nodeType.make(eval.getValueFactory(), node.getName(), results), eval);
+		}
+		else {
+			Type constructor = eval.getCurrentEnvt().getConstructor(node.getName(), tf.tupleType(resultTypes));
+			
+			if (constructor == null) {
+				throw new ImplementationError("could not find constructor for " + node.getName() + " : " + tf.tupleType(resultTypes));
+			}
+			
+			return makeResult(constructor.getAbstractDataType(), constructor.make(eval.getValueFactory(), results), eval);
+		}
 	}
 	
 	public AbstractAST getCurrentAST() {

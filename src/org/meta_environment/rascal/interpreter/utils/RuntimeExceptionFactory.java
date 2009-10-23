@@ -49,6 +49,8 @@ public class RuntimeExceptionFactory {
 	private static Type IllegalIdentifier = TF.constructor(TS, E, "IllegalIdentifier", TF.stringType(), "name");
 	private static Type SchemeNotSupported = TF.constructor(TS, E, "SchemeNotSupported", TF.sourceLocationType(), "location");
 	private static Type MalFormedURI = TF.constructor(TS, E, "MalFormedURI", TF.stringType(), "uri");
+	private static Type NameMismatch = TF.constructor(TS, E, "NameMismatch", TF.stringType(), "expected", TF.stringType(), "got");
+	private static Type ArityMismatch = TF.constructor(TS, E, "ArityMismatch", TF.integerType(), "expected", TF.integerType(), "got");
 
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
 	private static Type Subversion = TF.constructor(TS, E, "Subversion", TF.stringType(), "message");
@@ -153,5 +155,13 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw subversionException(String message, AbstractAST ast, String trace) {
 		return new Throw(Subversion.make(VF, VF.string(message)), ast, trace);
+	}
+	
+	public static Throw nameMismatch(String expected, String got, AbstractAST ast, String trace) {
+		return new Throw(NameMismatch.make(VF, VF.string(expected), VF.string(got)), ast, trace);
+	}
+	
+	public static Throw arityMismatch(int expected, int got, AbstractAST ast, String trace) {
+		return new Throw(ArityMismatch.make(VF, VF.integer(expected), VF.integer(got)), ast, trace);
 	}
 }
