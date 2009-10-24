@@ -2297,11 +2297,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
 
-		if (!expr.getType().isSubtypeOf(tf.stringType())) {
-			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
-		}
-
-		String result = ((IString) pre.getValue()).getValue() + ((IString) expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		String result = ((IString) pre.getValue()).getValue() + ToString.toString(expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
 
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
@@ -2313,11 +2309,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
 
-		if (!expr.getType().isSubtypeOf(tf.stringType())) {
-			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
-		}
-
-		String result = ((IString) pre.getValue()).getValue() + ((IString) expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		String result = ((IString) pre.getValue()).getValue() + ToString.toString(expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
 
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
@@ -2334,12 +2326,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
 
-		if (!expr.getType().isSubtypeOf(tf.stringType())) {
-			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
-		}
-
 		String preString = ((IString) pre.getValue()).getValue();
-		String exprString = ((IString) expr.getValue()).getValue();
+		String exprString = ToString.toString(expr.getValue()).getValue();
 		String tailString = ((IString) tail.getValue()).getValue();
 		String result = preString + exprString + tailString;
 
@@ -2381,12 +2369,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
 
-		if (!expr.getType().isSubtypeOf(tf.stringType())) {
-			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
-		}
-
 		String midString = ((IString) mid.getValue()).getValue();
-		String exprString = ((IString) expr.getValue()).getValue();
+		String exprString = ToString.toString(expr.getValue()).getValue();
 		String tailString = ((IString) tail.getValue()).getValue();
 		String result = midString + exprString + tailString;
 
