@@ -13,6 +13,7 @@ import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.ReifiedType;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
@@ -52,6 +53,12 @@ public class ParseTree {
 			}
 			
 			return tree;
+		}
+		catch (SyntaxError e) {
+			ISourceLocation loc = e.getLocation();
+			loc = values.sourceLocation(input.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(),
+					loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+			throw RuntimeExceptionFactory.parseError(loc, null, null);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
@@ -81,7 +88,11 @@ public class ParseTree {
 			}
 			
 			return tree;
-		}catch(IOException ioex){
+		}
+		catch (SyntaxError e) {
+			throw RuntimeExceptionFactory.parseError(e.getLocation(), null, null);
+		}
+		catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}
 	}
