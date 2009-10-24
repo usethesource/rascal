@@ -55,6 +55,7 @@ import org.meta_environment.values.ValueFactoryFactory;
  */
 public class ASTBuilder {
 	private static final String RASCAL_SORT_PREFIX = "_";
+	private static final String MODULE_SORT = "Module";
 	private ASTFactory factory;
     private Class<? extends ASTFactory> clazz;
     
@@ -81,9 +82,22 @@ public class ASTBuilder {
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
 		IConstructor tree = ParsetreeAdapter.getTop(parseTree);
 		if (TreeAdapter.isAppl(tree)) {
-			return buildSort(parseTree, "Module");
+			return buildSort(parseTree, MODULE_SORT);
 		}
-		throw new ImplementationError("Ambiguous module?");
+		if (TreeAdapter.isAmb(tree)) {
+			ISet alts = TreeAdapter.getAlternatives(tree);
+			for (IValue val: alts) {
+				IConstructor t = (IConstructor) TreeAdapter.getArgs((IConstructor)val).get(1);
+				// This *prefers* the first Rascal Module it encounters in the set of alts.
+				// So if the Rascal syntax for modules itself would be ambiguous
+				// you get just one of them (unknown which).
+				if (sortName(t).equals(MODULE_SORT)) {
+					// t must be an appl so call buildValue directly
+					return (Module) buildValue(t);
+				}
+			}
+		}
+		throw new ImplementationError("Parse of module returned invalid tree.");
 	}
 	
 	public Expression buildExpression(IConstructor parseTree) {
