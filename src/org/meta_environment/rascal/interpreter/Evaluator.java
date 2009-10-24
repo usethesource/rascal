@@ -2350,7 +2350,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitPrePathCharsLexical(
 			org.meta_environment.rascal.ast.PrePathChars.Lexical x) {
 		String str = x.getString();
-		return makeResult(tf.stringType(), vf.string(str.substring(1)), this);
+		return makeResult(tf.stringType(), vf.string(str.substring(0, str.length() - 1)), this);
 	}
 
 	@Override
@@ -2367,17 +2367,28 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	@Override
+	public Result<IValue> visitMidPathCharsLexical(
+			org.meta_environment.rascal.ast.MidPathChars.Lexical x) {
+		String s = x.getString();
+		s = s.substring(1, s.length() - 1);
+		return makeResult(tf.stringType(), vf.string(s), this);
+	}
+	
+	
+	@Override
 	public Result<IValue> visitPathTailMid(Mid x) {
-		Result<IValue> expr = x.getMid().accept(this);
+		Result<IValue> mid = x.getMid().accept(this);
+		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
 
 		if (!expr.getType().isSubtypeOf(tf.stringType())) {
 			throw new UnexpectedTypeError(tf.stringType(), expr.getType(), x.getExpression());
 		}
 
+		String midString = ((IString) mid.getValue()).getValue();
 		String exprString = ((IString) expr.getValue()).getValue();
 		String tailString = ((IString) tail.getValue()).getValue();
-		String result = exprString + tailString;
+		String result = midString + exprString + tailString;
 
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
