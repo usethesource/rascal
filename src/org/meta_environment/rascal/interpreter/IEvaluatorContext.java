@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.Stack;
+
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -20,4 +22,6 @@ public interface IEvaluatorContext {
 	public IValueFactory getValueFactory();
 	public IStrategyContext getStrategyContext();
 	public void setStrategyContext(IStrategyContext strategyContext);
+	public void setAccumulators(Stack<Accumulator> accumulators);
+	public Stack<Accumulator> getAccumulators();
 }

@@ -2,12 +2,14 @@ package org.meta_environment.rascal.interpreter.result;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Statement;
+import org.meta_environment.rascal.interpreter.Accumulator;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
@@ -22,20 +24,24 @@ public class RascalFunction extends NamedFunction {
 
 	private final List<Statement> body;
 	private final boolean isVoidFunction;
-
-	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env) {
+	private final Stack<Accumulator> accumulators;
+			
+	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env,
+				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				(FunctionType) TE.eval(func.getSignature(), env),
 				varargs,
-				func.getBody().getStatements(), env);
+				func.getBody().getStatements(), env, accumulators);
 		this.name = Names.name(func.getSignature().getName());
 	}
 	
+	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, Evaluator eval, FunctionType functionType,
-			boolean varargs, List<Statement> body, Environment env) {
+			boolean varargs, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
 		super(ast, eval, functionType, null, varargs, env);
 		this.body = body;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
+		this.accumulators = (Stack<Accumulator>) accumulators.clone();
 	}
 	
 	public boolean isAnonymous() {
@@ -60,9 +66,11 @@ public class RascalFunction extends NamedFunction {
 		}
 
 		Environment old = ctx.getCurrentEnvt();
+		Stack<Accumulator> oldAccus = ctx.getAccumulators();
 		
 		try {
 			ctx.setCurrentEnvt(new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), isAnonymous()?"Anonymous Function":name));
+			ctx.setAccumulators(accumulators);
 			ctx.pushEnv();
 			
 			bindTypeParameters(actualTypesTuple, instantiatedFormals, ctx.getCurrentEnvt());
@@ -108,6 +116,7 @@ public class RascalFunction extends NamedFunction {
 				printEndTrace();
 			}
 			ctx.setCurrentEnvt(old);
+			ctx.setAccumulators(oldAccus);
 		}
 	}
 	
