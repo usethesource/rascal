@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -740,6 +741,14 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 	public void setStrategyContext(IStrategyContext strategyContext) {
 		ctx.setStrategyContext(strategyContext);
+	}
+
+	public Stack<Accumulator> getAccumulators() {
+		return ctx.getAccumulators();
+	}
+
+	public void setAccumulators(Stack<Accumulator> accumulators) {
+		ctx.setAccumulators(accumulators);
 	}
 
 }

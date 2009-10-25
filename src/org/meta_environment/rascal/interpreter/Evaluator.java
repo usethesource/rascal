@@ -186,7 +186,6 @@ import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
-import org.meta_environment.rascal.interpreter.matching.ConcreteApplicationPattern;
 import org.meta_environment.rascal.interpreter.matching.IBooleanResult;
 import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.matching.NodePattern;
@@ -198,7 +197,7 @@ import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
-import org.meta_environment.rascal.interpreter.staticErrors.AppendWithoutFor;
+import org.meta_environment.rascal.interpreter.staticErrors.AppendWithoutLoop;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
@@ -269,7 +268,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private PrintWriter stderr;
 	private PrintWriter stdout;
 
-	private Stack<Accumulator> forAccumulators = new Stack<Accumulator>();
+	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
 
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
@@ -1369,23 +1368,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitStatementAppend(Append x) {
 		Accumulator target = null;
-		if (forAccumulators.empty()) {
-			throw new AppendWithoutFor(x);
+		if (accumulators.empty()) {
+			throw new AppendWithoutLoop(x);
 		}
 		if (!x.getDataTarget().isEmpty()) {
 			String label = Names.name(x.getDataTarget().getLabel());
-			for (Accumulator accu: forAccumulators) {
+			for (Accumulator accu: accumulators) {
 				if (accu.hasLabel(label)) {
 					target = accu;
 					break;
 				}
 			}
 			if (target == null) {
-				throw new AppendWithoutFor(x); // TODO: better error message
+				throw new AppendWithoutLoop(x); // TODO: better error message
 			}
 		}
 		else {
-			target = forAccumulators.peek();
+			target = accumulators.peek();
 		}
 		Result<IValue> result = x.getStatement().accept(this);
 		target.append(result);
@@ -1618,7 +1617,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				throw new MissingModifierError("java", x);
 			}
 
-			lambda = new RascalFunction(this, x, varArgs, getCurrentEnvt());
+			lambda = new RascalFunction(this, x, varArgs, getCurrentEnvt(), accumulators);
 		}
 
 		getCurrentEnvt().storeFunction(lambda.getName(), lambda);
@@ -1731,23 +1730,31 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Expression generator = x.getCondition();
 		IBooleanResult gen;
 		Environment old = getCurrentEnvt();
-		Result<IValue> result = nothing();
 
+		String label = null;
+		if (!x.getLabel().isEmpty()) {
+			label = Names.name(x.getLabel().getName());
+		}
+		accumulators.push(new Accumulator(vf, label));
+
+		
 		// a while statement is different from a for statement, the body of the while can influence the
 		// variables that are used to test the condition of the loop
 		// while does not iterate over all possible matches, rather it produces every time the first match
 		// that makes the condition true
-
+		
 		while (true) {
 			try {
 				gen = makeBooleanResult(generator);
 				gen.init();
 				pushEnv();
 				if(gen.hasNext() && gen.next()){
-					result = body.accept(this);
+					/*result = */body.accept(this);
 				}
 				else {
-					return result;
+					//return result;
+					IValue value = accumulators.pop().done();
+					return makeResult(value.getType(), value, this);
 				}
 			} finally {
 				unwind(old);
@@ -1761,16 +1768,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Expression generator = x.getCondition();
 		IBooleanResult gen;
 		Environment old = getCurrentEnvt();
-		Result<IValue> result = nothing();
+		String label = null;
+		if (!x.getLabel().isEmpty()) {
+			label = Names.name(x.getLabel().getName());
+		}
+		accumulators.push(new Accumulator(vf, label));
 
+		
 		while (true) {
 			try {
-				result = body.accept(this);
+				body.accept(this);
 
 				gen = makeBooleanResult(generator);
 				gen.init();
 				if(!(gen.hasNext() && gen.next())) {
-					return result;
+					IValue value = accumulators.pop().done();
+					return makeResult(value.getType(), value, this);
 				}
 			} finally {
 				unwind(old);
@@ -2409,14 +2422,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
 		Type returnType = evalType(x.getType());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(returnType, formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
+		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(returnType, formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
+					accumulators);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionVoidClosure(VoidClosure x) {
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(tf.voidType(), formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
+		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(tf.voidType(), formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
+					accumulators);
 
 	}
 
@@ -3072,7 +3087,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (!x.getLabel().isEmpty()) {
 			label = Names.name(x.getLabel().getName());
 		}
-		forAccumulators.push(new Accumulator(vf, label));
+		accumulators.push(new Accumulator(vf, label));
 
 
 		// TODO: does this prohibit that the body influences the behavior of the generators??
@@ -3103,9 +3118,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					pushEnv();
 				}
 			}
+			// TODO: this is not enough, we must also detect
+			// break and return a list result then.
 			normalCflow = true;
 		} finally {
-			IValue value = forAccumulators.pop().done();
+			IValue value = accumulators.pop().done();
 			if (normalCflow) {
 				result = makeResult(value.getType(), value, this);
 			}
@@ -3336,6 +3353,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public void setStdOut(PrintWriter printWriter) {
 		stdout = printWriter;
+	}
+
+	public void setAccumulators(Accumulator accu) {
+		accumulators.push(accu);
+	}
+
+	public Stack<Accumulator> getAccumulators() {
+		return accumulators;
+	}
+
+	public void setAccumulators(Stack<Accumulator> accumulators) {
+		this.accumulators = accumulators;
 	}
 
 

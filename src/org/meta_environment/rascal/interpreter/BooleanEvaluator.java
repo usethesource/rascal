@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.Stack;
+
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
@@ -471,6 +473,14 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	public void setStrategyContext(IStrategyContext strategyContext) {
 		ctx.setStrategyContext(strategyContext);
+	}
+
+	public Stack<Accumulator> getAccumulators() {
+		return ctx.getAccumulators();
+	}
+
+	public void setAccumulators(Stack<Accumulator> accumulators) {
+		ctx.setAccumulators(accumulators);
 	}
 
 }

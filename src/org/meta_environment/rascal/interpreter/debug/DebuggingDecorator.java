@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.debug;
 
 import java.io.IOException;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -93,6 +94,7 @@ import org.meta_environment.rascal.ast.Statement.Try;
 import org.meta_environment.rascal.ast.Statement.TryFinally;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
+import org.meta_environment.rascal.interpreter.Accumulator;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
@@ -819,6 +821,14 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 
 	public void setStrategyContext(IStrategyContext strategyContext) {
 		evaluator.setStrategyContext(strategyContext);		
+	}
+
+	public Stack<Accumulator> getAccumulators() {
+		return evaluator.getAccumulators();
+	}
+
+	public void setAccumulators(Stack<Accumulator> accumulators) {
+		evaluator.setAccumulators(accumulators);
 	}
 
 
