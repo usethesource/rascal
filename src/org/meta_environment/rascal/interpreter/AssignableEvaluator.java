@@ -30,7 +30,6 @@ import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -388,15 +387,14 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		if (!nodeType.isAbstractDataType() && !nodeType.isConstructorType()) {
 			return makeResult(nodeType, nodeType.make(eval.getValueFactory(), node.getName(), results), eval);
 		}
-		else {
-			Type constructor = eval.getCurrentEnvt().getConstructor(node.getName(), tf.tupleType(resultTypes));
-			
-			if (constructor == null) {
-				throw new ImplementationError("could not find constructor for " + node.getName() + " : " + tf.tupleType(resultTypes));
-			}
-			
-			return makeResult(constructor.getAbstractDataType(), constructor.make(eval.getValueFactory(), results), eval);
+		
+		Type constructor = eval.getCurrentEnvt().getConstructor(node.getName(), tf.tupleType(resultTypes));
+		
+		if (constructor == null) {
+			throw new ImplementationError("could not find constructor for " + node.getName() + " : " + tf.tupleType(resultTypes));
 		}
+		
+		return makeResult(constructor.getAbstractDataType(), constructor.make(eval.getValueFactory(), results), eval);
 	}
 	
 	public AbstractAST getCurrentAST() {

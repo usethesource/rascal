@@ -15,7 +15,6 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
-import treemap.Treemap;
 
 public class Graph {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();

@@ -1,7 +1,5 @@
 package org.meta_environment.rascal.library.experiments.Processing;
 
-import java.awt.Rectangle;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;

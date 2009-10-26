@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.interpreter.env;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
