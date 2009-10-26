@@ -2,7 +2,6 @@ package org.meta_environment.rascal.test;
 
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.AppendWithoutLoop;
 
