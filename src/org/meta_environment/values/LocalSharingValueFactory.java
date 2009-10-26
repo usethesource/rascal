@@ -85,6 +85,10 @@ public class LocalSharingValueFactory implements IValueFactory{
 		return cachedIntegers.cache(valueFactory.integer(i));
 	}
 
+	public IInteger integer(long i){
+		return cachedIntegers.cache(valueFactory.integer(i));
+	}
+
 	public IInteger integer(String i) throws NumberFormatException{
 		return cachedIntegers.cache(valueFactory.integer(i));
 	}
