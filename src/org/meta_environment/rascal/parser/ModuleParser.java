@@ -45,7 +45,7 @@ public class ModuleParser {
 	
 	protected static final String META_LANGUAGE_KEY = "meta";
 	protected static final String OBJECT_LANGUAGE_KEY = "obj";
-	private final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
+	private final static IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
 	
 	public class TableInfo {
@@ -72,6 +72,7 @@ public class ModuleParser {
 	}
 	
 	private final static IInvoker sglrInvoker;
+	private final static IBytesToTree bytesToTree;
 	protected static final int SGLR_OPTIONS_NO_INDIRECT_PREFERENCE = IInvoker.FILTERS_INDIRECT_PREFERENCE;
 	protected static final int DEFAULT_SGLR_OPTIONS = IInvoker.FILTERS_DEFAULT;
 	
@@ -80,10 +81,33 @@ public class ModuleParser {
 		
 		if(osName.indexOf("Linux") != -1){ // Linux.
 			sglrInvoker = SGLRInvoker.getInstance();
+			bytesToTree = new PBFBytesToTree();
 		}else if(osName.indexOf("Mac") != -1 || osName.indexOf("Darwin") != -1){ // Mac.
 			sglrInvoker = SGLRInvoker.getInstance();
+			bytesToTree = new PBFBytesToTree();
 		}else{
 			sglrInvoker = new LegacySGLRInvoker();
+			bytesToTree = new ATermBytesToTree();
+		}
+	}
+	
+	private interface IBytesToTree{
+		public IConstructor bytesToTree(byte[] data) throws IOException;
+	}
+	
+	private static class PBFBytesToTree implements IBytesToTree{
+		public IConstructor bytesToTree(byte[] result) throws IOException{
+			PBFReader reader = new PBFReader();
+			ByteArrayInputStream bais = new ByteArrayInputStream(result);
+			return (IConstructor) reader.read(valueFactory, Factory.getStore(), Factory.ParseTree, bais);
+		}
+	}
+	
+	private static class ATermBytesToTree implements IBytesToTree{
+		public IConstructor bytesToTree(byte[] result) throws IOException{
+			ATermReader reader = new ATermReader();
+			ByteArrayInputStream bais = new ByteArrayInputStream(result);
+			return (IConstructor) reader.read(valueFactory, Factory.getStore(), Factory.ParseTree, bais);
 		}
 	}
 
@@ -193,29 +217,27 @@ public class ModuleParser {
 		return table;
 	}
 
-	private IConstructor bytesToParseTree(URI location, byte[] result) throws IOException {
-		PBFReader reader = new PBFReader();
-		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
+	private IConstructor bytesToParseTree(byte[] result, URI location) throws IOException{
+		IConstructor tree = bytesToTree.bytesToTree(result);
 		return ParsetreeAdapter.addPositionInformation(tree, location);
 	}
 
 	protected IConstructor parseFromStream(String table, URI location, InputStream source, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromStream(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
-		return bytesToParseTree(location, result);
+		return bytesToParseTree(result, location);
 	}
 
 	protected IConstructor parseFromString(String table, URI location, String source, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromString(source, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
-		return bytesToParseTree(location, result);
+		return bytesToParseTree(result, location);
 	}
 
 	protected IConstructor parseFromData(String table, URI location, byte[] data, boolean filter) throws FactParseError, IOException {
 		byte[] result = sglrInvoker.parseFromData(data, table, filter ? DEFAULT_SGLR_OPTIONS : SGLR_OPTIONS_NO_INDIRECT_PREFERENCE);
 
-		return bytesToParseTree(location, result);
+		return bytesToParseTree(result, location);
 	}
 
 	protected TableInfo constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
