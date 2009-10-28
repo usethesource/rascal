@@ -12,7 +12,7 @@ import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalV
 
 public class All extends Strategy {
 
-	private IVisitable v;
+	private final IVisitable v;
 
 	public All(AbstractFunction function, IVisitable v) {
 		super(function);

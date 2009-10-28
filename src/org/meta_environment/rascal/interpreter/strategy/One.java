@@ -9,7 +9,7 @@ import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalV
 
 public class One extends Strategy {
 
-	private IVisitable v;
+	private final IVisitable v;
 
 	public One(AbstractFunction function, IVisitable v) {
 		super(function);
@@ -18,6 +18,7 @@ public class One extends Strategy {
 
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+		Thread.dumpStack();
 		IValue res = argValues[0];
 		v.init(res);
 		for (int i = 0; i < v.getChildrenNumber(res); i++) {
@@ -46,7 +47,8 @@ public class One extends Strategy {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
 			if (function.isStrategy()) {
-				return new One(function, Visitable.getInstance());			}
+				return new One(function, Visitable.getInstance());
+			}
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
