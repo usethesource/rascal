@@ -8,6 +8,7 @@ import static org.meta_environment.rascal.interpreter.utils.Utils.unescape;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -123,6 +124,8 @@ import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.FunctionDeclaration.Abstract;
 import org.meta_environment.rascal.ast.Header.Parameters;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
+import org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral;
+import org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.Literal.Location;
@@ -1854,6 +1857,32 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return x.getIntegerLiteral().accept(this);
 	}
 
+	@Override
+	public Result<IValue> visitIntegerLiteralOctalIntegerLiteral(
+			OctalIntegerLiteral x) {
+		return x.getOctal().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitIntegerLiteralHexIntegerLiteral(
+			HexIntegerLiteral x) {
+		return x.getHex().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitOctalIntegerLiteralLexical(
+			org.meta_environment.rascal.ast.OctalIntegerLiteral.Lexical x) {
+		return makeResult(tf.integerType(), vf.integer(new BigInteger(x.getString(), 8).toString()), this);
+	}
+
+	@Override
+	public Result<IValue> visitHexIntegerLiteralLexical(
+			org.meta_environment.rascal.ast.HexIntegerLiteral.Lexical x) {
+		String chars = x.getString();
+		String hex = chars.substring(2, chars.length());
+		return makeResult(tf.integerType(), vf.integer(new BigInteger(hex, 16).toString()), this);
+	}
+	
 	@Override
 	public Result<IValue> visitLiteralReal(Real x) {
 		String str = x.getRealLiteral().toString();
