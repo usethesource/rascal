@@ -18,7 +18,6 @@ public class One extends Strategy {
 
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		Thread.dumpStack();
 		IValue res = argValues[0];
 		v.init(res);
 		for (int i = 0; i < v.getChildrenNumber(res); i++) {
