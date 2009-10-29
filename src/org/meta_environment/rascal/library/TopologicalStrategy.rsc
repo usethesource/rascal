@@ -11,7 +11,7 @@ public &T(&T) java makeTopologicalAll(&T(&T) strategy);
 @javaClass{org.meta_environment.rascal.interpreter.strategy.One}
 public &T(&T) java makeTopologicalOne(&T(&T) strategy);
 
-@javaClass{org.meta_environment.rascal.interpreter.strategy.Strategy}
+@javaClass{org.meta_environment.rascal.interpreter.strategy.AbstractStrategy}
 @reflect{use the current strategy context}
 public value java getCurrentStratCtx();
 
