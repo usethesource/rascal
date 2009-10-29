@@ -6,7 +6,7 @@ import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 
-public class StrategyFunction extends Strategy {
+public class StrategyFunction extends AbstractStrategy {
 	
 	public StrategyFunction(AbstractFunction function) {
 		super(function);

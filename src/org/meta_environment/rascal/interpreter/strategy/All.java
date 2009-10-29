@@ -10,7 +10,7 @@ import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitable;
 
-public class All extends Strategy {
+public class All extends AbstractStrategy {
 
 	private final IVisitable v;
 
