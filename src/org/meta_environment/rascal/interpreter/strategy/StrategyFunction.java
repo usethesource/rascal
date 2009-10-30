@@ -15,7 +15,7 @@ public class StrategyFunction extends AbstractStrategy {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		if (argTypes[0].comparable(function.getFormals().getFieldType(0))) {
-			return super.call(argTypes, argValues);
+			return function.call(argTypes, argValues);
 		}
 		
 		// identity
