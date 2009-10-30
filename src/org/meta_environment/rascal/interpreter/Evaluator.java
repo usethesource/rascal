@@ -1159,45 +1159,49 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		return r;
 	}
-
+	
 	@Override
-	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
+	public Result<IValue> visitExpressionCallOrTree(CallOrTree x){
 		setCurrentAST(x);
 
 		Result<IValue> function = x.getExpression().accept(this);
-
-
+		
 		java.util.List<Expression> args = x.getArguments();
 
 		IValue[] actuals = new IValue[args.size()];
 		Type[] types = new Type[args.size()];
 
-		for (int i = 0; i < args.size(); i++) {
+		for(int i = 0; i < args.size(); i++){
 			Result<IValue> resultElem = args.get(i).accept(this);
 			types[i] = resultElem.getType();
 			actuals[i] = resultElem.getValue();
 		}
-			
-		try {
+		
+		try{
 			Result<IValue> res = function.call(types, actuals);
 			// we need to update the strategy context when the function is of type Strategy
-			if (function.getValue() instanceof AbstractFunction) {
+			if(function.getValue() instanceof AbstractFunction){
 				AbstractFunction f = (AbstractFunction) (function.getValue());
-				if (f.isStrategy() && getStrategyContext() != null) {
-					getStrategyContext().update(actuals[0], res.getValue());
+				if(f.isStrategy()){
+					IStrategyContext strategyContext = getStrategyContext();
+					if(strategyContext != null){
+						strategyContext.update(actuals[0], res.getValue());
+					}
 				}
 
-			} else if (function.getValue() instanceof OverloadedFunctionResult) {
+			}else if(function.getValue() instanceof OverloadedFunctionResult){
 				OverloadedFunctionResult fun = (OverloadedFunctionResult) (function.getValue());
-				for (AbstractFunction f: fun.iterable()) {
-					if (f.isStrategy() && getStrategyContext() != null) {
-						getStrategyContext().update(actuals[0], res.getValue());
+				IStrategyContext strategyContext = getStrategyContext();
+				for(AbstractFunction f: fun.iterable()){
+					if(f.isStrategy()){
+						if(strategyContext != null){
+							strategyContext.update(actuals[0], res.getValue());
+						}
 					}
 				}
 			}
 			return res;
-		}
-		catch (UndeclaredVariableError e) {
+		}catch(UndeclaredVariableError e){
 			throw new UndeclaredFunctionError(e.getName(), types, this, x);
 		}
 	}
