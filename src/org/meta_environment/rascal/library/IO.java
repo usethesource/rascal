@@ -39,7 +39,7 @@ public class IO{
 		
 		synchronized(currentOutStream){
 			try{
-				Iterator<IValue> valueIterator = ((IList) V).iterator();
+				Iterator<IValue> valueIterator = V.iterator();
 				while(valueIterator.hasNext()){
 					IValue arg = valueIterator.next();
 					
