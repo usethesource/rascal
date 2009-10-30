@@ -51,7 +51,7 @@ public class Node {
 	public static IValue makeNode(IString N, IList V)
 	//@doc{makeNode -- create a node given its function name and arguments}
 	{
-	    IList argList = (IList) V;
+	    IList argList = V;
 		IValue args[] = new IValue[argList.length()];
 		int i = 0;
 		for(IValue v : argList){
