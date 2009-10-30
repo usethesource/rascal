@@ -176,9 +176,8 @@ public class ModuleLoader{
 			ISourceLocation loc = vf.sourceLocation(file, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
 			return new SyntaxError("module " + mod, loc);
 		}
-		else {
-			return new SyntaxError("unknown location, maybe you used a keyword as an identifier)", vf.sourceLocation(file, 0,1,1,1,0,1));
-		}
+		
+		return new SyntaxError("unknown location, maybe you used a keyword as an identifier)", vf.sourceLocation(file, 0,1,1,1,0,1));
 	}
 	
 	private byte[] readModule(InputStream inputStream) throws IOException{
