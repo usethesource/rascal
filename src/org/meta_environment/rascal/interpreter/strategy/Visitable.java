@@ -15,15 +15,13 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 
 public class Visitable implements IVisitable {
+	private final static IVisitable instance = new Visitable();
 
-	private static IVisitable instance;
-
-	private Visitable() {}
+	private Visitable() {
+		super();
+	}
 
 	public static IVisitable getInstance() {
-		if (instance == null) {
-			instance = new Visitable();
-		}
 		return instance;
 	}
 
@@ -171,8 +169,6 @@ public class Visitable implements IVisitable {
 	}
 
 	public void init(IValue v) {
-		// TODO Auto-generated method stub
-		
+		// It's not necessary to implement this here.
 	}
-
 }
