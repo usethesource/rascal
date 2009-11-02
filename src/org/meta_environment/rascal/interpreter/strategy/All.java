@@ -25,6 +25,7 @@ public class All extends AbstractStrategy {
 		List<IValue> newchildren = new ArrayList<IValue>();
 		for (int i = 0; i < v.getChildrenNumber(res); i++) {
 			IValue child = v.getChildAt(res, i);
+			v.mark(child);
 			newchildren.add(function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue());
 		}
 		res = v.setChildren(res, newchildren);

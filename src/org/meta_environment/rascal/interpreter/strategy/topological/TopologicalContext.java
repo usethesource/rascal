@@ -14,11 +14,16 @@ import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 import org.meta_environment.values.ValueFactoryFactory;
 
 public class TopologicalContext implements IStrategyContext {
-	private HashMap<IValue, List<IValue>> adjacencies;
-	private HashMap<IValue, Integer> visits;
-	private Type type;
+	private final static Integer UNMARKED = new Integer(0);
+	private final static Integer MARKED = new Integer(1);
+	
+	private final HashMap<IValue, List<IValue>> adjacencies;
+	private final HashMap<IValue, Integer> visits;
+	private final Type type;
 
 	public TopologicalContext(IRelation relation) {
+		super();
+		
 		adjacencies = computeAdjacencies(relation);
 		visits = new HashMap<IValue, Integer>();
 		type = relation.getElementType();
@@ -77,18 +82,22 @@ public class TopologicalContext implements IStrategyContext {
 			}
 			return res;
 		}
-		if (visits.get(v) == 0)  {
+		if (!isMarked(v))  {
 			List<IValue> res =  adjacencies.get(v);
 			if (res != null) return res;
 		}
 		return new ArrayList<IValue>();
 	}
 	
+	public boolean isMarked(IValue v){
+		return !(visits.get(v) == null || visits.get(v) == UNMARKED);
+	}
+	
 	public void mark(IValue v) {
 		if (visits.containsKey(v)) {
-			visits.put(v, 1);	
+			visits.put(v, MARKED);	
 		} else {
-			visits.put(v, 0);
+			visits.put(v, UNMARKED);
 		}
 	}
 }

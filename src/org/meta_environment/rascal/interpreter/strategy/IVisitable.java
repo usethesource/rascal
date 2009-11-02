@@ -8,6 +8,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 public interface IVisitable {
 	
 	public void init(IValue v);
+	
+	public void mark(IValue v);
 
 	public IValue getChildAt(IValue v, int i) throws IndexOutOfBoundsException;
 
