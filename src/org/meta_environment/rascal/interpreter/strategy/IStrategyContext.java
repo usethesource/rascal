@@ -10,7 +10,5 @@ public interface IStrategyContext {
 
 	public IValue getValue();
 
-	public void setValue(IValue value);
-
 	public List<IValue> getChildren(IValue value);
 }

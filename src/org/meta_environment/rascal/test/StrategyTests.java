@@ -105,10 +105,9 @@ public class StrategyTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("topological_once_top_down(rules5)(r2) == {<aa(),e()>,<aa(),d()>,<d(),e()>}"));
 		
 		assertTrue(runTestInSameEvaluator("topological_top_down(rules5)(r2) == {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>}"));
-		
 		assertTrue(runTestInSameEvaluator("topological_bottom_up(rules5)(r2) == {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>}"));
-		assertTrue(runTestInSameEvaluator("topological_innermost(rules6)(r2) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>}"));
 		
+		assertTrue(runTestInSameEvaluator("topological_innermost(rules6)(r2) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>}"));
 		assertTrue(runTestInSameEvaluator("topological_outermost(rules6)(r2) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>}"));
 	}
 	

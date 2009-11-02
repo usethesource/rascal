@@ -21,8 +21,8 @@ public class All extends AbstractStrategy {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		IValue res = argValues[0];
-		List<IValue> newchildren = new ArrayList<IValue>();
 		v.init(res);
+		List<IValue> newchildren = new ArrayList<IValue>();
 		for (int i = 0; i < v.getChildrenNumber(res); i++) {
 			IValue child = v.getChildAt(res, i);
 			newchildren.add(function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue());

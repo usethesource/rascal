@@ -14,17 +14,16 @@ import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 import org.meta_environment.values.ValueFactoryFactory;
 
 public class TopologicalContext implements IStrategyContext {
-
 	private HashMap<IValue, List<IValue>> adjacencies;
 	private HashMap<IValue, Integer> visits;
 	private Type type;
 
-	public TopologicalContext() {
-		adjacencies = new HashMap<IValue, List<IValue>>();
+	public TopologicalContext(IRelation relation) {
+		adjacencies = computeAdjacencies(relation);
 		visits = new HashMap<IValue, Integer>();
+		type = relation.getElementType();
 	}
-
-
+	
 	private static HashMap<IValue, List<IValue>> computeAdjacencies(IRelation relation) {
 		HashMap<IValue, List<IValue>> adjacencies = new HashMap<IValue, List<IValue>> ();
 		for(IValue v : relation.domain().union(relation.range())){
@@ -46,17 +45,6 @@ public class TopologicalContext implements IStrategyContext {
 
 		}
 		return writer.done();
-	}
-
-	public void setValue(IValue value) {
-		if (value instanceof IRelation) {
-			IRelation relation = (IRelation) value;
-			adjacencies = computeAdjacencies(relation);
-			type =relation.getElementType();
-		} else {
-			throw new RuntimeException("Unexpected context type "+value.getType());
-		}
-
 	}
 
 	public void update(IValue oldvalue, IValue newvalue) {
@@ -89,20 +77,18 @@ public class TopologicalContext implements IStrategyContext {
 			}
 			return res;
 		}
-		if (visits.get(v) <= 1)  {
+		if (visits.get(v) == 0)  {
 			List<IValue> res =  adjacencies.get(v);
 			if (res != null) return res;
 		}
 		return new ArrayList<IValue>();
 	}
-
-
+	
 	public void mark(IValue v) {
 		if (visits.containsKey(v)) {
-			visits.put(v, visits.get(v)+1);	
+			visits.put(v, 1);	
 		} else {
-			visits.put(v, 1);
+			visits.put(v, 0);
 		}
 	}
-
 }

@@ -38,6 +38,7 @@ public class One extends AbstractStrategy {
 				}
 			}
 		}
+		
 		return makeResult(res, ctx);
 	}
 

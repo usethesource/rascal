@@ -1176,30 +1176,33 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			types[i] = resultElem.getType();
 			actuals[i] = resultElem.getValue();
 		}
+		
+		Result<IValue> res;
 		try{
-			Result<IValue> res = function.call(types, actuals);
-			// we need to update the strategy context when the function is of type Strategy
-			IStrategyContext strategyContext = getStrategyContext();
-			if(strategyContext != null){
-				if(function.getValue() instanceof AbstractFunction){
-					AbstractFunction f = (AbstractFunction) function.getValue();
-					if(f.isTypePreserving()){
-						strategyContext.update(actuals[0], res.getValue());
-					}
-				}else if(function.getValue() instanceof OverloadedFunctionResult){
-					OverloadedFunctionResult fun = (OverloadedFunctionResult) function.getValue();
-					
-					for(AbstractFunction f: fun.iterable()){
-						if(f.isTypePreserving()){
-							strategyContext.update(actuals[0], res.getValue());
-						}
-					}
-				}
-			}
-			return res;
+			res = function.call(types, actuals);
 		}catch(UndeclaredVariableError e){
 			throw new UndeclaredFunctionError(e.getName(), types, this, x);
 		}
+		
+		// we need to update the strategy context when the function is of type Strategy
+		IStrategyContext strategyContext = getStrategyContext();
+		if(strategyContext != null){
+			if(function.getValue() instanceof AbstractFunction){
+				AbstractFunction f = (AbstractFunction) function.getValue();
+				if(f.isTypePreserving()){
+					strategyContext.update(actuals[0], res.getValue());
+				}
+			}else if(function.getValue() instanceof OverloadedFunctionResult){
+				OverloadedFunctionResult fun = (OverloadedFunctionResult) function.getValue();
+				
+				for(AbstractFunction f: fun.iterable()){
+					if(f.isTypePreserving()){
+						strategyContext.update(actuals[0], res.getValue());
+					}
+				}
+			}
+		}
+		return res;
 	}
 
 	private boolean hasJavaModifier(FunctionDeclaration func) {
