@@ -9,8 +9,7 @@ import org.meta_environment.rascal.interpreter.strategy.IContextualVisitable;
 import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
 
 public class TopologicalVisitable implements IContextualVisitable {
-
-	private AbstractFunction function;
+	private final AbstractFunction function;
 
 	public TopologicalVisitable(AbstractFunction function) {
 		this.function = function;
@@ -20,8 +19,7 @@ public class TopologicalVisitable implements IContextualVisitable {
 		return getContext().getChildren(v).get(i);
 	}
 
-	public <T extends IValue> T setChildAt(T v, int i, IValue newchild)
-	throws IndexOutOfBoundsException {
+	public <T extends IValue> T setChildAt(T v, int i, IValue newchild) throws IndexOutOfBoundsException {
 		if (v instanceof IRelation) return (T) getContext().getValue();
 		IValue oldchild = getChildAt(v,i);
 		getContext().update(oldchild, newchild);
@@ -38,8 +36,7 @@ public class TopologicalVisitable implements IContextualVisitable {
 	}
 
 
-	public <T extends IValue> T setChildren(T v, List<IValue> children)
-	throws IndexOutOfBoundsException {
+	public <T extends IValue> T setChildren(T v, List<IValue> children) throws IndexOutOfBoundsException {
 		if (v instanceof IRelation) return (T) getContext().getValue();
 		return v;
 	}
@@ -63,5 +60,4 @@ public class TopologicalVisitable implements IContextualVisitable {
 		}
 		((TopologicalContext)getContext()).mark(v);
 	}
-
 }

@@ -42,7 +42,7 @@ public &T1(&T1) topological_once_top_down(&T2(&T2) strategy) {
 
 public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
   return &T3(&T3 subject) {
-       // TODO: the ctx is not intialized at the first call (for the moment, it returns a special value)
+       // TODO: the ctx is not initialized at the first call (for the moment, it returns a special value)
        value oldctx = getCurrentStratCtx();
 	   &T3 res = makeTopologicalOne(topological_once_bottom_up(strategy))(subject);
 	   value newctx = getCurrentStratCtx();

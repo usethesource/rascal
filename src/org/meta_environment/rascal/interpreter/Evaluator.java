@@ -1176,25 +1176,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			types[i] = resultElem.getType();
 			actuals[i] = resultElem.getValue();
 		}
-		
 		try{
 			Result<IValue> res = function.call(types, actuals);
 			// we need to update the strategy context when the function is of type Strategy
-			if(function.getValue() instanceof AbstractFunction){
-				AbstractFunction f = (AbstractFunction) (function.getValue());
-				if(f.isStrategy()){
-					IStrategyContext strategyContext = getStrategyContext();
-					if(strategyContext != null){
+			IStrategyContext strategyContext = getStrategyContext();
+			if(strategyContext != null){
+				if(function.getValue() instanceof AbstractFunction){
+					AbstractFunction f = (AbstractFunction) function.getValue();
+					if(f.isTypePreserving()){
 						strategyContext.update(actuals[0], res.getValue());
 					}
-				}
-
-			}else if(function.getValue() instanceof OverloadedFunctionResult){
-				OverloadedFunctionResult fun = (OverloadedFunctionResult) (function.getValue());
-				IStrategyContext strategyContext = getStrategyContext();
-				for(AbstractFunction f: fun.iterable()){
-					if(f.isStrategy()){
-						if(strategyContext != null){
+				}else if(function.getValue() instanceof OverloadedFunctionResult){
+					OverloadedFunctionResult fun = (OverloadedFunctionResult) function.getValue();
+					
+					for(AbstractFunction f: fun.iterable()){
+						if(f.isTypePreserving()){
 							strategyContext.update(actuals[0], res.getValue());
 						}
 					}

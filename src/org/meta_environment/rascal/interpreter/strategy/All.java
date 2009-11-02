@@ -11,7 +11,6 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitable;
 
 public class All extends AbstractStrategy {
-
 	private final IVisitable v;
 
 	public All(AbstractFunction function, IVisitable v) {
@@ -35,13 +34,13 @@ public class All extends AbstractStrategy {
 	public static IValue makeAll(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
-			if (function.isStrategy()) {
+			if (function.isTypePreserving()) {
 				return new All(function, Visitable.getInstance());
 			}
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
-				if (function.isStrategy()) {
+				if (function.isTypePreserving()) {
 					return new All(function, Visitable.getInstance());	
 				}
 			}
@@ -52,18 +51,17 @@ public class All extends AbstractStrategy {
 	public static IValue makeTopologicalAll(IValue arg) {
 		if (arg instanceof AbstractFunction) {
 			AbstractFunction function = (AbstractFunction) arg;
-			if (function.isStrategy()) {
+			if (function.isTypePreserving()) {
 				return new All(function, new TopologicalVisitable(function));	
 			} 
 		} else if (arg instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
 			for (AbstractFunction function: res.iterable()) {
-				if (function.isStrategy()) {
+				if (function.isTypePreserving()) {
 					return new All(function, new TopologicalVisitable(function));	
 				}
 			}
 		}
 		throw new RuntimeException("Unexpected strategy argument "+arg);
 	}
-
 }

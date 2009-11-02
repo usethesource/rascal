@@ -14,11 +14,8 @@ public interface IVisitable {
 	public int getChildrenNumber(IValue v);
 
 	public <T extends IValue> T setChildren(T v, List<IValue> newchildren)
-	throws IndexOutOfBoundsException;
+		throws IndexOutOfBoundsException;
 
 	public <T extends IValue> T setChildAt(T v, int i, IValue newchild)
-	throws IndexOutOfBoundsException;
-	
-	
-
+		throws IndexOutOfBoundsException;
 }
