@@ -171,4 +171,8 @@ public class Visitable implements IVisitable {
 	public void init(IValue v) {
 		// It's not necessary to implement this here.
 	}
+	
+	public void mark(IValue v){
+		// It's not necessary to implement this here.
+	}
 }

@@ -21,6 +21,7 @@ public class One extends AbstractStrategy {
 		v.init(res);
 		for (int i = 0; i < v.getChildrenNumber(res); i++) {
 			IValue child = v.getChildAt(res, i);
+			v.mark(child);
 			if(v instanceof IContextualVisitable) {
 				IContextualVisitable cv = (IContextualVisitable) v;
 				IValue oldctx = cv.getContext().getValue();
