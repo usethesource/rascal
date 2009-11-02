@@ -31,7 +31,7 @@ public &T1(&T1) once_top_down(&T2(&T2) strategy) {
  	return &T3(&T3 subject) {
 		&T3 res = strategy(subject);
 		if (res == subject) {
-			return makeOne(top_down(strategy))(res);
+			return makeOne(once_top_down(strategy))(res);
 		} else {
 			return res;
 		}
