@@ -297,7 +297,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		// everything rooted at the src directory 
 		loader.addFileLoader(new FromResourceLoader(this.getClass()));
-		loader.addFileLoader(new FromResourceLoader(this.getClass(), "test"));
+		loader.addFileLoader(new FromResourceLoader(this.getClass(), "org/meta_environment/rascal/test/data"));
 
 		// loads from -Drascal.path=/colon-separated/path
 		loader.addFileLoader(new FromDefinedRascalPathLoader());
