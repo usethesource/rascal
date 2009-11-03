@@ -56,12 +56,9 @@ public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
 
 public &T1(&T1) topological_repeat_strat(&T2(&T2) strategy) { 
   return &T3(&T3 subject) {
-       // TODO: the ctx is not intialized at the first call (for the moment, it returns a special value)
-       value ctx = getCurrentStratCtx();
        &T3 temp = strategy(subject);
-	   while (ctx != getCurrentStratCtx()) {
+	   while (subject != temp) {
 	    	subject = temp;
-	    	ctx = getCurrentStratCtx();
 	    	temp = strategy(subject);
 	   	}
 		return temp;
@@ -70,14 +67,11 @@ public &T1(&T1) topological_repeat_strat(&T2(&T2) strategy) {
 
 public &T1(&T1) topological_innermost(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
-	   // TODO: the ctx is not intialized at the first call (for the moment, it returns a special value)
-	   value ctx = getCurrentStratCtx();
 	   &T3 temp =  makeTopologicalAll(topological_innermost(strategy))(subject);
 	   do {
 	    	subject = temp;
-	    	ctx = getCurrentStratCtx();
 	    	temp = strategy(subject);
-	   	} while (ctx != getCurrentStratCtx());
+	   	} while (subject != temp);
 		return temp;
 	};
 }

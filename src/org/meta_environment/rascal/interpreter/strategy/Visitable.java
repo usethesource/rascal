@@ -168,8 +168,9 @@ public class Visitable implements IVisitable {
 		throw new IndexOutOfBoundsException();
 	}
 
-	public void init(IValue v) {
+	public boolean init(IValue v) {
 		// It's not necessary to implement this here.
+		return false;
 	}
 	
 	public void mark(IValue v){

@@ -38,6 +38,4 @@ public class StrategyFunction extends AbstractStrategy {
 		}
 		throw new RuntimeException("Unexpected strategy argument "+arg);
 	}
-
-
 }

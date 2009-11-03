@@ -18,7 +18,8 @@ public class One extends AbstractStrategy {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		IValue res = argValues[0];
-		v.init(res);
+		boolean entered = v.init(res);
+		
 		for (int i = 0; i < v.getChildrenNumber(res); i++) {
 			IValue child = v.getChildAt(res, i);
 			v.mark(child);
@@ -38,6 +39,10 @@ public class One extends AbstractStrategy {
 					break;
 				}
 			}
+		}
+		
+		if(entered){
+			getEvaluatorContext().setStrategyContext(null); // Exit the context.
 		}
 		
 		return makeResult(res, ctx);
