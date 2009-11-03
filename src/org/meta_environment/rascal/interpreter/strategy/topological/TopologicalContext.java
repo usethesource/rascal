@@ -93,10 +93,10 @@ public class TopologicalContext implements IStrategyContext {
 		return !(visits.get(v) == null || visits.get(v) == UNMARKED);
 	}
 	
-	public void mark(IValue v) {
-		if (visits.containsKey(v)) {
-			visits.put(v, MARKED);	
-		} else {
+	public void mark(IValue v){
+		if(visits.containsKey(v)){
+			visits.put(v, MARKED);
+		}else{
 			visits.put(v, UNMARKED);
 		}
 	}

@@ -21,7 +21,8 @@ public class All extends AbstractStrategy {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		IValue res = argValues[0];
-		v.init(res);
+		boolean entered = v.init(res);
+		
 		List<IValue> newchildren = new ArrayList<IValue>();
 		for (int i = 0; i < v.getChildrenNumber(res); i++) {
 			IValue child = v.getChildAt(res, i);
@@ -29,6 +30,11 @@ public class All extends AbstractStrategy {
 			newchildren.add(function.call(new Type[]{child.getType()}, new IValue[]{child}).getValue());
 		}
 		res = v.setChildren(res, newchildren);
+		
+		if(entered){
+			getEvaluatorContext().setStrategyContext(null); // Exit the context.
+		}
+		
 		return makeResult(res, ctx);
 	}
 

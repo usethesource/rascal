@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 
 public interface IVisitable {
 	
-	public void init(IValue v);
+	public boolean init(IValue v);
 	
 	public void mark(IValue v);
 

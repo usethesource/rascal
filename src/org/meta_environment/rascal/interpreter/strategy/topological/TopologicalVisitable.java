@@ -49,14 +49,16 @@ public class TopologicalVisitable implements IContextualVisitable {
 		function.getEvaluatorContext().setStrategyContext(context);		
 	}
 
-	public void init(IValue v) {
+	public boolean init(IValue v) {
 		if(v instanceof IRelation){
 			//initialize a new context
 			//TODO: manage a stack of contexts
 			IRelation relation = ((IRelation) v);
 			IStrategyContext context = new TopologicalContext(relation);
 			setContext(context);
+			return true;
 		}
+		return false;
 	}
 	
 	public void mark(IValue v){
