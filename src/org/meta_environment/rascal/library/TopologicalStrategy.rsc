@@ -54,17 +54,6 @@ public &T1(&T1) topological_once_bottom_up(&T2(&T2) strategy) {
 	};
 }
 
-public &T1(&T1) topological_repeat_strat(&T2(&T2) strategy) { 
-  return &T3(&T3 subject) {
-       &T3 temp = strategy(subject);
-	   while (subject != temp) {
-	    	subject = temp;
-	    	temp = strategy(subject);
-	   	}
-		return temp;
-	};
-}
-
 public &T1(&T1) topological_innermost(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {
 	   &T3 temp =  makeTopologicalAll(topological_innermost(strategy))(subject);
@@ -72,6 +61,19 @@ public &T1(&T1) topological_innermost(&T2(&T2) strategy) {
 	    	subject = temp;
 	    	temp = strategy(subject);
 	   	} while (subject != temp);
+		return temp;
+	};
+}
+
+// NOTE: Probably doesn't work for bottom up stuff now,
+// but it's currently only used for the topological_outermost strategy (which is top down).
+public &T1(&T1) topological_repeat_strat(&T2(&T2) strategy) { 
+  return &T3(&T3 subject) {
+       &T3 temp = strategy(subject);
+	   while (subject != temp) {
+	    	subject = temp;
+	    	temp = strategy(subject);
+	   	}
 		return temp;
 	};
 }
