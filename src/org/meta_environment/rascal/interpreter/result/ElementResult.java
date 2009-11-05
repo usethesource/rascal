@@ -153,7 +153,12 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return set;
 	}
 
-	protected static int compareISets(ISet left, ISet right, IEvaluatorContext ctx) {
+	protected static int compareISets(IValue leftValue, IValue rightValue, IEvaluatorContext ctx) {
+		if(!(leftValue instanceof ISet)) return -1;
+		if(!(rightValue instanceof ISet)) return 1;
+		ISet left = (ISet) leftValue;
+		ISet right = (ISet) rightValue;
+		
 		int compare = Integer.valueOf(left.size()).compareTo(Integer.valueOf(right.size()));
 		if (compare != 0) {
 			return compare;
