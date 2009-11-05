@@ -154,13 +154,31 @@ public class StrategyTests extends TestFramework{
 		prepareMore("import TopologicalStrategy;");
 		
 		prepareMore("rel[value, value] r3 = {<a(), d()>, <a(), e()>, <d(), e()>, <a(), {<a(), e()>}>};");
+		assertTrue(runTestInSameEvaluator("topological_once_bottom_up(rules5)(r3) == {<a(),ee()>,<a(),d()>,<d(),ee()>, <a(), {<a(), e()>}>}"));
+		assertTrue(runTestInSameEvaluator("topological_once_top_down(rules5)(r3) == {<aa(),e()>,<aa(),d()>,<d(),e()>, <aa(), {<a(), e()>}>}"));
+		
 		assertTrue(runTestInSameEvaluator("topological_top_down(rules5)(r3) == {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>, <aa(), {<aa(), ee()>}>}"));
 		assertTrue(runTestInSameEvaluator("topological_bottom_up(rules5)(r3) == {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>, <aa(), {<aa(), ee()>}>}"));
+		
+		assertTrue(runTestInSameEvaluator("topological_innermost(rules6)(r3) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>, <h(aa()), {<h(aa()), h(ee())>}>}"));
+		assertTrue(runTestInSameEvaluator("topological_outermost(rules6)(r3) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>, <h(aa()), {<h(aa()), h(ee())>}>}"));
 	}
 	
 	@Test
 	public void testNestedTopologicalStrategySeperately(){
 		TestFramework tf = new TestFramework();
+		tf.prepare("import StrategyTests;");
+		tf.prepareMore("import TopologicalStrategy;");
+		tf.prepareMore("rel[value, value] r3 = {<a(), d()>, <a(), e()>, <d(), e()>, <a(), {<a(), e()>}>};");
+		assertTrue(tf.runTestInSameEvaluator("topological_once_bottom_up(rules5)(r3) == {<a(),ee()>,<a(),d()>,<d(),ee()>, <a(), {<a(), e()>}>}"));
+		
+		tf = new TestFramework();
+		tf.prepare("import StrategyTests;");
+		tf.prepareMore("import TopologicalStrategy;");
+		tf.prepareMore("rel[value, value] r3 = {<a(), d()>, <a(), e()>, <d(), e()>, <a(), {<a(), e()>}>};");
+		assertTrue(tf.runTestInSameEvaluator("topological_once_top_down(rules5)(r3) == {<aa(),e()>,<aa(),d()>,<d(),e()>, <aa(), {<a(), e()>}>}"));
+		
+		tf = new TestFramework();
 		tf.prepare("import StrategyTests;");
 		tf.prepareMore("import TopologicalStrategy;");
 		tf.prepareMore("rel[value, value] r3 = {<a(), d()>, <a(), e()>, <d(), e()>, <a(), {<a(), e()>}>};");
@@ -171,6 +189,18 @@ public class StrategyTests extends TestFramework{
 		tf.prepareMore("import TopologicalStrategy;");
 		tf.prepareMore("rel[value, value] r3 = {<a(), d()>, <a(), e()>, <d(), e()>, <a(), {<a(), e()>}>};");
 		assertTrue(tf.runTestInSameEvaluator("topological_bottom_up(rules5)(r3) == {<aa(), dd()>, <aa(), ee()>, <dd(),ee()>, <aa(), {<aa(), ee()>}>}"));
+		
+		tf = new TestFramework();
+		tf.prepare("import StrategyTests;");
+		tf.prepareMore("import TopologicalStrategy;");
+		tf.prepareMore("rel[value, value] r3 = {<a(), d()>, <a(), e()>, <d(), e()>, <a(), {<a(), e()>}>};");
+		assertTrue(tf.runTestInSameEvaluator("topological_innermost(rules6)(r3) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>, <h(aa()), {<h(aa()), h(ee())>}>}"));
+		
+		tf = new TestFramework();
+		tf.prepare("import StrategyTests;");
+		tf.prepareMore("import TopologicalStrategy;");
+		tf.prepareMore("rel[value, value] r3 = {<a(), d()>, <a(), e()>, <d(), e()>, <a(), {<a(), e()>}>};");
+		assertTrue(tf.runTestInSameEvaluator("topological_outermost(rules6)(r3) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>, <h(aa()), {<h(aa()), h(ee())>}>}"));
 	}
 	
 	@Test
