@@ -32,7 +32,7 @@ public class All extends AbstractStrategy {
 		res = v.setChildren(res, newchildren);
 		
 		if(entered){
-			getEvaluatorContext().setStrategyContext(null); // Exit the context.
+			getEvaluatorContext().popStrategyContext(); // Exit the context.
 		}
 		
 		return makeResult(res, ctx);

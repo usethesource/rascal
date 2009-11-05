@@ -739,8 +739,12 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		return ctx.getStrategyContext();
 	}
 
-	public void setStrategyContext(IStrategyContext strategyContext) {
-		ctx.setStrategyContext(strategyContext);
+	public void pushStrategyContext(IStrategyContext strategyContext) {
+		ctx.pushStrategyContext(strategyContext);
+	}
+
+	public void popStrategyContext() {
+		ctx.popStrategyContext();
 	}
 
 	public Stack<Accumulator> getAccumulators() {
