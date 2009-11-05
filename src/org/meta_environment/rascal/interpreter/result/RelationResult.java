@@ -73,7 +73,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
-			return result.compareRelation(this);
+			return compareRelation(this);
 		}
 
 		@Override
