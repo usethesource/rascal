@@ -153,13 +153,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return set;
 	}
 
-	protected static int compareISets(IValue leftValue, IValue rightValue, IEvaluatorContext ctx) {
-		// TODO: Why is it possible for non-set values to get passed in here?
-		if(!(leftValue instanceof ISet)) return -1;
-		if(!(rightValue instanceof ISet)) return 1;
-		ISet left = (ISet) leftValue;
-		ISet right = (ISet) rightValue;
-		
+	protected static int compareISets(ISet left, ISet right, IEvaluatorContext ctx) {
 		int compare = Integer.valueOf(left.size()).compareTo(Integer.valueOf(right.size()));
 		if (compare != 0) {
 			return compare;
