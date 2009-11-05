@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Stack;
 import java.util.Map.Entry;
@@ -217,6 +216,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
 import org.meta_environment.rascal.interpreter.strategy.IStrategyContext;
+import org.meta_environment.rascal.interpreter.strategy.StrategyContextStack;
 import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.types.NonTerminalType;
 import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
@@ -246,7 +246,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private static final TypeEvaluator te = TypeEvaluator.getInstance();
 	protected Environment currentEnvt;
-	private IStrategyContext strategyContext;
+	private StrategyContextStack strategyContextStack;
 
 	protected final GlobalEnvironment heap;
 
@@ -276,11 +276,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
 		this.patternEvaluator = new PatternEvaluator(this);
+		this.strategyContextStack = new StrategyContextStack();
 		this.heap = heap;
 		currentEnvt = scope;
 		rootScope = scope;
 		heap.addModule(scope);
-		this.classLoaders = new LinkedList<ClassLoader>();
+		this.classLoaders = new ArrayList<ClassLoader>();
 		this.javaBridge = new JavaBridge(stderr, classLoaders, vf);
 		loader = new ModuleLoader(parser);
 		this.parser = parser;
@@ -305,7 +306,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// add current wd and sdf-library to search path for SDF modules
 		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
-				java.util.List<String> result = new LinkedList<String>();
+				java.util.List<String> result = new ArrayList<String>();
 				result.add(System.getProperty("user.dir"));
 				result.add(new File(System.getProperty("user.dir"), "src/org/meta_environment/rascal/library").getAbsolutePath());
 				result.add(Configuration.getSdfLibraryPathProperty());
@@ -3096,7 +3097,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitComprehensionMap(
 			org.meta_environment.rascal.ast.Comprehension.Map x) {
-		java.util.List<Expression> resultExprs = new LinkedList<Expression>();
+		java.util.List<Expression> resultExprs = new ArrayList<Expression>();
 		resultExprs.add(x.getFrom());
 		resultExprs.add(x.getTo());
 		return evalComprehension(
@@ -3371,12 +3372,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		vf = factory;
 	}
 
-	public IStrategyContext getStrategyContext() {
-		return strategyContext;
+	public IStrategyContext getStrategyContext(){
+		return strategyContextStack.getCurrentContext();
 	}
 
-	public void setStrategyContext(IStrategyContext strategyContext) {
-		this.strategyContext  = strategyContext;
+	public void pushStrategyContext(IStrategyContext strategyContext){
+		strategyContextStack.pushContext(strategyContext);
+	}
+
+	public void popStrategyContext(){
+		strategyContextStack.popContext();
 	}
 
 	public void setStdErr(PrintWriter printWriter) {
@@ -3398,7 +3403,4 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public void setAccumulators(Stack<Accumulator> accumulators) {
 		this.accumulators = accumulators;
 	}
-
-
-
 }

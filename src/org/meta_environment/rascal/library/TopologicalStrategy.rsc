@@ -65,8 +65,8 @@ public &T1(&T1) topological_innermost(&T2(&T2) strategy) {
 	};
 }
 
-// NOTE: Might not work for some bottom up stuff now,
-// but it's currently only used for the topological_outermost strategy (which is top down).
+// NOTE: This may, or may not, work for some bottom up stuff now,
+// however it's currently only used for the topological_outermost strategy (which is top down).
 public &T1(&T1) topological_repeat_strat(&T2(&T2) strategy) { 
   return &T3(&T3 subject) {
        &T3 temp = strategy(subject);

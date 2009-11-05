@@ -818,9 +818,13 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 	public IStrategyContext getStrategyContext() {
 		return evaluator.getStrategyContext();
 	}
-
-	public void setStrategyContext(IStrategyContext strategyContext) {
-		evaluator.setStrategyContext(strategyContext);		
+	
+	public void pushStrategyContext(IStrategyContext strategyContext){
+		evaluator.pushStrategyContext(strategyContext);
+	}
+	
+	public void popStrategyContext() {
+		evaluator.popStrategyContext();
 	}
 
 	public Stack<Accumulator> getAccumulators() {

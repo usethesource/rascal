@@ -21,7 +21,8 @@ public interface IEvaluatorContext {
 	public boolean runTests();
 	public IValueFactory getValueFactory();
 	public IStrategyContext getStrategyContext();
-	public void setStrategyContext(IStrategyContext strategyContext);
+	public void pushStrategyContext(IStrategyContext strategyContext);
+	public void popStrategyContext();
 	public void setAccumulators(Stack<Accumulator> accumulators);
 	public Stack<Accumulator> getAccumulators();
 }
