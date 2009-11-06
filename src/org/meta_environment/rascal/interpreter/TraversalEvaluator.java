@@ -150,7 +150,7 @@ public class TraversalEvaluator {
 			TraverseResult tr = traverseTop(subjectType, subject, casesOrRules);
 			matched |= tr.matched;
 			changed |= tr.changed;
-			if((progress == PROGRESS.Breaking) && changed){
+			if((progress == PROGRESS.Breaking) && matched){
 				return tr;
 			}
 			subject = tr.value;
