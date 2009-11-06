@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
@@ -131,8 +132,8 @@ public class ElementResult<T extends IValue> extends Result<T> {
 
 	
 	protected static int compareIValues(IValue left, IValue right, IEvaluatorContext ctx) {
-		Result<IValue> leftResult = makeResult(left.getType(), left, ctx);
-		Result<IValue> rightResult = makeResult(right.getType(), right, ctx);
+		Result<IValue> leftResult = makeResult(TypeFactory.getInstance().valueType(), left, ctx);
+		Result<IValue> rightResult = makeResult(TypeFactory.getInstance().valueType(), right, ctx);
 		Result<IValue> resultResult = leftResult.compare(rightResult);
 		// compare always returns IntegerResult so we can cast its value.
 		return ((IInteger)resultResult.getValue()).intValue();
