@@ -87,6 +87,7 @@ class RascalSimpleMapItem extends SimpleMapItem {
 	public void draw(){
 		System.err.println("RascalSimpleMapItem.draw: about to call(" + key + ") ... " + myDraw);
 		if(myDraw != null){
+			System.err.println("arguments: " + x + ", " + y + ", " + h + ", " + w);
 			Environment env = myDraw.getEvaluatorContext().getCurrentEnvt();
 			env.storeVariable("x", ResultFactory.makeResult(intType, values.integer(Math.round(x)), ctx));
 			env.storeVariable("y", ResultFactory.makeResult(intType, values.integer(Math.round(y)), ctx));

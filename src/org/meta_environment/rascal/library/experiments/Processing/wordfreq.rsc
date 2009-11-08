@@ -94,11 +94,12 @@ private map[str,int] collectData(list[str] lines){
 
 public void drawItem(){
 println("drawItem called");
-	//int x = getX();
-	//int y = getY();
-	//int w = width();
-	//int h = height();
+//	int x = getX();
+//	int y = getY();
+//	int w = width();
+//	int h = height();
 //	str key = "xxx";
+	println("drawItem called: <x>, <y>, <w>, <h>, <key>");
 	fill(100);
 	rect(x, y, w, h);
 	fill(0);  // black
@@ -125,7 +126,7 @@ private map[str,int] facts = ();
 
 public void treeMapSetup() {
 	size(1024, 768);                 // size of the screen
-	println("treeMapSetup called");
+	println("treeMapSetup1 called");
 	font = createFont("Serif", 13);  // create and set font
 	textFont(font);
 	stroke(255);                     // all strokes will be white
@@ -155,23 +156,22 @@ public void main(){
      * Start the visualization using Processing
      * Uses the locally defined functions treeMapSetUp and treeMapDraw
      */
-	TM = treemap("Word Frequencies", facts, drawItem);
+	TM = treemap("Word Frequencies", facts, [draw(drawItem)], [setup(treeMapSetup)]);
+	println("AFTER TM creation");
 	
 	S = sketch("Word Frequencies", 
-			void setup() {
-				size(1024, 768);                 // size of the screen
-				println("treeMapSetup called");
-				font = createFont("Serif", 13);  // create and set font
-				textFont(font);
-				stroke(255);                     // all strokes will be white
+	        setup(void () {
+					size(1024, 768);                 // size of the screen
+					println("treeMapSetup2 called");
+					font = createFont("Serif", 13);  // create and set font
+					textFont(font);
+					stroke(255);                     // all strokes will be white
 
-				noLoop();                        // only draw once
-			},
-			void draw(){
-		    	TM.draw();
-			}
-		)
-}
-
-	draw(TM);
+					noLoop();                        // only draw once
+				}),
+			draw(void (){
+		    		TM.draw();
+				}
+			)
+		);
 }
