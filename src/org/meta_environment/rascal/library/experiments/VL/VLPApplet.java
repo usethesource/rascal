@@ -13,6 +13,11 @@ import processing.core.PApplet;
 
 
 public class VLPApplet extends PApplet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6074377218243765483L;
+	
 	private  IEvaluatorContext ctx;
 	private int width = 200;
 	private int height = 200;
@@ -64,6 +69,9 @@ public class VLPApplet extends PApplet {
 
 	@Override
 	public void draw(){
+		for(VELEM ve : velems){
+			ve.draw();
+		}
 
 	}
 }
