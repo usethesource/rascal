@@ -16,7 +16,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
 
-public class VELEM {
+public abstract class VELEM {
 	
 	protected IEvaluatorContext ctx;
 	
@@ -144,4 +144,5 @@ public class VELEM {
 		return title;
 	}
 	
+	abstract void draw();
 }

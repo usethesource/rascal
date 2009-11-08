@@ -64,4 +64,9 @@ public class Bar extends VELEM {
 		return getIntField(widthFun, n, width);
 	}
 
+	@Override
+	void draw() {
+		// TODO Auto-generated method stub
+	}
+
 }

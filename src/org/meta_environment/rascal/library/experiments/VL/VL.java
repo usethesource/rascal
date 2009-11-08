@@ -10,7 +10,7 @@ public class VL  {
 
 	public static void render(IConstructor panel, IEvaluatorContext ctx){
 		PApplet pa = new VLPApplet(panel, ctx);
-		SketchSWT mySketch = new SketchSWT(pa);
+		new SketchSWT(pa);
 	}
 }
 
