@@ -107,5 +107,10 @@ public class ScopeTests extends TestFramework {
 	public void innerImplicitlyDeclared(){
 		assertTrue(runTest("{int n = 1; {m = 2;}; n == 1 && m == 2;}"));
 	}
+	
+	@Test(expected=UndeclaredVariableError.class)
+	public void varsInEnumeratorExpressionsShouldNotLeak(){
+		assertTrue(runTest("{int n <- [1,2]; n == 1;}"));
+	}
 
 }

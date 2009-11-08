@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 import static org.meta_environment.rascal.interpreter.utils.Utils.unescape;
 
 import java.io.File;
@@ -2807,7 +2808,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitExpressionEnumerator(
 			org.meta_environment.rascal.ast.Expression.Enumerator x) {
-		return evalBooleanExpression(x);
+		Environment old = getCurrentEnvt();
+		try {
+			IBooleanResult gen = makeBooleanResult(x);
+			gen.init();
+			pushEnv();
+			if(gen.hasNext() && gen.next()) {
+				return bool(true, this);
+			}
+			return bool(false, this);
+		} finally {
+			unwind(old);
+		}
 	}
 
 	/*
@@ -3164,6 +3176,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return result;
 	}
 
+	
 	@Override
 	public Result visitExpressionAny(Any x) {
 		java.util.List<Expression> generators = x.getGenerators();
