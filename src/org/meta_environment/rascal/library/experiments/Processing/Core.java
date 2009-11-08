@@ -463,6 +463,7 @@ public class Core {
 		while(valueIterator.hasNext()){
 			Constructor cons = (Constructor) valueIterator.next();
 			String cname = cons.getName();
+			System.err.println("cons = " + cons);
 			OverloadedFunctionResult fn = (OverloadedFunctionResult) cons.get(0);
 
 			if(isCallbackName(cname)) {
@@ -535,36 +536,3 @@ class RascalFrameAWT extends Frame {
 	}
 }
 
-class SketchSWT   {
-	
-	private PApplet applet;
-
-	SketchSWT (final PApplet pa){
-		this. applet = pa;
-		Display display = new Display();
-		Shell shell = new Shell(display);
-
-		shell.setSize(600, 600);
-		shell.setLayout(new FillLayout());
-		shell.setText("Rascal Visualization");
-		
-		Composite composite = new Composite(shell, SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
-
-		Frame frame = SWT_AWT.new_Frame(composite); 
-		frame.setLocation(100,100);
-		frame.add(pa);
-		pa.init();
-		frame.setVisible(true);
-		frame.pack();
-
-		shell.open();
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch())
-				display.sleep();
-		}
-	}
-	
-	public PApplet getApplet(){
-		return applet;
-	}
-}

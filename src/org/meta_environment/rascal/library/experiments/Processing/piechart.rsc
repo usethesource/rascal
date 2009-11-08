@@ -23,5 +23,5 @@ public void pieChartDraw(){
 }
 
 public void main(){
-	P = processing(draw(pieChartDraw), setup(pieChartSetup));
+	P = sketch("piechart", draw(pieChartDraw), setup(pieChartSetup));
 }
