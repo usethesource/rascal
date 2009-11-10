@@ -5,14 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -24,12 +19,14 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.values.ValueFactoryFactory;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.TypeInfo;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -119,9 +116,8 @@ public class XMLIO{
 		return attributesWriter.done();
 	}
 	
-	public static IConstructor parseXML(IString xmlFileName, IString xsdFileName) throws IOException, SAXException, ParserConfigurationException{
+	public static IConstructor parseXML(IString xmlFileName) throws IOException, SAXException, ParserConfigurationException, IllegalAccessException, InstantiationException, ClassNotFoundException{
 		File xmlFile = new File(xmlFileName.getValue());
-		File xsdFile = new File(xsdFileName.getValue());
 		
 		ErrorHandler errorHandler = new ErrorHandler(){
 			public void fatalError(SAXParseException exception) throws SAXException{
@@ -137,14 +133,17 @@ public class XMLIO{
 			}
 		};
 		
-		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		schemaFactory.setErrorHandler(errorHandler);
-		Schema schemaXSD = schemaFactory.newSchema(xsdFile);
-		Validator validator = schemaXSD.newValidator();
-		DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document document = parser.parse(xmlFile);
-		validator.validate(new DOMSource(document));
+		System.setProperty(DOMImplementationRegistry.PROPERTY, "org.apache.xerces.dom.DOMXSImplementationSourceImpl");
+		DOMImplementationRegistry.newInstance();
 		
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		dbf.setValidating(true);
+		dbf.setAttribute("http://apache.org/xml/features/validation/schema", java.lang.Boolean.TRUE);
+		dbf.setAttribute("http://apache.org/xml/properties/dom/document-class-name", "org.apache.xerces.dom.PSVIDocumentImpl");
+		DocumentBuilder parser = dbf.newDocumentBuilder();
+		parser.setErrorHandler(errorHandler);
+		Document document = parser.parse(xmlFile);
 		
 		TypeStore typeStore = new TypeStore();
 		XMLIO xmlToPDB = new XMLIO(typeStore, document);
