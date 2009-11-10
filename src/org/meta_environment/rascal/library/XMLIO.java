@@ -74,11 +74,9 @@ public class XMLIO{
 		
 		List<Type> childrenTypesList = new ArrayList<Type>();
 		childrenTypesList.add(ATTRIBUTES_NODE);
-		childrenTypesList.add(STRING_TYPE);
 		
 		List<IValue> childrenList = new ArrayList<IValue>();
 		childrenList.add(getAttributes(e));
-		childrenList.add(DEFAULT_TEXT_CONTENT);
 		
 		for(int i = 0; i < nrOfChildNodes; i++){
 			Node childNode =  childNodesList.item(i);
@@ -88,10 +86,9 @@ public class XMLIO{
 				childrenTypesList.add(child.getType());
 				childrenList.add(child);
 			}else{ // Text node
-				java.lang.String textContent = childNode.getNodeValue().trim();
-				if(textContent.length() > 0){
-					childrenList.set(1, vf.string(textContent));
-				}
+				java.lang.String textContent = childNode.getNodeValue();
+				childrenTypesList.add(STRING_TYPE);
+				childrenList.add(vf.string(textContent));
 			}
 		}
 		
