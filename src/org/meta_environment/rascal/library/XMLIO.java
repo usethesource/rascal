@@ -41,7 +41,6 @@ public class XMLIO{
 	private final static Type STRING_TYPE = tf.stringType();
 	private final static Type ATTRIBUTES_NODE = tf.mapType(tf.stringType(), tf.stringType());
 	private final static IMap NO_ATTRIBUTES = vf.map(STRING_TYPE, STRING_TYPE);
-	private final static IString DEFAULT_TEXT_CONTENT = vf.string("");
 	
 	private final Type anonymousType;
 	
