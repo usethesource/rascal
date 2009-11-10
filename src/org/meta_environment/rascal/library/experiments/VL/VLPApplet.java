@@ -70,7 +70,7 @@ public class VLPApplet extends PApplet {
 	@Override
 	public void draw(){
 		for(VELEM ve : velems){
-			ve.draw();
+			ve.draw(this);
 		}
 
 	}
