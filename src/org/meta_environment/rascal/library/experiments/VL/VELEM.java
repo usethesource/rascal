@@ -15,6 +15,8 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
+import processing.core.PApplet;
+
 
 public abstract class VELEM {
 	
@@ -25,21 +27,31 @@ public abstract class VELEM {
 	int bottom;                                  // bottom margin
 	OverloadedFunctionResult bottomFun = null;
 	
-	int left;
+	int left;									// left margin
 	OverloadedFunctionResult leftFun = null;
 	
-	int right;
+	int right;									// right marging
 	OverloadedFunctionResult rightFun = null;
 	
-	int top;
+	int top;									// top margin
 	OverloadedFunctionResult topFun = null;
 	
-	boolean visible;
+	boolean visible;							// is VELEM visible?
 	
-	String title;
+	String title;								// Title
 	
-	float values[];
+	float values[];								// Data values
 	OverloadedFunctionResult valuesFun = null;
+	
+	int fillStyle;                              // Figure fill style
+	OverloadedFunctionResult fillStyleFun = null;
+	
+	int lineWidth;                              // Figure line width
+	OverloadedFunctionResult lineWidthFun = null;
+	
+	int strokeStyle;
+	OverloadedFunctionResult strokeStyleFun = null;
+	
 	
 	VELEM(IEvaluatorContext ctx){
 		this.ctx = ctx;
@@ -69,11 +81,29 @@ public abstract class VELEM {
 						rightFun = (OverloadedFunctionResult) arg;
 					else
 						right = ((IInteger) arg).intValue();
-				} else if(pname.equals("top")){
+			} else if(pname.equals("top")){
 					if(arg instanceof OverloadedFunctionResult)
 						topFun = (OverloadedFunctionResult) arg;
 					else
 						top = ((IInteger) arg).intValue();
+					
+			} else if(pname.equals("fillStyle")){
+				if(arg instanceof OverloadedFunctionResult)
+					fillStyleFun = (OverloadedFunctionResult) arg;
+				else
+					fillStyle = ((IInteger) arg).intValue();
+				
+			} else if(pname.equals("lineWidth")){
+				if(arg instanceof OverloadedFunctionResult)
+					lineWidthFun = (OverloadedFunctionResult) arg;
+				else
+					lineWidth = ((IInteger) arg).intValue();
+				
+			} else if(pname.equals("strokeStyle")){
+				if(arg instanceof OverloadedFunctionResult)
+					strokeStyleFun = (OverloadedFunctionResult) arg;
+				else
+					strokeStyle = ((IInteger) arg).intValue();
 			} else if(pname.equals("values")){
 				if(arg instanceof OverloadedFunctionResult)
 					valuesFun = (OverloadedFunctionResult) arg;
@@ -127,6 +157,18 @@ public abstract class VELEM {
 		return getIntField(topFun, n, top);
 	}
 	
+	protected int getLineWidth(int n){
+		return getIntField(lineWidthFun, n, lineWidth);
+	}
+	
+	protected int getFillStyle(int n){
+		return getIntField(fillStyleFun, n, fillStyle);
+	}
+	
+	protected int getStrokeStyle(int n){
+		return getIntField(strokeStyleFun, n, strokeStyle);
+	}
+	
 	protected float getValues(int n){
 		if(valuesFun != null){
 			argVals[0] = vf.integer(n);
@@ -144,5 +186,5 @@ public abstract class VELEM {
 		return title;
 	}
 	
-	abstract void draw();
+	abstract void draw(PApplet pa);
 }

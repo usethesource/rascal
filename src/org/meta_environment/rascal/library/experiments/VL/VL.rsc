@@ -1,18 +1,40 @@
-module experiments::Processing::VL
+module experiments::VL::VL
 
 data VPROP =
-     left(int left) |  left(int(int i) leftf)
-   | right(int right) |  right(int(int i) rightf)
-   | top(int top) |  top(int(int i) topf)
-   | bottom(int bottom) |  bottom(int(int i) bottomf)
-   | width(int width) |  width(int(int i) widthf)
-   | height(int height) | height(int(int i) heightf)
-   | visible(bool visible)
-   | title(str title)
-   | values(list[value] values) | values(list[value]() valuesf)
-   | linewidth(int lwidth)
-   | fillStyle(int fstyle)
-   | strokeStyle(int sstyle)
+    
+     left(int left) 					%% offset from left border
+   | left(int(int i) leftFun) 
+    		
+   | right(int right)					%% offset from right border
+   | right(int(int i) rightFun) 
+   	
+   | top(int top)						%% offset from top
+   | top(int(int i) topFun) 
+   			
+   | bottom(int bottom)
+   | bottom(int(int i) bottomFun) 		%% offset from bottom
+   
+   | width(int width)
+   | width(int(int i) widthFun)     	%% width of elem
+   
+   | height(int height)
+   | height(int(int i) heightFun)		%% height of elem
+   
+   | visible(bool visible)				%% is elem visible?
+   
+   | title(str title)					%% title of elem
+   
+   | values(list[value] values) 		%% data for elem
+   | values(list[value]() valuesFun)
+   
+   | lineWidth(int lineWidth)			%% line width used by elem
+   | lineWidth(int(int i) lineWidthFun)
+   
+   | fillStyle(int fillStyle)			%% fill color used by elem
+   | fillStyle(int(int i) fillStyleFun)
+   
+   | strokeStyle(int strokeStyle)		%% stroke color used by elem
+   | strokeStyle(int(int i) strokeStyleFun)
    ;
 
 data VELEM = 

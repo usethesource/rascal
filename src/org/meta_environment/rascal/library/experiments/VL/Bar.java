@@ -12,6 +12,8 @@ import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
+import processing.core.PApplet;
+
 public class Bar extends VELEM {
 	int height;
 	OverloadedFunctionResult heightFun = null;
@@ -54,7 +56,6 @@ public class Bar extends VELEM {
 		}
 		return w.done();
 	}
-		
 
 	protected int getHeight(int n){
 		return getIntField(heightFun, n, height);
@@ -65,8 +66,17 @@ public class Bar extends VELEM {
 	}
 
 	@Override
-	void draw() {
-		// TODO Auto-generated method stub
+	void draw(PApplet pa) {
+		for(int d = 0; d < values.length; d++){
+			System.err.println("d = " + d);
+			float rx = getLeft(d);
+			float ry = getBottom(d);
+			float rh = getHeight(d);
+			float rw = getWidth(d);
+			pa.fill(getFillStyle(d));
+			pa.stroke(getStrokeStyle(d));
+			pa.strokeWeight(getLineWidth(d));
+			pa.rect(rx, ry, rh, rw);
+		}
 	}
-
 }
