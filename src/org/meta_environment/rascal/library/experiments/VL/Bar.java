@@ -8,7 +8,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
-import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
+import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
@@ -16,10 +16,10 @@ import processing.core.PApplet;
 
 public class Bar extends VELEM {
 	int height;
-	OverloadedFunctionResult heightFun = null;
+	RascalFunction heightFun = null;
 	
 	int width;
-	OverloadedFunctionResult widthFun = null;
+	RascalFunction widthFun = null;
 
 	public Bar(IList props, IEvaluatorContext ctx) {
 		super(ctx);
@@ -38,16 +38,18 @@ public class Bar extends VELEM {
 		for(IValue v : myProps){
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
-			System.err.println("pname = " + pname);
+			
 			IValue arg = c.get(0);
+			
+			System.err.println("pname = " + pname + ", arg = " + arg);
 			if(pname.equals("width")){
-				if(arg instanceof OverloadedFunctionResult)
-					widthFun = (OverloadedFunctionResult) arg;
+				if(arg instanceof RascalFunction)
+					widthFun = (RascalFunction) arg;
 				else
 					width = ((IInteger) arg).intValue();
 			} else if(pname.equals("height")){
-				if(arg instanceof OverloadedFunctionResult)
-					heightFun = (OverloadedFunctionResult) arg;
+				if(arg instanceof RascalFunction)
+					heightFun = (RascalFunction) arg;
 				else
 					height = ((IInteger) arg).intValue();
 			} else {
@@ -67,16 +69,16 @@ public class Bar extends VELEM {
 
 	@Override
 	void draw(PApplet pa) {
-		for(int d = 0; d < values.length; d++){
-			System.err.println("d = " + d);
-			float rx = getLeft(d);
-			float ry = getBottom(d);
-			float rh = getHeight(d);
-			float rw = getWidth(d);
-			pa.fill(getFillStyle(d));
-			pa.stroke(getStrokeStyle(d));
-			pa.strokeWeight(getLineWidth(d));
-			pa.rect(rx, ry, rh, rw);
+		for(int index = 0; index < values.length; index++){
+			//System.err.println("d = " + index);
+			float x = getLeft(index);
+			float h = getHeight(index);
+			float y = pa.getHeight() - (h + getBottom(index));
+			float w = getWidth(index);
+			//pa.fill(getFillStyle(index));
+			//pa.stroke(getStrokeStyle(d));
+			//pa.strokeWeight(getLineWidth(d));
+			pa.rect(x, y, w, h);
 		}
 	}
 }

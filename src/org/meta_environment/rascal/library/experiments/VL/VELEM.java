@@ -10,7 +10,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
-import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
+import org.meta_environment.rascal.interpreter.result.RascalFunction;
+import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
@@ -24,33 +25,33 @@ public abstract class VELEM {
 	
 	protected IValueFactory vf;
 	
-	int bottom;                                  // bottom margin
-	OverloadedFunctionResult bottomFun = null;
+	int bottom;                                 // bottom margin
+	RascalFunction bottomFun = null;
 	
 	int left;									// left margin
-	OverloadedFunctionResult leftFun = null;
+	RascalFunction leftFun = null;
 	
 	int right;									// right marging
-	OverloadedFunctionResult rightFun = null;
+	RascalFunction rightFun = null;
 	
 	int top;									// top margin
-	OverloadedFunctionResult topFun = null;
+	RascalFunction topFun = null;
 	
 	boolean visible;							// is VELEM visible?
 	
 	String title;								// Title
 	
 	float values[];								// Data values
-	OverloadedFunctionResult valuesFun = null;
+	RascalFunction valuesFun = null;
 	
 	int fillStyle;                              // Figure fill style
-	OverloadedFunctionResult fillStyleFun = null;
+	RascalFunction fillStyleFun = null;
 	
 	int lineWidth;                              // Figure line width
-	OverloadedFunctionResult lineWidthFun = null;
+	RascalFunction lineWidthFun = null;
 	
 	int strokeStyle;
-	OverloadedFunctionResult strokeStyleFun = null;
+	RascalFunction strokeStyleFun = null;
 	
 	
 	VELEM(IEvaluatorContext ctx){
@@ -64,49 +65,51 @@ public abstract class VELEM {
 		for(IValue v : props){
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
-			System.err.println("pname = " + pname);
+			
 			IValue arg = c.get(0);
+			System.err.println("pname = " + pname + ", arg = " + arg);
 			if(pname.equals("bottom")){
-				if(arg instanceof OverloadedFunctionResult)
-					bottomFun = (OverloadedFunctionResult) arg;
+				if(arg instanceof RascalFunction)
+					bottomFun = (RascalFunction) arg;
 				else
 					bottom = ((IInteger) arg).intValue();
 			} else if(pname.equals("left")){
-				if(arg instanceof OverloadedFunctionResult)
-					leftFun = (OverloadedFunctionResult) arg;
+				System.err.println("arg = " + arg + ", type = " + arg.getType() +  " class = " + arg.getClass());
+				if(arg instanceof RascalFunction)
+					leftFun = (RascalFunction) arg;
 				else
 					left = ((IInteger) arg).intValue();
 			} else if(pname.equals("right")){
-					if(arg instanceof OverloadedFunctionResult)
-						rightFun = (OverloadedFunctionResult) arg;
+					if(arg instanceof RascalFunction)
+						rightFun = (RascalFunction) arg;
 					else
 						right = ((IInteger) arg).intValue();
 			} else if(pname.equals("top")){
-					if(arg instanceof OverloadedFunctionResult)
-						topFun = (OverloadedFunctionResult) arg;
+					if(arg instanceof RascalFunction)
+						topFun = (RascalFunction) arg;
 					else
 						top = ((IInteger) arg).intValue();
 					
 			} else if(pname.equals("fillStyle")){
-				if(arg instanceof OverloadedFunctionResult)
-					fillStyleFun = (OverloadedFunctionResult) arg;
+				if(arg instanceof RascalFunction)
+					fillStyleFun = (RascalFunction) arg;
 				else
 					fillStyle = ((IInteger) arg).intValue();
 				
 			} else if(pname.equals("lineWidth")){
-				if(arg instanceof OverloadedFunctionResult)
-					lineWidthFun = (OverloadedFunctionResult) arg;
+				if(arg instanceof RascalFunction)
+					lineWidthFun = (RascalFunction) arg;
 				else
 					lineWidth = ((IInteger) arg).intValue();
 				
 			} else if(pname.equals("strokeStyle")){
-				if(arg instanceof OverloadedFunctionResult)
-					strokeStyleFun = (OverloadedFunctionResult) arg;
+				if(arg instanceof RascalFunction)
+					strokeStyleFun = (RascalFunction) arg;
 				else
 					strokeStyle = ((IInteger) arg).intValue();
 			} else if(pname.equals("values")){
-				if(arg instanceof OverloadedFunctionResult)
-					valuesFun = (OverloadedFunctionResult) arg;
+				if(arg instanceof RascalFunction)
+					valuesFun = (RascalFunction) arg;
 				else {
 					IList vals = (IList) c.get(0);
 					values = new float[vals.length()];
@@ -130,13 +133,19 @@ public abstract class VELEM {
 	}
 	
 	protected static Type[] argTypes = new Type[] {TypeFactory.getInstance().integerType()};
-	protected static IValue[] argVals;
 	
-	int getIntField(OverloadedFunctionResult fun, int n, int field){
+	protected static IValue[] argVals = new IValue[] { null };
+	
+	int getIntField(RascalFunction fun, int n, int field){
 		if(fun != null){
 			argVals[0] = vf.integer(n);
 			Result<IValue> res = fun.call(argTypes, argVals);
-			return ((IInteger) res.getValue()).intValue();
+			if(res.getType().isIntegerType())
+				return ((IInteger) res.getValue()).intValue();
+			else if(res.getType().isRealType())
+				return (int) ((IReal) res.getValue()).floatValue();
+			else
+				throw RuntimeExceptionFactory.illegalArgument(res.getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 		} else
 			return field;		
 	}

@@ -65,10 +65,16 @@ public class VLPApplet extends PApplet {
 	@Override
 	public void setup(){
 		size(width, height);
+		//noLoop();
+		
 	}
 
 	@Override
 	public void draw(){
+		//stroke(255);
+		//background(192, 64, 0);
+		//rect(25, 0, 50, 80);
+		//line(150, 25, mouseX, mouseY);
 		for(VELEM ve : velems){
 			ve.draw(this);
 		}

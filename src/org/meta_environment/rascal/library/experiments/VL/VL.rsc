@@ -1,40 +1,48 @@
 module experiments::VL::VL
 
+data COLOR =
+     color(str name)
+   | color(real gray)
+   | color(real gray, real alpha)
+   | color(real red, real green, real blue)
+   | color(real red, real green, real blue, real alpha)
+   ;
+
 data VPROP =
-    
-     left(int left) 					%% offset from left border
+
+     left(int left) 					// offset from left border
    | left(int(int i) leftFun) 
     		
-   | right(int right)					%% offset from right border
+   | right(int right)					// offset from right border
    | right(int(int i) rightFun) 
    	
-   | top(int top)						%% offset from top
+   | top(int top)						// offset from top
    | top(int(int i) topFun) 
    			
    | bottom(int bottom)
-   | bottom(int(int i) bottomFun) 		%% offset from bottom
+   | bottom(int(int i) bottomFun) 		// offset from bottom
    
    | width(int width)
-   | width(int(int i) widthFun)     	%% width of elem
+   | width(int(int i) widthFun)     	// width of elem
    
    | height(int height)
-   | height(int(int i) heightFun)		%% height of elem
+   | height(int(int i) heightFun)		// height of elem
    
-   | visible(bool visible)				%% is elem visible?
+   | visible(bool visible)				// is elem visible?
    
-   | title(str title)					%% title of elem
+   | title(str title)					// title of elem
    
-   | values(list[value] values) 		%% data for elem
+   | values(list[value] values) 		// data for elem
    | values(list[value]() valuesFun)
    
-   | lineWidth(int lineWidth)			%% line width used by elem
+   | lineWidth(int lineWidth)			// line width used by elem
    | lineWidth(int(int i) lineWidthFun)
    
-   | fillStyle(int fillStyle)			%% fill color used by elem
-   | fillStyle(int(int i) fillStyleFun)
+   | fillStyle(COLOR fillStyle)			// fill color used by elem
+   | fillStyle(COLOR(int i) fillStyleFun)
    
-   | strokeStyle(int strokeStyle)		%% stroke color used by elem
-   | strokeStyle(int(int i) strokeStyleFun)
+   | strokeStyle(COLOR strokeStyle)		// stroke color used by elem
+   | strokeStyle(COLOR(int i) strokeStyleFun)
    ;
 
 data VELEM = 
@@ -50,12 +58,14 @@ public void java render(Panel p);
 
 public void main(){
 
-    P = panel([width(300), height(300)],
-              [bar([values([1, 1.2, 1.7, 1.5, 0.7]),
-                    bottom(0),
+	d = [10, 12, 17, 15, 7];
+
+    P = panel([width(200), height(200)],
+              [bar([values(d),
+                    bottom(20),
                     width(20),
-                    height(int (int d) {return d * 80;}),
-                    left(int (int d) {return d * 25;})
+                    height(int (int i) {return d[i] * 8;}),
+                    left(int (int i) {return i * 25;})
                    ])
               ]);
     render(P);
