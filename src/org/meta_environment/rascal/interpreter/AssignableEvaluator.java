@@ -225,7 +225,8 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 				throw new UnexpectedTypeError(keyType, subscript.getType(), x.getSubscript());
 			}
 			
-		} else if (rec.getType().isNodeType() && subscript.getType().isIntegerType()) {
+		} 
+		else if (rec.getType().isNodeType() && subscript.getType().isIntegerType()) {
 			int index = ((IInteger) subscript.getValue()).intValue();
 			INode node = (INode) rec.getValue();
 			
@@ -235,7 +236,21 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			value = newResult(node.get(index), value);
 			node = node.set(index, value.getValue());
 			result = makeResult(rec.getType(), node, eval);
-		} else {
+		}
+		else if (rec.getType().isTupleType() && subscript.getType().isIntegerType()) {
+			int index = ((IInteger) subscript.getValue()).intValue();
+			ITuple tuple = (ITuple) rec.getValue();
+			
+			if(index >= tuple.arity()){
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST(), eval.getStackTrace());
+			}
+			
+			value = newResult(tuple.get(index), value);
+			
+			tuple = tuple.set(index, value.getValue());
+			result = makeResult(rec.getType(), tuple, eval);
+		}
+		else {
 			throw new UnsupportedSubscriptError(rec.getType(), subscript.getType(), x);
 			// TODO implement other subscripts
 		}
