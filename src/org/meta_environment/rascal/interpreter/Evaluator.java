@@ -130,6 +130,7 @@ import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.Literal.Location;
 import org.meta_environment.rascal.ast.Literal.Real;
+import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
 import org.meta_environment.rascal.ast.PathTail.Mid;
 import org.meta_environment.rascal.ast.PatternWithAction.Arbitrary;
@@ -205,6 +206,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
@@ -1857,6 +1859,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return x.getLiteral().accept(this);
 	}
 
+	@Override
+	public Result<IValue> visitLiteralRegExp(RegExp x) {
+		throw new SyntaxError("regular expression. They are only allowed in a pattern (left of <- and := or in a case statement).", x.getLocation());
+	}
+	
 	@Override
 	public Result<IValue> visitLiteralInteger(Integer x) {
 		return x.getIntegerLiteral().accept(this);
