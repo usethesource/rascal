@@ -1898,6 +1898,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitLiteralReal(Real x) {
 		String str = x.getRealLiteral().toString();
+		if (str.toLowerCase().endsWith("d")) {
+			str = str.substring(0, str.length() - 1);
+		}
 		return makeResult(tf.realType(), vf.real(str), this);
 	}
 
