@@ -195,5 +195,7 @@ public abstract class VELEM {
 		return title;
 	}
 	
-	abstract void draw(PApplet pa);
+	abstract void draw(PApplet pa, int i, int left, int bottom);
+	abstract int hmove();
+	abstract int vmove();
 }

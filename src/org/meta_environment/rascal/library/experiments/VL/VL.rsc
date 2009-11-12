@@ -1,5 +1,6 @@
 module experiments::VL::VL
 
+/*
 data COLOR =
      color(str name)
    | color(real gray)
@@ -7,6 +8,9 @@ data COLOR =
    | color(real red, real green, real blue)
    | color(real red, real green, real blue, real alpha)
    ;
+   */
+
+alias COLOR = int;
 
 data VPROP =
 
@@ -56,18 +60,80 @@ data Panel = panel(list[VPROP] props, list[VELEM] elms);
 @javaClass{org.meta_environment.rascal.library.experiments.VL.VL}
 public void java render(Panel p);
 
-public void main(){
+/* simple bar chart */
+public void b1(){
+               
+    d1 = [10, 12, 17, 15, 7];           
+	bar1 = bar([bottom(20),
+                width(10),
+                strokeStyle(0),
+                lineWidth(1),
+	            values(d1),
+	            fillStyle(125),
+                height(int (int i) {return d1[i] * 8;}),
+                left(int (int i) {return i > 0 ? 5 : 0;})
+               ]);
 
-	d = [10, 12, 17, 15, 7];
+    P = panel([width(200), height(200)],   [bar1]);
+    render(P);
+}
 
-    P = panel([width(200), height(200)],
-              [bar([values(d),
-                    bottom(20),
-                    width(20),
-                    height(int (int i) {return d[i] * 8;}),
-                    left(int (int i) {return i * 25;})
-                   ])
-              ]);
+/* multiple bars */
+public void b2(){
+
+	common = [ bottom(20),
+               width(10),
+               strokeStyle(0),
+               lineWidth(1),
+               left(int (int i) {return i * 15;})
+             ];
+               
+    d1 = [10, 12, 17, 15, 7];           
+	bar1 = bar([common,
+	            values(d1),
+	            fillStyle(125),
+                height(int (int i) {return d1[i] * 8;}),
+                left(int (int i) {return i * 25;})
+               ]);
+                   
+    d2 = [5, 6, 9, 7, 3];
+    bar2 = bar([common,
+                values(d2),
+                fillStyle(200),
+                height(int (int i) {return d2[i] * 8;}),
+                left(int (int i) {return i * 25 + 10;})
+               ]);
+
+    P = panel([width(200), height(200)],   [bar1, bar2]);
+    render(P);
+
+}
+/* Stacked bar chart */
+public void b3(){
+
+	common = [ bottom(20),
+               width(10),
+               strokeStyle(0),
+               lineWidth(1),
+               left(int (int i) {return i * 15;})
+             ];
+               
+    d1 = [10, 12, 17, 15, 7];           
+	bar1 = bar([common,
+	            values(d1),
+	            fillStyle(125),
+                height(int (int i) {return d1[i] * 8;})
+               ]);
+                   
+    d2 = [5, 6, 9, 7, 3];
+    bar2 = bar([common,
+                values(d2),
+                fillStyle(200),
+                bottom(int (int i) {return d1[i] * 8;}),
+                height(int (int i) {return d2[i] * 8;})
+               ]);
+
+    P = panel([width(200), height(200)],   [bar1, bar2]);
     render(P);
 
 }

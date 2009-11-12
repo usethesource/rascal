@@ -68,7 +68,30 @@ public class VLPApplet extends PApplet {
 		//noLoop();
 		
 	}
+	
+	boolean hcomposition = true;
+	int max = 10;
+	int gap = 2;
+	
+	@Override
+	public void draw(){
+		int left = 0;
+		int bottom = height;
+		rectMode(CORNERS);
+		for(int i = 0; i < max; i++){
+			for(VELEM ve : velems){
+				ve.draw(this, i, left, bottom);
+				if(hcomposition)
+					left += ve.hmove();
+				else
+					bottom += ve.vmove();
+			}
+		}
 
+		
+
+	}
+/*
 	@Override
 	public void draw(){
 		//stroke(255);
@@ -78,6 +101,6 @@ public class VLPApplet extends PApplet {
 		for(VELEM ve : velems){
 			ve.draw(this);
 		}
-
 	}
+*/
 }
