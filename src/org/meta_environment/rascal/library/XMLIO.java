@@ -9,6 +9,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.xerces.xs.XSConstants;
+import org.apache.xerces.xs.XSImplementation;
+import org.apache.xerces.xs.XSLoader;
+import org.apache.xerces.xs.XSModel;
+import org.apache.xerces.xs.XSNamedMap;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -19,7 +24,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.values.ValueFactoryFactory;
-import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -61,7 +65,7 @@ public class XMLIO{
 		java.lang.String typeName = typeInfo.getTypeName();
 		
 		Type adt = anonymousType;
-		if(typeName != null){
+		if(typeName != null && !typeName.contains("#AnonType")){
 			adt = tf.abstractDataType(typeStore, typeName);
 		}
 		
@@ -116,37 +120,57 @@ public class XMLIO{
 		return attributesWriter.done();
 	}
 	
-	public static IConstructor parseXML(IString xmlFileName) throws IOException, SAXException, ParserConfigurationException, IllegalAccessException, InstantiationException, ClassNotFoundException{
+	public void declareTypes(XSModel schema){
+		XSNamedMap elementDeclarations = schema.getComponents(XSConstants.ELEMENT_DECLARATION);
+		int length = elementDeclarations.getLength();
+		for(int i = length - 1; i >= 0; i--){
+			System.out.println(elementDeclarations.item(i));
+		}
+	}
+	
+	public static IConstructor parseXML(IString xmlFileName, IString xsdFileName) throws IOException, SAXException, ParserConfigurationException, IllegalAccessException, InstantiationException, ClassNotFoundException{
 		File xmlFile = new File(xmlFileName.getValue());
+		java.lang.String xsdFileURI = "file://"+xsdFileName.getValue();
 		
 		ErrorHandler errorHandler = new ErrorHandler(){
 			public void fatalError(SAXParseException exception) throws SAXException{
 				// Do nothing
+				System.err.println("fatal "+exception.getMessage());
 			}
 			
 			public void error(SAXParseException exception) throws SAXException{
 				// Do nothing
+				System.err.println("error "+exception.getMessage());
 			}
 			
 			public void warning(SAXParseException exception) throws SAXException{
 				// Do nothing
+				System.err.println("warn "+exception.getMessage());
 			}
 		};
 		
 		System.setProperty(DOMImplementationRegistry.PROPERTY, "org.apache.xerces.dom.DOMXSImplementationSourceImpl");
-		DOMImplementationRegistry.newInstance();
+		DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);
 		dbf.setValidating(true);
 		dbf.setAttribute("http://apache.org/xml/features/validation/schema", java.lang.Boolean.TRUE);
 		dbf.setAttribute("http://apache.org/xml/properties/dom/document-class-name", "org.apache.xerces.dom.PSVIDocumentImpl");
+		
 		DocumentBuilder parser = dbf.newDocumentBuilder();
 		parser.setErrorHandler(errorHandler);
 		Document document = parser.parse(xmlFile);
 		
 		TypeStore typeStore = new TypeStore();
 		XMLIO xmlToPDB = new XMLIO(typeStore, document);
+		
+		XSImplementation impl = (XSImplementation) registry.getDOMImplementation("XS-Loader");
+		XSLoader schemaLoader = impl.createXSLoader(null);
+		XSModel schema = schemaLoader.loadURI(xsdFileURI);
+		
+		xmlToPDB.declareTypes(schema);
+		
 		return xmlToPDB.transform();
 	}
 }
