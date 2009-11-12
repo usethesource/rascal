@@ -11,7 +11,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.RascalFunction;
-import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
@@ -146,8 +145,9 @@ public abstract class VELEM {
 				return (int) ((IReal) res.getValue()).floatValue();
 			else
 				throw RuntimeExceptionFactory.illegalArgument(res.getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
-		} else
-			return field;		
+		}
+		
+		return field;		
 	}
 	
 	protected int getBottom(int n){
@@ -183,8 +183,9 @@ public abstract class VELEM {
 			argVals[0] = vf.integer(n);
 			Result<IValue> res = valuesFun.call(argTypes, argVals);
 			return ((IInteger) res.getValue()).intValue();
-		} else
-			return values[n];		
+		}
+		
+		return values[n];		
 	}
 	
 	protected boolean getVisible(){
