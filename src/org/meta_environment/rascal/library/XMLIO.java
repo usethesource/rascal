@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.xerces.xs.ElementPSVI;
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSImplementation;
 import org.apache.xerces.xs.XSLoader;
@@ -150,7 +151,6 @@ public class XMLIO{
 		};
 		
 		System.setProperty(DOMImplementationRegistry.PROPERTY, "org.apache.xerces.dom.DOMXSImplementationSourceImpl");
-		DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);
@@ -165,11 +165,7 @@ public class XMLIO{
 		TypeStore typeStore = new TypeStore();
 		XMLIO xmlToPDB = new XMLIO(typeStore, document);
 		
-		XSImplementation impl = (XSImplementation) registry.getDOMImplementation("XS-Loader");
-		XSLoader schemaLoader = impl.createXSLoader(null);
-		XSModel schema = schemaLoader.loadURI(xsdFileURI);
-		
-		xmlToPDB.declareTypes(schema);
+		xmlToPDB.declareTypes(((ElementPSVI) document.getDocumentElement()).getSchemaInformation());
 		
 		return xmlToPDB.transform();
 	}
