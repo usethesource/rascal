@@ -38,7 +38,7 @@ public class XMLIO{
 	private final static Type ATTRIBUTES_NODE = tf.mapType(tf.stringType(), tf.stringType());
 	private final static IMap NO_ATTRIBUTES = vf.map(STRING_TYPE, STRING_TYPE);
 	
-	private final Type anonymousType;
+	private final Type anyType;
 	
 	private final TypeStore typeStore;
 	private final Document document;
@@ -46,7 +46,7 @@ public class XMLIO{
 	public XMLIO(TypeStore typeStore, Document document){
 		super();
 		
-		this.anonymousType = tf.abstractDataType(typeStore, "ANONYMOUS_TYPE");
+		this.anyType = tf.abstractDataType(typeStore, "anyType");
 		this.typeStore = typeStore;
 		this.document = document;
 	}
@@ -59,7 +59,7 @@ public class XMLIO{
 		TypeInfo typeInfo = e.getSchemaTypeInfo();
 		java.lang.String typeName = typeInfo.getTypeName();
 		
-		Type adt = anonymousType;
+		Type adt = anyType;
 		if(typeName != null && !typeName.contains("#AnonType")){
 			adt = tf.abstractDataType(typeStore, typeName);
 		}
