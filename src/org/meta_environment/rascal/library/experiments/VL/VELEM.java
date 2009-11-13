@@ -17,7 +17,6 @@ import org.meta_environment.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
 
-
 public abstract class VELEM {
 	
 	protected IEvaluatorContext ctx;
@@ -32,6 +31,9 @@ public abstract class VELEM {
 	
 	int right;									// right marging
 	RascalFunction rightFun = null;
+	
+	int gap;									// gap
+	RascalFunction gapFun = null;
 	
 	int top;									// top margin
 	RascalFunction topFun = null;
@@ -83,6 +85,11 @@ public abstract class VELEM {
 						rightFun = (RascalFunction) arg;
 					else
 						right = ((IInteger) arg).intValue();
+			} else if(pname.equals("gap")){
+				if(arg instanceof RascalFunction)
+					gapFun = (RascalFunction) arg;
+				else
+					gap = ((IInteger) arg).intValue();
 			} else if(pname.equals("top")){
 					if(arg instanceof RascalFunction)
 						topFun = (RascalFunction) arg;
@@ -162,6 +169,10 @@ public abstract class VELEM {
 		return getIntField(rightFun, n, right);
 	}
 	
+	protected int getGap(int n){
+		return getIntField(gapFun, n, gap);
+	}
+	
 	protected int getTop(int n){
 		return getIntField(topFun, n, top);
 	}
@@ -196,7 +207,9 @@ public abstract class VELEM {
 		return title;
 	}
 	
-	abstract void draw(PApplet pa, int i, int left, int bottom);
-	abstract int hmove();
-	abstract int vmove();
+	abstract boolean draw(PApplet pa, int i, int left, int bottom);
+	
+	abstract BoundingBox bbox();
+	
+	abstract BoundingBox bbox(int i);
 }

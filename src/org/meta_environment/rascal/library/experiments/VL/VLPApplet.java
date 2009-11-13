@@ -69,23 +69,34 @@ public class VLPApplet extends PApplet {
 		
 	}
 	
-	boolean hcomposition = true;
-	int max = 10;
-	int gap = 2;
+	boolean hcomposition = false;
+	int nmax = 10;
+	int gap = 5;
 	
 	@Override
 	public void draw(){
 		int left = 0;
 		int bottom = height;
+		
+		int deltax = 0;
+		int deltay = 0;
+		
 		rectMode(CORNERS);
-		for(int i = 0; i < max; i++){
+		for(int i = 0; i < nmax; i++){
+			bottom = height;
 			for(VELEM ve : velems){
-				ve.draw(this, i, left, bottom);
-				if(hcomposition)
-					left += ve.hmove();
-				else
-					bottom += ve.vmove();
+				if(ve.draw(this, i, left, bottom)){
+					BoundingBox bb = ve.bbox(i);
+					deltax = max(deltax, bb.getWidth());
+					deltay = max(deltay, bb.getHeight());
+					if(hcomposition)
+						left += bb.getWidth();
+					else
+						bottom -= bb.getHeight();
+				}
 			}
+			if(!hcomposition)
+				left += deltax + gap;
 		}
 
 		

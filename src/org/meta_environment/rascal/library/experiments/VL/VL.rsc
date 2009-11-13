@@ -19,6 +19,9 @@ data VPROP =
     		
    | right(int right)					// offset from right border
    | right(int(int i) rightFun) 
+   
+   | gap(int gap)					   // gap between elements
+   | gap(int(int i) gapFun) 
    	
    | top(int top)						// offset from top
    | top(int(int i) topFun) 
@@ -71,7 +74,7 @@ public void b1(){
 	            values(d1),
 	            fillStyle(125),
                 height(int (int i) {return d1[i] * 8;}),
-                left(int (int i) {return i > 0 ? 5 : 0;})
+                gap(int (int i) {return i > 0 ? 5 : 0;})
                ]);
 
     P = panel([width(200), height(200)],   [bar1]);
@@ -85,23 +88,21 @@ public void b2(){
                width(10),
                strokeStyle(0),
                lineWidth(1),
-               left(int (int i) {return i * 15;})
+               gap(0)
              ];
                
     d1 = [10, 12, 17, 15, 7];           
 	bar1 = bar([common,
 	            values(d1),
 	            fillStyle(125),
-                height(int (int i) {return d1[i] * 8;}),
-                left(int (int i) {return i * 25;})
+                height(int (int i) {return d1[i] * 8;})
                ]);
                    
     d2 = [5, 6, 9, 7, 3];
     bar2 = bar([common,
                 values(d2),
                 fillStyle(200),
-                height(int (int i) {return d2[i] * 8;}),
-                left(int (int i) {return i * 25 + 10;})
+                height(int (int i) {return d2[i] * 8;})
                ]);
 
     P = panel([width(200), height(200)],   [bar1, bar2]);

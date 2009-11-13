@@ -20,15 +20,6 @@ public class Bar extends VELEM {
 	
 	int width;
 	RascalFunction widthFun = null;
-	
-	int hmove;
-	int vmove;
-	
-	@Override
-	public int hmove() { return hmove; }
-	
-	@Override
-	public int vmove() { return vmove; }
 
 	public Bar(IList props, IEvaluatorContext ctx) {
 		super(ctx);
@@ -77,10 +68,26 @@ public class Bar extends VELEM {
 	}
 	
 	@Override
-	void draw(PApplet pa, int index, int left, int bottom) {
+	public BoundingBox bbox(int index){
+		return new BoundingBox(getGap(index) + getWidth(index), getBottom(index) + getHeight(index));
+	}
+	
+	@Override
+	public BoundingBox bbox(){
+		int w = 0;
+		int h = 0;
+		for(int i = 0; i < values.length; i++){
+			w += getGap(i) + getWidth(i);
+			h += getBottom(i) + getHeight(i);
+		}
+		return new BoundingBox(w,h);
+	}
+	
+	@Override
+	boolean draw(PApplet pa, int index, int left, int bottom) {
 		if(index < values.length){
 			System.err.println("index = " + index + ", left = " + left + ", bottom = " + bottom);
-			int gap = getLeft(index);
+			int gap = getGap(index);
 			
 			int l = left + gap;
 			int h = getHeight(index);
@@ -90,9 +97,6 @@ public class Bar extends VELEM {
 			int r = left + gap + w;
 			int t = b - h;
 			
-			hmove = gap + r - l;
-			vmove = b - t;
-			
 			System.err.println("index = " + index + ", l = " + l + ", t = " + t + ", r = " + r + ", b = " + b);
 		
 			pa.fill(getFillStyle(index));
@@ -100,8 +104,9 @@ public class Bar extends VELEM {
 			pa.strokeWeight(getLineWidth(index));
 			pa.rectMode(pa.CORNERS);
 			pa.rect(l, t, r, b);
+			return true;
 		} else {
-			hmove = vmove  = 0;
+			return false;
 		}
 	}
 
