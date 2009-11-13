@@ -9,12 +9,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.xerces.xs.ElementPSVI;
-import org.apache.xerces.xs.XSConstants;
-import org.apache.xerces.xs.XSImplementation;
-import org.apache.xerces.xs.XSLoader;
-import org.apache.xerces.xs.XSModel;
-import org.apache.xerces.xs.XSNamedMap;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -121,17 +115,8 @@ public class XMLIO{
 		return attributesWriter.done();
 	}
 	
-	public void declareTypes(XSModel schema){
-		XSNamedMap elementDeclarations = schema.getComponents(XSConstants.ELEMENT_DECLARATION);
-		int length = elementDeclarations.getLength();
-		for(int i = length - 1; i >= 0; i--){
-			System.out.println(elementDeclarations.item(i));
-		}
-	}
-	
-	public static IConstructor parseXML(IString xmlFileName, IString xsdFileName) throws IOException, SAXException, ParserConfigurationException, IllegalAccessException, InstantiationException, ClassNotFoundException{
+	public static IConstructor parseXML(IString xmlFileName) throws IOException, SAXException, ParserConfigurationException{
 		File xmlFile = new File(xmlFileName.getValue());
-		java.lang.String xsdFileURI = "file://"+xsdFileName.getValue();
 		
 		ErrorHandler errorHandler = new ErrorHandler(){
 			public void fatalError(SAXParseException exception) throws SAXException{
@@ -164,8 +149,6 @@ public class XMLIO{
 		
 		TypeStore typeStore = new TypeStore();
 		XMLIO xmlToPDB = new XMLIO(typeStore, document);
-		
-		xmlToPDB.declareTypes(((ElementPSVI) document.getDocumentElement()).getSchemaInformation());
 		
 		return xmlToPDB.transform();
 	}
