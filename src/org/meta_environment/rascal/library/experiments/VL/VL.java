@@ -8,8 +8,8 @@ import processing.core.PApplet;
 
 public class VL  {
 
-	public static void render(IConstructor panel, IEvaluatorContext ctx){
-		PApplet pa = new VLPApplet(panel, ctx);
+	public static void render(IConstructor velem, IEvaluatorContext ctx){
+		PApplet pa = new VLPApplet(velem, ctx);
 		new SketchSWT(pa);
 	}
 }

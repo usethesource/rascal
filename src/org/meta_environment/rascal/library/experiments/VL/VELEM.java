@@ -1,9 +1,10 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -23,97 +24,36 @@ public abstract class VELEM {
 	
 	protected IValueFactory vf;
 	
-	int bottom;                                 // bottom margin
-	RascalFunction bottomFun = null;
-	
-	int left;									// left margin
-	RascalFunction leftFun = null;
-	
-	int right;									// right marging
-	RascalFunction rightFun = null;
-	
-	int gap;									// gap
-	RascalFunction gapFun = null;
-	
-	int top;									// top margin
-	RascalFunction topFun = null;
-	
-	boolean visible;							// is VELEM visible?
-	
-	String title;								// Title
+	protected HashMap<String,IValue> properties;
 	
 	float values[];								// Data values
 	RascalFunction valuesFun = null;
 	
-	int fillStyle;                              // Figure fill style
-	RascalFunction fillStyleFun = null;
-	
-	int lineWidth;                              // Figure line width
-	RascalFunction lineWidthFun = null;
-	
-	int strokeStyle;
-	RascalFunction strokeStyleFun = null;
-	
-	
 	VELEM(IEvaluatorContext ctx){
 		this.ctx = ctx;
 		vf = ValueFactoryFactory.getValueFactory();
+		properties = new HashMap<String,IValue>();
 	}
 	
-	protected IList getProps(IList props){
-		IListWriter w = vf.listWriter(TypeFactory.getInstance().valueType());
+	@SuppressWarnings("unchecked")
+	VELEM(HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx){
+		this.ctx = ctx;
+		vf = ValueFactoryFactory.getValueFactory();
+		if(inheritedProps != null)
+			properties = (HashMap<String, IValue>) inheritedProps.clone();
+		else
+			properties = new HashMap<String,IValue>();
+		getProps(props);
+	}
+	
+	protected void getProps(IList props){
 		
 		for(IValue v : props){
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
-			
 			IValue arg = c.get(0);
 			System.err.println("pname = " + pname + ", arg = " + arg);
-			if(pname.equals("bottom")){
-				if(arg instanceof RascalFunction)
-					bottomFun = (RascalFunction) arg;
-				else
-					bottom = ((IInteger) arg).intValue();
-			} else if(pname.equals("left")){
-				System.err.println("arg = " + arg + ", type = " + arg.getType() +  " class = " + arg.getClass());
-				if(arg instanceof RascalFunction)
-					leftFun = (RascalFunction) arg;
-				else
-					left = ((IInteger) arg).intValue();
-			} else if(pname.equals("right")){
-					if(arg instanceof RascalFunction)
-						rightFun = (RascalFunction) arg;
-					else
-						right = ((IInteger) arg).intValue();
-			} else if(pname.equals("gap")){
-				if(arg instanceof RascalFunction)
-					gapFun = (RascalFunction) arg;
-				else
-					gap = ((IInteger) arg).intValue();
-			} else if(pname.equals("top")){
-					if(arg instanceof RascalFunction)
-						topFun = (RascalFunction) arg;
-					else
-						top = ((IInteger) arg).intValue();
-					
-			} else if(pname.equals("fillStyle")){
-				if(arg instanceof RascalFunction)
-					fillStyleFun = (RascalFunction) arg;
-				else
-					fillStyle = ((IInteger) arg).intValue();
-				
-			} else if(pname.equals("lineWidth")){
-				if(arg instanceof RascalFunction)
-					lineWidthFun = (RascalFunction) arg;
-				else
-					lineWidth = ((IInteger) arg).intValue();
-				
-			} else if(pname.equals("strokeStyle")){
-				if(arg instanceof RascalFunction)
-					strokeStyleFun = (RascalFunction) arg;
-				else
-					strokeStyle = ((IInteger) arg).intValue();
-			} else if(pname.equals("values")){
+			if(pname.equals("values")){
 				if(arg instanceof RascalFunction)
 					valuesFun = (RascalFunction) arg;
 				else {
@@ -130,86 +70,105 @@ public abstract class VELEM {
 						}
 					}
 				}
-			} else {
-				w.append(v);
-			}
+			} else
+				properties.put(pname, arg);
 		}
-		
-		return w.done();
+	}
+	
+	public int max(int a, int b){
+		return a > b ? a : b;
 	}
 	
 	protected static Type[] argTypes = new Type[] {TypeFactory.getInstance().integerType()};
 	
 	protected static IValue[] argVals = new IValue[] { null };
 	
-	int getIntField(RascalFunction fun, int n, int field){
-		if(fun != null){
-			argVals[0] = vf.integer(n);
-			Result<IValue> res = fun.call(argTypes, argVals);
-			if(res.getType().isIntegerType())
-				return ((IInteger) res.getValue()).intValue();
-			else if(res.getType().isRealType())
-				return (int) ((IReal) res.getValue()).floatValue();
-			else
-				throw RuntimeExceptionFactory.illegalArgument(res.getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+	protected int getIntProperty(String prop, int n){
+		Object propVal = properties.get(prop);
+		if(propVal != null){
+			if(propVal instanceof RascalFunction){
+				RascalFunction fun = (RascalFunction) propVal;
+				argVals[0] = vf.integer(n);
+				Result<IValue> res = fun.call(argTypes, argVals);
+				if(res.getType().isIntegerType())
+					return ((IInteger) res.getValue()).intValue();
+				else if(res.getType().isRealType())
+					return (int) ((IReal) res.getValue()).floatValue();
+				else
+					throw RuntimeExceptionFactory.illegalArgument(res.getValue(), ctx.getCurrentAST(), ctx.getStackTrace());	
+			} else if(propVal instanceof IInteger){
+				return ((IInteger)propVal).intValue();
+			}
 		}
-		
-		return field;		
+		return 0;
 	}
 	
 	protected int getBottom(int n){
-		return getIntField(bottomFun, n, bottom);
+		return getIntProperty("bottom", n);
 	}
 	
 	protected int getLeft(int n){
-		return getIntField(leftFun, n, left);
+		return getIntProperty("left", n);
 	}
 	
 	protected int getRight(int n){
-		return getIntField(rightFun, n, right);
+		return getIntProperty("right", n);
+	}
+	
+	protected int getHeight(int n){
+		return getIntProperty("height", n);
+	}
+
+
+	protected int getWidth(int n){
+		return getIntProperty("width", n);
 	}
 	
 	protected int getGap(int n){
-		return getIntField(gapFun, n, gap);
+		return getIntProperty("gap", n);
+	}
+	
+	protected int getOffset(int n){
+		return getIntProperty("offset", n);
 	}
 	
 	protected int getTop(int n){
-		return getIntField(topFun, n, top);
+		return getIntProperty("top", n);
 	}
 	
 	protected int getLineWidth(int n){
-		return getIntField(lineWidthFun, n, lineWidth);
+		return getIntProperty("lineWidth", n);
 	}
 	
 	protected int getFillStyle(int n){
-		return getIntField(fillStyleFun, n, fillStyle);
+		return getIntProperty("fillStyle", n);
 	}
 	
 	protected int getStrokeStyle(int n){
-		return getIntField(strokeStyleFun, n, strokeStyle);
+		return getIntProperty("strokeStyle", n);
 	}
 	
-	protected float getValues(int n){
+	protected boolean isVertical(){
+		return properties.get("vertical") != null;
+	}
+	
+	protected boolean isHorizontal(){
+		return properties.get("horizontal") != null ||  properties.get("vertical") == null;
+	}
+	
+	protected int getNumberOfValues(){
+		return values.length;
+	}
+	
+	protected float getValue(int n){
 		if(valuesFun != null){
 			argVals[0] = vf.integer(n);
 			Result<IValue> res = valuesFun.call(argTypes, argVals);
 			return ((IInteger) res.getValue()).intValue();
 		}
-		
 		return values[n];		
 	}
 	
-	protected boolean getVisible(){
-		return visible;
-	}
+	abstract BoundingBox draw(PApplet pa, int i, int left, int bottom);
 	
-	protected String getTitle(){
-		return title;
-	}
-	
-	abstract boolean draw(PApplet pa, int i, int left, int bottom);
-	
-	abstract BoundingBox bbox();
-	
-	abstract BoundingBox bbox(int i);
 }
