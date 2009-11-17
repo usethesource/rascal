@@ -32,6 +32,7 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptError;
@@ -146,7 +147,11 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		
 		//System.out.println("I am assigning: " + x + "(oldvalue = " + previous + ")");
 		
-		if(previous != null){
+		if (previous == null) {
+			throw new UndeclaredVariableError(x.toString(), x);
+		}
+		
+		if(previous.getValue() != null){
 			value = newResult(previous, value);
 			env.storeVariable(qname, value);
 			return value;
