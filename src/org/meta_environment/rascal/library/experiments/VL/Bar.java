@@ -21,7 +21,7 @@ public class Bar extends VELEM {
 	}
 
 	@Override
-	BoundingBox draw(PApplet pa, int i, int left, int bottom) {
+	BoundingBox draw(PApplet pa, int left, int bottom) {
 		// TODO Auto-generated method stub
 		return null;
 	}

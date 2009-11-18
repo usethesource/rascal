@@ -15,26 +15,39 @@ public class Overlay extends Compose {
 	}
 	
 	@Override
-	BoundingBox draw(PApplet pa, int valueIndex, int left, int bottom) {
-		int nValues = getNumberOfValues();
+	BoundingBox draw(PApplet pa, int left, int bottom) {
+		applyProperties(pa);
 		int bbh = 0;
 		int bbw = 0;
-		for(int i = 0; i < velems.size(); i++){
-			int l = left + getOffset(valueIndex);
-			int b = bottom;
-			for(int vi = 0; vi < nValues; vi++){
-				System.err.println("i =" + i + ", vi = " + vi + ", l = " + l + ", b =" + b);
-				VELEM ve = velems.get(i);
-				if(vi < ve.getNumberOfValues()){
-					BoundingBox bb = ve.draw(pa, vi, l, b);
-					bbh = max(bbh, bb.getHeight());
-					bbw = max(bbw, bb.getWidth());
-					l = l + bb.getWidth();
-				} else {
-					l += ve.getWidth(ve.getNumberOfValues() - 1);
-				}	
-			}
+		for(VELEM ve : velems){
+			BoundingBox bb = ve.draw(pa, left, bottom);
+			bbh = max(bbh, bb.getHeight());
+			bbw = max(bbw, bb.getWidth());
 		}
 		return new BoundingBox(bbw, bbh);
 }
+	
+//	@Override
+//	BoundingBox draw(PApplet pa, int valueIndex, int left, int bottom) {
+//		int nValues = getNumberOfValues();
+//		int bbh = 0;
+//		int bbw = 0;
+//		for(int i = 0; i < velems.size(); i++){
+//			int l = left + getOffset(valueIndex);
+//			int b = bottom;
+//			for(int vi = 0; vi < nValues; vi++){
+//				System.err.println("i =" + i + ", vi = " + vi + ", l = " + l + ", b =" + b);
+//				VELEM ve = velems.get(i);
+//				if(vi < ve.getNumberOfValues()){
+//					BoundingBox bb = ve.draw(pa, vi, l, b);
+//					bbh = max(bbh, bb.getHeight());
+//					bbw = max(bbw, bb.getWidth());
+//					l = l + bb.getWidth();
+//				} else {
+//					l += ve.getWidth(ve.getNumberOfValues() - 1);
+//				}	
+//			}
+//		}
+//		return new BoundingBox(bbw, bbh);
+//}
 }

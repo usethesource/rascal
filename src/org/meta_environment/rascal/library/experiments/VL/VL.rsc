@@ -13,51 +13,15 @@ data COLOR =
 alias COLOR = int;
 
 data VPROP =
-
-     left(int left) 					// offset from left border
-   | left(int(int i) leftFun) 
-    		
-   | right(int right)					// offset from right border
-   | right(int(int i) rightFun) 
-   
-   | gap(int gap)					   // gap between elements
-   | gap(int(int i) gapFun) 
-   	
-   | top(int top)						// offset from top
-   | top(int(int i) topFun) 
-   			
-   | bottom(int bottom)
-   | bottom(int(int i) bottomFun) 		// offset from bottom
-   
-   | offset(int offset)
-   | offset(int(int i) offsetFun) 		// offset from left or bottom
-   
-   
-   | width(int width)
-   | width(int(int i) widthFun)     	// width of elem
-   
+     width(int width)
    | height(int height)
-   | height(int(int i) heightFun)		// height of elem
-   
    | visible(bool visible)				// is elem visible?
-   
    | title(str title)					// title of elem
-   
-   | values(list[value] values) 		// data for elem
-   | values(list[value]() valuesFun)
-   
-     // TODO Dummy int here
-   | horizontal(int h)                       // horizontal mode
-   | vertical(int v)                         // vertical mode
-   
+   | horizontal()                       // horizontal mode
+   | vertical()                         // vertical mode
    | lineWidth(int lineWidth)			// line width used by elem
-   | lineWidth(int(int i) lineWidthFun)
-   
    | fillStyle(COLOR fillStyle)			// fill color used by elem
-   | fillStyle(COLOR(int i) fillStyleFun)
-   
    | strokeStyle(COLOR strokeStyle)		// stroke color used by elem
-   | strokeStyle(COLOR(int i) strokeStyleFun)
    ;
 
 data VELEM = 
@@ -80,7 +44,7 @@ public void b0(){
 	render(rect([width(10), height(20)]));
 }
 
-/* simple bar chart */
+
 public void m1(){ 
     d1 = [10, 12, 17, 15, 7];           
 	bar1 = merge([
@@ -93,6 +57,20 @@ public void m1(){
                [
                  rect([ values(d1), height(int (int i) {return d1[i] * 8;})])
                ]);
+    render(bar1);
+}
+
+public void m1(){ 
+    d1 = [10, 12, 17, 15, 7]; 
+    width = 10;          
+	bar1 = concat([
+                strokeStyle(0),
+                lineWidth(1),
+	            fillStyle(125),
+	            align(bottom)
+               ],
+               [ rect(width, d * 8) | d <- d1]
+               );
     render(bar1);
 }
 
@@ -199,6 +177,26 @@ public void c2(){
     render(bar2);
 }
 
+public void c2(){ 
+    d1 = [10, 12, 17, 15, 7]; 
+    d2 = [ 5,  6,  9,  7, 3, 20];
+    m = max(size(d1), size(d2));
+    width = 10;        
+    gap = 5;  
+	bar1 = concat([
+                strokeStyle(0),
+                lineWidth(1),
+	            align(bottom)
+               ],
+               for(int i <- [0 .. m]){
+                   if(i < size(d1)) append [fillStyle(125), rect(width, d1[i] * 8)];
+                   if(i < size(d2)) append [fillStyle(250), rect(width, d2[i] * 8)];
+                   append move(gap);
+               }
+               );
+    render(bar1);
+}
+
 public void c2v(){    
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];          
@@ -250,3 +248,5 @@ public void m2v(){
                );
     render(bar2);
 }
+
+***/

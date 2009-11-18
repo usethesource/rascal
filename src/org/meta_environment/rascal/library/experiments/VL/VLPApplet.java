@@ -28,7 +28,7 @@ public class VLPApplet extends PApplet {
 	
 	@Override
 	public void draw(){
-		velem.draw(this, 0, 0, height);
+		velem.draw(this, 0, height);
 	}
 	
 	/*

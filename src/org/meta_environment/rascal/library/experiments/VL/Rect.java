@@ -16,20 +16,15 @@ public class Rect extends VELEM {
 	}
 
 	@Override
-	BoundingBox draw(PApplet pa, int valueIndex, int left, int bottom) {
-		if(valueIndex < getNumberOfValues()){
-			pa.fill(getFillStyle(valueIndex));
-			pa.stroke(getStrokeStyle(valueIndex));
-			pa.strokeWeight(getLineWidth(valueIndex));
-			int h = getHeight(valueIndex);
-			int w = getWidth(valueIndex);
-			pa.rectMode(PConstants.CORNERS);
-			System.err.println("rect: h =" + h + ", w = " + w);
-			System.err.println("rect: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
-			pa.rect(left, bottom-h, left + w, bottom);
-			return new BoundingBox(w, h);
-		} else
-			return new BoundingBox(0,0);
+	BoundingBox draw(PApplet pa, int left, int bottom) {
+		applyProperties(pa);
+		int h = getHeight();
+		int w = getWidth();
+		pa.rectMode(PConstants.CORNERS);
+		System.err.println("rect: h =" + h + ", w = " + w);
+		System.err.println("rect: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
+		pa.rect(left, bottom-h, left + w, bottom);
+		return new BoundingBox(w, h);
 	}
 
 }

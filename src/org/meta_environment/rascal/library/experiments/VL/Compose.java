@@ -18,17 +18,17 @@ public abstract class Compose extends VELEM {
 		for(IValue v : elems){
 			IConstructor c = (IConstructor) v;
 			System.err.println("Compose, elem = " + c.getName());
-			velems.add(VELEMFactory.make(c, this.properties, ctx));
+			velems.add(VELEMFactory.make(c, properties, ctx));
 		}
 	}
 	
-	@Override
-	protected int getNumberOfValues(){
-		int n = 0;
-		for(VELEM v : velems)
-			n = max(n, v.getNumberOfValues());
-		return n;
-	}
+//	@Override
+//	protected int getNumberOfValues(){
+//		int n = 0;
+//		for(VELEM v : velems)
+//			n = max(n, v.getNumberOfValues());
+//		return n;
+//	}
 	
 //	enum align {LEFT, CENTER, RIGHT, TOP, BOTTOM};
 //	
