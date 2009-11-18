@@ -15,20 +15,16 @@ public class Line extends VELEM {
 	}
 
 	@Override
-	BoundingBox draw(PApplet pa, int valueIndex, int left, int bottom) {
-		if(valueIndex < getNumberOfValues() -1){
-			pa.fill(getFillStyle(valueIndex));
-			pa.stroke(getStrokeStyle(valueIndex));
-			pa.strokeWeight(getLineWidth(valueIndex));
-			int h1 = getHeight(valueIndex);
-			int h2 = getHeight(valueIndex + 1);
-			int w = getWidth(valueIndex);
+	BoundingBox draw(PApplet pa, int left, int bottom) {
+		applyProperties(pa);
+			int h1 = getHeight();
+		//	int h2 = getHeight(valueIndex + 1);
+			int h2 = h1;
+			int w = getWidth();
 			//System.err.println("line: h =" + h + ", w = " + w);
 			//System.err.println("line: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
 			pa.line(left, bottom - h1, left + w, bottom - h2);
 			return new BoundingBox(w, max(h1,h2));  // TODO not right since extends to the left
-		} else
-			return new BoundingBox(0,0);
 	}
 
 }

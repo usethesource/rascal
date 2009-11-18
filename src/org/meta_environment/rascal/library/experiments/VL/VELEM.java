@@ -51,27 +51,9 @@ public abstract class VELEM {
 		for(IValue v : props){
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
-			IValue arg = c.get(0);
+			IValue arg = (c.arity() > 0) ? c.get(0) : null;
 			System.err.println("pname = " + pname + ", arg = " + arg);
-			if(pname.equals("values")){
-				if(arg instanceof RascalFunction)
-					valuesFun = (RascalFunction) arg;
-				else {
-					IList vals = (IList) c.get(0);
-					values = new float[vals.length()];
-					for(int i = 0; i < vals.length(); i++){
-						IValue num = vals.get(i);
-						if(num.getType().isIntegerType()){
-							values[i] = ((IInteger) num).intValue();
-						} else if(num.getType().isRealType()){
-							values[i] = ((IReal) num).floatValue();
-						} else {
-							throw RuntimeExceptionFactory.illegalArgument(num, ctx.getCurrentAST(), ctx.getStackTrace());
-						}
-					}
-				}
-			} else
-				properties.put(pname, arg);
+			properties.put(pname, arg);
 		}
 	}
 	
@@ -103,38 +85,62 @@ public abstract class VELEM {
 		return 0;
 	}
 	
-	protected int getBottom(int n){
-		return getIntProperty("bottom", n);
+	protected int getInt(IValue v){
+		if(v instanceof IInteger)
+			return ((IInteger)v).intValue();
+		return 0;
 	}
 	
-	protected int getLeft(int n){
-		return getIntProperty("left", n);
+	public void applyProperties(PApplet pa){
+		for(String prop :properties.keySet()){
+			if(prop.equals("fillStyle"))
+				pa.fill(getInt(properties.get(prop)));
+			if(prop.equals("strokeStyle"))
+				pa.stroke(getInt(properties.get(prop)));
+			if(prop.equals("lineWidth"))
+				pa.strokeWeight(getInt(properties.get(prop)));
+		}
 	}
 	
-	protected int getRight(int n){
-		return getIntProperty("right", n);
-	}
+//	protected int getBottom(int n){
+//		return getIntProperty("bottom", n);
+//	}
+//	
+//	protected int getLeft(int n){
+//		return getIntProperty("left", n);
+//	}
+//	
+//	protected int getRight(int n){
+//		return getIntProperty("right", n);
+//	}
 	
 	protected int getHeight(int n){
 		return getIntProperty("height", n);
 	}
-
+	
+	protected int getHeight(){
+		return getIntProperty("height", -1);
+	}
 
 	protected int getWidth(int n){
 		return getIntProperty("width", n);
 	}
 	
-	protected int getGap(int n){
-		return getIntProperty("gap", n);
+	protected int getWidth(){
+		return getIntProperty("width", -1);
 	}
 	
-	protected int getOffset(int n){
-		return getIntProperty("offset", n);
-	}
-	
-	protected int getTop(int n){
-		return getIntProperty("top", n);
-	}
+//	protected int getGap(int n){
+//		return getIntProperty("gap", n);
+//	}
+//	
+//	protected int getOffset(int n){
+//		return getIntProperty("offset", n);
+//	}
+//	
+//	protected int getTop(int n){
+//		return getIntProperty("top", n);
+//	}
 	
 	protected int getLineWidth(int n){
 		return getIntProperty("lineWidth", n);
@@ -156,19 +162,19 @@ public abstract class VELEM {
 		return properties.get("horizontal") != null ||  properties.get("vertical") == null;
 	}
 	
-	protected int getNumberOfValues(){
-		return values.length;
-	}
+//	protected int getNumberOfValues(){
+//		return values.length;
+//	}
+//	
+//	protected float getValue(int n){
+//		if(valuesFun != null){
+//			argVals[0] = vf.integer(n);
+//			Result<IValue> res = valuesFun.call(argTypes, argVals);
+//			return ((IInteger) res.getValue()).intValue();
+//		}
+//		return values[n];		
+//	}
 	
-	protected float getValue(int n){
-		if(valuesFun != null){
-			argVals[0] = vf.integer(n);
-			Result<IValue> res = valuesFun.call(argTypes, argVals);
-			return ((IInteger) res.getValue()).intValue();
-		}
-		return values[n];		
-	}
-	
-	abstract BoundingBox draw(PApplet pa, int i, int left, int bottom);
+	abstract BoundingBox draw(PApplet pa, int left, int bottom);
 	
 }
