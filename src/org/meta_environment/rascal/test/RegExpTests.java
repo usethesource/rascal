@@ -32,6 +32,9 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("(/<x:[a-z]+>-<x>-<x>/ := \"abc-abc-abc\") && (x == \"abc\");"));
 		assertFalse(runTest("(/<x:[a-z]+>-<x>/ := \"abc-def\");"));
 
+		assertTrue(runTest("/\\// := \"/\";"));
+		assertTrue(runTest("/<x:\\/>/ := \"/\";"));
+		assertTrue(runTest("/<x:\\/>/ := \"/\" && x == \"/\";"));
 	}
 	
 	@Test(expected=RedeclaredVariableError.class)
