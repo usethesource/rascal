@@ -15,39 +15,39 @@ public class Overlay extends Compose {
 	}
 	
 	@Override
-	BoundingBox draw(PApplet pa, int left, int bottom) {
-		applyProperties(pa);
-		int bbh = 0;
+	BoundingBox bbox(){
 		int bbw = 0;
+		int bbh = 0;
 		for(VELEM ve : velems){
-			BoundingBox bb = ve.draw(pa, left, bottom);
+			BoundingBox bb = ve.bbox();
 			bbh = max(bbh, bb.getHeight());
 			bbw = max(bbw, bb.getWidth());
 		}
 		return new BoundingBox(bbw, bbh);
-}
+	}
 	
-//	@Override
-//	BoundingBox draw(PApplet pa, int valueIndex, int left, int bottom) {
-//		int nValues = getNumberOfValues();
-//		int bbh = 0;
-//		int bbw = 0;
-//		for(int i = 0; i < velems.size(); i++){
-//			int l = left + getOffset(valueIndex);
-//			int b = bottom;
-//			for(int vi = 0; vi < nValues; vi++){
-//				System.err.println("i =" + i + ", vi = " + vi + ", l = " + l + ", b =" + b);
-//				VELEM ve = velems.get(i);
-//				if(vi < ve.getNumberOfValues()){
-//					BoundingBox bb = ve.draw(pa, vi, l, b);
-//					bbh = max(bbh, bb.getHeight());
-//					bbw = max(bbw, bb.getWidth());
-//					l = l + bb.getWidth();
-//				} else {
-//					l += ve.getWidth(ve.getNumberOfValues() - 1);
-//				}	
-//			}
-//		}
-//		return new BoundingBox(bbw, bbh);
-//}
+	@Override
+	BoundingBox draw(PApplet pa, int left, int bottom) {
+		applyProperties(pa);
+		int b = bottom;
+		int l = left;
+		BoundingBox maxBB = bbox();
+		for(VELEM ve : velems){
+			BoundingBox bb = ve.bbox();
+			if(isTop())
+				b = bottom - (maxBB.getHeight() - bb.getHeight());
+			else if(isCenter())
+				b = bottom - (maxBB.getHeight() - bb.getHeight())/2;
+			else
+				b = bottom;
+			if(isRight())
+				l = left + (maxBB.getWidth() - bb.getWidth());
+			else if(isCenter())
+				l = left + (maxBB.getWidth() - bb.getWidth())/2;
+			else
+				l = left;
+			ve.draw(pa, l, b);
+		}
+		return maxBB;
+	}
 }
