@@ -408,7 +408,6 @@ public class JavaBridge {
 			return IValue.class;
 		}
 
-		@Override
 		public Class<?> visitDateTime(Type type) {
 			return IDateTime.class;
 		}
