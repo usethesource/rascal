@@ -161,7 +161,6 @@ public class ResultFactory {
 			throw new NotYetImplemented("visitExternal in result factory: " + externalType);
 		}
 
-		@Override
 		public Result<? extends IValue> visitDateTime(Type type) {
 			return new DateTimeResult(declaredType, (IDateTime)value, ctx);		
 		}
