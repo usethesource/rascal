@@ -54,6 +54,12 @@ public class RuntimeExceptionFactory {
 
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
 	private static Type Subversion = TF.constructor(TS, E, "Subversion", TF.stringType(), "message");
+	
+	private static Type InvalidUseOfDate = TF.constructor(TS, E, "InvalidUseOfDate", TF.dateTimeType(), "message");
+	private static Type InvalidUseOfTime = TF.constructor(TS, E, "InvalidUseOfTime", TF.dateTimeType(), "message");
+	private static Type InvalidUseOfDateTime = TF.constructor(TS, E, "InvalidUseOfDateTime", TF.dateTimeType(), "message");
+	private static Type DateTimeParsingError = TF.constructor(TS, E, "DateTimeParsingError", TF.stringType(), "message");
+	private static Type DateTimePrintingError = TF.constructor(TS, E, "DateTimePrintingError", TF.stringType(), "message");
 
     public static Throw indexOutOfBounds(IInteger i, AbstractAST ast, String trace) {
     	return new Throw(IndexOutOfBounds.make(VF, i), ast, trace);
@@ -156,6 +162,26 @@ public class RuntimeExceptionFactory {
 	public static Throw subversionException(String message, AbstractAST ast, String trace) {
 		return new Throw(Subversion.make(VF, VF.string(message)), ast, trace);
 	}
+	
+	public static Throw invalidUseOfDateException(String message, AbstractAST ast, String trace) {
+		return new Throw(InvalidUseOfDate.make(VF, VF.string(message)), ast, trace);
+	}
+	
+	public static Throw invalidUseOfTimeException(String message, AbstractAST ast, String trace) {
+		return new Throw(InvalidUseOfTime.make(VF, VF.string(message)), ast, trace);
+	}
+	
+	public static Throw invalidUseOfDateTimeException(String message, AbstractAST ast, String trace) {
+		return new Throw(InvalidUseOfDateTime.make(VF, VF.string(message)), ast, trace);
+	}
+	
+	public static Throw dateTimeParsingError(String message, AbstractAST ast, String trace) {
+		return new Throw(DateTimeParsingError.make(VF, VF.string(message)), ast, trace);
+	}
+	
+	public static Throw dateTimePrintingError(String message, AbstractAST ast, String trace) {
+		return new Throw(DateTimePrintingError.make(VF, VF.string(message)), ast, trace);
+	}	
 	
 	public static Throw nameMismatch(String expected, String got, AbstractAST ast, String trace) {
 		return new Throw(NameMismatch.make(VF, VF.string(expected), VF.string(got)), ast, trace);

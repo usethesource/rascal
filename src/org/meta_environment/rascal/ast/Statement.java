@@ -422,7 +422,7 @@ private final org.meta_environment.rascal.ast.LocalVariableDeclaration declarati
 	public org.meta_environment.rascal.ast.LocalVariableDeclaration getDeclaration() { return declaration; }	
 } public org.meta_environment.rascal.ast.Target getTarget() { throw new UnsupportedOperationException(); } public boolean hasTarget() { return false; } public boolean isBreak() { return false; }
 static public class Break extends Statement {
-/** "break" target:Target -> Statement {cons("Break")} */
+/** "break" target:Target ";" -> Statement {cons("Break")} */
 	public Break(INode node, org.meta_environment.rascal.ast.Target target) {
 		this.node = node;
 		this.target = target;
@@ -439,7 +439,7 @@ private final org.meta_environment.rascal.ast.Target target;
 	public org.meta_environment.rascal.ast.Target getTarget() { return target; }	
 } public boolean isFail() { return false; }
 static public class Fail extends Statement {
-/** "fail" target:Target -> Statement {cons("Fail")} */
+/** "fail" target:Target  ";" -> Statement {cons("Fail")} */
 	public Fail(INode node, org.meta_environment.rascal.ast.Target target) {
 		this.node = node;
 		this.target = target;
@@ -456,7 +456,7 @@ private final org.meta_environment.rascal.ast.Target target;
 	public org.meta_environment.rascal.ast.Target getTarget() { return target; }	
 } public boolean isContinue() { return false; }
 static public class Continue extends Statement {
-/** "continue" target:Target -> Statement {cons("Continue")} */
+/** "continue" target:Target ";" -> Statement {cons("Continue")} */
 	public Continue(INode node, org.meta_environment.rascal.ast.Target target) {
 		this.node = node;
 		this.target = target;

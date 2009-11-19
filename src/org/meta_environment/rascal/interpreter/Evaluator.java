@@ -39,6 +39,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.BasicType;
 import org.meta_environment.rascal.ast.Bound;
@@ -63,6 +65,9 @@ import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
 import org.meta_environment.rascal.ast.Command.Shell;
+import org.meta_environment.rascal.ast.DateTimeLiteral.DateAndTimeLiteral;
+import org.meta_environment.rascal.ast.DateTimeLiteral.DateLiteral;
+import org.meta_environment.rascal.ast.DateTimeLiteral.TimeLiteral;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
@@ -202,6 +207,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.AppendWithoutLoop;
+import org.meta_environment.rascal.interpreter.staticErrors.DateTimeParseError;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
@@ -1944,7 +1950,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		String str = ((org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical) x.getDecimal()).getString();
 		return makeResult(tf.integerType(), vf.integer(str), this);
 	}
-
+	
 	@Override
 	public Result<IValue> visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
@@ -2530,6 +2536,121 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		throw new UninitializedVariableError(Names.name(x.getName()), x);
 	}
+	
+	
+	@Override
+	public Result<IValue> visitLiteralDateTime(
+			org.meta_environment.rascal.ast.Literal.DateTime x) {
+		return x.getDateTimeLiteral().accept(this);
+	}
+
+	@Override
+	public Result<IValue> visitDateTimeLiteralDateAndTimeLiteral(
+			DateAndTimeLiteral x) {
+		return x.getDateAndTime().accept(this);
+	}
+
+	@Override
+	public Result<IValue> visitDateTimeLiteralDateLiteral(DateLiteral x) {
+		return x.getDate().accept(this);
+	}
+
+	@Override
+	public Result<IValue> visitDateTimeLiteralTimeLiteral(TimeLiteral x) {
+		return x.getTime().accept(this);
+	}
+
+	@Override
+	public Result<IValue> visitDateAndTimeLexical(
+			org.meta_environment.rascal.ast.DateAndTime.Lexical x) {
+		// Split into date and time components; of the form $<date>T<time>
+		String dtPart = x.getString().substring(1); 
+		String datePart = dtPart.substring(0,dtPart.indexOf("T"));
+		String timePart = dtPart.substring(dtPart.indexOf("T")+1);
+		
+		return createVisitedDateTime(datePart, timePart, x);
+		
+	}
+
+	private Result<IValue> createVisitedDateTime(String datePart, String timePart,
+			org.meta_environment.rascal.ast.DateAndTime.Lexical x) {
+		String isoDate = datePart;
+		if (-1 == datePart.indexOf("-")) {
+			isoDate = datePart.substring(0,4) + "-" + datePart.substring(4,6) + "-" + 
+			          datePart.substring(6);
+		}
+		String isoTime = timePart;
+		if (-1 == timePart.indexOf(":")) {			
+			isoTime = timePart.substring(0, 2) + ":" + timePart.substring(2,4) + ":" +
+					  timePart.substring(4);
+		}
+		String isoDateTime = isoDate + "T" + isoTime;
+		try {
+			DateTime dateAndTime = ISODateTimeFormat.dateTimeParser().parseDateTime(isoDateTime);
+			int hourOffset = dateAndTime.getZone().getOffset(dateAndTime.getMillis())/3600000;
+			int minuteOffset = (dateAndTime.getZone().getOffset(dateAndTime.getMillis())/60000) % 60;		
+			return ResultFactory.makeResult(tf.dateTimeType(),
+					vf.datetime(dateAndTime.getYear(), dateAndTime.getMonthOfYear(), 
+							dateAndTime.getDayOfMonth(), dateAndTime.getHourOfDay(), 
+							dateAndTime.getMinuteOfHour(), dateAndTime.getSecondOfMinute(),
+							dateAndTime.getMillisOfSecond(), hourOffset, minuteOffset), this);
+		} catch (IllegalArgumentException iae) {
+			throw new DateTimeParseError("$" + datePart + "T" + timePart, x.getLocation());
+		}
+	}
+
+	@Override
+	public Result<IValue> visitJustDateLexical(
+			org.meta_environment.rascal.ast.JustDate.Lexical x) {
+		// Date is of the form $<date>
+		String datePart = x.getString().substring(1); 
+		return createVisitedDate(datePart,x); 
+	}
+
+	private Result<IValue> createVisitedDate(String datePart,
+			org.meta_environment.rascal.ast.JustDate.Lexical x) {
+		String isoDate = datePart;
+		if (-1 == datePart.indexOf("-")) {
+			isoDate = datePart.substring(0,4) + "-" + datePart.substring(4,6) + "-" + 
+			          datePart.substring(6);
+		}
+		try {
+			DateTime justDate = ISODateTimeFormat.dateParser().parseDateTime(isoDate);
+			return ResultFactory.makeResult(tf.dateTimeType(),
+					vf.date(justDate.getYear(), justDate.getMonthOfYear(), 
+							justDate.getDayOfMonth()), this);
+		} catch (IllegalArgumentException iae) {
+			throw new DateTimeParseError("$" + datePart, x.getLocation());
+		}			
+	}
+
+	@Override
+	public Result<IValue> visitJustTimeLexical(
+			org.meta_environment.rascal.ast.JustTime.Lexical x) {
+		// Time is of the form $T<time>
+		String timePart = x.getString().substring(2); 
+		return createVisitedTime(timePart,x);
+	}
+
+	private Result<IValue> createVisitedTime(String timePart,
+			org.meta_environment.rascal.ast.JustTime.Lexical x) {
+		String isoTime = timePart;
+		if (-1 == timePart.indexOf(":")) {			
+			isoTime = timePart.substring(0, 2) + ":" + timePart.substring(2,4) + ":" +
+					  timePart.substring(4);
+		}
+		try {
+			DateTime justTime = ISODateTimeFormat.timeParser().parseDateTime(isoTime);
+			int hourOffset = justTime.getZone().getOffset(justTime.getMillis())/3600000;
+			int minuteOffset = (justTime.getZone().getOffset(justTime.getMillis())/60000) % 60;		
+			return ResultFactory.makeResult(tf.dateTimeType(),
+					vf.time(justTime.getHourOfDay(), justTime.getMinuteOfHour(), justTime.getSecondOfMinute(),
+							justTime.getMillisOfSecond(), hourOffset, minuteOffset), this);
+		} catch (IllegalArgumentException iae) {
+			throw new DateTimeParseError("$T" + timePart, x.getLocation());
+		}						
+	}
+
 
 	boolean matchAndEval(Result<IValue> subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
 		boolean debug = false;

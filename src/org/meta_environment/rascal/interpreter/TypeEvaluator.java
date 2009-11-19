@@ -17,6 +17,7 @@ import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
 import org.meta_environment.rascal.ast.BasicType.Bag;
 import org.meta_environment.rascal.ast.BasicType.Bool;
+import org.meta_environment.rascal.ast.BasicType.DateTime;
 import org.meta_environment.rascal.ast.BasicType.Int;
 import org.meta_environment.rascal.ast.BasicType.Lex;
 import org.meta_environment.rascal.ast.BasicType.Loc;
@@ -325,6 +326,11 @@ public class TypeEvaluator {
 			throw new NonWellformedTypeError("tuple should have type arguments, like tuple[value,value].", x);
 		}
 
+		@Override
+		public Type visitBasicTypeDateTime(DateTime x) {
+			return tf.dateTimeType();
+		}
+		
 		@Override
 		public Type visitTypeStructured(Structured x) {
 			return x.getStructured().accept(this);
@@ -721,5 +727,13 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		}
 		
 		throw new NonWellformedTypeError("a reified reified type should look like reified(type[&T] arg)", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeDateTime(DateTime x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.dateTimeType();
+		}
+		throw new NonWellformedTypeError("datetime does not have type arguments.", x);
 	}
 }

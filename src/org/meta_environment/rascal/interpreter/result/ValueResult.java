@@ -95,6 +95,11 @@ public class ValueResult extends ElementResult<IValue> {
 		return that.equalityBoolean(this);
 	}
 
+	@Override
+	protected <U extends IValue> Result<U> equalToDateTime(DateTimeResult that) {
+		return equalityBoolean(that);
+	}
+
 	
 	@Override
 	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that) {
@@ -154,10 +159,13 @@ public class ValueResult extends ElementResult<IValue> {
 	@Override
 	protected <U extends IValue> Result<U> nonEqualToValue(ValueResult that) {
 		return nonEqualityBoolean(this);
+	}	
+	
+	@Override
+	protected <U extends IValue> Result<U> nonEqualToDateTime(DateTimeResult that) {
+		return nonEqualityBoolean(that);
 	}
 
-	
-	
 	@Override
 	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
 		return typeCompare(that);
@@ -208,8 +216,11 @@ public class ValueResult extends ElementResult<IValue> {
 		return typeCompare(that);
 	}
 	
-	
-	
+	@Override
+	protected <U extends IValue> Result<U> compareDateTime(DateTimeResult that) {
+		return typeCompare(that);
+	}
+
 	/* Utilities  */
 	
 	private <U extends IValue, V extends IValue> Result<U> typeCompare(Result<V> that) {

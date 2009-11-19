@@ -516,6 +516,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> compareNode(NodeResult that) {
 		return that.undefinedError(COMPARE_STRING, this);
 	}
+	
+	protected <U extends IValue> Result<U> compareDateTime(DateTimeResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
 
 	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
@@ -581,6 +585,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 
+	protected <U extends IValue> Result<U> equalToDateTime(DateTimeResult that) {
+		return that.undefinedError(EQUALS_STRING, this);
+	}
+	
 	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
@@ -630,6 +638,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> Result<U> nonEqualToValue(ValueResult that) {
+		return that.undefinedError(NON_EQUALS_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> nonEqualToDateTime(DateTimeResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
@@ -792,11 +804,28 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
+
+	protected <U extends IValue> Result<U> lessThanDateTime(DateTimeResult that) {
+		return that.undefinedError(LESS_THAN_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualDateTime(DateTimeResult that) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanDateTime(DateTimeResult that) {
+		return that.undefinedError(GREATER_THAN_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualDateTime(DateTimeResult that) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
+	}
 	
 	protected <U extends IValue> Result<U> addSourceLocation(
 			SourceLocationResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
+	
 	public boolean isPublic() {
 		return isPublic;
 	}

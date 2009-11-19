@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -51,6 +52,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 	private final ValueCache<ISet> cachedSets;
 	private final ValueCache<IRelation> cachedRelations;
 	private final ValueCache<IMap> cachedMaps;
+	private final ValueCache<IDateTime> cachedDateTimes;
 	
 	public LocalSharingValueFactory(IValueFactory valueFactory){
 		super();
@@ -71,6 +73,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 		cachedSets = new ValueCache<ISet>();
 		cachedRelations = new ValueCache<IRelation>();
 		cachedMaps = new ValueCache<IMap>();
+		cachedDateTimes = new ValueCache<IDateTime>();
 	}
 
 	public IBool bool(boolean value){
@@ -343,5 +346,36 @@ public class LocalSharingValueFactory implements IValueFactory{
 		public void insertAll(Iterable<IValue> collection) throws FactTypeUseException{
 			mapWriter.insertAll(collection);
 		}
+	}
+
+	@Override
+	public IDateTime date(int year, int month, int day) {
+		return cachedDateTimes.cache(valueFactory.date(year, month, day));
+	}
+
+	@Override
+	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond) {
+		return cachedDateTimes.cache(valueFactory.datetime(year, month, day, hour, minute, second, millisecond));
+	}
+
+	@Override
+	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond, int hourOffset,
+			int minuteOffset) {
+		return cachedDateTimes.cache(valueFactory.datetime(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset));
+	}
+
+	@Override
+	public IDateTime datetime(long instant) {
+		return cachedDateTimes.cache(valueFactory.datetime(instant));
+	}
+	
+	@Override
+	public IDateTime time(int hour, int minute, int second, int millisecond) {
+		return cachedDateTimes.cache(valueFactory.time(hour, minute, second, millisecond));
+	}
+
+	@Override
+	public IDateTime time(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
+		return cachedDateTimes.cache(valueFactory.time(hour, minute, second, millisecond, hourOffset, minuteOffset));
 	}
 }
