@@ -21,11 +21,11 @@ public class VELEMFactory {
 				return new Line(inheritedProps, props, ctx);
 			if(ename.equals("dot"))
 				return new Dot(inheritedProps, props, ctx);
+			if(ename.equals("area"))
+				return new Area(inheritedProps, props, ctx);
 		} else if(c.arity() == 2){ // composition operators
 			IList props = (IList) c.get(0);
 			IList elems = (IList) c.get(1);
-			if(ename.equals("merge"))
-				return new Merge(inheritedProps, props, elems, ctx);
 			if(ename.equals("concat"))
 				return new Concat(inheritedProps, props, elems, ctx);
 			if(ename.equals("overlay"))

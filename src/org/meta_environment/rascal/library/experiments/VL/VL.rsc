@@ -1,4 +1,6 @@
 module experiments::VL::VL
+import Integer;
+import List;
 
 /*
 data COLOR =
@@ -15,21 +17,31 @@ alias COLOR = int;
 data VPROP =
      width(int width)
    | height(int height)
+   | height2(int height2)
    | visible(bool visible)				// is elem visible?
    | title(str title)					// title of elem
-   | horizontal()                       // horizontal mode
-   | vertical()                         // vertical mode
+   | horizontal()                       // horizontal composition
+   | vertical()                         // vertical composition
+   | top()                              // top alignment
+   | center()                           // center alignment
+   | bottom()                           // bottom alignment
+   | left()                             // left alignment
+   | right()                            // right alignment
+   | size(int size)                     // size of varies elems
    | lineWidth(int lineWidth)			// line width used by elem
    | fillStyle(COLOR fillStyle)			// fill color used by elem
    | strokeStyle(COLOR strokeStyle)		// stroke color used by elem
    ;
 
 data VELEM = 
+/* primitives */
      rect(list[VPROP] props)
    | line(list[VPROP] props)
    | dot(list[VPROP] props)
+   | area(list[VPROP] props)
+   
+/* composition */
    | concat(list[VPROP] props, list[VELEM] elem)
-   | merge(list[VPROP] props, list[VELEM] elems)
    | overlay(list[VPROP] props, list[VELEM] elems)
    ;
      
@@ -41,212 +53,139 @@ data Panel = panel(list[VPROP] props, list[VELEM] elms);
 public void java render(VELEM elem);
 
 public void b0(){
-	render(rect([width(10), height(20)]));
+	render(rect([ width(100), height(200)]));
 }
 
-
-public void m1(){ 
-    d1 = [10, 12, 17, 15, 7];           
-	bar1 = merge([
-                width(10),
-                strokeStyle(0),
-                lineWidth(1),
-	            fillStyle(125),
-	            gap(10)
-               ],
-               [
-                 rect([ values(d1), height(int (int i) {return d1[i] * 8;})])
-               ]);
-    render(bar1);
+public void r3(){
+	render(concat([vertical(),right()],
+	              [rect([ width(100), height(200)]),
+			       rect([ width(150), height(100)]),
+			       rect([width(200), height(50)])
+			      ]
+		));
 }
 
-public void m1(){ 
-    d1 = [10, 12, 17, 15, 7]; 
-    width = 10;          
+public void b1(){ 
+    d1 = [10, 12, 17, 15, 7];      
 	bar1 = concat([
                 strokeStyle(0),
                 lineWidth(1),
 	            fillStyle(125),
-	            align(bottom)
+	            width(10)
                ],
-               [ rect(width, d * 8) | d <- d1]
+               [ rect([height(d * 8)]) | d <- d1]
                );
     render(bar1);
 }
 
-public void c1(){          
-    d1 = [10, 12, 17, 15, 7];           
-	bar1 = overlay([
-                width(20),
-                strokeStyle(0),
-                lineWidth(1),
-	            fillStyle(125),
-	            gap(10),
-	            offset(10)
-               ],
-               [
-               	 line([ values(d1), height(int (int i) {return 2 * d1[i] * 8;})]),
-                 dot([  values(d1), height(int (int i) {return 2 * d1[i] * 8;})])
-               ]);
-    render(bar1);
-}
-
-public void m1v(){    
-    d1 = [10, 12, 17, 15, 7];           
-	bar1 = merge([
-				vertical(1),
-                width(10),
-                strokeStyle(0),
-                lineWidth(1),
-	            fillStyle(125),
-	            gap(10)
-               ],
-               [
-                 rect([ values(d1),  height(int (int i) {return d1[i] * 8;})])
-               ]);
-    render(bar1);
-}
-
-public void c1v(){   
-    d1 = [10, 12, 17, 15, 7];           
-	bar1 = concat([
-				vertical(1),
-                width(10),
-                strokeStyle(0),
-                lineWidth(1),
-	            fillStyle(125),
-	            gap(10)
-               ],
-               [
-                 rect([ values(d1),  height(int (int i) {return d1[i] * 8;})])
-               ]);
-    render(bar1);
-}
-
-public void c1o(){          
-    d1 = [10, 12, 17, 15, 7];           
-	bar1 = concat([
-                width(10),
-                strokeStyle(0),
-                lineWidth(1),
-	            fillStyle(125),
-	            gap(10)
-               ],
-               [
-                 rect([ values(d1),  
-                        height(int (int i) {return d1[i] * 8;}),
-                        offset(int (int i) {return 50 + i * 10;})
-                      ])
-               ]);
-    render(bar1);
-}
-
-public void c1vo(){          
-    d1 = [10, 12, 17, 15, 7];           
-	bar1 = concat([
-	            //vertical(1),
-                width(10),
-                strokeStyle(0),
-                lineWidth(1),
-	            fillStyle(125),
-	            gap(10)
-               ],
-               [
-                 rect([ values(d1),  
-                        vertical(1),
-                        height(int (int i) {return d1[i] * 8;}),
-                        offset(int (int i) {return 50 + i * 10;})
-                      ])
-               ]);
-    render(bar1);
-}
-
-public void c2(){           
-    d1 = [10, 12, 17, 15, 7]; 
-    d2 = [ 5,  6,  9,  7, 3, 20];          
-	bar2 = concat([
-               	width(10),
-               	strokeStyle(0),
-               	lineWidth(1),
-               	gap(10)
-               ],
-               [ rect([values(d1),height(int (int i) {return d1[i] * 8;}), fillStyle(125)]),
-                 rect([values(d2), height(int (int i) {return d2[i] * 8;}), fillStyle(250)])
-               ]
-               );
-    render(bar2);
-}
-
-public void c2(){ 
+public void b2(){ 
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
-    m = max(size(d1), size(d2));
-    width = 10;        
-    gap = 5;  
+    m = max(size(d1), size(d2));   
+    list[VELEM] bars = [];
+    for(int i <- [0 .. m]){	
+                   bars += [rect([fillStyle(125), height((d1[i] ? 0) * 8)]),
+                            rect([fillStyle(250), height((d2[i] ? 0) * 8)])
+                           ];              
+               }
 	bar1 = concat([
                 strokeStyle(0),
                 lineWidth(1),
-	            align(bottom)
+	          	width(10),
+	          	top()
                ],
-               for(int i <- [0 .. m]){
-                   if(i < size(d1)) append [fillStyle(125), rect(width, d1[i] * 8)];
-                   if(i < size(d2)) append [fillStyle(250), rect(width, d2[i] * 8)];
-                   append move(gap);
-               }
+               bars
                );
     render(bar1);
 }
 
-public void c2v(){    
+public void b2v(){ 
     d1 = [10, 12, 17, 15, 7]; 
-    d2 = [ 5,  6,  9,  7, 3, 20];          
-	bar2 = concat([
-	            vertical(1),
-               	width(10),
-               	strokeStyle(0),
-               	lineWidth(1),
-               	gap(50)
+    d2 = [ 5,  6,  9,  7, 3, 20];
+    m = max(size(d1), size(d2));   
+    list[VELEM] bars = [];
+    for(int i <- [0 .. m]){	
+                   bars += [
+                            concat([vertical()],
+                                   [rect([fillStyle(125), height((d1[i] ? 0) * 8)]),
+                                    rect([fillStyle(250), height((d2[i] ? 0) * 8)])
+                                   ])
+                           ];              
+               }
+	bar1 = concat([
+                strokeStyle(0),
+                lineWidth(1),
+	          	width(10)
                ],
-               [ rect([values(d1),horizontal(1),height(int (int i) {return d1[i] * 8;}), fillStyle(125)]),
-                 rect([values(d2),horizontal(1), height(int (int i) {return d2[i] * 8;}), fillStyle(250)])
-               ]
+               bars
                );
-    render(bar2);
+    render(bar1);
 }
 
-public void m2(){           
-    d1 = [10, 12, 17, 15, 7]; 
-    d2 = [ 5,  6,  9,  7, 3, 20];          
-	bar2 = merge([
-               	width(10),
-               	strokeStyle(0),
-               	lineWidth(1),
-               	gap(10),
-	            fillStyle(125)
+public void d1(){ 
+    dt1 = [10, 12, 17, 15, 7];      
+	bar1 = concat([
+                strokeStyle(0),
+                lineWidth(0),
+	            fillStyle(125),
+	            width(10),
+	            size(5)
                ],
-               [ rect([values(d1),height(int (int i) {return d1[i] * 8;}), fillStyle(125)]),
-                 rect([values(d2), height(int (int i) {return d2[i] * 8;}), fillStyle(250)])
-               ]
+               [ dot([height(d * 8)]) | d <- dt1]
                );
-    render(bar2);
+    render(bar1);
 }
 
-public void m2v(){    
-    d1 = [10, 12, 17, 15, 7]; 
-    d2 = [ 5,  6,  9,  7, 3, 20];          
-	bar2 = merge([
-	            vertical(1),
-               	width(10),
-               	strokeStyle(0),
-               	lineWidth(1),
-               	gap(10),
-	            fillStyle(125)
+public void l1(){ 
+    dt1 = [10, 12, 17, 15, 7];      
+	bar1 = concat([
+                strokeStyle(0),
+                lineWidth(0),
+	            fillStyle(125),
+	            width(10),
+	            size(5)
                ],
-               [ rect([values(d1),height(int (int i) {return d1[i] * 8;}), fillStyle(125)]),
-                 rect([values(d2), height(int (int i) {return d2[i] * 8;}), fillStyle(250)])
-               ]
+               [ line([height(dt1[i] * 8), height2(dt1[i+1] * 8)]) | i <- [0 .. size(dt1) - 2]]
                );
-    render(bar2);
+    render(bar1);
 }
 
-***/
+public void a1(){ 
+    dt1 = [10, 12, 17, 15, 7];      
+	bar1 = concat([
+                strokeStyle(0),
+                lineWidth(2),
+	            fillStyle(125),
+	            width(50),
+	            size(5)
+               ],
+               [ area([height(dt1[i] * 8), height2(dt1[i+1] * 8)]) | i <- [0 .. size(dt1) - 2]]
+               );
+    render(bar1);
+}
+
+public void dl1(){ 
+    dt1 = [10, 12, 17, 15, 7];      
+	bar1 = overlay([
+                strokeStyle(0),
+                lineWidth(0),
+	            fillStyle(125),
+	            width(50),
+	            size(20)
+               ],
+               [
+            	   concat([], [ line([height(dt1[i] * 8), height2(dt1[i+1] * 8)]) | i <- [0 .. size(dt1) - 2]]),
+            	   concat([], [ dot([height(d * 8)]) | d <- dt1])
+               ]
+               );
+    render(bar1);
+}
+
+public void o1(){
+
+render(overlay([], [rect([width(100), height(200)]), 
+                    rect([width(150), height(100)])
+                   ])
+      );
+
+}

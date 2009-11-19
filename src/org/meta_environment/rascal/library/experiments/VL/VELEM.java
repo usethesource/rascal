@@ -51,7 +51,7 @@ public abstract class VELEM {
 		for(IValue v : props){
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
-			IValue arg = (c.arity() > 0) ? c.get(0) : null;
+			IValue arg = (c.arity() > 0) ? c.get(0) : vf.bool(true);
 			System.err.println("pname = " + pname + ", arg = " + arg);
 			properties.put(pname, arg);
 		}
@@ -93,6 +93,7 @@ public abstract class VELEM {
 	
 	public void applyProperties(PApplet pa){
 		for(String prop :properties.keySet()){
+			System.err.println("applyProperties: " + prop);
 			if(prop.equals("fillStyle"))
 				pa.fill(getInt(properties.get(prop)));
 			if(prop.equals("strokeStyle"))
@@ -102,17 +103,11 @@ public abstract class VELEM {
 		}
 	}
 	
-//	protected int getBottom(int n){
-//		return getIntProperty("bottom", n);
-//	}
-//	
-//	protected int getLeft(int n){
-//		return getIntProperty("left", n);
-//	}
-//	
-//	protected int getRight(int n){
-//		return getIntProperty("right", n);
-//	}
+	public void printProperties(){
+		for(String prop :properties.keySet()){
+			System.err.println(prop + ": " + properties.get(prop));
+		}
+	}
 	
 	protected int getHeight(int n){
 		return getIntProperty("height", n);
@@ -120,6 +115,10 @@ public abstract class VELEM {
 	
 	protected int getHeight(){
 		return getIntProperty("height", -1);
+	}
+	
+	protected int getHeight2(){
+		return getIntProperty("height2", -1);
 	}
 
 	protected int getWidth(int n){
@@ -130,17 +129,9 @@ public abstract class VELEM {
 		return getIntProperty("width", -1);
 	}
 	
-//	protected int getGap(int n){
-//		return getIntProperty("gap", n);
-//	}
-//	
-//	protected int getOffset(int n){
-//		return getIntProperty("offset", n);
-//	}
-//	
-//	protected int getTop(int n){
-//		return getIntProperty("top", n);
-//	}
+	protected int getSize(){
+		return getIntProperty("size", -1);
+	}
 	
 	protected int getLineWidth(int n){
 		return getIntProperty("lineWidth", n);
@@ -162,19 +153,21 @@ public abstract class VELEM {
 		return properties.get("horizontal") != null ||  properties.get("vertical") == null;
 	}
 	
-//	protected int getNumberOfValues(){
-//		return values.length;
-//	}
-//	
-//	protected float getValue(int n){
-//		if(valuesFun != null){
-//			argVals[0] = vf.integer(n);
-//			Result<IValue> res = valuesFun.call(argTypes, argVals);
-//			return ((IInteger) res.getValue()).intValue();
-//		}
-//		return values[n];		
-//	}
+	protected boolean isCenter(){
+		return properties.get("center") != null;
+	}
+	
+	protected boolean isTop(){
+		System.err.println("isTop: " + properties.get("top"));
+		return properties.get("top") != null;
+	}
+	
+	protected boolean isRight(){
+		return properties.get("right") != null;
+	}
 	
 	abstract BoundingBox draw(PApplet pa, int left, int bottom);
+	
+	abstract BoundingBox bbox();
 	
 }

@@ -13,13 +13,17 @@ public class Line extends VELEM {
 	public Line(HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
 		super(inheritedProps, props, ctx);
 	}
+	
+	@Override
+	BoundingBox bbox(){
+		return new BoundingBox(getWidth(), max(getHeight(), getHeight2()));
+	}
 
 	@Override
 	BoundingBox draw(PApplet pa, int left, int bottom) {
 		applyProperties(pa);
 			int h1 = getHeight();
-		//	int h2 = getHeight(valueIndex + 1);
-			int h2 = h1;
+			int h2 = getHeight2();
 			int w = getWidth();
 			//System.err.println("line: h =" + h + ", w = " + w);
 			//System.err.println("line: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
