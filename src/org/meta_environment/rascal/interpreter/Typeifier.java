@@ -153,6 +153,10 @@ public class Typeifier {
 					return type;
 				}
 
+				public Type visitDateTime(Type type) {
+					return type;
+				}
+				
 				private void declareParameters(IConstructor next) {
 					for (IValue p : ((IList) next.get("parameters"))) {
 						todo.add((IConstructor) p);
@@ -201,7 +205,7 @@ public class Typeifier {
 
 				private IList getConstructors(IConstructor next) {
 					return (IList) next.get("constructors");
-				}
+				}				
 			});
 		}
 		

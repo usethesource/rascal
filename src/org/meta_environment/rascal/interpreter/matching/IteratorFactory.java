@@ -103,7 +103,8 @@ public class IteratorFactory {
 				subjectType.isIntegerType() ||
 				subjectType.isRealType() ||
 				subjectType.isStringType() ||
-				subjectType.isSourceLocationType())
+				subjectType.isSourceLocationType() ||
+				subjectType.isDateTimeType())
 				{
 			if(shallow && !subjectType.isSubtypeOf(patType)) {
 				throw new UnexpectedTypeError(patType, subjectType, ctx.getCurrentAST());

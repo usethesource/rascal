@@ -9,6 +9,7 @@ import java.util.WeakHashMap;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -22,6 +23,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Parameters;
@@ -404,6 +406,11 @@ public class JavaBridge {
 		public Class<?> visitExternal(
 				org.eclipse.imp.pdb.facts.type.Type externalType) {
 			return IValue.class;
+		}
+
+		@Override
+		public Class<?> visitDateTime(Type type) {
+			return IDateTime.class;
 		}
 	}
 

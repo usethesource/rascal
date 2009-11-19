@@ -349,4 +349,10 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
 	}
 
+	public Result<IValue> visitDateTime(Type type) {
+		Map<Type,Type> bindings = bind(type);
+		Type cons = tf.constructor(store, adt.instantiate(store, bindings), "datetime", tf.tupleEmpty());
+		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
+	}
+	
 }

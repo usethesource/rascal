@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -158,6 +159,11 @@ public class ResultFactory {
 			}
 			
 			throw new NotYetImplemented("visitExternal in result factory: " + externalType);
+		}
+
+		@Override
+		public Result<? extends IValue> visitDateTime(Type type) {
+			return new DateTimeResult(declaredType, (IDateTime)value, ctx);		
 		}
 	}
 }

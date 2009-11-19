@@ -265,5 +265,17 @@ static public class ReifiedReifiedType extends BasicType {
 	}
 
 	public boolean isReifiedReifiedType() { return true; }	
+} 
+public boolean isDateTime() { return false; }
+static public class DateTime extends BasicType {
+/** "datetime" -> BasicType {cons("DateTime")} */
+	public DateTime(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeDateTime(this);
+	}
+
+	public boolean isDateTime() { return true; }	
 }
 }

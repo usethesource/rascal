@@ -133,5 +133,25 @@ static public class Location extends Literal {
 
 private final org.meta_environment.rascal.ast.LocationLiteral locationLiteral;
 	public org.meta_environment.rascal.ast.LocationLiteral getLocationLiteral() { return locationLiteral; }	
+} 
+public org.meta_environment.rascal.ast.DateTimeLiteral getDateTimeLiteral() { throw new UnsupportedOperationException(); }
+public boolean hasDateTimeLiteral() { return false; }
+public boolean isDateTime() { return false; }
+static public class DateTime extends Literal {
+/** dateTimeLiteral:DateTimeLiteral -> Literal {cons("DateTime")} */
+	public DateTime(INode node, org.meta_environment.rascal.ast.DateTimeLiteral dateTimeLiteral) {
+		this.node = node;
+		this.dateTimeLiteral = dateTimeLiteral;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitLiteralDateTime(this);
+	}
+
+	public boolean isDateTime() { return true; }
+
+	public boolean hasDateTimeLiteral() { return true; }
+
+private final org.meta_environment.rascal.ast.DateTimeLiteral dateTimeLiteral;
+	public org.meta_environment.rascal.ast.DateTimeLiteral getDateTimeLiteral() { return dateTimeLiteral; }	
 }
 }

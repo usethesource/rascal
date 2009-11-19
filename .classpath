@@ -13,6 +13,7 @@
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13-swt.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13.jar"/>
 	<classpathentry kind="lib" path="lib/svnkit.jar" sourcepath="lib/svnkitsrc.zip"/>
+	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
