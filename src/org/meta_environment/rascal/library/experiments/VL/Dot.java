@@ -24,7 +24,6 @@ public class Dot extends VELEM {
 	BoundingBox draw(PApplet pa, int left, int bottom) {
 		applyProperties(pa);
 		int h = getHeight();
-		int w = getWidth();
 		int s = getSize();
 		//System.err.println("line: h =" + h + ", w = " + w);
 		//System.err.println("line: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);

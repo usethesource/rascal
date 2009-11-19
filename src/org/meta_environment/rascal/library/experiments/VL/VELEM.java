@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -164,6 +165,13 @@ public abstract class VELEM {
 	
 	protected boolean isRight(){
 		return properties.get("right") != null;
+	}
+	
+	protected String getText(){
+		IValue is =  properties.get("text");
+		if(is != null)
+			return ((IString) is).getValue();
+		return "";
 	}
 	
 	abstract BoundingBox draw(PApplet pa, int left, int bottom);
