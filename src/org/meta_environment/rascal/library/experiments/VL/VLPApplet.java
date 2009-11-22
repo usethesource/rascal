@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
@@ -15,20 +17,51 @@ public class VLPApplet extends PApplet {
 	private int width = 600;
 	private int height = 600;
 	private VELEM  velem;
+	private HashMap<String,Part> registered;
 
 	VLPApplet(IConstructor elem, IEvaluatorContext ctx){
-		this.velem = VELEMFactory.make(elem, null, ctx);
+		registered = new HashMap<String,Part>();
+		this.velem = VELEMFactory.make(this, elem, null, ctx);
+		
+	}
+	
+	public void register(String name, Part nd){
+		registered.put(name, nd);
+	}
+	
+	public Part getRegistered(String name){
+		return registered.get(name);
+	}
+	
+	public void connect(String from, String to){
+		
 	}
 
 	@Override
 	public void setup(){
 		size(width, height);
+		textFont(createFont("Helvetica", 12));
+		smooth();
 		//noLoop();
 	}
 	
 	@Override
 	public void draw(){
-		velem.draw(this, 0, height-30);
+		background(255);
+		velem.bbox();
+		velem.draw(0, height-30);
+	}
+	
+	@Override
+	public void mouseMoved(){
+		System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
+		velem.mouseOver(mouseX, mouseY);
+	}
+	
+	@Override
+	public void mousePressed(){
+		System.err.println("mousePressed: " + mouseX + ", " + mouseY);
+		velem.mouseOver(mouseX, mouseY);
 	}
 	
 	/*

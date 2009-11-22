@@ -6,32 +6,50 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
-import processing.core.PApplet;
 import processing.core.PConstants;
 
 public class Rect extends VELEM {
 
-	public Rect(HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
-		super(inheritedProps, props, ctx);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public Rect(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
+		super(vlp, inheritedProps, props, ctx);
+		width = getWidth();
+		height = getHeight();
+		System.err.println("rect: width=" + width + ", height=" + height);
 	}
 	
 	@Override
 	BoundingBox bbox(){
-		return new BoundingBox(getWidth(), getHeight());
+		width = getWidth();
+		height = getHeight();
+		return new BoundingBox(width, height);
 	}
 
 	@Override
-	BoundingBox draw(PApplet pa, int left, int bottom) {
-		applyProperties(pa);
-		int h = getHeight();
-		int w = getWidth();
-		if(h > 0 && w > 0){
-		pa.rectMode(PConstants.CORNERS);
-			System.err.println("rect: h =" + h + ", w = " + w);
-			System.err.println("rect: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
-			pa.rect(left, bottom-h, left + w, bottom);
+	void draw(int l, int b) {
+		applyProperties();
+		left = l;
+		bottom = b;
+		width = getWidth();
+		height = getHeight();
+		System.err.println("rect: left=" + left + ", bottom=" + bottom + ", width=" + width + ", height=" + height);
+		if(height > 0 && width > 0){
+			vlp.rectMode(PConstants.CORNERS);
+			vlp.rect(left, bottom-height, left + width, bottom);
 		}
-		return new BoundingBox(w, h);
+	}
+	
+	@Override
+	public void mouseOver(int x, int y){
+		System.err.println("MouseOver in rect: " + left  + ", " + bottom);
+		if((x > left && x < left + width) &&
+		   (y > bottom  && y < bottom - height)){
+		   System.err.println("MouseOver in rect: " + left  + ", " + bottom);
+		}
 	}
 
 }

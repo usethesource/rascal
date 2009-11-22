@@ -6,29 +6,30 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
-import processing.core.PApplet;
 
 public class Dot extends VELEM {
 
-	public Dot(HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
-		super(inheritedProps, props, ctx);
+	public Dot(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
+		super(vlp, inheritedProps, props, ctx);
 	}
 
 	@Override
 	BoundingBox bbox(){
 		int s = getSize();
-		return new BoundingBox(max(getWidth(), s), getHeight() + s);
+		width = getWidth();
+		height = getHeight();
+		return new BoundingBox(max(width,2*s), height + s);
 	}
 	
 	@Override
-	BoundingBox draw(PApplet pa, int left, int bottom) {
-		applyProperties(pa);
-		int h = getHeight();
+	void draw(int l, int b) {
+		applyProperties();
+		left = l;
+		bottom = b;
 		int s = getSize();
 		//System.err.println("line: h =" + h + ", w = " + w);
 		//System.err.println("line: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
-		pa.ellipse(left - s, bottom - h, 2*s, 2*s);
-		return bbox();
+		vlp.ellipse(left, bottom - height, 2*s, 2*s);
 	}
 
 }
