@@ -27,6 +27,10 @@ public class VL extends PApplet {
 		return vf.integer(pa.color(r,g,b));
 	}
 	
+	static IInteger rgb(float r, float g, float b){
+		return vf.integer(pa.color(r,g,b));
+	}
+	
     static HashMap<String, IInteger> colorNames =
     	new HashMap<String, IInteger>() {
     	/**
@@ -200,12 +204,15 @@ public class VL extends PApplet {
 		return vf.integer(pa.color(r.floatValue(), alpha.floatValue()));
 	}
 	
-	public static IInteger rgb(IReal r, IReal g, IReal b){
-		return vf.integer(pa.color(r.floatValue(), g.floatValue(), g.floatValue()));
+	public static IInteger rgb(IInteger r, IInteger g, IInteger b){
+		return vf.integer(pa.color(r.intValue(), g.intValue(), b.intValue()));
 	}
 	
-	public static IInteger rgb(IReal r, IReal g, IReal b, IReal alpha){
-		return vf.integer(pa.color(r.floatValue(), g.floatValue(), g.floatValue(), alpha.floatValue()));
+	public static IInteger rgb(IInteger r, IInteger g, IInteger b, IReal alpha){
+		System.err.println("rgba: " + r.intValue() + ", " +  g.intValue() + " " + b.intValue() + ", " + alpha.floatValue());
+		int res = pa.color(r.intValue(), g.intValue(), b.intValue(), alpha.floatValue());
+		System.err.println("res = " + res);
+		return vf.integer(res);
 	}
 	
 	public static IInteger color(IString colorName, IEvaluatorContext ctx){
@@ -215,13 +222,43 @@ public class VL extends PApplet {
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	public static IList colorScale(IInteger from, IInteger to, IInteger n){
+//	private static int lerp( int value1, int value2, float amt ) {
+//	    int range = value2 - value1;
+//	    return round(( range * amt ) + value1);
+//	}
+	
+	 static public int myLerpColor(int c1, int c2, float amt) {
+		 float a1 = ((c1 >> 24) & 0xff);
+		 float r1 = (c1 >> 16) & 0xff;
+		 float g1 = (c1 >> 8) & 0xff;
+		 float b1 = c1 & 0xff;
+		 float a2 = (c2 >> 24) & 0xff;
+		 float r2 = (c2 >> 16) & 0xff;
+		 float g2 = (c2 >> 8) & 0xff;
+		 float b2 = c2 & 0xff;
+
+		 return (((int) (a1 + (a2-a1)*amt) << 24) |
+				 ((int) (r1 + (r2-r1)*amt) << 16) |
+				 ((int) (g1 + (g2-g1)*amt) << 8) |
+				 ((int) (b1 + (b2-b1)*amt)));
+	 }
+	 
+	 public static IInteger interpolateColor(IInteger from, IInteger to, IReal amt){
+		int fromColor = from.intValue();
+		int toColor =to.intValue();
+		float percentage = amt.floatValue();
+		return vf.integer(myLerpColor(fromColor, toColor, percentage));
+	 }
+	 
+	
+	public static IList colorSteps(IInteger from, IInteger to, IInteger n){
 		int fromColor = from.intValue();
 		int toColor =to.intValue();
 		int max = n.intValue();
 	 	IListWriter w = vf.listWriter(from.getType());
 	 	for(int i = 0; i < max; i++){
-	 		w.append(vf.integer(pa.lerpColor(fromColor, toColor, (1.0f * i)/max)));
+	 		System.err.println("i = " + i + ": " + fromColor + " " + toColor + " " + (1.0f * i)/max);
+	 		w.append(vf.integer(myLerpColor(fromColor, toColor, (1.0f * i)/max)));
 	 	}
 	 	return w.done();
 	}

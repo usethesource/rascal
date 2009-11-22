@@ -7,31 +7,31 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
-import processing.core.PConstants;
 
 public class Label extends VELEM {
 
-	public Label(HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
-		super(inheritedProps, props, ctx);
+	public Label(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
+		super(vlp, inheritedProps, props, ctx);
 	}
 	
 	@Override
 	BoundingBox bbox(){
-		return new BoundingBox(getWidth(), getHeight());
+		String txt = getText();
+		height = PApplet.round(vlp.textAscent() - vlp.textDescent());
+		width = PApplet.round(vlp.textWidth(txt));
+		return new BoundingBox(width, height);
 	}
 
 	@Override
-	BoundingBox draw(PApplet pa, int left, int bottom) {
-		applyProperties(pa);
-		int h = getHeight();
-		int w = getWidth();
-		if(h > 0 && w > 0){
-		pa.rectMode(PConstants.CORNERS);
-			System.err.println("rect: h =" + h + ", w = " + w);
-			System.err.println("rect: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
-			pa.rect(left, bottom-h, left + w, bottom);
+	void draw(int l, int b) {
+		applyProperties();
+		String txt = getText();
+		left = l;
+		bottom = b;
+		System.err.println("label: " + txt + ", width = " + width + ", height = " + height);
+		if(height > 0 && width > 0){
+			vlp.text(txt, left, bottom);
 		}
-		return new BoundingBox(w, h);
 	}
 
 }

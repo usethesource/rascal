@@ -17,27 +17,31 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
-import processing.core.PApplet;
 
 public abstract class VELEM {
 	
 	protected IEvaluatorContext ctx;
+	protected VLPApplet vlp;
 	
 	protected IValueFactory vf;
 	
 	protected HashMap<String,IValue> properties;
 	
-	float values[];								// Data values
-	RascalFunction valuesFun = null;
+	protected int left = 0;
+	protected int bottom = 0;
+	protected int width = 0;
+	protected int height = 0;
 	
-	VELEM(IEvaluatorContext ctx){
+	VELEM(VLPApplet vlp, IEvaluatorContext ctx){
+		this.vlp = vlp;
 		this.ctx = ctx;
 		vf = ValueFactoryFactory.getValueFactory();
 		properties = new HashMap<String,IValue>();
 	}
 	
 	@SuppressWarnings("unchecked")
-	VELEM(HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx){
+	VELEM(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx){
+		this.vlp = vlp;
 		this.ctx = ctx;
 		vf = ValueFactoryFactory.getValueFactory();
 		if(inheritedProps != null)
@@ -54,6 +58,15 @@ public abstract class VELEM {
 			String pname = c.getName();
 			IValue arg = (c.arity() > 0) ? c.get(0) : vf.bool(true);
 			System.err.println("pname = " + pname + ", arg = " + arg);
+			if(pname.equals("fillColor") || pname.equals("lineColor")){
+				if(arg.getType().isStringType()){
+					IInteger cl = VL.colorNames.get(((IString)arg).getValue());
+					if(cl != null)
+						arg = cl;
+					else
+						throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+			}
 			properties.put(pname, arg);
 		}
 	}
@@ -92,16 +105,26 @@ public abstract class VELEM {
 		return 0;
 	}
 	
-	public void applyProperties(PApplet pa){
+	protected float getFloat(IValue v){
+		if(v instanceof IReal)
+			return ((IReal)v).floatValue();
+		return 0;
+	}
+	
+	public void applyProperties(){
 		for(String prop :properties.keySet()){
 			System.err.println("applyProperties: " + prop);
-			if(prop.equals("fillStyle"))
-				pa.fill(getInt(properties.get(prop)));
-			if(prop.equals("strokeStyle"))
-				pa.stroke(getInt(properties.get(prop)));
+			if(prop.equals("fillColor"))
+				vlp.fill(getInt(properties.get(prop)));
+			if(prop.equals("lineColor"))
+				vlp.stroke(getInt(properties.get(prop)));
 			if(prop.equals("lineWidth"))
-				pa.strokeWeight(getInt(properties.get(prop)));
+				vlp.strokeWeight(getInt(properties.get(prop)));
+			if(prop.equals("scale"))
+				vlp.strokeWeight(getFloat(properties.get(prop)));
 		}
+		vlp.textFont(vlp.createFont(getFont(), getFontSize()));
+
 	}
 	
 	public void printProperties(){
@@ -110,20 +133,12 @@ public abstract class VELEM {
 		}
 	}
 	
-	protected int getHeight(int n){
-		return getIntProperty("height", n);
-	}
-	
 	protected int getHeight(){
 		return getIntProperty("height", -1);
 	}
 	
 	protected int getHeight2(){
 		return getIntProperty("height2", -1);
-	}
-
-	protected int getWidth(int n){
-		return getIntProperty("width", n);
 	}
 	
 	protected int getWidth(){
@@ -134,16 +149,8 @@ public abstract class VELEM {
 		return getIntProperty("size", -1);
 	}
 	
-	protected int getLineWidth(int n){
-		return getIntProperty("lineWidth", n);
-	}
-	
-	protected int getFillStyle(int n){
-		return getIntProperty("fillStyle", n);
-	}
-	
-	protected int getStrokeStyle(int n){
-		return getIntProperty("strokeStyle", n);
+	protected int getGap(){
+		return getIntProperty("gap", -1);
 	}
 	
 	protected boolean isVertical(){
@@ -174,8 +181,40 @@ public abstract class VELEM {
 		return "";
 	}
 	
-	abstract BoundingBox draw(PApplet pa, int left, int bottom);
+	protected String getName(){
+		IValue is =  properties.get("name");
+		if(is != null)
+			return ((IString) is).getValue();
+		return "";
+	}
+	
+	protected String getFont(){
+		IValue is =  properties.get("font");
+		if(is != null)
+			return ((IString) is).getValue();
+		return "Helvetica";
+	}
+	
+	protected int getFontSize(){
+		IValue fs =  properties.get("fontSize");
+		if(fs != null)
+			return ((IInteger) fs).intValue();
+		return 12;
+	}
+	
+	public int getX(){
+		return left + width/2;
+	}
+	
+	public int getY(){
+		return bottom - height/2;
+	}
+		
+	abstract void draw(int left, int bottom);
 	
 	abstract BoundingBox bbox();
+
+	public void mouseOver(int x, int y){
+	}
 	
 }

@@ -12,13 +12,13 @@ public abstract class Compose extends VELEM {
 
 	protected ArrayList<VELEM> velems;
 
-	Compose(HashMap<String,IValue> inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(inheritedProps, props, ctx);		
+	Compose(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+		super(vlp, inheritedProps, props, ctx);		
 		velems = new ArrayList<VELEM>();
 		for(IValue v : elems){
 			IConstructor c = (IConstructor) v;
 			System.err.println("Compose, elem = " + c.getName());
-			velems.add(VELEMFactory.make(c, properties, ctx));
+			velems.add(VELEMFactory.make(vlp, c, properties, ctx));
 		}
 	}
 }
