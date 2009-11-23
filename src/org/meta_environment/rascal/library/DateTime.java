@@ -97,12 +97,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.plusYears(n.intValue());
 			if (dt.isDate()) {
 				return values.date(jdt2.getYear(), jdt2.getMonthOfYear(), jdt2.getDayOfMonth());
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot increment the years on a time value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot increment the years on a time value.", null, null);
 	}
 	
 	public static IValue incrementMonthsBy(IDateTime dt, IInteger n)
@@ -113,12 +111,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.plusMonths(n.intValue());
 			if (dt.isDate()) {
 				return values.date(jdt2.getYear(), jdt2.getMonthOfYear(), jdt2.getDayOfMonth());
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot increment the months on a time value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot increment the months on a time value.", null, null);
 	}
 
 	public static IValue incrementDaysBy(IDateTime dt, IInteger n)
@@ -129,12 +125,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.plusDays(n.intValue());
 			if (dt.isDate()) {
 				return values.date(jdt2.getYear(), jdt2.getMonthOfYear(), jdt2.getDayOfMonth());
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot increment the days on a time value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot increment the days on a time value.", null, null);
 	}
 
 	public static IValue incrementHoursBy(IDateTime dt, IInteger n)
@@ -145,12 +139,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.plusHours(n.intValue());
 			if (dt.isTime()) {
 				return createNewTimeValue(jdt2);
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the hours on a date value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the hours on a date value.", null, null);
 	}		
 
 	public static IValue incrementMinutesBy(IDateTime dt, IInteger n)
@@ -161,12 +153,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.plusMinutes(n.intValue());
 			if (dt.isTime()) {
 				return createNewTimeValue(jdt2);
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the minutes on a date value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the minutes on a date value.", null, null);
 	}		
 	
 	public static IValue incrementSecondsBy(IDateTime dt, IInteger n)
@@ -177,12 +167,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.plusSeconds(n.intValue());
 			if (dt.isTime()) {
 				return createNewTimeValue(jdt2);
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the seconds on a date value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the seconds on a date value.", null, null);
 	}
 	
 	public static IValue incrementMillisecondsBy(IDateTime dt, IInteger n)
@@ -193,12 +181,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.plusMillis(n.intValue());
 			if (dt.isTime()) {
 				return createNewTimeValue(jdt2);
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the milliseconds on a date value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the milliseconds on a date value.", null, null);
 	}
 
 	public static IValue decrementYearsBy(IDateTime dt, IInteger n)
@@ -209,12 +195,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.minusYears(n.intValue());
 			if (dt.isDate()) {
 				return values.date(jdt2.getYear(), jdt2.getMonthOfYear(), jdt2.getDayOfMonth());
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot decrement the years on a time value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot decrement the years on a time value.", null, null);
 	}		
 
 	public static IValue decrementMonthsBy(IDateTime dt, IInteger n)
@@ -225,12 +209,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.minusMonths(n.intValue());
 			if (dt.isDate()) {
 				return values.date(jdt2.getYear(), jdt2.getMonthOfYear(), jdt2.getDayOfMonth());
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot decrement the months on a time value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot decrement the months on a time value.", null, null);
 	}	
 
 	public static IValue decrementDaysBy(IDateTime dt, IInteger n)
@@ -241,12 +223,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.minusDays(n.intValue());
 			if (dt.isDate()) {
 				return values.date(jdt2.getYear(), jdt2.getMonthOfYear(), jdt2.getDayOfMonth());
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot decrement the days on a time value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot decrement the days on a time value.", null, null);
 	}
 	
 	public static IValue decrementHoursBy(IDateTime dt, IInteger n)
@@ -257,12 +237,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.minusHours(n.intValue());
 			if (dt.isTime()) {
 				return createNewTimeValue(jdt2);
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the hours on a date value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the hours on a date value.", null, null);
 	}		
 
 	public static IValue decrementMinutesBy(IDateTime dt, IInteger n)
@@ -273,12 +251,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.minusMinutes(n.intValue());
 			if (dt.isTime()) {
 				return createNewTimeValue(jdt2);
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the minutes on a date value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the minutes on a date value.", null, null);
 	}		
 
 	public static IValue decrementSecondsBy(IDateTime dt, IInteger n)
@@ -289,12 +265,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.minusSeconds(n.intValue());
 			if (dt.isTime()) {
 				return createNewTimeValue(jdt2);
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the seconds on a date value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the seconds on a date value.", null, null);
 	}		
 
 	public static IValue decrementMillisecondsBy(IDateTime dt, IInteger n)
@@ -305,12 +279,10 @@ public class DateTime {
 			org.joda.time.DateTime jdt2 = jdt.minusMillis(n.intValue());
 			if (dt.isTime()) {
 				return createNewTimeValue(jdt2);
-			} else {
-				return values.datetime(jdt2.getMillis());
 			}
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the milliseconds on a date value.", null, null);
+			return values.datetime(jdt2.getMillis());
 		}
+		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the milliseconds on a date value.", null, null);
 	}		
 
 	public static IValue createDurationInternal(IDateTime dStart, IDateTime dEnd) {
@@ -563,8 +535,7 @@ public class DateTime {
 		if (!(dtStart.isTime() || dtEnd.isTime())) {
 			org.joda.time.Interval iv = new org.joda.time.Interval(dtStart.getInstant(), dtEnd.getInstant());
 			return values.integer(iv.toPeriod(org.joda.time.PeriodType.days()).getDays());
-		} else {
-			throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot calculate the days between two time values.", null, null);
 		}
+		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot calculate the days between two time values.", null, null);
 	}	
 }
