@@ -69,63 +69,53 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 		if (name.equals("year")) {
 			if (!dt.isTime()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(dt.getYear()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the year on a time value",ctx.getCurrentAST());
 			}
+			throw new UnsupportedOperationError("Can not retrieve the year on a time value",ctx.getCurrentAST());
 		} else if (name.equals("month")) {
 			if (!dt.isTime()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getMonthOfYear()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the month on a time value",ctx.getCurrentAST());
 			}
+			throw new UnsupportedOperationError("Can not retrieve the month on a time value",ctx.getCurrentAST());
 		} else if (name.equals("day")) {
 			if (!dt.isTime()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getDayOfMonth()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the day on a time value",ctx.getCurrentAST());
 			}
+			throw new UnsupportedOperationError("Can not retrieve the day on a time value",ctx.getCurrentAST());
 		} else if (name.equals("hour")) {
 			if (!dt.isDate()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getHourOfDay()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the hour on a date value",ctx.getCurrentAST());
-			}			
+			}
+			throw new UnsupportedOperationError("Can not retrieve the hour on a date value",ctx.getCurrentAST());
 		} else if (name.equals("minute")) {
 			if (!dt.isDate()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getMinuteOfHour()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the minute on a date value",ctx.getCurrentAST());
-			}			
+			}
+			throw new UnsupportedOperationError("Can not retrieve the minute on a date value",ctx.getCurrentAST());
 		} else if (name.equals("second")) {
 			if (!dt.isDate()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getSecondOfMinute()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the second on a date value",ctx.getCurrentAST());
-			}			
+			}
+			throw new UnsupportedOperationError("Can not retrieve the second on a date value",ctx.getCurrentAST());
 		} else if (name.equals("millisecond")) {
 			if (!dt.isDate()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getMillisecondsOfSecond()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the millisecond on a date value",ctx.getCurrentAST());
-			}			
+			}
+			throw new UnsupportedOperationError("Can not retrieve the millisecond on a date value",ctx.getCurrentAST());
 		} else if (name.equals("timezoneOffsetHours")) {
 			if (!dt.isDate()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getTimezoneOffsetHours()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the timezone offset hours on a date value",ctx.getCurrentAST());
-			}			
+			}
+			throw new UnsupportedOperationError("Can not retrieve the timezone offset hours on a date value",ctx.getCurrentAST());
 		} else if (name.equals("timezoneOffsetMinutes")) {
 			if (!dt.isDate()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getTimezoneOffsetMinutes()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the timezone offset minutes on a date value",ctx.getCurrentAST());
-			}			
+			}
+			throw new UnsupportedOperationError("Can not retrieve the timezone offset minutes on a date value",ctx.getCurrentAST());
 		} else if (name.equals("century")) {
 			if (!dt.isTime()) {
 				return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getCentury()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the century on a time value",ctx.getCurrentAST());
 			}
+			throw new UnsupportedOperationError("Can not retrieve the century on a time value",ctx.getCurrentAST());
 		} else if (name.equals("isDate")) {
 			return makeResult(getTypeFactory().boolType(), vf.bool(getValue().isDate()), ctx);
 		} else if (name.equals("isTime")) {
@@ -136,22 +126,18 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 			if (!dt.isTime()) {
 				return makeResult(getTypeFactory().dateTimeType(),
 						vf.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the date component of a time value",ctx.getCurrentAST());
 			}
+			throw new UnsupportedOperationError("Can not retrieve the date component of a time value",ctx.getCurrentAST());
 		} else if (name.equals("justTime")) {
 			if (!dt.isDate()) {
 				return makeResult(getTypeFactory().dateTimeType(),
 						vf.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
 								dt.getMillisecondsOfSecond(), dt.getTimezoneOffsetHours(),
 								dt.getTimezoneOffsetMinutes()), ctx);
-			} else {
-				throw new UnsupportedOperationError("Can not retrieve the time component of a date value",ctx.getCurrentAST());
 			}
-		} else {
-			throw new UndeclaredFieldError(name, getTypeFactory().dateTimeType(), ctx.getCurrentAST());
+			throw new UnsupportedOperationError("Can not retrieve the time component of a date value",ctx.getCurrentAST());
 		}
-
+		throw new UndeclaredFieldError(name, getTypeFactory().dateTimeType(), ctx.getCurrentAST());
 	}
 
 	@Override
