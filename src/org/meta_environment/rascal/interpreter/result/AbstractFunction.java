@@ -15,7 +15,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.types.FunctionType;
@@ -29,7 +28,6 @@ import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
  * escapes beyond the reach of the Rascal interpreter. This is useless, but safe behavior.
  */
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue {
-	protected static final TypeEvaluator TE = TypeEvaluator.getInstance();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
 	protected final Environment declarationEnvironment;

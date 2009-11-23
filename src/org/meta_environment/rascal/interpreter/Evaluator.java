@@ -1,9 +1,9 @@
 
 package org.meta_environment.rascal.interpreter;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 import static org.meta_environment.rascal.interpreter.utils.Utils.unescape;
 
 import java.io.File;
@@ -253,7 +253,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private IValueFactory vf;
 	private static final TypeFactory tf = TypeFactory.getInstance();
-	private static final TypeEvaluator te = TypeEvaluator.getInstance();
 	protected Environment currentEnvt;
 	private StrategyContextStack strategyContextStack;
 
@@ -996,7 +995,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		setCurrentAST(x);
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
-			Type declaredType = te.eval(x.getType(), getCurrentModuleEnvironment());
+			Type declaredType = new TypeEvaluator(getCurrentModuleEnvironment()).eval(x.getType());
 
 			if (var.isInitialized()) {  
 				Result<IValue> v = var.getInitial().accept(this);
@@ -1027,10 +1026,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitDeclarationAnnotation(Annotation x) {
-		Type annoType = te.eval(x.getAnnoType(), getCurrentModuleEnvironment());
+		Type annoType = new TypeEvaluator(getCurrentModuleEnvironment()).eval(x.getAnnoType());
 		String name = Names.name(x.getName());
 
-		Type onType = te.eval(x.getOnType(), getCurrentModuleEnvironment());
+		Type onType = new TypeEvaluator(getCurrentModuleEnvironment()).eval(x.getOnType());
 		getCurrentModuleEnvironment().declareAnnotation(onType, name, annoType);	
 
 		return ResultFactory.nothing();
@@ -1038,7 +1037,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 
 	private Type evalType(org.meta_environment.rascal.ast.Type type) {
-		return te.eval(type, getCurrentEnvt());
+		return new TypeEvaluator(getCurrentEnvt()).eval(type);
 	}
 
 	@Override
@@ -2293,7 +2292,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitExpressionGuarded(Guarded x) {
 		Result<IValue> result = x.getPattern().accept(this);
-		Type expected = te.eval(x.getType(), getCurrentEnvt());
+		Type expected = new TypeEvaluator(getCurrentEnvt()).eval(x.getType());
 
 		// TODO: clean up this hack
 		if (expected instanceof NonTerminalType && result.getType().isSubtypeOf(tf.stringType())) {
@@ -2469,7 +2468,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionClosure(Closure x) {
-		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
+		Type formals = new TypeEvaluator(getCurrentEnvt()).eval(x.getParameters());
 		Type returnType = evalType(x.getType());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(returnType, formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
@@ -2478,7 +2477,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionVoidClosure(VoidClosure x) {
-		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
+		Type formals = new TypeEvaluator(getCurrentEnvt()).eval(x.getParameters());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(tf.voidType(), formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
 					accumulators);
@@ -2505,7 +2504,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionReifyType(ReifyType x) {
-		Type t = te.eval(x.getType(), getCurrentEnvt());
+		Type t = new TypeEvaluator(getCurrentEnvt()).eval(x.getType());
 		return t.accept(new TypeReifier(this, vf));
 	}
 

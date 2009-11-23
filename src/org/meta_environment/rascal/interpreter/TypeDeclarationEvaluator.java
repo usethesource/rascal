@@ -60,7 +60,6 @@ public class TypeDeclarationEvaluator {
 	}
 
 	public void declareConstructor(Data x, Environment env) {
-		TypeEvaluator te = TypeEvaluator.getInstance();
 		TypeFactory tf = TypeFactory.getInstance();
 
 		// needs to be done just in case the declaration came
@@ -77,7 +76,7 @@ public class TypeDeclarationEvaluator {
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
-					fields[i] = te.eval(arg.getType(), env);
+					fields[i] = new TypeEvaluator(env).eval(arg.getType());
 
 					if (fields[i] == null) {
 						throw new UndeclaredTypeError(arg.getType()
@@ -129,9 +128,8 @@ public class TypeDeclarationEvaluator {
 	}
 	
 	public void declareAlias(Alias x, Environment env) {
-		TypeEvaluator te = TypeEvaluator.getInstance();
 		try {
-			Type base = te.eval(x.getBase(), env);
+			Type base = new TypeEvaluator(env).eval(x.getBase());
 
 			if (base == null) {
 				throw new UndeclaredTypeError(x.getBase().toString(), x
@@ -162,7 +160,6 @@ public class TypeDeclarationEvaluator {
 
 	private Type[] computeTypeParameters(UserType decl, Environment env) {
 		TypeFactory tf = TypeFactory.getInstance();
-		TypeEvaluator te = TypeEvaluator.getInstance();
 
 		Type[] params;
 		if (decl.isParametric()) {
@@ -177,7 +174,7 @@ public class TypeDeclarationEvaluator {
 									+ formal + " is not allowed", formal.getLocation());
 				}
 				TypeVar var = formal.getTypeVar();
-				Type bound = var.hasBound() ? te.eval(var.getBound(), env) : tf
+				Type bound = var.hasBound() ? new TypeEvaluator(env).eval(var.getBound()) : tf
 						.valueType();
 				params[i++] = tf
 						.parameterType(Names.name(var.getName()), bound);
