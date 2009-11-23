@@ -11,6 +11,7 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Accumulator;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -21,7 +22,6 @@ import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class RascalFunction extends NamedFunction {
-
 	private final List<Statement> body;
 	private final boolean isVoidFunction;
 	private final Stack<Accumulator> accumulators;
@@ -29,7 +29,7 @@ public class RascalFunction extends NamedFunction {
 	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
-				(FunctionType) TE.eval(func.getSignature(), env),
+				(FunctionType) new TypeEvaluator(env).eval(func.getSignature()),
 				varargs,
 				func.getBody().getStatements(), env, accumulators);
 		this.name = Names.name(func.getSignature().getName());

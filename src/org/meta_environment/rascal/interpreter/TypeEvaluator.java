@@ -11,7 +11,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.NullASTVisitor;
-import org.meta_environment.rascal.ast.Parameters;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
@@ -66,52 +65,31 @@ import org.meta_environment.rascal.interpreter.types.RascalTypeFactory;
 import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.uptr.Factory;
 
-
 public class TypeEvaluator {
-	private static TypeFactory tf = TypeFactory.getInstance();
-	private static final TypeEvaluator sInstance = new TypeEvaluator();
-	private Environment env;
+	private final static TypeFactory tf = TypeFactory.getInstance();
+	
 	private final Visitor visitor = new Visitor();
-
-	private TypeEvaluator() {
+	private final Environment env;
+	
+	public TypeEvaluator(Environment env) {
 		super();
-	}
-
-	public static TypeEvaluator getInstance() {
-		return sInstance;
-	}
-
-	public Type eval(org.meta_environment.rascal.ast.Type type, Environment env) {
+		
 		this.env = env;
+	}
+	
+	public Type eval(org.meta_environment.rascal.ast.Type type) {
 		return type.accept(visitor);
 	}
 
-	public Type eval(org.meta_environment.rascal.ast.Type type) {
-		return eval(type, null);
-	}
-
-
-	public Type eval(Parameters parameters) {
-		return eval(parameters, null);
-	}
-
-	public Type eval(org.meta_environment.rascal.ast.Parameters parameters, Environment env) {
-		this.env = env;
+	public Type eval(org.meta_environment.rascal.ast.Parameters parameters) {
 		return parameters.accept(visitor);
 	}
-	
-	
-	public Type eval(org.meta_environment.rascal.ast.Formal formal) {
-		return eval(formal, null);
-	}
 
-	public Type eval(org.meta_environment.rascal.ast.Formal formal, Environment env) {
-		this.env = env;
+	public Type eval(org.meta_environment.rascal.ast.Formal formal) {
 		return formal.accept(visitor);
 	}
 	
-	public Type eval(Signature signature, Environment env) {
-		this.env = env;
+	public Type eval(Signature signature) {
 		return signature.accept(visitor);
 	}
 

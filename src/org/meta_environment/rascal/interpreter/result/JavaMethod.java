@@ -8,13 +8,13 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.types.FunctionType;
 import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.interpreter.utils.Names;
-
 
 public class JavaMethod extends NamedFunction {
 	private final Method method;
@@ -23,7 +23,7 @@ public class JavaMethod extends NamedFunction {
 	
 	public JavaMethod(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
 		super(func, eval,
-				(FunctionType) TE.eval(func.getSignature(),env), 
+				(FunctionType) new TypeEvaluator(env).eval(func.getSignature()), 
 				Names.name(func.getSignature().getName()),
 				varargs, env);
 		this.hasReflectiveAccess = hasReflectiveAccess(func);

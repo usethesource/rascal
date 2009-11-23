@@ -52,7 +52,6 @@ public class JavaBridge {
 	private final List<ClassLoader> loaders;
 	
 	private final static Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
-	private final static TypeEvaluator TE = TypeEvaluator.getInstance();
 //	private final static JavaTypes javaTypes = new JavaTypes();
 	private final static JavaClasses javaClasses = new JavaClasses();
 	
@@ -330,7 +329,7 @@ public class JavaBridge {
 	}
 	
 	private org.eclipse.imp.pdb.facts.type.Type toValueType(Formal formal, Environment env) {
-		return TE.eval(formal, env);
+		return new TypeEvaluator(env).eval(formal);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {
