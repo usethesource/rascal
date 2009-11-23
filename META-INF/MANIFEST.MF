@@ -15,7 +15,6 @@ Bundle-ClassPath: rascal.jar,
  lib/svnkit.jar,
  lib/joda-time-1.6.jar,
  lib/xercesImpl.jar,
- .,
  src
 Export-Package: org.jfree,
  org.jfree.base,
