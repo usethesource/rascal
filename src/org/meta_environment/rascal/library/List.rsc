@@ -151,7 +151,7 @@ public list[&T] sort(list[&T] lst, bool (&T a, &T b) lessThanOrEqual)
      }
   }
   
-  return sort(less) + pivot + sort(greater);
+  return sort(less, lessThanOrEqual) + pivot + sort(greater, lessThanOrEqual);
 }
 
 @doc{All but the first element of a list}
