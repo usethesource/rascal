@@ -1957,7 +1957,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		QualifiedName name = x.getQualifiedName();
 		Result<IValue> variable = getCurrentEnvt().getVariable(name);
 
-		if (variable == null || variable.getValue() == null) {
+		if (variable == null) {
+			throw new UndeclaredVariableError(name.toString(), name);
+		}
+
+		if (variable.getValue() == null) {
 			throw new UninitializedVariableError(name.toString(), name);
 		}
 
