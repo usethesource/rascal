@@ -55,9 +55,9 @@ public class RuntimeExceptionFactory {
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
 	private static Type Subversion = TF.constructor(TS, E, "Subversion", TF.stringType(), "message");
 	
-	private static Type InvalidUseOfDate = TF.constructor(TS, E, "InvalidUseOfDate", TF.dateTimeType(), "message");
-	private static Type InvalidUseOfTime = TF.constructor(TS, E, "InvalidUseOfTime", TF.dateTimeType(), "message");
-	private static Type InvalidUseOfDateTime = TF.constructor(TS, E, "InvalidUseOfDateTime", TF.dateTimeType(), "message");
+	private static Type InvalidUseOfDate = TF.constructor(TS, E, "InvalidUseOfDate", TF.dateTimeType(), "msg");
+	private static Type InvalidUseOfTime = TF.constructor(TS, E, "InvalidUseOfTime", TF.dateTimeType(), "msg");
+	private static Type InvalidUseOfDateTime = TF.constructor(TS, E, "InvalidUseOfDateTime", TF.dateTimeType(), "msg");
 	private static Type DateTimeParsingError = TF.constructor(TS, E, "DateTimeParsingError", TF.stringType(), "message");
 	private static Type DateTimePrintingError = TF.constructor(TS, E, "DateTimePrintingError", TF.stringType(), "message");
 

@@ -318,6 +318,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				result.add(System.getProperty("user.dir"));
 				result.add(new File(System.getProperty("user.dir"), "src/org/meta_environment/rascal/library").getAbsolutePath());
 				result.add(Configuration.getSdfLibraryPathProperty());
+				result.add(new File(System.getProperty("user.dir"), "src/org/meta_environment/rascal/test/data").getAbsolutePath());
 				return result;
 			}
 		});
@@ -1956,11 +1957,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		QualifiedName name = x.getQualifiedName();
 		Result<IValue> variable = getCurrentEnvt().getVariable(name);
 
-		if (variable == null) {
-			throw new UndeclaredVariableError(name.toString(), name);
-		}
-
-		if (variable.getValue() == null) {
+		if (variable == null || variable.getValue() == null) {
 			throw new UninitializedVariableError(name.toString(), name);
 		}
 
