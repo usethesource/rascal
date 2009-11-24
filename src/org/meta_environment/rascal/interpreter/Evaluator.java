@@ -210,6 +210,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.AppendWithoutLoop;
 import org.meta_environment.rascal.interpreter.staticErrors.DateTimeParseError;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
+import org.meta_environment.rascal.interpreter.staticErrors.NonVoidTypeRequired;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
@@ -1983,6 +1984,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			Result<IValue> resultElem = expr.accept(this);
+			
+			if(resultElem.getType().isVoidType())
+				throw new NonVoidTypeRequired(expr);
 
 			if (skip > 0) {
 				skip--;
@@ -2091,6 +2095,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			Result<IValue> resultElem = expr.accept(this);
+			if(resultElem.getType().isVoidType())
+				throw new NonVoidTypeRequired(expr);
+		
 			if(resultElem.getType().isSetType() && !expr.isSet() &&
 					elementType.isSubtypeOf(resultElem.getType().getElementType())){
 				/*
@@ -2125,6 +2132,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		for (org.meta_environment.rascal.ast.Mapping mapping : mappings) {
 			Result<IValue> keyResult = mapping.getFrom().accept(this);
 			Result<IValue> valueResult = mapping.getTo().accept(this);
+			
+			if(keyResult.getType().isVoidType())
+				throw new NonVoidTypeRequired(mapping.getFrom());
+			
+			if(valueResult.getType().isVoidType())
+				throw new NonVoidTypeRequired(mapping.getTo());
 
 			keyType = keyType.lub(keyResult.getType());
 			valueType = valueType.lub(valueResult.getType());
