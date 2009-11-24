@@ -17,6 +17,8 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
+import processing.core.PApplet;
+
 
 public abstract class VELEM {
 	
@@ -112,19 +114,23 @@ public abstract class VELEM {
 	}
 	
 	public void applyProperties(){
+		
 		for(String prop :properties.keySet()){
-			System.err.println("applyProperties: " + prop);
 			if(prop.equals("fillColor"))
 				vlp.fill(getInt(properties.get(prop)));
 			if(prop.equals("lineColor"))
 				vlp.stroke(getInt(properties.get(prop)));
 			if(prop.equals("lineWidth"))
 				vlp.strokeWeight(getInt(properties.get(prop)));
-			if(prop.equals("scale"))
-				vlp.strokeWeight(getFloat(properties.get(prop)));
+			if(prop.equals("fontSize"))
+				vlp.textSize(getInt(properties.get(prop)));
+			if(prop.equals("rotate")){
+				System.err.println("translate: " + (left + width/2) + ", " + (bottom - height/2));
+				vlp.translate(left + width/2, bottom - height/2);
+				vlp.rotate(PApplet.radians(getInt(properties.get(prop))));
+			}
 		}
-		vlp.textFont(vlp.createFont(getFont(), getFontSize()));
-
+		//vlp.textFont(vlp.createFont(getFont(), getFontSize()));
 	}
 	
 	public void printProperties(){
@@ -166,7 +172,6 @@ public abstract class VELEM {
 	}
 	
 	protected boolean isTop(){
-		System.err.println("isTop: " + properties.get("top"));
 		return properties.get("top") != null;
 	}
 	
@@ -200,6 +205,13 @@ public abstract class VELEM {
 		if(fs != null)
 			return ((IInteger) fs).intValue();
 		return 12;
+	}
+	
+	protected int getTextAngle(){
+		IValue ta =  properties.get("textAngle");
+		if(ta != null)
+			return ((IInteger) ta).intValue();
+		return 0;
 	}
 	
 	public int getX(){

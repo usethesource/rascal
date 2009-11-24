@@ -50,7 +50,7 @@ data VPROP =
    | height2(int height2)               // TODO: height(list[int] heights)
    | size(int size)                     // size of varies elems
    | visible(bool visible)				// is elem visible?
-   | gap(int amount)                    // gap between elements in compos
+   | gap(int amount)                    // gap between elements in composition
    
 /* direction and alignment */
    | horizontal()                       // horizontal composition
@@ -61,12 +61,12 @@ data VPROP =
    | left()                             // left alignment
    | right()                            // right alignment
    
-/* transformations 
-   | move(int byX)        				// translate in X direction
-   | vmove(int byY)                     // translate in Y direction
-   | rotate(int angle)
-   | scale(real perc)
-*/
+/* transformations */
+//   | move(int byX)        			// translate in X direction
+//   | vmove(int byY)                     // translate in Y direction
+//     | rotate(int angle)
+//  | scale(real perc)
+
  
  /* line and border attributes */
    | lineWidth(int lineWidth)			// line width
@@ -80,6 +80,7 @@ data VPROP =
    | text(str s)                        // the text itself
    | font(str fontName)                 // named font
    | fontSize(int size)                 // font size
+   | textAngle(int angle)               // rotation
    
 /* other */
    | name(str name)                     // name of elem (used in edges and layouts)
@@ -136,7 +137,17 @@ public void lab1(){
 	render(label([ text("Een label"), fontSize(20), fillColor("black")]));
 }
 
-public void rlab(){
+public void rlab1(){
+	render(combine([vertical(), center(), gap (10)],
+	               [
+	                
+	                label([ text("Een label"), fontSize(20), fillColor("black"), textAngle(-90) ]),
+	                rect([ width(100), height(200), fillColor("red")])
+	                
+	                ]));
+}
+
+public void rlab2(){
 	render(overlay([center()],
 	              [rect([ width(100), height(200), fillColor("red") ]),
 			       label([ text("Een label"), fontSize(20), fillColor("black")])
@@ -147,7 +158,7 @@ public void rlab(){
 public void r3(){
 	render(combine([fillColor("yellow"), gap(10)],
 	              [rect([ width(100), height(200), fillColor("red") ]),
-			       rect([ width(150), height(100) ]),
+			       rect([ width(150), height(100), rotate(-30)]),
 			       rect([ width(200), height(50), fillColor("green") ])
 			      ]
 		));
@@ -295,8 +306,12 @@ render(overlay([ rect([width(100), height(200)]),
 }
 
 public void grid1(){
+  rects = [rect([width(50), height(50),fillColor("red")]), rect([width(30), height(30),fillColor("yellow")]), 
+           rect([width(30), height(30),fillColor("green")]), rect([width(70), height(50),fillColor("blue")]),
+           rect([width(70), height(70),fillColor("black")])
+           ];
 
-  render(grid([width(100)], [rect([width(5 * i), height(2 *i)]) | i <- [1 .. 10]]));
+  render(grid([width(120), gap(10), bottom()], rects));
 }
 
 public void graph1(){

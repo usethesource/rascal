@@ -37,20 +37,25 @@ public class Grid extends Compose {
 			VELEM ve = velems.get(i);
 			BoundingBox bb = ve.bbox();
 			if(w + gap + bb.getWidth() > width){
-				rowHeight[nrow] = hrow;
-				nrow++;
-				height += hrow + gap;
-				toprow = height;
-				w = hrow = 0;
+				if(w == 0){
+					width = bb.getWidth();
+				} else {
+					rowHeight[nrow] = hrow;
+					nrow++;
+					height += hrow + gap;
+					toprow = height;
+					w = hrow = 0;
+				}
 			}
 			leftElem[i] = w;
 			toTopElem[i] = toprow;
 			inRow[i] = nrow;
-			width += bb.getWidth() + gap;
+			w += bb.getWidth() + gap;
 			hrow = max(hrow, bb.getHeight());
 	
 		}
 		rowHeight[nrow] = hrow;
+		height += hrow + gap;
 		nrow++;
 		return new BoundingBox(width, height);
 	}
@@ -61,15 +66,19 @@ public class Grid extends Compose {
 		int top = bottom - height;
 		int b;
 		for(int i = 0; i < velems.size(); i++){
+			
 			VELEM ve = velems.get(i);
 			int hrow = rowHeight[inRow[i]];
 			
 			if(isTop())
 				b = top + toTopElem[i] + ve.getHeight();
 			else if(isCenter())
-				b = top + (hrow - ve.getHeight())/2;
+				b = top + toTopElem[i] + hrow - (hrow - ve.getHeight())/2;
 			else
-				b = top + hrow;
+				b = top + toTopElem[i] + hrow;
+			
+			//System.err.printf("elem %d: row=%d, rowHeight=%d, leftElem=%d, toTopElem=%d, top=%d, b = %d\n", 
+			//		                 i, inRow[i], hrow,       leftElem[i],  toTopElem[i], top, b);
 			ve.draw(leftElem[i], b);
 		}
 	}
