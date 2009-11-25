@@ -101,6 +101,25 @@ public class String {
 	{
 	  return values.bool(s.getValue().startsWith(prefix.getValue()));
 	}
+
+	public static IValue substring(IString s, IInteger begin) {
+		try {
+			return values.string(s.getValue().substring(begin.intValue()));
+		} catch (IndexOutOfBoundsException e) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(begin, null, null);
+		}
+	}
+	
+	public static IValue substring(IString s, IInteger begin, IInteger end) {
+		try {
+			return values.string(s.getValue().substring(begin.intValue(), end.intValue()));
+		} catch (IndexOutOfBoundsException e) {
+			int bval = begin.intValue();
+			IInteger culprit = (bval < 0 || bval >= s.getValue().length()) ? begin : end;
+		    throw RuntimeExceptionFactory.indexOutOfBounds(culprit, null, null);
+		  }
+	
+	}
 	
 	public static IValue toInt(IString s)
 	//@doc{toInt -- convert a string s to integer}
@@ -134,14 +153,5 @@ public class String {
 	//@doc{toUpperCase -- convert all characters in string s to uppercase.}
 	{
 	  return values.string(s.getValue().toUpperCase());
-	}
-	
-	//TODO Joppe: added substring, please review
-	public static IValue substring(IString s, IInteger begin) {
-		return values.string(s.getValue().substring(begin.intValue()));
-	}
-	
-	public static IValue substring(IString s, IInteger begin, IInteger end) {
-		return values.string(s.getValue().substring(begin.intValue(), end.intValue()));
 	}
 }

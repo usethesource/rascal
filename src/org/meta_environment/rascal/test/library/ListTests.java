@@ -206,6 +206,14 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{List::sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];}"));
 		assertTrue(runTestInSameEvaluator("{sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];}"));
 	}
+	
+	@Test
+	public void sortWithCompareFunction() {
+		prepare("import List;");
+		assertTrue(runTestInSameEvaluator("{sort([1, 2, 3]) == [1,2,3];}"));
+		assertTrue(runTestInSameEvaluator("{sort([1, 2, 3], bool(int a, int b){return a < b;}) == [1,2,3];}"));
+		assertTrue(runTestInSameEvaluator("{sort([1, 2, 3], bool(int a, int b){return a > b;}) == [3,2,1];}"));
+	}
 
 	@Test
 	public void tail() {
