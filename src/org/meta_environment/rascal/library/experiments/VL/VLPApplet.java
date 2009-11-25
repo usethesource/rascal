@@ -7,7 +7,6 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
 
-
 public class VLPApplet extends PApplet {
 	/**
 	 * 
@@ -19,10 +18,9 @@ public class VLPApplet extends PApplet {
 	private VELEM  velem;
 	private HashMap<String,Part> registered;
 
-	VLPApplet(IConstructor elem, IEvaluatorContext ctx){
+	public VLPApplet(IConstructor elem, IEvaluatorContext ctx){
 		registered = new HashMap<String,Part>();
 		this.velem = VELEMFactory.make(this, elem, null, ctx);
-		
 	}
 	
 	public void register(String name, Part nd){
