@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 
 public class Label extends VELEM {
 
@@ -50,7 +51,7 @@ public class Label extends VELEM {
 //			if(isRight())
 //				vlp.textAlign(PApplet.RIGHT);
 //			else if(isCenter())
-				vlp.textAlign(PApplet.CENTER);
+				vlp.textAlign(PConstants.CENTER);
 //			else
 //				vlp.textAlign(PApplet.LEFT);
 			if(angle != 0){
