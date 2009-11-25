@@ -29,10 +29,10 @@ public abstract class VELEM {
 	
 	protected HashMap<String,IValue> properties;
 	
-	protected int left = 0;
-	protected int bottom = 0;
-	protected int width = 0;
-	protected int height = 0;
+	protected float x;               // x position of centre
+	protected float y; 				// y position of centre
+	protected float width = 0;		// width of element
+	protected float height = 0;		// height picture
 	
 	VELEM(VLPApplet vlp, IEvaluatorContext ctx){
 		this.vlp = vlp;
@@ -73,7 +73,7 @@ public abstract class VELEM {
 		}
 	}
 	
-	public int max(int a, int b){
+	public float max(float a, float b){
 		return a > b ? a : b;
 	}
 	
@@ -125,8 +125,8 @@ public abstract class VELEM {
 			if(prop.equals("fontSize"))
 				vlp.textSize(getInt(properties.get(prop)));
 			if(prop.equals("rotate")){
-				System.err.println("translate: " + (left + width/2) + ", " + (bottom - height/2));
-				vlp.translate(left + width/2, bottom - height/2);
+				System.err.println("translate: " + x + ", " + y);
+				vlp.translate(x, y);
 				vlp.rotate(PApplet.radians(getInt(properties.get(prop))));
 			}
 		}
@@ -139,23 +139,23 @@ public abstract class VELEM {
 		}
 	}
 	
-	protected int getHeight(){
+	protected int getHeightProperty(){
 		return getIntProperty("height", -1);
 	}
 	
-	protected int getHeight2(){
+	protected int getHeight2Property(){
 		return getIntProperty("height2", -1);
 	}
 	
-	protected int getWidth(){
+	protected int getWidthProperty(){
 		return getIntProperty("width", -1);
 	}
 	
-	protected int getSize(){
+	protected int getSizeProperty(){
 		return getIntProperty("size", -1);
 	}
 	
-	protected int getGap(){
+	protected int getGapProperty(){
 		return getIntProperty("gap", -1);
 	}
 	
@@ -175,54 +175,54 @@ public abstract class VELEM {
 		return properties.get("top") != null;
 	}
 	
+	protected boolean isBottom(){
+		return properties.get("bottom") != null;
+	}
+	
+	protected boolean isLeft(){
+		return properties.get("left") != null;
+	}
+	
 	protected boolean isRight(){
 		return properties.get("right") != null;
 	}
 	
-	protected String getText(){
+	protected String getTextProperty(){
 		IValue is =  properties.get("text");
 		if(is != null)
 			return ((IString) is).getValue();
 		return "";
 	}
 	
-	protected String getName(){
+	protected String getNameProperty(){
 		IValue is =  properties.get("name");
 		if(is != null)
 			return ((IString) is).getValue();
 		return "";
 	}
 	
-	protected String getFont(){
+	protected String getFontProperty(){
 		IValue is =  properties.get("font");
 		if(is != null)
 			return ((IString) is).getValue();
 		return "Helvetica";
 	}
 	
-	protected int getFontSize(){
+	protected int getFontSizeProperty(){
 		IValue fs =  properties.get("fontSize");
 		if(fs != null)
 			return ((IInteger) fs).intValue();
 		return 12;
 	}
 	
-	protected int getTextAngle(){
+	protected int getTextAngleProperty(){
 		IValue ta =  properties.get("textAngle");
 		if(ta != null)
 			return ((IInteger) ta).intValue();
 		return 0;
 	}
-	
-	public int getX(){
-		return left + width/2;
-	}
-	
-	public int getY(){
-		return bottom - height/2;
-	}
 		
-	abstract void draw(int left, int bottom);
+	abstract void draw(float x, float y);
 	
 	abstract BoundingBox bbox();
 

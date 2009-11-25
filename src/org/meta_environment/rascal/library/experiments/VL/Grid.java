@@ -9,30 +9,30 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 public class Grid extends Compose {
 	
-	int leftElem[];
-	int toTopElem[];
-	int rowHeight[];
+	float leftElem[];
+	float toTopElem[];
+	float rowHeight[];
 	int inRow[];
 	int nrow;
 
 	Grid(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
-		leftElem = new int[elems.length()];
-		toTopElem = new int[elems.length()];
-		rowHeight = new int[elems.length()];
+		leftElem = new float[elems.length()];
+		toTopElem = new float[elems.length()];
+		rowHeight = new float[elems.length()];
 		inRow = new int[elems.length()];
 		nrow = 0;
 	}
 	
 	@Override
 	BoundingBox bbox(){
-		width = getWidth();
+		width = getWidthProperty();
 		height = 0;
-		int w = 0;
-		int hrow = 0;
-		int toprow = 0;
+		float w = 0;
+		float hrow = 0;
+		float toprow = 0;
 		nrow = 0;
-		int gap = getGap();
+		int gap = getGapProperty();
 		for(int i = 0; i < velems.size(); i++){
 			VELEM ve = velems.get(i);
 			BoundingBox bb = ve.bbox();
@@ -55,31 +55,31 @@ public class Grid extends Compose {
 	
 		}
 		rowHeight[nrow] = hrow;
-		height += hrow + gap;
+		height += hrow;
 		nrow++;
 		return new BoundingBox(width, height);
 	}
 	
 	@Override
-	void draw(int left, int bottom){
+	void draw(float x, float y){
 		applyProperties();
-		int top = bottom - height;
-		int b;
+		float top = y - height/2;
+
 		for(int i = 0; i < velems.size(); i++){
 			
 			VELEM ve = velems.get(i);
-			int hrow = rowHeight[inRow[i]];
-			
+			float hrow = rowHeight[inRow[i]];
+			float vey;
 			if(isTop())
-				b = top + toTopElem[i] + ve.getHeight();
-			else if(isCenter())
-				b = top + toTopElem[i] + hrow - (hrow - ve.getHeight())/2;
+				vey = top + toTopElem[i] + ve.height/2;
+			else if(isBottom())
+				vey = top + toTopElem[i] + hrow - ve.height/2;
 			else
-				b = top + toTopElem[i] + hrow;
+				vey = top + toTopElem[i] + hrow/2;
 			
 			//System.err.printf("elem %d: row=%d, rowHeight=%d, leftElem=%d, toTopElem=%d, top=%d, b = %d\n", 
 			//		                 i, inRow[i], hrow,       leftElem[i],  toTopElem[i], top, b);
-			ve.draw(leftElem[i], b);
+			ve.draw(leftElem[i] + ve.width/2, vey);
 		}
 	}
 }

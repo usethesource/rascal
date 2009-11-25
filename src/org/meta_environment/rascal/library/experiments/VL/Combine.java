@@ -28,44 +28,52 @@ public class Combine extends Compose {
 			}
 		} 
 		if(isHorizontal())
-			width += velems.size() * getGap();
+			width += velems.size() * getGapProperty();
 		else
-			height += velems.size() * getGap();
+			height += velems.size() * getGapProperty();
 		return new BoundingBox(width, height);
 	}
 	
 	@Override
-	void draw(int left, int bottom){
+	void draw(float x, float y){
 		applyProperties();
 		printProperties();
-		int gap = getGap();
+		this.x = x;
+		this.y = y;
+		int gap = getGapProperty();
 		if(isHorizontal()){
-			int l = left;
-			int b = bottom;
+			float top = y - height/2;
+			float bottom = y + height/2;
+			float left = x - width/2;
+			float vey;
 			for(VELEM ve : velems){
 				BoundingBox bb = ve.bbox();
 				if(isTop())
-					b = bottom - (height - bb.getHeight());
+					vey = top + bb.getHeight()/2;
 				else if(isCenter())
-					b = bottom - (height - bb.getHeight())/2;
+					vey = top + (height - bb.getHeight())/2 + bb.getHeight()/2;
 				else
-					b = bottom;
-				ve.draw(l, b);
-				l += bb.getWidth() + gap;
+					vey = bottom - bb.getHeight()/2;
+				float w = bb.getWidth();
+				ve.draw(left + w/2, vey);
+				left += w + gap;
 			}
 		} else {
-			int l = left;
-			int b = bottom;
+			float left =  x - width/2;
+			float right = x + width/2;
+			float bottom = y + height/2;
+			float vex;
 			for(VELEM ve : velems){
 				BoundingBox bb = ve.bbox();
 				if(isRight())
-					l = left + (width - bb.getWidth());
+					vex = right - bb.getWidth()/2;
 				else if(isCenter())
-					l = left + (width - bb.getWidth())/2;
+					vex = left + (width - bb.getWidth())/2 + bb.getWidth()/2;
 				else
-					l = left;
-				ve.draw(l, b);
-				b -= bb.getHeight() + gap;
+					vex = left + bb.getWidth()/2;
+				float h = bb.getHeight();
+				ve.draw(vex, bottom - h/2);
+				bottom -= h + gap;
 			}
 		}
 	}

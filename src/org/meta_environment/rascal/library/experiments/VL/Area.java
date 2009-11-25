@@ -16,19 +16,22 @@ public class Area extends VELEM {
 	
 	@Override
 	BoundingBox bbox(){
-		return new BoundingBox(getWidth(), max(getHeight(), getHeight2()));
+		return new BoundingBox(getWidthProperty(), max(getHeightProperty(), getHeight2Property()));
 	}
 
 	@Override
-	void draw(int left, int bottom) {
+	void draw(float x, float y) {
+		this.x = x;
+		this.y = y;
 		applyProperties();
-		int h = getHeight();
-		int h2 = getHeight2();
-		int w = getWidth();
-		int r = left + w;
-		if(h > 0 && w > 0){
+		int h1 = getHeightProperty();
+		int h2 = getHeight2Property();
+		float left = x - width/2;
+		float right = x + width/2;
+		float bottom = y + height/2;
+		if(height > 0 && width > 0){
 			vlp.rectMode(PConstants.CORNERS);
-			vlp.quad(left, bottom, left,bottom - h, r, bottom - h2, r, bottom);
+			vlp.quad(left, bottom, left,  bottom - h1, right, bottom - h2, right, bottom);
 		}
 	}
 

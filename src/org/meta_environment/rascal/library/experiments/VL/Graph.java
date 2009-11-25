@@ -20,7 +20,7 @@ public class Graph extends VELEM {
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
 			VELEM ve = VELEMFactory.make(vlp, c, properties, ctx);
-			String name = ve.getName();
+			String name = ve.getNameProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
 			Part nd = new Part(name, ve);
@@ -44,8 +44,10 @@ public class Graph extends VELEM {
 	}
 
 	@Override
-	void draw(int left, int bottom) {
+	void draw(float x, float y) {
 		applyProperties();
+		this.x = x;
+		this.y = y;
 		for(Edge e : edges)
 			e.relax();
 		for(Part n : parts)
@@ -53,7 +55,7 @@ public class Graph extends VELEM {
 		for(Part n : parts)
 			n.update();
 		for(Part n : parts){
-			System.err.println(n.name + ": " + n.velem.left + ", " + n.velem.bottom);
+			System.err.println(n.name + ": " + n.velem.x + ", " + n.velem.y);
 		}
 		for(Edge e : edges)
 			e.draw();

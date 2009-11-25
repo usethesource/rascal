@@ -48,8 +48,8 @@ public class VLPApplet extends PApplet {
 	@Override
 	public void draw(){
 		background(255);
-		velem.bbox();
-		velem.draw(0, height-30);
+		BoundingBox bb = velem.bbox();
+		velem.draw(bb.getWidth()/2, height - bb.getHeight()/2 - 30);
 	}
 	
 	@Override

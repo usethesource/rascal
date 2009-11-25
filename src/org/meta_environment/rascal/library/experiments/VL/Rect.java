@@ -17,38 +17,36 @@ public class Rect extends VELEM {
 
 	public Rect(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
-		width = getWidth();
-		height = getHeight();
+		width = getWidthProperty();
+		height = getHeightProperty();
 		System.err.println("rect: width=" + width + ", height=" + height);
 	}
 	
 	@Override
 	BoundingBox bbox(){
-		width = getWidth();
-		height = getHeight();
+		width = getWidthProperty();
+		height = getHeightProperty();
 		return new BoundingBox(width, height);
 	}
 
 	@Override
-	void draw(int l, int b) {
+	void draw(float x, float y) {
 		applyProperties();
-		left = l;
-		bottom = b;
-		width = getWidth();
-		height = getHeight();
-		System.err.println("rect: left=" + left + ", bottom=" + bottom + ", width=" + width + ", height=" + height);
+		this.x = x;
+		this.y = y;
+		System.err.println("rect: x=" + x + ", y=" + y + ", width=" + width + ", height=" + height);
 		if(height > 0 && width > 0){
-			vlp.rectMode(PConstants.CORNERS);
-			vlp.rect(left, bottom-height, left + width, bottom);
+			vlp.rectMode(PConstants.CENTER);
+			vlp.rect(x, y, width, height);
 		}
 	}
 	
 	@Override
-	public void mouseOver(int x, int y){
-		System.err.println("MouseOver in rect: " + left  + ", " + bottom);
-		if((x > left && x < left + width) &&
-		   (y > bottom  && y < bottom - height)){
-		   System.err.println("MouseOver in rect: " + left  + ", " + bottom);
+	public void mouseOver(int mousex, int mousey){
+		System.err.println("MouseOver in rect: " + x  + ", " + y);
+		if((mousex > x - width/2 && mousex < x + width/2) &&
+		   (mousey > y - height/2  && mousey < y + height/2)){
+		   System.err.println("MouseOver in rect: " + x  + ", " + y);
 		}
 	}
 

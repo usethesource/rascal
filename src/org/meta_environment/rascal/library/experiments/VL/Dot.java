@@ -15,21 +15,21 @@ public class Dot extends VELEM {
 
 	@Override
 	BoundingBox bbox(){
-		int s = getSize();
-		width = getWidth();
-		height = getHeight();
-		return new BoundingBox(max(width,2*s), height + s);
+		int s = getSizeProperty();
+		width = getWidthProperty() + s;
+		height = getHeightProperty() + s;
+		return new BoundingBox(width, height);
 	}
 	
 	@Override
-	void draw(int l, int b) {
+	void draw(float x, float y) {
+		this.x = x;
+		this.y = y;
 		applyProperties();
-		left = l;
-		bottom = b;
-		int s = getSize();
+		int s = getSizeProperty();
 		//System.err.println("line: h =" + h + ", w = " + w);
 		//System.err.println("line: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
-		vlp.ellipse(left, bottom - height, 2*s, 2*s);
+		vlp.ellipse(x- width/2, y-height/2, s, s);
 	}
 
 }

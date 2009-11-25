@@ -2,19 +2,19 @@ package org.meta_environment.rascal.library.experiments.VL;
 
 public class BoundingBox {
 
-	private int width;
-	private int height;
+	private float width;
+	private float height;
 
-	BoundingBox(int width, int height){
+	BoundingBox(float width, float height){
 		this.width = width;
 		this.height = height;
 	}
 	
-	public int getWidth(){
+	public float getWidth(){
 		return width;
 	}
 	
-	public int getHeight(){
+	public float getHeight(){
 		return height;
 	}
 	

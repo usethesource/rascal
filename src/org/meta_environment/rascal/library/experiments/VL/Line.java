@@ -15,18 +15,24 @@ public class Line extends VELEM {
 	
 	@Override
 	BoundingBox bbox(){
-		return new BoundingBox(getWidth(), max(getHeight(), getHeight2()));
+		width = getWidthProperty();
+		height = max(getHeightProperty(), getHeight2Property());
+		return new BoundingBox(width, height);
 	}
 
 	@Override
-	void draw(int left, int bottom) {
+	void draw(float x, float y) {
+		this.x = x;
+		this.y = y;
 		applyProperties();
-			int h1 = getHeight();
-			int h2 = getHeight2();
-			int w = getWidth();
-			//System.err.println("line: h =" + h + ", w = " + w);
-			//System.err.println("line: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
-			vlp.line(left, bottom - h1, left + w, bottom - h2);
+		float h1 = getHeightProperty();
+		float h2 = getHeight2Property();
+		float w = getWidthProperty();
+		float left = x - width/2;
+		float bottom = y + height/2;
+		//System.err.println("line: h =" + h + ", w = " + w);
+		//System.err.println("line: " + left + ", " + (bottom-h) + ", " + (left+w) + ", " + bottom);
+		vlp.line(left, bottom - h1, left + w, bottom - h2);
 	}
 
 }

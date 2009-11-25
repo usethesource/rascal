@@ -58,8 +58,6 @@ public class Part {
 
 	void draw() {
 		velem.bbox();
-		int l = PApplet.round(x - velem.width/2);
-		int b = PApplet.round(y + velem.height/2);
-		velem.draw(l, b);
+		velem.draw(x, y);
 	}
 }
