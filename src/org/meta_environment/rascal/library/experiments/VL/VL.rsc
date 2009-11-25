@@ -137,6 +137,10 @@ public void lab1(){
 	render(label([ text("Een label"), fontSize(20), fillColor("black")]));
 }
 
+public void lab2(){
+	render(label([ text("Een label"), fontSize(20), fillColor("black"), textAngle(-90)]));
+}
+
 public void rlab1(){
 	render(combine([vertical(), center(), gap (10)],
 	               [
@@ -148,7 +152,7 @@ public void rlab1(){
 }
 
 public void rlab2(){
-	render(overlay([center()],
+	render(overlay([bottom()],
 	              [rect([ width(100), height(200), fillColor("red") ]),
 			       label([ text("Een label"), fontSize(20), fillColor("black")])
 			      ]
@@ -156,16 +160,16 @@ public void rlab2(){
 }
 
 public void r3(){
-	render(combine([fillColor("yellow"), gap(10)],
+	render(combine([fillColor("yellow"), gap(10),bottom()],
 	              [rect([ width(100), height(200), fillColor("red") ]),
-			       rect([ width(150), height(100), rotate(-30)]),
+			       rect([ width(150), height(100)]),
 			       rect([ width(200), height(50), fillColor("green") ])
 			      ]
 		));
 }
 
 public void r4(){
-	render(combine([vertical(),right()],
+	render(combine([vertical(),left(), gap(0)],
 	              [rect([ width(100), height(200), fillColor("red") ]),
 			       rect([ width(150), height(100), fillColor("blue") ]),
 			       rect([ width(200), height(50), fillColor("green") ])
@@ -191,7 +195,8 @@ public void bar2(){
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
     m = max(size(d1), size(d2));   
-    bars = [ combine([ rect([fillColor("green"), height((d1[i] ? 0) * 8)]),
+    bars = [ combine([gap(5), bottom()], 
+                     [ rect([fillColor("green"), height((d1[i] ? 0) * 8)]),
                       rect([fillColor("red"), height((d2[i] ? 0) * 8)])
                     ])
            | int i <- [0 .. m]
@@ -202,7 +207,8 @@ public void bar2(){
                 lineWidth(1),
 	          	width(10),
 	          	top(),
-	          	gap(10)
+	          	gap(10),
+	          	bottom()
                ],
                bars
                );
@@ -232,13 +238,14 @@ public void bar2v(){
 }
 
 public void dot1(){
-render(overlay([rect([width(100), height(100)]),
+render(overlay([bottom()],
+               [rect([width(100), height(100)]),
                 dot([width(50), height(100), size(20)])
               ]));
 }
 
 
-public void dot2(){       
+public void dot2(){     
     dt1 = [10, 12, 17, 15, 7];      
 	b = combine([
                 lineColor("blue"),
@@ -247,12 +254,12 @@ public void dot2(){
 	            width(10),
 	            size(5)
                ],
-               [space(20)] + [ dot([height(d * 8)]) | d <- dt1]
+               [ dot([height(d * 8)]) | d <- dt1]
                );
     render(b);
 }
 
-public void l1(){ 
+public void l1(){
     dt1 = [10, 12, 17, 15, 7];      
 	b = combine([
                 lineColor("blue"),
@@ -265,9 +272,9 @@ public void l1(){
     render(b);
 }
 
-public void a1(){ 
+public void a1(){  //TODO
     dt1 = [10, 12, 17, 15, 7];      
-	b = combine([
+	b = combine([bottom(),
                 lineColor(0),
                 lineWidth(1),
 	            fillColor(125),
@@ -279,9 +286,9 @@ public void a1(){
     render(b);
 }
 
-public void dl1(){      
+public void dl1(){      //TODO
     dt1 = [10, 12, 17, 15, 7];      
-	b = combine([space(100),
+	b = 
 	            overlay([
                 lineColor("blue"),
                 lineWidth(0),
@@ -293,14 +300,15 @@ public void dl1(){
             	   combine([ line([height(dt1[i] * 8), height2(dt1[i+1] * 8)]) | i <- [0 .. size(dt1) - 2]]),
             	   combine([ dot([height(d * 8)]) | d <- dt1])
                ]
-               )]);
+               );
     render(b);
 }
 
 public void o1(){
 
-render(overlay([ rect([width(100), height(200)]), 
-                 rect([width(100), height(200)])
+render(overlay([center()],
+               [ rect([width(100), height(300), fillColor("green")]), 
+                 rect([width(200), height(200), fillColor("red")])
                ])
       );
 }
@@ -311,7 +319,7 @@ public void grid1(){
            rect([width(70), height(70),fillColor("black")])
            ];
 
-  render(grid([width(120), gap(10), bottom()], rects));
+  render(grid([width(120), gap(10), top()], rects));
 }
 
 public void graph1(){

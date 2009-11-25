@@ -17,7 +17,7 @@ public class Space extends VELEM {
 	}
 
 	@Override
-	void draw(int left, int bottom) {
+	void draw(float x, float y) {
 	}
 
 }

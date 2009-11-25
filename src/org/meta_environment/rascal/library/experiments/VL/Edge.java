@@ -45,7 +45,7 @@ public class Edge extends VELEM {
 	}
 
 	@Override
-	void draw(int left, int bottom) {
+	void draw(float x, float y) {
 		applyProperties();
 		vlp.line(from.x, from.y, to.y, to.y);
 	}
