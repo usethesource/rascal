@@ -15,7 +15,9 @@ import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.control_exceptions.Insert;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
+import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
@@ -95,6 +97,12 @@ public class RascalShell {
 				else {
 //					e.printStackTrace(); // for debugging only
 				}
+			}
+			catch(Insert e){
+				console.printString("Error: insert statement outside visit\n");
+			}
+			catch (Return e){
+				console.printString("Error: return statement outside function body\n");
 			}
 			catch (ImplementationError e) {
 				e.printStackTrace();
