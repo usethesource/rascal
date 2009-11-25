@@ -90,6 +90,14 @@ public int java size(str s);
 @javaClass{org.meta_environment.rascal.library.String}
 public bool java startsWith(str s, str prefix);
 
+@doc{Extract a substring from string s from begin to the end of s}
+@javaClass{org.meta_environment.rascal.library.String}
+public str java substring(str s, int begin);
+
+@doc{Extract a substring from string s from begin to end}
+@javaClass{org.meta_environment.rascal.library.String}
+public str java substring(str s, int begin, int end);
+
 @doc{Convert a string s to integer}
 @javaClass{org.meta_environment.rascal.library.String}
 public int java toInt(str s);
@@ -106,12 +114,6 @@ public real java toReal(str s);
 @javaClass{org.meta_environment.rascal.library.String}
 public str java toUpperCase(str s);
 
-@doc{Extract a substring from string s from begin to the end of s}
-@javaClass{org.meta_environment.rascal.library.String}
-public str java substring(str s, int begin);
 
-@doc{Extract a substring from string s from begin to end}
-@javaClass{org.meta_environment.rascal.library.String}
-public str java substring(str s, int begin, int end);
 
 

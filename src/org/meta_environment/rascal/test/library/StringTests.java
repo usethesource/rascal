@@ -40,6 +40,12 @@ public class StringTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("String::charAt(\"abc\", 2) == 99;"));
 		assertTrue(runTestInSameEvaluator("charAt(\"abc\", 0) == 97;"));
 	}
+	
+	@Test(expected=RuntimeException.class)
+	public void chartAtError(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("String::charAt(\"abc\", 3) == 99;"));
+	}
 
 	@Test
 	public void endsWith() {
@@ -129,6 +135,29 @@ public class StringTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("startsWith(\"abc\", \"abc\");"));
 		assertTrue(runTestInSameEvaluator("String::startsWith(\"abcdef\", \"abc\");"));
 		assertFalse(runTestInSameEvaluator("String::startsWith(\"abcdef\", \"def\");"));
+	}
+	
+	@Test
+	public void substring(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("substring(\"abc\", 0) == \"abc\";"));
+		assertTrue(runTestInSameEvaluator("substring(\"abc\", 1) == \"bc\";"));
+		assertTrue(runTestInSameEvaluator("substring(\"abc\", 2) == \"c\";"));
+		assertTrue(runTestInSameEvaluator("substring(\"abc\", 3) == \"\";"));
+		assertTrue(runTestInSameEvaluator("substring(\"abc\", 1, 2) == \"b\";"));
+		assertTrue(runTestInSameEvaluator("substring(\"abc\", 1, 3) == \"bc\";"));
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public void substringWrongIndex1(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("substring(\"abc\", 4) == \"abc\";"));
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public void substringWrongIndex2(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("substring(\"abc\", 1, 4) == \"abc\";"));
 	}
 
 	@Test
