@@ -91,7 +91,8 @@ Export-Package: org.jfree,
  org.meta_environment.rascal.library.viz,
  org.meta_environment.uptr,
  org.meta_environment.uptr.visitors,
- org.meta_environment.uri
+ org.meta_environment.uri,
+ org.meta_environment.rascal.library.experiments.VL
 Require-Bundle: sglr_invoker,
  org.eclipse.imp.pdb.values,
  org.eclipse.swt
