@@ -27,7 +27,7 @@ public class SketchSWT   {
 		Composite composite = new Composite(shell, SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
 
 		Frame frame = SWT_AWT.new_Frame(composite); 
-		frame.setLocation(100,100);
+		frame.setLocation(0,0);
 		frame.add(pa);
 		pa.init();
 		frame.setVisible(true);
