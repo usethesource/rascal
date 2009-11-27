@@ -91,51 +91,51 @@ class Node {
 				return newNode;
 			// No room, try it in right child
 			return rnode.insert(v);
-		} else {
-			// We are a leaf, if there is already a velem return
-			if(velem != null){
-				//System.err.println("Already occupied");
-				return null;
-			}
-			
-			float width = right - left;
-			float height = bottom - top;
-			
-			//System.err.printf("width=%f, height=%f\n", width, height);
-			//System.err.printf("ve.width=%f, ve.height=%f\n", v.width, v.height);
-			
-			// If we are too small return
-			
-			float dw = width - v.width;
-	        float dh = height - v.height;
-	        
-	       // System.err.printf("dw=%f, dh=%f\n", dw, dh);
-			
-			if ((dw < 0) || (dh < 0))
-				return null;
-			
-			// If we are exactly right return
-			if((dw  <= gap) && (dh <= gap)){
-				//System.err.println("FIT!");
-				return this;
-			}
-			
-			// Create two children and decide how to split
-
-	        if(dw > dh) {
-	        	//System.err.println("case dw > dh");
-	        	lnode = new Node(left,                 top, left + v.width + gap, bottom);
-	        	rnode = new Node(left + v.width + gap, top, right,                bottom);
-	        } else {
-	        	//System.err.println("case dw <= dh");
-	        	lnode = new Node(left, top,                  right, top + v.height + gap);
-	        	rnode = new Node(left, top + v.height + gap, right, bottom);
-	        }
-	        
-	        // insert the velem in left most child
-	        
-	        return lnode.insert(v);
 		}
+		
+		// We are a leaf, if there is already a velem return
+		if(velem != null){
+			//System.err.println("Already occupied");
+			return null;
+		}
+		
+		float width = right - left;
+		float height = bottom - top;
+		
+		//System.err.printf("width=%f, height=%f\n", width, height);
+		//System.err.printf("ve.width=%f, ve.height=%f\n", v.width, v.height);
+		
+		// If we are too small return
+		
+		float dw = width - v.width;
+        float dh = height - v.height;
+        
+       // System.err.printf("dw=%f, dh=%f\n", dw, dh);
+		
+		if ((dw < 0) || (dh < 0))
+			return null;
+		
+		// If we are exactly right return
+		if((dw  <= gap) && (dh <= gap)){
+			//System.err.println("FIT!");
+			return this;
+		}
+		
+		// Create two children and decide how to split
+
+        if(dw > dh) {
+        	//System.err.println("case dw > dh");
+        	lnode = new Node(left,                 top, left + v.width + gap, bottom);
+        	rnode = new Node(left + v.width + gap, top, right,                bottom);
+        } else {
+        	//System.err.println("case dw <= dh");
+        	lnode = new Node(left, top,                  right, top + v.height + gap);
+        	rnode = new Node(left, top + v.height + gap, right, bottom);
+        }
+        
+        // insert the velem in left most child
+        
+        return lnode.insert(v);
 	}
 	
 	void draw(float l, float t){
