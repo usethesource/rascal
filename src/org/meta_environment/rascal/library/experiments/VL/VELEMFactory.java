@@ -47,8 +47,8 @@ public class VELEMFactory {
 		if(ename.equals("vertex")){
 			if(c.arity() == 2){
 				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
-			} else
-				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
+			}
+			return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
 		}
 		if(c.arity() == 1){ // basic forms
 			if(ename.equals("space"))
