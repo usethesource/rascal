@@ -23,11 +23,11 @@ public class Graph extends VELEM {
 			String name = ve.getNameProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
-			Part nd = new Part(name, ve);
-			nd.x = vlp.random(400);
-			nd.y = vlp.random(400);
-			this.parts.add(nd);
-			vlp.register(name, nd);
+			Part part = new Part(name, ve);
+			part.x = vlp.random(400);
+			part.y = vlp.random(400);
+			this.parts.add(part);
+			vlp.register(name, part);
 		}
 		this.edges = new ArrayList<Edge>();
 		for(IValue v : edges){

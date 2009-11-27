@@ -21,7 +21,8 @@ public class VELEMFactory {
 		System.err.println("ename = " + ename);
 		IList props;
 		IList elems;
-		if(ename.equals("combine") || ename.equals("overlay") || ename.equals("grid")){
+		if(ename.equals("combine") || ename.equals("overlay") || 
+		    ename.equals("grid")  || ename.equals("shape")  || ename.equals("pack")){
 			if(c.arity() == 2){
 				props = (IList) c.get(0);
 				elems = (IList) c.get(1);
@@ -29,13 +30,25 @@ public class VELEMFactory {
 				props = emptyList;
 				elems = (IList) c.get(0);
 			}
-			return ename.equals("combine") ? new Combine(vlp, inheritedProps, props, elems, ctx)
-			                                : (ename.equals("overlay") ? new Overlay(vlp, inheritedProps, props, elems, ctx)
-			                                                           : new Grid(vlp, inheritedProps, props, elems, ctx));
+			return ename.equals("combine") 
+			        ? new Combine(vlp, inheritedProps, props, elems, ctx)
+			        : (ename.equals("overlay")
+			           ? new Overlay(vlp, inheritedProps, props, elems, ctx)
+			           : (ename.equals("grid") 
+			        	  ? new Grid(vlp, inheritedProps, props, elems, ctx)
+			              : (ename.equals("shape")  
+			                 ? new Shape(vlp, inheritedProps, props, elems, ctx)
+			                 : new Pack(vlp, inheritedProps, props, elems, ctx))));
 		}
 		if(ename.equals("graph") && c.arity() == 3){
 			props = (IList) c.get(0);
 			return new Graph(vlp,inheritedProps, props, (IList) c.get(1), (IList)c.get(2), ctx);
+		}
+		if(ename.equals("vertex")){
+			if(c.arity() == 2){
+				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
+			} else
+				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
 		}
 		if(c.arity() == 1){ // basic forms
 			if(ename.equals("space"))
@@ -43,12 +56,8 @@ public class VELEMFactory {
 			props = (IList) c.get(0);
 			if(ename.equals("rect"))
 				return new Rect(vlp, inheritedProps, props, ctx);
-			if(ename.equals("line"))
-				return new Line(vlp, inheritedProps, props, ctx);
-			if(ename.equals("dot"))
-				return new Dot(vlp, inheritedProps, props, ctx);
-			if(ename.equals("area"))
-				return new Area(vlp, inheritedProps, props, ctx);
+			if(ename.equals("ellipse"))
+				return new Ellipse(vlp, inheritedProps, props, ctx);
 			if(ename.equals("label"))
 				return new Label(vlp, inheritedProps, props, ctx);
 		}

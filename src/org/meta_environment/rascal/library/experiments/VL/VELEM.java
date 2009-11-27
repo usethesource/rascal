@@ -143,10 +143,6 @@ public abstract class VELEM {
 		return getIntProperty("height", -1);
 	}
 	
-	protected int getHeight2Property(){
-		return getIntProperty("height2", -1);
-	}
-	
 	protected int getWidthProperty(){
 		return getIntProperty("width", -1);
 	}
@@ -185,6 +181,14 @@ public abstract class VELEM {
 	
 	protected boolean isRight(){
 		return properties.get("right") != null;
+	}
+	
+	protected boolean isClosed(){
+		return properties.get("closed") != null;
+	}
+	
+	protected boolean isCurved(){
+		return properties.get("curved") != null;
 	}
 	
 	protected String getTextProperty(){

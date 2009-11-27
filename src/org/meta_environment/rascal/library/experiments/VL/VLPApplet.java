@@ -30,10 +30,6 @@ public class VLPApplet extends PApplet {
 	public Part getRegistered(String name){
 		return registered.get(name);
 	}
-	
-	public void connect(String from, String to){
-		
-	}
 
 	@Override
 	public void setup(){
@@ -47,7 +43,7 @@ public class VLPApplet extends PApplet {
 	public void draw(){
 		background(255);
 		BoundingBox bb = velem.bbox();
-		velem.draw(bb.getWidth()/2, height - bb.getHeight()/2 - 30);
+		velem.draw(bb.getWidth()/2, height - bb.getHeight()/2 - 100);
 	}
 	
 	@Override
@@ -61,46 +57,4 @@ public class VLPApplet extends PApplet {
 		System.err.println("mousePressed: " + mouseX + ", " + mouseY);
 		velem.mouseOver(mouseX, mouseY);
 	}
-	
-	/*
-	@Override
-	public void draw(){
-		int left = 0;
-		int bottom = height;
-		
-		int deltax = 0;
-		int deltay = 0;
-		
-		rectMode(CORNERS);
-		for(int i = 0; i < nmax; i++){
-			bottom = height;
-			for(VELEM ve : velems){
-				if(ve.draw(this, i, left, bottom)){
-					BoundingBox bb = ve.bbox(i);
-					BoundingBox ibb = ve.innerBbox(i);
-					deltax = max(deltax, ibb.getWidth());
-					deltay = max(deltay, ibb.getHeight());
-					if(hcomposition)
-						left += bb.getWidth();
-					else
-						bottom -= ibb.getHeight();
-				}
-			}
-			if(!hcomposition)
-				left += deltax + gap;
-		}
-	}
-	*/
-/*
-	@Override
-	public void draw(){
-		//stroke(255);
-		//background(192, 64, 0);
-		//rect(25, 0, 50, 80);
-		//line(150, 25, mouseX, mouseY);
-		for(VELEM ve : velems){
-			ve.draw(this);
-		}
-	}
-*/
 }
