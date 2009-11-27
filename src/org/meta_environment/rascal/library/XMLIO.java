@@ -115,6 +115,23 @@ public class XMLIO{
 		return attributesWriter.done();
 	}
 	
+	/*public void declareTypes(XSModel schema){
+		XSNamedMap elementDeclarations = schema.getComponents(XSConstants.ELEMENT_DECLARATION);
+		int length = elementDeclarations.getLength();
+		for(int i = length - 1; i >= 0; i--){
+			XSElementDecl elementDecl = (XSElementDecl) elementDeclarations.item(i);
+			System.err.println(elementDecl.getTypeDefinition().getBaseType().getName());
+		}
+		
+		System.err.println();
+		
+		XSNamedMap typeDefinitions = schema.getComponents(XSConstants.TYPE_DEFINITION);
+		length = typeDefinitions.getLength();
+		for(int i = length - 1; i >= 0; i--){
+			System.err.println(typeDefinitions.item(i).getName());
+		}
+	}*/
+	
 	public static IConstructor parseXML(IString xmlFileName) throws IOException, SAXException, ParserConfigurationException{
 		File xmlFile = new File(xmlFileName.getValue());
 		
@@ -149,6 +166,8 @@ public class XMLIO{
 		
 		TypeStore typeStore = new TypeStore();
 		XMLIO xmlToPDB = new XMLIO(typeStore, document);
+		
+		//xmlToPDB.declareTypes(((ElementPSVI) document.getDocumentElement()).getSchemaInformation());
 		
 		return xmlToPDB.transform();
 	}
