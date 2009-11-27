@@ -6,7 +6,15 @@ import IO;
 
 alias Color = int;
 
-@doc{Gray color}
+@doc{Gray color (0-255)}
+@javaClass{org.meta_environment.rascal.library.experiments.VL.VL}
+public void java gray(int gray);
+
+@doc{Gray color (0-255) with transparency}
+@javaClass{org.meta_environment.rascal.library.experiments.VL.VL}
+public Color java gray(int gray, real alpha);
+
+@doc{Gray color as percentage (0.0-1.0)}
 @javaClass{org.meta_environment.rascal.library.experiments.VL.VL}
 public void java gray(real perc);
 
@@ -18,6 +26,11 @@ public Color java gray(real perc, real alpha);
 @reflect{Needs calling context when generating an exception}
 @javaClass{org.meta_environment.rascal.library.experiments.VL.VL}
 public Color java color(str colorName);
+
+@doc{Named color with transparency}
+@reflect{Needs calling context when generating an exception}
+@javaClass{org.meta_environment.rascal.library.experiments.VL.VL}
+public Color java color(str colorName, real alpha);
 
 @doc{RGB color}
 @javaClass{org.meta_environment.rascal.library.experiments.VL.VL}
@@ -84,16 +97,25 @@ data VPROP =
    
 /* other */
    | name(str name)                     // name of elem (used in edges and layouts)
+   | closed()    						// closed shapes
+   | curved()                           // use curves instead of straight lines
    ;
-
+   
+data Vertex = 
+     vertex(int x, int y)                // vertex in a shape
+   | vertex(int x, int y, VELEM marker)  // vertex with marker
+   ;
+   
 data VELEM = 
 /* drawing primitives */
      rect(list[VPROP] props)			// rectangle
-   | line(list[VPROP] props)			// straight line between two points
-   | dot(list[VPROP] props)				// dot
-   | area(list[VPROP] props)			// area
+   | ellipse(list[VPROP] props)			// ellipse
    | label(list[VPROP] props)			// text label
    | edge(list[VPROP], str from, str to) // edge between between two elements
+   
+/* lines and curves */
+   | shape(list[Vertex] points)
+   | shape(list[VPROP] props,list[Vertex] points)
    
 /* composition */
    | combine(list[VELEM] elems)
@@ -104,6 +126,9 @@ data VELEM =
    
    | grid(list[VELEM] elems) 
    | grid(list[VPROP] props, list[VELEM] elems)
+   
+   | pack(list[VELEM] elems) 
+   | pack(list[VPROP] props, list[VELEM] elems)
    
    | graph(list[VPROP], list[VELEM] nodes, list[VELEM] edges)
    ;

@@ -20,18 +20,13 @@ public class VL extends PApplet {
 
 	private static final long serialVersionUID = 1L;
 	
-	static PApplet pa = new PApplet();
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	static IInteger rgb(int r, int g, int b){
-		return vf.integer(pa.color(r,g,b));
+		return vf.integer(VLcolor(r,g,b));
 	}
-	
-	static IInteger rgb(float r, float g, float b){
-		return vf.integer(pa.color(r,g,b));
-	}
-	
-    static HashMap<String, IInteger> colorNames =
+
+	static HashMap<String, IInteger> colorNames =
     	new HashMap<String, IInteger>() {
     	/**
 			 * 
@@ -196,23 +191,32 @@ public class VL extends PApplet {
 		new SketchSWT(pa);
 	}
 	
+	public static IInteger gray(IInteger r){
+		int g = r.intValue();
+		return vf.integer(VLcolor(g,g,g));
+	}
+	
 	public static IInteger gray(IReal r){
-		return vf.integer(pa.color(r.floatValue()));
+		int g = round(255 * r.floatValue());
+		return vf.integer(VLcolor(g,g,g));
+	}
+	
+	public static IInteger gray(IInteger r, IReal alpha){
+		int g = r.intValue();
+		return vf.integer(VLcolor(g,g,g, alpha.floatValue()));
 	}
 	
 	public static IInteger gray(IReal r, IReal alpha){
-		return vf.integer(pa.color(r.floatValue(), alpha.floatValue()));
+		int g = round(255 * r.floatValue());
+		return vf.integer(VLcolor(g,g,g, alpha.floatValue()));
 	}
 	
 	public static IInteger rgb(IInteger r, IInteger g, IInteger b){
-		return vf.integer(pa.color(r.intValue(), g.intValue(), b.intValue()));
+		return vf.integer(VLcolor(r.intValue(), g.intValue(), b.intValue(), 1.0f));
 	}
 	
 	public static IInteger rgb(IInteger r, IInteger g, IInteger b, IReal alpha){
-		System.err.println("rgba: " + r.intValue() + ", " +  g.intValue() + " " + b.intValue() + ", " + alpha.floatValue());
-		int res = pa.color(r.intValue(), g.intValue(), b.intValue(), alpha.floatValue());
-		System.err.println("res = " + res);
-		return vf.integer(res);
+		return vf.integer(VLcolor(r.intValue(), g.intValue(), b.intValue(), alpha.floatValue()));
 	}
 	
 	public static IInteger color(IString colorName, IEvaluatorContext ctx){
@@ -222,11 +226,46 @@ public class VL extends PApplet {
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-//	private static int lerp( int value1, int value2, float amt ) {
-//	    int range = value2 - value1;
-//	    return round(( range * amt ) + value1);
-//	}
+	public static IInteger color(IString colorName, IReal alpha, IEvaluatorContext ctx){
+		IInteger c = colorNames.get(colorName.getValue());
+		if(c != null){
+			int ci = c.intValue();
+			return vf.integer(VLcolor(ci, alpha.floatValue()));
+		}
+		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
+	}
 	
+	 static public int VLcolor(int r, int g, int b) {
+		 return VLcolor(r, g, b, 1.0f);
+	 }
+	
+	 static public int VLcolor(int r, int g, int b, float alpha) {
+
+		 if (r > 255) r = 255; else if (r < 0) r = 0;
+		 if (g > 255) g = 255; else if (g < 0) g = 0;
+		 if (b > 255) b = 255; else if (b < 0) b = 0;
+
+		 if (alpha > 1) alpha = 1; else if (alpha < 0) alpha = 0;
+
+		 return (((int) (alpha*255) << 24) |
+				 ((r) << 16) |
+				 ((g) << 8) |
+				 (b));
+	 }
+	 
+	 static public int VLcolor(int c1, float alpha) {
+		 float r1 = (c1 >> 16) & 0xff;
+		 float g1 = (c1 >> 8) & 0xff;
+		 float b1 = c1 & 0xff;
+		 
+		 if (alpha > 1) alpha = 1; else if (alpha < 0) alpha = 0;
+
+		 return (((int) (alpha*255) << 24) |
+				 ((int) (r1) << 16) |
+				 ((int) (g1) << 8) |
+				 ((int) (b1)));
+	 }
+	 
 	 static public int myLerpColor(int c1, int c2, float amt) {
 		 float a1 = ((c1 >> 24) & 0xff);
 		 float r1 = (c1 >> 16) & 0xff;
@@ -249,7 +288,6 @@ public class VL extends PApplet {
 		float percentage = amt.floatValue();
 		return vf.integer(myLerpColor(fromColor, toColor, percentage));
 	 }
-	 
 	
 	public static IList colorSteps(IInteger from, IInteger to, IInteger n){
 		int fromColor = from.intValue();

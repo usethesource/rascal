@@ -21,11 +21,42 @@ public void rect3(){
 }
 
 public void rect4(){
-	render(rect([ width(100), height(200), fillColor(rgb(0, 0, 205)) ]));  
+	render(combine([
+					 rect([ width(100), height(200), fillColor("mediumblue") ]),
+	                 rect([ width(100), height(200), fillColor(rgb(0, 0, 205)) ]),
+	                 rect([ width(100), height(200), fillColor(rgb(0, 0, 205, 0.5)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.5)) ])
+	                ]));
 }
 
 public void rect5(){
+	render(combine([
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.05)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.2)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.4)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.6)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.8)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 1.0)) ])
+	                ]));
+}
+
+public void rect6(){
+	render(combine([
+	                 rect([ width(100), height(200), fillColor(gray(125, 0.05)) ]),
+	                 rect([ width(100), height(200), fillColor(gray(125, 0.2)) ]),
+	                 rect([ width(100), height(200), fillColor(gray(125, 0.4)) ]),
+	                 rect([ width(100), height(200), fillColor(gray(125, 0.6)) ]),
+	                 rect([ width(100), height(200), fillColor(gray(125, 0.8)) ]),
+	                 rect([ width(100), height(200), fillColor(gray(125, 1.0)) ]) 
+	                ]));
+}
+
+public void col1(){
 	render(rect([ width(100), height(200), fillColor(rgb(0, 0, 205, 0.2)) ]));  // TODO alpha does not work
+}
+
+public void col2(){
+	render(rect([ width(100), height(200), fillColor(color("blue", 0.5)) ]));  // TODO alpha does not work
 }
 
 public void lab1(){
@@ -155,48 +186,38 @@ public void dot2(){
 }
 
 public void l1(){
-    dt1 = [10, 12, 17, 15, 7];      
-	b = combine([
+    dt1 = [10, 20, 10, 30];
+	b = shape([
                 lineColor("blue"),
                 lineWidth(2),
-	            fillColor(125),
-	            width(20)
+	            fillColor("lightgreen"),
+	            curved()
                ],
-               [ line([height(dt1[i] * 8), height2(dt1[i+1] * 8)]) | i <- [0 .. size(dt1) - 2]]
+               [ vertex(i * 50, 10 * dt1[i], ellipse([width(10),height(10), lineWidth(0), fillColor("lightblue")])) | int i <- [0 .. size(dt1) -1]]
                );
     render(b);
 }
 
-public void a1(){  //TODO
-    dt1 = [10, 12, 17, 15, 7];      
-	b = combine([bottom(),
-                lineColor(0),
-                lineWidth(1),
-	            fillColor(125),
-	            width(50),
-	            size(5)
-               ],
-               [ area([height(dt1[i] * 8), height2(dt1[i+1] * 8)]) | i <- [0 .. size(dt1) - 2]]
-               );
-    render(b);
-}
-
-public void dl1(){      //TODO
-    dt1 = [10, 12, 17, 15, 7];      
-	b = 
-	            overlay([
+public void l2(){
+    dt1 = [10, 20, 10, 30];
+    dt2 = [15, 10, 25, 20];
+	s1 = shape([
                 lineColor("blue"),
-                lineWidth(0),
-	            fillColor("lightblue"),
-	            width(50),
-	            size(10)
+                lineWidth(2),
+	            fillColor(color("lightblue", 0.5)),
+	            curved(), closed()
                ],
-               [
-            	   combine([ line([height(dt1[i] * 8), height2(dt1[i+1] * 8)]) | i <- [0 .. size(dt1) - 2]]),
-            	   combine([ dot([height(d * 8)]) | d <- dt1])
-               ]
+               [ vertex(i * 50, 10 * dt1[i], ellipse([width(10),height(10), lineWidth(0), fillColor("white")])) | int i <- [0 .. size(dt1) -1]]
                );
-    render(b);
+    s2 = shape([
+                lineColor("green"),
+                lineWidth(2),
+	            fillColor(color("lightgreen", 0.5)),
+	            curved(), closed()
+               ],
+               [ vertex(i * 50, 10 * dt2[i], ellipse([width(10),height(10), lineWidth(0), fillColor("black")])) | int i <- [0 .. size(dt2) -1]]
+               );
+    render(overlay([bottom(), left()], [s1, s2]));
 }
 
 public void o1(){
@@ -215,6 +236,15 @@ public void grid1(){
            ];
 
   render(grid([width(120), gap(10), top()], rects));
+}
+
+public void pack1(){
+  rects = [rect([width(50), height(50),fillColor("red")]), rect([width(30), height(30),fillColor("yellow")]), 
+           rect([width(30), height(30),fillColor("green")]), rect([width(70), height(50),fillColor("blue")]),
+           rect([width(70), height(70),fillColor("black")]), rect([width(10), height(20),fillColor("orange")])
+           ];
+
+  render(pack([width(150), height(150), gap(10), top()], rects));
 }
 
 public void graph1(){

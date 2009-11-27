@@ -76,9 +76,6 @@ public class Grid extends Compose {
 				vey = top + toTopElem[i] + hrow - ve.height/2;
 			else
 				vey = top + toTopElem[i] + hrow/2;
-			
-			//System.err.printf("elem %d: row=%d, rowHeight=%d, leftElem=%d, toTopElem=%d, top=%d, b = %d\n", 
-			//		                 i, inRow[i], hrow,       leftElem[i],  toTopElem[i], top, b);
 			ve.draw(leftElem[i] + ve.width/2, vey);
 		}
 	}
