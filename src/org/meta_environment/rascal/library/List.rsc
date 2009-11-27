@@ -1,11 +1,5 @@
 module List
 
-@doc{Average of elements of a list}
-public &T average(list[&T] lst, &T zero)
-{
-  return size(lst) > 0 ? sum(lst, zero)/size(lst) : zero;
-}
-
 @doc{Delete nth element from list}
 @javaClass{org.meta_environment.rascal.library.List}
 public list[&T] java delete(list[&T] lst, int n);
