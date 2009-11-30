@@ -1,20 +1,17 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
 
 public class Edge extends VELEM {
-	Part from;
-	Part to;
+	GraphNode from;
+	GraphNode to;
 	float len;
 	
-	public Edge(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
+	public Edge(VLPApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		from = vlp.getRegistered(fromName.getValue());
 		to = vlp.getRegistered(toName.getValue());
@@ -39,9 +36,8 @@ public class Edge extends VELEM {
 	}
 
 	@Override
-	BoundingBox bbox() {
+	void bbox() {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

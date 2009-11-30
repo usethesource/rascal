@@ -1,33 +1,33 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
+
+import processing.core.PApplet;
 
 
 public class Ellipse extends VELEM {
 
-	public Ellipse(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
+	public Ellipse(VLPApplet vlp, PropertyManager inheritedProps, IList props, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 	}
 
 	@Override
-	BoundingBox bbox(){
-		width = getWidthProperty();
-		height = getHeightProperty();
+	void bbox(){
+		int lw = getLineWidthProperty();
+		width = getWidthProperty() + lw;
+		height = getHeightProperty() + lw;
 		System.err.printf("bbox.ellipse: %f, %f)\n", width, height);
-		return new BoundingBox(width, height);
 	}
 	
 	@Override
-	void draw(float x, float y) {
-		System.err.printf("ellipse.draw: %f, %f\n", x, y);
-		this.x = x;
-		this.y = y;
+	void draw(float left, float top) {
+		System.err.printf("ellipse.draw: %f, %f\n", left, top);
+		this.left = left;
+		this.top = top;
 		applyProperties();
-		vlp.ellipse(x, y, width/2, height/2);
+		vlp.ellipseMode(PApplet.CORNERS);
+		vlp.ellipse(left, top, left + width, top + height);
 	}
 
 }

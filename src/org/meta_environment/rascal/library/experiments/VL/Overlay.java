@@ -1,59 +1,52 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 
 public class Overlay extends Compose {
 
-	Overlay(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Overlay(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
 	@Override
-	BoundingBox bbox(){
+	void bbox(){
 		width = 0;
 		height = 0;
 		for(VELEM ve : velems){
-			BoundingBox bb = ve.bbox();
-			height = max(height, bb.getHeight());
-			width = max(width, bb.getWidth());
+			ve.bbox();
+			height = max(height, ve.height);
+			width = max(width, ve.width);
 		}
 		System.err.printf("overlay.bbox: width=%f, height=%f\n", width, height);
-		return new BoundingBox(width, height);
 	}
 	
 	@Override
-	void draw(float x, float y) {
-		this.x = x;
-		this.y = y;
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
 		applyProperties();
-		float left = x - width/2;
-		float top = y - height/2;
-		System.err.printf("overlay.draw: x=%f, y=%f, left=%f, top=%f", x, y, left, top);
+		System.err.printf("overlay.draw: left=%f, top=%f\n", left, top);
 		for(VELEM ve : velems){
-			float vex;
-			float vey;
-			BoundingBox bb = ve.bbox();
+			float veLeft;
+			float veTop;
 			
 			if(isRight())
-				vex = left + (width - bb.getWidth()/2);
+				veLeft = left + width - ve.width;
 			else if(isLeft())
-				vex = left + bb.getWidth()/2;
+				veLeft = left;
 			else
-				vex = left + (width - bb.getWidth())/2 + bb.getWidth()/2;
+				veLeft = left + (width - ve.width)/2;
 			
 			if(isTop())
-				vey = top + bb.getHeight()/2;
+				veTop = top;
 			else if (isBottom())
-				vey = top + (height - bb.getHeight()/2);
+				veTop = top + height - ve.height;
 			else
-				vey = top + (height - bb.getHeight())/2 + bb.getHeight()/2;
+				veTop = top + (height - ve.height)/2;
 	
-			ve.draw(vex, vey);
+			ve.draw(veLeft, veTop);
 		}
 	}
 }

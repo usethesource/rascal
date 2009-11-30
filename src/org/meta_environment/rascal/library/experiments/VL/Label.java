@@ -1,9 +1,6 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
@@ -11,12 +8,12 @@ import processing.core.PConstants;
 
 public class Label extends VELEM {
 
-	public Label(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IEvaluatorContext ctx) {
+	public Label(VLPApplet vlp, PropertyManager inheritedProps, IList props, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 	}
 	
 	@Override
-	BoundingBox bbox(){
+	void bbox(){
 		String txt = getTextProperty();
 		height = vlp.textAscent() + vlp.textDescent();
 		width = vlp.textWidth(txt);
@@ -35,33 +32,28 @@ public class Label extends VELEM {
 			height = h1 + h2;
 			System.err.printf("bbox label: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", height, width, h1, h2, w1, w2);
 		}
-		return new BoundingBox(width, height);
 	}
 
 	@Override
-	void draw(float x, float y) {
-		this.x = x;
-		this.y = y;
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
 		applyProperties();
 		String txt = getTextProperty();
 	
 		System.err.println("label: " + txt + ", width = " + width + ", height = " + height);
 		if(height > 0 && width > 0){
 			int angle = getTextAngleProperty();
-//			if(isRight())
-//				vlp.textAlign(PApplet.RIGHT);
-//			else if(isCenter())
-				vlp.textAlign(PConstants.CENTER);
-//			else
-//				vlp.textAlign(PApplet.LEFT);
+
+			vlp.textAlign(PConstants.CENTER);
 			if(angle != 0){
 				vlp.pushMatrix();
-				vlp.translate(x, y);
+				vlp.translate(left + width/2, top + height/2);
 				vlp.rotate(PApplet.radians(angle));
 				vlp.text(txt, 0, 0);
 				vlp.popMatrix();
 			} else {
-				vlp.text(txt, x, y);
+				vlp.text(txt,left + width/2, top + height/2);
 			}
 		}
 	}

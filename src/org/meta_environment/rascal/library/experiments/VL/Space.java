@@ -12,8 +12,7 @@ public class Space extends VELEM {
 	}
 	
 	@Override
-	BoundingBox bbox(){
-		return new BoundingBox(width, height);
+	void bbox(){
 	}
 
 	@Override

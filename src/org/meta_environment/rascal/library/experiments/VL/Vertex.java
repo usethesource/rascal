@@ -24,29 +24,29 @@ public class Vertex extends VELEM {
 	}
 
 	@Override
-	BoundingBox bbox(){
+	void bbox(){
 		if(marker != null){
-			BoundingBox bb = marker.bbox();
-			width = bb.getWidth();
-			height = deltay + bb.getHeight()/2;
+			//TODO this is wrong
+			marker.bbox();
+			width = marker.width;
+			height = deltay + marker.height/2;
 		} else {
 			width = deltax;
 			height = deltay;
 		}
 		System.err.printf("bbox.point: %f, %f)\n", width, height);
-		return new BoundingBox(width, height);
 	}
 	
 	@Override
-	void draw(float x, float y) {
-		this.x = x;
-		this.y = y;
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
 		applyProperties();
 		System.err.println("Point: marker = " + marker);
-		System.err.printf("Point: marker at %f, %f\n", x + deltax/2, y + deltay/2);
+		System.err.printf("Point: marker at %f, %f\n", left, top);
 		if(marker != null){
 			marker.bbox();
-			marker.draw(x, y);
+			marker.draw(left-marker.width/2, top-marker.height/2);
 		}
 	}
 

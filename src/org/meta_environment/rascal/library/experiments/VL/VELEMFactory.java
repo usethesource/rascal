@@ -6,83 +6,102 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
+@SuppressWarnings("serial")
 public class VELEMFactory {
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	static IList emptyList = vf.list();
 	
-	public static VELEM make(VLPApplet vlp, IConstructor c, HashMap<String,IValue> inheritedProps, IEvaluatorContext ctx){
+	enum Primitives {COMBINE, OVERLAY, GRID, SHAPE, PACK, GRAPH, SPACE,
+					  RECT, ELLIPSE, LABEL, EDGE, VERTEX, PIE};
+					  
+    static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
+    	{
+    		put("combine", 	Primitives.COMBINE);
+    		put("overlay",	Primitives.OVERLAY);	
+    		put("grid",		Primitives.GRID);	
+    		put("shape",	Primitives.SHAPE);
+    		put("pack",		Primitives.PACK);	
+    		put("rect",		Primitives.RECT);	
+    		put("ellipse",	Primitives.ELLIPSE);	
+    		put("label",	Primitives.LABEL);	
+    		put("edge",		Primitives.EDGE);	
+    		put("graph",	Primitives.GRAPH);
+    		put("vertex",	Primitives.VERTEX);
+    		put("space",	Primitives.SPACE);
+    		put("pie",		Primitives.PIE);
+    		
+    	}
+    };
+    
+    static IList props;
+	static IList elems;
+	
+	private static void getOneOrTwoArgs(IConstructor c){
+		if(c.arity() >= 2){
+			props = (IList) c.get(0);
+			elems = (IList) c.get(1);
+		} else {
+			props = emptyList;
+			elems = (IList) c.get(0);
+		}
+	}
+	public static VELEM make(VLPApplet vlp, IConstructor c, PropertyManager inheritedProps, IEvaluatorContext ctx){
 		String ename = c.getName();
 		System.err.println("ename = " + ename);
-		IList props;
-		IList elems;
-		if(ename.equals("combine") || ename.equals("overlay") || 
-		    ename.equals("grid")  || ename.equals("shape")  || ename.equals("pack")){
-			if(c.arity() == 2){
-				props = (IList) c.get(0);
-				elems = (IList) c.get(1);
-			} else {
-				props = emptyList;
-				elems = (IList) c.get(0);
-			}
-			return ename.equals("combine") 
-			        ? new Combine(vlp, inheritedProps, props, elems, ctx)
-			        : (ename.equals("overlay")
-			           ? new Overlay(vlp, inheritedProps, props, elems, ctx)
-			           : (ename.equals("grid") 
-			        	  ? new Grid(vlp, inheritedProps, props, elems, ctx)
-			              : (ename.equals("shape")  
-			                 ? new Shape(vlp, inheritedProps, props, elems, ctx)
-			                 : new Pack(vlp, inheritedProps, props, elems, ctx))));
-		}
-		if(ename.equals("graph") && c.arity() == 3){
-			props = (IList) c.get(0);
-			return new Graph(vlp,inheritedProps, props, (IList) c.get(1), (IList)c.get(2), ctx);
-		}
-		if(ename.equals("vertex")){
-			if(c.arity() == 2){
-				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
-			}
-			return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
-		}
-		if(c.arity() == 1){ // basic forms
-			if(ename.equals("space"))
+	
+		switch(pmap.get(ename)){
+			case COMBINE:
+				getOneOrTwoArgs(c);
+				return new Combine(vlp, inheritedProps, props, elems, ctx);
+			case OVERLAY: 
+				getOneOrTwoArgs(c); 
+				return new Overlay(vlp, inheritedProps, props, elems, ctx);
+			case GRID: 
+				getOneOrTwoArgs(c); 
+				return new Grid(vlp, inheritedProps, props, elems, ctx);
+			case SHAPE: 
+				getOneOrTwoArgs(c); 
+				return new Shape(vlp, inheritedProps, props, elems, ctx);
+			case PACK: 
+				getOneOrTwoArgs(c); 
+				return new Pack(vlp, inheritedProps, props, elems, ctx);
+			case PIE: 
+				getOneOrTwoArgs(c); 
+				return new Pie(vlp, inheritedProps, props, elems, ctx);
+			case GRAPH: 
+				if(c.arity() == 3)
+					return new Graph(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
+				else
+					return new Graph(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
+			case VERTEX:
+				if(c.arity() == 3)
+					return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
+				else
+					return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
+			case SPACE:
 				return new Space(vlp, (IInteger) c.get(0), ctx);
-			props = (IList) c.get(0);
-			if(ename.equals("rect"))
-				return new Rect(vlp, inheritedProps, props, ctx);
-			if(ename.equals("ellipse"))
-				return new Ellipse(vlp, inheritedProps, props, ctx);
-			if(ename.equals("label"))
-				return new Label(vlp, inheritedProps, props, ctx);
+			case RECT:
+				return new Rect(vlp, inheritedProps, (IList) c.get(0), ctx);
+			case ELLIPSE:
+				return new Ellipse(vlp, inheritedProps, (IList) c.get(0), ctx);
+			case LABEL:
+				return new Label(vlp, inheritedProps, (IList) c.get(0), ctx);
+			case EDGE:
+				if(c.arity() == 3)
+					return new Edge(vlp,inheritedProps, (IList) c.get(0), (IString)c.get(1), (IString)c.get(2), ctx);
+				else
+					return new Edge(vlp,inheritedProps, emptyList, (IString)c.get(0), (IString)c.get(1), ctx);
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
-	
-	public static Edge makeEdge(VLPApplet vlp, IConstructor c, HashMap<String,IValue> inheritedProps, IEvaluatorContext ctx){
-		String ename = c.getName();
-		if(ename.equals("edge") && c.arity() == 3){
-			IList props = (IList) c.get(0);
-			return new Edge(vlp,inheritedProps, props, (IString)c.get(1), (IString)c.get(2), ctx);
-		}
-		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
+	public static Edge makeEdge(VLPApplet vlp, IConstructor c,
+			PropertyManager properties, IEvaluatorContext ctx) {
+		return new Edge(vlp, properties, (IList) c.get(0), (IString)c.get(1), (IString)c.get(2), ctx);
 	}
-	
-//	public static Part makePart(VLPApplet vlp, IConstructor c, HashMap<String,IValue> inheritedProps, IEvaluatorContext ctx){
-//		String ename = c.getName();
-//		if(ename.equals("part") && c.arity() == 2){
-//			String name = ((IString) c.get(0)).getValue();
-//			VELEM ve = make(vlp, (IConstructor)c.get(1), inheritedProps, ctx);
-//			Part nd = new Part(name, ve);
-//			vlp.register(name, nd);
-//			return nd;
-//		}
-//		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
-//	}
 
 }
