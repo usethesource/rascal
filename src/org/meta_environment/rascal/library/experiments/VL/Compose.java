@@ -1,8 +1,5 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -10,15 +7,17 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 public abstract class Compose extends VELEM {
 
-	protected ArrayList<VELEM> velems;
+	protected VELEM[] velems;
 
-	Compose(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);		
-		velems = new ArrayList<VELEM>();
-		for(IValue v : elems){
+	Compose(VLPApplet vlp,PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+		super(vlp, inheritedProps, props, ctx);	
+		int n = elems.length();
+		velems = new VELEM[n];
+		for(int i = 0; i < n; i++){
+			IValue v = elems.get(i);
 			IConstructor c = (IConstructor) v;
 			System.err.println("Compose, elem = " + c.getName());
-			velems.add(VELEMFactory.make(vlp, c, properties, ctx));
+			velems[i] = VELEMFactory.make(vlp, c, properties, ctx);
 		}
 	}
 }

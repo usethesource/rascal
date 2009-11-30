@@ -16,18 +16,18 @@ public class VLPApplet extends PApplet {
 	private int width = 600;
 	private int height = 600;
 	private VELEM  velem;
-	private HashMap<String,Part> registered;
+	private HashMap<String,GraphNode> registered;
 
 	public VLPApplet(IConstructor elem, IEvaluatorContext ctx){
-		registered = new HashMap<String,Part>();
+		registered = new HashMap<String,GraphNode>();
 		this.velem = VELEMFactory.make(this, elem, null, ctx);
 	}
 	
-	public void register(String name, Part nd){
+	public void register(String name, GraphNode nd){
 		registered.put(name, nd);
 	}
 	
-	public Part getRegistered(String name){
+	public GraphNode getRegistered(String name){
 		return registered.get(name);
 	}
 
@@ -42,8 +42,8 @@ public class VLPApplet extends PApplet {
 	@Override
 	public void draw(){
 		background(255);
-		BoundingBox bb = velem.bbox();
-		velem.draw(bb.getWidth()/2, height - bb.getHeight()/2 - 100);
+		velem.bbox();
+		velem.draw(0, 0);
 	}
 	
 	@Override

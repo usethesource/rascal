@@ -1,78 +1,73 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 
 public class Combine extends Compose {
 
-	Combine(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Combine(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
 	@Override
-	BoundingBox bbox(){
+	void bbox(){
 		width = 0;
 		height = 0;
 		for(VELEM ve : velems){
-			BoundingBox bb = ve.bbox();
+			ve.bbox();
 			if(isHorizontal()){
-				width += bb.getWidth();
-				height = max(height, bb.getHeight());
+				width += ve.width;
+				height = max(height, ve.height);
 			} else {
-				width = max(width, bb.getWidth());
-				height = height + bb.getHeight();
+				width = max(width, ve.width);
+				height = height + ve.height;
 			}
 		} 
+		int gaps = (velems.length - 1) * getGapProperty();
 		if(isHorizontal())
-			width += velems.size() * getGapProperty();
+			width += gaps;
 		else
-			height += velems.size() * getGapProperty();
-		return new BoundingBox(width, height);
+			height += gaps;
 	}
 	
 	@Override
-	void draw(float x, float y){
+	void draw(float left, float top){
+		this.left = left;
+		this.top = top;
 		applyProperties();
-		printProperties();
-		this.x = x;
-		this.y = y;
 		int gap = getGapProperty();
+		System.err.println("Combine.draw: isHor=" + isHorizontal());
+		System.err.println("Combine.draw: isTop=" + isTop());
+		System.err.println("Combine.draw: isBottom=" + isBottom());
 		if(isHorizontal()){
-			float top = y - height/2;
-			float bottom = y + height/2;
-			float left = x - width/2;
-			float vey;
+			float bottom = top + height;
+			float veTop;
 			for(VELEM ve : velems){
-				BoundingBox bb = ve.bbox();
 				if(isTop())
-					vey = top + bb.getHeight()/2;
-				else if(isCenter())
-					vey = top + (height - bb.getHeight())/2 + bb.getHeight()/2;
+					veTop = top;
+				else if(isBottom())
+					veTop = bottom - ve.height;
 				else
-					vey = bottom - bb.getHeight()/2;
-				float w = bb.getWidth();
-				ve.draw(left + w/2, vey);
-				left += w + gap;
+					veTop = top + (height - ve.height)/2;
+				
+				ve.draw(left, veTop);
+				left += ve.width + gap;
 			}
 		} else {
-			float left =  x - width/2;
-			float right = x + width/2;
-			float bottom = y + height/2;
-			float vex;
+			float right = left + width;
+			float bottom = top + height;
+			float veLeft;
 			for(VELEM ve : velems){
-				BoundingBox bb = ve.bbox();
 				if(isRight())
-					vex = right - bb.getWidth()/2;
-				else if(isCenter())
-					vex = left + (width - bb.getWidth())/2 + bb.getWidth()/2;
+					veLeft = right - ve.width;
+				else if(isLeft())
+					veLeft = left;
 				else
-					vex = left + bb.getWidth()/2;
-				float h = bb.getHeight();
-				ve.draw(vex, bottom - h/2);
+					veLeft = left + (width - ve.width)/2;
+			
+				float h = ve.height;
+				ve.draw(veLeft, bottom - h);
 				bottom -= h + gap;
 			}
 		}

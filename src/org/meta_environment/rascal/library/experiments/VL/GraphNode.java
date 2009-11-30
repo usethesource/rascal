@@ -4,7 +4,7 @@ import java.util.List;
 
 import processing.core.PApplet;
 
-public class Part {
+public class GraphNode {
 	
 	protected String name;
 	protected VELEM velem;
@@ -14,16 +14,16 @@ public class Part {
 	protected float dx = 0f;
 	protected float dy = 0f;
 	
-	Part(String name, VELEM velem){
+	GraphNode(String name, VELEM velem){
 		this.name = name;
 		this.velem = velem;
 	}
 	
-	public void relax(List<Part> parts){
+	public void relax(List<GraphNode> parts){
 		float ddx = 0;
 		float ddy = 0;
 		
-		for(Part n : parts){
+		for(GraphNode n : parts){
 			if(n != this){
 				float vx = x - n.x;
 				float vy = y - n.y;
@@ -58,6 +58,6 @@ public class Part {
 
 	void draw() {
 		velem.bbox();
-		velem.draw(x, y);
+		velem.draw(x - velem.width/2, y - velem.height/2);
 	}
 }

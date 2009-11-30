@@ -1,9 +1,6 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 
@@ -15,7 +12,7 @@ public class Grid extends Compose {
 	int inRow[];
 	int nrow;
 
-	Grid(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Grid(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 		leftElem = new float[elems.length()];
 		toTopElem = new float[elems.length()];
@@ -25,7 +22,7 @@ public class Grid extends Compose {
 	}
 	
 	@Override
-	BoundingBox bbox(){
+	void bbox(){
 		width = getWidthProperty();
 		height = 0;
 		float w = 0;
@@ -33,12 +30,11 @@ public class Grid extends Compose {
 		float toprow = 0;
 		nrow = 0;
 		int gap = getGapProperty();
-		for(int i = 0; i < velems.size(); i++){
-			VELEM ve = velems.get(i);
-			BoundingBox bb = ve.bbox();
-			if(w + gap + bb.getWidth() > width){
+		for(int i = 0; i < velems.length; i++){
+			VELEM ve = velems[i];
+			if(w + gap + ve.width > width){
 				if(w == 0){
-					width = bb.getWidth();
+					width = ve.width;
 				} else {
 					rowHeight[nrow] = hrow;
 					nrow++;
@@ -50,33 +46,33 @@ public class Grid extends Compose {
 			leftElem[i] = w;
 			toTopElem[i] = toprow;
 			inRow[i] = nrow;
-			w += bb.getWidth() + gap;
-			hrow = max(hrow, bb.getHeight());
+			w += ve.width + gap;
+			hrow = max(hrow, ve.height);
 	
 		}
 		rowHeight[nrow] = hrow;
 		height += hrow;
 		nrow++;
-		return new BoundingBox(width, height);
 	}
 	
 	@Override
-	void draw(float x, float y){
+	void draw(float left, float top){
+		this.left = left;
+		this.top = top;
 		applyProperties();
-		float top = y - height/2;
 
-		for(int i = 0; i < velems.size(); i++){
+		for(int i = 0; i < velems.length; i++){
 			
-			VELEM ve = velems.get(i);
+			VELEM ve = velems[i];
 			float hrow = rowHeight[inRow[i]];
-			float vey;
+			float veTop;
 			if(isTop())
-				vey = top + toTopElem[i] + ve.height/2;
+				veTop = top + toTopElem[i];
 			else if(isBottom())
-				vey = top + toTopElem[i] + hrow - ve.height/2;
+				veTop = top + toTopElem[i] + hrow;
 			else
-				vey = top + toTopElem[i] + hrow/2;
-			ve.draw(leftElem[i] + ve.width/2, vey);
+				veTop = top + toTopElem[i];
+			ve.draw(leftElem[i], veTop);
 		}
 	}
 }

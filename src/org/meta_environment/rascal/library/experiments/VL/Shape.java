@@ -1,9 +1,6 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
@@ -11,66 +8,68 @@ import processing.core.PApplet;
 
 public class Shape extends Compose {
 
-	Shape(VLPApplet vlp, HashMap<String,IValue> inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Shape(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
 	@Override
-	BoundingBox bbox(){
+	void bbox(){
 		width = 0;
 		height = 0;
 		for (VELEM ve : velems){
-			BoundingBox bb = ve.bbox();
-			width = max(width, bb.getWidth());
-			height = max(height, bb.getHeight());
+			width = max(width, ve.width);
+			height = max(height, ve.height);
 		}
 		System.err.printf("bbox.lines: %f, %f)\n", width, height);
-		return new BoundingBox(width, height);
 	}
 	
 	@Override
-	void draw(float x, float y){
+	void draw(float left, float top){
 		applyProperties();
-		printProperties();
-		this.x = x;
-		this.y = y;
-		float left = x - width/2;
-		float bottom = y + height/2;
+		this.left = left;
+		this.top = top;
+		float bottom = top + height;
 		boolean  closed = isClosed();
 		boolean curved = isCurved();
 		
 		vlp.noFill();
 		vlp.beginShape();
 		
-		Vertex next = (Vertex)velems.get(0);
-		float nx = left + next.deltax;
-		float ny = bottom - next.deltay;
+		/*
+		 * We present to the user a coordinate system
+		 * with origin at the bottom left corner!
+		 * Therefore we subtract deltay from bottom
+		 */
+		
+		Vertex next = (Vertex)velems[0];
+		float nextLeft = left + next.deltax;
+		float nextTop = bottom - next.deltay;
 		if(closed){
 			vlp.vertex(left, bottom);
-			vlp.vertex(nx, ny);
+			vlp.vertex(nextLeft, nextTop);
 		}
 		if(curved)
-			vlp.curveVertex(nx, ny);
+			vlp.curveVertex(nextLeft, nextTop);
 		
 		for(VELEM ve : velems){
 			next = (Vertex)ve;
-			nx = left + next.deltax;
-			ny = bottom - next.deltay;
-			System.err.printf("vertex(%f,%f)\n", nx, ny);
+			nextLeft = left + next.deltax;
+			nextTop = bottom - next.deltay;
+			System.err.printf("vertex(%f,%f)\n", nextLeft, nextTop);
 			applyProperties();
 			if(!closed)
 					vlp.noFill();
 			if(curved)
-				vlp.curveVertex(nx,ny);
+				vlp.curveVertex(nextLeft,nextTop);
 			else
-				vlp.vertex(nx,ny);
+				vlp.vertex(nextLeft,nextTop);
 		}
 		if(curved){
-			next = (Vertex)velems.get(velems.size()-1);
+			next = (Vertex)velems[velems.length-1];
 			vlp.curveVertex(left + next.deltax, bottom - next.deltay);
 		}
 		if(closed){
-			vlp.vertex(nx, bottom);
+			vlp.vertex(nextLeft, bottom);
 			vlp.endShape(PApplet.CLOSE);
 		} else 
 			vlp.endShape();

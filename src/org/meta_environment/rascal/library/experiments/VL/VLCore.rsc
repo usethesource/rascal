@@ -60,7 +60,6 @@ data VPROP =
 /* sizes */
      width(int width)
    | height(int height)
-   | height2(int height2)               // TODO: height(list[int] heights)
    | size(int size)                     // size of varies elems
    | visible(bool visible)				// is elem visible?
    | gap(int amount)                    // gap between elements in composition
@@ -89,11 +88,19 @@ data VPROP =
    | fillColor(Color fillColor)			// fill color
    | fillColor(str colorName)           // named fill color
    
+/* wedge/pie attributes */
+   | fromAngle(int angle)
+   | toAngle(int angle)
+   | innerRadius(int radius)
+   
  /* text attributes */
    | text(str s)                        // the text itself
    | font(str fontName)                 // named font
    | fontSize(int size)                 // font size
    | textAngle(int angle)               // rotation
+   
+/* interaction */
+   | mouseOver(list[VPROP] props)       // switch to new properties when mouse is over element
    
 /* other */
    | name(str name)                     // name of elem (used in edges and layouts)
@@ -106,13 +113,18 @@ data Vertex =
    | vertex(int x, int y, VELEM marker)  // vertex with marker
    ;
    
+data Edge =
+     edge(str from, str to) 			// edge between between two elements
+   | edge(list[VPROP], str from, str to) // edge between between two elements
+   ;
+   
 data VELEM = 
 /* drawing primitives */
      rect(list[VPROP] props)			// rectangle
    | ellipse(list[VPROP] props)			// ellipse
    | label(list[VPROP] props)			// text label
-   | edge(list[VPROP], str from, str to) // edge between between two elements
-   
+ 
+ 
 /* lines and curves */
    | shape(list[Vertex] points)
    | shape(list[VPROP] props,list[Vertex] points)
@@ -130,6 +142,10 @@ data VELEM =
    | pack(list[VELEM] elems) 
    | pack(list[VPROP] props, list[VELEM] elems)
    
-   | graph(list[VPROP], list[VELEM] nodes, list[VELEM] edges)
+   | pie(list[VELEM] elems) 
+   | pie(list[VPROP] props, list[VELEM] elems)
+   
+   | graph(list[VELEM] nodes, list[Edge] edges)
+   | graph(list[VPROP], list[VELEM] nodes, list[Edge] edges)
    ;
 
