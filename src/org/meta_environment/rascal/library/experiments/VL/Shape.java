@@ -17,17 +17,18 @@ public class Shape extends Compose {
 		width = 0;
 		height = 0;
 		for (VELEM ve : velems){
+			ve.bbox();
 			width = max(width, ve.width);
 			height = max(height, ve.height);
 		}
-		System.err.printf("bbox.lines: %f, %f)\n", width, height);
+		System.err.printf("bbox.shape: %f, %f\n", width, height);
 	}
 	
 	@Override
 	void draw(float left, float top){
-		applyProperties();
 		this.left = left;
 		this.top = top;
+		applyProperties();
 		float bottom = top + height;
 		boolean  closed = isClosed();
 		boolean curved = isCurved();

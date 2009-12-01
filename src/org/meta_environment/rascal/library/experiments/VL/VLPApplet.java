@@ -16,6 +16,7 @@ public class VLPApplet extends PApplet {
 	private int width = 600;
 	private int height = 600;
 	private VELEM  velem;
+	private VELEM mouseOver = null;
 	private HashMap<String,GraphNode> registered;
 
 	public VLPApplet(IConstructor elem, IEvaluatorContext ctx){
@@ -29,6 +30,10 @@ public class VLPApplet extends PApplet {
 	
 	public GraphNode getRegistered(String name){
 		return registered.get(name);
+	}
+	
+	public void registerMouse(VELEM v){
+		mouseOver = v;
 	}
 
 	@Override
@@ -48,13 +53,17 @@ public class VLPApplet extends PApplet {
 	
 	@Override
 	public void mouseMoved(){
-		System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
+		//System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
+		if(mouseOver != null){
+			mouseOver.properties.setMouseOver(false);
+			mouseOver = null;
+		}
 		velem.mouseOver(mouseX, mouseY);
 	}
 	
 	@Override
 	public void mousePressed(){
-		System.err.println("mousePressed: " + mouseX + ", " + mouseY);
+		//System.err.println("mousePressed: " + mouseX + ", " + mouseY);
 		velem.mouseOver(mouseX, mouseY);
 	}
 }

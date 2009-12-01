@@ -160,7 +160,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 	
 	/**
 	 * Compute the bounding box of the element. Should be called before draw since,
-	 * the computed width and height are stored in the elemtn itself.
+	 * the computed width and height are stored in the element itself.
 	 */
 	abstract void bbox();
 		
@@ -170,8 +170,13 @@ public abstract class VELEM implements Comparable<VELEM> {
 	 * @param top	y-coordinate of corner
 	 */
 	abstract void draw(float left, float top);
-
-	public void mouseOver(int x, int y){
+	
+	public void mouseOver(int mousex, int mousey){
+		if((mousex > left && mousex < left + width) &&
+		   (mousey > top  && mousey < top + height)){
+		   properties.setMouseOver(true);
+		   vlp.registerMouse(this);
+		}
 	}
 	
 }

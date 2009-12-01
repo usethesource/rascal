@@ -29,19 +29,12 @@ public class Rect extends VELEM {
 		this.left = left;
 		this.top = top;
 		applyProperties();
-		System.err.println("rect: left=" + left + ", top=" + top + ", width=" + width + ", height=" + height+ ", color=" + getFillColorProperty());
+		//System.err.println("rect: left=" + left + ", top=" + top + ", width=" + width + ", height=" + height+ ", color=" + getFillColorProperty());
 		if(height > 0 && width > 0){
 			vlp.rect(left, top, width, height);
 		}
 	}
 	
-	@Override
-	public void mouseOver(int mousex, int mousey){
-		System.err.println("MouseOver in rect: " + left  + ", " + top);
-		if((mousex > left && mousex < left + width) &&
-		   (mousey > top  && mousey < top + height)){
-		   System.err.println("MouseOver in rect: " + left  + ", " + top);
-		}
-	}
+
 
 }

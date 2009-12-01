@@ -20,4 +20,10 @@ public abstract class Compose extends VELEM {
 			velems[i] = VELEMFactory.make(vlp, c, properties, ctx);
 		}
 	}
+	
+	@Override
+	public void mouseOver(int mousex, int mousey){
+		for(VELEM ve : velems)
+			ve.mouseOver(mousex, mousey);
+	}
 }

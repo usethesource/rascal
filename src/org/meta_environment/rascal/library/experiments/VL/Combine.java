@@ -37,9 +37,7 @@ public class Combine extends Compose {
 		this.top = top;
 		applyProperties();
 		int gap = getGapProperty();
-		System.err.println("Combine.draw: isHor=" + isHorizontal());
-		System.err.println("Combine.draw: isTop=" + isTop());
-		System.err.println("Combine.draw: isBottom=" + isBottom());
+
 		if(isHorizontal()){
 			float bottom = top + height;
 			float veTop;
@@ -72,4 +70,6 @@ public class Combine extends Compose {
 			}
 		}
 	}
+	
+
 }
