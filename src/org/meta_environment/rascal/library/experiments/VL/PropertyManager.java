@@ -12,20 +12,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
-
-class PropertyValue {
-  PropertyManager.Property property;
-  Object value;
-  Object oldValue;
-  
-  PropertyValue(PropertyManager.Property p, Object v, Object ov){
-	  property = p;
-	  value = v;
-	  oldValue = ov;
-  }
-}
 @SuppressWarnings("serial")
-public class PropertyManager {
+public class PropertyManager implements Cloneable {
 
 	enum Property {
 		WIDTH, HEIGHT, SIZE, GAP, HORIZONTAL, VERTICAL, TOP, CENTER, BOTTOM, LEFT, RIGHT, 
@@ -69,6 +57,9 @@ public class PropertyManager {
 	EnumMap<Property, String> strProperties;
 	EnumSet<Property> boolProperties;
 	EnumSet<Property> defined;
+	IList origMouseOverProperties = null;
+	boolean mouseOver = false;
+	PropertyManager mouseOverproperties = null;
 	
 	private int getIntArg(IConstructor c){
 		return ((IInteger) c.get(0)).intValue();
@@ -114,17 +105,31 @@ public class PropertyManager {
 		defined.add(p);
 	}
 	
-	PropertyValue properties[];
-	int nproperties = 0;
+//	@Override
+//	public PropertyManager clone(){
+//		
+//		PropertyManager pm = new PropertyManager();
+//		pm.intProperties = intProperties.clone();
+//		pm.boolProperties = boolProperties.clone();
+//		pm.strProperties = strProperties.clone();
+//		if(mouseOverproperties != null)
+//			pm.mouseOverproperties = mouseOverproperties.clone();
+//		return pm;
+//	}
+	
+	PropertyManager(){
+		
+	}
 
 	PropertyManager(PropertyManager inherited, IList props, IEvaluatorContext ctx) {
 		
-		properties = new PropertyValue[props.length()];
 		defined = EnumSet.noneOf(Property.class);
 		if(inherited != null){
 			intProperties = inherited.intProperties.clone();
 			boolProperties = inherited.boolProperties.clone();
 			strProperties = inherited.strProperties.clone();
+			//if(inherited.mouseOverproperties != null)
+			//	mouseOverproperties = inherited.mouseOverproperties.clone();
 		} else {
 			intProperties = new EnumMap<Property, Integer>(Property.class);
 			strProperties = new EnumMap<Property, String>(	Property.class);
@@ -137,6 +142,7 @@ public class PropertyManager {
 		for (IValue v : props) {
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
+			System.err.println("property: " + pname);
 
 			switch (propertyNames.get(pname)) {
 			case WIDTH:
@@ -174,6 +180,8 @@ public class PropertyManager {
 				defInt(Property.TEXT_ANGLE,  getIntArg(c)); break;
 
 			case MOUSE_OVER:
+				origMouseOverProperties = (IList) c.get(0);
+				mouseOverproperties = new PropertyManager(this, (IList) c.get(0), ctx); break;
 
 			case HORIZONTAL:
 				defBool(Property.HORIZONTAL, true); defBool(Property.VERTICAL, false);break;
@@ -198,6 +206,8 @@ public class PropertyManager {
 						.getCurrentAST(), ctx.getStackTrace());
 			}
 		}
+		if(inherited != null && origMouseOverProperties == null && inherited.mouseOverproperties != null)
+			mouseOverproperties = new PropertyManager(this, inherited.origMouseOverProperties, ctx);
 	}
 	
 	private void setDefaults() {
@@ -242,19 +252,18 @@ public class PropertyManager {
 	}
 	
 	public void applyProperties(VLPApplet vlp){
-	//	if(defined.contains(Property.FILL_COLOR))
+		if(mouseOver && mouseOverproperties != null)
+			mouseOverproperties.applyProperties(vlp);
+		else {
 			vlp.fill(intProperties.get(Property.FILL_COLOR));
-		
-	//	if(defined.contains(Property.LINE_COLOR))
 			vlp.stroke(intProperties.get(Property.LINE_COLOR));
-		
-	//	if(defined.contains(Property.LINE_WIDTH))
 			vlp.strokeWeight(intProperties.get(Property.LINE_WIDTH));
-		
-	//	if(defined.contains(Property.FONT_SIZE))
 			vlp.textSize(intProperties.get(Property.FONT_SIZE));
-		
-		//vlp.textFont(vlp.createFont(getFont(), getFontSize()));
+		}
+	}
+	
+	public void setMouseOver(boolean on){
+		mouseOver = on;
 	}
 
 }

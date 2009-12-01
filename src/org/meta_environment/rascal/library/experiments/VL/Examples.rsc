@@ -177,7 +177,7 @@ render(overlay([bottom()],
               ]));
 }
 
-public void s1(){  // TODO
+public void s1(){
     dt1 = [10, 20, 10, 30];
 	b = shape([
                 lineColor("blue"),
@@ -313,10 +313,26 @@ public void class1() {
    render(combine([top()], [ rect([width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes]));
 }
 
-public void class2() { //TODO
+public void class2() {
    cscale = colorScale(toList(classes.sloc), color("green"), color("red"));
    nodes = [ rect([name(c.name), width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes];
    edges = [ edge([], from,to) | <str from, str to> <- inherits ];
    
    render(graph([width(400), height(400)], nodes, edges));      
+}
+
+public void mo1(){
+	render(rect([ width(100), height(200), fillColor("green"), mouseOver([fillColor("red")]) ]));
+}
+
+public void mo2(){
+	render(combine( [ mouseOver([lineColor("red")]) ],
+				    [
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.05)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.2)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.4)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.6)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.8)) ]),
+	                 rect([ width(100), height(200), fillColor(color("mediumblue", 1.0)) ])
+	                ]));
 }
