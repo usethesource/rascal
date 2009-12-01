@@ -288,6 +288,24 @@ public void graph1(){
     	    
     render(graph([width(400), height(400)], nodes, edges));
 }
+
+
+public void tree1(){
+
+   nodes =
+     	[ rect([name("A"), width(10), height(20), fillColor("green")]),
+     	  rect([name("B"), width(20), height(30), fillColor("red")]),
+     	  rect([name("C"), width(30), height(20), fillColor("blue")]),
+     	  rect([name("D"), width(30), height(20), fillColor("yellow")])
+     	];
+    edges = 
+    	[ edge([lineWidth(1)], "A", "B"),
+    	  edge([lineWidth(1)], "B", "C"),
+    	  edge([lineWidth(1)], "C", "D")
+    	];
+    	    
+    render(tree(nodes, edges));
+}
 alias CI = tuple[str name, int noa, int nom, int sloc];
 
 set[CI] classes =

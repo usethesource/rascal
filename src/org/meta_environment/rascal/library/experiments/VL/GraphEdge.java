@@ -6,12 +6,12 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
 
-public class Edge extends VELEM {
+public class GraphEdge extends VELEM {
 	GraphNode from;
 	GraphNode to;
 	float len;
 	
-	public Edge(VLPApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
+	public GraphEdge(VLPApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		from = vlp.getRegistered(fromName.getValue());
 		to = vlp.getRegistered(toName.getValue());

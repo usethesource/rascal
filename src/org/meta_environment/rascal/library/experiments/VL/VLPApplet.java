@@ -41,7 +41,8 @@ public class VLPApplet extends PApplet {
 		size(width, height);
 		textFont(createFont("Helvetica", 12));
 		smooth();
-		//noLoop();
+		if(!velem.hasInteraction())
+			noLoop();
 	}
 	
 	@Override

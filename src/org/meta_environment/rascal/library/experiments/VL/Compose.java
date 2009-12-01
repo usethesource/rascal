@@ -22,8 +22,10 @@ public abstract class Compose extends VELEM {
 	}
 	
 	@Override
-	public void mouseOver(int mousex, int mousey){
+	public boolean mouseOver(int mousex, int mousey){
 		for(VELEM ve : velems)
-			ve.mouseOver(mousex, mousey);
+			if(ve.mouseOver(mousex, mousey))
+				return true;
+		return false;
 	}
 }

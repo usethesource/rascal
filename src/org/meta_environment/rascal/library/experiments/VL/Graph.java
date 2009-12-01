@@ -10,7 +10,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class Graph extends VELEM {
 	protected ArrayList<GraphNode> parts;
-	protected ArrayList<Edge> edges;
+	protected ArrayList<GraphEdge> edges;
 	
 
 	Graph(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
@@ -28,10 +28,10 @@ public class Graph extends VELEM {
 			this.parts.add(part);
 			vlp.register(name, part);
 		}
-		this.edges = new ArrayList<Edge>();
+		this.edges = new ArrayList<GraphEdge>();
 		for(IValue v : edges){
 			IConstructor c = (IConstructor) v;
-			this.edges.add((Edge) VELEMFactory.make(vlp, c, properties, ctx));
+			this.edges.add((GraphEdge) VELEMFactory.make(vlp, c, properties, ctx));
 		}
 	}
 	
@@ -46,7 +46,7 @@ public class Graph extends VELEM {
 		this.left = left;
 		this.top = top;
 		applyProperties();
-		for(Edge e : edges)
+		for(GraphEdge e : edges)
 			e.relax();
 		for(GraphNode n : parts)
 			n.relax(parts);
@@ -55,7 +55,7 @@ public class Graph extends VELEM {
 		for(GraphNode n : parts){
 			System.err.println(n.name + ": " + n.velem.left + ", " + n.velem.top);
 		}
-		for(Edge e : edges)
+		for(GraphEdge e : edges)
 			e.draw();
 		for(GraphNode n : parts){
 			n.draw();

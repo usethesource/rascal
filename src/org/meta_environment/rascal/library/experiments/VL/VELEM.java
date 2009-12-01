@@ -142,6 +142,10 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return properties.getInt(Property.TEXT_ANGLE);
 	}
 	
+	public boolean hasInteraction(){
+		return properties.mouseOverproperties != null;
+	}
+	
 	/* 
 	 * Compare two VELEMs according to their surface and aspect ratio
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -171,12 +175,14 @@ public abstract class VELEM implements Comparable<VELEM> {
 	 */
 	abstract void draw(float left, float top);
 	
-	public void mouseOver(int mousex, int mousey){
+	public boolean mouseOver(int mousex, int mousey){
 		if((mousex > left && mousex < left + width) &&
 		   (mousey > top  && mousey < top + height)){
 		   properties.setMouseOver(true);
 		   vlp.registerMouse(this);
+		   return true;
 		}
+		return false;
 	}
 	
 }

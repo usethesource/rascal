@@ -105,18 +105,6 @@ public class PropertyManager implements Cloneable {
 		defined.add(p);
 	}
 	
-//	@Override
-//	public PropertyManager clone(){
-//		
-//		PropertyManager pm = new PropertyManager();
-//		pm.intProperties = intProperties.clone();
-//		pm.boolProperties = boolProperties.clone();
-//		pm.strProperties = strProperties.clone();
-//		if(mouseOverproperties != null)
-//			pm.mouseOverproperties = mouseOverproperties.clone();
-//		return pm;
-//	}
-	
 	PropertyManager(){
 		
 	}
@@ -128,8 +116,6 @@ public class PropertyManager implements Cloneable {
 			intProperties = inherited.intProperties.clone();
 			boolProperties = inherited.boolProperties.clone();
 			strProperties = inherited.strProperties.clone();
-			//if(inherited.mouseOverproperties != null)
-			//	mouseOverproperties = inherited.mouseOverproperties.clone();
 		} else {
 			intProperties = new EnumMap<Property, Integer>(Property.class);
 			strProperties = new EnumMap<Property, String>(	Property.class);
