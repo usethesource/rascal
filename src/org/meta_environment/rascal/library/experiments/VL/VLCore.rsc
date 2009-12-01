@@ -147,5 +147,8 @@ data VELEM =
    
    | graph(list[VELEM] nodes, list[Edge] edges)
    | graph(list[VPROP], list[VELEM] nodes, list[Edge] edges)
+   
+   | tree(list[VELEM] nodes, list[Edge] edges)
+   | tree(list[VPROP], list[VELEM] nodes, list[Edge] edges)
    ;
 
