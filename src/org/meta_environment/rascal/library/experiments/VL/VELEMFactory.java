@@ -17,7 +17,7 @@ public class VELEMFactory {
 	static IList emptyList = vf.list();
 	
 	enum Primitives {COMBINE, OVERLAY, GRID, SHAPE, PACK, GRAPH, TREE, SPACE,
-					  RECT, ELLIPSE, LABEL, EDGE, VERTEX, PIE};
+					  RECT, ELLIPSE, LABEL, EDGE, VERTEX, PIE}
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     	{
@@ -77,20 +77,20 @@ public class VELEMFactory {
 			case GRAPH: 
 				if(c.arity() == 3)
 					return new Graph(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
-				else
-					return new Graph(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
+				
+				return new Graph(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
 				
 			case TREE: 
 				if(c.arity() == 3)
 					return new SimpleTree(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
-				else
-					return new SimpleTree(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
+				
+				return new SimpleTree(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
 				
 			case VERTEX:
 				if(c.arity() == 3)
 					return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
-				else
-					return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
+				
+				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
 			case SPACE:
 				return new Space(vlp, (IInteger) c.get(0), ctx);
 			case RECT:
@@ -102,8 +102,8 @@ public class VELEMFactory {
 			case EDGE:
 				if(c.arity() == 3)
 					return new GraphEdge(vlp,inheritedProps, (IList) c.get(0), (IString)c.get(1), (IString)c.get(2), ctx);
-				else
-					return new GraphEdge(vlp,inheritedProps, emptyList, (IString)c.get(0), (IString)c.get(1), ctx);
+				
+				return new GraphEdge(vlp,inheritedProps, emptyList, (IString)c.get(0), (IString)c.get(1), ctx);
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}

@@ -158,8 +158,8 @@ public abstract class VELEM implements Comparable<VELEM> {
         	float s = height * width;
         	float os = o.height * o.width;
         	return s < os ? 1 : (s == os ? 0 : -1);
-        } else
-        	 return r < or ? 1 : (r == or ? 0 : -1);
+        }
+        return r < or ? 1 : (r == or ? 0 : -1);
 	}
 	
 	/**
