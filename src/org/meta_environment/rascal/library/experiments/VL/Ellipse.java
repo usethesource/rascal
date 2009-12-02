@@ -3,7 +3,7 @@ package org.meta_environment.rascal.library.experiments.VL;
 import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
-import processing.core.PApplet;
+import processing.core.PConstants;
 
 
 public class Ellipse extends VELEM {
@@ -26,7 +26,7 @@ public class Ellipse extends VELEM {
 		this.left = left;
 		this.top = top;
 		applyProperties();
-		vlp.ellipseMode(PApplet.CORNERS);
+		vlp.ellipseMode(PConstants.CORNERS);
 		vlp.ellipse(left, top, left + width, top + height);
 	}
 

@@ -4,6 +4,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 
 public class Pie extends Compose {
 	float fromAngle = 0;
@@ -47,7 +48,7 @@ public class Pie extends Compose {
 		this.left = left;
 		this.top = top;
 		applyProperties();
-		vlp.ellipseMode(PApplet.CENTER);
+		vlp.ellipseMode(PConstants.CENTER);
 		float a1 = fromAngle;
 		float cx = left + width/2;
 		float cy = top + height/2;
