@@ -3,7 +3,7 @@ package org.meta_environment.rascal.library.experiments.VL;
 import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
-import processing.core.PApplet;
+import processing.core.PConstants;
 
 
 public class Shape extends Compose {
@@ -71,7 +71,7 @@ public class Shape extends Compose {
 		}
 		if(closed){
 			vlp.vertex(nextLeft, bottom);
-			vlp.endShape(PApplet.CLOSE);
+			vlp.endShape(PConstants.CLOSE);
 		} else 
 			vlp.endShape();
 		
