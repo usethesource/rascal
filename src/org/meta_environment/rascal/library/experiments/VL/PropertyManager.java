@@ -19,7 +19,7 @@ public class PropertyManager implements Cloneable {
 		WIDTH, HEIGHT, SIZE, GAP, HORIZONTAL, VERTICAL, TOP, CENTER, BOTTOM, LEFT, RIGHT, 
 		LINE_WIDTH, LINE_COLOR, FILL_COLOR, FROM_ANGLE, TO_ANGLE, INNER_RADIUS, TEXT, FONT, 
 		FONT_SIZE, TEXT_ANGLE, MOUSE_OVER, NAME, CLOSED, CURVED
-	};
+	}
 
 	static final HashMap<String, Property> propertyNames = new HashMap<String, Property>() {
 		{
@@ -75,9 +75,9 @@ public class PropertyManager implements Cloneable {
 			IInteger cl = VL.colorNames.get(((IString) arg).getValue());
 			if (cl != null)
 				return cl.intValue();
-			else
-				throw RuntimeExceptionFactory.illegalArgument(c, ctx
-						.getCurrentAST(), ctx.getStackTrace());
+			
+			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
+					ctx.getStackTrace());
 		}
 		return ((IInteger) arg).intValue();
 	}
@@ -226,7 +226,7 @@ public class PropertyManager implements Cloneable {
 	}
 	
 	public int getInt(Property p){
-		return intProperties.get(p);
+		return intProperties.get(p).intValue();
 	}
 	
 	public String getStr(Property p){
@@ -241,10 +241,10 @@ public class PropertyManager implements Cloneable {
 		if(mouseOver && mouseOverproperties != null)
 			mouseOverproperties.applyProperties(vlp);
 		else {
-			vlp.fill(intProperties.get(Property.FILL_COLOR));
-			vlp.stroke(intProperties.get(Property.LINE_COLOR));
-			vlp.strokeWeight(intProperties.get(Property.LINE_WIDTH));
-			vlp.textSize(intProperties.get(Property.FONT_SIZE));
+			vlp.fill(getInt(Property.FILL_COLOR));
+			vlp.stroke(getInt(Property.LINE_COLOR));
+			vlp.strokeWeight(getInt(Property.LINE_WIDTH));
+			vlp.textSize(getInt(Property.FONT_SIZE));
 		}
 	}
 	
