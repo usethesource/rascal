@@ -294,18 +294,57 @@ public void tree1(){
 
    nodes =
      	[ rect([name("A"), width(10), height(20), fillColor("green")]),
-     	  rect([name("B"), width(20), height(30), fillColor("red")]),
-     	  rect([name("C"), width(30), height(20), fillColor("blue")]),
-     	  rect([name("D"), width(30), height(20), fillColor("yellow")])
+     	  rect([name("B"), width(20), height(60), fillColor("red")]),
+     	  rect([name("C"), width(60), height(20), fillColor("blue")]),
+     	  rect([name("D"), width(10), height(20), fillColor("purple")]),
+     	  rect([name("E"), width(30), height(20), fillColor("lightblue")]),
+     	  rect([name("F"), width(30), height(30), fillColor("orange")]),
+     	  rect([name("G"), width(30), height(50), fillColor("brown")])
      	];
     edges = 
     	[ edge([lineWidth(1)], "A", "B"),
     	  edge([lineWidth(1)], "B", "C"),
-    	  edge([lineWidth(1)], "C", "D")
+    	  edge([lineWidth(1)], "B", "D"),
+    	  edge([lineWidth(1)], "A", "E"),
+    	  edge([lineWidth(1)], "E", "F"),
+    	  edge([lineWidth(1)], "E", "G")
+    	  
     	];
     	    
-    render(tree(nodes, edges));
+    render(tree([gap(10), top()], nodes, edges));
 }
+
+public void tree2(){
+
+   nodes =
+     	[ rect([name("A"), width(20), height(20), fillColor("green")]),
+     	  rect([name("B"), width(20), height(20), fillColor("red")]),
+     	  rect([name("C"), width(20), height(20), fillColor("blue")]),
+     	  rect([name("D"), width(20), height(20), fillColor("purple")]),
+     	  rect([name("E"), width(20), height(20), fillColor("lightblue")]),
+     	  rect([name("F"), width(20), height(20), fillColor("orange")]),
+     	  rect([name("G"), width(20), height(20), fillColor("brown")]),
+     	  rect([name("H"), width(20), height(20), fillColor("black")]),
+     	  rect([name("I"), width(20), height(20), fillColor("grey")]),
+     	  rect([name("J"), width(20), height(20), fillColor("white")])
+     	];
+    edges = 
+    	[ edge([lineWidth(1)], "A", "B"),
+    	  edge([lineWidth(1)], "B", "C"),
+    	  edge([lineWidth(1)], "B", "D"),
+    	  edge([lineWidth(1)], "A", "E"),
+    	  edge([lineWidth(1)], "A", "H"),
+    	  edge([lineWidth(1)], "E", "F"),
+    	  edge([lineWidth(1)], "E", "G"),
+    	   edge([lineWidth(1)], "E", "I"),
+    	    edge([lineWidth(1)], "E", "J")
+    	  
+    	];
+    	    
+    render(tree([gap(10), top()], nodes, edges));
+}
+
+
 alias CI = tuple[str name, int noa, int nom, int sloc];
 
 set[CI] classes =
