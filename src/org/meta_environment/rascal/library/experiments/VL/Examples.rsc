@@ -52,6 +52,18 @@ public void rect6(){
 	                ]));
 }
 
+public void rect7(){
+	render(rect([fillColor("mediumblue"), gap(10)], rect([width(40), height(40), fillColor("white")])));
+}
+
+public void rect8(){
+	render(rect([fillColor("mediumblue"), gap(10)], ellipse([width(40), height(40), fillColor("white")])));
+}
+
+public void rect9(){
+	render(rect([fillColor("mediumblue"), gap(10)], label([text("een label")])));
+}
+
 public void lab1(){
 	render(label([ text("Een label"), fontSize(20), fillColor("black")]));
 }
@@ -159,6 +171,15 @@ public void bar2v(){
 
 public void e1(){
 	render(ellipse([width(50), height(100)]));
+}
+
+
+public void e2(){
+	render(ellipse([fillColor("mediumblue"), gap(10)], rect([width(40), height(40), fillColor("white")])));
+}
+
+public void e3(){
+	render(ellipse([fillColor("mediumblue"), gap(10)], label([text("een label")])));
 }
 
 public void o1(){
@@ -289,25 +310,66 @@ public void graph1(){
     render(graph([width(400), height(400)], nodes, edges));
 }
 
+public void tree01(){
+
+   nodes =
+     	[ rect([name("A"), width(20), height(20), fillColor("green")]),
+     	  rect([name("B"), width(20), height(20), fillColor("red")])
+     	];
+     	
+    edges = 
+    	[ edge([lineWidth(1)], "A", "B")
+    	  
+    	];
+    	  
+    render(tree([gap(10), top()], nodes, edges));
+}
+public void tree02(){
+
+   nodes =
+     	[ rect([name("A"), width(20), height(20), fillColor("green")]),
+     	  rect([name("B"), width(20), height(20), fillColor("red")]),
+     	  rect([name("C"), width(20), height(20), fillColor("blue")])
+     	];
+     	
+    edges = 
+    	[ edge([lineWidth(1)], "A", "B"),
+          edge([lineWidth(1)], "A", "C")
+    	  
+    	];
+    	  
+    render(tree([gap(10), top()], nodes, edges));
+}
+
 
 public void tree1(){
 
    nodes =
-     	[ rect([name("A"), width(10), height(20), fillColor("green")]),
-     	  rect([name("B"), width(20), height(60), fillColor("red")]),
-     	  rect([name("C"), width(60), height(20), fillColor("blue")]),
-     	  rect([name("D"), width(10), height(20), fillColor("purple")]),
-     	  rect([name("E"), width(30), height(20), fillColor("lightblue")]),
-     	  rect([name("F"), width(30), height(30), fillColor("orange")]),
-     	  rect([name("G"), width(30), height(50), fillColor("brown")])
+     	[ rect([name("A"), width(20), height(20), fillColor("green")]),
+     	  rect([name("B"), width(20), height(20), fillColor("red")]),
+     	  rect([name("C"), width(20), height(20), fillColor("blue")]),
+     	  rect([name("D"), width(20), height(20), fillColor("purple")]), 	
+     	  rect([name("E"), width(20), height(20), fillColor("lightblue")]),
+          rect([name("F"), width(20), height(20), fillColor("orange")]),
+     	  rect([name("G"), width(20), height(20), fillColor("brown")]),
+     	  rect([name("H"), width(20), height(20), fillColor("black")]),
+     	  rect([name("I"), width(20), height(20), fillColor("grey")]),
+     	  rect([name("J"), width(20), height(20), fillColor("white")]),
+     	  rect([name("K"), width(20), height(20), fillColor("deeppink")])
+     	  
      	];
     edges = 
     	[ edge([lineWidth(1)], "A", "B"),
-    	  edge([lineWidth(1)], "B", "C"),
-    	  edge([lineWidth(1)], "B", "D"),
-    	  edge([lineWidth(1)], "A", "E"),
-    	  edge([lineWidth(1)], "E", "F"),
-    	  edge([lineWidth(1)], "E", "G")
+    	  edge([lineWidth(1)], "A", "C"),
+    	   edge([lineWidth(1)], "A", "K"),
+    	  edge([lineWidth(1)], "A", "D"),
+    	 
+    	  edge([lineWidth(1)], "B", "E"),
+    	  edge([lineWidth(1)], "B", "F"),
+    	  edge([lineWidth(1)], "B", "G"),
+    	  edge([lineWidth(1)], "D", "H"),
+    	  edge([lineWidth(1)], "D", "I"),
+    	  edge([lineWidth(1)], "D", "J")
     	  
     	];
     	    
@@ -336,13 +398,40 @@ public void tree2(){
     	  edge([lineWidth(1)], "A", "H"),
     	  edge([lineWidth(1)], "E", "F"),
     	  edge([lineWidth(1)], "E", "G"),
-    	   edge([lineWidth(1)], "E", "I"),
-    	    edge([lineWidth(1)], "E", "J")
+    	  edge([lineWidth(1)], "E", "I"),
+    	  edge([lineWidth(1)], "E", "J")
     	  
     	];
     	    
     render(tree([gap(10), top()], nodes, edges));
 }
+
+public void tree3(){
+
+   nodes =
+     	[ rect([name("A"), width(10), height(20), fillColor("green")]),
+     	  rect([name("B"), width(20), height(60), fillColor("red")]),
+     	  rect([name("C"), width(60), height(20), fillColor("blue")]),
+     	  rect([name("D"), width(10), height(20), fillColor("purple")]),
+     	  rect([name("E"), width(30), height(20), fillColor("lightblue")]),
+     	  rect([name("F"), width(30), height(30), fillColor("orange")]),
+     	  rect([name("G"), width(30), height(50), fillColor("brown")])
+     	];
+    edges = 
+    	[ edge([lineWidth(1)], "A", "B"),
+    	  edge([lineWidth(1)], "B", "C"),
+    	  edge([lineWidth(1)], "B", "D"),
+    	  edge([lineWidth(1)], "A", "E"),
+    	  edge([lineWidth(1)], "E", "F"),
+    	  edge([lineWidth(1)], "E", "G")
+    	  
+    	];
+    	    
+    render(tree([gap(10), top()], nodes, edges));
+}
+
+
+
 
 
 alias CI = tuple[str name, int noa, int nom, int sloc];

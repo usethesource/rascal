@@ -11,6 +11,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class SimpleTree extends VELEM {
 	protected HashMap<String,TreeNode> nodeMap;
+	static protected TreeNodeRaster raster = new TreeNodeRaster();
 	TreeNode root = null;
 	
 	SimpleTree(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
@@ -52,15 +53,23 @@ public class SimpleTree extends VELEM {
 	
 	@Override
 	void bbox() {
-		root.bbox();
+		root.bbox(0, 0);
 	}
 
+	void bbox(float left, float top) {
+		root.bbox(left, top);
+	}
+	
+	void draw() {
+		root.draw();
+	}
+	
 	@Override
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;
 		applyProperties();
-		root.draw(left, top);
+		root.draw();
 	}
 
 }

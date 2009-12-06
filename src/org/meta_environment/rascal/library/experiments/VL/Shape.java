@@ -13,7 +13,9 @@ public class Shape extends Compose {
 	}
 	
 	@Override
-	void bbox(){
+	void bbox(float left, float top){
+		this.left = left;
+		this.top = top;
 		width = 0;
 		height = 0;
 		for (VELEM ve : velems){
@@ -25,9 +27,8 @@ public class Shape extends Compose {
 	}
 	
 	@Override
-	void draw(float left, float top){
-		this.left = left;
-		this.top = top;
+	void draw(){
+		
 		applyProperties();
 		float bottom = top + height;
 		boolean  closed = isClosed();

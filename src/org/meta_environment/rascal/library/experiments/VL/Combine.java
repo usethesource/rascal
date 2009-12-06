@@ -11,7 +11,9 @@ public class Combine extends Compose {
 	}
 	
 	@Override
-	void bbox(){
+	void bbox(float left, float top){
+		this.left = left;
+		this.top = top;
 		width = 0;
 		height = 0;
 		for(VELEM ve : velems){
@@ -32,9 +34,8 @@ public class Combine extends Compose {
 	}
 	
 	@Override
-	void draw(float left, float top){
-		this.left = left;
-		this.top = top;
+	void draw(){
+		
 		applyProperties();
 		int gap = getGapProperty();
 
@@ -69,6 +70,19 @@ public class Combine extends Compose {
 				bottom -= h + gap;
 			}
 		}
+	}
+
+	@Override
+	void bbox() {
+		bbox(0,0);
+		
+	}
+
+	@Override
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
+		draw();
 	}
 	
 

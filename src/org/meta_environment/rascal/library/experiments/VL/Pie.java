@@ -20,7 +20,9 @@ public class Pie extends Compose {
 	}
 	
 	@Override
-	void bbox() {
+	void bbox(float left, float top) {
+		this.left = left;
+		this.top = top;
 		fromAngle = PApplet.radians(getFromAngleProperty());
 		toAngle= PApplet.radians(getToAngleProperty());
 		innerRadius = getInnerRadiusProperty();
@@ -44,9 +46,8 @@ public class Pie extends Compose {
 	}
 
 	@Override
-	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+	void draw() {
+		
 		applyProperties();
 		vlp.ellipseMode(PConstants.CENTER);
 		float a1 = fromAngle;

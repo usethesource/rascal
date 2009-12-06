@@ -121,7 +121,9 @@ data Edge =
 data VELEM = 
 /* drawing primitives */
      rect(list[VPROP] props)			// rectangle
+   | rect(list[VPROP] props, VELEM inner)
    | ellipse(list[VPROP] props)			// ellipse
+   | ellipse(list[VPROP] props, VELEM inner)
    | label(list[VPROP] props)			// text label
  
  

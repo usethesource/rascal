@@ -24,7 +24,9 @@ public class Vertex extends VELEM {
 	}
 
 	@Override
-	void bbox(){
+	void bbox(float left, float top){
+		this.left = left;
+		this.top = top;
 		if(marker != null){
 			//TODO this is wrong
 			marker.bbox();
@@ -38,9 +40,8 @@ public class Vertex extends VELEM {
 	}
 	
 	@Override
-	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+	void draw() {
+		
 		applyProperties();
 		System.err.println("Point: marker = " + marker);
 		System.err.printf("Point: marker at %f, %f\n", left, top);
