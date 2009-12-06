@@ -13,7 +13,9 @@ public class Label extends VELEM {
 	}
 	
 	@Override
-	void bbox(){
+	void bbox(float left, float top){
+		this.left = left;
+		this.top = top;
 		String txt = getTextProperty();
 		height = vlp.textAscent() + vlp.textDescent();
 		width = vlp.textWidth(txt);
@@ -33,11 +35,10 @@ public class Label extends VELEM {
 			System.err.printf("bbox label: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", height, width, h1, h2, w1, w2);
 		}
 	}
-
+	
 	@Override
-	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+	void draw() {
+		
 		applyProperties();
 		String txt = getTextProperty();
 	
@@ -57,5 +58,4 @@ public class Label extends VELEM {
 			}
 		}
 	}
-
 }

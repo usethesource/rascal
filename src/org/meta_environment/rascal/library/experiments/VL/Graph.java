@@ -36,15 +36,16 @@ public class Graph extends VELEM {
 	}
 	
 	@Override
-	void bbox() {
+	void bbox(float left, float top) {
+		this.left = left;
+		this.top = top;
 		for(GraphNode n : parts)
 			n.velem.bbox();
 	}
 
 	@Override
-	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+	void draw() {
+	
 		applyProperties();
 		for(GraphEdge e : edges)
 			e.relax();

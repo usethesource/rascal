@@ -16,7 +16,7 @@ public class VELEMFactory {
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	static IList emptyList = vf.list();
 	
-	enum Primitives {COMBINE, OVERLAY, GRID, SHAPE, PACK, GRAPH, TREE, SPACE,
+	enum Primitives {COMBINE, OVERLAY, GRID, SHAPE, PACK, GRAPH, TREE,
 					  RECT, ELLIPSE, LABEL, EDGE, VERTEX, PIE}
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
@@ -33,7 +33,6 @@ public class VELEMFactory {
     		put("graph",	Primitives.GRAPH);
     		put("tree",		Primitives.TREE);
     		put("vertex",	Primitives.VERTEX);
-    		put("space",	Primitives.SPACE);
     		put("pie",		Primitives.PIE);
     		
     	}
@@ -59,21 +58,27 @@ public class VELEMFactory {
 			case COMBINE:
 				getOneOrTwoArgs(c);
 				return new Combine(vlp, inheritedProps, props, elems, ctx);
+				
 			case OVERLAY: 
 				getOneOrTwoArgs(c); 
 				return new Overlay(vlp, inheritedProps, props, elems, ctx);
+				
 			case GRID: 
 				getOneOrTwoArgs(c); 
 				return new Grid(vlp, inheritedProps, props, elems, ctx);
+				
 			case SHAPE: 
 				getOneOrTwoArgs(c); 
 				return new Shape(vlp, inheritedProps, props, elems, ctx);
+				
 			case PACK: 
 				getOneOrTwoArgs(c); 
 				return new Pack(vlp, inheritedProps, props, elems, ctx);
+				
 			case PIE: 
 				getOneOrTwoArgs(c); 
 				return new Pie(vlp, inheritedProps, props, elems, ctx);
+				
 			case GRAPH: 
 				if(c.arity() == 3)
 					return new Graph(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
@@ -91,14 +96,23 @@ public class VELEMFactory {
 					return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
 				
 				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
-			case SPACE:
-				return new Space(vlp, (IInteger) c.get(0), ctx);
+				
 			case RECT:
-				return new Rect(vlp, inheritedProps, (IList) c.get(0), ctx);
+				if(c.arity() == 2)
+					return new Rect(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+				else
+					return new Rect(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+				
 			case ELLIPSE:
-				return new Ellipse(vlp, inheritedProps, (IList) c.get(0), ctx);
+				if(c.arity() == 2)
+					return new Ellipse(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+				else
+					return new Ellipse(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+				
+				
 			case LABEL:
 				return new Label(vlp, inheritedProps, (IList) c.get(0), ctx);
+				
 			case EDGE:
 				if(c.arity() == 3)
 					return new GraphEdge(vlp,inheritedProps, (IList) c.get(0), (IString)c.get(1), (IString)c.get(2), ctx);
