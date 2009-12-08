@@ -313,6 +313,19 @@ public void graph1(){
 public void tree01(){
 
    nodes =
+     	[ rect([name("A"), width(20), height(20), fillColor("green")])
+     	];
+     	
+    edges = 
+    	[    	  
+    	];
+    	  
+    render(tree([gap(10), top()], nodes, edges));
+}
+
+public void tree02(){
+
+   nodes =
      	[ rect([name("A"), width(20), height(20), fillColor("green")]),
      	  rect([name("B"), width(20), height(20), fillColor("red")])
      	];
@@ -324,7 +337,7 @@ public void tree01(){
     	  
     render(tree([gap(10), top()], nodes, edges));
 }
-public void tree02(){
+public void tree03(){
 
    nodes =
      	[ rect([name("A"), width(20), height(20), fillColor("green")]),

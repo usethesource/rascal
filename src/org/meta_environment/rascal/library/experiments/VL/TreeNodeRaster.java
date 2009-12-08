@@ -23,10 +23,10 @@ public class TreeNodeRaster {
 			last[i] = 0;
 	}
 	
-	public void add(TreeNode tn){
-		int itop = PApplet.round(tn.top);
-		int ibot = PApplet.round(tn.top + tn.height);
-		int l = PApplet.round(tn.left + tn.width);
+	public void add(float left, float top, float width, float height){
+		int itop = PApplet.round(top);
+		int ibot = PApplet.round(top + height);
+		int l = PApplet.round(left + width/2);
 		for(int i = itop; i < ibot; i++){
 			last[i] = l;
 		}
