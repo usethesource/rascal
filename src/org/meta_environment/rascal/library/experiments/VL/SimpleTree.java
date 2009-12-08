@@ -56,10 +56,12 @@ public class SimpleTree extends VELEM {
 		root.bbox(0, 0);
 	}
 
+	@Override
 	void bbox(float left, float top) {
 		root.bbox(left, top);
 	}
 	
+	@Override
 	void draw() {
 		root.draw();
 	}
