@@ -103,7 +103,7 @@ data VPROP =
    | mouseOver(list[VPROP] props)       // switch to new properties when mouse is over element
    
 /* other */
-   | name(str name)                     // name of elem (used in edges and layouts)
+   | id(str name)                       // name of elem (used in edges and layouts)
    | closed()    						// closed shapes
    | curved()                           // use curves instead of straight lines
    ;
@@ -120,8 +120,8 @@ data Edge =
    
 data VELEM = 
 /* drawing primitives */
-     rect(list[VPROP] props)			// rectangle
-   | rect(list[VPROP] props, VELEM inner)
+     box(list[VPROP] props)			    // rectangular box
+   | box(list[VPROP] props, VELEM inner)
    | ellipse(list[VPROP] props)			// ellipse
    | ellipse(list[VPROP] props, VELEM inner)
    | label(list[VPROP] props)			// text label

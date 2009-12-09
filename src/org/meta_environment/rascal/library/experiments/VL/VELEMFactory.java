@@ -17,7 +17,7 @@ public class VELEMFactory {
 	static IList emptyList = vf.list();
 	
 	enum Primitives {COMBINE, OVERLAY, GRID, SHAPE, PACK, GRAPH, TREE,
-					  RECT, ELLIPSE, LABEL, EDGE, VERTEX, PIE}
+					  BOX, ELLIPSE, LABEL, EDGE, VERTEX, PIE}
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     	{
@@ -26,7 +26,7 @@ public class VELEMFactory {
     		put("grid",		Primitives.GRID);	
     		put("shape",	Primitives.SHAPE);
     		put("pack",		Primitives.PACK);	
-    		put("rect",		Primitives.RECT);	
+    		put("box",		Primitives.BOX);	
     		put("ellipse",	Primitives.ELLIPSE);	
     		put("label",	Primitives.LABEL);	
     		put("edge",		Primitives.EDGE);	
@@ -87,9 +87,9 @@ public class VELEMFactory {
 				
 			case TREE: 
 				if(c.arity() == 3)
-					return new SimpleTree(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
+					return new Tree(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
 				
-				return new SimpleTree(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
+				return new Tree(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
 				
 			case VERTEX:
 				if(c.arity() == 3)
@@ -97,11 +97,11 @@ public class VELEMFactory {
 				
 				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
 				
-			case RECT:
+			case BOX:
 				if(c.arity() == 2)
-					return new Rect(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+					return new Box(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
 				else
-					return new Rect(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+					return new Box(vlp, inheritedProps, (IList) c.get(0), null, ctx);
 				
 			case ELLIPSE:
 				if(c.arity() == 2)

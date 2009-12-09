@@ -32,6 +32,11 @@ public class VLPApplet extends PApplet {
 		return registered.get(name);
 	}
 	
+	public float textHeight(int fontSize){
+		textSize(fontSize);
+		return 0.3f * (textAscent() + textDescent());
+	}
+	
 	public void registerMouse(VELEM v){
 		mouseOver = v;
 	}

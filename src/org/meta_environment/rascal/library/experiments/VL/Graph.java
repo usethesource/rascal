@@ -19,7 +19,7 @@ public class Graph extends VELEM {
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
 			VELEM ve = VELEMFactory.make(vlp, c, properties, ctx);
-			String name = ve.getNameProperty();
+			String name = ve.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
 			GraphNode part = new GraphNode(name, ve);

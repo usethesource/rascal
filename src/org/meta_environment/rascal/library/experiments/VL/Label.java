@@ -17,7 +17,10 @@ public class Label extends VELEM {
 		this.left = left;
 		this.top = top;
 		String txt = getTextProperty();
+		vlp.textSize(getFontSizeProperty());
 		height = vlp.textAscent() + vlp.textDescent();
+		height += 0.3 * height;
+		//height = vlp.textHeight(getFontSizeProperty());
 		width = vlp.textWidth(txt);
 		System.err.printf("bbox label: font=%s, ascent=%f, descent=%f\nn", vlp.getFont(), vlp.textAscent(), vlp.textDescent() );
 		System.err.printf("bbox label: txt=\"%s\", width=%f, height=%f angle =%d\n", txt, width, height, getTextAngleProperty());
