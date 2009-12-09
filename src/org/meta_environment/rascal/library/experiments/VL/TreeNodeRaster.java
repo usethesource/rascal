@@ -2,40 +2,49 @@ package org.meta_environment.rascal.library.experiments.VL;
 
 import processing.core.PApplet;
 
-class Range {
-	float from;
-	float to;
-	float right;
-	Range(float f, float t){
-		from = f;
-		to = t;
-		right = 0;
-	}
-}
-
 public class TreeNodeRaster {
-	static int last[];
-	
+	int last[];
+	int RMAX = 1000;
 	
 	TreeNodeRaster(){
-		last = new int[1000];
-		for(int i = 0; i < 1000; i++)
+		last = new int[RMAX];
+		for(int i = 0; i < RMAX; i++)
 			last[i] = 0;
 	}
 	
-	public void add(float left, float top, float width, float height){
+	public void clear(){
+		for(int i = 0; i < RMAX; i++)
+			last[i] = 0;
+	}
+	
+	private void extend(int n){
+		n += n/5;
+		int newLast[] = new int[n];
+		for(int i = 0; i < n; i++){
+			newLast[i] = i < RMAX ? last[i] : 0;
+		}
+		RMAX = n;
+		last = newLast;
+	}
+	public void add(float position, float top, float width, float height){
 		int itop = PApplet.round(top);
 		int ibot = PApplet.round(top + height);
-		int l = PApplet.round(left + width/2);
+		if(ibot > RMAX){
+			extend(ibot);
+		}
+		int l = PApplet.round(position + width/2);
 		for(int i = itop; i < ibot; i++){
 			last[i] = l;
 		}
 	}
 	
-	public float leftMostPosition(float left, float top, float width, float height,  float gap){
+	public float leftMostPosition(float position, float top, float width, float height, float gap){
 		int itop = PApplet.round(top);
-		float l = left;
+		float l = position;
 		int ibot = PApplet.round(top + height);
+		if(ibot > RMAX){
+			extend(ibot);
+		}
 		for(int i = itop; i < ibot; i++){
 			l = PApplet.max(l, last[i] + gap + width/2);
 		}

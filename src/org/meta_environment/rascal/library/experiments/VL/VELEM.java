@@ -126,8 +126,8 @@ public abstract class VELEM implements Comparable<VELEM> {
 		 return properties.getStr(Property.TEXT);
 	}
 	
-	protected String getNameProperty(){
-		return properties.getStr(Property.NAME);
+	protected String getIdProperty(){
+		return properties.getStr(Property.ID);
 	}
 	
 	protected String getFontProperty(){

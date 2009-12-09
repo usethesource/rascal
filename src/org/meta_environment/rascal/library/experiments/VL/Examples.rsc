@@ -8,60 +8,60 @@ import List;
 import Set;
 import IO;
 
-public void rect1(){
-	render(rect([ width(100), height(200) ]));
+public void box1(){
+	render(box([ width(100), height(200) ]));
 }
 
-public void rect2(){
-	render(rect([ width(100), height(200), fillColor("green") ]));
+public void box2(){
+	render(box([ width(100), height(200), fillColor("green") ]));
 }
 
-public void rect3(){
-	render(rect([ width(100), height(200), fillColor("green"), lineColor("red")]));
+public void box3(){
+	render(box([ width(100), height(200), fillColor("green"), lineColor("red")]));
 }
 
-public void rect4(){
+public void box4(){
 	render(combine([lineWidth(2)],
 	               [
-					 rect([ width(100), height(200), fillColor("mediumblue") ]),
-	                 rect([ width(100), height(200), fillColor(rgb(0, 0, 205)) ]),
-	                 rect([ width(100), height(200), fillColor(rgb(0, 0, 205, 0.5)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.5)) ])
+					 box([ width(100), height(200), fillColor("mediumblue") ]),
+	                 box([ width(100), height(200), fillColor(rgb(0, 0, 205)) ]),
+	                 box([ width(100), height(200), fillColor(rgb(0, 0, 205, 0.5)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.5)) ])
 	                ]));
 }
 
-public void rect5(){
+public void box5(){
 	render(combine([
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.05)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.2)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.4)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.6)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.8)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 1.0)) ])
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.05)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.2)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.4)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.6)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.8)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 1.0)) ])
 	                ]));
 }
 
-public void rect6(){
+public void box6(){
 	render(combine([
-	                 rect([ width(100), height(200), fillColor(gray(125, 0.05)) ]),
-	                 rect([ width(100), height(200), fillColor(gray(125, 0.2)) ]),
-	                 rect([ width(100), height(200), fillColor(gray(125, 0.4)) ]),
-	                 rect([ width(100), height(200), fillColor(gray(125, 0.6)) ]),
-	                 rect([ width(100), height(200), fillColor(gray(125, 0.8)) ]),
-	                 rect([ width(100), height(200), fillColor(gray(125, 1.0)) ]) 
+	                 box([ width(100), height(200), fillColor(gray(125, 0.05)) ]),
+	                 box([ width(100), height(200), fillColor(gray(125, 0.2)) ]),
+	                 box([ width(100), height(200), fillColor(gray(125, 0.4)) ]),
+	                 box([ width(100), height(200), fillColor(gray(125, 0.6)) ]),
+	                 box([ width(100), height(200), fillColor(gray(125, 0.8)) ]),
+	                 box([ width(100), height(200), fillColor(gray(125, 1.0)) ]) 
 	                ]));
 }
 
-public void rect7(){
-	render(rect([fillColor("mediumblue"), gap(10)], rect([width(40), height(40), fillColor("white")])));
+public void box7(){
+	render(box([fillColor("mediumblue"), gap(10)], box([width(40), height(40), fillColor("white")])));
 }
 
-public void rect8(){
-	render(rect([fillColor("mediumblue"), gap(10)], ellipse([width(40), height(40), fillColor("white")])));
+public void box8(){
+	render(box([fillColor("mediumblue"), gap(10)], ellipse([width(40), height(40), fillColor("white")])));
 }
 
-public void rect9(){
-	render(rect([fillColor("mediumblue"), gap(10)], label([text("een label")])));
+public void box9(){
+	render(box([fillColor("mediumblue"), gap(10)], label([text("een label")])));
 }
 
 public void lab1(){
@@ -69,22 +69,28 @@ public void lab1(){
 }
 
 public void lab2(){
+	render(combine([ label([ text("Label een"), fontSize(20), fillColor("black")]),
+	 				 label([ text("Label twee"), fontSize(40), fillColor("blue")])
+	 			   ]));
+}
+
+public void lab3(){
 	render(label([ text("Een label"), fontSize(20), fillColor("black"), textAngle(-90)]));
 }
 
-public void rlab1(){ //TODO
+public void rlab1(){
 	render(combine([vertical(), center(), gap (10)],
 	               [
 	                
 	                label([ text("Een label"), fontSize(20), fillColor("black"), textAngle(-90) ]),
-	                rect([ width(100), height(200), fillColor("red")])
+	                box([ width(100), height(200), fillColor("red")])
 	                
 	                ]));
 }
 
 public void rlab2(){
 	render(overlay([bottom()],
-	              [rect([ width(100), height(200), fillColor("red") ]),
+	              [box([ width(100), height(200), fillColor("red") ]),
 			       label([ text("Een label"), fontSize(20), fillColor("black")])
 			      ]
 		));
@@ -92,18 +98,18 @@ public void rlab2(){
 
 public void r3(){
 	render(combine([fillColor("yellow"), gap(10),bottom()],
-	              [rect([ width(100), height(200), fillColor("red") ]),
-			       rect([ width(150), height(100)]),
-			       rect([ width(200), height(50), fillColor("green") ])
+	              [box([ width(100), height(200), fillColor("red") ]),
+			       box([ width(150), height(100)]),
+			       box([ width(200), height(50), fillColor("green") ])
 			      ]
 		));
 }
 
 public void r4(){
 	render(combine([vertical(),left(), gap(2)],
-	              [rect([ width(100), height(200), fillColor("red") ]),
-			       rect([ width(150), height(100), fillColor("blue") ]),
-			       rect([ width(200), height(50), fillColor("green") ])
+	              [box([ width(100), height(200), fillColor("red") ]),
+			       box([ width(150), height(100), fillColor("blue") ]),
+			       box([ width(200), height(50), fillColor("green") ])
 			      ]
 		));
 }
@@ -118,7 +124,7 @@ public void bar1(){
 	            width(10),
 	            bottom()
                ],
-               [ rect([height(d * 8), fillColor(colors(d))]) | d <- dt1 ]
+               [ box([height(d * 8), fillColor(colors(d))]) | d <- dt1 ]
                );
     render(b);
 }
@@ -128,8 +134,8 @@ public void bar2(){
     d2 = [ 5,  6,  9,  7, 3, 20];
     m = max(size(d1), size(d2));   
     bars = [ combine([gap(5), top()], 
-                     [ rect([fillColor("green"), height((d1[i] ? 0) * 8)]),
-                      rect([fillColor("red"), height((d2[i] ? 0) * 8)])
+                     [ box([fillColor("green"), height((d1[i] ? 0) * 8)]),
+                      box([fillColor("red"), height((d2[i] ? 0) * 8)])
                     ])
            | int i <- [0 .. m]
            ];
@@ -151,8 +157,8 @@ public void bar2v(){
     d2 = [ 5,  6,  9,  7, 3, 20];
     m = max(size(d1), size(d2));   
     bars = [combine([vertical(), gap(0)],
-                   [rect([fillColor("green"), height((d1[i] ? 0) * 8)]),
-                    rect([fillColor("red"), height((d2[i] ? 0) * 8)])
+                   [box([fillColor("green"), height((d1[i] ? 0) * 8)]),
+                    box([fillColor("red"), height((d2[i] ? 0) * 8)])
                    ])
            | int i <- [0 .. m]
            ];
@@ -175,7 +181,7 @@ public void e1(){
 
 
 public void e2(){
-	render(ellipse([fillColor("mediumblue"), gap(10)], rect([width(40), height(40), fillColor("white")])));
+	render(ellipse([fillColor("mediumblue"), gap(10)], box([width(40), height(40), fillColor("white")])));
 }
 
 public void e3(){
@@ -185,15 +191,15 @@ public void e3(){
 public void o1(){
 
 render(overlay([center()],
-               [ rect([width(100), height(300), fillColor("green")]), 
-                 rect([width(200), height(200), fillColor("red")])
+               [ box([width(100), height(300), fillColor("green")]), 
+                 box([width(200), height(200), fillColor("red")])
                ])
       );
 }
 
 public void o2(){
 render(overlay([bottom()],
-               [rect([width(100), height(100)]),
+               [box([width(100), height(100)]),
                 ellipse([width(50), height(50)])
               ]));
 }
@@ -248,36 +254,36 @@ public void s3(){
 
 
 public void grid1(){
-  rects = [rect([width(50), height(50),fillColor("red")]), rect([width(30), height(30),fillColor("yellow")]), 
-           rect([width(30), height(30),fillColor("green")]), rect([width(70), height(50),fillColor("blue")]),
-           rect([width(70), height(70),fillColor("black")])
+  boxes = [box([width(50), height(50),fillColor("red")]), box([width(30), height(30),fillColor("yellow")]), 
+           box([width(30), height(30),fillColor("green")]), box([width(70), height(50),fillColor("blue")]),
+           box([width(70), height(70),fillColor("black")])
            ];
 
-  render(grid([width(120), gap(10), top()], rects));
+  render(grid([width(120), gap(10), top()], boxes));
 }
 
 public void pack1(){
-  rects = [rect([width(50), height(50),fillColor("red")]), rect([width(30), height(30),fillColor("yellow")]), 
-           rect([width(30), height(30),fillColor("green")]), rect([width(70), height(50),fillColor("blue")]),
-           rect([width(70), height(70),fillColor("black")]), rect([width(10), height(20),fillColor("orange")]),
-           rect([width(80), height(10),fillColor("grey")]), rect([width(10), height(150),fillColor("white")]),
-           rect([width(10), height(10),fillColor("lightblue")]),
-           rect([width(10), height(10),fillColor("lightblue")]),
-           rect([width(10), height(10),fillColor("lightblue")]),
-           rect([width(10), height(20),fillColor("orange")]) ,
-           rect([width(10), height(20),fillColor("orange")]),
-           rect([width(10), height(20),fillColor("orange")]) ,
-           rect([width(10), height(20),fillColor("orange")])                  
+  boxes = [box([width(50), height(50),fillColor("red")]), box([width(30), height(30),fillColor("yellow")]), 
+           box([width(30), height(30),fillColor("green")]), box([width(70), height(50),fillColor("blue")]),
+           box([width(70), height(70),fillColor("black")]), box([width(10), height(20),fillColor("orange")]),
+           box([width(80), height(10),fillColor("grey")]), box([width(10), height(150),fillColor("white")]),
+           box([width(10), height(10),fillColor("lightblue")]),
+           box([width(10), height(10),fillColor("lightblue")]),
+           box([width(10), height(10),fillColor("lightblue")]),
+           box([width(10), height(20),fillColor("orange")]) ,
+           box([width(10), height(20),fillColor("orange")]),
+           box([width(10), height(20),fillColor("orange")]) ,
+           box([width(10), height(20),fillColor("orange")])                  
            ];
 
-  render(pack([width(200), height(170), lineWidth(0), gap(10), top()], rects));
+  render(pack([width(200), height(170), lineWidth(0), gap(10), top()], boxes));
 }
 
 public void pie1(){
      elems =
-     	[ rect([width(10), height(100), fillColor("green")])  ,
-     	  rect([width(20), height(150), fillColor("red")]),
-     	  rect([width(30), height(200), fillColor("blue")])
+     	[ box([width(10), height(100), fillColor("green")])  ,
+     	  box([width(20), height(150), fillColor("red")]),
+     	  box([width(30), height(200), fillColor("blue")])
      	];
     	    
     render(pie([fromAngle(0), toAngle(360), innerRadius(0), gap(0), lineWidth(5), lineColor(0)], elems));
@@ -285,9 +291,9 @@ public void pie1(){
 
 public void pie2(){
      elems =
-     	[ rect([width(10), height(100), fillColor("green")])  ,
-     	  rect([width(20), height(150), fillColor("red")]),
-     	  rect([width(30), height(200), fillColor("blue")])
+     	[ box([width(10), height(100), fillColor("green")])  ,
+     	  box([width(20), height(150), fillColor("red")]),
+     	  box([width(30), height(200), fillColor("blue")])
      	];
     	    
     p1 = pie([fromAngle(0), toAngle(320), innerRadius(50), gap(0), lineWidth(5), lineColor(0)], elems);
@@ -297,9 +303,9 @@ public void pie2(){
 
 public void graph1(){
      nodes =
-     	[ rect([name("A"), width(10), height(20), fillColor("green")]),
-     	  rect([name("B"), width(20), height(30), fillColor("red")]),
-     	  rect([name("C"), width(30), height(20), fillColor("blue")])
+     	[ box([id("A"), width(10), height(20), fillColor("green")]),
+     	  box([id("B"), width(20), height(30), fillColor("red")]),
+     	  box([id("C"), width(30), height(20), fillColor("blue")])
      	];
     edges = 
     	[ edge([lineWidth(1)], "A", "B"),
@@ -310,10 +316,10 @@ public void graph1(){
     render(graph([width(400), height(400)], nodes, edges));
 }
 
-public void tree01(){
+public void tree1(){
 
    nodes =
-     	[ rect([name("A"), width(20), height(20), fillColor("green")])
+     	[ box([id("A"), width(20), height(20), fillColor("green")])
      	];
      	
     edges = 
@@ -323,11 +329,11 @@ public void tree01(){
     render(tree([gap(10), top()], nodes, edges));
 }
 
-public void tree02(){
+public void tree2(){
 
    nodes =
-     	[ rect([name("A"), width(20), height(20), fillColor("green")]),
-     	  rect([name("B"), width(20), height(20), fillColor("red")])
+     	[ box([id("A"), width(20), height(20), fillColor("green")]),
+     	  box([id("B"), width(20), height(20), fillColor("red")])
      	];
      	
     edges = 
@@ -337,12 +343,12 @@ public void tree02(){
     	  
     render(tree([gap(10), top()], nodes, edges));
 }
-public void tree03(){
+public void tree3(){
 
    nodes =
-     	[ rect([name("A"), width(20), height(20), fillColor("green")]),
-     	  rect([name("B"), width(20), height(20), fillColor("red")]),
-     	  rect([name("C"), width(20), height(20), fillColor("blue")])
+     	[ box([id("A"), width(20), height(20), fillColor("green")]),
+     	  box([id("B"), width(20), height(20), fillColor("red")]),
+     	  box([id("C"), width(20), height(20), fillColor("blue")])
      	];
      	
     edges = 
@@ -354,21 +360,40 @@ public void tree03(){
     render(tree([gap(10), top()], nodes, edges));
 }
 
-
-public void tree1(){
+public void tree4(){
 
    nodes =
-     	[ rect([name("A"), width(20), height(20), fillColor("green")]),
-     	  rect([name("B"), width(20), height(20), fillColor("red")]),
-     	  rect([name("C"), width(20), height(20), fillColor("blue")]),
-     	  rect([name("D"), width(20), height(20), fillColor("purple")]), 	
-     	  rect([name("E"), width(20), height(20), fillColor("lightblue")]),
-          rect([name("F"), width(20), height(20), fillColor("orange")]),
-     	  rect([name("G"), width(20), height(20), fillColor("brown")]),
-     	  rect([name("H"), width(20), height(20), fillColor("black")]),
-     	  rect([name("I"), width(20), height(20), fillColor("grey")]),
-     	  rect([name("J"), width(20), height(20), fillColor("white")]),
-     	  rect([name("K"), width(20), height(20), fillColor("deeppink")])
+     	[ box([id("A"), width(20), height(20), fillColor("green")]),
+     	  box([id("B"), width(20), height(20), fillColor("red")]),
+     	  box([id("C"), width(20), height(20), fillColor("blue")]),
+     	  box([id("D"), width(20), height(20), fillColor("purple")])
+     	];
+     	
+    edges = 
+    	[ edge([lineWidth(1)], "A", "B"),
+          edge([lineWidth(1)], "A", "C"),
+          edge([lineWidth(1)], "A", "D")
+    	  
+    	];
+    	  
+    render(tree([gap(10), top()], nodes, edges));
+}
+
+
+public void ltree1(){
+
+   nodes =
+     	[ box([id("A"), width(20), height(20), fillColor("green")]),
+     	  box([id("B"), width(20), height(20), fillColor("red")]),
+     	  box([id("C"), width(20), height(20), fillColor("blue")]),
+     	  box([id("D"), width(20), height(20), fillColor("purple")]), 	
+     	  box([id("E"), width(20), height(20), fillColor("lightblue")]),
+          box([id("F"), width(20), height(20), fillColor("orange")]),
+     	  box([id("G"), width(20), height(20), fillColor("brown")]),
+     	  box([id("H"), width(20), height(20), fillColor("black")]),
+     	  box([id("I"), width(20), height(20), fillColor("grey")]),
+     	  box([id("J"), width(20), height(20), fillColor("white")]),
+     	  box([id("K"), width(20), height(20), fillColor("deeppink")])
      	  
      	];
     edges = 
@@ -389,19 +414,19 @@ public void tree1(){
     render(tree([gap(10), top()], nodes, edges));
 }
 
-public void tree2(){
+public void ltree2(){
 
    nodes =
-     	[ rect([name("A"), width(20), height(20), fillColor("green")]),
-     	  rect([name("B"), width(20), height(20), fillColor("red")]),
-     	  rect([name("C"), width(20), height(20), fillColor("blue")]),
-     	  rect([name("D"), width(20), height(20), fillColor("purple")]),
-     	  rect([name("E"), width(20), height(20), fillColor("lightblue")]),
-     	  rect([name("F"), width(20), height(20), fillColor("orange")]),
-     	  rect([name("G"), width(20), height(20), fillColor("brown")]),
-     	  rect([name("H"), width(20), height(20), fillColor("black")]),
-     	  rect([name("I"), width(20), height(20), fillColor("grey")]),
-     	  rect([name("J"), width(20), height(20), fillColor("white")])
+     	[ box([id("A"), width(20), height(20), fillColor("green")]),
+     	  box([id("B"), width(20), height(20), fillColor("red")]),
+     	  box([id("C"), width(20), height(20), fillColor("blue")]),
+     	  box([id("D"), width(20), height(20), fillColor("purple")]),
+     	  box([id("E"), width(20), height(20), fillColor("lightblue")]),
+     	  box([id("F"), width(20), height(20), fillColor("orange")]),
+     	  box([id("G"), width(20), height(20), fillColor("brown")]),
+     	  box([id("H"), width(20), height(20), fillColor("black")]),
+     	  box([id("I"), width(20), height(20), fillColor("grey")]),
+     	  box([id("J"), width(20), height(20), fillColor("white")])
      	];
     edges = 
     	[ edge([lineWidth(1)], "A", "B"),
@@ -419,16 +444,16 @@ public void tree2(){
     render(tree([gap(10), top()], nodes, edges));
 }
 
-public void tree3(){
+public void ltree3(){
 
    nodes =
-     	[ rect([name("A"), width(10), height(20), fillColor("green")]),
-     	  rect([name("B"), width(20), height(60), fillColor("red")]),
-     	  rect([name("C"), width(60), height(20), fillColor("blue")]),
-     	  rect([name("D"), width(10), height(20), fillColor("purple")]),
-     	  rect([name("E"), width(30), height(20), fillColor("lightblue")]),
-     	  rect([name("F"), width(30), height(30), fillColor("orange")]),
-     	  rect([name("G"), width(30), height(50), fillColor("brown")])
+     	[ box([id("A"), width(10), height(20), fillColor("green")]),
+     	  box([id("B"), width(20), height(60), fillColor("red")]),
+     	  box([id("C"), width(60), height(20), fillColor("blue")]),
+     	  box([id("D"), width(10), height(20), fillColor("purple")]),
+     	  box([id("E"), width(30), height(20), fillColor("lightblue")]),
+     	  box([id("F"), width(30), height(30), fillColor("orange")]),
+     	  box([id("G"), width(30), height(50), fillColor("brown")])
      	];
     edges = 
     	[ edge([lineWidth(1)], "A", "B"),
@@ -442,9 +467,6 @@ public void tree3(){
     	    
     render(tree([gap(10), top()], nodes, edges));
 }
-
-
-
 
 
 alias CI = tuple[str name, int noa, int nom, int sloc];
@@ -469,29 +491,29 @@ rel[str,str] inherits =
 
 public void class1() {
    cscale = colorScale(toList(classes.sloc), color("green"), color("red"));
-   render(combine([top()], [ rect([width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes]));
+   render(combine([top()], [ box([width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes]));
 }
 
 public void class2() {
    cscale = colorScale(toList(classes.sloc), color("green"), color("red"));
-   nodes = [ rect([name(c.name), width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes];
+   nodes = [ box([id(c.name), width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes];
    edges = [ edge([], from,to) | <str from, str to> <- inherits ];
    
    render(graph([width(400), height(400)], nodes, edges));      
 }
 
 public void mo1(){
-	render(rect([ width(100), height(200), fillColor("green"), mouseOver([fillColor("red")]) ]));
+	render(box([ width(100), height(200), fillColor("green"), mouseOver([fillColor("red")]) ]));
 }
 
 public void mo2(){
 	render(combine( [ mouseOver([lineColor("red")]) ],
 				    [
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.05)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.2)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.4)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.6)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 0.8)) ]),
-	                 rect([ width(100), height(200), fillColor(color("mediumblue", 1.0)) ])
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.05)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.2)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.4)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.6)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.8)) ]),
+	                 box([ width(100), height(200), fillColor(color("mediumblue", 1.0)) ])
 	                ]));
 }

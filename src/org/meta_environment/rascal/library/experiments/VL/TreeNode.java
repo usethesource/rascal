@@ -10,7 +10,6 @@ public class TreeNode extends VELEM {
 	VELEM velemNode;
 	private ArrayList<TreeNode> children;
 	private ArrayList<PropertyManager> edgeProperties;
-	private boolean hasParent = false;
 	
 	public TreeNode(VLPApplet vlp, PropertyManager inheritedProps, IList props,
 			VELEM ve, IEvaluatorContext ctx) {
@@ -26,28 +25,17 @@ public class TreeNode extends VELEM {
 		edgeProperties.add(new PropertyManager(inheritedProps, props, ctx));
 	}
 	
-	public void setParent(){
-		if(hasParent){
-			System.err.println("NOT A TREE");
-		}
-		hasParent = true;
-	}
-	
-	public boolean hasParent(){
-		return hasParent;
-	}
-	
 	@Override
 	public void bbox(float left, float top){
-		shapeTree(left, top);
 	}
 	
-	float shapeTree(float left, float top) {
+	float shapeTree(float left, float top, TreeNodeRaster raster) {
 		velemNode.bbox(left,top);
 		this.left = left;
 		this.top = top;
 		int gap = getGapProperty();
-		float position = SimpleTree.raster.leftMostPosition(left, top, velemNode.width, velemNode.height, left > 0 ? gap : 0);
+		float position = left + velemNode.width/2; // x position of center of node!
+		position = raster.leftMostPosition(position, top, velemNode.width, velemNode.height, gap);
 		
 		int nChildren = children.size();
 		height = velemNode.height;
@@ -69,43 +57,56 @@ public class TreeNode extends VELEM {
 			}
 			float branchPosition = position - width/2;
 			
-			float leftPosition = children.get(0).shapeTree(branchPosition, top + velemNode.height + gap);
+			float leftPosition = children.get(0).shapeTree(branchPosition, top + velemNode.height + gap, raster);
 			
 			float rightPosition = leftPosition;
 			
 			for(int i = 1; i < nChildren; i++){
 				branchPosition += gap + (children.get(i-1).velemNode.width + 
 						                  children.get(i).velemNode.width)/2;
-				rightPosition = children.get(i).shapeTree(branchPosition, top + velemNode.height + gap);
+				rightPosition = children.get(i).shapeTree(branchPosition, top + velemNode.height + gap, raster);
 			}
 			
 			position = (leftPosition + rightPosition)/2;
 		} else
 			width = velemNode.width;
 	
-		SimpleTree.raster.add(position, top, velemNode.width, velemNode.height);
-		position -= velemNode.width/2;
-		this.left = position;
-		velemNode.left = position;
+		raster.add(position, top, velemNode.width, velemNode.height);
+		this.left = velemNode.left = position - velemNode.width/2;
 		return position;
 	}
 
 	@Override
 	void draw() {
+		boolean squareStyle = true;
 		applyProperties();
-		int n = children.size();
-		
-		System.err.printf("TreeNode.draw: %f, %f, width=%f, height=%f\n", left, top, width, height);
-		float nodeBottomX = velemNode.left + velemNode.width/2;
-		float nodeBottomY = top + velemNode.height;
-		
 		velemNode.draw();
 		
+		int n = children.size();
+		
 		if(n > 0){
-			final float childTop = nodeBottomY + getGapProperty();
-			
+			float nodeBottomX = velemNode.left + velemNode.width/2;
+			float nodeBottomY = top + velemNode.height;
+			int gap = getGapProperty();
+			final float childTop = nodeBottomY + gap;
+			float horLineY = nodeBottomY + gap/2;
+			if(squareStyle){
+				
+				vlp.line(nodeBottomX, nodeBottomY, nodeBottomX, horLineY);
+				
+				if(n > 1){
+					VELEM leftVE = children.get(0).velemNode;
+					VELEM rightVE = children.get(n-1).velemNode;
+					vlp.line(leftVE.left + leftVE.width/2, horLineY, rightVE.left + rightVE.width/2, horLineY);
+				}
+			}
+			// TODO line style!
 			for(TreeNode child : children){
-				vlp.line(nodeBottomX, nodeBottomY, child.velemNode.left + child.velemNode.width/2, childTop);
+				if(!squareStyle)
+					vlp.line(nodeBottomX, nodeBottomY, child.velemNode.left + child.velemNode.width/2, childTop);
+				float midChild = child.velemNode.left + child.velemNode.width/2;
+				
+				vlp.line(midChild, child.top, midChild, horLineY);
 				child.draw();
 			}
 		}

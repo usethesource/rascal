@@ -18,7 +18,7 @@ public class PropertyManager implements Cloneable {
 	enum Property {
 		WIDTH, HEIGHT, SIZE, GAP, HORIZONTAL, VERTICAL, TOP, CENTER, BOTTOM, LEFT, RIGHT, 
 		LINE_WIDTH, LINE_COLOR, FILL_COLOR, FROM_ANGLE, TO_ANGLE, INNER_RADIUS, TEXT, FONT, 
-		FONT_SIZE, TEXT_ANGLE, MOUSE_OVER, NAME, CLOSED, CURVED
+		FONT_SIZE, TEXT_ANGLE, MOUSE_OVER, ID, CLOSED, CURVED
 	}
 
 	static final HashMap<String, Property> propertyNames = new HashMap<String, Property>() {
@@ -39,7 +39,7 @@ public class PropertyManager implements Cloneable {
 			put("fontSize", Property.FONT_SIZE);
 			put("textAngle", Property.TEXT_ANGLE);
 			put("mouseOver", Property.MOUSE_OVER);
-			put("name", Property.NAME);
+			put("id", Property.ID);
 
 			put("horizontal", Property.HORIZONTAL);
 			put("vertical", Property.VERTICAL);
@@ -157,8 +157,8 @@ public class PropertyManager implements Cloneable {
 				defStr(Property.TEXT, getStrArg(c)); break;
 			case FONT:
 				defStr(Property.FONT, getStrArg(c)); break;
-			case NAME:
-				defStr(Property.NAME, getStrArg(c)); break;
+			case ID:
+				defStr(Property.ID, getStrArg(c)); break;
 
 			case FONT_SIZE:
 				defInt(Property.FONT_SIZE,  getIntArg(c)); break;
@@ -211,7 +211,7 @@ public class PropertyManager implements Cloneable {
 		
 		defStr(Property.TEXT, "");
 		defStr(Property.FONT, "Helvetica");
-		defStr(Property.NAME, "");
+		defStr(Property.ID, "");
 		defInt(Property.FONT_SIZE, 12);
 		defInt(Property.TEXT_ANGLE, 0);
 		defBool(Property.HORIZONTAL,true);
