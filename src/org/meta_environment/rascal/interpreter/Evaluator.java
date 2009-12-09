@@ -1531,7 +1531,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			IConstructor cons = (IConstructor) receiver.getValue();
 			Type node = cons.getConstructorType();
 
-			if (!receiverType.hasField(label)) {
+			if (!receiverType.hasField(label, getCurrentEnvt().getStore())) {
 				throw new UndeclaredFieldError(label, receiverType, x);
 			}
 

@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -249,6 +250,21 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			
 			tuple = tuple.set(index, value.getValue());
 			result = makeResult(rec.getType(), tuple, eval);
+		}
+		else if (rec.getType().isRelationType() && subscript.getType().isSubtypeOf(rec.getType().getFieldType(0))) {
+			IRelation rel = (IRelation) rec.getValue();
+			IValue sub = subscript.getValue();
+
+			if (rec.getType().getArity() != 2) {
+				throw new UnsupportedSubscriptError(rec.getType(), subscript.getType(), x);
+			}
+			
+			if (!value.getType().isSubtypeOf(rec.getType().getFieldType(1))) {
+				throw new UnexpectedTypeError(rec.getType().getFieldType(1), value.getType(), eval.getCurrentAST());
+			}
+			
+			rel = rel.insert(eval.getValueFactory().tuple(sub, value.getValue()));
+			result = makeResult(rec.getType(), rel, eval);
 		}
 		else {
 			throw new UnsupportedSubscriptError(rec.getType(), subscript.getType(), x);
