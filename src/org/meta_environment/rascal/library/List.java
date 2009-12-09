@@ -15,15 +15,21 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 
 public class List {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();
-	private static final Random random = new Random();
+	private final IValueFactory values;
+	private final Random random;
 	
-	public static IValue delete(IList lst, IInteger n)
+	public List(IValueFactory values){
+		super();
+		
+		this.values = values;
+		random = new Random();
+	}
+	
+	public IValue delete(IList lst, IInteger n)
 	// @doc{delete -- delete nth element from list}
 	{
 		try {
@@ -33,7 +39,7 @@ public class List {
 		}
 	}
 	
-	public static IValue domain(IList lst)
+	public IValue domain(IList lst)
 	//@doc{domain -- a list of all legal index values for a list}
 	{
 		ISetWriter w = values.setWriter(types.integerType());
@@ -44,7 +50,7 @@ public class List {
 		return w.done();
 	}
 	
-	public static IValue head(IList lst)
+	public IValue head(IList lst)
 	// @doc{head -- get the first element of a list}
 	{
 	   if(lst.length() > 0){
@@ -54,7 +60,7 @@ public class List {
 	   throw RuntimeExceptionFactory.emptyList(null, null);
 	}
 
-	public static IValue head(IList lst, IInteger n)
+	public IValue head(IList lst, IInteger n)
 	  throws IndexOutOfBoundsException
 	// @doc{head -- get the first n elements of a list}
 	{
@@ -66,7 +72,7 @@ public class List {
 	   }
 	}
 
-	public static IValue getOneFrom(IList lst)
+	public IValue getOneFrom(IList lst)
 	//@doc{getOneFrom -- get an arbitrary element from a list}
 	{
 		int n = lst.length();
@@ -77,7 +83,7 @@ public class List {
 		throw RuntimeExceptionFactory.emptyList(null, null);
 	}
 
-	public static IValue insertAt(IList lst, IInteger n, IValue elm)
+	public IValue insertAt(IList lst, IInteger n, IValue elm)
 	  throws IndexOutOfBoundsException
 	 //@doc{insertAt -- add an element at a specific position in a list}
 	 {
@@ -100,25 +106,25 @@ public class List {
 		throw RuntimeExceptionFactory.indexOutOfBounds(n, null, null);
 	 }
 	
-	public static IValue isEmpty(IList lst)
+	public IValue isEmpty(IList lst)
 	//@doc{isEmpty -- is list empty?}
 	{
 		return values.bool(lst.length() == 0);
 	}
 
-	public static IValue reverse(IList lst)
+	public IValue reverse(IList lst)
 	//@doc{reverse -- elements of a list in reverse order}
 	{
 		return lst.reverse();
 	}
 
-	public static IValue size(IList lst)
+	public IValue size(IList lst)
 	//@doc{size -- number of elements in a list}
 	{
 	   return values.integer(lst.length());
 	}
 
-	 public static IValue slice(IList lst, IInteger start, IInteger len)
+	 public IValue slice(IList lst, IInteger start, IInteger len)
 	 //@doc{slice -- sublist from start of length len}
 	 {
 		try {
@@ -129,7 +135,7 @@ public class List {
 		}
 	 }
 
-	 public static IValue tail(IList lst)
+	 public IValue tail(IList lst)
 	 //@doc{tail -- all but the first element of a list}
 	 {
 	 	try {
@@ -139,7 +145,7 @@ public class List {
 	 	}
 	 }
 	 
-	  public static IValue tail(IList lst, IInteger len)
+	  public IValue tail(IList lst, IInteger len)
 	 //@doc{tail -- last n elements of a list}
 	 {
 	 	int lenVal = len.intValue();
@@ -153,7 +159,7 @@ public class List {
 	 	}
 	 }
 	 
-	public static IValue takeOneFrom(IList lst)
+	public IValue takeOneFrom(IList lst)
 	//@doc{takeOneFrom -- remove an arbitrary element from a list, returns the element and the modified list}
 	{
 	   int n = lst.length();
@@ -176,7 +182,7 @@ public class List {
 	   throw RuntimeExceptionFactory.emptyList(null, null);
 	}
 	
-	public static IValue toMap(IList lst)
+	public IValue toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
 	{
 		Type tuple = lst.getElementType();
@@ -206,7 +212,7 @@ public class List {
 		return w.done();
 	}
 	
-	public static IValue toMapUnique(IList lst)
+	public IValue toMapUnique(IList lst)
 	//@doc{toMapUnique -- convert a list of tuples to a map; result should be a map}
 	{
 	   if(lst.length() == 0){
@@ -228,7 +234,7 @@ public class List {
 	   return w.done();
 	}
 
-	public static IValue toSet(IList lst)
+	public IValue toSet(IList lst)
 	//@doc{toSet -- convert a list to a set}
 	{
 	  Type resultType = types.setType(lst.getElementType());
@@ -241,10 +247,9 @@ public class List {
 	  return w.done();
 	}
 
-	public static IValue toString(IList lst)
+	public IValue toString(IList lst)
 	//@doc{toString -- convert a list to a string}
 	{
 		return values.string(lst.toString());
 	}
-	
 }

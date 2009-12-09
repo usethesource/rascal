@@ -18,7 +18,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.values.ValueFactoryFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -30,25 +29,29 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class XMLIO{
+class XMLIOThing{
 	private final static TypeFactory tf = TypeFactory.getInstance();
-	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private final static Type STRING_TYPE = tf.stringType();
 	private final static Type ATTRIBUTES_NODE = tf.mapType(tf.stringType(), tf.stringType());
-	private final static IMap NO_ATTRIBUTES = vf.map(STRING_TYPE, STRING_TYPE);
+	private final IMap noAttributes;
+
+	private final IValueFactory vf;
 	
 	private final Type anyType;
 	
 	private final TypeStore typeStore;
 	private final Document document;
 	
-	public XMLIO(TypeStore typeStore, Document document){
+	public XMLIOThing(IValueFactory vf, TypeStore typeStore, Document document){
 		super();
 		
+		this.vf = vf;
 		this.anyType = tf.abstractDataType(typeStore, "anyType");
 		this.typeStore = typeStore;
 		this.document = document;
+		
+		noAttributes = vf.map(STRING_TYPE, STRING_TYPE);
 	}
 	
 	public IConstructor transform(){
@@ -101,7 +104,7 @@ public class XMLIO{
 	}
 	
 	private IMap getAttributes(Element e){
-		if(!e.hasAttributes()) return NO_ATTRIBUTES;
+		if(!e.hasAttributes()) return noAttributes;
 		
 		IMapWriter attributesWriter = vf.mapWriter(STRING_TYPE, STRING_TYPE);
 		NamedNodeMap attributesMap = e.getAttributes();
@@ -131,8 +134,18 @@ public class XMLIO{
 			System.err.println(typeDefinitions.item(i).getName());
 		}
 	}*/
+}
+
+public class XMLIO{
+	private final IValueFactory vf;
 	
-	public static IConstructor parseXML(IString xmlFileName) throws IOException, SAXException, ParserConfigurationException{
+	public XMLIO(IValueFactory vf){
+		super();
+		
+		this.vf = vf;
+	}
+	
+	public IConstructor parseXML(IString xmlFileName) throws IOException, SAXException, ParserConfigurationException{
 		File xmlFile = new File(xmlFileName.getValue());
 		
 		ErrorHandler errorHandler = new ErrorHandler(){
@@ -165,7 +178,7 @@ public class XMLIO{
 		Document document = parser.parse(xmlFile);
 		
 		TypeStore typeStore = new TypeStore();
-		XMLIO xmlToPDB = new XMLIO(typeStore, document);
+		XMLIOThing xmlToPDB = new XMLIOThing(vf, typeStore, document);
 		
 		//xmlToPDB.declareTypes(((ElementPSVI) document.getDocumentElement()).getSchemaInformation());
 		

@@ -5,12 +5,17 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class String {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
+	private final IValueFactory values;
 	
-	public static IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
+	public String(IValueFactory values){
+		super();
+		
+		this.values = values;
+	}
+	
+	public IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
 	//@doc{charAt -- return the character at position i in string s.}
 	{
 	  try {
@@ -21,13 +26,13 @@ public class String {
 	  }
 	}
 
-	public static IValue endsWith(IString s, IString suffix)
+	public IValue endsWith(IString s, IString suffix)
 	//@doc{endWith -- returns true if string s ends with given string suffix.}
 	{
 	  return values.bool(s.getValue().endsWith(suffix.getValue()));
 	}
 
-	public static IValue format(IString s, IString dir, IInteger n, IString pad)
+	public IValue format(IString s, IString dir, IInteger n, IString pad)
 	//@doc{format -- return string of length n, with s placed according to dir (left/center/right) and padded with pad}
 	{
 	    StringBuffer res = new StringBuffer();
@@ -71,13 +76,13 @@ public class String {
 	    return values.string(res.toString());
 	}
 	
-	public static IValue isEmpty(IString s)
+	public IValue isEmpty(IString s)
 	//@doc{isEmpty -- is string empty?}
 	{
 		return values.bool(s.getValue().length() == 0);
 	}
 
-	public static IValue reverse(IString s)
+	public IValue reverse(IString s)
 	//@doc{reverse -- return string with all characters in reverse order.}
 	{
 	   java.lang.String sval = s.getValue();
@@ -90,19 +95,19 @@ public class String {
 	   return values.string(new java.lang.String(chars));
 	}
 
-	public static IValue size(IString s)
+	public IValue size(IString s)
 	//@doc{size -- return the length of string s.}
 	{
 	  return values.integer(s.getValue().length());
 	}
 
-	public static IValue startsWith(IString s, IString prefix)
+	public IValue startsWith(IString s, IString prefix)
 	//@doc{startsWith -- return true if string s starts with the string prefix.}
 	{
 	  return values.bool(s.getValue().startsWith(prefix.getValue()));
 	}
 
-	public static IValue substring(IString s, IInteger begin) {
+	public IValue substring(IString s, IInteger begin) {
 		try {
 			return values.string(s.getValue().substring(begin.intValue()));
 		} catch (IndexOutOfBoundsException e) {
@@ -110,7 +115,7 @@ public class String {
 		}
 	}
 	
-	public static IValue substring(IString s, IInteger begin, IInteger end) {
+	public IValue substring(IString s, IInteger begin, IInteger end) {
 		try {
 			return values.string(s.getValue().substring(begin.intValue(), end.intValue()));
 		} catch (IndexOutOfBoundsException e) {
@@ -121,7 +126,7 @@ public class String {
 	
 	}
 	
-	public static IValue toInt(IString s)
+	public IValue toInt(IString s)
 	//@doc{toInt -- convert a string s to integer}
 	{
 		try {
@@ -132,7 +137,7 @@ public class String {
 		}
 	}
 	
-	public static IValue toReal(IString s)
+	public IValue toReal(IString s)
 	//@doc{toReal -- convert a string s to a real}
 	{
 		try {
@@ -143,13 +148,13 @@ public class String {
 		}
 	}
 
-	public static IValue toLowerCase(IString s)
+	public IValue toLowerCase(IString s)
 	//@doc{toLowerCase -- convert all characters in string s to lowercase.}
 	{
 	  return values.string(s.getValue().toLowerCase());
 	}
 
-	public static IValue toUpperCase(IString s)
+	public IValue toUpperCase(IString s)
 	//@doc{toUpperCase -- convert all characters in string s to uppercase.}
 	{
 	  return values.string(s.getValue().toUpperCase());

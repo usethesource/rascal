@@ -18,19 +18,24 @@ import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class Node {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
-	private static final TypeFactory types = TypeFactory.getInstance();
+	private final TypeFactory types = TypeFactory.getInstance();
+	private final IValueFactory values;
+	
+	public Node(IValueFactory values){
+		super();
+		
+		this.values = values;
+	}
 
-	public static IValue arity(INode T)
+	public IValue arity(INode T)
 	//@doc{arity -- number of children of a node}
 	{
 	   return values.integer(T.arity());
 	}
 
-	public static IValue getChildren(INode T)
+	public IValue getChildren(INode T)
 	//@doc{getChildren -- get the children of a node}
 	{
 		Type resultType = types.listType(types.valueType());
@@ -42,13 +47,13 @@ public class Node {
 		return w.done();
 	}
 
-	public static IValue getName(INode T)
+	public IValue getName(INode T)
 	//@doc{getName -- get the function name of a node}
 	{
 		return values.string(T.getName());
 	}
 
-	public static IValue makeNode(IString N, IList V)
+	public IValue makeNode(IString N, IList V)
 	//@doc{makeNode -- create a node given its function name and arguments}
 	{
 	    IList argList = V;
@@ -60,7 +65,7 @@ public class Node {
 		return values.node(N.getValue(), args);
 	}
 	
-	public static IValue readATermFromFile(IString fileName){
+	public IValue readATermFromFile(IString fileName){
 	//@doc{readATermFromFile -- read an ATerm from a named file}
 		ATermReader atr = new ATermReader();
 		try {
@@ -76,13 +81,13 @@ public class Node {
 		}
 	}
 	
-	public static IValue toString(INode T)
+	public IValue toString(INode T)
 	//@doc{toString -- convert a node to a string}
 	{
 		return values.string(T.toString());
 	}
 	
-	public static IMap getAnnotations(INode node) {
+	public IMap getAnnotations(INode node) {
 		java.util.Map<java.lang.String,IValue> map = node.getAnnotations();
 		IMapWriter w = values.mapWriter(types.stringType(), types.valueType());
 		
@@ -93,7 +98,7 @@ public class Node {
 		return w.done();
 	}
 	
-	public static INode setAnnotations(INode node, IMap annotations) {
+	public INode setAnnotations(INode node, IMap annotations) {
 		java.util.Map<java.lang.String,IValue> map = new HashMap<java.lang.String,IValue>();
 		
 		for (IValue key : annotations) {
@@ -104,11 +109,11 @@ public class Node {
 		return node.setAnnotations(map);
 	}
 	
-	public static INode delAnnotations(INode node) {
+	public INode delAnnotations(INode node) {
 		return node.removeAnnotations();
 	}
 	
-	public static INode delAnnotation(INode node, IString label) {
+	public INode delAnnotation(INode node, IString label) {
 		return node.removeAnnotation(label.getValue());
 	}
 }

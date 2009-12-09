@@ -4,14 +4,14 @@ module TopologicalStrategy
 // It will be merged with Strategy.rsc with abstract functions for the traversal operators 
 
 @doc{Apply the strategy in argument to all the children of the subject using a topological order for binary relations.}
-@javaClass{org.meta_environment.rascal.interpreter.strategy.All}
+@javaClass{org.meta_environment.rascal.library.Strategy}
 public &T(&T) java makeTopologicalAll(&T(&T) strategy);
 
 @doc{Apply the strategy in argument to one of the children of the subject using a topological order for binary relations.}
-@javaClass{org.meta_environment.rascal.interpreter.strategy.One}
+@javaClass{org.meta_environment.rascal.library.Strategy}
 public &T(&T) java makeTopologicalOne(&T(&T) strategy);
 
-@javaClass{org.meta_environment.rascal.interpreter.strategy.AbstractStrategy}
+@javaClass{org.meta_environment.rascal.library.Strategy}
 @reflect{use the current strategy context}
 public value java getCurrentStratCtx();
 

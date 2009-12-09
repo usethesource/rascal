@@ -16,16 +16,20 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
-
 
 public class Map {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
-	private static final TypeFactory types = TypeFactory.getInstance();
-	private static final Random random = new Random();
+	private final TypeFactory types = TypeFactory.getInstance();
+	private final IValueFactory values;
+	private final Random random;
 	
+	public Map(IValueFactory values){
+		super();
+		
+		this.values = values;
+		random = new Random();
+	}
 
-	public static IValue domain(IMap M)
+	public IValue domain(IMap M)
 	//@doc{domain -- return the domain (keys) of a map}
 
 	{
@@ -41,7 +45,7 @@ public class Map {
 	  return w.done();
 	}
 
-	public static IValue getOneFrom(IMap m)  
+	public IValue getOneFrom(IMap m)  
 	//@doc{getOneFrom -- return arbitrary key of a map}
 	{
 	   int i = 0;
@@ -62,7 +66,7 @@ public class Map {
 	   return null;
 	}
 	
-	public static IValue invertUnique(IMap M)
+	public IValue invertUnique(IMap M)
 	//@doc{invertUnique -- return map with key and value inverted; values are unique}
 	{
 		Type keyType = M.getKeyType();
@@ -83,7 +87,7 @@ public class Map {
 		return w.done();
 	}
 	
-	public static IValue invert(IMap M)
+	public IValue invert(IMap M)
 	//@doc{invert -- return map with key and value inverted; values are not unique and are collected in a set}
 	{
 		Type keyType = M.getKeyType();
@@ -114,13 +118,13 @@ public class Map {
 		return w.done();
 	}
 	
-	public static IValue isEmpty(IMap M)
+	public IValue isEmpty(IMap M)
 	//@doc{isEmpty -- is map empty?}
 	{
 		return values.bool(M.size() == 0);
 	}
 
-	public static  IValue range(IMap M)
+	public IValue range(IMap M)
 	//@doc{range -- return the range (values) of a map}
 	{
 	  Type valueType = M.getValueType();
@@ -135,12 +139,12 @@ public class Map {
 	  return w.done();
 	}
 
-	public static IValue size(IMap M)
+	public IValue size(IMap M)
 	{
 		return values.integer(M.size());
 	}
 
-	public static IValue toList(IMap M)
+	public IValue toList(IMap M)
 	//@doc{toList -- convert a map to a list}
 	{
 	  Type keyType = M.getKeyType();
@@ -157,7 +161,7 @@ public class Map {
 	  return w.done();
 	}
 
-	public static IValue toRel(IMap M)
+	public IValue toRel(IMap M)
 	//@doc{toRel -- convert a map to a relation}
 	{
 	  Type keyType = M.getKeyType();
@@ -173,9 +177,8 @@ public class Map {
 	  return w.done();
 	}
 	  
-	public static IValue toString(IMap M)
+	public IValue toString(IMap M)
 	{
 	  return values.string(M.toString());
 	}
-
 }

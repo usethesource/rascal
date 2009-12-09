@@ -17,16 +17,16 @@ import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class JavaMethod extends NamedFunction {
+	private final Object instance;
 	private final Method method;
 	private final FunctionDeclaration func;
 	private final boolean hasReflectiveAccess;
 	
-	public JavaMethod(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
-		super(func, eval,
-				(FunctionType) new TypeEvaluator(env).eval(func.getSignature()), 
-				Names.name(func.getSignature().getName()),
-				varargs, env);
+	public JavaMethod(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
+		super(func, eval, (FunctionType) new TypeEvaluator(env).eval(func.getSignature()), Names.name(func.getSignature().getName()), varargs, env);
+		
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
+		this.instance = javaBridge.getJavaClassInstance(func);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 		this.func = func;
 	}
@@ -102,7 +102,7 @@ public class JavaMethod extends NamedFunction {
 
 	public IValue invoke(Object[] oActuals) {
 		try {
-			return (IValue) method.invoke(null, oActuals);
+			return (IValue) method.invoke(instance, oActuals);
 		} catch (SecurityException e) {
 			throw new ImplementationError("Unexpected security exception", e);
 		} catch (IllegalArgumentException e) {
@@ -129,5 +129,4 @@ public class JavaMethod extends NamedFunction {
 	public String toString() {
 		return func.toString();
 	}
-	
 }

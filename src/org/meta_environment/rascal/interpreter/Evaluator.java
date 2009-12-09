@@ -201,6 +201,7 @@ import org.meta_environment.rascal.interpreter.matching.NodePattern;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.JavaFunction;
+import org.meta_environment.rascal.interpreter.result.JavaMethod;
 import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -235,7 +236,6 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.Profiler;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.utils.Utils;
-import org.meta_environment.rascal.library.ToString;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
@@ -342,6 +342,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		CWDURIResolver cwd = new CWDURIResolver();
 		registry.registerInput(cwd.scheme(), cwd);
 		registry.registerOutput(cwd.scheme(), cwd);
+	}
+	
+	public JavaBridge getJavaBridge(){
+		return javaBridge;
 	}
 
 	/**
@@ -1645,14 +1649,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitFunctionDeclarationAbstract(Abstract x) {
-		AbstractFunction lambda = null;
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 
 		if (!hasJavaModifier(x)) {
 			throw new MissingModifierError("java", x);
 		}
 
-		lambda = new org.meta_environment.rascal.interpreter.result.JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
+		AbstractFunction lambda = new JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
 		String name = Names.name(x.getSignature().getName());
 		getCurrentEnvt().storeFunction(name, lambda);
 
@@ -1938,7 +1941,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			IList list = (IList)value.getValue();
 			for (IValue elt: list) {
-				result.append(ToString.toString(elt).getValue());
+				result.append(toString(elt).getValue());
 			}
 		}
 
@@ -2373,7 +2376,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
 
-		String result = ((IString) pre.getValue()).getValue() + ToString.toString(expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		String result = ((IString) pre.getValue()).getValue() + toString(expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
 
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
@@ -2385,7 +2388,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
 
-		String result = ((IString) pre.getValue()).getValue() + ToString.toString(expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		String result = ((IString) pre.getValue()).getValue() + toString(expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
 
 		return makeResult(tf.stringType(), vf.string(result), this);
 	}
@@ -2403,7 +2406,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> tail = x.getTail().accept(this);
 
 		String preString = ((IString) pre.getValue()).getValue();
-		String exprString = ToString.toString(expr.getValue()).getValue();
+		String exprString = toString(expr.getValue()).getValue();
 		String tailString = ((IString) tail.getValue()).getValue();
 		String result = preString + exprString + tailString;
 
@@ -2446,7 +2449,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> tail = x.getTail().accept(this);
 
 		String midString = ((IString) mid.getValue()).getValue();
-		String exprString = ToString.toString(expr.getValue()).getValue();
+		String exprString = toString(expr.getValue()).getValue();
 		String tailString = ((IString) tail.getValue()).getValue();
 		String result = midString + exprString + tailString;
 
@@ -3559,5 +3562,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public void setAccumulators(Stack<Accumulator> accumulators) {
 		this.accumulators = accumulators;
+	}
+	
+	private IString toString(IValue value)
+	{
+		if (value.getType() == Factory.Tree) {
+			return vf.string(TreeAdapter.yield((IConstructor) value));
+		}
+		if (value.getType().isStringType()) {
+			return (IString) value;
+		}
+		return vf.string(value.toString());
 	}
 }

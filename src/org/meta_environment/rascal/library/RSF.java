@@ -13,12 +13,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class RSF {
-	
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();
+	private final IValueFactory values;
+	
+	public RSF(IValueFactory values){
+		super();
+		
+		this.values = values;
+	}
 	
 	/*
 	 * Read relations from an RSF file. An RSF file contains tuples of binary relations
@@ -31,7 +35,7 @@ public class RSF {
 	 * each relation name to the actual relation.
 	 */
 
-	public static IValue readRSF(IString nameRSFFile)
+	public IValue readRSF(IString nameRSFFile)
 	//@doc{readRSF -- read an RSF file}
 	{
 		HashMap<java.lang.String, IRelationWriter> table = new HashMap<java.lang.String, IRelationWriter>();
@@ -69,6 +73,4 @@ public class RSF {
 		}
 		return mw.done();
 	}
-	
-	
 }

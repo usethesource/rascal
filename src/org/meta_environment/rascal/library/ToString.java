@@ -6,12 +6,17 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class ToString {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
+	private final IValueFactory values;
 	
-	public static IString toString(IValue value)
+	public ToString(IValueFactory values){
+		super();
+		
+		this.values = values;
+	}
+	
+	public IString toString(IValue value)
 	{
 		if (value.getType() == Factory.Tree) {
 			return values.string(TreeAdapter.yield((IConstructor) value));

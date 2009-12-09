@@ -15,15 +15,21 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 
 public class Set {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();
-	private static final Random random = new Random();
+	private final IValueFactory values;
+	private final Random random;
+	
+	public Set(IValueFactory values){
+		super();
+		
+		this.values = values;
+		random = new Random();
+	}
 
-	public static IValue getOneFrom(ISet st)
+	public IValue getOneFrom(ISet st)
 	// @doc{getOneFrom -- pick a random element from a set}
 	{
 		int sz = st.size();
@@ -44,19 +50,19 @@ public class Set {
 		throw RuntimeExceptionFactory.emptySet(null, null);
 	}
 
-	public static IValue isEmpty(ISet st)
+	public IValue isEmpty(ISet st)
 	//@doc{isEmpty -- is set empty?}
 	{
 		return values.bool(st.size() == 0);
 	}
 	
-	public static IValue size(ISet st)
+	public IValue size(ISet st)
 	// @doc{size -- number of elements in a set}
 	{
 		return values.integer(st.size());
 	}
 
-	public static IValue takeOneFrom(ISet st)
+	public IValue takeOneFrom(ISet st)
 	// @doc{takeOneFrom -- remove an arbitrary element from a set,
 	//      returns the element and the modified set}
 	{
@@ -81,7 +87,7 @@ public class Set {
 		throw RuntimeExceptionFactory.emptySet(null, null);
 	}
 
-	public static IValue toList(ISet st)
+	public IValue toList(ISet st)
 	// @doc{toList -- convert a set to a list}
 	{
 		Type resultType = types.listType(st.getElementType());
@@ -94,7 +100,7 @@ public class Set {
 		return w.done();
 	}
 
-	public static IValue toMap(IRelation st)
+	public IValue toMap(IRelation st)
 	// @doc{toMap -- convert a set of tuples to a map; value in old map is associated with a set of keys in old map}
 	{
 		Type tuple = st.getElementType();
@@ -124,7 +130,7 @@ public class Set {
 		return w.done();
 	}
 	
-	public static IValue toMapUnique(IRelation st)
+	public IValue toMapUnique(IRelation st)
 	// @doc{toMapUnique -- convert a set of tuples to a map; values are unique}
 	{
 		Type tuple = st.getElementType();
@@ -145,11 +151,9 @@ public class Set {
 		return w.done();
 	}
 
-
-	public static IValue toString(ISet st)
+	public IValue toString(ISet st)
 	// @doc{toString -- convert a set to a string}
 	{
 		return values.string(st.toString());
 	}
-
 }

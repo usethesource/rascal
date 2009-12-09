@@ -16,21 +16,24 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
-
 
 public class AUT{
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();
-
+	
+	private final IValueFactory values;
+	
+	public AUT(IValueFactory values){
+		super();
+		
+		this.values = values;
+	}
+	
 	/*
-	 * Read relations from an AUT file. An RSF file contains  ternary
-	 * relations in the following format: "(" <int> "," <string> ","<int>")".
-	 * 
-	 * readAUT takes an AUT file nameAUTFile and generates a
-	 * rel[int, str, int] 
+	 * Read relations from an AUT file. An RSF file contains ternary relations
+	 * in the following format: "(" <int> "," <string> ","<int>")". readAUT
+	 * takes an AUT file nameAUTFile and generates a rel[int, str, int]
 	 */
-	public static IValue readAUT(IString nameAUTFile){
+	public IValue readAUT(IString nameAUTFile){
 		Type strType = types.stringType();
 		Type intType = types.integerType();
 		Type tupleType = types.tupleType(intType, strType, intType);
@@ -42,7 +45,7 @@ public class AUT{
 			bufRead = new BufferedReader(input);
 			java.lang.String line = bufRead.readLine();
 			line = bufRead.readLine();
-			while (line != null) {
+			while(line != null){
 				java.lang.String[] fields = line.split("\\\"");
 				java.lang.String[] field0 = fields[0].split("[\\(\\s,]");
 				java.lang.String[] field2 = fields[2].split("[\\)\\s,]");
@@ -56,28 +59,28 @@ public class AUT{
 			if(bufRead != null){
 				try{
 					bufRead.close();
-				}catch(IOException ioex){/* Ignore. */}
+				}catch(IOException ioex){/* Ignore. */
+				}
 			}
 		}
 		return rw.done();
 	}
 	
-	private static int numberOfStates(IRelation st){
+	private int numberOfStates(IRelation st){
 		st.size();
 		int r = 0;
 		for(IValue v : st){
 			ITuple t = (ITuple) v;
 			IInteger from = (IInteger) t.get(0);
 			IInteger to = (IInteger) t.get(2);
-			if (from.intValue()>r) r = from.intValue();
-			if (to.intValue()>r) r = to.intValue();
+			if(from.intValue() > r) r = from.intValue();
+			if(to.intValue() > r) r = to.intValue();
 		}
-		return r+1;
+		return r + 1;
 	}
 	
-	
-	private static void printTransitions(PrintStream fos, IRelation st){
-		fos.println("des(0,"+st.size()+","+numberOfStates(st)+")");
+	private void printTransitions(PrintStream fos, IRelation st){
+		fos.println("des(0," + st.size() + "," + numberOfStates(st) + ")");
 		for(IValue v : st){
 			ITuple t = (ITuple) v;
 			IInteger from = (IInteger) t.get(0);
@@ -86,16 +89,15 @@ public class AUT{
 			fos.print('(');
 			fos.print(from.intValue());
 			fos.print(',');
-			fos.print("\""+act.getValue()+"\"");
+			fos.print("\"" + act.getValue() + "\"");
 			fos.print(',');
 			fos.print(to.intValue());
 			fos.print(')');
 			fos.println();
-		}	   
-	   return;
+		}
 	}
-	   	  
-	public static void writeAUT(IString nameAUTFile, IRelation value){
+	
+	public void writeAUT(IString nameAUTFile, IRelation value){
 		java.lang.String fileName = nameAUTFile.getValue();
 		
 		PrintStream fos = null;
@@ -111,5 +113,4 @@ public class AUT{
 			}
 		}
 	}
-
 }

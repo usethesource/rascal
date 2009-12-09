@@ -14,11 +14,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 // TODO: Why is this code in the library? This should be done in pure Rascal.
 
-class Distance {
+class Distance{
 	public int intval;
 	
 	Distance(int n){
@@ -41,21 +40,26 @@ class NodeComparator implements Comparator<IValue> {
 	}
 }
 
-public class Graph {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
+public class Graph{
 	private static final TypeFactory types = TypeFactory.getInstance();
+
+	private final IValueFactory values;
+	private HashMap<IValue,Distance> distance;
+	private HashMap<IValue, IValue> pred;
+	private HashSet<IValue> settled;
+	private PriorityQueue<IValue> Q;
+	private int MAXDISTANCE = 10000;
 	
-	private static HashMap<IValue,Distance> distance;
-	private static HashMap<IValue, IValue> pred;
-	private static HashSet<IValue> settled;
-	private static PriorityQueue<IValue> Q;
-	private static int MAXDISTANCE = 10000;
+	private HashMap<IValue, LinkedList<IValue>> adjacencyList;
 	
-	private static HashMap<IValue, LinkedList<IValue>> AdjacencyList;
-	
-	private static void buildAdjacencyListAndDistance(IRelation G){
+	public Graph(IValueFactory values){
+		super();
 		
-		AdjacencyList = new HashMap<IValue, LinkedList<IValue>> ();
+		this.values = values;
+	}
+	
+	private void buildAdjacencyListAndDistance(IRelation G){
+		adjacencyList = new HashMap<IValue, LinkedList<IValue>> ();
 		distance = new HashMap<IValue, Distance>();
 		
 		for(IValue v : G){
@@ -68,15 +72,15 @@ public class Graph {
 			if(distance.get(to) == null)
 				distance.put(to, new Distance(MAXDISTANCE));
 			
-			LinkedList<IValue> adjacencies = AdjacencyList.get(from);
+			LinkedList<IValue> adjacencies = adjacencyList.get(from);
 			if(adjacencies == null)
 				adjacencies = new LinkedList<IValue>();
 			adjacencies.add(to);
-			AdjacencyList.put(from, adjacencies);
+			adjacencyList.put(from, adjacencies);
 		}
 	}
 	
-	public static IValue shortestPathPair(IRelation G, IValue From, IValue To){
+	public IValue shortestPathPair(IRelation G, IValue From, IValue To){
 		buildAdjacencyListAndDistance(G);
 		distance.put(From, new Distance(0));
 		
@@ -95,10 +99,10 @@ public class Graph {
 		return values.list();
 	}
 	
-	private static void relaxNeighbours(IValue u){
-		LinkedList<IValue> adjacencies = AdjacencyList.get(u);
+	private void relaxNeighbours(IValue u){
+		LinkedList<IValue> adjacencies = adjacencyList.get(u);
 		if(adjacencies != null) {
-			for(IValue v : AdjacencyList.get(u)){
+			for(IValue v : adjacencyList.get(u)){
 				if(!settled.contains(v)){
 					Distance dv = distance.get(v);
 					Distance du = distance.get(u);
@@ -112,7 +116,7 @@ public class Graph {
 		}
 	}
 	
-	private static IList extractPath(IValue start, IValue u){
+	private IList extractPath(IValue start, IValue u){
 		Type listType = types.listType(start.getType());
 		IListWriter w = listType.writer(values);
 		

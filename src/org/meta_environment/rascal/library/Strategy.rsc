@@ -1,15 +1,15 @@
 module Strategy
 
 @doc{Apply the function if the argument is of the same type and returns identity otherwise.}
-@javaClass{org.meta_environment.rascal.interpreter.strategy.StrategyFunction}
+@javaClass{org.meta_environment.rascal.library.Strategy}
 public &T(&T) java functionToStrategy(value function);
 
 @doc{Apply the strategy given in argument to all the children of the subject.}
-@javaClass{org.meta_environment.rascal.interpreter.strategy.All}
+@javaClass{org.meta_environment.rascal.library.Strategy}
 public &T(&T) java makeAll(&T(&T) strategy);
 
 @doc{Apply the strategy given in argument to one of the children of the subject.}
-@javaClass{org.meta_environment.rascal.interpreter.strategy.One}
+@javaClass{org.meta_environment.rascal.library.Strategy}
 public &T(&T) java makeOne(&T(&T) strategy);
 
 

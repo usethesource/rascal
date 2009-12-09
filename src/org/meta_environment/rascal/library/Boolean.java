@@ -4,13 +4,19 @@ import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class Boolean {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
-	private static final Random random = new Random();
+	private final IValueFactory values;
+	private final Random random;
 	
-	public static IValue arbBool()
+	public Boolean(IValueFactory values){
+		super();
+		
+		this.values = values;
+		random = new Random();
+	}
+	
+	public IValue arbBool()
 	//@doc{arbBool -- get an arbitrary boolean value.}
 	{
 	  return values.bool(random.nextInt(2) == 1);
