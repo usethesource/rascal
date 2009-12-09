@@ -18,9 +18,13 @@ import processing.core.PApplet;
 
 public class VL extends PApplet {
 
-	private static final long serialVersionUID = 1L;
+	private  static final long serialVersionUID = 1L;
 	
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	
+	public VL(IValueFactory factory){
+		vf = factory;
+	}
 	
 	static IInteger rgb(int r, int g, int b){
 		return vf.integer(VLcolor(r,g,b));
@@ -186,47 +190,47 @@ public class VL extends PApplet {
   
     };
 	
-	public static void render(IConstructor velem, IEvaluatorContext ctx){
+	public void render(IConstructor velem, IEvaluatorContext ctx){
 		PApplet pa = new VLPApplet(velem, ctx);
 		new SketchSWT(pa);
 	}
 	
-	public static IInteger gray(IInteger r){
+	public IInteger gray(IInteger r){
 		int g = r.intValue();
 		return vf.integer(VLcolor(g,g,g));
 	}
 	
-	public static IInteger gray(IReal r){
+	public IInteger gray(IReal r){
 		int g = round(255 * r.floatValue());
 		return vf.integer(VLcolor(g,g,g));
 	}
 	
-	public static IInteger gray(IInteger r, IReal alpha){
+	public IInteger gray(IInteger r, IReal alpha){
 		int g = r.intValue();
 		return vf.integer(VLcolor(g,g,g, alpha.floatValue()));
 	}
 	
-	public static IInteger gray(IReal r, IReal alpha){
+	public IInteger gray(IReal r, IReal alpha){
 		int g = round(255 * r.floatValue());
 		return vf.integer(VLcolor(g,g,g, alpha.floatValue()));
 	}
 	
-	public static IInteger rgb(IInteger r, IInteger g, IInteger b){
+	public  IInteger rgb(IInteger r, IInteger g, IInteger b){
 		return vf.integer(VLcolor(r.intValue(), g.intValue(), b.intValue(), 1.0f));
 	}
 	
-	public static IInteger rgb(IInteger r, IInteger g, IInteger b, IReal alpha){
+	public  IInteger rgb(IInteger r, IInteger g, IInteger b, IReal alpha){
 		return vf.integer(VLcolor(r.intValue(), g.intValue(), b.intValue(), alpha.floatValue()));
 	}
 	
-	public static IInteger color(IString colorName, IEvaluatorContext ctx){
+	public  IInteger color(IString colorName, IEvaluatorContext ctx){
 		IInteger c = colorNames.get(colorName.getValue());
 		if(c != null)
 			return c;
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	public static IInteger color(IString colorName, IReal alpha, IEvaluatorContext ctx){
+	public  IInteger color(IString colorName, IReal alpha, IEvaluatorContext ctx){
 		IInteger c = colorNames.get(colorName.getValue());
 		if(c != null){
 			int ci = c.intValue();
@@ -235,11 +239,11 @@ public class VL extends PApplet {
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	 static public int VLcolor(int r, int g, int b) {
+	  public static int VLcolor(int r, int g, int b) {
 		 return VLcolor(r, g, b, 1.0f);
 	 }
 	
-	 static public int VLcolor(int r, int g, int b, float alpha) {
+	  public static int VLcolor(int r, int g, int b, float alpha) {
 
 		 if (r > 255) r = 255; else if (r < 0) r = 0;
 		 if (g > 255) g = 255; else if (g < 0) g = 0;
@@ -253,7 +257,7 @@ public class VL extends PApplet {
 				 (b));
 	 }
 	 
-	 static public int VLcolor(int c1, float alpha) {
+	  public static int VLcolor(int c1, float alpha) {
 		 float r1 = (c1 >> 16) & 0xff;
 		 float g1 = (c1 >> 8) & 0xff;
 		 float b1 = c1 & 0xff;
@@ -266,7 +270,7 @@ public class VL extends PApplet {
 				 ((int) (b1)));
 	 }
 	 
-	 static public int myLerpColor(int c1, int c2, float amt) {
+	  public int myLerpColor(int c1, int c2, float amt) {
 		 float a1 = ((c1 >> 24) & 0xff);
 		 float r1 = (c1 >> 16) & 0xff;
 		 float g1 = (c1 >> 8) & 0xff;
@@ -282,14 +286,14 @@ public class VL extends PApplet {
 				 ((int) (b1 + (b2-b1)*amt)));
 	 }
 	 
-	 public static IInteger interpolateColor(IInteger from, IInteger to, IReal amt){
+	 public  IInteger interpolateColor(IInteger from, IInteger to, IReal amt){
 		int fromColor = from.intValue();
 		int toColor =to.intValue();
 		float percentage = amt.floatValue();
 		return vf.integer(myLerpColor(fromColor, toColor, percentage));
 	 }
 	
-	public static IList colorSteps(IInteger from, IInteger to, IInteger n){
+	public  IList colorSteps(IInteger from, IInteger to, IInteger n){
 		int fromColor = from.intValue();
 		int toColor =to.intValue();
 		int max = n.intValue();
