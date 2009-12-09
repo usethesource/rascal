@@ -12,12 +12,17 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class DateTime {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
+	private final IValueFactory values;
+	
+	public DateTime(IValueFactory values){
+		super();
+		
+		this.values = values;
+	}
 
-	private static IValue createNewTimeValue(org.joda.time.DateTime jdt2) {
+	private IValue createNewTimeValue(org.joda.time.DateTime jdt2) {
 		int hourOffset = jdt2.getZone().getOffset(jdt2.getMillis())/3600000;
 		int minuteOffset = (jdt2.getZone().getOffset(jdt2.getMillis())/60000)%60;				
 		return values.time(jdt2.getHourOfDay(), jdt2.getMinuteOfHour(),
@@ -25,27 +30,26 @@ public class DateTime {
 				hourOffset, minuteOffset);
 	}		
 	
-	
-	public static IValue now()
+	public IValue now()
 	//@doc{Get the current datetime.}
 	{
 	   return values.datetime(org.joda.time.DateTimeUtils.currentTimeMillis());
 	}
 
-	public static IValue createDate(IInteger year, IInteger month, IInteger day) 
+	public IValue createDate(IInteger year, IInteger month, IInteger day) 
 	//@doc{Create a new date.}
 	{
 		return values.date(year.intValue(), month.intValue(), day.intValue());
 	}
 	
-	public static IValue createTime(IInteger hour, IInteger minute, IInteger second,
+	public IValue createTime(IInteger hour, IInteger minute, IInteger second,
 			IInteger millisecond)
 	//@doc{Create a new time.}
 	{
 		return values.time(hour.intValue(), minute.intValue(), second.intValue(), millisecond.intValue());
 	}
 
-	public static IValue createTime(IInteger hour, IInteger minute, IInteger second,
+	public IValue createTime(IInteger hour, IInteger minute, IInteger second,
 			IInteger millisecond, IInteger timezoneHourOffset, IInteger timezoneMinuteOffset)
 	//@doc{Create a new time with the given numeric timezone offset.}
 	{
@@ -53,7 +57,7 @@ public class DateTime {
 				millisecond.intValue(), timezoneHourOffset.intValue(), timezoneMinuteOffset.intValue());
 	}
 	
-	public static IValue createDateTime(IInteger year, IInteger month, IInteger day, 
+	public IValue createDateTime(IInteger year, IInteger month, IInteger day, 
 			IInteger hour, IInteger minute, IInteger second, IInteger millisecond)
 	//@doc{Create a new datetime.}
 	{
@@ -62,7 +66,7 @@ public class DateTime {
 	}
 
 	
-	public static IValue createDateTime(IInteger year, IInteger month, IInteger day,
+	public IValue createDateTime(IInteger year, IInteger month, IInteger day,
 			IInteger hour, IInteger minute, IInteger second, IInteger millisecond, 
 			IInteger timezoneHourOffset, IInteger timezoneMinuteOffset)
 	//@doc{Create a new datetime with the given numeric timezone offset.}
@@ -72,7 +76,7 @@ public class DateTime {
 				timezoneMinuteOffset.intValue());
 	}
 		
-	public static IValue joinDateAndTime(IDateTime date, IDateTime time)
+	public IValue joinDateAndTime(IDateTime date, IDateTime time)
 	//@doc{Create a new datetime by combining a date and a time.}
 	{
 		return values.datetime(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(),
@@ -80,7 +84,7 @@ public class DateTime {
 				time.getMillisecondsOfSecond(), time.getTimezoneOffsetHours(), time.getTimezoneOffsetMinutes());
 	}
 
-	public static IValue splitDateTime(IDateTime dt)
+	public IValue splitDateTime(IDateTime dt)
 	//@doc{Split an existing datetime into a tuple with the date and the time.}
 	{
 		return values.tuple(values.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth()),
@@ -89,7 +93,7 @@ public class DateTime {
 	}
 	
 	
-	public static IValue incrementYears(IDateTime dt, IInteger n)
+	public IValue incrementYears(IDateTime dt, IInteger n)
 	//@doc{Increment the years by a given amount.}
 	{
 		if (!dt.isTime()) {
@@ -103,7 +107,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot increment the years on a time value.", null, null);
 	}
 	
-	public static IValue incrementMonths(IDateTime dt, IInteger n)
+	public IValue incrementMonths(IDateTime dt, IInteger n)
 	//@doc{Increment the months by a given amount.}
 	{
 		if (!dt.isTime()) {
@@ -117,7 +121,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot increment the months on a time value.", null, null);
 	}
 
-	public static IValue incrementDays(IDateTime dt, IInteger n)
+	public IValue incrementDays(IDateTime dt, IInteger n)
 	//@doc{Increment the days by a given amount.}
 	{
 		if (!dt.isTime()) {
@@ -131,7 +135,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot increment the days on a time value.", null, null);
 	}
 
-	public static IValue incrementHours(IDateTime dt, IInteger n)
+	public IValue incrementHours(IDateTime dt, IInteger n)
 	//@doc{Increment the hours by a given amount.}
 	{
 		if (!dt.isDate()) {
@@ -145,7 +149,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the hours on a date value.", null, null);
 	}		
 
-	public static IValue incrementMinutes(IDateTime dt, IInteger n)
+	public IValue incrementMinutes(IDateTime dt, IInteger n)
 	//@doc{Increment the minutes by a given amount.}
 	{
 		if (!dt.isDate()) {
@@ -159,7 +163,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the minutes on a date value.", null, null);
 	}		
 	
-	public static IValue incrementSeconds(IDateTime dt, IInteger n)
+	public IValue incrementSeconds(IDateTime dt, IInteger n)
 	//@doc{Increment the seconds by a given amount.}
 	{
 		if (!dt.isDate()) {
@@ -173,7 +177,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the seconds on a date value.", null, null);
 	}
 	
-	public static IValue incrementMilliseconds(IDateTime dt, IInteger n)
+	public IValue incrementMilliseconds(IDateTime dt, IInteger n)
 	//@doc{Increment the milliseconds by a given amount.}
 	{
 		if (!dt.isDate()) {
@@ -187,7 +191,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the milliseconds on a date value.", null, null);
 	}
 
-	public static IValue decrementYears(IDateTime dt, IInteger n)
+	public IValue decrementYears(IDateTime dt, IInteger n)
 	//@doc{Decrement the years by a given amount.}
 	{
 		if (!dt.isTime()) {
@@ -201,7 +205,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot decrement the years on a time value.", null, null);
 	}		
 
-	public static IValue decrementMonths(IDateTime dt, IInteger n)
+	public IValue decrementMonths(IDateTime dt, IInteger n)
 	//@doc{Decrement the months by a given amount.}
 	{
 		if (!dt.isTime()) {
@@ -215,7 +219,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot decrement the months on a time value.", null, null);
 	}	
 
-	public static IValue decrementDays(IDateTime dt, IInteger n)
+	public IValue decrementDays(IDateTime dt, IInteger n)
 	//@doc{Decrement the days by a given amount.}
 	{
 		if (!dt.isTime()) {
@@ -229,7 +233,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot decrement the days on a time value.", null, null);
 	}
 	
-	public static IValue decrementHours(IDateTime dt, IInteger n)
+	public IValue decrementHours(IDateTime dt, IInteger n)
 	//@doc{Decrement the hours by a given amount.}
 	{
 		if (!dt.isDate()) {
@@ -243,7 +247,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the hours on a date value.", null, null);
 	}		
 
-	public static IValue decrementMinutes(IDateTime dt, IInteger n)
+	public IValue decrementMinutes(IDateTime dt, IInteger n)
 	//@doc{Decrement the minutes by a given amount.}
 	{
 		if (!dt.isDate()) {
@@ -257,7 +261,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the minutes on a date value.", null, null);
 	}		
 
-	public static IValue decrementSeconds(IDateTime dt, IInteger n)
+	public IValue decrementSeconds(IDateTime dt, IInteger n)
 	//@doc{Decrement the seconds by a given amount.}
 	{
 		if (!dt.isDate()) {
@@ -271,7 +275,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the seconds on a date value.", null, null);
 	}		
 
-	public static IValue decrementMilliseconds(IDateTime dt, IInteger n)
+	public IValue decrementMilliseconds(IDateTime dt, IInteger n)
 	//@doc{Decrement the milliseconds by a given amount.}
 	{
 		if (!dt.isDate()) {
@@ -285,7 +289,7 @@ public class DateTime {
 		throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot decrement the milliseconds on a date value.", null, null);
 	}		
 
-	public static IValue createDurationInternal(IDateTime dStart, IDateTime dEnd) {
+	public IValue createDurationInternal(IDateTime dStart, IDateTime dEnd) {
 		// dStart and dEnd both have to be dates, times, or datetimes
 		IValue duration = null;
 		if (dStart.isDate()) {
@@ -328,7 +332,7 @@ public class DateTime {
 		return duration;
 	}
 	
-	public static IValue parseDate(IString inputDate, IString formatString)
+	public IValue parseDate(IString inputDate, IString formatString)
 	//@doc{Parse an input date given as a string using the given format string}
 	{	
 		try {
@@ -341,7 +345,7 @@ public class DateTime {
 		}
 	}
 	
-	public static IValue parseDateInLocale(IString inputDate, IString formatString, IString locale) 
+	public IValue parseDateInLocale(IString inputDate, IString formatString, IString locale) 
 	//@doc{Parse an input date given as a string using a specific locale and format string}
 	{
 		try {
@@ -354,7 +358,7 @@ public class DateTime {
 		}
 	}
 
-	public static IValue parseTime(IString inputTime, IString formatString) 
+	public IValue parseTime(IString inputTime, IString formatString) 
 	//@doc{Parse an input time given as a string using the given format string}
 	{
 		try {
@@ -367,7 +371,7 @@ public class DateTime {
 		}
 	}
 	
-	public static IValue parseTimeInLocale(IString inputTime, IString formatString, IString locale) 
+	public IValue parseTimeInLocale(IString inputTime, IString formatString, IString locale) 
 	//@doc{Parse an input time given as a string using a specific locale and format string}
 	{
 		try {
@@ -380,7 +384,7 @@ public class DateTime {
 		}
 	}
 
-	public static IValue parseDateTime(IString inputDateTime, IString formatString) 
+	public IValue parseDateTime(IString inputDateTime, IString formatString) 
 	//@doc{Parse an input datetime given as a string using the given format string}
 	{
 		try {
@@ -393,7 +397,7 @@ public class DateTime {
 		}			
 	}
 	
-	public static IValue parseDateTimeInLocale(IString inputDateTime, IString formatString, IString locale) 
+	public IValue parseDateTimeInLocale(IString inputDateTime, IString formatString, IString locale) 
 	//@doc{Parse an input datetime given as a string using a specific locale and format string}
 	{
 		try {
@@ -406,7 +410,7 @@ public class DateTime {
 		}
 	}
 
-	public static IValue printDate(IDateTime inputDate, IString formatString) 
+	public IValue printDate(IDateTime inputDate, IString formatString) 
 	//@doc{Print an input date using the given format string}
 	{
 		try {
@@ -418,7 +422,7 @@ public class DateTime {
 		}
 	}
 
-	public static IValue printDate(IDateTime inputDate) 
+	public IValue printDate(IDateTime inputDate) 
 	//@doc{Print an input date using a default format string}
 	{
 		DateTimeFormatter fmt = ISODateTimeFormat.date();
@@ -426,7 +430,7 @@ public class DateTime {
 		return values.string(dt.toString(fmt));
 	}
 	
-	public static IValue printDateInLocale(IDateTime inputDate, IString formatString, IString locale) 
+	public IValue printDateInLocale(IDateTime inputDate, IString formatString, IString locale) 
 	//@doc{Print an input date using a specific locale and format string}
 	{
 		try {
@@ -439,7 +443,7 @@ public class DateTime {
 		}
 	}
 
-	public static IValue printDateInLocale(IDateTime inputDate, IString locale) 
+	public IValue printDateInLocale(IDateTime inputDate, IString locale) 
 	//@doc{Print an input date using a specific locale and a default format string}
 	{
 		DateTimeFormatter fmt = ISODateTimeFormat.date().withLocale(new Locale(locale.getValue()));
@@ -447,7 +451,7 @@ public class DateTime {
 		return values.string(dt.toString(fmt));
 	}
 
-	public static IValue printTime(IDateTime inputTime, IString formatString) 
+	public IValue printTime(IDateTime inputTime, IString formatString) 
 	//@doc{Print an input time using the given format string}
 	{
 		try {
@@ -459,7 +463,7 @@ public class DateTime {
 		}			
 	}
 	
-	public static IValue printTime(IDateTime inputTime) 
+	public IValue printTime(IDateTime inputTime) 
 	//@doc{Print an input time using a default format string}
 	{
 		DateTimeFormatter fmt = ISODateTimeFormat.time();
@@ -467,7 +471,7 @@ public class DateTime {
 		return values.string(dt.toString(fmt));
 	}
 	
-	public static IValue printTimeInLocale(IDateTime inputTime, IString formatString, IString locale) 
+	public IValue printTimeInLocale(IDateTime inputTime, IString formatString, IString locale) 
 	//@doc{Print an input time using a specific locale and format string}
 	{
 		try {
@@ -480,7 +484,7 @@ public class DateTime {
 		}
 	}
 
-	public static IValue printTimeInLocale(IDateTime inputTime, IString locale) 
+	public IValue printTimeInLocale(IDateTime inputTime, IString locale) 
 	//@doc{Print an input time using a specific locale and a default format string}
 	{
 		DateTimeFormatter fmt = ISODateTimeFormat.time().withLocale(new Locale(locale.getValue()));
@@ -488,7 +492,7 @@ public class DateTime {
 		return values.string(dt.toString(fmt));
 	}
 
-	public static IValue printDateTime(IDateTime inputDateTime, IString formatString) 
+	public IValue printDateTime(IDateTime inputDateTime, IString formatString) 
 	//@doc{Print an input datetime using the given format string}
 	{
 		try {
@@ -500,7 +504,7 @@ public class DateTime {
 		}			
 	}
 
-	public static IValue printDateTime(IDateTime inputDateTime) 
+	public IValue printDateTime(IDateTime inputDateTime) 
 	//@doc{Print an input datetime using a default format string}
 	{
 		DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
@@ -508,7 +512,7 @@ public class DateTime {
 		return values.string(dt.toString(fmt));
 	}
 	
-	public static IValue printDateTimeInLocale(IDateTime inputDateTime, IString formatString, IString locale) 
+	public IValue printDateTimeInLocale(IDateTime inputDateTime, IString formatString, IString locale) 
 	//@doc{Print an input datetime using a specific locale and format string}
 	{
 		try {
@@ -521,7 +525,7 @@ public class DateTime {
 		}
 	}
 
-	public static IValue printDateTimeInLocale(IDateTime inputDateTime, IString locale) 
+	public IValue printDateTimeInLocale(IDateTime inputDateTime, IString locale) 
 	//@doc{Print an input datetime using a specific locale and a default format string}
 	{
 		DateTimeFormatter fmt = ISODateTimeFormat.dateTime().withLocale(new Locale(locale.getValue()));
@@ -529,7 +533,7 @@ public class DateTime {
 		return values.string(dt.toString(fmt));
 	}
 
-	public static IValue daysDiff(IDateTime dtStart, IDateTime dtEnd)
+	public IValue daysDiff(IDateTime dtStart, IDateTime dtEnd)
 	//@doc{Increment the years by a given amount.}
 	{
 		if (!(dtStart.isTime() || dtEnd.isTime())) {

@@ -6,9 +6,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.result.AbstractFunction;
-import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.strategy.topological.TopologicalVisitable;
 
 public class All extends AbstractStrategy {
 	private final IVisitable v;
@@ -36,39 +34,5 @@ public class All extends AbstractStrategy {
 		}
 		
 		return makeResult(res, ctx);
-	}
-
-	public static IValue makeAll(IValue arg) {
-		if (arg instanceof AbstractFunction) {
-			AbstractFunction function = (AbstractFunction) arg;
-			if (function.isTypePreserving()) {
-				return new All(function, Visitable.getInstance());
-			}
-		} else if (arg instanceof OverloadedFunctionResult) {
-			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
-			for (AbstractFunction function: res.iterable()) {
-				if (function.isTypePreserving()) {
-					return new All(function, Visitable.getInstance());	
-				}
-			}
-		}
-		throw new RuntimeException("Unexpected strategy argument "+arg);
-	}
-	
-	public static IValue makeTopologicalAll(IValue arg) {
-		if (arg instanceof AbstractFunction) {
-			AbstractFunction function = (AbstractFunction) arg;
-			if (function.isTypePreserving()) {
-				return new All(function, new TopologicalVisitable(function));	
-			} 
-		} else if (arg instanceof OverloadedFunctionResult) {
-			OverloadedFunctionResult res = (OverloadedFunctionResult) arg;
-			for (AbstractFunction function: res.iterable()) {
-				if (function.isTypePreserving()) {
-					return new All(function, new TopologicalVisitable(function));	
-				}
-			}
-		}
-		throw new RuntimeException("Unexpected strategy argument "+arg);
 	}
 }

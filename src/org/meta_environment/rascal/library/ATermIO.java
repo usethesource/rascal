@@ -16,12 +16,17 @@ import org.meta_environment.rascal.interpreter.Typeifier;
 import org.meta_environment.rascal.interpreter.types.ReifiedType;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.uri.URIResolverRegistry;
-import org.meta_environment.values.ValueFactoryFactory;
 
-public class ATermIO {
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
+public class ATermIO{
+	private final IValueFactory values;
 	
-	public static IValue readTextATermFile(IConstructor type, ISourceLocation loc){
+	public ATermIO(IValueFactory values){
+		super();
+		
+		this.values = values;
+	}
+	
+	public IValue readTextATermFile(IConstructor type, ISourceLocation loc){
 		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
 		Typeifier.declare(type, store);
@@ -43,7 +48,7 @@ public class ATermIO {
 		}
 	}
 	
-	public static void writeTextATermFile(ISourceLocation loc, IValue value){
+	public void writeTextATermFile(ISourceLocation loc, IValue value){
 		OutputStream out = null;
 		try{
 			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);

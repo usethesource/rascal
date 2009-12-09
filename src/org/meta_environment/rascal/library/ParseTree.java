@@ -26,10 +26,17 @@ import org.meta_environment.uri.URIResolverRegistry;
 import org.meta_environment.values.ValueFactoryFactory;
 
 public class ParseTree {
-	private final static IValueFactory values = ValueFactoryFactory.getValueFactory();
-	private static final ConcreteObjectParser parser = new ConcreteObjectParser();
+	private final IValueFactory values;
+	private final ConcreteObjectParser parser;
+	
+	public ParseTree(IValueFactory values){
+		super();
+		
+		this.values = values;
+		parser = new ConcreteObjectParser();
+	}
 
-	static public IValue parse(IConstructor start, ISourceLocation input, IEvaluatorContext ctx) {
+	public IValue parse(IConstructor start, ISourceLocation input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		
 		IConstructor startSort = checkPreconditions(start, reified);
@@ -65,7 +72,7 @@ public class ParseTree {
 		
 	}
 	
-	static public IValue parse(IConstructor start, IString input, IEvaluatorContext ctx) {
+	public IValue parse(IConstructor start, IString input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		
 		IConstructor startSort = checkPreconditions(start, reified);

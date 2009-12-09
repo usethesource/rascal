@@ -1,8 +1,9 @@
 package org.meta_environment.rascal.interpreter.utils;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -36,7 +37,6 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingTagError;
 import org.meta_environment.rascal.interpreter.staticErrors.NonAbstractJavaFunctionError;
-import org.meta_environment.rascal.interpreter.staticErrors.NonStaticJavaMethodError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredJavaMethodError;
 
 
@@ -57,11 +57,14 @@ public class JavaBridge {
 	
 	private final IValueFactory vf;
 	
+	private final HashMap<Class<?>, Object> instanceCache;
+	
 
 	public JavaBridge(PrintWriter outputStream, List<ClassLoader> classLoaders, IValueFactory valueFactory) {
 //		this.out = new PrintWriter(outputStream);
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
+		this.instanceCache = new HashMap<Class<?>, Object>();
 		
 //		Commented out while we wait for a 1.6 JVM on MacOSX 
 //		if (ToolProvider.getSystemJavaCompiler() == null) {
@@ -411,47 +414,74 @@ public class JavaBridge {
 			return IDateTime.class;
 		}
 	}
+	
+	public Object getJavaClassInstance(Class<?> clazz){
+		Object instance = instanceCache.get(clazz);
+		if(instance != null){
+			return instance;
+		}
+		
+		try{
+			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
+			instance = constructor.newInstance(vf);
+			instanceCache.put(clazz, instance);
+			return instance;
+		}catch(Exception ex){
+			throw new UndeclaredJavaMethodError(ex.getMessage(), null);
+		}
+	}
+	
+	public Object getJavaClassInstance(FunctionDeclaration func){
+		try{
+			Class<?> clazz = Class.forName(getClassName(func));
+			Object instance = instanceCache.get(clazz);
+			if(instance != null){
+				return instance;
+			}
+			
+			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
+			instance = constructor.newInstance(vf);
+			instanceCache.put(clazz, instance);
+			return instance;
+		}catch(Exception ex){
+			throw new UndeclaredJavaMethodError(ex.getMessage(), func);
+		}
+	}
 
-	public Method lookupJavaMethod(Evaluator eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess) {
-		if (!func.isAbstract()) {
+	public Method lookupJavaMethod(Evaluator eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){
+		if(!func.isAbstract()){
 			throw new NonAbstractJavaFunctionError(func);
 		}
 		
 		String className = getClassName(func);
 		String name = func.getSignature().getName().toString();
 		
-		if (className.length() == 0) {
+		if(className.length() == 0){
 			throw new MissingTagError(JAVA_CLASS_TAG, func);
 		}
 		
-		for (ClassLoader loader : loaders) {
-			try {
+		for(ClassLoader loader : loaders){
+			try{
 				Class<?> clazz = loader.loadClass(className);
 				Parameters parameters = func.getSignature().getParameters();
 				Class<?>[] javaTypes = getJavaTypes(parameters, env, hasReflectiveAccess);
 
-				try {
+				try{
 					Method m;
 					
-
-					if (javaTypes.length > 0) { // non-void
-						m = clazz.getDeclaredMethod(name, javaTypes);
-					}
-					else {
-						m = clazz.getDeclaredMethod(name);
-					}
-
-					if ((m.getModifiers() & Modifier.STATIC) == 0) {
-						throw new NonStaticJavaMethodError(func);
+					if(javaTypes.length > 0){ // non-void
+						m = clazz.getMethod(name, javaTypes);
+					}else{
+						m = clazz.getMethod(name);
 					}
 
 					return m;
-				} catch (SecurityException e) {
+				}catch(SecurityException e){
 					throw RuntimeExceptionFactory.permissionDenied(vf.string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
-				} catch (NoSuchMethodException e) {
+				}catch(NoSuchMethodException e){
 					throw new UndeclaredJavaMethodError(e.getMessage(), func);
 				}
-			} catch (ClassNotFoundException e) {
+			}catch(ClassNotFoundException e){
 				continue;
 			}
 		}

@@ -18,12 +18,17 @@ import org.meta_environment.rascal.interpreter.Typeifier;
 import org.meta_environment.rascal.interpreter.types.ReifiedType;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.uri.URIResolverRegistry;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class ValueIO{
-	private final static IValueFactory values = ValueFactoryFactory.getValueFactory();
+	private final IValueFactory values;
 	
-	public static IValue readBinaryValueFile(IConstructor type, ISourceLocation loc){
+	public ValueIO(IValueFactory values){
+		super();
+		
+		this.values = values;
+	}
+	
+	public IValue readBinaryValueFile(IConstructor type, ISourceLocation loc){
 		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
 		Typeifier.declare(type, store);
@@ -48,7 +53,7 @@ public class ValueIO{
 		}
 	}
 	
-	public static IValue readTextValueFile(IConstructor type, ISourceLocation loc){
+	public IValue readTextValueFile(IConstructor type, ISourceLocation loc){
 		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
 		Typeifier.declare(type, store);
@@ -70,7 +75,7 @@ public class ValueIO{
 		}
 	}
 	
-	public static void writeBinaryValueFile(ISourceLocation loc, IValue value){
+	public void writeBinaryValueFile(ISourceLocation loc, IValue value){
 		OutputStream out = null;
 		try{
 			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
@@ -88,7 +93,7 @@ public class ValueIO{
 		}
 	}
 	
-	public static void writeTextValueFile(ISourceLocation loc, IValue value){
+	public void writeTextValueFile(ISourceLocation loc, IValue value){
 		OutputStream out = null;
 		try{
 			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);

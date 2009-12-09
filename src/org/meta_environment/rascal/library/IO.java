@@ -22,19 +22,25 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
 import org.meta_environment.uri.URIResolverRegistry;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class IO{
-	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();	
+
+	private final IValueFactory values;
+	private volatile PrintStream out;
 	
-	private volatile static PrintStream out = System.out;
-	
-	public static void setOutputStream(PrintStream out){
-		IO.out = out;
+	public IO(IValueFactory values){
+		super();
+		
+		this.values = values;
+		out = System.out;
 	}
 	
-	public static void println(IList V){
+	public void setOutputStream(PrintStream out){
+		this.out = out;
+	}
+	
+	public void println(IList V){
 		PrintStream currentOutStream = out;
 		
 		synchronized(currentOutStream){
@@ -58,7 +64,7 @@ public class IO{
 		}
 	}
 	
-	public static void rawPrintln(IList V){
+	public void rawPrintln(IList V){
 		PrintStream currentOutStream = out;
 		
 		synchronized(currentOutStream){
@@ -75,7 +81,7 @@ public class IO{
 	}
 
 	@Deprecated
-	public static IValue readFile(IString filename){
+	public IValue readFile(IString filename){
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		BufferedReader in = null;
@@ -106,7 +112,7 @@ public class IO{
 		return w.done();
 	}
 	
-	public static IValue readFile(ISourceLocation file){
+	public IValue readFile(ISourceLocation file){
 		StringBuilder result = new StringBuilder();
 		
 		InputStream in = null;
@@ -141,11 +147,11 @@ public class IO{
 		}
 	}
 	
-	public static void writeFile(ISourceLocation file, IList V) {
+	public void writeFile(ISourceLocation file, IList V) {
 		writeFile(file, V, false);
 	}
 	
-	private static void writeFile(ISourceLocation file, IList V, boolean append){
+	private void writeFile(ISourceLocation file, IList V, boolean append){
 		OutputStream out = null;
 		try{
 			out = URIResolverRegistry.getInstance().getOutputStream(file.getURI(), append);
@@ -177,11 +183,11 @@ public class IO{
 		return;
 	}
 	
-	public static void appendToFile(ISourceLocation file, IList V){
+	public void appendToFile(ISourceLocation file, IList V){
 		writeFile(file, V, true);
 	}
 	
-	public static IList readFileLines(ISourceLocation file){
+	public IList readFileLines(ISourceLocation file){
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		BufferedReader in = null;
