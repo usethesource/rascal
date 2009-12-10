@@ -19,11 +19,11 @@ public class GraphNode {
 		this.velem = velem;
 	}
 	
-	public void relax(List<GraphNode> parts){
+	public void relax(List<GraphNode> nodes){
 		float ddx = 0;
 		float ddy = 0;
 		
-		for(GraphNode n : parts){
+		for(GraphNode n : nodes){
 			if(n != this){
 				float vx = x - n.x;
 				float vy = y - n.y;
@@ -49,8 +49,8 @@ public class GraphNode {
 			x += PApplet.constrain (dx, -5, 5);
 			y += PApplet.constrain (dy, -5, 5);
 			
-			x =  PApplet.constrain (x, 0, 600);
-			y =  PApplet.constrain (y, 0, 600);
+			x =  PApplet.constrain (x, velem.width/2, 400-velem.width/2);
+			y =  PApplet.constrain (y, velem.height/2, 400-velem.height/2);
 		}
 		dx /= 2;
 		dy /= 2;

@@ -103,7 +103,7 @@ data VPROP =
    | mouseOver(list[VPROP] props)       // switch to new properties when mouse is over element
    
 /* other */
-   | id(str name)                       // name of elem (used in edges and layouts)
+   | id(str name)                       // name of elem (used in edges and various layouts)
    | closed()    						// closed shapes
    | curved()                           // use curves instead of straight lines
    ;

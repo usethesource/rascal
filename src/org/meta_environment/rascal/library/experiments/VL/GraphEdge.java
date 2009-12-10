@@ -14,9 +14,16 @@ public class GraphEdge extends VELEM {
 	public GraphEdge(VLPApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		from = vlp.getRegistered(fromName.getValue());
+		// TODO Generate exceptions for null cases
+		if(from == null){
+			System.err.println("No node " + fromName.getValue());
+		}
 		to = vlp.getRegistered(toName.getValue());
+		if(to == null){
+			System.err.println("No node " + toName.getValue());
+		}
 		len = 50;
-		// TODO null case;
+		
 		System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue());
 	}
 	
