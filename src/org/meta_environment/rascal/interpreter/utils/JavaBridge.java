@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.utils;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.staticErrors.JavaMethodLinkError;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingTagError;
 import org.meta_environment.rascal.interpreter.staticErrors.NonAbstractJavaFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredJavaMethodError;
@@ -426,26 +428,59 @@ public class JavaBridge {
 			instance = constructor.newInstance(vf);
 			instanceCache.put(clazz, instance);
 			return instance;
-		}catch(Exception ex){
-			throw new UndeclaredJavaMethodError(ex.getMessage(), null);
-		}
+		} catch (IllegalArgumentException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (InstantiationException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (SecurityException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (NoSuchMethodException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} 
 	}
 	
 	public Object getJavaClassInstance(FunctionDeclaration func){
-		try{
-			Class<?> clazz = Class.forName(getClassName(func));
-			Object instance = instanceCache.get(clazz);
-			if(instance != null){
-				return instance;
+		String className = getClassName(func);
+
+		try {
+			for(ClassLoader loader : loaders){
+				try{
+					Class<?> clazz = loader.loadClass(className);
+
+					Object instance = instanceCache.get(clazz);
+					if(instance != null){
+						return instance;
+					}
+
+					Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
+					instance = constructor.newInstance(vf);
+					instanceCache.put(clazz, instance);
+					return instance;
+				}
+				catch(ClassNotFoundException e){
+					continue;
+				} 
 			}
-			
-			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
-			instance = constructor.newInstance(vf);
-			instanceCache.put(clazz, instance);
-			return instance;
-		}catch(Exception ex){
-			throw new UndeclaredJavaMethodError(ex.getMessage(), func);
+		} 
+		catch (IllegalArgumentException e) {
+			throw new JavaMethodLinkError(className, e.getMessage(), func);
+		} catch (InstantiationException e) {
+			throw new JavaMethodLinkError(className, e.getMessage(), func);
+		} catch (IllegalAccessException e) {
+			throw new JavaMethodLinkError(className, e.getMessage(), func);
+		} catch (InvocationTargetException e) {
+			throw new JavaMethodLinkError(className, e.getMessage(), func);
+		} catch (SecurityException e) {
+			throw new JavaMethodLinkError(className, e.getMessage(), func);
+		} catch (NoSuchMethodException e) {
+			throw new JavaMethodLinkError(className, e.getMessage(), func);
 		}
+		
+		throw new JavaMethodLinkError(className, "class not found", func);
 	}
 
 	public Method lookupJavaMethod(Evaluator eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){
