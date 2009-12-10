@@ -40,14 +40,19 @@ public class VLPApplet extends PApplet {
 	public void registerMouse(VELEM v){
 		mouseOver = v;
 	}
+	
+	public boolean isRegisteredMouse(VELEM v){
+		return mouseOver == v;
+	}
 
 	@Override
 	public void setup(){
 		size(width, height);
 		textFont(createFont("Helvetica", 12));
 		smooth();
-		if(!velem.hasInteraction())
-			noLoop();
+		noLoop();
+		//if(!velem.hasInteraction())
+		//	noLoop();
 	}
 	
 	@Override
@@ -59,17 +64,19 @@ public class VLPApplet extends PApplet {
 	
 	@Override
 	public void mouseMoved(){
-		//System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
+		System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
 		if(mouseOver != null){
 			mouseOver.properties.setMouseOver(false);
 			mouseOver = null;
 		}
 		velem.mouseOver(mouseX, mouseY);
+		redraw();
 	}
 	
 	@Override
 	public void mousePressed(){
 		//System.err.println("mousePressed: " + mouseX + ", " + mouseY);
 		velem.mouseOver(mouseX, mouseY);
+		redraw();
 	}
 }

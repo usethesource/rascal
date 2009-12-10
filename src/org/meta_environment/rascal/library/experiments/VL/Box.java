@@ -4,6 +4,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
+import processing.core.PConstants;
+
 public class Box extends VELEM {
 
 	/**
@@ -43,9 +45,14 @@ public class Box extends VELEM {
 		System.err.println("box.draw: left=" + left + ", top=" + top + ", width=" + width + ", height=" + height+ ", color=" + getFillColorProperty());
 		if(height > 0 && width > 0){
 			vlp.rect(left, top, width, height);
+			String txt = getTextProperty();
 			if(inside != null){
 				int gap = getGapProperty();
 				inside.draw(left + gap/2, top + gap/2);
+			} else if(txt.length() != 0){
+				if(vlp.textWidth(txt) < width || vlp.isRegisteredMouse(this))
+					vlp.textAlign(PConstants.CENTER);
+					vlp.text(txt,left + width/2, top + height/2);
 			}
 		}
 	}
