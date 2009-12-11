@@ -79,4 +79,6 @@ public class VLPApplet extends PApplet {
 		velem.mouseOver(mouseX, mouseY);
 		redraw();
 	}
+	
+	public void mouse
 }
