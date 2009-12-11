@@ -14,6 +14,7 @@ import processing.core.PApplet;
 public class SketchSWT   {
 	
 	private PApplet applet;
+	//private static Display display = new Display();
 
 	public SketchSWT (final PApplet pa){
 		this. applet = pa;
@@ -38,6 +39,8 @@ public class SketchSWT   {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
+		display.dispose();
+		pa.destroy();
 	}
 	
 	public PApplet getApplet(){
