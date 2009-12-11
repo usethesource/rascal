@@ -153,4 +153,12 @@ data VELEM =
    | tree(list[VELEM] nodes, list[Edge] edges)
    | tree(list[VPROP], list[VELEM] nodes, list[Edge] edges)
    ;
+   
+/*
+ * Wishlist:
+ * - arrows
+ * - textures
+ * - boxes with round corners
+ * - dashed/dotted lines
+ */
 
