@@ -12,6 +12,8 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
+import processing.core.PApplet;
+
 public class Tree extends VELEM {
 	protected HashMap<String,TreeNode> nodeMap;
 	private HashSet<TreeNode> hasParent;
@@ -81,7 +83,7 @@ public class Tree extends VELEM {
 	}
 
 	@Override
-	void bbox(float left, float top) {
+	void bbox(int left, int top) {
 		raster.clear();
 		root.shapeTree(left, top, raster);
 	}
@@ -93,8 +95,8 @@ public class Tree extends VELEM {
 	
 	@Override
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.left = PApplet.round(left);
+		this.top = PApplet.round(top);
 		applyProperties();
 		root.draw();
 	}

@@ -6,6 +6,8 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.library.experiments.VL.PropertyManager.Property;
 import org.meta_environment.values.ValueFactoryFactory;
 
+import processing.core.PApplet;
+
 
 /**
  * @author paulk
@@ -20,8 +22,8 @@ public abstract class VELEM implements Comparable<VELEM> {
 	
 	protected PropertyManager properties;
 	
-	protected float left;             // coordinates of top left corner of
-	protected float top; 				// the element's bounding box
+	protected int left;             // coordinates of top left corner of
+	protected int top; 				// the element's bounding box
 	protected float width = 0;		// width of element
 	protected float height = 0;		// height picture
 	
@@ -44,7 +46,6 @@ public abstract class VELEM implements Comparable<VELEM> {
 	public void applyProperties(){
 		properties.applyProperties();
 	}
-	
 	
 	protected int getHeightProperty(){
 		return properties.getInt(Property.HEIGHT);
@@ -174,7 +175,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 	 * Compute the bounding box of the element. Should be called before draw since,
 	 * the computed width and height are stored in the element itself.
 	 */
-	abstract void bbox(float left, float top);
+	abstract void bbox(int left, int top);
 	
 	/**
 	 * Draw element with given left, top corner of its bounding box
@@ -189,8 +190,8 @@ public abstract class VELEM implements Comparable<VELEM> {
 	 * @param top	y-coordinate of corner
 	 */
 	void draw(float left, float top){
-		this.left = left;
-		this.top = top;
+		this.left = PApplet.round(left);
+		this.top = PApplet.round(top);
 		draw();
 	}
 	

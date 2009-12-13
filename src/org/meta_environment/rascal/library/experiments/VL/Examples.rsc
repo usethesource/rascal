@@ -46,7 +46,7 @@ public void box7(){
 	render(box([fillColor("mediumblue"), gap(10)], text("een label")));
 }
 
-// Blue outer box of 20x20 with white inner text
+// Blue outer box of 20x20 with white large inner text
 
 public void box8(){
 	render(box([width(20), height(20), fillColor("mediumblue"), gap(10)], text("een label")));
@@ -145,28 +145,37 @@ public void comb5(){
 		));
 }
 
-public void txt1(){ // default fill color is white!
+// Text: nothing visible since default fill color is white!
+public void txt1(){
 	render(text("Een label"));
 }
 
+// Black text of size 20
 public void txt2(){
 	render(text([fontSize(20), fillColor("black")], "Een label"));
 }
 
+// Unsized box with inner text
 public void txt3(){
 	render(box([gap(1)], text([fontSize(20), fillColor("black")], "Een label")));
 }
 
+// Horizontal bottom-aligned composition of text of different size
+// TODO baselines not ok
 
 public void txt4(){
-	render(combine([ text([fontSize(20), fillColor("black")], "Label een"),
+	render(combine([bottom()],
+	               [ text([fontSize(20), fillColor("black")], "Label een"),
 	 				 text([fontSize(40), fillColor("blue")], "Label twee")
 	 			   ]));
 }
 
+// Text rotated -90 degrees (counter clockwise)
 public void txt5(){
 	render(text([ fontSize(20), fillColor("black"), textAngle(-90)], "Een label"));
 }
+
+// Vertical; composition of rotated text and a box
 
 public void txt6(){
 	render(combine([vertical(), center(), gap (10)],
@@ -176,6 +185,7 @@ public void txt6(){
 	                ]));
 }
 
+// Overlay of box and text
 public void txt7(){
 	render(overlay([bottom()],
 	              [box([ width(100), height(200), fillColor("red") ]),
@@ -184,7 +194,7 @@ public void txt7(){
 		));
 }
 
-
+// Barchart: Horizontal composition of boxes
 
 public void bar1(){
     dt1 = [10, 12, 17, 0, 15, 7, 20, 40, 60];  
@@ -201,6 +211,7 @@ public void bar1(){
     render(b);
 }
 
+// Barchart: Horizontal composition of two sets of boxes (top aligned)
 public void bar2(){
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
@@ -223,7 +234,7 @@ public void bar2(){
                );
     render(b);
 }
-
+// Barchart: Horizontal composition of vertically stacked boxes
 public void bar2v(){ 
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
@@ -255,12 +266,16 @@ public void e1(){
 
 // Unsized blue ellipse with sized white inner box
 public void e2(){
-	render(ellipse([fillColor("mediumblue"), gap(10)], box([size(40), fillColor("white")])));
+	render(ellipse([fillColor("mediumblue"), gap(20)], box([size(40), fillColor("white")])));
 }
 
 // Unsized blue ellipse with sized white inner text
 public void e3(){
 	render(ellipse([fillColor("mediumblue"), gap(10)], text("een label")));
+}
+
+public void e4(){
+	render(ellipse([size(20), fillColor("mediumblue"), gap(10)], text("een label")));
 }
 
 // Centered Overlay of two boxes
@@ -281,7 +296,7 @@ render(overlay([bottom()],
               ]));
 }
 
-// Shape
+// Shape: line graph with circle on each point
 
 public void s1(){
     dt1 = [10, 20, 10, 30];
@@ -295,7 +310,7 @@ public void s1(){
     render(b);
 }
 
-// Shape
+// Shape: curved (fitted) graph with circle on each point
 
 public void s2(){
     dt1 = [10, 20, 10, 30];
@@ -310,7 +325,7 @@ public void s2(){
     render(b);
 }
 
-// Two overlayed shapes
+// Two overlayed shapes with closed and curved graphs
 
 public void s3(){
     dt1 = [10, 20, 10, 30];
@@ -335,6 +350,7 @@ public void s3(){
 }
 
 // Grid of boxes
+// TODO broken??
 
 public void grid1(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
@@ -429,7 +445,7 @@ public void graph1(){
     render(graph([width(400), height(400)], nodes, edges));
 }
 
-// Tree
+// Tree: 1 node
 
 public void tree1(){
 
@@ -444,7 +460,7 @@ public void tree1(){
     render(tree([gap(10), top()], nodes, edges));
 }
 
-// Tree
+// Tree: 2 nodes
 
 public void tree2(){
 
@@ -461,7 +477,7 @@ public void tree2(){
     render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges));
 }
 
-// Tree
+// Tree: 3 nodes
 public void tree3(){
 
    nodes =
@@ -478,7 +494,7 @@ public void tree3(){
     render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges));
 }
 
-// Tree
+// Tree: 4 nodes
 
 public void tree4(){
 
@@ -500,7 +516,7 @@ public void tree4(){
 
 // Tree
 
-public void ltree1(){
+public void tree5(){
 
    nodes =
      	[ box([id("A"), fillColor("green")]),
@@ -533,7 +549,7 @@ public void ltree1(){
 
 // Tree
 
-public void ltree2(){
+public void tree6(){
 
    nodes =
      	[ box([id("A"), width(20), height(20), fillColor("green")]),
@@ -569,7 +585,7 @@ public VELEM popup(str s){
 	return box([width(0), height(0), gap(1), fillColor("yellow")], text(s));
 }
 
-public void oltree2(){
+public void tree7(){
 
    nodes =
      	[ box([id("A"), width(20), height(20), fillColor("green")], popup("Text For Box A")),
@@ -601,7 +617,7 @@ public void oltree2(){
 
 // Tree
 
-public void ltree3(){
+public void tree8(){
 
    nodes =
      	[ box([id("A"), width(10), height(20), fillColor("green")]),

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
+import processing.core.PApplet;
+
 public class TreeNode extends VELEM {
 	
 	VELEM velemNode;
@@ -26,13 +28,15 @@ public class TreeNode extends VELEM {
 	}
 	
 	@Override
-	public void bbox(float left, float top){
+	public void bbox(int left, int top){
 	}
 	
 	float shapeTree(float left, float top, TreeNodeRaster raster) {
-		velemNode.bbox(left,top);
-		this.left = left;
-		this.top = top;
+		int ileft = PApplet.round(left);
+		int itop = PApplet.round(top);
+		velemNode.bbox(ileft,itop);
+		this.left = ileft;
+		this.top = itop;
 		int hgap = getHGapProperty();
 		int vgap = getVGapProperty();
 		float position = left + velemNode.width/2; // x position of center of node!
@@ -73,7 +77,7 @@ public class TreeNode extends VELEM {
 			width = velemNode.width;
 	
 		raster.add(position, top, velemNode.width, velemNode.height);
-		this.left = velemNode.left = position - velemNode.width/2;
+		this.left = velemNode.left = PApplet.round(position - velemNode.width/2);
 		return position;
 	}
 

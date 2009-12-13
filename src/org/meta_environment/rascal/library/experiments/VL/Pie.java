@@ -20,7 +20,7 @@ public class Pie extends Compose {
 	}
 	
 	@Override
-	void bbox(float left, float top) {
+	void bbox(int left, int top) {
 		this.left = left;
 		this.top = top;
 		fromAngle = PApplet.radians(getFromAngleProperty());

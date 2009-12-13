@@ -3,6 +3,8 @@ package org.meta_environment.rascal.library.experiments.VL;
 import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
+import processing.core.PApplet;
+
 
 public class Combine extends Compose {
 
@@ -11,7 +13,7 @@ public class Combine extends Compose {
 	}
 	
 	@Override
-	void bbox(float left, float top){
+	void bbox(int left, int top){
 		this.left = left;
 		this.top = top;
 		width = 0;
@@ -81,8 +83,8 @@ public class Combine extends Compose {
 
 	@Override
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.left = PApplet.round(left);
+		this.top =  PApplet.round(top);
 		draw();
 	}
 	

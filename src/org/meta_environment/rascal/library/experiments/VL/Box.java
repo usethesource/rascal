@@ -19,8 +19,8 @@ public class Box extends VELEM {
 		System.err.println("box.init: width=" + width + ", height=" + height);
 	}
 
-	@Override
-	void bbox(float left, float top){
+	@Override 
+	void bbox(int left, int top){
 		this.left = left;
 		this.top = top;
 		VELEM insideForMouseOver = getInsideForMouseOver();

@@ -18,7 +18,7 @@ public class Text extends VELEM {
 	}
 	
 	@Override
-	void bbox(float left, float top){
+	void bbox(int left, int top){
 		this.left = left;
 		this.top = top;
 		vlp.textSize(getFontSizeProperty());
@@ -47,7 +47,7 @@ public class Text extends VELEM {
 		
 		applyProperties();
 	
-		System.err.printf("text.draw: %s, left=%f, top=%f, width=%f, height=%f\n", txt, left, top, width, height);
+		System.err.printf("text.draw: %s, left=%d, top=%d, width=%f, height=%f\n", txt, left, top, width, height);
 		if(height > 0 && width > 0){
 			int angle = getTextAngleProperty();
 
