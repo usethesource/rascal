@@ -58,11 +58,12 @@ public Color(int) colorScale(list[int] values, Color from, Color to){
 
 data VPROP =
 /* sizes */
-     width(int width)
-   | height(int height)
-   | size(int size)                     // size of varies elems
-   | visible(bool visible)				// is elem visible?
-   | gap(int amount)                    // gap between elements in composition
+     width(int width)                   // sets width of element
+   | height(int height)                 // sets height of element
+   | size(int size)                     // sets width and height to same value
+   | size(int hor, int vert)            // sets width and height to separate values
+   | gap(int amount)                    // sets gap between elements in composition to same value
+   | gap(int hor, int vert) 			// sets gap between elements in composition to separate values
    
 /* direction and alignment */
    | horizontal()                       // horizontal composition
@@ -94,13 +95,14 @@ data VPROP =
    | innerRadius(int radius)
    
  /* text attributes */
-   | text(str s)                        // the text itself
    | font(str fontName)                 // named font
    | fontSize(int size)                 // font size
    | textAngle(int angle)               // rotation
    
 /* interaction */
    | mouseOver(list[VPROP] props)       // switch to new properties when mouse is over element
+   | mouseOver(list[VPROP] props, VELEM inner)
+                                        // display new inner element when mouse is over current element
    
 /* other */
    | id(str name)                       // name of elem (used in edges and various layouts)
@@ -114,17 +116,18 @@ data Vertex =
    ;
    
 data Edge =
-     edge(str from, str to) 			// edge between between two elements
+     edge(str from, str to) 			 // edge between between two elements
    | edge(list[VPROP], str from, str to) // edge between between two elements
    ;
    
 data VELEM = 
 /* drawing primitives */
-     box(list[VPROP] props)			    // rectangular box
+     box(list[VPROP] props)			          	// rectangular box
    | box(list[VPROP] props, VELEM inner)
-   | ellipse(list[VPROP] props)			// ellipse
+   | ellipse(list[VPROP] props)			      	// ellipse
    | ellipse(list[VPROP] props, VELEM inner)
-   | label(list[VPROP] props)			// text label
+   | text(list[VPROP] props, str s)		  		// text label
+   | text(str s)			              		// text label
  
  
 /* lines and curves */

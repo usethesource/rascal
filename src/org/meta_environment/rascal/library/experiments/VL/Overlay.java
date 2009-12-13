@@ -33,16 +33,16 @@ public class Overlay extends Compose {
 			float veLeft;
 			float veTop;
 			
-			if(isRight())
+			if(isRightAligned())
 				veLeft = left + width - ve.width;
-			else if(isLeft())
+			else if(isLeftAligned())
 				veLeft = left;
 			else
 				veLeft = left + (width - ve.width)/2;
 			
-			if(isTop())
+			if(isTopAligned())
 				veTop = top;
-			else if (isBottom())
+			else if (isBottomAligned())
 				veTop = top + height - ve.height;
 			else
 				veTop = top + (height - ve.height)/2;

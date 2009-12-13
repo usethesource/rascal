@@ -41,7 +41,7 @@ public class VLPApplet extends PApplet {
 		mouseOver = v;
 	}
 	
-	public boolean isRegisteredMouse(VELEM v){
+	public boolean isRegisteredAsMouseOver(VELEM v){
 		return mouseOver == v;
 	}
 
@@ -60,6 +60,8 @@ public class VLPApplet extends PApplet {
 		background(255);
 		velem.bbox();
 		velem.draw(0, 0);
+		if(mouseOver != null)
+			mouseOver.draw();
 	}
 	
 	@Override
@@ -79,6 +81,4 @@ public class VLPApplet extends PApplet {
 		velem.mouseOver(mouseX, mouseY);
 		redraw();
 	}
-	
-	public void mouse
 }

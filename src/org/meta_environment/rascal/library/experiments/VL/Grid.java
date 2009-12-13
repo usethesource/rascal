@@ -31,16 +31,17 @@ public class Grid extends Compose {
 		float hrow = 0;
 		float toprow = 0;
 		nrow = 0;
-		int gap = getGapProperty();
+		int hgap = getHGapProperty();
+		int vgap = getVGapProperty();
 		for(int i = 0; i < velems.length; i++){
 			VELEM ve = velems[i];
-			if(w + gap + ve.width > width){
+			if(w + hgap + ve.width > width){
 				if(w == 0){
 					width = ve.width;
 				} else {
 					rowHeight[nrow] = hrow;
 					nrow++;
-					height += hrow + gap;
+					height += hrow + vgap;
 					toprow = height;
 					w = hrow = 0;
 				}
@@ -48,7 +49,7 @@ public class Grid extends Compose {
 			leftElem[i] = w;
 			toTopElem[i] = toprow;
 			inRow[i] = nrow;
-			w += ve.width + gap;
+			w += ve.width + hgap;
 			hrow = max(hrow, ve.height);
 	
 		}
@@ -67,9 +68,9 @@ public class Grid extends Compose {
 			VELEM ve = velems[i];
 			float hrow = rowHeight[inRow[i]];
 			float veTop;
-			if(isTop())
+			if(isTopAligned())
 				veTop = top + toTopElem[i];
-			else if(isBottom())
+			else if(isBottomAligned())
 				veTop = top + toTopElem[i] + hrow;
 			else
 				veTop = top + toTopElem[i];

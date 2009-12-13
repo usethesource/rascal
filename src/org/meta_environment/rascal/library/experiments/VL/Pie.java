@@ -34,10 +34,10 @@ public class Pie extends Compose {
 			perimeter += ve.width;
 			toRadius = max(toRadius, innerRadius + ve.height);
 		} 
-		float gap = getGapProperty();
-		float gaps = (velems.length - 1) * gap;
+		float hgap = getHGapProperty();
+		float gaps = (velems.length - 1) * hgap;
 		perimeter += gaps;
-		gapAngle = (gap/perimeter) * (toAngle - fromAngle);
+		gapAngle = (hgap/perimeter) * (toAngle - fromAngle);
 		System.err.printf("bbox: perimeter = %f\n", perimeter);
 		for(int i = 0; i < velems.length; i++){
 			angle[i] = ((velems[i].width)/perimeter) * (toAngle - fromAngle);
