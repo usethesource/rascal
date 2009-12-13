@@ -24,10 +24,11 @@ public class Ellipse extends VELEM {
 		width = getWidthProperty() + lw;
 		height = getHeightProperty() + lw;
 		if(inside != null){
-			int gap = getGapProperty();
+			int hgap = getHGapProperty();
+			int vgap = getVGapProperty();
 			inside.bbox();
-			width = inside.width + gap;
-			height = inside.height + gap;
+			width = inside.width + hgap;
+			height = inside.height + vgap;
 		}
 		System.err.printf("bbox.ellipse: %f, %f)\n", width, height);
 	}
@@ -40,8 +41,9 @@ public class Ellipse extends VELEM {
 		vlp.ellipseMode(PConstants.CORNERS);
 		vlp.ellipse(left, top, left + width, top + height);
 		if(inside != null){
-			int gap = getGapProperty();
-			inside.draw(left + gap/2, top + gap/2);
+			int hgap = getHGapProperty();
+			int vgap = getVGapProperty();
+			inside.draw(left + hgap/2, top + vgap/2);
 		}
 	}
 

@@ -17,7 +17,7 @@ public class VELEMFactory {
 	static IList emptyList = vf.list();
 	
 	enum Primitives {COMBINE, OVERLAY, GRID, SHAPE, PACK, GRAPH, TREE,
-					  BOX, ELLIPSE, LABEL, EDGE, VERTEX, PIE}
+					  BOX, ELLIPSE, TEXT, EDGE, VERTEX, PIE}
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     	{
@@ -28,7 +28,7 @@ public class VELEMFactory {
     		put("pack",		Primitives.PACK);	
     		put("box",		Primitives.BOX);	
     		put("ellipse",	Primitives.ELLIPSE);	
-    		put("label",	Primitives.LABEL);	
+    		put("text",		Primitives.TEXT);	
     		put("edge",		Primitives.EDGE);	
     		put("graph",	Primitives.GRAPH);
     		put("tree",		Primitives.TREE);
@@ -109,9 +109,11 @@ public class VELEMFactory {
 				else
 					return new Ellipse(vlp, inheritedProps, (IList) c.get(0), null, ctx);
 				
-				
-			case LABEL:
-				return new Label(vlp, inheritedProps, (IList) c.get(0), ctx);
+			case TEXT:
+				if(c.arity() == 1)
+					return new Text(vlp, inheritedProps, emptyList, (IString) c.get(0), ctx);
+				else
+					return new Text(vlp, inheritedProps,  (IList) c.get(0), (IString) c.get(1), ctx);
 				
 			case EDGE:
 				if(c.arity() == 3)

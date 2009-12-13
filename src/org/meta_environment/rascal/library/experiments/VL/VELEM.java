@@ -28,12 +28,12 @@ public abstract class VELEM implements Comparable<VELEM> {
 	VELEM(VLPApplet vlp, IEvaluatorContext ctx){
 		this.vlp = vlp;
 		vf = ValueFactoryFactory.getValueFactory();
-		properties = new PropertyManager(null, vf.list(), ctx);
+		properties = new PropertyManager(vlp, null, vf.list(), ctx);
 	}
 	
 	VELEM(VLPApplet vlp, PropertyManager inheritedProps, IList props, IEvaluatorContext ctx){
 		this.vlp = vlp;
-		properties = new PropertyManager(inheritedProps, props, ctx);
+		properties = new PropertyManager(vlp, inheritedProps, props, ctx);
 		vf = ValueFactoryFactory.getValueFactory();
 	}
 	
@@ -42,7 +42,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 	}
 	
 	public void applyProperties(){
-		properties.applyProperties(vlp);
+		properties.applyProperties();
 	}
 	
 	
@@ -54,12 +54,12 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return properties.getInt(Property.WIDTH);
 	}
 	
-	protected int getSizeProperty(){
-		return properties.getInt(Property.SIZE);
+	protected int getHGapProperty(){
+		return properties.getInt(Property.HGAP);
 	}
 	
-	protected int getGapProperty(){
-		return properties.getInt(Property.GAP);
+	protected int getVGapProperty(){
+		return properties.getInt(Property.VGAP);
 	}
 	
 	protected int getFillColorProperty(){
@@ -82,23 +82,23 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return properties.getBool(Property.HORIZONTAL);
 	}
 	
-	protected boolean isCenter(){
+	protected boolean isCenterAligned(){
 		return properties.getBool(Property.CENTER);
 	}
 	
-	protected boolean isTop(){
+	protected boolean isTopAligned(){
 		return properties.getBool(Property.TOP);
 	}
 	
-	protected boolean isBottom(){
+	protected boolean isBottomAligned(){
 		return properties.getBool(Property.BOTTOM);
 	}
 	
-	protected boolean isLeft(){
+	protected boolean isLeftAligned(){
 		return properties.getBool(Property.LEFT);
 	}
 	
-	protected boolean isRight(){
+	protected boolean isRightAligned(){
 		return properties.getBool(Property.RIGHT);
 	}
 	
@@ -122,10 +122,6 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return properties.getInt(Property.INNER_RADIUS);
 	}
 	
-	protected String getTextProperty(){
-		 return properties.getStr(Property.TEXT);
-	}
-	
 	protected String getIdProperty(){
 		return properties.getStr(Property.ID);
 	}
@@ -144,6 +140,10 @@ public abstract class VELEM implements Comparable<VELEM> {
 	
 	public boolean hasInteraction(){
 		return properties.mouseOverproperties != null;
+	}
+	
+	public VELEM getInsideForMouseOver(){
+		return properties.mouseOverVElem;
 	}
 	
 	/* 

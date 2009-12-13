@@ -26,48 +26,49 @@ public class Combine extends Compose {
 				height = height + ve.height;
 			}
 		} 
-		int gaps = (velems.length - 1) * getGapProperty();
+		int ngaps = (velems.length - 1);
 		if(isHorizontal())
-			width += gaps;
+			width += ngaps * getHGapProperty();
 		else
-			height += gaps;
+			height += ngaps * getVGapProperty();
 	}
 	
 	@Override
 	void draw(){
 		
 		applyProperties();
-		int gap = getGapProperty();
 
 		if(isHorizontal()){
+			int hgap = getHGapProperty();
 			float bottom = top + height;
 			float veTop;
 			for(VELEM ve : velems){
-				if(isTop())
+				if(isTopAligned())
 					veTop = top;
-				else if(isBottom())
+				else if(isBottomAligned())
 					veTop = bottom - ve.height;
 				else
 					veTop = top + (height - ve.height)/2;
 				
 				ve.draw(left, veTop);
-				left += ve.width + gap;
+				left += ve.width + hgap;
 			}
 		} else {
+			int vgap = getVGapProperty();
 			float right = left + width;
 			float bottom = top + height;
 			float veLeft;
 			for(VELEM ve : velems){
-				if(isRight())
+				if(isRightAligned())
 					veLeft = right - ve.width;
-				else if(isLeft())
+				else if(isLeftAligned())
 					veLeft = left;
 				else
 					veLeft = left + (width - ve.width)/2;
 			
 				float h = ve.height;
 				ve.draw(veLeft, bottom - h);
-				bottom -= h + gap;
+				bottom -= h + vgap;
 			}
 		}
 	}
