@@ -22,7 +22,7 @@ public class Grid extends Compose {
 	}
 	
 	@Override
-	void bbox(float left, float top){
+	void bbox(int left, int top){
 		this.left = left;
 		this.top = top;
 		width = getWidthProperty();

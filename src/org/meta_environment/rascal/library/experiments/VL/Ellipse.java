@@ -17,7 +17,7 @@ public class Ellipse extends VELEM {
 	}
 
 	@Override
-	void bbox(float left, float top){
+	void bbox(int left, int top){
 		this.left = left;
 		this.top = top;
 		int lw = getLineWidthProperty();

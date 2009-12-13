@@ -36,7 +36,7 @@ public class Graph extends VELEM {
 	}
 	
 	@Override
-	void bbox(float left, float top) {
+	void bbox(int left, int top) {
 		this.left = left;
 		this.top = top;
 		for(GraphNode n : nodes)

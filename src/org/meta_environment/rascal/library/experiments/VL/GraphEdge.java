@@ -43,7 +43,7 @@ public class GraphEdge extends VELEM {
 	}
 
 	@Override
-	void bbox(float left, float top) {
+	void bbox(int left, int top) {
 	}
 
 	@Override

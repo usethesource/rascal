@@ -22,7 +22,7 @@ public class Pack extends Compose {
 	}
 
 	@Override
-	void bbox(float left, float top) {
+	void bbox(int left, int top) {
 		this.left = left;
 		this.top = top;
 		//width = getWidthProperty();
@@ -75,12 +75,12 @@ public class Pack extends Compose {
 
 	@Override
 	void draw() {
-		System.err.printf("pack.draw: %f, %f\n", left, top);
+		System.err.printf("pack.draw: %d, %d\n", left, top);
 		
 		applyProperties();
 
 		if(fits){
-			System.err.printf("pack.draw: left=%f, top=%f\n", left, top);
+			System.err.printf("pack.draw: left=%d, top=%d\n", left, top);
 			root.draw(left, top);
 		} else {
 			vlp.fill(0);
