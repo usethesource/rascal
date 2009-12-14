@@ -31,6 +31,12 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 public list[str] java readFileLines(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
+@doc{Read the contents from a file location into a list of bytes.}
+@javaClass{org.meta_environment.rascal.library.IO}
+public list[int] java readFileBytes(loc file)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+
+
 @doc{Write a textual representation of some values to a file
    * If a value is a simple string, the quotes are removed and the contents are de-escaped.
    * If a value has a non-terminal type, the parse tree is unparsed to produce a value.
