@@ -1,59 +1,53 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.List;
-
 import processing.core.PApplet;
 
 public class GraphNode {
 	
 	protected String name;
 	protected VELEM velem;
-	boolean fixed = false;
 	protected float x;
 	protected float y;
-	protected float dx = 0f;
-	protected float dy = 0f;
+	protected float dispx = 0f;
+	protected float dispy = 0f;
 	
 	GraphNode(String name, VELEM velem){
 		this.name = name;
 		this.velem = velem;
 	}
 	
-	public void relax(List<GraphNode> nodes){
-		float ddx = 0;
-		float ddy = 0;
+	public void relax(Graph G){
 		
-		for(GraphNode n : nodes){
+		dispx = dispy = 0f;
+		
+		for(GraphNode n : G.nodes){
 			if(n != this){
-				float vx = x - n.x;
-				float vy = y - n.y;
-				float lensq = vx * vx + vy * vy;
-				if(lensq == 0){
-					ddx += Math.random();
-					ddy += Math.random();
-				} else if(lensq < 100*100){
-					ddx += vx / lensq;
-					ddy += vy / lensq;
+				float deltax = x - n.x;
+				float deltay = y - n.y;
+				
+				float dlen = PApplet.dist(x, y, n.x, n.y);
+				
+				if(dlen > 0.001f){
+					float rep = G.repel(dlen);
+					dispx += (deltax / dlen) * rep;
+					dispy += (deltay / dlen) * rep;
+				} else {
+					dispx = (float) Math.random() * G.width;
+					dispy =  (float) Math.random() * G.height;
 				}
 			}
 		}
-		float dlen = PApplet.mag(ddx, ddy) / 2;
-		if(dlen > 0){
-			dx += ddx / dlen;
-			dy += ddy / dlen;
-		}
 	}
 	
-	void update(){
-		if(!fixed){
-			x += PApplet.constrain (dx, -5, 5);
-			y += PApplet.constrain (dy, -5, 5);
-			
-			x =  PApplet.constrain (x, velem.width/2, 400-velem.width/2);
-			y =  PApplet.constrain (y, velem.height/2, 400-velem.height/2);
-		}
-		dx /= 2;
-		dy /= 2;
+	void update(Graph G){
+
+		float dlen = PApplet.mag(dispx, dispy);
+
+		x += (dispx / dlen) * PApplet.min(dispx, G.temperature);
+		y += (dispy / dlen) * PApplet.min(dispy, G.temperature);
+
+		x =  PApplet.constrain (x, velem.width/2, G.width-velem.width/2);
+		y =  PApplet.constrain (y, velem.height/2, G.height-velem.height/2);
 	}
 
 	void draw() {

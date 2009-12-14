@@ -179,8 +179,6 @@ public abstract class VELEM implements Comparable<VELEM> {
 	
 	/**
 	 * Draw element with given left, top corner of its bounding box
-	 * @param left	x-coordinate of corner
-	 * @param top	y-coordinate of corner
 	 */
 	abstract void draw();
 		
@@ -192,6 +190,17 @@ public abstract class VELEM implements Comparable<VELEM> {
 	void draw(float left, float top){
 		this.left = PApplet.round(left);
 		this.top = PApplet.round(top);
+		draw();
+	}
+	
+	/**
+	 * Draw element with given left, top corner of its bounding box
+	 * @param left	x-coordinate of corner
+	 * @param top	y-coordinate of corner
+	 */
+	void draw(int left, int top){
+		this.left = left;
+		this.top = top;
 		draw();
 	}
 	

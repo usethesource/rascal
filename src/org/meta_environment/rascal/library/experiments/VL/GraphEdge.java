@@ -9,7 +9,6 @@ import processing.core.PApplet;
 public class GraphEdge extends VELEM {
 	GraphNode from;
 	GraphNode to;
-	float len;
 	
 	public GraphEdge(VLPApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
@@ -22,23 +21,28 @@ public class GraphEdge extends VELEM {
 		if(to == null){
 			System.err.println("No node " + toName.getValue());
 		}
-		len = 50;
 		
 		System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue());
 	}
 	
-	void relax(){
-		float vx = to.x - from.x;
-		float vy = to.y - from.y;
-		float d = PApplet.mag(vx, vy);
-		if(d > 0){
-			float f = (len - d) / (d * 3);
-			float dx = f * vx;
-			float dy = f * vy;
-			to.dx += dx;
-			to.dy += dy;
-			from.dx -= dx;
-			from.dy -= dy;
+	void relax(Graph G){
+		float deltax = to.x - from.x;
+		float deltay = to.y - from.y;
+		float dlen = PApplet.dist(from.x, from.y, to.x, to.y);
+		if(dlen > 0){
+			float attract = G.attract(dlen);
+			float dx = (deltax / dlen) * attract;
+			float dy = (deltay / dlen) * attract;
+			from.dispx -= dx;
+			from.dispy -= dy;
+			to.dispx += dx;
+			to.dispy += dy;
+		} else {
+			System.err.printf("edge: dlen=0 %s -> %s\n", from.name, to.name);
+			from.dispx -= Math.random() * G.width;
+			from.dispy -= Math.random() * G.width;
+			to.dispx += Math.random() * G.height;
+			to.dispy += Math.random() * G.height;
 		}
 	}
 

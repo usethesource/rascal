@@ -406,9 +406,27 @@ public void pie2(){
     render(overlay([center()], [p1, p2]));
 }
 
+// Graph of 3 nodes
+
+public void graph3(){
+     nodes =
+     	[ box([id("A"), width(10), height(20), fillColor("green")]),
+     	  box([id("B"), width(20), height(30), fillColor("red")]),
+     	  box([id("C"), width(30), height(20), fillColor("blue")])
+     	];
+    edges = 
+    	[ edge([lineWidth(1)], "A", "B"),
+    	  edge([lineWidth(1)], "B", "C"),
+    	  edge([lineWidth(1)], "C", "A")
+    	];
+    	    
+    render(graph([width(400), height(400)], nodes, edges));
+}
+
+
 // Graph
 
-public void graph1(){
+public void graphn(){
      nodes =
      	[ box([id("A"), width(10), height(20), fillColor("green")]),
      	  box([id("B"), width(20), height(30), fillColor("red")]),

@@ -35,7 +35,7 @@ public class Ellipse extends VELEM {
 	
 	@Override
 	void draw() {
-		System.err.printf("ellipse.draw: %f, %f\n", left, top);
+		System.err.printf("ellipse.draw: %d, %d\n", left, top);
 		
 		applyProperties();
 		vlp.ellipseMode(PConstants.CORNERS);
