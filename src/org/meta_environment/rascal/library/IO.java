@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.library;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -230,6 +231,40 @@ public class IO{
 					}
 				}
 			}while(line != null);
+		}catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
+		}catch(IOException e){
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}finally{
+			if(in != null){
+				try{
+					in.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				}
+			}
+		}
+
+		return w.done();
+	}
+	
+	public IList readFileBytes(ISourceLocation file){
+		IListWriter w = types.listType(types.integerType()).writer(values);
+		
+		BufferedInputStream in = null;
+		try{
+			InputStream stream = URIResolverRegistry.getInstance().getInputStream(file.getURI());
+			in = new BufferedInputStream(stream);
+			int read;
+			final int size = 256;
+			byte bytes[] = new byte[size];
+			
+			do{
+				read = in.read(bytes);
+				for (int i = 0; i < read; i++) {
+					w.append(values.integer(bytes[i] & 0xff));
+				}
+			}while(read != -1);
 		}catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
 		}catch(IOException e){
