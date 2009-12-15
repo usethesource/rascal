@@ -28,21 +28,22 @@ public class GraphEdge extends VELEM {
 	void relax(Graph G){
 		float deltax = to.x - from.x;
 		float deltay = to.y - from.y;
-		float dlen = PApplet.dist(from.x, from.y, to.x, to.y);
+		float dlen = PApplet.mag(deltax, deltay);
 		if(dlen > 0){
 			float attract = G.attract(dlen);
 			float dx = (deltax / dlen) * attract;
 			float dy = (deltay / dlen) * attract;
-			from.dispx -= dx;
-			from.dispy -= dy;
-			to.dispx += dx;
-			to.dispy += dy;
+			to.dispx -= dx;
+			to.dispy -= dy;
+			from.dispx += dx;
+			from.dispy += dy;
+			System.err.printf("edge: %s -> %s, deltax=%f, deltay=%f, change by %f, %f\n", from.name, to.name, deltax, deltay, dx, dy);
 		} else {
 			System.err.printf("edge: dlen=0 %s -> %s\n", from.name, to.name);
-			from.dispx -= Math.random() * G.width;
-			from.dispy -= Math.random() * G.width;
-			to.dispx += Math.random() * G.height;
-			to.dispy += Math.random() * G.height;
+			to.dispx -= Math.random();
+			to.dispy -= Math.random();
+			from.dispx += Math.random();
+			from.dispy += Math.random();
 		}
 	}
 

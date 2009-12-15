@@ -14,7 +14,7 @@ public class Graph extends VELEM {
 	protected ArrayList<GraphNode> nodes;
 	protected ArrayList<GraphEdge> edges;
 	private float springConstant;
-	private float springConstant2;
+	protected float springConstant2;
 	protected int temperature;
 	
 
@@ -40,16 +40,24 @@ public class Graph extends VELEM {
 			IConstructor c = (IConstructor) v;
 			this.edges.add((GraphEdge) VELEMFactory.make(vlp, c, properties, ctx));
 		}
-		springConstant = PApplet.sqrt((width * height)/nodes.length());
+		springConstant = 0.1f * PApplet.sqrt((width * height)/nodes.length());
 		springConstant2 = springConstant * springConstant;
 	}
 	
-	protected float attract(float z){
-		return (z * z) / springConstant;
+	protected float attract(float d){
+		return (d * d) / springConstant;
 	}
 	
-	protected float repel(float z){
-		return - springConstant2 / z;
+	protected float repel(float d){
+		return springConstant2 / d;
+	}
+	
+	private void printNodes(String s){
+		System.err.printf("%s: ", s);
+		for(GraphNode n : nodes){
+			System.err.printf(n.name + ": " + n.x + ", " + n.y + " ");
+		}
+		System.err.println("");
 	}
 	
 	@Override
@@ -59,8 +67,10 @@ public class Graph extends VELEM {
 		for(GraphNode n : nodes)
 			n.velem.bbox();
 		
-		temperature = (int) max(width, height);
-		for(int i = 0; i < 1000; i++){
+		printNodes("initial");
+		
+		temperature = 50;
+		for(int i = 1; i < 100; i++){
 			for(GraphEdge e : edges)
 				e.relax(this);
 			for(GraphNode n : nodes)
@@ -68,10 +78,9 @@ public class Graph extends VELEM {
 			for(GraphNode n : nodes)
 				n.update(this);
 			temperature--;
+			printNodes("iter t = " + temperature);
 		}
-		for(GraphNode n : nodes){
-			System.err.println(n.name + ": " + n.x + ", " + n.y);
-		}
+		
 	}
 
 	@Override

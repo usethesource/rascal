@@ -43,6 +43,14 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return a > b ? a : b;
 	}
 	
+	public float min(float a, float b){
+		return a < b ? a : b;
+	}
+	
+	public float abs(float a){
+		return a >= 0 ? a : -a;
+	}
+	
 	public void applyProperties(){
 		properties.applyProperties();
 	}

@@ -25,29 +25,35 @@ public class GraphNode {
 				float deltax = x - n.x;
 				float deltay = y - n.y;
 				
-				float dlen = PApplet.dist(x, y, n.x, n.y);
-				
-				if(dlen > 0.001f){
-					float rep = G.repel(dlen);
-					dispx += (deltax / dlen) * rep;
-					dispy += (deltay / dlen) * rep;
+				float dlensq = deltax * deltax + deltay * deltay;
+				if(dlensq == 0){
+					dispx += Math.random();
+					dispy += Math.random();
 				} else {
-					dispx = (float) Math.random() * G.width;
-					dispy =  (float) Math.random() * G.height;
+					dispx -= deltax * G.springConstant2 / dlensq;
+					dispy -= deltay * G.springConstant2 / dlensq;
 				}
 			}
+		
 		}
 	}
 	
 	void update(Graph G){
-
 		float dlen = PApplet.mag(dispx, dispy);
+		System.err.printf("update %s, dispx=%f, dispy=%f, dlen=%f", name, dispx, dispy, dlen);
 
-		x += (dispx / dlen) * PApplet.min(dispx, G.temperature);
-		y += (dispy / dlen) * PApplet.min(dispy, G.temperature);
-
-		x =  PApplet.constrain (x, velem.width/2, G.width-velem.width/2);
-		y =  PApplet.constrain (y, velem.height/2, G.height-velem.height/2);
+		if(dlen > 0){
+			
+			float dx = (dispx / dlen) * PApplet.min(PApplet.abs(dispx), G.temperature);
+			float dy = (dispy / dlen) * PApplet.min(PApplet.abs(dispy), G.temperature);
+            x += dx;
+            y += dy;
+            
+			x =  PApplet.constrain (x, velem.width/2, G.width-velem.width/2);
+			y =  PApplet.constrain (y, velem.height/2, G.height-velem.height/2);
+			System.err.printf(", dx=%f, dy=%f, x=%f, y=%f\n", dx, dy, x, y);
+		} else
+			System.err.printf(", dlen=0\n");
 	}
 
 	void draw() {
