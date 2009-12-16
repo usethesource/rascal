@@ -3,6 +3,30 @@ module experiments::VL::Examples2
 import experiments::VL::VLCore;
 import experiments::VL::VLRender; 
 
+public void graph1(){
+     nodes =
+     	[ box([id("A"), width(20), height(20), fillColor("green")])
+     	];
+    edges = 
+    	[
+    	];
+    	    
+    render(graph([width(400), height(400)], nodes, edges));
+}
+
+
+public void graph2(){
+     nodes =
+     	[ box([id("A"), width(20), height(20), fillColor("green")]),
+     	  box([id("B"),  width(20), height(20), fillColor("red")])
+     	];
+    edges = 
+    	[ edge([lineWidth(1)], "A", "B")   	 
+    	];
+    	    
+    render(graph([width(400), height(400)], nodes, edges));
+}
+
 // Graph of 3 nodes
 
 public void graph3(){

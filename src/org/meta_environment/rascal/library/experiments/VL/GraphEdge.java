@@ -33,11 +33,11 @@ public class GraphEdge extends VELEM {
 			float attract = G.attract(dlen);
 			float dx = (deltax / dlen) * attract;
 			float dy = (deltay / dlen) * attract;
-			to.dispx -= dx;
-			to.dispy -= dy;
-			from.dispx += dx;
-			from.dispy += dy;
-			System.err.printf("edge: %s -> %s, deltax=%f, deltay=%f, change by %f, %f\n", from.name, to.name, deltax, deltay, dx, dy);
+			to.dispx += dx;
+			to.dispy += dy;
+			from.dispx -= dx;
+			from.dispy -= dy;
+			System.err.printf("edge: %s -> %s, attract=%f, deltax=%f, deltay=%f, change by %f, %f\n", from.name, to.name, attract, deltax, deltay, dx, dy);
 		} else {
 			System.err.printf("edge: dlen=0 %s -> %s\n", from.name, to.name);
 			to.dispx -= Math.random();

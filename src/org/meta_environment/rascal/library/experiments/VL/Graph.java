@@ -40,7 +40,7 @@ public class Graph extends VELEM {
 			IConstructor c = (IConstructor) v;
 			this.edges.add((GraphEdge) VELEMFactory.make(vlp, c, properties, ctx));
 		}
-		springConstant = 0.1f * PApplet.sqrt((width * height)/nodes.length());
+		springConstant = PApplet.sqrt((width * height)/nodes.length());
 		springConstant2 = springConstant * springConstant;
 	}
 	
@@ -69,12 +69,13 @@ public class Graph extends VELEM {
 		
 		printNodes("initial");
 		
-		temperature = 50;
+		temperature = 110;
 		for(int i = 1; i < 100; i++){
-			for(GraphEdge e : edges)
-				e.relax(this);
+			
 			for(GraphNode n : nodes)
 				n.relax(this);
+			for(GraphEdge e : edges)
+				e.relax(this);
 			for(GraphNode n : nodes)
 				n.update(this);
 			temperature--;
