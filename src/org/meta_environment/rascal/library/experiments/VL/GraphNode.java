@@ -18,7 +18,7 @@ public class GraphNode {
 	
 	public void relax(Graph G){
 		
-		dispx = dispy = 0f;
+		dispx = dispy = 0;
 		
 		for(GraphNode n : G.nodes){
 			if(n != this){
@@ -26,16 +26,19 @@ public class GraphNode {
 				float deltay = y - n.y;
 				
 				float dlensq = deltax * deltax + deltay * deltay;
-				if(dlensq == 0){
-					dispx += Math.random();
-					dispy += Math.random();
-				} else {
-					dispx -= deltax * G.springConstant2 / dlensq;
-					dispy -= deltay * G.springConstant2 / dlensq;
-				}
+				
+				if(deltax < 5)
+					dispx += velem.vlp.random(10);
+				else
+					dispx += deltax * G.springConstant2 / dlensq;
+				if(deltay < 5)
+					dispy += velem.vlp.random(10);
+				 else
+					dispy += deltay * G.springConstant2 / dlensq;
 			}
-		
 		}
+		
+		System.err.printf("Node %s, dispx = %f, dispy =%f\n", name, dispx, dispy);
 	}
 	
 	void update(Graph G){
@@ -46,6 +49,10 @@ public class GraphNode {
 			
 			float dx = (dispx / dlen) * PApplet.min(PApplet.abs(dispx), G.temperature);
 			float dy = (dispy / dlen) * PApplet.min(PApplet.abs(dispy), G.temperature);
+			
+			//dx = PApplet.constrain(dx, -5, 5);
+			//dy = PApplet.constrain(dy, -5, 5);
+			
             x += dx;
             y += dy;
             
