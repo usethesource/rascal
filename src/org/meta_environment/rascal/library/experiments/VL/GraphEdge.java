@@ -9,6 +9,7 @@ import processing.core.PApplet;
 public class GraphEdge extends VELEM {
 	GraphNode from;
 	GraphNode to;
+	float len;
 	
 	public GraphEdge(VLPApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
@@ -21,6 +22,7 @@ public class GraphEdge extends VELEM {
 		if(to == null){
 			System.err.println("No node " + toName.getValue());
 		}
+		this.len = 50;
 		
 		System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue());
 	}
@@ -33,17 +35,20 @@ public class GraphEdge extends VELEM {
 			float attract = G.attract(dlen);
 			float dx = (deltax / dlen) * attract;
 			float dy = (deltay / dlen) * attract;
+//			float f = (len - dlen) / (dlen * 3);
+//			float dx = f * deltax;
+//			float dy = f * deltay;
 			to.dispx += dx;
 			to.dispy += dy;
 			from.dispx -= dx;
 			from.dispy -= dy;
-			System.err.printf("edge: %s -> %s, attract=%f, deltax=%f, deltay=%f, change by %f, %f\n", from.name, to.name, attract, deltax, deltay, dx, dy);
+//			System.err.printf("edge: %s -> %s, attract=%f, deltax=%f, deltay=%f, change by %f, %f\n", from.name, to.name, attract, deltax, deltay, dx, dy);
 		} else {
 			System.err.printf("edge: dlen=0 %s -> %s\n", from.name, to.name);
-			to.dispx -= Math.random();
-			to.dispy -= Math.random();
-			from.dispx += Math.random();
-			from.dispy += Math.random();
+			to.dispx -= vlp.random(G.springConstant2);
+			to.dispy -= vlp.random(G.springConstant2);
+			from.dispx += vlp.random(G.springConstant2);
+			from.dispy += vlp.random(G.springConstant2);
 		}
 	}
 
