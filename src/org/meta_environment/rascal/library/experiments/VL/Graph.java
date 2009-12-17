@@ -69,13 +69,12 @@ public class Graph extends VELEM {
 		
 		printNodes("initial");
 		
-		temperature = 110;
+		temperature = 100;
 		for(int i = 1; i < 100; i++){
-			
-			for(GraphNode n : nodes)
-				n.relax(this);
 			for(GraphEdge e : edges)
 				e.relax(this);
+			for(GraphNode n : nodes)
+				n.relax(this);
 			for(GraphNode n : nodes)
 				n.update(this);
 			temperature--;
