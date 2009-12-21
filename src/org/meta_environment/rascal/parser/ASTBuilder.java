@@ -172,7 +172,7 @@ public class ASTBuilder {
 		if (sortName(tree).equals("Expression") && isEmbedding(tree)) {
 			return lift(tree, false);
 		}
-	
+		
 		return buildContextFreeNode((IConstructor) arg);
 	}
 
@@ -323,10 +323,16 @@ public class ASTBuilder {
 		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
 		String sort = "";
 		ASTStatistics ref = null;
+		AmbiguousConcretePattern lastCaughtACP = null;
 		
 		for (IValue alt : altsIn) {
-			sort = TreeAdapter.getSortName((IConstructor) alt);
-			AbstractAST ast = buildValue(alt);
+			sort = sortName((IConstructor) alt);
+			AbstractAST ast = null;
+			try {
+				ast = buildValue(alt);
+			} catch (AmbiguousConcretePattern acp) {
+				lastCaughtACP = acp;
+			}
 			
 			if (ast == null) {
 				continue;
@@ -342,21 +348,20 @@ public class ASTBuilder {
 		}
 		
 		if (altsOut.size() == 0) {
-			return null; // this could happen in case of nested ambiguity
+			if (null != lastCaughtACP) {
+				throw lastCaughtACP;
+			} else {
+				return null; // this could happen in case of nested ambiguity
+			}
 //			throw new SyntaxError("concrete syntax pattern", tree.getLocation());
 		}
 		
 		if (altsOut.size() == 1) {
 			return altsOut.iterator().next();
 		}
-		
-		if (isRascalSort(sort)) {
-			sort = capitalize(sort.substring(1));
-		}
-		else {
-			// concrete syntax is lifted to Expression
-			sort = "Expression";
-		}
+
+		// Concrete syntax is lifted to Expression
+		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 
 		Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
 		Object actuals[] = new Object[] { tree, altsOut };
