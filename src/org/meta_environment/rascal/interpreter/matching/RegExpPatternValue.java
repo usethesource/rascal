@@ -83,9 +83,11 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private boolean findMatch(){
 		while(matcher.find()){
 			for (int nVar = 0; nVar < patternVars.size(); nVar++){
-				java.lang.String name = patternVars.get(nVar);				
 				java.lang.String binding = matcher.group(1+nVar);
-				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), ctx.getValueFactory().string(binding), ctx));
+				if(binding != null){
+					java.lang.String name = patternVars.get(nVar);
+					ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), ctx.getValueFactory().string(binding), ctx));
+				}
 			}
 			start = matcher.start(0);
 			end = matcher.end(0);
