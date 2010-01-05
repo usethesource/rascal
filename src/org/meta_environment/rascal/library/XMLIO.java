@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.library;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +11,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.meta_environment.uri.URIResolverRegistry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -145,8 +145,7 @@ public class XMLIO{
 		this.vf = vf;
 	}
 	
-	public IConstructor parseXML(IString xmlFileName) throws IOException, SAXException, ParserConfigurationException{
-		File xmlFile = new File(xmlFileName.getValue());
+	public IConstructor readXMLFile(ISourceLocation file) throws IOException, SAXException, ParserConfigurationException{
 		
 		ErrorHandler errorHandler = new ErrorHandler(){
 			public void fatalError(SAXParseException exception) throws SAXException{
@@ -175,7 +174,7 @@ public class XMLIO{
 		
 		DocumentBuilder parser = dbf.newDocumentBuilder();
 		parser.setErrorHandler(errorHandler);
-		Document document = parser.parse(xmlFile);
+		Document document = parser.parse(URIResolverRegistry.getInstance().getInputStream(file.getURI()));
 		
 		TypeStore typeStore = new TypeStore();
 		XMLIOThing xmlToPDB = new XMLIOThing(vf, typeStore, document);
