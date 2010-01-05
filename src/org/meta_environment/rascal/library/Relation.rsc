@@ -221,25 +221,25 @@ public rel[&T4, &T3, &T2, &T1, &T0] invert (rel[&T0, &T1, &T2, &T3, &T4] R)
   return R<4, 3, 2, 1, 0>;
 }
 
-@doc{All but the first element of each tuples in binary relation}
+@doc{All but the first element of each tuple in the given binary relation}
 public set[&T1] range (rel[&T0,&T1] R)
 {
   return R<1>;
 }
 
-@doc{All but the first element of each tuples in ternary relation}
+@doc{All but the first element of each tuple in the given ternary relation}
 public rel[&T1,&T2] range (rel[&T0,&T1, &T2] R)
 {
   return R<1,2>;
 }
 
-@doc{All but the first element of each tuples in quaterny relation}
+@doc{All but the first element of each tuple in the given quaterny relation}
 public rel[&T1,&T2,&T3] range (rel[&T0,&T1,&T2,&T3] R)
 {
   return R<1,2,3>;
 }
 
-@doc{All but the first element of each tuples in quinary relation}
+@doc{All but the first element of each tuple in the given quinary relation}
 public rel[&T1,&T2,&T3,&T4] range (rel[&T0,&T1,&T2,&T3,&T4] R)
 {
   return R<1,2,3,4>;
