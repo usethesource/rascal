@@ -256,3 +256,13 @@ public rel[&T0,&T1] rangeX (rel[&T0,&T1] R, set[&T2] S)
 {
   return { <V0, V1> | <&T0 V0, &T1 V1> <- R, V1 notin S };
 }
+
+@doc{Compute a distribution: count how many times events are mapped to which bucket}
+public map[&T, int] distribution(rel[&U event, &T bucket] input) {
+  map[&T,int] result = ();
+  for (<&U event, &T bucket> <- input) {
+    result[bucket]?0 += 1;
+  }
+  
+  return result;
+}
