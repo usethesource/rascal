@@ -165,7 +165,6 @@ public class IO{
 				}else{
 					out.write(elem.toString().getBytes());
 				}
-				out.write('\n');
 			}
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
