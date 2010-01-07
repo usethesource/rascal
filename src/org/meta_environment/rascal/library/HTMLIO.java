@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Stack;
 
 import javax.swing.text.MutableAttributeSet;
@@ -40,39 +42,52 @@ public class HTMLIO {
 	}
 	
 	private class Constructor extends ParserCallback {
-		private Stack<java.util.List<IValue>> children = new Stack<java.util.List<IValue>>();
+		private Stack<java.util.List<IValue>> stack = new Stack<java.util.List<IValue>>();
+		private Stack<java.util.Map<java.lang.String,IValue>> attributes = new Stack<java.util.Map<java.lang.String, IValue>>();
 		
 		public Constructor() {
-			children.add(new ArrayList<IValue>(1));
+			stack.push(new ArrayList<IValue>(1));
 		}
 		
 		public IValue getValue() {
-			return children.peek().get(0);
+			return stack.peek().get(0);
 		}
 		
 		@Override
 		public void handleStartTag(Tag t, MutableAttributeSet a, int pos) {
-			children.push(new ArrayList<IValue>(1));
+			stack.push(new ArrayList<IValue>(1));
+			attributes.push(new HashMap<java.lang.String, IValue>());
+			storeAttributes(a);
 		}
 		
+		private void storeAttributes(MutableAttributeSet set) {
+			attributes.push(new HashMap<java.lang.String,IValue>());
+			for (Enumeration<?> names = set.getAttributeNames(); names.hasMoreElements(); ) {				
+				Object label = names.nextElement();
+				Object value = set.getAttribute(label);
+				attributes.peek().put(label.toString(), factory.string(value.toString()));
+			}
+		}
+
 		@Override
 		public void handleEndTag(Tag t, int pos) {
-			java.util.List<IValue> kids = children.pop();
+			java.util.List<IValue> kids = stack.pop();
 			IValue[] a = new IValue[kids.size()];
 			kids.toArray(a);
 			INode node = factory.node(t.toString(), factory.list(a));
-			children.peek().add(node);
+			node = node.setAnnotations(attributes.pop());
+			stack.peek().add(node);
 		}
 		
 		@Override
 		public void handleSimpleTag(Tag t, MutableAttributeSet a, int pos) {
 			INode node = factory.node(t.toString());
-			children.peek().add(node);
+			stack.peek().add(node);
 		}
 		
 		@Override
 		public void handleText(char[] data, int pos) {
-			children.peek().add(factory.node("text", factory.string(new java.lang.String(data))));
+			stack.peek().add(factory.node("text", factory.string(new java.lang.String(data))));
 		}
 		
 	}
