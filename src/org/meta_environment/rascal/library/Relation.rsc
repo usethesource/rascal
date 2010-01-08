@@ -266,3 +266,13 @@ public map[&T, int] distribution(rel[&U event, &T bucket] input) {
   
   return result;
 }
+
+@doc{Make sets of elements in the domain that relate to the same element in the range}
+public set[set[&U]] groupDomainByRange(rel[&U dom, &T ran] input) {
+   return ( i : (input<ran, dom>)[i] | i <- input.ran )<1>;
+}
+
+@doc{Make sets of elements in the range that relate to the same element in the domain}
+public set[set[&T]] groupRangeByDomain(rel[&U dom, &T ran] input) {
+   return ( i : input[i] | i <- input.dom )<1>;
+}
