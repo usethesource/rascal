@@ -22,8 +22,8 @@ public class Text extends VELEM {
 		this.left = left;
 		this.top = top;
 		vlp.textSize(getFontSizeProperty());
-		height = vlp.textAscent() + vlp.textDescent();
-		height += 0.3 * height;
+		height = vlp.textAscent() + 2*vlp.textDescent();
+		//height += 0.3 * height;
 		width = vlp.textWidth(txt);
 		System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", vlp.getFont(), vlp.textAscent(), vlp.textDescent() );
 		System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%d\n", txt, width, height, getTextAngleProperty());
@@ -46,6 +46,7 @@ public class Text extends VELEM {
 	void draw() {
 		
 		applyProperties();
+		applyFontColorProperty();
 	
 		System.err.printf("text.draw: %s, left=%d, top=%d, width=%f, height=%f\n", txt, left, top, width, height);
 		if(height > 0 && width > 0){
@@ -60,6 +61,8 @@ public class Text extends VELEM {
 				vlp.popMatrix();
 			} else {
 				vlp.text(txt, left + width/2, top + height/2);
+//				vlp.rectMode(PConstants.CORNERS);
+//				vlp.text(txt, left, top, left+width, top+height);
 			}
 		}
 	}
