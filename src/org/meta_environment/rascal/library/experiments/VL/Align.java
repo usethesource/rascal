@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 
-public class Aligned extends Compose {
+public class Align extends Compose {
 	
 	float leftElem[];
 	float topRowElem[];
@@ -13,7 +13,7 @@ public class Aligned extends Compose {
 	int inRow[];
 	int nrow;
 
-	Aligned(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Align(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 		leftElem = new float[elems.length()];
 		topRowElem = new float[elems.length()];

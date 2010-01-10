@@ -74,7 +74,7 @@ public class VELEMFactory {
 		
 		case ALIGN: 
 			getOneOrTwoArgs(c); 
-			return new Aligned(vlp, inheritedProps, props, elems, ctx);
+			return new Align(vlp, inheritedProps, props, elems, ctx);
 			
 		case BOX:
 			if(c.arity() == 2)
@@ -114,7 +114,7 @@ public class VELEMFactory {
 			
 		case PACK: 
 			getOneOrTwoArgs(c); 
-			return new Packed(vlp, inheritedProps, props, elems, ctx);
+			return new Pack(vlp, inheritedProps, props, elems, ctx);
 			
 		case PIE: 
 			getOneOrTwoArgs(c); 
