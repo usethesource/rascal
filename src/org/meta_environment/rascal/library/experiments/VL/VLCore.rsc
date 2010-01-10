@@ -56,6 +56,18 @@ public Color(int) colorScale(list[int] values, Color from, Color to){
    return Color(int v) { return sc[(9 * (v - mn)) / range]; };
 }
 
+@doc{Create a fixed color palette}
+private list[Color] p12 = [ color("navy"), color("violet"), color("yellow"), color("aqua"), 
+                      color("red"), color("darkviolet"), color("maroon"), color("green"),
+                      color("teal"), color("blue"), color("olive"), color("lime")];
+
+public Color palette(int n){
+  try 
+  	return p12[n];
+  catch:
+    return color("black");
+}
+
 data VPROP =
 /* sizes */
      width(int width)                   // sets width of element
@@ -65,11 +77,10 @@ data VPROP =
    | gap(int amount)                    // sets gap between elements in composition to same value
    | gap(int hor, int vert) 			// sets gap between elements in composition to separate values
    
-/* direction and alignment */
-   | horizontal()                       // horizontal composition
-   | vertical()                         // vertical composition
+/* alignment */
    | top()                              // top alignment
-   | center()                           // center alignment
+   | hcenter()                          // horizontal centered alignment
+   | vcenter()                          // vertical centered alignment
    | bottom()                           // bottom alignment
    | left()                             // left alignment
    | right()                            // right alignment
@@ -86,7 +97,7 @@ data VPROP =
    | lineColor(Color lineColor)		    // line color
    | lineColor(str colorName)           // named line color
    
-   | fillColor(Color fillColor)			// fill color
+   | fillColor(Color fillColor)			// fill color of shapes and text
    | fillColor(str colorName)           // named fill color
    
 /* wedge/pie attributes */
@@ -94,10 +105,12 @@ data VPROP =
    | toAngle(int angle)
    | innerRadius(int radius)
    
- /* text attributes */
-   | font(str fontName)                 // named font
+ /* font and text attributes */
+   | font(str fontName)             	// named font
    | fontSize(int size)                 // font size
-   | textAngle(int angle)               // rotation
+   | fontColor(Color textColor)         // font color
+   | fontColor(str colorName)
+   | textAngle(int angle)               // text rotation
    
 /* interaction */
    | mouseOver(list[VPROP] props)       // switch to new properties when mouse is over element
@@ -116,44 +129,53 @@ data Vertex =
    ;
    
 data Edge =
-     edge(str from, str to) 			 // edge between between two elements
-   | edge(list[VPROP], str from, str to) // edge between between two elements
+     edge(str from, str to) 			 // edge between between two elements in complex shapes like tree or graph
+   | edge(list[VPROP], str from, str to) // 
    ;
    
 data VELEM = 
 /* drawing primitives */
      box(list[VPROP] props)			          	// rectangular box
-   | box(list[VPROP] props, VELEM inner)
+   | box(list[VPROP] props, VELEM inner)        // rectangular box with inner element
    | ellipse(list[VPROP] props)			      	// ellipse
-   | ellipse(list[VPROP] props, VELEM inner)
+   | ellipse(list[VPROP] props, VELEM inner)    // ellipse with inner element
    | text(list[VPROP] props, str s)		  		// text label
    | text(str s)			              		// text label
  
  
 /* lines and curves */
-   | shape(list[Vertex] points)
+   | shape(list[Vertex] points)                 // shape of to be connected vertices
    | shape(list[VPROP] props,list[Vertex] points)
    
 /* composition */
-   | combine(list[VELEM] elems)
-   | combine(list[VPROP] props, list[VELEM] elems)
+   | use(VELEM elem)                           		 		// use another elem
+   | use(list[VPROP] props, VELEM elem)
+ 
+   | horizontal(list[VELEM] elems)                           // horizontal composition
+   | horizontal(list[VPROP] props, list[VELEM] elems)
    
-   | overlay(list[VELEM] elems) 
+   | vertical(list[VELEM] elems)                             // vertical composition
+   | vertical(list[VPROP] props, list[VELEM] elems)
+   
+   | align(list[VELEM] elems)                              // horizontal and vertical composition
+   | align(list[VPROP] props, list[VELEM] elems)
+   
+   | overlay(list[VELEM] elems)                            // overlay (stacked) composition
    | overlay(list[VPROP] props, list[VELEM] elems)
    
-   | grid(list[VELEM] elems) 
+   | grid(list[VELEM] elems)                                 // placement on fixed grid
    | grid(list[VPROP] props, list[VELEM] elems)
    
-   | pack(list[VELEM] elems) 
+   | pack(list[VELEM] elems)                                 // composition by 2D packing
    | pack(list[VPROP] props, list[VELEM] elems)
    
-   | pie(list[VELEM] elems) 
+   | pie(list[VELEM] elems)                                  // composition as pie chart
    | pie(list[VPROP] props, list[VELEM] elems)
    
-   | graph(list[VELEM] nodes, list[Edge] edges)
+   | graph(list[VELEM] nodes, list[Edge] edges)              // composition of nodes and edges as graoh
    | graph(list[VPROP], list[VELEM] nodes, list[Edge] edges)
    
-   | tree(list[VELEM] nodes, list[Edge] edges)
+   | tree(list[VELEM] nodes, list[Edge] edges)               // composition of nodes and edges as tree
    | tree(list[VPROP], list[VELEM] nodes, list[Edge] edges)
    ;
    

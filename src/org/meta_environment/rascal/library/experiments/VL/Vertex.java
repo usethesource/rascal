@@ -44,7 +44,7 @@ public class Vertex extends VELEM {
 		
 		applyProperties();
 		System.err.println("Point: marker = " + marker);
-		System.err.printf("Point: marker at %f, %f\n", left, top);
+		System.err.printf("Point: marker at %d, %d\n", left, top);
 		if(marker != null){
 			marker.bbox();
 			marker.draw(left-marker.width/2, top-marker.height/2);

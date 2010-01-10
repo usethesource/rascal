@@ -64,16 +64,16 @@ public class Box extends VELEM {
 						int hgap = getHGapProperty();
 						int vgap = getVGapProperty();
 						float xi;
-						if(isLeftAligned())
+						if(inside.isLeftAligned())
 							xi = left + hgap/2;
-						else if(isRightAligned())
+						else if(inside.isRightAligned())
 							xi = left + (width - inside.width - hgap/2);
 						else 
 							xi = left + (width - inside.width )/2;
 						float yi;
-						if(isTopAligned())
+						if(inside.isTopAligned())
 							yi = top + vgap/2;
-						else if(isBottomAligned())
+						else if(inside.isBottomAligned())
 							yi = top + (height - inside.height - vgap/2);
 						else 
 							yi = top + (height - inside.height)/2;

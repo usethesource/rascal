@@ -6,19 +6,18 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 public class Grid extends Compose {
 	
-	float leftElem[];
-	float toTopElem[];
-	float rowHeight[];
-	int inRow[];
-	int nrow;
+	float xElem[];
+	float yElem[];
+	
+	float extTop = 0;
+	float extBot = 0;
+	float extLeft = 0;
+	float extRight = 0;
 
 	Grid(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
-		leftElem = new float[elems.length()];
-		toTopElem = new float[elems.length()];
-		rowHeight = new float[elems.length()];
-		inRow = new int[elems.length()];
-		nrow = 0;
+		xElem = new float[elems.length()];
+		yElem = new float[elems.length()];
 	}
 	
 	@Override
@@ -28,34 +27,48 @@ public class Grid extends Compose {
 		width = getWidthProperty();
 		height = 0;
 		float w = 0;
-		float hrow = 0;
-		float toprow = 0;
-		nrow = 0;
+		float nrow = 0;
+		
 		int hgap = getHGapProperty();
 		int vgap = getVGapProperty();
+		
+		int lastRow = velems.length / (1 + (int) (width / hgap));
+		System.err.printf("lastRow = %d\n", lastRow);
+		
+		extTop = 0;
+		extBot = 0;
+		extLeft = 0;
+		extRight = 0;
+		
 		for(int i = 0; i < velems.length; i++){
-			VELEM ve = velems[i];
-			if(w + hgap + ve.width > width){
-				if(w == 0){
-					width = ve.width;
-				} else {
-					rowHeight[nrow] = hrow;
-					nrow++;
-					height += hrow + vgap;
-					toprow = height;
-					w = hrow = 0;
-				}
+			
+			if(w > width){
+				nrow++;
+				height += vgap;
+				w = 0;
 			}
-			leftElem[i] = w;
-			toTopElem[i] = toprow;
-			inRow[i] = nrow;
-			w += ve.width + hgap;
-			hrow = max(hrow, ve.height);
-	
+			
+			VELEM ve = velems[i];
+			ve.bbox();
+			
+			if(w == 0)
+				extLeft = max(extLeft, ve.isLeftAligned() ? 0 : ve.isRightAligned() ? ve.width : ve.width/2);
+			if(w + hgap > width)
+				extRight = max(extRight, ve.isRightAligned() ? 0 : ve.isLeftAligned() ? ve.width : ve.width/2);
+			if(nrow == 0)
+				extTop = max(extTop, ve.isTopAligned() ? 0 : ve.isBottomAligned() ? ve.height : ve.height/2);
+			if(nrow == lastRow)
+				extBot = max(extBot, ve.isBottomAligned() ? 0 : ve.isTopAligned() ? ve.height : ve.height/2);
+			
+			System.err.printf("i=%d, extLeft=%f, extRight=%f, extTop=%f, extBot=%f\n", i, extLeft, extRight, extTop, extBot);
+			
+			xElem[i] = w;
+			yElem[i] = height;
+			w += hgap;
 		}
-		rowHeight[nrow] = hrow;
-		height += hrow;
-		nrow++;
+		width += extLeft + extRight;
+		height += extTop + extBot;
+		System.err.printf("grid.bbox: %f, %f\n", width, height);
 	}
 	
 	@Override
@@ -66,15 +79,26 @@ public class Grid extends Compose {
 		for(int i = 0; i < velems.length; i++){
 			
 			VELEM ve = velems[i];
-			float hrow = rowHeight[inRow[i]];
-			float veTop;
-			if(isTopAligned())
-				veTop = top + toTopElem[i];
-			else if(isBottomAligned())
-				veTop = top + toTopElem[i] + hrow;
+			
+			System.err.printf("i=%d: %f, %f, left=%d, top=%d\n", i, xElem[i], yElem[i], left, top);
+
+			float veLeft;
+			if(ve.isLeftAligned())
+				veLeft = left + extLeft + xElem[i];
+			else if(ve.isRightAligned())
+				veLeft = left + extLeft + xElem[i] - ve.width;
 			else
-				veTop = top + toTopElem[i];
-			ve.draw(leftElem[i], veTop);
+				veLeft = left + extLeft + xElem[i] - ve.width/2;
+			
+			float veTop;
+			if(ve.isTopAligned())
+				veTop = top + extTop + yElem[i];
+			else if(ve.isBottomAligned())
+				veTop = top + extTop + yElem[i] - ve.height;
+			else
+				veTop = top + extTop + yElem[i] - ve.height/2;
+			
+			ve.draw(veLeft, veTop);
 		}
 	}
 }

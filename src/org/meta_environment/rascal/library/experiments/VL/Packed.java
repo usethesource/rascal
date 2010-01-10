@@ -11,12 +11,12 @@ import processing.core.PApplet;
  * Pack implements lightmaps as described at http://www.blackpawn.com/texts/lightmaps/
 */
 
-public class Pack extends Compose {
+public class Packed extends Compose {
 	
 	Node root;
 	boolean fits = true;
 
-	Pack(VLPApplet vlp, PropertyManager inheritedProps, IList props,
+	Packed(VLPApplet vlp, PropertyManager inheritedProps, IList props,
 			IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}

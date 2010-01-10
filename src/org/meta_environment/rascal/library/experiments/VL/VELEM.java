@@ -22,7 +22,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 	
 	protected PropertyManager properties;
 	
-	protected int left;             // coordinates of top left corner of
+	protected int left;                // coordinates of top left corner of
 	protected int top; 				// the element's bounding box
 	protected float width = 0;		// width of element
 	protected float height = 0;		// height picture
@@ -55,6 +55,10 @@ public abstract class VELEM implements Comparable<VELEM> {
 		properties.applyProperties();
 	}
 	
+	public void applyFontColorProperty(){
+		properties.applyFontColorProperty();
+	}
+	
 	protected int getHeightProperty(){
 		return properties.getInt(Property.HEIGHT);
 	}
@@ -72,27 +76,15 @@ public abstract class VELEM implements Comparable<VELEM> {
 	}
 	
 	protected int getFillColorProperty(){
-		return properties.getInt(Property.FILL_COLOR);
+		return properties.getInt(Property.FILLCOLOR);
 	}
 	
 	protected int getLineColorProperty(){
-		return properties.getInt(Property.LINE_COLOR);
+		return properties.getInt(Property.LINECOLOR);
 	}
 	
 	protected int getLineWidthProperty(){
-		return properties.getInt(Property.LINE_WIDTH);
-	}
-	
-	protected boolean isVertical(){
-		return properties.getBool(Property.VERTICAL);
-	}
-	
-	protected boolean isHorizontal(){
-		return properties.getBool(Property.HORIZONTAL);
-	}
-	
-	protected boolean isCenterAligned(){
-		return properties.getBool(Property.CENTER);
+		return properties.getInt(Property.LINEWIDTH);
 	}
 	
 	protected boolean isTopAligned(){
@@ -120,15 +112,15 @@ public abstract class VELEM implements Comparable<VELEM> {
 	}
 	
 	protected int getFromAngleProperty(){
-		return properties.getInt(Property.FROM_ANGLE);
+		return properties.getInt(Property.FROMANGLE);
 	}
 	
 	protected int getToAngleProperty(){
-		return properties.getInt(Property.TO_ANGLE);
+		return properties.getInt(Property.TOANGLE);
 	}
 	
 	protected int getInnerRadiusProperty(){
-		return properties.getInt(Property.INNER_RADIUS);
+		return properties.getInt(Property.INNERRADIUS);
 	}
 	
 	protected String getIdProperty(){
@@ -140,11 +132,15 @@ public abstract class VELEM implements Comparable<VELEM> {
 	}
 	
 	protected int getFontSizeProperty(){
-		return properties.getInt(Property.FONT_SIZE);
+		return properties.getInt(Property.FONTSIZE);
+	}
+	
+	protected int getFontColorProperty(){
+		return properties.getInt(Property.FONTCOLOR);
 	}
 	
 	protected int getTextAngleProperty(){
-		return properties.getInt(Property.TEXT_ANGLE);
+		return properties.getInt(Property.TEXTANGLE);
 	}
 	
 	public boolean hasInteraction(){

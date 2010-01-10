@@ -1,9 +1,11 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
+import java.util.LinkedList;
 import processing.core.PApplet;
 
 public class GraphNode {
 	
+	private Graph G;
 	protected String name;
 	protected VELEM velem;
 	protected float x;
@@ -11,82 +13,117 @@ public class GraphNode {
 	protected float dispx = 0f;
 	protected float dispy = 0f;
 	
-	GraphNode(String name, VELEM velem){
+	protected LinkedList<GraphNode> in;
+	protected LinkedList<GraphNode> out;
+	
+//	protected float force[];
+	
+	GraphNode(Graph G, String name, VELEM velem){
+		this.G = G;
 		this.name = name;
 		this.velem = velem;
+		in = new LinkedList<GraphNode>();
+		out = new LinkedList<GraphNode>();
 	}
 	
-	public void relax(Graph G){
-		float deltax = 0;
-		float deltay = 0;
+	public void addIn(GraphNode n){
+		if(!in.contains(n))
+			in.add(n);
+	}
+	
+	public void addOut(GraphNode n){
+		if(!out.contains(n))
+			out.add(n);
+	}
+	
+	public float xdistance(GraphNode other){
+		float vx = x - other.x;
+		return vx;
+//		if(vx > 0){
+//			return PApplet.max(vx - (velem.width/2 + other.velem.width/2), 0.01f);
+//		} else {
+//			return PApplet.min(vx + (velem.width/2 + other.velem.width/2), -0.01f);
+//		}
+	}
+	
+	public float ydistance(GraphNode other){
+		float vy = y - other.y ;
+		return vy;
+//		if(vy > 0){
+//			return PApplet.max(vy - (velem.height/2 + other.velem.height/2), 0.01f);
+//		} else {
+//			return PApplet.min(vy + (velem.height/2 + other.velem.height/2), -0.01f);
+//		}
+	}
+	
+//	public float getMass(){
+//		return 1.0f;
+//	}
+	
+	private void repulsion(float vx, float vy){
+		// Inline version of repel(d) = SpringCon^2/d
 		
-	//	dispx = dispy = 0;
+		float dlensq = vx * vx + vy * vy;
+		
+		if(PApplet.abs(dlensq) < 1){
+			dlensq = dlensq < 0 ? -0.01f : 0.01f;
+			float r1 = (float) Math.random();
+			float r2 = (float) Math.random();
+			
+			vx = vx > 0 ? vx + r1 : vx - r1;
+			vy = vy > 0 ? vy + r2 : vy - r2;
+		}
+		
+		dispx += vx * G.springConstant2 / dlensq;
+		dispy += vy * G.springConstant2 / dlensq;
+	}
+	
+	public void relax(){
+		
+		dispx = dispy = 0;
 		
 		for(GraphNode n : G.nodes){
 			if(n != this){
-				deltax = x - n.x;
-				deltay = y - n.y;
-				
-				float dlensq = deltax * deltax + deltay * deltay;
-				
-				// Inline version of repel(dlen) = SpringCon^2/dlen
-				
-//				if(deltax < 5)
-//					dispx += velem.vlp.random(10);
-//				else
-//					dispx += deltax * G.springConstant2 / dlensq;
-//				if(deltay < 5)
-//					dispy += velem.vlp.random(10);
-//				 else
-//					dispy += deltay * G.springConstant2 / dlensq;
-				
-				if(dlensq == 0){
-					dispx += velem.vlp.random(1);
-					dispy += velem.vlp.random(1);
-				} else {
-					dispx += deltax * G.springConstant2 / dlensq;
-					dispy += deltay * G.springConstant2 / dlensq;
-				}
-			}
-			float dlen = PApplet.mag(dispx, dispy);
-			if(dlen > 0){
-				dispx += deltax / dlen;
-				dispy += deltay/ dlen;
+				repulsion(xdistance(n), ydistance(n));
 			}
 		}
 		
-		System.err.printf("Node %s, dispx = %f, dispy =%f\n", name, dispx, dispy);
+		// Consider the repulsion of the 4 walls of the surrounding frame
+		repulsion(x, G.height/2); repulsion(G.width - x, G.height/2);
+		repulsion(G.width/2, y); repulsion(G.width/2, G.height - y);
+		
+		
+//		for(GraphEdge e : G.edges){
+//			GraphNode from = e.from;
+//			GraphNode to = e.to;
+//			if(from != this && to != this){
+//				float vlen = PApplet.dist(from.x, from.y, to.x, to.y);
+//				float lenToFrom = PApplet.dist(x, y, from.x, from.y);
+//				float lenToTo = PApplet.dist(x, y, to.x, to.y);
+//				if(lenToFrom + lenToTo - vlen < 1f){
+//					dispx += 1;
+//					dispy += 1;
+//					from.dispx -= 1;
+//					from.dispy -= 1;
+//					to.dispx -= 1;
+//					to.dispy -= 1;
+//				}
+//			}
+//		}
+		
+		//System.err.printf("Node %s (%f,%f), dispx = %f, dispy =%f\n", name, x, y, dispx, dispy);
 	}
 	
 	void update(Graph G){
-		
-		x += PApplet.constrain(dispx, -G.temperature, G.temperature);
-		y += PApplet.constrain(dispy, -G.temperature, G.temperature);
-		x =  PApplet.constrain (x, velem.width/2, G.width-velem.width/2);
-		y =  PApplet.constrain (y, velem.height/2, G.height-velem.height/2);
-		
-		dispx /= 2;
-		dispy /= 2;
-		
-//		float dlen = PApplet.mag(dispx, dispy);
-//		System.err.printf("update %s, dispx=%f, dispy=%f, dlen=%f", name, dispx, dispy, dlen);
-//
-//		if(dlen > 0){
-//			
-//			float dx = (dispx / dlen) * PApplet.min(dispx, G.temperature);
-//			float dy = (dispy / dlen) * PApplet.min(dispy, G.temperature);
-//			
-//			//dx = PApplet.constrain(dx, -5, 5);
-//			//dy = PApplet.constrain(dy, -5, 5);
-//			
-//            x += dx;
-//            y += dy;
-//            
-//			x =  PApplet.constrain (x, velem.width/2, G.width-velem.width/2);
-//			y =  PApplet.constrain (y, velem.height/2, G.height-velem.height/2);
-//			System.err.printf(", dx=%f, dy=%f, x=%f, y=%f\n", dx, dy, x, y);
-//		} else
-//			System.err.printf(", dlen=0\n");
+		float dlen = PApplet.mag(dispx, dispy);
+		if(dlen > 0){
+			//System.err.printf("update %s, dispx=%f, dispy=%f, from %f, %f -> ", name, dispx, dispy, x, y);
+			x += PApplet.constrain(dispx, -G.temperature, G.temperature);
+			y += PApplet.constrain(dispy, -G.temperature, G.temperature);
+			//x =  PApplet.constrain (x, velem.width/2, G.width-velem.width/2);
+			//y =  PApplet.constrain (y, velem.height/2, G.height-velem.height/2);
+			//System.err.printf("%f, %f\n", x, y);
+		}
 	}
 
 	void draw() {
