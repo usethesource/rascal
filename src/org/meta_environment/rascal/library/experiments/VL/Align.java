@@ -11,7 +11,6 @@ public class Align extends Compose {
 	float rowHeight[];
 	float rowWidth[];
 	int inRow[];
-	int nrow;
 
 	Align(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
@@ -20,7 +19,6 @@ public class Align extends Compose {
 		rowHeight = new float[elems.length()];
 		rowWidth = new float[elems.length()];
 		inRow = new int[elems.length()];
-		nrow = 0;
 	}
 	
 	@Override
@@ -32,7 +30,7 @@ public class Align extends Compose {
 		float w = 0;
 		float hrow = 0;
 		float toprow = 0;
-		nrow = 0;
+		int nrow = 0;
 		int hgap = getHGapProperty();
 		int vgap = getVGapProperty();
 		for(int i = 0; i < velems.length; i++){
@@ -60,7 +58,9 @@ public class Align extends Compose {
 		rowHeight[nrow] = hrow;
 		rowWidth[nrow] = w;
 		height += hrow;
-		nrow++;
+		if(nrow == 0)
+			width = w - hgap;
+		System.err.printf("Align.bbox: width=%f, height=%f\n", width, height);
 	}
 	
 	@Override
@@ -84,11 +84,11 @@ public class Align extends Compose {
 			
 			float veLeft;
 			if(ve.isLeftAligned())
-				veLeft = leftElem[i];
+				veLeft = left + leftElem[i];
 			else if(ve.isRightAligned())
-				veLeft = rfiller + leftElem[i];
+				veLeft = left + rfiller + leftElem[i];
 			else
-				veLeft = rfiller/2 + leftElem[i];
+				veLeft = left + rfiller/2 + leftElem[i];
 			
 			ve.draw(veLeft, veTop);
 		}

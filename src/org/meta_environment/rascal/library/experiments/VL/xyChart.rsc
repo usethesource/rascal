@@ -6,14 +6,21 @@ import Map;
 import IO;
 import Integer;
 
-public alias intSeries  = 
+public alias intTuples  = 
        tuple[str name,list[tuple[int, int]]  values];
 
-public VELEM lineChart(str title, list[intSeries] facts){
-   funPlots = [];
-   funColors = ();
+public VELEM lineChart(str title, list[intTuples] facts){
+// Potential parameters:
    chartWidth = 400;
    chartHeight = 400;
+   xtitle = "x-axis";
+   ytitle = "y-axis";
+   isClosed = false;
+   
+   // TODO scatter plot
+   
+   funPlots = [];
+   funColors = ();
    xmin = 1000000;
    xmax = -1000000;
    
@@ -37,9 +44,6 @@ public VELEM lineChart(str title, list[intSeries] facts){
   xshift = (xmin > 0) ? 0 : -xmin;
   yshift = (ymin > 0) ? 0 : -ymin;
   
-  println("xmin=<xmin>, xmax=<xmax>, ymin=<ymin>, ymax=<ymax>");
-  println("xscale=<xscale>, yscale=<yscale>");
-  
   // Add vertical axis at x=0
   funPlots += shape([lineColor("darkgrey"), lineWidth(1)],
                      [ vertex((xshift + 0) * xscale, 0),
@@ -52,16 +56,23 @@ public VELEM lineChart(str title, list[intSeries] facts){
                      ]);  
   // Add function plots                            
    for(<str fname, list[tuple[int, int]] values> <- facts){
-   		fcolor = palette(size(funColors));
-   		funColors[fname] = fcolor;
-        funPlots += shape([lineColor(fcolor), lineWidth(2), fillColor(fcolor), curved()],
-                          [vertex((xshift + x) * xscale, (yshift + y) * yscale, ellipse([size(5), fillColor(fcolor), lineWidth(0)])) | <int x, int y> <- values]);
+   		fcolorName = palette(size(funColors));
+   		funColors[fname] = color(fcolorName);
+   		list[VPROP] shapeProps;
+   		if(isClosed){
+   		   shapeProps = [lineColor(fcolorName), lineWidth(2), fillColor(color(fcolorName, 0.7)), curved(), closed()];
+   		}
+   		else
+   		   shapeProps = [lineColor(fcolorName), lineWidth(2), fillColor(fcolorName), curved()];
+   		   
+        funPlots += shape(shapeProps,
+                          [vertex((xshift + x) * xscale, (yshift + y) * yscale, ellipse([size(5), fillColor(fcolorName), lineWidth(0)])) | <int x, int y> <- values]);
    }
    
    funs = overlay([bottom(), left()], funPlots);
    
    // Background raster with title
-   raster = vertical([hcenter()],
+   raster = vertical([hcenter(), gap(0,20)],
                    [ text([fontSize(20)], title),
                      box([size(400,400), fillColor("lightgray")])
                    ]);
@@ -71,10 +82,11 @@ public VELEM lineChart(str title, list[intSeries] facts){
    // - y-axis
    // - raster
    // - function plots
+   
    plot = grid([bottom(), left(), gap(0)],
-               [ use([bottom(), right()], yaxis("y-axis", chartHeight, ymin, 10, ymax, yscale)),
+               [ use([bottom(), right()], yaxis(ytitle, chartHeight, ymin, 10, ymax, yscale)),
                  use([top(), left()],     vertical([hcenter(), gap(20)],
-                                                   [ xaxis("x-axis", chartWidth,  xmin, 10, xmax, xscale),
+                                                   [ xaxis(xtitle, chartWidth,  xmin, 10, xmax, xscale),
                                                      legend(funColors, chartWidth)
                                                    ])),      
                  use([bottom(), left()], raster),
@@ -98,8 +110,6 @@ private VELEM ytick(int n){
 }
 
 public VELEM xaxis(str title, int length, int start, int incr, int end, int scale){
-   
-   print("xaxis(length=<length>, start=<start>, incr=<incr>, end=<end>, scale=<scale>)");
    ticks = grid([gap(incr * scale), width(length), vcenter()], [xtick(n) | int n <- [start, (start + incr) .. end]]);
   
    return vertical([gap(20), hcenter()], 
@@ -109,7 +119,6 @@ public VELEM xaxis(str title, int length, int start, int incr, int end, int scal
 }
 
 public VELEM yaxis(str title, int length, int start, int incr, int end, int scale){
-   print("yaxis(length=<length>, start=<start>, incr=<incr>, end=<end>, scale=<scale>)");
    ticks = grid([gap(incr * scale), width(1), right()], [ytick(n) | int n <- [end, (end - incr) .. start]]);
    
    return horizontal([gap(20), vcenter()], 
@@ -123,13 +132,8 @@ private VELEM legendItem(str name, Color c){
 }
 
 private VELEM legend(map[str, Color] funColors, int w){
-   return box([hcenter(), gap(4)], align([width(w), gap(10), vcenter()], [legendItem(name, funColors[name]) | name <- funColors]));
-}
-
-public void p0(){
-    render(grid([ box([right(),bottom()], yaxis("y-axis", 400, 0, 50, 150)),
-                        box([left(), top()],    xaxis("x-axis", 400, 0, 50, 150))
-                      ]));
+   return box([center(), gap(20,20)], 
+               use(align([width(w), gap(10), center()], [legendItem(name, funColors[name]) | name <- funColors])));
 }
 
 public void p1(){
@@ -144,33 +148,65 @@ public void p1(){
            );
 }
 
+//----------------------------------  barChart -----------------------------------------------
+
+public alias intSeries  = 
+       tuple[str name,list[int]  values];
+       
+public void barChart(str title, map[str,int] facts){
+
+}
+
+public void barChart(str title, list[str] categories, list[intSeries] facts){
+
+}
+
+
 /*
-public void p1(){
-
-	xyChart("test", [<"f", [1,1, 2,2, 3, 5]>, 
-                     <"g", [2,50, 5,100] >],
-                     domainLabel("X-axis"),
-                     rangeLabel("Y-axis")
-           );
+public void b1(){
+  barChart("Sales Prognosis 1", 
+                     ["First Quarter", "Second Quarter"],
+           [<"2009", [20,              25]>,
+            <"2010", [40,              60]>],
+            domainLabel("Quarters"), 
+            rangeLabel("Sales")
+            );
 }
 
-public void p2(){
-
-	xyChart("test", [<"f", [1,1, 2,2, 3,5]>, 
-                     <"g", [2,50, 5,100] >],
-                     area(),
-                     domainLabel("X-axis"),
-                     rangeLabel("Y-axis")
-           );
+public void b2(){ 
+  barChart("Sales Prognosis 2",  
+                     ["First Quarter", "Second Quarter"],
+           [<"2009", [20,              25]>,
+            <"2010", [40,              60]>],
+            domainLabel("Quarters"), 
+            rangeLabel("Sales"),
+            dim3()
+            );
 }
 
-public void p3(){
+public void b3(){   
+  barChart("Sales Prognosis 3",  
+                     ["First Quarter", "Second Quarter"],
+           [<"2009", [20,              25]>,
+            <"2010", [40,              60]>],
+            domainLabel("Quarters"), 
+            rangeLabel("Sales"),
+            dim3(),
+            horizontal()
+            );
+}
 
-	xyChart("test", [<"f", [1,1, 2,2, 3,5]>, 
-                     <"g", [2,50, 5,100] >],
-                     scatter(),
-                     domainLabel("X-axis"),
-                     rangeLabel("Y-axis")
-           );
+public void b4(){   
+  barChart("Sales Prognosis 4",  
+                     ["First Quarter", "Second Quarter"],
+           [<"2009", [20,              25]>,
+            <"2010", [40,              60]>],
+            domainLabel("Quarters"), 
+            rangeLabel("Sales"),
+            dim3(),
+            stacked()
+            );
 }
 */
+
+
