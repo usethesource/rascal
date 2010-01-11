@@ -14,6 +14,8 @@ public value readValueFile(loc file) {
   return readValueFile(#value, file);
 }
 
+
+
 @doc{Read a typed value from a binary file.}
 @javaClass{org.meta_environment.rascal.library.ValueIO}
 public &T java readBinaryValueFile(type[&T] result, loc file);
@@ -29,6 +31,15 @@ public &T java readTextValueFile(type[&T] result, loc file);
 public value readTextValueFile(loc file) {
   return readTextValueFile(#value, file);
 }
+
+@doc{Parse a textual string representation of a value}
+public value readTextValueString(str input) {
+  return readTextValueString(#value, input);
+}
+
+@doc{Parse a textual string representation of a value and validate it against the given type}
+@javaClass{org.meta_environment.rascal.library.ValueIO}
+public &T java readTextValueString(type[&T] result, str input);
 	
 @doc{Write a value to a file using an efficient binary file format}
 @javaClass{org.meta_environment.rascal.library.ValueIO}

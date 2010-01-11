@@ -1,13 +1,16 @@
 package org.meta_environment.rascal.library;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
@@ -72,6 +75,21 @@ public class ValueIO{
 					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 				}
 			}
+		}
+	}
+	
+	public IValue readTextValueString(IConstructor type, IString input) {
+		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
+		TypeStore store = new TypeStore();
+		Typeifier.declare(type, store);
+		
+		ByteArrayInputStream in = new ByteArrayInputStream(input.getValue().getBytes());
+		try {
+			return new StandardTextReader().read(values, store, start, in);
+		} catch (FactTypeUseException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 	
