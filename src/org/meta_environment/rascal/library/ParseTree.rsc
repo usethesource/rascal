@@ -75,4 +75,4 @@ public &T<:Tree java parse(type[&T<:Tree] start, str input);
 
 @doc{Yields the string of characters that form the leafs of the given parse tree.}
 @javaClass{org.meta_environment.rascal.library.ParseTree}
-public str java unparse(&T <: Tree tree);
+public str java unparse(Tree tree);
