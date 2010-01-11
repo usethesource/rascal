@@ -81,6 +81,7 @@ data VPROP =
    | top()                              // top alignment
    | hcenter()                          // horizontal centered alignment
    | vcenter()                          // vertical centered alignment
+   | center()                           // horizontal and vertical alignment
    | bottom()                           // bottom alignment
    | left()                             // left alignment
    | right()                            // right alignment
