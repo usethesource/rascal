@@ -23,7 +23,6 @@ import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 import org.meta_environment.uri.FileURIResolver;
 import org.meta_environment.uri.URIResolverRegistry;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class ParseTree {
 	private final IValueFactory values;
@@ -103,7 +102,11 @@ public class ParseTree {
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}
 	}
-
+	
+	public IString unparse(IConstructor tree) {
+		return values.string(TreeAdapter.yield(tree));
+	}
+	
 	private static IConstructor checkPreconditions(IConstructor start, Type reified) {
 		if (!(reified instanceof ReifiedType)) {
 		   throw RuntimeExceptionFactory.illegalArgument(start, null, null);

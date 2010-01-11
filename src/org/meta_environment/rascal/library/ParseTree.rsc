@@ -72,3 +72,7 @@ public &T<:Tree java parse(type[&T<:Tree] start, loc input);
 @javaClass{org.meta_environment.rascal.library.ParseTree}
 @reflect{uses information about imported SDF modules at call site}
 public &T<:Tree java parse(type[&T<:Tree] start, str input);
+
+@doc{Yields the string of characters that form the leafs of the given parse tree.}
+@javaClass{org.meta_environment.rascal.library.ParseTree}
+public str java unparse(&T <: Tree tree);
