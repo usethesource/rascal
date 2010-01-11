@@ -57,15 +57,16 @@ public Color(int) colorScale(list[int] values, Color from, Color to){
 }
 
 @doc{Create a fixed color palette}
-private list[Color] p12 = [ color("navy"), color("violet"), color("yellow"), color("aqua"), 
-                      color("red"), color("darkviolet"), color("maroon"), color("green"),
-                      color("teal"), color("blue"), color("olive"), color("lime")];
+private list[str] p12 = [ "navy", "violet", "yellow", "aqua", 
+                      "red", "darkviolet", "maroon", "green",
+                      "teal", "blue", "olive", "lime"];
 
-public Color palette(int n){
+@doc{Return named color from fixed palette}
+public str palette(int n){
   try 
   	return p12[n];
   catch:
-    return color("black");
+    return "black";
 }
 
 data VPROP =
