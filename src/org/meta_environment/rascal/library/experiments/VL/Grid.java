@@ -27,12 +27,12 @@ public class Grid extends Compose {
 		width = getWidthProperty();
 		height = 0;
 		float w = 0;
-		float nrow = 0;
+		int nrow = 0;
 		
 		int hgap = getHGapProperty();
 		int vgap = getVGapProperty();
 		
-		int lastRow = velems.length / (1 + (int) (width / hgap));
+		int lastRow = (hgap == 0) ? 0 : velems.length / (1 + (int) (width / hgap));
 		System.err.printf("lastRow = %d\n", lastRow);
 		
 		extTop = 0;
@@ -53,14 +53,16 @@ public class Grid extends Compose {
 			
 			if(w == 0)
 				extLeft = max(extLeft, ve.isLeftAligned() ? 0 : ve.isRightAligned() ? ve.width : ve.width/2);
-			if(w + hgap > width)
+			if(w + hgap >= width)
 				extRight = max(extRight, ve.isRightAligned() ? 0 : ve.isLeftAligned() ? ve.width : ve.width/2);
 			if(nrow == 0)
 				extTop = max(extTop, ve.isTopAligned() ? 0 : ve.isBottomAligned() ? ve.height : ve.height/2);
-			if(nrow == lastRow)
+			if(nrow == lastRow){
+				System.err.printf("nrow == lastRow!, isBottomAligned=%b\n", ve.isBottomAligned());
 				extBot = max(extBot, ve.isBottomAligned() ? 0 : ve.isTopAligned() ? ve.height : ve.height/2);
+			}
 			
-			System.err.printf("i=%d, extLeft=%f, extRight=%f, extTop=%f, extBot=%f\n", i, extLeft, extRight, extTop, extBot);
+			System.err.printf("i=%d, row=%d, w=%f, extLeft=%f, extRight=%f, extTop=%f, extBot=%f\n", i, nrow, w, extLeft, extRight, extTop, extBot);
 			
 			xElem[i] = w;
 			yElem[i] = height;

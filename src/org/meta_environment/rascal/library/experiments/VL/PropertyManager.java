@@ -17,6 +17,7 @@ public class PropertyManager implements Cloneable {
 
 	enum Property {
 		BOTTOM, 
+		CENTER,
 		CLOSED, 
 		CURVED,
 		FILLCOLOR, 
@@ -47,6 +48,7 @@ public class PropertyManager implements Cloneable {
 	static final HashMap<String, Property> propertyNames = new HashMap<String, Property>() {
 		{
 			put("bottom", Property.BOTTOM);
+			put("center", Property.CENTER);
 			put("closed", Property.CLOSED);
 			put("curved", Property.CURVED);
 			put("fillColor", Property.FILLCOLOR);
@@ -162,6 +164,16 @@ public class PropertyManager implements Cloneable {
 				defBool(Property.VCENTER, false);	
 				break;
 				
+			case CENTER:
+				defBool(Property.HCENTER, true);	
+				defBool(Property.LEFT, false);	
+				defBool(Property.RIGHT, false);
+				
+				defBool(Property.VCENTER, true);	
+				defBool(Property.TOP, false);	
+				defBool(Property.BOTTOM, false); 
+				break;
+				
 			case CLOSED:
 				defBool(Property.CLOSED, true); break;
 				
@@ -251,7 +263,10 @@ public class PropertyManager implements Cloneable {
 				defInt(Property.TOANGLE, getIntArg(c)); break;
 				
 			case TOP:
-				defBool(Property.TOP, true); defBool(Property.BOTTOM, true); break;
+				defBool(Property.TOP, true); 
+				defBool(Property.VCENTER, false);
+				defBool(Property.BOTTOM, false); 
+				break;
 			
 			case VCENTER:
 				defBool(Property.VCENTER, true);	

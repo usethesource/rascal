@@ -54,19 +54,17 @@ public VELEM lineChart(str title, list[intSeries] facts){
    for(<str fname, list[tuple[int, int]] values> <- facts){
    		fcolor = palette(size(funColors));
    		funColors[fname] = fcolor;
-        funPlots += shape([lineColor(fcolor), lineWidth(2), fillColor(fcolor)],
+        funPlots += shape([lineColor(fcolor), lineWidth(2), fillColor(fcolor), curved()],
                           [vertex((xshift + x) * xscale, (yshift + y) * yscale, ellipse([size(5), fillColor(fcolor), lineWidth(0)])) | <int x, int y> <- values]);
    }
    
    funs = overlay([bottom(), left()], funPlots);
    
-   // Background raster
-   raster = box([size(400,400), fillColor("lightgray")]);
-   
-         //  vertical([hcenter()],
-         //          [ text([fontSize(20)], title),
-         //            box([size(400,400), fillColor("lightgray")])
-         //          ]);
+   // Background raster with title
+   raster = vertical([hcenter()],
+                   [ text([fontSize(20)], title),
+                     box([size(400,400), fillColor("lightgray")])
+                   ]);
            
    // Superimpose on the same grid point (with different allignments):
    // - x-axis,
@@ -74,10 +72,13 @@ public VELEM lineChart(str title, list[intSeries] facts){
    // - raster
    // - function plots
    plot = grid([bottom(), left(), gap(0)],
-               [ //use([bottom(), right()], yaxis("y-axis", chartHeight, ymin, 10, ymax, yscale)),
-                 use([top(), left()],     xaxis("x-axis", chartWidth,  xmin, 10, xmax, xscale)),
-                 use([bottom(), left()], raster)
-                // funPlots
+               [ use([bottom(), right()], yaxis("y-axis", chartHeight, ymin, 10, ymax, yscale)),
+                 use([top(), left()],     vertical([hcenter(), gap(20)],
+                                                   [ xaxis("x-axis", chartWidth,  xmin, 10, xmax, xscale),
+                                                     legend(funColors, chartWidth)
+                                                   ])),      
+                 use([bottom(), left()], raster),
+                 funPlots
                ]);
    
    return plot;
@@ -117,6 +118,14 @@ public VELEM yaxis(str title, int length, int start, int incr, int end, int scal
                    ]);
 }
 
+private VELEM legendItem(str name, Color c){
+  return horizontal([gap(2), vcenter()], [text([fontSize(10)], "<name> = "), box([size(20,2), lineWidth(0), fillColor(c)])]);
+}
+
+private VELEM legend(map[str, Color] funColors, int w){
+   return box([hcenter(), gap(4)], align([width(w), gap(10), vcenter()], [legendItem(name, funColors[name]) | name <- funColors]));
+}
+
 public void p0(){
     render(grid([ box([right(),bottom()], yaxis("y-axis", 400, 0, 50, 150)),
                         box([left(), top()],    xaxis("x-axis", 400, 0, 50, 150))
@@ -129,7 +138,8 @@ public void p1(){
                        <"g", [<50,0>, <50,50>, <50,100>]>,
                        <"h", [<0,0>, <10,10>, <20,20>, <30,30>, <40,40>, <50,50>, <60,60>]>,
                        <"i", [<0, 60>, <10, 50>, <20, 40>, <30, 30>, <40, 20>, <50, 10>, <60, 0>]>,
-                       <"j", [< -20, 20>, < -10, 10>, <0,0>, <10, -10>, <20, -20>]>                  
+                       <"j", [< -20, 20>, < -10, 10>, <0,0>, <10, -10>, <20, -20>]>,
+                       <"k", [< -20, 40>, < -10, 10>, <0, 0>, <10, 10>, <20, 40>, <30, 90>]>                
                      ])
            );
 }
