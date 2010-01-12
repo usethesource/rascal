@@ -169,6 +169,19 @@ public void vert2(){
 		));
 }
 
+// TODO: how do we get the inner vertical left aligned?
+public void vert3(){
+	render(vertical([gap(10),left()],
+	              [box([ size(100,200), fillColor("red") ]),
+			       use([left()], vertical([right()], [ box([size(150,100)]),
+			                             box([size(50,50)]),  
+			                             box([size(30,30)])
+			                           ])),
+			       box([ size(200,50), fillColor("green") ])
+			      ]
+		));
+}
+
 
 public void hv1(){
 	render(horizontal([bottom(), gap(10)],
