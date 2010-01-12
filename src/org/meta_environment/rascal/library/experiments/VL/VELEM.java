@@ -14,6 +14,16 @@ import processing.core.PApplet;
  *
  */
 
+/*
+ * Still looking for a good name for "visual elements" Candidates are:
+ * - Figure
+ * - Picture
+ * - Diagram
+ * - Shape
+ * - Mark
+ * - Visual
+ */
+
 public abstract class VELEM implements Comparable<VELEM> {
 	
 	protected VLPApplet vlp;
