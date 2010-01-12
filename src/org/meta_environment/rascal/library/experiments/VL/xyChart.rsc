@@ -133,7 +133,7 @@ private VELEM legendItem(str name, Color c){
 
 private VELEM legend(map[str, Color] funColors, int w){
    return box([center(), gap(20,20)], 
-               use(align([width(w), gap(10), center()], [legendItem(name, funColors[name]) | name <- funColors])));
+               align([width(w), gap(10), center()], [legendItem(name, funColors[name]) | name <- funColors]));
 }
 
 public void p1(){
