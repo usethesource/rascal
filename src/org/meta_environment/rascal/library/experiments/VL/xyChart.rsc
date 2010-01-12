@@ -15,7 +15,7 @@ public VELEM lineChart(str title, list[intTuples] facts){
    chartHeight = 400;
    xtitle = "x-axis";
    ytitle = "y-axis";
-   isClosed = false;
+   isClosed = true;
    
    // TODO scatter plot
    
