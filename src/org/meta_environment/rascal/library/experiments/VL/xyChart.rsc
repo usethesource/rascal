@@ -5,17 +5,58 @@ import experiments::VL::VLRender;
 import Map;
 import IO;
 import Integer;
+import List;
+
+data ChartSetting =            // supported by
+                               // barChart pieChart xyChart histogram boxplot
+     area()                    //                   x
+   | domainLabel(str txt)      // x                 x       x         x
+   | horizontal()              // x                 x       x         x
+   | noSectionLabels()         //          x
+   | rangeLabel(str txt)       // x                 x       x         x
+   | ring()                    //          x
+   | scatter()                 //                   x           
+   | stacked()                 // x  
+   | subtitle(str txt)         // x        x        x       x         x
+   | vertical()                // x                 x       x         x
+
+   ;
+   
+private int chartWidth = 400;
+private int chartHeight = 400;
+private str title = "";
+private str subtitle = "";
+private str xtitle = "";
+private str ytitle = "";
+private bool closed = false;
+private bool scatter = false;
+private bool stacked = false;
+
+private void applySettings(list[ChartSetting] settings){
+   chartWidth = chartHeight = 400;
+   title = subtitle = xtitle = ytitle = "";
+   closed = scatter = stacked = false;
+   
+   for(setting <- settings){
+       switch(setting){
+   	     case chartWidth(int w): chartWidth = w;
+         case chartHeight(int h): chartHeight = h;
+         case title(str s): title = s;
+         case subtitle(str s): subtitle = s;
+         case xtitle(str s): xtitle = s;
+         case ytitle(str s): ytitle = s;
+         case closed(): closed = true;
+         case scatter(): scatter = true;
+         case stacked() : stacked = true;
+       }
+    }
+}
 
 public alias intTuples  = 
        tuple[str name,list[tuple[int, int]]  values];
 
-public VELEM lineChart(str title, list[intTuples] facts){
-// Potential parameters:
-   chartWidth = 400;
-   chartHeight = 400;
-   xtitle = "x-axis";
-   ytitle = "y-axis";
-   isClosed = true;
+public VELEM lineChart(str title, list[intTuples] facts, ChartSetting settings ... ){
+   applySettings(settings);
    
    // TODO scatter plot
    
@@ -59,7 +100,7 @@ public VELEM lineChart(str title, list[intTuples] facts){
    		fcolorName = palette(size(funColors));
    		funColors[fname] = color(fcolorName);
    		list[VPROP] shapeProps;
-   		if(isClosed){
+   		if(closed){
    		   shapeProps = [lineColor(fcolorName), lineWidth(2), fillColor(color(fcolorName, 0.7)), curved(), closed()];
    		}
    		else
@@ -74,7 +115,7 @@ public VELEM lineChart(str title, list[intTuples] facts){
    // Background raster with title
    raster = vertical([hcenter(), gap(0,20)],
                    [ text([fontSize(20)], title),
-                     box([size(400,400), fillColor("lightgray")])
+                     box([size(chartWidth,chartHeight), fillColor("lightgray")])
                    ]);
            
    // Superimpose on the same grid point (with different allignments):
@@ -127,6 +168,16 @@ public VELEM yaxis(str title, int length, int start, int incr, int end, int scal
                    ]);
 }
 
+public VELEM catxaxis(str title, int length, list[str] categories, int g){
+  
+   ticks = grid([gap(g), width(length), hcenter()], [text(categories[i]) | int i <- [0 .. size(categories)-1]]);
+   
+   return vertical([gap(20), hcenter()], 
+                   [ ticks,
+                     text([fontSize(14)], title)
+                   ]);
+}
+
 private VELEM legendItem(str name, Color c){
   return horizontal([gap(2), vcenter()], [text([fontSize(10)], "<name> = "), box([size(20,2), lineWidth(0), fillColor(c)])]);
 }
@@ -157,22 +208,86 @@ public void barChart(str title, map[str,int] facts){
 
 }
 
-public void barChart(str title, list[str] categories, list[intSeries] facts){
+public VELEM barChart(str title, list[str] categories, list[intSeries] facts){
+// Potential parameters:
+   chartWidth = 400;
+   chartHeight = 400;
+   xtitle = "x-axis";
+   ytitle = "y-axis";
+ 
+   funPlots = [];
+   funColors = ();
+   
+   nbars = 0;
+   nseries = size(facts);
+   
+   ymin = 1000000;
+   ymax = -1000000;
+   
+   // Max and min values in the data
+   for(<str fname, list[int] values> <- facts){
+      n = size(values);
+      if(n > nbars)
+          nbars = n;
+      for(int y <- values){
+          ymin = min(y, ymin);
+          ymax = max(y, ymax);
+      }
+  }
+  
+  // Compute scaling and sizes
+  
+  yscale = chartHeight / ymax;
+  groupWidth = 2 * chartWidth / (3 * nseries); 
+  groupGap = groupWidth / 2;                          
+  
+  barWidth = 2 * groupWidth / (3 * nbars);
+  barGap = barWidth / 2;
+  
+  println("barWidth=<barWidth>, barGap=<barGap>, groupWidth=<groupWidth>, groupGap=<groupGap>");
+  
+  // Compute translation
 
+  println("yscale=<yscale>");
+  fns = ();
+  for(<str fname, list[int] values> <- facts){
+    fcolorName = palette(size(funColors));
+    funColors[fname] = color(fcolorName);
+    for(int i <- [0 .. size(values)-1]){
+     	fns[i] = (fns[i] ? []) + box([size(barWidth, values[i] * yscale), lineWidth(0), fillColor(funColors[fname])]);
+     }
+  }
+  for(int i <- [0 .. size(categories)-1]){
+  	funPlots += horizontal([bottom(), gap(barGap)], fns[i]);
+  }
+  // Background raster with title
+   raster = vertical([hcenter(), gap(0,20)],
+                   [ text([fontSize(20)], title),
+                     box([size(chartWidth,chartHeight), fillColor("lightgray")])
+                   ]);
+  plot = grid([bottom(), left(), gap(0)],
+               [ use([bottom(), right()], yaxis(ytitle, chartHeight, 0, 10, ymax, yscale)),
+                 use([top(), left()],     vertical([hcenter(), gap(20)],
+                                                   [ catxaxis(xtitle, chartWidth, categories, groupWidth + groupGap),
+                                                     legend(funColors, chartWidth)
+                                                   ])),      
+                 use([bottom(), left()], raster),
+                 grid([bottom(), width(chartWidth), gap(groupWidth + groupGap)], funPlots)
+               ]);
+   
+   return plot;
 }
 
 
-/*
+
 public void b1(){
-  barChart("Sales Prognosis 1", 
+  render(barChart("Sales Prognosis 1", 
                      ["First Quarter", "Second Quarter"],
            [<"2009", [20,              25]>,
-            <"2010", [40,              60]>],
-            domainLabel("Quarters"), 
-            rangeLabel("Sales")
-            );
+            <"2010", [40,              60]>]
+            ));
 }
-
+/*
 public void b2(){ 
   barChart("Sales Prognosis 2",  
                      ["First Quarter", "Second Quarter"],
