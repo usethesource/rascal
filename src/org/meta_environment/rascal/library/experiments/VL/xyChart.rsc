@@ -7,55 +7,61 @@ import IO;
 import Integer;
 import List;
 
-data ChartSetting =            // supported by
+data ChartSetting =            //             supported by
                                // barChart pieChart xyChart histogram boxplot
-     area()                    //                   x
-   | domainLabel(str txt)      // x                 x       x         x
-   | horizontal()              // x                 x       x         x
-   | noSectionLabels()         //          x
-   | rangeLabel(str txt)       // x                 x       x         x
-   | ring()                    //          x
-   | scatter()                 //                   x           
-   | stacked()                 // x  
-   | subtitle(str txt)         // x        x        x       x         x
-   | vertical()                // x                 x       x         x
-
+     chartSize(int w, int h)   //    x         x      x         x        x
+   | xLabel(str txt)           //    x                x         x        x
+   | horizontal()              //    x                x         x        x
+   | noSectionLabels()         //              x
+   | yLabel(str txt)           //    x                x         x        x
+   | ring()                    //              x
+   | scatter()                 //                     x           
+   | stacked()                 //    x  
+   | subtitle(str txt)         //    x         x      x         x        x
+   | vertical()                //    x                x         x        x
    ;
-   
+ 
 private int chartWidth = 400;
 private int chartHeight = 400;
-private str title = "";
 private str subtitle = "";
-private str xtitle = "";
-private str ytitle = "";
-private bool closed = false;
-private bool scatter = false;
-private bool stacked = false;
+private str xTitle = "";
+private str yTitle = "";
+private bool isClosed = false;
+private bool isScatter = false;
+private bool isStacked = false;
 
 private void applySettings(list[ChartSetting] settings){
    chartWidth = chartHeight = 400;
-   title = subtitle = xtitle = ytitle = "";
-   closed = scatter = stacked = false;
+   subtitle = xTitle = yTitle = "";
+   isClosed = isScatter = isStacked = false;
    
-   for(setting <- settings){
+   for(ChartSetting setting <- settings){
+       println("setting=<setting>");
+        
        switch(setting){
-   	     case chartWidth(int w): chartWidth = w;
-         case chartHeight(int h): chartHeight = h;
-         case title(str s): title = s;
+   	     case chartSize(int w, int h): { chartWidth = w; chartHeight = h;}
+         
          case subtitle(str s): subtitle = s;
-         case xtitle(str s): xtitle = s;
-         case ytitle(str s): ytitle = s;
-         case closed(): closed = true;
-         case scatter(): scatter = true;
-         case stacked() : stacked = true;
+         
+         case xLabel(str s): xTitle = s;
+         
+         case yLabel(str s): yTitle = s;
+         
+         case closed(): isClosed = true;
+         
+         case scatter(): isScatter = true;
+         
+         case stacked() : isStacked = true;
        }
     }
+    
 }
 
 public alias intTuples  = 
        tuple[str name,list[tuple[int, int]]  values];
 
 public VELEM lineChart(str title, list[intTuples] facts, ChartSetting settings ... ){
+
    applySettings(settings);
    
    // TODO scatter plot
@@ -69,14 +75,15 @@ public VELEM lineChart(str title, list[intTuples] facts, ChartSetting settings .
    ymax = -1000000;
    
    // Max and min values in the data
-   for(<str fname, list[tuple[int, int]] values> <- facts)
+   for(<str fname, list[tuple[int, int]] values> <- facts){
       for(<int x, int y> <- values){
           xmin = min(x, xmin);
           xmax = max(x, xmax);
           ymin = min(y, ymin);
           ymax = max(y, ymax);
       }
-  
+   }
+    
   // Compute scaling
   xscale = chartWidth  / (xmax - xmin);
   yscale = chartHeight / (ymax - ymin);
@@ -100,7 +107,7 @@ public VELEM lineChart(str title, list[intTuples] facts, ChartSetting settings .
    		fcolorName = palette(size(funColors));
    		funColors[fname] = color(fcolorName);
    		list[VPROP] shapeProps;
-   		if(closed){
+   		if(isClosed){
    		   shapeProps = [lineColor(fcolorName), lineWidth(2), fillColor(color(fcolorName, 0.7)), curved(), closed()];
    		}
    		else
@@ -125,9 +132,9 @@ public VELEM lineChart(str title, list[intTuples] facts, ChartSetting settings .
    // - function plots
    
    plot = grid([bottom(), left(), gap(0)],
-               [ use([bottom(), right()], yaxis(ytitle, chartHeight, ymin, 10, ymax, yscale)),
+               [ use([bottom(), right()], yaxis(yTitle, chartHeight, ymin, 10, ymax, yscale)),
                  use([top(), left()],     vertical([hcenter(), gap(20)],
-                                                   [ xaxis(xtitle, chartWidth,  xmin, 10, xmax, xscale),
+                                                   [ xaxis(xTitle, chartWidth,  xmin, 10, xmax, xscale),
                                                      legend(funColors, chartWidth)
                                                    ])),      
                  use([bottom(), left()], raster),
@@ -195,7 +202,11 @@ public void p1(){
                        <"i", [<0, 60>, <10, 50>, <20, 40>, <30, 30>, <40, 20>, <50, 10>, <60, 0>]>,
                        <"j", [< -20, 20>, < -10, 10>, <0,0>, <10, -10>, <20, -20>]>,
                        <"k", [< -20, 40>, < -10, 10>, <0, 0>, <10, 10>, <20, 40>, <30, 90>]>                
-                     ])
+                     ],
+                     chartSize(400,400),
+                     xLabel("The X axis"),
+                     yLabel("The Y axis")
+                     )
            );
 }
 
@@ -208,12 +219,9 @@ public void barChart(str title, map[str,int] facts){
 
 }
 
-public VELEM barChart(str title, list[str] categories, list[intSeries] facts){
-// Potential parameters:
-   chartWidth = 400;
-   chartHeight = 400;
-   xtitle = "x-axis";
-   ytitle = "y-axis";
+public VELEM barChart(str title, list[str] categories, list[intSeries] facts, ChartSetting settings...){
+   
+   applySettings(settings);
  
    funPlots = [];
    funColors = ();
@@ -223,26 +231,35 @@ public VELEM barChart(str title, list[str] categories, list[intSeries] facts){
    
    ymin = 1000000;
    ymax = -1000000;
+   ysummax = -1000000;
    
    // Max and min values in the data
    for(<str fname, list[int] values> <- facts){
       n = size(values);
       if(n > nbars)
           nbars = n;
+      ysum = 0;
       for(int y <- values){
+          ysum += y;
           ymin = min(y, ymin);
           ymax = max(y, ymax);
       }
+      ysummax = max(ysum, ysummax);
   }
   
   // Compute scaling and sizes
   
-  yscale = chartHeight / ymax;
+  yscale = chartHeight / (isStacked ? ysummax : ymax);
   groupWidth = 2 * chartWidth / (3 * nseries); 
-  groupGap = groupWidth / 2;                          
+  groupGap = groupWidth / 2;   
   
   barWidth = 2 * groupWidth / (3 * nbars);
-  barGap = barWidth / 2;
+  barGap = barWidth / 2;                       
+  
+  if(isStacked){
+     barWidth = groupWidth;
+     barGap = 0;
+  }
   
   println("barWidth=<barWidth>, barGap=<barGap>, groupWidth=<groupWidth>, groupGap=<groupGap>");
   
@@ -258,7 +275,8 @@ public VELEM barChart(str title, list[str] categories, list[intSeries] facts){
      }
   }
   for(int i <- [0 .. size(categories)-1]){
-  	funPlots += horizontal([bottom(), gap(barGap)], fns[i]);
+  	funPlots += isStacked ? vertical([bottom(), gap(0)], fns[i])
+  	                      : horizontal([bottom(), gap(barGap)], fns[i]);
   }
   // Background raster with title
    raster = vertical([hcenter(), gap(0,20)],
@@ -266,9 +284,9 @@ public VELEM barChart(str title, list[str] categories, list[intSeries] facts){
                      box([size(chartWidth,chartHeight), fillColor("lightgray")])
                    ]);
   plot = grid([bottom(), left(), gap(0)],
-               [ use([bottom(), right()], yaxis(ytitle, chartHeight, 0, 10, ymax, yscale)),
+               [ use([bottom(), right()], yaxis(yTitle, chartHeight, 0, 10, ymax, yscale)),
                  use([top(), left()],     vertical([hcenter(), gap(20)],
-                                                   [ catxaxis(xtitle, chartWidth, categories, groupWidth + groupGap),
+                                                   [ catxaxis(xTitle, chartWidth, categories, groupWidth + groupGap),
                                                      legend(funColors, chartWidth)
                                                    ])),      
                  use([bottom(), left()], raster),
@@ -278,23 +296,26 @@ public VELEM barChart(str title, list[str] categories, list[intSeries] facts){
    return plot;
 }
 
-
-
 public void b1(){
   render(barChart("Sales Prognosis 1", 
-                     ["First Quarter", "Second Quarter"],
-           [<"2009", [20,              25]>,
-            <"2010", [40,              60]>]
+                  ["First Quarter", "Second Quarter"],
+                  [ <"2009", [20,              25]>,
+                    <"2010", [40,              60]>
+                  ],
+                  xLabel("Quarters"), 
+                  yLabel("Sales")//,
+                  //stacked()
             ));
 }
+
 /*
 public void b2(){ 
   barChart("Sales Prognosis 2",  
                      ["First Quarter", "Second Quarter"],
            [<"2009", [20,              25]>,
             <"2010", [40,              60]>],
-            domainLabel("Quarters"), 
-            rangeLabel("Sales"),
+            xLabel("Quarters"), 
+            yLabel("Sales"),
             dim3()
             );
 }
@@ -304,8 +325,8 @@ public void b3(){
                      ["First Quarter", "Second Quarter"],
            [<"2009", [20,              25]>,
             <"2010", [40,              60]>],
-            domainLabel("Quarters"), 
-            rangeLabel("Sales"),
+            xLabel("Quarters"), 
+            yLabel("Sales"),
             dim3(),
             horizontal()
             );
@@ -316,8 +337,8 @@ public void b4(){
                      ["First Quarter", "Second Quarter"],
            [<"2009", [20,              25]>,
             <"2010", [40,              60]>],
-            domainLabel("Quarters"), 
-            rangeLabel("Sales"),
+            xLabel("Quarters"), 
+            yLabel("Sales"),
             dim3(),
             stacked()
             );
