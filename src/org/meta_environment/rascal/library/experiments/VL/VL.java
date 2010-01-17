@@ -299,7 +299,7 @@ public class VL extends PApplet {
 		int max = n.intValue();
 	 	IListWriter w = vf.listWriter(from.getType());
 	 	for(int i = 0; i < max; i++){
-	 		System.err.println("i = " + i + ": " + fromColor + " " + toColor + " " + (1.0f * i)/max);
+	 		//System.err.println("i = " + i + ": " + fromColor + " " + toColor + " " + (1.0f * i)/max);
 	 		w.append(vf.integer(myLerpColor(fromColor, toColor, (1.0f * i)/max)));
 	 	}
 	 	return w.done();

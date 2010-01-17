@@ -19,6 +19,7 @@ public class PropertyManager implements Cloneable {
 		BOTTOM, 
 		CENTER,
 		CLOSED, 
+		CONNECTED,
 		CURVED,
 		FILLCOLOR, 
 		FONT, 
@@ -50,6 +51,7 @@ public class PropertyManager implements Cloneable {
 			put("bottom", Property.BOTTOM);
 			put("center", Property.CENTER);
 			put("closed", Property.CLOSED);
+			put("connected", Property.CONNECTED);
 			put("curved", Property.CURVED);
 			put("fillColor", Property.FILLCOLOR);
 			put("font", Property.FONT);
@@ -146,15 +148,22 @@ public class PropertyManager implements Cloneable {
 		} else {
 			intProperties = new EnumMap<Property, Integer>(Property.class);
 			strProperties = new EnumMap<Property, String>(	Property.class);
-			boolProperties = EnumSet.of(Property.TOP, Property.HCENTER, Property.VCENTER, Property.BOTTOM,
-					Property.LEFT, Property.RIGHT, Property.CLOSED, Property.CURVED);
+			boolProperties = EnumSet.of(
+					Property.BOTTOM,
+					Property.CLOSED, 
+					Property.CONNECTED, 
+					Property.CURVED,
+					Property.HCENTER, 
+					Property.LEFT, 
+					Property.TOP, 
+					Property.RIGHT, 
+					Property.VCENTER);
 			setDefaults();
 		}
 		
 		for (IValue v : props) {
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
-			System.err.println("property: " + pname);
 
 			switch (propertyNames.get(pname)) {
 			
@@ -176,6 +185,9 @@ public class PropertyManager implements Cloneable {
 				
 			case CLOSED:
 				defBool(Property.CLOSED, true); break;
+				
+			case CONNECTED:
+				defBool(Property.CONNECTED, true); break;
 				
 			case CURVED:
 				defBool(Property.CURVED, true); break;
@@ -289,7 +301,6 @@ public class PropertyManager implements Cloneable {
 	private void setDefaults() {
 		defInt(Property.WIDTH, 0);
 		defInt(Property.HEIGHT, 0);
-		/*defInt(Property.SIZE, 0);*/
 		defInt(Property.HGAP, 0);
 		defInt(Property.VGAP, 0);
 		defInt(Property.LINEWIDTH, 1);
@@ -307,14 +318,15 @@ public class PropertyManager implements Cloneable {
 		defInt(Property.FONTSIZE, 12);
 		defInt(Property.TEXTANGLE, 0);
 		
-		defBool(Property.TOP, false);
-		defBool(Property.HCENTER, true);
-		defBool(Property.VCENTER, true);
 		defBool(Property.BOTTOM, false);
+		defBool(Property.CLOSED, false);
+		defBool(Property.CONNECTED, false);
+		defBool(Property.CURVED, false);
+		defBool(Property.HCENTER, true);
 		defBool(Property.LEFT, false);
 		defBool(Property.RIGHT, false);
-		defBool(Property.CLOSED, false);
-		defBool(Property.CURVED, false);
+		defBool(Property.TOP, false);
+		defBool(Property.VCENTER, true);
 	}
 	
 	public int getInt(Property p){

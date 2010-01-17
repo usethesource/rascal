@@ -15,6 +15,7 @@ public class Pack extends Compose {
 	
 	Node root;
 	boolean fits = true;
+	static protected boolean debug = false;
 
 	Pack(VLPApplet vlp, PropertyManager inheritedProps, IList props,
 			IList elems, IEvaluatorContext ctx) {
@@ -46,12 +47,14 @@ public class Pack extends Compose {
 		//width = opt/maxw < 1.2 ? 1.2f * maxw : 1.2f*opt;
 	//	height = opt/maxh < 1.2 ? 1.2f * maxh : 1.2f*opt;
 		
-		System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, width, height);
+		if(debug)System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, width, height);
 			
 		Arrays.sort(velems);
-		System.err.println("SORTED ELEMENTS:");
-		for(VELEM v : velems){
-			System.err.printf("\twidth=%f, height=%f\n", v.width, v.height);
+		if(debug){
+			System.err.println("SORTED ELEMENTS:");
+			for(VELEM v : velems){
+				System.err.printf("\twidth=%f, height=%f\n", v.width, v.height);
+			}
 		}
 		
 		fits = false;
@@ -75,12 +78,12 @@ public class Pack extends Compose {
 
 	@Override
 	void draw() {
-		System.err.printf("pack.draw: %d, %d\n", left, top);
+		if(debug)System.err.printf("pack.draw: %d, %d\n", left, top);
 		
 		applyProperties();
 
 		if(fits){
-			System.err.printf("pack.draw: left=%d, top=%d\n", left, top);
+			if(debug)System.err.printf("pack.draw: left=%d, top=%d\n", left, top);
 			root.draw(left, top);
 		} else {
 			vlp.fill(0);
@@ -106,7 +109,7 @@ class Node {
 		this.top = top;
 		this.right = right;
 		this.bottom = bottom;
-		System.err.printf("Node(%f,%f,%f,%f)\n", left, top, right, bottom);
+		if(Pack.debug) System.err.printf("Node(%f,%f,%f,%f)\n", left, top, right, bottom);
 	}
 	
 	boolean leaf(){
@@ -114,7 +117,7 @@ class Node {
 	}
 	
 	public Node insert(VELEM v){
-		System.err.printf("insert: %f, %f\n", v.width, v.height);
+		if(Pack.debug)System.err.printf("insert: %f, %f\n", v.width, v.height);
 		if(!leaf()){
 			// Not a leaf, try to insert in left child
 			Node newNode = lnode.insert(v);
@@ -133,33 +136,35 @@ class Node {
 		float width = right - left;
 		float height = bottom - top;
 		
-		System.err.printf("width=%f, height=%f\n", width, height);
-		System.err.printf("ve.width=%f, ve.height=%f\n", v.width, v.height);
+		if(Pack.debug){
+			System.err.printf("width=%f, height=%f\n", width, height);
+			System.err.printf("ve.width=%f, ve.height=%f\n", v.width, v.height);
+		}
 		
 		// If we are too small return
 		
 		float dw = width - v.width;
         float dh = height - v.height;
         
-       System.err.printf("dw=%f, dh=%f\n", dw, dh);
+       if(Pack.debug)System.err.printf("dw=%f, dh=%f\n", dw, dh);
 		
 		if ((dw <= 0) || (dh <= 0))
 			return null;
 		
 		// If we are exactly right return
 		if((dw  <= 2 * gap) && (dh <= 2 * gap)){
-			System.err.println("FIT!");
+			if(Pack.debug)System.err.println("FIT!");
 			return this;
 		}
 		
 		// Create two children and decide how to split
 
         if(dw > dh) {
-        	System.err.println("case dw > dh");
+        	if(Pack.debug)System.err.println("case dw > dh");
         	lnode = new Node(left,                 top, left + v.width + gap, bottom);
         	rnode = new Node(left + v.width + gap, top, right,                bottom);
         } else {
-        	System.err.println("case dw <= dh");
+        	if(Pack.debug)System.err.println("case dw <= dh");
         	lnode = new Node(left, top,                  right, top + v.height + gap);
         	rnode = new Node(left, top + v.height + gap, right, bottom);
         }

@@ -2,6 +2,7 @@ module experiments::VL::Examples2
 
 import experiments::VL::VLCore;
 import experiments::VL::VLRender; 
+import Set;
 
 // Alignment of boxes
 
@@ -20,7 +21,7 @@ public void aligntc(){
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), top(), center()], boxes));
+  render(align([width(125), gap(10), top(), hcenter()], boxes));
 }
 
 public void aligntr(){
@@ -38,7 +39,7 @@ public void aligncl(){
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), center(), left()], boxes));
+  render(align([width(125), gap(10), vcenter(), left()], boxes));
 }
 
 public void aligncc(){
@@ -47,7 +48,7 @@ public void aligncc(){
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), center(), center()], boxes));
+  render(align([width(125), gap(10), center()], boxes));
 }
 
 public void aligncr(){
@@ -56,7 +57,7 @@ public void aligncr(){
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), center(), right()], boxes));
+  render(align([width(125), gap(10), vcenter(), right()], boxes));
 }
 
 public void alignbl(){
@@ -74,7 +75,7 @@ public void alignbc(){
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), bottom(), center()], boxes));
+  render(align([width(125), gap(10), bottom(), hcenter()], boxes));
 }
 
 public void alignbr(){
@@ -446,7 +447,7 @@ rel[str,str] inherits =
 
 public void class1() {
    cscale = colorScale(toList(classes.sloc), color("green"), color("red"));
-   render(horizontal([top()], [ box([width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes]));
+   render(hcat([top()], [ box([width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes]));
 }
 
 public void class2() {
@@ -472,13 +473,13 @@ public void mo2(){
 }
 
 public void mo3(){
-	render(horizontal( [ size(100,200), mouseOver([lineColor("red")]) , bottom()],
-				    [
-	                 box([ fillColor(color("mediumblue", 0.05)) ], text("A very wide label A")),
-	                 box([ fillColor(color("mediumblue", 0.2)) ],  text("A very wide label B")),
-	                 box([ fillColor(color("mediumblue", 0.4)) ], text("A very wide label C")),
-	                 box([ fillColor(color("mediumblue", 0.6)) ], text("A very wide label D")),
-	                 box([ fillColor(color("mediumblue", 0.8)) ], text("A very wide label E")),
-	                 box([ fillColor(color("mediumblue", 1.0)) ], text("A very wide label F"))
-	                ]));
+	render(hcat( [ size(100,200), mouseOver([lineColor("red")]) , bottom()],
+				 [
+	               box([ fillColor(color("mediumblue", 0.05)) ], text("A very wide label A")),
+	               box([ fillColor(color("mediumblue", 0.2)) ],  text("A very wide label B")),
+	               box([ fillColor(color("mediumblue", 0.4)) ], text("A very wide label C")),
+	               box([ fillColor(color("mediumblue", 0.6)) ], text("A very wide label D")),
+	               box([ fillColor(color("mediumblue", 0.8)) ], text("A very wide label E")),
+	               box([ fillColor(color("mediumblue", 1.0)) ], text("A very wide label F"))
+	             ]));
 }

@@ -8,6 +8,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 public abstract class Compose extends VELEM {
 
 	protected VELEM[] velems;
+	private static boolean debug = false;
 
 	Compose(VLPApplet vlp,PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);	
@@ -16,7 +17,7 @@ public abstract class Compose extends VELEM {
 		for(int i = 0; i < n; i++){
 			IValue v = elems.get(i);
 			IConstructor c = (IConstructor) v;
-			System.err.println("Compose, elem = " + c.getName());
+			if(debug)System.err.println("Compose, elem = " + c.getName());
 			velems[i] = VELEMFactory.make(vlp, c, properties, ctx);
 		}
 	}

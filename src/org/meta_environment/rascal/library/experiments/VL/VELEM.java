@@ -117,6 +117,10 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return properties.getBool(Property.CLOSED);
 	}
 	
+	protected boolean isConnected(){
+		return properties.getBool(Property.CONNECTED);
+	}
+	
 	protected boolean isCurved(){
 		return properties.getBool(Property.CURVED);
 	}

@@ -12,6 +12,7 @@ public class TreeNode extends VELEM {
 	VELEM velemNode;
 	private ArrayList<TreeNode> children;
 	private ArrayList<PropertyManager> edgeProperties;
+	private static boolean debug = false;
 	
 	public TreeNode(VLPApplet vlp, PropertyManager inheritedProps, IList props,
 			VELEM ve, IEvaluatorContext ctx) {
@@ -119,7 +120,7 @@ public class TreeNode extends VELEM {
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
+		if(debug)System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
 		return velemNode.mouseOver(mousex, mousey);
 	}
 

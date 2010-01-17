@@ -6,11 +6,11 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import processing.core.PApplet;
 
 
-public class Horizontal extends Compose {
+public class HCat extends Compose {
 	
 	int hgap;
 
-	Horizontal(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	HCat(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
@@ -29,7 +29,6 @@ public class Horizontal extends Compose {
 		int ngaps = (velems.length - 1);
 		
 		width += ngaps * hgap;
-		
 	}
 	
 	@Override
@@ -52,7 +51,6 @@ public class Horizontal extends Compose {
 			ve.draw(left, veTop);
 			left += ve.width + hgap;
 		}
-
 	}
 
 	@Override
