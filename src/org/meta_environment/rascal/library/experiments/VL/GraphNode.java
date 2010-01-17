@@ -15,6 +15,7 @@ public class GraphNode {
 	
 	protected LinkedList<GraphNode> in;
 	protected LinkedList<GraphNode> out;
+	private static boolean debug = false;
 	
 //	protected float force[];
 	
@@ -111,18 +112,18 @@ public class GraphNode {
 //			}
 //		}
 		
-		//System.err.printf("Node %s (%f,%f), dispx = %f, dispy =%f\n", name, x, y, dispx, dispy);
+		if(debug)System.err.printf("Node %s (%f,%f), dispx = %f, dispy =%f\n", name, x, y, dispx, dispy);
 	}
 	
 	void update(Graph G){
 		float dlen = PApplet.mag(dispx, dispy);
 		if(dlen > 0){
-			//System.err.printf("update %s, dispx=%f, dispy=%f, from %f, %f -> ", name, dispx, dispy, x, y);
+			if(debug)System.err.printf("update %s, dispx=%f, dispy=%f, from %f, %f -> ", name, dispx, dispy, x, y);
 			x += PApplet.constrain(dispx, -G.temperature, G.temperature);
 			y += PApplet.constrain(dispy, -G.temperature, G.temperature);
 			//x =  PApplet.constrain (x, velem.width/2, G.width-velem.width/2);
 			//y =  PApplet.constrain (y, velem.height/2, G.height-velem.height/2);
-			//System.err.printf("%f, %f\n", x, y);
+			if(debug)System.err.printf("%f, %f\n", x, y);
 		}
 	}
 

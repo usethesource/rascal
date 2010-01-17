@@ -58,8 +58,8 @@ public Color(int) colorScale(list[int] values, Color from, Color to){
 
 @doc{Create a fixed color palette}
 private list[str] p12 = [ "navy", "violet", "yellow", "aqua", 
-                      "red", "darkviolet", "maroon", "green",
-                      "teal", "blue", "olive", "lime"];
+                          "red", "darkviolet", "maroon", "green",
+                          "teal", "blue", "olive", "lime"];
 
 @doc{Return named color from fixed palette}
 public str palette(int n){
@@ -75,8 +75,8 @@ data VPROP =
    | height(int height)                 // sets height of element
    | size(int size)                     // sets width and height to same value
    | size(int hor, int vert)            // sets width and height to separate values
-   | gap(int amount)                    // sets gap between elements in composition to same value
-   | gap(int hor, int vert) 			// sets gap between elements in composition to separate values
+   | gap(int amount)                    // sets hor and vert gap between elements in composition to same value
+   | gap(int hor, int vert) 			// sets hor and vert gap between elements in composition to separate values
    
 /* alignment */
    | top()                              // top alignment
@@ -121,6 +121,7 @@ data VPROP =
    
 /* other */
    | id(str name)                       // name of elem (used in edges and various layouts)
+   | connected()                        // shapes consist of connected points
    | closed()    						// closed shapes
    | curved()                           // use curves instead of straight lines
    ;
@@ -139,30 +140,35 @@ data VELEM =
 /* drawing primitives */
      box(list[VPROP] props)			          	// rectangular box
    | box(list[VPROP] props, VELEM inner)        // rectangular box with inner element
+   
    | ellipse(list[VPROP] props)			      	// ellipse
    | ellipse(list[VPROP] props, VELEM inner)    // ellipse with inner element
+   
    | text(list[VPROP] props, str s)		  		// text label
    | text(str s)			              		// text label
+   
+   | space(list[VPROP] props)			      	// invisible box (used for spacing)
+   | space(list[VPROP] props, VELEM inner)      // invisible box with visible inner element
  
  
 /* lines and curves */
-   | shape(list[Vertex] points)                 // shape of to be connected vertices
+   | shape(list[Vertex] points)                             // shape of to be connected vertices
    | shape(list[VPROP] props,list[Vertex] points)
    
 /* composition */
-   | use(VELEM elem)                           		 		// use another elem
+   | use(VELEM elem)                           		         // use another elem
    | use(list[VPROP] props, VELEM elem)
  
-   | horizontal(list[VELEM] elems)                           // horizontal composition
-   | horizontal(list[VPROP] props, list[VELEM] elems)
+   | hcat(list[VELEM] elems)                                 // horizontal concatenation
+   | hcat(list[VPROP] props, list[VELEM] elems)
    
-   | vertical(list[VELEM] elems)                             // vertical composition
-   | vertical(list[VPROP] props, list[VELEM] elems)
+   | vcat(list[VELEM] elems)                                 // vertical concatenation
+   | vcat(list[VPROP] props, list[VELEM] elems)
    
-   | align(list[VELEM] elems)                              // horizontal and vertical composition
+   | align(list[VELEM] elems)                                // horizontal and vertical composition
    | align(list[VPROP] props, list[VELEM] elems)
    
-   | overlay(list[VELEM] elems)                            // overlay (stacked) composition
+   | overlay(list[VELEM] elems)                              // overlay (stacked) composition
    | overlay(list[VPROP] props, list[VELEM] elems)
    
    | grid(list[VELEM] elems)                                 // placement on fixed grid
@@ -174,7 +180,7 @@ data VELEM =
    | pie(list[VELEM] elems)                                  // composition as pie chart
    | pie(list[VPROP] props, list[VELEM] elems)
    
-   | graph(list[VELEM] nodes, list[Edge] edges)              // composition of nodes and edges as graoh
+   | graph(list[VELEM] nodes, list[Edge] edges)              // composition of nodes and edges as graph
    | graph(list[VPROP], list[VELEM] nodes, list[Edge] edges)
    
    | tree(list[VELEM] nodes, list[Edge] edges)               // composition of nodes and edges as tree
@@ -183,9 +189,12 @@ data VELEM =
    
 /*
  * Wishlist:
+ * - improve pies
  * - arrows
  * - textures
  * - boxes with round corners
  * - dashed/dotted lines
+ * - ngons
+ * - svg/png/pdf export
  */
 

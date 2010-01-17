@@ -23,16 +23,18 @@ public class VELEMFactory {
 		ELLIPSE, 
 		GRAPH, 
 		GRID,
-		HORIZONTAL, 
+		HCAT, 
 		OVERLAY, 
 		PACK, 
 		PIE,
 		SHAPE,
+		SPACE,
 		TEXT, 
 		TREE,
 		USE,
-		VERTEX,
-		VERTICAL}
+		VCAT,
+		VERTEX
+		}
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     {
@@ -42,16 +44,17 @@ public class VELEMFactory {
     	put("ellipse",		Primitives.ELLIPSE);
     	put("graph",		Primitives.GRAPH);
     	put("grid",			Primitives.GRID);
-    	put("horizontal",	Primitives.HORIZONTAL);
+    	put("hcat",			Primitives.HCAT);
     	put("overlay",		Primitives.OVERLAY);	
     	put("pack",			Primitives.PACK);	
     	put("pie",			Primitives.PIE);
     	put("shape",		Primitives.SHAPE);
+    	put("space",		Primitives.SPACE);
     	put("text",			Primitives.TEXT);	    		
     	put("tree",			Primitives.TREE);
     	put("use",			Primitives.USE);
+    	put("vcat",			Primitives.VCAT);
     	put("vertex",		Primitives.VERTEX);
-    	put("vertical",		Primitives.VERTICAL);
     }};
     
     static IList props;
@@ -68,7 +71,6 @@ public class VELEMFactory {
 	}
 	public static VELEM make(VLPApplet vlp, IConstructor c, PropertyManager inheritedProps, IEvaluatorContext ctx){
 		String ename = c.getName();
-		System.err.println("ename = " + ename);
 	
 		switch(pmap.get(ename)){
 		
@@ -104,9 +106,9 @@ public class VELEMFactory {
 			getOneOrTwoArgs(c); 
 			return new Grid(vlp, inheritedProps, props, elems, ctx);
 
-		case HORIZONTAL:
+		case HCAT:
 			getOneOrTwoArgs(c);
-			return new Horizontal(vlp, inheritedProps, props, elems, ctx);
+			return new HCat(vlp, inheritedProps, props, elems, ctx);
 			
 		case OVERLAY: 
 			getOneOrTwoArgs(c); 
@@ -123,6 +125,12 @@ public class VELEMFactory {
 		case SHAPE: 
 			getOneOrTwoArgs(c); 
 			return new Shape(vlp, inheritedProps, props, elems, ctx);
+			
+		case SPACE:
+			if(c.arity() == 2)
+				return new Space(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+			else
+				return new Space(vlp, inheritedProps, (IList) c.get(0), null, ctx);
 			
 		case TEXT:
 			if(c.arity() == 1)
@@ -142,16 +150,15 @@ public class VELEMFactory {
 			else
 				return new Use(vlp, inheritedProps, emptyList, (IConstructor) c.get(0), ctx);
 			
+		case VCAT:
+			getOneOrTwoArgs(c);
+			return new VCat(vlp, inheritedProps, props, elems, ctx);
+			
 		case VERTEX:
 			if(c.arity() == 3)
 				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
 			
 			return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
-			
-				
-		case VERTICAL:
-			getOneOrTwoArgs(c);
-			return new Vertical(vlp, inheritedProps, props, elems, ctx);
 									
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());

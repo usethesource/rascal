@@ -9,6 +9,7 @@ import processing.core.PConstants;
 
 public class Ellipse extends VELEM {
 	private VELEM inside;
+	private static boolean debug = false;
 
 	public Ellipse(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
@@ -30,12 +31,12 @@ public class Ellipse extends VELEM {
 			width = inside.width + hgap;
 			height = inside.height + vgap;
 		}
-		System.err.printf("bbox.ellipse: %f, %f)\n", width, height);
+		if(debug)System.err.printf("bbox.ellipse: %f, %f)\n", width, height);
 	}
 	
 	@Override
 	void draw() {
-		System.err.printf("ellipse.draw: %d, %d\n", left, top);
+		if(debug)System.err.printf("ellipse.draw: %d, %d\n", left, top);
 		
 		applyProperties();
 		vlp.ellipseMode(PConstants.CORNERS);

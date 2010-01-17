@@ -9,6 +9,7 @@ import processing.core.PApplet;
 public class GraphEdge extends VELEM {
 	GraphNode from;
 	GraphNode to;
+	private static boolean debug = false;
 	
 	public GraphEdge(Graph G, VLPApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
@@ -22,7 +23,7 @@ public class GraphEdge extends VELEM {
 			System.err.println("No node " + toName.getValue());
 		}
 		
-		System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue());
+		if(debug)System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue());
 	}
 	
 	void relax(Graph G){
@@ -43,7 +44,7 @@ public class GraphEdge extends VELEM {
 		from.dispx += dx;
 		from.dispy += dy;
 		
-		//System.err.printf("edge: %s -> %s: dx=%f, dy=%f\n", from.name, to.name, dx, dy);
+		if(debug)System.err.printf("edge: %s -> %s: dx=%f, dy=%f\n", from.name, to.name, dx, dy);
 	}
 
 	@Override
@@ -53,8 +54,8 @@ public class GraphEdge extends VELEM {
 	@Override
 	void draw() {
 		applyProperties();
-		//System.err.println("edge: (" + from.name + ": " + from.x + "," + from.y + ") -> (" + 
-		//							   to.name + ": " + to.x + "," + to.y + ")");
+		if(debug) System.err.println("edge: (" + from.name + ": " + from.x + "," + from.y + ") -> (" + 
+								                 to.name + ": " + to.x + "," + to.y + ")");
 		vlp.line(from.x, from.y, to.x, to.y);
 	}
 

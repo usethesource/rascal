@@ -16,6 +16,7 @@ public class Graph extends VELEM {
 	protected float springConstant;
 	protected float springConstant2;
 	protected int temperature;
+	private static boolean debug = false;
 
 	Graph(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);		
@@ -45,7 +46,7 @@ public class Graph extends VELEM {
 		//float connectivity = edges.length()/nodes.length();
 		springConstant = // (connectivity > 1 ? 0.5f : 0.3f) * 
 		                 PApplet.sqrt((width * height)/nodes.length());
-		System.err.printf("springConstant = %f\n", springConstant);
+		if(debug)System.err.printf("springConstant = %f\n", springConstant);
 		springConstant2 = springConstant * springConstant;
 		initialPlacement();
 	}

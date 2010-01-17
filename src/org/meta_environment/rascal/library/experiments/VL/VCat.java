@@ -6,11 +6,12 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import processing.core.PApplet;
 
 
-public class Vertical extends Compose {
+public class VCat extends Compose {
 	
 	int vgap;
+	private static boolean debug = false;
 
-	Vertical(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	VCat(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
@@ -21,7 +22,7 @@ public class Vertical extends Compose {
 		width = 0;
 		height = 0;
 		vgap = getVGapProperty();
-		System.err.printf("vertical.bbox: vgap=%d\n", vgap);
+		if(debug)System.err.printf("vertical.bbox: vgap=%d\n", vgap);
 		for(VELEM ve : velems){
 			ve.bbox();
 			width = max(width, ve.width);
@@ -30,7 +31,7 @@ public class Vertical extends Compose {
 		int ngaps = (velems.length - 1);
 		
 		height += ngaps * vgap;
-		System.err.printf("vertical.bbox: width=%f, height=%f\n", width, height);
+		if(debug)System.err.printf("vertical.bbox: width=%f, height=%f\n", width, height);
 	}
 	
 	@Override
@@ -44,7 +45,7 @@ public class Vertical extends Compose {
 
 		// Draw from top to bottom
 		for(int i = velems.length-1; i >= 0; i--){
-			System.err.printf("vertical.draw: i=%d, vgap=%d, bottom=%f\n", i, vgap, bottom);
+			if(debug)System.err.printf("vertical.draw: i=%d, vgap=%d, bottom=%f\n", i, vgap, bottom);
 			VELEM ve = velems[i];
 			if(ve.isRightAligned())
 				veLeft = right - ve.width;

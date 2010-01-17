@@ -13,6 +13,7 @@ public class Grid extends Compose {
 	float extBot = 0;
 	float extLeft = 0;
 	float extRight = 0;
+	private static boolean debug = false;
 
 	Grid(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
@@ -33,7 +34,7 @@ public class Grid extends Compose {
 		int vgap = getVGapProperty();
 		
 		int lastRow = (hgap == 0) ? 0 : velems.length / (1 + (int) (width / hgap));
-		System.err.printf("lastRow = %d\n", lastRow);
+		if(debug)System.err.printf("lastRow = %d\n", lastRow);
 		
 		extTop = 0;
 		extBot = 0;
@@ -58,11 +59,11 @@ public class Grid extends Compose {
 			if(nrow == 0)
 				extTop = max(extTop, ve.isTopAligned() ? 0 : ve.isBottomAligned() ? ve.height : ve.height/2);
 			if(nrow == lastRow){
-				System.err.printf("nrow == lastRow!, isBottomAligned=%b\n", ve.isBottomAligned());
+				if(debug)System.err.printf("nrow == lastRow!, isBottomAligned=%b\n", ve.isBottomAligned());
 				extBot = max(extBot, ve.isBottomAligned() ? 0 : ve.isTopAligned() ? ve.height : ve.height/2);
 			}
 			
-			System.err.printf("i=%d, row=%d, w=%f, extLeft=%f, extRight=%f, extTop=%f, extBot=%f\n", i, nrow, w, extLeft, extRight, extTop, extBot);
+			if(debug)System.err.printf("i=%d, row=%d, w=%f, extLeft=%f, extRight=%f, extTop=%f, extBot=%f\n", i, nrow, w, extLeft, extRight, extTop, extBot);
 			
 			xElem[i] = w;
 			yElem[i] = height;
@@ -70,7 +71,7 @@ public class Grid extends Compose {
 		}
 		width += extLeft + extRight;
 		height += extTop + extBot;
-		System.err.printf("grid.bbox: %f, %f\n", width, height);
+		if(debug)System.err.printf("grid.bbox: %f, %f\n", width, height);
 	}
 	
 	@Override
@@ -82,7 +83,7 @@ public class Grid extends Compose {
 			
 			VELEM ve = velems[i];
 			
-			System.err.printf("i=%d: %f, %f, left=%d, top=%d\n", i, xElem[i], yElem[i], left, top);
+			if(debug)System.err.printf("i=%d: %f, %f, left=%d, top=%d\n", i, xElem[i], yElem[i], left, top);
 
 			float veLeft;
 			if(ve.isLeftAligned())

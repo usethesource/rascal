@@ -8,6 +8,7 @@ public class Vertex extends VELEM {
 	VELEM marker;
 	int deltax;
 	int deltay;
+	private static boolean debug = false;
 
 	public Vertex(VLPApplet vlp, IInteger dx, IInteger dy, IEvaluatorContext ctx) {
 		super(vlp, ctx);
@@ -20,7 +21,7 @@ public class Vertex extends VELEM {
 		deltax = dx.intValue();
 		deltay = dy.intValue();
 		this.marker = VELEMFactory.make(vlp, marker, properties, ctx);
-		System.err.println("Point with : " + marker);
+		if(debug)System.err.println("Point with : " + marker);
 	}
 
 	@Override
@@ -36,15 +37,17 @@ public class Vertex extends VELEM {
 			width = deltax;
 			height = deltay;
 		}
-		System.err.printf("bbox.point: %f, %f)\n", width, height);
+		if(debug)System.err.printf("bbox.point: %f, %f)\n", width, height);
 	}
 	
 	@Override
 	void draw() {
 		
 		applyProperties();
-		System.err.println("Point: marker = " + marker);
-		System.err.printf("Point: marker at %d, %d\n", left, top);
+		if(debug){
+			System.err.println("Point: marker = " + marker);
+			System.err.printf("Point: marker at %d, %d\n", left, top);
+		}
 		if(marker != null){
 			marker.bbox();
 			marker.draw(left-marker.width/2, top-marker.height/2);

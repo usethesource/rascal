@@ -34,21 +34,27 @@ public void box5(){
 	render(box([fillColor("mediumblue"), gap(10)], box([size(40), fillColor("white")])));
 }
 
-// Unsized blue outer box with white inner ellipse of 40x40
+// Unsized blue outer box with white inner ellipse of 40x60
 
 public void box6(){
-	render(box([fillColor("mediumblue"), gap(10)], ellipse([size(40), fillColor("white")])));
+	render(box([fillColor("mediumblue"), gap(10)], ellipse([size(40,60), fillColor("white")])));
 }
 
-// Unsized blue outer box with white inner text
+// Unsized blue outer box with black inner text
 
 public void box7(){
 	render(box([fillColor("mediumblue"), gap(10)], text("een label")));
 }
 
-// Blue outer box of 20x20 with white large inner text
+// Unsized blue outer box with white inner text
 
 public void box8(){
+	render(box([fillColor("mediumblue"), gap(10)], text([fontColor("white")], "een label")));
+}
+
+// Blue outer box of 20x20 with black large inner text (only visible on mouse over)
+
+public void box9(){
 	render(box([width(20), height(20), fillColor("mediumblue"), gap(10)], text("een label")));
 }
 
@@ -57,6 +63,8 @@ public void box8(){
 public void bbc(){
 	render(box([gap(5, 30)], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
+
+//TODO: wrong aligned in following tests
 
 // Unsized outer box, with left-aligned inner box of 100x200
 
@@ -90,9 +98,9 @@ public void bbrb(){
 	render(box([width(150), height(250), gap(10), right(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
-// Horizontal combination of boxes of 100x200 with rgb and named colors
+// Horizontal combination of boxes of 100x200 with rgb and (same) named colors
 public void hor1(){
-	render(horizontal([lineWidth(2), size(100,200)],
+	render(hcat([lineWidth(2), size(100,200)],
 	               [
 					 box([ fillColor("mediumblue") ]),
 	                 box([ fillColor(rgb(0, 0, 205)) ]),
@@ -103,7 +111,7 @@ public void hor1(){
 
 // Horizontal combination of boxes of 100x200 with named colors and opacity
 public void hor2(){
-	render(horizontal([size(100,200)],
+	render(hcat([size(100,200)],
 	               [
 	                 box([ fillColor(color("mediumblue", 0.05)) ]),
 	                 box([ fillColor(color("mediumblue", 0.2)) ]),
@@ -115,7 +123,7 @@ public void hor2(){
 }
 // Horizontal combination of boxes of 100x200 with grey color and different opacities
 public void hor3(){
-	render(horizontal([size(100,200)],
+	render(hcat([size(100,200)],
 	               [
 	                 box([ fillColor(gray(125, 0.05)) ]),
 	                 box([ fillColor(gray(125, 0.2)) ]),
@@ -128,7 +136,7 @@ public void hor3(){
 
 // Horizontal combination of boxes of with some inherited colors
 public void hor4(){
-	render(horizontal([fillColor("yellow"), gap(10),bottom()],
+	render(hcat([fillColor("yellow"), gap(10),bottom()],
 	              [box([ size(100,200), fillColor("red") ]),
 			       box([ size(150,100)]),
 			       box([ size(200,50), fillColor("green") ])
@@ -138,7 +146,7 @@ public void hor4(){
 
 // Horizontal, bottom aligned with on exception
 public void hor5(){
-	render(horizontal([gap(10),bottom()],
+	render(hcat([gap(10),bottom()],
 	              [box([ size(100,200), fillColor("red") ]),
 			       box([ vcenter(), size(150,100)]),
 			       box([ size(200,50), fillColor("green") ]),
@@ -150,7 +158,7 @@ public void hor5(){
 
 // Vertical combination of boxes 
 public void vert1(){
-	render(vertical([left(), gap(2)],
+	render(vcat([left(), gap(2)],
 	              [box([ size(100,200), fillColor("red") ]),
 			       box([ size(150, 100), fillColor("blue") ]),
 			       box([ size(200,50), fillColor("green") ])
@@ -160,7 +168,7 @@ public void vert1(){
 
 // Vertical, left aligned with on exception
 public void vert2(){
-	render(vertical([gap(10),left()],
+	render(vcat([gap(10),left()],
 	              [box([ size(100,200), fillColor("red") ]),
 			       box([ right(), size(150,100)]),
 			       box([ size(200,50), fillColor("green") ]),
@@ -171,9 +179,9 @@ public void vert2(){
 
 // TODO: how do we get the inner vertical left aligned?
 public void vert3(){
-	render(vertical([gap(10),left()],
+	render(vcat([gap(10),left()],
 	              [box([ size(100,200), fillColor("red") ]),
-			       use([left()], vertical([right()], [ box([size(150,100)]),
+			       use([left()], vcat([right()], [ box([size(150,100)]),
 			                             box([size(50,50)]),  
 			                             box([size(30,30)])
 			                           ])),
@@ -184,10 +192,10 @@ public void vert3(){
 
 
 public void hv1(){
-	render(horizontal([bottom(), gap(10)],
+	render(hcat([bottom(), gap(10)],
 	              [ box([ size(100,250), fillColor("red") ]),
-	                vertical([right(), gap(30)],
-			                 [ horizontal([vcenter()],
+	                vcat([right(), gap(30)],
+			                 [ hcat([vcenter()],
 			                              [ box([ size(50, 100), fillColor("blue") ]),
 			                                box([ size(100, 50), fillColor("blue") ])
 			                              ]),
@@ -218,7 +226,7 @@ public void txt3(){
 
 public void txt4(){
 	render(box([gap(1)], 
-	           horizontal([bottom()],
+	           hcat([bottom()],
 	               [ text([fontSize(20), fontColor("black")], "Giant xyz 1"),
 	 				 text([fontSize(40), fontColor("blue")], "Giant xyz 2"),
 	 				 text([fontSize(60), fontColor("red")], "Giant xyz 3")
@@ -233,7 +241,7 @@ public void txt5(){
 // Vertical; composition of rotated text and a box
 
 public void txt6(){
-	render(vertical([center(), gap(10)],
+	render(vcat([center(), gap(10)],
 	               [
 	                box([ width(100), height(200), fillColor("red")]),
 	                text([fontSize(20), textAngle(-90)], "Een label")
@@ -242,16 +250,39 @@ public void txt6(){
 
 // Overlay of box and text
 public void txt7(){
-	render(overlay([bottom()],
-	              [box([ width(100), height(200), fillColor("red") ]),
+	render(overlay([bottom(), right()],
+	              [box([ width(150), height(200), fillColor("red") ]),
 			       text([fontSize(20)], "Een label")
 			      ]
 		));
 }
 
+// TODO: ?????
+
+public void txt8(){
+   render(box([gap(1), width(50)], 
+	           vcat([bottom()],
+	               [ text([fontSize(20), fontColor("black")], "A"),
+	 				 text([fontSize(40), fontColor("blue")], "BB"),
+	 				 text([fontSize(60), fontColor("red")], "CC")
+	 			   ])));
+}
+
+public void txt9(){
+   words = [ text("aappp"), text("noot"), text("mies"), text("wim"), text("zus") ];
+   
+   render(grid([width(100), fillColor("black"), gap(40), bottom(), left()], words));
+ }
+ 
+ public void txt10(){
+   words = [ text("aappp"), text("noot"), text("mies"), text("wim"), text("zus") ];
+   
+   render(grid([width(100), fillColor("black"), gap(40), bottom(), left(), textAngle(-90)], words));
+ }
+
 // Word cloud
 // TODO: a mess regarding alignment
-public void txt8(){
+public void txt11(){
 
     d = ("aap" : 10, "noot" :5, "mies" : 7, 
          "wim" : 5, "zus": 10, "jet": 40, 
@@ -270,7 +301,7 @@ public void txt8(){
 public void bar1(){
     dt1 = [10, 12, 17, 0, 15, 7, 20, 40, 60];  
     colors = colorScale(dt1, color("blue"), color("red"));  
-	b = horizontal([
+	b = hcat([
                 lineColor(0),
                 lineWidth(1),
 	            fillColor(125),
@@ -287,14 +318,14 @@ public void bar2(){
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
     m = max(size(d1), size(d2));   
-    bars = [ horizontal([gap(5), top()], 
+    bars = [ hcat([gap(5), top()], 
                      [ box([fillColor("green"), height((d1[i] ? 0) * 8)]),
                       box([fillColor("red"), height((d2[i] ? 0) * 8)])
                     ])
            | int i <- [0 .. m]
            ];
     
-	b = horizontal([
+	b = hcat([
                 lineColor(0),
                 lineWidth(1),
 	          	width(10),
@@ -306,18 +337,18 @@ public void bar2(){
     render(b);
 }
 // Barchart: Horizontal composition of vertically stacked boxes
-public void bar2v(){ 
+public void bar3(){ 
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
     m = max(size(d1), size(d2));   
-    bars = [vertical([gap(0)],
+    bars = [vcat([gap(0)],
                    [box([fillColor("green"), height((d1[i] ? 0) * 8)]),
                     box([fillColor("red"), height((d2[i] ? 0) * 8)])
                    ])
            | int i <- [0 .. m]
            ];
            
-	b = horizontal([
+	b = hcat([
                 lineColor(0),
                 lineWidth(1),
 	          	width(10),
@@ -342,12 +373,12 @@ public void e2(){
 
 // Unsized blue ellipse with sized white inner text
 public void e3(){
-	render(ellipse([fillColor("mediumblue"), gap(10)], text("een label")));
+	render(ellipse([fillColor("mediumblue"), gap(10)], text([fontColor("white")], "een label")));
 }
 
 // TODO should explicit size overrule size of an inner object?
 public void e4(){
-	render(ellipse([width(40), height(20), fillColor("mediumblue"), gap(10)], text("een label")));
+	render(ellipse([width(40), height(20), fillColor("mediumblue"), gap(10)], text([fontColor("white")], "een label")));
 }
 
 // Centered Overlay of two boxes
@@ -375,6 +406,7 @@ public void s1(){
 	b = shape([
                 lineColor("blue"),
                 lineWidth(2),
+                connected(),
 	            fillColor("lightgreen")
                ],
                [ vertex(i * 50, 10 * dt1[i], ellipse([size(10), lineWidth(0), fillColor("lightblue")])) | int i <- [0 .. size(dt1) -1]]
@@ -390,6 +422,7 @@ public void s2(){
                 lineColor("blue"),
                 lineWidth(2),
 	            fillColor("lightgreen"),
+	            connected(),
 	            curved()
                ],
                [ vertex(i * 50, 10 * dt1[i], ellipse([size(10), lineWidth(0), fillColor("lightblue")])) | int i <- [0 .. size(dt1) -1]]
@@ -398,7 +431,7 @@ public void s2(){
 }
 
 // Two overlayed shapes with closed and curved graphs
-
+//TODO: fix
 public void s3(){
     dt1 = [10, 20, 10, 30];
     dt2 = [15, 10, 25, 20];

@@ -13,6 +13,7 @@ public class Pie extends Compose {
 	float toRadius;
 	float angle[];
 	float gapAngle = 0;
+	static private boolean debug = false;
 
 	Pie(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
@@ -38,7 +39,7 @@ public class Pie extends Compose {
 		float gaps = (velems.length - 1) * hgap;
 		perimeter += gaps;
 		gapAngle = (hgap/perimeter) * (toAngle - fromAngle);
-		System.err.printf("bbox: perimeter = %f\n", perimeter);
+		if(debug)System.err.printf("bbox: perimeter = %f\n", perimeter);
 		for(int i = 0; i < velems.length; i++){
 			angle[i] = ((velems[i].width)/perimeter) * (toAngle - fromAngle);
 		}
@@ -77,7 +78,7 @@ public class Pie extends Compose {
 			//vlp.strokeWeight(5);
 
 			vlp.arc(cx, cy, 2*wh, 2*wh, a1, a2);
-			System.err.printf("i = %d, a1 = %f, a2 = %f, wh = n\n", i, a1, a2, wh);
+			if(debug)System.err.printf("i = %d, a1 = %f, a2 = %f, wh = n\n", i, a1, a2, wh);
 			
 			a1 = a2 + gapAngle;
 		}

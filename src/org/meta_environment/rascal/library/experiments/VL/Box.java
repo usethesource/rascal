@@ -11,12 +11,13 @@ public class Box extends VELEM {
 	 */
 	private static final long serialVersionUID = 1L;
 	private VELEM inside;
+	private static boolean debug = false;
 
 	public Box(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		if(inside != null)
 			this.inside = VELEMFactory.make(vlp, inside, inheritedProps, ctx);
-		System.err.println("box.init: width=" + width + ", height=" + height);
+		if(debug)System.err.println("box.init: width=" + width + ", height=" + height);
 	}
 
 	@Override 
@@ -45,13 +46,13 @@ public class Box extends VELEM {
 				height += lw;
 			}
 		}
-		System.err.println("box.bbox: width=" + width + ", height=" + height);
+		if(debug)System.err.println("box.bbox: width=" + width + ", height=" + height);
 	}
 
 	@Override
 	void draw() {
 		applyProperties();
-		System.err.println("box.draw: left=" + left + ", top=" + top + ", width=" + width + ", height=" + height+ ", color=" + getFillColorProperty());
+		if(debug)System.err.println("box.draw: left=" + left + ", top=" + top + ", width=" + width + ", height=" + height+ ", color=" + getFillColorProperty());
 
 		VELEM insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){

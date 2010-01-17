@@ -11,6 +11,7 @@ public class Align extends Compose {
 	float rowHeight[];
 	float rowWidth[];
 	int inRow[];
+	static boolean debug = false;
 
 	Align(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
@@ -60,7 +61,7 @@ public class Align extends Compose {
 		height += hrow;
 		if(nrow == 0)
 			width = w - hgap;
-		System.err.printf("Align.bbox: width=%f, height=%f\n", width, height);
+		if(debug)System.err.printf("Align.bbox: width=%f, height=%f\n", width, height);
 	}
 	
 	@Override

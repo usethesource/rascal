@@ -7,6 +7,7 @@ import processing.core.PConstants;
 
 
 public class Shape extends Compose {
+	static boolean debug = false;
 
 	Shape(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
@@ -23,7 +24,7 @@ public class Shape extends Compose {
 			width = max(width, ve.width);
 			height = max(height, ve.height);
 		}
-		System.err.printf("bbox.shape: %f, %f\n", width, height);
+		if(debug)System.err.printf("bbox.shape: %f, %f\n", width, height);
 	}
 	
 	@Override
@@ -33,9 +34,12 @@ public class Shape extends Compose {
 		float bottom = top + height;
 		boolean  closed = isClosed();
 		boolean curved = isCurved();
+		boolean connected = isConnected();
 		
-		vlp.noFill();
-		vlp.beginShape();
+		if(connected){
+			vlp.noFill();
+			vlp.beginShape();
+		}
 		
 		/*
 		 * We present to the user a coordinate system
@@ -46,35 +50,39 @@ public class Shape extends Compose {
 		Vertex next = (Vertex)velems[0];
 		float nextLeft = left + next.deltax;
 		float nextTop = bottom - next.deltay;
-		if(closed){
+		if(connected && closed){
 			vlp.vertex(left, bottom);
 			vlp.vertex(nextLeft, nextTop);
 		}
-		if(curved)
+		if(connected && curved)
 			vlp.curveVertex(nextLeft, nextTop);
 		
 		for(VELEM ve : velems){
 			next = (Vertex)ve;
 			nextLeft = left + next.deltax;
 			nextTop = bottom - next.deltay;
-			System.err.printf("vertex(%f,%f)\n", nextLeft, nextTop);
+			if(debug)System.err.printf("vertex(%f,%f)\n", nextLeft, nextTop);
 			applyProperties();
-			if(!closed)
-					vlp.noFill();
-			if(curved)
-				vlp.curveVertex(nextLeft,nextTop);
-			else
-				vlp.vertex(nextLeft,nextTop);
+			if(connected){
+				if(!closed)
+						vlp.noFill();
+				if(curved)
+					vlp.curveVertex(nextLeft,nextTop);
+				else
+					vlp.vertex(nextLeft,nextTop);
+			}
 		}
-		if(curved){
-			next = (Vertex)velems[velems.length-1];
-			vlp.curveVertex(left + next.deltax, bottom - next.deltay);
+		if(connected){
+			if(curved){
+				next = (Vertex)velems[velems.length-1];
+				vlp.curveVertex(left + next.deltax, bottom - next.deltay);
+			}
+			if(closed){
+				vlp.vertex(nextLeft, bottom);
+				vlp.endShape(PConstants.CLOSE);
+			} else 
+				vlp.endShape();
 		}
-		if(closed){
-			vlp.vertex(nextLeft, bottom);
-			vlp.endShape(PConstants.CLOSE);
-		} else 
-			vlp.endShape();
 		
 		for(VELEM ve : velems){
 			Vertex p = (Vertex) ve;

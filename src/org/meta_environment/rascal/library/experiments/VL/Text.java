@@ -10,11 +10,12 @@ import processing.core.PConstants;
 public class Text extends VELEM {
 
 	private String txt;
+	private static boolean debug = false;
 
 	public Text(VLPApplet vlp, PropertyManager inheritedProps, IList props, IString text, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		this.txt = text.getValue();
-		System.err.printf("Text: %s\n", txt);
+		if(debug)System.err.printf("Text: %s\n", txt);
 	}
 	
 	@Override
@@ -25,8 +26,10 @@ public class Text extends VELEM {
 		height = vlp.textAscent() + 2*vlp.textDescent();
 		//height += 0.3 * height;
 		width = vlp.textWidth(txt);
-		System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", vlp.getFont(), vlp.textAscent(), vlp.textDescent() );
-		System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%d\n", txt, width, height, getTextAngleProperty());
+		if(debug){
+			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", vlp.getFont(), vlp.textAscent(), vlp.textDescent() );
+			System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%d\n", txt, width, height, getTextAngleProperty());
+		}
 		if(getTextAngleProperty() != 0){
 			float angle = PApplet.radians(getTextAngleProperty());
 			float sina = PApplet.sin(angle);
@@ -38,7 +41,7 @@ public class Text extends VELEM {
 			
 			width = w1 + w2;
 			height = h1 + h2;
-			System.err.printf("bbox text: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", height, width, h1, h2, w1, w2);
+			if(debug)System.err.printf("bbox text: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", height, width, h1, h2, w1, w2);
 		}
 	}
 	
@@ -48,7 +51,7 @@ public class Text extends VELEM {
 		applyProperties();
 		applyFontColorProperty();
 	
-		System.err.printf("text.draw: %s, left=%d, top=%d, width=%f, height=%f\n", txt, left, top, width, height);
+		if(debug)System.err.printf("text.draw: %s, left=%d, top=%d, width=%f, height=%f\n", txt, left, top, width, height);
 		if(height > 0 && width > 0){
 			int angle = getTextAngleProperty();
 

@@ -18,6 +18,7 @@ public class VLPApplet extends PApplet {
 	private VELEM  velem;
 	private VELEM mouseOver = null;
 	private HashMap<String,GraphNode> registered;
+	private static boolean debug = false;
 
 	public VLPApplet(IConstructor elem, IEvaluatorContext ctx){
 		registered = new HashMap<String,GraphNode>();
@@ -66,7 +67,7 @@ public class VLPApplet extends PApplet {
 	
 	@Override
 	public void mouseMoved(){
-		System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
+		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
 		if(mouseOver != null){
 			mouseOver.properties.setMouseOver(false);
 			mouseOver = null;
@@ -77,7 +78,7 @@ public class VLPApplet extends PApplet {
 	
 	@Override
 	public void mousePressed(){
-		//System.err.println("mousePressed: " + mouseX + ", " + mouseY);
+		if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
 		velem.mouseOver(mouseX, mouseY);
 		redraw();
 	}
