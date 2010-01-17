@@ -23,7 +23,7 @@ public class Text extends VELEM {
 		this.left = left;
 		this.top = top;
 		vlp.textSize(getFontSizeProperty());
-		height = vlp.textAscent() + 2*vlp.textDescent();
+		height = vlp.textAscent() ;//+ 2*vlp.textDescent();
 		//height += 0.3 * height;
 		width = vlp.textWidth(txt);
 		if(debug){

@@ -4,6 +4,14 @@ import List;
 import Set;
 import IO;
 
+/*
+ * Declarations and library functions for Rascal Visualization
+ */
+ 
+ /*
+  * Colors and color management
+  */
+
 alias Color = int;
 
 @doc{Gray color (0-255)}
@@ -69,6 +77,10 @@ public str palette(int n){
     return "black";
 }
 
+/*
+ * VPROP -- visual properties of visual elements
+ */
+
 data VPROP =
 /* sizes */
      width(int width)                   // sets width of element
@@ -125,7 +137,11 @@ data VPROP =
    | closed()    						// closed shapes
    | curved()                           // use curves instead of straight lines
    ;
-   
+
+/*
+ * Vertex and Edge: auxiliary data types
+ */
+ 
 data Vertex = 
      vertex(int x, int y)                // vertex in a shape
    | vertex(int x, int y, VELEM marker)  // vertex with marker
@@ -135,7 +151,11 @@ data Edge =
      edge(str from, str to) 			 // edge between between two elements in complex shapes like tree or graph
    | edge(list[VPROP], str from, str to) // 
    ;
-   
+
+/*
+ * VELEM: a visual element, the principal visualization datatype
+ */
+ 
 data VELEM = 
 /* drawing primitives */
      box(list[VPROP] props)			          	// rectangular box

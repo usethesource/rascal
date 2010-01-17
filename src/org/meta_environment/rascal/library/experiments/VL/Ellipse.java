@@ -14,7 +14,7 @@ public class Ellipse extends VELEM {
 	public Ellipse(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		if(inside != null)
-			this.inside = VELEMFactory.make(vlp, inside, inheritedProps, ctx);
+			this.inside = VELEMFactory.make(vlp, inside, this.properties, ctx);
 	}
 
 	@Override
