@@ -19,7 +19,6 @@ public class Tree extends VELEM {
 	private HashSet<TreeNode> hasParent;
 	private TreeNodeRaster raster;
 	TreeNode root = null;
-	private static boolean debug = false;
 	
 	Tree(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);		
