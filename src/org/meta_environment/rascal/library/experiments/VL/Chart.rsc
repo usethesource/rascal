@@ -1,4 +1,4 @@
-module experiments::VL::xyChart
+module experiments::VL::Chart
 
 import experiments::VL::VLCore;
 import experiments::VL::VLRender; 

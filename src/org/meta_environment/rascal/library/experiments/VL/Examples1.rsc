@@ -2,6 +2,7 @@ module experiments::VL::Examples1
 
 import experiments::VL::VLCore;
 import experiments::VL::VLRender; 
+import Integer;
 // import viz::VLRender;
 
 import Integer;
@@ -14,7 +15,7 @@ public void box1(){
 	render(box([ width(100), height(200) ]));
 }
 
-// Unfilled box of 100x200
+// Unfilled box of 100x200v
 public void box2(){
 	render(box([ size(100,200) ]));
 }
@@ -63,8 +64,6 @@ public void box9(){
 public void bbc(){
 	render(box([gap(5, 30)], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
-
-//TODO: wrong aligned in following tests
 
 // Unsized outer box, with left-aligned inner box of 100x200
 
@@ -177,14 +176,27 @@ public void vert2(){
 		));
 }
 
-// TODO: how do we get the inner vertical left aligned?
+// Nested vertical composition with left/right alignment
 public void vert3(){
 	render(vcat([gap(10),left()],
 	              [box([ size(100,200), fillColor("red") ]),
-			       use([left()], vcat([right()], [ box([size(150,100)]),
-			                             box([size(50,50)]),  
-			                             box([size(30,30)])
-			                           ])),
+			       use([right()], vcat([left()], [ box([size(150,100)]),
+			                                      box([size(50,50)]),  
+			                                      box([size(30,30)])
+			                                    ])),
+			       box([ size(200,50), fillColor("green") ])
+			      ]
+		));
+}
+
+// Nested vertical composition with left/left alignment
+public void vert4(){
+	render(vcat([gap(10),left()],
+	              [box([ size(100,200), fillColor("red") ]),
+			       use([left()], vcat([left()], [ box([size(150,100)]),
+			                                      box([size(50,50)]),  
+			                                      box([size(30,30)])
+			                                    ])),
 			       box([ size(200,50), fillColor("green") ])
 			      ]
 		));
@@ -222,10 +234,10 @@ public void txt3(){
 }
 
 // Horizontal bottom-aligned composition of text of different size
-// TODO baselines not ok
+// TODO baselines are now ok, but descent is ouside bbox of text
 
 public void txt4(){
-	render(box([gap(1)], 
+	render(box([gap(10)], 
 	           hcat([bottom()],
 	               [ text([fontSize(20), fontColor("black")], "Giant xyz 1"),
 	 				 text([fontSize(40), fontColor("blue")], "Giant xyz 2"),
@@ -257,10 +269,10 @@ public void txt7(){
 		));
 }
 
-// TODO: ?????
+// Vertical stack of text of various font sizes
 
 public void txt8(){
-   render(box([gap(1), width(50)], 
+   render(box([gap(1)], 
 	           vcat([bottom()],
 	               [ text([fontSize(20), fontColor("black")], "A"),
 	 				 text([fontSize(40), fontColor("blue")], "BB"),
@@ -280,20 +292,31 @@ public void txt9(){
    render(grid([width(100), fillColor("black"), gap(40), bottom(), left(), textAngle(-90)], words));
  }
 
-// Word cloud
-// TODO: a mess regarding alignment
+private map[str, int] leesplank = 
+ ("aap" : 10, "noot" :5, "mies" : 7,
+        "wim" : 5, "zus": 10, "jet": 40, 
+        "teun" : 10, "vuur" : 20, "gijs" : 5,
+        "lam" : 50, "kees" : 30, "bok" : 20,
+        "weide" : 20,  "does" : 25, "hok" : 15,
+        "duif" : 30, "schapen" : 35
+         );
+         
+// Word cloud using align
 public void txt11(){
+     words = [text([ fontSize(2*leesplank[name])], "<name>") | name <- leesplank];
+     render(align([width(400), fillColor("black"), gap(10), bottom(), left()], words));
+}
 
-    d = ("aap" : 10, "noot" :5, "mies" : 7, 
-         "wim" : 5, "zus": 10, "jet": 40, 
-         "teun" : 10, "vuur" : 20, "gijs" : 5,
-         "lam" : 50, "kees" : 30, "bok" : 20,
-         "weide" : 20,  "does" : 25, "hok" : 15,
-         "duif" : 30, "schapen" : 35);
-    
-     words = [text([ fontSize(2*d[name])], "<name>") | name <- d];
-     
-     render(grid([width(400), fillColor("black"), gap(10), bottom()], words));
+// Word cloud using pack
+public void txt12(){
+     words = [text([ fontSize(2*leesplank[name])], "<name>") | name <- leesplank];
+     render(pack([width(400), fillColor("black"), gap(10), bottom(), left()], words));
+}
+
+// Word cloud using pack with rotated words
+public void txt13(){
+     words = [text([ fontSize(2*leesplank[name]), (arbInt(3) == 2) ? textAngle(-90) : textAngle(0)], "<name>") | name <- leesplank];
+     render(pack([width(400), fillColor("black"), gap(10), bottom(), left()], words));
 }
 
 // Barchart: Horizontal composition of boxes
@@ -431,7 +454,6 @@ public void s2(){
 }
 
 // Two overlayed shapes with closed and curved graphs
-//TODO: fix
 public void s3(){
     dt1 = [10, 20, 10, 30];
     dt2 = [15, 10, 25, 20];

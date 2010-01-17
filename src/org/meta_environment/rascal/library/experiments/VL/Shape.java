@@ -34,7 +34,7 @@ public class Shape extends Compose {
 		float bottom = top + height;
 		boolean  closed = isClosed();
 		boolean curved = isCurved();
-		boolean connected = isConnected();
+		boolean connected = isConnected() || curved;
 		
 		if(connected){
 			vlp.noFill();

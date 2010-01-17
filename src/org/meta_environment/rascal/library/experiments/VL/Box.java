@@ -16,7 +16,7 @@ public class Box extends VELEM {
 	public Box(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		if(inside != null)
-			this.inside = VELEMFactory.make(vlp, inside, inheritedProps, ctx);
+			this.inside = VELEMFactory.make(vlp, inside, this.properties, ctx);
 		if(debug)System.err.println("box.init: width=" + width + ", height=" + height);
 	}
 
@@ -38,8 +38,8 @@ public class Box extends VELEM {
 				int vgap = getVGapProperty();
 				inside.bbox();
 				if(width == 0 && height == 0){
-					width = inside.width + hgap + lw;
-					height = inside.height + vgap + lw;
+					width = inside.width + 2 * (hgap + lw);
+					height = inside.height + 2 * (vgap + lw);
 				} 
 			} else {
 				width += lw;
