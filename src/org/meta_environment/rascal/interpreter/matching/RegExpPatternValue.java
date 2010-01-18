@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,11 +27,14 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private Matcher matcher;					// The actual regexp matcher
 	String subject;								// Subject string to be matched
 	private boolean initialized = false;		// Has matcher been initialized?
-	private boolean firstMatch;				// Is this the first match?
+	private boolean firstMatch;				    // Is this the first match?
 	private boolean hasNext;					// Are there more matches?
 	
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
+	
+//	private static HashMap<String,Matcher> matcherCache = 
+//		new HashMap<String,Matcher>();
 	
 	public RegExpPatternValue(IEvaluatorContext ctx, String s, List<String> patternVars) {
 		super(ctx);
@@ -101,7 +105,13 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	public boolean next(){
 		if(firstMatch){
 			firstMatch = false;
-			matcher = pat.matcher(subject);
+// TODO Commented out caching code since it does not seem to help;
+//			matcher = matcherCache.get(RegExpAsString);
+//			if(matcher == null){
+				matcher = pat.matcher(subject);
+//				matcherCache.put(RegExpAsString, matcher);
+//			} else
+//				matcher.reset(subject);
 			IString empty = ctx.getValueFactory().string("");
 			
 			// Initialize all pattern variables to ""
