@@ -4,6 +4,8 @@ import IO;
 import Map;
 import List;
 import Exception;
+import Benchmark;
+import String;
  
 // Various ways to count words in a string.
 
@@ -14,7 +16,6 @@ public int wordCount(list[str] input, int (str s) countLine)
 {
   count = 0;
   for(str line <- input){
-  println("line = <line>");
      count += countLine(line);
   }
   return count;
@@ -147,3 +148,32 @@ public list[str] Jabberwocky = [
 test wordCount(Jabberwocky, countLine1) == 216;
 test wordCount(Jabberwocky, countLine2) == 216;
 test wordCount(Jabberwocky, countLine3) == 216;
+
+// Without caching:
+// txt: 94208 lines
+// countLine1: 5040. msec, countLine2: 16051. msec, countLine3: 15585. msec
+// With caching of regexps and matchers:
+// txt: 94208 lines
+// countLine1: 3649. msec, countLine2: 3504. msec, countLine3: 3249. msec
+
+// With caching of matchers only
+// txt: 94208 lines
+// countLine1: 6388. msec, countLine2: 34059. msec, countLine3: 49253. msec
+
+
+public void measure(){
+   list[str] txt = Jabberwocky;
+   for(int i <- [1 .. 11])
+       txt = txt + txt;
+       
+	time0 = currentTimeMillis();
+	res1 = wordCount(txt, countLine1);          time1 = currentTimeMillis();
+	res2 = wordCount(txt, countLine2);          time2 = currentTimeMillis();
+	res3 = wordCount(txt, countLine2);          time3 = currentTimeMillis();
+	
+	d1 = time1 - time0;
+	d2 = time2 - time1;
+	d3 = time3 - time2;
+	
+	println("txt: <size(txt)> lines\ncountLine1: <d1> msec, countLine2: <d2> msec, countLine3: <d3> msec");
+}
