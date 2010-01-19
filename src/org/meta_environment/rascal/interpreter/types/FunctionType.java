@@ -57,7 +57,7 @@ public class FunctionType extends ExternalType {
 
 				// type parameterized functions are never sub-types before instantiation
 				// because the argument types are co-variant. This would be weird since
-				// instantiated functions are supposed to be subtitutable for their generic
+				// instantiated functions are supposed to be substitutable for their generic
 				// counter parts. So, we try to instantiate first, and then check again.
 				try {
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
@@ -157,6 +157,25 @@ public class FunctionType extends ExternalType {
 //		super.match(matched, bindings); match calls isSubTypeOf which calls match, watch out for infinite recursion
 		if (matched.isVoidType()) {
 			returnType.match(matched, bindings);
+		}
+		else if (matched instanceof OverloadedFunctionType) {
+			OverloadedFunctionType of = (OverloadedFunctionType) matched;
+			// at least one needs to match (also at most one can match)
+			FactTypeUseException ex = null;
+			
+			for (Type f : of.getAlternatives()) {
+				try {
+					this.match(f, bindings);
+					return;
+				}
+				catch (FactMatchException e) {
+					ex = e;
+				}
+			}
+			
+			if (ex != null) {
+				throw ex;
+			}
 		}
 		else if (matched instanceof FunctionType) {
 			argumentTypes.match(((FunctionType) matched).getArgumentTypes(), bindings);
