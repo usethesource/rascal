@@ -8,6 +8,16 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
+/**
+ * A reified type is the type of a value that represents a type. It is parametrized by the type
+ * it represents in order to allow type parameters to be instantiated.
+ * 
+ * For example, the '#int' expression produces the 'int()' value which is of type 'type[int]'
+ * 
+ * ReifiedType should mimick the behavior of AbstractDataType *exactly*, such that
+ * pattern matching and such on reified types can be reused. Therefore this class extends Type
+ * directly and does not extend ExternalType.
+ */
 public class ReifiedType extends Type {
 	private final Type arg;
 
@@ -34,7 +44,8 @@ public class ReifiedType extends Type {
 	public boolean isSubtypeOf(Type other) {
 		if (other.isAbstractDataType()) {
 			if (other instanceof ReifiedType) {
-				return true; // arg.isSubtypeOf(((ReifiedType) other).arg);
+				// used to be: return true;
+				return arg.isSubtypeOf(((ReifiedType) other).arg);
 			}
 		}
 		return super.isSubtypeOf(other);

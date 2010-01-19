@@ -38,28 +38,24 @@ public class OverloadedFunctionType extends ExternalType {
 		if (other instanceof OverloadedFunctionType) {
 			OverloadedFunctionType of = (OverloadedFunctionType) other;
 
-			// this has more functions, so it can't be a sub-type
-			if (size() > of.size()) {
-				return false;
-			}
-			
-			// if this has less functions, and all of them are sub-types, then yes
-			for (FunctionType a : alternatives) {
-				if (!a.isSubtypeOf(other)) {
-					return false;
+			// if this has at least one alternative that is a sub-type of the other, 
+			// then yes, this function can act as the other and should be a sub-type
+			for (FunctionType a : of.alternatives) {
+				if (this.isSubtypeOf(a)) {
+					return true;
 				}
 			}
 			
-			return true;
+			return false;
 		}
 		
 		if (other instanceof FunctionType) {
 			for (FunctionType a : alternatives) {
-				if (!a.isSubtypeOf(other)) {
-					return false;
+				if (a.isSubtypeOf(other)) {
+					return true;
 				}
 			}
-			return true;
+			return false;
 		}
 		
 		return super.isSubtypeOf(other);
