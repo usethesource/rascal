@@ -65,34 +65,34 @@ public void bbc(){
 	render(box([gap(5, 30)], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
-// Unsized outer box, with left-aligned inner box of 100x200
+// Sized outer box, with left-aligned inner box of 100x200
 
 public void bbl(){
 	render(box([width(150), height(250), gap(5, 30), left()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
-// Unsized outer box, with top-aligned inner box of 100x200
+// Sized outer box, with top-aligned inner box of 100x200
 
 public void bblt(){
 	render(box([width(150), height(250), gap(10), left(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
-// Unsized outer box, with bottom-aligned inner box of 100x200
+// Sized outer box, with bottom-aligned inner box of 100x200
 public void bblb(){
 	render(box([width(150), height(250), gap(10), left(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
-// Unsized outer box, with right-aligned inner box of 100x200
+// Sized outer box, with right-aligned inner box of 100x200
 public void bbr(){
 	render(box([width(150), height(250), gap(10), right()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
-// Unsized outer box, with top-aligned and right-aligned inner box of 100x200
+// Sized outer box, with top-aligned and right-aligned inner box of 100x200
 public void bbrt(){
 	render(box([width(150), height(250), gap(10), right(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
-// Unsized outer box, with bottom-aligned and right-aligned inner box of 100x200
+// Sized outer box, with bottom-aligned and right-aligned inner box of 100x200
 public void bbrb(){
 	render(box([width(150), height(250), gap(10), right(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
@@ -443,9 +443,17 @@ public void e4(){
 	render(ellipse([width(40), height(20), fillColor("mediumblue"), gap(10)], text([fontColor("white")], "een label")));
 }
 
-// Centered Overlay of two boxes
-public void o1(){
+// Left Overlay of two boxes
+public void olc(){
+render(overlay([left(), vcenter()],
+               [ box([size(100,300), fillColor("green")]), 
+                 box([size(200,200), fillColor("red")])
+               ])
+      );
+}
 
+// Centered Overlay of two boxes
+public void occ(){
 render(overlay([center()],
                [ box([size(100,300), fillColor("green")]), 
                  box([size(200,200), fillColor("red")])
@@ -453,8 +461,71 @@ render(overlay([center()],
       );
 }
 
+// Right Overlay of two boxes
+public void orc(){
+render(overlay([right(), vcenter()],
+               [ box([size(100,300), fillColor("green")]), 
+                 box([size(200,200), fillColor("red")])
+               ])
+      );
+}
+
+// Left, top Overlay of two boxes
+public void olt(){
+render(overlay([left(), top()],
+               [ box([size(100,300), fillColor("green")]), 
+                 box([size(200,200), fillColor("red")])
+               ])
+      );
+}
+
+// Center, top Overlay of two boxes
+public void oct(){
+render(overlay([hcenter(), top()],
+               [ box([size(100,300), fillColor("green")]), 
+                 box([size(200,200), fillColor("red")])
+               ])
+      );
+}
+
+// Right, top Overlay of two boxes
+public void ort(){
+render(overlay([right(), top()],
+               [ box([size(100,300), fillColor("green")]), 
+                 box([size(200,200), fillColor("red")])
+               ])
+      );
+}
+
+// Left, bottom Overlay of two boxes
+public void olb(){
+render(overlay([left(), bottom()],
+               [ box([size(100,300), fillColor("green")]), 
+                 box([size(200,200), fillColor("red")])
+               ])
+      );
+}
+
+// Center, bottom Overlay of two boxes
+public void ocb(){
+render(overlay([hcenter(), bottom()],
+               [ box([size(100,300), fillColor("green")]), 
+                 box([size(200,200), fillColor("red")])
+               ])
+      );
+}
+
+// Right, bottom Overlay of two boxes
+public void orb(){
+render(overlay([right(), bottom()],
+               [ box([size(100,300), fillColor("green")]), 
+                 box([size(200,200), fillColor("red")])
+               ])
+      );
+}
+
 // Bottom-aligned overlay of box and ellipse
-public void o2(){
+public void obe(){
 render(overlay([bottom()],
                [box([size(100)]),
                 ellipse([size(50)])

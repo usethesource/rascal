@@ -338,6 +338,8 @@ public class PropertyManager implements Cloneable {
 		defBool(Property.RIGHT, false);
 		defBool(Property.TOP, false);
 		defBool(Property.VCENTER, true);
+		
+		hanchor = vanchor = 0.5f;
 	}
 	
 	public int getInt(Property p){
