@@ -11,7 +11,7 @@ public class Box extends VELEM {
 	 */
 	private static final long serialVersionUID = 1L;
 	private VELEM inside;
-	private static boolean debug = false;
+	private static boolean debug = true;
 
 	public Box(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
@@ -53,7 +53,7 @@ public class Box extends VELEM {
 	@Override
 	void draw() {
 		applyProperties();
-		if(debug)System.err.println("box.draw: left=" + left + ", top=" + top + ", width=" + width + ", height=" + height+ ", color=" + getFillColorProperty());
+		if(debug)System.err.printf("box.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
 
 		VELEM insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
@@ -63,24 +63,26 @@ public class Box extends VELEM {
 				vlp.rect(left, top, width, height);
 				if(inside != null){
 					if(inside.width <= width && inside.height <= height){
-						int hgap = getHGapProperty();
-						int vgap = getVGapProperty();
-						float xi;
-						if(inside.isLeftAligned())
-							xi = left + hgap/2;
-						else if(inside.isRightAligned())
-							xi = left + (width - inside.width - hgap/2);
-						else 
-							xi = left + (width - inside.width )/2;
-						float yi;
-						if(inside.isTopAligned())
-							yi = top + vgap/2;
-						else if(inside.isBottomAligned())
-							yi = top + (height - inside.height - vgap/2);
-						else 
-							yi = top + (height - inside.height)/2;
-
-						inside.draw(xi, yi);
+//						int hgap = getHGapProperty();
+//						int vgap = getVGapProperty();
+//						float xi;
+//						if(inside.isLeftAligned())
+//							xi = left + hgap/2;
+//						else if(inside.isRightAligned())
+//							xi = left + (width - inside.width - hgap/2);
+//						else 
+//							xi = left + (width - inside.width )/2;
+//						float yi;
+//						if(inside.isTopAligned())
+//							yi = top + vgap/2;
+//						else if(inside.isBottomAligned())
+//							yi = top + (height - inside.height - vgap/2);
+//						else 
+//							yi = top + (height - inside.height)/2;
+//
+//						inside.draw(xi, yi);
+						
+						inside.draw(left + properties.hanchor*(width - inside.width), top + properties.vanchor*(height - inside.height));
 					} else if(vlp.isRegisteredAsMouseOver(this)){
 						inside.draw(left + (width - inside.width )/2, top + (height - inside.height)/2);
 					}
