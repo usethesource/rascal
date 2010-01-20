@@ -22,15 +22,19 @@ public class Ellipse extends VELEM {
 		this.left = left;
 		this.top = top;
 		int lw = getLineWidthProperty();
-		width = getWidthProperty() + lw;
-		height = getHeightProperty() + lw;
+		width = getWidthProperty();
+		height = getHeightProperty();
 		if(inside != null){
 			int hgap = getHGapProperty();
 			int vgap = getVGapProperty();
 			inside.bbox();
-			width = inside.width + hgap;
-			height = inside.height + vgap;
+			if(width == 0 && height == 0){
+				width = inside.width + hgap;
+				height = inside.height + vgap;
+			}
 		}
+		width += 2*lw;
+		height += 2*lw;
 		if(debug)System.err.printf("bbox.ellipse: %f, %f)\n", width, height);
 	}
 	

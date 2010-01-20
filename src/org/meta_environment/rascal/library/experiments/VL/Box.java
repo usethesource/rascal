@@ -17,7 +17,7 @@ public class Box extends VELEM {
 		super(vlp, inheritedProps, props, ctx);
 		if(inside != null)
 			this.inside = VELEMFactory.make(vlp, inside, this.properties, ctx);
-		if(debug)System.err.println("box.init: width=" + width + ", height=" + height);
+		if(debug)System.err.printf("box.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
 	}
 
 	@Override 
@@ -42,11 +42,12 @@ public class Box extends VELEM {
 					height = inside.height + 2 * (vgap + lw);
 				} 
 			} else {
-				width += lw;
-				height += lw;
+				width += 2*lw;
+				height += 2*lw;
 			}
 		}
-		if(debug)System.err.println("box.bbox: width=" + width + ", height=" + height);
+		if(debug)System.err.printf("box.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
+
 	}
 
 	@Override

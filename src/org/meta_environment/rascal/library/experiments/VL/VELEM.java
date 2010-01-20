@@ -24,6 +24,11 @@ import processing.core.PApplet;
  * - Visual
  */
 
+/*
+ * Visual elements are based on a bounding box + anchor model. The bounding box defines
+ * the maximal dimensions of the element. The anchor defines its alignment properties.
+ */
+
 public abstract class VELEM implements Comparable<VELEM> {
 	
 	protected VLPApplet vlp;
@@ -36,11 +41,16 @@ public abstract class VELEM implements Comparable<VELEM> {
 	protected int top; 				// the element's bounding box
 	protected float width = 0;		// width of element
 	protected float height = 0;		// height picture
+	protected int aleft = 0;		    // horizontal distance of left border to anchor
+	protected int aright = 0;         // horizontal distance from anchor to right border
+	protected int atop = 0;           // vertical distance from top to anchor
+	protected int abottom = 0;        // vertical distance from anchor to bottom
 	
 	VELEM(VLPApplet vlp, IEvaluatorContext ctx){
-		this.vlp = vlp;
-		vf = ValueFactoryFactory.getValueFactory();
-		properties = new PropertyManager(vlp, null, vf.list(), ctx);
+		this(vlp, null,ValueFactoryFactory.getValueFactory().list(), ctx);
+		//this.vlp = vlp;
+		//vf = ValueFactoryFactory.getValueFactory();
+		//properties = new PropertyManager(vlp, null, vf.list(), ctx);
 	}
 	
 	VELEM(VLPApplet vlp, PropertyManager inheritedProps, IList props, IEvaluatorContext ctx){
@@ -111,6 +121,22 @@ public abstract class VELEM implements Comparable<VELEM> {
 	
 	protected boolean isRightAligned(){
 		return properties.getBool(Property.RIGHT);
+	}
+	
+	protected float leftAnchor(){
+		return (properties.hanchor * width);
+	}
+	
+	protected float rightAnchor(){
+		return (width - properties.hanchor * width);
+	}
+	
+	protected float topAnchor(){
+		return (properties.vanchor * height);
+	}
+	
+	protected float bottomAnchor(){
+		return (height - properties.vanchor * height);
 	}
 	
 	protected boolean isClosed(){

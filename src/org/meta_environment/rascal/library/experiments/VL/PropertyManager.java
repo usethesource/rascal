@@ -83,6 +83,8 @@ public class PropertyManager implements Cloneable {
 	EnumMap<Property, String> strProperties;
 	EnumSet<Property> boolProperties;
 	EnumSet<Property> defined;
+	float hanchor;
+	float vanchor;
 	IList origMouseOverProperties = null;
 	boolean mouseOver = false;
 	PropertyManager mouseOverproperties = null;
@@ -145,6 +147,8 @@ public class PropertyManager implements Cloneable {
 			intProperties = inherited.intProperties.clone();
 			boolProperties = inherited.boolProperties.clone();
 			strProperties = inherited.strProperties.clone();
+			hanchor = inherited.hanchor;
+			vanchor = inherited.vanchor;
 		} else {
 			intProperties = new EnumMap<Property, Integer>(Property.class);
 			strProperties = new EnumMap<Property, String>(	Property.class);
@@ -170,7 +174,8 @@ public class PropertyManager implements Cloneable {
 			case BOTTOM:
 				defBool(Property.BOTTOM, true); 
 				defBool(Property.TOP, false); 
-				defBool(Property.VCENTER, false);	
+				defBool(Property.VCENTER, false);
+				vanchor = 1.0f;
 				break;
 				
 			case CENTER:
@@ -180,7 +185,8 @@ public class PropertyManager implements Cloneable {
 				
 				defBool(Property.VCENTER, true);	
 				defBool(Property.TOP, false);	
-				defBool(Property.BOTTOM, false); 
+				defBool(Property.BOTTOM, false);
+				hanchor = vanchor = 0.5f;
 				break;
 				
 			case CLOSED:
@@ -221,6 +227,7 @@ public class PropertyManager implements Cloneable {
 				defBool(Property.HCENTER, true);	
 				defBool(Property.LEFT, false);	
 				defBool(Property.RIGHT, false); 
+				hanchor = 0.5f;
 				break;
 				
 			case HEIGHT:
@@ -236,6 +243,7 @@ public class PropertyManager implements Cloneable {
 				defBool(Property.LEFT, true);	
 				defBool(Property.RIGHT, false); 
 				defBool(Property.HCENTER, false);
+				hanchor = 0f;
 				break;
 				
 			case LINECOLOR:
@@ -256,6 +264,7 @@ public class PropertyManager implements Cloneable {
 				defBool(Property.RIGHT, true); 
 				defBool(Property.LEFT, false); 
 				defBool(Property.HCENTER, false);
+				hanchor = 1f;
 				break;
 				
 			case SIZE:
@@ -278,12 +287,14 @@ public class PropertyManager implements Cloneable {
 				defBool(Property.TOP, true); 
 				defBool(Property.VCENTER, false);
 				defBool(Property.BOTTOM, false); 
+				vanchor = 0f;
 				break;
 			
 			case VCENTER:
 				defBool(Property.VCENTER, true);	
 				defBool(Property.TOP, false);	
 				defBool(Property.BOTTOM, false); 
+				vanchor = 0.5f;
 				break;
 			
 			case WIDTH:
