@@ -38,6 +38,26 @@ public class Use extends VELEM {
 	}
 	
 	@Override
+	protected float leftAnchor(){
+		return inside.leftAnchor();
+	}
+	
+	@Override
+	protected float rightAnchor(){
+		return inside.rightAnchor();
+	}
+	
+	@Override
+	protected float topAnchor(){
+		return inside.topAnchor();
+	}
+	
+	@Override
+	protected float bottomAnchor(){
+		return inside.bottomAnchor();
+	}
+	
+	@Override
 	public boolean mouseOver(int mousex, int mousey){
 		return inside.mouseOver(mousex, mousey);
 	}

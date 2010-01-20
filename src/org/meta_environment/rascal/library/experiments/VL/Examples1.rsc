@@ -133,8 +133,17 @@ public void hor3(){
 	                ]));
 }
 
-// Horizontal combination of boxes of with some inherited colors
+// Horizontal combination of top-aligned boxes with some inherited colors
 public void hor4(){
+	render(hcat([fillColor("yellow"), gap(10),top()],
+	              [box([ size(100,200), fillColor("red") ]),
+			       box([ size(150,100)]),
+			       box([ size(200,50), fillColor("green") ])
+			      ]
+		));
+}
+// Horizontal combination of bottom-aligned boxes with some inherited colors
+public void hor5(){
 	render(hcat([fillColor("yellow"), gap(10),bottom()],
 	              [box([ size(100,200), fillColor("red") ]),
 			       box([ size(150,100)]),
@@ -143,8 +152,18 @@ public void hor4(){
 		));
 }
 
+// Horizontal combination of bottom-aligned boxes with some inherited colors
+public void hor6(){
+	render(hcat([fillColor("yellow"), gap(10),vcenter()],
+	              [box([ size(100,200), fillColor("red") ]),
+			       box([ size(150,100)]),
+			       box([ size(200,50), fillColor("green") ])
+			      ]
+		));
+}
+
 // Horizontal, bottom aligned with on exception
-public void hor5(){
+public void hor7(){
 	render(hcat([gap(10),bottom()],
 	              [box([ size(100,200), fillColor("red") ]),
 			       box([ vcenter(), size(150,100)]),
@@ -155,7 +174,7 @@ public void hor5(){
 }
 
 
-// Vertical combination of boxes 
+// Vertical combination of boxes, left-aligned 
 public void vert1(){
 	render(vcat([left(), gap(2)],
 	              [box([ size(100,200), fillColor("red") ]),
@@ -165,8 +184,28 @@ public void vert1(){
 		));
 }
 
-// Vertical, left aligned with on exception
+// Vertical combination of boxes, centered 
 public void vert2(){
+	render(vcat([left(), gap(2), hcenter()],
+	              [box([ size(100,200), fillColor("red") ]),
+			       box([ size(150, 100), fillColor("blue") ]),
+			       box([ size(200,50), fillColor("green") ])
+			      ]
+		));
+}
+
+// Vertical combination of boxes, right-aligned 
+public void vert3(){
+	render(vcat([right(), gap(2)],
+	              [box([ size(100,200), fillColor("red") ]),
+			       box([ size(150, 100), fillColor("blue") ]),
+			       box([ size(200,50), fillColor("green") ])
+			      ]
+		));
+}
+
+// Vertical, left aligned with on exception
+public void vert4(){
 	render(vcat([gap(10),left()],
 	              [box([ size(100,200), fillColor("red") ]),
 			       box([ right(), size(150,100)]),
@@ -177,7 +216,7 @@ public void vert2(){
 }
 
 // Nested vertical composition with left/right alignment
-public void vert3(){
+public void vert5(){
 	render(vcat([gap(10),left()],
 	              [box([ size(100,200), fillColor("red") ]),
 			       use([right()], vcat([left()], [ box([size(150,100)]),
@@ -190,7 +229,7 @@ public void vert3(){
 }
 
 // Nested vertical composition with left/left alignment
-public void vert4(){
+public void vert6(){
 	render(vcat([gap(10),left()],
 	              [box([ size(100,200), fillColor("red") ]),
 			       use([left()], vcat([left()], [ box([size(150,100)]),
