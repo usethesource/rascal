@@ -31,8 +31,8 @@ public class Space extends VELEM {
 			int vgap = getVGapProperty();
 			inside.bbox();
 			if(width == 0 && height == 0){
-				width = inside.width + 2*hgap;
-				height = inside.height + 2*vgap;
+				width = inside.width + 2 * hgap;
+				height = inside.height + 2 * vgap;
 			} 
 		}
 		if(debug)System.err.println("space.bbox: width=" + width + ", height=" + height);
@@ -44,13 +44,12 @@ public class Space extends VELEM {
 		if(debug)System.err.println("space.draw: left=" + left + ", top=" + top + ", width=" + width + ", height=" + height+ ", color=" + getFillColorProperty());
 
 		if(height > 0 && width > 0){
+			int hgap = getHGapProperty();
+			int vgap = getVGapProperty();
 			if(inside != null){
-				int hgap = getHGapProperty();
-				int vgap = getVGapProperty();
-				if(inside.width + 2*hgap <= width && inside.height + 2*vgap <= height){
-					inside.draw(left + properties.hanchor*(width - inside.width),
-						    top + properties.vanchor*(height - inside.height));
-					
+				if(inside.width +2*hgap <= width && inside.height + 2*vgap <= height){
+				   inside.draw(left + hgap + properties.hanchor*(width - inside.width - 2 * hgap),
+						       top  + vgap + properties.vanchor*(height - inside.height - 2 * vgap));
 				}
 			}
 		}

@@ -183,6 +183,19 @@ public void grid0(){
   render(grid([gap(0)], boxes));
 }
 
+// Overlay with same effect as grid0
+
+public void ov1(){
+  boxes = [box([bottom(), right(), size(20,20),fillColor("red")]), 
+           box([bottom(), left(), size(30,30),fillColor("yellow")]),
+           box([top(), right(), size(20,20),fillColor("green")]),
+           box([top(), left(), size(20,20),fillColor("blue")]),
+           box([hcenter(), vcenter(), size(10,10),fillColor("black")])
+           ];
+
+  render(overlay(boxes));
+}
+
 
 // Packed boxes
 

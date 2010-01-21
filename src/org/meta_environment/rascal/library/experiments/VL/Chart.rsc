@@ -135,7 +135,7 @@ private VELEM legendItem(str name, Color c){
 // A complete legend
 
 private VELEM legend(map[str, Color] funColors, int w){
-   return box([center(), gap(20,20), fillColor("lightgray")], 
+   return box([center(), gap(10,10), fillColor("lightgray")], 
                align([width(w), gap(10), center()], [legendItem(name, funColors[name]) | name <- funColors]));
 }
 

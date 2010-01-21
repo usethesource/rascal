@@ -71,5 +71,13 @@ public class HCat extends Compose {
 		draw();
 	}
 	
-
+	@Override
+	public float topAnchor(){
+		return topAnchor;
+	}
+	
+	@Override
+	public float bottomAnchor(){
+		return bottomAnchor;
+	}
 }

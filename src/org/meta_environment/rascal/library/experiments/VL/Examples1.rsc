@@ -15,7 +15,7 @@ public void box1(){
 	render(box([ width(100), height(200) ]));
 }
 
-// Unfilled box of 100x200v
+// Unfilled box of 100x200
 public void box2(){
 	render(box([ size(100,200) ]));
 }
@@ -59,6 +59,12 @@ public void box9(){
 	render(box([width(20), height(20), fillColor("mediumblue"), gap(10)], text("een label")));
 }
 
+// Blue outer box of 20x20 with yellow larger inner box (only visible on mouse over)
+//TODO border of left/top borders of innerbox not visible
+public void box10(){
+	render(box([width(20), height(20), fillColor("mediumblue"), gap(10)], box([size(30,30), fillColor("yellow")])));
+}
+
 // Unsized outer box, with centered inner box of 100x200
 
 public void bbc(){
@@ -74,27 +80,27 @@ public void bbl(){
 // Sized outer box, with top-aligned inner box of 100x200
 
 public void bblt(){
-	render(box([width(150), height(300), gap(10), left(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(5,30), left(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Sized outer box, with bottom-aligned inner box of 100x200
 public void bblb(){
-	render(box([width(150), height(300), gap(10), left(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(5,30), left(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Sized outer box, with right-aligned inner box of 100x200
 public void bbr(){
-	render(box([width(150), height(300), gap(10), right()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(5,30), right()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Sized outer box, with top-aligned and right-aligned inner box of 100x200
 public void bbrt(){
-	render(box([width(150), height(300), gap(10), right(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(5,30), right(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Sized outer box, with bottom-aligned and right-aligned inner box of 100x200
 public void bbrb(){
-	render(box([width(150), height(300), gap(10), right(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(5,30), right(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Horizontal combination of boxes of 100x200 with rgb and (same) named colors
@@ -227,7 +233,6 @@ public void vert4(){
 }
 
 // Nested vertical composition with left/right alignment
-//TODO
 public void vert5(){
 	render(vcat([gap(10),left()],
 	              [box([ size(100,200), fillColor("red") ]),

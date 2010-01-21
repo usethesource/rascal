@@ -34,9 +34,11 @@ public class Use extends VELEM {
 	@Override
 	void draw() {
 		applyProperties();
-		inside.draw(left,top);
+		
+		inside.draw(left + properties.hanchor*(width - inside.width),
+					top  + properties.vanchor*(height - inside.height));
 	}
-	
+/*	
 	@Override
 	protected float leftAnchor(){
 		return inside.leftAnchor();
@@ -56,7 +58,7 @@ public class Use extends VELEM {
 	protected float bottomAnchor(){
 		return inside.bottomAnchor();
 	}
-	
+*/	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
 		return inside.mouseOver(mousex, mousey);
