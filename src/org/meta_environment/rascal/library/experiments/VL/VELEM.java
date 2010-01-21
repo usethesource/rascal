@@ -107,21 +107,21 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return properties.getInt(Property.LINEWIDTH);
 	}
 	
-	protected boolean isTopAligned(){
-		return properties.getBool(Property.TOP);
-	}
-	
-	protected boolean isBottomAligned(){
-		return properties.getBool(Property.BOTTOM);
-	}
-	
-	protected boolean isLeftAligned(){
-		return properties.getBool(Property.LEFT);
-	}
-	
-	protected boolean isRightAligned(){
-		return properties.getBool(Property.RIGHT);
-	}
+//	protected boolean isTopAligned(){
+//		return properties.getBool(Property.TOP);
+//	}
+//	
+//	protected boolean isBottomAligned(){
+//		return properties.getBool(Property.BOTTOM);
+//	}
+//	
+//	protected boolean isLeftAligned(){
+//		return properties.getBool(Property.LEFT);
+//	}
+//	
+//	protected boolean isRightAligned(){
+//		return properties.getBool(Property.RIGHT);
+//	}
 	
 	protected float leftAnchor(){
 		return (properties.hanchor * width);

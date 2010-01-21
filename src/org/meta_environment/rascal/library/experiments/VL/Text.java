@@ -11,6 +11,8 @@ public class Text extends VELEM {
 
 	private String txt;
 	private static boolean debug = false;
+	private float topAnchor = 0;
+	private float bottomAnchor = 0;
 
 	public Text(VLPApplet vlp, PropertyManager inheritedProps, IList props, IString text, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
@@ -23,7 +25,10 @@ public class Text extends VELEM {
 		this.left = left;
 		this.top = top;
 		vlp.textSize(getFontSizeProperty());
-		height = vlp.textAscent() ;//+ 2*vlp.textDescent();
+		topAnchor = vlp.textAscent() ;
+		bottomAnchor = vlp.textDescent();
+		
+		height = topAnchor + bottomAnchor;
 		//height += 0.3 * height;
 		width = vlp.textWidth(txt);
 		if(debug){
@@ -68,5 +73,15 @@ public class Text extends VELEM {
 //				vlp.text(txt, left, top, left+width, top+height);
 			}
 		}
+	}
+	
+	@Override
+	public float topAnchor(){
+		return topAnchor;
+	}
+	
+	@Override
+	public float bottomAnchor(){
+		return bottomAnchor;
 	}
 }

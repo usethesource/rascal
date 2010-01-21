@@ -80,6 +80,34 @@ public str palette(int n){
 /*
  * VPROP -- visual properties of visual elements
  */
+ 
+ public VPROP left(){
+   return hanchor(0.0);
+ }
+ 
+ public VPROP hcenter(){
+   return hanchor(0.5);
+ }
+ 
+ public VPROP right(){
+   return hanchor(1.0);
+ }
+ 
+ public VPROP top(){
+   return vanchor(0.0);
+ }
+ 
+ public VPROP vcenter(){
+   return vanchor(0.5);
+ }
+ 
+ public VPROP bottom(){
+   return vanchor(1.0);
+ }
+ 
+ public VPROP center(){
+   return anchor(0.5, 0.5);
+ }
 
 data VPROP =
 /* sizes */
@@ -91,13 +119,16 @@ data VPROP =
    | gap(int hor, int vert) 			// sets hor and vert gap between elements in composition to separate values
    
 /* alignment */
-   | top()                              // top alignment
-   | hcenter()                          // horizontal centered alignment
-   | vcenter()                          // vertical centered alignment
-   | center()                           // horizontal and vertical alignment
-   | bottom()                           // bottom alignment
-   | left()                             // left alignment
-   | right()                            // right alignment
+//   | top()                              // top alignment
+//   | hcenter()                          // horizontal centered alignment
+//   | vcenter()                          // vertical centered alignment
+//   | center()                           // horizontal and vertical alignment
+//   | bottom()                           // bottom alignment
+//   | left()                             // left alignment
+//   | right()                            // right alignment
+     | anchor(real h, real v)             // horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
+     | hanchor(real h)
+     | vanchor(real v)
    
 /* transformations */
 //   | move(int byX)        			// translate in X direction

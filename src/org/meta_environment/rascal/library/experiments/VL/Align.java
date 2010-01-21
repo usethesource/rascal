@@ -75,23 +75,25 @@ public class Align extends Compose {
 			float hrow = rowHeight[inRow[i]];
 			float rfiller = width - rowWidth[inRow[i]];
 			
-			float veTop;
-			if(ve.isTopAligned())
-				veTop = top + topRowElem[i];
-			else if(ve.isBottomAligned())
-				veTop = top + topRowElem[i] + hrow - ve.height;
-			else
-				veTop = top + topRowElem[i] + (hrow - ve.height)/2;
-			
-			float veLeft;
-			if(ve.isLeftAligned())
-				veLeft = left + leftElem[i];
-			else if(ve.isRightAligned())
-				veLeft = left + rfiller + leftElem[i];
-			else
-				veLeft = left + rfiller/2 + leftElem[i];
-			
-			ve.draw(veLeft, veTop);
+//			float veTop;
+//			if(ve.isTopAligned())
+//				veTop = top + topRowElem[i];
+//			else if(ve.isBottomAligned())
+//				veTop = top + topRowElem[i] + hrow - ve.height;
+//			else
+//				veTop = top + topRowElem[i] + (hrow - ve.height)/2;
+//			
+//			float veLeft;
+//			if(ve.isLeftAligned())
+//				veLeft = left + leftElem[i];
+//			else if(ve.isRightAligned())
+//				veLeft = left + rfiller + leftElem[i];
+//			else
+//				veLeft = left + rfiller/2 + leftElem[i];
+//			
+//			ve.draw(veLeft, veTop);
+			ve.draw(left + leftElem[i] + ve.properties.hanchor*rfiller,
+                    top + topRowElem[i] + ve.properties.vanchor *(hrow - ve.height));                  
 		}
 	}
 }
