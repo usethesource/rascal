@@ -11,7 +11,7 @@ public class Box extends VELEM {
 	 */
 	private static final long serialVersionUID = 1L;
 	private VELEM inside;
-	private static boolean debug = true;
+	private static boolean debug = false;
 
 	public Box(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
@@ -38,13 +38,12 @@ public class Box extends VELEM {
 				int vgap = getVGapProperty();
 				inside.bbox();
 				if(width == 0 && height == 0){
-					width = inside.width + 2 * (hgap + lw);
-					height = inside.height + 2 * (vgap + lw);
-				} 
-			} else {
-				width += 2*lw;
-				height += 2*lw;
-			}
+					width = inside.width + 2 * hgap;
+					height = inside.height + 2 * vgap;
+				}
+			} 
+			width += 2*lw;
+			height += 2*lw;
 		}
 		if(debug)System.err.printf("box.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
 
@@ -53,7 +52,7 @@ public class Box extends VELEM {
 	@Override
 	void draw() {
 		applyProperties();
-		if(debug)System.err.printf("box.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
+		if(debug)System.err.printf("box.draw: left=%d, top=%d, width=%f, height=%f, hanchor=%f, vanchor=%f\n", left, top, width, height, properties.hanchor, properties.vanchor);
 
 		VELEM insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
@@ -64,9 +63,10 @@ public class Box extends VELEM {
 				if(inside != null){
 					int hgap = getHGapProperty();
 					int vgap = getVGapProperty();
+					if(debug)System.err.printf("box.draw2: hgap=%d, vgap=%d, inside.width=%f\n", hgap, vgap, inside.width);
 					if(inside.width + 2*hgap <= width && inside.height + 2*vgap <= height){
-						inside.draw(left + properties.hanchor*(width - inside.width),
-								    top + properties.vanchor*(height - inside.height));
+						inside.draw(left + hgap + properties.hanchor*(width - inside.width - 2 * hgap),
+								    top  + vgap + properties.vanchor*(height - inside.height - 2 * vgap));
 					} else if(vlp.isRegisteredAsMouseOver(this)){
 						inside.draw(left + (width - inside.width )/2, top + (height - inside.height)/2);
 					}
