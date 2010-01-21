@@ -62,7 +62,6 @@ public class Grid extends Compose {
 				//extTop = max(extTop, ve.isTopAligned() ? 0 : ve.isBottomAligned() ? ve.height : ve.height/2);
 				extTop = max(extTop, ve.topAnchor());
 			if(nrow == lastRow){
-				if(debug)System.err.printf("nrow == lastRow!, isBottomAligned=%b\n", ve.isBottomAligned());
 				//extBot = max(extBot, ve.isBottomAligned() ? 0 : ve.isTopAligned() ? ve.height : ve.height/2);
 				extBot = max(extBot, ve.bottomAnchor());
 			}

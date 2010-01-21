@@ -7,6 +7,7 @@ import java.util.HashMap;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
@@ -16,8 +17,9 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 public class PropertyManager implements Cloneable {
 
 	enum Property {
-		BOTTOM, 
-		CENTER,
+		ANCHOR,
+//		BOTTOM, 
+//		CENTER,
 		CLOSED, 
 		CONNECTED,
 		CURVED,
@@ -27,29 +29,32 @@ public class PropertyManager implements Cloneable {
 		FONTSIZE, 
 		FROMANGLE,
 		GAP, 
-		HCENTER, 
+//		HCENTER, 
+		HANCHOR,
 		HEIGHT, 
 		HGAP, 
 		ID, 
 		INNERRADIUS, 
-		LEFT,
+//		LEFT,
 		LINECOLOR, 
 		LINEWIDTH, 
 		MOUSEOVER, 
-		RIGHT, 
+//		RIGHT, 
 		SIZE, 
 		TEXTANGLE, 
 		TOANGLE,
-		TOP, 
-		VCENTER, 
+//		TOP, 
+		VANCHOR,
+//		VCENTER, 
 		VGAP, 
 		WIDTH
 	}
 
 	static final HashMap<String, Property> propertyNames = new HashMap<String, Property>() {
 		{
-			put("bottom", Property.BOTTOM);
-			put("center", Property.CENTER);
+			put("anchor", Property.ANCHOR);
+//			put("bottom", Property.BOTTOM);
+//			put("center", Property.CENTER);
 			put("closed", Property.CLOSED);
 			put("connected", Property.CONNECTED);
 			put("curved", Property.CURVED);
@@ -58,22 +63,24 @@ public class PropertyManager implements Cloneable {
 			put("fontColor", Property.FONTCOLOR);
 			put("fontSize", Property.FONTSIZE);
 			put("fromAngle", Property.FROMANGLE);
-			put("gap", Property.GAP);	
-			put("hcenter", Property.HCENTER);
+			put("gap", Property.GAP);
+			put("hanchor", Property.HANCHOR);
+//			put("hcenter", Property.HCENTER);
 			put("height", Property.HEIGHT);
 			put("hgap", Property.HGAP);                  // Only used internally
 			put("id", Property.ID);
 			put("innerRadius", Property.INNERRADIUS);
-			put("left", Property.LEFT);
+//			put("left", Property.LEFT);
 			put("lineColor", Property.LINECOLOR);
 			put("lineWidth", Property.LINEWIDTH);
 			put("mouseOver", Property.MOUSEOVER);
-			put("right", Property.RIGHT);
+//			put("right", Property.RIGHT);
 			put("size", Property.SIZE);
 			put("textAngle", Property.TEXTANGLE);
 			put("toAngle", Property.TOANGLE);
-			put("top", Property.TOP);
-			put("vcenter", Property.VCENTER);
+//			put("top", Property.TOP);
+			put("vanchor", Property.VANCHOR);
+//			put("vcenter", Property.VCENTER);
 			put("vgap", Property.VGAP);                 // Only used internally
 			put("width", Property.WIDTH);
 		}
@@ -101,6 +108,10 @@ public class PropertyManager implements Cloneable {
 	
 	private String getStrArg(IConstructor c){
 		return ((IString) c.get(0)).getValue();
+	}
+	
+	private float getRealArg(IConstructor c, int i){
+		return ((IReal) c.get(i)).floatValue();
 	}
 
 	private int getColorArg(IConstructor c, IEvaluatorContext ctx) {
@@ -153,15 +164,16 @@ public class PropertyManager implements Cloneable {
 			intProperties = new EnumMap<Property, Integer>(Property.class);
 			strProperties = new EnumMap<Property, String>(	Property.class);
 			boolProperties = EnumSet.of(
-					Property.BOTTOM,
+//					Property.BOTTOM,
 					Property.CLOSED, 
 					Property.CONNECTED, 
-					Property.CURVED,
-					Property.HCENTER, 
-					Property.LEFT, 
-					Property.TOP, 
-					Property.RIGHT, 
-					Property.VCENTER);
+					Property.CURVED
+//					Property.HCENTER, 
+//					Property.LEFT, 
+//					Property.TOP, 
+//					Property.RIGHT, 
+//					Property.VCENTER
+					);
 			setDefaults();
 		}
 		
@@ -171,23 +183,32 @@ public class PropertyManager implements Cloneable {
 
 			switch (propertyNames.get(pname)) {
 			
-			case BOTTOM:
-				defBool(Property.BOTTOM, true); 
-				defBool(Property.TOP, false); 
-				defBool(Property.VCENTER, false);
-				vanchor = 1.0f;
-				break;
+			case ANCHOR:
+				hanchor = getRealArg(c, 0);
+				hanchor = hanchor < 0 ? 0 : (hanchor > 1 ? 1 : hanchor);
 				
-			case CENTER:
-				defBool(Property.HCENTER, true);	
-				defBool(Property.LEFT, false);	
-				defBool(Property.RIGHT, false);
-				
-				defBool(Property.VCENTER, true);	
-				defBool(Property.TOP, false);	
-				defBool(Property.BOTTOM, false);
-				hanchor = vanchor = 0.5f;
+				vanchor = getRealArg(c, 1);
+				vanchor = vanchor < 0 ? 0 : (vanchor > 1 ? 1 : vanchor);
+				System.err.printf("anchor: %f, %f\n", hanchor, vanchor);
 				break;
+			
+//			case BOTTOM:
+//				defBool(Property.BOTTOM, true); 
+//				defBool(Property.TOP, false); 
+//				defBool(Property.VCENTER, false);
+//				vanchor = 1.0f;
+//				break;
+//				
+//			case CENTER:
+//				defBool(Property.HCENTER, true);	
+//				defBool(Property.LEFT, false);	
+//				defBool(Property.RIGHT, false);
+//				
+//				defBool(Property.VCENTER, true);	
+//				defBool(Property.TOP, false);	
+//				defBool(Property.BOTTOM, false);
+//				hanchor = vanchor = 0.5f;
+//				break;
 				
 			case CLOSED:
 				defBool(Property.CLOSED, true); break;
@@ -223,12 +244,17 @@ public class PropertyManager implements Cloneable {
 				}
 				break;
 				
-			case HCENTER:
-				defBool(Property.HCENTER, true);	
-				defBool(Property.LEFT, false);	
-				defBool(Property.RIGHT, false); 
-				hanchor = 0.5f;
+			case HANCHOR:
+				hanchor = getRealArg(c, 0);
+				hanchor = hanchor < 0 ? 0 : (hanchor > 1 ? 1 : hanchor);
 				break;
+				
+//			case HCENTER:
+//				defBool(Property.HCENTER, true);	
+//				defBool(Property.LEFT, false);	
+//				defBool(Property.RIGHT, false); 
+//				hanchor = 0.5f;
+//				break;
 				
 			case HEIGHT:
 				defInt(Property.HEIGHT, getIntArg(c));	break;
@@ -239,12 +265,12 @@ public class PropertyManager implements Cloneable {
 			case INNERRADIUS:
 				defInt(Property.INNERRADIUS, getIntArg(c)); break;
 				
-			case LEFT:
-				defBool(Property.LEFT, true);	
-				defBool(Property.RIGHT, false); 
-				defBool(Property.HCENTER, false);
-				hanchor = 0f;
-				break;
+//			case LEFT:
+//				defBool(Property.LEFT, true);	
+//				defBool(Property.RIGHT, false); 
+//				defBool(Property.HCENTER, false);
+//				hanchor = 0f;
+//				break;
 				
 			case LINECOLOR:
 				defColor(Property.LINECOLOR, c, ctx); break;
@@ -260,12 +286,12 @@ public class PropertyManager implements Cloneable {
 				}
 				break;	
 				
-			case RIGHT:
-				defBool(Property.RIGHT, true); 
-				defBool(Property.LEFT, false); 
-				defBool(Property.HCENTER, false);
-				hanchor = 1f;
-				break;
+//			case RIGHT:
+//				defBool(Property.RIGHT, true); 
+//				defBool(Property.LEFT, false); 
+//				defBool(Property.HCENTER, false);
+//				hanchor = 1f;
+//				break;
 				
 			case SIZE:
 				if(c.arity() == 1){
@@ -283,19 +309,25 @@ public class PropertyManager implements Cloneable {
 			case TOANGLE:
 				defInt(Property.TOANGLE, getIntArg(c)); break;
 				
-			case TOP:
-				defBool(Property.TOP, true); 
-				defBool(Property.VCENTER, false);
-				defBool(Property.BOTTOM, false); 
-				vanchor = 0f;
-				break;
+//			case TOP:
+//				defBool(Property.TOP, true); 
+//				defBool(Property.VCENTER, false);
+//				defBool(Property.BOTTOM, false); 
+//				vanchor = 0f;
+//				break;
+				
+			case VANCHOR:
+				vanchor = getRealArg(c, 0);
+				vanchor = vanchor < 0 ? 0 : (vanchor > 1 ? 1 : vanchor);
 			
-			case VCENTER:
-				defBool(Property.VCENTER, true);	
-				defBool(Property.TOP, false);	
-				defBool(Property.BOTTOM, false); 
-				vanchor = 0.5f;
 				break;
+//			
+//			case VCENTER:
+//				defBool(Property.VCENTER, true);	
+//				defBool(Property.TOP, false);	
+//				defBool(Property.BOTTOM, false); 
+//				vanchor = 0.5f;
+//				break;
 			
 			case WIDTH:
 				defInt(Property.WIDTH, getIntArg(c)); break;
@@ -329,15 +361,15 @@ public class PropertyManager implements Cloneable {
 		defInt(Property.FONTSIZE, 12);
 		defInt(Property.TEXTANGLE, 0);
 		
-		defBool(Property.BOTTOM, false);
+//		defBool(Property.BOTTOM, false);
 		defBool(Property.CLOSED, false);
 		defBool(Property.CONNECTED, false);
 		defBool(Property.CURVED, false);
-		defBool(Property.HCENTER, true);
-		defBool(Property.LEFT, false);
-		defBool(Property.RIGHT, false);
-		defBool(Property.TOP, false);
-		defBool(Property.VCENTER, true);
+//		defBool(Property.HCENTER, true);
+//		defBool(Property.LEFT, false);
+//		defBool(Property.RIGHT, false);
+//		defBool(Property.TOP, false);
+//		defBool(Property.VCENTER, true);
 		
 		hanchor = vanchor = 0.5f;
 	}

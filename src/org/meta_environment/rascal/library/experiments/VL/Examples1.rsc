@@ -68,33 +68,33 @@ public void bbc(){
 // Sized outer box, with left-aligned inner box of 100x200
 
 public void bbl(){
-	render(box([width(150), height(250), gap(5, 30), left()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(5, 30), left()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Sized outer box, with top-aligned inner box of 100x200
 
 public void bblt(){
-	render(box([width(150), height(250), gap(10), left(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(10), left(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Sized outer box, with bottom-aligned inner box of 100x200
 public void bblb(){
-	render(box([width(150), height(250), gap(10), left(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(10), left(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Sized outer box, with right-aligned inner box of 100x200
 public void bbr(){
-	render(box([width(150), height(250), gap(10), right()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(10), right()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Sized outer box, with top-aligned and right-aligned inner box of 100x200
 public void bbrt(){
-	render(box([width(150), height(250), gap(10), right(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(10), right(), top()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Sized outer box, with bottom-aligned and right-aligned inner box of 100x200
 public void bbrb(){
-	render(box([width(150), height(250), gap(10), right(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
+	render(box([width(150), height(300), gap(10), right(), bottom()], box([size(100,200), fillColor("green"), lineColor("red")])));
 }
 
 // Horizontal combination of boxes of 100x200 with rgb and (same) named colors
@@ -173,6 +173,17 @@ public void hor7(){
 		));
 }
 
+// Horizontal, top aligned at 0.1, 0.2, 0.3, 0.4 of top
+public void hor8(){
+	render(hcat([gap(10)],
+	              [box([ anchor(0.0, 0.1), size(100,100), fillColor("red") ]),
+			       box([ anchor(0.0, 0.2), size(100,100)]),
+			       box([ anchor(0.0, 0.3), size(100,100), fillColor("green") ]),
+			       box([ anchor(0.0, 0.4), size(100,100), fillColor("yellow") ])
+			      ]
+		));
+}
+
 
 // Vertical combination of boxes, left-aligned 
 public void vert1(){
@@ -216,6 +227,7 @@ public void vert4(){
 }
 
 // Nested vertical composition with left/right alignment
+//TODO
 public void vert5(){
 	render(vcat([gap(10),left()],
 	              [box([ size(100,200), fillColor("red") ]),
@@ -241,6 +253,16 @@ public void vert6(){
 		));
 }
 
+// Vertical, left aligned at 0.1, 0.2, 0.3, 0.4 of left side
+public void vert7(){
+	render(vcat([gap(10)],
+	              [box([ anchor(0.1, 0.0), size(100,100), fillColor("red") ]),
+			       box([ anchor(0.2, 0.0), size(100,100)]),
+			       box([ anchor(0.3, 0.0), size(100,100), fillColor("green") ]),
+			       box([ anchor(0.4, 0.0), size(100,100), fillColor("yellow") ])
+			      ]
+		));
+}
 
 public void hv1(){
 	render(hcat([bottom(), gap(10)],
@@ -273,7 +295,6 @@ public void txt3(){
 }
 
 // Horizontal bottom-aligned composition of text of different size
-// TODO baselines are now ok, but descent is ouside bbox of text
 
 public void txt4(){
 	render(box([gap(10)], 
@@ -300,6 +321,7 @@ public void txt6(){
 }
 
 // Overlay of box and text
+//TODO
 public void txt7(){
 	render(overlay([bottom(), right()],
 	              [box([ width(150), height(200), fillColor("red") ]),
@@ -324,7 +346,7 @@ public void txt9(){
    
    render(grid([width(100), fillColor("black"), gap(40), bottom(), left()], words));
  }
- 
+ //TODO
  public void txt10(){
    words = [ text("aappp"), text("noot"), text("mies"), text("wim"), text("zus") ];
    

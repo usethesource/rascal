@@ -62,27 +62,11 @@ public class Box extends VELEM {
 			if(height > 0 && width > 0){
 				vlp.rect(left, top, width, height);
 				if(inside != null){
-					if(inside.width <= width && inside.height <= height){
-//						int hgap = getHGapProperty();
-//						int vgap = getVGapProperty();
-//						float xi;
-//						if(inside.isLeftAligned())
-//							xi = left + hgap/2;
-//						else if(inside.isRightAligned())
-//							xi = left + (width - inside.width - hgap/2);
-//						else 
-//							xi = left + (width - inside.width )/2;
-//						float yi;
-//						if(inside.isTopAligned())
-//							yi = top + vgap/2;
-//						else if(inside.isBottomAligned())
-//							yi = top + (height - inside.height - vgap/2);
-//						else 
-//							yi = top + (height - inside.height)/2;
-//
-//						inside.draw(xi, yi);
-						
-						inside.draw(left + properties.hanchor*(width - inside.width), top + properties.vanchor*(height - inside.height));
+					int hgap = getHGapProperty();
+					int vgap = getVGapProperty();
+					if(inside.width + 2*hgap <= width && inside.height + 2*vgap <= height){
+						inside.draw(left + properties.hanchor*(width - inside.width),
+								    top + properties.vanchor*(height - inside.height));
 					} else if(vlp.isRegisteredAsMouseOver(this)){
 						inside.draw(left + (width - inside.width )/2, top + (height - inside.height)/2);
 					}
