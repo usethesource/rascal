@@ -67,13 +67,13 @@ private final org.meta_environment.rascal.ast.Label label;
 	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }
 	private final org.meta_environment.rascal.ast.Statement body;
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Expression getCondition() { throw new UnsupportedOperationException(); } public boolean hasCondition() { return false; } public boolean isWhile() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() { throw new UnsupportedOperationException(); } public boolean hasConditions() { return false; } public boolean isWhile() { return false; }
 static public class While extends Statement {
-/** label:Label "while" "(" condition:Expression ")" body:Statement -> Statement {cons("While")} */
-	public While(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Statement body) {
+/** label:Label "while" "(" conditions:{Expression ","}+ ")" body:Statement -> Statement {cons("While")} */
+	public While(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement body) {
 		this.node = node;
 		this.label = label;
-		this.condition = condition;
+		this.conditions = conditions;
 		this.body = body;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -83,16 +83,17 @@ static public class While extends Statement {
 	public boolean isWhile() { return true; }
 
 	public boolean hasLabel() { return true; }
-	public boolean hasCondition() { return true; }
+	public boolean hasConditions() { return true; }
 	public boolean hasBody() { return true; }
 
 private final org.meta_environment.rascal.ast.Label label;
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
-	private final org.meta_environment.rascal.ast.Expression condition;
-	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }
+	private final java.util.List<org.meta_environment.rascal.ast.Expression> conditions;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() { return conditions; }
 	private final org.meta_environment.rascal.ast.Statement body;
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }	
-} public boolean isDoWhile() { return false; }
+} public org.meta_environment.rascal.ast.Expression getCondition() { throw new UnsupportedOperationException(); } public boolean hasCondition() { return false; }
+public boolean isDoWhile() { return false; }
 static public class DoWhile extends Statement {
 /** label:Label "do" body:Statement "while" "(" condition:Expression ")" ";" -> Statement {cons("DoWhile")} */
 	public DoWhile(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Statement body, org.meta_environment.rascal.ast.Expression condition) {
@@ -117,7 +118,7 @@ private final org.meta_environment.rascal.ast.Label label;
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }
 	private final org.meta_environment.rascal.ast.Expression condition;
 	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }	
-} public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Statement getThenStatement() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Statement getElseStatement() { throw new UnsupportedOperationException(); } public boolean hasConditions() { return false; } public boolean hasThenStatement() { return false; } public boolean hasElseStatement() { return false; }
+} public org.meta_environment.rascal.ast.Statement getThenStatement() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Statement getElseStatement() { throw new UnsupportedOperationException(); } public boolean hasThenStatement() { return false; } public boolean hasElseStatement() { return false; }
 public boolean isIfThenElse() { return false; }
 static public class IfThenElse extends Statement {
 /** label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement "else" elseStatement:Statement -> Statement {cons("IfThenElse")} */
