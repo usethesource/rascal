@@ -30,16 +30,16 @@ public void assertEqual(value V1, value V2)
 	}
 }
 
-private void runTest(void () test)
+private void runTest(void () testFunc)
 {
 	try {
-		test();
+		testFunc();
 	} catch node Any: {
 		nErrors = nErrors + 1;
 	}
 }
 
-public bool report(){
+public bool report() {
 	return report("");
 }
 
