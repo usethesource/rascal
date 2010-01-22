@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.INode;
@@ -141,7 +142,7 @@ public class StringTemplateConverter {
 		@Override
 		public Statement visitStringTemplateWhile(While x) {
 			Statement body = x.getBody().accept(this);
-			return new Statement.While(x.getTree(), new Label.Empty(x.getTree()), x.getCondition(), 
+			return new Statement.While(x.getTree(), new Label.Empty(x.getTree()), Collections.singletonList(x.getCondition()), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 

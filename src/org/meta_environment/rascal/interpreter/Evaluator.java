@@ -1747,8 +1747,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitStatementWhile(While x) {
 		Statement body = x.getBody();
-		Expression generator = x.getCondition();
-		IBooleanResult gen;
+		java.util.List<Expression> generators = x.getConditions();
+		
+		int size = generators.size();
+		IBooleanResult[] gens = new IBooleanResult[size];
+		Environment[] olds = new Environment[size];
 		Environment old = getCurrentEnvt();
 
 		String label = null;
@@ -1757,28 +1760,42 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		accumulators.push(new Accumulator(vf, label));
 
-		
 		// a while statement is different from a for statement, the body of the while can influence the
 		// variables that are used to test the condition of the loop
 		// while does not iterate over all possible matches, rather it produces every time the first match
 		// that makes the condition true
 		
-		while (true) {
+		loop: while (true) {
+			int i = 0;
 			try {
-				gen = makeBooleanResult(generator);
-				gen.init();
+				gens[0] = makeBooleanResult(generators.get(0));
+				gens[0].init();
+				olds[0] = getCurrentEnvt();
 				pushEnv();
-				if(gen.hasNext() && gen.next()){
-					/*result = */body.accept(this);
-				}
-				else {
-					//return result;
-					IValue value = accumulators.pop().done();
-					return makeResult(value.getType(), value, this);
+
+				while(i >= 0 && i < size) {		
+					if(gens[i].hasNext() && gens[i].next()){
+						if(i == size - 1){
+							body.accept(this);
+							continue loop;
+						}
+
+						i++;
+						gens[i] = makeBooleanResult(generators.get(i));
+						gens[i].init();
+						olds[i] = getCurrentEnvt();
+						pushEnv();
+					} else {
+						unwind(olds[i]);
+						pushEnv();
+						i--;
+					}
 				}
 			} finally {
 				unwind(old);
 			}
+			IValue value = accumulators.pop().done();
+			return makeResult(value.getType(), value, this);
 		}
 	}
 
