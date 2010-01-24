@@ -612,4 +612,3 @@ public void s3(){
                );
     render(overlay([bottom(), left()], [sh1, sh2]));
 }
-

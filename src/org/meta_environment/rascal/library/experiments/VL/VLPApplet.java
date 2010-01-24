@@ -60,7 +60,7 @@ public class VLPApplet extends PApplet {
 	public void draw(){
 		background(255);
 		velem.bbox();
-		velem.draw(0, 0);
+		velem.draw(0f, 0f);
 		if(mouseOver != null)
 			mouseOver.draw();
 	}

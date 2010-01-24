@@ -29,7 +29,7 @@ public class TreeNode extends VELEM {
 	}
 	
 	@Override
-	public void bbox(int left, int top){
+	public void bbox(float left, float top){
 	}
 	
 	float shapeTree(float left, float top, TreeNodeRaster raster) {

@@ -18,7 +18,7 @@ public class HCat extends Compose {
 	}
 	
 	@Override
-	void bbox(int left, int top){
+	void bbox(float left, float top){
 		this.left = left;
 		this.top = top;
 		width = 0;
@@ -42,18 +42,8 @@ public class HCat extends Compose {
 
 		applyProperties();
 
-//		float bottom = top + height;
-//		float veTop;
-
 		// Draw from left to right
 		for(VELEM ve : velems){
-//			if(ve.isTopAligned())
-//				veTop = top;
-//			else if(ve.isBottomAligned())
-//				veTop = bottom - ve.height;
-//			else
-//				veTop = top + (height - ve.height)/2;
-			
 			ve.draw(left, top + topAnchor - ve.topAnchor());
 			left += ve.width + hgap;
 		}

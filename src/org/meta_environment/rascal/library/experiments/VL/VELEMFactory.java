@@ -33,7 +33,8 @@ public class VELEMFactory {
 		TREE,
 		USE,
 		VCAT,
-		VERTEX
+		VERTEX,
+		WEDGE
 		}
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
@@ -55,6 +56,7 @@ public class VELEMFactory {
     	put("use",			Primitives.USE);
     	put("vcat",			Primitives.VCAT);
     	put("vertex",		Primitives.VERTEX);
+    	put("wedge",		Primitives.WEDGE);
     }};
     
     static IList props;
@@ -159,6 +161,12 @@ public class VELEMFactory {
 				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
 			
 			return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
+			
+		case WEDGE:
+			if(c.arity() == 2)
+				return new Wedge(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+			else
+				return new Wedge(vlp, inheritedProps, (IList) c.get(0), null, ctx);
 									
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());

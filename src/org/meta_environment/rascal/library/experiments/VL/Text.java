@@ -21,7 +21,7 @@ public class Text extends VELEM {
 	}
 	
 	@Override
-	void bbox(int left, int top){
+	void bbox(float left, float top){
 		this.left = left;
 		this.top = top;
 		vlp.textSize(getFontSizeProperty());

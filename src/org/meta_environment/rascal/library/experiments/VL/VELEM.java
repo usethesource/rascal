@@ -37,14 +37,10 @@ public abstract class VELEM implements Comparable<VELEM> {
 	
 	protected PropertyManager properties;
 	
-	protected int left;                // coordinates of top left corner of
-	protected int top; 				// the element's bounding box
+	protected float left;             // coordinates of top left corner of
+	protected float top; 				// the element's bounding box
 	protected float width = 0;		// width of element
 	protected float height = 0;		// height picture
-	protected int aleft = 0;		    // horizontal distance of left border to anchor
-	protected int aright = 0;         // horizontal distance from anchor to right border
-	protected int atop = 0;           // vertical distance from top to anchor
-	protected int abottom = 0;        // vertical distance from anchor to bottom
 	
 	VELEM(VLPApplet vlp, IEvaluatorContext ctx){
 		this(vlp, null,ValueFactoryFactory.getValueFactory().list(), ctx);
@@ -106,22 +102,6 @@ public abstract class VELEM implements Comparable<VELEM> {
 	protected int getLineWidthProperty(){
 		return properties.getInt(Property.LINEWIDTH);
 	}
-	
-//	protected boolean isTopAligned(){
-//		return properties.getBool(Property.TOP);
-//	}
-//	
-//	protected boolean isBottomAligned(){
-//		return properties.getBool(Property.BOTTOM);
-//	}
-//	
-//	protected boolean isLeftAligned(){
-//		return properties.getBool(Property.LEFT);
-//	}
-//	
-//	protected boolean isRightAligned(){
-//		return properties.getBool(Property.RIGHT);
-//	}
 	
 	protected float leftAnchor(){
 		return (properties.hanchor * width);
@@ -219,7 +199,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 	 * Compute the bounding box of the element. Should be called before draw since,
 	 * the computed width and height are stored in the element itself.
 	 */
-	abstract void bbox(int left, int top);
+	abstract void bbox(float left, float top);
 	
 	/**
 	 * Draw element with given left, top corner of its bounding box
@@ -238,14 +218,13 @@ public abstract class VELEM implements Comparable<VELEM> {
 	}
 	
 	/**
-	 * Draw element with given left, top corner of its bounding box
-	 * @param left	x-coordinate of corner
-	 * @param top	y-coordinate of corner
+	 * Draw element at its anchor positions
+	 * @param ax	x-coordinate of anchor
+	 * @param ay	y-coordinate of anchor
 	 */
-	void draw(int left, int top){
-		this.left = left;
-		this.top = top;
-		draw();
+	
+	void drawAnchor(float ax, float ay){
+		draw(ax - leftAnchor(), ay - topAnchor());
 	}
 	
 	public boolean mouseOver(int mousex, int mousey){

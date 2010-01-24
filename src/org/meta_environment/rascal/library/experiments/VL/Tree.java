@@ -83,7 +83,7 @@ public class Tree extends VELEM {
 	}
 
 	@Override
-	void bbox(int left, int top) {
+	void bbox(float left, float top) {
 		raster.clear();
 		root.shapeTree(left, top, raster);
 	}
