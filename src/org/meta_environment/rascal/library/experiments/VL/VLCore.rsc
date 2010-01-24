@@ -195,6 +195,9 @@ data VELEM =
    | ellipse(list[VPROP] props)			      	// ellipse
    | ellipse(list[VPROP] props, VELEM inner)    // ellipse with inner element
    
+   | wedge(list[VPROP] props)			      	// wedge
+   | wedge(list[VPROP] props, VELEM inner)      // wedge with inner element
+   
    | text(list[VPROP] props, str s)		  		// text label
    | text(str s)			              		// text label
    

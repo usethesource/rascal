@@ -23,7 +23,7 @@ public class Pack extends Compose {
 	}
 
 	@Override
-	void bbox(int left, int top) {
+	void bbox(float left, float top) {
 		this.left = left;
 		this.top = top;
 		//width = getWidthProperty();

@@ -6,7 +6,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 public class Overlay extends Compose {
 	
-	private static boolean debug = false;
+	private static boolean debug = true;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
 	float leftAnchor = 0;
@@ -17,11 +17,9 @@ public class Overlay extends Compose {
 	}
 	
 	@Override
-	void bbox(int left, int top){
+	void bbox(float left, float top){
 		this.left = left;
 		this.top = top;
-		width = 0;
-		height = 0;
 		topAnchor = bottomAnchor = leftAnchor = rightAnchor = 0;
 		
 		for(VELEM ve : velems){
@@ -40,9 +38,10 @@ public class Overlay extends Compose {
 	void draw() {
 		
 		applyProperties();
-		if(debug)System.err.printf("overlay.draw: left=%d, top=%d\n", left, top);
+		if(debug)System.err.printf("overlay.draw: left=%f, top=%f\n", left, top);
 		for(VELEM ve : velems){	
-			ve.draw(left + leftAnchor - ve.leftAnchor(), top + topAnchor - ve.topAnchor());
+			ve.drawAnchor(left + leftAnchor, top + topAnchor);
+			//ve.draw(left + leftAnchor - ve.leftAnchor(), top + topAnchor - ve.topAnchor());
 		}
 	}
 
