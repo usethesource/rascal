@@ -9,6 +9,7 @@ import processing.core.PConstants;
 
 
 public class Wedge extends VELEM {
+	@SuppressWarnings("unused")
 	private VELEM inside;
 	private float fromAngle;
 	private float toAngle;
@@ -53,7 +54,7 @@ public class Wedge extends VELEM {
 		this.left = left;
 		this.top = top;
 		
-		radius = 100;
+		radius = getHeightProperty();
 		float lw = getLineWidthProperty();
 		innerRadius = getInnerRadiusProperty();
 
@@ -87,37 +88,39 @@ public class Wedge extends VELEM {
 			switch(qFrom){
 			case 1:
 				switch(qTo){
-				case 1:	leftAnchor = 0; 			rightAnchor = rcosFrom; 	topAnchor = 0; 				bottomAnchor = rsinTo; break;
-				case 2:	leftAnchor = rcosTo; 		rightAnchor = rcosFrom; 	topAnchor = 0; 				bottomAnchor = radius; break;
-				case 3:	leftAnchor = radius;		rightAnchor = rcosFrom;		topAnchor = rsinTo;			bottomAnchor = radius; break;
-				case 4:	leftAnchor = radius;		rightAnchor = Math.max(rcosFrom, 
-						                                              rcosTo);	topAnchor = radius;			bottomAnchor = radius; break;
+				case 1:	leftAnchor = 0; 		rightAnchor = rcosFrom; topAnchor = 0; 		bottomAnchor = rsinTo; break;
+				case 2:	leftAnchor = rcosTo; 	rightAnchor = rcosFrom; topAnchor = 0; 		bottomAnchor = radius; break;
+				case 3:	leftAnchor = radius;	rightAnchor = rcosFrom;	topAnchor = rsinTo;	bottomAnchor = radius; break;
+				case 4:	leftAnchor = radius;	rightAnchor = Math.max(
+															  rcosFrom, 
+						                                      rcosTo);	topAnchor = radius;	bottomAnchor = radius; break;
 				}
 				break;
 			case 2:
 				switch(qTo){
-				case 2:	leftAnchor = rcosTo;		rightAnchor = 0; 			topAnchor = 0; 				bottomAnchor = rsinFrom; break;
-				case 3:	leftAnchor = radius; 		rightAnchor = 0; 			topAnchor = rsinTo; 		bottomAnchor = rsinFrom; break;
-				case 4:	leftAnchor = radius;		rightAnchor = rcosTo;		topAnchor = radius;			bottomAnchor = rsinFrom; break;
-				case 1:	leftAnchor = radius;		rightAnchor = radius;		topAnchor = radius;			bottomAnchor = Math.max(rsinFrom, rsinTo); break;
+				case 2:	leftAnchor = rcosTo;	rightAnchor = 0; 		topAnchor = 0; 		bottomAnchor = rsinFrom; break;
+				case 3:	leftAnchor = radius; 	rightAnchor = 0; 		topAnchor = rsinTo; bottomAnchor = rsinFrom; break;
+				case 4:	leftAnchor = radius;	rightAnchor = rcosTo;	topAnchor = radius;	bottomAnchor = rsinFrom; break;
+				case 1:	leftAnchor = radius;	rightAnchor = radius;	topAnchor = radius;	bottomAnchor = Math.max(rsinFrom, rsinTo); break;
 				}
 				break;
 			case 3:
 				switch(qTo){
-				case 3:	leftAnchor = rcosFrom;		rightAnchor = 0; 			topAnchor = rsinTo; 		bottomAnchor = 0; break;
-				case 4:	leftAnchor = rcosFrom; 		rightAnchor = rcosTo; 		topAnchor = radius; 		bottomAnchor = 0; break;
-				case 1:	leftAnchor = rcosFrom;		rightAnchor = radius;		topAnchor = radius;			bottomAnchor = rsinTo; break;
-				case 2:	leftAnchor = Math.max(rcosFrom, 
-										 rcosTo);	rightAnchor = radius;		topAnchor = radius;			bottomAnchor = radius; break;
+				case 3:	leftAnchor = rcosFrom;	rightAnchor = 0; 		topAnchor = rsinTo; bottomAnchor = 0; break;
+				case 4:	leftAnchor = rcosFrom; 	rightAnchor = rcosTo; 	topAnchor = radius; bottomAnchor = 0; break;
+				case 1:	leftAnchor = rcosFrom;	rightAnchor = radius;	topAnchor = radius;	bottomAnchor = rsinTo; break;
+				case 2:	leftAnchor = Math.max(
+									 rcosFrom, 
+									 rcosTo);	rightAnchor = radius;	topAnchor = radius;	bottomAnchor = radius; break;
 				}
 				break;
 	
 			case 4:
 				switch(qTo){
-				case 4:	leftAnchor = 0;				rightAnchor = rcosTo; 		topAnchor = rsinFrom; 		bottomAnchor = 0; break;
-				case 1:	leftAnchor = 0; 			rightAnchor = radius; 		topAnchor = rsinFrom; 		bottomAnchor = rsinTo; break;
-				case 2:	leftAnchor = rcosTo;		rightAnchor = radius;		topAnchor = rsinFrom;		bottomAnchor = radius; break;
-				case 3:	leftAnchor = radius;		rightAnchor = radius;		topAnchor = Math.max(rsinFrom, 
+				case 4:	leftAnchor = 0;			rightAnchor = rcosTo; 		topAnchor = rsinFrom; 		bottomAnchor = 0; break;
+				case 1:	leftAnchor = 0; 		rightAnchor = radius; 		topAnchor = rsinFrom; 		bottomAnchor = rsinTo; break;
+				case 2:	leftAnchor = rcosTo;	rightAnchor = radius;		topAnchor = rsinFrom;		bottomAnchor = radius; break;
+				case 3:	leftAnchor = radius;	rightAnchor = radius;		topAnchor = Math.max(rsinFrom, 
 																								rsinTo);	bottomAnchor = radius; break;
 				}
 				break;
@@ -155,15 +158,16 @@ public class Wedge extends VELEM {
 		float Ax = cx + radius*cosFrom;  // start of outer arc
 		float Ay = cy + radius*sinFrom;
 		
-		float Bx = cx + radius*cosTo;    // end of outer arc
-		float By = cy + radius*sinTo;
+//		float Bx = cx + radius*cosTo;    // end of outer arc
+//		float By = cy + radius*sinTo;
 		
 		float Cx = cx + innerRadius*cosTo;  // start of inner arc
 		float Cy = cy + innerRadius*sinTo;
 		
-		float Dx = cx + innerRadius*cosFrom; // end of inner arc
-		float Dy = cy + innerRadius*sinFrom;
+//		float Dx = cx + innerRadius*cosFrom; // end of inner arc
+//		float Dy = cy + innerRadius*sinFrom;
 		
+		// Empirical values for Bezier controls
 		float s;
 		if(delta <= PApplet.PI/4)
 			s = 1f;
