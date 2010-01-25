@@ -8,10 +8,13 @@ import org.meta_environment.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
 
-
 /**
+ * Visual elements are the foundation of Rascal visualisation. They are based on a bounding box + anchor model. 
+ * The bounding box defines the maximal dimensions of the element. The anchor defines its alignment properties.
+ * 
+ * Each element has an associated property manager whose values can be accessed via this class.
+ * 
  * @author paulk
- *
  */
 
 /*
@@ -24,11 +27,6 @@ import processing.core.PApplet;
  * - Visual
  */
 
-/*
- * Visual elements are based on a bounding box + anchor model. The bounding box defines
- * the maximal dimensions of the element. The anchor defines its alignment properties.
- */
-
 public abstract class VELEM implements Comparable<VELEM> {
 	
 	protected VLPApplet vlp;
@@ -37,16 +35,13 @@ public abstract class VELEM implements Comparable<VELEM> {
 	
 	protected PropertyManager properties;
 	
-	protected float left;             // coordinates of top left corner of
-	protected float top; 				// the element's bounding box
-	protected float width = 0;		// width of element
-	protected float height = 0;		// height picture
+	protected float left;           // coordinates of top left corner of
+	protected float top; 			// the element's bounding box
+	protected float width;			// width of element
+	protected float height;			// height of element
 	
 	VELEM(VLPApplet vlp, IEvaluatorContext ctx){
 		this(vlp, null,ValueFactoryFactory.getValueFactory().list(), ctx);
-		//this.vlp = vlp;
-		//vf = ValueFactoryFactory.getValueFactory();
-		//properties = new PropertyManager(vlp, null, vf.list(), ctx);
 	}
 	
 	VELEM(VLPApplet vlp, PropertyManager inheritedProps, IList props, IEvaluatorContext ctx){
@@ -54,6 +49,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 		properties = new PropertyManager(vlp, inheritedProps, props, ctx);
 		vf = ValueFactoryFactory.getValueFactory();
 	}
+	
 	
 	public float max(float a, float b){
 		return a > b ? a : b;
@@ -202,12 +198,12 @@ public abstract class VELEM implements Comparable<VELEM> {
 	abstract void bbox(float left, float top);
 	
 	/**
-	 * Draw element with given left, top corner of its bounding box
+	 * Draw element with left, top corner that was computed before by bbox.
 	 */
 	abstract void draw();
 		
 	/**
-	 * Draw element with given left, top corner of its bounding box
+	 * Draw element with explicitly left, top corner of its bounding box
 	 * @param left	x-coordinate of corner
 	 * @param top	y-coordinate of corner
 	 */
@@ -218,7 +214,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 	}
 	
 	/**
-	 * Draw element at its anchor positions
+	 * Draw element at its anchor position. Intended to avoid round-off errors due to repeated computation.
 	 * @param ax	x-coordinate of anchor
 	 * @param ay	y-coordinate of anchor
 	 */
@@ -226,6 +222,13 @@ public abstract class VELEM implements Comparable<VELEM> {
 	void drawAnchor(float ax, float ay){
 		draw(ax - leftAnchor(), ay - topAnchor());
 	}
+	
+	/**
+	 * Compute effect of a mouseOver on this element
+	 * @param mousex	x-coordinate of mouse
+	 * @param mousey	y-coordinate of mouse
+	 * @return			true if element was affected.
+	 */
 	
 	public boolean mouseOver(int mousex, int mousey){
 		if((mousex > left && mousex < left + width) &&

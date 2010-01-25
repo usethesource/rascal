@@ -86,7 +86,7 @@ public class Grid extends Compose {
 			
 			VELEM ve = velems[i];
 			
-			if(debug)System.err.printf("i=%d: %f, %f, left=%d, top=%d\n", i, xElem[i], yElem[i], left, top);
+			if(debug)System.err.printf("i=%d: %f, %f, left=%f, top=%f\n", i, xElem[i], yElem[i], left, top);
 
 //			float veLeft;
 //			if(ve.isLeftAligned())
