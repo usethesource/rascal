@@ -44,10 +44,6 @@ public map[&T,int] index(set[&T] s) {
 @javaClass{org.meta_environment.rascal.library.Set}
 public bool java isEmpty(set[&T] st);
 
-public bool isEmpty(set[&T] s) {
-  return s == {};
-}
-
 @doc{Apply a function to each element of a set}
 public set[&U] mapper(set[&T] st, &U (&T) fn)
 {
