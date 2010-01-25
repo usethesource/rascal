@@ -9,7 +9,7 @@ public class UndeclaredVariableError extends StaticError {
 	public UndeclaredVariableError(String name, AbstractAST ast) {
 		super("Undeclared variable, function or constructor: " + name, ast);
 		this.name = name;
-		printStackTrace();
+//		printStackTrace();
 	}
 
 	public String getName() {
