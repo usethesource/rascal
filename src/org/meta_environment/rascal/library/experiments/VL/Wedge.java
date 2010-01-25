@@ -172,9 +172,9 @@ public class Wedge extends VELEM {
 		if(delta <= PApplet.PI/4)
 			s = 1f;
 		else if(delta <= PApplet.PI/2)
-			s = 1.4f;
+			s = 1.38f;
 		else if(delta <= PApplet.PI)
-			s = 2f;
+			s = 10f;
 		else if (delta <= 1.5f + PApplet.PI)
 			s = 2.5f;
 		else
