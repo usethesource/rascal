@@ -8,6 +8,12 @@ return new org.meta_environment.rascal.ast.Expression.Any(node, generators);
 public org.meta_environment.rascal.ast.Expression.All makeExpressionAll(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
 return new org.meta_environment.rascal.ast.Expression.All(node, generators); 
 }
+public org.meta_environment.rascal.ast.Expression.It makeExpressionIt(INode node) { 
+return new org.meta_environment.rascal.ast.Expression.It(node); 
+}
+public org.meta_environment.rascal.ast.Expression.Reducer makeExpressionReducer(INode node, org.meta_environment.rascal.ast.Expression init, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
+return new org.meta_environment.rascal.ast.Expression.Reducer(node, init, result, generators); 
+}
 public org.meta_environment.rascal.ast.Expression.Comprehension makeExpressionComprehension(INode node, org.meta_environment.rascal.ast.Comprehension comprehension) { 
 return new org.meta_environment.rascal.ast.Expression.Comprehension(node, comprehension); 
 }

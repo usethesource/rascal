@@ -54,6 +54,7 @@ import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Label;
 import org.meta_environment.rascal.ast.Module;
+import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.ShellCommand;
@@ -99,6 +100,7 @@ import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.In;
 import org.meta_environment.rascal.ast.Expression.Intersection;
 import org.meta_environment.rascal.ast.Expression.IsDefined;
+import org.meta_environment.rascal.ast.Expression.It;
 import org.meta_environment.rascal.ast.Expression.Join;
 import org.meta_environment.rascal.ast.Expression.LessThan;
 import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
@@ -115,6 +117,7 @@ import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
 import org.meta_environment.rascal.ast.Expression.Range;
+import org.meta_environment.rascal.ast.Expression.Reducer;
 import org.meta_environment.rascal.ast.Expression.ReifiedType;
 import org.meta_environment.rascal.ast.Expression.ReifyType;
 import org.meta_environment.rascal.ast.Expression.Set;
@@ -209,6 +212,7 @@ import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.AppendWithoutLoop;
 import org.meta_environment.rascal.interpreter.staticErrors.DateTimeParseError;
+import org.meta_environment.rascal.interpreter.staticErrors.ItOutsideOfReducer;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.NonVoidTypeRequired;
@@ -3210,6 +3214,65 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
+
+	private static final Name IT = new Name.Lexical(null, "<it>");
+	
+	@Override
+	public Result<IValue> visitExpressionIt(It x) {
+		Result<IValue> v = getCurrentEnvt().getVariable(IT);
+		if (v == null) {
+			throw new ItOutsideOfReducer(x);
+		}
+		return v;
+	}
+	
+	@Override
+	public Result<IValue> visitExpressionReducer(Reducer x) {
+		return evalReducer(x.getInit(), x.getResult(), x.getGenerators());
+	}
+	
+	public Result<IValue> evalReducer(Expression init, Expression result, java.util.List<Expression> generators) {
+		int size = generators.size();
+		IBooleanResult[] gens = new IBooleanResult[size];
+		Environment[] olds = new Environment[size];
+		Environment old = getCurrentEnvt();
+		int i = 0;
+		
+		Result<IValue> it = init.accept(this);
+
+		try {
+			gens[0] = makeBooleanResult(generators.get(0));
+			gens[0].init();
+			olds[0] = getCurrentEnvt();
+			pushEnv();
+
+			while (i >= 0 && i < size) {
+				if (gens[i].hasNext() && gens[i].next()) {
+					if(i == size - 1){
+						getCurrentEnvt().storeVariable(IT, it);
+						it = result.accept(this);
+						unwind(olds[i]);
+						pushEnv();
+					} 
+					else {
+						i++;
+						gens[i] = makeBooleanResult(generators.get(i));
+						gens[i].init();
+						olds[i] = getCurrentEnvt();
+						pushEnv();
+					}
+				} else {
+					unwind(olds[i]);
+					i--;
+				}
+			}
+		}
+		finally {
+			unwind(old);
+		}
+		return it;
+	
+	}
 
 	/*
 	 * The common comprehension evaluator

@@ -1249,7 +1249,47 @@ static public class Comprehension extends Expression {
 
 private final org.meta_environment.rascal.ast.Comprehension comprehension;
 	public org.meta_environment.rascal.ast.Comprehension getComprehension() { return comprehension; }	
-} public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasGenerators() { return false; } public boolean isAll() { return false; }
+} 
+public org.meta_environment.rascal.ast.Expression getInit() { throw new UnsupportedOperationException(); }
+	public org.meta_environment.rascal.ast.Expression getResult() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasInit() { return false; }
+	public boolean hasResult() { return false; } public boolean hasGenerators() { return false; } public boolean isReducer() { return false; }
+static public class Reducer extends Expression {
+/** "(" init:Expression "|" result:Expression "|" generators:{Expression ","}+ ")" -> Expression {cons("Reducer")} */
+	public Reducer(INode node, org.meta_environment.rascal.ast.Expression init, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
+		this.node = node;
+		this.init = init;
+		this.result = result;
+		this.generators = generators;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionReducer(this);
+	}
+
+	public boolean isReducer() { return true; }
+
+	public boolean hasInit() { return true; }
+	public boolean hasResult() { return true; }
+	public boolean hasGenerators() { return true; }
+
+private final org.meta_environment.rascal.ast.Expression init;
+	public org.meta_environment.rascal.ast.Expression getInit() { return init; }
+	private final org.meta_environment.rascal.ast.Expression result;
+	public org.meta_environment.rascal.ast.Expression getResult() { return result; }
+	private final java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }	
+} 
+public boolean isIt() { return false; }
+static public class It extends Expression {
+/** "it" -> Expression {cons("It")} */
+	public It(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionIt(this);
+	}
+
+	public boolean isIt() { return true; }	
+} public boolean isAll() { return false; }
 static public class All extends Expression {
 /** "all" "(" generators:{Expression ","}+ ")" -> Expression {cons("All")} */
 	public All(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
