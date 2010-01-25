@@ -119,15 +119,14 @@ data VPROP =
    | gap(int hor, int vert) 			// sets hor and vert gap between elements in composition to separate values
    
 /* alignment */
-     | anchor(real h, real v)             // horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
+     | anchor(real h, real v)           // horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
      | hanchor(real h)
      | vanchor(real v)
    
 /* transformations */
-//   | move(int byX)        			// translate in X direction
-//   | vmove(int byY)                     // translate in Y direction
-//     | rotate(int angle)
-//  | scale(real perc)
+//   | move(int dX, int dY)        		// translate
+//   | rotate(int angle)
+//   | scale(real perc)
 
  
  /* line and border attributes */

@@ -383,7 +383,6 @@ public VELEM popup(str s){
 }
 
 public void tree7(){
-
    nodes =
      	[ box([id("A"), width(20), height(20), fillColor("green")], popup("Text For Box A")),
      	  box([id("B"), width(20), height(20), fillColor("red")], popup("Text For Box B")),
@@ -407,14 +406,41 @@ public void tree7(){
     	  edge([lineWidth(1)], "E", "I"),
     	  edge([lineWidth(1)], "E", "J")
     	  
-    	];
-    	    
+    	];	    
+    render(tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes, edges));
+}
+
+public void tree8(){
+   nodes =
+     	[ ellipse([id("A"), width(20), height(20), fillColor("green")], popup("Text For ellipse A")),
+     	  ellipse([id("B"), width(20), height(20), fillColor("red")], popup("Text For ellipse B")),
+     	  ellipse([id("C"), width(20), height(20), fillColor("blue")], popup("Text For ellipse C")),
+     	  ellipse([id("D"), width(20), height(20), fillColor("purple")], popup("Text For ellipse D")),
+     	  ellipse([id("E"), width(20), height(20), fillColor("lightblue")], popup("Text For ellipse E")),
+     	  ellipse([id("F"), width(20), height(20), fillColor("orange")], popup("Text For ellipse F")),
+     	  ellipse([id("G"), width(20), height(20), fillColor("brown")], popup("Text For ellipse G")),
+     	  ellipse([id("H"), width(20), height(20), fillColor("black")], popup("Text For ellipse H")),
+     	  ellipse([id("I"), width(20), height(20), fillColor("grey")], popup("Text For ellipse I")),
+     	  ellipse([id("J"), width(20), height(20), fillColor("white")], popup("Text For ellipse J"))
+     	];
+    edges = 
+    	[ edge([lineWidth(1)], "A", "B"),
+    	  edge([lineWidth(1)], "B", "C"),
+    	  edge([lineWidth(1)], "B", "D"),
+    	  edge([lineWidth(1)], "A", "E"),
+    	  edge([lineWidth(1)], "A", "H"),
+    	  edge([lineWidth(1)], "E", "F"),
+    	  edge([lineWidth(1)], "E", "G"),
+    	  edge([lineWidth(1)], "E", "I"),
+    	  edge([lineWidth(1)], "E", "J")
+    	  
+    	];	    
     render(tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes, edges));
 }
 
 // Tree
 
-public void tree8(){
+public void tree9(){
 
    nodes =
      	[ box([id("A"), width(10), height(20), fillColor("green")]),
