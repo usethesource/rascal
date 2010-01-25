@@ -3,6 +3,7 @@ module Set
 /*
  * Library functions for sets:
  * - getOneFrom
+ * - index
  * - isEmpty
  * - mapper
  * - max
@@ -22,9 +23,30 @@ module Set
 @javaClass{org.meta_environment.rascal.library.Set}
 public &T java getOneFrom(set[&T] st);
 
+/*
+public &T getOneFrom(set[&T] s) {
+  for (x <- s) return x;
+}
+*/
+
+@doc{Return a mapping of elements to indices}
+public map[&T,int] index(set[&T] s) {
+  result = ();
+  i = 0;
+  for (x <- s) {
+    result[x] = i;
+    i += 1;
+  }
+  return result;
+}
+
 @doc{is set empty?}
 @javaClass{org.meta_environment.rascal.library.Set}
 public bool java isEmpty(set[&T] st);
+
+public bool isEmpty(set[&T] s) {
+  return s == {};
+}
 
 @doc{Apply a function to each element of a set}
 public set[&U] mapper(set[&T] st, &U (&T) fn)
