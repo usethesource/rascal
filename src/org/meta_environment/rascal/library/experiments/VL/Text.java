@@ -58,7 +58,7 @@ public class Text extends VELEM {
 	
 		if(debug)System.err.printf("text.draw: %s, left=%d, top=%d, width=%f, height=%f\n", txt, left, top, width, height);
 		if(height > 0 && width > 0){
-			int angle = getTextAngleProperty();
+			float angle = getTextAngleProperty();
 
 			vlp.textAlign(PConstants.CENTER,PConstants.CENTER);
 			if(angle != 0){

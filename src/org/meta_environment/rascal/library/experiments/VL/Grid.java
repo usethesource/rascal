@@ -30,8 +30,8 @@ public class Grid extends Compose {
 		float w = 0;
 		int nrow = 0;
 		
-		int hgap = getHGapProperty();
-		int vgap = getVGapProperty();
+		float hgap = getHGapProperty();
+		float vgap = getVGapProperty();
 		
 		int lastRow = (hgap == 0) ? 0 : velems.length / (1 + (int) (width / hgap));
 		if(debug)System.err.printf("lastRow = %d\n", lastRow);
@@ -87,24 +87,6 @@ public class Grid extends Compose {
 			VELEM ve = velems[i];
 			
 			if(debug)System.err.printf("i=%d: %f, %f, left=%f, top=%f\n", i, xElem[i], yElem[i], left, top);
-
-//			float veLeft;
-//			if(ve.isLeftAligned())
-//				veLeft = left + extLeft + xElem[i];
-//			else if(ve.isRightAligned())
-//				veLeft = left + extLeft + xElem[i] - ve.width;
-//			else
-//				veLeft = left + extLeft + xElem[i] - ve.width/2;
-//			
-//			float veTop;
-//			if(ve.isTopAligned())
-//				veTop = top + extTop + yElem[i];
-//			else if(ve.isBottomAligned())
-//				veTop = top + extTop + yElem[i] - ve.height;
-//			else
-//				veTop = top + extTop + yElem[i] - ve.height/2;
-//			
-//			ve.draw(veLeft, veTop);
 			
 			ve.draw(left + extLeft + xElem[i] - ve.leftAnchor(), top + extTop + yElem[i] - ve.topAnchor());
 		}

@@ -216,32 +216,6 @@ public void pack1(){
   render(pack([width(200), height(170), lineWidth(0), gap(10), top()], boxes));
 }
 
-// Pie chart
-
-public void pie1(){
-     elems =
-     	[ box([size(10,100), fillColor("green")])  ,
-     	  box([size(20,150), fillColor("red")]),
-     	  box([size(30,200), fillColor("blue")])
-     	];
-    	    
-    render(pie([fromAngle(0), toAngle(360), innerRadius(0), gap(0), lineWidth(5), lineColor(0)], elems));
-}
-
-// Two overlayed Pie charts
-
-public void pie2(){
-     elems =
-     	[ box([width(10), height(100), fillColor("green")])  ,
-     	  box([width(20), height(150), fillColor("red")]),
-     	  box([width(30), height(200), fillColor("blue")])
-     	];
-    	    
-    p1 = pie([fromAngle(0), toAngle(320), innerRadius(50), gap(0), lineWidth(5), lineColor(0)], elems);
-    p2 = pie([fromAngle(0), toAngle(270), innerRadius(0), gap(0), lineWidth(5), lineColor(0)], elems);
-    render(overlay([center()], [p1, p2]));
-}
-
 // Tree: 1 node
 
 public void tree1(){
