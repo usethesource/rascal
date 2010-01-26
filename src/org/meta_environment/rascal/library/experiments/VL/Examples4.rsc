@@ -34,6 +34,11 @@ public void w1f(){
   render(wedge([fromAngle(10), toAngle(350), fillColor("blue"), height(100), innerRadius(20)]));
 }
 
+public void w1g(){
+  render(wedge([fromAngle(10), toAngle(90), fillColor("blue"), height(100), innerRadius(20)], 
+               box([size(80,80), fillColor("yellow")])));
+}
+
 public void w2a(){
   render(wedge([fromAngle(100), toAngle(170), fillColor("green"),height(100),  innerRadius(20)]));
 }
@@ -45,7 +50,7 @@ public void w2b(){
 public void w2c(){
   render(wedge([fromAngle(100), toAngle(350), fillColor("green"), height(100), innerRadius(20)]));
 }
-//TODO
+
 public void w2d(){
   render(wedge([fromAngle(100), toAngle(45), fillColor("green"), height(100), innerRadius(20)]));
 }
@@ -57,7 +62,7 @@ public void w3a(){
 public void w3b(){
   render(wedge([fromAngle(190), toAngle(350), fillColor("red"), height(100), innerRadius(20)]));
 }
-//TODO
+
 public void w3c(){
   render(wedge([fromAngle(190), toAngle(45), fillColor("red"), height(100), innerRadius(20)]));
 }
@@ -66,15 +71,15 @@ public void w4a(){
   render(wedge([fromAngle(280), toAngle(350), fillColor("yellow"),height(100),  innerRadius(20)]));
 }
 
-// TODO
 public void w4b(){
   render(wedge([fromAngle(280), toAngle(80), fillColor("yellow"), height(100), innerRadius(20)]));
 }
 
+
 public void w4c(){
   render(wedge([fromAngle(280), toAngle(180), fillColor("yellow"), height(100), innerRadius(20)]));
 }
-//TODO
+
 public void w4d(){
   render(wedge([fromAngle(280), toAngle(260), fillColor("yellow"), height(100), innerRadius(20)]));
 }
@@ -121,7 +126,6 @@ public void w9(){
     ]));
 }
 
-//TODO
 public void w10(){
   render(overlay([ height(100) ],
  	 [wedge([fromAngle(270), toAngle(90), fillColor("blue"), innerRadius(20)]),
@@ -131,6 +135,6 @@ public void w10(){
 
 public void wn(int delta){
    render(overlay([ height(100) ],
- 		[ wedge([fromAngle(a), toAngle(a+delta), fillColor("yellow"), innerRadius(50)]) | a <- [0, delta .. 360 - delta]]
+ 		[ wedge([fromAngle(a), toAngle(a+delta), fillColor("yellow"), innerRadius(50)], text([fontColor("black")], "<a>")) | a <- [0, delta .. 360 - delta]]
  		));
 }

@@ -18,12 +18,18 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
  * 
  */
 
+/**
+ * @author paulk
+ *
+ */
 public class Container extends VELEM {
 
 	protected VELEM inside;
-	private static boolean debug = false;
+	private static boolean debug = true;
+	int hgap;
+	int vgap;
 
-	public Container(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
+	public Container(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		if(inside != null)
 			this.inside = VELEMFactory.make(vlp, inside, this.properties, ctx);
@@ -44,8 +50,8 @@ public class Container extends VELEM {
 			width = getWidthProperty();
 			height = getHeightProperty();
 			if(inside != null){
-				int hgap = getHGapProperty();
-				int vgap = getVGapProperty();
+				hgap = getHGapProperty();
+				vgap = getVGapProperty();
 				inside.bbox();
 				if(width == 0 && height == 0){
 					width = inside.width + 2 * hgap;
@@ -62,7 +68,7 @@ public class Container extends VELEM {
 	@Override
 	void draw() {
 		applyProperties();
-		if(debug)System.err.printf("box.draw: left=%d, top=%d, width=%f, height=%f, hanchor=%f, vanchor=%f\n", left, top, width, height, properties.hanchor, properties.vanchor);
+		if(debug)System.err.printf("container.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", left, top, width, height, properties.hanchor, properties.vanchor);
 
 		VELEM insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
@@ -71,12 +77,9 @@ public class Container extends VELEM {
 			if(height > 0 && width > 0){
 				drawContainer();
 				if(inside != null){
-					int hgap = getHGapProperty();
-					int vgap = getVGapProperty();
-					if(debug)System.err.printf("box.draw2: hgap=%d, vgap=%d, inside.width=%f\n", hgap, vgap, inside.width);
-					if(inside.width + 2*hgap <= width && inside.height + 2*vgap <= height){
-						inside.draw(left + hgap + properties.hanchor*(width - inside.width - 2 * hgap),
-								    top  + vgap + properties.vanchor*(height - inside.height - 2 * vgap));
+					if(debug)System.err.printf("container.draw2: hgap=%d, vgap=%d, inside.width=%f\n", hgap, vgap, inside.width);
+					if(insideFits()){
+						insideDraw();
 					} else if(vlp.isRegisteredAsMouseOver(this)){
 						inside.draw(left + (width - inside.width )/2, top + (height - inside.height)/2);
 					}
@@ -85,12 +88,26 @@ public class Container extends VELEM {
 		}
 	}
 	
+	/**
+	 * @return true if the inside element fits in the current container.
+	 */
+	boolean insideFits(){
+		return inside.width + 2*hgap <= width && inside.height + 2*vgap <= height;
+	}
+	
+	/**
+	 * If the inside  element fits, draw it.
+	 */
+	void insideDraw(){
+		inside.draw(left + hgap + properties.hanchor*(width  - inside.width  - 2 * hgap),
+			    	top  + vgap + properties.vanchor*(height - inside.height - 2 * vgap));
+	}
+	
 	
 	/**
 	 * drawContainer: draws the graphics associated with the container (if any). It is overridden by subclasses.
 	 */
 	void drawContainer(){
-		
 	}
 	
 	@Override

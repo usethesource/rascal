@@ -40,8 +40,8 @@ public class Overlay extends Compose {
 		applyProperties();
 		if(debug)System.err.printf("overlay.draw: left=%f, top=%f\n", left, top);
 		for(VELEM ve : velems){	
-			ve.drawAnchor(left + leftAnchor, top + topAnchor);
-			//ve.draw(left + leftAnchor - ve.leftAnchor(), top + topAnchor - ve.topAnchor());
+			//ve.drawAnchor(left + leftAnchor, top + topAnchor);
+			ve.draw(left + leftAnchor - ve.leftAnchor(), top + topAnchor - ve.topAnchor());
 		}
 	}
 

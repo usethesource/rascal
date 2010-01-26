@@ -5,12 +5,8 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
-import processing.core.PConstants;
 
-
-public class Wedge extends VELEM {
-	@SuppressWarnings("unused")
-	private VELEM inside;
+public class Wedge extends Container {
 	private float fromAngle;
 	private float toAngle;
 	private float radius;
@@ -20,17 +16,28 @@ public class Wedge extends VELEM {
 	private float topAnchor;
 	private float bottomAnchor;
 	
-	float sinFrom;
-	float cosFrom;
-	float sinTo;
-	float cosTo;
+	private float centerX;
+	private float centerY;
+	
+	float Ax;	// start of outer arc (relative to center)
+	float Ay;
+	
+	float Bx;	// end of outer arc
+	float By;
+	
+	float Cx;	// start of inner arc
+	float Cy;
+	
+	float Dx;	// end of inner arc
+	float Dy;
+	
+	int qFrom;
+	int qTo;
 	
 	private static boolean debug = true;
 
 	public Wedge(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);
-		if(inside != null)
-			this.inside = VELEMFactory.make(vlp, inside, this.properties, ctx);
+		super(vlp, inheritedProps, props, inside, ctx);
 	}
 	
 	// Determine quadrant of angle according to numbering scheme:
@@ -38,15 +45,18 @@ public class Wedge extends VELEM {
 	//  2  |  1
 	
 	private int quadrant(double angle){
-		System.err.printf("angle 1 = %f\n", angle);
-		//System.err.printf("angle 2 = %f\n", angle);
+		if(debug)System.err.printf("angle 1 = %f\n", angle);
+		if(angle < 0)
+			return quadrant(angle +2 * PApplet.PI);
 		if( angle <=  PApplet.PI/2)
 			return 1;
 		if( angle <=  PApplet.PI)
 			return 2;
 		if( angle <=  1.5 * PApplet.PI)
 			return 3;
-		return 4;
+		if(angle <= 2 * PApplet.PI)
+			return 4;
+		return quadrant(angle - 2 * PApplet.PI);
 	}
 
 	@Override
@@ -61,21 +71,50 @@ public class Wedge extends VELEM {
 		fromAngle = PApplet.radians(getFromAngleProperty());
 		toAngle= PApplet.radians(getToAngleProperty());
 		
-		sinFrom = PApplet.sin(fromAngle);
-		cosFrom = PApplet.cos(fromAngle);
-		sinTo = PApplet.sin(toAngle);
-		cosTo = PApplet.cos(toAngle);
+		if(toAngle < fromAngle)
+			toAngle += 2 * PApplet.PI;
 		
-		float rsinFrom = radius * Math.abs(sinFrom);
-		float rcosFrom = radius * Math.abs(cosFrom);
+		/*
+		 * Consider mouseOver
+		 */
+		VELEM insideForMouseOver = getInsideForMouseOver();
+		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
+			insideForMouseOver.bbox(left, top);
+			this.width = insideForMouseOver.width;
+			this.height = insideForMouseOver.height;
+			return;
+		}
+		
+		if(inside != null)	// Compute bounding box of inside object.
+			inside.bbox();
+		
+		float sinFrom = PApplet.sin(fromAngle);
+		float cosFrom = PApplet.cos(fromAngle);
+		float sinTo = PApplet.sin(toAngle);
+		float cosTo = PApplet.cos(toAngle);
+		
+		float rsinFrom = radius * abs(sinFrom);
+		float rcosFrom = radius * abs(cosFrom);
 		
 		float rsinTo = radius * Math.abs(sinTo);
 		float rcosTo = radius * Math.abs(cosTo);
 		
-		int qFrom = quadrant(fromAngle);
-		int qTo = quadrant(toAngle);
+		Ax = radius*cosFrom;  // start of outer arc
+		Ay = radius*sinFrom;
 		
-		System.err.printf("qFrom=%d, qTo=%d\n", qFrom, qTo);
+		Bx = radius*cosTo;    // end of outer arc
+		By = radius*sinTo;
+		
+		Cx = innerRadius*cosTo;  // start of inner arc
+		Cy = innerRadius*sinTo;
+		
+		Dx = innerRadius*cosFrom; // end of inner arc
+		Dy = innerRadius*sinFrom;
+		
+		qFrom = quadrant(fromAngle);
+		qTo = quadrant(toAngle);
+		
+		if(debug)System.err.printf("qFrom=%d, qTo=%d\n", qFrom, qTo);
 		
 		/*
 		 * Perform a case analysis to determine the anchor values.
@@ -88,7 +127,7 @@ public class Wedge extends VELEM {
 			switch(qFrom){
 			case 1:
 				switch(qTo){
-				case 1:	leftAnchor = 0; 		rightAnchor = rcosFrom; topAnchor = 0; 		bottomAnchor = rsinTo; break;
+				case 1:	leftAnchor = 0; 		rightAnchor = rcosFrom; topAnchor = 0; 		bottomAnchor = rsinTo;
 				case 2:	leftAnchor = rcosTo; 	rightAnchor = rcosFrom; topAnchor = 0; 		bottomAnchor = radius; break;
 				case 3:	leftAnchor = radius;	rightAnchor = rcosFrom;	topAnchor = rsinTo;	bottomAnchor = radius; break;
 				case 4:	leftAnchor = radius;	rightAnchor = Math.max(
@@ -138,64 +177,70 @@ public class Wedge extends VELEM {
 				fromAngle, toAngle, leftAnchor, rightAnchor, topAnchor, bottomAnchor, width, height);
 	}
 	
-	@Override
-	void draw() {
-		if(debug)System.err.printf("wedge.draw: %f, %f\n", left, top);
-		drawAnchor(left + leftAnchor, top + topAnchor);
-	}
 	
-	void arcVertex(float cx, float cy, float r, float fromAngle, float toAngle){
-		System.err.printf("arcvertex: fromAngle=%f, toAngle=%f\n", fromAngle, toAngle);
+	
+	/**
+	 * arcVertex: draw an arc as a bezierVertex that is part of a beginShape() ... endShape() sequence
+	 * @param r			radius
+	 * @param fromAngle	begin angle
+	 * @param toAngle	end angle
+	 */
+	void arcVertex(float r, float fromAngle, float toAngle){
+		if(debug)System.err.printf("arcVertex: fromAngle=%f, toAngle=%f\n", fromAngle, toAngle);
 	    if(abs(toAngle - fromAngle) < PApplet.PI/2){
-			float middleAngle = (toAngle - fromAngle)/2;
-			float middleR = r / PApplet.cos(middleAngle);
+			float middleAngle = (toAngle - fromAngle)/2;		// fromAngle + middleAngle == middle of sector
+			float middleR = abs(r / PApplet.cos(middleAngle));	// radius of control point M
 			
-			float Mx = cx + middleR * PApplet.cos(fromAngle + middleAngle);
-			float My = cy + middleR * PApplet.sin(fromAngle + middleAngle);
-			float Fx = cx + r * PApplet.cos(fromAngle);
-			float Fy = cy + r * PApplet.sin(fromAngle);
+			float Mx = centerX + middleR * PApplet.cos(fromAngle + middleAngle);	// coordinates of M
+			float My = centerY + middleR * PApplet.sin(fromAngle + middleAngle);
 			
-			float Tx = cx + r * PApplet.cos(toAngle);
-			float Ty = cy + r * PApplet.sin(toAngle);
-			System.err.printf("arcVertex: fromAngle=%f, middleAngle=%f, toAngle=%f, r=%f, middleR=%f\n", 
-							fromAngle, middleAngle, toAngle, r, middleR);
-			System.err.printf("arcVertex: Fx=%f, Fy=%f, Mx=%f, My=%f, Tx=%f, Ty=%f\n",
-								Fx, Fy, Mx, My, Tx, Ty);
+			float Fx = centerX + r * PApplet.cos(fromAngle);			// coordinates of start point
+			float Fy = centerY + r * PApplet.sin(fromAngle);
+			
+			float Tx = centerX + r * PApplet.cos(toAngle);			// coordinates of end point
+			float Ty = centerY + r * PApplet.sin(toAngle);
+			if(debug){
+				System.err.printf("arcVertex: fromAngle=%f, middleAngle=%f, toAngle=%f, r=%f, middleR=%f\n", 
+								fromAngle, middleAngle, toAngle, r, middleR);
+				System.err.printf("arcVertex: Fx=%f, Fy=%f, Mx=%f, My=%f, Tx=%f, Ty=%f\n",
+									Fx, Fy, Mx, My, Tx, Ty);
+			}
+			/*
+			 * Add a bezierVertex between (Fx,Fy) and (Tx,Ty) using (Mx,My) as control point
+			 */
 			vlp.bezierVertex(Fx, Fy, Mx, My, Tx, Ty);
 	    } else {
+	    	/*
+	    	 * Split when difference is larger than PI/2
+	    	 */
 	    	float medium = (toAngle - fromAngle)/2;
-	    	arcVertex(cx, cy, r, fromAngle, fromAngle + medium);
-	    	arcVertex(cx, cy, r, fromAngle + medium, toAngle);
+	    	arcVertex(r, fromAngle, fromAngle + medium);
+	    	arcVertex(r, fromAngle + medium, toAngle);
 	    }
 	}
 	
 	@Override
-	void drawAnchor(float cx, float cy) {
-		if(debug)System.err.printf("wedge.drawAnchor: %f, %f\n", cx, cy);
+	void drawContainer() {
+		centerX = left + leftAnchor;
+		centerY = top + topAnchor;
+		
+		if(debug)System.err.printf("wedge.drawContainer: %f, %f\n", centerX, centerY);
 		
 		applyProperties();
-		
-		float Ax = cx + radius*cosFrom;  // start of outer arc
-		float Ay = cy + radius*sinFrom;
-		
-//		float Bx = cx + radius*cosTo;    // end of outer arc
-//		float By = cy + radius*sinTo;
-		
-		float Cx = cx + innerRadius*cosTo;  // start of inner arc
-		float Cy = cy + innerRadius*sinTo;
-		
-//		float Dx = cx + innerRadius*cosFrom; // end of inner arc
-//		float Dy = cy + innerRadius*sinFrom;
 			
 		vlp.beginShape();
-		vlp.vertex(Ax, Ay);
-		System.err.printf("outer arc\n");
-		arcVertex(cx, cy, radius, fromAngle, toAngle);
-		vlp.vertex(Cx, Cy);
-		System.err.printf("inner arc\n");
-		arcVertex(cx, cy, innerRadius, toAngle, fromAngle);
-		vlp.vertex(Ax,Ay);
+		vlp.vertex(centerX + Ax, centerY + Ay);
+		arcVertex(radius, fromAngle, toAngle);
+		vlp.vertex(centerX + Cx, centerY + Cy);
+		arcVertex(innerRadius, toAngle, fromAngle);
+		vlp.vertex(centerX + Ax, centerY + Ay);
 		vlp.endShape();
+	}
+	
+	@Override 
+	boolean insideFits(){
+		System.err.printf("Wedge.insideFits!\n");
+		return true;
 	}
 	
 	@Override
