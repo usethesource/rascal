@@ -6,8 +6,6 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.library.experiments.VL.PropertyManager.Property;
 import org.meta_environment.values.ValueFactoryFactory;
 
-import processing.core.PApplet;
-
 /**
  * Visual elements are the foundation of Rascal visualisation. They are based on a bounding box + anchor model. 
  * The bounding box defines the maximal dimensions of the element. The anchor defines its alignment properties.
@@ -208,20 +206,20 @@ public abstract class VELEM implements Comparable<VELEM> {
 	 * @param top	y-coordinate of corner
 	 */
 	void draw(float left, float top){
-		this.left = PApplet.round(left);
-		this.top = PApplet.round(top);
+		this.left = left;
+		this.top = top;
 		draw();
 	}
 	
-	/**
-	 * Draw element at its anchor position. Intended to avoid round-off errors due to repeated computation.
-	 * @param ax	x-coordinate of anchor
-	 * @param ay	y-coordinate of anchor
-	 */
-	
-	void drawAnchor(float ax, float ay){
-		draw(ax - leftAnchor(), ay - topAnchor());
-	}
+//	/**
+//	 * Draw element at its anchor position. Intended to avoid round-off errors due to repeated computation.
+//	 * @param ax	x-coordinate of anchor
+//	 * @param ay	y-coordinate of anchor
+//	 */
+//	
+//	void drawAnchor(float ax, float ay){
+//		draw(ax - leftAnchor(), ay - topAnchor());
+//	}
 	
 	/**
 	 * Compute effect of a mouseOver on this element
@@ -239,5 +237,4 @@ public abstract class VELEM implements Comparable<VELEM> {
 		}
 		return false;
 	}
-	
 }
