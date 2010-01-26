@@ -11,7 +11,7 @@ import Set;
 import IO;
 
 public void w1a(){
-  render(wedge([fromAngle(10), toAngle(80), fillColor("blue"), height(100), innerRadius(20)]));
+  render(wedge([fromAngle(10), toAngle(90), fillColor("blue"), height(100), innerRadius(20)]));
 }
 
 public void w1b(){
@@ -19,10 +19,18 @@ public void w1b(){
 }
 
 public void w1c(){
-  render(wedge([fromAngle(10), toAngle(260), fillColor("blue"), height(100), innerRadius(20)]));
+  render(wedge([fromAngle(10), toAngle(180), fillColor("blue"), height(100), innerRadius(20)]));
 }
 
 public void w1d(){
+  render(wedge([fromAngle(10), toAngle(190), fillColor("blue"), height(100), innerRadius(20)]));
+}
+
+public void w1e(){
+  render(wedge([fromAngle(10), toAngle(260), fillColor("blue"), height(100), innerRadius(20)]));
+}
+
+public void w1f(){
   render(wedge([fromAngle(10), toAngle(350), fillColor("blue"), height(100), innerRadius(20)]));
 }
 
@@ -58,6 +66,7 @@ public void w4a(){
   render(wedge([fromAngle(280), toAngle(350), fillColor("yellow"),height(100),  innerRadius(20)]));
 }
 
+// TODO
 public void w4b(){
   render(wedge([fromAngle(280), toAngle(80), fillColor("yellow"), height(100), innerRadius(20)]));
 }
@@ -65,7 +74,7 @@ public void w4b(){
 public void w4c(){
   render(wedge([fromAngle(280), toAngle(180), fillColor("yellow"), height(100), innerRadius(20)]));
 }
-
+//TODO
 public void w4d(){
   render(wedge([fromAngle(280), toAngle(260), fillColor("yellow"), height(100), innerRadius(20)]));
 }
@@ -112,6 +121,7 @@ public void w9(){
     ]));
 }
 
+//TODO
 public void w10(){
   render(overlay([ height(100) ],
  	 [wedge([fromAngle(270), toAngle(90), fillColor("blue"), innerRadius(20)]),
