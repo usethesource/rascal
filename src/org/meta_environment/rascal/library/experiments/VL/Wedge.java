@@ -144,16 +144,36 @@ public class Wedge extends VELEM {
 		drawAnchor(left + leftAnchor, top + topAnchor);
 	}
 	
+	void arcVertex(float cx, float cy, float r, float fromAngle, float toAngle){
+		System.err.printf("arcvertex: fromAngle=%f, toAngle=%f\n", fromAngle, toAngle);
+	    if(abs(toAngle - fromAngle) < PApplet.PI/2){
+			float middleAngle = (toAngle - fromAngle)/2;
+			float middleR = r / PApplet.cos(middleAngle);
+			
+			float Mx = cx + middleR * PApplet.cos(fromAngle + middleAngle);
+			float My = cy + middleR * PApplet.sin(fromAngle + middleAngle);
+			float Fx = cx + r * PApplet.cos(fromAngle);
+			float Fy = cy + r * PApplet.sin(fromAngle);
+			
+			float Tx = cx + r * PApplet.cos(toAngle);
+			float Ty = cy + r * PApplet.sin(toAngle);
+			System.err.printf("arcVertex: fromAngle=%f, middleAngle=%f, toAngle=%f, r=%f, middleR=%f\n", 
+							fromAngle, middleAngle, toAngle, r, middleR);
+			System.err.printf("arcVertex: Fx=%f, Fy=%f, Mx=%f, My=%f, Tx=%f, Ty=%f\n",
+								Fx, Fy, Mx, My, Tx, Ty);
+			vlp.bezierVertex(Fx, Fy, Mx, My, Tx, Ty);
+	    } else {
+	    	float medium = (toAngle - fromAngle)/2;
+	    	arcVertex(cx, cy, r, fromAngle, fromAngle + medium);
+	    	arcVertex(cx, cy, r, fromAngle + medium, toAngle);
+	    }
+	}
+	
 	@Override
 	void drawAnchor(float cx, float cy) {
 		if(debug)System.err.printf("wedge.drawAnchor: %f, %f\n", cx, cy);
 		
 		applyProperties();
-		vlp.ellipseMode(PConstants.CENTER);
-		
-		float toAngle1 = fromAngle < toAngle ? toAngle : toAngle +2 * PApplet.PI;
-		
-		float delta = min(0.5f * PApplet.PI, toAngle1 - fromAngle);
 		
 		float Ax = cx + radius*cosFrom;  // start of outer arc
 		float Ay = cy + radius*sinFrom;
@@ -166,85 +186,16 @@ public class Wedge extends VELEM {
 		
 //		float Dx = cx + innerRadius*cosFrom; // end of inner arc
 //		float Dy = cy + innerRadius*sinFrom;
-		
-		// Empirical values for Bezier controls
-		float s;
-		if(delta <= PApplet.PI/4)
-			s = 1f;
-		else if(delta <= PApplet.PI/2)
-			s = 1.38f;
-		else if(delta <= PApplet.PI)
-			s = 10f;
-		else if (delta <= 1.5f + PApplet.PI)
-			s = 2.5f;
-		else
-			s = 3f;
 			
 		vlp.beginShape();
 		vlp.vertex(Ax, Ay);
-		System.err.printf("toAngle1=%f, delta=%f\n", toAngle1, delta);
-		
-		for(float angle = fromAngle; angle  < toAngle1; angle += delta){
-			
-			float next = min(angle + delta, toAngle1);
-			float middle = angle + (next-angle)/2;
-			System.err.printf("wedge.outer arc: angle=%f, middle=%f, next=%f\n", angle, middle, next);
-			
-			vlp.bezierVertex(cx + radius * PApplet.cos(angle), cy + radius * PApplet.sin(angle), 
-				 		 	 cx + s*radius * PApplet.cos(middle), cy + s*radius * PApplet.sin(middle),
-				 		 	 cx + radius * PApplet.cos(next), cy + radius * PApplet.sin(next));
-		}
-				
+		System.err.printf("outer arc\n");
+		arcVertex(cx, cy, radius, fromAngle, toAngle);
 		vlp.vertex(Cx, Cy);
-//		vlp.bezierVertex(Cx, Cy, cx + s*innerRadius * PApplet.cos(middle), cy + s*innerRadius * PApplet.sin(middle),
-//					Dx, Dy);
-
-		for(float angle = toAngle1; angle > fromAngle; angle -= delta){
-			float next = max(angle - delta, fromAngle);
-			float middle = angle - (angle - next)/2;
-			
-			System.err.printf("wedge.inner arc: angle=%f, middle=%f, next=%f\n", angle, middle, next);
-			vlp.bezierVertex(cx + innerRadius * PApplet.cos(angle), cy + innerRadius * PApplet.sin(angle), 
-				 		 	 cx + s*innerRadius * PApplet.cos(middle), cy + s*innerRadius * PApplet.sin(middle),
-				 		 	 cx + innerRadius * PApplet.cos(next), cy + innerRadius * PApplet.sin(next));
-		}
+		System.err.printf("inner arc\n");
+		arcVertex(cx, cy, innerRadius, toAngle, fromAngle);
 		vlp.vertex(Ax,Ay);
 		vlp.endShape();
-		
-//		vlp.beginShape();
-//		vlp.vertex(cx + innerRadius*cosFrom, cy + innerRadius*sinFrom);
-//		vlp.vertex(cx + radius*cosFrom, cy + radius*sinFrom);
-//		vlp.curveVertex(cx + radius*cosFrom, cy + radius*sinFrom);
-//		vlp.curveVertex(cx + radius*cosFrom, cy + radius*sinFrom);
-//		for(float angle = fromAngle + delta; angle < toAngle1; angle += delta)
-//			vlp.curveVertex(cx + radius * PApplet.cos(angle), cy + radius * PApplet.sin(angle));
-//		vlp.curveVertex(cx + radius*cosTo,   cy + radius*sinTo);
-//		vlp.curveVertex(cx + radius*cosTo,   cy + radius*sinTo);
-//				
-//		
-//		vlp.vertex(cx + innerRadius*cosTo, cy + innerRadius*sinTo);
-//		vlp.curveVertex(cx + innerRadius*cosTo, cy + innerRadius*sinTo);
-//		vlp.curveVertex(cx + innerRadius*cosTo, cy + innerRadius*sinTo);
-//		for(float angle = toAngle1 - delta; angle > fromAngle; angle -= delta)
-//			vlp.curveVertex(cx + innerRadius * PApplet.cos(angle), cy + innerRadius * PApplet.sin(angle));
-//		vlp.curveVertex(cx + innerRadius*cosFrom,   cy + innerRadius*sinFrom);
-//		vlp.curveVertex(cx + innerRadius*cosFrom,   cy + innerRadius*sinFrom);
-//		vlp.endShape();
-//		
-		
-		
-//		// Outer arc and radials
-//		System.err.printf("arc(cx=%f,cy=%f,w=%f,h=%f, fromAngle=%f,toAngle=%f)\n", cx, cy, 2*radius,2*radius, fromAngle, toAngle1);
-//		vlp.arc(cx, cy, 2*radius, 2*radius, fromAngle, toAngle1);
-//		vlp.line(cx + innerRadius*cosFrom, cy + innerRadius*sinFrom, cx + radius*cosFrom, cy + radius*sinFrom);
-//		vlp.line(cx + innerRadius*cosTo,   cy + innerRadius*sinTo,   cx + radius*cosTo,   cy + radius*sinTo);
-//		
-//		// Inner arc with background fill color
-//		if(innerRadius > 0){
-//			vlp.fill(255);
-//
-//			vlp.arc(cx, cy, 2*innerRadius, 2*innerRadius, fromAngle + lwAngleCorrection, toAngle1 - lwAngleCorrection);
-//		}
 	}
 	
 	@Override
