@@ -5,7 +5,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 public class VCat extends Compose {
 	
-	int vgap;
+	float vgap;
 	float leftAnchor = 0;
 	float rightAnchor = 0;
 	private static boolean debug = true;
@@ -23,7 +23,7 @@ public class VCat extends Compose {
 		leftAnchor = 0;
 		rightAnchor = 0;
 		vgap = getVGapProperty();
-		if(debug)System.err.printf("vertical.bbox: vgap=%d\n", vgap);
+		if(debug)System.err.printf("vertical.bbox: vgap=%f\n", vgap);
 		for(VELEM ve : velems){
 			ve.bbox();
 			leftAnchor = max(leftAnchor, ve.leftAnchor());
@@ -47,7 +47,7 @@ public class VCat extends Compose {
 
 		// Draw from top to bottom
 		for(int i = velems.length-1; i >= 0; i--){
-			if(debug)System.err.printf("vertical.draw: i=%d, vgap=%d, bottom=%f\n", i, vgap, bottom);
+			if(debug)System.err.printf("vertical.draw: i=%d, vgap=%f, bottom=%f\n", i, vgap, bottom);
 			VELEM ve = velems[i];
 			float h = ve.height;
 			ve.draw(left + leftAnchor - ve.leftAnchor(), bottom - h);

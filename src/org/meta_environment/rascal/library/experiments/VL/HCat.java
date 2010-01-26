@@ -8,7 +8,7 @@ import processing.core.PApplet;
 
 public class HCat extends Compose {
 	
-	int hgap;
+	float hgap;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
 	private static boolean debug = false;

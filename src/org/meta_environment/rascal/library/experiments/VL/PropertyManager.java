@@ -1,7 +1,5 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -18,8 +16,6 @@ public class PropertyManager implements Cloneable {
 
 	enum Property {
 		ANCHOR,
-//		BOTTOM, 
-//		CENTER,
 		CLOSED, 
 		CONNECTED,
 		CURVED,
@@ -29,23 +25,18 @@ public class PropertyManager implements Cloneable {
 		FONTSIZE, 
 		FROMANGLE,
 		GAP, 
-//		HCENTER, 
 		HANCHOR,
 		HEIGHT, 
 		HGAP, 
 		ID, 
 		INNERRADIUS, 
-//		LEFT,
 		LINECOLOR, 
 		LINEWIDTH, 
 		MOUSEOVER, 
-//		RIGHT, 
 		SIZE, 
 		TEXTANGLE, 
 		TOANGLE,
-//		TOP, 
 		VANCHOR,
-//		VCENTER, 
 		VGAP, 
 		WIDTH
 	}
@@ -53,8 +44,6 @@ public class PropertyManager implements Cloneable {
 	static final HashMap<String, Property> propertyNames = new HashMap<String, Property>() {
 		{
 			put("anchor", Property.ANCHOR);
-//			put("bottom", Property.BOTTOM);
-//			put("center", Property.CENTER);
 			put("closed", Property.CLOSED);
 			put("connected", Property.CONNECTED);
 			put("curved", Property.CURVED);
@@ -65,37 +54,48 @@ public class PropertyManager implements Cloneable {
 			put("fromAngle", Property.FROMANGLE);
 			put("gap", Property.GAP);
 			put("hanchor", Property.HANCHOR);
-//			put("hcenter", Property.HCENTER);
 			put("height", Property.HEIGHT);
 			put("hgap", Property.HGAP);                  // Only used internally
 			put("id", Property.ID);
 			put("innerRadius", Property.INNERRADIUS);
-//			put("left", Property.LEFT);
 			put("lineColor", Property.LINECOLOR);
 			put("lineWidth", Property.LINEWIDTH);
 			put("mouseOver", Property.MOUSEOVER);
-//			put("right", Property.RIGHT);
 			put("size", Property.SIZE);
 			put("textAngle", Property.TEXTANGLE);
 			put("toAngle", Property.TOANGLE);
-//			put("top", Property.TOP);
 			put("vanchor", Property.VANCHOR);
-//			put("vcenter", Property.VCENTER);
 			put("vgap", Property.VGAP);                 // Only used internally
 			put("width", Property.WIDTH);
 		}
 	};
-
-	EnumMap<Property, Integer> intProperties;
-	EnumMap<Property, String> strProperties;
-	EnumSet<Property> boolProperties;
-	EnumSet<Property> defined;
-	float hanchor;
+	
+	boolean closed;
+	boolean connected;
+	boolean curved;
+	int fillColor;
+	String font;
+	int fontColor;
+	int fontSize;
+	float fromAngle;
+	float hanchor;	
+	float height;
+	float hgap; 
+	String id;
+	float innerRadius; 
+	int lineColor;
+	int lineWidth;
+	float textAngle; 
+	float toAngle;
 	float vanchor;
+	float vgap;
+	float width;
+	
 	IList origMouseOverProperties = null;
 	boolean mouseOver = false;
 	PropertyManager mouseOverproperties = null;
 	protected VELEM mouseOverVElem = null;
+	
 	private VLPApplet vlp;
 	
 	private int getIntArg(IConstructor c){
@@ -113,6 +113,13 @@ public class PropertyManager implements Cloneable {
 	private float getRealArg(IConstructor c, int i){
 		return ((IReal) c.get(i)).floatValue();
 	}
+	
+	private float getIntOrRealArg(IConstructor c, int i){
+		if(c.get(i).getType().isIntegerType())
+			return  ((IInteger) c.get(i)).intValue();
+		else
+			return ((IReal) c.get(i)).floatValue();
+	}
 
 	private int getColorArg(IConstructor c, IEvaluatorContext ctx) {
 		IValue arg = c.get(0);
@@ -126,56 +133,13 @@ public class PropertyManager implements Cloneable {
 		}
 		return ((IInteger) arg).intValue();
 	}
-	
-	private void defInt(Property p, int n){
-		intProperties.put(p, n);
-		defined.add(p);
-	}
-	
-	private void defColor(Property p, IConstructor c, IEvaluatorContext ctx){
-		intProperties.put(p, getColorArg(c, ctx));
-		defined.add(p);
-	}
-	
-	private void defStr(Property p, String s){
-		strProperties.put(p,s);
-		defined.add(p); 
-	}
-	
-	private void defBool(Property p, boolean isTrue){
-		if(isTrue)
-			boolProperties.add(p);
-		else
-			boolProperties.remove(p);
-		defined.add(p);
-	}
-	
 
 	PropertyManager(VLPApplet vlp, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
 		this.vlp = vlp;
-		defined = EnumSet.noneOf(Property.class);
-		if(inherited != null){
-			intProperties = inherited.intProperties.clone();
-			boolProperties = inherited.boolProperties.clone();
-			strProperties = inherited.strProperties.clone();
-			hanchor = inherited.hanchor;
-			vanchor = inherited.vanchor;
-		} else {
-			intProperties = new EnumMap<Property, Integer>(Property.class);
-			strProperties = new EnumMap<Property, String>(	Property.class);
-			boolProperties = EnumSet.of(
-//					Property.BOTTOM,
-					Property.CLOSED, 
-					Property.CONNECTED, 
-					Property.CURVED
-//					Property.HCENTER, 
-//					Property.LEFT, 
-//					Property.TOP, 
-//					Property.RIGHT, 
-//					Property.VCENTER
-					);
+		if(inherited != null)
+			importProperties(inherited);
+		else
 			setDefaults();
-		}
 		
 		for (IValue v : props) {
 			IConstructor c = (IConstructor) v;
@@ -191,56 +155,38 @@ public class PropertyManager implements Cloneable {
 				vanchor = vanchor < 0 ? 0 : (vanchor > 1 ? 1 : vanchor);
 				System.err.printf("anchor: %f, %f\n", hanchor, vanchor);
 				break;
-			
-//			case BOTTOM:
-//				defBool(Property.BOTTOM, true); 
-//				defBool(Property.TOP, false); 
-//				defBool(Property.VCENTER, false);
-//				vanchor = 1.0f;
-//				break;
-//				
-//			case CENTER:
-//				defBool(Property.HCENTER, true);	
-//				defBool(Property.LEFT, false);	
-//				defBool(Property.RIGHT, false);
-//				
-//				defBool(Property.VCENTER, true);	
-//				defBool(Property.TOP, false);	
-//				defBool(Property.BOTTOM, false);
-//				hanchor = vanchor = 0.5f;
-//				break;
 				
 			case CLOSED:
-				defBool(Property.CLOSED, true); break;
+				closed = true; break;
 				
 			case CONNECTED:
-				defBool(Property.CONNECTED, true); break;
+				connected = true; break;
 				
 			case CURVED:
-				defBool(Property.CURVED, true); break;
+				curved = true; break;
 			
 			case FILLCOLOR:
-				defColor(Property.FILLCOLOR, c, ctx); 	break;
+				fillColor = getColorArg(c, ctx); break;
 				
 			case FONT:
-				defStr(Property.FONT, getStrArg(c)); break;
+				font = getStrArg(c); break;
 				
 			case FONTCOLOR:
-				defColor(Property.FONTCOLOR, c, ctx); 	break;
+				fontColor = getColorArg(c, ctx); break;
 				
 			case FONTSIZE:
-				defInt(Property.FONTSIZE,  getIntArg(c)); break;
+				fontSize = getIntArg(c); break;
 				
 			case FROMANGLE:
-				defInt(Property.FROMANGLE, getIntArg(c));	break;
+				fromAngle = getIntOrRealArg(c, 0); break;
 				
 			case GAP:
 				if(c.arity() == 1){
-					defInt(Property.HGAP, getIntArg(c, 0));
-					defInt(Property.VGAP, getIntArg(c, 0));
+					hgap =  vgap = getIntOrRealArg(c, 0);
+					
 				} else {
-					defInt(Property.HGAP, getIntArg(c, 0));
-					defInt(Property.VGAP, getIntArg(c, 1));
+					hgap = getIntOrRealArg(c, 0);
+					vgap = getIntOrRealArg(c, 1);
 				}
 				break;
 				
@@ -249,34 +195,20 @@ public class PropertyManager implements Cloneable {
 				hanchor = hanchor < 0 ? 0 : (hanchor > 1 ? 1 : hanchor);
 				break;
 				
-//			case HCENTER:
-//				defBool(Property.HCENTER, true);	
-//				defBool(Property.LEFT, false);	
-//				defBool(Property.RIGHT, false); 
-//				hanchor = 0.5f;
-//				break;
-				
 			case HEIGHT:
-				defInt(Property.HEIGHT, getIntArg(c));	break;
+				height =  getIntOrRealArg(c, 0); break;
 				
 			case ID:
-				defStr(Property.ID, getStrArg(c)); break;
+				id = getStrArg(c); break;
 				
 			case INNERRADIUS:
-				defInt(Property.INNERRADIUS, getIntArg(c)); break;
-				
-//			case LEFT:
-//				defBool(Property.LEFT, true);	
-//				defBool(Property.RIGHT, false); 
-//				defBool(Property.HCENTER, false);
-//				hanchor = 0f;
-//				break;
+				innerRadius = getIntOrRealArg(c, 0); break;
 				
 			case LINECOLOR:
-				defColor(Property.LINECOLOR, c, ctx); break;
+				lineColor = getColorArg(c, ctx); break;
 				
 			case LINEWIDTH:
-				defInt(Property.LINEWIDTH, getIntArg(c));	break;
+				lineWidth = getIntArg(c); break;
 
 			case MOUSEOVER:
 				origMouseOverProperties = (IList) c.get(0);
@@ -286,51 +218,28 @@ public class PropertyManager implements Cloneable {
 				}
 				break;	
 				
-//			case RIGHT:
-//				defBool(Property.RIGHT, true); 
-//				defBool(Property.LEFT, false); 
-//				defBool(Property.HCENTER, false);
-//				hanchor = 1f;
-//				break;
-				
 			case SIZE:
 				if(c.arity() == 1){
-					defInt(Property.WIDTH, getIntArg(c, 0));
-					defInt(Property.HEIGHT, getIntArg(c, 0));
+					width = height =  getIntOrRealArg(c, 0);
 				} else {
-					defInt(Property.WIDTH, getIntArg(c, 0));
-					defInt(Property.HEIGHT, getIntArg(c, 1));
+					width =  getIntOrRealArg(c, 0);
+					height =  getIntOrRealArg(c, 1);
 				}
 				break;
 				
 			case TEXTANGLE:
-				defInt(Property.TEXTANGLE,  getIntArg(c)); break;
+				textAngle = getIntOrRealArg(c, 0); break;
 				
 			case TOANGLE:
-				defInt(Property.TOANGLE, getIntArg(c)); break;
-				
-//			case TOP:
-//				defBool(Property.TOP, true); 
-//				defBool(Property.VCENTER, false);
-//				defBool(Property.BOTTOM, false); 
-//				vanchor = 0f;
-//				break;
+				toAngle = getIntOrRealArg(c, 0); break;
 				
 			case VANCHOR:
 				vanchor = getRealArg(c, 0);
 				vanchor = vanchor < 0 ? 0 : (vanchor > 1 ? 1 : vanchor);
-			
 				break;
-//			
-//			case VCENTER:
-//				defBool(Property.VCENTER, true);	
-//				defBool(Property.TOP, false);	
-//				defBool(Property.BOTTOM, false); 
-//				vanchor = 0.5f;
-//				break;
 			
 			case WIDTH:
-				defInt(Property.WIDTH, getIntArg(c)); break;
+				width = getIntOrRealArg(c, 0); break;
 				
 			default:
 				throw RuntimeExceptionFactory.illegalArgument(c, ctx
@@ -341,59 +250,59 @@ public class PropertyManager implements Cloneable {
 			mouseOverproperties = new PropertyManager(vlp, this, inherited.origMouseOverProperties, ctx);
 	}
 	
+	private void importProperties(PropertyManager inh) {
+		closed = inh.closed;
+		connected = inh.connected;
+		curved = inh.curved;
+		fillColor = inh.fillColor;
+		font = inh.font;
+		fontColor = inh.fontColor;
+		fontSize = inh.fontSize;
+		fromAngle = inh.fromAngle;
+		hanchor = inh.hanchor;
+		height = inh.height;
+		hgap = inh.hgap;
+		id = inh.id;
+		innerRadius = inh.innerRadius;
+		lineColor = inh.lineColor;
+		lineWidth = inh.lineWidth;
+		textAngle = inh.textAngle;
+		toAngle = inh.toAngle;
+		vanchor = inh.vanchor;
+		vgap = inh.vgap;
+		width = inh.width;
+	}
+	
 	private void setDefaults() {
-		defInt(Property.WIDTH, 0);
-		defInt(Property.HEIGHT, 0);
-		defInt(Property.HGAP, 0);
-		defInt(Property.VGAP, 0);
-		defInt(Property.LINEWIDTH, 1);
-		defInt(Property.FROMANGLE, 0);
-		defInt(Property.TOANGLE, 360);
-		defInt(Property.INNERRADIUS, 0);
-		
-		intProperties.put(Property.LINECOLOR,0);	defined.add(Property.LINECOLOR);
-		intProperties.put(Property.FILLCOLOR,255);	defined.add(Property.FILLCOLOR);
-		intProperties.put(Property.FONTCOLOR,0);	defined.add(Property.FONTCOLOR);
-		
-		defStr(Property.FONT, "Helvetica");
-		defStr(Property.ID, "");
-		
-		defInt(Property.FONTSIZE, 12);
-		defInt(Property.TEXTANGLE, 0);
-		
-//		defBool(Property.BOTTOM, false);
-		defBool(Property.CLOSED, false);
-		defBool(Property.CONNECTED, false);
-		defBool(Property.CURVED, false);
-//		defBool(Property.HCENTER, true);
-//		defBool(Property.LEFT, false);
-//		defBool(Property.RIGHT, false);
-//		defBool(Property.TOP, false);
-//		defBool(Property.VCENTER, true);
-		
-		hanchor = vanchor = 0.5f;
+		closed = false;
+		connected = false;
+		curved = false;
+		fillColor = 255;
+		font = "Helvetica";
+		fontColor = 0;
+		fontSize = 12;
+		fromAngle = 0;
+		hanchor = 0.5f;
+		height = 0;
+		hgap = 0;
+		id = "";
+		innerRadius = 0;
+		lineColor = 0;
+		lineWidth = 0;
+		textAngle = 0;
+		toAngle = 0;
+		vanchor = 0.5f;
+		vgap = 0;
+		width = 0;
 	}
-	
-	public int getInt(Property p){
-		return intProperties.get(p).intValue();
-	}
-	
-	public String getStr(Property p){
-		return strProperties.get(p);
-	}
-	
-	public boolean getBool(Property p){
-		return boolProperties.contains(p);
-	}
-	
 	public void applyProperties(){
 		if(mouseOver && mouseOverproperties != null)
 			mouseOverproperties.applyProperties();
 		else {
-			vlp.fill(getInt(Property.FILLCOLOR));
-			vlp.stroke(getInt(Property.LINECOLOR));
-			vlp.strokeWeight(getInt(Property.LINEWIDTH));
-			vlp.textSize(getInt(Property.FONTSIZE));
+			vlp.fill(fillColor);
+			vlp.stroke(lineColor);
+			vlp.strokeWeight(lineWidth);
+			vlp.textSize(fontSize);
 		}
 	}
 	
@@ -401,7 +310,7 @@ public class PropertyManager implements Cloneable {
 		if(mouseOver && mouseOverproperties != null)
 			mouseOverproperties.applyProperties();
 		else {
-			vlp.fill(getInt(Property.FONTCOLOR));
+			vlp.fill(fontColor);
 		}
 	}
 	

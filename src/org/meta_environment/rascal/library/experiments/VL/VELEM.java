@@ -69,32 +69,32 @@ public abstract class VELEM implements Comparable<VELEM> {
 		properties.applyFontColorProperty();
 	}
 	
-	protected int getHeightProperty(){
-		return properties.getInt(Property.HEIGHT);
+	protected float getHeightProperty(){
+		return properties.height;
 	}
 	
-	protected int getWidthProperty(){
-		return properties.getInt(Property.WIDTH);
+	protected float getWidthProperty(){
+		return properties.width;
 	}
 	
-	protected int getHGapProperty(){
-		return properties.getInt(Property.HGAP);
+	protected float getHGapProperty(){
+		return properties.hgap;
 	}
 	
-	protected int getVGapProperty(){
-		return properties.getInt(Property.VGAP);
+	protected float getVGapProperty(){
+		return properties.vgap;
 	}
 	
 	protected int getFillColorProperty(){
-		return properties.getInt(Property.FILLCOLOR);
+		return properties.fillColor;
 	}
 	
 	protected int getLineColorProperty(){
-		return properties.getInt(Property.LINECOLOR);
+		return properties.lineColor;
 	}
 	
 	protected int getLineWidthProperty(){
-		return properties.getInt(Property.LINEWIDTH);
+		return properties.lineWidth;
 	}
 	
 	protected float leftAnchor(){
@@ -114,47 +114,47 @@ public abstract class VELEM implements Comparable<VELEM> {
 	}
 	
 	protected boolean isClosed(){
-		return properties.getBool(Property.CLOSED);
+		return properties.closed;
 	}
 	
 	protected boolean isConnected(){
-		return properties.getBool(Property.CONNECTED);
+		return properties.connected;
 	}
 	
 	protected boolean isCurved(){
-		return properties.getBool(Property.CURVED);
+		return properties.curved;
 	}
 	
-	protected int getFromAngleProperty(){
-		return properties.getInt(Property.FROMANGLE);
+	protected float getFromAngleProperty(){
+		return properties.fromAngle;
 	}
 	
-	protected int getToAngleProperty(){
-		return properties.getInt(Property.TOANGLE);
+	protected float getToAngleProperty(){
+		return properties.toAngle;
 	}
 	
-	protected int getInnerRadiusProperty(){
-		return properties.getInt(Property.INNERRADIUS);
+	protected float getInnerRadiusProperty(){
+		return properties.innerRadius;
 	}
 	
 	protected String getIdProperty(){
-		return properties.getStr(Property.ID);
+		return properties.id;
 	}
 	
 	protected String getFontProperty(){
-		return properties.getStr(Property.FONT);
+		return properties.font;
 	}
 	
 	protected int getFontSizeProperty(){
-		return properties.getInt(Property.FONTSIZE);
+		return properties.fontSize;
 	}
 	
 	protected int getFontColorProperty(){
-		return properties.getInt(Property.FONTCOLOR);
+		return properties.fontColor;
 	}
 	
-	protected int getTextAngleProperty(){
-		return properties.getInt(Property.TEXTANGLE);
+	protected float getTextAngleProperty(){
+		return properties.textAngle;
 	}
 	
 	public boolean hasInteraction(){

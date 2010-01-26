@@ -32,8 +32,8 @@ public class Align extends Compose {
 		float hrow = 0;
 		float toprow = 0;
 		int nrow = 0;
-		int hgap = getHGapProperty();
-		int vgap = getVGapProperty();
+		float hgap = getHGapProperty();
+		float vgap = getVGapProperty();
 		for(int i = 0; i < velems.length; i++){
 			VELEM ve = velems[i];
 			ve.bbox();

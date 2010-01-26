@@ -474,13 +474,23 @@ public VELEM pieChart(str title, map[str, int] facts, ChartSetting settings...){
  	elems = [];
  	radius = 3*chartWidth/7;
  	ir = (ringHeight == 0) ? 0 : radius - ringHeight;
+ 	real total = 0.0;
+ 	for(v <- range(facts))
+ 		total += v;
+ 	
+ 	angle = 0.0;
  	for(fname <- facts){
  		fcolorName = palette(size(funColors));
    		funColors[fname] = color(fcolorName);
-    	elems += space([size(facts[fname], radius), fillColor(funColors[fname])]);
+   		delta = facts[fname] * 360 / total;
+    	elems += wedge([fromAngle(angle), toAngle(angle + delta),
+						height(radius), innerRadius(ir), fillColor(funColors[fname])],
+						box([fillColor("lightgrey"), gap(2)], text("<facts[fname]>"))  //TODO
+						);
+	    angle += delta;
     }
  
-    p = pie([fromAngle(0), toAngle(360), innerRadius(ir), gap(0), lineWidth(0), lineColor(0)], elems);
+    p = overlay([lineWidth(0), lineColor(0)], elems);
     
     return vcat([hcenter(), gap(20)],
     

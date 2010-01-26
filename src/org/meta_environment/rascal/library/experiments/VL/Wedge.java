@@ -10,7 +10,7 @@ public class Wedge extends Container {
 	private float fromAngle;
 	private float toAngle;
 	private float radius;
-	private int innerRadius;
+	private float innerRadius;
 	private float leftAnchor;
 	private float rightAnchor;
 	private float topAnchor;
@@ -31,8 +31,8 @@ public class Wedge extends Container {
 	float Dx;	// end of inner arc
 	float Dy;
 	
-	int qFrom;
-	int qTo;
+	int qFrom;	// Quadrant of fromAngle;
+	int qTo;	// Quadrant of toAngle;
 	
 	private static boolean debug = true;
 
@@ -127,7 +127,7 @@ public class Wedge extends Container {
 			switch(qFrom){
 			case 1:
 				switch(qTo){
-				case 1:	leftAnchor = 0; 		rightAnchor = rcosFrom; topAnchor = 0; 		bottomAnchor = rsinTo;
+				case 1:	leftAnchor = 0; 		rightAnchor = rcosFrom; topAnchor = 0; 		bottomAnchor = rsinTo; break;
 				case 2:	leftAnchor = rcosTo; 	rightAnchor = rcosFrom; topAnchor = 0; 		bottomAnchor = radius; break;
 				case 3:	leftAnchor = radius;	rightAnchor = rcosFrom;	topAnchor = rsinTo;	bottomAnchor = radius; break;
 				case 4:	leftAnchor = radius;	rightAnchor = Math.max(

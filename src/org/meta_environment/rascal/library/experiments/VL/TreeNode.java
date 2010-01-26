@@ -38,8 +38,8 @@ public class TreeNode extends VELEM {
 		velemNode.bbox(ileft,itop);
 		this.left = ileft;
 		this.top = itop;
-		int hgap = getHGapProperty();
-		int vgap = getVGapProperty();
+		float hgap = getHGapProperty();
+		float vgap = getVGapProperty();
 		float position = left + velemNode.width/2; // x position of center of node!
 		position = raster.leftMostPosition(position, top, velemNode.width, velemNode.height, hgap);
 		
@@ -93,7 +93,7 @@ public class TreeNode extends VELEM {
 		if(n > 0){
 			float nodeBottomX = velemNode.left + velemNode.width/2;
 			float nodeBottomY = top + velemNode.height;
-			int vgap = getVGapProperty();
+			float vgap = getVGapProperty();
 			final float childTop = nodeBottomY + vgap;
 			float horLineY = nodeBottomY + vgap/2;
 			if(squareStyle){

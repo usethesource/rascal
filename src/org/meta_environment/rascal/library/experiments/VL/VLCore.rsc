@@ -111,12 +111,18 @@ public str palette(int n){
 
 data VPROP =
 /* sizes */
-     width(int width)                   // sets width of element
-   | height(int height)                 // sets height of element
-   | size(int size)                     // sets width and height to same value
-   | size(int hor, int vert)            // sets width and height to separate values
-   | gap(int amount)                    // sets hor and vert gap between elements in composition to same value
-   | gap(int hor, int vert) 			// sets hor and vert gap between elements in composition to separate values
+     width(real width)                   // sets width of element
+   | width(int iwidth)
+   | height(real height)                 // sets height of element
+   | height(int iheight)
+   | size(real size)                     // sets width and height to same value
+   | size(int isize)
+   | size(real hor, real vert)            // sets width and height to separate values
+   | size(int ihor, int ivert)
+   | gap(real amount)                    // sets hor and vert gap between elements in composition to same value
+   | gap(int iamount)
+   | gap(real hor, real vert) 			// sets hor and vert gap between elements in composition to separate values
+   | gap(int ihor, int ivert)
    
 /* alignment */
      | anchor(real h, real v)           // horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
@@ -138,16 +144,21 @@ data VPROP =
    | fillColor(str colorName)           // named fill color
    
 /* wedge/pie attributes */
-   | fromAngle(int angle)
-   | toAngle(int angle)
-   | innerRadius(int radius)
+   | fromAngle(real angle)
+   | fromAngle(int iangle)
+   | toAngle(real angle)
+   | toAngle(int iangle)
+   | innerRadius(real radius)
+   | innerRadius(int iradius)
+
    
  /* font and text attributes */
    | font(str fontName)             	// named font
-   | fontSize(int size)                 // font size
+   | fontSize(int isize)                // font size
    | fontColor(Color textColor)         // font color
    | fontColor(str colorName)
-   | textAngle(int angle)               // text rotation
+   | textAngle(real angle)               // text rotation
+   | textAngle(int iangle) 
    
 /* interaction */
    | mouseOver(list[VPROP] props)       // switch to new properties when mouse is over element
@@ -164,7 +175,10 @@ data VPROP =
 /*
  * Vertex and Edge: auxiliary data types
  */
- 
+
+
+//TODO add real cases
+
 data Vertex = 
      vertex(int x, int y)                // vertex in a shape
    | vertex(int x, int y, VELEM marker)  // vertex with marker
