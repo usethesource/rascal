@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.library.experiments.VL;
 
 import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -12,7 +11,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 @SuppressWarnings("serial")
-public class PropertyManager implements Cloneable {
+public class PropertyManager {
 
 	enum Property {
 		ANCHOR,
@@ -100,10 +99,6 @@ public class PropertyManager implements Cloneable {
 	
 	private int getIntArg(IConstructor c){
 		return ((IInteger) c.get(0)).intValue();
-	}
-	
-	private int getIntArg(IConstructor c, int i){
-		return ((IInteger) c.get(i)).intValue();
 	}
 	
 	private String getStrArg(IConstructor c){
