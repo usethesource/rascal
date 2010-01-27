@@ -4,6 +4,13 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 
+/**
+ * Place elements on fixed grid positions. The width is determined by the width property, height is
+ * determined by number of elements.
+ * 
+ * @author paulk
+ *
+ */
 public class Grid extends Compose {
 	
 	float xElem[];

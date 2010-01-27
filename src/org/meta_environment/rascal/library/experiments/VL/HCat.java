@@ -6,6 +6,12 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import processing.core.PApplet;
 
 
+/**
+ * Horizontal composition of elements
+ * 
+ * @author paulk
+ *
+ */
 public class HCat extends Compose {
 	
 	float hgap;

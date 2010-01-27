@@ -6,6 +6,12 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
 
+/**
+ * A GraphEdge is created for each "edge" constructor that occurs in the graph.
+ * 
+ * @author paulk
+ *
+ */
 public class GraphEdge extends VELEM {
 	GraphNode from;
 	GraphNode to;

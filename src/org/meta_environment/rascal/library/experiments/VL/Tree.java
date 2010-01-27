@@ -14,6 +14,15 @@ import org.meta_environment.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
 
+/**
+ * Tree layout. Given a tree consisting of a list of nodes and edges, place them in a space conserving layout.
+ * We use the algorithm described in:
+ * E. M. Reingold, J. S. Tilford, Tidier Drawings of Trees, 
+ * IEEE Transactions on Software Engineering, Volume 7 ,  Issue 2  (March 1981), Pages: 223-228  
+ * 
+ * @author paulk
+ *
+ */
 public class Tree extends VELEM {
 	protected HashMap<String,TreeNode> nodeMap;
 	private HashSet<TreeNode> hasParent;

@@ -10,6 +10,17 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 import processing.core.PApplet;
 
+/**
+ * Graph layout. Given a list of nodes and edges a graph layout is computed with given size.
+ * We use a spring layout approach as described in 
+ * 
+ * 		Fruchterman, T. M. J., & Reingold, E. M. (1991). 
+ * 		Graph Drawing by Force-Directed Placement. 
+ * 		Software: Practice and Experience, 21(11).
+ * 
+ * @author paulk
+ *
+ */
 public class Graph extends VELEM {
 	protected ArrayList<GraphNode> nodes;
 	protected ArrayList<GraphEdge> edges;

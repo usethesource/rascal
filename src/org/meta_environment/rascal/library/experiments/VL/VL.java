@@ -16,6 +16,14 @@ import org.meta_environment.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
 
+/**
+ * 
+ * VL: Rascal library functions to access Processing's graphics operations.
+ * 
+ * @author paulk
+ *
+ */
+
 public class VL extends PApplet {
 
 	private  static final long serialVersionUID = 1L;

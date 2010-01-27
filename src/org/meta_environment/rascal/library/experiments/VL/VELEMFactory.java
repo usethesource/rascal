@@ -11,6 +11,13 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
+/**
+ * 
+ * VELEMFactory: factory for creating visual elements.
+ * 
+ * @author paulk
+ *
+ */
 @SuppressWarnings("serial")
 public class VELEMFactory {
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();

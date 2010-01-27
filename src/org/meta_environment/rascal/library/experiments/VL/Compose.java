@@ -5,6 +5,12 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
+/**
+ * Abstract class for the composition of a list of visual elements.
+ * 
+ * @author paulk
+ *
+ */
 public abstract class Compose extends VELEM {
 
 	protected VELEM[] velems;

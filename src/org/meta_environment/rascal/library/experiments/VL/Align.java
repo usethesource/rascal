@@ -4,6 +4,15 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 
+/**
+ * Align elements on consecutive rows. Width is determined by the width property, height is
+ * determined by the number and size of the elements. This is similar to aligning words in
+ * a text but is opposed to composition in a grid, where the elements are placed on fixed
+ * grid ositions.
+ * 
+ * @author paulk
+ *
+ */
 public class Align extends Compose {
 	
 	float leftElem[];

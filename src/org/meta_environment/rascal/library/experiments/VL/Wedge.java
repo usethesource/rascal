@@ -6,6 +6,20 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
 
+/**
+ * A wedge is a vee-shaped element mostly used in pie charts. 
+ * With a non-null inner radius wedge becomes a shape that can be used in ring strutcures.
+ * 
+ * Relevant properties:
+ * - height			radius
+ * - innerRadius
+ * - fromAngle		starting angle of wedge
+ * - toAngle		end angle of wedge
+ * 
+ * @author paulk
+ *
+ */
+
 public class Wedge extends Container {
 	private float fromAngle;
 	private float toAngle;

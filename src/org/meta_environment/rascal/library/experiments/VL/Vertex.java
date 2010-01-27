@@ -4,6 +4,13 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
+/**
+ * Vertex: a point that is part of a shape.
+ * TODO: subclass from container.
+ * 
+ * @author paulk
+ *
+ */
 public class Vertex extends VELEM {
 	VELEM marker;
 	int deltax;

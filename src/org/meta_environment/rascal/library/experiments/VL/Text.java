@@ -7,6 +7,12 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
+/**
+ * Text element.
+ * 
+ * @author paulk
+ *
+ */
 public class Text extends VELEM {
 
 	private String txt;
