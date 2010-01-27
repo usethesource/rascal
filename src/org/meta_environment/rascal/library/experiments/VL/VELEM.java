@@ -3,7 +3,6 @@ package org.meta_environment.rascal.library.experiments.VL;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
-import org.meta_environment.rascal.library.experiments.VL.PropertyManager.Property;
 import org.meta_environment.values.ValueFactoryFactory;
 
 /**
@@ -33,10 +32,10 @@ public abstract class VELEM implements Comparable<VELEM> {
 	
 	protected PropertyManager properties;
 	
-	protected float left;           // coordinates of top left corner of
+	protected float left;         // coordinates of top left corner of
 	protected float top; 			// the element's bounding box
-	protected float width;			// width of element
-	protected float height;			// height of element
+	protected float width;		// width of element
+	protected float height;		// height of element
 	
 	VELEM(VLPApplet vlp, IEvaluatorContext ctx){
 		this(vlp, null,ValueFactoryFactory.getValueFactory().list(), ctx);
