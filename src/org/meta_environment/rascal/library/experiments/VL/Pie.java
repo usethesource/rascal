@@ -6,6 +6,15 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
+
+
+/**
+ * OBSOLETE: REPLACED BY WEDGE
+ * 
+ * @author paulk
+ *
+ */
+
 public class Pie extends Compose {
 	float fromAngle = 0;
 	float toAngle = PApplet.PI;

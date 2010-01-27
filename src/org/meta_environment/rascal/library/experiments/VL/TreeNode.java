@@ -7,6 +7,12 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
 
+/**
+ * A TreeNode is created for each "node" constructor that occurs in the tree.
+ * 
+ * @author paulk
+ *
+ */
 public class TreeNode extends VELEM {
 	
 	VELEM velemNode;

@@ -18,10 +18,12 @@ import org.meta_environment.values.ValueFactoryFactory;
  * Still looking for a good name for "visual elements" Candidates are:
  * - Figure
  * - Picture
+ * - Pictorial
  * - Diagram
  * - Shape
  * - Mark
  * - Visual
+ * - Sketch
  */
 
 public abstract class VELEM implements Comparable<VELEM> {

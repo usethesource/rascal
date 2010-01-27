@@ -6,6 +6,17 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import processing.core.PConstants;
 
 
+/**
+ * Arbitrary shape built from Vertices.
+ * 
+ * Relevant properties:
+ * connected:	connect vertices with lines
+ * closed:		make a closed shape
+ * curved:		connect vertices with a spline
+ * 
+ * @author paulk
+ *
+ */
 public class Shape extends Compose {
 	static boolean debug = false;
 

@@ -3,6 +3,12 @@ package org.meta_environment.rascal.library.experiments.VL;
 import java.util.LinkedList;
 import processing.core.PApplet;
 
+/**
+ * A GraphNode is created for each "node" constructor that occurs in the graph.
+ * 
+ * @author paulk
+ *
+ */
 public class GraphNode {
 	
 	private Graph G;

@@ -3,6 +3,13 @@ package org.meta_environment.rascal.library.experiments.VL;
 import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
+/**
+ * 
+ * Vertical composition of elements.
+ * 
+ * @author paulk
+ *
+ */
 public class VCat extends Compose {
 	
 	float vgap;

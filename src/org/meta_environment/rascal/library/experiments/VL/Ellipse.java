@@ -7,6 +7,13 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import processing.core.PConstants;
 
 
+/**
+ * 
+ * Ellipse that can act as container
+ *
+ * @author paulk
+ *
+ */
 public class Ellipse extends Container {
 
 	public Ellipse(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {

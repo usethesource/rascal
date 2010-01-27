@@ -7,6 +7,13 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
 
+/**
+ * 
+ * VLApplet: wrapper that adapts Processing's PApplet to our needs.
+ * 
+ * @author paulk
+ *
+ */
 public class VLPApplet extends PApplet {
 	/**
 	 * 

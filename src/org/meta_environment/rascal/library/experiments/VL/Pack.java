@@ -7,10 +7,14 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
 
-/* 
- * Pack implements lightmaps as described at http://www.blackpawn.com/texts/lightmaps/
-*/
-
+/**
+ * Pack a list of elements as dense as possible in a space of given size. 
+ * 
+ * Pack is implemented using lightmaps as described at http://www.blackpawn.com/texts/lightmaps/
+ * 
+ * @author paulk
+ *
+ */
 public class Pack extends Compose {
 	
 	Node root;

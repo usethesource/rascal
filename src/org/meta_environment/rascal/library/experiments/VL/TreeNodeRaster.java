@@ -2,6 +2,12 @@ package org.meta_environment.rascal.library.experiments.VL;
 
 import processing.core.PApplet;
 
+/**
+ * Auxiliary class for Tree layout.
+ * 
+ * @author paulk
+ *
+ */
 public class TreeNodeRaster {
 	int last[];
 	int RMAX = 1000;

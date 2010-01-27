@@ -4,6 +4,13 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 
+/**
+ * 
+ * Overlay elements by stacking them (aligned around their anchor point).
+ * 
+ * @author paulk
+ *
+ */
 public class Overlay extends Compose {
 	
 	private static boolean debug = true;

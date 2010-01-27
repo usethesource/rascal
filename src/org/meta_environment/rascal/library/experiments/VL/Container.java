@@ -6,8 +6,9 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 
 /**
- * Container represents visual elements that can contain another (nested) visual element called the "inside" element.
+ * A container represents a visual element that can contain another (nested) visual element called the "inside" element.
  * Typical examples are Boxes and Ellipses that may contain another element.
+ * 
  * A container has the following behaviour:
  * - It has a bounding box of its own unless interaction due to a moueOver overrules it.
  * - It draws itself (using drawContainer).

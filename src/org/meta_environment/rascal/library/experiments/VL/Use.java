@@ -4,6 +4,12 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
+/**
+ * Use another element. Mostly used to override properties.
+ * 
+ * @author paulk
+ *
+ */
 public class Use extends VELEM {
 
 	/**

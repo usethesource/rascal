@@ -10,6 +10,13 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
+/**
+ * Manage the properties of an element.
+ * 
+ * @author paulk
+ *
+ */
+
 @SuppressWarnings("serial")
 public class PropertyManager {
 
