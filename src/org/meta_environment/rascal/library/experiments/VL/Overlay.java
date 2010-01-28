@@ -13,7 +13,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
  */
 public class Overlay extends Compose {
 	
-	private static boolean debug = true;
+	private static boolean debug = false;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
 	float leftAnchor = 0;

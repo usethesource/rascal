@@ -82,7 +82,8 @@ public class Container extends VELEM {
 					if(insideFits()){
 						insideDraw();
 					} else if(vlp.isRegisteredAsMouseOver(this)){
-						inside.draw(left + (width - inside.width )/2, top + (height - inside.height)/2);
+						//inside.draw(left + (width - inside.width )/2, top + (height - inside.height)/2);
+						insideDraw();
 					}
 				}
 			}

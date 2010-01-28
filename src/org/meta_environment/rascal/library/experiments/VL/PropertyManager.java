@@ -116,7 +116,7 @@ public class PropertyManager {
 		return ((IReal) c.get(i)).floatValue();
 	}
 	
-	private float getIntOrRealArg(IConstructor c, int i){
+	protected float getIntOrRealArg(IConstructor c, int i){
 		if(c.get(i).getType().isIntegerType())
 			return  ((IInteger) c.get(i)).intValue();
 		else
@@ -290,7 +290,7 @@ public class PropertyManager {
 		id = "";
 		innerRadius = 0;
 		lineColor = 0;
-		lineWidth = 0;
+		lineWidth = 1;
 		textAngle = 0;
 		toAngle = 0;
 		vanchor = 0.5f;

@@ -60,7 +60,7 @@ public void box9(){
 }
 
 // Blue outer box of 20x20 with yellow larger inner box (only visible on mouse over)
-//TODO border of left/top borders of innerbox not visible
+//Note: left/top borders of innerbox is not visible
 public void box10(){
 	render(box([width(20), height(20), fillColor("mediumblue"), gap(10)], box([size(30,30), fillColor("yellow")])));
 }
@@ -326,7 +326,7 @@ public void txt6(){
 }
 
 // Overlay of box and text
-//TODO
+//Note: the result is not pretty since the baseline of the text and the bottom of the box are aligned.
 public void txt7(){
 	render(overlay([bottom(), right()],
 	              [box([ width(150), height(200), fillColor("red") ]),
@@ -465,7 +465,7 @@ public void e3(){
 	render(ellipse([fillColor("mediumblue"), gap(10)], text([fontColor("white")], "een label")));
 }
 
-// TODO should explicit size overrule size of an inner object?
+// Sized ellipse with inner text that appears on mouseOver.
 public void e4(){
 	render(ellipse([width(40), height(20), fillColor("mediumblue"), gap(10)], text([fontColor("white")], "een label")));
 }
@@ -600,7 +600,7 @@ public void s3(){
 	            fillColor(color("lightblue", 0.5)),
 	            curved(), closed()
                ],
-               [ vertex(i * 50, 10 * dt1[i], ellipse([size(10), lineWidth(0), fillColor("white")])) | int i <- [0 .. size(dt1) -1]]
+               [ vertex(i * 50, 10 * dt1[i], ellipse([size(30), lineWidth(0), fillColor("white")])) | int i <- [0 .. size(dt1) -1]]
                );
     sh2 = shape([
                 lineColor("green"),

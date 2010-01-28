@@ -6,7 +6,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 /**
  * Place elements on fixed grid positions. The width is determined by the width property, height is
- * determined by number of elements.
+ * determined by number of elements. Each element is positioned with its anchor on the grid point.
  * 
  * @author paulk
  *
@@ -20,7 +20,7 @@ public class Grid extends Compose {
 	float extBot = 0;
 	float extLeft = 0;
 	float extRight = 0;
-	private static boolean debug = true;
+	private static boolean debug = false;
 
 	Grid(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
@@ -60,16 +60,12 @@ public class Grid extends Compose {
 			ve.bbox();
 			
 			if(w == 0)
-				//extLeft = max(extLeft, ve.isLeftAligned() ? 0 : ve.isRightAligned() ? ve.width : ve.width/2);
 				extLeft = max(extLeft, ve.leftAnchor());
 			if(w + hgap >= width)
-				//extRight = max(extRight, ve.isRightAligned() ? 0 : ve.isLeftAligned() ? ve.width : ve.width/2);
 				extRight = max(extRight, ve.rightAnchor());
 			if(nrow == 0)
-				//extTop = max(extTop, ve.isTopAligned() ? 0 : ve.isBottomAligned() ? ve.height : ve.height/2);
 				extTop = max(extTop, ve.topAnchor());
 			if(nrow == lastRow){
-				//extBot = max(extBot, ve.isBottomAligned() ? 0 : ve.isTopAligned() ? ve.height : ve.height/2);
 				extBot = max(extBot, ve.bottomAnchor());
 			}
 			

@@ -35,7 +35,6 @@ public class Text extends VELEM {
 		bottomAnchor = vlp.textDescent();
 		
 		height = topAnchor + bottomAnchor;
-		//height += 0.3 * height;
 		width = vlp.textWidth(txt);
 		if(debug){
 			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", vlp.getFont(), vlp.textAscent(), vlp.textDescent() );
@@ -45,13 +44,15 @@ public class Text extends VELEM {
 			float angle = PApplet.radians(getTextAngleProperty());
 			float sina = PApplet.sin(angle);
 			float cosa = PApplet.cos(angle);
-			float h1 = PApplet.abs(width * sina);
-			float w1 =  PApplet.abs(width * cosa);
-			float h2 =  PApplet.abs(height *  cosa);
-			float w2 =  PApplet.abs(height *  sina);
+			float h1 = abs(width * sina);
+			float w1 = abs(width * cosa);
+			float h2 = abs(height *  cosa);
+			float w2 = abs(height *  sina);
 			
 			width = w1 + w2;
 			height = h1 + h2;
+			//TODO adjust anchors
+			
 			if(debug)System.err.printf("bbox text: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", height, width, h1, h2, w1, w2);
 		}
 	}
