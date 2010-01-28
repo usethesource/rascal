@@ -69,7 +69,7 @@ public class VLPApplet extends PApplet {
 		velem.bbox();
 		velem.draw(0f, 0f);
 		if(mouseOver != null)
-			mouseOver.draw();
+			mouseOver.draw(mouseX, mouseY);
 	}
 	
 	@Override

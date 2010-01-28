@@ -24,9 +24,7 @@ public class HCat extends Compose {
 	}
 	
 	@Override
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
+	void bbox(){
 		width = 0;
 		height = 0;
 		topAnchor = 0;
@@ -42,10 +40,12 @@ public class HCat extends Compose {
 		width += ngaps * hgap;
 		height = topAnchor + bottomAnchor;
 		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f\n", width, height, topAnchor, bottomAnchor);
-	}				
+	}	
+	
 	@Override
-	void draw(){
-
+	void draw(float left, float top){
+		this.left = left;
+		this.top =  top;
 		applyProperties();
 
 		// Draw from left to right
@@ -53,18 +53,6 @@ public class HCat extends Compose {
 			ve.draw(left, top + topAnchor - ve.topAnchor());
 			left += ve.width + hgap;
 		}
-	}
-
-	@Override
-	void bbox() {
-		bbox(0,0);
-	}
-
-	@Override
-	void draw(float left, float top) {
-		this.left = PApplet.round(left);
-		this.top =  PApplet.round(top);
-		draw();
 	}
 	
 	@Override

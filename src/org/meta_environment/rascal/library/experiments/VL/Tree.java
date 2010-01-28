@@ -90,22 +90,11 @@ public class Tree extends VELEM {
 		raster.clear();
 		root.shapeTree(0, 0, raster);
 	}
-
-	@Override
-	void bbox(float left, float top) {
-		raster.clear();
-		root.shapeTree(left, top, raster);
-	}
-	
-	@Override
-	void draw() {
-		root.draw();
-	}
 	
 	@Override
 	void draw(float left, float top) {
-		this.left = PApplet.round(left);
-		this.top = PApplet.round(top);
+		this.left = left;
+		this.top = top;
 		applyProperties();
 		root.draw();
 	}

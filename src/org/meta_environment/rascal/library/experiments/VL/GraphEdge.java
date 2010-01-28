@@ -54,17 +54,11 @@ public class GraphEdge extends VELEM {
 	}
 
 	@Override
-	void draw() {
+	void draw(float left, float top) {
 		applyProperties();
 		if(debug) System.err.println("edge: (" + from.name + ": " + from.x + "," + from.y + ") -> (" + 
 								                 to.name + ": " + to.x + "," + to.y + ")");
 		vlp.line(from.x, from.y, to.x, to.y);
-	}
-
-	@Override
-	void bbox(float left, float top) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

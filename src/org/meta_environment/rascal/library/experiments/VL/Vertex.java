@@ -21,7 +21,7 @@ public class Vertex extends VELEM {
 	float rightAnchor;
 	float topAnchor;
 	float bottomAnchor;
-	private static boolean debug = false;
+	private static boolean debug = true;
 
 	private float getIntOrReal(IValue v){
 		if(v.getType().isIntegerType())
@@ -43,18 +43,19 @@ public class Vertex extends VELEM {
 		deltay = getIntOrReal(dy);
 		if(marker != null)
 			this.marker = VELEMFactory.make(vlp, marker, properties, ctx);
-		if(debug)System.err.println("Point with : " + marker);
+		if(debug)System.err.printf("Vertex at %f, %f\n", deltax, deltay);
 	}
 
 	@Override
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
+	void bbox(){
+
 		if(marker != null){
 			//TODO is this ok?
 			marker.bbox();
-			if(marker.width > deltax){
-				leftAnchor = deltax - marker.width;
+			System.err.printf("Vertex: marker anchors hor (%f, %f), vert (%f, %f)\n",
+					marker.leftAnchor(), marker.rightAnchor(), marker.topAnchor(), marker.bottomAnchor());
+			if(marker.leftAnchor() >= deltax){
+				leftAnchor = marker.leftAnchor() - deltax;
 				width = marker.width;
 				rightAnchor = width - leftAnchor;
 			} else {
@@ -63,13 +64,14 @@ public class Vertex extends VELEM {
 				rightAnchor = width;
 			}
 			
-			if(marker.height > deltay){
-				bottomAnchor = deltay - marker.height;
-				height = marker.height;
-				topAnchor = height - bottomAnchor;
+			if(marker.bottomAnchor() >= deltay){
+				System.err.printf("HERE\n");
+				bottomAnchor = marker.bottomAnchor();
+				topAnchor = marker.topAnchor() + deltay;
+				height = bottomAnchor + topAnchor;
 			} else {
 				bottomAnchor = 0;
-				height = deltay = marker.topAnchor();
+				height = deltay + marker.topAnchor();
 				topAnchor = height;
 			}
 			
@@ -80,16 +82,18 @@ public class Vertex extends VELEM {
 			rightAnchor = width;
 			topAnchor = height;
 		}
-		if(debug)System.err.printf("bbox.point: %f, %f)\n", width, height);
+		if(debug)System.err.printf("bbox.vertex: deltax=%f, deltay=%f, width = %f (%f, %f), height= %f (%f, %f))\n", 
+							deltax, deltay, width, leftAnchor, rightAnchor, height, topAnchor, bottomAnchor);
 	}
 	
 	@Override
-	void draw() {
-		
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
 		applyProperties();
 		if(debug){
-			System.err.println("Point: marker = " + marker);
-			System.err.printf("Point: marker at %d, %d\n", left, top);
+			System.err.println("Vertex: marker = " + marker);
+			System.err.printf("Vertex: marker at %f, %f\n", left, top);
 		}
 		if(marker != null){
 			marker.bbox();

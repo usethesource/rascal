@@ -32,9 +32,8 @@ public class Align extends Compose {
 	}
 	
 	@Override
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
+	void bbox(){
+		
 		width = getWidthProperty();
 		height = 0;
 		float w = 0;
@@ -74,8 +73,9 @@ public class Align extends Compose {
 	}
 	
 	@Override
-	void draw(){
-		
+	void draw(float left, float top){
+		this.left = left;
+		this.top = top;
 		applyProperties();
 
 		for(int i = 0; i < velems.length; i++){

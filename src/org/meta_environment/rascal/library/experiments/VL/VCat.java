@@ -22,9 +22,8 @@ public class VCat extends Compose {
 	}
 	
 	@Override
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
+	void bbox(){
+
 		width = 0;
 		height = 0;
 		leftAnchor = 0;
@@ -46,8 +45,9 @@ public class VCat extends Compose {
 	}
 	
 	@Override
-	void draw(){
-
+	void draw(float left, float top){
+		this.left = left;
+		this.top = top;
 		applyProperties();
 
 		float bottom = top + height;
