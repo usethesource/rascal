@@ -61,4 +61,10 @@ public class GraphEdge extends VELEM {
 		vlp.line(from.x, from.y, to.x, to.y);
 	}
 
+	@Override
+	void bbox() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

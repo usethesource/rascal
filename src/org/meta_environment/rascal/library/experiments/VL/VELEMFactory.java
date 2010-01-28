@@ -32,7 +32,6 @@ public class VELEMFactory {
 		HCAT, 
 		OVERLAY, 
 		PACK, 
-		PIE,
 		SHAPE,
 		SPACE,
 		TEXT, 
@@ -54,7 +53,6 @@ public class VELEMFactory {
     	put("hcat",			Primitives.HCAT);
     	put("overlay",		Primitives.OVERLAY);	
     	put("pack",			Primitives.PACK);	
-    	put("pie",			Primitives.PIE);
     	put("shape",		Primitives.SHAPE);
     	put("space",		Primitives.SPACE);
     	put("text",			Primitives.TEXT);	    		
@@ -125,10 +123,6 @@ public class VELEMFactory {
 		case PACK: 
 			getOneOrTwoArgs(c); 
 			return new Pack(vlp, inheritedProps, props, elems, ctx);
-			
-		case PIE: 
-			getOneOrTwoArgs(c); 
-			return new Pie(vlp, inheritedProps, props, elems, ctx);
 			
 		case SHAPE: 
 			getOneOrTwoArgs(c); 

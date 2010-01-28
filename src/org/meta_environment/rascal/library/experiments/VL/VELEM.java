@@ -188,16 +188,22 @@ public abstract class VELEM implements Comparable<VELEM> {
 	 */
 	abstract void bbox();
 	
-//	/**
-//	 * Compute the bounding box of the element. Should be called before draw since,
-//	 * the computed width and height are stored in the element itself.
-//	 */
-//	abstract void bbox(float left, float top);
+	/**
+	 * Compute the bounding box of the element. Should be called before draw since,
+	 * the computed width and height are stored in the element itself.
+	 */
+	void bbox(float left, float top){
+		this.left = left;
+		this.top = top;
+		bbox();
+	}
 	
-//	/**
-//	 * Draw element with left, top corner that was computed before by bbox.
-//	 */
-//	abstract void draw();
+	/**
+	 * Draw element with left, top corner that was computed before by bbox.
+	 */
+	void draw(){
+		draw(left, top);
+	}
 		
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box

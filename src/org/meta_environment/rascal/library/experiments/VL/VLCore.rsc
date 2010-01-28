@@ -135,7 +135,7 @@ data VPROP =
 //   | scale(real perc)
 
  
- /* line and border attributes */
+/* line and border attributes */
    | lineWidth(int lineWidth)			// line width
    | lineColor(Color lineColor)		    // line color
    | lineColor(str colorName)           // named line color
@@ -143,7 +143,7 @@ data VPROP =
    | fillColor(Color fillColor)			// fill color of shapes and text
    | fillColor(str colorName)           // named fill color
    
-/* wedge/pie attributes */
+/* wedge attributes */
    | fromAngle(real angle)
    | fromAngle(int iangle)
    | toAngle(real angle)
@@ -152,12 +152,12 @@ data VPROP =
    | innerRadius(int iradius)
 
    
- /* font and text attributes */
+/* font and text attributes */
    | font(str fontName)             	// named font
    | fontSize(int isize)                // font size
    | fontColor(Color textColor)         // font color
    | fontColor(str colorName)
-   | textAngle(real angle)               // text rotation
+   | textAngle(real angle)              // text rotation
    | textAngle(int iangle) 
    
 /* interaction */
@@ -175,7 +175,6 @@ data VPROP =
 /*
  * Vertex and Edge: auxiliary data types
  */
-
 
 data Vertex = 
      vertex(real x, real y)              // vertex in a shape
