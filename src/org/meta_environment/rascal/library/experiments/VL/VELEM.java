@@ -6,7 +6,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.values.ValueFactoryFactory;
 
 /**
- * Visual elements are the foundation of Rascal visualisation. They are based on a bounding box + anchor model. 
+ * Visual elements are the foundation of Rascal visualization. They are based on a bounding box + anchor model. 
  * The bounding box defines the maximal dimensions of the element. The anchor defines its alignment properties.
  * 
  * Each element has an associated property manager whose values can be accessed via this class.

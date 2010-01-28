@@ -33,6 +33,10 @@ public class Wedge extends Container {
 	private float centerX;
 	private float centerY;
 	
+	private float IX;	// center of inner element, relative to (centerX, centerY)
+	private float IY;
+	private float WI;
+	
 	float Ax;	// start of outer arc (relative to center)
 	float Ay;
 	
@@ -125,6 +129,18 @@ public class Wedge extends Container {
 		Dx = innerRadius*cosFrom; // end of inner arc
 		Dy = innerRadius*sinFrom;
 		
+		// Compute center and max (approximate) width of inner element
+		
+		float middleAngle = fromAngle + (toAngle-fromAngle)/2;
+		
+		float raux = innerRadius + 0.6f*(radius-innerRadius);
+		
+		IX = raux * PApplet.cos(middleAngle);
+		IY = raux * PApplet.sin(middleAngle);
+		WI = abs(2 * radius * PApplet.sin((toAngle -fromAngle)/2));
+		System.err.printf("AX=%f,AY=%f, BX=%f,BY=%f,CX=%f,CY=%f,DX=%f,DY=%f,IX=%f,IY=%f\n",
+							Ax,Ay,Bx,By,Cx,Cy,Dx, Dy,IX,IY);
+		
 		qFrom = quadrant(fromAngle);
 		qTo = quadrant(toAngle);
 		
@@ -191,13 +207,11 @@ public class Wedge extends Container {
 				fromAngle, toAngle, leftAnchor, rightAnchor, topAnchor, bottomAnchor, width, height);
 	}
 	
-	
-	
 	/**
 	 * arcVertex: draw an arc as a bezierVertex that is part of a beginShape() ... endShape() sequence
-	 * @param r			radius
-	 * @param fromAngle	begin angle
-	 * @param toAngle	end angle
+	 * @param r				radius
+	 * @param fromAngle		begin angle
+	 * @param toAngle		end angle
 	 */
 	void arcVertex(float r, float fromAngle, float toAngle){
 		if(debug)System.err.printf("arcVertex: fromAngle=%f, toAngle=%f\n", fromAngle, toAngle);
@@ -208,10 +222,10 @@ public class Wedge extends Container {
 			float Mx = centerX + middleR * PApplet.cos(fromAngle + middleAngle);	// coordinates of M
 			float My = centerY + middleR * PApplet.sin(fromAngle + middleAngle);
 			
-			float Fx = centerX + r * PApplet.cos(fromAngle);			// coordinates of start point
+			float Fx = centerX + r * PApplet.cos(fromAngle);	// coordinates of start point
 			float Fy = centerY + r * PApplet.sin(fromAngle);
 			
-			float Tx = centerX + r * PApplet.cos(toAngle);			// coordinates of end point
+			float Tx = centerX + r * PApplet.cos(toAngle);		// coordinates of end point
 			float Ty = centerY + r * PApplet.sin(toAngle);
 			if(debug){
 				System.err.printf("arcVertex: fromAngle=%f, middleAngle=%f, toAngle=%f, r=%f, middleR=%f\n", 
@@ -253,8 +267,16 @@ public class Wedge extends Container {
 	
 	@Override 
 	boolean insideFits(){
-		System.err.printf("Wedge.insideFits!\n");
-		return true;
+		System.err.printf("Wedge.insideFits\n");
+		return inside.height < radius - innerRadius && inside.width < WI;
+	}
+	
+	/**
+	 * If the inside  element fits, draw it.
+	 */
+	@Override
+	void insideDraw(){
+		inside.draw(centerX + IX - inside.width/2, centerY + IY -inside.height/2);
 	}
 	
 	@Override
@@ -275,5 +297,30 @@ public class Wedge extends Container {
 	@Override
 	public float bottomAnchor(){
 		return bottomAnchor;
+	}
+	
+	@Override
+	public boolean mouseOver(int mousex, int mousey){
+		VELEM imo = getInsideForMouseOver();
+		if(vlp.isRegisteredAsMouseOver(this) && imo != null){
+
+			if(mousex > imo.left && mousex < imo.left + imo.width &&
+					mousey > imo.top && mousey < imo.top + imo.height){
+				properties.setMouseOver(true);
+				vlp.registerMouse(this);
+				return true;
+			}
+			return false;
+
+		}
+		
+		if(mousex > centerX - WI/2 && mousex < centerX + WI/2 &&
+				mousey > centerY - 10  && mousey < centerY + 10){  //TODO replace 10
+			properties.setMouseOver(true);
+			vlp.registerMouse(this);
+			return true;
+
+		}
+		return false;
 	}
 }

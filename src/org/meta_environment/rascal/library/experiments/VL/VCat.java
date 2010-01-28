@@ -5,7 +5,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 /**
  * 
- * Vertical composition of elements.
+ * Vertical composition of elements using their horizontal anchor for alignment.
  * 
  * @author paulk
  *

@@ -165,9 +165,8 @@ public class VELEMFactory {
 			
 		case VERTEX:
 			if(c.arity() == 3)
-				return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), (IConstructor) c.get(2), ctx);
-			
-			return new Vertex(vlp, (IInteger) c.get(0), (IInteger) c.get(1), ctx);
+				return new Vertex(vlp, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
+			return new Vertex(vlp, c.get(0), c.get(1), ctx);
 			
 		case WEDGE:
 			if(c.arity() == 2)

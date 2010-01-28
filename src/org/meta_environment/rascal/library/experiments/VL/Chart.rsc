@@ -485,7 +485,7 @@ public VELEM pieChart(str title, map[str, int] facts, ChartSetting settings...){
    		delta = facts[fname] * 360 / total;
     	elems += wedge([fromAngle(angle), toAngle(angle + delta),
 						height(radius), innerRadius(ir), fillColor(funColors[fname])],
-						box([fillColor("lightgrey"), gap(2)], text("<facts[fname]>"))  //TODO
+						text("<facts[fname]>")
 						);
 	    angle += delta;
     }

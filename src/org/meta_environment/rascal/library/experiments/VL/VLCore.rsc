@@ -177,11 +177,15 @@ data VPROP =
  */
 
 
-//TODO add real cases
-
 data Vertex = 
-     vertex(int x, int y)                // vertex in a shape
-   | vertex(int x, int y, VELEM marker)  // vertex with marker
+     vertex(real x, real y)              // vertex in a shape
+   | vertex(int ix, int iy) 
+   | vertex(int ix, real y)  
+   | vertex(real x, int iy)           
+   | vertex(real x, real y, VELEM marker)  // vertex with marker
+   | vertex(int ix, int iy, VELEM marker)
+   | vertex(int ix, real y, VELEM marker)
+   | vertex(real x, int iy, VELEM marker)
    ;
    
 data Edge =

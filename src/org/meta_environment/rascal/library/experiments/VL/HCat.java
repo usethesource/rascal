@@ -7,7 +7,7 @@ import processing.core.PApplet;
 
 
 /**
- * Horizontal composition of elements
+ * Horizontal composition of elements, using their vertical anchor for alignment
  * 
  * @author paulk
  *
