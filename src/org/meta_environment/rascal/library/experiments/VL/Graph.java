@@ -92,9 +92,7 @@ public class Graph extends VELEM {
 	}
 	
 	@Override
-	void bbox(float left, float top) {
-		this.left = left;
-		this.top = top;
+	void bbox() {
 	
 		temperature = 50;
 		for(int iter = 0; iter < 150; iter++){
@@ -141,7 +139,9 @@ public class Graph extends VELEM {
 	}
 
 	@Override
-	void draw() {
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
 		applyProperties();
 		for(GraphEdge e : edges)
 			e.draw();

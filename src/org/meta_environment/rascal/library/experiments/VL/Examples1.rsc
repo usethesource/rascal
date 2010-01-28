@@ -569,7 +569,7 @@ public void s1(){
                 connected(),
 	            fillColor("lightgreen")
                ],
-               [ vertex(i * 50, 10 * dt1[i], ellipse([size(10), lineWidth(0), fillColor("lightblue")])) | int i <- [0 .. size(dt1) -1]]
+               [ vertex(i * 50, 10 * dt1[i], ellipse([size(50), lineWidth(0), fillColor("lightblue")])) | int i <- [0 .. size(dt1) -1]]
                );
     render(b);
 }
@@ -610,5 +610,5 @@ public void s3(){
                ],
                [ vertex(i * 50, 10 * dt2[i], ellipse([size(10), lineWidth(0), fillColor("black")])) | int i <- [0 .. size(dt2) -1]]
                );
-    render(overlay([bottom(), left()], [sh1, sh2]));
+    render(overlay([sh1, sh2]));
 }

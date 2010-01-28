@@ -24,9 +24,8 @@ public class Overlay extends Compose {
 	}
 	
 	@Override
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
+	void bbox(){
+		
 		topAnchor = bottomAnchor = leftAnchor = rightAnchor = 0;
 		
 		for(VELEM ve : velems){
@@ -42,8 +41,9 @@ public class Overlay extends Compose {
 	}
 	
 	@Override
-	void draw() {
-		
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
 		applyProperties();
 		if(debug)System.err.printf("overlay.draw: left=%f, top=%f\n", left, top);
 		for(VELEM ve : velems){	

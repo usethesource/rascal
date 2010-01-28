@@ -18,32 +18,42 @@ import processing.core.PConstants;
  *
  */
 public class Shape extends Compose {
-	static boolean debug = false;
+	static boolean debug = true;
+	float leftAnchor;
+	float rightAnchor;
+	float topAnchor;
+	float bottomAnchor;
 
 	Shape(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
 	@Override
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
-		width = 0;
-		height = 0;
+	void bbox(){
+		leftAnchor = rightAnchor = topAnchor = bottomAnchor = 0;
+
 		for (VELEM ve : velems){
 			ve.bbox();
-			width = max(width, ve.width);
-			height = max(height, ve.height);
+			leftAnchor = max(leftAnchor, ve.leftAnchor());
+			rightAnchor = max(rightAnchor, ve.rightAnchor());
+			topAnchor = max(topAnchor, ve.topAnchor());
+			bottomAnchor = max(bottomAnchor, ve.bottomAnchor());
 		}
-		if(debug)System.err.printf("bbox.shape: %f, %f\n", width, height);
+		width = leftAnchor + rightAnchor;
+		height = topAnchor + bottomAnchor;
+		if(debug)System.err.printf("bbox.shape: width = %f (%f, %f), height = %f (%f, %f)\n", 
+				width, leftAnchor, rightAnchor, height, topAnchor, bottomAnchor);
 	}
 	
 	@Override
-	void draw(){
+	void draw(float left, float top){
+		
+		this.left = left;
+		this.top = top;
 		
 		applyProperties();
-		float bottom = top + height;
-		boolean  closed = isClosed();
+		float bottom = top + height - bottomAnchor;
+		boolean closed = isClosed();
 		boolean curved = isCurved();
 		boolean connected = isConnected() || curved;
 		
@@ -59,10 +69,11 @@ public class Shape extends Compose {
 		 */
 		
 		Vertex next = (Vertex)velems[0];
-		float nextLeft = left + next.deltax;
+		float nextLeft = left + leftAnchor + next.deltax;
 		float nextTop = bottom - next.deltay;
 		if(connected && closed){
-			vlp.vertex(left, bottom);
+			// Add a vertex at origin
+			vlp.vertex(left + leftAnchor, bottom);
 			vlp.vertex(nextLeft, nextTop);
 		}
 		if(connected && curved)
@@ -70,7 +81,7 @@ public class Shape extends Compose {
 		
 		for(VELEM ve : velems){
 			next = (Vertex)ve;
-			nextLeft = left + next.deltax;
+			nextLeft = left + leftAnchor + next.deltax;
 			nextTop = bottom - next.deltay;
 			if(debug)System.err.printf("vertex(%f,%f)\n", nextLeft, nextTop);
 			applyProperties();
@@ -86,7 +97,7 @@ public class Shape extends Compose {
 		if(connected){
 			if(curved){
 				next = (Vertex)velems[velems.length-1];
-				vlp.curveVertex(left + next.deltax, bottom - next.deltay);
+				vlp.curveVertex(left + leftAnchor + next.deltax, bottom - next.deltay);
 			}
 			if(closed){
 				vlp.vertex(nextLeft, bottom);
@@ -97,7 +108,7 @@ public class Shape extends Compose {
 		
 		for(VELEM ve : velems){
 			Vertex p = (Vertex) ve;
-			p.draw(left + p.deltax, bottom - p.deltay);
+			p.draw(left + leftAnchor + p.deltax, bottom - p.deltay);
 		}
 	}
 }

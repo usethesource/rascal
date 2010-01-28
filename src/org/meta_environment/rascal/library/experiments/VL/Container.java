@@ -38,12 +38,11 @@ public class Container extends VELEM {
 	}
 
 	@Override 
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
+	void bbox(){
+	
 		VELEM insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
-			insideForMouseOver.bbox(left, top);
+			insideForMouseOver.bbox();
 			this.width = insideForMouseOver.width;
 			this.height = insideForMouseOver.height;
 		} else {
@@ -67,13 +66,15 @@ public class Container extends VELEM {
 	}
 
 	@Override
-	void draw() {
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
 		applyProperties();
 		if(debug)System.err.printf("container.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", left, top, width, height, properties.hanchor, properties.vanchor);
 
 		VELEM insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
-			insideForMouseOver.draw();
+			insideForMouseOver.draw(left, top);
 		} else {
 			if(height > 0 && width > 0){
 				drawContainer();

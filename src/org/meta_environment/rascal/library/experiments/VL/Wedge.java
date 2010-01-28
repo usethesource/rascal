@@ -78,10 +78,7 @@ public class Wedge extends Container {
 	}
 
 	@Override
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
-		
+	void bbox(){
 		radius = getHeightProperty();
 		float lw = getLineWidthProperty();
 		innerRadius = getInnerRadiusProperty();
@@ -97,7 +94,7 @@ public class Wedge extends Container {
 		 */
 		VELEM insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
-			insideForMouseOver.bbox(left, top);
+			insideForMouseOver.bbox();
 			this.width = insideForMouseOver.width;
 			this.height = insideForMouseOver.height;
 			return;

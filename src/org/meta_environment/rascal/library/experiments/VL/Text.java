@@ -27,9 +27,8 @@ public class Text extends VELEM {
 	}
 	
 	@Override
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
+	void bbox(){
+	
 		vlp.textSize(getFontSizeProperty());
 		topAnchor = vlp.textAscent() ;
 		bottomAnchor = vlp.textDescent();
@@ -58,8 +57,9 @@ public class Text extends VELEM {
 	}
 	
 	@Override
-	void draw() {
-		
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
 		applyProperties();
 		applyFontColorProperty();
 	

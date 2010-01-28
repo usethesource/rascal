@@ -28,17 +28,18 @@ public class Use extends VELEM {
 	}
 
 	@Override 
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
-		inside.bbox(left, top);
+	void bbox(){
+		
+		inside.bbox();
 		width = inside.width;
 		height = inside.height;
 		if(debug)System.err.println("use.bbox: width=" + width + ", height=" + height);
 	}
 
 	@Override
-	void draw() {
+	void draw(float left, float top) {
+		this.left = left;
+		this.top = top;
 		applyProperties();
 		
 		inside.draw(left + properties.hanchor*(width - inside.width),
