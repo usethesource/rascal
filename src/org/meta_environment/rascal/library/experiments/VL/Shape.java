@@ -18,7 +18,7 @@ import processing.core.PConstants;
  *
  */
 public class Shape extends Compose {
-	static boolean debug = true;
+	static boolean debug = false;
 	float leftAnchor;
 	float rightAnchor;
 	float topAnchor;
@@ -110,5 +110,25 @@ public class Shape extends Compose {
 			Vertex p = (Vertex) ve;
 			p.draw(left + leftAnchor + p.deltax, bottom - p.deltay);
 		}
+	}
+	
+	@Override
+	public float leftAnchor(){
+		return leftAnchor;
+	}
+	
+	@Override
+	public float rightAnchor(){
+		return rightAnchor;
+	}
+	
+	@Override
+	public float topAnchor(){
+		return topAnchor;
+	}
+	
+	@Override
+	public float bottomAnchor(){
+		return bottomAnchor;
 	}
 }

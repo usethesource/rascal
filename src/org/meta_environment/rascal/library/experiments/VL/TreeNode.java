@@ -34,16 +34,11 @@ public class TreeNode extends VELEM {
 		edgeProperties.add(new PropertyManager(null, inheritedProps, props, ctx));
 	}
 	
-	@Override
-	public void bbox(float left, float top){
-	}
 	
 	float shapeTree(float left, float top, TreeNodeRaster raster) {
-		int ileft = PApplet.round(left);
-		int itop = PApplet.round(top);
-		velemNode.bbox(ileft,itop);
-		this.left = ileft;
-		this.top = itop;
+		this.left = left;
+		this.top = top;
+		velemNode.bbox(left, top);
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
 		float position = left + velemNode.width/2; // x position of center of node!
@@ -87,9 +82,14 @@ public class TreeNode extends VELEM {
 		this.left = velemNode.left = PApplet.round(position - velemNode.width/2);
 		return position;
 	}
+	
+	@Override
+	void bbox() {
+		// TODO Auto-generated method stub
+	}
 
 	@Override
-	void draw() {
+	void draw(float left, float top) {
 		boolean squareStyle = true;
 		applyProperties();
 		velemNode.draw();
@@ -129,5 +129,7 @@ public class TreeNode extends VELEM {
 		if(debug)System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
 		return velemNode.mouseOver(mousex, mousey);
 	}
+
+	
 
 }

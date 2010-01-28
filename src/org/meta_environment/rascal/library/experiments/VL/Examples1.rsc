@@ -561,7 +561,7 @@ render(overlay([bottom()],
 
 // Shape: line graph with circle on each point
 
-public void s1(){
+public void s1(int s){
     dt1 = [10, 20, 10, 30];
 	b = shape([
                 lineColor("blue"),
@@ -569,14 +569,29 @@ public void s1(){
                 connected(),
 	            fillColor("lightgreen")
                ],
-               [ vertex(i * 50, 10 * dt1[i], ellipse([size(50), lineWidth(0), fillColor("lightblue")])) | int i <- [0 .. size(dt1) -1]]
+               [ vertex(i * 50, 10 * dt1[i], ellipse([size(s), lineWidth(0), fillColor("red")])) | int i <- [0 .. size(dt1) -1]]
                );
     render(b);
 }
 
+public void s2(int s){
+    dt1 = [10, 20, 0, 30];
+	b = shape([
+                lineColor("blue"),
+                lineWidth(2),
+                connected(), closed(),
+	            fillColor("lightgreen")
+               ],
+               [ vertex(i * 50, 10 * dt1[i], ellipse([size(s), lineWidth(0), fillColor("red")])) | int i <- [0 .. size(dt1) -1]]
+               );
+    render(overlay([b, box([left(), bottom(), size(20)])]));
+}
+
+
+
 // Shape: curved (fitted) graph with circle on each point
 
-public void s2(){
+public void s3(int s){
     dt1 = [10, 20, 10, 30];
 	b = shape([
                 lineColor("blue"),
@@ -585,13 +600,13 @@ public void s2(){
 	            connected(),
 	            curved()
                ],
-               [ vertex(i * 50, 10 * dt1[i], ellipse([size(10), lineWidth(0), fillColor("lightblue")])) | int i <- [0 .. size(dt1) -1]]
+               [ vertex(i * 50, 10 * dt1[i], ellipse([size(s), lineWidth(0), fillColor("lightblue")])) | int i <- [0 .. size(dt1) -1]]
                );
     render(b);
 }
 
 // Two overlayed shapes with closed and curved graphs
-public void s3(){
+public void s4(){
     dt1 = [10, 20, 10, 30];
     dt2 = [15, 10, 25, 20];
 	sh1 = shape([
@@ -600,7 +615,7 @@ public void s3(){
 	            fillColor(color("lightblue", 0.5)),
 	            curved(), closed()
                ],
-               [ vertex(i * 50, 10 * dt1[i], ellipse([size(30), lineWidth(0), fillColor("white")])) | int i <- [0 .. size(dt1) -1]]
+               [ vertex(i * 50, 10 * dt1[i], ellipse([size(10), lineWidth(0), fillColor("white")])) | int i <- [0 .. size(dt1) -1]]
                );
     sh2 = shape([
                 lineColor("green"),

@@ -3,9 +3,6 @@ package org.meta_environment.rascal.library.experiments.VL;
 import org.eclipse.imp.pdb.facts.IList;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
-import processing.core.PApplet;
-
-
 /**
  * Horizontal composition of elements, using their vertical anchor for alignment
  * 

@@ -12,8 +12,6 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
-import processing.core.PApplet;
-
 /**
  * Tree layout. Given a tree consisting of a list of nodes and edges, place them in a space conserving layout.
  * We use the algorithm described in:
@@ -88,7 +86,13 @@ public class Tree extends VELEM {
 	@Override
 	void bbox() {
 		raster.clear();
-		root.shapeTree(0, 0, raster);
+		root.shapeTree(left, top, raster);
+	}
+	
+	@Override
+	void bbox(float left, float top) {
+		raster.clear();
+		root.shapeTree(left, top, raster);
 	}
 	
 	@Override

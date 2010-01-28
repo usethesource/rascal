@@ -204,8 +204,6 @@ public VELEM xyChart(str title, list[intTuples] facts, ChartSetting settings ...
         funPlots += shape(shapeProps,
                           [vertex((xshift + x) * xscale, (yshift + y) * yscale, ellipse([size(5), fillColor(fcolorName), lineWidth(0)])) | <int x, int y> <- values]);
    }
-   
-   funs = overlay([bottom(), left()], funPlots);
            
    // Superimpose on the same grid point (with different allignments):
    // - x-axis,
@@ -213,7 +211,7 @@ public VELEM xyChart(str title, list[intTuples] facts, ChartSetting settings ...
    // - raster
    // - function plots
    
-   plot = grid([bottom(), left(), gap(0)],
+   plot = overlay(
                [ use([bottom(), right()], yaxis(yTitle, chartHeight, ymin, 10, ymax, yscale)),
                  use([top(), left()],     vcat([hcenter(), gap(20)],
                                                [ xaxis(xTitle, chartWidth,  xmin, 10, xmax, xscale),
@@ -481,7 +479,7 @@ public VELEM pieChart(str title, map[str, int] facts, ChartSetting settings...){
  	angle = 0.0;
  	for(fname <- facts){
  		fcolorName = palette(size(funColors));
-   		funColors[fname] = color(fcolorName);
+   		funColors[fname] = color(fcolorName, 0.6);
    		delta = facts[fname] * 360 / total;
     	elems += wedge([fromAngle(angle), toAngle(angle + delta),
 						height(radius), innerRadius(ir), fillColor(funColors[fname])],
