@@ -97,12 +97,12 @@ public class PropertyManager {
 	float vgap;
 	float width;
 	
+	// Interaction and mouse handling
 	IList origMouseOverProperties = null;
 	boolean mouseOver = false;
 	PropertyManager mouseOverproperties = null;
 	protected VELEM mouseOverVElem = null;
-	
-	private VLPApplet vlp;
+
 	
 	private int getIntArg(IConstructor c){
 		return ((IInteger) c.get(0)).intValue();
@@ -137,7 +137,6 @@ public class PropertyManager {
 	}
 
 	PropertyManager(VLPApplet vlp, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
-		this.vlp = vlp;
 		if(inherited != null)
 			importProperties(inherited);
 		else
@@ -296,28 +295,34 @@ public class PropertyManager {
 		vanchor = 0.5f;
 		vgap = 0;
 		width = 0;
-	}
-	public void applyProperties(){
-		if(mouseOver && mouseOverproperties != null)
-			mouseOverproperties.applyProperties();
-		else {
-			vlp.fill(fillColor);
-			vlp.stroke(lineColor);
-			vlp.strokeWeight(lineWidth);
-			vlp.textSize(fontSize);
-		}
+		
+		origMouseOverProperties = null;
+//		mouseOver = false;
+		mouseOverproperties = null;
+		mouseOverVElem = null;
 	}
 	
-	public void applyFontColorProperty(){
-		if(mouseOver && mouseOverproperties != null)
-			mouseOverproperties.applyProperties();
-		else {
-			vlp.fill(fontColor);
-		}
-	}
+//	public void applyProperties(){
+//		if(mouseOver && mouseOverproperties != null)
+//			mouseOverproperties.applyProperties();
+//		else {
+//			vlp.fill(fillColor);
+//			vlp.stroke(lineColor);
+//			vlp.strokeWeight(lineWidth);
+//			vlp.textSize(fontSize);
+//		}
+//	}
+//	
+//	public void applyFontColorProperty(){
+//		if(mouseOver && mouseOverproperties != null)
+//			mouseOverproperties.applyProperties();
+//		else {
+//			vlp.fill(fontColor);
+//		}
+//	}
 	
-	public void setMouseOver(boolean on){
-		mouseOver = on;
-	}
+//	public void setMouseOver(boolean on){
+//		mouseOver = on;
+//	}
 
 }

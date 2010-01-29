@@ -16,7 +16,7 @@ import processing.core.PConstants;
 public class Text extends VELEM {
 
 	private String txt;
-	private static boolean debug = false;
+	private static boolean debug = true;
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
 
@@ -37,7 +37,7 @@ public class Text extends VELEM {
 		width = vlp.textWidth(txt);
 		if(debug){
 			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", vlp.getFont(), vlp.textAscent(), vlp.textDescent() );
-			System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%d\n", txt, width, height, getTextAngleProperty());
+			System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%f\n", txt, width, height, getTextAngleProperty());
 		}
 		if(getTextAngleProperty() != 0){
 			float angle = PApplet.radians(getTextAngleProperty());
@@ -63,7 +63,7 @@ public class Text extends VELEM {
 		applyProperties();
 		applyFontColorProperty();
 	
-		if(debug)System.err.printf("text.draw: %s, left=%d, top=%d, width=%f, height=%f\n", txt, left, top, width, height);
+		if(debug)System.err.printf("text.draw: %s, left=%f, top=%f, width=%f, height=%f\n", txt, left, top, width, height);
 		if(height > 0 && width > 0){
 			float angle = getTextAngleProperty();
 
