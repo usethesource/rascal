@@ -26,7 +26,7 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 public class Container extends VELEM {
 
 	protected VELEM inside;
-	private static boolean debug = false;
+	private static boolean debug = true;
 	float hgap;
 	float vgap;
 
@@ -80,12 +80,8 @@ public class Container extends VELEM {
 				drawContainer();
 				if(inside != null){
 					if(debug)System.err.printf("container.draw2: hgap=%f, vgap=%f, inside.width=%f\n", hgap, vgap, inside.width);
-					if(insideFits()){
+					if(insideFits() || vlp.isRegisteredAsMouseOver(this))
 						insideDraw();
-					} else if(vlp.isRegisteredAsMouseOver(this)){
-						//inside.draw(left + (width - inside.width )/2, top + (height - inside.height)/2);
-						insideDraw();
-					}
 				}
 			}
 		}
@@ -115,24 +111,30 @@ public class Container extends VELEM {
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		VELEM imo = getInsideForMouseOver();
-		if(vlp.isRegisteredAsMouseOver(this) && imo != null){
-
-			if(mousex > imo.left && mousex < imo.left + imo.width &&
-					mousey > imo.top && mousey < imo.top + imo.height){
-				properties.setMouseOver(true);
-				vlp.registerMouse(this);
-				return true;
+		
+		if(vlp.isRegisteredAsMouseOver(this)){  // mouse is over this element
+			VELEM imo = getInsideForMouseOver();
+			if(imo != null){
+				if(mousex > imo.left && mousex < imo.left + imo.width &&
+						mousey > imo.top && mousey < imo.top + imo.height){
+					vlp.registerMouse(this);
+					return true;
+				}
+				vlp.unRegisterMouse();
+				return false;
 			}
-			return false;
-
+			if(mousex > left && mousex < left + width &&
+				mousey > top  && mousey < top + height){
+				return true;
+			} else {
+				vlp.unRegisterMouse();
+				return false;
+			}
 		}
 		if(mousex > left && mousex < left + width &&
 				mousey > top  && mousey < top + height){
-			properties.setMouseOver(true);
 			vlp.registerMouse(this);
 			return true;
-
 		}
 		return false;
 	}

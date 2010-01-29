@@ -303,7 +303,6 @@ public class Wedge extends Container {
 
 			if(mousex > imo.left && mousex < imo.left + imo.width &&
 					mousey > imo.top && mousey < imo.top + imo.height){
-				properties.setMouseOver(true);
 				vlp.registerMouse(this);
 				return true;
 			}
@@ -313,7 +312,6 @@ public class Wedge extends Container {
 		
 		if(mousex > centerX - WI/2 && mousex < centerX + WI/2 &&
 				mousey > centerY - 10  && mousey < centerY + 10){  //TODO replace 10
-			properties.setMouseOver(true);
 			vlp.registerMouse(this);
 			return true;
 

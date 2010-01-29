@@ -62,13 +62,34 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return a >= 0 ? a : -a;
 	}
 	
+//	public void applyProperties(){
+//		properties.applyProperties();
+//	}
+	
+	private PropertyManager getProperties(){
+		if(vlp.isRegisteredAsMouseOver(this) && properties.mouseOverproperties != null)
+			return properties.mouseOverproperties;
+		return properties;
+	}
+	
 	public void applyProperties(){
-		properties.applyProperties();
+		PropertyManager pm = getProperties();
+		
+		vlp.fill(pm.fillColor);
+		vlp.stroke(pm.lineColor);
+		vlp.strokeWeight(pm.lineWidth);
+		vlp.textSize(pm.fontSize);
 	}
 	
 	public void applyFontColorProperty(){
-		properties.applyFontColorProperty();
+		PropertyManager pm = getProperties();
+		
+		vlp.fill(pm.fontColor);
 	}
+	
+//	public void applyFontColorProperty(){
+//		properties.applyFontColorProperty();
+//	}
 	
 	protected float getHeightProperty(){
 		return properties.height;
@@ -166,6 +187,10 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return properties.mouseOverVElem;
 	}
 	
+	public boolean hasMouseOver(){
+		return properties.mouseOver;
+	}
+	
 	/* 
 	 * Compare two VELEMs according to their surface and aspect ratio
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -183,26 +208,36 @@ public abstract class VELEM implements Comparable<VELEM> {
 	}
 	
 	/**
+	 * Drawing proceeds in two stages:
+	 * - determine the bounding box of the element (using bbox)
+	 * - draw it (using draw)
+	 * 
+	 * There exist two scenarios. The standard scenario is:
+	 * - use bbox without parameters just calculates bounding box
+	 * - use draw with left and top argument for placement.
+	 * 
+	 * An alternative scenario: (used by compelxer layouts like tree and graph):
+	 * - use bbox with elft and top arguments that are stored in the element
+	 * - use draw without argument, reusing the stored left and top values.
+	 */
+	
+	/**
 	 * Compute the bounding box of the element. Should be called before draw since,
 	 * the computed width and height are stored in the element itself.
 	 */
+	
 	abstract void bbox();
 	
 	/**
 	 * Compute the bounding box of the element. Should be called before draw since,
-	 * the computed width and height are stored in the element itself.
+	 * the computed width and height are stored in the element itself. This varinad also
+	 * stores left and top in the element
 	 */
+	
 	void bbox(float left, float top){
 		this.left = left;
 		this.top = top;
 		bbox();
-	}
-	
-	/**
-	 * Draw element with left, top corner that was computed before by bbox.
-	 */
-	void draw(){
-		draw(left, top);
 	}
 		
 	/**
@@ -210,17 +245,15 @@ public abstract class VELEM implements Comparable<VELEM> {
 	 * @param left	x-coordinate of corner
 	 * @param top	y-coordinate of corner
 	 */
+	
 	abstract void draw(float left, float top);
 	
-//	/**
-//	 * Draw element at its anchor position. Intended to avoid round-off errors due to repeated computation.
-//	 * @param ax	x-coordinate of anchor
-//	 * @param ay	y-coordinate of anchor
-//	 */
-//	
-//	void drawAnchor(float ax, float ay){
-//		draw(ax - leftAnchor(), ay - topAnchor());
-//	}
+	/**
+	 * Draw element with left, top corner that was computed before by bbox.
+	 */
+	void draw(){
+		draw(left, top);
+	}
 	
 	/**
 	 * Compute effect of a mouseOver on this element
@@ -232,7 +265,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 	public boolean mouseOver(int mousex, int mousey){
 		if((mousex > left && mousex < left + width) &&
 		   (mousey > top  && mousey < top + height)){
-		   properties.setMouseOver(true);
+		   //properties.setMouseOver(true);
 		   vlp.registerMouse(this);
 		   return true;
 		}
