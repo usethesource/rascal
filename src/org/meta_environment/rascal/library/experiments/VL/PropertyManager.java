@@ -102,7 +102,6 @@ public class PropertyManager {
 	boolean mouseOver = false;
 	PropertyManager mouseOverproperties = null;
 	protected VELEM mouseOverVElem = null;
-
 	
 	private int getIntArg(IConstructor c){
 		return ((IInteger) c.get(0)).intValue();
@@ -116,7 +115,7 @@ public class PropertyManager {
 		return ((IReal) c.get(i)).floatValue();
 	}
 	
-	protected float getIntOrRealArg(IConstructor c, int i){
+	protected static float getIntOrRealArg(IConstructor c, int i){
 		if(c.get(i).getType().isIntegerType())
 			return  ((IInteger) c.get(i)).intValue();
 		else

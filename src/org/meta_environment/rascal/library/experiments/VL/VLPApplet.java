@@ -75,10 +75,6 @@ public class VLPApplet extends PApplet {
 	@Override
 	public void mouseMoved(){
 		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
-//		if(mouseOver != null){
-//			mouseOver.properties.setMouseOver(false);
-//			mouseOver = null;
-//		}
 		velem.mouseOver(mouseX, mouseY);
 		redraw();
 	}
