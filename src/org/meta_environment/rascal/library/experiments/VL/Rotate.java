@@ -58,13 +58,15 @@ public class Rotate extends VELEM {
 	@Override
 	void draw(float left, float top) {
 		vlp.pushMatrix();
-		vlp.translate(left + velem.leftAnchor(), top + velem.topAnchor());
-		//vlp.translate(left + velem.height * abs(PApplet.sin(angle)), top);
+		vlp.translate(-(left + velem.leftAnchor()), -(top + velem.topAnchor()));
 		vlp.rotate(angle);
-		//velem.draw(-velem.leftAnchor()*PApplet.sin(angle), -velem.topAnchor() * PApplet.cos(angle));
-		velem.draw(-velem.leftAnchor(), -velem.topAnchor());
+		
+		vlp.translate(left + velem.leftAnchor(), top + velem.topAnchor());
+		//velem.draw(-velem.leftAnchor(), -velem.topAnchor());
+		velem.draw(0,0);
+		
 		//velem.draw(- leftAnchor, - topAnchor);
-		vlp.translate(-velem.leftAnchor(), -velem.topAnchor());
+	
 		vlp.popMatrix();
 	}
 	
