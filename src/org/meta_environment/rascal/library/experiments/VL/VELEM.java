@@ -119,6 +119,14 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return properties.lineWidth;
 	}
 	
+	protected float hanchor(){
+		return properties.hanchor;
+	}
+	
+	protected float vanchor(){
+		return properties.vanchor;
+	}
+	
 	protected float leftAnchor(){
 		return (properties.hanchor * width);
 	}

@@ -32,6 +32,8 @@ public class VELEMFactory {
 		HCAT, 
 		OVERLAY, 
 		PACK, 
+		ROTATE,
+		SCALE,
 		SHAPE,
 		SPACE,
 		TEXT, 
@@ -53,6 +55,8 @@ public class VELEMFactory {
     	put("hcat",			Primitives.HCAT);
     	put("overlay",		Primitives.OVERLAY);	
     	put("pack",			Primitives.PACK);	
+    	put("rotate",       Primitives.ROTATE);
+    	put("scale",		Primitives.SCALE);
     	put("shape",		Primitives.SHAPE);
     	put("space",		Primitives.SPACE);
     	put("text",			Primitives.TEXT);	    		
@@ -124,6 +128,14 @@ public class VELEMFactory {
 			getOneOrTwoArgs(c); 
 			return new Pack(vlp, inheritedProps, props, elems, ctx);
 			
+		case ROTATE:
+			return new Rotate(vlp, inheritedProps, c.get(0), (IConstructor) c.get(1), ctx);
+			
+		case SCALE:
+			if(c.arity() == 2)
+				return new Scale(vlp, inheritedProps, c.get(0), c.get(0), (IConstructor) c.get(1), ctx);
+			else
+				return new Scale(vlp, inheritedProps, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
 		case SHAPE: 
 			getOneOrTwoArgs(c); 
 			return new Shape(vlp, inheritedProps, props, elems, ctx);

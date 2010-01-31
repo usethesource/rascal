@@ -111,30 +111,24 @@ public str palette(int n){
 
 data VPROP =
 /* sizes */
-     width(real width)                   // sets width of element
+     width(real width)                  // sets width of element
    | width(int iwidth)
-   | height(real height)                 // sets height of element
+   | height(real height)                // sets height of element
    | height(int iheight)
-   | size(real size)                     // sets width and height to same value
+   | size(real size)					// sets width and height to same value
    | size(int isize)
-   | size(real hor, real vert)            // sets width and height to separate values
+   | size(real hor, real vert)          // sets width and height to separate values
    | size(int ihor, int ivert)
-   | gap(real amount)                    // sets hor and vert gap between elements in composition to same value
+   | gap(real amount)                   // sets hor and vert gap between elements in composition to same value
    | gap(int iamount)
    | gap(real hor, real vert) 			// sets hor and vert gap between elements in composition to separate values
    | gap(int ihor, int ivert)
    
 /* alignment */
-     | anchor(real h, real v)           // horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
-     | hanchor(real h)
-     | vanchor(real v)
+   | anchor(real h, real v)				// horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
+   | hanchor(real h)
+   | vanchor(real v)
    
-/* transformations */
-//   | move(int dX, int dY)        		// translate
-//   | rotate(int angle)
-//   | scale(real perc)
-
- 
 /* line and border attributes */
    | lineWidth(int lineWidth)			// line width
    | lineColor(Color lineColor)		    // line color
@@ -177,7 +171,7 @@ data VPROP =
  */
 
 data Vertex = 
-     vertex(real x, real y)              // vertex in a shape
+     vertex(real x, real y)             // vertex in a shape
    | vertex(int ix, int iy) 
    | vertex(int ix, real y)  
    | vertex(real x, int iy)           
@@ -197,8 +191,14 @@ data Edge =
  */
  
 data VELEM = 
-/* drawing primitives */
-     box(list[VPROP] props)			          	// rectangular box
+/* atomic primitives */
+
+     text(list[VPROP] props, str s)		  		// text label
+   | text(str s)			              		// text label
+   
+/* primitives/containers */
+
+   | box(list[VPROP] props)			          	// rectangular box
    | box(list[VPROP] props, VELEM inner)        // rectangular box with inner element
    
    | ellipse(list[VPROP] props)			      	// ellipse
@@ -207,52 +207,53 @@ data VELEM =
    | wedge(list[VPROP] props)			      	// wedge
    | wedge(list[VPROP] props, VELEM inner)      // wedge with inner element
    
-   | text(list[VPROP] props, str s)		  		// text label
-   | text(str s)			              		// text label
-   
    | space(list[VPROP] props)			      	// invisible box (used for spacing)
    | space(list[VPROP] props, VELEM inner)      // invisible box with visible inner element
  
- 
-/* lines and curves */
-   | shape(list[Vertex] points)                             // shape of to be connected vertices
-   | shape(list[VPROP] props,list[Vertex] points)
-   
 /* composition */
-   | use(VELEM elem)                           		         // use another elem
+   
+   | use(VELEM elem)                           		        // use another elem
    | use(list[VPROP] props, VELEM elem)
  
-   | hcat(list[VELEM] elems)                                 // horizontal concatenation
+   | hcat(list[VELEM] elems)                                // horizontal concatenation
    | hcat(list[VPROP] props, list[VELEM] elems)
    
-   | vcat(list[VELEM] elems)                                 // vertical concatenation
+   | vcat(list[VELEM] elems)                                // vertical concatenation
    | vcat(list[VPROP] props, list[VELEM] elems)
    
-   | align(list[VELEM] elems)                                // horizontal and vertical composition
+   | align(list[VELEM] elems)                               // horizontal and vertical composition
    | align(list[VPROP] props, list[VELEM] elems)
    
-   | overlay(list[VELEM] elems)                              // overlay (stacked) composition
+   | overlay(list[VELEM] elems)                             // overlay (stacked) composition
    | overlay(list[VPROP] props, list[VELEM] elems)
    
-   | grid(list[VELEM] elems)                                 // placement on fixed grid
+   | shape(list[Vertex] points)                            // shape of to be connected vertices
+   | shape(list[VPROP] props,list[Vertex] points)
+   
+   | grid(list[VELEM] elems)                                // placement on fixed grid
    | grid(list[VPROP] props, list[VELEM] elems)
    
-   | pack(list[VELEM] elems)                                 // composition by 2D packing
+   | pack(list[VELEM] elems)                                // composition by 2D packing
    | pack(list[VPROP] props, list[VELEM] elems)
    
-   | pie(list[VELEM] elems)                                  // composition as pie chart
+   | pie(list[VELEM] elems)                                 // composition as pie chart
    | pie(list[VPROP] props, list[VELEM] elems)
    
-   | graph(list[VELEM] nodes, list[Edge] edges)              // composition of nodes and edges as graph
+   | graph(list[VELEM] nodes, list[Edge] edges)             // composition of nodes and edges as graph
    | graph(list[VPROP], list[VELEM] nodes, list[Edge] edges)
    
-   | tree(list[VELEM] nodes, list[Edge] edges)               // composition of nodes and edges as tree
+   | tree(list[VELEM] nodes, list[Edge] edges)              // composition of nodes and edges as tree
    | tree(list[VPROP], list[VELEM] nodes, list[Edge] edges)
+   
+/* transformation */
+
+   | rotate(real angle, VELEM elem)							// Rotate element around its anchor point
+   | scale(real perc, VELEM)								// Scale element (same for h and v)
+   | scale(real xperc, real yperc, VELEM elem)				// Scale element (different for h and v)
    ;
    
 /*
  * Wishlist:
- * - improve pies
  * - arrows
  * - textures
  * - boxes with round corners
