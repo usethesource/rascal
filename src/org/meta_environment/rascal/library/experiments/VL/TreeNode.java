@@ -92,15 +92,15 @@ public class TreeNode extends VELEM {
 	void draw(float left, float top) {
 		boolean squareStyle = true;
 		applyProperties();
-		velemNode.draw(left + velemNode.left, top + velemNode.top);
+		velemNode.draw();
 		
 		int n = children.size();
 		
 		if(n > 0){
-			float nodeBottomX = left + velemNode.left + velemNode.width/2;
+			float nodeBottomX = velemNode.left + velemNode.width/2;
 			float nodeBottomY = top + velemNode.height;
 			float vgap = getVGapProperty();
-			final float childTop = top + nodeBottomY + vgap;
+			final float childTop = nodeBottomY + vgap;
 			float horLineY = nodeBottomY + vgap/2;
 			if(squareStyle){
 				
@@ -109,7 +109,7 @@ public class TreeNode extends VELEM {
 				if(n > 1){
 					VELEM leftVE = children.get(0).velemNode;
 					VELEM rightVE = children.get(n-1).velemNode;
-					vlp.line(left + leftVE.left + leftVE.width/2, horLineY, left + rightVE.left + rightVE.width/2, horLineY);
+					vlp.line(leftVE.left + leftVE.width/2, horLineY, rightVE.left + rightVE.width/2, horLineY);
 				}
 			}
 			// TODO line style!
@@ -119,7 +119,7 @@ public class TreeNode extends VELEM {
 				float midChild = child.velemNode.left + child.velemNode.width/2;
 				
 				vlp.line(midChild, child.top, midChild, horLineY);
-				child.draw(left, top);
+				child.draw();
 			}
 		}
 	}
