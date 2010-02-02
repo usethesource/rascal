@@ -105,7 +105,7 @@ public class Tree extends VELEM {
 		this.left = left;
 		this.top = top;
 		applyProperties();
-		root.draw();
+		root.draw(left, top);
 	}
 	
 	@Override
