@@ -242,8 +242,8 @@ data VELEM =
    | graph(list[VELEM] nodes, list[Edge] edges)             // composition of nodes and edges as graph
    | graph(list[VPROP], list[VELEM] nodes, list[Edge] edges)
    
-   | tree(list[VELEM] nodes, list[Edge] edges)              // composition of nodes and edges as tree
-   | tree(list[VPROP], list[VELEM] nodes, list[Edge] edges)
+   | tree(list[VELEM] nodes, list[Edge] edges, str root)              // composition of nodes and edges as tree
+   | tree(list[VPROP], list[VELEM] nodes, list[Edge] edges, str root)
    
 /* transformation */
 

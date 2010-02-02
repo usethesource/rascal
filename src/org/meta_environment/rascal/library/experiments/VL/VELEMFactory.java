@@ -153,10 +153,10 @@ public class VELEMFactory {
 				return new Text(vlp, inheritedProps,  (IList) c.get(0), (IString) c.get(1), ctx);
 			
 		case TREE: 
-			if(c.arity() == 3)
-				return new Tree(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
+			if(c.arity() == 4)
+				return new Tree(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), (IString) c.get(3), ctx);
 			
-			return new Tree(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
+			return new Tree(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), (IString) c.get(2), ctx);
 	
 		case USE:
 			if(c.arity() == 2)
