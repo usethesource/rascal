@@ -32,7 +32,8 @@ public class Pack extends Compose {
 		//width = getWidthProperty();
 		//height = getHeightProperty();
 
-		Node.gap = 3;
+		Node.hgap = getHGapProperty();
+		Node.vgap = getVGapProperty();
 		float surface = 0;
 		float maxw = 0;
 		float maxh = 0;
@@ -99,7 +100,8 @@ public class Pack extends Compose {
 }
 
 class Node {
-	static int gap;
+	static float hgap;
+	static float vgap;
 	Node lnode;
 	Node rnode;
 	VELEM velem;
@@ -158,7 +160,7 @@ class Node {
 			return null;
 		
 		// If we are exactly right return
-		if((dw  <= 2 * gap) && (dh <= 2 * gap)){
+		if((dw  <= 2 * hgap) && (dh <= 2 * vgap)){
 			if(Pack.debug)System.err.println("FIT!");
 			return this;
 		}
@@ -167,12 +169,12 @@ class Node {
 
         if(dw > dh) {
         	if(Pack.debug)System.err.println("case dw > dh");
-        	lnode = new Node(left,                 top, left + v.width + gap, bottom);
-        	rnode = new Node(left + v.width + gap, top, right,                bottom);
+        	lnode = new Node(left,                 top, left + v.width + hgap, bottom);
+        	rnode = new Node(left + v.width + hgap, top, right,                bottom);
         } else {
         	if(Pack.debug)System.err.println("case dw <= dh");
-        	lnode = new Node(left, top,                  right, top + v.height + gap);
-        	rnode = new Node(left, top + v.height + gap, right, bottom);
+        	lnode = new Node(left, top,                  right, top + v.height + vgap);
+        	rnode = new Node(left, top + v.height + vgap, right, bottom);
         }
         
         // insert the velem in left most child
