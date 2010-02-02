@@ -19,7 +19,8 @@ public class Pack extends Compose {
 	
 	Node root;
 	boolean fits = true;
-	static protected boolean debug = false;
+	static protected boolean debug = true;
+	boolean initialized = false;
 
 	Pack(VLPApplet vlp, PropertyManager inheritedProps, IList props,
 			IList elems, IEvaluatorContext ctx) {
@@ -28,7 +29,8 @@ public class Pack extends Compose {
 
 	@Override
 	void bbox() {
-	
+		if(initialized)
+			return;
 		//width = getWidthProperty();
 		//height = getHeightProperty();
 
@@ -78,6 +80,7 @@ public class Pack extends Compose {
 				nd.velem = ve;
 			}
 		}
+		initialized = true;
 	}
 
 	@Override
@@ -90,7 +93,7 @@ public class Pack extends Compose {
 		applyProperties();
 
 		if(fits){
-			if(debug)System.err.printf("pack.draw: left=%d, top=%d\n", left, top);
+			if(debug)System.err.printf("pack.draw: left=%f, top=%f\n", left, top);
 			root.draw(left, top);
 		} else {
 			vlp.fill(0);
@@ -151,6 +154,9 @@ class Node {
 		
 		// If we are too small return
 		
+		if(width <= 0.01f || height <= 0.01f)
+			return null;
+		
 		float dw = width - v.width;
         float dh = height - v.height;
         
@@ -169,11 +175,15 @@ class Node {
 
         if(dw > dh) {
         	if(Pack.debug)System.err.println("case dw > dh");
+//        	lnode = new Node(left,                 top, left + v.width + hgap, bottom);
+//        	rnode = new Node(left + v.width + hgap, top, right,                bottom);
         	lnode = new Node(left,                 top, left + v.width + hgap, bottom);
         	rnode = new Node(left + v.width + hgap, top, right,                bottom);
         } else {
         	if(Pack.debug)System.err.println("case dw <= dh");
-        	lnode = new Node(left, top,                  right, top + v.height + vgap);
+//        	lnode = new Node(left, top,                  right, top + v.height + vgap);
+//        	rnode = new Node(left, top + v.height + vgap, right, bottom);
+           	lnode = new Node(left, top,                  right, top + v.height + vgap);
         	rnode = new Node(left, top + v.height + vgap, right, bottom);
         }
         

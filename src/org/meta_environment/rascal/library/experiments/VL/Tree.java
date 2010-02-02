@@ -104,8 +104,11 @@ public class Tree extends VELEM {
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;
+		vlp.pushMatrix();
+		vlp.translate(left, top);
 		applyProperties();
-		root.draw(left, top);
+		root.draw();
+		vlp.popMatrix();
 	}
 	
 	@Override

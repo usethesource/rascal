@@ -199,6 +199,11 @@ public void ov1(){
 
 // Packed boxes
 
+public void pack0(){
+  boxes = [box([width(50), height(50),fillColor("red")])];
+   render(pack([width(200), height(170), lineWidth(0), gap(5,10), top()], boxes));
+}
+
 public void pack1(){
   boxes = [box([width(50), height(50),fillColor("red")]), box([width(30), height(30),fillColor("yellow")]), 
            box([width(30), height(30),fillColor("green")]), box([width(70), height(50),fillColor("blue")]),
@@ -213,7 +218,24 @@ public void pack1(){
            box([width(10), height(20),fillColor("orange")])                  
            ];
 
-  render(pack([width(200), height(170), lineWidth(0), gap(10), top()], boxes));
+  render(pack([width(200), height(170), lineWidth(0), gap(5,10), top()], boxes));
+}
+
+public void pack2(){
+  boxes = [box([width(50), height(10),fillColor("red")]), box([width(30), height(20),fillColor("yellow")]), 
+           box([width(30), height(150),fillColor("green")]), box([width(70), height(30),fillColor("blue")]),
+           box([width(70), height(10),fillColor("black")]), box([width(10), height(20),fillColor("orange")]),
+           box([width(80), height(10),fillColor("grey")]), box([width(10), height(20),fillColor("white")]),
+           box([width(10), height(10),fillColor("lightblue")]),
+           box([width(10), height(10),fillColor("lightblue")]),
+           box([width(10), height(10),fillColor("lightblue")]),
+           box([width(10), height(20),fillColor("orange")]) ,
+           box([width(10), height(20),fillColor("orange")]),
+           box([width(10), height(20),fillColor("orange")]) ,
+           box([width(10), height(20),fillColor("orange")])                  
+           ];
+
+  render(pack([width(200), height(170), lineWidth(0), gap(5,5), top()], boxes));
 }
 
 // Tree: 1 node
