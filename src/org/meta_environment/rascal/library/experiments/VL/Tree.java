@@ -27,7 +27,7 @@ public class Tree extends VELEM {
 	private TreeNodeRaster raster;
 	TreeNode root = null;
 	
-	Tree(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
+	Tree(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);		
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();
@@ -73,14 +73,19 @@ public class Tree extends VELEM {
 			hasParent.add(toNode);
 			fromNode.addChild(properties, edgeProperties, toNode, ctx);
 		}
-		root = null;
-		for(TreeNode node : nodeMap.values()){
-			if(!hasParent.contains(node)){
-				if(root != null)
-					System.err.println("TREE HAS MULTIPLE ROOTS");
-				root = node;
-			}
-		}
+		
+		root = nodeMap.get(rootName.getValue());
+		
+		if(root == null)
+			throw RuntimeExceptionFactory.illegalArgument(rootName, ctx.getCurrentAST(), ctx.getStackTrace());
+//		root = null;
+//		for(TreeNode node : nodeMap.values()){
+//			if(!hasParent.contains(node)){
+//				if(root != null)
+//					System.err.println("TREE HAS MULTIPLE ROOTS");
+//				root = node;
+//			}
+//		}
 	}
 	
 	@Override

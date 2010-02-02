@@ -228,7 +228,7 @@ public void tree1(){
     	[    	  
     	];
     	  
-    render(tree([gap(10), top()], nodes, edges));
+    render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
 // Tree: 2 nodes
@@ -245,7 +245,7 @@ public void tree2(){
     	  
     	];
     	  
-    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges));
+    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges, "A"));
 }
 
 // Tree: 3 nodes
@@ -262,7 +262,7 @@ public void tree3(){
           edge("A", "C")
     	];
     	  
-    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges));
+    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges, "A"));
 }
 
 // Tree: 4 nodes
@@ -282,7 +282,7 @@ public void tree4(){
           edge("A", "D")
     	];
     	  
-    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges));
+    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges, "A"));
 }
 
 // Tree
@@ -315,7 +315,7 @@ public void tree5(){
     	  edge("D", "J")
     	];
     	    
-    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges));
+    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges, "A"));
 }
 
 // Tree
@@ -347,7 +347,7 @@ public void tree6(){
     	  
     	];
     	    
-    render(tree([gap(10), top()], nodes, edges));
+    render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
 // Tree with text popups.
@@ -381,7 +381,7 @@ public void tree7(){
     	  edge([lineWidth(1)], "E", "J")
     	  
     	];	    
-    render(tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes, edges));
+    render(tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes, edges, "A"));
 }
 
 public void tree8(){
@@ -409,7 +409,7 @@ public void tree8(){
     	  edge([lineWidth(1)], "E", "J")
     	  
     	];	    
-    render(tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes, edges));
+    render(tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes, edges, "A"));
 }
 
 // Tree
@@ -434,7 +434,7 @@ public void tree9(){
     	  edge("E", "G")
     	];
     	    
-    render(tree([gap(10), top(), lineWidth(1)], nodes, edges));
+    render(tree([gap(10), top(), lineWidth(1)], nodes, edges, "A"));
 }
 
 

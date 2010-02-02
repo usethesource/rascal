@@ -1,7 +1,8 @@
 module experiments::VL::Chart
 
 import experiments::VL::VLCore;
-import experiments::VL::VLRender; 
+//import experiments::VL::VLRender; 
+import viz::VLRender;
 import Map;
 import IO;
 import Integer;
@@ -129,7 +130,7 @@ public VELEM yaxis(str title, int length, int start, int incr, int end, int scal
 // One item (name + colored box) in legend
 
 private VELEM legendItem(str name, Color c){
-  return hcat([gap(2), vcenter()], [text([fontSize(10)], "<name> = "), box([size(20,2), lineWidth(0), fillColor(c)])]);
+  return hcat([gap(2), vcenter()], [text([fontSize(10)], "<name> = "), box([size(20,10), lineWidth(0), fillColor(c)])]);
 }
 
 // A complete legend
