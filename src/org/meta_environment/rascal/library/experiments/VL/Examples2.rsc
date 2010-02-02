@@ -265,6 +265,26 @@ public void tree3(){
     render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges, "A"));
 }
 
+// Tree: 3 nodes and hcat
+
+public void tree3a(){
+
+   nodes =
+     	[ box([id("A"), fillColor("green")]),
+     	  box([id("B"), fillColor("red")]),
+     	  box([id("C"), fillColor("blue")])
+     	];
+     	
+    edges = 
+    	[ edge("A", "B"),
+          edge("A", "C")
+    	];
+    	  
+    render(hcat([ ellipse([size(30)]), 
+                  tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges, "A")
+                ]));
+}
+
 // Tree: 4 nodes
 
 public void tree4(){
@@ -435,6 +455,63 @@ public void tree9(){
     	];
     	    
     render(tree([gap(10), top(), lineWidth(1)], nodes, edges, "A"));
+}
+
+public void tree10(){
+ nodes1 =
+     	[ box([id("A"), width(20), height(20), fillColor("green")], popup("Text For Box A")),
+     	  box([id("B"), width(20), height(20), fillColor("red")], popup("Text For Box B")),
+     	  box([id("C"), width(20), height(20), fillColor("blue")], popup("Text For Box C")),
+     	  box([id("D"), width(20), height(20), fillColor("purple")], popup("Text For Box D")),
+     	  box([id("E"), width(20), height(20), fillColor("lightblue")], popup("Text For Box E")),
+     	  box([id("F"), width(20), height(20), fillColor("orange")], popup("Text For Box F")),
+     	  box([id("G"), width(20), height(20), fillColor("brown")], popup("Text For Box G")),
+     	  box([id("H"), width(20), height(20), fillColor("black")], popup("Text For Box H")),
+     	  box([id("I"), width(20), height(20), fillColor("grey")], popup("Text For Box I")),
+     	  box([id("J"), width(20), height(20), fillColor("white")], popup("Text For Box J"))
+     	];
+    edges1 = 
+    	[ edge([lineWidth(1)], "A", "B"),
+    	  edge([lineWidth(1)], "B", "C"),
+    	  edge([lineWidth(1)], "B", "D"),
+    	  edge([lineWidth(1)], "A", "E"),
+    	  edge([lineWidth(1)], "A", "H"),
+    	  edge([lineWidth(1)], "E", "F"),
+    	  edge([lineWidth(1)], "E", "G"),
+    	  edge([lineWidth(1)], "E", "I"),
+    	  edge([lineWidth(1)], "E", "J")
+    	  
+    	];	
+    	
+   atree1 = tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes1, edges1, "A");    
+  
+   nodes2 =
+     	[ ellipse([id("A"), width(20), height(20), fillColor("green")], popup("Text For ellipse A")),
+     	  ellipse([id("B"), width(20), height(20), fillColor("red")], popup("Text For ellipse B")),
+     	  ellipse([id("C"), width(20), height(20), fillColor("blue")], popup("Text For ellipse C")),
+     	  ellipse([id("D"), width(20), height(20), fillColor("purple")], popup("Text For ellipse D")),
+     	  ellipse([id("E"), width(20), height(20), fillColor("lightblue")], popup("Text For ellipse E")),
+     	  ellipse([id("F"), width(20), height(20), fillColor("orange")], popup("Text For ellipse F")),
+     	  ellipse([id("G"), width(20), height(20), fillColor("brown")], popup("Text For ellipse G")),
+     	  ellipse([id("H"), width(20), height(20), fillColor("black")], popup("Text For ellipse H")),
+     	  ellipse([id("I"), width(20), height(20), fillColor("grey")], popup("Text For ellipse I")),
+     	  ellipse([id("J"), width(20), height(20), fillColor("white")], popup("Text For ellipse J"))
+     	];
+    edges2 = 
+    	[ edge([lineWidth(1)], "A", "B"),
+    	  edge([lineWidth(1)], "B", "C"),
+    	  edge([lineWidth(1)], "B", "D"),
+    	  edge([lineWidth(1)], "A", "E"),
+    	  edge([lineWidth(1)], "A", "H"),
+    	  edge([lineWidth(1)], "E", "F"),
+    	  edge([lineWidth(1)], "E", "G"),
+    	  edge([lineWidth(1)], "E", "I"),
+    	  edge([lineWidth(1)], "E", "J")
+    	  
+    	];	    
+    atree2 = tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes2, edges2, "A");
+    
+    render(hcat([atree1, atree2]));
 }
 
 
