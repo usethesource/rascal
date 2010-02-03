@@ -280,6 +280,17 @@ public void pack1(){
   render(pack([width(200), height(170), lineWidth(0), gap(10), top()], boxes));
 }
 
+public void pack2 (){
+   boxes = [box([size(18,2),fillColor("red")]),
+            box([size(2,0),fillColor("green")]),
+            box([size(4,0),fillColor("blue")]),
+            box([size(20,0),fillColor("yellow")]),
+            box([size(2,2),fillColor("orange")]),
+            box([size(46,4),fillColor("black")]),
+            box([size(138,6),fillColor("white")])];
+   render(pack([size(300,300), gap(20,20), center()], boxes));
+}
+
 public void pie1(){
      elems =
      	[ box([width(10), height(100), fillColor("green")])  ,
