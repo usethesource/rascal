@@ -2,29 +2,23 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.INode;
 
 public class ASTFactory {
-public org.meta_environment.rascal.ast.Expression.Any makeExpressionAny(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
-return new org.meta_environment.rascal.ast.Expression.Any(node, generators); 
+public org.meta_environment.rascal.ast.Expression.Map makeExpressionMap(INode node, java.util.List<org.meta_environment.rascal.ast.Mapping> mappings) { 
+return new org.meta_environment.rascal.ast.Expression.Map(node, mappings); 
 }
-public org.meta_environment.rascal.ast.Expression.All makeExpressionAll(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
-return new org.meta_environment.rascal.ast.Expression.All(node, generators); 
+public org.meta_environment.rascal.ast.Expression.Tuple makeExpressionTuple(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) { 
+return new org.meta_environment.rascal.ast.Expression.Tuple(node, elements); 
 }
-public org.meta_environment.rascal.ast.Expression.It makeExpressionIt(INode node) { 
-return new org.meta_environment.rascal.ast.Expression.It(node); 
+public org.meta_environment.rascal.ast.Expression.Set makeExpressionSet(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) { 
+return new org.meta_environment.rascal.ast.Expression.Set(node, elements); 
 }
-public org.meta_environment.rascal.ast.Expression.Reducer makeExpressionReducer(INode node, org.meta_environment.rascal.ast.Expression init, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
-return new org.meta_environment.rascal.ast.Expression.Reducer(node, init, result, generators); 
+public org.meta_environment.rascal.ast.Expression.List makeExpressionList(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) { 
+return new org.meta_environment.rascal.ast.Expression.List(node, elements); 
 }
-public org.meta_environment.rascal.ast.Expression.Comprehension makeExpressionComprehension(INode node, org.meta_environment.rascal.ast.Comprehension comprehension) { 
-return new org.meta_environment.rascal.ast.Expression.Comprehension(node, comprehension); 
+public org.meta_environment.rascal.ast.Expression.QualifiedName makeExpressionQualifiedName(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) { 
+return new org.meta_environment.rascal.ast.Expression.QualifiedName(node, qualifiedName); 
 }
-public org.meta_environment.rascal.ast.Expression.Enumerator makeExpressionEnumerator(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
-return new org.meta_environment.rascal.ast.Expression.Enumerator(node, pattern, expression); 
-}
-public org.meta_environment.rascal.ast.Expression.NoMatch makeExpressionNoMatch(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
-return new org.meta_environment.rascal.ast.Expression.NoMatch(node, pattern, expression); 
-}
-public org.meta_environment.rascal.ast.Expression.Match makeExpressionMatch(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
-return new org.meta_environment.rascal.ast.Expression.Match(node, pattern, expression); 
+public org.meta_environment.rascal.ast.Expression.Literal makeExpressionLiteral(INode node, org.meta_environment.rascal.ast.Literal literal) { 
+return new org.meta_environment.rascal.ast.Expression.Literal(node, literal); 
 }
 public org.meta_environment.rascal.ast.Expression.Lexical makeExpressionLexical(INode node, String string) { 
 return new org.meta_environment.rascal.ast.Expression.Lexical(node, string); 
@@ -41,17 +35,8 @@ return new org.meta_environment.rascal.ast.Expression.Equivalence(node, lhs, rhs
 public org.meta_environment.rascal.ast.Expression.Implication makeExpressionImplication(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
 return new org.meta_environment.rascal.ast.Expression.Implication(node, lhs, rhs); 
 }
-public org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
-return new org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise(node, lhs, rhs); 
-}
-public org.meta_environment.rascal.ast.Expression.IfThenElse makeExpressionIfThenElse(INode node, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) { 
-return new org.meta_environment.rascal.ast.Expression.IfThenElse(node, condition, thenExp, elseExp); 
-}
 public org.meta_environment.rascal.ast.Expression.NonEquals makeExpressionNonEquals(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
 return new org.meta_environment.rascal.ast.Expression.NonEquals(node, lhs, rhs); 
-}
-public org.meta_environment.rascal.ast.Expression.Equals makeExpressionEquals(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
-return new org.meta_environment.rascal.ast.Expression.Equals(node, lhs, rhs); 
 }
 public org.meta_environment.rascal.ast.Expression.GreaterThanOrEq makeExpressionGreaterThanOrEq(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
 return new org.meta_environment.rascal.ast.Expression.GreaterThanOrEq(node, lhs, rhs); 
@@ -128,6 +113,9 @@ return new org.meta_environment.rascal.ast.Expression.FieldAccess(node, expressi
 public org.meta_environment.rascal.ast.Expression.FieldUpdate makeExpressionFieldUpdate(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name key, org.meta_environment.rascal.ast.Expression replacement) { 
 return new org.meta_environment.rascal.ast.Expression.FieldUpdate(node, expression, key, replacement); 
 }
+public org.meta_environment.rascal.ast.Expression.ReifiedType makeExpressionReifiedType(INode node, org.meta_environment.rascal.ast.BasicType basicType, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) { 
+return new org.meta_environment.rascal.ast.Expression.ReifiedType(node, basicType, arguments); 
+}
 public org.meta_environment.rascal.ast.Expression.ReifyType makeExpressionReifyType(INode node, org.meta_environment.rascal.ast.Type type) { 
 return new org.meta_environment.rascal.ast.Expression.ReifyType(node, type); 
 }
@@ -148,30 +136,6 @@ return new org.meta_environment.rascal.ast.Expression.VoidClosure(node, paramete
 }
 public org.meta_environment.rascal.ast.Expression.Closure makeExpressionClosure(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Parameters parameters, java.util.List<org.meta_environment.rascal.ast.Statement> statements) { 
 return new org.meta_environment.rascal.ast.Expression.Closure(node, type, parameters, statements); 
-}
-public org.meta_environment.rascal.ast.Expression.NonEmptyBlock makeExpressionNonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) { 
-return new org.meta_environment.rascal.ast.Expression.NonEmptyBlock(node, statements); 
-}
-public org.meta_environment.rascal.ast.Expression.Map makeExpressionMap(INode node, java.util.List<org.meta_environment.rascal.ast.Mapping> mappings) { 
-return new org.meta_environment.rascal.ast.Expression.Map(node, mappings); 
-}
-public org.meta_environment.rascal.ast.Expression.Tuple makeExpressionTuple(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) { 
-return new org.meta_environment.rascal.ast.Expression.Tuple(node, elements); 
-}
-public org.meta_environment.rascal.ast.Expression.Set makeExpressionSet(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) { 
-return new org.meta_environment.rascal.ast.Expression.Set(node, elements); 
-}
-public org.meta_environment.rascal.ast.Expression.List makeExpressionList(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) { 
-return new org.meta_environment.rascal.ast.Expression.List(node, elements); 
-}
-public org.meta_environment.rascal.ast.Expression.ReifiedType makeExpressionReifiedType(INode node, org.meta_environment.rascal.ast.BasicType basicType, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) { 
-return new org.meta_environment.rascal.ast.Expression.ReifiedType(node, basicType, arguments); 
-}
-public org.meta_environment.rascal.ast.Expression.QualifiedName makeExpressionQualifiedName(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) { 
-return new org.meta_environment.rascal.ast.Expression.QualifiedName(node, qualifiedName); 
-}
-public org.meta_environment.rascal.ast.Expression.Literal makeExpressionLiteral(INode node, org.meta_environment.rascal.ast.Literal literal) { 
-return new org.meta_environment.rascal.ast.Expression.Literal(node, literal); 
 }
 public org.meta_environment.rascal.ast.Expression.Anti makeExpressionAnti(INode node, org.meta_environment.rascal.ast.Expression pattern) { 
 return new org.meta_environment.rascal.ast.Expression.Anti(node, pattern); 
@@ -194,11 +158,503 @@ return new org.meta_environment.rascal.ast.Expression.CallOrTree(node, expressio
 public org.meta_environment.rascal.ast.Expression.MultiVariable makeExpressionMultiVariable(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) { 
 return new org.meta_environment.rascal.ast.Expression.MultiVariable(node, qualifiedName); 
 }
+public org.meta_environment.rascal.ast.Expression.TypedVariable makeExpressionTypedVariable(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) { 
+return new org.meta_environment.rascal.ast.Expression.TypedVariable(node, type, name); 
+}
+public org.meta_environment.rascal.ast.Expression.NonEmptyBlock makeExpressionNonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) { 
+return new org.meta_environment.rascal.ast.Expression.NonEmptyBlock(node, statements); 
+}
+public org.meta_environment.rascal.ast.Expression.Any makeExpressionAny(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
+return new org.meta_environment.rascal.ast.Expression.Any(node, generators); 
+}
+public org.meta_environment.rascal.ast.Expression.All makeExpressionAll(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
+return new org.meta_environment.rascal.ast.Expression.All(node, generators); 
+}
+public org.meta_environment.rascal.ast.Expression.It makeExpressionIt(INode node) { 
+return new org.meta_environment.rascal.ast.Expression.It(node); 
+}
+public org.meta_environment.rascal.ast.Expression.Reducer makeExpressionReducer(INode node, org.meta_environment.rascal.ast.Expression init, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
+return new org.meta_environment.rascal.ast.Expression.Reducer(node, init, result, generators); 
+}
+public org.meta_environment.rascal.ast.Expression.Comprehension makeExpressionComprehension(INode node, org.meta_environment.rascal.ast.Comprehension comprehension) { 
+return new org.meta_environment.rascal.ast.Expression.Comprehension(node, comprehension); 
+}
+public org.meta_environment.rascal.ast.Expression.Equals makeExpressionEquals(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
+return new org.meta_environment.rascal.ast.Expression.Equals(node, lhs, rhs); 
+}
+public org.meta_environment.rascal.ast.Expression.Enumerator makeExpressionEnumerator(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
+return new org.meta_environment.rascal.ast.Expression.Enumerator(node, pattern, expression); 
+}
+public org.meta_environment.rascal.ast.Expression.NoMatch makeExpressionNoMatch(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
+return new org.meta_environment.rascal.ast.Expression.NoMatch(node, pattern, expression); 
+}
+public org.meta_environment.rascal.ast.Expression.Match makeExpressionMatch(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
+return new org.meta_environment.rascal.ast.Expression.Match(node, pattern, expression); 
+}
+public org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
+return new org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise(node, lhs, rhs); 
+}
 public org.meta_environment.rascal.ast.Expression.Ambiguity makeExpressionAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) { 
 return new org.meta_environment.rascal.ast.Expression.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Expression.TypedVariable makeExpressionTypedVariable(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) { 
-return new org.meta_environment.rascal.ast.Expression.TypedVariable(node, type, name); 
+public org.meta_environment.rascal.ast.Expression.IfThenElse makeExpressionIfThenElse(INode node, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) { 
+return new org.meta_environment.rascal.ast.Expression.IfThenElse(node, condition, thenExp, elseExp); 
+}
+public org.meta_environment.rascal.ast.Mapping.Ambiguity makeMappingAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Mapping> alternatives) { 
+return new org.meta_environment.rascal.ast.Mapping.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Mapping.Default makeMappingDefault(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to) { 
+return new org.meta_environment.rascal.ast.Mapping.Default(node, from, to); 
+}
+public org.meta_environment.rascal.ast.Strategy.Innermost makeStrategyInnermost(INode node) { 
+return new org.meta_environment.rascal.ast.Strategy.Innermost(node); 
+}
+public org.meta_environment.rascal.ast.Strategy.Outermost makeStrategyOutermost(INode node) { 
+return new org.meta_environment.rascal.ast.Strategy.Outermost(node); 
+}
+public org.meta_environment.rascal.ast.Strategy.BottomUpBreak makeStrategyBottomUpBreak(INode node) { 
+return new org.meta_environment.rascal.ast.Strategy.BottomUpBreak(node); 
+}
+public org.meta_environment.rascal.ast.Strategy.BottomUp makeStrategyBottomUp(INode node) { 
+return new org.meta_environment.rascal.ast.Strategy.BottomUp(node); 
+}
+public org.meta_environment.rascal.ast.Strategy.TopDownBreak makeStrategyTopDownBreak(INode node) { 
+return new org.meta_environment.rascal.ast.Strategy.TopDownBreak(node); 
+}
+public org.meta_environment.rascal.ast.Strategy.Ambiguity makeStrategyAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Strategy> alternatives) { 
+return new org.meta_environment.rascal.ast.Strategy.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Strategy.TopDown makeStrategyTopDown(INode node) { 
+return new org.meta_environment.rascal.ast.Strategy.TopDown(node); 
+}
+public org.meta_environment.rascal.ast.Comprehension.Map makeComprehensionMap(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
+return new org.meta_environment.rascal.ast.Comprehension.Map(node, from, to, generators); 
+}
+public org.meta_environment.rascal.ast.Comprehension.List makeComprehensionList(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> results, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
+return new org.meta_environment.rascal.ast.Comprehension.List(node, results, generators); 
+}
+public org.meta_environment.rascal.ast.Comprehension.Ambiguity makeComprehensionAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Comprehension> alternatives) { 
+return new org.meta_environment.rascal.ast.Comprehension.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Comprehension.Set makeComprehensionSet(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> results, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
+return new org.meta_environment.rascal.ast.Comprehension.Set(node, results, generators); 
+}
+public org.meta_environment.rascal.ast.Replacement.Conditional makeReplacementConditional(INode node, org.meta_environment.rascal.ast.Expression replacementExpression, java.util.List<org.meta_environment.rascal.ast.Expression> conditions) { 
+return new org.meta_environment.rascal.ast.Replacement.Conditional(node, replacementExpression, conditions); 
+}
+public org.meta_environment.rascal.ast.Replacement.Ambiguity makeReplacementAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives) { 
+return new org.meta_environment.rascal.ast.Replacement.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Replacement.Unconditional makeReplacementUnconditional(INode node, org.meta_environment.rascal.ast.Expression replacementExpression) { 
+return new org.meta_environment.rascal.ast.Replacement.Unconditional(node, replacementExpression); 
+}
+public org.meta_environment.rascal.ast.PatternWithAction.Arbitrary makePatternWithActionArbitrary(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement statement) { 
+return new org.meta_environment.rascal.ast.PatternWithAction.Arbitrary(node, pattern, statement); 
+}
+public org.meta_environment.rascal.ast.PatternWithAction.Ambiguity makePatternWithActionAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.PatternWithAction> alternatives) { 
+return new org.meta_environment.rascal.ast.PatternWithAction.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.PatternWithAction.Replacing makePatternWithActionReplacing(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Replacement replacement) { 
+return new org.meta_environment.rascal.ast.PatternWithAction.Replacing(node, pattern, replacement); 
+}
+public org.meta_environment.rascal.ast.Case.Default makeCaseDefault(INode node, org.meta_environment.rascal.ast.Statement statement) { 
+return new org.meta_environment.rascal.ast.Case.Default(node, statement); 
+}
+public org.meta_environment.rascal.ast.Case.Ambiguity makeCaseAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Case> alternatives) { 
+return new org.meta_environment.rascal.ast.Case.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Case.PatternWithAction makeCasePatternWithAction(INode node, org.meta_environment.rascal.ast.PatternWithAction patternWithAction) { 
+return new org.meta_environment.rascal.ast.Case.PatternWithAction(node, patternWithAction); 
+}
+public org.meta_environment.rascal.ast.Visit.GivenStrategy makeVisitGivenStrategy(INode node, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression subject, java.util.List<org.meta_environment.rascal.ast.Case> cases) { 
+return new org.meta_environment.rascal.ast.Visit.GivenStrategy(node, strategy, subject, cases); 
+}
+public org.meta_environment.rascal.ast.Visit.Ambiguity makeVisitAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Visit> alternatives) { 
+return new org.meta_environment.rascal.ast.Visit.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Visit.DefaultStrategy makeVisitDefaultStrategy(INode node, org.meta_environment.rascal.ast.Expression subject, java.util.List<org.meta_environment.rascal.ast.Case> cases) { 
+return new org.meta_environment.rascal.ast.Visit.DefaultStrategy(node, subject, cases); 
+}
+public org.meta_environment.rascal.ast.Literal.DateTime makeLiteralDateTime(INode node, org.meta_environment.rascal.ast.DateTimeLiteral dateTimeLiteral) { 
+return new org.meta_environment.rascal.ast.Literal.DateTime(node, dateTimeLiteral); 
+}
+public org.meta_environment.rascal.ast.Literal.Location makeLiteralLocation(INode node, org.meta_environment.rascal.ast.LocationLiteral locationLiteral) { 
+return new org.meta_environment.rascal.ast.Literal.Location(node, locationLiteral); 
+}
+public org.meta_environment.rascal.ast.Literal.String makeLiteralString(INode node, org.meta_environment.rascal.ast.StringLiteral stringLiteral) { 
+return new org.meta_environment.rascal.ast.Literal.String(node, stringLiteral); 
+}
+public org.meta_environment.rascal.ast.Literal.Real makeLiteralReal(INode node, org.meta_environment.rascal.ast.RealLiteral realLiteral) { 
+return new org.meta_environment.rascal.ast.Literal.Real(node, realLiteral); 
+}
+public org.meta_environment.rascal.ast.Literal.Integer makeLiteralInteger(INode node, org.meta_environment.rascal.ast.IntegerLiteral integerLiteral) { 
+return new org.meta_environment.rascal.ast.Literal.Integer(node, integerLiteral); 
+}
+public org.meta_environment.rascal.ast.Literal.Boolean makeLiteralBoolean(INode node, org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral) { 
+return new org.meta_environment.rascal.ast.Literal.Boolean(node, booleanLiteral); 
+}
+public org.meta_environment.rascal.ast.Literal.Ambiguity makeLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Literal> alternatives) { 
+return new org.meta_environment.rascal.ast.Literal.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Literal.RegExp makeLiteralRegExp(INode node, org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral) { 
+return new org.meta_environment.rascal.ast.Literal.RegExp(node, regExpLiteral); 
+}
+public org.meta_environment.rascal.ast.Command.Lexical makeCommandLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.Command.Lexical(node, string); 
+}
+public org.meta_environment.rascal.ast.Command.Import makeCommandImport(INode node, org.meta_environment.rascal.ast.Import imported) { 
+return new org.meta_environment.rascal.ast.Command.Import(node, imported); 
+}
+public org.meta_environment.rascal.ast.Command.Declaration makeCommandDeclaration(INode node, org.meta_environment.rascal.ast.Declaration declaration) { 
+return new org.meta_environment.rascal.ast.Command.Declaration(node, declaration); 
+}
+public org.meta_environment.rascal.ast.Command.Expression makeCommandExpression(INode node, org.meta_environment.rascal.ast.Expression expression) { 
+return new org.meta_environment.rascal.ast.Command.Expression(node, expression); 
+}
+public org.meta_environment.rascal.ast.Command.Statement makeCommandStatement(INode node, org.meta_environment.rascal.ast.Statement statement) { 
+return new org.meta_environment.rascal.ast.Command.Statement(node, statement); 
+}
+public org.meta_environment.rascal.ast.Command.Ambiguity makeCommandAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Command> alternatives) { 
+return new org.meta_environment.rascal.ast.Command.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Command.Shell makeCommandShell(INode node, org.meta_environment.rascal.ast.ShellCommand command) { 
+return new org.meta_environment.rascal.ast.Command.Shell(node, command); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.SetOption makeShellCommandSetOption(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Expression expression) { 
+return new org.meta_environment.rascal.ast.ShellCommand.SetOption(node, name, expression); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.History makeShellCommandHistory(INode node) { 
+return new org.meta_environment.rascal.ast.ShellCommand.History(node); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.Undeclare makeShellCommandUndeclare(INode node, org.meta_environment.rascal.ast.QualifiedName name) { 
+return new org.meta_environment.rascal.ast.ShellCommand.Undeclare(node, name); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.Unimport makeShellCommandUnimport(INode node, org.meta_environment.rascal.ast.QualifiedName name) { 
+return new org.meta_environment.rascal.ast.ShellCommand.Unimport(node, name); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.Test makeShellCommandTest(INode node) { 
+return new org.meta_environment.rascal.ast.ShellCommand.Test(node); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.ListDeclarations makeShellCommandListDeclarations(INode node) { 
+return new org.meta_environment.rascal.ast.ShellCommand.ListDeclarations(node); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.ListModules makeShellCommandListModules(INode node) { 
+return new org.meta_environment.rascal.ast.ShellCommand.ListModules(node); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.Edit makeShellCommandEdit(INode node, org.meta_environment.rascal.ast.QualifiedName name) { 
+return new org.meta_environment.rascal.ast.ShellCommand.Edit(node, name); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.Quit makeShellCommandQuit(INode node) { 
+return new org.meta_environment.rascal.ast.ShellCommand.Quit(node); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.Ambiguity makeShellCommandAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives) { 
+return new org.meta_environment.rascal.ast.ShellCommand.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.ShellCommand.Help makeShellCommandHelp(INode node) { 
+return new org.meta_environment.rascal.ast.ShellCommand.Help(node); 
+}
+public org.meta_environment.rascal.ast.StrChar.Lexical makeStrCharLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.StrChar.Lexical(node, string); 
+}
+public org.meta_environment.rascal.ast.StrChar.Ambiguity makeStrCharAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StrChar> alternatives) { 
+return new org.meta_environment.rascal.ast.StrChar.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.StrChar.newline makeStrCharnewline(INode node) { 
+return new org.meta_environment.rascal.ast.StrChar.newline(node); 
+}
+public org.meta_environment.rascal.ast.StrCon.Ambiguity makeStrConAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StrCon> alternatives) { 
+return new org.meta_environment.rascal.ast.StrCon.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.StrCon.Lexical makeStrConLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.StrCon.Lexical(node, string); 
+}
+public org.meta_environment.rascal.ast.SingleQuotedStrChar.Ambiguity makeSingleQuotedStrCharAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrChar> alternatives) { 
+return new org.meta_environment.rascal.ast.SingleQuotedStrChar.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.SingleQuotedStrChar.Lexical makeSingleQuotedStrCharLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.SingleQuotedStrChar.Lexical(node, string); 
+}
+public org.meta_environment.rascal.ast.SingleQuotedStrCon.Ambiguity makeSingleQuotedStrConAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrCon> alternatives) { 
+return new org.meta_environment.rascal.ast.SingleQuotedStrCon.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.SingleQuotedStrCon.Lexical makeSingleQuotedStrConLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.SingleQuotedStrCon.Lexical(node, string); 
+}
+public org.meta_environment.rascal.ast.Symbol.Sort makeSymbolSort(INode node, org.meta_environment.rascal.ast.Name name) { 
+return new org.meta_environment.rascal.ast.Symbol.Sort(node, name); 
+}
+public org.meta_environment.rascal.ast.Symbol.CaseInsensitiveLiteral makeSymbolCaseInsensitiveLiteral(INode node, org.meta_environment.rascal.ast.SingleQuotedStrCon singelQuotedString) { 
+return new org.meta_environment.rascal.ast.Symbol.CaseInsensitiveLiteral(node, singelQuotedString); 
+}
+public org.meta_environment.rascal.ast.Symbol.Literal makeSymbolLiteral(INode node, org.meta_environment.rascal.ast.StrCon string) { 
+return new org.meta_environment.rascal.ast.Symbol.Literal(node, string); 
+}
+public org.meta_environment.rascal.ast.Symbol.CharacterClass makeSymbolCharacterClass(INode node, org.meta_environment.rascal.ast.CharClass charClass) { 
+return new org.meta_environment.rascal.ast.Symbol.CharacterClass(node, charClass); 
+}
+public org.meta_environment.rascal.ast.Symbol.Alternative makeSymbolAlternative(INode node, org.meta_environment.rascal.ast.Symbol lhs, org.meta_environment.rascal.ast.Symbol rhs) { 
+return new org.meta_environment.rascal.ast.Symbol.Alternative(node, lhs, rhs); 
+}
+public org.meta_environment.rascal.ast.Symbol.IterStarSep makeSymbolIterStarSep(INode node, org.meta_environment.rascal.ast.Symbol symbol, org.meta_environment.rascal.ast.StrCon sep) { 
+return new org.meta_environment.rascal.ast.Symbol.IterStarSep(node, symbol, sep); 
+}
+public org.meta_environment.rascal.ast.Symbol.IterSep makeSymbolIterSep(INode node, org.meta_environment.rascal.ast.Symbol symbol, org.meta_environment.rascal.ast.StrCon sep) { 
+return new org.meta_environment.rascal.ast.Symbol.IterSep(node, symbol, sep); 
+}
+public org.meta_environment.rascal.ast.Symbol.IterStar makeSymbolIterStar(INode node, org.meta_environment.rascal.ast.Symbol symbol) { 
+return new org.meta_environment.rascal.ast.Symbol.IterStar(node, symbol); 
+}
+public org.meta_environment.rascal.ast.Symbol.Iter makeSymbolIter(INode node, org.meta_environment.rascal.ast.Symbol symbol) { 
+return new org.meta_environment.rascal.ast.Symbol.Iter(node, symbol); 
+}
+public org.meta_environment.rascal.ast.Symbol.Optional makeSymbolOptional(INode node, org.meta_environment.rascal.ast.Symbol symbol) { 
+return new org.meta_environment.rascal.ast.Symbol.Optional(node, symbol); 
+}
+public org.meta_environment.rascal.ast.Symbol.Sequence makeSymbolSequence(INode node, org.meta_environment.rascal.ast.Symbol head, java.util.List<org.meta_environment.rascal.ast.Symbol> tail) { 
+return new org.meta_environment.rascal.ast.Symbol.Sequence(node, head, tail); 
+}
+public org.meta_environment.rascal.ast.Symbol.Ambiguity makeSymbolAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Symbol> alternatives) { 
+return new org.meta_environment.rascal.ast.Symbol.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Symbol.Empty makeSymbolEmpty(INode node) { 
+return new org.meta_environment.rascal.ast.Symbol.Empty(node); 
+}
+public org.meta_environment.rascal.ast.Type.Bracket makeTypeBracket(INode node, org.meta_environment.rascal.ast.Type type) { 
+return new org.meta_environment.rascal.ast.Type.Bracket(node, type); 
+}
+public org.meta_environment.rascal.ast.Type.Selector makeTypeSelector(INode node, org.meta_environment.rascal.ast.DataTypeSelector selector) { 
+return new org.meta_environment.rascal.ast.Type.Selector(node, selector); 
+}
+public org.meta_environment.rascal.ast.Type.User makeTypeUser(INode node, org.meta_environment.rascal.ast.UserType user) { 
+return new org.meta_environment.rascal.ast.Type.User(node, user); 
+}
+public org.meta_environment.rascal.ast.Type.Variable makeTypeVariable(INode node, org.meta_environment.rascal.ast.TypeVar typeVar) { 
+return new org.meta_environment.rascal.ast.Type.Variable(node, typeVar); 
+}
+public org.meta_environment.rascal.ast.Type.Function makeTypeFunction(INode node, org.meta_environment.rascal.ast.FunctionType function) { 
+return new org.meta_environment.rascal.ast.Type.Function(node, function); 
+}
+public org.meta_environment.rascal.ast.Type.Structured makeTypeStructured(INode node, org.meta_environment.rascal.ast.StructuredType structured) { 
+return new org.meta_environment.rascal.ast.Type.Structured(node, structured); 
+}
+public org.meta_environment.rascal.ast.Type.Basic makeTypeBasic(INode node, org.meta_environment.rascal.ast.BasicType basic) { 
+return new org.meta_environment.rascal.ast.Type.Basic(node, basic); 
+}
+public org.meta_environment.rascal.ast.Type.Ambiguity makeTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Type> alternatives) { 
+return new org.meta_environment.rascal.ast.Type.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Type.Symbol makeTypeSymbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) { 
+return new org.meta_environment.rascal.ast.Type.Symbol(node, symbol); 
+}
+public org.meta_environment.rascal.ast.CharRange.Range makeCharRangeRange(INode node, org.meta_environment.rascal.ast.Character start, org.meta_environment.rascal.ast.Character end) { 
+return new org.meta_environment.rascal.ast.CharRange.Range(node, start, end); 
+}
+public org.meta_environment.rascal.ast.CharRange.Ambiguity makeCharRangeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharRange> alternatives) { 
+return new org.meta_environment.rascal.ast.CharRange.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.CharRange.Character makeCharRangeCharacter(INode node, org.meta_environment.rascal.ast.Character character) { 
+return new org.meta_environment.rascal.ast.CharRange.Character(node, character); 
+}
+public org.meta_environment.rascal.ast.CharRanges.Bracket makeCharRangesBracket(INode node, org.meta_environment.rascal.ast.CharRanges ranges) { 
+return new org.meta_environment.rascal.ast.CharRanges.Bracket(node, ranges); 
+}
+public org.meta_environment.rascal.ast.CharRanges.Concatenate makeCharRangesConcatenate(INode node, org.meta_environment.rascal.ast.CharRanges lhs, org.meta_environment.rascal.ast.CharRanges rhs) { 
+return new org.meta_environment.rascal.ast.CharRanges.Concatenate(node, lhs, rhs); 
+}
+public org.meta_environment.rascal.ast.CharRanges.Ambiguity makeCharRangesAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharRanges> alternatives) { 
+return new org.meta_environment.rascal.ast.CharRanges.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.CharRanges.Range makeCharRangesRange(INode node, org.meta_environment.rascal.ast.CharRange range) { 
+return new org.meta_environment.rascal.ast.CharRanges.Range(node, range); 
+}
+public org.meta_environment.rascal.ast.OptCharRanges.Present makeOptCharRangesPresent(INode node, org.meta_environment.rascal.ast.CharRanges ranges) { 
+return new org.meta_environment.rascal.ast.OptCharRanges.Present(node, ranges); 
+}
+public org.meta_environment.rascal.ast.OptCharRanges.Ambiguity makeOptCharRangesAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.OptCharRanges> alternatives) { 
+return new org.meta_environment.rascal.ast.OptCharRanges.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.OptCharRanges.Absent makeOptCharRangesAbsent(INode node) { 
+return new org.meta_environment.rascal.ast.OptCharRanges.Absent(node); 
+}
+public org.meta_environment.rascal.ast.CharClass.Union makeCharClassUnion(INode node, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) { 
+return new org.meta_environment.rascal.ast.CharClass.Union(node, lhs, rhs); 
+}
+public org.meta_environment.rascal.ast.CharClass.Intersection makeCharClassIntersection(INode node, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) { 
+return new org.meta_environment.rascal.ast.CharClass.Intersection(node, lhs, rhs); 
+}
+public org.meta_environment.rascal.ast.CharClass.Difference makeCharClassDifference(INode node, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) { 
+return new org.meta_environment.rascal.ast.CharClass.Difference(node, lhs, rhs); 
+}
+public org.meta_environment.rascal.ast.CharClass.Complement makeCharClassComplement(INode node, org.meta_environment.rascal.ast.CharClass charClass) { 
+return new org.meta_environment.rascal.ast.CharClass.Complement(node, charClass); 
+}
+public org.meta_environment.rascal.ast.CharClass.Bracket makeCharClassBracket(INode node, org.meta_environment.rascal.ast.CharClass charClass) { 
+return new org.meta_environment.rascal.ast.CharClass.Bracket(node, charClass); 
+}
+public org.meta_environment.rascal.ast.CharClass.Ambiguity makeCharClassAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharClass> alternatives) { 
+return new org.meta_environment.rascal.ast.CharClass.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.CharClass.SimpleCharclass makeCharClassSimpleCharclass(INode node, org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges) { 
+return new org.meta_environment.rascal.ast.CharClass.SimpleCharclass(node, optionalCharRanges); 
+}
+public org.meta_environment.rascal.ast.NumChar.Ambiguity makeNumCharAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.NumChar> alternatives) { 
+return new org.meta_environment.rascal.ast.NumChar.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.NumChar.Lexical makeNumCharLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.NumChar.Lexical(node, string); 
+}
+public org.meta_environment.rascal.ast.ShortChar.Ambiguity makeShortCharAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ShortChar> alternatives) { 
+return new org.meta_environment.rascal.ast.ShortChar.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.ShortChar.Lexical makeShortCharLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.ShortChar.Lexical(node, string); 
+}
+public org.meta_environment.rascal.ast.Character.Bottom makeCharacterBottom(INode node) { 
+return new org.meta_environment.rascal.ast.Character.Bottom(node); 
+}
+public org.meta_environment.rascal.ast.Character.EOF makeCharacterEOF(INode node) { 
+return new org.meta_environment.rascal.ast.Character.EOF(node); 
+}
+public org.meta_environment.rascal.ast.Character.Top makeCharacterTop(INode node) { 
+return new org.meta_environment.rascal.ast.Character.Top(node); 
+}
+public org.meta_environment.rascal.ast.Character.Short makeCharacterShort(INode node, org.meta_environment.rascal.ast.ShortChar shortChar) { 
+return new org.meta_environment.rascal.ast.Character.Short(node, shortChar); 
+}
+public org.meta_environment.rascal.ast.Character.Ambiguity makeCharacterAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Character> alternatives) { 
+return new org.meta_environment.rascal.ast.Character.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Character.Numeric makeCharacterNumeric(INode node, org.meta_environment.rascal.ast.NumChar numChar) { 
+return new org.meta_environment.rascal.ast.Character.Numeric(node, numChar); 
+}
+public org.meta_environment.rascal.ast.Body.Anything makeBodyAnything(INode node, org.meta_environment.rascal.ast.Marker marker, org.meta_environment.rascal.ast.Rest rest) { 
+return new org.meta_environment.rascal.ast.Body.Anything(node, marker, rest); 
+}
+public org.meta_environment.rascal.ast.Body.Ambiguity makeBodyAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Body> alternatives) { 
+return new org.meta_environment.rascal.ast.Body.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Body.Toplevels makeBodyToplevels(INode node, java.util.List<org.meta_environment.rascal.ast.Toplevel> toplevels) { 
+return new org.meta_environment.rascal.ast.Body.Toplevels(node, toplevels); 
+}
+public org.meta_environment.rascal.ast.Formal.Ambiguity makeFormalAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Formal> alternatives) { 
+return new org.meta_environment.rascal.ast.Formal.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Formal.TypeName makeFormalTypeName(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) { 
+return new org.meta_environment.rascal.ast.Formal.TypeName(node, type, name); 
+}
+public org.meta_environment.rascal.ast.Formals.Ambiguity makeFormalsAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Formals> alternatives) { 
+return new org.meta_environment.rascal.ast.Formals.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Formals.Default makeFormalsDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Formal> formals) { 
+return new org.meta_environment.rascal.ast.Formals.Default(node, formals); 
+}
+public org.meta_environment.rascal.ast.Parameters.VarArgs makeParametersVarArgs(INode node, org.meta_environment.rascal.ast.Formals formals) { 
+return new org.meta_environment.rascal.ast.Parameters.VarArgs(node, formals); 
+}
+public org.meta_environment.rascal.ast.Parameters.Ambiguity makeParametersAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Parameters> alternatives) { 
+return new org.meta_environment.rascal.ast.Parameters.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Parameters.Default makeParametersDefault(INode node, org.meta_environment.rascal.ast.Formals formals) { 
+return new org.meta_environment.rascal.ast.Parameters.Default(node, formals); 
+}
+public org.meta_environment.rascal.ast.ProtocolTail.Post makeProtocolTailPost(INode node, org.meta_environment.rascal.ast.PostProtocolChars post) { 
+return new org.meta_environment.rascal.ast.ProtocolTail.Post(node, post); 
+}
+public org.meta_environment.rascal.ast.ProtocolTail.Ambiguity makeProtocolTailAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ProtocolTail> alternatives) { 
+return new org.meta_environment.rascal.ast.ProtocolTail.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.ProtocolTail.Mid makeProtocolTailMid(INode node, org.meta_environment.rascal.ast.MidProtocolChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.ProtocolTail tail) { 
+return new org.meta_environment.rascal.ast.ProtocolTail.Mid(node, mid, expression, tail); 
+}
+public org.meta_environment.rascal.ast.ProtocolPart.NonInterpolated makeProtocolPartNonInterpolated(INode node, org.meta_environment.rascal.ast.ProtocolChars protocolChars) { 
+return new org.meta_environment.rascal.ast.ProtocolPart.NonInterpolated(node, protocolChars); 
+}
+public org.meta_environment.rascal.ast.ProtocolPart.Ambiguity makeProtocolPartAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ProtocolPart> alternatives) { 
+return new org.meta_environment.rascal.ast.ProtocolPart.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.ProtocolPart.Interpolated makeProtocolPartInterpolated(INode node, org.meta_environment.rascal.ast.PreProtocolChars pre, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.ProtocolTail tail) { 
+return new org.meta_environment.rascal.ast.ProtocolPart.Interpolated(node, pre, expression, tail); 
+}
+public org.meta_environment.rascal.ast.PathTail.Post makePathTailPost(INode node, org.meta_environment.rascal.ast.PostPathChars post) { 
+return new org.meta_environment.rascal.ast.PathTail.Post(node, post); 
+}
+public org.meta_environment.rascal.ast.PathTail.Ambiguity makePathTailAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.PathTail> alternatives) { 
+return new org.meta_environment.rascal.ast.PathTail.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.PathTail.Mid makePathTailMid(INode node, org.meta_environment.rascal.ast.MidPathChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.PathTail tail) { 
+return new org.meta_environment.rascal.ast.PathTail.Mid(node, mid, expression, tail); 
+}
+public org.meta_environment.rascal.ast.PathPart.NonInterpolated makePathPartNonInterpolated(INode node, org.meta_environment.rascal.ast.PathChars pathChars) { 
+return new org.meta_environment.rascal.ast.PathPart.NonInterpolated(node, pathChars); 
+}
+public org.meta_environment.rascal.ast.PathPart.Ambiguity makePathPartAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.PathPart> alternatives) { 
+return new org.meta_environment.rascal.ast.PathPart.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.PathPart.Interpolated makePathPartInterpolated(INode node, org.meta_environment.rascal.ast.PrePathChars pre, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.PathTail tail) { 
+return new org.meta_environment.rascal.ast.PathPart.Interpolated(node, pre, expression, tail); 
+}
+public org.meta_environment.rascal.ast.StringTail.Post makeStringTailPost(INode node, org.meta_environment.rascal.ast.PostStringChars post) { 
+return new org.meta_environment.rascal.ast.StringTail.Post(node, post); 
+}
+public org.meta_environment.rascal.ast.StringTail.MidTemplate makeStringTailMidTemplate(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.StringTemplate template, org.meta_environment.rascal.ast.StringTail tail) { 
+return new org.meta_environment.rascal.ast.StringTail.MidTemplate(node, mid, template, tail); 
+}
+public org.meta_environment.rascal.ast.StringTail.Ambiguity makeStringTailAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringTail> alternatives) { 
+return new org.meta_environment.rascal.ast.StringTail.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.StringTail.MidInterpolated makeStringTailMidInterpolated(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringTail tail) { 
+return new org.meta_environment.rascal.ast.StringTail.MidInterpolated(node, mid, expression, tail); 
+}
+public org.meta_environment.rascal.ast.StringLiteral.NonInterpolated makeStringLiteralNonInterpolated(INode node, org.meta_environment.rascal.ast.StringConstant constant) { 
+return new org.meta_environment.rascal.ast.StringLiteral.NonInterpolated(node, constant); 
+}
+public org.meta_environment.rascal.ast.StringLiteral.Template makeStringLiteralTemplate(INode node, org.meta_environment.rascal.ast.PreStringChars pre, org.meta_environment.rascal.ast.StringTemplate template, org.meta_environment.rascal.ast.StringTail tail) { 
+return new org.meta_environment.rascal.ast.StringLiteral.Template(node, pre, template, tail); 
+}
+public org.meta_environment.rascal.ast.StringLiteral.Ambiguity makeStringLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringLiteral> alternatives) { 
+return new org.meta_environment.rascal.ast.StringLiteral.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.StringLiteral.Interpolated makeStringLiteralInterpolated(INode node, org.meta_environment.rascal.ast.PreStringChars pre, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringTail tail) { 
+return new org.meta_environment.rascal.ast.StringLiteral.Interpolated(node, pre, expression, tail); 
+}
+public org.meta_environment.rascal.ast.StringMiddle.Template makeStringMiddleTemplate(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.StringTemplate template, org.meta_environment.rascal.ast.StringMiddle tail) { 
+return new org.meta_environment.rascal.ast.StringMiddle.Template(node, mid, template, tail); 
+}
+public org.meta_environment.rascal.ast.StringMiddle.Interpolated makeStringMiddleInterpolated(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringMiddle tail) { 
+return new org.meta_environment.rascal.ast.StringMiddle.Interpolated(node, mid, expression, tail); 
+}
+public org.meta_environment.rascal.ast.StringMiddle.Ambiguity makeStringMiddleAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringMiddle> alternatives) { 
+return new org.meta_environment.rascal.ast.StringMiddle.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.StringMiddle.Mid makeStringMiddleMid(INode node, org.meta_environment.rascal.ast.MidStringChars mid) { 
+return new org.meta_environment.rascal.ast.StringMiddle.Mid(node, mid); 
+}
+public org.meta_environment.rascal.ast.StringTemplate.DoWhile makeStringTemplateDoWhile(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats, org.meta_environment.rascal.ast.Expression condition) { 
+return new org.meta_environment.rascal.ast.StringTemplate.DoWhile(node, preStats, body, postStats, condition); 
+}
+public org.meta_environment.rascal.ast.StringTemplate.While makeStringTemplateWhile(INode node, org.meta_environment.rascal.ast.Expression condition, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats) { 
+return new org.meta_environment.rascal.ast.StringTemplate.While(node, condition, preStats, body, postStats); 
+}
+public org.meta_environment.rascal.ast.StringTemplate.IfThenElse makeStringTemplateIfThenElse(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, java.util.List<org.meta_environment.rascal.ast.Statement> preStatsThen, org.meta_environment.rascal.ast.StringMiddle thenString, java.util.List<org.meta_environment.rascal.ast.Statement> postStatsThen, java.util.List<org.meta_environment.rascal.ast.Statement> preStatsElse, org.meta_environment.rascal.ast.StringMiddle elseString, java.util.List<org.meta_environment.rascal.ast.Statement> postStatsElse) { 
+return new org.meta_environment.rascal.ast.StringTemplate.IfThenElse(node, conditions, preStatsThen, thenString, postStatsThen, preStatsElse, elseString, postStatsElse); 
+}
+public org.meta_environment.rascal.ast.StringTemplate.IfThen makeStringTemplateIfThen(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats) { 
+return new org.meta_environment.rascal.ast.StringTemplate.IfThen(node, conditions, preStats, body, postStats); 
+}
+public org.meta_environment.rascal.ast.StringTemplate.Ambiguity makeStringTemplateAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringTemplate> alternatives) { 
+return new org.meta_environment.rascal.ast.StringTemplate.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.StringTemplate.For makeStringTemplateFor(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats) { 
+return new org.meta_environment.rascal.ast.StringTemplate.For(node, generators, preStats, body, postStats); 
+}
+public org.meta_environment.rascal.ast.Field.Index makeFieldIndex(INode node, org.meta_environment.rascal.ast.IntegerLiteral fieldIndex) { 
+return new org.meta_environment.rascal.ast.Field.Index(node, fieldIndex); 
+}
+public org.meta_environment.rascal.ast.Field.Ambiguity makeFieldAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Field> alternatives) { 
+return new org.meta_environment.rascal.ast.Field.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Field.Name makeFieldName(INode node, org.meta_environment.rascal.ast.Name fieldName) { 
+return new org.meta_environment.rascal.ast.Field.Name(node, fieldName); 
 }
 public org.meta_environment.rascal.ast.Visibility.Default makeVisibilityDefault(INode node) { 
 return new org.meta_environment.rascal.ast.Visibility.Default(node); 
@@ -235,6 +691,9 @@ return new org.meta_environment.rascal.ast.Declaration.Function(node, functionDe
 }
 public org.meta_environment.rascal.ast.Declaration.Test makeDeclarationTest(INode node, org.meta_environment.rascal.ast.Test test) { 
 return new org.meta_environment.rascal.ast.Declaration.Test(node, test); 
+}
+public org.meta_environment.rascal.ast.Declaration.DataAbstract makeDeclarationDataAbstract(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.UserType user) { 
+return new org.meta_environment.rascal.ast.Declaration.DataAbstract(node, tags, visibility, user); 
 }
 public org.meta_environment.rascal.ast.Declaration.Data makeDeclarationData(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.UserType user, java.util.List<org.meta_environment.rascal.ast.Variant> variants) { 
 return new org.meta_environment.rascal.ast.Declaration.Data(node, tags, visibility, user, variants); 
@@ -377,30 +836,6 @@ return new org.meta_environment.rascal.ast.Tags.Ambiguity(node, alternatives);
 public org.meta_environment.rascal.ast.Tags.Default makeTagsDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Tag> tags) { 
 return new org.meta_environment.rascal.ast.Tags.Default(node, tags); 
 }
-public org.meta_environment.rascal.ast.Literal.DateTime makeLiteralDateTime(INode node, org.meta_environment.rascal.ast.DateTimeLiteral dateTimeLiteral) { 
-return new org.meta_environment.rascal.ast.Literal.DateTime(node, dateTimeLiteral); 
-}
-public org.meta_environment.rascal.ast.Literal.Location makeLiteralLocation(INode node, org.meta_environment.rascal.ast.LocationLiteral locationLiteral) { 
-return new org.meta_environment.rascal.ast.Literal.Location(node, locationLiteral); 
-}
-public org.meta_environment.rascal.ast.Literal.String makeLiteralString(INode node, org.meta_environment.rascal.ast.StringLiteral stringLiteral) { 
-return new org.meta_environment.rascal.ast.Literal.String(node, stringLiteral); 
-}
-public org.meta_environment.rascal.ast.Literal.Real makeLiteralReal(INode node, org.meta_environment.rascal.ast.RealLiteral realLiteral) { 
-return new org.meta_environment.rascal.ast.Literal.Real(node, realLiteral); 
-}
-public org.meta_environment.rascal.ast.Literal.Integer makeLiteralInteger(INode node, org.meta_environment.rascal.ast.IntegerLiteral integerLiteral) { 
-return new org.meta_environment.rascal.ast.Literal.Integer(node, integerLiteral); 
-}
-public org.meta_environment.rascal.ast.Literal.Boolean makeLiteralBoolean(INode node, org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral) { 
-return new org.meta_environment.rascal.ast.Literal.Boolean(node, booleanLiteral); 
-}
-public org.meta_environment.rascal.ast.Literal.Ambiguity makeLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Literal> alternatives) { 
-return new org.meta_environment.rascal.ast.Literal.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Literal.RegExp makeLiteralRegExp(INode node, org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral) { 
-return new org.meta_environment.rascal.ast.Literal.RegExp(node, regExpLiteral); 
-}
 public org.meta_environment.rascal.ast.Marker.Ambiguity makeMarkerAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Marker> alternatives) { 
 return new org.meta_environment.rascal.ast.Marker.Ambiguity(node, alternatives); 
 }
@@ -413,32 +848,200 @@ return new org.meta_environment.rascal.ast.Rest.Ambiguity(node, alternatives);
 public org.meta_environment.rascal.ast.Rest.Lexical makeRestLexical(INode node, String string) { 
 return new org.meta_environment.rascal.ast.Rest.Lexical(node, string); 
 }
-public org.meta_environment.rascal.ast.Body.Toplevels makeBodyToplevels(INode node, java.util.List<org.meta_environment.rascal.ast.Toplevel> toplevels) { 
-return new org.meta_environment.rascal.ast.Body.Toplevels(node, toplevels); 
+public org.meta_environment.rascal.ast.Bound.Default makeBoundDefault(INode node, org.meta_environment.rascal.ast.Expression expression) { 
+return new org.meta_environment.rascal.ast.Bound.Default(node, expression); 
 }
-public org.meta_environment.rascal.ast.Body.Ambiguity makeBodyAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Body> alternatives) { 
-return new org.meta_environment.rascal.ast.Body.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.Bound.Ambiguity makeBoundAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Bound> alternatives) { 
+return new org.meta_environment.rascal.ast.Bound.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Body.Anything makeBodyAnything(INode node, org.meta_environment.rascal.ast.Marker marker, org.meta_environment.rascal.ast.Rest rest) { 
-return new org.meta_environment.rascal.ast.Body.Anything(node, marker, rest); 
+public org.meta_environment.rascal.ast.Bound.Empty makeBoundEmpty(INode node) { 
+return new org.meta_environment.rascal.ast.Bound.Empty(node); 
 }
-public org.meta_environment.rascal.ast.Name.Ambiguity makeNameAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Name> alternatives) { 
-return new org.meta_environment.rascal.ast.Name.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.Statement.GlobalDirective makeStatementGlobalDirective(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.QualifiedName> names) { 
+return new org.meta_environment.rascal.ast.Statement.GlobalDirective(node, type, names); 
 }
-public org.meta_environment.rascal.ast.Name.Lexical makeNameLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.Name.Lexical(node, string); 
+public org.meta_environment.rascal.ast.Statement.NonEmptyBlock makeStatementNonEmptyBlock(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Statement> statements) { 
+return new org.meta_environment.rascal.ast.Statement.NonEmptyBlock(node, label, statements); 
 }
-public org.meta_environment.rascal.ast.EscapedName.Ambiguity makeEscapedNameAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.EscapedName> alternatives) { 
-return new org.meta_environment.rascal.ast.EscapedName.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.Statement.TryFinally makeStatementTryFinally(INode node, org.meta_environment.rascal.ast.Statement body, java.util.List<org.meta_environment.rascal.ast.Catch> handlers, org.meta_environment.rascal.ast.Statement finallyBody) { 
+return new org.meta_environment.rascal.ast.Statement.TryFinally(node, body, handlers, finallyBody); 
 }
-public org.meta_environment.rascal.ast.EscapedName.Lexical makeEscapedNameLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.EscapedName.Lexical(node, string); 
+public org.meta_environment.rascal.ast.Statement.Try makeStatementTry(INode node, org.meta_environment.rascal.ast.Statement body, java.util.List<org.meta_environment.rascal.ast.Catch> handlers) { 
+return new org.meta_environment.rascal.ast.Statement.Try(node, body, handlers); 
 }
-public org.meta_environment.rascal.ast.QualifiedName.Ambiguity makeQualifiedNameAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.QualifiedName> alternatives) { 
-return new org.meta_environment.rascal.ast.QualifiedName.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.Statement.Continue makeStatementContinue(INode node, org.meta_environment.rascal.ast.Target target) { 
+return new org.meta_environment.rascal.ast.Statement.Continue(node, target); 
 }
-public org.meta_environment.rascal.ast.QualifiedName.Default makeQualifiedNameDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Name> names) { 
-return new org.meta_environment.rascal.ast.QualifiedName.Default(node, names); 
+public org.meta_environment.rascal.ast.Statement.Fail makeStatementFail(INode node, org.meta_environment.rascal.ast.Target target) { 
+return new org.meta_environment.rascal.ast.Statement.Fail(node, target); 
+}
+public org.meta_environment.rascal.ast.Statement.Break makeStatementBreak(INode node, org.meta_environment.rascal.ast.Target target) { 
+return new org.meta_environment.rascal.ast.Statement.Break(node, target); 
+}
+public org.meta_environment.rascal.ast.Statement.VariableDeclaration makeStatementVariableDeclaration(INode node, org.meta_environment.rascal.ast.LocalVariableDeclaration declaration) { 
+return new org.meta_environment.rascal.ast.Statement.VariableDeclaration(node, declaration); 
+}
+public org.meta_environment.rascal.ast.Statement.FunctionDeclaration makeStatementFunctionDeclaration(INode node, org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) { 
+return new org.meta_environment.rascal.ast.Statement.FunctionDeclaration(node, functionDeclaration); 
+}
+public org.meta_environment.rascal.ast.Statement.Append makeStatementAppend(INode node, org.meta_environment.rascal.ast.DataTarget dataTarget, org.meta_environment.rascal.ast.Statement statement) { 
+return new org.meta_environment.rascal.ast.Statement.Append(node, dataTarget, statement); 
+}
+public org.meta_environment.rascal.ast.Statement.Insert makeStatementInsert(INode node, org.meta_environment.rascal.ast.DataTarget dataTarget, org.meta_environment.rascal.ast.Statement statement) { 
+return new org.meta_environment.rascal.ast.Statement.Insert(node, dataTarget, statement); 
+}
+public org.meta_environment.rascal.ast.Statement.Throw makeStatementThrow(INode node, org.meta_environment.rascal.ast.Statement statement) { 
+return new org.meta_environment.rascal.ast.Statement.Throw(node, statement); 
+}
+public org.meta_environment.rascal.ast.Statement.Return makeStatementReturn(INode node, org.meta_environment.rascal.ast.Statement statement) { 
+return new org.meta_environment.rascal.ast.Statement.Return(node, statement); 
+}
+public org.meta_environment.rascal.ast.Statement.AssertWithMessage makeStatementAssertWithMessage(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression message) { 
+return new org.meta_environment.rascal.ast.Statement.AssertWithMessage(node, expression, message); 
+}
+public org.meta_environment.rascal.ast.Statement.Assert makeStatementAssert(INode node, org.meta_environment.rascal.ast.Expression expression) { 
+return new org.meta_environment.rascal.ast.Statement.Assert(node, expression); 
+}
+public org.meta_environment.rascal.ast.Statement.Assignment makeStatementAssignment(INode node, org.meta_environment.rascal.ast.Assignable assignable, org.meta_environment.rascal.ast.Assignment operator, org.meta_environment.rascal.ast.Statement statement) { 
+return new org.meta_environment.rascal.ast.Statement.Assignment(node, assignable, operator, statement); 
+}
+public org.meta_environment.rascal.ast.Statement.Expression makeStatementExpression(INode node, org.meta_environment.rascal.ast.Expression expression) { 
+return new org.meta_environment.rascal.ast.Statement.Expression(node, expression); 
+}
+public org.meta_environment.rascal.ast.Statement.EmptyStatement makeStatementEmptyStatement(INode node) { 
+return new org.meta_environment.rascal.ast.Statement.EmptyStatement(node); 
+}
+public org.meta_environment.rascal.ast.Statement.Visit makeStatementVisit(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Visit visit) { 
+return new org.meta_environment.rascal.ast.Statement.Visit(node, label, visit); 
+}
+public org.meta_environment.rascal.ast.Statement.Switch makeStatementSwitch(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Case> cases) { 
+return new org.meta_environment.rascal.ast.Statement.Switch(node, label, expression, cases); 
+}
+public org.meta_environment.rascal.ast.Statement.IfThen makeStatementIfThen(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement thenStatement, org.meta_environment.rascal.ast.NoElseMayFollow noElseMayFollow) { 
+return new org.meta_environment.rascal.ast.Statement.IfThen(node, label, conditions, thenStatement, noElseMayFollow); 
+}
+public org.meta_environment.rascal.ast.Statement.IfThenElse makeStatementIfThenElse(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement thenStatement, org.meta_environment.rascal.ast.Statement elseStatement) { 
+return new org.meta_environment.rascal.ast.Statement.IfThenElse(node, label, conditions, thenStatement, elseStatement); 
+}
+public org.meta_environment.rascal.ast.Statement.DoWhile makeStatementDoWhile(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Statement body, org.meta_environment.rascal.ast.Expression condition) { 
+return new org.meta_environment.rascal.ast.Statement.DoWhile(node, label, body, condition); 
+}
+public org.meta_environment.rascal.ast.Statement.While makeStatementWhile(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement body) { 
+return new org.meta_environment.rascal.ast.Statement.While(node, label, conditions, body); 
+}
+public org.meta_environment.rascal.ast.Statement.For makeStatementFor(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> generators, org.meta_environment.rascal.ast.Statement body) { 
+return new org.meta_environment.rascal.ast.Statement.For(node, label, generators, body); 
+}
+public org.meta_environment.rascal.ast.Statement.Ambiguity makeStatementAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> alternatives) { 
+return new org.meta_environment.rascal.ast.Statement.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Statement.Solve makeStatementSolve(INode node, java.util.List<org.meta_environment.rascal.ast.QualifiedName> variables, org.meta_environment.rascal.ast.Bound bound, org.meta_environment.rascal.ast.Statement body) { 
+return new org.meta_environment.rascal.ast.Statement.Solve(node, variables, bound, body); 
+}
+public org.meta_environment.rascal.ast.NoElseMayFollow.Ambiguity makeNoElseMayFollowAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.NoElseMayFollow> alternatives) { 
+return new org.meta_environment.rascal.ast.NoElseMayFollow.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.NoElseMayFollow.Default makeNoElseMayFollowDefault(INode node) { 
+return new org.meta_environment.rascal.ast.NoElseMayFollow.Default(node); 
+}
+public org.meta_environment.rascal.ast.Assignable.Constructor makeAssignableConstructor(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Assignable> arguments) { 
+return new org.meta_environment.rascal.ast.Assignable.Constructor(node, name, arguments); 
+}
+public org.meta_environment.rascal.ast.Assignable.Tuple makeAssignableTuple(INode node, java.util.List<org.meta_environment.rascal.ast.Assignable> elements) { 
+return new org.meta_environment.rascal.ast.Assignable.Tuple(node, elements); 
+}
+public org.meta_environment.rascal.ast.Assignable.Annotation makeAssignableAnnotation(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name annotation) { 
+return new org.meta_environment.rascal.ast.Assignable.Annotation(node, receiver, annotation); 
+}
+public org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault makeAssignableIfDefinedOrDefault(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression defaultExpression) { 
+return new org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault(node, receiver, defaultExpression); 
+}
+public org.meta_environment.rascal.ast.Assignable.FieldAccess makeAssignableFieldAccess(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name field) { 
+return new org.meta_environment.rascal.ast.Assignable.FieldAccess(node, receiver, field); 
+}
+public org.meta_environment.rascal.ast.Assignable.Subscript makeAssignableSubscript(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression subscript) { 
+return new org.meta_environment.rascal.ast.Assignable.Subscript(node, receiver, subscript); 
+}
+public org.meta_environment.rascal.ast.Assignable.Ambiguity makeAssignableAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Assignable> alternatives) { 
+return new org.meta_environment.rascal.ast.Assignable.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Assignable.Variable makeAssignableVariable(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) { 
+return new org.meta_environment.rascal.ast.Assignable.Variable(node, qualifiedName); 
+}
+public org.meta_environment.rascal.ast.Assignment.IfDefined makeAssignmentIfDefined(INode node) { 
+return new org.meta_environment.rascal.ast.Assignment.IfDefined(node); 
+}
+public org.meta_environment.rascal.ast.Assignment.Intersection makeAssignmentIntersection(INode node) { 
+return new org.meta_environment.rascal.ast.Assignment.Intersection(node); 
+}
+public org.meta_environment.rascal.ast.Assignment.Division makeAssignmentDivision(INode node) { 
+return new org.meta_environment.rascal.ast.Assignment.Division(node); 
+}
+public org.meta_environment.rascal.ast.Assignment.Product makeAssignmentProduct(INode node) { 
+return new org.meta_environment.rascal.ast.Assignment.Product(node); 
+}
+public org.meta_environment.rascal.ast.Assignment.Subtraction makeAssignmentSubtraction(INode node) { 
+return new org.meta_environment.rascal.ast.Assignment.Subtraction(node); 
+}
+public org.meta_environment.rascal.ast.Assignment.Addition makeAssignmentAddition(INode node) { 
+return new org.meta_environment.rascal.ast.Assignment.Addition(node); 
+}
+public org.meta_environment.rascal.ast.Assignment.Ambiguity makeAssignmentAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Assignment> alternatives) { 
+return new org.meta_environment.rascal.ast.Assignment.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Assignment.Default makeAssignmentDefault(INode node) { 
+return new org.meta_environment.rascal.ast.Assignment.Default(node); 
+}
+public org.meta_environment.rascal.ast.Label.Default makeLabelDefault(INode node, org.meta_environment.rascal.ast.Name name) { 
+return new org.meta_environment.rascal.ast.Label.Default(node, name); 
+}
+public org.meta_environment.rascal.ast.Label.Ambiguity makeLabelAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Label> alternatives) { 
+return new org.meta_environment.rascal.ast.Label.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Label.Empty makeLabelEmpty(INode node) { 
+return new org.meta_environment.rascal.ast.Label.Empty(node); 
+}
+public org.meta_environment.rascal.ast.DataTarget.Labeled makeDataTargetLabeled(INode node, org.meta_environment.rascal.ast.Name label) { 
+return new org.meta_environment.rascal.ast.DataTarget.Labeled(node, label); 
+}
+public org.meta_environment.rascal.ast.DataTarget.Ambiguity makeDataTargetAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.DataTarget> alternatives) { 
+return new org.meta_environment.rascal.ast.DataTarget.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.DataTarget.Empty makeDataTargetEmpty(INode node) { 
+return new org.meta_environment.rascal.ast.DataTarget.Empty(node); 
+}
+public org.meta_environment.rascal.ast.Target.Labeled makeTargetLabeled(INode node, org.meta_environment.rascal.ast.Name name) { 
+return new org.meta_environment.rascal.ast.Target.Labeled(node, name); 
+}
+public org.meta_environment.rascal.ast.Target.Ambiguity makeTargetAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Target> alternatives) { 
+return new org.meta_environment.rascal.ast.Target.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Target.Empty makeTargetEmpty(INode node) { 
+return new org.meta_environment.rascal.ast.Target.Empty(node); 
+}
+public org.meta_environment.rascal.ast.Catch.Binding makeCatchBinding(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement body) { 
+return new org.meta_environment.rascal.ast.Catch.Binding(node, pattern, body); 
+}
+public org.meta_environment.rascal.ast.Catch.Ambiguity makeCatchAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Catch> alternatives) { 
+return new org.meta_environment.rascal.ast.Catch.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Catch.Default makeCatchDefault(INode node, org.meta_environment.rascal.ast.Statement body) { 
+return new org.meta_environment.rascal.ast.Catch.Default(node, body); 
+}
+public org.meta_environment.rascal.ast.Declarator.Ambiguity makeDeclaratorAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Declarator> alternatives) { 
+return new org.meta_environment.rascal.ast.Declarator.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.Declarator.Default makeDeclaratorDefault(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) { 
+return new org.meta_environment.rascal.ast.Declarator.Default(node, type, variables); 
+}
+public org.meta_environment.rascal.ast.LocalVariableDeclaration.Dynamic makeLocalVariableDeclarationDynamic(INode node, org.meta_environment.rascal.ast.Declarator declarator) { 
+return new org.meta_environment.rascal.ast.LocalVariableDeclaration.Dynamic(node, declarator); 
+}
+public org.meta_environment.rascal.ast.LocalVariableDeclaration.Ambiguity makeLocalVariableDeclarationAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> alternatives) { 
+return new org.meta_environment.rascal.ast.LocalVariableDeclaration.Ambiguity(node, alternatives); 
+}
+public org.meta_environment.rascal.ast.LocalVariableDeclaration.Default makeLocalVariableDeclarationDefault(INode node, org.meta_environment.rascal.ast.Declarator declarator) { 
+return new org.meta_environment.rascal.ast.LocalVariableDeclaration.Default(node, declarator); 
 }
 public org.meta_environment.rascal.ast.Comment.Ambiguity makeCommentAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Comment> alternatives) { 
 return new org.meta_environment.rascal.ast.Comment.Ambiguity(node, alternatives); 
@@ -458,395 +1061,23 @@ return new org.meta_environment.rascal.ast.Asterisk.Ambiguity(node, alternatives
 public org.meta_environment.rascal.ast.Asterisk.Lexical makeAsteriskLexical(INode node, String string) { 
 return new org.meta_environment.rascal.ast.Asterisk.Lexical(node, string); 
 }
-public org.meta_environment.rascal.ast.Mapping.Ambiguity makeMappingAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Mapping> alternatives) { 
-return new org.meta_environment.rascal.ast.Mapping.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.Name.Ambiguity makeNameAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Name> alternatives) { 
+return new org.meta_environment.rascal.ast.Name.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Mapping.Default makeMappingDefault(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to) { 
-return new org.meta_environment.rascal.ast.Mapping.Default(node, from, to); 
+public org.meta_environment.rascal.ast.Name.Lexical makeNameLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.Name.Lexical(node, string); 
 }
-public org.meta_environment.rascal.ast.BasicType.DateTime makeBasicTypeDateTime(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.DateTime(node); 
+public org.meta_environment.rascal.ast.EscapedName.Ambiguity makeEscapedNameAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.EscapedName> alternatives) { 
+return new org.meta_environment.rascal.ast.EscapedName.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType makeBasicTypeReifiedReifiedType(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType(node); 
+public org.meta_environment.rascal.ast.EscapedName.Lexical makeEscapedNameLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.EscapedName.Lexical(node, string); 
 }
-public org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal makeBasicTypeReifiedNonTerminal(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal(node); 
+public org.meta_environment.rascal.ast.QualifiedName.Ambiguity makeQualifiedNameAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.QualifiedName> alternatives) { 
+return new org.meta_environment.rascal.ast.QualifiedName.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.BasicType.ReifiedFunction makeBasicTypeReifiedFunction(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.ReifiedFunction(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.ReifiedConstructor makeBasicTypeReifiedConstructor(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.ReifiedConstructor(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.ReifiedAdt makeBasicTypeReifiedAdt(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.ReifiedAdt(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.ReifiedType makeBasicTypeReifiedType(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.ReifiedType(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Lex makeBasicTypeLex(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Lex(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Tuple makeBasicTypeTuple(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Tuple(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Relation makeBasicTypeRelation(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Relation(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Map makeBasicTypeMap(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Map(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Bag makeBasicTypeBag(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Bag(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Set makeBasicTypeSet(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Set(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.List makeBasicTypeList(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.List(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Loc makeBasicTypeLoc(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Loc(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Void makeBasicTypeVoid(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Void(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Node makeBasicTypeNode(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Node(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Value makeBasicTypeValue(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Value(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.String makeBasicTypeString(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.String(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Real makeBasicTypeReal(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Real(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Int makeBasicTypeInt(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Int(node); 
-}
-public org.meta_environment.rascal.ast.BasicType.Ambiguity makeBasicTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives) { 
-return new org.meta_environment.rascal.ast.BasicType.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.BasicType.Bool makeBasicTypeBool(INode node) { 
-return new org.meta_environment.rascal.ast.BasicType.Bool(node); 
-}
-public org.meta_environment.rascal.ast.TypeArg.Named makeTypeArgNamed(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) { 
-return new org.meta_environment.rascal.ast.TypeArg.Named(node, type, name); 
-}
-public org.meta_environment.rascal.ast.TypeArg.Ambiguity makeTypeArgAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.TypeArg> alternatives) { 
-return new org.meta_environment.rascal.ast.TypeArg.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.TypeArg.Default makeTypeArgDefault(INode node, org.meta_environment.rascal.ast.Type type) { 
-return new org.meta_environment.rascal.ast.TypeArg.Default(node, type); 
-}
-public org.meta_environment.rascal.ast.StructuredType.Ambiguity makeStructuredTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StructuredType> alternatives) { 
-return new org.meta_environment.rascal.ast.StructuredType.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.StructuredType.Default makeStructuredTypeDefault(INode node, org.meta_environment.rascal.ast.BasicType basicType, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) { 
-return new org.meta_environment.rascal.ast.StructuredType.Default(node, basicType, arguments); 
-}
-public org.meta_environment.rascal.ast.FunctionType.Ambiguity makeFunctionTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.FunctionType> alternatives) { 
-return new org.meta_environment.rascal.ast.FunctionType.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.FunctionType.TypeArguments makeFunctionTypeTypeArguments(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) { 
-return new org.meta_environment.rascal.ast.FunctionType.TypeArguments(node, type, arguments); 
-}
-public org.meta_environment.rascal.ast.TypeVar.Bounded makeTypeVarBounded(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Type bound) { 
-return new org.meta_environment.rascal.ast.TypeVar.Bounded(node, name, bound); 
-}
-public org.meta_environment.rascal.ast.TypeVar.Ambiguity makeTypeVarAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.TypeVar> alternatives) { 
-return new org.meta_environment.rascal.ast.TypeVar.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.TypeVar.Free makeTypeVarFree(INode node, org.meta_environment.rascal.ast.Name name) { 
-return new org.meta_environment.rascal.ast.TypeVar.Free(node, name); 
-}
-public org.meta_environment.rascal.ast.UserType.Parametric makeUserTypeParametric(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Type> parameters) { 
-return new org.meta_environment.rascal.ast.UserType.Parametric(node, name, parameters); 
-}
-public org.meta_environment.rascal.ast.UserType.Ambiguity makeUserTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.UserType> alternatives) { 
-return new org.meta_environment.rascal.ast.UserType.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.UserType.Name makeUserTypeName(INode node, org.meta_environment.rascal.ast.Name name) { 
-return new org.meta_environment.rascal.ast.UserType.Name(node, name); 
-}
-public org.meta_environment.rascal.ast.DataTypeSelector.Ambiguity makeDataTypeSelectorAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> alternatives) { 
-return new org.meta_environment.rascal.ast.DataTypeSelector.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.DataTypeSelector.Selector makeDataTypeSelectorSelector(INode node, org.meta_environment.rascal.ast.Name sort, org.meta_environment.rascal.ast.Name production) { 
-return new org.meta_environment.rascal.ast.DataTypeSelector.Selector(node, sort, production); 
-}
-public org.meta_environment.rascal.ast.Type.Symbol makeTypeSymbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) { 
-return new org.meta_environment.rascal.ast.Type.Symbol(node, symbol); 
-}
-public org.meta_environment.rascal.ast.Type.Bracket makeTypeBracket(INode node, org.meta_environment.rascal.ast.Type type) { 
-return new org.meta_environment.rascal.ast.Type.Bracket(node, type); 
-}
-public org.meta_environment.rascal.ast.Type.Selector makeTypeSelector(INode node, org.meta_environment.rascal.ast.DataTypeSelector selector) { 
-return new org.meta_environment.rascal.ast.Type.Selector(node, selector); 
-}
-public org.meta_environment.rascal.ast.Type.User makeTypeUser(INode node, org.meta_environment.rascal.ast.UserType user) { 
-return new org.meta_environment.rascal.ast.Type.User(node, user); 
-}
-public org.meta_environment.rascal.ast.Type.Variable makeTypeVariable(INode node, org.meta_environment.rascal.ast.TypeVar typeVar) { 
-return new org.meta_environment.rascal.ast.Type.Variable(node, typeVar); 
-}
-public org.meta_environment.rascal.ast.Type.Function makeTypeFunction(INode node, org.meta_environment.rascal.ast.FunctionType function) { 
-return new org.meta_environment.rascal.ast.Type.Function(node, function); 
-}
-public org.meta_environment.rascal.ast.Type.Structured makeTypeStructured(INode node, org.meta_environment.rascal.ast.StructuredType structured) { 
-return new org.meta_environment.rascal.ast.Type.Structured(node, structured); 
-}
-public org.meta_environment.rascal.ast.Type.Ambiguity makeTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Type> alternatives) { 
-return new org.meta_environment.rascal.ast.Type.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Type.Basic makeTypeBasic(INode node, org.meta_environment.rascal.ast.BasicType basic) { 
-return new org.meta_environment.rascal.ast.Type.Basic(node, basic); 
-}
-public org.meta_environment.rascal.ast.RascalReservedKeywords.Ambiguity makeRascalReservedKeywordsAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.RascalReservedKeywords> alternatives) { 
-return new org.meta_environment.rascal.ast.RascalReservedKeywords.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.RascalReservedKeywords.Lexical makeRascalReservedKeywordsLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.RascalReservedKeywords.Lexical(node, string); 
-}
-public org.meta_environment.rascal.ast.Command.Lexical makeCommandLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.Command.Lexical(node, string); 
-}
-public org.meta_environment.rascal.ast.Command.Import makeCommandImport(INode node, org.meta_environment.rascal.ast.Import imported) { 
-return new org.meta_environment.rascal.ast.Command.Import(node, imported); 
-}
-public org.meta_environment.rascal.ast.Command.Declaration makeCommandDeclaration(INode node, org.meta_environment.rascal.ast.Declaration declaration) { 
-return new org.meta_environment.rascal.ast.Command.Declaration(node, declaration); 
-}
-public org.meta_environment.rascal.ast.Command.Expression makeCommandExpression(INode node, org.meta_environment.rascal.ast.Expression expression) { 
-return new org.meta_environment.rascal.ast.Command.Expression(node, expression); 
-}
-public org.meta_environment.rascal.ast.Command.Statement makeCommandStatement(INode node, org.meta_environment.rascal.ast.Statement statement) { 
-return new org.meta_environment.rascal.ast.Command.Statement(node, statement); 
-}
-public org.meta_environment.rascal.ast.Command.Ambiguity makeCommandAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Command> alternatives) { 
-return new org.meta_environment.rascal.ast.Command.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Command.Shell makeCommandShell(INode node, org.meta_environment.rascal.ast.ShellCommand command) { 
-return new org.meta_environment.rascal.ast.Command.Shell(node, command); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.SetOption makeShellCommandSetOption(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Expression expression) { 
-return new org.meta_environment.rascal.ast.ShellCommand.SetOption(node, name, expression); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.History makeShellCommandHistory(INode node) { 
-return new org.meta_environment.rascal.ast.ShellCommand.History(node); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.Undeclare makeShellCommandUndeclare(INode node, org.meta_environment.rascal.ast.QualifiedName name) { 
-return new org.meta_environment.rascal.ast.ShellCommand.Undeclare(node, name); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.Unimport makeShellCommandUnimport(INode node, org.meta_environment.rascal.ast.QualifiedName name) { 
-return new org.meta_environment.rascal.ast.ShellCommand.Unimport(node, name); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.Test makeShellCommandTest(INode node) { 
-return new org.meta_environment.rascal.ast.ShellCommand.Test(node); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.ListDeclarations makeShellCommandListDeclarations(INode node) { 
-return new org.meta_environment.rascal.ast.ShellCommand.ListDeclarations(node); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.ListModules makeShellCommandListModules(INode node) { 
-return new org.meta_environment.rascal.ast.ShellCommand.ListModules(node); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.Edit makeShellCommandEdit(INode node, org.meta_environment.rascal.ast.QualifiedName name) { 
-return new org.meta_environment.rascal.ast.ShellCommand.Edit(node, name); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.Quit makeShellCommandQuit(INode node) { 
-return new org.meta_environment.rascal.ast.ShellCommand.Quit(node); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.Ambiguity makeShellCommandAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives) { 
-return new org.meta_environment.rascal.ast.ShellCommand.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.ShellCommand.Help makeShellCommandHelp(INode node) { 
-return new org.meta_environment.rascal.ast.ShellCommand.Help(node); 
-}
-public org.meta_environment.rascal.ast.Formal.Ambiguity makeFormalAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Formal> alternatives) { 
-return new org.meta_environment.rascal.ast.Formal.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Formal.TypeName makeFormalTypeName(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) { 
-return new org.meta_environment.rascal.ast.Formal.TypeName(node, type, name); 
-}
-public org.meta_environment.rascal.ast.Formals.Ambiguity makeFormalsAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Formals> alternatives) { 
-return new org.meta_environment.rascal.ast.Formals.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Formals.Default makeFormalsDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Formal> formals) { 
-return new org.meta_environment.rascal.ast.Formals.Default(node, formals); 
-}
-public org.meta_environment.rascal.ast.Parameters.VarArgs makeParametersVarArgs(INode node, org.meta_environment.rascal.ast.Formals formals) { 
-return new org.meta_environment.rascal.ast.Parameters.VarArgs(node, formals); 
-}
-public org.meta_environment.rascal.ast.Parameters.Ambiguity makeParametersAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Parameters> alternatives) { 
-return new org.meta_environment.rascal.ast.Parameters.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Parameters.Default makeParametersDefault(INode node, org.meta_environment.rascal.ast.Formals formals) { 
-return new org.meta_environment.rascal.ast.Parameters.Default(node, formals); 
-}
-public org.meta_environment.rascal.ast.ProtocolTail.Post makeProtocolTailPost(INode node, org.meta_environment.rascal.ast.PostProtocolChars post) { 
-return new org.meta_environment.rascal.ast.ProtocolTail.Post(node, post); 
-}
-public org.meta_environment.rascal.ast.ProtocolTail.Ambiguity makeProtocolTailAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ProtocolTail> alternatives) { 
-return new org.meta_environment.rascal.ast.ProtocolTail.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.ProtocolTail.Mid makeProtocolTailMid(INode node, org.meta_environment.rascal.ast.MidProtocolChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.ProtocolTail tail) { 
-return new org.meta_environment.rascal.ast.ProtocolTail.Mid(node, mid, expression, tail); 
-}
-public org.meta_environment.rascal.ast.ProtocolPart.NonInterpolated makeProtocolPartNonInterpolated(INode node, org.meta_environment.rascal.ast.ProtocolChars protocolChars) { 
-return new org.meta_environment.rascal.ast.ProtocolPart.NonInterpolated(node, protocolChars); 
-}
-public org.meta_environment.rascal.ast.ProtocolPart.Ambiguity makeProtocolPartAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ProtocolPart> alternatives) { 
-return new org.meta_environment.rascal.ast.ProtocolPart.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.ProtocolPart.Interpolated makeProtocolPartInterpolated(INode node, org.meta_environment.rascal.ast.PreProtocolChars pre, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.ProtocolTail tail) { 
-return new org.meta_environment.rascal.ast.ProtocolPart.Interpolated(node, pre, expression, tail); 
-}
-public org.meta_environment.rascal.ast.PathTail.Post makePathTailPost(INode node, org.meta_environment.rascal.ast.PostPathChars post) { 
-return new org.meta_environment.rascal.ast.PathTail.Post(node, post); 
-}
-public org.meta_environment.rascal.ast.PathTail.Ambiguity makePathTailAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.PathTail> alternatives) { 
-return new org.meta_environment.rascal.ast.PathTail.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.PathTail.Mid makePathTailMid(INode node, org.meta_environment.rascal.ast.MidPathChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.PathTail tail) { 
-return new org.meta_environment.rascal.ast.PathTail.Mid(node, mid, expression, tail); 
-}
-public org.meta_environment.rascal.ast.PathPart.NonInterpolated makePathPartNonInterpolated(INode node, org.meta_environment.rascal.ast.PathChars pathChars) { 
-return new org.meta_environment.rascal.ast.PathPart.NonInterpolated(node, pathChars); 
-}
-public org.meta_environment.rascal.ast.PathPart.Ambiguity makePathPartAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.PathPart> alternatives) { 
-return new org.meta_environment.rascal.ast.PathPart.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.PathPart.Interpolated makePathPartInterpolated(INode node, org.meta_environment.rascal.ast.PrePathChars pre, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.PathTail tail) { 
-return new org.meta_environment.rascal.ast.PathPart.Interpolated(node, pre, expression, tail); 
-}
-public org.meta_environment.rascal.ast.StringTail.Post makeStringTailPost(INode node, org.meta_environment.rascal.ast.PostStringChars post) { 
-return new org.meta_environment.rascal.ast.StringTail.Post(node, post); 
-}
-public org.meta_environment.rascal.ast.StringTail.MidTemplate makeStringTailMidTemplate(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.StringTemplate template, org.meta_environment.rascal.ast.StringTail tail) { 
-return new org.meta_environment.rascal.ast.StringTail.MidTemplate(node, mid, template, tail); 
-}
-public org.meta_environment.rascal.ast.StringTail.Ambiguity makeStringTailAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringTail> alternatives) { 
-return new org.meta_environment.rascal.ast.StringTail.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.StringTail.MidInterpolated makeStringTailMidInterpolated(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringTail tail) { 
-return new org.meta_environment.rascal.ast.StringTail.MidInterpolated(node, mid, expression, tail); 
-}
-public org.meta_environment.rascal.ast.StringLiteral.NonInterpolated makeStringLiteralNonInterpolated(INode node, org.meta_environment.rascal.ast.StringConstant constant) { 
-return new org.meta_environment.rascal.ast.StringLiteral.NonInterpolated(node, constant); 
-}
-public org.meta_environment.rascal.ast.StringLiteral.Template makeStringLiteralTemplate(INode node, org.meta_environment.rascal.ast.PreStringChars pre, org.meta_environment.rascal.ast.StringTemplate template, org.meta_environment.rascal.ast.StringTail tail) { 
-return new org.meta_environment.rascal.ast.StringLiteral.Template(node, pre, template, tail); 
-}
-public org.meta_environment.rascal.ast.StringLiteral.Ambiguity makeStringLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringLiteral> alternatives) { 
-return new org.meta_environment.rascal.ast.StringLiteral.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.StringLiteral.Interpolated makeStringLiteralInterpolated(INode node, org.meta_environment.rascal.ast.PreStringChars pre, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringTail tail) { 
-return new org.meta_environment.rascal.ast.StringLiteral.Interpolated(node, pre, expression, tail); 
-}
-public org.meta_environment.rascal.ast.StringMiddle.Template makeStringMiddleTemplate(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.StringTemplate template, org.meta_environment.rascal.ast.StringMiddle tail) { 
-return new org.meta_environment.rascal.ast.StringMiddle.Template(node, mid, template, tail); 
-}
-public org.meta_environment.rascal.ast.StringMiddle.Interpolated makeStringMiddleInterpolated(INode node, org.meta_environment.rascal.ast.MidStringChars mid, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringMiddle tail) { 
-return new org.meta_environment.rascal.ast.StringMiddle.Interpolated(node, mid, expression, tail); 
-}
-public org.meta_environment.rascal.ast.StringMiddle.Ambiguity makeStringMiddleAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringMiddle> alternatives) { 
-return new org.meta_environment.rascal.ast.StringMiddle.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.StringMiddle.Mid makeStringMiddleMid(INode node, org.meta_environment.rascal.ast.MidStringChars mid) { 
-return new org.meta_environment.rascal.ast.StringMiddle.Mid(node, mid); 
-}
-public org.meta_environment.rascal.ast.StringTemplate.DoWhile makeStringTemplateDoWhile(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats, org.meta_environment.rascal.ast.Expression condition) { 
-return new org.meta_environment.rascal.ast.StringTemplate.DoWhile(node, preStats, body, postStats, condition); 
-}
-public org.meta_environment.rascal.ast.StringTemplate.While makeStringTemplateWhile(INode node, org.meta_environment.rascal.ast.Expression condition, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats) { 
-return new org.meta_environment.rascal.ast.StringTemplate.While(node, condition, preStats, body, postStats); 
-}
-public org.meta_environment.rascal.ast.StringTemplate.IfThenElse makeStringTemplateIfThenElse(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, java.util.List<org.meta_environment.rascal.ast.Statement> preStatsThen, org.meta_environment.rascal.ast.StringMiddle thenString, java.util.List<org.meta_environment.rascal.ast.Statement> postStatsThen, java.util.List<org.meta_environment.rascal.ast.Statement> preStatsElse, org.meta_environment.rascal.ast.StringMiddle elseString, java.util.List<org.meta_environment.rascal.ast.Statement> postStatsElse) { 
-return new org.meta_environment.rascal.ast.StringTemplate.IfThenElse(node, conditions, preStatsThen, thenString, postStatsThen, preStatsElse, elseString, postStatsElse); 
-}
-public org.meta_environment.rascal.ast.StringTemplate.IfThen makeStringTemplateIfThen(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats) { 
-return new org.meta_environment.rascal.ast.StringTemplate.IfThen(node, conditions, preStats, body, postStats); 
-}
-public org.meta_environment.rascal.ast.StringTemplate.Ambiguity makeStringTemplateAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StringTemplate> alternatives) { 
-return new org.meta_environment.rascal.ast.StringTemplate.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.StringTemplate.For makeStringTemplateFor(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators, java.util.List<org.meta_environment.rascal.ast.Statement> preStats, org.meta_environment.rascal.ast.StringMiddle body, java.util.List<org.meta_environment.rascal.ast.Statement> postStats) { 
-return new org.meta_environment.rascal.ast.StringTemplate.For(node, generators, preStats, body, postStats); 
-}
-public org.meta_environment.rascal.ast.Field.Index makeFieldIndex(INode node, org.meta_environment.rascal.ast.IntegerLiteral fieldIndex) { 
-return new org.meta_environment.rascal.ast.Field.Index(node, fieldIndex); 
-}
-public org.meta_environment.rascal.ast.Field.Ambiguity makeFieldAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Field> alternatives) { 
-return new org.meta_environment.rascal.ast.Field.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Field.Name makeFieldName(INode node, org.meta_environment.rascal.ast.Name fieldName) { 
-return new org.meta_environment.rascal.ast.Field.Name(node, fieldName); 
-}
-public org.meta_environment.rascal.ast.Module.Ambiguity makeModuleAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Module> alternatives) { 
-return new org.meta_environment.rascal.ast.Module.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Module.Default makeModuleDefault(INode node, org.meta_environment.rascal.ast.Header header, org.meta_environment.rascal.ast.Body body) { 
-return new org.meta_environment.rascal.ast.Module.Default(node, header, body); 
-}
-public org.meta_environment.rascal.ast.ModuleActuals.Ambiguity makeModuleActualsAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ModuleActuals> alternatives) { 
-return new org.meta_environment.rascal.ast.ModuleActuals.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.ModuleActuals.Default makeModuleActualsDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Type> types) { 
-return new org.meta_environment.rascal.ast.ModuleActuals.Default(node, types); 
-}
-public org.meta_environment.rascal.ast.ImportedModule.Default makeImportedModuleDefault(INode node, org.meta_environment.rascal.ast.QualifiedName name) { 
-return new org.meta_environment.rascal.ast.ImportedModule.Default(node, name); 
-}
-public org.meta_environment.rascal.ast.ImportedModule.Renamings makeImportedModuleRenamings(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Renamings renamings) { 
-return new org.meta_environment.rascal.ast.ImportedModule.Renamings(node, name, renamings); 
-}
-public org.meta_environment.rascal.ast.ImportedModule.Actuals makeImportedModuleActuals(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals) { 
-return new org.meta_environment.rascal.ast.ImportedModule.Actuals(node, name, actuals); 
-}
-public org.meta_environment.rascal.ast.ImportedModule.Ambiguity makeImportedModuleAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ImportedModule> alternatives) { 
-return new org.meta_environment.rascal.ast.ImportedModule.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.ImportedModule.ActualsRenaming makeImportedModuleActualsRenaming(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals, org.meta_environment.rascal.ast.Renamings renamings) { 
-return new org.meta_environment.rascal.ast.ImportedModule.ActualsRenaming(node, name, actuals, renamings); 
-}
-public org.meta_environment.rascal.ast.Renaming.Ambiguity makeRenamingAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Renaming> alternatives) { 
-return new org.meta_environment.rascal.ast.Renaming.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Renaming.Default makeRenamingDefault(INode node, org.meta_environment.rascal.ast.Name from, org.meta_environment.rascal.ast.Name to) { 
-return new org.meta_environment.rascal.ast.Renaming.Default(node, from, to); 
-}
-public org.meta_environment.rascal.ast.Renamings.Ambiguity makeRenamingsAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Renamings> alternatives) { 
-return new org.meta_environment.rascal.ast.Renamings.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Renamings.Default makeRenamingsDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Renaming> renamings) { 
-return new org.meta_environment.rascal.ast.Renamings.Default(node, renamings); 
-}
-public org.meta_environment.rascal.ast.Import.Extend makeImportExtend(INode node, org.meta_environment.rascal.ast.ImportedModule module) { 
-return new org.meta_environment.rascal.ast.Import.Extend(node, module); 
-}
-public org.meta_environment.rascal.ast.Import.Ambiguity makeImportAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Import> alternatives) { 
-return new org.meta_environment.rascal.ast.Import.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Import.Default makeImportDefault(INode node, org.meta_environment.rascal.ast.ImportedModule module) { 
-return new org.meta_environment.rascal.ast.Import.Default(node, module); 
-}
-public org.meta_environment.rascal.ast.ModuleParameters.Ambiguity makeModuleParametersAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ModuleParameters> alternatives) { 
-return new org.meta_environment.rascal.ast.ModuleParameters.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.ModuleParameters.Default makeModuleParametersDefault(INode node, java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters) { 
-return new org.meta_environment.rascal.ast.ModuleParameters.Default(node, parameters); 
-}
-public org.meta_environment.rascal.ast.Header.Parameters makeHeaderParameters(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleParameters params, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
-return new org.meta_environment.rascal.ast.Header.Parameters(node, tags, name, params, imports); 
-}
-public org.meta_environment.rascal.ast.Header.Ambiguity makeHeaderAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Header> alternatives) { 
-return new org.meta_environment.rascal.ast.Header.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Header.Default makeHeaderDefault(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.QualifiedName name, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
-return new org.meta_environment.rascal.ast.Header.Default(node, tags, name, imports); 
+public org.meta_environment.rascal.ast.QualifiedName.Default makeQualifiedNameDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Name> names) { 
+return new org.meta_environment.rascal.ast.QualifiedName.Default(node, names); 
 }
 public org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity makeUnicodeEscapeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.UnicodeEscape> alternatives) { 
 return new org.meta_environment.rascal.ast.UnicodeEscape.Ambiguity(node, alternatives); 
@@ -1085,74 +1316,74 @@ return new org.meta_environment.rascal.ast.LongLiteral.Ambiguity(node, alternati
 public org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral makeLongLiteralDecimalLongLiteral(INode node, org.meta_environment.rascal.ast.DecimalLongLiteral decimalLong) { 
 return new org.meta_environment.rascal.ast.LongLiteral.DecimalLongLiteral(node, decimalLong); 
 }
-public org.meta_environment.rascal.ast.Strategy.Innermost makeStrategyInnermost(INode node) { 
-return new org.meta_environment.rascal.ast.Strategy.Innermost(node); 
+public org.meta_environment.rascal.ast.RascalReservedKeywords.Ambiguity makeRascalReservedKeywordsAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.RascalReservedKeywords> alternatives) { 
+return new org.meta_environment.rascal.ast.RascalReservedKeywords.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Strategy.Outermost makeStrategyOutermost(INode node) { 
-return new org.meta_environment.rascal.ast.Strategy.Outermost(node); 
+public org.meta_environment.rascal.ast.RascalReservedKeywords.Lexical makeRascalReservedKeywordsLexical(INode node, String string) { 
+return new org.meta_environment.rascal.ast.RascalReservedKeywords.Lexical(node, string); 
 }
-public org.meta_environment.rascal.ast.Strategy.BottomUpBreak makeStrategyBottomUpBreak(INode node) { 
-return new org.meta_environment.rascal.ast.Strategy.BottomUpBreak(node); 
+public org.meta_environment.rascal.ast.Module.Ambiguity makeModuleAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Module> alternatives) { 
+return new org.meta_environment.rascal.ast.Module.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Strategy.BottomUp makeStrategyBottomUp(INode node) { 
-return new org.meta_environment.rascal.ast.Strategy.BottomUp(node); 
+public org.meta_environment.rascal.ast.Module.Default makeModuleDefault(INode node, org.meta_environment.rascal.ast.Header header, org.meta_environment.rascal.ast.Body body) { 
+return new org.meta_environment.rascal.ast.Module.Default(node, header, body); 
 }
-public org.meta_environment.rascal.ast.Strategy.TopDownBreak makeStrategyTopDownBreak(INode node) { 
-return new org.meta_environment.rascal.ast.Strategy.TopDownBreak(node); 
+public org.meta_environment.rascal.ast.ModuleActuals.Ambiguity makeModuleActualsAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ModuleActuals> alternatives) { 
+return new org.meta_environment.rascal.ast.ModuleActuals.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Strategy.Ambiguity makeStrategyAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Strategy> alternatives) { 
-return new org.meta_environment.rascal.ast.Strategy.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.ModuleActuals.Default makeModuleActualsDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Type> types) { 
+return new org.meta_environment.rascal.ast.ModuleActuals.Default(node, types); 
 }
-public org.meta_environment.rascal.ast.Strategy.TopDown makeStrategyTopDown(INode node) { 
-return new org.meta_environment.rascal.ast.Strategy.TopDown(node); 
+public org.meta_environment.rascal.ast.ImportedModule.Default makeImportedModuleDefault(INode node, org.meta_environment.rascal.ast.QualifiedName name) { 
+return new org.meta_environment.rascal.ast.ImportedModule.Default(node, name); 
 }
-public org.meta_environment.rascal.ast.Comprehension.Map makeComprehensionMap(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
-return new org.meta_environment.rascal.ast.Comprehension.Map(node, from, to, generators); 
+public org.meta_environment.rascal.ast.ImportedModule.Renamings makeImportedModuleRenamings(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Renamings renamings) { 
+return new org.meta_environment.rascal.ast.ImportedModule.Renamings(node, name, renamings); 
 }
-public org.meta_environment.rascal.ast.Comprehension.List makeComprehensionList(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> results, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
-return new org.meta_environment.rascal.ast.Comprehension.List(node, results, generators); 
+public org.meta_environment.rascal.ast.ImportedModule.Actuals makeImportedModuleActuals(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals) { 
+return new org.meta_environment.rascal.ast.ImportedModule.Actuals(node, name, actuals); 
 }
-public org.meta_environment.rascal.ast.Comprehension.Ambiguity makeComprehensionAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Comprehension> alternatives) { 
-return new org.meta_environment.rascal.ast.Comprehension.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.ImportedModule.Ambiguity makeImportedModuleAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ImportedModule> alternatives) { 
+return new org.meta_environment.rascal.ast.ImportedModule.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Comprehension.Set makeComprehensionSet(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> results, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
-return new org.meta_environment.rascal.ast.Comprehension.Set(node, results, generators); 
+public org.meta_environment.rascal.ast.ImportedModule.ActualsRenaming makeImportedModuleActualsRenaming(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals, org.meta_environment.rascal.ast.Renamings renamings) { 
+return new org.meta_environment.rascal.ast.ImportedModule.ActualsRenaming(node, name, actuals, renamings); 
 }
-public org.meta_environment.rascal.ast.Replacement.Conditional makeReplacementConditional(INode node, org.meta_environment.rascal.ast.Expression replacementExpression, java.util.List<org.meta_environment.rascal.ast.Expression> conditions) { 
-return new org.meta_environment.rascal.ast.Replacement.Conditional(node, replacementExpression, conditions); 
+public org.meta_environment.rascal.ast.Renaming.Ambiguity makeRenamingAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Renaming> alternatives) { 
+return new org.meta_environment.rascal.ast.Renaming.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Replacement.Ambiguity makeReplacementAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives) { 
-return new org.meta_environment.rascal.ast.Replacement.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.Renaming.Default makeRenamingDefault(INode node, org.meta_environment.rascal.ast.Name from, org.meta_environment.rascal.ast.Name to) { 
+return new org.meta_environment.rascal.ast.Renaming.Default(node, from, to); 
 }
-public org.meta_environment.rascal.ast.Replacement.Unconditional makeReplacementUnconditional(INode node, org.meta_environment.rascal.ast.Expression replacementExpression) { 
-return new org.meta_environment.rascal.ast.Replacement.Unconditional(node, replacementExpression); 
+public org.meta_environment.rascal.ast.Renamings.Ambiguity makeRenamingsAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Renamings> alternatives) { 
+return new org.meta_environment.rascal.ast.Renamings.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.PatternWithAction.Arbitrary makePatternWithActionArbitrary(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement statement) { 
-return new org.meta_environment.rascal.ast.PatternWithAction.Arbitrary(node, pattern, statement); 
+public org.meta_environment.rascal.ast.Renamings.Default makeRenamingsDefault(INode node, java.util.List<org.meta_environment.rascal.ast.Renaming> renamings) { 
+return new org.meta_environment.rascal.ast.Renamings.Default(node, renamings); 
 }
-public org.meta_environment.rascal.ast.PatternWithAction.Ambiguity makePatternWithActionAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.PatternWithAction> alternatives) { 
-return new org.meta_environment.rascal.ast.PatternWithAction.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.Import.Extend makeImportExtend(INode node, org.meta_environment.rascal.ast.ImportedModule module) { 
+return new org.meta_environment.rascal.ast.Import.Extend(node, module); 
 }
-public org.meta_environment.rascal.ast.PatternWithAction.Replacing makePatternWithActionReplacing(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Replacement replacement) { 
-return new org.meta_environment.rascal.ast.PatternWithAction.Replacing(node, pattern, replacement); 
+public org.meta_environment.rascal.ast.Import.Ambiguity makeImportAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Import> alternatives) { 
+return new org.meta_environment.rascal.ast.Import.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Case.Default makeCaseDefault(INode node, org.meta_environment.rascal.ast.Statement statement) { 
-return new org.meta_environment.rascal.ast.Case.Default(node, statement); 
+public org.meta_environment.rascal.ast.Import.Default makeImportDefault(INode node, org.meta_environment.rascal.ast.ImportedModule module) { 
+return new org.meta_environment.rascal.ast.Import.Default(node, module); 
 }
-public org.meta_environment.rascal.ast.Case.Ambiguity makeCaseAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Case> alternatives) { 
-return new org.meta_environment.rascal.ast.Case.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.ModuleParameters.Ambiguity makeModuleParametersAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ModuleParameters> alternatives) { 
+return new org.meta_environment.rascal.ast.ModuleParameters.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Case.PatternWithAction makeCasePatternWithAction(INode node, org.meta_environment.rascal.ast.PatternWithAction patternWithAction) { 
-return new org.meta_environment.rascal.ast.Case.PatternWithAction(node, patternWithAction); 
+public org.meta_environment.rascal.ast.ModuleParameters.Default makeModuleParametersDefault(INode node, java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters) { 
+return new org.meta_environment.rascal.ast.ModuleParameters.Default(node, parameters); 
 }
-public org.meta_environment.rascal.ast.Visit.GivenStrategy makeVisitGivenStrategy(INode node, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression subject, java.util.List<org.meta_environment.rascal.ast.Case> cases) { 
-return new org.meta_environment.rascal.ast.Visit.GivenStrategy(node, strategy, subject, cases); 
+public org.meta_environment.rascal.ast.Header.Parameters makeHeaderParameters(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleParameters params, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
+return new org.meta_environment.rascal.ast.Header.Parameters(node, tags, name, params, imports); 
 }
-public org.meta_environment.rascal.ast.Visit.Ambiguity makeVisitAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Visit> alternatives) { 
-return new org.meta_environment.rascal.ast.Visit.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.Header.Ambiguity makeHeaderAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Header> alternatives) { 
+return new org.meta_environment.rascal.ast.Header.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Visit.DefaultStrategy makeVisitDefaultStrategy(INode node, org.meta_environment.rascal.ast.Expression subject, java.util.List<org.meta_environment.rascal.ast.Case> cases) { 
-return new org.meta_environment.rascal.ast.Visit.DefaultStrategy(node, subject, cases); 
+public org.meta_environment.rascal.ast.Header.Default makeHeaderDefault(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.QualifiedName name, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
+return new org.meta_environment.rascal.ast.Header.Default(node, tags, name, imports); 
 }
 public org.meta_environment.rascal.ast.RegExpLiteral.Ambiguity makeRegExpLiteralAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.RegExpLiteral> alternatives) { 
 return new org.meta_environment.rascal.ast.RegExpLiteral.Ambiguity(node, alternatives); 
@@ -1190,346 +1421,118 @@ return new org.meta_environment.rascal.ast.NamedBackslash.Ambiguity(node, altern
 public org.meta_environment.rascal.ast.NamedBackslash.Lexical makeNamedBackslashLexical(INode node, String string) { 
 return new org.meta_environment.rascal.ast.NamedBackslash.Lexical(node, string); 
 }
-public org.meta_environment.rascal.ast.Bound.Default makeBoundDefault(INode node, org.meta_environment.rascal.ast.Expression expression) { 
-return new org.meta_environment.rascal.ast.Bound.Default(node, expression); 
+public org.meta_environment.rascal.ast.BasicType.DateTime makeBasicTypeDateTime(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.DateTime(node); 
 }
-public org.meta_environment.rascal.ast.Bound.Ambiguity makeBoundAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Bound> alternatives) { 
-return new org.meta_environment.rascal.ast.Bound.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType makeBasicTypeReifiedReifiedType(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.ReifiedReifiedType(node); 
 }
-public org.meta_environment.rascal.ast.Bound.Empty makeBoundEmpty(INode node) { 
-return new org.meta_environment.rascal.ast.Bound.Empty(node); 
+public org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal makeBasicTypeReifiedNonTerminal(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.ReifiedNonTerminal(node); 
 }
-public org.meta_environment.rascal.ast.Statement.GlobalDirective makeStatementGlobalDirective(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.QualifiedName> names) { 
-return new org.meta_environment.rascal.ast.Statement.GlobalDirective(node, type, names); 
+public org.meta_environment.rascal.ast.BasicType.ReifiedFunction makeBasicTypeReifiedFunction(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.ReifiedFunction(node); 
 }
-public org.meta_environment.rascal.ast.Statement.NonEmptyBlock makeStatementNonEmptyBlock(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Statement> statements) { 
-return new org.meta_environment.rascal.ast.Statement.NonEmptyBlock(node, label, statements); 
+public org.meta_environment.rascal.ast.BasicType.ReifiedConstructor makeBasicTypeReifiedConstructor(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.ReifiedConstructor(node); 
 }
-public org.meta_environment.rascal.ast.Statement.TryFinally makeStatementTryFinally(INode node, org.meta_environment.rascal.ast.Statement body, java.util.List<org.meta_environment.rascal.ast.Catch> handlers, org.meta_environment.rascal.ast.Statement finallyBody) { 
-return new org.meta_environment.rascal.ast.Statement.TryFinally(node, body, handlers, finallyBody); 
+public org.meta_environment.rascal.ast.BasicType.ReifiedAdt makeBasicTypeReifiedAdt(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.ReifiedAdt(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Try makeStatementTry(INode node, org.meta_environment.rascal.ast.Statement body, java.util.List<org.meta_environment.rascal.ast.Catch> handlers) { 
-return new org.meta_environment.rascal.ast.Statement.Try(node, body, handlers); 
+public org.meta_environment.rascal.ast.BasicType.ReifiedType makeBasicTypeReifiedType(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.ReifiedType(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Continue makeStatementContinue(INode node, org.meta_environment.rascal.ast.Target target) { 
-return new org.meta_environment.rascal.ast.Statement.Continue(node, target); 
+public org.meta_environment.rascal.ast.BasicType.Lex makeBasicTypeLex(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Lex(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Fail makeStatementFail(INode node, org.meta_environment.rascal.ast.Target target) { 
-return new org.meta_environment.rascal.ast.Statement.Fail(node, target); 
+public org.meta_environment.rascal.ast.BasicType.Tuple makeBasicTypeTuple(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Tuple(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Break makeStatementBreak(INode node, org.meta_environment.rascal.ast.Target target) { 
-return new org.meta_environment.rascal.ast.Statement.Break(node, target); 
+public org.meta_environment.rascal.ast.BasicType.Relation makeBasicTypeRelation(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Relation(node); 
 }
-public org.meta_environment.rascal.ast.Statement.VariableDeclaration makeStatementVariableDeclaration(INode node, org.meta_environment.rascal.ast.LocalVariableDeclaration declaration) { 
-return new org.meta_environment.rascal.ast.Statement.VariableDeclaration(node, declaration); 
+public org.meta_environment.rascal.ast.BasicType.Map makeBasicTypeMap(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Map(node); 
 }
-public org.meta_environment.rascal.ast.Statement.FunctionDeclaration makeStatementFunctionDeclaration(INode node, org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) { 
-return new org.meta_environment.rascal.ast.Statement.FunctionDeclaration(node, functionDeclaration); 
+public org.meta_environment.rascal.ast.BasicType.Bag makeBasicTypeBag(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Bag(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Append makeStatementAppend(INode node, org.meta_environment.rascal.ast.DataTarget dataTarget, org.meta_environment.rascal.ast.Statement statement) { 
-return new org.meta_environment.rascal.ast.Statement.Append(node, dataTarget, statement); 
+public org.meta_environment.rascal.ast.BasicType.Set makeBasicTypeSet(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Set(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Insert makeStatementInsert(INode node, org.meta_environment.rascal.ast.DataTarget dataTarget, org.meta_environment.rascal.ast.Statement statement) { 
-return new org.meta_environment.rascal.ast.Statement.Insert(node, dataTarget, statement); 
+public org.meta_environment.rascal.ast.BasicType.List makeBasicTypeList(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.List(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Throw makeStatementThrow(INode node, org.meta_environment.rascal.ast.Statement statement) { 
-return new org.meta_environment.rascal.ast.Statement.Throw(node, statement); 
+public org.meta_environment.rascal.ast.BasicType.Loc makeBasicTypeLoc(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Loc(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Return makeStatementReturn(INode node, org.meta_environment.rascal.ast.Statement statement) { 
-return new org.meta_environment.rascal.ast.Statement.Return(node, statement); 
+public org.meta_environment.rascal.ast.BasicType.Void makeBasicTypeVoid(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Void(node); 
 }
-public org.meta_environment.rascal.ast.Statement.AssertWithMessage makeStatementAssertWithMessage(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression message) { 
-return new org.meta_environment.rascal.ast.Statement.AssertWithMessage(node, expression, message); 
+public org.meta_environment.rascal.ast.BasicType.Node makeBasicTypeNode(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Node(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Assert makeStatementAssert(INode node, org.meta_environment.rascal.ast.Expression expression) { 
-return new org.meta_environment.rascal.ast.Statement.Assert(node, expression); 
+public org.meta_environment.rascal.ast.BasicType.Value makeBasicTypeValue(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Value(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Assignment makeStatementAssignment(INode node, org.meta_environment.rascal.ast.Assignable assignable, org.meta_environment.rascal.ast.Assignment operator, org.meta_environment.rascal.ast.Statement statement) { 
-return new org.meta_environment.rascal.ast.Statement.Assignment(node, assignable, operator, statement); 
+public org.meta_environment.rascal.ast.BasicType.String makeBasicTypeString(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.String(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Expression makeStatementExpression(INode node, org.meta_environment.rascal.ast.Expression expression) { 
-return new org.meta_environment.rascal.ast.Statement.Expression(node, expression); 
+public org.meta_environment.rascal.ast.BasicType.Real makeBasicTypeReal(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Real(node); 
 }
-public org.meta_environment.rascal.ast.Statement.EmptyStatement makeStatementEmptyStatement(INode node) { 
-return new org.meta_environment.rascal.ast.Statement.EmptyStatement(node); 
+public org.meta_environment.rascal.ast.BasicType.Int makeBasicTypeInt(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Int(node); 
 }
-public org.meta_environment.rascal.ast.Statement.Visit makeStatementVisit(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Visit visit) { 
-return new org.meta_environment.rascal.ast.Statement.Visit(node, label, visit); 
+public org.meta_environment.rascal.ast.BasicType.Ambiguity makeBasicTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives) { 
+return new org.meta_environment.rascal.ast.BasicType.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Statement.Switch makeStatementSwitch(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Case> cases) { 
-return new org.meta_environment.rascal.ast.Statement.Switch(node, label, expression, cases); 
+public org.meta_environment.rascal.ast.BasicType.Bool makeBasicTypeBool(INode node) { 
+return new org.meta_environment.rascal.ast.BasicType.Bool(node); 
 }
-public org.meta_environment.rascal.ast.Statement.IfThen makeStatementIfThen(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement thenStatement, org.meta_environment.rascal.ast.NoElseMayFollow noElseMayFollow) { 
-return new org.meta_environment.rascal.ast.Statement.IfThen(node, label, conditions, thenStatement, noElseMayFollow); 
+public org.meta_environment.rascal.ast.TypeArg.Named makeTypeArgNamed(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) { 
+return new org.meta_environment.rascal.ast.TypeArg.Named(node, type, name); 
 }
-public org.meta_environment.rascal.ast.Statement.IfThenElse makeStatementIfThenElse(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement thenStatement, org.meta_environment.rascal.ast.Statement elseStatement) { 
-return new org.meta_environment.rascal.ast.Statement.IfThenElse(node, label, conditions, thenStatement, elseStatement); 
+public org.meta_environment.rascal.ast.TypeArg.Ambiguity makeTypeArgAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.TypeArg> alternatives) { 
+return new org.meta_environment.rascal.ast.TypeArg.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Statement.DoWhile makeStatementDoWhile(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Statement body, org.meta_environment.rascal.ast.Expression condition) { 
-return new org.meta_environment.rascal.ast.Statement.DoWhile(node, label, body, condition); 
+public org.meta_environment.rascal.ast.TypeArg.Default makeTypeArgDefault(INode node, org.meta_environment.rascal.ast.Type type) { 
+return new org.meta_environment.rascal.ast.TypeArg.Default(node, type); 
 }
-public org.meta_environment.rascal.ast.Statement.While makeStatementWhile(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement body) { 
-return new org.meta_environment.rascal.ast.Statement.While(node, label, conditions, body); 
+public org.meta_environment.rascal.ast.StructuredType.Ambiguity makeStructuredTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StructuredType> alternatives) { 
+return new org.meta_environment.rascal.ast.StructuredType.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Statement.For makeStatementFor(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> generators, org.meta_environment.rascal.ast.Statement body) { 
-return new org.meta_environment.rascal.ast.Statement.For(node, label, generators, body); 
+public org.meta_environment.rascal.ast.StructuredType.Default makeStructuredTypeDefault(INode node, org.meta_environment.rascal.ast.BasicType basicType, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) { 
+return new org.meta_environment.rascal.ast.StructuredType.Default(node, basicType, arguments); 
 }
-public org.meta_environment.rascal.ast.Statement.Ambiguity makeStatementAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> alternatives) { 
-return new org.meta_environment.rascal.ast.Statement.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.FunctionType.Ambiguity makeFunctionTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.FunctionType> alternatives) { 
+return new org.meta_environment.rascal.ast.FunctionType.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Statement.Solve makeStatementSolve(INode node, java.util.List<org.meta_environment.rascal.ast.QualifiedName> variables, org.meta_environment.rascal.ast.Bound bound, org.meta_environment.rascal.ast.Statement body) { 
-return new org.meta_environment.rascal.ast.Statement.Solve(node, variables, bound, body); 
+public org.meta_environment.rascal.ast.FunctionType.TypeArguments makeFunctionTypeTypeArguments(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) { 
+return new org.meta_environment.rascal.ast.FunctionType.TypeArguments(node, type, arguments); 
 }
-public org.meta_environment.rascal.ast.NoElseMayFollow.Ambiguity makeNoElseMayFollowAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.NoElseMayFollow> alternatives) { 
-return new org.meta_environment.rascal.ast.NoElseMayFollow.Ambiguity(node, alternatives); 
+public org.meta_environment.rascal.ast.TypeVar.Bounded makeTypeVarBounded(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Type bound) { 
+return new org.meta_environment.rascal.ast.TypeVar.Bounded(node, name, bound); 
 }
-public org.meta_environment.rascal.ast.NoElseMayFollow.Default makeNoElseMayFollowDefault(INode node) { 
-return new org.meta_environment.rascal.ast.NoElseMayFollow.Default(node); 
+public org.meta_environment.rascal.ast.TypeVar.Ambiguity makeTypeVarAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.TypeVar> alternatives) { 
+return new org.meta_environment.rascal.ast.TypeVar.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Assignable.Constructor makeAssignableConstructor(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Assignable> arguments) { 
-return new org.meta_environment.rascal.ast.Assignable.Constructor(node, name, arguments); 
+public org.meta_environment.rascal.ast.TypeVar.Free makeTypeVarFree(INode node, org.meta_environment.rascal.ast.Name name) { 
+return new org.meta_environment.rascal.ast.TypeVar.Free(node, name); 
 }
-public org.meta_environment.rascal.ast.Assignable.Tuple makeAssignableTuple(INode node, java.util.List<org.meta_environment.rascal.ast.Assignable> elements) { 
-return new org.meta_environment.rascal.ast.Assignable.Tuple(node, elements); 
+public org.meta_environment.rascal.ast.UserType.Parametric makeUserTypeParametric(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Type> parameters) { 
+return new org.meta_environment.rascal.ast.UserType.Parametric(node, name, parameters); 
 }
-public org.meta_environment.rascal.ast.Assignable.Annotation makeAssignableAnnotation(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name annotation) { 
-return new org.meta_environment.rascal.ast.Assignable.Annotation(node, receiver, annotation); 
+public org.meta_environment.rascal.ast.UserType.Ambiguity makeUserTypeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.UserType> alternatives) { 
+return new org.meta_environment.rascal.ast.UserType.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault makeAssignableIfDefinedOrDefault(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression defaultExpression) { 
-return new org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault(node, receiver, defaultExpression); 
+public org.meta_environment.rascal.ast.UserType.Name makeUserTypeName(INode node, org.meta_environment.rascal.ast.Name name) { 
+return new org.meta_environment.rascal.ast.UserType.Name(node, name); 
 }
-public org.meta_environment.rascal.ast.Assignable.FieldAccess makeAssignableFieldAccess(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name field) { 
-return new org.meta_environment.rascal.ast.Assignable.FieldAccess(node, receiver, field); 
+public org.meta_environment.rascal.ast.DataTypeSelector.Ambiguity makeDataTypeSelectorAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> alternatives) { 
+return new org.meta_environment.rascal.ast.DataTypeSelector.Ambiguity(node, alternatives); 
 }
-public org.meta_environment.rascal.ast.Assignable.Subscript makeAssignableSubscript(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression subscript) { 
-return new org.meta_environment.rascal.ast.Assignable.Subscript(node, receiver, subscript); 
-}
-public org.meta_environment.rascal.ast.Assignable.Ambiguity makeAssignableAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Assignable> alternatives) { 
-return new org.meta_environment.rascal.ast.Assignable.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Assignable.Variable makeAssignableVariable(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) { 
-return new org.meta_environment.rascal.ast.Assignable.Variable(node, qualifiedName); 
-}
-public org.meta_environment.rascal.ast.Assignment.IfDefined makeAssignmentIfDefined(INode node) { 
-return new org.meta_environment.rascal.ast.Assignment.IfDefined(node); 
-}
-public org.meta_environment.rascal.ast.Assignment.Intersection makeAssignmentIntersection(INode node) { 
-return new org.meta_environment.rascal.ast.Assignment.Intersection(node); 
-}
-public org.meta_environment.rascal.ast.Assignment.Division makeAssignmentDivision(INode node) { 
-return new org.meta_environment.rascal.ast.Assignment.Division(node); 
-}
-public org.meta_environment.rascal.ast.Assignment.Product makeAssignmentProduct(INode node) { 
-return new org.meta_environment.rascal.ast.Assignment.Product(node); 
-}
-public org.meta_environment.rascal.ast.Assignment.Subtraction makeAssignmentSubtraction(INode node) { 
-return new org.meta_environment.rascal.ast.Assignment.Subtraction(node); 
-}
-public org.meta_environment.rascal.ast.Assignment.Addition makeAssignmentAddition(INode node) { 
-return new org.meta_environment.rascal.ast.Assignment.Addition(node); 
-}
-public org.meta_environment.rascal.ast.Assignment.Ambiguity makeAssignmentAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Assignment> alternatives) { 
-return new org.meta_environment.rascal.ast.Assignment.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Assignment.Default makeAssignmentDefault(INode node) { 
-return new org.meta_environment.rascal.ast.Assignment.Default(node); 
-}
-public org.meta_environment.rascal.ast.Label.Default makeLabelDefault(INode node, org.meta_environment.rascal.ast.Name name) { 
-return new org.meta_environment.rascal.ast.Label.Default(node, name); 
-}
-public org.meta_environment.rascal.ast.Label.Ambiguity makeLabelAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Label> alternatives) { 
-return new org.meta_environment.rascal.ast.Label.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Label.Empty makeLabelEmpty(INode node) { 
-return new org.meta_environment.rascal.ast.Label.Empty(node); 
-}
-public org.meta_environment.rascal.ast.DataTarget.Labeled makeDataTargetLabeled(INode node, org.meta_environment.rascal.ast.Name label) { 
-return new org.meta_environment.rascal.ast.DataTarget.Labeled(node, label); 
-}
-public org.meta_environment.rascal.ast.DataTarget.Ambiguity makeDataTargetAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.DataTarget> alternatives) { 
-return new org.meta_environment.rascal.ast.DataTarget.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.DataTarget.Empty makeDataTargetEmpty(INode node) { 
-return new org.meta_environment.rascal.ast.DataTarget.Empty(node); 
-}
-public org.meta_environment.rascal.ast.Target.Labeled makeTargetLabeled(INode node, org.meta_environment.rascal.ast.Name name) { 
-return new org.meta_environment.rascal.ast.Target.Labeled(node, name); 
-}
-public org.meta_environment.rascal.ast.Target.Ambiguity makeTargetAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Target> alternatives) { 
-return new org.meta_environment.rascal.ast.Target.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Target.Empty makeTargetEmpty(INode node) { 
-return new org.meta_environment.rascal.ast.Target.Empty(node); 
-}
-public org.meta_environment.rascal.ast.Catch.Binding makeCatchBinding(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement body) { 
-return new org.meta_environment.rascal.ast.Catch.Binding(node, pattern, body); 
-}
-public org.meta_environment.rascal.ast.Catch.Ambiguity makeCatchAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Catch> alternatives) { 
-return new org.meta_environment.rascal.ast.Catch.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Catch.Default makeCatchDefault(INode node, org.meta_environment.rascal.ast.Statement body) { 
-return new org.meta_environment.rascal.ast.Catch.Default(node, body); 
-}
-public org.meta_environment.rascal.ast.Declarator.Ambiguity makeDeclaratorAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Declarator> alternatives) { 
-return new org.meta_environment.rascal.ast.Declarator.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Declarator.Default makeDeclaratorDefault(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) { 
-return new org.meta_environment.rascal.ast.Declarator.Default(node, type, variables); 
-}
-public org.meta_environment.rascal.ast.LocalVariableDeclaration.Dynamic makeLocalVariableDeclarationDynamic(INode node, org.meta_environment.rascal.ast.Declarator declarator) { 
-return new org.meta_environment.rascal.ast.LocalVariableDeclaration.Dynamic(node, declarator); 
-}
-public org.meta_environment.rascal.ast.LocalVariableDeclaration.Ambiguity makeLocalVariableDeclarationAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> alternatives) { 
-return new org.meta_environment.rascal.ast.LocalVariableDeclaration.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.LocalVariableDeclaration.Default makeLocalVariableDeclarationDefault(INode node, org.meta_environment.rascal.ast.Declarator declarator) { 
-return new org.meta_environment.rascal.ast.LocalVariableDeclaration.Default(node, declarator); 
-}
-public org.meta_environment.rascal.ast.Symbol.Sort makeSymbolSort(INode node, org.meta_environment.rascal.ast.Name name) { 
-return new org.meta_environment.rascal.ast.Symbol.Sort(node, name); 
-}
-public org.meta_environment.rascal.ast.Symbol.CaseInsensitiveLiteral makeSymbolCaseInsensitiveLiteral(INode node, org.meta_environment.rascal.ast.SingleQuotedStrCon singelQuotedString) { 
-return new org.meta_environment.rascal.ast.Symbol.CaseInsensitiveLiteral(node, singelQuotedString); 
-}
-public org.meta_environment.rascal.ast.Symbol.Literal makeSymbolLiteral(INode node, org.meta_environment.rascal.ast.StrCon string) { 
-return new org.meta_environment.rascal.ast.Symbol.Literal(node, string); 
-}
-public org.meta_environment.rascal.ast.Symbol.CharacterClass makeSymbolCharacterClass(INode node, org.meta_environment.rascal.ast.CharClass charClass) { 
-return new org.meta_environment.rascal.ast.Symbol.CharacterClass(node, charClass); 
-}
-public org.meta_environment.rascal.ast.Symbol.Alternative makeSymbolAlternative(INode node, org.meta_environment.rascal.ast.Symbol lhs, org.meta_environment.rascal.ast.Symbol rhs) { 
-return new org.meta_environment.rascal.ast.Symbol.Alternative(node, lhs, rhs); 
-}
-public org.meta_environment.rascal.ast.Symbol.IterStarSep makeSymbolIterStarSep(INode node, org.meta_environment.rascal.ast.Symbol symbol, org.meta_environment.rascal.ast.StrCon sep) { 
-return new org.meta_environment.rascal.ast.Symbol.IterStarSep(node, symbol, sep); 
-}
-public org.meta_environment.rascal.ast.Symbol.IterSep makeSymbolIterSep(INode node, org.meta_environment.rascal.ast.Symbol symbol, org.meta_environment.rascal.ast.StrCon sep) { 
-return new org.meta_environment.rascal.ast.Symbol.IterSep(node, symbol, sep); 
-}
-public org.meta_environment.rascal.ast.Symbol.Sequence makeSymbolSequence(INode node, org.meta_environment.rascal.ast.Symbol head, java.util.List<org.meta_environment.rascal.ast.Symbol> tail) { 
-return new org.meta_environment.rascal.ast.Symbol.Sequence(node, head, tail); 
-}
-public org.meta_environment.rascal.ast.Symbol.Empty makeSymbolEmpty(INode node) { 
-return new org.meta_environment.rascal.ast.Symbol.Empty(node); 
-}
-public org.meta_environment.rascal.ast.Symbol.IterStar makeSymbolIterStar(INode node, org.meta_environment.rascal.ast.Symbol symbol) { 
-return new org.meta_environment.rascal.ast.Symbol.IterStar(node, symbol); 
-}
-public org.meta_environment.rascal.ast.Symbol.Iter makeSymbolIter(INode node, org.meta_environment.rascal.ast.Symbol symbol) { 
-return new org.meta_environment.rascal.ast.Symbol.Iter(node, symbol); 
-}
-public org.meta_environment.rascal.ast.Symbol.Ambiguity makeSymbolAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Symbol> alternatives) { 
-return new org.meta_environment.rascal.ast.Symbol.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Symbol.Optional makeSymbolOptional(INode node, org.meta_environment.rascal.ast.Symbol symbol) { 
-return new org.meta_environment.rascal.ast.Symbol.Optional(node, symbol); 
-}
-public org.meta_environment.rascal.ast.StrChar.Lexical makeStrCharLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.StrChar.Lexical(node, string); 
-}
-public org.meta_environment.rascal.ast.StrChar.Ambiguity makeStrCharAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StrChar> alternatives) { 
-return new org.meta_environment.rascal.ast.StrChar.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.StrChar.newline makeStrCharnewline(INode node) { 
-return new org.meta_environment.rascal.ast.StrChar.newline(node); 
-}
-public org.meta_environment.rascal.ast.StrCon.Ambiguity makeStrConAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StrCon> alternatives) { 
-return new org.meta_environment.rascal.ast.StrCon.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.StrCon.Lexical makeStrConLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.StrCon.Lexical(node, string); 
-}
-public org.meta_environment.rascal.ast.SingleQuotedStrChar.Ambiguity makeSingleQuotedStrCharAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrChar> alternatives) { 
-return new org.meta_environment.rascal.ast.SingleQuotedStrChar.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.SingleQuotedStrChar.Lexical makeSingleQuotedStrCharLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.SingleQuotedStrChar.Lexical(node, string); 
-}
-public org.meta_environment.rascal.ast.SingleQuotedStrCon.Ambiguity makeSingleQuotedStrConAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrCon> alternatives) { 
-return new org.meta_environment.rascal.ast.SingleQuotedStrCon.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.SingleQuotedStrCon.Lexical makeSingleQuotedStrConLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.SingleQuotedStrCon.Lexical(node, string); 
-}
-public org.meta_environment.rascal.ast.CharRange.Range makeCharRangeRange(INode node, org.meta_environment.rascal.ast.Character start, org.meta_environment.rascal.ast.Character end) { 
-return new org.meta_environment.rascal.ast.CharRange.Range(node, start, end); 
-}
-public org.meta_environment.rascal.ast.CharRange.Ambiguity makeCharRangeAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharRange> alternatives) { 
-return new org.meta_environment.rascal.ast.CharRange.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.CharRange.Character makeCharRangeCharacter(INode node, org.meta_environment.rascal.ast.Character character) { 
-return new org.meta_environment.rascal.ast.CharRange.Character(node, character); 
-}
-public org.meta_environment.rascal.ast.CharRanges.Bracket makeCharRangesBracket(INode node, org.meta_environment.rascal.ast.CharRanges ranges) { 
-return new org.meta_environment.rascal.ast.CharRanges.Bracket(node, ranges); 
-}
-public org.meta_environment.rascal.ast.CharRanges.Concatenate makeCharRangesConcatenate(INode node, org.meta_environment.rascal.ast.CharRanges lhs, org.meta_environment.rascal.ast.CharRanges rhs) { 
-return new org.meta_environment.rascal.ast.CharRanges.Concatenate(node, lhs, rhs); 
-}
-public org.meta_environment.rascal.ast.CharRanges.Ambiguity makeCharRangesAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharRanges> alternatives) { 
-return new org.meta_environment.rascal.ast.CharRanges.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.CharRanges.Range makeCharRangesRange(INode node, org.meta_environment.rascal.ast.CharRange range) { 
-return new org.meta_environment.rascal.ast.CharRanges.Range(node, range); 
-}
-public org.meta_environment.rascal.ast.OptCharRanges.Present makeOptCharRangesPresent(INode node, org.meta_environment.rascal.ast.CharRanges ranges) { 
-return new org.meta_environment.rascal.ast.OptCharRanges.Present(node, ranges); 
-}
-public org.meta_environment.rascal.ast.OptCharRanges.Ambiguity makeOptCharRangesAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.OptCharRanges> alternatives) { 
-return new org.meta_environment.rascal.ast.OptCharRanges.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.OptCharRanges.Absent makeOptCharRangesAbsent(INode node) { 
-return new org.meta_environment.rascal.ast.OptCharRanges.Absent(node); 
-}
-public org.meta_environment.rascal.ast.CharClass.Union makeCharClassUnion(INode node, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) { 
-return new org.meta_environment.rascal.ast.CharClass.Union(node, lhs, rhs); 
-}
-public org.meta_environment.rascal.ast.CharClass.Intersection makeCharClassIntersection(INode node, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) { 
-return new org.meta_environment.rascal.ast.CharClass.Intersection(node, lhs, rhs); 
-}
-public org.meta_environment.rascal.ast.CharClass.Difference makeCharClassDifference(INode node, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) { 
-return new org.meta_environment.rascal.ast.CharClass.Difference(node, lhs, rhs); 
-}
-public org.meta_environment.rascal.ast.CharClass.Complement makeCharClassComplement(INode node, org.meta_environment.rascal.ast.CharClass charClass) { 
-return new org.meta_environment.rascal.ast.CharClass.Complement(node, charClass); 
-}
-public org.meta_environment.rascal.ast.CharClass.Bracket makeCharClassBracket(INode node, org.meta_environment.rascal.ast.CharClass charClass) { 
-return new org.meta_environment.rascal.ast.CharClass.Bracket(node, charClass); 
-}
-public org.meta_environment.rascal.ast.CharClass.Ambiguity makeCharClassAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharClass> alternatives) { 
-return new org.meta_environment.rascal.ast.CharClass.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.CharClass.SimpleCharclass makeCharClassSimpleCharclass(INode node, org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges) { 
-return new org.meta_environment.rascal.ast.CharClass.SimpleCharclass(node, optionalCharRanges); 
-}
-public org.meta_environment.rascal.ast.NumChar.Ambiguity makeNumCharAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.NumChar> alternatives) { 
-return new org.meta_environment.rascal.ast.NumChar.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.NumChar.Lexical makeNumCharLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.NumChar.Lexical(node, string); 
-}
-public org.meta_environment.rascal.ast.ShortChar.Ambiguity makeShortCharAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ShortChar> alternatives) { 
-return new org.meta_environment.rascal.ast.ShortChar.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.ShortChar.Lexical makeShortCharLexical(INode node, String string) { 
-return new org.meta_environment.rascal.ast.ShortChar.Lexical(node, string); 
-}
-public org.meta_environment.rascal.ast.Character.Bottom makeCharacterBottom(INode node) { 
-return new org.meta_environment.rascal.ast.Character.Bottom(node); 
-}
-public org.meta_environment.rascal.ast.Character.EOF makeCharacterEOF(INode node) { 
-return new org.meta_environment.rascal.ast.Character.EOF(node); 
-}
-public org.meta_environment.rascal.ast.Character.Top makeCharacterTop(INode node) { 
-return new org.meta_environment.rascal.ast.Character.Top(node); 
-}
-public org.meta_environment.rascal.ast.Character.Short makeCharacterShort(INode node, org.meta_environment.rascal.ast.ShortChar shortChar) { 
-return new org.meta_environment.rascal.ast.Character.Short(node, shortChar); 
-}
-public org.meta_environment.rascal.ast.Character.Ambiguity makeCharacterAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Character> alternatives) { 
-return new org.meta_environment.rascal.ast.Character.Ambiguity(node, alternatives); 
-}
-public org.meta_environment.rascal.ast.Character.Numeric makeCharacterNumeric(INode node, org.meta_environment.rascal.ast.NumChar numChar) { 
-return new org.meta_environment.rascal.ast.Character.Numeric(node, numChar); 
+public org.meta_environment.rascal.ast.DataTypeSelector.Selector makeDataTypeSelectorSelector(INode node, org.meta_environment.rascal.ast.Name sort, org.meta_environment.rascal.ast.Name production) { 
+return new org.meta_environment.rascal.ast.DataTypeSelector.Selector(node, sort, production); 
 }
 }

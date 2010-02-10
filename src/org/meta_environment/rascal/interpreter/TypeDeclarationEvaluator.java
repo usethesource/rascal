@@ -19,6 +19,7 @@ import org.meta_environment.rascal.ast.UserType;
 import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Data;
+import org.meta_environment.rascal.ast.Declaration.DataAbstract;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -103,6 +104,11 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
+	public void declareAbstractADT(DataAbstract x, Environment env) {
+		TypeFactory tf = TypeFactory.getInstance();
+		Type adt = declareAbstractDataType(x.getUser(), env);
+	}
+	
 	private void declareAliases(Set<Alias> aliasDecls) {
 		List<Alias> todo = new LinkedList<Alias>();
 		todo.addAll(aliasDecls);
@@ -223,6 +229,12 @@ public class TypeDeclarationEvaluator {
 		public Declaration visitDeclarationData(Data x) {
 			abstractDataTypes.add(x.getUser());
 			constructorDecls.add(x);
+			return x;
+		}
+
+		@Override
+		public Declaration visitDeclarationDataAbstract(DataAbstract x) {
+			abstractDataTypes.add(x.getUser());
 			return x;
 		}
 	}

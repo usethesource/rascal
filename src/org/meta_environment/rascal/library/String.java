@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.library;
 
+import java.math.BigInteger;
+
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -130,7 +132,22 @@ public class String {
 	//@doc{toInt -- convert a string s to integer}
 	{
 		try {
-			return values.integer(s.getValue());
+			java.lang.String sval = s.getValue();
+			boolean isNegative = false;
+			int radix = 10;
+			if (sval.startsWith("-")) {
+				isNegative = true;
+				sval = sval.substring(1);
+			}
+			if (sval.startsWith("0x") || sval.startsWith("0X")) {
+				radix = 16;
+				sval = sval.substring(2);
+			} else if (sval.startsWith("0")) {
+				radix = 8;
+				sval = sval.substring(1);
+			}
+			BigInteger bi = new BigInteger(isNegative ? "-" + sval : sval, radix);
+			return values.integer(bi.toString());
 		}
 		catch (NumberFormatException e){
 			throw RuntimeExceptionFactory.illegalArgument(null, null);

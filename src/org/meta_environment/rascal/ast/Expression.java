@@ -1,7 +1,257 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Expression extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasName() { return false; } public boolean isTypedVariable() { return false; }
+  public org.meta_environment.rascal.ast.Expression getCondition() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getThenExp() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getElseExp() { throw new UnsupportedOperationException(); } public boolean hasCondition() { return false; } public boolean hasThenExp() { return false; } public boolean hasElseExp() { return false; } public boolean isIfThenElse() { return false; } static public class IfThenElse extends Expression {
+/** condition:Expression "?" thenExp:Expression ":" 
+                           elseExp:Expression -> Expression {right, cons("IfThenElse")} */
+	public IfThenElse(INode node, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) {
+		this.node = node;
+		this.condition = condition;
+		this.thenExp = thenExp;
+		this.elseExp = elseExp;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionIfThenElse(this);
+	}
+
+	public boolean isIfThenElse() { return true; }
+
+	public boolean hasCondition() { return true; }
+	public boolean hasThenExp() { return true; }
+	public boolean hasElseExp() { return true; }
+
+private final org.meta_environment.rascal.ast.Expression condition;
+	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }
+	private final org.meta_environment.rascal.ast.Expression thenExp;
+	public org.meta_environment.rascal.ast.Expression getThenExp() { return thenExp; }
+	private final org.meta_environment.rascal.ast.Expression elseExp;
+	public org.meta_environment.rascal.ast.Expression getElseExp() { return elseExp; }	
+} static public class Ambiguity extends Expression {
+  private final java.util.List<org.meta_environment.rascal.ast.Expression> alternatives;
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.node = node;
+  }
+  public java.util.List<org.meta_environment.rascal.ast.Expression> getAlternatives() {
+	return alternatives;
+  }
+  
+  public <T> T accept(IASTVisitor<T> v) {
+     return v.visitExpressionAmbiguity(this);
+  }
+} public org.meta_environment.rascal.ast.Expression getLhs() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isIfDefinedOtherwise() { return false; } static public class IfDefinedOtherwise extends Expression {
+/** lhs:Expression "?" rhs:Expression -> Expression {non-assoc, cons("IfDefinedOtherwise")} */
+	public IfDefinedOtherwise(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
+		this.lhs = lhs;
+		this.rhs = rhs;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionIfDefinedOtherwise(this);
+	}
+
+	public boolean isIfDefinedOtherwise() { return true; }
+
+	public boolean hasLhs() { return true; }
+	public boolean hasRhs() { return true; }
+
+private final org.meta_environment.rascal.ast.Expression lhs;
+	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
+	private final org.meta_environment.rascal.ast.Expression rhs;
+	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean hasExpression() { return false; } public boolean isMatch() { return false; }
+static public class Match extends Expression {
+/** pattern:Expression ":=" expression:Expression -> Expression {non-assoc, cons("Match")} */
+	public Match(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
+		this.pattern = pattern;
+		this.expression = expression;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionMatch(this);
+	}
+
+	public boolean isMatch() { return true; }
+
+	public boolean hasPattern() { return true; }
+	public boolean hasExpression() { return true; }
+
+private final org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private final org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
+} public boolean isNoMatch() { return false; }
+static public class NoMatch extends Expression {
+/** pattern:Expression "!:=" expression:Expression -> Expression {non-assoc, cons("NoMatch")} */
+	public NoMatch(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
+		this.pattern = pattern;
+		this.expression = expression;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionNoMatch(this);
+	}
+
+	public boolean isNoMatch() { return true; }
+
+	public boolean hasPattern() { return true; }
+	public boolean hasExpression() { return true; }
+
+private final org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private final org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
+} public boolean isEnumerator() { return false; }
+static public class Enumerator extends Expression {
+/** pattern:Expression "<-" expression:Expression -> Expression {prefer, cons("Enumerator")} */
+	public Enumerator(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
+		this.pattern = pattern;
+		this.expression = expression;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionEnumerator(this);
+	}
+
+	public boolean isEnumerator() { return true; }
+
+	public boolean hasPattern() { return true; }
+	public boolean hasExpression() { return true; }
+
+private final org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private final org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
+} public boolean isEquals() { return false; } static public class Equals extends Expression {
+/** lhs:Expression "==" rhs:Expression -> Expression {left, cons("Equals")} */
+	public Equals(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
+		this.lhs = lhs;
+		this.rhs = rhs;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionEquals(this);
+	}
+
+	public boolean isEquals() { return true; }
+
+	public boolean hasLhs() { return true; }
+	public boolean hasRhs() { return true; }
+
+private final org.meta_environment.rascal.ast.Expression lhs;
+	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
+	private final org.meta_environment.rascal.ast.Expression rhs;
+	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }	
+} public org.meta_environment.rascal.ast.Comprehension getComprehension() { throw new UnsupportedOperationException(); }
+public boolean hasComprehension() { return false; }
+public boolean isComprehension() { return false; }
+static public class Comprehension extends Expression {
+/** comprehension:Comprehension -> Expression {cons("Comprehension")} */
+	public Comprehension(INode node, org.meta_environment.rascal.ast.Comprehension comprehension) {
+		this.node = node;
+		this.comprehension = comprehension;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionComprehension(this);
+	}
+
+	public boolean isComprehension() { return true; }
+
+	public boolean hasComprehension() { return true; }
+
+private final org.meta_environment.rascal.ast.Comprehension comprehension;
+	public org.meta_environment.rascal.ast.Comprehension getComprehension() { return comprehension; }	
+} 
+public org.meta_environment.rascal.ast.Expression getInit() { throw new UnsupportedOperationException(); }
+	public org.meta_environment.rascal.ast.Expression getResult() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasInit() { return false; }
+	public boolean hasResult() { return false; } public boolean hasGenerators() { return false; } public boolean isReducer() { return false; }
+static public class Reducer extends Expression {
+/** "(" init:Expression "|" result:Expression "|" generators:{Expression ","}+ ")" -> Expression {cons("Reducer")} */
+	public Reducer(INode node, org.meta_environment.rascal.ast.Expression init, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
+		this.node = node;
+		this.init = init;
+		this.result = result;
+		this.generators = generators;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionReducer(this);
+	}
+
+	public boolean isReducer() { return true; }
+
+	public boolean hasInit() { return true; }
+	public boolean hasResult() { return true; }
+	public boolean hasGenerators() { return true; }
+
+private final org.meta_environment.rascal.ast.Expression init;
+	public org.meta_environment.rascal.ast.Expression getInit() { return init; }
+	private final org.meta_environment.rascal.ast.Expression result;
+	public org.meta_environment.rascal.ast.Expression getResult() { return result; }
+	private final java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }	
+} 
+public boolean isIt() { return false; }
+static public class It extends Expression {
+/** "it" -> Expression {cons("It")} */
+	public It(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionIt(this);
+	}
+
+	public boolean isIt() { return true; }	
+} public boolean isAll() { return false; }
+static public class All extends Expression {
+/** "all" "(" generators:{Expression ","}+ ")" -> Expression {cons("All")} */
+	public All(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
+		this.node = node;
+		this.generators = generators;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionAll(this);
+	}
+
+	public boolean isAll() { return true; }
+
+	public boolean hasGenerators() { return true; }
+
+private final java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }	
+} public boolean isAny() { return false; }
+static public class Any extends Expression {
+/** "any" "(" generators:{Expression ","}+ ")" -> Expression {cons("Any")} */
+	public Any(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
+		this.node = node;
+		this.generators = generators;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionAny(this);
+	}
+
+	public boolean isAny() { return true; }
+
+	public boolean hasGenerators() { return true; }
+
+private final java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }	
+} public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasStatements() { return false; } public boolean isNonEmptyBlock() { return false; } static public class NonEmptyBlock extends Expression {
+/** "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
+	public NonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		this.node = node;
+		this.statements = statements;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionNonEmptyBlock(this);
+	}
+
+	public boolean isNonEmptyBlock() { return true; }
+
+	public boolean hasStatements() { return true; }
+
+private final java.util.List<org.meta_environment.rascal.ast.Statement> statements;
+	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }	
+} public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasName() { return false; } public boolean isTypedVariable() { return false; }
 static public class TypedVariable extends Expression {
 /** type:Type name:Name -> Expression {cons("TypedVariable")} */
 	public TypedVariable(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) {
@@ -22,20 +272,6 @@ private final org.meta_environment.rascal.ast.Type type;
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private final org.meta_environment.rascal.ast.Name name;
 	public org.meta_environment.rascal.ast.Name getName() { return name; }	
-}
-static public class Ambiguity extends Expression {
-  private final java.util.List<org.meta_environment.rascal.ast.Expression> alternatives;
-  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.meta_environment.rascal.ast.Expression> getAlternatives() {
-	return alternatives;
-  }
-  
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitExpressionAmbiguity(this);
-  }
 } public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { throw new UnsupportedOperationException(); } public boolean hasQualifiedName() { return false; } public boolean isMultiVariable() { return false; }
 static public class MultiVariable extends Expression {
 /** qualifiedName:QualifiedName "*" -> Expression {cons("MultiVariable")} */
@@ -53,7 +289,7 @@ static public class MultiVariable extends Expression {
 
 private final org.meta_environment.rascal.ast.QualifiedName qualifiedName;
 	public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { return qualifiedName; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; } public boolean hasArguments() { return false; } public boolean isCallOrTree() { return false; } static public class CallOrTree extends Expression {
+} public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasArguments() { return false; } public boolean isCallOrTree() { return false; } static public class CallOrTree extends Expression {
 /** expression:Expression "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
 	public CallOrTree(INode node, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
 		this.node = node;
@@ -73,7 +309,7 @@ private final org.meta_environment.rascal.ast.Expression expression;
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private final java.util.List<org.meta_environment.rascal.ast.Expression> arguments;
 	public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { return arguments; }	
-} public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean isDescendant() { return false; }
+} public boolean isDescendant() { return false; }
 static public class Descendant extends Expression {
 /** "/" pattern:Expression -> Expression {cons("Descendant")} */
 	public Descendant(INode node, org.meta_environment.rascal.ast.Expression pattern) {
@@ -174,150 +410,6 @@ static public class Anti extends Expression {
 
 private final org.meta_environment.rascal.ast.Expression pattern;
 	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }	
-} 
-public org.meta_environment.rascal.ast.Literal getLiteral() { throw new UnsupportedOperationException(); }
-public boolean hasLiteral() { return false; }
-public boolean isLiteral() { return false; }
-static public class Literal extends Expression {
-/** literal:Literal -> Expression {cons("Literal")} */
-	public Literal(INode node, org.meta_environment.rascal.ast.Literal literal) {
-		this.node = node;
-		this.literal = literal;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionLiteral(this);
-	}
-
-	public boolean isLiteral() { return true; }
-
-	public boolean hasLiteral() { return true; }
-
-private final org.meta_environment.rascal.ast.Literal literal;
-	public org.meta_environment.rascal.ast.Literal getLiteral() { return literal; }	
-} public boolean isQualifiedName() { return false; }
-static public class QualifiedName extends Expression {
-/** qualifiedName:QualifiedName -> Expression {cons("QualifiedName")} */
-	public QualifiedName(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
-		this.node = node;
-		this.qualifiedName = qualifiedName;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionQualifiedName(this);
-	}
-
-	public boolean isQualifiedName() { return true; }
-
-	public boolean hasQualifiedName() { return true; }
-
-private final org.meta_environment.rascal.ast.QualifiedName qualifiedName;
-	public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { return qualifiedName; }	
-} public org.meta_environment.rascal.ast.BasicType getBasicType() { throw new UnsupportedOperationException(); } public boolean hasBasicType() { return false; } public boolean isReifiedType() { return false; } static public class ReifiedType extends Expression {
-/** basicType:BasicType "(" arguments:{Expression ","}* ")" -> Expression {cons("ReifiedType")} */
-	public ReifiedType(INode node, org.meta_environment.rascal.ast.BasicType basicType, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
-		this.node = node;
-		this.basicType = basicType;
-		this.arguments = arguments;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionReifiedType(this);
-	}
-
-	public boolean isReifiedType() { return true; }
-
-	public boolean hasBasicType() { return true; }
-	public boolean hasArguments() { return true; }
-
-private final org.meta_environment.rascal.ast.BasicType basicType;
-	public org.meta_environment.rascal.ast.BasicType getBasicType() { return basicType; }
-	private final java.util.List<org.meta_environment.rascal.ast.Expression> arguments;
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { return arguments; }	
-} public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { throw new UnsupportedOperationException(); } public boolean hasElements() { return false; } public boolean isList() { return false; }
-static public class List extends Expression {
-/** "[" elements:{Expression ","}* "]" -> Expression {cons("List")} */
-	public List(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
-		this.node = node;
-		this.elements = elements;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionList(this);
-	}
-
-	public boolean isList() { return true; }
-
-	public boolean hasElements() { return true; }
-
-private final java.util.List<org.meta_environment.rascal.ast.Expression> elements;
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { return elements; }	
-} public boolean isSet() { return false; }
-static public class Set extends Expression {
-/** "{" elements:{Expression ","}* "}" -> Expression {cons("Set")} */
-	public Set(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
-		this.node = node;
-		this.elements = elements;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionSet(this);
-	}
-
-	public boolean isSet() { return true; }
-
-	public boolean hasElements() { return true; }
-
-private final java.util.List<org.meta_environment.rascal.ast.Expression> elements;
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { return elements; }	
-} public boolean isTuple() { return false; }
-static public class Tuple extends Expression {
-/** "<" elements:{Expression ","}+ ">" -> Expression {cons("Tuple")} */
-	public Tuple(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
-		this.node = node;
-		this.elements = elements;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionTuple(this);
-	}
-
-	public boolean isTuple() { return true; }
-
-	public boolean hasElements() { return true; }
-
-private final java.util.List<org.meta_environment.rascal.ast.Expression> elements;
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { return elements; }	
-} 
-public java.util.List<org.meta_environment.rascal.ast.Mapping> getMappings() { throw new UnsupportedOperationException(); }
-public boolean hasMappings() { return false; }
-public boolean isMap() { return false; }
-static public class Map extends Expression {
-/** "(" mappings:{Mapping ","}* ")" -> Expression {cons("Map")} */
-	public Map(INode node, java.util.List<org.meta_environment.rascal.ast.Mapping> mappings) {
-		this.node = node;
-		this.mappings = mappings;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionMap(this);
-	}
-
-	public boolean isMap() { return true; }
-
-	public boolean hasMappings() { return true; }
-
-private final java.util.List<org.meta_environment.rascal.ast.Mapping> mappings;
-	public java.util.List<org.meta_environment.rascal.ast.Mapping> getMappings() { return mappings; }	
-} public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasStatements() { return false; } public boolean isNonEmptyBlock() { return false; } static public class NonEmptyBlock extends Expression {
-/** "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
-	public NonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		this.node = node;
-		this.statements = statements;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionNonEmptyBlock(this);
-	}
-
-	public boolean isNonEmptyBlock() { return true; }
-
-	public boolean hasStatements() { return true; }
-
-private final java.util.List<org.meta_environment.rascal.ast.Statement> statements;
-	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }	
 } public org.meta_environment.rascal.ast.Parameters getParameters() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; } public boolean isClosure() { return false; }
 static public class Closure extends Expression {
 /** type:Type parameters:Parameters "{" statements:Statement+ "}" -> Expression {cons("Closure")} */
@@ -464,6 +556,26 @@ static public class ReifyType extends Expression {
 
 private final org.meta_environment.rascal.ast.Type type;
 	public org.meta_environment.rascal.ast.Type getType() { return type; }	
+} public org.meta_environment.rascal.ast.BasicType getBasicType() { throw new UnsupportedOperationException(); } public boolean hasBasicType() { return false; } public boolean isReifiedType() { return false; } static public class ReifiedType extends Expression {
+/** basicType:BasicType "(" arguments:{Expression ","}* ")" -> Expression {cons("ReifiedType")} */
+	public ReifiedType(INode node, org.meta_environment.rascal.ast.BasicType basicType, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
+		this.node = node;
+		this.basicType = basicType;
+		this.arguments = arguments;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionReifiedType(this);
+	}
+
+	public boolean isReifiedType() { return true; }
+
+	public boolean hasBasicType() { return true; }
+	public boolean hasArguments() { return true; }
+
+private final org.meta_environment.rascal.ast.BasicType basicType;
+	public org.meta_environment.rascal.ast.BasicType getBasicType() { return basicType; }
+	private final java.util.List<org.meta_environment.rascal.ast.Expression> arguments;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { return arguments; }	
 } public org.meta_environment.rascal.ast.Name getKey() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Expression getReplacement() { throw new UnsupportedOperationException(); } public boolean hasKey() { return false; }
 	public boolean hasReplacement() { return false; }
@@ -690,7 +802,7 @@ private final org.meta_environment.rascal.ast.Expression expression;
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private final org.meta_environment.rascal.ast.Expression value;
 	public org.meta_environment.rascal.ast.Expression getValue() { return value; }	
-} public org.meta_environment.rascal.ast.Expression getLhs() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isComposition() { return false; }
+} public boolean isComposition() { return false; }
 static public class Composition extends Expression {
 /** lhs:Expression "o" rhs:Expression -> Expression {cons("Composition"), left} */
 	public Composition(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
@@ -984,26 +1096,6 @@ private final org.meta_environment.rascal.ast.Expression lhs;
 	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
 	private final org.meta_environment.rascal.ast.Expression rhs;
 	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }	
-} public boolean isEquals() { return false; } static public class Equals extends Expression {
-/** lhs:Expression "==" rhs:Expression -> Expression {left, cons("Equals")} */
-	public Equals(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.node = node;
-		this.lhs = lhs;
-		this.rhs = rhs;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionEquals(this);
-	}
-
-	public boolean isEquals() { return true; }
-
-	public boolean hasLhs() { return true; }
-	public boolean hasRhs() { return true; }
-
-private final org.meta_environment.rascal.ast.Expression lhs;
-	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
-	private final org.meta_environment.rascal.ast.Expression rhs;
-	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }	
 } public boolean isNonEquals() { return false; }
 static public class NonEquals extends Expression {
 /** lhs:Expression "!=" rhs:Expression -> Expression {left, cons("NonEquals")} */
@@ -1017,50 +1109,6 @@ static public class NonEquals extends Expression {
 	}
 
 	public boolean isNonEquals() { return true; }
-
-	public boolean hasLhs() { return true; }
-	public boolean hasRhs() { return true; }
-
-private final org.meta_environment.rascal.ast.Expression lhs;
-	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
-	private final org.meta_environment.rascal.ast.Expression rhs;
-	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }	
-} public org.meta_environment.rascal.ast.Expression getCondition() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getThenExp() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getElseExp() { throw new UnsupportedOperationException(); } public boolean hasCondition() { return false; } public boolean hasThenExp() { return false; } public boolean hasElseExp() { return false; } public boolean isIfThenElse() { return false; } static public class IfThenElse extends Expression {
-/** condition:Expression "?" thenExp:Expression ":" elseExp:Expression -> Expression {right, cons("IfThenElse")} */
-	public IfThenElse(INode node, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) {
-		this.node = node;
-		this.condition = condition;
-		this.thenExp = thenExp;
-		this.elseExp = elseExp;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionIfThenElse(this);
-	}
-
-	public boolean isIfThenElse() { return true; }
-
-	public boolean hasCondition() { return true; }
-	public boolean hasThenExp() { return true; }
-	public boolean hasElseExp() { return true; }
-
-private final org.meta_environment.rascal.ast.Expression condition;
-	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }
-	private final org.meta_environment.rascal.ast.Expression thenExp;
-	public org.meta_environment.rascal.ast.Expression getThenExp() { return thenExp; }
-	private final org.meta_environment.rascal.ast.Expression elseExp;
-	public org.meta_environment.rascal.ast.Expression getElseExp() { return elseExp; }	
-} public boolean isIfDefinedOtherwise() { return false; } static public class IfDefinedOtherwise extends Expression {
-/** lhs:Expression "?" rhs:Expression -> Expression {non-assoc, cons("IfDefinedOtherwise")} */
-	public IfDefinedOtherwise(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.node = node;
-		this.lhs = lhs;
-		this.rhs = rhs;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionIfDefinedOtherwise(this);
-	}
-
-	public boolean isIfDefinedOtherwise() { return true; }
 
 	public boolean hasLhs() { return true; }
 	public boolean hasRhs() { return true; }
@@ -1166,162 +1214,113 @@ private final org.meta_environment.rascal.ast.Expression lhs;
  	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitExpressionLexical(this);
   	}
-} public boolean isMatch() { return false; }
-static public class Match extends Expression {
-/** pattern:Expression ":=" expression:Expression -> Expression {non-assoc, cons("Match")} */
-	public Match(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
-		this.node = node;
-		this.pattern = pattern;
-		this.expression = expression;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionMatch(this);
-	}
-
-	public boolean isMatch() { return true; }
-
-	public boolean hasPattern() { return true; }
-	public boolean hasExpression() { return true; }
-
-private final org.meta_environment.rascal.ast.Expression pattern;
-	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
-	private final org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
-} public boolean isNoMatch() { return false; }
-static public class NoMatch extends Expression {
-/** pattern:Expression "!:=" expression:Expression -> Expression {non-assoc, cons("NoMatch")} */
-	public NoMatch(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
-		this.node = node;
-		this.pattern = pattern;
-		this.expression = expression;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionNoMatch(this);
-	}
-
-	public boolean isNoMatch() { return true; }
-
-	public boolean hasPattern() { return true; }
-	public boolean hasExpression() { return true; }
-
-private final org.meta_environment.rascal.ast.Expression pattern;
-	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
-	private final org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
-} public boolean isEnumerator() { return false; }
-static public class Enumerator extends Expression {
-/** pattern:Expression "<-" expression:Expression -> Expression {prefer, cons("Enumerator")} */
-	public Enumerator(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
-		this.node = node;
-		this.pattern = pattern;
-		this.expression = expression;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionEnumerator(this);
-	}
-
-	public boolean isEnumerator() { return true; }
-
-	public boolean hasPattern() { return true; }
-	public boolean hasExpression() { return true; }
-
-private final org.meta_environment.rascal.ast.Expression pattern;
-	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
-	private final org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }	
 } 
-public org.meta_environment.rascal.ast.Comprehension getComprehension() { throw new UnsupportedOperationException(); }
-public boolean hasComprehension() { return false; }
-public boolean isComprehension() { return false; }
-static public class Comprehension extends Expression {
-/** comprehension:Comprehension -> Expression {cons("Comprehension")} */
-	public Comprehension(INode node, org.meta_environment.rascal.ast.Comprehension comprehension) {
+public org.meta_environment.rascal.ast.Literal getLiteral() { throw new UnsupportedOperationException(); }
+public boolean hasLiteral() { return false; }
+public boolean isLiteral() { return false; }
+static public class Literal extends Expression {
+/** literal:Literal -> Expression {cons("Literal")} */
+	public Literal(INode node, org.meta_environment.rascal.ast.Literal literal) {
 		this.node = node;
-		this.comprehension = comprehension;
+		this.literal = literal;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionComprehension(this);
+		return visitor.visitExpressionLiteral(this);
 	}
 
-	public boolean isComprehension() { return true; }
+	public boolean isLiteral() { return true; }
 
-	public boolean hasComprehension() { return true; }
+	public boolean hasLiteral() { return true; }
 
-private final org.meta_environment.rascal.ast.Comprehension comprehension;
-	public org.meta_environment.rascal.ast.Comprehension getComprehension() { return comprehension; }	
+private final org.meta_environment.rascal.ast.Literal literal;
+	public org.meta_environment.rascal.ast.Literal getLiteral() { return literal; }	
+} public boolean isQualifiedName() { return false; }
+static public class QualifiedName extends Expression {
+/** qualifiedName:QualifiedName -> Expression {cons("QualifiedName")} */
+	public QualifiedName(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
+		this.node = node;
+		this.qualifiedName = qualifiedName;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionQualifiedName(this);
+	}
+
+	public boolean isQualifiedName() { return true; }
+
+	public boolean hasQualifiedName() { return true; }
+
+private final org.meta_environment.rascal.ast.QualifiedName qualifiedName;
+	public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { return qualifiedName; }	
+} public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { throw new UnsupportedOperationException(); } public boolean hasElements() { return false; } public boolean isList() { return false; }
+static public class List extends Expression {
+/** "[" elements:{Expression ","}* "]" -> Expression {cons("List")} */
+	public List(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+		this.node = node;
+		this.elements = elements;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionList(this);
+	}
+
+	public boolean isList() { return true; }
+
+	public boolean hasElements() { return true; }
+
+private final java.util.List<org.meta_environment.rascal.ast.Expression> elements;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { return elements; }	
+} public boolean isSet() { return false; }
+static public class Set extends Expression {
+/** "{" elements:{Expression ","}* "}" -> Expression {cons("Set")} */
+	public Set(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+		this.node = node;
+		this.elements = elements;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionSet(this);
+	}
+
+	public boolean isSet() { return true; }
+
+	public boolean hasElements() { return true; }
+
+private final java.util.List<org.meta_environment.rascal.ast.Expression> elements;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { return elements; }	
+} public boolean isTuple() { return false; }
+static public class Tuple extends Expression {
+/** "<" elements:{Expression ","}+ ">" -> Expression {cons("Tuple")} */
+	public Tuple(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+		this.node = node;
+		this.elements = elements;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionTuple(this);
+	}
+
+	public boolean isTuple() { return true; }
+
+	public boolean hasElements() { return true; }
+
+private final java.util.List<org.meta_environment.rascal.ast.Expression> elements;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { return elements; }	
 } 
-public org.meta_environment.rascal.ast.Expression getInit() { throw new UnsupportedOperationException(); }
-	public org.meta_environment.rascal.ast.Expression getResult() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasInit() { return false; }
-	public boolean hasResult() { return false; } public boolean hasGenerators() { return false; } public boolean isReducer() { return false; }
-static public class Reducer extends Expression {
-/** "(" init:Expression "|" result:Expression "|" generators:{Expression ","}+ ")" -> Expression {cons("Reducer")} */
-	public Reducer(INode node, org.meta_environment.rascal.ast.Expression init, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
+public java.util.List<org.meta_environment.rascal.ast.Mapping> getMappings() { throw new UnsupportedOperationException(); }
+public boolean hasMappings() { return false; }
+public boolean isMap() { return false; }
+static public class Map extends Expression {
+/** "(" mappings:{Mapping ","}* ")" -> Expression {cons("Map")} */
+	public Map(INode node, java.util.List<org.meta_environment.rascal.ast.Mapping> mappings) {
 		this.node = node;
-		this.init = init;
-		this.result = result;
-		this.generators = generators;
+		this.mappings = mappings;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionReducer(this);
+		return visitor.visitExpressionMap(this);
 	}
 
-	public boolean isReducer() { return true; }
+	public boolean isMap() { return true; }
 
-	public boolean hasInit() { return true; }
-	public boolean hasResult() { return true; }
-	public boolean hasGenerators() { return true; }
+	public boolean hasMappings() { return true; }
 
-private final org.meta_environment.rascal.ast.Expression init;
-	public org.meta_environment.rascal.ast.Expression getInit() { return init; }
-	private final org.meta_environment.rascal.ast.Expression result;
-	public org.meta_environment.rascal.ast.Expression getResult() { return result; }
-	private final java.util.List<org.meta_environment.rascal.ast.Expression> generators;
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }	
-} 
-public boolean isIt() { return false; }
-static public class It extends Expression {
-/** "it" -> Expression {cons("It")} */
-	public It(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionIt(this);
-	}
-
-	public boolean isIt() { return true; }	
-} public boolean isAll() { return false; }
-static public class All extends Expression {
-/** "all" "(" generators:{Expression ","}+ ")" -> Expression {cons("All")} */
-	public All(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
-		this.node = node;
-		this.generators = generators;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionAll(this);
-	}
-
-	public boolean isAll() { return true; }
-
-	public boolean hasGenerators() { return true; }
-
-private final java.util.List<org.meta_environment.rascal.ast.Expression> generators;
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }	
-} public boolean isAny() { return false; }
-static public class Any extends Expression {
-/** "any" "(" generators:{Expression ","}+ ")" -> Expression {cons("Any")} */
-	public Any(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
-		this.node = node;
-		this.generators = generators;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionAny(this);
-	}
-
-	public boolean isAny() { return true; }
-
-	public boolean hasGenerators() { return true; }
-
-private final java.util.List<org.meta_environment.rascal.ast.Expression> generators;
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }	
+private final java.util.List<org.meta_environment.rascal.ast.Mapping> mappings;
+	public java.util.List<org.meta_environment.rascal.ast.Mapping> getMappings() { return mappings; }	
 }
 }

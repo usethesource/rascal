@@ -113,6 +113,31 @@ private final org.meta_environment.rascal.ast.Tags tags;
 	public org.meta_environment.rascal.ast.UserType getUser() { return user; }
 	private final java.util.List<org.meta_environment.rascal.ast.Variant> variants;
 	public java.util.List<org.meta_environment.rascal.ast.Variant> getVariants() { return variants; }	
+} public boolean isDataAbstract() { return false; }
+static public class DataAbstract extends Declaration {
+/** tags:Tags visibility:Visibility "data" user:UserType ";" -> Declaration {cons("DataAbstract")} */
+	public DataAbstract(INode node, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.UserType user) {
+		this.node = node;
+		this.tags = tags;
+		this.visibility = visibility;
+		this.user = user;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitDeclarationDataAbstract(this);
+	}
+
+	public boolean isDataAbstract() { return true; }
+
+	public boolean hasTags() { return true; }
+	public boolean hasVisibility() { return true; }
+	public boolean hasUser() { return true; }
+
+private final org.meta_environment.rascal.ast.Tags tags;
+	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
+	private final org.meta_environment.rascal.ast.Visibility visibility;
+	public org.meta_environment.rascal.ast.Visibility getVisibility() { return visibility; }
+	private final org.meta_environment.rascal.ast.UserType user;
+	public org.meta_environment.rascal.ast.UserType getUser() { return user; }	
 } 
 public org.meta_environment.rascal.ast.Test getTest() { throw new UnsupportedOperationException(); }
 public boolean hasTest() { return false; }
