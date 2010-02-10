@@ -445,7 +445,7 @@ public class ASTBuilder {
 		List<Expression> result = new ArrayList<Expression>(alternatives.size());
 		 
 		IConstructor expected = ProductionAdapter.getRhs(TreeAdapter.getProduction(antiQuote));
-		
+
 		// any alternative that is a typed variable must be parsed using a 
 		// MetaVariable that produced exactly the same type as is declared inside
 		// the < > brackets.
@@ -456,7 +456,7 @@ public class ASTBuilder {
 			
 			Expression exp = (Expression) buildValue(alt);
 		
-			if (correctlyNestedPattern(expected, exp)) {
+			if (exp != null && correctlyNestedPattern(expected, exp)) {
 				result.add(exp);
 			}
 		}
@@ -531,22 +531,6 @@ public class ASTBuilder {
 					
 					if (TreeAdapter.isList(tree)) {
 						inlist = true;
-					}
-					
-					// list variables
-					if (TreeAdapter.isList(tree) && TreeAdapter.getArgs(tree).length() == 1) {
-					   IConstructor child = (IConstructor) TreeAdapter.getArgs(tree).get(0);
-					   
-					   if (TreeAdapter.isAppl(child)) {
-						   String cons = TreeAdapter.getConstructorName(child);
-						   if (cons != null && (cons.equals("MetaVariable")
-								   // TODO: TypedMetaVariable does not exist in grammar
-								   || cons.equals("TypedMetaVariable"))) {
-							   Expression result = liftVariable(child);
-							   (match ? matchCache : constructorCache).putUnsafe(pattern, result);
-							   return result;
-						   }
-					   }
 					}
 					
 					// normal variables
@@ -773,7 +757,7 @@ public class ASTBuilder {
 			}
 			Expression result = (Expression) buildValue(arg);
 		
-			if (correctlyNestedPattern(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)), result)) {
+			if (result != null && correctlyNestedPattern(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)), result)) {
 				return result;
 			}
 			return null;

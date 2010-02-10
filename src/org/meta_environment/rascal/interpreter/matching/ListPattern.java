@@ -250,7 +250,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
 					allVars.addAll(childVars);
-					isListVar[nListVar] = false;
+					isListVar[nListVar] = false; // TODO: This looks wrong
 					nListVar++;
 				} 
 			}

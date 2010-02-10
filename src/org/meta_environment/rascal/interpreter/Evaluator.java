@@ -72,6 +72,7 @@ import org.meta_environment.rascal.ast.DateTimeLiteral.TimeLiteral;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
+import org.meta_environment.rascal.ast.Declaration.DataAbstract;
 import org.meta_environment.rascal.ast.Declaration.Function;
 import org.meta_environment.rascal.ast.Declaration.Rule;
 import org.meta_environment.rascal.ast.Declaration.Tag;
@@ -974,6 +975,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitDeclarationData(Data x) {
 		typeDeclarator.declareConstructor(x, getCurrentEnvt());
+		return nothing();
+	}
+
+	@Override
+	public Result<IValue> visitDeclarationDataAbstract(DataAbstract x) {
+		typeDeclarator.declareAbstractADT(x, getCurrentEnvt());
 		return nothing();
 	}
 

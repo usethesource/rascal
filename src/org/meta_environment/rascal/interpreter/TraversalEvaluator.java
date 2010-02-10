@@ -123,6 +123,8 @@ public class TraversalEvaluator {
 		//System.err.println("traverse: subject=" + subject + ", casesOrRules=" + casesOrRules);
 		do {
 			TraverseResult tr = traverseOnce(subject, casesOrRules, direction, progress);
+			
+			// TODO: what's going on? Will this go all the way back in the tree?
 			if(fixedpoint == FIXEDPOINT.Yes){
 				if (!tr.changed) {
 					return tr;
@@ -269,6 +271,9 @@ public class TraversalEvaluator {
 				return new TraverseResult(matched, result, changed);
 			}
 
+			// TODO: I would expect the FIXEDPOINT stuff to do its work here, not outside the recursion, 
+			// such that BottomUp+FixedPoint actually implements Innermost
+			
 			TraverseResult tr = traverseTop(subjectType, result, casesOrRules);
 			matched |= tr.matched;
 			changed |= tr.changed;
