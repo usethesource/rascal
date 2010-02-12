@@ -1,6 +1,6 @@
-module org::meta_environment::rascal::checker::Namespace
+module org::rascalmpl::checker::Namespace
 
-import org::meta_environment::rascal::checker::Types;
+import org::rascalmpl::checker::Types;
 
 import List;
 import Graph;
@@ -8,59 +8,77 @@ import IO;
 
 import languages::rascal::syntax::Rascal;
 
-data NamespaceItem =
-	  ModuleNI(RName moduleName)
-	| FunctionNI(RName functionName, list[RType] formalParamTypes, RType returnType)
-        | VarNI(RName varName, Tags tags, Visibility vis, RType rtype)
-;
-
-alias NamespaceEntry = list[NamespaceItem];
-
-alias Namespace = Graph[NamespaceEntry];
-
-public Namespace nspace = {};
-public tuple[Namespace ns, NamespaceEntry cur] buildns = < {}, [ModuleNI(RSimpleName("Start"))] > ;
-
-public void buildNamespace(Tree t) {
-	top-down visit(t) {
-		case (Module) `<Header h> <Body b>` : handleModuleHeader(h);
-		case (Declaration) `<Tags ts> <Visibility v> <Type t> <{Variable ","}+ vs> ;` : addVarItems(ts,v,t,vs);
-	}
-}
+private bool debug = true;
 
 public void addVarItems(Tags ts, Visibility v, Type t, {Variable ","}+ vs) {
+	// NOTE: Uncomment the following line to get the error...
+	//if (debug) println("Adding variables in declaration...");
 	println("Adding variables in declaration...");
 	for (vb <- vs) {
 		switch(vb) {
 			case `<Name n>` : {
-				println("Adding variable <n>");
-				NamespaceItem ni = VarNI(convertName(n), ts, v, convertType(t));
-				NamespaceEntry ne = buildns.cur + [ ni ];
-				buildns = < buildns.ns + { <buildns.cur, ne> }, buildns.cur >;
+				if (debug) println("Adding variable <n>");
+				//println("Adding variable <n>");
 			}
 				
 			case `<Name n> = <Expression e>` : {
-				println("Adding variable <n>");
-				NamespaceItem ni = VarNI(convertName(n), ts, v, convertType(t));
-				NamespaceEntry ne = buildns.cur + [ ni ];
-				buildns = < buildns.ns + { <buildns.cur, ne> }, buildns.cur >;
+				if (debug) println("Adding variable <n>");
+				//println("Adding variable <n>");
 			}
 		}
 	}
 }
 
-public void handleModuleHeader(Header h) {
+public void buildNamespace(Tree t) {
+	top-down visit(t) {
+		case (Module) `<Header h> <Body b>` : {
+			if (debug) print("Processing module...");
+			//print("Processing module...");
+			RName moduleName = handleModuleHeader(h);
+			if (debug) 	print("... exploring body of module " + prettyPrintName(moduleName));
+			//print("... exploring body of module " + prettyPrintName(moduleName));
+			handleModuleBody(b);
+			if (debug) 	println("... finished module body");
+			//println("... finished module body");
+		}
+	}
+}		
+
+public RName handleModuleHeader(Header h) {
 	switch(h) {
 		case `<Tags t> module <QualifiedName n> <Import* i>` : {
-			NamespaceItem ni = ModuleNI(convertName(n));
-			buildns = < buildns.ns, [ni] > ;
+			return convertName(n);
 		}		
 
-		// We may need params later -- ignore for now
 		case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
-			NamespaceItem ni = ModuleNI(convertName(n));
-			buildns = < buildns.ns, [ni] > ;
+			return convertName(n);
 		}		
 
 	}
+}
+
+public void handleModuleBody(Body b) {
+	for (/Toplevel t <- b) {
+		switch(t) {
+			case (Toplevel) `<Tags ts> <Visibility v> <Type t> <{Variable ","}+ vs> ;` : addVarItems(ts,v,t,vs);
+
+			case (Toplevel) `<Tags ts> <Visibility v> <Type theType> <FunctionModifiers theModifiers> <Name theName> <Parameters theParameters> ;` : addAbstractFunction(theType,theName);
+ 
+			case (Toplevel) `<Tags ts> <Visibility v> <Type theType> <FunctionModifiers theModifiers> <Name theName> <Parameters theParameters> <FunctionBody theBody>` : addFunction(theType,theName,theBody);
+			
+			case (Toplevel) `<Tags ts> <Visibility v> <Type theType> <FunctionModifiers theModifiers> <Name theName> <Parameters theParameters> throws <{Type ","}+ theThrows> ;` : addAbstractFunction(theType,theName);
+ 
+			case (Toplevel) `<Tags ts> <Visibility v> <Type theType> <FunctionModifiers theModifiers> <Name theName> <Parameters theParameters> throws <{Type ","}+ theThrows> <FunctionBody theBody>` : addFunction(theType,theName,theBody);
+			
+			default: println("No match for item");
+		}
+	}
+}
+
+public void addAbstractFunction(Type theType, Name theName, Parameters theParameters) {
+	if (debug) println("Found function " + prettyPrint(convertName(theName)));
+}
+
+public void addFunction(Type theType, Name theName, Parameters theParameters, FunctionBody theBody) {
+	if (debug) println("Found function " + prettyPrint(convertName(theName)));
 }

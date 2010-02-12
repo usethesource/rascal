@@ -1,6 +1,6 @@
-module org::meta_environment::rascal::checker::SubTypes
+module org::rascalmpl::checker::SubTypes
 
-import org::meta_environment::rascal::checker::Types;
+import org::rascalmpl::checker::Types;
 
 // Encode the subtyping relation t1 <: t2
 public bool subtypeOf(RType t1, RType t2) {
