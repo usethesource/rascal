@@ -1492,7 +1492,7 @@ int f(&amp;T y, real x)</programlisting></para>
         reference to the class that contains the methods to be called. Here is
         the offline version of the same reverse function:<programlisting>public str java reverse(str s)
 @doc{reverse -- return string with all characters in reverse order.}
-@javaClass{org.meta_environment.rascal.std.String};</programlisting>Both
+@javaClass{org.rascalmpl.std.String};</programlisting>Both
         styles have their merit, but the offline style wins in most cases
         since all the functionality of the Java IDE is available while writing
         the Java code.</para>
