@@ -308,11 +308,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
 
 		// library
-		loader.addFileLoader(new FromResourceLoader(this.getClass(), "org/meta_environment/rascal/library"));
+		loader.addFileLoader(new FromResourceLoader(this.getClass(), "org/rascalmpl/library"));
 
 		// everything rooted at the src directory 
 		loader.addFileLoader(new FromResourceLoader(this.getClass()));
-		loader.addFileLoader(new FromResourceLoader(this.getClass(), "org/meta_environment/rascal/test/data"));
+		loader.addFileLoader(new FromResourceLoader(this.getClass(), "org/rascalmpl/test/data"));
 
 		// loads from -Drascal.path=/colon-separated/path
 		loader.addFileLoader(new FromDefinedRascalPathLoader());
@@ -322,9 +322,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new ArrayList<String>();
 				result.add(System.getProperty("user.dir"));
-				result.add(new File(System.getProperty("user.dir"), "src/org/meta_environment/rascal/library").getAbsolutePath());
+				result.add(new File(System.getProperty("user.dir"), "src/org/rascalmpl/library").getAbsolutePath());
 				result.add(Configuration.getSdfLibraryPathProperty());
-				result.add(new File(System.getProperty("user.dir"), "src/org/meta_environment/rascal/test/data").getAbsolutePath());
+				result.add(new File(System.getProperty("user.dir"), "src/org/rascalmpl/test/data").getAbsolutePath());
 				return result;
 			}
 		});

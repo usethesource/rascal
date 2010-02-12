@@ -31,7 +31,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void parseDSfromFile(){
 		prepare("import GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("parse(#DS, |cwd:///src/org/meta_environment/rascal/test/data/DS.trm|) == (DS)`d d d`;"));
+		assertTrue(runTestInSameEvaluator("parse(#DS, |cwd:///src/org/rascalmpl/test/data/DS.trm|) == (DS)`d d d`;"));
 	}
 
 	@Test

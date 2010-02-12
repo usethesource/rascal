@@ -46,7 +46,7 @@ public class JavaBridge {
 //	private static final String JAVA_IMPORTS_TAG = "javaImports";
 	private static final String JAVA_CLASS_TAG = "javaClass";
 	
-//	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
+//	private static final String UNWANTED_MESSAGE_PREFIX = "org/rascalmpl/java/";
 //	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
 	private static final String METHOD_NAME = "call";
 	
