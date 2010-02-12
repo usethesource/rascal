@@ -1,0 +1,143 @@
+package org.rascalmpl.interpreter.matching;
+
+import java.util.Iterator;
+import java.util.Stack;
+
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ITuple;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+
+public class DescendantReader implements Iterator<IValue> {
+
+	Stack<Object> spine = new Stack<Object>();
+
+	private boolean debug = false;
+	
+	DescendantReader(IValue val){
+		if(debug)System.err.println("DescendantReader: " + val);
+		push(val);
+	}
+
+	@SuppressWarnings("unchecked")
+	public boolean hasNext() {
+		while((spine.size() > 0) &&
+			   (spine.peek() instanceof Iterator && !((Iterator<Object>) spine.peek()).hasNext())){
+			spine.pop();
+		}		
+		return spine.size() > 0;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public IValue next() {
+		if(spine.peek() instanceof Iterator){
+			Iterator<Object> iter = (Iterator<Object>) spine.peek();
+			if(!iter.hasNext()){
+				spine.pop();
+				return next();
+			}
+			push((IValue) iter.next());
+			return next();
+		}
+		return (IValue) spine.pop();
+	}
+	
+	private void push(IValue v, Iterator<IValue> children){
+		spine.push(v);
+		spine.push(children);
+	}
+	
+	private void push(IValue v){
+		Type type = v.getType();
+		if(type.isNodeType() || type.isConstructorType() || type.isAbstractDataType()){
+			if(type.getName().equals("Tree")){
+				pushConcreteSyntaxNode((IConstructor) v);
+				return;
+			}
+			push(v,  ((INode) v).getChildren().iterator());
+		} else
+		if(type.isListType()){
+			push(v, ((IList) v).iterator());
+		} else
+		if(type.isSetType()){
+			push(v, ((ISet) v).iterator());
+		} else
+		if(type.isMapType()){
+			push(v, new MapKeyValueIterator((IMap) v));
+		} else
+		if(type.isTupleType()){
+			push(v, new TupleElementIterator((ITuple) v));
+		} else {
+			spine.push(v);
+		}
+	}
+	
+	private void pushConcreteSyntaxNode(IConstructor tree){
+		if(debug)System.err.println("pushConcreteSyntaxNode: " + tree);
+		String name = tree.getName();
+		
+		if(name.equals("sort") || name.equals("lit") || 
+		   name.equals("char") || name.equals("single")){
+			/*
+			 * Don't recurse
+			 */
+			spine.push(tree);
+			return;
+		}
+		
+		if(name.equals("amb")){
+			throw new ImplementationError("Cannot handle ambiguous subject");
+		}
+			
+		NonTerminalType ctype = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(tree);
+		if(debug)System.err.println("ctype.getSymbol=" + ctype.getSymbol());
+		IConstructor sym = ctype.getSymbol();
+        if(SymbolAdapter.isAnyList(sym)){
+        	sym = SymbolAdapter.getSymbol(sym);
+        	
+        	int delta = 1;          // distance between "real" list elements, e.g. non-layout and non-separator
+        	IList listElems = (IList) tree.get(1);
+			if(SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterStar(sym)){
+				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
+				delta = 2;
+			} else if(SymbolAdapter.isIterPlusSep(sym) || SymbolAdapter.isIterStarSep(sym)){
+				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlusSep or isIterStarSep");
+				delta = 4;
+			}
+			if(debug)
+				for(int i = 0; i < listElems.length(); i++){
+					System.err.println("#" + i + ": " + listElems.get(i));
+				}
+        	
+			for(int i = listElems.length() - 1; i >= 0 ; i -= delta){
+				if(debug)System.err.println("adding: " + listElems.get(i));
+				pushConcreteSyntaxNode((IConstructor)listElems.get(i));
+			}
+		} else {
+			if(debug)System.err.println("pushConcreteSyntaxNode: appl");
+			/*
+			 * appl(prod(...), [child0, layout0, child1, ...])
+			 */
+			spine.push(tree);
+			IList applArgs = (IList) tree.get(1);
+			int delta = (SymbolAdapter.isLiteral(sym)) ? 1 : 2;   // distance between elements
+			
+			for(int i = applArgs.length() - 1; i >= 0 ; i -= delta){
+				//spine.push(applArgs.get(i));
+				pushConcreteSyntaxNode((IConstructor) applArgs.get(i));
+			}
+		}
+	}
+
+	public void remove() {
+		throw new UnsupportedOperationException("remove from DescendantReader");
+	}
+}
