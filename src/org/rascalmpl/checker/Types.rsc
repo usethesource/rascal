@@ -1,8 +1,8 @@
-module org::meta_environment::rascal::checker::Types
+module org::rascalmpl::checker::Types
 
 import List;
 
-import org::meta_environment::rascal::checker::ListUtils;
+import org::rascalmpl::checker::ListUtils;
 
 import languages::rascal::syntax::Rascal;
 

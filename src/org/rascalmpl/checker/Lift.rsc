@@ -1,4 +1,4 @@
-module org::meta_environment::rascal::checker::Lift
+module org::rascalmpl::checker::Lift
 
 import languages::rascal::syntax::Rascal;
 import ParseTree;

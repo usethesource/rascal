@@ -1,10 +1,10 @@
-module org::meta_environment::rascal::checker::Check
+module org::rascalmpl::checker::Check
 
 import IO;
 import List;
 
-import org::meta_environment::rascal::checker::Types;
-import org::meta_environment::rascal::checker::SubTypes;
+import org::rascalmpl::checker::Types;
+import org::rascalmpl::checker::SubTypes;
 
 import languages::rascal::syntax::Rascal;
 

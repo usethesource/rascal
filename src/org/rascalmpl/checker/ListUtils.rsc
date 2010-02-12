@@ -1,4 +1,4 @@
-module org::meta_environment::rascal::checker::ListUtils
+module org::rascalmpl::checker::ListUtils
 
 import List;
 
