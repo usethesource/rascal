@@ -17,20 +17,7 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-	  <nature>org.eclipse.jdt.core.javanature</nature>
-	  <nature>org.eclipse.pde.PluginNature</nature>
-	  <nature>rascal.nature</nature>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.eclipse.pde.PluginNature</nature>
 	</natures>
-	<linkedResources>
-	  <link>
-	    <name>eclipse</name>
-	    <type>2</type>
-	    <locationURI>rascal-library://eclipse</locationURI>
-	  </link>
-	  <link>
-	    <name>std</name>
-	    <type>2</type>
-	    <locationURI>rascal-library://rascal</locationURI>
-	  </link>
-	</linkedResources>
 </projectDescription>
