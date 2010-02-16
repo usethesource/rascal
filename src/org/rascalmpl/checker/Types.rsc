@@ -78,6 +78,8 @@ data RType =
 	| RTypeSelector(RDataTypeSelector dts)
 	| RTypeParen(RType parenType)
 	| RFailType(str failMsg, loc failLoc)
+	| RInferredType(int tnum)
+	| ROverloadedType(list[RType] possibleTypes)
 ;
 
 //
@@ -279,10 +281,44 @@ public RStructuredType convertStructuredType(StructuredType st) {
 	}
 }
 
+public RFunctionType convertFunctionType(FunctionType ft) {
+	switch(ft) {
+		case (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )` :
+			return RFunctionType(convertType(t),convertTypeArgList(tas));
+	}
+}
+
+public RUserType convertUserType(UserType ut) {
+	switch(ut) {
+		case (UserType) `<Name n>` : return RTypeName(convertName(n));
+		
+		case (UserType) `<Name n> [ <{Type ","}+ ts> ]` : return RParametricType(convertName(n),[convertType(ti) | ti <- ts]);
+	}
+}
+
+public RTypeVar convertTypeVar(TypeVar tv) {
+	switch(tv) {
+		case (TypeVar) `& <Name n>` : return RFreeTypeVar(convertName(n));
+		
+		case (TypeVar) `& <Name n> <: <Type tb>` : return RBoundTypeVar(convertName(n),convertType(tb));
+	}
+}
+
+public RDataTypeSelector convertDataTypeSelector(DataTypeSelector dts) {
+	switch(dts) {
+		case (DataTypeSelector) `<Name n1> . <Name n2>` : return RDataTypeSelector(convertName(n1),convertName(n2));
+	}
+}
+
 public RType convertType(Type t) {
 	switch(t) {
 		case (Type) `<BasicType bt>` : return RTypeBasic(convertBasicType(bt));
 		case (Type) `<StructuredType st>` : return RTypeStructured(convertStructuredType(st));
+		case (Type) `<FunctionType ft>` : return RTypeFunction(convertFunctionType(ft));
+		case (Type) `<TypeVar tv>` : return RTypeTVar(convertTypeVar(tv));
+		case (Type) `<UserType ut>` : return RTypeUser(convertUserType(ut));
+		case (Type) `<DataTypeSelector dts>` : return RTypeSelector(convertDataTypeSelector(dts));
+		case (Type) `( <Type tp> )` : return RTypeParen(convertType(tp));
 	}
 }
 
@@ -516,6 +552,10 @@ public RType makeSetType(RType itemType) { return RTypeStructured(RStructuredTyp
 
 public RType makeTupleType(list[RType] itemTypes) { 
 	return RTypeStructured(RStructuredType(RTupleType(), [ RTypeArg( x ) | x <- itemTypes ]));
+}
+
+public RType makeFunctionType(RType retType, list[RType] paramTypes) {
+	return RTypeFunction(RFunctionType(retType, [ RTypeArg( x ) | x <- paramTypes ]));
 }
 
 public RType makeFailType(str s, loc l) { return RFailType(s,l); }
