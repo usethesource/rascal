@@ -1,6 +1,7 @@
 module org::rascalmpl::checker::Types
 
 import List;
+import IO;
 
 import org::rascalmpl::checker::ListUtils;
 
@@ -24,7 +25,7 @@ data RBasicType =
   	| RStrType()
   	| RValueType()
   	| RNodeType()
-    	| RVoidType()
+   	| RVoidType()
   	| RLocType()
   	| RListType()
   	| RSetType()
@@ -79,13 +80,18 @@ data RType =
 	| RTypeParen(RType parenType)
 	| RFailType(str failMsg, loc failLoc)
 	| RInferredType(int tnum)
-	| ROverloadedType(list[RType] possibleTypes)
+	| RTypeOverloaded(list[RType] possibleTypes)
+	| RTypeConstructor(RName cname, list[RTypeArg] cvalues, RType pt)
 ;
 
 //
 // Annotation for adding types to expressions
 //
 anno RType Expression@rtype;
+anno RType Name@rtype;
+anno RType QualifiedName@rtype;
+anno RType Tree@rtype; // TODO: Does this mean we don't need to declare this on Expression, etc?
+anno loc RType@at;
 
 //
 // Printing routines for names and types
@@ -185,6 +191,9 @@ public str prettyPrintType(RType t) {
 		case RTypeSelector(dts) : return prettyPrintSelector(dts);
 		case RTypeParen(pt) :  return "(" + prettyPrintType(pt) + ")";
 		case RFailType(s,l) :  return "Failure: " + s;
+		case RInferredType(n) : return "Inferred Type: " + n;
+		case RTypeOverloaded(pts) : return "Overloaded type, could be: " + prettyPrintTypeList(pts);
+		case RTypeConstructor(cn,cv,ut) : return "Constructor for type " + prettyPrintType(ut) + ": " + prettyPrintName(cn) + "(" + prettyPrintTAList(cv) + ")";
 	}
 }
 
@@ -495,40 +504,39 @@ public RType getListElementTypeST(RStructuredType t) {
 	}
 }
 
-private bool isFailType(RType t) {
-	switch(t) {
-		case RFailType(s,l) : return true;
-		default: return false;
-	}
+public bool isFunctionType(RType t) {
+	if (RTypeFunction(_) := t)
+		return true;
+	else
+		return false;
 }
 
-// Stubs for comparison functions -- not sure if I'll need these yet...
-public bool compareTypes(RType t1, RType t2) {
-	return false;
+public bool isConstructorType(RType t) {
+	if (RTypeConstructor(_,_,_) := t)
+		return true;
+	else
+		return false;
+}
+	
+public bool isFailType(RType t) {
+	if (RFailType(_,_) := t) 
+		return true;
+	else
+		return false;
 }
 
-public bool compareDataTypeSelectors(RDataTypeSelector t1, RDataTypeSelector t2) {
-	return false;
+public bool isOverloadedType(RType t) {
+	if (RTypeOverloaded(_) := t)
+		return true;
+	else
+		return false;
 }
 
-public bool compareUserTypes(RUserType t1, RUserType t2) {
-	return false;
-}
-
-public bool compareTypeVars(RTypeVar t1, RTypeVar t2) {
-	return false;
-}
-
-public bool compareFunctionTypes(RFunctionType t1, RFunctionType t2) {
-	return false;
-}
-
-public bool compareTypeArgs(RTypeArg t1, RTypeArg t2) {
-	return false;
-}
-
-public bool compareBasicTypes(RBasicType t1, RBasicType t2) {
-	return false;
+public list[RType] getOverloadOptions(RType t) {
+	if (RTypeOverloaded(l) := t)
+		return l;
+	else
+		return []; // TODO: Should be an exception...
 }
 
 //
@@ -560,3 +568,38 @@ public RType makeFunctionType(RType retType, list[RType] paramTypes) {
 
 public RType makeFailType(str s, loc l) { return RFailType(s,l); }
 
+public RType makeConstructorType(RName cname, list[RTypeArg] tas, RType tn) { 
+	return RTypeConstructor(cname, tas, tn);
+}
+
+public list[RType] getFunctionArgumentTypes(RType ft) {
+	list[RType] argTypes = [ ];
+	if (RFunctionType(retType, argTypes) := ft) {
+		argTypes = [ getElementType(argType) | argType <- argTypes ];
+	}
+	return argTypes;
+}
+
+public RType getFunctionReturnType(RType ft) {
+	if (RFunctionType(retType, argTypes) := ft) {
+		return retType;
+	}
+	return makeVoidType(); // TODO: Should be an exception!
+}
+
+public list[RType] getConstructorArgumentTypes(RType ct) {
+	list[RType] argTypes = [ ];
+	if (RTypeConstructor(cn, cts, pt) := ct) {
+		argTypes = [ getElementType(argType) | argType <- cts ];
+	} else {
+		println("Warning, this isn't working!!!");
+	}
+	return argTypes;
+}
+
+public RType getConstructorResultType(RType ct) {
+	if (RTypeConstructor(cn, cts, pt) := ct) {
+		return pt;
+	}
+	return makeVoidType(); // TODO: Should be an exception!
+}
