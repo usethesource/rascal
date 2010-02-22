@@ -1,4 +1,4 @@
-module experiments::VL::Examples
+module experiments::VL::Examples0
 
 import experiments::VL::VLCore;
 //import experiments::VL::VLRender; 
@@ -9,85 +9,6 @@ import List;
 import Set;
 import IO;
 
-public void box1(){
-	render(box([ width(100), height(200) ]));
-}
-
-public void box2(){
-	render(box([ width(100), height(200), fillColor("green") ]));
-}
-
-public void box3(){
-	render(box([ width(100), height(200), fillColor("green"), lineColor("red")]));
-}
-
-public void box4(){
-	render(combine([lineWidth(2)],
-	               [
-					 box([ width(100), height(200), fillColor("mediumblue") ]),
-	                 box([ width(100), height(200), fillColor(rgb(0, 0, 205)) ]),
-	                 box([ width(100), height(200), fillColor(rgb(0, 0, 205, 0.5)) ]),
-	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.5)) ])
-	                ]));
-}
-
-public void box5(){
-	render(combine([
-	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.05)) ]),
-	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.2)) ]),
-	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.4)) ]),
-	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.6)) ]),
-	                 box([ width(100), height(200), fillColor(color("mediumblue", 0.8)) ]),
-	                 box([ width(100), height(200), fillColor(color("mediumblue", 1.0)) ])
-	                ]));
-}
-
-public void box6(){
-	render(combine([
-	                 box([ width(100), height(200), fillColor(gray(125, 0.05)) ]),
-	                 box([ width(100), height(200), fillColor(gray(125, 0.2)) ]),
-	                 box([ width(100), height(200), fillColor(gray(125, 0.4)) ]),
-	                 box([ width(100), height(200), fillColor(gray(125, 0.6)) ]),
-	                 box([ width(100), height(200), fillColor(gray(125, 0.8)) ]),
-	                 box([ width(100), height(200), fillColor(gray(125, 1.0)) ]) 
-	                ]));
-}
-
-public void box7(){
-	render(box([fillColor("mediumblue"), gap(10)], box([width(40), height(40), fillColor("white")])));
-}
-
-public void box8(){
-	render(box([fillColor("mediumblue"), gap(10)], ellipse([width(40), height(40), fillColor("white")])));
-}
-
-public void box9(){
-	render(box([fillColor("mediumblue"), gap(10)], label([text("een label")])));
-}
-
-public void lab1(){
-	render(label([ text("Een label"), fontSize(20), fillColor("black")]));
-}
-
-public void lab2(){
-	render(combine([ label([ text("Label een"), fontSize(20), fillColor("black")]),
-	 				 label([ text("Label twee"), fontSize(40), fillColor("blue")])
-	 			   ]));
-}
-
-public void lab3(){
-	render(label([ text("Een label"), fontSize(20), fillColor("black"), textAngle(-90)]));
-}
-
-public void rlab1(){
-	render(combine([vertical(), center(), gap (10)],
-	               [
-	                
-	                label([ text("Een label"), fontSize(20), fillColor("black"), textAngle(-90) ]),
-	                box([ width(100), height(200), fillColor("red")])
-	                
-	                ]));
-}
 
 public void rlab2(){
 	render(overlay([bottom()],
