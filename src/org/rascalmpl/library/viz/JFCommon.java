@@ -7,7 +7,7 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.VerticalAlignment;
 
-public class Common {
+public class JFCommon {
 	
 	public static void setSubtitle(JFreeChart chart, String text){
 	 final TextTitle subtitle = new TextTitle(text);

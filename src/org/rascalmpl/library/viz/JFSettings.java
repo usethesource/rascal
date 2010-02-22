@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.impl.fast.Constructor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class Settings {
+public class JFSettings {
 	
 	public static final Color LighterGrey = new Color(0.9435f,0.9348f,0.9435f);
 	
@@ -27,7 +27,7 @@ public class Settings {
 	}
 	
 	static void validate(String[] provided, IList settings){
-		Settings.settings = settings;
+		JFSettings.settings = settings;
 		for(IValue s : settings){
 			Constructor scons = (Constructor) s;
 			supported(s, scons.getName(), provided);

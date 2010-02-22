@@ -16,7 +16,7 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class Histogram {
+public class JFHistogram {
 	private static String[] provides = {
 		"domainLabel",
 		"horizontal",
@@ -67,9 +67,9 @@ public class Histogram {
      * @return A chart.
      */
     private static JFreeChart createChart(java.lang.String title, IntervalXYDataset dataset) {
-     	String domainLabel = Settings.has("domainLabel") ? Settings.getString() : "";
-    	String rangeLabel = Settings.has("rangeLabel") ? Settings.getString() : "";
-    	PlotOrientation orientation = Settings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
+     	String domainLabel = JFSettings.has("domainLabel") ? JFSettings.getString() : "";
+    	String rangeLabel = JFSettings.has("rangeLabel") ? JFSettings.getString() : "";
+    	PlotOrientation orientation = JFSettings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
 
     	JFreeChart chart = ChartFactory.createHistogram(
 		            			title,  						// chart title
@@ -84,8 +84,8 @@ public class Histogram {
     	XYPlot plot = (XYPlot) chart.getPlot();
     	plot.setNoDataMessage("No data available");
 
-    	if(Settings.has("subtitle")){
-    		Common.setSubtitle(chart, Settings.getString());
+    	if(JFSettings.has("subtitle")){
+    		JFCommon.setSubtitle(chart, JFSettings.getString());
     	}
    	
     	// disable bar outlines...
@@ -97,7 +97,7 @@ public class Histogram {
         // standard painter...
         renderer.setBarPainter(new StandardXYBarPainter());
         
-    	plot.setBackgroundPaint(Settings.LighterGrey); 
+    	plot.setBackgroundPaint(JFSettings.LighterGrey); 
 
     	//plot.setForegroundAlpha(0.5f);
     	return chart;
@@ -109,7 +109,7 @@ public class Histogram {
     
     public static JFreeChart makeHistogram(IString title, IList facts, IInteger nbins, IList settings){
     	String titleString = title.getValue();
-    	Settings.validate(provides, settings);
+    	JFSettings.validate(provides, settings);
     	return createChart(titleString, createDataset(facts, nbins.intValue()));
     }
     
@@ -121,7 +121,7 @@ public class Histogram {
      */
     public static void histogram(IString title, IList facts, IInteger nbins, IList settings)
     {
-    	DisplayChart dc = new DisplayChart(title.getValue(), makeHistogram(title, facts, nbins, settings));
+    	JFDisplayChart dc = new JFDisplayChart(title.getValue(), makeHistogram(title, facts, nbins, settings));
     	dc.run();
     }
 
