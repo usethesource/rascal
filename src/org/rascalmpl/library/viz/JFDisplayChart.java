@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.jfree.chart.JFreeChart;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
-public class DisplayChart implements Runnable {
+public class JFDisplayChart implements Runnable {
 	private JFreeChart chart;
 	private String title;
 
@@ -17,7 +17,7 @@ public class DisplayChart implements Runnable {
      * @param title	   title of the chart
      * @param chart   the actual chart
      */
-   public DisplayChart(String title, JFreeChart chart)
+   public JFDisplayChart(String title, JFreeChart chart)
     {
 	   this.title = title;
 	   this.chart = chart;

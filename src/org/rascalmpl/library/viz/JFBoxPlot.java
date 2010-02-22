@@ -16,7 +16,7 @@ import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class BoxPlot {
+public class JFBoxPlot {
 	private static String[] provides = {
 		"domainLabel",
 		"horizontal",
@@ -75,9 +75,9 @@ public class BoxPlot {
      * @return A chart.
      */
     private static JFreeChart createChart(java.lang.String title, BoxAndWhiskerCategoryDataset dataset) {
-     	String domainLabel = Settings.has("domainLabel") ? Settings.getString() : "";
-    	String rangeLabel = Settings.has("rangeLabel") ? Settings.getString() : "";
-    	PlotOrientation orientation = Settings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
+     	String domainLabel = JFSettings.has("domainLabel") ? JFSettings.getString() : "";
+    	String rangeLabel = JFSettings.has("rangeLabel") ? JFSettings.getString() : "";
+    	PlotOrientation orientation = JFSettings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
     	
     	JFreeChart chart = ChartFactory.createBoxAndWhiskerChart(
     							title,  						// chart title
@@ -90,8 +90,8 @@ public class BoxPlot {
     	CategoryPlot plot = (CategoryPlot) chart.getPlot();
     	plot.setNoDataMessage("No data available");
 
-    	if(Settings.has("subtitle")){
-    		Common.setSubtitle(chart, Settings.getString());
+    	if(JFSettings.has("subtitle")){
+    		JFCommon.setSubtitle(chart, JFSettings.getString());
     	}
     	plot.setOrientation(orientation);
     	
@@ -105,7 +105,7 @@ public class BoxPlot {
         // standard painter...
         renderer.setBarPainter(new StandardXYBarPainter());
      */
-    	plot.setBackgroundPaint(Settings.LighterGrey); 
+    	plot.setBackgroundPaint(JFSettings.LighterGrey); 
 
     	//plot.setForegroundAlpha(0.5f);
     	return chart;
@@ -117,7 +117,7 @@ public class BoxPlot {
     
     public static JFreeChart makeBoxPlot(IString title, IList facts, IList settings){
     	String titleString = title.getValue();
-    	Settings.validate(provides, settings);
+    	JFSettings.validate(provides, settings);
     	return createChart(titleString, createDataset(facts));
     }
     
@@ -129,7 +129,7 @@ public class BoxPlot {
      */
     public static void boxplot(IString title, IList facts, IList settings)
     {
-    	DisplayChart dc = new DisplayChart(title.getValue(), makeBoxPlot(title, facts, settings));
+    	JFDisplayChart dc = new JFDisplayChart(title.getValue(), makeBoxPlot(title, facts, settings));
     	dc.run();
     }
 

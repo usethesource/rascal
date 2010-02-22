@@ -24,7 +24,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 /**
  * BarChart functions for Rascal library
  */
-public class BarChart {
+public class JFBarChart {
 
 	private static String[] supportedSettings = {
 		"dim3",
@@ -56,7 +56,7 @@ public class BarChart {
 	 */
 	
 	private static void getCategories(IList categories){
- 		BarChart.categories = categories;
+ 		JFBarChart.categories = categories;
 	}
 	
 	private static String getCategoryLabel(int i){
@@ -106,15 +106,15 @@ public class BarChart {
      */
     private static JFreeChart createChart(java.lang.String title, 	CategoryDataset dataset) {
     	
-    	String domainLabel = Settings.has("domainLabel") ? Settings.getString() : "";
-    	String rangeLabel = Settings.has("rangeLabel") ? Settings.getString() : "";
-    	PlotOrientation orientation = Settings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
+    	String domainLabel = JFSettings.has("domainLabel") ? JFSettings.getString() : "";
+    	String rangeLabel = JFSettings.has("rangeLabel") ? JFSettings.getString() : "";
+    	PlotOrientation orientation = JFSettings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
 
     	JFreeChart chart;
     	
         // create the chart...
     	
-    	if(Settings.has("dim3") && Settings.has("stacked")){
+    	if(JFSettings.has("dim3") && JFSettings.has("stacked")){
 	        chart = ChartFactory.createStackedBarChart3D(
 	            title,                    	// chart title
 	            domainLabel,              	// domain axis label
@@ -125,7 +125,7 @@ public class BarChart {
 	            true,                      // include tooltips
 	            false                    	// no URLs
 	        );
-    	} else if(Settings.has("dim3") && !Settings.has("stacked")){
+    	} else if(JFSettings.has("dim3") && !JFSettings.has("stacked")){
 	        chart = ChartFactory.createBarChart3D(
 	            title,                    	// chart title
 	            domainLabel,              	// domain axis label
@@ -136,7 +136,7 @@ public class BarChart {
 	            true,                      // include tooltips
 	            false                    	// no URLs
 	        );
-    	} else if(!Settings.has("dim3") && Settings.has("stacked")){
+    	} else if(!JFSettings.has("dim3") && JFSettings.has("stacked")){
 	        chart = ChartFactory.createStackedBarChart(
 	            title,                    	// chart title
 	            domainLabel,              	// domain axis label
@@ -160,8 +160,8 @@ public class BarChart {
 	        );
 		}
     	
-    	if(Settings.has("subtitle")){
-    		Common.setSubtitle(chart, Settings.getString());
+    	if(JFSettings.has("subtitle")){
+    		JFCommon.setSubtitle(chart, JFSettings.getString());
     	}
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
@@ -169,7 +169,7 @@ public class BarChart {
         // get a reference to the plot for further customisation...
         CategoryPlot plot = (CategoryPlot) chart.getPlot();
         
-        plot.setBackgroundPaint(Settings.LighterGrey);
+        plot.setBackgroundPaint(JFSettings.LighterGrey);
 
         // set the range axis to display integers only...
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
@@ -199,12 +199,12 @@ public class BarChart {
      */
     
     public static JFreeChart makeBarchart(IString title, IMap facts, IValue settings){
-    	Settings.validate(supportedSettings, (IList)settings);
+    	JFSettings.validate(supportedSettings, (IList)settings);
     	return createChart(title.getValue(), createDataset(facts));
     }
     
     public static JFreeChart makeBarchart(IString title, IList categories, IList facts, IList settings){
-    	Settings.validate(supportedSettings, settings);
+    	JFSettings.validate(supportedSettings, settings);
     	return createChart(title.getValue(), createDataset(facts, categories));
     }
     
@@ -216,13 +216,13 @@ public class BarChart {
      */
     public static void barChart(IString title, IMap facts, IList settings)
     {
-    	DisplayChart dc = new DisplayChart(title.getValue(), makeBarchart(title, facts, settings));
+    	JFDisplayChart dc = new JFDisplayChart(title.getValue(), makeBarchart(title, facts, settings));
     	dc.run();
     }
     
     public static void barChart(IString title, IList categories, IList facts, IList settings)
     {
-    	DisplayChart dc = new DisplayChart(title.getValue(), makeBarchart(title, categories, facts, settings));
+    	JFDisplayChart dc = new JFDisplayChart(title.getValue(), makeBarchart(title, categories, facts, settings));
     	dc.run();
     }
 

@@ -22,7 +22,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 /**
  * PieChart functions for Rascal library
  */
-public class PieChart {
+public class JFPieChart {
 	private static String[] provides = {
 		"dim3", 
 		"noSectionLabels",  
@@ -72,7 +72,7 @@ public class PieChart {
     	JFreeChart chart;
     	PiePlot plot;
 
-    	if(Settings.has("dim3")){
+    	if(JFSettings.has("dim3")){
     		chart = ChartFactory.createPieChart3D(
     				title,  					  // chart title
     				dataset,    				  // data
@@ -82,7 +82,7 @@ public class PieChart {
     		);
     		plot = (PiePlot3D) chart.getPlot();
 
-    	} else if(Settings.has("ring")){
+    	} else if(JFSettings.has("ring")){
     		chart = ChartFactory.createRingChart(
     				title,  					  // chart title
     				dataset,    				  // data
@@ -105,14 +105,14 @@ public class PieChart {
 
     	plot.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
 
-    	plot.setBackgroundPaint(Settings.LighterGrey);
+    	plot.setBackgroundPaint(JFSettings.LighterGrey);
 
-    	if(Settings.has("subtitle")){
-    		Common.setSubtitle(chart, Settings.getString());
+    	if(JFSettings.has("subtitle")){
+    		JFCommon.setSubtitle(chart, JFSettings.getString());
     	}    
     	plot.setNoDataMessage("No data available");
     	plot.setSectionOutlinesVisible(false);
-    	if(Settings.has("noSectionLabels")){
+    	if(JFSettings.has("noSectionLabels")){
     		plot.setInteriorGap(0.0);
     		plot.setLabelGenerator(null);
     	} else {
@@ -128,7 +128,7 @@ public class PieChart {
     
     public static JFreeChart makePiechart(IString title, IMap facts, IList settings){
     	String titleString = title.getValue();
-    	Settings.validate(provides, settings);
+    	JFSettings.validate(provides, settings);
     	return createChart(titleString, createDataset(facts));
     }
     
@@ -140,7 +140,7 @@ public class PieChart {
      */
     public static void pieChart(IString title, IMap facts, IList settings)
     {
-    	DisplayChart dc = new DisplayChart(title.getValue(), makePiechart(title, facts, settings));
+    	JFDisplayChart dc = new JFDisplayChart(title.getValue(), makePiechart(title, facts, settings));
     	dc.run();
     }
 

@@ -15,7 +15,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class XYChart {
+public class JFXYChart {
 
 	private static String[] supportedSettings = { 
 		"area",
@@ -63,13 +63,13 @@ public class XYChart {
 	
 	 private static JFreeChart createChart(java.lang.String title, XYSeriesCollection datasets) {
 		 
-	   	String domainLabel = Settings.has("domainLabel") ? Settings.getString() : "";
-    	String rangeLabel = Settings.has("rangeLabel") ? Settings.getString() : "";
-    	PlotOrientation orientation = Settings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
+	   	String domainLabel = JFSettings.has("domainLabel") ? JFSettings.getString() : "";
+    	String rangeLabel = JFSettings.has("rangeLabel") ? JFSettings.getString() : "";
+    	PlotOrientation orientation = JFSettings.has("horizontal") ?  PlotOrientation.HORIZONTAL :  PlotOrientation.VERTICAL;
 
     	JFreeChart chart;
     	
-    	if(Settings.has("scatter")){
+    	if(JFSettings.has("scatter")){
        	 chart = ChartFactory.createScatterPlot(
         				title,  						// chart title
         				domainLabel,                    // xAxis
@@ -81,7 +81,7 @@ public class XYChart {
         				false                          // no URLs
         			);
     	} else    
-    	if(Settings.has("area")){
+    	if(JFSettings.has("area")){
         	 chart = ChartFactory.createXYAreaChart(
          				title,  						// chart title
          				domainLabel,                    // xAxis
@@ -105,19 +105,19 @@ public class XYChart {
      				);
     	}
     	
-    	if(Settings.has("subtitle")){
-    		Common.setSubtitle(chart, Settings.getString());
+    	if(JFSettings.has("subtitle")){
+    		JFCommon.setSubtitle(chart, JFSettings.getString());
     	}
         XYPlot plot = (XYPlot) chart.getPlot();
         plot.setNoDataMessage("No data available");
         
-        plot.setBackgroundPaint(Settings.LighterGrey);
+        plot.setBackgroundPaint(JFSettings.LighterGrey);
         
-        if(Settings.has("scatter")){
+        if(JFSettings.has("scatter")){
         	// nothing to do
         } else 
 
-        if(!Settings.has("area")){
+        if(!JFSettings.has("area")){
 	        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 	        
 	        for(int k = 0; k < datasets.getSeriesCount(); k++){
@@ -135,7 +135,7 @@ public class XYChart {
      */
     
     public static JFreeChart makeXYChart(IString title, IList facts, IList settings){
-    	Settings.validate(supportedSettings, settings);
+    	JFSettings.validate(supportedSettings, settings);
     	return createChart(title.getValue(), createAllSeries(facts));
     }
     
@@ -147,7 +147,7 @@ public class XYChart {
      */
     public static void xyChart(IString title, IList facts, IList settings)
     {
-    	DisplayChart dc = new DisplayChart(title.getValue(), makeXYChart(title, facts, settings));
+    	JFDisplayChart dc = new JFDisplayChart(title.getValue(), makeXYChart(title, facts, settings));
     	dc.run();
     }
 
