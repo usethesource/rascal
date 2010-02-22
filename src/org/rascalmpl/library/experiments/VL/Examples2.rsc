@@ -1,7 +1,7 @@
 module experiments::VL::Examples2
 
 import experiments::VL::VLCore;
-import experiments::VL::VLRender; 
+import viz::VLRender; 
 import Set;
 
 // Alignment of boxes

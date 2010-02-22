@@ -1,7 +1,7 @@
 module experiments::VL::Examples3
 
 import experiments::VL::VLCore;
-import experiments::VL::VLRender; 
+import viz::VLRender; 
 
 public void graph1(){
      nodes =
