@@ -12,7 +12,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
  */
 public class Box extends Container {
 
-	public Box(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
+	public Box(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, inside, ctx);
 	}
 

@@ -19,7 +19,7 @@ public class Overlay extends Compose {
 	float leftAnchor = 0;
 	float rightAnchor = 0;
 
-	Overlay(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Overlay(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
@@ -28,7 +28,7 @@ public class Overlay extends Compose {
 		
 		topAnchor = bottomAnchor = leftAnchor = rightAnchor = 0;
 		
-		for(VELEM ve : velems){
+		for(Figure ve : velems){
 			ve.bbox();
 			topAnchor = max(topAnchor, ve.topAnchor());
 			bottomAnchor = max(bottomAnchor, ve.bottomAnchor());
@@ -46,7 +46,7 @@ public class Overlay extends Compose {
 		this.top = top;
 		applyProperties();
 		if(debug)System.err.printf("overlay.draw: left=%f, top=%f\n", left, top);
-		for(VELEM ve : velems){	
+		for(Figure ve : velems){	
 			//ve.drawAnchor(left + leftAnchor, top + topAnchor);
 			ve.draw(left + leftAnchor - ve.leftAnchor(), top + topAnchor - ve.topAnchor());
 		}

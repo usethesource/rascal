@@ -54,7 +54,7 @@ public class Wedge extends Container {
 	
 	private static boolean debug = true;
 
-	public Wedge(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
+	public Wedge(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, inside, ctx);
 	}
 	
@@ -92,7 +92,7 @@ public class Wedge extends Container {
 		/*
 		 * Consider mouseOver
 		 */
-		VELEM insideForMouseOver = getInsideForMouseOver();
+		Figure insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
 			insideForMouseOver.bbox();
 			this.width = insideForMouseOver.width;
@@ -298,7 +298,7 @@ public class Wedge extends Container {
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		VELEM imo = getInsideForMouseOver();
+		Figure imo = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && imo != null){
 
 			if(mousex > imo.left && mousex < imo.left + imo.width &&

@@ -18,7 +18,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  *
  */
 @SuppressWarnings("serial")
-public class VELEMFactory {
+public class FigureFactory {
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	static IList emptyList = vf.list();
 	
@@ -79,7 +79,7 @@ public class VELEMFactory {
 			elems = (IList) c.get(0);
 		}
 	}
-	public static VELEM make(VLPApplet vlp, IConstructor c, PropertyManager inheritedProps, IEvaluatorContext ctx){
+	public static Figure make(FigurePApplet vlp, IConstructor c, PropertyManager inheritedProps, IEvaluatorContext ctx){
 		String ename = c.getName();
 	
 		switch(pmap.get(ename)){
@@ -183,7 +183,7 @@ public class VELEMFactory {
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	public static GraphEdge makeGraphEdge(Graph G, VLPApplet vlp, IConstructor c,
+	public static GraphEdge makeGraphEdge(Graph G, FigurePApplet vlp, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
 		if(c.arity() == 3)
 			return new GraphEdge(G, vlp, properties, (IList) c.get(0), (IString)c.get(1), (IString)c.get(2), ctx);

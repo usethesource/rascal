@@ -21,7 +21,7 @@ import processing.core.PApplet;
  * @author paulk
  *
  */
-public class Graph extends VELEM {
+public class Graph extends Figure {
 	protected ArrayList<GraphNode> nodes;
 	protected ArrayList<GraphEdge> edges;
 	protected float springConstant;
@@ -29,14 +29,14 @@ public class Graph extends VELEM {
 	protected int temperature;
 	private static boolean debug = false;
 
-	Graph(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
+	Graph(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);		
 		this.nodes = new ArrayList<GraphNode>();
 		width = getWidthProperty();
 		height = getHeightProperty();
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			VELEM ve = VELEMFactory.make(vlp, c, properties, ctx);
+			Figure ve = FigureFactory.make(vlp, c, properties, ctx);
 			String name = ve.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
@@ -48,7 +48,7 @@ public class Graph extends VELEM {
 		this.edges = new ArrayList<GraphEdge>();
 		for(IValue v : edges){
 			IConstructor c = (IConstructor) v;
-			GraphEdge e = VELEMFactory.makeGraphEdge(this, vlp, c, properties, ctx);
+			GraphEdge e = FigureFactory.makeGraphEdge(this, vlp, c, properties, ctx);
 			this.edges.add(e);
 			e.from.addOut(e.to);
 			e.to.addIn(e.from);

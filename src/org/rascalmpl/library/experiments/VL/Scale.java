@@ -6,12 +6,12 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
-public class Scale extends VELEM {
+public class Scale extends Figure {
 	float xscale;
 	float yscale;
-	VELEM velem;
+	Figure velem;
 
-	public Scale(VLPApplet vlp, PropertyManager inheritedProps, IValue xs,
+	public Scale(FigurePApplet vlp, PropertyManager inheritedProps, IValue xs,
 			IValue ys, IConstructor c, IEvaluatorContext ctx) {
 		super(vlp, ctx);
 		xscale = xs.getType().isIntegerType() ? ((IInteger) xs).intValue()
@@ -20,7 +20,7 @@ public class Scale extends VELEM {
 		yscale = ys.getType().isIntegerType() ? ((IInteger) ys).intValue()
                 							  : ((IReal) ys).floatValue();
 		
-		velem = VELEMFactory.make(vlp, c, properties, ctx);
+		velem = FigureFactory.make(vlp, c, properties, ctx);
 	}
 
 	@Override

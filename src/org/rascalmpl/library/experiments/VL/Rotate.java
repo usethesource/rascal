@@ -8,8 +8,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
 
-public class Rotate extends VELEM {
-	private VELEM velem;
+public class Rotate extends Figure {
+	private Figure velem;
 	private float angle;
 	private float leftAnchor;
 	private float rightAnchor;
@@ -17,12 +17,12 @@ public class Rotate extends VELEM {
 	private float bottomAnchor;
 	private static boolean debug = true;
 	
-	Rotate(VLPApplet vlp, PropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
+	Rotate(FigurePApplet vlp, PropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
 		super(vlp, ctx);
 		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
 		angle = PApplet.radians(a);
-		velem = VELEMFactory.make(vlp, c, properties, ctx);
+		velem = FigureFactory.make(vlp, c, properties, ctx);
 	}
 
 	@Override

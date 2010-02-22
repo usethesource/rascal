@@ -13,14 +13,14 @@ import processing.core.PConstants;
  * @author paulk
  *
  */
-public class Text extends VELEM {
+public class Text extends Figure {
 
 	private String txt;
 	private static boolean debug = true;
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
 
-	public Text(VLPApplet vlp, PropertyManager inheritedProps, IList props, IString text, IEvaluatorContext ctx) {
+	public Text(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IString text, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		this.txt = text.getValue();
 		if(debug)System.err.printf("Text: %s\n", txt);

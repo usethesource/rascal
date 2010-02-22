@@ -24,13 +24,13 @@ import processing.core.PApplet;
  *
  */
 
-public class VL extends PApplet {
+public class FigureLibrary extends PApplet {
 
 	private  static final long serialVersionUID = 1L;
 	
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	public VL(IValueFactory factory){
+	public FigureLibrary(IValueFactory factory){
 		vf = factory;
 	}
 	
@@ -199,7 +199,7 @@ public class VL extends PApplet {
     };
 	
 	public void render(IConstructor velem, IEvaluatorContext ctx){
-		PApplet pa = new VLPApplet(velem, ctx);
+		PApplet pa = new FigurePApplet(velem, ctx);
 		new SketchSWT(pa);
 	}
 	

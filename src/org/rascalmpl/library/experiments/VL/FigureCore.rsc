@@ -1,4 +1,4 @@
-module experiments::VL::VLCore
+module experiments::VL::FigureCore
 import Integer;
 import List;
 import Set;
@@ -15,45 +15,45 @@ import IO;
 alias Color = int;
 
 @doc{Gray color (0-255)}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public Color java gray(int gray);
 
 @doc{Gray color (0-255) with transparency}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public Color java gray(int gray, real alpha);
 
 @doc{Gray color as percentage (0.0-1.0)}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public Color java gray(real perc);
 
 @doc{Gray color with transparency}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public Color java gray(real perc, real alpha);
 
 @doc{Named color}
 @reflect{Needs calling context when generating an exception}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public Color java color(str colorName);
 
 @doc{Named color with transparency}
 @reflect{Needs calling context when generating an exception}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public Color java color(str colorName, real alpha);
 
 @doc{RGB color}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public Color java rgb(int r, int g, int b);
 
 @doc{RGB color with transparency}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public Color java rgb(int r, int g, int b, real alpha);
 
 @doc{Interpolate two colors (in RGB space)}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public list[Color] java interpolateColor(Color from, Color to, real percentage);
 
 @doc{Create a list of interpolated colors}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
 public list[Color] java colorSteps(Color from, Color to, int steps);
 
 @doc{Create a colorscale}
@@ -78,38 +78,40 @@ public str palette(int n){
 }
 
 /*
- * VPROP -- visual properties of visual elements
+ * FProperty -- visual properties of visual elements
  */
  
- public VPROP left(){
+ public FProperty left(){
    return hanchor(0.0);
  }
  
- public VPROP hcenter(){
+ public FProperty hcenter(){
    return hanchor(0.5);
  }
  
- public VPROP right(){
+ public FProperty right(){
    return hanchor(1.0);
  }
  
- public VPROP top(){
+ public FProperty top(){
    return vanchor(0.0);
  }
  
- public VPROP vcenter(){
+ public FProperty vcenter(){
    return vanchor(0.5);
  }
  
- public VPROP bottom(){
+ public FProperty bottom(){
    return vanchor(1.0);
  }
  
- public VPROP center(){
+ public FProperty center(){
    return anchor(0.5, 0.5);
  }
+ 
+ alias FProperties = list[FProperty];
 
-data VPROP =
+data FProperty =
 /* sizes */
      width(real width)                  // sets width of element
    | width(int iwidth)
@@ -155,8 +157,8 @@ data VPROP =
    | textAngle(int iangle) 
    
 /* interaction properties */
-   | mouseOver(list[VPROP] props)       // switch to new properties when mouse is over element
-   | mouseOver(list[VPROP] props, VELEM inner)
+   | mouseOver(FProperties props)       // switch to new properties when mouse is over element
+   | mouseOver(FProperties props, Figure inner)
                                         // display new inner element when mouse is over current element
    
 /* other properties */
@@ -171,85 +173,88 @@ data VPROP =
  */
 
 data Vertex = 
-     vertex(real x, real y)             // vertex in a shape
+     vertex(real x, real y)             	// vertex in a shape
    | vertex(int ix, int iy) 
    | vertex(int ix, real y)  
    | vertex(real x, int iy)           
-   | vertex(real x, real y, VELEM marker)  // vertex with marker
-   | vertex(int ix, int iy, VELEM marker)
-   | vertex(int ix, real y, VELEM marker)
-   | vertex(real x, int iy, VELEM marker)
+   | vertex(real x, real y, Figure marker)  // vertex with marker
+   | vertex(int ix, int iy, Figure marker)
+   | vertex(int ix, real y, Figure marker)
+   | vertex(real x, int iy, Figure marker)
    ;
    
 data Edge =
-     edge(str from, str to) 			 // edge between between two elements in complex shapes like tree or graph
-   | edge(list[VPROP], str from, str to) // 
+     edge(str from, str to) 			 	// edge between between two elements in complex shapes like tree or graph
+   | edge(FProperties, str from, str to) 	// 
    ;
 
 /*
- * VELEM: a visual element, the principal visualization datatype
+ * Figure: a visual element, the principal visualization datatype
  */
  
-data VELEM = 
+ alias Figures = list[Figure];
+ 
+data Figure = 
 /* atomic primitives */
 
-     text(list[VPROP] props, str s)		  		// text label
+     text(FProperties props, str s)		  		// text label
    | text(str s)			              		// text label
    
 /* primitives/containers */
 
-   | box(list[VPROP] props)			          	// rectangular box
-   | box(list[VPROP] props, VELEM inner)        // rectangular box with inner element
+   | box(FProperties props)			          	// rectangular box
+   | box(FProperties props, Figure inner)       // rectangular box with inner element
    
-   | ellipse(list[VPROP] props)			      	// ellipse
-   | ellipse(list[VPROP] props, VELEM inner)    // ellipse with inner element
+   | ellipse(FProperties props)			      	// ellipse
+   | ellipse(FProperties props, Figure inner)   // ellipse with inner element
    
-   | wedge(list[VPROP] props)			      	// wedge
-   | wedge(list[VPROP] props, VELEM inner)      // wedge with inner element
+   | wedge(FProperties props)			      	// wedge
+   | wedge(FProperties props, Figure inner)     // wedge with inner element
    
-   | space(list[VPROP] props)			      	// invisible box (used for spacing)
-   | space(list[VPROP] props, VELEM inner)      // invisible box with visible inner element
+   | space(FProperties props)			      	// invisible box (used for spacing)
+   | space(FProperties props, Figure inner)     // invisible box with visible inner element
  
 /* composition */
    
-   | use(VELEM elem)                           		        // use another elem
-   | use(list[VPROP] props, VELEM elem)
+   | use(Figure elem)                            // use another elem
+   | use(FProperties props, Figure elem)
  
-   | hcat(list[VELEM] elems)                                // horizontal concatenation
-   | hcat(list[VPROP] props, list[VELEM] elems)
+   | hcat(Figures elems)                         // horizontal concatenation
+   | hcat(FProperties props, Figures elems)
    
-   | vcat(list[VELEM] elems)                                // vertical concatenation
-   | vcat(list[VPROP] props, list[VELEM] elems)
+   | vcat(Figures elems)                         // vertical concatenation
+   | vcat(FProperties props, Figures elems)
    
-   | align(list[VELEM] elems)                               // horizontal and vertical composition
-   | align(list[VPROP] props, list[VELEM] elems)
+   | align(Figures elems)                        // horizontal and vertical composition
+   | align(FProperties props, Figures elems)
    
-   | overlay(list[VELEM] elems)                             // overlay (stacked) composition
-   | overlay(list[VPROP] props, list[VELEM] elems)
+   | overlay(Figures elems)                      // overlay (stacked) composition
+   | overlay(FProperties props, Figures elems)
    
-   | shape(list[Vertex] points)                            // shape of to be connected vertices
-   | shape(list[VPROP] props,list[Vertex] points)
+   | shape(list[Vertex] points)                  // shape of to be connected vertices
+   | shape(FProperties props,list[Vertex] points)
    
-   | grid(list[VELEM] elems)                                // placement on fixed grid
-   | grid(list[VPROP] props, list[VELEM] elems)
+   | grid(Figures elems)                         // placement on fixed grid
+   | grid(FProperties props, Figures elems)
    
-   | pack(list[VELEM] elems)                                // composition by 2D packing
-   | pack(list[VPROP] props, list[VELEM] elems)
+   | pack(Figures elems)                         // composition by 2D packing
+   | pack(FProperties props, Figures elems)
    
-   | pie(list[VELEM] elems)                                 // composition as pie chart
-   | pie(list[VPROP] props, list[VELEM] elems)
+   | pie(Figures elems)                          // composition as pie chart
+   | pie(FProperties props, Figures elems)
    
-   | graph(list[VELEM] nodes, list[Edge] edges)             // composition of nodes and edges as graph
-   | graph(list[VPROP], list[VELEM] nodes, list[Edge] edges)
+   | graph(Figures nodes, list[Edge] edges)      // composition of nodes and edges as graph
+   | graph(FProperties, Figures nodes, list[Edge] edges)
    
-   | tree(list[VELEM] nodes, list[Edge] edges, str root)              // composition of nodes and edges as tree
-   | tree(list[VPROP], list[VELEM] nodes, list[Edge] edges, str root)
+                								// composition of nodes and edges as tree
+   | tree(Figures nodes, list[Edge] edges, str root) 
+   | tree(FProperties, Figures nodes, list[Edge] edges, str root)
    
 /* transformation */
 
-   | rotate(real angle, VELEM elem)							// Rotate element around its anchor point
-   | scale(real perc, VELEM)								// Scale element (same for h and v)
-   | scale(real xperc, real yperc, VELEM elem)				// Scale element (different for h and v)
+   | rotate(real angle, Figure elem)			// Rotate element around its anchor point
+   | scale(real perc, Figure)					// Scale element (same for h and v)
+   | scale(real xperc, real yperc, Figure elem)	// Scale element (different for h and v)
    ;
    
 /*

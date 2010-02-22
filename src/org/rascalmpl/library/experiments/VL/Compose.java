@@ -11,26 +11,26 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
  * @author paulk
  *
  */
-public abstract class Compose extends VELEM {
+public abstract class Compose extends Figure {
 
-	protected VELEM[] velems;
+	protected Figure[] velems;
 	private static boolean debug = false;
 
-	Compose(VLPApplet vlp,PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Compose(FigurePApplet vlp,PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);	
 		int n = elems.length();
-		velems = new VELEM[n];
+		velems = new Figure[n];
 		for(int i = 0; i < n; i++){
 			IValue v = elems.get(i);
 			IConstructor c = (IConstructor) v;
 			if(debug)System.err.println("Compose, elem = " + c.getName());
-			velems[i] = VELEMFactory.make(vlp, c, properties, ctx);
+			velems[i] = FigureFactory.make(vlp, c, properties, ctx);
 		}
 	}
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		for(VELEM ve : velems)
+		for(Figure ve : velems)
 			if(ve.mouseOver(mousex, mousey))
 				return true;
 		return false;

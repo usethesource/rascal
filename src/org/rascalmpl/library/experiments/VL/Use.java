@@ -10,19 +10,19 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
  * @author paulk
  *
  */
-public class Use extends VELEM {
+public class Use extends Figure {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private VELEM inside;
+	private Figure inside;
 	private static boolean debug = false;
 
-	public Use(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
+	public Use(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		if(inside != null){
-			this.inside = VELEMFactory.make(vlp, inside, this.properties, ctx);
+			this.inside = FigureFactory.make(vlp, inside, this.properties, ctx);
 		}
 		if(debug)System.err.println("use.init: width=" + width + ", height=" + height);
 	}
