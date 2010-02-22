@@ -1,4 +1,4 @@
-module experiments::VL::VLRender
+module viz::VLRender
 
 import experiments::VL::VLCore;
 
