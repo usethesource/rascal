@@ -16,7 +16,7 @@ alias Color = int;
 
 @doc{Gray color (0-255)}
 @javaClass{org.rascalmpl.library.experiments.VL.VL}
-public void java gray(int gray);
+public Color java gray(int gray);
 
 @doc{Gray color (0-255) with transparency}
 @javaClass{org.rascalmpl.library.experiments.VL.VL}
@@ -24,7 +24,7 @@ public Color java gray(int gray, real alpha);
 
 @doc{Gray color as percentage (0.0-1.0)}
 @javaClass{org.rascalmpl.library.experiments.VL.VL}
-public void java gray(real perc);
+public Color java gray(real perc);
 
 @doc{Gray color with transparency}
 @javaClass{org.rascalmpl.library.experiments.VL.VL}
@@ -129,7 +129,7 @@ data VPROP =
    | hanchor(real h)
    | vanchor(real v)
    
-/* line and border attributes */
+/* line and border properties */
    | lineWidth(int lineWidth)			// line width
    | lineColor(Color lineColor)		    // line color
    | lineColor(str colorName)           // named line color
@@ -137,7 +137,7 @@ data VPROP =
    | fillColor(Color fillColor)			// fill color of shapes and text
    | fillColor(str colorName)           // named fill color
    
-/* wedge attributes */
+/* wedge properties */
    | fromAngle(real angle)
    | fromAngle(int iangle)
    | toAngle(real angle)
@@ -146,7 +146,7 @@ data VPROP =
    | innerRadius(int iradius)
 
    
-/* font and text attributes */
+/* font and text properties */
    | font(str fontName)             	// named font
    | fontSize(int isize)                // font size
    | fontColor(Color textColor)         // font color
@@ -154,12 +154,12 @@ data VPROP =
    | textAngle(real angle)              // text rotation
    | textAngle(int iangle) 
    
-/* interaction */
+/* interaction properties */
    | mouseOver(list[VPROP] props)       // switch to new properties when mouse is over element
    | mouseOver(list[VPROP] props, VELEM inner)
                                         // display new inner element when mouse is over current element
    
-/* other */
+/* other properties */
    | id(str name)                       // name of elem (used in edges and various layouts)
    | connected()                        // shapes consist of connected points
    | closed()    						// closed shapes
