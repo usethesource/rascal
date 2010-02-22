@@ -22,7 +22,7 @@ public class Grid extends Compose {
 	float extRight = 0;
 	private static boolean debug = false;
 
-	Grid(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Grid(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 		xElem = new float[elems.length()];
 		yElem = new float[elems.length()];
@@ -55,7 +55,7 @@ public class Grid extends Compose {
 				w = 0;
 			}
 			
-			VELEM ve = velems[i];
+			Figure ve = velems[i];
 			ve.bbox();
 			
 			if(w == 0)
@@ -87,7 +87,7 @@ public class Grid extends Compose {
 
 		for(int i = 0; i < velems.length; i++){
 			
-			VELEM ve = velems[i];
+			Figure ve = velems[i];
 			
 			if(debug)System.err.printf("i=%d: %f, %f, left=%f, top=%f\n", i, xElem[i], yElem[i], left, top);
 			

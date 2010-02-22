@@ -23,24 +23,24 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
  * @author paulk
  *
  */
-public class Container extends VELEM {
+public class Container extends Figure {
 
-	protected VELEM inside;
+	protected Figure inside;
 	private static boolean debug = true;
 	float hgap;
 	float vgap;
 
-	public Container(VLPApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
+	public Container(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		if(inside != null)
-			this.inside = VELEMFactory.make(vlp, inside, this.properties, ctx);
+			this.inside = FigureFactory.make(vlp, inside, this.properties, ctx);
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
 	}
 
 	@Override 
 	void bbox(){
 	
-		VELEM insideForMouseOver = getInsideForMouseOver();
+		Figure insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
 			insideForMouseOver.bbox();
 			this.width = insideForMouseOver.width;
@@ -72,7 +72,7 @@ public class Container extends VELEM {
 		applyProperties();
 		if(debug)System.err.printf("container.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", left, top, width, height, properties.hanchor, properties.vanchor);
 
-		VELEM insideForMouseOver = getInsideForMouseOver();
+		Figure insideForMouseOver = getInsideForMouseOver();
 		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
 			insideForMouseOver.draw(left, top);
 		} else {
@@ -113,7 +113,7 @@ public class Container extends VELEM {
 	public boolean mouseOver(int mousex, int mousey){
 		
 		if(vlp.isRegisteredAsMouseOver(this)){  // mouse is over this element
-			VELEM imo = getInsideForMouseOver();
+			Figure imo = getInsideForMouseOver();
 			if(imo != null){
 				if(mousex > imo.left && mousex < imo.left + imo.width &&
 						mousey > imo.top && mousey < imo.top + imo.height){

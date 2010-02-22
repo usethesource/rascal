@@ -14,7 +14,7 @@ import processing.core.PApplet;
  * @author paulk
  *
  */
-public class VLPApplet extends PApplet {
+public class FigurePApplet extends PApplet {
 	/**
 	 * 
 	 */
@@ -22,14 +22,14 @@ public class VLPApplet extends PApplet {
 	
 	private int width = 600;
 	private int height = 600;
-	private VELEM  velem;
-	private VELEM mouseOver = null;
+	private Figure  velem;
+	private Figure mouseOver = null;
 	private HashMap<String,GraphNode> registered;
 	private static boolean debug = true;
 
-	public VLPApplet(IConstructor elem, IEvaluatorContext ctx){
+	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
 		registered = new HashMap<String,GraphNode>();
-		this.velem = VELEMFactory.make(this, elem, null, ctx);
+		this.velem = FigureFactory.make(this, elem, null, ctx);
 	}
 	
 	//TODO move these methods to Graph
@@ -41,7 +41,7 @@ public class VLPApplet extends PApplet {
 		return registered.get(name);
 	}
 	
-	public void registerMouse(VELEM v){
+	public void registerMouse(Figure v){
 		mouseOver = v;
 	}
 	
@@ -49,7 +49,7 @@ public class VLPApplet extends PApplet {
 		mouseOver = null;
 	}
 	
-	public boolean isRegisteredAsMouseOver(VELEM v){
+	public boolean isRegisteredAsMouseOver(Figure v){
 		return mouseOver == v;
 	}
 

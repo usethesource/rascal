@@ -13,8 +13,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
  * @author paulk
  *
  */
-public class Vertex extends VELEM {
-	VELEM marker;
+public class Vertex extends Figure {
+	Figure marker;
 	float deltax;
 	float deltay;
 	float leftAnchor;
@@ -31,18 +31,18 @@ public class Vertex extends VELEM {
 		return 0;
 		
 	}
-	public Vertex(VLPApplet vlp, IValue dx, IValue dy, IEvaluatorContext ctx) {
+	public Vertex(FigurePApplet vlp, IValue dx, IValue dy, IEvaluatorContext ctx) {
 		super(vlp, ctx);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 	}
 	
-	public Vertex(VLPApplet vlp, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
+	public Vertex(FigurePApplet vlp, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
 		super(vlp, ctx);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 		if(marker != null)
-			this.marker = VELEMFactory.make(vlp, marker, properties, ctx);
+			this.marker = FigureFactory.make(vlp, marker, properties, ctx);
 		if(debug)System.err.printf("Vertex at %f, %f\n", deltax, deltay);
 	}
 

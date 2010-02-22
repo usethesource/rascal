@@ -16,7 +16,7 @@ public class HCat extends Compose {
 	float bottomAnchor = 0;
 	private static boolean debug = false;
 
-	HCat(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	HCat(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
@@ -27,7 +27,7 @@ public class HCat extends Compose {
 		topAnchor = 0;
 		bottomAnchor = 0;
 		hgap = getHGapProperty();
-		for(VELEM ve : velems){
+		for(Figure ve : velems){
 			ve.bbox();
 			width += ve.width;
 			topAnchor = max(topAnchor, ve.topAnchor());
@@ -46,7 +46,7 @@ public class HCat extends Compose {
 		applyProperties();
 
 		// Draw from left to right
-		for(VELEM ve : velems){
+		for(Figure ve : velems){
 			ve.draw(left, top + topAnchor - ve.topAnchor());
 			left += ve.width + hgap;
 		}

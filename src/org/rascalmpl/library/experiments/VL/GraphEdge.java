@@ -12,12 +12,12 @@ import processing.core.PApplet;
  * @author paulk
  *
  */
-public class GraphEdge extends VELEM {
+public class GraphEdge extends Figure {
 	GraphNode from;
 	GraphNode to;
 	private static boolean debug = false;
 	
-	public GraphEdge(Graph G, VLPApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
+	public GraphEdge(Graph G, FigurePApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		from = vlp.getRegistered(fromName.getValue());
 		// TODO Generate exceptions for null cases

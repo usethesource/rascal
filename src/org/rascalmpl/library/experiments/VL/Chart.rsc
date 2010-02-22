@@ -1,6 +1,6 @@
 module experiments::VL::Chart
 
-import experiments::VL::VLCore;
+import experiments::VL::FigureCore;
 import viz::VLRender;
 import Map;
 import IO;
@@ -81,7 +81,7 @@ private void applySettings(list[ChartSetting] settings){
 
 // Background raster with title and subtitle
   
-private VELEM raster(str title){
+private Figure raster(str title){
    return vcat([hcenter(), gap(0,20)],
                    [ text([fontSize(titleFontSize)], title),
                      (subtitle == "") ? space([size(0,-20)]) : text([fontSize(subTitleFontSize)], subtitle),
@@ -93,20 +93,20 @@ private VELEM raster(str title){
 //       n
 // for x-axis
 
-private VELEM xtick(int n){
+private Figure xtick(int n){
   return vcat([gap(2), left()], [box([size(1,10), lineWidth(0)]), text([fontSize(axisFontSize)], "<n>")]);
 }
 
 // Draw: n --
 // for y-axis
 
-private VELEM ytick(int n){
+private Figure ytick(int n){
   return hcat([gap(2), bottom()], [text([fontSize(axisFontSize)], "<n>"), box([size(10,1), lineWidth(0)])]);
 }
 
 // X-axis
 
-public VELEM xaxis(str title, int length, int start, int incr, int end, int scale){
+public Figure xaxis(str title, int length, int start, int incr, int end, int scale){
    ticks = grid([gap(incr * scale), width(length), vcenter()], [xtick(n) | int n <- [start, (start + incr) .. end]]);
   
    return vcat([gap(20), hcenter()], 
@@ -117,7 +117,7 @@ public VELEM xaxis(str title, int length, int start, int incr, int end, int scal
 
 // Y-axis
 
-public VELEM yaxis(str title, int length, int start, int incr, int end, int scale){
+public Figure yaxis(str title, int length, int start, int incr, int end, int scale){
    ticks = grid([gap(incr * scale), width(1), right()], [ytick(n) | int n <- [end, (end - incr) .. start]]);
    
    return hcat([gap(20), vcenter()], 
@@ -128,13 +128,13 @@ public VELEM yaxis(str title, int length, int start, int incr, int end, int scal
 
 // One item (name + colored box) in legend
 
-private VELEM legendItem(str name, Color c){
+private Figure legendItem(str name, Color c){
   return hcat([gap(2), vcenter()], [text([fontSize(10)], "<name> = "), box([size(20,10), lineWidth(0), fillColor(c)])]);
 }
 
 // A complete legend
 
-private VELEM legend(map[str, Color] funColors, int w){
+private Figure legend(map[str, Color] funColors, int w){
    return box([center(), gap(10,10), fillColor("lightgray")], 
                align([width(w), gap(10), center()], [legendItem(name, funColors[name]) | name <- funColors]));
 }
@@ -144,7 +144,7 @@ private VELEM legend(map[str, Color] funColors, int w){
 public alias intTuples  = 
        tuple[str name,list[tuple[int, int]]  values];
 
-public VELEM xyChart(str title, list[intTuples] facts, ChartSetting settings ... ){
+public Figure xyChart(str title, list[intTuples] facts, ChartSetting settings ... ){
 
    applySettings(settings);
    
@@ -188,7 +188,7 @@ public VELEM xyChart(str title, list[intTuples] facts, ChartSetting settings ...
    for(<str fname, list[tuple[int, int]] values> <- facts){
    		fcolorName = palette(size(funColors));
    		funColors[fname] = color(fcolorName);
-   		list[VPROP] shapeProps = [lineColor(fcolorName), lineWidth(2)];
+   		list[FProperty] shapeProps = [lineColor(fcolorName), lineWidth(2)];
    		
    		if(isAreaPlot)
    		   shapeProps += [fillColor(color(fcolorName, 0.7)), closed(), connected()];
@@ -293,7 +293,7 @@ public void barChart(str title, map[str,int] facts, ChartSetting settings...){
 
 }
 
-public VELEM barChart(str title, list[str] categories, list[intSeries] facts, ChartSetting settings...){
+public Figure barChart(str title, list[str] categories, list[intSeries] facts, ChartSetting settings...){
    
    applySettings(settings);
  
@@ -467,7 +467,7 @@ public void b4(){
 
 //-------------------------------- pieChart ------------------------------------
 
-public VELEM pieChart(str title, map[str, int] facts, ChartSetting settings...){
+public Figure pieChart(str title, map[str, int] facts, ChartSetting settings...){
 
 	applySettings(settings);
  	funColors = ();

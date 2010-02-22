@@ -21,20 +21,20 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * @author paulk
  *
  */
-public class Tree extends VELEM {
+public class Tree extends Figure {
 	protected HashMap<String,TreeNode> nodeMap;
 	private HashSet<TreeNode> hasParent;
 	private TreeNodeRaster raster;
 	TreeNode root = null;
 	
-	Tree(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
+	Tree(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);		
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();
 		raster = new TreeNodeRaster();
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			VELEM ve = VELEMFactory.make(vlp, c, properties, ctx);
+			Figure ve = FigureFactory.make(vlp, c, properties, ctx);
 			String name = ve.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());

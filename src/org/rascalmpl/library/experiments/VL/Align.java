@@ -22,7 +22,7 @@ public class Align extends Compose {
 	int inRow[];
 	static boolean debug = false;
 
-	Align(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Align(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 		leftElem = new float[elems.length()];
 		topRowElem = new float[elems.length()];
@@ -43,7 +43,7 @@ public class Align extends Compose {
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
 		for(int i = 0; i < velems.length; i++){
-			VELEM ve = velems[i];
+			Figure ve = velems[i];
 			ve.bbox();
 			if(w + hgap + ve.width > width){
 				if(w == 0){
@@ -80,7 +80,7 @@ public class Align extends Compose {
 
 		for(int i = 0; i < velems.length; i++){
 			
-			VELEM ve = velems[i];
+			Figure ve = velems[i];
 			float hrow = rowHeight[inRow[i]];
 			float rfiller = width - rowWidth[inRow[i]];
 			

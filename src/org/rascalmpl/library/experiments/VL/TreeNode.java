@@ -13,15 +13,15 @@ import processing.core.PApplet;
  * @author paulk
  *
  */
-public class TreeNode extends VELEM {
+public class TreeNode extends Figure {
 	
-	VELEM velemNode;
+	Figure velemNode;
 	private ArrayList<TreeNode> children;
 	private ArrayList<PropertyManager> edgeProperties;
 	private static boolean debug = false;
 	
-	public TreeNode(VLPApplet vlp, PropertyManager inheritedProps, IList props,
-			VELEM ve, IEvaluatorContext ctx) {
+	public TreeNode(FigurePApplet vlp, PropertyManager inheritedProps, IList props,
+			Figure ve, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
 		velemNode = ve;
 		children = new ArrayList<TreeNode>();
@@ -107,8 +107,8 @@ public class TreeNode extends VELEM {
 				vlp.line(nodeBottomX, nodeBottomY, nodeBottomX, horLineY);
 				
 				if(n > 1){
-					VELEM leftVE = children.get(0).velemNode;
-					VELEM rightVE = children.get(n-1).velemNode;
+					Figure leftVE = children.get(0).velemNode;
+					Figure rightVE = children.get(n-1).velemNode;
 					vlp.line(leftVE.left + leftVE.width/2, horLineY, rightVE.left + rightVE.width/2, horLineY);
 				}
 			}

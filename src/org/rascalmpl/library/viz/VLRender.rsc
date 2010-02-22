@@ -1,12 +1,12 @@
 module viz::VLRender
 
-import experiments::VL::VLCore;
+import experiments::VL::FigureCore;
 
 /*
- * Library functions for rendering a visual element.
+ * Library functions for rendering a figure.
  */
 
-@doc{Render a visual element}
+@doc{Render a figure}
 @reflect{Needs calling context when calling argument function}
-@javaClass{org.rascalmpl.library.experiments.VL.VL}
-public void java render(VELEM elem);
+@javaClass{org.rascalmpl.library.experiments.VL.FigureLibrary}
+public void java render(Figure elem);

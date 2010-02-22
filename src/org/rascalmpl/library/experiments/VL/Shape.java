@@ -24,7 +24,7 @@ public class Shape extends Compose {
 	float topAnchor;
 	float bottomAnchor;
 
-	Shape(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	Shape(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
@@ -32,7 +32,7 @@ public class Shape extends Compose {
 	void bbox(){
 		leftAnchor = rightAnchor = topAnchor = bottomAnchor = 0;
 
-		for (VELEM ve : velems){
+		for (Figure ve : velems){
 			ve.bbox();
 			leftAnchor = max(leftAnchor, ve.leftAnchor());
 			rightAnchor = max(rightAnchor, ve.rightAnchor());
@@ -79,7 +79,7 @@ public class Shape extends Compose {
 		if(connected && curved)
 			vlp.curveVertex(nextLeft, nextTop);
 		
-		for(VELEM ve : velems){
+		for(Figure ve : velems){
 			next = (Vertex)ve;
 			nextLeft = left + leftAnchor + next.deltax;
 			nextTop = bottom - next.deltay;
@@ -106,7 +106,7 @@ public class Shape extends Compose {
 				vlp.endShape();
 		}
 		
-		for(VELEM ve : velems){
+		for(Figure ve : velems){
 			Vertex p = (Vertex) ve;
 			p.draw(left + leftAnchor + p.deltax, bottom - p.deltay);
 		}

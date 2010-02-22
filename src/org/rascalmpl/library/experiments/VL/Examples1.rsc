@@ -1,6 +1,6 @@
 module experiments::VL::Examples1
 
-import experiments::VL::VLCore;
+import experiments::VL::FigureCore;
 import viz::VLRender;
 import Integer;
 

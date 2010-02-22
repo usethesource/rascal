@@ -26,9 +26,9 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * - Sketch
  */
 
-public abstract class VELEM implements Comparable<VELEM> {
+public abstract class Figure implements Comparable<Figure> {
 	
-	protected VLPApplet vlp;
+	protected FigurePApplet vlp;
 	
 	protected IValueFactory vf;
 	
@@ -39,11 +39,11 @@ public abstract class VELEM implements Comparable<VELEM> {
 	protected float width;		// width of element
 	protected float height;		// height of element
 	
-	VELEM(VLPApplet vlp, IEvaluatorContext ctx){
+	Figure(FigurePApplet vlp, IEvaluatorContext ctx){
 		this(vlp, null,ValueFactoryFactory.getValueFactory().list(), ctx);
 	}
 	
-	VELEM(VLPApplet vlp, PropertyManager inheritedProps, IList props, IEvaluatorContext ctx){
+	Figure(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IEvaluatorContext ctx){
 		this.vlp = vlp;
 		properties = new PropertyManager(vlp, inheritedProps, props, ctx);
 		vf = ValueFactoryFactory.getValueFactory();
@@ -191,7 +191,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 		return properties.mouseOverproperties != null;
 	}
 	
-	public VELEM getInsideForMouseOver(){
+	public Figure getInsideForMouseOver(){
 		return properties.mouseOverVElem;
 	}
 	
@@ -203,7 +203,7 @@ public abstract class VELEM implements Comparable<VELEM> {
 	 * Compare two VELEMs according to their surface and aspect ratio
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(VELEM o){
+	public int compareTo(Figure o){
 		float r = (height > width) ? height / width : width / height;
 		float or = (o.height > o.width) ? o.height / o.width : o.width / o.height;
 		

@@ -1,6 +1,6 @@
 module experiments::VL::Examples3
 
-import experiments::VL::VLCore;
+import experiments::VL::FigureCore;
 import viz::VLRender; 
 
 public void graph1(){

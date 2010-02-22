@@ -22,7 +22,7 @@ public class Pack extends Compose {
 	static protected boolean debug = true;
 	boolean initialized = false;
 
-	Pack(VLPApplet vlp, PropertyManager inheritedProps, IList props,
+	Pack(FigurePApplet vlp, PropertyManager inheritedProps, IList props,
 			IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
@@ -40,7 +40,7 @@ public class Pack extends Compose {
 		float maxw = 0;
 		float maxh = 0;
 		float ratio = 1;
-		for(VELEM ve : velems){
+		for(Figure ve : velems){
 			ve.bbox();
 			maxw = max(maxw, ve.width);
 			maxh = max(maxh, ve.height);
@@ -58,7 +58,7 @@ public class Pack extends Compose {
 		Arrays.sort(velems);
 		if(debug){
 			System.err.println("SORTED ELEMENTS:");
-			for(VELEM v : velems){
+			for(Figure v : velems){
 				System.err.printf("\twidth=%f, height=%f\n", v.width, v.height);
 			}
 		}
@@ -70,7 +70,7 @@ public class Pack extends Compose {
 			height *= 1.2f;
 			root = new Node(0, 0, width, height);
 			
-			for(VELEM ve : velems){
+			for(Figure ve : velems){
 				Node nd = root.insert(ve);
 				if(nd == null){
 					//System.err.println("**** PACK: NOT ENOUGH ROOM *****");
@@ -107,7 +107,7 @@ class Node {
 	static float vgap;
 	Node lnode;
 	Node rnode;
-	VELEM velem;
+	Figure velem;
 	float left;
 	float top;
 	float right;
@@ -127,7 +127,7 @@ class Node {
 		return (lnode == null);
 	}
 	
-	public Node insert(VELEM v){
+	public Node insert(Figure v){
 		if(Pack.debug)System.err.printf("insert: %f, %f\n", v.width, v.height);
 		if(!leaf()){
 			// Not a leaf, try to insert in left child

@@ -7,7 +7,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/hickory_check.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jline-0.9.94.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-4.5.jar"/>
-	<classpathentry kind="lib" path="lib/core.jar"/>
+	<classpathentry kind="lib" path="lib/core.jar" sourcepath="/home/paulk/software/source/processing-source"/>
 	<classpathentry kind="lib" path="lib/treemap.jar"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13-swt.jar"/>

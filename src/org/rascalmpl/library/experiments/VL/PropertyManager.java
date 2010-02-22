@@ -101,7 +101,7 @@ public class PropertyManager {
 	IList origMouseOverProperties = null;
 	boolean mouseOver = false;
 	PropertyManager mouseOverproperties = null;
-	protected VELEM mouseOverVElem = null;
+	protected Figure mouseOverVElem = null;
 	
 	private int getIntArg(IConstructor c){
 		return ((IInteger) c.get(0)).intValue();
@@ -125,7 +125,7 @@ public class PropertyManager {
 	private int getColorArg(IConstructor c, IEvaluatorContext ctx) {
 		IValue arg = c.get(0);
 		if (arg.getType().isStringType()) {
-			IInteger cl = VL.colorNames.get(((IString) arg).getValue());
+			IInteger cl = FigureLibrary.colorNames.get(((IString) arg).getValue());
 			if (cl != null)
 				return cl.intValue();
 			
@@ -135,7 +135,7 @@ public class PropertyManager {
 		return ((IInteger) arg).intValue();
 	}
 
-	PropertyManager(VLPApplet vlp, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
+	PropertyManager(FigurePApplet vlp, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
 		if(inherited != null)
 			importProperties(inherited);
 		else
@@ -214,7 +214,7 @@ public class PropertyManager {
 				origMouseOverProperties = (IList) c.get(0);
 				mouseOverproperties = new PropertyManager(vlp, this, (IList) c.get(0), ctx);
 				if(c.arity() == 2){
-					mouseOverVElem = VELEMFactory.make(vlp, (IConstructor)c.get(1), mouseOverproperties, ctx);
+					mouseOverVElem = FigureFactory.make(vlp, (IConstructor)c.get(1), mouseOverproperties, ctx);
 				}
 				break;	
 				

@@ -17,7 +17,7 @@ public class VCat extends Compose {
 	float rightAnchor = 0;
 	private static boolean debug = true;
 
-	VCat(VLPApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	VCat(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 	}
 	
@@ -30,7 +30,7 @@ public class VCat extends Compose {
 		rightAnchor = 0;
 		vgap = getVGapProperty();
 		if(debug)System.err.printf("vertical.bbox: vgap=%f\n", vgap);
-		for(VELEM ve : velems){
+		for(Figure ve : velems){
 			ve.bbox();
 			leftAnchor = max(leftAnchor, ve.leftAnchor());
 			rightAnchor = max(rightAnchor, ve.rightAnchor());
@@ -55,7 +55,7 @@ public class VCat extends Compose {
 		// Draw from top to bottom
 		for(int i = velems.length-1; i >= 0; i--){
 			if(debug)System.err.printf("vertical.draw: i=%d, vgap=%f, bottom=%f\n", i, vgap, bottom);
-			VELEM ve = velems[i];
+			Figure ve = velems[i];
 			float h = ve.height;
 			ve.draw(left + leftAnchor - ve.leftAnchor(), bottom - h);
 			bottom -= h + vgap;

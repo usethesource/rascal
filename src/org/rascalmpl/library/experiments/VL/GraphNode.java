@@ -13,7 +13,7 @@ public class GraphNode {
 	
 	private Graph G;
 	protected String name;
-	protected VELEM velem;
+	protected Figure velem;
 	protected float x;
 	protected float y;
 	protected float dispx = 0f;
@@ -25,7 +25,7 @@ public class GraphNode {
 	
 //	protected float force[];
 	
-	GraphNode(Graph G, String name, VELEM velem){
+	GraphNode(Graph G, String name, Figure velem){
 		this.G = G;
 		this.name = name;
 		this.velem = velem;
