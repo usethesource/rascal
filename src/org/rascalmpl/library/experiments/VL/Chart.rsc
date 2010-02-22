@@ -1,7 +1,6 @@
 module experiments::VL::Chart
 
 import experiments::VL::VLCore;
-//import experiments::VL::VLRender; 
 import viz::VLRender;
 import Map;
 import IO;
@@ -469,6 +468,8 @@ public void b4(){
 //-------------------------------- pieChart ------------------------------------
 
 public VELEM pieChart(str title, map[str, int] facts, ChartSetting settings...){
+
+	applySettings(settings);
  	funColors = ();
  	elems = [];
  	radius = 3*chartWidth/7;
