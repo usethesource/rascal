@@ -1,7 +1,7 @@
-module experiments::VL::Chart
+module viz::Figure::Chart
 
-import experiments::VL::FigureCore;
-import viz::VLRender;
+import viz::Figure::Core;
+import viz::Figure::Render;
 import Map;
 import IO;
 import Integer;

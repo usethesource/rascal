@@ -1,4 +1,5 @@
 module viz::Figure::Core
+
 import Integer;
 import List;
 import Set;
