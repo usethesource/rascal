@@ -1,7 +1,7 @@
-module experiments::VL::Examples2
+module viz::Figure::Examples2
 
-import experiments::VL::FigureCore;
-import viz::VLRender; 
+import viz::Figure::Core;
+import viz::Figure::Render; 
 import Set;
 
 // Alignment of boxes

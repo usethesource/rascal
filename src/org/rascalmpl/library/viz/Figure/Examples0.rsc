@@ -1,8 +1,7 @@
-module experiments::VL::Examples0
+module viz::Figure::Examples0
 
 import experiments::VL::VLCore;
-//import experiments::VL::VLRender; 
-import viz::VLRender;
+import viz::Figure::Render;
 
 import Integer;
 import List;

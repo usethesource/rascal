@@ -1,7 +1,7 @@
-module experiments::VL::Examples3
+module viz::Figure::Examples3
 
-import experiments::VL::FigureCore;
-import viz::VLRender; 
+import viz::Figure::Core;
+import viz::Figure::Render; 
 
 public void graph1(){
      nodes =
