@@ -18,7 +18,7 @@ import processing.core.PApplet;
 
 /**
  * 
- * VL: Rascal library functions to access Processing's graphics operations.
+ * FigureLibrary: Rascal library functions to access Processing's graphics operations.
  * 
  * @author paulk
  *
@@ -35,7 +35,7 @@ public class FigureLibrary extends PApplet {
 	}
 	
 	static IInteger rgb(int r, int g, int b){
-		return vf.integer(VLcolor(r,g,b));
+		return vf.integer(figureColor(r,g,b));
 	}
 
 	static HashMap<String, IInteger> colorNames =
@@ -205,30 +205,30 @@ public class FigureLibrary extends PApplet {
 	
 	public IInteger gray(IInteger r){
 		int g = r.intValue();
-		return vf.integer(VLcolor(g,g,g));
+		return vf.integer(figureColor(g,g,g));
 	}
 	
 	public IInteger gray(IReal r){
 		int g = round(255 * r.floatValue());
-		return vf.integer(VLcolor(g,g,g));
+		return vf.integer(figureColor(g,g,g));
 	}
 	
 	public IInteger gray(IInteger r, IReal alpha){
 		int g = r.intValue();
-		return vf.integer(VLcolor(g,g,g, alpha.floatValue()));
+		return vf.integer(figureColor(g,g,g, alpha.floatValue()));
 	}
 	
 	public IInteger gray(IReal r, IReal alpha){
 		int g = round(255 * r.floatValue());
-		return vf.integer(VLcolor(g,g,g, alpha.floatValue()));
+		return vf.integer(figureColor(g,g,g, alpha.floatValue()));
 	}
 	
 	public  IInteger rgb(IInteger r, IInteger g, IInteger b){
-		return vf.integer(VLcolor(r.intValue(), g.intValue(), b.intValue(), 1.0f));
+		return vf.integer(figureColor(r.intValue(), g.intValue(), b.intValue(), 1.0f));
 	}
 	
 	public  IInteger rgb(IInteger r, IInteger g, IInteger b, IReal alpha){
-		return vf.integer(VLcolor(r.intValue(), g.intValue(), b.intValue(), alpha.floatValue()));
+		return vf.integer(figureColor(r.intValue(), g.intValue(), b.intValue(), alpha.floatValue()));
 	}
 	
 	public  IInteger color(IString colorName, IEvaluatorContext ctx){
@@ -242,16 +242,16 @@ public class FigureLibrary extends PApplet {
 		IInteger c = colorNames.get(colorName.getValue());
 		if(c != null){
 			int ci = c.intValue();
-			return vf.integer(VLcolor(ci, alpha.floatValue()));
+			return vf.integer(figureColor(ci, alpha.floatValue()));
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	  public static int VLcolor(int r, int g, int b) {
-		 return VLcolor(r, g, b, 1.0f);
+	  public static int figureColor(int r, int g, int b) {
+		 return figureColor(r, g, b, 1.0f);
 	 }
 	
-	  public static int VLcolor(int r, int g, int b, float alpha) {
+	  public static int figureColor(int r, int g, int b, float alpha) {
 
 		 if (r > 255) r = 255; else if (r < 0) r = 0;
 		 if (g > 255) g = 255; else if (g < 0) g = 0;
@@ -265,7 +265,7 @@ public class FigureLibrary extends PApplet {
 				 (b));
 	 }
 	 
-	  public static int VLcolor(int c1, float alpha) {
+	  public static int figureColor(int c1, float alpha) {
 		 float r1 = (c1 >> 16) & 0xff;
 		 float g1 = (c1 >> 8) & 0xff;
 		 float b1 = c1 & 0xff;
