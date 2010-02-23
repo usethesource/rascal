@@ -21,7 +21,7 @@ public class Vertex extends Figure {
 	float rightAnchor;
 	float topAnchor;
 	float bottomAnchor;
-	private static boolean debug = true;
+	private static boolean debug = false;
 
 	private float getIntOrReal(IValue v){
 		if(v.getType().isIntegerType())

@@ -394,7 +394,7 @@ public void tree6(){
 
 // Tree with text popups.
 
-public VELEM popup(str s){
+public Figure popup(str s){
 	return box([width(0), height(0), gap(1), fillColor("yellow")], text(s));
 }
 
@@ -478,6 +478,8 @@ public void tree9(){
     	    
     render(tree([gap(10), top(), lineWidth(1)], nodes, edges, "A"));
 }
+
+// TODO: 2 trees in a hcat
 
 public void tree10(){
  nodes1 =

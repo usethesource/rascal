@@ -9,7 +9,7 @@ import processing.core.PApplet;
 
 /**
  * 
- * VLApplet: wrapper that adapts Processing's PApplet to our needs.
+ * FigurePApplet: wrapper that adapts Processing's PApplet to our needs.
  * 
  * @author paulk
  *
@@ -25,7 +25,7 @@ public class FigurePApplet extends PApplet {
 	private Figure  velem;
 	private Figure mouseOver = null;
 	private HashMap<String,GraphNode> registered;
-	private static boolean debug = true;
+	private static boolean debug = false;
 
 	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
 		registered = new HashMap<String,GraphNode>();

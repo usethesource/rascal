@@ -26,7 +26,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 public class Container extends Figure {
 
 	protected Figure inside;
-	private static boolean debug = true;
+	private static boolean debug = false;
 	float hgap;
 	float vgap;
 
