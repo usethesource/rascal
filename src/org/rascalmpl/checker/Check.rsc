@@ -8,9 +8,28 @@ import org::rascalmpl::checker::SubTypes;
 
 import languages::rascal::syntax::Rascal;
 
+// TODO: the type checker should:
+//   -- annotate expressions and statements with their type
+//   -- infer types for untyped local variables
+//   -- annotate patterns with their type
+//   -- check type consistency for:
+//           -- function calls
+//           -- case patterns (i.e. for switch it should be the same as the expression that is switched on)
+//           -- case rules (left-hand side equal to right-hand side
+//           -- rewrite rules (idem)
+//   -- filter ambiguous Rascal due to concrete syntax, by:
+//          -- type-checking each alternative and filtering type incorrect ones
+//          -- counting the size of concrete fragments and minimizing the number of characters in concrete fragments
+//          -- comparing the chain rules at the top of fragments, and minimizing those
+//          -- balancing left and right-hand side of rules and patterns with replacement by type equality
+//   -- check additional static constraints
+//          -- across ||, --> and <--> conditional composition, all pattern matches introduce the same set of variables 
+//          -- all variables have been both declared and initialized in all control flow paths
+//          -- switch either implements a default case, or deals with all declared alternatives
+ 
 public Tree check(Tree t) {
 	return visit(t) {
-		case `<Expression e>` => e[@rtype = checkExpression(e)]
+		case Expression e => e[@rtype = checkExpression(e)]
 	}
 }
 
