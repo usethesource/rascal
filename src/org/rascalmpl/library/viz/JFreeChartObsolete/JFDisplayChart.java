@@ -1,4 +1,4 @@
-package org.rascalmpl.library.viz;
+package org.rascalmpl.library.viz.JFreeChartObsolete;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
