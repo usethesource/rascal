@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jdo SYSTEM "jdo.dtd">
+<jdo>
+  <package name="org.jhotdraw.framework">
+    <class name="Figure">
+    </class>
+    <class name="FigureChangeListener">
+		<extension vendor-name="FastObjects" key="implementation" value="java.lang.Object"/>
+    </class>
+  </package>
+</jdo>

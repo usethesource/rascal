@@ -1,0 +1,82 @@
+
+    org.jhotdraw.samples.javadraw.BouncingDrawing 19 
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.ImageFigure "attributes" "attributes" 1 "URL" "String" "http://www.javasoft.com" 220 160 100 116 "/CH/ifa/draw/samples/javadraw/sampleimages/joe.surf.yellow.small.gif"  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.EllipseFigure "no_attributes" 121 16 75 36  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.RoundRectangleFigure "no_attributes" 122 125 73 37 8 8  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.RoundRectangleFigure "attributes" "attributes" 1 "URL" "String" "" 266 73 77 37 36 20  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.TextFigure "attributes" "attributes" 2 "TextColor" "Color" 255 255 255 "FillColor" "Color" 255 199 158 143 135 "Text" "Helvetica" 1 14 0 REF 6 
+                org.jhotdraw.standard.OffsetLocator 0 0 
+                    org.jhotdraw.standard.RelativeLocator 0.5 0.5    4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.ElbowConnection 4 195 129 230 129 230 99 266 99 
+                org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+                org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor
+                0 0 0 
+                org.jhotdraw.figures.ShortestDistanceConnector REF 6  
+                org.jhotdraw.figures.ShortestDistanceConnector REF 8   4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.EllipseFigure "attributes" "attributes" 1 "FillColor" "Color" 35 142 104 272 18 64 32  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.LineConnection 2 195 34 273 34 
+                org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+                org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor 
+                0 0 0 
+                org.jhotdraw.figures.ChopEllipseConnector REF 4  
+                org.jhotdraw.figures.ChopEllipseConnector REF 20   4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.BorderDecorator 
+                org.jhotdraw.samples.javadraw.AnimationDecorator 
+                    org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 275 159 "Images" "Helvetica" 1 12 0 NULL NULL  4 4   4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.BorderDecorator 
+                org.jhotdraw.samples.javadraw.AnimationDecorator 
+                    org.jhotdraw.figures.TextFigure "attributes" "attributes" 2 "URL" "String" "" "FillColor" "Color" 255 199 158 191 60 "Connections" "Helvetica" 1 12 0 NULL NULL  4 4   4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.BorderDecorator 
+                org.jhotdraw.samples.javadraw.AnimationDecorator 
+                    org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 108 214 "Connected Text" "Helvetica" 1 12 0 NULL NULL  4 4   4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.BorderDecorator 
+                org.jhotdraw.samples.javadraw.AnimationDecorator 
+                    org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 222 287 "URL Attachments" "Helvetica" 1 12 0 NULL NULL  4 4   4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.BorderDecorator 
+                org.jhotdraw.samples.javadraw.AnimationDecorator 
+                    org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 27 111 "Groups" "Helvetica" 1 12 0 NULL NULL  4 4   4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.EllipseFigure "attributes" "attributes" 1 "FillColor" "Color" 35 142 104 14 203 70 46  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.LineConnection 2 122 157 72 210 
+                org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+                org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+                0 0 0 
+                org.jhotdraw.figures.ShortestDistanceConnector REF 6  
+                org.jhotdraw.figures.ChopEllipseConnector REF 48   4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 192 192 192 67 176 "Annotation" "Helvetica" 1 12 0 REF 50 
+                org.jhotdraw.standard.OffsetLocator 0 0 
+                    org.jhotdraw.standard.RelativeLocator 0.5 0.5    4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.GroupFigure 4 
+                org.jhotdraw.samples.javadraw.AnimationDecorator 
+                    org.jhotdraw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 24 25 47 44  4 4  
+                org.jhotdraw.samples.javadraw.AnimationDecorator 
+                    org.jhotdraw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 0 0 0 34 35 47 44  4 4  
+                org.jhotdraw.samples.javadraw.AnimationDecorator 
+                    org.jhotdraw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 44 45 47 44  4 4  
+                org.jhotdraw.samples.javadraw.AnimationDecorator 
+                    org.jhotdraw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 0 0 0 54 55 47 44  4 4   4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.contrib.PolygonFigure "no_attributes" 6 68 283 105 254 111 309 151 261 163 282 160 290  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.LineConnection 2 71 244 97 259 
+                org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+                org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+                0 0 0 
+                org.jhotdraw.figures.ChopEllipseConnector REF 48  
+                org.jhotdraw.contrib.ChopPolygonConnector REF 70   4 4   

@@ -1,0 +1,203 @@
+<html>
+<head>
+<title>Change Log</title>
+</head>
+<h1>Change Log</h1>
+<hr>
+<h2>Version 4.0</h1>
+<ul>
+<li>
+added pattlet slides that are referenced from javadoc.
+<li>
+restricted visibility of the classes provided by org.jhotdraw.standard.
+<li>
+generalized the start and end points of PolyLineFigures to a LineDecoration.
+<b>Note:</b>this breaks the loading of pre 4.0 drawings.
+<li>
+LineFigures are now implemented based on PolyLineFigures
+<li>
+some UI tweaks related to the look of handles.
+</ul>
+<hr>
+<h2>Version 4.0a</h1>
+<ul>
+<li>
+javadoc documentation.
+<li>
+features
+<ul>
+<li>
+support for cursor keys to move figures
+<li>
+support for snap to grid: ToggleGridCommand, DrawingView.setGrid();
+<li>
+alignment commands to align (top, centers, bottoms, left, middle, rights)
+AlignmentCommand
+<li>
+resizable ImageFigures. The ImageFigures use the IconKit to share images.
+Images are currently stored by saving a reference to their
+image file. The file names are relative to the user.dir
+property.
+</ul>
+<li>
+org.jhotdraw.util.Geom: geometrical utilities.
+<li>
+class RectLocators: useful locators for rectangle locations.<br>
+class RectTrackers: useful trackers to manipulate rectangle locations.
+<li>
+Major rewrite of Connections.
+<ul>
+<li>
+connectivity support is implemented based on an ObserverFigure
+interface.
+<li>
+ConnectionTool supports the creation and manipulation of
+connections (splitting/joining segments). ConnectionTool
+takes a prototype of the connection to be created.
+<li>
+eliminated AnchorFigure. Its only purpose was to add
+ConnectionHandles.
+<li>
+Connection support moved from the standard to the framework package
+<li>
+ConnectionTrackHandle changed to ChangeConnectionStartHandle and
+ChangeConnectionEndHandle. These two handles enable to change
+the start/end point of a connection.
+<li>
+ConnectionHandle takes the prototype of the connection to be
+created as parameter.
+<li>
+ConnectionFigure.canConnect(Figure source, Figure target)
+to constrain the connection between figures.
+See the PertDependency for an example for how to use this.
+<li>
+fixed naming inconsistencies in all signatures.
+<ul>
+<li>
+anchor was changed to start
+<li>
+target was changed to end
+</ul>
+<li>
+eliminated Figure.connectionStartPoint, connectionEndPoint
+the new connection infrastructure made them obsolete.
+</ul>
+<li>
+Figure is now an interface and no longer an abstract class.
+AbstractFigure provides default implementations for the
+Figure interface. If you defined your own figures you have to change the base class
+from Figure to AbstractFigure.
+<li>
+eliminated: org.jhotdraw.applet.AppletIconKit and
+org.jhotdraw.application.StandaloneIconKit
+The functionality of these subclasses is now part of
+the DrawingEditor interface
+<li>
+IconKit
+<ul>
+<li>
+simplified the addition of new custom icons for tool buttons
+<li>
+Applet and Applications load their icons
+by overriding registerPreLoadedImages (see PertApplet).
+<li>
+Icons are now identified by their file name without the
+.gif suffix.
+<li>
+Example:
+<pre>
+     kit.registerImages(tracker, kit.icon("TEXT"));
+</pre>
+<li>
+extended to support the deferred loading of images and to share images.
+</ul>
+<li>
+added FigureContainer.forceUpdate() such that a figure
+can force a repair of its image immediatly.
+<li>
+added transient variable modifier were appropriate
+<li>
+DrawingView: added support for additional background and
+foreground layers. A layer implements the Painter interface.
+<li>
+Replaced ScribbleFigure with a more general PolyLineFigure. A PolyLineFigure
+has an optional LineDecoration at its start and end.
+<li>
+packaging
+<ul>
+<li>
+moved Animatable from standard to util
+<li>
+moved BouncingDrawing, Animator, AnimationDecorator from standard to
+javadraw
+<li>
+changed Transformer to Tracker and Transformer.transform() to Tracker.track()
+</ul>
+</ul>
+<h2>Version 3.8</h1>
+<ul>
+<li>
+added Drawing.orphan() to fix grouping bugs related to connectivity
+<li>
+added Drawing.replace().
+<li>
+added FigureDeletedEvent, FigureChangedEvent. Deliver more
+specific update notifications.
+</ul>
+
+<h2>Version 3.6</h1>
+<ul>
+<li>
+add Figure.decompose(), Figure.isMoveable() (to fix connection and grouping bugs)
+<li>
+Figure subclasses now have to implement basicDisplayBox instead of
+  displayBox. DisplayBox is a template method that factors the
+  common displaybox logic.
+<li>
+applet package: provides base infrastructure for applets
+  Common applets now derive from JavaDrawApplet
+<li>
+application package: provides base infrastructure for applications
+  Common applications now derive from JavaDrawApplet
+</ul>
+
+<h2>Version 3.4</h1>
+<ul>
+<li>
+make reverse iterator package private
+<li>
+introduced an Animatable interface
+  remove animation methods out of basic Drawing
+<li>
+GroupFigure propagate setAttribute to figures
+<li>
+make locators, transformers sharable, don't have to override constructors
+<li>
+CommandMenu return false if not handled by a command
+<li>
+Merged DrawWindow & Draw
+<li>
+Figure.handles() is now an abstract method
+<li>
+nuked the HandleKit stuff
+<li>
+Name Changes
+<ul>
+<li>DrawApplet -> Draw
+<li>package framework -> fw
+<li>DrawingReader/DrawingWriter -> Reader/Writer
+<li>DrawWindow -> Draw
+<li>cloneFigure -> clone
+<li>readWith/writeWith -> read/write
+</ul>
+<li>
+New
+<ul>
+<li>PertFigure
+<li>Selectiontools support selections with a rubberband
+<li>DuplicateCommand
+<li>FigureAttributes class
+</ul>
+</ul>
+</body>
+</html>

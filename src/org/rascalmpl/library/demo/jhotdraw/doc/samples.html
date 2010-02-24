@@ -1,0 +1,96 @@
+<html>
+<head>
+<title>Samples</title>
+</head>
+<a name=top></a>
+<h1>JHotDraw Samples</h1>
+
+As part of the JHotDraw framework we include a number of sample applications
+and applets that
+demonstrate various aspects of JHotDraw.
+<ol>
+<li><a href=#JavaDrawApp>JavaDrawApp</a></li>
+<li><a href=#JavaDrawApplet>JavaDrawApplet</a></li>
+<li><a href=#JavaDrawViewer>JavaDrawViewer</a></li>
+<li><a href=#PertApp>PertApp/PertApplet</a></li>
+<li><a href=#Nothing>Nothing</a></li>
+<li><a href=#Net>Net</a></li>
+</ol>
+<b>Note:</b>To run the sample applets inside a browser requires a
+browser with JDK1.1 support.
+<hr>
+<ol>
+<li><h3><a name=JavaDrawApp>JavaDrawApp</a></h3></li>
+<p>
+This sample illustrates various standard tools and figures provided with JHotDraw.
+For a description of its features refer to the <a href="../CH/ifa/draw/samples/javadraw/JavaDrawAppletHelp.html">help document</a>.
+<p>
+It uses a custom drawing subclass BouncingDrawing to implement a bouncing figures
+feature. The animation support is attached to a figure with a AnimationDecorator.
+<p>
+Support for attaching URLs to figures is implemented by URLTool.
+<p>
+You can start the application with:
+<pre>java org.jhotdraw.samples.javadraw.JavaDrawApp</pre>
+The <i>drawings</i> directory includes some sample drawings. They can be
+loaded with the open command from the file menu. <b>Note</b> your CLASSPATH
+has to include the absolute path to the JHotDraw directory otherwise you will
+run into class loading problems.
+<p>
+<li><h3><a name=JavaDrawApplet>JavaDrawApplet</a></h3></li>
+<p>
+The <a href="../JavaDrawApplet.html">JavaDrawApplet</a> is the applet version of JavaDrawApp.
+Since it is an applet the drawing can't be saved.
+A sample drawing can be loaded from the load choices item.
+<p>
+<li><h3><a name=JavaDrawViewer>JavaDrawViewer</a></h3></li>
+<p>
+The <a href="../JavaDrawViewer.html">JavaDrawViewer</a> enables to view a JavaDraw drawing. If a figure has
+an attached URL you can follow it by selecting it with the mouse.
+<p>
+The sample illustrates how to create a minimal presentation without a tool palette and
+other user interface adornments.
+<p>
+<li><h3><a name=PertApp>PertApp/PertApplet</a></h3></li>
+<p>
+PertApp is simple drawing editor to support the PERT project management
+technique. With PertApp you can create tasks and define their dependencies.
+PertApp takes care of tracking the end time of each task.
+<p>
+For a description of its features refer to the <a href="../CH/ifa/draw/samples/pert/PertAppletHelp.html">help document</a>.
+<p>
+This sample illustrates how to create more complex figures and how to use
+connections. Connections can be created either with a ConnectionTool or
+ConnectionHandles.
+<p>
+You can start the application with:
+<pre>java org.jhotdraw.samples.pert.PertApplication</pre>
+<li><h3><a name=PertApplet>PertApplet</a></h3></li>
+The <i>drawings</i> directory includes some sample drawings. They can be
+loaded with the open command from the file menu. <b>Note</b> your CLASSPATH
+has to include the absolute path to the JHotDraw directory otherwise you will
+run into class loading problems.
+<p>
+<a href="../PertApplet.html">PertApplet</a> is the applet version of PertApp.
+<p>
+<li><h3><a name=Nothing>Nothing</a></h3></li>
+<p>
+This is the <i>hello world</i> sample of JHotDraw. It can be used
+as the starting point for developing your own applications.
+The samples uses some standard tools to create a simple drawing editor.
+It is only about one page of <a href="../CH/ifa/draw/samples/nothing/NothingApp.java">code</a>.
+<p>
+<li><h3><a name=Net>NetApp</a></h3></li>
+<p>
+A simple network editor. It enables the creation of nodes. When selected
+a node display a set of handles that can be used to connect it with other nodes.
+Nodes are connected at specific semantic locations. The potential locations
+are highlighted once the mouse moves inside a node.
+This sample illustrates the use of LocatorConnectors.
+<p>
+You can start the application with:
+<pre>java org.jhotdraw.samples.net.NetApp</pre>
+A sample net can be found in the <i>drawings</i> directory.
+
+</body>
+</html>

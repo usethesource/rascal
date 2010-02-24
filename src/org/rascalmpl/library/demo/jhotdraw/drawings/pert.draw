@@ -1,0 +1,64 @@
+
+    org.jhotdraw.standard.StandardDrawing 14 
+        org.jhotdraw.samples.pert.PertFigure 3 
+            org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 29 133 "Design" "Helvetica" 1 12 0 NULL NULL  
+            org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 29 148 "5" "Helvetica" 1 12 0 NULL NULL  
+            org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 29 163 "5" "Helvetica" 0 12 1 NULL NULL  26 130 45 51 0 1 
+            org.jhotdraw.samples.pert.PertFigure 3 
+                org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 108 133 "Implement" "Helvetica" 1 12 0 NULL NULL  
+                org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 108 148 "6" "Helvetica" 1 12 0 NULL NULL  
+                org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 108 163 "11" "Helvetica" 0 12 1 NULL NULL  105 130 66 51 1 REF 1 3 
+                org.jhotdraw.samples.pert.PertFigure 3 
+                    org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 215 133 "JavaDoc" "Helvetica" 1 12 0 NULL NULL  
+                    org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 215 148 "2" "Helvetica" 1 12 0 NULL NULL  
+                    org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 215 163 "13" "Helvetica" 0 12 1 NULL NULL  212 130 55 51 1 REF 5 1 
+                    org.jhotdraw.samples.pert.PertFigure 3 
+                        org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 314 133 "Ship" "Helvetica" 1 12 0 NULL NULL  
+                        org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 314 148 "0" "Helvetica" 1 12 0 NULL NULL  
+                        org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 314 163 "19" "Helvetica" 0 12 1 NULL NULL  311 130 31 51 3 
+                        org.jhotdraw.samples.pert.PertFigure 3 
+                            org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 227 206 "S&P" "Helvetica" 1 12 0 NULL NULL  
+                            org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 227 221 "4" "Helvetica" 1 12 0 NULL NULL  
+                            org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 227 236 "15" "Helvetica" 0 12 1 NULL NULL  224 203 31 51 1 REF 5 1 REF 13  REF 9 
+                        org.jhotdraw.samples.pert.PertFigure 3 
+                            org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 227 46 "Test" "Helvetica" 1 12 0 NULL NULL  
+                            org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 227 61 "8" "Helvetica" 1 12 0 NULL NULL  
+                            org.jhotdraw.figures.NumberTextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 227 76 "19" "Helvetica" 0 12 1 NULL NULL  224 43 31 51 1 REF 5 1 REF 13  0   REF 17 REF 21   REF 5 REF 21 REF 9 REF 13 REF 17 
+        org.jhotdraw.samples.pert.PertDependency 2 71 155 105 155 NULL 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0   
+            org.jhotdraw.standard.ChopBoxConnector REF 1  
+            org.jhotdraw.standard.ChopBoxConnector REF 5   
+        org.jhotdraw.samples.pert.PertDependency 2 171 155 212 155 NULL 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0   
+            org.jhotdraw.standard.ChopBoxConnector REF 5  
+            org.jhotdraw.standard.ChopBoxConnector REF 9   
+        org.jhotdraw.samples.pert.PertDependency 3 151 130 184 68 224 68 NULL 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0   
+            org.jhotdraw.standard.ChopBoxConnector REF 5  
+            org.jhotdraw.standard.ChopBoxConnector REF 21   
+        org.jhotdraw.samples.pert.PertDependency 3 154 181 184 228 224 228 NULL 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0   
+            org.jhotdraw.standard.ChopBoxConnector REF 5  
+            org.jhotdraw.standard.ChopBoxConnector REF 17   
+        org.jhotdraw.samples.pert.PertDependency 3 255 228 285 228 312 181 NULL 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0   
+            org.jhotdraw.standard.ChopBoxConnector REF 17  
+            org.jhotdraw.standard.ChopBoxConnector REF 13   
+        org.jhotdraw.samples.pert.PertDependency 2 267 155 311 155 NULL 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0   
+            org.jhotdraw.standard.ChopBoxConnector REF 9  
+            org.jhotdraw.standard.ChopBoxConnector REF 13   
+        org.jhotdraw.samples.pert.PertDependency 3 255 68 284 68 314 130 NULL 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0   
+            org.jhotdraw.standard.ChopBoxConnector REF 21  
+            org.jhotdraw.standard.ChopBoxConnector REF 13   
+        org.jhotdraw.figures.GroupFigure 2 
+            org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 26 23 "HotJavaDraw" "Helvetica" 1 18 0 NULL NULL  
+            org.jhotdraw.figures.TextFigure "attributes" "attributes" 2 "FillColor" "Color" 255 199 158 "TextColor" "Color" 255 255 255 24 21 "HotJavaDraw" "Helvetica" 1 18 0 NULL NULL    

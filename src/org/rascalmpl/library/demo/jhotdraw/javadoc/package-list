@@ -1,0 +1,17 @@
+org.jhotdraw.applet
+org.jhotdraw.application
+org.jhotdraw.contrib
+org.jhotdraw.contrib.dnd
+org.jhotdraw.contrib.html
+org.jhotdraw.contrib.zoom
+org.jhotdraw.figures
+org.jhotdraw.framework
+org.jhotdraw.samples.javadraw
+org.jhotdraw.samples.minimap
+org.jhotdraw.samples.net
+org.jhotdraw.samples.nothing
+org.jhotdraw.samples.pert
+org.jhotdraw.standard
+org.jhotdraw.util
+org.jhotdraw.util.collections.jdk11
+org.jhotdraw.util.collections.jdk12

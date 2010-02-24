@@ -1,0 +1,367 @@
+<?xml version="1.0"?>
+
+<project name="JHotDraw" default="main" basedir=".">
+
+  <!-- Give user a chance to override without editing this file
+       (and without typing -D each time it compiles it -->
+  <property file="${user.home}/.ant.properties"/>
+  <property file="build.properties"/>
+  <!-- user-dependent properties can include (for copy and paste into mybuild.properties):
+    junit.class.path=
+    junitdoclet.class.path=
+    versiondoclet.class.path=
+    checkstyle.class.path=
+    namingstrategy.class.path=
+    jdo.class.path = 
+    batik.class.path = <batik-dom.jar;batik-svggen.jar;batik-awt-util.jar>
+    Note: be sure to use forward slashes as path separators even on Windows systems
+  -->
+  <property file="mybuild.properties"/>
+  
+  <property name="build.classes" value="${dest.dir}"/>
+  <property name="build.jar.name" value="jhotdraw.jar"/>
+  <property name="build.jar" value="${dest.dir}/${build.jar.name}"/>
+  <property name="deploy.dir" value="${dest.dir}/deploy"/>
+  <property name="zip.file" value="${deploy.dir}/jhotdraw6.zip"/>
+
+  <property name="src.dir" value="${dest.dir}/src"/>
+  <property name="images.dir" value="org/jhotdraw/images"/>
+  <property name="javadraw.images.dir" value="org/jhotdraw/samples/javadraw/sampleimages"/>
+  <property name="pert.images.dir" value="org/jhotdraw/samples/pert/images"/>
+
+  <property name="javadoc.dir" value="${dest.dir}/javadoc"/>
+  <property name="mk.dir" value="${dest.dir}/build"/>
+  <property name="testsuite.package.name" value="org.jhotdraw.test"/>
+  <property name="testsuite" value="${testsuite.package.name}.AllTests"/>
+  
+  <property name="javac.deprecation" value="off"/>
+  <property name="javac.includes" value="**/*.java"/>
+
+  <property name="manifest.name" value="jhotdraw.mf"/>
+
+  <!-- Dependencies on optional packages                                   -->  
+  <!--<property name="needs.batik.src" value="org/jhotdraw/contrib/SVG*.java"/>
+  <property name="needs.jdo.src" value="org/jhotdraw/util/JDOStorageFormat.java"/>
+  -->
+  <property name="needs.batik.src" value="**/SVG*.java"/>
+  <property name="needs.jdo.src" value="**/JDOStorageFormat.java"/>
+  <property name="needs.junit.src" value="org/jhotdraw/test/**"/>
+
+  <property name="needs.batik.class" value="org.jhotdraw.contrib.SVG*"/>
+  <property name="needs.jdo.class" value="org.jhotdraw.util.JDOStorageFormat"/>
+  <property name="needs.junit.class" value="org.jhotdraw.test.*"/>
+  
+  <property name="test.packages" value="org.jhotdraw.test.*"/>
+
+  <property environment="env"/>
+
+  <!-- =================================================================== -->
+  <!-- Set timestamp and check for optional packages                       -->
+  <!-- =================================================================== -->
+  <target name="init">
+  	<tstamp/>
+  </target>
+
+  <target name="check_for_optional_packages">
+	<available property="batik.available" file="${batik.class.path}"/>
+	<available property="jdo.available" file="{jdo.class.path}"/>
+	<available property="versiondoclet.available" file="${versiondoclet.class.path}"/>
+	<available property="junit.available" file="${junit.class.path}"/>
+	<available property="junitdoclet.available" file="${junitdoclet.class.path}"/>
+	<available property="namingstrategy.available" file="${namingstrategy.class.path}"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Builds a complete package with all files from scratch               -->
+  <!-- =================================================================== -->
+  <target name="all" depends="clean, main, javadoc, junit_test, deploy">
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Builds a package with all essential files                           -->
+  <!-- ================================================================== -->
+  <target name="main" depends="init, compile, copy_resources, jar">
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Compiles the source code                                            -->
+  <!-- =================================================================== -->
+  <target name="compile" 
+          depends="check_for_optional_packages, delete_dependants" 
+          description="Compiles the source code">
+     <javac srcdir="${src.dir}"
+           destdir="${build.classes}"
+           debug="${javac.debug}"
+           deprecation="${javac.deprecation}"
+           optimize="${javac.optimize}"
+           fork="${javac.fork}">
+      <include name="org/jhotdraw/framework/**"/>
+    </javac>
+    <javac srcdir="${src.dir}"
+           destdir="${build.classes}"
+           debug="${javac.debug}"
+           deprecation="${javac.deprecation}"
+           optimize="${javac.optimize}"
+           fork="${javac.fork}">
+      <include name="${javac.includes}"/>
+      <exclude name="org/jhotdraw/framework/**"/>
+      <exclude name="${needs.batik.src}" unless="batik.available"/>
+      <exclude name="${needs.jdo.src}" unless="jdo.available"/>
+      <exclude name="${needs.junit.src}"/>
+      <classpath>
+        <pathelement path="${java.class.path}"/>
+        <pathelement path="${jdo.class.path}"/>
+        <pathelement path="${batik.class.path}"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="delete_dependants" unless="javac.nodepend">
+    <depend srcdir="${src.dir}" destdir="${build.classes}"
+            cache="depcache" closure="yes">
+      <include name="${javac.includes}"/>
+      <exclude name="${needs.batik.src}" unless="batik.available"/>
+      <exclude name="${needs.jdo.src}"  unless="jdo.available"/>
+      <exclude name="${needs.junit.src}"/>
+    </depend>
+  </target>
+  
+  <!-- =================================================================== -->
+  <!-- Generates JavaDoc                                                   -->
+  <!-- =================================================================== -->
+  <target name="javadoc" depends="check_for_optional_packages">
+    <antcall target="standard_javadoc"/>
+    <antcall target="versiondoclet_javadoc"/>
+  </target>
+
+  <target name="standard_javadoc" unless="versiondoclet.available">
+    <echo>using standard doclet...</echo>
+    <mkdir dir="${javadoc.dir}"/>
+    <javadoc
+      destdir      = "${javadoc.dir}"
+      classpath    = "${dest.dir}"
+      author       = "false"
+      version      = "true">
+      <fileset dir="${src.dir}" >
+        <include name="${javac.includes}"/>
+        <exclude name="${needs.junit.src}"/>
+      </fileset>
+    </javadoc>
+  </target>
+
+  <target name="versiondoclet_javadoc" if="versiondoclet.available">
+    <echo>using version doclet...</echo>
+    <mkdir dir="${javadoc.dir}"/>
+    <javadoc
+      destdir      = "${javadoc.dir}"
+      classpath    = "${dest.dir}"
+      author       = "false"
+      version      = "true">
+      <doclet name="org.jhotdraw.tools.versiondoclet.VersionDoclet">
+        <param name="-versionfile" value="${mk.dir}/${manifest.name}"/>
+        <param name="-version" value=""/>
+        <path>
+          <pathelement path="${versiondoclet.class.path}"/>
+        </path>
+      </doclet>
+      <fileset dir="${src.dir}" >
+        <include name="${javac.includes}"/>
+        <exclude name="${needs.junit.src}"/>
+      </fileset>
+    </javadoc>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Generates JUnit tests using JUnitDoclet                             -->
+  <!-- =================================================================== -->
+  <path id="tools_path">
+    <pathelement path="${java.home}/lib/tools.jar"/>
+  </path>
+
+  <path id="junit_test_path">
+    <pathelement path = "${dest.dir}"/>
+    <pathelement path = "${junit.class.path}"/>
+    <pathelement path = "${junitdoclet.class.path}"/>
+    <pathelement path = "${namingstrategy.class.path}"/>
+    <pathelement path = "${jdo.class.path}"/>
+    <pathelement path = "${batik.class.path}"/>
+    <pathelement path = "${java.class.path}"/>
+  </path>
+  
+  <target name="junit_doclet" depends="jar">
+    <javadoc
+      classpath           = "${dest.dir}"
+      sourcepath          = "${src.dir}"
+      defaultexcludes     = "yes">
+      <package name="org.jhotdraw.util.*"/>
+      <excludepackage name="${needs.batik.class}"/>
+      <excludepackage name="${needs.jdo.class}"/>
+      <excludepackage name="${test.packages}"/>
+      <doclet name="com.objectfab.tools.junitdoclet.JUnitDoclet">
+        <param name="-d" value="${src.dir}"/>
+        <param name="-properties" value="jhotdraw_junitdoclet.properties"/>
+        <!-- <param name="-buildall"/> -->
+        <param name="-testintest"/>
+        <param name="-naming" value="org.jhotdraw.tools.testnaming.JHDTestNamingStrategy"/>
+        <path>
+          <pathelement path = "${junitdoclet.class.path}"/>
+          <pathelement path = "${namingstrategy.class.path}"/>
+          <pathelement path = "${jdo.class.path}"/>
+          <pathelement path = "${batik.class.path}"/>
+        </path>
+      </doclet>
+    </javadoc>
+  </target>
+
+  <target name="junit_compile" depends="compile, junit_doclet">
+ 	<javac srcdir="${src.dir}"
+           destdir="${dest.dir}"
+           debug="${javac.debug}"
+           deprecation="${javac.deprecation}"
+           optimize="${javac.optimize}">
+      <!-- <include name="${needs.junit.src}"/> -->
+      <include name="${javac.includes}"/>
+      <exclude name="${needs.batik.src}" unless="batik.available"/>
+      <exclude name="${needs.jdo.src}" unless="jdo.available"/>
+      <classpath>
+        <path refid="junit_test_path"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="junit_test" depends="junit_compile">
+    <junit fork="yes" haltonfailure="no">
+      <formatter type="plain" usefile="no"/>
+      <classpath>
+        <path refid="junit_test_path"/>
+      </classpath>
+      <test name="${testsuite}"/>
+    </junit>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Style check                                                         -->
+  <!-- =================================================================== -->
+<!--
+  <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask"/>
+  <target name="stylecheck">
+      <checkstyle allowtabs="yes"
+              allownoauthor="yes"
+              maxlinelen="100"
+              headerfile="headerfile.txt"
+              headerignoreline="2"
+              relaxjavadoc="yes"
+              parampattern="."
+              constpattern="."
+              staticpattern="."
+              memberpattern=".">
+          <fileset dir="${src.dir}" includes="**/*.java"/>
+      </checkstyle>
+  </target>
+-->
+  <!-- =================================================================== -->
+  <!-- Copies the resources into the build target directory                -->
+  <!-- Resources are non-code that needs to be packed into some jar file   -->
+  <!-- in their package structure, such as .gif, .properties, .html, etc.  -->
+  <!-- =================================================================== -->
+  <target name="copy_resources">
+    <copy toDir="${dest.dir}">
+      <fileset dir="${src.dir}">
+         <include name ="**/*.gif" />
+         <include name ="**/*.html" />
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Cleans up generated stuff                                           -->
+  <!-- =================================================================== -->
+  <target name="clean" description="Cleans up generated stuff.">
+    <delete dir="${dest.dir}/org"/>
+    <delete dir="${javadoc.dir}"/>
+    <delete file="${build.jar}"/>
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- The next section defines the Jar file layout.                       -->
+  <!-- =================================================================== -->
+  <target name="jar" depends="compile, copy_resources">
+    <jar jarfile="${build.jar}"
+         manifest="${mk.dir}/${manifest.name}"
+        >
+      <fileset dir="${build.classes}">
+        <include name="org/jhotdraw/**"/>
+        <exclude name="org/jhotdraw/test/**"/>
+      </fileset>
+	</jar>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Create a zip file with all deployable content                       -->
+  <!-- =================================================================== -->
+  <target name="deploy">
+    <delete dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}"/>
+    <zip zipfile="${zip.file}">
+      <fileset dir="${dest.dir}">
+        <include name="*/**"/>
+        <exclude name="**/CVS/**"/>
+        <exclude name="${deploy.dir}/**"/>
+        <exclude name=".project"/>
+        <exclude name=".classpath"/>
+        <exclude name="**/.cvsignore"/>
+        <exclude name="*/bin/**"/>
+      </fileset>
+	</zip>
+  </target>
+  
+  <!-- =================================================================== -->
+  <!-- Run examples (and compile if necessary).                            -->
+  <!-- =================================================================== -->
+  <path id="example_path">
+    <pathelement path="${java.class.path}/"/>
+    <pathelement path="${build.jar}/"/>
+  </path>
+  
+  <target name="javadraw" depends="main">
+     <java classname="org.jhotdraw.samples.javadraw.JavaDrawApp" fork="yes">
+       <classpath>
+         <path refid="example_path"/>
+       </classpath>
+     </java>
+  </target>
+
+  <target name="pert" depends="main">
+     <java classname="org.jhotdraw.samples.pert.PertApplication" fork="yes">
+       <classpath>
+         <path refid="example_path"/>
+       </classpath>
+     </java>
+  </target>
+
+  <target name="net" depends="main">
+     <java classname="org.jhotdraw.samples.net.NetApp" fork="yes">
+       <classpath>
+         <path refid="example_path"/>
+       </classpath>
+     </java>
+  </target>
+
+  <target name="nothing" depends="main">
+     <java classname="org.jhotdraw.samples.nothing.NothingApp" fork="yes">
+       <classpath>
+         <path refid="example_path"/>
+       </classpath>
+     </java>
+  </target>
+
+  <target name="svgdraw" depends="main" if="batik.available">
+     <java classname="org.jhotdraw.contrib.SVGDrawApp" fork="yes">
+       <classpath>
+         <path refid="example_path"/>
+         <pathelement path="${env.CLASSPATH}"/>
+       </classpath>
+     </java>
+  </target>
+</project>

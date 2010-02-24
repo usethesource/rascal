@@ -1,0 +1,18 @@
+Change log
+==========
+
+JHotDraw 5.2 changes (29.6.2001 by MrFloppy)
+- SelectionFigure is now an interface. The default implementation org.jhotdraw.standard.StandardSelectionFigure
+- A FigureSelectionListener interface has been introduced in org.jhotdraw.framework. An DrawingEditor
+  is now a FigureSelectionListener and the signature for all selectionChanged() methods has been
+  changed to figureSelectionChanged().
+- org.jhotdraw.util.Command is now an interface. A AbstractCommand can be found in org.jhotdraw.standard.
+- All commands used to have a fView field. This has been moved to org.jhotdraw.standard.AbstactCommand
+- A org.jhotdraw.standard.StandardDrawingView has now a paintComponents() method instead of a paint()
+  and update() method. This allows the org.jhotdraw.util.FloatingTextField to be a javax.swing.JTextField
+  instead of a java.awt.TextField.
+- org.jhotdraw.figures.AbstractLineDecorator has been missing
+- DrawApplet, DrawApplication and derived classes are now programmed towards the DrawingView interface
+  instead of using StandardDrawingView. That leads to occasional cast when some additional StandardDrawingView
+  functionality is required in some specialized cases. Applications that were derived from DrawApplication
+  and used to override the createContents() methods should now return a DrawingView as well

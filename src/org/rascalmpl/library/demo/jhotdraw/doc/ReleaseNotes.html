@@ -1,0 +1,275 @@
+<html>
+<head>
+  <title>Release Notes Version 5.1</title>
+</head>
+<body>
+<h1>Release Notes Version 5.2</h1>
+<b>Note: </b>This version requires Swing/JFC 1.1
+<p>The purpose of this release is to:</p>
+<ul>
+    
+  <li>Use Swing/JFC GUI elements instead of AWT (where possible)</li>
+    
+  <li>Support for special Swing/FC features:</li>
+    
+  <ul>
+        
+    <li>Support for Multiple Document Interface (MDI) applications with several
+internal frames has been added. org.jhotdraw.contrib.MDI_DrawApplicationis
+the base class which must be subclasses to takeadvantage of managing internal
+frames. All examples are now derived from this class.</li>
+        
+    <li>Support for applications with splitted editor windows by deriving
+the drawing application from org.jhotdraw.contrib.SplitPaneDrawApplication<br>
+    </li>
+        
+    <li>Drawing windows have scrollbars</li>
+        
+    <li>Popup menus are available for additional functionality and control
+over graphical figures when using org.jhotdraw.contrib.CustomSelectionTool</li>
+        
+    <li>Toolbars can have different tools depending on the context of the
+currently selected figure and tool</li>
+        
+    <li>A new composite figure is available which delegates its graphical
+representation and figure attributes to another figure. Moreover, it canbe
+configured with an external layout algorithm that contains the logic forhow
+to lay out the child elements of the composite figure. The new compositefigure
+is org.jhotdraw.contrib.GraphicalCompositeFigure and can be configuredby a
+class implementing org.jhotdraw.contrib.FigureLayoutStrategy such asorg.jhotdraw.contrib.StandardFigureLayoutStrategy.
+    </li>
+    
+  </ul>
+    
+  <li>New org.jhotdraw.util.StorageFormats that allow to add new file formats
+for storing and restoring drawings (e.g. using XML)<br>
+  </li>
+  <li>Build configuration for <a href="http://jakarta.apache.org/ant/">Ant</a>
+, which can be used to compile all standard JHotDraw classes, to packagethem
+into a jar file and to generate javadoc information. Some instruction how
+to compile and build JHotDraw can be found <a href="buildProcess.html">here</a>
+.<br>
+  </li>
+    
+  <li>Some minor bug fixes<br>
+  </li>
+</ul>
+<br>
+<h1>Release Notes Version 5.1</h1>
+Changes for this release:
+<ul>
+    
+  <li>the delegation based event model is used to track figure changes.The
+FigureChangeListener interface supports to observe figure changes.A FigureChangeListener
+receives FigureChangeEvents.The old mechanism based on Observer/Observable
+and the notion of a containerwas eliminated. A figure now onlyhas listeners.
+There is a new support class FigureChangeEventMulticasterto manage the listeners.
+Using listeners is more consistent with the AWT/JFCevent handling style.CompositeFigure,
+Decorator, ConnectionFigure, and Drawingare now FigureChangeListeners.  </li>
+    
+  <li>StandardDrawing is a CompositeFigure. It is possible to inserta StandardDrawing
+as a figure into a drawing. This change does notimpact the framework package.
+The Drawing interface is independentof CompositeFigure.</li>
+    
+  <li>Tools no longer receive the DrawingView as an argument, but storeit
+in an instance variable. Existing Tools have to be adapted accordingly.</li>
+    
+  <li>SelectionTool is more open for customization. The trackers to be used
+for thedifferent selection modes can be overridden by the factory methods
+createHandleTracker, createDragTracker, createAreaTracker. The MouseTracker
+class was merged into AbstractTool and could be eliminated.<br>
+The selection tool to be used in an application can be customizedby overridding
+createSelectionTool in DrawApplication/DrawApplet.JavaDrawApp illustrates
+how to use a customized selection tool thatcan handle double clicks on figures.
+  </li>
+    
+  <li>DrawApplication supports keyboard short cuts for the common operations.
+  </li>
+</ul>
+<h1>Release Notes Version 5.0</h1>
+<b>Note:</b>This version requires JDK 1.1.
+<p>The purpose of this release is to:</p>
+<ul>
+    
+  <li>use JDK1.1 features: event model, access to resources, serialization,
+scrolling, printing, cursors etc.</li>
+    
+  <li>improve the packaging structure.</li>
+    
+  <li>improve the support for connectivity.</li>
+    
+  <li>implement several minor improvements.</li>
+</ul>
+<h2>JDK1.1 features</h2>
+<h3>Event Model</h3>
+All event handling related classes use the JDK1.1 event model.This required
+to change some method signatures to refer to morespecific events. Returning
+a boolean to indicate the consumptionof an event was removed.
+<h3>Serialization</h3>
+This version supports to use of serialization to make adrawing persistent.
+org.jhotdraw.applet.DrawApplet andorg.jhotdraw.application.DrawApplicationsupport
+both the oldstorable and the serializable format. Support for thestorable
+formatwill be removed in the next version.
+<p>Serialization is used in the default implementation of Figure.clone().</p>
+<p>StandardDrawingView supports serialization.</p>
+<h3>Resource Access</h3>
+Thanks to 1.1 the access to resources could be drastically simplified.All
+the resources are now accessed relative to classes.The images directory with
+standard images is therefore part of thepackage hierarchy. 
+<p>IconKit could be decoupled from DrawingEditor and was moved fromorg.jhotdraw.standard
+to org.jhotdraw.util.Refer to the sample applications for how toload and access
+resources like images.</p>
+<h3>Various UI Features</h3>
+<ul>
+    
+  <li>Tools support to use tool specific cursors.</li>
+    
+  <li>org.jhotdraw.application shows the DrawingView by default in a ScrollPane.
+There is a new method createContents that can be overridden to customizethe
+default arrangement. The default size of the view can be customized byoverriding
+getDrawingViewSize().</li>
+    
+  <li>org.jhotdraw.application supports to print a drawing.</li>
+</ul>
+<h2>Packaging</h2>
+The packaging was changed to separate the framework interfacesfrom default
+implementations.
+<p>The framework package defines the coreinterfaces and leaves default implementations
+to the standard package.All key abstractions of the framework are now defined
+as interfaces.Ward Cunningham has suggested this some time ago and it ended
+upto be natural and logic evolution.</p>
+<p>The implementation of the framework interfaces comes in two flavors.Abstract
+classes like AbstractFigure, provide default implementationbut still need
+to be subclassed. Standard classeslike StandardDrawing implement aframework
+interface and can be used as is.</p>
+<p>The framework package was renamed to "framework" the old "fw"was due to
+a temprorary bug in the used IDE:</p>
+<p>A figures package was forked of the standard package. This packageprovides
+a kit of standard figures and their related handle andtool classes.</p>
+<p>There is a new package contrib that contains classes contributedby others.
+</p>
+<h2>Connectivity</h2>
+Connectors were introduced to define connections between figures.A figure
+can have one or more connectors. A figure creates aconnector for a specific
+location connectorAt(int x, int y).A connector knows how to findthe connection
+point. A connection figure keeps track of aconnector for its start and end
+point.
+<p>Figure.chop() is no longer needed and was removed. Its functionalityis
+subsumed by Connectors.</p>
+<p>A set of standard connectors is provided in the standard and figurepackages.
+</p>
+<ul>
+    
+  <li>BoxChopConnector: finds a connection point by chopping the connection
+at the figure's bounding box.</li>
+    
+  <li>LocatorConnector: uses a locator to find the connection point.Thisenables
+to define connections at specific semantic points ona figure. Referto the
+NetApp sample for an example of using them.</li>
+    
+  <li>ShortestDistanceConnector: finds the connection points based on the
+shortest distancebetween figures.</li>
+    
+  <li>EllipseChopConnector: finds a connection point by chopping the connection
+at the ellipse defined by the figure's bounding box.</li>
+</ul>
+Connectors are optionally visible and Figure has a method connectorVisibility
+to turn their visibility on and off. This is used by the ConnectionToolto
+highlight connection points when the mouse moves over a figure.
+<p>TextFigures can be attached to other figures. The ConnectedTextToolsupports
+to create a connected TextFigure. Try it out in JavaDraw.The text figureis
+connected to the Figure that is clicked when thetool is active. To position
+a connected TextFigure figures can overridethe method connectedTextLocator
+to return a locator.</p>
+<h2>Various Changes</h2>
+<ul>
+    
+  <li>FigureEnumeration extends Enumeration to enable to iterate overfigures
+without having to do a down casted in client code. Itprovides an additional
+method nextFigure to get the next Figure.</li>
+    
+  <li>AbstractFigure was split. AbstractFigure no longer keeps track ofthe
+FigureAttributes dictionary. The dictionary is now maintainedin its derived
+class AttributeFigure. This change enables tocreate Figure subclasses without
+having to use theFigureAttributes implementation.</li>
+    
+  <li>Trackers are gone. Trackerfunctionality is implemented in the Handles
+themselves. In contrastto Locators they did not turn out to be reusable for
+different handles.The class BoxHandleKit hides the different Handle implementation
+classesfrom the API.</li>
+    
+  <li>BoxHandleKit provides factory methods to create Handles forcommon locations
+on a figure.</li>
+    
+  <li>DrawingView is now an interface with a standard implementation, i.e.,
+StandardDrawingView.</li>
+    
+  <li>Figure.clone() is implemented in a generic way in AbstractFigure.The
+figure is serialized and the clone is created by resurrectingthe serialized
+figure.</li>
+    
+  <li>Image handling was simplified and the preLoadRegisteredImagesis nolonger
+necessary.</li>
+    
+  <li>Commands know whether they are executable ornot. They provide an isExecutable
+operation to check their state.</li>
+    
+  <li>Name changes: ObserverFigure -&gt; ConnectionFigure, LineConnectionFigure
+-&gt;LineConnection.</li>
+    
+  <li>There is support for transparent fill colors for AttributeFigures.</li>
+    
+  <li>AttributeFigre.draw() is a now a template method that callsdrawBackground()
+and drawFrame(). Subclasses should overridethese methods instead of draw().
+  </li>
+    
+  <li>The signature of Handle.invokeStep() and Handle.invokeEnd() was changed
+to:<pre>  public void invokeStep (int x, int y, int anchorX, int anchorY, DrawingView view) {<br>  public void invokeEnd  (int x, int y, int anchorX, int anchorY, DrawingView view) {<br></pre>
+The passed arguments correspond to the current point and the anchor point
+of the interaction.<br>
+The old signature are still supported but deprecated.</li>
+    
+  <li>Doug Lea implemented a nice PolygonFigure with its corresponding Handles
+and Tools. Check it out in JavaDrawApp.</li>
+    
+  <li>ElbowHandles support to adjust elbow connections.</li>
+</ul>
+<h2>Samples</h2>
+<ul>
+    
+  <li>the samples are now located in subpackages of samples.</li>
+    
+  <li>there are two new samples:        
+    <ul>
+            
+      <li>Nothing implements a minimal application/appletthat can be used
+as the starting point for your own applications.</li>
+            
+      <li>NetApp is a simple editor with nodes and connections. Itillustrates
+LocatorConnectors.</li>
+        
+    </ul>
+  </li>
+</ul>
+<h2>Converting</h2>
+<ul>
+    
+  <li>If you derived classes from Handle, Tool, Locator you have to change
+them to inherit from their corresponding Abstract class.</li>
+    
+  <li>Change your tool classes to no longer return a boolean fromevent handling
+methods.</li>
+    
+  <li>Change the event handling method to use a specific event, typically
+a MouseEvent.</li>
+    
+  <li>Import the figures package if you use figures provided by this version.
+  </li>
+    
+  <li>Tools should call editor().toolDone() instead of editor().setDefaultTool.
+  </li>
+    
+  <li>Add the serival version stuff to your figure classes.</li>
+</ul>
+</body>
+</html>

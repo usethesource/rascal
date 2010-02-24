@@ -1,0 +1,65 @@
+
+    org.jhotdraw.standard.StandardDrawing 13 
+        org.jhotdraw.samples.net.NodeFigure "attributes" "attributes" 3 "TextColor" "Color" 255 255 255 "FrameColor" "Color" 255 255 0 "FillColor" "Color" 255 199 158 135 46 "one" "Helvetica" 1 12 0 NULL NULL  
+        org.jhotdraw.samples.net.NodeFigure "attributes" "attributes" 3 "TextColor" "Color" 255 255 255 "FrameColor" "Color" 255 255 0 "FillColor" "Color" 255 199 158 62 102 "two" "Helvetica" 1 12 0 NULL NULL  
+        org.jhotdraw.samples.net.NodeFigure "attributes" "attributes" 3 "TextColor" "Color" 255 255 255 "FrameColor" "Color" 255 255 0 "FillColor" "Color" 255 199 158 211 102 "three" "Helvetica" 1 12 0 NULL NULL  
+        org.jhotdraw.samples.net.NodeFigure "attributes" "attributes" 3 "TextColor" "Color" 255 255 255 "FrameColor" "Color" 255 255 0 "FillColor" "Color" 255 199 158 134 153 "four" "Helvetica" 1 12 0 NULL NULL  
+        org.jhotdraw.samples.net.NodeFigure "attributes" "attributes" 3 "TextColor" "Color" 255 255 255 "FrameColor" "Color" 255 255 0 "FillColor" "Color" 255 199 158 135 219 "five" "Helvetica" 1 12 0 NULL NULL  
+        org.jhotdraw.figures.LineConnection 2 145 67 72 96 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0 
+            org.jhotdraw.standard.LocatorConnector REF 1 
+                org.jhotdraw.standard.RelativeLocator 0.5 1.0   
+            org.jhotdraw.standard.LocatorConnector REF 2 
+                org.jhotdraw.standard.RelativeLocator 0.5 0.0    
+        org.jhotdraw.figures.LineConnection 2 145 67 226 96 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0 REF 9 
+            org.jhotdraw.standard.LocatorConnector REF 3 
+                org.jhotdraw.standard.RelativeLocator 0.5 0.0    
+        org.jhotdraw.figures.LineConnection 2 89 109 205 109 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0 
+            org.jhotdraw.standard.LocatorConnector REF 2 
+                org.jhotdraw.standard.RelativeLocator 1.0 0.5   
+            org.jhotdraw.standard.LocatorConnector REF 3 
+                org.jhotdraw.standard.RelativeLocator 0.0 0.5    
+        org.jhotdraw.figures.LineConnection 2 72 123 128 160 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0 
+            org.jhotdraw.standard.LocatorConnector REF 2 
+                org.jhotdraw.standard.RelativeLocator 0.5 1.0   
+            org.jhotdraw.standard.LocatorConnector REF 4 
+                org.jhotdraw.standard.RelativeLocator 0.0 0.5    
+        org.jhotdraw.figures.LineConnection 2 226 123 163 160 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0 
+            org.jhotdraw.standard.LocatorConnector REF 3 
+                org.jhotdraw.standard.RelativeLocator 0.5 1.0   
+            org.jhotdraw.standard.LocatorConnector REF 4 
+                org.jhotdraw.standard.RelativeLocator 1.0 0.5    
+        org.jhotdraw.figures.LineConnection 2 226 123 161 226 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0 REF 35 
+            org.jhotdraw.standard.LocatorConnector REF 5 
+                org.jhotdraw.standard.RelativeLocator 1.0 0.5    
+        org.jhotdraw.figures.LineConnection 2 72 123 129 226 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0 REF 28 
+            org.jhotdraw.standard.LocatorConnector REF 5 
+                org.jhotdraw.standard.RelativeLocator 0.0 0.5    
+        org.jhotdraw.figures.LineConnection 4 247 109 280 109 280 53 162 53 
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            org.jhotdraw.figures.ArrowTip  0 0 0 noFillColor noBorderColor   
+            0 0 0 
+            org.jhotdraw.standard.LocatorConnector REF 3 
+                org.jhotdraw.standard.RelativeLocator 1.0 0.5   
+            org.jhotdraw.standard.LocatorConnector REF 1 
+                org.jhotdraw.standard.RelativeLocator 1.0 0.5     

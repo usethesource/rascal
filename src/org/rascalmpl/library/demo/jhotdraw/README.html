@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>JHotDraw 5.4</title>
+</head>
+<body>
+
+<h1>JHotDraw 5.4</h1>
+
+<hr><p>   
+<b>Preface: This is a beta release [JHotDraw5.4b1]<p>
+This beta release contains the latest CVS snapshot and should be considered as progress
+in work. It has not been extensively tested but is aimed to give developers access to a
+more recent version of JHotDraw that 5.3.<p>
+The release includes numereous new features among them: undo/redo support, enhanced MDI support,
+many new figures (TextArea and figures with HTML support), zooming, minimap preview,
+bug fixes,...<p>
+Moreover, it contains a skeleton test suite which has been generated using JUnitDoclet.
+The tests are compilable but not functional. Anyway, the excuse for not writing tests
+because there weren't any is now not valid anymore ;-) Anyone contributing tests and filling the
+test suite with life is welcome!<p>
+Finally, developers who require a more stable release or are not willing to bear with some
+bugs and exceptions should not use this beta release. Anyone else gets a preview of
+the new functionality and compatibility. Any comments are welcome but (timely) response
+cannot be guaranteed.
+</b>
+<p>
+
+<hr>This document gives an overview of the JHotDraw distribution, describes
+ how to install it, and offers links for getting started. Please refer to
+the <a href="doc/ReleaseNotes.html"> release notes</a> for more information
+about the 5.4 release.  
+<h3>Contents</h3>
+<pre>JHotDraw<br>
+    drawings                    sample drawings<br>
+    documentation               documentation for JHotDraw<br>
+    javadoc                     javadoc generated documentation<br>
+    pattlets                    pattern summary slides. They are referred<br>
+                                to from the javadoc documentation.<br><br>
+    CH                          the JHotDraw class files<br>
+        ifa<br>
+            draw<br>
+                images          image resources<br>
+                util            common utilities that are independent of<br>
+                                JHotDraw<br>
+                framework       JHotDraw framework<br>
+                standard        standard implementations of the JHotDraw<br>
+                                framework abstractions<br>
+                figures         a set of figures and their support classes<br>
+                applet          standard UI for JHotDraw applets<br>
+                application     standard UI for JHotDraw applications<br>
+                contrib         a package with contributions to JHotDraw<br>
+                samples<br>
+                    nothing     Nothing sample<br>
+                    javadraw    JHotDraw sample<br>
+                    pert        PERT sample<br>
+                    net         A simple node and connections editor<br><br>
+    sources                     the java source files mirror the<br>
+                                hierarchy of the class files<br><br></pre>
+<h3>Installation</h3>
+The distribution includes no development environment specificconfiguration
+or makefiles.
+<p>To run the applets doesn't require any further installation steps.Refer
+ to the <a href="doc/samples.html">samples</a> to view the sample applets.</p>
+   
+<p>To run the sample applications you should include the JHotDraw directory
+in your CLASSPATH. <b>Note</b> using a relative path to refer to JHotDraw
+can result in class loading errors. You run into this problem when the application's
+working directory is changed with a file dialog.</p>
+   
+<h3>Getting Started</h3>
+ To get started check out the <a href="doc/samples.html">samples</a>  and the 
+<a href="doc/documentation.html">documentation</a> delivered with JHotDraw.
+ 
+<h3>Legal</h3>
+ These release is distributed under <a href="lgpl-license.html">LGPL</a>.<br>
+ <br>
+ The original version of JHotDraw is copyright 1996, 1997 by IFA Informatik 
+and <a href="mailto:erich_gamma@acm.org">Erich Gamma</a>.  
+<p>It is hereby granted that this software can be used, copied, modified,
+anddistributed without fee provided that this copyright noticeappears in
+all copies.</p>
+   
+<hr><br>
+ <br>
+      
+</body>
+</html>

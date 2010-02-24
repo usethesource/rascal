@@ -1,0 +1,10 @@
+
+    org.jhotdraw.samples.javadraw.BouncingDrawing 4 
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 80 77 196 89  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 0 0 255 75 72 196 89  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.TextFigure "attributes" "attributes" 2 "TextColor" "Color" 255 255 255 "FillColor" "Color" 255 199 158 119 92 "Nothing" "Helvetica" 0 36 0 NULL NULL  4 4  
+        org.jhotdraw.samples.javadraw.AnimationDecorator 
+            org.jhotdraw.figures.TextFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 117 90 "Nothing" "Helvetica" 0 36 0 NULL NULL  4 4   

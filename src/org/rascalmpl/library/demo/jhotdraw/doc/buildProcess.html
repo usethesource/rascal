@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+    
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <title>Building JHotDraw</title>
+</head>
+<body>
+<h1>Instructions for Building JHotDraw</h1>
+<hr><br>
+<br>
+A simple <a href="..\build\build.xml">build configuration file</a> for <a href="http://jakarta.apache.org/ant/">
+Ant</a> has been included, which can be used to compile all standard JHotDraw
+classes, to packagethem into a jar file and to generate javadoc information.
+The command tostart the build process could look like (when invoked in the
+<code>&lt;JHOTDRAW_DIR&gt;</code>\build directory)<br>
+<br>
+<code>java -classpath "%CLASSPATH%;&lt;ANT_DIR&gt;\lib\ant.jar;&lt;ANT_DIR&gt;\lib\jaxp.jar;&lt;ANT_DIR&gt;\lib\parser.jar"
+-Djava.home="&lt;JAVA_DIR&gt;" -Dant.home="&lt;ANT_DIR&gt;" org.apache.tools.ant.Main
+all -Ddest.dir="&lt;JHOTDRAW_DIR&gt;" -buildfile build.xml</code><br>
+<br>
+where <code>&lt;JHOTDRAW_DIR&gt;</code> is the directory path to the JHotDraw
+package,<code>&lt;ANT_DIR&gt;</code> is the directory path to the Ant installation,
+<code>&lt;JAVA_DIR&gt;</code>is the directory path to the Java installation..
+Apart of calling <code>org.apache.tools.ant.Main</code> with the parameter
+<code>all</code> you can specify one of the following building targets:<br>
+<ul>
+  
+  <li><code>clean</code> - to delete all class files first</li>
+  
+  <li><code>main</code> - to compile, copy resources and build the jar file</li>
+  
+  <li><code>jar</code> - to build the jar file<br>
+  </li>
+  
+  <li><code>compile</code> - to compile only</li>
+  
+  <li><code>javadoc</code> - to generate javadoc</li>
+  
+  <li><code>all</code> - to clean, compile and javadoc</li>
+</ul>
+Furthermore, Ant can be generate debug code when the switch <code>-Djavac.debug=on</code>
+ is provided.<br>
+</body>
+</html>
