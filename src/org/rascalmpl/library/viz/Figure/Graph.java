@@ -97,7 +97,7 @@ public class Graph extends Figure {
 		temperature = 50;
 		for(int iter = 0; iter < 150; iter++){
 		for(GraphNode n : nodes)
-			n.velem.bbox();
+			n.figure.bbox();
 		
 			for(GraphNode n : nodes)
 				n.relax();
@@ -116,8 +116,8 @@ public class Graph extends Figure {
 		float maxy = Float.MIN_VALUE;
 		
 		for(GraphNode n : nodes){
-			float w2 = n.velem.width/2;
-			float h2 = n.velem.height/2;
+			float w2 = n.figure.width/2;
+			float h2 = n.figure.height/2;
 			if(n.x - w2 < minx)
 				minx = n.x - w2;
 			if(n.x + w2 > maxx)

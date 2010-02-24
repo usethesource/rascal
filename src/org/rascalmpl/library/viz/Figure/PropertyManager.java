@@ -101,7 +101,7 @@ public class PropertyManager {
 	IList origMouseOverProperties = null;
 	boolean mouseOver = false;
 	PropertyManager mouseOverproperties = null;
-	protected Figure mouseOverVElem = null;
+	protected Figure mouseOverFigure = null;
 	
 	private int getIntArg(IConstructor c){
 		return ((IInteger) c.get(0)).intValue();
@@ -214,7 +214,7 @@ public class PropertyManager {
 				origMouseOverProperties = (IList) c.get(0);
 				mouseOverproperties = new PropertyManager(vlp, this, (IList) c.get(0), ctx);
 				if(c.arity() == 2){
-					mouseOverVElem = FigureFactory.make(vlp, (IConstructor)c.get(1), mouseOverproperties, ctx);
+					mouseOverFigure = FigureFactory.make(vlp, (IConstructor)c.get(1), mouseOverproperties, ctx);
 				}
 				break;	
 				
@@ -298,7 +298,7 @@ public class PropertyManager {
 		origMouseOverProperties = null;
 //		mouseOver = false;
 		mouseOverproperties = null;
-		mouseOverVElem = null;
+		mouseOverFigure = null;
 	}
 	
 //	public void applyProperties(){

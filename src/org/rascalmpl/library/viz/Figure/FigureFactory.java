@@ -12,7 +12,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * 
- * VELEMFactory: factory for creating visual elements.
+ * FigureFactory: factory for creating visual elements.
  * 
  * @author paulk
  *

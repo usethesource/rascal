@@ -15,7 +15,7 @@ import processing.core.PApplet;
  */
 public class TreeNode extends Figure {
 	
-	Figure velemNode;
+	Figure figureNode;
 	private ArrayList<TreeNode> children;
 	private ArrayList<PropertyManager> edgeProperties;
 	private static boolean debug = false;
@@ -23,7 +23,7 @@ public class TreeNode extends Figure {
 	public TreeNode(FigurePApplet vlp, PropertyManager inheritedProps, IList props,
 			Figure ve, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
-		velemNode = ve;
+		figureNode = ve;
 		children = new ArrayList<TreeNode>();
 		edgeProperties = new ArrayList<PropertyManager>();
 	}
@@ -38,48 +38,48 @@ public class TreeNode extends Figure {
 	float shapeTree(float left, float top, TreeNodeRaster raster) {
 		this.left = left;
 		this.top = top;
-		velemNode.bbox(left, top);
+		figureNode.bbox(left, top);
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
-		float position = left + velemNode.width/2; // x position of center of node!
-		position = raster.leftMostPosition(position, top, velemNode.width, velemNode.height, hgap);
+		float position = left + figureNode.width/2; // x position of center of node!
+		position = raster.leftMostPosition(position, top, figureNode.width, figureNode.height, hgap);
 		
 		int nChildren = children.size();
-		height = velemNode.height;
+		height = figureNode.height;
 		float heightChildren = 0;
 		if(nChildren > 0){
 			for(TreeNode child : children){
-				child.velemNode.bbox();
+				child.figureNode.bbox();
 				heightChildren = max(heightChildren, child.height);
 			}
 			height += heightChildren + vgap;
 			if(nChildren > 1){
-				width = (children.get(0).velemNode.width + children.get(nChildren-1).velemNode.width)/2 +
+				width = (children.get(0).figureNode.width + children.get(nChildren-1).figureNode.width)/2 +
 				        (nChildren-1) * hgap;
 				for(int i = 1; i < nChildren - 1; i++){
-					width += children.get(i).velemNode.width;
+					width += children.get(i).figureNode.width;
 				}
 			} else {
 				width = 0;
 			}
 			float branchPosition = position - width/2;
 			
-			float leftPosition = children.get(0).shapeTree(branchPosition, top + velemNode.height + hgap, raster);
+			float leftPosition = children.get(0).shapeTree(branchPosition, top + figureNode.height + hgap, raster);
 			
 			float rightPosition = leftPosition;
 			
 			for(int i = 1; i < nChildren; i++){
-				branchPosition += hgap + (children.get(i-1).velemNode.width + 
-						                  children.get(i).velemNode.width)/2;
-				rightPosition = children.get(i).shapeTree(branchPosition, top + velemNode.height + hgap, raster);
+				branchPosition += hgap + (children.get(i-1).figureNode.width + 
+						                  children.get(i).figureNode.width)/2;
+				rightPosition = children.get(i).shapeTree(branchPosition, top + figureNode.height + hgap, raster);
 			}
 			
 			position = (leftPosition + rightPosition)/2;
 		} else
-			width = velemNode.width;
+			width = figureNode.width;
 	
-		raster.add(position, top, velemNode.width, velemNode.height);
-		this.left = velemNode.left = PApplet.round(position - velemNode.width/2);
+		raster.add(position, top, figureNode.width, figureNode.height);
+		this.left = figureNode.left = PApplet.round(position - figureNode.width/2);
 		return position;
 	}
 	
@@ -92,13 +92,13 @@ public class TreeNode extends Figure {
 	void draw(float left, float top) {
 		boolean squareStyle = true;
 		applyProperties();
-		velemNode.draw();
+		figureNode.draw();
 		
 		int n = children.size();
 		
 		if(n > 0){
-			float nodeBottomX = velemNode.left + velemNode.width/2;
-			float nodeBottomY = top + velemNode.height;
+			float nodeBottomX = figureNode.left + figureNode.width/2;
+			float nodeBottomY = top + figureNode.height;
 			float vgap = getVGapProperty();
 			final float childTop = nodeBottomY + vgap;
 			float horLineY = nodeBottomY + vgap/2;
@@ -107,16 +107,16 @@ public class TreeNode extends Figure {
 				vlp.line(nodeBottomX, nodeBottomY, nodeBottomX, horLineY);
 				
 				if(n > 1){
-					Figure leftVE = children.get(0).velemNode;
-					Figure rightVE = children.get(n-1).velemNode;
+					Figure leftVE = children.get(0).figureNode;
+					Figure rightVE = children.get(n-1).figureNode;
 					vlp.line(leftVE.left + leftVE.width/2, horLineY, rightVE.left + rightVE.width/2, horLineY);
 				}
 			}
 			// TODO line style!
 			for(TreeNode child : children){
 				if(!squareStyle)
-					vlp.line(nodeBottomX, nodeBottomY, child.velemNode.left + child.velemNode.width/2, childTop);
-				float midChild = child.velemNode.left + child.velemNode.width/2;
+					vlp.line(nodeBottomX, nodeBottomY, child.figureNode.left + child.figureNode.width/2, childTop);
+				float midChild = child.figureNode.left + child.figureNode.width/2;
 				
 				vlp.line(midChild, child.top, midChild, horLineY);
 				child.draw();
@@ -127,7 +127,7 @@ public class TreeNode extends Figure {
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
 		if(debug)System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
-		return velemNode.mouseOver(mousex, mousey);
+		return figureNode.mouseOver(mousex, mousey);
 	}
 
 	

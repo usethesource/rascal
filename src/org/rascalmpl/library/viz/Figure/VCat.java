@@ -30,7 +30,7 @@ public class VCat extends Compose {
 		rightAnchor = 0;
 		vgap = getVGapProperty();
 		if(debug)System.err.printf("vertical.bbox: vgap=%f\n", vgap);
-		for(Figure ve : velems){
+		for(Figure ve : figures){
 			ve.bbox();
 			leftAnchor = max(leftAnchor, ve.leftAnchor());
 			rightAnchor = max(rightAnchor, ve.rightAnchor());
@@ -38,7 +38,7 @@ public class VCat extends Compose {
 		}
 		
 		width = leftAnchor + rightAnchor;
-		int ngaps = (velems.length - 1);
+		int ngaps = (figures.length - 1);
 		
 		height += ngaps * vgap;
 		if(debug)System.err.printf("vcat: width=%f, height=%f, leftAnchor=%f, rightAnchor=%f\n", width, height, leftAnchor, rightAnchor);
@@ -53,9 +53,9 @@ public class VCat extends Compose {
 		float bottom = top + height;
 
 		// Draw from top to bottom
-		for(int i = velems.length-1; i >= 0; i--){
+		for(int i = figures.length-1; i >= 0; i--){
 			if(debug)System.err.printf("vertical.draw: i=%d, vgap=%f, bottom=%f\n", i, vgap, bottom);
-			Figure ve = velems[i];
+			Figure ve = figures[i];
 			float h = ve.height;
 			ve.draw(left + leftAnchor - ve.leftAnchor(), bottom - h);
 			bottom -= h + vgap;
