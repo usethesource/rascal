@@ -15,7 +15,7 @@ public class Rotate extends Figure {
 	private float rightAnchor;
 	private float topAnchor;
 	private float bottomAnchor;
-	private static boolean debug = true;
+	private static boolean debug = false;
 	
 	Rotate(FigurePApplet vlp, PropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
 		super(vlp, ctx);

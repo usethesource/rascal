@@ -52,8 +52,8 @@ public class Vertex extends Figure {
 		if(marker != null){
 			//TODO is this ok?
 			marker.bbox();
-			System.err.printf("Vertex: marker anchors hor (%f, %f), vert (%f, %f)\n",
-					marker.leftAnchor(), marker.rightAnchor(), marker.topAnchor(), marker.bottomAnchor());
+			if(debug) System.err.printf("Vertex: marker anchors hor (%f, %f), vert (%f, %f)\n",
+					   marker.leftAnchor(), marker.rightAnchor(), marker.topAnchor(), marker.bottomAnchor());
 			if(marker.leftAnchor() >= deltax){
 				leftAnchor = marker.leftAnchor() - deltax;
 				width = marker.width;
