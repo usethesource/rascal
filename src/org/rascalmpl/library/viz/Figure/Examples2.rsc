@@ -6,6 +6,12 @@ import Set;
 
 // Alignment of boxes
 
+public void align1(){
+  boxes = [box([size(50,50),fillColor("red")])];
+
+  render(align([width(125), gap(10), top(), left()], boxes));
+}
+
 public void aligntl(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
