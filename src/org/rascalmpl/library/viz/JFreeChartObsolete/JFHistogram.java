@@ -1,4 +1,4 @@
-package org.rascalmpl.library.viz;
+package org.rascalmpl.library.viz.JFreeChartObsolete;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
