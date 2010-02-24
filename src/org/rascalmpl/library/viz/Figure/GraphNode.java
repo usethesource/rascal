@@ -13,7 +13,7 @@ public class GraphNode {
 	
 	private Graph G;
 	protected String name;
-	protected Figure velem;
+	protected Figure figure;
 	protected float x;
 	protected float y;
 	protected float dispx = 0f;
@@ -25,10 +25,10 @@ public class GraphNode {
 	
 //	protected float force[];
 	
-	GraphNode(Graph G, String name, Figure velem){
+	GraphNode(Graph G, String name, Figure fig){
 		this.G = G;
 		this.name = name;
-		this.velem = velem;
+		this.figure = fig;
 		in = new LinkedList<GraphNode>();
 		out = new LinkedList<GraphNode>();
 	}
@@ -134,7 +134,7 @@ public class GraphNode {
 	}
 
 	void draw() {
-		velem.bbox();
-		velem.draw(x - velem.width/2, y - velem.height/2);
+		figure.bbox();
+		figure.draw(x - figure.width/2, y - figure.height/2);
 	}
 }

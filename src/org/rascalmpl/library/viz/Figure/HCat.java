@@ -27,13 +27,13 @@ public class HCat extends Compose {
 		topAnchor = 0;
 		bottomAnchor = 0;
 		hgap = getHGapProperty();
-		for(Figure ve : velems){
+		for(Figure ve : figures){
 			ve.bbox();
 			width += ve.width;
 			topAnchor = max(topAnchor, ve.topAnchor());
 			bottomAnchor = max(bottomAnchor, ve.bottomAnchor());
 		} 
-		int ngaps = (velems.length - 1);
+		int ngaps = (figures.length - 1);
 		width += ngaps * hgap;
 		height = topAnchor + bottomAnchor;
 		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f\n", width, height, topAnchor, bottomAnchor);
@@ -46,7 +46,7 @@ public class HCat extends Compose {
 		applyProperties();
 
 		// Draw from left to right
-		for(Figure ve : velems){
+		for(Figure ve : figures){
 			ve.draw(left, top + topAnchor - ve.topAnchor());
 			left += ve.width + hgap;
 		}

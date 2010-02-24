@@ -9,7 +9,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 public class Scale extends Figure {
 	float xscale;
 	float yscale;
-	Figure velem;
+	Figure figure;
 
 	public Scale(FigurePApplet vlp, PropertyManager inheritedProps, IValue xs,
 			IValue ys, IConstructor c, IEvaluatorContext ctx) {
@@ -20,14 +20,14 @@ public class Scale extends Figure {
 		yscale = ys.getType().isIntegerType() ? ((IInteger) ys).intValue()
                 							  : ((IReal) ys).floatValue();
 		
-		velem = FigureFactory.make(vlp, c, properties, ctx);
+		figure = FigureFactory.make(vlp, c, properties, ctx);
 	}
 
 	@Override
 	void bbox() {
-		velem.bbox();
-		width = xscale * velem.width;
-		height = yscale * velem.height;
+		figure.bbox();
+		width = xscale * figure.width;
+		height = yscale * figure.height;
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class Scale extends Figure {
 		vlp.pushMatrix();
 		vlp.translate(left, top);
 		vlp.scale(xscale, yscale);
-		velem.draw(0,0);
+		figure.draw(0,0);
 		vlp.popMatrix();
 	}
 

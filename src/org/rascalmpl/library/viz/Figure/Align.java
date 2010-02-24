@@ -42,8 +42,8 @@ public class Align extends Compose {
 		int nrow = 0;
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
-		for(int i = 0; i < velems.length; i++){
-			Figure ve = velems[i];
+		for(int i = 0; i < figures.length; i++){
+			Figure ve = figures[i];
 			ve.bbox();
 			if(w + hgap + ve.width > width){
 				if(w == 0){
@@ -78,9 +78,9 @@ public class Align extends Compose {
 		this.top = top;
 		applyProperties();
 
-		for(int i = 0; i < velems.length; i++){
+		for(int i = 0; i < figures.length; i++){
 			
-			Figure ve = velems[i];
+			Figure ve = figures[i];
 			float hrow = rowHeight[inRow[i]];
 			float rfiller = width - rowWidth[inRow[i]];
 			

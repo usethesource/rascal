@@ -40,7 +40,7 @@ public class Pack extends Compose {
 		float maxw = 0;
 		float maxh = 0;
 		float ratio = 1;
-		for(Figure ve : velems){
+		for(Figure ve : figures){
 			ve.bbox();
 			maxw = max(maxw, ve.width);
 			maxh = max(maxh, ve.height);
@@ -55,10 +55,10 @@ public class Pack extends Compose {
 		
 		if(debug)System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, width, height);
 			
-		Arrays.sort(velems);
+		Arrays.sort(figures);
 		if(debug){
 			System.err.println("SORTED ELEMENTS:");
-			for(Figure v : velems){
+			for(Figure v : figures){
 				System.err.printf("\twidth=%f, height=%f\n", v.width, v.height);
 			}
 		}
@@ -70,14 +70,14 @@ public class Pack extends Compose {
 			height *= 1.2f;
 			root = new Node(0, 0, width, height);
 			
-			for(Figure ve : velems){
+			for(Figure ve : figures){
 				Node nd = root.insert(ve);
 				if(nd == null){
 					//System.err.println("**** PACK: NOT ENOUGH ROOM *****");
 					fits = false;
 					break;
 				}
-				nd.velem = ve;
+				nd.figure = ve;
 			}
 		}
 		initialized = true;
@@ -107,7 +107,7 @@ class Node {
 	static float vgap;
 	Node lnode;
 	Node rnode;
-	Figure velem;
+	Figure figure;
 	float left;
 	float top;
 	float right;
@@ -115,7 +115,7 @@ class Node {
 	
 	Node (float left, float top, float right, float bottom){
 		lnode  = rnode = null;
-		velem = null;
+		figure = null;
 		this.left = left;
 		this.top = top;
 		this.right = right;
@@ -139,7 +139,7 @@ class Node {
 		}
 		
 		// We are a leaf, if there is already a velem return
-		if(velem != null){
+		if(figure != null){
 			//System.err.println("Already occupied");
 			return null;
 		}
@@ -195,8 +195,8 @@ class Node {
 	void draw(float left, float top){
 		if(lnode != null) lnode.draw(left, top);
 		if(rnode != null) rnode.draw(left, top);
-		if(velem != null){
-			velem.draw(left + this.left, top + this.top);
+		if(figure != null){
+			figure.draw(left + this.left, top + this.top);
 		}
 	}
 }

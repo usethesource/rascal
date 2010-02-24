@@ -39,7 +39,7 @@ public class Grid extends Compose {
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
 		
-		int lastRow = (hgap == 0) ? 0 : velems.length / (1 + (int) (width / hgap));
+		int lastRow = (hgap == 0) ? 0 : figures.length / (1 + (int) (width / hgap));
 		if(debug)System.err.printf("lastRow = %d\n", lastRow);
 		
 		extTop = 0;
@@ -47,7 +47,7 @@ public class Grid extends Compose {
 		extLeft = 0;
 		extRight = 0;
 		
-		for(int i = 0; i < velems.length; i++){
+		for(int i = 0; i < figures.length; i++){
 			
 			if(w > width){
 				nrow++;
@@ -55,7 +55,7 @@ public class Grid extends Compose {
 				w = 0;
 			}
 			
-			Figure ve = velems[i];
+			Figure ve = figures[i];
 			ve.bbox();
 			
 			if(w == 0)
@@ -85,9 +85,9 @@ public class Grid extends Compose {
 		this.top = top;
 		applyProperties();
 
-		for(int i = 0; i < velems.length; i++){
+		for(int i = 0; i < figures.length; i++){
 			
-			Figure ve = velems[i];
+			Figure ve = figures[i];
 			
 			if(debug)System.err.printf("i=%d: %f, %f, left=%f, top=%f\n", i, xElem[i], yElem[i], left, top);
 			

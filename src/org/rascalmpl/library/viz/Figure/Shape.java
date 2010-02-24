@@ -32,7 +32,7 @@ public class Shape extends Compose {
 	void bbox(){
 		leftAnchor = rightAnchor = topAnchor = bottomAnchor = 0;
 
-		for (Figure ve : velems){
+		for (Figure ve : figures){
 			ve.bbox();
 			leftAnchor = max(leftAnchor, ve.leftAnchor());
 			rightAnchor = max(rightAnchor, ve.rightAnchor());
@@ -68,7 +68,7 @@ public class Shape extends Compose {
 		 * Therefore we subtract deltay from bottom
 		 */
 		
-		Vertex next = (Vertex)velems[0];
+		Vertex next = (Vertex)figures[0];
 		float nextLeft = left + leftAnchor + next.deltax;
 		float nextTop = bottom - next.deltay;
 		if(connected && closed){
@@ -79,7 +79,7 @@ public class Shape extends Compose {
 		if(connected && curved)
 			vlp.curveVertex(nextLeft, nextTop);
 		
-		for(Figure ve : velems){
+		for(Figure ve : figures){
 			next = (Vertex)ve;
 			nextLeft = left + leftAnchor + next.deltax;
 			nextTop = bottom - next.deltay;
@@ -96,7 +96,7 @@ public class Shape extends Compose {
 		}
 		if(connected){
 			if(curved){
-				next = (Vertex)velems[velems.length-1];
+				next = (Vertex)figures[figures.length-1];
 				vlp.curveVertex(left + leftAnchor + next.deltax, bottom - next.deltay);
 			}
 			if(closed){
@@ -106,7 +106,7 @@ public class Shape extends Compose {
 				vlp.endShape();
 		}
 		
-		for(Figure ve : velems){
+		for(Figure ve : figures){
 			Vertex p = (Vertex) ve;
 			p.draw(left + leftAnchor + p.deltax, bottom - p.deltay);
 		}

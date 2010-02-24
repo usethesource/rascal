@@ -22,14 +22,14 @@ public class FigurePApplet extends PApplet {
 	
 	private int width = 600;
 	private int height = 600;
-	private Figure  velem;
+	private Figure  figure;
 	private Figure mouseOver = null;
 	private HashMap<String,GraphNode> registered;
 	private static boolean debug = false;
 
 	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
 		registered = new HashMap<String,GraphNode>();
-		this.velem = FigureFactory.make(this, elem, null, ctx);
+		this.figure = FigureFactory.make(this, elem, null, ctx);
 	}
 	
 	//TODO move these methods to Graph
@@ -66,8 +66,8 @@ public class FigurePApplet extends PApplet {
 	@Override
 	public void draw(){
 		background(255);
-		velem.bbox();
-		velem.draw(0f, 0f);
+		figure.bbox();
+		figure.draw(0f, 0f);
 		if(mouseOver != null)
 			mouseOver.draw();
 	}
@@ -75,14 +75,14 @@ public class FigurePApplet extends PApplet {
 	@Override
 	public void mouseMoved(){
 		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
-		velem.mouseOver(mouseX, mouseY);
+		figure.mouseOver(mouseX, mouseY);
 		redraw();
 	}
 	
 	@Override
 	public void mousePressed(){
 		if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
-		velem.mouseOver(mouseX, mouseY);
+		figure.mouseOver(mouseX, mouseY);
 		redraw();
 	}
 }

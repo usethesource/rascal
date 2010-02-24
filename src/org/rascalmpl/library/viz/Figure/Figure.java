@@ -192,7 +192,7 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	public Figure getInsideForMouseOver(){
-		return properties.mouseOverVElem;
+		return properties.mouseOverFigure;
 	}
 	
 	public boolean hasMouseOver(){
@@ -200,7 +200,7 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	/* 
-	 * Compare two VELEMs according to their surface and aspect ratio
+	 * Compare two Figures according to their surface and aspect ratio
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	public int compareTo(Figure o){

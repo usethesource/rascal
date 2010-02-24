@@ -9,7 +9,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import processing.core.PApplet;
 
 public class Rotate extends Figure {
-	private Figure velem;
+	private Figure figure;
 	private float angle;
 	private float leftAnchor;
 	private float rightAnchor;
@@ -22,13 +22,13 @@ public class Rotate extends Figure {
 		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
 		angle = PApplet.radians(a);
-		velem = FigureFactory.make(vlp, c, properties, ctx);
+		figure = FigureFactory.make(vlp, c, properties, ctx);
 	}
 
 	@Override
 	void bbox() {
 		
-		velem.bbox();
+		figure.bbox();
 		
 		float sa = abs(PApplet.sin(angle));
 		float ca = abs(PApplet.cos(angle));
@@ -42,12 +42,12 @@ public class Rotate extends Figure {
 //		topAnchor = velem.topAnchor()*ca + velem.leftAnchor()*sa;
 //		bottomAnchor = height - topAnchor;
 		
-		leftAnchor = velem.leftAnchor() * ca + velem.bottomAnchor() * sa;
-		rightAnchor = velem.topAnchor() * sa + velem.rightAnchor() * ca;
+		leftAnchor = figure.leftAnchor() * ca + figure.bottomAnchor() * sa;
+		rightAnchor = figure.topAnchor() * sa + figure.rightAnchor() * ca;
 		width = leftAnchor + rightAnchor;
 		
-		topAnchor = velem.leftAnchor() * sa + velem.topAnchor() * ca;
-		bottomAnchor = velem.rightAnchor() * sa + velem.bottomAnchor() * ca;
+		topAnchor = figure.leftAnchor() * sa + figure.topAnchor() * ca;
+		bottomAnchor = figure.rightAnchor() * sa + figure.bottomAnchor() * ca;
 		
 		height = topAnchor + bottomAnchor;
 		
@@ -58,13 +58,13 @@ public class Rotate extends Figure {
 	@Override
 	void draw(float left, float top) {
 		vlp.pushMatrix();
-		vlp.translate((left + velem.leftAnchor()), (top + velem.topAnchor()));
+		vlp.translate((left + figure.leftAnchor()), (top + figure.topAnchor()));
 		//vlp.translate(-left, -top);
 		vlp.rotate(angle);
 		//vlp.translate(left, top);
-		vlp.translate(-(left + velem.leftAnchor()), -(top + velem.topAnchor()));
+		vlp.translate(-(left + figure.leftAnchor()), -(top + figure.topAnchor()));
 		//vlp.translate(-leftAnchor, -topAnchor);
-		velem.draw(-velem.leftAnchor(), -velem.topAnchor());
+		figure.draw(-figure.leftAnchor(), -figure.topAnchor());
 		//velem.draw(0,0);
 		
 		vlp.popMatrix();
