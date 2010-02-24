@@ -156,7 +156,7 @@ public void hor5(){
 		));
 }
 
-// Horizontal combination of bottom-aligned boxes with some inherited colors
+// Horizontal combination of centered boxes with some inherited colors
 public void hor6(){
 	render(hcat([fillColor("yellow"), gap(10),vcenter()],
 	              [box([ size(100,200), fillColor("red") ]),
