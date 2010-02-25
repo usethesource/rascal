@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE jdo SYSTEM "jdo.dtd">
-<jdo>
-  <package name="org.jhotdraw.samples.net">
-    <class name="NodeFigure">
-    </class>
-  </package>
-</jdo>
