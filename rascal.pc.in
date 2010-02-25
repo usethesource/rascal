@@ -2,7 +2,7 @@ prefix=@prefix@
 Maintainers=jurgenv@cwi.nl,storm@cwi.nl,paulk@cwi.nl,lankamp@cwi.nl
 Name: rascal
 Description: 
-Version: 0.1.2
+Version: 0.1.5
 Requires: sglr-invoker,rascal-grammar,sdf-library
 JarFile=rascal.jar
 LocalJars=lib/hickory_check.jar:lib/jline-0.9.94.jar:lib/junit-4.5.jar:lib/pdb_values.jar:lib/jcommon-1.0.16.jar:lib/jfreechart-1.0.13-swt.jar:lib/jfreechart-1.0.13.jar:lib/core.jar:lib/treemap.jar:lib/svnkit.jar:lib/xercesImpl.jar:lib/joda-time-1.6.jar:.
