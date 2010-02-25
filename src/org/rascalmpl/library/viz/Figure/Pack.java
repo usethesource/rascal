@@ -19,7 +19,7 @@ public class Pack extends Compose {
 	
 	Node root;
 	boolean fits = true;
-	static protected boolean debug = true;
+	static protected boolean debug = false;
 	boolean initialized = false;
 
 	Pack(FigurePApplet vlp, PropertyManager inheritedProps, IList props,
