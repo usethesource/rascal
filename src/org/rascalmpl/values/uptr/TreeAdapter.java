@@ -160,7 +160,7 @@ public class TreeAdapter{
 	protected static class PositionAnnotator{
 		private final IConstructor tree;
 		private final MappingsCache<PositionNode, IConstructor> cache;
-		
+		private final boolean windowsOS = System.getProperty("os.name").toLowerCase().indexOf("win") != -1;
 		private boolean inLayout = false;
 		private boolean labelLayout = false;
 		
@@ -201,13 +201,21 @@ public class TreeAdapter{
 				cur.offset++;
 				char character = ((char) getCharacter(tree));
 				
-				if(character == '\r'){
+				if (character == '\r'){
 					cur.col++;
-				}else if(character == '\n'){
+					cur.sawCR = true;
+				} else if (character == '\n') {
 					cur.col = 0;
 					cur.line++;
+					
+					// Workaround to funny stuff in Eclipse editors
+					if (windowsOS && !cur.sawCR) {
+						cur.offset++;
+					}
+					cur.sawCR = false;
 				}else{
 					cur.col++;
+					cur.sawCR = false;
 				}
 				return tree;
 			}
@@ -259,6 +267,7 @@ public class TreeAdapter{
 				cur.col = newPos.col;
 				cur.line = newPos.line;
 				cur.offset = newPos.offset;
+				cur.sawCR = newPos.sawCR;
 
 				for(IValue arg : cycles.done()){
 					IValue newArg = addPosInfo((IConstructor) arg, location, cur);
@@ -282,18 +291,20 @@ public class TreeAdapter{
 			public int col = 0;
 			public int line = 1;
 			public int offset = 0;
+			public boolean sawCR = false;
 			
 			public Position clone() {
 				Position tmp = new Position();
 				tmp.col = col;
 				tmp.line = line;
 				tmp.offset = offset;
+				tmp.sawCR = sawCR;
 				return tmp;
 			}
 			
 			@Override
 			public String toString() {
-				return "offset: " + offset + ", line: " + line + ", col:" + col;
+				return "offset: " + offset + ", line: " + line + ", col:" + col + ", sawCR:" + sawCR;
 			
 			}
 		}
