@@ -199,7 +199,11 @@ public class TreeAdapter{
 
 			if(isChar(tree)){
 				cur.offset++;
-				if(((char) getCharacter(tree)) == '\n'){
+				char character = ((char) getCharacter(tree));
+				
+				if(character == '\r'){
+					cur.col++;
+				}else if(character == '\n'){
 					cur.col = 0;
 					cur.line++;
 				}else{
