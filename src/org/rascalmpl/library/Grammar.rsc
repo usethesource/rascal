@@ -16,5 +16,3 @@ data Production = or(set[Production] alternatives)
                 | xor(list[Production] choices)
                 | assoc(Associativity assoc, set[Production] alternatives)               
                 | diff(Production language, set[Production] alternatives);
-
-                
