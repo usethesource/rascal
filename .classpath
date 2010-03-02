@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="lib/svnkit.jar" sourcepath="lib/svnkitsrc.zip"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="lib/jdom.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
