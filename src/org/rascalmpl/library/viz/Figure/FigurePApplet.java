@@ -20,8 +20,8 @@ public class FigurePApplet extends PApplet {
 	 */
 	private static final long serialVersionUID = 6074377218243765483L;
 	
-	private int width = 600;
-	private int height = 600;
+	private int width = 1000;
+	private int height = 1000;
 	private Figure  figure;
 	private Figure mouseOver = null;
 	private HashMap<String,GraphNode> registered;

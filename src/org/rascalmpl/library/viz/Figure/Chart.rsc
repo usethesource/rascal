@@ -289,9 +289,9 @@ public void p5(){
 public alias intSeries  = 
        tuple[str name,list[int]  values];
        
-public void barChart(str title, map[str,int] facts, ChartSetting settings...){
-
-}
+//public void barChart(str title, map[str,int] facts, ChartSetting settings...){
+// To be implemented
+//}
 
 public Figure barChart(str title, list[str] categories, list[intSeries] facts, ChartSetting settings...){
    
@@ -475,8 +475,8 @@ public Figure pieChart(str title, map[str, int] facts, ChartSetting settings...)
  	radius = 3*chartWidth/7;
  	ir = (ringHeight == 0) ? 0 : radius - ringHeight;
  	real total = 0.0;
- 	for(v <- range(facts))
- 		total += v;
+ 	for(k <- facts)
+ 		total += facts[k];
  	
  	angle = 0.0;
  	for(fname <- facts){
@@ -501,6 +501,10 @@ public Figure pieChart(str title, map[str, int] facts, ChartSetting settings...)
                                        ]),
                   legend(funColors, chartWidth)
                 ]);
+}
+
+public void pie0(){
+ 	render(pieChart("p1", ("a" : 1, "b" : 1, "c" : 1, "z": 1)));
 }
 
 public void pie1(){
