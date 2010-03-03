@@ -372,7 +372,7 @@ public RType checkListExpression(Expression ep, {Expression ","}* es) {
 	// TODO: Properly account for subtypes and failures
 	// TODO: Probably want to copy the rtype (see if we need to, maybe useful if we think we will assign annotations to the types)
 	list[Expression] l = [ e | e <- es ];
-	return RTypeStructured(RStructuredType(RListType(), [ RTypeArg( size(l) > 0 ? getOneFrom(l)@rtype : RTypeBasic(RVoidType) ) ]));
+	return RTypeStructured(RStructuredType(RListType(), [ RTypeArg( size(l) > 0 ? getOneFrom(l)@rtype : RTypeBasic(RVoidType()) ) ]));
 }
 
 public RType checkTupleExpression(Expression ep, Expression ei, {Expression ","}* es) {
@@ -448,7 +448,7 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 	
 	// Set up the possible alternatives. We will treat the case of no overloads as a trivial
 	// case of overloading with only one alternative.
-	list[RType] alternatives = isOverloadedType(ec@rtype) ? getOverloadOptions(ec@rtype) : [ ec@rtype ];
+	set[RType] alternatives = isOverloadedType(ec@rtype) ? getOverloadOptions(ec@rtype) : { ec@rtype };
 	
 	// Now, try each alternative, seeing if one matches.
 	for (a <- alternatives) {
@@ -483,78 +483,100 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 	return resultType;	
 }
 
+// TODO: Add a table with the built-in types and fields
+public RType checkFieldAccessExpression(Expression ep, Expression el, Name n) {
+	RName fn = convertName(n);
+	if (isTupleType(el@rtype) && tupleHasField(el@rtype,fn))
+		return getTupleFieldType(el@rtype,fn);
+	else if (isTupleType(el@rtype)) {
+		return makeFailType("Tuple <prettyPrintType(el@rtype)> does not include field <prettyPrintName(fn)>",ep@\loc);
+	} else if (isFailType(el@rtype)) {
+		return el@rtype;
+	}	
+	// else ADT
+	// else built-in
+	return makeVoidType();
+}
+
+public RType checkFieldUpdateExpression(Expression ep, Expression el, Name n, Expression er) {
+	return makeVoidType();
+}
+
+public RType checkFieldProjectExpression(Expression ep, Expression e1, {Field ","}+ fl) {
+	return makeVoidType();
+}
+
 public RType checkExpression(Expression exp) {
 	switch(exp) {
 		case (Expression)`<BooleanLiteral bl>` : {
-			if (debug) println("BooleanLiteral: <bl>");
+			if (debug) println("BooleanLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RBoolType())));
 			return makeBoolType();
 		}
 
 		case (Expression)`<DecimalIntegerLiteral il>`  : {
-			if (debug) println("DecimalIntegerLiteral: <il>");
+			if (debug) println("DecimalIntegerLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
 			return makeIntType();
 		}
 
 		case (Expression)`<OctalIntegerLiteral il>`  : {
-			if (debug) println("OctalIntegerLiteral: <il>");
+			if (debug) println("OctalIntegerLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
 			return makeIntType();
 		}
 
 		case (Expression)`<HexIntegerLiteral il>`  : {
-			if (debug) println("HexIntegerLiteral: <il>");
+			if (debug) println("HexIntegerLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
 			return makeIntType();
 		}
 
 		case (Expression)`<RealLiteral rl>`  : {
-			if (debug) println("RealLiteral: <rl>");
+			if (debug) println("RealLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RRealType())));
 			return makeRealType();
 		}
 
 		case (Expression)`<StringLiteral sl>`  : {
-			if (debug) println("StringLiteral: <sl>");
+			if (debug) println("StringLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RStrType())));
 			return makeStrType();
 		}
 
 		case (Expression)`<LocationLiteral ll>`  : {
-			if (debug) println("LocationLiteral: <ll>");
+			if (debug) println("LocationLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RLocType())));
 			return RTypeBasic(RLocType());
 		}
 
 		case (Expression)`<DateTimeLiteral dtl>`  : {
-			if (debug) println("DateTimeLiteral: <dtl>");
+			if (debug) println("DateTimeLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RDateTimeType())));
 			return RTypeBasic(RDateTimeType());
 		}
 
 		// Name
 		case (Expression)`<Name n>`: {
-			if (debug) println("Name: <n>");
+			if (debug) println("Name: <exp>");
 			if (debug) println("Assigned type: " + prettyPrintType(n@rtype));
 			return n@rtype; // TODO: Should throw an exception if the name has no type information
 		}
 		
 		// QualifiedName
 		case (Expression)`<QualifiedName qn>`: {
-			if (debug) println("QualifiedName: <qn>");
+			if (debug) println("QualifiedName: <exp>");
 			if (debug) println("Assigned type: " + prettyPrintType(qn@rtype));
 			return qn@rtype; // TODO: Should throw an exception if the name has no type information
 		}
 
 		// ReifiedType
-//		case `<BasicType t> ( <{Expression ","}* el> )` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RBasicType bt = convertBasicType(t);
-//			RType rt = RTypeBasic(bt); rt = rt[@at = t@\loc];
-//			RExpression re = RReifiedTypeExp(rt, mapper(getSDFExpListItems(el),convertExpression));
-//			return re[@at = exp@\loc];			
-//		}
+		case `<BasicType t> ( <{Expression ","}* el> )` : {
+			if (debug) println("ReifiedType: <exp>");
+			RType rt = checkReifiedType(exp,t,el);
+			if (debug) println("Assigned type: " + prettyPrintType(rt));
+			return rt;
+		}
 
 		// CallOrTree
 		case `<Expression e1> ( <{Expression ","}* el> )` : {
@@ -582,22 +604,52 @@ public RType checkExpression(Expression exp) {
 
 		// Tuple
 		case `<<Expression ei>, <{Expression ","}* el>>` : {
-			// TODO: This is not yet working
 			if (debug) println("Tuple <exp>");
 			RType t = checkTupleExpression(exp,ei,el);
 			if (debug) println("Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
-		// TODO: Map
+		// TODO: Map: Need to figure out a syntax that works for matching this
+//		case `<<Expression ei>, <{Expression ","}* el>>` : {
+//			// TODO: This is not yet working
+//			if (debug) println("Tuple <exp>");
+//			RType t = checkTupleExpression(exp,ei,el);
+//			if (debug) println("Assigning type: " + prettyPrintType(t));
+//			return t;
+//		}
 
-		// TODO: Closure
+		// Closure
+		case `<Type t> <Parameters p> { <Statement+ ss> }` : {
+			if (debug) println("Closure: <exp>");
+			RType t = checkClosureExpression(exp,t,p,ss);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
-		// TODO: VoidClosure
+		// VoidClosure
+		case `<Parameters p> { <Statement* ss> }` : {
+			if (debug) println("VoidClosure: <exp>");
+			RType t = checkVoidClosureExpression(exp,p,ss);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
-		// TODO: NonEmptyBlock
-
-		// TODO: Visit
+		// NonEmptyBlock
+		case `{ <Statement+ ss> }` : {
+			if (debug) println("NonEmptyBlock: <exp>");
+			RType t = checkNonEmptyBlockExpression(exp,ss);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;		
+		}
+		
+		// Visit
+		case (Expression) `<Label l> <Visit v>` : {
+			if (debug) println("Visit: <exp>");
+			RType t = checkVisitExpression(exp,l,v);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;			
+		}
 		
 		// ParenExp
 		case `(<Expression e>)` : {
@@ -632,25 +684,28 @@ public RType checkExpression(Expression exp) {
 		}
 
 		// FieldUpdate
-//		case `<Expression e1> [<Name n> = <Expression e2>]` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RFieldUpdateExp(convertExpression(e1),convertName(n),convertExpression(e2));
-//			return re[@at = exp@\loc] ;
-//		}
+		case `<Expression e1> [<Name n> = <Expression e2>]` : {
+			if (debug) println("FieldUpdate: <exp>");
+			RType t = checkFieldUpdateExpression(exp,e1,n,e2);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
 		// FieldAccess
-//		case `<Expression e1> . <Name n>` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RFieldAccessExp(convertExpression(e1),convertName(n));
-//			return re[@at = exp@\loc] ;
-//		}
+		case `<Expression e1> . <Name n>` : {
+			if (debug) println("FieldAccess: <exp>");
+			RType t = checkFieldAccessExpression(exp,e1,n);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
-		// TODO: Add code to deal with fields: FieldProject
-//		case `<Expression e1> < <{Field ","}+ fl> >` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression rct = RFieldProjectExp(convertExpression(e1),mapper(getSDFExpListItems(el),convertExpression));
-//			return rct[@at = exp@\loc];
-//		}
+		// FieldProject
+		case `<Expression e1> < <{Field ","}+ fl> >` : {
+			if (debug) println("FieldProject: <exp>");
+			RType t = checkFieldProjectExpression(exp,e1,fl);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
 		// TODO: Subscript (currently broken)
 //		case `<Expression e1> [ <{Expression ","}+ el> ]` : {
