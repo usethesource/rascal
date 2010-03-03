@@ -34,14 +34,14 @@ public class Factory {
 			tf.mapType(tf.stringType(), tf.valueType()), "attrs",
 			tf.listType(Content), "contents");
 	public static final Type Content_charData = tf.constructor(xml, Content, "charData",
-			tf.stringType(), "data");
+			tf.stringType(), "text");
 	public static final Type Content_cdata = tf.constructor(xml, Content, "cdata",
-			tf.stringType(), "data");
+			tf.stringType(), "text");
 	public static final Type Content_comment = tf.constructor(xml, Content, "comment",
-			tf.stringType(), "data");
+			tf.stringType(), "text");
 	public static final Type Content_pi = tf.constructor(xml, Content, "pi",
 			tf.stringType(), "name",
-			tf.stringType(), "data");
+			tf.stringType(), "text");
 	
 	public static final Type Content_entityRef = tf.constructor(xml, Content, "entityRef",
 			tf.stringType(), "name");
