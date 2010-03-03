@@ -49,13 +49,13 @@ public class BoxADT {
 			return vf.constructor(tag, vf.string(s));
 		}
 	};
-
+	static IValue EMPTY = TAG.L.create("");
 	static IValue PLUS = TAG.L.create("+");
 	static IValue MINUS = TAG.L.create("-");
 	static IValue MULT = TAG.L.create("*");
 	static IValue DIVIDE = TAG.L.create("/");
 	static IValue MOD = TAG.L.create("/");
-	static IValue EQUAL = TAG.L.create("==");
+	static IValue EQUALS = TAG.L.create("==");
 	static IValue NOTEQUAL = TAG.L.create("!=");
 	static IValue LT = TAG.L.create("<");
 	static IValue LE = TAG.L.create("<=");
@@ -68,7 +68,12 @@ public class BoxADT {
 	static IValue RPAR = TAG.L.create(")");
 	static IValue LBRACK = TAG.L.create("[");
 	static IValue RBRACK = TAG.L.create("]");
+	static IValue LBLOCK = TAG.L.create("{");
+	static IValue RBLOCK = TAG.L.create("}");
 	static IValue ASSIGN = TAG.L.create("=");
+	static IValue COMMA = TAG.L.create(",");
+	static IValue SEMICOLON= TAG.L.create(";");
+	static IValue COLON= TAG.L.create(":");
 
 	// Type tagar[] = new Type[TAG.values().length];
 	//
