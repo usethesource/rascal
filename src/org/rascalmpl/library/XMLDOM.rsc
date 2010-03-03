@@ -1,13 +1,10 @@
 module XMLDOM
 
-data Document = document(XMLDecl xml, Content.element root)
-			  | document(Content.element root);
-
-
-data XMLDecl = xml(str version)
-             | xml(str version, str encoding)
-             | xml(str version, bool standalone)
-             | xml(str version, str encoding, bool standalone);
+data Document = document(Content.element root)
+ 		      | document(str version, Content.element root)
+              | document(str version, str encoding, Content.element root)
+              | document(str version, bool standalone, Content.element root)
+              | document(str version, str encoding, bool standalone, Content.element root);
              
 
 data Content = element(str name, map[str, value] attrs, list[Content] contents)
@@ -20,3 +17,6 @@ data Content = element(str name, map[str, value] attrs, list[Content] contents)
 
 @javaClass{org.rascalmpl.library.XMLDOM}
 public Document java readXMLDOM(loc file);
+
+@javaClass{org.rascalmpl.library.XMLDOM}
+public Document java readXMLDOMTrim(loc file);

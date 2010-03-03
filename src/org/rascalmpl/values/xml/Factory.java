@@ -12,22 +12,7 @@ public class Factory {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	
 	public static final Type Document = tf.abstractDataType(xml, "Document");
-	public static final Type XMLDecl = tf.abstractDataType(xml, "XMLDecl");
 	public static final Type Content = tf.abstractDataType(xml, "Content");
-
-
-	public static final Type XMLDecl_xmlVersion = tf.constructor(xml, XMLDecl, "xml", 
-			tf.stringType(), "version");
-	public static final Type XMLDecl_xmlVersionEncoding = tf.constructor(xml, XMLDecl, "xml", 
-			tf.stringType(), "version",
-			tf.stringType(), "encoding");
-	public static final Type XMLDecl_xmlVersionStandalone = tf.constructor(xml, XMLDecl, "xml", 
-			tf.stringType(), "version",
-			tf.boolType(), "standalone");
-	public static final Type XMLDecl_xmlVersionEncodingStandalone = tf.constructor(xml, XMLDecl, "xml", 
-			tf.stringType(), "version",
-			tf.stringType(), "encoding",
-			tf.boolType(), "standalone");
 		
 	public static final Type Content_element = tf.constructor(xml, Content, "element", 
 			tf.stringType(), "name",
@@ -49,11 +34,20 @@ public class Factory {
 	public static final Type Content_charRef = tf.constructor(xml, Content, "charRef",
 			tf.integerType(), "code");
 	
-	public static final Type Document_documentXMLRoot = tf.constructor(xml, Document, "document", 
-			XMLDecl, "xml", Content_element, "root");
-
 	public static final Type Document_documentRoot = tf.constructor(xml, Document, "document", 
 			Content_element, "root");
+
+	public static final Type Document_documentVersion = tf.constructor(xml, Document, "document", 
+			tf.stringType(), "version", Content_element, "root");
+
+	public static final Type Document_documentVersionEncoding = tf.constructor(xml, Document, "document", 
+			tf.stringType(), "version", tf.stringType(), "encoding", Content_element, "root");
+
+	public static final Type Document_documentVersionStandalone = tf.constructor(xml, Document, "document", 
+			tf.stringType(), "version", tf.boolType(), "standalone", Content_element, "root");
+
+	public static final Type Document_documentVersionEncodingStandalone = tf.constructor(xml, Document, "document", 
+			tf.stringType(), "version", tf.stringType(), "encoding", tf.boolType(), "standalone", Content_element, "root");
 
 	private static final class InstanceHolder {
 		public final static Factory factory = new Factory();
