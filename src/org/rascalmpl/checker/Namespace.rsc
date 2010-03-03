@@ -20,7 +20,7 @@ import languages::rascal::syntax::Rascal;
 //    visible functions, datatypes, etc. For now, we are restricted to the information
 //    in just the current module.
 //
-// 3. This should be fully functional -- we currently maintain a small amount of state,
+// 3. DONE: This should be fully functional -- we currently maintain a small amount of state,
 //    but it would be better to remove this.
 //
 // 4. Variables introduced in comprehensions and patterns should not have scope outside
@@ -29,6 +29,26 @@ import languages::rascal::syntax::Rascal;
 //    it has scope inside the if). It may be easiest to just always introduce a new
 //    scoping layer when entering one of these constructs, since that would then ensure
 //    scope is cleaned up properly upon exiting.
+//
+// 5. DONE Give each scope item a unique ID. This will make it easier to keep them unique,
+//    since it is (remotely) possible that two items, such as two blocks, could each have
+//    parents that looked the same.
+//
+// 6. Would it be good to wrap each scope item with functions for accessors? This would
+//    shield it a bit from changes to the arity of the item. Or it could be useful to
+//    use the . field accessors and as much as possible eliminate the use of pattern
+//    matching over these structures.
+//
+// 7. Would it be good to split the FunctionLayer into a layer and an item? It may be
+//    nice to come up with a more general way to think about scoping, made up of layers,
+//    namespaces, visibilities, and items, that we could apply to any language, including
+//    Rascal.
+//
+// 8. Add checks to ensure non-overlaps on overloaded functions and constructors
+//
+// 9. Add checks to ensure names are not repeated at the same scoping level (important:
+//    this includes within a function, since names cannot be shadowed by new names defined
+//    inside blocks)
 //
 
 // Set flag to true to issue debug messages
@@ -39,97 +59,136 @@ private bool debug = true;
 // blocks) and items (functions, variables, formal parameters, labels). Note that functions 
 // are both, since they are an item present in a scope and also introduce new scope.
 //
+alias ScopeItemId = int;
+
 data ScopeItem =
 	  ModuleLayer(RName moduleName)
-	| FunctionLayer(RName functionName, RType returnType, list[ScopeItem] parameters, 
-					list[RType] throwsTypes, bool isVarArgs, bool isPublic, ScopeItem parent)
-	| BlockLayer(ScopeItem parent)
-	| VariableItem(RName variableName, RType variableType, ScopeItem parent)
-	| FormalParameterItem(RName parameterName, RType parameterType, ScopeItem parent)
-	| LabelItem(RName labelName, ScopeItem parent)
-	| AliasItem(RUserType aliasType, RType aliasedType, bool isPublic, ScopeItem parent)
-	| ConstructorItem(RName constructorName, list[RTypeArg] constructorArgs, ScopeItem adtParent, ScopeItem parent)
-	| ADTItem(RUserType adtType, set[ScopeItem] variants, bool isPublic, ScopeItem parent) 
-	| DummyItem() // placeholder, used when we need to provide something and fill it in later
+	| FunctionLayer(RName functionName, RType returnType, list[ScopeItemId] parameters, list[RType] throwsTypes, bool isVarArgs, bool isPublic, ScopeItemId parentId)
+	| BlockLayer(ScopeItemId parentId)
+	| VariableItem(RName variableName, RType variableType, ScopeItemId parentId)
+	| FormalParameterItem(RName parameterName, RType parameterType, ScopeItemId parentId)
+	| LabelItem(RName labelName, ScopeItemId parentId)
+	| AliasItem(RUserType aliasType, RType aliasedType, bool isPublic, ScopeItemId parentId)
+	| ConstructorItem(RName constructorName, list[RTypeArg] constructorArgs, ScopeItemId adtParentId, ScopeItemId parentId)
+	| ADTItem(RUserType adtType, set[ScopeItemId] variants, bool isPublic, ScopeItemId parentId) 
+	| DummyItem()
+	| PatternMatchLayer(ScopeItemId parentId)
 ;
 
-alias ScopeRel = rel[ScopeItem scope, ScopeItem item];
-alias ScopePair = tuple[ScopeItem scopeItem, ScopeRel scopeRel];
-alias ScopeTriple = tuple[ScopeItem scopeItem, ScopeRel scopeRel, ItemUses itemUses];
-alias ItemUsePair = tuple[loc useLoc, list[ScopeItem] usedItems];
-alias ItemUses = set[ItemUsePair];
-alias ScopeAndItems = tuple[ScopeRel scopeRel, ItemUses itemUses];
-alias ScopeItemMap = map[loc itemLoc, ScopeItem item];
+data Namespace =
+	  ModuleName()
+	| LabelName()
+	| FCVName()
+	| TypeName()
+;
 
 anno loc ScopeItem@at;
 
-// TODO: Remove these, we don't want global state items (or, we need to clear them out later)
+alias ScopeRel = rel[ScopeItemId scopeId, ScopeItemId itemId];
+alias ItemUses = map[loc useLoc, set[ScopeItemId] usedItems];
+alias ScopeItemMap = map[ScopeItemId,ScopeItem];
+alias ItemLocationMap = map[loc,ScopeItemId];
 
-private ScopeItemMap scopeItemMap = ( );
+// TODO: Should be able to use ScopeItemMap here, but if I try it doesn't work, something must be
+// wrong with the current alias expansion algorithm; this is the same with ItemLocationMap as well
+// for itemLocations...
+alias ScopeInfo = tuple[ScopeItemId topScopeItemId, rel[ScopeItemId scopeId, ScopeItemId itemId] scopeRel, ItemUses itemUses, 
+                        ScopeItemId nextScopeId, map[ScopeItemId,ScopeItem] scopeItemMap, 
+                        map[loc,ScopeItemId] itemLocations, ScopeItemId currentScope];
 
-private set[tuple[loc errorLoc, RType errorType]] scopeErrors = { };
+alias AddedItemPair = tuple[ScopeInfo scopeInfo, ScopeItemId addedId];
+alias ScopeUpdatePair = tuple[ScopeInfo scopeInfo, ScopeItemId oldScopeId];
+                        
+public ScopeInfo createNewScopeInfo() {
+	return < -1, { }, ( ), 0, ( ), ( ), 0 >;
+}                    
 
+public ScopeInfo addItemUse(ScopeInfo scopeInfo, ScopeItemId scopeItem, loc l) {
+	if (l in scopeInfo.itemUses)
+		scopeInfo = scopeInfo[itemUses = (scopeInfo.itemUses + ( l : (scopeInfo.itemUses[l] + scopeItem)))];
+	else
+		scopeInfo = scopeInfo[itemUses = (scopeInfo.itemUses + ( l : { scopeItem } ))];
+	return scopeInfo;
+}
+
+public ScopeInfo addItemUses(ScopeInfo scopeInfo, set[ScopeItemId] scopeItems, loc l) {
+	if (l in scopeInfo.itemUses)
+		scopeInfo = scopeInfo[itemUses = (scopeInfo.itemUses + ( l : (scopeInfo.itemUses[l] + scopeItems)))];
+	else
+		scopeInfo = scopeInfo[itemUses = (scopeInfo.itemUses + ( l : scopeItems ))];
+	return scopeInfo;
+}
+
+public AddedItemPair addScopeItem(ScopeItem si, loc l, ScopeInfo scopeInfo) {
+	int newItemId = scopeInfo.nextScopeId;
+	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
+	ItemLocationMap newILMap = scopeInfo.itemLocations + (l : scopeInfo.nextScopeId);
+	scopeInfo = ((scopeInfo[nextScopeId = scopeInfo.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILMap];
+	return <scopeInfo,newItemId>;				
+}
+
+public AddedItemPair addScopeItemWithParent(ScopeItem si, ScopeItemId parentId, loc l, ScopeInfo scopeInfo) {
+	int newItemId = scopeInfo.nextScopeId;
+	ScopeRel newScopeRel = scopeInfo.scopeRel + <parentId, scopeInfo.nextScopeId>;
+	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
+	ItemLocationMap newILMap = scopeInfo.itemLocations + (l : scopeInfo.nextScopeId);
+	scopeInfo = (((scopeInfo[nextScopeId = scopeInfo.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILMap])[scopeRel = newScopeRel];
+	return <scopeInfo,newItemId>;				
+}
+
+public ScopeItemId getItemAtLocation(loc l, ScopeInfo scopeInfo) {
+	if (l in scopeInfo.itemLocations) {
+		return scopeInfo.itemLocations[l];	
+	} else {
+		if (debug) println("Error, trying to retrieve item from unassociated location!");
+		// TODO: Should instead throw an exception
+	}
+}
+
+public ScopeInfo updateScopeItem(ScopeItem si, ScopeItemId idToUpdate, ScopeInfo scopeInfo) {
+	return scopeInfo[scopeItemMap = scopeInfo.scopeItemMap + (idToUpdate : si)];				
+}
+
+public ScopeItem getScopeItem(ScopeItemId id, ScopeInfo scopeInfo) {
+	return scopeInfo.scopeItemMap[id];
+}
+	
+public ScopeUpdatePair changeCurrentScope(ScopeItemId newScopeId, ScopeInfo scopeInfo) {
+	int oldScopeId = scopeInfo.currentScope;
+	return < scopeInfo[currentScope = newScopeId], oldScopeId >;
+}
+              
 // This is a hack -- this ensures the empty list is of type list[RType], not list[Void] or list[Value]
 list[RType] mkEmptyList() { return tail([makeVoidType()]); }
 
-list[ScopeItem] mkEmptySIList() { return tail([DummyItem()]); }
+// Same hack -- this ensures the empty list is of type list[ScopeItemId], not list[Void] or list[Value]
+list[ScopeItemId] mkEmptySIList() { return tail([3]); }
 
 //
 // Pretty printers for scope information
 //
 public str prettyPrintSI(ScopeItem si) {
-	str sres = "";
 	switch(si) {
-		case ModuleLayer(n) : {
-			return "ModuleLayer: " + prettyPrintName(n);
-		}
-		case FunctionLayer(n,t,ags,_,_,_,_) : {
-			return "FunctionLayer: " + prettyPrintType(t) + " " + prettyPrintName(n) + "(" + joinList(ags,prettyPrintSI,",","") + ")";
-		}
-		case VariableItem(n,t,_) : {
-			return "VariableItem: " + prettyPrintType(t) + " " + prettyPrintName(n);
-		}
+		case ModuleLayer(x) : return "ModuleLayer: " + prettyPrintName(x);
 		
-		case FormalParameterItem(n,t,_) : {
-			return "FormalParameterItem: " + prettyPrintType(t) + " " + prettyPrintName(n);
-		}
+		case FunctionLayer(x,t,ags,_,_,_,_) : return "FunctionLayer: " + prettyPrintType(t) + " " + prettyPrintName(x) + "(" + joinList(ags,prettyPrintSI,",","") + ")";
 		
-		case LabelItem(n,_) : {
-			return "LabelItem: " + prettyPrintName(n);
-		}
+		case VariableItem(x,t,_) : return "VariableItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
+		
+		case FormalParameterItem(x,t,_) : return "FormalParameterItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
+		
+		case LabelItem(x,_) : return "LabelItem: " + prettyPrintName(x);
 
-		case AliasItem(tn,ta,_,_) : {
-			return "AliasItem: " + prettyPrintUserType(tn) + " = " + prettyPrintType(ta);
-		}
+		case AliasItem(tn,ta,_,_) : return "AliasItem: " + prettyPrintUserType(tn) + " = " + prettyPrintType(ta);
 			
-		case ConstructorItem(cn,tas,_,_) : {
-			return prettyPrintName(cn) + "(" + prettyPrintTAList(tas) + ")";
-		}
+		case ConstructorItem(cn,tas,_,_) : 	return prettyPrintName(cn) + "(" + prettyPrintTAList(tas) + ")";
 		
-		case ADTItem(ut, vs, _, _) : {
-			return prettyPrintUserType(ut) + " = " + joinList(vs,prettyPrintSI," | ","");
-		}
+		case ADTItem(ut, vs, _, _) : return prettyPrintUserType(ut) + " = " + joinList(vs,prettyPrintSI," | ","");
 		 			
-		case BlockLayer(_) : {
-			return "BlockLayer";
-		}
+		case BlockLayer(_) : return "BlockLayer";
+		
+		case PatternMatchLayer(_) : return "PatternMatchLayer";
 	}
-}
-
-public str prettyPrintSR(ScopeRel sr) {
-	str res = "";
-	for ( <sil,sir> <- sr ) {
-		res += prettyPrintSI(sil) + "\n   to\n" + prettyPrintSI(sir) + "\n\n";
-	}
-	return res;
-}
-
-public str prettyPrintSP(ScopePair sp) {
-	return "Top Item: " + prettyPrintSI(sp.scopeItem) + "\n\n" + prettyPrintSR(sp.scopeRel);
-}
-
-public void prettyPrintSPNoStr(ScopePair sp) {
-	print(prettyPrintSP(sp));
 }
 
 //
@@ -142,82 +201,115 @@ public void prettyPrintSPNoStr(ScopePair sp) {
 // the same name at higher levels -- i.e., overloading cannot be partially
 // extended.
 //
-public list[ScopeItem] getItemsForName(ScopeRel sr, ScopeItem si, RName n) {
-	list[ScopeItem] foundItems = [];
+public set[ScopeItemId] getItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	set[ScopeItemId] foundItems = { };
 	
 	// First, find all the scope items at the current level of scope that match
 	// the name we are looking for.
-	for (sitem <- sr[si]) {
-		switch(sitem) {
-			case FormalParameterItem(n,_,_) : foundItems += sitem;
+	for (itemId <- scopeInfo.scopeRel[currentScopeId]) {
+		switch(scopeInfo.scopeItemMap[itemId]) {
+			case FormalParameterItem(x,_,_) : foundItems += itemId;
 			
-			case VariableItem(n,_,_) : foundItems += sitem;
+			case VariableItem(x,_,_) : foundItems += itemId;
 			
-			case FunctionLayer(n,_,_,_,_,_,_) : foundItems += sitem;
+			case FunctionLayer(x,_,_,_,_,_,_) : foundItems += itemId;
 			
-			case LabelItem(n,_) : foundItems += sitem;
+			case LabelItem(x,_) : foundItems += itemId;
 
-			case ConstructorItem(n,_,_,_) : foundItems += sitem;			
+			case ConstructorItem(x,_,_,_) : foundItems += itemId;
+			
+			case ModuleLayer(x) : foundItems += itemId;			
 		}
 	}
 
 	// If no names were found at this level, step back up one level to find them
 	// in the parent scope. This will recurse until either the names are found
 	// or the top level, Module, is reached (note there is no match for finding
-	// the parent of a Module below, since it doesn't exist).
+	// the parent of a Module below, since modules do not have parents).
 	if (size(foundItems) == 0) {
-		switch(si) {
-			case FormalParameterItem(_,_,sip) : foundItems = getItemsForName(sr,sip,n);
+		switch(scopeInfo.scopeItemMap[currentScopeId]) {
+			case FunctionLayer(_,_,_,_,_,_,_,parentScopeId) : foundItems = getItemsForName(scopeInfo,parentScopeId,x);
 			
-			case VariableItem(_,_,sip) : foundItems = getItemsForName(sr,sip,n);
+			case BlockLayer(parentScopeId) : foundItems = getItemsForName(scopeInfo,parentScopeId,x);
 			
-			case FunctionLayer(_,_,_,_,_,_,_,sip) : foundItems = getItemsForName(sr,sip,n);
-			
-			case LabelItem(_,sip) : foundItems = getItemsForName(sr,sip,n);
-			
-			case ConstructorItem(_,_,_,sip) : foundItems = getItemsForName(sr,sip,n);
-			
-			case BlockLayer(sip) : foundItems = getItemsForName(sr,sip,n);
+			case PatternMatchLayer(parentScopeId) : foundItems = getItemsForName(scopeInfo,parentScopeId,x);
 		}
 	}
-	
-	if (size(foundItems) == 0) {
-		println("Warning: looking up " + prettyPrintName(n) + " but could not find it!");
-	}
+
+	// NOTE: This can be empty (for instance, when looking up a declaration of a variable that is not explicitly declared)	
 	return foundItems;	
 }
 
-public RType getTypeForItem(ScopeItem si) {
-	switch(si) {
+public set[ScopeItemId] filterNamesForNamespace(ScopeInfo scopeInfo, list[ScopeItemId] scopeItems, Namespace namespace) {
+	set[ScopeItemId] filteredItems = { };
+	for (itemId <- scopeItems) {
+		switch(namespace) {
+			case ModuleName() : {
+				switch(scopeInfo.scopeItemMap[itemId]) {
+					case ModuleLayer(_) : filteredItems += itemId;
+				}	
+			}
+			
+			case LabelName() : {
+				switch(scopeInfo.scopeItemMap[itemId]) {
+					case LabelItem(_,_) : filteredItems += itemId;
+				}	
+			}
+			
+			case FCVName() : {
+				switch(scopeInfo.scopeItemMap[itemId]) {
+					case FunctionLayer(_,_,_,_,_,_,_) : filteredItems += itemId;
+					case VariableItem(_,_,_) : filteredItems += itemId;
+					case FormalParameterItem(_,_,_) : filteredItems += itemId;
+					case ConstructorItem(_,_,_,_) : filteredItems += itemId;
+				}	
+			}
+					
+			case TypeName() : {
+				switch(scopeInfo.scopeItemMap[itemId]) {
+					case ADTItem(_,_,_,_) : filteredItems += itemId;
+				}	
+			}
+		}
+	}
+	return filteredItems;
+}
+//
+// TODO: This should throw an exception when the type of an untyped name (e.g., a label) is requested
+//
+public RType getTypeForItem(ScopeInfo scopeInfo, ScopeItemId itemId) {
+	switch(scopeInfo.scopeItemMap[itemId]) {
 		case FormalParameterItem(_,t,_) : return t;
 		
 		case VariableItem(_,t,_) : return t;
 		
-		case FunctionLayer(_,t,pts,_,_,_,_) : return makeFunctionType(t,[getTypeForItem(sip) | sip <- pts]);
+		case FunctionLayer(_,t,paramIds,_,_,_,_) : 
+			return makeFunctionType(t,[getTypeForItem(scopeInfo, paramId) | paramId <- paramIds]);
 		
-		case LabelItem(_,_) : return makeVoidType(); // TODO: Should this be an exception instead?
-		
-		case ConstructorItem(n,tas,sip,_) : return makeConstructorType(n,tas,getTypeForItem(sip));
+		case ConstructorItem(n,tas,adtParentId,_) : return makeConstructorType(n,tas,getTypeForItem(scopeInfo,adtParentId));
 		
 		case ADTItem(ut,_,_,_) : return RTypeUser(ut); // TODO: Should also extract type parameters
 		
-		default : { if (debug) println("Requesting type for item : " + prettyPrintSI(si)); return makeVoidType(); }
+		default : { 
+			if (debug) println("Requesting type for item : " + prettyPrintSI(scopeInfo.scopeItemMap[itemId])); 
+			return makeVoidType(); 
+		}
 	}
 }
 
-public bool isNameInScope(ScopeRel sr, ScopeItem si, RName n) {
-	return size(getItemsForName(sr,si,n) > 0);
+public bool isNameInScope(ScopeInfo scopeInfo, ScopeItemId itemId, RName x) {
+	return size(getItemsForName(scopeInfo, itemId, x) > 0);
 }
 
-public RType getTypeForName(ScopeRel sr, ScopeItem si, RName n) {
-	list[ScopeItem] items = getItemsForName(sr,si,n);
+public RType getTypeForName(ScopeInfo scopeInfo, ScopeItemId itemId, RName x) {
+	set[ScopeItemId] items = getItemsForName(scopeInfo, itemId, x);
 	if (size(items) == 0) {
 		// TODO: Should be an exception
 		return makeVoidType();
 	} else if (size(items) == 1) {
-		return getTypeForItem(head(items));
+		return getTypeForItem(scopeInfo, head(items));
 	} else {
-		return RTypeOverloaded([getTypeForItem(sii) | sii <- items]);
+		return RTypeOverloaded({ getTypeForItem(scopeInfo, scopeItemId) | scopeItemId <- items });
 	}
 }
 
@@ -229,14 +321,21 @@ public RType getTypeForName(ScopeRel sr, ScopeItem si, RName n) {
 // TODO: This currently only handles one module, we should also
 // process imported modules. See also handleModuleHeader below.
 //
-public ScopeTriple buildNamespace(Tree t) {
+public ScopeInfo buildNamespace(Tree t) {
+	ScopeInfo theInfo = createNewScopeInfo();
+	
+	// Overly detailed comments follow...
+	// This happens in four main steps. First, the module header is processed, creating a new
+	// scope for the module. The second step switches us into this scope. The third step then
+	// processes the module body in this module scope. The fourth step switches back to the
+	// scope from entry. Finally, the resulting scopeInfo after all this is returned, with the
+	// top scope id set to the scope id of the module.
 	if ((Module) `<Header h> <Body b>` := t) {
-		ScopeItem moduleItem = handleModuleHeader(h,t@\loc);
-		scopeItemMap += ( t@\loc : moduleItem );
-		
-		ScopeAndItems sni = handleModuleBody(b,moduleItem);
-		
-		return < moduleItem, sni.scopeRel, sni.itemUses >;
+		AddedItemPair sip = handleModuleHeaderNamesOnly(h, t@\loc, theInfo);
+		ScopeUpdatePair sup = changeCurrentScope(sip.addedId, sip.scopeInfo);
+		theInfo = handleModuleBody(b, sup.scopeInfo);
+		sup = changeCurrentScope(sup.oldScopeId, theInfo);
+		return sup.scopeInfo[topScopeItemId = sip.addedId];
 	}
 }		
 
@@ -249,14 +348,16 @@ public ScopeTriple buildNamespace(Tree t) {
 // we can use to "solve" the name-related dependencies, and we may also
 // need the module parameters.
 //
-public ScopeItem handleModuleHeader(Header h, loc l) {
+// TODO: Should handle tags
+//
+public AddedItemPair handleModuleHeaderNamesOnly(Header h, loc l, ScopeInfo scopeInfo) {
 	switch(h) {
 		case `<Tags t> module <QualifiedName n> <Import* i>` : {
-			return ModuleLayer(convertName(n))[@at=l];
+			return addScopeItem(ModuleLayer(convertName(n))[@at=l], l, scopeInfo);
 		}		
 
 		case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
-			return ModuleLayer(convertName(n))[@at=l];
+			return addScopeItem(ModuleLayer(convertName(n))[@at=l], l, scopeInfo);
 		}		
 	}
 }
@@ -264,89 +365,146 @@ public ScopeItem handleModuleHeader(Header h, loc l) {
 //
 // Process the individual items contained at the top level of the module.
 //
-public ScopeAndItems handleModuleBody(Body b, ScopeItem si) {
-	scopeItemMap = ( );
-	scopeErrors = { };
+public ScopeInfo handleModuleBody(Body b, ScopeInfo scopeInfo) {
+	scopeInfo = handleModuleBodyNamesOnly(b, scopeInfo);
+	scopeInfo = handleModuleBodyFull(b, scopeInfo);
 	
-	ScopeAndItems sni = handleModuleBodyPass1(b, si, { }, { });
-	sni = handleModuleBodyPass3(b, si, sni.scopeRel, sni.itemUses);
-	
-	return sni;
+	return scopeInfo;
 }
 
-// FIRST PASS: Gather the names of variables and functions. These are visible throughout
-// the module.
-public ScopeAndItems handleModuleBodyPass1(Body b, ScopeItem currentScope, ScopeRel sr, ItemUses itu) {
+//
+// Gather the names of variables and functions. These are visible throughout the module (a variable 
+// can be used in a function declared higher up in the file, for instance) so just the top-level 
+// names are gathered first (i.e., we don't descend into function bodies, etc).
+//
+public ScopeInfo handleModuleBodyNamesOnly(Body b, ScopeInfo scopeInfo) {
 	if (`<Toplevel* ts>` := b) {
 		for (Toplevel t <- ts) {
 			switch(t) {
 				// Variable declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> <Type typ> <{Variable ","}+ vs> ;` : { 
-					list[ScopeItem] lsi = handleVarItemsPass1(tgs,v,typ,vs,currentScope);
-					for (vi <- lsi) sr += <currentScope,vi> ;				
+					scopeInfo = handleVarItemsNamesOnly(tgs, v, typ, vs, scopeInfo);
 				}
 	
 				// Abstract (i.e., without a body) function declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> ;` : { 
-					ScopeItem sfi = handleAbstractFunction(tgs,v,s,t@\loc,currentScope);
-					scopeItemMap += ( t@\loc : sfi );
-					sr += <currentScope, sfi> ;
-					for (p <- sfi.parameters) sr += <sfi, p>;
+					scopeInfo = handleAbstractFunctionNamesOnly(tgs,v,s,t@\loc,scopeInfo);
 				}
 	 
 	 			// Concrete (i.e., with a body) function declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` : {
-					ScopeItem sfi = handleFunctionNoDescent(tgs,v,s,fb,t@\loc,currentScope);
-					scopeItemMap += ( t@\loc : sfi );
-					sr += <currentScope, sfi> ;
-					for (p <- sfi.parameters) sr += <sfi, p>;
+					scopeInfo = handleFunctionNamesOnly(tgs,v,s,fb,t@\loc,scopeInfo);
 				}
 				
 				// Annotation declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` : {
-					return 3;
+					scopeInfo = handleAnnotationDeclarationNamesOnly(tgs,v,typ,otyp,t@\loc,scopeInfo);
 				}
 									
 				// Tag declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
-					return 3;
-				
+					scopeInfo = handleTagDeclarationNamesOnly(tgs,v,k,n,typs,t@\loc,scopeInfo);
 				}
 				
 				// Rule declaration
 				case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
-					return 3;
-				
+					scopeInfo = handleRuleDeclarationNamesOnly(tgs,n,pwa,t@\loc,scopeInfo);
 				}
 				
 				// Test
 				case (Toplevel) `<Test tst> ;` : {
-					return 3;
-				
+					scopeInfo = handleTestNamesOnly(tst,t@\loc,scopeInfo);
 				}
 								
 				// ADT without variants
 				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` : {
-					ScopeAndItems sni = handleAbstractADT(tgs,v,typ,t@\loc,currentScope,sr,itu);
-					sr = sni.scopeRel; itu = sni.itemUses;
+					scopeInfo = handleAbstractADTNamesOnly(tgs,v,typ,t@\loc,scopeInfo);
 				}
 				
 				// ADT with variants
 				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
-					ScopeAndItems sni = handleADT(tgs,v,typ,vars,t@\loc,currentScope,sr,itu);
-					sr = sni.scopeRel; itu = sni.itemUses;
+					scopeInfo = handleADTNamesOnly(tgs,v,typ,vars,t@\loc,scopeInfo);
 				}
 
 				// Alias
 				case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` : {
-					ScopeAndItems sni = handleAlias(tgs,v,typ,btyp,t@\loc,currentScope,sr,itu);
-					sr = sni.scopeRel; itu = sni.itemUses;
+					scopeInfo = handleAliasNamesOnly(tgs,v,typ,btyp,t@\loc,scopeInfo);
 				}
 								
 				// View
 				case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
-					return 3;
+					scopeInfo = handleViewNamesOnly(tgs,v,n,sn,alts,t@\loc,scopeInfo);
+				}
+								
+				default: println("No match for item");
+			}
+		}
+	}
+	
+	return scopeInfo;
+}
+
+//
+// Identify names used inside functions or in static initializers, noting type information. This pass 
+// actually descends into functions, building the scope information within them as well.
+//
+public ScopeInfo handleModuleBodyFull(Body b, ScopeInfo scopeInfo) {
+	if (`<Toplevel* ts>` := b) {
+		for (Toplevel t <- ts) {
+			switch(t) {
+				// Variable declaration
+				case (Toplevel) `<Tags tgs> <Visibility v> <Type typ> <{Variable ","}+ vs> ;` : { 
+					scopeInfo = handleVarItems(tgs, v, typ, vs, scopeInfo);
+				}
+	
+				// Abstract (i.e., without a body) function declaration
+				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> ;` : { 
+					scopeInfo = handleAbstractFunction(tgs,v,s,t@\loc,scopeInfo);
+				}
+	 
+	 			// Concrete (i.e., with a body) function declaration
+				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` : {
+					scopeInfo = handleFunction(tgs,v,s,fb,t@\loc,scopeInfo);
+				}
 				
+				// Annotation declaration
+				case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` : {
+					scopeInfo = handleAnnotationDeclaration(tgs,v,typ,otyp,t@\loc,scopeInfo);
+				}
+									
+				// Tag declaration
+				case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
+					scopeInfo = handleTagDeclaration(tgs,v,k,n,typs,t@\loc,scopeInfo);
+				}
+				
+				// Rule declaration
+				case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
+					scopeInfo = handleRuleDeclaration(tgs,n,pwa,t@\loc,scopeInfo);
+				}
+				
+				// Test
+				case (Toplevel) `<Test tst> ;` : {
+					scopeInfo = handleTest(tst,t@\loc,scopeInfo);
+				}
+								
+				// ADT without variants
+				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` : {
+					scopeInfo = handleAbstractADT(tgs,v,typ,t@\loc,scopeInfo);
+				}
+				
+				// ADT with variants
+				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
+					scopeInfo = handleADT(tgs,v,typ,vars,t@\loc,scopeInfo);
+				}
+
+				// Alias
+				case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` : {
+					scopeInfo = handleAlias(tgs,v,typ,btyp,t@\loc,scopeInfo);
+				}
+								
+				// View
+				case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
+					scopeInfo = handleView(tgs,v,n,sn,alts,t@\loc,scopeInfo);
 				}
 				
 								
@@ -355,89 +513,183 @@ public ScopeAndItems handleModuleBodyPass1(Body b, ScopeItem currentScope, Scope
 		}
 	}
 	
-	return <sr,itu>;
+	return scopeInfo;
 }
 
 //
 // Handle variable declarations, with or without initializers
 //
-public list[ScopeItem] handleVarItemsPass1(Tags ts, Visibility v, Type t, {Variable ","}+ vs, ScopeItem sip) {
+// TODO: Should handle tags
+//
+public ScopeInfo handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
 	if (debug) println("Adding variables in declaration...");
-	list[ScopeItem] siList = [];
 	for (vb <- vs) {
 		switch(vb) {
 			case `<Name n>` : {
 				if (debug) println("Adding variable <n>");
-				ScopeItem vi = (VariableItem(convertName(n),convertType(t),sip)[@at = vb@\loc]);
-				scopeItemMap += (vb@\loc : vi);
-				siList += vi;
+				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
+				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
+				scopeInfo = aip.scopeInfo;
 			}
 				
 			case `<Name n> = <Expression e>` : {
 				if (debug) println("Adding variable <n>");
-				ScopeItem vi = (VariableItem(convertName(n),convertType(t),sip)[@at = vb@\loc]);
-				scopeItemMap += (vb@\loc : vi);
-				siList += vi;
+				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
+				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
+				scopeInfo = aip.scopeInfo;
 			}
 		}
 	}
-	return siList;
+	return scopeInfo;
 }
 
-// Replace the scope item parent on a parameter with a new scope item.
-// This is needed because the parameter is included in the function scope,
-// but the function scope is the parent of the parameter, making the relationship
-// recursive.
-public ScopeItem addSIToParam(ScopeItem si, ScopeItem sip) {
-	if (FormalParameterItem(_,_,_) := si) {
-		return si[parent = sip];
-	} else {
-		return si;
+//
+// Identify any names used inside variable declarations
+//
+// TODO: Should handle tags
+//
+public ScopeInfo handleVarItems(Tags ts, Visibility v, Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
+	for (vb <- vs) {
+		switch(vb) {
+			case `<Name n> = <Expression e>` : {
+				scopeInfo = handleExpression(e, scopeInfo);
+			}
+		}
 	}
+	return scopeInfo;
 }
 
-// Do the above replacement for all parameters in a parameter list
-public ScopeItem addSIToParams(ScopeItem si, ScopeItem sip) {
-	if (FunctionLayer(_,_,ps,_,_,_,_) := si) {
-		return si[parameters = [addSIToParam(psi,sip) | psi <- ps]];
-	} else {
-		return si;
-	}
+//
+// Handle standard function declarations (i.e., function declarations with bodies), but
+// do NOT descend into the bodies
+//
+// TODO: Should handle tags (if handled in handleAbstractFunctionNamesOnly, no need to do it here)
+//
+public ScopeInfo handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, ScopeInfo scopeInfo) {
+	return handleAbstractFunctionNamesOnly(ts,v,s,l,scopeInfo);		
 }
-		
+
+//
+// Handle abstract function declarations (i.e., function declarations without bodies)
+//
+// TODO: Should handle tags
+//
+public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signature s, loc l, ScopeInfo scopeInfo) {
+	// Both cases below do essentially the same thing. First, a new FunctionLayer is created. This is not
+	// complete, since it holds information about its parameters. This item is added, and the scope is switched
+	// to the scope of this added function. The parameters are then added, with the scope then switched
+	// back to the scope at function entry.
+	switch(s) {
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
+			if (debug) println("Found abstract function " + prettyPrintName(convertName(n)));
+			ScopeItem si = FunctionLayer(convertName(n), convertType(t), mkEmptySIList(), mkEmptyList(), false, isPublic(v), scopeInfo.currentScope)[@at=l];
+			AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);			 
+			scopeInfo = handleParametersNamesOnly(ps, sup.scopeInfo);
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
+		}
+
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
+			if (debug) println("Found abstract function " + prettyPrintName(convertName(n)));
+			ScopeItem si = FunctionLayer(convertName(n), convertType(t), mkEmptySIList(), 
+				[convertType(thrsi) | thrsi <- thrs], false, isPublic(v), scopeInfo.currentScope)[@at=l];
+			AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);			 
+			scopeInfo = handleParametersNamesOnly(ps, sup.scopeInfo);
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
+		}
+	}
+	return scopeInfo;
+}
+
+//
+// TODO: Should handle tags
+//
+public ScopeInfo handleAbstractFunction(Tags ts, Visibility v, Signature s, loc l, ScopeInfo scopeInfo) {
+	return scopeInfo;
+}
+
 //
 // Handle parameter declarations
 //
-public tuple[list[ScopeItem] scopeItems, bool isVarArg] handleParameters(Parameters p, ScopeItem sip) {
-	list[ScopeItem] siList = [];
+public ScopeInfo handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
+	list[ScopeItemId] siList = [];
+	bool varArgs = false;
+
+	// Add each parameter into the scope; the current scope is the function that
+	// is being processed.	
 	if (`( <Formals f> )` := p) {
 		if (`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if((Formal)`<Type t> <Name n>` := fp) {
 					if (debug) println("Adding parameter <n>");
-					ScopeItem pitem = (FormalParameterItem(convertName(n),convertType(t),sip)[@at = fp@\loc]);
-					scopeItemMap += (fp@\loc : pitem);
-					siList += pitem;
+					ScopeItem pitem = (FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc]);
+					AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
+					scopeInfo = aip.scopeInfo;
+					siList += aip.addedId;
 				}
 			}
 		}
-		return <siList,false>;
 	} else if (`( <Formals f> ... )` := p) {
+		varArgs = true;
 		if (`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if((Formal)`<Type t> <Name n>` := fp) {
 					if (debug) println("Adding parameter <n>");
-					ScopeItem pitem = (FormalParameterItem(convertName(n),convertType(t),sip)[@at = fp@\loc]);
-					scopeItemMap += (fp@\loc : pitem);
-					siList += pitem;
+					ScopeItem pitem = FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc];
+					AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
+					scopeInfo = aip.scopeInfo;
+					siList += aip.addedId;
 				}
 			}
 		}
-		return <siList,true>;
-	} else {
-		if (debug) println("Warning: failed to match formals!"); // TODO: Should throw exception here
-		return <siList,false>;
 	}
+	
+	// Update the function with information on its parameters
+	ScopeItem functionItem = getScopeItem(scopeInfo.currentScope, scopeInfo);
+	functionItem = (functionItem[parameters = siList])[isVarArgs = varArgs];
+	scopeInfo = updateScopeItem(functionItem, scopeInfo.currentScope, scopeInfo);
+	
+	return scopeInfo;
+}
+
+//
+// Handle standard function declarations (i.e., function declarations with bodies)
+//
+// TODO: Should handle tags
+//
+public ScopeInfo handleFunction(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, ScopeInfo scopeInfo) {
+	// First, get back the scope item at location l so we can switch into the proper function scope
+	if (debug) println("Switching to function with signature <s>");
+	ScopeItemId functionScope = getItemAtLocation(l, scopeInfo);
+	ScopeUpdatePair sup = changeCurrentScope(functionScope,scopeInfo);
+	
+	switch(s) {
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
+			scopeInfo = handleFunctionBody(b,sup.scopeInfo);
+		}
+
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ tts> ` : {
+			scopeInfo = handleFunctionBody(b,sup.scopeInfo);
+		}
+	}
+	
+	sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+	return sup.scopeInfo;
+}
+
+//
+// Handle function bodies
+//
+public ScopeInfo handleFunctionBody(FunctionBody fb, ScopeInfo scopeInfo) {
+	if (`{ <Statement* ss> }` := fb) {
+		for (s <- ss) {
+			scopeInfo = handleStatement(s, scopeInfo);
+		}
+	}
+	return scopeInfo;
 }
 
 //
@@ -451,380 +703,235 @@ private bool isPublic(Visibility v) {
 }
 
 //
-// Handle abstract function declarations (i.e., function declarations without bodies)
-//
-public ScopeItem handleAbstractFunction(Tags ts, Visibility v, Signature s, loc l, ScopeItem sip) {
-	switch(s) {
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
-			if (debug) println("Found abstract function " + prettyPrintName(convertName(n)));
-			tuple[list[ScopeItem] scopeItems, bool isVarArg] sil = handleParameters(ps,DummyItem());
-			ScopeItem si = FunctionLayer(convertName(n), convertType(t), sil.scopeItems, mkEmptyList(), sil.isVarArg, isPublic(v), sip);
-			si = addSIToParams(si,si);
-			return si[@at = l];
-		}
-
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
-			if (debug) println("Found abstract function " + prettyPrintName(convertName(n)));
-			tuple[list[ScopeItem] scopeItems, bool isVarArg] sil = handleParameters(ps,DummyItem());
-			ScopeItem si = FunctionLayer(convertName(n), convertType(t), sil.scopeItems, 
-				[convertType(thrsi) | thrsi <- thrs], sil.isVarArg, isPublic(v), sip);
-			si = addSIToParams(si,si);
-			return si[@at = l];
-		}
-		
-		default: if (debug) println("Warning, no match found!"); // Need to throw here!
-	}
-}
-
-//
 // Handle alias declarations
 //
-public ScopeAndItems handleAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeItem si, ScopeRel sr, ItemUses itu) {
+// TODO: Should handle tags
+//
+public ScopeInfo handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
 	if (debug) println("Found alias: <aliasType> = <aliasedType>");
 	
-	ScopeItem aliasItem = (AliasItem(convertUserType(aliasType), convertType(aliasedType), isPublic(v), si))[@at = l];
-	sr += <si, aliasItem>;
-	return <sr, itu>;
+	ScopeItem aliasItem = AliasItem(convertUserType(aliasType), convertType(aliasedType), isPublic(v), scopeInfo.currentScope)[@at = l];
+	AddedItemPair aip = addScopeItemWithParent(aliasItem, scopeInfo.currentScope, l, scopeInfo);
+	return aip.scopeInfo;
+}
+
+//
+// TODO: should handle tags
+//
+public ScopeInfo handleAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
+	return scopeInfo;
 }
 
 //
 // Handle abstract ADT declarations (ADT's without variants)
 //
-public ScopeAndItems handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc l, ScopeItem si, ScopeRel sr, ItemUses itu) {
+// TODO: Should handle tags
+//
+public ScopeInfo handleAbstractADTNamesOnly(Tags ts, Visibility v, UserType adtType, loc l, ScopeInfo scopeInfo) {
 	if (debug) println("Found Abstract ADT: <adtType>");
 
-	ScopeItem adtItem = (ADTItem(convertUserType(adtType), { }, isPublic(v), si))[@at = l];
-	sr += <si, adtItem>;
-	return <sr, itu>;
+	ScopeItem adtItem = ADTItem(convertUserType(adtType), { }, isPublic(v), scopeInfo.currentScope)[@at = l];
+
+	// See if this is already declared
+	set[ScopeItemId] items = getItemsForName(scopeInfo,scopeInfo.currentScope,getUserTypeName(convertUserType(adtType)));
+	items = filterNamesForNamespace(scopeInfo,items,TypeName());
+	// TODO: Check here to see if size > 1, that would be an error and should not happen
+	if (size(items) == 0) {
+		AddedItemPair aip = addScopeItemWithParent(adtItem, scopeInfo.currentScope, l, scopeInfo);
+		scopeInfo = aip.scopeInfo;
+	} 
+	
+	return scopeInfo;
+}
+
+//
+// TODO: Should handle tags
+//
+public ScopeInfo handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc l, ScopeInfo scopeInfo) {
+	return scopeInfo;
 }
 
 //
 // Handle abstract ADT declarations (ADT's without variants)
 //
-public ScopeAndItems handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeItem si, ScopeRel sr, ItemUses itu) {
-	if (debug) println("Found Abstract ADT: <adtType>");
+// TODO: This should handle cases where constructors are declared over different data
+// declarations with the same ADT name; need to verify this as part of tests.
+//
+public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeInfo scopeInfo) {
+	if (debug) println("Found ADT: <adtType>");
 
-	ScopeItem adtItem = (ADTItem(convertUserType(adtType), { }, isPublic(v), si))[@at = l];
-	sr += <si, adtItem>;
-
+	ScopeItem adtItem = ADTItem(convertUserType(adtType), { }, isPublic(v), scopeInfo.currentScope)[@at = l];
+	ScopeItemId itemId = -1;
+	
+	// See if this is already declared
+	set[ScopeItemId] items = getItemsForName(scopeInfo,scopeInfo.currentScope,getUserTypeName(convertUserType(adtType)));
+	items = filterNamesForNamespace(scopeInfo,items,TypeName());
+	// TODO: Check here to see if size > 1, that would be an error and should not happen
+	if (size(items) == 0) {
+		AddedItemPair aip = addScopeItemWithParent(adtItem, scopeInfo.currentScope, l, scopeInfo);
+		scopeInfo = aip.scopeInfo;
+		itemId = aip.addedId;
+	} else if (size(items) == 1) {
+		adtItem = getScopeItem(getOneFrom(items),scopeInfo);
+		itemId = getOneFrom(items);
+	}
+	
+	set[ScopeItemId] variantSet = { };
+	
 	for (var <- vars) {
 		if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
-			ScopeItem constructorItem = ConstructorItem(convertName(n), [ convertTypeArg(targ) | targ <- args ], adtItem, si)[@at = l];
-			adtItem.variants += { constructorItem };
-			sr += <si, constructorItem>;			
+			ScopeItem constructorItem = ConstructorItem(convertName(n), [ convertTypeArg(targ) | targ <- args ], aip.addedId, scopeInfo.currentScope)[@at = l];
+			AddedItemPair aip2 = addScopeItemWithParent(constructorItem, scopeInfo.currentScope, l, scopeInfo);
+			scopeInfo = aip2.scopeInfo;
+			variantSet += aip2.addedId; 			
 		}
 	}
 	
-	return <sr, itu>;
-}
-
-
-//
-// Handle standard function declarations (i.e., function declarations with bodies), but
-// do NOT descend into the bodies
-//
-public ScopeItem handleFunctionNoDescent(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, ScopeItem sip) {
-	return handleAbstractFunction(ts,v,s,l,sip);		
-}
-
-// SECOND PASS: Get information from imported modules; this will be needed to resolve
-// the names inside the functions or used in static initializers
-// TODO: Make this actually work
-public ScopeRel handleModuleBodyPass2(Body b, ScopeItem si) {
-	ScopeRel scopeRel = { };
-						
-	return scopeRel;
-}
-
-// THIRD PASS: Identify names used inside functions or in static initializers, noting type
-// information. This pass actually descends into functions, building the scope information
-// within them as well.
-public ScopeAndItems handleModuleBodyPass3(Body b, ScopeItem si, ScopeRel sr, ItemUses itu) {
-	if (`<Toplevel* ts>` := b) {
-		for (Toplevel t <- ts) {
-			switch(t) {
-				// Variable declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> <Type typ> <{Variable ","}+ vs> ;` : {
-					ScopeAndItems sni = handleVarItems(tgs,v,typ,vs,si,sr,itu);
-					sr = sni.scopeRel; itu = sni.itemUses; 
-				}
+	adtItem = adtItem[variants = variantSet];
+	scopeInfo = updateScopeItem(adtItem, itemId, scopeInfo);
 	
-	 			// Concrete (i.e., with a body) function declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` : {
-					ScopeItem funScope = scopeItemMap[t@\loc];
-					if (debug) {
-						println("Entering scope: " + prettyPrintSI(funScope));
-						for (sit <- sr[funScope]) {
-							println("\tIncludes Item: " + prettyPrintSI(sit));
-						}
-					}
-					ScopeAndItems sni = handleFunction(tgs,v,s,fb,funScope,sr,itu);
-					sr = sni.scopeRel; itu = sni.itemUses; 
-				}
-				
-				// TODO: Handle other top level declarations
-				
-				//default: println("No match for item");
-			}
-		}
-	}
-	
-	return < sr, itu >;
+	return scopeInfo;
 }
 
 //
-// Identify any names used inside variable declarations
+// TODO: Should handle tags
 //
-public ScopeAndItems handleVarItems(Tags ts, Visibility v, Type t, {Variable ","}+ vs, ScopeItem sip, ScopeRel sr, ItemUses itu) {
-	for (vb <- vs) {
-		switch(vb) {
-			case `<Name n> = <Expression e>` : {
-				ScopeAndItems sni = handleExpression(e, sip, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;			
-			}
-		}
-	}
-	return <sr, itu>;
-}
-
-//
-// Handle standard function declarations (i.e., function declarations with bodies)
-//
-public ScopeAndItems handleFunction(Tags ts, Visibility v, Signature s, FunctionBody b, ScopeItem si, ScopeRel sr, ItemUses itu) {
-	switch(s) {
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
-			return handleFunctionBody(b,si,sr,itu);
-		}
-
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ tts> ` : {
-			return handleFunctionBody(b,si,sr,itu);
-		}
-	}
-}
-
-//
-// Handle function bodies
-//
-public ScopeAndItems handleFunctionBody(FunctionBody fb, ScopeItem si, ScopeRel sr, ItemUses itu) {
-	if (`{ <Statement* ss> }` := fb) {
-		for (s <- ss) {
-			ScopeAndItems sni = handleStatement(s, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-		}
-	}
-	return <sr, itu>;
+public ScopeInfo handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeInfo scopeInfo) {
+	return scopeInfo;
 }
 
 //
 // Handle individual statements
 //
-public ScopeAndItems handleStatement(Statement s, ScopeItem si, ScopeRel sr, ItemUses itu) {
+// TODO: Verify that names in solve statement must be declared already (i.e. that solve is not a binder)
+//
+public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 	if (debug) println("Inside statement <s>");
 	switch(s) {
 		case `solve (<{QualifiedName ","}+ vs> <Bound b>) <Statement sb>` : {
-			// TODO: Verify that vs cannot introduce new names into scope (i.e., is not a binder)
 			for (v <- vs) {
-				itu += <v@\loc,getItemsForName(sr,si,convertName(v))>;
+				if (debug) println("Adding use for <v>");
+				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(v)), v@\loc);
 			}
 			
 			if (`; <Expression e>` := b) {
-				ScopeAndItems sni = handleExpression(e, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(e, scopeInfo);
 			}
 			
-			ScopeAndItems sni2 = handleStatement(sb, si, sr, itu); 
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleStatement(sb, scopeInfo);		
 		}
 
 		case `<Label l> for (<{Expression ","}+ es>) <Statement b>` : {
-			// TODO: Assuming labels are in a separate namespace from functions and
-			// variables, should we check to see if we are reusing a label already
-			// introduced in the same scope?
-			
-			list[ScopeItem] ll = handlelabel(l,si);
-			sr += { <si,lli> | lli <- ll };
+			scopeInfo = handleLabel(l,scopeInfo);			
 			
 			for (e <- es) {
-				ScopeAndItems sni = handleExpression(e, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(e, scopeInfo);
 			}
 			
-			ScopeAndItems sni2 = handleStatement(b, si, sr, itu); 
-			sr = sni2.scopeRel; itu = sni2.itemUses;
+			scopeInfo = handleStatement(b, scopeInfo); 
 		}
 
 		case `<Label l> while (<{Expression ","}+ es>) <Statement b>` : {
-			// TODO: Assuming labels are in a separate namespace from functions and
-			// variables, should we check to see if we are reusing a label already
-			// introduced in the same scope?
-
-			list[ScopeItem] ll = handlelabel(l,si);
-			sr += { <si,lli> | lli <- ll };
+			scopeInfo = handleLabel(l,scopeInfo);			
 			
 			for (e <- es) {
-				ScopeAndItems sni = handleExpression(e, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(e, scopeInfo);
 			}
 			
-			ScopeAndItems sni2 = handleStatement(b, si, sr, itu); 
-			sr = sni2.scopeRel; itu = sni2.itemUses;
+			scopeInfo = handleStatement(b, scopeInfo); 
 		}
 
 		case `<Label l> do <Statement b> while (<Expression e>);` : {
-			// TODO: Assuming labels are in a separate namespace from functions and
-			// variables, should we check to see if we are reusing a label already
-			// introduced in the same scope?
-
-			list[ScopeItem] ll = handlelabel(l,si);
-			sr += { <si,lli> | lli <- ll };
-			
-			ScopeAndItems sni = handleStatement(b, si, sr, itu); 
-			sr = sni.scopeRel; itu = sni.itemUses;
-			
-			ScopeAndItems sni2 = handleExpression(e, si, sr, itu);
-			sr = sni2.scopeRel; itu = sni2.itemUses;
+			scopeInfo = handleLabel(l,scopeInfo);			
+			scopeInfo = handleStatement(b, scopeInfo); 
+			scopeInfo = handleExpression(e, scopeInfo);			
 		}
 
 		case `<Label l> if (<{Expression ","}+ es>) <Statement bt> else <Statement bf>` : {
-			// TODO: Assuming labels are in a separate namespace from functions and
-			// variables, should we check to see if we are reusing a label already
-			// introduced in the same scope?
-
-			list[ScopeItem] ll = handlelabel(l,si);
-			sr += { <si,lli> | lli <- ll };
+			scopeInfo = handleLabel(l,scopeInfo);			
 			
 			for (e <- es) {
-				ScopeAndItems sni = handleExpression(e, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(e, scopeInfo);
 			}
 			
-			ScopeAndItems sni2 = handleStatement(bt, si, sr, itu); 
-			sr = sni2.scopeRel; itu = sni2.itemUses;
-			
-			ScopeAndItems sni3 = handleStatement(bf, si, sr, itu); 
-			sr = sni3.scopeRel; itu = sni3.itemUses;
+			scopeInfo = handleStatement(bt, scopeInfo); 
+			scopeInfo = handleStatement(bf, scopeInfo); 
 		}
 
 		case `<Label l> if (<{Expression ","}+ es>) <Statement bt>` : {
-			// TODO: Assuming labels are in a separate namespace from functions and
-			// variables, should we check to see if we are reusing a label already
-			// introduced in the same scope?
-
-			list[ScopeItem] ll = handlelabel(l,si);
-			sr += { <si,lli> | lli <- ll };
+			scopeInfo = handleLabel(l,scopeInfo);			
 			
 			for (e <- es) {
-				ScopeAndItems sni = handleExpression(e, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(e, scopeInfo);
 			}
 			
-			ScopeAndItems sni2 = handleStatement(bt, si, sr, itu); 
-			sr = sni2.scopeRel; itu = sni2.itemUses;
+			scopeInfo = handleStatement(bt, scopeInfo); 
 		}
 
 		case `<Label l> switch (<Expression e>) { <Case+ cs> }` : {
-			// TODO: Assuming labels are in a separate namespace from functions and
-			// variables, should we check to see if we are reusing a label already
-			// introduced in the same scope?
-
-			list[ScopeItem] ll = handlelabel(l,si);
-			sr += { <si,lli> | lli <- ll };
-			
-			ScopeAndItems sni = handleExpression(e, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			
+			scopeInfo = handleLabel(l,scopeInfo);						
+			scopeInfo = handleExpression(e, scopeInfo);
 			for (c <- cs) {
-				ScopeAndItems sni2 = handleCase(c, si, sr, itu);
-				sr = sni2.scopeRel; itu = sni2.itemUses;
+				scopeInfo = handleCase(c, scopeInfo);
 			}
 		}
 
 		case (Statement)`<Label l> <Visit v>` : {
-			// TODO: Assuming labels are in a separate namespace from functions and
-			// variables, should we check to see if we are reusing a label already
-			// introduced in the same scope?
-
-			list[ScopeItem] ll = handlelabel(l,si);
-			sr += { <si,lli> | lli <- ll };
-			
-			ScopeAndItems sni = handleVisit(v, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleLabel(l,scopeInfo);						
+			scopeInfo = handleVisit(v, scopeInfo);
 		}
 			
 		case `<Expression e> ;` : {
-			ScopeAndItems sni = handleExpression(e, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e, scopeInfo);
 		}
 
 		case `<Assignable a> <Assignment op> <Statement b>` : {
-			ScopeAndItems sni = handleAssignable(a, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			
-			ScopeAndItems sni2 = handleStatement(b, si, sr, itu); 
-			sr = sni2.scopeRel; itu = sni2.itemUses;
+			scopeInfo = handleAssignable(a, scopeInfo);
+			scopeInfo = handleStatement(b, scopeInfo);
 		}
 		
 		case `assert <Expression e> ;` : {
-			ScopeAndItems sni = handleExpression(e, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e, scopeInfo);
 		}
 
 		case `assert <Expression e> : <Expression em> ;` : {
-			ScopeAndItems sni = handleExpression(e, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			
-			sni = handleExpression(em, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e, scopeInfo);
+			scopeInfo = handleExpression(em, scopeInfo);			
 		}
 		
 		case `return <Statement b>` : {
-			ScopeAndItems sni = handleStatement(b, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleStatement(b, scopeInfo);
 		}
 		
 		case `throw <Statement b>` : {
-			ScopeAndItems sni = handleStatement(b, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleStatement(b, scopeInfo);
 		}
 		
 		case `insert <DataTarget dt> <Statement b>` : {
 			// TODO: Should check target here as well, ensuring it is in scope
-			ScopeAndItems sni = handleStatement(b, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleStatement(b, scopeInfo);
 		}
 		
 		case `append <DataTarget dt> <Statement b>` : {
 			// TODO: Should check target here as well, ensuring it is in scope
-			ScopeAndItems sni = handleStatement(b, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleStatement(b, scopeInfo);
 		}
-		
-		//case (Statement) `<Tags ts> <Visibility v> <Signature sig> ;` : {
-			// TODO: Fix this case (nested abstract function -- not even sure that makes sense...) 
-			//ScopePair sp = handleAbstractFunction(ts,v,sig,s@\loc);
-			//return sp.scopeRel + { <si,sp.scopeItem> };
-		//}
 		
 		case (Statement) `<Tags ts> <Visibility v> <Signature sig> <FunctionBody fb>` : {
 			// First get back the function signature information, creating the scope item
-			ScopeItem sfi = handleFunctionNoDescent(ts,v,sig,fb,s@\loc,si);
-			scopeItemMap += ( s@\loc : sfi );
-			sr += { <si, sfi> };
+			scopeInfo = handleFunctionNamesOnly(ts,v,sig,fb,s@\loc,scopeInfo);
 					
 			// Now, descend into the function, processing the body
-			ScopeAndItems sni = handleFunction(ts,v,sig,fb,sfi,sr,itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleFunction(ts,v,sig,fb,s@\loc,scopeInfo);
 		}
 		
 		case (Statement) `<Type t> <{Variable ","}+ vs> ;` : {
-			ScopeAndItems sni = handleLocalVarItems(t,vs,si,sr,itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleLocalVarItems(t,vs,scopeInfo);
 		}
 		
 		case (Statement) `dynamic <Type t> <{Variable ","}+ vs> ;` : {
-			// TODO: Flag this dynamic somehow?
-			ScopeAndItems sni = handleLocalVarItems(t,vs,si,sr,itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			// TODO: Handle scoping of dynamics properly
+			scopeInfo = handleLocalVarItems(t,vs,scopeInfo);
 		}
 		
 		//case `break <Target t> ;` : {
@@ -840,39 +947,37 @@ public ScopeAndItems handleStatement(Statement s, ScopeItem si, ScopeRel sr, Ite
 		//}
 		
 		case `try <Statement b> <Catch+ cs>` : {
-			ScopeAndItems sni = handleStatement(b, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleStatement(b, scopeInfo);
 			
 			for (ct <- cs)  {
-				ScopeAndItems sni2 = handleCatch(ct, si, sr, itu);
-				sr = sni2.scopeRel; itu = sni2.itemUses;
+				scopeInfo = handleCatch(ct, scopeInfo);
 			}
 		}
 		
 		case `try <Statement b> <Catch+ cs> finally <Statement bf>` : {
-			ScopeAndItems sni = handleStatement(b, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleStatement(b, scopeInfo);
 			
 			for (ct <- cs)  {
-				sni = handleCatch(ct, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleCatch(ct, scopeInfo);
 			}
-			
-			sni = handleStatement(bf, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+
+			scopeInfo = handleStatement(bf, scopeInfo);
 		}
 		
 		case `<Label l> { <Statement+ bs> }` : {
-			list[ScopeItem] ll = handlelabel(l,si);
-			sr += { <si,lli> | lli <- ll };
-			
+			scopeInfo = handleLabel(l,scopeInfo);						
+
+			// Add a scope layer for the block and switch the scope to it			
+			ScopeItem blockItem = BlockLayer(scopeInfo.currentScope)[@at=s@\loc];
+			AddedItemPair aip = addScopeItemWithParent(blockItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
+
 			for (b <- bs) {
-				ScopeItem sib = BlockLayer(si);
-				sr += <si,sib> ;
-				
-				ScopeAndItems sni = handleStatement(b, sib, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleStatement(b,scopeInfo);
 			}
+	
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 		
 		//case `global <Type t> <{QualifiedName ","}+ xs> ;` : {
@@ -882,114 +987,128 @@ public ScopeAndItems handleStatement(Statement s, ScopeItem si, ScopeRel sr, Ite
 		//}
 	}
 	
-	return <sr, itu>;
+	return scopeInfo;
 }
 
 //
 // Handle individual expressions (which could contain closures, for instance)
 //
-public ScopeAndItems handleExpression(Expression e, ScopeItem si, ScopeRel sr, ItemUses itu) {
+public ScopeInfo handleExpression(Expression e, ScopeInfo scopeInfo) {
 	switch(e) {
 		// QualifiedName
 		case (Expression)`<QualifiedName qn>`: {
-			itu += <qn@\loc,getItemsForName(sr, si, convertName(qn))>;
+			if (debug) println("Adding use for <qn>");		
+			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 		}
 
 		// ReifiedType
-//		case `<BasicType t> ( <{Expression ","}* el> )` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RBasicType bt = convertBasicType(t);
-//			RType rt = RTypeBasic(bt); rt = rt[@at = t@\loc];
-//			RExpression re = RReifiedTypeExp(rt, mapper(getSDFExpListItems(el),convertExpression));
-//			return re[@at = exp@\loc];			
-//		}
+		case `<BasicType t> ( <{Expression ","}* el> )` : {
+			for (ei <- el) {
+				scopeInfo = handleExpression(ei, scopeInfo);
+			}
+		}
 
 		// CallOrTree
 		case `<Expression e1> ( <{Expression ","}* el> )` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			
+			scopeInfo = handleExpression(e1, scopeInfo);
 			for (ei <- el) {
-				sni = handleExpression(ei, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(ei, scopeInfo);
 			}
 		}
 
 		// List
 		case `[<{Expression ","}* el>]` : {
 			for (ei <- el) {
-				ScopeAndItems sni = handleExpression(ei, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(ei, scopeInfo);
 			}
 		}
 
 		// Set
 		case `{<{Expression ","}* el>}` : {
 			for (ei <- el) {
-				ScopeAndItems sni = handleExpression(ei, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(ei, scopeInfo);
 			}
 		}
 
 		// Tuple
 		case `<<Expression ei>, <{Expression ","}* el>>` : {
-			ScopeAndItems sni = handleExpression(ei, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(ei, scopeInfo);
 			for (eli <- el) {
-				sni = handleExpression(eli, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(eli, scopeInfo);
 			}
 		}
 
 		// TODO: Map
 
-		// TODO: Closure
+		// Closure
+		case `<Type t> <Parameters p> { <Statement+ ss> }` : {
+			// First, create a new abstract function without a name
+			
+			// Now, descend into the body
+			
+			3;
+		}
 
-		// TODO: VoidClosure
+		// VoidClosure
+		case `<Parameters p> { <Statement* ss> }` : {
+			// First, create a new abstract function without a name
+			
+			// Now, descend into the body
+			
+			3;
+		}
 
-		// TODO: NonEmptyBlock
+		// NonEmptyBlock
+		case `{ <Statement+ ss> }` : {			
+			ScopeItem blockItem = BlockLayer(scopeInfo.currentScope)[@at=e@\loc];
+			AddedItemPair aip = addScopeItemWithParent(blockItem, scopeInfo.currentScope, e@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-		// TODO: Visit
+			for (s <- ss) {
+				scopeInfo = handleStatement(s,scopeInfo);
+			}
+	
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
+		}
+		
+		// Visit
+		case (Expression) `<Label l> <Visit v>` : {
+			scopeInfo = handleLabel(l,scopeInfo);						
+			scopeInfo = handleVisit(v, scopeInfo);
+		}
 		
 		// ParenExp
 		case `(<Expression e1>)` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e1, scopeInfo);
 		}
 
 		// Range
 		case `[ <Expression e1> .. <Expression e2> ]` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// StepRange
 		case `[ <Expression e1>, <Expression e2> .. <Expression e3> ]` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e3, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
+			scopeInfo = handleExpression(e3, scopeInfo);
 		}
 
 		// FieldUpdate
 		case `<Expression e1> [<Name n> = <Expression e2>]` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;			
-			itu += <n@\loc,getItemsForName(sr,si,convertName(n))>;
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
+			if (debug) println("Adding use for <n>");
+			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 		}
 
 		// FieldAccess
 		case `<Expression e1> . <Name n>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			itu += <n@\loc,getItemsForName(sr,si,convertName(n))>;
+			scopeInfo = handleExpression(e1, scopeInfo);
+			if (debug) println("Adding use for <n>");
+			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 		}
 
 		// TODO: Add code to deal with fields: FieldProject
@@ -1008,422 +1127,360 @@ public ScopeAndItems handleExpression(Expression e, ScopeItem si, ScopeRel sr, I
 
 		// IsDefined
 		case `<Expression e1> ?` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e1, scopeInfo);
 		}
 
 		// Negation
 		case `! <Expression e1>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e1, scopeInfo);
 		}
 
 		// Negative
 		case `- <Expression e1> ` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e1, scopeInfo);
 		}
 
 		// TransitiveClosure
 		case `<Expression e1> + ` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e1, scopeInfo);
 		}
 
 		// TransitiveReflexiveClosure
 		case `<Expression e1> * ` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleExpression(e1, scopeInfo);
 		}
 
 		// GetAnnotation
 		case `<Expression e1> @ <Name n>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			itu += <n@\loc,getItemsForName(sr,si,convertName(n))>;
+			scopeInfo = handleExpression(e1, scopeInfo);
+			if (debug) println("Adding use for <n>");
+			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 		}
 
 		// SetAnnotation
 		case `<Expression e1> [@ <Name n> = <Expression e2>]` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
-			itu += <n@\loc,getItemsForName(sr,si,convertName(n))>;
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
+			if (debug) println("Adding use for <n>");
+			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 		}
 
 		// Composition
 		case `<Expression e1> o <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// Join
 		case `<Expression e1> join <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// Times
 		case `<Expression e1> * <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// Plus
 		case `<Expression e1> + <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// Minus
 		case `<Expression e1> - <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// Div
 		case `<Expression e1> / <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// Mod
 		case `<Expression e1> % <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// In
 		case `<Expression e1> in <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// NotIn
 		case `<Expression e1> notin <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// LessThan
 		case `<Expression e1> < <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// LessThanOrEq
 		case `<Expression e1> <= <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// GreaterThanOrEq
 		case `<Expression e1> >= <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// GreaterThan
 		case `<Expression e1> > <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// Equals
 		case `<Expression e1> == <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// NotEquals
 		case `<Expression e1> != <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// IfDefinedOtherwise
 		case `<Expression e1> ? <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// IfThenElse (Ternary)
 		case `<Expression e1> ? <Expression e2> : <Expression e3>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
-			sni = handleExpression(e3, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
+			scopeInfo = handleExpression(e3, scopeInfo);
 		}
 
 		// Implication
 		case `<Expression e1> ==> <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// Equivalence
 		case `<Expression e1> <==> <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// And
 		case `<Expression e1> && <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}
 
 		// Or
 		case `<Expression e1> || <Expression e2>` : {
-			ScopeAndItems sni = handleExpression(e1, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e2, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;	
+			scopeInfo = handleExpression(e1, scopeInfo);
+			scopeInfo = handleExpression(e2, scopeInfo);
 		}	
 	}
 	
-	return <sr, itu>;
+	return scopeInfo;
 }
 
 //
 // Handle individual cases
 //
-public ScopeAndItems handleCase(Case c, ScopeItem si, ScopeRel sr, ItemUses itu) {
+public ScopeInfo handleCase(Case c, ScopeInfo scopeInfo) {
 	switch(c) {
 		case `case <PatternWithAction p>` : {
-			return handlePatternWithAction(p, si, sr, itu);
+			scopeInfo = handlePatternWithAction(p, scopeInfo);
 		}
 		
 		case `default : <Statement b>` : {
-			return handleStatement(b, si, sr, itu);
+			scopeInfo = handleStatement(b, scopeInfo);
 		}
 	}
 	
-	return sr;
+	return scopeInfo;
 }
 
 //
 // Handle assignables
 //
-public ScopeAndItems handleAssignable(Assignable a, ScopeItem si, ScopeRel sr, ItemUses itu) {
-	if (debug) println("Inside assignable <a>");
-	
+public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 	switch(a) {
 		case (Assignable)`<QualifiedName qn>` : {
-			if (debug) println("Going to get items for name <qn>");
-			itu += <qn@\loc,getItemsForName(sr,si,convertName(qn))>;
-			if (debug) println("Got items for name <qn>");
+			if (debug) println("Adding use for <qn>");
+			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 		}
 		
 		case `<Assignable al> [ <Expression e> ]` : {
-			ScopeAndItems sni = handleAssignable(al, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			
-			sni = handleExpression(e, si, sr, itu);			
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleAssignable(al, scopeInfo);
+			scopeInfo = handleExpression(e, scopeInfo);			
 		}
 		
 		case `<Assignable al> . <Name n>` : {
-			ScopeAndItems sni = handleAssignable(al, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			
-			itu += <n@\loc,getItemsForName(sr,si,convertName(n))>;			
+			scopeInfo = handleAssignable(al, scopeInfo);
+			if (debug) println("Adding use for <n>");
+			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 		}
 		
 		case `<Assignable al> @ <Name n>` : {
-			ScopeAndItems sni = handleAssignable(al, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			
-			itu += <n@\loc,getItemsForName(sr,si,convertName(n))>;			
+			scopeInfo = handleAssignable(al, scopeInfo);
+			if (debug) println("Adding use for <n>");
+			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 		}
 		
 		case `< <{Assignable ","}+ al> >` : {
 			for (ali <- al) {
-				ScopeAndItems sni = handleAssignable(ali, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleAssignable(ali, scopeInfo);
 			}
 		}
 		
 		case `<Name n> ( <{Assignable ","}+ al> )` : {
-			itu += <n@\loc,getItemsForName(sr,si,convertName(n))>;			
+			if (debug) println("Adding use for <qn>");
+			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 			for (ali <- al) {
-				ScopeAndItems sni = handleAssignable(ali, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleAssignable(ali, scopeInfo);
 			}
 		}
 	}
 	
-	return <sr, itu>;
+	return scopeInfo;
 }
 
 //
 // Handle local variable declarations, with or without initializers
 //
-public ScopeAndItems handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeItem si, ScopeRel sr, ItemUses itu) {
+public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
 	for (vb <- vs) {
 		switch(vb) {
 			case `<Name n>` : {
 				if (debug) println("Adding variable <n>");
-				ScopeItem vi = (VariableItem(convertName(n),convertType(t),si)[@at = vb@\loc]);
-				scopeItemMap += (vb@\loc : vi);
-				sr += <si, vi>;
+				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
+				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
+				scopeInfo = aip.scopeInfo;
 			}
 				
 			case `<Name n> = <Expression e>` : {
 				if (debug) println("Adding variable <n>");
-				ScopeItem vi = (VariableItem(convertName(n),convertType(t),si)[@at = vb@\loc]);
-				scopeItemMap += (vb@\loc : vi);
-				sr += <si, vi>;
+				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
+				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
+				scopeInfo = handleExpression(e,aip.scopeInfo);
 				
-				ScopeAndItems sni = handleExpression(e, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				
 			}
 		}
 	}
-	return <sr,itu>;
+	return scopeInfo;
 }
 
 //
 // Handle the "catch" part of a try/catch statement
 //
-public ScopeAndItems handleCatch(Catch c, ScopeItem si, ScopeRel sr, ItemUses itu) {
-	
+public ScopeInfo handleCatch(Catch c, ScopeInfo scopeInfo) {
 	switch(c) {
 		case `catch : <Statement b>` : {
-			ScopeAndItems sni = handleStatement(b, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handleStatement(b, scopeInfo);
 		}
 		
 		case `catch <Pattern p> : <Statement b>` : {
-			ScopeAndItems sni = handlePattern(p, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleStatement(b, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handlePattern(p, scopeInfo);
+			scopeInfo = handleStatement(b, scopeInfo);
 		}
 	}
 	
-	return <sr, itu>;
+	return scopeInfo;
 }		
 
 //
 // Handle labels
 //
-public list[ScopeItem] handleLabel(Label l) {
+public ScopeInfo handleLabel(Label l, ScopeInfo scopeInfo) {
 	if ((Label)`<Name n> :` := l) {
-		return [ (LabelItem(convertName(n)))[@at = n@\loc] ];
+		ScopeItem li = LabelItem(convertName(n), scopeInfo.currentScope)[@at = l@\loc];
+		AddedItemPair aip = addScopeItemWithParent(li, scopeInfo.currentScope, l@\loc, scopeInfo);
+		scopeInfo = aip.scopeInfo;
 	}
-	return [];
+	return scopeInfo;
 }
 
 //
 // Handle visits
 //
-public ScopeAndItems handleVisit(Visit v, ScopeItem si, ScopeRel sr, ItemUses itu) {
-	return <sr,itu>;
+// TODO: Add needed code
+//
+public ScopeInfo handleVisit(Visit v, ScopeInfo scopeInfo) {
+	return scopeInfo;
 }
 
 //
 // Handle patterns
 //
-public ScopeAndItems handlePattern(Pattern p, ScopeItem si, ScopeRel sr, ItemUses itu) {
-	return <sr,itu>;
+// TODO: Add needed code
+//
+public ScopeInfo handlePattern(Pattern p, ScopeInfo scopeInfo) {
+	return scopeInfo;
 }
 
 //
 // Handle Pattern with Action productions
 //
-public ScopeAndItems handlePatternWithAction(PatternWithAction p, ScopeItem si, ScopeRel sr, ItemUses itu) {
+public ScopeInfo handlePatternWithAction(PatternWithAction p, ScopeInfo scopeInfo) {
 	switch(p) {
 		case `<Pattern p> => <Expression e>` : {
-			ScopeAndItems sni = handlePattern(p, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(e, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handlePattern(p, scopeInfo);
+			scopeInfo = handleExpression(e, scopeInfo);
 		}
 		
 		case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
-			ScopeAndItems sni = handlePattern(p, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleExpression(er, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
+			scopeInfo = handlePattern(p, scopeInfo);
+			scopeInfo = handleExpression(er, scopeInfo);
 			for (e <- es) { 
-				sni = handleExpression(e, si, sr, itu);
-				sr = sni.scopeRel; itu = sni.itemUses;
+				scopeInfo = handleExpression(e, scopeInfo);
 			}
 		}
 		
 		case `<Pattern p> : <Statement s>` : {
-			ScopeAndItems sni = handlePattern(p, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;
-			sni = handleStatement(s, si, sr, itu);
-			sr = sni.scopeRel; itu = sni.itemUses;			
+			scopeInfo = handlePattern(p, scopeInfo);
+			scopeInfo = handleStatement(s, scopeInfo);
 		}
 	}
 	
-	return <sr, itu>;
+	return scopeInfo;
 }
 
-public bool hasRType(ItemUses itu, loc l) {
-	return size(itu[l]) == 1;
+public bool hasRType(ScopeInfo scopeInfo, loc l) {
+	if (l in scopeInfo.itemUses)
+		return true;
+	return false;
 }
 
-public RType getRType(ItemUses itu, loc l) {
-	list[ScopeItem] items = getOneFrom(itu[l]);
+public RType getRType(ScopeInfo scopeInfo, loc l) {
+	set[ScopeItemId] items = scopeInfo.itemUses[l];
 	if (size(items) == 0) {
 		// TODO: Should be an exception
 		return makeVoidType();
 	} else if (size(items) == 1) {
-		return getTypeForItem(head(items));
+		return getTypeForItem(scopeInfo, getOneFrom(items));
 	} else {
-		return RTypeOverloaded([getTypeForItem(sii) | sii <- items]);
+		return RTypeOverloaded([getTypeForItem(scopeInfo, sii) | sii <- items]);
 	}
 }
 
-public Tree decorateNames(Tree t, ItemUses itu) {
+public Tree decorateNames(Tree t, ScopeInfo scopeInfo) {
 	return visit(t) {
-		case `<Name n>` => hasRType(itu,n@\loc) ? n[@rtype = getRType(itu,n@\loc)] : n
+		case `<Name n>` => hasRType(scopeInfo,n@\loc) ? n[@rtype = getRType(scopeInfo,n@\loc)] : n
 		
-		case `<QualifiedName n>` => hasRType(itu,n@\loc) ? n[@rtype = getRType(itu,n@\loc)] : n
+		case `<QualifiedName n>` => hasRType(scopeInfo,n@\loc) ? n[@rtype = getRType(scopeInfo,n@\loc)] : n
 	}
 }

@@ -80,7 +80,7 @@ data RType =
 	| RTypeParen(RType parenType)
 	| RFailType(str failMsg, loc failLoc)
 	| RInferredType(int tnum)
-	| RTypeOverloaded(list[RType] possibleTypes)
+	| RTypeOverloaded(set[RType] possibleTypes)
 	| RTypeConstructor(RName cname, list[RTypeArg] cvalues, RType pt)
 ;
 
@@ -192,7 +192,7 @@ public str prettyPrintType(RType t) {
 		case RTypeParen(pt) :  return "(" + prettyPrintType(pt) + ")";
 		case RFailType(s,l) :  return "Failure: " + s;
 		case RInferredType(n) : return "Inferred Type: " + n;
-		case RTypeOverloaded(pts) : return "Overloaded type, could be: " + prettyPrintTypeList(pts);
+		case RTypeOverloaded(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p | p <- pts]);
 		case RTypeConstructor(cn,cv,ut) : return "Constructor for type " + prettyPrintType(ut) + ": " + prettyPrintName(cn) + "(" + prettyPrintTAList(cv) + ")";
 	}
 }
@@ -408,7 +408,7 @@ public bool isSetType(RType t) {
 
 public bool isSetTypeBT(RStructuredType t) {
 	switch(t) {
-		case RStructuredType(RSetType(), tas) : return size(tas) == 1;
+		case RStructuredType(RSetType(), _) : return true;
 
 		default: return false;
 	}
@@ -450,7 +450,7 @@ public bool isRelType(RType t) {
 
 public bool isRelTypeST(RStructuredType t) {
 	switch(t) {
-		case RStructuredType(RRelType(), tas) : return size(tas) == 1;
+		case RStructuredType(RRelType(), _) : return true;
 
 		default: return false;
 	}
@@ -482,7 +482,7 @@ public bool isListType(RType t) {
 
 public bool isListTypeST(RStructuredType t) {
 	switch(t) {
-		case RStructuredType(RListType(), tas) : return size(tas) == 1;
+		case RStructuredType(RListType(), _) : return true;
 
 		default: return false;
 	}
@@ -532,11 +532,45 @@ public bool isOverloadedType(RType t) {
 		return false;
 }
 
-public list[RType] getOverloadOptions(RType t) {
-	if (RTypeOverloaded(l) := t)
-		return l;
+public set[RType] getOverloadOptions(RType t) {
+	if (RTypeOverloaded(s) := t)
+		return s;
 	else
 		return []; // TODO: Should be an exception...
+}
+
+public bool isTupleType(RType t) {
+	switch(t) {
+		case RTypeStructured(st) : return isTupleTypeST(st);
+
+		default : return false;
+	}
+}
+
+public bool isTupleTypeST(RStructuredType t) {
+	switch(t) {
+		case RStructuredType(RTupleType(), _) : return true;
+
+		default: return false;
+	}
+}
+
+public bool tupleHasField(RType t, RName fn) {
+	if (RTypeStructured(RStructuredType(RTupleType(),tas)) := t) {
+		for (ta <- tas) {
+			if (RNamedTypeArg(_,fn) := ta) return true;	
+		}
+	}
+	return false;
+}
+
+public RType getTupleFieldType(RType t, RName fn) {
+	if (RTypeStructured(RStructuredType(RTupleType(),tas)) := t) {
+		for (ta <- tas) {
+			if (RNamedTypeArg(ft,fn) := ta) return ft;	
+		}
+	}
+	return makeVoidType(); // TODO: Should be an exception instead
 }
 
 //
@@ -603,3 +637,10 @@ public RType getConstructorResultType(RType ct) {
 	}
 	return makeVoidType(); // TODO: Should be an exception!
 }
+
+public RName getUserTypeName(RUserType ut) {
+	switch(ut) {
+		case RTypeName(x) : return x;
+		case RParametricType(x,_) : return x;
+	}
+} 
