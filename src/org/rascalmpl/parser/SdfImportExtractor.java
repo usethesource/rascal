@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.ast.ASTFactory;
@@ -36,7 +37,7 @@ public class SdfImportExtractor {
 		
 		for (String i : allImports) {
 			for (String path : searchPath) {
-				File sdf = new File(new File(path), i.replaceAll("::",""+ File.separatorChar) + Configuration.getSDFExtensionProperty());
+				File sdf = new File(new File(path), i.replaceAll("::", Matcher.quoteReplacement(""+File.separatorChar)) + Configuration.getSDFExtensionProperty());
 				if (sdf.exists()) {
 					result.add(i);
 				}
