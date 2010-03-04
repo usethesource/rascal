@@ -58,7 +58,7 @@ public class XMLDOM {
 	}
 
 	private IConstructor convertElement(Element e, boolean trim) {
-		IMapWriter attrs = vf.mapWriter(tf.stringType(), tf.valueType());
+		IMapWriter attrs = vf.mapWriter(tf.stringType(), tf.stringType());
 		for (Object o: e.getAttributes()) {
 			Attribute attr = (Attribute)o;
 			
