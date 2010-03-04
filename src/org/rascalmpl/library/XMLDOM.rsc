@@ -6,8 +6,9 @@ data Document = document(Content.element root)
               | document(str version, bool standalone, Content.element root)
               | document(str version, str encoding, bool standalone, Content.element root);
              
+alias Attributes = map[str, str];
 
-data Content = element(str name, map[str, value] attrs, list[Content] contents)
+data Content = element(str name, Attributes attributes, list[Content] contents)
 			 | charData(str text)
 			 | cdata(str text)
 			 | comment(str text)
