@@ -48,3 +48,16 @@ public RType lub(RType t1, RType t2) {
 	// Default case: if none of the above match,  the lub is a value
 	return makeValueType();
 }
+
+// Calculate the least upper bound of an entire list of types
+public RType lubList(list[RType] tl) {
+	RType resultType = makeVoidType();
+	for (t <- tl) resultType = lub(resultType,t);
+	return resultType; // TODO: Switch to reduce syntax...
+}
+
+public RType lubSet(set[RType] tl) {
+	RType resultType = makeVoidType();
+	for (t <- tl) resultType = lub(resultType,t);
+	return resultType; 
+}

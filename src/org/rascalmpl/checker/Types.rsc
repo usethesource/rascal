@@ -1,6 +1,7 @@
 module org::rascalmpl::checker::Types
 
 import List;
+import Set;
 import IO;
 
 import org::rascalmpl::checker::ListUtils;
@@ -78,7 +79,7 @@ data RType =
 	| RTypeUser(RUserType ut)
 	| RTypeSelector(RDataTypeSelector dts)
 	| RTypeParen(RType parenType)
-	| RFailType(str failMsg, loc failLoc)
+	| RFailType(set[tuple[str failMsg, loc failLoc]])
 	| RInferredType(int tnum)
 	| RTypeOverloaded(set[RType] possibleTypes)
 	| RTypeConstructor(RName cname, list[RTypeArg] cvalues, RType pt)
@@ -181,6 +182,10 @@ public str prettyPrintSelector(RDataTypeSelector dts) {
 	}
 }
 
+public str printLocMsgPair(tuple[str failMsg, loc failLoc] lmp) {
+	return "Error at location <lmp.failLoc>: <lmp.failMsg>";
+}
+
 public str prettyPrintType(RType t) {
 	switch(t) {
 		case RTypeBasic(bt) : return prettyPrintBasicType(bt);
@@ -190,7 +195,7 @@ public str prettyPrintType(RType t) {
 		case RTypeUser(ut) : return prettyPrintUserType(ut);
 		case RTypeSelector(dts) : return prettyPrintSelector(dts);
 		case RTypeParen(pt) :  return "(" + prettyPrintType(pt) + ")";
-		case RFailType(s,l) :  return "Failure: " + s;
+		case RFailType(sls) :  return "Failure: " + joinList(toList(sls),printLocMsgPair,", ","");
 		case RInferredType(n) : return "Inferred Type: " + n;
 		case RTypeOverloaded(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p | p <- pts]);
 		case RTypeConstructor(cn,cv,ut) : return "Constructor for type " + prettyPrintType(ut) + ": " + prettyPrintName(cn) + "(" + prettyPrintTAList(cv) + ")";
@@ -519,7 +524,7 @@ public bool isConstructorType(RType t) {
 }
 	
 public bool isFailType(RType t) {
-	if (RFailType(_,_) := t) 
+	if (RFailType(_) := t) 
 		return true;
 	else
 		return false;
@@ -588,9 +593,17 @@ public RType makeVoidType() { return RTypeBasic(RVoidType()); }
 
 public RType makeValueType() { return RTypeBasic(RValueType()); }
 
+public RType makeLocType() { return RTypeBasic(RLocType()); }
+
+public RType makeDateTimeType() { return RTypeBasic(RDateTimeType()); }
+
 public RType makeListType(RType itemType) { return RTypeStructured(RStructuredType(RListType(),[RTypeArg(itemType)])); }
 
 public RType makeSetType(RType itemType) { return RTypeStructured(RStructuredType(RSetType(), [RTypeArg(itemType)])); }
+
+public RType makeMapType(RType domainType, RType rangeType) { 
+	return RTypeStructured(RStructuredType(MapType(),[RTypeArg(domainType), RTypeArg(rangeType)])); 
+}
 
 public RType makeTupleType(list[RType] itemTypes) { 
 	return RTypeStructured(RStructuredType(RTupleType(), [ RTypeArg( x ) | x <- itemTypes ]));
@@ -600,7 +613,27 @@ public RType makeFunctionType(RType retType, list[RType] paramTypes) {
 	return RTypeFunction(RFunctionType(retType, [ RTypeArg( x ) | x <- paramTypes ]));
 }
 
-public RType makeFailType(str s, loc l) { return RFailType(s,l); }
+public RType makeReifiedType(RType mainType, list[RType] paramTypes) {
+	return RTypeStructured(RStructuredType(RReifiedType(), [ RTypeArg(RMainType) ] + [ RTypeArg(x) | x <- paramTypes ]));
+}
+	
+public RType makeFailType(str s, loc l) { return RFailType({<s,l>}); }
+
+// TODO: Come up with a less stupid name for this
+public RType makeBiggerFailType(RType ft, set[tuple[str s, loc l]] sls) {
+	return RFailType({ < e.s, e.l > | e <- sls });
+}
+
+public RType extendFailType(RType ft, set[tuple[str s, loc l]] sls) {
+	if (RFailType(sls2) := ft) {
+		return RFailType(sls2 + { < e.s, e.l > | e <- sls });
+	}
+	return ft;
+}
+ 
+public RType collapseFailTypes(set[RType] rt) {
+	return RFailType({ s | RFailType(ss) <- rt, s <- ss });
+}
 
 public RType makeConstructorType(RName cname, list[RTypeArg] tas, RType tn) { 
 	return RTypeConstructor(cname, tas, tn);

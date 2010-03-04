@@ -2,9 +2,11 @@ module org::rascalmpl::checker::Check
 
 import IO;
 import List;
+import Set;
 
 import org::rascalmpl::checker::Types;
 import org::rascalmpl::checker::SubTypes;
+import org::rascalmpl::checker::Namespace;
 
 import languages::rascal::syntax::Rascal;
 
@@ -30,415 +32,53 @@ import languages::rascal::syntax::Rascal;
 public Tree check(Tree t) {
 	return visit(t) {
 		case Expression e => e[@rtype = checkExpression(e)]
+		case Pattern p => p[@rtype = checkPattern(p)]
 	}
 }
 
 private bool debug = true;
 
-private RType propagateFailOr(RType checkType, RType newType) {
-	if (isFailType(checkType))
-		return checkType;
+private set[RType] gatherFailTypes(set[RType] checkTypes) {
+	return { ct | ct <- checkTypes, isFailType(ct) };
+}
+
+private bool checkForFail(set[RType] checkTypes) {
+	return size(gatherFailTypes(checkTypes)) > 0;
+}
+
+private RType propagateFailOr(set[RType] checkTypes, RType newType) {
+	set[RType] ts = gatherFailTypes(checkTypes);
+	if (size(ts) > 0) 
+		return collapseFailTypes(ts);
 	else
 		return newType;
-}
-
-// Should we merge these somehow?
-private RType propagateFailOr(RType checkType, RType checkType2, RType newType) {
-	if (isFailType(checkType))
-		return checkType;
-	else if (isFailType(checkType2))
-		return checkType2;
-	else
-		return newType;
-}
-
-private RType propagateFailOr(RType checkType, RType checkType2, RType checkType3, RType newType) {
-	if (isFailType(checkType))
-		return checkType;
-	else if (isFailType(checkType2))
-		return checkType2;
-	else if (isFailType(checkType3))
-		return checkType3;
-	else
-		return newType;
-}
-
-private RType checkNegativeExpression(Expression ep, Expression e) {
-	if (isIntType(e@rtype)) {
-		return makeIntType();
-	} else if (isRealType(e@rtype)) {
-		return makeRealType();
-	} else {
-		return propagateFailOr(e@rtype,makeFailType("Error in negation operation: <e> should have a numeric type " + 
-			"but instead has type " + prettyPrintType(e@rtype),ep@\loc));
-	}
-}
-
-private RType checkNegationExpression(Expression ep, Expression e) {
-	if (isBoolType(e@rtype)) {
-		return makeBoolType();
-	} else {
-		return propagateFailOr(e@rtype,makeFailType("Error in negation operation: <e> should have type " + 
-			prettyPrintType(makeBoolType()) + " but instead has type " + prettyPrintType(e@rtype),ep@\loc));
-	}
-}
-
-public RType checkPlusExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeStrType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype)) {
-		return makeSetType(lub(getSetElementType(el@rtype),getSetElementType(er@rtype)));
-	} else if (isListType(el@rtype) && isListType(er@rtype)) {
-		return makeListType(lub(getListElementType(el@rtype),getListElementType(er@rtype)));
-	} else {
-		// TODO: Handle Map, Tuple cases
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in sum operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
 }
 
 //
-// TODO:
-// Question: why should - change the type of the result? Shouldn't set[a] - set[b] or
-// list[a] - list[b] always result in a set or list of type a?
+// Literals are checked directly in checkExpression
 //
-public RType checkMinusExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeStrType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype)) {
-		return makeSetType(lub(getSetElementType(el@rtype),getSetElementType(er@rtype)));
-	} else if (isListType(el@rtype) && isListType(er@rtype)) {
-		return makeListType(lub(getListElementType(el@rtype),getListElementType(er@rtype)));
-	} else {
-		// TODO: Handle Map case
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in difference operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
 
-public RType checkTimesExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype)) {
-		return makeSetType(makeTupleType([getSetElementType(el@rtype),getSetElementType(er@rtype)]));
-	} else if (isListType(el@rtype) && isListType(er@rtype)) {
-		return makeListType(makeTupleType([getListElementType(el@rtype),getListElementType(er@rtype)]));
-	} else {
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in product operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
+//
+// Qualified names are checked directly in checkExpression
+//
 
-public RType checkDivExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else {
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in division operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkModExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else {
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in mod operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkLessThanExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in less than operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkLessThanOrEqualExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in less than or equal to operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkGreaterThanExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in greater than operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkGreaterThanOrEqualExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in greater than or equal to operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkEqualsExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in equals operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkNotEqualsExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in not equals operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkImplicationExpression(Expression ep, Expression el, Expression er) {
-	if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in implication operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkEquivalenceExpression(Expression ep, Expression el, Expression er) {
-	if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in equivalence operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkAndExpression(Expression ep, Expression el, Expression er) {
-	if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in and operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkOrExpression(Expression ep, Expression el, Expression er) {
-	if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in or operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkSetExpression(Expression ep, {Expression ","}* es) {
-	// TODO: Properly account for subtypes and failures
-	// TODO: Probably want to copy the rtype (see if we need to, maybe useful if we think we will assign annotations to the types)
-	list[Expression] l = [ e | e <- es];
-	return RTypeStructured(RStructuredType(RSetType(), [ RTypeArg( size(l) > 0 ? getOneFrom(l)@rtype : RTypeBasic(RVoidType) ) ]));
-}
-
-public RType checkListExpression(Expression ep, {Expression ","}* es) {
-	// TODO: Properly account for subtypes and failures
-	// TODO: Probably want to copy the rtype (see if we need to, maybe useful if we think we will assign annotations to the types)
-	list[Expression] l = [ e | e <- es ];
-	return RTypeStructured(RStructuredType(RListType(), [ RTypeArg( size(l) > 0 ? getOneFrom(l)@rtype : RTypeBasic(RVoidType()) ) ]));
-}
-
-public RType checkTupleExpression(Expression ep, Expression ei, {Expression ","}* es) {
-	// TODO: Properly account for subtypes and failures
-	// TODO: Probably want to copy the rtype (see if we need to, maybe useful if we think we will assign annotations to the types)
-	list[Expression] l = [ei];
-	l += [ e | e <- es ];
-	return RTypeStructured(RStructuredType(RTupleType(), [ RTypeArg(e@rtype) | e <- l]));
-}
-
-public RType checkRangeExpression(Expression ep, Expression e1, Expression e2) {
-	if (isIntType(e1@rtype) && isIntType(e2@rtype)) {
-		return RTypeStructured(RStructuredType(RListType(), [ RTypeArg(RTypeBasic(RIntType())) ]));
-	} else {
-		return propagateFailOr(e1@rtype,e2@rtype,makeFailType("Error in range operation: operation is not defined on the types " +
-			prettyPrintType(e1@rtype) + " and " + prettyPrintType(e2@rtype),ep@\loc));
-	}
-}
-
-public RType checkIsDefinedExpression(Expression ep, Expression e) {
-	if (isFailType(e@rtype)) {
-		return e@rtype;
-	} else {
-		return makeBoolType();
-	}
-}
-
-public RType checkStepRangeExpression(Expression ep, Expression e1, Expression e2, Expression e3) {
-	if (isIntType(e1@rtype) && isIntType(e2@rtype) && isIntType(e3@rtype)) {
-		return RTypeStructured(RStructuredType(RListType(), [ RTypeArg(RTypeBasic(RIntType())) ]));
-	} else {
-		return propagateFailOr(e1@rtype,e2@rtype,e3@rtype,makeFailType("Error in step range operation: operation is not defined on the types " +
-			prettyPrintType(e1@rtype) + ", " + prettyPrintType(e2@rtype) + " and " + prettyPrintType(e3@rtype),ep@\loc));
-	}
-}
-
-public RType checkInExpression(Expression ep, Expression el, Expression er) {
-	if (isSetType(er@rtype) && getSetElementType(er@rtype) == el@rtype) {
-		return makeBoolType();
-	} else if (isListType(er@rtype) && getListElementType(er@rtype) == el@rtype) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Map type, see what is needed for boolean operations
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in in operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
-}
-
-public RType checkNotInExpression(Expression ep, Expression el, Expression er) {
-	if (isSetType(er@rtype) && getSetElementType(er@rtype) == el@rtype) {
-		return makeBoolType();
-	} else if (isListType(er@rtype) && getListElementType(er@rtype) == el@rtype) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Map type, see what is needed for boolean operations
-		return propagateFailOr(el@rtype,er@rtype,makeFailType("Error in notin operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+private RType checkReifiedTypeExpression(Expression ep, Type t, {Expression ","}* el) {
+	if (checkForFail({ e@rtype | e <- el }))
+		return collapseFailTypes({ e@rtype | e <- el });
+	else
+		return makeReifiedType(convertType(t), [ e@rtype | e <- el ]);
 }
 
 public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression ","}* es) {
 	RType resultType = makeFailType("We assume bad, bad things!",ep@\loc);
-	
-	// TODO: Check for failure types for ec and es here; if we have failures, all
-	// the following logic is pointless anyway.
-	
+
+	// First, if we have any failures, just propagate those upwards, don't bother to
+	// check the rest of the call.
+	// TODO: We may want to check arity, etc anyway, since we could catch errors
+	// where no function or constructor could possibly match.	
+	if (checkForFail({ ec@rtype } + { e@rtype | e <- es }))
+		return collapseFailTypes({ ec@rtype } + { e@rtype | e <- es });
+			
 	// We can have overloaded functions and overloaded data constructors. If the type
 	// is overloaded, we need to check each overloading to find the one that works.
 	// TODO: We should codify the rules for resolving overloaded functions, since
@@ -468,19 +108,92 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 			for (e <- args) {
 				RType argType = head(argTypes); argTypes = tail(argTypes);
 				if (argType != e@rtype) {
-					if (!isFailType(potentialResultType)) {
-						potentialResultType = makeFailType("Bad function invocation, argument type mismatch",ep@\loc); // TODO: Improve error message
-					}
+					potentialResultType = makeFailType("Bad function invocation or constructor usage, argument type mismatch",ep@\loc); // TODO: Improve error message
 				}
 			}			
 		} else {
 			potentialResultType = makeFailType("Arity mismatch", ep@\loc); // TODO: Improve error message
 		}
 		
+		// This will cause us to keep the last error in cases where we cannot find a valid function
+		// or constructor to use.
 		if (isFailType(resultType)) resultType = potentialResultType;
 	}
 		
 	return resultType;	
+}
+ 
+public RType checkListExpression(Expression ep, {Expression ","}* es) {
+	if (checkForFail({ e@rtype | e <- es }))
+		return collapseFailTypes({ e@rtype | e <- es });
+	else
+		return makeListType(lubList([e@rtype | e <- es]));
+}
+
+public RType checkSetExpression(Expression ep, {Expression ","}* es) {
+	if (checkForFail({ e@rtype | e <- es }))
+		return collapseFailTypes({ e@rtype | e <- es });
+	else
+		return makeSetType(lubList([e@rtype | e <- es]));
+}
+
+public RType checkTupleExpression(Expression ep, Expression ei, {Expression ","}* es) {
+	set[Expression] eset = {ei} + {e | e <- es};
+	if (checkForFail({e@rtype | e <- eset}))
+		return collapseFailTypes({e@rtype | e <- eset});
+	else
+		return makeTupleType([ e@rtype | e <- eset]);
+}
+
+// TODO: Implement this...
+public RType checkMapExpression(Expression ep) {
+	return makeVoidType();
+}
+
+public RType checkClosureExpression(Expression ep, Type t, Parameters p, Statement+ ss) {
+	return makeVoidType();
+}
+
+public RType checkVoidClosureExpression(Expression ep, Type t, Parameters p, Statement+ ss) {
+	return makeVoidType();
+}
+ 
+public RType checkNonEmptyBlockExpression(Expression ep, Statement+ ss) {
+	return makeVoidType();
+}
+
+public RType checkVisitExpression(Expression ep, Label l, Visit v) {
+	return makeVoidType();
+}
+
+//
+// Paren expressions are handled below in checkExpression
+//
+
+public RType checkRangeExpression(Expression ep, Expression e1, Expression e2) {
+	if (isIntType(e1@rtype) && isIntType(e2@rtype)) {
+		return RTypeStructured(RStructuredType(RListType(), [ RTypeArg(RTypeBasic(RIntType())) ]));
+	} else {
+		return propagateFailOr({ e1@rtype, e2@rtype },makeFailType("Error in range operation: operation is not defined on the types " +
+			prettyPrintType(e1@rtype) + " and " + prettyPrintType(e2@rtype),ep@\loc));
+	}
+}
+
+public RType checkStepRangeExpression(Expression ep, Expression e1, Expression e2, Expression e3) {
+	if (isIntType(e1@rtype) && isIntType(e2@rtype) && isIntType(e3@rtype)) {
+		return RTypeStructured(RStructuredType(RListType(), [ RTypeArg(RTypeBasic(RIntType())) ]));
+	} else {
+		return propagateFailOr({e1@rtype, e2@rtype, e3@rtype },makeFailType("Error in step range operation: operation is not defined on the types " +
+			prettyPrintType(e1@rtype) + ", " + prettyPrintType(e2@rtype) + " and " + prettyPrintType(e3@rtype),ep@\loc));
+	}
+}
+
+//
+// Reify type expressions are handled below in checkExpression
+//
+
+public RType checkFieldUpdateExpression(Expression ep, Expression el, Name n, Expression er) {
+	return makeVoidType();
 }
 
 // TODO: Add a table with the built-in types and fields
@@ -498,12 +211,507 @@ public RType checkFieldAccessExpression(Expression ep, Expression el, Name n) {
 	return makeVoidType();
 }
 
-public RType checkFieldUpdateExpression(Expression ep, Expression el, Name n, Expression er) {
+public RType checkFieldProjectExpression(Expression ep, Expression e1, {Field ","}+ fl) {
 	return makeVoidType();
 }
 
-public RType checkFieldProjectExpression(Expression ep, Expression e1, {Field ","}+ fl) {
+public RType checkSubscriptExpression(Expression ep, Expression el, {Expression ","}+ es) {
 	return makeVoidType();
+}
+
+public RType checkIsDefinedExpression(Expression ep, Expression e) {
+	if (isFailType(e@rtype)) {
+		return e@rtype;
+	} else {
+		return makeBoolType();
+	}
+}
+
+private RType checkNegationExpression(Expression ep, Expression e) {
+	if (isBoolType(e@rtype)) {
+		return makeBoolType();
+	} else {
+		return propagateFailOr({ e@rtype },makeFailType("Error in negation operation: <e> should have type " + 
+			prettyPrintType(makeBoolType()) + " but instead has type " + prettyPrintType(e@rtype),ep@\loc));
+	}
+}
+
+private RType checkNegativeExpression(Expression ep, Expression e) {
+	if (isIntType(e@rtype)) {
+		return makeIntType();
+	} else if (isRealType(e@rtype)) {
+		return makeRealType();
+	} else {
+		return propagateFailOr({ e@rtype },makeFailType("Error in negation operation: <e> should have a numeric type " + 
+			"but instead has type " + prettyPrintType(e@rtype),ep@\loc));
+	}
+}
+
+public RType checkTransitiveReflexiveClosureExpression(Expression ep, Expression e) {
+	return makeVoidType();
+}
+
+public RType checkTransitiveClosureExpression(Expression ep, Expression e) {
+	return makeVoidType();
+}
+
+public RType checkGetAnnotationExpression(Expression ep, Expression e, Name n) {
+	return makeVoidType();
+}
+
+public RType checkSetAnnotationExpression(Expression ep, Expression el, Name n, Expression er) {
+	return makeVoidType();
+}
+
+public RType checkCompositionExpression(Expression ep, Expression el, Expression er) {
+	return makeVoidType();
+}
+
+public RType checkProductExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeIntType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeRealType();
+	} else if (isSetType(el@rtype) && isSetType(er@rtype)) {
+		return makeSetType(makeTupleType([getSetElementType(el@rtype),getSetElementType(er@rtype)]));
+	} else if (isListType(el@rtype) && isListType(er@rtype)) {
+		return makeListType(makeTupleType([getListElementType(el@rtype),getListElementType(er@rtype)]));
+	} else {
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in product operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkJoinExpression(Expression ep, Expression el, Expression er) {
+	return makeVoidType();
+}
+
+public RType checkDivExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeIntType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeRealType();
+	} else {
+		return propagateFailOr({ el@rtype, er@rtype },
+			makeFailType("Error in division operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkModExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeIntType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeRealType();
+	} else {
+		return propagateFailOr({ el@rtype, er@rtype },
+			makeFailType("Error in mod operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkIntersectionExpression(Expression ep, Expression el, Expression er) {
+	return makeVoidType();
+}
+
+public RType checkPlusExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeIntType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeRealType();
+	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
+		return makeStrType();
+	} else if (isSetType(el@rtype) && isSetType(er@rtype)) {
+		return makeSetType(lub(getSetElementType(el@rtype),getSetElementType(er@rtype)));
+	} else if (isListType(el@rtype) && isListType(er@rtype)) {
+		return makeListType(lub(getListElementType(el@rtype),getListElementType(er@rtype)));
+	} else {
+		// TODO: Handle Map, Tuple cases
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in sum operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+//
+// TODO:
+// Question: why should - change the type of the result? Shouldn't set[a] - set[b] or
+// list[a] - list[b] always result in a set or list of type a?
+//
+public RType checkMinusExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeIntType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeRealType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeRealType();
+	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
+		return makeStrType();
+	} else if (isSetType(el@rtype) && isSetType(er@rtype)) {
+		return makeSetType(lub(getSetElementType(el@rtype),getSetElementType(er@rtype)));
+	} else if (isListType(el@rtype) && isListType(er@rtype)) {
+		return makeListType(lub(getListElementType(el@rtype),getListElementType(er@rtype)));
+	} else {
+		// TODO: Handle Map case
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in difference operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkNotInExpression(Expression ep, Expression el, Expression er) {
+	if (isSetType(er@rtype) && getSetElementType(er@rtype) == el@rtype) {
+		return makeBoolType();
+	} else if (isListType(er@rtype) && getListElementType(er@rtype) == el@rtype) {
+		return makeBoolType();
+	} else {
+		// TODO: Handle Map type, see what is needed for boolean operations
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in notin operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkInExpression(Expression ep, Expression el, Expression er) {
+	if (isSetType(er@rtype) && getSetElementType(er@rtype) == el@rtype) {
+		return makeBoolType();
+	} else if (isListType(er@rtype) && getListElementType(er@rtype) == el@rtype) {
+		return makeBoolType();
+	} else {
+		// TODO: Handle Map type, see what is needed for boolean operations
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in in operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkLessThanExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
+		return makeBoolType();
+	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
+		return makeBoolType();
+	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		// TODO: Handle Location, Map, Node, Tuple, Value types
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in less than operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkLessThanOrEqualExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
+		return makeBoolType();
+	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
+		return makeBoolType();
+	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		// TODO: Handle Location, Map, Node, Tuple, Value types
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in less than or equal to operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkGreaterThanExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
+		return makeBoolType();
+	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
+		return makeBoolType();
+	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		// TODO: Handle Location, Map, Node, Tuple, Value types
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in greater than operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkGreaterThanOrEqualExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
+		return makeBoolType();
+	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
+		return makeBoolType();
+	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		// TODO: Handle Location, Map, Node, Tuple, Value types
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in greater than or equal to operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkEqualsExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
+		return makeBoolType();
+	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
+		return makeBoolType();
+	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		// TODO: Handle Location, Map, Node, Tuple, Value types
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in equals operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkNotEqualsExpression(Expression ep, Expression el, Expression er) {
+	if (isIntType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
+		return makeBoolType();
+	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
+		return makeBoolType();
+	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
+		return makeBoolType();
+	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
+		return makeBoolType();
+	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		// TODO: Handle Location, Map, Node, Tuple, Value types
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in not equals operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+// TODO: Add additional checking in case of failure or "branches" to better detect errors (but this is valid)
+public RType checkIfThenElseExpression(Expression ep, Expression eb, Expression et, Expression ef) {
+	if (checkForFail({ eb@rtype, et@rtype, ef@rtype }))
+		return collapseFailTypes({ eb@rtype, et@rtype, ef@rtype });
+	else {
+		if (!isBoolType(eb@rtype)) {
+			return makeFailType("Expression <eb> should have type <prettyPrintType(makeBoolType())>, but instead has type <prettyPrintType(eb@rtype)>",ep@\loc);
+		} else {
+			if (et@rtype != ef@rtype && !subtypeOf(et@rtype,ef@rtype) & !subtypeOf(ef@rtype,et@rtype)) {
+				return makeFailType("Expressions <et> and <ef> should have matching types or be in a subtype relation, but instead have types <prettyPrintType(et@rtype)> and <prettyPrintType(ef@rtype)>",ep@\loc);
+			} else {
+				return lub(et@rtype,ef@rtype);
+			}
+		}
+	}
+}
+
+public RType checkIfDefinedOtherwiseExpression(Expression ep, Expression ed, Expression eo) {
+	return makeVoidType();
+}
+
+public RType checkImplicationExpression(Expression ep, Expression el, Expression er) {
+	if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in implication operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkEquivalenceExpression(Expression ep, Expression el, Expression er) {
+	if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in equivalence operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkAndExpression(Expression ep, Expression el, Expression er) {
+	if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in and operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+public RType checkOrExpression(Expression ep, Expression el, Expression er) {
+	if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
+		return makeBoolType();
+	} else {
+		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in or operation: operation is not defined on the types " +
+			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
+	}
+}
+
+// TODO: Do we want to enforce that it is possible to the two sides to match? Not a static error, but could
+// prevent confusion (if developer THINKS this can match, but it never can...)
+public RType checkMatchExpression(Expression ep, Pattern p, Expression e) {
+	if (checkForFail({ p@rtype, e@rtype })) 
+		return collapseFailTypes({ p@rtype, e@rtype });
+	else if (subtypeOf(p@rtype,e@rtype) || subtypeOf(e@rtype,p@rtype)) // TODO: Is this right?
+		return makeBoolType();
+	else
+		return makeFailType("Types of <p> and <e>, <prettyPrintType(p@rtype)> and <prettyPrintType(e@rtype)>, should be in a subtype relation",ep@\loc);
+}
+
+// TODO: See checkMatchExpression above
+public RType checkNoMatchExpression(Expression ep, Pattern p, Expression e) {
+	if (checkForFail({ p@rtype, e@rtype })) 
+		return collapseFailTypes({ p@rtype, e@rtype });
+	else if (subtypeOf(p@rtype,e@rtype) || subtypeOf(e@rtype,p@rtype)) // TODO: Is this right?
+		return makeBoolType();
+	else
+		return makeFailType("Types of <p> and <e>, <prettyPrintType(p@rtype)> and <prettyPrintType(e@rtype)>, should be in a subtype relation",ep@\loc);
+}
+
+// TODO: See checkMatchExpression above
+public RType checkEnumeratorExpression(Expression ep, Pattern p, Expression e) {
+	if (checkForFail({ p@rtype, e@rtype })) 
+		return collapseFailTypes({ p@rtype, e@rtype });
+	else if (isListType(e@rtype) && subtypeOf(getListElementType(e@rtype), p@rtype))
+		return makeBoolType();
+	else if (isSetType(e@rtype) && subtypeOf(getSetElementType(e@rtype), p@rtype))
+		return makeBoolType();
+	else
+		return makeFailType("Types of <p> and <e>, <prettyPrintType(p@rtype)> and <prettyPrintType(e@rtype)>, should be in a subtype relation",ep@\loc);
+}
+
+public RType checkSetComprehensionExpression(Expression ep, {Expression ","}+ els, {Expression ","}+ ers) {
+	set[Expression] allExps = { e | e <- els } + { e | e <- ers };
+	if (checkForFail({ e@rtype | e <- allExps }))
+		return collapseFailTypes({ e@rtype | e <- ers });
+	else {
+		set[RType] genFailures = { 
+			makeFailType("Expression should have type <prettyPrintType(makeBoolType())>, but instead has type <prettyPrintType(e@rtype)>",e@\loc) |
+			e <- ers, !isBoolType(e@rtype)
+		};
+		if (size(genFailures) == 0) {
+			return makeSetType(lubSet({ e@rtype | e <- els }));
+		} else {
+			return collapseFailType(genFailures);
+		}
+	}
+}
+
+public RType checkListComprehensionExpression(Expression ep, {Expression ","}+ els, {Expression ","}+ ers) {
+	set[Expression] allExps = { e | e <- els } + { e | e <- ers };
+	if (checkForFail({ e@rtype | e <- allExps }))
+		return collapseFailTypes({ e@rtype | e <- ers });
+	else {
+		set[RType] genFailures = { 
+			makeFailType("Expression should have type <prettyPrintType(makeBoolType())>, but instead has type <prettyPrintType(e@rtype)>",e@\loc) |
+			e <- ers, !isBoolType(e@rtype)
+		};
+		if (size(genFailures) == 0) {
+			return makeListType(lubSet({ e@rtype | e <- els }));
+		} else {
+			return collapseFailType(genFailures);
+		}
+	}
+}
+
+public RType checkMapComprehensionExpression(Expression ep, Expression ef, Expression et, {Expression ","}+ ers) {
+	set[Expression] allExps = { ef } + { et } + { e | e <- ers };
+	if (checkForFail({ e@rtype | e <- allExps }))
+		return collapseFailTypes({ e@rtype | e <- ers });
+	else {
+		set[RType] genFailures = { 
+			makeFailType("Expression should have type <prettyPrintType(makeBoolType())>, but instead has type <prettyPrintType(e@rtype)>",e@\loc) |
+			e <- ers, !isBoolType(e@rtype)
+		};
+		if (size(genFailures) == 0) {
+			return makeMapType(ef@rtype, et@rtype);
+		} else {
+			return collapseFailType(genFailures);
+		}
+	}
+}
+
+public RType checkReducerExpression(Expression ep, Expression ei, Expression er, {Expression ","}+ ers) {
+	return makeVoidType();
+}
+
+public RType checkAllExpression(Expression ep, {Expression ","}+ ers) {
+	if (checkForFail({ e@rtype | e <- ers }))
+		return collapseFailTypes({ e@rtype | e <- ers });
+	else {
+		for (e <- ers) {
+			if (! isBoolType(e@rtype)) {
+				return makeFailType("All expressions used in expression all must have type <prettyPrintType(makeBoolType())>, but expression <e> has type <prettyPrintType(e@rtype)>",ep@\loc);			
+			} 
+		}
+	}
+	return makeBoolType();
+}
+		
+public RType checkAnyExpression(Expression ep, {Expression ","}+ ers) {
+	if (checkForFail({ e@rtype | e <- ers }))
+		return collapseFailTypes({ e@rtype | e <- ers });
+	else {
+		for (e <- ers) {
+			if (! isBoolType(e@rtype)) {
+				return makeFailType("All expressions used in expression any must have type <prettyPrintType(makeBoolType())>, but expression <e> has type <prettyPrintType(e@rtype)>",ep@\loc);			
+			} 
+		}
+	}
+	return makeBoolType();
 }
 
 public RType checkExpression(Expression exp) {
@@ -538,12 +746,14 @@ public RType checkExpression(Expression exp) {
 			return makeRealType();
 		}
 
+		// TODO: Interpolation
 		case (Expression)`<StringLiteral sl>`  : {
 			if (debug) println("StringLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RStrType())));
 			return makeStrType();
 		}
 
+		// TODO: Interpolation
 		case (Expression)`<LocationLiteral ll>`  : {
 			if (debug) println("LocationLiteral: <exp>");
 			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RLocType())));
@@ -556,7 +766,7 @@ public RType checkExpression(Expression exp) {
 			return RTypeBasic(RDateTimeType());
 		}
 
-		// Name
+		// TODO: See if we ever have this; a qualified name, not a name, is an expression
 		case (Expression)`<Name n>`: {
 			if (debug) println("Name: <exp>");
 			if (debug) println("Assigned type: " + prettyPrintType(n@rtype));
@@ -573,7 +783,7 @@ public RType checkExpression(Expression exp) {
 		// ReifiedType
 		case `<BasicType t> ( <{Expression ","}* el> )` : {
 			if (debug) println("ReifiedType: <exp>");
-			RType rt = checkReifiedType(exp,t,el);
+			RType rt = checkReifiedTypeExpression(exp,t,el);
 			if (debug) println("Assigned type: " + prettyPrintType(rt));
 			return rt;
 		}
@@ -707,12 +917,13 @@ public RType checkExpression(Expression exp) {
 			return t;
 		}
 
-		// TODO: Subscript (currently broken)
-//		case `<Expression e1> [ <{Expression ","}+ el> ]` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression rct = RSubscriptExp(convertExpression(e1),mapper(getSDFExpListItems(el),convertExpression));
-//			return rct[@at = exp@\loc];
-//		}
+		// Subscript (currently broken)
+		case `<Expression e1> [ <{Expression ","}+ el> ]` : {
+			if (debug) println("Subscript <exp>");
+			RType t = checkSubscriptExpression(exp,e1,el);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
 		// IsDefined
 		case `<Expression e> ?` : {
@@ -738,68 +949,58 @@ public RType checkExpression(Expression exp) {
 			return t;
 		}
 
-		// TransitiveClosure
-//		case `<Expression e> + ` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RTransitiveClosureExp(convertExpression(e));
-//			return re[@at = exp@\loc] ;
-//		}
-
 		// TransitiveReflexiveClosure
-//		case `<Expression e> * ` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RTransitiveReflexiveClosureExp(convertExpression(e));
-//			return re[@at = exp@\loc] ;
-//		}
+		case `<Expression e> * ` : {
+			if (debug) println("TransitiveReflexiveClosure: <exp>");
+			RType t = checkTransitiveReflexiveClosureExpression(exp,e);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// TransitiveClosure
+		case `<Expression e> + ` : {
+			if (debug) println("TransitiveClosure: <exp>");
+			RType t = checkTransitiveClosureExpression(exp,e);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
 		// GetAnnotation
-//		case `<Expression e> @ <Name n>` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RGetAnnotationExp(convertExpression(e),convertName(n));
-//			return re[@at = exp@\loc] ;
-//		}
+		case `<Expression e> @ <Name n>` : {
+			if (debug) println("GetAnnotation: <exp>");
+			RType t = checkGetAnnotationExpression(exp,e,n);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
 		// SetAnnotation
-//		case `<Expression e1> [@ <Name n> = <Expression e2>]` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RSetAnnotationExp(convertExpression(e1),convertName(n),convertExpression(e2));
-//			return re[@at = exp@\loc] ;
-//		}
+		case `<Expression e1> [@ <Name n> = <Expression e2>]` : {
+			if (debug) println("SetAnnotation: <exp>");
+			RType t = checkSetAnnotationExpression(exp,e1,n,e2);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
 		// Composition
-//		case `<Expression e1> o <Expression e2>` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RCompositionExp(convertExpression(e1),convertExpression(e2));
-//			return re[@at = exp@\loc] ;
-//		}
+		case `<Expression e1> o <Expression e2>` : {
+			if (debug) println("Composition: <exp>");
+			RType t = checkCompositionExpression(exp,e1,e2);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
-		// Join
-//		case `<Expression e1> join <Expression e2>` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RJoinExp(convertExpression(e1),convertExpression(e2));
-//			return re[@at = exp@\loc] ;
-//		}
-
-		// Times
+		// Product
 		case `<Expression e1> * <Expression e2>` : {
 			if (debug) println("Times: <exp>");
-			RType t = checkTimesExpression(exp,e1,e2);
+			RType t = checkProductExpression(exp,e1,e2);
 			if (debug) println("Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
-		// Plus
-		case `<Expression e1> + <Expression e2>` : {
-			if (debug) println("Plus: <exp>");
-			RType t = checkPlusExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
-			return t;
-		}
-
-		// Minus
-		case `<Expression e1> - <Expression e2>` : {
-			if (debug) println("Minus: <exp>");
-			RType t = checkMinusExpression(exp,e1,e2);
+		// Join
+		case `<Expression e1> join <Expression e2>` : {
+			if (debug) println("Join: <exp>");
+			RType t = checkJoinExpression(exp,e1,e2);
 			if (debug) println("Assigning type: " + prettyPrintType(t));
 			return t;
 		}
@@ -820,10 +1021,26 @@ public RType checkExpression(Expression exp) {
 			return t;
 		}
 
-		// In
-		case `<Expression e1> in <Expression e2>` : {
-			if (debug) println("In: <exp>");
-			RType t = checkInExpression(exp,e1,e2);
+		// Intersection
+		case `<Expression e1> & <Expression e2>` : {
+			if (debug) println("Intersection: <exp>");
+			RType t = checkIntersectionExpression(exp,e1,e2);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Plus
+		case `<Expression e1> + <Expression e2>` : {
+			if (debug) println("Plus: <exp>");
+			RType t = checkPlusExpression(exp,e1,e2);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// Minus
+		case `<Expression e1> - <Expression e2>` : {
+			if (debug) println("Minus: <exp>");
+			RType t = checkMinusExpression(exp,e1,e2);
 			if (debug) println("Assigning type: " + prettyPrintType(t));
 			return t;
 		}
@@ -832,6 +1049,14 @@ public RType checkExpression(Expression exp) {
 		case `<Expression e1> notin <Expression e2>` : {
 			if (debug) println("NotIn: <exp>");
 			RType t = checkNotInExpression(exp,e1,e2);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// In
+		case `<Expression e1> in <Expression e2>` : {
+			if (debug) println("In: <exp>");
+			RType t = checkInExpression(exp,e1,e2);
 			if (debug) println("Assigning type: " + prettyPrintType(t));
 			return t;
 		}
@@ -852,18 +1077,18 @@ public RType checkExpression(Expression exp) {
 			return t;
 		}
 
-		// GreaterThanOrEq
-		case `<Expression e1> >= <Expression e2>` : {
-			if (debug) println("GreaterThanOrEq: <exp>");
-			RType t = checkGreaterThanOrEqualExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
-			return t;
-		}
-
 		// GreaterThan
 		case `<Expression e1> > <Expression e2>` : {
 			if (debug) println("GreaterThan: <exp>");
 			RType t = checkGreaterThanExpression(exp,e1,e2);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// GreaterThanOrEq
+		case `<Expression e1> >= <Expression e2>` : {
+			if (debug) println("GreaterThanOrEq: <exp>");
+			RType t = checkGreaterThanOrEqualExpression(exp,e1,e2);
 			if (debug) println("Assigning type: " + prettyPrintType(t));
 			return t;
 		}
@@ -884,19 +1109,21 @@ public RType checkExpression(Expression exp) {
 			return t;
 		}
 
-		// IfDefinedOtherwise
-//		case `<Expression e1> ? <Expression e2>` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RIfDefExp(convertExpression(e1),convertExpression(e2));
-//			return re[@at = exp@\loc] ;
-//		}
-
 		// IfThenElse (Ternary)
-//		case `<Expression e1> ? <Expression e2> : <Expression e3>` : {
-//			if (debug) println("DateTimeLiteral: <dtl>");
-//			RExpression re = RTernaryExp(convertExpression(e1),convertExpression(e2),convertExpression(e3));
-//			return re[@at = exp@\loc] ;
-//		}
+		case `<Expression e1> ? <Expression e2> : <Expression e3>` : {
+			if (debug) println("IfThenElse: <exp>");
+			RType t = checkIfThenElseExpression(exp,e1,e2,e3);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;	
+		}
+
+		// IfDefinedOtherwise
+		case `<Expression e1> ? <Expression e2>` : {
+			if (debug) println("IfDefinedOtherwise: <exp>");
+			RType t = checkIfDefinedOtherwiseExpression(exp,e1,e2);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;		
+		}
 
 		// Implication
 		case `<Expression e1> ==> <Expression e2>` : {
@@ -929,7 +1156,600 @@ public RType checkExpression(Expression exp) {
 			if (debug) println("Assigning type: " + prettyPrintType(t));
 			return t;
 		}
+		
+		// Match
+		case `<Pattern p> := <Expression e>` : {
+			if (debug) println("Match: <exp>");
+			RType t = checkMatchExpression(exp,p,e);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
 
+		// NoMatch
+		case `<Pattern p> !:= <Expression e>` : {
+			if (debug) println("NoMatch: <exp>");
+			RType t = checkNoMatchExpression(exp,p,e);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// Enumerator
+		case `<Pattern p> <- <Expression e>` : {
+			if (debug) println("Enumerator: <exp>");
+			RType t = checkEnumeratorExpression(exp,p,e);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Set Comprehension
+		case (Expression) `{ <{Expression ","}+ el> | <{Expression ","}+ er> }` : {
+			if (debug) println("SetComprehension: <exp>");
+			RType t = checkSetComprehensionExpression(exp,el,er);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// List Comprehension
+		case (Expression) `[ <{Expression ","}+ el> | <{Expression ","}+ er> ]` : {
+			if (debug) println("ListComprehension: <exp>");
+			RType t = checkListComprehensionExpression(exp,el,er);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Map Comprehension
+		case (Expression) `( <Expression ef> : <Expression et> | <{Expression ","}+ er> )` : {
+			if (debug) println("MapComprehension: <exp>");
+			RType t = checkMapComprehensionExpression(exp,ef,et,er);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Reducer 
+		case `( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )` : {
+			if (debug) println("Reducer: <exp>");
+			RType t = checkReducerExpression(exp,ei,er,egs);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// It
+		case `it` : {
+			if (debug) println("It: <exp>");
+			if (debug) println("Assigned type: " + prettyPrintType(exp@rtype));
+			return exp@rtype; 
+		}
+			
+		// All 
+		case `all ( <{Expression ","}+ egs> )` : {
+			if (debug) println("All: <exp>");
+			RType t = checkAllExpression(exp,egs);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// Any 
+		case `all ( <{Expression ","}+ egs> )` : {
+			if (debug) println("Any: <exp>");
+			RType t = checkAnyExpression(exp,egs);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// TODO: Look in embedding.sdf for more expression productions
+		
+		// TODO: Add support for interpolation
 	}
 }
 
+public RType checkReifiedTypePattern(Pattern pp, Type t, {Pattern ","}* pl) {
+	if (checkForFail({ p@rtype | p <- pl }))
+		return collapseFailTypes({ p@rtype | p <- pl });
+	else {
+		return makeReifiedType(convertType(t), [ p@rtype | p <- pl ]);
+	}
+}
+
+//
+// TODO: this takes a strict view of what a static type error is for patterns. We
+// may want a more relaxed version, where if someone uses a pattern that could never
+// match we just let it go, since this won't cause a runtime error (but it may be
+// useful for the user to know)
+//
+public RType checkCallOrTreePattern(Pattern pp, Pattern pc, {Pattern ","}* ps) {
+	RType resultType = makeFailType("We assume bad, bad things!",pp@\loc);
+
+	// First, if we have any failures, just propagate those upwards, don't bother to
+	// check the rest of the call.
+	// TODO: We may want to check arity, etc anyway, since we could catch errors
+	// where no function or constructor could possibly match.	
+	if (checkForFail({ pc@rtype } + { p@rtype | p <- ps }))
+		return collapseFailTypes({ pc@rtype } + { p@rtype | p <- ps });
+			
+	// We can have overloaded functions and overloaded data constructors. If the type
+	// is overloaded, we need to check each overloading to find the one that works.
+	// TODO: We should codify the rules for resolving overloaded functions, since
+	// we need those rules here. It should be the case that the most specific function
+	// wins, but we probably also need errors to indicate when definitions make this
+	// impossible, like f(int,value) versus f(value,int).
+	
+	// Set up the possible alternatives. We will treat the case of no overloads as a trivial
+	// case of overloading with only one alternative.
+	set[RType] alternatives = isOverloadedType(pc@rtype) ? getOverloadOptions(pc@rtype) : { pc@rtype };
+	
+	// Now, try each alternative, seeing if one matches.
+	for (a <- alternatives) {
+		list[Pattern] args = [ p | p <- ps ];
+		list[RType] argTypes = [];
+		RType potentialResultType;
+		
+		if (isFunctionType(a)) {
+			argTypes = getFunctionArgumentTypes(a);
+			potentialResultType = getFunctionReturnType(a);
+		} else if (isConstructorType(a)) {
+			argTypes = getConstructorArgumentTypes(a);
+			potentialResultType = getConstructorResultType(a);
+		}
+		
+		if (size(argTypes) == size(args)) {
+			for (p <- args) {
+				RType argType = head(argTypes); argTypes = tail(argTypes);
+				if (argType != p@rtype) {
+					potentialResultType = makeFailType("Bad function or constructor pattern, argument type mismatch",pp@\loc); // TODO: Improve error message
+				}
+			}			
+		} else {
+			potentialResultType = makeFailType("Arity mismatch", pp@\loc); // TODO: Improve error message
+		}
+		
+		// This will cause us to keep the last error in cases where we cannot find a valid function
+		// or constructor to use.
+		if (isFailType(resultType)) resultType = potentialResultType;
+	}
+		
+	return resultType;	
+}
+ 
+public RType checkListPattern(Pattern pp, {Pattern ","}* ps) {
+	if (checkForFail({ p@rtype | p <- ps }))
+		return collapseFailTypes({ p@rtype | p <- ps });
+	else
+		return makeListType(lubList([p@rtype | p <- ps]));
+}
+
+public RType checkSetPattern(Pattern pp, {Pattern ","}* ps) {
+	if (checkForFail({ p@rtype | p <- ps }))
+		return collapseFailTypes({ p@rtype | p <- ps });
+	else
+		return makeSetType(lubList([p@rtype | p <- ps]));
+}
+
+public RType checkTuplePattern(Pattern pp, Pattern pi, {Pattern ","}* ps) {
+	set[Pattern] pset = {pi} + {p | p <- ps};
+	if (checkForFail({p@rtype | p <- pset}))
+		return collapseFailTypes({p@rtype | p <- pset});
+	else
+		return makeTupleType([ p@rtype | p <- pset]);
+}
+
+// TODO: Implement this once we can match maps
+public RType checkMapPattern(Pattern pp) {
+	return makeVoidType();
+}
+
+public RType checkDescendantPattern(Pattern pp, Pattern p) {
+	return p@rtype;
+}
+
+// TODO: Look in current interpreter for typing rules
+public RType checkVariableBecomesPattern(Pattern pp, Name n, Pattern p) {
+	return makeVoidType();
+}
+
+// TODO: Look in current interpreter for typing rules
+public RType checkTypedVariableBecomesPattern(Pattern pp, Type t, Name n, Pattern p) {
+	return makeVoidType();
+}
+
+// TODO: Look in current interpreter for typing rules
+public RType checkGuardedPattern(Pattern pp, Type t, Pattern p) {
+	return makeVoidType();
+}
+
+// TODO: Look in current interpreter for typing rules
+public RType checkAntiPattern(Pattern pp, Pattern p) {
+	return makeVoidType();
+}
+
+public RType checkPattern(Pattern pat) {
+	switch(pat) {
+		case (Pattern)`<BooleanLiteral bl>` : {
+			if (debug) println("BooleanLiteralPattern: <pat>");
+			if (debug) println("Assigning type: " + prettyPrintType(makeBoolType()));
+			return makeBoolType();
+		}
+
+		case (Pattern)`<DecimalIntegerLiteral il>`  : {
+			if (debug) println("DecimalIntegerLiteralPattern: <pat>");
+			if (debug) println("Assigning type: " + prettyPrintType(makeIntType()));
+			return makeIntType();
+		}
+
+		case (Pattern)`<OctalIntegerLiteral il>`  : {
+			if (debug) println("OctalIntegerLiteralPattern: <pat>");
+			if (debug) println("Assigning type: " + prettyPrintType(makeIntType()));
+			return makeIntType();
+		}
+
+		case (Pattern)`<HexIntegerLiteral il>`  : {
+			if (debug) println("HexIntegerLiteralPattern: <pat>");
+			if (debug) println("Assigning type: " + prettyPrintType(makeIntType()));
+			return makeIntType();
+		}
+
+		case (Pattern)`<RealLiteral rl>`  : {
+			if (debug) println("RealLiteralPattern: <pat>");
+			if (debug) println("Assigning type: " + prettyPrintType(makeRealType()));
+			return makeRealType();
+		}
+
+		// TODO: Interpolation
+		case (Pattern)`<StringLiteral sl>`  : {
+			if (debug) println("StringLiteralPattern: <pat>");
+			if (debug) println("Assigning type: " + prettyPrintType(makeStrType()));
+			return makeStrType();
+		}
+
+		// TODO: Interpolation
+		case (Pattern)`<LocationLiteral ll>`  : {
+			if (debug) println("LocationLiteralPattern: <pat>");
+			if (debug) println("Assigning type: " + prettyPrintType(makeLocType()));
+			return makeLocType();
+		}
+
+		case (Pattern)`<DateTimeLiteral dtl>`  : {
+			if (debug) println("DateTimeLiteralPattern: <pat>");
+			if (debug) println("Assigning type: " + prettyPrintType(makeDateTimeType()));
+			return makeDateTimeType();
+		}
+
+		// TODO: See if we ever have this; a qualified name, not a name, is a Pattern
+		case (Pattern)`<Name n>`: {
+			if (debug) println("NamePattern: <pat>");
+			if (debug) println("Assigned type: " + prettyPrintType(n@rtype));
+			return n@rtype; // TODO: Should throw an exception if the name has no type information
+		}
+		
+		// QualifiedName
+		case (Pattern)`<QualifiedName qn>`: {
+			if (debug) println("QualifiedNamePattern: <pat>");
+			if (debug) println("Assigned type: " + prettyPrintType(qn@rtype));
+			return qn@rtype; // TODO: Should throw an exception if the name has no type information
+		}
+
+		// ReifiedType
+		case `<BasicType t> ( <{Pattern ","}* pl> )` : {
+			if (debug) println("ReifiedTypePattern: <pat>");
+			RType rt = checkReifiedTypePattern(pat,t,pl);
+			if (debug) println("Assigned type: " + prettyPrintType(rt));
+			return rt;
+		}
+
+		// CallOrTree
+		case `<Pattern p1> ( <{Pattern ","}* pl> )` : {
+			if (debug) println("CallOrTreePattern: <pat>");
+			RType t = checkCallOrTreePattern(pat,p1,pl);
+			if(debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// List
+		case `[<{Pattern ","}* pl>]` : {
+			if (debug) println("ListPattern: <pat>");
+			RType t = checkListPattern(pat,pl);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// Set
+		case `{<{Pattern ","}* pl>}` : {
+			if (debug) println("SetPattern: <pat>");
+			RType t = checkSetPattern(pat,pl);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// Tuple
+		case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+			if (debug) println("TuplePattern: <pat>");
+			RType t = checkTuplePattern(pat,pi,pl);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// TODO: Map: Need to figure out a syntax that works for matching this
+//		case `<<Pattern ei>, <{Pattern ","}* el>>` : {
+//			// TODO: This is not yet working
+//			if (debug) println("Tuple <pat>");
+//			RType t = checkTuplePattern(exp,ei,el);
+//			if (debug) println("Assigning type: " + prettyPrintType(t));
+//			return t;
+//		}
+
+		// Descendant
+		case `/ <Pattern p>` : {
+			if (debug) println("DescendantPattern: <pat>");
+			RType t = checkDescendantPattern(pat,p);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// Variable Becomes
+		case `<Name n> : <Pattern p>` : {
+			if (debug) println("VariableBecomesPattern: <pat>");
+			RType t = checkVariableBecomesPattern(pat,n,p);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Typed Variable Becomes
+		case `<Type t> <Name n> : <Pattern p>` : {
+			if (debug) println("TypedVariableBecomesPattern: <pat>");
+			RType t = checkTypedVariableBecomesPattern(pat,t,n,p);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Guarded
+		case `[ <Type t> ] <Pattern p>` : {
+			if (debug) println("GuardedPattern: <pat>");
+			RType t = checkGuardedPattern(pat,t,p);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}			
+		
+		// Anti
+		case `! <Pattern p>` : {
+			if (debug) println("AntiPattern: <pat>");
+			RType t = checkAntiPattern(pat,p);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+	}
+}
+
+//
+// Check Pattern with Action productions
+//
+public RType checkPatternWithAction(PatternWithAction p) {
+	switch(p) {
+		case `<Pattern p> => <Expression e>` : {
+			3;
+		}
+		
+		case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
+			3;
+		}
+		
+		case `<Pattern p> : <Statement s>` : {
+			3;
+		}
+	}
+	
+	return makeVoidType();
+}
+
+//
+// Check visits
+//
+public RType checkVisit(Visit v) {
+	return makeVoidType();
+}
+
+//
+// Check individual cases
+//
+public RType checkCase(Case c) {
+	switch(c) {
+		case `case <PatternWithAction p>` : {
+			if (debug) println("Case: <c>");
+			if (debug) println("Assigning type: " + prettyPrintType(p@rtype));
+			return p@rtype;
+		}
+		
+		case `default : <Statement b>` : {
+			if (debug) println("Case: <c>");
+			if (debug) println("Assigning type: " + prettyPrintType(b@rtype));
+			return b@rtype;
+		}
+	}
+}
+
+// TODO: Implement
+public RType checkSubscriptAssignable(Assignable ap, Assignable a, Expression e) {
+	return makeVoidType();
+}
+
+// TODO: Implement
+public RType checkFieldAccessAssignable(Assignable ap, Assignable a, Name n) {
+	return makeVoidType();
+}
+		
+public RType checkIfDefinedOrDefaultAssignable(Assignable ap, Assignable a, Expression e) {
+	if (isFailType(a@rtype) || isFailType(e@rtype)) {
+		return collapseFailTypes({ a@rtype, e@rtype });
+	} else {
+		if (!subtypeOf(e@rtype,a@rtype)) {
+			return makeFailType("The type of <e>, <prettyPrintType(e@rtype)>, is not a subtype of the type of <a>, <prettyPrintType(a@rtype)>",ap@\loc);
+		} else {
+			return lub(e@rtype,a@rtype);		
+		}
+	}
+}
+
+// TODO: Implement
+public RType checkAnnotationAssignable(Assignable ap, Assignable a, Name n) {
+	return makeVoidType();
+}
+		
+public RType checkTupleAssignable(Assignable ap, {Assignable ","}+ al) {
+	if (checkForFail({ a@rtype | a <- al }))
+		return collapseFailTypes({ a@rtype | a <- al });
+	else
+		return makeTupleType([ a@rtype | a <- al]);
+}
+
+public RType checkConstructorAssignable(Assignable ap, Name n, {Assignable ","}+ al) {
+	if (checkForFail({ a@rtype | a <- al }))
+		return collapseFailTypes({ a@rtype | a <- al });
+
+	set[RType] alternatives = isOverloadedType(n@rtype) ? getOverloadOptions(n@rtype) : { n@rtype };
+	
+	// Now, try each alternative, seeing if one matches.
+	for (a <- alternatives) {
+		list[Assignable] args = [ a | a <- al ];
+		list[RType] argTypes = [];
+		RType potentialResultType;
+		
+		if (isFunctionType(a)) {
+			argTypes = getFunctionArgumentTypes(a);
+			potentialResultType = getFunctionReturnType(a);
+		} else if (isConstructorType(a)) {
+			argTypes = getConstructorArgumentTypes(a);
+			potentialResultType = getConstructorResultType(a);
+		}
+		
+		if (size(argTypes) == size(args)) {
+			for (ai <- args) {
+				RType argType = head(argTypes); argTypes = tail(argTypes);
+				if (argType != ai@rtype) {
+					potentialResultType = makeFailType("Bad function invocation or constructor usage, argument type mismatch",ap@\loc); // TODO: Improve error message
+				}
+			}			
+		} else {
+			potentialResultType = makeFailType("Arity mismatch", ap@\loc); // TODO: Improve error message
+		}
+		
+		// This will cause us to keep the last error in cases where we cannot find a valid function
+		// or constructor to use.
+		if (isFailType(resultType)) resultType = potentialResultType;
+	}
+
+	return resultType;	
+}
+
+//
+// Check assignables
+//
+public RType checkAssignable(Assignable a) {
+	switch(a) {
+		// Variable
+		case (Assignable)`<QualifiedName qn>` : {
+			if (debug) println("VariableAssignable: <pat>");
+			if (debug) println("Assigned type: " + prettyPrintType(qn@rtype));
+			return qn@rtype;
+		}
+		
+		// Subscript
+		case `<Assignable al> [ <Expression e> ]` : {
+			if (debug) println("SubscriptAssignable: <pat>");
+			RType t = checkSubscriptAssignable(a,al,e);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Field Access
+		case `<Assignable al> . <Name n>` : {
+			if (debug) println("FieldAccessAssignable: <pat>");
+			RType t = checkFieldAccessAssignable(a,al,n);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// If Defined or Default
+		case `<Assignable al> ? <Expression e>` : {
+			if (debug) println("IfDefinedOrDefaultAssignable: <pat>");
+			RType t = checkIfDefinedOrDefaultAssignable(a,al,e);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Annotation
+		case `<Assignable al> @ <Name n>` : {
+			if (debug) println("AnnotationAssignable: <pat>");
+			RType t = checkAnnotationAssignable(a,al,n);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Tuple
+		case `< <{Assignable ","}+ al> >` : {
+			if (debug) println("TupleAssignable: <pat>");
+			RType t = checkTupleAssignable(a,al);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Constructor
+		case `<Name n> ( <{Assignable ","}+ al> )` : {
+			if (debug) println("ConstructorAssignable: <pat>");
+			RType t = checkConstructorAssignable(a,n,al);
+			if (debug) println("Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+	}
+}
+
+//
+// Handle local variable declarations, with or without initializers
+//
+// TODO: Need to check type of e to ensure assignment is correct!
+//
+public RType checkLocalVarItems(Type t, {Variable ","}+ vs) {
+	for (vb <- vs) {
+		switch(vb) {
+			case `<Name n>` : {
+				return convertType(t);
+			}
+				
+			case `<Name n> = <Expression e>` : {
+				return convertType(t);
+			}
+		}
+	}
+}
+
+//
+// Check catch clauses in exception handlers
+//
+public RType checkCatch(Catch c) {
+	switch(c) {
+		case `catch : <Statement b>` : {
+			if (debug) println("Catch: <c>");
+			if (debug) println("Assigning type: " + prettyPrintType(b@rtype));
+			return b@rtype;
+		}
+		
+		// TODO: Pull out into own function for consistency
+		case `catch <Pattern p> : <Statement b>` : {
+			if (debug) println("Catch: <c>");
+			
+			if (checkForFail({ p@rtype, b@rtype }))
+				return collapseFailTypes({ p@rtype, b@rtype });
+			else
+				return b@rtype;
+		}
+	}
+}
+
+//
+// Check a file, given the path to the file
+//
+public Tree checkFile(str filePath) {
+	loc l = |file://<filePath>|;
+	Tree t = parse(#Module,l);
+	ScopeInfo si = buildNamespace(t);
+	Tree td = decorateNames(t,si);
+	Tree tc = check(td);
+	return tc;
+}
