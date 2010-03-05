@@ -13,11 +13,39 @@ public class Factory {
 	
 	public static final Type Document = tf.abstractDataType(xml, "Document");
 	public static final Type Content = tf.abstractDataType(xml, "Content");
-		
+	
+	public static final Type Attribute = tf.abstractDataType(xml, "Attribute");
+	
+	public static final Type Attributes = tf.aliasType(xml, "Attributes", tf.setType(Attribute));
+	
+	public static final Type Namespace = tf.abstractDataType(xml, "Namespace");
+	
+	public static final Type Namespace_namespace = tf.constructor(xml, Namespace, "namespace", 
+			tf.stringType(), "prefix",
+			tf.stringType(), "uri");
+	
+	
+	public static final Type Attribute_attribute = tf.constructor(xml, Attribute, "attribute", 
+			tf.stringType(), "name",
+			tf.stringType(), "text");
+	
+	public static final Type Attribute_attributeNs = tf.constructor(xml, Attribute, "attribute", 
+			tf.stringType(), "name",
+			Namespace, "namespace",
+			tf.stringType(), "text");
+
 	public static final Type Content_element = tf.constructor(xml, Content, "element", 
 			tf.stringType(), "name",
-			tf.mapType(tf.stringType(), tf.valueType()), "attrs",
+			Attributes, "attributes",
 			tf.listType(Content), "contents");
+
+	public static final Type Content_elementNS = tf.constructor(xml, Content, "element", 
+			Namespace, "namespace",
+			tf.stringType(), "name",
+			Attributes, "attributes",
+			tf.listType(Content), "contents");
+
+	
 	public static final Type Content_charData = tf.constructor(xml, Content, "charData",
 			tf.stringType(), "text");
 	public static final Type Content_cdata = tf.constructor(xml, Content, "cdata",
