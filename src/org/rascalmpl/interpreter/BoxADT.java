@@ -14,6 +14,7 @@ public class BoxADT {
 	static final private TypeStore ts;
 	static final private TypeFactory tf;
 	static final private Type box, boxlst, str;
+	
 	static private IValueFactory vf;
 	static {
 		tf = TypeFactory.getInstance();
@@ -49,31 +50,41 @@ public class BoxADT {
 			return vf.constructor(tag, vf.string(s));
 		}
 	};
-	static IValue EMPTY = TAG.L.create("");
-	static IValue PLUS = TAG.L.create("+");
-	static IValue MINUS = TAG.L.create("-");
-	static IValue MULT = TAG.L.create("*");
-	static IValue DIVIDE = TAG.L.create("/");
-	static IValue MOD = TAG.L.create("/");
-	static IValue EQUALS = TAG.L.create("==");
-	static IValue NOTEQUAL = TAG.L.create("!=");
-	static IValue LT = TAG.L.create("<");
-	static IValue LE = TAG.L.create("<=");
-	static IValue GT = TAG.L.create(">");
-	static IValue GE = TAG.L.create(">=");
-	static IValue OR = TAG.L.create("||");
-	static IValue AND = TAG.L.create("&&");
-	static IValue NOT = TAG.L.create("!");
-	static IValue LPAR = TAG.L.create("(");
-	static IValue RPAR = TAG.L.create(")");
-	static IValue LBRACK = TAG.L.create("[");
-	static IValue RBRACK = TAG.L.create("]");
-	static IValue LBLOCK = TAG.L.create("{");
-	static IValue RBLOCK = TAG.L.create("}");
-	static IValue ASSIGN = TAG.L.create("=");
-	static IValue COMMA = TAG.L.create(",");
-	static IValue SEMICOLON= TAG.L.create(";");
-	static IValue COLON= TAG.L.create(":");
+	static final IValue EMPTY = TAG.L.create("");
+	static final IValue PLUS = TAG.L.create("+");
+	static final IValue MINUS = TAG.L.create("-");
+	static final IValue MULT = TAG.L.create("*");
+	static final IValue DIVIDE = TAG.L.create("/");
+	static final IValue MODULO = TAG.L.create("%");
+	static final IValue MOD = TAG.L.create("/");
+	static final IValue EQUALS = TAG.L.create("==");
+	static final IValue EQUIVALENCE = TAG.L.create("<==>");
+	static final IValue NOTEQUALS = TAG.L.create("!=");
+	static final IValue NEGATION = TAG.L.create("!");
+	static final IValue LT = TAG.L.create("<");
+	static final IValue LE = TAG.L.create("<=");
+	static final IValue GT = TAG.L.create(">");
+	static final IValue GE = TAG.L.create(">=");
+	static final IValue OR = TAG.L.create("||");
+	static final IValue AND = TAG.L.create("&&");
+	static final IValue NOT = TAG.L.create("!");
+	static final IValue LPAR = TAG.L.create("(");
+	static final IValue RPAR = TAG.L.create(")");
+	static final IValue LBRACK = TAG.L.create("[");
+	static final IValue RBRACK = TAG.L.create("]");
+	static final IValue LBLOCK = TAG.L.create("{");
+	static final IValue RBLOCK = TAG.L.create("}");
+	static final IValue ASSIGN = TAG.L.create("=");
+	static final IValue COMMA = TAG.L.create(",");
+	static final IValue SEMICOLON= TAG.L.create(";");
+	static final IValue DOT = TAG.L.create(".");
+	static final IValue AT = TAG.L.create("@");
+	static final IValue QUESTIONMARK= TAG.L.create("?");
+	static final IValue COLON= TAG.L.create(":");
+	static final IValue VBAR= TAG.L.create("|");
+	static final IValue ELOF= TAG.L.create("<-");
+	static final IValue INTERSECTION = TAG.L.create("&");
+	static final IValue RANGE = TAG.L.create("..");
 
 	// Type tagar[] = new Type[TAG.values().length];
 	//
@@ -123,7 +134,7 @@ public class BoxADT {
 		return vf.list();
 	}
 
-	static IList getList(IValue t) {
+	static IList getList(IValue ... t) {
 		return vf.list(t);
 	}
 
@@ -163,6 +174,12 @@ public class BoxADT {
 	
 	static IValue HV(IValue ... t) {
 		return BoxADT.TAG.HV.create(t);
+	}
+	
+	static IValue HV(int hspace, IValue ... t) {
+		IConstructor r = BoxADT.TAG.HV.create(t);
+		r= r.setAnnotation("hs", vf.integer(hspace));
+		return r;
 	}
 	
 	static IValue HOV(IValue ... t) {
