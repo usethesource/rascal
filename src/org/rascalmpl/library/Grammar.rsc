@@ -167,16 +167,15 @@ public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
 // First set of a grammar
 
 public SymbolUse first(KernelGrammar G){
-	
-	FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G));
 	defSymbols = definedSymbols(G);
+	FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) + 
+	        (S : {} | Symbol S <- defSymbols);
+	        
 	
 	solve (FIRST) {
 		for(Symbol S <- defSymbols){	
-	     	if(!FIRST[S]?)
-	        	FIRST[S] = {};
 			for(list[Symbol] symbols <- G.productions[S]){
-				FIRST[S] += isEmpty(symbols) ? {epsilon()} : first(symbols, FIRST);
+				FIRST[S] += isEmpty(symbols) ? {epsilon()} : first(symbols, FIRST) - {epsilon()};
 			}
 		}
 	}	
@@ -187,7 +186,8 @@ public SymbolUse first(KernelGrammar G){
 
 public SymbolUse follow(KernelGrammar G,  SymbolUse FIRST){
    defSymbols = definedSymbols(G);
-   FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
+   FOLLOW = (S : {eoi()} | Symbol S <- G.start) + 
+            (S : {} | Symbol S <- defSymbols);
   
    solve(FOLLOW){
    		for(KernelProduction p <- G.productions){
@@ -198,7 +198,7 @@ public SymbolUse follow(KernelGrammar G,  SymbolUse FIRST){
       			if(current in defSymbols){
       				flw =  first(symbols, FIRST);
       				if(epsilon() in flw || isEmpty(symbols))
-      					FOLLOW[current] += FOLLOW[p.nonTerminal] + flw - {epsilon()};
+      					FOLLOW[current] += FOLLOW[p.nonTerminal] + (flw - {epsilon()});
       				else
       		    		FOLLOW[current] += flw;
       		    }
@@ -229,13 +229,15 @@ public Grammar G0 = grammar({sort("S")},
 
 test first(importGrammar(G0)) == ();
 
+test firstAndFollow(G0) == <(), ()>;
+
 public Grammar G1 = grammar({sort("E")},
 {
-pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
-pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
-pr(sort("E"), [sort("B")]),
-pr(sort("B"), [lit("0")]),
-pr(sort("B"), [lit("1")])
+	pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
+	pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
+	pr(sort("E"), [sort("B")]),
+	pr(sort("B"), [lit("0")]),
+	pr(sort("B"), [lit("1")])
 });
 
 test usedSymbols(importGrammar(G1)) == {lit("0"),lit("1"),sort("E"),sort("B"),lit("*"),lit("+")};
@@ -244,41 +246,45 @@ test definedSymbols(importGrammar(G1)) == {sort("E"),sort("B")};
 
 test G1.start < definedSymbols(importGrammar(G1));
 
-test first(importGrammar(G1)) == (lit("0"):{lit("0")},
-                                 sort("E"):{lit("0"),lit("1")},
-                                 lit("1"):{lit("1")},
-                                 sort("B"):{lit("0"),lit("1")},
-                                 lit("*"):{lit("*")},
-                                 lit("+"):{lit("+")});
+test first(importGrammar(G1)) ==
+	 (lit("0"):{lit("0")},
+      sort("E"):{lit("0"),lit("1")},
+      lit("1"):{lit("1")},
+      sort("B"):{lit("0"),lit("1")},
+      lit("*"):{lit("*")},
+      lit("+"):{lit("+")}
+     );
                                  
 public Grammar G2 = grammar({sort("E")},
 {
-xor([pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
-     pr(sort("E"), [sort("E"), lit("+"), sort("B")])
-    ]),
-pr(sort("E"), [sort("B")]),
-or({pr(sort("B"), [lit("0")]),
-    pr(sort("B"), [lit("1")])
-   })
+	xor([pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
+     	 pr(sort("E"), [sort("E"), lit("+"), sort("B")])
+    	]),
+	pr(sort("E"), [sort("B")]),
+	or({pr(sort("B"), [lit("0")]),
+    	pr(sort("B"), [lit("1")])
+   		})
 });
 
-test first(importGrammar(G2)) == (lit("0"):{lit("0")},
-                                 sort("E"):{lit("0"),lit("1")},
-                                 lit("1"):{lit("1")},
-                                 sort("B"):{lit("0"),lit("1")},
-                                 lit("*"):{lit("*")},
-                                 lit("+"):{lit("+")});
+test first(importGrammar(G2)) ==
+	(lit("0"):{lit("0")},
+     sort("E"):{lit("0"),lit("1")},
+     lit("1"):{lit("1")},
+     sort("B"):{lit("0"),lit("1")},
+     lit("*"):{lit("*")},
+     lit("+"):{lit("+")}
+    );
 
 public Grammar G3 = grammar( {sort("E")},
 {
-pr(sort("E"),  [sort("T"), sort("E1")]),
-pr(sort("E1"), [lit("+"), sort("T"), sort("E1")]),
-pr(sort("E1"), []),
-pr(sort("T"),  [sort("F"), sort("T1")]),
-pr(sort("T1"), [lit("*"), sort("F"), sort("T1")]),
-pr(sort("T1"), []),
-pr(sort("F"),  [lit("("), sort("E"), lit(")")]),
-pr(sort("F"),  [lit("id")])
+	pr(sort("E"),  [sort("T"), sort("E1")]),
+	pr(sort("E1"), [lit("+"), sort("T"), sort("E1")]),
+	pr(sort("E1"), []),
+	pr(sort("T"),  [sort("F"), sort("T1")]),
+	pr(sort("T1"), [lit("*"), sort("F"), sort("T1")]),
+	pr(sort("T1"), []),
+	pr(sort("F"),  [lit("("), sort("E"), lit(")")]),
+	pr(sort("F"),  [lit("id")])
 });
 
 public KernelGrammar K3 = importGrammar(G3);
@@ -293,16 +299,49 @@ test first(K3) ==
       sort("T1"):{lit("*"),epsilon()},
       lit("("): {lit("(")},
       lit(")"): {lit(")")}
-      );
+     );
       
 test follow(K3, first(K3)) ==
-      (sort("E"):{lit(")"), eoi()},
-       sort("E1"):{lit(")"), eoi()},
-       sort("T"):{lit("+"), lit(")"), eoi()},
-       sort("T1"):{lit("+"), lit(")"), eoi()},
-       sort("F"):{lit("+"), lit("*"), lit(")"), eoi()}
-      );
+     (sort("E"):{lit(")"), eoi()},
+      sort("E1"):{lit(")"), eoi()},
+      sort("T"):{lit("+"), lit(")"), eoi()},
+      sort("T1"):{lit("+"), lit(")"), eoi()},
+      sort("F"):{lit("+"), lit("*"), lit(")"), eoi()}
+     );
        
-      
+public Grammar Session = grammar({sort("Session")},
+{
+	pr(sort("Session"), [sort("Facts"), sort("Question")]),
+	pr(sort("Session"), [lit("("), sort("Session"), lit(")"), sort("Session")]),
+	pr(sort("Facts"),   [sort("Fact"), sort("Facts")]),
+	pr(sort("Facts"),   []),
+	pr(sort("Fact"),    [lit("!"), sort("STRING")]),
+	pr(sort("Question"),[lit("?"), sort("STRING")]),
+	pr(sort("STRING"),  [lit("a")])
+});
+
+KernelGrammar KSession = importGrammar(Session);
+
+test first(KSession) ==
+     (sort("Question"):{lit("?")},
+      sort("Session"):{lit("!"),lit("("), lit("?")},
+      sort("Facts"):{lit("!"),epsilon()},
+      lit("a"):{lit("a")},
+      lit("!"):{lit("!")},
+      lit("?"):{lit("?")},
+      lit("("):{lit("(")},
+      lit(")"):{lit(")")},
+      sort("STRING"):{lit("a")},
+      sort("Fact"):{lit("!")}
+     );
+     
+test follow(KSession, first(KSession)) ==
+ 	 (sort("Question"):{lit(")"),eoi()},
+ 	 sort("Session"):{lit(")"),eoi()},
+ 	 sort("Facts"):{lit("?")},
+ 	 sort("STRING"):{lit("!"),lit(")"),lit("?"),eoi()},
+ 	 sort("Fact"):{lit("!"),lit("?")}
+ 	 );
+
 
                 
