@@ -368,6 +368,55 @@ public class TreeAdapter{
 
 	}
 	
+	public static IConstructor locateLexical(IConstructor tree, int offset) {
+		ISourceLocation l = TreeAdapter.getLocation(tree);
+
+		if (l == null) {
+			throw new IllegalArgumentException("locate assumes position information on the tree");
+		}
+		
+		if (TreeAdapter.isLexToCf(tree)) {
+			if (l.getOffset() <= offset && offset < l.getOffset() + l.getLength()) {
+				return tree;
+			}
+			
+			return null;
+		}
+		
+		if (TreeAdapter.isAmb(tree)) {
+			return null;
+		}
+		
+		if (TreeAdapter.isAppl(tree)) {
+			IList children = TreeAdapter.getArgs(tree);
+			
+			for (IValue child : children) {
+				ISourceLocation childLoc = TreeAdapter.getLocation((IConstructor) child);
+				
+				if (childLoc == null) {
+					continue;
+				}
+				
+				if (childLoc.getOffset() <= offset && offset < childLoc.getOffset() + childLoc.getLength()) {
+					IConstructor result = locateLexical((IConstructor) child, offset);
+				
+					if (result != null) {
+						return result;
+					}
+					else {
+						break;
+					}
+				}
+			}
+			
+			if (l.getOffset() >= offset && l.getOffset() + l.getLength() <= offset) {
+				return tree;
+			}
+		}
+		
+		return null;
+	}
+	
 	public static void unparse(IConstructor tree, OutputStream stream) throws IOException, FactTypeUseException {
 		try {
 			if (tree.getConstructorType() == Factory.ParseTree_Top) {

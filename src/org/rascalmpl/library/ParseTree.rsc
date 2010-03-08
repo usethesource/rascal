@@ -61,7 +61,14 @@ data Symbol =
      \layout()  | 
      \char-class(list[CharRange] ranges);
 
+@doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
+
+@doc{provides a documentation string for this parse tree node}
+anno str Tree@doc;
+
+@doc{provides the target of a link}
+anno loc Tree@\link;
 
 @doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
