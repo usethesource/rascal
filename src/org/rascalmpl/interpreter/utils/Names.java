@@ -23,6 +23,31 @@ public class Names {
 		s = s.replace('\\', ' ');
 		return s.replaceAll(" ","");
 	}
+
+	static public String fullName(QualifiedName qname) {
+		List<Name> names = qname.getNames();
+		java.util.List<Name> prefix = names.subList(0, names.size() - 1);
+
+		if (prefix.size() == 0) {
+			return name(names.get(0));
+		}
+		
+		StringBuilder tmp = new StringBuilder();
+		Iterator<Name> iter = prefix.iterator();
+
+		while (iter.hasNext()) {
+			tmp.append(name(iter.next()));
+			if (iter.hasNext()) {
+				tmp.append("::");
+			}
+		}
+		
+		tmp.append("::");
+		tmp.append(name(names.get(names.size() - 1)));
+		
+		return tmp.toString();
+	}
+
 	
 	static public String moduleName(QualifiedName qname) {
 		List<Name> names = qname.getNames();
@@ -36,14 +61,13 @@ public class Names {
 		Iterator<Name> iter = prefix.iterator();
 
 		while (iter.hasNext()) {
-			Name part = iter.next();
-			tmp.append(part.toString());
+			tmp.append(name(iter.next()));
 			if (iter.hasNext()) {
 				tmp.append("::");
 			}
 		}
 		
-		return unescape(tmp.toString());
+		return tmp.toString();
 	}
 	
 	static public String name(Name name) {
