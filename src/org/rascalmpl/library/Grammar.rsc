@@ -229,7 +229,7 @@ public Grammar G0 = grammar({sort("S")},
 
 test first(importGrammar(G0)) == ();
 
-test firstAndFollow(G0) == <(), ()>;
+test firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
 
 public Grammar G1 = grammar({sort("E")},
 {
