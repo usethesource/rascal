@@ -321,10 +321,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new ArrayList<String>();
-				result.add(System.getProperty("user.dir"));
-				result.add(new File(System.getProperty("user.dir"), "src/org/rascalmpl/library").getAbsolutePath());
+				result.add(new File("/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library").getAbsolutePath());
 				result.add(Configuration.getSdfLibraryPathProperty());
 				result.add(new File(System.getProperty("user.dir"), "src/org/rascalmpl/test/data").getAbsolutePath());
+				
 				return result;
 			}
 		});
@@ -834,11 +834,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private String getUnescapedModuleName(
 			org.rascalmpl.ast.Import.Default x) {
-		String name = x.getModule().getName().toString();
-		if (name.startsWith("\\")) {
-			return name.substring(1);
-		}
-		return name;
+		return Names.fullName(x.getModule().getName());
 	}
 
 	private void loadParseTreeModule(
