@@ -10,19 +10,20 @@ import List;
 // Settings for the various chart types (not all implemented yet)
 
 data ChartSetting =            //             supported by
-                               // barChart pieChart xyChart histogram boxplot
-     chartSize(int w, int h)   //    x         x      x         x        x
-   | xLabel(str txt)           //    x                x         x        x
-   | horizontal()              //    x                x         x        x
-   | noSectionLabels()         //              x
-   | yLabel(str txt)           //    x                x         x        x
-   | ring(int h)               //              x
+                               // barChart pieChart xyChart
    | areaPlot()                //                     x
+                               
+   | chartSize(int w, int h)   //    x         x      x    
+   | curvePlot ()              //                     x 
+
+   | horizontal()              //    x                x   
    | linePlot()                //                     x
-   | curvePlot ()              //                     x      
+   | ring(int h)               //              x 
    | stackedBars()             //    x  
-   | subtitle(str txt)         //    x         x      x         x        x
-   | vertical()                //    x                x         x        x
+   | subtitle(str txt)         //    x         x      x
+   | vertical()                //    x                x 
+   | xLabel(str txt)           //    x                x
+   | yLabel(str txt)           //    x                x
    ;
  
 private int chartWidth = 400;
@@ -54,27 +55,18 @@ private void applySettings(list[ChartSetting] settings){
    for(ChartSetting setting <- settings){
         
        switch(setting){
-   	     case chartSize(int w, int h): { chartWidth = w; chartHeight = h;}
-         
-         case subtitle(str s): subtitle = s;
-         
-         case xLabel(str s): xTitle = s;
-         
-         case yLabel(str s): yTitle = s;
-         
+       
          case areaPlot(): isAreaPlot = true;
-         
-         case linePlot(): isLinePlot = true;
-         
-         case curvePlot(): isCurvePlot = true;
-         
-         case stackedBars() : isStackedBars = true;
-         
-         case horizontal(): isVertical = false;
-         
+   	     case chartSize(int w, int h): { chartWidth = w; chartHeight = h;}
+   	     case curvePlot(): isCurvePlot = true;
+   	     case horizontal(): isVertical = false;
+   	     case linePlot(): isLinePlot = true;
+   	     case ring(int h): ringHeight = h;
+   	     case stackedBars() : isStackedBars = true;
+         case subtitle(str s): subtitle = s;
          case vertical(): isVertical = true;
-         
-         case ring(int h): ringHeight = h;
+         case xLabel(str s): xTitle = s;
+         case yLabel(str s): yTitle = s;
        }
     }
 }

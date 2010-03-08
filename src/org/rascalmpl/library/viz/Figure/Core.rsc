@@ -67,7 +67,7 @@ public Color(int) colorScale(list[int] values, Color from, Color to){
 }
 
 @doc{Create a colorscale from a list of reals}
-public Color(int) colorScale(list[real] values, Color from, Color to){
+public Color(real) colorScale(list[real] values, Color from, Color to){
    mn = min(values);
    range = max(values) - mn;
    sc = colorSteps(from, to, 10);
