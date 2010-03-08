@@ -1,7 +1,11 @@
-module SyntaxDefinition
+module RascalGrammar
 
 import languages::\new-rascal::syntax::Rascal;
 import Grammar;
+import List;
+
+// join the rules for the same non-terminal
+rule merge   grammar(a,{p,q,a*}) => grammar(a,{or({p,q}), a*}) when sort(p) == sort(q);
 
 // these rule flatten complex productions and ignore ordering under diff and assoc
 rule or     or({a*, or({b*})})            => or({a*, b*}); 
@@ -21,6 +25,17 @@ rule assoc  assoc(a, {a*, diff(b, {c*})}) => diff(assoc(a, {a*, b}), {c*});
 rule diff   diff(p, {a*, diff(q, b*)})    => diff(or({p,q}), {a*, b*}); 
 rule diff   diff(diff(a, {b*}), {c*})     => diff(a, {b*, c*});
 
+public Symbol sort(Production p) {
+  if (/prod(_,rhs,_) := p) {
+    return rhs;
+  }
+  throw "weird production <p>";
+}
+
+public Grammar module2grammar(Module mod) {
+  return syntax2grammar(collect(mod));
+}
+  
 public set[SyntaxDefinition] collect(Module mod) {
   set[Module] result = {};
   visit (mod) { case SyntaxDefinition s : result += s; }
@@ -48,11 +63,18 @@ public Grammar def2prod(SyntaxDefinition def) {
     default: throw "missed case: <def>";
   }
 
-  // todo: deal with layout 
-
-  return grammar({},prods);
+  return grammar(starts, layout(prods) + layouts + { prod([l],layout(),no-attrs()) | l <- layouts });
 }
 
+public set[Production] layout(set[Production] prods) {
+  return visit (prods) {
+    case p:prod(lhs,rhs,a:attrs(![a*,term(lex()),b*])) => prod(intermix(lhs),rhs,a)
+  }
+}
+
+public list[Symbol] intermix(list[Symbol] syms) {
+  return [s,l | s <- syms, iter-star(layout())] - [l]; 
+}
 
 
 public Production prod2prod(Symbol nt, Prod p) {
