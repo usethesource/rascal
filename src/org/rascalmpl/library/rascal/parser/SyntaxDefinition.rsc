@@ -3,10 +3,11 @@ module RascalGrammar
 import rascal::syntax::Rascal;
 import Grammar;
 import List;
+import String;
 
 // join the rules for the same non-terminal
 rule merge   grammar(a,{p,q,a*}) => grammar(a,{or({p,q}), a*}) when sort(p) == sort(q);
-
+	
 // these rule flatten complex productions and ignore ordering under diff and assoc
 rule or     or({a*, or({b*})})            => or({a*, b*}); 
 rule xor    xor([a*,xor([b*],c*)])        => xor([a*,b*,c*]); 
@@ -24,6 +25,17 @@ rule xor    xor([a*, diff(b, {c*})])      => diff(or({xor([a*]), b}), {c*});
 rule assoc  assoc(a, {a*, diff(b, {c*})}) => diff(assoc(a, {a*, b}), {c*});
 rule diff   diff(p, {a*, diff(q, b*)})    => diff(or({p,q}), {a*, b*}); 
 rule diff   diff(diff(a, {b*}), {c*})     => diff(a, {b*, c*});
+
+// character class normalization
+rule flip   range(from, to) => range(to, from) when to < from;
+
+rule merge \char-class([a*,range(from1,to1),b*,range(from2,to2),c*]) =>
+           \char-class([a*,range(min(from1,from2),max(to1,to2)),b*])
+     when (from1 <= from2 - 1 && to1 >= from2 - 1) || (from2 <= from1 - 1 && to2 >= from1 - 1);
+
+rule order \char-class([a*,range(n,m),b*,range(o,p),d*]) =>
+           \char-class([a*,range(o,p),b*,range(n,m),d*])
+     when p < n;
 
 public Symbol sort(Production p) {
   if (/prod(_,rhs,_) := p) {
@@ -123,7 +135,40 @@ public Symbol arg2symbol(Sym sym) {
     case `<{<Sym s> <StringLiteral sep>}+>` : return \iter-sep(arg2symbol(s), lit("<sep>"));
     case `<{<Sym s> <StringLiteral sep>}*?>` : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
     case `<{<Sym s> <StringLiteral sep>}+?>` : return \iter-sep(arg2symbol(s), lit("<sep>"));
+    case `<CharClass cc>` : return \char-class(cc);
     default: throw "missed a case <sym>";
+  }
+}
+
+public list[CharRange] cc2ranges(Class cc) {
+   switch(cc) {
+     case `[<CharRange* ranges>]` : return [range(r) | r <- ranges];
+     case `(<CharClass c>)`: return cc2ranges(cc2ranges(c));
+     case `!<CharClass c>`: return complement(cc2ranges(c));
+     case `<CharClass l> & <CharClass r>`: return intersection(cc2ranges(l),cc2ranges(r));
+     case `<CharClass l> + <CharClass r>`: return union(cc2ranges(l),cc2ranges(r));
+     case `<CharClass l> - <CharClass r>`: return difference(cc2ranges(l),cc2ranges(r));
+     default: throw "missed a case <cc>";
+   }
+}
+
+public CharRange range(Range r) {
+  switch(r) {
+    case (Range) `<Character c>` : return range(character(c),character(c));
+    case (Range) `<Character l> - <Character r>`: return range(character(l),character(r));
+    default: throw "missed a case <r>";
+  }
+}
+
+public int character(Character c) {
+  switch (c) {
+    case /<ch:[^"'\\-[] ]>/        : return charAt(ch, 0); 
+    case /\\<esc:[-[] ]>/          : return charAt(esc, 0);
+    case /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
+    case /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    case /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
+    case /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
+    default: throw "missed a case <c>";
   }
 }
 
@@ -153,3 +198,50 @@ public Symbol user2symbol(UserType u) {
    default: throw "missed case: <u>";
   } 
 }
+
+list[CharRange] complement(list[CharRange] s) {
+  return difference([range(0,0xFFFF)],s);
+}
+
+list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
+  return union(difference(l,r),difference(r,l));
+} 
+
+list[CharRange] union(list[CharRange] l, list[CharRange] r) {
+ return l + r;
+}
+
+// TODO: check this code, it was written too late at night
+list[CharRange] difference(list[CharRange] r1, list[CharRange] r2) {
+  if (r1 == [] || r2 == []) return r1;
+
+  <h1,t1> = takeOneFrom(r1);
+  <h2,t2> = takeOneFrom(r2);
+
+  // left beyond right
+  if (h1.start > h2.end) 
+    return difference(r1,t2); 
+
+  // left before right
+  if (h1.end < h2.start) 
+    return difference(r1,t2);
+
+  // inclusion of left into right
+  if (h1.start >= h2.start && h1.end <= h2.end) 
+    return difference(t1,r2); 
+
+  // inclusion of right into left
+  if (h2.start >= h1.start && h2.end <= h1.end) 
+    return difference([range(h1.start,h2.start),range(h1.end,h2.end)],t2);
+
+  // overlap on left side of right
+  if (h1.end < h2.end) 
+    return difference([range(h1.start,h2.start)],r2); // overlap left
+ 
+  // overlap on right side of right
+  if (h1.start > h2.start)
+    return difference([range(h1.end,h2.start)], r2);
+
+  return result;
+}
+
