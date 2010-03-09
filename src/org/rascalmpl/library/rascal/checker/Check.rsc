@@ -8,7 +8,7 @@ import rascal::checker::Types;
 import rascal::checker::SubTypes;
 import rascal::checker::Namespace;
 
-import languages::rascal::syntax::Rascal;
+import rascal::\old-syntax::Rascal;
 
 // TODO: the type checker should:
 //   -- annotate expressions and statements with their type
