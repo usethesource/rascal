@@ -1,7 +1,7 @@
-module languages/rascal/syntax/Constructors
+module rascal/old-syntax/Constructors
 
 imports 
-	languages/rascal/syntax/Literals
+	rascal/old-syntax/Literals
 
 exports
 sorts Expression Literal Name QualifiedName BasicType

@@ -1,6 +1,6 @@
-module languages/rascal/syntax/Tags
+module rascal/old-syntax/Tags
 
-imports languages/rascal/syntax/Expressions
+imports rascal/old-syntax/Expressions
 
 exports
 sorts TagChar Tag Tags TagString

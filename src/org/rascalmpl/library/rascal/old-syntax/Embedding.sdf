@@ -1,4 +1,4 @@
-module languages/rascal/syntax/Embedding[X]
+module rascal/old-syntax/Embedding[X]
 
 exports
 

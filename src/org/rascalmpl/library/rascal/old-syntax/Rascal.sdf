@@ -1,8 +1,8 @@
-module languages/rascal/syntax/Rascal
+module rascal/old-syntax/Rascal
 
-imports languages/rascal/syntax/Modules[Body]
-imports languages/rascal/syntax/Declarations
-imports languages/rascal/syntax/Commands
+imports rascal/old-syntax/Modules[Body]
+imports rascal/old-syntax/Declarations
+imports rascal/old-syntax/Commands
  
 hiddens
 context-free start-symbols Module

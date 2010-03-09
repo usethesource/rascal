@@ -1,7 +1,7 @@
-module languages/rascal/syntax/Literals
+module rascal/old-syntax/Literals
 
-imports languages/rascal/syntax/Lexical 
-	languages/rascal/syntax/RegExp
+imports rascal/old-syntax/Lexical 
+	rascal/old-syntax/RegExp
 exports
 sorts Literal 
 

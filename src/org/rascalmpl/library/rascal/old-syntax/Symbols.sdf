@@ -1,6 +1,6 @@
-module languages/rascal/syntax/Symbols
+module rascal/old-syntax/Symbols
 
-imports languages/rascal/syntax/Names
+imports rascal/old-syntax/Names
 %% This is a modified clone of languages/sdf2/syntax/Regular, Character, Character-Class, and Sorts, and StrCon
 
 

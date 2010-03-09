@@ -1,4 +1,4 @@
-module languages/rascal/syntax/Reserved
+module rascal/old-syntax/Reserved
 
 exports
 %% TODO: review this list
