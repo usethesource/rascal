@@ -14,7 +14,7 @@ public class BoxADT {
 	static final private TypeStore ts;
 	static final private TypeFactory tf;
 	static final private Type box, boxlst, str;
-	
+
 	static private IValueFactory vf;
 	static {
 		tf = TypeFactory.getInstance();
@@ -36,20 +36,24 @@ public class BoxADT {
 					.toLowerCase());
 			ts.declareConstructor(tag);
 		}
-		IConstructor create(IValue ... t) {
+
+		IConstructor create(IValue... t) {
 			IValue r = t[0];
-			if (DEBUG) System.err.println("create:"+tag+" "+r);
+			if (DEBUG)
+				System.err.println("create:" + tag + " " + r);
 			if (!r.getType().isListType() && this.ordinal() < L.ordinal()) {
-				 r =vf.list(t);			
-			}		
+				r = vf.list(t);
+			}
 			return vf.constructor(tag, r);
 		}
 
 		IConstructor create(String s) {
-			if (DEBUG) System.err.println("create:"+tag+" "+s);
+			if (DEBUG)
+				System.err.println("create:" + tag + " " + s);
 			return vf.constructor(tag, vf.string(s));
 		}
 	};
+
 	static final IValue EMPTY = TAG.L.create("");
 	static final IValue PLUS = TAG.L.create("+");
 	static final IValue MINUS = TAG.L.create("-");
@@ -76,15 +80,16 @@ public class BoxADT {
 	static final IValue RBLOCK = TAG.L.create("}");
 	static final IValue ASSIGN = TAG.L.create("=");
 	static final IValue COMMA = TAG.L.create(",");
-	static final IValue SEMICOLON= TAG.L.create(";");
+	static final IValue SEMICOLON = TAG.L.create(";");
 	static final IValue DOT = TAG.L.create(".");
 	static final IValue AT = TAG.L.create("@");
-	static final IValue QUESTIONMARK= TAG.L.create("?");
-	static final IValue COLON= TAG.L.create(":");
-	static final IValue VBAR= TAG.L.create("|");
-	static final IValue ELOF= TAG.L.create("<-");
+	static final IValue QUESTIONMARK = TAG.L.create("?");
+	static final IValue COLON = TAG.L.create(":");
+	static final IValue VBAR = TAG.L.create("|");
+	static final IValue ELOF = TAG.L.create("<-");
 	static final IValue INTERSECTION = TAG.L.create("&");
 	static final IValue RANGE = TAG.L.create("..");
+	static final IValue CONGR = TAG.L.create("~");
 
 	// Type tagar[] = new Type[TAG.values().length];
 	//
@@ -134,8 +139,17 @@ public class BoxADT {
 		return vf.list();
 	}
 
-	static IList getList(IValue ... t) {
-		return vf.list(t);
+	static IList getList(IValue... t) {
+		IList q = BoxADT.getEmptyList();
+		for (IValue a : t) {
+			if (a == null)
+				continue;
+			if (a.getType().isListType())
+				q = q.concat((IList) a);
+			else
+				q = q.append(a);
+		}
+		return q;
 	}
 
 	static IValue KW(String s) {
@@ -154,35 +168,63 @@ public class BoxADT {
 		return BoxADT.TAG.L.create(s);
 	}
 
-	static IValue H(IValue ... t) {
-		return BoxADT.TAG.H.create(t);
+	static IValue H(IValue... t) {
+		return H(-1, t);
 	}
-	
-	static IValue H(int hspace, IValue ... t) {
-		IConstructor r = BoxADT.TAG.H.create(t);
-		r= r.setAnnotation("hs", vf.integer(hspace));
+
+	static IValue H(int hspace, IValue... t) {
+		IList q = BoxADT.getEmptyList();
+		for (IValue a : t) {
+			if (a == null)
+				continue;
+			if (a.getType().isListType()) {
+				q = q.concat((IList) a);
+			} else
+				q = q.append(a);
+		}
+		IConstructor r = BoxADT.TAG.H.create(q);
+		if (hspace >= 0)
+			r = r.setAnnotation("hs", vf.integer(hspace));
 		return r;
 	}
 
-	static IValue V(IValue ...t) {
-		return BoxADT.TAG.V.create(t);
+	static IValue V(IValue... t) {
+		IList q = BoxADT.getEmptyList();
+		for (IValue a : t) {
+			if (a == null)
+				continue;
+			if (a.getType().isListType()) {
+				q = q.concat((IList) a);
+			} else
+				q = q.append(a);
+		}
+		return BoxADT.TAG.V.create(q);
 	}
-	
-	static IValue I(IValue ...t) {
+
+	static IValue I(IValue... t) {
 		return BoxADT.TAG.I.create(t);
 	}
-	
-	static IValue HV(IValue ... t) {
-		return BoxADT.TAG.HV.create(t);
+
+	static IValue HV(IValue... t) {
+		IList q = BoxADT.getEmptyList();
+		for (IValue a : t) {
+			if (a == null)
+				continue;
+			if (a.getType().isListType()) {
+				q = q.concat((IList) a);
+			} else
+				q = q.append(a);
+		}
+		return BoxADT.TAG.HV.create(q);
 	}
-	
-	static IValue HV(int hspace, IValue ... t) {
+
+	static IValue HV(int hspace, IValue... t) {
 		IConstructor r = BoxADT.TAG.HV.create(t);
-		r= r.setAnnotation("hs", vf.integer(hspace));
+		r = r.setAnnotation("hs", vf.integer(hspace));
 		return r;
 	}
-	
-	static IValue HOV(IValue ... t) {
+
+	static IValue HOV(IValue... t) {
 		return BoxADT.TAG.HOV.create(t);
 	}
 
