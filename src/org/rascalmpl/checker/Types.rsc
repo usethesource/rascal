@@ -83,16 +83,13 @@ data RType =
 	| RInferredType(int tnum)
 	| RTypeOverloaded(set[RType] possibleTypes)
 	| RTypeConstructor(RName cname, list[RTypeArg] cvalues, RType pt)
+	| RTypeVarArgs(RType vt)
 ;
 
 //
 // Annotation for adding types to expressions
 //
-anno RType Expression@rtype;
-anno RType Name@rtype;
-anno RType QualifiedName@rtype;
-anno RType Tree@rtype; // TODO: Does this mean we don't need to declare this on Expression, etc?
-anno loc RType@at;
+anno RType Tree@rtype; 
 
 //
 // Printing routines for names and types
@@ -356,67 +353,19 @@ public bool isIntTypeBT(RBasicType t) {
 }
 
 public bool isRealType(RType t) {
-	switch(t) {
-		case RTypeBasic(tb) : return isRealTypeBT(tb);
-
-		default : return false;
-	}
-}
-
-public bool isRealTypeBT(RBasicType t) {
-	switch(t) {
-		case RRealType() : return true;
-		
-		default : return false;
-	}
+	return RTypeBasic(RRealType()) := t;
 }
 
 public bool isBoolType(RType t) {
-	switch(t) {
-		case RTypeBasic(tb) : return isBoolTypeBT(tb);
-
-		default : return false;
-	}
-}
-
-public bool isBoolTypeBT(RBasicType t) {
-	switch(t) {
-		case RBoolType() : return true;
-		
-		default : return false;
-	}
+	return RTypeBasic(RBoolType()) := t;
 }
 
 public bool isStrType(RType t) {
-	switch(t) {
-		case RTypeBasic(tb) : return isStrTypeBT(tb);
-
-		default : return false;
-	}
-}
-
-public bool isStrTypeBT(RBasicType t) {
-	switch(t) {
-		case RStrType() : return true;
-		
-		default : return false;
-	}
+	return RTypeBasic(RStrType()) := t;
 }
 
 public bool isSetType(RType t) {
-	switch(t) {
-		case RTypeStructured(st) : return isSetTypeBT(st);
-
-		default : return false;
-	}
-}
-
-public bool isSetTypeBT(RStructuredType t) {
-	switch(t) {
-		case RStructuredType(RSetType(), _) : return true;
-
-		default: return false;
-	}
+	return RTypeStructured(RStructuredType(RSetType(), _)) := t;
 }
 
 public RType getSetElementType(RType t) {
@@ -616,6 +565,8 @@ public RType makeFunctionType(RType retType, list[RType] paramTypes) {
 public RType makeReifiedType(RType mainType, list[RType] paramTypes) {
 	return RTypeStructured(RStructuredType(RReifiedType(), [ RTypeArg(RMainType) ] + [ RTypeArg(x) | x <- paramTypes ]));
 }
+
+public RType makeVarArgsType(RType t) { return RTypeVarArgs(t); }
 	
 public RType makeFailType(str s, loc l) { return RFailType({<s,l>}); }
 

@@ -23,14 +23,14 @@ import languages::rascal::syntax::Rascal;
 // 3. DONE: This should be fully functional -- we currently maintain a small amount of state,
 //    but it would be better to remove this.
 //
-// 4. Variables introduced in comprehensions and patterns should not have scope outside
+// 4. DONE: Variables introduced in comprehensions and patterns should not have scope outside
 //    of the related structures; for comprehensions this is outside of the comprehension,
 //    for patterns this is outside of the action or surrounding code (used in an if,
 //    it has scope inside the if). It may be easiest to just always introduce a new
 //    scoping layer when entering one of these constructs, since that would then ensure
 //    scope is cleaned up properly upon exiting.
 //
-// 5. DONE Give each scope item a unique ID. This will make it easier to keep them unique,
+// 5. DONE: Give each scope item a unique ID. This will make it easier to keep them unique,
 //    since it is (remotely) possible that two items, such as two blocks, could each have
 //    parents that looked the same.
 //
@@ -49,9 +49,25 @@ import languages::rascal::syntax::Rascal;
 // 9. Add checks to ensure names are not repeated at the same scoping level (important:
 //    this includes within a function, since names cannot be shadowed by new names defined
 //    inside blocks)
+//    NOTE: Support has now been added to stop lookup at function/closure boundaries; this
+//          makes it easier to tell if we are violating this rule or not. This is also useful
+//          in cases where we should not cross function boundaries looking for a valid name,
+//          for instance with labels on statements.
 //
-// 10. Need to enforce proper scoping for boolean expressions; for instance,
+// 10. DONE: Need to enforce proper scoping for boolean expressions; for instance,
 //     A && B && C creates a scope, with names introduced in A visible in B and C
+//
+// 11. DONE: Introduce a new boolean expression scope inside a function argument list
+//
+// 12. Need to enforce name availability on all paths from a boolean expression. For
+//     instance, in something like (a := p1 && b := p2) || (a := p1 && c := p3), only
+//     a should be visible (i.e., in scope) outside of the || expression
+//
+// 13. DONE: Add support for the Reducer expression
+//
+// 14. Add alias expansion (since we have all the name information here) -- maybe add
+//     as an Alias type, so we can keep track of the original type name used as well,
+//     which would make more sense to the user than the expanded form.
 //
 
 // Set flag to true to issue debug messages
@@ -67,6 +83,8 @@ alias ScopeItemId = int;
 data ScopeItem =
 	  ModuleLayer(RName moduleName)
 	| FunctionLayer(RName functionName, RType returnType, list[ScopeItemId] parameters, list[RType] throwsTypes, bool isVarArgs, bool isPublic, ScopeItemId parentId)
+	| ClosureLayer(RType returnType, list[ScopeItemId] parameters, bool isVarArgs, ScopeItemId parentId)
+	| VoidClosureLayer(list[ScopeItemId] parameters, bool isVarArgs, ScopeItemId parentId)
 	| BlockLayer(ScopeItemId parentId)
 	| VariableItem(RName variableName, RType variableType, ScopeItemId parentId)
 	| FormalParameterItem(RName parameterName, RType parameterType, ScopeItemId parentId)
@@ -77,6 +95,7 @@ data ScopeItem =
 	| DummyItem()
 	| PatternMatchLayer(ScopeItemId parentId)
 	| BooleanExpLayer(ScopeItemId parentId)
+	| AnnotationItem(RName annotationName, RType annoType, RType onType, bool isPublic, ScopeItemId parentId) 
 ;
 
 data Namespace =
@@ -84,6 +103,7 @@ data Namespace =
 	| LabelName()
 	| FCVName()
 	| TypeName()
+	| AnnotationName()
 ;
 
 anno loc ScopeItem@at;
@@ -97,29 +117,38 @@ alias ItemLocationMap = map[loc,ScopeItemId];
 // wrong with the current alias expansion algorithm; this is the same with ItemLocationMap as well
 // for itemLocations...
 alias ScopeInfo = tuple[ScopeItemId topScopeItemId, rel[ScopeItemId scopeId, ScopeItemId itemId] scopeRel, ItemUses itemUses, 
-                        ScopeItemId nextScopeId, map[ScopeItemId,ScopeItem] scopeItemMap, 
-                        map[loc,ScopeItemId] itemLocations, ScopeItemId currentScope, int freshType];
+                        ScopeItemId nextScopeId, map[ScopeItemId, ScopeItem] scopeItemMap, 
+                        map[loc, ScopeItemId] itemLocations, ScopeItemId currentScope, int freshType,
+                        map[loc, set[str]] scopeErrorMap];
 
 alias AddedItemPair = tuple[ScopeInfo scopeInfo, ScopeItemId addedId];
 alias ScopeUpdatePair = tuple[ScopeInfo scopeInfo, ScopeItemId oldScopeId];
                         
 public ScopeInfo createNewScopeInfo() {
-	return < -1, { }, ( ), 0, ( ), ( ), 0, 0 >;
+	return < -1, { }, ( ), 0, ( ), ( ), 0, 0, () >;
 }                    
 
 public ScopeInfo addItemUse(ScopeInfo scopeInfo, ScopeItemId scopeItem, loc l) {
 	if (l in scopeInfo.itemUses)
-		scopeInfo = scopeInfo[itemUses = (scopeInfo.itemUses + ( l : (scopeInfo.itemUses[l] + scopeItem)))];
+		scopeInfo.itemUses[l] += scopeItem;
 	else
-		scopeInfo = scopeInfo[itemUses = (scopeInfo.itemUses + ( l : { scopeItem } ))];
+		scopeInfo.itemUses += (l : { scopeItem });
 	return scopeInfo;
 }
 
 public ScopeInfo addItemUses(ScopeInfo scopeInfo, set[ScopeItemId] scopeItems, loc l) {
 	if (l in scopeInfo.itemUses)
-		scopeInfo = scopeInfo[itemUses = (scopeInfo.itemUses + ( l : (scopeInfo.itemUses[l] + scopeItems)))];
+		scopeInfo.itemUses[l] += scopeItems;
 	else
-		scopeInfo = scopeInfo[itemUses = (scopeInfo.itemUses + ( l : scopeItems ))];
+		scopeInfo.itemUses += (l : scopeItems );
+	return scopeInfo;
+}
+
+public ScopeInfo addScopeError(ScopeInfo scopeInfo, loc l, str msg) {
+	if (l in scopeInfo.scopeErrorMap)
+		scopeInfo.scopeErrorMap[l] += msg;
+	else
+		scopeInfo.scopeErrorMap += (l : { msg } );
 	return scopeInfo;
 }
 
@@ -144,7 +173,7 @@ public ScopeItemId getItemAtLocation(loc l, ScopeInfo scopeInfo) {
 	if (l in scopeInfo.itemLocations) {
 		return scopeInfo.itemLocations[l];	
 	} else {
-		if (debug) println("Error, trying to retrieve item from unassociated location!");
+		if (debug) println("NAMESPACE: Error, trying to retrieve item from unassociated location!");
 		// TODO: Should instead throw an exception
 	}
 }
@@ -177,6 +206,10 @@ public str prettyPrintSI(ScopeItem si) {
 		
 		case FunctionLayer(x,t,ags,_,_,_,_) : return "FunctionLayer: " + prettyPrintType(t) + " " + prettyPrintName(x) + "(" + joinList(ags,prettyPrintSI,",","") + ")";
 		
+		case ClosureLayer(t,ags,_,_) : return "ClosureLayer: " + prettyPrintType(t) + " (" + joinList(ags,prettyPrintSI,",","") + ")";
+		
+		case VoidClosureLayer(ags,_,_) : return "VoidClosureLayer: (" + joinList(ags,prettyPrintSI,",","") + ")";
+		
 		case VariableItem(x,t,_) : return "VariableItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
 		
 		case FormalParameterItem(x,t,_) : return "FormalParameterItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
@@ -185,67 +218,18 @@ public str prettyPrintSI(ScopeItem si) {
 
 		case AliasItem(tn,ta,_,_) : return "AliasItem: " + prettyPrintUserType(tn) + " = " + prettyPrintType(ta);
 			
-		case ConstructorItem(cn,tas,_,_) : 	return prettyPrintName(cn) + "(" + prettyPrintTAList(tas) + ")";
+		case ConstructorItem(cn,tas,_,_) : 	return "Constructor: " + prettyPrintName(cn) + "(" + prettyPrintTAList(tas) + ")";
 		
-		case ADTItem(ut, vs, _, _) : return prettyPrintUserType(ut) + " = " + joinList(vs,prettyPrintSI," | ","");
+		case ADTItem(ut, vs, _, _) : return "ADT: " + prettyPrintUserType(ut) + " = " + joinList(vs,prettyPrintSI," | ","");
 		 			
 		case BlockLayer(_) : return "BlockLayer";
 		
 		case PatternMatchLayer(_) : return "PatternMatchLayer";
 		
 		case BooleanExpLayer(_) : return "BooleanExpLayer";
+		
+		case AnnotationItem(x,atyp,otyp,_,_) : return "Annotation: <prettyPrintType(atyp)> <prettyPrintType(otyp)>@<prettyPrintName(x)>";
 	}
-}
-
-//
-// Functions for finding names in the current scope
-//
-//
-// Find the names visible at the current level of scoping. This allows shadowing
-// of names, but does not allow matches across multiple levels of scoping.
-// For instance, declaring a function at one level hides all functions with
-// the same name at higher levels -- i.e., overloading cannot be partially
-// extended.
-//
-public set[ScopeItemId] getItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
-	set[ScopeItemId] foundItems = { };
-	
-	// First, find all the scope items at the current level of scope that match
-	// the name we are looking for.
-	for (itemId <- scopeInfo.scopeRel[currentScopeId]) {
-		switch(scopeInfo.scopeItemMap[itemId]) {
-			case FormalParameterItem(x,_,_) : foundItems += itemId;
-			
-			case VariableItem(x,_,_) : foundItems += itemId;
-			
-			case FunctionLayer(x,_,_,_,_,_,_) : foundItems += itemId;
-			
-			case LabelItem(x,_) : foundItems += itemId;
-
-			case ConstructorItem(x,_,_,_) : foundItems += itemId;
-			
-			case ModuleLayer(x) : foundItems += itemId;			
-		}
-	}
-
-	// If no names were found at this level, step back up one level to find them
-	// in the parent scope. This will recurse until either the names are found
-	// or the top level, Module, is reached (note there is no match for finding
-	// the parent of a Module below, since modules do not have parents).
-	if (size(foundItems) == 0) {
-		switch(scopeInfo.scopeItemMap[currentScopeId]) {
-			case FunctionLayer(_,_,_,_,_,_,parentScopeId) : foundItems = getItemsForName(scopeInfo,parentScopeId,x);
-			
-			case BlockLayer(parentScopeId) : foundItems = getItemsForName(scopeInfo,parentScopeId,x);
-			
-			case PatternMatchLayer(parentScopeId) : foundItems = getItemsForName(scopeInfo,parentScopeId,x);
-			
-			case BooleanExpLayer(parentScopeId) : foundItems = getItemsForName(scopeInfo,parentScopeId,x);
-		}
-	}
-
-	// NOTE: This can be empty (for instance, when looking up a declaration of a variable that is not explicitly declared)	
-	return foundItems;	
 }
 
 public set[ScopeItemId] filterNamesForNamespace(ScopeInfo scopeInfo, set[ScopeItemId] scopeItems, Namespace namespace) {
@@ -278,10 +262,115 @@ public set[ScopeItemId] filterNamesForNamespace(ScopeInfo scopeInfo, set[ScopeIt
 					case ADTItem(_,_,_,_) : filteredItems += itemId;
 				}	
 			}
+			
+			case AnnotationName() : {
+				switch(scopeInfo.scopeItemMap[itemId]) {
+					case AnnotationItem(_,_,_,_) : filteredItems += itemId;
+				}
+			}
 		}
 	}
 	return filteredItems;
 }
+
+//
+// Functions for finding names in the current scope
+//
+
+//
+// Find the names visible at the current level of scoping. This allows shadowing
+// of names, but does not allow matches across multiple levels of scoping.
+// For instance, declaring a function at one level hides all functions with
+// the same name at higher levels -- i.e., overloading cannot be partially
+// extended.
+//
+public set[ScopeItemId] getItemsForNameWBound(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x, set[Namespace] containingNamespaces, bool bounded) {
+	set[ScopeItemId] foundItems = { };
+	
+	// First, find all the scope items at the current level of scope that match
+	// the name we are looking for.
+	for (itemId <- scopeInfo.scopeRel[currentScopeId]) {
+		switch(scopeInfo.scopeItemMap[itemId]) {
+			case FormalParameterItem(x,_,_) : foundItems += itemId;
+			
+			case VariableItem(x,_,_) : foundItems += itemId;
+			
+			case FunctionLayer(x,_,_,_,_,_,_) : foundItems += itemId;
+			
+			case LabelItem(x,_) : foundItems += itemId;
+
+			case ConstructorItem(x,_,_,_) : foundItems += itemId;
+			
+			case ModuleLayer(x) : foundItems += itemId;
+			
+			case AnnotationItem(x,_,_,_) : foundItems += itemId;			
+		}
+	}
+
+	// Now, filter it down based on the namespaces we are looking for
+	foundItems = { f | ns <- containingNamespaces, f <- filterNamesForNamespace(scopeInfo, foundItems, ns) };
+		
+	// If no names were found at this level, step back up one level to find them
+	// in the parent scope. This will recurse until either the names are found
+	// or the top level, Module, is reached (note there is no match for finding
+	// the parent of a Module below, since modules do not have parents).
+	// If this is a bounded search, don't pass through function boundaries.
+	if (size(foundItems) == 0) {
+		switch(scopeInfo.scopeItemMap[currentScopeId]) {
+			case FunctionLayer(_,_,_,_,_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+
+			case ClosureLayer(_,_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+
+			case VoidClosureLayer(_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+			
+			case BlockLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+			
+			case PatternMatchLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+			
+			case BooleanExpLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+		}
+	}
+
+	// NOTE: This can be empty (for instance, when looking up a declaration of a variable that is not explicitly declared)	
+	return foundItems;	
+}
+
+//
+// These are specialized versions of the above function to make it easier to get back the
+// right names.
+//
+public set[ScopeItemId] getItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, false);
+}
+
+public set[ScopeItemId] getItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, true);
+}
+
+public set[ScopeItemId] getAnnotationItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, false);
+}
+
+public set[ScopeItemId] getAnnotationItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, true);
+}
+
+public set[ScopeItemId] getLabelItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, false);
+}
+
+public set[ScopeItemId] getLabelItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, true);
+}
+
+public set[ScopeItemId] getTypeItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, false);
+}
+
+public set[ScopeItemId] getTypeItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, true);
+}
+
 //
 // TODO: This should throw an exception when the type of an untyped name (e.g., a label) is requested
 //
@@ -291,33 +380,26 @@ public RType getTypeForItem(ScopeInfo scopeInfo, ScopeItemId itemId) {
 		
 		case VariableItem(_,t,_) : return t;
 		
-		case FunctionLayer(_,t,paramIds,_,_,_,_) : 
+		case FunctionLayer(_,t,paramIds,_,false,_,_) : 
 			return makeFunctionType(t,[getTypeForItem(scopeInfo, paramId) | paramId <- paramIds]);
 		
+		case FunctionLayer(_,t,paramIds,_,true,_,_) : {
+			list[RType] paramTypes = [getTypeForItem(scopeInfo, paramId) | paramId <- paramIds];
+			if (size(paramTypes) == 0)
+				paramTypes = [ makeVarArgsType(makeValueType()) ];
+			else
+				paramTypes += makeVarArgsType(head(tail(paramTypes,1))); 
+			return makeFunctionType(t,paramTypes);
+		}
+			
 		case ConstructorItem(n,tas,adtParentId,_) : return makeConstructorType(n,tas,getTypeForItem(scopeInfo,adtParentId));
 		
 		case ADTItem(ut,_,_,_) : return RTypeUser(ut); // TODO: Should also extract type parameters
 		
 		default : { 
-			if (debug) println("Requesting type for item : " + prettyPrintSI(scopeInfo.scopeItemMap[itemId])); 
+			if (debug) println("NAMESPACE: Requesting type for item : " + prettyPrintSI(scopeInfo.scopeItemMap[itemId])); 
 			return makeVoidType(); 
 		}
-	}
-}
-
-public bool isNameInScope(ScopeInfo scopeInfo, ScopeItemId itemId, RName x) {
-	return size(getItemsForName(scopeInfo, itemId, x)) > 0;
-}
-
-public RType getTypeForName(ScopeInfo scopeInfo, ScopeItemId itemId, RName x) {
-	set[ScopeItemId] items = getItemsForName(scopeInfo, itemId, x);
-	if (size(items) == 0) {
-		// TODO: Should be an exception
-		return makeVoidType();
-	} else if (size(items) == 1) {
-		return getTypeForItem(scopeInfo, head(items));
-	} else {
-		return RTypeOverloaded({ getTypeForItem(scopeInfo, scopeItemId) | scopeItemId <- items });
 	}
 }
 
@@ -444,7 +526,7 @@ public ScopeInfo handleModuleBodyNamesOnly(Body b, ScopeInfo scopeInfo) {
 					scopeInfo = handleViewNamesOnly(tgs,v,n,sn,alts,t@\loc,scopeInfo);
 				}
 								
-				default: println("No match for item");
+				default: println("NAMESPACE: No match for item");
 			}
 		}
 	}
@@ -516,7 +598,7 @@ public ScopeInfo handleModuleBodyFull(Body b, ScopeInfo scopeInfo) {
 				}
 				
 								
-				default: println("No match for item");
+				default: println("NAMESPACE: No match for item");
 			}
 		}
 	}
@@ -530,21 +612,31 @@ public ScopeInfo handleModuleBodyFull(Body b, ScopeInfo scopeInfo) {
 // TODO: Should handle tags
 //
 public ScopeInfo handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
-	if (debug) println("Adding variables in declaration...");
+	if (debug) println("NAMESPACE: Adding variables in declaration...");
 	for (vb <- vs) {
 		switch(vb) {
 			case `<Name n>` : {
-				if (debug) println("Adding variable <n>");
-				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
-				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
-				scopeInfo = aip.scopeInfo;
+				if (debug) println("NAMESPACE: Adding variable <n>");
+				if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
+					scopeInfo = addScopeError(scopeInfo, n@\loc, "Duplicate declaration of variable <n>"); 
+					if (debug) println("NAMESPACE: Duplicate declaration of variable <n>");
+				} else {
+					ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
+					AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
+					scopeInfo = aip.scopeInfo;
+				}
 			}
 				
 			case `<Name n> = <Expression e>` : {
-				if (debug) println("Adding variable <n>");
-				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
-				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
-				scopeInfo = aip.scopeInfo;
+				if (debug) println("NAMESPACE: Adding variable <n>");
+				if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
+					scopeInfo = addScopeError(scopeInfo, n@\loc, "Duplicate declaration of variable <n>"); 
+					if (debug) println("NAMESPACE: Duplicate declaration of variable <n>");
+				} else {
+					ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
+					AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
+					scopeInfo = aip.scopeInfo;
+				}
 			}
 		}
 	}
@@ -557,14 +649,10 @@ public ScopeInfo handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variabl
 // TODO: Should handle tags
 //
 public ScopeInfo handleVarItems(Tags ts, Visibility v, Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
-	for (vb <- vs) {
-		switch(vb) {
-			case `<Name n> = <Expression e>` : {
-				scopeInfo = handleExpression(e, scopeInfo);
-			}
-		}
-	}
+	for (`<Name n> = <Expression e>` <- vs)
+		scopeInfo = handleExpression(e, scopeInfo);
 	return scopeInfo;
+//	return ( scopeInfo | handleExpression(e, scopeInfo) | `<Name n> = <Expression e>` <- vs);
 }
 
 //
@@ -577,36 +665,48 @@ public ScopeInfo handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, Fun
 	return handleAbstractFunctionNamesOnly(ts,v,s,l,scopeInfo);		
 }
 
+public bool checkOverlap(ScopeItemId newFun, set[ScopeItemId] funs, ScopeInfo scopeInfo) {
+
+	for (fid <- funs) {
+		//ScopeItem funItem = getScopeItem(scopeInfo, fid);
+		//ScopeItem newFunItem = getScopeItem(scopeInfo, newFun);
+		RType funItemType = getTypeForItem(scopeInfo, fid);
+		RType newFunItemType = getTypeForItem(scopeInfo, newFun);
+	}
+	
+	return false;
+}
+
 //
 // Handle abstract function declarations (i.e., function declarations without bodies)
 //
 // TODO: Should handle tags
 //
 public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signature s, loc l, ScopeInfo scopeInfo) {
-	// Both cases below do essentially the same thing. First, a new FunctionLayer is created. This is not
-	// complete, since it holds information about its parameters. This item is added, and the scope is switched
-	// to the scope of this added function. The parameters are then added, with the scope then switched
-	// back to the scope at function entry.
+	// Add the new function into the scope and process any parameters.
+	ScopeInfo addFunction(RName fname, RType retType, Parameters ps, list[RType] thrsTypes, bool isPublic, ScopeInfo scopeInfo) {
+		ScopeItem si = FunctionLayer(fname, retType, mkEmptySIList(), thrsTypes, false, isPublic, scopeInfo.currentScope)[@at=l];
+		AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
+		ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);			 
+		scopeInfo = handleParametersNamesOnly(ps, sup.scopeInfo);
+		sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+		scopeInfo = sup.scopeInfo;
+
+		if (checkOverlap(aip.addedId, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))), scopeInfo) {	
+			scopeInfo = addScopeError(scopeInfo, n@\loc, "Overlapping overload of function <n> declared");
+		}	
+	}
+	
 	switch(s) {
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
-			if (debug) println("Found abstract function " + prettyPrintName(convertName(n)));
-			ScopeItem si = FunctionLayer(convertName(n), convertType(t), mkEmptySIList(), mkEmptyList(), false, isPublic(v), scopeInfo.currentScope)[@at=l];
-			AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
-			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);			 
-			scopeInfo = handleParametersNamesOnly(ps, sup.scopeInfo);
-			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
-			scopeInfo = sup.scopeInfo;
+			if (debug) println("NAMESPACE: Found abstract function " + prettyPrintName(convertName(n)));
+			scopeInfo = addFunction(convertName(n), convertType(t), ps, mkEmptyList(), isPublic(v), scopeInfo);
 		}
 
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
-			if (debug) println("Found abstract function " + prettyPrintName(convertName(n)));
-			ScopeItem si = FunctionLayer(convertName(n), convertType(t), mkEmptySIList(), 
-				[convertType(thrsi) | thrsi <- thrs], false, isPublic(v), scopeInfo.currentScope)[@at=l];
-			AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
-			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);			 
-			scopeInfo = handleParametersNamesOnly(ps, sup.scopeInfo);
-			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
-			scopeInfo = sup.scopeInfo;
+			if (debug) println("NAMESPACE: Found abstract function " + prettyPrintName(convertName(n)));
+			scopeInfo = addFunction(convertName(n), convertType(t), ps, [convertType(thrsi) | thrsi <- thrs], 
+									isPublic(v), scopeInfo);
 		}
 	}
 	return scopeInfo;
@@ -632,7 +732,7 @@ public ScopeInfo handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
 		if (`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if((Formal)`<Type t> <Name n>` := fp) {
-					if (debug) println("Adding parameter <n>");
+					if (debug) println("NAMESPACE: Adding parameter <n>");
 					ScopeItem pitem = (FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc]);
 					AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
 					scopeInfo = aip.scopeInfo;
@@ -645,7 +745,7 @@ public ScopeInfo handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
 		if (`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if((Formal)`<Type t> <Name n>` := fp) {
-					if (debug) println("Adding parameter <n>");
+					if (debug) println("NAMESPACE: Adding parameter <n>");
 					ScopeItem pitem = FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc];
 					AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
 					scopeInfo = aip.scopeInfo;
@@ -670,7 +770,7 @@ public ScopeInfo handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
 //
 public ScopeInfo handleFunction(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, ScopeInfo scopeInfo) {
 	// First, get back the scope item at location l so we can switch into the proper function scope
-	if (debug) println("Switching to function with signature <s>");
+	if (debug) println("NAMESPACE: Switching to function with signature <s>");
 	ScopeItemId functionScope = getItemAtLocation(l, scopeInfo);
 	ScopeUpdatePair sup = changeCurrentScope(functionScope,scopeInfo);
 	
@@ -716,7 +816,7 @@ private bool isPublic(Visibility v) {
 // TODO: Should handle tags
 //
 public ScopeInfo handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("Found alias: <aliasType> = <aliasedType>");
+	if (debug) println("NAMESPACE: Found alias: <aliasType> = <aliasedType>");
 	
 	ScopeItem aliasItem = AliasItem(convertUserType(aliasType), convertType(aliasedType), isPublic(v), scopeInfo.currentScope)[@at = l];
 	AddedItemPair aip = addScopeItemWithParent(aliasItem, scopeInfo.currentScope, l, scopeInfo);
@@ -736,13 +836,12 @@ public ScopeInfo handleAlias(Tags ts, Visibility v, UserType aliasType, Type ali
 // TODO: Should handle tags
 //
 public ScopeInfo handleAbstractADTNamesOnly(Tags ts, Visibility v, UserType adtType, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("Found Abstract ADT: <adtType>");
+	if (debug) println("NAMESPACE: Found Abstract ADT: <adtType>");
 
 	ScopeItem adtItem = ADTItem(convertUserType(adtType), { }, isPublic(v), scopeInfo.currentScope)[@at = l];
 
 	// See if this is already declared
-	set[ScopeItemId] items = getItemsForName(scopeInfo,scopeInfo.currentScope,getUserTypeName(convertUserType(adtType)));
-	items = filterNamesForNamespace(scopeInfo,items,TypeName());
+	set[ScopeItemId] items = getTypeItemsForName(scopeInfo,scopeInfo.currentScope,getUserTypeName(convertUserType(adtType)));
 	// TODO: Check here to see if size > 1, that would be an error and should not happen
 	if (size(items) == 0) {
 		AddedItemPair aip = addScopeItemWithParent(adtItem, scopeInfo.currentScope, l, scopeInfo);
@@ -766,14 +865,13 @@ public ScopeInfo handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc 
 // declarations with the same ADT name; need to verify this as part of tests.
 //
 public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("Found ADT: <adtType>");
+	if (debug) println("NAMESPACE: Found ADT: <adtType>");
 
 	ScopeItem adtItem = ADTItem(convertUserType(adtType), { }, isPublic(v), scopeInfo.currentScope)[@at = l];
 	ScopeItemId itemId = -1;
 	
 	// See if this is already declared
-	set[ScopeItemId] items = getItemsForName(scopeInfo,scopeInfo.currentScope,getUserTypeName(convertUserType(adtType)));
-	items = filterNamesForNamespace(scopeInfo,items,TypeName());
+	set[ScopeItemId] items = getTypeItemsForName(scopeInfo,scopeInfo.currentScope,getUserTypeName(convertUserType(adtType)));
 	// TODO: Check here to see if size > 1, that would be an error and should not happen
 	if (size(items) == 0) {
 		AddedItemPair aip = addScopeItemWithParent(adtItem, scopeInfo.currentScope, l, scopeInfo);
@@ -795,7 +893,7 @@ public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Va
 		}
 	}
 	
-	adtItem = adtItem[variants = variantSet];
+	adtItem.variants += variantSet;
 	scopeInfo = updateScopeItem(adtItem, itemId, scopeInfo);
 	
 	return scopeInfo;
@@ -814,11 +912,12 @@ public ScopeInfo handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"
 // TODO: Verify that names in solve statement must be declared already (i.e. that solve is not a binder)
 //
 public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
-	if (debug) println("Inside statement <s>");
 	switch(s) {
 		case `solve (<{QualifiedName ","}+ vs> <Bound b>) <Statement sb>` : {
+			if (debug) println("NAMESPACE: Inside solve statement <s>");
+			
 			for (v <- vs) {
-				if (debug) println("Adding use for <v>");
+				if (debug) println("NAMESPACE: Adding use for <v>");
 				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(v)), v@\loc);
 			}
 			
@@ -830,102 +929,151 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 		}
 
 		case `<Label l> for (<{Expression ","}+ es>) <Statement b>` : {
+			if (debug) println("NAMESPACE: Inside for statement <s>");
+			
 			scopeInfo = handleLabel(l,scopeInfo);			
+
+			// Open a new boolean scope for the expression list and the statement body
+			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
+			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			for (e <- es) {
 				scopeInfo = handleExpression(e, scopeInfo);
 			}
 			
-			scopeInfo = handleStatement(b, scopeInfo); 
+			scopeInfo = handleStatement(b, scopeInfo);
+
+			// Switch back to the prior scope to take expression bound names out of scope			
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 
 		case `<Label l> while (<{Expression ","}+ es>) <Statement b>` : {
+			if (debug) println("NAMESPACE: Inside while statement <s>");
+			
 			scopeInfo = handleLabel(l,scopeInfo);			
+			
+			// Open a new boolean scope for the expression list and the statement body
+			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
+			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			for (e <- es) {
 				scopeInfo = handleExpression(e, scopeInfo);
 			}
 			
 			scopeInfo = handleStatement(b, scopeInfo); 
+
+			// Switch back to the prior scope to take expression bound names out of scope			
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 
 		case `<Label l> do <Statement b> while (<Expression e>);` : {
-			scopeInfo = handleLabel(l,scopeInfo);			
-			scopeInfo = handleStatement(b, scopeInfo); 
-			scopeInfo = handleExpression(e, scopeInfo);			
+			if (debug) println("NAMESPACE: Inside do statement <s>");
+			scopeInfo = handleExpression(e, handleStatement(b, handleLabel(l,scopeInfo)));			
 		}
 
 		case `<Label l> if (<{Expression ","}+ es>) <Statement bt> else <Statement bf>` : {
+			if (debug) println("NAMESPACE: Inside if with else statement <s>");
+			
 			scopeInfo = handleLabel(l,scopeInfo);			
+			
+			// Open a new boolean scope for the expression list and the statement body
+			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
+			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			for (e <- es) {
 				scopeInfo = handleExpression(e, scopeInfo);
 			}
 			
-			scopeInfo = handleStatement(bt, scopeInfo); 
-			scopeInfo = handleStatement(bf, scopeInfo); 
+			scopeInfo = handleStatement(bf,handleStatement(bt, scopeInfo)); 
+
+			// Switch back to the prior scope to take expression bound names out of scope			
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 
 		case `<Label l> if (<{Expression ","}+ es>) <Statement bt>` : {
+			if (debug) println("NAMESPACE: Inside if statement <s>");
+			
 			scopeInfo = handleLabel(l,scopeInfo);			
+			
+			// Open a new boolean scope for the expression list and the statement body
+			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
+			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			for (e <- es) {
 				scopeInfo = handleExpression(e, scopeInfo);
 			}
 			
 			scopeInfo = handleStatement(bt, scopeInfo); 
+
+			// Switch back to the prior scope to take expression bound names out of scope			
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 
 		case `<Label l> switch (<Expression e>) { <Case+ cs> }` : {
-			scopeInfo = handleLabel(l,scopeInfo);						
-			scopeInfo = handleExpression(e, scopeInfo);
+			if (debug) println("NAMESPACE: Inside switch statement <s>");
+			
+			scopeInfo = handleExpression(e,handleLabel(l,scopeInfo));						
 			for (c <- cs) {
 				scopeInfo = handleCase(c, scopeInfo);
 			}
 		}
 
 		case (Statement)`<Label l> <Visit v>` : {
-			scopeInfo = handleLabel(l,scopeInfo);						
-			scopeInfo = handleVisit(v, scopeInfo);
+			if (debug) println("NAMESPACE: Inside visit statement <s>");
+			scopeInfo = handleVisit(v, handleLabel(l,scopeInfo));						
 		}
 			
 		case `<Expression e> ;` : {
+			if (debug) println("NAMESPACE: Inside expression statement <s>");
 			scopeInfo = handleExpression(e, scopeInfo);
 		}
 
 		case `<Assignable a> <Assignment op> <Statement b>` : {
-			scopeInfo = handleAssignable(a, scopeInfo);
-			scopeInfo = handleStatement(b, scopeInfo);
+			if (debug) println("NAMESPACE: Inside assignment statement <s>");
+			scopeInfo = handleStatement(b, handleAssignable(a, scopeInfo));
 		}
 		
 		case `assert <Expression e> ;` : {
+			if (debug) println("NAMESPACE: Inside assert statement <s>");
 			scopeInfo = handleExpression(e, scopeInfo);
 		}
 
 		case `assert <Expression e> : <Expression em> ;` : {
-			scopeInfo = handleExpression(e, scopeInfo);
-			scopeInfo = handleExpression(em, scopeInfo);			
+			if (debug) println("NAMESPACE: Inside assert with message statement <s>");
+			scopeInfo = handleExpression(em, handleExpression(e, scopeInfo));
 		}
 		
 		case `return <Statement b>` : {
+			if (debug) println("NAMESPACE: Inside return statement <s>");
 			scopeInfo = handleStatement(b, scopeInfo);
 		}
 		
 		case `throw <Statement b>` : {
+			if (debug) println("NAMESPACE: Inside throw statement <s>");
 			scopeInfo = handleStatement(b, scopeInfo);
 		}
 		
 		case `insert <DataTarget dt> <Statement b>` : {
-			// TODO: Should check target here as well, ensuring it is in scope
-			scopeInfo = handleStatement(b, scopeInfo);
+			if (debug) println("NAMESPACE: Inside insert statement <s>");
+			scopeInfo = handleStatement(b, handleTarget(dt, scopeInfo));
 		}
 		
 		case `append <DataTarget dt> <Statement b>` : {
-			// TODO: Should check target here as well, ensuring it is in scope
-			scopeInfo = handleStatement(b, scopeInfo);
+			if (debug) println("NAMESPACE: Inside append statement <s>");
+			scopeInfo = handleStatement(b, handleTarget(dt, scopeInfo));
 		}
 		
 		case (Statement) `<Tags ts> <Visibility v> <Signature sig> <FunctionBody fb>` : {
+			if (debug) println("NAMESPACE: Inside local function statement <s>");
+			
 			// First get back the function signature information, creating the scope item
 			scopeInfo = handleFunctionNamesOnly(ts,v,sig,fb,s@\loc,scopeInfo);
 					
@@ -934,27 +1082,35 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 		}
 		
 		case (Statement) `<Type t> <{Variable ","}+ vs> ;` : {
+			if (debug) println("NAMESPACE: Inside local variable statement <s>");
 			scopeInfo = handleLocalVarItems(t,vs,scopeInfo);
 		}
 		
 		case (Statement) `dynamic <Type t> <{Variable ","}+ vs> ;` : {
+			if (debug) println("NAMESPACE: Inside dynamic local variable statement <s>");
+
 			// TODO: Handle scoping of dynamics properly
 			scopeInfo = handleLocalVarItems(t,vs,scopeInfo);
 		}
 		
-		//case `break <Target t> ;` : {
-		//	// TODO: Check target!
-		//}
+		case `break <Target t> ;` : {
+			if (debug) println("NAMESPACE: Inside break statement <s>");
+			scopeInfo = handleTarget(dt, scopeInfo);
+		}
 		
-		//case `fail <Target t> ;` : {
-		//	// TODO: Check target!
-		//}
+		case `fail <Target t> ;` : {
+			if (debug) println("NAMESPACE: Inside fail statement <s>");
+			scopeInfo = handleTarget(dt, scopeInfo);
+		}
 		
-		//case `continue <Target t> ;` : {
-		//	// TODO: Check target!
-		//}
+		case `continue <Target t> ;` : {
+			if (debug) println("NAMESPACE: Inside continue statement <s>");
+			scopeInfo = handleTarget(dt, scopeInfo);
+		}
 		
 		case `try <Statement b> <Catch+ cs>` : {
+			if (debug) println("NAMESPACE: Inside try without finally statement <s>");
+
 			scopeInfo = handleStatement(b, scopeInfo);
 			
 			for (ct <- cs)  {
@@ -963,6 +1119,8 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 		}
 		
 		case `try <Statement b> <Catch+ cs> finally <Statement bf>` : {
+			if (debug) println("NAMESPACE: Inside try with finally statement <s>");
+
 			scopeInfo = handleStatement(b, scopeInfo);
 			
 			for (ct <- cs)  {
@@ -973,6 +1131,8 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 		}
 		
 		case `<Label l> { <Statement+ bs> }` : {
+			if (debug) println("NAMESPACE: Inside block statement <s>");
+
 			scopeInfo = handleLabel(l,scopeInfo);						
 
 			// Add a scope layer for the block and switch the scope to it			
@@ -987,12 +1147,6 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 			scopeInfo = sup.scopeInfo;
 		}
-		
-		//case `global <Type t> <{QualifiedName ","}+ xs> ;` : {
-		//	// TODO: Define how this works; this is not yet implemented, and I need to find out
-		//	// what it is for.
-		//	return sr;
-		//}
 	}
 	
 	return scopeInfo;
@@ -1002,6 +1156,7 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 // Handle individual expressions (which could contain closures, for instance)
 //
 public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
+	if (debug) println("NAMESPACE: Inside expression <exp>");
 	switch(exp) {
 		case (Expression)`<BooleanLiteral bl>` : {
 			if (debug) println("NAMESPACE: BooleanLiteral: <exp>");
@@ -1040,34 +1195,24 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		// Name
 		case (Expression)`<Name n>`: {
 			if (debug) println("NAMESPACE: Name: <exp>");
-			if (isNameInScope(scopeInfo, scopeInfo.currentScope, convertName(n))) {		
+			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
 				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 				if (debug) println("NAMESPACE: Adding use for <n>");
 			} else {
-				// TODO: Abstract this out
-				RType freshType = RInferredType(scopeInfo.freshType);
-				scopeInfo = scopeInfo[freshType = scopeInfo.freshType+1];
-				ScopeItem vi = VariableItem(convertName(n), freshType, scopeInfo.currentScope)[@at = n@\loc];
-				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, n@\loc, scopeInfo);
-				scopeInfo = aip.scopeInfo;			
-				if (debug) println("NAMESPACE: Adding fresh type for for <n>");
+				scopeInfo = addScopeError(scopeInfo, n@\loc, "<n> not defined before use.");
+				if (debug) println("NAMESPACE: Found undefined use of <n>");
 			}
 		}
 		
 		// QualifiedName
 		case (Expression)`<QualifiedName qn>`: {
 			if (debug) println("NAMESPACE: QualifiedName: <exp>");
-			if (isNameInScope(scopeInfo, scopeInfo.currentScope, convertName(qn))) {		
+			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
 				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 				if (debug) println("NAMESPACE: Adding use for <qn>");
 			} else {
-				// TODO: Abstract this out
-				RType freshType = RInferredType(scopeInfo.freshType);
-				scopeInfo = scopeInfo[freshType = scopeInfo.freshType+1];
-				ScopeItem vi = VariableItem(convertName(qn), freshType, scopeInfo.currentScope)[@at = qn@\loc];
-				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, qn@\loc, scopeInfo);
-				scopeInfo = aip.scopeInfo;			
-				if (debug) println("NAMESPACE: Adding fresh type for for <qn>");
+				scopeInfo = addScopeError(scopeInfo, n@\loc, "<n> not defined before use.");
+				if (debug) println("NAMESPACE: Found undefined use of <qn>");
 			}
 		}
 
@@ -1083,9 +1228,18 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> ( <{Expression ","}* el> )` : {
 			if (debug) println("NAMESPACE: Call or Tree: <exp>");
 			scopeInfo = handleExpression(e1, scopeInfo);
+
+			// Parameters maintain their own scope for backtracking purposes
+			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
+			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
+
 			for (ei <- el) {
 				scopeInfo = handleExpression(ei, scopeInfo);
 			}
+
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 
 		// List
@@ -1115,31 +1269,53 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 		// TODO: Map: Need to figure out a syntax that works for matching this
 		// case ...
+		//case appl(prod([],cf(sort("Expression")),no-attrs),[...]) :
 
 		// Closure
 		case `<Type t> <Parameters p> { <Statement+ ss> }` : {
 			if (debug) println("NAMESPACE: Closure: <exp>");
-			if (debug) println("Closure: <exp>");
-			// First, create a new abstract function without a name
 			
-			// Now, descend into the body
+			// Create and switch scope to the closure layer
+			ScopeItem si = ClosureLayer(convertType(t), mkEmptySIList(), false, scopeInfo.currentScope)[@at=exp@\loc];
+			AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
-			3;
+			// Add parameters to the scope			 
+			scopeInfo = handleParametersNamesOnly(p, sup.scopeInfo);
+			
+			// Handle the closure body
+			for (s <- ss) scopeInfo = handleStatement(s, scopeInfo);
+			
+			// Switch back to the original scope
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 
 		// VoidClosure
 		case `<Parameters p> { <Statement* ss> }` : {
 			if (debug) println("NAMESPACE: VoidClosure: <exp>");
-			// First, create a new abstract function without a name
 			
-			// Now, descend into the body
+			// Create and switch scope to the closure layer
+			ScopeItem si = VoidClosureLayer(mkEmptySIList(), false, scopeInfo.currentScope)[@at=exp@\loc];
+			AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
-			3;
+			// Add parameters to the scope			 
+			scopeInfo = handleParametersNamesOnly(p, sup.scopeInfo);
+			
+			// Handle the closure body
+			for (s <- ss) scopeInfo = handleStatement(s, scopeInfo);
+			
+			// Switch back to the original scope
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 
 		// NonEmptyBlock
 		case `{ <Statement+ ss> }` : {
 			if (debug) println("NAMESPACE: NonEmptyBlock: <exp>");
+			
+			// Create and switch into a new scope layer for the block
 			ScopeItem blockItem = BlockLayer(scopeInfo.currentScope)[@at=exp@\loc];
 			AddedItemPair aip = addScopeItemWithParent(blockItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
@@ -1148,6 +1324,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				scopeInfo = handleStatement(s,scopeInfo);
 			}
 	
+			// After processing the scope body, switch back to the surrounding scope
 			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 			scopeInfo = sup.scopeInfo;		
 		}
@@ -1155,8 +1332,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		// Visit
 		case (Expression) `<Label l> <Visit v>` : {
 			if (debug) println("NAMESPACE: Visit: <exp>");
-			scopeInfo = handleLabel(l,scopeInfo);						
-			scopeInfo = handleVisit(v, scopeInfo);		
+			scopeInfo = handleVisit(v, handleLabel(l,scopeInfo));						
 		}
 		
 		// ParenExp
@@ -1168,16 +1344,13 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		// Range
 		case `[ <Expression e1> .. <Expression e2> ]` : {
 			if (debug) println("NAMESPACE: Range: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
+			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
 		}
 
 		// StepRange
 		case `[ <Expression e1>, <Expression e2> .. <Expression e3> ]` : {
 			if (debug) println("NAMESPACE: StepRange: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
-			scopeInfo = handleExpression(e3, scopeInfo);
+			scopeInfo = handleExpression(e3, handleExpression(e2, handleExpression(e1, scopeInfo)));
 		}
 
 		// ReifyType
@@ -1188,23 +1361,31 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		// FieldUpdate
 		case `<Expression e1> [<Name n> = <Expression e2>]` : {
 			if (debug) println("NAMESPACE: FieldUpdate: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
-			if (debug) println("Adding use for <n>");
-			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
+			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
+			
+			// NOTE: Here we do not add uses for n, since n should be the name of a field
+			// on the type e1. We will instead check this inside the type checker, since we
+			// need to know the type first before we can do this.
 		}
 
 		// FieldAccess
 		case `<Expression e1> . <Name n>` : {
 			if (debug) println("NAMESPACE: FieldAccess: <exp>");
 			scopeInfo = handleExpression(e1, scopeInfo);
-			if (debug) println("Adding use for <n>");
-			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
+			
+			// NOTE: Here we do not add uses for n, since n should be the name of a field
+			// on the type e1. We will instead check this inside the type checker, since we
+			// need to know the type first before we can do this.
 		}
 
-		// FieldProject TODO
+		// FieldProject
 		case `<Expression e1> < <{Field ","}+ fl> >` : {
 			if (debug) println("NAMESPACE: FieldProject: <exp>");
+			scopeInfo = handleExpression(e1, scopeInfo);
+			
+			// NOTE: Here we do not add uses for the fields, since we need to know the type of e1
+			// to check this (these are not uses of names defined in local scope). We will instead 
+			// check this inside the type checker. A field must be either a name or a number.
 		}
 
 		// Subscript
@@ -1270,73 +1451,64 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e> @ <Name n>` : {
 			if (debug) println("NAMESPACE: GetAnnotation: <exp>");
 			scopeInfo = handleExpression(e, scopeInfo);
-			if (debug) println("Adding use for <n>");
-			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
+			if (debug) println("NAMESPACE: Adding use for <n>");
+			scopeInfo = addItemUses(scopeInfo, getAnnotationItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 		}
 
 		// SetAnnotation
 		case `<Expression e1> [@ <Name n> = <Expression e2>]` : {
 			if (debug) println("NAMESPACE: SetAnnotation: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
-			if (debug) println("Adding use for <n>");
-			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
+			scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
+			if (debug) println("NAMESPACE: Adding use for <n>");
+			scopeInfo = addItemUses(scopeInfo, getAnnotationItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 		}
 
 		// Composition
 		case `<Expression e1> o <Expression e2>` : {
 			if (debug) println("NAMESPACE: Composition: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
+			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
 		}
 
 		// Product
 		case `<Expression e1> * <Expression e2>` : {
 			if (debug) println("NAMESPACE: Times: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
+			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
 		}
 
 		// Join
 		case `<Expression e1> join <Expression e2>` : {
 			if (debug) println("NAMESPACE: Join: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
+			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
 		}
 
 		// Div
 		case `<Expression e1> / <Expression e2>` : {
 			if (debug) println("NAMESPACE: Div: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
+			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
 		}
 
 		// Mod
 		case `<Expression e1> % <Expression e2>` : {
 			if (debug) println("NAMESPACE: Mod: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
+			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
 		}
 
 		// Intersection
 		case `<Expression e1> & <Expression e2>` : {
 			if (debug) println("NAMESPACE: Intersection: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
+			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
 		}
 		
 		// Plus
 		case `<Expression e1> + <Expression e2>` : {
 			if (debug) println("NAMESPACE: Plus: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 		}
 
 		// Minus
 		case `<Expression e1> - <Expression e2>` : {
 			if (debug) println("NAMESPACE: Minus: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 		}
 
 		// NotIn
@@ -1348,14 +1520,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1368,14 +1538,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1388,14 +1556,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1408,14 +1574,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1428,14 +1592,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1448,14 +1610,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1468,14 +1628,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1488,14 +1646,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1508,16 +1664,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
-				scopeInfo = handleExpression(e3, scopeInfo);
+				scopeInfo = handleExpression(e3,handleExpression(e2,handleExpression(e1, scopeInfo)));
 				
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
-				scopeInfo = handleExpression(e3, scopeInfo);
+				scopeInfo = handleExpression(e3,handleExpression(e2,handleExpression(e1, scopeInfo)));
 			}	
 		}
 
@@ -1530,14 +1682,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1550,14 +1700,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1570,14 +1718,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1590,14 +1736,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
 			}	
 		}
 
@@ -1610,14 +1754,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = handleExpression(e2, scopeInfo);			
+				scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
 			}	
 		}
 		
@@ -1630,14 +1772,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handlePattern(p, scopeInfo);
-				scopeInfo = handleExpression(e, scopeInfo);
+				scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handlePattern(p, scopeInfo);
-				scopeInfo = handleExpression(e, scopeInfo);
+				scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
 			}	
 		}
 
@@ -1650,14 +1790,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handlePattern(p, scopeInfo);
-				scopeInfo = handleExpression(e, scopeInfo);
+				scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handlePattern(p, scopeInfo);
-				scopeInfo = handleExpression(e, scopeInfo);
+				scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
 			}	
 		}
 
@@ -1670,14 +1808,12 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
-				scopeInfo = handlePattern(p, scopeInfo);
-				scopeInfo = handleExpression(e, scopeInfo);
+				scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
 
 				sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 				scopeInfo = sup.scopeInfo;
 			} else {
-				scopeInfo = handlePattern(p, scopeInfo);
-				scopeInfo = handleExpression(e, scopeInfo);
+				scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
 			}	
 		}
 		
@@ -1699,16 +1835,27 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case (Expression) `( <Expression ef> : <Expression et> | <{Expression ","}+ er> )` : {
 			if (debug) println("NAMESPACE: MapComprehension: <exp>");
 			for (e <- er) scopeInfo = handleExpression(e, scopeInfo);
-			scopeInfo = handleExpression(ef, scopeInfo);
-			scopeInfo = handleExpression(et, scopeInfo);
+			scopeInfo = handleExpression(et, handleExpression(ef, scopeInfo));
 		}
-		
-		// Reducer 
+
+		// Reducer
+		// TODO: I think a boolean scope is fine here, but may want to use a block scope instead 
 		case `( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )` : {
 			if (debug) println("NAMESPACE: Reducer: <exp>");
-			scopeInfo = handleExpression(ei, scopeInfo);
-			scopeInfo = handleExpression(er, scopeInfo);
+			
+			scopeInfo = handleExpression(e1, scopeInfo);
+			
+			// Open a new boolean scope for the generators
+			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
+			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
+			
 			for (e <- egs) scopeInfo = handleExpression(e, scopeInfo);
+			scopeInfo = handleExpression(er, scopeInfo);
+			
+			// Switch back to the prior scope to take expression bound names out of scope			
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 		
 		// It
@@ -1757,9 +1904,10 @@ public ScopeInfo handleCase(Case c, ScopeInfo scopeInfo) {
 // Handle assignables
 //
 public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
+	if (debug) println("NAMESPACE: Inside assignable <a>");
 	switch(a) {
 		case (Assignable)`<QualifiedName qn>` : {
-			if (debug) println("Adding use for <qn>");
+			if (debug) println("NAMESPACE: Adding use for <qn>");
 			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 		}
 		
@@ -1770,7 +1918,7 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 		
 		case `<Assignable al> . <Name n>` : {
 			scopeInfo = handleAssignable(al, scopeInfo);
-			if (debug) println("Adding use for <n>");
+			if (debug) println("NAMESPACE: Adding use for <n>");
 			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 		}
 		
@@ -1781,8 +1929,8 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 		
 		case `<Assignable al> @ <Name n>` : {
 			scopeInfo = handleAssignable(al, scopeInfo);
-			if (debug) println("Adding use for <n>");
-			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
+			if (debug) println("NAMESPACE: Adding use for <n>");
+			scopeInfo = addItemUses(scopeInfo, getAnnotationItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 		}
 		
 		case `< <{Assignable ","}+ al> >` : {
@@ -1792,7 +1940,7 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 		}
 		
 		case `<Name n> ( <{Assignable ","}+ al> )` : {
-			if (debug) println("Adding use for <qn>");
+			if (debug) println("NAMESPACE: Adding use for <qn>");
 			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 			for (ali <- al) {
 				scopeInfo = handleAssignable(ali, scopeInfo);
@@ -1810,19 +1958,29 @@ public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scope
 	for (vb <- vs) {
 		switch(vb) {
 			case `<Name n>` : {
-				if (debug) println("Adding variable <n>");
-				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
-				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
-				scopeInfo = aip.scopeInfo;
+				if (debug) println("NAMESPACE: Adding variable <n>");
+				if (size(getItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {
+					scopeInfo = addScopeError(scopeInfo, n@\loc, "Illegal redefinition of <n>.");
+					if (debug) println("NAMESPACE: Illegal redefinition of <n>");
+				} else {
+					ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
+					AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
+					scopeInfo = aip.scopeInfo;
+				}
 			}
 				
 			case `<Name n> = <Expression e>` : {
-				if (debug) println("Adding variable <n>");
-				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
-				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
-				scopeInfo = handleExpression(e,aip.scopeInfo);
+				if (debug) println("NAMESPACE: Adding variable <n>");
+				if (size(getItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {
+					scopeInfo = addScopeError(scopeInfo, n@\loc, "Illegal redefinition of <n>.");
+					if (debug) println("NAMESPACE: Illegal redefinition of <n>");
+				} else {
+					ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
+					AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
+					scopeInfo = aip.scopeInfo;
+				}
 				
-				
+				scopeInfo = handleExpression(e, scopeInfo);
 			}
 		}
 	}
@@ -1839,8 +1997,7 @@ public ScopeInfo handleCatch(Catch c, ScopeInfo scopeInfo) {
 		}
 		
 		case `catch <Pattern p> : <Statement b>` : {
-			scopeInfo = handlePattern(p, scopeInfo);
-			scopeInfo = handleStatement(b, scopeInfo);
+			scopeInfo = handleStatement(b, handlePattern(p, scopeInfo));
 		}
 	}
 	
@@ -1852,9 +2009,15 @@ public ScopeInfo handleCatch(Catch c, ScopeInfo scopeInfo) {
 //
 public ScopeInfo handleLabel(Label l, ScopeInfo scopeInfo) {
 	if ((Label)`<Name n> :` := l) {
-		ScopeItem li = LabelItem(convertName(n), scopeInfo.currentScope)[@at = l@\loc];
-		AddedItemPair aip = addScopeItemWithParent(li, scopeInfo.currentScope, l@\loc, scopeInfo);
-		scopeInfo = aip.scopeInfo;
+		// First, check to see if this label already exists
+		set[ScopeItemId] ls = getLabelItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n));
+		if (size(ls) == 0) {		
+			ScopeItem li = LabelItem(convertName(n), scopeInfo.currentScope)[@at = l@\loc];
+			AddedItemPair aip = addScopeItemWithParent(li, scopeInfo.currentScope, l@\loc, scopeInfo);
+			scopeInfo = aip.scopeInfo;
+		} else {
+			scopeInfo = addScopeError(scopeInfo, n@\loc, "Label <n> has already been defined.");					
+		}
 	}
 	return scopeInfo;
 }
@@ -1862,10 +2025,28 @@ public ScopeInfo handleLabel(Label l, ScopeInfo scopeInfo) {
 //
 // Handle visits
 //
-// TODO: Add needed code
-//
 public ScopeInfo handleVisit(Visit v, ScopeInfo scopeInfo) {
+	switch(v) {
+		case `visit (<Expression se>) { <Case+ cs> }` : {
+			scopeInfo = handleExpression(se, scopeInfo);
+			for (c <- cs) scopeInfo = handleCase(c, scopeInfo);
+		}
+		
+		case `<Strategy st> visit (<Expression se>) { <Case+ cs> }` : {
+			scopeInfo = handleExpression(se, scopeInfo);
+			for (c <- cs) scopeInfo = handleCase(c, scopeInfo);		
+		}		
+	}
+	
 	return scopeInfo;
+}
+
+public ScopeInfo addFreshVariable(RName n, loc nloc, ScopeInfo scopeInfo) {
+	RType freshType = RInferredType(scopeInfo.freshType);
+	scopeInfo.freshType = scopeInfo.freshType + 1;
+	ScopeItem vi = VariableItem(n, freshType, scopeInfo.currentScope)[@at = nloc];
+	AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, nloc, scopeInfo);
+	return aip.scopeInfo;
 }
 
 //
@@ -1910,16 +2091,11 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 		// Name
 		case (Pattern)`<Name n>`: {
 			if (debug) println("NAMESPACE: NamePattern: <pat>");
-			if (isNameInScope(scopeInfo, scopeInfo.currentScope, convertName(n))) {		
+			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
 				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 				if (debug) println("NAMESPACE: Adding use for <n>");
 			} else {
-				// TODO: Abstract this out
-				RType freshType = RInferredType(scopeInfo.freshType);
-				scopeInfo = scopeInfo[freshType = scopeInfo.freshType+1];
-				ScopeItem vi = VariableItem(convertName(n), freshType, scopeInfo.currentScope)[@at = n@\loc];
-				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, n@\loc, scopeInfo);
-				scopeInfo = aip.scopeInfo;			
+				scopeInfo = addFreshVariable(convertName(n), n@\loc, scopeInfo);			
 				if (debug) println("NAMESPACE: Adding fresh type for for <n>");
 			}
 		}
@@ -1927,16 +2103,11 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 		// QualifiedName
 		case (Pattern)`<QualifiedName qn>`: {
 			if (debug) println("NAMESPACE: QualifiedNamePattern: <pat>");
-			if (isNameInScope(scopeInfo, scopeInfo.currentScope, convertName(qn))) {		
+			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
 				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 				if (debug) println("NAMESPACE: Adding use for <qn>");
 			} else {
-				// TODO: Abstract this out
-				RType freshType = RInferredType(scopeInfo.freshType);
-				scopeInfo = scopeInfo[freshType = scopeInfo.freshType+1];
-				ScopeItem vi = VariableItem(convertName(qn), freshType, scopeInfo.currentScope)[@at = qn@\loc];
-				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, qn@\loc, scopeInfo);
-				scopeInfo = aip.scopeInfo;			
+				scopeInfo = addFreshVariable(convertName(qn), qn@\loc, scopeInfo);			
 				if (debug) println("NAMESPACE: Adding fresh type for for <qn>");
 			}
 		}
@@ -1974,13 +2145,6 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 		}
 
 		// TODO: Map: Need to figure out a syntax that works for matching this
-//		case `<<Pattern ei>, <{Pattern ","}* el>>` : {
-//			// TODO: This is not yet working
-//			if (debug) println("Tuple <pat>");
-//			RType t = checkTuplePattern(exp,ei,el);
-//			if (debug) println("Assigning type: " + prettyPrintType(t));
-//			return t;
-//		}
 
 		// Descendant
 		case `/ <Pattern p>` : {
@@ -1991,37 +2155,26 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 		// Variable Becomes
 		case `<Name n> : <Pattern p>` : {
 			if (debug) println("NAMESPACE: VariableBecomesPattern: <pat>");
-			if (debug) println("NAMESPACE: NamePattern: <pat>");
-			if (isNameInScope(scopeInfo, scopeInfo.currentScope, convertName(n))) {		
+			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
 				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 				if (debug) println("NAMESPACE: Adding use for <n>");
 			} else {
-				// TODO: Abstract this out
-				RType freshType = RInferredType(scopeInfo.freshType);
-				scopeInfo = scopeInfo[freshType = scopeInfo.freshType+1];
-				ScopeItem vi = VariableItem(convertName(n), freshType, scopeInfo.currentScope)[@at = n@\loc];
-				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, n@\loc, scopeInfo);
-				scopeInfo = aip.scopeInfo;			
+				scopeInfo = addFreshVariable(convertName(qn), qn@\loc, scopeInfo);			
 				if (debug) println("NAMESPACE: Adding fresh type for for <n>");
 			}
 			scopeInfo = handlePattern(p, scopeInfo);
 		}
 		
 		// Typed Variable Becomes
-		// TODO: Treat like a declaration in this scope
-		// TODO: Check for name clashes with existing declarations
 		case `<Type t> <Name n> : <Pattern p>` : {
 			if (debug) println("NAMESPACE: TypedVariableBecomesPattern: <pat>");
-			if (debug) println("NAMESPACE: NamePattern: <pat>");
-			if (isNameInScope(scopeInfo, scopeInfo.currentScope, convertName(n))) {		
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
-				if (debug) println("NAMESPACE: Adding use for <n>");
+			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
+				scopeInfo = addScopeError(scopeInfo, pat@\loc, "Illegal shadowing of already declared name: <n>");
 			} else {
-				// TODO: Abstract this out
 				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = n@\loc];
 				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, n@\loc, scopeInfo);
 				scopeInfo = aip.scopeInfo;			
-				if (debug) println("NAMESPACE: Adding declaration for for <n>");
+				if (debug) println("NAMESPACE: Adding new declaration for <n>");
 			}
 			scopeInfo = handlePattern(p, scopeInfo);
 		}
@@ -2045,52 +2198,92 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 //
 // Handle Pattern with Action productions
 //
-public ScopeInfo handlePatternWithAction(PatternWithAction p, ScopeInfo scopeInfo) {
-	switch(p) {
+public ScopeInfo handlePatternWithAction(PatternWithAction pwa, ScopeInfo scopeInfo) {
+	switch(pwa) {
 		case `<Pattern p> => <Expression e>` : {
-			scopeInfo = handlePattern(p, scopeInfo);
-			scopeInfo = handleExpression(e, scopeInfo);
+			ScopeItem patternItem = PatternMatchLayer(scopeInfo.currentScope)[@at=pwa@\loc];
+			AddedItemPair aip = addScopeItemWithParent(patternItem, scopeInfo.currentScope, pwa@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
+			
+			scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
+
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 		
 		case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
+			ScopeItem patternItem = PatternMatchLayer(scopeInfo.currentScope)[@at=pwa@\loc];
+			AddedItemPair aip = addScopeItemWithParent(patternItem, scopeInfo.currentScope, pwa@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
+			
 			scopeInfo = handlePattern(p, scopeInfo);
-			scopeInfo = handleExpression(er, scopeInfo);
 			for (e <- es) { 
 				scopeInfo = handleExpression(e, scopeInfo);
 			}
+			scopeInfo = handleExpression(er, scopeInfo);
+						
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 		
 		case `<Pattern p> : <Statement s>` : {
-			scopeInfo = handlePattern(p, scopeInfo);
-			scopeInfo = handleStatement(s, scopeInfo);
+			ScopeItem patternItem = PatternMatchLayer(scopeInfo.currentScope)[@at=pwa@\loc];
+			AddedItemPair aip = addScopeItemWithParent(patternItem, scopeInfo.currentScope, pwa@\loc, scopeInfo);
+			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
+
+			scopeInfo = handleStatement(s, handlePattern(p, scopeInfo));			
+			
+			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+			scopeInfo = sup.scopeInfo;
 		}
 	}
 	
 	return scopeInfo;
 }
 
+public ScopeInfo handleTarget(DataTarget dt, ScopeInfo scopeInfo) {
+	if ((DataTarget)`<Name n> :` := dt) {
+		set[ScopeItemId] items = getLabelItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n));
+		if (size(items) == 1) {
+			scopeInfo = addItemUses(scopeInfo, items, n@\loc);
+		} else if (size(items) == 0) {
+			scopeInfo = addScopeError(scopeInfo, n@\loc, "Label <n> has not been defined.");			
+		} else {
+			scopeInfo = addScopeError(scopeInfo, n@\loc, "Label <n> has multiple definitions.");
+		}
+		
+	}
+	return scopeInfo;
+}
+
 public bool hasRType(ScopeInfo scopeInfo, loc l) {
-	if (l in scopeInfo.itemUses)
+	if (l in scopeInfo.itemUses || l in scopeInfo.scopeErrorMap)
 		return true;
 	return false;
 }
 
 public RType getRType(ScopeInfo scopeInfo, loc l) {
-	set[ScopeItemId] items = scopeInfo.itemUses[l];
-	if (size(items) == 0) {
-		// TODO: Should be an exception
-		return makeVoidType();
-	} else if (size(items) == 1) {
-		return getTypeForItem(scopeInfo, getOneFrom(items));
+	set[ScopeItemId] items = (l in scopeInfo.itemUses) ? scopeInfo.itemUses[l] : { };
+	set[str] scopeErrors = (l in scopeInfo.scopeErrorMap) ? scopeInfo.scopeErrorMap[l] : { };
+	
+	if (size(scopeErrors) == 0) {
+		if (size(items) == 0) {
+			// TODO: Should be an exception
+			return makeVoidType();
+		} else if (size(items) == 1) {
+			return getTypeForItem(scopeInfo, getOneFrom(items));
+		} else {
+			return RTypeOverloaded({ getTypeForItem(scopeInfo, sii) | sii <- items });
+		}
 	} else {
-		return RTypeOverloaded({ getTypeForItem(scopeInfo, sii) | sii <- items });
+		return collapseFailTypes({ makeFailType(s,l) | s <- scopeErrors });
 	}
 }
 
 public Tree decorateNames(Tree t, ScopeInfo scopeInfo) {
 	return visit(t) {
-		case `<Name n>` => hasRType(scopeInfo,n@\loc) ? n[@rtype = getRType(scopeInfo,n@\loc)] : n
+		case `<Name n>` => hasRType(scopeInfo, n@\loc) ? n[@rtype = getRType(scopeInfo, n@\loc)] : n
 		
-		case `<QualifiedName n>` => hasRType(scopeInfo,n@\loc) ? n[@rtype = getRType(scopeInfo,n@\loc)] : n
+		case `<QualifiedName qn>` => hasRType(scopeInfo, qn@\loc) ? qn[@rtype = getRType(scopeInfo, qn@\loc)] : qn
 	}
 }

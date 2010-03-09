@@ -717,80 +717,80 @@ public RType checkAnyExpression(Expression ep, {Expression ","}+ ers) {
 public RType checkExpression(Expression exp) {
 	switch(exp) {
 		case (Expression)`<BooleanLiteral bl>` : {
-			if (debug) println("BooleanLiteral: <exp>");
-			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RBoolType())));
+			if (debug) println("CHECKER: BooleanLiteral: <exp>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RBoolType())));
 			return makeBoolType();
 		}
 
 		case (Expression)`<DecimalIntegerLiteral il>`  : {
-			if (debug) println("DecimalIntegerLiteral: <exp>");
-			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
+			if (debug) println("CHECKER: DecimalIntegerLiteral: <exp>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
 			return makeIntType();
 		}
 
 		case (Expression)`<OctalIntegerLiteral il>`  : {
-			if (debug) println("OctalIntegerLiteral: <exp>");
-			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
+			if (debug) println("CHECKER: OctalIntegerLiteral: <exp>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
 			return makeIntType();
 		}
 
 		case (Expression)`<HexIntegerLiteral il>`  : {
-			if (debug) println("HexIntegerLiteral: <exp>");
-			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
+			if (debug) println("CHECKER: HexIntegerLiteral: <exp>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
 			return makeIntType();
 		}
 
 		case (Expression)`<RealLiteral rl>`  : {
-			if (debug) println("RealLiteral: <exp>");
-			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RRealType())));
+			if (debug) println("CHECKER: RealLiteral: <exp>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RRealType())));
 			return makeRealType();
 		}
 
 		// TODO: Interpolation
 		case (Expression)`<StringLiteral sl>`  : {
-			if (debug) println("StringLiteral: <exp>");
-			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RStrType())));
+			if (debug) println("CHECKER: StringLiteral: <exp>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RStrType())));
 			return makeStrType();
 		}
 
 		// TODO: Interpolation
 		case (Expression)`<LocationLiteral ll>`  : {
-			if (debug) println("LocationLiteral: <exp>");
-			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RLocType())));
+			if (debug) println("CHECKER: LocationLiteral: <exp>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RLocType())));
 			return RTypeBasic(RLocType());
 		}
 
 		case (Expression)`<DateTimeLiteral dtl>`  : {
-			if (debug) println("DateTimeLiteral: <exp>");
-			if (debug) println("Assigning type: " + prettyPrintType(RTypeBasic(RDateTimeType())));
+			if (debug) println("CHECKER: DateTimeLiteral: <exp>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RDateTimeType())));
 			return RTypeBasic(RDateTimeType());
 		}
 
 		// TODO: See if we ever have this; a qualified name, not a name, is an expression
 		case (Expression)`<Name n>`: {
-			if (debug) println("Name: <exp>");
-			if (debug) println("Assigned type: " + prettyPrintType(n@rtype));
+			if (debug) println("CHECKER: Name: <exp>");
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(n@rtype));
 			return n@rtype; // TODO: Should throw an exception if the name has no type information
 		}
 		
 		// QualifiedName
 		case (Expression)`<QualifiedName qn>`: {
-			if (debug) println("QualifiedName: <exp>");
-			if (debug) println("Assigned type: " + prettyPrintType(qn@rtype));
+			if (debug) println("CHECKER: QualifiedName: <exp>");
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
 			return qn@rtype; // TODO: Should throw an exception if the name has no type information
 		}
 
 		// ReifiedType
 		case `<BasicType t> ( <{Expression ","}* el> )` : {
-			if (debug) println("ReifiedType: <exp>");
+			if (debug) println("CHECKER: ReifiedType: <exp>");
 			RType rt = checkReifiedTypeExpression(exp,t,el);
-			if (debug) println("Assigned type: " + prettyPrintType(rt));
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(rt));
 			return rt;
 		}
 
 		// CallOrTree
 		case `<Expression e1> ( <{Expression ","}* el> )` : {
-			if (debug) println("Call or Tree: <e1>(<el>)");
+			if (debug) println("CHECKER: Call or Tree: <e1>(<el>)");
 			RType t = checkCallOrTreeExpression(exp,e1,el);
 			if(debug) println("Assigning type: " + prettyPrintType(t));
 			return t;
@@ -798,441 +798,441 @@ public RType checkExpression(Expression exp) {
 
 		// List
 		case `[<{Expression ","}* el>]` : {
-			if (debug) println("List: <exp>");
+			if (debug) println("CHECKER: List: <exp>");
 			RType t = checkListExpression(exp,el);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Set
 		case `{<{Expression ","}* el>}` : {
-			if (debug) println("Set: <exp>");
+			if (debug) println("CHECKER: Set: <exp>");
 			RType t = checkSetExpression(exp,el);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Tuple
 		case `<<Expression ei>, <{Expression ","}* el>>` : {
-			if (debug) println("Tuple <exp>");
+			if (debug) println("CHECKER: Tuple <exp>");
 			RType t = checkTupleExpression(exp,ei,el);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// TODO: Map: Need to figure out a syntax that works for matching this
 //		case `<<Expression ei>, <{Expression ","}* el>>` : {
 //			// TODO: This is not yet working
-//			if (debug) println("Tuple <exp>");
+//			if (debug) println("CHECKER: Tuple <exp>");
 //			RType t = checkTupleExpression(exp,ei,el);
-//			if (debug) println("Assigning type: " + prettyPrintType(t));
+//			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 //			return t;
 //		}
 
 		// Closure
 		case `<Type t> <Parameters p> { <Statement+ ss> }` : {
-			if (debug) println("Closure: <exp>");
+			if (debug) println("CHECKER: Closure: <exp>");
 			RType t = checkClosureExpression(exp,t,p,ss);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// VoidClosure
 		case `<Parameters p> { <Statement* ss> }` : {
-			if (debug) println("VoidClosure: <exp>");
+			if (debug) println("CHECKER: VoidClosure: <exp>");
 			RType t = checkVoidClosureExpression(exp,p,ss);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// NonEmptyBlock
 		case `{ <Statement+ ss> }` : {
-			if (debug) println("NonEmptyBlock: <exp>");
+			if (debug) println("CHECKER: NonEmptyBlock: <exp>");
 			RType t = checkNonEmptyBlockExpression(exp,ss);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;		
 		}
 		
 		// Visit
 		case (Expression) `<Label l> <Visit v>` : {
-			if (debug) println("Visit: <exp>");
+			if (debug) println("CHECKER: Visit: <exp>");
 			RType t = checkVisitExpression(exp,l,v);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;			
 		}
 		
 		// ParenExp
 		case `(<Expression e>)` : {
-			if (debug) println("ParenExp: <exp>");
+			if (debug) println("CHECKER: ParenExp: <exp>");
 			RType t = e@rtype;
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Range
 		case `[ <Expression e1> .. <Expression e2> ]` : {
-			if (debug) println("Range: <exp>");
+			if (debug) println("CHECKER: Range: <exp>");
 			RType t = checkRangeExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// StepRange
 		case `[ <Expression e1>, <Expression e2> .. <Expression e3> ]` : {
-			if (debug) println("StepRange: <exp>");
+			if (debug) println("CHECKER: StepRange: <exp>");
 			RType t = checkStepRangeExpression(exp,e1,e2,e3);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// ReifyType
 		case (Expression)`#<Type t>` : {
-			if (debug) println("ReifyType: <exp>");
+			if (debug) println("CHECKER: ReifyType: <exp>");
 			RType t = RTypeStructured(RStructuredType(RTypeType(),[RTypeArg(convertType(t))]));
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// FieldUpdate
 		case `<Expression e1> [<Name n> = <Expression e2>]` : {
-			if (debug) println("FieldUpdate: <exp>");
+			if (debug) println("CHECKER: FieldUpdate: <exp>");
 			RType t = checkFieldUpdateExpression(exp,e1,n,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// FieldAccess
 		case `<Expression e1> . <Name n>` : {
-			if (debug) println("FieldAccess: <exp>");
+			if (debug) println("CHECKER: FieldAccess: <exp>");
 			RType t = checkFieldAccessExpression(exp,e1,n);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// FieldProject
 		case `<Expression e1> < <{Field ","}+ fl> >` : {
-			if (debug) println("FieldProject: <exp>");
+			if (debug) println("CHECKER: FieldProject: <exp>");
 			RType t = checkFieldProjectExpression(exp,e1,fl);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Subscript (currently broken)
 		case `<Expression e1> [ <{Expression ","}+ el> ]` : {
-			if (debug) println("Subscript <exp>");
+			if (debug) println("CHECKER: Subscript <exp>");
 			RType t = checkSubscriptExpression(exp,e1,el);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// IsDefined
 		case `<Expression e> ?` : {
-			if (debug) println("IsDefined: <exp>");
+			if (debug) println("CHECKER: IsDefined: <exp>");
 			RType t = checkIsDefinedExpression(exp,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Negation
 		case `! <Expression e>` : {
-			if (debug) println("Negation: <exp>");
+			if (debug) println("CHECKER: Negation: <exp>");
 			RType t = checkNegationExpression(exp,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Negative
 		case `- <Expression e> ` : {
-			if (debug) println("Negative: <exp>");
+			if (debug) println("CHECKER: Negative: <exp>");
 			RType t = checkNegativeExpression(exp,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// TransitiveReflexiveClosure
 		case `<Expression e> * ` : {
-			if (debug) println("TransitiveReflexiveClosure: <exp>");
+			if (debug) println("CHECKER: TransitiveReflexiveClosure: <exp>");
 			RType t = checkTransitiveReflexiveClosureExpression(exp,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// TransitiveClosure
 		case `<Expression e> + ` : {
-			if (debug) println("TransitiveClosure: <exp>");
+			if (debug) println("CHECKER: TransitiveClosure: <exp>");
 			RType t = checkTransitiveClosureExpression(exp,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// GetAnnotation
 		case `<Expression e> @ <Name n>` : {
-			if (debug) println("GetAnnotation: <exp>");
+			if (debug) println("CHECKER: GetAnnotation: <exp>");
 			RType t = checkGetAnnotationExpression(exp,e,n);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// SetAnnotation
 		case `<Expression e1> [@ <Name n> = <Expression e2>]` : {
-			if (debug) println("SetAnnotation: <exp>");
+			if (debug) println("CHECKER: SetAnnotation: <exp>");
 			RType t = checkSetAnnotationExpression(exp,e1,n,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Composition
 		case `<Expression e1> o <Expression e2>` : {
-			if (debug) println("Composition: <exp>");
+			if (debug) println("CHECKER: Composition: <exp>");
 			RType t = checkCompositionExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Product
 		case `<Expression e1> * <Expression e2>` : {
-			if (debug) println("Times: <exp>");
+			if (debug) println("CHECKER: Times: <exp>");
 			RType t = checkProductExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Join
 		case `<Expression e1> join <Expression e2>` : {
-			if (debug) println("Join: <exp>");
+			if (debug) println("CHECKER: Join: <exp>");
 			RType t = checkJoinExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Div
 		case `<Expression e1> / <Expression e2>` : {
-			if (debug) println("Div: <exp>");
+			if (debug) println("CHECKER: Div: <exp>");
 			RType t = checkDivExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Mod
 		case `<Expression e1> % <Expression e2>` : {
-			if (debug) println("Mod: <exp>");
+			if (debug) println("CHECKER: Mod: <exp>");
 			RType t = checkModExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Intersection
 		case `<Expression e1> & <Expression e2>` : {
-			if (debug) println("Intersection: <exp>");
+			if (debug) println("CHECKER: Intersection: <exp>");
 			RType t = checkIntersectionExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Plus
 		case `<Expression e1> + <Expression e2>` : {
-			if (debug) println("Plus: <exp>");
+			if (debug) println("CHECKER: Plus: <exp>");
 			RType t = checkPlusExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Minus
 		case `<Expression e1> - <Expression e2>` : {
-			if (debug) println("Minus: <exp>");
+			if (debug) println("CHECKER: Minus: <exp>");
 			RType t = checkMinusExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// NotIn
 		case `<Expression e1> notin <Expression e2>` : {
-			if (debug) println("NotIn: <exp>");
+			if (debug) println("CHECKER: NotIn: <exp>");
 			RType t = checkNotInExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// In
 		case `<Expression e1> in <Expression e2>` : {
-			if (debug) println("In: <exp>");
+			if (debug) println("CHECKER: In: <exp>");
 			RType t = checkInExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// LessThan
 		case `<Expression e1> < <Expression e2>` : {
-			if (debug) println("LessThan: <exp>");
+			if (debug) println("CHECKER: LessThan: <exp>");
 			RType t = checkLessThanExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// LessThanOrEq
 		case `<Expression e1> <= <Expression e2>` : {
-			if (debug) println("LessThanOrEq: <exp>");
+			if (debug) println("CHECKER: LessThanOrEq: <exp>");
 			RType t = checkLessThanOrEqualExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// GreaterThan
 		case `<Expression e1> > <Expression e2>` : {
-			if (debug) println("GreaterThan: <exp>");
+			if (debug) println("CHECKER: GreaterThan: <exp>");
 			RType t = checkGreaterThanExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// GreaterThanOrEq
 		case `<Expression e1> >= <Expression e2>` : {
-			if (debug) println("GreaterThanOrEq: <exp>");
+			if (debug) println("CHECKER: GreaterThanOrEq: <exp>");
 			RType t = checkGreaterThanOrEqualExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Equals
 		case `<Expression e1> == <Expression e2>` : {
-			if (debug) println("Equals: <exp>");
+			if (debug) println("CHECKER: Equals: <exp>");
 			RType t = checkEqualsExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// NotEquals
 		case `<Expression e1> != <Expression e2>` : {
-			if (debug) println("NotEquals: <exp>");
+			if (debug) println("CHECKER: NotEquals: <exp>");
 			RType t = checkNotEqualsExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// IfThenElse (Ternary)
 		case `<Expression e1> ? <Expression e2> : <Expression e3>` : {
-			if (debug) println("IfThenElse: <exp>");
+			if (debug) println("CHECKER: IfThenElse: <exp>");
 			RType t = checkIfThenElseExpression(exp,e1,e2,e3);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;	
 		}
 
 		// IfDefinedOtherwise
 		case `<Expression e1> ? <Expression e2>` : {
-			if (debug) println("IfDefinedOtherwise: <exp>");
+			if (debug) println("CHECKER: IfDefinedOtherwise: <exp>");
 			RType t = checkIfDefinedOtherwiseExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;		
 		}
 
 		// Implication
 		case `<Expression e1> ==> <Expression e2>` : {
-			if (debug) println("Implication: <exp>");
+			if (debug) println("CHECKER: Implication: <exp>");
 			RType t = checkImplicationExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Equivalence
 		case `<Expression e1> <==> <Expression e2>` : {
-			if (debug) println("Equivalence: <exp>");
+			if (debug) println("CHECKER: Equivalence: <exp>");
 			RType t = checkEquivalenceExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// And
 		case `<Expression e1> && <Expression e2>` : {
-			if (debug) println("And: <exp>");
+			if (debug) println("CHECKER: And: <exp>");
 			RType t = checkAndExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Or
 		case `<Expression e1> || <Expression e2>` : {
-			if (debug) println("Or: <exp>");
+			if (debug) println("CHECKER: Or: <exp>");
 			RType t = checkOrExpression(exp,e1,e2);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Match
 		case `<Pattern p> := <Expression e>` : {
-			if (debug) println("Match: <exp>");
+			if (debug) println("CHECKER: Match: <exp>");
 			RType t = checkMatchExpression(exp,p,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// NoMatch
 		case `<Pattern p> !:= <Expression e>` : {
-			if (debug) println("NoMatch: <exp>");
+			if (debug) println("CHECKER: NoMatch: <exp>");
 			RType t = checkNoMatchExpression(exp,p,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Enumerator
 		case `<Pattern p> <- <Expression e>` : {
-			if (debug) println("Enumerator: <exp>");
+			if (debug) println("CHECKER: Enumerator: <exp>");
 			RType t = checkEnumeratorExpression(exp,p,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Set Comprehension
 		case (Expression) `{ <{Expression ","}+ el> | <{Expression ","}+ er> }` : {
-			if (debug) println("SetComprehension: <exp>");
+			if (debug) println("CHECKER: SetComprehension: <exp>");
 			RType t = checkSetComprehensionExpression(exp,el,er);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// List Comprehension
 		case (Expression) `[ <{Expression ","}+ el> | <{Expression ","}+ er> ]` : {
-			if (debug) println("ListComprehension: <exp>");
+			if (debug) println("CHECKER: ListComprehension: <exp>");
 			RType t = checkListComprehensionExpression(exp,el,er);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Map Comprehension
 		case (Expression) `( <Expression ef> : <Expression et> | <{Expression ","}+ er> )` : {
-			if (debug) println("MapComprehension: <exp>");
+			if (debug) println("CHECKER: MapComprehension: <exp>");
 			RType t = checkMapComprehensionExpression(exp,ef,et,er);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Reducer 
 		case `( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )` : {
-			if (debug) println("Reducer: <exp>");
+			if (debug) println("CHECKER: Reducer: <exp>");
 			RType t = checkReducerExpression(exp,ei,er,egs);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// It
 		case `it` : {
-			if (debug) println("It: <exp>");
-			if (debug) println("Assigned type: " + prettyPrintType(exp@rtype));
+			if (debug) println("CHECKER: It: <exp>");
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(exp@rtype));
 			return exp@rtype; 
 		}
 			
 		// All 
 		case `all ( <{Expression ","}+ egs> )` : {
-			if (debug) println("All: <exp>");
+			if (debug) println("CHECKER: All: <exp>");
 			RType t = checkAllExpression(exp,egs);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Any 
 		case `all ( <{Expression ","}+ egs> )` : {
-			if (debug) println("Any: <exp>");
+			if (debug) println("CHECKER: Any: <exp>");
 			RType t = checkAnyExpression(exp,egs);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
@@ -1364,80 +1364,80 @@ public RType checkAntiPattern(Pattern pp, Pattern p) {
 public RType checkPattern(Pattern pat) {
 	switch(pat) {
 		case (Pattern)`<BooleanLiteral bl>` : {
-			if (debug) println("BooleanLiteralPattern: <pat>");
-			if (debug) println("Assigning type: " + prettyPrintType(makeBoolType()));
+			if (debug) println("CHECKER: BooleanLiteralPattern: <pat>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(makeBoolType()));
 			return makeBoolType();
 		}
 
 		case (Pattern)`<DecimalIntegerLiteral il>`  : {
-			if (debug) println("DecimalIntegerLiteralPattern: <pat>");
-			if (debug) println("Assigning type: " + prettyPrintType(makeIntType()));
+			if (debug) println("CHECKER: DecimalIntegerLiteralPattern: <pat>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(makeIntType()));
 			return makeIntType();
 		}
 
 		case (Pattern)`<OctalIntegerLiteral il>`  : {
-			if (debug) println("OctalIntegerLiteralPattern: <pat>");
-			if (debug) println("Assigning type: " + prettyPrintType(makeIntType()));
+			if (debug) println("CHECKER: OctalIntegerLiteralPattern: <pat>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(makeIntType()));
 			return makeIntType();
 		}
 
 		case (Pattern)`<HexIntegerLiteral il>`  : {
-			if (debug) println("HexIntegerLiteralPattern: <pat>");
-			if (debug) println("Assigning type: " + prettyPrintType(makeIntType()));
+			if (debug) println("CHECKER: HexIntegerLiteralPattern: <pat>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(makeIntType()));
 			return makeIntType();
 		}
 
 		case (Pattern)`<RealLiteral rl>`  : {
-			if (debug) println("RealLiteralPattern: <pat>");
-			if (debug) println("Assigning type: " + prettyPrintType(makeRealType()));
+			if (debug) println("CHECKER: RealLiteralPattern: <pat>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(makeRealType()));
 			return makeRealType();
 		}
 
 		// TODO: Interpolation
 		case (Pattern)`<StringLiteral sl>`  : {
-			if (debug) println("StringLiteralPattern: <pat>");
-			if (debug) println("Assigning type: " + prettyPrintType(makeStrType()));
+			if (debug) println("CHECKER: StringLiteralPattern: <pat>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(makeStrType()));
 			return makeStrType();
 		}
 
 		// TODO: Interpolation
 		case (Pattern)`<LocationLiteral ll>`  : {
-			if (debug) println("LocationLiteralPattern: <pat>");
-			if (debug) println("Assigning type: " + prettyPrintType(makeLocType()));
+			if (debug) println("CHECKER: LocationLiteralPattern: <pat>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(makeLocType()));
 			return makeLocType();
 		}
 
 		case (Pattern)`<DateTimeLiteral dtl>`  : {
-			if (debug) println("DateTimeLiteralPattern: <pat>");
-			if (debug) println("Assigning type: " + prettyPrintType(makeDateTimeType()));
+			if (debug) println("CHECKER: DateTimeLiteralPattern: <pat>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(makeDateTimeType()));
 			return makeDateTimeType();
 		}
 
 		// TODO: See if we ever have this; a qualified name, not a name, is a Pattern
 		case (Pattern)`<Name n>`: {
-			if (debug) println("NamePattern: <pat>");
-			if (debug) println("Assigned type: " + prettyPrintType(n@rtype));
+			if (debug) println("CHECKER: NamePattern: <pat>");
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(n@rtype));
 			return n@rtype; // TODO: Should throw an exception if the name has no type information
 		}
 		
 		// QualifiedName
 		case (Pattern)`<QualifiedName qn>`: {
-			if (debug) println("QualifiedNamePattern: <pat>");
-			if (debug) println("Assigned type: " + prettyPrintType(qn@rtype));
+			if (debug) println("CHECKER: QualifiedNamePattern: <pat>");
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
 			return qn@rtype; // TODO: Should throw an exception if the name has no type information
 		}
 
 		// ReifiedType
 		case `<BasicType t> ( <{Pattern ","}* pl> )` : {
-			if (debug) println("ReifiedTypePattern: <pat>");
+			if (debug) println("CHECKER: ReifiedTypePattern: <pat>");
 			RType rt = checkReifiedTypePattern(pat,t,pl);
-			if (debug) println("Assigned type: " + prettyPrintType(rt));
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(rt));
 			return rt;
 		}
 
 		// CallOrTree
 		case `<Pattern p1> ( <{Pattern ","}* pl> )` : {
-			if (debug) println("CallOrTreePattern: <pat>");
+			if (debug) println("CHECKER: CallOrTreePattern: <pat>");
 			RType t = checkCallOrTreePattern(pat,p1,pl);
 			if(debug) println("Assigning type: " + prettyPrintType(t));
 			return t;
@@ -1445,74 +1445,74 @@ public RType checkPattern(Pattern pat) {
 
 		// List
 		case `[<{Pattern ","}* pl>]` : {
-			if (debug) println("ListPattern: <pat>");
+			if (debug) println("CHECKER: ListPattern: <pat>");
 			RType t = checkListPattern(pat,pl);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Set
 		case `{<{Pattern ","}* pl>}` : {
-			if (debug) println("SetPattern: <pat>");
+			if (debug) println("CHECKER: SetPattern: <pat>");
 			RType t = checkSetPattern(pat,pl);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Tuple
 		case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
-			if (debug) println("TuplePattern: <pat>");
+			if (debug) println("CHECKER: TuplePattern: <pat>");
 			RType t = checkTuplePattern(pat,pi,pl);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// TODO: Map: Need to figure out a syntax that works for matching this
 //		case `<<Pattern ei>, <{Pattern ","}* el>>` : {
 //			// TODO: This is not yet working
-//			if (debug) println("Tuple <pat>");
+//			if (debug) println("CHECKER: Tuple <pat>");
 //			RType t = checkTuplePattern(exp,ei,el);
-//			if (debug) println("Assigning type: " + prettyPrintType(t));
+//			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 //			return t;
 //		}
 
 		// Descendant
 		case `/ <Pattern p>` : {
-			if (debug) println("DescendantPattern: <pat>");
+			if (debug) println("CHECKER: DescendantPattern: <pat>");
 			RType t = checkDescendantPattern(pat,p);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
 		// Variable Becomes
 		case `<Name n> : <Pattern p>` : {
-			if (debug) println("VariableBecomesPattern: <pat>");
+			if (debug) println("CHECKER: VariableBecomesPattern: <pat>");
 			RType t = checkVariableBecomesPattern(pat,n,p);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Typed Variable Becomes
 		case `<Type t> <Name n> : <Pattern p>` : {
-			if (debug) println("TypedVariableBecomesPattern: <pat>");
+			if (debug) println("CHECKER: TypedVariableBecomesPattern: <pat>");
 			RType t = checkTypedVariableBecomesPattern(pat,t,n,p);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Guarded
 		case `[ <Type t> ] <Pattern p>` : {
-			if (debug) println("GuardedPattern: <pat>");
+			if (debug) println("CHECKER: GuardedPattern: <pat>");
 			RType t = checkGuardedPattern(pat,t,p);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}			
 		
 		// Anti
 		case `! <Pattern p>` : {
-			if (debug) println("AntiPattern: <pat>");
+			if (debug) println("CHECKER: AntiPattern: <pat>");
 			RType t = checkAntiPattern(pat,p);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 	}
@@ -1552,14 +1552,14 @@ public RType checkVisit(Visit v) {
 public RType checkCase(Case c) {
 	switch(c) {
 		case `case <PatternWithAction p>` : {
-			if (debug) println("Case: <c>");
-			if (debug) println("Assigning type: " + prettyPrintType(p@rtype));
+			if (debug) println("CHECKER: Case: <c>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(p@rtype));
 			return p@rtype;
 		}
 		
 		case `default : <Statement b>` : {
-			if (debug) println("Case: <c>");
-			if (debug) println("Assigning type: " + prettyPrintType(b@rtype));
+			if (debug) println("CHECKER: Case: <c>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(b@rtype));
 			return b@rtype;
 		}
 	}
@@ -1645,56 +1645,56 @@ public RType checkAssignable(Assignable a) {
 	switch(a) {
 		// Variable
 		case (Assignable)`<QualifiedName qn>` : {
-			if (debug) println("VariableAssignable: <pat>");
-			if (debug) println("Assigned type: " + prettyPrintType(qn@rtype));
+			if (debug) println("CHECKER: VariableAssignable: <pat>");
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
 			return qn@rtype;
 		}
 		
 		// Subscript
 		case `<Assignable al> [ <Expression e> ]` : {
-			if (debug) println("SubscriptAssignable: <pat>");
+			if (debug) println("CHECKER: SubscriptAssignable: <pat>");
 			RType t = checkSubscriptAssignable(a,al,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Field Access
 		case `<Assignable al> . <Name n>` : {
-			if (debug) println("FieldAccessAssignable: <pat>");
+			if (debug) println("CHECKER: FieldAccessAssignable: <pat>");
 			RType t = checkFieldAccessAssignable(a,al,n);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// If Defined or Default
 		case `<Assignable al> ? <Expression e>` : {
-			if (debug) println("IfDefinedOrDefaultAssignable: <pat>");
+			if (debug) println("CHECKER: IfDefinedOrDefaultAssignable: <pat>");
 			RType t = checkIfDefinedOrDefaultAssignable(a,al,e);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Annotation
 		case `<Assignable al> @ <Name n>` : {
-			if (debug) println("AnnotationAssignable: <pat>");
+			if (debug) println("CHECKER: AnnotationAssignable: <pat>");
 			RType t = checkAnnotationAssignable(a,al,n);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Tuple
 		case `< <{Assignable ","}+ al> >` : {
-			if (debug) println("TupleAssignable: <pat>");
+			if (debug) println("CHECKER: TupleAssignable: <pat>");
 			RType t = checkTupleAssignable(a,al);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 		
 		// Constructor
 		case `<Name n> ( <{Assignable ","}+ al> )` : {
-			if (debug) println("ConstructorAssignable: <pat>");
+			if (debug) println("CHECKER: ConstructorAssignable: <pat>");
 			RType t = checkConstructorAssignable(a,n,al);
-			if (debug) println("Assigning type: " + prettyPrintType(t));
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 	}
@@ -1725,14 +1725,14 @@ public RType checkLocalVarItems(Type t, {Variable ","}+ vs) {
 public RType checkCatch(Catch c) {
 	switch(c) {
 		case `catch : <Statement b>` : {
-			if (debug) println("Catch: <c>");
-			if (debug) println("Assigning type: " + prettyPrintType(b@rtype));
+			if (debug) println("CHECKER: Catch: <c>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(b@rtype));
 			return b@rtype;
 		}
 		
 		// TODO: Pull out into own function for consistency
 		case `catch <Pattern p> : <Statement b>` : {
-			if (debug) println("Catch: <c>");
+			if (debug) println("CHECKER: Catch: <c>");
 			
 			if (checkForFail({ p@rtype, b@rtype }))
 				return collapseFailTypes({ p@rtype, b@rtype });
