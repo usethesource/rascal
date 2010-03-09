@@ -212,35 +212,47 @@ list[CharRange] union(list[CharRange] l, list[CharRange] r) {
 }
 
 // TODO: check this code, it was written too late at night
-list[CharRange] difference(list[CharRange] r1, list[CharRange] r2) {
-  if (r1 == [] || r2 == []) return r1;
+list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
+  if (l == [] || r == []) return l;
 
-  <h1,t1> = takeOneFrom(r1);
-  <h2,t2> = takeOneFrom(r2);
+  <lhead,ltail> = takeOneFrom(r1);
+  <rhead,rtail> = takeOneFrom(r2);
 
   // left beyond right
-  if (h1.start > h2.end) 
-    return difference(r1,t2); 
+  // <-right-> --------
+  // --------- <-left->
+  if (lhead.start > rhead.end) 
+    return difference(r1,rtail); 
 
   // left before right
-  if (h1.end < h2.start) 
-    return difference(r1,t2);
+  // <-left-> ----------
+  // -------- <-right->
+  if (lhead.end < rhead.start) 
+    return difference(l,rtail);
 
   // inclusion of left into right
-  if (h1.start >= h2.start && h1.end <= h2.end) 
-    return difference(t1,r2); 
+  // <--------right------->
+  // ---------<-left->-----
+  if (lhead.start >= rhead.start && lhead.end <= rhead.end) 
+    return difference(ltail,r); 
 
   // inclusion of right into left
-  if (h2.start >= h1.start && h2.end <= h1.end) 
-    return difference([range(h1.start,h2.start),range(h1.end,h2.end)],t2);
+  // -------<-right->------->
+  // <---------left--------->
+  if (rhead.start >= lhead.start && rhead.end <= lhead.end) 
+    return difference([range(lhead.start,rhead.start),range(lhead.end,rhead.end)],rtail);
 
   // overlap on left side of right
-  if (h1.end < h2.end) 
-    return difference([range(h1.start,h2.start)],r2); // overlap left
+  // <--left-------->----------
+  // ---------<-----right----->
+  if (lhead.end < rhead.end) 
+    return difference([range(lhead.start,rhead.start)],r); 
  
   // overlap on right side of right
-  if (h1.start > h2.start)
-    return difference([range(h1.end,h2.start)], r2);
+  // -------------<---left---->
+  // <----right------->--------
+  if (lhead.start > rhead.start)
+    return difference([range(lhead.end,rhead.start)], r);
 
   return result;
 }
