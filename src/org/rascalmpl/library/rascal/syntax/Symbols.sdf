@@ -44,13 +44,13 @@ context-free syntax
 context-free restrictions
   Sym -/- [\?]
 
-sorts CharClass CharRange
+sorts Class Range
 
 context-free syntax
-  character:Character                      -> CharRange     {cons("Character")}                
-  start:Character "-" end:Character        -> CharRange     {cons("Range")}                    
-  "[" ranges:CharRange* "]"                -> CharClass     {cons("SimpleCharclass")}       
-  "(" charclass:CharClass ")"              -> CharClass     {cons("Bracket"),bracket}
+  character:Character                      -> Range     {cons("Character")}                
+  start:Character "-" end:Character        -> Range     {cons("Range")}                    
+  "[" ranges:Range* "]"                -> Class     {cons("SimpleCharclass")}       
+  "(" charclass:Class ")"              -> Class     {cons("Bracket"),bracket}
 
 lexical syntax
   EscapeSequence -> Character {cons("Escape"),category("Constant")}
@@ -60,7 +60,7 @@ lexical syntax
  
 
 context-free priorities
-  "!" charClass:CharClass         -> CharClass {cons("Complement")} >
-  lhs:CharClass "-" rhs:CharClass -> CharClass {cons("Difference"), left} >
-  lhs:CharClass "&" rhs:CharClass -> CharClass {cons("Intersection"), left} >
-  lhs:CharClass "+" rhs:CharClass -> CharClass {cons("Union"), left}
+  "!" charClass:Class     -> Class {cons("Complement")} >
+  lhs:Class "-" rhs:Class -> Class {cons("Difference"), left} >
+  lhs:Class "&" rhs:Class -> Class {cons("Intersection"), left} >
+  lhs:Class "+" rhs:Class -> Class {cons("Union"), left}

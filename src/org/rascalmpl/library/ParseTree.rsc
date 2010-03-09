@@ -32,8 +32,10 @@ data Attr =
 data Associativity =
      \left() | \right() | \assoc() | \non-assoc();
 
-data CharRange =
-     single(int start) | range(int start, int end);
+@deprecated{use range(start,start) instead}
+data CharRange = single(int start); 
+
+data CharRange = range(int start, int end);
 
 data Constructor = cons(str name);
 
