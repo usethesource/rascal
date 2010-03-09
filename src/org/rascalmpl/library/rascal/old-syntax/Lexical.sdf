@@ -1,4 +1,4 @@
-module languages/rascal/syntax/Lexical
+module rascal/old-syntax/Lexical
 
 imports basic/Whitespace
 

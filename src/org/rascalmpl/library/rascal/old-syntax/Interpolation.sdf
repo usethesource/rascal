@@ -1,6 +1,6 @@
-module languages/rascal/syntax/Interpolation
+module rascal/old-syntax/Interpolation
 
-imports languages/rascal/syntax/Expressions
+imports rascal/old-syntax/Expressions
 
 exports
 

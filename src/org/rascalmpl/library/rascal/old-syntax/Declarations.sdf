@@ -1,8 +1,8 @@
-module languages/rascal/syntax/Declarations
+module rascal/old-syntax/Declarations
 
-imports languages/rascal/syntax/Tags
-        languages/rascal/syntax/Types
-        languages/rascal/syntax/Statements
+imports rascal/old-syntax/Tags
+        rascal/old-syntax/Types
+        rascal/old-syntax/Statements
 
 exports
 sorts Toplevel Visibility Declaration Signature

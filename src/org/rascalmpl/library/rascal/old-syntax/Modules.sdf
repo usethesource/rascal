@@ -1,8 +1,8 @@
-module languages/rascal/syntax/Modules[Body]
+module rascal/old-syntax/Modules[Body]
 
-imports languages/rascal/syntax/Names
-        languages/rascal/syntax/Types
-        languages/rascal/syntax/Comments
+imports rascal/old-syntax/Names
+        rascal/old-syntax/Types
+        rascal/old-syntax/Comments
 
 exports
 sorts Import ModuleParameters ModuleActuals

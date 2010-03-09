@@ -1,7 +1,7 @@
-module languages/rascal/syntax/Statements
+module rascal/old-syntax/Statements
 
-imports languages/rascal/syntax/Generators
-        languages/rascal/syntax/Declarations
+imports rascal/old-syntax/Generators
+        rascal/old-syntax/Declarations
 
 exports
 sorts Statement Bound

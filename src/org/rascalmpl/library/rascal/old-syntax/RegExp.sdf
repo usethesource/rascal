@@ -1,7 +1,7 @@
-module languages/rascal/syntax/RegExp
+module rascal/old-syntax/RegExp
 
 imports 
-languages/rascal/syntax/Names
+rascal/old-syntax/Names
 
 exports
 sorts RegExp RegExpLiteral RegExpModifier NamedRegExp Backslash NamedBackslash
