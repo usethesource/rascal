@@ -1,0 +1,66 @@
+module languages/new-rascal/syntax/Symbols
+
+imports languages/new-rascal/syntax/Names
+        languages/new-rascal/syntax/Literals
+        languages/new-rascal/syntax/Types
+
+
+exports
+sorts UnicodeEscape Character
+
+sorts Sym
+
+context-free  priorities
+  symbol:Sym                         -> Type {cons("Symbol")}
+  non-assoc
+  user:UserType                         -> Sym {cons("Nonterminal")},
+  Name "[" {Type ","}+ "]" -> UserType
+  non-assoc %% to prevent ambiguity with character classes
+  Sym -> Sym+
+
+context-free syntax
+  "<" symbol:Sym ">"                 -> Sym {cons("Bracket"), bracket}
+  "<" symbol:Sym name:Name ">"       -> Sym {cons("Label")}
+  symbol:Sym "?"                     -> Sym {cons("Optional")}    
+  symbol:Sym "??"                    -> Sym {cons("NonEagerOptional")}               
+  symbol:Sym "+"                     -> Sym {cons("Iter")}                   
+  symbol:Sym "*"                     -> Sym {cons("IterStar")} 
+  symbol:Sym "+?"                    -> Sym {cons("NonEagerIter")}                   
+  symbol:Sym "*?"                    -> Sym {cons("NonEagerIterStar")}
+  "{" symbol:Sym sep:StringConstant "}" "+"  -> Sym {cons("IterSep")}                
+  "{" symbol:Sym sep:StringConstant "}" "*"  -> Sym {cons("IterStarSep")} 
+  "{" symbol:Sym sep:StringConstant "}" "+?" -> Sym {cons("NonEagerIterSep")}                
+  "{" symbol:Sym sep:StringConstant "}" "*?" -> Sym {cons("NonEagerIterStarSep")} 
+
+
+context-free syntax
+    "^"                                    -> Sym {cons("StartOfLine")}
+    "$"                                    -> Sym {cons("EndOfLine")}
+    "@" column:IntegerLiteral              -> Sym {cons("Column")}
+    charClass:CharClass                    -> Sym {cons("CharacterClass")}         
+    string:StringConstant                  -> Sym {cons("Literal")}                
+    cistring:CaseInsensitiveStringConstant -> Sym {cons("CaseInsensitiveLiteral")}
+
+context-free restrictions
+  Sym -/- [\?]
+
+sorts CharClass CharRange
+
+context-free syntax
+  character:Character                      -> CharRange     {cons("Character")}                
+  start:Character "-" end:Character        -> CharRange     {cons("Range")}                    
+  "[" ranges:CharRange* "]"                -> CharClass     {cons("SimpleCharclass")}       
+  "(" charclass:CharClass ")"              -> CharClass     {cons("Bracket"),bracket}
+
+lexical syntax
+  EscapeSequence -> Character {cons("Escape"),category("Constant")}
+  UnicodeEscape  -> Character {cons("Unicode"),category("Constant")}
+ ~[\"\'\\\-\[\]\ ] -> Character {cons("Normal"),category("Constant")}  
+ "\\" [\-\[\]\ ]   -> Character {cons("ExtraEscaped"),category("Constant")}
+ 
+
+context-free priorities
+  "!" charClass:CharClass         -> CharClass {cons("Complement")} >
+  lhs:CharClass "-" rhs:CharClass -> CharClass {cons("Difference"), left} >
+  lhs:CharClass "&" rhs:CharClass -> CharClass {cons("Intersection"), left} >
+  lhs:CharClass "+" rhs:CharClass -> CharClass {cons("Union"), left}

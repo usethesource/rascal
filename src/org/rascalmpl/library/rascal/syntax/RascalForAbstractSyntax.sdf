@@ -1,0 +1,8 @@
+module languages/new-rascal/syntax/RascalForAbstractSyntax
+
+imports languages/new-rascal/syntax/RascalForImportExtraction
+imports languages/new-rascal/syntax/Rascal
+
+exports
+context-free start-symbols
+  Module Command
