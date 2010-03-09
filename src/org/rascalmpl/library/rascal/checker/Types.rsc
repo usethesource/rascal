@@ -1,10 +1,10 @@
-module org::rascalmpl::checker::Types
+module rascal::checker::Types
 
 import List;
 import Set;
 import IO;
 
-import org::rascalmpl::checker::ListUtils;
+import rascal::checker::ListUtils;
 
 import languages::rascal::syntax::Rascal;
 

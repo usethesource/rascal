@@ -1,12 +1,12 @@
-module org::rascalmpl::checker::Check
+module rascal::checker::Check
 
 import IO;
 import List;
 import Set;
 
-import org::rascalmpl::checker::Types;
-import org::rascalmpl::checker::SubTypes;
-import org::rascalmpl::checker::Namespace;
+import rascal::checker::Types;
+import rascal::checker::SubTypes;
+import rascal::checker::Namespace;
 
 import languages::rascal::syntax::Rascal;
 

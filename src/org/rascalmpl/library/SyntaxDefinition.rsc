@@ -104,7 +104,7 @@ public Production prod2prod(Symbol nt, Prod p) {
 }
 
 public list[Symbol] args2symbols(Sym* args) {
-  return [ arg2symbol(s) | `<Sym* f> <Sym s> <Sym* t>` := args ];
+  return [ arg2symbol(s) | Sym s <- args ];
 }
 
 public Symbol arg2symbol(Sym sym) {

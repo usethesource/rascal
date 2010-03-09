@@ -1,4 +1,4 @@
-module Grammar
+module rascal::parser::Grammar
 
 import ParseTree;
 import List;

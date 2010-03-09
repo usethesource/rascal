@@ -43,10 +43,7 @@ data Symbol =
      \cf(Symbol symbol)  |
      \lex(Symbol symbol)  |
      \empty()  |
-     \seq(list[Symbol] symbols)  |
      \opt(Symbol symbol)  |
-     \alt(Symbol lhs, Symbol rhs)  |
-     \tuple(Symbol head, list[Symbol] rest)  |
      \sort (str string)  | 
      \iter(Symbol symbol)  | 
      \iter-star(Symbol symbol)  | 
@@ -54,13 +51,19 @@ data Symbol =
      \iter-star-sep(Symbol symbol, Symbol separator)  | 
      \iter-n(Symbol symbol, int number)  | 
      \iter-sep-n(Symbol symbol, Symbol separator, int number)  | 
+     \layout()  | 
+     \char-class(list[CharRange] ranges);
+     
+@deprecated
+data Symbol =
+     \alt(Symbol lhs, Symbol rhs)  |
+     \tuple(Symbol head, list[Symbol] rest)  |
+     \seq(list[Symbol] symbols)  |
      \func(list[Symbol] symbols, Symbol symbol)  | 
      \parameterized-sort(str sort, list[Symbol] parameters)  | 
      \strategy(Symbol lhs, Symbol rhs)  |
      \var-sym(Symbol symbol)  |
-     \layout()  | 
-     \char-class(list[CharRange] ranges);
-
+     
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
 
