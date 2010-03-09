@@ -1,0 +1,10 @@
+module languages/rascal/syntax/Interpolation
+
+imports languages/rascal/syntax/Expressions
+
+exports
+
+syntax
+  [\<] <LAYOUT? -CF> <Expression -CF> <LAYOUT? -CF> [\>]  -> <RegExp -LEX> {category("MetaVariable")}
+%%  [\<] <LAYOUT? -CF> <Expression -CF> <LAYOUT? -CF> [\>]  -> <StringCharacter -LEX> {category("MetaVariable")}
+

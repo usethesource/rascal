@@ -1,6 +1,6 @@
 module RascalGrammar
 
-import languages::\new-rascal::syntax::Rascal;
+import rascal::syntax::Rascal;
 import Grammar;
 import List;
 
