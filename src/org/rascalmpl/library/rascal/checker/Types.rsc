@@ -6,7 +6,7 @@ import IO;
 
 import rascal::checker::ListUtils;
 
-import languages::rascal::syntax::Rascal;
+import rascal::\old-syntax::Rascal;
 
 //
 // Abstract syntax for names

@@ -8,7 +8,7 @@ import Graph;
 import IO;
 import Set;
 
-import languages::rascal::syntax::Rascal;
+import rascal::\old-syntax::Rascal;
 
 //
 // TODOs
@@ -684,8 +684,8 @@ public bool checkOverlap(ScopeItemId newFun, set[ScopeItemId] funs, ScopeInfo sc
 //
 public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signature s, loc l, ScopeInfo scopeInfo) {
 	// Add the new function into the scope and process any parameters.
-	ScopeInfo addFunction(RName fname, RType retType, Parameters ps, list[RType] thrsTypes, bool isPublic, ScopeInfo scopeInfo) {
-		ScopeItem si = FunctionLayer(fname, retType, mkEmptySIList(), thrsTypes, false, isPublic, scopeInfo.currentScope)[@at=l];
+	ScopeInfo addFunction(Name n, RType retType, Parameters ps, list[RType] thrsTypes, bool isPublic, ScopeInfo scopeInfo) {
+		ScopeItem si = FunctionLayer(convertName(n), retType, mkEmptySIList(), thrsTypes, false, isPublic, scopeInfo.currentScope)[@at=l];
 		AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
 		ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);			 
 		scopeInfo = handleParametersNamesOnly(ps, sup.scopeInfo);
@@ -700,12 +700,12 @@ public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
 	switch(s) {
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
 			if (debug) println("NAMESPACE: Found abstract function " + prettyPrintName(convertName(n)));
-			scopeInfo = addFunction(convertName(n), convertType(t), ps, mkEmptyList(), isPublic(v), scopeInfo);
+			scopeInfo = addFunction(n, convertType(t), ps, mkEmptyList(), isPublic(v), scopeInfo);
 		}
 
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
 			if (debug) println("NAMESPACE: Found abstract function " + prettyPrintName(convertName(n)));
-			scopeInfo = addFunction(convertName(n), convertType(t), ps, [convertType(thrsi) | thrsi <- thrs], 
+			scopeInfo = addFunction(n, convertType(t), ps, [convertType(thrsi) | thrsi <- thrs], 
 									isPublic(v), scopeInfo);
 		}
 	}
