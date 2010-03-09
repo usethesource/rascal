@@ -1,0 +1,12 @@
+module languages/rascal/syntax/Rascal
+
+imports languages/rascal/syntax/Modules[Body]
+imports languages/rascal/syntax/Declarations
+imports languages/rascal/syntax/Commands
+ 
+hiddens
+context-free start-symbols Module
+
+exports sorts Body
+context-free syntax
+	toplevels:Toplevel* -> Body {cons("Toplevels")}

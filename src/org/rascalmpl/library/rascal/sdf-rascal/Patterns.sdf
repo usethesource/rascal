@@ -1,0 +1,24 @@
+module languages/rascal/syntax/Patterns
+
+imports 
+	languages/rascal/syntax/Constructors[Expression => Pattern]
+	languages/rascal/syntax/Types
+	languages/rascal/syntax/Names
+
+exports
+
+context-free syntax
+
+       type:Type name:Name                      -> Pattern {cons("TypedVariable")} 
+       qualifiedName:QualifiedName "*"          -> Pattern {cons("MultiVariable")} 
+
+context-free priorities
+      expression:Pattern "(" arguments:{Pattern ","}* ")" -> Pattern {cons("CallOrTree")} >
+{
+       "/" pattern:Pattern                      -> Pattern {cons("Descendant")}
+       name:Name ":" pattern:Pattern	        -> Pattern {cons("VariableBecomes")}
+       type:Type name:Name ":" pattern:Pattern  -> Pattern {cons("TypedVariableBecomes")}
+       "[" type:Type "]" pattern:Pattern        -> Pattern {cons("Guarded")}
+       "!" pattern:Pattern                      -> Pattern {cons("Anti")}
+}
+
