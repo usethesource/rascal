@@ -62,7 +62,7 @@ data Symbol =
      \func(list[Symbol] symbols, Symbol symbol)  | 
      \parameterized-sort(str sort, list[Symbol] parameters)  | 
      \strategy(Symbol lhs, Symbol rhs)  |
-     \var-sym(Symbol symbol)  |
+     \var-sym(Symbol symbol);
      
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
