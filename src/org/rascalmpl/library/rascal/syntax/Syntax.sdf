@@ -1,0 +1,52 @@
+module languages/new-rascal/syntax/Syntax
+
+imports languages/new-rascal/syntax/Symbols
+        languages/new-rascal/syntax/Declarations
+
+exports
+
+sorts SyntaxDefinition
+context-free syntax
+
+  tags:Tags visibility:Visibility start:Start "syntax" user:UserType "=" Prod ";"? -> SyntaxDefinition {cons("Language")}
+  tags:Tags visibility:Visibility "layout" user:UserType "=" Prod ";"? -> SyntaxDefinition {cons("Layout")}
+
+sorts Start
+context-free syntax
+        -> Start {cons("NoStart")}
+"start" -> Start {cons("Start")}
+
+sorts Prod
+context-free priorities
+{
+  "..."                                                -> Prod {cons("Others")}
+  ":" referenced:Name                                  -> Prod {cons("Reference")}
+  modifiers:ProdModifier* name:Name ":" args:Sym*      -> Prod {cons("Labeled")}
+  modifiers:ProdModifier* args:Sym*                    -> Prod {cons("Unlabeled")}
+  prod:Prod action:LanguageAction                      -> Prod {cons("Action"),non-assoc}
+}
+> lhs:Prod "-" rhs:Prod -> Prod {cons("Subtract"), left}
+> lhs:Prod ">" rhs:Prod -> Prod {cons("First"), left}
+> lhs:Prod "|" rhs:Prod -> Prod {cons("All"), left}
+
+
+context-free syntax
+ associativity:Assoc "(" group:Prod ")" -> Prod {cons("AssociativityGroup")}
+
+sorts LanguageAction
+context-free syntax
+"=>" expression:Expression    -> LanguageAction {cons("Build")}
+"{" statements:Statement* "}" -> LanguageAction {cons("Action")}
+
+sorts Assoc
+context-free syntax
+"left" -> Assoc {cons("Left")}
+"right" -> Assoc {cons("Right")}
+"non-assoc" -> Assoc {cons("NonAssoc")}
+"assoc" -> Assoc {cons("Assoc")}
+
+sorts ProdModifier
+context-free syntax
+ associativity:Assoc -> ProdModifier {cons("Associativity")}
+ "bracket"                   -> ProdModifier {cons("Bracket")}
+ "lex"                       -> ProdModifier {cons("Lexical")}

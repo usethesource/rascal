@@ -1,0 +1,27 @@
+module languages/new-rascal/syntax/RascalForImportExtraction
+
+imports languages/new-rascal/syntax/Modules[Body]
+imports basic/Whitespace
+
+hiddens
+context-free start-symbols Module
+
+exports
+sorts Body Marker Rest
+
+lexical syntax
+	                   -> Marker 
+      {~[\n]* [\n]}*        -> Rest   
+                            -> Rest {prefer}
+
+context-free syntax
+	marker:Marker rest:Rest -> Body {cons("Anything"),avoid}
+
+lexical restrictions
+	Marker -/- [i].[m].[p].[o].[r].[t]
+         Marker -/- [s].[y].[n].[t].[a].[x]
+	Marker -/- [\[]
+        ~[\n]*   -/- ~[\n]
+        {~[\n]* [\n]}* -/- [\n]
+
+
