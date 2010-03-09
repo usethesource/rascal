@@ -1,6 +1,6 @@
-module languages/new-rascal/syntax/Test-Rascal
+module rascal/syntax/Test-Rascal
 
-imports languages/new-rascal/syntax/Rascal
+imports rascal/syntax/Rascal
 
 hiddens
 context-free start-symbols Module

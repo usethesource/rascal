@@ -1,9 +1,9 @@
-module languages/new-rascal/syntax/Patterns
+module rascal/syntax/Patterns
 
 imports 
-	languages/new-rascal/syntax/Constructors[Expression => Pattern]
-	languages/new-rascal/syntax/Types
-	languages/new-rascal/syntax/Names
+	rascal/syntax/Constructors[Expression => Pattern]
+	rascal/syntax/Types
+	rascal/syntax/Names
 
 exports
 

@@ -1,7 +1,7 @@
-module languages/new-rascal/syntax/Syntax
+module rascal/syntax/Syntax
 
-imports languages/new-rascal/syntax/Symbols
-        languages/new-rascal/syntax/Declarations
+imports rascal/syntax/Symbols
+        rascal/syntax/Declarations
 
 exports
 

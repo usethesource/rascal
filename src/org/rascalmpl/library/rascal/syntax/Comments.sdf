@@ -1,4 +1,4 @@
-module languages/new-rascal/syntax/Comments
+module rascal/syntax/Comments
 
 exports
 

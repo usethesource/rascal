@@ -1,8 +1,8 @@
-module languages/new-rascal/syntax/Symbols
+module rascal/syntax/Symbols
 
-imports languages/new-rascal/syntax/Names
-        languages/new-rascal/syntax/Literals
-        languages/new-rascal/syntax/Types
+imports rascal/syntax/Names
+        rascal/syntax/Literals
+        rascal/syntax/Types
 
 
 exports

@@ -1,7 +1,7 @@
-module languages/new-rascal/syntax/RascalForAbstractSyntax
+module rascal/syntax/RascalForAbstractSyntax
 
-imports languages/new-rascal/syntax/RascalForImportExtraction
-imports languages/new-rascal/syntax/Rascal
+imports rascal/syntax/RascalForImportExtraction
+imports rascal/syntax/Rascal
 
 exports
 context-free start-symbols

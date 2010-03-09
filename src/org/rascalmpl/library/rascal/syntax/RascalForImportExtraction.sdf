@@ -1,6 +1,6 @@
-module languages/new-rascal/syntax/RascalForImportExtraction
+module rascal/syntax/RascalForImportExtraction
 
-imports languages/new-rascal/syntax/Modules[Body]
+imports rascal/syntax/Modules[Body]
 imports basic/Whitespace
 
 hiddens

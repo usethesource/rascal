@@ -1,8 +1,8 @@
-module languages/new-rascal/syntax/Expressions
+module rascal/syntax/Expressions
 
 imports 
-        languages/new-rascal/syntax/Statements
-        languages/new-rascal/syntax/Constructors
+        rascal/syntax/Statements
+        rascal/syntax/Constructors
 exports
 sorts Expression
 

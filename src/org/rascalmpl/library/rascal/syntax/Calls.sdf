@@ -1,4 +1,4 @@
-module languages/new-rascal/syntax/Calls
+module rascal/syntax/Calls
 
 %% NO Imports from Rascal: sort Name will be renamed to Expression in Expressions
 
