@@ -1,7 +1,7 @@
-module languages/new-rascal/syntax/Generators
+module rascal/syntax/Generators
 
-imports languages/new-rascal/syntax/Patterns
-        languages/new-rascal/syntax/Expressions
+imports rascal/syntax/Patterns
+        rascal/syntax/Expressions
 
 exports
 

@@ -1,6 +1,6 @@
-module languages/new-rascal/syntax/RascalForConcreteSyntax
+module rascal/syntax/RascalForConcreteSyntax
 
-imports languages/new-rascal/syntax/Rascal
+imports rascal/syntax/Rascal
 
 imports languages/java/syntax/MethodDecl[
         MethodDeclaration => JavaMethodDeclaration

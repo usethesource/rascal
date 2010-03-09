@@ -1,6 +1,6 @@
-module languages/new-rascal/syntax/Literals
+module rascal/syntax/Literals
 
-imports languages/new-rascal/syntax/Lexical 
+imports rascal/syntax/Lexical 
 
 exports
 sorts Literal 

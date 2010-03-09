@@ -1,8 +1,8 @@
-module languages/new-rascal/syntax/Commands
+module rascal/syntax/Commands
 
-imports languages/new-rascal/syntax/Declarations
-imports languages/new-rascal/syntax/Statements
-imports languages/new-rascal/syntax/Modules
+imports rascal/syntax/Declarations
+imports rascal/syntax/Statements
+imports rascal/syntax/Modules
 
 
 exports

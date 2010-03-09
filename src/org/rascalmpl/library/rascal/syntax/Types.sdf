@@ -1,8 +1,8 @@
-module languages/new-rascal/syntax/Types
+module rascal/syntax/Types
 
-imports languages/new-rascal/syntax/Tags
-        languages/new-rascal/syntax/Symbols
-        languages/new-rascal/syntax/Names
+imports rascal/syntax/Tags
+        rascal/syntax/Symbols
+        rascal/syntax/Names
 
 exports
 sorts Type

@@ -1,6 +1,6 @@
-module languages/new-rascal/syntax/Names
+module rascal/syntax/Names
 
-imports languages/new-rascal/syntax/Reserved
+imports rascal/syntax/Reserved
 
 exports
   sorts Name QualifiedName EscapedName 
