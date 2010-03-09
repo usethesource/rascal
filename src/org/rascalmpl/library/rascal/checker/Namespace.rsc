@@ -1,7 +1,7 @@
-module org::rascalmpl::checker::Namespace
+module rascal::checker::Namespace
 
-import org::rascalmpl::checker::Types;
-import org::rascalmpl::checker::ListUtils;
+import rascal::checker::Types;
+import rascal::checker::ListUtils;
 
 import List;
 import Graph;

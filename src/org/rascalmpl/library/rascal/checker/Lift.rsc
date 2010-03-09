@@ -1,4 +1,4 @@
-module org::rascalmpl::checker::Lift
+module rascal::checker::Lift
 
 import languages::rascal::syntax::Rascal;
 import List;
