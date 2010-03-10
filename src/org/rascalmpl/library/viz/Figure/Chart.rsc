@@ -11,7 +11,7 @@ import List;
 
 data ChartSetting =            //             supported by
                                // barChart pieChart xyChart
-   | areaPlot()                //                     x
+     areaPlot()                //                     x
                                
    | chartSize(int w, int h)   //    x         x      x    
    | curvePlot ()              //                     x 
@@ -280,10 +280,19 @@ public void p5(){
 
 public alias intSeries  = 
        tuple[str name,list[int]  values];
-       
-//public void barChart(str title, map[str,int] facts, ChartSetting settings...){
-// To be implemented
-//}
+
+// barChart with map argument
+ 
+public Figure barChart(str title, map[str,int] facts, ChartSetting settings...){
+  categories = [];
+  ifacts = [];
+  for(key <- facts){
+  	categories += [key];
+  	ifacts += <key, [facts[key]]>;
+  }
+  println("categories=<categories>\nifacts=<ifacts>");
+  return barChart(title, categories, ifacts, settings);
+}
 
 public Figure barChart(str title, list[str] categories, list[intSeries] facts, ChartSetting settings...){
    
@@ -345,9 +354,10 @@ public Figure barChart(str title, list[str] categories, list[intSeries] facts, C
      }
   }
   for(int i <- [0 .. size(categories)-1]){
-  	funPlots += isStackedBars ? (isVertical ? vcat([bottom(), gap(0)], reverse(fns[i]))
+    if(fns[i]?)
+  	   funPlots += isStackedBars ? (isVertical ? vcat([bottom(), gap(0)], reverse(fns[i]))
   	                                    : hcat([bottom(), gap(0)], fns[i]))
-  	                      : (isVertical ? hcat([left(), hcenter(), gap(barGap)], reverse(fns[i]))
+  	                             : (isVertical ? hcat([left(), hcenter(), gap(barGap)], reverse(fns[i]))
   	                                    : vcat([bottom(), left(), gap(barGap)], fns[i]));
   }
   
@@ -407,6 +417,24 @@ public Figure barChart(str title, list[str] categories, list[intSeries] facts, C
                                                 ]))
                ]);
    
+}
+
+public void b0(){
+ render(barChart("Sales Prognosis 1", ("a" : 10, "b" : 20, "c" : 30),
+                  xLabel("Item"), 
+                  yLabel("Value")
+            ));
+}
+
+public void b1a(){
+  render(barChart("Sales Prognosis 1", 
+                  ["First Quarter", "Second Quarter"],
+                  [ <"2009", [20]>,
+                    <"2010", [40]>
+                  ],
+                  xLabel("Quarters"), 
+                  yLabel("Sales")
+            ));
 }
 
 public void b1(){
