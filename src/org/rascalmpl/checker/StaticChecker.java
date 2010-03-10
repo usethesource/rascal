@@ -16,8 +16,12 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class StaticChecker {
 	private final CommandEvaluator eval;
 	private final ASTBuilder astBuilder;
+	
+	private static final class InstanceKeeper {
+		public static final StaticChecker sInstance = new StaticChecker();
+	}
 
-	public StaticChecker() {
+	private StaticChecker() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***static-checker***"));
 		PrintWriter stderr = new PrintWriter(System.err);
@@ -26,7 +30,11 @@ public class StaticChecker {
 		this.eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		this.astBuilder = new ASTBuilder(new ASTFactory());
 		
-		eval("import rascal::checker::Check");
+		eval("import rascal::checker::Check;");
+	}
+	
+	public static StaticChecker getInstance() {
+		return InstanceKeeper.sInstance;
 	}
 
 	private void eval(String cmd) {
