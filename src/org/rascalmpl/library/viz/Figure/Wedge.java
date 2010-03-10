@@ -134,9 +134,8 @@ public class Wedge extends Container {
 		
 		IX = raux * PApplet.cos(middleAngle);
 		IY = raux * PApplet.sin(middleAngle);
-		WI = abs(2 * radius * PApplet.sin((toAngle -fromAngle)/2));
-		System.err.printf("AX=%f,AY=%f, BX=%f,BY=%f,CX=%f,CY=%f,DX=%f,DY=%f,IX=%f,IY=%f\n",
-							Ax,Ay,Bx,By,Cx,Cy,Dx, Dy,IX,IY);
+		if(debug)System.err.printf("AX=%f,AY=%f, BX=%f,BY=%f,CX=%f,CY=%f,DX=%f,DY=%f,IX=%f,IY=%f\n",
+							        Ax,Ay,Bx,By,Cx,Cy,Dx, Dy,IX,IY);
 		
 		qFrom = quadrant(fromAngle);
 		qTo = quadrant(toAngle);
@@ -264,7 +263,7 @@ public class Wedge extends Container {
 	
 	@Override 
 	boolean insideFits(){
-		System.err.printf("Wedge.insideFits\n");
+		if(debug)System.err.printf("Wedge.insideFits\n");
 		return inside.height < radius - innerRadius && inside.width < WI;
 	}
 	
