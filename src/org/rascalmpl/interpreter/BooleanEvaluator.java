@@ -2,6 +2,7 @@ package org.rascalmpl.interpreter;
 
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
@@ -485,6 +486,10 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	public void setAccumulators(Stack<Accumulator> accumulators) {
 		ctx.setAccumulators(accumulators);
+	}
+
+	public IValue call(String name, IValue... args) {
+		throw new ImplementationError("should not call call");
 	}
 
 }

@@ -115,6 +115,10 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		this.ctx = ctx;
 	}
 
+	public IValue call(java.lang.String name, IValue... args) {
+		throw new ImplementationError("should not call call");
+	}
+	
 	@Override
 	public IMatchingResult visitExpressionLiteral(Literal x) {
 		return x.getLiteral().accept(this);
@@ -750,5 +754,6 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	public void setAccumulators(Stack<Accumulator> accumulators) {
 		ctx.setAccumulators(accumulators);
 	}
+
 
 }
