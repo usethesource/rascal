@@ -82,7 +82,12 @@ public Grammar def2prod(SyntaxDefinition def) {
     default: throw "missed case: <def>";
   }
 
-  return grammar(starts, layout(prods) + layouts + { prod([l],layout(),no-attrs()) | l <- layouts });
+  return grammar(starts, layout(prods) 
+                       + layouts 
+                       + { prod([l],layout(),no-attrs()) | l <- layouts }
+                       + {prod(str2syms(x),lit(s),attrs([term(literal())])) | /lit(s) <- prods}
+                       + {prod(cistr2syms(x),lit(s),attrs([term(literal())])) | /cilit(s) <- prods}
+                );
 }
 
 public set[Production] layout(set[Production] prods) {
@@ -91,10 +96,24 @@ public set[Production] layout(set[Production] prods) {
   }
 }
 
+public list[Symbol] str2syms(str x) {
+  return [\char-class([range(c,c)]) | i <- [0..size(x)-1], int c:= charAt(x,i)]; 
+}
+
+public list[Symbol] cistr2syms(str x) {
+  return for (i <- [0..size(x)-1], int c:= charAt(x,i)) {
+     if (c >= 101 && c <= 132) // A-Z
+        append \char-class([range(c,c),range(c+40,c+40)]);
+     else if (c >= 141 && c <= 172) // a-z
+        append \char-class([range(c,c),range(c-40,c-40)]);
+     else 
+        append \char-class([range(c,c)]);
+  } 
+}
+
 public list[Symbol] intermix(list[Symbol] syms) {
   return [s,l | s <- syms, iter-star(layout())] - [l]; 
 }
-
 
 public Production prod2prod(Symbol nt, Prod p) {
   switch(p) {

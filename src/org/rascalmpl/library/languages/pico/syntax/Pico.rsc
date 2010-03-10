@@ -25,3 +25,12 @@ syntax EXP = id: PICOID name
            | bracket "(" <EXP e> ")"
            ;
                
+// added because we have not implemented imports yet
+public syntax PICOID = lex id: [a-z] [a-z0-9]+
+public syntax NATCON = lex [0-9]+ ;
+public syntax STRCON = lex "\"" ~[\"]*  "\"";
+
+public layout Layout = [\ \t\n\r]
+         | "%" ~[%]* "%"
+         | "%%" ~[\n]* "\n"
+         ;
