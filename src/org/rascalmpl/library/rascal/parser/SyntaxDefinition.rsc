@@ -9,29 +9,36 @@ import String;
 rule merge   grammar(a,{p,q,a*}) => grammar(a,{or({p,q}), a*}) when sort(p) == sort(q);
 	
 // these rule flatten complex productions and ignore ordering under diff and assoc
-rule or     or({a*, or({b*})})            => or({a*, b*}); 
-rule xor    xor([a*,xor([b*],c*)])        => xor([a*,b*,c*]); 
-rule xor    xor([a*,or({b}),c*])          => xor([a*,b,c*]); 
-rule or     or({a*, xor([b])})            => or({a*, b}); 
-rule assoc  assoc(a, {a*, or({b*})})      => assoc(a, {a*, b*}); 
-rule assoc  assoc(a, {a*, xor([b*])})     => assoc(a, {a*, b*}); // ordering does not work under assoc
-rule diff   diff(p, {a*, or({b*})})       => diff(p, {a*, b*});   
-rule diff   diff(p, {a*, xor(b*)})        => diff(p, {a*, b*});  // ordering is irrelevant under diff
+rule or     choice({a*, choice({b*})})    => choice({a*, b*}); 
+rule xor    first([a*,first([b*]),c*])    => first([a*,b*,c*]); 
+rule xor    first([a*,choice({b}),c*])    => first([a*,b,c*]); 
+rule or     choice({a*, first([b])})      => choice({a*, b}); 
+rule assoc  assoc(a, {a*, choice({b*})})  => assoc(a, {a*, b*}); 
+rule assoc  assoc(a, {a*, first([b*])})   => assoc(a, {a*, b*}); // ordering does not work under assoc
+rule diff   diff(p, {a*, choice({b*})})   => diff(p, {a*, b*});   
+rule diff   diff(p, {a*, first(b*)})      => diff(p, {a*, b*});  // ordering is irrelevant under diff
 rule diff   diff(p, {a*, assoc(a, {b*})}) => diff(p, {a*, b*});  // assoc is irrelevant under diff
 
 // move diff outwards
-rule or     or({a*, diff(b, {c*})})       => diff(or({a*, b}), {c*});
-rule xor    xor([a*, diff(b, {c*})])      => diff(or({xor([a*]), b}), {c*});
+rule empty  diff(p,{})                    => p;
+rule or     choice({a*, diff(b, {c*})})   => diff(choice({a*, b}), {c*});
+rule xor    first([a*, diff(b, {c*}),d*]) => diff(first([a*,b,d*]), {c*});
 rule assoc  assoc(a, {a*, diff(b, {c*})}) => diff(assoc(a, {a*, b}), {c*});
-rule diff   diff(p, {a*, diff(q, b*)})    => diff(or({p,q}), {a*, b*}); 
+rule diff   diff(p, {a*, diff(q, {b*})})  => diff(choice({p,q}), {a*, b*}); 
 rule diff   diff(diff(a, {b*}), {c*})     => diff(a, {b*, c*});
 
 // character class normalization
-rule flip   range(from, to) => range(to, from) when to < from;
+private data CharRange = \empty-range();
+
+rule empty   range(from, to) => \empty-range() when to < from;
+rule empty \char-class([a*,\empty-range(),b*]) => \char-class([a*,b*]);
 
 rule merge \char-class([a*,range(from1,to1),b*,range(from2,to2),c*]) =>
-           \char-class([a*,range(min(from1,from2),max(to1,to2)),b*])
-     when (from1 <= from2 - 1 && to1 >= from2 - 1) || (from2 <= from1 - 1 && to2 >= from1 - 1);
+           \char-class([a*,range(min(from1,from2),max(to1,to2)),b*,c*])
+     when (from1 <= from2 && to1 >= from2 - 1) 
+       || (from2 <= from1 && to2 >= from1 - 1)
+       || (from1 >= from2 && to1 <= to2)
+       || (from2 >= from1 && to2 <= to1);
 
 rule order \char-class([a*,range(n,m),b*,range(o,p),d*]) =>
            \char-class([a*,range(o,p),b*,range(n,m),d*])
@@ -96,9 +103,9 @@ public Production prod2prod(Symbol nt, Prod p) {
     case `<ProdModifier* ms> <Symbol* args>` :
       return prod(args2symbols(args), nt, mods2attrs(ms));
     case `<Prod l> | <Prod r>` :
-      return or({prod2prod(nt, l), prod2prod(nt, r)});
+      return choice({prod2prod(nt, l), prod2prod(nt, r)});
     case `<Prod l> < <Prod r>` :
-      return xor([prod2prod(nt, l), prod2prod(nr, r)]);
+      return first([prod2prod(nt, l), prod2prod(nr, r)]);
     case `<Prod l> - <Prod r>` :
       return diff(prod2prod(nt, l), {prod2prod(nt, r)});
     case `left ( <Prod p> )` :
@@ -121,21 +128,21 @@ public list[Symbol] args2symbols(Sym* args) {
 
 public Symbol arg2symbol(Sym sym) {
   switch(sym) {
-    case `<Name n>` : return sort("<n>");
+    case `<Name n>`          : return sort("<n>");
     case `<StringLiteral l>` : return lit("<l>");
-    case `<<Sym s>>` : return arg2symbol(s);
+    case `<<Sym s>>`         : return arg2symbol(s);
     case `<<Sym s> <Name n>` : return label("<n>", arg2symbol(s));
-    case `<Sym s>?` : return opt(arg2symbol(s));
+    case `<Sym s>?`  : return opt(arg2symbol(s));
     case `<Sym s>??` : return opt(arg2symbol(s));
-    case `<Sym s>*` : return iter-star(arg2symbol(s));
-    case `<Sym s>+` : return iter(arg2symbol(s));
+    case `<Sym s>*`  : return iter-star(arg2symbol(s));
+    case `<Sym s>+`  : return iter(arg2symbol(s));
     case `<Sym s>*?` : return iter-star(arg2symbol(s));
     case `<Sym s>+?` : return iter(arg2symbol(s));
-    case `<{<Sym s> <StringLiteral sep>}*>` : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
-    case `<{<Sym s> <StringLiteral sep>}+>` : return \iter-sep(arg2symbol(s), lit("<sep>"));
+    case `<{<Sym s> <StringLiteral sep>}*>`  : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
+    case `<{<Sym s> <StringLiteral sep>}+>`  : return \iter-sep(arg2symbol(s), lit("<sep>"));
     case `<{<Sym s> <StringLiteral sep>}*?>` : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
     case `<{<Sym s> <StringLiteral sep>}+?>` : return \iter-sep(arg2symbol(s), lit("<sep>"));
-    case `<CharClass cc>` : return \char-class(cc);
+    case `<CharClass cc>` : return \char-class(cc2ranges(cc));
     default: throw "missed a case <sym>";
   }
 }
@@ -163,7 +170,7 @@ public CharRange range(Range r) {
 public int character(Character c) {
   switch (c) {
     case /<ch:[^"'\\-[] ]>/        : return charAt(ch, 0); 
-    case /\\<esc:[-[] ]>/          : return charAt(esc, 0);
+    case /\\<esc:["'-[] ]>/        : return charAt(esc, 0);
     case /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
     case /\\<oct:[0-7]>/           : return toInt("0<oct>");
     case /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
@@ -211,24 +218,29 @@ list[CharRange] union(list[CharRange] l, list[CharRange] r) {
  return l + r;
 }
 
-// TODO: check this code, it was written too late at night
 list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   if (l == [] || r == []) return l;
 
-  <lhead,ltail> = takeOneFrom(r1);
-  <rhead,rtail> = takeOneFrom(r2);
+  <lhead,ltail> = takeOneFrom(l);
+  <rhead,rtail> = takeOneFrom(r);
+
+  if (lhead == \empty-range()) 
+    return difference(ltail, r);
+
+  if (rhead == \empty-range()) 
+    return difference(l, rtail);
 
   // left beyond right
   // <-right-> --------
   // --------- <-left->
   if (lhead.start > rhead.end) 
-    return difference(r1,rtail); 
+    return difference(l,rtail); 
 
   // left before right
   // <-left-> ----------
   // -------- <-right->
   if (lhead.end < rhead.start) 
-    return difference(l,rtail);
+    return [lhead] + difference(ltail,r);
 
   // inclusion of left into right
   // <--------right------->
@@ -240,20 +252,21 @@ list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   // -------<-right->------->
   // <---------left--------->
   if (rhead.start >= lhead.start && rhead.end <= lhead.end) 
-    return difference([range(lhead.start,rhead.start),range(lhead.end,rhead.end)],rtail);
+    return [range(lhead.start,rhead.start-1)] 
+         + difference([range(rhead.end+1,lhead.end)]+ltail,rtail);
 
   // overlap on left side of right
   // <--left-------->----------
   // ---------<-----right----->
   if (lhead.end < rhead.end) 
-    return difference([range(lhead.start,rhead.start)],r); 
+    return [range(lhead.start,rhead.start-1)] + difference(ltail,r); 
  
   // overlap on right side of right
   // -------------<---left---->
   // <----right------->--------
   if (lhead.start > rhead.start)
-    return difference([range(lhead.end,rhead.start)], r);
+    return difference([range(rhead.end+1,lhead.end)]+ltail, rtail);
 
-  return result;
+  throw "did not expect to end up here! <l> - <r>";
 }
 

@@ -17,15 +17,13 @@ data Grammar = grammar(set[Symbol] start, set[Production] productions);
 // 		'diff' means all alternatives of the first argument are accepted, unless one
 // 		of the alternatives from the right argument are accepted.
 
-data Production = or(set[Production] alternatives)                  
-                | xor(list[Production] choices)
+data Production = choice(set[Production] alternatives)                  
+                | first(list[Production] choices)
                 | assoc(Associativity assoc, set[Production] alternatives)               
                 | diff(Production language, set[Production] alternatives)
                 ;
 
-data Symbol = epsilon() // empty string, used for first/follow analysis
-            | eoi()     // end-of-input marker
-            ;
+data Symbol = eoi();     // end-of-input marker
 
 // Define an internal "kernel" grammar format that is more convenient.It essentially removes all
 // the above combinators
@@ -56,8 +54,8 @@ public KernelGrammar importGrammar(Grammar G){
 set[KernelProduction] getKernelProductions(Production p){
     switch(p){
     case prod(_,_,_): return {<p.rhs, p.lhs>};
-    case or(set[Production] alts): return {getKernelProductions(p) | Production p <- alts};
-    case xor(list[Production] alts): return {getKernelProductions(p) | Production p <- alts};
+    case choice(set[Production] alts): return {getKernelProductions(p) | Production p <- alts};
+    case first(list[Production] alts): return {getKernelProductions(p) | Production p <- alts};
     case assoc(_, set[Production] alts): return {getKernelProductions(p) | Production p <- alts};
     case diff(Production p, set[Production] alts): 
          return {<p.rhs, p.lhs>} + {getKernelProductions(p) | Production p <- alts};
@@ -135,17 +133,17 @@ public set[Symbol] first(Symbol sym, SymbolUse FIRST){
    case iter(Symbol S, Symbol Sep):{
 			f = FIRST[S] ? {};
 			g = FIRST[Sep] ? {};
-			return (epsilon() in f) ? f + g : f;
+			return (empty() in f) ? f + g : f;
 		}
    case \iter-star(Symbol S):
-			return (FIRST[S] ? {}) + {epsilon()};
+			return (FIRST[S] ? {}) + {empty()};
    case \iter-star-sep(Symbol S, Symbol Sep):{
 			f = FIRST[S] ? {};
 			g = FIRST[Sep] ? {};
-			return {epsilon()} + ((epsilon() in f) ? f + g : f);
+			return {empty()} + ((empty() in f) ? f + g : f);
 		}
    case opt(Symbol S):
-   			return (FIRST[S] ? {}) + {epsilon()};   
+   			return (FIRST[S] ? {}) + {empty()};   
    }
    throw IllegalArgument(sym);
 }
@@ -156,7 +154,7 @@ public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
     set[Symbol] result = {};
 	for(Symbol S <- symbols){
 	    f = FIRST[S] ? {};
-	    if(epsilon() notin f)
+	    if(empty() notin f)
 		   return result + f;
 		else
 		   result += f;
@@ -175,7 +173,7 @@ public SymbolUse first(KernelGrammar G){
 	solve (FIRST) {
 		for(Symbol S <- defSymbols){	
 			for(list[Symbol] symbols <- G.productions[S]){
-				FIRST[S] += isEmpty(symbols) ? {epsilon()} : first(symbols, FIRST) - {epsilon()};
+				FIRST[S] += isEmpty(symbols) ? {empty()} : first(symbols, FIRST) - {empty()};
 			}
 		}
 	}	
@@ -197,8 +195,8 @@ public SymbolUse follow(KernelGrammar G,  SymbolUse FIRST){
       			symbols = tail(symbols);
       			if(current in defSymbols){
       				flw =  first(symbols, FIRST);
-      				if(epsilon() in flw || isEmpty(symbols))
-      					FOLLOW[current] += FOLLOW[p.nonTerminal] + (flw - {epsilon()});
+      				if(empty() in flw || isEmpty(symbols))
+      					FOLLOW[current] += FOLLOW[p.nonTerminal] + (flw - {empty()});
       				else
       		    		FOLLOW[current] += flw;
       		    }
@@ -257,11 +255,11 @@ test first(importGrammar(G1)) ==
                                  
 public Grammar G2 = grammar({sort("E")},
 {
-	xor([pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
+	first([pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
      	 pr(sort("E"), [sort("E"), lit("+"), sort("B")])
     	]),
 	pr(sort("E"), [sort("B")]),
-	or({pr(sort("B"), [lit("0")]),
+	choice({pr(sort("B"), [lit("0")]),
     	pr(sort("B"), [lit("1")])
    		})
 });
@@ -295,8 +293,8 @@ test first(K3) ==
       lit("*"):{lit("*")},
       lit("+"):{lit("+")},
       lit("id"):{lit("id")},
-      sort("E1"):{lit("+"),epsilon()},
-      sort("T1"):{lit("*"),epsilon()},
+      sort("E1"):{lit("+"),empty()},
+      sort("T1"):{lit("*"),empty()},
       lit("("): {lit("(")},
       lit(")"): {lit(")")}
      );
@@ -325,7 +323,7 @@ KernelGrammar KSession = importGrammar(Session);
 test first(KSession) ==
      (sort("Question"):{lit("?")},
       sort("Session"):{lit("!"),lit("("), lit("?")},
-      sort("Facts"):{lit("!"),epsilon()},
+      sort("Facts"):{lit("!"),empty()},
       lit("a"):{lit("a")},
       lit("!"):{lit("!")},
       lit("?"):{lit("?")},
