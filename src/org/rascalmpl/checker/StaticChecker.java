@@ -30,7 +30,7 @@ public class StaticChecker {
 		this.eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		this.astBuilder = new ASTBuilder(new ASTFactory());
 		
-		eval("import rascal::checker::Check;");
+		reload();
 	}
 	
 	public static StaticChecker getInstance() {
@@ -49,5 +49,9 @@ public class StaticChecker {
 	
 	public IConstructor checkModule(IConstructor moduleParseTree) {
 		return (IConstructor) eval.call("checkTree" , moduleParseTree);
+	}
+
+	public void reload() {
+		eval("import rascal::checker::Check;");
 	}
 }
