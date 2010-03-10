@@ -479,6 +479,13 @@ public bool isFailType(RType t) {
 		return false;
 }
 
+public bool isVarArgsType(RType t) {
+	if (RTypeVarArgs(_) := t)
+		return true;
+	else
+		return false;
+}
+
 public bool isOverloadedType(RType t) {
 	if (RTypeOverloaded(_) := t)
 		return true;

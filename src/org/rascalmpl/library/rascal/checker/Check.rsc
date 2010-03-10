@@ -1748,6 +1748,13 @@ public RType checkCatch(Catch c) {
 public Tree checkFile(str filePath) {
 	loc l = |file://<filePath>|;
 	Tree t = parse(#Module,l);
+	return checkTree(t);
+}
+
+//
+// Check a tree
+//
+public Tree checkTree(Tree t) {
 	ScopeInfo si = buildNamespace(t);
 	Tree td = decorateNames(t,si);
 	Tree tc = check(td);

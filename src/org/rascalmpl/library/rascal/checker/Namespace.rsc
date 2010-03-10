@@ -668,12 +668,36 @@ public ScopeInfo handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, Fun
 public bool checkOverlap(ScopeItemId newFun, set[ScopeItemId] funs, ScopeInfo scopeInfo) {
 
 	for (fid <- funs) {
-		//ScopeItem funItem = getScopeItem(scopeInfo, fid);
-		//ScopeItem newFunItem = getScopeItem(scopeInfo, newFun);
+		ScopeItem funItem = getScopeItem(scopeInfo, fid);
+		ScopeItem newFunItem = getScopeItem(scopeInfo, newFun);
 		RType funItemType = getTypeForItem(scopeInfo, fid);
 		RType newFunItemType = getTypeForItem(scopeInfo, newFun);
+		
+		// TODO: Pick up here!
+		switch (<funItem.isVarArgs, newFunItem.isVarArgs>) {
+			case <false, false> : {
+				// Case 1: neither var args
+				return false;
+			}
+	
+			case <true, false> : {
+				// Case 2: old var args
+				return false;
+			}
+	
+			case <false, true> : {
+				// Case 3: new var args
+				return false;
+			}
+	
+			case <true, true> : {
+				// Case 4: both var args
+				return false;
+			}
+		} 
 	}
 	
+
 	return false;
 }
 
