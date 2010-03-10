@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
@@ -66,4 +67,10 @@ public class FromCurrentWorkingDirectoryLoader implements IModuleFileLoader{
 		}
 		return false;
 	}
+
+	public URI getURI(String filename) {
+		return URI.create("cwd://" + (filename.startsWith("/") ? filename : "/" + filename));
+	}
+	
+	
 }

@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
@@ -112,5 +115,15 @@ public class FromResourceLoader implements IModuleFileLoader{
 			}
 		}
 		return false;
+	}
+
+	public URI getURI(String filename) {
+		try {
+			String file = filename.startsWith("/") ? filename : "/" + filename;
+			return URI.create("class://" + clazz.getCanonicalName() + URLEncoder.encode(file, "UTF8"));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			return null;
+		}
 	}
 }

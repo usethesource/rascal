@@ -198,7 +198,8 @@ public class ModuleLoader{
 		
 		InputStream inputStream = null;
 		Set<String> sdfImports;
-		URI location = FileURIResolver.constructFileURI(fileName);
+		URI location = loader.getURI(fileName);
+
 		try{
 			inputStream = loader.getInputStream(fileName);
 			if (inputStream == null) {
@@ -217,7 +218,7 @@ public class ModuleLoader{
 		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-			throw parseError(tree, fileName, name);
+			throw new SyntaxError("unknown location, maybe you used a keyword as an identifier)", ValueFactoryFactory.getValueFactory().sourceLocation(location));
 		}
 
 		return tree;
@@ -233,7 +234,7 @@ public class ModuleLoader{
 		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
 
 		if(tree.getConstructorType() == Factory.ParseTree_Summary){
-			throw parseError(tree, location.toString(), "-");
+			throw new SyntaxError("unknown location, maybe you used a keyword as an identifier)", ValueFactoryFactory.getValueFactory().sourceLocation(location));
 		}
 
 		return tree;

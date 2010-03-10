@@ -3,7 +3,7 @@ module languages::pico::syntax::Pico
 import languages::pico::syntax::Layout;
 import languages::pico::syntax::Lexical;
 
-syntax start PROGRAM = program: "begin" <DECLS hoi> <{STATEMENT  ";"}* body> "end" ;
+syntax PROGRAM = program: "begin" <DECLS hoi> <{STATEMENT  ";"}* body> "end" ;
 
 syntax DECLS = "declare" <{IDTYPE ","}* decls> ";" ;
 
@@ -25,12 +25,11 @@ syntax EXP = id: PICOID name
            | bracket "(" <EXP e> ")"
            ;
                
-// added because we have not implemented imports yet
-public syntax PICOID = lex id: [a-z] [a-z0-9]+
-public syntax NATCON = lex [0-9]+ ;
-public syntax STRCON = lex "\"" ~[\"]*  "\"";
+// syntax PICOID = lex id: [a-z] [a-z0-9]+
+// syntax NATCON = lex [0-9]+ ;
+// syntax STRCON = lex "\"" ~[\"]*  "\"";
 
-public layout Layout = [\ \t\n\r]
-         | "%" ~[%]* "%"
-         | "%%" ~[\n]* "\n"
-         ;
+// layout Layout = [\ \t\n\r]
+         // | "%" ~[%]* "%"
+         // | "%%" ~[\n]* "\n"
+//         ;
