@@ -71,7 +71,16 @@ public class Names {
 	}
 	
 	static public String name(Name name) {
-		String s = ((Name.Lexical) name).getString();
+		String s;
+		if (name instanceof Name.Lexical) {
+			s = ((Name.Lexical) name).getString();
+		}
+		else if (name instanceof InventedName) {
+			s = ((InventedName) name).toString();
+		}
+		else {
+			throw new ImplementationError("unexpected type of name found: " + name);
+		}
 		return unescape(s);
 	}
 	

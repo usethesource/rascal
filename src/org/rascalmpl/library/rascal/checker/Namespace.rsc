@@ -413,7 +413,7 @@ public RType getTypeForItem(ScopeInfo scopeInfo, ScopeItemId itemId) {
 //
 public ScopeInfo buildNamespace(Tree t) {
 	ScopeInfo theInfo = createNewScopeInfo();
-	
+
 	// Overly detailed comments follow...
 	// This happens in four main steps. First, the module header is processed, creating a new
 	// scope for the module. The second step switches us into this scope. The third step then
@@ -427,6 +427,8 @@ public ScopeInfo buildNamespace(Tree t) {
 		sup = changeCurrentScope(sup.oldScopeId, theInfo);
 		return sup.scopeInfo[topScopeItemId = sip.addedId];
 	}
+ 
+        throw "missed a case for <t.prod>";
 }		
 
 //

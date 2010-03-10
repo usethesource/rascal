@@ -30,10 +30,11 @@ import rascal::\old-syntax::Rascal;
 //          -- switch either implements a default case, or deals with all declared alternatives
  
 public Tree check(Tree t) {
-	return visit(t) {
-		case Expression e => e[@rtype = checkExpression(e)]
-		case Pattern p => p[@rtype = checkPattern(p)]
-	}
+	return visit(t) { 
+                case Name n => n[@doc="what a name <n>"]
+		// case Expression e => e[@rtype = checkExpression(e)]
+		// case Pattern p => p[@rtype = checkPattern(p)]
+	} 
 }
 
 private bool debug = true;
@@ -1755,8 +1756,8 @@ public Tree checkFile(str filePath) {
 // Check a tree
 //
 public Tree checkTree(Tree t) {
-	ScopeInfo si = buildNamespace(t);
-	Tree td = decorateNames(t,si);
-	Tree tc = check(td);
+	// ScopeInfo si = buildNamespace(t);
+	// Tree td = decorateNames(t,si);
+	Tree tc = check(t);
 	return tc;
 }

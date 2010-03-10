@@ -356,7 +356,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public IValue call(String name, IValue...args) {
 		QualifiedName qualifiedName = Names.toQualifiedName(name);
-		AbstractFunction func = (AbstractFunction) getCurrentEnvt().getVariable(qualifiedName);
+		OverloadedFunctionResult func = (OverloadedFunctionResult) getCurrentEnvt().getVariable(qualifiedName);
 		Type[] types = new Type[args.length];
 		int i = 0;
 		for (IValue v : args) {
