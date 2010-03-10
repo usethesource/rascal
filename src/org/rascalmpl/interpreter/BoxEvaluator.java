@@ -256,6 +256,7 @@ import org.rascalmpl.ast.Visibility.Private;
 import org.rascalmpl.ast.Visibility.Public;
 import org.rascalmpl.ast.Visit.DefaultStrategy;
 import org.rascalmpl.ast.Visit.GivenStrategy;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
@@ -274,6 +275,10 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 	// this.stdout = stdout;
 	// }
 
+	public IValue call(String name, IValue... args) {
+		throw new ImplementationError("should not call call");
+	}
+	
 	public void setCurrentAST(AbstractAST currentAST) {
 		this.currentAST = currentAST;
 	}

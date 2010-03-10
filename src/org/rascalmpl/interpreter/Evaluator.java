@@ -41,6 +41,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
+import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.Bound;
@@ -353,6 +354,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return javaBridge;
 	}
 
+	public IValue call(String name, IValue...args) {
+		QualifiedName qualifiedName = Names.toQualifiedName(name);
+		AbstractFunction func = (AbstractFunction) getCurrentEnvt().getVariable(qualifiedName);
+		Type[] types = new Type[args.length];
+		int i = 0;
+		for (IValue v : args) {
+			types[i++] = v.getType();
+		}
+		
+		return func.call(types, args).getValue();
+	}
 	/**
 	 * In interactive mode this flag should be set to true, such that re-importing
 	 * a module causes a re-initialization. 

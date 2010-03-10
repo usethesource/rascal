@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.NullASTVisitor;
@@ -122,6 +123,10 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		this.debugger = debugger;
 	}
 
+	public IValue call(String name, IValue... args) {
+		return evaluator.call(name, args);
+	}
+	
 	/* used for pattern-matching evaluation */
 	@Override
 	public T visitRegExpLiteralLexical(
@@ -834,6 +839,8 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 	public void setAccumulators(Stack<Accumulator> accumulators) {
 		evaluator.setAccumulators(accumulators);
 	}
+
+	
 
 
 }
