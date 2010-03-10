@@ -1,6 +1,7 @@
 package org.rascalmpl.interpreter.load;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,6 +61,15 @@ public class FromDefinedRascalPathLoader implements IModuleFileLoader {
 		}
 		
 		return false;
+	}
+
+	public URI getURI(String filename) {
+		for (FromDirectoryLoader loader : loaders) {
+			if (loader.fileExists(filename)) {
+				return loader.getURI(filename);
+			}
+		}
+		return null;
 	}
 
 }

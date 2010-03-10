@@ -1,6 +1,6 @@
-module RascalGrammar
+module rascal::parser::SyntaxDefinition
 
-import rascal::syntax::Rascal;
+import rascal::syntax::RascalForImportExtraction;
 import Grammar;
 import List;
 import String;
@@ -30,7 +30,7 @@ rule diff   diff(diff(a, {b*}), {c*})     => diff(a, {b*, c*});
 // character class normalization
 private data CharRange = \empty-range();
 
-rule empty   range(from, to) => \empty-range() when to < from;
+rule empty range(from, to) => \empty-range() when to < from;
 rule empty \char-class([a*,\empty-range(),b*]) => \char-class([a*,b*]);
 
 rule merge \char-class([a*,range(from1,to1),b*,range(from2,to2),c*]) =>
@@ -71,11 +71,11 @@ public Grammar def2prod(SyntaxDefinition def) {
   set[Production] layouts = {};
 
   switch (def) {
-    case `<Tags t> <Visibility v> start syntax <UserType u> = <Prod p>`  : 
+    case (SyntaxDefinition) `<Tags t> <Visibility v> start syntax <UserType u> = <Prod p>`  : 
       prods += prod2prod(user2symbol(u), p);
-    case `<Tags t> <Visibility v> start layout <UserType u> = <Prod p>`  : 
+    case (SyntaxDefinition) `<Tags t> <Visibility v> layout <UserType u> = <Prod p>`  : 
       layouts += prod2prod(user2symbol(u), p);
-    case `<Tags t> <Visibility v> syntax <UserType u> = <Prod p>`  : { 
+    case (SyntaxDefinition) `<Tags t> <Visibility v> syntax <UserType u> = <Prod p>`  : { 
       starts += user2symbol(u);
       prods += prod2prod(user2symbol(u), p);
     }
@@ -117,23 +117,23 @@ public list[Symbol] intermix(list[Symbol] syms) {
 
 public Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
-    case `<ProdModifier* ms> <Name n> : <Sym* args>` :
+    case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
       return prod(args2symbols(args), nt, mods2attrs(n, ms));
-    case `<ProdModifier* ms> <Symbol* args>` :
+    case (Prod) `<ProdModifier* ms> <Symbol* args>` :
       return prod(args2symbols(args), nt, mods2attrs(ms));
-    case `<Prod l> | <Prod r>` :
+    case (Prod) `<Prod l> | <Prod r>` :
       return choice({prod2prod(nt, l), prod2prod(nt, r)});
-    case `<Prod l> < <Prod r>` :
+    case (Prod) `<Prod l> > <Prod r>` :
       return first([prod2prod(nt, l), prod2prod(nr, r)]);
-    case `<Prod l> - <Prod r>` :
+    case (Prod) `<Prod l> - <Prod r>` :
       return diff(prod2prod(nt, l), {prod2prod(nt, r)});
-    case `left ( <Prod p> )` :
+    case (Prod) `left (<Prod p>)` :
       return assoc(left(), prod2prod(nt, p));
-    case `right ( <Prod p>)` :
+    case (Prod) `right (<Prod p>)` :
       return assoc(right(), prod2prod(nt, p));
-    case `non-assoc (<Prod p>)` :
+    case (Prod) `non-assoc (<Prod p>)` :
       return assoc(\non-assoc(), prod2prod(nt, p));
-    case `assoc(<Prod p>)` :
+    case (Prod) `assoc(<Prod p>)` :
       return assoc(left(), prod2prod(nt, p));
     case `...`: throw "... operator is not yet implemented";
     case `: <Name n>`: throw "prod referencing is not yet implemented";
@@ -147,21 +147,21 @@ public list[Symbol] args2symbols(Sym* args) {
 
 public Symbol arg2symbol(Sym sym) {
   switch(sym) {
-    case `<Name n>`          : return sort("<n>");
-    case `<StringLiteral l>` : return lit("<l>");
-    case `<<Sym s>>`         : return arg2symbol(s);
-    case `<<Sym s> <Name n>` : return label("<n>", arg2symbol(s));
-    case `<Sym s>?`  : return opt(arg2symbol(s));
-    case `<Sym s>??` : return opt(arg2symbol(s));
-    case `<Sym s>*`  : return iter-star(arg2symbol(s));
-    case `<Sym s>+`  : return iter(arg2symbol(s));
-    case `<Sym s>*?` : return iter-star(arg2symbol(s));
-    case `<Sym s>+?` : return iter(arg2symbol(s));
-    case `<{<Sym s> <StringLiteral sep>}*>`  : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
-    case `<{<Sym s> <StringLiteral sep>}+>`  : return \iter-sep(arg2symbol(s), lit("<sep>"));
-    case `<{<Sym s> <StringLiteral sep>}*?>` : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
-    case `<{<Sym s> <StringLiteral sep>}+?>` : return \iter-sep(arg2symbol(s), lit("<sep>"));
-    case `<CharClass cc>` : return \char-class(cc2ranges(cc));
+    case (Sym) `<Name n>`          : return sort("<n>");
+    case (Sym) `<StringLiteral l>` : return lit("<l>");
+    case (Sym) `<<Sym s>>`         : return arg2symbol(s);
+    case (Sym) `<<Sym s> <Name n>` : return label("<n>", arg2symbol(s));
+    case (Sym) `<Sym s>?`  : return opt(arg2symbol(s));
+    case (Sym) `<Sym s>??` : return opt(arg2symbol(s));
+    case (Sym) `<Sym s>*`  : return iter-star(arg2symbol(s));
+    case (Sym) `<Sym s>+`  : return iter(arg2symbol(s));
+    case (Sym) `<Sym s>*?` : return iter-star(arg2symbol(s));
+    case (Sym) `<Sym s>+?` : return iter(arg2symbol(s));
+    case (Sym) `<{<Sym s> <StringLiteral sep>}*>`  : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
+    case (Sym) `<{<Sym s> <StringLiteral sep>}+>`  : return \iter-sep(arg2symbol(s), lit("<sep>"));
+    case (Sym) `<{<Sym s> <StringLiteral sep>}*?>` : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
+    case (Sym) `<{<Sym s> <StringLiteral sep>}+?>` : return \iter-sep(arg2symbol(s), lit("<sep>"));
+    case (Sym) `<CharClass cc>` : return \char-class(cc2ranges(cc));
     default: throw "missed a case <sym>";
   }
 }
@@ -288,4 +288,3 @@ list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
 
   throw "did not expect to end up here! <l> - <r>";
 }
-
