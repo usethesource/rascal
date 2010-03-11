@@ -126,9 +126,9 @@ private Figure legendItem(str name, Color c){
 
 // A complete legend
 
-private Figure legend(map[str, Color] funColors, int w){
+private Figure legend(list[tuple[str, Color]] funColors, int w){
    return box([center(), gap(10,10), fillColor("lightgray")], 
-               align([width(w), gap(10), center()], [legendItem(name, funColors[name]) | name <- funColors]));
+               align([width(w), gap(10), center()], [legendItem(name, col) | <name, col> <- funColors]));
 }
 
 // Data for xyChart
@@ -141,7 +141,7 @@ public Figure xyChart(str title, list[intTuples] facts, ChartSetting settings ..
    applySettings(settings);
    
    funPlots = [];
-   funColors = ();
+   funColors = [];
    xmin = 1000000;
    xmax = -1000000;
    
@@ -179,7 +179,7 @@ public Figure xyChart(str title, list[intTuples] facts, ChartSetting settings ..
   // Add function plots                            
    for(<str fname, list[tuple[int, int]] values> <- facts){
    		fcolorName = palette(size(funColors));
-   		funColors[fname] = color(fcolorName);
+   		funColors += <fname, color(fcolorName)>;
    		list[FProperty] shapeProps = [lineColor(fcolorName), lineWidth(2)];
    		
    		if(isAreaPlot)
@@ -282,13 +282,13 @@ public alias intSeries  =
        tuple[str name,list[int]  values];
 
 // barChart with map argument
- 
-public Figure barChart(str title, map[str,int] facts, ChartSetting settings...){
+
+public Figure barChart(str title, list[tuple[str,int]] facts, ChartSetting settings...){
   categories = [];
   ifacts = [];
-  for(key <- facts){
-  	categories += [key];
-  	ifacts += <key, [facts[key]]>;
+  for(<k, v> <- facts){
+  	categories += [k];
+  	ifacts += <k, [v]>;
   }
   println("categories=<categories>\nifacts=<ifacts>");
   return barChart(title, categories, ifacts, settings);
@@ -299,7 +299,8 @@ public Figure barChart(str title, list[str] categories, list[intSeries] facts, C
    applySettings(settings);
  
    funPlots = [];
-   funColors = ();
+   funColors = [];
+   funColorsMap = ();
    
    nbars = 0;
    nseries = size(facts);
@@ -344,20 +345,21 @@ public Figure barChart(str title, list[str] categories, list[intSeries] facts, C
   fns = ();
   for(<str fname, list[int] values> <- facts){
     fcolorName = palette(size(funColors));
-    funColors[fname] = color(fcolorName);
+    funColors += <fname, color(fcolorName)>;
+    funColorsMap[fname] = color(fcolorName);
     for(int i <- [0 .. size(values)-1]){
         int bw = barWidth;
         int bh = values[i] * yscale;
         if(!isVertical)
            <bw, bh> = <bh, bw>;
-     	fns[i] = (fns[i] ? []) + box([size(bw, bh), lineWidth(0), fillColor(funColors[fname])]);
+     	fns[i] = (fns[i] ? []) + box([size(bw, bh), lineWidth(0), fillColor(funColorsMap[fname])]);
      }
   }
   for(int i <- [0 .. size(categories)-1]){
     if(fns[i]?)
   	   funPlots += isStackedBars ? (isVertical ? vcat([bottom(), gap(0)], reverse(fns[i]))
   	                                    : hcat([bottom(), gap(0)], fns[i]))
-  	                             : (isVertical ? hcat([left(), hcenter(), gap(barGap)], reverse(fns[i]))
+  	                             : (isVertical ? hcat([left(), hcenter(), gap(barGap)], fns[i])
   	                                    : vcat([bottom(), left(), gap(barGap)], fns[i]));
   }
   
@@ -419,12 +421,14 @@ public Figure barChart(str title, list[str] categories, list[intSeries] facts, C
    
 }
 
+
 public void b0(){
- render(barChart("Sales Prognosis 1", ("a" : 10, "b" : 20, "c" : 30),
-                  xLabel("Item"), 
+  render(barChart("Sales Prognosis 0", [<"a", 10>, <"b", 20>, <"c", 30>],
+                 xLabel("Item"), 
                   yLabel("Value")
             ));
 }
+
 
 public void b1a(){
   render(barChart("Sales Prognosis 1", 
@@ -490,7 +494,8 @@ public void b4(){
 public Figure pieChart(str title, map[str, int] facts, ChartSetting settings...){
 
 	applySettings(settings);
- 	funColors = ();
+ 	funColors = [];
+ 	funColorsMap = ();
  	elems = [];
  	radius = 3*chartWidth/7;
  	ir = (ringHeight == 0) ? 0 : radius - ringHeight;
@@ -501,10 +506,11 @@ public Figure pieChart(str title, map[str, int] facts, ChartSetting settings...)
  	angle = 0.0;
  	for(fname <- facts){
  		fcolorName = palette(size(funColors));
-   		funColors[fname] = color(fcolorName, 0.6);
+ 		funColors += <fname, color(fcolorName, 0.6)>;
+   		funColorsMap[fname] = color(fcolorName, 0.6);
    		delta = facts[fname] * 360 / total;
     	elems += wedge([fromAngle(angle), toAngle(angle + delta),
-						height(radius), innerRadius(ir), fillColor(funColors[fname])],
+						height(radius), innerRadius(ir), fillColor(funColorsMap[fname])],
 						text("<facts[fname]>")
 						);
 	    angle += delta;
@@ -524,22 +530,22 @@ public Figure pieChart(str title, map[str, int] facts, ChartSetting settings...)
 }
 
 public void pie0(){
- 	render(pieChart("p1", ("a" : 1, "b" : 1, "c" : 1, "z": 1)));
+ 	render(pieChart("pie0", ("a" : 1, "b" : 1, "c" : 1, "z": 1)));
 }
 
 public void pie1(){
- 	render(pieChart("p1", ("a" : 1, "b" : 2, "c" : 10, "z": 50)));
+ 	render(pieChart("pie1", ("a" : 1, "b" : 2, "c" : 10, "z": 50)));
 }
 
 public void pie2(){
- 	render(pieChart("p2", ("a" : 1, "b" : 2, "c" : 10, "z": 50),
+ 	render(pieChart("pie2", ("a" : 1, "b" : 2, "c" : 10, "z": 50),
  	         subtitle("A very, very, very long subtitle don't you think?"))
  	
  	);
 }
 
 public void pie3(){
- 	render(pieChart("p3", ("a" : 1, "b" : 2, "c" : 10, "z": 50),
+ 	render(pieChart("pie3", ("a" : 1, "b" : 2, "c" : 10, "z": 50),
  					ring(20)
  	));
 }
