@@ -150,8 +150,8 @@ public str prettyPrintStructuredType(RStructuredType st) {
 }
 
 public str prettyPrintFunctionType(RFunctionType ft) {
-	switch(st) {
-		case RFunctionType(rt,tas) : return prettyPrintType(rt) + "[" + prettyPrintTAList(tas) + "]";
+	switch(ft) {
+		case RFunctionType(rt,tas) : return prettyPrintType(rt) + " (" + prettyPrintTAList(tas) + ")";
 	}
 }
 
@@ -390,7 +390,7 @@ public RType getElementType(RTypeArg t) {
 	switch(t) {
 		case RTypeArg(rt) : return rt;
 
-		case RNamedTypeArg(rt,rtn) : return rt;
+		case RNamedTypeArg(rt,_) : return rt;
 	}
 }
 
@@ -459,7 +459,7 @@ public RType getListElementTypeST(RStructuredType t) {
 }
 
 public bool isFunctionType(RType t) {
-	if (RTypeFunction(_) := t)
+	if (RTypeFunction(RFunctionType(_,_)) := t)
 		return true;
 	else
 		return false;
@@ -599,14 +599,16 @@ public RType makeConstructorType(RName cname, list[RTypeArg] tas, RType tn) {
 
 public list[RType] getFunctionArgumentTypes(RType ft) {
 	list[RType] argTypes = [ ];
-	if (RFunctionType(retType, argTypes) := ft) {
-		argTypes = [ getElementType(argType) | argType <- argTypes ];
+	if (RTypeFunction(RFunctionType(_, ats)) := ft) {
+		argTypes = [ getElementType(argType) | argType <- ats ];
+	} else {
+		println("WARNING: Asked for function argument types, but given non-function type!");
 	}
 	return argTypes;
 }
 
 public RType getFunctionReturnType(RType ft) {
-	if (RFunctionType(retType, argTypes) := ft) {
+	if (RTypeFunction(RFunctionType(retType, argTypes)) := ft) {
 		return retType;
 	}
 	return makeVoidType(); // TODO: Should be an exception!

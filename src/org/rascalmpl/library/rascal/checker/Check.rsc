@@ -28,12 +28,22 @@ import rascal::\old-syntax::Rascal;
 //          -- across ||, --> and <--> conditional composition, all pattern matches introduce the same set of variables 
 //          -- all variables have been both declared and initialized in all control flow paths
 //          -- switch either implements a default case, or deals with all declared alternatives
+
+private str getTypeString(Name n) {
+	if ( (n@rtype)? )
+		return "TYPE: " + prettyPrintType(n@rtype);
+	else
+		return "TYPE unavailable";
+}
  
 public Tree check(Tree t) {
-	return visit(t) { 
-                case Name n => n[@doc="what a name <n>"]
-		// case Expression e => e[@rtype = checkExpression(e)]
-		// case Pattern p => p[@rtype = checkPattern(p)]
+	return visit(t) {
+		 
+		case Name n => n[@doc = getTypeString(n)]
+
+		case Expression e => e[@rtype = checkExpression(e)]
+		
+		case Pattern p => p[@rtype = checkPattern(p)]
 	} 
 }
 
@@ -92,10 +102,12 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 	set[RType] alternatives = isOverloadedType(ec@rtype) ? getOverloadOptions(ec@rtype) : { ec@rtype };
 	
 	// Now, try each alternative, seeing if one matches.
+	list[Expression] args = [ e | e <- es ];
 	for (a <- alternatives) {
-		list[Expression] args = [ e | e <- es ];
-		list[RType] argTypes = [];
+		if (debug) println("CHECKER: Checking alternative <prettyPrintType(a)> in call <ep>");
+		
 		RType potentialResultType;
+		list[RType] argTypes = [];
 		
 		if (isFunctionType(a)) {
 			argTypes = getFunctionArgumentTypes(a);
@@ -103,19 +115,23 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 		} else if (isConstructorType(a)) {
 			argTypes = getConstructorArgumentTypes(a);
 			potentialResultType = getConstructorResultType(a);
-		}
-		
-		if (size(argTypes) == size(args)) {
-			for (e <- args) {
-				RType argType = head(argTypes); argTypes = tail(argTypes);
-				if (argType != e@rtype) {
-					potentialResultType = makeFailType("Bad function invocation or constructor usage, argument type mismatch",ep@\loc); // TODO: Improve error message
-				}
-			}			
 		} else {
-			potentialResultType = makeFailType("Arity mismatch", ep@\loc); // TODO: Improve error message
+			potentialResultType = makeFailType("Type <prettyPrintType(a)> is not a function or constructor type.",ep@\loc);
 		}
 		
+		if (isFunctionType(a) || isConstructorType(a)) {
+			if (size(argTypes) == size(args)) {
+				for (e <- args) {
+					RType argType = head(argTypes); argTypes = tail(argTypes);
+					if (argType != e@rtype) {
+						potentialResultType = makeFailType("Bad function invocation or constructor usage, argument type mismatch",ep@\loc); // TODO: Improve error message
+					}
+				}			
+			} else {
+				potentialResultType = makeFailType("Arity mismatch, function accepts <size(argTypes)> arguments but was given <size(args)>", ep@\loc); // TODO: Improve error message
+			}
+		}
+				
 		// This will cause us to keep the last error in cases where we cannot find a valid function
 		// or constructor to use.
 		if (isFailType(resultType)) resultType = potentialResultType;
@@ -793,7 +809,7 @@ public RType checkExpression(Expression exp) {
 		case `<Expression e1> ( <{Expression ","}* el> )` : {
 			if (debug) println("CHECKER: Call or Tree: <e1>(<el>)");
 			RType t = checkCallOrTreeExpression(exp,e1,el);
-			if(debug) println("Assigning type: " + prettyPrintType(t));
+			if(debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
@@ -1440,7 +1456,7 @@ public RType checkPattern(Pattern pat) {
 		case `<Pattern p1> ( <{Pattern ","}* pl> )` : {
 			if (debug) println("CHECKER: CallOrTreePattern: <pat>");
 			RType t = checkCallOrTreePattern(pat,p1,pl);
-			if(debug) println("Assigning type: " + prettyPrintType(t));
+			if(debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
 
@@ -1746,18 +1762,18 @@ public RType checkCatch(Catch c) {
 //
 // Check a file, given the path to the file
 //
-public Tree checkFile(str filePath) {
+public Tree typecheckFile(str filePath) {
 	loc l = |file://<filePath>|;
 	Tree t = parse(#Module,l);
-	return checkTree(t);
+	return typecheckTree(t);
 }
 
 //
 // Check a tree
 //
-public Tree checkTree(Tree t) {
-	// ScopeInfo si = buildNamespace(t);
-	// Tree td = decorateNames(t,si);
-	Tree tc = check(t);
+public Tree typecheckTree(Tree t) {
+	ScopeInfo si = buildNamespace(t);
+	Tree td = decorateNames(t,si);
+	Tree tc = check(td);
 	return tc;
 }
