@@ -2,6 +2,7 @@ module rascal::checker::Namespace
 
 import rascal::checker::Types;
 import rascal::checker::ListUtils;
+import rascal::checker::SubTypes;
 
 import List;
 import Graph;
@@ -10,7 +11,7 @@ import Set;
 
 import rascal::\old-syntax::Rascal;
 
-//
+// 
 // TODOs
 //
 // 1. Tags can include expressions, which thus need to be typechecked. Add checking for
@@ -317,17 +318,17 @@ public set[ScopeItemId] getItemsForNameWBound(ScopeInfo scopeInfo, ScopeItemId c
 	// If this is a bounded search, don't pass through function boundaries.
 	if (size(foundItems) == 0) {
 		switch(scopeInfo.scopeItemMap[currentScopeId]) {
-			case FunctionLayer(_,_,_,_,_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+			case FunctionLayer(_,_,_,_,_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
 
-			case ClosureLayer(_,_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+			case ClosureLayer(_,_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
 
-			case VoidClosureLayer(_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+			case VoidClosureLayer(_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
 			
-			case BlockLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+			case BlockLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
 			
-			case PatternMatchLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+			case PatternMatchLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
 			
-			case BooleanExpLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,containingNamespaces,x);
+			case BooleanExpLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
 		}
 	}
 
@@ -625,7 +626,7 @@ public ScopeInfo handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variabl
 				} else {
 					ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
 					AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
-					scopeInfo = aip.scopeInfo;
+					scopeInfo = addItemUses(aip.scopeInfo,  { aip.addedId }, n@\loc);
 				}
 			}
 				
@@ -637,7 +638,7 @@ public ScopeInfo handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variabl
 				} else {
 					ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
 					AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
-					scopeInfo = aip.scopeInfo;
+					scopeInfo = addItemUses(aip.scopeInfo,  { aip.addedId }, n@\loc);
 				}
 			}
 		}
@@ -654,7 +655,6 @@ public ScopeInfo handleVarItems(Tags ts, Visibility v, Type t, {Variable ","}+ v
 	for (`<Name n> = <Expression e>` <- vs)
 		scopeInfo = handleExpression(e, scopeInfo);
 	return scopeInfo;
-//	return ( scopeInfo | handleExpression(e, scopeInfo) | `<Name n> = <Expression e>` <- vs);
 }
 
 //
@@ -667,39 +667,57 @@ public ScopeInfo handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, Fun
 	return handleAbstractFunctionNamesOnly(ts,v,s,l,scopeInfo);		
 }
 
+//
+// TODO: It may be nice to indicate WHICH function the new function overlaps with. Right now,
+// this is just a binary true or false check.
+//
 public bool checkOverlap(ScopeItemId newFun, set[ScopeItemId] funs, ScopeInfo scopeInfo) {
+	// Get back information for the function we are trying to add
+	ScopeItem newFunItem = getScopeItem(newFun, scopeInfo);
+	RType newFunItemType = getTypeForItem(scopeInfo, newFun);
+	list[RType] newFunItemArgs = getFunctionArgumentTypes(newFunItemType);
 
 	for (fid <- funs) {
-		ScopeItem funItem = getScopeItem(scopeInfo, fid);
-		ScopeItem newFunItem = getScopeItem(scopeInfo, newFun);
+		// Get back information for each of the existing functions
+		ScopeItem funItem = getScopeItem(fid, scopeInfo);
 		RType funItemType = getTypeForItem(scopeInfo, fid);
-		RType newFunItemType = getTypeForItem(scopeInfo, newFun);
-		
-		// TODO: Pick up here!
-		switch (<funItem.isVarArgs, newFunItem.isVarArgs>) {
-			case <false, false> : {
-				// Case 1: neither var args
-				return false;
-			}
-	
-			case <true, false> : {
-				// Case 2: old var args
-				return false;
-			}
-	
-			case <false, true> : {
-				// Case 3: new var args
-				return false;
-			}
-	
-			case <true, true> : {
-				// Case 4: both var args
-				return false;
-			}
-		} 
-	}
-	
+		list[RType] funItemArgs = getFunctionArgumentTypes(funItemType);
 
+		// Handle extending the argument lists for varargs functions so that both
+		// functions are the same arity. This is needed to detect overlap in cases
+		// where two functions could overlap in practice, even if not in the syntax
+		// of their definitions, such as f(int, str, str) and f(int, str...)
+		if (funItem.isVarArgs || newFunItem.isVarArgs) {
+			if (funItem.isVarArgs && (size(funItemArgs) < size(newFunItemArgs))) {
+				if (debug) println("NAMESPACE: Extending vararg function for comparison");
+				RType et = (size(funItemArgs) > 0) ? tail(funItemArgs,1) : makeValueType();
+				funItemArgs += [ et | n <- [1 .. (size(newFunItemArgs) - size(funItemArgs))] ];
+			} else if (newFunItem.isVarArgs && (size(newFunItemArgs) < size(funItemArgs))) {
+				if (debug) println("NAMESPACE: Extending vararg function for comparison");
+				RType et = (size(newFunItemArgs) > 0) ? tail(newFunItemArgs,1) : makeValueType();
+				newFunItemArgs += [ et | n <- [1 .. (size(funItemArgs) - size(newFunItemArgs))] ];
+			}
+		}
+
+		// Check to see if both lists of args are the same length; if not, we cannot have an
+		// overlap between the two functions.
+		if (size(funItemArgs) == size(newFunItemArgs)) {
+			if (debug) println("NAMESPACE: Checking functions of matching arity for overlap");
+			bool foundIncomparable = false;
+
+			for (n <- domain(funItemArgs)) {
+				RType t1 = funItemArgs[n]; RType t2 = newFunItemArgs[n];
+				if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
+			}
+			
+			if (!foundIncomparable) {
+				if (debug) println("NAMESPACE: Functions have comparable signatures, overlap detected."); 
+				return true;
+			}
+		}
+	}
+
+	if (debug) println("NAMESPACE: No overlap found.");
 	return false;
 }
 
@@ -711,16 +729,19 @@ public bool checkOverlap(ScopeItemId newFun, set[ScopeItemId] funs, ScopeInfo sc
 public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signature s, loc l, ScopeInfo scopeInfo) {
 	// Add the new function into the scope and process any parameters.
 	ScopeInfo addFunction(Name n, RType retType, Parameters ps, list[RType] thrsTypes, bool isPublic, ScopeInfo scopeInfo) {
+		set[ScopeItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n));
 		ScopeItem si = FunctionLayer(convertName(n), retType, mkEmptySIList(), thrsTypes, false, isPublic, scopeInfo.currentScope)[@at=l];
 		AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
 		ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);			 
 		scopeInfo = handleParametersNamesOnly(ps, sup.scopeInfo);
 		sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
-		scopeInfo = sup.scopeInfo;
+		scopeInfo = addItemUses(sup.scopeInfo, { aip.addedId }, n@\loc);
 
-		if (checkOverlap(aip.addedId, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))), scopeInfo) {	
+		if (checkOverlap(aip.addedId, potentialOverlaps, scopeInfo)) {	
 			scopeInfo = addScopeError(scopeInfo, n@\loc, "Overlapping overload of function <n> declared");
-		}	
+		}
+
+		return scopeInfo;	
 	}
 	
 	switch(s) {
@@ -761,7 +782,7 @@ public ScopeInfo handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
 					if (debug) println("NAMESPACE: Adding parameter <n>");
 					ScopeItem pitem = (FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc]);
 					AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
-					scopeInfo = aip.scopeInfo;
+					scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, n@\loc);
 					siList += aip.addedId;
 				}
 			}
@@ -774,7 +795,7 @@ public ScopeInfo handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
 					if (debug) println("NAMESPACE: Adding parameter <n>");
 					ScopeItem pitem = FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc];
 					AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
-					scopeInfo = aip.scopeInfo;
+					scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, n@\loc);
 					siList += aip.addedId;
 				}
 			}
