@@ -70,6 +70,7 @@ public class BoxADT {
 	static final IValue GT = TAG.L.create(">");
 	static final IValue GE = TAG.L.create(">=");
 	static final IValue OR = TAG.L.create("||");
+	static final IValue AMPERSAND = TAG.L.create("&");
 	static final IValue AND = TAG.L.create("&&");
 	static final IValue NOT = TAG.L.create("!");
 	static final IValue LPAR = TAG.L.create("(");
@@ -83,6 +84,7 @@ public class BoxADT {
 	static final IValue SEMICOLON = TAG.L.create(";");
 	static final IValue DOT = TAG.L.create(".");
 	static final IValue AT = TAG.L.create("@");
+	static final IValue HASH = TAG.L.create("#");
 	static final IValue QUESTIONMARK = TAG.L.create("?");
 	static final IValue COLON = TAG.L.create(":");
 	static final IValue VBAR = TAG.L.create("|");
@@ -90,6 +92,7 @@ public class BoxADT {
 	static final IValue INTERSECTION = TAG.L.create("&");
 	static final IValue RANGE = TAG.L.create("..");
 	static final IValue CONGR = TAG.L.create("~");
+	static final IValue SPACE = TAG.L.create(" ");
 
 	// Type tagar[] = new Type[TAG.values().length];
 	//
@@ -206,6 +209,10 @@ public class BoxADT {
 	}
 
 	static IValue HV(IValue... t) {
+		return HV(-1, t);
+	}
+
+	static IValue HV(int hspace, IValue... t) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue a : t) {
 			if (a == null)
@@ -215,11 +222,8 @@ public class BoxADT {
 			} else
 				q = q.append(a);
 		}
-		return BoxADT.TAG.HV.create(q);
-	}
-
-	static IValue HV(int hspace, IValue... t) {
-		IConstructor r = BoxADT.TAG.HV.create(t);
+		IConstructor r = BoxADT.TAG.HV.create(q);
+		if (hspace>=0) 
 		r = r.setAnnotation("hs", vf.integer(hspace));
 		return r;
 	}
