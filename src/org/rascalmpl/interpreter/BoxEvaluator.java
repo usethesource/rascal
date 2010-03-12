@@ -3,35 +3,26 @@ package org.rascalmpl.interpreter;
 import java.util.Iterator;
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Assignable;
 import org.rascalmpl.ast.Body;
 import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Catch;
 import org.rascalmpl.ast.Declarator;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Formal;
-import org.rascalmpl.ast.FunctionBody;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.FunctionModifiers;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.LocalVariableDeclaration;
-import org.rascalmpl.ast.Mapping;
 import org.rascalmpl.ast.Module;
-import org.rascalmpl.ast.NumChar;
 import org.rascalmpl.ast.Strategy;
-import org.rascalmpl.ast.StringConstant;
-import org.rascalmpl.ast.StringLiteral;
-import org.rascalmpl.ast.StructuredType;
-import org.rascalmpl.ast.Target;
 import org.rascalmpl.ast.Toplevel;
-import org.rascalmpl.ast.Type;
-import org.rascalmpl.ast.TypeArg;
-import org.rascalmpl.ast.Variable;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Alternative.Ambiguity;
 import org.rascalmpl.ast.Alternative.NamedType;
@@ -262,14 +253,19 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 
-public class BoxEvaluator implements IEvaluator<IValue> {
+public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	private AbstractAST currentAST;
 
-	// final private BoxADT b = new BoxADT();
+	final private int UNITLENGTH = 40;
+	
+	final org.eclipse.imp.pdb.facts.type.Type typeL = BoxADT.EMPTY.getConstructorType();
+	
 
 	public TypeStore getTypeStore() {
 		return BoxADT.getTypeStore();
 	}
+	
+	
 
 	// public TreeEvaluator(PrintWriter stderr, PrintWriter stdout) {
 	// this.stderr = stderr;
@@ -573,12 +569,12 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitBoundDefault(org.rascalmpl.ast.Bound.Default x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return list(BoxADT.SEMICOLON, eX(x.getExpression()));
 	}
 
 	public IValue visitBoundEmpty(Empty x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return null;
 	}
 
 	public IValue visitCaseAmbiguity(org.rascalmpl.ast.Case.Ambiguity x) {
@@ -981,7 +977,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitDeclaratorDefault(org.rascalmpl.ast.Declarator.Default x) {
 		// TODO Auto-generated method stub
-		return HV(1, eX(x.getType()), H(eXs(x.getVariables())));
+		return H(1, eX(x.getType()), H(eXs(x.getVariables())));
 	}
 
 	public IValue visitEscapeSequenceAmbiguity(
@@ -1182,7 +1178,8 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 	}
 
 	public IValue visitExpressionList(org.rascalmpl.ast.Expression.List x) {
-		return list(BoxADT.LBRACK, eXs(x.getElements()), BoxADT.RBRACK);
+		IList r = list(BoxADT.LBRACK, eXs(x.getElements()), BoxADT.RBRACK);
+		return lengths(r)<UNITLENGTH?list(H(0, r)):r;
 	}
 
 	public IValue visitExpressionLiteral(Literal x) {
@@ -1192,7 +1189,8 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 	}
 
 	public IValue visitExpressionMap(org.rascalmpl.ast.Expression.Map x) {
-		return list(BoxADT.LPAR, eXs(x.getMappings()), BoxADT.RPAR);
+		IList r = list(BoxADT.LPAR, eXs(x.getMappings()), BoxADT.RPAR);
+		return lengths(r)<UNITLENGTH?list(H(0, r)):r;
 	}
 
 	public IValue visitExpressionMatch(Match x) {
@@ -1272,7 +1270,8 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitExpressionSet(org.rascalmpl.ast.Expression.Set x) {
 		// TODO Auto-generated method stub
-		return list(BoxADT.LBLOCK, eXs(x.getElements()), BoxADT.RBLOCK);
+		IList r = list(BoxADT.LBLOCK, eXs(x.getElements()), BoxADT.RBLOCK);
+		return lengths(r)<UNITLENGTH?list(H(r)):r;
 	}
 
 	public IValue visitExpressionSetAnnotation(SetAnnotation x) {
@@ -1312,7 +1311,8 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitExpressionTuple(org.rascalmpl.ast.Expression.Tuple x) {
 		// TODO Auto-generated method stub
-		return list(H(BoxADT.LT, eXs(x.getElements()), BoxADT.GT));
+		IList r =  list(BoxADT.LT, eXs(x.getElements()), BoxADT.GT);
+		return lengths(r)<UNITLENGTH?list(H(0, r)):r;
 	}
 
 	public IValue visitExpressionTypedVariable(TypedVariable x) {
@@ -1970,12 +1970,12 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitParametersDefault(org.rascalmpl.ast.Parameters.Default x) {
 		// TODO Auto-generated method stub
-		return x.getFormals().accept(this);
+		return eX(x.getFormals());
 	}
 
 	public IValue visitParametersVarArgs(VarArgs x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return eX(x.getFormals());
 	}
 
 	public IValue visitPathCharsAmbiguity(
@@ -2408,12 +2408,12 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitStatementAssert(Assert x) {
 		// TODO Auto-generated method stub
-		return H(1, KW("assert"), eX(x.getExpression()));
+		return H(1, KW("assert"), HV(0, eX(x.getExpression())));
 	}
 
 	public IValue visitStatementAssertWithMessage(AssertWithMessage x) {
 		// TODO Auto-generated method stub
-		return H(1, KW("assert"), eX(x.getExpression()), BoxADT.COLON, eX(x
+		return H(1, KW("assert"), HV(0, eX(x.getExpression())), BoxADT.COLON, eX(x
 				.getMessage()));
 	}
 
@@ -2523,7 +2523,8 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitStatementSolve(Solve x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return H(0, KW("solve"), BoxADT.LPAR, eXs(x.getVariables()),  
+				BoxADT.RPAR, eX(x.getBound()), Block(x.getBody()));
 	}
 
 	public IValue visitStatementSwitch(Switch x) {
@@ -2923,13 +2924,13 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitTestLabeled(org.rascalmpl.ast.Test.Labeled x) {
 		// TODO Auto-generated method stub
-		return H(0, H(0, eX(x.getExpression())), BoxADT.SEMICOLON, eX(x
+		return HV(0, eX(x.getExpression()), BoxADT.SEMICOLON, eX(x
 				.getLabeled()));
 	}
 
 	public IValue visitTestUnlabeled(Unlabeled x) {
 		// TODO Auto-generated method stub
-		return H(0, eX(x.getExpression()));
+		return HV(0, eX(x.getExpression()));
 	}
 
 	public IValue visitTimePartNoTZAmbiguity(
@@ -3329,7 +3330,6 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 			AbstractAST expression = (AbstractAST) iterator.next();
 			// System.err.println("eXs1:"+expression);
 			IValue q = eX(expression);
-			// System.err.println("eXs2:"+q);
 			if (!s.isEmpty())
 				s = s.append(BoxADT.COMMA);
 			if (q.getType().isListType())
@@ -3337,6 +3337,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 			else
 				s = s.append(q);
 		}
+		// System.err.println("eXs2:"+s);
 		return s;
 	}
 
@@ -3380,4 +3381,31 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 		System.err.println("eX:" + x.getClass());
 		return x.accept(this);
 	}
+	
+	private String contentBoxList(IList bl) {
+		StringBuffer r = new StringBuffer();
+		for (IValue x:bl) {
+			if (x.getType().isAbstractDataType()) {
+				IConstructor b = (IConstructor) x;
+				r.append(contentBox(b));
+			}
+		}
+		return r.toString();
+	}
+	
+	private String contentBox(IConstructor b) {
+		IValue v = b.get(0);
+		if (v.getType().isStringType()) {
+			return ((IString) v).getValue();
+		} 
+		if (v.getType().isListType()) {
+			return contentBoxList((IList) v);
+		}
+	    return contentBox((IConstructor) v);
+	}
+	
+	private int lengths(IList bl) {
+		return contentBoxList(bl).length();
+	}
+	
 }

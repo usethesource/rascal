@@ -15,6 +15,10 @@ public class BoxADT {
 	static final private TypeFactory tf;
 	static final private Type box, boxlst, str;
 
+	public static Type getBox() {
+		return box;
+	}
+
 	static private IValueFactory vf;
 	static {
 		tf = TypeFactory.getInstance();
@@ -54,7 +58,7 @@ public class BoxADT {
 		}
 	};
 
-	static final IValue EMPTY = TAG.L.create("");
+	static final IConstructor EMPTY = TAG.L.create("");
 	static final IValue PLUS = TAG.L.create("+");
 	static final IValue MINUS = TAG.L.create("-");
 	static final IValue MULT = TAG.L.create("*");
@@ -128,6 +132,10 @@ public class BoxADT {
 
 	static IValueFactory getValueFactory() {
 		return vf;
+	}
+	
+	static public Type getTypeL() {
+		return ts.lookupConstructor(box, "L", tf.stringType());
 	}
 
 	static IValue comma() {
