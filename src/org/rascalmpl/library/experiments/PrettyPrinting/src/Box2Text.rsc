@@ -200,7 +200,7 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
       int n = h + hwidth(a);
       if (size(a)>1) { // Multiple lines 
            // text T1 =hh(hskip(i), O(A, V([]), o, m-i));
-           text T1 = O(A, V([]), o, m-i);
+           text T1 = QQ(A, V([]), o, m-i);
   // println("QQ0:i=<i>  <T1>");
            return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
           }
@@ -212,12 +212,12 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
         n -= h; // n == width(a)
          if  ((i+n)<m) { // Fits in the next line, not in current line
                //  text T1 =hh(hskip(i), a);
-                 text T1 =O(A, V([]), o, m-i);
+                 text T1 =QQ(A, V([]), o, m-i);
                  return vv(T, vv_(vskip(v), HVHV(T1, m-n-i, B, o, m, H([]))));
                  }
          else { // Doesn't fit in both lines
                 //  text T1 =hh(hskip(i), O(A, H([]), o, m-i));
-                 text T1 =O(A, V([]), o, m-i);
+                 text T1 =QQ(A, V([]), o, m-i);
                  // println("QQ3:i=<i> <T1>");
                  return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
                  }
@@ -228,13 +228,13 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
 
 text HVHV(text T, int s, list[Box] b, options o,  int m, Box c) {
       if (isEmpty(b))  return T;
-      text T1 = O(b[0], c  , o, s);  // Was H([])
+      text T1 = QQ(b[0], c  , o, s);  // Was H([])
       return HVHV(T, s, T1 , b[0],  tail(b), o, m);
       }
 
  text HVHV(list[Box] b, Box c, options o, int m) {
        if (isEmpty(b))  return [];
-       text T =  O(b[0], V([]), o, m);  // Was H([])
+       text T =  QQ(b[0], V([]), o, m);  // Was H([])
        if (size(b)==1) return T;
       return HVHV(T, m-hwidth(T), tail(b), o, m, H([]));
       }
@@ -256,28 +256,36 @@ text font(text t, str tg) {
    return r;
   }
 
+text QQ(Box b, Box c, options o, int m) {
+ text t;
+      switch(b) {
+         case L(str s): {t= LL(s);}
+         case  H(list[Box] bl): {t =  HH(bl, c, o, m); }
+         case  V(list[Box] bl): {t = VV(bl, c, o, m);}
+         case  I(list[Box] bl):{t = II(bl, c, o, m);}
+         case  WD(list[Box] bl):{t = WDWD(bl, c, o, m);}
+         case  HOV(list[Box] bl):{t = HOVHOV(bl, c, o, m);}
+         case  HV(list[Box] bl):{t= HVHV(bl, c, o, m);}
+         case  SPACE(int n):{t= hskip(n);}
+         case   A(list[Box] bl):{t = AA(bl, c, o, f, m);}
+         case KW(Box a):{t =  decorated?font(O(a, c, o, m),"bf"):O(a,c,o,m);}
+         case VAR(Box a):{t = decorated?font(O( a, c, o, m),"it"):O( a, c, o, m);}
+         case NUM(Box a):{t = decorated?font(O( a, c, o, m),"nm"):O( a, c, o, m);}
+     }
+return t;
+}
+
 text O(Box b, Box c, options o, int m) {
       // println(b);
+    int h = o["h"];
      if ((b@hs)?) {o["h"] = b@hs;}
      if ((b@vs)?) {o["v"] = b@vs;}
      if ((b@is)?) {o["i"] = b@is;}
      foptions f =();
      if ((b@format)?) {f["f"] = b@format;}
-      switch(b) {
-         case L(str s): {return LL(s);}
-         case  H(list[Box] bl): {return HH(bl, c, o, m);}
-         case  V(list[Box] bl): {return VV(bl, c, o, m);}
-         case  I(list[Box] bl):{return II(bl, c, o, m);}
-         case  WD(list[Box] bl):{return WDWD(bl, c, o, m);}
-         case  HOV(list[Box] bl):{return HOVHOV(bl, c, o, m);}
-         case  HV(list[Box] bl):{return HVHV(bl, c, o, m);}
-         case  SPACE(int n):{return hskip(n);}
-         case   A(list[Box] bl):{return AA(bl, c, o, f, m);}
-         case KW(Box a):{return decorated?font(O(a, c, o, m),"bf"):O(a,c,o,m);}
-         case VAR(Box a):{return decorated?font(O( a, c, o, m),"it"):O( a, c, o, m);}
-         case NUM(Box a):{return decorated?font(O( a, c, o, m),"nm"):O( a, c, o, m);}
-     }
-return [];
+     text t = QQ(b, c, o, m);
+     o["h"]=h;
+     return t;
 }
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
@@ -347,6 +355,22 @@ text AA(list[Box] bl, Box c ,options o, foptions f, int m) {
      return O(V(vargs), c, o, m);
 }
 
+bool changeHV2H(list[Box] hv) {
+   int n = 0;
+    visit(hv) {
+         case L(str s): {n+=size(s);}
+         }
+    return n<40;
+    }
+
+
+Box removeHV(Box b) {
+return visit(b) {
+     case HV(list[Box] hv) => H(hv) when changeHV2H(hv)
+      };
+}
+
+
 
 public void main() {
 /*
@@ -370,16 +394,20 @@ public void main() {
 */
    // Box b = readBinaryValueFile(#Box, |file:///ufs/bertl/box/big.box|);
    Box b = readBinaryValueFile(#Box, |file:///ufs/bertl/tst.box|);
+ println(b);
+   b = removeHV(b);
    println(b);
   // str s = box2text(b, 0);
   // println(s);
  decorated = true;
   text t = O(b, V([]), oDefault, maxWidth);
   boxView(t); 
+/*
   for (str r<-t) {
       if  (!isBlank(r)) {
           println(r);
          //  appendToFile(|file:///ufs/bertl/box/big.txt|, r);
         }
    } 
+*/
 }
