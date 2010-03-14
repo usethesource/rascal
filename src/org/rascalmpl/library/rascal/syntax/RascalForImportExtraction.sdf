@@ -19,7 +19,8 @@ context-free syntax
 
 lexical restrictions
 	Marker -/- [i].[m].[p].[o].[r].[t]
-         Marker -/- [s].[y].[n].[t].[a].[x]
+        Marker -/- [s].[y].[n].[t].[a].[x]
+        Marker -/- [l].[a].[y].[o].[u].[t]
 	Marker -/- [\[]
         ~[\n]*   -/- ~[\n]
         {~[\n]* [\n]}* -/- [\n]
