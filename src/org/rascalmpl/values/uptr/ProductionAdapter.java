@@ -57,10 +57,11 @@ public class ProductionAdapter {
 		
 		if (SymbolAdapter.isCf(rhs) || SymbolAdapter.isLex(rhs)) {
 			rhs = SymbolAdapter.getSymbol(rhs);
-			if (SymbolAdapter.isSort(rhs) || SymbolAdapter.isParameterizedSort(rhs)){
-				return SymbolAdapter.getName(rhs);
-			} 
 		}
+		
+		if (SymbolAdapter.isSort(rhs) || SymbolAdapter.isParameterizedSort(rhs)){
+			return SymbolAdapter.getName(rhs);
+		} 
 		
 		return "";
 	}

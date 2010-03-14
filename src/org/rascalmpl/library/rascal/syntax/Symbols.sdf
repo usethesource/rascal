@@ -37,7 +37,7 @@ context-free syntax
     "^"                                    -> Sym {cons("StartOfLine")}
     "$"                                    -> Sym {cons("EndOfLine")}
     "@" column:IntegerLiteral              -> Sym {cons("Column")}
-    charClass:CharClass                    -> Sym {cons("CharacterClass")}         
+    charClass:Class                        -> Sym {cons("CharacterClass")}         
     string:StringConstant                  -> Sym {cons("Literal")}                
     cistring:CaseInsensitiveStringConstant -> Sym {cons("CaseInsensitiveLiteral")}
 

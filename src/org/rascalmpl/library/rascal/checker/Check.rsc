@@ -41,7 +41,7 @@ public Tree check(Tree t) {
 		 
 		case Name n => n[@doc = getTypeString(n)]
 
-		case Expression e => e[@rtype = checkExpression(e)]
+		case Expression e => e[@rtype = checkExpression(e),@marker=error("foutje!")]
 		
 		case Pattern p => p[@rtype = checkPattern(p)]
 	} 
