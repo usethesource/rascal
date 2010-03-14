@@ -40,6 +40,7 @@ data CharRange = range(int start, int end);
 data Constructor = cons(str name);
 
 data Symbol =
+     \start(Symbol symbol) |
      \lit(str string) |
      \cilit(str string) | 
      \cf(Symbol symbol)  |
