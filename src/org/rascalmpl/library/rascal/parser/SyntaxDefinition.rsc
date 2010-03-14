@@ -57,13 +57,13 @@ public Grammar module2grammar(Module mod) {
 }
   
 public set[SyntaxDefinition] collect(Module mod) {
-  set[Module] result = {};
+  set[SyntaxDefinition] result = {};
   visit (mod) { case SyntaxDefinition s : result += s; }
   return result;
 }  
 
 public Grammar syntax2grammar(set[SyntaxDefinition] def) {
-  return grammar({},{ def2prod(p) | sd <- def});
+  return grammar({},{ def2prod(sd) | sd <- def});
 }
 
 public Grammar def2prod(SyntaxDefinition def) {
@@ -72,11 +72,11 @@ public Grammar def2prod(SyntaxDefinition def) {
   set[Production] layouts = {};
 
   switch (def) {
-    case (SyntaxDefinition) `<Tags t> <Visibility v> start syntax <UserType u> = <Prod p>`  : 
+    case (SyntaxDefinition) `<Tags t> <Visibility v> start syntax <UserType u> = <Prod p>;`  : 
       prods += prod2prod(user2symbol(u), p);
-    case (SyntaxDefinition) `<Tags t> <Visibility v> layout <UserType u> = <Prod p>`  : 
+    case (SyntaxDefinition) `<Tags t> <Visibility v> layout <UserType u> = <Prod p>;`  : 
       layouts += prod2prod(user2symbol(u), p);
-    case (SyntaxDefinition) `<Tags t> <Visibility v> syntax <UserType u> = <Prod p>`  : { 
+    case (SyntaxDefinition) `<Tags t> <Visibility v> syntax <UserType u> = <Prod p>;`  : { 
       starts += user2symbol(u);
       prods += prod2prod(user2symbol(u), p);
     }
@@ -149,7 +149,7 @@ public list[Symbol] args2symbols(Sym* args) {
 public Symbol arg2symbol(Sym sym) {
   switch(sym) {
     case (Sym) `<Name n>`          : return sort("<n>");
-    case (Sym) `<StringLiteral l>` : return lit("<l>");
+    case (Sym) `<StringConstant l>` : return lit("<l>");
     case (Sym) `<<Sym s>>`         : return arg2symbol(s);
     case (Sym) `<<Sym s> <Name n>>	` : return label("<n>", arg2symbol(s));
     case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s));
@@ -199,8 +199,8 @@ public int character(Character c) {
   }
 }
 
-public Attributes mods2attrs(Name cons, ProdModifier* mods) {
-  return attrs([term(cons("<cons>"))]);
+public Attributes mods2attrs(Name name, ProdModifier* mods) {
+  return attrs([term(cons("<name>"))]);
 }
 
 public Attributes mods2attrs(ProdModifier* mods) {

@@ -41,6 +41,7 @@ data Constructor = cons(str name);
 
 data Symbol =
      \start(Symbol symbol) |
+     \label(str name, Symbol symbol) |
      \lit(str string) |
      \cilit(str string) | 
      \cf(Symbol symbol)  |

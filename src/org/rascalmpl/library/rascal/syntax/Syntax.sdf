@@ -8,8 +8,8 @@ exports
 sorts SyntaxDefinition
 context-free syntax
 
-  tags:Tags visibility:Visibility start:Start "syntax" user:UserType "=" Prod ";"? -> SyntaxDefinition {cons("Language")}
-  tags:Tags visibility:Visibility "layout" user:UserType "=" Prod ";"? -> SyntaxDefinition {cons("Layout")}
+  tags:Tags visibility:Visibility start:Start "syntax" user:UserType "=" Prod ";" -> SyntaxDefinition {cons("Language")}
+  tags:Tags visibility:Visibility "layout" user:UserType "=" Prod ";" -> SyntaxDefinition {cons("Layout")}
 
 sorts Start
 context-free syntax
