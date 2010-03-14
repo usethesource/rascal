@@ -22,7 +22,7 @@ public bool fromInt(int i)
 
 @doc{Convert the strings "true" or "false" to a bool}
 public bool fromString(str s)
-{
+{ 
   if (s == "true") {
     return true;
   }

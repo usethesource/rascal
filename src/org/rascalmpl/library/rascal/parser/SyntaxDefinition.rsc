@@ -144,47 +144,47 @@ public Production prod2prod(Symbol nt, Prod p) {
 public list[Symbol] args2symbols(Sym* args) {
   return [ arg2symbol(s) | Sym s <- args ];
 }
-
+  
 public Symbol arg2symbol(Sym sym) {
   switch(sym) {
     case (Sym) `<Name n>`          : return sort("<n>");
     case (Sym) `<StringLiteral l>` : return lit("<l>");
-    case (Sym) `<<Sym s>>`         : return arg2symbol(s);
-    case (Sym) `<<Sym s> <Name n>` : return label("<n>", arg2symbol(s));
-    case (Sym) `<Sym s>?`  : return opt(arg2symbol(s));
-    case (Sym) `<Sym s>??` : return opt(arg2symbol(s));
-    case (Sym) `<Sym s>*`  : return iter-star(arg2symbol(s));
-    case (Sym) `<Sym s>+`  : return iter(arg2symbol(s));
-    case (Sym) `<Sym s>*?` : return iter-star(arg2symbol(s));
-    case (Sym) `<Sym s>+?` : return iter(arg2symbol(s));
+    // case (Sym) `<<Sym s>>`         : return arg2symbol(s);
+    // case (Sym) `<<Sym s> <Name n>` : return label("<n>", arg2symbol(s));
+    case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s));
+    case (Sym) `<Sym s> ??` : return opt(arg2symbol(s));
+    case (Sym) `<Sym s> *`  : return iter-star(arg2symbol(s));
+    case (Sym) `<Sym s> +`  : return iter(arg2symbol(s));
+    case (Sym) `<Sym s> *?` : return iter-star(arg2symbol(s));
+    case (Sym) `<Sym s> +?` : return iter(arg2symbol(s));
     case (Sym) `<{<Sym s> <StringLiteral sep>}*>`  : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
     case (Sym) `<{<Sym s> <StringLiteral sep>}+>`  : return \iter-sep(arg2symbol(s), lit("<sep>"));
     case (Sym) `<{<Sym s> <StringLiteral sep>}*?>` : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
     case (Sym) `<{<Sym s> <StringLiteral sep>}+?>` : return \iter-sep(arg2symbol(s), lit("<sep>"));
-    case (Sym) `<CharClass cc>` : return \char-class(cc2ranges(cc));
+    case (Sym) `<Class cc>` : return \char-class(cc2ranges(cc));
     default: throw "missed a case <sym>";
   }
 }
-
+  
 public list[CharRange] cc2ranges(Class cc) {
    switch(cc) {
      case `[<CharRange* ranges>]` : return [range(r) | r <- ranges];
-     case `(<CharClass c>)`: return cc2ranges(cc2ranges(c));
-     case `!<CharClass c>`: return complement(cc2ranges(c));
-     case `<CharClass l> & <CharClass r>`: return intersection(cc2ranges(l),cc2ranges(r));
-     case `<CharClass l> + <CharClass r>`: return union(cc2ranges(l),cc2ranges(r));
-     case `<CharClass l> - <CharClass r>`: return difference(cc2ranges(l),cc2ranges(r));
+     case `(<Class c>)`: return cc2ranges(cc2ranges(c));
+     case `!<Class c>`: return complement(cc2ranges(c));
+     case `<Class l> & <Class r>`: return intersection(cc2ranges(l),cc2ranges(r));
+     case `<Class l> + <Class r>`: return union(cc2ranges(l),cc2ranges(r));
+     case `<Class l> - <Class r>`: return difference(cc2ranges(l),cc2ranges(r));
      default: throw "missed a case <cc>";
    }
 }
-
+      
 public CharRange range(Range r) {
   switch(r) {
-    case (Range) `<Character c>` : return range(character(c),character(c));
-    case (Range) `<Character l> - <Character r>`: return range(character(l),character(r));
+    case `<Character c>` : return range(character(c),character(c));
+    case `<Character l> - <Character r>`: return range(character(l),character(r));
     default: throw "missed a case <r>";
   }
-}
+} 
 
 public int character(Character c) {
   switch (c) {
@@ -279,7 +279,7 @@ list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   // ---------<-----right----->
   if (lhead.end < rhead.end) 
     return [range(lhead.start,rhead.start-1)] + difference(ltail,r); 
- 
+   
   // overlap on right side of right
   // -------------<---left---->
   // <----right------->--------

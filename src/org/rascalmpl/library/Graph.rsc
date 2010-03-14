@@ -11,11 +11,11 @@ module Graph
  * - successors
  * - top
  */
-
+ 
 import Set;
 import Relation;
-import IO;
-
+import IO;      
+   
 alias Graph[&T] = rel[&T from, &T to];
 
 @doc{ return the bottom nodes of a Graph.}

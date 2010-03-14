@@ -2238,7 +2238,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionSetAnnotation(
 			org.rascalmpl.ast.Expression.SetAnnotation x) {
 		Result<IValue> base = x.getExpression().accept(this);
-		String annoName = x.getName().toString();
+		String annoName = Names.name(x.getName());
 		Result<IValue> anno = x.getValue().accept(this);
 		return base.setAnnotation(annoName, anno, getCurrentEnvt());
 	}

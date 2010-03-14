@@ -119,6 +119,10 @@ public class TreeAdapter{
 	}
 
 	public static IList getASTArgs(IConstructor tree) {
+		if (getSortName(tree).equals("<START>")) {
+			return getArgs(tree).delete(0).delete(1);
+		}
+		
 		if (!isContextFree(tree)) {
 			throw new ImplementationError("This is not a context-free production: " + tree);
 		}
@@ -388,7 +392,7 @@ public class TreeAdapter{
 		}
 		
 		if (TreeAdapter.isAppl(tree)) {
-			IList children = TreeAdapter.getArgs(tree);
+			IList children = TreeAdapter.getASTArgs(tree);
 			
 			for (IValue child : children) {
 				ISourceLocation childLoc = TreeAdapter.getLocation((IConstructor) child);

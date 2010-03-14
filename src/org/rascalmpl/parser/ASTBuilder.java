@@ -296,6 +296,7 @@ public class ASTBuilder {
 		ast.setStats(total);
 		
 		sortCache.putUnsafe(tree, ast);
+		System.err.println("done: " + ast.getLocation());
 		return ast;
 	}
 	
