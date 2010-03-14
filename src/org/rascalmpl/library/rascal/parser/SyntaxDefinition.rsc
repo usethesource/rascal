@@ -93,7 +93,8 @@ public Grammar def2prod(SyntaxDefinition def) {
 
 public set[Production] layout(set[Production] prods) {
   return visit (prods) {
-    case p:prod(lhs,rhs,a:attrs(![a*,term(lex()),b*])) => prod(intermix(lhs),rhs,a)
+    case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => 
+         prod(intermix(lhs),rhs,attrs(as)) when [list[Attr] a,term(lex()), list[Attr] b] !:= as
   }
 }
 
