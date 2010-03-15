@@ -9,25 +9,26 @@ import ParseTree;
 // join the rules for the same non-terminal
 rule merge   grammar(a,{p,q,a*}) => grammar(a,{or({p,q}), a*}) when sort(p) == sort(q);
 	
-// these rule flatten complex productions and ignore ordering under diff and assoc
-rule or     choice({a*, choice({b*})})    => choice({a*, b*}); 
-rule xor    first([a*,first([b*]),c*])    => first([a*,b*,c*]); 
-rule xor    first([a*,choice({b}),c*])    => first([a*,b,c*]); 
-rule or     choice({a*, first([b])})      => choice({a*, b}); 
-rule assoc  assoc(a, {a*, choice({b*})})  => assoc(a, {a*, b*}); 
-rule assoc  assoc(a, {a*, first([b*])})   => assoc(a, {a*, b*}); // ordering does not work under assoc
-rule diff   diff(p, {a*, choice({b*})})   => diff(p, {a*, b*});   
-rule diff   diff(p, {a*, first(b*)})      => diff(p, {a*, b*});  // ordering is irrelevant under diff
-rule diff   diff(p, {a*, assoc(a, {b*})}) => diff(p, {a*, b*});  // assoc is irrelevant under diff
+// these rule flatten complex productions and ignore ordering under diff and assoc  
+rule or     choice({set[Production] a, choice(set[Production] b)})                    => choice(a+b); 
+rule xor    first([list[Production] a,first(list[Production] b),list[Production] c])  => first(a+b+c); 
+rule xor    first([list[Production] a,choice({Production b}),list[Production] c])     => first(a+[b]+c); 
+rule or     choice({set[Production] a, first([Production b])})        => choice(a+{b}); 
+rule assoc  assoc(as, {set[Production] a, choice(set[Production] b)}) => assoc(as, a+b); 
+rule assoc  assoc(as, {set[Production] a, first(list[Production] b)}) => assoc(as, a + { e | e <- b}); // ordering does not work under assoc
+rule diff   diff(p, {set[Production] a, choice(set[Production] b)})   => diff(p, a+b);   
+rule diff   diff(p, {set[Production] a, first(list[Production] b)})   => diff(p, a + { e | e <- b});  // ordering is irrelevant under diff
+rule diff   diff(p, {set[Production] a, \assoc(a, set[Production] b)}) => diff(p, a + b);  // assoc is irrelevant under diff
 
 // move diff outwards
 rule empty  diff(p,{})                    => p;
-rule or     choice({a*, diff(b, {c*})})   => diff(choice({a*, b}), {c*});
-rule xor    first([a*, diff(b, {c*}),d*]) => diff(first([a*,b,d*]), {c*});
-rule assoc  assoc(a, {a*, diff(b, {c*})}) => diff(assoc(a, {a*, b}), {c*});
-rule diff   diff(p, {a*, diff(q, {b*})})  => diff(choice({p,q}), {a*, b*}); 
-rule diff   diff(diff(a, {b*}), {c*})     => diff(a, {b*, c*});
-
+rule or     choice({set[Production] a, diff(b, set[Production] c)})   => diff(choice(a+{b}), c);
+rule xor    first([list[Production] a, diff(b, set[Production] c),list[Production] d]) => 
+               diff(first(a+[b]+d), c);
+rule ass    \assoc(as, {set[Production] a, diff(b, set[Production] c)}) => diff(\assoc(as, a + {b}), c);
+rule diff   diff(p, {set[Production] a, diff(q, set[Production] b)})   => diff(choice({p,q}), a+b); 
+rule diff   diff(diff(a, set[Production] b), set[Production] c)        => diff(a, b+c);
+  
 // character class normalization
 private data CharRange = \empty-range();
 
@@ -127,13 +128,13 @@ public Production prod2prod(Symbol nt, Prod p) {
     case (Prod) `<Prod l> - <Prod r>` :
       return diff(prod2prod(nt, l), {prod2prod(nt, r)});
     case (Prod) `left (<Prod p>)` :
-      return assoc(left(), {prod2prod(nt, p)});
+      return \assoc(left(), {prod2prod(nt, p)});
     case (Prod) `right (<Prod p>)` :
-      return assoc(right(), {prod2prod(nt, p)});
+      return \assoc(right(), {prod2prod(nt, p)});
     case (Prod) `non-assoc (<Prod p>)` :
-      return assoc(\non-assoc(), {prod2prod(nt, p)});
+      return \assoc(\non-assoc(), {prod2prod(nt, p)});
     case (Prod) `assoc(<Prod p>)` :
-      return assoc(left(), {prod2prod(nt, p)});
+      return \assoc(left(), {prod2prod(nt, p)});
     case `...`: throw "... operator is not yet implemented";
     case `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";
@@ -208,10 +209,10 @@ public Attributes mods2attrs(ProdModifier* mods) {
 public Attr mod2attr(ProdModifier m) {
   switch(m) {
     case (ProdModifier) `lex`: return term(lex());
-    case (ProdModifier) `left`: return assoc(left());
-    case (ProdModifier) `right`: return assoc(right());
-    case (ProdModifier) `non-assoc`: return assoc(\non-assoc());
-    case (ProdModifier) `assoc`: return assoc(assoc());
+    case (ProdModifier) `left`: return \assoc(left());
+    case (ProdModifier) `right`: return \assoc(right());
+    case (ProdModifier) `non-assoc`: return \assoc(\non-assoc());
+    case (ProdModifier) `assoc`: return \assoc(\assoc());
     case (ProdModifier) `bracket`: return bracket();
     default: throw "missed a case <m>";
   }
