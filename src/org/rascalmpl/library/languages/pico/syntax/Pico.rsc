@@ -3,7 +3,7 @@ module languages::pico::syntax::Pico
 import languages::pico::syntax::Layout;
 import languages::pico::syntax::Lexical;
 
-syntax PROGRAM = program: "begin" <DECLS hoi> <{STATEMENT  ";"}* body> "end" ;
+start syntax PROGRAM = program: "begin" <DECLS hoi> <{STATEMENT  ";"}* body> "end" ;
 
 syntax DECLS = "declare" <{IDTYPE ","}* decls> ";" ;
 

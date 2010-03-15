@@ -21,6 +21,7 @@ lexical restrictions
 	Marker -/- [i].[m].[p].[o].[r].[t]
         Marker -/- [s].[y].[n].[t].[a].[x]
         Marker -/- [l].[a].[y].[o].[u].[t]
+        Marker -/- [s].[t].[a].[r].[t]
 	Marker -/- [\[]
         ~[\n]*   -/- ~[\n]
         {~[\n]* [\n]}* -/- [\n]
