@@ -60,6 +60,7 @@ context-free syntax
   "rule"     -> RascalReservedKeywords
   "set"      -> RascalReservedKeywords
   "solve"    -> RascalReservedKeywords 
+%%  "start"    -> RascalReservedKeywords
   "str"      -> RascalReservedKeywords
   "switch"   -> RascalReservedKeywords  
   "test"     -> RascalReservedKeywords
@@ -126,6 +127,7 @@ context-free restrictions
   "set"      -/- [a-zA-Z0-9\-\_]
   "solve"    -/- [a-zA-Z0-9\-\_] 
   "str"      -/- [a-zA-Z0-9\-\_]
+%%  "start"    -/- [a-zA-Z0-9\-\_]
   "switch"   -/- [a-zA-Z0-9\-\_]  
   "tag"      -/- [a-zA-Z0-9\-\_] 
   "test"     -/- [a-zA-Z0-9\-\_]

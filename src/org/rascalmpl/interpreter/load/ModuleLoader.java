@@ -25,7 +25,6 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.ModuleParser;
-import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.errors.SubjectAdapter;
@@ -167,17 +166,17 @@ public class ModuleLoader{
 		return fileName;
 	}
 
-	private SyntaxError parseError(IConstructor tree, String file, String mod){
+	private SyntaxError parseError(IConstructor tree, URI location){
 		SummaryAdapter summary = new SummaryAdapter(tree);
 		SubjectAdapter subject = summary.getInitialSubject();
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		
 		if (subject != null) {
-			ISourceLocation loc = vf.sourceLocation(file, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
-			return new SyntaxError("module " + mod, loc);
+			ISourceLocation loc = vf.sourceLocation(location, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
+			return new SyntaxError(subject.getDescription(), loc);
 		}
 		
-		return new SyntaxError("unknown location, maybe you used a keyword as an identifier)", vf.sourceLocation(file, 0,1,1,1,0,1));
+		return new SyntaxError("unknown location, maybe you used a keyword as an identifier)", vf.sourceLocation(location, 0,1,1,1,0,1));
 	}
 	
 	private byte[] readModule(InputStream inputStream) throws IOException{
@@ -218,7 +217,7 @@ public class ModuleLoader{
 		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-			throw new SyntaxError("unknown location, maybe you used a keyword as an identifier)", ValueFactoryFactory.getValueFactory().sourceLocation(location));
+			throw parseError(tree, location);
 		}
 
 		return tree;
@@ -234,7 +233,7 @@ public class ModuleLoader{
 		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
 
 		if(tree.getConstructorType() == Factory.ParseTree_Summary){
-			throw new SyntaxError("unknown location, maybe you used a keyword as an identifier)", ValueFactoryFactory.getValueFactory().sourceLocation(location));
+			throw parseError(tree, location);
 		}
 
 		return tree;
@@ -260,7 +259,7 @@ public class ModuleLoader{
 		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
 		
 		if(tree.getConstructorType() == Factory.ParseTree_Summary){
-			throw parseError(tree, location.toString(), "-");
+			throw parseError(tree, location);
 		}
 		
 		return tree;

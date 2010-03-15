@@ -1,10 +1,11 @@
 module rascal::parser::SyntaxDefinition
-
+   
 import rascal::syntax::RascalForImportExtraction;
 import rascal::parser::Grammar;
 import List;
 import String;
 import ParseTree;
+import IO;  
 
 // join the rules for the same non-terminal
 rule merge   grammar(a,{p,q,a*}) => grammar(a,{or({p,q}), a*}) when sort(p) == sort(q);
@@ -14,20 +15,20 @@ rule or     choice({set[Production] a, choice(set[Production] b)})              
 rule xor    first([list[Production] a,first(list[Production] b),list[Production] c])  => first(a+b+c); 
 rule xor    first([list[Production] a,choice({Production b}),list[Production] c])     => first(a+[b]+c); 
 rule or     choice({set[Production] a, first([Production b])})        => choice(a+{b}); 
-rule assoc  assoc(as, {set[Production] a, choice(set[Production] b)}) => assoc(as, a+b); 
-rule assoc  assoc(as, {set[Production] a, first(list[Production] b)}) => assoc(as, a + { e | e <- b}); // ordering does not work under assoc
-rule diff   diff(p, {set[Production] a, choice(set[Production] b)})   => diff(p, a+b);   
-rule diff   diff(p, {set[Production] a, first(list[Production] b)})   => diff(p, a + { e | e <- b});  // ordering is irrelevant under diff
-rule diff   diff(p, {set[Production] a, \assoc(a, set[Production] b)}) => diff(p, a + b);  // assoc is irrelevant under diff
+rule assoc  assoc(Associativity as, {set[Production] a, choice(set[Production] b)}) => assoc(as, a+b); 
+rule assoc  assoc(Associativity as, {set[Production] a, first(list[Production] b)}) => assoc(as, a + { e | e <- b}); // ordering does not work under assoc
+rule diff   diff(Production p, {set[Production] a, choice(set[Production] b)})   => diff(p, a+b);   
+rule diff   diff(Production p, {set[Production] a, first(list[Production] b)})   => diff(p, a + { e | e <- b});  // ordering is irrelevant under diff
+rule diff   diff(Production p, {set[Production] a, \assoc(a, set[Production] b)}) => diff(p, a + b);  // assoc is irrelevant under diff
 
 // move diff outwards
-rule empty  diff(p,{})                    => p;
+rule empty  diff(Production p,{})                    => p;
 rule or     choice({set[Production] a, diff(b, set[Production] c)})   => diff(choice(a+{b}), c);
 rule xor    first([list[Production] a, diff(b, set[Production] c),list[Production] d]) => 
                diff(first(a+[b]+d), c);
-rule ass    \assoc(as, {set[Production] a, diff(b, set[Production] c)}) => diff(\assoc(as, a + {b}), c);
-rule diff   diff(p, {set[Production] a, diff(q, set[Production] b)})   => diff(choice({p,q}), a+b); 
-rule diff   diff(diff(a, set[Production] b), set[Production] c)        => diff(a, b+c);
+rule ass    \assoc(Associativity as, {set[Production] a, diff(b, set[Production] c)}) => diff(\assoc(as, a + {b}), c);
+rule diff   diff(Production p, {set[Production] a, diff(q, set[Production] b)})   => diff(choice({p,q}), a+b); 
+rule diff   diff(diff(Production a, set[Production] b), set[Production] c)        => diff(a, b+c);
   
 // character class normalization
 private data CharRange = \empty-range();
@@ -55,8 +56,8 @@ public Symbol sort(Production p) {
 
 public Grammar module2grammar(Module mod) {
   return syntax2grammar(collect(mod));
-}
-  
+}  
+   
 public set[SyntaxDefinition] collect(Module mod) {
   set[SyntaxDefinition] result = {};
   visit (mod) { case SyntaxDefinition s : result += s; }
@@ -69,12 +70,17 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] layouts = {};
   
   for (def <- defs) switch (def) { 
-    case (SyntaxDefinition) `<Tags t> <Visibility v> start syntax <UserType u> = <Prod p>;`  : 
-      prods += prod2prod(user2symbol(u), p);
-    case (SyntaxDefinition) `<Tags t> <Visibility v> layout <UserType u> = <Prod p>;`  : 
+    case (SyntaxDefinition) `<Visibility> start syntax <UserType u> = <Prod p>;`  : {
+       Symbol top = user2symbol(u);
+       starts += start(top);
+       println("start at <u>");
+       prods += prod([layout(), top, layout()],start(top),\no-attrs());
+       prods += prod2prod(user2symbol(u), p);
+    }
+    case (SyntaxDefinition) `layout <UserType u> = <Prod p>;`  : 
       layouts += prod2prod(user2symbol(u), p);
-    case (SyntaxDefinition) `<Tags t> <Visibility v> syntax <UserType u> = <Prod p>;`  : { 
-      starts += user2symbol(u);
+    case (SyntaxDefinition) `syntax <UserType u> = <Prod p>;`  : {
+      println("rule for <u>");
       prods += prod2prod(user2symbol(u), p);
     }
     default: throw "missed case: <def>";
@@ -148,7 +154,7 @@ public list[Symbol] args2symbols(Sym* args) {
 public Symbol arg2symbol(Sym sym) {
   switch(sym) {
     case (Sym) `<Name n>`          : return sort("<n>");
-    case (Sym) `<StringConstant l>` : return lit("<l>");
+    case (Sym) `<[StringConstant] /"<l:.*>"/>` : return lit("<l>");
     case (Sym) `<<Sym s>>`         : return arg2symbol(s);
     case (Sym) `<<Sym s> <Name n>>	` : return label("<n>", arg2symbol(s));
     case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s));
@@ -279,7 +285,7 @@ list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   // ---------<-----right----->
   if (lhead.end < rhead.end) 
     return [range(lhead.start,rhead.start-1)] + difference(ltail,r); 
-   
+    
   // overlap on right side of right
   // -------------<---left---->
   // <----right------->--------
@@ -288,3 +294,4 @@ list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
 
   throw "did not expect to end up here! <l> - <r>";
 }
+ 
