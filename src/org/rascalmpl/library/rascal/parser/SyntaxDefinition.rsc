@@ -62,16 +62,12 @@ public set[SyntaxDefinition] collect(Module mod) {
   return result;
 }  
 
-public Grammar syntax2grammar(set[SyntaxDefinition] def) {
-  return grammar({},{ def2prod(sd) | sd <- def});
-}
-
-public Grammar def2prod(SyntaxDefinition def) {
+public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] prods = {};
   set[Symbol] starts = {};
   set[Production] layouts = {};
-
-  switch (def) {
+  
+  for (def <- defs) switch (def) { 
     case (SyntaxDefinition) `<Tags t> <Visibility v> start syntax <UserType u> = <Prod p>;`  : 
       prods += prod2prod(user2symbol(u), p);
     case (SyntaxDefinition) `<Tags t> <Visibility v> layout <UserType u> = <Prod p>;`  : 
@@ -86,12 +82,13 @@ public Grammar def2prod(SyntaxDefinition def) {
   return grammar(starts, layout(prods) 
                        + layouts 
                        + { prod([l],layout(),no-attrs()) | l <- layouts }
-                       + {prod(str2syms(x),lit(s),attrs([term(literal())])) | /lit(s) <- prods}
-                       + {prod(cistr2syms(x),lit(s),attrs([term(literal())])) | /cilit(s) <- prods}
+                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods}
+                       + {prod(cistr2syms(s),lit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods}
                 );
 }
 
 public set[Production] layout(set[Production] prods) {
+  return prods;
   return visit (prods) {
     case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => 
          prod(intermix(lhs),rhs,attrs(as)) when [list[Attr] a,term(lex()), list[Attr] b] !:= as
@@ -121,7 +118,7 @@ public Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
     case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
       return prod(args2symbols(args), nt, mods2attrs(n, ms));
-    case (Prod) `<ProdModifier* ms> <Symbol* args>` :
+    case (Prod) `<ProdModifier* ms> <Sym* args>` :
       return prod(args2symbols(args), nt, mods2attrs(ms));
     case (Prod) `<Prod l> | <Prod r>` :
       return choice({prod2prod(nt, l), prod2prod(nt, r)});
@@ -130,13 +127,13 @@ public Production prod2prod(Symbol nt, Prod p) {
     case (Prod) `<Prod l> - <Prod r>` :
       return diff(prod2prod(nt, l), {prod2prod(nt, r)});
     case (Prod) `left (<Prod p>)` :
-      return assoc(left(), prod2prod(nt, p));
+      return assoc(left(), {prod2prod(nt, p)});
     case (Prod) `right (<Prod p>)` :
-      return assoc(right(), prod2prod(nt, p));
+      return assoc(right(), {prod2prod(nt, p)});
     case (Prod) `non-assoc (<Prod p>)` :
-      return assoc(\non-assoc(), prod2prod(nt, p));
+      return assoc(\non-assoc(), {prod2prod(nt, p)});
     case (Prod) `assoc(<Prod p>)` :
-      return assoc(left(), prod2prod(nt, p));
+      return assoc(left(), {prod2prod(nt, p)});
     case `...`: throw "... operator is not yet implemented";
     case `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";
