@@ -70,6 +70,8 @@ import rascal::\old-syntax::Rascal;
 //     as an Alias type, so we can keep track of the original type name used as well,
 //     which would make more sense to the user than the expanded form.
 //
+// 15. Special case, one function ends with list[Value], another with Value...
+//
 
 // Set flag to true to issue debug messages
 private bool debug = true;
@@ -120,13 +122,13 @@ alias ItemLocationMap = map[loc,ScopeItemId];
 alias ScopeInfo = tuple[ScopeItemId topScopeItemId, rel[ScopeItemId scopeId, ScopeItemId itemId] scopeRel, ItemUses itemUses, 
                         ScopeItemId nextScopeId, map[ScopeItemId, ScopeItem] scopeItemMap, 
                         map[loc, ScopeItemId] itemLocations, ScopeItemId currentScope, int freshType,
-                        map[loc, set[str]] scopeErrorMap];
+                        map[loc, set[str]] scopeErrorMap, map[int, RType] inferredTypeMap];
 
 alias AddedItemPair = tuple[ScopeInfo scopeInfo, ScopeItemId addedId];
 alias ScopeUpdatePair = tuple[ScopeInfo scopeInfo, ScopeItemId oldScopeId];
                         
 public ScopeInfo createNewScopeInfo() {
-	return < -1, { }, ( ), 0, ( ), ( ), 0, 0, () >;
+	return < -1, { }, ( ), 0, ( ), ( ), 0, 0, (), () >;
 }                    
 
 public ScopeInfo addItemUse(ScopeInfo scopeInfo, ScopeItemId scopeItem, loc l) {
@@ -671,7 +673,7 @@ public ScopeInfo handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, Fun
 // TODO: It may be nice to indicate WHICH function the new function overlaps with. Right now,
 // this is just a binary true or false check.
 //
-public bool checkOverlap(ScopeItemId newFun, set[ScopeItemId] funs, ScopeInfo scopeInfo) {
+public bool checkFunctionOverlap(ScopeItemId newFun, set[ScopeItemId] funs, ScopeInfo scopeInfo) {
 	// Get back information for the function we are trying to add
 	ScopeItem newFunItem = getScopeItem(newFun, scopeInfo);
 	RType newFunItemType = getTypeForItem(scopeInfo, newFun);
@@ -721,6 +723,40 @@ public bool checkOverlap(ScopeItemId newFun, set[ScopeItemId] funs, ScopeInfo sc
 	return false;
 }
 
+public bool checkConstructorOverlap(ScopeItemId newCon, set[ScopeItemId] cons, ScopeInfo scopeInfo) {
+	// Get back information for the constructor we are trying to add
+	ScopeItem newConItem = getScopeItem(newCon, scopeInfo);
+	RType newConItemType = getTypeForItem(scopeInfo, newCon);
+	list[RType] newConItemArgs = getConstructorArgumentTypes(newConItemType);
+
+	for (cid <- cons) {
+		// Get back information for each of the existing constructors
+		ScopeItem conItem = getScopeItem(cid, scopeInfo);
+		RType conItemType = getTypeForItem(scopeInfo, cid);
+		list[RType] conItemArgs = getConstructorArgumentTypes(conItemType);
+
+		// Check to see if both lists of args are the same length; if not, we cannot have an
+		// overlap between the two constructors.
+		if (size(conItemArgs) == size(newConItemArgs)) {
+			if (debug) println("NAMESPACE: Checking constructor of matching arity for overlap");
+			bool foundIncomparable = false;
+
+			for (n <- domain(conItemArgs)) {
+				RType t1 = conItemArgs[n]; RType t2 = newConItemArgs[n];
+				if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
+			}
+			
+			if (!foundIncomparable) {
+				if (debug) println("NAMESPACE: Constructors have comparable signatures, overlap detected."); 
+				return true;
+			}
+		}
+	}
+
+	if (debug) println("NAMESPACE: No overlap found.");
+	return false;
+}
+
 //
 // Handle abstract function declarations (i.e., function declarations without bodies)
 //
@@ -737,7 +773,7 @@ public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
 		sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 		scopeInfo = addItemUses(sup.scopeInfo, { aip.addedId }, n@\loc);
 
-		if (checkOverlap(aip.addedId, potentialOverlaps, scopeInfo)) {	
+		if (checkFunctionOverlap(aip.addedId, potentialOverlaps, scopeInfo)) {	
 			scopeInfo = addScopeError(scopeInfo, n@\loc, "Overlapping overload of function <n> declared");
 		}
 
@@ -867,7 +903,8 @@ public ScopeInfo handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType,
 	
 	ScopeItem aliasItem = AliasItem(convertUserType(aliasType), convertType(aliasedType), isPublic(v), scopeInfo.currentScope)[@at = l];
 	AddedItemPair aip = addScopeItemWithParent(aliasItem, scopeInfo.currentScope, l, scopeInfo);
-	return aip.scopeInfo;
+	scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, getUserTypeRawName(aliasType)@\loc);
+	return scopeInfo;
 }
 
 //
@@ -892,8 +929,10 @@ public ScopeInfo handleAbstractADTNamesOnly(Tags ts, Visibility v, UserType adtT
 	// TODO: Check here to see if size > 1, that would be an error and should not happen
 	if (size(items) == 0) {
 		AddedItemPair aip = addScopeItemWithParent(adtItem, scopeInfo.currentScope, l, scopeInfo);
-		scopeInfo = aip.scopeInfo;
-	} 
+		scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, getUserTypeRawName(adtType)@\loc);
+	} else {
+		scopeInfo = addItemUses(scopeInfo, items, getUserTypeRawName(adtType)@\loc);
+	}
 	
 	return scopeInfo;
 }
@@ -922,21 +961,28 @@ public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Va
 	// TODO: Check here to see if size > 1, that would be an error and should not happen
 	if (size(items) == 0) {
 		AddedItemPair aip = addScopeItemWithParent(adtItem, scopeInfo.currentScope, l, scopeInfo);
-		scopeInfo = aip.scopeInfo;
+		scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, getUserTypeRawName(adtType)@\loc);
 		itemId = aip.addedId;
 	} else if (size(items) == 1) {
 		adtItem = getScopeItem(getOneFrom(items),scopeInfo);
 		itemId = getOneFrom(items);
+		scopeInfo = addItemUses(scopeInfo, items, getUserTypeRawName(adtType)@\loc);
 	}
-	
+
 	set[ScopeItemId] variantSet = { };
 	
 	for (var <- vars) {
 		if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
+			set[ScopeItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n));
+
 			ScopeItem constructorItem = ConstructorItem(convertName(n), [ convertTypeArg(targ) | targ <- args ], itemId, scopeInfo.currentScope)[@at = l];
 			AddedItemPair aip2 = addScopeItemWithParent(constructorItem, scopeInfo.currentScope, l, scopeInfo);
-			scopeInfo = aip2.scopeInfo;
+			scopeInfo = addItemUses(aip2.scopeInfo, { aip2.addedId }, n@\loc);
 			variantSet += aip2.addedId; 			
+
+			if (checkConstructorOverlap(aip2.addedId, potentialOverlaps, scopeInfo)) {	
+				scopeInfo = addScopeError(scopeInfo, n@\loc, "Overlapping overload of constructor <n> declared");
+			}
 		}
 	}
 	
@@ -2012,7 +2058,7 @@ public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scope
 				} else {
 					ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
 					AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
-					scopeInfo = aip.scopeInfo;
+					scopeInfo = addItemUses(aip.scopeInfo,  { aip.addedId }, n@\loc);
 				}
 			}
 				
@@ -2024,7 +2070,7 @@ public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scope
 				} else {
 					ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
 					AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
-					scopeInfo = aip.scopeInfo;
+					scopeInfo = addItemUses(aip.scopeInfo,  { aip.addedId }, n@\loc);
 				}
 				
 				scopeInfo = handleExpression(e, scopeInfo);
@@ -2089,11 +2135,13 @@ public ScopeInfo handleVisit(Visit v, ScopeInfo scopeInfo) {
 }
 
 public ScopeInfo addFreshVariable(RName n, loc nloc, ScopeInfo scopeInfo) {
-	RType freshType = RInferredType(scopeInfo.freshType);
+	RType freshType = makeInferredType(scopeInfo.freshType);
+	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
 	scopeInfo.freshType = scopeInfo.freshType + 1;
 	ScopeItem vi = VariableItem(n, freshType, scopeInfo.currentScope)[@at = nloc];
 	AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, nloc, scopeInfo);
-	return aip.scopeInfo;
+	scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, nloc);
+	return scopeInfo;
 }
 
 //

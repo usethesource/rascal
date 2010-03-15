@@ -9,11 +9,16 @@ public bool subtypeOf(RType t1, RType t2) {
 	if (t1 == t2) return true;
 	
 	// Void is a subtype of all types: forall t : Types, void <: t
-	if (t1 == RTypeBasic(RVoidType())) return true;
+	if (isVoidType(t1)) return true;
 	
 	// Value is a supertype of all types: forall t : Types, t <: value 
-	if (t2 == RTypeBasic(RValueType())) return true;
+	if (isValueType(t2)) return true;
+
+	// Inferred types can act as supertypes for all types, but should then be bound to the proper type
+	if (isInferredType(t2)) return true;
 	
+	// TODO: Should inferred types also be subtypes of all types?
+
 	// t1 <: t2 -> list[t1] <: list[t2]
 	if (isListType(t1) && isListType(t2) && subtypeOf(getListElementType(t1),getListElementType(t2))) return true;
 
