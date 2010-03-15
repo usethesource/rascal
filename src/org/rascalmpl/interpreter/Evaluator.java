@@ -1218,12 +1218,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			actuals[i] = resultElem.getValue();
 		}
 		
-		Result<IValue> res;
-		try{
-			res = function.call(types, actuals);
-		}catch(UndeclaredVariableError e){
-			throw new UndeclaredFunctionError(e.getName(), types, this, x);
-		}
+		Result<IValue> res = function.call(types, actuals);
 		
 		// we need to update the strategy context when the function is of type Strategy
 		IStrategyContext strategyContext = getStrategyContext();
