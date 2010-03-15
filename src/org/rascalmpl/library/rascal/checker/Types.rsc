@@ -80,10 +80,11 @@ data RType =
 	| RTypeSelector(RDataTypeSelector dts)
 	| RTypeParen(RType parenType)
 	| RFailType(set[tuple[str failMsg, loc failLoc]])
-	| RInferredType(int tnum)
+	| RTypeInferred(int tnum)
 	| RTypeOverloaded(set[RType] possibleTypes)
 	| RTypeConstructor(RName cname, list[RTypeArg] cvalues, RType pt)
 	| RTypeVarArgs(RType vt)
+    | RTypeStatement()
 ;
 
 //
@@ -193,9 +194,10 @@ public str prettyPrintType(RType t) {
 		case RTypeSelector(dts) : return prettyPrintSelector(dts);
 		case RTypeParen(pt) :  return "(" + prettyPrintType(pt) + ")";
 		case RFailType(sls) :  return "Failure: " + joinList(toList(sls),printLocMsgPair,", ","");
-		case RInferredType(n) : return "Inferred Type: " + n;
+		case RTypeInferred(n) : return "Inferred Type: <n>";
 		case RTypeOverloaded(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p | p <- pts]);
 		case RTypeConstructor(cn,cv,ut) : return "Constructor for type " + prettyPrintType(ut) + ": " + prettyPrintName(cn) + "(" + prettyPrintTAList(cv) + ")";
+		case RTypeStatement() : return "Statement";
 	}
 }
 
@@ -307,6 +309,14 @@ public RUserType convertUserType(UserType ut) {
 	}
 }
 
+public Name getUserTypeRawName(UserType ut) {
+	switch(ut) {
+		case (UserType) `<Name n>` : return n;
+		
+		case (UserType) `<Name n> [ <{Type ","}+ ts> ]` : return n;
+	}
+}
+
 public RTypeVar convertTypeVar(TypeVar tv) {
 	switch(tv) {
 		case (TypeVar) `& <Name n>` : return RFreeTypeVar(convertName(n));
@@ -336,36 +346,84 @@ public RType convertType(Type t) {
 //
 // Helper routines for querying/building/etc types
 //
-public bool isIntType(RType t) {
-	switch(t) {
-		case RTypeBasic(tb) : return isIntTypeBT(tb);
-
-		default : return false;
-	}
+public bool isBoolType(RType t) {
+	return RTypeBasic(RBoolType()) := t;
 }
 
-public bool isIntTypeBT(RBasicType t) {
-	switch(t) {
-		case RIntType() : return true;
-
-		default : return false;
-	}
+public bool isIntType(RType t) {
+	return RTypeBasic(RIntType()) := t;
 }
 
 public bool isRealType(RType t) {
 	return RTypeBasic(RRealType()) := t;
 }
 
-public bool isBoolType(RType t) {
-	return RTypeBasic(RBoolType()) := t;
-}
-
 public bool isStrType(RType t) {
 	return RTypeBasic(RStrType()) := t;
 }
 
+public bool isValueType(RType t) {
+	return RTypeBasic(RValueType()) := t;
+}
+
+// isNodeType
+
+public bool isVoidType(RType t) {
+	return RTypeBasic(RVoidType()) := t;
+}
+
+public bool isLocType(RType t) {
+	return RTypeBasic(RLocType()) := t;
+}
+
+public bool isListType(RType t) {
+	return RTypeStructured(RStructuredType(RListType(), _)) := t;
+}
+
 public bool isSetType(RType t) {
 	return RTypeStructured(RStructuredType(RSetType(), _)) := t;
+}
+
+// isBagType
+
+// isMapType
+
+public bool isRelType(RType t) {
+	return RTypeStructured(RStructuredType(RRelType(), _)) := t; 
+}
+
+public bool isTupleType(RType t) {
+	return RTypeStructured(RStructuredType(RTupleType(), _)) := t; 
+}
+
+// TODO: Add other is... functions here
+
+public bool isFunctionType(RType t) {
+	return RTypeFunction(RFunctionType(_,_))  := t;
+}
+
+public bool isConstructorType(RType t) {
+	return RTypeConstructor(_,_,_) := t;
+}
+	
+public bool isFailType(RType t) {
+	return RFailType(_) := t; 
+}
+
+public bool isStatementType(RType t) {
+	return RTypeStatement() := t;
+}
+
+public bool isVarArgsType(RType t) {
+	return RTypeVarArgs(_) := t;
+}
+
+public bool isOverloadedType(RType t) {
+	return RTypeOverloaded(_) := t;
+}
+
+public bool isInferredType(RType t) {
+	return RTypeInferred(_) := t;
 }
 
 public RType getSetElementType(RType t) {
@@ -394,22 +452,6 @@ public RType getElementType(RTypeArg t) {
 	}
 }
 
-public bool isRelType(RType t) {
-	switch(t) {
-		case RTypeStructured(st) : return isRelTypeST(st);
-
-		default : return false;
-	}
-}
-
-public bool isRelTypeST(RStructuredType t) {
-	switch(t) {
-		case RStructuredType(RRelType(), _) : return true;
-
-		default: return false;
-	}
-}
-
 public RType getRelElementType(RType t) {
 	switch(t) {
 		case RTypeStructured(st) : return getRelElementTypeST(st);
@@ -423,22 +465,6 @@ public RType getRelElementTypeST(RStructuredType t) {
 		case RStructuredType(RRelType(), tas) : return getElementType(head(tas));
 
 		default : return RTypeBasic(RVoidType()); // Should throw exception
-	}
-}
-
-public bool isListType(RType t) {
-	switch(t) {
-		case RTypeStructured(st) : return isListTypeST(st);
-
-		default : return false;
-	}
-}
-
-public bool isListTypeST(RStructuredType t) {
-	switch(t) {
-		case RStructuredType(RListType(), _) : return true;
-
-		default: return false;
 	}
 }
 
@@ -458,39 +484,12 @@ public RType getListElementTypeST(RStructuredType t) {
 	}
 }
 
-public bool isFunctionType(RType t) {
-	if (RTypeFunction(RFunctionType(_,_)) := t)
-		return true;
-	else
-		return false;
-}
 
-public bool isConstructorType(RType t) {
-	if (RTypeConstructor(_,_,_) := t)
-		return true;
+public int getInferredTypeIndex(RType t) {
+	if (RTypeInferred(n) := t)
+		return n;
 	else
-		return false;
-}
-	
-public bool isFailType(RType t) {
-	if (RFailType(_) := t) 
-		return true;
-	else
-		return false;
-}
-
-public bool isVarArgsType(RType t) {
-	if (RTypeVarArgs(_) := t)
-		return true;
-	else
-		return false;
-}
-
-public bool isOverloadedType(RType t) {
-	if (RTypeOverloaded(_) := t)
-		return true;
-	else
-		return false;
+		return -1; // TODO: Throw an exception here instead
 }
 
 public set[RType] getOverloadOptions(RType t) {
@@ -498,22 +497,6 @@ public set[RType] getOverloadOptions(RType t) {
 		return s;
 	else
 		return []; // TODO: Should be an exception...
-}
-
-public bool isTupleType(RType t) {
-	switch(t) {
-		case RTypeStructured(st) : return isTupleTypeST(st);
-
-		default : return false;
-	}
-}
-
-public bool isTupleTypeST(RStructuredType t) {
-	switch(t) {
-		case RStructuredType(RTupleType(), _) : return true;
-
-		default: return false;
-	}
 }
 
 public bool tupleHasField(RType t, RName fn) {
@@ -532,6 +515,23 @@ public RType getTupleFieldType(RType t, RName fn) {
 		}
 	}
 	return makeVoidType(); // TODO: Should be an exception instead
+}
+
+public list[RType] getTupleFields(RType t) {
+	list[RType] tupleFieldTypes = [ ];
+
+	if (RTypeStructured(RStructuredType(RTupleType(),tas)) := t) {
+		tupleFieldTypes = [ getElementType(ta) | ta <- tas ];
+	}
+
+	return tupleFieldTypes;	
+}
+
+public int getTupleFieldCount(RType t) {
+	if (RTypeStructured(RStructuredType(RTupleType(),tas)) := t) {
+		return size(tas);
+	}
+	return 0;
 }
 
 //
@@ -581,6 +581,10 @@ public RType makeFailType(str s, loc l) { return RFailType({<s,l>}); }
 public RType makeBiggerFailType(RType ft, set[tuple[str s, loc l]] sls) {
 	return RFailType({ < e.s, e.l > | e <- sls });
 }
+
+public RType makeInferredType(int n) { return RTypeInferred(n); }
+
+public RType makeStatementType() { return RTypeStatement(); }
 
 public RType extendFailType(RType ft, set[tuple[str s, loc l]] sls) {
 	if (RFailType(sls2) := ft) {
@@ -637,3 +641,6 @@ public RName getUserTypeName(RUserType ut) {
 		case RParametricType(x,_) : return x;
 	}
 } 
+
+
+
