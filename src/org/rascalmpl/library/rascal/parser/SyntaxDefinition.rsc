@@ -6,6 +6,7 @@ import List;
 import String;
 import ParseTree;
 import IO;  
+import Integer;
 
 // join the rules for the same non-terminal
 rule merge   grammar(a,{p,q,a*}) => grammar(a,{or({p,q}), a*}) when sort(p) == sort(q);
@@ -29,22 +30,24 @@ rule xor    first([list[Production] a, diff(b, set[Production] c),list[Productio
 rule ass    \assoc(Associativity as, {set[Production] a, diff(b, set[Production] c)}) => diff(\assoc(as, a + {b}), c);
 rule diff   diff(Production p, {set[Production] a, diff(q, set[Production] b)})   => diff(choice({p,q}), a+b); 
 rule diff   diff(diff(Production a, set[Production] b), set[Production] c)        => diff(a, b+c);
-  
+   
+rule simpl  attrs([]) => \no-attrs();  
+
 // character class normalization
 private data CharRange = \empty-range();
+  
+rule empty range(int from, int to) => \empty-range() when to < from;
+rule empty \char-class([list[CharRange] a,\empty-range(),list[CharRange] b]) => \char-class(a+b);
 
-rule empty range(from, to) => \empty-range() when to < from;
-rule empty \char-class([a*,\empty-range(),b*]) => \char-class([a*,b*]);
-
-rule merge \char-class([a*,range(from1,to1),b*,range(from2,to2),c*]) =>
-           \char-class([a*,range(min(from1,from2),max(to1,to2)),b*,c*])
+rule merge \char-class([list[CharRange] a,range(int from1, int to1),list[CharRange] b,range(int from2, int to2),list[CharRange] c]) =>
+           \char-class(a+[range(min(from1,from2),max(to1,to2))]+b+c)
      when (from1 <= from2 && to1 >= from2 - 1) 
        || (from2 <= from1 && to2 >= from1 - 1)
        || (from1 >= from2 && to1 <= to2)
        || (from2 >= from1 && to2 <= to1);
-
-rule order \char-class([a*,range(n,m),b*,range(o,p),d*]) =>
-           \char-class([a*,range(o,p),b*,range(n,m),d*])
+    
+rule order \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, range(int o, int p), list[CharRange] c]) =>
+           \char-class(a + [range(o,p)]+b+[range(n,m)]+c)
      when p < n;
 
 public Symbol sort(Production p) {
@@ -74,7 +77,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
        Symbol top = user2symbol(u);
        starts += start(top);
        println("start at <u>");
-       prods += prod([layout(), top, layout()],start(top),\no-attrs());
+       prods += prod([\iter-star(layout()), top, \iter-star(layout())],start(top),\no-attrs());
        prods += prod2prod(user2symbol(u), p);
     }
     case (SyntaxDefinition) `layout <UserType u> = <Prod p>;`  : 
@@ -87,20 +90,25 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   }
 
   return grammar(starts, layout(prods) 
-                       + layouts 
-                       + { prod([l],layout(),no-attrs()) | l <- layouts }
+                       + layouts    
+                       + {prod([rhs],layout(),no-attrs()) | prod(_,Symbol rhs,_) <- layouts }
                        + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods}
                        + {prod(cistr2syms(s),lit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods}
                 );
-}
+} 
 
 public set[Production] layout(set[Production] prods) {
-  return prods;
+  // return prods;
   return visit (prods) {
-    case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => 
-         prod(intermix(lhs),rhs,attrs(as)) when [list[Attr] a,term(lex()), list[Attr] b] !:= as
+    case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) =>
+           prod(intermix(lhs),rhs,attrs(as)) 
+    when start(_) !:= rhs,
+         term("lex"()) notin as  
+    case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) =>
+           prod(intermix(lhs),rhs,\no-attrs()) 
+    when start(_) !:= rhs
   }
-}
+}  
 
 public list[Symbol] str2syms(str x) {
   return [\char-class([range(c,c)]) | i <- [0..size(x)-1], int c:= charAt(x,i)]; 
@@ -118,7 +126,8 @@ public list[Symbol] cistr2syms(str x) {
 }
 
 public list[Symbol] intermix(list[Symbol] syms) {
-  return [s,l | s <- syms, iter-star(layout())] - [l]; 
+  if (syms == []) return syms;
+  return tail([s,\iter-star(layout()) | s <- syms]);
 }
 
 public Production prod2prod(Symbol nt, Prod p) {
@@ -154,24 +163,42 @@ public list[Symbol] args2symbols(Sym* args) {
 public Symbol arg2symbol(Sym sym) {
   switch(sym) {
     case (Sym) `<Name n>`          : return sort("<n>");
-    case (Sym) `<[StringConstant] /"<l:.*>"/>` : return lit("<l>");
+    case (Sym) `<StringConstant l>` : return lit(unescape(l));
     case (Sym) `<<Sym s>>`         : return arg2symbol(s);
     case (Sym) `<<Sym s> <Name n>>	` : return label("<n>", arg2symbol(s));
     case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s));
     case (Sym) `<Sym s> ??` : return opt(arg2symbol(s));
-    case (Sym) `<Sym s> *`  : return iter-star(arg2symbol(s));
+    case (Sym) `<Sym s> *`  : return \iter-star(arg2symbol(s));
     case (Sym) `<Sym s> +`  : return iter(arg2symbol(s));
-    case (Sym) `<Sym s> *?` : return iter-star(arg2symbol(s));
+    case (Sym) `<Sym s> *?` : return \iter-star(arg2symbol(s));
     case (Sym) `<Sym s> +?` : return iter(arg2symbol(s));
-    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
-    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-sep(arg2symbol(s), lit("<sep>"));
-    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-sep(arg2symbol(s), lit("<sep>"));
-    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-sep(arg2symbol(s), lit("<sep>"));
+    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-sep(arg2symbol(s), lit(unescape(sep)));
+    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-sep(arg2symbol(s), lit(unescape(sep)));
+    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-sep(arg2symbol(s), lit(unescape(sep)));
+    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-sep(arg2symbol(s), lit(unescape(sep)));
     case (Sym) `<Class cc>` : return \char-class(cc2ranges(cc));
     default: throw "missed a case <sym>";
   }
 }
   
+public str unescape(StringConstant s) {
+   if ([StringConstant] /\"<rest:.*>\"/ := s) {
+     return visit (rest) {
+       case /\\b/ => "\b"
+       case /\\f/ => "\f"
+       case /\\n/ => "\n"
+       case /\\t/ => "\t"
+       case /\\r/ => "\r"  
+       case /\\\"/ => "\""  
+       case /\\\'/ => "\'"
+       case /\\\\/ => "\\"
+       case /\\\</ => "\<"   
+       case /\\\>/ => "\>"    
+     };      
+   }
+   throw "unexpected string format: <s>";
+}
+
 public list[CharRange] cc2ranges(Class cc) {
    switch(cc) {
      case (Class) `[<Range* ranges>]` : return [range(r) | r <- ranges];
@@ -193,28 +220,32 @@ public CharRange range(Range r) {
 } 
 
 public int character(Character c) {
+  println("char: <c>");
   switch (c) {
-    case /<ch:[^"'\\-[] ]>/        : return charAt(ch, 0); 
-    case /\\<esc:["'-[] ]>/        : return charAt(esc, 0);
-    case /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
-    case /\\<oct:[0-7]>/           : return toInt("0<oct>");
-    case /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
-    case /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
+    case [Character] /<ch:[^"'\-\[\] ]>/        : return charAt(ch, 0); 
+    case [Character] /\\<esc:["'\-\[\] ]>/        : return charAt(esc, 0);
+    case [Character] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
+    case [Character] /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    case [Character] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
+    case [Character] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
     default: throw "missed a case <c>";
   }
 }
 
 public Attributes mods2attrs(Name name, ProdModifier* mods) {
+  println("calling mods2attrs <name> <mods>");
   return attrs([term(cons("<name>"))]);
 }
 
 public Attributes mods2attrs(ProdModifier* mods) {
-  return attrs([mod2attr(m) | `<ProdModifier* p1> <ProdModifier m> <ProdModifer* p2>` := mods]);
+  println("calling mods2attrs <mods>");
+  return attrs([mod2attr(m) | ProdModifier m <- mods]);
 }
 
 public Attr mod2attr(ProdModifier m) {
+  println("mod2attr on <m>");
   switch(m) {
-    case (ProdModifier) `lex`: return term(lex());
+    case (ProdModifier) `lex`: return term("lex"());
     case (ProdModifier) `left`: return \assoc(left());
     case (ProdModifier) `right`: return \assoc(right());
     case (ProdModifier) `non-assoc`: return \assoc(\non-assoc());
