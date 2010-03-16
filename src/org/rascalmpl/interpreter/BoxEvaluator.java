@@ -252,6 +252,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	private AbstractAST currentAST;

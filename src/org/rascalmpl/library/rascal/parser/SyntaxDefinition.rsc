@@ -68,9 +68,9 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] prods = {};
   set[Symbol] starts = {};
   set[Production] layouts = {};
-  
+    
   for (def <- defs) switch (def) { 
-    case (SyntaxDefinition) `<Visibility> start syntax <UserType u> = <Prod p>;`  : {
+    case (SyntaxDefinition) `start syntax <UserType u> = <Prod p>;`  : {
        Symbol top = user2symbol(u);
        starts += start(top);
        println("start at <u>");

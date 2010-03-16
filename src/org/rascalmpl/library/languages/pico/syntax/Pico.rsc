@@ -1,12 +1,12 @@
 module languages::pico::syntax::Pico
-
+ 
 import languages::pico::syntax::Layout;
 import languages::pico::syntax::Lexical;
-
+  
 start syntax PROGRAM = program: "begin" <DECLS hoi> <{STATEMENT  ";"}* body> "end" ;
-
+  
 syntax DECLS = "declare" <{IDTYPE ","}* decls> ";" ;
-
+ 
 syntax STATEMENT = assign : <PICOID var> ":="  <EXP val>
                  | cond:   "if" <EXP cond> "then" <{STATEMENT ";"}*  thenPart> "else" <{STATEMENT ";"}* elsePart>
                  | cond:   "if" <EXP cond> "then" <{STATEMENT ";"}*  thenPart>
@@ -25,11 +25,4 @@ syntax EXP = id: PICOID name
            | bracket "(" <EXP e> ")"
            ;
                
-// syntax PICOID = lex id: [a-z] [a-z0-9]+
-// syntax NATCON = lex [0-9]+ ;
-// syntax STRCON = lex "\"" ~[\"]*  "\"";
 
-// layout Layout = [\ \t\n\r]
-         // | "%" ~[%]* "%"
-         // | "%%" ~[\n]* "\n"
-//         ;
