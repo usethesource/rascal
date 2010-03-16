@@ -2000,8 +2000,13 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 	if (debug) println("NAMESPACE: Inside assignable <a>");
 	switch(a) {
 		case (Assignable)`<QualifiedName qn>` : {
-			if (debug) println("NAMESPACE: Adding use for <qn>");
-			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
+			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
+				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
+				if (debug) println("NAMESPACE: Adding use for <qn>");
+			} else {
+				scopeInfo = addFreshVariable(convertName(qn), qn@\loc, scopeInfo);			
+				if (debug) println("NAMESPACE: Adding fresh type for <qn>");
+			}
 		}
 		
 		case `<Assignable al> [ <Expression e> ]` : {
@@ -2011,8 +2016,10 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 		
 		case `<Assignable al> . <Name n>` : {
 			scopeInfo = handleAssignable(al, scopeInfo);
-			if (debug) println("NAMESPACE: Adding use for <n>");
-			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
+			// TODO: Most likely we don't need the code below, since the names are based on the type, not on
+			// names defined earlier in the current scope. Verify this.
+			//if (debug) println("NAMESPACE: Adding use for <n>");
+			//scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 		}
 		
 		case `<Assignable al> ? <Expression e>` : {

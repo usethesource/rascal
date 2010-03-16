@@ -84,7 +84,7 @@ data RType =
 	| RTypeOverloaded(set[RType] possibleTypes)
 	| RTypeConstructor(RName cname, list[RTypeArg] cvalues, RType pt)
 	| RTypeVarArgs(RType vt)
-    | RTypeStatement()
+    | RTypeStatement(RType internalType)
 ;
 
 //
@@ -196,8 +196,8 @@ public str prettyPrintType(RType t) {
 		case RFailType(sls) :  return "Failure: " + joinList(toList(sls),printLocMsgPair,", ","");
 		case RTypeInferred(n) : return "Inferred Type: <n>";
 		case RTypeOverloaded(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p | p <- pts]);
-		case RTypeConstructor(cn,cv,ut) : return "Constructor for type " + prettyPrintType(ut) + ": " + prettyPrintName(cn) + "(" + prettyPrintTAList(cv) + ")";
-		case RTypeStatement() : return "Statement";
+		case RTypeConstructor(cn,cv,ut) : return "Constructor for type <prettyPrintType(ut)>: <prettyPrintName(cn)>(<prettyPrintTAList(cv)>)";
+		case RTypeStatement(rt) : return "Statement, internal type: <prettyPrintType(rt)>";
 	}
 }
 
@@ -411,7 +411,7 @@ public bool isFailType(RType t) {
 }
 
 public bool isStatementType(RType t) {
-	return RTypeStatement() := t;
+	return RTypeStatement(_) := t;
 }
 
 public bool isVarArgsType(RType t) {
@@ -584,7 +584,14 @@ public RType makeBiggerFailType(RType ft, set[tuple[str s, loc l]] sls) {
 
 public RType makeInferredType(int n) { return RTypeInferred(n); }
 
-public RType makeStatementType() { return RTypeStatement(); }
+public RType makeStatementType(RType rt) { return RTypeStatement(rt); }
+
+public RType getInternalStatementType(RType st) {
+	if (RTypeStatement(rt) := st) {
+		return rt;
+	} 
+	return makeVoidType();
+}
 
 public RType extendFailType(RType ft, set[tuple[str s, loc l]] sls) {
 	if (RFailType(sls2) := ft) {

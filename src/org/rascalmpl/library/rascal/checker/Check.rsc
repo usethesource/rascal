@@ -1990,27 +1990,62 @@ public RType getAssignmentType(RType t1, RType t2, loc l) {
 	return returnType;
 }
 
+public RType checkLocalVarItems(Statement sp, {Variable ","}+ vs) {
+	set[RType] localFailures = { };
+	for (vb <- vs) {
+		switch(vb) {
+			case `<Name n>` : 	if (isFailType(n@rtype)) localFailures += n@rtype;
+				
+			case `<Name n> = <Expression e>` : {
+				if (isFailType(n@rtype)) localFailures += n@rtype;
+				if (isFailType(e@rtype)) localFailures += e@rtype;
+				if (! (isFailType(n@rtype) || isFailType(e@rtype))) {
+					if (isInferredType(n@rtype)) {
+						RType mappedType = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)];
+						if (isInferredType(mappedType)) {
+							if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(mappedType)> to <prettyPrintType(e@rtype)> on name <n>");
+							updateInferredTypeMappings(mappedType,e@rtype);
+						} else {
+							if (mappedType != e@rtype) {
+								if (debug) println("CHECKER: Found type clash on inferred variable, trying to assign <prettyPrintType(e@rtype)> and <prettyPrintType(mappedType)> to name <n>");
+								localFailures += makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: <prettyPrintType(e@rtype)>, <prettyPrintType(mappedType)>", n@\loc);
+							}
+						}
+					} else {
+						RType assignType = getAssignmentType( n@rtype, e@rtype, vb@\loc );
+						if (isFailType(assignType)) localFailures += assignType;
+					}
+				}
+			}
+		}
+	}
+	return makeStatementType((size(localFailures) == 0) ? makeVoidType() : collapseFailTypes(localFailures));
+}
+
 public RType checkAssignmentStatement(Statement sp, Assignable a, Assignment op, Statement s) {
-	if (checkForFail({ a@rtype, s@rtype })) { 
-		return collapseFailTypes({ a@rtype, s@rtype });
+	if (checkForFail({ a@rtype, getInternalStatementType(s@rtype) })) { 
+		return makeStatementType(collapseFailTypes({ a@rtype, getInternalStatementType(s@rtype) }));
 	} else {
 		// Based on the type of the statement, assign types to inference vars in the assignable
-		RType concreteAssignmentType = bindInferredTypesToAssignable(s@rtype,a);
+		RType concreteAssignmentType = bindInferredTypesToAssignable(getInternalStatementType(s@rtype),a);
 
 		// Using the statement type and the assignable type, figure out if the assignment is valid and,
 		// if so, the actual type of the assignment
-		RType actualAssignedType = getAssignmentType(concreteAssignmentType, s@rtype, sp@\loc);
+		RType actualAssignedType = getAssignmentType(concreteAssignmentType, getInternalStatementType(s@rtype), sp@\loc);
 
-		return actualAssignedType;
+		return makeStatementType(actualAssignedType);
 	}
 }
 
 public RType checkBlockStatement(Statement sp, Label l, Statement+ bs) {
-	if (checkForFail({ l@rtype} + { b@rtype | b <- bs }))
-		return collapseFailTypes({ l@rtype } + { b@rtype | b <- bs });
+	list[RType] statementTypes = [ b@rtype | b <- bs];
+
+	if (checkForFail({ l@rtype} + { getInternalStatementType(t) | t <- statementTypes }))
+		return makeStatementType(collapseFailTypes({ l@rtype } + { getInternalStatementType(t) | t <- statementTypes }));
 	
-	return makeStatementType();
+	return makeStatementType(getInternalStatementType(tail(statementTypes,1)));
 } 
+
 //
 // Check statements
 //
@@ -2091,7 +2126,7 @@ public RType checkStatement(Statement s) {
 		case `<Expression e> ;` : {
 			if (debug) println("CHECKER: Inside expression statement <s>");
 
-			RType rt = (isFailType(e@rtype)) ? e@rtype : makeStatementType();
+			RType rt = makeStatementType(e@rtype);
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2107,7 +2142,7 @@ public RType checkStatement(Statement s) {
 		case `assert <Expression e> ;` : {
 			if (debug) println("CHECKER: Inside assert statement <s>");
 
-			RType rt = (isFailType(e@rtype)) ? e@rtype : makeStatementType();
+			RType rt = makeStatementType(e@rtype);
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2116,7 +2151,7 @@ public RType checkStatement(Statement s) {
 			if (debug) println("CHECKER: Inside assert with message statement <s>");
 
 			// TODO: Need to make sure this handles em as well
-			RType rt = (isFailType(e@rtype)) ? e@rtype : makeStatementType();
+			RType rt = makeStatementType(e@rtype);
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2124,7 +2159,7 @@ public RType checkStatement(Statement s) {
 		case `return <Statement b>` : {
 			if (debug) println("CHECKER: Inside return statement <s>");
 
-			RType rt = (isFailType(b@rtype)) ? b@rtype : makeStatementType();
+			RType rt = b@rtype;
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2132,7 +2167,7 @@ public RType checkStatement(Statement s) {
 		case `throw <Statement b>` : {
 			if (debug) println("CHECKER: Inside throw statement <s>");
 
-			RType rt = (isFailType(b@rtype)) ? b@rtype : makeStatementType();
+			RType rt = b@rtype;
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2141,7 +2176,7 @@ public RType checkStatement(Statement s) {
 		case `insert <DataTarget dt> <Statement b>` : {
 			if (debug) println("CHECKER: Inside insert statement <s>");
 
-			rt = (isFailType(b@rtype)) ? b@rtype : makeStatementType();
+			RType rt = b@rtype;
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2150,7 +2185,7 @@ public RType checkStatement(Statement s) {
 		case `append <DataTarget dt> <Statement b>` : {
 			if (debug) println("CHECKER: Inside append statement <s>");
 
-			RType rt = (isFailType(b@rtype)) ? b@rtype : makeStatementType();
+			RType rt = b@rtype;
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2173,11 +2208,12 @@ public RType checkStatement(Statement s) {
 			return rt;
 		}
 		
-		// TODO: Propagate data target semantic errors		
+		// TODO: Propagate data target semantic errors
+		// TODO: Handle the dynamic part of dynamic vars		
 		case (Statement) `dynamic <Type t> <{Variable ","}+ vs> ;` : {
 			if (debug) println("CHECKER: Inside dynamic local variable statement <s>");
 
-			RType rt = makeVoidType();
+			RType rt = checkLocalVarItems(s, vs);
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2213,7 +2249,7 @@ public RType checkStatement(Statement s) {
 		case `try <Statement b> <Catch+ cs>` : {
 			if (debug) println("CHECKER: Inside try without finally statement <s>");
 
-			RType rt = makeVoidType();
+			RType rt = b@rtype; // HANDLE CATCH!
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2222,7 +2258,7 @@ public RType checkStatement(Statement s) {
 		case `try <Statement b> <Catch+ cs> finally <Statement bf>` : {
 			if (debug) println("CHECKER: Inside try with finally statement <s>");
 
-			RType rt = makeVoidType();
+			RType rt = b@rtype; // HANDLE CATCH AND FINALLY!
 			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
 			return rt;
 		}
@@ -2237,53 +2273,7 @@ public RType checkStatement(Statement s) {
 		}
 	}
 	
-	return makeVoidType();			
-}
-
-public RType checkLocalVarItems(Statement sp, {Variable ","}+ vs) {
-	RType retType = makeStatementType();
-	for (vb <- vs) {
-		switch(vb) {
-			case `<Name n>` : {
-				if (isFailType(n@rtype) && isFailType(retType)) {
-					retType = collapseFailTypes({ n@rtype, retType });
-				} else if (isFailType(n@rtype)) {
-					retType = n@rtype;
-				}
-			}
-				
-			case `<Name n> = <Expression e>` : {
-				if ((isFailType(n@rtype) || isFailType(e@rtype)) && isFailType(retType)) {
-					retType = collapseFailTypes({ n@rtype, e@rtype, retType });
-				} else if (isFailType(n@rtype) || isFailType(e@rtype)) {
-					retType = collapseFailTypes({ n@rtype, e@rtype });
-				} else {
-					if (isInferredType(n@rtype)) {
-						RType mappedType = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)];
-						if (isInferredType(mappedType)) {
-							if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(mappedType)> to <prettyPrintType(e@rtype)> on name <n>");
-							updateInferredTypeMappings(mappedType,e@rtype);
-						} else {
-							if (mappedType != e@rtype) {
-								if (debug) println("CHECKER: Found type clash on inferred variable, trying to assign <prettyPrintType(e@rtype)> and <prettyPrintType(mappedType)> to name <n>");
-								RType infFailure = makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: <prettyPrintType(e@rtype)>, <prettyPrintType(mappedType)>", n@\loc);
-								if (isFailType(retType)) retType = collapseFailTypes({retType, infFailure}); else retType = infFailure;
-							}
-						}
-					} else {
-						RType assignType = getAssignmentType( n@rtype, e@rtype, vb@\loc );
-						if (isFailType(assignType)) {
-							if (isFailType(retType)) 
-								retType = collapseFailTypes({retType, assignType}); 
-							else 
-								retType = assignType;
-						}
-					}
-				}
-			}
-		}
-	}
-	return retType;
+	return makeStatementType(makeVoidType());			
 }
 
 //
@@ -2304,8 +2294,10 @@ public Tree typecheckTree(Tree t) {
 	Tree tc = check(td);
     tc = retagNames(tc);
     gatherFailures(tc);
-	println("Found <size(allFailures)> type and/or scoping errors");
+	if (debug) println("CHECKER: Found <size(allFailures)> type and/or scoping errors");
+	for (<s,l> <- allFailures) if (debug) println("CHECKER: Found failure <s> at location <l>");
 	tc = tc[@messages = { error(l,s) | <s,l> <- allFailures }];
+	if (debug) println("CHECKER: Messages contains <size(tc@messages)> elements");
 	return tc;
 }
 
