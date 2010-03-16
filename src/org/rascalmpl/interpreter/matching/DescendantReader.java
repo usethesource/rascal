@@ -58,7 +58,7 @@ public class DescendantReader implements Iterator<IValue> {
 	private void push(IValue v){
 		Type type = v.getType();
 		if(type.isNodeType() || type.isConstructorType() || type.isAbstractDataType()){
-			if(type.getName().equals("Tree")){
+			if((type.isConstructorType() || type.isAbstractDataType()) && type.getName().equals("Tree")){
 				pushConcreteSyntaxNode((IConstructor) v);
 				return;
 			}
