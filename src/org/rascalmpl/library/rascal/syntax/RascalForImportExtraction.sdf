@@ -7,23 +7,27 @@ hiddens
 context-free start-symbols Module
 
 exports
-sorts Body Marker Rest
+sorts Body Marker Marker2 Rest
 
 lexical syntax
 	                   -> Marker 
+                            -> Marker2
       {~[\n]* [\n]}*        -> Rest   
                             -> Rest {prefer}
 
 context-free syntax
-	marker:Marker rest:Rest -> Body {cons("Anything"),avoid}
+	marker:Marker marker2:Marker2 rest:Rest -> Body {cons("Anything"),avoid}
 
 lexical restrictions
-	Marker -/- [i].[m].[p].[o].[r].[t]
+        Marker -/- [i].[m].[p].[o].[r].[t]
         Marker -/- [s].[y].[n].[t].[a].[x]
         Marker -/- [l].[a].[y].[o].[u].[t]
-        Marker -/- [s].[t].[a].[r].[t]
-	Marker -/- [\[]
-        ~[\n]*   -/- ~[\n]
+        Marker2 -/- [s].[t].[a].[r].[t]
+        Marker -/- [\[]
+
+
+lexical restrictions
+        ~[\n]*         -/- ~[\n]
         {~[\n]* [\n]}* -/- [\n]
 
 
