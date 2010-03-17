@@ -37,6 +37,10 @@ public class ProductionAdapter {
 		return SymbolAdapter.isCf(getRhs(tree));
 	}
 	
+	public static boolean isCfOptLayout(IConstructor tree) {
+		return SymbolAdapter.isCfOptLayout(getRhs(tree));
+	}
+	
 	public static boolean isLayout(IConstructor tree) {
 		return SymbolAdapter.isLayout(getRhs(tree));
 	}
