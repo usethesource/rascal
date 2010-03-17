@@ -5,6 +5,7 @@ import ParseTree;
 import List;
 import Set;
 import IO;
+import Exception;
 
 data Symbol = eoi();     // end-of-input marker
 
@@ -12,7 +13,7 @@ data Symbol = eoi();     // end-of-input marker
 // the above combinators
 
 public alias KernelProduction  = tuple[Symbol nonTerminal, list[Symbol] symbols];
-public data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProduction] productions); 
+public data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProduction] productions, set[Symbol] regular); 
 
 // Import an (AsFix-based) grammar and convert it to a KernelGrammar
 // Some AsFix features are not (yet) supported:
@@ -31,17 +32,14 @@ public data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProd
 //   \layout()  | 
     
 public KernelGrammar importGrammar(Grammar G){
-   return kernelGrammar(G.start, {getKernelProductions(p) | Production p <- G.productions});
+   return kernelGrammar(G.start, 
+                       { <rhs,lhs> | /prod(lhs, Symbol rhs,_) <- G.productions},
+                       { rhs | /regular(rhs, _) <- G.productions });
 } 
-
-set[KernelProduction] getKernelProductions(Production p){
-   return { <rhs,lhs> | /Production q:prod(list[Symbol] lhs, Symbol rhs,_) := p };
-}
 
 // Utilities on Symbols
 
 bool isTerminal(Symbol S){
-   // we support character level grammmars only
    return \char-class(_) := S;
 }
 
@@ -70,7 +68,7 @@ public set[Symbol] usedSymbols(KernelGrammar G){
 // Get all the symbols defined in a kernel grammar
 
 public set[Symbol] definedSymbols(KernelGrammar G){
-   return { definedSymbols(p) | KernelProduction p <- G.productions};
+   return { definedSymbols(p) |  p <- G.productions} + G.regular;
 }
 
 // Get all the symbols in a kernel grammar
@@ -96,7 +94,6 @@ public set[Symbol] getStartSymbols(KernelGrammar G){
 alias SymbolUse = map[Symbol, set[Symbol]] ;
 
 // First set of a single symbol
-
 public set[Symbol] first(Symbol sym, SymbolUse FIRST){
    switch(sym){
    case empty() : return {sym};
@@ -104,16 +101,16 @@ public set[Symbol] first(Symbol sym, SymbolUse FIRST){
    case lit(_): return FIRST[sym] ? {};
    case sort(_): return FIRST[sym] ? {};
    case iter(Symbol S): return FIRST[S] ? {};
-   case iter(Symbol S, Symbol Sep):{
+   case \iter-sep(Symbol S, list[Symbol] Sep):{
 			f = FIRST[S] ? {};
-			g = FIRST[Sep] ? {};
+			g = first(Sep, FIRST);
 			return (empty() in f) ? f + g : f;
 		}
    case \iter-star(Symbol S):
 			return (FIRST[S] ? {}) + {empty()};
-   case \iter-star-sep(Symbol S, Symbol Sep):{
+   case \iter-star-sep(Symbol S, list[Symbol] Sep):{
 			f = FIRST[S] ? {};
-			g = FIRST[Sep] ? {};
+			g = first(Sep, FIRST);
 			return {empty()} + ((empty() in f) ? f + g : f);
 		}
    case opt(Symbol S):
@@ -125,25 +122,27 @@ public set[Symbol] first(Symbol sym, SymbolUse FIRST){
 // First set of a list of symbols
 
 public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
-    set[Symbol] result = {};
-	for(Symbol S <- symbols){
-	    f = FIRST[S] ? {};
-	    if(empty() notin f)
-		   return result + f;
-		else
-		   result += f;
-	}
-	return result;
+  set[Symbol] result = {};
+	
+  for (Symbol S <- symbols) {
+    f = FIRST[S] ? {};
+    if (empty() notin f) {
+      return result + f;
+    } else {
+      result += f;
+    }
+  }
+  
+  return result;
 }
 
 // First set of a grammar
 
 public SymbolUse first(KernelGrammar G){
-	defSymbols = definedSymbols(G);
+        defSymbols = definedSymbols(G);
 	SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) + 
-	        (S : {} | Symbol S <- defSymbols);
+	                  (S : {}      | Symbol S   <- defSymbols);
 	        
-	
 	solve (FIRST) {
 	  for (Symbol S <- defSymbols, list[Symbol] symbols <- G.productions[S]) {	
              FIRST[S] += isEmpty(symbols) ? {empty()} : first(symbols, FIRST) - {empty()};

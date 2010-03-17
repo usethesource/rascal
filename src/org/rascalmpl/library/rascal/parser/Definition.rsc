@@ -56,7 +56,7 @@ rule order \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, 
      when p < n;
 
 public Symbol sort(Production p) {
-  if (/prod(_,rhs,_) := p) {
+  if (/prod(_,rhs,_) := p || /list(rhs) := p) {
     return rhs;
   }
   throw "weird production <p>";
@@ -81,27 +81,72 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
     case (SyntaxDefinition) `start syntax <UserType u> = <Prod p>;`  : {
        Symbol top = user2symbol(u);
        starts += start(top);
-       println("start at <u>");
-       prods += prod([\iter-star(layout()), top, \iter-star(layout())],start(top),\no-attrs());
        prods += prod2prod(user2symbol(u), p);
     }
     case (SyntaxDefinition) `layout <UserType u> = <Prod p>;`  : 
       layouts += prod2prod(user2symbol(u), p);
     case (SyntaxDefinition) `syntax <UserType u> = <Prod p>;`  : {
-      println("rule for <u>");
       prods += prod2prod(user2symbol(u), p);
     }
     default: throw "missed case: <def>";
   }
 
   return grammar(starts, layout(prods) 
-                       + layouts    
+                       + layouts  
+                       + {regular(\iter-star(layout()),\no-attrs())}
+                       + {prod([\iter-star(layout()), top, \iter-star(layout())],start(top),\no-attrs()) | top <- starts} 
                        + {prod([rhs],layout(),no-attrs()) | prod(_,Symbol rhs,_) <- layouts }
                        + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods}
                        + {prod(cistr2syms(s),lit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods}
+                       + regular(prods)
+                       + layoutRegular(layouts)
                 );
 } 
 
+public bool isLex(Production p) {
+  a = (prod(_,_,attrs(as)) := p || regular(_,attrs(as)) := p) && term("lex"()) in as;
+println("prod <p> isLex: <a>");
+  return a;
+}
+
+public bool isCf(Production p) {
+  return !isLex(p);
+}
+
+public set[Production] regular(set[Production] prods) {
+  return { regular(reg,\no-attrs()) | 
+           /Production p:prod(_,_,_) <- prods, 
+           sym <- p.lhs,
+           reg <- regular(sym,isLex(p))
+         };
+}
+
+public set[Production] layoutRegular(set[Production] layouts) {
+ return { regular(reg,\no-attrs()) | 
+           /Production p:prod(_,_,_) <- layouts, 
+           sym <- p.lhs,
+           reg <- regular(sym,true)
+        };
+}
+
+public set[Symbol] regular(Symbol s, bool isLex) {
+println("sym <s> lex <isLex>");
+  result = {};
+  visit (s) {
+     case \opt(Symbol n) : 
+       result += {s};
+     case \iter(Symbol n) : 
+       result += isLex ? {s} : {\iter-sep(n,[layout()])};
+     case \iter-star(Symbol n) : 
+       result += isLex ? {s} : {\iter-star-sep(n,[layout()])};
+     case \iter-sep(Symbol n, Symbol sep) : 
+       result += isLex ? {s} : {\iter-sep(n,[layout(),sep,layout()])};
+     case \iter-star-sep(Symbol n,Symbol sep) : 
+       result += isLex ? {s} : {\iter-star-sep(n,[layout(),sep,layout()])};
+  }
+  return result;
+}  
+  
 public set[Production] layout(set[Production] prods) {
   // return prods;
   return visit (prods) {

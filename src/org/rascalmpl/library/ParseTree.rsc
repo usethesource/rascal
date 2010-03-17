@@ -1,12 +1,7 @@
 module ParseTree
 
-/*
- * Functions for parsing:
- * - parse
- */
- 
  /*
-  * The universal parse tree format. Parsse functions always return values of type Tree.
+  * The universal parse tree format. Parse functions always return values of type Tree.
   */
  
 data ParseTree = 
@@ -20,7 +15,10 @@ data Tree =
 
 data Production =
      prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) | 
-     \list(Symbol rhs);
+     regular(Symbol rhs, Attributes attributes);
+
+@deprecated{replaced by regular}
+data Production = \list(Symbol rhs);
 
 data Attributes = 
      \no-attrs() | \attrs(list[Attr] attrs);
@@ -51,22 +49,24 @@ data Symbol =
      \sort (str string)  | 
      \iter(Symbol symbol)  | 
      \iter-star(Symbol symbol)  | 
-     \iter-sep(Symbol symbol, Symbol separator)  | 
-     \iter-star-sep(Symbol symbol, Symbol separator)  | 
-     \iter-n(Symbol symbol, int number)  | 
-     \iter-sep-n(Symbol symbol, Symbol separator, int number)  | 
+     \iter-sep(Symbol symbol, list[Symbol] separators)  | 
+     \iter-star-sep(Symbol symbol, list[Symbol] separators) |
      \layout()  | 
      \char-class(list[CharRange] ranges);
      
-@deprecated
+@deprecated{Used in SDF2, but not used in Rascal anymore}
 data Symbol =
+     \iter-sep(Symbol symbol, Symbol separator) |
+     \iter-star-sep(Symbol symbol, Symbol separator)  | 
      \alt(Symbol lhs, Symbol rhs)  |
      \tuple(Symbol head, list[Symbol] rest)  |
      \seq(list[Symbol] symbols)  |
      \func(list[Symbol] symbols, Symbol symbol)  | 
      \parameterized-sort(str sort, list[Symbol] parameters)  | 
      \strategy(Symbol lhs, Symbol rhs)  |
-     \var-sym(Symbol symbol);
+     \var-sym(Symbol symbol) | 
+     \iter-n(Symbol symbol, int number)  | 
+     \iter-sep-n(Symbol symbol, Symbol separator, int number)  ; 
      
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
