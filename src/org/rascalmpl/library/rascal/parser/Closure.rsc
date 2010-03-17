@@ -34,25 +34,14 @@ public KernelGrammar importGrammar(Grammar G){
 } 
 
 set[KernelProduction] getKernelProductions(Production p){
-    switch(p){
-    case prod(_,_,_): return {<p.rhs, p.lhs>};
-    case choice(set[Production] alts): return {getKernelProductions(p) | Production p <- alts};
-    case first(list[Production] alts): return {getKernelProductions(p) | Production p <- alts};
-    case assoc(_, set[Production] alts): return {getKernelProductions(p) | Production p <- alts};
-    case diff(Production p, set[Production] alts): 
-         return {<p.rhs, p.lhs>} + {getKernelProductions(p) | Production p <- alts};
-  }
+   return { q | /Production q:prod(_,_,_) := p };
 }
 
 // Utilities on Symbols
 
 bool isTerminal(Symbol S){
-   switch(S){
-   case lit(_): return true;
-   case cilit(_): return true;
-   case \char-class(_): return true;
-   }
-   return false;
+   // we support character level grammmars only
+   return \char-class(_) := S;
 }
 
 bool isNonTerminal(Symbol S){
@@ -109,7 +98,9 @@ alias SymbolUse = map[Symbol, set[Symbol]] ;
 
 public set[Symbol] first(Symbol sym, SymbolUse FIRST){
    switch(sym){
-   case lit(_): return FIRST[sym] ? {sym};
+   case empty() : return {sym};
+   case cilit(_) : return FIRST[sym] ? {};
+   case lit(_): return FIRST[sym] ? {};
    case sort(_): return FIRST[sym] ? {};
    case iter(Symbol S): return FIRST[S] ? {};
    case iter(Symbol S, Symbol Sep):{
