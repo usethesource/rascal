@@ -91,6 +91,7 @@ public class BoxADT {
 	static final IValue HASH = TAG.L.create("#");
 	static final IValue QUESTIONMARK = TAG.L.create("?");
 	static final IValue COLON = TAG.L.create(":");
+	static final IValue COLONCOLON = TAG.L.create("::");
 	static final IValue VBAR = TAG.L.create("|");
 	static final IValue ELOF = TAG.L.create("<-");
 	static final IValue INTERSECTION = TAG.L.create("&");
