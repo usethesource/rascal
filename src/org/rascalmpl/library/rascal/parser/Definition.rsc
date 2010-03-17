@@ -1,5 +1,10 @@
-module rascal::parser::SyntaxDefinition
+module rascal::parser::Definition
    
+// This module contains the mapping from concrete grammars to abstract grammars.
+// It also normalizes the abstract grammars:
+//   - to fill out the production rules down to the character level
+//   - to normalize the production combinators into an easy-to-use canonical form
+  
 import rascal::syntax::RascalForImportExtraction;
 import rascal::parser::Grammar;
 import List;
@@ -127,7 +132,7 @@ public list[Symbol] cistr2syms(str x) {
 
 public list[Symbol] intermix(list[Symbol] syms) {
   if (syms == []) return syms;
-  return tail([s,\iter-star(layout()) | s <- syms]);
+  return tail([\iter-star(layout()), s | s <- syms]);
 }
 
 public Production prod2prod(Symbol nt, Prod p) {
