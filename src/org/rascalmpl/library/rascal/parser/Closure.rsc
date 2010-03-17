@@ -1,6 +1,7 @@
 module rascal::parser::Closure
   
 import rascal::parser::Grammar;
+import ParseTree;
 import List;
 import Set;
 import IO;
@@ -34,7 +35,7 @@ public KernelGrammar importGrammar(Grammar G){
 } 
 
 set[KernelProduction] getKernelProductions(Production p){
-   return { q | /Production q:prod(_,_,_) := p };
+   return { <rhs,lhs> | /Production q:prod(list[Symbol] lhs, Symbol rhs,_) := p };
 }
 
 // Utilities on Symbols
@@ -139,16 +140,14 @@ public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
 
 public SymbolUse first(KernelGrammar G){
 	defSymbols = definedSymbols(G);
-	FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) + 
+	SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) + 
 	        (S : {} | Symbol S <- defSymbols);
 	        
 	
 	solve (FIRST) {
-		for(Symbol S <- defSymbols){	
-			for(list[Symbol] symbols <- G.productions[S]){
-				FIRST[S] += isEmpty(symbols) ? {empty()} : first(symbols, FIRST) - {empty()};
-			}
-		}
+	  for (Symbol S <- defSymbols, list[Symbol] symbols <- G.productions[S]) {	
+             FIRST[S] += isEmpty(symbols) ? {empty()} : first(symbols, FIRST) - {empty()};
+          }
 	}	
 	return FIRST;
 }
@@ -160,22 +159,25 @@ public SymbolUse follow(KernelGrammar G,  SymbolUse FIRST){
    FOLLOW = (S : {eoi()} | Symbol S <- G.start) + 
             (S : {} | Symbol S <- defSymbols);
   
-   solve(FOLLOW){
-   		for(KernelProduction p <- G.productions){
-       		symbols = p.symbols;
-       		while(!isEmpty(symbols)){
-      			current = head(symbols);
-      			symbols = tail(symbols);
-      			if(current in defSymbols){
-      				flw =  first(symbols, FIRST);
-      				if(empty() in flw || isEmpty(symbols))
-      					FOLLOW[current] += FOLLOW[p.nonTerminal] + (flw - {empty()});
-      				else
-      		    		FOLLOW[current] += flw;
-      		    }
-      		}
+   solve (FOLLOW) {
+     for (KernelProduction p <- G.productions) {
+       symbols = p.symbols;
+       
+       while(!isEmpty(symbols)){
+         current = head(symbols);
+         symbols = tail(symbols);
+         
+         if (current in defSymbols){
+      	    flw =  first(symbols, FIRST);
+      	    if(empty() in flw || isEmpty(symbols))
+              FOLLOW[current] += FOLLOW[p.nonTerminal] + (flw - {empty()});
+      	    else
+              FOLLOW[current] += flw;
+         }
        }
+     }
    }
+
    return FOLLOW;
 }
 

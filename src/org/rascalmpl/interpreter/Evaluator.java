@@ -322,7 +322,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new ArrayList<String>();
-//				result.add(new File("/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library").getAbsolutePath());
+				result.add(new File("/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library").getAbsolutePath());
 //				result.add(new File("/Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library").getAbsolutePath());
 				result.add(Configuration.getSdfLibraryPathProperty());
 				result.add(new File(System.getProperty("user.dir"), "src/org/rascalmpl/test/data").getAbsolutePath());
