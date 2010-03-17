@@ -11,71 +11,44 @@ public class Factory {
 	
 	private static TypeFactory tf = TypeFactory.getInstance();
 	
-	public static final Type Document = tf.abstractDataType(xml, "Document");
-	public static final Type Content = tf.abstractDataType(xml, "Content");
-	
-	public static final Type Attribute = tf.abstractDataType(xml, "Attribute");
-	
-	public static final Type Attributes = tf.aliasType(xml, "Attributes", tf.setType(Attribute));
-	
+	public static final Type Node = tf.abstractDataType(xml, "Node");
 	public static final Type Namespace = tf.abstractDataType(xml, "Namespace");
-	
+
 	public static final Type Namespace_namespace = tf.constructor(xml, Namespace, "namespace", 
 			tf.stringType(), "prefix",
 			tf.stringType(), "uri");
+	public static final Type Namespace_none = tf.constructor(xml, Namespace, "none"); 
 	
 	
-	public static final Type Attribute_attribute = tf.constructor(xml, Attribute, "attribute", 
-			tf.stringType(), "name",
-			tf.stringType(), "text");
-	
-	public static final Type Attribute_attributeNs = tf.constructor(xml, Attribute, "attribute", 
-			tf.stringType(), "name",
-			Namespace, "namespace",
-			tf.stringType(), "text");
+	public static final Type Node_document = tf.constructor(xml, Node, "document", 
+			Node, "root");
 
-	public static final Type Content_element = tf.constructor(xml, Content, "element", 
-			tf.stringType(), "name",
-			Attributes, "attributes",
-			tf.listType(Content), "contents");
-
-	public static final Type Content_elementNS = tf.constructor(xml, Content, "element", 
+	public static final Type Node_attribute = tf.constructor(xml, Node, "attribute", 
 			Namespace, "namespace",
 			tf.stringType(), "name",
-			Attributes, "attributes",
-			tf.listType(Content), "contents");
+			tf.stringType(), "text");
+
+	public static final Type Node_element = tf.constructor(xml, Node, "element", 
+			Namespace, "namespace",
+			tf.stringType(), "name",
+			tf.listType(Node), "children");
 
 	
-	public static final Type Content_charData = tf.constructor(xml, Content, "charData",
+	public static final Type Node_charData = tf.constructor(xml, Node, "charData",
 			tf.stringType(), "text");
-	public static final Type Content_cdata = tf.constructor(xml, Content, "cdata",
+	public static final Type Node_cdata = tf.constructor(xml, Node, "cdata",
 			tf.stringType(), "text");
-	public static final Type Content_comment = tf.constructor(xml, Content, "comment",
+	public static final Type Node_comment = tf.constructor(xml, Node, "comment",
 			tf.stringType(), "text");
-	public static final Type Content_pi = tf.constructor(xml, Content, "pi",
-			tf.stringType(), "name",
+	public static final Type Node_pi = tf.constructor(xml, Node, "pi",
+			tf.stringType(), "target",
 			tf.stringType(), "text");
 	
-	public static final Type Content_entityRef = tf.constructor(xml, Content, "entityRef",
+	public static final Type Node_entityRef = tf.constructor(xml, Node, "entityRef",
 			tf.stringType(), "name");
 
-	public static final Type Content_charRef = tf.constructor(xml, Content, "charRef",
+	public static final Type Node_charRef = tf.constructor(xml, Node, "charRef",
 			tf.integerType(), "code");
-	
-	public static final Type Document_documentRoot = tf.constructor(xml, Document, "document", 
-			Content_element, "root");
-
-	public static final Type Document_documentVersion = tf.constructor(xml, Document, "document", 
-			tf.stringType(), "version", Content_element, "root");
-
-	public static final Type Document_documentVersionEncoding = tf.constructor(xml, Document, "document", 
-			tf.stringType(), "version", tf.stringType(), "encoding", Content_element, "root");
-
-	public static final Type Document_documentVersionStandalone = tf.constructor(xml, Document, "document", 
-			tf.stringType(), "version", tf.boolType(), "standalone", Content_element, "root");
-
-	public static final Type Document_documentVersionEncodingStandalone = tf.constructor(xml, Document, "document", 
-			tf.stringType(), "version", tf.stringType(), "encoding", tf.boolType(), "standalone", Content_element, "root");
 
 	private static final class InstanceHolder {
 		public final static Factory factory = new Factory();
