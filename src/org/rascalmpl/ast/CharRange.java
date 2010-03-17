@@ -10,15 +10,19 @@ static public class Character extends CharRange {
 		this.node = node;
 		this.character = character;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangeCharacter(this);
 	}
 
+	@Override
 	public boolean isCharacter() { return true; }
 
+	@Override
 	public boolean hasCharacter() { return true; }
 
 private final org.rascalmpl.ast.Character character;
+	@Override
 	public org.rascalmpl.ast.Character getCharacter() { return character; }	
 }
 static public class Ambiguity extends CharRange {
@@ -31,7 +35,8 @@ static public class Ambiguity extends CharRange {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitCharRangeAmbiguity(this);
   }
 } 
@@ -47,19 +52,26 @@ static public class Range extends CharRange {
 		this.start = start;
 		this.end = end;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangeRange(this);
 	}
 
+	@Override
 	public boolean isRange() { return true; }
 
+	@Override
 	public boolean hasStart() { return true; }
+	@Override
 	public boolean hasEnd() { return true; }
 
 private final org.rascalmpl.ast.Character start;
+	@Override
 	public org.rascalmpl.ast.Character getStart() { return start; }
 	private final org.rascalmpl.ast.Character end;
+	@Override
 	public org.rascalmpl.ast.Character getEnd() { return end; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

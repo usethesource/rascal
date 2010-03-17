@@ -9,18 +9,24 @@ static public class Default extends LocationLiteral {
 		this.protocolPart = protocolPart;
 		this.pathPart = pathPart;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLocationLiteralDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasProtocolPart() { return true; }
+	@Override
 	public boolean hasPathPart() { return true; }
 
 private final org.rascalmpl.ast.ProtocolPart protocolPart;
+	@Override
 	public org.rascalmpl.ast.ProtocolPart getProtocolPart() { return protocolPart; }
 	private final org.rascalmpl.ast.PathPart pathPart;
+	@Override
 	public org.rascalmpl.ast.PathPart getPathPart() { return pathPart; }	
 }
 static public class Ambiguity extends LocationLiteral {
@@ -33,7 +39,8 @@ static public class Ambiguity extends LocationLiteral {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitLocationLiteralAmbiguity(this);
   }
 } public boolean isFile() { return false; }
@@ -43,16 +50,21 @@ static public class File extends LocationLiteral {
 		this.node = node;
 		this.pathPart = pathPart;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLocationLiteralFile(this);
 	}
 
+	@Override
 	public boolean isFile() { return true; }
 
+	@Override
 	public boolean hasPathPart() { return true; }
 
 private final org.rascalmpl.ast.PathPart pathPart;
+	@Override
 	public org.rascalmpl.ast.PathPart getPathPart() { return pathPart; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

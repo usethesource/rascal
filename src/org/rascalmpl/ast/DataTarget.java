@@ -7,10 +7,12 @@ static public class Empty extends DataTarget {
 	public Empty(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDataTargetEmpty(this);
 	}
 
+	@Override
 	public boolean isEmpty() { return true; }	
 }
 static public class Ambiguity extends DataTarget {
@@ -23,7 +25,8 @@ static public class Ambiguity extends DataTarget {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitDataTargetAmbiguity(this);
   }
 } 
@@ -36,16 +39,21 @@ static public class Labeled extends DataTarget {
 		this.node = node;
 		this.label = label;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDataTargetLabeled(this);
 	}
 
+	@Override
 	public boolean isLabeled() { return true; }
 
+	@Override
 	public boolean hasLabel() { return true; }
 
 private final org.rascalmpl.ast.Name label;
+	@Override
 	public org.rascalmpl.ast.Name getLabel() { return label; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -10,15 +10,19 @@ static public class RegExp extends Literal {
 		this.node = node;
 		this.regExpLiteral = regExpLiteral;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralRegExp(this);
 	}
 
+	@Override
 	public boolean isRegExp() { return true; }
 
+	@Override
 	public boolean hasRegExpLiteral() { return true; }
 
 private final org.rascalmpl.ast.RegExpLiteral regExpLiteral;
+	@Override
 	public org.rascalmpl.ast.RegExpLiteral getRegExpLiteral() { return regExpLiteral; }	
 }
 static public class Ambiguity extends Literal {
@@ -31,7 +35,8 @@ static public class Ambiguity extends Literal {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitLiteralAmbiguity(this);
   }
 } 
@@ -44,17 +49,22 @@ static public class Boolean extends Literal {
 		this.node = node;
 		this.booleanLiteral = booleanLiteral;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralBoolean(this);
 	}
 
+	@Override
 	public boolean isBoolean() { return true; }
 
+	@Override
 	public boolean hasBooleanLiteral() { return true; }
 
 private final org.rascalmpl.ast.BooleanLiteral booleanLiteral;
+	@Override
 	public org.rascalmpl.ast.BooleanLiteral getBooleanLiteral() { return booleanLiteral; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.IntegerLiteral getIntegerLiteral() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.IntegerLiteral getIntegerLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasIntegerLiteral() { return false; }
 public boolean isInteger() { return false; }
 static public class Integer extends Literal {
@@ -63,15 +73,19 @@ static public class Integer extends Literal {
 		this.node = node;
 		this.integerLiteral = integerLiteral;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralInteger(this);
 	}
 
+	@Override
 	public boolean isInteger() { return true; }
 
+	@Override
 	public boolean hasIntegerLiteral() { return true; }
 
 private final org.rascalmpl.ast.IntegerLiteral integerLiteral;
+	@Override
 	public org.rascalmpl.ast.IntegerLiteral getIntegerLiteral() { return integerLiteral; }	
 } 
 public org.rascalmpl.ast.RealLiteral getRealLiteral() { throw new UnsupportedOperationException(); }
@@ -83,15 +97,19 @@ static public class Real extends Literal {
 		this.node = node;
 		this.realLiteral = realLiteral;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralReal(this);
 	}
 
+	@Override
 	public boolean isReal() { return true; }
 
+	@Override
 	public boolean hasRealLiteral() { return true; }
 
 private final org.rascalmpl.ast.RealLiteral realLiteral;
+	@Override
 	public org.rascalmpl.ast.RealLiteral getRealLiteral() { return realLiteral; }	
 } 
 public org.rascalmpl.ast.StringLiteral getStringLiteral() { throw new UnsupportedOperationException(); }
@@ -103,15 +121,19 @@ static public class String extends Literal {
 		this.node = node;
 		this.stringLiteral = stringLiteral;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralString(this);
 	}
 
+	@Override
 	public boolean isString() { return true; }
 
+	@Override
 	public boolean hasStringLiteral() { return true; }
 
 private final org.rascalmpl.ast.StringLiteral stringLiteral;
+	@Override
 	public org.rascalmpl.ast.StringLiteral getStringLiteral() { return stringLiteral; }	
 } 
 public org.rascalmpl.ast.LocationLiteral getLocationLiteral() { throw new UnsupportedOperationException(); }
@@ -123,15 +145,19 @@ static public class Location extends Literal {
 		this.node = node;
 		this.locationLiteral = locationLiteral;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralLocation(this);
 	}
 
+	@Override
 	public boolean isLocation() { return true; }
 
+	@Override
 	public boolean hasLocationLiteral() { return true; }
 
 private final org.rascalmpl.ast.LocationLiteral locationLiteral;
+	@Override
 	public org.rascalmpl.ast.LocationLiteral getLocationLiteral() { return locationLiteral; }	
 } 
 public org.rascalmpl.ast.DateTimeLiteral getDateTimeLiteral() { throw new UnsupportedOperationException(); }
@@ -143,15 +169,19 @@ static public class DateTime extends Literal {
 		this.node = node;
 		this.dateTimeLiteral = dateTimeLiteral;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralDateTime(this);
 	}
 
+	@Override
 	public boolean isDateTime() { return true; }
 
+	@Override
 	public boolean hasDateTimeLiteral() { return true; }
 
 private final org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral;
+	@Override
 	public org.rascalmpl.ast.DateTimeLiteral getDateTimeLiteral() { return dateTimeLiteral; }	
 }
 }

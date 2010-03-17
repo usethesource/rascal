@@ -8,15 +8,19 @@ static public class Default extends Catch {
 		this.node = node;
 		this.body = body;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCatchDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasBody() { return true; }
 
 private final org.rascalmpl.ast.Statement body;
+	@Override
 	public org.rascalmpl.ast.Statement getBody() { return body; }	
 }
 static public class Ambiguity extends Catch {
@@ -29,7 +33,8 @@ static public class Ambiguity extends Catch {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitCatchAmbiguity(this);
   }
 } 
@@ -41,19 +46,26 @@ static public class Binding extends Catch {
 		this.pattern = pattern;
 		this.body = body;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCatchBinding(this);
 	}
 
+	@Override
 	public boolean isBinding() { return true; }
 
+	@Override
 	public boolean hasPattern() { return true; }
+	@Override
 	public boolean hasBody() { return true; }
 
 private final org.rascalmpl.ast.Expression pattern;
+	@Override
 	public org.rascalmpl.ast.Expression getPattern() { return pattern; }
 	private final org.rascalmpl.ast.Statement body;
+	@Override
 	public org.rascalmpl.ast.Statement getBody() { return body; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -7,10 +7,12 @@ static public class newline extends StrChar {
 	public newline(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrCharnewline(this);
 	}
 
+	@Override
 	public boolean isnewline() { return true; }	
 }
 static public class Ambiguity extends StrChar {
@@ -23,7 +25,8 @@ static public class Ambiguity extends StrChar {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitStrCharAmbiguity(this);
   }
 } static public class Lexical extends StrChar {
@@ -36,8 +39,10 @@ static public class Ambiguity extends StrChar {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitStrCharLexical(this);
   	}
-} public abstract <T> T accept(IASTVisitor<T> visitor);
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -12,24 +12,34 @@ static public class Default extends FunctionDeclaration {
 		this.signature = signature;
 		this.body = body;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionDeclarationDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasVisibility() { return true; }
+	@Override
 	public boolean hasSignature() { return true; }
+	@Override
 	public boolean hasBody() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Visibility visibility;
+	@Override
 	public org.rascalmpl.ast.Visibility getVisibility() { return visibility; }
 	private final org.rascalmpl.ast.Signature signature;
+	@Override
 	public org.rascalmpl.ast.Signature getSignature() { return signature; }
 	private final org.rascalmpl.ast.FunctionBody body;
+	@Override
 	public org.rascalmpl.ast.FunctionBody getBody() { return body; }	
 }
 static public class Ambiguity extends FunctionDeclaration {
@@ -42,7 +52,8 @@ static public class Ambiguity extends FunctionDeclaration {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitFunctionDeclarationAmbiguity(this);
   }
 } public boolean isAbstract() { return false; }
@@ -54,22 +65,31 @@ static public class Abstract extends FunctionDeclaration {
 		this.visibility = visibility;
 		this.signature = signature;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionDeclarationAbstract(this);
 	}
 
+	@Override
 	public boolean isAbstract() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasVisibility() { return true; }
+	@Override
 	public boolean hasSignature() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Visibility visibility;
+	@Override
 	public org.rascalmpl.ast.Visibility getVisibility() { return visibility; }
 	private final org.rascalmpl.ast.Signature signature;
+	@Override
 	public org.rascalmpl.ast.Signature getSignature() { return signature; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

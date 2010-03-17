@@ -11,7 +11,8 @@ static public class Lexical extends PreStringChars {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitPreStringCharsLexical(this);
   	}
 }
@@ -25,7 +26,8 @@ static public class Ambiguity extends PreStringChars {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitPreStringCharsAmbiguity(this);
   }
 }

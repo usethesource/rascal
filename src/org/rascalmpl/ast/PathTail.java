@@ -16,21 +16,29 @@ static public class Mid extends PathTail {
 		this.expression = expression;
 		this.tail = tail;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitPathTailMid(this);
 	}
 
+	@Override
 	public boolean isMid() { return true; }
 
+	@Override
 	public boolean hasMid() { return true; }
+	@Override
 	public boolean hasExpression() { return true; }
+	@Override
 	public boolean hasTail() { return true; }
 
 private final org.rascalmpl.ast.MidPathChars mid;
+	@Override
 	public org.rascalmpl.ast.MidPathChars getMid() { return mid; }
 	private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }
 	private final org.rascalmpl.ast.PathTail tail;
+	@Override
 	public org.rascalmpl.ast.PathTail getTail() { return tail; }	
 }
 static public class Ambiguity extends PathTail {
@@ -43,7 +51,8 @@ static public class Ambiguity extends PathTail {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitPathTailAmbiguity(this);
   }
 } 
@@ -56,16 +65,21 @@ static public class Post extends PathTail {
 		this.node = node;
 		this.post = post;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitPathTailPost(this);
 	}
 
+	@Override
 	public boolean isPost() { return true; }
 
+	@Override
 	public boolean hasPost() { return true; }
 
 private final org.rascalmpl.ast.PostPathChars post;
+	@Override
 	public org.rascalmpl.ast.PostPathChars getPost() { return post; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

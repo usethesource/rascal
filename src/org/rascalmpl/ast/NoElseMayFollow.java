@@ -7,10 +7,12 @@ static public class Default extends NoElseMayFollow {
 	public Default(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitNoElseMayFollowDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }	
 }
 static public class Ambiguity extends NoElseMayFollow {
@@ -23,7 +25,8 @@ static public class Ambiguity extends NoElseMayFollow {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitNoElseMayFollowAmbiguity(this);
   }
 }

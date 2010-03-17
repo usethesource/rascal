@@ -10,15 +10,19 @@ static public class Default extends Tags {
 		this.node = node;
 		this.tags = tags;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTagsDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Tag> tags;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Tag> getTags() { return tags; }	
 }
 static public class Ambiguity extends Tags {
@@ -31,7 +35,8 @@ static public class Ambiguity extends Tags {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitTagsAmbiguity(this);
   }
 }

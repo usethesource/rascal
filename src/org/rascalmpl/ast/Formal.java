@@ -13,18 +13,24 @@ static public class TypeName extends Formal {
 		this.type = type;
 		this.name = name;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFormalTypeName(this);
 	}
 
+	@Override
 	public boolean isTypeName() { return true; }
 
+	@Override
 	public boolean hasType() { return true; }
+	@Override
 	public boolean hasName() { return true; }
 
 private final org.rascalmpl.ast.Type type;
+	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }
 	private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }	
 }
 static public class Ambiguity extends Formal {
@@ -37,7 +43,8 @@ static public class Ambiguity extends Formal {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitFormalAmbiguity(this);
   }
 }

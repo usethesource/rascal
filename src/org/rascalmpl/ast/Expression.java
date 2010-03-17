@@ -10,21 +10,29 @@ public abstract class Expression extends AbstractAST {
 		this.thenExp = thenExp;
 		this.elseExp = elseExp;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionIfThenElse(this);
 	}
 
+	@Override
 	public boolean isIfThenElse() { return true; }
 
+	@Override
 	public boolean hasCondition() { return true; }
+	@Override
 	public boolean hasThenExp() { return true; }
+	@Override
 	public boolean hasElseExp() { return true; }
 
 private final org.rascalmpl.ast.Expression condition;
+	@Override
 	public org.rascalmpl.ast.Expression getCondition() { return condition; }
 	private final org.rascalmpl.ast.Expression thenExp;
+	@Override
 	public org.rascalmpl.ast.Expression getThenExp() { return thenExp; }
 	private final org.rascalmpl.ast.Expression elseExp;
+	@Override
 	public org.rascalmpl.ast.Expression getElseExp() { return elseExp; }	
 } static public class Ambiguity extends Expression {
   private final java.util.List<org.rascalmpl.ast.Expression> alternatives;
@@ -36,7 +44,8 @@ private final org.rascalmpl.ast.Expression condition;
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitExpressionAmbiguity(this);
   }
 } public org.rascalmpl.ast.Expression getLhs() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Expression getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isIfDefinedOtherwise() { return false; } static public class IfDefinedOtherwise extends Expression {
@@ -46,20 +55,27 @@ private final org.rascalmpl.ast.Expression condition;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionIfDefinedOtherwise(this);
 	}
 
+	@Override
 	public boolean isIfDefinedOtherwise() { return true; }
 
+	@Override
 	public boolean hasLhs() { return true; }
+	@Override
 	public boolean hasRhs() { return true; }
 
 private final org.rascalmpl.ast.Expression lhs;
+	@Override
 	public org.rascalmpl.ast.Expression getLhs() { return lhs; }
 	private final org.rascalmpl.ast.Expression rhs;
+	@Override
 	public org.rascalmpl.ast.Expression getRhs() { return rhs; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean hasExpression() { return false; } public boolean isMatch() { return false; }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean hasExpression() { return false; } public boolean isMatch() { return false; }
 static public class Match extends Expression {
 /** pattern:Expression ":=" expression:Expression -> Expression {non-assoc, cons("Match")} */
 	public Match(INode node, org.rascalmpl.ast.Expression pattern, org.rascalmpl.ast.Expression expression) {
@@ -67,18 +83,24 @@ static public class Match extends Expression {
 		this.pattern = pattern;
 		this.expression = expression;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionMatch(this);
 	}
 
+	@Override
 	public boolean isMatch() { return true; }
 
+	@Override
 	public boolean hasPattern() { return true; }
+	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Expression pattern;
+	@Override
 	public org.rascalmpl.ast.Expression getPattern() { return pattern; }
 	private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 } public boolean isNoMatch() { return false; }
 static public class NoMatch extends Expression {
@@ -88,18 +110,24 @@ static public class NoMatch extends Expression {
 		this.pattern = pattern;
 		this.expression = expression;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionNoMatch(this);
 	}
 
+	@Override
 	public boolean isNoMatch() { return true; }
 
+	@Override
 	public boolean hasPattern() { return true; }
+	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Expression pattern;
+	@Override
 	public org.rascalmpl.ast.Expression getPattern() { return pattern; }
 	private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 } public boolean isEnumerator() { return false; }
 static public class Enumerator extends Expression {
@@ -109,18 +137,24 @@ static public class Enumerator extends Expression {
 		this.pattern = pattern;
 		this.expression = expression;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionEnumerator(this);
 	}
 
+	@Override
 	public boolean isEnumerator() { return true; }
 
+	@Override
 	public boolean hasPattern() { return true; }
+	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Expression pattern;
+	@Override
 	public org.rascalmpl.ast.Expression getPattern() { return pattern; }
 	private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 } public boolean isEquals() { return false; } static public class Equals extends Expression {
 /** lhs:Expression "==" rhs:Expression -> Expression {left, cons("Equals")} */
@@ -129,18 +163,24 @@ private final org.rascalmpl.ast.Expression pattern;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionEquals(this);
 	}
 
+	@Override
 	public boolean isEquals() { return true; }
 
+	@Override
 	public boolean hasLhs() { return true; }
+	@Override
 	public boolean hasRhs() { return true; }
 
 private final org.rascalmpl.ast.Expression lhs;
+	@Override
 	public org.rascalmpl.ast.Expression getLhs() { return lhs; }
 	private final org.rascalmpl.ast.Expression rhs;
+	@Override
 	public org.rascalmpl.ast.Expression getRhs() { return rhs; }	
 } public org.rascalmpl.ast.Comprehension getComprehension() { throw new UnsupportedOperationException(); }
 public boolean hasComprehension() { return false; }
@@ -151,15 +191,19 @@ static public class Comprehension extends Expression {
 		this.node = node;
 		this.comprehension = comprehension;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionComprehension(this);
 	}
 
+	@Override
 	public boolean isComprehension() { return true; }
 
+	@Override
 	public boolean hasComprehension() { return true; }
 
 private final org.rascalmpl.ast.Comprehension comprehension;
+	@Override
 	public org.rascalmpl.ast.Comprehension getComprehension() { return comprehension; }	
 } 
 public org.rascalmpl.ast.Expression getInit() { throw new UnsupportedOperationException(); }
@@ -173,21 +217,29 @@ static public class Reducer extends Expression {
 		this.result = result;
 		this.generators = generators;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionReducer(this);
 	}
 
+	@Override
 	public boolean isReducer() { return true; }
 
+	@Override
 	public boolean hasInit() { return true; }
+	@Override
 	public boolean hasResult() { return true; }
+	@Override
 	public boolean hasGenerators() { return true; }
 
 private final org.rascalmpl.ast.Expression init;
+	@Override
 	public org.rascalmpl.ast.Expression getInit() { return init; }
 	private final org.rascalmpl.ast.Expression result;
+	@Override
 	public org.rascalmpl.ast.Expression getResult() { return result; }
 	private final java.util.List<org.rascalmpl.ast.Expression> generators;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { return generators; }	
 } 
 public boolean isIt() { return false; }
@@ -196,10 +248,12 @@ static public class It extends Expression {
 	public It(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionIt(this);
 	}
 
+	@Override
 	public boolean isIt() { return true; }	
 } public boolean isAll() { return false; }
 static public class All extends Expression {
@@ -208,15 +262,19 @@ static public class All extends Expression {
 		this.node = node;
 		this.generators = generators;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionAll(this);
 	}
 
+	@Override
 	public boolean isAll() { return true; }
 
+	@Override
 	public boolean hasGenerators() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Expression> generators;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { return generators; }	
 } public boolean isAny() { return false; }
 static public class Any extends Expression {
@@ -225,15 +283,19 @@ static public class Any extends Expression {
 		this.node = node;
 		this.generators = generators;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionAny(this);
 	}
 
+	@Override
 	public boolean isAny() { return true; }
 
+	@Override
 	public boolean hasGenerators() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Expression> generators;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { return generators; }	
 } public java.util.List<org.rascalmpl.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasStatements() { return false; } public boolean isNonEmptyBlock() { return false; } static public class NonEmptyBlock extends Expression {
 /** "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
@@ -241,15 +303,19 @@ private final java.util.List<org.rascalmpl.ast.Expression> generators;
 		this.node = node;
 		this.statements = statements;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionNonEmptyBlock(this);
 	}
 
+	@Override
 	public boolean isNonEmptyBlock() { return true; }
 
+	@Override
 	public boolean hasStatements() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Statement> statements;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Statement> getStatements() { return statements; }	
 } public org.rascalmpl.ast.Type getType() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasName() { return false; } public boolean isTypedVariable() { return false; }
 static public class TypedVariable extends Expression {
@@ -259,18 +325,24 @@ static public class TypedVariable extends Expression {
 		this.type = type;
 		this.name = name;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionTypedVariable(this);
 	}
 
+	@Override
 	public boolean isTypedVariable() { return true; }
 
+	@Override
 	public boolean hasType() { return true; }
+	@Override
 	public boolean hasName() { return true; }
 
 private final org.rascalmpl.ast.Type type;
+	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }
 	private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }	
 } public org.rascalmpl.ast.QualifiedName getQualifiedName() { throw new UnsupportedOperationException(); } public boolean hasQualifiedName() { return false; } public boolean isMultiVariable() { return false; }
 static public class MultiVariable extends Expression {
@@ -279,15 +351,19 @@ static public class MultiVariable extends Expression {
 		this.node = node;
 		this.qualifiedName = qualifiedName;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionMultiVariable(this);
 	}
 
+	@Override
 	public boolean isMultiVariable() { return true; }
 
+	@Override
 	public boolean hasQualifiedName() { return true; }
 
 private final org.rascalmpl.ast.QualifiedName qualifiedName;
+	@Override
 	public org.rascalmpl.ast.QualifiedName getQualifiedName() { return qualifiedName; }	
 } public java.util.List<org.rascalmpl.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasArguments() { return false; } public boolean isCallOrTree() { return false; } static public class CallOrTree extends Expression {
 /** expression:Expression "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
@@ -296,18 +372,24 @@ private final org.rascalmpl.ast.QualifiedName qualifiedName;
 		this.expression = expression;
 		this.arguments = arguments;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionCallOrTree(this);
 	}
 
+	@Override
 	public boolean isCallOrTree() { return true; }
 
+	@Override
 	public boolean hasExpression() { return true; }
+	@Override
 	public boolean hasArguments() { return true; }
 
 private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }
 	private final java.util.List<org.rascalmpl.ast.Expression> arguments;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getArguments() { return arguments; }	
 } public boolean isDescendant() { return false; }
 static public class Descendant extends Expression {
@@ -316,15 +398,19 @@ static public class Descendant extends Expression {
 		this.node = node;
 		this.pattern = pattern;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionDescendant(this);
 	}
 
+	@Override
 	public boolean isDescendant() { return true; }
 
+	@Override
 	public boolean hasPattern() { return true; }
 
 private final org.rascalmpl.ast.Expression pattern;
+	@Override
 	public org.rascalmpl.ast.Expression getPattern() { return pattern; }	
 } public boolean isVariableBecomes() { return false; }
 static public class VariableBecomes extends Expression {
@@ -334,18 +420,24 @@ static public class VariableBecomes extends Expression {
 		this.name = name;
 		this.pattern = pattern;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionVariableBecomes(this);
 	}
 
+	@Override
 	public boolean isVariableBecomes() { return true; }
 
+	@Override
 	public boolean hasName() { return true; }
+	@Override
 	public boolean hasPattern() { return true; }
 
 private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final org.rascalmpl.ast.Expression pattern;
+	@Override
 	public org.rascalmpl.ast.Expression getPattern() { return pattern; }	
 } public boolean isTypedVariableBecomes() { return false; }
 static public class TypedVariableBecomes extends Expression {
@@ -356,21 +448,29 @@ static public class TypedVariableBecomes extends Expression {
 		this.name = name;
 		this.pattern = pattern;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionTypedVariableBecomes(this);
 	}
 
+	@Override
 	public boolean isTypedVariableBecomes() { return true; }
 
+	@Override
 	public boolean hasType() { return true; }
+	@Override
 	public boolean hasName() { return true; }
+	@Override
 	public boolean hasPattern() { return true; }
 
 private final org.rascalmpl.ast.Type type;
+	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }
 	private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final org.rascalmpl.ast.Expression pattern;
+	@Override
 	public org.rascalmpl.ast.Expression getPattern() { return pattern; }	
 } public boolean isGuarded() { return false; }
 static public class Guarded extends Expression {

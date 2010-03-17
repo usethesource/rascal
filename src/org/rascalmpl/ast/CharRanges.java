@@ -10,15 +10,19 @@ static public class Range extends CharRanges {
 		this.node = node;
 		this.range = range;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangesRange(this);
 	}
 
+	@Override
 	public boolean isRange() { return true; }
 
+	@Override
 	public boolean hasRange() { return true; }
 
 private final org.rascalmpl.ast.CharRange range;
+	@Override
 	public org.rascalmpl.ast.CharRange getRange() { return range; }	
 }
 static public class Ambiguity extends CharRanges {
@@ -31,7 +35,8 @@ static public class Ambiguity extends CharRanges {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitCharRangesAmbiguity(this);
   }
 } 
@@ -47,20 +52,27 @@ static public class Concatenate extends CharRanges {
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangesConcatenate(this);
 	}
 
+	@Override
 	public boolean isConcatenate() { return true; }
 
+	@Override
 	public boolean hasLhs() { return true; }
+	@Override
 	public boolean hasRhs() { return true; }
 
 private final org.rascalmpl.ast.CharRanges lhs;
+	@Override
 	public org.rascalmpl.ast.CharRanges getLhs() { return lhs; }
 	private final org.rascalmpl.ast.CharRanges rhs;
+	@Override
 	public org.rascalmpl.ast.CharRanges getRhs() { return rhs; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.CharRanges getRanges() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.CharRanges getRanges() { throw new UnsupportedOperationException(); }
 public boolean hasRanges() { return false; }
 public boolean isBracket() { return false; }
 static public class Bracket extends CharRanges {
@@ -69,15 +81,19 @@ static public class Bracket extends CharRanges {
 		this.node = node;
 		this.ranges = ranges;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangesBracket(this);
 	}
 
+	@Override
 	public boolean isBracket() { return true; }
 
+	@Override
 	public boolean hasRanges() { return true; }
 
 private final org.rascalmpl.ast.CharRanges ranges;
+	@Override
 	public org.rascalmpl.ast.CharRanges getRanges() { return ranges; }	
 }
 }

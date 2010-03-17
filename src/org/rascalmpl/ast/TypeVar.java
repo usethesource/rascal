@@ -8,15 +8,19 @@ static public class Free extends TypeVar {
 		this.node = node;
 		this.name = name;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeVarFree(this);
 	}
 
+	@Override
 	public boolean isFree() { return true; }
 
+	@Override
 	public boolean hasName() { return true; }
 
 private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }	
 }
 static public class Ambiguity extends TypeVar {
@@ -29,7 +33,8 @@ static public class Ambiguity extends TypeVar {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitTypeVarAmbiguity(this);
   }
 } public org.rascalmpl.ast.Type getBound() { throw new UnsupportedOperationException(); } public boolean hasBound() { return false; }
@@ -41,19 +46,26 @@ static public class Bounded extends TypeVar {
 		this.name = name;
 		this.bound = bound;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeVarBounded(this);
 	}
 
+	@Override
 	public boolean isBounded() { return true; }
 
+	@Override
 	public boolean hasName() { return true; }
+	@Override
 	public boolean hasBound() { return true; }
 
 private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final org.rascalmpl.ast.Type bound;
+	@Override
 	public org.rascalmpl.ast.Type getBound() { return bound; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -10,21 +10,29 @@ static public class Interpolated extends StringLiteral {
 		this.expression = expression;
 		this.tail = tail;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStringLiteralInterpolated(this);
 	}
 
+	@Override
 	public boolean isInterpolated() { return true; }
 
+	@Override
 	public boolean hasPre() { return true; }
+	@Override
 	public boolean hasExpression() { return true; }
+	@Override
 	public boolean hasTail() { return true; }
 
 private final org.rascalmpl.ast.PreStringChars pre;
+	@Override
 	public org.rascalmpl.ast.PreStringChars getPre() { return pre; }
 	private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }
 	private final org.rascalmpl.ast.StringTail tail;
+	@Override
 	public org.rascalmpl.ast.StringTail getTail() { return tail; }	
 }
 static public class Ambiguity extends StringLiteral {
@@ -37,7 +45,8 @@ static public class Ambiguity extends StringLiteral {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitStringLiteralAmbiguity(this);
   }
 } public org.rascalmpl.ast.StringTemplate getTemplate() { throw new UnsupportedOperationException(); } public boolean hasTemplate() { return false; } public boolean isTemplate() { return false; }
@@ -49,23 +58,32 @@ static public class Template extends StringLiteral {
 		this.template = template;
 		this.tail = tail;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStringLiteralTemplate(this);
 	}
 
+	@Override
 	public boolean isTemplate() { return true; }
 
+	@Override
 	public boolean hasPre() { return true; }
+	@Override
 	public boolean hasTemplate() { return true; }
+	@Override
 	public boolean hasTail() { return true; }
 
 private final org.rascalmpl.ast.PreStringChars pre;
+	@Override
 	public org.rascalmpl.ast.PreStringChars getPre() { return pre; }
 	private final org.rascalmpl.ast.StringTemplate template;
+	@Override
 	public org.rascalmpl.ast.StringTemplate getTemplate() { return template; }
 	private final org.rascalmpl.ast.StringTail tail;
+	@Override
 	public org.rascalmpl.ast.StringTail getTail() { return tail; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.StringConstant getConstant() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.StringConstant getConstant() { throw new UnsupportedOperationException(); }
 public boolean hasConstant() { return false; }
 public boolean isNonInterpolated() { return false; }
 static public class NonInterpolated extends StringLiteral {
@@ -74,15 +92,19 @@ static public class NonInterpolated extends StringLiteral {
 		this.node = node;
 		this.constant = constant;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStringLiteralNonInterpolated(this);
 	}
 
+	@Override
 	public boolean isNonInterpolated() { return true; }
 
+	@Override
 	public boolean hasConstant() { return true; }
 
 private final org.rascalmpl.ast.StringConstant constant;
+	@Override
 	public org.rascalmpl.ast.StringConstant getConstant() { return constant; }	
 }
 }

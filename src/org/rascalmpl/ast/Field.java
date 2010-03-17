@@ -10,15 +10,19 @@ static public class Name extends Field {
 		this.node = node;
 		this.fieldName = fieldName;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFieldName(this);
 	}
 
+	@Override
 	public boolean isName() { return true; }
 
+	@Override
 	public boolean hasFieldName() { return true; }
 
 private final org.rascalmpl.ast.Name fieldName;
+	@Override
 	public org.rascalmpl.ast.Name getFieldName() { return fieldName; }	
 }
 static public class Ambiguity extends Field {
@@ -31,7 +35,8 @@ static public class Ambiguity extends Field {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitFieldAmbiguity(this);
   }
 } 
@@ -44,16 +49,21 @@ static public class Index extends Field {
 		this.node = node;
 		this.fieldIndex = fieldIndex;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFieldIndex(this);
 	}
 
+	@Override
 	public boolean isIndex() { return true; }
 
+	@Override
 	public boolean hasFieldIndex() { return true; }
 
 private final org.rascalmpl.ast.IntegerLiteral fieldIndex;
+	@Override
 	public org.rascalmpl.ast.IntegerLiteral getFieldIndex() { return fieldIndex; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

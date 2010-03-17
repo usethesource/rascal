@@ -10,15 +10,19 @@ static public class DecimalLongLiteral extends LongLiteral {
 		this.node = node;
 		this.decimalLong = decimalLong;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLongLiteralDecimalLongLiteral(this);
 	}
 
+	@Override
 	public boolean isDecimalLongLiteral() { return true; }
 
+	@Override
 	public boolean hasDecimalLong() { return true; }
 
 private final org.rascalmpl.ast.DecimalLongLiteral decimalLong;
+	@Override
 	public org.rascalmpl.ast.DecimalLongLiteral getDecimalLong() { return decimalLong; }	
 }
 static public class Ambiguity extends LongLiteral {
@@ -31,7 +35,8 @@ static public class Ambiguity extends LongLiteral {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitLongLiteralAmbiguity(this);
   }
 } 
@@ -44,17 +49,22 @@ static public class HexLongLiteral extends LongLiteral {
 		this.node = node;
 		this.hexLong = hexLong;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLongLiteralHexLongLiteral(this);
 	}
 
+	@Override
 	public boolean isHexLongLiteral() { return true; }
 
+	@Override
 	public boolean hasHexLong() { return true; }
 
 private final org.rascalmpl.ast.HexLongLiteral hexLong;
+	@Override
 	public org.rascalmpl.ast.HexLongLiteral getHexLong() { return hexLong; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.OctalLongLiteral getOctalLong() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.OctalLongLiteral getOctalLong() { throw new UnsupportedOperationException(); }
 public boolean hasOctalLong() { return false; }
 public boolean isOctalLongLiteral() { return false; }
 static public class OctalLongLiteral extends LongLiteral {
@@ -63,15 +73,19 @@ static public class OctalLongLiteral extends LongLiteral {
 		this.node = node;
 		this.octalLong = octalLong;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLongLiteralOctalLongLiteral(this);
 	}
 
+	@Override
 	public boolean isOctalLongLiteral() { return true; }
 
+	@Override
 	public boolean hasOctalLong() { return true; }
 
 private final org.rascalmpl.ast.OctalLongLiteral octalLong;
+	@Override
 	public org.rascalmpl.ast.OctalLongLiteral getOctalLong() { return octalLong; }	
 }
 }

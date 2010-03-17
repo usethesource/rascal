@@ -7,10 +7,12 @@ static public class TopDown extends Strategy {
 	public TopDown(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyTopDown(this);
 	}
 
+	@Override
 	public boolean isTopDown() { return true; }	
 }
 static public class Ambiguity extends Strategy {
@@ -23,7 +25,8 @@ static public class Ambiguity extends Strategy {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitStrategyAmbiguity(this);
   }
 } 
@@ -33,21 +36,26 @@ static public class TopDownBreak extends Strategy {
 	public TopDownBreak(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyTopDownBreak(this);
 	}
 
+	@Override
 	public boolean isTopDownBreak() { return true; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isBottomUp() { return false; }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isBottomUp() { return false; }
 static public class BottomUp extends Strategy {
 /** "bottom-up" -> Strategy {cons("BottomUp")} */
 	public BottomUp(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyBottomUp(this);
 	}
 
+	@Override
 	public boolean isBottomUp() { return true; }	
 } 
 public boolean isBottomUpBreak() { return false; }
@@ -56,10 +64,12 @@ static public class BottomUpBreak extends Strategy {
 	public BottomUpBreak(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyBottomUpBreak(this);
 	}
 
+	@Override
 	public boolean isBottomUpBreak() { return true; }	
 } 
 public boolean isOutermost() { return false; }
@@ -68,10 +78,12 @@ static public class Outermost extends Strategy {
 	public Outermost(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyOutermost(this);
 	}
 
+	@Override
 	public boolean isOutermost() { return true; }	
 } 
 public boolean isInnermost() { return false; }
@@ -80,10 +92,12 @@ static public class Innermost extends Strategy {
 	public Innermost(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyInnermost(this);
 	}
 
+	@Override
 	public boolean isInnermost() { return true; }	
 }
 }

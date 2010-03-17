@@ -7,10 +7,12 @@ static public class Empty extends Bound {
 	public Empty(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBoundEmpty(this);
 	}
 
+	@Override
 	public boolean isEmpty() { return true; }	
 }
 static public class Ambiguity extends Bound {
@@ -23,7 +25,8 @@ static public class Ambiguity extends Bound {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitBoundAmbiguity(this);
   }
 } 
@@ -36,16 +39,21 @@ static public class Default extends Bound {
 		this.node = node;
 		this.expression = expression;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBoundDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -10,15 +10,19 @@ static public class Shell extends Command {
 		this.node = node;
 		this.command = command;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCommandShell(this);
 	}
 
+	@Override
 	public boolean isShell() { return true; }
 
+	@Override
 	public boolean hasCommand() { return true; }
 
 private final org.rascalmpl.ast.ShellCommand command;
+	@Override
 	public org.rascalmpl.ast.ShellCommand getCommand() { return command; }	
 }
 static public class Ambiguity extends Command {
@@ -31,7 +35,8 @@ static public class Ambiguity extends Command {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitCommandAmbiguity(this);
   }
 } 
@@ -44,17 +49,22 @@ static public class Statement extends Command {
 		this.node = node;
 		this.statement = statement;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCommandStatement(this);
 	}
 
+	@Override
 	public boolean isStatement() { return true; }
 
+	@Override
 	public boolean hasStatement() { return true; }
 
 private final org.rascalmpl.ast.Statement statement;
+	@Override
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
 public boolean hasExpression() { return false; }
 public boolean isExpression() { return false; }
 static public class Expression extends Command {
@@ -63,15 +73,19 @@ static public class Expression extends Command {
 		this.node = node;
 		this.expression = expression;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCommandExpression(this);
 	}
 
+	@Override
 	public boolean isExpression() { return true; }
 
+	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 } 
 public org.rascalmpl.ast.Declaration getDeclaration() { throw new UnsupportedOperationException(); }
@@ -83,15 +97,19 @@ static public class Declaration extends Command {
 		this.node = node;
 		this.declaration = declaration;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCommandDeclaration(this);
 	}
 
+	@Override
 	public boolean isDeclaration() { return true; }
 
+	@Override
 	public boolean hasDeclaration() { return true; }
 
 private final org.rascalmpl.ast.Declaration declaration;
+	@Override
 	public org.rascalmpl.ast.Declaration getDeclaration() { return declaration; }	
 } 
 public org.rascalmpl.ast.Import getImported() { throw new UnsupportedOperationException(); }
@@ -103,15 +121,19 @@ static public class Import extends Command {
 		this.node = node;
 		this.imported = imported;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCommandImport(this);
 	}
 
+	@Override
 	public boolean isImport() { return true; }
 
+	@Override
 	public boolean hasImported() { return true; }
 
 private final org.rascalmpl.ast.Import imported;
+	@Override
 	public org.rascalmpl.ast.Import getImported() { return imported; }	
 } 
 static public class Lexical extends Command {
@@ -124,7 +146,8 @@ static public class Lexical extends Command {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitCommandLexical(this);
   	}
 }

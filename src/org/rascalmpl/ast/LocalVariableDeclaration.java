@@ -8,15 +8,19 @@ static public class Default extends LocalVariableDeclaration {
 		this.node = node;
 		this.declarator = declarator;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLocalVariableDeclarationDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasDeclarator() { return true; }
 
 private final org.rascalmpl.ast.Declarator declarator;
+	@Override
 	public org.rascalmpl.ast.Declarator getDeclarator() { return declarator; }	
 }
 static public class Ambiguity extends LocalVariableDeclaration {
@@ -29,7 +33,8 @@ static public class Ambiguity extends LocalVariableDeclaration {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitLocalVariableDeclarationAmbiguity(this);
   }
 } public boolean isDynamic() { return false; }
@@ -39,16 +44,21 @@ static public class Dynamic extends LocalVariableDeclaration {
 		this.node = node;
 		this.declarator = declarator;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLocalVariableDeclarationDynamic(this);
 	}
 
+	@Override
 	public boolean isDynamic() { return true; }
 
+	@Override
 	public boolean hasDeclarator() { return true; }
 
 private final org.rascalmpl.ast.Declarator declarator;
+	@Override
 	public org.rascalmpl.ast.Declarator getDeclarator() { return declarator; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

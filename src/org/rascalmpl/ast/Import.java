@@ -8,15 +8,19 @@ static public class Default extends Import {
 		this.node = node;
 		this.module = module;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasModule() { return true; }
 
 private final org.rascalmpl.ast.ImportedModule module;
+	@Override
 	public org.rascalmpl.ast.ImportedModule getModule() { return module; }	
 }
 static public class Ambiguity extends Import {
@@ -29,7 +33,8 @@ static public class Ambiguity extends Import {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitImportAmbiguity(this);
   }
 } public boolean isExtend() { return false; }
@@ -39,16 +44,21 @@ static public class Extend extends Import {
 		this.node = node;
 		this.module = module;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportExtend(this);
 	}
 
+	@Override
 	public boolean isExtend() { return true; }
 
+	@Override
 	public boolean hasModule() { return true; }
 
 private final org.rascalmpl.ast.ImportedModule module;
+	@Override
 	public org.rascalmpl.ast.ImportedModule getModule() { return module; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -1478,6 +1478,9 @@ return new org.rascalmpl.ast.BasicType.Value(node);
 public org.rascalmpl.ast.BasicType.String makeBasicTypeString(INode node) { 
 return new org.rascalmpl.ast.BasicType.String(node); 
 }
+public org.rascalmpl.ast.BasicType.Num makeBasicTypeNum(INode node) { 
+return new org.rascalmpl.ast.BasicType.Num(node); 
+}
 public org.rascalmpl.ast.BasicType.Real makeBasicTypeReal(INode node) { 
 return new org.rascalmpl.ast.BasicType.Real(node); 
 }

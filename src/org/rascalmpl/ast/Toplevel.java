@@ -10,15 +10,19 @@ static public class GivenVisibility extends Toplevel {
 		this.node = node;
 		this.declaration = declaration;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitToplevelGivenVisibility(this);
 	}
 
+	@Override
 	public boolean isGivenVisibility() { return true; }
 
+	@Override
 	public boolean hasDeclaration() { return true; }
 
 private final org.rascalmpl.ast.Declaration declaration;
+	@Override
 	public org.rascalmpl.ast.Declaration getDeclaration() { return declaration; }	
 }
 static public class Ambiguity extends Toplevel {
@@ -31,7 +35,8 @@ static public class Ambiguity extends Toplevel {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitToplevelAmbiguity(this);
   }
 }

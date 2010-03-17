@@ -10,15 +10,19 @@ static public class DateLiteral extends DateTimeLiteral {
 		this.node = node;
 		this.date = date;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDateTimeLiteralDateLiteral(this);
 	}
 
+	@Override
 	public boolean isDateLiteral() { return true; }
 
+	@Override
 	public boolean hasDate() { return true; }
 
 private final org.rascalmpl.ast.JustDate date;
+	@Override
 	public org.rascalmpl.ast.JustDate getDate() { return date; }	
 }
 static public class Ambiguity extends DateTimeLiteral {
@@ -31,7 +35,8 @@ static public class Ambiguity extends DateTimeLiteral {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitDateTimeLiteralAmbiguity(this);
   }
 } 
@@ -44,17 +49,22 @@ static public class TimeLiteral extends DateTimeLiteral {
 		this.node = node;
 		this.time = time;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDateTimeLiteralTimeLiteral(this);
 	}
 
+	@Override
 	public boolean isTimeLiteral() { return true; }
 
+	@Override
 	public boolean hasTime() { return true; }
 
 private final org.rascalmpl.ast.JustTime time;
+	@Override
 	public org.rascalmpl.ast.JustTime getTime() { return time; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.DateAndTime getDateAndTime() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.DateAndTime getDateAndTime() { throw new UnsupportedOperationException(); }
 public boolean hasDateAndTime() { return false; }
 public boolean isDateAndTimeLiteral() { return false; }
 static public class DateAndTimeLiteral extends DateTimeLiteral {
@@ -63,15 +73,19 @@ static public class DateAndTimeLiteral extends DateTimeLiteral {
 		this.node = node;
 		this.dateAndTime = dateAndTime;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDateTimeLiteralDateAndTimeLiteral(this);
 	}
 
+	@Override
 	public boolean isDateAndTimeLiteral() { return true; }
 
+	@Override
 	public boolean hasDateAndTime() { return true; }
 
 private final org.rascalmpl.ast.DateAndTime dateAndTime;
+	@Override
 	public org.rascalmpl.ast.DateAndTime getDateAndTime() { return dateAndTime; }	
 }
 }

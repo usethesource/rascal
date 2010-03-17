@@ -7,10 +7,12 @@ static public class Public extends Visibility {
 	public Public(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVisibilityPublic(this);
 	}
 
+	@Override
 	public boolean isPublic() { return true; }	
 }
 static public class Ambiguity extends Visibility {
@@ -23,7 +25,8 @@ static public class Ambiguity extends Visibility {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitVisibilityAmbiguity(this);
   }
 } 
@@ -33,21 +36,26 @@ static public class Private extends Visibility {
 	public Private(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVisibilityPrivate(this);
 	}
 
+	@Override
 	public boolean isPrivate() { return true; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isDefault() { return false; }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isDefault() { return false; }
 static public class Default extends Visibility {
 /**  -> Visibility {cons("Default")} */
 	public Default(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVisibilityDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }	
 }
 }

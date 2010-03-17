@@ -10,15 +10,19 @@ static public class Numeric extends Character {
 		this.node = node;
 		this.numChar = numChar;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterNumeric(this);
 	}
 
+	@Override
 	public boolean isNumeric() { return true; }
 
+	@Override
 	public boolean hasNumChar() { return true; }
 
 private final org.rascalmpl.ast.NumChar numChar;
+	@Override
 	public org.rascalmpl.ast.NumChar getNumChar() { return numChar; }	
 }
 static public class Ambiguity extends Character {
@@ -31,7 +35,8 @@ static public class Ambiguity extends Character {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitCharacterAmbiguity(this);
   }
 } 
@@ -44,26 +49,33 @@ static public class Short extends Character {
 		this.node = node;
 		this.shortChar = shortChar;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterShort(this);
 	}
 
+	@Override
 	public boolean isShort() { return true; }
 
+	@Override
 	public boolean hasShortChar() { return true; }
 
 private final org.rascalmpl.ast.ShortChar shortChar;
+	@Override
 	public org.rascalmpl.ast.ShortChar getShortChar() { return shortChar; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isTop() { return false; }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isTop() { return false; }
 static public class Top extends Character {
 /** "\\TOP" -> Character {cons("Top")} */
 	public Top(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterTop(this);
 	}
 
+	@Override
 	public boolean isTop() { return true; }	
 } 
 public boolean isEOF() { return false; }
@@ -72,10 +84,12 @@ static public class EOF extends Character {
 	public EOF(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterEOF(this);
 	}
 
+	@Override
 	public boolean isEOF() { return true; }	
 } 
 public boolean isBottom() { return false; }
@@ -84,10 +98,12 @@ static public class Bottom extends Character {
 	public Bottom(INode node) {
 		this.node = node;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterBottom(this);
 	}
 
+	@Override
 	public boolean isBottom() { return true; }	
 }
 }
