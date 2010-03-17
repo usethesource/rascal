@@ -10,15 +10,19 @@ static public class Variable extends Assignable {
 		this.node = node;
 		this.qualifiedName = qualifiedName;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableVariable(this);
 	}
 
+	@Override
 	public boolean isVariable() { return true; }
 
+	@Override
 	public boolean hasQualifiedName() { return true; }
 
 private final org.rascalmpl.ast.QualifiedName qualifiedName;
+	@Override
 	public org.rascalmpl.ast.QualifiedName getQualifiedName() { return qualifiedName; }	
 }
 static public class Ambiguity extends Assignable {
@@ -31,7 +35,8 @@ static public class Ambiguity extends Assignable {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitAssignableAmbiguity(this);
   }
 } public org.rascalmpl.ast.Assignable getReceiver() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Expression getSubscript() { throw new UnsupportedOperationException(); } public boolean hasReceiver() { return false; } public boolean hasSubscript() { return false; }
@@ -43,20 +48,27 @@ static public class Subscript extends Assignable {
 		this.receiver = receiver;
 		this.subscript = subscript;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableSubscript(this);
 	}
 
+	@Override
 	public boolean isSubscript() { return true; }
 
+	@Override
 	public boolean hasReceiver() { return true; }
+	@Override
 	public boolean hasSubscript() { return true; }
 
 private final org.rascalmpl.ast.Assignable receiver;
+	@Override
 	public org.rascalmpl.ast.Assignable getReceiver() { return receiver; }
 	private final org.rascalmpl.ast.Expression subscript;
+	@Override
 	public org.rascalmpl.ast.Expression getSubscript() { return subscript; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Name getField() { throw new UnsupportedOperationException(); } public boolean hasField() { return false; }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Name getField() { throw new UnsupportedOperationException(); } public boolean hasField() { return false; }
 public boolean isFieldAccess() { return false; }
 static public class FieldAccess extends Assignable {
 /** receiver:Assignable "." field:Name -> Assignable {cons("FieldAccess")} */
@@ -65,18 +77,24 @@ static public class FieldAccess extends Assignable {
 		this.receiver = receiver;
 		this.field = field;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableFieldAccess(this);
 	}
 
+	@Override
 	public boolean isFieldAccess() { return true; }
 
+	@Override
 	public boolean hasReceiver() { return true; }
+	@Override
 	public boolean hasField() { return true; }
 
 private final org.rascalmpl.ast.Assignable receiver;
+	@Override
 	public org.rascalmpl.ast.Assignable getReceiver() { return receiver; }
 	private final org.rascalmpl.ast.Name field;
+	@Override
 	public org.rascalmpl.ast.Name getField() { return field; }	
 } public org.rascalmpl.ast.Expression getDefaultExpression() { throw new UnsupportedOperationException(); } public boolean hasDefaultExpression() { return false; }
 public boolean isIfDefinedOrDefault() { return false; }
@@ -87,18 +105,24 @@ static public class IfDefinedOrDefault extends Assignable {
 		this.receiver = receiver;
 		this.defaultExpression = defaultExpression;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableIfDefinedOrDefault(this);
 	}
 
+	@Override
 	public boolean isIfDefinedOrDefault() { return true; }
 
+	@Override
 	public boolean hasReceiver() { return true; }
+	@Override
 	public boolean hasDefaultExpression() { return true; }
 
 private final org.rascalmpl.ast.Assignable receiver;
+	@Override
 	public org.rascalmpl.ast.Assignable getReceiver() { return receiver; }
 	private final org.rascalmpl.ast.Expression defaultExpression;
+	@Override
 	public org.rascalmpl.ast.Expression getDefaultExpression() { return defaultExpression; }	
 } public org.rascalmpl.ast.Name getAnnotation() { throw new UnsupportedOperationException(); } public boolean hasAnnotation() { return false; }
 public boolean isAnnotation() { return false; }
@@ -109,18 +133,24 @@ static public class Annotation extends Assignable {
 		this.receiver = receiver;
 		this.annotation = annotation;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableAnnotation(this);
 	}
 
+	@Override
 	public boolean isAnnotation() { return true; }
 
+	@Override
 	public boolean hasReceiver() { return true; }
+	@Override
 	public boolean hasAnnotation() { return true; }
 
 private final org.rascalmpl.ast.Assignable receiver;
+	@Override
 	public org.rascalmpl.ast.Assignable getReceiver() { return receiver; }
 	private final org.rascalmpl.ast.Name annotation;
+	@Override
 	public org.rascalmpl.ast.Name getAnnotation() { return annotation; }	
 } 
 public java.util.List<org.rascalmpl.ast.Assignable> getElements() { throw new UnsupportedOperationException(); }
@@ -132,15 +162,19 @@ static public class Tuple extends Assignable {
 		this.node = node;
 		this.elements = elements;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableTuple(this);
 	}
 
+	@Override
 	public boolean isTuple() { return true; }
 
+	@Override
 	public boolean hasElements() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Assignable> elements;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Assignable> getElements() { return elements; }	
 } 
 public org.rascalmpl.ast.Name getName() { throw new UnsupportedOperationException(); }
@@ -155,18 +189,24 @@ static public class Constructor extends Assignable {
 		this.name = name;
 		this.arguments = arguments;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableConstructor(this);
 	}
 
+	@Override
 	public boolean isConstructor() { return true; }
 
+	@Override
 	public boolean hasName() { return true; }
+	@Override
 	public boolean hasArguments() { return true; }
 
 private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final java.util.List<org.rascalmpl.ast.Assignable> arguments;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Assignable> getArguments() { return arguments; }	
 }
 }

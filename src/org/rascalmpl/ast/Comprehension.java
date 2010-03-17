@@ -9,18 +9,24 @@ static public class Set extends Comprehension {
 		this.results = results;
 		this.generators = generators;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitComprehensionSet(this);
 	}
 
+	@Override
 	public boolean isSet() { return true; }
 
+	@Override
 	public boolean hasResults() { return true; }
+	@Override
 	public boolean hasGenerators() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Expression> results;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getResults() { return results; }
 	private final java.util.List<org.rascalmpl.ast.Expression> generators;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { return generators; }	
 }
 static public class Ambiguity extends Comprehension {
@@ -33,7 +39,8 @@ static public class Ambiguity extends Comprehension {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitComprehensionAmbiguity(this);
   }
 } public boolean isList() { return false; }
@@ -44,20 +51,27 @@ static public class List extends Comprehension {
 		this.results = results;
 		this.generators = generators;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitComprehensionList(this);
 	}
 
+	@Override
 	public boolean isList() { return true; }
 
+	@Override
 	public boolean hasResults() { return true; }
+	@Override
 	public boolean hasGenerators() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Expression> results;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getResults() { return results; }
 	private final java.util.List<org.rascalmpl.ast.Expression> generators;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { return generators; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Expression getFrom() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Expression getFrom() { throw new UnsupportedOperationException(); }
 	public org.rascalmpl.ast.Expression getTo() { throw new UnsupportedOperationException(); } public boolean hasFrom() { return false; }
 	public boolean hasTo() { return false; } public boolean isMap() { return false; }
 static public class Map extends Comprehension {
@@ -68,21 +82,29 @@ static public class Map extends Comprehension {
 		this.to = to;
 		this.generators = generators;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitComprehensionMap(this);
 	}
 
+	@Override
 	public boolean isMap() { return true; }
 
+	@Override
 	public boolean hasFrom() { return true; }
+	@Override
 	public boolean hasTo() { return true; }
+	@Override
 	public boolean hasGenerators() { return true; }
 
 private final org.rascalmpl.ast.Expression from;
+	@Override
 	public org.rascalmpl.ast.Expression getFrom() { return from; }
 	private final org.rascalmpl.ast.Expression to;
+	@Override
 	public org.rascalmpl.ast.Expression getTo() { return to; }
 	private final java.util.List<org.rascalmpl.ast.Expression> generators;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { return generators; }	
 }
 }

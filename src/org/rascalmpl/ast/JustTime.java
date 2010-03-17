@@ -11,7 +11,8 @@ static public class Lexical extends JustTime {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitJustTimeLexical(this);
   	}
 }
@@ -25,7 +26,8 @@ static public class Ambiguity extends JustTime {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitJustTimeAmbiguity(this);
   }
 }

@@ -13,18 +13,24 @@ static public class Selector extends DataTypeSelector {
 		this.sort = sort;
 		this.production = production;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDataTypeSelectorSelector(this);
 	}
 
+	@Override
 	public boolean isSelector() { return true; }
 
+	@Override
 	public boolean hasSort() { return true; }
+	@Override
 	public boolean hasProduction() { return true; }
 
 private final org.rascalmpl.ast.Name sort;
+	@Override
 	public org.rascalmpl.ast.Name getSort() { return sort; }
 	private final org.rascalmpl.ast.Name production;
+	@Override
 	public org.rascalmpl.ast.Name getProduction() { return production; }	
 }
 static public class Ambiguity extends DataTypeSelector {
@@ -37,7 +43,8 @@ static public class Ambiguity extends DataTypeSelector {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitDataTypeSelectorAmbiguity(this);
   }
 }

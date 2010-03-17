@@ -13,18 +13,24 @@ static public class NAryConstructor extends Variant {
 		this.name = name;
 		this.arguments = arguments;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVariantNAryConstructor(this);
 	}
 
+	@Override
 	public boolean isNAryConstructor() { return true; }
 
+	@Override
 	public boolean hasName() { return true; }
+	@Override
 	public boolean hasArguments() { return true; }
 
 private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final java.util.List<org.rascalmpl.ast.TypeArg> arguments;
+	@Override
 	public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() { return arguments; }	
 }
 static public class Ambiguity extends Variant {
@@ -37,7 +43,8 @@ static public class Ambiguity extends Variant {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitVariantAmbiguity(this);
   }
 }

@@ -10,15 +10,19 @@ static public class Symbol extends Type {
 		this.node = node;
 		this.symbol = symbol;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeSymbol(this);
 	}
 
+	@Override
 	public boolean isSymbol() { return true; }
 
+	@Override
 	public boolean hasSymbol() { return true; }
 
 private final org.rascalmpl.ast.Symbol symbol;
+	@Override
 	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
 }
 static public class Ambiguity extends Type {
@@ -31,7 +35,8 @@ static public class Ambiguity extends Type {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitTypeAmbiguity(this);
   }
 } 
@@ -44,17 +49,22 @@ static public class Basic extends Type {
 		this.node = node;
 		this.basic = basic;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeBasic(this);
 	}
 
+	@Override
 	public boolean isBasic() { return true; }
 
+	@Override
 	public boolean hasBasic() { return true; }
 
 private final org.rascalmpl.ast.BasicType basic;
+	@Override
 	public org.rascalmpl.ast.BasicType getBasic() { return basic; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.StructuredType getStructured() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.StructuredType getStructured() { throw new UnsupportedOperationException(); }
 public boolean hasStructured() { return false; }
 public boolean isStructured() { return false; }
 static public class Structured extends Type {
@@ -63,15 +73,19 @@ static public class Structured extends Type {
 		this.node = node;
 		this.structured = structured;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeStructured(this);
 	}
 
+	@Override
 	public boolean isStructured() { return true; }
 
+	@Override
 	public boolean hasStructured() { return true; }
 
 private final org.rascalmpl.ast.StructuredType structured;
+	@Override
 	public org.rascalmpl.ast.StructuredType getStructured() { return structured; }	
 } 
 public org.rascalmpl.ast.FunctionType getFunction() { throw new UnsupportedOperationException(); }
@@ -83,15 +97,19 @@ static public class Function extends Type {
 		this.node = node;
 		this.function = function;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeFunction(this);
 	}
 
+	@Override
 	public boolean isFunction() { return true; }
 
+	@Override
 	public boolean hasFunction() { return true; }
 
 private final org.rascalmpl.ast.FunctionType function;
+	@Override
 	public org.rascalmpl.ast.FunctionType getFunction() { return function; }	
 } 
 public org.rascalmpl.ast.TypeVar getTypeVar() { throw new UnsupportedOperationException(); }
@@ -103,15 +121,19 @@ static public class Variable extends Type {
 		this.node = node;
 		this.typeVar = typeVar;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeVariable(this);
 	}
 
+	@Override
 	public boolean isVariable() { return true; }
 
+	@Override
 	public boolean hasTypeVar() { return true; }
 
 private final org.rascalmpl.ast.TypeVar typeVar;
+	@Override
 	public org.rascalmpl.ast.TypeVar getTypeVar() { return typeVar; }	
 } 
 public org.rascalmpl.ast.UserType getUser() { throw new UnsupportedOperationException(); }
@@ -123,15 +145,19 @@ static public class User extends Type {
 		this.node = node;
 		this.user = user;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeUser(this);
 	}
 
+	@Override
 	public boolean isUser() { return true; }
 
+	@Override
 	public boolean hasUser() { return true; }
 
 private final org.rascalmpl.ast.UserType user;
+	@Override
 	public org.rascalmpl.ast.UserType getUser() { return user; }	
 } 
 public org.rascalmpl.ast.DataTypeSelector getSelector() { throw new UnsupportedOperationException(); }
@@ -143,15 +169,19 @@ static public class Selector extends Type {
 		this.node = node;
 		this.selector = selector;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeSelector(this);
 	}
 
+	@Override
 	public boolean isSelector() { return true; }
 
+	@Override
 	public boolean hasSelector() { return true; }
 
 private final org.rascalmpl.ast.DataTypeSelector selector;
+	@Override
 	public org.rascalmpl.ast.DataTypeSelector getSelector() { return selector; }	
 } 
 public org.rascalmpl.ast.Type getType() { throw new UnsupportedOperationException(); }
@@ -163,15 +193,19 @@ static public class Bracket extends Type {
 		this.node = node;
 		this.type = type;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeBracket(this);
 	}
 
+	@Override
 	public boolean isBracket() { return true; }
 
+	@Override
 	public boolean hasType() { return true; }
 
 private final org.rascalmpl.ast.Type type;
+	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }	
 }
 }

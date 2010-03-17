@@ -11,7 +11,8 @@ static public class Lexical extends RegExpModifier {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitRegExpModifierLexical(this);
   	}
 }
@@ -25,7 +26,8 @@ static public class Ambiguity extends RegExpModifier {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitRegExpModifierAmbiguity(this);
   }
 }

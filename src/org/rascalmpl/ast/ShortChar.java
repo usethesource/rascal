@@ -11,7 +11,8 @@ public abstract class ShortChar extends AbstractAST {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitShortCharLexical(this);
   	}
 } static public class Ambiguity extends ShortChar {
@@ -24,8 +25,10 @@ public abstract class ShortChar extends AbstractAST {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitShortCharAmbiguity(this);
   }
-} public abstract <T> T accept(IASTVisitor<T> visitor);
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

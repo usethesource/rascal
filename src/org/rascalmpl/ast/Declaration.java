@@ -17,27 +17,39 @@ static public class View extends Declaration {
 		this.superType = superType;
 		this.alts = alts;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationView(this);
 	}
 
+	@Override
 	public boolean isView() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasVisibility() { return true; }
+	@Override
 	public boolean hasView() { return true; }
+	@Override
 	public boolean hasSuperType() { return true; }
+	@Override
 	public boolean hasAlts() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Visibility visibility;
+	@Override
 	public org.rascalmpl.ast.Visibility getVisibility() { return visibility; }
 	private final org.rascalmpl.ast.Name view;
+	@Override
 	public org.rascalmpl.ast.Name getView() { return view; }
 	private final org.rascalmpl.ast.Name superType;
+	@Override
 	public org.rascalmpl.ast.Name getSuperType() { return superType; }
 	private final java.util.List<org.rascalmpl.ast.Alternative> alts;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Alternative> getAlts() { return alts; }	
 }
 static public class Ambiguity extends Declaration {
@@ -50,7 +62,8 @@ static public class Ambiguity extends Declaration {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitDeclarationAmbiguity(this);
   }
 } public org.rascalmpl.ast.UserType getUser() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Type getBase() { throw new UnsupportedOperationException(); } public boolean hasUser() { return false; } public boolean hasBase() { return false; }
@@ -64,26 +77,37 @@ static public class Alias extends Declaration {
 		this.user = user;
 		this.base = base;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationAlias(this);
 	}
 
+	@Override
 	public boolean isAlias() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasVisibility() { return true; }
+	@Override
 	public boolean hasUser() { return true; }
+	@Override
 	public boolean hasBase() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Visibility visibility;
+	@Override
 	public org.rascalmpl.ast.Visibility getVisibility() { return visibility; }
 	private final org.rascalmpl.ast.UserType user;
+	@Override
 	public org.rascalmpl.ast.UserType getUser() { return user; }
 	private final org.rascalmpl.ast.Type base;
+	@Override
 	public org.rascalmpl.ast.Type getBase() { return base; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.rascalmpl.ast.Variant> getVariants() { throw new UnsupportedOperationException(); } public boolean hasVariants() { return false; }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.rascalmpl.ast.Variant> getVariants() { throw new UnsupportedOperationException(); } public boolean hasVariants() { return false; }
 public boolean isData() { return false; }
 static public class Data extends Declaration {
 /** tags:Tags visibility:Visibility "data" user:UserType "=" variants:{Variant "|"}+ ";" -> Declaration {cons("Data")} */
@@ -94,24 +118,34 @@ static public class Data extends Declaration {
 		this.user = user;
 		this.variants = variants;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationData(this);
 	}
 
+	@Override
 	public boolean isData() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasVisibility() { return true; }
+	@Override
 	public boolean hasUser() { return true; }
+	@Override
 	public boolean hasVariants() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Visibility visibility;
+	@Override
 	public org.rascalmpl.ast.Visibility getVisibility() { return visibility; }
 	private final org.rascalmpl.ast.UserType user;
+	@Override
 	public org.rascalmpl.ast.UserType getUser() { return user; }
 	private final java.util.List<org.rascalmpl.ast.Variant> variants;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Variant> getVariants() { return variants; }	
 } public boolean isDataAbstract() { return false; }
 static public class DataAbstract extends Declaration {
@@ -122,21 +156,29 @@ static public class DataAbstract extends Declaration {
 		this.visibility = visibility;
 		this.user = user;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationDataAbstract(this);
 	}
 
+	@Override
 	public boolean isDataAbstract() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasVisibility() { return true; }
+	@Override
 	public boolean hasUser() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Visibility visibility;
+	@Override
 	public org.rascalmpl.ast.Visibility getVisibility() { return visibility; }
 	private final org.rascalmpl.ast.UserType user;
+	@Override
 	public org.rascalmpl.ast.UserType getUser() { return user; }	
 } 
 public org.rascalmpl.ast.Test getTest() { throw new UnsupportedOperationException(); }
@@ -148,15 +190,19 @@ static public class Test extends Declaration {
 		this.node = node;
 		this.test = test;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationTest(this);
 	}
 
+	@Override
 	public boolean isTest() { return true; }
 
+	@Override
 	public boolean hasTest() { return true; }
 
 private final org.rascalmpl.ast.Test test;
+	@Override
 	public org.rascalmpl.ast.Test getTest() { return test; }	
 } 
 public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() { throw new UnsupportedOperationException(); }
@@ -168,15 +214,19 @@ static public class Function extends Declaration {
 		this.node = node;
 		this.functionDeclaration = functionDeclaration;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationFunction(this);
 	}
 
+	@Override
 	public boolean isFunction() { return true; }
 
+	@Override
 	public boolean hasFunctionDeclaration() { return true; }
 
 private final org.rascalmpl.ast.FunctionDeclaration functionDeclaration;
+	@Override
 	public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() { return functionDeclaration; }	
 } public org.rascalmpl.ast.Type getType() { throw new UnsupportedOperationException(); }
 	public java.util.List<org.rascalmpl.ast.Variable> getVariables() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; }
@@ -191,24 +241,34 @@ static public class Variable extends Declaration {
 		this.type = type;
 		this.variables = variables;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationVariable(this);
 	}
 
+	@Override
 	public boolean isVariable() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasVisibility() { return true; }
+	@Override
 	public boolean hasType() { return true; }
+	@Override
 	public boolean hasVariables() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Visibility visibility;
+	@Override
 	public org.rascalmpl.ast.Visibility getVisibility() { return visibility; }
 	private final org.rascalmpl.ast.Type type;
+	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }
 	private final java.util.List<org.rascalmpl.ast.Variable> variables;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Variable> getVariables() { return variables; }	
 } public org.rascalmpl.ast.Name getName() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.PatternWithAction getPatternAction() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasPatternAction() { return false; }
 public boolean isRule() { return false; }
@@ -220,21 +280,29 @@ static public class Rule extends Declaration {
 		this.name = name;
 		this.patternAction = patternAction;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationRule(this);
 	}
 
+	@Override
 	public boolean isRule() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasName() { return true; }
+	@Override
 	public boolean hasPatternAction() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final org.rascalmpl.ast.PatternWithAction patternAction;
+	@Override
 	public org.rascalmpl.ast.PatternWithAction getPatternAction() { return patternAction; }	
 } public org.rascalmpl.ast.Type getAnnoType() { throw new UnsupportedOperationException(); }
 	public org.rascalmpl.ast.Type getOnType() { throw new UnsupportedOperationException(); } public boolean hasAnnoType() { return false; }
@@ -249,27 +317,39 @@ static public class Annotation extends Declaration {
 		this.onType = onType;
 		this.name = name;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationAnnotation(this);
 	}
 
+	@Override
 	public boolean isAnnotation() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasVisibility() { return true; }
+	@Override
 	public boolean hasAnnoType() { return true; }
+	@Override
 	public boolean hasOnType() { return true; }
+	@Override
 	public boolean hasName() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Visibility visibility;
+	@Override
 	public org.rascalmpl.ast.Visibility getVisibility() { return visibility; }
 	private final org.rascalmpl.ast.Type annoType;
+	@Override
 	public org.rascalmpl.ast.Type getAnnoType() { return annoType; }
 	private final org.rascalmpl.ast.Type onType;
+	@Override
 	public org.rascalmpl.ast.Type getOnType() { return onType; }
 	private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }	
 } public org.rascalmpl.ast.Kind getKind() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Type> getTypes() { throw new UnsupportedOperationException(); } public boolean hasKind() { return false; } public boolean hasTypes() { return false; }
 public boolean isTag() { return false; }
@@ -283,27 +363,39 @@ static public class Tag extends Declaration {
 		this.name = name;
 		this.types = types;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationTag(this);
 	}
 
+	@Override
 	public boolean isTag() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasVisibility() { return true; }
+	@Override
 	public boolean hasKind() { return true; }
+	@Override
 	public boolean hasName() { return true; }
+	@Override
 	public boolean hasTypes() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Visibility visibility;
+	@Override
 	public org.rascalmpl.ast.Visibility getVisibility() { return visibility; }
 	private final org.rascalmpl.ast.Kind kind;
+	@Override
 	public org.rascalmpl.ast.Kind getKind() { return kind; }
 	private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final java.util.List<org.rascalmpl.ast.Type> types;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Type> getTypes() { return types; }	
 }
 }

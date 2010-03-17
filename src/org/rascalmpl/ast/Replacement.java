@@ -8,15 +8,19 @@ static public class Unconditional extends Replacement {
 		this.node = node;
 		this.replacementExpression = replacementExpression;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitReplacementUnconditional(this);
 	}
 
+	@Override
 	public boolean isUnconditional() { return true; }
 
+	@Override
 	public boolean hasReplacementExpression() { return true; }
 
 private final org.rascalmpl.ast.Expression replacementExpression;
+	@Override
 	public org.rascalmpl.ast.Expression getReplacementExpression() { return replacementExpression; }	
 }
 static public class Ambiguity extends Replacement {
@@ -29,7 +33,8 @@ static public class Ambiguity extends Replacement {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitReplacementAmbiguity(this);
   }
 } public java.util.List<org.rascalmpl.ast.Expression> getConditions() { throw new UnsupportedOperationException(); } public boolean hasConditions() { return false; }
@@ -41,19 +46,26 @@ static public class Conditional extends Replacement {
 		this.replacementExpression = replacementExpression;
 		this.conditions = conditions;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitReplacementConditional(this);
 	}
 
+	@Override
 	public boolean isConditional() { return true; }
 
+	@Override
 	public boolean hasReplacementExpression() { return true; }
+	@Override
 	public boolean hasConditions() { return true; }
 
 private final org.rascalmpl.ast.Expression replacementExpression;
+	@Override
 	public org.rascalmpl.ast.Expression getReplacementExpression() { return replacementExpression; }
 	private final java.util.List<org.rascalmpl.ast.Expression> conditions;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getConditions() { return conditions; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

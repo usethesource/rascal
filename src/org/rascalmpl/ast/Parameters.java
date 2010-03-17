@@ -8,15 +8,19 @@ static public class Default extends Parameters {
 		this.node = node;
 		this.formals = formals;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitParametersDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasFormals() { return true; }
 
 private final org.rascalmpl.ast.Formals formals;
+	@Override
 	public org.rascalmpl.ast.Formals getFormals() { return formals; }	
 }
 static public class Ambiguity extends Parameters {
@@ -29,7 +33,8 @@ static public class Ambiguity extends Parameters {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitParametersAmbiguity(this);
   }
 } public boolean isVarArgs() { return false; }
@@ -39,16 +44,21 @@ static public class VarArgs extends Parameters {
 		this.node = node;
 		this.formals = formals;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitParametersVarArgs(this);
 	}
 
+	@Override
 	public boolean isVarArgs() { return true; }
 
+	@Override
 	public boolean hasFormals() { return true; }
 
 private final org.rascalmpl.ast.Formals formals;
+	@Override
 	public org.rascalmpl.ast.Formals getFormals() { return formals; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -11,7 +11,8 @@ static public class Lexical extends UnicodeEscape {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitUnicodeEscapeLexical(this);
   	}
 }
@@ -25,7 +26,8 @@ static public class Ambiguity extends UnicodeEscape {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitUnicodeEscapeAmbiguity(this);
   }
 }

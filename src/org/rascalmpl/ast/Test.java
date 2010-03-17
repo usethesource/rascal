@@ -9,18 +9,24 @@ static public class Unlabeled extends Test {
 		this.tags = tags;
 		this.expression = expression;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTestUnlabeled(this);
 	}
 
+	@Override
 	public boolean isUnlabeled() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 }
 static public class Ambiguity extends Test {
@@ -33,7 +39,8 @@ static public class Ambiguity extends Test {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitTestAmbiguity(this);
   }
 } public org.rascalmpl.ast.StringLiteral getLabeled() { throw new UnsupportedOperationException(); } public boolean hasLabeled() { return false; }
@@ -46,22 +53,31 @@ static public class Labeled extends Test {
 		this.expression = expression;
 		this.labeled = labeled;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTestLabeled(this);
 	}
 
+	@Override
 	public boolean isLabeled() { return true; }
 
+	@Override
 	public boolean hasTags() { return true; }
+	@Override
 	public boolean hasExpression() { return true; }
+	@Override
 	public boolean hasLabeled() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
+	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }
 	private final org.rascalmpl.ast.StringLiteral labeled;
+	@Override
 	public org.rascalmpl.ast.StringLiteral getLabeled() { return labeled; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

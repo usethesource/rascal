@@ -10,15 +10,19 @@ static public class Default extends QualifiedName {
 		this.node = node;
 		this.names = names;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitQualifiedNameDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasNames() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Name> names;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Name> getNames() { return names; }	
 }
 static public class Ambiguity extends QualifiedName {
@@ -31,7 +35,8 @@ static public class Ambiguity extends QualifiedName {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitQualifiedNameAmbiguity(this);
   }
 }

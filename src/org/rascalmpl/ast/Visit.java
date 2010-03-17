@@ -9,18 +9,24 @@ static public class DefaultStrategy extends Visit {
 		this.subject = subject;
 		this.cases = cases;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVisitDefaultStrategy(this);
 	}
 
+	@Override
 	public boolean isDefaultStrategy() { return true; }
 
+	@Override
 	public boolean hasSubject() { return true; }
+	@Override
 	public boolean hasCases() { return true; }
 
 private final org.rascalmpl.ast.Expression subject;
+	@Override
 	public org.rascalmpl.ast.Expression getSubject() { return subject; }
 	private final java.util.List<org.rascalmpl.ast.Case> cases;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Case> getCases() { return cases; }	
 }
 static public class Ambiguity extends Visit {
@@ -33,7 +39,8 @@ static public class Ambiguity extends Visit {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitVisitAmbiguity(this);
   }
 } 
@@ -46,22 +53,31 @@ static public class GivenStrategy extends Visit {
 		this.subject = subject;
 		this.cases = cases;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVisitGivenStrategy(this);
 	}
 
+	@Override
 	public boolean isGivenStrategy() { return true; }
 
+	@Override
 	public boolean hasStrategy() { return true; }
+	@Override
 	public boolean hasSubject() { return true; }
+	@Override
 	public boolean hasCases() { return true; }
 
 private final org.rascalmpl.ast.Strategy strategy;
+	@Override
 	public org.rascalmpl.ast.Strategy getStrategy() { return strategy; }
 	private final org.rascalmpl.ast.Expression subject;
+	@Override
 	public org.rascalmpl.ast.Expression getSubject() { return subject; }
 	private final java.util.List<org.rascalmpl.ast.Case> cases;
+	@Override
 	public java.util.List<org.rascalmpl.ast.Case> getCases() { return cases; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

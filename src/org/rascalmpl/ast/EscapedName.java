@@ -11,7 +11,8 @@ static public class Lexical extends EscapedName {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitEscapedNameLexical(this);
   	}
 }
@@ -25,7 +26,8 @@ static public class Ambiguity extends EscapedName {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitEscapedNameAmbiguity(this);
   }
 }

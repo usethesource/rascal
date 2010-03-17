@@ -10,18 +10,24 @@ static public class Replacing extends PatternWithAction {
 		this.pattern = pattern;
 		this.replacement = replacement;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitPatternWithActionReplacing(this);
 	}
 
+	@Override
 	public boolean isReplacing() { return true; }
 
+	@Override
 	public boolean hasPattern() { return true; }
+	@Override
 	public boolean hasReplacement() { return true; }
 
 private final org.rascalmpl.ast.Expression pattern;
+	@Override
 	public org.rascalmpl.ast.Expression getPattern() { return pattern; }
 	private final org.rascalmpl.ast.Replacement replacement;
+	@Override
 	public org.rascalmpl.ast.Replacement getReplacement() { return replacement; }	
 }
 static public class Ambiguity extends PatternWithAction {
@@ -34,7 +40,8 @@ static public class Ambiguity extends PatternWithAction {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitPatternWithActionAmbiguity(this);
   }
 } public org.rascalmpl.ast.Statement getStatement() { throw new UnsupportedOperationException(); } public boolean hasStatement() { return false; }
@@ -46,19 +53,26 @@ static public class Arbitrary extends PatternWithAction {
 		this.pattern = pattern;
 		this.statement = statement;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitPatternWithActionArbitrary(this);
 	}
 
+	@Override
 	public boolean isArbitrary() { return true; }
 
+	@Override
 	public boolean hasPattern() { return true; }
+	@Override
 	public boolean hasStatement() { return true; }
 
 private final org.rascalmpl.ast.Expression pattern;
+	@Override
 	public org.rascalmpl.ast.Expression getPattern() { return pattern; }
 	private final org.rascalmpl.ast.Statement statement;
+	@Override
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+ @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

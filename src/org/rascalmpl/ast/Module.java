@@ -13,18 +13,24 @@ static public class Default extends Module {
 		this.header = header;
 		this.body = body;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitModuleDefault(this);
 	}
 
+	@Override
 	public boolean isDefault() { return true; }
 
+	@Override
 	public boolean hasHeader() { return true; }
+	@Override
 	public boolean hasBody() { return true; }
 
 private final org.rascalmpl.ast.Header header;
+	@Override
 	public org.rascalmpl.ast.Header getHeader() { return header; }
 	private final org.rascalmpl.ast.Body body;
+	@Override
 	public org.rascalmpl.ast.Body getBody() { return body; }	
 }
 static public class Ambiguity extends Module {
@@ -37,7 +43,8 @@ static public class Ambiguity extends Module {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitModuleAmbiguity(this);
   }
 }

@@ -11,7 +11,8 @@ static public class Lexical extends PrePathChars {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitPrePathCharsLexical(this);
   	}
 }
@@ -25,7 +26,8 @@ static public class Ambiguity extends PrePathChars {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitPrePathCharsAmbiguity(this);
   }
 }

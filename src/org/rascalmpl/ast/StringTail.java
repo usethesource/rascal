@@ -10,21 +10,29 @@ static public class MidInterpolated extends StringTail {
 		this.expression = expression;
 		this.tail = tail;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStringTailMidInterpolated(this);
 	}
 
+	@Override
 	public boolean isMidInterpolated() { return true; }
 
+	@Override
 	public boolean hasMid() { return true; }
+	@Override
 	public boolean hasExpression() { return true; }
+	@Override
 	public boolean hasTail() { return true; }
 
 private final org.rascalmpl.ast.MidStringChars mid;
+	@Override
 	public org.rascalmpl.ast.MidStringChars getMid() { return mid; }
 	private final org.rascalmpl.ast.Expression expression;
+	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }
 	private final org.rascalmpl.ast.StringTail tail;
+	@Override
 	public org.rascalmpl.ast.StringTail getTail() { return tail; }	
 }
 static public class Ambiguity extends StringTail {
@@ -37,7 +45,8 @@ static public class Ambiguity extends StringTail {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitStringTailAmbiguity(this);
   }
 } public org.rascalmpl.ast.StringTemplate getTemplate() { throw new UnsupportedOperationException(); } public boolean hasTemplate() { return false; } public boolean isMidTemplate() { return false; }
@@ -49,23 +58,32 @@ static public class MidTemplate extends StringTail {
 		this.template = template;
 		this.tail = tail;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStringTailMidTemplate(this);
 	}
 
+	@Override
 	public boolean isMidTemplate() { return true; }
 
+	@Override
 	public boolean hasMid() { return true; }
+	@Override
 	public boolean hasTemplate() { return true; }
+	@Override
 	public boolean hasTail() { return true; }
 
 private final org.rascalmpl.ast.MidStringChars mid;
+	@Override
 	public org.rascalmpl.ast.MidStringChars getMid() { return mid; }
 	private final org.rascalmpl.ast.StringTemplate template;
+	@Override
 	public org.rascalmpl.ast.StringTemplate getTemplate() { return template; }
 	private final org.rascalmpl.ast.StringTail tail;
+	@Override
 	public org.rascalmpl.ast.StringTail getTail() { return tail; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.PostStringChars getPost() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.PostStringChars getPost() { throw new UnsupportedOperationException(); }
 public boolean hasPost() { return false; }
 public boolean isPost() { return false; }
 static public class Post extends StringTail {
@@ -74,15 +92,19 @@ static public class Post extends StringTail {
 		this.node = node;
 		this.post = post;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStringTailPost(this);
 	}
 
+	@Override
 	public boolean isPost() { return true; }
 
+	@Override
 	public boolean hasPost() { return true; }
 
 private final org.rascalmpl.ast.PostStringChars post;
+	@Override
 	public org.rascalmpl.ast.PostStringChars getPost() { return post; }	
 }
 }

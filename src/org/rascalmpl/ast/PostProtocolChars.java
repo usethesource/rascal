@@ -11,7 +11,8 @@ static public class Lexical extends PostProtocolChars {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitPostProtocolCharsLexical(this);
   	}
 }
@@ -25,7 +26,8 @@ static public class Ambiguity extends PostProtocolChars {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitPostProtocolCharsAmbiguity(this);
   }
 }

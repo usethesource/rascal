@@ -11,7 +11,8 @@ static public class Lexical extends StrCon {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitStrConLexical(this);
   	}
 }
@@ -25,7 +26,8 @@ static public class Ambiguity extends StrCon {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitStrConAmbiguity(this);
   }
 }

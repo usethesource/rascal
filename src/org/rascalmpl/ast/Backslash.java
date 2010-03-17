@@ -11,7 +11,8 @@ static public class Lexical extends Backslash {
 		return string;
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitBackslashLexical(this);
   	}
 }
@@ -25,7 +26,8 @@ static public class Ambiguity extends Backslash {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitBackslashAmbiguity(this);
   }
 }

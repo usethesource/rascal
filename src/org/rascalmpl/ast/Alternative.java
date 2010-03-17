@@ -13,18 +13,24 @@ static public class NamedType extends Alternative {
 		this.name = name;
 		this.type = type;
 	}
+	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAlternativeNamedType(this);
 	}
 
+	@Override
 	public boolean isNamedType() { return true; }
 
+	@Override
 	public boolean hasName() { return true; }
+	@Override
 	public boolean hasType() { return true; }
 
 private final org.rascalmpl.ast.Name name;
+	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final org.rascalmpl.ast.Type type;
+	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }	
 }
 static public class Ambiguity extends Alternative {
@@ -37,7 +43,8 @@ static public class Ambiguity extends Alternative {
 	return alternatives;
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
      return v.visitAlternativeAmbiguity(this);
   }
 }
