@@ -1,9 +1,7 @@
 package org.rascalmpl.library;
 
 
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -14,6 +12,7 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EParameter;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.ETypedElement;
@@ -25,10 +24,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.values.ecore.Factory;
@@ -58,25 +55,25 @@ public class ECore {
 		private final IdentityHashMap<EObject, IConstructor> memo = new IdentityHashMap<EObject, IConstructor>();
 		private final Resource resource;
 		// TODO: add opposites tracking.
-		// TODO: add operations mapping.
 		private final IRelationWriter subtype;
-		private final IRelationWriter typing;
+		private final IRelationWriter features;
 		private final ISetWriter classifiers;
 		
 		
 		public ECoreToADT(Resource resource) {
 			this.resource = resource;
 			this.classifiers = vf.setWriter(Factory.Classifier);
+			this.features = vf.relationWriter(tf.tupleType(Factory.Classifier, "class", 
+					Factory.Feature, "features", Factory.Type, "typ"));
 			this.subtype = vf.relationWriter(tf.tupleType(Factory.Classifier, "sub", Factory.Classifier, "super"));
-			this.typing = vf.relationWriter(tf.tupleType(Factory.Element, "element", Factory.Type, "typ"));
 		}
 
 		public IConstructor convert() {
 			convertContents(resource.getContents());
 			return vf.constructor(Factory.ECore_ecore,
 					classifiers.done(),
-					subtype.done(),
-					typing.done());
+					features.done(),
+					subtype.done());
 		}
 		
 		private void convertContents(EList<EObject> objs) {
@@ -111,48 +108,23 @@ public class ECore {
 				boolean inf = c.isInterface();
 				java.lang.String name = c.getName();
 				
-				IListWriter l = vf.listWriter(Factory.Feature);
-				List<EClassifier> types = new ArrayList<EClassifier>();
-				List<ETypedElement> elts = new ArrayList<ETypedElement>();
-				
-				for (EReference ref: c.getEReferences()) {
-					l.append(convertReference(ref));
-					elts.add(ref);
-					types.add(ref.getEType());
-				}
-
-				for (EAttribute attr: c.getEAttributes()) {
-					l.append(convertAttribute(attr));
-					elts.add(attr);
-					types.add(attr.getEType());
-				}
-				
-				// TODO:
-//				for (EOperation op: c.getEAllOperations()) {
-//					l.append(convertOperation(op));
-//					elts.add(op);
-//					types.add(op.getEType());
-//				}
-				
-				IList features = l.done();
 				IConstructor cons = vf.constructor(Factory.Classifier_class,
 						pkg,
 						vf.string(name), 
-						features, 
 						vf.bool(abs), 
 						vf.bool(inf));
 				memo.put(c, cons);
 				
 				// This must be *after* memo.put
-				// otherwie non-termination risk
-				recordTypes(cons, features, elts, types);
-				recordSubtypes(c, cons);
+				// otherwise non-termination risk
+				recordFeatures(cons, c);
+				recordSubtypes(cons, c);
 			}
 			return memo.get(c);
 		}
 		
 		// TODO: refactor package argument passing; not needed with packagePath
-		private void recordSubtypes(EClass c, IConstructor cons) {
+		private void recordSubtypes(IConstructor cons, EClass c) {
 			for (EClass sup: c.getESuperTypes()) {
 				IConstructor supCons = convertClass(packagePath(sup.getEPackage()), sup);
 				subtype.insert(vf.tuple(cons, supCons));
@@ -171,37 +143,62 @@ public class ECore {
 			}
 			return memo.get(d);
 		}
+		
+		private void recordStructuralFeature(IConstructor owner, IConstructor feature, ETypedElement elt) {
+			IConstructor typeCons = makeType(elt);
+			features.insert(vf.tuple(owner, feature, typeCons));
+		}
 
-		private void recordTypes(IConstructor owner, IList features, List<ETypedElement> elts, List<EClassifier> types) {
-			int i = 0;
-			for (IValue f: features) {
-				ETypedElement elt = elts.get(i);
-				EClassifier type = types.get(i);
+		private IConstructor makeType(ETypedElement elt) {
+			EClassifier type = elt.getEType();
+			if (type == null) {
+				return vf.constructor(Factory.Type_none);
+			}
+			
+			boolean ordered = elt.isOrdered(); 
+			boolean unique = elt.isUnique();
+			int lowerBound = elt.getLowerBound();
+			int upperBound = elt.getUpperBound();
+			boolean many = elt.isMany();
+			boolean required = elt.isRequired();
+			
+			IConstructor typeCons = vf.constructor(Factory.Type_classifier, 
+					convertClassifier(type),
+					vf.bool(ordered),
+					vf.bool(unique),
+					vf.integer(lowerBound),
+					vf.integer(upperBound),
+					vf.bool(many),
+					vf.bool(required));
+			return typeCons;
+		}
 
-				boolean ordered = elt.isOrdered(); 
-				boolean unique = elt.isUnique();
-				int lowerBound = elt.getLowerBound();
-				int upperBound = elt.getUpperBound();
-				boolean many = elt.isMany();
-				boolean required = elt.isRequired();
-
-				IConstructor element = vf.constructor(Factory.Element_element, owner, f);
-				IConstructor typeCons = vf.constructor(Factory.Type_classifier, 
-						convertClassifier(type),
-						vf.bool(ordered),
-						vf.bool(unique),
-						vf.integer(lowerBound),
-						vf.integer(upperBound),
-						vf.bool(many),
-						vf.bool(required));
-				typing.insert(vf.tuple(element, typeCons));
-				i++;
+		private void recordFeatures(IConstructor owner, EClass c) {
+			for (EReference ref: c.getEReferences()) {
+				recordStructuralFeature(owner, convertReference(ref), ref);
+			}
+			for (EAttribute attr: c.getEAttributes()) {
+				recordStructuralFeature(owner, convertAttribute(attr), attr);
+			}
+			for (EOperation op: c.getEOperations()) {
+				recordOperation(owner, op);
 			}
 		}
 
-		private IConstructor convertOperation(EOperation op) {
-			// TODO Auto-generated method stub
-			return null;
+		private void recordOperation(IConstructor owner, EOperation op) {
+			IListWriter params = vf.listWriter(tf.stringType());
+			IListWriter types = vf.listWriter(Factory.Type);
+			for (EParameter param: op.getEParameters()) {
+				params.append(vf.string(param.getName()));
+				types.append(makeType(param));
+			}
+			IConstructor opCons = vf.constructor(Factory.Feature_operation,
+					vf.string(op.getName()),
+					params.done());
+			IConstructor sig = vf.constructor(Factory.Type_signature,
+					makeType(op),
+					types.done());
+			features.insert(vf.tuple(owner, opCons, sig));
 		}
 
 		private IConstructor convertAttribute(EAttribute attr) {
