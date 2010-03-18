@@ -32,7 +32,7 @@ public class BoxADT {
 
 	enum TAG {
 		H(boxlst), V(boxlst), HOV(boxlst), HV(boxlst), I(boxlst), WD(boxlst), R(
-				boxlst), A(boxlst), L(str), KW(box), VAR(box), NUM(box);
+				boxlst), A(boxlst), L(str), KW(box), VAR(box), NM(box);
 		Type tag;
 
 		TAG(Type tp) {
@@ -168,8 +168,8 @@ public class BoxADT {
 		return BoxADT.TAG.KW.create(BoxADT.TAG.L.create(s));
 	}
 
-	static IValue NUM(String s) {
-		return BoxADT.TAG.NUM.create(BoxADT.TAG.L.create(s));
+	static IValue NM(String s) {
+		return BoxADT.TAG.NM.create(BoxADT.TAG.L.create(s));
 	}
 
 	static IValue VAR(String s) {

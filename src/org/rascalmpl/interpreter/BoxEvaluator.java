@@ -18,6 +18,7 @@ import org.rascalmpl.ast.Formal;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.FunctionModifiers;
 import org.rascalmpl.ast.LocalVariableDeclaration;
+import org.rascalmpl.ast.MidStringChars;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Strategy;
 import org.rascalmpl.ast.Variant;
@@ -562,7 +563,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitBooleanLiteralLexical(
 			org.rascalmpl.ast.BooleanLiteral.Lexical x) {
 		// TODO Auto-generated method stub
-		return NUM(x.getString());
+		return NM(x.getString());
 	}
 
 	public IValue visitBoundAmbiguity(org.rascalmpl.ast.Bound.Ambiguity x) {
@@ -889,7 +890,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitDecimalIntegerLiteralLexical(
 			org.rascalmpl.ast.DecimalIntegerLiteral.Lexical x) {
 		// TODO Auto-generated method stub
-		return NUM(x.getString());
+		return NM(x.getString());
 	}
 
 	public IValue visitDecimalLongLiteralAmbiguity(
@@ -901,7 +902,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitDecimalLongLiteralLexical(
 			org.rascalmpl.ast.DecimalLongLiteral.Lexical x) {
 		// TODO Auto-generated method stub
-		return NUM(x.getString());
+		return NM(x.getString());
 	}
 
 	public IValue visitDeclarationAlias(Alias x) {
@@ -1481,7 +1482,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitHeaderDefault(org.rascalmpl.ast.Header.Default x) {
 		IList l = getTreeList(x, 6);
-		return V(getComment(x, 1), H(KW("module"), H(0, eX(x.getName()))), getComment(x, 5), eXs0(x.getImports(), l));
+		return V(getComment(x, 1), H(KW("module"), H(0, eX(x.getName()))),
+				getComment(x, 5), eXs0(x.getImports(), l));
 	}
 
 	public IValue visitHeaderParameters(Parameters x) {
@@ -1564,7 +1566,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
 		// TODO Auto-generated method stub
-		return BoxADT.TAG.NUM.create(BoxADT.TAG.L.create(x.toString()));
+		return BoxADT.TAG.NM.create(BoxADT.TAG.L.create(x.toString()));
 	}
 
 	public IValue visitIntegerLiteralHexIntegerLiteral(HexIntegerLiteral x) {
@@ -1674,7 +1676,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitLiteralBoolean(Boolean x) {
 		// TODO Auto-generated method stub
-		return NUM(x.getBooleanLiteral().toString());
+		return NM(x.getBooleanLiteral().toString());
 	}
 
 	public IValue visitLiteralDateTime(org.rascalmpl.ast.Literal.DateTime x) {
@@ -1684,7 +1686,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitLiteralInteger(Integer x) {
 		// TODO Auto-generated method stub
-		return NUM(x.getIntegerLiteral().getDecimal().toString());
+		return NM(x.getIntegerLiteral().getDecimal().toString());
 	}
 
 	public IValue visitLiteralLocation(Location x) {
@@ -1820,7 +1822,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitMidStringCharsLexical(
 			org.rascalmpl.ast.MidStringChars.Lexical x) {
 		// TODO Auto-generated method stub
-		return L(x.getString());
+		return split(x.getString());
 	}
 
 	public IValue visitModuleActualsAmbiguity(
@@ -2057,7 +2059,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitPostStringCharsLexical(
 			org.rascalmpl.ast.PostStringChars.Lexical x) {
 		// TODO Auto-generated method stub
-		return L(x.getString());
+		return split(x.getString());
 	}
 
 	public IValue visitPrePathCharsAmbiguity(
@@ -2093,7 +2095,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitPreStringCharsLexical(
 			org.rascalmpl.ast.PreStringChars.Lexical x) {
 		// TODO Auto-generated method stub
-		return L(x.getString());
+		return split(x.getString());
 	}
 
 	public IValue visitProtocolCharsAmbiguity(
@@ -2459,7 +2461,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitStatementFunctionDeclaration(FunctionDeclaration x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return HV(eX(x.getFunctionDeclaration()));
 	}
 
 	public IValue visitStatementGlobalDirective(GlobalDirective x) {
@@ -2694,18 +2696,18 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitStringMiddleInterpolated(
 			org.rascalmpl.ast.StringMiddle.Interpolated x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return list(eX(x.getMid()), eX(x.getExpression()), eX(x.getTail()));
 	}
 
 	public IValue visitStringMiddleMid(org.rascalmpl.ast.StringMiddle.Mid x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return eX(x.getMid());
 	}
 
 	public IValue visitStringMiddleTemplate(
 			org.rascalmpl.ast.StringMiddle.Template x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return list(eX(x.getMid()), eX(x.getTemplate()), eX(x.getTail()));
 	}
 
 	public IValue visitStringTailAmbiguity(
@@ -2721,7 +2723,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitStringTailMidTemplate(MidTemplate x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return list(eX(x.getMid()), eX(x.getTemplate()), eX(x.getTail()));
 	}
 
 	public IValue visitStringTailPost(org.rascalmpl.ast.StringTail.Post x) {
@@ -2743,7 +2745,11 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitStringTemplateFor(org.rascalmpl.ast.StringTemplate.For x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return list(KW("for"), BoxADT.LPAR, eXs(x.getGenerators()),
+				BoxADT.RPAR, BoxADT.LBLOCK,
+				(x.getPreStats().size() != 0 ? eXs0(x.getPreStats()) : null),
+				eX(x.getBody()), (x.getPostStats().size() != 0 ? eXs0(x
+						.getPostStats()) : null), BoxADT.RBLOCK);
 	}
 
 	public IValue visitStringTemplateIfThen(
@@ -3223,8 +3229,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		return BoxADT.TAG.KW.create(BoxADT.TAG.L.create(s));
 	}
 
-	static IValue NUM(String s) {
-		return BoxADT.TAG.NUM.create(BoxADT.TAG.L.create(s));
+	static IValue NM(String s) {
+		return BoxADT.TAG.NM.create(BoxADT.TAG.L.create(s));
 	}
 
 	static IValue VAR(String s) {
@@ -3235,8 +3241,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		return BoxADT.TAG.KW.create(s);
 	}
 
-	static IValue NUM(IValue s) {
-		return BoxADT.TAG.NUM.create(s);
+	static IValue NM(IValue s) {
+		return BoxADT.TAG.NM.create(s);
 	}
 
 	static IValue VAR(IValue s) {
@@ -3316,6 +3322,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		for (Iterator iterator = conditions.iterator(); iterator.hasNext();) {
 			AbstractAST expression = (AbstractAST) iterator.next();
 			// System.err.println("eXs1:"+expression);
+			if (expression == null)
+				continue;
 			IValue q = eX(expression);
 			if (!s.isEmpty())
 				s = s.append(BoxADT.COMMA);
@@ -3334,6 +3342,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		for (Iterator iterator = conditions.iterator(); iterator.hasNext();) {
 			AbstractAST expression = (AbstractAST) iterator.next();
 			// System.err.println("eXs1:"+expression);
+			if (expression == null)
+				continue;
 			IValue q = eX(expression);
 			if (!s.isEmpty())
 				s = s.append(BoxADT.COLONCOLON);
@@ -3353,6 +3363,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		for (Iterator iterator = conditions.iterator(); iterator.hasNext();) {
 			AbstractAST expression = (AbstractAST) iterator.next();
 			// System.err.println("eXs1:"+expression);
+			if (expression == null)
+				continue;
 			IValue q = eX(expression);
 			if (q.getType().isListType())
 				s = s.concat((IList) q);
@@ -3376,7 +3388,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				s = s.append(((IList) q).get(i));
 			else
 				s = s.append(q);
-			if (i < n) s = s.concat(getComment(tree, i));
+			if (i < n)
+				s = s.concat(getComment(tree, i));
 			i += 2;
 		}
 		// System.err.println("eXs2:"+s);
@@ -3456,9 +3469,10 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		IList r = list();
 		for (IValue t : c) {
 			String s = TreeAdapter.yield((IConstructor) t);
-			if (s.endsWith("\n")&& r.length()==c.length()-1) s = s.substring(0, s.length()-1);
+			if (s.endsWith("\n") && r.length() == c.length() - 1)
+				s = s.substring(0, s.length() - 1);
 			r = r.append(L(s));
-		    }
+		}
 		if (c.length() >= 2)
 			return list(H(0, r));
 		else
@@ -3467,13 +3481,23 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	IList getComment(AbstractAST a, int ind) {
 		IList z = TreeAdapter.getArgs((IConstructor) a.getTree());
-		return getComment(z, ind);	
+		return getComment(z, ind);
 	}
 
 	private IList getTreeList(AbstractAST a, int ind) {
 		IList z = TreeAdapter.getArgs((IConstructor) a.getTree());
 		IList listToplevels = TreeAdapter.getArgs((IConstructor) z.get(ind));
 		return listToplevels;
+	}
+
+	IValue split(String s) {
+		String[] t = s.split("\n");
+		IList r = list();
+		for (String a : t) {
+			r = r.append(L(a));
+		}
+		// return r.length()>=2?H(r.get(0), V(r.sublist(1, r.length()-1))):r;
+		return r;
 	}
 
 }
