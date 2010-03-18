@@ -16,16 +16,14 @@ public class Factory {
 	public static final Type Type = tf.abstractDataType(ecore, "Type");
 	public static final Type Feature = tf.abstractDataType(ecore, "Feature");
 	public static final Type Literal = tf.abstractDataType(ecore, "Literal");
-	public static final Type Element = tf.abstractDataType(ecore, "Element");
 	public static final Type Structural = tf.abstractDataType(ecore, "Structural");
 	
 	public static final Type Package = tf.aliasType(ecore, "Package", tf.listType(tf.stringType()));
 
 	public static final Type ECore_ecore = tf.constructor(ecore, ECore, "ecore",
 			tf.setType(Classifier), "classifiers",
-			tf.relType(Classifier, "sub", Classifier, "super"), "subtype",
-			tf.listType(tf.tupleType(Element, "element", Type, "ttype")), "typing");
-
+			tf.relType(Classifier, "class", Feature, "feature", Type, "typ"), "features",
+			tf.relType(Classifier, "sub", Classifier, "super"), "subtype");
 	
 	public static final Type Classifier_dataType = tf.constructor(ecore, Classifier, "dataType",
 			Package, "package",
@@ -40,17 +38,12 @@ public class Factory {
 	public static final Type Classifier_class = tf.constructor(ecore, Classifier, "class",
 			Package, "package",
 			tf.stringType(), "name",
-			tf.listType(Feature), "features",
 			tf.boolType(), "abstract",
 			tf.boolType(), "interface"); 
 	
 	public static final Type Literal_literal = tf.constructor(ecore, Literal, "literal",
 			tf.stringType(), "name",
 			tf.integerType(), "val");
-
-	public static final Type Element_element  = tf.constructor(ecore, Element, "element",
-			Classifier, "owner",
-			Feature, "feature");
 
 	public static final Type Type_classifier = tf.constructor(ecore, Type, "classifier", 
 			Classifier, "classifier",
@@ -65,6 +58,8 @@ public class Factory {
 			Type, "result",
 			tf.listType(Type), "parameters");
 
+
+	public static final Type Type_none = tf.constructor(ecore, Type, "none"); 
 
 	public static final Type Feature_structural = tf.constructor(ecore, Feature, "structural",
 			Structural, "structural",

@@ -3,18 +3,16 @@ module ECore
 alias Package = list[str];
 
 data ECore = ecore(
-		set[Classifier] classifiers, 
-		rel[Classifier sub, Classifier  super] subtype, 
-		rel[Element element, Type typ] typing);
+		set[Classifier] classifiers,
+		rel[Classifier class, Feature feature, Type typ] features,
+		rel[Classifier sub, Classifier  super] subtype); 
 
 
 data Classifier = dataType(Package package, str name, bool serializable)
-	        | enum(Package package, str name, list[Literal] literals)
-		| class(Package package, str name, list[Feature] features, bool abstract, bool interface);
+	            | enum(Package package, str name, list[Literal] literals)
+		        | class(Package package, str name, bool abstract, bool interface);
 
 data Literal = literal(str name, int val);
-
-data Element = element(Classifier owner, Feature feature);
 
 data Type = classifier(Classifier classifier,
 			bool ordered, 
@@ -23,7 +21,8 @@ data Type = classifier(Classifier classifier,
 			int upperBound, 
 			bool many, 
 			bool required)
-	  | signature(Type result, list[Type] parameters);
+	  | signature(Type result, list[Type] parameters)
+	  | none();
 
 data Feature = structural(Structural structural, 
 			bool changeable,
