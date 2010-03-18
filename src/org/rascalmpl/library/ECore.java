@@ -57,6 +57,7 @@ public class ECore {
 		// TODO: add opposites tracking.
 		private final IRelationWriter subtype;
 		private final IRelationWriter features;
+		private final IRelationWriter opposites;
 		private final ISetWriter classifiers;
 		
 		
@@ -65,6 +66,10 @@ public class ECore {
 			this.classifiers = vf.setWriter(Factory.Classifier);
 			this.features = vf.relationWriter(tf.tupleType(Factory.Classifier, "class", 
 					Factory.Feature, "features", Factory.Type, "typ"));
+			this.opposites = vf.relationWriter(tf.tupleType(
+					Factory.Classifier, "owner",
+					Factory.Feature, "feature",
+					Factory.Feature, "opposite"));
 			this.subtype = vf.relationWriter(tf.tupleType(Factory.Classifier, "sub", Factory.Classifier, "super"));
 		}
 
@@ -73,6 +78,7 @@ public class ECore {
 			return vf.constructor(Factory.ECore_ecore,
 					classifiers.done(),
 					features.done(),
+					opposites.done(),
 					subtype.done());
 		}
 		
@@ -108,6 +114,10 @@ public class ECore {
 				boolean inf = c.isInterface();
 				java.lang.String name = c.getName();
 				
+				if (name == null) {
+					name = "";
+				}
+				
 				IConstructor cons = vf.constructor(Factory.Classifier_class,
 						pkg,
 						vf.string(name), 
@@ -134,6 +144,9 @@ public class ECore {
 		private IConstructor convertDataType(IList pkg, EDataType d) {
 			if (!memo.containsKey(d)) {
 				java.lang.String name = d.getName();
+				if (name == null) {
+					name = "";
+				}
 				boolean ser = d.isSerializable();
 				IConstructor cons = vf.constructor(Factory.Classifier_dataType,
 						pkg,
@@ -175,7 +188,15 @@ public class ECore {
 
 		private void recordFeatures(IConstructor owner, EClass c) {
 			for (EReference ref: c.getEReferences()) {
-				recordStructuralFeature(owner, convertReference(ref), ref);
+				IConstructor refCons = convertReference(ref);
+				recordStructuralFeature(owner, refCons, ref);
+				// Containing class can be derived from the features relation.
+				// Object oppOwner = convertClassifier(opp.getEContainingClass());
+				EReference opp = ref.getEOpposite();
+				if (opp != null) {
+					IConstructor oppCons = convertReference(opp);
+					opposites.insert(vf.tuple(owner, refCons, oppCons));
+				}
 			}
 			for (EAttribute attr: c.getEAttributes()) {
 				recordStructuralFeature(owner, convertAttribute(attr), attr);

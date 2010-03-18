@@ -5,6 +5,7 @@ alias Package = list[str];
 data ECore = ecore(
 		set[Classifier] classifiers,
 		rel[Classifier class, Feature feature, Type typ] features,
+		rel[Classifier class, Feature feature, Feature opposite] opposites,
 		rel[Classifier sub, Classifier  super] subtype); 
 
 
