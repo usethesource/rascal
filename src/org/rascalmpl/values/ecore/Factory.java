@@ -23,6 +23,9 @@ public class Factory {
 	public static final Type ECore_ecore = tf.constructor(ecore, ECore, "ecore",
 			tf.setType(Classifier), "classifiers",
 			tf.relType(Classifier, "class", Feature, "feature", Type, "typ"), "features",
+			tf.relType(Classifier, "owner",
+					Feature, "feature",
+					Feature, "opposite"), "opposites",
 			tf.relType(Classifier, "sub", Classifier, "super"), "subtype");
 	
 	public static final Type Classifier_dataType = tf.constructor(ecore, Classifier, "dataType",
