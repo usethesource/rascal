@@ -1,5 +1,8 @@
 module rascal::checker::SubTypes
 
+import List;
+import Set;
+
 import rascal::checker::Types;
 
 // Encode the subtyping relation t1 <: t2
@@ -25,6 +28,11 @@ public bool subtypeOf(RType t1, RType t2) {
 	// t1 <: t2 -> set[t1] <: set[t2]
 	if (isSetType(t1) && isSetType(t2) && subtypeOf(getSetElementType(t1),getSetElementType(t2))) return true;
 
+	// tuples
+	if (RTupleType(t1s) := t1 && RTupleType(t2s) := t2 && size(t1s) == size(t2s)) {
+		return size([ n | n <- [0 .. (size(t1s)-1)], !subtypeOf(getElementType(t1s[n]),getElementType(t2s[n]))]) == 0; 
+	}
+
 	// Default case: if none of the above match,  not t1 <: t2
 	return false;
 }
@@ -36,13 +44,13 @@ public RType lub(RType t1, RType t2) {
 	if (t1 == t2) return t1; // or t2
 
 	// forall t2. lub(void,t2) = t2
-	if (t1 == RTypeBasic(RVoidType())) return t2;
+	if (t1 == RVoidType()) return t2;
 
 	// forall t1. lub(t1,void) = t1
-	if (t2 == RTypeBasic(RVoidType())) return t1;
+	if (t2 == RVoidType()) return t1;
 
 	// forall t1 t2. t1 == value or t2 == value -> lub(t1,t2) = value
-	if (t1 == RTypeBasic(RValueType()) || t2 == RTypeBasic(RValueType())) return makeValueType();
+	if (t1 == RValueType() || t2 == RValueType()) return makeValueType();
 
 	// lub(list[t1],list[t2]) = list(lub(t1,t2))
 	if (isListType(t1) && isListType(t2)) return makeListType(lub(getListElementType(t1),getListElementType(t2)));

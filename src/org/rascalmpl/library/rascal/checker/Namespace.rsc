@@ -92,9 +92,9 @@ data ScopeItem =
 	| VariableItem(RName variableName, RType variableType, ScopeItemId parentId)
 	| FormalParameterItem(RName parameterName, RType parameterType, ScopeItemId parentId)
 	| LabelItem(RName labelName, ScopeItemId parentId)
-	| AliasItem(RUserType aliasType, RType aliasedType, bool isPublic, ScopeItemId parentId)
-	| ConstructorItem(RName constructorName, list[RTypeArg] constructorArgs, ScopeItemId adtParentId, ScopeItemId parentId)
-	| ADTItem(RUserType adtType, set[ScopeItemId] variants, bool isPublic, ScopeItemId parentId) 
+	| AliasItem(RType aliasType, RType aliasedType, bool isPublic, ScopeItemId parentId)
+	| ConstructorItem(RName constructorName, list[RNamedType] constructorArgs, ScopeItemId adtParentId, ScopeItemId parentId)
+	| ADTItem(RType adtType, set[ScopeItemId] variants, bool isPublic, ScopeItemId parentId) 
 	| DummyItem()
 	| PatternMatchLayer(ScopeItemId parentId)
 	| BooleanExpLayer(ScopeItemId parentId)
@@ -397,7 +397,7 @@ public RType getTypeForItem(ScopeInfo scopeInfo, ScopeItemId itemId) {
 			
 		case ConstructorItem(n,tas,adtParentId,_) : return makeConstructorType(n,tas,getTypeForItem(scopeInfo,adtParentId));
 		
-		case ADTItem(ut,_,_,_) : return RTypeUser(ut); // TODO: Should also extract type parameters
+		case ADTItem(ut,_,_,_) : return ut; // TODO: Should also extract type parameters
 		
 		default : { 
 			if (debug) println("NAMESPACE: Requesting type for item : " + prettyPrintSI(scopeInfo.scopeItemMap[itemId])); 
@@ -2000,6 +2000,7 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 	if (debug) println("NAMESPACE: Inside assignable <a>");
 	switch(a) {
 		case (Assignable)`<QualifiedName qn>` : {
+			if (debug) println("NAMESPACE: QualifiedName Assignable: <a>");
 			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
 				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 				if (debug) println("NAMESPACE: Adding use for <qn>");
@@ -2010,11 +2011,13 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 		}
 		
 		case `<Assignable al> [ <Expression e> ]` : {
+			if (debug) println("NAMESPACE: Subscripted Assignable: <a>");
 			scopeInfo = handleAssignable(al, scopeInfo);
 			scopeInfo = handleExpression(e, scopeInfo);			
 		}
 		
 		case `<Assignable al> . <Name n>` : {
+			if (debug) println("NAMESPACE: Field Assignable: <a>");
 			scopeInfo = handleAssignable(al, scopeInfo);
 			// TODO: Most likely we don't need the code below, since the names are based on the type, not on
 			// names defined earlier in the current scope. Verify this.
@@ -2023,28 +2026,37 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 		}
 		
 		case `<Assignable al> ? <Expression e>` : {
+			if (debug) println("NAMESPACE: IfDefined Assignable: <a>");
 			scopeInfo = handleAssignable(al, scopeInfo);
 			scopeInfo = handleExpression(e, scopeInfo);			
 		}
 		
 		case `<Assignable al> @ <Name n>` : {
+			if (debug) println("NAMESPACE: Attribute Assignable: <a>");
 			scopeInfo = handleAssignable(al, scopeInfo);
 			if (debug) println("NAMESPACE: Adding use for <n>");
 			scopeInfo = addItemUses(scopeInfo, getAnnotationItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
 		}
 		
-		case `< <{Assignable ","}+ al> >` : {
+		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
+			if (debug) println("NAMESPACE: Tuple Assignable: <a>");
+			scopeInfo = handleAssignable(ai, scopeInfo);
 			for (ali <- al) {
 				scopeInfo = handleAssignable(ali, scopeInfo);
 			}
 		}
 		
 		case `<Name n> ( <{Assignable ","}+ al> )` : {
+			if (debug) println("NAMESPACE: Constructor Assignable: <a>");
 			if (debug) println("NAMESPACE: Adding use for <qn>");
 			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 			for (ali <- al) {
 				scopeInfo = handleAssignable(ali, scopeInfo);
 			}
+		}
+
+		default : {
+			if (debug) println("NAMESPACE: Unhandled assignable case! <a>");
 		}
 	}
 	
@@ -2375,7 +2387,7 @@ public RType getRType(ScopeInfo scopeInfo, loc l) {
 		} else if (size(items) == 1) {
 			return getTypeForItem(scopeInfo, getOneFrom(items));
 		} else {
-			return RTypeOverloaded({ getTypeForItem(scopeInfo, sii) | sii <- items });
+			return ROverloadedType({ getTypeForItem(scopeInfo, sii) | sii <- items });
 		}
 	} else {
 		return collapseFailTypes({ makeFailType(s,l) | s <- scopeErrors });

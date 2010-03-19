@@ -8,6 +8,7 @@ import Message;
 import rascal::checker::Types;
 import rascal::checker::SubTypes;
 import rascal::checker::Namespace;
+import rascal::checker::TypeRules;
 
 import rascal::\old-syntax::Rascal;
 
@@ -79,6 +80,8 @@ public Tree gatherFailures(Tree t) {
 		case Name n : { if ( ((n@rtype)?) && RFailType(fails) := n@rtype) allFailures += fails; insert n; }
 
 		case Expression e : { if ( ((e@rtype)?) && RFailType(fails) := e@rtype) allFailures += fails; insert e; }
+
+		case Statement s : { if ( ((s@rtype)?) && RStatementType(RFailType(fails)) := s@rtype) allFailures += fails; insert s; }
 	}
 }
 
@@ -122,6 +125,8 @@ private RType checkReifiedTypeExpression(Expression ep, Type t, {Expression ","}
 		return makeReifiedType(convertType(t), [ e@rtype | e <- el ]);
 }
 
+//
+// TODO: May need to handle source location "calls" here as well
 public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression ","}* es) {
 	RType resultType = makeFailType("We assume bad, bad things!",ep@\loc);
 
@@ -231,7 +236,7 @@ public RType checkVisitExpression(Expression ep, Label l, Visit v) {
 
 public RType checkRangeExpression(Expression ep, Expression e1, Expression e2) {
 	if (isIntType(e1@rtype) && isIntType(e2@rtype)) {
-		return RTypeStructured(RStructuredType(RListType(), [ RTypeArg(RTypeBasic(RIntType())) ]));
+		return makeListType(makeIntType());
 	} else {
 		return propagateFailOr({ e1@rtype, e2@rtype },makeFailType("Error in range operation: operation is not defined on the types " +
 			prettyPrintType(e1@rtype) + " and " + prettyPrintType(e2@rtype),ep@\loc));
@@ -240,7 +245,7 @@ public RType checkRangeExpression(Expression ep, Expression e1, Expression e2) {
 
 public RType checkStepRangeExpression(Expression ep, Expression e1, Expression e2, Expression e3) {
 	if (isIntType(e1@rtype) && isIntType(e2@rtype) && isIntType(e3@rtype)) {
-		return RTypeStructured(RStructuredType(RListType(), [ RTypeArg(RTypeBasic(RIntType())) ]));
+		return makeListType(makeIntType());
 	} else {
 		return propagateFailOr({e1@rtype, e2@rtype, e3@rtype },makeFailType("Error in step range operation: operation is not defined on the types " +
 			prettyPrintType(e1@rtype) + ", " + prettyPrintType(e2@rtype) + " and " + prettyPrintType(e3@rtype),ep@\loc));
@@ -327,22 +332,7 @@ public RType checkCompositionExpression(Expression ep, Expression el, Expression
 }
 
 public RType checkProductExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype)) {
-		return makeSetType(makeTupleType([getSetElementType(el@rtype),getSetElementType(er@rtype)]));
-	} else if (isListType(el@rtype) && isListType(er@rtype)) {
-		return makeListType(makeTupleType([getListElementType(el@rtype),getListElementType(er@rtype)]));
-	} else {
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in product operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RProduct(), ep@\loc));
 }
 
 public RType checkJoinExpression(Expression ep, Expression el, Expression er) {
@@ -689,13 +679,13 @@ public RType checkEnumeratorExpression(Expression ep, Pattern p, Expression e) {
 		RType boundType = bindInferredTypesToPattern(getListElementType(e@rtype), p);
 		if (isFailType(boundType))
 			return boundType;
-		else
+		else // TODO: Check compatibility of boundType to e@rtype
 			return makeBoolType();
 	} else if (isSetType(e@rtype) && subtypeOf(getSetElementType(e@rtype), p@rtype)) {
 		RType boundType = bindInferredTypesToPattern(getSetElementType(e@rtype), p);
 		if (isFailType(boundType))
 			return boundType;
-		else
+		else // TODO: Check compatibility of boundType to e@rtype
 			return makeBoolType();
 	} else {
 		return makeFailType("Types of <p> and <e>, <prettyPrintType(p@rtype)> and <prettyPrintType(e@rtype)>, should be in a subtype relation",ep@\loc);
@@ -788,52 +778,52 @@ public RType checkExpression(Expression exp) {
 	switch(exp) {
 		case (Expression)`<BooleanLiteral bl>` : {
 			if (debug) println("CHECKER: BooleanLiteral: <exp>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RBoolType())));
+			if (debug) println("CHECKER: Assigning type: <prettyPrintType(makeBoolType())>");
 			return makeBoolType();
 		}
 
 		case (Expression)`<DecimalIntegerLiteral il>`  : {
 			if (debug) println("CHECKER: DecimalIntegerLiteral: <exp>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
+			if (debug) println("CHECKER: Assigning type: <prettyPrintType(makeIntType())>");
 			return makeIntType();
 		}
 
 		case (Expression)`<OctalIntegerLiteral il>`  : {
 			if (debug) println("CHECKER: OctalIntegerLiteral: <exp>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
+			if (debug) println("CHECKER: Assigning type: <prettyPrintType(makeIntType())>");
 			return makeIntType();
 		}
 
 		case (Expression)`<HexIntegerLiteral il>`  : {
 			if (debug) println("CHECKER: HexIntegerLiteral: <exp>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RIntType())));
+			if (debug) println("CHECKER: Assigning type: <prettyPrintType(makeIntType())>");
 			return makeIntType();
 		}
 
 		case (Expression)`<RealLiteral rl>`  : {
 			if (debug) println("CHECKER: RealLiteral: <exp>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RRealType())));
+			if (debug) println("CHECKER: Assigning type: <prettyPrintType(makeRealType())>");
 			return makeRealType();
 		}
 
 		// TODO: Interpolation
 		case (Expression)`<StringLiteral sl>`  : {
 			if (debug) println("CHECKER: StringLiteral: <exp>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RStrType())));
+			if (debug) println("CHECKER: Assigning type: <prettyPrintType(makeStrType())>");
 			return makeStrType();
 		}
 
 		// TODO: Interpolation
 		case (Expression)`<LocationLiteral ll>`  : {
 			if (debug) println("CHECKER: LocationLiteral: <exp>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RLocType())));
-			return RTypeBasic(RLocType());
+			if (debug) println("CHECKER: Assigning type: <prettyPrintType(makeLocType())>");
+			return makeLocType();
 		}
 
 		case (Expression)`<DateTimeLiteral dtl>`  : {
 			if (debug) println("CHECKER: DateTimeLiteral: <exp>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(RTypeBasic(RDateTimeType())));
-			return RTypeBasic(RDateTimeType());
+			if (debug) println("CHECKER: Assigning type: <prettyPrintType(makeDateTimeType())>");
+			return makeDateTimeType();
 		}
 
 		// TODO: See if we ever have this; a qualified name, not a name, is an expression
@@ -860,7 +850,7 @@ public RType checkExpression(Expression exp) {
 
 		// CallOrTree
 		case `<Expression e1> ( <{Expression ","}* el> )` : {
-			if (debug) println("CHECKER: Call or Tree: <e1>(<el>)");
+			if (debug) println("CHECKER: Call or Tree: <exp>)");
 			RType t = checkCallOrTreeExpression(exp,e1,el);
 			if(debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
@@ -987,7 +977,7 @@ public RType checkExpression(Expression exp) {
 			return t;
 		}
 
-		// Subscript (currently broken)
+		// Subscript 
 		case `<Expression e1> [ <{Expression ","}+ el> ]` : {
 			if (debug) println("CHECKER: Subscript <exp>");
 			RType t = checkSubscriptExpression(exp,e1,el);
@@ -1487,14 +1477,14 @@ public RType checkPattern(Pattern pat) {
 		case (Pattern)`<Name n>`: {
 			if (debug) println("CHECKER: NamePattern: <pat>");
 			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(n@rtype));
-			return n@rtype; // TODO: Should throw an exception if the name has no type information
+			return isInferredType(n@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)] : n@rtype; 
 		}
 		
 		// QualifiedName
 		case (Pattern)`<QualifiedName qn>`: {
 			if (debug) println("CHECKER: QualifiedNamePattern: <pat>");
 			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
-			return qn@rtype; // TODO: Should throw an exception if the name has no type information
+			return isInferredType(qn@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
 		}
 
 		// ReifiedType
@@ -1619,14 +1609,18 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 				if (isInferredType(t)) {
 					if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(t)> to <prettyPrintType(rt)> on name <n>");
 					updateInferredTypeMappings(t,rt);
+					return rt;
 				} else {
 					if (t != rt) {
 						if (debug) println("CHECKER: Found type clash on inferred variable, trying to assign <prettyPrintType(rt)> and <prettyPrintType(t)> to name <n>");
 						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: <prettyPrintType(rt)>, <prettyPrintType(t)>", n@\loc);
+					} else {
+						return t;
 					}
 				}
+			} else {
+				return n@rtype;
 			}
-			return rt;					
 		}
 
 		// QualifiedName
@@ -1636,13 +1630,17 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 				RType t = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)];
 				if (isInferredType(t)) {
 					updateInferredTypeMappings(globalScopeInfo,t,rt);
+					return rt;
 				} else {
 					if (t != rt) {
 						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <qn>: <prettyPrintType(rt)>, <prettyPrintType(t)>", qn@\loc);
+					} else {
+						return t;
 					}
 				}
+			} else {
+				return qn@rtype;
 			}
-			return rt;					
 		}
 
 		default : {
@@ -1765,11 +1763,12 @@ public RType checkAnnotationAssignable(Assignable ap, Assignable a, Name n) {
 	return makeVoidType();
 }
 		
-public RType checkTupleAssignable(Assignable ap, {Assignable ","}+ al) {
-	if (checkForFail({ a@rtype | a <- al }))
-		return collapseFailTypes({ a@rtype | a <- al });
+public RType checkTupleAssignable(Assignable ap, Assignable a, {Assignable ","}* al) {
+	list[Assignable] alist = [ a ] + [ ai | ai <- al];
+	if (checkForFail({ ai@rtype | ai <- alist }))
+		return collapseFailTypes({ ai@rtype | ai <- alist });
 	else
-		return makeTupleType([ a@rtype | a <- al]);
+		return makeTupleType([ ai@rtype | ai <- alist]);
 }
 
 public RType checkConstructorAssignable(Assignable ap, Name n, {Assignable ","}+ al) {
@@ -1820,7 +1819,7 @@ public RType checkAssignable(Assignable a) {
 		case (Assignable)`<QualifiedName qn>` : {
 			if (debug) println("CHECKER: VariableAssignable: <a>");
 			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
-			return qn@rtype;
+			return isInferredType(qn@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
 		}
 		
 		// Subscript
@@ -1856,9 +1855,9 @@ public RType checkAssignable(Assignable a) {
 		}
 		
 		// Tuple
-		case `< <{Assignable ","}+ al> >` : {
+		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
 			if (debug) println("CHECKER: TupleAssignable: <a>");
-			RType t = checkTupleAssignable(a,al);
+			RType t = checkTupleAssignable(a,ai, al);
 			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
@@ -1873,7 +1872,16 @@ public RType checkAssignable(Assignable a) {
 	}
 }
 
+//
+// Given an actual type rt and an assignable a, recurse the structure of a, assigning the correct parts of
+// rt to any named parts of a. For instance, in an assignment like x = 5, if x has an inference type it will
+// be assigned type int, while in an assignment like <a,b> = <true,4>, a would be assigned type bool
+// while b would be assigned type int (again, assuming they are both inferrence variables). The return
+// type is just used to allow a potential fail return, required in cases like <a,a> = <3,bool> or
+// <a,b> = <3,4> followed by <a,c> = <true,4> (a gets assigned incompatible types).
+//
 public RType bindInferredTypesToAssignable(RType rt, Assignable a) {
+	if (debug) println("CHECKER: binding inferred types in <prettyPrintType(rt)> to assignable <a>");
 	switch(a) {
 		// Variable
 		case (Assignable)`<QualifiedName qn>` : {
@@ -1883,14 +1891,18 @@ public RType bindInferredTypesToAssignable(RType rt, Assignable a) {
 				if (isInferredType(t)) {
 					if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(t)> to <prettyPrintType(rt)> on name <qn>");
 					updateInferredTypeMappings(t,rt);
+					return rt;
 				} else {
 					if (t != rt) {
 						if (debug) println("CHECKER: Found type clash on inferred variable, trying to assign <prettyPrintType(rt)> and <prettyPrintType(t)> to name <qn>");
 						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <qn>: <prettyPrintType(rt)>, <prettyPrintType(t)>", qn@\loc);
+					} else {
+						return t;
 					}
 				}
+			} else {
+				return qn@rtype;
 			}
-			return rt;					
 		}
 		
 		// Subscript
@@ -1922,12 +1934,12 @@ public RType bindInferredTypesToAssignable(RType rt, Assignable a) {
 		}
 		
 		// Tuple
-		case `< <{Assignable ","}+ al> >` : {
+		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
 			if (debug) println("CHECKER: TupleAssignable: <a>");
-			list[Assignable] alist = [ ali | ali <- al ];
+			list[Assignable] alist = [ai] + [ ali | ali <- al ];
 			if (isTupleType(rt) && getTupleFieldCount(rt) == size(alist)) {
 				list[RType] tupleFieldTypes = getTupleFields(rt);
-				return makeTupleType([bindInferredTypesToAssignable(tft,ali) | n <- [1..getTupleFieldCount(rt)], tft := tupleFieldTypes[n], ali := alist[n]]);  				
+				return makeTupleType([bindInferredTypesToAssignable(tft,ali) | n <- [0..(getTupleFieldCount(rt)-1)], tft := tupleFieldTypes[n], ali := alist[n]]);  				
 			} else if (!isTupleType(rt)) {
 				return makeFailType("Type mismatch: this error should have already been caught!", a@\loc);
 			} else {
@@ -1967,27 +1979,24 @@ public RType checkCatch(Catch c) {
 }
 
 //
-// Figure the type of value assigned in an assignment statement, including failure
-// types. t1 is the type of the object being assigned into, while t2 is the type of the
-// value being assigned. For instance, given int n, n = 23.5 would give t1 == int
-// and t2 == real
-public RType getAssignmentType(RType t1, RType t2, loc l) {
-	RType returnType = makeVoidType();
-
-	if (t1 == t2) {
-		returnType = t1;
-	} else if (isIntType(t1) && isIntType(t2)) {
-		returnType = t1;
-	} else if (isRealType(t1) && t2 in { makeRealType(), makeIntType() }) {
-		returnType = t1;
-	} else if (isListType(t1) && subtypeOf(t2, getListElementType(t1))) {
-		returnType = t1;
-	} else if (isSetType(t1) && subtypeOf(t2, getSetElementType(t1))) {
-		returnType = t1;
+// Figure the type of value that would be assigned, based on the assignment statement
+// being used. It is up to the caller to determine if this would cause an error.
+//
+public RType getAssignmentType(RType t1, RType t2, RAssignmentOp raOp, loc l) {
+	if (aOpHasOp(raOp)) {
+		RType expType = expressionType(t1,t2,opForAOp(raOp),l);
+		if (isFailType(expType)) return expType;
+		if (subtypeOf(expType, t1)) return t1;
+		return makeFailType("Invalid assignment of type <prettyPrintType(expType)> into variable of type <prettyPrintType(t1)>",l);
+	} else if (raOp in { RADefault(), RAIfDefined() }) {
+		if (subtypeOf(t2,t1)) {
+			return t1;
+		} else {
+			return makeFailType("Invalid assignment of type <prettyPrintType(t2)> into variable of type <prettyPrintType(t1)>",l);
+		}
 	} else {
-		returnType = makeFailType("Cannot assign value of type <prettyPrintType(t2)> to object of type <prettyPrintType(t1)>", l); 
+		throw "Invalid assignment operation: <raOp>";
 	}
-	return returnType;
 }
 
 public RType checkLocalVarItems(Statement sp, {Variable ","}+ vs) {
@@ -2012,7 +2021,7 @@ public RType checkLocalVarItems(Statement sp, {Variable ","}+ vs) {
 							}
 						}
 					} else {
-						RType assignType = getAssignmentType( n@rtype, e@rtype, vb@\loc );
+						RType assignType = getAssignmentType( n@rtype, e@rtype, RADefault(), vb@\loc );
 						if (isFailType(assignType)) localFailures += assignType;
 					}
 				}
@@ -2023,17 +2032,32 @@ public RType checkLocalVarItems(Statement sp, {Variable ","}+ vs) {
 }
 
 public RType checkAssignmentStatement(Statement sp, Assignable a, Assignment op, Statement s) {
-	if (checkForFail({ a@rtype, getInternalStatementType(s@rtype) })) { 
+	RType stmtType = getInternalStatementType(s@rtype);
+	if (checkForFail({ a@rtype, stmtType })) { 
 		return makeStatementType(collapseFailTypes({ a@rtype, getInternalStatementType(s@rtype) }));
 	} else {
-		// Based on the type of the statement, assign types to inference vars in the assignable
-		RType concreteAssignmentType = bindInferredTypesToAssignable(getInternalStatementType(s@rtype),a);
-
-		// Using the statement type and the assignable type, figure out if the assignment is valid and,
-		// if so, the actual type of the assignment
-		RType actualAssignedType = getAssignmentType(concreteAssignmentType, getInternalStatementType(s@rtype), sp@\loc);
-
-		return makeStatementType(actualAssignedType);
+		// This works over two cases. For both = and ?=, the variable(s) on the left can be inference vars.
+		// Otherwise, they cannot, since we are doing some kind of calculation using them and, therefore,
+		// they must be initialized already.
+		if (!aOpHasOp(convertAssignmentOp(op))) {
+			if (subtypeOf(stmtType, a@rtype)) {
+				RType boundType = bindInferredTypesToAssignable(stmtType, a);
+				return makeStatementType(boundType);
+			} else {
+				return makeStatementType(makeFailType("Invalid assignment, the type being assigned, <prettyPrintType(stmtType)>, must be a subtype of the type being assigned into, <prettyPrintType(a@rtype)>",sp@\loc));
+			}
+		} else {
+			RType actualAssignedType = getAssignmentType(a@rtype, stmtType, convertAssignmentOp(op), sp@\loc);
+			if (isFailType(actualAssignedType)) {
+				return makeStatementType(actualAssignedType);
+			} else {
+				if (subtypeOf(actualAssignedType, a@rtype)) {
+					return makeStatementType(a@rtype);
+				} else {
+					return makeStatementType(makeFailType("Invalid assignment, the type being assigned, <prettyPrintType(stmtType)>, must be a subtype of the type being assigned into, <prettyPrintType(a@rtype)>",sp@\loc));
+				}
+			}
+		}
 	}
 }
 
