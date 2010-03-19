@@ -104,9 +104,15 @@ public tuple[SymbolUse, SymbolUse] firstAndFollow(Grammar G){
   try {
     K = importGrammar(G);
     fst = first(K);
-    return <fst, follow(K,fst)>;
+    return <mergeCC(fst), mergeCC(follow(K,fst))>;
   }
   catch NoSuchKey(Symbol s) : throw "Undefined non-terminal <s>";
+}
+
+private SymbolUse mergeCC(SymbolUse su) {
+  return innermost visit(su) {
+     case {\char-class(r1),\char-class(r2),a*} => {a,\char-class(r1+r2)}
+  }
 }
 
 // -------- Examples and tests -------------------
