@@ -156,8 +156,9 @@ public class BoxADT {
 		for (IValue a : t) {
 			if (a == null)
 				continue;
-			if (a.getType().isListType())
+			if (a.getType().isListType()) {
 				q = q.concat((IList) a);
+			}
 			else
 				q = q.append(a);
 		}
