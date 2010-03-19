@@ -79,26 +79,19 @@ public SymbolUse first(KernelGrammar G){
 	return FIRST;
 }
 
-// Follow set of a grammar
-
 public SymbolUse follow(KernelGrammar G,  SymbolUse FIRST){
    defSymbols = definedSymbols(G);
    FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
   
    solve (FOLLOW) {
-     for (KernelProduction p <- G.productions) {
-       symbols = p.symbols;
-       
-       while (!isEmpty(symbols)){
-         current = head(symbols);
-         symbols = tail(symbols);
-         
-         if (current in defSymbols) { 
-      	    flw =  first(symbols, FIRST);
-      	    if (empty() in flw || isEmpty(symbols))
-              FOLLOW[current] += FOLLOW[p.nonTerminal] + (flw - {empty()});
-      	    else
-              FOLLOW[current] += flw;
+     for (KernelProduction p <- G.productions, [_*, current, symbols*] := p.symbols) {
+       flw =  first(symbols, FIRST);
+       if (current in defSymbols) {
+         if (empty() in flw || isEmpty(symbols)) {
+           FOLLOW[current] += FOLLOW[p.nonTerminal] + (flw - {empty()});
+         }
+         else {
+           FOLLOW[current] += flw;
          }
        }
      }
@@ -107,15 +100,13 @@ public SymbolUse follow(KernelGrammar G,  SymbolUse FIRST){
    return FOLLOW;
 }
 
-// Get first and follow sets for a given grammar
-
 public tuple[SymbolUse, SymbolUse] firstAndFollow(Grammar G){
-  // try {
+  try {
     K = importGrammar(G);
     fst = first(K);
     return <fst, follow(K,fst)>;
-  // }
-  // catch NoSuchKey(Symbol s) : throw "Undefined non-terminal <s>";
+  }
+  catch NoSuchKey(Symbol s) : throw "Undefined non-terminal <s>";
 }
 
 // -------- Examples and tests -------------------
