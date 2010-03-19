@@ -529,7 +529,11 @@ public class PatternTests extends TestFramework {
 		
 		assertTrue(runTest("{_} := {1};"));
 		assertTrue(runTest("{_, _} := {1, 2};"));
+		assertFalse(runTest("{_} := {1, 2};"));
+		assertFalse(runTest("{_, _} := {1};"));
+		
 		assertFalse(runTest("{_, _} := {1, 2, 3};"));
+
 		assertFalse(runTest("{_, _, _} := {1, 2};"));
 		 
 		assertFalse(runTest("{} := {1};"));
@@ -537,14 +541,20 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTest("{1,2} := {1,3};"));
 
 		assertTrue(runTest("{ {set[int] X} := {} && X == {};}"));
+
 		assertTrue(runTest("{ {set[int] X} := {1} && X == {1};}"));
 		assertTrue(runTest("{ {set[int] X} := {1,2} && X == {1,2};}"));
-		assertTrue(runTest("{ {X*} := {1,2} && X == {1,2};}"));
-		assertTrue(runTest("{ {X+} := {1,2} && X == {1,2};}"));
+		
+		assertTrue(runTest("{ {Y*} := {1,2} && Y == {1,2};}"));
+//TODO: Test related to + multivariables are commented out since they are not yet supported by
+//the Rascal syntax
+		
+//		assertTrue(runTest("{ {Y+} := {1,2} && Y == {1,2};}"));
+		
 		
 		assertTrue(runTest("{ {set[int] _} := {1,2}; }"));
 		assertTrue(runTest("{ {_*} := {1,2}; }"));
-		assertTrue(runTest("{ {_+} := {1,2}; }"));
+//		assertTrue(runTest("{ {_+} := {1,2}; }"));
 		
 		assertTrue(runTest("({int N, 2, N} := {1,2}) && (N == 1);"));
 		
@@ -558,7 +568,7 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2} && X == {};}"));
 		assertTrue(runTest("{ {1, X*, 2} := {1,2} && X == {};}"));
 		assertTrue(runTest("{ {1, _*, 2} := {1,2};}"));
-		assertFalse(runTest("{ {1, X+, 2} := {1,2};}"));
+//		assertFalse(runTest("{ {1, X+, 2} := {1,2};}"));
 		assertFalse(runTest("{ {1, _+, 2} := {1,2};}"));
 		assertTrue(runTest("{ {1, X*, 2} := {1,2} && X == {};}"));
 		assertFalse(runTest("{ {1, X*, 2} := {1,3};}"));
@@ -566,9 +576,9 @@ public class PatternTests extends TestFramework {
 		
 		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2,3} && X == {3};}"));
 		assertTrue(runTest("{ {1, X*, 2} := {1,2,3} && X == {3};}"));
-		assertTrue(runTest("{ {1, X+, 2} := {1,2,3} && X == {3};}"));
+//		assertTrue(runTest("{ {1, X+, 2} := {1,2,3} && X == {3};}"));
 		assertTrue(runTest("{ {1, _*, 2} := {1,2,3};}"));
-		assertTrue(runTest("{ {1, _+, 2} := {1,2,3};}"));
+//		assertTrue(runTest("{ {1, _+, 2} := {1,2,3};}"));
 		
 		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2,3,4} && X == {3,4};}"));
 
@@ -591,11 +601,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{ {int X, set[int] Y} := {1} && X == 1 && Y == {};}"));
 		assertTrue(runTest("{ {set[int] X, int Y} := {1} && X == {} && Y == 1;}"));
 		assertTrue(runTest("{ {X*, int Y} := {1} && X == {} && Y == 1;}"));
-		assertFalse(runTest("{ {X+, int Y} := {1};}"));
+//		assertFalse(runTest("{ {X+, int Y} := {1};}"));
 		assertTrue(runTest("{ {set[int] _, int _} := {1}; }"));
 		assertTrue(runTest("{ {_*, int _} := {1}; }"));
 		assertTrue(runTest("{ {_*, _} := {1}; }"));
-		assertFalse(runTest("{ {_+, _} := {1}; }"));
+//		assertFalse(runTest("{ {_+, _} := {1}; }"));
 
 		assertTrue(runTest("{ {set[int] X, int Y} := {1, 2} && (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
 		assertTrue(runTest("{ {X*, int Y} := {1, 2} && (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
