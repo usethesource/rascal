@@ -1,6 +1,7 @@
 module rascal::parser::Closure
   
 import rascal::parser::Grammar;
+import rascal::parser::Regular;
 import ParseTree;
 import List;
 import Set;
@@ -13,119 +14,45 @@ data Symbol = eoi();     // end-of-input marker
 // the above combinators
 
 public alias KernelProduction  = tuple[Symbol nonTerminal, list[Symbol] symbols];
-public data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProduction] productions, set[Symbol] regular); 
+public data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProduction] productions); 
 
-// Import an (AsFix-based) grammar and convert it to a KernelGrammar
-// Some AsFix features are not (yet) supported:
-//   \cf(Symbol symbol)  |
-//   \lex(Symbol symbol)  |
-//   \empty()  |
-//   \seq(list[Symbol] symbols)  |
-//   \alt(Symbol lhs, Symbol rhs)  |
-//   \tuple(Symbol head, list[Symbol] rest)  | 
-//   \iter-n(Symbol symbol, int number)  | 
-//   \iter-sep-n(Symbol symbol, Symbol separator, int number)  | 
-//   \func(list[Symbol] symbols, Symbol symbol)  | 
-//   \parameterized-sort(str sort, list[Symbol] parameters)  | 
-//   \strategy(Symbol lhs, Symbol rhs)  |
-//   \var-sym(Symbol symbol)  |
-//   \layout()  | 
-    
 public KernelGrammar importGrammar(Grammar G){
-   return kernelGrammar(G.start, 
-                       { <rhs,lhs> | /prod(lhs, Symbol rhs,_) <- G.productions},
-                       { rhs | /regular(rhs, _) <- G.productions });
+   return kernelGrammar(G.start, { <rhs,removeLabels(lhs)> | /prod(lhs,rhs,_) <- expandRegularSymbols(G).productions});
 } 
 
 // Utilities on Symbols
 
-bool isTerminal(Symbol S){
-   return \char-class(_) := S;
+public list[Symbol] removeLabels(list[Symbol] syms) {
+  return visit(syms) {
+    case label(_,sym) => sym
+  }
 }
-
-bool isNonTerminal(Symbol S){
-	return !isTerminal(S);
-}
-
-// Get the symbols that are used in a kernel production
-
-set[Symbol] usedSymbols(KernelProduction p){
-  return toSet(p.symbols);
-}
-
-// Get the symbols that are defined by a kernel production
-
-set[Symbol] definedSymbols(KernelProduction p){
-   return {p.nonTerminal};
-}
-
-// Get all the symbols used in a kernel grammar
 
 public set[Symbol] usedSymbols(KernelGrammar G){
-   return { usedSymbols(p) | KernelProduction p <- G.productions};
+   return { s |  KernelProduction p <- G.productions, /Symbol s <- p.symbols };
 }
 
-// Get all the symbols defined in a kernel grammar
-
-public set[Symbol] definedSymbols(KernelGrammar G){
-   return { definedSymbols(p) |  p <- G.productions} + G.regular;
+public set[Symbol] definedSymbols(KernelGrammar G) {
+   return { p.nonTerminal |  KernelProduction p <- G.productions};
 }
-
-// Get all the symbols in a kernel grammar
 
 public set[Symbol] allSymbols(KernelGrammar G){
    return definedSymbols(G) + usedSymbols(G);
 }
 
-// Get all the terminal symbols in a kernel grammar
-
 public set[Symbol] terminalSymbols(KernelGrammar G){
-   return { S | Symbol S <- usedSymbols(G), isTerminal(S)};
-}
-
-// Get all the start symbols of kernel grammar
-
-public set[Symbol] getStartSymbols(KernelGrammar G){
-   return G.start;
+   return { S | S:\char-class(_) <- usedSymbols(G)};
 }
 
 // ---------------- Compute first set -------------------------------
 
 alias SymbolUse = map[Symbol, set[Symbol]] ;
 
-// First set of a single symbol
-public set[Symbol] first(Symbol sym, SymbolUse FIRST){
-   switch(sym){
-   case empty() : return {sym};
-   case cilit(_) : return FIRST[sym] ? {};
-   case lit(_): return FIRST[sym] ? {};
-   case sort(_): return FIRST[sym] ? {};
-   case iter(Symbol S): return FIRST[S] ? {};
-   case \iter-sep(Symbol S, list[Symbol] Sep):{
-			f = FIRST[S] ? {};
-			g = first(Sep, FIRST);
-			return (empty() in f) ? f + g : f;
-		}
-   case \iter-star(Symbol S):
-			return (FIRST[S] ? {}) + {empty()};
-   case \iter-star-sep(Symbol S, list[Symbol] Sep):{
-			f = FIRST[S] ? {};
-			g = first(Sep, FIRST);
-			return {empty()} + ((empty() in f) ? f + g : f);
-		}
-   case opt(Symbol S):
-   			return (FIRST[S] ? {}) + {empty()};   
-   }
-   throw IllegalArgument(sym);
-}
-
-// First set of a list of symbols
-
 public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
   set[Symbol] result = {};
 	
   for (Symbol S <- symbols) {
-    f = FIRST[S] ? {};
+    f = FIRST[S];
     if (empty() notin f) {
       return result + f;
     } else {
@@ -140,6 +67,7 @@ public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
 
 public SymbolUse first(KernelGrammar G){
         defSymbols = definedSymbols(G);
+
 	SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) + 
 	                  (S : {}      | Symbol S   <- defSymbols);
 	        
@@ -155,20 +83,19 @@ public SymbolUse first(KernelGrammar G){
 
 public SymbolUse follow(KernelGrammar G,  SymbolUse FIRST){
    defSymbols = definedSymbols(G);
-   FOLLOW = (S : {eoi()} | Symbol S <- G.start) + 
-            (S : {} | Symbol S <- defSymbols);
+   FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
   
    solve (FOLLOW) {
      for (KernelProduction p <- G.productions) {
        symbols = p.symbols;
        
-       while(!isEmpty(symbols)){
+       while (!isEmpty(symbols)){
          current = head(symbols);
          symbols = tail(symbols);
          
-         if (current in defSymbols){
+         if (current in defSymbols) { 
       	    flw =  first(symbols, FIRST);
-      	    if(empty() in flw || isEmpty(symbols))
+      	    if (empty() in flw || isEmpty(symbols))
               FOLLOW[current] += FOLLOW[p.nonTerminal] + (flw - {empty()});
       	    else
               FOLLOW[current] += flw;
@@ -183,9 +110,12 @@ public SymbolUse follow(KernelGrammar G,  SymbolUse FIRST){
 // Get first and follow sets for a given grammar
 
 public tuple[SymbolUse, SymbolUse] firstAndFollow(Grammar G){
-	K = importGrammar(G);
-	fst = first(K);
-	return <fst, follow(K,fst)>;
+  // try {
+    K = importGrammar(G);
+    fst = first(K);
+    return <fst, follow(K,fst)>;
+  // }
+  // catch NoSuchKey(Symbol s) : throw "Undefined non-terminal <s>";
 }
 
 // -------- Examples and tests -------------------
