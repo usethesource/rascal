@@ -19,7 +19,7 @@ public class SetPattern extends AbstractMatchingResult {
 	private int patternSize;					// Number of elements in the set pattern
 	private ISet setSubject;					// Current subject	
 	private Type setSubjectType;				// Type of the subject
-	private Type setSubjectElementType;		// Type of the elements of current subject
+	private Type setSubjectElementType;		    // Type of the elements of current subject
 
 	private ISet fixedSetElements;				// The fixed, non-variable elements in the pattern
 	private ISet availableSetElements;			// The elements in the subject that are available:
@@ -32,19 +32,19 @@ public class SetPattern extends AbstractMatchingResult {
 	 * - a non-literal pattern that contains variables
 	 */
 	private int nVar;							// Number of variables
-	private HashSet<String> patVars;           // List of names of variables at top-level of the pattern
+	private HashSet<String> patVars;            // List of names of variables at top-level of the pattern
 	private HashSet<String> allVars;			// List of names of all the variables in the pattern 
 												// (including nested subpatterns)
 	private String[] varName;					// Name of each variable
 	private ISet[] varVal;						// Value of each variable
 	private IMatchingResult[] varPat;			// The pattern value for non-literal patterns
-	private boolean[] isSetVar;				// Is this a set variables?			
+	private boolean[] isSetVar;				    // Is this a set variables?			
 	private Iterator<?>[] varGen;				// Value generator for this variables
 	
-	private int currentVar;					// The currently matched variable
-    private boolean firstMatch;				// First match of this pattern?
+	private int currentVar;					    // The currently matched variable
+    private boolean firstMatch;				    // First match of this pattern?
 	
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	public SetPattern(IEvaluatorContext ctx, List<IMatchingResult> list){
 		super(ctx);
@@ -403,6 +403,6 @@ public class SetPattern extends AbstractMatchingResult {
 			hasNext = false;
 			return false;
 		}
-		return true;
+		return available().isEmpty();
 	}			
 }
