@@ -33,6 +33,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 
 	@Override
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		return that.nonEqualToSourceLocation(this);
+	}
+
+	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] actuals) {
 		if (actuals.length != 4) {
 			throw new SyntaxError("location constructor", ctx.getCurrentAST().getLocation());
@@ -275,6 +280,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	@Override
 	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that) {
 		return that.equalityBoolean(this);
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that) {
+		return that.nonEqualityBoolean(this);
 	}
 
 	@Override
