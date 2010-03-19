@@ -47,6 +47,7 @@ import org.rascalmpl.ast.BasicType.List;
 import org.rascalmpl.ast.BasicType.Loc;
 import org.rascalmpl.ast.BasicType.Map;
 import org.rascalmpl.ast.BasicType.Node;
+import org.rascalmpl.ast.BasicType.Num;
 import org.rascalmpl.ast.BasicType.Real;
 import org.rascalmpl.ast.BasicType.ReifiedAdt;
 import org.rascalmpl.ast.BasicType.ReifiedConstructor;
@@ -3500,6 +3501,11 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		// return r.length()>=2?H(r.get(0), V(r.sublist(1, r.length()-1))):r;
 		// return r;
 		return L(s);
+	}
+
+	public IValue visitBasicTypeNum(Num x) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
