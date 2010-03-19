@@ -7,6 +7,7 @@ module rascal::parser::Definition
   
 import rascal::syntax::RascalForImportExtraction;
 import rascal::parser::Grammar;
+import rascal::parser::Regular;
 import List;
 import String;
 import ParseTree;
@@ -66,13 +67,13 @@ public Grammar module2grammar(Module mod) {
   return syntax2grammar(collect(mod));
 }  
    
-public set[SyntaxDefinition] collect(Module mod) {
+private set[SyntaxDefinition] collect(Module mod) {
   set[SyntaxDefinition] result = {};
   visit (mod) { case SyntaxDefinition s : result += s; }
   return result;
 }  
-
-public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
+  
+private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] prods = {};
   set[Symbol] starts = {};
   set[Production] layouts = {};
@@ -94,77 +95,30 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   return grammar(starts, layout(prods) 
                        + layouts  
                        + {regular(\iter-star(layout()),\no-attrs())}
-                       + {prod([\iter-star(layout()), top, \iter-star(layout())],start(top),\no-attrs()) | top <- starts} 
-                       + {prod([rhs],layout(),no-attrs()) | prod(_,Symbol rhs,_) <- layouts }
-                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods}
-                       + {prod(cistr2syms(s),lit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods}
-                       + regular(prods)
-                       + layoutRegular(layouts)
+                       + {prod([\iter-star(layout()), top, \iter-star(layout())],start(top),\no-attrs()) | start(top) <- starts} 
+                       + {prod([rhs],layout(),\no-attrs()) | /prod(_,Symbol rhs,_) <- layouts }
+                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods+layouts}
+                       + {prod(cistr2syms(s),lit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods+layouts}
+                       + makeRegularStubs(prods+layouts)
                 );
 } 
 
-public bool isLex(Production p) {
-  a = (prod(_,_,attrs(as)) := p || regular(_,attrs(as)) := p) && term("lex"()) in as;
-println("prod <p> isLex: <a>");
-  return a;
-}
 
-public bool isCf(Production p) {
-  return !isLex(p);
-}
-
-public set[Production] regular(set[Production] prods) {
-  return { regular(reg,\no-attrs()) | 
-           /Production p:prod(_,_,_) <- prods, 
-           sym <- p.lhs,
-           reg <- regular(sym,isLex(p))
-         };
-}
-
-public set[Production] layoutRegular(set[Production] layouts) {
- return { regular(reg,\no-attrs()) | 
-           /Production p:prod(_,_,_) <- layouts, 
-           sym <- p.lhs,
-           reg <- regular(sym,true)
-        };
-}
-
-public set[Symbol] regular(Symbol s, bool isLex) {
-println("sym <s> lex <isLex>");
-  result = {};
-  visit (s) {
-     case \opt(Symbol n) : 
-       result += {s};
-     case \iter(Symbol n) : 
-       result += isLex ? {s} : {\iter-sep(n,[layout()])};
-     case \iter-star(Symbol n) : 
-       result += isLex ? {s} : {\iter-star-sep(n,[layout()])};
-     case \iter-sep(Symbol n, Symbol sep) : 
-       result += isLex ? {s} : {\iter-sep(n,[layout(),sep,layout()])};
-     case \iter-star-sep(Symbol n,Symbol sep) : 
-       result += isLex ? {s} : {\iter-star-sep(n,[layout(),sep,layout()])};
-  }
-  return result;
-}  
   
-public set[Production] layout(set[Production] prods) {
-  // return prods;
+private set[Production] layout(set[Production] prods) {
   return visit (prods) {
-    case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) =>
-           prod(intermix(lhs),rhs,attrs(as)) 
-    when start(_) !:= rhs,
-         term("lex"()) notin as  
-    case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) =>
-           prod(intermix(lhs),rhs,\no-attrs()) 
-    when start(_) !:= rhs
+    case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs),rhs,attrs(as)) 
+      when start(_) !:= rhs, term("lex"()) notin as  
+    case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) => prod(intermix(lhs),rhs,\no-attrs()) 
+      when start(_) !:= rhs
   }
 }  
 
-public list[Symbol] str2syms(str x) {
+private list[Symbol] str2syms(str x) {
   return [\char-class([range(c,c)]) | i <- [0..size(x)-1], int c:= charAt(x,i)]; 
 }
 
-public list[Symbol] cistr2syms(str x) {
+private list[Symbol] cistr2syms(str x) {
   return for (i <- [0..size(x)-1], int c:= charAt(x,i)) {
      if (c >= 101 && c <= 132) // A-Z
         append \char-class([range(c,c),range(c+40,c+40)]);
@@ -175,17 +129,17 @@ public list[Symbol] cistr2syms(str x) {
   } 
 }
 
-public list[Symbol] intermix(list[Symbol] syms) {
+private list[Symbol] intermix(list[Symbol] syms) {
   if (syms == []) return syms;
   return tail([\iter-star(layout()), s | s <- syms]);
 }
 
-public Production prod2prod(Symbol nt, Prod p) {
+private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
     case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
-      return prod(args2symbols(args), nt, mods2attrs(n, ms));
+      return prod(args2symbols(args, hasLex(ms)), nt, mods2attrs(n, ms));
     case (Prod) `<ProdModifier* ms> <Sym* args>` :
-      return prod(args2symbols(args), nt, mods2attrs(ms));
+      return prod(args2symbols(args, hasLex(ms)), nt, mods2attrs(ms));
     case (Prod) `<Prod l> | <Prod r>` :
       return choice({prod2prod(nt, l), prod2prod(nt, r)});
     case (Prod) `<Prod l> > <Prod r>` :
@@ -206,32 +160,50 @@ public Production prod2prod(Symbol nt, Prod p) {
   } 
 }
 
-public list[Symbol] args2symbols(Sym* args) {
-  return [ arg2symbol(s) | Sym s <- args ];
+private bool hasLex(ProdModifier* ms) {
+  return /(ProdModifier) `lex` := ms;
+}
+
+private list[Symbol] args2symbols(Sym* args, bool isLex) {
+  return [ arg2symbol(s, isLex) | Sym s <- args ];
 }
   
-public Symbol arg2symbol(Sym sym) {
-  switch(sym) {
+private Symbol arg2symbol(Sym sym, bool isLex) {
+  switch (sym) {
     case (Sym) `<Name n>`          : return sort("<n>");
     case (Sym) `<StringConstant l>` : return lit(unescape(l));
-    case (Sym) `<<Sym s>>`         : return arg2symbol(s);
-    case (Sym) `<<Sym s> <Name n>>	` : return label("<n>", arg2symbol(s));
-    case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s));
-    case (Sym) `<Sym s> ??` : return opt(arg2symbol(s));
-    case (Sym) `<Sym s> *`  : return \iter-star(arg2symbol(s));
-    case (Sym) `<Sym s> +`  : return iter(arg2symbol(s));
-    case (Sym) `<Sym s> *?` : return \iter-star(arg2symbol(s));
-    case (Sym) `<Sym s> +?` : return iter(arg2symbol(s));
-    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-sep(arg2symbol(s), lit(unescape(sep)));
-    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-sep(arg2symbol(s), lit(unescape(sep)));
-    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-sep(arg2symbol(s), lit(unescape(sep)));
-    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-sep(arg2symbol(s), lit(unescape(sep)));
+    case (Sym) `<<Sym s>>`         : return arg2symbol(s,isLex);
+    case (Sym) `<<Sym s> <Name n>>	` : return label("<n>", arg2symbol(s,isLex));
+    case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s,isLex));
+    case (Sym) `<Sym s> ??` : return opt(arg2symbol(s,isLex));
     case (Sym) `<Class cc>` : return \char-class(cc2ranges(cc));
+  }  
+  
+  if (isLex) switch (sym) {
+    case (Sym) `<Sym s> *`  : return \iter-star(arg2symbol(s,isLex));
+    case (Sym) `<Sym s> +`  : return \iter(arg2symbol(s,isLex));
+    case (Sym) `<Sym s> *?` : return \iter-star(arg2symbol(s,isLex));
+    case (Sym) `<Sym s> +?` : return \iter(arg2symbol(s,isLex));
+    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-sep(arg2symbol(s,isLex), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-sep(arg2symbol(s,isLex), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-sep(arg2symbol(s,isLex), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-sep(arg2symbol(s,isLex), [lit(unescape(sep))]);
     default: throw "missed a case <sym>";
+  } 
+  else switch (sym) {  
+    case (Sym) `<Sym s> *`  : return \iter-star-sep(arg2symbol(s,isLex),[layout()]);
+    case (Sym) `<Sym s> +`  : return \iter-sep(arg2symbol(s,isLex),[layout()]);
+    case (Sym) `<Sym s> *?` : return \iter-star-sep(arg2symbol(s,isLex),[layout()]);
+    case (Sym) `<Sym s> +?` : return \iter-sep(arg2symbol(s,isLex),[layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-sep(arg2symbol(s,isLex), [layout(),lit(unescape(sep)),layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-sep(arg2symbol(s,isLex), [layout(),lit(unescape(sep)),layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-sep(arg2symbol(s,isLex), [layout(),lit(unescape(sep)),layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-sep(arg2symbol(s,isLex), [layout(),lit(unescape(sep)),layout()]);
+    default: throw "missed a case <sym>";  
   }
 }
   
-public str unescape(StringConstant s) {
+private str unescape(StringConstant s) {
    if ([StringConstant] /\"<rest:.*>\"/ := s) {
      return visit (rest) {
        case /\\b/ => "\b"
@@ -249,7 +221,7 @@ public str unescape(StringConstant s) {
    throw "unexpected string format: <s>";
 }
 
-public list[CharRange] cc2ranges(Class cc) {
+private list[CharRange] cc2ranges(Class cc) {
    switch(cc) {
      case (Class) `[<Range* ranges>]` : return [range(r) | r <- ranges];
      case (Class) `(<Class c>)`: return cc2ranges(cc2ranges(c));
@@ -261,15 +233,15 @@ public list[CharRange] cc2ranges(Class cc) {
    }
 }
       
-public CharRange range(Range r) {
-  switch(r) {
+private CharRange range(Range r) {
+  switch (r) {
     case (Range) `<Character c>` : return range(character(c),character(c));
     case (Range) `<Character l> - <Character r>`: return range(character(l),character(r));
     default: throw "missed a case <r>";
   }
 } 
 
-public int character(Character c) {
+private int character(Character c) {
   println("char: <c>");
   switch (c) {
     case [Character] /<ch:[^"'\-\[\] ]>/        : return charAt(ch, 0); 
@@ -282,19 +254,16 @@ public int character(Character c) {
   }
 }
 
-public Attributes mods2attrs(Name name, ProdModifier* mods) {
-  println("calling mods2attrs <name> <mods>");
+private Attributes mods2attrs(Name name, ProdModifier* mods) {
   return attrs([term(cons("<name>"))]);
 }
 
-public Attributes mods2attrs(ProdModifier* mods) {
-  println("calling mods2attrs <mods>");
+private Attributes mods2attrs(ProdModifier* mods) {
   return attrs([mod2attr(m) | ProdModifier m <- mods]);
 }
 
-public Attr mod2attr(ProdModifier m) {
-  println("mod2attr on <m>");
-  switch(m) {
+private Attr mod2attr(ProdModifier m) {
+  switch (m) {
     case (ProdModifier) `lex`: return term("lex"());
     case (ProdModifier) `left`: return \assoc(left());
     case (ProdModifier) `right`: return \assoc(right());
@@ -304,27 +273,27 @@ public Attr mod2attr(ProdModifier m) {
     default: throw "missed a case <m>";
   }
 }
-
-public Symbol user2symbol(UserType u) {
+  
+private Symbol user2symbol(UserType u) {
   switch (u) {
    case (UserType) `<Name n>` : return sort("<n>");
    default: throw "missed case: <u>";
   } 
 }
 
-list[CharRange] complement(list[CharRange] s) {
+private list[CharRange] complement(list[CharRange] s) {
   return difference([range(0,0xFFFF)],s);
 }
 
-list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
+private list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
   return union(difference(l,r),difference(r,l));
 } 
 
-list[CharRange] union(list[CharRange] l, list[CharRange] r) {
+private list[CharRange] union(list[CharRange] l, list[CharRange] r) {
  return l + r;
 }
 
-list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
+private list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   if (l == [] || r == []) return l;
 
   <lhead,ltail> = takeOneFrom(l);
