@@ -256,7 +256,6 @@ text font(text t, str tg) {
    return r;
   }
 
-<<<<<<< .mine
 text QQ(Box b, Box c, options o, int m) {
  text t=[];
       switch(b) {
@@ -276,27 +275,6 @@ text QQ(Box b, Box c, options o, int m) {
 return t;
 }
 
-=======
-text QQ(Box b, Box c, options o, int m) {
- text t;
-      switch(b) {
-         case L(str s): {t= LL(s);}
-         case  H(list[Box] bl): {t =  HH(bl, c, o, m); }
-         case  V(list[Box] bl): {t = VV(bl, c, o, m);}
-         case  I(list[Box] bl):{t = II(bl, c, o, m);}
-         case  WD(list[Box] bl):{t = WDWD(bl, c, o, m);}
-         case  HOV(list[Box] bl):{t = HOVHOV(bl, c, o, m);}
-         case  HV(list[Box] bl):{t= HVHV(bl, c, o, m);}
-         case  SPACE(int n):{t= hskip(n);}
-         case   A(list[Box] bl):{t = AA(bl, c, o, f, m);}
-         case KW(Box a):{t =  decorated?font(O(a, c, o, m),"bf"):O(a,c,o,m);}
-         case VAR(Box a):{t = decorated?font(O( a, c, o, m),"it"):O( a, c, o, m);}
-         case NUM(Box a):{t = decorated?font(O( a, c, o, m),"nm"):O( a, c, o, m);}
-     }
-return t;
-}
-
->>>>>>> .r31874
 text O(Box b, Box c, options o, int m) {
       // println(b);
     int h = o["h"];
@@ -377,7 +355,6 @@ text AA(list[Box] bl, Box c ,options o, foptions f, int m) {
      return O(V(vargs), c, o, m);
 }
 
-<<<<<<< .mine
 bool changeHV2H(list[Box] hv) {
    int n = 0;
     visit(hv) {
@@ -404,24 +381,6 @@ return visit(b) {
 }
 
 
-=======
-bool changeHV2H(list[Box] hv) {
-   int n = 0;
-    visit(hv) {
-         case L(str s): {n+=size(s);}
-         }
-    return n<40;
-    }
-
-
-Box removeHV(Box b) {
-return visit(b) {
-     case HV(list[Box] hv) => H(hv) when changeHV2H(hv)
-      };
-}
-
-
->>>>>>> .r31874
 
 public void main() {
 /*
