@@ -52,8 +52,10 @@ public class GlobalEnvironment {
 		}
 	}
 	
-	public void resetModule(ModuleEnvironment mod) {
-		moduleEnvironment.put(mod.getName(), mod);
+	public ModuleEnvironment resetModule(String name) {
+		ModuleEnvironment mod = moduleEnvironment.get(name);
+		mod.reset();
+		return mod;
 	}
 		
 	/**

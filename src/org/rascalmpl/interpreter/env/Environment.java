@@ -31,9 +31,9 @@ import org.rascalmpl.interpreter.utils.Names;
  * TODO: this class does not support shadowing of variables and functions yet, which is wrong.
  */
 public class Environment {
-	protected final Map<String, Result<IValue>> variableEnvironment;
-	protected final Map<String, OverloadedFunctionResult> functionEnvironment;
-	protected final Map<Type, Type> typeParameters;
+	protected Map<String, Result<IValue>> variableEnvironment;
+	protected Map<String, OverloadedFunctionResult> functionEnvironment;
+	protected Map<Type, Type> typeParameters;
 	protected final Environment parent;
 	protected final Environment callerScope;
 	protected final ISourceLocation callerLocation; // different from the scope location (more precise)
@@ -543,6 +543,12 @@ public class Environment {
 
 	public Set<String> getImports() {
 		return getRoot().getImports();
+	}
+
+	public void reset() {
+		this.variableEnvironment = new HashMap<String, Result<IValue>>();
+		this.functionEnvironment = new HashMap<String, OverloadedFunctionResult>();
+		this.typeParameters = new HashMap<Type, Type>();
 	}
 
 

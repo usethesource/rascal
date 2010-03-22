@@ -38,11 +38,11 @@ import org.rascalmpl.values.uptr.Factory;
  * 
  */
 public class ModuleEnvironment extends Environment {
-	protected final Map<String, ModuleEnvironment> importedModules;
-	protected final Map<Type, List<Type>> extensions;
-	protected final TypeStore typeStore;
-	protected final Map<String, NonTerminalType> concreteSyntaxTypes;
-	protected final List<Test> tests;
+	protected Map<String, ModuleEnvironment> importedModules;
+	protected Map<Type, List<Type>> extensions;
+	protected TypeStore typeStore;
+	protected Map<String, NonTerminalType> concreteSyntaxTypes;
+	protected List<Test> tests;
 	private Set<String> importedSDFModules = new HashSet<String>();
 	private boolean initialized;
 	
@@ -431,5 +431,15 @@ public class ModuleEnvironment extends Environment {
 	
 	public void setInitialized() {
 		this.initialized = true;
+	}
+
+	public void reset() {
+		super.reset();
+		this.importedModules = new HashMap<String, ModuleEnvironment>();
+		this.extensions = new HashMap<Type, List<Type>>();
+		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
+		this.typeStore = new TypeStore();
+		this.tests = new LinkedList<Test>();
+		this.initialized = false;
 	}
 }
