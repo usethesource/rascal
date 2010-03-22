@@ -52,6 +52,9 @@ public class GlobalEnvironment {
 		}
 	}
 	
+	public void resetModule(ModuleEnvironment mod) {
+		moduleEnvironment.put(mod.getName(), mod);
+	}
 		
 	/**
 	 * Retrieve a module from the heap

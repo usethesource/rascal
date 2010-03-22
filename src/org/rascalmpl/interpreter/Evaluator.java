@@ -41,7 +41,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.Bound;
@@ -223,7 +222,6 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFunctionError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -266,8 +264,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	protected final GlobalEnvironment heap;
 
 	private final JavaBridge javaBridge;
-	//	private final boolean LAZY = false;
-	protected boolean importResetsInterpreter = true;
 
 	private AbstractAST currentAST; 	// used in runtime errormessages
 
@@ -371,13 +367,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		
 		return func.call(types, args).getValue();
-	}
-	/**
-	 * In interactive mode this flag should be set to true, such that re-importing
-	 * a module causes a re-initialization. 
-	 */
-	public void setImportResetsInterpreter(boolean flag) {
-		this.importResetsInterpreter = flag;
 	}
 
 	private void checkPoint(Environment env) {
@@ -792,26 +781,31 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// TODO support for full complexity of import declarations
 		String name = getUnescapedModuleName(x);
 
-		
-
 		//		TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
-
-		if (!heap.existsModule(name)) {
-			heap.addModule(new ModuleEnvironment(name));
-		}
-
 		if (isSDFModule(name)) {
 			evalSDFModule(x);
 			return nothing();
 		}
-
-		if (isNonExistingRascalModule(name)) {
+		
+		if (!heap.existsModule(name)) {
+			// deal with a fresh module that needs initialization
+			heap.addModule(new ModuleEnvironment(name));
 			evalRascalModule(x, name);
+			addImportToCurrentModule(x, name);
+		}
+		else if (getCurrentEnvt() == rootScope) {
+			// in the root scope we treat an import as a "reload"
+			heap.resetModule(new ModuleEnvironment(name));
+			evalRascalModule(x, name);
+			addImportToCurrentModule(x, name);
 		}
 		else {
-			reloadAllIfNeeded(x, name);
+			// otherwise simply add the current imported name to the imports of the current module
+			addImportToCurrentModule(x, name);
 		}
-		addImportToCurrentModule(x, name);
+
+		
+		
 		return nothing();
 	}
 
@@ -819,10 +813,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			org.rascalmpl.ast.Import.Default x) {
 		loadParseTreeModule(x);
 		getCurrentModuleEnvironment().addSDFImport(getUnescapedModuleName(x));
-		
-		// TODO: this logic cannot be understood...
-		// handleSDFModule only loads the ParseTree module,
-		// yet the SDF module *will* have been loaded
 		
 		try {
 			parser.generateModuleParser(loader.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), getCurrentModuleEnvironment());
@@ -847,10 +837,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return ((ModuleEnvironment) currentEnvt);
 	}
 
-	private boolean reloadNeeded() {
-		return importResetsInterpreter && currentEnvt == rootScope;
-	}
-
 	private String getUnescapedModuleName(
 			org.rascalmpl.ast.Import.Default x) {
 		return Names.fullName(x.getModule().getName());
@@ -867,10 +853,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private boolean isSDFModule(String name) {
 		return loader.isSdfModule(name);
-	}
-
-	private boolean isNonExistingRascalModule(String name) {
-		return (!heap.existsModule(name) || !heap.getModule(name).isInitialized()) && !isSDFModule(name);
 	}
 
 	protected Module evalRascalModule(AbstractAST x,
@@ -902,33 +884,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
 	}
-
-
-	protected void reloadAllIfNeeded(AbstractAST cause, String toBeImported) {
-		if (!reloadNeeded()) {
-			return;
-		}
-		heap.clear();
-
-		java.util.Set<String> topModules = getCurrentModuleEnvironment().getImports();
-		java.util.Set<String> moduleSet = new HashSet<String>();
-		moduleSet.addAll(topModules);
-		moduleSet.add(toBeImported);
-		
-		for (String mod : moduleSet) {
-			Module module = evalRascalModule(cause, mod);
-			if (module != null) {
-				ModuleEnvironment module2 = heap.getModule(mod);
-				if (module2 == null) {
-					throw new UndeclaredModuleError(mod, cause);
-				}
-				getCurrentModuleEnvironment().addImport(mod, module2);
-			}
-		}
-	}
-
-
-
 
 	@Override 
 	public Result<IValue> visitModuleDefault(
@@ -1702,6 +1657,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
+						setCurrentAST(body);
 						return body.accept(this);
 					}
 
@@ -1720,7 +1676,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			unwind(old);
 		}
 
-		return x.getElseStatement().accept(this);
+		Statement elsePart = x.getElseStatement();
+		setCurrentAST(elsePart);
+		return elsePart.accept(this);
 	}
 
 
@@ -1745,6 +1703,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
+						setCurrentAST(body);
 						return body.accept(this);
 					}
 

@@ -71,11 +71,11 @@ public SymbolUse first(KernelGrammar G){
 	SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) + 
 	                  (S : {}      | Symbol S   <- defSymbols);
 	        
-	solve (FIRST) {
-	  for (Symbol S <- defSymbols, list[Symbol] symbols <- G.productions[S]) {	
+	solve (FIRST) 
+          for (Symbol S <- defSymbols, list[Symbol] symbols <- G.productions[S]) 	
              FIRST[S] += isEmpty(symbols) ? {empty()} : first(symbols, FIRST) - {empty()};
-          }
-	}	
+          
+		
 	return FIRST;
 }
 
