@@ -497,6 +497,26 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		throw new ImplementationError("Not yet implemented: " + imp.getTree());
 	}
 
+	public void reloadModule(String name) {
+		if (!heap.existsModule(name)) {
+			return; // ignore modules we don't know about
+		}
+		
+		ModuleEnvironment mod = heap.resetModule(name);
+		
+		// TODO: figure out what to do about null reference
+		Module module = loader.loadModule(name, null, mod);
+
+		if (module != null) {
+			if (!getModuleName(module).equals(name)) {
+
+				// TODO: figure out what to do about null reference
+				throw new ModuleNameMismatchError(getModuleName(module), name, null);
+			}
+			module.accept(this);
+		}
+	}
+	
 	/* First a number of general utility methods */
 
 	/*
@@ -795,7 +815,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		else if (getCurrentEnvt() == rootScope) {
 			// in the root scope we treat an import as a "reload"
-			heap.resetModule(new ModuleEnvironment(name));
+			heap.resetModule(name);
 			evalRascalModule(x, name);
 			addImportToCurrentModule(x, name);
 		}
@@ -803,8 +823,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			// otherwise simply add the current imported name to the imports of the current module
 			addImportToCurrentModule(x, name);
 		}
-
-		
 		
 		return nothing();
 	}
@@ -3630,4 +3648,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		return vf.string(value.toString());
 	}
+
+	
 }
