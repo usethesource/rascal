@@ -200,7 +200,7 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
       int n = h + hwidth(a);
       if (size(a)>1) { // Multiple lines 
            // text T1 =hh(hskip(i), O(A, V([]), o, m-i));
-           text T1 = QQ(A, V([]), o, m-i);
+           text T1 = O(A, V([]), o, m-i);
   // println("QQ0:i=<i>  <T1>");
            return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
           }
@@ -212,12 +212,12 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
         n -= h; // n == width(a)
          if  ((i+n)<m) { // Fits in the next line, not in current line
                //  text T1 =hh(hskip(i), a);
-                 text T1 =QQ(A, V([]), o, m-i);
+                 text T1 =O(A, V([]), o, m-i);
                  return vv(T, vv_(vskip(v), HVHV(T1, m-n-i, B, o, m, H([]))));
                  }
          else { // Doesn't fit in both lines
                 //  text T1 =hh(hskip(i), O(A, H([]), o, m-i));
-                 text T1 =QQ(A, V([]), o, m-i);
+                 text T1 =O(A, V([]), o, m-i);
                  // println("QQ3:i=<i> <T1>");
                  return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
                  }
@@ -228,13 +228,13 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
 
 text HVHV(text T, int s, list[Box] b, options o,  int m, Box c) {
       if (isEmpty(b))  return T;
-      text T1 = QQ(b[0], c  , o, s);  // Was H([])
+      text T1 = O(b[0], c  , o, s);  // Was H([])
       return HVHV(T, s, T1 , b[0],  tail(b), o, m);
       }
 
  text HVHV(list[Box] b, Box c, options o, int m) {
        if (isEmpty(b))  return [];
-       text T =  QQ(b[0], V([]), o, m);  // Was H([])
+       text T =  O(b[0], V([]), o, m);  // Was H([])
        if (size(b)==1) return T;
       return HVHV(T, m-hwidth(T), tail(b), o, m, H([]));
       }
@@ -380,9 +380,7 @@ return visit(b) {
       };
 }
 
-
-
-public void main() {
+public void main(Box b) {
 /*
   Box  b1 = R([L("ab"), L("c")]);
   Box  b2 = R([L("def"), L("hg")]);
@@ -402,11 +400,9 @@ public void main() {
                   }
       } 
 */
-   // Box b = readBinaryValueFile(#Box, |file:///ufs/bertl/box/big.box|);
-   Box b = readBinaryValueFile(#Box, |file:///ufs/bertl/tst.box|);
- println(b);
+  
    b = removeHV(b);
-   println(b);
+   //  println(b);
   // str s = box2text(b, 0);
   // println(s);
  decorated = true;
