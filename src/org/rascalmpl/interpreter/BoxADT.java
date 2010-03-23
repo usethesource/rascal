@@ -13,7 +13,8 @@ public class BoxADT {
 	static final boolean DEBUG = false;
 	static final private TypeStore ts;
 	static final private TypeFactory tf;
-	static final private Type box, boxlst, str;
+	static final private Type  boxlst, str;
+	static final private Type box;
 
 	public static Type getBox() {
 		return box;
