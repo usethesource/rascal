@@ -55,8 +55,6 @@ public class TestFramework {
 			}
 		});
 
-		eval.setImportResetsInterpreter(false);
-		
 		return eval;
 	}
 

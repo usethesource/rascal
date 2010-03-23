@@ -120,7 +120,7 @@ public class FromResourceLoader implements IModuleFileLoader{
 	public URI getURI(String filename) {
 		try {
 			String file = filename.startsWith("/") ? filename : "/" + filename;
-			return URI.create("class://" + clazz.getCanonicalName() + URLEncoder.encode(file, "UTF8"));
+			return URI.create("rascal-library://rascal/" + URLEncoder.encode(file, "UTF8"));
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			return null;
