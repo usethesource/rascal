@@ -68,6 +68,18 @@ public class ModuleLoader{
 		return null;
 	}
 	
+	public URI findModule(String name) {
+		name = name.replaceAll("::", "/");
+		name = name + ".rsc";
+		for(IModuleFileLoader loader : loaders){
+			if(loader.fileExists(name)){
+				return loader.getURI(name);
+			}
+		}
+		
+		return null;
+	}
+	
 	private IConstructor tryLoadBinary(IModuleFileLoader loader, String name){
 		IConstructor tree = null;
 		

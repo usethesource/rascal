@@ -463,9 +463,76 @@ public class TreeAdapter {
 				}
 			}
 
-			if (l.getOffset() >= offset
-					&& l.getOffset() + l.getLength() <= offset) {
+			if (l.getOffset() <= offset
+					&& l.getOffset() + l.getLength() >= offset) {
 				return tree;
+			}
+		}
+
+		return null;
+	}
+
+	public static IConstructor locateAnnotatedTree(IConstructor tree, String label, int offset) {
+		ISourceLocation l = TreeAdapter.getLocation(tree);
+
+		if (l == null) {
+			throw new IllegalArgumentException(
+					"locate assumes position information on the tree");
+		}
+
+		if (TreeAdapter.isLexToCf(tree)) {
+			if (l.getOffset() <= offset
+					&& offset < l.getOffset() + l.getLength()) {
+				if (tree.hasAnnotation(label)) {
+					return tree;
+				}
+				
+				// we are in position, but no annotation, so zoom out
+			}
+
+			// we're at a leaf, but not in position (so zoom out)
+			return null;
+		}
+
+		if (TreeAdapter.isAmb(tree)) {
+			if (tree.hasAnnotation(label)) {
+				return tree;
+			}
+			
+			return null;
+		}
+
+		if (TreeAdapter.isAppl(tree)) {
+			IList children = TreeAdapter.getASTArgs(tree);
+
+			for (IValue child : children) {
+				ISourceLocation childLoc = TreeAdapter
+						.getLocation((IConstructor) child);
+
+				if (childLoc == null) {
+					continue;
+				}
+
+				if (childLoc.getOffset() <= offset
+						&& offset < childLoc.getOffset() + childLoc.getLength()) {
+					IConstructor result = locateAnnotatedTree((IConstructor) child, label, offset);
+
+					if (result != null) {
+						return result;
+					} else {
+						continue;
+					}
+				}
+			}
+
+			if (l.getOffset() <= offset
+					&& l.getOffset() + l.getLength() >= offset) {
+				if (tree.hasAnnotation(label)) {
+					return tree;
+				}
+				
+				// in scope, but no annotation, so zoom out
+				return null;
 			}
 		}
 

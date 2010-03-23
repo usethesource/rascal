@@ -2,9 +2,16 @@ package org.rascalmpl.checker;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.interpreter.CommandEvaluator;
@@ -21,6 +28,7 @@ public class StaticChecker {
 	
 	private ArrayList<String> checkerPipeline;
 	private ArrayList<Boolean> pipelineElementEnabled;
+	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	public static final String TYPECHECKER = "typecheckTree";
 	
@@ -48,10 +56,10 @@ public class StaticChecker {
 		return InstanceKeeper.sInstance;
 	}
 
-	private void eval(String cmd) {
+	private IValue eval(String cmd) {
 		try {
 			Command cmdAst = astBuilder.buildCommand(eval.parseCommand(cmd));
-			eval.eval(cmdAst);
+			return eval.eval(cmdAst).getValue();
 		} catch (IOException e) {
 			throw new ImplementationError("static checker failed to execute command: " + cmd, e);
 		} catch (SyntaxError se) {
@@ -60,8 +68,28 @@ public class StaticChecker {
 		
 	}
 	
+	public IConstructor resolveImports(IConstructor moduleParseTree) {
+		ISet imports = (ISet) eval.call("importedModules", moduleParseTree);
+		
+		System.err.println("imports: " + imports);
+		
+		IMapWriter mw = VF.mapWriter(TypeFactory.getInstance().stringType(), TypeFactory.getInstance().sourceLocationType());
+		
+		for (IValue i : imports) {
+			URI uri = eval.getModuleLoader().findModule(((IString) i).getValue());
+			if (uri != null) {
+				mw.put(i, VF.sourceLocation(uri));
+			}
+		}
+		
+		System.err.println("locations: " + mw.done());
+		
+		return (IConstructor) eval.call("linkImportedModules", moduleParseTree, mw.done());
+	}
+	
 	public IConstructor checkModule(IConstructor moduleParseTree) {
 		IConstructor res = moduleParseTree;
+		res = resolveImports(res);
 		for (int n = 0; n < checkerPipeline.size(); ++n) {
 			if (pipelineElementEnabled.get(n).booleanValue()) 
 				res = (IConstructor) eval.call(checkerPipeline.get(n), res);
@@ -98,5 +126,6 @@ public class StaticChecker {
 
 	public void reload() {
 		eval("import rascal::checker::Check;");
+		eval("import rascal::checker::Import;");
 	}
 }

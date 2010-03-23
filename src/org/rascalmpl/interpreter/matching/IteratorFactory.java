@@ -66,10 +66,14 @@ public class IteratorFactory {
 						int delta = SymbolAdapter.isSepList(listSymbol)? 4 : 2;
 						return new CFListIterator((IList)tree.get(1), delta);
 					}
-					return new DescendantReader(tree);
+					
 				}
+				
 				if(shallow)
 					checkMayOccur(patType, subjectType, ctx);
+				
+				return new DescendantReader(tree);
+				
 			}
 			return new SingleIValueIterator(subjectValue);
 			
