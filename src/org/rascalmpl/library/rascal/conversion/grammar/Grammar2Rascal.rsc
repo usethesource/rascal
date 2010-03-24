@@ -4,6 +4,8 @@ import rascal::parser::Grammar;
 import Set;
 import ParseTree;
 
+// TODO this is work in progress
+
 public str grammar2rascal(Grammar g, str name) {
   return "module <name> <grammar2rascal(g)>";
 }
