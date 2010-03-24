@@ -8,19 +8,25 @@ imports rascal/syntax/Names
 exports
 sorts UnicodeEscape Character
 
+sorts Nonterminal NonterminalLabel
+lexical syntax
+   [A-Z] [A-Za-z0-9\_]*           -> Nonterminal
+   [a-z] [A-Za-z0-9\_]*           -> NonterminalLabel 
+
+lexical restrictions
+  Nonterminal -/- [A-Za-z0-9\_]
+  NonterminalLabel -/- [A-Za-z0-9\_]
+
 sorts Sym
 
-context-free  priorities
-  symbol:Sym                         -> Type {cons("Symbol")}
-  non-assoc
-  user:UserType                         -> Sym {cons("Nonterminal")},
-  Name "[" {Type ","}+ "]" -> UserType
+context-free priorities
+  Nonterminal "[" {Sym ","}+ "]"     -> Sym {cons("Parametrized")}
   non-assoc %% to prevent ambiguity with character classes
   Sym -> Sym+
 
 context-free syntax
-  "<" symbol:Sym ">"                 -> Sym {cons("Bracket"), bracket}
-  "<" symbol:Sym name:Name ">"       -> Sym {cons("Label")}
+  nonterminal:Nonterminal            -> Sym {cons("Nonterminal")}
+  symbol:Sym label:NonterminalLabel  -> Sym {cons("Labeled")}
   symbol:Sym "?"                     -> Sym {cons("Optional")}    
   symbol:Sym "??"                    -> Sym {cons("NonEagerOptional")}               
   symbol:Sym "+"                     -> Sym {cons("Iter")}                   
