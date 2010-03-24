@@ -171,7 +171,7 @@ private list[Symbol] args2symbols(Sym* args, bool isLex) {
 private list[Symbol] args2symbols({Sym ","}+ args, bool isLex) {
   return [ arg2symbol(s, isLex) | Sym s <- args ];
 }
-  
+   
 private Symbol arg2symbol(Sym sym, bool isLex) {
   switch (sym) {
     case (Sym) `<Nonterminal n>`          : return sort("<n>");
@@ -265,7 +265,7 @@ private Attributes mods2attrs(Name name, ProdModifier* mods) {
 private Attributes mods2attrs(ProdModifier* mods) {
   return attrs([mod2attr(m) | ProdModifier m <- mods]);
 }
-
+ 
 private Attr mod2attr(ProdModifier m) {
   switch (m) {
     case (ProdModifier) `lex`: return term("lex"());
