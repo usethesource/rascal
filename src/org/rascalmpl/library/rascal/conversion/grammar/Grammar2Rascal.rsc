@@ -77,6 +77,7 @@ public str attr2mod(Attr a) {
 
 public str symbol2rascal(Symbol sym) {
   switch (sym) {
+    case label(str l, x) : return "<symbol2rascal(x)> <l>";  
     case sort(x) : return x;
     case lit(x) : return "\"<x>\"";
     case \char-class(x) : return cc2rascal(x);
