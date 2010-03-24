@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -349,6 +350,10 @@ public class JavaBridge {
 
 		public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IInteger.class;
+		}
+		
+		public Class<?> visitNumber(org.eclipse.imp.pdb.facts.type.Type type) {
+			return INumber.class;
 		}
 
 		public Class<?> visitList(org.eclipse.imp.pdb.facts.type.Type type) {

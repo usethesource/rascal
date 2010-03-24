@@ -9,7 +9,7 @@ public set[str] importedModules(Module m) {
 public Module linkImportedModules(Module m, map[str, loc] links) {
   return visit(m) {
     case QualifiedName i:
-      for (name <- links, "<i>" == name)
-        insert i[@link=links[name]];
+       if ("<i>" in links)
+         insert i[@link=links["<i>"]];
   }
 } 

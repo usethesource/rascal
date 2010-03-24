@@ -21,7 +21,6 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ElementResult<T extends IValue> extends Result<T> {
-
 	public ElementResult(Type type, T value, IEvaluatorContext ctx) {
 		super(type, value, ctx);
 	}
@@ -190,7 +189,6 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return ((IInteger)compare(that).getValue()).intValue();
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult<V> that) {
 		// Do not delegate to comparison here, since it takes runtime types into account
 		return bool((((IInteger)compare(that).getValue()).intValue() == 0), ctx);

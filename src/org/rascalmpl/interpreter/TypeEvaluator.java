@@ -22,6 +22,7 @@ import org.rascalmpl.ast.BasicType.Lex;
 import org.rascalmpl.ast.BasicType.Loc;
 import org.rascalmpl.ast.BasicType.Map;
 import org.rascalmpl.ast.BasicType.Node;
+import org.rascalmpl.ast.BasicType.Num;
 import org.rascalmpl.ast.BasicType.Real;
 import org.rascalmpl.ast.BasicType.ReifiedAdt;
 import org.rascalmpl.ast.BasicType.ReifiedConstructor;
@@ -230,6 +231,11 @@ public class TypeEvaluator {
 		@Override
 		public Type visitBasicTypeInt(Int x) {
 			return tf.integerType();
+		}
+		
+		@Override
+		public Type visitBasicTypeNum(Num x) {
+			return tf.numberType();
 		}
 
 		@Override
@@ -512,6 +518,14 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 	public Type visitBasicTypeInt(Int x) {
 		if (typeArgument.getArity() == 0) {
 			return tf.integerType();
+		}
+		throw new NonWellformedTypeError("int does not have type arguments.", x);
+	}
+	
+	@Override
+	public Type visitBasicTypeNum(Num x) {
+		if (typeArgument.getArity() == 0) {
+			return tf.numberType();
 		}
 		throw new NonWellformedTypeError("int does not have type arguments.", x);
 	}

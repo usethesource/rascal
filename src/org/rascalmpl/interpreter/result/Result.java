@@ -148,7 +148,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		throw new UnsupportedOperationError(operator, getType(), ctx.getCurrentAST());
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected <U extends IValue> Result<U> undefinedError(String operator, Result<?> arg) {
 		throw new UnsupportedOperationError(operator, getType(), arg.getType(), ctx.getCurrentAST());
 	}
@@ -821,6 +820,50 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
+	protected <U extends IValue> Result<U> addNumber(NumberResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> multiplyNumber(NumberResult that) {
+		return that.undefinedError(MULTIPLICATION_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> divideNumber(NumberResult that) {
+		return that.undefinedError(DIVISION_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> subtractNumber(NumberResult that) {
+		return that.undefinedError(SUBTRACTION_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> equalToNumber(NumberResult that) {
+		return that.undefinedError(EQUALS_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> nonEqualToNumber(NumberResult that) {
+		return that.undefinedError(NON_EQUALS_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> lessThanNumber(NumberResult that) {
+		return that.undefinedError(LESS_THAN_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> lessThanOrEqualNumber(NumberResult that) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanNumber(NumberResult that) {
+		return that.undefinedError(GREATER_THAN_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanOrEqualNumber(NumberResult that) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
 	protected <U extends IValue> Result<U> addSourceLocation(
 			SourceLocationResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
@@ -841,4 +884,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean hasInferredType() {
 		return inferredType;
 	}
+
+	
 }

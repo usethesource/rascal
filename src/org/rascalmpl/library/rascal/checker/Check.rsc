@@ -2313,6 +2313,7 @@ public Tree typecheckFile(str filePath) {
 // Check a tree
 //
 public Tree typecheckTree(Tree t) {
+        allFailures = {};
 	globalScopeInfo = buildNamespace(t);
 	Tree td = decorateNames(t,globalScopeInfo);
 	Tree tc = check(td);
