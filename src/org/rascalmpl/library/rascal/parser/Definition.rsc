@@ -170,10 +170,9 @@ private list[Symbol] args2symbols(Sym* args, bool isLex) {
   
 private Symbol arg2symbol(Sym sym, bool isLex) {
   switch (sym) {
-    case (Sym) `<Name n>`          : return sort("<n>");
+    case (Sym) `<Nonterminal n>`          : return sort("<n>");
     case (Sym) `<StringConstant l>` : return lit(unescape(l));
-    case (Sym) `<<Sym s>>`         : return arg2symbol(s,isLex);
-    case (Sym) `<<Sym s> <Name n>>	` : return label("<n>", arg2symbol(s,isLex));
+    case (Sym) `<Sym s> <NonterminalLabel n>` : return label("<n>", arg2symbol(s,isLex));
     case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s,isLex));
     case (Sym) `<Sym s> ??` : return opt(arg2symbol(s,isLex));
     case (Sym) `<Class cc>` : return \char-class(cc2ranges(cc));
