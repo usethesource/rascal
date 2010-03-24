@@ -917,8 +917,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitDeclarationAlias(Alias x) {
 		// TODO Auto-generated method stub
-		return H(KW("alias"), eX(x.getUser()), BoxADT.ASSIGN, eX(x.getBase()),
-				BoxADT.semicolumn());
+		return H(1, eX(x.getVisibility()), KW("alias"), eX(x.getUser()),
+				BoxADT.ASSIGN, H(0, eX(x.getBase()), BoxADT.semicolumn()));
 	}
 
 	public IValue visitDeclarationAmbiguity(
@@ -929,17 +929,14 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitDeclarationAnnotation(
 			org.rascalmpl.ast.Declaration.Annotation x) {
-		IValue t1 = x.getAnnoType().accept(this), t2 = x.getOnType().accept(
-				this);
-		if (t1 == null || t2 == null)
-			return L(x.getClass().toString());
-		return H(KW("anno"), t1, t2, H(L("@"), L(x.getName().toString())));
-		// TODO Auto-generated method stub
+		return H(KW("anno"), eX(x.getAnnoType()), H(0, eX(x.getOnType()),
+				BoxADT.AT, eX(x.getName()), BoxADT.SEMICOLON));
 	}
 
 	public IValue visitDeclarationData(Data x) {
 		// TODO Auto-generated method stub
-		IValue r = H(KW("data"), L(x.getUser().toString()));
+		IValue r = H(1, eX(x.getVisibility()), KW("data"), L(x.getUser()
+				.toString()));
 		java.util.List<Variant> vs = x.getVariants();
 		IList b = BoxADT.getEmptyList();
 		for (Variant v : vs) {
@@ -1120,7 +1117,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitExpressionFieldProject(FieldProject x) {
 		// TODO Auto-generated method stub
 		/** expression:Expression "<" fields:{Field ","}+ ">" */
-		return list(eX(x.getExpression()), BoxADT.LT, eXs(x.getFields()),BoxADT.GT);
+		return list(eX(x.getExpression()), BoxADT.LT, eXs(x.getFields()),
+				BoxADT.GT);
 	}
 
 	public IValue visitExpressionFieldUpdate(FieldUpdate x) {
@@ -1483,7 +1481,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitFunctionModifiersList(
 			org.rascalmpl.ast.FunctionModifiers.List x) {
 		// TODO Auto-generated method stub
-		return H(eXs0(x.getModifiers()));
+		return eXs0(x.getModifiers());
 	}
 
 	public IValue visitFunctionTypeAmbiguity(
@@ -2046,7 +2044,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	}
 
 	public IValue visitPatternWithActionArbitrary(Arbitrary x) {
-		return HV(0, eX(x.getPattern()), BoxADT.COLON, Block(x.getStatement()));
+		return Block(x.getStatement(), eX(x.getPattern()), BoxADT.COLON);
 	}
 
 	public IValue visitPatternWithActionReplacing(Replacing x) {
@@ -3057,7 +3055,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitTypeVarBounded(Bounded x) {
 		/** "&" name:Name "<:" bound:Type **/
 		// TODO Auto-generated method stub
-		return list(BoxADT.AMPERSAND, eX(x.getName()), L("<:"), eX(x.getBound()));
+		return list(BoxADT.AMPERSAND, eX(x.getName()), L("<:"),
+				eX(x.getBound()));
 	}
 
 	public IValue visitTypeVarFree(Free x) {
