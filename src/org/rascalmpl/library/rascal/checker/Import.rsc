@@ -3,8 +3,8 @@ module rascal::checker::Import
 import rascal::\old-syntax::RascalForImportExtraction;
 
 public set[str] importedModules(Module m) {
-  return { "<i>" | /QualifiedName i := m };
-}
+  return { "<i>" | /(Import) `import <QualifiedName i>;` := m };
+}  
 
 public Module linkImportedModules(Module m, map[str, loc] links) {
   return visit(m) {
