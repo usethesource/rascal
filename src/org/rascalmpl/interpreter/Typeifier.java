@@ -94,6 +94,10 @@ public class Typeifier {
 				public Type visitInteger(Type type) {
 					return type;
 				}
+				
+				public Type visitNumber(Type type) {
+					return type;
+				}
 
 				public Type visitList(Type type) {
 					todo.add(getElement(next));

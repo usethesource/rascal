@@ -1,0 +1,5 @@
+module languages::pico::syntax::Pico
+    
+// hallo
+
+syntax A = ;          

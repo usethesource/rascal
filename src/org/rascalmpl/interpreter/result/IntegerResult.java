@@ -282,6 +282,61 @@ public class IntegerResult extends ElementResult<IInteger> {
 		return makeResult(getTypeFactory().realType(), getValue().toReal(), ctx);
 	}
 	
+	@Override  
+	protected <U extends IValue> Result<U> addNumber(NumberResult n) {
+		return makeResult(type, getValue().add(n.getValue()), ctx);
+	}
+	
+	@Override 
+	protected <U extends IValue> Result<U> subtractNumber(NumberResult n) {
+		// note the reverse subtraction.
+		return makeResult(type, n.getValue().subtract(getValue()), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> multiplyNumber(NumberResult n) {
+		return makeResult(type, getValue().multiply(n.getValue()), ctx);
+	}
 
+	@Override
+	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
+		// note the reverse division
+		return makeResult(n.getType(), n.getValue().divide(getValue(), RealResult.PRECISION), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> equalToNumber(NumberResult that) {
+		return that.equalityBoolean(this);
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> nonEqualToNumber(NumberResult that) {
+		return that.nonEqualityBoolean(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanNumber(NumberResult that) {
+		// note reversed args: we need that < this
+		return bool((that.comparisonInts(this) < 0), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanOrEqualNumber(NumberResult that) {
+		// note reversed args: we need that <= this
+		return bool((that.comparisonInts(this) <= 0), ctx);
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> greaterThanNumber(NumberResult that) {
+		// note reversed args: we need that > this
+		return bool((that.comparisonInts(this) > 0), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> greaterThanOrEqualNumber(NumberResult that) {
+		// note reversed args: we need that >= this
+		return bool((that.comparisonInts(this) >= 0), ctx);
+	}
+	
 	
 }

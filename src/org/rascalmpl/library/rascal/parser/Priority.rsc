@@ -16,7 +16,7 @@ public rel[Production greater, Production lower] rightAssociativity(Grammar g) {
 } 
 
 public rel[Production greater, Production lower] nonAssociativity(Grammar g) {
-  return {}; 
-}      
-         
-     
+  return {};
+}       
+            
+      

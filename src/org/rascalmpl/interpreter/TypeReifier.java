@@ -233,6 +233,12 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
 	}
 
+	public Result<IValue> visitNumber(Type type) {
+		Map<Type,Type> bindings = bind(type);
+		Type cons = tf.constructor(store, adt.instantiate(store, bindings), "num", tf.tupleEmpty());
+		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
+	}
+	
 	public Result<IValue> visitList(Type type) {
 		Map<Type,Type> bindings = bind(type);
 		Result<IValue> elem = type.getElementType().accept(this);
