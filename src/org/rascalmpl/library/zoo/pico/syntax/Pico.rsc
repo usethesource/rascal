@@ -1,7 +1,7 @@
-module languages::pico::syntax::Pico
+module zoo::pico::syntax::Pico
  
-import languages::pico::syntax::Layout;
-import languages::pico::syntax::Lexical;
+import zoo::pico::syntax::Layout;
+import zoo::pico::syntax::Lexical;
   
 start syntax PROGRAM = program: "begin" <DECLS decls> <{STATEMENT  ";"}* body> "end" ;
   
