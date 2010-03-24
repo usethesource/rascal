@@ -15,6 +15,7 @@ import IO;
 import ValueIO;
 import viz::Basic;
 int maxWidth = 60+1;
+int hv2h_crit = 40;
 int  lmargin = 5;
 bool decorated = false;
 alias text = list[str];
@@ -46,9 +47,7 @@ anno int Box@width;
 anno int Box@height;
 anno list[str] Box@format;
 
-// public Box a = H([L("aap"),L("noot"), L("mies")])[@hs=3];
 
-/* Second part   */
 text vv(text a, text b) {
 if (!isEmpty(a) && isEmpty(a[0])) return b;
 if (!isEmpty(b) && isEmpty(b[0])) return a;
@@ -56,35 +55,42 @@ return a+b;}
 
 str blank(str a) {return right("", width(a));}
 
+/* Computes a white line with the length of the last line of a */
 text wd(text a) {
    if (isEmpty(a)) return [];
    if (size(a)==1) return blank(a[0]);
    return wd(tail(a));
 }
 
+/* Computes the length of unescaped string s */
 int width(str s) {
      s = replaceAll(s,"\t...",""); 
     return size(s);
      }
 
+/* Computes the maximum width of text t */
 int twidth(text t) {
      return max([width(r)|str r <-t]);
      }
 
+/* Computes the length of the last line of t */
 int hwidth(text t) {
      if (isEmpty(t)) return 0;
      return width(t[size(t)-1]);
      }
 
+/* Prepends str a before text b, all lines of b will be shifted  */
 text bar(str a, text b) {
     if (isEmpty(b)) return [a];
     return  vv ([a+b[0]], prepend(blank(a), tail(b)));
    }
 
+/* produce text consisting of a white line of length  n */
 text hskip(int n) {
      return [right("", n)];
     }
 
+/* produces a text consisting of n white lines at length 0 */
 text vskip(int n) {
     text r = [];
     for (int i<-[0,n-1])
@@ -92,7 +98,7 @@ text vskip(int n) {
    return r;
 }
 
- bool isBlank(str a) {return a==blank(a);}
+bool isBlank(str a) {return a==blank(a);}
 
 text prepend(str a, text b) {
    return [(a+c)|str c <- b];
@@ -128,13 +134,11 @@ text vv_(text a, text b) {
 }
 
 text LL(str s ) { 
-   //  if (/L(<s:\w>)/:=b) return s;
    return [s];
    }
 
 text HH(list[Box] b, Box c, options o, int m) {
     if (isEmpty(b)) return [];
-    // int h= b[0]@hs?o["h"];
     int h = o["h"];
     text t = O(b[0], c, o, m);
     int s = hwidth(t);
@@ -143,7 +147,6 @@ text HH(list[Box] b, Box c, options o, int m) {
 
 text VV(list[Box] b, Box c, options o, int m) {
     if (isEmpty(b)) return [];
-    // int v = b[0]@vs?o["v"];
     int v = o["v"];
     return vv(O(b[0], c, o, m), vv_(vskip(v), VV(tail(b), c, o, m)));
    }
@@ -199,30 +202,23 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
       int i= o["i"]?0;
       int n = h + hwidth(a);
       if (size(a)>1) { // Multiple lines 
-           // text T1 =hh(hskip(i), O(A, V([]), o, m-i));
            text T1 = O(A, V([]), o, m-i);
-  // println("QQ0:i=<i>  <T1>");
            return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
           }
       if (n <= s) {  // Box A fits in current line
-           // println("QQ1:  h=<h>");
            return HVHV(hh(_hh(T, hskip(h)), a), s-n, B, o, m, H([]));
            }
       else {
         n -= h; // n == width(a)
          if  ((i+n)<m) { // Fits in the next line, not in current line
-               //  text T1 =hh(hskip(i), a);
                  text T1 =O(A, V([]), o, m-i);
                  return vv(T, vv_(vskip(v), HVHV(T1, m-n-i, B, o, m, H([]))));
                  }
          else { // Doesn't fit in both lines
-                //  text T1 =hh(hskip(i), O(A, H([]), o, m-i));
                  text T1 =O(A, V([]), o, m-i);
-                 // println("QQ3:i=<i> <T1>");
                  return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
                  }
           }
-    // println("QQ3");
      return [];
 }
 
@@ -276,7 +272,6 @@ return t;
 }
 
 text O(Box b, Box c, options o, int m) {
-      // println(b);
     int h = o["h"];
      if ((b@hs)?) {o["h"] = b@hs;}
      if ((b@vs)?) {o["v"] = b@vs;}
@@ -360,7 +355,7 @@ bool changeHV2H(list[Box] hv) {
     visit(hv) {
          case L(str s): {n+=size(s);}
          }
-    return n<40;
+    return n<hv2h_crit;
     }
 
 
@@ -381,31 +376,10 @@ return visit(b) {
 }
 
 public void main(Box b) {
-/*
-  Box  b1 = R([L("ab"), L("c")]);
-  Box  b2 = R([L("def"), L("hg")]);
-  Box  b3 = R([L("ijkl"), L("m")]);
-  Box a = A([b1, b2, b3]);
-  a@format=["c","c"];
-*/
-/* switch(a) {
-      case  A(list[Box] bl):{
-                 text t = AA(bl, V([]),  oDefault, maxWidth);
-		 for (str r<-t) {
-		     if (!isBlank(r)) {
-		         println(r);
-		         appendToFile(|file:///ufs/bertl/box/big.txt|, r);
-		         }
-		     }
-                  }
-      } 
-*/
-  
-   b = removeHV(b);
-   //  println(b);
+  b = removeHV(b);
   // str s = box2text(b, 0);
   // println(s);
- decorated = true;
+  decorated = true;
   text t = O(b, V([]), oDefault, maxWidth);
   boxView(t); 
 /*
@@ -417,3 +391,11 @@ public void main(Box b) {
    } 
 */
 }
+
+void tst() {
+  Box  b1 = R([L("ab"), L("c")]);
+  Box  b2 = R([L("def"), L("hg")]);
+  Box  b3 = R([L("ijkl"), L("m")]);
+  Box b = A([b1, b2, b3]);
+  b@format=["c","c"];
+} 
