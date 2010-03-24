@@ -304,6 +304,45 @@ public class DataTypeTests extends TestFramework {
 	}
 	
 	@Test
+	public void testNumber(){
+		assertTrue(runTest("{num n = 1; n == 1;}"));
+		assertTrue(runTest("{num n = 1; 1 == n;}"));
+		
+		assertTrue(runTest("{num n = 1; n != 2;}"));
+		assertTrue(runTest("{num n = 1; 2 != n;}"));
+		
+		
+		assertTrue(runTest("{num n = 1; n + 1 == 2;}"));
+		assertTrue(runTest("{num n = 1; 1 + n == 2;}"));
+		
+		assertTrue(runTest("{num n = 2; n - 1 == 1;}"));	
+		assertTrue(runTest("{num n = 2; 1 - n == -1;}"));	
+		
+		
+		assertTrue(runTest("{num n = 2; n * 3 == 6;}"));
+		assertTrue(runTest("{num n = 2; 3 * n == 6;}"));
+		
+		assertTrue(runTest("{num n = 8; n / 4 == 2;}"));	
+		assertTrue(runTest("{num n = 4; 8 / n == 2;}"));	
+		
+		assertTrue(runTest("{num n = 5; n % 2 == 1;}"));	
+		assertTrue(runTest("{num n = 2; 5 % n == 1;}"));	
+				
+		
+		assertTrue(runTest("{num n = 1; n <= 2;}"));
+		assertTrue(runTest("{num n = 1; 0 <= n;}"));
+		
+		assertTrue(runTest("{num n = 1; n < 2;}"));
+		assertTrue(runTest("{num n = 1; 0 < n;}"));
+		
+		assertTrue(runTest("{num n = 2; n >= 1;}"));
+		assertTrue(runTest("{num n = 1; 2 >= n;}"));
+		
+		assertTrue(runTest("{num n = 2; n > 1;}"));
+		assertTrue(runTest("{num n = 1; 2 > n;}"));
+	}
+	
+	@Test
 	public void testString() {
 		
 		assertTrue(runTest("\"\" == \"\";"));
