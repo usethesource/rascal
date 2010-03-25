@@ -33,7 +33,15 @@ import rascal::\old-syntax::Rascal;
 //
 // More TODOs
 //
-// 1. Do we want to go back and assign the inferred types to names?
+// 1. [DONE: YES] Do we want to go back and assign the inferred types to names?
+//
+// 2. For statement types and (in general) blocks, how should we handle types assigned to the blocks? Currently, if
+//     you have x = block, and block throws, x is undefined. If we want to continue allowing this we need to decide
+//     on a type for x that is safe (i.e., would int x = 3; x = { throw "Help!"; 5; } be a type error or not?
+//
+// 3. Add solve for the reducer to determine the type -- uses a conservative value now, but can make this more precise
+//
+// 4. Handle polymorphic type variables
 //
 
 private str getTypeString(Name n) {
@@ -52,37 +60,46 @@ public Name setUpName(Name n) {
 	return n;
 }
 
+//
+// Annotate the nodes of a parse tree with the calculated types.
+// 
+// NOTE: The extra code for expressions is to bind "it" to a type, based on the type of
+// the initializing expression. "it" is created as an inferrence variable with scope just
+// inside the middle part (the reduction) of the reducer expression.
+//
 public Tree check(Tree t) {
 	return visit(t) {
-		 
 		case Name n => setUpName(n)
-
-		case Expression e => e[@rtype = checkExpression(e)]
-		
+		case Expression e : { 
+			RType expType = checkExpression(e); 
+			if (e@\loc in globalScopeInfo.itBinder) 
+				updateInferredTypeMappings(globalScopeInfo.itBinder[e@\loc], expType); 
+				insert e[@rtype = expType]; 
+		}
 		case Pattern p => p[@rtype = checkPattern(p)]
-
 		case Statement s => s[@rtype = checkStatement(s)]
-
 		case Assignable a => a[@rtype = checkAssignable(a)]
+		case Catch c => c[@rtype = checkCatch(c)]
+		case DataTarget dt => dt[@rtype = checkDataTarget(dt)]
+		case PatternWithAction pwa => pwa[@rtype = checkPatternWithAction(pwa)]
+		case Visit v => v[@rtype = checkVisit(v)]
+		case Label l => l[@rtype = checkLabel(l)]
+		case Variable v => v[@rtype = checkVariable(v)]
+		case FunctionBody fb => fb[@rtype = checkFunctionBody(fb)]
+		case Toplevel t => t[@rtype = checkToplevel(t)]
+		case Body b => b[@rtype = checkModuleBody(b)]
+		case Module m => m[@rtype = checkModule(m)]
 	} 
 }
 
+//
+// Check the names in the tree, "fixing" any inferred types with the
+// type calculated during type checking.
+//
 public Tree retagNames(Tree t) {
 	return visit(t) {
 		case Name n => setUpName(n)
 	} 
-}
-
-private set[tuple[str, loc]] allFailures = { };
-
-public Tree gatherFailures(Tree t) {
-	return visit(t) {
-		case Name n : { if ( ((n@rtype)?) && RFailType(fails) := n@rtype) allFailures += fails; insert n; }
-
-		case Expression e : { if ( ((e@rtype)?) && RFailType(fails) := e@rtype) allFailures += fails; insert e; }
-
-		case Statement s : { if ( ((s@rtype)?) && RStatementType(RFailType(fails)) := s@rtype) allFailures += fails; insert s; }
-	}
 }
 
 private bool debug = true;
@@ -111,12 +128,576 @@ public RType checkName(Name n) {
 }
 
 //
-// Literals are checked directly in checkExpression
+// To check a module, currently we just propagate up errors on the body. In the future,
+// we may need to make use of the module header as well.
 //
+public RType checkModule(Module m) {
+	if ((Module) `<Header h> <Body b>` := m) {
+		return b@rtype;
+	}
+	throw "checkModule: unexpected module syntax";
+}
 
 //
-// Qualified names are checked directly in checkExpression
+// Since checking is a bottom-up process, checking the module body just consists of bubbling any errors
+// that have occurred in nested declarations up to the top level.
 //
+public RType checkModuleBody(Body b) {
+	set[RType] modItemTypes = { };
+	if (`<Toplevel* ts>` := b) modItemTypes = { t@rtype | t <- ts, ( (t@rtype)?) };
+	if (size(modItemTypes) > 0 && checkForFail(modItemTypes)) return collapseFailTypes(modItemTypes);
+	return makeVoidType();
+}
+
+//
+// Checking the toplevel items involves propagating up any failures; this is done by calling check functions
+// on each individual item.
+//
+public RType checkToplevel(Toplevel t) {
+	switch(t) {
+		// Variable declaration
+		case (Toplevel) `<Tags tgs> <Visibility v> <Type typ> <{Variable ","}+ vs> ;` : { 
+			return checkVarItems(tgs, v, typ, vs);
+		}
+
+		// Abstract (i.e., without a body) function declaration
+		case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> ;` : { 
+			return checkAbstractFunction(tgs, v, s);
+		}
+ 
+		// Concrete (i.e., with a body) function declaration
+		case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` : {
+			return checkFunction(tgs, v, s, fb);
+		}
+			
+		// Annotation declaration
+		case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` : {
+			return checkAnnotationDeclaration(tgs, v, typ, otyp, n);
+		}
+								
+		// Tag declaration
+		case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
+			return checkTagDeclaration(tgs, v, k, n, typs);
+		}
+			
+		// Rule declaration
+		case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
+			return checkRuleDeclaration(tgs, n, pwa);
+		}
+			
+		// Test
+		case (Toplevel) `<Test tst> ;` : {
+			return checkTest(tst);
+		}
+							
+		// ADT without variants
+		case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` : {
+			return checkAbstractADT(tgs, v, typ);
+		}
+			
+		// ADT with variants
+		case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
+			return checkADT(tgs, v, typ, vars);
+		}
+
+		// Alias
+		case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` : {
+			return checkAlias(tgs, v, typ, btyp);
+		}
+							
+		// View
+		case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
+			return checkView(tgs, v, n, sn, alts);
+		}
+	}
+	throw "checkToplevel: Unhandled toplevel item <t>";
+}
+
+public RType checkVarItems(Tags ts, Visibility vis, Type t, {Variable ","}+ vs) {
+	if (debug) println("CHECKER: In checkVarItems for variables <vs>");
+	set[RType] varTypes = { v@rtype | v <- vs };
+	if (checkForFail( varTypes )) return collapseFailTypes( varTypes );
+	return makeVoidType();
+}
+
+public RType checkVariable(Variable v) {
+	switch(v) {
+		case (Variable) `<Name n>` : 	return n@rtype;
+
+		case (Variable) `<Name n> = <Expression e>` : {
+			if (checkForFail( { n@rtype, e@rtype })) return collapseFailTypes({ n@rtype, e@rtype });
+
+			if (isInferredType(n@rtype)) {
+				RType mappedType = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)];
+				if (isInferredType(mappedType)) {
+					if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(mappedType)> to <prettyPrintType(e@rtype)> on name <n>");
+					updateInferredTypeMappings(mappedType,e@rtype);
+					return e@rtype;
+				} else {
+					if (mappedType != e@rtype) {
+						if (debug) println("CHECKER: Found type clash on inferred variable, trying to assign <prettyPrintType(e@rtype)> and <prettyPrintType(mappedType)> to name <n>");
+						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: <prettyPrintType(e@rtype)>, <prettyPrintType(mappedType)>", v@\loc);
+					} else {
+						return e@rtype;
+					}
+				}
+			} else {
+				return getAssignmentType( n@rtype, e@rtype, RADefault(), v@\loc );
+			}
+		}
+	}
+
+	throw "checkVariable: unhandled variable case <v>";
+}
+
+public RType checkAbstractFunction(Tags ts, Visibility v, Signature s) {
+	switch(s) {
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : return n@rtype;
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : return n@rtype;
+	}
+	throw "checkAbstractFunction: unhandled signature <s>";
+}
+
+public RType checkFunction(Tags ts, Visibility v, Signature s, FunctionBody b) {
+	switch(s) {
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : return isFailType(b@rtype) ? b@rtype : n@rtype;
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : return isFailType(b@rtype) ? b@rtype : n@rtype;
+	}
+	throw "checkFunction: unhandled signature <s>";
+}
+
+public RType checkFunctionBody(FunctionBody fb) {
+	if (`{ <Statement* ss> }` := fb) {
+		set[RType] bodyTypes = { getInternalStatementType(s@rtype) | s <- ss };
+		if (checkForFail(bodyTypes)) return collapseFailTypes(bodyTypes);
+		return makeVoidType();
+	}
+	throw "checkFunctionBody: Unexpected syntax for function body <fb>";
+}
+
+public RType checkAnnotationDeclaration(Tags t, Visibility v, Type t, Type ot, Name n) {
+	throw "checkAnnotationDeclaration not yet implemented";
+}
+
+public RType checkTagDeclaration(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts) {
+	throw "checkTagDeclaration not yet implemented";
+}
+								
+public RType checkRuleDeclaration(Tags t, Name n, PatternWithAction p) {
+	throw "checkRuleDeclaration not yet implemented";
+}
+
+public RType checkTestDeclaration(Test t) {
+	throw "checkTestDeclaration not yet implemented";
+}
+
+//
+// The only possible error is on the ADT name itself, so check that for failures.
+//
+public RType checkAbstractADT(Tags ts, Visibility v, UserType adtType) {
+	set[RType] adtTypes = { };
+
+	Name adtn = getUserTypeRawName(adtType);
+	if ( (adtn@rtype)? ) adtTypes += adtn@rtype;
+
+	if (checkForFail(adtTypes)) return collapseFailTypes(adtTypes);
+	return makeVoidType();
+}
+
+//
+// Propagate upwards any errors registered on the ADT name or on the variants.
+//
+public RType checkADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars) {
+	set[RType] adtTypes = { };
+
+	Name adtn = getUserTypeRawName(adtType);
+	if ( (adtn@rtype)? ) adtTypes += adtn@rtype;
+
+	for (`<Name n> ( <{TypeArg ","}* args> )` <- vars) {
+		if ( (n@rtype)? ) adtTypes += n@rtype;
+	}
+
+	if (checkForFail(adtTypes)) return collapseFailTypes(adtTypes);
+	return makeVoidType();
+}
+
+public RType checkAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType) {
+	throw "checkAlias not implemented";
+}
+
+public ScopeInfo checkView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts) {
+	throw "checkView not yet implemented";
+}
+
+public RType checkSolveStatement(Statement sp, {QualifiedName ","}+ vars, Bound b, Statement body) {
+	RType boundType = makeVoidType();
+	if (`; <Expression e>` := b) boundType = e@rtype;
+
+	RType bodyType = getInternalStatementType(body@rtype);
+
+	if (checkForFail( { v@rtype | v <- vars } + boundType + bodyType))
+		return makeStatementType(collapseFailTypes({ v@rtype | v <- vars } + boundType + bodyType));
+
+	return body@rtype;
+}
+
+public RType checkForStatement(Statement sp, Label l, {Expression ","}+ exps, Statement body) {
+	set[Expression] expSet = { e | e <- exps };
+	RType bodyType = getInternalStatementType(body@rtype);
+
+	if (checkForFail( { e@rtype | e <-expSet } + l@rtype + bodyType))
+		return makeStatementType(collapseFailTypes({ e@rtype | e <-expSet } + l@rtype + bodyType));
+
+	return body@rtype;  
+}  
+
+public RType checkWhileStatement(Statement sp, Label l, {Expression ","}+ exps, Statement body) {
+	set[Expression] expSet = { e | e <- exps };
+	RType bodyType = getInternalStatementType(body@rtype);
+
+	if (checkForFail( { e@rtype | e <-expSet } + l@rtype + bodyType))
+		return makeStatementType(collapseFailTypes({ e@rtype | e <-expSet } + l@rtype + bodyType));
+
+	return body@rtype;  
+}
+
+public RType checkDoWhileStatement(Statement sp, Label l, Statement body, Expression e) {
+	RType bodyType = getInternalStatementType(body@rtype);
+
+	if (checkForFail( { l@rtype, bodyType, e@rtype }))
+		return makeStatementType(collapseFailTypes({ l@rtype, bodyType, e@rtype }));
+
+	return body@rtype;  
+}
+
+//
+// Typecheck an if/then/else statement. The result type is the lub of the types of each branch.
+//
+public RType checkIfThenElseStatement(Statement s, Label l, {Expression ","}+ exps, Statement trueBody, Statement falseBody) {
+	set[Expression] expSet = { e | e <- exps };
+	RType trueBodyType = getInternalStatementType(trueBody@rtype);
+	RType falseBodyType = getInternalStatementType(falseBody@rtype);
+	if (checkForFail( { e@rtype | e <-expSet } + l@rtype + trueBodyType + falseBodyType))
+		return makeStatementType(collapseFailTypes({ e@rtype | e <-expSet } + l@rtype + trueBodyType + falseBodyType));
+
+	return makeStatementType(lub(trueBodyType, falseBodyType));
+}
+
+//
+// Typecheck an if/then statement without an else. The result type is currently void, although (see the
+// comment in the body) this is open to discussion.
+//
+public RType checkIfThenStatement(Statement s, Label l, {Expression ","}+ exps, Statement trueBody) {
+	set[Expression] expSet = { e | e <- exps };
+	RType trueBodyType = getInternalStatementType(trueBody@rtype);
+
+	if (checkForFail( { e@rtype | e <-expSet } + l@rtype + trueBodyType))
+		return makeStatementType(collapseFailTypes({ e@rtype | e <-expSet } + l@rtype + trueBodyType));
+
+	// TODO: This is a judgement call, but a fairly standard one in typed languages. Should discuss this with
+	// Paul and Jurgen. Another option would be to return value as the lub of the true body type and void.
+	return makeStatementType(makeVoidType());
+}
+
+//
+// Calculate the type of a switch statement and check for failures. The result type of the switch is the
+// lub of the types of the various cases.
+//
+public RType checkSwitchStatement (Statement sp, Label l, Expression e, Case+ cases) {
+	set[RType] caseTypes = { c@rtype | c <- cases };
+	if (checkForFail( caseTypes + e@rtype + l@rtype))
+		return makeStatementType(collapseFailTypes(caseTypes + e@rtype + l@rtype));
+
+	return makeStatementType(lubSet(caseTypes)); 
+} 
+
+public RType checkVisitStatement(Statement sp, Label l, Visit v) {
+	if (checkForFail({ l@rtype, v@rtype}))
+		return makeStatementType(collapseFailTypes({ l@rtype, v@rtype }));
+
+	return makeStatementType(v@rtype);
+}			
+
+//
+// Type checks the various cases for assignment statements. Note that this assumes that the
+// assignable and the statement have themselves already been checked and assigned types.
+//
+public RType checkAssignmentStatement(Statement sp, Assignable a, Assignment op, Statement s) {
+	RType stmtType = getInternalStatementType(s@rtype);
+	if (checkForFail({ a@rtype, stmtType })) return makeStatementType(collapseFailTypes({ a@rtype, getInternalStatementType(s@rtype) }));
+	RType partType = getPartType(a@rtype);
+	RType wholeType = getWholeType(a@rtype);
+
+	// This works over two cases. For both = and ?=, the variable(s) on the left can be inference vars.
+	// Otherwise, they cannot, since we are doing some kind of calculation using them and, therefore,
+	// they must have been initialized (and assigned types) earlier.
+	// NOTE: In these cases, where the assignable is either a name or a tuple, the partType and wholeType
+	// are the same. In the other cases, where the assignable is a subscript, etc, they differ, but in those
+	// cases we cannot bind into inference variables, since we assume that the assignable already has
+	// a non-inferred type (or we could not look up the field, annotation, subscript, etc). So, we do
+	// not have to worry about binding the inferrence vars and then "reinserting" the part into the whole.
+	if (!aOpHasOp(convertAssignmentOp(op))) {
+		if (subtypeOf(stmtType, partType)) {
+			return makeStatementType(bindInferredTypesToAssignable(stmtType, a));
+		} else {
+			return makeStatementType(makeFailType("Invalid assignment, the type being assigned, <prettyPrintType(stmtType)>, must be a subtype of the allowed assignment type, <prettyPrintType(partType)>",sp@\loc));
+		}
+	} else {
+		RType actualAssignedType = getAssignmentType(partType, stmtType, convertAssignmentOp(op), sp@\loc);
+		if (isFailType(actualAssignedType)) {
+			return makeStatementType(actualAssignedType);
+		} else {
+			if (subtypeOf(actualAssignedType, partType)) {
+				return makeStatementType(wholeType);
+			} else {
+				return makeStatementType(makeFailType("Invalid assignment, the type being assigned, <prettyPrintType(stmtType)>, must be a subtype of the type being assigned into, <prettyPrintType(partType)>",sp@\loc));
+			}
+		}
+	}
+}
+
+// TODO: Implement this function
+public RType checkLocalFunctionStatement(Statement sp, Tags ts, Visibility v, Signature sig, FunctionBody fb) {
+	throw "checkLocalFunctionStatement not implemented!";
+}
+
+//
+// Typecheck a try/catch statement. Currently the behavior of the interpreter returns the value of the body if 
+// the body exits correctly, or an undefined value if a throw occurs in the body. For now, type this as void,
+// but check to see if we want to maintain this behavior.
+//
+public RType checkTryCatchStatement(Statement sp, Statement body, Catch+ catches) {
+		set[Catch] catchSet = { c | c <- catches };
+		set[RType] catchTypes = { getInternalStatementType(c) | c <- catchSet };
+		RType bodyType = getInternalStatementType(body@rtype);
+		if (checkForFail( catchTypes + bodyType))
+			return makeStatementType(collapseFailType( catchTypes + bodyType ));
+
+		return makeStatementType(makeVoidType());
+}		
+
+//
+// Typecheck a try/catch/finally statement. See the comments for the try/catch statement for added details.
+//
+public RType checkTryCatchFinallyStatement(Statement sp, Statement body, Catch+ catches, Statement fBody) {
+		set[Catch] catchSet = { c | c <- catches };
+		set[RType] catchTypes = { getInternalStatementType(c) | c <- catchSet };
+		RType bodyType = getInternalStatementType(body@rtype);
+		RType finallyType = getInternalStatementType(fBody@rtype);
+		if (checkForFail( catchTypes + bodyType + finallyType ))
+			return makeStatementType(collapseFailType( catchTypes + bodyType + finallyType ));
+
+		return makeStatementType(makeVoidType());
+}		
+
+//
+// Type check a block of statements. The result is either statement type containing a failure type, in cases where
+// the label or one fo the statements is a failure, or a statement type containing the internal type of the last
+// statement in the block. For instance, if the last statement in the block is 3; the block would have type int.
+//
+public RType checkBlockStatement(Statement sp, Label l, Statement+ bs) {
+	list[RType] statementTypes = [ getInternalStatementType(b@rtype) | b <- bs];
+
+	if (checkForFail({ l@rtype} +  toSet(statementTypes) ))
+		return makeStatementType(collapseFailTypes({ l@rtype } + statementTypes ));
+	
+	return makeStatementType(tail(statementTypes,1));
+} 
+
+//
+// Typecheck all statements. This is a large switch/case over all the statement syntax, calling out to smaller functions
+// where needed. The resulting type is an RStatementType containing the type of the computation
+//
+public RType checkStatement(Statement s) {
+	switch(s) {
+		case `solve (<{QualifiedName ","}+ vs> <Bound b>) <Statement sb>` : {
+			if (debug) println("CHECKER: Inside solve statement <s>");
+			RType rt = checkSolveStatement(s,vs,b,sb);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `<Label l> for (<{Expression ","}+ es>) <Statement b>` : {
+			if (debug) println("CHECKER: Inside for statement <s>");
+			RType rt = checkForStatement(s,l,es,b);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `<Label l> while (<{Expression ","}+ es>) <Statement b>` : {
+			if (debug) println("CHECKER: Inside while statement <s>");
+			RType rt = checkWhileStatement(s,l,es,b);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `<Label l> do <Statement b> while (<Expression e>);` : {
+			if (debug) println("CHECKER: Inside do statement <s>");
+			RType rt = checkDoWhileStatement(s,l,b,e);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `<Label l> if (<{Expression ","}+ es>) <Statement bt> else <Statement bf>` : {
+			if (debug) println("CHECKER: Inside if with else statement <s>");
+			RType rt = checkIfThenElseStatement(s,l,es,bt,bf);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `<Label l> if (<{Expression ","}+ es>) <Statement bt>` : {
+			if (debug) println("CHECKER: Inside if statement <s>");
+			RType rt = checkIfThenStatement(s,l,es,bt);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `<Label l> switch (<Expression e>) { <Case+ cs> }` : {
+			if (debug) println("CHECKER: Inside switch statement <s>");
+			RType rt = checkSwitchStatement(s,l,e,cs);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case (Statement)`<Label l> <Visit v>` : {
+			if (debug) println("CHECKER: Inside visit statement <s>");
+			RType rt = checkVisitStatement(s,l,v);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `<Expression e> ;` : {
+			if (debug) println("CHECKER: Inside expression statement <s>");
+			RType rt = makeStatementType(e@rtype);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `<Assignable a> <Assignment op> <Statement b>` : {
+			if (debug) println("CHECKER: Inside assignment statement <s>");
+			RType rt = checkAssignmentStatement(s,a,op,b);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case `assert <Expression e> ;` : {
+			if (debug) println("CHECKER: Inside assert statement <s>");
+			RType rt = makeStatementType(e@rtype);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		// TODO: Look at semantics of this more closely.
+		case `assert <Expression e> : <Expression em> ;` : {
+			if (debug) println("CHECKER: Inside assert with message statement <s>");
+			RType rt = checkForFail({ e@rtype, em@rtype }) ? makeStatementType(collapseFailTypes({ e@rtype, em@rtype })) : makeStatementType(e@rtype);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case `return <Statement b>` : {
+			if (debug) println("CHECKER: Inside return statement <s>");
+			RType stmtType = getInternalStatementType(b@rtype);
+			RType retType = getFunctionReturnType(globalScopeInfo.returnTypeMap[s@\loc]);
+			if (debug) println("CHECKER: Verifying return type <prettyPrintType(retType)>");
+			if (subtypeOf(stmtType,retType)) {
+				if (debug) println("CHECKER: Returning type <prettyPrintType(retType)>");
+				return makeStatementType(retType);
+			} else {
+				return makeStatementType(makeFailType("Type of return, <prettyPrintType(stmtType)>, must be a subtype of function return type, <prettyPrintType(retType)>", s@\loc));
+			} 
+		}
+		
+		case `throw <Statement b>` : {
+			if (debug) println("CHECKER: Inside throw statement <s>");
+			RType rt = b@rtype;
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `insert <DataTarget dt> <Statement b>` : {
+			if (debug) println("CHECKER: Inside insert statement <s>");
+			RType st = getInternalStatementType(b@rtype);
+			RType rt = checkForFail({ dt@rtype, st }) ? makeStatementType(collapseFailTypes({ dt@rtype, st })) : b@rtype;
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case `append <DataTarget dt> <Statement b>` : {
+			if (debug) println("CHECKER: Inside append statement <s>");
+			RType st = getInternalStatementType(b@rtype);
+			RType rt = checkForFail({ dt@rtype, st }) ? makeStatementType(collapseFailTypes({ dt@rtype, st })) : b@rtype;
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case (Statement) `<Tags ts> <Visibility v> <Signature sig> <FunctionBody fb>` : {
+			if (debug) println("CHECKER: Inside local function statement <s>");
+			RType rt = checkLocalFunctionStatement(s,ts,v,sig,fb);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case (Statement) `<Type t> <{Variable ","}+ vs> ;` : {
+			if (debug) println("CHECKER: Inside local variable statement <s>");
+			RType rt = checkLocalVarItems(s, vs);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		// TODO: Handle the dynamic part of dynamic vars		
+		case (Statement) `dynamic <Type t> <{Variable ","}+ vs> ;` : {
+			if (debug) println("CHECKER: Inside dynamic local variable statement <s>");
+			RType rt = checkLocalVarItems(s, vs);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case `break <Target t> ;` : {
+			if (debug) println("CHECKER: Inside break statement <s>");
+			RType rt = (checkForFail({ t@rtype })) ? makeStatementType(collapseFailTypes({ t@rtype })) : makeStatementType(makeVoidType());
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case `fail <Target t> ;` : {
+			if (debug) println("CHECKER: Inside fail statement <s>");
+			RType rt = (checkForFail({ t@rtype })) ? makeStatementType(collapseFailTypes({ t@rtype })) : makeStatementType(makeVoidType());
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case `continue <Target t> ;` : {
+			if (debug) println("CHECKER: Inside continue statement <s>");
+			RType rt = (checkForFail({ t@rtype })) ? makeStatementType(collapseFailTypes({ t@rtype })) : makeStatementType(makeVoidType());
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case `try <Statement b> <Catch+ cs>` : {
+			if (debug) println("CHECKER: Inside try without finally statement <s>");
+			RType rt = checkTryCatchStatement(s,b,cs);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+
+		case `try <Statement b> <Catch+ cs> finally <Statement bf>` : {
+			if (debug) println("CHECKER: Inside try with finally statement <s>");
+			RType rt = checkTryCatchFinallyStatement(s,b,cs,bf);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+		
+		case `<Label l> { <Statement+ bs> }` : {
+			if (debug) println("CHECKER: Inside block statement <s>");
+			RType rt = checkBlockStatement(s, l, bs);
+			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
+			return rt;
+		}
+	}
+	
+	throw "Unhandled type checking case in checkStatement for statement <s>";
+}
 
 private RType checkReifiedTypeExpression(Expression ep, Type t, {Expression ","}* el) {
 	if (checkForFail({ e@rtype | e <- el }))
@@ -126,7 +707,9 @@ private RType checkReifiedTypeExpression(Expression ep, Type t, {Expression ","}
 }
 
 //
-// TODO: May need to handle source location "calls" here as well
+// TODO: May need to handle source location "calls" here as well (based on the code
+// in the SourceLocation result class)
+//
 public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression ","}* es) {
 	RType resultType = makeFailType("We assume bad, bad things!",ep@\loc);
 
@@ -188,46 +771,73 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 }
  
 public RType checkListExpression(Expression ep, {Expression ","}* es) {
-	if (checkForFail({ e@rtype | e <- es }))
-		return collapseFailTypes({ e@rtype | e <- es });
-	else
-		return makeListType(lubList([e@rtype | e <- es]));
+	if (checkForFail({ e@rtype | e <- es })) return collapseFailTypes({ e@rtype | e <- es });
+	return makeListType(lubList([e@rtype | e <- es]));
 }
 
 public RType checkSetExpression(Expression ep, {Expression ","}* es) {
-	if (checkForFail({ e@rtype | e <- es }))
-		return collapseFailTypes({ e@rtype | e <- es });
-	else
-		return makeSetType(lubList([e@rtype | e <- es]));
+	if (checkForFail({ e@rtype | e <- es })) return collapseFailTypes({ e@rtype | e <- es });
+	return makeSetType(lubList([e@rtype | e <- es]));
 }
 
 public RType checkTupleExpression(Expression ep, Expression ei, {Expression ","}* es) {
 	set[Expression] eset = {ei} + {e | e <- es};
-	if (checkForFail({e@rtype | e <- eset}))
-		return collapseFailTypes({e@rtype | e <- eset});
-	else
-		return makeTupleType([ e@rtype | e <- eset]);
+	if (checkForFail({e@rtype | e <- eset})) return collapseFailTypes({e@rtype | e <- eset});
+	return makeTupleType([ e@rtype | e <- eset]);
 }
 
-// TODO: Implement this...
+// TODO: Implement this, need to get syntax matching over maps working first
 public RType checkMapExpression(Expression ep) {
 	return makeVoidType();
 }
 
+//
+// Typecheck a closure. The type of the closure is a function type, based on the parameter types
+// and the return type. This mainly then propagages any failures in the parameters or the
+// closure body.
+//
 public RType checkClosureExpression(Expression ep, Type t, Parameters p, Statement+ ss) {
-	return makeVoidType();
+	list[RType] pTypes = getParameterTypes(p);
+	bool isVarArgs = isVarArgsType(tail(pTypes));
+	set[RType] stmtTypes = { getInternalStatementType(s@rtype) | s <- ss };
+	
+	if (checkForFail(toSet(pTypes) + stmtTypes)) return collapseFailTypes(toSet(pTypes) + stmtTypes);
+
+	return makeFunctionType(convertType(t), pTypes);
 }
 
-public RType checkVoidClosureExpression(Expression ep, Type t, Parameters p, Statement+ ss) {
-	return makeVoidType();
+//
+// Typecheck a void closure. The type of the closure is a function type, based on the parameter types
+// and the void return type. This mainly then propagages any failures in the parameters or the
+// closure body.
+//
+public RType checkVoidClosureExpression(Expression ep, Parameters p, Statement+ ss) {
+	list[RType] pTypes = getParameterTypes(p);
+	bool isVarArgs = isVarArgsType(tail(pTypes));
+	set[RType] stmtTypes = { getInternalStatementType(s@rtype) | s <- ss };
+	
+	if (checkForFail(toSet(pTypes) + stmtTypes)) return collapseFailTypes(toSet(pTypes) + stmtTypes);
+
+	return makeFunctionType(makeVoidType(), pTypes);
 }
  
+//
+// The type of a block of expressions is the type generated by the last statement in the block.
+//
 public RType checkNonEmptyBlockExpression(Expression ep, Statement+ ss) {
-	return makeVoidType();
+	list[Statement] sl = [ s | s <- ss ];
+	list[RType] slTypes = [ getInternalStatementType(s@rtype) | s <- sl ];
+
+	if (checkForFail(toSet(slTypes))) {
+		return collapseFailTypes(toSet(slTypes));
+	} else {
+		return tail(slTypes,1);
+	}
 }
 
 public RType checkVisitExpression(Expression ep, Label l, Visit v) {
-	return makeVoidType();
+	if (checkForFail({l@rtype, v@rtype})) return collapseFailTypes({l@rtype, v@rtype});
+	return v@rtype;
 }
 
 //
@@ -238,8 +848,8 @@ public RType checkRangeExpression(Expression ep, Expression e1, Expression e2) {
 	if (isIntType(e1@rtype) && isIntType(e2@rtype)) {
 		return makeListType(makeIntType());
 	} else {
-		return propagateFailOr({ e1@rtype, e2@rtype },makeFailType("Error in range operation: operation is not defined on the types " +
-			prettyPrintType(e1@rtype) + " and " + prettyPrintType(e2@rtype),ep@\loc));
+		return propagateFailOr({ e1@rtype, e2@rtype }, makeFailType("Error in range operation: operation is not defined on the types " +
+			prettyPrintType(e1@rtype) + " and " + prettyPrintType(e2@rtype), ep@\loc));
 	}
 }
 
@@ -247,40 +857,157 @@ public RType checkStepRangeExpression(Expression ep, Expression e1, Expression e
 	if (isIntType(e1@rtype) && isIntType(e2@rtype) && isIntType(e3@rtype)) {
 		return makeListType(makeIntType());
 	} else {
-		return propagateFailOr({e1@rtype, e2@rtype, e3@rtype },makeFailType("Error in step range operation: operation is not defined on the types " +
+		return propagateFailOr({e1@rtype, e2@rtype, e3@rtype }, makeFailType("Error in step range operation: operation is not defined on the types " +
 			prettyPrintType(e1@rtype) + ", " + prettyPrintType(e2@rtype) + " and " + prettyPrintType(e3@rtype),ep@\loc));
 	}
 }
 
-//
-// Reify type expressions are handled below in checkExpression
-//
-
 public RType checkFieldUpdateExpression(Expression ep, Expression el, Name n, Expression er) {
-	return makeVoidType();
-}
-
-// TODO: Add a table with the built-in types and fields
-public RType checkFieldAccessExpression(Expression ep, Expression el, Name n) {
-	RName fn = convertName(n);
-	if (isTupleType(el@rtype) && tupleHasField(el@rtype,fn))
-		return getTupleFieldType(el@rtype,fn);
-	else if (isTupleType(el@rtype)) {
-		return makeFailType("Tuple <prettyPrintType(el@rtype)> does not include field <prettyPrintName(fn)>",ep@\loc);
-	} else if (isFailType(el@rtype)) {
+	if (checkForFail({el@rtype,er@rtype})) return collapseFailTypes({el@rtype,er@rtype});
+	RType ft = getFieldType(el@rtype, convertName(n), ep@\loc);
+	if (debug) println("CHECKER: Found field type <prettyPrintType(ft)>");
+	if (isFailType(ft)) return ft;
+	if (subtypeOf(er@rtype,ft))
 		return el@rtype;
-	}	
-	// else ADT
-	// else built-in
-	return makeVoidType();
+	else
+		return makeFailType("Type <prettyPrintType(er@rtype)> must be a subtype of type <prettyPrintType(ft)>", ep@\loc); 
 }
 
-public RType checkFieldProjectExpression(Expression ep, Expression e1, {Field ","}+ fl) {
-	return makeVoidType();
+//
+// Fields can be included on ADTs (defined in constructors), 
+public RType checkFieldAccessExpression(Expression ep, Expression el, Name n) {
+	if (checkForFail({el@rtype})) return collapseFailTypes({el@rtype});
+	return getFieldType(el@rtype, convertName(n), ep@\loc);
+}
+
+private list[tuple[Field field, int offset]] getFieldOffsets(list[RNamedType] fieldTypes, list[Field] fields) {
+	list[tuple[Field field, int offset]] result = [ ];
+	map[RName, int] namedFields =( n : i | i <-  [0..size(fieldTypes)-1], RNamedType(_,n) := fieldTypes[i]);
+	
+	for (f <- fields) {
+		switch(f) {
+			case (Field) `<Name n>` : {
+				RName fName = convertName(n);
+				if (fName in namedFields) 
+					result += < f, namedFields[fName] >;
+				else
+					result += < f, -1 >;				
+			}
+
+			case (Field) `<IntegerLiteral il>` : {
+				int ival = toInt("<il>");
+				if (ival >= size(fieldTypes))
+					result += <f, -1 >;
+				else
+					result += <f, ival >;
+			} 
+		}
+	}
+}
+
+//
+// Field projection is defined over maps, tuples, and relations.
+//
+// TODO: Improve pretty printing of error messages
+// 
+// TODO: Factor out common code
+//
+// TODO: Why does <f,-1> cause a parsing error when used in a pattern match?
+//
+public RType checkFieldProjectExpression(Expression ep, Expression e, {Field ","}+ fl) {
+	if (checkForFail({e@rtype})) return collapseFailTypes({e@rtype});
+
+	RType expType = e@rtype;
+	list[Field] fieldList = [ f | f <- fl ];
+
+	if (isMapType(expType)) {
+		list[RNamedType] fields = getMapFieldsWithNames(expType);
+		list[tuple[Field field, int offset]] fieldOffsets = getFieldOffsets(fields, fieldList);
+
+		list[Field] badFields = [ f | <f,n> <- fieldOffsets, n == -1 ];
+		if (size(badFields) > 0) return makeFailType("Map <prettyPrintType(expType)> does not contain fields <badFields>");
+
+ 		list[int] fieldNumbers = [ n | <_,n> <- fieldOffsets ];
+		bool keepFieldNames = size(fieldNumbers) == size(toSet(fieldNumbers));
+				
+		if (size(fieldNumbers) == 1)
+			return makeSetType(getElementType(fields[fieldNumbers[0]]));
+		else
+			return makeRelType([ keepFieldNames ? fields[fieldNumbers[n]] : getElementType(fields[fieldNumbers[n]]) | n <- fieldNumbers ]);
+
+	} else if (isRelType(expType)) {
+		list[RNamedType] fields = getRelFieldsWithNames(expType);
+		list[tuple[Field field, int offset]] fieldOffsets = getFieldOffsets(fields, fieldList);
+
+		list[Field] badFields = [ f | <f,n> <- fieldOffsets, n == -1 ];
+		if (size(badFields) > 0) return makeFailType("Relation <prettyPrintType(expType)> does not contain fields <badFields>");
+
+ 		list[int] fieldNumbers = [ n | <_,n> <- fieldOffsets ];
+		bool keepFieldNames = size(fieldNumbers) == size(toSet(fieldNumbers));				
+
+		if (size(fieldNumbers) == 1)
+			return makeSetType(getElementType(fields[fieldNumbers[0]]));
+		else
+			return makeRelType([ keepFieldNames ? fields[fieldNumbers[n]] : getElementType(fields[fieldNumbers[n]]) | n <- fieldNumbers ]);
+
+	} else if (isTupleType(expType)) {
+		list[RNamedType] fields = getTupleFieldsWithNames(expType);
+		list[tuple[Field field, int offset]] fieldOffsets = getFieldOffsets(fields, fieldList);
+
+		list[Field] badFields = [ f | <f,n> <- fieldOffsets, n == -1 ];
+		if (size(badFields) > 0) return makeFailType("Tuple <prettyPrintType(expType)> does not contain fields <badFields>");
+
+ 		list[int] fieldNumbers = [ n | <_,n> <- fieldOffsets ];
+		bool keepFieldNames = size(fieldNumbers) == size(toSet(fieldNumbers));				
+
+		if (size(fieldNumbers) == 1)
+			return getElementType(fields[fieldNumbers[0]]);
+		else
+			return makeTupleType([ keepFieldNames ? fields[fieldNumbers[n]] : getElementType(fields[fieldNumbers[n]]) | n <- fieldNumbers ]);
+
+	} else {
+		return makeFailType("Cannot use field projection on type <prettyPrintType(expType)>", ep@\loc);
+	}
 }
 
 public RType checkSubscriptExpression(Expression ep, Expression el, {Expression ","}+ es) {
-	return makeVoidType();
+	list[Expression] indexList = [ e | e <- es ];
+	if (checkForFail({ e@rtype | e <- es } + el@rtype)) return collapseFailTypes({ e@rtype | e <- es } + el@rtype);
+	RType expType = el@rtype;
+	
+	if (isTupleType(expType)) {
+		if (size(indexList) > 1) return makeFailType("Subscripts on tuples must contain exactly one element", ep@\loc);
+		if (! isIntType(indexList[0]@rtype) ) return makeFailType("Subscripts on tuples must be of type int, not type <prettyPrintType(indexList[0]@rtype)>", ep@\loc);
+		return lubList(getTupleFields(expType)); 		
+	} else if (isRelType(expType)) {
+		if (size(indexList) > 1) return makeFailType("Subscripts on nodes must contain exactly one element", ep@\loc);
+		RType relLeftType = getRelFields(expType)[0];
+		RType indexType = lubSet({ e@rtype | e <- indexList});
+		if (! (subtypeOf(relLeftType,indexType) || subtypeOf(indexType,relLeftType))) 
+			return makeFailType("The subscript type <prettyPrintType(indexType)> must be comparable to the type of the relation's first projection <prettyPrintType(relLeftType)>", ep@\loc);
+		list[RType] resultTypes = tail(getRelFields(expType));
+		if (size(resultTypes) == 1)
+			return makeSetType(resultTypes[0]);
+		else
+			return makeRelType(resultTypes);		
+	} else if (isMapType(expType)) {
+		if (size(indexList) > 1) return makeFailType("Subscripts on nodes must contain exactly one element", ep@\loc);
+		RType domainType = getMapDomainType(expType);
+		RType indexType = indexList[0]@rtype;
+		if (! (subtypeOf(domainType,indexType) || subtypeOf(indexType,domainType))) 
+			return makeFailType("The subscript type <prettyPrintType(indexType)> must be comparable to the domain type <prettyPrintType(domainType)>", ep@\loc);
+		return getMapRangeType(expType);
+	}  else if (isNodeType(expType)) {
+		if (size(indexList) > 1) return makeFailType("Subscripts on nodes must contain exactly one element", ep@\loc);
+		if (! isIntType(indexList[0]@rtype) ) return makeFailType("Subscripts on nodes must be of type int, not type <prettyPrintType(indexList[0]@rtype)>", ep@\loc);
+		return makeValueType();
+	} else if (isListType(expType)) {
+		if (size(indexList) > 1) return makeFailType("Subscripts on lists must contain exactly one element", ep@\loc);
+		if (! isIntType(indexList[0]@rtype) ) return makeFailType("Subscripts on lists must be of type int, not type <prettyPrintType(indexList[0]@rtype)>", ep@\loc);
+		return getListElementType(expType);		
+	} else {
+		return makeFailType("Subscript not supported on type <prettyPrintType(expType)>", ep@\loc);
+	}
 }
 
 public RType checkIsDefinedExpression(Expression ep, Expression e) {
@@ -301,10 +1028,8 @@ private RType checkNegationExpression(Expression ep, Expression e) {
 }
 
 private RType checkNegativeExpression(Expression ep, Expression e) {
-	if (isIntType(e@rtype)) {
-		return makeIntType();
-	} else if (isRealType(e@rtype)) {
-		return makeRealType();
+	if (isIntType(e@rtype) && isRealType(e@rtype)) {
+		return e@rtype;
 	} else {
 		return propagateFailOr({ e@rtype },makeFailType("Error in negation operation: <e> should have a numeric type " + 
 			"but instead has type " + prettyPrintType(e@rtype),ep@\loc));
@@ -312,89 +1037,111 @@ private RType checkNegativeExpression(Expression ep, Expression e) {
 }
 
 public RType checkTransitiveReflexiveClosureExpression(Expression ep, Expression e) {
-	return makeVoidType();
+	RType expType = e@rtype;
+	if (isFailType(expType)) return expType;
+	if (! isRelType(expType)) return makeFailType("Error in transitive reflexive closure operation: <e> should be a relation, but instead is <prettyPrintType(expType)>", ep@\loc);
+	list[RNamedType] relFields = getRelFieldsWithNames(expType);
+	if (size(relFields) != 2) return makeFailType("Error in transitive reflexive closure operation: <e> should be a relation of arity 2, but instead is <prettyPrintType(expType)>", ep@\loc);
+	return expType; 
 }
 
 public RType checkTransitiveClosureExpression(Expression ep, Expression e) {
-	return makeVoidType();
+	RType expType = e@rtype;
+	if (isFailType(expType)) return expType;
+	if (! isRelType(expType)) return makeFailType("Error in transitive closure operation: <e> should be a relation, but instead is <prettyPrintType(expType)>", ep@\loc);
+	list[RNamedType] relFields = getRelFieldsWithNames(expType);
+	if (size(relFields) != 2) return makeFailType("Error in transitive closure operation: <e> should be a relation of arity 2, but instead is <prettyPrintType(expType)>", ep@\loc);
+	return expType; 
 }
 
+//
+// TODO: To properly check this, we need to keep a map of not just the annotation names and types,
+// but of which types those annotations apply to!
+//
 public RType checkGetAnnotationExpression(Expression ep, Expression e, Name n) {
-	return makeVoidType();
+	if (checkForFail({ e@rtype, n@rtype })) return collapseFailTypes({ e@rtype, n@rtype });
+	return n@rtype;
 }
 
+//
+// TODO: To properly check this, we need to keep a map of not just the annotation names and types,
+// but of which types those annotations apply to!
+//
 public RType checkSetAnnotationExpression(Expression ep, Expression el, Name n, Expression er) {
-	return makeVoidType();
+	if (checkForFail({ el@rtype, n@rtype, er@rtype })) return collapseFailTypes({ el@rtype, n@rtype, er@rtype });
+	if (! subtypeOf(er@rtype, n@rtype)) return makeFailType("The type of <er>, <prettyPrintType(er@rtype)>, must be a subtype of the type of <n>, <prettyPrintType(n@rtype)>", ep@\loc);
+	return n@rtype;
 }
 
+//
+// Composition is defined for functions, maps, and relations.
+//
+// TODO: Question on order: currently the order is "backwards" from the standard mathematical
+// order, i.e., r1 o r2 is r1, then r2, versus r2 first, then r1. Is this the desired behavior, or was
+// this accidental? For functions the order appears to be correct, even though the implementation
+// doesn't actually work. For maps the order is the same "backwards" order as it is for relations.
+//
+// NOTE: map composition does not maintain field names. Is this intentional?
+//
 public RType checkCompositionExpression(Expression ep, Expression el, Expression er) {
-	return makeVoidType();
+	if (checkForFail({ el@rtype, er@rtype })) return collapseFailTypes({ el@rtype, er@rtype });
+	RType leftType = el@rtype; RType rightType = er@rtype;
+	if (isFunType(leftType) && isFunType(rightType)) {
+		return makeFailType("Type checking this feature is not yet supported!", ep@\loc); // TODO: Implement this, including support for overloading
+	} else if (isMapType(leftType) && isMapType(rightType)) {
+		// Check to make sure the fields are of the right type to compose
+		RType j1 = getMapRangeType(leftType); RType j2 = getMapDomainType(rightType);
+		if (! subtypeOf(j1,j2)) return makeFailType("Incompatible types in composition: <prettyPrintType(j1)> and <prettyPrintType(j2)>", ep@\loc);
+
+		return RMapType(getMapDomainType(leftType), getMapRangeType(rightType));
+	} else if (isRelType(leftType) && isRelType(rightType)) {
+		list[RNamedType] leftFields = getRelFieldsWithNames(leftType); 
+		list[RNamedType] rightFields = getRelFieldsWithNames(rightType);
+
+		// Check to make sure each relation is just arity 2
+		if (size(leftFields) != 2) return makeFailType("Error in composition: <el> should be a relation of arity 2, but instead is <prettyPrintType(leftType)>", ep@\loc);
+		if (size(rightFields) != 2) return makeFailType("Error in composition: <er> should be a relation of arity 2, but instead is <prettyPrintType(rightType)>", ep@\loc);
+
+		// Check to make sure the fields are of the right type to compose
+		RType j1 = getElementType(head(tail(leftFields,1))); RType j2 = getElementType(head(rightFields));
+		if (! subtypeOf(j1,j2)) return makeFailType("Incompatible types in composition: <prettyPrintType(j1)> and <prettyPrintType(j2)>", ep@\loc);
+
+		// Check to see if we need to drop the field names, then return the proper type
+		RNamedType r1 = head(leftFields); RNamedType r2 = head(tail(rightFields,1));
+		if (RNamedType(t1,n) := r1 && RNamedType(t2,n) := r2)
+			return RRelType([RUnnamedType(t1),RUnnamedType(t2)]); // Both fields had the same name, so just keep the type and make unnamed fields
+		else
+			return RRelType([r1,r2]); // Maintain the field names, they differ
+	}
+	return makeFailType("Composition is not supported on types <prettyPrintType(leftType)> and <prettyPrintType(rightType)>", ep@\loc);
 }
 
 public RType checkProductExpression(Expression ep, Expression el, Expression er) {
 	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RProduct(), ep@\loc));
 }
 
+//
+// TODO: Note that, in the interpreter, a java exception is thrown when you join a set with
+// a relation.
+//
 public RType checkJoinExpression(Expression ep, Expression el, Expression er) {
-	return makeVoidType();
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RJoin(), ep@\loc));
 }
 
 public RType checkDivExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else {
-		return propagateFailOr({ el@rtype, er@rtype },
-			makeFailType("Error in division operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RDiv(), ep@\loc));
 }
 
 public RType checkModExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else {
-		return propagateFailOr({ el@rtype, er@rtype },
-			makeFailType("Error in mod operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RMod(), ep@\loc));
 }
 
 public RType checkIntersectionExpression(Expression ep, Expression el, Expression er) {
-	return makeVoidType();
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RInter(), ep@\loc));
 }
 
 public RType checkPlusExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeStrType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype)) {
-		return makeSetType(lub(getSetElementType(el@rtype),getSetElementType(er@rtype)));
-	} else if (isListType(el@rtype) && isListType(er@rtype)) {
-		return makeListType(lub(getListElementType(el@rtype),getListElementType(er@rtype)));
-	} else {
-		// TODO: Handle Map, Tuple cases
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in sum operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RPlus(), ep@\loc));
 }
 
 //
@@ -403,193 +1150,39 @@ public RType checkPlusExpression(Expression ep, Expression el, Expression er) {
 // list[a] - list[b] always result in a set or list of type a?
 //
 public RType checkMinusExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeIntType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeRealType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeRealType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeStrType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype)) {
-		return makeSetType(lub(getSetElementType(el@rtype),getSetElementType(er@rtype)));
-	} else if (isListType(el@rtype) && isListType(er@rtype)) {
-		return makeListType(lub(getListElementType(el@rtype),getListElementType(er@rtype)));
-	} else {
-		// TODO: Handle Map case
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in difference operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RMinus(), ep@\loc));
 }
 
 public RType checkNotInExpression(Expression ep, Expression el, Expression er) {
-	if (isSetType(er@rtype) && getSetElementType(er@rtype) == el@rtype) {
-		return makeBoolType();
-	} else if (isListType(er@rtype) && getListElementType(er@rtype) == el@rtype) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Map type, see what is needed for boolean operations
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in notin operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RNotIn(), ep@\loc));
 }
 
 public RType checkInExpression(Expression ep, Expression el, Expression er) {
-	if (isSetType(er@rtype) && getSetElementType(er@rtype) == el@rtype) {
-		return makeBoolType();
-	} else if (isListType(er@rtype) && getListElementType(er@rtype) == el@rtype) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Map type, see what is needed for boolean operations
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in in operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RIn(), ep@\loc));
 }
 
 public RType checkLessThanExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in less than operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RLt(), ep@\loc));
 }
 
 public RType checkLessThanOrEqualExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in less than or equal to operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RLtEq(), ep@\loc));
 }
 
 public RType checkGreaterThanExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in greater than operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RGt(), ep@\loc));
 }
 
 public RType checkGreaterThanOrEqualExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in greater than or equal to operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RGtEq(), ep@\loc));
 }
 
 public RType checkEqualsExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in equals operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, REq(), ep@\loc));
 }
 
 public RType checkNotEqualsExpression(Expression ep, Expression el, Expression er) {
-	if (isIntType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isIntType(el@rtype) && isRealType(er@rtype)) {
-		return makeBoolType();
-	} else if (isRealType(el@rtype) && isIntType(er@rtype)) {
-		return makeBoolType();
-	} else if (isBoolType(el@rtype) && isBoolType(er@rtype)) {
-		return makeBoolType();
-	} else if (isStrType(el@rtype) && isStrType(er@rtype)) {
-		return makeBoolType();
-	} else if (isListType(el@rtype) && isListType(er@rtype) && getListElementType(el@rtype) == getListElementType(er@rtype)) {
-		return makeBoolType();
-	} else if (isSetType(el@rtype) && isSetType(er@rtype) && getSetElementType(el@rtype) == getSetElementType(er@rtype)) {
-		return makeBoolType();
-	} else {
-		// TODO: Handle Location, Map, Node, Tuple, Value types
-		return propagateFailOr({ el@rtype, er@rtype },makeFailType("Error in not equals operation: operation is not defined on the types " +
-			prettyPrintType(el@rtype) + " and " + prettyPrintType(er@rtype),ep@\loc));
-	}
+	return propagateFailOr({ el@rtype, er@rtype}, expressionType(el@rtype, er@rtype, RNEq(), ep@\loc));
 }
 
 // TODO: Add additional checking in case of failure or "branches" to better detect errors (but this is valid)
@@ -609,8 +1202,12 @@ public RType checkIfThenElseExpression(Expression ep, Expression eb, Expression 
 	}
 }
 
+// TODO: In the interpreter this currently can return two types: either the type of ed, or type type
+// of eo. Do we want to require these to be the same, or return the lub as the static type? Do the
+// latter for now...
 public RType checkIfDefinedOtherwiseExpression(Expression ep, Expression ed, Expression eo) {
-	return makeVoidType();
+	if (checkForFail({ ed@rtype, eo@rtype })) return collapseFailTypes({ ed@rtype, eo@rtype });
+	return lub(ed@rtype,eo@rtype);
 }
 
 public RType checkImplicationExpression(Expression ep, Expression el, Expression er) {
@@ -649,46 +1246,42 @@ public RType checkOrExpression(Expression ep, Expression el, Expression er) {
 	}
 }
 
-// TODO: Do we want to enforce that it is possible to the two sides to match? Not a static error, but could
-// prevent confusion (if developer THINKS this can match, but it never can...)
 public RType checkMatchExpression(Expression ep, Pattern p, Expression e) {
-	if (checkForFail({ p@rtype, e@rtype })) 
-		return collapseFailTypes({ p@rtype, e@rtype });
-	else if (subtypeOf(p@rtype,e@rtype) || subtypeOf(e@rtype,p@rtype)) // TODO: Is this right?
-		return makeBoolType();
-	else
-		return makeFailType("Types of <p> and <e>, <prettyPrintType(p@rtype)> and <prettyPrintType(e@rtype)>, should be in a subtype relation",ep@\loc);
+	if (checkForFail({ p@rtype, e@rtype })) return collapseFailTypes({ p@rtype, e@rtype });
+	RType boundType = bindInferredTypesToPattern(e@rtype, p);
+	if (isFailType(boundType)) return boundType;
+	if (! subtypeOf(e@rtype, boundType)) return makeFailType("The type of the expression, <prettyPrintType(e@rtype)>, must be a subtype of the pattern type, <prettyPrintType(boundType)>");
+	return makeBoolType();
 }
 
-// TODO: See checkMatchExpression above
 public RType checkNoMatchExpression(Expression ep, Pattern p, Expression e) {
-	if (checkForFail({ p@rtype, e@rtype })) 
-		return collapseFailTypes({ p@rtype, e@rtype });
-	else if (subtypeOf(p@rtype,e@rtype) || subtypeOf(e@rtype,p@rtype)) // TODO: Is this right?
-		return makeBoolType();
-	else
-		return makeFailType("Types of <p> and <e>, <prettyPrintType(p@rtype)> and <prettyPrintType(e@rtype)>, should be in a subtype relation",ep@\loc);
+	if (checkForFail({ p@rtype, e@rtype })) return collapseFailTypes({ p@rtype, e@rtype });
+	RType boundType = bindInferredTypesToPattern(e@rtype, p);
+	if (isFailType(boundType)) return boundType;
+	if (! subtypeOf(e@rtype, boundType)) return makeFailType("The type of the expression, <prettyPrintType(e@rtype)>, must be a subtype of the pattern type, <prettyPrintType(boundType)>");
+	return makeBoolType();
 }
 
-// TODO: See checkMatchExpression above
-// TODO: Need to get this working for all possible enumeration patterns (tuples, etc)
 public RType checkEnumeratorExpression(Expression ep, Pattern p, Expression e) {
 	if (checkForFail({ p@rtype, e@rtype })) { 
 		return collapseFailTypes({ p@rtype, e@rtype });
 	} else if (isListType(e@rtype) && subtypeOf(getListElementType(e@rtype), p@rtype)) {
-		RType boundType = bindInferredTypesToPattern(getListElementType(e@rtype), p);
-		if (isFailType(boundType))
-			return boundType;
-		else // TODO: Check compatibility of boundType to e@rtype
-			return makeBoolType();
+		if (debug) println("CHECKER: Pattern <p> has type <prettyPrintType(p@rtype)>");
+		if (debug) println("CHECKER: Expression <e> has type <prettyPrintType(e@rtype)>");
+		RType elementType = getListElementType(e@rtype);
+		RType boundType = bindInferredTypesToPattern(elementType, p);
+		if (debug) println("CHECKER: Bound type is <prettyPrintType(boundType)>");
+		if (isFailType(boundType)) return boundType;
+		if (! subtypeOf(elementType, boundType)) return makeFailType("The type of the list elements, <prettyPrintType(elementType)>, must be a subtype of the pattern type, <prettyPrintType(boundType)>", ep@\loc);
+		return makeBoolType();
 	} else if (isSetType(e@rtype) && subtypeOf(getSetElementType(e@rtype), p@rtype)) {
-		RType boundType = bindInferredTypesToPattern(getSetElementType(e@rtype), p);
-		if (isFailType(boundType))
-			return boundType;
-		else // TODO: Check compatibility of boundType to e@rtype
-			return makeBoolType();
+		RType elementType = getSetElementType(e@rtype);
+		RType boundType = bindInferredTypesToPattern(elementType, p);
+		if (isFailType(boundType)) return boundType;
+		if (! subtypeOf(elementType, boundType)) return makeFailType("The type of the expression, <prettyPrintType(e@rtype)>, must be a subtype of the pattern type, <prettyPrintType(boundType)>", ep@\loc);
+		return makeBoolType();
 	} else {
-		return makeFailType("Types of <p> and <e>, <prettyPrintType(p@rtype)> and <prettyPrintType(e@rtype)>, should be in a subtype relation",ep@\loc);
+		throw "Unhandled enumerator case, <p> \<- <e>";
 	}
 }
 
@@ -743,9 +1336,14 @@ public RType checkMapComprehensionExpression(Expression ep, Expression ef, Expre
 	}
 }
 
-// TODO: Implement
+//
+// NOTE: We cannot actually type this statically, since the type of the "it" expression is implicit and the type of
+// the result is based only indirectly on the type of er. If we could type this, we could probably solve the halting
+// problem ;)
 public RType checkReducerExpression(Expression ep, Expression ei, Expression er, {Expression ","}+ ers) {
-	return makeVoidType();
+	list[RType] genTypes = [ e@rtype | e <- ers ];
+	if (checkForFail(genTypes + ei@rtype + er@rtype)) return collapseFailTypes(genTypes + ei@rtype + er@rtype);
+	return makeValueType(); // for now, since it could be anything
 }
 
 public RType checkAllExpression(Expression ep, {Expression ","}+ ers) {
@@ -1302,12 +1900,348 @@ public RType checkExpression(Expression exp) {
 	}
 }
 
-public RType checkReifiedTypePattern(Pattern pp, Type t, {Pattern ","}* pl) {
-	if (checkForFail({ p@rtype | p <- pl }))
-		return collapseFailTypes({ p@rtype | p <- pl });
-	else {
-		return makeReifiedType(convertType(t), [ p@rtype | p <- pl ]);
+//
+// Check individual cases
+//
+public RType checkCase(Case c) {
+	switch(c) {
+		case `case <PatternWithAction p>` : {
+			if (debug) println("CHECKER: Case: <c>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(p@rtype));
+			return p@rtype;
+		}
+		
+		case `default : <Statement b>` : {
+			if (debug) println("CHECKER: Case: <c>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(getInternalStatementType(b@rtype)));
+			return getInternalStatementType(b@rtype);
+		}
 	}
+}
+
+//
+// TODO: Not sure what to return here, since, for a tuple, this could be any of the
+// types of the tuple fields. So, for tuples, just return the lub right now, which will
+// let the test pass. Returning void would be more conservative, but then this would
+// never work for tuples.
+//
+// NOTE: Doing this for relations with arity > 2 doesn't seem to work right now in the
+// interpreter. I'm not sure if this is by design or by accident.
+//
+public RType checkSubscriptAssignable(Assignable ap, Assignable a, Expression e) {
+	if (checkForFail({a@rtype, e@rtype})) return collapseFailTypes({a@rtype, e@rtype});
+	if (! isIntType(e@rtype)) return makeFailType("The index expression must be of type int, but is instead of type <prettyPrintType(e@rtype)>", ap@\loc);
+	RType partType = getPartType(a@rtype);
+	RType wholeType = getWholeType(a@rtype);
+	if (isTupleType(partType)) {
+		return makeAssignableType(wholeType, lubList(getTupleFields(partType))); 		
+	} else if (isRelType(partType)) {
+		list[RType] relTypes = getRelFields(partType);
+		RType relLeftType = relTypes[0];
+		list[RType] resultTypes = tail(relTypes);
+		if (! (subtypeOf(e@rtype, relLeftType))) return makeFailType("The subscript type <prettyPrintType(e@rtype)> must be a subtype of the first project of the relation type, <prettyPrintType(relLeftType)>", ap@\loc);
+		if (size(resultTypes) == 1)
+			return makeAssignableType(wholeType, makeSetType(resultTypes[0]));
+		else
+			return makeAssignableType(wholeType, makeRelType(resultTypes));		
+	} else if (isMapType(partType)) {
+		RType domainType = getMapDomainType(partType);
+		if (! subtypeOf(e@rtype, domainType)) return makeFailType("The subscript type <prettyPrintType(e@rtype)> must be a subtype of to the domain type <prettyPrintType(domainType)>", ap@\loc);
+		return makeAssignableType(wholeType, getMapRangeType(partType));
+	}  else if (isNodeType(partType)) {
+		return makeAssignableType(wholeType, makeValueType());
+	} else if (isListType(partType)) {
+		if (! isIntType(e@rtype) ) return makeFailType("Subscripts on lists must be of type int, not type <prettyPrintType(e@rtype)>", ap@\loc);
+		return makeAssignableType(wholeType, getListElementType(partType));		
+	} else {
+		return makeFailType("Subscript not supported on type <prettyPrintType(partType)>", ap@\loc);
+	}
+}
+
+//
+// For the field access assignable, we return the overall type of the assignable (i.e., the value with
+// fields) and the type of the individual field. If the field does not exist, this instead returns
+// fail.
+//
+public RType checkFieldAccessAssignable(Assignable ap, Assignable a, Name n) {
+	if (checkForFail({a@rtype})) return collapseFailTypes({a@rtype});
+	RType partType = getPartType(a@rtype);
+	RType wholeType = getWholeType(a@rtype);
+	RType rt = getFieldType(partType, convertName(n), ap@\loc);
+	if (isFailType(rt)) return rt;
+	return makeAssignableType(wholeType, rt);
+}
+
+//
+// The type of the if defined assignable is still the overall type of the assignable. We just need to make
+// sure that the default value is something that could actually be assigned into the assignable.
+//		
+public RType checkIfDefinedOrDefaultAssignable(Assignable ap, Assignable a, Expression e) {
+	if (isFailType(a@rtype) || isFailType(e@rtype)) return collapseFailTypes({ a@rtype, e@rtype });
+	RType partType = getPartType(a@rtype);
+	RType wholeType = getWholeType(a@rtype);
+	if (!subtypeOf(e@rtype,partType)) return makeFailType("The type of <e>, <prettyPrintType(e@rtype)>, is not a subtype of the type of <a>, <prettyPrintType(partType)>",ap@\loc);
+	return makeAssignableType(wholeType, partType);		
+}
+
+// TODO: Implement
+public RType checkAnnotationAssignable(Assignable ap, Assignable a, Name n) {
+	throw "Function checkAnnotationAssignable not implemented!";
+}
+
+//
+// The type returned is the actual type of the tuple for both the whole and the part of
+// the assignable type, since the tuple overall is being assigned into. The first field
+// of the tuple is a, while the rest are in al. This is only done because of a matching
+// problem over the standard tuple concrete syntax.
+//		
+public RType checkTupleAssignable(Assignable ap, Assignable a, {Assignable ","}* al) {
+	list[Assignable] alist = [ a ] + [ ai | ai <- al];
+	if (checkForFail({ ai@rtype | ai <- alist })) return collapseFailTypes({ ai@rtype | ai <- alist });
+	RType rt = makeTupleType([ getPartType(ai@rtype) | ai <- alist]);
+	return makeAssignableType(getWholeType(a@rtype),rt);
+}
+
+//
+// Check assignables
+//
+public RType checkAssignable(Assignable a) {
+	switch(a) {
+		// Variable
+		case (Assignable)`<QualifiedName qn>` : {
+			if (debug) println("CHECKER: VariableAssignable: <a>");
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
+			RType rt = isInferredType(qn@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype;
+			return makeAssignableType(rt,rt); 
+		}
+		
+		// Subscript
+		case `<Assignable al> [ <Expression e> ]` : {
+			if (debug) println("CHECKER: SubscriptAssignable: <a>");
+			RType t = checkSubscriptAssignable(a,al,e);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Field Access
+		case `<Assignable al> . <Name n>` : {
+			if (debug) println("CHECKER: FieldAccessAssignable: <a>");
+			RType t = checkFieldAccessAssignable(a,al,n);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// If Defined or Default
+		case `<Assignable al> ? <Expression e>` : {
+			if (debug) println("CHECKER: IfDefinedOrDefaultAssignable: <a>");
+			RType t = checkIfDefinedOrDefaultAssignable(a,al,e);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Annotation
+		case `<Assignable al> @ <Name n>` : {
+			if (debug) println("CHECKER: AnnotationAssignable: <a>");
+			RType t = checkAnnotationAssignable(a,al,n);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Tuple
+		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
+			if (debug) println("CHECKER: TupleAssignable: <a>");
+			RType t = checkTupleAssignable(a,ai, al);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+		
+		// Constructor
+		// NOTE: We are not currently supporting this case, as we are considering removing it from
+		// the language as an unsafe operation.
+//		case `<Name n> ( <{Assignable ","}+ al> )` : {
+//			if (debug) println("CHECKER: ConstructorAssignable: <a>");
+//			RType t = checkConstructorAssignable(a,n,al);
+//			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
+//			return t;
+//		}
+	}
+}
+
+//
+// Given an actual type rt and an assignable a, recurse the structure of a, assigning the correct parts of
+// rt to any named parts of a. For instance, in an assignment like x = 5, if x has an inference type it will
+// be assigned type int, while in an assignment like <a,b> = <true,4>, a would be assigned type bool
+// while b would be assigned type int (again, assuming they are both inferrence variables). The return
+// type is the newly-computed type of the assignable, with inference vars bound to concrete types.
+//
+public RType bindInferredTypesToAssignable(RType rt, Assignable a) {
+	if (debug) println("CHECKER: binding inferred types in <prettyPrintType(rt)> to assignable <a>");
+
+	RType partType = getPartType(a@rtype);
+	RType wholeType = getWholeType(a@rtype);
+
+	switch(a) {
+		// Variable
+		// This is the useful bottom case of the recursion. We should already have checked for some
+		// type errors at this point, so this just targets cases where we have variables with inferred types.
+		// If no type has been assigned to the inference variable, this will execute correctly. If a type has
+		// been assigned, rt, the type being bound, must be a subtype of of the existing type, since rt
+		// is being assigned into t. The type will remain at t though, it will not be rebound.
+		case (Assignable)`<QualifiedName qn>` : {
+			if (debug) println("CHECKER: Checking on bind of type <prettyPrintType(rt)> to name <qn>");
+			if (isInferredType(qn@rtype)) {
+				RType t = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)];
+				if (isInferredType(t)) {
+					if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(t)> to <prettyPrintType(rt)> on name <qn>");
+					updateInferredTypeMappings(t,rt);
+					return rt;
+				} else {
+					if (!subtypeOf(rt,t)) {
+						if (debug) println("CHECKER: Found type clash on inferred variable, trying to assign <prettyPrintType(rt)> and <prettyPrintType(t)> to name <qn>");
+						return makeFailType("In assignment to <qn> type <prettyPrintType(rt)> must be a subtype of type <prettyPrintType(t)>", qn@\loc);
+					} else {
+						return t;
+					}
+				}
+			} else {
+				return qn@rtype;
+			}
+		}
+		
+		// Subscript
+		// NOTE: If we are assigning into a subscripted assignable, the assignable needs
+		// to already have a type for this to make sense. So, don't propagate the bind
+		// any further, and just return the existing type of the assignable.
+		case `<Assignable al> [ <Expression e> ]` : {
+			if (debug) println("CHECKER: SubscriptAssignable: <a>");
+			return a@rtype;
+		}
+		
+		// Field Access
+		// NOTE: If we are assigning into a field, the assignable needs to already have a
+		// type for this to make sense. So, don't propagate the bind any further, and
+		// just return the existing type of the assignable.
+		case `<Assignable al> . <Name n>` : {
+			if (debug) println("CHECKER: FieldAccessAssignable: <a>");
+			return a@rtype;
+		}
+		
+		// If Defined or Default
+		// This just pushes the binding down into the assignable on the left-hand
+		// side of the ?, the default expression has no impact on the binding.
+		case `<Assignable al> ? <Expression e>` : {
+			if (debug) println("CHECKER: IfDefinedOrDefaultAssignable: <a>");
+			return bindInferredTypesToAssignable(rt, al);
+		}
+		
+		// Annotation
+		// NOTE: If we are assigning into an annotation, this assignable needs to already
+		// have a type for this to make sense. So, don't propagate the bind any further,
+		// and just return the existing type of the assignable.
+		case `<Assignable al> @ <Name n>` : {
+			if (debug) println("CHECKER: AnnotationAssignable: <a>");
+			return a@rtype;
+		}
+		
+		// Tuple
+		// To be correct, the type being bound into the assignable also needs to be a tuple
+		// of the same length. If this is true, the bind recurses on each tuple element.
+		// If not, a failure type, indicating the type of failure (arity mismatch, or type of
+		// assignable not a tuple) has occurred.
+		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
+			if (debug) println("CHECKER: TupleAssignable: <a>");
+			list[Assignable] alist = [ai] + [ ali | ali <- al ];
+			if (isTupleType(rt) && getTupleFieldCount(rt) == size(alist)) {
+				list[RType] tupleFieldTypes = getTupleFields(rt);
+				return makeTupleType([bindInferredTypesToAssignable(tft,ali) | n <- [0..(getTupleFieldCount(rt)-1)], tft := tupleFieldTypes[n], ali := alist[n]]);  				
+			} else if (!isTupleType(rt)) {
+				return makeFailType("Type mismatch: this error should have already been caught!", a@\loc);
+			} else {
+				return makeFailType("Arity mismatch: this error should have already been caught!", a@\loc);
+			}
+		}
+		
+		// Constructor
+		// NOTE: We are not currently supporting this case, as we are considering removing it from
+		// the language as an unsafe operation.
+//		case `<Name n> ( <{Assignable ","}+ al> )` : {
+//			if (debug) println("CHECKER: ConstructorAssignable: <a>");
+//			return makeFailType("Unhandled case in bindInferredTypesToAssignable for assignable <a>");
+//		}
+	}
+}
+
+//
+// Check local variable declarations. The variables themselves have already been checked, so we just
+// need to collect any possible failures here.
+//
+public RType checkLocalVarItems(Statement sp, {Variable ","}+ vs) {
+	set[RType] localTypes = { v@rtype | v <- vs };
+	return makeStatementType(checkForFail(localTypes) ? collapseFailTypes(localTypes) : makeVoidType());
+}
+
+//
+// Check catch clauses in exception handlers
+//
+public RType checkCatch(Catch c) {
+	switch(c) {
+		case `catch : <Statement b>` : {
+			if (debug) println("CHECKER: Catch: <c>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(b@rtype));
+			return b@rtype;
+		}
+		
+		// TODO: Pull out into own function for consistency
+		case `catch <Pattern p> : <Statement b>` : {
+			if (debug) println("CHECKER: Catch: <c>");
+			
+			if (checkForFail({ p@rtype, getInternalStatementType(b@rtype) }))
+				return makeStatementType(collapseFailTypes({ p@rtype, getInternalStatementType(b@rtype) }));
+			else
+				return b@rtype;
+		}
+	}
+}
+
+public RType checkLabel(Label l) {
+	if ((Label)`<Name n> :` := l && ( (n@rtype)?)) {
+		return n@rtype;
+	}
+	return makeVoidType();
+}
+
+//
+// TODO: Extract common code in each case into another function
+//
+public RType checkVisit(Visit v) {
+	switch(v) {
+		case `visit (<Expression se>) { <Case+ cs> }` : {
+			set[RType] caseTypes = { c@rtype | c <- cs };
+			if (checkForFail( caseTypes + se@rtype ))
+				return makeStatementType(collapseFailTypes(caseTypes + se@rtype));
+			RType caseLubType = lubSet(caseTypes);
+			if (subtypeOf(caseLubType, se@rtype))
+				return se@rtype;
+			else
+				return makeFailType("Visit cases must all be subtypes of the type of the visited expression"); 
+		}
+		
+		case `<Strategy st> visit (<Expression se>) { <Case+ cs> }` : {
+			set[RType] caseTypes = { c@rtype | c <- cs };
+			if (checkForFail( caseTypes + se@rtype ))
+				return makeStatementType(collapseFailTypes(caseTypes + se@rtype));
+			RType caseLubType = lubSet(caseTypes);
+			if (subtypeOf(caseLubType, se@rtype))
+				return se@rtype;
+			else
+				return makeFailType("Visit cases must all be subtypes of the type of the visited expression"); 
+		}		
+	}
+}
+
+public RType checkReifiedTypePattern(Pattern pp, Type t, {Pattern ","}* pl) {
+	if (checkForFail({ p@rtype | p <- pl })) return collapseFailTypes({ p@rtype | p <- pl });
+	return makeReifiedType(convertType(t), [ p@rtype | p <- pl ]);
 }
 
 //
@@ -1371,25 +2305,19 @@ public RType checkCallOrTreePattern(Pattern pp, Pattern pc, {Pattern ","}* ps) {
 }
  
 public RType checkListPattern(Pattern pp, {Pattern ","}* ps) {
-	if (checkForFail({ p@rtype | p <- ps }))
-		return collapseFailTypes({ p@rtype | p <- ps });
-	else
-		return makeListType(lubList([p@rtype | p <- ps]));
+	if (checkForFail({ p@rtype | p <- ps })) return collapseFailTypes({ p@rtype | p <- ps });
+	return makeListType(lubList([p@rtype | p <- ps]));
 }
 
 public RType checkSetPattern(Pattern pp, {Pattern ","}* ps) {
-	if (checkForFail({ p@rtype | p <- ps }))
-		return collapseFailTypes({ p@rtype | p <- ps });
-	else
-		return makeSetType(lubList([p@rtype | p <- ps]));
+	if (checkForFail({ p@rtype | p <- ps })) 	return collapseFailTypes({ p@rtype | p <- ps });
+	return makeSetType(lubList([p@rtype | p <- ps]));
 }
 
 public RType checkTuplePattern(Pattern pp, Pattern pi, {Pattern ","}* ps) {
 	set[Pattern] pset = {pi} + {p | p <- ps};
-	if (checkForFail({p@rtype | p <- pset}))
-		return collapseFailTypes({p@rtype | p <- pset});
-	else
-		return makeTupleType([ p@rtype | p <- pset]);
+	if (checkForFail({p@rtype | p <- pset})) 	return collapseFailTypes({p@rtype | p <- pset});
+	return makeTupleType([ p@rtype | p <- pset]);
 }
 
 // TODO: Implement this once we can match maps
@@ -1397,28 +2325,40 @@ public RType checkMapPattern(Pattern pp) {
 	return makeVoidType();
 }
 
-public RType checkDescendantPattern(Pattern pp, Pattern p) {
-	return p@rtype;
-}
-
-// TODO: Look in current interpreter for typing rules
+//
+// For this pattern, and the next few patterns, check to see if we should enforce any kind of typing
+// discipling. In the current interpreter haveing n of type t1, and p of type t2, where t1 || t2,
+// does not cause type errors, although it can be confusing.
+// Also, TODO check to see if this construct can bind inference vars.
+//
 public RType checkVariableBecomesPattern(Pattern pp, Name n, Pattern p) {
-	return makeVoidType();
+	if (checkForFail({ n@rtype, p@rtype })) return collapseFailTypes({ n@rtype, p@rtype });
+	return n@rtype;
 }
 
-// TODO: Look in current interpreter for typing rules
+//
+// Currently this just "casts" the pattern to the given type t for type checking purposes,
+// but not for matching purposes. n should already be assigned type t, so just return
+// the type of n.
+//
 public RType checkTypedVariableBecomesPattern(Pattern pp, Type t, Name n, Pattern p) {
-	return makeVoidType();
+	if (checkForFail({ n@rtype, p@rtype })) return collapseFailTypes({ n@rtype, p@rtype });
+	return n@rtype;
 }
 
-// TODO: Look in current interpreter for typing rules
+//
+// Currently this just "casts" the pattern to the given type t for type checking purposes,
+// but not for matching purposes. For instance, [ tuple[int,int] ] <a,b,c> := <1,2> would
+// be type correct, but would not match. The type of the pattern is the type t.
+//
 public RType checkGuardedPattern(Pattern pp, Type t, Pattern p) {
-	return makeVoidType();
+	if (isFailType(p@rtype)) return p@rtype;
+	return convertType(t);
 }
 
-// TODO: Look in current interpreter for typing rules
+// TODO: Should we just give this the void type? !p gives us basically anything. Follow up with this!
 public RType checkAntiPattern(Pattern pp, Pattern p) {
-	return makeVoidType();
+	return p@rtype;
 }
 
 public RType checkPattern(Pattern pat) {
@@ -1498,74 +2438,80 @@ public RType checkPattern(Pattern pat) {
 		// CallOrTree
 		case `<Pattern p1> ( <{Pattern ","}* pl> )` : {
 			if (debug) println("CHECKER: CallOrTreePattern: <pat>");
-			RType t = checkCallOrTreePattern(pat,p1,pl);
-			if(debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
+			RType rt = checkCallOrTreePattern(pat,p1,pl);
+			if(debug) println("CHECKER: Assigning type: " + prettyPrintType(rt));
+			return rt;
 		}
 
 		// List
 		case `[<{Pattern ","}* pl>]` : {
 			if (debug) println("CHECKER: ListPattern: <pat>");
-			RType t = checkListPattern(pat,pl);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
+			RType rt = checkListPattern(pat,pl);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(rt));
+			return rt;
 		}
 
 		// Set
 		case `{<{Pattern ","}* pl>}` : {
 			if (debug) println("CHECKER: SetPattern: <pat>");
-			RType t = checkSetPattern(pat,pl);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
+			RType rt = checkSetPattern(pat,pl);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(rt));
+			return rt;
 		}
 
 		// Tuple
 		case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
 			if (debug) println("CHECKER: TuplePattern: <pat>");
-			RType t = checkTuplePattern(pat,pi,pl);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
+			RType rt = checkTuplePattern(pat,pi,pl);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(rt));
+			return rt;
 		}
 
-		// TODO: Map: Need to figure out a syntax that works for matching this
-//		case `<<Pattern ei>, <{Pattern ","}* el>>` : {
-//			// TODO: This is not yet working
-//			if (debug) println("CHECKER: Tuple <pat>");
-//			RType t = checkTuplePattern(exp,ei,el);
-//			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-//			return t;
-//		}
+		// TODO: Map: Need to figure out a syntax that works for matching maps
+
+		// Typed Variable
+		case (Pattern) `<Type t> <Name n>` : {
+			if (debug) println("CHECKER: TypedVariablePattern: <pat>");
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(n@rtype));
+			return n@rtype;
+		}
+
+		// Multi Variable
+		case `<QualifiedName qn> *` : {
+			if (debug) println("CHECKER: MultiVariablePattern: <pat>");
+			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
+			return isInferredType(qn@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
+		}
 
 		// Descendant
 		case `/ <Pattern p>` : {
 			if (debug) println("CHECKER: DescendantPattern: <pat>");
-			RType t = checkDescendantPattern(pat,p);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(p@rtype));
+			return p@rtype;
 		}
 
 		// Variable Becomes
 		case `<Name n> : <Pattern p>` : {
 			if (debug) println("CHECKER: VariableBecomesPattern: <pat>");
-			RType t = checkVariableBecomesPattern(pat,n,p);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
+			RType rt = checkVariableBecomesPattern(pat,n,p);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(rt));
+			return rt;
 		}
 		
 		// Typed Variable Becomes
 		case `<Type t> <Name n> : <Pattern p>` : {
 			if (debug) println("CHECKER: TypedVariableBecomesPattern: <pat>");
-			RType t = checkTypedVariableBecomesPattern(pat,t,n,p);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
+			RType rt = checkTypedVariableBecomesPattern(pat,t,n,p);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(rt));
+			return rt;
 		}
 		
 		// Guarded
 		case `[ <Type t> ] <Pattern p>` : {
 			if (debug) println("CHECKER: GuardedPattern: <pat>");
-			RType t = checkGuardedPattern(pat,t,p);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
+			RType rt = checkGuardedPattern(pat,t,p);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(rt));
+			return rt;
 		}			
 		
 		// Anti
@@ -1576,31 +2522,62 @@ public RType checkPattern(Pattern pat) {
 			return t;
 		}
 	}
+
+	throw "Missing case on checkPattern for pattern <p>";
 }
 
-// TODO: For now, just update the exact index. If we need to propagate these changes we need to make this
-// code more powerful.
-private void updateInferredTypeMappings(RType t, RType rt) {
-	globalScopeInfo.inferredTypeMap[getInferredTypeIndex(t)] = rt;
-}
-
-// Replace inferred with concrete types
-public RType replaceInferredTypes(RType rt) {
-	return visit(rt) { case RTypeInferred(n) => globalScopeInfo.inferredTypeMap[n] };
-}
-
+//
 // Recursively bind the types from an expression to any inferred types in a pattern. Note that we assume at this
 // point that the expression and pattern are both type correct except for inference clashes, so we only need to
 // look for them here. The return type then is only important if it contains failures. Otherwise, it will be the same
 // as the source type rt, excepting for type inference vars.
+//
+// TODO: Finish bind cases, some cases are just set to return the current pattern type type
+//
 public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 	if (debug) println("CHECKER: Binding inferred types on pattern <pat>");
 	switch(pat) {
-		// TODO: Interpolation
-		//case (Pattern)`<StringLiteral sl>` 
+		case (Pattern)`<BooleanLiteral bl>` : {
+			if (debug) println("CHECKER: Binding BooleanLiteralPattern: <pat>");
+			return pat@rtype;
+		}
+
+		case (Pattern)`<DecimalIntegerLiteral il>`  : {
+			if (debug) println("CHECKER: Binding DecimalIntegerLiteralPattern: <pat>");
+			return pat@rtype;
+		}
+
+		case (Pattern)`<OctalIntegerLiteral il>`  : {
+			if (debug) println("CHECKER: Binding OctalIntegerLiteralPattern: <pat>");
+			return pat@rtype;
+		}
+
+		case (Pattern)`<HexIntegerLiteral il>`  : {
+			if (debug) println("CHECKER: Binding HexIntegerLiteralPattern: <pat>");
+			return pat@rtype;
+		}
+
+		case (Pattern)`<RealLiteral rl>`  : {
+			if (debug) println("CHECKER: Binding RealLiteralPattern: <pat>");
+			return pat@rtype;
+		}
 
 		// TODO: Interpolation
-		//case (Pattern)`<LocationLiteral ll>` 
+		case (Pattern)`<StringLiteral sl>`  : {
+			if (debug) println("CHECKER: Binding StringLiteralPattern: <pat>");
+			return pat@rtype;
+		}
+
+		// TODO: Interpolation
+		case (Pattern)`<LocationLiteral ll>`  : {
+			if (debug) println("CHECKER: Binding LocationLiteralPattern: <pat>");
+			return pat@rtype;
+		}
+
+		case (Pattern)`<DateTimeLiteral dtl>`  : {
+			if (debug) println("CHECKER: Binding DateTimeLiteralPattern: <pat>");
+			return pat@rtype;
+		}
 
 		case (Pattern)`<Name n>`: {
 			if (debug) println("CHECKER: Checking on bind of type <prettyPrintType(rt)> to name <n>");
@@ -1619,7 +2596,7 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 					}
 				}
 			} else {
-				return n@rtype;
+				return pat@rtype;
 			}
 		}
 
@@ -1639,54 +2616,88 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 					}
 				}
 			} else {
-				return qn@rtype;
+				return pat@rtype;
 			}
 		}
 
-		default : {
-			if (debug) println("CHECKER: Did not match a case for binding inferred types on pattern <pat>!");
-			return rt;
+		// TODO: ReifiedType
+		case `<BasicType t> ( <{Pattern ","}* pl> )` : {
+			if (debug) println("CHECKER: BindingReifiedTypePattern: <pat>");
+			return pat@rtype;
 		}
 
-		// ReifiedType
-		//case `<BasicType t> ( <{Pattern ","}* pl> )` : {
-
 		// CallOrTree
-		//case `<Pattern p1> ( <{Pattern ","}* pl> )` : {
+		case `<Pattern p1> ( <{Pattern ","}* pl> )` : {
+			if (debug) println("CHECKER: Binding CallOrTreePattern: <pat>");
+			return pat@rtype;
+		}
 
 		// List
-		//case `[<{Pattern ","}* pl>]` : {
+		case `[<{Pattern ","}* pl>]` : {
+			if (debug) println("CHECKER: Binding ListPattern: <pat>");
+			return pat@rtype;
+		}
 
 		// Set
-		//case `{<{Pattern ","}* pl>}` : {
+		case `{<{Pattern ","}* pl>}` : {
+			if (debug) println("CHECKER: Binding SetPattern: <pat>");
+			return pat@rtype;
+		}
 
 		// Tuple
-		//case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+		case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+			if (debug) println("CHECKER: Binding TuplePattern: <pat>");
+			return pat@rtype;
+		}
 
-		// TODO: Map: Need to figure out a syntax that works for matching this
-//		case `<<Pattern ei>, <{Pattern ","}* el>>` : {
-//			// TODO: This is not yet working
-//			if (debug) println("CHECKER: Tuple <pat>");
-//			RType t = checkTuplePattern(exp,ei,el);
-//			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-//			return t;
-//		}
+		// TODO: Map: Need to figure out a syntax that works for matching maps
+
+		// Typed Variable
+		case (Pattern) `<Type t> <Name n>` : {
+			if (debug) println("CHECKER: Binding TypedVariablePattern: <pat>");
+			return pat@rtype;
+		}
+
+		// Multi Variable
+		case `<QualifiedName qn> *` : {
+			if (debug) println("CHECKER: Binding MultiVariablePattern: <pat>");
+			return pat@rtype;
+		}
 
 		// Descendant
-		//case `/ <Pattern p>` : {
+		// TODO: If Descendant is an inferred type, bind to value here -- this means that no type was given, so
+		// it could actually match anything.
+		case `/ <Pattern p>` : {
+			if (debug) println("CHECKER: Binding DescendantPattern: <pat>");
+			return bindInferredTypesToPattern(rt, p);
+		}
 
 		// Variable Becomes
-		//case `<Name n> : <Pattern p>` : {
+		case `<Name n> : <Pattern p>` : {
+			if (debug) println("CHECKER: Binding VariableBecomesPattern: <pat>");
+			return bindInferredTypesToPattern(rt, p);
+		}
 		
 		// Typed Variable Becomes
-		//case `<Type t> <Name n> : <Pattern p>` : {
+		case `<Type t> <Name n> : <Pattern p>` : {
+			if (debug) println("CHECKER: Binding TypedVariableBecomesPattern: <pat>");
+			return bindInferredTypesToPattern(rt, p);
+		}
 		
 		// Guarded
-		//case `[ <Type t> ] <Pattern p>` : {
+		case `[ <Type t> ] <Pattern p>` : {
+			if (debug) println("CHECKER: Binding GuardedPattern: <pat>");
+			return bindInferredTypesToPattern(rt, p);
+		}			
 		
-		// Anti
-		//case `! <Pattern p>` : {
+		// Anti -- TODO see if this makes sense, check the interpreter
+		case `! <Pattern p>` : {
+			if (debug) println("CHECKER: Binding AntiPattern: <pat>");
+			return bindInferredTypesToPattern(rt, p);
+		}
 	}
+
+	throw ("CHECKER: Did not match a case for binding inferred types on pattern <pat>!");
 }
 
 //
@@ -1695,292 +2706,72 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 public RType checkPatternWithAction(PatternWithAction p) {
 	switch(p) {
 		case `<Pattern p> => <Expression e>` : {
-			3;
+			if (checkForFail( { p@rtype, e@rtype } )) return collapseFailTypes( { p@rtype, e@rtype } );
+			return e@rtype;
 		}
 		
 		case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
-			3;
+			set[RType] whenTypes = { e@rtype | e <- es };
+			if (checkForFail( whenTypes + p@rtype + e@rtype )) return collapseFailTypes( whenTypes + p@rtype + e@rtype );
+			return e@rtype;
 		}
 		
 		case `<Pattern p> : <Statement s>` : {
-			3;
+			RType stmtType = getInternalStatementType(s@rtype);
+			if (checkForFail( { p@rtype, stmtType })) return collapseFailTypes( { p@rtype, stmtType });
+			return stmtType;
 		}
 	}
 	
+	throw "Unhandled case in checkPatternWithAction, <p>";	
+}
+
+//
+// Check the type of the data target. This just propagates failures (for instance, from using a target
+// name that is not defined), otherwise assigning a void type.
+//
+public RType checkDataTarget(DataTarget dt) {
+	if ((DataTarget)`<Name n> :` := dt && isFailType(n@rtype)) return n@rtype;		
 	return makeVoidType();
 }
 
-//
-// Check visits
-//
-public RType checkVisit(Visit v) {
-	return makeVoidType();
+// TODO: For now, just update the exact index. If we need to propagate these changes we need to make this
+// code more powerful.
+private void updateInferredTypeMappings(RType t, RType rt) {
+	globalScopeInfo.inferredTypeMap[getInferredTypeIndex(t)] = rt;
+}
+
+// Replace inferred with concrete types
+public RType replaceInferredTypes(RType rt) {
+	return visit(rt) { case RInferredType(n) => globalScopeInfo.inferredTypeMap[n] };
 }
 
 //
-// Check individual cases
+// Calculate the list of types assigned to a list of parameters
 //
-public RType checkCase(Case c) {
-	switch(c) {
-		case `case <PatternWithAction p>` : {
-			if (debug) println("CHECKER: Case: <c>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(p@rtype));
-			return p@rtype;
-		}
-		
-		case `default : <Statement b>` : {
-			if (debug) println("CHECKER: Case: <c>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(b@rtype));
-			return b@rtype;
-		}
-	}
-}
+public list[RType] getParameterTypes(Parameters p) {
+	list[RType] pTypes = [];
 
-// TODO: Implement
-public RType checkSubscriptAssignable(Assignable ap, Assignable a, Expression e) {
-	return makeVoidType();
-}
-
-// TODO: Implement
-public RType checkFieldAccessAssignable(Assignable ap, Assignable a, Name n) {
-	return makeVoidType();
-}
-		
-public RType checkIfDefinedOrDefaultAssignable(Assignable ap, Assignable a, Expression e) {
-	if (isFailType(a@rtype) || isFailType(e@rtype)) {
-		return collapseFailTypes({ a@rtype, e@rtype });
-	} else {
-		if (!subtypeOf(e@rtype,a@rtype)) {
-			return makeFailType("The type of <e>, <prettyPrintType(e@rtype)>, is not a subtype of the type of <a>, <prettyPrintType(a@rtype)>",ap@\loc);
-		} else {
-			return lub(e@rtype,a@rtype);		
+	if (`( <Formals f> )` := p && `<{Formal ","}* fs>` := f) {
+		for ((Formal)`<Type t> <Name n>` <- fs) {
+				siList += n@rtype;
 		}
-	}
-}
-
-// TODO: Implement
-public RType checkAnnotationAssignable(Assignable ap, Assignable a, Name n) {
-	return makeVoidType();
-}
-		
-public RType checkTupleAssignable(Assignable ap, Assignable a, {Assignable ","}* al) {
-	list[Assignable] alist = [ a ] + [ ai | ai <- al];
-	if (checkForFail({ ai@rtype | ai <- alist }))
-		return collapseFailTypes({ ai@rtype | ai <- alist });
-	else
-		return makeTupleType([ ai@rtype | ai <- alist]);
-}
-
-public RType checkConstructorAssignable(Assignable ap, Name n, {Assignable ","}+ al) {
-	if (checkForFail({ a@rtype | a <- al }))
-		return collapseFailTypes({ a@rtype | a <- al });
-
-	set[RType] alternatives = isOverloadedType(n@rtype) ? getOverloadOptions(n@rtype) : { n@rtype };
-	
-	// Now, try each alternative, seeing if one matches.
-	for (a <- alternatives) {
-		list[Assignable] args = [ a | a <- al ];
-		list[RType] argTypes = [];
-		RType potentialResultType;
-		
-		if (isFunctionType(a)) {
-			argTypes = getFunctionArgumentTypes(a);
-			potentialResultType = getFunctionReturnType(a);
-		} else if (isConstructorType(a)) {
-			argTypes = getConstructorArgumentTypes(a);
-			potentialResultType = getConstructorResultType(a);
+	} else if (`( <Formals f> ... )` := p) {
+		for ((Formal)`<Type t> <Name n>` <- fs) {
+				siList += n@rtype;
 		}
-		
-		if (size(argTypes) == size(args)) {
-			for (ai <- args) {
-				RType argType = head(argTypes); argTypes = tail(argTypes);
-				if (argType != ai@rtype) {
-					potentialResultType = makeFailType("Bad function invocation or constructor usage, argument type mismatch",ap@\loc); // TODO: Improve error message
-				}
-			}			
-		} else {
-			potentialResultType = makeFailType("Arity mismatch", ap@\loc); // TODO: Improve error message
-		}
-		
-		// This will cause us to keep the last error in cases where we cannot find a valid function
-		// or constructor to use.
-		if (isFailType(resultType)) resultType = potentialResultType;
+		if (size(siList) > 0)
+			siList += RVarArgsType(tail(siList,1));
+		else
+			siList += RVarArgsType(makeValueType());
 	}
 
-	return resultType;	
-}
-
-//
-// Check assignables
-//
-public RType checkAssignable(Assignable a) {
-	switch(a) {
-		// Variable
-		case (Assignable)`<QualifiedName qn>` : {
-			if (debug) println("CHECKER: VariableAssignable: <a>");
-			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
-			return isInferredType(qn@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
-		}
-		
-		// Subscript
-		case `<Assignable al> [ <Expression e> ]` : {
-			if (debug) println("CHECKER: SubscriptAssignable: <a>");
-			RType t = checkSubscriptAssignable(a,al,e);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
-		}
-		
-		// Field Access
-		case `<Assignable al> . <Name n>` : {
-			if (debug) println("CHECKER: FieldAccessAssignable: <a>");
-			RType t = checkFieldAccessAssignable(a,al,n);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
-		}
-		
-		// If Defined or Default
-		case `<Assignable al> ? <Expression e>` : {
-			if (debug) println("CHECKER: IfDefinedOrDefaultAssignable: <a>");
-			RType t = checkIfDefinedOrDefaultAssignable(a,al,e);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
-		}
-		
-		// Annotation
-		case `<Assignable al> @ <Name n>` : {
-			if (debug) println("CHECKER: AnnotationAssignable: <a>");
-			RType t = checkAnnotationAssignable(a,al,n);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
-		}
-		
-		// Tuple
-		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
-			if (debug) println("CHECKER: TupleAssignable: <a>");
-			RType t = checkTupleAssignable(a,ai, al);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
-		}
-		
-		// Constructor
-		case `<Name n> ( <{Assignable ","}+ al> )` : {
-			if (debug) println("CHECKER: ConstructorAssignable: <a>");
-			RType t = checkConstructorAssignable(a,n,al);
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
-			return t;
-		}
-	}
-}
-
-//
-// Given an actual type rt and an assignable a, recurse the structure of a, assigning the correct parts of
-// rt to any named parts of a. For instance, in an assignment like x = 5, if x has an inference type it will
-// be assigned type int, while in an assignment like <a,b> = <true,4>, a would be assigned type bool
-// while b would be assigned type int (again, assuming they are both inferrence variables). The return
-// type is just used to allow a potential fail return, required in cases like <a,a> = <3,bool> or
-// <a,b> = <3,4> followed by <a,c> = <true,4> (a gets assigned incompatible types).
-//
-public RType bindInferredTypesToAssignable(RType rt, Assignable a) {
-	if (debug) println("CHECKER: binding inferred types in <prettyPrintType(rt)> to assignable <a>");
-	switch(a) {
-		// Variable
-		case (Assignable)`<QualifiedName qn>` : {
-			if (debug) println("CHECKER: Checking on bind of type <prettyPrintType(rt)> to name <qn>");
-			if (isInferredType(qn@rtype)) {
-				RType t = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)];
-				if (isInferredType(t)) {
-					if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(t)> to <prettyPrintType(rt)> on name <qn>");
-					updateInferredTypeMappings(t,rt);
-					return rt;
-				} else {
-					if (t != rt) {
-						if (debug) println("CHECKER: Found type clash on inferred variable, trying to assign <prettyPrintType(rt)> and <prettyPrintType(t)> to name <qn>");
-						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <qn>: <prettyPrintType(rt)>, <prettyPrintType(t)>", qn@\loc);
-					} else {
-						return t;
-					}
-				}
-			} else {
-				return qn@rtype;
-			}
-		}
-		
-		// Subscript
-		case `<Assignable al> [ <Expression e> ]` : {
-			if (debug) println("CHECKER: SubscriptAssignable: <a>");
-			// TODO: This case makes no sense for an inferred type. See if we need to support it.
-			return makeFailType("Unhandled case in bindInferredTypesToAssignable for assignable <a>");
-		}
-		
-		// Field Access
-		case `<Assignable al> . <Name n>` : {
-			if (debug) println("CHECKER: FieldAccessAssignable: <a>");
-			// TODO: This case makes no sense for an inferred type. See if we need to support it.
-			return makeFailType("Unhandled case in bindInferredTypesToAssignable for assignable <a>");
-		}
-		
-		// If Defined or Default
-		case `<Assignable al> ? <Expression e>` : {
-			if (debug) println("CHECKER: IfDefinedOrDefaultAssignable: <a>");
-			// TODO: This case makes no sense for an inferred type. See if we need to support it.
-			return makeFailType("Unhandled case in bindInferredTypesToAssignable for assignable <a>");
-		}
-		
-		// Annotation
-		case `<Assignable al> @ <Name n>` : {
-			if (debug) println("CHECKER: AnnotationAssignable: <a>");
-			// TODO: This case makes no sense for an inferred type. See if we need to support it.
-			return makeFailType("Unhandled case in bindInferredTypesToAssignable for assignable <a>");
-		}
-		
-		// Tuple
-		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
-			if (debug) println("CHECKER: TupleAssignable: <a>");
-			list[Assignable] alist = [ai] + [ ali | ali <- al ];
-			if (isTupleType(rt) && getTupleFieldCount(rt) == size(alist)) {
-				list[RType] tupleFieldTypes = getTupleFields(rt);
-				return makeTupleType([bindInferredTypesToAssignable(tft,ali) | n <- [0..(getTupleFieldCount(rt)-1)], tft := tupleFieldTypes[n], ali := alist[n]]);  				
-			} else if (!isTupleType(rt)) {
-				return makeFailType("Type mismatch: this error should have already been caught!", a@\loc);
-			} else {
-				return makeFailType("Arity mismatch: this error should have already been caught!", a@\loc);
-			}
-		}
-		
-		// Constructor
-		case `<Name n> ( <{Assignable ","}+ al> )` : {
-			if (debug) println("CHECKER: ConstructorAssignable: <a>");
-			return makeFailType("Unhandled case in bindInferredTypesToAssignable for assignable <a>");
-		}
-	}
-}
-
-//
-// Check catch clauses in exception handlers
-//
-public RType checkCatch(Catch c) {
-	switch(c) {
-		case `catch : <Statement b>` : {
-			if (debug) println("CHECKER: Catch: <c>");
-			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(b@rtype));
-			return b@rtype;
-		}
-		
-		// TODO: Pull out into own function for consistency
-		case `catch <Pattern p> : <Statement b>` : {
-			if (debug) println("CHECKER: Catch: <c>");
-			
-			if (checkForFail({ p@rtype, b@rtype }))
-				return collapseFailTypes({ p@rtype, b@rtype });
-			else
-				return b@rtype;
-		}
-	}
+	return siList;
 }
 
 //
 // Figure the type of value that would be assigned, based on the assignment statement
-// being used. It is up to the caller to determine if this would cause an error.
+// being used. This returns a fail type if the assignment is invalid. 
 //
 public RType getAssignmentType(RType t1, RType t2, RAssignmentOp raOp, loc l) {
 	if (aOpHasOp(raOp)) {
@@ -1999,307 +2790,6 @@ public RType getAssignmentType(RType t1, RType t2, RAssignmentOp raOp, loc l) {
 	}
 }
 
-public RType checkLocalVarItems(Statement sp, {Variable ","}+ vs) {
-	set[RType] localFailures = { };
-	for (vb <- vs) {
-		switch(vb) {
-			case `<Name n>` : 	if (isFailType(n@rtype)) localFailures += n@rtype;
-				
-			case `<Name n> = <Expression e>` : {
-				if (isFailType(n@rtype)) localFailures += n@rtype;
-				if (isFailType(e@rtype)) localFailures += e@rtype;
-				if (! (isFailType(n@rtype) || isFailType(e@rtype))) {
-					if (isInferredType(n@rtype)) {
-						RType mappedType = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)];
-						if (isInferredType(mappedType)) {
-							if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(mappedType)> to <prettyPrintType(e@rtype)> on name <n>");
-							updateInferredTypeMappings(mappedType,e@rtype);
-						} else {
-							if (mappedType != e@rtype) {
-								if (debug) println("CHECKER: Found type clash on inferred variable, trying to assign <prettyPrintType(e@rtype)> and <prettyPrintType(mappedType)> to name <n>");
-								localFailures += makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: <prettyPrintType(e@rtype)>, <prettyPrintType(mappedType)>", n@\loc);
-							}
-						}
-					} else {
-						RType assignType = getAssignmentType( n@rtype, e@rtype, RADefault(), vb@\loc );
-						if (isFailType(assignType)) localFailures += assignType;
-					}
-				}
-			}
-		}
-	}
-	return makeStatementType((size(localFailures) == 0) ? makeVoidType() : collapseFailTypes(localFailures));
-}
-
-public RType checkAssignmentStatement(Statement sp, Assignable a, Assignment op, Statement s) {
-	RType stmtType = getInternalStatementType(s@rtype);
-	if (checkForFail({ a@rtype, stmtType })) { 
-		return makeStatementType(collapseFailTypes({ a@rtype, getInternalStatementType(s@rtype) }));
-	} else {
-		// This works over two cases. For both = and ?=, the variable(s) on the left can be inference vars.
-		// Otherwise, they cannot, since we are doing some kind of calculation using them and, therefore,
-		// they must be initialized already.
-		if (!aOpHasOp(convertAssignmentOp(op))) {
-			if (subtypeOf(stmtType, a@rtype)) {
-				RType boundType = bindInferredTypesToAssignable(stmtType, a);
-				return makeStatementType(boundType);
-			} else {
-				return makeStatementType(makeFailType("Invalid assignment, the type being assigned, <prettyPrintType(stmtType)>, must be a subtype of the type being assigned into, <prettyPrintType(a@rtype)>",sp@\loc));
-			}
-		} else {
-			RType actualAssignedType = getAssignmentType(a@rtype, stmtType, convertAssignmentOp(op), sp@\loc);
-			if (isFailType(actualAssignedType)) {
-				return makeStatementType(actualAssignedType);
-			} else {
-				if (subtypeOf(actualAssignedType, a@rtype)) {
-					return makeStatementType(a@rtype);
-				} else {
-					return makeStatementType(makeFailType("Invalid assignment, the type being assigned, <prettyPrintType(stmtType)>, must be a subtype of the type being assigned into, <prettyPrintType(a@rtype)>",sp@\loc));
-				}
-			}
-		}
-	}
-}
-
-public RType checkBlockStatement(Statement sp, Label l, Statement+ bs) {
-	list[RType] statementTypes = [ b@rtype | b <- bs];
-
-	if (checkForFail({ l@rtype} + { getInternalStatementType(t) | t <- statementTypes }))
-		return makeStatementType(collapseFailTypes({ l@rtype } + { getInternalStatementType(t) | t <- statementTypes }));
-	
-	return makeStatementType(getInternalStatementType(tail(statementTypes,1)));
-} 
-
-//
-// Check statements
-//
-public RType checkStatement(Statement s) {
-	switch(s) {
-		// TODO: Define properly		
-		case `solve (<{QualifiedName ","}+ vs> <Bound b>) <Statement sb>` : {
-			if (debug) println("CHECKER: Inside solve statement <s>");
-
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		// TODO: Define properly		
-		case `<Label l> for (<{Expression ","}+ es>) <Statement b>` : {
-			if (debug) println("CHECKER: Inside for statement <s>");
-			
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		// TODO: Define properly		
-		case `<Label l> while (<{Expression ","}+ es>) <Statement b>` : {
-			if (debug) println("CHECKER: Inside while statement <s>");
-			
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		// TODO: Define properly		
-		case `<Label l> do <Statement b> while (<Expression e>);` : {
-			if (debug) println("CHECKER: Inside do statement <s>");
-
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		// TODO: Define properly		
-		case `<Label l> if (<{Expression ","}+ es>) <Statement bt> else <Statement bf>` : {
-			if (debug) println("CHECKER: Inside if with else statement <s>");
-			
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		// TODO: Define properly		
-		case `<Label l> if (<{Expression ","}+ es>) <Statement bt>` : {
-			if (debug) println("CHECKER: Inside if statement <s>");
-			
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		// TODO: Define properly		
-		case `<Label l> switch (<Expression e>) { <Case+ cs> }` : {
-			if (debug) println("CHECKER: Inside switch statement <s>");
-			
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		// TODO: Define properly		
-		case (Statement)`<Label l> <Visit v>` : {
-			if (debug) println("CHECKER: Inside visit statement <s>");
-
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-			
-		case `<Expression e> ;` : {
-			if (debug) println("CHECKER: Inside expression statement <s>");
-
-			RType rt = makeStatementType(e@rtype);
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		case `<Assignable a> <Assignment op> <Statement b>` : {
-			if (debug) println("CHECKER: Inside assignment statement <s>");
-
-			RType rt = checkAssignmentStatement(s,a,op,b);
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		case `assert <Expression e> ;` : {
-			if (debug) println("CHECKER: Inside assert statement <s>");
-
-			RType rt = makeStatementType(e@rtype);
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		case `assert <Expression e> : <Expression em> ;` : {
-			if (debug) println("CHECKER: Inside assert with message statement <s>");
-
-			// TODO: Need to make sure this handles em as well
-			RType rt = makeStatementType(e@rtype);
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		case `return <Statement b>` : {
-			if (debug) println("CHECKER: Inside return statement <s>");
-
-			RType rt = b@rtype;
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		case `throw <Statement b>` : {
-			if (debug) println("CHECKER: Inside throw statement <s>");
-
-			RType rt = b@rtype;
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-
-		// TODO: Propagate data target semantic errors		
-		case `insert <DataTarget dt> <Statement b>` : {
-			if (debug) println("CHECKER: Inside insert statement <s>");
-
-			RType rt = b@rtype;
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		// TODO: Propagate data target semantic errors		
-		case `append <DataTarget dt> <Statement b>` : {
-			if (debug) println("CHECKER: Inside append statement <s>");
-
-			RType rt = b@rtype;
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		// TODO: Define functionality		
-		case (Statement) `<Tags ts> <Visibility v> <Signature sig> <FunctionBody fb>` : {
-			if (debug) println("CHECKER: Inside local function statement <s>");
-
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		// TODO: Define functionality
-		case (Statement) `<Type t> <{Variable ","}+ vs> ;` : {
-			if (debug) println("CHECKER: Inside local variable statement <s>");
-
-			RType rt = checkLocalVarItems(s, vs);
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		// TODO: Propagate data target semantic errors
-		// TODO: Handle the dynamic part of dynamic vars		
-		case (Statement) `dynamic <Type t> <{Variable ","}+ vs> ;` : {
-			if (debug) println("CHECKER: Inside dynamic local variable statement <s>");
-
-			RType rt = checkLocalVarItems(s, vs);
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		// TODO: Propagate data target semantic errors		
-		case `break <Target t> ;` : {
-			if (debug) println("CHECKER: Inside break statement <s>");
-
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		// TODO: Propagate data target semantic errors		
-		case `fail <Target t> ;` : {
-			if (debug) println("CHECKER: Inside fail statement <s>");
-
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		// TODO: Propagate data target semantic errors		
-		case `continue <Target t> ;` : {
-			if (debug) println("CHECKER: Inside continue statement <s>");
-
-			RType rt = makeVoidType();
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		// TODO: Propagate data target semantic errors		
-		case `try <Statement b> <Catch+ cs>` : {
-			if (debug) println("CHECKER: Inside try without finally statement <s>");
-
-			RType rt = b@rtype; // HANDLE CATCH!
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		// TODO: Propagate data target semantic errors		
-		case `try <Statement b> <Catch+ cs> finally <Statement bf>` : {
-			if (debug) println("CHECKER: Inside try with finally statement <s>");
-
-			RType rt = b@rtype; // HANDLE CATCH AND FINALLY!
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-		
-		case `<Label l> { <Statement+ bs> }` : {
-			if (debug) println("CHECKER: Inside block statement <s>");
-
-			RType rt = checkBlockStatement(s, l, bs);
-
-			if (debug) println("CHECKER: Returning type <prettyPrintType(rt)>");
-			return rt;
-		}
-	}
-	
-	return makeStatementType(makeVoidType());			
-}
-
 //
 // Check a file, given the path to the file
 //
@@ -2313,16 +2803,10 @@ public Tree typecheckFile(str filePath) {
 // Check a tree
 //
 public Tree typecheckTree(Tree t) {
-        allFailures = {};
 	globalScopeInfo = buildNamespace(t);
 	Tree td = decorateNames(t,globalScopeInfo);
-	Tree tc = check(td);
-    tc = retagNames(tc);
-    gatherFailures(tc);
-	if (debug) println("CHECKER: Found <size(allFailures)> type and/or scoping errors");
-	for (<s,l> <- allFailures) if (debug) println("CHECKER: Found failure <s> at location <l>");
-	tc = tc[@messages = { error(l,s) | <s,l> <- allFailures }];
-	if (debug) println("CHECKER: Messages contains <size(tc@messages)> elements");
+	Tree tc = retagNames(check(td));
+	if (isFailType(tc@rtype)) tc = tc[@messages = { error(l,s) | RFailType(allFailures) := tc@rtype, <s,l> <- allFailures }];
 	return tc;
 }
 
