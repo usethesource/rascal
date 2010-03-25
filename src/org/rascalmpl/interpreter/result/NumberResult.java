@@ -227,12 +227,12 @@ public class NumberResult extends ElementResult<INumber> {
 
 	@Override
 	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
-		return that.widenToReal().equals(this);
+		return that.equalityBoolean(this);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that) {
-		return that.widenToReal().nonEquals(this);
+		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override

@@ -208,6 +208,11 @@ public class RealResult extends ElementResult<IReal> {
 	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
 		return that.widenToReal().compare(this);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
+		return that.compareReal(this);
+	}
 
 	@Override  
 	protected <U extends IValue> Result<U> addNumber(NumberResult n) {
