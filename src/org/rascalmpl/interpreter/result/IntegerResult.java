@@ -208,6 +208,12 @@ public class IntegerResult extends ElementResult<IInteger> {
 		// note: reversed arguments
 		return widenToReal().compare(that);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
+		// note: reversed arguments
+		return that.compareInteger(this);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
