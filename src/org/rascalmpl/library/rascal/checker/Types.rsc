@@ -17,17 +17,15 @@ data RName =
 ;
 
 public RName convertName(QualifiedName qn) {
-	list[str] nameParts = [];
-	for (/Name n <- qn) {
-		nameParts = nameParts + [ "<n>" ];
+	if (`<{Name "::"}+ nl>` := qn) { 
+		nameParts = [ "<n>" | n <- nl];
+		if (size(nameParts) > 1) {
+			return RCompoundName(nameParts);
+		} else {
+			return RSimpleName(head(nameParts));
+		} 
 	}
-	if (size(nameParts) == 1) {
-		RName rn = RSimpleName(head(nameParts));
-		return rn;
-	} else {
-		RName rn = RCompoundName(nameParts);
-		return rn;
-	}
+	throw "Unexpected syntax for qualified name: <qn>";
 }
 
 public str prettyPrintNameList(list[str] nameList) {
@@ -56,11 +54,11 @@ data RType =
   	| RListType(RType elementType)
   	| RSetType(RType elementType)
   	| RBagType(RType elementType)
+	| RContainerType(RType elementType)
   	| RMapType(RNamedType domainType, RNamedType rangeType)
   	| RRelType(list[RNamedType] elementTypes) 
   	| RTupleType(list[RNamedType] elementTypes) 
   	| RLexType()
-  	| RTypeType() 
   	| RADTType(RType adtName, list[RType] constructors)
   	| RConstructorType(RName cname, list[RNamedType] elementTypes, RType adtType) 
   	| RFunctionType(RType returnType, list[RNamedType] parameterTypes)
@@ -81,6 +79,7 @@ data RType =
 	| RUserType(RName typeName)
 	| RParameterizedUserType(RName typeName, list[RType] typeParams)
 	| RTypeVar(RTypeVar tv)
+	| RAssignableType(RType wholeType, RType partType)
 ;
 
 data RNamedType =
@@ -110,7 +109,7 @@ public RType convertBasicType(BasicType t) {
 		case `rel` : return RRelType([]);
 		case `tuple` : return RTupleType([]);
 		case `lex` : return RLexType();
-		case `type` : return RTypeType();
+		case `type` : return RReifiedType(RVoidType());
 		case `adt` : return RADTType(RUserType(RSimpleName("unnamed")),[]);
 		case `constructor` : return RConstructorType(RSimpleName("unnamed"),[],RVoidType());
 		case `fun` : return RFunctionType(RVoidType,[]);
@@ -209,17 +208,17 @@ public str prettyPrintType(RType t) {
 		case RLocType() : return "loc";
 		case RListType(et) : return "list[<prettyPrintType(et)>]";
 		case RSetType(et) : return "set[<prettyPrintType(et)>]";
+		case RContainerType(et) : return "container[<prettyPrintType(et)>]";
 		case RBagType(et) : return "bag[<prettyPrintType(et)>]";
 		case RMapType(dt,rt) : return "map[<prettyPrintNamedType(dt)>,<prettyPrintNamdType(rt)>]";
 		case RRelType(nts) : return "rel[<prettyPrintNamedTypeList(nts)>]";
 		case RTupleType(nts) : return "tuple[<prettyPrintNamedTypeList(nts)>]";
 		case RLexType() : return "lex";
-		case RTypeType() : return "type";
 		case RADTType(n,cs) : return "adt <prettyPrintType(n)>: <prettyPrintTypeList(cs)>"; // TODO: Add more detail on the pretty printer
 		case RConstructorType(cn, ets, at) : return "Constructor for type <prettyPrintType(at)>: <prettyPrintName(cn)>(<prettyPrintNamedTypeList(ets)>)";
 		case RFunctionType(rt, pts) : return "<prettyPrintType(rt)> (<prettyPrintNamedTypeList(pts)>)";
 		case RNonTerminalType() : return "non-terminal";
-		case RReifiedType(rt) : return "#<prettyPrintType(t)>";
+		case RReifiedType(rt) : return "type(<prettyPrintType(t)>)";
 		case RDateTimeType() : return "datetime";
 		case RFailType(sls) :  return "Failure: " + joinList(toList(sls),printLocMsgPair,", ","");
 		case RInferredType(n) : return "Inferred Type: <n>";
@@ -231,6 +230,7 @@ public str prettyPrintType(RType t) {
 		case RUserType(tn) : return "<prettyPrintName(tn)>";
 		case RParameterizedUserType(tn, tps) : return "<prettyPrintName(tn)>(<prettyPrintTypeList(tps)>)";
 		case RTypeVar(tv) : return prettyPrintTypeVar(tv);
+		case RAssignableType(wt,pt) : return "Assignable type, whole <prettyPrintType(wt)>, part <prettyPrintType(pt)>";
 	}
 }
 
@@ -280,7 +280,9 @@ public bool isValueType(RType t) {
 	return RValueType() := t;
 }
 
-// isNodeType
+public bool isNodeType(RType t) {
+	return RNodeType() := t;
+}
 
 public bool isVoidType(RType t) {
 	return RVoidType() := t;
@@ -302,6 +304,10 @@ public bool isBagType(RType t) {
 	return RBagType(_) := t;
 }
 
+public bool isContainerType(RType t) {
+	return RContainerType(_) := t;
+}
+
 public bool isMapType(RType t) {
 	return RMapType(_,_) := t;
 }
@@ -314,16 +320,28 @@ public bool isTupleType(RType t) {
 	return RTupleType(_) := t;
 }
 
+public bool isReifiedType(RType t) {
+	return RReifiedType(_) := t;
+}
+
 // TODO: Add other is...
 
 public bool isFunctionType(RType t) {
 	return RFunctionType(_,_)  := t;
 }
 
+public bool isADTType(RType t) {
+	return RADTType(_,_) := t;
+}
+
 public bool isConstructorType(RType t) {
 	return RConstructorType(_,_,_) := t;
 }
 	
+public bool isDateTimeType(RType t) {
+	return RDateTimeType() := t;
+}
+
 public bool isFailType(RType t) {
 	return RFailType(_) := t; 
 }
@@ -342,6 +360,10 @@ public bool isOverloadedType(RType t) {
 
 public bool isInferredType(RType t) {
 	return RInferredType(_) := t;
+}
+
+public bool isAssignableType(RType t) {
+	return RAssignableType(_,_) := t;
 }
 
 public RType getSetElementType(RType t) {
@@ -369,6 +391,11 @@ public RType getRelElementType(RType t) {
 public RType getListElementType(RType t) {
 	if (RListType(et) := t) return et;
 	throw "Error: Cannot get list element type from type <prettyPrintType(t)>";
+}
+
+public RType getContainerElementType(RType t) {
+	if (RContainerType(et) := t) return et;
+	throw "Error: Cannot get container element type from type <prettyPrintType(t)>";
 }
 
 public int getInferredTypeIndex(RType t) {
@@ -406,6 +433,13 @@ public list[RType] getTupleFields(RType t) {
 	throw "Cannot get tuple fields from type <prettyPrintType(t)>";	
 }
 
+public list[RNamedType] getTupleFieldsWithNames(RType t) {
+	if (RTupleType(tas) := t) {
+		return [ ta | ta <- tas ];
+	}
+	throw "Cannot get tuple fields from type <prettyPrintType(t)>";	
+}
+
 public int getTupleFieldCount(RType t) {
 	if (RTupleType(tas) := t) {
 		return size(tas);
@@ -413,6 +447,121 @@ public int getTupleFieldCount(RType t) {
 	throw "Cannot get tuple field count from type <prettyPrintType(t)>";	
 }
 
+@doc{Check to see if a map defines a field.}
+public bool mapHasField(RType t, RName fn) {
+	if (RMapType(tl,tr) := t) {
+		if (RNamedType(_,fn) := tl) return true;	
+		if (RNamedType(_,fn) := tr) return true;	
+	}
+	return false;
+}
+
+@doc{Return the type of a field defined on a map.}
+public RType getMapFieldType(RType t, RName fn) {
+	if (RMapType(tl,tr) := t) {
+		if (RNamedType(ft,fn) := tl) return ft;	
+		if (RNamedType(ft,fn) := tr) return ft;	
+	}
+	throw "Map <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
+}
+
+public list[RType] getMapFields(RType t) {
+	if (RMapType(tl, tr) := t) {
+		return [ getElementType(tl), getElementType(tr) ];
+	}
+	throw "Cannot get map fields from type <prettyPrintType(t)>";	
+}
+
+public list[RNamedType] getMapFieldsWithNames(RType t) {
+	if (RMapType(tl, tr) := t) {
+		return [ tl, tr ];
+	}
+	throw "Cannot get map fields from type <prettyPrintType(t)>";	
+}
+
+public RType getMapDomainType(RType t) {
+	if (RMapType(tl,_) := t) return getElementType(tl);
+	throw "Cannot get domain of non-map type <prettyPrintType(t)>";
+}
+
+public RType getMapRangeType(RType t) {
+	if (RMapType(_,tr) := t) return getElementType(tr);
+	throw "Cannot get domain of non-map type <prettyPrintType(t)>";
+}
+
+@doc{Check to see if a relation defines a field.}
+public bool relHasField(RType t, RName fn) {
+	if (RRelType(tas) := t) {
+		for (ta <- tas) {
+			if (RNamedType(_,fn) := ta) return true;	
+		}
+	}
+	return false;
+}
+
+@doc{Return the type of a field defined on a relation.}
+public RType getRelFieldType(RType t, RName fn) {
+	if (RRelType(tas) := t) {
+		for (ta <- tas) {
+			if (RNamedType(ft,fn) := ta) return ft;	
+		}
+	}
+	throw "Relation <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
+}
+
+public list[RType] getRelFields(RType t) {
+	if (RRelType(tas) := t) {
+		return [ getElementType(ta) | ta <- tas ];
+	}
+	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
+}
+
+public list[RNamedType] getRelFieldsWithNames(RType t) {
+	if (RRelType(tas) := t) {
+		return [ ta | ta <- tas ];
+	}
+	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
+}
+
+@doc{Check to see if an ADT defines a field.}
+public bool adtHasField(RType t, RName fn) {
+	if (RADTType(n,cs) := t) {
+		for (RConstructorType(cn,cts,at) <- cs) {
+			for (ta <- cts) {
+				if (RNamedType(_,fn) := ta) return true;
+			}	
+		}
+	}
+	return false;
+}
+
+//
+// Look up the type of field fn on ADT t. Note that fields have a unique type in a given ADT, even if
+// they appear on multiple constructors, so we can always use the first occurrence of the field we
+// find on a constructor.
+//
+@doc{Return the type of a field on an ADT.}
+public RType getADTFieldType(RType t, RName fn) {
+	if (RADTType(n,cs) := t) {
+		for (RConstructorType(cn,cts,at) <- cs) {
+			for (ta <- cts) {
+				if (RNamedType(ft,fn) := ta) return ft;
+			}	
+		}
+	}
+	throw "ADT <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
+}
+
+public RType getWholeType(RType rt) {
+	if (RAssignableType(wt,_) := rt) return wt;
+	throw "Expected assignable type, got <prettyPrintType(rt)> instead.";
+}
+
+public RType getPartType(RType rt) {
+	if (RAssignableType(_,pt) := rt) return pt;
+	throw "Expected assignable type, got <prettyPrintType(rt)> instead.";
+}
+	
 //
 // Functions to build various types
 //
@@ -436,6 +585,8 @@ public RType makeListType(RType itemType) { return RListType(itemType); }
 
 public RType makeSetType(RType itemType) { return RSetType(itemType); }
 
+public RType makeContainerType(RType itemType) { return RContainerType(itemType); }
+
 public RType makeMapType(RType domainType, RType rangeType) { return RMapType(RUnnamedType(domainType), RUnnamedType(rangeType)); }
 
 public RType makeTupleType(list[RType] its) { 	return RTupleType([ RUnnamedType( t ) | t <- its ]); }
@@ -454,6 +605,8 @@ public RType makeBiggerFailType(RType ft, set[tuple[str s, loc l]] sls) { return
 public RType makeInferredType(int n) { return RInferredType(n); }
 
 public RType makeStatementType(RType rt) { return RStatementType(rt); }
+
+public RType makeAssignableType(RType wt, RType pt) { return RAssignableType(wt,pt); } 
 
 public RType getInternalStatementType(RType st) {
 	if (RStatementType(rt) := st) return rt;

@@ -28,6 +28,10 @@ public bool subtypeOf(RType t1, RType t2) {
 	// t1 <: t2 -> set[t1] <: set[t2]
 	if (isSetType(t1) && isSetType(t2) && subtypeOf(getSetElementType(t1),getSetElementType(t2))) return true;
 
+	if (isContainerType(t1) && isListType(t2) && subtypeOf(getContainerElementType(t1),getListElementType(t2))) return true;
+
+	if (isContainerType(t1) && isSetType(t2) && subtypeOf(getContainerElementType(t1),getSetElementType(t2))) return true;
+
 	// tuples
 	if (RTupleType(t1s) := t1 && RTupleType(t2s) := t2 && size(t1s) == size(t2s)) {
 		return size([ n | n <- [0 .. (size(t1s)-1)], !subtypeOf(getElementType(t1s[n]),getElementType(t2s[n]))]) == 0; 
@@ -57,6 +61,10 @@ public RType lub(RType t1, RType t2) {
 
 	// lub(set[t1],set[t2]) = set[lub(t1,t2)]
 	if (isSetType(t1) && isSetType(t2)) return makeSetType(lub(getListElementType(t1),getListElementType(t2)));
+
+	if (isContainerType(t1) && isListType(t2)) return makeListType(lub(getContainerElementType(t1),getListElementType(t2)));
+
+	if (isContainerType(t1) && isSetType(t2)) return makeSetType(lub(getContainerElementType(t1),getSetElementType(t2)));
 
 	// Default case: if none of the above match,  the lub is a value
 	return makeValueType();

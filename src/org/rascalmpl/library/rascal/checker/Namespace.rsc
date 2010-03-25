@@ -72,6 +72,9 @@ import rascal::\old-syntax::Rascal;
 //
 // 15. Special case, one function ends with list[Value], another with Value...
 //
+// 16. As a follow-up from above, need to introduce the ... var into scope, so it can be
+//       checked inside the checker.
+//
 
 // Set flag to true to issue debug messages
 private bool debug = true;
@@ -119,16 +122,17 @@ alias ItemLocationMap = map[loc,ScopeItemId];
 // TODO: Should be able to use ScopeItemMap here, but if I try it doesn't work, something must be
 // wrong with the current alias expansion algorithm; this is the same with ItemLocationMap as well
 // for itemLocations...
-alias ScopeInfo = tuple[ScopeItemId topScopeItemId, rel[ScopeItemId scopeId, ScopeItemId itemId] scopeRel, ItemUses itemUses, 
-                        ScopeItemId nextScopeId, map[ScopeItemId, ScopeItem] scopeItemMap, 
+alias ScopeInfo = tuple[ScopeItemId topScopeItemId, rel[ScopeItemId scopeId, ScopeItemId itemId] scopeRel, 
+						ItemUses itemUses, ScopeItemId nextScopeId, map[ScopeItemId, ScopeItem] scopeItemMap, 
                         map[loc, ScopeItemId] itemLocations, ScopeItemId currentScope, int freshType,
-                        map[loc, set[str]] scopeErrorMap, map[int, RType] inferredTypeMap];
+                        map[loc, set[str]] scopeErrorMap, map[int, RType] inferredTypeMap, map[loc, RType] returnTypeMap,
+						map[loc, RType] itBinder];
 
 alias AddedItemPair = tuple[ScopeInfo scopeInfo, ScopeItemId addedId];
 alias ScopeUpdatePair = tuple[ScopeInfo scopeInfo, ScopeItemId oldScopeId];
                         
 public ScopeInfo createNewScopeInfo() {
-	return < -1, { }, ( ), 0, ( ), ( ), 0, 0, (), () >;
+	return < -1, { }, ( ), 0, ( ), ( ), 0, 0, (), (), (), () >;
 }                    
 
 public ScopeInfo addItemUse(ScopeInfo scopeInfo, ScopeItemId scopeItem, loc l) {
@@ -194,6 +198,11 @@ public ScopeUpdatePair changeCurrentScope(ScopeItemId newScopeId, ScopeInfo scop
 	return < scopeInfo[currentScope = newScopeId], oldScopeId >;
 }
               
+public ScopeInfo markReturnType(RType t, Statement s, ScopeInfo scopeInfo) {
+	return scopeInfo[returnTypeMap = scopeInfo.returnTypeMap + ( s@\loc : t )];
+	return scopeInfo;
+}
+
 // This is a hack -- this ensures the empty list is of type list[RType], not list[Void] or list[Value]
 list[RType] mkEmptyList() { return tail([makeVoidType()]); }
 
@@ -374,6 +383,22 @@ public set[ScopeItemId] getTypeItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId c
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, true);
 }
 
+public ScopeItemId getEnclosingFunctionAux(ScopeInfo scopeInfo, ScopeItemId currentScope) {
+	ScopeItem si = getScopeItem(currentScope, scopeInfo);
+	if (FunctionLayer(_,_,_,_,_,_,_) := si)
+		return currentScope;
+	else
+		return getEnclosingFunction(scopeInfo, si.parentId);
+}
+
+public ScopeItemId getEnclosingFunction(ScopeInfo scopeInfo) {
+	return getEnclosingFunctionAux(scopeInfo, scopeInfo.currentScope);
+}
+
+public RType getEnclosingFunctionType(ScopeInfo scopeInfo) {
+	return getTypeForItem(scopeInfo, getEnclosingFunction(scopeInfo)); 
+}
+
 //
 // TODO: This should throw an exception when the type of an untyped name (e.g., a label) is requested
 //
@@ -493,7 +518,7 @@ public ScopeInfo handleModuleBodyNamesOnly(Body b, ScopeInfo scopeInfo) {
 				
 				// Annotation declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` : {
-					scopeInfo = handleAnnotationDeclarationNamesOnly(tgs,v,typ,otyp,t@\loc,scopeInfo);
+					scopeInfo = handleAnnotationDeclarationNamesOnly(tgs,v,typ,otyp,n,t@\loc,scopeInfo);
 				}
 									
 				// Tag declaration
@@ -554,52 +579,52 @@ public ScopeInfo handleModuleBodyFull(Body b, ScopeInfo scopeInfo) {
 	
 				// Abstract (i.e., without a body) function declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> ;` : { 
-					scopeInfo = handleAbstractFunction(tgs,v,s,t@\loc,scopeInfo);
+					scopeInfo = handleAbstractFunction(tgs, v, s, t@\loc, scopeInfo);
 				}
 	 
 	 			// Concrete (i.e., with a body) function declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` : {
-					scopeInfo = handleFunction(tgs,v,s,fb,t@\loc,scopeInfo);
+					scopeInfo = handleFunction(tgs, v, s, fb, t@\loc, scopeInfo);
 				}
 				
 				// Annotation declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` : {
-					scopeInfo = handleAnnotationDeclaration(tgs,v,typ,otyp,t@\loc,scopeInfo);
+					scopeInfo = handleAnnotationDeclaration(tgs, v, typ, otyp, n, t@\loc, scopeInfo);
 				}
 									
 				// Tag declaration
 				case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
-					scopeInfo = handleTagDeclaration(tgs,v,k,n,typs,t@\loc,scopeInfo);
+					scopeInfo = handleTagDeclaration(tgs, v, k, n, typs, t@\loc, scopeInfo);
 				}
 				
 				// Rule declaration
 				case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
-					scopeInfo = handleRuleDeclaration(tgs,n,pwa,t@\loc,scopeInfo);
+					scopeInfo = handleRuleDeclaration(tgs, n, pwa, t@\loc, scopeInfo);
 				}
 				
 				// Test
 				case (Toplevel) `<Test tst> ;` : {
-					scopeInfo = handleTest(tst,t@\loc,scopeInfo);
+					scopeInfo = handleTest(tst, t@\loc, scopeInfo);
 				}
 								
 				// ADT without variants
 				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` : {
-					scopeInfo = handleAbstractADT(tgs,v,typ,t@\loc,scopeInfo);
+					scopeInfo = handleAbstractADT(tgs, v, typ, t@\loc, scopeInfo);
 				}
 				
 				// ADT with variants
 				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
-					scopeInfo = handleADT(tgs,v,typ,vars,t@\loc,scopeInfo);
+					scopeInfo = handleADT(tgs, v, typ, vars, t@\loc, scopeInfo);
 				}
 
 				// Alias
 				case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` : {
-					scopeInfo = handleAlias(tgs,v,typ,btyp,t@\loc,scopeInfo);
+					scopeInfo = handleAlias(tgs, v, typ, btyp, t@\loc, scopeInfo);
 				}
 								
 				// View
 				case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
-					scopeInfo = handleView(tgs,v,n,sn,alts,t@\loc,scopeInfo);
+					scopeInfo = handleView(tgs, v, n, sn, alts, t@\loc, scopeInfo);
 				}
 				
 								
@@ -893,25 +918,36 @@ private bool isPublic(Visibility v) {
 		return false;
 }
 
-//
-// Handle alias declarations
-//
-// TODO: Should handle tags
-//
-public ScopeInfo handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("NAMESPACE: Found alias: <aliasType> = <aliasedType>");
-	
-	ScopeItem aliasItem = AliasItem(convertUserType(aliasType), convertType(aliasedType), isPublic(v), scopeInfo.currentScope)[@at = l];
-	AddedItemPair aip = addScopeItemWithParent(aliasItem, scopeInfo.currentScope, l, scopeInfo);
-	scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, getUserTypeRawName(aliasType)@\loc);
-	return scopeInfo;
+public ScopeInfo handleAnnotationDeclaration(Tags t, Visibility v, Type t, Type ot, Name n, loc l, ScopeInfo scopeInfo) {
+	throw "handleAnnotationDeclaration not yet implemented";
 }
 
-//
-// TODO: should handle tags
-//
-public ScopeInfo handleAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
-	return scopeInfo;
+public ScopeInfo handleAnnotationDeclarationNamesOnly(Tags t, Visibility v, Type t, Type ot, Name n, loc l, ScopeInfo scopeInfo) {
+	throw "handleAnnotationDeclarationNamesOnly not yet implemented";
+}
+
+public ScopeInfo handleTagDeclaration(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, ScopeInfo scopeInfo) {
+	throw "handleTagDeclaration not yet implemented";
+}
+
+public ScopeInfo handleTagDeclarationNamesOnly(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, ScopeInfo scopeInfo) {
+	throw "handleTagDeclarationNamesOnly not yet implemented";
+}
+
+public ScopeInfo handleRuleDeclarationNamesOnly(Tags t, Name n, PatternWithAction p, loc l, ScopeInfo scopeInfo) {
+	throw "handleRuleDeclarationNamesOnly not yet implemented";
+}
+								
+public ScopeInfo handleRuleDeclaration(Tags t, Name n, PatternWithAction p, loc l, ScopeInfo scopeInfo) {
+	throw "handleRuleDeclaration not yet implemented";
+}
+
+public ScopeInfo handleTestNamesOnly(Test t, loc l, ScopeInfo scopeInfo) {
+	throw "handleTestNamesOnly not yet implemented";
+}
+
+public ScopeInfo handleTest(Test t, loc l, ScopeInfo scopeInfo) {
+	throw "handleTest not yet implemented";
 }
 
 //
@@ -997,6 +1033,32 @@ public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Va
 //
 public ScopeInfo handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeInfo scopeInfo) {
 	return scopeInfo;
+}
+
+//
+// Handle alias declarations
+//
+// TODO: Should handle tags
+//
+public ScopeInfo handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
+	if (debug) println("NAMESPACE: Found alias: <aliasType> = <aliasedType>");
+	
+	ScopeItem aliasItem = AliasItem(convertUserType(aliasType), convertType(aliasedType), isPublic(v), scopeInfo.currentScope)[@at = l];
+	AddedItemPair aip = addScopeItemWithParent(aliasItem, scopeInfo.currentScope, l, scopeInfo);
+	scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, getUserTypeRawName(aliasType)@\loc);
+	return scopeInfo;
+}
+
+public ScopeInfo handleAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
+	throw "handleAlias not yet implemented";
+}
+
+public ScopeInfo handleViewNamesOnly(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, ScopeInfo scopeInfo) {
+	throw "handleViewNamesOnly not yet implemented";
+}
+
+public ScopeInfo handleView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, ScopeInfo scopeInfo) {
+	throw "handleView not yet implemented";
 }
 
 //
@@ -1147,6 +1209,9 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 		case `return <Statement b>` : {
 			if (debug) println("NAMESPACE: Inside return statement <s>");
 			scopeInfo = handleStatement(b, scopeInfo);
+			// TODO: Here, we want to get the function we are inside. We then want to attach this as the type of the statement, so we
+			// can verify in the checker that the correct value is being returned.
+			scopeInfo = markReturnType(getEnclosingFunctionType(scopeInfo), s, scopeInfo);
 		}
 		
 		case `throw <Statement b>` : {
@@ -1932,21 +1997,22 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		}
 
 		// Reducer
-		// TODO: I think a boolean scope is fine here, but may want to use a block scope instead 
 		case `( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )` : {
 			if (debug) println("NAMESPACE: Reducer: <exp>");
 			
 			scopeInfo = handleExpression(e1, scopeInfo);
 			
-			// Open a new boolean scope for the generators
+			// Open a new boolean scope for the generators, this makes them available in the reducer
 			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
 			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
+			// Calculate the scope info for the generators and expressors; we add "it" as a variable automatically
 			for (e <- egs) scopeInfo = handleExpression(e, scopeInfo);
+			scopeInfo = addFreshVariable(RSimpleName("it"), ei@\loc, scopeInfo);
 			scopeInfo = handleExpression(er, scopeInfo);
 			
-			// Switch back to the prior scope to take expression bound names out of scope			
+			// Switch back to the prior scope to take expression bound names and "it" out of scope			
 			sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
 			scopeInfo = sup.scopeInfo;
 		}
@@ -2046,17 +2112,20 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 			}
 		}
 		
-		case `<Name n> ( <{Assignable ","}+ al> )` : {
-			if (debug) println("NAMESPACE: Constructor Assignable: <a>");
-			if (debug) println("NAMESPACE: Adding use for <qn>");
-			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
-			for (ali <- al) {
-				scopeInfo = handleAssignable(ali, scopeInfo);
-			}
-		}
+		// NOTE: We are not currently supporting this case, as we are considering removing it from
+		// the language as an unsafe operation.
+//		case `<Name n> ( <{Assignable ","}+ al> )` : {
+//			if (debug) println("NAMESPACE: Constructor Assignable: <a>");
+//			if (debug) println("NAMESPACE: Adding use for <qn>");
+//			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
+//			for (ali <- al) {
+//				scopeInfo = handleAssignable(ali, scopeInfo);
+//			}
+//		}
 
 		default : {
 			if (debug) println("NAMESPACE: Unhandled assignable case! <a>");
+			throw "Found unhandled assignable case during namespace construction: <a>";
 		}
 	}
 	
@@ -2069,7 +2138,7 @@ public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
 	for (vb <- vs) {
 		switch(vb) {
-			case `<Name n>` : {
+			case (Variable) `<Name n>` : {
 				if (debug) println("NAMESPACE: Adding variable <n>");
 				if (size(getItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {
 					scopeInfo = addScopeError(scopeInfo, n@\loc, "Illegal redefinition of <n>.");
@@ -2078,10 +2147,11 @@ public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scope
 					ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = vb@\loc];
 					AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, vb@\loc, scopeInfo);
 					scopeInfo = addItemUses(aip.scopeInfo,  { aip.addedId }, n@\loc);
+					if (debug) println("NAMESPACE: Added variable <n> with type <prettyPrintType(convertType(t))>");
 				}
 			}
 				
-			case `<Name n> = <Expression e>` : {
+			case (Variable) `<Name n> = <Expression e>` : {
 				if (debug) println("NAMESPACE: Adding variable <n>");
 				if (size(getItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {
 					scopeInfo = addScopeError(scopeInfo, n@\loc, "Illegal redefinition of <n>.");
@@ -2094,6 +2164,8 @@ public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scope
 				
 				scopeInfo = handleExpression(e, scopeInfo);
 			}
+
+			default : throw "Unexpected local var declaration syntax, <vb>";
 		}
 	}
 	return scopeInfo;
@@ -2134,9 +2206,6 @@ public ScopeInfo handleLabel(Label l, ScopeInfo scopeInfo) {
 	return scopeInfo;
 }
 
-//
-// Handle visits
-//
 public ScopeInfo handleVisit(Visit v, ScopeInfo scopeInfo) {
 	switch(v) {
 		case `visit (<Expression se>) { <Case+ cs> }` : {
@@ -2155,6 +2224,17 @@ public ScopeInfo handleVisit(Visit v, ScopeInfo scopeInfo) {
 
 public ScopeInfo addFreshVariable(RName n, loc nloc, ScopeInfo scopeInfo) {
 	RType freshType = makeInferredType(scopeInfo.freshType);
+	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
+	if (RSimpleName("it") := n) scopeInfo.itBinder[nloc] = freshType;
+	scopeInfo.freshType = scopeInfo.freshType + 1;
+	ScopeItem vi = VariableItem(n, freshType, scopeInfo.currentScope)[@at = nloc];
+	AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, nloc, scopeInfo);
+	scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, nloc);
+	return scopeInfo;
+}
+
+public ScopeInfo addFreshContainerVariable(RName n, loc nloc, ScopeInfo scopeInfo) {
+	RType freshType = makeContainerType(makeInferredType(scopeInfo.freshType));
 	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
 	scopeInfo.freshType = scopeInfo.freshType + 1;
 	ScopeItem vi = VariableItem(n, freshType, scopeInfo.currentScope)[@at = nloc];
@@ -2259,6 +2339,31 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 		}
 
 		// TODO: Map: Need to figure out a syntax that works for matching this
+
+		// Typed Variable
+		case (Pattern) `<Type t> <Name n>` : {
+			if (debug) println("NAMESPACE: TypedVariablePattern: <pat>");
+			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
+				scopeInfo = addScopeError(scopeInfo, pat@\loc, "Illegal shadowing of already declared name: <n>");
+			} else {
+				ScopeItem vi = VariableItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = n@\loc];
+				AddedItemPair aip = addScopeItemWithParent(vi, scopeInfo.currentScope, n@\loc, scopeInfo);
+				scopeInfo = aip.scopeInfo;			
+				if (debug) println("NAMESPACE: Adding new declaration for <n>");
+			}
+		}
+
+		// Multi Variable
+		case `<QualifiedName qn> *` : {
+			if (debug) println("NAMESPACE: MultiVariablePattern: <pat>");
+			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
+				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
+				if (debug) println("NAMESPACE: Adding use for <qn>");
+			} else {
+				scopeInfo = addFreshContainerVariable(convertName(qn), qn@\loc, scopeInfo);			
+				if (debug) println("NAMESPACE: Adding fresh container type for for <qn>");
+			}
+		}
 
 		// Descendant
 		case `/ <Pattern p>` : {

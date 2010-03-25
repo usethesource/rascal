@@ -54,32 +54,14 @@ public ROp opForAOp(RAssignmentOp a) {
 	}
 }
 
-data ROp = RProduct() | RDiv() | RMod() | RPlus() | RMinus() | RNotIn() | RIn() | RLt() | RLtEq() | RGt() | RGtEq() | REq() | RNEq() | RInter();
+data ROp = RProduct() | RDiv() | RMod() | RPlus() | RMinus() | RNotIn() | RIn() | RLt() | RLtEq() | RGt() | RGtEq() | REq() | RNEq() | RInter() | RJoin();
 
 private map[ROp,str] opStr = ( RProduct() : "*", RDiv() : "/", RMod() : "%", RPlus() : "+", RMinus() : "-", RNotIn() : "notin" , RIn() : "in",
-											   RLt() : "\<", RLtEq() : "\<=", RGt() : "\>", RGtEq() : "\>=", REq() : "=", RNEq() : "!=", RInter() : "&"); 
+											   RLt() : "\<", RLtEq() : "\<=", RGt() : "\>", RGtEq() : "\>=", REq() : "=", RNEq() : "!=", RInter() : "&", RJoin() : "join"); 
 
 public str prettyPrintOp(ROp ro) {
 	if (ro in opStr) return opStr[ro];
 	throw "Operator <ro> is not in the operator/string map";
-}
-
-private map[RType,map[str,RType]] fieldMap =
-	( RLocType() :
-		( "scheme" : RStrType(), "authority" : RStrType(), "host" : RStrType(), "path" : RStrType(), "extension" : RStrType(), "fragment" : RStrType(),
-		  "query" : RStrType(), "user" : RStrType(), "port" : RIntType(), "length" : RIntType(), "offset" : RIntType(), "begin" : makeTupleType([RIntType(),RIntType()]),
-		  "end" : makeTupleType([RIntType(),RIntType()]), "uri" : RStrType()),
-	  RDateTimeType() :
-		( "year" : RIntType(), "month" : RIntType(), "day" : RIntType(), "hour" : RIntType(), "minute" : RIntType(), "second" : RIntType(),
-          "millisecond" : RIntType(), "timezoneOffsetHours" : RIntType(), "timezoneOffsetMinutes" : RIntType(), "century" : RIntType(),
-		  "isDate" : RBoolType(), "isTime" : RBoolType(), "isDateTime" : RBoolType(), "justDate" : RDateTimeType(), "justTime" : RDateTimeType())
-	);
-
-public RType typeForField(RType source, str fieldName) {
-	if (source in fieldMap)
-		if (fieldName in fieldMap[source])
-			return fieldMap[source][fieldName];
-	throw "Invalid looking: field <fieldName> for type <prettyPrintType(source)> not in field type map.";
 }
 
 // TODO: For documentation purposes, I'm not sure if it makes the most sense to organize this
@@ -254,13 +236,26 @@ public RType expressionType(RType lType, RType rType, ROp rop, loc l) {
 		case <RSetType(lt), RGtEq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
 		case <RSetType(lt), REq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
 		case <RSetType(lt), RNEq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RInter(), RSetType(rt)> : return ltype;
+		case <RSetType(lt), RInter(), RSetType(rt)> : return subtypeOf(rt,lt) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
+		case <RSetType(lt), RJoin(), RSetType(rt)> : return makeRelType([lt,rt]);
 
 		// BAG CASES TODO: Bags are not implemented yet
 
 		// MAP CASES
+		case <lt, RNotIn(), RMapType(rtd,rtr)> : return subtypeOf(lt,rtd) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rtd)>",l);
+		case <lt, RIn(), RMapType(rtd,rtr)> : return subtypeOf(lt,rtd) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rtd)>",l);
+		case <RMapType(ltd,ltr), RPlus(), RMapType(rtd,rtr)> : return makeMapType(lub(ltd,rtd),lub(ltr,rtr));
+		case <RMapType(ltd,ltr), RMinus(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
+		case <RMapType(ltd,ltr), RLt(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
+		case <RMapType(ltd,ltr), RLtEq(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
+		case <RMapType(ltd,ltr), RGt(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
+		case <RMapType(ltd,ltr), RGtEq(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
+		case <RMapType(ltd,ltr), REq(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
+		case <RMapType(ltd,ltr), RNEq(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
+		case <RMapType(ltd,ltr), RInter(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
 
 		// REL CASES
+		// TODO: Add code to support maintaining field names, when possible
 		case <lt, RNotIn(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
 		case <lt, RIn(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
 		case <RSetType(lt), RProduct(), RSetType(rt)> : return makeRelType(makeTupleType([lt,rt]));
@@ -294,9 +289,12 @@ public RType expressionType(RType lType, RType rType, ROp rop, loc l) {
 		case <RRelType(lt), RNEq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
 		case <RSetType(lt), RNEq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
 		case <RRelType(lt), RNEq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RInter(), RRelType(rt)> : return ltype;
-		case <RSetType(lt), RInter(), RRelType(rt)> : return ltype;
-		case <RRelType(lt), RInter(), RSetType(rt)> : return ltype;
+		case <RRelType(lt), RInter(), RRelType(rt)> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
+		case <RRelType(lt), RInter(), RSetType(rt)> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
+		case <RSetType(lt), RInter(), RRelType(rt)> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
+		case <RRelType(lt), RJoin(), RRelType(rt)> : return RRelType(lt+rt);
+		case <RSetType(lt), RJoin(), RRelType(rt)> : return RRelType([lt]+rt);
+		case <RRelType(lt), RJoin(), RSetType(rt)> : return RRelType(lt+[rt]);
 
 		// TUPLE CASES
 		case <RTupleType(lt), RPlus(), RTupleType(rt)> : return RTupleType(lt+rt);
@@ -324,4 +322,69 @@ public RType expressionType(RType lType, RType rType, ROp rop, loc l) {
 		case <RDateTimeType(), RNEq(), RDateTimeType()> : return RBoolType();
 	}
 	return makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rType)> must be a subtype of <prettyPrintType(lType)>",l);
+}
+
+private map[RType,map[str,RType]] fieldMap =
+	( RLocType() :
+		( "scheme" : RStrType(), "authority" : RStrType(), "host" : RStrType(), "path" : RStrType(), "extension" : RStrType(), "fragment" : RStrType(),
+		  "query" : RStrType(), "user" : RStrType(), "port" : RIntType(), "length" : RIntType(), "offset" : RIntType(), "begin" : makeTupleType([RIntType(),RIntType()]),
+		  "end" : makeTupleType([RIntType(),RIntType()]), "uri" : RStrType()),
+	  RDateTimeType() :
+		( "year" : RIntType(), "month" : RIntType(), "day" : RIntType(), "hour" : RIntType(), "minute" : RIntType(), "second" : RIntType(),
+          "millisecond" : RIntType(), "timezoneOffsetHours" : RIntType(), "timezoneOffsetMinutes" : RIntType(), "century" : RIntType(),
+		  "isDate" : RBoolType(), "isTime" : RBoolType(), "isDateTime" : RBoolType(), "justDate" : RDateTimeType(), "justTime" : RDateTimeType())
+	);
+
+public RType typeForField(RType source, str fieldName) {
+	if (source in fieldMap)
+		if (fieldName in fieldMap[source])
+			return fieldMap[source][fieldName];
+	throw "Invalid looking: field <fieldName> for type <prettyPrintType(source)> not in field type map.";
+}
+
+public bool dateTimeHasField(RName fieldName) {
+	str fn = prettyPrintName(fieldName);
+	return (fn in fieldMap[RDateTimeType()]);
+}
+
+public bool locHasField(RName fieldName) {
+	str fn = prettyPrintName(fieldName);
+	return (fn in fieldMap[RLocType()]);
+}
+
+public bool typeAllowsFields(RType rt) {
+	return (isADTType(rt) || isTupleType(rt) || isRelType(rt) || isLocType(rt) || isDateTimeType(rt) || isMapType(rt));
+}
+
+public bool typeHasField(RType rt, RName fn) {
+	if (isADTType(rt)) return adtHasField(rt, fn);
+	if (isTupleType(rt)) return tupleHasField(rt, fn);
+	if (isRelType(rt)) return relHasField(rt, fn);
+	if (isLocType(rt)) return locHasField(fn);
+	if (isDateTimeType(rt)) return dateTimeHasField(fn);
+	if (isMapType(rt)) return mapHasField(rt, fn);
+
+	throw "Type <prettyPrintType(rt)> does not allow fields.";
+}
+
+public RType getFieldType(RType rt, RName fn, loc l) {
+	if (isADTType(rt) && typeHasField(rt,fn)) return getADTFieldType(rt, fn);
+	if (isADTType(rt)) return makeFailType("ADT <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
+
+	if (isTupleType(rt) && typeHasField(rt,fn)) return getTupleFieldType(rt, fn);
+	if (isTupleType(rt)) return makeFailType("Tuple <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
+
+	if (isRelType(rt) && typeHasField(rt,fn)) return getRelFieldType(rt, fn);
+	if (isRelType(rt)) return makeFailType("Relation <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
+
+	if (isMapType(rt) && typeHasField(rt,fn)) return getMapFieldType(rt, fn);
+	if (isMapType(rt)) return makeFailType("Map <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
+
+	if (isLocType(rt) && typeHasField(rt,fn)) return typeForField(rt, fn);
+	if (isLocType(rt)) return makeFailType("Location <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
+
+	if (isDateTimeType(rt) && typeHasField(rt,fn)) return typeForField(rt, fn);
+	if (isDateTimeType(rt)) return makeFailType("DateTime <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
+	
+	return makeFailType("Type <prettyPrintType(rt)> does not have fields", l);
 }
