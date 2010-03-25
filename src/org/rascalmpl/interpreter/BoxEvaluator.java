@@ -257,7 +257,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	private AbstractAST currentAST;
 
-	final private int UNITLENGTH = 40;
+	final private int UNITLENGTH = 50;
 
 	final org.eclipse.imp.pdb.facts.type.Type typeL = BoxADT.EMPTY
 			.getConstructorType();
@@ -917,8 +917,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitDeclarationAlias(Alias x) {
 		// TODO Auto-generated method stub
-		return H(1, eX(x.getVisibility()), KW("alias"), eX(x.getUser()),
-				BoxADT.ASSIGN, H(0, eX(x.getBase()), BoxADT.semicolumn()));
+		return list(eX(x.getTags()), H(1, eX(x.getVisibility()), KW("alias"), eX(x.getUser()),
+				BoxADT.ASSIGN, H(0, eX(x.getBase()), BoxADT.semicolumn())));
 	}
 
 	public IValue visitDeclarationAmbiguity(
@@ -929,8 +929,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitDeclarationAnnotation(
 			org.rascalmpl.ast.Declaration.Annotation x) {
-		return H(KW("anno"), eX(x.getAnnoType()), H(0, eX(x.getOnType()),
-				BoxADT.AT, eX(x.getName()), BoxADT.SEMICOLON));
+		return list(eX(x.getTags()),H(KW("anno"), eX(x.getAnnoType()), H(0, eX(x.getOnType()),
+				BoxADT.AT, eX(x.getName()), BoxADT.SEMICOLON)));
 	}
 
 	public IValue visitDeclarationData(Data x) {
@@ -945,7 +945,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				return L(x.getClass().toString());
 			b = b.append(I(H(0, (b.isEmpty() ? L("=") : L("|")), t)));
 		}
-		return V((b.insert(r)).append(I(BoxADT.semicolumn())));
+		return list(eX(x.getTags()), V((b.insert(r)).append(I(BoxADT.semicolumn()))));
 	}
 
 	public IValue visitDeclarationFunction(Function x) {
@@ -959,8 +959,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		 * tags:Tags "rule" name:Name patternAction:PatternWithAction ";" ->
 		 * Declaration {cons("Rule")}
 		 */
-		return H(1, KW("rule"), eX(x.getName()), H(0, eX(x.getPatternAction()),
-				BoxADT.SEMICOLON));
+		return list(eX(x.getTags()),H(1, KW("rule"), eX(x.getName()), H(0, eX(x.getPatternAction()),
+				BoxADT.SEMICOLON)));
 	}
 
 	public IValue visitDeclarationTag(Tag x) {
@@ -970,14 +970,14 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitDeclarationTest(Test x) {
 		// TODO Auto-generated method stub
-		return H(1, KW("test"), H(0, eX(x.getTest()), BoxADT.SEMICOLON));
+		return HV(eX(x.getTest()));
 	}
 
 	public IValue visitDeclarationVariable(
 			org.rascalmpl.ast.Declaration.Variable x) {
 		// TODO Auto-generated method stub
-		return HV(eX(x.getVisibility()), eX(x.getType()), I(eXs(x
-				.getVariables())), BoxADT.semicolumn());
+		return list(eX(x.getTags()), HV(eX(x.getVisibility()), eX(x.getType()), I(eXs(x
+				.getVariables())), BoxADT.semicolumn()));
 	}
 
 	public IValue visitDeclarationView(View x) {
@@ -1059,8 +1059,9 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitExpressionCallOrTree(CallOrTree x) {
 		// TODO Auto-generated method stub
-		return HV(list(eX(x.getExpression()), BoxADT.LPAR,
-				eXs(x.getArguments()), BoxADT.RPAR));
+		IList r = list(eX(x.getExpression()), BoxADT.LPAR,
+				eXs(x.getArguments()), BoxADT.RPAR);
+		return width(r) < UNITLENGTH ? list(H(0, r)) : r;
 	}
 
 	public IValue visitExpressionClosure(Closure x) {
@@ -1201,8 +1202,9 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	}
 
 	public IValue visitExpressionList(org.rascalmpl.ast.Expression.List x) {
-		IList r = list(BoxADT.LBRACK, eXs(x.getElements()), BoxADT.RBRACK);
-		return lengths(r) < UNITLENGTH ? list(H(0, r)) : r;
+		IList r = list(BoxADT.LBRACK,eXs(x.getElements()) , BoxADT.RBRACK);
+		// System.err.println(""+width(r)+"<"+UNITLENGTH);
+		return width(r) < UNITLENGTH ? list(H(0, r)) : r;
 	}
 
 	public IValue visitExpressionLiteral(Literal x) {
@@ -1294,8 +1296,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitExpressionSet(org.rascalmpl.ast.Expression.Set x) {
 		// TODO Auto-generated method stub
-		IList r = list(BoxADT.LBLOCK, eXs(x.getElements()), BoxADT.RBLOCK);
-		return lengths(r) < UNITLENGTH ? list(H(r)) : r;
+		IList r = list(BoxADT.LBLOCK, eXs(x.getElements()) , BoxADT.RBLOCK);
+		return width(r) < UNITLENGTH ? list(H(r)) : r;
 	}
 
 	public IValue visitExpressionSetAnnotation(SetAnnotation x) {
@@ -1334,9 +1336,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	}
 
 	public IValue visitExpressionTuple(org.rascalmpl.ast.Expression.Tuple x) {
-		// TODO Auto-generated method stub
 		IList r = list(BoxADT.LT, eXs(x.getElements()), BoxADT.GT);
-		return lengths(r) < UNITLENGTH ? list(H(0, r)) : r;
+		return width(r) < UNITLENGTH ? list(H(0, r)) : r;
 	}
 
 	public IValue visitExpressionTypedVariable(TypedVariable x) {
@@ -1439,8 +1440,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		 * FunctionDeclaration {cons("Abstract")}
 		 */
 		// TODO Auto-generated method stub
-		return H(1, eX(x.getVisibility()), H(0, eX(x.getSignature()),
-				BoxADT.SEMICOLON));
+		return list(eX(x.getTags()),H(1, eX(x.getVisibility()), H(0, eX(x.getSignature()),
+				BoxADT.SEMICOLON)));
 	}
 
 	public IValue visitFunctionDeclarationAmbiguity(
@@ -1451,12 +1452,12 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitFunctionDeclarationDefault(
 			org.rascalmpl.ast.FunctionDeclaration.Default x) {
-		// TODO Auto-generated method stub
+		/** tags:Tags visibility:Visibility signature:Signature body:FunctionBody*/
 		IValue r = eX(x.getSignature());
 		IList b;
 		if (x.hasBody() && (b = (IList) x.getBody().accept(this)) != null) {
 			b = b.append(I(BoxADT.RBLOCK));
-			r = V(H(0, H(1, eX(x.getVisibility()), r), BoxADT.LBLOCK), V(b));
+			r = list(eX(x.getTags()), V(H(0, H(1, eX(x.getVisibility()), r), BoxADT.LBLOCK), V(b)));
 		}
 		return r;
 	}
@@ -1721,7 +1722,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitLiteralReal(org.rascalmpl.ast.Literal.Real x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		/** realLiteral:RealLiteral -> Literal {cons("Real")} */
+		return eX(x.getRealLiteral());
 	}
 
 	public IValue visitLiteralRegExp(RegExp x) {
@@ -2191,7 +2193,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitRealLiteralLexical(
 			org.rascalmpl.ast.RealLiteral.Lexical x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return L(x.getString());
 	}
 
 	public IValue visitRegExpAmbiguity(org.rascalmpl.ast.RegExp.Ambiguity x) {
@@ -2892,18 +2894,19 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	}
 
 	public IValue visitTagDefault(org.rascalmpl.ast.Tag.Default x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		/** "@" name:Name contents:TagString  */
+		return H(0, BoxADT.AT, eX(x.getName()), eX(x.getContents()));
 	}
 
 	public IValue visitTagEmpty(org.rascalmpl.ast.Tag.Empty x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return H(0, BoxADT.AT, eX(x.getName()));
 	}
 
 	public IValue visitTagExpression(org.rascalmpl.ast.Tag.Expression x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		/* "@" name:Name "=" expression:Expression */
+		return H(0, BoxADT.AT, eX(x.getName()), BoxADT.EQUALS, eX(x.getExpression()));
 	}
 
 	public IValue visitTagStringAmbiguity(
@@ -2914,7 +2917,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitTagStringLexical(org.rascalmpl.ast.TagString.Lexical x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return L(x.getString());
 	}
 
 	public IValue visitTagsAmbiguity(org.rascalmpl.ast.Tags.Ambiguity x) {
@@ -2924,7 +2927,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitTagsDefault(org.rascalmpl.ast.Tags.Default x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return eXs0(x.getTags());
 	}
 
 	public IValue visitTargetAmbiguity(org.rascalmpl.ast.Target.Ambiguity x) {
@@ -2948,14 +2951,14 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	}
 
 	public IValue visitTestLabeled(org.rascalmpl.ast.Test.Labeled x) {
-		// TODO Auto-generated method stub
-		return HV(0, eX(x.getExpression()), BoxADT.SEMICOLON,
-				eX(x.getLabeled()));
+		/** tags:Tags "test" expression:Expression ":" labeled:StringLiteral */
+		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HV(0, eX(x.getExpression()), BoxADT.COLON,
+				eX(x.getLabeled()))));
 	}
 
 	public IValue visitTestUnlabeled(Unlabeled x) {
 		// TODO Auto-generated method stub
-		return HV(0, eX(x.getExpression()));
+		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HV(0, eX(x.getExpression()))));
 	}
 
 	public IValue visitTimePartNoTZAmbiguity(
@@ -3415,10 +3418,11 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		int i = 1, n = tree.length();
 		for (Iterator iterator = conditions.iterator(); iterator.hasNext();) {
 			AbstractAST expression = (AbstractAST) iterator.next();
-			// System.err.println("eXs1:"+expression);
+			// System.err.println("eXs0:"+expression);
 			IValue q = eX(expression);
+			// System.err.println("q:"+q);
 			if (q.getType().isListType())
-				s = s.append(((IList) q).get(i));
+				s = s.concat(((IList) q));
 			else
 				s = s.append(q);
 			if (i < n)
@@ -3537,6 +3541,31 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitBasicTypeNum(Num x) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private int widthC(IConstructor b) {
+		if (b.arity()>0) {
+			IValue v = b.get(0);
+			if (v.getType().isStringType()) return ((IString) v).getValue().length();
+			if (v.getType().isListType()) return widthL((IList) v);
+			return widthC((IConstructor) v);
+		}
+		return 0;
+	}
+	
+	private int widthL(IList bs) {
+		int r = 0;
+		for (IValue b:bs) {
+			r+= widthC((IConstructor) b);
+		}
+		return r;
+	}
+	
+	private int width(IValue bs) {
+		if (bs.getType().isListType()) {
+			return widthL((IList) bs);
+		}
+		return width((IConstructor) bs);
 	}
 
 }
