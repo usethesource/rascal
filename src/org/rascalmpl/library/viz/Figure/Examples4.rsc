@@ -3,7 +3,7 @@ module viz::Figure::Examples4
 import viz::Figure::Render;
 import viz::Figure::Core;
 
-import Integer;
+import Number;
 import List;
 import Set;
 import IO;

@@ -2,7 +2,7 @@ module viz::Figure::Examples1
 
 import viz::Figure::Core;
 import viz::Figure::Render;
-import Integer;
+import Number;
 
 import List;
 import Set;
@@ -10,7 +10,7 @@ import IO;
 
 // Unfilled box of 100x200
 public void box1(){
-	render(box([ width(100), height(200) ]));
+	render(box([ width(n), height(200) ]));
 }
 
 // Unfilled box of 100x200

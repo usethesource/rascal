@@ -123,23 +123,18 @@ public str palette(int n){
 
 data FProperty =
 /* sizes */
-     width(real width)                  // sets width of element
-   | width(int iwidth)
-   | height(real height)                // sets height of element
-   | height(int iheight)
-   | size(real size)					// sets width and height to same value
-   | size(int isize)
-   | size(real hor, real vert)          // sets width and height to separate values
-   | size(int ihor, int ivert)
-   | gap(real amount)                   // sets hor and vert gap between elements in composition to same value
-   | gap(int iamount)
-   | gap(real hor, real vert) 			// sets hor and vert gap between elements in composition to separate values
-   | gap(int ihor, int ivert)
+     width(num width)                   // sets width of element
+   | height(num height)                 // sets height of element
+   | size(num size)					    // sets width and height to same value
+   | size(num hor, num vert)            // sets width and height to separate values
+   | gap(num amount)                    // sets hor and vert gap between elements in composition to same value
+   | gap(num hor, num vert) 			// sets hor and vert gap between elements in composition to separate values
+
    
 /* alignment */
-   | anchor(real h, real v)				// horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
-   | hanchor(real h)
-   | vanchor(real v)
+   | anchor(num h, num v)				// horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
+   | hanchor(num h)
+   | vanchor(num v)
    
 /* line and border properties */
    | lineWidth(int lineWidth)			// line width
@@ -150,21 +145,16 @@ data FProperty =
    | fillColor(str colorName)           // named fill color
    
 /* wedge properties */
-   | fromAngle(real angle)
-   | fromAngle(int iangle)
-   | toAngle(real angle)
-   | toAngle(int iangle)
-   | innerRadius(real radius)
-   | innerRadius(int iradius)
-
+   | fromAngle(num angle)
+   | toAngle(num angle)
+   | innerRadius(num radius)
    
 /* font and text properties */
    | font(str fontName)             	// named font
    | fontSize(int isize)                // font size
    | fontColor(Color textColor)         // font color
    | fontColor(str colorName)
-   | textAngle(real angle)              // text rotation
-   | textAngle(int iangle) 
+   | textAngle(num angle)               // text rotation
    
 /* interaction properties */
    | mouseOver(FProperties props)       // switch to new properties when mouse is over element
@@ -183,14 +173,8 @@ data FProperty =
  */
 
 data Vertex = 
-     vertex(real x, real y)             	// vertex in a shape
-   | vertex(int ix, int iy) 
-   | vertex(int ix, real y)  
-   | vertex(real x, int iy)           
-   | vertex(real x, real y, Figure marker)  // vertex with marker
-   | vertex(int ix, int iy, Figure marker)
-   | vertex(int ix, real y, Figure marker)
-   | vertex(real x, int iy, Figure marker)
+     vertex(num x, num y)             	// vertex in a shape          
+   | vertex(num x, num y, Figure marker)  // vertex with marker
    ;
    
 data Edge =
@@ -226,45 +210,45 @@ data Figure =
  
 /* composition */
    
-   | use(Figure elem)                            // use another elem
+   | use(Figure elem)                           // use another elem
    | use(FProperties props, Figure elem)
  
-   | hcat(Figures elems)                         // horizontal concatenation
+   | hcat(Figures elems)                        // horizontal concatenation
    | hcat(FProperties props, Figures elems)
    
-   | vcat(Figures elems)                         // vertical concatenation
+   | vcat(Figures elems)                        // vertical concatenation
    | vcat(FProperties props, Figures elems)
    
-   | align(Figures elems)                        // horizontal and vertical composition
+   | align(Figures elems)                       // horizontal and vertical composition
    | align(FProperties props, Figures elems)
    
-   | overlay(Figures elems)                      // overlay (stacked) composition
+   | overlay(Figures elems)                     // overlay (stacked) composition
    | overlay(FProperties props, Figures elems)
    
-   | shape(list[Vertex] points)                  // shape of to be connected vertices
+   | shape(list[Vertex] points)                 // shape of to be connected vertices
    | shape(FProperties props,list[Vertex] points)
    
-   | grid(Figures elems)                         // placement on fixed grid
+   | grid(Figures elems)                        // placement on fixed grid
    | grid(FProperties props, Figures elems)
    
-   | pack(Figures elems)                         // composition by 2D packing
+   | pack(Figures elems)                        // composition by 2D packing
    | pack(FProperties props, Figures elems)
    
-   | pie(Figures elems)                          // composition as pie chart
+   | pie(Figures elems)                         // composition as pie chart
    | pie(FProperties props, Figures elems)
    
-   | graph(Figures nodes, list[Edge] edges)      // composition of nodes and edges as graph
+   | graph(Figures nodes, list[Edge] edges)     // composition of nodes and edges as graph
    | graph(FProperties, Figures nodes, list[Edge] edges)
    
-                								// composition of nodes and edges as tree
+                							    // composition of nodes and edges as tree
    | tree(Figures nodes, list[Edge] edges, str root) 
    | tree(FProperties, Figures nodes, list[Edge] edges, str root)
    
 /* transformation */
 
-   | rotate(real angle, Figure elem)			// Rotate element around its anchor point
-   | scale(real perc, Figure)					// Scale element (same for h and v)
-   | scale(real xperc, real yperc, Figure elem)	// Scale element (different for h and v)
+   | rotate(num angle, Figure elem)			    // Rotate element around its anchor point
+   | scale(num perc, Figure)					// Scale element (same for h and v)
+   | scale(num xperc, num yperc, Figure elem)	// Scale element (different for h and v)
    ;
    
 /*

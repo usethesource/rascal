@@ -3,7 +3,7 @@ module viz::Figure::Examples0
 import experiments::VL::VLCore;
 import viz::Figure::Render;
 
-import Integer;
+import Number;
 import List;
 import Set;
 import IO;
