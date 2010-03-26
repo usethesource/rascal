@@ -4,7 +4,7 @@ import viz::Figure::Core;
 import viz::Figure::Render;
 import Map;
 import IO;
-import Integer;
+import Number;
 import List;
 
 // Settings for the various chart types (not all implemented yet)
@@ -13,12 +13,12 @@ data ChartSetting =            //             supported by
                                // barChart pieChart xyChart
      areaPlot()                //                     x
                                
-   | chartSize(int w, int h)   //    x         x      x    
+   | chartSize(num w, num h)   //    x         x      x    
    | curvePlot ()              //                     x 
 
    | horizontal()              //    x                x   
    | linePlot()                //                     x
-   | ring(int h)               //              x 
+   | ring(num h)               //              x 
    | stackedBars()             //    x  
    | subtitle(str txt)         //    x         x      x
    | vertical()                //    x                x 
@@ -26,8 +26,8 @@ data ChartSetting =            //             supported by
    | yLabel(str txt)           //    x                x
    ;
  
-private int chartWidth = 400;
-private int chartHeight = 400;
+private num chartWidth = 400;
+private num chartHeight = 400;
 private str subtitle = "";
 private str xTitle = "";
 private str yTitle = "";
@@ -36,7 +36,7 @@ private bool isCurvePlot = false;
 private bool isLinePlot = false;
 private bool isStackedBars = false;
 private bool isVertical = true;
-private int ringHeight = 0;
+private num ringHeight = 0;
 
 private int titleFontSize = 20;
 private int subTitleFontSize = 14;
@@ -57,11 +57,11 @@ private void applySettings(list[ChartSetting] settings){
        switch(setting){
        
          case areaPlot(): isAreaPlot = true;
-   	     case chartSize(int w, int h): { chartWidth = w; chartHeight = h;}
+   	     case chartSize(num w, num h): { chartWidth = w; chartHeight = h;}
    	     case curvePlot(): isCurvePlot = true;
    	     case horizontal(): isVertical = false;
    	     case linePlot(): isLinePlot = true;
-   	     case ring(int h): ringHeight = h;
+   	     case ring(num h): ringHeight = h;
    	     case stackedBars() : isStackedBars = true;
          case subtitle(str s): subtitle = s;
          case vertical(): isVertical = true;
@@ -85,22 +85,42 @@ private Figure raster(str title){
 //       n
 // for x-axis
 
-private Figure xtick(int n){
+private Figure xtick(num n){
   return vcat([gap(2), left()], [box([size(1,10), lineWidth(0)]), text([fontSize(axisFontSize)], "<n>")]);
 }
 
 // Draw: n --
 // for y-axis
 
-private Figure ytick(int n){
+private Figure ytick(num n){
   return hcat([gap(2), bottom()], [text([fontSize(axisFontSize)], "<n>"), box([size(10,1), lineWidth(0)])]);
 }
 
+public list[num] tmpInterval(num from1, num from2, num last){
+	if(from1 < from2){
+		num n = from1;
+		num delta = from2 - from1;
+		return while(n <= last){
+				append n;
+				n += delta;
+			   };
+    } else {
+    	num n = from1;
+		num delta = from1 - from2;
+		return while(n >= last){
+				append n;
+				n -= delta;
+			   };
+    }
+}
+
+
 // X-axis
 
-public Figure xaxis(str title, int length, int start, int incr, int end, int scale){
-   ticks = grid([gap(incr * scale), width(length), vcenter()], [xtick(n) | int n <- [start, (start + incr) .. end]]);
-  
+public Figure xaxis(str title, num length, num start, num incr, num end, num scale){
+ //  ticks = grid([gap(incr * scale), width(length), vcenter()], [xtick(n) | num n <- [start, (start + incr) .. end]]);
+    ticks = grid([gap(incr * scale), width(length), vcenter()], [xtick(n) | num n <- tmpInterval(start, (start + incr), end)]);
+   
    return vcat([gap(20), hcenter()], 
                    [ ticks,
                      text([fontSize(subTitleFontSize)], title)
@@ -109,8 +129,9 @@ public Figure xaxis(str title, int length, int start, int incr, int end, int sca
 
 // Y-axis
 
-public Figure yaxis(str title, int length, int start, int incr, int end, int scale){
-   ticks = grid([gap(incr * scale), width(1), right()], [ytick(n) | int n <- [end, (end - incr) .. start]]);
+public Figure yaxis(str title, num length, num start, num incr, num end, num scale){
+ //  ticks = grid([gap(incr * scale), width(1), right()], [ytick(n) | num n <- [end, (end - incr) .. start]]);
+      ticks = grid([gap(incr * scale), width(1), right()], [ytick(n) | num n <- tmpInterval(end, (end - incr), start)]);
    
    return hcat([gap(20), vcenter()], 
                    [ text([fontSize(subTitleFontSize), textAngle(-90)], title),
@@ -126,17 +147,17 @@ private Figure legendItem(str name, Color c){
 
 // A complete legend
 
-private Figure legend(list[tuple[str, Color]] funColors, int w){
+private Figure legend(list[tuple[str, Color]] funColors, num w){
    return box([center(), gap(10,10), fillColor("lightgray")], 
                align([width(w), gap(10), center()], [legendItem(name, col) | <name, col> <- funColors]));
 }
 
 // Data for xyChart
 
-public alias intTuples  = 
-       tuple[str name,list[tuple[int, int]]  values];
+public alias numTuples  = 
+       tuple[str name,list[tuple[num, num]]  values];
 
-public Figure xyChart(str title, list[intTuples] facts, ChartSetting settings ... ){
+public Figure xyChart(str title, list[numTuples] facts, ChartSetting settings ... ){
 
    applySettings(settings);
    
@@ -149,8 +170,8 @@ public Figure xyChart(str title, list[intTuples] facts, ChartSetting settings ..
    ymax = -1000000;
    
    // Max and min values in the data
-   for(<str fname, list[tuple[int, int]] values> <- facts){
-      for(<int x, int y> <- values){
+   for(<str fname, list[tuple[num, num]] values> <- facts){
+      for(<num x, num y> <- values){
           xmin = min(x, xmin);
           xmax = max(x, xmax);
           ymin = min(y, ymin);
@@ -177,7 +198,7 @@ public Figure xyChart(str title, list[intTuples] facts, ChartSetting settings ..
                        vertex(chartWidth, (xshift + 0) * yscale)
                      ]);  
   // Add function plots                            
-   for(<str fname, list[tuple[int, int]] values> <- facts){
+   for(<str fname, list[tuple[num, num]] values> <- facts){
    		fcolorName = palette(size(funColors));
    		funColors += <fname, color(fcolorName)>;
    		list[FProperty] shapeProps = [lineColor(fcolorName), lineWidth(2)];
@@ -194,7 +215,7 @@ public Figure xyChart(str title, list[intTuples] facts, ChartSetting settings ..
    		   shapeProps += [connected()];
    		   
         funPlots += shape(shapeProps,
-                          [vertex((xshift + x) * xscale, (yshift + y) * yscale, ellipse([size(5), fillColor(fcolorName), lineWidth(0)])) | <int x, int y> <- values]);
+                          [vertex((xshift + x) * xscale, (yshift + y) * yscale, ellipse([size(5), fillColor(fcolorName), lineWidth(0)])) | <num x, num y> <- values]);
    }
            
    // Superimpose on the same grid point (with different allignments):
@@ -216,7 +237,7 @@ public Figure xyChart(str title, list[intTuples] facts, ChartSetting settings ..
    return plot;
 }
 
-private list[intTuples] pdata =
+private list[numTuples] pdata =
         [ <"f", [<0, 50>, <10,50>, <20,50>, <30, 50>, <40, 50>, <50, 50>, <60,50>]>, 
           <"g", [<50,0>, <50,50>, <50,100>]>,
           <"h", [<0,0>, <10,10>, <20,20>, <30,30>, <40,40>, <50,50>, <60,60>]>,

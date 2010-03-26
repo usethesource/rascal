@@ -327,8 +327,8 @@ public class DataTypeTests extends TestFramework {
 		
 		assertTrue(runTest("{num n = 5; n % 2 == 1;}"));	
 		assertTrue(runTest("{num n = 2; 5 % n == 1;}"));	
-				
 		
+	
 		assertTrue(runTest("{num n = 1; n <= 2;}"));
 		assertTrue(runTest("{num n = 1; 0 <= n;}"));
 		

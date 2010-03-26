@@ -519,7 +519,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.integerType();
 		}
-		throw new NonWellformedTypeError("int does not have type arguments.", x);
+		throw new NonWellformedTypeError("int cannot have type arguments.", x);
 	}
 	
 	@Override
@@ -527,7 +527,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.numberType();
 		}
-		throw new NonWellformedTypeError("int does not have type arguments.", x);
+		throw new NonWellformedTypeError("num cannot have type arguments.", x);
 	}
 	
 	@Override
@@ -541,7 +541,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.boolType();
 		}
-		throw new NonWellformedTypeError("bool does not have type arguments.", x);
+		throw new NonWellformedTypeError("bool cannot have type arguments.", x);
 	}
 	
 	@Override
@@ -554,7 +554,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.sourceLocationType();
 		}
-		throw new NonWellformedTypeError("loc does not have type arguments.", x);
+		throw new NonWellformedTypeError("loc cannot have type arguments.", x);
 	}
 	
 	@Override
@@ -570,7 +570,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.nodeType();
 		}
-		throw new NonWellformedTypeError("node does not have type arguments.", x);
+		throw new NonWellformedTypeError("node cannot have type arguments.", x);
 	}
 	
 	@Override
@@ -578,7 +578,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.realType();
 		}
-		throw new NonWellformedTypeError("real does not have type arguments.", x);
+		throw new NonWellformedTypeError("real cannot have type arguments.", x);
 	}
 	
 	@Override
@@ -607,7 +607,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.stringType();
 		}
-		throw new NonWellformedTypeError("string does not have type arguments.", x);
+		throw new NonWellformedTypeError("string cannot have type arguments.", x);
 	}
 	
 	@Override
@@ -615,7 +615,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.valueType();
 		}
-		throw new NonWellformedTypeError("value does not have type arguments.", x);
+		throw new NonWellformedTypeError("value cannot have type arguments.", x);
 	}
 	
 	@Override
@@ -623,7 +623,7 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.voidType();
 		}
-		throw new NonWellformedTypeError("void does not have type arguments.", x);
+		throw new NonWellformedTypeError("void cannot have type arguments.", x);
 	}
 	
 	@Override
@@ -726,6 +726,6 @@ class BasicTypeEvaluator extends NullASTVisitor<Type> {
 		if (typeArgument.getArity() == 0) {
 			return tf.dateTimeType();
 		}
-		throw new NonWellformedTypeError("datetime does not have type arguments.", x);
+		throw new NonWellformedTypeError("datetime cannot have type arguments.", x);
 	}
 }

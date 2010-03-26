@@ -49,7 +49,6 @@ public class NumberTests extends TestFramework {
 		
 		assertTrue(runTestInSameEvaluator("max(3.5, 10) == 10;"));
 		assertTrue(runTestInSameEvaluator("max(3, 10.5) == 10.5;"));
-
 	}
 
 	@Test
