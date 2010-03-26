@@ -17,7 +17,8 @@ import org.junit.runners.Suite;
 	DataDeclarationTests.class,
 	DataTypeTests.class,
 	DeclarationTests.class,
-	ImportTests.class
+	ImportTests.class,
+	RangeTests.class
         })
 
 public class AllTests1 extends TestFramework {
