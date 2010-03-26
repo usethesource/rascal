@@ -238,9 +238,25 @@ public class BoxADT {
 		r = r.setAnnotation("hs", vf.integer(hspace));
 		return r;
 	}
-
+	
 	static IValue HOV(IValue... t) {
-		return BoxADT.TAG.HOV.create(t);
+		return HV(-1, t);
+	}
+
+	static IValue HOV(int hspace, IValue... t) {
+		IList q = BoxADT.getEmptyList();
+		for (IValue a : t) {
+			if (a == null)
+				continue;
+			if (a.getType().isListType()) {
+				q = q.concat((IList) a);
+			} else
+				q = q.append(a);
+		}
+		IConstructor r = BoxADT.TAG.HOV.create(q);
+		if (hspace>=0) 
+		r = r.setAnnotation("hs", vf.integer(hspace));
+		return r;
 	}
 
 }
