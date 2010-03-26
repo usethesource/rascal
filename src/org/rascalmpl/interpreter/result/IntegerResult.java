@@ -5,8 +5,12 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 
@@ -146,40 +150,68 @@ public class IntegerResult extends ElementResult<IInteger> {
 	
 	@Override
 	protected <U extends IValue> Result<U> makeRangeFromInteger(IntegerResult from) {
-		// NOTE: this == to
-		IInteger iFrom = from.getValue();
-		IInteger iTo = this.getValue();
-		IInteger one = getValueFactory().integer(1);
-		IListWriter w = getValueFactory().listWriter(getTypeFactory().integerType());
-		
-		if (iTo.less(iFrom).getValue()) {
-			while (iFrom.greaterEqual(iTo).getValue()) {
-				w.append(iFrom);
-				iFrom = iFrom.subtract(one);
-			} 
-		}
-		else {
-			while (iFrom.lessEqual(iTo).getValue()) {
-				w.append(iFrom);
-				iFrom = iFrom.add(one);
-			}
-		}
-		return makeResult(getTypeFactory().listType(getTypeFactory().integerType()), w.done(), ctx);
+		// this = to
+		return makeRangeWithDefaultStep(from);
 	}
 
+
+	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from) {
+		return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().integerType(),
+				from.getValue().add(getValueFactory().integer(1)), ctx), getValueFactory(), getTypeFactory(), ctx);
+	}
+	
 	@Override
 	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromInteger(IntegerResult from, Result<V> second) {
-		// NOTE: this == to
-		IInteger iFrom = from.getValue();
-		IInteger iTo = this.getValue();
-		if (!second.getType().isIntegerType()) {
-			throw new UnexpectedTypeError(getTypeFactory().integerType(), second.getType(), ctx.getCurrentAST());
-		}
-		IInteger iSecond = ((IInteger) second.getValue());
-		IInteger diff = iSecond.subtract(iFrom);
-		IInteger zero = getValueFactory().integer(0);
+		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> makeRangeFromReal(RealResult from) {
+		return makeRangeWithDefaultStep(from);
+	}
+	
+	@Override
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult from, Result<V> second) {
+		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> makeRangeFromNumber(NumberResult from) {
+		return makeRangeWithDefaultStep(from);
+	}
+	
+	@Override
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromNumber(NumberResult from, Result<V> second) {
+		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
+	}
 
-		IListWriter w = getValueFactory().listWriter(getTypeFactory().integerType());
+
+	public static <U extends IValue, V extends INumber, W extends INumber, X extends IValue> Result<U> 
+		makeStepRangeFromToWithSecond(
+				Result<V> from,  
+				Result<W> to, 
+				Result<X> second, 
+				IValueFactory vf, 
+				TypeFactory tf, 
+				IEvaluatorContext ctx) {
+		
+		INumber iFrom = from.getValue();
+		INumber iTo = to.getValue();
+		
+		// I still think it is ugly to do it here...
+		if (!second.getType().isSubtypeOf(tf.numberType())) {
+			throw new UnexpectedTypeError(tf.numberType(), second.getType(), ctx.getCurrentAST());
+		}
+		
+		INumber iSecond = (INumber) second.getValue();
+		INumber diff = iSecond.subtract(iFrom);
+		
+		INumber zero = diff.subtract(diff); // zero in the type that we're dealing with.
+
+		// Use declared types here
+		Type resultType = second.getType().lub(from.getType().lub(to.getType()));
+		
+		IListWriter w = vf.listWriter(resultType);
 		if (iFrom.lessEqual(iTo).getValue() && diff.greater(zero).getValue()) {
 			do {
 				w.append(iFrom);
@@ -192,8 +224,11 @@ public class IntegerResult extends ElementResult<IInteger> {
 				iFrom = iFrom.add(diff);
 			} while (iFrom.greaterEqual(iTo).getValue());
 		}
-		return makeResult(getTypeFactory().listType(getTypeFactory().integerType()), w.done(), ctx);		
+		return makeResult(tf.listType(resultType), w.done(), ctx);	
 	}
+	
+
+	
 	
 	@Override
 	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {

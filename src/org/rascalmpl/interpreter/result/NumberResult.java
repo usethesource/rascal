@@ -1,13 +1,17 @@
 package org.rascalmpl.interpreter.result;
 
+import static org.rascalmpl.interpreter.result.IntegerResult.makeStepRangeFromToWithSecond;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class NumberResult extends ElementResult<INumber> {
 	public NumberResult(Type type, INumber value, IEvaluatorContext ctx) {
@@ -28,6 +32,17 @@ public class NumberResult extends ElementResult<INumber> {
 	public <U extends IValue, V extends IValue> Result<U> divide(Result<V> result) {
 		return result.divideNumber(this);
 	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> makeRange(Result<V> that) {
+		return that.makeRangeFromNumber(this);
+	}
+
+	@Override
+	public <U extends IValue, V extends IValue, W extends IValue> Result<U> makeStepRange(Result<V> to, Result<W> step) {
+		return to.makeStepRangeFromNumber(this, step);
+	}
+
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
@@ -268,5 +283,43 @@ public class NumberResult extends ElementResult<INumber> {
 		int result = left.compare(right);
 		return makeIntegerResult(result);
 	}
+	
+	
+	@Override
+	protected <U extends IValue> Result<U> makeRangeFromInteger(IntegerResult from) {
+		return makeRangeWithDefaultStep(from, getValueFactory().integer(1));
+	}
+	
+	@Override
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromInteger(IntegerResult from, Result<V> second) {
+		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> makeRangeFromReal(RealResult from) {
+		return makeRangeWithDefaultStep(from, getValueFactory().real(1.0));
+	}
+	
+	@Override
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult from, Result<V> second) {
+		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> makeRangeFromNumber(NumberResult from) {
+		if (getType().lub(from.getType()).isIntegerType()) {
+			return makeRangeWithDefaultStep(from, getValueFactory().integer(1));
+		}
+		if (getType().lub(from.getType()).isRealType()) {
+			return makeRangeWithDefaultStep(from, getValueFactory().real(1.0));
+		}
+		throw new ImplementationError("Unknown number type in makeRangeFromNumber");
+	}
+	
+	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from, INumber step) {
+		return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().numberType(),
+				from.getValue().add(step), ctx), getValueFactory(), getTypeFactory(), ctx);
+	}
+	
 
 }
