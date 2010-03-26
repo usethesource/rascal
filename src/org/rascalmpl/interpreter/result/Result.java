@@ -415,6 +415,23 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(RANGE_STRING, this);
 	}
 
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult that, Result<V> step) {
+		return that.undefinedError(RANGE_STRING, this);
+	}
+
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromNumber(NumberResult that, Result<V> step) {
+		return that.undefinedError(RANGE_STRING, this);
+	}
+
+	
+	protected <U extends IValue> Result<U> makeRangeFromNumber(NumberResult that) {
+		return that.undefinedError(RANGE_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> makeRangeFromReal(RealResult that) {
+		return that.undefinedError(RANGE_STRING, this);
+	}
+
 	protected <U extends IValue> Result<U> inSet(SetResult that) {
 		return that.undefinedError(IN_STRING, this);
 	}

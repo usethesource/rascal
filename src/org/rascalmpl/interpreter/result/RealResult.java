@@ -1,8 +1,10 @@
 package org.rascalmpl.interpreter.result;
 
+import static org.rascalmpl.interpreter.result.IntegerResult.makeStepRangeFromToWithSecond;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -33,6 +35,17 @@ public class RealResult extends ElementResult<IReal> {
 	public <U extends IValue, V extends IValue> Result<U> divide(Result<V> result) {
 		return result.divideReal(this);
 	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> makeRange(Result<V> that) {
+		return that.makeRangeFromReal(this);
+	}
+
+	@Override
+	public <U extends IValue, V extends IValue, W extends IValue> Result<U> makeStepRange(Result<V> to, Result<W> step) {
+		return to.makeStepRangeFromReal(this, step);
+	}
+
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
@@ -268,6 +281,36 @@ public class RealResult extends ElementResult<IReal> {
 	protected <U extends IValue> Result<U> greaterThanOrEqualNumber(NumberResult that) {
 		// note reversed args: we need that >= this
 		return bool((that.comparisonInts(this) >= 0), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> makeRangeFromInteger(IntegerResult from) {
+		return makeRangeWithDefaultStep(from);
+	}
+	
+	@Override
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromInteger(IntegerResult from, Result<V> second) {
+		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> makeRangeFromReal(RealResult from) {
+		return makeRangeWithDefaultStep(from);
+	}
+	
+	@Override
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult from, Result<V> second) {
+		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> makeRangeFromNumber(NumberResult from) {
+		return makeRangeWithDefaultStep(from);
+	}
+	
+	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from) {
+		return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().realType(),
+				from.getValue().add(getValueFactory().real(1.0)), ctx), getValueFactory(), getTypeFactory(), ctx);
 	}
 	
 }
