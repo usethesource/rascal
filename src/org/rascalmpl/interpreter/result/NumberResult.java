@@ -313,6 +313,9 @@ public class NumberResult extends ElementResult<INumber> {
 		if (getType().lub(from.getType()).isRealType()) {
 			return makeRangeWithDefaultStep(from, getValueFactory().real(1.0));
 		}
+		if (getType().lub(from.getType()).isNumberType()) {
+			return makeRangeWithDefaultStep(from, getValueFactory().integer(1));
+		}
 		throw new ImplementationError("Unknown number type in makeRangeFromNumber");
 	}
 	
