@@ -261,7 +261,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	final private int UNITLENGTH = 50;
 
-	final private int SIGNIFICANT = 10;
+	final private int SIGNIFICANT = 20;
 
 	final org.eclipse.imp.pdb.facts.type.Type typeL = BoxADT.EMPTY
 			.getConstructorType();
@@ -983,8 +983,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitDeclarationVariable(
 			org.rascalmpl.ast.Declaration.Variable x) {
 		// TODO Auto-generated method stub
-		return list(eX(x.getTags()), HV(eX(x.getVisibility()), eX(x.getType()),
-				I(eXs(x.getVariables(), null, null)), BoxADT.semicolumn()));
+		return list(eX(x.getTags()), HV(0, eX(x.getVisibility()), BoxADT.SPACE, eX(x.getType()),
+				BoxADT.SPACE, I(eXs(x.getVariables(), null, null)), BoxADT.semicolumn()));
 	}
 
 	public IValue visitDeclarationView(View x) {
@@ -1173,7 +1173,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitExpressionImplication(Implication x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		/* lhs:Expression "==>" rhs:Expression */
+		return   list(eX(x.getLhs()), L("==>"), eX(x.getRhs()));
 	}
 
 	public IValue visitExpressionIn(In x) {
@@ -2830,8 +2831,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitStructuredTypeDefault(
 			org.rascalmpl.ast.StructuredType.Default x) {
-		return H(0, eX(x.getBasicType()),eXs(x.getArguments(),
-				BoxADT.LBRACK, BoxADT.RBRACK));
+		return H(0, eX(x.getBasicType()), eXs(x.getArguments(), BoxADT.LBRACK,
+				BoxADT.RBRACK));
 	}
 
 	public IValue visitSymbolAlternative(Alternative x) {
@@ -3391,8 +3392,10 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				if (expression == null)
 					continue;
 				IValue q = eX(expression);
-				if (!listElement
-						&& (isListElement(expression) /*|| width(q) > SIGNIFICANT*/))
+				if (!listElement && (isListElement(expression) /*
+																 * || width(q) >
+																 * SIGNIFICANT
+																 */))
 					listElement = true;
 				if (!s.isEmpty())
 					s = s.append(BoxADT.COMMA);
@@ -3411,7 +3414,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 						continue;
 					IValue q = eX(expression);
 					if (!listElement
-							&& (isListElement(expression) || width(q) > SIGNIFICANT))
+							&& (isListElement(expression)))
 						listElement = true;
 					if (s.isEmpty())
 						s = s.append(H(0, prefix, q));
@@ -3516,9 +3519,13 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				a = a.append(I(BoxADT.RBLOCK));
 				return V(a);
 			} else {
-				IList a = list(H(0, header));
-				a = a.append(b);
-				return H(1, a);
+				if (width(header) < SIGNIFICANT) {
+					IList a = list(H(0, header));
+					a = a.append(b);
+					return H(1, a);
+				} else {
+					return V(H(0, header), I(b));
+				}
 			}
 		}
 		return H(L("???"));
@@ -3629,7 +3636,9 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		IList r = list();
 		for (IValue b : bs) {
 			IValue c = ((IConstructor) b).get(0);
-			r = r.append(c.getType().isListType() && ((IList)c).length()>1?H(0, b) : b);
+			r = r
+					.append(c.getType().isListType()
+							&& ((IList) c).length() > 1 ? H(0, b) : b);
 		}
 		return HOV(r);
 	}
