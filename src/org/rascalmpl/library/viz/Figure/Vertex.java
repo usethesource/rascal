@@ -65,7 +65,6 @@ public class Vertex extends Figure {
 			}
 			
 			if(marker.bottomAnchor() >= deltay){
-				System.err.printf("HERE\n");
 				bottomAnchor = marker.bottomAnchor();
 				topAnchor = marker.topAnchor() + deltay;
 				height = bottomAnchor + topAnchor;
