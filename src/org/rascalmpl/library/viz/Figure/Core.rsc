@@ -58,20 +58,12 @@ public list[Color] java interpolateColor(Color from, Color to, real percentage);
 @javaClass{org.rascalmpl.library.viz.Figure.FigureLibrary}
 public list[Color] java colorSteps(Color from, Color to, int steps);
 
-@doc{Create a colorscale from a list of ints}
-public Color(int) colorScale(list[int] values, Color from, Color to){
+@doc{Create a colorscale from a list of numbers}
+public Color(num) colorScale(list[num] values, Color from, Color to){
    mn = min(values);
    range = max(values) - mn;
    sc = colorSteps(from, to, 10);
    return Color(int v) { return sc[(9 * (v - mn)) / range]; };
-}
-
-@doc{Create a colorscale from a list of reals}
-public Color(real) colorScale(list[real] values, Color from, Color to){
-   mn = min(values);
-   range = max(values) - mn;
-   sc = colorSteps(from, to, 10);
-   return Color(real v) { return sc[(9 * (v - mn)) / range]; };
 }
 
 @doc{Create a fixed color palette}

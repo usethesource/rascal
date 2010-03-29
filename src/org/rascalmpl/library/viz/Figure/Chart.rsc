@@ -96,30 +96,12 @@ private Figure ytick(num n){
   return hcat([gap(2), bottom()], [text([fontSize(axisFontSize)], "<n>"), box([size(10,1), lineWidth(0)])]);
 }
 
-public list[num] tmpInterval(num from1, num from2, num last){
-	if(from1 < from2){
-		num n = from1;
-		num delta = from2 - from1;
-		return while(n <= last){
-				append n;
-				n += delta;
-			   };
-    } else {
-    	num n = from1;
-		num delta = from1 - from2;
-		return while(n >= last){
-				append n;
-				n -= delta;
-			   };
-    }
-}
 
 
 // X-axis
 
 public Figure xaxis(str title, num length, num start, num incr, num end, num scale){
- //  ticks = grid([gap(incr * scale), width(length), vcenter()], [xtick(n) | num n <- [start, (start + incr) .. end]]);
-    ticks = grid([gap(incr * scale), width(length), vcenter()], [xtick(n) | num n <- tmpInterval(start, (start + incr), end)]);
+   ticks = grid([gap(incr * scale), width(length), vcenter()], [xtick(n) | num n <- [start, (start + incr) .. end]]);
    
    return vcat([gap(20), hcenter()], 
                    [ ticks,
@@ -130,9 +112,8 @@ public Figure xaxis(str title, num length, num start, num incr, num end, num sca
 // Y-axis
 
 public Figure yaxis(str title, num length, num start, num incr, num end, num scale){
- //  ticks = grid([gap(incr * scale), width(1), right()], [ytick(n) | num n <- [end, (end - incr) .. start]]);
-      ticks = grid([gap(incr * scale), width(1), right()], [ytick(n) | num n <- tmpInterval(end, (end - incr), start)]);
-   
+
+   ticks = grid([gap(incr * scale), width(1), right()], [ytick(n) | num n <- [end, (end - incr) .. start]]);
    return hcat([gap(20), vcenter()], 
                    [ text([fontSize(subTitleFontSize), textAngle(-90)], title),
                      ticks
@@ -154,10 +135,10 @@ private Figure legend(list[tuple[str, Color]] funColors, num w){
 
 // Data for xyChart
 
-public alias numTuples  = 
-       tuple[str name,list[tuple[num, num]]  values];
+public alias NamedPairSeries  = 
+       tuple[str name,list[tuple[num xval, num yval]]  values];
 
-public Figure xyChart(str title, list[numTuples] facts, ChartSetting settings ... ){
+public Figure xyChart(str title, list[NamedPairSeries] facts, ChartSetting settings ... ){
 
    applySettings(settings);
    
@@ -186,6 +167,9 @@ public Figure xyChart(str title, list[numTuples] facts, ChartSetting settings ..
   // Compute translation
   xshift = (xmin > 0) ? 0 : -xmin;
   yshift = (ymin > 0) ? 0 : -ymin;
+  
+  println("xmin=<xmin>, xmax=<xmax>\nymin=<ymin>, ymax=<ymax>");
+  println("xscale=<xscale>, yscale=<yscale>, xshift=<xshift>, yshift=<yshift>");
   
   // Add vertical axis at x=0
   funPlots += shape([lineColor("darkgrey"), lineWidth(1), connected()],
@@ -237,7 +221,7 @@ public Figure xyChart(str title, list[numTuples] facts, ChartSetting settings ..
    return plot;
 }
 
-private list[numTuples] pdata =
+private list[NamedPairSeries] pdata =
         [ <"f", [<0, 50>, <10,50>, <20,50>, <30, 50>, <40, 50>, <50, 50>, <60,50>]>, 
           <"g", [<50,0>, <50,50>, <50,100>]>,
           <"h", [<0,0>, <10,10>, <20,20>, <30,30>, <40,40>, <50,50>, <60,60>]>,
@@ -245,6 +229,16 @@ private list[numTuples] pdata =
           <"j", [< -20, 20>, < -10, 10>, <0,0>, <10, -10>, <20, -20>]>,
           <"k", [< -20, 40>, < -10, 10>, <0, 0>, <10, 10>, <20, 40>, <30, 90>]>                
         ];
+        
+public void p0(){
+     mydata = [
+               <"h", [<0,0>, <10,10>, <20,20>, <30,30>, <40,40>, <50,50>, <60,60>]>
+               ];
+     render(xyChart("Test Title P0", 
+	                 mydata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis")
+                  )
+           );
+}
 
 // Scatter plot
 
@@ -299,12 +293,15 @@ public void p5(){
 
 // Data for barchart
 
-public alias intSeries  = 
-       tuple[str name,list[int]  values];
+public alias NamedNumbers  = 
+       list[tuple[str name, num val] values];
+       
+public alias NamedNumberSeries =
+       list[tuple[str name, list[num] values]];
 
 // barChart with map argument
 
-public Figure barChart(str title, list[tuple[str,int]] facts, ChartSetting settings...){
+public Figure barChart(str title, NamedNumbers facts, ChartSetting settings...){
   categories = [];
   ifacts = [];
   for(<k, v> <- facts){
@@ -315,7 +312,7 @@ public Figure barChart(str title, list[tuple[str,int]] facts, ChartSetting setti
   return barChart(title, categories, ifacts, settings);
 }
 
-public Figure barChart(str title, list[str] categories, list[intSeries] facts, ChartSetting settings...){
+public Figure barChart(str title, list[str] categories, NamedNumberSeries facts, ChartSetting settings...){
    
    applySettings(settings);
  
@@ -331,12 +328,12 @@ public Figure barChart(str title, list[str] categories, list[intSeries] facts, C
    ysummax = -1000000;
    
    // Max and min values in the data
-   for(<str fname, list[int] values> <- facts){
+   for(<str fname, list[num] values> <- facts){
       n = size(values);
       if(n > nbars)
           nbars = n;
       ysum = 0;
-      for(int y <- values){
+      for(num y <- values){
           ysum += y;
           ymin = min(y, ymin);
           ymax = max(y, ymax);
@@ -364,19 +361,19 @@ public Figure barChart(str title, list[str] categories, list[intSeries] facts, C
 
   println("yscale=<yscale>");
   fns = ();
-  for(<str fname, list[int] values> <- facts){
+  for(<str fname, list[num] values> <- facts){
     fcolorName = palette(size(funColors));
     funColors += <fname, color(fcolorName)>;
     funColorsMap[fname] = color(fcolorName);
     for(int i <- [0 .. size(values)-1]){
-        int bw = barWidth;
-        int bh = values[i] * yscale;
+        num bw = barWidth;
+        num bh = values[i] * yscale;
         if(!isVertical)
            <bw, bh> = <bh, bw>;
      	fns[i] = (fns[i] ? []) + box([size(bw, bh), lineWidth(0), fillColor(funColorsMap[fname])]);
      }
   }
-  for(int i <- [0 .. size(categories)-1]){
+  for(num i <- [0 .. size(categories)-1]){
     if(fns[i]?)
   	   funPlots += isStackedBars ? (isVertical ? vcat([bottom(), gap(0)], reverse(fns[i]))
   	                                    : hcat([bottom(), gap(0)], fns[i]))
