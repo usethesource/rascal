@@ -323,8 +323,12 @@ public class NumberResult extends ElementResult<INumber> {
 	}
 	
 	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from, INumber step) {
+		if (from.getValue().less(getValue()).getValue()) {
+			return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().numberType(),
+					from.getValue().add(step), ctx), getValueFactory(), getTypeFactory(), ctx);
+		}
 		return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().numberType(),
-				from.getValue().add(step), ctx), getValueFactory(), getTypeFactory(), ctx);
+				from.getValue().subtract(step), ctx), getValueFactory(), getTypeFactory(), ctx);
 	}
 	
 

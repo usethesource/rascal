@@ -156,8 +156,12 @@ public class IntegerResult extends ElementResult<IInteger> {
 
 
 	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from) {
+		if (from.getValue().less(getValue()).getValue()) {
+			return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().integerType(),
+					from.getValue().add(getValueFactory().integer(1)), ctx), getValueFactory(), getTypeFactory(), ctx);
+		}
 		return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().integerType(),
-				from.getValue().add(getValueFactory().integer(1)), ctx), getValueFactory(), getTypeFactory(), ctx);
+				from.getValue().subtract(getValueFactory().integer(1)), ctx), getValueFactory(), getTypeFactory(), ctx);
 	}
 	
 	@Override
