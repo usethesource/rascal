@@ -304,7 +304,12 @@ public class NumberResult extends ElementResult<INumber> {
 	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult from, Result<V> second) {
 		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
 	}
-	
+
+	@Override
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromNumber(NumberResult from, Result<V> second) {
+		return makeStepRangeFromToWithSecond(from, this, second, getValueFactory(), getTypeFactory(), ctx);
+	}
+
 	@Override
 	protected <U extends IValue> Result<U> makeRangeFromNumber(NumberResult from) {
 		if (getType().lub(from.getType()).isIntegerType()) {
