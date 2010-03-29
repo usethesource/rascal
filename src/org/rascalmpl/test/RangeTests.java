@@ -15,6 +15,15 @@ public class RangeTests extends TestFramework {
 		assertTrue(runTest("{ [1, 3..10] == [1, 3, 5, 7, 9 ]; }"));
 		assertTrue(runTest("{ [1, -2 .. -5] == [1, -2, -5]; }"));
 	}
+	
+	@Test
+	public void rangeNum() {
+		assertTrue(runTest("{num n1 = 1; [n1..n1] == [1]; }"));
+		assertTrue(runTest("{num n1 = 1; num n2 = 2; [n1..n2] == [1,2]; }"));
+		assertTrue(runTest("{num n1 = 1; num n5 = 5; [n1..n5] == [1,2,3,4,5]; }"));
+		assertTrue(runTest("{num n1 = 1; num n3 = 3; num n10 = 10; [n1, n3..n10] == [1, 3, 5, 7, 9 ]; }"));
+		assertTrue(runTest("{num n1 = 1; num nm2 = -2; num nm5 = -5; [n1, nm2 .. nm5] == [1, -2, -5]; }"));
+	}
 
 
 	@Test
