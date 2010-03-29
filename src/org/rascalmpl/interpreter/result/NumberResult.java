@@ -4,8 +4,6 @@ import static org.rascalmpl.interpreter.result.IntegerResult.makeStepRangeFromTo
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -184,6 +182,15 @@ public class NumberResult extends ElementResult<INumber> {
 		return that.widenToReal().compare(this);
 	}
 	
+	@Override
+	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
+		// note reverse arguments
+		INumber left = that.getValue();
+		INumber right = this.getValue();
+		int result = left.compare(right);
+		return makeIntegerResult(result);
+	}
+	
 	@Override  
 	protected <U extends IValue> Result<U> addNumber(NumberResult n) {
 		return makeResult(type, getValue().add(n.getValue()), ctx);
@@ -274,15 +281,6 @@ public class NumberResult extends ElementResult<INumber> {
 		return that.widenToReal().greaterThanOrEqual(this);
 	}
 
-	
-	@Override
-	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
-		// note reverse arguments
-		INumber left = that.getValue();
-		INumber right = this.getValue();
-		int result = left.compare(right);
-		return makeIntegerResult(result);
-	}
 	
 	
 	@Override
