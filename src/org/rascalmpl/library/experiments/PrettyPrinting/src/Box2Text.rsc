@@ -64,7 +64,7 @@ text wd(text a) {
 
 /* Computes the length of unescaped string s */
 int width(str s) {
-     s = replaceAll(s,"\t...",""); 
+     s = replaceAll(s,"\b...",""); 
     return size(s);
      }
 
@@ -237,10 +237,10 @@ text HVHV(text T, int s, list[Box] b, options o,  int m, Box c) {
 
 text font(text t, str tg) {
    if (isEmpty(t)) return t;
-   str h = "\t{<tg>"+t[0];
+   str h = "\b{<tg>"+t[0];
    int n = size(t)-1;
    if (n==0) {
-       h +="\t}12";
+       h +="\b}12";
        return [h];
        }
    text r = [];
