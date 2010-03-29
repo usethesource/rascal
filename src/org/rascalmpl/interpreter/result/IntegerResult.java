@@ -247,7 +247,10 @@ public class IntegerResult extends ElementResult<IInteger> {
 	@Override
 	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
 		// note: reversed arguments
-		return that.compareInteger(this);
+		// note: reversed arguments
+		INumber left = that.getValue();
+		IInteger right = this.getValue();
+		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(left.compare(right)), ctx);
 	}
 
 	@Override

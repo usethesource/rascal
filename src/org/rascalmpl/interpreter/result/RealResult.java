@@ -224,7 +224,11 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
-		return that.compareReal(this);
+		// note reverse arguments
+		INumber left = that.getValue();
+		IReal right = this.getValue();
+		int result = left.compare(right);
+		return makeIntegerResult(result);
 	}
 
 	@Override  
