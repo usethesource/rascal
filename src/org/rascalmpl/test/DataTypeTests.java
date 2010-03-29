@@ -343,7 +343,7 @@ public class DataTypeTests extends TestFramework {
 		
 		assertTrue(runTest("{num n = 1; 2 > n;}"));
 		
-		assertTrue(runTest("num n35 = 3.5; num n2 = 2; n35 > n2 ? 3.5 : 2 == 3.5;"));
+		assertTrue(runTest("{num n35 = 3.5; num n2 = 2; n35 > n2 ? 3.5 : 2 == 3.5;}"));
 	}
 	
 	@Test
