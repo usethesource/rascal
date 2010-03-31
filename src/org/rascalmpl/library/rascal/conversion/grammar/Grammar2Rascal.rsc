@@ -11,12 +11,18 @@ public str grammar2rascal(Grammar g, str name) {
 }
 
 public str grammar2rascal(Grammar g) {
-return "<for (Production p <- g.productions, /prod(_,_,_) := p) {><prod2rascal(p)><}>";
+return 
+"<for (Production p <- g.productions) {><topProd2rascal(p)><}>";
 }
 
 public str topProd2rascal(Production p) {
+  if (/prod(_,lit(_),_) := p) return ""; // ignore generated productions
+
   if (/prod(_,rhs,_) := p) {
-    return "<start(_) := rhs ? "start":""> <symbol2rascal(rhs)> = <prod2rascal(p)>";
+    return "<(start(_) := rhs) ? "start ":"">syntax <symbol2rascal(rhs)> = <prod2rascal(p)>;\n\n";
+  }
+  if (regular(_,_) := p) {
+    return ""; // ignore generated stubs
   }
   throw "could not find out defined symbol for <p>";
 }
@@ -35,7 +41,7 @@ public str prod2rascal(Production p) {
     }
     case \assoc(a,s) : {
       <f,s> = takeOneFrom(s);
-      return "(<assoc2rascal(a)>:
+      return "(<attr2mod(\assoc(a))>:
 <prod2rascal(f)>
 <for (pr <- s){>| <prod2rascal(pr)><}>
 )";
@@ -47,19 +53,22 @@ public str prod2rascal(Production p) {
  <for (pr <- s){>- <prod2rascal(pr)><}>";
     }
     case prod(_,lit(_),_) : return "";
-    case prod(lhs,rhs,attrs) : {
-      return "<attrs2mods(attrs)> <for(s <- lhs){><symbol2rascal(s)><}>;";
+    case prod(list[Symbol] lhs,Symbol rhs,Attributes attrs) : {
+      return "<attrs2mods(attrs)><for(s <- lhs){><symbol2rascal(s)> <}>";
     }
     case regular(_,_) : return "";
     default: throw "missed a case <p>";
   }
 }
 
-public str attrs2mods(Attributes attrs) {
-  switch (attrs) {
-    case \no-attrs(): return "";
-    case \attrs([a*,term(cons(c)),b*]) : return attrs2mods(\attrs([a,b])) + " <c>:";
-    case \attrs([a,b*]) : return "<attr2mod(a)> <attrs2mods(b)>";
+public str attrs2mods(Attributes as) {
+  switch (as) {
+    case \no-attrs(): 
+      return "";
+    case \attrs([list[Attr] a,term(cons(c)),list[Attr] b]) : 
+      return attrs2mods(\attrs([a,b])) + " <c>:";
+    case \attrs([a,b*]) : 
+      return "<attr2mod(a)> <attrs2mods(\attrs(b))>";
     default:   throw "missed a case <attrs>";
   }
 }
@@ -72,6 +81,8 @@ public str attr2mod(Attr a) {
     case \assoc(\assoc()): return "assoc";
     case term("lex"()): return "lex";
     case term(t): return "<t>";
+    case bracket(): return "bracket";
+    default: throw "missed a case <a>";
   }
 }
 
@@ -84,8 +95,10 @@ public str symbol2rascal(Symbol sym) {
     case opt(x) : return "<symbol2rascal(x)>?";
     case iter(x) : return "<symbol2rascal(x)>+";
     case \iter-star(x) : return "<symbol2rascal(x)>*";
-    case \iter-sep(x,seps) : return "{<symbol2rascal(x)> <seps2rascal(seps[1])>}+";
-    case \iter-star-sep(x,seps) : return "{<symbol2rascal(x)> <seps2rascal(seps[1])>}*";
+    case \iter-sep(x,seps) : return "{<symbol2rascal(x)> <for(s <- seps){><symbol2rascal(s)> <}>}+";
+    case \iter-star-sep(x,seps) : return "{<symbol2rascal(x)> <for(s <- seps){><symbol2rascal(s)> <}>}*";
+    case \layout(): return "";
+    case \start(x): return symbol2rascal(x);
   }
   throw "missed a case <sym>";
 }
@@ -103,10 +116,10 @@ public str cc2rascal(list[CharRange] ranges) {
   return "[<for (r <- ranges){><range2rascal(r)><}>]";
 }
 
-public str range2rascal(CharRange range) {
-  switch (range) {
+public str range2rascal(CharRange r) {
+  switch (r) {
     case range(c,c) : return char2rascal(c);
-    case range(c,d) : return "<char2rascal(c)-char2rascal(d)>";
+    case range(c,d) : return "<char2rascal(c)>-<char2rascal(d)>";
     default: throw "missed a case <range>";
   }
 }
@@ -116,6 +129,6 @@ public str char2rascal(int ch) {
     return "\\<ch % 256><ch % 64><ch % 8>";
   }
   else {
-    return "\\u<ch & 65536><ch % 4096><ch % 256><ch % 16>";
+    return "\\u<ch % 65536><ch % 4096><ch % 256><ch % 16>";
   }
 }
