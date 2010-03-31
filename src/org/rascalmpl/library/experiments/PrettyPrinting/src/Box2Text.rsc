@@ -376,11 +376,9 @@ return visit(b) {
 }
 
 public void main(Box b) {
-  b = removeHV(b);
   // str s = box2text(b, 0);
   // println(s);
-  decorated = true;
-  text t = O(b, V([]), oDefault, maxWidth);
+  value t = toList(b);
   boxView(t); 
 /*
   for (str r<-t) {
@@ -390,6 +388,14 @@ public void main(Box b) {
         }
    } 
 */
+}
+
+public value toList(Box b) {
+  b = removeHV(b);
+  decorated = true;
+  text t = O(b, V([]), oDefault, maxWidth);
+  // boxView(t); 
+  return t;
 }
 
 void tst() {
