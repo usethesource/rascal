@@ -314,10 +314,10 @@ public class RealResult extends ElementResult<IReal> {
 	
 	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from) {
 		if (from.getValue().less(getValue()).getValue()) {
-			return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().realType(),
+			return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().numberType(),
 					from.getValue().add(getValueFactory().real(1.0)), ctx), getValueFactory(), getTypeFactory(), ctx);
 		}
-		return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().realType(),
+		return makeStepRangeFromToWithSecond(from, this, new NumberResult(getTypeFactory().numberType(),
 				from.getValue().subtract(getValueFactory().real(1.0)), ctx), getValueFactory(), getTypeFactory(), ctx);
 
 	}
