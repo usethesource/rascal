@@ -14,8 +14,8 @@ data Grammar = grammar(set[Symbol] start, set[Production] productions);
 // 		'diff'   means all alternatives of the first argument are accepted, unless one
 // 		         of the alternatives from the right argument are accepted.
 //              'assoc'  means all alternatives are acceptible, but nested on the declared side 
-data Production = choice(set[Production] alternatives)                  
-                | first(list[Production] choices)
-                | assoc(Associativity assoc, set[Production] alternatives)               
-                | diff(Production language, set[Production] alternatives)
+data Production = choice(Symbol rhs, set[Production] alternatives)                  
+                | first(Symbol rhs, list[Production] choices)
+                | assoc(Symbol rhs, Associativity assoc, set[Production] alternatives)               
+                | diff(Symbol rhs, Production language, set[Production] alternatives)
                 ;
