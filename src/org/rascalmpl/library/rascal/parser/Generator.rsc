@@ -71,8 +71,7 @@ public str generateParseMethod(Production p) {
 
   if (choice(Symbol rhs, set[Production] ps) := p) {
     return "public void <sym2name(rhs)>() {
-      <for (Production q:prod(_,_,_) <- ps) {>
-      expect(<value2id(q)>, <generateSymbolItemExpects(q.lhs)>);
+      <for (Production q:prod(_,_,_) <- ps) {>expect(<value2id(q)>, <generateSymbolItemExpects(q.lhs)>);
       <}>  
     }";
   }
@@ -90,7 +89,7 @@ public str generateSymbolItemExpects(list[Symbol] syms) {
      return "new EpsilonParseStackNode(<nextItem()>)";
    }
    
-   return ("<sym2newitem(head(syms))>" | it + "," + sym2newitem(sym) | sym <- tail(syms));
+   return ("<sym2newitem(head(syms))>" | it + ",\n  " + sym2newitem(sym) | sym <- tail(syms));
 }
 
 public str sym2newitem(Symbol sym) {
