@@ -134,6 +134,7 @@ private list[Symbol] intermix(list[Symbol] syms) {
   return tail([\iter-star(layout()), s | s <- syms]);
 }
 
+
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
     case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
@@ -168,7 +169,7 @@ private list[Symbol] args2symbols(Sym* args, bool isLex) {
   return [ arg2symbol(s, isLex) | Sym s <- args ];
 }
 
-private list[Symbol] args2symbols({Sym ","}+ args, bool isLex) {
+private list[Symbol] separgs2symbols({Sym ","}+ args, bool isLex) {
   return [ arg2symbol(s, isLex) | Sym s <- args ];
 }
    
@@ -176,7 +177,7 @@ private Symbol arg2symbol(Sym sym, bool isLex) {
   switch (sym) {
     case (Sym) `<Nonterminal n>`          : return sort("<n>");
     case (Sym) `<StringConstant l>` : return lit(unescape(l));
-    case (Sym) `<Nonterminal n>[<{Sym ","}+ syms>]` : return \parametrized-sort("<n>",args2symbols(syms,isLex));
+    case (Sym) `<Nonterminal n>[<{Sym ","}+ syms>]` : return \parametrized-sort("<n>",separgs2symbols(syms,isLex));
     case (Sym) `<Sym s> <NonterminalLabel n>` : return label("<n>", arg2symbol(s,isLex));
     case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s,isLex));
     case (Sym) `<Sym s> ??` : return opt(arg2symbol(s,isLex));
