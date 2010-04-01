@@ -1,26 +1,51 @@
 module rascal::parser::Generator
 
 import rascal::parser::Grammar;
+import ParseTree;
 import String;
 import List;
+import Node;
+import IO;
 
 private int itemId = 0;
 
-public str generateJava(str name, Grammar g) {
+private int nextItem() {
+  int id = itemId;
+  itemId += 1;
+  return id;
+}
+
+public str generate(str package, str name, Grammar g) {
   itemId = 0;
   return 
 "
-package org.rascalmpl.rascal.generated;
+package org.rascalmpl.rascal.generated<package != "" ? ".<package>" : "">;
 
 import org.rascalmpl.gll.SGLL;
 import org.rascalmpl.gll.stack.*;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class <name> extends SGLL {
+  private static IConstructor read(String s, Type type) {
+    return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes())); 
+  }
+  // Symbols declarations
+  <for (s <- { s | /Symbol s := g}) {>private static final IConstructor <value2id(s)> = read(\"<esc("<s>")>\", Factory.Symbol);
+  <}>
+  // Production declarations
+  <for (p <- { p | /Production p:prod(_,_,_) := g}) {>private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);
+  <}>
+
   public <name>(char[] input){
     super(input);
   }
-	
-  <generateSymbolMethods(g)>
+
+  // Parse methods	
+  <for (Production p <- g.productions) {>
+  <generateParseMethod(p)>
+  <}>
 
   public static void main(String[] args){
     <name> parser = new <name>(args[1].toCharArray());
@@ -30,94 +55,99 @@ public class <name> extends SGLL {
 ";
 }  
 
-public str symbol2field(Symbol sym, int id) {
-  return "ITEM_<sym2name(sym)>_<id>";
-}
-
-public str sym2name(Symbol sym) {
-  switch (sym) {
-    case sort(n) : return n;
-    case lit(l) : return "LIT_<str2name(l)>";
-    case cilit(l) : return "CILIT_<str2name(l)>";
-    case iter(s) : return "ITER_<sym2name(s)>";
-    case \iter-star(s) : return "ITERSTAR_<sym2name(s)>";
-    case \iter-sep(Symbol s,list[Symbol] seps) : return "ITERSEP<sym2name(s)>_<(""|it+sym2name(sep)|sep<-seps)>";
-    case \iter-sep-star(Symbol s,list[Symbol] seps) : return "ITERSEPSTAR_<sym2name(s)>_<(""|it+sym2name(sep)|sep<-seps)>";
-    case \opt(s) : return "OPT_<sym2name(s)>";
-    case \char-class(list[CharRange] ranges) : return "CLASS_<ranges2name(ranges)>";
-    default: throw "not yet implemented <sym>";
+public str sym2name(Symbol s) {
+  switch (s) {
+    case sort(x) : return x;
+    default      : return value2id(s);
   }
 }
 
-public str ranges2name(list[CharRange] ranges) {
-  return ("" | it + "_" + range2name(range) | range <- ranges);
-}
-
-public str range2name(CharRange range) {
-  return "<range.start>_TO_<range.end>";
-}
-
-public str str2name(str s) {
-  return ("" | it + "_" + charAt(s,i) | i <- [0..size(s)-1]);
-}
-
-public str generateItemMethods(set[Production] productions) {
-  return (""| it + generateItemMethods(p)| p:prod(_,_,_) <- g.productions);
-}	
-
-public str generateSymbolMethod(Production p) {
-  if (prod(_,_,_) := p) {
-    return 
-"public void <sym2name(p.rhs)>() {
-    expect(<generateSymbolItemExpects(p.lhs)>);  
-  }
-";
+public str generateParseMethod(Production p) {
+  if (prod(_,Symbol rhs,_) := p) {
+    return "public void <sym2name(rhs)>() {
+      expect(<value2id(p)>, <generateSymbolItemExpects(p.lhs)>);  
+    }";
   }
 
-  if (choice(ps) := p) {
-    return
-"public void <sym2name(p.rhs)>() {
-    <for (Production q <- ps) {>
-    expect(<generateSymbolItemExpects(q.lhs)>);
-    <}>  
+  if (choice(Symbol rhs, set[Production] ps) := p) {
+    return "public void <sym2name(rhs)>() {
+      <for (Production q:prod(_,_,_) <- ps) {>
+      expect(<value2id(q)>, <generateSymbolItemExpects(q.lhs)>);
+      <}>  
+    }";
   }
-";
+
+  if (regular(_,_) := p) {
+    // do not occur as defined symbols
+    return "";
   }
 
   throw "not implemented <p>";
 }
 
-public int nextItem() {
-  int id = itemId;
-  itemId += 1;
-  return id;
-}
-
 public str generateSymbolItemExpects(list[Symbol] syms) {
    if (syms == []) {
-     return "new Epsilon(<nextItem()>)";
+     return "new EpsilonParseStackNode(<nextItem()>)";
    }
    
-   return ("<sym2newitem(head(syms))>" | it + ", " + sym2newitem(sym) | sym <- tail(syms));
+   return ("<sym2newitem(head(syms))>" | it + "," + sym2newitem(sym) | sym <- tail(syms));
 }
 
 public str sym2newitem(Symbol sym) {
    int id = nextItem();
 
    switch (sym) {
-    case \sort(n) : return "new NonTerminalParseStackNode(\"<sym>\", id)";
-    case \lit(l) : return "new NonTerminalParseStackNode(\"<sym>\", id)";
-    case \cilit(l) : return "new NonTerminalParseStackNode(\"<sym>\", id)";
-    case \iter(\char-class(list[CharRange] ranges)) : return "new CharacterClassListParseStackNode(\"<sym>\", id, true)";
-    case \iter-star(\char-class(list[CharRange] ranges)) : return "new CharacterClassListParseStackNode(\"<sym>\", id, false)";
-    case \iter-sep(\char-class(list[CharRange] ranges),list[Symbol] seps) : return "new CharacterClassSeparatedListParseStackNode(\"<sym>\", id, true, <generateSymbolItemExpects(seps)>)";
-    case \iter-sep-star(\char-class(list[CharRange] ranges),list[Symbol] seps) : return "new CharacterClassSeparatedListParseStackNode(\"<sym>\", id, false, <generateSymbolItemExpects(seps)>)";
-    case \iter(s) : return "new NonTerminalListParseStackNode(\"<sym>\", id, true)";
-    case \iter-star(s) : return "new NonTerminalListParseStackNode(\"<sym>\", id, false)";
-    case \iter-sep(Symbol s,list[Symbol] seps) : return "new NonTerminalSeparatedListParseStackNode(\"<sym>\", id, true, <generateSymbolItemExpects(seps)>)";
-    case \iter-sep-star(Symbol s,list[Symbol] seps) : return "new NonTerminalSeparatedListParseStackNode(\"<sym>\", id, false, <generateSymbolItemExpects(seps)>)";
-    case \opt(s) : return "new NonTerminalOptionalParseStackNode(\"<sym>\", id)";
-    case \char-class(list[CharRange] ranges) : "new CharacterClassParseStackNode(\"<sym>\", id)";
-    default: throw "not yet implemented <sym>";
+    case \label(_,s) : return sym2newitem(s); // ignore labels
+    case \sort(n) : 
+      return "new NonTerminalParseStackNode(<value2id(sym)>, <id>)";
+    case \lit(l) : 
+      return "new NonTerminalParseStackNode(<value2id(sym)>, <id>)";
+    case \cilit(l) : 
+      return "new NonTerminalParseStackNode(<value2id(sym)>, <id>)";
+    case \iter(\char-class(list[CharRange] ranges)) : 
+      return "new CharacterClassListParseStackNode(<value2id(sym)>, <id>, true)";
+    case \iter-star(\char-class(list[CharRange] ranges)) : 
+      return "new CharacterClassListParseStackNode(<value2id(sym)>, <id>, false)";
+    case \iter-sep(\char-class(list[CharRange] ranges),list[Symbol] seps) : 
+      return "new CharacterClassSeparatedListParseStackNode(<value2id(sym)>, <id>, true, <generateSymbolItemExpects(seps)>)";
+    case \iter-star-sep(\char-class(list[CharRange] ranges),list[Symbol] seps) :
+      return "new CharacterClassSeparatedListParseStackNode(<value2id(sym)>, <id>, false, <generateSymbolItemExpects(seps)>)";
+    case \iter(s) : 
+      return "new NonTerminalListParseStackNode(<value2id(sym)>, <id>, true)";
+    case \iter-star(s) :
+      return "new NonTerminalListParseStackNode(<value2id(sym)>, <id>, false)";
+    case \iter-sep(Symbol s,list[Symbol] seps) : 
+      return "new NonTerminalSeparatedListParseStackNode(<value2id(sym)>, <id>, true, <generateSymbolItemExpects(seps)>)";
+    case \iter-star-sep(Symbol s,list[Symbol] seps) : 
+      return "new NonTerminalSeparatedListParseStackNode(<value2id(sym)>, <id>, false, <generateSymbolItemExpects(seps)>)";
+    case \opt(s) : 
+      return "new NonTerminalOptionalParseStackNode(<value2id(sym)>, <id>)";
+    case \char-class(list[CharRange] ranges) : 
+      return "new CharacterClassParseStackNode(<value2id(sym)>, <id>)";
+    case \layout() :
+      return "new NonTerminalParseStackNode(layout, <id>)";
+    default: 
+      throw "not yet implemented <sym>";
+  }
+}
+
+public str esc(str s) {
+  return innermost visit(s) {
+    case /\\/ => "\\\\"
+    case /\"/ => "\\\""
+    case /-/  => "_"
+  }
+}
+
+public str value2id(value v) {
+  switch (v) {
+    case label(_,v)    : return value2id(v);
+    case sort(str s)   : return s;
+    case int i         : return "<i>";
+    case /<s:^[A-Za-z]+$>/ : return s; 
+    case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)-1]);
+    case node n        : return "<esc(getName(n))>_<("" | it + "_" + value2id(c) | c <- getChildren(n))>";
+    case list[value] l : return ("" | it + "_" + value2id(e) | e <- l);
+    default            : throw "value not supported <v>";
   }
 }
