@@ -3,6 +3,7 @@ module rascal::checker::Namespace
 import rascal::checker::Types;
 import rascal::checker::ListUtils;
 import rascal::checker::SubTypes;
+import rascal::checker::Signature;
 
 import List;
 import Graph;
@@ -40,12 +41,12 @@ import rascal::\old-syntax::Rascal;
 //    use the . field accessors and as much as possible eliminate the use of pattern
 //    matching over these structures.
 //
-// 7. Would it be good to split the FunctionLayer into a layer and an item? It may be
+// 7. DONE: Would it be good to split the FunctionLayer into a layer and an item? It may be
 //    nice to come up with a more general way to think about scoping, made up of layers,
 //    namespaces, visibilities, and items, that we could apply to any language, including
 //    Rascal.
 //
-// 8. Add checks to ensure non-overlaps on overloaded functions and constructors
+// 8. PARTIAL: Add checks to ensure non-overlaps on overloaded functions and constructors
 //
 // 9. Add checks to ensure names are not repeated at the same scoping level (important:
 //    this includes within a function, since names cannot be shadowed by new names defined
@@ -61,14 +62,15 @@ import rascal::\old-syntax::Rascal;
 // 11. DONE: Introduce a new boolean expression scope inside a function argument list
 //
 // 12. Need to enforce name availability on all paths from a boolean expression. For
-//     instance, in something like (a := p1 && b := p2) || (a := p1 && c := p3), only
-//     a should be visible (i.e., in scope) outside of the || expression
+//       instance, in something like (a := p1 && b := p2) || (a := p1 && c := p3), only
+//       a should be visible (i.e., in scope) outside of the || expression, since b and c
+//       are only bound along one of the paths
 //
 // 13. DONE: Add support for the Reducer expression
 //
 // 14. Add alias expansion (since we have all the name information here) -- maybe add
-//     as an Alias type, so we can keep track of the original type name used as well,
-//     which would make more sense to the user than the expanded form.
+//       as an Alias type, so we can keep track of the original type name used as well,
+//       which would make more sense to the user than the expanded form.
 //
 // 15. Special case, one function ends with list[Value], another with Value...
 //
@@ -87,20 +89,25 @@ private bool debug = true;
 alias ScopeItemId = int;
 
 data ScopeItem =
-	  ModuleLayer(RName moduleName)
-	| FunctionLayer(RName functionName, RType returnType, list[ScopeItemId] parameters, list[RType] throwsTypes, bool isVarArgs, bool isPublic, ScopeItemId parentId)
-	| ClosureLayer(RType returnType, list[ScopeItemId] parameters, bool isVarArgs, ScopeItemId parentId)
-	| VoidClosureLayer(list[ScopeItemId] parameters, bool isVarArgs, ScopeItemId parentId)
+      TopLayer()
+	| ModuleLayer(ScopeItemId itemId, ScopeItemId parentId)
+	| FunctionLayer(ScopeItemId itemId, ScopeItemId parentId)
+	| PatternMatchLayer(ScopeItemId parentId)
+	| BooleanExpLayer(ScopeItemId parentId)
+	| ClosureLayer(ScopeItemId itemId, ScopeItemId parentId)
+	| VoidClosureLayer(ScopeItemId itemId, ScopeItemId parentId)
 	| BlockLayer(ScopeItemId parentId)
+
+	| ModuleItem(RName moduleName, ScopeItemId parentId)
+	| FunctionItem(RName functionName, RType returnType, list[ScopeItemId] parameters, list[RType] throwsTypes, bool isVarArgs, bool isPublic, ScopeItemId parentId)
+	| ClosureItem(RType returnType, list[ScopeItemId] parameters, bool isVarArgs, ScopeItemId parentId)
+	| VoidClosureItem(list[ScopeItemId] parameters, bool isVarArgs, ScopeItemId parentId)
 	| VariableItem(RName variableName, RType variableType, ScopeItemId parentId)
 	| FormalParameterItem(RName parameterName, RType parameterType, ScopeItemId parentId)
 	| LabelItem(RName labelName, ScopeItemId parentId)
 	| AliasItem(RType aliasType, RType aliasedType, bool isPublic, ScopeItemId parentId)
 	| ConstructorItem(RName constructorName, list[RNamedType] constructorArgs, ScopeItemId adtParentId, ScopeItemId parentId)
 	| ADTItem(RType adtType, set[ScopeItemId] variants, bool isPublic, ScopeItemId parentId) 
-	| DummyItem()
-	| PatternMatchLayer(ScopeItemId parentId)
-	| BooleanExpLayer(ScopeItemId parentId)
 	| AnnotationItem(RName annotationName, RType annoType, RType onType, bool isPublic, ScopeItemId parentId) 
 ;
 
@@ -159,7 +166,7 @@ public ScopeInfo addScopeError(ScopeInfo scopeInfo, loc l, str msg) {
 	return scopeInfo;
 }
 
-public AddedItemPair addScopeItem(ScopeItem si, loc l, ScopeInfo scopeInfo) {
+public AddedItemPair addScopeLayer(ScopeItem si, loc l, ScopeInfo scopeInfo) {
 	int newItemId = scopeInfo.nextScopeId;
 	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
 	ItemLocationMap newILMap = scopeInfo.itemLocations + (l : scopeInfo.nextScopeId);
@@ -167,7 +174,7 @@ public AddedItemPair addScopeItem(ScopeItem si, loc l, ScopeInfo scopeInfo) {
 	return <scopeInfo,newItemId>;				
 }
 
-public AddedItemPair addScopeItemWithParent(ScopeItem si, ScopeItemId parentId, loc l, ScopeInfo scopeInfo) {
+public AddedItemPair addScopeLayerWithParent(ScopeItem si, ScopeItemId parentId, loc l, ScopeInfo scopeInfo) {
 	int newItemId = scopeInfo.nextScopeId;
 	ScopeRel newScopeRel = scopeInfo.scopeRel + <parentId, scopeInfo.nextScopeId>;
 	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
@@ -176,7 +183,22 @@ public AddedItemPair addScopeItemWithParent(ScopeItem si, ScopeItemId parentId, 
 	return <scopeInfo,newItemId>;				
 }
 
-public ScopeItemId getItemAtLocation(loc l, ScopeInfo scopeInfo) {
+public AddedItemPair addScopeItem(ScopeItem si, loc l, ScopeInfo scopeInfo) {
+	int newItemId = scopeInfo.nextScopeId;
+	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
+	scopeInfo = ((scopeInfo[nextScopeId = scopeInfo.nextScopeId+1])[scopeItemMap=newSIMap]);
+	return <scopeInfo,newItemId>;				
+}
+
+public AddedItemPair addScopeItemWithParent(ScopeItem si, ScopeItemId parentId, loc l, ScopeInfo scopeInfo) {
+	int newItemId = scopeInfo.nextScopeId;
+	ScopeRel newScopeRel = scopeInfo.scopeRel + <parentId, scopeInfo.nextScopeId>;
+	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
+	scopeInfo = ((scopeInfo[nextScopeId = scopeInfo.nextScopeId+1])[scopeItemMap=newSIMap])[scopeRel = newScopeRel];
+	return <scopeInfo,newItemId>;				
+}
+
+public ScopeItemId getLayerAtLocation(loc l, ScopeInfo scopeInfo) {
 	if (l in scopeInfo.itemLocations) {
 		return scopeInfo.itemLocations[l];	
 	} else {
@@ -214,32 +236,42 @@ list[ScopeItemId] mkEmptySIList() { return tail([3]); }
 //
 public str prettyPrintSI(ScopeItem si) {
 	switch(si) {
-		case ModuleLayer(x) : return "ModuleLayer: " + prettyPrintName(x);
+		case TopLayer() : return "TopLayer";
+
+		case ModuleLayer(_,_) : return "ModuleLayer";
 		
-		case FunctionLayer(x,t,ags,_,_,_,_) : return "FunctionLayer: " + prettyPrintType(t) + " " + prettyPrintName(x) + "(" + joinList(ags,prettyPrintSI,",","") + ")";
+		case FunctionLayer(_,_) : return "FunctionLayer";
 		
-		case ClosureLayer(t,ags,_,_) : return "ClosureLayer: " + prettyPrintType(t) + " (" + joinList(ags,prettyPrintSI,",","") + ")";
+		case PatternMatchLayer(_) : return "PatternMatchLayer";
 		
-		case VoidClosureLayer(ags,_,_) : return "VoidClosureLayer: (" + joinList(ags,prettyPrintSI,",","") + ")";
+		case BooleanExpLayer(_) : return "BooleanExpLayer";
+
+		case ClosureLayer(_,_) : return "ClosureLayer";
 		
+		case VoidClosureLayer(_,_) : return "VoidClosureLayer";
+		
+		case BlockLayer(_) : return "BlockLayer";
+
+		case ModuleItem(x,_) : return "ModuleItem: " + prettyPrintName(x);
+		
+		case FunctionItem(x,t,ags,_,_,_,_) : return "FunctionItem: " + prettyPrintType(t) + " " + prettyPrintName(x) + "(" + joinList(ags,prettyPrintSI,",","") + ")";
+
+		case ClosureItem(t,ags,_,_) : return "ClosureItem: " + prettyPrintType(t) + " (" + joinList(ags,prettyPrintSI,",","") + ")";
+		
+		case VoidClosureItem(ags,_,_) : return "VoidClosureItem: (" + joinList(ags,prettyPrintSI,",","") + ")";
+
 		case VariableItem(x,t,_) : return "VariableItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
 		
 		case FormalParameterItem(x,t,_) : return "FormalParameterItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
 		
 		case LabelItem(x,_) : return "LabelItem: " + prettyPrintName(x);
 
-		case AliasItem(tn,ta,_,_) : return "AliasItem: " + prettyPrintUserType(tn) + " = " + prettyPrintType(ta);
+		case AliasItem(tn,ta,_,_) : return "AliasItem: " + prettyPrintType(tn) + " = " + prettyPrintType(ta);
 			
-		case ConstructorItem(cn,tas,_,_) : 	return "Constructor: " + prettyPrintName(cn) + "(" + prettyPrintTAList(tas) + ")";
+		case ConstructorItem(cn,tas,_,_) : 	return "Constructor: " + prettyPrintName(cn) + "(" + prettyPrintNamedTypeList(tas) + ")";
 		
-		case ADTItem(ut, vs, _, _) : return "ADT: " + prettyPrintUserType(ut) + " = " + joinList(vs,prettyPrintSI," | ","");
+		case ADTItem(ut, vs, _, _) : return "ADT: " + prettyPrintType(ut) + " = " + joinList(vs,prettyPrintSI," | ","");
 		 			
-		case BlockLayer(_) : return "BlockLayer";
-		
-		case PatternMatchLayer(_) : return "PatternMatchLayer";
-		
-		case BooleanExpLayer(_) : return "BooleanExpLayer";
-		
 		case AnnotationItem(x,atyp,otyp,_,_) : return "Annotation: <prettyPrintType(atyp)> <prettyPrintType(otyp)>@<prettyPrintName(x)>";
 	}
 }
@@ -250,7 +282,7 @@ public set[ScopeItemId] filterNamesForNamespace(ScopeInfo scopeInfo, set[ScopeIt
 		switch(namespace) {
 			case ModuleName() : {
 				switch(scopeInfo.scopeItemMap[itemId]) {
-					case ModuleLayer(_) : filteredItems += itemId;
+					case ModuleItem(_,_) : filteredItems += itemId;
 				}	
 			}
 			
@@ -262,7 +294,7 @@ public set[ScopeItemId] filterNamesForNamespace(ScopeInfo scopeInfo, set[ScopeIt
 			
 			case FCVName() : {
 				switch(scopeInfo.scopeItemMap[itemId]) {
-					case FunctionLayer(_,_,_,_,_,_,_) : filteredItems += itemId;
+					case FunctionItem(_,_,_,_,_,_,_) : filteredItems += itemId;
 					case VariableItem(_,_,_) : filteredItems += itemId;
 					case FormalParameterItem(_,_,_) : filteredItems += itemId;
 					case ConstructorItem(_,_,_,_) : filteredItems += itemId;
@@ -272,6 +304,7 @@ public set[ScopeItemId] filterNamesForNamespace(ScopeInfo scopeInfo, set[ScopeIt
 			case TypeName() : {
 				switch(scopeInfo.scopeItemMap[itemId]) {
 					case ADTItem(_,_,_,_) : filteredItems += itemId;
+					case AliasItem(_,_,_,_) : filteredItems += itemId;
 				}	
 			}
 			
@@ -296,26 +329,23 @@ public set[ScopeItemId] filterNamesForNamespace(ScopeInfo scopeInfo, set[ScopeIt
 // the same name at higher levels -- i.e., overloading cannot be partially
 // extended.
 //
-public set[ScopeItemId] getItemsForNameWBound(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x, set[Namespace] containingNamespaces, bool bounded) {
+public set[ScopeItemId] getItemsForNameWBound(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x, set[Namespace] containingNamespaces, bool funBounded, bool modBounded) {
 	set[ScopeItemId] foundItems = { };
 	
-	// First, find all the scope items at the current level of scope that match
-	// the name we are looking for.
+	// First, find all the scope items at the current level of scope that match the name we are looking for. Note that we need
+	// special handling for functions and modules, since the function and module items are actually store inside the function
+	// and module layers. The other layers are not named, so could never lead to a match.
 	for (itemId <- scopeInfo.scopeRel[currentScopeId]) {
 		switch(scopeInfo.scopeItemMap[itemId]) {
+			case ModuleItem(x,_) : foundItems += itemId;
 			case FormalParameterItem(x,_,_) : foundItems += itemId;
-			
 			case VariableItem(x,_,_) : foundItems += itemId;
-			
-			case FunctionLayer(x,_,_,_,_,_,_) : foundItems += itemId;
-			
+			case FunctionItem(x,_,_,_,_,_,_) : foundItems += itemId;
 			case LabelItem(x,_) : foundItems += itemId;
-
 			case ConstructorItem(x,_,_,_) : foundItems += itemId;
-			
-			case ModuleLayer(x) : foundItems += itemId;
-			
-			case AnnotationItem(x,_,_,_) : foundItems += itemId;			
+			case AnnotationItem(x,_,_,_) : foundItems += itemId;
+			case FunctionLayer(funItemId,_) : if (FunctionItem(x,_,_,_,_,_,_) := scopeInfo.scopeItemMap[funItemId]) foundItems += funItemId;
+			case ModuleLayer(modItemId,_) : if (ModuleItem(x,_) := scopeInfo.scopeItemMap[modItemId]) foundItems += modItemId;			
 		}
 	}
 
@@ -324,22 +354,17 @@ public set[ScopeItemId] getItemsForNameWBound(ScopeInfo scopeInfo, ScopeItemId c
 		
 	// If no names were found at this level, step back up one level to find them
 	// in the parent scope. This will recurse until either the names are found
-	// or the top level, Module, is reached (note there is no match for finding
-	// the parent of a Module below, since modules do not have parents).
-	// If this is a bounded search, don't pass through function boundaries.
+	// or the top level is reached. If this is a bounded search, don't pass through 
+	// function boundaries.
 	if (size(foundItems) == 0) {
 		switch(scopeInfo.scopeItemMap[currentScopeId]) {
-			case FunctionLayer(_,_,_,_,_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
-
-			case ClosureLayer(_,_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
-
-			case VoidClosureLayer(_,_,parentScopeId) : if (!bounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
-			
-			case BlockLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
-			
-			case PatternMatchLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
-			
-			case BooleanExpLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,bounded);
+			case ModuleLayer(_,parentScopeId) : if (!modBounded) foundItems = getItemsForNameWBound(scopeInfo, parentScopeId, x, containingNamespaces, funBounded,modBounded);
+			case FunctionLayer(_,parentScopeId) : if (!funBounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,funBounded,modBounded);
+			case PatternMatchLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,funBounded,modBounded);
+			case BooleanExpLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,funBounded,modBounded);
+			case ClosureLayer(_,parentScopeId) : if (!funBounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,funBounded,modBounded);
+			case VoidClosureLayer(_,parentScopeId) : if (!funBounded) foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,funBounded,modBounded);
+			case BlockLayer(parentScopeId) : foundItems = getItemsForNameWBound(scopeInfo,parentScopeId,x,containingNamespaces,funBounded,modBounded);
 		}
 	}
 
@@ -352,43 +377,60 @@ public set[ScopeItemId] getItemsForNameWBound(ScopeInfo scopeInfo, ScopeItemId c
 // right names.
 //
 public set[ScopeItemId] getItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, false);
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, false, false);
 }
 
 public set[ScopeItemId] getItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, true);
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, true, false);
+}
+
+public set[ScopeItemId] getItemsForNameMB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, false, true);
 }
 
 public set[ScopeItemId] getAnnotationItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, false);
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, false, false);
 }
 
 public set[ScopeItemId] getAnnotationItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, true);
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, true, false);
+}
+
+public set[ScopeItemId] getAnnotationItemsForNameMB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, false, true);
 }
 
 public set[ScopeItemId] getLabelItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, false);
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, false, false);
 }
 
 public set[ScopeItemId] getLabelItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, true);
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, true, false);
+}
+
+public set[ScopeItemId] getLabelItemsForNameMB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, false, true);
 }
 
 public set[ScopeItemId] getTypeItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, false);
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, false, false);
 }
 
 public set[ScopeItemId] getTypeItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, true);
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, true, false);
 }
 
+public set[ScopeItemId] getTypeItemsForNameMB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, false, true);
+}
+
+// Get the function item that encloses a point in the code. This will navigate up to the function layer
+// and then return the item id for the function item that is associated with this layer.
 public ScopeItemId getEnclosingFunctionAux(ScopeInfo scopeInfo, ScopeItemId currentScope) {
 	ScopeItem si = getScopeItem(currentScope, scopeInfo);
-	if (FunctionLayer(_,_,_,_,_,_,_) := si)
-		return currentScope;
-	else
-		return getEnclosingFunction(scopeInfo, si.parentId);
+	if (FunctionLayer(itemId,_) := si) return itemId;
+	if (TopLayer() := si) throw "Cannot get enclosing function at top level";
+	return getEnclosingFunctionAux(scopeInfo, si.parentId);
 }
 
 public ScopeItemId getEnclosingFunction(ScopeInfo scopeInfo) {
@@ -408,10 +450,10 @@ public RType getTypeForItem(ScopeInfo scopeInfo, ScopeItemId itemId) {
 		
 		case VariableItem(_,t,_) : return t;
 		
-		case FunctionLayer(_,t,paramIds,_,false,_,_) : 
+		case FunctionItem(_,t,paramIds,_,false,_,_) : 
 			return makeFunctionType(t,[getTypeForItem(scopeInfo, paramId) | paramId <- paramIds]);
 		
-		case FunctionLayer(_,t,paramIds,_,true,_,_) : {
+		case FunctionItem(_,t,paramIds,_,true,_,_) : {
 			list[RType] paramTypes = [getTypeForItem(scopeInfo, paramId) | paramId <- paramIds];
 			if (size(paramTypes) == 0)
 				paramTypes = [ makeVarArgsType(makeValueType()) ];
@@ -422,7 +464,9 @@ public RType getTypeForItem(ScopeInfo scopeInfo, ScopeItemId itemId) {
 			
 		case ConstructorItem(n,tas,adtParentId,_) : return makeConstructorType(n,tas,getTypeForItem(scopeInfo,adtParentId));
 		
-		case ADTItem(ut,_,_,_) : return ut; // TODO: Should also extract type parameters
+		case ADTItem(ut,_,_,_) : return ut; // TODO: Should also extract type parameters, if needed
+
+		case AliasItem(ut,_,_,_) : return ut; // TODO: Should also extract type parameters, if needed
 		
 		default : { 
 			if (debug) println("NAMESPACE: Requesting type for item : " + prettyPrintSI(scopeInfo.scopeItemMap[itemId])); 
@@ -440,46 +484,108 @@ public RType getTypeForItem(ScopeInfo scopeInfo, ScopeItemId itemId) {
 // process imported modules. See also handleModuleHeader below.
 //
 public ScopeInfo buildNamespace(Tree t) {
-	ScopeInfo theInfo = createNewScopeInfo();
+	ScopeInfo scopeInfo = createNewScopeInfo();
 
-	// Overly detailed comments follow...
-	// This happens in four main steps. First, the module header is processed, creating a new
-	// scope for the module. The second step switches us into this scope. The third step then
-	// processes the module body in this module scope. The fourth step switches back to the
-	// scope from entry. Finally, the resulting scopeInfo after all this is returned, with the
-	// top scope id set to the scope id of the module.
+	// Create a "top" layer for the scopes. This is the root of the scope tree.
+	AddedItemPair aipTop = addScopeLayer(TopLayer(), t@\loc, scopeInfo);
+	ScopeUpdatePair supTop = changeCurrentScope(aipTop.addedId, aipTop.scopeInfo);
+	scopeInfo = supTop.scopeInfo;
+
+	// Add the module present in this tree. This is nested under TopLayer, so we can, in
+	// theory, load multiple modules into the same scope information structure.
 	if ((Module) `<Header h> <Body b>` := t) {
-		AddedItemPair sip = handleModuleHeaderNamesOnly(h, t@\loc, theInfo);
-		ScopeUpdatePair sup = changeCurrentScope(sip.addedId, sip.scopeInfo);
-		theInfo = handleModuleBody(b, sup.scopeInfo);
-		sup = changeCurrentScope(sup.oldScopeId, theInfo);
-		return sup.scopeInfo[topScopeItemId = sip.addedId];
+		switch(h) {
+			case `<Tags t> module <QualifiedName n> <Import* i>` : {
+				scopeInfo = handleModuleImports(i, scopeInfo);
+
+				// Add both a new module layer, representing all the contents of the module, as well as an individual item, which
+				// is a named item inside the scope.
+				AddedItemPair aip = addScopeLayerWithParent(ModuleLayer(-1,scopeInfo.currentScope)[@at=t@\loc], scopeInfo.currentScope, t@\loc, scopeInfo);
+				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
+				AddedItemPair aip2 = addScopeItemWithParent(ModuleItem(convertName(n), sup.scopeInfo.currentScope)[@at=t@\loc], sup.scopeInfo.currentScope, t@\loc, sup.scopeInfo);
+				aip2.scopeInfo.scopeItemMap[aip.addedId].itemId = aip2.addedId;
+
+				// Now, process the body inside the module scope. This will first gather the names, and then descend into the individual functions and initializers.
+				scopeInfo = handleModuleBodyFull(b, handleModuleBodyNamesOnly(b, aip2.scopeInfo));
+			}
+
+			case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
+				scopeInfo = handleModuleImports(i, scopeInfo);
+
+				// Add both a new module layer, representing all the contents of the module, as well as an individual item, which
+				// is a named item inside the scope.
+				AddedItemPair aip = addScopeLayerWithParent(ModuleLayer(scopeInfo.currentScope)[@at=t@\loc], scopeInfo.currentScope, l, scopeInfo);
+				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
+				AddedItemPair aip2 = addScopeItemWithParent(ModuleItem(convertName(n), sup.scopeInfo.currentScope)[@at=t@\loc], sup.scopeInfo.currentScope, t@\loc, sup.scopeInfo);
+				aip.scopeInfo.scopeItemMap[aip.addedId].itemId = aip2.addedId;
+
+				// Now, process the body inside the module scope. This will first gather the names, and then descend into the individual functions and initializers.
+				scopeInfo = handleModuleBodyFull(b, handleModuleBodyNamesOnly(b, aip2.scopeInfo));
+			}
+
+			default : throw "buildNamespace: unexpected syntax for module";
+		}
+	} else {
+        throw "buildNamespace: missed a case for <t.prod>";
 	}
- 
-        throw "missed a case for <t.prod>";
+
+	// Finally, change scope back to the Top level
+	ScopeUpdatePair supRet = changeCurrentScope(supTop.oldScopeId, scopeInfo);
+	return supRet.scopeInfo[topScopeItemId = aipTop.addedId];
 }		
 
-//
-// Process the header of a module, returning a scope item representing
-// the module scope.
-//
-// TODO: This currently just processes the name of the module. We will
-// need to also handle the imports, potentially building a graph that
-// we can use to "solve" the name-related dependencies, and we may also
-// need the module parameters.
-//
-// TODO: Should handle tags
-//
-public AddedItemPair handleModuleHeaderNamesOnly(Header h, loc l, ScopeInfo scopeInfo) {
-	switch(h) {
-		case `<Tags t> module <QualifiedName n> <Import* i>` : {
-			return addScopeItem(ModuleLayer(convertName(n))[@at=l], l, scopeInfo);
-		}		
-
-		case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
-			return addScopeItem(ModuleLayer(convertName(n))[@at=l], l, scopeInfo);
-		}		
+public ScopeInfo handleModuleImports(Import* il, ScopeInfo scopeInfo) {
+	for (imp <- il) {
+		switch(imp) {
+			case `import <ImportedModule im> ;` : {
+				if (debug) println("NAMESPACE: Processing module import <imp>");
+				scopeInfo = handleImportedModule(im, scopeInfo);
+			}
+			case `extend <ImportedModule im> ;` : {
+				if (debug) println("NAMESPACE: Processing module import <imp>");
+				scopeInfo = handleImportedModule(im, scopeInfo);
+			}
+		}
 	}
+	return scopeInfo;
+}
+
+//
+// TODO: Need to handle actuals, renamings -- for now, just handle the basic import scenario
+//
+public ScopeInfo handleImportedModule(ImportedModule im, ScopeInfo scopeInfo) {
+	switch(im) {
+		case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` : {
+			if (debug) println("NAMESPACE: Processing import of module <qn>"); 
+			scopeInfo = addImportsToScope(qn, scopeInfo);
+		}
+		case `<QualifiedName qn> <ModuleActuals ma>` : {
+			if (debug) println("NAMESPACE: Processing import of module <qn>"); 
+			scopeInfo = addImportsToScope(qn, scopeInfo);
+		}
+		case `<QualifiedName qn> <Renamings rn>` : {
+			if (debug) println("NAMESPACE: Processing import of module <qn>"); 
+			scopeInfo = addImportsToScope(qn, scopeInfo);
+		}
+		case (ImportedModule)`<QualifiedName qn>` : {
+			if (debug) println("NAMESPACE: Processing import of module <qn>"); 
+			scopeInfo = addImportsToScope(qn, scopeInfo);
+		}
+		default : {
+			if (debug) println("NAMESPACE: Missed a case for module import <im>"); println(im);
+			throw "Error in handleImportedModule, case not handled: <im>";
+		}
+	}
+	return scopeInfo;
+}
+
+public ScopeInfo addImportsToScope(QualifiedName qn, ScopeInfo scopeInfo) {
+	if ( (qn@link)? ) {
+		if(debug) println("NAMESPACE: Module name <qn> does have a link: <qn@link>");
+	} else {
+		if(debug) println("NAMESPACE: Module name <qn> has no associated link.");
+	}
+	return scopeInfo;
 }
 
 //
@@ -698,6 +804,10 @@ public ScopeInfo handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, Fun
 // TODO: It may be nice to indicate WHICH function the new function overlaps with. Right now,
 // this is just a binary true or false check.
 //
+// TODO: Also need to handle the overlap case where we have a varargs function, which is converted into
+// a function that takes a list of parameters (for the varargs part) and a function that already takes
+// this list
+//
 public bool checkFunctionOverlap(ScopeItemId newFun, set[ScopeItemId] funs, ScopeInfo scopeInfo) {
 	// Get back information for the function we are trying to add
 	ScopeItem newFunItem = getScopeItem(newFun, scopeInfo);
@@ -751,6 +861,7 @@ public bool checkFunctionOverlap(ScopeItemId newFun, set[ScopeItemId] funs, Scop
 public bool checkConstructorOverlap(ScopeItemId newCon, set[ScopeItemId] cons, ScopeInfo scopeInfo) {
 	// Get back information for the constructor we are trying to add
 	ScopeItem newConItem = getScopeItem(newCon, scopeInfo);
+	if (debug) println("NAMESPACE: Checking for overlap of constructor item <newConItem>");
 	RType newConItemType = getTypeForItem(scopeInfo, newCon);
 	list[RType] newConItemArgs = getConstructorArgumentTypes(newConItemType);
 
@@ -791,14 +902,16 @@ public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
 	// Add the new function into the scope and process any parameters.
 	ScopeInfo addFunction(Name n, RType retType, Parameters ps, list[RType] thrsTypes, bool isPublic, ScopeInfo scopeInfo) {
 		set[ScopeItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n));
-		ScopeItem si = FunctionLayer(convertName(n), retType, mkEmptySIList(), thrsTypes, false, isPublic, scopeInfo.currentScope)[@at=l];
-		AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
-		ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);			 
-		scopeInfo = handleParametersNamesOnly(ps, sup.scopeInfo);
-		sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
-		scopeInfo = addItemUses(sup.scopeInfo, { aip.addedId }, n@\loc);
 
-		if (checkFunctionOverlap(aip.addedId, potentialOverlaps, scopeInfo)) {	
+		AddedItemPair aip = addScopeLayerWithParent(FunctionLayer(-1, scopeInfo.currentScope), scopeInfo.currentScope, l, scopeInfo);
+		ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);			 
+		AddedItemPair aip2 = addScopeItemWithParent(FunctionItem(convertName(n), retType, mkEmptySIList(), thrsTypes, false, isPublic, sup.scopeInfo.currentScope)[@at=l], sup.scopeInfo.currentScope, l, sup.scopeInfo);
+		aip2.scopeInfo.scopeItemMap[aip.addedId].itemId = aip2.addedId;
+		scopeInfo = handleParametersNamesOnly(ps, aip2.scopeInfo);
+		sup = changeCurrentScope(sup.oldScopeId, scopeInfo);
+		scopeInfo = addItemUses(sup.scopeInfo, { aip2.addedId }, n@\loc);
+
+		if (checkFunctionOverlap(aip2.addedId, potentialOverlaps, scopeInfo)) {	
 			scopeInfo = addScopeError(scopeInfo, n@\loc, "Overlapping overload of function <n> declared");
 		}
 
@@ -824,7 +937,7 @@ public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
 // TODO: Should handle tags
 //
 public ScopeInfo handleAbstractFunction(Tags ts, Visibility v, Signature s, loc l, ScopeInfo scopeInfo) {
-	return scopeInfo;
+	return scopeInfo; // No body, so no need to actually do anything else
 }
 
 //
@@ -840,11 +953,18 @@ public ScopeInfo handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
 		if (`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if((Formal)`<Type t> <Name n>` := fp) {
-					if (debug) println("NAMESPACE: Adding parameter <n>");
-					ScopeItem pitem = (FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc]);
-					AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
-					scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, n@\loc);
-					siList += aip.addedId;
+					// Make sure the parameter has not already been declared in this scope, which would mean it
+					// has the same name as either the function or another parameter
+					if (size(getItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {
+						scopeInfo = addScopeError(scopeInfo, n@\loc, "Illegal redefinition of <n>. Parameter names must be different from other parameter names and from the name of the function.");
+						if (debug) println("NAMESPACE: Illegal redefinition of <n>");
+					} else {
+						if (debug) println("NAMESPACE: Adding parameter <n>");
+						ScopeItem pitem = (FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc]);
+						AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
+						scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, n@\loc);
+						siList += aip.addedId;
+					}
 				}
 			}
 		}
@@ -853,20 +973,28 @@ public ScopeInfo handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
 		if (`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if((Formal)`<Type t> <Name n>` := fp) {
-					if (debug) println("NAMESPACE: Adding parameter <n>");
-					ScopeItem pitem = FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc];
-					AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
-					scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, n@\loc);
-					siList += aip.addedId;
+					// Make sure the parameter has not already been declared in this scope, which would mean it
+					// has the same name as either the function or another parameter
+					if (size(getItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {
+						scopeInfo = addScopeError(scopeInfo, n@\loc, "Illegal redefinition of <n>. Parameter names must be different from other parameter names and from the name of the function.");
+						if (debug) println("NAMESPACE: Illegal redefinition of <n>");
+					} else {
+						if (debug) println("NAMESPACE: Adding parameter <n>");
+						ScopeItem pitem = (FormalParameterItem(convertName(n), convertType(t), scopeInfo.currentScope)[@at = fp@\loc]);
+						AddedItemPair aip = addScopeItemWithParent(pitem, scopeInfo.currentScope, fp@\loc, scopeInfo);
+						scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, n@\loc);
+						siList += aip.addedId;
+					}
 				}
 			}
 		}
 	}
 	
 	// Update the function with information on its parameters
-	ScopeItem functionItem = getScopeItem(scopeInfo.currentScope, scopeInfo);
+	ScopeItem functionLayer = getScopeItem(scopeInfo.currentScope, scopeInfo);
+	ScopeItem functionItem = getScopeItem(functionLayer.itemId, scopeInfo);
 	functionItem = (functionItem[parameters = siList])[isVarArgs = varArgs];
-	scopeInfo = updateScopeItem(functionItem, scopeInfo.currentScope, scopeInfo);
+	scopeInfo = updateScopeItem(functionItem, functionLayer.itemId, scopeInfo);
 	
 	return scopeInfo;
 }
@@ -879,7 +1007,7 @@ public ScopeInfo handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
 public ScopeInfo handleFunction(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, ScopeInfo scopeInfo) {
 	// First, get back the scope item at location l so we can switch into the proper function scope
 	if (debug) println("NAMESPACE: Switching to function with signature <s>");
-	ScopeItemId functionScope = getItemAtLocation(l, scopeInfo);
+	ScopeItemId functionScope = getLayerAtLocation(l, scopeInfo);
 	ScopeUpdatePair sup = changeCurrentScope(functionScope,scopeInfo);
 	
 	switch(s) {
@@ -981,7 +1109,7 @@ public ScopeInfo handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc 
 }
 
 //
-// Handle abstract ADT declarations (ADT's without variants)
+// Handle ADT declarations (ADT's with variants)
 //
 // TODO: This should handle cases where constructors are declared over different data
 // declarations with the same ADT name; need to verify this as part of tests.
@@ -1010,7 +1138,7 @@ public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Va
 	for (var <- vars) {
 		if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
 			set[ScopeItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n));
-
+			if (debug) println("NAMESPACE: Checking for overlaps for constructor <n>, <size(potentialOverlaps)> potential overlaps");
 			ScopeItem constructorItem = ConstructorItem(convertName(n), [ convertTypeArg(targ) | targ <- args ], itemId, scopeInfo.currentScope)[@at = l];
 			AddedItemPair aip2 = addScopeItemWithParent(constructorItem, scopeInfo.currentScope, l, scopeInfo);
 			scopeInfo = addItemUses(aip2.scopeInfo, { aip2.addedId }, n@\loc);
@@ -1040,17 +1168,29 @@ public ScopeInfo handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"
 //
 // TODO: Should handle tags
 //
+// TODO: Should tag the aliased type with where it comes from
+//
 public ScopeInfo handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
 	if (debug) println("NAMESPACE: Found alias: <aliasType> = <aliasedType>");
 	
-	ScopeItem aliasItem = AliasItem(convertUserType(aliasType), convertType(aliasedType), isPublic(v), scopeInfo.currentScope)[@at = l];
-	AddedItemPair aip = addScopeItemWithParent(aliasItem, scopeInfo.currentScope, l, scopeInfo);
-	scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, getUserTypeRawName(aliasType)@\loc);
+	Name aliasRawName = getUserTypeRawName(aliasType);
+	RName aliasName = convertName(aliasRawName);
+	set[ScopeItemId] otherTypeItems = getTypeItemsForNameMB(scopeInfo, scopeInfo.currentScope, aliasName);
+	
+	if (size(otherTypeItems) > 0) {
+		scopeInfo = addScopeError(scopeInfo, aliasRawName@\loc, "Illegal redefinition of <n>.");
+		if (debug) println("NAMESPACE: Illegal redefinition of <n>");
+	} else {
+		ScopeItem aliasItem = AliasItem(convertUserType(aliasType), convertType(aliasedType), isPublic(v), scopeInfo.currentScope)[@at = l];
+		AddedItemPair aip = addScopeItemWithParent(aliasItem, scopeInfo.currentScope, l, scopeInfo);
+		scopeInfo = addItemUses(aip.scopeInfo, { aip.addedId }, getUserTypeRawName(aliasType)@\loc);
+	}
 	return scopeInfo;
 }
 
+// TODO: Check the tag
 public ScopeInfo handleAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
-	throw "handleAlias not yet implemented";
+	return scopeInfo; 
 }
 
 public ScopeInfo handleViewNamesOnly(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, ScopeInfo scopeInfo) {
@@ -1090,7 +1230,7 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 
 			// Open a new boolean scope for the expression list and the statement body
 			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
-			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			for (e <- es) {
@@ -1111,7 +1251,7 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 			
 			// Open a new boolean scope for the expression list and the statement body
 			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
-			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			for (e <- es) {
@@ -1137,7 +1277,7 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 			
 			// Open a new boolean scope for the expression list and the statement body
 			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
-			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			for (e <- es) {
@@ -1158,7 +1298,7 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 			
 			// Open a new boolean scope for the expression list and the statement body
 			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
-			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			for (e <- es) {
@@ -1295,7 +1435,7 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 
 			// Add a scope layer for the block and switch the scope to it			
 			ScopeItem blockItem = BlockLayer(scopeInfo.currentScope)[@at=s@\loc];
-			AddedItemPair aip = addScopeItemWithParent(blockItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(blockItem, scopeInfo.currentScope, s@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 			for (b <- bs) {
@@ -1389,7 +1529,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			// Parameters maintain their own scope for backtracking purposes
 			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 			for (ei <- el) {
@@ -1434,12 +1574,15 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 			if (debug) println("NAMESPACE: Closure: <exp>");
 			
 			// Create and switch scope to the closure layer
-			ScopeItem si = ClosureLayer(convertType(t), mkEmptySIList(), false, scopeInfo.currentScope)[@at=exp@\loc];
-			AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(ClosureLayer(scopeInfo.currentScope)[@at=exp@\loc], scopeInfo.currentScope, exp@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
-			
+
+			// Add a scope item for the closure
+			AddedItemPair aip2 = addScopeItemWithParents(ClosureItem(convertType(t), mkEmptySIList(), false, scopeInfo.currentScope)[@at=exp@\loc], sup.scopeInfo.currentScope, exp@\loc, sup.scopeInfo);
+			aip2.scopeInfo.scopeItemMap[aip.addedId].itemId = aip2.addedId;
+
 			// Add parameters to the scope			 
-			scopeInfo = handleParametersNamesOnly(p, sup.scopeInfo);
+			scopeInfo = handleParametersNamesOnly(p, aip2.scopeInfo);
 			
 			// Handle the closure body
 			for (s <- ss) scopeInfo = handleStatement(s, scopeInfo);
@@ -1454,12 +1597,15 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 			if (debug) println("NAMESPACE: VoidClosure: <exp>");
 			
 			// Create and switch scope to the closure layer
-			ScopeItem si = VoidClosureLayer(mkEmptySIList(), false, scopeInfo.currentScope)[@at=exp@\loc];
-			AddedItemPair aip = addScopeItemWithParent(si, scopeInfo.currentScope, l, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(VoidClosureLayer(scopeInfo.currentScope)[@at=exp@\loc], scopeInfo.currentScope, exp@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
+
+			// Add a scope item for the closure
+			AddedItemPair aip2 = addScopeItemWithParents(VoidClosureItem(mkEmptySIList(), false, scopeInfo.currentScope)[@at=exp@\loc], sup.scopeInfo.currentScope, exp@\loc, sup.scopeInfo);
+			aip2.scopeInfo.scopeItemMap[aip.addedId].itemId = aip2.addedId;
 			
 			// Add parameters to the scope			 
-			scopeInfo = handleParametersNamesOnly(p, sup.scopeInfo);
+			scopeInfo = handleParametersNamesOnly(p, aip2.scopeInfo);
 			
 			// Handle the closure body
 			for (s <- ss) scopeInfo = handleStatement(s, scopeInfo);
@@ -1475,7 +1621,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 			
 			// Create and switch into a new scope layer for the block
 			ScopeItem blockItem = BlockLayer(scopeInfo.currentScope)[@at=exp@\loc];
-			AddedItemPair aip = addScopeItemWithParent(blockItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(blockItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 			for (s <- ss) {
@@ -1558,7 +1704,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 			if (debug) println("NAMESPACE: IsDefined: <exp>");
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e, scopeInfo);
@@ -1575,7 +1721,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 			if (debug) println("NAMESPACE: Negation: <exp>");
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e, scopeInfo);
@@ -1675,7 +1821,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1693,7 +1839,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 			
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1711,7 +1857,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1729,7 +1875,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1747,7 +1893,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1765,7 +1911,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1783,7 +1929,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1801,7 +1947,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1819,7 +1965,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e3,handleExpression(e2,handleExpression(e1, scopeInfo)));
@@ -1837,7 +1983,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1855,7 +2001,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1873,7 +2019,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1891,7 +2037,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
@@ -1909,7 +2055,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
@@ -1927,7 +2073,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
@@ -1945,7 +2091,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
@@ -1963,7 +2109,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
 				ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=exp@\loc];
-				AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
+				AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, exp@\loc, scopeInfo);
 				ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 				scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
@@ -2004,7 +2150,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 			
 			// Open a new boolean scope for the generators, this makes them available in the reducer
 			ScopeItem booleanExpItem = BooleanExpLayer(scopeInfo.currentScope)[@at=s@\loc];
-			AddedItemPair aip = addScopeItemWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(booleanExpItem, scopeInfo.currentScope, s@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			// Calculate the scope info for the generators and expressors; we add "it" as a variable automatically
@@ -2421,7 +2567,7 @@ public ScopeInfo handlePatternWithAction(PatternWithAction pwa, ScopeInfo scopeI
 	switch(pwa) {
 		case `<Pattern p> => <Expression e>` : {
 			ScopeItem patternItem = PatternMatchLayer(scopeInfo.currentScope)[@at=pwa@\loc];
-			AddedItemPair aip = addScopeItemWithParent(patternItem, scopeInfo.currentScope, pwa@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(patternItem, scopeInfo.currentScope, pwa@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
@@ -2432,7 +2578,7 @@ public ScopeInfo handlePatternWithAction(PatternWithAction pwa, ScopeInfo scopeI
 		
 		case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
 			ScopeItem patternItem = PatternMatchLayer(scopeInfo.currentScope)[@at=pwa@\loc];
-			AddedItemPair aip = addScopeItemWithParent(patternItem, scopeInfo.currentScope, pwa@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(patternItem, scopeInfo.currentScope, pwa@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 			
 			scopeInfo = handlePattern(p, scopeInfo);
@@ -2447,7 +2593,7 @@ public ScopeInfo handlePatternWithAction(PatternWithAction pwa, ScopeInfo scopeI
 		
 		case `<Pattern p> : <Statement s>` : {
 			ScopeItem patternItem = PatternMatchLayer(scopeInfo.currentScope)[@at=pwa@\loc];
-			AddedItemPair aip = addScopeItemWithParent(patternItem, scopeInfo.currentScope, pwa@\loc, scopeInfo);
+			AddedItemPair aip = addScopeLayerWithParent(patternItem, scopeInfo.currentScope, pwa@\loc, scopeInfo);
 			ScopeUpdatePair sup = changeCurrentScope(aip.addedId, aip.scopeInfo);
 
 			scopeInfo = handleStatement(s, handlePattern(p, scopeInfo));			
