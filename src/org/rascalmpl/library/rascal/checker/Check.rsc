@@ -260,8 +260,8 @@ public RType checkAbstractFunction(Tags ts, Visibility v, Signature s) {
 
 public RType checkFunction(Tags ts, Visibility v, Signature s, FunctionBody b) {
 	switch(s) {
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : return isFailType(b@rtype) ? b@rtype : n@rtype;
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : return isFailType(b@rtype) ? b@rtype : n@rtype;
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : return checkForFail(toSet(getParameterTypes(ps)) + b@rtype) ? collapseFailTypes(toSet(getParameterTypes(ps)) + b@rtype) : n@rtype;
+		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : return checkForFail(toSet(getParameterTypes(ps)) + b@rtype) ? collapseFailTypes(toSet(getParameterTypes(ps)) + b@rtype) : n@rtype;
 	}
 	throw "checkFunction: unhandled signature <s>";
 }
@@ -322,7 +322,9 @@ public RType checkADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ va
 }
 
 public RType checkAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType) {
-	throw "checkAlias not implemented";
+	Name aliasRawName = getUserTypeRawName(aliasType);
+	if ( (aliasRawName@rtype)? && isFailType(aliasRawName@rtype)) return aliasRawName@rtype;
+	return makeVoidType();
 }
 
 public ScopeInfo checkView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts) {
@@ -600,7 +602,9 @@ public RType checkStatement(Statement s) {
 			RType stmtType = getInternalStatementType(b@rtype);
 			RType retType = getFunctionReturnType(globalScopeInfo.returnTypeMap[s@\loc]);
 			if (debug) println("CHECKER: Verifying return type <prettyPrintType(retType)>");
-			if (subtypeOf(stmtType,retType)) {
+			if (isFailType(stmtType)) {
+				return makeStatementType(stmtType);
+			} else if (subtypeOf(stmtType,retType)) {
 				if (debug) println("CHECKER: Returning type <prettyPrintType(retType)>");
 				return makeStatementType(retType);
 			} else {
@@ -2754,19 +2758,19 @@ public list[RType] getParameterTypes(Parameters p) {
 
 	if (`( <Formals f> )` := p && `<{Formal ","}* fs>` := f) {
 		for ((Formal)`<Type t> <Name n>` <- fs) {
-				siList += n@rtype;
+				pTypes += n@rtype;
 		}
-	} else if (`( <Formals f> ... )` := p) {
+	} else if (`( <Formals f> ... )` := p && `<{Formal ","}* fs>` := f) {
 		for ((Formal)`<Type t> <Name n>` <- fs) {
-				siList += n@rtype;
+				pTypes += n@rtype;
 		}
-		if (size(siList) > 0)
-			siList += RVarArgsType(tail(siList,1));
+		if (size(pTypes) > 0)
+			pTypes += RVarArgsType(tail(pTypes,1));
 		else
-			siList += RVarArgsType(makeValueType());
+			pTypes += RVarArgsType(makeValueType());
 	}
 
-	return siList;
+	return pTypes;
 }
 
 //

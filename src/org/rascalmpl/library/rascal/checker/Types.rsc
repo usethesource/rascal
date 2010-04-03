@@ -80,6 +80,7 @@ data RType =
 	| RParameterizedUserType(RName typeName, list[RType] typeParams)
 	| RTypeVar(RTypeVar tv)
 	| RAssignableType(RType wholeType, RType partType)
+	| RUnknownType(RType wrappedType)
 ;
 
 data RNamedType =
@@ -635,12 +636,12 @@ public RType getFunctionReturnType(RType ft) {
 }
 
 public list[RType] getConstructorArgumentTypes(RType ct) {
-	if (RTypeConstructor(cn, cts, pt) := ct) return [ getElementType(argType) | argType <- cts ]; 
-	throw "Cannot get constructor arguments from non-constructor type <prettyPrintType(ft)>";
+	if (RConstructorType(cn, cts, pt) := ct) return [ getElementType(argType) | argType <- cts ]; 
+	throw "Cannot get constructor arguments from non-constructor type <prettyPrintType(ct)>";
 }
 
 public RType getConstructorResultType(RType ct) {
-	if (RTypeConstructor(cn, cts, pt) := ct) return pt;
+	if (RConstructorType(cn, cts, pt) := ct) return pt;
 	throw "Cannot get constructor ADT type from non-constructor type <prettyPrintType(ft)>";
 }
 
