@@ -22,9 +22,11 @@ public class PropertyManager {
 
 	enum Property {
 		ANCHOR,
-		CLOSED, 
-		CONNECTED,
-		CURVED,
+		CLOSEDSHAPE, 
+		CONNECTEDSHAPE,
+		CONTENTSHIDDEN,
+		CONTENTSVISIBLE,
+		CURVEDSHAPE,
 		FILLCOLOR, 
 		FONT, 
 		FONTCOLOR, 
@@ -39,6 +41,7 @@ public class PropertyManager {
 		LINECOLOR, 
 		LINEWIDTH, 
 		MOUSEOVER, 
+		PINNED,
 		SIZE, 
 		TEXTANGLE, 
 		TOANGLE,
@@ -50,9 +53,11 @@ public class PropertyManager {
 	static final HashMap<String, Property> propertyNames = new HashMap<String, Property>() {
 		{
 			put("anchor", Property.ANCHOR);
-			put("closed", Property.CLOSED);
-			put("connected", Property.CONNECTED);
-			put("curved", Property.CURVED);
+			put("closedShape", Property.CLOSEDSHAPE);
+			put("connectedShape", Property.CONNECTEDSHAPE);
+			put("contentsHidden", Property.CONTENTSHIDDEN);
+			put("contentsVisible", Property.CONTENTSVISIBLE);
+			put("curvedShape", Property.CURVEDSHAPE);
 			put("fillColor", Property.FILLCOLOR);
 			put("font", Property.FONT);
 			put("fontColor", Property.FONTCOLOR);
@@ -67,6 +72,7 @@ public class PropertyManager {
 			put("lineColor", Property.LINECOLOR);
 			put("lineWidth", Property.LINEWIDTH);
 			put("mouseOver", Property.MOUSEOVER);
+			put("pinned", Property.PINNED);
 			put("size", Property.SIZE);
 			put("textAngle", Property.TEXTANGLE);
 			put("toAngle", Property.TOANGLE);
@@ -76,9 +82,10 @@ public class PropertyManager {
 		}
 	};
 	
-	boolean closed;
-	boolean connected;
-	boolean curved;
+	boolean closedShape;
+	boolean connectedShape;
+	boolean contentsVisible;
+	boolean curvedShape;
 	int fillColor;
 	String font;
 	int fontColor;
@@ -91,6 +98,7 @@ public class PropertyManager {
 	float innerRadius; 
 	int lineColor;
 	int lineWidth;
+	boolean pinned;
 	float textAngle; 
 	float toAngle;
 	float vanchor;
@@ -98,9 +106,9 @@ public class PropertyManager {
 	float width;
 	
 	// Interaction and mouse handling
-	IList origMouseOverProperties = null;
-	boolean mouseOver = false;
-	PropertyManager mouseOverproperties = null;
+//	IList origMouseOverProperties = null;
+//	boolean mouseOver = false;
+//	PropertyManager mouseOverproperties = null;
 	protected Figure mouseOverFigure = null;
 	
 	private int getIntArg(IConstructor c){
@@ -156,14 +164,20 @@ public class PropertyManager {
 				System.err.printf("anchor: %f, %f\n", hanchor, vanchor);
 				break;
 				
-			case CLOSED:
-				closed = true; break;
+			case CLOSEDSHAPE:
+				closedShape = true; break;
 				
-			case CONNECTED:
-				connected = true; break;
+			case CONNECTEDSHAPE:
+				connectedShape = true; break;
 				
-			case CURVED:
-				curved = true; break;
+			case CONTENTSHIDDEN:
+				contentsVisible = false; break;
+				
+			case CONTENTSVISIBLE:
+				contentsVisible = true; break;
+				
+			case CURVEDSHAPE:
+				curvedShape = true; break;
 			
 			case FILLCOLOR:
 				fillColor = getColorArg(c, ctx); break;
@@ -211,12 +225,15 @@ public class PropertyManager {
 				lineWidth = getIntArg(c); break;
 
 			case MOUSEOVER:
-				origMouseOverProperties = (IList) c.get(0);
-				mouseOverproperties = new PropertyManager(vlp, this, (IList) c.get(0), ctx);
-				if(c.arity() == 2){
-					mouseOverFigure = FigureFactory.make(vlp, (IConstructor)c.get(1), mouseOverproperties, ctx);
-				}
+				//origMouseOverProperties = (IList) c.get(0);
+				//mouseOverproperties = new PropertyManager(vlp, this, (IList) c.get(0), ctx);
+				//if(c.arity() == 2){
+					//mouseOverFigure = FigureFactory.make(vlp, (IConstructor)c.get(1), mouseOverproperties, ctx);
+					mouseOverFigure = FigureFactory.make(vlp, (IConstructor)c.get(0), null, ctx);
+				//}
 				break;	
+			case PINNED:
+				pinned = true; break;
 				
 			case SIZE:
 				if(c.arity() == 1){
@@ -246,14 +263,15 @@ public class PropertyManager {
 						.getCurrentAST(), ctx.getStackTrace());
 			}
 		}
-		if(inherited != null && origMouseOverProperties == null && inherited.mouseOverproperties != null)
-			mouseOverproperties = new PropertyManager(vlp, this, inherited.origMouseOverProperties, ctx);
+		//if(inherited != null && origMouseOverProperties == null && inherited.mouseOverproperties != null)
+		//	mouseOverproperties = new PropertyManager(vlp, this, inherited.origMouseOverProperties, ctx);
 	}
 	
 	private void importProperties(PropertyManager inh) {
-		closed = inh.closed;
-		connected = inh.connected;
-		curved = inh.curved;
+		closedShape = inh.closedShape;
+		connectedShape = inh.connectedShape;
+		contentsVisible = inh.contentsVisible;
+		curvedShape = inh.curvedShape;
 		fillColor = inh.fillColor;
 		font = inh.font;
 		fontColor = inh.fontColor;
@@ -266,6 +284,7 @@ public class PropertyManager {
 		innerRadius = inh.innerRadius;
 		lineColor = inh.lineColor;
 		lineWidth = inh.lineWidth;
+		pinned = inh.pinned;
 		textAngle = inh.textAngle;
 		toAngle = inh.toAngle;
 		vanchor = inh.vanchor;
@@ -274,9 +293,10 @@ public class PropertyManager {
 	}
 	
 	private void setDefaults() {
-		closed = false;
-		connected = false;
-		curved = false;
+		closedShape = false;
+		connectedShape = false;
+		contentsVisible = true;
+		curvedShape = false;
 		fillColor = 255;
 		font = "Helvetica";
 		fontColor = 0;
@@ -289,15 +309,16 @@ public class PropertyManager {
 		innerRadius = 0;
 		lineColor = 0;
 		lineWidth = 1;
+		pinned = false;
 		textAngle = 0;
 		toAngle = 0;
 		vanchor = 0.5f;
 		vgap = 0;
 		width = 0;
 		
-		origMouseOverProperties = null;
+//		origMouseOverProperties = null;
 //		mouseOver = false;
-		mouseOverproperties = null;
+//		mouseOverproperties = null;
 		mouseOverFigure = null;
 	}
 	

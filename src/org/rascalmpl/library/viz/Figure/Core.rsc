@@ -111,7 +111,7 @@ public str palette(int n){
    return anchor(0.5, 0.5);
  }
  
- alias FProperties = list[FProperty];
+public alias FProperties = list[FProperty];
 
 data FProperty =
 /* sizes */
@@ -148,16 +148,17 @@ data FProperty =
    | fontColor(str colorName)
    | textAngle(num angle)               // text rotation
    
-/* interaction properties */
-   | mouseOver(FProperties props)       // switch to new properties when mouse is over element
-   | mouseOver(FProperties props, Figure inner)
-                                        // display new inner element when mouse is over current element
+/* interaction properties */  
+   | mouseOver(Figure inner)            // add figure when mouse is over current figure
+   | contentsHidden()                   // contents of container is hidden
+   | contentsVisible()                  // contents of container is visible
+   | pinned()                           // position pinned-down, cannot be dragged
    
 /* other properties */
    | id(str name)                       // name of elem (used in edges and various layouts)
-   | connected()                        // shapes consist of connected points
-   | closed()    						// closed shapes
-   | curved()                           // use curves instead of straight lines
+   | connectedShape()                   // shapes consist of connected points
+   | closedShape()    		 		    // closed shapes
+   | curvedShape()                      // use curves instead of straight lines
    ;
 
 /*
@@ -178,7 +179,7 @@ data Edge =
  * Figure: a visual element, the principal visualization datatype
  */
  
- alias Figures = list[Figure];
+public alias Figures = list[Figure];
  
 data Figure = 
 /* atomic primitives */

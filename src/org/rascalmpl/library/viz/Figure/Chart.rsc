@@ -172,12 +172,12 @@ public Figure xyChart(str title, list[NamedPairSeries] facts, ChartSetting setti
   println("xscale=<xscale>, yscale=<yscale>, xshift=<xshift>, yshift=<yshift>");
   
   // Add vertical axis at x=0
-  funPlots += shape([lineColor("darkgrey"), lineWidth(1), connected()],
+  funPlots += shape([lineColor("darkgrey"), lineWidth(1), connectedShape()],
                      [ vertex((xshift + 0) * xscale, 0),
                        vertex((xshift + 0) * xscale, chartHeight)
                      ]);
   // Add horizontal axis at y=0
-  funPlots+= shape([lineColor("darkgrey"), lineWidth(1), connected()],
+  funPlots+= shape([lineColor("darkgrey"), lineWidth(1), connectedShape()],
                      [ vertex(0,          (yshift + 0) * yscale),
                        vertex(chartWidth, (xshift + 0) * yscale)
                      ]);  
@@ -188,15 +188,15 @@ public Figure xyChart(str title, list[NamedPairSeries] facts, ChartSetting setti
    		list[FProperty] shapeProps = [lineColor(fcolorName), lineWidth(2)];
    		
    		if(isAreaPlot)
-   		   shapeProps += [fillColor(color(fcolorName, 0.7)), closed(), connected()];
+   		   shapeProps += [fillColor(color(fcolorName, 0.7)), closedShape(), connectedShape()];
    		else
    		   shapeProps += [fillColor(fcolorName)];
    		   
    		if(isCurvePlot)
-   		   shapeProps += [curved(), connected()];
+   		   shapeProps += [curvedShape(), connectedShape()];
    		   
    		if(isLinePlot)
-   		   shapeProps += [connected()];
+   		   shapeProps += [connectedShape()];
    		   
         funPlots += shape(shapeProps,
                           [vertex((xshift + x) * xscale, (yshift + y) * yscale, ellipse([size(5), fillColor(fcolorName), lineWidth(0)])) | <num x, num y> <- values]);

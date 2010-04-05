@@ -18,6 +18,6 @@ public class Box extends Container {
 
 	@Override
 	void drawContainer(){
-		vlp.rect(left, top, width, height);
+		vlp.rect(left + leftDragged, top + topDragged, width, height);
 	}
 }

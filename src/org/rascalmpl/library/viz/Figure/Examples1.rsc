@@ -10,7 +10,7 @@ import IO;
 
 // Unfilled box of 100x200
 public void box1(){
-	render(box([ width(n), height(200) ]));
+	render(box([ width(100), height(200) ]));
 }
 
 // Unfilled box of 100x200

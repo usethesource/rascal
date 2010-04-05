@@ -60,6 +60,9 @@ public class Text extends Figure {
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;
+		
+		left += leftDragged;
+		top += topDragged;
 		applyProperties();
 		applyFontColorProperty();
 	

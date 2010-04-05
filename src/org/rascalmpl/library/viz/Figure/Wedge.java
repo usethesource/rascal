@@ -89,16 +89,6 @@ public class Wedge extends Container {
 		if(toAngle < fromAngle)
 			toAngle += 2 * PApplet.PI;
 		
-		/*
-		 * Consider mouseOver
-		 */
-		Figure insideForMouseOver = getInsideForMouseOver();
-		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
-			insideForMouseOver.bbox();
-			this.width = insideForMouseOver.width;
-			this.height = insideForMouseOver.height;
-			return;
-		}
 		
 		if(inside != null)	// Compute bounding box of inside object.
 			inside.bbox();
@@ -296,25 +286,8 @@ public class Wedge extends Container {
 	}
 	
 	@Override
-	public boolean mouseOver(int mousex, int mousey){
-		Figure imo = getInsideForMouseOver();
-		if(vlp.isRegisteredAsMouseOver(this) && imo != null){
-
-			if(mousex > imo.left && mousex < imo.left + imo.width &&
-					mousey > imo.top && mousey < imo.top + imo.height){
-				vlp.registerMouse(this);
-				return true;
-			}
-			return false;
-
-		}
-		
-		if(mousex > centerX - WI/2 && mousex < centerX + WI/2 &&
-				mousey > centerY - 10  && mousey < centerY + 10){  //TODO replace 10
-			vlp.registerMouse(this);
-			return true;
-
-		}
-		return false;
+	public boolean mouseInside(int mousex, int mousey){
+		return mousex > centerX - WI/2 && mousex < centerX + WI/2 &&
+				mousey > centerY - 10  && mousey < centerY + 10; //TODO replace 10
 	}
 }
