@@ -30,9 +30,43 @@ public abstract class Compose extends Figure {
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		for(Figure ve : figures)
-			if(ve.mouseOver(mousex, mousey))
+		for(Figure fig : figures)
+			if(fig.mouseOver(mousex, mousey))
 				return true;
+		return false;
+	}
+	
+	@Override
+	public void drawFocus(){
+		for(Figure fig : figures)
+			fig.drawFocus();
+	}
+	
+	@Override
+	public boolean mousePressed(int mousex, int mousey){
+		for(Figure fig : figures)
+			if(fig.mousePressed(mousex, mousey))
+				return true;
+		
+		if(mouseInside(mousex, mousey)){
+			//properties.setMouseOver(true);
+			vlp.registerFocus(this);
+			System.err.printf("Compose.mousePressed: %f,%f\n", left, top);
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean mouseDragged(int mousex, int mousey){
+		for(Figure fig : figures)
+			if(fig.mouseDragged(mousex, mousey))
+				return true;
+		if(mousePressed(mousex, mousey)){
+			vlp.registerFocus(this);
+			drag(mousex, mousey);
+			return true;
+		}
 		return false;
 	}
 }

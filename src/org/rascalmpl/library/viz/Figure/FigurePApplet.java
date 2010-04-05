@@ -23,7 +23,8 @@ public class FigurePApplet extends PApplet {
 	private int width = 1000;
 	private int height = 1000;
 	private Figure  figure;
-	private Figure mouseOver = null;
+	private Figure focus = null;
+	private boolean focusSelected = false;
 	private HashMap<String,GraphNode> registered;
 	private static boolean debug = false;
 
@@ -41,16 +42,17 @@ public class FigurePApplet extends PApplet {
 		return registered.get(name);
 	}
 	
-	public void registerMouse(Figure v){
-		mouseOver = v;
+	public void registerFocus(Figure v){
+		focus = v;
 	}
 	
-	public void unRegisterMouse(){
-		mouseOver = null;
+	public void unRegisterFocus(){
+		focus = null;
+		focusSelected = false;
 	}
 	
-	public boolean isRegisteredAsMouseOver(Figure v){
-		return mouseOver == v;
+	public boolean isRegisteredAsFocus(Figure v){
+		return focus == v;
 	}
 
 	@Override
@@ -59,6 +61,7 @@ public class FigurePApplet extends PApplet {
 		textFont(createFont("Helvetica", 12));
 		smooth();
 		noLoop();
+		figure.bbox();
 		//if(!velem.hasInteraction())
 		//	noLoop();
 	}
@@ -66,23 +69,59 @@ public class FigurePApplet extends PApplet {
 	@Override
 	public void draw(){
 		background(255);
-		figure.bbox();
-		figure.draw(0f, 0f);
-		if(mouseOver != null)
-			mouseOver.draw();
+	//	figure.bbox();
+		figure.draw();
+		if(focus != null){
+			if(focusSelected)
+				focus.drawFocus();
+			else
+				focus.drawMouseOverFigure();
+	//		focus.draw();
+		}
+	}
+	
+	@Override
+	public void mouseReleased(){
+		focusSelected = false;
+	}
+	
+	@Override
+	public void mouseDragged(){
+		if(debug)System.err.println("mouseDragged: " + mouseX + ", " + mouseY);
+		if(focus != null){
+			if(debug) System.err.println("update current focus:" + focus);
+			focusSelected = true;
+			focus.drag(mouseX, mouseY);
+			
+		} else {
+			if(debug) System.err.println("searching for new focus");
+			if(figure.mouseDragged(mouseX, mouseY))
+				focusSelected = true;
+			else
+				unRegisterFocus();
+		}
+		redraw();
 	}
 	
 	@Override
 	public void mouseMoved(){
 		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
-		figure.mouseOver(mouseX, mouseY);
+		if(focus != null && focusSelected)
+				focus.drag(mouseX,mouseY);
+		else if(figure.mouseInside(mouseX, mouseY)){
+			/* do nothing */
+		} else
+			unRegisterFocus();
 		redraw();
 	}
 	
 	@Override
 	public void mousePressed(){
 		if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
-		figure.mouseOver(mouseX, mouseY);
+		if(figure.mousePressed(mouseX, mouseY))
+			focusSelected = true;
+		else
+			unRegisterFocus();
 		redraw();
 	}
 }

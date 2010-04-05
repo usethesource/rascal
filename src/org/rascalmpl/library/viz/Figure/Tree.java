@@ -104,6 +104,8 @@ public class Tree extends Figure {
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;
+		left += leftDragged;
+		top += topDragged;
 		vlp.pushMatrix();
 		vlp.translate(left, top);
 		applyProperties();
@@ -112,12 +114,23 @@ public class Tree extends Figure {
 	}
 	
 	@Override
+	public boolean mouseInside(int mousex, int mousey){
+		return root.mouseInside(mousex, mousey);
+	}
+	
+	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		for(TreeNode node : nodeMap.values()){
-			if(node.mouseOver(mousex, mousey))
-				return true;
-		}
-		return false;
+		return root.mouseOver(mousex, mousey);
+	}
+	
+	@Override
+	public boolean mousePressed(int mousex, int mousey){
+		return root.mousePressed(mousex, mousey);
+	}
+	
+	@Override
+	public boolean mouseDragged(int mousex, int mousey){
+		return root.mouseDragged(mousex, mousey);
 	}
 
 }

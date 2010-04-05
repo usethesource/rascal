@@ -26,41 +26,36 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 public class Container extends Figure {
 
 	protected Figure inside;
+	boolean insideVisible = true;
 	private static boolean debug = false;
 	float hgap;
 	float vgap;
 
 	public Container(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, ctx);
-		if(inside != null)
+		if(inside != null){
 			this.inside = FigureFactory.make(vlp, inside, this.properties, ctx);
+			insideVisible = isContentsVisible();
+		}
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
 	}
 
 	@Override 
 	void bbox(){
-	
-		Figure insideForMouseOver = getInsideForMouseOver();
-		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
-			insideForMouseOver.bbox();
-			this.width = insideForMouseOver.width;
-			this.height = insideForMouseOver.height;
-		} else {
-			int lw = getLineWidthProperty();
-			width = getWidthProperty();
-			height = getHeightProperty();
-			if(inside != null){
-				hgap = getHGapProperty();
-				vgap = getVGapProperty();
-				inside.bbox();
-				if(width == 0 && height == 0){
-					width = inside.width + 2 * hgap;
-					height = inside.height + 2 * vgap;
-				}
-			} 
-			width += 2*lw;
-			height += 2*lw;
-		}
+		int lw = getLineWidthProperty();
+		width = getWidthProperty();
+		height = getHeightProperty();
+		if(inside != null){
+			hgap = getHGapProperty();
+			vgap = getVGapProperty();
+			inside.bbox();
+			if(width == 0 && height == 0){
+				width = inside.width + 2 * hgap;
+				height = inside.height + 2 * vgap;
+			}
+		} 
+		width += 2*lw;
+		height += 2*lw;
 		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
 
 	}
@@ -69,20 +64,17 @@ public class Container extends Figure {
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;
+		left += leftDragged;
+		top += topDragged;
 		applyProperties();
 		if(debug)System.err.printf("container.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", left, top, width, height, properties.hanchor, properties.vanchor);
 
-		Figure insideForMouseOver = getInsideForMouseOver();
-		if(vlp.isRegisteredAsMouseOver(this) && insideForMouseOver != null){
-			insideForMouseOver.draw(left, top);
-		} else {
-			if(height > 0 && width > 0){
-				drawContainer();
-				if(inside != null){
-					if(debug)System.err.printf("container.draw2: hgap=%f, vgap=%f, inside.width=%f\n", hgap, vgap, inside.width);
-					if(insideFits() || vlp.isRegisteredAsMouseOver(this))
-						insideDraw();
-				}
+		if(height > 0 && width > 0){
+			drawContainer();
+			if(inside != null){
+				if(debug)System.err.printf("container.draw2: hgap=%f, vgap=%f, inside.width=%f\n", hgap, vgap, inside.width);
+				if(insideFits() && insideVisible)
+					insideDraw();
 			}
 		}
 	}
@@ -98,8 +90,8 @@ public class Container extends Figure {
 	 * If the inside  element fits, draw it.
 	 */
 	void insideDraw(){
-		inside.draw(left + hgap + properties.hanchor*(width  - inside.width  - 2 * hgap),
-			    	top  + vgap + properties.vanchor*(height - inside.height - 2 * vgap));
+		inside.draw(left + leftDragged + hgap + properties.hanchor*(width  - inside.width  - 2 * hgap),
+			    	top  + topDragged  + vgap + properties.vanchor*(height - inside.height - 2 * vgap));
 	}
 	
 	
@@ -111,29 +103,25 @@ public class Container extends Figure {
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		
-		if(vlp.isRegisteredAsMouseOver(this)){  // mouse is over this element
-			Figure imo = getInsideForMouseOver();
-			if(imo != null){
-				if(mousex > imo.left && mousex < imo.left + imo.width &&
-						mousey > imo.top && mousey < imo.top + imo.height){
-					vlp.registerMouse(this);
-					return true;
-				}
-				vlp.unRegisterMouse();
-				return false;
-			}
-			if(mousex > left && mousex < left + width &&
-				mousey > top  && mousey < top + height){
+		if(inside != null && insideVisible &&  inside.mouseOver(mousex, mousey))
 				return true;
-			} else {
-				vlp.unRegisterMouse();
-				return false;
-			}
+		if(mouseInside(mousex, mousey)){
+			vlp.registerFocus(this);
+			return true;
 		}
-		if(mousex > left && mousex < left + width &&
-				mousey > top  && mousey < top + height){
-			vlp.registerMouse(this);
+		return false;
+	}
+	
+	@Override
+	public boolean mousePressed(int mousex, int mousey){
+		if(inside != null && insideVisible && inside.mousePressed(mousex, mousey))
+				return true;
+		if(mouseInside(mousex, mousey)){
+			vlp.registerFocus(this);
+			if(vlp.mouseButton == vlp.RIGHT)
+				insideVisible = false;
+			else
+				insideVisible = true;
 			return true;
 		}
 		return false;

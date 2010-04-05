@@ -54,11 +54,12 @@ public class GraphEdge extends Figure {
 	}
 
 	@Override
-	void draw(float left, float top) {
+	void draw(float leftDragged, float topDragged) {
 		applyProperties();
 		if(debug) System.err.println("edge: (" + from.name + ": " + from.x + "," + from.y + ") -> (" + 
 								                 to.name + ": " + to.x + "," + to.y + ")");
-		vlp.line(from.x, from.y, to.x, to.y);
+		vlp.line(leftDragged + from.figX(), topDragged + from.figY(), 
+				 leftDragged + to.figX(), topDragged + to.figY());
 	}
 
 	@Override

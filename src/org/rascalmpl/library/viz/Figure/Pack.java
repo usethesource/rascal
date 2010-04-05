@@ -89,6 +89,8 @@ public class Pack extends Compose {
 		
 		this.left = left;
 		this.top = top;
+		left += leftDragged;
+		top  += topDragged;
 		
 		applyProperties();
 

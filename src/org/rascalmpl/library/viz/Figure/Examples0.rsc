@@ -1,6 +1,6 @@
 module viz::Figure::Examples0
 
-import experiments::VL::VLCore;
+import viz::Figure::Core;
 import viz::Figure::Render;
 
 import Number;
@@ -18,7 +18,7 @@ public void rlab2(){
 }
 
 public void r3(){
-	render(combine([fillColor("yellow"), gap(10),bottom()],
+	render(hcat([fillColor("yellow"), gap(10),bottom()],
 	              [box([ width(100), height(200), fillColor("red") ]),
 			       box([ width(150), height(100)]),
 			       box([ width(200), height(50), fillColor("green") ])
@@ -27,7 +27,7 @@ public void r3(){
 }
 
 public void r4(){
-	render(combine([vertical(),left(), gap(2)],
+	render(vcat([left(), gap(2)],
 	              [box([ width(100), height(200), fillColor("red") ]),
 			       box([ width(150), height(100), fillColor("blue") ]),
 			       box([ width(200), height(50), fillColor("green") ])
@@ -38,7 +38,7 @@ public void r4(){
 public void bar1(){
     dt1 = [10, 12, 17, 0, 15, 7, 20, 40, 60];  
     colors = colorScale(dt1, color("blue"), color("red"));  
-	b = combine([
+	b = hcat([
                 lineColor(0),
                 lineWidth(1),
 	            fillColor(125),
@@ -54,14 +54,14 @@ public void bar2(){
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
     m = max(size(d1), size(d2));   
-    bars = [ combine([gap(5), top()], 
+    bars = [ hcat([gap(5), top()], 
                      [ box([fillColor("green"), height((d1[i] ? 0) * 8)]),
                       box([fillColor("red"), height((d2[i] ? 0) * 8)])
                     ])
            | int i <- [0 .. m]
            ];
     
-	b = combine([
+	b = hcat([
                 lineColor(0),
                 lineWidth(1),
 	          	width(10),
@@ -77,14 +77,14 @@ public void bar2v(){
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
     m = max(size(d1), size(d2));   
-    bars = [combine([vertical(), gap(0)],
+    bars = [vcat([gap(0)],
                    [box([fillColor("green"), height((d1[i] ? 0) * 8)]),
                     box([fillColor("red"), height((d2[i] ? 0) * 8)])
                    ])
            | int i <- [0 .. m]
            ];
            
-	b = combine([
+	b = hcat([
                 lineColor(0),
                 lineWidth(1),
 	          	width(10),
@@ -211,28 +211,6 @@ public void pack2 (){
    render(pack([size(300,300), gap(20,20), center()], boxes));
 }
 
-public void pie1(){
-     elems =
-     	[ box([width(10), height(100), fillColor("green")])  ,
-     	  box([width(20), height(150), fillColor("red")]),
-     	  box([width(30), height(200), fillColor("blue")])
-     	];
-    	    
-    render(pie([fromAngle(0), toAngle(360), innerRadius(0), gap(0), lineWidth(5), lineColor(0)], elems));
-}
-
-public void pie2(){
-     elems =
-     	[ box([width(10), height(100), fillColor("green")])  ,
-     	  box([width(20), height(150), fillColor("red")]),
-     	  box([width(30), height(200), fillColor("blue")])
-     	];
-    	    
-    p1 = pie([fromAngle(0), toAngle(320), innerRadius(50), gap(0), lineWidth(5), lineColor(0)], elems);
-    p2 = pie([fromAngle(0), toAngle(270), innerRadius(0), gap(0), lineWidth(5), lineColor(0)], elems);
-    render(overlay([center()], [p1, p2]));
-}
-
 public void graph1(){
      nodes =
      	[ box([id("A"), width(10), height(20), fillColor("green")]),
@@ -280,7 +258,7 @@ public void tree1(){
     	[    	  
     	];
     	  
-    render(tree([gap(10), top()], nodes, edges));
+    render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
 public void tree2(){
@@ -295,7 +273,7 @@ public void tree2(){
     	  
     	];
     	  
-    render(tree([gap(10), top()], nodes, edges));
+    render(tree([gap(10), top()], nodes, edges, "A"));
 }
 public void tree3(){
 
@@ -311,7 +289,7 @@ public void tree3(){
     	  
     	];
     	  
-    render(tree([gap(10), top()], nodes, edges));
+    render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
 public void tree4(){
@@ -330,7 +308,7 @@ public void tree4(){
     	  
     	];
     	  
-    render(tree([gap(10), top()], nodes, edges));
+    render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
 
@@ -365,7 +343,7 @@ public void ltree1(){
     	  
     	];
     	    
-    render(tree([gap(10), top()], nodes, edges));
+    render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
 public void ltree2(){
@@ -395,7 +373,7 @@ public void ltree2(){
     	  
     	];
     	    
-    render(tree([gap(10), top()], nodes, edges));
+    render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
 public void ltree3(){
@@ -419,7 +397,7 @@ public void ltree3(){
     	  
     	];
     	    
-    render(tree([gap(10), top()], nodes, edges));
+    render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
 
@@ -445,7 +423,7 @@ rel[str,str] inherits =
 
 public void class1() {
    cscale = colorScale(toList(classes.sloc), color("green"), color("red"));
-   render(combine([top()], [ box([width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes]));
+   render(hcat([top()], [ box([width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes]));
 }
 
 public void class2() {
@@ -456,17 +434,33 @@ public void class2() {
    render(graph([width(400), height(400)], nodes, edges));      
 }
 
-public void mo0(){
-	render(box([ width(20), height(20), fillColor("green"), text("A very long label") ]));
+public FProperty tip(str S){ 
+	return mouseOver(box([fillColor("yellow")], text([fontColor("green")], S)));
 }
 
 public void mo1(){
-	render(box([ width(100), height(200), fillColor("green"), mouseOver([fillColor("red")]) ]));
+	render(text([tip("XXX")], "A VERY LONG STRING"));
+}
+
+public void mo2(){
+	render(box([ size(30,30), tip("XXX")]));
+}
+
+public void mo3(){
+	render(box([ size(100,200), fillColor("green"), mouseOver(box([size(100,200), fillColor("red")])) ]));
 }
 
 
-public void mo2(){
-	render(combine( [ mouseOver([lineColor("red")]) ],
+public void mo4(){
+	render(box([fillColor("blue"), gap(30), tip("Outer Box")], 
+	           box([fillColor("grey"), tip("Middle Box")], 
+	               box([fillColor("red"), size(200,200), tip("Inner Box")])
+	              )
+	          ));
+}
+
+public void mo9(){
+	render(hcat( [ mouseOver([lineColor("red")]) ],
 				    [
 	                 box([ width(100), height(200), text("A very wide label A"), fillColor(color("mediumblue", 0.05)) ]),
 	                 box([ width(100), height(200), text("A very wide label B"), fillColor(color("mediumblue", 0.2)) ]),
@@ -475,4 +469,8 @@ public void mo2(){
 	                 box([ width(100), height(200), text("A very wide label E"), fillColor(color("mediumblue", 0.8)) ]),
 	                 box([ width(100), height(200), text("A very wide label F"), fillColor(color("mediumblue", 1.0)) ])
 	                ]));
+}
+
+public void xx1(){
+	render(hcat([text("ABC"), text("DEF"), text("GHI")]));
 }

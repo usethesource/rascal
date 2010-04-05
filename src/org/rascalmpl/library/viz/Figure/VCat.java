@@ -48,6 +48,8 @@ public class VCat extends Compose {
 	void draw(float left, float top){
 		this.left = left;
 		this.top = top;
+		left += leftDragged;
+		top  += topDragged;
 		applyProperties();
 
 		float bottom = top + height;

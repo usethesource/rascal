@@ -14,7 +14,7 @@ public class HCat extends Compose {
 	float hgap;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
-	private static boolean debug = false;
+	private static boolean debug = true;
 
 	HCat(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
@@ -36,6 +36,7 @@ public class HCat extends Compose {
 		int ngaps = (figures.length - 1);
 		width += ngaps * hgap;
 		height = topAnchor + bottomAnchor;
+		
 		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f\n", width, height, topAnchor, bottomAnchor);
 	}	
 	
@@ -43,6 +44,8 @@ public class HCat extends Compose {
 	void draw(float left, float top){
 		this.left = left;
 		this.top =  top;
+		left += leftDragged;
+		top  += topDragged;
 		applyProperties();
 
 		// Draw from left to right

@@ -132,9 +132,33 @@ public class GraphNode {
 			if(debug)System.err.printf("%f, %f\n", x, y);
 		}
 	}
+	
+	public float figX(){
+		return x + figure.leftDragged;
+	}
+	
+	public float figY(){
+		return y + figure.topDragged;
+	}
 
-	void draw() {
+	void draw(float leftDragged, float topDragged) {
 		figure.bbox();
-		figure.draw(x - figure.width/2, y - figure.height/2);
+		figure.draw(x + leftDragged - figure.width/2, y + topDragged - figure.height/2);
+	}
+	
+	public boolean mouseOver(int mousex, int mousey){
+		if(figure.mouseInside(mousex, mousey)){
+			figure.vlp.registerFocus(figure);
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean mousePressed(int mousex, int mousey){
+		if(figure.mouseInside(mousex, mousey)){
+			figure.vlp.registerFocus(figure);
+			return true;
+		}
+		return false;
 	}
 }

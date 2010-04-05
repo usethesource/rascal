@@ -14,17 +14,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * @author paulk
  */
 
-/*
- * Still looking for a good name for "visual elements" Candidates are:
- * - Figure
- * - Picture
- * - Pictorial
- * - Diagram
- * - Shape
- * - Mark
- * - Visual
- * - Sketch
- */
 
 public abstract class Figure implements Comparable<Figure> {
 	
@@ -39,6 +28,10 @@ public abstract class Figure implements Comparable<Figure> {
 	protected float width;		// width of element
 	protected float height;		// height of element
 	
+	protected float leftDragged;    // deplacement of left due to dragging
+	protected float topDragged;	    // deplacement of top due to dragging
+	protected boolean dragged;      // figure has been dragged to other location
+	
 	Figure(FigurePApplet vlp, IEvaluatorContext ctx){
 		this(vlp, null,ValueFactoryFactory.getValueFactory().list(), ctx);
 	}
@@ -47,6 +40,16 @@ public abstract class Figure implements Comparable<Figure> {
 		this.vlp = vlp;
 		properties = new PropertyManager(vlp, inheritedProps, props, ctx);
 		vf = ValueFactoryFactory.getValueFactory();
+		leftDragged = topDragged = 0;
+		dragged = false;
+	}
+	
+	public float getCurrentLeft(){
+		return left + leftDragged;
+	}
+	
+	public float getCurrentTop(){
+		return top + topDragged;
 	}
 	
 	
@@ -67,8 +70,8 @@ public abstract class Figure implements Comparable<Figure> {
 //	}
 	
 	private PropertyManager getProperties(){
-		if(vlp.isRegisteredAsMouseOver(this) && properties.mouseOverproperties != null)
-			return properties.mouseOverproperties;
+//		if(vlp.isRegisteredAsFocus(this) && properties.mouseOverproperties != null)
+//			return properties.mouseOverproperties;
 		return properties;
 	}
 	
@@ -86,10 +89,6 @@ public abstract class Figure implements Comparable<Figure> {
 		
 		vlp.fill(pm.fontColor);
 	}
-	
-//	public void applyFontColorProperty(){
-//		properties.applyFontColorProperty();
-//	}
 	
 	protected float getHeightProperty(){
 		return properties.height;
@@ -144,15 +143,15 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	protected boolean isClosed(){
-		return properties.closed;
+		return properties.closedShape;
 	}
 	
 	protected boolean isConnected(){
-		return properties.connected;
+		return properties.connectedShape;
 	}
 	
 	protected boolean isCurved(){
-		return properties.curved;
+		return properties.curvedShape;
 	}
 	
 	protected float getFromAngleProperty(){
@@ -187,16 +186,28 @@ public abstract class Figure implements Comparable<Figure> {
 		return properties.textAngle;
 	}
 	
-	public boolean hasInteraction(){
-		return properties.mouseOverproperties != null;
+	public boolean isContentsVisible(){
+		return properties.contentsVisible;
 	}
 	
-	public Figure getInsideForMouseOver(){
+	public void setContentsVisible(boolean on){
+		properties.contentsVisible = on;
+	}
+	
+	public boolean isPinned(){
+		return properties.pinned;
+	}
+	
+	public Figure getMouseOverFigure(){
 		return properties.mouseOverFigure;
 	}
 	
-	public boolean hasMouseOver(){
-		return properties.mouseOver;
+	public boolean hasMouseOverFigure(){
+		return properties.mouseOverFigure != null;
+	}
+	
+	public boolean isDragged(){
+		return leftDragged != 0 || topDragged != 0;
 	}
 	
 	/* 
@@ -238,7 +249,7 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	/**
 	 * Compute the bounding box of the element. Should be called before draw since,
-	 * the computed width and height are stored in the element itself. This varinad also
+	 * the computed width and height are stored in the element itself. This variant also
 	 * stores left and top in the element
 	 */
 	
@@ -263,6 +274,31 @@ public abstract class Figure implements Comparable<Figure> {
 		draw(left, top);
 	}
 	
+	public void drawFocus(){
+		vlp.stroke(255, 0,0);
+		vlp.noFill();
+		vlp.rect(left + leftDragged, top + topDragged, width, height);
+	}
+	
+	public void drawMouseOverFigure(){
+		if(hasMouseOverFigure()){
+			Figure mo = getMouseOverFigure();
+			mo.bbox();
+			mo.draw(left + leftDragged + (width - mo.width)/2f, top + topDragged + (height - mo.height)/2);
+		}
+	}
+	
+	protected boolean mouseInside(int mousex, int mousey){
+		return (mousex > left + leftDragged && mousex < left + leftDragged + width) &&
+		        (mousey > top + topDragged  && mousey < top + topDragged + height);
+	}
+	
+	public void drag(float mousex, float mousey){
+		//System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
+		leftDragged = mousex - left;
+		topDragged = mousey - top;
+	}
+	
 	/**
 	 * Compute effect of a mouseOver on this element
 	 * @param mousex	x-coordinate of mouse
@@ -271,11 +307,31 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 	
 	public boolean mouseOver(int mousex, int mousey){
-		if((mousex > left && mousex < left + width) &&
-		   (mousey > top  && mousey < top + height)){
+		if(mouseInside(mousex, mousey)){
 		   //properties.setMouseOver(true);
-		   vlp.registerMouse(this);
+		   vlp.registerFocus(this);
 		   return true;
+		}
+		return false;
+	}
+	
+	public boolean mousePressed(int mousex, int mousey){
+		if(mouseInside(mousex, mousey)){
+			//properties.setMouseOver(true);
+			vlp.registerFocus(this);
+			System.err.printf("Figure.mousePressed: %f,%f\n", left, top);
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean mouseDragged(int mousex, int mousey){
+		if(!isPinned() && mouseInside(mousex, mousey)){
+			//properties.setMouseOver(true);
+			vlp.registerFocus(this);
+			drag(mousex, mousey);
+			System.err.printf("Figure.mouseDragged: %f,%f\n", leftDragged, topDragged);
+			return true;
 		}
 		return false;
 	}
