@@ -400,8 +400,8 @@ public void tree6(){
 
 // Tree with text popups.
 
-public Figure popup(str s){
-	return box([width(0), height(0), gap(1), fillColor("yellow")], text(s));
+public FProperty popup(str s){
+	return mouseOver(box([width(0), height(0), gap(1), fillColor("yellow")], text(s)));
 }
 
 public void tree7(){
