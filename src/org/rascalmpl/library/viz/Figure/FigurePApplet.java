@@ -57,6 +57,7 @@ public class FigurePApplet extends PApplet {
 
 	@Override
 	public void setup(){
+		//size(width, height, PDF, "tmp.pdf");
 		size(width, height);
 		textFont(createFont("Helvetica", 12));
 		smooth();
