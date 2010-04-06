@@ -203,6 +203,10 @@ public class BoxADT {
 	}
 
 	static IValue V(IValue... t) {
+		return V(-1, t);
+	}
+	
+	static IValue V(int vspace, IValue... t) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue a : t) {
 			if (a == null)
@@ -212,7 +216,10 @@ public class BoxADT {
 			} else
 				q = q.append(a);
 		}
-		return BoxADT.TAG.V.create(q);
+		IConstructor r = BoxADT.TAG.V.create(q);
+		if (vspace>=0) 
+		r = r.setAnnotation("vs", vf.integer(vspace));
+		return r;
 	}
 
 	static IValue I(IValue... t) {
@@ -236,11 +243,12 @@ public class BoxADT {
 		IConstructor r = BoxADT.TAG.HV.create(q);
 		if (hspace>=0) 
 		r = r.setAnnotation("hs", vf.integer(hspace));
+		r = r.setAnnotation("vs", vf.integer(0));
 		return r;
 	}
 	
 	static IValue HOV(IValue... t) {
-		return HV(-1, t);
+		return HOV(-1, t);
 	}
 
 	static IValue HOV(int hspace, IValue... t) {
