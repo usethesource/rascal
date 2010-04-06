@@ -18,24 +18,24 @@ import Integer;
 rule merge   grammar(a,{p,q,a*}) => grammar(a,{choice(sort(p), {p,q}), a*}) when sort(p) == sort(q);
 	
 // these rule flatten complex productions and ignore ordering under diff and assoc  
-rule or     choice(Symbol s, {set[Production] a, choice(s, set[Production] b)})                    => choice(s,a+b); 
-rule xor    first(Symbol s, [list[Production] a,first(s, list[Production] b),list[Production] c])  => first(s,a+b+c); 
-rule xor    first(Symbol s, [list[Production] a,choice(s, {Production b}),list[Production] c])     => first(a+[b]+c); 
-rule or     choice(Symbol s, {set[Production] a, first(s, [Production b])})        => choice(s, a+{b}); 
-rule assoc  assoc(Symbol s, Associativity as, {set[Production] a, choice(s, set[Production] b)}) => assoc(s, as, a+b); 
-rule assoc  assoc(Symbol s, Associativity as, {set[Production] a, first(list[Production] b)}) => assoc(s, as, a + { e | e <- b}); // ordering does not work under assoc
-rule diff   diff(Symbol s, Production p, {set[Production] a, choice(s, set[Production] b)})   => diff(s, p, a+b);   
-rule diff   diff(Symbol s, Production p, {set[Production] a, first(s, list[Production] b)})   => diff(s, p, a + { e | e <- b});  // ordering is irrelevant under diff
-rule diff   diff(Symbol s, Production p, {set[Production] a, \assoc(s, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
+rule or     choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})                    => choice(s,a+b); 
+rule xor    first(Symbol s, [list[Production] a,first(Symbol t, list[Production] b),list[Production] c])  => first(s,a+b+c); 
+rule xor    first(Symbol s, [list[Production] a,choice(Symbol t, {Production b}),list[Production] c])     => first(a+[b]+c); 
+rule or     choice(Symbol s, {set[Production] a, first(Symbol t, [Production b])})        => choice(s, a+{b}); 
+rule assoc  assoc(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) => assoc(s, as, a+b); 
+rule assoc  assoc(Symbol s, Associativity as, {set[Production] a, first(Symbol t, list[Production] b)}) => assoc(s, as, a + { e | e <- b}); // ordering does not work under assoc
+rule diff   diff(Symbol s, Production p, {set[Production] a, choice(Symbol t, set[Production] b)})   => diff(s, p, a+b);   
+rule diff   diff(Symbol s, Production p, {set[Production] a, first(Symbol t, list[Production] b)})   => diff(s, p, a + { e | e <- b});  // ordering is irrelevant under diff
+rule diff   diff(Symbol s, Production p, {set[Production] a, \assoc(Symbol t, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
 
 // move diff outwards
 rule empty  diff(_,Production p,{})                    => p;
-rule or     choice(Symbol s, {set[Production] a, diff(s, b, set[Production] c)})   => diff(s, choice(s, a+{b}), c);
-rule xor    first(Symbol s, [list[Production] a, diff(s, b, set[Production] c),list[Production] d]) => 
+rule or     choice(Symbol s, {set[Production] a, diff(Symbol t, b, set[Production] c)})   => diff(s, choice(s, a+{b}), c);
+rule xor    first(Symbol s, [list[Production] a, diff(Symbol t, b, set[Production] c),list[Production] d]) => 
                diff(s, first(a+[b]+d), c);
-rule ass    \assoc(Symbol s, Associativity as, {set[Production] a, diff(s, b, set[Production] c)}) => diff(s, \assoc(s, as, a + {b}), c);
-rule diff   diff(Symbol s, Production p, {set[Production] a, diff(s, q, set[Production] b)})   => diff(s, choice(s, {p,q}), a+b); 
-rule diff   diff(Symbol s, diff(s, Production a, set[Production] b), set[Production] c)        => diff(s, a, b+c);
+rule ass    \assoc(Symbol s, Associativity as, {set[Production] a, diff(Symbol t, b, set[Production] c)}) => diff(s, \assoc(s, as, a + {b}), c);
+rule diff   diff(Symbol s, Production p, {set[Production] a, diff(Symbol t, Production q, set[Production] b)})   => diff(s, choice(s, {p,q}), a+b); 
+rule diff   diff(Symbol s, diff(Symbol t, Production a, set[Production] b), set[Production] c)        => diff(s, a, b+c);
    
 rule simpl  attrs([]) => \no-attrs();  
 
