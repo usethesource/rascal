@@ -561,7 +561,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		// }
 		// }
 		// }
-		return V(eXs0(x.getToplevels(), listToplevels));
+		return V(1, eXs0(x.getToplevels(), listToplevels));
 	}
 
 	public IValue visitBooleanLiteralAmbiguity(
@@ -951,8 +951,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				return L(x.getClass().toString());
 			b = b.append(I(H(0, (b.isEmpty() ? L("=") : L("|")), t)));
 		}
-		return list(eX(x.getTags()), V((b.insert(r)).append(I(BoxADT
-				.semicolumn()))));
+		return V(0, eX(x.getTags()), b.insert(r).append(I(BoxADT
+				.semicolumn())));
 	}
 
 	public IValue visitDeclarationFunction(Function x) {
@@ -1456,7 +1456,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		 * FunctionDeclaration {cons("Abstract")}
 		 */
 		// TODO Auto-generated method stub
-		return list(eX(x.getTags()), H(1, eX(x.getVisibility()), H(0, eX(x
+		return V(0, eX(x.getTags()), H(1, eX(x.getVisibility()), H(0, eX(x
 				.getSignature()), BoxADT.SEMICOLON)));
 	}
 
@@ -1475,8 +1475,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		IList b;
 		if (x.hasBody() && (b = (IList) x.getBody().accept(this)) != null) {
 			b = b.append(I(BoxADT.RBLOCK));
-			r = list(eX(x.getTags()), V(H(0, H(1, eX(x.getVisibility()), r),
-					BoxADT.LBLOCK), V(b)));
+			r = V(0, eX(x.getTags()), H(0, H(1, eX(x.getVisibility()), r),
+					BoxADT.LBLOCK), V(b));
 		}
 		return r;
 	}
@@ -3322,6 +3322,10 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	static IValue V(IValue... t) {
 		return BoxADT.V(t);
 	}
+	
+	static IValue V(int vspace, IValue... t) {
+		return BoxADT.V(vspace, t);
+	}
 
 	static IValue I(IValue... t) {
 		return BoxADT.I(t);
@@ -3337,6 +3341,10 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	static IValue HOV(IValue... t) {
 		return BoxADT.HOV(t);
+	}
+	
+	static IValue HOV(int vspace, IValue... t) {
+		return BoxADT.HOV(vspace, t);
 	}
 
 	public IValue visitDeclarationDataAbstract(DataAbstract x) {
@@ -3517,14 +3525,14 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				IList a = list(H(0, header));
 				a = a.concat((IList) b);
 				a = a.append(I(BoxADT.RBLOCK));
-				return V(a);
+				return V(0, a);
 			} else {
 				if (width(header) < SIGNIFICANT) {
 					IList a = list(H(0, header));
 					a = a.append(b);
 					return H(1, a);
 				} else {
-					return V(H(0, header), I(b));
+					return V(0, H(0, header), I(b));
 				}
 			}
 		}
@@ -3640,7 +3648,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 					.append(c.getType().isListType()
 							&& ((IList) c).length() > 1 ? H(0, b) : b);
 		}
-		return HOV(r);
+		return HOV(0, r);
 	}
 
 }
