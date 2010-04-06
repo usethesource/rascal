@@ -31,9 +31,11 @@ public class <name> extends SGLL {
   private static IConstructor read(String s, Type type) {
     return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes())); 
   }
+ 
   // Symbols declarations
-  <for (s <- { s | /Symbol s := g}) {>private static final IConstructor <value2id(s)> = read(\"<esc("<s>")>\", Factory.Symbol);
+  <for (s <- { s | /Symbol s := g}) {>private static final IConstructor symbol_<value2id(s)> = read(\"<esc("<s>")>\", Factory.Symbol);
   <}>
+
   // Production declarations
   <for (p <- { p | /Production p:prod(_,_,_) := g}) {>private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);
   <}>
@@ -65,13 +67,16 @@ public str sym2name(Symbol s) {
 public str generateParseMethod(Production p) {
   if (prod(_,Symbol rhs,_) := p) {
     return "public void <sym2name(rhs)>() {
+      // <p>
       expect(<value2id(p)>, <generateSymbolItemExpects(p.lhs)>);  
     }";
   }
 
   if (choice(Symbol rhs, set[Production] ps) := p) {
     return "public void <sym2name(rhs)>() {
-      <for (Production q:prod(_,_,_) <- ps) {>expect(<value2id(q)>, <generateSymbolItemExpects(q.lhs)>);
+      <for (Production q:prod(_,_,_) <- ps) {>
+      // <q>
+      expect(<value2id(q)>, <generateSymbolItemExpects(q.lhs)>);
       <}>  
     }";
   }
@@ -89,7 +94,7 @@ public str generateSymbolItemExpects(list[Symbol] syms) {
      return "new EpsilonParseStackNode(<nextItem()>)";
    }
    
-   return ("<sym2newitem(head(syms))>" | it + ",\n  " + sym2newitem(sym) | sym <- tail(syms));
+   return ("<sym2newitem(head(syms))>" | it + ",\n\t\t" + sym2newitem(sym) | sym <- tail(syms));
 }
 
 public str sym2newitem(Symbol sym) {
@@ -98,33 +103,33 @@ public str sym2newitem(Symbol sym) {
    switch (sym) {
     case \label(_,s) : return sym2newitem(s); // ignore labels
     case \sort(n) : 
-      return "new NonTerminalParseStackNode(<value2id(sym)>, <id>)";
+      return "new NonTerminalParseStackNode( \"<value2id(sym)>\" , <id>)";
     case \lit(l) : 
-      return "new NonTerminalParseStackNode(<value2id(sym)>, <id>)";
+      return "new NonTerminalParseStackNode( \"<value2id(sym)>\" , <id>)";
     case \cilit(l) : 
-      return "new NonTerminalParseStackNode(<value2id(sym)>, <id>)";
+      return "new NonTerminalParseStackNode( \"<value2id(sym)>\" , <id>)";
     case \iter(\char-class(list[CharRange] ranges)) : 
-      return "new CharacterClassListParseStackNode(<value2id(sym)>, <id>, true)";
+      return "new CharacterClassListParseStackNode(symbol_<value2id(sym)>, new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>, true)";
     case \iter-star(\char-class(list[CharRange] ranges)) : 
-      return "new CharacterClassListParseStackNode(<value2id(sym)>, <id>, false)";
+      return "new CharacterClassListParseStackNode(symbol_<value2id(sym)> , new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>, false)";
     case \iter-sep(\char-class(list[CharRange] ranges),list[Symbol] seps) : 
-      return "new CharacterClassSeparatedListParseStackNode(<value2id(sym)>, <id>, true, <generateSymbolItemExpects(seps)>)";
+      return "new CharacterClassSeparatedListParseStackNode(symbol_<value2id(sym)> , new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>, true, <generateSymbolItemExpects(seps)>)";
     case \iter-star-sep(\char-class(list[CharRange] ranges),list[Symbol] seps) :
-      return "new CharacterClassSeparatedListParseStackNode(<value2id(sym)>, <id>, false, <generateSymbolItemExpects(seps)>)";
+      return "new CharacterClassSeparatedListParseStackNode(symbol_<value2id(sym)> , new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>, false, <generateSymbolItemExpects(seps)>)";
     case \iter(s) : 
-      return "new NonTerminalListParseStackNode(<value2id(sym)>, <id>, true)";
+      return "new NonTerminalListParseStackNode( \"<value2id(sym)>\" , <id>, true)";
     case \iter-star(s) :
-      return "new NonTerminalListParseStackNode(<value2id(sym)>, <id>, false)";
+      return "new NonTerminalListParseStackNode( \"<value2id(sym)>\" , <id>, false)";
     case \iter-sep(Symbol s,list[Symbol] seps) : 
-      return "new NonTerminalSeparatedListParseStackNode(<value2id(sym)>, <id>, true, <generateSymbolItemExpects(seps)>)";
+      return "new NonTerminalSeparatedListParseStackNode( \"<value2id(sym)>\" , <id>, true, <generateSymbolItemExpects(seps)>)";
     case \iter-star-sep(Symbol s,list[Symbol] seps) : 
-      return "new NonTerminalSeparatedListParseStackNode(<value2id(sym)>, <id>, false, <generateSymbolItemExpects(seps)>)";
+      return "new NonTerminalSeparatedListParseStackNode( \"<value2id(sym)>\" , <id>, false, <generateSymbolItemExpects(seps)>)";
     case \opt(s) : 
-      return "new NonTerminalOptionalParseStackNode(<value2id(sym)>, <id>)";
+      return "new NonTerminalOptionalParseStackNode( \"<value2id(sym)>\" , <id>)";
     case \char-class(list[CharRange] ranges) : 
-      return "new CharacterClassParseStackNode(<value2id(sym)>, <id>)";
+      return "new CharacterClassParseStackNode(symbol_<value2id(sym)>, new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>)";
     case \layout() :
-      return "new NonTerminalParseStackNode(layout, <id>)";
+      return "new NonTerminalParseStackNode(\"layout\", <id>)";
     default: 
       throw "not yet implemented <sym>";
   }
@@ -142,8 +147,9 @@ public str value2id(value v) {
   switch (v) {
     case label(_,v)    : return value2id(v);
     case sort(str s)   : return s;
+    case lit(/<s:^[A-Za-z0-9]+$>/)    : return "lit_<s>";
+    case cilit(str s)  : return "cilit_<s>";
     case int i         : return "<i>";
-    case /<s:^[A-Za-z]+$>/ : return s; 
     case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)-1]);
     case node n        : return "<esc(getName(n))>_<("" | it + "_" + value2id(c) | c <- getChildren(n))>";
     case list[value] l : return ("" | it + "_" + value2id(e) | e <- l);
