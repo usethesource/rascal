@@ -1,4 +1,4 @@
-module viz::Figure::Examples4
+module viz::Figure::ExampleWedge
 
 import viz::Figure::Render;
 import viz::Figure::Core;

@@ -1,4 +1,4 @@
-module viz::Figure::Examples3
+module viz::Figure::ExampleGraph
 
 import viz::Figure::Core;
 import viz::Figure::Render; 
