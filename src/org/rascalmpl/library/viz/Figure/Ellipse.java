@@ -23,6 +23,8 @@ public class Ellipse extends Container {
 	@Override
 	void drawContainer(){
 		vlp.ellipseMode(PConstants.CORNERS);
-		vlp.ellipse(left, top, left + width, top + height);
+		float l = left + leftDragged;
+		float t = top + topDragged;
+		vlp.ellipse(l, t, l + width, t + height);
 	}
 }

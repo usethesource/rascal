@@ -158,11 +158,7 @@ public class Graph extends Figure {
 			if(n.mouseOver(mousex, mousey))
 				return true;
 		}
-		if(mouseInside(mousex, mousey)){
-			vlp.registerFocus(this);
-			return true;
-		}
-		return false;
+		return super.mouseOver(mousex, mousey);
 	}
 	
 	@Override
@@ -171,11 +167,7 @@ public class Graph extends Figure {
 			if(n.mousePressed(mousex, mousey))
 				return true;
 		}
-		if(mouseInside(mousex, mousey)){
-			vlp.registerFocus(this);
-			return true;
-		}
-		return false;
+		return super.mouseOver(mousex, mousey);
 	}
 }
 

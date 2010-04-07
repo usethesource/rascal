@@ -5,6 +5,14 @@ import viz::Figure::Render;
 import Set;
 
 
+//TODO Not yet decided what to do with this ******
+
+// Blue outer box of 20x20 with yellow larger inner box (only visible on mouse over)
+//Note: left/top borders of innerbox is not visible
+public void box10(){
+	render(box([width(20), height(20), fillColor("mediumblue"), gap(10)], box([size(30,30), fillColor("yellow")])));
+}
+
 public FProperty tip(str S){ 
 	return mouseOver(box([fillColor("yellow")], text([fontColor("green")], S)));
 }
@@ -21,7 +29,6 @@ public void mo3(){
 	render(box([ size(100,200), fillColor("green"), mouseOver(box([size(100,200), fillColor("red")])) ]));
 }
 
-
 public void mo4(){
 	render(box([fillColor("blue"), gap(30), tip("Outer Box")], 
 	           box([fillColor("grey"), tip("Middle Box")], 
@@ -30,7 +37,7 @@ public void mo4(){
 	          ));
 }
 
-public void mo9(){
+public void mo5(){
 	render(hcat( [ mouseOver([lineColor("red")]) ],
 				    [
 	                 box([ width(100), height(200), text("A very wide label A"), fillColor(color("mediumblue", 0.05)) ]),

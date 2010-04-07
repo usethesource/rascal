@@ -317,9 +317,10 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	public boolean mousePressed(int mousex, int mousey){
 		if(mouseInside(mousex, mousey)){
-			//properties.setMouseOver(true);
 			vlp.registerFocus(this);
-			System.err.printf("Figure.mousePressed: %f,%f\n", left, top);
+//			leftDragged = leftDragged - (mousex - left);
+//			topDragged = topDragged - (mousey - top);
+			System.err.printf("Figure.mousePressed: %f (%f),%f (%f)\n", left, leftDragged, top, topDragged);
 			return true;
 		}
 		return false;

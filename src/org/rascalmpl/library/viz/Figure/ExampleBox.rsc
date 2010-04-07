@@ -57,12 +57,6 @@ public void box9(){
 	render(box([width(20), height(20), fillColor("mediumblue"), gap(10)], text("een label")));
 }
 
-// Blue outer box of 20x20 with yellow larger inner box (only visible on mouse over)
-//Note: left/top borders of innerbox is not visible
-public void box10(){
-	render(box([width(20), height(20), fillColor("mediumblue"), gap(10)], box([size(30,30), fillColor("yellow")])));
-}
-
 // Unsized outer box, with centered inner box of 100x200
 
 public void bbc(){
