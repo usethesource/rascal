@@ -206,15 +206,32 @@ public class BoxADT {
 		return V(-1, t);
 	}
 	
+	static IValue V(boolean indent, IValue... t) {
+		return V(-1, indent, t);
+	}
+	
 	static IValue V(int vspace, IValue... t) {
+		return V(vspace, false, t);
+	}
+	
+	static IList makeIndent(IList a) {
+		IList q = BoxADT.getEmptyList();
+		for (IValue b:a) {
+			q=q.append(I(b));
+		};
+		return q;
+	}
+	
+	static IValue V(int vspace, boolean indent, IValue... t) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue a : t) {
 			if (a == null)
 				continue;
 			if (a.getType().isListType()) {
-				q = q.concat((IList) a);
+				
+				q = q.concat(indent?makeIndent((IList) a): (IList) a);
 			} else
-				q = q.append(a);
+				q = q.append(indent?I(a):a);
 		}
 		IConstructor r = BoxADT.TAG.V.create(q);
 		if (vspace>=0) 
@@ -250,16 +267,24 @@ public class BoxADT {
 	static IValue HOV(IValue... t) {
 		return HOV(-1, t);
 	}
+	
+	static IValue HOV(boolean indent, IValue... t) {
+		return HOV(-1, indent, t);
+	}
 
 	static IValue HOV(int hspace, IValue... t) {
+		return HOV(hspace, false, t);
+	}
+	
+	static IValue HOV(int hspace, boolean indent, IValue... t) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue a : t) {
 			if (a == null)
 				continue;
-			if (a.getType().isListType()) {
-				q = q.concat((IList) a);
+			if (a.getType().isListType()) {		
+				q = q.concat(indent?makeIndent((IList) a): (IList) a);
 			} else
-				q = q.append(a);
+				q = q.append(indent?I(a):a);
 		}
 		IConstructor r = BoxADT.TAG.HOV.create(q);
 		if (hspace>=0) 
