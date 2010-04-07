@@ -951,8 +951,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				return L(x.getClass().toString());
 			b = b.append(I(H(0, (b.isEmpty() ? L("=") : L("|")), t)));
 		}
-		return V(0, eX(x.getTags()), b.insert(r).append(I(BoxADT
-				.semicolumn())));
+		return V(0, eX(x.getTags()), b.insert(r).append(I(BoxADT.semicolumn())));
 	}
 
 	public IValue visitDeclarationFunction(Function x) {
@@ -983,8 +982,9 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitDeclarationVariable(
 			org.rascalmpl.ast.Declaration.Variable x) {
 		// TODO Auto-generated method stub
-		return list(eX(x.getTags()), HV(0, eX(x.getVisibility()), BoxADT.SPACE, eX(x.getType()),
-				BoxADT.SPACE, I(eXs(x.getVariables(), null, null)), BoxADT.semicolumn()));
+		return list(eX(x.getTags()), HV(0, eX(x.getVisibility()), BoxADT.SPACE,
+				eX(x.getType()), BoxADT.SPACE, I(eXs(x.getVariables(), null,
+						null)), BoxADT.semicolumn()));
 	}
 
 	public IValue visitDeclarationView(View x) {
@@ -1071,10 +1071,11 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		 * Expression {cons("CallOrTree")}
 		 */
 		isFunctionName = true;
-		IValue t = eX(x.getExpression());
+		IValue t = H(0, eX(x.getExpression()), BoxADT.LPAR);
 		isFunctionName = false;
-		IList r = list(t, eXs(x.getArguments(), BoxADT.LPAR, BoxADT.RPAR));
-		return width(r) < UNITLENGTH ? list(H(0, r)) : r;
+		IValue r = eXs(x.getArguments(), null, BoxADT.RPAR);
+		// return makeHOV(list(t, r), true);
+		return HOV(true, list(t, r));
 	}
 
 	public IValue visitExpressionClosure(Closure x) {
@@ -1174,7 +1175,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	public IValue visitExpressionImplication(Implication x) {
 		// TODO Auto-generated method stub
 		/* lhs:Expression "==>" rhs:Expression */
-		return   list(eX(x.getLhs()), L("==>"), eX(x.getRhs()));
+		return list(eX(x.getLhs()), L("==>"), eX(x.getRhs()));
 	}
 
 	public IValue visitExpressionIn(In x) {
@@ -2065,7 +2066,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 	}
 
 	public IValue visitPatternWithActionArbitrary(Arbitrary x) {
-		return Block(x.getStatement(), eX(x.getPattern()), BoxADT.COLON);
+		// return Block(x.getStatement(), , );
+		return V(H(0, eX(x.getPattern()), BoxADT.COLON), eX(x.getStatement()));
 	}
 
 	public IValue visitPatternWithActionReplacing(Replacing x) {
@@ -2973,13 +2975,13 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitTestLabeled(org.rascalmpl.ast.Test.Labeled x) {
 		/** tags:Tags "test" expression:Expression ":" labeled:StringLiteral */
-		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HV(0, eX(x
+		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HOV(0, eX(x
 				.getExpression()), BoxADT.COLON, eX(x.getLabeled()))));
 	}
 
 	public IValue visitTestUnlabeled(Unlabeled x) {
 		// TODO Auto-generated method stub
-		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HV(0, eX(x
+		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HOV(eX(x
 				.getExpression()))));
 	}
 
@@ -3323,11 +3325,16 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		return BoxADT.V(t);
 	}
 	
+	static IValue V(boolean indent, IValue... t) {
+		return BoxADT.V(indent, t);
+	}
+
 	static IValue V(int vspace, IValue... t) {
 		return BoxADT.V(vspace, t);
 	}
 
 	static IValue I(IValue... t) {
+		// return V(t);
 		return BoxADT.I(t);
 	}
 
@@ -3343,9 +3350,14 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		return BoxADT.HOV(t);
 	}
 	
+	static IValue HOV(boolean indent, IValue... t) {
+		return BoxADT.HOV(indent, t);
+	}
+
 	static IValue HOV(int vspace, IValue... t) {
 		return BoxADT.HOV(vspace, t);
 	}
+	
 
 	public IValue visitDeclarationDataAbstract(DataAbstract x) {
 		// TODO Auto-generated method stub
@@ -3393,17 +3405,15 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		IList s = BoxADT.getEmptyList();
 		// System.err.println("eXs0:"+conditions.size());
 		boolean listElement = false;
-		if (prefix == null) {
+		if (prefix == null && suffix == null) {
 			for (Iterator iterator = conditions.iterator(); iterator.hasNext();) {
 				AbstractAST expression = (AbstractAST) iterator.next();
 				// System.err.println("eXs1:"+expression);
 				if (expression == null)
 					continue;
 				IValue q = eX(expression);
-				if (!listElement && (isListElement(expression) /*
-																 * || width(q) >
-																 * SIGNIFICANT
-																 */))
+				if (!listElement
+						&& (isListElement(expression) || width(q) > SIGNIFICANT))
 					listElement = true;
 				if (!s.isEmpty())
 					s = s.append(BoxADT.COMMA);
@@ -3422,20 +3432,22 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 						continue;
 					IValue q = eX(expression);
 					if (!listElement
-							&& (isListElement(expression)))
+							&& (isListElement(expression) || width(q) > SIGNIFICANT))
 						listElement = true;
-					if (s.isEmpty())
-						s = s.append(H(0, prefix, q));
-					else
+					if (s.isEmpty()) {
+						if (prefix != null)
+							s = s.append(H(0, prefix, q));
+						else
+							s = s.append(H(0, q));
+					} else
 						s = s.append(H(0, BoxADT.COMMA, q));
 				}
-			else
+			else if (prefix != null)
 				s = s.append(prefix);
 			if (suffix != null)
 				s = s.append(suffix);
 		}
-		// System.err.println("eXs2:"+s);
-		return listElement ? makeHOV(s) : s;
+		return listElement ? makeHOV(s, false) : s;
 	}
 
 	private IValue eXs1(java.util.List conditions) {
@@ -3511,7 +3523,7 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				.getGenerators(), BoxADT.VBAR, end));
 	}
 
-	private IList list(IValue... t) {
+	private static IList list(IValue... t) {
 		return BoxADT.getList(t);
 	}
 
@@ -3640,15 +3652,15 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		return widthC((IConstructor) bs);
 	}
 
-	private IValue makeHOV(IList bs) {
+	private IValue makeHOV(IList  bs, boolean indent) {
 		IList r = list();
 		for (IValue b : bs) {
 			IValue c = ((IConstructor) b).get(0);
-			r = r
-					.append(c.getType().isListType()
-							&& ((IList) c).length() > 1 ? H(0, b) : b);
+			r = r.append(c.getType().isListType()
+						&& ((IList) c).length() > 1 ? H(0, b) : b);
 		}
-		return HOV(0, r);
+		return HOV(0, indent ? I(r) : r);
 	}
+
 
 }
