@@ -26,7 +26,7 @@ public class FigurePApplet extends PApplet {
 	private Figure focus = null;
 	private boolean focusSelected = false;
 	private HashMap<String,GraphNode> registered;
-	private static boolean debug = false;
+	private static boolean debug = true;
 
 	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
 		registered = new HashMap<String,GraphNode>();
@@ -109,7 +109,7 @@ public class FigurePApplet extends PApplet {
 		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
 		if(focus != null && focusSelected)
 				focus.drag(mouseX,mouseY);
-		else if(figure.mouseInside(mouseX, mouseY)){
+		else if(figure.mouseOver(mouseX, mouseY)){
 			/* do nothing */
 		} else
 			unRegisterFocus();
