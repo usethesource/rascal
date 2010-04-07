@@ -346,7 +346,7 @@ public void bar2(){
     render(b);
 }
 
-public void bar2v(){ 
+public void bar3(){ 
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
     m = max(size(d1), size(d2));   
@@ -369,48 +369,8 @@ public void bar2v(){
     render(b);
 }
 
-// Barchart: Horizontal composition of boxes
-
-public void bar1(){
-    dt1 = [10, 12, 17, 0, 15, 7, 20, 40, 60];  
-    colors = colorScale(dt1, color("blue"), color("red"));  
-	b = hcat([
-                lineColor(0),
-                lineWidth(1),
-	            fillColor(125),
-	            width(10),
-	            bottom()
-               ],
-               [ box([height(d * 8), fillColor(colors(d))]) | d <- dt1 ]
-               );
-    render(b);
-}
-
-// Barchart: Horizontal composition of two sets of boxes (top aligned)
-public void bar2(){
-    d1 = [10, 12, 17, 15, 7]; 
-    d2 = [ 5,  6,  9,  7, 3, 20];
-    m = max(size(d1), size(d2));   
-    bars = [ hcat([gap(5), top()], 
-                     [ box([fillColor("green"), height((d1[i] ? 0) * 8)]),
-                      box([fillColor("red"), height((d2[i] ? 0) * 8)])
-                    ])
-           | int i <- [0 .. m]
-           ];
-    
-	b = hcat([
-                lineColor(0),
-                lineWidth(1),
-	          	width(10),
-	          	top(),
-	          	gap(10)
-               ],
-               bars
-               );
-    render(b);
-}
 // Barchart: Horizontal composition of vertically stacked boxes
-public void bar3(){ 
+public void bar4(){ 
     d1 = [10, 12, 17, 15, 7]; 
     d2 = [ 5,  6,  9,  7, 3, 20];
     m = max(size(d1), size(d2));   

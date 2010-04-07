@@ -59,7 +59,7 @@ public list[Color] java interpolateColor(Color from, Color to, real percentage);
 public list[Color] java colorSteps(Color from, Color to, int steps);
 
 @doc{Create a colorscale from a list of numbers}
-public Color(num) colorScale(list[num] values, Color from, Color to){
+public Color(&T <: num) colorScale(list[&T <: num] values, Color from, Color to){
    mn = min(values);
    range = max(values) - mn;
    sc = colorSteps(from, to, 10);

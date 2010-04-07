@@ -92,12 +92,18 @@ public class Tree extends Figure {
 	void bbox() {
 		raster.clear();
 		root.shapeTree(left, top, raster);
+		width = root.width;
+		height = root.height;
 	}
 	
 	@Override
 	void bbox(float left, float top) {
+		this.left = left;
+		this.top = top;
 		raster.clear();
 		root.shapeTree(left, top, raster);
+		width = root.width;
+		height = root.height;
 	}
 	
 	@Override
@@ -106,6 +112,7 @@ public class Tree extends Figure {
 		this.top = top;
 		left += leftDragged;
 		top += topDragged;
+		System.err.printf("Tree.draw(%f,%f)\n", left, top);
 		vlp.pushMatrix();
 		vlp.translate(left, top);
 		applyProperties();
@@ -115,22 +122,28 @@ public class Tree extends Figure {
 	
 	@Override
 	public boolean mouseInside(int mousex, int mousey){
-		return root.mouseInside(mousex, mousey);
+		return root.mouseInside(mousex, mousey) || 
+		       super.mouseInside(mousex, mousey);
 	}
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		return root.mouseOver(mousex, mousey);
+		return root.mouseOver(mousex, mousey) ||
+		       super.mouseOver(mousex, mousey);
 	}
 	
 	@Override
 	public boolean mousePressed(int mousex, int mousey){
-		return root.mousePressed(mousex, mousey);
+		if(root.mousePressed(mousex, mousey)){
+			bbox();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
 	public boolean mouseDragged(int mousex, int mousey){
-		return root.mouseDragged(mousex, mousey);
+		return root.mouseDragged(mousex, mousey) ||
+		       super.mouseDragged(mousex, mousey);
 	}
-
 }
