@@ -18,7 +18,7 @@ public void tree1(){
     render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
-public void tree1a(){
+public void tree22(){
 
    nodes1 =
      	[ box([id("A"), width(20), height(20), fillColor("green"), popup("A")]),
