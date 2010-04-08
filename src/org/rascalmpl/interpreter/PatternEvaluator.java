@@ -293,18 +293,18 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		if (!tree.getExpression().isQualifiedName()) {
 			return false;
 		}
-		return Names.name(Names.lastName(tree.getExpression().getQualifiedName())).equals("appl");
+		return Names.name(Names.lastName(tree.getExpression().getQualifiedName())).equals("appl") && tree._getType() instanceof NonTerminalType;
 	}
 
 	private boolean isConcreteSyntaxAmb(CallOrTree tree){
 		if (!tree.getExpression().isQualifiedName()) {
 			return false;
 		}
-		return Names.name(Names.lastName(tree.getExpression().getQualifiedName())).equals("amb");
+		return Names.name(Names.lastName(tree.getExpression().getQualifiedName())).equals("amb") && tree._getType() instanceof NonTerminalType;
 	}
 
 	private boolean isConcreteSyntaxList(CallOrTree tree){
-		return isConcreteSyntaxAppl(tree) && isConcreteListProd((CallOrTree) tree.getArguments().get(0));
+		return isConcreteSyntaxAppl(tree) && isConcreteListProd((CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof NonTerminalType;
 	}
 
 	private boolean isConcreteListProd(CallOrTree prod){
