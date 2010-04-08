@@ -1073,9 +1073,9 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		isFunctionName = true;
 		IValue t = H(0, eX(x.getExpression()), BoxADT.LPAR);
 		isFunctionName = false;
-		IValue r = eXs(x.getArguments(), null, BoxADT.RPAR);
+		IValue r = eXs(x.getArguments(), null, null);
 		// return makeHOV(list(t, r), true);
-		return HOV(true, list(t, r));
+		return HOV(true, list(t, r), BoxADT.RPAR);
 	}
 
 	public IValue visitExpressionClosure(Closure x) {
@@ -2975,13 +2975,13 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 
 	public IValue visitTestLabeled(org.rascalmpl.ast.Test.Labeled x) {
 		/** tags:Tags "test" expression:Expression ":" labeled:StringLiteral */
-		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HOV(0, eX(x
+		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HV(0, eX(x
 				.getExpression()), BoxADT.COLON, eX(x.getLabeled()))));
 	}
 
 	public IValue visitTestUnlabeled(Unlabeled x) {
 		// TODO Auto-generated method stub
-		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HOV(eX(x
+		return list(eX(x.getTags()), H(1, BoxADT.KW("test"), HV(eX(x
 				.getExpression()))));
 	}
 
@@ -3415,12 +3415,10 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				if (!listElement
 						&& (isListElement(expression) || width(q) > SIGNIFICANT))
 					listElement = true;
-				if (!s.isEmpty())
-					s = s.append(BoxADT.COMMA);
-				if (q.getType().isListType())
-					s = s.concat((IList) q);
-				else
-					s = s.append(q);
+				if (s.isEmpty()) {
+					s = s.append(H(0, q));
+				} else
+					s = s.append(H(0, BoxADT.COMMA, q));
 			}
 		} else {
 			if (conditions.size() > 0)
@@ -3447,7 +3445,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 			if (suffix != null)
 				s = s.append(suffix);
 		}
-		return listElement ? makeHOV(s, false) : s;
+		return s.isEmpty()?s:HOV(s);
+		// return listElement ? makeHOV(s, false) : s;
 	}
 
 	private IValue eXs1(java.util.List conditions) {
