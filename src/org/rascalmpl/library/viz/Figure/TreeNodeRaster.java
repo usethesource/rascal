@@ -18,10 +18,17 @@ public class TreeNodeRaster {
 			last[i] = 0;
 	}
 	
+	/*
+	 * Clear -- reset the node raster
+	 */
 	public void clear(){
 		for(int i = 0; i < RMAX; i++)
 			last[i] = 0;
 	}
+	
+	/*
+	 * Extend -- enlarge the node raster
+	 */
 	
 	private void extend(int n){
 		n += n/5;
@@ -32,6 +39,10 @@ public class TreeNodeRaster {
 		RMAX = n;
 		last = newLast;
 	}
+	
+	/*
+	 * Add -- add an element to the raster
+	 */
 	public void add(float position, float top, float width, float height){
 		int itop = PApplet.round(top);
 		int ibot = PApplet.round(top + height);
@@ -44,6 +55,11 @@ public class TreeNodeRaster {
 		}
 	}
 	
+	/*
+	 * leftMostPosition -- place an element at the left most position that is possible
+	 * Returns the x position of the center of the element
+	 */
+	
 	public float leftMostPosition(float position, float top, float width, float height, float gap){
 		int itop = PApplet.round(top);
 		float l = position;
@@ -52,7 +68,8 @@ public class TreeNodeRaster {
 			extend(ibot);
 		}
 		for(int i = itop; i < ibot; i++){
-			l = PApplet.max(l, last[i] + gap + width/2);
+			l = PApplet.max(l, (last[i] == 0) ? width/2 : last[i] + gap + width/2);
+//			l = PApplet.max(l, last[i] + gap + width/2);
 		}
 		return l;
 	}

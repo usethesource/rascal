@@ -253,11 +253,11 @@ public abstract class Figure implements Comparable<Figure> {
 	 * stores left and top in the element
 	 */
 	
-	void bbox(float left, float top){
-		this.left = left;
-		this.top = top;
-		bbox();
-	}
+//	void bbox(float left, float top){
+//		this.left = left;
+//		this.top = top;
+//		bbox();
+//	}
 		
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box

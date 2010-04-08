@@ -27,21 +27,24 @@ public class Tree extends Figure {
 	private TreeNodeRaster raster;
 	TreeNode root = null;
 	
-	Tree(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);		
+	Tree(FigurePApplet fapplet, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
+		super(fapplet, inheritedProps, props, ctx);		
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();
 		raster = new TreeNodeRaster();
+		
+		// Construct TreeNodes
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			Figure ve = FigureFactory.make(vlp, c, properties, ctx);
-			String name = ve.getIdProperty();
+			Figure fig = FigureFactory.make(fapplet, c, properties, ctx);
+			String name = fig.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
-			TreeNode tn = new TreeNode(vlp, inheritedProps, props, ve, ctx);
+			TreeNode tn = new TreeNode(fapplet, this, inheritedProps, props, fig, ctx);
 			nodeMap.put(name, tn);
 		}
 		
+		// Construct Edges
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		IList emptyList = vf.list();
 
@@ -82,21 +85,23 @@ public class Tree extends Figure {
 	
 	@Override
 	void bbox() {
+		System.err.printf("Tree.bbox(), left=%f, top=%f\n", left, top);
 		raster.clear();
 		root.shapeTree(left, top, raster);
 		width = root.width;
 		height = root.height;
 	}
 	
-	@Override
-	void bbox(float left, float top) {
-		this.left = left;
-		this.top = top;
-		raster.clear();
-		root.shapeTree(left, top, raster);
-		width = root.width;
-		height = root.height;
-	}
+//	@Override
+//	void bbox(float left, float top) {
+//		System.err.printf("Tree.bbox(%f, %f)\n", left, top);
+//		this.left = left;
+//		this.top = top;
+//		raster.clear();
+//		root.shapeTree(left, top, raster);
+//		width = root.width;
+//		height = root.height;
+//	}
 	
 	@Override
 	void draw(float left, float top) {
@@ -105,23 +110,27 @@ public class Tree extends Figure {
 		left += leftDragged;
 		top += topDragged;
 		System.err.printf("Tree.draw(%f,%f)\n", left, top);
-		vlp.pushMatrix();
-		vlp.translate(left, top);
+//		vlp.pushMatrix();
+//		vlp.translate(left, top);
 		applyProperties();
-		root.draw();
-		vlp.popMatrix();
+		root.draw(left, top); // was draw()
+//		vlp.popMatrix();
 	}
 	
 	@Override
 	public boolean mouseInside(int mousex, int mousey){
-		return root.mouseInside(mousex, mousey) || 
-		       super.mouseInside(mousex, mousey);
+		int l = FigurePApplet.round(left + leftDragged);
+		int t = FigurePApplet.round(top + topDragged);
+		return root.mouseInside(mousex - l, mousey - t) || 
+		       super.mouseInside(mousex - l, mousey -t);
 	}
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		return root.mouseOver(mousex, mousey) ||
-		       super.mouseOver(mousex, mousey);
+		int l = FigurePApplet.round(left + leftDragged);
+		int t = FigurePApplet.round(top + topDragged);
+		return root.mouseOver(mousex - l, mousey - t) ||
+		       super.mouseOver(mousex - l, mousey -  t);
 	}
 	
 	@Override
