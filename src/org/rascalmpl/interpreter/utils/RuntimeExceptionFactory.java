@@ -49,6 +49,7 @@ public class RuntimeExceptionFactory {
 	private static Type IllegalIdentifier = TF.constructor(TS, E, "IllegalIdentifier", TF.stringType(), "name");
 	private static Type SchemeNotSupported = TF.constructor(TS, E, "SchemeNotSupported", TF.sourceLocationType(), "location");
 	private static Type MalFormedURI = TF.constructor(TS, E, "MalFormedURI", TF.stringType(), "uri");
+	private static Type NoParent = TF.constructor(TS, E, "NoParent", TF.sourceLocationType(), "uri");
 	private static Type NameMismatch = TF.constructor(TS, E, "NameMismatch", TF.stringType(), "expected", TF.stringType(), "got");
 	private static Type ArityMismatch = TF.constructor(TS, E, "ArityMismatch", TF.integerType(), "expected", TF.integerType(), "got");
 
@@ -189,5 +190,9 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw arityMismatch(int expected, int got, AbstractAST ast, String trace) {
 		return new Throw(ArityMismatch.make(VF, VF.integer(expected), VF.integer(got)), ast, trace);
+	}
+
+	public static Throw noParent(ISourceLocation loc, AbstractAST ast, String trace) {
+		return new Throw(NoParent.make(VF, loc), ast, trace);
 	}
 }
