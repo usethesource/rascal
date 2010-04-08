@@ -3,6 +3,7 @@ package org.rascalmpl.ast;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -11,15 +12,15 @@ public abstract class AbstractAST implements IVisitable {
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
 	
-	public Type getType() {
+	public Type _getType() {
 	  return _type;
 	}
 	
-	public void setType(Type t) {
+	public void _setType(Type nonterminalType) {
 	  if (_type != null) {
 	    throw new ImplementationError("why set a type twice?");
 	  }
-	  this._type = t;
+	  this._type = nonterminalType;
 	}
 	
 	abstract public <T> T accept(IASTVisitor<T> v);
