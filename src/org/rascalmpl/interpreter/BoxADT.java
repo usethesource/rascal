@@ -214,10 +214,10 @@ public class BoxADT {
 		return V(vspace, false, t);
 	}
 	
-	static IList makeIndent(IList a) {
+	static IList makeIndent(IList a, boolean first) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue b:a) {
-			q=q.append(I(b));
+			q=q.append(first && q.isEmpty()?b: I(b));
 		};
 		return q;
 	}
@@ -229,10 +229,15 @@ public class BoxADT {
 				continue;
 			if (a.getType().isListType()) {
 				
-				q = q.concat(indent?makeIndent((IList) a): (IList) a);
+				q = q.concat(indent?makeIndent((IList) a, q.isEmpty()): (IList) a);
 			} else
-				q = q.append(indent?I(a):a);
+				q = q.append(indent&&!q.isEmpty()?I(a):a);
 		}
+//		int last = q.length()-1;
+//		IConstructor c = ((IConstructor) q.get(last));
+//		if (c.getConstructorType().getName()=="I") {
+//			q=q.put(last, c.get(0));
+//		}
 		IConstructor r = BoxADT.TAG.V.create(q);
 		if (vspace>=0) 
 		r = r.setAnnotation("vs", vf.integer(vspace));
@@ -282,10 +287,15 @@ public class BoxADT {
 			if (a == null)
 				continue;
 			if (a.getType().isListType()) {		
-				q = q.concat(indent?makeIndent((IList) a): (IList) a);
+				q = q.concat(indent?makeIndent((IList) a, q.isEmpty()): (IList) a);
 			} else
-				q = q.append(indent?I(a):a);
+				q = q.append(indent&&!q.isEmpty()?I(a):a);
 		}
+//		int last = q.length()-1;
+//		IConstructor c = ((IConstructor) q.get(last));
+//		if (c.getConstructorType().getName()=="I") {
+//			q=q.put(last, c.get(0));
+//		}
 		IConstructor r = BoxADT.TAG.HOV.create(q);
 		if (hspace>=0) 
 		r = r.setAnnotation("hs", vf.integer(hspace));
