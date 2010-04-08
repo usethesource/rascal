@@ -11,8 +11,7 @@ public str grammar2rascal(Grammar g, str name) {
 }
 
 public str grammar2rascal(Grammar g) {
-return 
-"<for (Production p <- g.productions) {><topProd2rascal(p)><}>";
+  return ( "" | it + topProd2rascal(p) | Production p <- g.productions);
 }
 
 public str topProd2rascal(Production p) {
@@ -31,8 +30,7 @@ public str prod2rascal(Production p) {
   switch (p) {
     case choice(s) : {
       <f,s> = takeOneFrom(s);
-      return "<prod2rascal(f)>
-<for (pr <- s){>| <prod2rascal(pr)><}>";
+      return "<prod2rascal(f)><for (pr <- s){>| <prod2rascal(pr)><}>";
     }
     case first(s) : {
       <f,s> = takeOneFrom(s);
