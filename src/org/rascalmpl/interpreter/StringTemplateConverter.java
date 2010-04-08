@@ -29,24 +29,32 @@ import org.rascalmpl.ast.StringTemplate.IfThenElse;
 import org.rascalmpl.ast.StringTemplate.While;
 
 public class StringTemplateConverter {
-	private static final Name OUTER_FOR_LOOP_LABEL = new Name.Lexical(null, "#");
+	private static int labelCounter = 0;
 	
-	private static Statement surroundWithSingleIterForLoop(INode src, Statement body) {
+	private static Statement surroundWithSingleIterForLoop(INode src, Name label, Statement body) {
 		Name dummy = new Name.Lexical(src, "_");
 		Expression var = new Expression.QualifiedName(src, new QualifiedName.Default(src, Arrays.asList(dummy)));
 		Expression truth = new Expression.Literal(src, new org.rascalmpl.ast.Literal.Boolean(src, new BooleanLiteral.Lexical(src, "true")));
 		Expression list = new Expression.List(src, Arrays.asList(truth));
 		Expression enumerator = new Expression.Enumerator(src, var, list);
-		Statement stat = new Statement.For(src, new Label.Default(src, OUTER_FOR_LOOP_LABEL), Arrays.asList(enumerator), body);
+		Statement stat = new Statement.For(src, new Label.Default(src, label), Arrays.asList(enumerator), body);
 		return stat;
 	}
 
 
 	public static Statement convert(org.rascalmpl.ast.StringLiteral str) {
-		return surroundWithSingleIterForLoop(str.getTree(), str.accept(new Visitor()));
+		final Name label= new Name.Lexical(null, "#" + labelCounter);
+		labelCounter++;
+		return surroundWithSingleIterForLoop(str.getTree(), label, str.accept(new Visitor(label)));
 	}
 	
 	private static class Visitor extends NullASTVisitor<Statement> {
+		
+		private final Name label;
+
+		public Visitor(Name label) {
+			this.label = label;
+		}
 
 		private static Statement makeBlock(INode src, Statement ...stats) {
 			return makeBlock(src, Arrays.asList(stats));
@@ -58,8 +66,8 @@ public class StringTemplateConverter {
 		}
 
 		
-		private static Statement makeAppend(Expression exp) {
-			return new Statement.Append(exp.getTree(), new DataTarget.Labeled(null, OUTER_FOR_LOOP_LABEL),
+		private Statement makeAppend(Expression exp) {
+			return new Statement.Append(exp.getTree(), new DataTarget.Labeled(null, label),
 					new Statement.Expression(exp.getTree(), exp)); 
 		}
 		
