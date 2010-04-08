@@ -119,9 +119,9 @@ public class TreeNode extends Figure {
 				vlp.line(nodeBottomX, nodeBottomY, nodeBottomX, horLineY);
 				
 				if(n > 1){
-					Figure leftVE = children.get(0).figureNode;
-					Figure rightVE = children.get(n-1).figureNode;
-					vlp.line(leftVE.getCurrentLeft() + leftVE.width/2, horLineY, rightVE.getCurrentLeft() + rightVE.width/2, horLineY);
+					Figure leftFig = children.get(0).figureNode;
+					Figure rightFig = children.get(n-1).figureNode;
+					vlp.line(leftFig.getCurrentLeft() + leftFig.width/2, horLineY, rightFig.getCurrentLeft() + rightFig.width/2, horLineY);
 				}
 			
 			// TODO line style!
@@ -143,9 +143,11 @@ public class TreeNode extends Figure {
 	@Override
 	public boolean mouseInside(int mousex, int mousey){
 		float l = left + leftDragged + figureNode.width/2 - width/2;
+		System.err.printf("TreeNode.mouseInside(%d,%d)\n", mousex, mousey);
+		System.err.printf("left = %f, leftDragged = %f, top = %f, topDragged = %f\n", left, leftDragged, top, topDragged);
 		return mousex > l && 
 		        mousex < l + width && 
-		        mousey > top +topDragged && 
+		        mousey > top + topDragged && 
 		        mousey < top + topDragged  + height;
 	}
 	
@@ -159,6 +161,7 @@ public class TreeNode extends Figure {
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
 		if(debug)System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
+		if(debug)System.err.printf("TreeNode.mouseover: left=%f, top=%f\n", left, top);
 		if(figureNode.mouseOver(mousex, mousey))
 			return true;
 		for(TreeNode child : children)

@@ -199,9 +199,19 @@ public void grid1(){
   render(grid([width(120), gap(10), top()], boxes));
 }
 
+public void grid11(){
 
-
-
+ boxes = [box([width(50), height(50),fillColor("red")]), box([width(30), height(30),fillColor("yellow")]), 
+           box([width(30), height(30),fillColor("green")]), box([width(70), height(50),fillColor("blue")]),
+           box([width(70), height(70),fillColor("black")])
+           ];
+           
+ g1 = grid([width(120), gap(10), top()], boxes);
+ g2 = grid([width(80), gap(10), top()], boxes);
+ 
+ render(hcat([gap(50)], [g1, g2]));
+ 
+}
 
 // Overlay with same effect as grid0
 

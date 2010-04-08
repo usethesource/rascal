@@ -78,14 +78,6 @@ public class Tree extends Figure {
 		
 		if(root == null)
 			throw RuntimeExceptionFactory.illegalArgument(rootName, ctx.getCurrentAST(), ctx.getStackTrace());
-//		root = null;
-//		for(TreeNode node : nodeMap.values()){
-//			if(!hasParent.contains(node)){
-//				if(root != null)
-//					System.err.println("TREE HAS MULTIPLE ROOTS");
-//				root = node;
-//			}
-//		}
 	}
 	
 	@Override
