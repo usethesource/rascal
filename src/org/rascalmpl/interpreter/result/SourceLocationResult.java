@@ -14,9 +14,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class SourceLocationResult extends ElementResult<ISourceLocation> {
@@ -71,23 +73,56 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		IValueFactory vf = getValueFactory();
+		URI uri = getValue().getURI();
 		if (name.equals("scheme")) {
-			return makeResult(getTypeFactory().stringType(), vf.string(getValue().getURI().getScheme()), ctx);
+			return makeResult(getTypeFactory().stringType(), vf.string(uri.getScheme()), ctx);
 		}
 		else if (name.equals("authority")) {
-			String authority = getValue().getURI().getAuthority();
+			String authority = uri.getAuthority();
 			return makeResult(getTypeFactory().stringType(), vf.string(authority != null ? authority : ""), ctx);
 		}
 		else if (name.equals("host")) {
-			String host = getValue().getURI().getHost();
+			String host = uri.getHost();
 			return makeResult(getTypeFactory().stringType(), vf.string(host != null ? host : ""), ctx);
 		}
 		else if (name.equals("path")) {
-			String path = getValue().getURI().getPath();
+			String path = uri.getPath();
 			return makeResult(getTypeFactory().stringType(), vf.string(path != null ? path : ""), ctx);
 		}
+		else if (name.equals("parent")) {
+			String path = uri.getPath();
+			if (path.equals("")) {
+				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+			}
+			int i = path.lastIndexOf("/");
+			
+			if (i != -1) {
+				path = path.substring(0, i);
+				return makeResult(getTypeFactory().stringType(), vf.string(path), ctx);
+			}
+			
+			throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		else if (name.equals("file")) {
+			String path = uri.getPath();
+			
+			if (path.equals("")) {
+				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+			}
+			int i = path.lastIndexOf("/");
+			
+			if (i != -1) {
+				path = path.substring(i+1);
+				return makeResult(getTypeFactory().stringType(), vf.string(path), ctx); 
+			}
+			
+			return makeResult(getTypeFactory().stringType(), vf.string(path), ctx);
+		}
+		else if (name.equals("children")) {
+			throw new NotYetImplemented("directory listing not yet implemented");
+		}
 		else if (name.equals("extension")) {
-			String path = getValue().getURI().getPath();
+			String path = uri.getPath();
 			int i = path.lastIndexOf('.');
 			if (i != -1) {
 				return makeResult(getTypeFactory().stringType(), vf.string(path.substring(i + 1)), ctx);
@@ -95,19 +130,19 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().stringType(), vf.string(""), ctx);
 		}
 		else if (name.equals("fragment")) {
-			String fragment = getValue().getURI().getFragment();
+			String fragment = uri.getFragment();
 			return makeResult(getTypeFactory().stringType(), vf.string(fragment != null ? fragment : ""), ctx);
 		}
 		else if (name.equals("query")) {
-			String query = getValue().getURI().getQuery();
+			String query = uri.getQuery();
 			return makeResult(getTypeFactory().stringType(), vf.string(query != null ? query : ""), ctx);
 		}
 		else if (name.equals("user")) {
-			String user = getValue().getURI().getUserInfo();
+			String user = uri.getUserInfo();
 			return makeResult(getTypeFactory().stringType(), vf.string(user != null ? user : ""), ctx);
 		}
 		else if (name.equals("port")) {
-			return makeResult(getTypeFactory().integerType(), vf.integer(getValue().getURI().getPort()), ctx);
+			return makeResult(getTypeFactory().integerType(), vf.integer(uri.getPort()), ctx);
 		}
 		else if (name.equals("length")) {
 			return makeResult(getTypeFactory().integerType(), vf
@@ -125,7 +160,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		}
 		else if (name.equals("uri")) {
 			return makeResult(getTypeFactory().stringType(), vf
-					.string(getValue().getURI().toString()), ctx);
+					.string(uri.toString()), ctx);
 		} 
 		else {
 			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
@@ -177,6 +212,43 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());
+			}
+			else if (name.equals("file")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				
+				String path = uri.getPath();
+				int i = path.lastIndexOf("/");
+				
+				if (i != -1) {
+					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path.substring(0, i) + "/" + ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());
+				}
+				else {
+					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path + "/" + ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());	
+				}
+			}
+			else if (name.equals("parent")) {
+				if (!replType.isStringType()) {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
+				
+				String path = uri.getPath();
+				int i = path.lastIndexOf("/");
+				String parent = ((IString) repl.getValue()).getValue();
+				
+				if (!parent.startsWith("/")) {
+					parent = "/" + parent;
+				}
+				if (i != -1) {
+					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent + path.substring(i), uri.getQuery(), uri.getFragment());
+				}
+				else {
+					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent, uri.getQuery(), uri.getFragment());	
+				}
+			}
+			else if (name.equals("children")) {
+				throw new UnsupportedOperationError("can not update the children of a location", ctx.getCurrentAST());
 			}
 			else if (name.equals("extension")) {
 				if (!replType.isStringType()) {
