@@ -70,6 +70,11 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			return;
 		}
 		IConstructor tree = (IConstructor) subject.getValue();
+		
+		if (tree.getConstructorType() != Factory.Tree_Appl) {
+			hasNext = false;
+			return;
+		}
 		pat.initMatch(ResultFactory.makeResult(Factory.Args, TreeAdapter.getArgs(tree), ctx));
 		hasNext = true;
 	}
