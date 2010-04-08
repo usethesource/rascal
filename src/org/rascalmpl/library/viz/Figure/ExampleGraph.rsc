@@ -44,6 +44,36 @@ public void K3(){
     render(graph([width(400), height(400)], nodes, edges));
 }
 
+public void K33(){
+
+   nodes1 =
+     	[ box([id("A1"), width(20), height(20), fillColor("green")], text("A1")),
+     	  box([id("B1"),  width(20), height(20), fillColor("red")], text("B1")),
+     	  box([id("C1"),  width(20), height(20), fillColor("blue")], text("C1"))
+     	];
+    edges1 = 
+    	[ edge("A1", "B1"),
+    	  edge("B1", "C1"),
+    	  edge("C1", "A1")
+    	];
+    	
+    g1 = graph([width(200), height(200)], nodes1, edges1);
+
+    nodes2 =
+     	[ box([id("A2"), width(20), height(20), fillColor("white")], text("A2")),
+     	  box([id("B2"),  width(20), height(20), fillColor("grey")], text("B2")),
+     	  box([id("C2"),  width(20), height(20), fillColor("black")], text("C2"))
+     	];
+    edges2 = 
+    	[ edge("A2", "B2"),
+    	  edge("B2", "C2"),
+    	  edge("C2", "A2")
+    	];
+    g2 = graph([width(200), height(200)], nodes2, edges2);
+    
+    render(hcat([gap(20)], [g1, g2]));
+}
+
 public void graph4(){
      nodes =
      	[ box([id("A"), width(20), height(20), fillColor("green")], text("A")),

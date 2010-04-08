@@ -146,9 +146,9 @@ public class Graph extends Figure {
 		top  += topDragged;
 		applyProperties();
 		for(GraphEdge e : edges)
-			e.draw(leftDragged, topDragged);
+			e.draw(left, top);
 		for(GraphNode n : nodes){
-			n.draw(leftDragged, topDragged);
+			n.draw(left, top);
 		}
 	}
 	

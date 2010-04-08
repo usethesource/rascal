@@ -18,6 +18,28 @@ public void tree1(){
     render(tree([gap(10), top()], nodes, edges, "A"));
 }
 
+public void tree1a(){
+
+   nodes1 =
+     	[ box([id("A"), width(20), height(20), fillColor("green"), popup("A")]),
+          box([id("B"), width(20), height(20), fillColor("blue"), popup("B")])
+     	];
+     	
+    edges = 
+    	[    	  
+    	];
+    	
+    nodes2 =
+     	[ box([id("C"), width(20), height(20), fillColor("white"), popup("C")]),
+     	  box([id("D"), width(20), height(20), fillColor("black"), popup("D")])
+     	];
+    	  
+    t1 = tree([gap(10), top()], nodes1, edges, "A");
+    t2 = tree([gap(10), top()], nodes2, edges, "C");
+    
+    render(hcat([gap(100)], [t1, t2]));
+}
+
 // Tree: 2 nodes
 
 public void tree2(){

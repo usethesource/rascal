@@ -141,9 +141,9 @@ public class GraphNode {
 		return y + figure.topDragged;
 	}
 
-	void draw(float leftDragged, float topDragged) {
+	void draw(float left, float top) {
 		figure.bbox();
-		figure.draw(x + leftDragged - figure.width/2, y + topDragged - figure.height/2);
+		figure.draw(x + left - figure.width/2, y + top - figure.height/2);
 	}
 	
 	public boolean mouseOver(int mousex, int mousey){
