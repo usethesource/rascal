@@ -40,6 +40,7 @@ import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -521,13 +522,13 @@ public class ASTBuilder {
 			ASTStatistics stats = new ASTStatistics();
 			boolean isAmb = false;
 			ISourceLocation loc = null;
+			Type nonterminalType = null;
 			
 			if (type.isAbstractDataType()) {
 				IConstructor tree = (IConstructor) pattern;
 
 				if (tree.getConstructorType() == Factory.Tree_Appl) {
 					loc = TreeAdapter.getLocation(tree);
-					// TODO: get location information, if its there and build ast for annotation setting
 					
 					if (TreeAdapter.isList(tree)) {
 						inlist = true;
@@ -560,9 +561,13 @@ public class ASTBuilder {
 					}
 
 					source = tree;
+					IConstructor sym =  ProductionAdapter.getRhs(TreeAdapter.getProduction(tree));
+					nonterminalType = RascalTypeFactory.getInstance().nonTerminalType(sym);
 				}
 				else if (tree.getConstructorType() == Factory.Tree_Amb) {
 					isAmb = true;
+					IConstructor sym = ProductionAdapter.getRhs(TreeAdapter.getProduction((IConstructor) TreeAdapter.getAlternatives(tree).iterator().next()));
+					nonterminalType = RascalTypeFactory.getInstance().nonTerminalType(sym);
 				}
 			}
 
@@ -589,7 +594,8 @@ public class ASTBuilder {
 			}
 
 			Expression ast = new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
-			
+			ast._setType(nonterminalType);
+
 			if (loc != null && !match) {
 				ast = addLocationAnnotationSetterExpression(source, loc, ast);
 			}
