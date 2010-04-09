@@ -48,6 +48,10 @@ public abstract class Figure implements Comparable<Figure> {
 		return left + leftDragged;
 	}
 	
+	public float getCurrentMiddle(){
+		return left + leftDragged + width/2;
+	}
+	
 	public float getCurrentTop(){
 		return top + topDragged;
 	}

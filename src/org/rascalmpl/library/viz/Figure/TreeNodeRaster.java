@@ -62,7 +62,7 @@ public class TreeNodeRaster {
 	
 	public float leftMostPosition(float position, float top, float width, float height, float gap){
 		int itop = PApplet.round(top);
-		float l = position;
+		float l = position >= 0 ? position : 0;
 		int ibot = PApplet.round(top + height);
 		if(ibot > RMAX){
 			extend(ibot);
