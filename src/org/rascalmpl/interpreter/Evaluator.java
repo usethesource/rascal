@@ -432,15 +432,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 			}
 			currentAST = stat;
-			Result<IValue> r = stat.accept(this);
-			if(r != null){
+			try {
+				return stat.accept(this);
+			}
+			finally {
 				if(doProfiling){
 					profiler.pleaseStop();
 					profiler.report();
 				}
-				return r;
 			}
-			throw new ImplementationError("Not yet implemented: " + stat.toString());
 		} catch (Return e){
 			throw new UnguardedReturnError(stat);
 		}
@@ -676,7 +676,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitCommandStatement(
 			org.rascalmpl.ast.Command.Statement x) {
 		setCurrentAST(x.getStatement());
-		return x.getStatement().accept(this);
+		return eval(x.getStatement());
 	}
 	
 	@Override
