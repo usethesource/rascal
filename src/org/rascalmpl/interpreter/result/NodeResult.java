@@ -138,7 +138,8 @@ public class NodeResult extends ElementResult<INode> {
 					}
 				}
 				
-				throw new ImplementationError("This should not happen, all children are equal");
+				// this may happen when comparing nodes to constructors
+				return makeIntegerResult(0);
 			}
 			
 			if (left.arity() < right.arity()) {
