@@ -227,9 +227,6 @@ data Figure =
    | pack(Figures elems)                        // composition by 2D packing
    | pack(FProperties props, Figures elems)
    
-   | pie(Figures elems)                         // composition as pie chart
-   | pie(FProperties props, Figures elems)
-   
    | graph(Figures nodes, list[Edge] edges)     // composition of nodes and edges as graph
    | graph(FProperties, Figures nodes, list[Edge] edges)
    
