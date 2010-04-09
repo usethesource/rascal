@@ -115,6 +115,40 @@ public void tree4(){
 
 // Tree
 
+public void tree4a(){
+
+   nodes =
+     	[ box([id("A"), fillColor("green")]),
+     	  box([id("B"), fillColor("red")]),
+     	  box([id("C"), fillColor("blue")]),
+     	  box([id("D"), fillColor("purple")]), 	
+     	  box([id("E"), fillColor("lightblue")]),
+          box([id("F"), fillColor("orange")]),
+     	  box([id("G"), fillColor("brown")]),
+     	  box([id("H"), fillColor("black")]),
+     	  box([id("I"), fillColor("grey")]),
+     	  box([id("J"), fillColor("white")]),
+     	  box([id("K"), fillColor("deeppink")])
+     	];
+    edges = 
+    	[ edge("A", "B"),
+    	  edge("A", "C"),
+    	  edge("A", "K"),
+    	  edge("A", "D"),
+    	  edge("B", "E"),
+    	  edge("B", "F"),
+    	  edge("B", "G")
+    //	  edge("D", "H"),
+    //	  edge("D", "I"),
+    //	  edge("D", "J")
+    	];
+    	    
+    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges, "A"));
+}
+
+
+// Tree
+
 public void tree5(){
 
    nodes =

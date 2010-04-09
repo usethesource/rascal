@@ -18,6 +18,10 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * E. M. Reingold, J. S. Tilford, Tidier Drawings of Trees, 
  * IEEE Transactions on Software Engineering, Volume 7 ,  Issue 2  (March 1981), Pages: 223-228  
  * 
+ * and the improved algorithm described in:
+ * A. Bloesch, Aesthetic Layout of Generalized Trees,
+ * Software practice and Experience, Vol. 23(8), 817--827 (1993).
+ * 
  * @author paulk
  *
  */
@@ -92,17 +96,6 @@ public class Tree extends Figure {
 		height = root.height;
 	}
 	
-//	@Override
-//	void bbox(float left, float top) {
-//		System.err.printf("Tree.bbox(%f, %f)\n", left, top);
-//		this.left = left;
-//		this.top = top;
-//		raster.clear();
-//		root.shapeTree(left, top, raster);
-//		width = root.width;
-//		height = root.height;
-//	}
-	
 	@Override
 	void draw(float left, float top) {
 		this.left = left;
@@ -110,27 +103,20 @@ public class Tree extends Figure {
 		left += leftDragged;
 		top += topDragged;
 		System.err.printf("Tree.draw(%f,%f)\n", left, top);
-//		vlp.pushMatrix();
-//		vlp.translate(left, top);
 		applyProperties();
-		root.draw(left, top); // was draw()
-//		vlp.popMatrix();
+		root.draw(left, top);
 	}
 	
 	@Override
 	public boolean mouseInside(int mousex, int mousey){
-		int l = FigurePApplet.round(left + leftDragged);
-		int t = FigurePApplet.round(top + topDragged);
-		return root.mouseInside(mousex - l, mousey - t) || 
-		       super.mouseInside(mousex - l, mousey -t);
+		return root.mouseInside(mousex, mousey) || 
+		        super.mouseInside(mousex, mousey);
 	}
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
-		int l = FigurePApplet.round(left + leftDragged);
-		int t = FigurePApplet.round(top + topDragged);
-		return root.mouseOver(mousex - l, mousey - t) ||
-		       super.mouseOver(mousex - l, mousey -  t);
+		return root.mouseOver(mousex, mousey) ||
+		        super.mouseOver(mousex, mousey);
 	}
 	
 	@Override
@@ -145,6 +131,6 @@ public class Tree extends Figure {
 	@Override
 	public boolean mouseDragged(int mousex, int mousey){
 		return root.mouseDragged(mousex, mousey) ||
-		       super.mouseDragged(mousex, mousey);
+		        super.mouseDragged(mousex, mousey);
 	}
 }
