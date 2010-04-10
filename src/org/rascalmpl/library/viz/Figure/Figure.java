@@ -28,9 +28,8 @@ public abstract class Figure implements Comparable<Figure> {
 	protected float width;		// width of element
 	protected float height;		// height of element
 	
-	protected float leftDragged;    // deplacement of left due to dragging
-	protected float topDragged;	    // deplacement of top due to dragging
-	protected boolean dragged;      // figure has been dragged to other location
+	protected float leftDragged;  // deplacement of left due to dragging
+	protected float topDragged;	// deplacement of top due to dragging
 	
 	Figure(FigurePApplet vlp, IEvaluatorContext ctx){
 		this(vlp, null,ValueFactoryFactory.getValueFactory().list(), ctx);
@@ -41,21 +40,19 @@ public abstract class Figure implements Comparable<Figure> {
 		properties = new PropertyManager(vlp, inheritedProps, props, ctx);
 		vf = ValueFactoryFactory.getValueFactory();
 		leftDragged = topDragged = 0;
-		dragged = false;
 	}
 	
-	public float getCurrentLeft(){
+	public float getRealLeft(){
 		return left + leftDragged;
 	}
 	
-	public float getCurrentMiddle(){
+	public float getRealMiddle(){
 		return left + leftDragged + width/2;
 	}
 	
-	public float getCurrentTop(){
+	public float getRealTop(){
 		return top + topDragged;
 	}
-	
 	
 	public float max(float a, float b){
 		return a > b ? a : b;
@@ -233,15 +230,7 @@ public abstract class Figure implements Comparable<Figure> {
 	/**
 	 * Drawing proceeds in two stages:
 	 * - determine the bounding box of the element (using bbox)
-	 * - draw it (using draw)
-	 * 
-	 * There exist two scenarios. The standard scenario is:
-	 * - use bbox without parameters just calculates bounding box
-	 * - use draw with left and top argument for placement.
-	 * 
-	 * An alternative scenario: (used by compelxer layouts like tree and graph):
-	 * - use bbox with elft and top arguments that are stored in the element
-	 * - use draw without argument, reusing the stored left and top values.
+	 * - draw it (using draw) with left and top argument for placement.
 	 */
 	
 	/**
@@ -250,19 +239,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 	
 	abstract void bbox();
-	
-	/**
-	 * Compute the bounding box of the element. Should be called before draw since,
-	 * the computed width and height are stored in the element itself. This variant also
-	 * stores left and top in the element
-	 */
-	
-//	void bbox(float left, float top){
-//		this.left = left;
-//		this.top = top;
-//		bbox();
-//	}
-		
+
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box
 	 * @param left	x-coordinate of corner
@@ -272,18 +249,17 @@ public abstract class Figure implements Comparable<Figure> {
 	abstract void draw(float left, float top);
 	
 	/**
-	 * Draw element with left, top corner that was computed before by bbox.
+	 * Draw focus around this figure
 	 */
-	void draw(){
-		draw(left, top);
-	}
-	
 	public void drawFocus(){
 		vlp.stroke(255, 0,0);
 		vlp.noFill();
 		vlp.rect(left + leftDragged, top + topDragged, width, height);
 	}
 	
+	/**
+	 * Draw the mouseOver figure associated with this figure (if any)
+	 */
 	public void drawMouseOverFigure(){
 		if(hasMouseOverFigure()){
 			Figure mo = getMouseOverFigure();

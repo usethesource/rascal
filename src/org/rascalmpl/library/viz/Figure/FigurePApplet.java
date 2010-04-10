@@ -63,15 +63,13 @@ public class FigurePApplet extends PApplet {
 		smooth();
 		noLoop();
 		figure.bbox();
-		//if(!velem.hasInteraction())
-		//	noLoop();
 	}
 	
 	@Override
 	public void draw(){
 		background(255);
 	//	figure.bbox();
-		figure.draw();
+		figure.draw(0, 0);
 		if(focus != null){
 			if(focusSelected)
 				focus.drawFocus();
