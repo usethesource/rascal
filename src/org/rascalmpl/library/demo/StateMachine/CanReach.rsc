@@ -27,13 +27,13 @@ public FSM example0 =
 	      trans a: S1 -> S2;
 
 public FSM example = 
-       finite-state machine
+       `finite-state machine
           state S1;
     	  state S2;
 	      state S3;
 	      trans a: S1 -> S2;
 	      trans b: S2 -> S1;
-	      trans a: S1 -> S3;
+	      trans a: S1 -> S3`;
 
 
 test getTransitions(example0) == {<"S1", "S2">};

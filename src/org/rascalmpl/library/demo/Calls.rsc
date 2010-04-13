@@ -4,11 +4,12 @@ import Set;
 import Relation;
 import Graph;
 
-// Exploring a Call graph, see extensive description in Rascal user manual
+// Exploring a Call graph, see description in Rascal user manual
 
 alias Proc = str;
 
-private	rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
+private	rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, 
+                                 <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
 
 test size(Calls) == 8;
 
