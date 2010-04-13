@@ -31,8 +31,8 @@ public class Pack extends Compose {
 	void bbox() {
 		if(initialized)
 			return;
-		//width = getWidthProperty();
-		//height = getHeightProperty();
+		width = getWidthProperty();
+		height = getHeightProperty();
 
 		Node.hgap = getHGapProperty();
 		Node.vgap = getVGapProperty();

@@ -1,10 +1,11 @@
 module demo::StringTemplate
 
 import String;
+import IO;
 
 // Illustrating of template-based code generation
 
-// Captitalize the first character of a string
+// Capitalize the first character of a string
 
 public str capitalize(str s) {
   return toUpperCase(substring(s, 0, 1)) + substring(s, 1);
@@ -28,6 +29,7 @@ public str genClass(str name, map[str,str] fields) {
 ";
 }
 
+// Example of use
 
 private  map[str, str] fields = (
      "name" : "String",
@@ -35,6 +37,14 @@ private  map[str, str] fields = (
      "address" : "String"
   );
   
+public void main(){
+	println(genClass("Person", fields));
+}
+
+
+
+
+
   // Beware, in the generated code each empty line contains 6 spaces!
   test genClass("Person", fields) ==
               "
