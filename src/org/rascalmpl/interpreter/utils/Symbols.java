@@ -29,7 +29,7 @@ public class Symbols {
 	
 	public static IValue typeToSymbol(Type type) {
 		if (type.isUser()) {
-			return Factory.Symbol_Cf.make(factory, Factory.Symbol_Sort.make(factory, factory.string(Names.name(type.getUser().getName()))));
+			return Factory.Symbol_Cf.make(factory, Factory.Symbol_Sort.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName())))));
 		}
 		else if (type.isSymbol()) {
 			return Factory.Symbol_Cf.make(factory, symbolAST2SymbolConstructor(type.getSymbol()));

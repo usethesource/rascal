@@ -29,7 +29,7 @@ public class RascalFunction extends NamedFunction {
 	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
-				(FunctionType) new TypeEvaluator(env).eval(func.getSignature()),
+				(FunctionType) new TypeEvaluator(env, eval.getHeap()).eval(func.getSignature()),
 				varargs,
 				func.getBody().getStatements(), env, accumulators);
 		this.name = Names.name(func.getSignature().getName());

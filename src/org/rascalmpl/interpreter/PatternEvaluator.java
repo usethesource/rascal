@@ -427,7 +427,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 	@Override
 	public IMatchingResult visitExpressionTypedVariable(TypedVariable x) {
-		Type type = new TypeEvaluator(ctx.getCurrentEnvt()).eval(x.getType());
+		Type type = new TypeEvaluator(ctx.getCurrentEnvt(), ctx.getHeap()).eval(x.getType());
 
 		if (type instanceof NonTerminalType) {
 			NonTerminalType cType = (NonTerminalType) type;
@@ -441,7 +441,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	@Override
 	public IMatchingResult visitExpressionTypedVariableBecomes(
 			TypedVariableBecomes x) {
-		Type type = new TypeEvaluator(ctx.getCurrentEnvt()).eval(x.getType());
+		Type type = new TypeEvaluator(ctx.getCurrentEnvt(), ctx.getHeap()).eval(x.getType());
 		IMatchingResult pat = x.getPattern().accept(this);
 		IMatchingResult var = new TypedVariablePattern(ctx, type, x.getName());
 		return new VariableBecomesPattern(ctx, var, pat);
@@ -459,7 +459,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 	@Override
 	public IMatchingResult visitExpressionGuarded(Guarded x) {
-		Type type =  new TypeEvaluator(ctx.getCurrentEnvt()).eval(x.getType());
+		Type type =  new TypeEvaluator(ctx.getCurrentEnvt(), ctx.getHeap()).eval(x.getType());
 		IMatchingResult absPat = x.getPattern().accept(this);
 		return new GuardedPattern(ctx, type, absPat);
 	}
