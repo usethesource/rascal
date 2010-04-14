@@ -126,8 +126,8 @@ public class PropertyManager {
 	protected static float getIntOrRealArg(IConstructor c, int i){
 		if(c.get(i).getType().isIntegerType())
 			return  ((IInteger) c.get(i)).intValue();
-		else
-			return ((IReal) c.get(i)).floatValue();
+		
+		return ((IReal) c.get(i)).floatValue();
 	}
 
 	private int getColorArg(IConstructor c, IEvaluatorContext ctx) {

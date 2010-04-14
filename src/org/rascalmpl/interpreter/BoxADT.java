@@ -57,7 +57,7 @@ public class BoxADT {
 				System.err.println("create:" + tag + " " + s);
 			return vf.constructor(tag, vf.string(s));
 		}
-	};
+	}
 
 	static final IConstructor EMPTY = TAG.L.create("");
 	static final IValue PLUS = TAG.L.create("+");
@@ -218,7 +218,7 @@ public class BoxADT {
 		for (IValue b : a) {
 			q = q.append(first && q.isEmpty() ? b : I(b));
 		}
-		;
+		
 		return q;
 	}
 

@@ -91,8 +91,8 @@ public class FigureFactory {
 		case BOX:
 			if(c.arity() == 2)
 				return new Box(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			else
-				return new Box(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+			
+			return new Box(vlp, inheritedProps, (IList) c.get(0), null, ctx);
 		
 		case EDGE:
 			if(c.arity() == 3)
@@ -103,8 +103,8 @@ public class FigureFactory {
 		case ELLIPSE:
 			if(c.arity() == 2)
 				return new Ellipse(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			else
-				return new Ellipse(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+			
+			return new Ellipse(vlp, inheritedProps, (IList) c.get(0), null, ctx);
 		
 		case GRAPH: 
 			if(c.arity() == 3)
@@ -134,8 +134,8 @@ public class FigureFactory {
 		case SCALE:
 			if(c.arity() == 2)
 				return new Scale(vlp, inheritedProps, c.get(0), c.get(0), (IConstructor) c.get(1), ctx);
-			else
-				return new Scale(vlp, inheritedProps, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
+			
+			return new Scale(vlp, inheritedProps, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
 		case SHAPE: 
 			getOneOrTwoArgs(c); 
 			return new Shape(vlp, inheritedProps, props, elems, ctx);
@@ -143,14 +143,14 @@ public class FigureFactory {
 		case SPACE:
 			if(c.arity() == 2)
 				return new Space(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			else
-				return new Space(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+			
+			return new Space(vlp, inheritedProps, (IList) c.get(0), null, ctx);
 			
 		case TEXT:
 			if(c.arity() == 1)
 				return new Text(vlp, inheritedProps, emptyList, (IString) c.get(0), ctx);
-			else
-				return new Text(vlp, inheritedProps,  (IList) c.get(0), (IString) c.get(1), ctx);
+			
+			return new Text(vlp, inheritedProps,  (IList) c.get(0), (IString) c.get(1), ctx);
 			
 		case TREE: 
 			if(c.arity() == 4)
@@ -161,8 +161,8 @@ public class FigureFactory {
 		case USE:
 			if(c.arity() == 2)
 				return new Use(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			else
-				return new Use(vlp, inheritedProps, emptyList, (IConstructor) c.get(0), ctx);
+			
+			return new Use(vlp, inheritedProps, emptyList, (IConstructor) c.get(0), ctx);
 			
 		case VCAT:
 			getOneOrTwoArgs(c);
@@ -171,13 +171,14 @@ public class FigureFactory {
 		case VERTEX:
 			if(c.arity() == 3)
 				return new Vertex(vlp, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
+			
 			return new Vertex(vlp, c.get(0), c.get(1), ctx);
 			
 		case WEDGE:
 			if(c.arity() == 2)
 				return new Wedge(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			else
-				return new Wedge(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+			
+			return new Wedge(vlp, inheritedProps, (IList) c.get(0), null, ctx);
 									
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
