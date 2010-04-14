@@ -19,9 +19,16 @@ public class LiteralNode implements INode{
 		return false;
 	}
 	
-	private void printCharacter(char character, StringBuilder sb){
+	private void printCharacter(int character, StringBuilder sb){
 		sb.append("appl(prod(char-class([single(");
-		sb.append(Character.getNumericValue(character));
+		sb.append(character);
+		sb.append(')');
+		sb.append(']');
+		sb.append(')');
+		sb.append(',');
+		sb.append('[');
+		sb.append("char(");
+		sb.append(character);
 		sb.append(')');
 		sb.append(']');
 		sb.append(')');
@@ -36,7 +43,7 @@ public class LiteralNode implements INode{
 		sb.append(',');
 		sb.append('[');
 		for(int i = 0; i < content.length; i++){
-			printCharacter(content[i], sb);
+			printCharacter(Character.getNumericValue(content[i]), sb);
 		}
 		sb.append(']');
 		sb.append(')');

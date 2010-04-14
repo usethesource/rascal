@@ -27,15 +27,13 @@ public class ContainerNode implements INode{
 	}
 	
 	private void printAlternative(INode[] children, StringBuilder sb){
-		int nrOfChildren = children.length;
-		
 		sb.append("appl(prod(");
 		sb.append(production);
 		sb.append(')');
 		sb.append(',');
 		sb.append('[');
 		sb.append(children[0]);
-		for(int i = 1; i < nrOfChildren; i++){
+		for(int i = 1; i < children.length; i++){
 			sb.append(',');
 			sb.append(children[i]);
 		}

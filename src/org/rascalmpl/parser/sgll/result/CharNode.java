@@ -21,10 +21,18 @@ public class CharNode implements INode{
 	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
+		
+		sb.append("appl(prod(");
 		sb.append(production);
-		sb.append('(');
+		sb.append(')');
+		sb.append(',');
+		sb.append('[');
+		sb.append("char(");
 		sb.append(character);
 		sb.append(')');
+		sb.append(']');
+		sb.append(')');
+		
 		return sb.toString();
 	}
 }
