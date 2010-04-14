@@ -15,9 +15,9 @@ import IO;
 import Integer;
 
 // join the rules for the same non-terminal
-rule merge   grammar(a,{p,q,a*}) => grammar(a,{choice(sort(p), {p,q}), a*}) when sort(p) == sort(q);
+rule merge   grammar(s,{p,q,set[Production] a}) => grammar(s,{choice(sort(p), {p,q}), a}) when sort(p) == sort(q);
 	
-// these rule flatten complex productions and ignore ordering under diff and assoc  
+// these rule flatten complex productions and ignore ordering under diff and assoc and restrict
 rule or     choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})                    => choice(s,a+b); 
 rule xor    first(Symbol s, [list[Production] a,first(Symbol t, list[Production] b),list[Production] c])  => first(s,a+b+c); 
 rule xor    first(Symbol s, [list[Production] a,choice(Symbol t, {Production b}),list[Production] c])     => first(a+[b]+c); 
@@ -28,6 +28,11 @@ rule diff   diff(Symbol s, Production p, {set[Production] a, choice(Symbol t, se
 rule diff   diff(Symbol s, Production p, {set[Production] a, first(Symbol t, list[Production] b)})   => diff(s, p, a + { e | e <- b});  // ordering is irrelevant under diff
 rule diff   diff(Symbol s, Production p, {set[Production] a, \assoc(Symbol t, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
 
+// this makes sure the ... (others) are merged in at the right place
+rule others choice(Symbol s, {set[Production] a, others(s)}) => choice(s, a);
+rule others choice(Symbol s, {set[Production] a, first(Symbol s, [list[Production] b, others(s), list[Production] c])}) =>
+            first(s, b + [choice(s, a)] + c);
+  
 // move diff outwards
 rule empty  diff(_,Production p,{})                    => p;
 rule or     choice(Symbol s, {set[Production] a, diff(Symbol t, b, set[Production] c)})   => diff(s, choice(s, a+{b}), c);
@@ -285,19 +290,19 @@ private Symbol user2symbol(UserType u) {
   } 
 }
 
-private list[CharRange] complement(list[CharRange] s) {
+public list[CharRange] complement(list[CharRange] s) {
   return difference([range(0,0xFFFF)],s);
 }
 
-private list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
+public list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
   return union(difference(l,r),difference(r,l));
 } 
 
-private list[CharRange] union(list[CharRange] l, list[CharRange] r) {
+public list[CharRange] union(list[CharRange] l, list[CharRange] r) {
  return l + r;
 }
 
-private list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
+public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   if (l == [] || r == []) return l;
 
   <lhead,ltail> = takeOneFrom(l);
