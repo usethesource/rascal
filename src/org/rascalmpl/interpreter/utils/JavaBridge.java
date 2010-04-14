@@ -335,7 +335,7 @@ public class JavaBridge {
 	}
 	
 	private org.eclipse.imp.pdb.facts.type.Type toValueType(Formal formal, Environment env) {
-		return new TypeEvaluator(env).eval(formal);
+		return new TypeEvaluator(env, null).eval(formal);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {

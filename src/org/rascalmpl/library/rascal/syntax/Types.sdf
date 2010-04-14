@@ -58,13 +58,13 @@ context-free syntax
 sorts UserType
 
 context-free syntax
-  name:Name                                             -> UserType {cons("Name")} 
-  name:Name "[" parameters:{Type ","}+ "]"              -> UserType {cons("Parametric")}   
+  name:QualifiedName                                             -> UserType {cons("Name")} 
+  name:QualifiedName "[" parameters:{Type ","}+ "]"              -> UserType {cons("Parametric")}   
 
 sorts DataTypeSelector
 
 context-free syntax
-  sort:Name "." production:Name                         -> DataTypeSelector {cons("Selector")} 
+  sort:QualifiedName "." production:Name                         -> DataTypeSelector {cons("Selector")} 
 
 context-free syntax
   symbol:Sym                                            -> Type {cons("Symbol")}

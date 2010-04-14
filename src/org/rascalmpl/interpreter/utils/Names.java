@@ -23,6 +23,10 @@ public class Names {
 		s = s.replace('\\', ' ');
 		return s.replaceAll(" ","");
 	}
+	
+	static public boolean isQualified(QualifiedName name) {
+		return name.getNames().size() > 1;
+	}
 
 	static public String fullName(QualifiedName qname) {
 		List<Name> names = qname.getNames();
@@ -48,7 +52,10 @@ public class Names {
 		return tmp.toString();
 	}
 
-	
+	/**
+	 * Get the module name part of a qualified name
+	 * @return a string containing all but the last part of the given qualified name
+	 */
 	static public String moduleName(QualifiedName qname) {
 		List<Name> names = qname.getNames();
 		java.util.List<Name> prefix = names.subList(0, names.size() - 1);
@@ -85,6 +92,10 @@ public class Names {
 	}
 	
 	static public String consName(QualifiedName qname) {
+		return name(lastName(qname));
+	}
+	
+	static public String typeName(QualifiedName qname) {
 		return name(lastName(qname));
 	}
 	

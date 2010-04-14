@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.ast.TypeVar;
@@ -24,6 +25,7 @@ import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
+import org.rascalmpl.interpreter.staticErrors.IllegalQualifiedDeclaration;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredTypeError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -77,7 +79,7 @@ public class TypeDeclarationEvaluator {
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
-					fields[i] = new TypeEvaluator(env).eval(arg.getType());
+					fields[i] = new TypeEvaluator(env, null).eval(arg.getType());
 
 					if (fields[i] == null) {
 						throw new UndeclaredTypeError(arg.getType()
@@ -105,8 +107,8 @@ public class TypeDeclarationEvaluator {
 	}
 
 	public void declareAbstractADT(DataAbstract x, Environment env) {
-		TypeFactory tf = TypeFactory.getInstance();
-		Type adt = declareAbstractDataType(x.getUser(), env);
+		TypeFactory.getInstance();
+		declareAbstractDataType(x.getUser(), env);
 	}
 	
 	private void declareAliases(Set<Alias> aliasDecls) {
@@ -135,14 +137,19 @@ public class TypeDeclarationEvaluator {
 	
 	public void declareAlias(Alias x, Environment env) {
 		try {
-			Type base = new TypeEvaluator(env).eval(x.getBase());
+			Type base = new TypeEvaluator(env, null).eval(x.getBase());
 
 			if (base == null) {
 				throw new UndeclaredTypeError(x.getBase().toString(), x
 						.getBase());
 			}
+			
+			QualifiedName name = x.getUser().getName();
+			if (Names.isQualified(name)) {
+				throw new IllegalQualifiedDeclaration(name);
+			}
 
-			env.aliasType(Names.name(x.getUser().getName()), base,
+			env.aliasType(Names.typeName(name), base,
 					computeTypeParameters(x.getUser(), env));
 		} 
 		catch (FactTypeRedeclaredException e) {
@@ -160,8 +167,11 @@ public class TypeDeclarationEvaluator {
 	}
 
 	public Type declareAbstractDataType(UserType decl, Environment env) {
-		String name = Names.name(decl.getName());
-		return env.abstractDataType(name, computeTypeParameters(decl, env));
+		QualifiedName name = decl.getName();
+		if (Names.isQualified(name)) {
+			throw new IllegalQualifiedDeclaration(name);
+		}
+		return env.abstractDataType(Names.typeName(name), computeTypeParameters(decl, env));
 	}
 
 	private Type[] computeTypeParameters(UserType decl, Environment env) {
@@ -179,8 +189,8 @@ public class TypeDeclarationEvaluator {
 							"Declaration of parameterized type with type instance "
 									+ formal + " is not allowed", formal.getLocation());
 				}
-				TypeVar var = formal.getTypeVar();
-				Type bound = var.hasBound() ? new TypeEvaluator(env).eval(var.getBound()) : tf
+				TypeVar var = formal.getTypeVar();	
+				Type bound = var.hasBound() ? new TypeEvaluator(env, null).eval(var.getBound()) : tf
 						.valueType();
 				params[i++] = tf
 						.parameterType(Names.name(var.getName()), bound);

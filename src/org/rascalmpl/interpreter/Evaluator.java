@@ -1000,7 +1000,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		setCurrentAST(x);
 
 		for (org.rascalmpl.ast.Variable var : x.getVariables()) {
-			Type declaredType = new TypeEvaluator(getCurrentModuleEnvironment()).eval(x.getType());
+			Type declaredType = new TypeEvaluator(getCurrentModuleEnvironment(), heap).eval(x.getType());
 
 			if (var.isInitialized()) {  
 				Result<IValue> v = var.getInitial().accept(this);
@@ -1013,7 +1013,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					declaredType.match(v.getType(), bindings);
-					declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
+					declaredType = declaredType.instantiate(new TypeStore(), bindings);
 					r = makeResult(declaredType, v.getValue(), this);
 					getCurrentModuleEnvironment().storeVariable(var.getName(), r);
 				} else {
@@ -1031,10 +1031,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitDeclarationAnnotation(Annotation x) {
-		Type annoType = new TypeEvaluator(getCurrentModuleEnvironment()).eval(x.getAnnoType());
+		Type annoType = new TypeEvaluator(getCurrentModuleEnvironment(), heap).eval(x.getAnnoType());
 		String name = Names.name(x.getName());
 
-		Type onType = new TypeEvaluator(getCurrentModuleEnvironment()).eval(x.getOnType());
+		Type onType = new TypeEvaluator(getCurrentModuleEnvironment(), heap).eval(x.getOnType());
 		getCurrentModuleEnvironment().declareAnnotation(onType, name, annoType);	
 
 		return ResultFactory.nothing();
@@ -1042,7 +1042,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 
 	private Type evalType(org.rascalmpl.ast.Type type) {
-		return new TypeEvaluator(getCurrentEnvt()).eval(type);
+		return new TypeEvaluator(getCurrentEnvt(), heap).eval(type);
 	}
 
 	@Override
@@ -2324,7 +2324,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitExpressionGuarded(Guarded x) {
 		Result<IValue> result = x.getPattern().accept(this);
-		Type expected = new TypeEvaluator(getCurrentEnvt()).eval(x.getType());
+		Type expected = new TypeEvaluator(getCurrentEnvt(), heap).eval(x.getType());
 
 		// TODO: clean up this hack
 		if (expected instanceof NonTerminalType && result.getType().isSubtypeOf(tf.stringType())) {
@@ -2500,7 +2500,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionClosure(Closure x) {
-		Type formals = new TypeEvaluator(getCurrentEnvt()).eval(x.getParameters());
+		Type formals = new TypeEvaluator(getCurrentEnvt(), heap).eval(x.getParameters());
 		Type returnType = evalType(x.getType());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 		return new org.rascalmpl.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(returnType, formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
@@ -2509,7 +2509,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionVoidClosure(VoidClosure x) {
-		Type formals = new TypeEvaluator(getCurrentEnvt()).eval(x.getParameters());
+		Type formals = new TypeEvaluator(getCurrentEnvt(), heap).eval(x.getParameters());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 		return new org.rascalmpl.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(tf.voidType(), formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
 					accumulators);
@@ -2536,7 +2536,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionReifyType(ReifyType x) {
-		Type t = new TypeEvaluator(getCurrentEnvt()).eval(x.getType());
+		Type t = new TypeEvaluator(getCurrentEnvt(), heap).eval(x.getType());
 		return t.accept(new TypeReifier(this, vf));
 	}
 

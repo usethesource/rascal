@@ -1,10 +1,10 @@
 package org.rascalmpl.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class UserType extends AbstractAST { 
-  public org.rascalmpl.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isName() { return false; }
+  public org.rascalmpl.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isName() { return false; }
 static public class Name extends UserType {
-/** name:Name -> UserType {cons("Name")} */
-	public Name(INode node, org.rascalmpl.ast.Name name) {
+/** name:QualifiedName -> UserType {cons("Name")} */
+	public Name(INode node, org.rascalmpl.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
 	}
@@ -19,9 +19,9 @@ static public class Name extends UserType {
 	@Override
 	public boolean hasName() { return true; }
 
-private final org.rascalmpl.ast.Name name;
+private final org.rascalmpl.ast.QualifiedName name;
 	@Override
-	public org.rascalmpl.ast.Name getName() { return name; }	
+	public org.rascalmpl.ast.QualifiedName getName() { return name; }	
 }
 static public class Ambiguity extends UserType {
   private final java.util.List<org.rascalmpl.ast.UserType> alternatives;
@@ -40,8 +40,8 @@ public <T> T accept(IASTVisitor<T> v) {
 } public java.util.List<org.rascalmpl.ast.Type> getParameters() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; }
 public boolean isParametric() { return false; }
 static public class Parametric extends UserType {
-/** name:Name "[" parameters:{Type ","}+ "]" -> UserType {cons("Parametric")} */
-	public Parametric(INode node, org.rascalmpl.ast.Name name, java.util.List<org.rascalmpl.ast.Type> parameters) {
+/** name:QualifiedName "[" parameters:{Type ","}+ "]" -> UserType {cons("Parametric")} */
+	public Parametric(INode node, org.rascalmpl.ast.QualifiedName name, java.util.List<org.rascalmpl.ast.Type> parameters) {
 		this.node = node;
 		this.name = name;
 		this.parameters = parameters;
@@ -59,9 +59,9 @@ static public class Parametric extends UserType {
 	@Override
 	public boolean hasParameters() { return true; }
 
-private final org.rascalmpl.ast.Name name;
+private final org.rascalmpl.ast.QualifiedName name;
 	@Override
-	public org.rascalmpl.ast.Name getName() { return name; }
+	public org.rascalmpl.ast.QualifiedName getName() { return name; }
 	private final java.util.List<org.rascalmpl.ast.Type> parameters;
 	@Override
 	public java.util.List<org.rascalmpl.ast.Type> getParameters() { return parameters; }	

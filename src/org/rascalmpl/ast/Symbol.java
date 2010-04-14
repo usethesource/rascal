@@ -1,21 +1,27 @@
 package org.rascalmpl.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Symbol extends AbstractAST { 
-  public boolean isEmpty() { return false; }
-static public class Empty extends Symbol {
-/** "(" ")" -> Symbol {cons("Empty")} */
-	public Empty(INode node) {
+  public org.rascalmpl.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean isOptional() { return false; } static public class Optional extends Symbol {
+/** symbol:Symbol "?" -> Symbol {cons("Optional")} */
+	public Optional(INode node, org.rascalmpl.ast.Symbol symbol) {
 		this.node = node;
+		this.symbol = symbol;
 	}
 	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolEmpty(this);
+		return visitor.visitSymbolOptional(this);
 	}
 
 	@Override
-	public boolean isEmpty() { return true; }	
-}
-static public class Ambiguity extends Symbol {
+	public boolean isOptional() { return true; }
+
+	@Override
+	public boolean hasSymbol() { return true; }
+
+private final org.rascalmpl.ast.Symbol symbol;
+	@Override
+	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
+} static public class Ambiguity extends Symbol {
   private final java.util.List<org.rascalmpl.ast.Symbol> alternatives;
   public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Symbol> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
@@ -29,6 +35,60 @@ static public class Ambiguity extends Symbol {
 public <T> T accept(IASTVisitor<T> v) {
      return v.visitSymbolAmbiguity(this);
   }
+} public boolean isIter() { return false; } static public class Iter extends Symbol {
+/** symbol:Symbol "+" -> Symbol {cons("Iter")} */
+	public Iter(INode node, org.rascalmpl.ast.Symbol symbol) {
+		this.node = node;
+		this.symbol = symbol;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitSymbolIter(this);
+	}
+
+	@Override
+	public boolean isIter() { return true; }
+
+	@Override
+	public boolean hasSymbol() { return true; }
+
+private final org.rascalmpl.ast.Symbol symbol;
+	@Override
+	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isIterStar() { return false; } static public class IterStar extends Symbol {
+/** symbol:Symbol "*" -> Symbol {cons("IterStar")} */
+	public IterStar(INode node, org.rascalmpl.ast.Symbol symbol) {
+		this.node = node;
+		this.symbol = symbol;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitSymbolIterStar(this);
+	}
+
+	@Override
+	public boolean isIterStar() { return true; }
+
+	@Override
+	public boolean hasSymbol() { return true; }
+
+private final org.rascalmpl.ast.Symbol symbol;
+	@Override
+	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
+} public boolean isEmpty() { return false; }
+static public class Empty extends Symbol {
+/** "(" ")" -> Symbol {cons("Empty")} */
+	public Empty(INode node) {
+		this.node = node;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitSymbolEmpty(this);
+	}
+
+	@Override
+	public boolean isEmpty() { return true; }	
 } 
 public org.rascalmpl.ast.Symbol getHead() { throw new UnsupportedOperationException(); }
 	public java.util.List<org.rascalmpl.ast.Symbol> getTail() { throw new UnsupportedOperationException(); }
@@ -61,67 +121,6 @@ private final org.rascalmpl.ast.Symbol head;
 	private final java.util.List<org.rascalmpl.ast.Symbol> tail;
 	@Override
 	public java.util.List<org.rascalmpl.ast.Symbol> getTail() { return tail; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean isOptional() { return false; } static public class Optional extends Symbol {
-/** symbol:Symbol "?" -> Symbol {cons("Optional")} */
-	public Optional(INode node, org.rascalmpl.ast.Symbol symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	@Override
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolOptional(this);
-	}
-
-	@Override
-	public boolean isOptional() { return true; }
-
-	@Override
-	public boolean hasSymbol() { return true; }
-
-private final org.rascalmpl.ast.Symbol symbol;
-	@Override
-	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
-} public boolean isIter() { return false; } static public class Iter extends Symbol {
-/** symbol:Symbol "+" -> Symbol {cons("Iter")} */
-	public Iter(INode node, org.rascalmpl.ast.Symbol symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	@Override
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolIter(this);
-	}
-
-	@Override
-	public boolean isIter() { return true; }
-
-	@Override
-	public boolean hasSymbol() { return true; }
-
-private final org.rascalmpl.ast.Symbol symbol;
-	@Override
-	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
-} public boolean isIterStar() { return false; } static public class IterStar extends Symbol {
-/** symbol:Symbol "*" -> Symbol {cons("IterStar")} */
-	public IterStar(INode node, org.rascalmpl.ast.Symbol symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	@Override
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolIterStar(this);
-	}
-
-	@Override
-	public boolean isIterStar() { return true; }
-
-	@Override
-	public boolean hasSymbol() { return true; }
-
-private final org.rascalmpl.ast.Symbol symbol;
-	@Override
-	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
 } public org.rascalmpl.ast.StrCon getSep() { throw new UnsupportedOperationException(); } public boolean hasSep() { return false; } public boolean isIterSep() { return false; }
 static public class IterSep extends Symbol {
 /** "{" symbol:Symbol sep:StrCon "}" "+" -> Symbol {cons("IterSep")} */

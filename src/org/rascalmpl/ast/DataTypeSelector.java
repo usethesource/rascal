@@ -1,14 +1,14 @@
 package org.rascalmpl.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class DataTypeSelector extends AbstractAST { 
-public org.rascalmpl.ast.Name getSort() { throw new UnsupportedOperationException(); }
+public org.rascalmpl.ast.QualifiedName getSort() { throw new UnsupportedOperationException(); }
 	public org.rascalmpl.ast.Name getProduction() { throw new UnsupportedOperationException(); }
 public boolean hasSort() { return false; }
 	public boolean hasProduction() { return false; }
 public boolean isSelector() { return false; }
 static public class Selector extends DataTypeSelector {
-/** sort:Name "." production:Name -> DataTypeSelector {cons("Selector")} */
-	public Selector(INode node, org.rascalmpl.ast.Name sort, org.rascalmpl.ast.Name production) {
+/** sort:QualifiedName "." production:Name -> DataTypeSelector {cons("Selector")} */
+	public Selector(INode node, org.rascalmpl.ast.QualifiedName sort, org.rascalmpl.ast.Name production) {
 		this.node = node;
 		this.sort = sort;
 		this.production = production;
@@ -26,9 +26,9 @@ static public class Selector extends DataTypeSelector {
 	@Override
 	public boolean hasProduction() { return true; }
 
-private final org.rascalmpl.ast.Name sort;
+private final org.rascalmpl.ast.QualifiedName sort;
 	@Override
-	public org.rascalmpl.ast.Name getSort() { return sort; }
+	public org.rascalmpl.ast.QualifiedName getSort() { return sort; }
 	private final org.rascalmpl.ast.Name production;
 	@Override
 	public org.rascalmpl.ast.Name getProduction() { return production; }	

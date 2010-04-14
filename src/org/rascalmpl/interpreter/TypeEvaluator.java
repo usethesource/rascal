@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Formal;
 import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.ast.TypeVar;
@@ -57,9 +58,12 @@ import org.rascalmpl.ast.UserType.Parametric;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.rascalmpl.interpreter.staticErrors.NonWellformedTypeError;
 import org.rascalmpl.interpreter.staticErrors.PartiallyLabeledFieldsError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -71,11 +75,14 @@ public class TypeEvaluator {
 	
 	private final Visitor visitor = new Visitor();
 	private final Environment env;
+
+	private GlobalEnvironment heap;
 	
-	public TypeEvaluator(Environment env) {
+	public TypeEvaluator(Environment env, GlobalEnvironment heap) {
 		super();
 		
 		this.env = env;
+		this.heap = heap;
 	}
 	
 	public Type eval(org.rascalmpl.ast.Type type) {
@@ -130,8 +137,22 @@ public class TypeEvaluator {
 		@Override
 		public Type visitDataTypeSelectorSelector(
 				org.rascalmpl.ast.DataTypeSelector.Selector x) {
-			java.lang.String name = Names.name(x.getSort());
-			Type adt = env.lookupAbstractDataType(name);
+			Type adt;
+			QualifiedName sort = x.getSort();
+			java.lang.String name = Names.typeName(sort);
+			
+			if (Names.isQualified(sort)) {
+				ModuleEnvironment mod = heap.getModule(Names.moduleName(sort));
+				
+				if (mod == null) {
+					throw new UndeclaredModuleError(Names.moduleName(sort), sort);
+				}
+				
+				adt = mod.lookupAbstractDataType(name);
+			}
+			else {
+				adt = env.lookupAbstractDataType(name);
+			}
 			
 			if (adt == null) {
 				throw new UndeclaredTypeError(name, x);
@@ -412,32 +433,52 @@ public class TypeEvaluator {
 			return x.getUser().accept(this);
 		}
 		
+		private Environment getEnvironmentForName(QualifiedName name) {
+			if (Names.isQualified(name)) {
+				if (heap == null) {
+					throw new ImplementationError("no heap to look up module");
+				}
+				ModuleEnvironment mod = heap.getModule(Names.moduleName(name));
+				if (mod == null) {
+					throw new UndeclaredModuleError(Names.moduleName(name), name);
+				}
+				return mod;
+			}
+			
+			return env;
+		}
+		
 		@Override
 		public Type visitUserTypeParametric(Parametric x) {
-			java.lang.String name = Names.name(x.getName());
+			java.lang.String name;
+			Type type = null;
+			Environment theEnv = getEnvironmentForName(x.getName());
 
-			if (env != null) {
-				Type type = env.lookupAlias(name);
-				
+			name = Names.typeName(x.getName());
+
+			if (theEnv != null) {
+				type = theEnv.lookupAlias(name);
+
 				if (type == null) {
-					type = env.lookupAbstractDataType(name);
+					type = theEnv.lookupAbstractDataType(name);
 				}
-				
-				if (type != null) {
-					java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
-					Type[] params = new Type[x.getParameters().size()];
-					
-					int i = 0;
-					for (org.rascalmpl.ast.Type param : x.getParameters()) {
-						params[i++] = param.accept(this);
-					}
-					
-					type.getTypeParameters().match(tf.tupleType(params), bindings);
-					
-					type = type.instantiate(new TypeStore(), bindings);
-					
-					return type.instantiate(env.getStore(), env.getTypeBindings());
+			}
+
+			if (type != null) {
+				java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
+				Type[] params = new Type[x.getParameters().size()];
+
+				int i = 0;
+				for (org.rascalmpl.ast.Type param : x.getParameters()) {
+					params[i++] = param.accept(this);
 				}
+
+				type.getTypeParameters().match(tf.tupleType(params), bindings);
+
+				type = type.instantiate(new TypeStore(), bindings);
+
+				// Note that instantiation use type variables from the current context, not the declaring context
+				return type.instantiate(theEnv.getStore(), env.getTypeBindings());
 			}
 			
 			throw new UndeclaredTypeError(name, x);
@@ -445,22 +486,23 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitUserTypeName(Name x) {
-			java.lang.String name = Names.name(x.getName());
+			Environment theEnv = getEnvironmentForName(x.getName());
+			java.lang.String name = Names.typeName(x.getName());
 
-			if (env != null) {
-				Type type = env.lookupAlias(name);
+			if (theEnv != null) {
+				Type type = theEnv.lookupAlias(name);
 
 				if (type != null) {
 					return type;
 				}
 				
-				Type tree = env.lookupAbstractDataType(name);
+				Type tree = theEnv.lookupAbstractDataType(name);
 
 				if (tree != null) {
 					return tree;
 				}
 				
-				Type symbol = env.lookupConcreteSyntaxType(name);
+				Type symbol = theEnv.lookupConcreteSyntaxType(name);
 				
 				if (symbol != null) {
 					return symbol;

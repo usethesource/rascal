@@ -21,7 +21,7 @@ public class JavaFunction extends NamedFunction {
 	
 	public JavaFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
 		super(func, eval,
-				(FunctionType) new TypeEvaluator(env).eval(func.getSignature()),
+				(FunctionType) new TypeEvaluator(env, eval.getHeap()).eval(func.getSignature()),
 				Names.name(func.getSignature().getName()), 
 				varargs, env);
 		this.method = javaBridge.compileJavaMethod(func, env);
