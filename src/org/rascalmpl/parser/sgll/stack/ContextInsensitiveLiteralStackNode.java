@@ -4,12 +4,15 @@ import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
 public final class ContextInsensitiveLiteralStackNode extends StackNode{
+	private final String production;
 	private final char[][] ciLiteral;
 	
 	private LiteralNode result;
 	
-	public ContextInsensitiveLiteralStackNode(int id, char[] ciLiteral){
+	public ContextInsensitiveLiteralStackNode(int id, String production, char[] ciLiteral){
 		super(id);
+		
+		this.production = production;
 		
 		int nrOfCharacters = ciLiteral.length;
 		this.ciLiteral = new char[nrOfCharacters][];
@@ -28,7 +31,8 @@ public final class ContextInsensitiveLiteralStackNode extends StackNode{
 	
 	private ContextInsensitiveLiteralStackNode(ContextInsensitiveLiteralStackNode contextInsensitiveLiteralParseStackNode){
 		super(contextInsensitiveLiteralParseStackNode);
-
+		
+		production = contextInsensitiveLiteralParseStackNode.production;
 		ciLiteral = contextInsensitiveLiteralParseStackNode.ciLiteral;
 		
 		result = null;
@@ -61,7 +65,7 @@ public final class ContextInsensitiveLiteralStackNode extends StackNode{
 			return false; // Did not match.
 		}
 		
-		result = new LiteralNode(resultLiteral);
+		result = new LiteralNode(production, resultLiteral);
 		return true;
 	}
 	
