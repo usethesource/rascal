@@ -308,7 +308,7 @@ public class TreeAdapter {
 							cur);
 					newAlts.insert(newArg);
 				}
-
+				
 				tree = tree.set("alternatives", newAlts.done());
 			} else if (!isCycle(tree)) {
 				throw new ImplementationError("unhandled tree: " + tree + "\n");
@@ -457,9 +457,8 @@ public class TreeAdapter {
 
 					if (result != null) {
 						return result;
-					} else {
-						break;
 					}
+					break;
 				}
 			}
 
@@ -519,8 +518,6 @@ public class TreeAdapter {
 
 					if (result != null) {
 						return result;
-					} else {
-						continue;
 					}
 				}
 			}

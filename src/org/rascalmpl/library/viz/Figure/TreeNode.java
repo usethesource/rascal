@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
+import processing.core.PConstants;
+
 /**
  * A TreeNode is created for each "node" constructor that occurs in the tree.
  * 
@@ -198,7 +200,7 @@ public class TreeNode extends Figure {
 				return true;
 		if(mouseInside(mousex, mousey)){
 			vlp.registerFocus(this);
-			if(vlp.mouseButton == vlp.RIGHT)
+			if(vlp.mouseButton == PConstants.RIGHT)
 				visible = false;
 			else
 				visible = true;

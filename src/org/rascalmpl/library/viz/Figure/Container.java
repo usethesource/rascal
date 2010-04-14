@@ -4,6 +4,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
+import processing.core.PConstants;
+
 
 /**
  * A container represents a visual element that can contain another (nested) visual element called the "inside" element.
@@ -118,7 +120,7 @@ public class Container extends Figure {
 				return true;
 		if(mouseInside(mousex, mousey)){
 			vlp.registerFocus(this);
-			if(vlp.mouseButton == vlp.RIGHT)
+			if(vlp.mouseButton == PConstants.RIGHT)
 				insideVisible = false;
 			else
 				insideVisible = true;
