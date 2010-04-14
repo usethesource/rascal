@@ -1,10 +1,11 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
 public final class OptionalStackNode extends StackNode{
-	private final String production;
+	private final IConstructor production;
 	
 	private final StackNode optional;
 	
@@ -12,7 +13,7 @@ public final class OptionalStackNode extends StackNode{
 	
 	private final INode result;
 	
-	public OptionalStackNode(int id, String production, StackNode optional){
+	public OptionalStackNode(int id, IConstructor production, StackNode optional){
 		super(id);
 		
 		this.production = production;

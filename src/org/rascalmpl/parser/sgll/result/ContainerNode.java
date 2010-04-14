@@ -1,13 +1,14 @@
 package org.rascalmpl.parser.sgll.result;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
 public class ContainerNode implements INode{
-	private final String production;
+	private final IConstructor production;
 	private INode[] firstAlternative;
 	private ArrayList<INode[]> alternatives;
 	
-	public ContainerNode(String production){
+	public ContainerNode(IConstructor production){
 		super();
 		
 		this.production = production;

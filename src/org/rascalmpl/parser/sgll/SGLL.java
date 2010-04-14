@@ -3,7 +3,6 @@ package org.rascalmpl.parser.sgll;
 import java.lang.reflect.Method;
 
 import org.rascalmpl.parser.sgll.result.INode;
-import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.sgll.stack.StackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.IntegerHashMap;
@@ -279,9 +278,9 @@ public class SGLL implements IGLL{
 		}
 	}
 	
-	public INode parse(String start){
+	public INode parse(StackNode startNode){
 		// Initialize.
-		StackNode rootNode = new NonTerminalStackNode(START_SYMBOL_ID, "<START>", start).getCleanCopy();
+		StackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		stacksToExpand.add(rootNode);
 		expand();

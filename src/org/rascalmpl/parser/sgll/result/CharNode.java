@@ -1,10 +1,12 @@
 package org.rascalmpl.parser.sgll.result;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+
 public class CharNode implements INode{
-	private final String production;
+	private final IConstructor production;
 	private final char character;
 	
-	public CharNode(String production, char character){
+	public CharNode(IConstructor production, char character){
 		super();
 		
 		this.production = production;
