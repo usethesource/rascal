@@ -4,20 +4,24 @@ import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
 public final class LiteralStackNode extends StackNode{
+	private final String production;
 	private final char[] literal;
 	
 	private final LiteralNode result;
 	
-	public LiteralStackNode(int id, char[] literal){
+	public LiteralStackNode(int id, String production, char[] literal){
 		super(id);
-
+		
+		this.production = production;
 		this.literal = literal;
-		result = new LiteralNode(literal);
+		
+		result = new LiteralNode(production, literal);
 	}
 	
 	private LiteralStackNode(LiteralStackNode literalParseStackNode){
 		super(literalParseStackNode);
-
+		
+		production = literalParseStackNode.production;
 		literal = literalParseStackNode.literal;
 		
 		result = literalParseStackNode.result;
