@@ -1,11 +1,12 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
 public final class SeparatedListStackNode extends StackNode{
-	private final String production;
+	private final IConstructor production;
 
 	private final StackNode child;
 	private final StackNode[] separators;
@@ -15,7 +16,7 @@ public final class SeparatedListStackNode extends StackNode{
 	
 	private final INode result;
 	
-	public SeparatedListStackNode(int id, String production, StackNode child, StackNode[] separators, boolean isPlusList){
+	public SeparatedListStackNode(int id, IConstructor production, StackNode child, StackNode[] separators, boolean isPlusList){
 		super(id);
 		
 		this.production = production;
@@ -27,7 +28,7 @@ public final class SeparatedListStackNode extends StackNode{
 		this.result = null;
 	}
 	
-	public SeparatedListStackNode(int id, String production, StackNode child, StackNode[] separators, boolean isPlusList, INode result){
+	public SeparatedListStackNode(int id, IConstructor production, StackNode child, StackNode[] separators, boolean isPlusList, INode result){
 		super(id);
 		
 		this.production = production;

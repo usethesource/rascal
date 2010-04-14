@@ -1,15 +1,16 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
 public final class ContextInsensitiveLiteralStackNode extends StackNode{
-	private final String production;
+	private final IConstructor production;
 	private final char[][] ciLiteral;
 	
 	private LiteralNode result;
 	
-	public ContextInsensitiveLiteralStackNode(int id, String production, char[] ciLiteral){
+	public ContextInsensitiveLiteralStackNode(int id, IConstructor production, char[] ciLiteral){
 		super(id);
 		
 		this.production = production;

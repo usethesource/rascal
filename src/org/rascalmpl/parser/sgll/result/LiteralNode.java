@@ -1,10 +1,12 @@
 package org.rascalmpl.parser.sgll.result;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+
 public class LiteralNode implements INode{
-	private final String production;
+	private final IConstructor production;
 	private final char[] content;
 	
-	public LiteralNode(String production, char[] content){
+	public LiteralNode(IConstructor production, char[] content){
 		super();
 		
 		this.production = production;

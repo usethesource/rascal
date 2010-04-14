@@ -1,5 +1,6 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.CharNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
@@ -7,11 +8,11 @@ public final class CharStackNode extends StackNode{
 	private final char[][] ranges;
 	private final char[] characters;
 	
-	private final String production;
+	private final IConstructor production;
 	
 	private INode result;
 	
-	public CharStackNode(int id, String production, char[][] ranges, char[] characters){
+	public CharStackNode(int id, IConstructor production, char[][] ranges, char[] characters){
 		super(id);
 		
 		this.production = production;

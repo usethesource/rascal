@@ -1,17 +1,18 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
 public final class NonTerminalStackNode extends StackNode{
-	private final String production;
+	private final IConstructor production;
 	private final String nonTerminal;
 	
 	private boolean marked;
 	
 	private final INode result;
 	
-	public NonTerminalStackNode(int id, String production, String nonTerminal){
+	public NonTerminalStackNode(int id, IConstructor production, String nonTerminal){
 		super(id);
 		
 		this.production = production;
@@ -26,7 +27,7 @@ public final class NonTerminalStackNode extends StackNode{
 		production = nonTerminalParseStackNode.production;
 		nonTerminal = nonTerminalParseStackNode.nonTerminal;
 		
-		result = new ContainerNode(nonTerminal);
+		result = new ContainerNode(production);
 	}
 	
 	public boolean isReducable(){

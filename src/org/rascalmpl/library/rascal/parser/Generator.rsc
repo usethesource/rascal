@@ -51,7 +51,7 @@ public class <name> extends SGLL {
 
   public static void main(String[] args){
     <name> parser = new <name>(args[1].toCharArray());
-    System.out.println(parser.parse(args[0]));    
+    System.out.println(parser.parse(args[0])); // TODO Interface changed and now expects a 'start' stack node.
   }
 }
 ";
@@ -103,33 +103,33 @@ public str sym2newitem(Symbol sym) {
    switch (sym) {
     case \label(_,s) : return sym2newitem(s); // ignore labels
     case \sort(n) : 
-      return "new NonTerminalParseStackNode( \"<value2id(sym)>\" , <id>)";
+      return "new NonTerminalStackNode(<id>, sym, \"<value2id(sym)>\")";
     case \lit(l) : 
-      return "new NonTerminalParseStackNode( \"<value2id(sym)>\" , <id>)";
+      return "new NonTerminalStackNode(<id>, sym, \"<value2id(sym)>\")";
     case \cilit(l) : 
-      return "new NonTerminalParseStackNode( \"<value2id(sym)>\" , <id>)";
+      return "new NonTerminalStackNode(<id>, sym, \"<value2id(sym)>\")";
     case \iter(\char-class(list[CharRange] ranges)) : 
-      return "new CharacterClassListParseStackNode(symbol_<value2id(sym)>, new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>, true)";
+      return "new ListStackNode(<id>, sym, symbol_<value2id(sym)>, new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, true)";
     case \iter-star(\char-class(list[CharRange] ranges)) : 
-      return "new CharacterClassListParseStackNode(symbol_<value2id(sym)> , new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>, false)";
+      return "new ListStackNode(<id>, sym, symbol_<value2id(sym)>, new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, false)";
     case \iter-sep(\char-class(list[CharRange] ranges),list[Symbol] seps) : 
-      return "new CharacterClassSeparatedListParseStackNode(symbol_<value2id(sym)> , new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>, true, <generateSymbolItemExpects(seps)>)";
+      return "new SeparatedListStackNode(<id>, sym, symbol_<value2id(sym)> , new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <generateSymbolItemExpects(seps)>, true)";
     case \iter-star-sep(\char-class(list[CharRange] ranges),list[Symbol] seps) :
-      return "new CharacterClassSeparatedListParseStackNode(symbol_<value2id(sym)> , new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>, false, <generateSymbolItemExpects(seps)>)";
+      return "new SeparatedListStackNode(<id>, sym, symbol_<value2id(sym)> , new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <generateSymbolItemExpects(seps)>, false)";
     case \iter(s) : 
-      return "new NonTerminalListParseStackNode( \"<value2id(sym)>\" , <id>, true)";
+      return "new NonTerminalListStackNode(<id>, sym, \"<value2id(sym)>\", true)";
     case \iter-star(s) :
-      return "new NonTerminalListParseStackNode( \"<value2id(sym)>\" , <id>, false)";
+      return "new NonTerminalListStackNode(<id>, sym, \"<value2id(sym)>\", false)";
     case \iter-sep(Symbol s,list[Symbol] seps) : 
-      return "new NonTerminalSeparatedListParseStackNode( \"<value2id(sym)>\" , <id>, true, <generateSymbolItemExpects(seps)>)";
+      return "new NonTerminalSeparatedListStackNode(<id>, sym, \"<value2id(sym)>\", <generateSymbolItemExpects(seps)>, true)";
     case \iter-star-sep(Symbol s,list[Symbol] seps) : 
-      return "new NonTerminalSeparatedListParseStackNode( \"<value2id(sym)>\" , <id>, false, <generateSymbolItemExpects(seps)>)";
+      return "new NonTerminalSeparatedListStackNode(<id>, sym, \"<value2id(sym)>\", <generateSymbolItemExpects(seps)>, false)";
     case \opt(s) : 
-      return "new NonTerminalOptionalParseStackNode( \"<value2id(sym)>\" , <id>)";
+      return "new OptionalStackNode(<id>, sym, \"<value2id(sym)>\")";
     case \char-class(list[CharRange] ranges) : 
-      return "new CharacterClassParseStackNode(symbol_<value2id(sym)>, new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> }, <id>)";
+      return "new CharStackNode(<id>, sym, symbol_<value2id(sym)>, new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> })";
     case \layout() :
-      return "new NonTerminalParseStackNode(\"layout\", <id>)";
+      return "new NonTerminalStackNode(<id>, sym, \"layout\")";
     default: 
       throw "not yet implemented <sym>";
   }

@@ -1,15 +1,16 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
 public final class LiteralStackNode extends StackNode{
-	private final String production;
+	private final IConstructor production;
 	private final char[] literal;
 	
 	private final LiteralNode result;
 	
-	public LiteralStackNode(int id, String production, char[] literal){
+	public LiteralStackNode(int id, IConstructor production, char[] literal){
 		super(id);
 		
 		this.production = production;
