@@ -289,8 +289,6 @@ public class BoxADT {
 	}
 
 	static IValue HV(int hspace, boolean indent, IValue... t) {
-		if (t.length == 1)
-			return t[0];
 		IList q = BoxADT.getEmptyList();
 		for (IValue a : t) {
 			if (a == null)
