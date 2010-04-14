@@ -11,17 +11,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Catch;
 import org.rascalmpl.ast.Declarator;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Formal;
-import org.rascalmpl.ast.FunctionModifier;
-import org.rascalmpl.ast.FunctionModifiers;
 import org.rascalmpl.ast.LocalVariableDeclaration;
-import org.rascalmpl.ast.MidStringChars;
 import org.rascalmpl.ast.Module;
-import org.rascalmpl.ast.Strategy;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Alternative.Ambiguity;
 import org.rascalmpl.ast.Alternative.NamedType;
@@ -254,7 +248,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
+public class BoxEvaluator implements IEvaluator<IValue> {
 	private AbstractAST currentAST;
 
 	private boolean isFunctionName;
@@ -3132,8 +3126,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		if (!x.getArguments().isEmpty())
 			return I(H(0, eX(x.getName()), BoxADT.LPAR, HV(eXs(
 					x.getArguments(), null, null)), BoxADT.RPAR));
-		else
-			return I(eX(x.getName()));
+		
+		return I(eX(x.getName()));
 	}
 
 	public IValue visitVisibilityAmbiguity(
@@ -3505,15 +3499,15 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 				a = a.concat((IList) b);
 				a = a.append(I(BoxADT.RBLOCK));
 				return V(0, a);
-			} else {
-				if (width(header) < SIGNIFICANT) {
-					IList a = list(H(0, header));
-					a = a.append(b);
-					return H(1, a);
-				} else {
-					return V(0, H(0, header), I(b));
-				}
 			}
+			
+			if (width(header) < SIGNIFICANT) {
+				IList a = list(H(0, header));
+				a = a.append(b);
+				return H(1, a);
+			}
+			
+			return V(0, H(0, header), I(b));
 		}
 		return H(L("???"));
 	}
@@ -3561,8 +3555,8 @@ public class BoxEvaluator<IAbstractDataType> implements IEvaluator<IValue> {
 		}
 		if (c.length() >= 2)
 			return list(H(0, r));
-		else
-			return r;
+		
+		return r;
 	}
 
 	IList getComment(AbstractAST a, int ind) {
