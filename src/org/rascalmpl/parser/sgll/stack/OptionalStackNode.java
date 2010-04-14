@@ -4,20 +4,20 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
 public final class OptionalStackNode extends StackNode{
-	private final StackNode optional;
+	private final String production;
 	
-	private final String nodeName;
+	private final StackNode optional;
 	
 	private boolean marked;
 	
 	private final INode result;
 	
-	public OptionalStackNode(int id, StackNode optional, String nodeName){
+	public OptionalStackNode(int id, String production, StackNode optional){
 		super(id);
 		
-		this.optional = optional;
+		this.production = production;
 		
-		this.nodeName = nodeName;
+		this.optional = optional;
 		
 		this.result = null;
 	}
@@ -25,11 +25,11 @@ public final class OptionalStackNode extends StackNode{
 	private OptionalStackNode(OptionalStackNode optionalParseStackNode){
 		super(optionalParseStackNode);
 		
+		production = optionalParseStackNode.production;
+		
 		optional = optionalParseStackNode.optional;
 		
-		nodeName = optionalParseStackNode.nodeName;
-		
-		result = new ContainerNode(nodeName);
+		result = new ContainerNode(production);
 	}
 	
 	public boolean isReducable(){

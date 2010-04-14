@@ -4,15 +4,17 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
 public final class NonTerminalStackNode extends StackNode{
+	private final String production;
 	private final String nonTerminal;
 	
 	private boolean marked;
 	
 	private final INode result;
 	
-	public NonTerminalStackNode(int id, String nonTerminal){
+	public NonTerminalStackNode(int id, String production, String nonTerminal){
 		super(id);
 		
+		this.production = production;
 		this.nonTerminal = nonTerminal;
 		
 		result = null;
@@ -20,7 +22,8 @@ public final class NonTerminalStackNode extends StackNode{
 	
 	private NonTerminalStackNode(NonTerminalStackNode nonTerminalParseStackNode){
 		super(nonTerminalParseStackNode);
-
+		
+		production = nonTerminalParseStackNode.production;
 		nonTerminal = nonTerminalParseStackNode.nonTerminal;
 		
 		result = new ContainerNode(nonTerminal);
