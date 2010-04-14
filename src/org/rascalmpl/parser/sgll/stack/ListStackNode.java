@@ -5,7 +5,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
 public final class ListStackNode extends StackNode{
-	private final String nodeName;
+	private final String production;
 
 	private final StackNode child;
 	private final boolean isPlusList;
@@ -14,10 +14,10 @@ public final class ListStackNode extends StackNode{
 	
 	private final INode result;
 	
-	public ListStackNode(int id, StackNode child, String nodeName, boolean isPlusList){
+	public ListStackNode(int id, String production, StackNode child, boolean isPlusList){
 		super(id);
 		
-		this.nodeName = nodeName;
+		this.production = production;
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
@@ -25,10 +25,10 @@ public final class ListStackNode extends StackNode{
 		this.result = null;
 	}
 	
-	public ListStackNode(int id, StackNode child, String nodeName, boolean isPlusList, INode result){
+	public ListStackNode(int id, String production, StackNode child, boolean isPlusList, INode result){
 		super(id);
 		
-		this.nodeName = nodeName;
+		this.production = production;
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
@@ -39,12 +39,12 @@ public final class ListStackNode extends StackNode{
 	private ListStackNode(ListStackNode listParseStackNode){
 		super(listParseStackNode);
 		
-		nodeName = listParseStackNode.nodeName;
+		production = listParseStackNode.production;
 
 		child = listParseStackNode.child;
 		isPlusList = listParseStackNode.isPlusList;
 		
-		result = new ContainerNode(nodeName);
+		result = new ContainerNode(production);
 	}
 	
 	public boolean isReducable(){
@@ -89,7 +89,7 @@ public final class ListStackNode extends StackNode{
 	public StackNode[] getChildren(){
 		StackNode psn = child.getCleanCopy();
 		StackNode cpsn = child.getCleanCopy();
-		ListStackNode lpsn = new ListStackNode((id | IGLL.LIST_LIST_FLAG), child, nodeName, true, new ContainerNode(nodeName));
+		ListStackNode lpsn = new ListStackNode((id | IGLL.LIST_LIST_FLAG), production, child, true, new ContainerNode(production));
 		
 		lpsn.addNext(psn);
 		psn.addEdge(lpsn);
@@ -122,7 +122,7 @@ public final class ListStackNode extends StackNode{
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(nodeName);
+		sb.append(production);
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
