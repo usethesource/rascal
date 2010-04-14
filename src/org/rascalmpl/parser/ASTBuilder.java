@@ -351,9 +351,8 @@ public class ASTBuilder {
 		if (altsOut.size() == 0) {
 			if (null != lastCaughtACP) {
 				throw lastCaughtACP;
-			} else {
-				return null; // this could happen in case of nested ambiguity
 			}
+			return null; // this could happen in case of nested ambiguity
 //			throw new SyntaxError("concrete syntax pattern", tree.getLocation());
 		}
 		

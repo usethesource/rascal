@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 
 /**
  * A wedge is a vee-shaped element mostly used in pie charts. 
@@ -65,16 +66,16 @@ public class Wedge extends Container {
 	private int quadrant(double angle){
 		if(debug)System.err.printf("angle 1 = %f\n", angle);
 		if(angle < 0)
-			return quadrant(angle +2 * PApplet.PI);
-		if( angle <=  PApplet.PI/2)
+			return quadrant(angle +2 * PConstants.PI);
+		if( angle <=  PConstants.PI/2)
 			return 1;
-		if( angle <=  PApplet.PI)
+		if( angle <=  PConstants.PI)
 			return 2;
-		if( angle <=  1.5 * PApplet.PI)
+		if( angle <=  1.5 * PConstants.PI)
 			return 3;
-		if(angle <= 2 * PApplet.PI)
+		if(angle <= 2 * PConstants.PI)
 			return 4;
-		return quadrant(angle - 2 * PApplet.PI);
+		return quadrant(angle - 2 * PConstants.PI);
 	}
 
 	@Override
@@ -87,7 +88,7 @@ public class Wedge extends Container {
 		toAngle= PApplet.radians(getToAngleProperty());
 		
 		if(toAngle < fromAngle)
-			toAngle += 2 * PApplet.PI;
+			toAngle += 2 * PConstants.PI;
 		
 		
 		if(inside != null)	// Compute bounding box of inside object.
@@ -201,7 +202,7 @@ public class Wedge extends Container {
 	 */
 	void arcVertex(float r, float fromAngle, float toAngle){
 		if(debug)System.err.printf("arcVertex: fromAngle=%f, toAngle=%f\n", fromAngle, toAngle);
-	    if(abs(toAngle - fromAngle) < PApplet.PI/2){
+	    if(abs(toAngle - fromAngle) < PConstants.PI/2){
 			float middleAngle = (toAngle - fromAngle)/2;		// fromAngle + middleAngle == middle of sector
 			float middleR = abs(r / PApplet.cos(middleAngle));	// radius of control point M
 			
