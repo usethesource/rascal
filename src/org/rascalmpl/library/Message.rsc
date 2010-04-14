@@ -1,10 +1,5 @@
 module Message
 
-import ParseTree;
-
-public anno Message      Tree@message;
-public anno set[Message] Tree@messages;
-
 @doc{
 Messages can be used to communicate information about source texts.
 They can be interpreted by IDE's to display type errors and warnings, etc.
