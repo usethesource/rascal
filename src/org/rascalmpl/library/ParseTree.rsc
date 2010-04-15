@@ -37,6 +37,8 @@ data CharRange = range(int start, int end);
 
 data Constructor = cons(str name);
 
+alias CharClass = list[CharRange];
+
 data Symbol =
      \start(Symbol symbol) |
      \label(str name, Symbol symbol) |
@@ -70,8 +72,6 @@ data Symbol =
      
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
-
-
 
 @doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
