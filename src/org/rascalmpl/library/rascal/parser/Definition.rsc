@@ -19,6 +19,7 @@ rule merge   grammar(s,{p,q,set[Production] a}) => grammar(s,{choice(sort(p), {p
 	
 // these rule flatten complex productions and ignore ordering under diff and assoc and restrict
 rule or     choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})                    => choice(s,a+b); 
+rule single first(Symbol s, [Production p]) => p;  
 rule xor    first(Symbol s, [list[Production] a,first(Symbol t, list[Production] b),list[Production] c])  => first(s,a+b+c); 
 rule xor    first(Symbol s, [list[Production] a,choice(Symbol t, {Production b}),list[Production] c])     => first(a+[b]+c); 
 rule or     choice(Symbol s, {set[Production] a, first(Symbol t, [Production b])})        => choice(s, a+{b}); 
@@ -289,6 +290,11 @@ private Symbol user2symbol(UserType u) {
    default: throw "missed case: <u>";
   } 
 }
+
+rule compl complement(\char-class(r1), \char-class(r2)) => \char-class(complement(r1,r2));
+rule diff  difference(\char-class(r1), \char-class(r2)) => \char-class(difference(r1,r2));
+rule union union(\char-class(r1), \char-class(r2)) => \char-class(union(r1,r2));
+rule inter intersection(\char-class(r1), \char-class(r2)) => \char-class(intersection(r1,r2));
 
 public list[CharRange] complement(list[CharRange] s) {
   return difference([range(0,0xFFFF)],s);
