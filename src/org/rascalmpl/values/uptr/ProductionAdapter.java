@@ -153,7 +153,7 @@ public class ProductionAdapter {
 		return hasAttribute(tree, Factory.Attr_Prefer.make(ValueFactoryFactory.getValueFactory()));
 	}
 
-	private static boolean hasAttribute(IConstructor tree, IValue wanted) {
+	public static boolean hasAttribute(IConstructor tree, IValue wanted) {
 		for (IValue attr : getAttributes(tree)) {
 			if (attr.isEqual(wanted)) {
 				return true;
