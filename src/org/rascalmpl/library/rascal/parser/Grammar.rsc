@@ -20,6 +20,12 @@ data Production = choice(Symbol rhs, set[Production] alternatives)
                 | first(Symbol rhs, list[Production] choices)
                 | assoc(Symbol rhs, Associativity assoc, set[Production] alternatives)               
                 | diff(Symbol rhs, Production language, set[Production] alternatives)
-                | restrict(Symbol rhs, Production language, set[list[CharRange]] restrictions)
+                | restrict(Symbol rhs, Production language, list[CharClass] restrictions)
                 | others(Symbol rhs)
                 ;
+
+@doc{These combinators are defined on Symbol, but we assume that only char-class constructors are passed in}
+data Symbol = intersection(Symbol lhs, Symbol rhs)
+            | union(Symbol lhs, Symbol rhs)
+            | difference(Symbol lhs, Symbol rhs)
+            | complement(Symbol cc);
