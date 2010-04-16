@@ -15,4 +15,14 @@ public class HttpURIResolver implements IURIInputStreamResolver {
 		return "http";
 	}
 
+	public boolean exists(URI uri) {
+		try {
+			uri.toURL().openConnection();
+			return true;
+		}
+		catch (IOException e) {
+			return false;
+		}
+	}
+
 }

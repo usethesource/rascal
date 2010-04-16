@@ -31,6 +31,16 @@ public class URIResolverRegistry {
 		outputResolvers.put(scheme, resolver);
 	}
 	
+	public boolean exists(URI uri) {
+		IURIInputStreamResolver resolver = resolvers.get(uri.getScheme());
+		
+		if (resolver == null) {
+			return false;
+		}
+		
+		return resolver.exists(uri);
+	}
+	
 	public InputStream getInputStream(URI uri) throws IOException {
 		IURIInputStreamResolver resolver = resolvers.get(uri.getScheme());
 		

@@ -1,6 +1,7 @@
 package org.rascalmpl.uri;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -51,5 +52,9 @@ public class FileURIResolver implements IURIInputStreamResolver, IURIOutputStrea
 	
 	public String scheme() {
 		return "file";
+	}
+
+	public boolean exists(URI uri) {
+		return new File(uri.getPath()).exists();
 	}
 }

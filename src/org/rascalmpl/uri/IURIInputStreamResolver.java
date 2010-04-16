@@ -6,5 +6,6 @@ import java.net.URI;
 
 public interface IURIInputStreamResolver {
 	InputStream getInputStream(URI uri) throws IOException;  
+	boolean exists(URI uri);
 	String scheme();
 }
