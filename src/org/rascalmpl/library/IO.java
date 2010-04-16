@@ -113,6 +113,10 @@ public class IO{
 		return w.done();
 	}
 	
+	public IValue exists(ISourceLocation file) {
+		return values.bool(URIResolverRegistry.getInstance().exists(file.getURI()));
+	}
+	
 	public IValue readFile(ISourceLocation file){
 		StringBuilder result = new StringBuilder();
 		
