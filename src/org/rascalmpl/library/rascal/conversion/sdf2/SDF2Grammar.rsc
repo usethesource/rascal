@@ -3,11 +3,18 @@ module SDF2Grammar
 // this module converts SDF2 grammars to the Rascal internal grammar representation format
 
 import IO;
+import ParseTree;
+import rascal::parser::Grammar;
 import rascal::parser::Definition;
+import rascal::conversion::sdf2::Load;
 import languages::sdf2::syntax::\Sdf2-Syntax;
 
 public Grammar sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
+}
+
+public Grammar sdf2module2grammar(str name, list[loc] path) {
+  return sdf2grammar(loadSDF2Module(name, path));
 }
 
 public Grammar sdf2grammar(SDF definition) {
@@ -70,7 +77,9 @@ public set[Production] getPriorities(Priority* priorities) {
 
 public Production getPriority(Priority priority, boolean isLex) {
    switch (priority) {
-     case (Priority) `<Production p>` : 
+     case (Priority) `<Group g>.` : return getPriority((Priority) `<Group g>`, isLex); // we ignore non-transitivity here!
+     case (Priority) `<Group g> <ArgumentIndicator i>` : return getPriority((Priority) `<Group g>`, isLex); // we ignore argument indicators here!
+     case (Priority) `<Production p>` :   
        return getProduction(p, isLex);
      case (Priority) `{<Production* ps>}` : 
        return choice(definedSymbol(ps,isLex), [getProduction(p,isLex) | p <- ps]);
