@@ -1,5 +1,7 @@
 module IO
 
+import Exception;
+
 @doc{Print a list of values on the output stream.}
 @javaClass{org.rascalmpl.library.IO}
 public void java println(value V...);
@@ -10,6 +12,7 @@ public bool print(value V...)
   println(V);
   return true;
 }
+
 
 @doc{Print a list of values on the output stream, but do not convert parse trees or remove quotes from strings}
 @javaClass{org.rascalmpl.library.IO}
@@ -25,6 +28,10 @@ throws NoSuchFileError(str msg), IOError(str msg);
 @javaClass{org.rascalmpl.library.IO}
 public str java readFile(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+
+@doc{Check whether a certain location exists}
+@javaClass{org.rascalmpl.library.IO}
+public bool java exists(loc file);
 
 @doc{Read the contents from a file location into a list of lines.}
 @javaClass{org.rascalmpl.library.IO}
@@ -56,3 +63,11 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 @javaClass{org.rascalmpl.library.IO}
 public void java appendToFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+
+@doc{locate a (file) name in a certain path}
+public loc find(str name, list[loc] path) {
+  if (dir <- path, f := dir + "/<name>", exists(f)) { 
+    return f;
+  }
+  throw FileNotFound(name);
+}
