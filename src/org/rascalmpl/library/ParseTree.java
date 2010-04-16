@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -51,14 +52,30 @@ public class ParseTree {
 			ptree = ParsetreeAdapter.addPositionInformation(ptree, input.getURI());
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
 
-			IConstructor prod = TreeAdapter.getProduction(tree);
-			IConstructor rhs = ProductionAdapter.getRhs(prod);
+			if (TreeAdapter.isAppl(tree)) {
+				IConstructor prod = TreeAdapter.getProduction(tree);
+				IConstructor rhs = ProductionAdapter.getRhs(prod);
 
-			if (!rhs.isEqual(startSort)) {
+				if (!rhs.isEqual(startSort)) {
+					throw RuntimeExceptionFactory.parseError(TreeAdapter.getLocation(tree), null, null);
+				}
+
+				return tree;
+			}
+			else if (TreeAdapter.isAmb(tree)) {
+				for (IValue alt : TreeAdapter.getAlternatives(tree)) {
+					IConstructor prod = TreeAdapter.getProduction((IConstructor) alt);
+					IConstructor rhs = ProductionAdapter.getRhs(prod);
+
+					if (rhs.isEqual(startSort)) {
+						return alt;
+					}
+				}
+				
 				throw RuntimeExceptionFactory.parseError(TreeAdapter.getLocation(tree), null, null);
 			}
 			
-			return tree;
+			throw new ImplementationError("unexpected tree type");
 		}
 		catch (SyntaxError e) {
 			ISourceLocation loc = e.getLocation();
@@ -86,14 +103,30 @@ public class ParseTree {
 			ptree = ParsetreeAdapter.addPositionInformation(ptree, FileURIResolver.STDIN_URI);
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
 
-			IConstructor prod = TreeAdapter.getProduction(tree);
-			IConstructor rhs = ProductionAdapter.getRhs(prod);
+			if (TreeAdapter.isAppl(tree)) {
+				IConstructor prod = TreeAdapter.getProduction(tree);
+				IConstructor rhs = ProductionAdapter.getRhs(prod);
 
-			if (!rhs.isEqual(startSort)) {
+				if (!rhs.isEqual(startSort)) {
+					throw RuntimeExceptionFactory.parseError(TreeAdapter.getLocation(tree), null, null);
+				}
+
+				return tree;
+			}
+			else if (TreeAdapter.isAmb(tree)) {
+				for (IValue alt : TreeAdapter.getAlternatives(tree)) {
+					IConstructor prod = TreeAdapter.getProduction((IConstructor) alt);
+					IConstructor rhs = ProductionAdapter.getRhs(prod);
+
+					if (rhs.isEqual(startSort)) {
+						return alt;
+					}
+				}
+				
 				throw RuntimeExceptionFactory.parseError(TreeAdapter.getLocation(tree), null, null);
 			}
 			
-			return tree;
+			throw new ImplementationError("unexpected tree type");
 		}
 		catch (SyntaxError e) {
 			throw RuntimeExceptionFactory.parseError(e.getLocation(), null, null);
