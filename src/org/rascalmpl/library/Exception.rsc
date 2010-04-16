@@ -17,6 +17,7 @@ data RuntimeException =
     | IllegalArgument()
 	| IO(str message)
 	| PathNotFound(loc l)
+    | FileNotFound(str file)
 	| SchemeNotSupported(loc l)
 	| HostNotFound(loc l)
 	| AccessDenied(loc l)
