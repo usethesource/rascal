@@ -15,6 +15,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class DescendantReader implements Iterator<IValue> {
 
@@ -93,8 +94,12 @@ public class DescendantReader implements Iterator<IValue> {
 			return;
 		}
 		
-		if(name.equals("amb")){
-			throw new ImplementationError("Cannot handle ambiguous subject");
+		if(TreeAdapter.isAmb(tree)) {
+			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
+				pushConcreteSyntaxNode((IConstructor) alt);
+			}
+			return;
+//			throw new ImplementationError("Cannot handle ambiguous subject");
 		}
 			
 		NonTerminalType ctype = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(tree);
