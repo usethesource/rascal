@@ -74,7 +74,7 @@ public class Symbols {
 			return Factory.Symbol_Seq.make(factory, symbols2Symbols(symbol.getHead(), symbol.getTail()));
 		}
 		if (symbol.isSort()) {
-			IString name = factory.string(Names.name(symbol.getName()));
+			IString name = factory.string(Names.typeName(symbol.getName()));
 			return Factory.Symbol_Sort.make(factory, name);
 		}
 		

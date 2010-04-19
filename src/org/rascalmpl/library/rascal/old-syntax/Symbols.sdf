@@ -55,7 +55,7 @@ sorts Type
 context-free priorities
    symbol:Symbol -> Type    {cons("Symbol")} >
    {
-      name:Name                      -> Symbol  {cons("Sort")} 
+      name:QualifiedName                      -> Symbol  {cons("Sort")} 
       lhs:Symbol "|" rhs:Symbol -> Symbol {right, cons("Alternative")}
    } 
 
