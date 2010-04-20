@@ -1,4 +1,4 @@
-module SDF2Grammar
+module rascal::conversion::sdf2::SDF2Grammar
 
 // this module converts SDF2 grammars to the Rascal internal grammar representation format
 
@@ -29,20 +29,20 @@ public set[ParseTree::Production] getProductions(SDF definition) {
     case (Grammar) `restrictions <Restriction* rests>`              : return {getRestrictions(rest, true) | rest <- rests};
     case (Grammar) `lexical restrictions <Restriction* rests>`      : return {getRestrictions(rest, true) | rest <- rests};
     case (Grammar) `context-free restrictions <Restriction* rests>` : return {getRestrictions(rest, false) | rest <- rests};
-    case (Grammar) `priorities <Priority* prios>`                   : return {getPriorities(prio,true) | prio <- prios};
-    case (Grammar) `lexical priorities <Priority* prios>`           : return {getPriorities(prio,true) | prio <- prios};
-    case (Grammar) `context-free priorities <Priority* prios>`      : return {getPriorities(prio,false) | prio <- prios};
+    case (Grammar) `priorities <{Priority ","}* prios>`                   : return {getPriorities(prio,true) | prio <- prios};
+    case (Grammar) `lexical priorities <{Priority ","}* prios>`           : return {getPriorities(prio,true) | prio <- prios};
+    case (Grammar) `context-free priorities <{Priority ","}* prios>`      : return {getPriorities(prio,false) | prio <- prios};
   }
 }
 
-public Production getProduction(languages::sdf2::syntax::Sdf2::Production prod) {
+public Production getProduction(languages::sdf2::syntax::\Sdf2-Syntax::Production prod) {
   switch (prod) {
     case (Production) `<Symbol* syms> -> <Symbol sym>`                      : return prod(getSymbols(syms),getSymbol(sym),\no-attrs());
-    case (Production) `<Symbol* syms> -> <Symbol sym> {<Attribute* attrs>}` : return prod(getSymbols(syms),getSymbol(sym),getAttributes(attrs));
+    case (Production) `<Symbol* syms> -> <Symbol sym> {<{Attribute ","}* attrs>}` : return prod(getSymbols(syms),getSymbol(sym),getAttributes(attrs));
     case (Production) `<IdCon id> (<{Symbol ","}* syms>) -> <Symbol sym>`                      : throw "prefix functions not supported by SDF import yet";
-    case (Production) `<IdCon id> (<{Symbol ","}* syms>) -> <Symbol sym> {<Attribute* attrs>}` : throw "prefix functions not supported by SDF import yet";
+    case (Production) `<IdCon id> (<{Symbol ","}* syms>) -> <Symbol sym> {<{Attribute ","}* attrs>}` : throw "prefix functions not supported by SDF import yet";
     case (Production) `<StrCon s> (<{Symbol ","}* syms>) -> <Symbol sym>`                      : throw "prefix functions not supported by SDF import yet";
-    case (Production) `<StrCon s> (<{Symbol ","}* syms>) -> <Symbol sym> {<Attribute* attrs>}` : throw "prefix functions not supported by SDF import yet";
+    case (Production) `<StrCon s> (<{Symbol ","}* syms>) -> <Symbol sym> {<{Attribute ","}* attrs>}` : throw "prefix functions not supported by SDF import yet";
   }
 }
 
@@ -52,11 +52,11 @@ public set[Production] getRestrictions(Restriction* restrictions, bool isLex) {
 
 public set[Production] getRestrictions(Restriction restriction, bool isLex) {
   switch (restriction) {
-    case (Restriction) `-/- <Lookahead* ls>` : return {};
+    case (Restriction) `-/- <Lookaheads ls>` : return {};
     case (Restriction) `<Symbol s1> <Symbol s2> <Symbol* rest> -/- <Lookaheads ls>` : 
       return getRestrictions((Restriction) `<Symbol s1> -/- <Lookaheads ls>`, isLex) 
            + getRestrictions((Restriction) `<Symbol s2> <Symbol* rest> -/- <Lookaheads ls>`, isLex);
-    case (Restriction) `<Symbol s1> -/- <Lookahead* ls>` :
+    case (Restriction) `<Symbol s1> -/- <Lookaheads ls>` :
       return {restrict(getSymbol(s1), others(getSymbol(s1)), r) | r <- getLookaheads(ls)};
   }
 }
@@ -163,7 +163,8 @@ private str unescape(StrCon s) {
 
 private Symbol getCharClass(CharClass cc) {
    switch(cc) {
-     case (CharClass) `[<CharRange* ranges>]` : return \char-class([range(r) | r <- ranges]);
+     case (CharClass) `[]` : return \char-class([]);
+     case (CharClass) `[<CharRanges ranges>]` : return \char-class([range(r) | /CharRange r := ranges]);
      case (CharClass) `(<CharClass c>)`: return getCharClass(c);
      case (CharClass) `~ <CharClass c>`: return complement(getCharClass(c));
      case (CharClass) `<CharClass l> /\ <CharClass r>`: return intersection(getCharClass(l),getCharClass(r));
