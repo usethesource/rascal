@@ -68,6 +68,7 @@ public class ASTBuilder {
     
     private PointerEqualMappingsCache<IValue, Expression> matchCache = new PointerEqualMappingsCache<IValue, Expression>();
     private PointerEqualMappingsCache<IValue, Expression> constructorCache = new PointerEqualMappingsCache<IValue, Expression>();
+    private ISourceLocation lastSuccess = null;
     
 	public ASTBuilder(ASTFactory factory) {
 		this.factory = factory;
@@ -78,6 +79,10 @@ public class ASTBuilder {
 		this.dummyEmptyTree = factory.makeExpressionAmbiguity(
 				(INode) Factory.Tree_Amb.make(vf, vf.list()), 
 				Collections.<Expression>emptyList());
+	}
+
+	public ISourceLocation getLastSuccessLocation() {
+		return lastSuccess;
 	}
 	
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
@@ -295,8 +300,8 @@ public class ASTBuilder {
 		}
 		
 		ast.setStats(total);
-		
 		sortCache.putUnsafe(tree, ast);
+		lastSuccess = ast.getLocation();
 		return ast;
 	}
 	

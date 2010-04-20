@@ -129,10 +129,11 @@ public class ModuleLoader{
 				loader.tryWriteBinary(fileName, binaryName, tree);
 			}
 			
-			Module moduleAst = new ASTBuilder(new ASTFactory()).buildModule(tree);
+			ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
+			Module moduleAst = astBuilder.buildModule(tree);
 			
 			if (moduleAst == null) {
-				throw new ImplementationError("Unexpected implementation error, all ambiguous ast's have been filtered for module " + name, ast.getLocation());
+				throw new ImplementationError("After this, all ambiguous ast's have been filtered in " + name, astBuilder.getLastSuccessLocation());
 			}
 			return moduleAst;
 		}catch (FactTypeUseException e){
