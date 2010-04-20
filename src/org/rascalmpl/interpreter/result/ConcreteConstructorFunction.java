@@ -47,12 +47,13 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		IListWriter result = Factory.Args.writer(vf);
 		int delta = getDelta(prod);
 		
-		for (int i = 0; i < args.length(); i++) {
+		for (int i = 0; i < args.length(); i+=(delta + 1)) {
 			IConstructor tree = (IConstructor) args.get(i);
 			if (TreeAdapter.isList(tree) && TreeAdapter.isAppl(tree)) {
 				if (shouldFlatten(TreeAdapter.getProduction(tree), prod)) {
 					IList nestedArgs = TreeAdapter.getArgs(tree);
 					if (nestedArgs.length() > 0) {
+						appendSeparators(args, result, delta, i);
 						result.appendAll(nestedArgs);
 					}
 					else {
@@ -61,15 +62,23 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 					}
 				}
 				else {
+					appendSeparators(args, result, delta, i);
 					result.append(tree);
 				}
 			}
 			else {
+				appendSeparators(args, result, delta, i);
 				result.append(tree);
 			}
 		}
 		
 		return result.done();
+	}
+
+	private void appendSeparators(IList args, IListWriter result, int delta, int i) {
+		for (int j = i - delta; j > 0 && j < i; j++) {
+			result.append(args.get(j));
+		}
 	}
 
 	private boolean shouldFlatten(IConstructor nested, IConstructor surrounding) {
