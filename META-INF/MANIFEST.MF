@@ -42,6 +42,5 @@ Export-Package: org.jdom,
  org.rascalmpl.values.uptr.visitors
 Require-Bundle: sglr_invoker,
  org.eclipse.imp.pdb.values,
- org.eclipse.swt,
- org.eclipse.emf.ecore.xmi
+ org.eclipse.swt
 Import-Package: org.eclipse.swt
