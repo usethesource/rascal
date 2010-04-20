@@ -1,5 +1,7 @@
 module ParseTree
 
+import Message;
+
  /*
   * The universal parse tree format. Parse functions always return values of type Tree.
   */
@@ -86,3 +88,15 @@ public &T<:Tree java parse(type[&T<:Tree] start, str input);
 @doc{Yields the string of characters that form the leafs of the given parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 public str java unparse(Tree tree);
+
+@doc{introduces a (error) message related to a certain sub-tree}
+public anno Message Tree@message;
+
+@doc{lists all (error) messages relevant for a certain sub-tree}
+public anno set[Message] Tree@messages;
+
+@doc{provides a documentation string for this parse tree node}
+anno str Tree@doc;
+
+@doc{provides the target of a link}
+anno loc Tree@link;
