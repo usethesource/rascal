@@ -253,7 +253,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	private boolean isFunctionName;
 
-	final private int UNITLENGTH = 50;
+	final private int UNITLENGTH = 70;
 
 	final private int SIGNIFICANT = 20;
 
@@ -864,9 +864,9 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitDeclarationVariable(
 			org.rascalmpl.ast.Declaration.Variable x) {
-		return list(eX(x.getTags()), HV(0, eX(x.getVisibility()), BoxADT.SPACE,
-				eX(x.getType()), BoxADT.SPACE, I(eXs(x.getVariables(), null,
-						null)), BoxADT.semicolumn()));
+		return list(eX(x.getTags()), H(0, cStat(H(1, eX(x.getVisibility()),
+				eX(x.getType())), null, null, null, eXs(x.getVariables())), BoxADT
+				.semicolumn()));
 	}
 
 	public IValue visitDeclarationView(View x) {
@@ -879,7 +879,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 	}
 
 	public IValue visitDeclaratorDefault(org.rascalmpl.ast.Declarator.Default x) {
-		return H(1, eX(x.getType()), H(eXs(x.getVariables(), null, null)));
+		return cStat(eX(x.getType()), null, null, null, eXs(x.getVariables()));
 	}
 
 	public IValue visitEscapeSequenceAmbiguity(
@@ -908,7 +908,8 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 	}
 
 	public IValue visitExpressionAll(All x) {
-		return L(x.getClass().toString());
+		/** "all" "(" generators:{Expression ","}+ ")" */
+		return cStat("all", eXs(x.getGenerators()), null);
 	}
 
 	public IValue visitExpressionAmbiguity(
@@ -925,7 +926,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 	}
 
 	public IValue visitExpressionAny(Any x) {
-		return L(x.getClass().toString());
+		return cStat("any", eXs(x.getGenerators()), null);
 	}
 
 	public IValue visitExpressionBracket(org.rascalmpl.ast.Expression.Bracket x) {
@@ -1762,14 +1763,14 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 
 	public IValue visitPatternWithActionArbitrary(Arbitrary x) {
 		/* pattern:Expression ":" statement:Statement */
-		return cStat(null, null, eX(x.getPattern()), BoxADT.COLON, eX(x
-				.getStatement()));
+		return cStat((String) null, null, eX(x.getPattern()), BoxADT.COLON,
+				eX(x.getStatement()));
 	}
 
 	public IValue visitPatternWithActionReplacing(Replacing x) {
 		// return list(HV(0, eX(x.getPattern())), L("=>"), eX(x
 		// .getReplacement()));
-		return cStat(null, null, eX(x.getPattern()), L("=>"), eX(x
+		return cStat((String) null, null, eX(x.getPattern()), L("=>"), eX(x
 				.getReplacement()));
 	}
 
@@ -1935,7 +1936,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 	}
 
 	public IValue visitRenamingsDefault(org.rascalmpl.ast.Renamings.Default x) {
-		
+
 		return L(x.getClass().toString());
 	}
 
@@ -2090,8 +2091,8 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 	}
 
 	public IValue visitStatementAssignment(Assignment x) {
-		return HOV(1, H(1, eX(x.getAssignable()), eX(x.getOperator())), eX(x
-				.getStatement()));
+		return HOV(1, true, H(1, eX(x.getAssignable()), eX(x.getOperator())),
+				eX(x.getStatement()));
 	}
 
 	public IValue visitStatementBreak(Break x) {
@@ -2649,7 +2650,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 	}
 
 	public IValue visitVariableInitialized(Initialized x) {
-		return HOV(H(VAR(eX(x.getName())), L("=")), eX(x.getInitial()));
+		return cStat(H(VAR(eX(x.getName())), L("=")), null, null, null, eX(x.getInitial()));
 	}
 
 	public IValue visitVariableUnInitialized(UnInitialized x) {
@@ -2664,7 +2665,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 		if (!x.getArguments().isEmpty())
 			return I(H(0, eX(x.getName()), BoxADT.LPAR, HV(eXs(
 					x.getArguments(), null, null)), BoxADT.RPAR));
-		
+
 		return I(eX(x.getName()));
 	}
 
@@ -3014,13 +3015,13 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 				a = a.append(I(BoxADT.RBLOCK));
 				return V(0, a);
 			}
-			
+
 			if (width(header) < SIGNIFICANT) {
 				IList a = list(H(0, header));
 				a = a.append(b);
 				return H(1, a);
 			}
-			
+
 			return V(0, H(0, header), I(b));
 		}
 		return H(L("???"));
@@ -3069,7 +3070,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 		}
 		if (c.length() >= 2)
 			return list(H(0, r));
-		
+
 		return r;
 	}
 
@@ -3144,13 +3145,17 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 		if (statement.getType().isListType()) {
 			IValue f = ((IList) statement).get(0);
 			IValue r = ((IList) statement).delete(0);
-			return f.isEqual(BoxADT.LBLOCK) ? r : HV(((IList) statement));
+			return f.isEqual(BoxADT.LBLOCK) ? r : HV((IList) statement);
 		}
 		return statement;
 	}
 
 	private IValue cStat(String name, IValue exs, IValue body) {
 		return cStat(name, BoxADT.LPAR, exs, BoxADT.RPAR, body);
+	}
+
+	private IValue cStat(IValue hBox, IValue exs, IValue body) {
+		return cStat(hBox, BoxADT.LBLOCK, exs, BoxADT.RBLOCK, body);
 	}
 
 	private IValue cStat(String name, IValue left, IValue exs, IValue right,
@@ -3161,6 +3166,16 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 					HV(exs), right);
 		return HOV(0, name != null, H(1, KW(name), H(0,
 				t == null ? BoxADT.EMPTY : t, head(body))), tail(body));
+	}
+
+	private IValue cStat(IValue hBox, IValue left, IValue exs, IValue right,
+			IValue body) {
+		IValue t = null;
+		if (exs != null)
+			t = list((hBox != null && left == null ? BoxADT.SPACE : left),
+					HV(exs), right);
+		return HOV(0, hBox != null, H(1, hBox, H(0, t == null ? BoxADT.EMPTY
+				: t, head(body))), tail(body));
 	}
 
 }
