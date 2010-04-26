@@ -28,6 +28,21 @@ public RName convertName(QualifiedName qn) {
 	throw "Unexpected syntax for qualified name: <qn>";
 }
 
+private Name getLastName(QualifiedName qn) {
+	if (`<{Name "::"}+ nl>` := qn) { 
+		nameParts = [ n | n <- nl];
+		return head(tail(nameParts,1));
+	}
+	throw "Unexpected syntax for qualified name: <qn>";
+}
+
+public RName appendName(RName n1, RName n2) {
+	if (RSimpleName(s1) := n1  && RSimpleName(s2) := n2) return RCompoundName([s1,s2]);
+	if (RSimpleName(s1) := n1 && RCompoundName(ss2) := n2) return RCompoundName([s1] + ss2);
+	if (RCompoundName(ss1) := n1 && RSimpleName(s2) := n2) return RCompoundName(ss1 + s2);
+	if (RCompoundName(ss1) := n1 && RCompoundName(ss2) := n2) return RCompoundName(ss1 + ss2);
+}
+
 public str prettyPrintNameList(list[str] nameList) {
 	return joinList(nameList,str(str s) { return s; },"::","");
 }
@@ -152,15 +167,15 @@ public RType convertFunctionType(FunctionType ft) {
 
 public RType convertUserType(UserType ut) {
 	switch(ut) {
-		case (UserType) `<Name n>` : return RUserType(convertName(n));
-		case (UserType) `<Name n> [ <{Type ","}+ ts> ]` : return RParameterizedUserType(convertName(n),[convertType(ti) | ti <- ts]);
+		case (UserType) `<QualifiedName n>` : return RUserType(convertName(n));
+		case (UserType) `<QualifiedName n> [ <{Type ","}+ ts> ]` : return RParameterizedUserType(convertName(n),[convertType(ti) | ti <- ts]);
 	}
 }
 
 public Name getUserTypeRawName(UserType ut) {
 	switch(ut) {
-		case (UserType) `<Name n>` : return n;
-		case (UserType) `<Name n> [ <{Type ","}+ ts> ]` : return n;
+		case (UserType) `<QualifiedName n>` : return getLastName(n);
+		case (UserType) `<QualifiedName n> [ <{Type ","}+ ts> ]` : return getLastName(n);
 	}
 }
 
@@ -173,7 +188,7 @@ public RTypeVar convertTypeVar(TypeVar tv) {
 
 public RType convertDataTypeSelector(DataTypeSelector dts) {
 	switch(dts) {
-		case (DataTypeSelector) `<Name n1> . <Name n2>` : return RDataTypeSelector(convertName(n1),convertName(n2));
+		case (DataTypeSelector) `<QualifiedName n1> . <Name n2>` : return RDataTypeSelector(convertName(n1),convertName(n2));
 	}
 }
 
@@ -183,9 +198,11 @@ public RType convertType(Type t) {
 		case (Type) `<StructuredType st>` : return convertStructuredType(st);
 		case (Type) `<FunctionType ft>` : return convertFunctionType(ft);
 		case (Type) `<TypeVar tv>` : return RTypeVar(convertTypeVar(tv));
+		case `<UserType ut>` : return convertUserType(ut);
 		case (Type) `<UserType ut>` : return convertUserType(ut);
 		case (Type) `<DataTypeSelector dts>` : return convertDataTypeSelector(dts);
 		case (Type) `( <Type tp> )` : return convertType(tp);
+		default : { println(t); throw "Error in convertType, unexpected type syntax: <t>"; }
 	}
 }
 
@@ -355,8 +372,24 @@ public bool isVarArgsType(RType t) {
 	return RVarArgsType(_) := t;
 }
 
+public RType getVarArgsType(RType t) {
+	if (RVarArgsType(vt) := t) return vt;
+	throw "Cannot return var args type for type <prettyPrintType(t)>";
+}
+
 public bool isOverloadedType(RType t) {
 	return ROverloadedType(_) := t;
+}
+
+public bool isVarArgsFun(RType t) {
+	if (RFunctionType(_,ps) := t) {
+		if (size(ps) > 0) {
+			if (isVarArgsType(getElementType(head(tail(ps,1))))) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 public bool isInferredType(RType t) {
@@ -551,6 +584,11 @@ public RType getADTFieldType(RType t, RName fn) {
 		}
 	}
 	throw "ADT <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
+}
+
+public RName getADTName(RType t) {
+	if (RADTType(n,_) := t) return getUserTypeName(n);
+	throw "getADTName, invalid type given: <prettyPrintType(t)>";
 }
 
 public RType getWholeType(RType rt) {

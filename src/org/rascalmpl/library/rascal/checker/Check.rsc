@@ -9,6 +9,8 @@ import rascal::checker::Types;
 import rascal::checker::SubTypes;
 import rascal::checker::Namespace;
 import rascal::checker::TypeRules;
+import rascal::checker::ScopeInfo;
+import rascal::checker::Signature;
 
 import rascal::\old-syntax::Rascal;
 
@@ -308,6 +310,7 @@ public RType checkAbstractADT(Tags ts, Visibility v, UserType adtType) {
 // Propagate upwards any errors registered on the ADT name or on the variants.
 //
 public RType checkADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars) {
+	if (debug) println("CHECKER: Checking adt <prettyPrintType(convertType(adtType))>");
 	set[RType] adtTypes = { };
 
 	Name adtn = getUserTypeRawName(adtType);
@@ -322,6 +325,7 @@ public RType checkADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ va
 }
 
 public RType checkAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType) {
+	if (debug) println("CHECKER: Checking alias <prettyPrintType(convertType(aliasType))>");
 	Name aliasRawName = getUserTypeRawName(aliasType);
 	if ( (aliasRawName@rtype)? && isFailType(aliasRawName@rtype)) return aliasRawName@rtype;
 	return makeVoidType();
@@ -503,7 +507,7 @@ public RType checkBlockStatement(Statement sp, Label l, Statement+ bs) {
 	if (checkForFail({ l@rtype} +  toSet(statementTypes) ))
 		return makeStatementType(collapseFailTypes({ l@rtype } + statementTypes ));
 	
-	return makeStatementType(tail(statementTypes,1));
+	return makeStatementType(head(tail(statementTypes,1)));
 } 
 
 //
@@ -784,6 +788,12 @@ public RType checkSetExpression(Expression ep, {Expression ","}* es) {
 	return makeSetType(lubList([e@rtype | e <- es]));
 }
 
+public RType checkTrivialTupleExpression(Expression ep, Expression ei) {
+	set[Expression] eset = {ei};
+	if (checkForFail({e@rtype | e <- eset})) return collapseFailTypes({e@rtype | e <- eset});
+	return makeTupleType([ e@rtype | e <- eset]);
+}
+
 public RType checkTupleExpression(Expression ep, Expression ei, {Expression ","}* es) {
 	set[Expression] eset = {ei} + {e | e <- es};
 	if (checkForFail({e@rtype | e <- eset})) return collapseFailTypes({e@rtype | e <- eset});
@@ -835,7 +845,7 @@ public RType checkNonEmptyBlockExpression(Expression ep, Statement+ ss) {
 	if (checkForFail(toSet(slTypes))) {
 		return collapseFailTypes(toSet(slTypes));
 	} else {
-		return tail(slTypes,1);
+		return head(tail(slTypes,1));
 	}
 }
 
@@ -1474,7 +1484,15 @@ public RType checkExpression(Expression exp) {
 			return t;
 		}
 
-		// Tuple
+		// Tuple, with just one element
+		case (Expression)`<<Expression ei>>` : {
+			if (debug) println("CHECKER: Tuple <exp>");
+			RType t = checkTrivialTupleExpression(exp,ei);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// Tuple, with multiple elements
 		case `<<Expression ei>, <{Expression ","}* el>>` : {
 			if (debug) println("CHECKER: Tuple <exp>");
 			RType t = checkTupleExpression(exp,ei,el);
@@ -1999,6 +2017,13 @@ public RType checkAnnotationAssignable(Assignable ap, Assignable a, Name n) {
 // of the tuple is a, while the rest are in al. This is only done because of a matching
 // problem over the standard tuple concrete syntax.
 //		
+public RType checkTrivialTupleAssignable(Assignable ap, Assignable a) {
+	list[Assignable] alist = [ a ];
+	if (checkForFail({ ai@rtype | ai <- alist })) return collapseFailTypes({ ai@rtype | ai <- alist });
+	RType rt = makeTupleType([ getPartType(ai@rtype) | ai <- alist]);
+	return makeAssignableType(getWholeType(a@rtype),rt);
+}
+
 public RType checkTupleAssignable(Assignable ap, Assignable a, {Assignable ","}* al) {
 	list[Assignable] alist = [ a ] + [ ai | ai <- al];
 	if (checkForFail({ ai@rtype | ai <- alist })) return collapseFailTypes({ ai@rtype | ai <- alist });
@@ -2051,10 +2076,18 @@ public RType checkAssignable(Assignable a) {
 			return t;
 		}
 		
-		// Tuple
+		// Tuple, with just one element
+		case (Assignable)`< <Assignable ai> >` : {
+			if (debug) println("CHECKER: TupleAssignable: <a>");
+			RType t = checkTupleAssignable(a, ai);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
+			return t;
+		}
+
+		// Tuple, with multiple elements
 		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
 			if (debug) println("CHECKER: TupleAssignable: <a>");
-			RType t = checkTupleAssignable(a,ai, al);
+			RType t = checkTupleAssignable(a, ai, al);
 			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(t));
 			return t;
 		}
@@ -2152,6 +2185,19 @@ public RType bindInferredTypesToAssignable(RType rt, Assignable a) {
 		// of the same length. If this is true, the bind recurses on each tuple element.
 		// If not, a failure type, indicating the type of failure (arity mismatch, or type of
 		// assignable not a tuple) has occurred.
+		case (Assignable)`< <Assignable ai> >` : {
+			if (debug) println("CHECKER: TupleAssignable: <a>");
+			list[Assignable] alist = [ai];
+			if (isTupleType(rt) && getTupleFieldCount(rt) == size(alist)) {
+				list[RType] tupleFieldTypes = getTupleFields(rt);
+				return makeTupleType([bindInferredTypesToAssignable(tft,ali) | n <- [0..(getTupleFieldCount(rt)-1)], tft := tupleFieldTypes[n], ali := alist[n]]);  				
+			} else if (!isTupleType(rt)) {
+				return makeFailType("Type mismatch: this error should have already been caught!", a@\loc);
+			} else {
+				return makeFailType("Arity mismatch: this error should have already been caught!", a@\loc);
+			}
+		}
+
 		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
 			if (debug) println("CHECKER: TupleAssignable: <a>");
 			list[Assignable] alist = [ai] + [ ali | ali <- al ];
@@ -2318,6 +2364,12 @@ public RType checkSetPattern(Pattern pp, {Pattern ","}* ps) {
 	return makeSetType(lubList([p@rtype | p <- ps]));
 }
 
+public RType checkTrivialTuplePattern(Pattern pp, Pattern pi) {
+	set[Pattern] pset = {pi};
+	if (checkForFail({p@rtype | p <- pset})) 	return collapseFailTypes({p@rtype | p <- pset});
+	return makeTupleType([ p@rtype | p <- pset]);
+}
+
 public RType checkTuplePattern(Pattern pp, Pattern pi, {Pattern ","}* ps) {
 	set[Pattern] pset = {pi} + {p | p <- ps};
 	if (checkForFail({p@rtype | p <- pset})) 	return collapseFailTypes({p@rtype | p <- pset});
@@ -2464,6 +2516,13 @@ public RType checkPattern(Pattern pat) {
 		}
 
 		// Tuple
+		case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+			if (debug) println("CHECKER: TuplePattern: <pat>");
+			RType rt = checkTrivialTuplePattern(pat,pi);
+			if (debug) println("CHECKER: Assigning type: " + prettyPrintType(rt));
+			return rt;
+		}
+
 		case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
 			if (debug) println("CHECKER: TuplePattern: <pat>");
 			RType rt = checkTuplePattern(pat,pi,pl);
@@ -2649,6 +2708,11 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 		}
 
 		// Tuple
+		case `<<Pattern pi>>` : {
+			if (debug) println("CHECKER: Binding TuplePattern: <pat>");
+			return pat@rtype;
+		}
+
 		case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
 			if (debug) println("CHECKER: Binding TuplePattern: <pat>");
 			return pat@rtype;
@@ -2764,10 +2828,12 @@ public list[RType] getParameterTypes(Parameters p) {
 		for ((Formal)`<Type t> <Name n>` <- fs) {
 				pTypes += n@rtype;
 		}
+		// For varargs, mark the last parameter as the variable size parameter; if we have no
+		// parameters, then we add one, a varargs which accepts anything
 		if (size(pTypes) > 0)
-			pTypes += RVarArgsType(tail(pTypes,1));
+			pTypes[size(pTypes)-1] = RVarArgsType(pTypes[size(pTypes)-1]);
 		else
-			pTypes += RVarArgsType(makeValueType());
+			pTypes = [ RVarArgsType(makeValueType()) ];
 	}
 
 	return pTypes;
@@ -2807,11 +2873,103 @@ public Tree typecheckFile(str filePath) {
 // Check a tree
 //
 public Tree typecheckTree(Tree t) {
-	globalScopeInfo = buildNamespace(t);
+	SignatureMap sigMap = populateSignatureMap(getImports(t));
+	globalScopeInfo = buildNamespace(t, sigMap);
 	Tree td = decorateNames(t,globalScopeInfo);
 	Tree tc = retagNames(check(td));
 	if (isFailType(tc@rtype)) tc = tc[@messages = { error(l,s) | RFailType(allFailures) := tc@rtype, <s,l> <- allFailures }];
+	if (debug && isFailType(tc@rtype)) {
+		println("CHECKER: Found type checking errors");
+		for (RFailType(allFailures) := tc@rtype, <s,l> <- allFailures) println("<l>: <s>");
+	}
 	return tc;
+}
+
+// TODO: We need logic that caches the signatures on the parse trees for the
+// modules. Until then, we load up the signatures here...
+public SignatureMap populateSignatureMap(list[Import] imports) {
+
+	RName getNameOfImportedModule(ImportedModule im) {
+		switch(im) {
+			case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` : {
+				return convertName(qn);
+			}
+			case `<QualifiedName qn> <ModuleActuals ma>` : {
+				return convertName(qn);
+			}
+			case `<QualifiedName qn> <Renamings rn>` : {
+				return convertName(qn);
+			}
+			case (ImportedModule)`<QualifiedName qn>` : {
+				return convertName(qn);
+			}
+		}
+		throw "getNameOfImportedModule: invalid syntax for ImportedModule <im>, cannot get name";
+	}
+
+	// A hack to get the paths to the modules; we need a way to ask the environment for these, or do
+	// the linking like we planned (but which is currently disabled)
+	str rascalLibPath = "/Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library";
+	str testPath = "/Users/mhills/Documents/runtime-Rascal/Test/src";
+	map[RName moduleName, str modPath] modPathMap = (
+		RSimpleName("ATermIO") : "<rascalLibPath>/ATermIO.rsc",
+		RSimpleName("AUT") : "<rascalLibPath>/AUT.rsc",
+		RSimpleName("Benchmark") : "<rascalLibPath>/Benchmark.rsc",
+		RSimpleName("Boolean") : "<rascalLibPath>/Boolean.rsc",
+		RSimpleName("DateTime") : "<rascalLibPath>/DateTime.rsc",
+		RSimpleName("ECore") : "<rascalLibPath>/ECore.rsc",
+		RSimpleName("Exception") : "<rascalLibPath>/Exception.rsc",
+		RSimpleName("Graph") : "<rascalLibPath>/Graph.rsc",
+		RSimpleName("HTMLIO") : "<rascalLibPath>/HTMLIO.rsc",
+		RSimpleName("IO") : "<rascalLibPath>/IO.rsc",
+		RSimpleName("Integer") : "<rascalLibPath>/Integer.rsc",
+		RSimpleName("LabeledGraph") : "<rascalLibPath>/LabeledGraph.rsc",
+		RSimpleName("List") : "<rascalLibPath>/List.rsc",
+		RSimpleName("Map") : "<rascalLibPath>/Map.rsc",
+		RSimpleName("Message") : "<rascalLibPath>/Message.rsc",
+		RSimpleName("Node") : "<rascalLibPath>/Node.rsc",
+		RSimpleName("Number") : "<rascalLibPath>/Number.rsc",
+		RSimpleName("ParseTree") : "<rascalLibPath>/ParseTree.rsc",
+		RSimpleName("PriorityQueue") : "<rascalLibPath>/PriorityQueue.rsc",
+		RSimpleName("RSF") : "<rascalLibPath>/RSF.rsc",
+		RSimpleName("Real") : "<rascalLibPath>/Real.rsc",
+		RSimpleName("Relation") : "<rascalLibPath>/Relation.rsc",
+		RSimpleName("Set") : "<rascalLibPath>/Set.rsc",
+		RSimpleName("SourceHierarchy") : "<rascalLibPath>/SourceHierarchy.rsc",
+		RSimpleName("Strategy") : "<rascalLibPath>/Strategy.rsc",
+		RSimpleName("String") : "<rascalLibPath>/String.rsc",
+		RSimpleName("ToString") : "<rascalLibPath>/ToString.rsc",
+		RSimpleName("TopologicalStrategy") : "<rascalLibPath>/TopologicalStrategy.rsc",
+		RSimpleName("UnitTest") : "<rascalLibPath>/UnitTest.rsc",
+		RSimpleName("ValueIO") : "<rascalLibPath>/ValueIO.rsc",
+		RSimpleName("XMLDOM") : "<rascalLibPath>/XMLDOM.rsc",
+		RSimpleName("XMLIO") : "<rascalLibPath>/XMLIO.rsc",
+ 		RSimpleName("ListExamples") : "<testPath>/ListExamples.rsc",
+		RSimpleName("SomeTypes") : "<testPath>/SomeTypes.rsc",
+		RSimpleName("Stack") : "<testPath>/Stack.rsc",
+		RSimpleName("StackUser") : "<testPath>/StackUser.rsc",
+		RSimpleName("TupleExample") : "<testPath>/TupleExample.rsc"
+	);
+
+	SignatureMap sigMap = ( );
+	for (i <- imports) {
+		switch(i) {
+			case `import <ImportedModule im> ;` : {
+				loc importLoc = |file://<modPathMap[getNameOfImportedModule(im)]>|;
+				Tree importTree = parse(#Module,importLoc);
+				if (debug) println("CHECKER: Generating signature for module <prettyPrintName(getNameOfImportedModule(im))>");
+				sigMap[i] = getModuleSignature(importTree);
+			}
+			case `extend <ImportedModule im> ;` : {
+				loc importLoc = |file://<modPathMap[getNameOfImportedModule(im)]>|;
+				Tree importTree = parse(#Module,importLoc);
+				if (debug) println("CHECKER: Generating signature for module <prettyPrintName(getNameOfImportedModule(im))>");
+				sigMap[i] = getModuleSignature(importTree);
+			} 
+		}
+	}
+
+	return sigMap;
 }
 
 private ScopeInfo globalScopeInfo = createNewScopeInfo();
