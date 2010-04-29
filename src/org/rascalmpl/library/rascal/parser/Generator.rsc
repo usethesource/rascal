@@ -113,13 +113,13 @@ public str sym2newitem(Symbol sym) {
     case \iter-star(s) :
       return "new ListStackNode(<id>, sym, \"<value2id(sym)>\", false)";
     case \iter-sep(Symbol s,list[Symbol] seps) : 
-      return "new SeparatedListStackNode(<id>, sym, \"<value2id(sym)>\", <generateSymbolItemExpects(seps)>, true)";
+      return "new SeparatedListStackNode(<id>, sym, \"<value2id(sym)>\", new StackNode[]{<generateSymbolItemExpects(seps)>}, true)";
     case \iter-star-sep(Symbol s,list[Symbol] seps) : 
-      return "new SeparatedListStackNode(<id>, sym, \"<value2id(sym)>\", <generateSymbolItemExpects(seps)>, false)";
+      return "new SeparatedListStackNode(<id>, sym, \"<value2id(sym)>\", new StackNode[]{<generateSymbolItemExpects(seps)>}, false)";
     case \opt(s) : 
       return "new OptionalStackNode(<id>, sym, \"<value2id(sym)>\")";
     case \char-class(list[CharRange] ranges) : 
-      return "new CharStackNode(<id>, sym, symbol_<value2id(sym)>, new char[][] { <("" | it + "{<from>,<to>}" | range(from,to) <- ranges)> })";
+      return "new CharStackNode(<id>, sym, symbol_<value2id(sym)>, new char[][]{<("" | it + "{<from>,<to>}" | range(from,to) <- ranges)>})";
     case \layout() :
       return "new NonTerminalStackNode(<id>, sym, \"layout\")";
     default: 
