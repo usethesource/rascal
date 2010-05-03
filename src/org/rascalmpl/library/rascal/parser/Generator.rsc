@@ -105,21 +105,21 @@ public str sym2newitem(Symbol sym) {
     case \sort(n) : 
       return "new NonTerminalStackNode(<id>, sym, \"<value2id(sym)>\")";
     case \lit(l) : 
-      return "new NonTerminalStackNode(<id>, sym, \"<value2id(sym)>\")";
+      return "new LiteralStackNode(<id>, sym, \"<l>\")";
     case \cilit(l) : 
-      return "new NonTerminalStackNode(<id>, sym, \"<value2id(sym)>\")";
+      return "new ContextInsensitiveLiteralStackNode(<id>, sym, \"<l>\")";
     case \iter(s) : 
-      return "new ListStackNode(<id>, sym, \"<value2id(sym)>\", true)";
+      return "new ListStackNode(<id>, sym, sym2newitem(s), true)";
     case \iter-star(s) :
-      return "new ListStackNode(<id>, sym, \"<value2id(sym)>\", false)";
+      return "new ListStackNode(<id>, sym, sym2newitem(s), false)";
     case \iter-sep(Symbol s,list[Symbol] seps) : 
-      return "new SeparatedListStackNode(<id>, sym, \"<value2id(sym)>\", new StackNode[]{<generateSymbolItemExpects(seps)>}, true)";
+      return "new SeparatedListStackNode(<id>, sym, sym2newitem(s), new StackNode[]{<generateSymbolItemExpects(seps)>}, true)";
     case \iter-star-sep(Symbol s,list[Symbol] seps) : 
-      return "new SeparatedListStackNode(<id>, sym, \"<value2id(sym)>\", new StackNode[]{<generateSymbolItemExpects(seps)>}, false)";
+      return "new SeparatedListStackNode(<id>, sym, sym2newitem(s), new StackNode[]{<generateSymbolItemExpects(seps)>}, false)";
     case \opt(s) : 
-      return "new OptionalStackNode(<id>, sym, \"<value2id(sym)>\")";
+      return "new OptionalStackNode(<id>, sym, sym2newitem(s))";
     case \char-class(list[CharRange] ranges) : 
-      return "new CharStackNode(<id>, sym, symbol_<value2id(sym)>, new char[][]{<("" | it + "{<from>,<to>}" | range(from,to) <- ranges)>})";
+      return "new CharStackNode(<id>, sym, new char[][]{<("" | it + "{<from>,<to>}" | range(from,to) <- ranges)>}, new char[]{})";
     case \layout() :
       return "new NonTerminalStackNode(<id>, sym, \"layout\")";
     default: 
