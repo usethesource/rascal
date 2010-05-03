@@ -1,6 +1,5 @@
 package org.rascalmpl.checker;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
@@ -12,19 +11,15 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.ast.ASTFactory;
-import org.rascalmpl.ast.Command;
-import org.rascalmpl.interpreter.CommandEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class StaticChecker {
-	private final CommandEvaluator eval;
-	private final ASTBuilder astBuilder;
+	private final Evaluator eval;
 	
 	private ArrayList<String> checkerPipeline;
 	private ArrayList<Boolean> pipelineElementEnabled;
@@ -42,8 +37,7 @@ public class StaticChecker {
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 
-		this.eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-		this.astBuilder = new ASTBuilder(new ASTFactory());
+		this.eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 
 		checkerPipeline = new ArrayList<String>();
 		pipelineElementEnabled = new ArrayList<Boolean>();
@@ -58,14 +52,10 @@ public class StaticChecker {
 
 	private IValue eval(String cmd) {
 		try {
-			Command cmdAst = astBuilder.buildCommand(eval.parseCommand(cmd));
-			return eval.eval(cmdAst).getValue();
-		} catch (IOException e) {
-			throw new ImplementationError("static checker failed to execute command: " + cmd, e);
+			return eval.eval(cmd, URI.create("checker:///")).getValue();
 		} catch (SyntaxError se) {
 			throw new ImplementationError("syntax error in static checker modules", se);
 		}
-		
 	}
 	
 	public IConstructor resolveImports(IConstructor moduleParseTree) {
@@ -76,10 +66,8 @@ public class StaticChecker {
 		IMapWriter mw = VF.mapWriter(TypeFactory.getInstance().stringType(), TypeFactory.getInstance().sourceLocationType());
 		
 		for (IValue i : imports) {
-			URI uri = eval.getModuleLoader().findModule(((IString) i).getValue());
-			if (uri != null) {
-				mw.put(i, VF.sourceLocation(uri));
-			}
+			URI uri = URI.create("rascal:///" + ((IString) i).getValue());
+			mw.put(i, VF.sourceLocation(uri));
 		}
 		
 		System.err.println("locations: " + mw.done());

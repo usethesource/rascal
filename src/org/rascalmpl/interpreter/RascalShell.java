@@ -3,15 +3,15 @@ package org.rascalmpl.interpreter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URI;
 
 import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.ASTFactory;
-import org.rascalmpl.ast.Command;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
@@ -21,10 +21,8 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.errors.SubjectAdapter;
-import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -35,7 +33,7 @@ public class RascalShell {
 	private static final String SHELL_MODULE = "***shell***";
 	
 	private final ConsoleReader console;
-	private final CommandEvaluator evaluator;
+	private final Evaluator evaluator;
 	
 	
 	// TODO: cleanup these constructors.
@@ -45,14 +43,14 @@ public class RascalShell {
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
-		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 	}
 	
 	public RascalShell(InputStream stdin, PrintWriter stderr, PrintWriter stdout) throws IOException {
 		console = new ConsoleReader(stdin, new PrintWriter(stdout));
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
-		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 	}
 	
 	public void run() throws IOException {
@@ -84,9 +82,13 @@ public class RascalShell {
 				console.printString(output);
 				console.printNewline();
 			}
+			catch (SyntaxError e) {
+				ISourceLocation loc = e.getLocation();
+				console.printString("Parse error in command at line " + loc.getBeginLine() + ", column " + loc.getBeginColumn() + "\n");
+			}
 			catch (StaticError e) {
 				console.printString("Static Error: " + e.getMessage() + "\n");
-//				e.printStackTrace(); // for debugging only
+				e.printStackTrace(); // for debugging only
 			}
 			catch (Throw e) {
 				console.printString("Uncaught Rascal Exception: " + e.getMessage() + "\n");
@@ -132,62 +134,39 @@ public class RascalShell {
 		}
 	}
 
-	private String handleInput(final CommandEvaluator command, StringBuffer statement) throws IOException {
-		StringBuilder result = new StringBuilder();
-		IConstructor tree = evaluator.parseCommand(statement.toString());
+	private String handleInput(final Evaluator command, StringBuffer statement) throws IOException {
+		Result<IValue> value = evaluator.eval(statement.toString(), URI.create("prompt:///"));
 
-		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-			SubjectAdapter s = new SummaryAdapter(tree).getInitialSubject();
-			for (int i = 0; i < s.getEndColumn(); i++) {
-				result.append(" ");
-			}
-			result.append("^\n");
-			result.append("parse error at" + (s.getEndLine() != 1 ? (" line" + s.getEndLine()) : "") + " column " + s.getEndColumn());
+		if (value.getValue() == null) {
+			return "ok";
 		}
-		else {
-			Command stat = new ASTBuilder(new ASTFactory()).buildCommand(tree);
-			
-			if (stat == null) {
-				throw new ImplementationError("Disambiguation failed: it removed all alternatives");
-			}
-			Result<IValue> value = command.eval(stat);
-			
-			if (value.getValue() == null) {
-				return "ok";
-			}
-			
-			IValue v = value.getValue();
-			Type type = value.getType();
-			
-			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
-				return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT);
-			}
-			
-			return ((v != null) ? value.toString(LINE_LIMIT) : null);
+
+		IValue v = value.getValue();
+		Type type = value.getType();
+
+		if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
+			return "`" + TreeAdapter.yield((IConstructor) v) + "`\n" + value.toString(LINE_LIMIT);
 		}
-		
-		return result.toString();
+
+		return ((v != null) ? value.toString(LINE_LIMIT) : null);
 	}
 
 	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException, IOException {
 		String command = statement.toString();
-		IConstructor tree = evaluator.parseCommand(command);
-
-		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-			SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
+		
+		try {
+			evaluator.parseCommand(command, URI.create("prompt:///"));
+		}
+		catch (SyntaxError e) {
+			ISourceLocation l = e.getLocation();
 			
-			if (subject == null) {
-				return false;
-			}
 			String[] commandLines = command.split("\n");
 			int lastLine = commandLines.length;
 			int lastColumn = commandLines[lastLine - 1].length();
 			
-			if (subject.getEndLine() == lastLine && lastColumn <= subject.getEndColumn()) { 
+			if (l.getEndLine() == lastLine && lastColumn <= l.getEndColumn()) { 
 				return false;
 			}
-			
-			return true;
 		}
 		
 		return true;

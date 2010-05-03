@@ -2,6 +2,7 @@ package org.rascalmpl.interpreter.debug;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -99,12 +100,8 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.parser.ConsoleParser;
 
 public class DebuggableEvaluator extends Evaluator {
-
-	private final ConsoleParser parser;
-
 	protected final IDebugger debugger;
 
 	//when there is a suspend request from the debugger (caused by the pause button)
@@ -113,11 +110,9 @@ public class DebuggableEvaluator extends Evaluator {
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout,
-			ModuleEnvironment moduleEnvironment, ConsoleParser consoleParser,
-			IDebugger debugger) {
-		super(vf, stderr, stdout, moduleEnvironment, new GlobalEnvironment(), consoleParser);
-		this.patternEvaluator = new DebuggingDecorator<IMatchingResult>(patternEvaluator, consoleParser, debugger);
-		this.parser = consoleParser;
+			ModuleEnvironment moduleEnvironment, IDebugger debugger) {
+		super(vf, stderr, stdout, moduleEnvironment, new GlobalEnvironment());
+		this.patternEvaluator = new DebuggingDecorator<IMatchingResult>(patternEvaluator, debugger);
 		this.debugger = debugger;
 	}
 
@@ -754,7 +749,7 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	public IConstructor parseCommand(String command) throws IOException {
-		return parser.parseCommand(command);
+		return parseCommand(command, URI.create("debug:///"));
 	}
 
 }

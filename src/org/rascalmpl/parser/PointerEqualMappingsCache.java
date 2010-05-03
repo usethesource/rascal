@@ -11,6 +11,7 @@ public class PointerEqualMappingsCache<K, V>{
 	
 	private int load;
 	
+	@SuppressWarnings("unchecked")
 	public PointerEqualMappingsCache(){
 		super();
 		
@@ -23,6 +24,7 @@ public class PointerEqualMappingsCache<K, V>{
 		load = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public PointerEqualMappingsCache(int initialLogSize){
 		super();
 		
@@ -35,6 +37,7 @@ public class PointerEqualMappingsCache<K, V>{
 		load = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public PointerEqualMappingsCache(int initialLogSize, float loadFactor){
 		super();
 		
@@ -47,6 +50,7 @@ public class PointerEqualMappingsCache<K, V>{
 		load = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void rehash(){
 		Entry<K, V>[] oldData = data;
 		

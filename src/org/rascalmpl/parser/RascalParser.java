@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
@@ -23,9 +24,9 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.errors.SubjectAdapter;
 import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
@@ -36,10 +37,7 @@ import sglr.LegacySGLRInvoker;
 import sglr.SGLRInvoker;
 
 
-// TODO refactor the hierarchy with this class at the root. The inheritance does not make any sense, and methods
-// available from the superclass won't work correctly for the subclasses.
-
-public class ModuleParser {
+public class RascalParser {
 	private static final String TBL_EXTENSION = ".tbl";
 	private static final String SYMBOLS_EXTENSION = ".symbols";
 	
@@ -48,7 +46,7 @@ public class ModuleParser {
 	private final static IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
 	
-	public class TableInfo {
+	protected class TableInfo {
 		private final String tableName;
 		private final String symbolsName;
 		
@@ -91,30 +89,6 @@ public class ModuleParser {
 		}
 	}
 	
-	private interface IBytesToTree{
-		public IConstructor bytesToTree(byte[] data) throws IOException;
-	}
-	
-	private static class PBFBytesToTree implements IBytesToTree{
-		public IConstructor bytesToTree(byte[] result) throws IOException{
-			PBFReader reader = new PBFReader();
-			ByteArrayInputStream bais = new ByteArrayInputStream(result);
-			return (IConstructor) reader.read(valueFactory, Factory.getStore(), Factory.ParseTree, bais);
-		}
-	}
-	
-	private static class ATermBytesToTree implements IBytesToTree{
-		public IConstructor bytesToTree(byte[] result) throws IOException{
-			ATermReader reader = new ATermReader();
-			ByteArrayInputStream bais = new ByteArrayInputStream(result);
-			return (IConstructor) reader.read(valueFactory, Factory.getStore(), Factory.ParseTree, bais);
-		}
-	}
-
-	public void setLoader(ModuleLoader loader) {
-		// nop
-	}
-	
 	public Set<String> getSdfImports(List<String> sdfSearchPath, URI location, byte[] data) throws IOException {
 		try{
 			IConstructor tree= parseFromData(Configuration.getHeaderParsetableProperty(), location, data, false);
@@ -128,12 +102,15 @@ public class ModuleParser {
 		}
 	}
 
+	/**
+	 * Parse a command in the context of a number of imported concrete syntax modules
+	 */
 	public IConstructor parseCommand(Set<String> sdfImports, List<String> sdfSearchPath, URI location, String command) throws IOException {
 		TableInfo table = lookupTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		
 		return parseFromString(table.getTableName(), location, command, false);
 	}
-
+	
 	public void generateModuleParser(List<String> sdfSearchPath, Set<String> sdfImports, Environment env) throws IOException {
 		TableInfo info = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		declareConcreteSyntaxTypes(info.getSymbolsName(), env);
@@ -325,9 +302,11 @@ public class ModuleParser {
 			String tableFile = new File(Configuration.getTableCacheDirectoryProperty(), parseTableFileName(key, result)).getAbsolutePath();
 			String symbolsFile = new File(Configuration.getTableCacheDirectoryProperty(), symbolsFileName(result)).getAbsolutePath();
 			return new TableInfo(tableFile, symbolsFile);
-		}catch(InterruptedException e){
+		}
+		catch (InterruptedException e){
 			throw new IOException("could not compute table location: " + e.getMessage());
-		}finally{
+		}
+		finally {
 			if(p != null){
 				p.destroy();
 			}
@@ -341,5 +320,105 @@ public class ModuleParser {
 	private String parseTableFileName(String key, byte[] result){
 		return new String(result) + "-" + key + TBL_EXTENSION;
 	}
+	
+	/**
+	 * Parse a sentence in an object language defined by the sdfImports
+	 */
+	public IConstructor parseString(List<String> sdfSearchPath, Set<String> sdfImports, String source)
+			throws IOException {
+				TableInfo table = getOrConstructParseTable(sdfImports, sdfSearchPath);
+				IConstructor result = parseFromString(table.getTableName(), URI.create("stdin:///"), source, true);
+				if (result.getConstructorType() == Factory.ParseTree_Summary) {
+					//System.err.println("RESULT = " + result);
+					SubjectAdapter x = new SummaryAdapter(result).getInitialSubject();
+					ISourceLocation loc = x.getLocation();
+					if (loc != null) {
+						throw new SyntaxError("-", new SummaryAdapter(result).getInitialSubject().getLocation());
+					}
+					throw new SyntaxError("-", null);
+				}
+				return result;
+			}
+
+	/**
+	 * Parse a sentence in an object language defined by the sdfImports
+	 */
+	public IConstructor parseStream(List<String> sdfSearchPath, Set<String> sdfImports, InputStream source)
+			throws IOException {
+				TableInfo table = getOrConstructParseTable(sdfImports, sdfSearchPath);
+				IConstructor result = parseFromStream(table.getTableName(), URI.create("stdin:///"), source, true);
+				if (result.getConstructorType() == Factory.ParseTree_Summary) {
+					//System.err.println("RESULT = " + result);
+					SubjectAdapter x = new SummaryAdapter(result).getInitialSubject();
+					ISourceLocation loc = x.getLocation();
+					if (loc != null) {
+						throw new SyntaxError("-", new SummaryAdapter(result).getInitialSubject().getLocation());
+					}
+					throw new SyntaxError("-", null);
+				}
+				return result;
+			}
+
+	private TableInfo getOrConstructParseTable(Set<String> sdfImports, List<String> sdfSearchPath)
+			throws IOException {
+				if (sdfImports.isEmpty()) {
+					return new TableInfo(Configuration.getDefaultParsetableProperty());
+				}
+			
+				TableInfo table = getTable(OBJECT_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+			
+				if (table == null) {
+					return constructUserDefinedSyntaxTable(sdfImports, sdfSearchPath);
+				}
+			
+				return table; 
+			}
+
+	private TableInfo constructUserDefinedSyntaxTable(Set<String> sdfImports, List<String> sdfSearchPath)
+			throws IOException {
+				TableInfo tablefileName = getTableLocation(OBJECT_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+				
+				Process p = Runtime.getRuntime().exec(new String[] {
+						Configuration.getRascal2TableCommandProperty(),
+						"-u",
+						"-s", getImportParameter(sdfImports),
+						"-p", getSdfSearchPath(sdfSearchPath),
+						"-o", tablefileName.getTableName()
+					}, new String[0], new File(Configuration.getRascal2TableBinDirProperty())
+				);
+				
+				try{
+					p.waitFor();
+					if (p.exitValue() != 0) {
+						throw new ImplementationError("Non-zero exit-status of rascal2table command.");
+					}
+				}catch(InterruptedException irex){
+					throw new ImplementationError("Interrupted while waiting for the generation of the parse table.");
+				}finally{
+					p.destroy();
+				}
+				return tablefileName;
+			}
+
+	private interface IBytesToTree{
+		public IConstructor bytesToTree(byte[] data) throws IOException;
+	}
+	
+	private static class PBFBytesToTree implements IBytesToTree{
+		public IConstructor bytesToTree(byte[] result) throws IOException{
+			PBFReader reader = new PBFReader();
+			ByteArrayInputStream bais = new ByteArrayInputStream(result);
+			return (IConstructor) reader.read(valueFactory, Factory.getStore(), Factory.ParseTree, bais);
+		}
+	}
+	
+	private static class ATermBytesToTree implements IBytesToTree{
+		public IConstructor bytesToTree(byte[] result) throws IOException{
+			ATermReader reader = new ATermReader();
+			ByteArrayInputStream bais = new ByteArrayInputStream(result);
+			return (IConstructor) reader.read(valueFactory, Factory.getStore(), Factory.ParseTree, bais);
+		}
+	}
+
 
 }

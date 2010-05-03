@@ -14,6 +14,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Catch;
 import org.rascalmpl.ast.Declarator;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.IASTVisitor;
 import org.rascalmpl.ast.LocalVariableDeclaration;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Variant;
@@ -248,7 +249,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class BoxEvaluator implements IEvaluator<IValue> {
+public class BoxEvaluator implements IASTVisitor<IValue> {
 	private AbstractAST currentAST;
 
 	private boolean isFunctionName;
@@ -3177,6 +3178,7 @@ public class BoxEvaluator implements IEvaluator<IValue> {
 		return HOV(0, name != null, H(1, KW(name), H(0,
 				t == null ? BoxADT.EMPTY : t, head(body))), tail(body));
 	}
+
 
 	private IValue cStat(IValue hBox, IValue left, IValue exs, IValue right,
 			IValue body) {

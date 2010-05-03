@@ -7,8 +7,10 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class Configuration {
 	public static final String RASCAL_FILE_EXT = ".rsc";
-	public static final String RASCAL_BIN_FILE_EXT = ".rsc.bin";
+	public static final String RASCAL_BIN_FILE_EXT = ".bin";
 	public static final String SDF_EXT = ".sdf";
+	public static final String RASCAL_MODULE_SEP = "::";
+	public static final String RASCAL_PATH_SEP = "/";
 	
 	private final static String DEFAULT_PARSETABLE_PROPERTY = "rascal.parsetable.default.file";
 	private final static String HEADER_PARSETABLE_PROPERTY = "rascal.parsetable.header.file";
@@ -18,6 +20,7 @@ public class Configuration {
 	private final static String SDF_LIBRARY_PATH_PROPERTY = "rascal.sdf.library.dir";
 	private static final String SDF2TABLE_PROPERTY = "rascal.sdf.sdf2table.command";
 	private final static String PROFILING_PROPERTY = "rascal.profiling";
+	
 	
 	private volatile static String basePath = null;
 	

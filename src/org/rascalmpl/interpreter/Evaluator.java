@@ -6,8 +6,12 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import static org.rascalmpl.interpreter.result.ResultFactory.nothing;
 import static org.rascalmpl.interpreter.utils.Utils.unescape;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.URI;
@@ -35,17 +39,22 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
+import org.eclipse.imp.pdb.facts.io.PBFReader;
+import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
+import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.Bound;
 import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Catch;
+import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Field;
@@ -192,13 +201,11 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.env.RewriteRule;
-import org.rascalmpl.interpreter.load.FromCurrentWorkingDirectoryLoader;
-import org.rascalmpl.interpreter.load.FromDefinedRascalPathLoader;
 import org.rascalmpl.interpreter.load.FromDefinedSdfSearchPathPathContributor;
-import org.rascalmpl.interpreter.load.FromResourceLoader;
-import org.rascalmpl.interpreter.load.IModuleFileLoader;
+import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
-import org.rascalmpl.interpreter.load.ModuleLoader;
+import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.SDFSearchPath;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.NodePattern;
@@ -215,6 +222,7 @@ import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
 import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
 import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
+import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
@@ -240,22 +248,23 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Utils;
-import org.rascalmpl.parser.ModuleParser;
+import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.RascalParser;
 import org.rascalmpl.uri.CWDURIResolver;
+import org.rascalmpl.uri.ClassResourceInputStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.errors.SubjectAdapter;
+import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-@SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
-	static{
-		updateProperties(); // TODO Put this in a better place.
-	}
-
 	private IValueFactory vf;
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	protected Environment currentEnvt;
@@ -269,53 +278,63 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private static boolean doProfiling = false;
 	private Profiler profiler;
+	
+	private boolean saveParsedModules = false;
 
 	private final TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator(this);
 	protected IEvaluator<IMatchingResult> patternEvaluator;
-	protected final ModuleLoader loader;
 
 	private final java.util.List<ClassLoader> classLoaders;
 	protected final ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
-	private final ModuleParser parser;
+	private final RascalParser parser;
 
 	private PrintWriter stderr;
 	private PrintWriter stdout;
 
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
+	private final RascalURIResolver resolver;
+	private final SDFSearchPath sdf;
+	private final ASTBuilder builder;
 
-	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
+	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this.vf = f;
 		this.patternEvaluator = new PatternEvaluator(this);
 		this.strategyContextStack = new StrategyContextStack();
 		this.heap = heap;
-		currentEnvt = scope;
-		rootScope = scope;
-		heap.addModule(scope);
+		this.currentEnvt = scope;
+		this.rootScope = scope;
+		this.heap.addModule(scope);
 		this.classLoaders = new ArrayList<ClassLoader>();
 		this.javaBridge = new JavaBridge(stderr, classLoaders, vf);
-		loader = new ModuleLoader(parser);
-		this.parser = parser;
-		parser.setLoader(loader);
-
+		this.resolver = new RascalURIResolver();
+		this.sdf = new SDFSearchPath();
+		this.parser = new RascalParser();
 		this.stderr = stderr;
 		this.stdout = stdout;
+		this.builder = new ASTBuilder(new ASTFactory());
 
-		// cwd loader
-		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
+		updateProperties();
 
-		// library
-		loader.addFileLoader(new FromResourceLoader(this.getClass(), "org/rascalmpl/library"));
+		resolver.addPathContributor(new IRascalSearchPathContributor() {
+			public void contributePaths(java.util.List<URI> l) {
+				l.add(URI.create("cwd:///"));
+				l.add(URI.create("stdlib:///org/rascalmpl/library"));
+				l.add(URI.create("stdlib:///"));
+				l.add(URI.create("stdlib:///org/rascalmpl/test/data"));
 
-		// everything rooted at the src directory 
-		loader.addFileLoader(new FromResourceLoader(this.getClass()));
-		loader.addFileLoader(new FromResourceLoader(this.getClass(), "org/rascalmpl/test/data"));
+				String property = System.getProperty("rascal.path");
 
-		// loads from -Drascal.path=/colon-separated/path
-		loader.addFileLoader(new FromDefinedRascalPathLoader());
+				if (property != null) {
+					for (String path : property.split(":")) {
+						l.add(URI.create("file://" + path));
+					}
+				}
+			}
+		});
 
 		// add current wd and sdf-library to search path for SDF modules
-		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
+		sdf.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new ArrayList<String>();
 				result.add(new File("/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library").getAbsolutePath());
@@ -327,14 +346,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		});
 
 		// adds folders using -Drascal.sdf.path=/colon-separated/path
-		loader.addSdfSearchPathContributor(new FromDefinedSdfSearchPathPathContributor());
+		sdf.addSdfSearchPathContributor(new FromDefinedSdfSearchPathPathContributor());
 
 		// load Java classes from the current jar (for the standard library)
 		classLoaders.add(getClass().getClassLoader());
 
 		// register some schemes
 		URIResolverRegistry registry = URIResolverRegistry.getInstance();
-		FileURIResolver files = new FileURIResolver();
+		FileURIResolver files = new FileURIResolver(); 
 		registry.registerInput(files.scheme(), files);
 		registry.registerOutput(files.scheme(), files);
 
@@ -344,6 +363,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		CWDURIResolver cwd = new CWDURIResolver();
 		registry.registerInput(cwd.scheme(), cwd);
 		registry.registerOutput(cwd.scheme(), cwd);
+		
+		ClassResourceInputStreamResolver library = new ClassResourceInputStreamResolver("stdlib", this.getClass());
+		registry.registerInput(library.scheme(), library);
+
+		registry.registerInput(resolver.scheme(), resolver);
+		registry.registerOutput(resolver.scheme(), resolver);
+	}
+	
+	public SDFSearchPath getSDFSearchPath() {
+		return sdf;
 	}
 	
 	public JavaBridge getJavaBridge(){
@@ -368,6 +397,62 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		return func.call(types, args).getValue();
 	}
+	
+	/**
+	 * Parse an object string using the imported SDF modules from the current context.
+	 */
+	public IConstructor parseObject(IConstructor startSort, URI input) {
+		try {
+			return filterStart(startSort, parser.parseStream(sdf.getSdfSearchPath(), ((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), URIResolverRegistry.getInstance().getInputStream(input)));
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getCurrentAST(), getStackTrace());
+		} catch (SyntaxError e) {
+			throw RuntimeExceptionFactory.parseError(e.getLocation(), getCurrentAST(), getStackTrace());
+		}
+	}
+	
+	/**
+	 * Parse an object string using the imported SDF modules from the current context.
+	 */
+	public IConstructor parseObject(IConstructor startSort, java.lang.String input) {
+		try {
+			return filterStart(startSort, parser.parseString(sdf.getSdfSearchPath(), ((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), input));
+		} catch (IOException e) {
+			throw new ImplementationError("unexpected io exception", e);
+		} catch (SyntaxError e) {
+			throw RuntimeExceptionFactory.parseError(e.getLocation(), getCurrentAST(), getStackTrace());
+		}
+	}
+
+	private IConstructor filterStart(IConstructor startSort, IConstructor ptree) {
+		ptree = ParsetreeAdapter.addPositionInformation(ptree, URI.create("stdin:///"));
+		IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
+
+		if (TreeAdapter.isAppl(tree)) {
+			IConstructor prod = TreeAdapter.getProduction(tree);
+			IConstructor rhs = ProductionAdapter.getRhs(prod);
+
+			if (!rhs.isEqual(startSort)) {
+				throw RuntimeExceptionFactory.parseError(TreeAdapter.getLocation(tree), null, null);
+			}
+
+			return tree;
+		}
+		else if (TreeAdapter.isAmb(tree)) {
+			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
+				IConstructor prod = TreeAdapter.getProduction((IConstructor) alt);
+				IConstructor rhs = ProductionAdapter.getRhs(prod);
+
+				if (rhs.isEqual(startSort)) {
+					return (IConstructor) alt;
+				}
+			}
+
+			throw RuntimeExceptionFactory.parseError(TreeAdapter.getLocation(tree), null, null);
+		}
+		
+		throw new ImplementationError("unexpected tree type: " + tree.getType());
+	}
 
 	private void checkPoint(Environment env) {
 		env.checkPoint();
@@ -389,12 +474,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return currentAST;
 	}
 
-	public void addModuleLoader(IModuleFileLoader fileLoader) {
-		loader.addFileLoader(fileLoader);
+	public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
+		resolver.addPathContributor(contrib);
 	}
-
+	
+	public void addRascalSearchPath(final URI uri) {
+		resolver.addPathContributor(new IRascalSearchPathContributor() {
+			public void contributePaths(java.util.List<URI> path) {
+				path.add(0, uri);
+			}
+		});
+	}
+	
 	public void addSdfSearchPathContributor(ISdfSearchPathContributor contrib) {
-		loader.addSdfSearchPathContributor(contrib);
+		sdf.addSdfSearchPathContributor(contrib);
 	}
 
 	public void addClassLoader(ClassLoader loader) {
@@ -467,6 +560,77 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		throw new NotYetImplemented(expr.toString());
 	}
 
+	private java.util.Set<String> getSDFImports() {
+		return ((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports();
+	}
+	
+	/**
+	 * Parse and evaluate a command in the current execution environment
+	 * @param command
+	 * @return
+	 */
+	public Result<IValue> eval(String command, URI location) {
+		try {
+			IConstructor tree = parser.parseCommand(getSDFImports(), sdf.getSdfSearchPath(), location, command);
+			
+			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
+				throw parseError(tree, location);
+			}
+			
+			Command stat = builder.buildCommand(tree);
+			
+			if (stat == null) {
+				throw new ImplementationError("Disambiguation failed: it removed all alternatives");
+			}
+			
+			return eval(stat);
+		} catch (IOException e) {
+			throw new ImplementationError("something weird happened", e);
+		}
+	}
+	
+	public IConstructor parseCommand(String command, URI location) {
+		IConstructor tree;
+		try {
+			tree = parser.parseCommand(getSDFImports(), sdf.getSdfSearchPath(), location, command);
+			
+			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
+				throw parseError(tree, location);
+			}
+			
+			return tree;
+		} catch (IOException e) {
+			throw new ImplementationError("something weird happened", e);
+		}
+	}
+
+	public Result<IValue> eval(Command command) {
+		return command.accept(this);
+	}
+	
+//	protected void evalSDFModule(Default x) {
+//		// TODO: find out what this is for
+//		if (currentEnvt == rootScope) {
+//			parser.addSdfImportForImportDefault(x);
+//		}
+////		super.evalSDFModule(x);
+//	}
+	
+//	private IConstructor parseModule(String contents, ModuleEnvironment env) throws IOException{
+//		URI uri = URI.create("stdin:///");
+//		java.util.List<String> sdfSearchPath = sdf.getSdfSearchPath();
+//		java.util.Set<String> sdfImports = parser.getSdfImports(sdfSearchPath, uri, contents.getBytes());
+//
+//		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, uri, contents.getBytes(), env);
+//		
+//		if(tree.getConstructorType() == Factory.ParseTree_Summary){
+//			throw parseError(tree, uri);
+//		}
+//		
+//		return tree;
+//	}
+
+	
 	/**
 	 * Evaluate a declaration
 	 * @param declaration
@@ -498,22 +662,24 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public void reloadModule(String name) {
-		if (!heap.existsModule(name)) {
-			return; // ignore modules we don't know about
-		}
-		
-		ModuleEnvironment mod = heap.resetModule(name);
-		
-		// TODO: figure out what to do about null reference
-		Module module = loader.loadModule(name, null, mod);
-
-		if (module != null) {
-			if (!getModuleName(module).equals(name)) {
-
-				// TODO: figure out what to do about null reference
-				throw new ModuleNameMismatchError(getModuleName(module), name, null);
+		try {
+			if (!heap.existsModule(name)) {
+				return; // ignore modules we don't know about
 			}
-			module.accept(this);
+
+			ModuleEnvironment mod = heap.resetModule(name);
+
+			Module module = loadModule(name, mod);
+
+			if (module != null) {
+				if (!getModuleName(module).equals(name)) {
+					throw new ModuleNameMismatchError(getModuleName(module), name, getCurrentAST());
+				}
+				module.accept(this);
+			}
+		}
+		catch (IOException e) {
+			throw new ModuleLoadError(name, e.getMessage(), getCurrentAST());
 		}
 	}
 	
@@ -833,7 +999,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		getCurrentModuleEnvironment().addSDFImport(getUnescapedModuleName(x));
 		
 		try {
-			parser.generateModuleParser(loader.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), getCurrentModuleEnvironment());
+			parser.generateModuleParser(sdf.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), getCurrentModuleEnvironment());
 		} catch (IOException e) {
 			RuntimeExceptionFactory.io(vf.string("IO exception while importing module " + x), x, getStackTrace());
 		}
@@ -870,9 +1036,145 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	private boolean isSDFModule(String name) {
-		return loader.isSdfModule(name);
+		return sdf.isSdfModule(name);
 	}
 
+	private IConstructor tryLoadBinary(String name){
+		InputStream inputStream = null;
+		
+		try {
+			inputStream = resolver.getBinaryInputStream(URI.create("rascal:///" + name));
+			if(inputStream == null) {
+				return null;
+			}
+
+			PBFReader pbfReader = new PBFReader();
+			return (IConstructor) pbfReader.read(ValueFactoryFactory.getValueFactory(), inputStream);
+		}
+		catch (IOException e) {
+			return null;
+		}
+		finally {
+			try {
+				if (inputStream != null) {
+					inputStream.close();
+				}
+			}
+			catch (IOException ioex){
+				throw new ImplementationError(ioex.getMessage(), ioex);
+			}
+		}
+	}
+	
+	private void writeBinary(String name, IConstructor tree) throws IOException {
+		OutputStream outputStream = null;
+		PBFWriter pbfWriter = new PBFWriter();
+		
+		try{
+			outputStream = new BufferedOutputStream(resolver.getBinaryOutputStream(URI.create("rascal:///" + name)));
+			pbfWriter.write(tree, outputStream);
+		}
+		finally{
+			if (outputStream != null) {
+				outputStream.flush();
+				outputStream.close();
+			}
+		}
+	}
+	
+	/**
+	 * Parse a module. Practical for implementing IDE features or features that use Rascal to implement Rascal.
+	 * Parsing a module currently has the side effect of declaring non-terminal types in the given environment.
+	 */
+	public IConstructor parseModule(URI location, ModuleEnvironment env) throws IOException {
+		byte[] data;
+		
+		InputStream inputStream = null;
+		java.util.List<String> sdfSearchPath = sdf.getSdfSearchPath();
+		java.util.Set<String> sdfImports;
+		try {
+			inputStream = URIResolverRegistry.getInstance().getInputStream(location);
+			data = readModule(inputStream);
+		}
+		finally{
+			if(inputStream != null){
+				inputStream.close();
+			}
+		}
+
+		URI resolved = resolver.resolve(location);
+		if (resolved != null) {
+			location = resolved;
+		}
+		sdfImports = parser.getSdfImports(sdfSearchPath, location, data);
+
+		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
+		if(tree.getConstructorType() == Factory.ParseTree_Summary){
+			throw parseError(tree, location);
+		}
+		return ParsetreeAdapter.addPositionInformation(tree, location); 
+	}
+	
+	private byte[] readModule(InputStream inputStream) throws IOException{
+		byte[] buffer = new byte[8192];
+		
+		ByteArrayOutputStream inputStringData = new ByteArrayOutputStream();
+		
+		int bytesRead;
+		while((bytesRead = inputStream.read(buffer)) != -1){
+			inputStringData.write(buffer, 0, bytesRead);
+		}
+		
+		return inputStringData.toByteArray();
+	}
+	
+	protected SyntaxError parseError(IConstructor tree, URI location){
+		SummaryAdapter summary = new SummaryAdapter(tree);
+		SubjectAdapter subject = summary.getInitialSubject();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+		
+		if (subject != null) {
+			ISourceLocation loc = vf.sourceLocation(location, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
+			return new SyntaxError(subject.getDescription(), loc);
+		}
+		
+		return new SyntaxError("unknown location, maybe you used a keyword as an identifier)", vf.sourceLocation(location, 0,1,1,1,0,1));
+	}
+	
+	
+	
+	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
+		if(isSDFModule(name)){
+			return null;
+		}
+		
+		try{
+			IConstructor tree = null;
+			
+			if (!saveParsedModules) {
+				tree = tryLoadBinary(name);
+			}
+			
+			if (tree == null) {
+				tree = parseModule(URI.create("rascal:///" + name), env);
+			}
+			
+			if (saveParsedModules) {
+				writeBinary(name, tree);
+			}
+			
+			ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
+			Module moduleAst = astBuilder.buildModule(tree);
+			
+			if (moduleAst == null) {
+				throw new ImplementationError("After this, all ambiguous ast's have been filtered in " + name, astBuilder.getLastSuccessLocation());
+			}
+			return moduleAst;
+		}catch (FactTypeUseException e){
+			throw new ImplementationError("Unexpected PDB typecheck exception", e);
+		}
+	}
+	
 	protected Module evalRascalModule(AbstractAST x,
 			String name) {
 		ModuleEnvironment env = heap.getModule(name);
@@ -880,9 +1182,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			env = new ModuleEnvironment(name);
 			heap.addModule(env);
 		}
-		Module module = loader.loadModule(name, x, env);
-
 		try {
+			Module module = loadModule(name, env);
+	
 			if (module != null) {
 				if (!getModuleName(module).equals(name)) {
 					throw new ModuleNameMismatchError(getModuleName(module), name, x);
@@ -898,6 +1200,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		catch (org.rascalmpl.interpreter.control_exceptions.Throw e) {
 			heap.removeModule(env);
 			throw e;
+		} 
+		catch (IOException e) {
+			throw new ModuleLoadError(name, e.getMessage(), x);
 		}
 
 		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
@@ -2330,7 +2635,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (expected instanceof NonTerminalType && result.getType().isSubtypeOf(tf.stringType())) {
 			try {
 				String command = '(' + expected.toString() + ')' + '`' + ((IString) result.getValue()).getValue() + '`';
-				IConstructor tree = parser.parseCommand(((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), loader.getSdfSearchPath(), x.getLocation().getURI(), command);
+				IConstructor tree = parser.parseCommand(((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), sdf.getSdfSearchPath(), x.getLocation().getURI(), command);
 
 				if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 					throw RuntimeExceptionFactory.parseError(x.getPattern().getLocation(), x.getPattern(), getStackTrace());
@@ -3029,6 +3334,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		private boolean splicing[];
 		private Result<IValue> rawElements[];
 		
+		@SuppressWarnings("unchecked")
 		ListComprehensionWriter(
 				java.util.List<org.rascalmpl.ast.Expression> resultExprs,
 				Evaluator ev) {
@@ -3104,6 +3410,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		private boolean splicing[];
 		private Result<IValue> rawElements[];
 		
+		@SuppressWarnings("unchecked")
 		SetComprehensionWriter(
 				java.util.List<org.rascalmpl.ast.Expression> resultExprs,
 				Evaluator ev) {
@@ -3398,6 +3705,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result visitExpressionAny(Any x) {
 		java.util.List<Expression> generators = x.getGenerators();
@@ -3423,6 +3731,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return new BoolResult(tf.boolType(), vf.bool(false), this);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result visitExpressionAll(All x) {
 		java.util.List<Expression> producers = x.getGenerators();
@@ -3546,12 +3855,30 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return ResultFactory.nothing();
 	}
 
-	private static void updateProperties(){
+	private void updateProperties(){
 		String profiling = System.getProperty("rascal.config.profiling");
-		if(profiling != null) doProfiling = profiling.equals("true");
+		if(profiling != null) {
+			doProfiling = profiling.equals("true");
+		}
+		else {
+			doProfiling = false;
+		}
 
 		String tracing = System.getProperty("rascal.config.tracing");
-		if(tracing != null) AbstractFunction.setCallTracing(tracing.equals("true"));
+		if(tracing != null) {
+			AbstractFunction.setCallTracing(tracing.equals("true"));
+		}
+		else {
+			AbstractFunction.setCallTracing(false);
+		}
+		
+		String binaryWriting = System.getProperty("rascal.config.saveBinaries");
+	    if (binaryWriting != null) {
+	    	saveParsedModules = binaryWriting.equals("true");
+	    }
+	    else {
+	    	saveParsedModules = false;
+	    }
 	}
 
 	public Stack<Environment> getCallStack() {
@@ -3564,20 +3891,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return stack;
 	}
 
-	public ModuleLoader getModuleLoader() {
-		return loader;
-	}
-
 	public Environment getCurrentEnvt() {
 		return currentEnvt;
 	}
 
 	public void setCurrentEnvt(Environment env) {
 		currentEnvt = env;
-	}
-
-	public IConstructor parseCommand(String command) throws IOException {
-		throw new ImplementationError("should not be called in Evaluator but only in subclasses");
 	}
 
 	public Evaluator getEvaluator() {
@@ -3591,9 +3910,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public boolean runTests(){
 		DefaultTestResultListener listener = new DefaultTestResultListener(stderr);
 		new TestEvaluator(this, listener).test();
-// TODO: this debug output should be done by the DefaultTestResultListener
-//		stderr.println(listener.getNumberOfTests() + " tests, " + listener.getFailures() + " failures, " +
-//				listener.getErrors() + " errors");
 		return listener.allOk();
 	}
 

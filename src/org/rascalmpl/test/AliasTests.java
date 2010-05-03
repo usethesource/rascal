@@ -69,8 +69,8 @@ public class AliasTests extends TestFramework{
 	
 	@Test
 	public void aliasAndADT1() {
-		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1; data INTEGER1 = f(int);");
-		prepareMore("import Test;");
+		prepareModule("Tester", "module Tester alias INTEGER0 = INTEGER1; data INTEGER1 = f(int);");
+		prepareMore("import Tester;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = f(0); x == f(0); }"));
 	}
 	
@@ -88,25 +88,25 @@ public class AliasTests extends TestFramework{
 	
 	@Test
 	public void outofOrderDeclaration() {
-		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = int;");
+		prepareModule("Tester", "module Tester alias INTEGER0 = INTEGER1; alias INTEGER1 = int;");
 		prepareMore("import Test;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 
 	@Test(expected=StaticError.class) 
 	public void longCycle() {
-		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER2; alias INTEGER2 = INTEGER0;");
+		prepareModule("Tester", "module Tester alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER2; alias INTEGER2 = INTEGER0;");
 	}
 	
 	@Test(expected=StaticError.class) 
 	public void undeclaredTypeInDefinition() {
-		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1;");
+		prepareModule("Tester", "module Tester alias INTEGER0 = INTEGER1;");
 	}
 	
 	@Test(expected=StaticError.class)
 	public void anotherCircularity() {
-		prepareModule("Test", "module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER0;");
-		prepareMore("import Test;");
+		prepareModule("Tester", "module Tester alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER0;");
+		prepareMore("import Tester;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 	
