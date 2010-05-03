@@ -27,13 +27,11 @@ public class ArrayList<E>{
 	}
 	
 	public void add(E object){
-		int index = size;
 		if(size == data.length){
 			enlarge();
 		}
-		size++;
 		
-		data[index] = object;
+		data[size++] = object;
 	}
 	
 	public E get(int index){
