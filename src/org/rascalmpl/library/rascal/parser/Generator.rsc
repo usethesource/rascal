@@ -23,6 +23,7 @@ package org.rascalmpl.rascal.generated<package != "" ? ".<package>" : "">;
 
 import org.rascalmpl.gll.SGLL;
 import org.rascalmpl.gll.stack.*;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.ValueFactoryFactory;
