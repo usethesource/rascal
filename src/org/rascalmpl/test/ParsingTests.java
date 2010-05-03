@@ -15,14 +15,13 @@ import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Module.Default;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.ModuleParser;
-import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.parser.RascalParser;
 import org.rascalmpl.values.uptr.Factory;
 
 public class ParsingTests extends TestCase {
 
 	public void doParse(String dir) {
-		ModuleParser parser = new ModuleParser();
+		RascalParser parser = new RascalParser();
 		
 		File directory = new File("demo/" + dir);
 
@@ -39,7 +38,7 @@ public class ParsingTests extends TestCase {
 			try {
 				fis = new FileInputStream(file);
 				
-				IConstructor tree = parser.parseModule(Collections.<String>emptyList(), Collections.<String>emptySet(), FileURIResolver.constructFileURI(file.getAbsolutePath()), fis, new ModuleEnvironment("***dummy***"));
+				IConstructor tree = parser.parseModule(Collections.<String>emptyList(), Collections.<String>emptySet(),file.getAbsoluteFile().toURI(), fis, new ModuleEnvironment("***dummy***"));
 				
 				if (tree.getConstructorType() == Factory.ParseTree_Top) {
 					Module.Default module = (Default) new ASTBuilder(new ASTFactory()).buildModule(tree);

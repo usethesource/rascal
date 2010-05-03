@@ -1,49 +1,93 @@
 package org.rascalmpl.test;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.rascalmpl.ast.ASTFactory;
-import org.rascalmpl.ast.Command;
-import org.rascalmpl.ast.Module;
-import org.rascalmpl.interpreter.CommandEvaluator;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.FromResourceLoader;
+import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
-import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.uri.ClassResourceInputStreamResolver;
+import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
 
 
 public class TestFramework {
-	private CommandEvaluator evaluator;
+	private Evaluator evaluator;
 	private PrintWriter stderr;
 	private PrintWriter stdout;
+	private TestModuleResolver modules;
 
+	/**
+	 * This class allows us to load modules from string values.
+	 */
+	private class TestModuleResolver implements IURIInputStreamResolver {
+		private Map<String,String> modules = new HashMap<String,String>();
+
+		public void addModule(String name, String contents) {
+			name = name.replaceAll("::", "/");
+			if (!name.startsWith("/")) {
+				name = "/" + name;
+			}
+			if (!name.endsWith(".rsc")) {
+				name = name + ".rsc";
+			}
+			modules.put(name, contents);
+		}
+		
+		public boolean exists(URI uri) {
+			return modules.containsKey(uri.getPath());
+		}
+
+		public InputStream getInputStream(URI uri) throws IOException {
+			String contents = modules.get(uri.getPath());
+			if (contents != null) {
+				return new ByteArrayInputStream(contents.getBytes());
+			}
+			return null;
+		}
+
+		public String scheme() {
+			return "test-modules";
+		}
+	}
+	
 	public TestFramework() {
 		reset();
 	}
 
-	protected CommandEvaluator getTestEvaluator() {
+	protected Evaluator getTestEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***test***"));
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
-		CommandEvaluator eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
+		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 
+		URIResolverRegistry.getInstance().registerInput("rascal-test", new ClassResourceInputStreamResolver("rascal-test", getClass()));
+		
 		// to load modules from benchmarks
-		eval.addModuleLoader(new FromResourceLoader(getClass(), "org/rascalmpl/benchmark"));
-
-		// to load modules from the test directory
-		eval.addModuleLoader(new FromResourceLoader(getClass(), "org/rascalmpl/test/data"));
+		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
+			public void contributePaths(List<URI> path) {
+				path.add(URI.create("rascal-test:///org/rascalmpl/benchmark"));
+				path.add(URI.create("rascal-test:///org/rascalmpl/test/data"));
+			}
+		});
 
 		// to find sdf modules in the test directory
 		eval.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
@@ -60,6 +104,9 @@ public class TestFramework {
 
 	private void reset() {
 		evaluator = getTestEvaluator();
+		this.modules = new TestModuleResolver();
+		URIResolverRegistry.getInstance().registerInput(this.modules.scheme(), this.modules);
+		evaluator.addRascalSearchPath(URI.create("test-modules:///"));
 	}
 
 	public TestFramework(String command) {
@@ -142,54 +189,26 @@ public class TestFramework {
 	}
 
 	public boolean prepareModule(String name, String module) throws FactTypeUseException {
-		try {
-			reset();
-			ModuleEnvironment env = new ModuleEnvironment(name);
-			evaluator.getHeap().addModule(env);
-			IConstructor tree = evaluator.parseModule(module, env);
-			if (tree.getType() == Factory.ParseTree_Summary) {
-				System.err.println(tree);
-				return false;
-			}
-			
-			Module mod = new ASTBuilder(new ASTFactory()).buildModule(tree);
-			mod.accept(evaluator);
-			return true;
-		} catch (IOException e) {
-			System.err.println("IOException during preparation:" + e);
-			throw new AssertionError(e.getMessage());
-		}
+		reset();
+		modules.addModule(name, module);
+		return true;
 	}
 
 	private boolean execute(String command) throws IOException {
-		IConstructor tree = evaluator.parseCommand(command);
+		Result<IValue> result = evaluator.eval(command, URI.create("stdin:///"));
 
-		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-			System.err.println(tree);
+		if (result.getType().isVoidType()) {
+			return true;
+			
+		}
+		if (result.getValue() == null) {
 			return false;
 		}
 		
-		Command cmd = new ASTBuilder(new ASTFactory()).buildCommand(tree);
-		if (cmd.isStatement()) {
-			IValue value = evaluator.eval(cmd).getValue();
-			if (value == null || !value.getType().isBoolType())
-				return false;
-			return value.isEqual(evaluator.getValueFactory()
-					.bool(true)) ? true : false;
-		} else if (cmd.isImport()) {
-			evaluator.eval(cmd.getImported());
-			return true;
-		} else if (cmd.isDeclaration()) {
-			evaluator.eval(cmd.getDeclaration());
-			return true;
-		} else {
-			IValue value = evaluator.eval(cmd).getValue();
-			if (value == null || !value.getType().isBoolType())
-				return false;
-			return value.isEqual(evaluator.getValueFactory()
-					.bool(true)) ? true : false;
-			
-			//throw new ImplementationError("Unexpected case in eval: " + cmd);
+		if (result.getType() == TypeFactory.getInstance().boolType()) {
+			return ((IBool) result.getValue()).getValue();
 		}
+		
+		return false;
 	}
 }

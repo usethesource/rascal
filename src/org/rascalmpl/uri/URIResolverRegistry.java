@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class URIResolverRegistry {
-	private final static Map<String,IURIInputStreamResolver> resolvers = new HashMap<String, IURIInputStreamResolver>();
+	private final static Map<String,IURIInputStreamResolver> inputResolvers = new HashMap<String, IURIInputStreamResolver>();
 	private final static Map<String,IURIOutputStreamResolver> outputResolvers = new HashMap<String, IURIOutputStreamResolver>();
 	
 	private static class InstanceKeeper {
@@ -24,7 +24,7 @@ public class URIResolverRegistry {
 	}
 	
 	public void registerInput(String scheme, IURIInputStreamResolver resolver) {
-		resolvers.put(scheme, resolver);
+		inputResolvers.put(scheme, resolver);
 	}
 	
 	public void registerOutput(String scheme, IURIOutputStreamResolver resolver) {
@@ -32,7 +32,7 @@ public class URIResolverRegistry {
 	}
 	
 	public boolean exists(URI uri) {
-		IURIInputStreamResolver resolver = resolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
 		
 		if (resolver == null) {
 			return false;
@@ -42,7 +42,7 @@ public class URIResolverRegistry {
 	}
 	
 	public InputStream getInputStream(URI uri) throws IOException {
-		IURIInputStreamResolver resolver = resolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
 		
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());

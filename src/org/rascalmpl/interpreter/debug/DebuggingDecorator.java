@@ -1,6 +1,7 @@
 package org.rascalmpl.interpreter.debug;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -102,12 +103,8 @@ import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
-import org.rascalmpl.parser.ConsoleParser;
 
 public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluator<T> {
-
-	private final ConsoleParser parser;
-
 	protected final IDebugger debugger;
 
 	//when there is a suspend request from the debugger (caused by the pause button)
@@ -116,15 +113,13 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 	private final IEvaluator<T> evaluator;
 
-	public DebuggingDecorator(IEvaluator<T> evaluator, ConsoleParser consoleParser,
-			IDebugger debugger) {
+	public DebuggingDecorator(IEvaluator<T> evaluator, IDebugger debugger) {
 		this.evaluator =evaluator;
-		this.parser = consoleParser;
 		this.debugger = debugger;
 	}
 
 	public IValue call(String name, IValue... args) {
-		return evaluator.call(name, args);
+		return evaluator.getEvaluator().call(name, args);
 	}
 	
 	/* used for pattern-matching evaluation */
@@ -773,7 +768,7 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 	}
 
 	public IConstructor parseCommand(String command) throws IOException {
-		return parser.parseCommand(command);
+		return evaluator.getEvaluator().parseCommand(command, URI.create("debug:///"));
 	}
 
 	public AbstractAST getCurrentAST() {

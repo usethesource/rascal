@@ -11,6 +11,7 @@ public class MappingsCache<K, V>{
 	
 	private int load;
 	
+	@SuppressWarnings("unchecked")
 	public MappingsCache(){
 		super();
 		
@@ -23,6 +24,7 @@ public class MappingsCache<K, V>{
 		load = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public MappingsCache(int initialLogSize){
 		super();
 		
@@ -35,6 +37,7 @@ public class MappingsCache<K, V>{
 		load = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public MappingsCache(int initialLogSize, float loadFactor){
 		super();
 		
@@ -47,6 +50,7 @@ public class MappingsCache<K, V>{
 		load = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void rehash(){
 		Entry<K, V>[] oldData = data;
 		
