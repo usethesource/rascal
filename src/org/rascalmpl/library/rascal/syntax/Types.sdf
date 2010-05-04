@@ -13,6 +13,7 @@ context-free syntax
   "bool"   -> BasicType {cons("Bool")}   
   "int"    -> BasicType {cons("Int")}    
   "real"   -> BasicType {cons("Real")} 
+  "num"    -> BasicType {cons("Num")}
   "str"    -> BasicType {cons("String")} 
   "value"  -> BasicType {cons("Value")}  
   "node"   -> BasicType {cons("Node")}   
@@ -28,10 +29,10 @@ context-free syntax
   "type"   -> BasicType {cons("ReifiedType")}
   "adt"    -> BasicType {cons("ReifiedAdt")}
   "constructor"  -> BasicType {cons("ReifiedConstructor")}
-  "fun"          -> BasicType       {cons("ReifiedFunction")}
+  "fun"   -> BasicType       {cons("ReifiedFunction")}
   "non-terminal" -> BasicType {cons("ReifiedNonTerminal")}
   "reified"      -> BasicType {cons("ReifiedReifiedType")}
-  "datetime"     -> BasicType {cons("DateTime")}
+  "datetime" -> BasicType {cons("DateTime")}
 
 sorts TypeArg
 
@@ -58,16 +59,15 @@ context-free syntax
 sorts UserType
 
 context-free syntax
-  name:QualifiedName                                             -> UserType {cons("Name")} 
+  name:QualifiedName                                    -> UserType {cons("Name")} 
   name:QualifiedName "[" parameters:{Type ","}+ "]"              -> UserType {cons("Parametric")}   
 
 sorts DataTypeSelector
 
 context-free syntax
-  sort:QualifiedName "." production:Name                         -> DataTypeSelector {cons("Selector")} 
+  sort:QualifiedName "." production:Name                -> DataTypeSelector {cons("Selector")} 
 
 context-free syntax
-  symbol:Sym                                            -> Type {cons("Symbol")}
   basic:BasicType                                       -> Type {cons("Basic")}      
   structured:StructuredType                             -> Type {cons("Structured")} 
   function:FunctionType                                 -> Type {cons("Function")}   

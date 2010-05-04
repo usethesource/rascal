@@ -1,5 +1,6 @@
 package org.rascalmpl.interpreter.staticErrors;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 
 public class JavaCompilationError extends StaticError {
@@ -7,6 +8,10 @@ public class JavaCompilationError extends StaticError {
 
 	public JavaCompilationError(String message, AbstractAST ast) {
 		super("Java compilation failed due to " + message, ast);
+	}
+	
+	public JavaCompilationError(String message, ISourceLocation loc) {
+		super("Java compilation failed due to " + message, loc);
 	}
 
 }

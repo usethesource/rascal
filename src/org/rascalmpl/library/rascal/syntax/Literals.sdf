@@ -1,11 +1,12 @@
 module rascal/syntax/Literals
 
 imports rascal/syntax/Lexical 
-
+	rascal/syntax/RegExp
 exports
 sorts Literal 
 
 context-free syntax
+  regExpLiteral:RegExpLiteral        -> Literal {cons("RegExp")}
   booleanLiteral:BooleanLiteral      -> Literal {cons("Boolean")}   
   integerLiteral:IntegerLiteral      -> Literal {cons("Integer")}    
   realLiteral:RealLiteral            -> Literal {cons("Real")} 

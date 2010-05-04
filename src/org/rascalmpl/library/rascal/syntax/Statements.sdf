@@ -161,9 +161,9 @@ context-free priorities
   type:Type variables:{Variable ","}+      -> Declarator               {cons("Default")} 
   >
   {
-    type:Type "?"                     -> Type {cons("Optional")}               
-    type:Type "+"                     -> Type {cons("Iter")}                   
-    type:Type "*"                     -> Type {cons("IterStar")}   
+    symbol:Symbol "?"                     -> Symbol {cons("Optional")}               
+    symbol:Symbol "+"                     -> Symbol {cons("Iter")}                   
+    symbol:Symbol "*"                     -> Symbol {cons("IterStar")}   
   }
   
 

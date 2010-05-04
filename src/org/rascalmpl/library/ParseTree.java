@@ -34,6 +34,18 @@ public class ParseTree {
 		return ctx.getEvaluator().parseObject(startSort, input.getValue());
 	}
 	
+	public IValue parseExperimental(IConstructor start, ISourceLocation input, IEvaluatorContext ctx) {
+		// TODO
+		return null;
+	}
+	
+	public IValue parseExperimental(IConstructor start, IString input, IEvaluatorContext ctx) {
+		Type reified = start.getType();
+		IConstructor startSort = checkPreconditions(start, reified);
+		
+		return ctx.getEvaluator().parseObjectExperimental(startSort, input.getValue());
+	}
+	
 	public IString unparse(IConstructor tree) {
 		return values.string(TreeAdapter.yield(tree));
 	}

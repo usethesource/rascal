@@ -31,8 +31,6 @@ context-free syntax
   tags:Tags visibility:Visibility "data" user:UserType ";"                                             -> Declaration {cons("DataAbstract")} 
   name:Name "(" arguments:{TypeArg ","}* ")"                                     -> Variant     {cons("NAryConstructor")}      
 
-
-
 sorts Test
 context-free syntax
   test:Test ";" -> Declaration {cons("Test")}

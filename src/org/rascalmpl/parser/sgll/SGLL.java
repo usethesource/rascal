@@ -7,8 +7,8 @@ import org.rascalmpl.parser.sgll.stack.StackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.IntegerHashMap;
 
-public class SGLL implements IGLL{
-	private final char[] input;
+public abstract class SGLL implements IGLL{
+	private char[] input;
 	
 	private final ArrayList<StackNode> todoList;
 	
@@ -27,11 +27,8 @@ public class SGLL implements IGLL{
 	
 	private StackNode root;
 	
-	public SGLL(char[] input){
+	public SGLL(){
 		super();
-		
-		this.input = input;
-		
 		todoList = new ArrayList<StackNode>();
 		
 		stacksToExpand = new ArrayList<StackNode>();
@@ -278,8 +275,9 @@ public class SGLL implements IGLL{
 		}
 	}
 	
-	public INode parse(StackNode startNode){
+	protected INode parse(StackNode startNode, char[] input){
 		// Initialize.
+		this.input = input;
 		StackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		stacksToExpand.add(rootNode);

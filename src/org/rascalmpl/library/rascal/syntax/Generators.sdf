@@ -2,6 +2,7 @@ module rascal/syntax/Generators
 
 imports rascal/syntax/Patterns
         rascal/syntax/Expressions
+        rascal/syntax/Interpolation
 
 exports
 

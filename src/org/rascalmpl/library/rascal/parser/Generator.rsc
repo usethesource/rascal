@@ -5,6 +5,7 @@ import ParseTree;
 import String;
 import List;
 import Node;
+import Set;
 import IO;
 
 private int itemId = 0;
@@ -23,10 +24,12 @@ package org.rascalmpl.rascal.generated<package != "" ? ".<package>" : "">;
 
 import org.rascalmpl.gll.SGLL;
 import org.rascalmpl.gll.stack.*;
+import org.rascalmpl.gll.result.INode; // TODO replace by PDB value
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.ValueFactoryFactory;
+
 
 public class <name> extends SGLL {
   private static IConstructor read(String s, Type type) {
@@ -41,8 +44,8 @@ public class <name> extends SGLL {
   <for (p <- { p | /Production p:prod(_,_,_) := g}) {>private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);
   <}>
 
-  public <name>(char[] input){
-    super(input);
+  public <name>(){
+    super();
   }
 
   // Parse methods	
@@ -50,9 +53,19 @@ public class <name> extends SGLL {
   <generateParseMethod(p)>
   <}>
 
+  public INode parse(IConstructor start, String input) {
+    return parse(start, input.toCharArray());
+  }
+
+  public INode parse(IConstructor start, char[] sentence) {
+     return parse(new NonterminalStackNode(read(\"prod([<sym2name(s)>],start(),\no-attrs())\"), <sym2newitem(s)>), sentence);
+  }
+
   public static void main(String[] args){
-    <name> parser = new <name>(args[1].toCharArray());
-    System.out.println(parser.parse(args[0])); // TODO Interface changed and now expects a 'start' stack node.
+    <name> parser = new <name>();
+
+    // TODO: this just takes an arbitrary start symbol, if there are more the result can be surprising ;-)
+    System.out.println(parser.parse(<sym2newitem(getOneFrom(g.start))>, args[0].toCharArray())); 
   }
 }
 ";
