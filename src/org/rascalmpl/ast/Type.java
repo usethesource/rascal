@@ -1,46 +1,7 @@
 package org.rascalmpl.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Type extends AbstractAST { 
-  public org.rascalmpl.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); }
-public boolean hasSymbol() { return false; }
-public boolean isSymbol() { return false; }
-static public class Symbol extends Type {
-/** symbol:Symbol -> Type {cons("Symbol")} */
-	public Symbol(INode node, org.rascalmpl.ast.Symbol symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	@Override
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitTypeSymbol(this);
-	}
-
-	@Override
-	public boolean isSymbol() { return true; }
-
-	@Override
-	public boolean hasSymbol() { return true; }
-
-private final org.rascalmpl.ast.Symbol symbol;
-	@Override
-	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
-}
-static public class Ambiguity extends Type {
-  private final java.util.List<org.rascalmpl.ast.Type> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Type> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.Type> getAlternatives() {
-	return alternatives;
-  }
-  
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
-     return v.visitTypeAmbiguity(this);
-  }
-} 
-public org.rascalmpl.ast.BasicType getBasic() { throw new UnsupportedOperationException(); }
+  public org.rascalmpl.ast.BasicType getBasic() { throw new UnsupportedOperationException(); }
 public boolean hasBasic() { return false; }
 public boolean isBasic() { return false; }
 static public class Basic extends Type {
@@ -63,8 +24,23 @@ static public class Basic extends Type {
 private final org.rascalmpl.ast.BasicType basic;
 	@Override
 	public org.rascalmpl.ast.BasicType getBasic() { return basic; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.StructuredType getStructured() { throw new UnsupportedOperationException(); }
+}
+static public class Ambiguity extends Type {
+  private final java.util.List<org.rascalmpl.ast.Type> alternatives;
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Type> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.node = node;
+  }
+  public java.util.List<org.rascalmpl.ast.Type> getAlternatives() {
+	return alternatives;
+  }
+  
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
+     return v.visitTypeAmbiguity(this);
+  }
+} 
+public org.rascalmpl.ast.StructuredType getStructured() { throw new UnsupportedOperationException(); }
 public boolean hasStructured() { return false; }
 public boolean isStructured() { return false; }
 static public class Structured extends Type {
@@ -87,8 +63,8 @@ static public class Structured extends Type {
 private final org.rascalmpl.ast.StructuredType structured;
 	@Override
 	public org.rascalmpl.ast.StructuredType getStructured() { return structured; }	
-} 
-public org.rascalmpl.ast.FunctionType getFunction() { throw new UnsupportedOperationException(); }
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.FunctionType getFunction() { throw new UnsupportedOperationException(); }
 public boolean hasFunction() { return false; }
 public boolean isFunction() { return false; }
 static public class Function extends Type {
@@ -207,5 +183,29 @@ static public class Bracket extends Type {
 private final org.rascalmpl.ast.Type type;
 	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }	
+} 
+public org.rascalmpl.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); }
+public boolean hasSymbol() { return false; }
+public boolean isSymbol() { return false; }
+static public class Symbol extends Type {
+/** symbol:Symbol -> Type {cons("Symbol")} */
+	public Symbol(INode node, org.rascalmpl.ast.Symbol symbol) {
+		this.node = node;
+		this.symbol = symbol;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeSymbol(this);
+	}
+
+	@Override
+	public boolean isSymbol() { return true; }
+
+	@Override
+	public boolean hasSymbol() { return true; }
+
+private final org.rascalmpl.ast.Symbol symbol;
+	@Override
+	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
 }
 }

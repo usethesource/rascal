@@ -1,6 +1,6 @@
-module rascal/syntax/Syntax
 
-imports rascal/syntax/Symbols
+
+imports rascal/syntax/NonTerminals
         rascal/syntax/Declarations
 
 exports
@@ -12,8 +12,8 @@ context-free syntax
 
 sorts Start
 context-free syntax
-        -> Start {cons("NoStart")}
-"start" -> Start {cons("Start")}
+        -> Start {cons("Absent")}
+"start" -> Start {cons("Present")}
 
 sorts Prod
 context-free priorities
@@ -41,8 +41,8 @@ sorts Assoc
 context-free syntax
 "left" -> Assoc {cons("Left")}
 "right" -> Assoc {cons("Right")}
-"non-assoc" -> Assoc {cons("NonAssoc")}
-"assoc" -> Assoc {cons("Assoc")}
+"non-assoc" -> Assoc {cons("NonAssociativity")}
+"assoc" -> Assoc {cons("Associativity")}
 
 sorts ProdModifier
 context-free syntax

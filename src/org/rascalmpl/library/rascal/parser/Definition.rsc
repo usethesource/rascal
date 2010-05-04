@@ -13,7 +13,7 @@ import String;
 import ParseTree;
 import IO;  
 import Integer;
-
+ 
 // join the rules for the same non-terminal
 rule merge   grammar(s,{p,q,set[Production] a}) => grammar(s,{choice(sort(p), {p,q}), a}) when sort(p) == sort(q);
 	
@@ -246,20 +246,20 @@ private list[CharRange] cc2ranges(Class cc) {
       
 private CharRange range(Range r) {
   switch (r) {
-    case (Range) `<Character c>` : return range(character(c),character(c));
-    case (Range) `<Character l> - <Character r>`: return range(character(l),character(r));
+    case (Range) `<Char c>` : return range(character(c),character(c));
+    case (Range) `<Char l> - <Char r>`: return range(character(l),character(r));
     default: throw "missed a case <r>";
   }
 } 
-
-private int character(Character c) {
+ 
+private int character(Char c) {
   switch (c) {
-    case [Character] /<ch:[^"'\-\[\] ]>/        : return charAt(ch, 0); 
-    case [Character] /\\<esc:["'\-\[\] ]>/        : return charAt(esc, 0);
-    case [Character] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
-    case [Character] /\\<oct:[0-7]>/           : return toInt("0<oct>");
-    case [Character] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
-    case [Character] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
+    case [Char] /<ch:[^"'\-\[\] ]>/        : return charAt(ch, 0); 
+    case [Char] /\\<esc:["'\-\[\] ]>/        : return charAt(esc, 0);
+    case [Char] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
+    case [Char] /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    case [Char] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
+    case [Char] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
     default: throw "missed a case <c>";
   }
 }

@@ -58,7 +58,29 @@ static public class Extend extends Import {
 private final org.rascalmpl.ast.ImportedModule module;
 	@Override
 	public org.rascalmpl.ast.ImportedModule getModule() { return module; }	
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.SyntaxDefinition getSyntax() { throw new UnsupportedOperationException(); }
+public boolean hasSyntax() { return false; }
+public boolean isSyntax() { return false; }
+static public class Syntax extends Import {
+/** syntax:SyntaxDefinition -> Import {cons("Syntax")} */
+	public Syntax(INode node, org.rascalmpl.ast.SyntaxDefinition syntax) {
+		this.node = node;
+		this.syntax = syntax;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitImportSyntax(this);
+	}
+
+	@Override
+	public boolean isSyntax() { return true; }
+
+	@Override
+	public boolean hasSyntax() { return true; }
+
+private final org.rascalmpl.ast.SyntaxDefinition syntax;
+	@Override
+	public org.rascalmpl.ast.SyntaxDefinition getSyntax() { return syntax; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
 }

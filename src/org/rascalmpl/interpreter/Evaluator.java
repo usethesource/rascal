@@ -141,6 +141,7 @@ import org.rascalmpl.ast.Expression.TypedVariable;
 import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.FunctionDeclaration.Abstract;
 import org.rascalmpl.ast.Header.Parameters;
+import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.rascalmpl.ast.IntegerLiteral.HexIntegerLiteral;
 import org.rascalmpl.ast.IntegerLiteral.OctalIntegerLiteral;
@@ -249,7 +250,10 @@ import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Utils;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.RascalParser;
+import org.rascalmpl.parser.sgll.IGLL;
+import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
@@ -263,6 +267,8 @@ import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
 	private IValueFactory vf;
@@ -315,6 +321,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.builder = new ASTBuilder(new ASTFactory());
 
 		updateProperties();
+		
+		if (stderr == null) {
+			throw new NullPointerException();
+		}
+		if (stdout == null) {
+			throw new NullPointerException();
+		}
 
 		resolver.addPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(java.util.List<URI> l) {
@@ -421,6 +434,26 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new ImplementationError("unexpected io exception", e);
 		} catch (SyntaxError e) {
 			throw RuntimeExceptionFactory.parseError(e.getLocation(), getCurrentAST(), getStackTrace());
+		}
+	}
+	
+	public IValue parseObjectExperimental(IConstructor startSort, java.lang.String sentence) {
+		IGLL parser = getObjectParser();
+		org.rascalmpl.parser.sgll.result.INode result = parser.parse(startSort, sentence);
+		return getValueFactory().string(result.toString());
+	}
+
+	private IGLL getObjectParser() {
+		// TODO: refactor pg to field
+		try {
+			ParserGenerator pg = new ParserGenerator(stdout, classLoaders, getValueFactory());
+			ModuleEnvironment currentModule = (ModuleEnvironment) getCurrentEnvt().getRoot();
+			
+			// TODO: add support for modular grammars (this only uses the syntax definition of the current module
+			IConstructor moduleTree = parseModule(URI.create("rascal:///" + currentModule.getName()), currentModule);
+			return pg.getParser(getCurrentAST().getLocation(), currentModule.getName().replaceAll("::", "."), moduleTree);
+		} catch (IOException e) {
+			throw new ImplementationError("unexpected io exception", e);
 		}
 	}
 
@@ -660,6 +693,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		throw new ImplementationError("Not yet implemented: " + imp.getTree());
 	}
+	
+	public void doImport(String string) {
+		eval("import " + string + ";", URI.create("import:///"));
+	}
+
 
 	public void reloadModule(String name) {
 		try {
@@ -990,6 +1028,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			addImportToCurrentModule(x, name);
 		}
 		
+		return nothing();
+	}
+	
+	@Override
+	public Result<IValue> visitImportSyntax(Syntax x) {
+		// TODO: declare the non-terminals defined here, for now ignore
 		return nothing();
 	}
 
@@ -3964,6 +4008,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		return vf.string(value.toString());
 	}
+
+
+	
 
 	
 }

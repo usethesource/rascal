@@ -49,6 +49,7 @@ context-free syntax
   "node"     -> RascalReservedKeywords
   "non-assoc" -> RascalReservedKeywords
   "notin"    -> RascalReservedKeywords 
+  "num"      -> RascalReservedKeywords
   "on"       -> RascalReservedKeywords 
   "one"      -> RascalReservedKeywords  
   "private"  -> RascalReservedKeywords  
@@ -60,7 +61,6 @@ context-free syntax
   "rule"     -> RascalReservedKeywords
   "set"      -> RascalReservedKeywords
   "solve"    -> RascalReservedKeywords 
-%%  "start"    -> RascalReservedKeywords
   "str"      -> RascalReservedKeywords
   "switch"   -> RascalReservedKeywords  
   "test"     -> RascalReservedKeywords
@@ -115,6 +115,7 @@ context-free restrictions
   "module"   -/- [a-zA-Z0-9\-\_] 
   "node"     -/- [a-zA-Z0-9\-\_]
   "notin"    -/- [a-zA-Z0-9\-\_]  
+  "num"      -/- [a-zA-Z0-9\-\_]  
   "on "      -/- [a-zA-Z0-9\-\_]  
   "one"      -/- [a-zA-Z0-9\-\_]  
   "private"  -/- [a-zA-Z0-9\-\_]  
@@ -127,7 +128,6 @@ context-free restrictions
   "set"      -/- [a-zA-Z0-9\-\_]
   "solve"    -/- [a-zA-Z0-9\-\_] 
   "str"      -/- [a-zA-Z0-9\-\_]
-%%  "start"    -/- [a-zA-Z0-9\-\_]
   "switch"   -/- [a-zA-Z0-9\-\_]  
   "tag"      -/- [a-zA-Z0-9\-\_] 
   "test"     -/- [a-zA-Z0-9\-\_]

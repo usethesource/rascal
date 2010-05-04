@@ -1,72 +1,95 @@
 module rascal/syntax/Symbols
 
 imports rascal/syntax/Names
-        rascal/syntax/Literals
-        rascal/syntax/Types
+%% This is a modified clone of sdf2/syntax/Regular, Character, Character-Class, and Sorts, and StrCon
 
 
 exports
-sorts UnicodeEscape Character
-
-sorts Nonterminal NonterminalLabel
-lexical syntax
-   [A-Z] [A-Za-z0-9\_]*           -> Nonterminal
-   [a-z] [A-Za-z0-9\_]*           -> NonterminalLabel 
-
-lexical restrictions
-  Nonterminal -/- [A-Za-z0-9\_]
-  NonterminalLabel -/- [A-Za-z0-9\_]
-
-sorts Sym
-
-context-free priorities
-  Nonterminal "[" {Sym ","}+ "]"     -> Sym {cons("Parametrized")}
-  non-assoc %% to prevent ambiguity with character classes
-  Sym -> Sym+
-
-context-free syntax
-  nonterminal:Nonterminal            -> Sym {cons("Nonterminal")}
-  symbol:Sym label:NonterminalLabel  -> Sym {cons("Labeled")}
-  symbol:Sym "?"                     -> Sym {cons("Optional")}    
-  symbol:Sym "??"                    -> Sym {cons("NonEagerOptional")}               
-  symbol:Sym "+"                     -> Sym {cons("Iter")}                   
-  symbol:Sym "*"                     -> Sym {cons("IterStar")} 
-  symbol:Sym "+?"                    -> Sym {cons("NonEagerIter")}                   
-  symbol:Sym "*?"                    -> Sym {cons("NonEagerIterStar")}
-  "{" symbol:Sym sep:StringConstant "}" "+"  -> Sym {cons("IterSep")}                
-  "{" symbol:Sym sep:StringConstant "}" "*"  -> Sym {cons("IterStarSep")} 
-  "{" symbol:Sym sep:StringConstant "}" "+?" -> Sym {cons("NonEagerIterSep")}                
-  "{" symbol:Sym sep:StringConstant "}" "*?" -> Sym {cons("NonEagerIterStarSep")} 
-
-
-context-free syntax
-    "^"                                    -> Sym {cons("StartOfLine")}
-    "$"                                    -> Sym {cons("EndOfLine")}
-    "@" column:IntegerLiteral              -> Sym {cons("Column")}
-    charClass:Class                        -> Sym {cons("CharacterClass")}         
-    string:StringConstant                  -> Sym {cons("Literal")}                
-    cistring:CaseInsensitiveStringConstant -> Sym {cons("CaseInsensitiveLiteral")}
-
-context-free restrictions
-  Sym -/- [\?]
-
-sorts Class Range
-
-context-free syntax
-  character:Character                      -> Range     {cons("Character")}                
-  start:Character "-" end:Character        -> Range     {cons("Range")}                    
-  "[" ranges:Range* "]"                -> Class     {cons("SimpleCharclass")}       
-  "(" charclass:Class ")"              -> Class     {cons("Bracket"),bracket}
+sorts StrCon StrChar
 
 lexical syntax
-  EscapeSequence -> Character {cons("Escape"),category("Constant")}
-  UnicodeEscape  -> Character {cons("Unicode"),category("Constant")}
- ~[\"\'\\\-\[\]\ ] -> Character {cons("Normal"),category("Constant")}  
- "\\" [\-\[\]\ ]   -> Character {cons("ExtraEscaped"),category("Constant")}
- 
+  "\\n"                        -> StrChar {cons("newline")} 
+  "\\t"                        -> StrChar                   
+  "\\\""                       -> StrChar                   
+  "\\\\"                       -> StrChar                   
+  "\\" a:[0-9] b:[0-9] c:[0-9] -> StrChar                   
+  ~[\0-\31\n\t\"\\]            -> StrChar                   
+  [\"] chars:StrChar* [\"]     -> StrCon                    
+
+sorts Symbol
+
+sorts SingleQuotedStrCon SingleQuotedStrChar
+
+lexical syntax
+  "\\n"                                -> SingleQuotedStrChar  
+  "\\t"                                -> SingleQuotedStrChar  
+  "\\'"                                -> SingleQuotedStrChar  
+  "\\\\"                               -> SingleQuotedStrChar  
+  "\\" a:[0-9] b:[0-9] c:[0-9]         -> SingleQuotedStrChar  
+  ~[\0-\31\n\t\'\\]                    -> SingleQuotedStrChar  
+  [\'] chars:SingleQuotedStrChar* [\'] -> SingleQuotedStrCon   
+
+context-free syntax
+  "(" ")"                               -> Symbol {cons("Empty")}                  
+  "(" head:Symbol tail:Symbol+ ")"      -> Symbol {cons("Sequence")}               
+  symbol:Symbol "?"                     -> Symbol {cons("Optional")}               
+  symbol:Symbol "+"                     -> Symbol {cons("Iter")}                   
+  symbol:Symbol "*"                     -> Symbol {cons("IterStar")}               
+  "{" symbol:Symbol sep:StrCon "}" "+"  -> Symbol {cons("IterSep")}                
+  "{" symbol:Symbol sep:StrCon "}" "*"  -> Symbol {cons("IterStarSep")}            
+  lhs:Symbol "|" rhs:Symbol             -> Symbol {right, cons("Alternative")}     
+  charClass:CharClass                   -> Symbol {cons("CharacterClass")}         
+  string:StrCon                         -> Symbol {cons("Literal")}                
+  singelQuotedString:SingleQuotedStrCon -> Symbol {cons("CaseInsensitiveLiteral")}
 
 context-free priorities
-  "!" charClass:Class     -> Class {cons("Complement")} >
-  lhs:Class "-" rhs:Class -> Class {cons("Difference"), left} >
-  lhs:Class "&" rhs:Class -> Class {cons("Intersection"), left} >
-  lhs:Class "+" rhs:Class -> Class {cons("Union"), left}
+  {
+    symbol:Symbol "?" -> Symbol {cons("Optional")}            
+    symbol:Symbol "*" -> Symbol {cons("IterStar")}
+    symbol:Symbol "+" -> Symbol {cons("Iter")}             
+  } >
+  lhs:Symbol "|" rhs:Symbol -> Symbol {right, cons("Alternative")}  
+
+sorts Type
+
+context-free priorities
+   symbol:Symbol -> Type    {cons("Symbol")} >
+   {
+      name:QualifiedName                      -> Symbol  {cons("Sort")} 
+      lhs:Symbol "|" rhs:Symbol -> Symbol {right, cons("Alternative")}
+   } 
+
+
+sorts CharClass CharRange CharRanges OptCharRanges
+
+context-free syntax
+  character:Character                      -> CharRange     {cons("Character")}                
+  start:Character "-" end:Character        -> CharRange     {cons("Range")}                    
+  range:CharRange                          -> CharRanges    {cons("Range")}                    
+  lhs:CharRanges rhs:CharRanges            -> CharRanges    {cons("Concatenate"), right, memo} 
+  "(" ranges:CharRanges ")"                -> CharRanges    {bracket, cons("Bracket")}                          
+                                           -> OptCharRanges {cons("Absent")}                   
+  ranges:CharRanges                        -> OptCharRanges {cons("Present")}                  
+  "[" optionalCharRanges:OptCharRanges "]" -> CharClass     {cons("SimpleCharclass")}          
+  "(" charClass:CharClass ")"                        -> CharClass     {bracket, cons("Bracket"), avoid}                   
+
+context-free priorities
+  "~" charClass:CharClass -> CharClass {cons("Complement")} >
+  lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"), left, memo} >
+  lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"), left, memo} >
+  lhs:CharClass "\\/" rhs:CharClass -> CharClass {cons("Union"), left}
+
+exports
+sorts Character NumChar ShortChar
+
+lexical syntax
+  [\\] number:[0-9]+                    -> NumChar    
+  character:[a-zA-Z0-9]                 -> ShortChar  
+  [\\] escape:~[\0-\31A-Za-mo-qsu-z0-9] -> ShortChar  
+
+context-free syntax
+  numChar:NumChar     -> Character {cons("Numeric")}    
+  shortChar:ShortChar -> Character {cons("Short")}      
+  "\\TOP"             -> Character {cons("Top")}        
+  "\\EOF"             -> Character {cons("EOF")}        
+  "\\BOT"             -> Character {cons("Bottom")}     

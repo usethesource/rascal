@@ -33,6 +33,10 @@ import org.rascalmpl.ast.Assignment.IfDefined;
 import org.rascalmpl.ast.Assignment.Intersection;
 import org.rascalmpl.ast.Assignment.Product;
 import org.rascalmpl.ast.Assignment.Subtraction;
+import org.rascalmpl.ast.Assoc.Associative;
+import org.rascalmpl.ast.Assoc.Left;
+import org.rascalmpl.ast.Assoc.NonAssociative;
+import org.rascalmpl.ast.Assoc.Right;
 import org.rascalmpl.ast.Asterisk.Lexical;
 import org.rascalmpl.ast.BasicType.Bag;
 import org.rascalmpl.ast.BasicType.Bool;
@@ -60,6 +64,10 @@ import org.rascalmpl.ast.Body.Toplevels;
 import org.rascalmpl.ast.Bound.Empty;
 import org.rascalmpl.ast.Case.PatternWithAction;
 import org.rascalmpl.ast.Catch.Binding;
+import org.rascalmpl.ast.Char.Escape;
+import org.rascalmpl.ast.Char.ExtraEscaped;
+import org.rascalmpl.ast.Char.Normal;
+import org.rascalmpl.ast.Char.Unicode;
 import org.rascalmpl.ast.CharClass.Bracket;
 import org.rascalmpl.ast.CharClass.Complement;
 import org.rascalmpl.ast.CharClass.Difference;
@@ -147,6 +155,7 @@ import org.rascalmpl.ast.FunctionModifier.Java;
 import org.rascalmpl.ast.FunctionType.TypeArguments;
 import org.rascalmpl.ast.Header.Parameters;
 import org.rascalmpl.ast.Import.Extend;
+import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.ast.ImportedModule.Actuals;
 import org.rascalmpl.ast.ImportedModule.ActualsRenaming;
 import org.rascalmpl.ast.ImportedModule.Renamings;
@@ -154,6 +163,8 @@ import org.rascalmpl.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.rascalmpl.ast.IntegerLiteral.HexIntegerLiteral;
 import org.rascalmpl.ast.IntegerLiteral.OctalIntegerLiteral;
 import org.rascalmpl.ast.Kind.Anno;
+import org.rascalmpl.ast.LanguageAction.Action;
+import org.rascalmpl.ast.LanguageAction.Build;
 import org.rascalmpl.ast.Literal.Boolean;
 import org.rascalmpl.ast.Literal.Integer;
 import org.rascalmpl.ast.Literal.Location;
@@ -171,6 +182,13 @@ import org.rascalmpl.ast.PathTail.Mid;
 import org.rascalmpl.ast.PathTail.Post;
 import org.rascalmpl.ast.PatternWithAction.Arbitrary;
 import org.rascalmpl.ast.PatternWithAction.Replacing;
+import org.rascalmpl.ast.Prod.AssociativityGroup;
+import org.rascalmpl.ast.Prod.First;
+import org.rascalmpl.ast.Prod.Others;
+import org.rascalmpl.ast.Prod.Reference;
+import org.rascalmpl.ast.Prod.Subtract;
+import org.rascalmpl.ast.ProdModifier.Associativity;
+import org.rascalmpl.ast.Range.FromTo;
 import org.rascalmpl.ast.Replacement.Conditional;
 import org.rascalmpl.ast.Replacement.Unconditional;
 import org.rascalmpl.ast.ShellCommand.Edit;
@@ -216,6 +234,16 @@ import org.rascalmpl.ast.Strategy.TopDownBreak;
 import org.rascalmpl.ast.StringLiteral.Template;
 import org.rascalmpl.ast.StringTail.MidInterpolated;
 import org.rascalmpl.ast.StringTail.MidTemplate;
+import org.rascalmpl.ast.Sym.Column;
+import org.rascalmpl.ast.Sym.EndOfLine;
+import org.rascalmpl.ast.Sym.NonEagerIter;
+import org.rascalmpl.ast.Sym.NonEagerIterSep;
+import org.rascalmpl.ast.Sym.NonEagerIterStar;
+import org.rascalmpl.ast.Sym.NonEagerIterStarSep;
+import org.rascalmpl.ast.Sym.NonEagerOptional;
+import org.rascalmpl.ast.Sym.Nonterminal;
+import org.rascalmpl.ast.Sym.Parametrized;
+import org.rascalmpl.ast.Sym.StartOfLine;
 import org.rascalmpl.ast.Symbol.Alternative;
 import org.rascalmpl.ast.Symbol.CaseInsensitiveLiteral;
 import org.rascalmpl.ast.Symbol.CharacterClass;
@@ -226,6 +254,8 @@ import org.rascalmpl.ast.Symbol.IterStarSep;
 import org.rascalmpl.ast.Symbol.Optional;
 import org.rascalmpl.ast.Symbol.Sequence;
 import org.rascalmpl.ast.Symbol.Sort;
+import org.rascalmpl.ast.SyntaxDefinition.Language;
+import org.rascalmpl.ast.SyntaxDefinition.Layout;
 import org.rascalmpl.ast.Test.Unlabeled;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.ast.Type.Basic;
@@ -647,16 +677,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitCharacterEOF(EOF x) {
 		return L("\\EOF");
-	}
-
-	public IValue visitCharacterLiteralAmbiguity(
-			org.rascalmpl.ast.CharacterLiteral.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitCharacterLiteralLexical(
-			org.rascalmpl.ast.CharacterLiteral.Lexical x) {
-		return L(x.getString());
 	}
 
 	public IValue visitCharacterNumeric(Numeric x) {
@@ -2049,16 +2069,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				eXs(x.getExceptions(), null, null));
 	}
 
-	public IValue visitSingleCharacterAmbiguity(
-			org.rascalmpl.ast.SingleCharacter.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSingleCharacterLexical(
-			org.rascalmpl.ast.SingleCharacter.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitSingleQuotedStrCharAmbiguity(
 			org.rascalmpl.ast.SingleQuotedStrChar.Ambiguity x) {
 		return L(x.getClass().toString());
@@ -3188,6 +3198,369 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 					HV(exs), right);
 		return HOV(0, hBox != null, H(1, hBox, H(0, t == null ? BoxADT.EMPTY
 				: t, head(body))), tail(body));
+	}
+
+	public IValue visitAssocAmbiguity(org.rascalmpl.ast.Assoc.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitAssocLeft(Left x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitAssocRight(Right x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitCharAmbiguity(org.rascalmpl.ast.Char.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitCharEscape(Escape x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitCharExtraEscaped(ExtraEscaped x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitCharNormal(Normal x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitCharUnicode(Unicode x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitClassAmbiguity(org.rascalmpl.ast.Class.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitClassBracket(org.rascalmpl.ast.Class.Bracket x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitClassComplement(org.rascalmpl.ast.Class.Complement x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitClassDifference(org.rascalmpl.ast.Class.Difference x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitClassIntersection(org.rascalmpl.ast.Class.Intersection x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitClassSimpleCharclass(
+			org.rascalmpl.ast.Class.SimpleCharclass x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitClassUnion(org.rascalmpl.ast.Class.Union x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitImportSyntax(Syntax x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitLanguageActionAction(Action x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitLanguageActionAmbiguity(
+			org.rascalmpl.ast.LanguageAction.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitLanguageActionBuild(Build x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitNonterminalAmbiguity(
+			org.rascalmpl.ast.Nonterminal.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitNonterminalLabelAmbiguity(
+			org.rascalmpl.ast.NonterminalLabel.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitNonterminalLabelLexical(
+			org.rascalmpl.ast.NonterminalLabel.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitNonterminalLexical(
+			org.rascalmpl.ast.Nonterminal.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdAction(org.rascalmpl.ast.Prod.Action x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdAll(org.rascalmpl.ast.Prod.All x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdAmbiguity(org.rascalmpl.ast.Prod.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdAssociativityGroup(AssociativityGroup x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdFirst(First x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdLabeled(org.rascalmpl.ast.Prod.Labeled x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdModifierAmbiguity(
+			org.rascalmpl.ast.ProdModifier.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdModifierAssociativity(Associativity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdModifierBracket(
+			org.rascalmpl.ast.ProdModifier.Bracket x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdModifierLexical(
+			org.rascalmpl.ast.ProdModifier.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdOthers(Others x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdReference(Reference x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdSubtract(Subtract x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdUnlabeled(org.rascalmpl.ast.Prod.Unlabeled x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitRangeAmbiguity(org.rascalmpl.ast.Range.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitRangeCharacter(org.rascalmpl.ast.Range.Character x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitStartAmbiguity(org.rascalmpl.ast.Start.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymAmbiguity(org.rascalmpl.ast.Sym.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymCaseInsensitiveLiteral(
+			org.rascalmpl.ast.Sym.CaseInsensitiveLiteral x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymCharacterClass(org.rascalmpl.ast.Sym.CharacterClass x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymColumn(Column x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymEndOfLine(EndOfLine x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymIter(org.rascalmpl.ast.Sym.Iter x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymIterSep(org.rascalmpl.ast.Sym.IterSep x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymIterStar(org.rascalmpl.ast.Sym.IterStar x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymIterStarSep(org.rascalmpl.ast.Sym.IterStarSep x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymLabeled(org.rascalmpl.ast.Sym.Labeled x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymLiteral(org.rascalmpl.ast.Sym.Literal x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymNonEagerIter(NonEagerIter x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymNonEagerIterSep(NonEagerIterSep x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymNonEagerIterStar(NonEagerIterStar x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymNonEagerIterStarSep(NonEagerIterStarSep x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymNonEagerOptional(NonEagerOptional x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymNonterminal(Nonterminal x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymOptional(org.rascalmpl.ast.Sym.Optional x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymParametrized(Parametrized x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymStartOfLine(StartOfLine x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSyntaxDefinitionAmbiguity(
+			org.rascalmpl.ast.SyntaxDefinition.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSyntaxDefinitionLanguage(Language x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSyntaxDefinitionLayout(Layout x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitAssocAssociative(Associative x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitAssocNonAssociative(NonAssociative x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitCaseInsensitiveStringConstantAmbiguity(
+			org.rascalmpl.ast.CaseInsensitiveStringConstant.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitCaseInsensitiveStringConstantLexical(
+			org.rascalmpl.ast.CaseInsensitiveStringConstant.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitRangeFromTo(FromTo x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitStartAbsent(org.rascalmpl.ast.Start.Absent x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitStartPresent(org.rascalmpl.ast.Start.Present x) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

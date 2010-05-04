@@ -1,6 +1,8 @@
 package org.rascalmpl.interpreter.utils;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -8,6 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
+
+import net.java.dev.hickory.testing.Compilation;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -37,6 +45,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.staticErrors.JavaCompilationError;
 import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
 import org.rascalmpl.interpreter.staticErrors.MissingTagError;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunctionError;
@@ -47,11 +56,11 @@ public class JavaBridge {
 //	private static final String JAVA_IMPORTS_TAG = "javaImports";
 	private static final String JAVA_CLASS_TAG = "javaClass";
 	
-//	private static final String UNWANTED_MESSAGE_PREFIX = "org/rascalmpl/java/";
-//	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
+	private static final String UNWANTED_MESSAGE_PREFIX = "org/rascalmpl/java/";
+	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
 	private static final String METHOD_NAME = "call";
 	
-//	private final Writer out;
+	private final Writer out;
 	private final List<ClassLoader> loaders;
 	
 	private final static Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
@@ -61,19 +70,19 @@ public class JavaBridge {
 	private final IValueFactory vf;
 	
 	private final HashMap<Class<?>, Object> instanceCache;
+
 	
 
 	public JavaBridge(PrintWriter outputStream, List<ClassLoader> classLoaders, IValueFactory valueFactory) {
-//		this.out = new PrintWriter(outputStream);
+		this.out = new PrintWriter(outputStream);
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
 		
-//		Commented out while we wait for a 1.6 JVM on MacOSX 
-//		if (ToolProvider.getSystemJavaCompiler() == null) {
-//			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
-//		}
-//		
+		if (ToolProvider.getSystemJavaCompiler() == null) {
+			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+		}
+		
 //		if (ToolProvider.getSystemToolClassLoader() == null) {
 //			throw new ImplementationError("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 //		}
@@ -111,6 +120,30 @@ public class JavaBridge {
 		}
 	}
 
+	public Class<?> compileJava(ISourceLocation loc, String className, String source) throws ClassNotFoundException {
+		Compilation compilation = new Compilation();
+
+		try {
+			compilation.addSource(className).openOutputStream().write(source.getBytes());
+		} catch (IOException e) {
+			throw new ImplementationError("this should not happen", e);
+		}
+	  
+		compilation.doCompile(out);
+		
+		if (compilation.getDiagnostics().size() != 0) {
+			StringBuilder messages = new StringBuilder();
+			for (Diagnostic<? extends JavaFileObject> d : compilation.getDiagnostics()) {
+				String message = d.getMessage(null);
+				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
+				messages.append(message + "\n");
+			}
+			throw new JavaCompilationError(messages.toString(), loc);
+		}
+
+		return compilation.getOutputClass(className);
+	}
+	
 	private Class<?> buildJavaClass(FunctionDeclaration declaration) throws ClassNotFoundException {
 		// TODO uncomment when we have a 1.6 or 1.7 JVM on MacOS
 		throw new ImplementationError("Embedded Java is not supported while Java 1.6 is not available on Mac");
