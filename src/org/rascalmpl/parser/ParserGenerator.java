@@ -16,13 +16,14 @@ import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParserGenerator {
-	private final Evaluator evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), null, null, new ModuleEnvironment("***parsergenerator***"), new GlobalEnvironment());
+	private final Evaluator evaluator;
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser";
 
 	public ParserGenerator(PrintWriter out, List<ClassLoader> loaders, IValueFactory factory) {
 		this.bridge = new JavaBridge(out, loaders, factory);
+		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parsergenerator***"), new GlobalEnvironment());
 		this.vf = factory;
 		evaluator.doImport("rascal::parser::Generator");
 		evaluator.doImport("rascal::parser::Definition");
