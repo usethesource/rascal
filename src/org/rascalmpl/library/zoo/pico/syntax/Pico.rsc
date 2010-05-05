@@ -15,7 +15,7 @@ syntax STATEMENT = assign: PICOID var ":="  EXP val
                  ;
 
 syntax IDTYPE = PICOID id ":" TYPE typ;
-
+   
 syntax TYPE = natural:"natural" | string:"string" | nil:"nil-type";
 
 syntax EXP = id: PICOID name
