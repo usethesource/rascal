@@ -13,7 +13,7 @@ import String;
 import ParseTree;
 import IO;  
 import Integer;
- 
+    
 // join the rules for the same non-terminal
 rule merge   grammar(s,{p,q,set[Production] a}) => grammar(s,{choice(sort(p), {p,q}), a}) when sort(p) == sort(q);
 	
@@ -98,20 +98,18 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
     default: throw "missed case: <def>";
   }
 
-  return grammar(starts, layout(prods) 
+  return grammar(starts, \layout(prods) 
                        + layouts  
-                       + {regular(\iter-star(layout()),\no-attrs())}
-                       + {prod([\iter-star(layout()), top, \iter-star(layout())],start(top),\no-attrs()) | start(top) <- starts} 
-                       + {prod([rhs],layout(),\no-attrs()) | /prod(_,Symbol rhs,_) <- layouts }
+                       + {regular(\iter-star(\layout()),\no-attrs())}
+                       + {prod([\iter-star(\layout()), top, \iter-star(\layout())],start(top),\no-attrs()) | start(top) <- starts} 
+                       + {prod([rhs],\layout(),\no-attrs()) | /prod(_,Symbol rhs,_) <- layouts }
                        + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods+layouts}
                        + {prod(cistr2syms(s),lit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods+layouts}
                        + makeRegularStubs(prods+layouts)
                 );
 } 
-
-
-  
-private set[Production] layout(set[Production] prods) {
+   
+private set[Production] \layout(set[Production] prods) {
   return visit (prods) {
     case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs),rhs,attrs(as)) 
       when start(_) !:= rhs, term("lex"()) notin as  
@@ -137,7 +135,7 @@ private list[Symbol] cistr2syms(str x) {
 
 private list[Symbol] intermix(list[Symbol] syms) {
   if (syms == []) return syms;
-  return tail([\iter-star(layout()), s | s <- syms]);
+  return tail([\iter-star(\layout()), s | s <- syms]);
 }
 
 
@@ -202,14 +200,14 @@ private Symbol arg2symbol(Sym sym, bool isLex) {
     default: throw "missed a case <sym>";
   } 
   else switch (sym) {  
-    case (Sym) `<Sym s> *`  : return \iter-star-sep(arg2symbol(s,isLex),[layout()]);
-    case (Sym) `<Sym s> +`  : return \iter-sep(arg2symbol(s,isLex),[layout()]);
-    case (Sym) `<Sym s> *?` : return \iter-star-sep(arg2symbol(s,isLex),[layout()]);
-    case (Sym) `<Sym s> +?` : return \iter-sep(arg2symbol(s,isLex),[layout()]);
-    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-sep(arg2symbol(s,isLex), [layout(),lit(unescape(sep)),layout()]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-sep(arg2symbol(s,isLex), [layout(),lit(unescape(sep)),layout()]);
-    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-sep(arg2symbol(s,isLex), [layout(),lit(unescape(sep)),layout()]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-sep(arg2symbol(s,isLex), [layout(),lit(unescape(sep)),layout()]);
+    case (Sym) `<Sym s> *`  : return \iter-star-sep(arg2symbol(s,isLex),[\layout()]);
+    case (Sym) `<Sym s> +`  : return \iter-sep(arg2symbol(s,isLex),[\layout()]);
+    case (Sym) `<Sym s> *?` : return \iter-star-sep(arg2symbol(s,isLex),[\layout()]);
+    case (Sym) `<Sym s> +?` : return \iter-sep(arg2symbol(s,isLex),[\layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-sep(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-sep(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-sep(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-sep(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
     default: throw "missed a case <sym>";  
   }
 }
@@ -275,11 +273,11 @@ private Attributes mods2attrs(ProdModifier* mods) {
 private Attr mod2attr(ProdModifier m) {
   switch (m) {
     case (ProdModifier) `lex`: return term("lex"());
-    case (ProdModifier) `left`: return \assoc(left());
-    case (ProdModifier) `right`: return \assoc(right());
+    case (ProdModifier) `left`: return \assoc(\left());
+    case (ProdModifier) `right`: return \assoc(\right());
     case (ProdModifier) `non-assoc`: return \assoc(\non-assoc());
     case (ProdModifier) `assoc`: return \assoc(\assoc());
-    case (ProdModifier) `bracket`: return bracket();
+    case (ProdModifier) `bracket`: return \bracket();
     default: throw "missed a case <m>";
   }
 }
