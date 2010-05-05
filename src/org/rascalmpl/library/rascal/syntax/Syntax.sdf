@@ -1,4 +1,4 @@
-
+module rascal/syntax/Syntax
 
 imports rascal/syntax/NonTerminals
         rascal/syntax/Declarations
