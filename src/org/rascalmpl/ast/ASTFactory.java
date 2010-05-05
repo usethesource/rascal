@@ -1154,14 +1154,14 @@ return new org.rascalmpl.ast.Tags.Ambiguity(node, alternatives);
 public org.rascalmpl.ast.Tags.Default makeTagsDefault(INode node, java.util.List<org.rascalmpl.ast.Tag> tags) { 
 return new org.rascalmpl.ast.Tags.Default(node, tags); 
 }
-public org.rascalmpl.ast.SyntaxDefinition.Layout makeSyntaxDefinitionLayout(INode node, org.rascalmpl.ast.UserType user) { 
-return new org.rascalmpl.ast.SyntaxDefinition.Layout(node, user); 
+public org.rascalmpl.ast.SyntaxDefinition.Layout makeSyntaxDefinitionLayout(INode node, org.rascalmpl.ast.UserType user, org.rascalmpl.ast.Prod production) { 
+return new org.rascalmpl.ast.SyntaxDefinition.Layout(node, user, production); 
 }
 public org.rascalmpl.ast.SyntaxDefinition.Ambiguity makeSyntaxDefinitionAmbiguity(INode node, java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives) { 
 return new org.rascalmpl.ast.SyntaxDefinition.Ambiguity(node, alternatives); 
 }
-public org.rascalmpl.ast.SyntaxDefinition.Language makeSyntaxDefinitionLanguage(INode node, org.rascalmpl.ast.Start start, org.rascalmpl.ast.UserType user) { 
-return new org.rascalmpl.ast.SyntaxDefinition.Language(node, start, user); 
+public org.rascalmpl.ast.SyntaxDefinition.Language makeSyntaxDefinitionLanguage(INode node, org.rascalmpl.ast.Start start, org.rascalmpl.ast.UserType user, org.rascalmpl.ast.Prod production) { 
+return new org.rascalmpl.ast.SyntaxDefinition.Language(node, start, user, production); 
 }
 public org.rascalmpl.ast.Start.Present makeStartPresent(INode node) { 
 return new org.rascalmpl.ast.Start.Present(node); 
