@@ -485,20 +485,11 @@ return new org.rascalmpl.ast.Class.Ambiguity(node, alternatives);
 public org.rascalmpl.ast.Class.SimpleCharclass makeClassSimpleCharclass(INode node, java.util.List<org.rascalmpl.ast.Range> ranges) { 
 return new org.rascalmpl.ast.Class.SimpleCharclass(node, ranges); 
 }
-public org.rascalmpl.ast.Char.ExtraEscaped makeCharExtraEscaped(INode node) { 
-return new org.rascalmpl.ast.Char.ExtraEscaped(node); 
-}
-public org.rascalmpl.ast.Char.Normal makeCharNormal(INode node) { 
-return new org.rascalmpl.ast.Char.Normal(node); 
-}
-public org.rascalmpl.ast.Char.Unicode makeCharUnicode(INode node) { 
-return new org.rascalmpl.ast.Char.Unicode(node); 
+public org.rascalmpl.ast.Char.Lexical makeCharLexical(INode node, String string) { 
+return new org.rascalmpl.ast.Char.Lexical(node, string); 
 }
 public org.rascalmpl.ast.Char.Ambiguity makeCharAmbiguity(INode node, java.util.List<org.rascalmpl.ast.Char> alternatives) { 
 return new org.rascalmpl.ast.Char.Ambiguity(node, alternatives); 
-}
-public org.rascalmpl.ast.Char.Escape makeCharEscape(INode node) { 
-return new org.rascalmpl.ast.Char.Escape(node); 
 }
 public org.rascalmpl.ast.Mapping.Ambiguity makeMappingAmbiguity(INode node, java.util.List<org.rascalmpl.ast.Mapping> alternatives) { 
 return new org.rascalmpl.ast.Mapping.Ambiguity(node, alternatives); 

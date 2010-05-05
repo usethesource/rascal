@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Catch;
+import org.rascalmpl.ast.Char;
 import org.rascalmpl.ast.Declarator;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.IASTVisitor;
@@ -64,10 +65,6 @@ import org.rascalmpl.ast.Body.Toplevels;
 import org.rascalmpl.ast.Bound.Empty;
 import org.rascalmpl.ast.Case.PatternWithAction;
 import org.rascalmpl.ast.Catch.Binding;
-import org.rascalmpl.ast.Char.Escape;
-import org.rascalmpl.ast.Char.ExtraEscaped;
-import org.rascalmpl.ast.Char.Normal;
-import org.rascalmpl.ast.Char.Unicode;
 import org.rascalmpl.ast.CharClass.Bracket;
 import org.rascalmpl.ast.CharClass.Complement;
 import org.rascalmpl.ast.CharClass.Difference;
@@ -3220,22 +3217,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return null;
 	}
 
-	public IValue visitCharEscape(Escape x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	public IValue visitCharExtraEscaped(ExtraEscaped x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitCharNormal(Normal x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitCharUnicode(Unicode x) {
+	public IValue visitCharLexical(Char.Lexical x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
