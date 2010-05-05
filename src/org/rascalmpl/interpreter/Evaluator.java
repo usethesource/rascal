@@ -1131,8 +1131,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		byte[] data;
 		
 		InputStream inputStream = null;
-		java.util.List<String> sdfSearchPath = sdf.getSdfSearchPath();
-		java.util.Set<String> sdfImports;
 		try {
 			inputStream = URIResolverRegistry.getInstance().getInputStream(location);
 			data = readModule(inputStream);
@@ -1147,6 +1145,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (resolved != null) {
 			location = resolved;
 		}
+		
+		return parseModule(data, location, env);
+	}
+	
+	public IConstructor parseModule(byte[] data, URI location, ModuleEnvironment env) throws IOException {
+		
+		java.util.List<String> sdfSearchPath = sdf.getSdfSearchPath();
+		java.util.Set<String> sdfImports;
+
 		sdfImports = parser.getSdfImports(sdfSearchPath, location, data);
 
 		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
