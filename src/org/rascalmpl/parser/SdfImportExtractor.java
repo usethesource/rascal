@@ -15,6 +15,8 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Import.Default;
+import org.rascalmpl.ast.Import.Extend;
+import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.Names;
 
@@ -83,6 +85,16 @@ public class SdfImportExtractor {
 				builder.append(Names.name(part));
 			}
 			imports.add(builder.toString());
+			return x;
+		}
+		
+		@Override
+		public AbstractAST visitImportSyntax(Syntax x) {
+			return x;
+		}
+		
+		@Override
+		public AbstractAST visitImportExtend(Extend x) {
 			return x;
 		}
 	}
