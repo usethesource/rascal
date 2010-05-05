@@ -23,8 +23,8 @@ rule single first(Symbol s, [Production p]) => p;
 rule xor    first(Symbol s, [list[Production] a,first(Symbol t, list[Production] b),list[Production] c])  => first(s,a+b+c); 
 rule xor    first(Symbol s, [list[Production] a,choice(Symbol t, {Production b}),list[Production] c])     => first(a+[b]+c); 
 rule or     choice(Symbol s, {set[Production] a, first(Symbol t, [Production b])})        => choice(s, a+{b}); 
-rule assoc  assoc(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) => assoc(s, as, a+b); 
-rule assoc  assoc(Symbol s, Associativity as, {set[Production] a, first(Symbol t, list[Production] b)}) => assoc(s, as, a + { e | e <- b}); // ordering does not work under assoc
+rule \assoc  \assoc(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) => \assoc(s, as, a+b); 
+rule \assoc  \assoc(Symbol s, Associativity as, {set[Production] a, first(Symbol t, list[Production] b)}) => \assoc(s, as, a + { e | e <- b}); // ordering does not work under assoc
 rule diff   diff(Symbol s, Production p, {set[Production] a, choice(Symbol t, set[Production] b)})   => diff(s, p, a+b);   
 rule diff   diff(Symbol s, Production p, {set[Production] a, first(Symbol t, list[Production] b)})   => diff(s, p, a + { e | e <- b});  // ordering is irrelevant under diff
 rule diff   diff(Symbol s, Production p, {set[Production] a, \assoc(Symbol t, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
@@ -78,13 +78,13 @@ private set[SyntaxDefinition] collect(Module mod) {
   visit (mod) { case SyntaxDefinition s : result += s; }
   return result;
 }  
-  
+   
 private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] prods = {};
   set[Symbol] starts = {};
   set[Production] layouts = {};
     
-  for (def <- defs) switch (def) { 
+  for (def <- defs) switch (def) {  
     case (SyntaxDefinition) `start syntax <UserType u> = <Prod p>;`  : {
        Symbol top = user2symbol(u);
        starts += start(top);
