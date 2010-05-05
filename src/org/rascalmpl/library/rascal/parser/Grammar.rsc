@@ -18,7 +18,7 @@ data Grammar = grammar(set[Symbol] start, set[Production] productions);
 //      'restrict' means the language defined by rhs, but predicated on a certain lookahead restriction 
 data Production = choice(Symbol rhs, set[Production] alternatives)                  
                 | first(Symbol rhs, list[Production] choices)
-                | assoc(Symbol rhs, Associativity assoc, set[Production] alternatives)               
+                | \assoc(Symbol rhs, Associativity \assoc, set[Production] alternatives)               
                 | diff(Symbol rhs, Production language, set[Production] alternatives)
                 | restrict(Symbol rhs, Production language, list[CharClass] restrictions)
                 | others(Symbol rhs)
