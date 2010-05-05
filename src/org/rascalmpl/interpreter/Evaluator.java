@@ -212,7 +212,6 @@ import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.NodePattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
-import org.rascalmpl.interpreter.result.JavaFunction;
 import org.rascalmpl.interpreter.result.JavaMethod;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
@@ -222,6 +221,7 @@ import org.rascalmpl.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
 import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
+import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
 import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
@@ -253,7 +253,6 @@ import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.RascalParser;
 import org.rascalmpl.parser.sgll.IGLL;
-import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
@@ -267,8 +266,6 @@ import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
-
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
 	private IValueFactory vf;
@@ -1974,7 +1971,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 
 		if (hasJavaModifier(x)) {
-			lambda = new JavaFunction(this, x, varArgs, getCurrentEnvt(), javaBridge);
+			throw new JavaMethodLinkError("may not use java modifier with a function that has a body", null,  x);
 		}
 		else {
 			if (!x.getBody().isDefault()) {
