@@ -7,8 +7,8 @@ exports
 
 sorts SyntaxDefinition
 context-free syntax
-  start:Start "syntax" user:UserType "=" Prod ";" -> SyntaxDefinition {cons("Language")}
-  "layout" user:UserType "=" Prod ";" -> SyntaxDefinition {cons("Layout")}
+  start:Start "syntax" user:UserType "=" production:Prod ";" -> SyntaxDefinition {cons("Language")}
+  "layout" user:UserType "=" production:Prod ";" -> SyntaxDefinition {cons("Layout")}
 
 sorts Start
 context-free syntax
