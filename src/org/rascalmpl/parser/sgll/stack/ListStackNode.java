@@ -6,7 +6,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
 public final class ListStackNode extends StackNode{
-	private final IConstructor production;
+	private final IConstructor symbol;
 
 	private final StackNode child;
 	private final boolean isPlusList;
@@ -15,10 +15,10 @@ public final class ListStackNode extends StackNode{
 	
 	private final INode result;
 	
-	public ListStackNode(int id, IConstructor production, StackNode child, boolean isPlusList){
+	public ListStackNode(int id, IConstructor symbol, StackNode child, boolean isPlusList){
 		super(id);
 		
-		this.production = production;
+		this.symbol = symbol;
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
@@ -26,10 +26,10 @@ public final class ListStackNode extends StackNode{
 		this.result = null;
 	}
 	
-	public ListStackNode(int id, IConstructor production, StackNode child, boolean isPlusList, INode result){
+	public ListStackNode(int id, IConstructor symbol, StackNode child, boolean isPlusList, INode result){
 		super(id);
 		
-		this.production = production;
+		this.symbol = symbol;
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
@@ -40,12 +40,12 @@ public final class ListStackNode extends StackNode{
 	private ListStackNode(ListStackNode listParseStackNode){
 		super(listParseStackNode);
 		
-		production = listParseStackNode.production;
+		symbol = listParseStackNode.symbol;
 
 		child = listParseStackNode.child;
 		isPlusList = listParseStackNode.isPlusList;
 		
-		result = new ContainerNode(production);
+		result = new ContainerNode();
 	}
 	
 	public boolean isReducable(){
@@ -90,7 +90,7 @@ public final class ListStackNode extends StackNode{
 	public StackNode[] getChildren(){
 		StackNode psn = child.getCleanCopy();
 		StackNode cpsn = child.getCleanCopy();
-		ListStackNode lpsn = new ListStackNode((id | IGLL.LIST_LIST_FLAG), production, child, true, new ContainerNode(production));
+		ListStackNode lpsn = new ListStackNode((id | IGLL.LIST_LIST_FLAG), symbol, child, true, new ContainerNode());
 		
 		lpsn.addNext(psn);
 		psn.addEdge(lpsn);
@@ -113,8 +113,8 @@ public final class ListStackNode extends StackNode{
 		return new StackNode[]{cpsn, epsn};
 	}
 	
-	public void addResult(INode[] children){
-		result.addAlternative(children);
+	public void addResult(IConstructor production, INode[] children){
+		result.addAlternative(production, children);
 	}
 	
 	public INode getResult(){
@@ -123,7 +123,7 @@ public final class ListStackNode extends StackNode{
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(production);
+		sb.append(symbol);
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);

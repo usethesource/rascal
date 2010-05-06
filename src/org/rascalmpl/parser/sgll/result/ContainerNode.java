@@ -4,21 +4,25 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
 public class ContainerNode implements INode{
-	private final IConstructor production;
+	private IConstructor firstProduction;
 	private INode[] firstAlternative;
+	private ArrayList<IConstructor> productions;
 	private ArrayList<INode[]> alternatives;
 	
-	public ContainerNode(IConstructor production){
+	public ContainerNode(){
 		super();
-		
-		this.production = production;
 	}
 	
-	public void addAlternative(INode[] children){
+	public void addAlternative(IConstructor production, INode[] children){
 		if(firstAlternative == null){
+			firstProduction = production;
 			firstAlternative = children;
 		}else{
-			if(alternatives == null) alternatives = new ArrayList<INode[]>(1);
+			if(alternatives == null){
+				productions = new ArrayList<IConstructor>(1);
+				alternatives = new ArrayList<INode[]>(1);
+			}
+			productions.add(production);
 			alternatives.add(children);
 		}
 	}
@@ -27,7 +31,7 @@ public class ContainerNode implements INode{
 		return false;
 	}
 	
-	private void printAlternative(INode[] children, StringBuilder sb){
+	private void printAlternative(IConstructor production, INode[] children, StringBuilder sb){
 		sb.append("appl(prod(");
 		sb.append(production);
 		sb.append(')');
@@ -46,16 +50,16 @@ public class ContainerNode implements INode{
 		StringBuilder sb = new StringBuilder();
 		
 		if(alternatives == null){
-			printAlternative(firstAlternative, sb);
+			printAlternative(firstProduction, firstAlternative, sb);
 		}else{
 			sb.append("amb({");
 			for(int i = alternatives.size() - 1; i >= 1; i--){
-				printAlternative(alternatives.get(i), sb);
+				printAlternative(productions.get(i), alternatives.get(i), sb);
 				sb.append(',');
 			}
-			printAlternative(alternatives.get(0), sb);
+			printAlternative(productions.get(0), alternatives.get(0), sb);
 			sb.append(',');
-			printAlternative(firstAlternative, sb);
+			printAlternative(firstProduction, firstAlternative, sb);
 			sb.append('}');
 			sb.append(')');
 		}

@@ -5,7 +5,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
 public final class OptionalStackNode extends StackNode{
-	private final IConstructor production;
+	private final IConstructor symbol;
 	
 	private final StackNode optional;
 	
@@ -13,10 +13,10 @@ public final class OptionalStackNode extends StackNode{
 	
 	private final INode result;
 	
-	public OptionalStackNode(int id, IConstructor production, StackNode optional){
+	public OptionalStackNode(int id, IConstructor symbol, StackNode optional){
 		super(id);
 		
-		this.production = production;
+		this.symbol = symbol;
 		
 		this.optional = optional;
 		
@@ -26,11 +26,11 @@ public final class OptionalStackNode extends StackNode{
 	private OptionalStackNode(OptionalStackNode optionalParseStackNode){
 		super(optionalParseStackNode);
 		
-		production = optionalParseStackNode.production;
+		symbol = optionalParseStackNode.symbol;
 		
 		optional = optionalParseStackNode.optional;
 		
-		result = new ContainerNode(production);
+		result = new ContainerNode();
 	}
 	
 	public boolean isReducable(){
@@ -86,8 +86,8 @@ public final class OptionalStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(INode[] children){
-		result.addAlternative(children);
+	public void addResult(IConstructor production, INode[] children){
+		result.addAlternative(production, children);
 	}
 	
 	public INode getResult(){

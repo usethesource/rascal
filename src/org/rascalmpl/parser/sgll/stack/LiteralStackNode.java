@@ -5,24 +5,24 @@ import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
 public final class LiteralStackNode extends StackNode{
-	private final IConstructor production;
+	private final IConstructor symbol;
 	private final char[] literal;
 	
 	private final LiteralNode result;
 	
-	public LiteralStackNode(int id, IConstructor production, char[] literal){
+	public LiteralStackNode(int id, IConstructor symbol, char[] literal){
 		super(id);
 		
-		this.production = production;
+		this.symbol = symbol;
 		this.literal = literal;
 		
-		result = new LiteralNode(production, literal);
+		result = new LiteralNode(symbol, literal);
 	}
 	
 	private LiteralStackNode(LiteralStackNode literalParseStackNode){
 		super(literalParseStackNode);
 		
-		production = literalParseStackNode.production;
+		symbol = literalParseStackNode.symbol;
 		literal = literalParseStackNode.literal;
 		
 		result = literalParseStackNode.result;
@@ -74,7 +74,7 @@ public final class LiteralStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(INode[] children){
+	public void addResult(IConstructor production, INode[] children){
 		throw new UnsupportedOperationException();
 	}
 	

@@ -13,7 +13,7 @@ public class CharNode implements INode{
 		this.character = character;
 	}
 	
-	public void addAlternative(INode[] children){
+	public void addAlternative(IConstructor production, INode[] children){
 		throw new UnsupportedOperationException();
 	}
 	

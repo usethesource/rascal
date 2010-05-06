@@ -1,5 +1,7 @@
 package org.rascalmpl.parser.sgll.result;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+
 public class EpsilonNode implements INode{
 	private final static String EPSILON_STRING = "";
 	
@@ -7,7 +9,7 @@ public class EpsilonNode implements INode{
 		super();
 	}
 	
-	public void addAlternative(INode[] children){
+	public void addAlternative(IConstructor production, INode[] children){
 		throw new UnsupportedOperationException();
 	}
 	

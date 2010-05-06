@@ -13,7 +13,7 @@ public class LiteralNode implements INode{
 		this.content = content;
 	}
 	
-	public void addAlternative(INode[] children){
+	public void addAlternative(IConstructor production, INode[] children){
 		throw new UnsupportedOperationException();
 	}
 	
