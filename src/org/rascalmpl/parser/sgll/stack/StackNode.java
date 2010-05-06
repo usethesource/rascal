@@ -76,11 +76,15 @@ public abstract class StackNode{
 	
 	public void addEdges(ArrayList<StackNode> edgesToAdd){
 		if(edges != edgesToAdd){
-			for(int i = edgesToAdd.size() - 1; i >= 0; i--){
+			OUTER : for(int i = edgesToAdd.size() - 1; i >= 0; i--){
 				StackNode node = edgesToAdd.get(i);
-				if(!edges.contains(node)){
-					edges.add(node);
+				for(int j = edges.size() - 1; j >= 0; j--){
+					StackNode edge = edges.get(j);
+					if(edge.getId() == node.getId() && edge.getStartLocation() == node.getStartLocation()){
+						break OUTER;
+					}
 				}
+				edges.add(node);
 			}
 		}
 	}
