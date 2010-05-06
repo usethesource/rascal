@@ -5,14 +5,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Declaration;
+import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.ast.TypeVar;
@@ -31,6 +35,7 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredTypeError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.uptr.Factory;
 
 
 public class TypeDeclarationEvaluator {
@@ -54,6 +59,25 @@ public class TypeDeclarationEvaluator {
 		declareAbstractDataTypes(abstractDataTypes);
 		declareAliases(aliasDecls);
 		declareConstructors(constructorDecls);
+	}
+	
+	public void evaluateSyntaxDefinitions(List<Import> imports,
+			Environment env) {
+		for (Import i : imports) {
+			if (i.isSyntax()) {
+				// TODO: declare all the embedded regular symbols as well
+				declareSyntaxType(i.getSyntax().getUser(), env);
+			}
+		}
+	}
+
+	public void declareSyntaxType(UserType type, Environment env) {
+		IValueFactory vf = eval.getValueFactory();
+		
+		String nt = Names.typeName(type.getName());
+		
+		// TODO: at some point the cf wrapper needs to be dropped here...
+		env.concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Cf.make(vf, Factory.Symbol_Sort.make(vf, vf.string(nt))));
 	}
 
 	private void declareConstructors(Set<Data> constructorDecls) {
@@ -248,5 +272,7 @@ public class TypeDeclarationEvaluator {
 			return x;
 		}
 	}
+
+	
 
 }

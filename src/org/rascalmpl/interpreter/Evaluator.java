@@ -1,4 +1,3 @@
-
 package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
@@ -443,15 +442,27 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private IGLL getObjectParser() {
 		// TODO: refactor pg to field
 		try {
-			ParserGenerator pg = new ParserGenerator(stdout, classLoaders, getValueFactory());
+			ParserGenerator pg = getParserGenerator();
 			ModuleEnvironment currentModule = (ModuleEnvironment) getCurrentEnvt().getRoot();
 			
-			// TODO: add support for modular grammars (this only uses the syntax definition of the current module
-			IConstructor moduleTree = parseModule(URI.create("rascal:///" + currentModule.getName()), currentModule);
-			return pg.getParser(getCurrentAST().getLocation(), currentModule.getName().replaceAll("::", "."), moduleTree);
+			if (heap.existsModule(currentModule.getName())) {
+				// TODO: add support for modular grammars (this only uses the syntax definition of the current module
+				IConstructor moduleTree = parseModule(URI.create("rascal:///" + currentModule.getName()), currentModule);
+				return pg.getParser(getCurrentAST().getLocation(), currentModule.getName().replaceAll("::", "."), moduleTree);
+			}
+			else {
+				throw RuntimeExceptionFactory.io(getValueFactory().string("can not parse yet from outside the module where the syntax is defined"), getCurrentAST(), getStackTrace());
+			}
 		} catch (IOException e) {
 			throw new ImplementationError("unexpected io exception", e);
 		}
+	}
+
+	private ParserGenerator getParserGenerator() {
+		if (parserGenerator == null) {
+			parserGenerator = new ParserGenerator(stdout, classLoaders, getValueFactory());
+		}
+		return parserGenerator;
 	}
 
 	private IConstructor filterStart(IConstructor startSort, IConstructor ptree) {
@@ -1030,7 +1041,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	@Override
 	public Result<IValue> visitImportSyntax(Syntax x) {
-		// TODO: declare the non-terminals defined here, for now ignore
+		typeDeclarator.declareSyntaxType(x.getSyntax().getUser(), getCurrentEnvt());
 		return nothing();
 	}
 
@@ -1275,6 +1286,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				x.getHeader().accept(this);
 
 				java.util.List<Toplevel> decls = x.getBody().getToplevels();
+				typeDeclarator.evaluateSyntaxDefinitions(x.getHeader().getImports(), getCurrentEnvt());
 				typeDeclarator.evaluateDeclarations(decls, getCurrentEnvt());
 
 				for (Toplevel l : decls) {
@@ -3565,6 +3577,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 
 	private static final Name IT = new Name.Lexical(null, "<it>");
+	private ParserGenerator parserGenerator;
 	
 	@Override
 	public Result<IValue> visitExpressionIt(It x) {
