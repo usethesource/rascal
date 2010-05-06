@@ -6,7 +6,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
 public final class SeparatedListStackNode extends StackNode{
-	private final IConstructor production;
+	private final IConstructor symbol;
 
 	private final StackNode child;
 	private final StackNode[] separators;
@@ -16,10 +16,10 @@ public final class SeparatedListStackNode extends StackNode{
 	
 	private final INode result;
 	
-	public SeparatedListStackNode(int id, IConstructor production, StackNode child, StackNode[] separators, boolean isPlusList){
+	public SeparatedListStackNode(int id, IConstructor symbol, StackNode child, StackNode[] separators, boolean isPlusList){
 		super(id);
 		
-		this.production = production;
+		this.symbol = symbol;
 		
 		this.child = child;
 		this.separators = separators;
@@ -28,10 +28,10 @@ public final class SeparatedListStackNode extends StackNode{
 		this.result = null;
 	}
 	
-	public SeparatedListStackNode(int id, IConstructor production, StackNode child, StackNode[] separators, boolean isPlusList, INode result){
+	public SeparatedListStackNode(int id, IConstructor symbol, StackNode child, StackNode[] separators, boolean isPlusList, INode result){
 		super(id);
 		
-		this.production = production;
+		this.symbol = symbol;
 		
 		this.child = child;
 		this.separators = separators;
@@ -43,13 +43,13 @@ public final class SeparatedListStackNode extends StackNode{
 	public SeparatedListStackNode(SeparatedListStackNode separatedListStackNode){
 		super(separatedListStackNode);
 		
-		production = separatedListStackNode.production;
+		symbol = separatedListStackNode.symbol;
 
 		child = separatedListStackNode.child;
 		separators = separatedListStackNode.separators;
 		isPlusList = separatedListStackNode.isPlusList;
 		
-		result = new ContainerNode(production);
+		result = new ContainerNode();
 	}
 	
 	public boolean isReducable(){
@@ -94,7 +94,7 @@ public final class SeparatedListStackNode extends StackNode{
 	public StackNode[] getChildren(){
 		StackNode psn = child.getCleanCopy();
 		StackNode cpsn = child.getCleanCopy();
-		SeparatedListStackNode slpsn = new SeparatedListStackNode((id | IGLL.LIST_LIST_FLAG), production, child, separators, true, new ContainerNode(production));
+		SeparatedListStackNode slpsn = new SeparatedListStackNode((id | IGLL.LIST_LIST_FLAG), symbol, child, separators, true, new ContainerNode());
 		
 		StackNode from = slpsn;
 		for(int i = 0; i < separators.length; i++){
@@ -123,8 +123,8 @@ public final class SeparatedListStackNode extends StackNode{
 		return new StackNode[]{cpsn, epsn};
 	}
 	
-	public void addResult(INode[] children){
-		result.addAlternative(children);
+	public void addResult(IConstructor production, INode[] children){
+		result.addAlternative(production, children);
 	}
 	
 	public INode getResult(){
@@ -133,7 +133,7 @@ public final class SeparatedListStackNode extends StackNode{
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(production);
+		sb.append(symbol);
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);

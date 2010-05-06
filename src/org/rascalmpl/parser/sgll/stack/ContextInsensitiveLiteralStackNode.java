@@ -5,15 +5,15 @@ import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
 public final class ContextInsensitiveLiteralStackNode extends StackNode{
-	private final IConstructor production;
+	private final IConstructor symbol;
 	private final char[][] ciLiteral;
 	
 	private LiteralNode result;
 	
-	public ContextInsensitiveLiteralStackNode(int id, IConstructor production, char[] ciLiteral){
+	public ContextInsensitiveLiteralStackNode(int id, IConstructor symbol, char[] ciLiteral){
 		super(id);
 		
-		this.production = production;
+		this.symbol = symbol;
 		
 		int nrOfCharacters = ciLiteral.length;
 		this.ciLiteral = new char[nrOfCharacters][];
@@ -33,7 +33,7 @@ public final class ContextInsensitiveLiteralStackNode extends StackNode{
 	private ContextInsensitiveLiteralStackNode(ContextInsensitiveLiteralStackNode contextInsensitiveLiteralParseStackNode){
 		super(contextInsensitiveLiteralParseStackNode);
 		
-		production = contextInsensitiveLiteralParseStackNode.production;
+		symbol = contextInsensitiveLiteralParseStackNode.symbol;
 		ciLiteral = contextInsensitiveLiteralParseStackNode.ciLiteral;
 		
 		result = null;
@@ -66,7 +66,7 @@ public final class ContextInsensitiveLiteralStackNode extends StackNode{
 			return false; // Did not match.
 		}
 		
-		result = new LiteralNode(production, resultLiteral);
+		result = new LiteralNode(symbol, resultLiteral);
 		return true;
 	}
 	
@@ -97,7 +97,7 @@ public final class ContextInsensitiveLiteralStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(INode[] children){
+	public void addResult(IConstructor production, INode[] children){
 		throw new UnsupportedOperationException();
 	}
 	
