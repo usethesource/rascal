@@ -58,14 +58,14 @@ public class <name> extends SGLL {
   }
 
   public INode parse(IConstructor start, char[] sentence) {
-     return parse(new NonterminalStackNode(read(\"prod([<sym2name(start)>],start(),\no-attrs())\"), <sym2newitem(start)>), sentence);
+     return parse(new NonterminalStackNode(read(\"prod([\" + start + \"],start(),\no-attrs())\"), start), sentence);
   }
 
   public static void main(String[] args){
     <name> parser = new <name>();
 
     // TODO: this just takes an arbitrary start symbol, if there are more the result can be surprising ;-)
-    System.out.println(parser.parse(<sym2newitem(getOneFrom(g.start))>, args[0].toCharArray())); 
+    System.out.println(parser.parse(\"<getOneFrom(g.start)>\", args[0].toCharArray())); 
   }
 }
 ";
@@ -136,6 +136,8 @@ public str sym2newitem(Symbol sym) {
       return "new CharStackNode(<id>, sym, new char[][]{<("" | it + "{<from>,<to>}" | range(from,to) <- ranges)>}, new char[]{})";
     case \layout() :
       return "new NonTerminalStackNode(<id>, sym, \"layout\")";
+    case \start(s) : 
+      return "new NonTerminalStackNode(<id>, sym, \"value2id(sym)\")";
     default: 
       throw "not yet implemented <sym>";
   }
