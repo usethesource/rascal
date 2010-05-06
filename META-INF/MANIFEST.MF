@@ -39,7 +39,8 @@ Export-Package: org.jdom,
  org.rascalmpl.values.errors,
  org.rascalmpl.values.locations,
  org.rascalmpl.values.uptr,
- org.rascalmpl.values.uptr.visitors
+ org.rascalmpl.values.uptr.visitors,
+ org.rascalmpl.library.box
 Require-Bundle: sglr_invoker,
  org.eclipse.imp.pdb.values,
  org.eclipse.swt
