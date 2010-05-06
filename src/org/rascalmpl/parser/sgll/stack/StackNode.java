@@ -80,7 +80,7 @@ public abstract class StackNode{
 				StackNode node = edgesToAdd.get(i);
 				for(int j = edges.size() - 1; j >= 0; j--){
 					StackNode edge = edges.get(j);
-					if(edge.getId() == node.getId() && edge.getStartLocation() == node.getStartLocation()){
+					if(edge == node || (edge.getId() == node.getId() && edge.getStartLocation() == node.getStartLocation())){
 						break OUTER;
 					}
 				}
