@@ -288,7 +288,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	final org.eclipse.imp.pdb.facts.type.Type typeL = BoxADT.EMPTY
 			.getConstructorType();
 
-	public TypeStore getTypeStore() {
+	public static TypeStore getTypeStore() {
 		return BoxADT.getTypeStore();
 	}
 
