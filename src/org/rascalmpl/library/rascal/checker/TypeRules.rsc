@@ -127,6 +127,54 @@ public RType expressionType(RType lType, RType rType, ROp rop, loc l) {
 		case <RRealType(), REq(), RIntType()> : return RBoolType();
 		case <RRealType(), RNEq(), RIntType()> : return RBoolType();
 
+		// MIXED INT/NUM CASES
+		case <RIntType(), RProduct(), RNumType()> : return RNumType();
+		case <RIntType(), RDiv(), RNumType()> : return RNumType();
+		case <RIntType(), RPlus(), RNumType()> : return RNumType();
+		case <RIntType(), RMinus(), RNumType()> : return RNumType();
+		case <RIntType(), RLt(), RNumType()> : return RBoolType();
+		case <RIntType(), RLtEq(), RNumType()> : return RBoolType();
+		case <RIntType(), RGt(), RNumType()> : return RBoolType();
+		case <RIntType(), RGtEq(), RNumType()> : return RBoolType();
+		case <RIntType(), REq(), RNumType()> : return RBoolType();
+		case <RIntType(), RNEq(), RNumType()> : return RBoolType();
+
+		// MIXED NUM/INT CASES
+		case <RNumType(), RProduct(), RIntType()> : return RNumType();
+		case <RNumType(), RDiv(), RIntType()> : return RNumType();
+		case <RNumType(), RPlus(), RIntType()> : return RNumType();
+		case <RNumType(), RMinus(), RIntType()> : return RNumType();
+		case <RNumType(), RLt(), RIntType()> : return RBoolType();
+		case <RNumType(), RLtEq(), RIntType()> : return RBoolType();
+		case <RNumType(), RGt(), RIntType()> : return RBoolType();
+		case <RNumType(), RGtEq(), RIntType()> : return RBoolType();
+		case <RNumType(), REq(), RIntType()> : return RBoolType();
+		case <RNumType(), RNEq(), RIntType()> : return RBoolType();
+
+		// MIXED NUM/REAL CASES
+		case <RNumType(), RProduct(), RRealType()> : return RNumType();
+		case <RNumType(), RDiv(), RRealType()> : return RNumType();
+		case <RNumType(), RPlus(), RRealType()> : return RNumType();
+		case <RNumType(), RMinus(), RRealType()> : return RNumType();
+		case <RNumType(), RLt(), RRealType()> : return RBoolType();
+		case <RNumType(), RLtEq(), RRealType()> : return RBoolType();
+		case <RNumType(), RGt(), RRealType()> : return RBoolType();
+		case <RNumType(), RGtEq(), RRealType()> : return RBoolType();
+		case <RNumType(), REq(), RRealType()> : return RBoolType();
+		case <RNumType(), RNEq(), RRealType()> : return RBoolType();
+
+		// MIXED REAL/NUM CASES
+		case <RRealType(), RProduct(), RNumType()> : return RNumType();
+		case <RRealType(), RDiv(), RNumType()> : return RNumType();
+		case <RRealType(), RPlus(), RNumType()> : return RNumType();
+		case <RRealType(), RMinus(), RNumType()> : return RNumType();
+		case <RRealType(), RLt(), RNumType()> : return RBoolType();
+		case <RRealType(), RLtEq(), RNumType()> : return RBoolType();
+		case <RRealType(), RGt(), RNumType()> : return RBoolType();
+		case <RRealType(), RGtEq(), RNumType()> : return RBoolType();
+		case <RRealType(), REq(), RNumType()> : return RBoolType();
+		case <RRealType(), RNEq(), RNumType()> : return RBoolType();
+
 		// STR CASES
 		case <RStrType(), RPlus(), RStrType()> : return RStrType();
 		case <RStrType(), RLt(), RStrType()> : return RBoolType();

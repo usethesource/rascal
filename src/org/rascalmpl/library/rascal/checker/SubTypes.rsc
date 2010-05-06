@@ -6,9 +6,10 @@ import Set;
 import rascal::checker::Types;
 
 // Encode the subtyping relation t1 <: t2
+// TODO: Look through IMP and add extra subtyping rules
 public bool subtypeOf(RType t1, RType t2) {
 
-	// If the types match, they are by default subtypes of one another
+	// If the types match, they are by default subtypes of one another: forall t : Types, t <: t
 	if (t1 == t2) return true;
 	
 	// Void is a subtype of all types: forall t : Types, void <: t
@@ -17,7 +18,12 @@ public bool subtypeOf(RType t1, RType t2) {
 	// Value is a supertype of all types: forall t : Types, t <: value 
 	if (isValueType(t2)) return true;
 
-	// Inferred types can act as supertypes for all types, but should then be bound to the proper type
+	// Num is a supertype of int and real
+	if (isIntType(t1) && isNumType(t2)) return true;
+	if (isRealType(t1) && isNumType(t2)) return true;
+	
+	// Inferred types can act as supertypes for all types; this specifically allows them to be used in
+	// assignments, where, for a = e, type(e) must be <: type(a)
 	if (isInferredType(t2)) return true;
 	
 	// TODO: Should inferred types also be subtypes of all types?

@@ -3,6 +3,7 @@ module rascal::checker::Types
 import List;
 import Set;
 import IO;
+import ParseTree;
 
 import rascal::checker::ListUtils;
 
@@ -61,6 +62,7 @@ data RType =
   	  RBoolType()
   	| RIntType()
   	| RRealType()
+  	| RNumType()
   	| RStrType()
   	| RValueType()
   	| RNodeType()
@@ -113,6 +115,7 @@ public RType convertBasicType(BasicType t) {
 		case `bool` : return RBoolType();
 		case `int` : return RIntType();
 		case `real` : return RRealType();
+		case `num` : return RNumType();
 		case `str` : return RStrType();
 		case `value` : return RValueType();
 		case `node` : return RNodeType();
@@ -219,6 +222,7 @@ public str prettyPrintType(RType t) {
 		case RBoolType() : return "bool";
 		case RIntType() : return "int";
 		case RRealType() : return "real";
+		case RNumType() : return "num";
 		case RStrType() : return "str";
 		case RValueType() : return "value";
 		case RNodeType() : return "node";
@@ -288,6 +292,10 @@ public bool isIntType(RType t) {
 
 public bool isRealType(RType t) {
 	return RRealType() := t;
+}
+
+public bool isNumType(RType t) {
+	return RNumType() := t;
 }
 
 public bool isStrType(RType t) {
@@ -607,6 +615,8 @@ public RType getPartType(RType rt) {
 public RType makeIntType() { return RIntType(); }
 
 public RType makeRealType() { return RRealType(); }
+
+public RType makeNumType() { return RNumType(); }
 
 public RType makeBoolType() { return RBoolType(); }
 

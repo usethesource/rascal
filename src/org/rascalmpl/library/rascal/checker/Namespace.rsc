@@ -23,7 +23,9 @@ import rascal::\old-syntax::Rascal;
 // TODOs
 //
 // 1. Tags can include expressions, which thus need to be typechecked. Add checking for
-//    tags.
+//    tags. UPDATE: This is actually wrong, tags don't allow expressions. However, they
+//    do introduce a new namespace, so we need to store them and update the scope information.
+//    For now they are not enabled in Rascal so just ignore them.
 //
 // 2. DONE: For each module we should create a module "signature" that includes all externally
 //    visible functions, datatypes, etc. For now, we are restricted to the information
@@ -43,19 +45,22 @@ import rascal::\old-syntax::Rascal;
 //    since it is (remotely) possible that two items, such as two blocks, could each have
 //    parents that looked the same.
 //
-// 6. Would it be good to wrap each scope item with functions for accessors? This would
+// 6. DEFER: Would it be good to wrap each scope item with functions for accessors? This would
 //    shield it a bit from changes to the arity of the item. Or it could be useful to
 //    use the . field accessors and as much as possible eliminate the use of pattern
-//    matching over these structures.
+//    matching over these structures. UPDATE: This may be nice, but defer for now, things are
+//    working as they are.
 //
 // 7. DONE: Would it be good to split the FunctionLayer into a layer and an item? It may be
 //    nice to come up with a more general way to think about scoping, made up of layers,
 //    namespaces, visibilities, and items, that we could apply to any language, including
 //    Rascal.
 //
-// 8. PARTIAL: Add checks to ensure non-overlaps on overloaded functions and constructors
+// 8. DONE: Add checks to ensure non-overlaps on overloaded functions and constructors
+// 8a. EXCEPT: We would still have an issue with f(int...) and f(list[int]), so we need
+//    to add handling specifically for this case. See #15 below.
 //
-// 9. Add checks to ensure names are not repeated at the same scoping level (important:
+// 9. DONE: Add checks to ensure names are not repeated at the same scoping level (important:
 //    this includes within a function, since names cannot be shadowed by new names defined
 //    inside blocks)
 //    NOTE: Support has now been added to stop lookup at function/closure boundaries; this
@@ -68,10 +73,12 @@ import rascal::\old-syntax::Rascal;
 //
 // 11. DONE: Introduce a new boolean expression scope inside a function argument list
 //
-// 12. Need to enforce name availability on all paths from a boolean expression. For
+// 12. DONE: Need to enforce name availability on all paths from a boolean expression. For
 //       instance, in something like (a := p1 && b := p2) || (a := p1 && c := p3), only
 //       a should be visible (i.e., in scope) outside of the || expression, since b and c
-//       are only bound along one of the paths
+//       are only bound along one of the paths UPDATE: Done for boolean OR expressions, see
+//       what other expressions need this as well. UPDATE: Also added for implication and
+//		 equivalence.
 //
 // 13. DONE: Add support for the Reducer expression
 //
@@ -79,17 +86,29 @@ import rascal::\old-syntax::Rascal;
 //       as an Alias type, so we can keep track of the original type name used as well,
 //       which would make more sense to the user than the expanded form.
 //
-// 15. Special case, one function ends with list[Value], another with Value...
+// 15. Special case, one function ends with list[T], another with T...
 //
-// 16. As a follow-up from above, need to introduce the ... var into scope, so it can be
-//       checked inside the checker.
+// 16. DONE: As a follow-up from above, need to introduce the ... var into scope, so it can be
+//       checked inside the checker. UPDATE: This is just the last var in the parameter list,
+//	   and the handling is already added to properly return the type for the parameter as a
+//	   varargs type. The checker needs to handle this properly to equate it with a list of the
+//     underlying type.
 //
 // 17. Should resolve aliases during module imports, since we could have different aliases in
 //     different imported modules, but with the same name. We don't want to inadvertently change
 //     the type of an imported item.
 //
-// 18. Properly handle lookups of qualified names, these are in modules and are resolved from the
+// 18. DONE: Properly handle lookups of qualified names, these are in modules and are resolved from the
 //     top level.
+//
+// 19. Add support for tags.
+//
+// 20. DONE: Add support for rules.
+//
+// 21. Add support for tests.
+//
+// 22. Add checking to ensure that insert, append, fail, break, and continue are all used in the
+//     correct contexts.
 //
 
 // Set flag to true to issue debug messages
@@ -109,6 +128,15 @@ public list[Import] getImports(Tree t) {
 			default : throw "Unexpected module format";
 		}
 	}
+}
+
+public RName getModuleName(Tree t) {
+	if ((Module) `<Tags t> module <QualifiedName n> <Import* i> <Body b>` := t) {
+		return convertName(n);
+	} else if ((Module) `<Tags t> module <QualifiedName n> <Import* i> <Body b>` := t) {
+		return convertName(n);
+	}
+	throw "getModuleName, unexpected module syntax, cannot find module name";
 }
 
 alias SignatureMap = map[Import importedModule, RSignature moduleSignature];
@@ -490,6 +518,7 @@ public ScopeInfo handleModuleBodyFull(Body b, ScopeInfo scopeInfo) {
 // Handle variable declarations, with or without initializers
 //
 public ScopeInfo handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
+	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
 	if (debug) println("NAMESPACE: Adding variables in declaration...");
 	for (vb <- vs) {
 		switch(vb) {
@@ -549,6 +578,8 @@ public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
 		// Pop the new scope and exit
 		return popScope(scopeInfo);
 	}
+
+	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
 	
 	switch(s) {
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
@@ -565,15 +596,16 @@ public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
 	return scopeInfo;
 }
 
+//
+// Just process the tags; this function has no body, and the function header was processed already.
+//
 public ScopeInfo handleAbstractFunction(Tags ts, Visibility v, Signature s, loc l, ScopeInfo scopeInfo) {
 	return handleTags(ts, scopeInfo);
 }
 
 //
-// Handle parameter declarations.
-//
-// NOTE: There is no other version of this function, since parameters only introduce names, they don't provide
-// any additional uses.
+// Handle parameter declarations. Parameters currently have no defaults, etc, so there is no other
+// version of this function.
 //
 public list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
 	list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = [];
@@ -599,11 +631,13 @@ public list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] handleParameter
 }
 
 //
-// Handle standard function declarations (i.e., function declarations with bodies)
-//
-// TODO: Should handle tags
+// Handle standard function declarations (i.e., function declarations with bodies). The header has
+// already been processed, so this just enters the scope of the header and then processes the
+// function body.
 //
 public ScopeInfo handleFunction(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, ScopeInfo scopeInfo) {
+	scopeInfo = handleTags(ts, scopeInfo);
+
 	// First, get back the scope item at location l so we can switch into the proper function scope
 	if (debug) println("NAMESPACE: Switching to function with signature <s>");
 	scopeInfo = pushScope(getLayerAtLocation(l, scopeInfo), scopeInfo);
@@ -626,9 +660,9 @@ public ScopeInfo handleFunction(Tags ts, Visibility v, Signature s, FunctionBody
 //
 public ScopeInfo handleFunctionBody(FunctionBody fb, ScopeInfo scopeInfo) {
 	if (`{ <Statement* ss> }` := fb) {
-		for (s <- ss) {
-			scopeInfo = handleStatement(s, scopeInfo);
-		}
+		for (s <- ss) scopeInfo = handleStatement(s, scopeInfo);
+	} else {
+		throw "handleFunctionBody, unexpected syntax for body <fb>";
 	}
 	return scopeInfo;
 }
@@ -640,28 +674,44 @@ private bool isPublic(Visibility v) {
 	return (`public` := v);
 }
 
+//
+// Introduce the annotation name into the current scope. Duplicates are not allowed, so we check for them
+// here and tag the name with a scope error if we find one.
+//
+public ScopeInfo handleAnnotationDeclarationNamesOnly(Tags t, Visibility v, Type t, Type ot, Name n, loc l, ScopeInfo scopeInfo) {
+	scopeInfo = handleTagsNamesOnly(t, scopeInfo);
+	scopeInfo = justScopeInfo(checkForDuplicationAnnotations(addAnnotationToScope(convertName(n),convertType(t),convertType(ot),isPublic(v),l,scopeInfo), n@\loc));
+	return scopeInfo;
+}
+
+// TODO: The annotation name was handled above, here we just check to make sure the types used are actually
+// in scope.
 public ScopeInfo handleAnnotationDeclaration(Tags t, Visibility v, Type t, Type ot, Name n, loc l, ScopeInfo scopeInfo) {
 	return handleTags(t, scopeInfo);
 }
 
-public ScopeInfo handleAnnotationDeclarationNamesOnly(Tags t, Visibility v, Type t, Type ot, Name n, loc l, ScopeInfo scopeInfo) {
-	throw "handleAnnotationDeclarationNamesOnly not yet implemented";
-}
-
 public ScopeInfo handleTagDeclaration(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, ScopeInfo scopeInfo) {
+	scopeInfo = handleTags(t, scopeInfo);
 	throw "handleTagDeclaration not yet implemented";
 }
 
 public ScopeInfo handleTagDeclarationNamesOnly(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, ScopeInfo scopeInfo) {
+	scopeInfo = handleTagsNamesOnly(t, scopeInfo);
 	throw "handleTagDeclarationNamesOnly not yet implemented";
 }
 
 public ScopeInfo handleRuleDeclarationNamesOnly(Tags t, Name n, PatternWithAction p, loc l, ScopeInfo scopeInfo) {
-	throw "handleRuleDeclarationNamesOnly not yet implemented";
+	if (debug) println("NAMESPACE: Handling rule declaration names for rule <n> = <p>");
+	scopeInfo = handleTagsNamesOnly(t, scopeInfo);
+	scopeInfo = justScopeInfo(checkForDuplicateRules(addRuleToScope(convertName(n), l, scopeInfo), n@\loc));
+	return scopeInfo;
 }
 								
 public ScopeInfo handleRuleDeclaration(Tags t, Name n, PatternWithAction p, loc l, ScopeInfo scopeInfo) {
-	throw "handleRuleDeclaration not yet implemented";
+	if (debug) println("NAMESPACE: Handling rule declaration for rule <n> = <p>");
+	scopeInfo = handleTags(t, scopeInfo);
+	scopeInfo = handlePatternWithAction(p, scopeInfo);
+	return scopeInfo;
 }
 
 public ScopeInfo handleTestNamesOnly(Test t, loc l, ScopeInfo scopeInfo) {
@@ -673,26 +723,33 @@ public ScopeInfo handleTest(Test t, loc l, ScopeInfo scopeInfo) {
 }
 
 //
-// Handle abstract ADT declarations (ADT's without variants)
+// Handle abstract ADT declarations (ADT's without variants). This introduces the ADT name into scope. Note
+// that duplicate ADT names are not an error; the constructors of all ADTs sharing the same name will be
+// merged together, allowing them to be introduced piecemeal.
 //
 public ScopeInfo handleAbstractADTNamesOnly(Tags ts, Visibility v, UserType adtType, loc l, ScopeInfo scopeInfo) {
 	if (debug) println("NAMESPACE: Found Abstract ADT: <adtType>");
-	// Add the ADT into the scope; we set the use to the same location as the ADT name, which is inside adtType
+	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
 	scopeInfo = justScopeInfo(addScopeItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, scopeInfo),[<true,getUserTypeRawName(adtType)@\loc>]));
 	return scopeInfo;
 }
 
+//
+// This just handles the tags; the ADT name was introduced into scope in handleAbstractADTNamesOnly, so
+// there is nothing left to process at this point.
+//
 public ScopeInfo handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc l, ScopeInfo scopeInfo) {
 	return handleTags(ts, scopeInfo);
 }
 
 //
-// Handle ADT declarations (ADT's with variants)
+// Handle ADT declarations (ADT's with variants). This will introduce the ADT and constructor names into
+// scope. It will also check for overlaps with the constructor names to ensure references to introduced
+// constructors can be unambiguous.
 //
 public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeInfo scopeInfo) {
 	if (debug) println("NAMESPACE: Found ADT: <adtType>");
-
-	// Add the ADT into the scope; we set the use to the same location as the ADT name, which is inside adtType
+	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
 	ResultTuple rt = addScopeItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, scopeInfo),[<true,getUserTypeRawName(adtType)@\loc>]);
 	ScopeItemId adtId = head(rt.addedItems);
 	scopeInfo = justScopeInfo(rt);
@@ -712,6 +769,11 @@ public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Va
 	return scopeInfo;
 }
 
+//
+// The ADT declaration is brought into scope with the last function, therefore this just
+// checks the tags to make sure they are sensible but doesn't further process the
+// ADT.
+//
 public ScopeInfo handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeInfo scopeInfo) {
 	return handleTags(ts, scopeInfo);
 }
@@ -723,6 +785,7 @@ public ScopeInfo handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"
 //
 public ScopeInfo handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
 	if (debug) println("NAMESPACE: Found alias: <aliasType> = <aliasedType>");
+	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
 
 	Name aliasRawName = getUserTypeRawName(aliasType);
 	RName aliasName = convertName(aliasRawName);
@@ -735,6 +798,7 @@ public ScopeInfo handleAlias(Tags ts, Visibility v, UserType aliasType, Type ali
 }
 
 public ScopeInfo handleViewNamesOnly(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, ScopeInfo scopeInfo) {
+	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
 	throw "handleViewNamesOnly not yet implemented";
 }
 
@@ -859,11 +923,12 @@ public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
 		
 		case (Statement) `<Tags ts> <Visibility v> <Signature sig> <FunctionBody fb>` : {
 			if (debug) println("NAMESPACE: Inside local function statement <s>");
-			
 			// First get back the function signature information, creating the scope item
+			scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
 			scopeInfo = handleFunctionNamesOnly(ts,v,sig,fb,s@\loc,scopeInfo);
 					
 			// Now, descend into the function, processing the body
+			scopeInfo = handleTags(ts, scopeInfo);
 			scopeInfo = handleFunction(ts,v,sig,fb,s@\loc,scopeInfo);
 		}
 		
@@ -962,6 +1027,11 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 			if (debug) println("NAMESPACE: DateTimeLiteral: <exp>");
 		}
 
+		// Name _
+		case (Expression)`_`: {
+			scopeInfo = addScopeError(scopeInfo, exp@\loc, "_ cannot be used as a variable name in an expression.");
+		}
+		
 		// Name
 		case (Expression)`<Name n>`: {
 			if (debug) println("NAMESPACE: Name: <exp>");
@@ -981,7 +1051,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
 				if (debug) println("NAMESPACE: Adding use for <qn>");
 			} else {
-				scopeInfo = addScopeError(scopeInfo, qn@\loc, "<qn> not defined before use.");
+				scopeInfo = addScopeError(scopeInfo, qn@\loc, "<qn> not defined before use (scope: <scopeInfo.currentScope>).");
 				if (debug) println("NAMESPACE: Found undefined use of <qn>");
 			}
 		}
@@ -1127,7 +1197,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		// IsDefined
 		case `<Expression e> ?` : {
 			if (debug) println("NAMESPACE: IsDefined: <exp>");
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
@@ -1139,7 +1209,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		// Negation
 		case `! <Expression e>` : {
 			if (debug) println("NAMESPACE: Negation: <exp>");
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
@@ -1234,7 +1304,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> notin <Expression e2>` : {
 			if (debug) println("NAMESPACE: NotIn: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1247,7 +1317,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> in <Expression e2>` : {
 			if (debug) println("NAMESPACE: In: <exp>");
 			
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1260,7 +1330,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> < <Expression e2>` : {
 			if (debug) println("NAMESPACE: LessThan: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1273,7 +1343,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> <= <Expression e2>` : {
 			if (debug) println("NAMESPACE: LessThanOrEq: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1286,7 +1356,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> > <Expression e2>` : {
 			if (debug) println("NAMESPACE: GreaterThan: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1299,7 +1369,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> >= <Expression e2>` : {
 			if (debug) println("NAMESPACE: GreaterThanOrEq: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1312,7 +1382,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> == <Expression e2>` : {
 			if (debug) println("NAMESPACE: Equals: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1325,7 +1395,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> != <Expression e2>` : {
 			if (debug) println("NAMESPACE: NotEquals: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1338,7 +1408,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> ? <Expression e2> : <Expression e3>` : {
 			if (debug) println("NAMESPACE: IfThenElse: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1351,7 +1421,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> ? <Expression e2>` : {
 			if (debug) println("NAMESPACE: IfDefinedOtherwise: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1364,12 +1434,42 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> ==> <Expression e2>` : {
 			if (debug) println("NAMESPACE: Implication: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
+
+				// First, push a scope for the left-hand side of the or and evaluate
+				// the expression there
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope1 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e1, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Now, do the same for the right-hand side.
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope2 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Merge the names shared by both branches of the or into the current scope
+				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
+
 				scopeInfo = popScope(scopeInfo);
 			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
+				// First, push a scope for the left-hand side of the or and evaluate
+				// the expression there
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope1 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e1, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Now, do the same for the right-hand side.
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope2 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Merge the names shared by both branches of the or into the current scope
+				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
 			}	
 		}
 
@@ -1377,12 +1477,42 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> <==> <Expression e2>` : {
 			if (debug) println("NAMESPACE: Equivalence: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
+
+				// First, push a scope for the left-hand side of the or and evaluate
+				// the expression there
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope1 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e1, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Now, do the same for the right-hand side.
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope2 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Merge the names shared by both branches of the or into the current scope
+				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
+
 				scopeInfo = popScope(scopeInfo);
 			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
+				// First, push a scope for the left-hand side of the or and evaluate
+				// the expression there
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope1 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e1, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Now, do the same for the right-hand side.
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope2 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Merge the names shared by both branches of the or into the current scope
+				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
 			}	
 		}
 
@@ -1390,7 +1520,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> && <Expression e2>` : {
 			if (debug) println("NAMESPACE: And: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1403,12 +1533,42 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Expression e1> || <Expression e2>` : {
 			if (debug) println("NAMESPACE: Or: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
+
+				// First, push a scope for the left-hand side of the or and evaluate
+				// the expression there
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope1 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e1, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Now, do the same for the right-hand side.
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope2 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Merge the names shared by both branches of the or into the current scope
+				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
+
 				scopeInfo = popScope(scopeInfo);
 			} else {
-				scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
+				// First, push a scope for the left-hand side of the or and evaluate
+				// the expression there
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope1 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e1, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Now, do the same for the right-hand side.
+				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
+				ScopeItemId orScope2 = scopeInfo.currentScope;
+				scopeInfo = handleExpression(e2, scopeInfo);
+				scopeInfo = popScope(scopeInfo);
+
+				// Merge the names shared by both branches of the or into the current scope
+				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
 			}	
 		}
 		
@@ -1416,7 +1576,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Pattern p> := <Expression e>` : {
 			if (debug) println("NAMESPACE: Match: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handlePattern(p, handleExpression(e,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1429,7 +1589,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Pattern p> !:= <Expression e>` : {
 			if (debug) println("NAMESPACE: NoMatch: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handlePattern(p, handleExpression(e,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1442,7 +1602,7 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 		case `<Pattern p> <- <Expression e>` : {
 			if (debug) println("NAMESPACE: Enumerator: <exp>");
 
-			if (BooleanExpLayer(_) !:= scopeInfo.scopeItemMap[scopeInfo.currentScope]) {
+			if (! inBoolLayer (scopeInfo)) {
 				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
 				scopeInfo = handlePattern(p, handleExpression(e,scopeInfo));
 				scopeInfo = popScope(scopeInfo);
@@ -1545,6 +1705,11 @@ public ScopeInfo handleCase(Case c, ScopeInfo scopeInfo) {
 public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
 	if (debug) println("NAMESPACE: Inside assignable <a>");
 	switch(a) {
+		// Name _
+		case (Assignable)`_`: {
+			scopeInfo = addScopeError(scopeInfo, a@\loc, "_ cannot be used as a variable name in an assignable.");
+		}
+	
 		case (Assignable)`<QualifiedName qn>` : {
 			if (debug) println("NAMESPACE: QualifiedName Assignable: <a>");
 			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
@@ -1711,6 +1876,14 @@ public ScopeInfo addFreshVariable(RName n, loc nloc, ScopeInfo scopeInfo) {
 	return scopeInfo;
 }
 
+public ScopeInfo addFreshAnonymousVariable(loc nloc, ScopeInfo scopeInfo) {
+	RType freshType = makeInferredType(scopeInfo.freshType);
+	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
+	scopeInfo.freshType = scopeInfo.freshType + 1;
+	scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(RSimpleName("_"), freshType, false, nloc, scopeInfo), [<true,nloc>]));
+	return scopeInfo;
+}
+
 public ScopeInfo addFreshContainerVariable(RName n, loc nloc, ScopeInfo scopeInfo) {
 	RType freshType = makeContainerType(makeInferredType(scopeInfo.freshType));
 	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
@@ -1759,6 +1932,13 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 		}
 
 		// Name
+		case (Pattern)`_`: {
+			if (debug) println("NAMESPACE: Anonymous NamePattern: <pat>");
+			scopeInfo = addFreshAnonymousVariable(pat@\loc, scopeInfo);			
+			if (debug) println("NAMESPACE: Adding anonymous variable for <pat>");
+		}
+
+		// Name
 		case (Pattern)`<Name n>`: {
 			if (debug) println("NAMESPACE: NamePattern: <pat>");
 			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
@@ -1766,7 +1946,7 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 				if (debug) println("NAMESPACE: Adding use for <n>");
 			} else {
 				scopeInfo = addFreshVariable(convertName(n), n@\loc, scopeInfo);			
-				if (debug) println("NAMESPACE: Adding fresh type for for <n>");
+				if (debug) println("NAMESPACE: Adding fresh type for <n>");
 			}
 		}
 		
@@ -1970,6 +2150,10 @@ public Tree decorateNames(Tree t, ScopeInfo scopeInfo) {
 }
 
 // TODO: Add tag handling here
+public ScopeInfo handleTagsNamesOnly(Tags ts, ScopeInfo scopeInfo) {
+	return scopeInfo;
+}
+
 public ScopeInfo handleTags(Tags ts, ScopeInfo scopeInfo) {
 	return scopeInfo;
 }
