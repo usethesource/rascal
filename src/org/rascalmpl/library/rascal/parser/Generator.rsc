@@ -58,7 +58,7 @@ public class <name> extends SGLL {
   }
 
   public INode parse(IConstructor start, char[] sentence) {
-     return parse(new NonterminalStackNode(read(\"prod([<sym2name(s)>],start(),\no-attrs())\"), <sym2newitem(s)>), sentence);
+     return parse(new NonterminalStackNode(read(\"prod([<sym2name(start)>],start(),\no-attrs())\"), <sym2newitem(start)>), sentence);
   }
 
   public static void main(String[] args){
@@ -142,7 +142,7 @@ public str sym2newitem(Symbol sym) {
 }
 
 public str esc(str s) {
-  return innermost visit(s) {
+  return visit(s) {
     case /\\/ => "\\\\"
     case /\"/ => "\\\""
     case /-/  => "_"

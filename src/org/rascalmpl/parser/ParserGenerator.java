@@ -14,6 +14,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ParsetreeAdapter;
 
 public class ParserGenerator {
 	private final Evaluator evaluator;
@@ -33,18 +34,18 @@ public class ParserGenerator {
 	public IGLL getParser(ISourceLocation loc, String name, IConstructor moduleTree) {
 		try {
 			// TODO: add caching
-			IConstructor grammar = (IConstructor) evaluator.call("module2grammar", moduleTree);
+			IConstructor grammar = (IConstructor) evaluator.call("module2grammar", ParsetreeAdapter.getTop(moduleTree));
 			IString classString = (IString) evaluator.call("generate", vf.string("org.rascalmpl.parser.object"), vf.string(name), grammar);
 			Class<IGLL> parser = (Class<IGLL>) bridge.compileJava(loc, packageName + "." + name, classString.getValue());
 			return parser.newInstance();
 		} catch (ClassNotFoundException e) {
-			throw new ImplementationError("unexpected error while generating parser", e);
+			throw new ImplementationError("parser generator", e);
 		} catch (ClassCastException e) {
-			throw new ImplementationError("unexpected error while generating parser", e);
+			throw new ImplementationError("parser generator", e);
 		} catch (InstantiationException e) {
-			throw new ImplementationError("unexpected error while generating parser", e);
+			throw new ImplementationError("parser generator", e);
 		} catch (IllegalAccessException e) {
-			throw new ImplementationError("unexpected error while generating parser", e);
+			throw new ImplementationError("parser generator", e);
 		}
 	}
 }
