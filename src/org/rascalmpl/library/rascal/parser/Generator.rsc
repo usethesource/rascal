@@ -117,7 +117,7 @@ public str sym2newitem(Symbol sym) {
    switch (sym) {
     case \label(_,s) : return sym2newitem(s); // ignore labels
     case \sort(n) : 
-      return "new NonTerminalStackNode(<id>, sym, \"<value2id(sym)>\")";
+      return "new NonTerminalStackNode(<id>, \"<value2id(sym)>\")";
     case \lit(l) : 
       return "new LiteralStackNode(<id>, sym, \"<l>\")";
     case \cilit(l) : 
@@ -135,9 +135,9 @@ public str sym2newitem(Symbol sym) {
     case \char-class(list[CharRange] ranges) : 
       return "new CharStackNode(<id>, sym, new char[][]{<("" | it + "{<from>,<to>}" | range(from,to) <- ranges)>}, new char[]{})";
     case \layout() :
-      return "new NonTerminalStackNode(<id>, sym, \"layout\")";
+      return "new NonTerminalStackNode(<id>, \"layout\")";
     case \start(s) : 
-      return "new NonTerminalStackNode(<id>, sym, \"value2id(sym)\")";
+      return "new NonTerminalStackNode(<id>, \"value2id(sym)\")";
     default: 
       throw "not yet implemented <sym>";
   }
