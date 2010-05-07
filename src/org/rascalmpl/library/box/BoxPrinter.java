@@ -203,6 +203,11 @@ public class BoxPrinter {
 		return true;
 		// System.err.println("MakeBox finished2");
 	}
+	
+	public String getRichText(URI uri) {
+		readData(uri);
+		return textToPrint;
+	}
 
 	private void setMenuBar() {
 		final Menu menuBar = new Menu(shell, SWT.BAR);
