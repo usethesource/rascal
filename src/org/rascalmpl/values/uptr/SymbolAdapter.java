@@ -24,6 +24,21 @@ public class SymbolAdapter {
 	public static boolean isSort(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Sort;
 	}
+	
+	public static boolean isStartSort(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Symbol_Start_Sort;
+	}  
+	
+	public static boolean isStart(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Symbol_Start;
+	}
+	  
+	public static IConstructor getStart(IConstructor tree) {
+		if (isStartSort(tree)) {
+			return (IConstructor) tree.get("start");
+		}
+		throw new ImplementationError("Symbol does not have a child named start: " + tree);
+	}
 
 	public static IConstructor getSymbol(IConstructor tree) {
 		if (isCf(tree) || isLex(tree) || isOpt(tree) || isIterPlus(tree) || isIterPlusSep(tree) || isIterStar(tree) || isIterStarSep(tree)) {

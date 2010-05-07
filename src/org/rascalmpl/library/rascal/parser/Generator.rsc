@@ -9,6 +9,7 @@ import Set;
 import IO;
 
 private int itemId = 0;
+private Grammar grammar = grammar({},{});
 
 private int nextItem() {
   int id = itemId;
@@ -18,26 +19,38 @@ private int nextItem() {
 
 public str generate(str package, str name, Grammar g) {
   itemId = 0;
+  grammar = g;
   return 
 "
 package org.rascalmpl.rascal.generated<package != "" ? ".<package>" : "">;
 
-import org.rascalmpl.gll.SGLL;
-import org.rascalmpl.gll.stack.*;
-import org.rascalmpl.gll.result.INode; // TODO replace by PDB value
+import org.rascalmpl.parser.sgll.SGLL;
+import org.rascalmpl.parser.sgll.stack.*;
+import org.rascalmpl.parser.sgll.result.INode; // TODO replace by PDB value
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.ValueFactoryFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
-
+@SuppressWarnings(\"unused\")
 public class <name> extends SGLL {
-  private static IConstructor read(String s, Type type) {
-    return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes())); 
+  private static IConstructor read(java.lang.String s, Type type) {
+    try {
+      return (IConstructor) new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+    } catch (FactTypeUseException e) {
+      throw new RuntimeException(\"unexpected exception in generated parser\", e);  
+	} catch (IOException e) {
+      throw new RuntimeException(\"unexpected exception in generated parser\", e);  
+	}
   }
  
   // Symbols declarations
-  <for (s <- { s | /Symbol s := g}) {>private static final IConstructor symbol_<value2id(s)> = read(\"<esc("<s>")>\", Factory.Symbol);
+  <for (s <- { s | /Symbol s := g}) {>private static final IConstructor <sym2id(s)> = read(\"<esc("<s>")>\", Factory.Symbol);
   <}>
 
   // Production declarations
@@ -53,19 +66,25 @@ public class <name> extends SGLL {
   <generateParseMethod(p)>
   <}>
 
-  public INode parse(IConstructor start, String input) {
+  public INode parse(IConstructor start, java.lang.String input) {
     return parse(start, input.toCharArray());
   }
 
   public INode parse(IConstructor start, char[] sentence) {
-     return parse(new NonterminalStackNode(read(\"prod([\" + start + \"],start(),\no-attrs())\"), start), sentence);
+      if (SymbolAdapter.isSort(start)) {
+		  return parse(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), sentence);
+	  }
+	  else if (SymbolAdapter.isStartSort(start)) {
+		 return parse(SymbolAdapter.getStart(start), sentence);  
+	  }
+	  throw new IllegalArgumentException(start.toString());
   }
 
-  public static void main(String[] args){
+  public static void main(java.lang.String[] args){
     <name> parser = new <name>();
 
     // TODO: this just takes an arbitrary start symbol, if there are more the result can be surprising ;-)
-    System.out.println(parser.parse(\"<getOneFrom(g.start)>\", args[0].toCharArray())); 
+    System.out.println(parser.parse(read(\"<esc(getOneFrom(g.start))>\",Factory.Symbol), args[0].toCharArray())); 
   }
 }
 ";
@@ -111,44 +130,91 @@ public str generateSymbolItemExpects(list[Symbol] syms) {
    return ("<sym2newitem(head(syms))>" | it + ",\n\t\t" + sym2newitem(sym) | sym <- tail(syms));
 }
 
+public str literals2ints(list[Symbol] chars) {
+  if (chars == []) return "";
+  
+  str result = "<head(head(chars).ranges).start>";
+  
+  for (ch <- tail(chars)) {
+    result += ",<head(ch.ranges).start>";
+  }
+  
+  return result;
+}
+
+public str ciliterals2ints(list[Symbol] chars) {
+  println("chars: ",chars);
+  return "hoi";
+}
+
 public str sym2newitem(Symbol sym) {
    int id = nextItem();
 
    switch (sym) {
     case \label(_,s) : return sym2newitem(s); // ignore labels
     case \sort(n) : 
-      return "new NonTerminalStackNode(<id>, \"<value2id(sym)>\")";
-    case \lit(l) : 
-      return "new LiteralStackNode(<id>, sym, \"<l>\")";
-    case \cilit(l) : 
-      return "new ContextInsensitiveLiteralStackNode(<id>, sym, \"<l>\")";
-    case \iter(s) : 
-      return "new ListStackNode(<id>, sym, sym2newitem(s), true)";
-    case \iter-star(s) :
-      return "new ListStackNode(<id>, sym, sym2newitem(s), false)";
-    case \iter-sep(Symbol s,list[Symbol] seps) : 
-      return "new SeparatedListStackNode(<id>, sym, sym2newitem(s), new StackNode[]{<generateSymbolItemExpects(seps)>}, true)";
-    case \iter-star-sep(Symbol s,list[Symbol] seps) : 
-      return "new SeparatedListStackNode(<id>, sym, sym2newitem(s), new StackNode[]{<generateSymbolItemExpects(seps)>}, false)";
-    case \opt(s) : 
-      return "new OptionalStackNode(<id>, sym, sym2newitem(s))";
-    case \char-class(list[CharRange] ranges) : 
-      return "new CharStackNode(<id>, sym, new char[][]{<("" | it + "{<from>,<to>}" | range(from,to) <- ranges)>}, new char[]{})";
-    case \layout() :
-      return "new NonTerminalStackNode(<id>, \"layout\")";
+      return "new NonTerminalStackNode(<id>, \"<sym2id(sym)>\")";
     case \start(s) : 
-      return "new NonTerminalStackNode(<id>, \"value2id(sym)\")";
+      return "new NonTerminalStackNode(<id>, \"<sym2id(sym)>\")";
+    case \lit(l) : {
+      if (/p:prod(chars,\lit(l),_) := grammar)  
+        return "new LiteralStackNode(<id>, <value2id(p)>, new char[] {<literals2ints(chars)>})";
+      throw "literal not found in <grammar>??";
+    }
+    case \cilit(l) : {
+       throw "ci lits not supported yet";
+    }
+    case \iter(s) : 
+      return "new ListStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>, true)";
+    case \iter-star(s) :
+      return "new ListStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>, false)";
+    case \iter-sep(Symbol s,list[Symbol] seps) : 
+      return "new SeparatedListStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>, new StackNode[]{<generateSymbolItemExpects(seps)>}, true)";
+    case \iter-star-sep(Symbol s,list[Symbol] seps) : 
+      return "new SeparatedListStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>, new StackNode[]{<generateSymbolItemExpects(seps)>}, false)";
+    case \opt(s) : 
+      return "new OptionalStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>)";
+    case \char-class(list[CharRange] ranges) : 
+      return "new CharStackNode(<id>, <sym2id(sym)>, new char[][]{<generateCharClassArrays(ranges)>}, new char[] {})";
+    case \layout() :
+      return "new NonTerminalStackNode(<id>, \"layout\")";   
     default: 
       throw "not yet implemented <sym>";
   }
 }
 
+public str generateCharClassArrays(list[CharRange] ranges) {
+  if (ranges == []) return "";
+  result = "";
+  if (range(from, to) := head(ranges)) 
+    result += "{<from>,<to>}";
+  for(range(from, to) <- tail(ranges))
+    result += ",{<from>,<to>}";
+  return result;
+}
+
+public str esc(Symbol s) {
+  return esc("<s>");
+}
+
+private map[str,str] javaStringEscapes = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\");
 public str esc(str s) {
-  return visit(s) {
-    case /\\/ => "\\\\"
-    case /\"/ => "\\\""
-    case /-/  => "_"
-  }
+  // return visit(s) { 
+    // case /\\/ => "\\\\"
+    // case /\"/ => "\\\""
+    // case /-/  => "_"
+  // }
+  return escape(s, javaStringEscapes);
+}
+
+private map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_");
+
+public str escId(str s) {
+  return escape(s, javaIdEscapes);
+}
+
+public str sym2id(Symbol s) {
+  return "symbol_<value2id(s)>";
 }
 
 public str value2id(value v) {
@@ -159,7 +225,7 @@ public str value2id(value v) {
     case cilit(str s)  : return "cilit_<s>";
     case int i         : return "<i>";
     case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)-1]);
-    case node n        : return "<esc(getName(n))>_<("" | it + "_" + value2id(c) | c <- getChildren(n))>";
+    case node n        : return "<escId(getName(n))>_<("" | it + "_" + value2id(c) | c <- getChildren(n))>";
     case list[value] l : return ("" | it + "_" + value2id(e) | e <- l);
     default            : throw "value not supported <v>";
   }

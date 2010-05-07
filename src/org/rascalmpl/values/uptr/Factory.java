@@ -20,6 +20,7 @@ public class Factory {
 			org.rascalmpl.values.locations.Factory.getStore());
 	private static TypeFactory tf = TypeFactory.getInstance();
 
+
 	public static final Type ParseTree = tf.abstractDataType(uptr, "ParseTree");
 	public static final Type Tree = tf.abstractDataType(uptr, "Tree");
 	public static final Type Production = tf.abstractDataType(uptr, "Production");
@@ -65,6 +66,8 @@ public class Factory {
 	public static final Type Associativity_Assoc = tf.constructor(uptr, Associativity, "assoc");
 	public static final Type Associativity_NonAssoc = tf.constructor(uptr, Associativity, "non-assoc");
 	
+	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "start");
+	public static final Type Symbol_Start = tf.constructor(uptr, Symbol, "start");
 	public static final Type Symbol_Lit = tf.constructor(uptr, Symbol, "lit", tf.stringType(), "string");
 	public static final Type Symbol_CiLit = tf.constructor(uptr, Symbol, "cilit", tf.stringType(), "string");
 	public static final Type Symbol_Cf = tf.constructor(uptr, Symbol, "cf", Symbol, "symbol");

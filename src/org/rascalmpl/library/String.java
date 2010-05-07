@@ -3,6 +3,7 @@ package org.rascalmpl.library;
 import java.math.BigInteger;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -175,5 +176,22 @@ public class String {
 	//@doc{toUpperCase -- convert all characters in string s to uppercase.}
 	{
 	  return values.string(s.getValue().toUpperCase());
+	}
+	
+	public IValue escape(IString str, IMap substitutions) {
+		StringBuilder b = new StringBuilder(); 
+		char[] input = str.getValue().toCharArray();
+		
+		for (char c : input) {
+			IString sub = (IString) substitutions.get(values.string(Character.toString(c)));
+			if (sub != null) {
+				b.append(sub.getValue());
+			}
+			else {
+				b.append(c);
+			}
+		}
+		
+		return values.string(b.toString());
 	}
 }
