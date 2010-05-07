@@ -118,7 +118,8 @@ private set[Production] \layout(set[Production] prods) {
   }
 }  
 
-private list[Symbol] str2syms(str x) {
+public list[Symbol] str2syms(str x) {
+  // TODO: escaping
   return [\char-class([range(c,c)]) | i <- [0..size(x)-1], int c:= charAt(x,i)]; 
 }
 
