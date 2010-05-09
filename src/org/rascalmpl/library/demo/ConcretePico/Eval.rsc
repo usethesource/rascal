@@ -100,19 +100,19 @@ PICO_VALUE evalExp(EXP exp, ValueEnv Env) {
       case (EXP) `<\PICO-ID Id>`: 
            return Env[Id];
 
-      case <EXP exp1> + <EXP exp2>:
+      case `<EXP exp1> + <EXP exp2>`:
            if(intval(int n1) := evalExp(exp1, Env) &&
               intval(int n2) := evalExp(exp2, Env)){
               return intval(n1 + n2);
            } else fail;
       
-      case <EXP exp1> - <EXP exp2>:
+      case `<EXP exp1> - <EXP exp2>`:
             if(intval(int n1) := evalExp(exp1, Env) &&
                intval(int n2) := evalExp(exp2, Env)){
                return intval(n1 - n2);
            } else fail;
  
-      case <EXP exp1> || <EXP exp2>:
+      case `<EXP exp1> || <EXP exp2>`:
            if(strval(str s1) := evalExp(exp1, Env) &&
               strval(str s2) := evalExp(exp2, Env)){
               return strval(s1 + s2);

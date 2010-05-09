@@ -190,7 +190,6 @@ import org.rascalmpl.ast.Visit.GivenStrategy;
 import org.rascalmpl.interpreter.TraversalEvaluator.DIRECTION;
 import org.rascalmpl.interpreter.TraversalEvaluator.FIXEDPOINT;
 import org.rascalmpl.interpreter.TraversalEvaluator.PROGRESS;
-import org.rascalmpl.interpreter.TraversalEvaluator.TraverseResult;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
@@ -3167,7 +3166,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				DIRECTION.BottomUp,
 				PROGRESS.Continuing,
 				FIXEDPOINT.No);
-		return makeResult(tr.value.getType(), tr.value, this);
+		Type t = tr.value.getType();
+		IValue val = tr.value;
+		TraverseResultFactory.freeTraverseResult(tr);
+		return makeResult(t, val, this);
 	}
 
 	@Override
@@ -3210,7 +3212,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		TraversalEvaluator te = new TraversalEvaluator(this);
 		TraverseResult tr = te.traverse(subject.getValue(), te.new CasesOrRules(cases), direction, progress, fixedpoint);
-		return makeResult(tr.value.getType(), tr.value, this);
+		Type t = tr.value.getType();
+		IValue val = tr.value;
+		TraverseResultFactory.freeTraverseResult(tr);
+		return makeResult(t, val, this);
 	}
 
 	@Override

@@ -25,11 +25,16 @@ import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.RewriteRule;
+import org.rascalmpl.interpreter.matching.ConcreteApplicationPattern;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 
 // TODO: this class is still too tightly coupled with evaluator
@@ -45,41 +50,41 @@ public class TraversalEvaluator {
 		this.eval = eval;
 	}
 	
-	/*
-	 * TraverseResult contains the value returned by a traversal
-	 * and a changed flag that indicates whether the value itself or
-	 * any of its children has been changed during the traversal.
-	 */
-
-	// TODO: can this be put in the result hierarchy?
-	public class TraverseResult {
-		public final boolean matched;   // Some rule matched;
-		public final IValue value; 		// Result<IValue> of the 
-		public final boolean changed;   // Original subject has been changed
-
-		public TraverseResult(boolean someMatch, IValue value){
-			this.matched = someMatch;
-			this.value = value;
-			this.changed = false;
-		}
-
-		public TraverseResult(IValue value){
-			this.matched = false;
-			this.value = value;
-			this.changed = false;
-		}
-
-		public TraverseResult(IValue value, boolean changed){
-			this.matched = true;
-			this.value   = value;
-			this.changed = changed;
-		}
-		public TraverseResult(boolean someMatch, IValue value, boolean changed){
-			this.matched = someMatch;
-			this.value   = value;
-			this.changed = changed;
-		}
-	}
+//	/*
+//	 * TraverseResult contains the value returned by a traversal
+//	 * and a changed flag that indicates whether the value itself or
+//	 * any of its children has been changed during the traversal.
+//	 */
+//
+//	// TODO: can this be put in the result hierarchy?
+//	public class TraverseResult {
+//		public final boolean matched;   // Some rule matched;
+//		public final IValue value; 		// Result<IValue> of the 
+//		public final boolean changed;   // Original subject has been changed
+//
+//		public TraverseResult(boolean someMatch, IValue value){
+//			this.matched = someMatch;
+//			this.value = value;
+//			this.changed = false;
+//		}
+//
+//		public TraverseResult(IValue value){
+//			this.matched = false;
+//			this.value = value;
+//			this.changed = false;
+//		}
+//
+//		public TraverseResult(IValue value, boolean changed){
+//			this.matched = true;
+//			this.value   = value;
+//			this.changed = changed;
+//		}
+//		public TraverseResult(boolean someMatch, IValue value, boolean changed){
+//			this.matched = someMatch;
+//			this.value   = value;
+//			this.changed = changed;
+//		}
+//	}
 
 	/*
 	 * CaseOrRule is the union of a Case or a Rule and allows the sharing of
@@ -88,11 +93,20 @@ public class TraversalEvaluator {
 	public class CasesOrRules {
 		private java.util.List<Case> cases;
 		private java.util.List<RewriteRule> rules;
+		private boolean allConcretePatternCases = true;
 
 		@SuppressWarnings("unchecked")
 		public CasesOrRules(java.util.List<?> casesOrRules){
 			if(casesOrRules.get(0) instanceof Case){
 				this.cases = (java.util.List<Case>) casesOrRules;
+				for(Case c : cases){
+					Type pt = c.getPatternWithAction().getPattern()._getType();
+					
+					if(pt == null || !(pt instanceof NonTerminalType)){
+						allConcretePatternCases = false;
+						break;
+					}
+				}
 			} else {
 				rules = (java.util.List<RewriteRule>)casesOrRules;
 			}
@@ -108,6 +122,10 @@ public class TraversalEvaluator {
 
 		public int length(){
 			return (cases != null) ? cases.size() : rules.size();
+		}
+		
+		public boolean hasAllConcretePatternCases(){
+			return allConcretePatternCases;
 		}
 
 		public java.util.List<Case> getCases(){
@@ -130,6 +148,7 @@ public class TraversalEvaluator {
 					return tr;
 				}
 				subject = tr.value;
+				TraverseResultFactory.freeTraverseResult(tr);
 			} else {
 				return tr;
 			}
@@ -143,7 +162,9 @@ public class TraversalEvaluator {
 		boolean changed = false;
 		IValue result = subject;
 
-		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType() + ", direction=" + direction + ", progress=" + progress);
+		//System.err.println("traverseOnce: " + subject + 
+		//		        ",\n              type=" + subject.getType() + ", direction=" + direction + ", progress=" + progress);
+		
 		if(subjectType.isStringType()){
 			return traverseString(subject, casesOrRules);
 		}
@@ -156,6 +177,7 @@ public class TraversalEvaluator {
 				return tr;
 			}
 			subject = tr.value;
+			TraverseResultFactory.freeTraverseResult(tr);
 		}
 
 		if(subjectType.isAbstractDataType()){
@@ -163,15 +185,57 @@ public class TraversalEvaluator {
 			if(cons.arity() == 0){
 				result = subject;
 			} else {
+				if(casesOrRules.hasAllConcretePatternCases() && TreeAdapter.isChar(cons))
+					// Return char nodes as is
+					return TraverseResultFactory.makeTraverseResult(subject);
+				
 				IValue args[] = new IValue[cons.arity()];
+				if(casesOrRules.hasAllConcretePatternCases() && TreeAdapter.isAppl(cons)){
+					// Constructor is "appl": we are dealing with a syntax tree
+					// - Lexical or literal are returned immediately
+										
+					IConstructor symbol = SymbolAdapter.getRhs(TreeAdapter.getProduction(cons));
+					if(SymbolAdapter.isLex(symbol) || SymbolAdapter.isLiteral(symbol)){
+						//System.err.println("Layout or Literal found");
+						return TraverseResultFactory.makeTraverseResult(subject);
+					}
+					// Otherwise:
+					// - Copy prod node verbatim to result
+					// - Only visit non-layout nodes in argument list
 
-				for(int i = 0; i < cons.arity(); i++){
-					IValue child = cons.get(i);
-//					Type childType = cons.getConstructorType().getFieldType(i);
-					TraverseResult tr = traverseOnce(child, casesOrRules, direction, progress);
-					matched |= tr.matched;
-					changed |= tr.changed;
-					args[i] = tr.value;
+					args[0] = cons.get(0);
+					IList list = (IList) cons.get(1);
+					int len = list.length();
+					if(len > 0){
+						IListWriter w = list.getType().writer(eval.getValueFactory());
+						
+						for(int i = 0; i < len; i++){
+							IValue elem = list.get(i);
+							if(i % 2 == 0){
+								// Visit all non-layout elements
+								TraverseResult tr = traverseOnce(elem, casesOrRules, direction, progress);
+								matched |= tr.matched;
+								changed |= tr.changed;
+								w.append(tr.value);
+								TraverseResultFactory.freeTraverseResult(tr);
+							} else
+								// Just copy layout elements
+								w.append(list.get(i));
+						}
+						args[1] = w.done();
+					} else {
+						args[1] = list;
+					}
+				} else {
+					// Constructor is not "appl"
+					for(int i = 0; i < cons.arity(); i++){
+						IValue child = cons.get(i);
+						TraverseResult tr = traverseOnce(child, casesOrRules, direction, progress);
+						matched |= tr.matched;
+						changed |= tr.changed;
+						args[i] = tr.value;
+						TraverseResultFactory.freeTraverseResult(tr);
+					}
 				}
 				Type t = cons.getConstructorType();
 				IConstructor rcons = eval.getValueFactory().constructor(t, args);
@@ -191,6 +255,7 @@ public class TraversalEvaluator {
 					matched |= tr.matched;
 					changed |= tr.changed;
 					args[i] = tr.value;
+					TraverseResultFactory.freeTraverseResult(tr);
 				}
 				INode n = eval.getValueFactory().node(node.getName(), args);
 				if(node.hasAnnotations()) n = n.setAnnotations(node.getAnnotations());
@@ -208,6 +273,7 @@ public class TraversalEvaluator {
 					matched |= tr.matched;
 					changed |= tr.changed;
 					w.append(tr.value);
+					TraverseResultFactory.freeTraverseResult(tr);
 				}
 				result = w.done();
 			} else {
@@ -223,6 +289,7 @@ public class TraversalEvaluator {
 					matched |= tr.matched;
 					changed |= tr.changed;
 					w.insert(tr.value);
+					TraverseResultFactory.freeTraverseResult(tr);
 				}
 				result = w.done();
 			} else {
@@ -240,10 +307,12 @@ public class TraversalEvaluator {
 					matched |= tr.matched;
 					changed |= tr.changed;
 					IValue newKey = tr.value;
+					TraverseResultFactory.freeTraverseResult(tr);
 					tr = traverseOnce(entry.getValue(), casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					IValue newValue = tr.value;
+					TraverseResultFactory.freeTraverseResult(tr);
 					w.put(newKey, newValue);
 				}
 				result = w.done();
@@ -259,6 +328,7 @@ public class TraversalEvaluator {
 				matched |= tr.matched;
 				changed |= tr.changed;
 				args[i] = tr.value;
+				TraverseResultFactory.freeTraverseResult(tr);
 			}
 			result = eval.getValueFactory().tuple(args);
 		} else {
@@ -268,7 +338,7 @@ public class TraversalEvaluator {
 		if(direction == DIRECTION.BottomUp){
 			//System.err.println("traverseOnce: bottomup: changed=" + changed);
 			if((progress == PROGRESS.Breaking) && changed){
-				return new TraverseResult(matched, result, changed);
+				return TraverseResultFactory.makeTraverseResult(matched, result, changed);
 			}
 
 			// TODO: I would expect the FIXEDPOINT stuff to do its work here, not outside the recursion, 
@@ -277,9 +347,11 @@ public class TraversalEvaluator {
 			TraverseResult tr = traverseTop(subjectType, result, casesOrRules);
 			matched |= tr.matched;
 			changed |= tr.changed;
-			return new TraverseResult(matched, tr.value, changed);
+			IValue val = tr.value;
+			TraverseResultFactory.freeTraverseResult(tr);
+			return TraverseResultFactory.makeTraverseResult(matched, val, changed);
 		}
-		return new TraverseResult(matched,result,changed);
+		return TraverseResultFactory.makeTraverseResult(matched,result,changed);
 	}
 
 	/**
@@ -287,7 +359,7 @@ public class TraversalEvaluator {
 	 */
 	private TraverseResult replacement(Type type, IValue oldSubject, IValue newSubject){
 		if(newSubject.getType().equivalent((oldSubject.getType())))
-			return new TraverseResult(true, newSubject, true);
+			return TraverseResultFactory.makeTraverseResult(true, newSubject, true);
 		throw new UnexpectedTypeError(oldSubject.getType(), newSubject.getType(), eval.getCurrentAST());
 	}
 
@@ -313,7 +385,8 @@ public class TraversalEvaluator {
 					//System.err.println("applyCasesOrRules: matches");
 					if(tr.matched){
 						return tr;
-					}
+					} else
+						TraverseResultFactory.freeTraverseResult(tr);
 				}
 				finally {
 					eval.unwind(old);
@@ -332,7 +405,8 @@ public class TraversalEvaluator {
 					TraverseResult tr = applyOneRule(type, subject, rule.getRule());
 					if(tr.matched){
 						return tr;
-					}
+					} else
+						TraverseResultFactory.freeTraverseResult(tr);
 				}
 				finally {
 					eval.setCurrentEnvt(oldEnv);
@@ -340,7 +414,7 @@ public class TraversalEvaluator {
 			}
 		}
 		//System.err.println("applyCasesorRules does not match");
-		return new TraverseResult(subject);
+		return TraverseResultFactory.makeTraverseResult(subject);
 	}
 
 	/*
@@ -382,6 +456,7 @@ public class TraversalEvaluator {
 				TraverseResult tr = applyCasesOrRules(subresult.getType(), subresult, casesOrRules);
 				matched |= tr.matched;
 				changed |= tr.changed;
+				TraverseResultFactory.freeTraverseResult(tr);
 				//System.err.println("matched=" + matched + ", changed=" + changed);
 				subjectCursor++;
 			} catch (org.rascalmpl.interpreter.control_exceptions.Insert e){
@@ -422,14 +497,14 @@ public class TraversalEvaluator {
 		}
 
 		if(!changed){
-			return new TraverseResult(matched, subject, changed);
+			return TraverseResultFactory.makeTraverseResult(matched, subject, changed);
 		}
 		
 		// Copy remaining characters of subject string into replacement string
 		for(; subjectCursorForResult < len; subjectCursorForResult++){
 			replacementString.append(subjectString.charAt(subjectCursorForResult));
 		}
-		return new TraverseResult(matched, eval.getValueFactory().string(replacementString.toString()), changed);
+		return TraverseResultFactory.makeTraverseResult(matched, eval.getValueFactory().string(replacementString.toString()), changed);
 	}
 
 	/*
@@ -442,7 +517,7 @@ public class TraversalEvaluator {
 
 		if (rule.isArbitrary()){
 			if(eval.matchAndEval(makeResult(type, subject, eval), rule.getPattern(), rule.getStatement())) {
-				return new TraverseResult(true, subject);
+				return TraverseResultFactory.makeTraverseResult(true, subject);
 			}
 			/*
 		} else if (rule.isGuarded()) {
@@ -460,12 +535,12 @@ public class TraversalEvaluator {
 			java.util.List<Expression> conditions = repl.isConditional() ? repl.getConditions() : new ArrayList<Expression>();
 			if(eval.matchEvalAndReplace(makeResult(type, subject, eval), rule.getPattern(), conditions, repl.getReplacementExpression())){
 				//System.err.println("applyOneRule: matches");
-				return new TraverseResult(true, subject);
+				return TraverseResultFactory.makeTraverseResult(true, subject);
 			}
 		} else {
 			throw new ImplementationError("Impossible case in rule");
 		}
-		return new TraverseResult(subject);
+		return TraverseResultFactory.makeTraverseResult(subject);
 	}
 	
 	public IValue applyRules(Type type, IValue value){
@@ -478,7 +553,9 @@ public class TraversalEvaluator {
 		
 		if (rules.size() > 0) {
 			TraverseResult tr = traverseTop(type, value, new CasesOrRules(rules));
-			return tr.value;
+			IValue val = tr.value;
+			TraverseResultFactory.freeTraverseResult(tr);
+			return val;
 		}
 
 		return value;

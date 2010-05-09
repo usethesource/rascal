@@ -37,7 +37,7 @@ private  map[str, str] fields = (
      "address" : "String"
   );
   
-public void main(){
+public void person(){
 	println(genClass("Person", fields));
 }
 
