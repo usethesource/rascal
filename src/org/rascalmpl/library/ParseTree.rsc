@@ -43,7 +43,7 @@ data Constructor = cons(str name);
 alias CharClass = list[CharRange];
 
 data Symbol =
-     \start() |
+     \START() |
      \start(Symbol symbol) |
      \label(str name, Symbol symbol) |
      \lit(str string) |
@@ -55,8 +55,8 @@ data Symbol =
      \sort (str string)  | 
      \iter(Symbol symbol)  | 
      \iter-star(Symbol symbol)  | 
-     \iter-sep(Symbol symbol, list[Symbol] separators)  | 
-     \iter-star-sep(Symbol symbol, list[Symbol] separators) |
+     \iter-seps(Symbol symbol, list[Symbol] separators)  | 
+     \iter-star-seps(Symbol symbol, list[Symbol] separators) |
      \layout()  | 
      \char-class(list[CharRange] ranges);
      

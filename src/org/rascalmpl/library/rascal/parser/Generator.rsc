@@ -22,7 +22,7 @@ public str generate(str package, str name, Grammar g) {
   grammar = g;
   return 
 "
-package org.rascalmpl.rascal.generated<package != "" ? ".<package>" : "">;
+package <package>;
 
 import org.rascalmpl.parser.sgll.SGLL;
 import org.rascalmpl.parser.sgll.stack.*;
@@ -153,9 +153,9 @@ public str sym2newitem(Symbol sym) {
    switch (sym) {
     case \label(_,s) : return sym2newitem(s); // ignore labels
     case \sort(n) : 
-      return "new NonTerminalStackNode(<id>, \"<sym2id(sym)>\")";
+      return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
     case \start(s) : 
-      return "new NonTerminalStackNode(<id>, \"<sym2id(sym)>\")";
+      return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
     case \lit(l) : {
       if (/p:prod(chars,\lit(l),_) := grammar)  
         return "new LiteralStackNode(<id>, <value2id(p)>, new char[] {<literals2ints(chars)>})";
@@ -168,9 +168,9 @@ public str sym2newitem(Symbol sym) {
       return "new ListStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>, true)";
     case \iter-star(s) :
       return "new ListStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>, false)";
-    case \iter-sep(Symbol s,list[Symbol] seps) : 
+    case \iter-seps(Symbol s,list[Symbol] seps) : 
       return "new SeparatedListStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>, new StackNode[]{<generateSymbolItemExpects(seps)>}, true)";
-    case \iter-star-sep(Symbol s,list[Symbol] seps) : 
+    case \iter-star-seps(Symbol s,list[Symbol] seps) : 
       return "new SeparatedListStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>, new StackNode[]{<generateSymbolItemExpects(seps)>}, false)";
     case \opt(s) : 
       return "new OptionalStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>)";
@@ -199,11 +199,8 @@ public str esc(Symbol s) {
 
 private map[str,str] javaStringEscapes = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\");
 public str esc(str s) {
-  // return visit(s) { 
-    // case /\\/ => "\\\\"
-    // case /\"/ => "\\\""
-    // case /-/  => "_"
-  // }
+  if (/-/ := s) 
+    s = "\\" + s;
   return escape(s, javaStringEscapes);
 }
 

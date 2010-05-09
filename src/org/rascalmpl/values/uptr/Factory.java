@@ -66,8 +66,9 @@ public class Factory {
 	public static final Type Associativity_Assoc = tf.constructor(uptr, Associativity, "assoc");
 	public static final Type Associativity_NonAssoc = tf.constructor(uptr, Associativity, "non-assoc");
 	
+	public static final Type Symbol_Label = tf.constructor(uptr, Symbol, "label", tf.stringType(), "name", Symbol, "symbol");
 	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "start");
-	public static final Type Symbol_Start = tf.constructor(uptr, Symbol, "start");
+	public static final Type Symbol_START = tf.constructor(uptr, Symbol, "START");
 	public static final Type Symbol_Lit = tf.constructor(uptr, Symbol, "lit", tf.stringType(), "string");
 	public static final Type Symbol_CiLit = tf.constructor(uptr, Symbol, "cilit", tf.stringType(), "string");
 	public static final Type Symbol_Cf = tf.constructor(uptr, Symbol, "cf", Symbol, "symbol");
@@ -78,6 +79,8 @@ public class Factory {
 	public static final Type Symbol_Alt = tf.constructor(uptr, Symbol, "alt", Symbol, "lhs", Symbol, "rhs");
 	public static final Type Symbol_Tuple = tf.constructor(uptr, Symbol, "tuple", Symbol, "head", tf.listType(Symbol), "rest");
 	public static final Type Symbol_Sort = tf.constructor(uptr, Symbol, "sort", tf.stringType(), "string");
+	public static final Type Symbol_IterSepX = tf.constructor(uptr, Symbol, "iter-seps", Symbol, "symbol", tf.listType(Symbol), "separators");
+	public static final Type Symbol_IterStarSepX = tf.constructor(uptr, Symbol, "iter-star-seps", Symbol, "symbol", tf.listType(Symbol), "separators");
 	public static final Type Symbol_IterPlus = tf.constructor(uptr, Symbol, "iter", Symbol, "symbol");
 	public static final Type Symbol_IterStar = tf.constructor(uptr, Symbol, "iter-star", Symbol, "symbol");
 	public static final Type Symbol_IterPlusSep = tf.constructor(uptr, Symbol, "iter-sep", Symbol, "symbol", Symbol, "separator");
