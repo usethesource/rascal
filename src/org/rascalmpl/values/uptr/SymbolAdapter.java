@@ -30,7 +30,7 @@ public class SymbolAdapter {
 	}  
 	
 	public static boolean isStart(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Symbol_START;
+		return tree.getConstructorType() == Factory.Symbol_Start;
 	}
 	  
 	public static IConstructor getStart(IConstructor tree) {
@@ -270,7 +270,7 @@ public class SymbolAdapter {
 		return symbol.getConstructorType() == Factory.Symbol_Seq;
 	}
 
-	private static IConstructor getRhs(IConstructor symbol) {
+	public static IConstructor getRhs(IConstructor symbol) {
 		return (IConstructor) symbol.get("rhs");
 	}
 
