@@ -194,21 +194,21 @@ private Symbol arg2symbol(Sym sym, bool isLex) {
     case (Sym) `<Sym s> +`  : return \iter(arg2symbol(s,isLex));
     case (Sym) `<Sym s> *?` : return \iter-star(arg2symbol(s,isLex));
     case (Sym) `<Sym s> +?` : return \iter(arg2symbol(s,isLex));
-    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-sep(arg2symbol(s,isLex), [lit(unescape(sep))]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-sep(arg2symbol(s,isLex), [lit(unescape(sep))]);
-    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-sep(arg2symbol(s,isLex), [lit(unescape(sep))]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-sep(arg2symbol(s,isLex), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-seps(arg2symbol(s,isLex), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-seps(arg2symbol(s,isLex), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-seps(arg2symbol(s,isLex), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-seps(arg2symbol(s,isLex), [lit(unescape(sep))]);
     default: throw "missed a case <sym>";
   } 
   else switch (sym) {  
-    case (Sym) `<Sym s> *`  : return \iter-star-sep(arg2symbol(s,isLex),[\layout()]);
-    case (Sym) `<Sym s> +`  : return \iter-sep(arg2symbol(s,isLex),[\layout()]);
-    case (Sym) `<Sym s> *?` : return \iter-star-sep(arg2symbol(s,isLex),[\layout()]);
-    case (Sym) `<Sym s> +?` : return \iter-sep(arg2symbol(s,isLex),[\layout()]);
-    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-sep(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-sep(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
-    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-sep(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-sep(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
+    case (Sym) `<Sym s> *`  : return \iter-star-seps(arg2symbol(s,isLex),[\layout()]);
+    case (Sym) `<Sym s> +`  : return \iter-seps(arg2symbol(s,isLex),[\layout()]);
+    case (Sym) `<Sym s> *?` : return \iter-star-seps(arg2symbol(s,isLex),[\layout()]);
+    case (Sym) `<Sym s> +?` : return \iter-seps(arg2symbol(s,isLex),[\layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-seps(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-seps(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-seps(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-seps(arg2symbol(s,isLex), [\layout(),lit(unescape(sep)),\layout()]);
     default: throw "missed a case <sym>";  
   }
 }

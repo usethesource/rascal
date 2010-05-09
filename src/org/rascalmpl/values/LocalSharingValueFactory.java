@@ -159,6 +159,10 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IListWriter listWriter(Type eltType){
 		return new ListCachingWriter(this, valueFactory.listWriter(eltType));
 	}
+	
+	public IListWriter listWriter(){
+		return new ListCachingWriter(this, valueFactory.listWriter());
+	}
 
 	public IMap map(Type key, Type value){
 		return cachedMaps.cache(valueFactory.map(key, value));
@@ -166,6 +170,10 @@ public class LocalSharingValueFactory implements IValueFactory{
 
 	public IMapWriter mapWriter(Type key, Type value){
 		return new MapCachingWriter(this, valueFactory.mapWriter(key, value));
+	}
+	
+	public IMapWriter mapWriter(){
+		return new MapCachingWriter(this, valueFactory.mapWriter());
 	}
 
 	public ISet set(IValue... elems){
@@ -179,6 +187,10 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public ISetWriter setWriter(Type eltType){
 		return new SetCachingWriter(this, valueFactory.setWriter(eltType));
 	}
+	
+	public ISetWriter setWriter(){
+		return new SetCachingWriter(this, valueFactory.setWriter());
+	}
 
 	public IRelation relation(IValue... elems){
 		return cachedRelations.cache(valueFactory.relation(elems));
@@ -190,6 +202,10 @@ public class LocalSharingValueFactory implements IValueFactory{
 
 	public IRelationWriter relationWriter(Type type){
 		return new RelationCachingWriter(this, valueFactory.relationWriter(type));
+	}
+	
+	public IRelationWriter relationWriter(){
+		return new RelationCachingWriter(this, valueFactory.relationWriter());
 	}
 	
 	private static class ListCachingWriter implements IListWriter{
