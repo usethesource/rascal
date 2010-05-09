@@ -171,7 +171,7 @@ public str sym2newitem(Symbol sym) {
     case \char-class(list[CharRange] ranges) : 
       return "new CharStackNode(<id>, <sym2id(sym)>, new char[][]{<generateCharClassArrays(ranges)>}, new char[] {})";
     case \layout() :
-      return "new NonTerminalStackNode(<id>, \"layout\")";   
+      return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";   
     default: 
       throw "not yet implemented <sym>";
   }
