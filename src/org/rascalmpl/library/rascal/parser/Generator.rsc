@@ -90,12 +90,6 @@ public class <name> extends SGLL {
 ";
 }  
 
-public str sym2name(Symbol s) {
-  switch (s) {
-    case sort(x) : return x;
-    default      : return value2id(s);
-  }
-}
 
 public str generateParseMethod(Production p) {
   if (prod(_,Symbol rhs,_) := p) {
@@ -198,9 +192,8 @@ public str esc(Symbol s) {
 }
 
 private map[str,str] javaStringEscapes = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\");
+
 public str esc(str s) {
-  if (/-/ := s) 
-    s = "\\" + s;
   return escape(s, javaStringEscapes);
 }
 
@@ -208,6 +201,13 @@ private map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_");
 
 public str escId(str s) {
   return escape(s, javaIdEscapes);
+}
+
+public str sym2name(Symbol s) {
+  switch (s) {
+    case sort(x) : return x;
+    default      : return value2id(s);
+  }
 }
 
 public str sym2id(Symbol s) {
