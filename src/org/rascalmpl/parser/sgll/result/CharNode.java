@@ -39,6 +39,6 @@ public class CharNode implements INode{
 	}
 	
 	public static int getNumericCharValue(char character){
-		return (character < 10 || character > 35) ? Character.getNumericValue(character) : ((int) character);
+		return (character > 127) ? Character.getNumericValue(character) : ((int) character); // Just ignore the Unicode garbage when possible.
 	}
 }
