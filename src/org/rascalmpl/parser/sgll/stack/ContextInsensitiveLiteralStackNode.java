@@ -97,7 +97,7 @@ public final class ContextInsensitiveLiteralStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(IConstructor production, INode[] children){
+	public void addResult(INode[] children){
 		throw new UnsupportedOperationException();
 	}
 	

@@ -95,11 +95,9 @@ public final class ListStackNode extends StackNode{
 		lpsn.addNext(psn);
 		psn.addEdge(lpsn);
 		psn.addEdge(this);
-		psn.setParentProduction(symbol);
 		
 		cpsn.addEdge(lpsn);
 		cpsn.addEdge(this);
-		cpsn.setParentProduction(symbol);
 		
 		psn.setStartLocation(-1);
 		lpsn.setStartLocation(startLocation);
@@ -111,13 +109,12 @@ public final class ListStackNode extends StackNode{
 		
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		epsn.addEdge(this);
-		epsn.setParentProduction(symbol);
 		
 		return new StackNode[]{cpsn, epsn};
 	}
 	
-	public void addResult(IConstructor production, INode[] children){
-		result.addAlternative(production, children);
+	public void addResult(INode[] children){
+		result.addAlternative(null, children);
 	}
 	
 	public INode getResult(){
