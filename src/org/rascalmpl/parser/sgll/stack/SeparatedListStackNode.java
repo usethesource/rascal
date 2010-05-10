@@ -105,9 +105,11 @@ public final class SeparatedListStackNode extends StackNode{
 		from.addNext(psn);
 		psn.addEdge(slpsn);
 		psn.addEdge(this);
+		psn.setParentProduction(symbol);
 		
 		cpsn.addEdge(slpsn);
 		cpsn.addEdge(this);
+		cpsn.setParentProduction(symbol);
 		
 		psn.setStartLocation(-1); // Reset.
 		slpsn.setStartLocation(startLocation);
