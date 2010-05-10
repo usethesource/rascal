@@ -95,9 +95,11 @@ public final class ListStackNode extends StackNode{
 		lpsn.addNext(psn);
 		psn.addEdge(lpsn);
 		psn.addEdge(this);
+		psn.setParentProduction(symbol);
 		
 		cpsn.addEdge(lpsn);
 		cpsn.addEdge(this);
+		cpsn.setParentProduction(symbol);
 		
 		psn.setStartLocation(-1);
 		lpsn.setStartLocation(startLocation);
