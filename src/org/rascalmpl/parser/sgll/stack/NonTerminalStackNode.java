@@ -1,5 +1,6 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
@@ -69,8 +70,8 @@ public final class NonTerminalStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(INode[] children){
-		result.addAlternative(null, children);
+	public void addResult(IConstructor production, INode[] children){
+		result.addAlternative(production, children);
 	}
 	
 	public INode getResult(){

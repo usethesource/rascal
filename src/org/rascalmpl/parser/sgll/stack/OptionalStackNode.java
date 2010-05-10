@@ -86,8 +86,8 @@ public final class OptionalStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(INode[] children){
-		result.addAlternative(null, children);
+	public void addResult(IConstructor production, INode[] children){
+		result.addAlternative(production, children);
 	}
 	
 	public INode getResult(){
