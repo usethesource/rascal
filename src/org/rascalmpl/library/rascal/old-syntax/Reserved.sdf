@@ -41,6 +41,7 @@ context-free syntax
   "module"   -> RascalReservedKeywords
   "node"     -> RascalReservedKeywords
   "notin"    -> RascalReservedKeywords 
+  "num"      -> RascalReservedKeywords
   "on"       -> RascalReservedKeywords 
   "one"      -> RascalReservedKeywords  
   "private"  -> RascalReservedKeywords  
@@ -106,6 +107,7 @@ context-free restrictions
   "module"   -/- [a-zA-Z0-9\-\_] 
   "node"     -/- [a-zA-Z0-9\-\_]
   "notin"    -/- [a-zA-Z0-9\-\_]  
+  "num"      -/- [a-zA-Z0-9\-\_]  
   "on "      -/- [a-zA-Z0-9\-\_]  
   "one"      -/- [a-zA-Z0-9\-\_]  
   "private"  -/- [a-zA-Z0-9\-\_]  
