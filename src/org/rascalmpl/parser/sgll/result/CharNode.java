@@ -30,11 +30,15 @@ public class CharNode implements INode{
 		sb.append(',');
 		sb.append('[');
 		sb.append("char(");
-		sb.append(character);
+		sb.append(getNumericCharValue(character));
 		sb.append(')');
 		sb.append(']');
 		sb.append(')');
 		
 		return sb.toString();
+	}
+	
+	public static int getNumericCharValue(char character){
+		return (character < 10 || character > 35) ? Character.getNumericValue(character) : ((int) character);
 	}
 }
