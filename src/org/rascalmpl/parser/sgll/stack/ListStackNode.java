@@ -109,6 +109,7 @@ public final class ListStackNode extends StackNode{
 		
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		epsn.addEdge(this);
+		epsn.setParentProduction(symbol);
 		
 		return new StackNode[]{cpsn, epsn};
 	}
