@@ -105,11 +105,9 @@ public final class SeparatedListStackNode extends StackNode{
 		from.addNext(psn);
 		psn.addEdge(slpsn);
 		psn.addEdge(this);
-		psn.setParentProduction(symbol);
 		
 		cpsn.addEdge(slpsn);
 		cpsn.addEdge(this);
-		cpsn.setParentProduction(symbol);
 		
 		psn.setStartLocation(-1); // Reset.
 		slpsn.setStartLocation(startLocation);
@@ -121,13 +119,12 @@ public final class SeparatedListStackNode extends StackNode{
 		
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		epsn.addEdge(this);
-		epsn.setParentProduction(symbol);
 		
 		return new StackNode[]{cpsn, epsn};
 	}
 	
-	public void addResult(IConstructor production, INode[] children){
-		result.addAlternative(production, children);
+	public void addResult(INode[] children){
+		result.addAlternative(null, children);
 	}
 	
 	public INode getResult(){
