@@ -35,6 +35,8 @@ public abstract class StackNode{
 		
 		next = parseStackNode.next;
 		edges = parseStackNode.edges;
+		
+		parentProduction = parseStackNode.parentProduction;
 	}
 	
 	// General.
