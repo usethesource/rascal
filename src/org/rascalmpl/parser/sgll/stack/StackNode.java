@@ -18,6 +18,8 @@ public abstract class StackNode{
 	protected ArrayList<INode[]> prefixes;
 	protected IntegerList prefixStartLocations;
 	
+	private IConstructor parentProduction;
+	
 	public StackNode(int id){
 		super();
 		
@@ -47,6 +49,14 @@ public abstract class StackNode{
 	public abstract String getMethodName();
 	
 	public abstract boolean reduce(char[] input);
+	
+	public void setParentProduction(IConstructor parentProduction){
+		this.parentProduction = parentProduction;
+	}
+	
+	public IConstructor getParentProduction(){
+		return parentProduction;
+	}
 	
 	// Sharing.
 	public abstract StackNode getCleanCopy();
@@ -131,7 +141,7 @@ public abstract class StackNode{
 		prefixStartLocations.add(length);
 	}
 	
-	public abstract void addResult(INode[] children);
+	public abstract void addResult(IConstructor production, INode[] children);
 	
 	public abstract INode getResult();
 	

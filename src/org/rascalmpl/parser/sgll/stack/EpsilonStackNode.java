@@ -58,7 +58,7 @@ public final class EpsilonStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(INode[] children){
+	public void addResult(IConstructor production, INode[] children){
 		throw new UnsupportedOperationException();
 	}
 	

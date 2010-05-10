@@ -45,6 +45,7 @@ public abstract class SGLL implements IGLL{
 	
 	public void expect(IConstructor production, StackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
+		symbolsToExpect[symbolsToExpect.length - 1].setParentProduction(production);
 	}
 	
 	private void callMethod(String methodName){
@@ -106,6 +107,7 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void move(StackNode node){
+		IConstructor production = node.getParentProduction();
 		INode[][] results = node.getResults();
 		int[] resultStartLocations = node.getResultStartLocations();
 		
@@ -115,7 +117,7 @@ public abstract class SGLL implements IGLL{
 			for(int i = edges.size() - 1; i >= 0; i--){
 				StackNode edge = edges.get(i);
 				edge = updateEdgeNode(edge);
-				addResults(edge, results, resultStartLocations);
+				addResults(production, edge, results, resultStartLocations);
 			}
 		}else if((next = node.getNext()) != null){
 			next = updateNextNode(next);
@@ -129,7 +131,7 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void addResults(StackNode edge, INode[][] results, int[] resultStartLocations){
+	private void addResults(IConstructor production, StackNode edge, INode[][] results, int[] resultStartLocations){
 		if(location == input.length && !edge.hasEdges() && !edge.hasNext()){
 			root = edge; // Root reached.
 		}
@@ -137,7 +139,7 @@ public abstract class SGLL implements IGLL{
 		int nrOfResults = results.length;
 		for(int i = nrOfResults - 1; i >= 0; i--){
 			if(edge.getStartLocation() == resultStartLocations[i]){
-				edge.addResult(results[i]);
+				edge.addResult(production, results[i]);
 			}
 		}
 	}
