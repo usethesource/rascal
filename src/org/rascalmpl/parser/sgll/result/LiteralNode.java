@@ -44,7 +44,9 @@ public class LiteralNode implements INode{
 		sb.append(')');
 		sb.append(',');
 		sb.append('[');
-		for(int i = 0; i < content.length; i++){
+		printCharacter(Character.getNumericValue(content[0]), sb);
+		for(int i = 1; i < content.length; i++){
+			sb.append(',');
 			printCharacter(Character.getNumericValue(content[i]), sb);
 		}
 		sb.append(']');
