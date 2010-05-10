@@ -14,7 +14,7 @@ import rascal::\old-syntax::Rascal;
 //
 data RName =
 	  RSimpleName(str name)
-	| RCompoundName(list[str] nameParts)
+	| RCompoundName(list[str] nameParts)     
 ;
 
 public RName convertName(QualifiedName qn) {

@@ -1934,6 +1934,7 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 		// Name
 		case (Pattern)`_`: {
 			if (debug) println("NAMESPACE: Anonymous NamePattern: <pat>");
+			
 			scopeInfo = addFreshAnonymousVariable(pat@\loc, scopeInfo);			
 			if (debug) println("NAMESPACE: Adding anonymous variable for <pat>");
 		}
