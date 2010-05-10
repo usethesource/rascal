@@ -44,6 +44,15 @@ public class TreeAdapter {
 		return tree.getConstructorType() == Factory.Tree_Cycle;
 	}
 
+	public static boolean isComment(IConstructor tree) {
+		IConstructor treeProd = getProduction(tree);
+		if (treeProd != null) {
+			String treeProdCategory = ProductionAdapter.getCategory(treeProd);
+			if (treeProdCategory != null && treeProdCategory.equals("Comment")) return true;
+		}
+		return false;
+	}
+	
 	public static IConstructor getProduction(IConstructor tree) {
 		return (IConstructor) tree.get("prod");
 	}
@@ -268,9 +277,11 @@ public class TreeAdapter {
 
 				if (!labelLayout && outermostLayout) {
 					inLayout = false;
-					return tree;
+					if (! isComment(tree))
+						return tree;
 				} else if (!labelLayout && inLayout) {
-					return tree;
+					if (! isComment(tree))
+						return tree;
 				}
 			} else if (isAmb(tree)) {
 				ISet alts = getAlternatives(tree);

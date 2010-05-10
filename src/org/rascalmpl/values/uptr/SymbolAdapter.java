@@ -93,7 +93,22 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isLayout(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Symbol_Layout;
+		if(isProductionList(tree)){
+			return isLayout((IConstructor) tree.get("rhs"));
+		}
+		if (isCf(tree) || isLex(tree) || isOpt(tree) || isIterPlus(tree) || isIterPlusSep(tree) || isIterStar(tree) || isIterStarSep(tree)){
+			IConstructor t = (IConstructor) tree.get("symbol");
+			if(t.getConstructorType() == Factory.Symbol_Layout){
+				return true;
+			}
+			return isLayout(t);
+		} else {
+			return (tree.getConstructorType() == Factory.Symbol_Layout);
+		}
+	}
+	
+	private static boolean isProductionList(IConstructor tree){
+		return (tree.getConstructorType() == Factory.Production_List);
 	}
 	
 	public static boolean isStarList(IConstructor tree) {
