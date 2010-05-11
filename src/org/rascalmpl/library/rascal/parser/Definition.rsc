@@ -232,9 +232,8 @@ private str unescape(StringConstant s) {
 }
 
 private list[CharRange] cc2ranges(Class cc) {
-println("ranges <cc>");
    switch(cc) {
-     case (Class) `[<Range* ranges>]` : { x = [range(r) | r <- ranges]; println("result:", x);  return x;}
+     case (Class) `[<Range* ranges>]` : return [range(r) | r <- ranges];
      case (Class) `(<Class c>)`: return cc2ranges(cc2ranges(c));
      case (Class) `! <Class c>`: return complement(cc2ranges(c));
      case (Class) `<Class l> & <Class r>`: return intersection(cc2ranges(l),cc2ranges(r));
@@ -245,7 +244,6 @@ println("ranges <cc>");
 }
       
 private CharRange range(Range r) {
-println("range <r>");
   switch (r) {
     case (Range) `<Char c>` : return range(character(c),character(c));
     case (Range) `<Char l> - <Char r>`: return range(character(l),character(r));
@@ -257,7 +255,7 @@ private int character(Char c) {
 println("char <c>");
   switch (c) {
     case [Char] /<ch:[^"'\-\[\]\\ ]>/        : return charAt(ch, 0); 
-    case [Char] /\\<esc:["'\-\[\]\\ ]>/        : { println("escaped: <esc>"); return charAt(esc, 0); }
+    case [Char] /\\<esc:["'\-\[\]\\ ]>/        : return charAt(esc, 0);
     case [Char] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
     case [Char] /\\<oct:[0-7]>/           : return toInt("0<oct>");
     case [Char] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
