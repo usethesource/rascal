@@ -3,13 +3,13 @@ package org.rascalmpl.parser.sgll.result;
 import org.eclipse.imp.pdb.facts.IConstructor;
 
 public class CharNode implements INode{
-	private final IConstructor production;
+	private final IConstructor symbol;
 	private final char character;
 	
-	public CharNode(IConstructor production, char character){
+	public CharNode(IConstructor symbol, char character){
 		super();
 		
-		this.production = production;
+		this.symbol = symbol;
 		this.character = character;
 	}
 	
@@ -25,7 +25,7 @@ public class CharNode implements INode{
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("appl(prod(");
-		sb.append(production);
+		sb.append(symbol);
 		sb.append(')');
 		sb.append(',');
 		sb.append('[');

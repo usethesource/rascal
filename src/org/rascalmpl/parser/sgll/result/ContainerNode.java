@@ -32,9 +32,8 @@ public class ContainerNode implements INode{
 	}
 	
 	private void printAlternative(IConstructor production, INode[] children, StringBuilder sb){
-		sb.append("appl(prod(");
+		sb.append("appl(");
 		sb.append(production);
-		sb.append(')');
 		sb.append(',');
 		sb.append('[');
 		sb.append(children[0]);
