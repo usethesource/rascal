@@ -202,6 +202,12 @@ public abstract class SGLL implements IGLL{
 				return true;
 			}
 		}
+		
+		// Temp.
+		if(node.getId() == 10000){
+			System.err.println(stack+" "+location+" "+previousLocation);
+		}
+		
 		return false;
 	}
 	
@@ -268,8 +274,10 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void expand(){
-		possiblySharedExpects = new ArrayList<StackNode>();
-		possiblySharedExpectsEndNodes = new ArrayList<StackNode>();
+		if(previousLocation != location){
+			possiblySharedExpects = new ArrayList<StackNode>();
+			possiblySharedExpectsEndNodes = new ArrayList<StackNode>();
+		}
 		while(stacksToExpand.size() > 0){
 			lastExpects = new ArrayList<StackNode[]>(1);
 			expandStack(stacksToExpand.remove(stacksToExpand.size() - 1));
