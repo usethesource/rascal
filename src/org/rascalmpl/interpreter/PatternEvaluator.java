@@ -244,7 +244,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 		java.lang.String NamedRegexp = "(?:" + NR1 + "|" + NR2 + "|" + NR3 + "|" + NR4 + ")";
 
-		java.lang.String RE = "(?<!\\\\)<(" + Name + ")(?:\\s*:\\s*(" + NamedRegexp + "*))?" + ">";
+		java.lang.String RE = "(?:(?<!\\\\)|(?<=\\\\\\\\))<(" + Name + ")(?:\\s*:\\s*(" + NamedRegexp + "*))?" + ">";
 		//                               |                         |
 		//                       group   1                         2
 		//                               variable name             regular expression to be matched
@@ -279,13 +279,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 			start = m.end(0);
 		}
 		resultRegExp.append(subjectPat.substring(start, end));
-		/*
-		 * Replace in the final regexp all occurrences of \< by <
-		 */
-		java.lang.String result = (resultRegExp.toString()).replaceAll("(\\\\<)", "<");
-		if(debug)System.err.println("result: " + result);
-
-		return new RegExpPatternValue(ctx, result, patternVars);
+		return new RegExpPatternValue(ctx, resultRegExp.toString(), patternVars);
 	}
 
 
