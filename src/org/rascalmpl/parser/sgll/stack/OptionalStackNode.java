@@ -70,11 +70,13 @@ public final class OptionalStackNode extends StackNode{
 	
 	public StackNode[] getChildren(){
 		StackNode copy = optional.getCleanCopy();
+		copy.setParentProduction(symbol);
+		copy.setStartLocation(-1); // Reset.
+		
 		StackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		copy.addEdge(this);
 		epsn.addEdge(this);
-		
-		copy.setStartLocation(-1); // Reset.
+		epsn.setParentProduction(symbol);
 
 		StackNode[] children = new StackNode[2];
 		children[0] = copy;

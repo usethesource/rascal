@@ -202,12 +202,6 @@ public abstract class SGLL implements IGLL{
 				return true;
 			}
 		}
-		
-		// Temp.
-		if(node.getId() == 10000){
-			System.err.println(stack+" "+location+" "+previousLocation);
-		}
-		
 		return false;
 	}
 	
