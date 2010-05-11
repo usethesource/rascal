@@ -169,7 +169,7 @@ public str sym2newitem(Symbol sym) {
     case \opt(s) : 
       return "new OptionalStackNode(<id>, <sym2id(sym)>, <sym2newitem(s)>)";
     case \char-class(list[CharRange] ranges) : 
-      return "new CharStackNode(<id>, <sym2id(sym)>, new char[][]{<generateCharClassArrays(ranges)>}, new char[] {})";
+      return "new CharStackNode(<id>, <sym2id(sym)>, new char[][]{<generateCharClassArrays(ranges)>}, new char[]{})";
     case \layout() :
       return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";   
     default: 
