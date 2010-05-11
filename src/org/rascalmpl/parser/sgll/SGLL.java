@@ -210,26 +210,24 @@ public abstract class SGLL implements IGLL{
 			StackNode[] expectedNodes = lastExpects.get(i);
 			
 			// Handle sharing (and loops).
-			StackNode first = expectedNodes[0];
-			
-			if(!shareNode(first, stackBeingWorkedOn)){
-				first = first.getCleanCopy();
-				StackNode current = first;
-				StackNode prev;
+			if(!shareNode(expectedNodes[0], stackBeingWorkedOn)){
+				int numberOfNodes = expectedNodes.length;
+				StackNode last = expectedNodes[numberOfNodes - 1].getCleanCopy();
+				StackNode next = last;
 				
-				for(int k = 1; k < expectedNodes.length; k++){
-					prev = current;
-					current = expectedNodes[k].getCleanCopy();
-					prev.addNext(current);
+				for(int k = numberOfNodes - 2; k >= 0; k--){
+					StackNode current = expectedNodes[k].getCleanCopy();
+					current.addNext(next);
+					next = current;
 				}
 				
-				current.addEdge(stackBeingWorkedOn);
+				last.addEdge(stackBeingWorkedOn);
 				
-				first.setStartLocation(location);
+				next.setStartLocation(location);
 				
-				stacksToExpand.add(first);
-				possiblySharedExpects.add(first);
-				possiblySharedExpectsEndNodes.add(current);
+				stacksToExpand.add(next);
+				possiblySharedExpects.add(next);
+				possiblySharedExpectsEndNodes.add(last);
 			}
 		}
 	}
