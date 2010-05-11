@@ -43,21 +43,19 @@ public final class CharStackNode extends StackNode{
 	}
 	
 	public boolean reduce(char[] input){
-		if(input.length > startLocation){
-			char next = input[startLocation];
-			for(int i = ranges.length - 1; i >= 0; i--){
-				char[] range = ranges[i];
-				if(next >= range[0] && next <= range[1]){
-					result = new CharNode(symbol, next);
-					return true;
-				}
+		char next = input[startLocation];
+		for(int i = ranges.length - 1; i >= 0; i--){
+			char[] range = ranges[i];
+			if(next >= range[0] && next <= range[1]){
+				result = new CharNode(symbol, next);
+				return true;
 			}
-			
-			for(int i = characters.length - 1; i >= 0; i--){
-				if(next == characters[i]){
-					result = new CharNode(symbol, next);
-					return true;
-				}
+		}
+		
+		for(int i = characters.length - 1; i >= 0; i--){
+			if(next == characters[i]){
+				result = new CharNode(symbol, next);
+				return true;
 			}
 		}
 		
