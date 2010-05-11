@@ -22,26 +22,16 @@ public class LiteralNode implements INode{
 	}
 	
 	private void printCharacter(int character, StringBuilder sb){
-		sb.append("appl(prod(char-class([single(");
-		sb.append(character);
-		sb.append(')');
-		sb.append(']');
-		sb.append(')');
-		sb.append(',');
-		sb.append('[');
 		sb.append("char(");
 		sb.append(character);
-		sb.append(')');
-		sb.append(']');
 		sb.append(')');
 	}
 	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("appl(prod(");
+		sb.append("appl(");
 		sb.append(production);
-		sb.append(')');
 		sb.append(',');
 		sb.append('[');
 		printCharacter(CharNode.getNumericCharValue(content[0]), sb);
