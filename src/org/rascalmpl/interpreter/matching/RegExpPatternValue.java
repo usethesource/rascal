@@ -37,11 +37,33 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	
 	public RegExpPatternValue(IEvaluatorContext ctx, String s, List<String> patternVars) {
 		super(ctx);
-		RegExpAsString = s;
+		RegExpAsString = removeRascalSpecificEscapes(s);
 		this.patternVars = patternVars;
 		initialized = false;
 	}
 	
+	private String removeRascalSpecificEscapes(String s) {
+		StringBuilder b = new StringBuilder();
+		char[] chars = s.toCharArray();
+		
+		for (int i = 0; i < chars.length; i++) {
+			if (chars[i] == '\\' && i + 1 < chars.length) {
+				switch(chars[++i]) {
+				case '>' : b.append('>'); continue;
+				case '<' : b.append('<'); continue;
+				default: // leave the other escapes as-is
+					b.append('\\');
+					b.append(chars[i]);
+				}
+			}
+			else {
+				b.append(chars[i]);
+			}
+		}
+		
+		return b.toString();
+	}
+
 	@Override
 	public Type getType(Environment ev) {
 		return tf.stringType();
