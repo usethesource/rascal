@@ -121,6 +121,7 @@ public final class SeparatedListStackNode extends StackNode{
 		
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		epsn.addEdge(this);
+		epsn.setStartLocation(startLocation);
 		epsn.setParentProduction(symbol);
 		
 		return new StackNode[]{cpsn, epsn};
