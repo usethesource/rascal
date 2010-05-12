@@ -76,6 +76,7 @@ public final class OptionalStackNode extends StackNode{
 		StackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		copy.addEdge(this);
 		epsn.addEdge(this);
+		epsn.setStartLocation(startLocation);
 		epsn.setParentProduction(symbol);
 
 		StackNode[] children = new StackNode[2];
