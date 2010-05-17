@@ -1,8 +1,17 @@
 package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 public class LiteralNode implements INode{
+	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	
 	private final IConstructor production;
 	private final char[] content;
 	
@@ -43,5 +52,20 @@ public class LiteralNode implements INode{
 		sb.append(')');
 		
 		return sb.toString();
+	}
+	
+	public IValue toTerm(){
+		int numberOfCharacters = content.length;
+		IValue[] characters = new IValue[numberOfCharacters];
+		for(int i = 0; i < numberOfCharacters; i++){
+			IInteger characterValue = vf.integer(CharNode.getNumericCharValue(content[i]));
+			characters[i] = vf.constructor(Factory.Tree_Char, characterValue);
+		}
+		
+		IListWriter listWriter = vf.listWriter(Factory.Args);
+		listWriter.append(characters);
+		IList args = listWriter.done();
+		
+		return vf.constructor(Factory.Tree_Appl, production, args);
 	}
 }

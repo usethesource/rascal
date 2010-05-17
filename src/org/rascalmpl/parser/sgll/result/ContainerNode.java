@@ -1,9 +1,16 @@
 package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 public class ContainerNode implements INode{
+	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	
 	private IConstructor firstProduction;
 	private INode[] firstAlternative;
 	private ArrayList<IConstructor> productions;
@@ -52,17 +59,38 @@ public class ContainerNode implements INode{
 			printAlternative(firstProduction, firstAlternative, sb);
 		}else{
 			sb.append("amb({");
-			for(int i = alternatives.size() - 1; i >= 1; i--){
+			for(int i = alternatives.size() - 1; i >= 0; i--){
 				printAlternative(productions.get(i), alternatives.get(i), sb);
 				sb.append(',');
 			}
-			printAlternative(productions.get(0), alternatives.get(0), sb);
-			sb.append(',');
 			printAlternative(firstProduction, firstAlternative, sb);
 			sb.append('}');
 			sb.append(')');
 		}
 		
 		return sb.toString();
+	}
+	
+	private IValue buildAlternative(IConstructor production, INode[] children){
+		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
+		for(int i = children.length - 1; i >= 0; i--){
+			childrenListWriter.insert(children[i].toTerm());
+		}
+		
+		return vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
+	}
+	
+	public IValue toTerm(){
+		if(alternatives == null){
+			return buildAlternative(firstProduction, firstAlternative);
+		}
+		
+		IListWriter ambListWriter = vf.listWriter(Factory.Tree);
+		for(int i = alternatives.size() - 1; i >= 0; i--){
+			ambListWriter.insert(buildAlternative(productions.get(i), alternatives.get(i)));
+		}
+		ambListWriter.insert(buildAlternative(firstProduction, firstAlternative));
+		
+		return vf.constructor(Factory.Tree_Amb, ambListWriter.done());
 	}
 }
