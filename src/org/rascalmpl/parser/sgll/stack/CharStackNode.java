@@ -6,28 +6,19 @@ import org.rascalmpl.parser.sgll.result.INode;
 
 public final class CharStackNode extends StackNode{
 	private final char[][] ranges;
-	private final char[] characters;
-	
-	private final IConstructor symbol;
 	
 	private INode result;
 	
-	public CharStackNode(int id, IConstructor symbol, char[][] ranges, char[] characters){
+	public CharStackNode(int id, char[][] ranges){
 		super(id);
-		
-		this.symbol = symbol;
 
 		this.ranges = ranges;
-		this.characters = characters;
 	}
 	
 	private CharStackNode(CharStackNode charParseStackNode){
 		super(charParseStackNode);
 		
-		symbol = charParseStackNode.symbol;
-		
 		ranges = charParseStackNode.ranges;
-		characters = charParseStackNode.characters;
 	}
 	
 	public boolean isReducable(){
@@ -47,14 +38,7 @@ public final class CharStackNode extends StackNode{
 		for(int i = ranges.length - 1; i >= 0; i--){
 			char[] range = ranges[i];
 			if(next >= range[0] && next <= range[1]){
-				result = new CharNode(symbol, next);
-				return true;
-			}
-		}
-		
-		for(int i = characters.length - 1; i >= 0; i--){
-			if(next == characters[i]){
-				result = new CharNode(symbol, next);
+				result = new CharNode(next);
 				return true;
 			}
 		}
@@ -99,7 +83,16 @@ public final class CharStackNode extends StackNode{
 	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(symbol);
+		
+		sb.append('[');
+		for(int i = ranges.length - 1; i >= 0; i--){
+			char[] range = ranges[i];
+			sb.append(range[0]);
+			sb.append('-');
+			sb.append(range[1]);
+		}
+		sb.append(']');
+		
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
