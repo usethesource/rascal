@@ -9,7 +9,7 @@ import org.rascalmpl.values.uptr.Factory;
 public class EpsilonNode implements INode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	private final static String EPSILON_STRING = "appl(prod([],empty()))";
+	private final static String EPSILON_STRING = "empty()";
 	
 	public EpsilonNode(){
 		super();
@@ -28,8 +28,6 @@ public class EpsilonNode implements INode{
 	}
 	
 	public IValue toTerm(){
-		IConstructor empty = vf.constructor(Factory.Symbol_Empty);
-		IConstructor production = vf.constructor(Factory.Production_Default, vf.list(Factory.Symbol), empty);
-		return vf.constructor(Factory.Tree_Appl, production);
+		return vf.constructor(Factory.Symbol_Empty);
 	}
 }
