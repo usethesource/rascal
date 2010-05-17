@@ -4,16 +4,16 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
-public final class OptionalStackNode extends StackNode{
+public final class OptionalStackNode extends AbstractStackNode{
 	private final IConstructor symbol;
 	
-	private final StackNode optional;
+	private final AbstractStackNode optional;
 	
 	private boolean marked;
 	
 	private final INode result;
 	
-	public OptionalStackNode(int id, IConstructor symbol, StackNode optional){
+	public OptionalStackNode(int id, IConstructor symbol, AbstractStackNode optional){
 		super(id);
 		
 		this.symbol = symbol;
@@ -57,29 +57,29 @@ public final class OptionalStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public StackNode getCleanCopy(){
+	public AbstractStackNode getCleanCopy(){
 		return new OptionalStackNode(this);
 	}
 	
-	public StackNode getCleanCopyWithPrefix(){
+	public AbstractStackNode getCleanCopyWithPrefix(){
 		OptionalStackNode opsn = new OptionalStackNode(this);
 		opsn.prefixes = prefixes;
 		opsn.prefixStartLocations = prefixStartLocations;
 		return opsn;
 	}
 	
-	public StackNode[] getChildren(){
-		StackNode copy = optional.getCleanCopy();
+	public AbstractStackNode[] getChildren(){
+		AbstractStackNode copy = optional.getCleanCopy();
 		copy.setParentProduction(symbol);
 		copy.setStartLocation(-1); // Reset.
 		
-		StackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
+		AbstractStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		copy.addEdge(this);
 		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
 		epsn.setParentProduction(symbol);
 
-		StackNode[] children = new StackNode[2];
+		AbstractStackNode[] children = new AbstractStackNode[2];
 		children[0] = copy;
 		children[1] = epsn;
 		return children;

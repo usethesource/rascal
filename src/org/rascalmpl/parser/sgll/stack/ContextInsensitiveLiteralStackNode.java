@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
-public final class ContextInsensitiveLiteralStackNode extends StackNode{
+public final class ContextInsensitiveLiteralStackNode extends AbstractStackNode{
 	private final IConstructor symbol;
 	private final char[][] ciLiteral;
 	
@@ -70,11 +70,11 @@ public final class ContextInsensitiveLiteralStackNode extends StackNode{
 		return true;
 	}
 	
-	public StackNode getCleanCopy(){
+	public AbstractStackNode getCleanCopy(){
 		return new ContextInsensitiveLiteralStackNode(this);
 	}
 	
-	public StackNode getCleanCopyWithPrefix(){
+	public AbstractStackNode getCleanCopyWithPrefix(){
 		ContextInsensitiveLiteralStackNode cilpsn = new ContextInsensitiveLiteralStackNode(this);
 		cilpsn.prefixes = prefixes;
 		cilpsn.prefixStartLocations = prefixStartLocations;
@@ -93,7 +93,7 @@ public final class ContextInsensitiveLiteralStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public StackNode[] getChildren(){
+	public AbstractStackNode[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	
