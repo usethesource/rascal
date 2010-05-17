@@ -18,7 +18,9 @@ public abstract class StackNode{
 	protected ArrayList<INode[]> prefixes;
 	protected IntegerList prefixStartLocations;
 	
+	// Last node specific stuff
 	private IConstructor parentProduction;
+	private char[][] followRestrictions;
 	
 	public StackNode(int id){
 		super();
@@ -52,12 +54,31 @@ public abstract class StackNode{
 	
 	public abstract boolean reduce(char[] input);
 	
+	// Last node specific stuff.
 	public void setParentProduction(IConstructor parentProduction){
 		this.parentProduction = parentProduction;
 	}
 	
 	public IConstructor getParentProduction(){
 		return parentProduction;
+	}
+	
+	public void setFollowRestriction(char[][] ranges){
+		this.followRestrictions = ranges;
+	}
+	
+	public boolean isReductionFiltered(char[] input, int location){
+		// Check if follow restrictions apply.
+		if(followRestrictions != null){
+			char next = input[location];
+			for(int i = followRestrictions.length - 1; i >= 0; i--){
+				char[] range = followRestrictions[i];
+				if(next >= range[0] && next <= range[1]){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	// Sharing.
