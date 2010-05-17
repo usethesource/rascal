@@ -1,15 +1,20 @@
 package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 public class CharNode implements INode{
-	private final IConstructor symbol;
+	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	
 	private final char character;
 	
-	public CharNode(IConstructor symbol, char character){
+	public CharNode(char character){
 		super();
 		
-		this.symbol = symbol;
 		this.character = character;
 	}
 	
@@ -24,18 +29,16 @@ public class CharNode implements INode{
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("appl(prod(");
-		sb.append(symbol);
-		sb.append(')');
-		sb.append(',');
-		sb.append('[');
 		sb.append("char(");
 		sb.append(getNumericCharValue(character));
 		sb.append(')');
-		sb.append(']');
-		sb.append(')');
 		
 		return sb.toString();
+	}
+	
+	public IValue toTerm(){
+		IInteger characterValue = vf.integer(getNumericCharValue(character));
+		return vf.constructor(Factory.Tree_Char, characterValue);
 	}
 	
 	public static int getNumericCharValue(char character){
