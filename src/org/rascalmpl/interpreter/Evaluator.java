@@ -434,8 +434,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public IValue parseObjectExperimental(IConstructor startSort, java.lang.String sentence) {
 		IGLL parser = getObjectParser();
-		org.rascalmpl.parser.sgll.result.INode result = parser.parse(startSort, sentence);
-		return getValueFactory().string(result.toString());
+		return parser.parse(startSort, sentence);
 	}
 
 	private IGLL getObjectParser() {
@@ -449,9 +448,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				IConstructor moduleTree = parseModule(URI.create("rascal:///" + currentModule.getName()), currentModule);
 				return pg.getParser(getCurrentAST().getLocation(), currentModule.getName().replaceAll("::", "."), moduleTree);
 			}
-			else {
-				throw RuntimeExceptionFactory.io(getValueFactory().string("can not parse yet from outside the module where the syntax is defined"), getCurrentAST(), getStackTrace());
-			}
+			
+			throw RuntimeExceptionFactory.io(getValueFactory().string("can not parse yet from outside the module where the syntax is defined"), getCurrentAST(), getStackTrace());
 		} catch (IOException e) {
 			throw new ImplementationError("unexpected io exception", e);
 		}

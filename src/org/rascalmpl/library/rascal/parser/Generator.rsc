@@ -38,13 +38,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @SuppressWarnings(\"unused\")
-public class <name> extends SGLL {
-  private static IConstructor read(java.lang.String s, Type type) {
-    try {
+public class <name> extends SGLL{
+  private static IConstructor read(java.lang.String s, Type type){
+    try{
       return (IConstructor) new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
-    } catch (FactTypeUseException e) {
+    }catch(FactTypeUseException e){
       throw new RuntimeException(\"unexpected exception in generated parser\", e);  
-	} catch (IOException e) {
+	}catch(IOException e){
       throw new RuntimeException(\"unexpected exception in generated parser\", e);  
 	}
   }
@@ -62,19 +62,19 @@ public class <name> extends SGLL {
   }
 
   // Parse methods	
-  <for (Production p <- g.productions) {>
+  <for (Production p <- g.productions){>
   <generateParseMethod(p)>
   <}>
 
-  public INode parse(IConstructor start, java.lang.String input) {
+  public IValue parse(IConstructor start, java.lang.String input){
     return parse(start, input.toCharArray());
   }
 
-  public INode parse(IConstructor start, char[] sentence) {
-      if (SymbolAdapter.isSort(start)) {
+  public IValue parse(IConstructor start, char[] sentence){
+      if(SymbolAdapter.isSort(start)){
 		  return parse(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), sentence);
 	  }
-	  else if (SymbolAdapter.isStartSort(start)) {
+	  if(SymbolAdapter.isStartSort(start)){
 		 return parse(SymbolAdapter.getStart(start), sentence);  
 	  }
 	  throw new IllegalArgumentException(start.toString());
@@ -91,24 +91,24 @@ public class <name> extends SGLL {
 }  
 
 
-public str generateParseMethod(Production p) {
+public str generateParseMethod(Production p){
   if (prod(_,Symbol rhs,_) := p) {
-    return "public void <sym2name(rhs)>() {
+    return "public void <sym2name(rhs)>(){
       // <p>
       expect(<value2id(p)>, <generateSymbolItemExpects(p.lhs)>);  
-    }";
+  }";
   }
 
-  if (choice(Symbol rhs, set[Production] ps) := p) {
-    return "public void <sym2name(rhs)>() {
-      <for (Production q:prod(_,_,_) <- ps) {>
+  if (choice(Symbol rhs, set[Production] ps) := p){
+    return "public void <sym2name(rhs)>(){
+      <for (Production q:prod(_,_,_) <- ps){>
       // <q>
       expect(<value2id(q)>, <generateSymbolItemExpects(q.lhs)>);
       <}>  
-    }";
+  }";
   }
 
-  if (regular(_,_) := p) {
+  if (regular(_,_) := p){
     // do not occur as defined symbols
     return "";
   }
@@ -116,27 +116,27 @@ public str generateParseMethod(Production p) {
   throw "not implemented <p>";
 }
 
-public str generateSymbolItemExpects(list[Symbol] syms) {
-   if (syms == []) {
+public str generateSymbolItemExpects(list[Symbol] syms){
+   if(syms == []){
      return "new EpsilonParseStackNode(<nextItem()>)";
    }
    
    return ("<sym2newitem(head(syms))>" | it + ",\n\t\t" + sym2newitem(sym) | sym <- tail(syms));
 }
 
-public str literals2ints(list[Symbol] chars) {
-  if (chars == []) return "";
+public str literals2ints(list[Symbol] chars){
+  if(chars == []) return "";
   
   str result = "<head(head(chars).ranges).start>";
   
-  for (ch <- tail(chars)) {
+  for(ch <- tail(chars)){
     result += ",<head(ch.ranges).start>";
   }
   
   return result;
 }
 
-public str ciliterals2ints(list[Symbol] chars) {
+public str ciliterals2ints(list[Symbol] chars){
   println("chars: ",chars);
   return "hoi";
 }
@@ -144,7 +144,7 @@ public str ciliterals2ints(list[Symbol] chars) {
 public str sym2newitem(Symbol sym) {
    int id = nextItem();
 
-   switch (sym) {
+   switch(sym){
     case \label(_,s) : return sym2newitem(s); // ignore labels
     case \sort(n) : 
       return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
@@ -178,9 +178,9 @@ public str sym2newitem(Symbol sym) {
 }
 
 public str generateCharClassArrays(list[CharRange] ranges) {
-  if (ranges == []) return "";
+  if(ranges == []) return "";
   result = "";
-  if (range(from, to) := head(ranges)) 
+  if(range(from, to) := head(ranges)) 
     result += "{<from>,<to>}";
   for(range(from, to) <- tail(ranges))
     result += ",{<from>,<to>}";
@@ -193,29 +193,29 @@ public str esc(Symbol s) {
 
 private map[str,str] javaStringEscapes = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\");
 
-public str esc(str s) {
+public str esc(str s){
   return escape(s, javaStringEscapes);
 }
 
 private map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_");
 
-public str escId(str s) {
+public str escId(str s){
   return escape(s, javaIdEscapes);
 }
 
-public str sym2name(Symbol s) {
-  switch (s) {
+public str sym2name(Symbol s){
+  switch(s){
     case sort(x) : return x;
     default      : return value2id(s);
   }
 }
 
-public str sym2id(Symbol s) {
+public str sym2id(Symbol s){
   return "symbol_<value2id(s)>";
 }
 
-public str value2id(value v) {
-  switch (v) {
+public str value2id(value v){
+  switch(v){
     case label(_,v)    : return value2id(v);
     case sort(str s)   : return s;
     case lit(/<s:^[A-Za-z0-9]+$>/)    : return "lit_<s>";

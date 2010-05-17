@@ -3,6 +3,7 @@ package org.rascalmpl.parser.sgll;
 import java.lang.reflect.Method;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.stack.StackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
@@ -288,7 +289,7 @@ public abstract class SGLL implements IGLL{
 		return false;
 	}
 	
-	protected INode parse(StackNode startNode, char[] input){
+	protected IValue parse(StackNode startNode, char[] input){
 		// Initialize.
 		this.input = input;
 		StackNode rootNode = startNode.getCleanCopy();
@@ -306,6 +307,6 @@ public abstract class SGLL implements IGLL{
 		
 		if(root == null) throw new RuntimeException("Parse Error before: "+(location == Integer.MAX_VALUE ? 0 : location));
 		
-		return root.getResult();
+		return root.getResult().toTerm();
 	}
 }
