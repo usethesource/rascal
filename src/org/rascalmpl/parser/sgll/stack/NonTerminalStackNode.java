@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
-public final class NonTerminalStackNode extends StackNode{
+public final class NonTerminalStackNode extends AbstractStackNode{
 	private final String nonTerminal;
 	
 	private boolean marked;
@@ -43,11 +43,11 @@ public final class NonTerminalStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public StackNode getCleanCopy(){
+	public AbstractStackNode getCleanCopy(){
 		return new NonTerminalStackNode(this);
 	}
 	
-	public StackNode getCleanCopyWithPrefix(){
+	public AbstractStackNode getCleanCopyWithPrefix(){
 		NonTerminalStackNode ntpsn = new NonTerminalStackNode(this);
 		ntpsn.prefixes = prefixes;
 		ntpsn.prefixStartLocations = prefixStartLocations;
@@ -66,7 +66,7 @@ public final class NonTerminalStackNode extends StackNode{
 		return marked;
 	}
 	
-	public StackNode[] getChildren(){
+	public AbstractStackNode[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	

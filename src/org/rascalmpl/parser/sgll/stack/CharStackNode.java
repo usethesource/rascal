@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.CharNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
-public final class CharStackNode extends StackNode{
+public final class CharStackNode extends AbstractStackNode{
 	private final char[][] ranges;
 	
 	private INode result;
@@ -46,11 +46,11 @@ public final class CharStackNode extends StackNode{
 		return false;
 	}
 	
-	public StackNode getCleanCopy(){
+	public AbstractStackNode getCleanCopy(){
 		return new CharStackNode(this);
 	}
 	
-	public StackNode getCleanCopyWithPrefix(){
+	public AbstractStackNode getCleanCopyWithPrefix(){
 		CharStackNode cpsn = new CharStackNode(this);
 		cpsn.prefixes = prefixes;
 		cpsn.prefixStartLocations = prefixStartLocations;
@@ -69,7 +69,7 @@ public final class CharStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public StackNode[] getChildren(){
+	public AbstractStackNode[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	

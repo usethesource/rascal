@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
-public final class LiteralStackNode extends StackNode{
+public final class LiteralStackNode extends AbstractStackNode{
 	private final IConstructor symbol;
 	private final char[] literal;
 	
@@ -47,11 +47,11 @@ public final class LiteralStackNode extends StackNode{
 		return true;
 	}
 	
-	public StackNode getCleanCopy(){
+	public AbstractStackNode getCleanCopy(){
 		return new LiteralStackNode(this);
 	}
 	
-	public StackNode getCleanCopyWithPrefix(){
+	public AbstractStackNode getCleanCopyWithPrefix(){
 		LiteralStackNode lpsn = new LiteralStackNode(this);
 		lpsn.prefixes = prefixes;
 		lpsn.prefixStartLocations = prefixStartLocations;
@@ -70,7 +70,7 @@ public final class LiteralStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public StackNode[] getChildren(){
+	public AbstractStackNode[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	

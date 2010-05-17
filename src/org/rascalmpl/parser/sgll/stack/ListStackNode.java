@@ -5,17 +5,17 @@ import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
-public final class ListStackNode extends StackNode{
+public final class ListStackNode extends AbstractStackNode{
 	private final IConstructor symbol;
 
-	private final StackNode child;
+	private final AbstractStackNode child;
 	private final boolean isPlusList;
 	
 	private boolean marked;
 	
 	private final INode result;
 	
-	public ListStackNode(int id, IConstructor symbol, StackNode child, boolean isPlusList){
+	public ListStackNode(int id, IConstructor symbol, AbstractStackNode child, boolean isPlusList){
 		super(id);
 		
 		this.symbol = symbol;
@@ -26,7 +26,7 @@ public final class ListStackNode extends StackNode{
 		this.result = null;
 	}
 	
-	public ListStackNode(int id, IConstructor symbol, StackNode child, boolean isPlusList, INode result){
+	public ListStackNode(int id, IConstructor symbol, AbstractStackNode child, boolean isPlusList, INode result){
 		super(id);
 		
 		this.symbol = symbol;
@@ -64,11 +64,11 @@ public final class ListStackNode extends StackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public StackNode getCleanCopy(){
+	public AbstractStackNode getCleanCopy(){
 		return new ListStackNode(this);
 	}
 	
-	public StackNode getCleanCopyWithPrefix(){
+	public AbstractStackNode getCleanCopyWithPrefix(){
 		ListStackNode lpsn = new ListStackNode(this);
 		lpsn.prefixes = prefixes;
 		lpsn.prefixStartLocations = prefixStartLocations;
@@ -87,9 +87,9 @@ public final class ListStackNode extends StackNode{
 		return marked;
 	}
 	
-	public StackNode[] getChildren(){
-		StackNode psn = child.getCleanCopy();
-		StackNode cpsn = child.getCleanCopy();
+	public AbstractStackNode[] getChildren(){
+		AbstractStackNode psn = child.getCleanCopy();
+		AbstractStackNode cpsn = child.getCleanCopy();
 		ListStackNode lpsn = new ListStackNode((id | IGLL.LIST_LIST_FLAG), symbol, child, true, new ContainerNode());
 		
 		lpsn.addNext(psn);
@@ -106,7 +106,7 @@ public final class ListStackNode extends StackNode{
 		cpsn.setStartLocation(startLocation);
 		
 		if(isPlusList){
-			return new StackNode[]{cpsn};
+			return new AbstractStackNode[]{cpsn};
 		}
 		
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
@@ -114,7 +114,7 @@ public final class ListStackNode extends StackNode{
 		epsn.setStartLocation(startLocation);
 		epsn.setParentProduction(symbol);
 		
-		return new StackNode[]{cpsn, epsn};
+		return new AbstractStackNode[]{cpsn, epsn};
 	}
 	
 	public void addResult(IConstructor production, INode[] children){
