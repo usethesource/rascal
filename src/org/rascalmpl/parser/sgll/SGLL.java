@@ -44,9 +44,12 @@ public abstract class SGLL implements IGLL{
 		location = 0;
 	}
 	
-	public void expect(IConstructor production, StackNode... symbolsToExpect){
+	public void expect(IConstructor production, char[][] followRestrictions, StackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
-		symbolsToExpect[symbolsToExpect.length - 1].setParentProduction(production);
+		
+		StackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
+		lastNode.setParentProduction(production);
+		lastNode.setFollowRestriction(followRestrictions);
 	}
 	
 	private void callMethod(String methodName){
@@ -148,10 +151,16 @@ public abstract class SGLL implements IGLL{
 	private void reduceTerminal(StackNode terminal){
 		if(!terminal.reduce(input)) return;
 		
+		// Filtering
+		if(terminal.isReductionFiltered(input, location)) return;
+		
 		move(terminal);
 	}
 	
 	private void reduceNonTerminal(StackNode nonTerminal){
+		// Filtering
+		if(nonTerminal.isReductionFiltered(input, location)) return;
+		
 		move(nonTerminal);
 	}
 	
