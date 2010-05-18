@@ -274,6 +274,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class BoxEvaluator implements IASTVisitor<IValue> {
@@ -287,6 +288,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	final org.eclipse.imp.pdb.facts.type.Type typeL = BoxADT.EMPTY
 			.getConstructorType();
+
 
 	public static TypeStore getTypeStore() {
 		return BoxADT.getTypeStore();
@@ -1171,7 +1173,13 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitExpressionSetAnnotation(SetAnnotation x) {
-		return L(x.getClass().toString());
+		String s = TreeAdapter.yield((IConstructor) x.getExpression()
+				.getTree());
+		String[] q = s.split("\n");
+		IValue[] v = new IValue[q.length];
+		for (int i=0;i<q.length;i++)
+			v[i] = L(q[i]);
+        return V(L("`"), V(v), L("`"));
 	}
 
 	public IValue visitExpressionStepRange(StepRange x) {
@@ -2680,8 +2688,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitVariantNAryConstructor(NAryConstructor x) {
 		/* name:Name "(" arguments:{TypeArg ","}* ")" */
 		// if (!x.getArguments().isEmpty())
-			return I(H(0, eX(x.getName()), BoxADT.LPAR, HV(eXs(
-					x.getArguments(), null, null)), BoxADT.RPAR));
+		return I(H(0, eX(x.getName()), BoxADT.LPAR, HV(eXs(x.getArguments(),
+				null, null)), BoxADT.RPAR));
 
 		// return I(eX(x.getName()));
 	}
@@ -2722,8 +2730,9 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// r = r.append(eX(c));
 		// }
 		// r = r.append(I(BoxADT.RBLOCK));
-		return V(0, L(x.getStrategy().getClass().getSimpleName().toLowerCase()), cStat(
-				"visit", eX(x.getSubject()), list(BoxADT.LBLOCK, eXs0(x
+		return V(0,
+				L(x.getStrategy().getClass().getSimpleName().toLowerCase()),
+				cStat("visit", eX(x.getSubject()), list(BoxADT.LBLOCK, eXs0(x
 						.getCases()), BoxADT.RBLOCK)));
 	}
 
@@ -3186,7 +3195,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				t == null ? BoxADT.EMPTY : t, head(body))), tail(body));
 	}
 
-
 	private IValue cStat(IValue hBox, IValue left, IValue exs, IValue right,
 			IValue body) {
 		IValue t = null;
@@ -3216,7 +3224,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	public IValue visitCharLexical(Char.Lexical x) {
 		// TODO Auto-generated method stub
