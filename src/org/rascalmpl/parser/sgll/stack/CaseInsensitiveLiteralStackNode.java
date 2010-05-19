@@ -4,13 +4,13 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
-public final class ContextInsensitiveLiteralStackNode extends AbstractStackNode{
+public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode{
 	private final IConstructor symbol;
 	private final char[][] ciLiteral;
 	
 	private LiteralNode result;
 	
-	public ContextInsensitiveLiteralStackNode(int id, IConstructor symbol, char[] ciLiteral){
+	public CaseInsensitiveLiteralStackNode(int id, IConstructor symbol, char[] ciLiteral){
 		super(id);
 		
 		this.symbol = symbol;
@@ -30,7 +30,7 @@ public final class ContextInsensitiveLiteralStackNode extends AbstractStackNode{
 		}
 	}
 	
-	private ContextInsensitiveLiteralStackNode(ContextInsensitiveLiteralStackNode contextInsensitiveLiteralParseStackNode){
+	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode contextInsensitiveLiteralParseStackNode){
 		super(contextInsensitiveLiteralParseStackNode);
 		
 		symbol = contextInsensitiveLiteralParseStackNode.symbol;
@@ -71,11 +71,11 @@ public final class ContextInsensitiveLiteralStackNode extends AbstractStackNode{
 	}
 	
 	public AbstractStackNode getCleanCopy(){
-		return new ContextInsensitiveLiteralStackNode(this);
+		return new CaseInsensitiveLiteralStackNode(this);
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		ContextInsensitiveLiteralStackNode cilpsn = new ContextInsensitiveLiteralStackNode(this);
+		CaseInsensitiveLiteralStackNode cilpsn = new CaseInsensitiveLiteralStackNode(this);
 		cilpsn.prefixes = prefixes;
 		cilpsn.prefixStartLocations = prefixStartLocations;
 		return cilpsn;
