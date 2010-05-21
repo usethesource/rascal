@@ -123,7 +123,8 @@ public abstract class SGLL implements IGLL{
 				edge = updateEdgeNode(edge);
 				addResults(production, edge, results, resultStartLocations);
 			}
-		}else if((next = node.getNext()) != null){
+		}
+		if((next = node.getNext()) != null){
 			next = updateNextNode(next);
 			addPrefixes(next, results, resultStartLocations);
 		}
