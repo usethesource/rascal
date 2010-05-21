@@ -273,10 +273,10 @@ text font(text t, str tg) {
        }
    text r = [];
    r+=h;
-   for (int i <-[1, 1..(n-1)]) {
+   for (int i <-[1, 2..(n-1)]) {
        r+=t[i];
       }
-   r+=(t[n]+"}");
+   r+=(t[n]+"\b}12");
    return r;
   }
 
