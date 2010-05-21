@@ -89,24 +89,19 @@ public final class ListStackNode extends AbstractStackNode{
 	
 	public AbstractStackNode[] getChildren(){
 		AbstractStackNode psn = child.getCleanCopy();
-		AbstractStackNode cpsn = child.getCleanCopy();
 		ListStackNode lpsn = new ListStackNode((id | IGLL.LIST_LIST_FLAG), symbol, child, true, new ContainerNode());
 		
-		lpsn.addNext(psn);
-		psn.addEdge(lpsn);
+		psn.addNext(lpsn);
+		lpsn.addEdge(this);
 		psn.addEdge(this);
+		
 		psn.setParentProduction(symbol);
+		lpsn.setParentProduction(symbol);
 		
-		cpsn.addEdge(lpsn);
-		cpsn.addEdge(this);
-		cpsn.setParentProduction(symbol);
-		
-		psn.setStartLocation(-1); // Reset
-		lpsn.setStartLocation(startLocation);
-		cpsn.setStartLocation(startLocation);
+		psn.setStartLocation(startLocation);
 		
 		if(isPlusList){
-			return new AbstractStackNode[]{cpsn};
+			return new AbstractStackNode[]{psn};
 		}
 		
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
@@ -114,7 +109,7 @@ public final class ListStackNode extends AbstractStackNode{
 		epsn.setStartLocation(startLocation);
 		epsn.setParentProduction(symbol);
 		
-		return new AbstractStackNode[]{cpsn, epsn};
+		return new AbstractStackNode[]{psn, epsn};
 	}
 	
 	public void addResult(IConstructor production, INode[] children){
