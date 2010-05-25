@@ -78,11 +78,8 @@ public final class OptionalStackNode extends AbstractStackNode{
 		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
 		epsn.setParentProduction(symbol);
-
-		AbstractStackNode[] children = new AbstractStackNode[2];
-		children[0] = copy;
-		children[1] = epsn;
-		return children;
+		
+		return new AbstractStackNode[]{copy, epsn};
 	}
 	
 	public String getMethodName(){

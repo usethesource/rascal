@@ -62,6 +62,16 @@ public class ArrayList<E>{
 		return null;
 	}
 	
+	public void clear(){
+		data = (E[]) new Object[DEFAULT_SIZE];
+		size = 0;
+	}
+	
+	public void clear(int length){
+		data = (E[]) new Object[length];
+		size = 0;
+	}
+	
 	public int size(){
 		return size;
 	}
