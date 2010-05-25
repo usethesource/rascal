@@ -50,6 +50,8 @@ public abstract class AbstractStackNode{
 	
 	public abstract boolean isList();
 	
+	public abstract boolean isEpsilon();
+	
 	public abstract String getMethodName();
 	
 	public abstract boolean reduce(char[] input);

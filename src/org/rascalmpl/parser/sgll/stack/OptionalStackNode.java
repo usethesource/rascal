@@ -41,6 +41,10 @@ public final class OptionalStackNode extends AbstractStackNode{
 		return true;
 	}
 	
+	public boolean isEpsilon(){
+		return false;
+	}
+	
 	public void mark(){
 		marked = true;
 	}

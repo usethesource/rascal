@@ -23,6 +23,10 @@ public final class EpsilonStackNode extends AbstractStackNode{
 		return false;
 	}
 	
+	public boolean isEpsilon(){
+		return true;
+	}
+	
 	public String getMethodName(){
 		throw new UnsupportedOperationException();
 	}
