@@ -210,13 +210,11 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private boolean shareNode(AbstractStackNode node, AbstractStackNode stack){
-		if(!node.isEpsilon()){
-			for(int j = possiblySharedExpects.size() - 1; j >= 0; j--){
-				AbstractStackNode possiblySharedNode = possiblySharedExpects.get(j);
-				if(possiblySharedNode.isSimilar(node)){
-					possiblySharedExpectsEndNodes.get(j).addEdge(stack);
-					return true;
-				}
+		for(int j = possiblySharedExpects.size() - 1; j >= 0; j--){
+			AbstractStackNode possiblySharedNode = possiblySharedExpects.get(j);
+			if(possiblySharedNode.isSimilar(node)){
+				possiblySharedExpectsEndNodes.get(j).addEdge(stack);
+				return true;
 			}
 		}
 		return false;
@@ -225,10 +223,11 @@ public abstract class SGLL implements IGLL{
 	private void handleExpects(AbstractStackNode stackBeingWorkedOn){
 		for(int i = lastExpects.size() - 1; i >= 0; i--){
 			AbstractStackNode[] expectedNodes = lastExpects.get(i);
+			int numberOfNodes = expectedNodes.length;
+			AbstractStackNode first = expectedNodes[0];
 			
 			// Handle sharing (and loops).
-			if(!shareNode(expectedNodes[0], stackBeingWorkedOn)){
-				int numberOfNodes = expectedNodes.length;
+			if((numberOfNodes == 1 && first.isEpsilon()) || !shareNode(first, stackBeingWorkedOn)){
 				AbstractStackNode last = expectedNodes[numberOfNodes - 1].getCleanCopy();
 				AbstractStackNode next = last;
 				
@@ -271,11 +270,11 @@ public abstract class SGLL implements IGLL{
 			
 			if(listChildren.length > 1){ // Star list or optional.
 				child = listChildren[1];
-				if(!shareNode(child, node)){
-					stacksToExpand.add(child);
-					possiblySharedExpects.add(child);
-					possiblySharedExpectsEndNodes.add(child);
-				}
+				//if(!shareNode(child, node)){ This is always epsilon.
+				stacksToExpand.add(child);
+				possiblySharedExpects.add(child);
+				possiblySharedExpectsEndNodes.add(child);
+				//}
 			}
 		}
 	}
