@@ -109,6 +109,19 @@ public class IntegerHashMap<V>{
 		return null;
 	}
 	
+	public V get(int key){
+		int position = key & hashMask;
+		
+		Entry<V> entry = entries[position];
+		while(entry != null){
+			if(entry.key == key) return entry.value;
+			
+			entry = entry.next;
+		}
+		
+		return null;
+	}
+	
 	public V remove(int key){
 		int position = key & hashMask;
 		
@@ -134,17 +147,15 @@ public class IntegerHashMap<V>{
 		return null;
 	}
 	
-	public V get(int key){
-		int position = key & hashMask;
+	public void clear(){
+		int nrOfEntries = 1 << (bitSize = DEFAULT_BIT_SIZE);
 		
-		Entry<V> entry = entries[position];
-		while(entry != null){
-			if(entry.key == key) return entry.value;
-			
-			entry = entry.next;
-		}
+		hashMask = nrOfEntries - 1;
 		
-		return null;
+		entries = (Entry<V>[]) new Entry[nrOfEntries];
+		
+		threshold = nrOfEntries;
+		load = 0;
 	}
 	
 	private static class Entry<V>{
