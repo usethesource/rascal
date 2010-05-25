@@ -60,6 +60,10 @@ public final class SeparatedListStackNode extends AbstractStackNode{
 		return true;
 	}
 	
+	public boolean isEpsilon(){
+		return false;
+	}
+	
 	public String getMethodName(){
 		throw new UnsupportedOperationException();
 	}
