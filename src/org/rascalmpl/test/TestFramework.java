@@ -173,7 +173,11 @@ public class TestFramework {
 			reset();
 			execute(command);
 
-		} catch (Exception e) {
+		}
+		catch (StaticError e) {
+			throw e;
+		}
+		catch (Exception e) {
 			System.err
 					.println("Unhandled exception while preparing test: " + e);
 			e.printStackTrace();
