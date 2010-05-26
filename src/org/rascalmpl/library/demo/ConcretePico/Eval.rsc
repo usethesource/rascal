@@ -144,6 +144,8 @@ test E := evalProgram(`begin declare x : natural, y : natural; x := 10; y := x +
 test E := evalProgram(`begin declare x : string, y : string; x := "a"; y := x || "b" end`) && E[`x`] == strval("a") && E[`y`] == strval("ab");
    
 test E := evalProgram(small) && E[`s`] == strval("##########");
-   
+  
+  
+// TMP fail, since fac(50) is computed in example program
 test E := evalProgram(fac) && E[`output`] == intval(3628800);
 
