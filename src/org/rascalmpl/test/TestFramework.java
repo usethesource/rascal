@@ -87,6 +87,11 @@ public class TestFramework {
 				path.add(URI.create("rascal-test:///org/rascalmpl/benchmark"));
 				path.add(URI.create("rascal-test:///org/rascalmpl/test/data"));
 			}
+			
+			@Override
+			public String toString() {
+				return "[test library]";
+			}
 		});
 
 		// to find sdf modules in the test directory
