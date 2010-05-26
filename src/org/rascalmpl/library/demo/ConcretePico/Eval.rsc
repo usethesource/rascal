@@ -7,6 +7,7 @@ import String;
 import IO;
 import String;
 import Exception;
+import Benchmark;
 
 /*
  * Evaluator for Pico
@@ -32,6 +33,7 @@ TYPE stringType  = (TYPE) `string`;
 public ValueEnv evalProgram(PROGRAM P){
 
    if( ` begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end ` := P){
+
        return evalStatements(Stats, evalDecls(Decls));
    } else
        throw IllegalArgument(P);
@@ -120,6 +122,21 @@ PICO_VALUE evalExp(EXP exp, ValueEnv Env) {
    } 
 }
 
+public void reports(){
+		s = currentTimeMillis();
+		E = evalProgram(fac);
+		//assert E[`output`] == intval(3628800);
+		println("fac: <currentTimeMillis() - s> millis");
+}
+
+public void tst(){
+ println("********** TST ***********");
+ if(` begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end ` := `begin declare x : natural; x := 10 end`)
+   println("Decl = <Decls>, Stats = <Stats>");
+ else
+   println("fails");
+}
+
 test E := evalProgram(`begin declare x : natural; x := 10 end`) && E[`x`] == intval(10);
    
 test E := evalProgram(`begin declare x : natural, y : natural; x := 10; y := x + 1 end`) && E[`x`] == intval(10) && E[`y`] == intval(11);
@@ -129,3 +146,4 @@ test E := evalProgram(`begin declare x : string, y : string; x := "a"; y := x ||
 test E := evalProgram(small) && E[`s`] == strval("##########");
    
 test E := evalProgram(fac) && E[`output`] == intval(3628800);
+

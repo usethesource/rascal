@@ -31,6 +31,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 		this.declaredType = (NonTerminalType) type;
 		this.anonymous = name.toString().equals("_");
 		this.iDeclaredItMyself = false;
+		//System.err.println("ConcreteListVariablePattern");
 	}
 
 	@Override

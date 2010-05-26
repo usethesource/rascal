@@ -327,7 +327,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 					visitElements(args.getElements()));
 		}
 		if(isConcreteSyntaxAppl(x)){
-			return new ConcreteApplicationPattern(ctx, x, visitArguments(x));
+			return new ConcreteApplicationPattern(ctx, x, visitConcreteArguments(x));
 		}
 		if (isConcreteSyntaxAmb(x)) {
 			throw new AmbiguousConcretePattern(x);
@@ -352,6 +352,26 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	private java.util.List<IMatchingResult> visitArguments(CallOrTree x){
 		java.util.List<org.rascalmpl.ast.Expression> elements = x.getArguments();
 		return visitElements(elements);
+	}
+	
+	private java.util.List<IMatchingResult> visitConcreteArguments(CallOrTree x){
+        Expression args = x.getArguments().get(1);
+        
+		java.util.List<org.rascalmpl.ast.Expression> elements = args.getElements();
+		return visitConcreteElements(elements);
+	}
+	
+	private java.util.List<IMatchingResult> visitConcreteElements(java.util.List<org.rascalmpl.ast.Expression> elements){
+		int n = elements.size();
+		ArrayList<IMatchingResult> args = new java.util.ArrayList<IMatchingResult>(n);
+
+		for(int i = 0; i < n; i += 2){ // skip layout elements
+			org.rascalmpl.ast.Expression e = elements.get(i);
+			args.add(i, e.accept(this));
+			if(i+1 < n)
+				args.add(i+1, null);
+		}
+		return args;
 	}
 
 
