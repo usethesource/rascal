@@ -55,7 +55,7 @@ begin
     repnr: natural,
     rep: natural;
 
-  input := 10;
+  input := 50;
   output := 1;
   while input - 1 do
     rep := output;

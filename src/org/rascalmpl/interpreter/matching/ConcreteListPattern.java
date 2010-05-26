@@ -28,6 +28,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 		super(ctx);
 		callOrTree = x;
 		initListPatternDelegate(list);
+		//System.err.println("ConcreteListPattern");
 	}
 
 	private void initListPatternDelegate(List<IMatchingResult> list) {

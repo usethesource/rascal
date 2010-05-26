@@ -69,9 +69,5 @@ public void reports(){
     }
 }
 
-public int m(){
-       return countAsg1(makeProgram(2));
-}
-
 test countAsg(small) == 3;
 test countAsg(makeProgram(10)) == 10;

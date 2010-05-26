@@ -2,41 +2,152 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.IUPTRAstToSymbolConstructor;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteApplicationPattern extends AbstractMatchingResult {
-	private AbstractMatchingResult pat;
 	private Expression.CallOrTree callOrTree;
+	private boolean hasNext;
+	private IMatchingResult name;
+	private QualifiedName qname;
+	private List<IMatchingResult> children;
+	private boolean firstMatch;
+	private boolean debug = false;
 
 	public ConcreteApplicationPattern(
 			IEvaluatorContext ctx, CallOrTree x,
 			List<IMatchingResult> list) {
+		
 		super(ctx);
-		org.rascalmpl.ast.QualifiedName N = x.getExpression().getQualifiedName();
-		pat = new NodePattern(ctx, null, N, list);
+		this.name = null;
+		this.qname = x.getExpression().getQualifiedName();
+		this.children = list;
 		callOrTree = x;
+		if(debug){
+			System.err.println("ConcreteApplicationPattern: " + qname + ", #children:" + list.size());
+			for(IMatchingResult r : list){
+				System.err.println("\t" + r);
+			}
+		}
 	}
 
 	@Override
 	public void initMatch(Result<IValue> subject) {
+		hasNext = true;
+		Type subjectType = subject.getType();
 		super.initMatch(subject);
-		pat.initMatch(subject);
+		if(subjectType.isAbstractDataType()){
+			IConstructor treeSubject = (IConstructor)subject.getValue();
+			if(TreeAdapter.isAppl(treeSubject) &&  ((IList) treeSubject.get(1)).length() == children.size()){
+				
+				if (name != null) {
+					Environment env = ctx.getCurrentEnvt();
+					Type nameType = name.getType(env);
+					
+					if (nameType.isStringType()) {
+						name.initMatch(ResultFactory.makeResult(tf.stringType(), ctx.getValueFactory().string(treeSubject.getName()), ctx));
+					}
+					else if (nameType.isExternalType()) {
+						if (treeSubject instanceof IConstructor) {
+							Result<IValue> funcSubject = ctx.getCurrentEnvt().getVariable(treeSubject.getName());
+							name.initMatch(funcSubject);
+						}
+					}
+					else {
+						throw new UnexpectedTypeError(tf.stringType(), nameType, name.getAST());
+					}
+				}
+				else {
+					if(!Names.name(Names.lastName(qname)).equals(treeSubject.getName().toString())) {
+						return;
+					}
+				}
+				IList treeSubjectChildren = (IList) treeSubject.get(1);
+				
+				for (int i = 0; i < children.size(); i += 2){ // skip layout
+					IValue childValue = treeSubjectChildren.get(i);
+					// TODO: see if we can use a static type here!?
+					children.get(i).initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+				}
+				firstMatch = hasNext = true;
+				return;
+			}
+		}
+		hasNext = false;
 	}
 	
 	@Override
-	public boolean hasNext() {
-		return pat.hasNext();
+	public boolean hasNext(){
+		if(!initialized)
+			return false;
+		if(firstMatch)
+			return true;
+		if(!hasNext)
+			return false;
+		
+		if(name == null || name.hasNext()) {
+			if(children.size() > 0){
+				for (int i = 0; i < children.size(); i += 2) { // skip layout
+					if(children.get(i).hasNext()){
+						return true;
+					}
+				}
+			}
+		}
+		hasNext = false;
+		return false;
+	}
+	
+	@Override
+	public boolean next(){
+		checkInitialized();
+		
+		if(!(firstMatch || hasNext))
+			return false;
+
+		if (name != null) {
+			boolean nameNext = name.next();
+			if (!nameNext) {
+				firstMatch = hasNext = false;
+				return false;
+			}
+		}
+		
+		if(children.size() == 0){
+			boolean res = firstMatch;
+			firstMatch = hasNext = false;
+			return res;	
+		}
+	   
+		firstMatch = false;
+		hasNext = matchChildren();
+		
+		return hasNext;
+	}
+	
+	boolean matchChildren(){
+		for (int i = 0; i < children.size(); i += 2) {
+			if(!children.get(i).next()){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	@Override
@@ -65,15 +176,8 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	}
 
 	@Override
-	public boolean next() {
-		return pat.next();
-	}
-
-	@Override
 	public IValue toIValue(Environment env) {
-		return pat.toIValue(env);
+		// TODO Auto-generated method stub
+		return null;
 	}
-
-	
-	
 }

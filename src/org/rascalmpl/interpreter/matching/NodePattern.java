@@ -32,8 +32,8 @@ public class NodePattern extends AbstractMatchingResult {
 		this.qname = name;
 		this.children = list;
 		if(debug){
-			System.err.println("AbstractPatternNode: " + name + ", #children: " + list.size() );
-			System.err.println("AbstractPatternNode name:" + name != null ? name : qname);
+			System.err.println("NodePattern: " + name + ", #children: " + list.size());
+			System.err.println("NodePattern name:" + name != null ? name : qname);
 			for(IMatchingResult ap : list){
 				System.err.println(ap);
 			}
@@ -43,8 +43,8 @@ public class NodePattern extends AbstractMatchingResult {
 	@Override
 	public void initMatch(Result<IValue> subject){
 		if(debug){
-			System.err.println("AbstractPatternNode: initMatch");
-			System.err.println("AbstractPatternNode: subject type=" + subject.getType());
+			System.err.println("NodePattern: initMatch");
+			System.err.println("NodePattern: subject type=" + subject.getType());
 		}
 		super.initMatch(subject);
 		hasNext = false;
@@ -53,10 +53,10 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 		treeSubject = (INode) subject.getValue();
 		if(debug){
-			System.err.println("AbstractPatternNode: pattern=" + name != null ? name : qname);
-			System.err.println("AbstractPatternNode: treeSubject=" + treeSubject);
-			System.err.println("AbstractPatternNode: treeSubject.arity() =" + treeSubject.arity());
-			System.err.println("AbstractPatternNode: children.size() =" + children.size());
+			System.err.println("NodePattern: pattern=" + name != null ? name : qname);
+			System.err.println("NodePattern: treeSubject=" + treeSubject);
+			System.err.println("NodePattern: treeSubject.arity() =" + treeSubject.arity());
+			System.err.println("NodePattern: children.size() =" + children.size());
 		}
 		if(treeSubject.arity() != children.size()){
 			return;
@@ -85,7 +85,7 @@ public class NodePattern extends AbstractMatchingResult {
 			}
 		}
 		
-		for (int i = 0; i < children.size(); i++){
+		for (int i = 0; i < children.size(); i += 1){
 			IValue childValue = treeSubject.get(i);
 			// TODO: see if we can use a static type here!?
 			children.get(i).initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
@@ -106,7 +106,7 @@ public class NodePattern extends AbstractMatchingResult {
 	public Type getConstructorType(Environment env) {
 		 Type[] types = new Type[children.size()];
 
-		 for (int i = 0; i < children.size(); i++) {
+		 for (int i = 0; i < children.size(); i += 1) {
 			 types[i] =  children.get(i).getType(env);
 		 }
 		 
@@ -132,7 +132,7 @@ public class NodePattern extends AbstractMatchingResult {
 		Type[] types = new Type[children.size()];
 		IValue[] vals = new IValue[children.size()];
 		
-		for (int i = 0; i < children.size(); i++) {
+		for (int i = 0; i < children.size(); i += 1) {
 			types[i] =  children.get(i).getType(env);
 			vals[i] =  children.get(i).toIValue(env);
 		}
@@ -151,7 +151,7 @@ public class NodePattern extends AbstractMatchingResult {
 	@Override
 	public java.util.List<String> getVariables(){
 		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
-		for (int i = 0; i < children.size(); i++) {
+		for (int i = 0; i < children.size(); i += 1) {
 			res.addAll(children.get(i).getVariables());
 		 }
 		return res;
@@ -168,7 +168,7 @@ public class NodePattern extends AbstractMatchingResult {
 		
 		if(name == null || name.hasNext()) {
 			if(children.size() > 0){
-				for (int i = 0; i < children.size(); i++) {
+				for (int i = 0; i < children.size(); i += 1) {
 					if(children.get(i).hasNext()){
 						return true;
 					}
@@ -201,10 +201,20 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 	   
 		firstMatch = false;
-		hasNext = matchChildren(treeSubject.getChildren().iterator(), children.iterator());
+		hasNext = matchChildren();
 		
 		return hasNext;
 	}
+	
+	boolean matchChildren(){
+		for (int i = 0; i < children.size(); i += 1) {
+			if(!children.get(i).next()){
+				return false;
+			}
+		}
+		return true;
+	}
+
 	
 	@Override
 	public String toString(){
