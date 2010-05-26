@@ -89,18 +89,20 @@ public class AliasTests extends TestFramework{
 	@Test
 	public void outofOrderDeclaration() {
 		prepareModule("Tester", "module Tester alias INTEGER0 = INTEGER1; alias INTEGER1 = int;");
-		prepareMore("import Test;");
+		prepareMore("import Tester;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 
 	@Test(expected=StaticError.class) 
 	public void longCycle() {
 		prepareModule("Tester", "module Tester alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER2; alias INTEGER2 = INTEGER0;");
+		prepareMore("import Tester;");
 	}
 	
 	@Test(expected=StaticError.class) 
 	public void undeclaredTypeInDefinition() {
 		prepareModule("Tester", "module Tester alias INTEGER0 = INTEGER1;");
+		prepareMore("import Tester;");
 	}
 	
 	@Test(expected=StaticError.class)

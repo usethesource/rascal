@@ -22,6 +22,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInputStreamResolver;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -185,7 +186,11 @@ public class TestFramework {
 		try {
 			execute(command);
 
-		} catch (Exception e) {
+		}
+		catch (StaticError e) {
+			throw e;
+		}
+		catch (Exception e) {
 			System.err
 					.println("Unhandled exception while preparing test: " + e);
 			throw new AssertionError(e.getMessage());
