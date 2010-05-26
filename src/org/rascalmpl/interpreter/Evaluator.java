@@ -339,6 +339,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					}
 				}
 			}
+			@Override
+			public String toString() {
+				return "[current wd and stdlib]";
+			}
 		});
 
 		// add current wd and sdf-library to search path for SDF modules
@@ -520,6 +524,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		resolver.addPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(java.util.List<URI> path) {
 				path.add(0, uri);
+			}
+			
+			@Override
+			public String toString() {
+				return uri.toString();
 			}
 		});
 	}
