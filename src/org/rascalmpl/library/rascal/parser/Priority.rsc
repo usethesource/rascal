@@ -2,21 +2,81 @@ module rascal::parser::Priority
 
 import rascal::parser::Grammar;
 import rascal::parser::Definition;
+import ParseTree;
+import List;
+
+@doc{A Symbol constructor that can introduce levels for a certain non-terminal,
+which can be used to implement priorities and associativity}
+data Symbol = level(Symbol symbol, int level);
+
+rule bottom level(Symbol a, int x) => a when x <= 0;
+
+public Grammar factorize(Grammar g) {
+  g.productions = factorize(g.productions);
+  return g;
+}
+
+set[Production] factorize(set[Production] productions) {
+  return { factorize(p) | p <- productions };
+}
+
+set[Production] factorize(Production p) {
+   if (first(Symbol s, list[Production] prods) := p) { 
+      int len = length(prods);
+      levels = [ setToLevel(p, length(postfix)) 
+               | [list[Production] prefix, Production elem, list[Production] postfix] := prods];
+      return { choice(level(s, level), {elem, toSet(redefine(prefix, level(s, level)))}) 
+               | int level := length(postfix), [list[Production] prefix, Production elem, list[Production] postfix] := levels}; 
+   }
+   else {
+     return {p};
+   }
+}
+         
+list[Production] redefine(list[Production] prods, Symbol s) {
+  return visit (prods) {
+    case prod(list[Symbol] lhs, _, Attributes a) => prod(lhs, s, a)
+    case choice(_, set[Production] alts) => choice(s, alts)
+    case \assoc(_, Associativity a, Production p) => \assoc(s, a, p)
+    case \diff(_, Production p, set[Production] alts) => \diff(s, p, alts)
+    case \restrict(_, Production language, list[CharClass] restrictions) => restrict(s, language, restrictions)
+     // TODO: add cases for choice, assoc, diff and follow
+  }
+}
+
+Production setToLevel(Production p, Symbol s, int level) {
+  // This visit recognizes left-most and right-most recursive productions.
+  // It replaces each recursive non-terminal, if left-most or right-most, with a wrapped (level) non-terminal
+  // Associativity rules are applied by increasing the level number on selected non-terminals.
   
-public rel[Production greater, Production lower] priorities(Grammar g) {
-  return {};
-}
- 
-public rel[Production greater, Production lower] leftAssociativity(Grammar g) {
-  return {};
-}
+  return visit (p) {
+    case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\left()),list[Attr] a2])) => 
+         prod([level(s, level), middle, level(s, level+1)],level(s,level),add(a, priority(level)))
+    case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\right()),list[Attr] a2])) => 
+         prod([level(s, level+1), middle, level(s, level)],level(s,level),add(a, priority(level)))
+    case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\assoc()),list[Attr] a2])) => 
+         prod([level(s, level), middle, level(s, level+1)],level(s,level),add(a, priority(level)))
+    case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\non-assoc()),list[Attr] a2])) => 
+         prod([level(s, level+1), middle, level(s, level+1)],level(s,level),add(a, priority(level)))
+    case prod([s, list[Symbol] middle, s],s,Attributes a) => 
+         prod([level(s, level), middle, level(s, level)],level(s,level),add(a, priority(level)))
+    case prod([s, list[Symbol] tail],s,Attributes a)      => 
+         prod([level(s, level), tail], level(s, level), add(a, priority(level)))
+    case prod([list[Symbol] front, s], s, Attributes a)   => 
+         prod([front, level(s, level)], level(s, level), add(a, priority(level))) 
+    case prod(list[Symbol] lhs, s, Attributes a)          => 
+         prod(lhs, level(s, level), add(a, priority(level)))
+    case choice(s, set[Production] alts) => choice(level(s, level), alts)
+    case \assoc(s, Associativity a, Production p) => \assoc(level(s, level), a, p)
+    case \diff(s, Production p, set[Production] alts) => \diff(level(s, level), p, alts)
+    case \restrict(s, Production language, list[CharClass] restrictions) => restrict(level(s,level), language, restrictions)  
+  }
+}   
 
-public rel[Production greater, Production lower] rightAssociativity(Grammar g) {
-  return {};
-} 
-
-public rel[Production greater, Production lower] nonAssociativity(Grammar g) {
-  return {};
-}       
-            
-      
+private Attributes add(Attributes attrs, Attr a) {
+  switch(attrs) {
+    case \no-attrs() : return attrs([a]);
+    case attrs(list[Attr] as) : return attrs([as, a]);
+    default: throw "missed a case <attrs>";
+  }
+}

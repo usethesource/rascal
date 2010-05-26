@@ -17,17 +17,19 @@ import Integer;
 // join the rules for the same non-terminal
 rule merge   grammar(s,{p,q,set[Production] a}) => grammar(s,{choice(sort(p), {p,q}), a}) when sort(p) == sort(q);
 	
-// these rule flatten complex productions and ignore ordering under diff and assoc and restrict
+// these rules flatten complex productions and ignore ordering under diff and assoc and restrict
 rule or     choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})                    => choice(s,a+b); 
 rule single first(Symbol s, [Production p]) => p;  
 rule xor    first(Symbol s, [list[Production] a,first(Symbol t, list[Production] b),list[Production] c])  => first(s,a+b+c); 
 rule xor    first(Symbol s, [list[Production] a,choice(Symbol t, {Production b}),list[Production] c])     => first(a+[b]+c); 
-rule or     choice(Symbol s, {set[Production] a, first(Symbol t, [Production b])})        => choice(s, a+{b}); 
 rule \assoc  \assoc(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) => \assoc(s, as, a+b); 
 rule \assoc  \assoc(Symbol s, Associativity as, {set[Production] a, first(Symbol t, list[Production] b)}) => \assoc(s, as, a + { e | e <- b}); // ordering does not work under assoc
 rule diff   diff(Symbol s, Production p, {set[Production] a, choice(Symbol t, set[Production] b)})   => diff(s, p, a+b);   
 rule diff   diff(Symbol s, Production p, {set[Production] a, first(Symbol t, list[Production] b)})   => diff(s, p, a + { e | e <- b});  // ordering is irrelevant under diff
 rule diff   diff(Symbol s, Production p, {set[Production] a, \assoc(Symbol t, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
+
+// this rules merges unordered alternatives with the top-most priority
+rule or     choice(Symbol s, {set[Production] a, first(Symbol t, [Production p, list[Production] rest])})        => first(t, [choice(s, {a,p}), rest]); 
 
 // this makes sure the ... (others) are merged in at the right place
 rule others choice(Symbol s, {set[Production] a, others(s)}) => choice(s, a);
@@ -149,21 +151,29 @@ private Production prod2prod(Symbol nt, Prod p) {
     case (Prod) `<Prod l> | <Prod r>` :
       return choice(sort(prod2prod(nt,l)),{prod2prod(nt, l), prod2prod(nt, r)});
     case (Prod) `<Prod l> > <Prod r>` :
-      return first(sort(prod2prod(nt,l)),[prod2prod(nt, l), prod2prod(nr, r)]);
+      return first(sort(prod2prod(nt,l)),[prod2prod(nt, l), prod2prod(nt, r)]);
     case (Prod) `<Prod l> - <Prod r>` :
-      return diff(sort(prod2prod(nt,l)), prod2prod(nt, l), {prod2prod(nt, r)});
+      return diff(sort(prod2prod(nt,l)), prod2prod(nt, l), {attribute(prod2prod(nt, r), reject())});
     case (Prod) `left (<Prod p>)` :
-      return \assoc(sort(prod2prod(nt,p)), \left(), {prod2prod(nt, p)});
+      return \assoc(sort(prod2prod(nt,p)), \left(), {attribute(prod2prod(nt, p), \assoc(\left()))});
     case (Prod) `right (<Prod p>)` :
-      return \assoc(sort(prod2prod(nt,p)), \right(), {prod2prod(nt, p)});
+      return \assoc(sort(prod2prod(nt,p)), \right(), {attribute(prod2prod(nt, p), \assoc(\right()))});
     case (Prod) `non-assoc (<Prod p>)` :
-      return \assoc(sort(prod2prod(nt,p)), \non-assoc(), {prod2prod(nt, p)});
+      return \assoc(sort(prod2prod(nt,p)), \non-assoc(), {attribute(prod2prod(nt, p), \assoc(\non-assoc()))});
     case (Prod) `assoc(<Prod p>)` :
-      return \assoc(sort(prod2prod(nt,p)), \left(), {prod2prod(nt, p)});
+      return \assoc(sort(prod2prod(nt,p)), \left(), {attribute(prod2prod(nt, p),\assoc(\assoc()))});
     case `...`: throw "... operator is not yet implemented";
     case `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";
   } 
+}
+
+@doc{adds an attribute to all productions it can find}
+private Production attribute(Production p, Attr a) {
+  return visit (p) {
+    case prod(lhs,rhs,\no-attrs()) => prod(lhs, rhs, attrs([a]))
+    case prod(lhs,rhs,attrs(list[Attributes] l)) => prod(lhs, rhs, attrs([l, a]))
+  }
 }
 
 private bool hasLex(ProdModifier* ms) {
