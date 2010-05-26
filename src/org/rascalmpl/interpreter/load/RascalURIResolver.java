@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
  * this resolver will look through the Rascal search path and find the proper input stream if it exists.
  */
 public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver {
-	private final List<IRascalSearchPathContributor> contributors = new ArrayList<IRascalSearchPathContributor>();
+	private final ArrayList<IRascalSearchPathContributor> contributors = new ArrayList<IRascalSearchPathContributor>();
 	private final static URIResolverRegistry registry = URIResolverRegistry.getInstance();
 	
 	public void addPathContributor(IRascalSearchPathContributor contrib) {
@@ -63,9 +64,13 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<URI> collect() {
+		// collect should run the contributors in reverse order
 		List<URI> paths = new LinkedList<URI>();
-		for (IRascalSearchPathContributor c : contributors) {
+		List<IRascalSearchPathContributor> reversed = (List<IRascalSearchPathContributor>) contributors.clone();
+		Collections.reverse(reversed);
+		for (IRascalSearchPathContributor c : reversed) {
 			c.contributePaths(paths);
 		}
 		
