@@ -24,7 +24,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private Expression.CallOrTree callOrTree;
 	private boolean hasNext;
-	private IMatchingResult name;
 	private QualifiedName qname;
 	private List<IMatchingResult> children;
 	private boolean firstMatch;
@@ -35,7 +34,6 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			List<IMatchingResult> list) {
 		
 		super(ctx);
-		this.name = null;
 		this.qname = x.getExpression().getQualifiedName();
 		this.children = list;
 		callOrTree = x;
@@ -49,37 +47,18 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 
 	@Override
 	public void initMatch(Result<IValue> subject) {
-		hasNext = true;
+		hasNext = false;
 		Type subjectType = subject.getType();
 		super.initMatch(subject);
 		if(subjectType.isAbstractDataType()){
 			IConstructor treeSubject = (IConstructor)subject.getValue();
 			if(TreeAdapter.isAppl(treeSubject) &&  ((IList) treeSubject.get(1)).length() == children.size()){
-				
-				if (name != null) {
-					Environment env = ctx.getCurrentEnvt();
-					Type nameType = name.getType(env);
-					
-					if (nameType.isStringType()) {
-						name.initMatch(ResultFactory.makeResult(tf.stringType(), ctx.getValueFactory().string(treeSubject.getName()), ctx));
-					}
-					else if (nameType.isExternalType()) {
-						if (treeSubject instanceof IConstructor) {
-							Result<IValue> funcSubject = ctx.getCurrentEnvt().getVariable(treeSubject.getName());
-							name.initMatch(funcSubject);
-						}
-					}
-					else {
-						throw new UnexpectedTypeError(tf.stringType(), nameType, name.getAST());
-					}
-				}
-				else {
-					if(!Names.name(Names.lastName(qname)).equals(treeSubject.getName().toString())) {
-						return;
-					}
+
+				if(!Names.name(Names.lastName(qname)).equals(treeSubject.getName().toString())) {
+					return;
 				}
 				IList treeSubjectChildren = (IList) treeSubject.get(1);
-				
+
 				for (int i = 0; i < children.size(); i += 2){ // skip layout
 					IValue childValue = treeSubjectChildren.get(i);
 					// TODO: see if we can use a static type here!?
@@ -89,7 +68,6 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				return;
 			}
 		}
-		hasNext = false;
 	}
 	
 	@Override
@@ -100,13 +78,11 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			return true;
 		if(!hasNext)
 			return false;
-		
-		if(name == null || name.hasNext()) {
-			if(children.size() > 0){
-				for (int i = 0; i < children.size(); i += 2) { // skip layout
-					if(children.get(i).hasNext()){
-						return true;
-					}
+
+		if(children.size() > 0){
+			for (int i = 0; i < children.size(); i += 2) { // skip layout
+				if(children.get(i).hasNext()){
+					return true;
 				}
 			}
 		}
@@ -120,14 +96,6 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		
 		if(!(firstMatch || hasNext))
 			return false;
-
-		if (name != null) {
-			boolean nameNext = name.next();
-			if (!nameNext) {
-				firstMatch = hasNext = false;
-				return false;
-			}
-		}
 		
 		if(children.size() == 0){
 			boolean res = firstMatch;
