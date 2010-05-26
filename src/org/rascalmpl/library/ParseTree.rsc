@@ -28,7 +28,11 @@ data Attributes =
 data Attr =
      \assoc(Associativity \assoc) | 
      \term(value \term) |  
-     id(str moduleName) | \bracket() | \reject() | \prefer() | \avoid();
+     \bracket() | \reject() |
+     \priority(int level);
+     
+@deprecrated{only supported by SDF2}
+data Attr = \prefer() | \avoid() | id(str moduleName);
 
 data Associativity =
      \left() | \right() | \assoc() | \non-assoc();
