@@ -3,6 +3,8 @@ module rascal::conversion::sdf2::SDF2Grammar
 // this module converts SDF2 grammars to the Rascal internal grammar representation format
 
 import IO;
+import String;
+import Integer;
 import ParseTree;
 import rascal::parser::Grammar;
 import rascal::parser::Definition;
@@ -154,17 +156,24 @@ private str unescape(StrCon s) {
        case /\\t/ => "\t"
        case /\\r/ => "\r"  
        case /\\\"/ => "\""  
-       case /\\\'/ => "\'"
        case /\\\\/ => "\\"
+       
+       // add cases: \TOP \BOT \EOF \LABEL_START
      };      
    }
    throw "unexpected string format: <s>";
 }
 
-private Symbol getCharClass(CharClass cc) {
+test unescape((StrCon) `"abc"`) == "abc";
+test unescape((StrCon) `"a\nc"`) == "a\nc";
+test unescape((StrCon) `"a\"c"`) == "a\"c";
+test unescape((StrCon) `"a\\c"`) == "a\\c";
+
+
+public Symbol getCharClass(languages::sdf2::syntax::\Sdf2-Syntax::CharClass cc) {
    switch(cc) {
      case (CharClass) `[]` : return \char-class([]);
-     case (CharClass) `[<CharRanges ranges>]` : return \char-class([range(r) | /CharRange r := ranges]);
+     case (CharClass) `[<CharRanges ranges>]` : {println("ranges=<ranges>");return \char-class([range(r) | /CharRange r := ranges]);}
      case (CharClass) `(<CharClass c>)`: return getCharClass(c);
      case (CharClass) `~ <CharClass c>`: return complement(getCharClass(c));
      case (CharClass) `<CharClass l> /\ <CharClass r>`: return intersection(getCharClass(l),getCharClass(r));
@@ -173,25 +182,41 @@ private Symbol getCharClass(CharClass cc) {
      default: throw "missed a case <cc>";
    }
 }
+
+//  (CharClass) `[]` == \char-class([]);  // ===> gives unsupported operation
+
+test getCharClass((CharClass) `[]`) == \char-class([]);
+test getCharClass((CharClass) `[a]`) == \char-class([range(97,97)]);
+test getCharClass((CharClass) `[a-z0-9]`) == \char-class([range(97,122), range(48,57)]);
       
-private CharRange getRange(CharRange r) {
+private CharRange getRange(languages::sdf2::syntax::\Sdf2-Syntax::CharRange r) {
   switch (r) {
     case (CharRange) `<Character c>` : return range(getCharacter(c),getCharacter(c));
     case (CharRange) `<Character l> - <Character r>`: return range(getCharacter(l),getCharacter(r));
     default: throw "missed a case <r>";
   }
-} 
+}
+
+test getRange((CharRange) `a`) == range(97,97);
+test getRange((CharRange) `a-z`) == range(97,122);
 
 private int getCharacter(Character c) {
   switch (c) {
-    case [Character] /<ch:[^"'\-\[\] ]>/       : return charAt(ch, 0); 
-    case [Character] /\\<esc:["'\-\[\] ]>/     : return charAt(esc, 0);
-    case [Character] /\\<oct:[0-7]>/           : return toInt("0<oct>");
-    case [Character] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
     case [Character] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
+    case [Character] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
+    case [Character] /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    case [Character] /\\<esc:["'\-\[\]\\ ]>/   : return charAt(esc, 0);
+    case [Character] /<ch:[^"'\-\[\]\\ ]>/     : return charAt(ch, 0);
     default: throw "missed a case <c>";
   }
 }
+
+test getCharacter((Character) `a`) == charAt("a", 0);
+test getCharacter((Character) `\\`) == charAt("\\", 0);
+test getCharacter((Character) `\'`) == charAt("'", 0);
+test getCharacter((Character) `\1`) == toInt("01");
+test getCharacter((Character) `\12`) == toInt("012");
+test getCharacter((Character) `\123`) == toInt("0123");
 
 private Attributes getAttributes(Attribute* mods) {
   return attrs([getAttribute(m) | Attribute m <- mods]);
@@ -208,3 +233,6 @@ private Attr getAttribute(Attribute m) {
     default: throw "missed a case <m>";
   }
 }
+
+test getAttribute((Attribute) `left`) == \assoc(left());
+test getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
