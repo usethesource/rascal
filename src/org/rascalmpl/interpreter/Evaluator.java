@@ -1021,7 +1021,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		//		TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
 		if (isSDFModule(name)) {
-			evalSDFModule(x);
+			heap.addModule(new ModuleEnvironment(name));
+			evalSDFModule(name, x);
 			return nothing();
 		}
 		
@@ -1051,13 +1052,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return nothing();
 	}
 
-	protected void evalSDFModule(
+	protected void evalSDFModule(String name, 
 			org.rascalmpl.ast.Import.Default x) {
 		loadParseTreeModule(x);
 		getCurrentModuleEnvironment().addSDFImport(getUnescapedModuleName(x));
+		ModuleEnvironment mod = heap.getModule(name);
+		if (mod == null) {
+			mod = new ModuleEnvironment(name);
+			heap.addModule(mod);
+		}
 		
 		try {
-			parser.generateModuleParser(sdf.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), getCurrentModuleEnvironment());
+			parser.generateModuleParser(sdf.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), mod);
 		} catch (IOException e) {
 			RuntimeExceptionFactory.io(vf.string("IO exception while importing module " + x), x, getStackTrace());
 		}
