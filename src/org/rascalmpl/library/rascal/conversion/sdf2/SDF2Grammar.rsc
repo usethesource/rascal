@@ -84,9 +84,9 @@ public Production getPriority(Priority priority, boolean isLex) {
      case (Priority) `{<Production* ps>}` : 
        return choice(definedSymbol(ps,isLex), [getProduction(p,isLex) | p <- ps]);
      case (Priority) `{<Associativity a> : <Production* ps>}` : 
-       return assoc(definedSymbol(ps, isLex), getAssociativity(a), {getPriority(p,isLex), p <- ps});
+       return \assoc(definedSymbol(ps, isLex), getAssociativity(a), {getPriority(p,isLex), p <- ps});
      case (Priority) `<Group g1> <Associativity a> <Group g2>` : 
-       return assoc(definedSymbol(g1, isLex), getAssociativity(a), {getPriority((Priority) `<Group g1>`, isLex), getPriority((Priority) `<Group g2>`,isLex)});
+       return \assoc(definedSymbol(g1, isLex), getAssociativity(a), {getPriority((Priority) `<Group g1>`, isLex), getPriority((Priority) `<Group g2>`,isLex)});
      case (Priority) `<{Group ">"}+ groups>` : 
        return first(definedSymbol(groups,isLex), [getPriority(group,isLex) | group <- groups]);
    }
@@ -133,14 +133,14 @@ private ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2::Symbol sym, b
     default: throw "missed a case <sym>";
   } 
   else switch (sym) {  
-    case (Symbol) `<Symbol s> *`  : return \iter-star-sep(getSymbol(s,isLex),[layout()]);
-    case (Symbol) `<Symbol s> +`  : return \iter-sep(getSymbol(s,isLex),[layout()]);
-    case (Symbol) `<Symbol s> *?` : return \iter-star-sep(getSymbol(s,isLex),[layout()]);
-    case (Symbol) `<Symbol s> +?` : return \iter-sep(getSymbol(s,isLex),[layout()]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} *`  : return \iter-star-sep(getSymbol(s,isLex), [layout(),getSymbol(sep, isLex),layout()]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} +`  : return \iter-sep(getSymbol(s,isLex), [layout(),getSymbol(sep, isLex),layout()]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} *?` : return \iter-star-sep(getSymbol(s,isLex), [layout(),getSymbol(sep, isLex),layout()]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} +?` : return \iter-sep(getSymbol(s,isLex), [layout(),getSymbol(sep, isLex),layout()]);
+    case (Symbol) `<Symbol s> *`  : return \iter-star-sep(getSymbol(s,isLex),[\layout()]);
+    case (Symbol) `<Symbol s> +`  : return \iter-sep(getSymbol(s,isLex),[\layout()]);
+    case (Symbol) `<Symbol s> *?` : return \iter-star-sep(getSymbol(s,isLex),[\layout()]);
+    case (Symbol) `<Symbol s> +?` : return \iter-sep(getSymbol(s,isLex),[\layout()]);
+    case (Symbol) `{<Symbol s> <Symbol sep>} *`  : return \iter-star-sep(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    case (Symbol) `{<Symbol s> <Symbol sep>} +`  : return \iter-sep(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    case (Symbol) `{<Symbol s> <Symbol sep>} *?` : return \iter-star-sep(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    case (Symbol) `{<Symbol s> <Symbol sep>} +?` : return \iter-sep(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
     default: throw "missed a case <sym>";  
   }
 }
@@ -203,7 +203,7 @@ private Attr getAttribute(Attribute m) {
     case (Attribute) `right`: return \assoc(right());
     case (Attribute) `non-assoc`: return \assoc(\non-assoc());
     case (Attribute) `assoc`: return \assoc(\assoc());
-    case (Attribute) `bracket`: return bracket();
+    case (Attribute) `bracket`: return \bracket();
     case (Attribute) `cons(<StrCon c>)` : return term("cons"(unescape(c)));
     default: throw "missed a case <m>";
   }
