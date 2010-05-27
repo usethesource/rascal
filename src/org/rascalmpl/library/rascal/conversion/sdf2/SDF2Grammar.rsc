@@ -75,7 +75,7 @@ public set[Production] getPriorities(Priority* priorities) {
   return {getPriority(p) | p <- priorities};
 }
 
-public Production getPriority(Priority priority, boolean isLex) {
+public Production getPriority(Priority priority, bool isLex) {
    switch (priority) {
      case (Priority) `<Group g>.` : return getPriority((Priority) `<Group g>`, isLex); // we ignore non-transitivity here!
      case (Priority) `<Group g> <ArgumentIndicator i>` : return getPriority((Priority) `<Group g>`, isLex); // we ignore argument indicators here!
