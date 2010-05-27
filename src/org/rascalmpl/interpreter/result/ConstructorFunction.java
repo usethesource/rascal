@@ -33,6 +33,11 @@ public class ConstructorFunction extends NamedFunction {
 		
 		Map<Type,Type> bindings = new HashMap<Type,Type>();
 		constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings);
+		for (Type field : constructorType.getAbstractDataType().getTypeParameters()) {
+			if (!bindings.containsKey(field)) {
+				bindings.put(field, TF.voidType());
+			}
+		}
 		Type instantiated = constructorType.instantiate(ctx.getCurrentEnvt().getStore(), bindings);
 		
 		// TODO: the actual construction of the tree before applying rules should be avoided here!
