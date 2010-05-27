@@ -1021,7 +1021,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		//		TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
 		if (isSDFModule(name)) {
-			heap.addModule(new ModuleEnvironment(name));
+			if (!heap.existsModule(name)) {
+				heap.addModule(new ModuleEnvironment(name));
+			}
+			else {
+				heap.resetModule(name);
+			}
 			evalSDFModule(name, x);
 			return nothing();
 		}

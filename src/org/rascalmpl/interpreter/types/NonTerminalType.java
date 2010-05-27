@@ -86,6 +86,15 @@ public class NonTerminalType extends ExternalType {
 			return true;
 		}
 		
+		if (other instanceof NonTerminalType) {
+			IConstructor otherSym = ((NonTerminalType)other).symbol;
+			if (SymbolAdapter.isPlusList(symbol) && SymbolAdapter.isStarList(otherSym)) {
+				return true; // TODO add check if they have the same element type
+			}
+			
+			return otherSym.isEqual(symbol);
+		}
+		
 		if (other.isNodeType()) {
 			return true;
 		}
@@ -98,12 +107,7 @@ public class NonTerminalType extends ExternalType {
 			return isSubtypeOf(other.getBound());
 		}
 
-		if (other instanceof NonTerminalType) {
-			IConstructor otherSym = ((NonTerminalType)other).symbol;
-			if (SymbolAdapter.isPlusList(symbol) && SymbolAdapter.isStarList(otherSym)) {
-				return true; // TODO add check if they have the same element type
-			}
-		}
+		
 		
 		
 		return super.isSubtypeOf(other);
