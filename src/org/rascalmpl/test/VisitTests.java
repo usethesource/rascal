@@ -31,6 +31,12 @@ public class VisitTests extends TestFramework {
 	}
 	
 	@Test
+	public void NewTreeVisibleBottomUp() {
+		prepare("data T = knot(int i, T l, T r) | tip(int i);");
+		assertTrue(runTestInSameEvaluator("{visit(knot(0,tip(0),tip(0))) { case tip(int i) => tip(i+1) case knot(int i, T l, T r) => knot(i + l.i + r.i, l, r) } == knot(2,tip(1),tip(1)); }"));
+	}
+	
+	@Test
 	public void Drepl()  {
 		String drepl =
 			
