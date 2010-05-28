@@ -569,7 +569,7 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{ {1, X*, 2} := {1,2} && X == {};}"));
 		assertTrue(runTest("{ {1, _*, 2} := {1,2};}"));
 //		assertFalse(runTest("{ {1, X+, 2} := {1,2};}"));
-		assertFalse(runTest("{ {1, _+, 2} := {1,2};}"));
+//		assertFalse(runTest("{ {1, _+, 2} := {1,2};}")); _+ does not exist yet
 		assertTrue(runTest("{ {1, X*, 2} := {1,2} && X == {};}"));
 		assertFalse(runTest("{ {1, X*, 2} := {1,3};}"));
 		assertFalse(runTest("{ {1, _*, 2} := {1,3};}"));
@@ -648,11 +648,11 @@ public class PatternTests extends TestFramework {
 	
 	@Ignore @Test
 	public void matchConstructor1(){
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 
-		//assertTrue(runTestInSameEvaluator("Bool::btrue := btrue;"));
-		assertTrue(runTestInSameEvaluator("btrue := btrue;"));
-		//assertTrue(runTestInSameEvaluator("Bool::band := band(btrue, bfalse);"));
+		assertTrue(runTestInSameEvaluator("Bool::btrue b := btrue;"));
+		assertTrue(runTestInSameEvaluator("btrue := btrue();"));
+		assertTrue(runTestInSameEvaluator("Bool::band b := band(btrue, bfalse);"));
 		assertTrue(runTestInSameEvaluator("band := band(btrue, bfalse);"));
 	}
 	
