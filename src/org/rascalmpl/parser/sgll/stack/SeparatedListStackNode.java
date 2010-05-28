@@ -97,30 +97,24 @@ public final class SeparatedListStackNode extends AbstractStackNode{
 	
 	public AbstractStackNode[] getChildren(){
 		AbstractStackNode psn = child.getCleanCopy();
-		AbstractStackNode cpsn = child.getCleanCopy();
 		SeparatedListStackNode slpsn = new SeparatedListStackNode((id | IGLL.LIST_LIST_FLAG), symbol, child, separators, true, new ContainerNode());
 		
-		AbstractStackNode from = slpsn;
+		AbstractStackNode from = psn;
 		for(int i = 0; i < separators.length; i++){
 			AbstractStackNode to = separators[i];
 			from.addNext(to);
 			from = to;
 		}
-		from.addNext(psn);
-		psn.addEdge(slpsn);
+		from.addNext(slpsn);
+		
 		psn.addEdge(this);
+		slpsn.addEdge(this);
+		
+		psn.setStartLocation(startLocation);
 		psn.setParentProduction(symbol);
 		
-		cpsn.addEdge(slpsn);
-		cpsn.addEdge(this);
-		cpsn.setParentProduction(symbol);
-		
-		psn.setStartLocation(-1); // Reset.
-		slpsn.setStartLocation(startLocation);
-		cpsn.setStartLocation(startLocation);
-		
 		if(isPlusList){
-			return new AbstractStackNode[]{cpsn};
+			return new AbstractStackNode[]{psn};
 		}
 		
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
@@ -128,7 +122,7 @@ public final class SeparatedListStackNode extends AbstractStackNode{
 		epsn.setStartLocation(startLocation);
 		epsn.setParentProduction(symbol);
 		
-		return new AbstractStackNode[]{cpsn, epsn};
+		return new AbstractStackNode[]{psn, epsn};
 	}
 	
 	public void addResult(IConstructor production, INode[] children){
