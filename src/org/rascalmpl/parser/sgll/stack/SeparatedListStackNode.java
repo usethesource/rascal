@@ -101,7 +101,7 @@ public final class SeparatedListStackNode extends AbstractStackNode{
 		
 		AbstractStackNode from = psn;
 		for(int i = 0; i < separators.length; i++){
-			AbstractStackNode to = separators[i];
+			AbstractStackNode to = separators[i].getCleanCopy();
 			from.addNext(to);
 			from = to;
 		}
@@ -112,6 +112,7 @@ public final class SeparatedListStackNode extends AbstractStackNode{
 		
 		psn.setStartLocation(startLocation);
 		psn.setParentProduction(symbol);
+		slpsn.setParentProduction(symbol);
 		
 		if(isPlusList){
 			return new AbstractStackNode[]{psn};
