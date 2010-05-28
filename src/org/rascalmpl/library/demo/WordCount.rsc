@@ -99,7 +99,7 @@ public void main(str argv ...){
 public list[str] Jabberwocky = [
 	"Jabberwocky by Lewis Carroll",
 	"",
-	"'Twas brillig, and the slithy toves",
+	"\'Twas brillig, and the slithy toves",
 	"Did gyre and gimble in the wabe;",
 	"All mimsy were the borogoves,",
 	"And the mome raths outgrabe.",
@@ -109,7 +109,7 @@ public list[str] Jabberwocky = [
 	"Beware the Jubjub bird, and shun",
 	"The frumious Bandersnatch!\"",
 	"",
-	"'Twas brillig, and the slithy toves",
+	"\'Twas brillig, and the slithy toves",
 	"Did gyre and gimble in the wabe;",
 	"All mimsy were the borogoves,",
 	"And the mome raths outgrabe.",
@@ -139,7 +139,7 @@ public list[str] Jabberwocky = [
 	"O frabjous day! Callooh! Callay!",
 	"He chortled in his joy.",
 	"",
-	"'Twas brillig, and the slithy toves",
+	"\'Twas brillig, and the slithy toves",
 	"Did gyre and gimble in the wabe;",
 	"All mimsy were the borogoves,",
 	"And the mome raths outgrabe."
