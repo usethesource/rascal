@@ -136,6 +136,11 @@ public class String {
 			java.lang.String sval = s.getValue();
 			boolean isNegative = false;
 			int radix = 10;
+			
+			if (sval.equals("0")) {
+				return values.integer(0);
+			}
+			
 			if (sval.startsWith("-")) {
 				isNegative = true;
 				sval = sval.substring(1);
