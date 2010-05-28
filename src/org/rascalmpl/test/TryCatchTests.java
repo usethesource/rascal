@@ -6,7 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFunctionError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 
 public class TryCatchTests extends TestFramework {
@@ -244,7 +244,7 @@ public class TryCatchTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + fun + "function();}"));
 	}
 	
-	@Test(expected=UndeclaredFunctionError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void UndefinedValueException(){
 		String fun =
 			
