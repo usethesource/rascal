@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -72,25 +73,35 @@ public class ContainerNode implements INode{
 		return sb.toString();
 	}
 	
-	private IValue buildAlternative(IConstructor production, INode[] children){
+	private IValue buildAlternative(IConstructor production, INode[] children, IndexedStack<INode> stack, int depth){
 		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; i--){
-			childrenListWriter.insert(children[i].toTerm());
+			childrenListWriter.insert(children[i].toTerm(stack, depth));
 		}
 		
 		return vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 	}
 	
-	public IValue toTerm(){
-		if(alternatives == null){
-			return buildAlternative(firstProduction, firstAlternative);
+	public IValue toTerm(IndexedStack<INode> stack, int depth){
+		int index = stack.contains(this);
+		if(index != -1){ // Cycle found
+			return vf.constructor(Factory.Tree_Cycle, vf.integer(depth - index));
 		}
+		
+		int childDepth = depth + 1;
+		if(alternatives == null){
+			return buildAlternative(firstProduction, firstAlternative, stack, childDepth);
+		}
+		
+		stack.push(this, depth); // Push.
 		
 		ISetWriter ambListWriter = vf.setWriter(Factory.Tree);
 		for(int i = alternatives.size() - 1; i >= 0; i--){
-			ambListWriter.insert(buildAlternative(productions.get(i), alternatives.get(i)));
+			ambListWriter.insert(buildAlternative(productions.get(i), alternatives.get(i), stack, childDepth));
 		}
-		ambListWriter.insert(buildAlternative(firstProduction, firstAlternative));
+		ambListWriter.insert(buildAlternative(firstProduction, firstAlternative, stack, childDepth));
+		
+		stack.purge(); // Pop.
 		
 		return vf.constructor(Factory.Tree_Amb, ambListWriter.done());
 	}

@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerHashMap;
 
 public abstract class SGLL implements IGLL{
@@ -323,6 +324,6 @@ public abstract class SGLL implements IGLL{
 		
 		if(root == null) throw new RuntimeException("Parse Error before: "+(location == Integer.MAX_VALUE ? 0 : location));
 		
-		return root.getResult().toTerm();
+		return root.getResult().toTerm(new IndexedStack<INode>(), 0);
 	}
 }

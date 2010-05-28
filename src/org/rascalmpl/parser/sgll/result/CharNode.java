@@ -4,6 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -36,7 +37,7 @@ public class CharNode implements INode{
 		return sb.toString();
 	}
 	
-	public IValue toTerm(){
+	public IValue toTerm(IndexedStack<INode> stack, int depth){
 		IInteger characterValue = vf.integer(getNumericCharValue(character));
 		return vf.constructor(Factory.Tree_Char, characterValue);
 	}
