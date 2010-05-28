@@ -87,10 +87,16 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{m = tval2(\"abc\", \"def\"); str s2 = m.tval2; s2 == \"def\";}"));	
 	}
 	
-	@Test(expected=StaticError.class)
+	@Test
 	public void parameterizedErrorTest() {
 		prepare("data Exp[&T] = tval(&T tval) | tval2(&T tval1, &T tval2) | ival(int x);");
 		assertTrue(runTestInSameEvaluator("{Exp[int] h = ival(3); h == ival(3);}"));
+	}
+	
+	public void unboundTypeVar() {
+		prepare("data Maybe[&T] = None() | Some(&T t);");
+		assertTrue(runTestInSameEvaluator("{ Maybe[void] x = None(); x == None();}"));
+		assertTrue(runTestInSameEvaluator("{ x = None(); x = Some(0); x == Some(0);}"));
 	}
 	
 	public void unequalParameterType(){
