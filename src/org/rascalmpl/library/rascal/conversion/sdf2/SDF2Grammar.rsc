@@ -2,6 +2,10 @@ module rascal::conversion::sdf2::SDF2Grammar
 
 // this module converts SDF2 grammars to the Rascal internal grammar representation format
 
+// Todo List:
+// - aliases
+// - (lexical) variables
+
 import IO;
 import String;
 import Integer;
@@ -111,16 +115,30 @@ public set[ParseTree::Symbol] getStartSymbols(SDF definition) {
   }
 }
 
-private ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2::Symbol sym, bool isLex) {
+public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2::Symbol sym, bool isLex) {
   switch (sym) {
-    case (Symbol) `<StrCon l> : <Symbol s>`          : return label(unescape(l), getSymbol(s,isLex));
-    case (Symbol) `<IdCon i> : <Symbol s>`           : return label("<i>", getSymbol(s, isLex));
-    case (Symbol) `<Sort n>`                         : return sort("<n>");
-    case (Symbol) `<StrCon l>`                       : return lit(unescape(l));
-    case (Symbol) `<SingleQuotedStrCon l>`           : return cilit(unescape(l));  
-    case (Symbol) `<Sort n>[[<{Symbol ","}+ syms>]]` : return \parametrized-sort("<n>",separgs2symbols(syms,isLex));
-    case (Symbol) `<Symbol s> ?`                     : return opt(getSymbol(s,isLex));
-    case (Symbol) `<CharClass cc>`                   : return getCharClass(cc);
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::StrCon l> : <languages::sdf2::syntax::\Sdf2-Syntax::Symbol s>`:
+		return label(unescape(l), getSymbol(s,isLex));
+		
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::IdCon i> : <languages::sdf2::syntax::\Sdf2-Syntax::Symbol s>`:
+    	return label("<i>", getSymbol(s, isLex));
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Sort n>`:
+    	return sort("<n>");
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::StrCon l>`:
+    	return lit(unescape(l));
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::SingleQuotedStrCon l>`:
+    	return cilit(unescape(l));  
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Sort n>[[<{languages::sdf2::syntax::\Sdf2-Syntax::Symbol ","}+ syms>]]`:
+    	return \parametrized-sort("<n>",separgs2symbols(syms,isLex));
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> ?`:
+    	return opt(getSymbol(s,isLex));
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::CharClass cc>`:
+    	return getCharClass(cc);
   }  
   
   if (isLex) switch (sym) {
@@ -146,48 +164,97 @@ private ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2::Symbol sym, b
     default: throw "missed a case <sym>";  
   }
 }
+
+test getSymbol((Symbol) `"abc"`, false) == lit("abc");
+test getSymbol((Symbol) `ABC`, false) == sort("ABC");
+test getSymbol((Symbol) `'abc'`, false) == cilit("abc");
+test getSymbol((Symbol) `abc : ABC`, false) == label("abc",sort("ABC"));
+test getSymbol((Symbol) `"abc" : ABC`, false) == label("abc",sort("ABC"));
+test getSymbol((Symbol) `A?`, false) == opt(sort("A"));
+test getSymbol((Symbol) `[a]`, false) == \char-class([range(97,97)])
   
 private str unescape(StrCon s) {
    if ([StrCon] /\"<rest:.*>\"/ := s) {
      return visit (rest) {
-       case /\\b/ => "\b"
-       case /\\f/ => "\f"
-       case /\\n/ => "\n"
-       case /\\t/ => "\t"
-       case /\\r/ => "\r"  
-       case /\\\"/ => "\""  
-       case /\\\\/ => "\\"
-       
-       // add cases: \TOP \BOT \EOF \LABEL_START
+       case /\\b/           => "\b"
+       case /\\f/           => "\f"
+       case /\\n/           => "\n"
+       case /\\t/           => "\t"
+       case /\\r/           => "\r"  
+       case /\\\"/          => "\""  
+       case /\\\\/          => "\\"
+       case /\\TOP/         => "\255"
+       case /\\EOF/         => "\256"
+       case /\\BOT/         => "\0"
+       case /\\LABEL_START/ => "\257"
      };      
    }
    throw "unexpected string format: <s>";
 }
 
-test unescape((StrCon) `"abc"`) == "abc";
+test unescape((StrCon) `"abc"`)  == "abc";
 test unescape((StrCon) `"a\nc"`) == "a\nc";
 test unescape((StrCon) `"a\"c"`) == "a\"c";
 test unescape((StrCon) `"a\\c"`) == "a\\c";
 
+public str unescape(SingleQuotedStrCon s) {
+   if ([SingleQuotedStrCon] /\'<rest:.*>\'/ := s) {
+     return visit (rest) {
+       case /\\b/           => "\b"
+       case /\\f/           => "\f"
+       case /\\n/           => "\n"
+       case /\\t/           => "\t"
+       case /\\r/           => "\r"  
+       case /\\\'/          => "'"  
+       case /\\\\/          => "\\"
+     };      
+   }
+   throw "unexpected string format: <s>";
+}
 
-public Symbol getCharClass(languages::sdf2::syntax::\Sdf2-Syntax::CharClass cc) {
+test unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
+test unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
+test unescape((SingleQuotedStrCon) `'a\'c'`) == "a'c";
+test unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
+
+private Symbol getCharClass(languages::sdf2::syntax::\Sdf2-Syntax::CharClass cc) {
    switch(cc) {
-     case (CharClass) `[]` : return \char-class([]);
-     case (CharClass) `[<CharRanges ranges>]` : {println("ranges=<ranges>");return \char-class([range(r) | /CharRange r := ranges]);}
-     case (CharClass) `(<CharClass c>)`: return getCharClass(c);
-     case (CharClass) `~ <CharClass c>`: return complement(getCharClass(c));
-     case (CharClass) `<CharClass l> /\ <CharClass r>`: return intersection(getCharClass(l),getCharClass(r));
-     case (CharClass) `<CharClass l> \/ <CharClass r>`: return union(getCharClass(l),getCharClass(r));
-     case (CharClass) `<CharClass l> / <CharClass r>`: return difference(getCharClass(l),getCharClass(r));
+     case (CharClass) `[]` :
+     	return \char-class([]);
+     	
+     case (CharClass) `[<CharRanges ranges>]` : 
+     	return \char-class([getRange(r) | /languages::sdf2::syntax::\Sdf2-Syntax::CharRange r := ranges]);
+     	
+     case (CharClass) `(<languages::sdf2::syntax::\Sdf2-Syntax::CharClass c>)`: 
+     	return getCharClass(c);
+     	
+     case (CharClass) `~ <languages::sdf2::syntax::\Sdf2-Syntax::CharClass c>`:
+     	return complement(getCharClass(c));
+     	
+     case (CharClass) `<languages::sdf2::syntax::\Sdf2-Syntax::CharClass l> /\ <languages::sdf2::syntax::\Sdf2-Syntax::CharClass r>`:
+     	return intersection(getCharClass(l),getCharClass(r));
+     	
+     case (CharClass) `<languages::sdf2::syntax::\Sdf2-Syntax::CharClass l> \/ <languages::sdf2::syntax::\Sdf2-Syntax::CharClass r>`: 
+     	return union(getCharClass(l),getCharClass(r));
+     	
+     case (CharClass) `<languages::sdf2::syntax::\Sdf2-Syntax::CharClass l> / <languages::sdf2::syntax::\Sdf2-Syntax::CharClass r>`:
+     	return difference(getCharClass(l),getCharClass(r));
+     	
      default: throw "missed a case <cc>";
    }
 }
 
 //  (CharClass) `[]` == \char-class([]);  // ===> gives unsupported operation
 
-test getCharClass((CharClass) `[]`) == \char-class([]);
-test getCharClass((CharClass) `[a]`) == \char-class([range(97,97)]);
-test getCharClass((CharClass) `[a-z0-9]`) == \char-class([range(97,122), range(48,57)]);
+test getCharClass((CharClass) `[]`)         == \char-class([]);
+test getCharClass((CharClass) `[a]`)        == \char-class([range(97,97)]);
+test getCharClass((CharClass) `[a-z]`)      == \char-class([range(97,122)]);
+test getCharClass((CharClass) `[a-z0-9]`)   == \char-class([range(97,122), range(48,57)]);
+test getCharClass((CharClass) `([a])`)      == \char-class([range(97,97)]);
+test getCharClass((CharClass) `~[a]`)       == complement(\char-class([range(97,97)]));
+test getCharClass((CharClass) `[a] /\ [b]`) == intersection(\char-class([range(97,97)]), \char-class([range(98,98)]));
+test getCharClass((CharClass) `[a] \/ [b]`) == union(\char-class([range(97,97)]), \char-class([range(98,98)]));
+test getCharClass((CharClass) `[a] / [b]`)  == difference(\char-class([range(97,97)]), \char-class([range(98,98)]));
       
 private CharRange getRange(languages::sdf2::syntax::\Sdf2-Syntax::CharRange r) {
   switch (r) {
@@ -197,7 +264,7 @@ private CharRange getRange(languages::sdf2::syntax::\Sdf2-Syntax::CharRange r) {
   }
 }
 
-test getRange((CharRange) `a`) == range(97,97);
+test getRange((CharRange) `a`)   == range(97,97);
 test getRange((CharRange) `a-z`) == range(97,122);
 
 private int getCharacter(Character c) {
@@ -211,11 +278,11 @@ private int getCharacter(Character c) {
   }
 }
 
-test getCharacter((Character) `a`) == charAt("a", 0);
-test getCharacter((Character) `\\`) == charAt("\\", 0);
-test getCharacter((Character) `\'`) == charAt("'", 0);
-test getCharacter((Character) `\1`) == toInt("01");
-test getCharacter((Character) `\12`) == toInt("012");
+test getCharacter((Character) `a`)    == charAt("a", 0);
+test getCharacter((Character) `\\`)   == charAt("\\", 0);
+test getCharacter((Character) `\'`)   == charAt("'", 0);
+test getCharacter((Character) `\1`)   == toInt("01");
+test getCharacter((Character) `\12`)  == toInt("012");
 test getCharacter((Character) `\123`) == toInt("0123");
 
 private Attributes getAttributes(Attribute* mods) {
@@ -234,5 +301,5 @@ private Attr getAttribute(Attribute m) {
   }
 }
 
-test getAttribute((Attribute) `left`) == \assoc(left());
+test getAttribute((Attribute) `left`)        == \assoc(left());
 test getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
