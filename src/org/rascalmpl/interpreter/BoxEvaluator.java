@@ -572,7 +572,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// TODO Auto-generated method stub
 		// return I(H(1, H(0, KW("default"), BoxADT.COLON),
 		// eX(x.getStatement())));
-		return cStat("default", null, null, BoxADT.COLON, eX(x.getStatement()));
+		return cStat("default", BoxADT.COLON, null, null,  eX(x.getStatement()));
 	}
 
 	public IValue visitCasePatternWithAction(PatternWithAction x) {
@@ -1570,8 +1570,9 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitLocationLiteralDefault(
 			org.rascalmpl.ast.LocationLiteral.Default x) {
-		return list(BoxADT.VBAR, eX(x.getProtocolPart()), BoxADT.COLON, eX(x
-				.getPathPart()), BoxADT.VBAR);
+		/* protocolPart:ProtocolPart pathPart:PathPart */
+		return list(eX(x.getProtocolPart()), eX(x
+				.getPathPart()));
 		// TODO Auto-generated method stub
 
 	}

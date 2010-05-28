@@ -44,6 +44,7 @@ public class BoxADT {
 
 		IConstructor create(IValue... t) {
 			IValue r = t[0];
+			// if (this== VAR) System.err.println("QQ:"+t[0]);
 			if (!r.getType().isListType() && this.ordinal() < L.ordinal()) {
 				r = vf.list(t);
 			}
@@ -70,9 +71,9 @@ public class BoxADT {
 	static final IValue EQUIVALENCE = TAG.L.create("<==>");
 	static final IValue NOTEQUALS = TAG.L.create("!=");
 	static final IValue NEGATION = TAG.L.create("!");
-	static final IValue LT = TAG.L.create("<");
+	static final IValue LT = TAG.L.create("< ");
 	static final IValue LE = TAG.L.create("<=");
-	static final IValue GT = TAG.L.create(">");
+	static final IValue GT = TAG.L.create(" >");
 	static final IValue GE = TAG.L.create(">=");
 	static final IValue OR = TAG.L.create("||");
 	static final IValue AMPERSAND = TAG.L.create("&");
