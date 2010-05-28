@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -54,7 +55,7 @@ public class LiteralNode implements INode{
 		return sb.toString();
 	}
 	
-	public IValue toTerm(){
+	public IValue toTerm(IndexedStack<INode> stack, int depth){
 		int numberOfCharacters = content.length;
 		IValue[] characters = new IValue[numberOfCharacters];
 		for(int i = 0; i < numberOfCharacters; i++){
