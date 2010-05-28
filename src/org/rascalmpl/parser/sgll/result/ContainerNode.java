@@ -2,6 +2,7 @@ package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.sgll.util.ArrayList;
@@ -85,7 +86,7 @@ public class ContainerNode implements INode{
 			return buildAlternative(firstProduction, firstAlternative);
 		}
 		
-		IListWriter ambListWriter = vf.listWriter(Factory.Tree);
+		ISetWriter ambListWriter = vf.setWriter(Factory.Tree);
 		for(int i = alternatives.size() - 1; i >= 0; i--){
 			ambListWriter.insert(buildAlternative(productions.get(i), alternatives.get(i)));
 		}
