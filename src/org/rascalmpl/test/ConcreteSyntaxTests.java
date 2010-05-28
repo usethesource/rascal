@@ -134,7 +134,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("`a <B someB>` := `a b`;"));
 	}
 	
-	@Test(expected=AmbiguousConcretePattern.class)
+	@Test // (expected=AmbiguousConcretePattern.class)
 	public void ABvars2(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`<someA> <someB>` := `a b`;"));
@@ -151,7 +151,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{`<A someA> <B someB>` := `a b` && someA ==`a` && someB == `b`;}"));
 	}
 	
-	@Test(expected=AmbiguousConcretePattern.class)
+	@Test // (expected=AmbiguousConcretePattern.class)
 	public void ABvars2TypedInsertWithoutTypes(){ 
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA><B someB>` := `a b` &&  `<someA><someB>` == `a b`;}"));
@@ -334,7 +334,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ {E \",\"}+ Xs := `e, e` && Xs == ` e, e`;}"));
 	}
 	
-	@Test(expected=AmbiguousConcretePattern.class)
+	@Test // (expected=AmbiguousConcretePattern.class)
 	public void Evars2(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ `e, <Xs>` := `e, e` && Xs == ` e `;}"));
@@ -393,11 +393,11 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ `e, <{E \",\"}+ Xs>` := `e, e` && Xs == ({E \",\"}+) ` e `;}"));
 	}
 	
-	@Test(expected=AmbiguousConcretePattern.class)
-	@Ignore("needs to be reinstated when we have a type checker")
+	@Test // (expected=AmbiguousConcretePattern.class)
+	// @Ignore("needs to be reinstated when we have a type checker")
 	public void Evars3(){
 		prepare("import GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ `e, <Xs>` := `e, e` Xs == ` e ` && ` e, <Xs> ` == ` e, e`; }"));
+		assertTrue(runTestInSameEvaluator("{ `e, <Xs>` := `e, e` &&  Xs == ` e ` && ` e, <Xs> ` == ` e, e`; }"));
 	}
 	
 	@Test
@@ -406,7 +406,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ `e, <{E \",\"}+ Xs>` := `e, e` && Xs == ({E \",\"}+) ` e ` && ({E \",\"}+) ` e, <{E \",\"}+ Xs> ` == ` e, e`; }"));
 	}
 	
-	@Test(expected=AmbiguousConcretePattern.class)
+	@Test // (expected=AmbiguousConcretePattern.class)
 	@Ignore("needs to be reinstated when we have a type checker")
 	public void Evars4(){
 		prepare("import GrammarABCDE;");
