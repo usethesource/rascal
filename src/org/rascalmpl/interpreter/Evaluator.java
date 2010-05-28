@@ -1023,6 +1023,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (isSDFModule(name)) {
 			if (!heap.existsModule(name)) {
 				heap.addModule(new ModuleEnvironment(name));
+				addImportToCurrentModule(x, name);
 			}
 			else {
 				heap.resetModule(name);
