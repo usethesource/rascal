@@ -740,6 +740,7 @@ public class ASTBuilder {
 												new PathChars.Lexical(source, path + "|"))))),
 												positions
 												));
+//		ast._setType(ast._getType());
 		return ast;
 	}
 

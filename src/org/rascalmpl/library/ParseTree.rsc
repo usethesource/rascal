@@ -32,7 +32,7 @@ data Attr =
      \priority(int level);
      
 @deprecrated{only supported by SDF2}
-data Attr = \prefer() | \avoid() | id(str moduleName);
+data Attr = \prefer() | \avoid() | id(str moduleName) | memo();
 
 data Associativity =
      \left() | \right() | \assoc() | \non-assoc();
