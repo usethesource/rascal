@@ -89,20 +89,24 @@ public class ContainerNode implements INode{
 		}
 		
 		int childDepth = depth + 1;
-		if(alternatives == null){
-			return buildAlternative(firstProduction, firstAlternative, stack, childDepth);
-		}
+		IValue result;
 		
 		stack.push(this, depth); // Push.
 		
-		ISetWriter ambListWriter = vf.setWriter(Factory.Tree);
-		for(int i = alternatives.size() - 1; i >= 0; i--){
-			ambListWriter.insert(buildAlternative(productions.get(i), alternatives.get(i), stack, childDepth));
+		if(alternatives == null){
+			result = buildAlternative(firstProduction, firstAlternative, stack, childDepth);
+		}else{
+			ISetWriter ambListWriter = vf.setWriter(Factory.Tree);
+			for(int i = alternatives.size() - 1; i >= 0; i--){
+				ambListWriter.insert(buildAlternative(productions.get(i), alternatives.get(i), stack, childDepth));
+			}
+			ambListWriter.insert(buildAlternative(firstProduction, firstAlternative, stack, childDepth));
+			
+			result = vf.constructor(Factory.Tree_Amb, ambListWriter.done());
 		}
-		ambListWriter.insert(buildAlternative(firstProduction, firstAlternative, stack, childDepth));
 		
 		stack.purge(); // Pop.
 		
-		return vf.constructor(Factory.Tree_Amb, ambListWriter.done());
+		return result;
 	}
 }

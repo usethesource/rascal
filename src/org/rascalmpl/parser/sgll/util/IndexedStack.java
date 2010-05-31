@@ -34,8 +34,8 @@ public class IndexedStack<E>{
 			enlarge();
 		}
 		
-		data[size++] = object;
-		indexes[size] = index;
+		data[size] = object;
+		indexes[size++] = index;
 	}
 	
 	public E peek(){
