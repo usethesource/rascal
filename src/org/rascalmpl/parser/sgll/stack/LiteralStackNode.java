@@ -33,8 +33,12 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 	}
 	
 	public boolean reduce(char[] input){
+		return reduce(input, startLocation);
+	}
+	
+	public boolean reduce(char[] input, int location){
 		for(int i = literal.length - 1; i >= 0; i--){
-			if(literal[i] != input[startLocation + i]) return false; // Did not match.
+			if(literal[i] != input[location + i]) return false; // Did not match.
 		}
 		return true;
 	}

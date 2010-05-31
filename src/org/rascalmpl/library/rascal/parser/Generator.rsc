@@ -95,7 +95,7 @@ public str generateParseMethod(Production p){
   if (prod(_,Symbol rhs,_) := p) {
     return "public void <sym2name(rhs)>(){
       // <p>
-      expect(<value2id(p)>, null,
+      expect(<value2id(p)>,
       <generateSymbolItemExpects(p.lhs)>);  
   }";
   }
@@ -104,7 +104,7 @@ public str generateParseMethod(Production p){
     return "public void <sym2name(rhs)>(){
       <for (Production q:prod(_,_,_) <- ps){>
       // <q>
-      expect(<value2id(q)>, null,
+      expect(<value2id(q)>,
       <generateSymbolItemExpects(q.lhs)>);
       <}>  
   }";
