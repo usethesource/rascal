@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
-public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode{
+public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final IConstructor symbol;
 	private final char[][] ciLiteral;
 	
@@ -37,18 +37,6 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode{
 		ciLiteral = contextInsensitiveLiteralParseStackNode.ciLiteral;
 		
 		result = null;
-	}
-	
-	public boolean isReducable(){
-		return true;
-	}
-	
-	public boolean isList(){
-		return false;
-	}
-	
-	public boolean isEpsilon(){
-		return false;
 	}
 	
 	public String getMethodName(){

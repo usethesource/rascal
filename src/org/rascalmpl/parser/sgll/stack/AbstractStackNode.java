@@ -46,11 +46,17 @@ public abstract class AbstractStackNode{
 		return id;
 	}
 	
-	public abstract boolean isReducable();
+	public final boolean isReducable(){
+		return (this instanceof IReducableStackNode);
+	}
 	
-	public abstract boolean isList();
+	public final boolean isEpsilon(){
+		return (this instanceof EpsilonStackNode);
+	}
 	
-	public abstract boolean isEpsilon();
+	public final boolean isList(){
+		return (this instanceof IListStackNode);
+	}
 	
 	public abstract String getMethodName();
 	

@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
-public final class OptionalStackNode extends AbstractStackNode{
+public final class OptionalStackNode extends AbstractStackNode implements IListStackNode{
 	private final IConstructor symbol;
 	
 	private final AbstractStackNode optional;
@@ -31,18 +31,6 @@ public final class OptionalStackNode extends AbstractStackNode{
 		optional = optionalParseStackNode.optional;
 		
 		result = new ContainerNode();
-	}
-	
-	public boolean isReducable(){
-		return false;
-	}
-	
-	public boolean isList(){
-		return true;
-	}
-	
-	public boolean isEpsilon(){
-		return false;
 	}
 	
 	public void mark(){
