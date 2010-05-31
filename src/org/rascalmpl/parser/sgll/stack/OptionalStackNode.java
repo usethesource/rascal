@@ -85,4 +85,17 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	public INode getResult(){
 		return result;
 	}
+
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append(symbol);
+		sb.append(getId());
+		sb.append('(');
+		sb.append(startLocation);
+		sb.append(',');
+		sb.append('?');
+		sb.append(')');
+		
+		return sb.toString();
+	}
 }
