@@ -84,8 +84,8 @@ public class ContainerNode implements INode{
 	
 	public IValue toTerm(IndexedStack<INode> stack, int depth){
 		int index = stack.contains(this);
-		if(index != -1){ // Cycle found
-			return vf.constructor(Factory.Tree_Cycle, vf.integer(depth - index));
+		if(index != -1){ // Cycle found.
+			return vf.constructor(Factory.Tree_Cycle, firstProduction.get("rhs"), vf.integer(depth - index));
 		}
 		
 		int childDepth = depth + 1;
