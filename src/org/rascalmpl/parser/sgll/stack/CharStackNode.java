@@ -26,7 +26,11 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 	}
 	
 	public boolean reduce(char[] input){
-		char next = input[startLocation];
+		return reduce(input, startLocation);
+	}
+	
+	public boolean reduce(char[] input, int location){
+		char next = input[location];
 		for(int i = ranges.length - 1; i >= 0; i--){
 			char[] range = ranges[i];
 			if(next >= range[0] && next <= range[1]){

@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
+import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerHashMap;
@@ -49,7 +50,14 @@ public abstract class SGLL implements IGLL{
 		location = 0;
 	}
 	
-	public void expect(IConstructor production, char[][] followRestrictions, AbstractStackNode... symbolsToExpect){
+	public void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
+		lastExpects.add(symbolsToExpect);
+		
+		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
+		lastNode.setParentProduction(production);
+	}
+	
+	public void expect(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
