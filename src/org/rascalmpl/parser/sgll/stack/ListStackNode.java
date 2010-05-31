@@ -11,8 +11,6 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	private final AbstractStackNode child;
 	private final boolean isPlusList;
 	
-	private boolean marked;
-	
 	private final INode result;
 	
 	public ListStackNode(int id, IConstructor symbol, AbstractStackNode child, boolean isPlusList){
@@ -56,6 +54,10 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean isClean(){
+		return (result == null);
+	}
+	
 	public AbstractStackNode getCleanCopy(){
 		return new ListStackNode(this);
 	}
@@ -69,14 +71,6 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	
 	public int getLength(){
 		throw new UnsupportedOperationException();
-	}
-	
-	public void mark(){
-		marked = true;
-	}
-	
-	public boolean isMarked(){
-		return marked;
 	}
 	
 	public AbstractStackNode[] getChildren(){

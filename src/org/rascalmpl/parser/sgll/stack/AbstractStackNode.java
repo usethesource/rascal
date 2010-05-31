@@ -86,6 +86,8 @@ public abstract class AbstractStackNode{
 	}
 	
 	// Sharing.
+	public abstract boolean isClean();
+	
 	public abstract AbstractStackNode getCleanCopy();
 	
 	public abstract AbstractStackNode getCleanCopyWithPrefix();
@@ -147,10 +149,6 @@ public abstract class AbstractStackNode{
 	public int getStartLocation(){
 		return startLocation;
 	}
-	
-	public abstract void mark();
-	
-	public abstract boolean isMarked();
 	
 	public abstract int getLength();
 	

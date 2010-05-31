@@ -42,6 +42,10 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		return false;
 	}
 	
+	public boolean isClean(){
+		return true;
+	}
+	
 	public AbstractStackNode getCleanCopy(){
 		return new CharStackNode(this);
 	}
@@ -55,14 +59,6 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 	
 	public int getLength(){
 		return 1;
-	}
-	
-	public void mark(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean isMarked(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractStackNode[] getChildren(){
