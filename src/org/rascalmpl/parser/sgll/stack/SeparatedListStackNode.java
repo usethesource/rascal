@@ -5,7 +5,7 @@ import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 
-public final class SeparatedListStackNode extends AbstractStackNode{
+public final class SeparatedListStackNode extends AbstractStackNode implements IListStackNode{
 	private final IConstructor symbol;
 
 	private final AbstractStackNode child;
@@ -50,18 +50,6 @@ public final class SeparatedListStackNode extends AbstractStackNode{
 		isPlusList = separatedListStackNode.isPlusList;
 		
 		result = new ContainerNode();
-	}
-	
-	public boolean isReducable(){
-		return false;
-	}
-	
-	public boolean isList(){
-		return true;
-	}
-	
-	public boolean isEpsilon(){
-		return false;
 	}
 	
 	public String getMethodName(){

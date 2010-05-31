@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 
-public final class LiteralStackNode extends AbstractStackNode{
+public final class LiteralStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final IConstructor symbol;
 	private final char[] literal;
 	
@@ -26,18 +26,6 @@ public final class LiteralStackNode extends AbstractStackNode{
 		literal = literalParseStackNode.literal;
 		
 		result = literalParseStackNode.result;
-	}
-	
-	public boolean isReducable(){
-		return true;
-	}
-	
-	public boolean isList(){
-		return false;
-	}
-	
-	public boolean isEpsilon(){
-		return false;
 	}
 	
 	public String getMethodName(){
