@@ -9,8 +9,6 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	
 	private final AbstractStackNode optional;
 	
-	private boolean marked;
-	
 	private final INode result;
 	
 	public OptionalStackNode(int id, IConstructor symbol, AbstractStackNode optional){
@@ -33,20 +31,16 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		result = new ContainerNode();
 	}
 	
-	public void mark(){
-		marked = true;
-	}
-	
-	public boolean isMarked(){
-		return marked;
-	}
-	
 	public int getLength(){
 		throw new UnsupportedOperationException();
 	}
 	
 	public boolean reduce(char[] input){
 		throw new UnsupportedOperationException();
+	}
+	
+	public boolean isClean(){
+		return (result == null);
 	}
 	
 	public AbstractStackNode getCleanCopy(){

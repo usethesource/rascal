@@ -7,8 +7,6 @@ import org.rascalmpl.parser.sgll.result.INode;
 public final class NonTerminalStackNode extends AbstractStackNode{
 	private final String nonTerminal;
 	
-	private boolean marked;
-	
 	private final INode result;
 	
 	public NonTerminalStackNode(int id, String nonTerminal){
@@ -35,6 +33,10 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean isClean(){
+		return (result == null);
+	}
+	
 	public AbstractStackNode getCleanCopy(){
 		return new NonTerminalStackNode(this);
 	}
@@ -48,14 +50,6 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 	
 	public int getLength(){
 		throw new UnsupportedOperationException();
-	}
-	
-	public void mark(){
-		marked = true;
-	}
-	
-	public boolean isMarked(){
-		return marked;
 	}
 	
 	public AbstractStackNode[] getChildren(){

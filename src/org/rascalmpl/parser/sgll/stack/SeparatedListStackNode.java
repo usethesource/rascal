@@ -12,8 +12,6 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	private final AbstractStackNode[] separators;
 	private final boolean isPlusList;
 	
-	private boolean marked;
-	
 	private final INode result;
 	
 	public SeparatedListStackNode(int id, IConstructor symbol, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
@@ -60,6 +58,10 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean isClean(){
+		return (result == null);
+	}
+	
 	public AbstractStackNode getCleanCopy(){
 		return new SeparatedListStackNode(this);
 	}
@@ -73,14 +75,6 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	
 	public int getLength(){
 		throw new UnsupportedOperationException();
-	}
-	
-	public void mark(){
-		marked = true;
-	}
-	
-	public boolean isMarked(){
-		return marked;
 	}
 	
 	public AbstractStackNode[] getChildren(){
