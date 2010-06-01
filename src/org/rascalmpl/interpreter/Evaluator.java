@@ -282,7 +282,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	private boolean saveParsedModules = false;
 
-	private final TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator(this);
+	private final TypeDeclarationEvaluator typeDeclarator;
 	protected IEvaluator<IMatchingResult> patternEvaluator;
 
 	private final java.util.List<ClassLoader> classLoaders;
@@ -303,6 +303,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.patternEvaluator = new PatternEvaluator(this);
 		this.strategyContextStack = new StrategyContextStack();
 		this.heap = heap;
+		this.typeDeclarator = new TypeDeclarationEvaluator(this);
 		this.currentEnvt = scope;
 		this.rootScope = scope;
 		this.heap.addModule(scope);
