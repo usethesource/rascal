@@ -15,6 +15,8 @@ import rascal::parser::Definition;
 import rascal::conversion::sdf2::Load;
 import languages::sdf2::syntax::\Sdf2-Syntax;
 
+//import rascal::conversion::sdf2::Pico;
+
 public Grammar sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
 }
@@ -35,22 +37,30 @@ public set[ParseTree::Production] getProductions(SDF definition) {
     case (Grammar) `restrictions <Restriction* rests>`              : return {getRestrictions(rest, true) | rest <- rests};
     case (Grammar) `lexical restrictions <Restriction* rests>`      : return {getRestrictions(rest, true) | rest <- rests};
     case (Grammar) `context-free restrictions <Restriction* rests>` : return {getRestrictions(rest, false) | rest <- rests};
-    case (Grammar) `priorities <{Priority ","}* prios>`                   : return {getPriorities(prio,true) | prio <- prios};
-    case (Grammar) `lexical priorities <{Priority ","}* prios>`           : return {getPriorities(prio,true) | prio <- prios};
-    case (Grammar) `context-free priorities <{Priority ","}* prios>`      : return {getPriorities(prio,false) | prio <- prios};
+    case (Grammar) `priorities <{Priority ","}* prios>`             : return {getPriorities(prio,true) | prio <- prios};
+    case (Grammar) `lexical priorities <{Priority ","}* prios>`     : return {getPriorities(prio,true) | prio <- prios};
+    case (Grammar) `context-free priorities <{Priority ","}* prios>`: return {getPriorities(prio,false) | prio <- prios};
   }
 }
 
 public Production getProduction(languages::sdf2::syntax::\Sdf2-Syntax::Production prod) {
   switch (prod) {
-    case (Production) `<Symbol* syms> -> <Symbol sym>`                      : return prod(getSymbols(syms),getSymbol(sym),\no-attrs());
-    case (Production) `<Symbol* syms> -> <Symbol sym> {<{Attribute ","}* attrs>}` : return prod(getSymbols(syms),getSymbol(sym),getAttributes(attrs));
-    case (Production) `<IdCon id> (<{Symbol ","}* syms>) -> <Symbol sym>`                      : throw "prefix functions not supported by SDF import yet";
-    case (Production) `<IdCon id> (<{Symbol ","}* syms>) -> <Symbol sym> {<{Attribute ","}* attrs>}` : throw "prefix functions not supported by SDF import yet";
-    case (Production) `<StrCon s> (<{Symbol ","}* syms>) -> <Symbol sym>`                      : throw "prefix functions not supported by SDF import yet";
-    case (Production) `<StrCon s> (<{Symbol ","}* syms>) -> <Symbol sym> {<{Attribute ","}* attrs>}` : throw "prefix functions not supported by SDF import yet";
+    case (Production) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol* syms> -> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sym>`:
+    	return prod(getSymbols(syms),getSymbol(sym),\no-attrs());
+    case (Production) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol* syms> -> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sym> {<{Attribute ","}* attrs>}` :
+    	return prod(getSymbols(syms),getSymbol(sym),getAttributes(attrs));
+    case (Production) `<IdCon id> (<{languages::sdf2::syntax::\Sdf2-Syntax::Symbol ","}* syms>) -> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sym>`:
+    	throw "prefix functions not supported by SDF import yet";
+    case (Production) `<IdCon id> (<{languages::sdf2::syntax::\Sdf2-Syntax::Symbol ","}* syms>) -> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sym> {<{Attribute ","}* attrs>}` :
+    	throw "prefix functions not supported by SDF import yet";
+    case (Production) `<StrCon s> (<{languages::sdf2::syntax::\Sdf2-Syntax::Symbol ","}* syms>) -> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sym>`:
+    	throw "prefix functions not supported by SDF import yet";
+    case (Production) `<StrCon s> (<{languages::sdf2::syntax::\Sdf2-Syntax::Symbol ","}* syms>) -> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sym> {<{Attribute ","}* attrs>}` :
+    	throw "prefix functions not supported by SDF import yet";
   }
 }
+
+//test getProduction(languages::sdf2::syntax::Kernel::Production `PICO-ID ":" TYPE -> ID-TYPE`) ==
 
 public set[Production] getRestrictions(Restriction* restrictions, bool isLex) {
   return { getRestrictions(r) | r <- restrictions };
@@ -115,7 +125,7 @@ public set[ParseTree::Symbol] getStartSymbols(SDF definition) {
   }
 }
 
-public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2::Symbol sym, bool isLex) {
+private ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2::Symbol sym, bool isLex) {
   switch (sym) {
     case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::StrCon l> : <languages::sdf2::syntax::\Sdf2-Syntax::Symbol s>`:
 		return label(unescape(l), getSymbol(s,isLex));
@@ -142,25 +152,56 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2::Symbol sym, bo
   }  
   
   if (isLex) switch (sym) {
-    case (Symbol) `<Symbol s> *`  : return \iter-star(getSymbol(s,isLex));
-    case (Symbol) `<Symbol s> +`  : return \iter(getSymbol(s,isLex));
-    case (Symbol) `<Symbol s> *?` : return \iter-star(getSymbol(s,isLex));
-    case (Symbol) `<Symbol s> +?` : return \iter(getSymbol(s,isLex));
-    case (Symbol) `{<Symbol s> <Symbol sep>} *`  : return \iter-star-sep(getSymbol(s,isLex), [lit(unescape(sep))]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} +`  : return \iter-sep(getSymbol(s,isLex), [lit(unescape(sep))]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} *?` : return \iter-star-sep(getSymbol(s,isLex), [lit(unescape(sep))]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} +?` : return \iter-sep(getSymbol(s,isLex), [lit(unescape(sep))]);
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> *`: 
+    	return \iter-star(getSymbol(s,isLex));
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> +`  :
+    	return \iter(getSymbol(s,isLex));
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> *?` :
+    	return \iter-star(getSymbol(s,isLex));
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> +?` :
+    	return \iter(getSymbol(s,isLex));
+    	
+    case (Symbol) `{<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sep>} *`  :
+    	return \iter-star-sep(getSymbol(s,isLex), [lit(unescape(sep))]);
+    	
+    case (Symbol) `{<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sep>} +`  :
+    	return \iter-sep(getSymbol(s,isLex), [lit(unescape(sep))]);
+    	
+    case (Symbol) `{<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sep>} *?` :
+    	return \iter-star-sep(getSymbol(s,isLex), [lit(unescape(sep))]);
+    	
+    case (Symbol) `{<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sep>} +?` :
+    	return \iter-sep(getSymbol(s,isLex), [lit(unescape(sep))]);
+    	
     default: throw "missed a case <sym>";
   } 
   else switch (sym) {  
-    case (Symbol) `<Symbol s> *`  : return \iter-star-sep(getSymbol(s,isLex),[\layout()]);
-    case (Symbol) `<Symbol s> +`  : return \iter-sep(getSymbol(s,isLex),[\layout()]);
-    case (Symbol) `<Symbol s> *?` : return \iter-star-sep(getSymbol(s,isLex),[\layout()]);
-    case (Symbol) `<Symbol s> +?` : return \iter-sep(getSymbol(s,isLex),[\layout()]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} *`  : return \iter-star-sep(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} +`  : return \iter-sep(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} *?` : return \iter-star-sep(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
-    case (Symbol) `{<Symbol s> <Symbol sep>} +?` : return \iter-sep(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> *`:
+    	return \iter-star-seps(getSymbol(s,isLex),[\layout()]);
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> +` :
+    	return \iter-seps(getSymbol(s,isLex),[\layout()]);
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> *?`:
+    	return \iter-star-seps(getSymbol(s,isLex),[\layout()]);
+    	
+    case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> +?`:
+    	return \iter-seps(getSymbol(s,isLex),[\layout()]);
+    	
+    case (Symbol) `{<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sep>} *` :
+    	return \iter-star-seps(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    	
+    case (Symbol) `{<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sep>} +` :
+    	return \iter-seps(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    	
+    case (Symbol) `{<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sep>} *?`:
+    	return \iter-star-seps(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    	
+    case (Symbol) `{<languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sep>} +?`:
+    	return \iter-seps(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
     default: throw "missed a case <sym>";  
   }
 }
@@ -170,9 +211,60 @@ test getSymbol((Symbol) `ABC`, false) == sort("ABC");
 test getSymbol((Symbol) `'abc'`, false) == cilit("abc");
 test getSymbol((Symbol) `abc : ABC`, false) == label("abc",sort("ABC"));
 test getSymbol((Symbol) `"abc" : ABC`, false) == label("abc",sort("ABC"));
+test getSymbol((Symbol) `A[[B]]`, false) == \parameterized-sort([sort("B")]);   // <== parameterized sort missing
 test getSymbol((Symbol) `A?`, false) == opt(sort("A"));
-test getSymbol((Symbol) `[a]`, false) == \char-class([range(97,97)])
-  
+test getSymbol((Symbol) `[a]`, false) == \char-class([range(97,97)]);
+
+test getSymbol((Symbol) `A*`, false) == \iter-star-seps(sort("A"),[layout()]);
+test getSymbol((Symbol) `A+`, false) == \iter-seps(sort("A"),[layout()]);
+test getSymbol((Symbol) `A*?`, false) == opt(\iter-star-seps(sort("A"),[layout()]));
+test getSymbol((Symbol) `A+?`, false) == opt(\iter-seps(sort("A"),[layout()]));
+
+test getSymbol((Symbol) `{A "x"}*`, false) == \iter-star-seps(sort("A"),[layout(),lit("x"),layout()]);
+test getSymbol((Symbol) `{A "x"}+`, false) == \iter-seps(sort("A"),[layout(),lit("x"),layout()]);
+test getSymbol((Symbol) `{A "x"}*?`, false) == opt(\iter-star-seps(sort("A"),[layout(),lit("x"),layout()]));
+test getSymbol((Symbol) `{A "x"}+?`, false) == opt(\iter-seps(sort("A"),[layout(),lit("x"),layout()]));
+
+test getSymbol((Symbol) `A*`, true) == \iter-star(sort("A"),[layout()]);
+test getSymbol((Symbol) `A+`, true) == \iter(sort("A"),[layout()]);
+test getSymbol((Symbol) `A*?`, true) == opt(\iter-star(sort("A"),[layout()]));
+test getSymbol((Symbol) `A+?`, true) == opt(\iter(sort("A"),[layout()]));
+
+test getSymbol((Symbol) `{A "x"}*`, true) == \iter-star(sort("A"),[layout(),lit("x"),layout()]);
+test getSymbol((Symbol) `{A "x"}+`, true) == \iter(sort("A"),[layout(),lit("x"),layout()]);
+test getSymbol((Symbol) `{A "x"}*?`, true) == opt(\iter-star(sort("A"),[layout(),lit("x"),layout()]));
+test getSymbol((Symbol) `{A "x"}+?`, true) == opt(\iter(sort("A"),[layout(),lit("x"),layout()]));
+
+
+private str unescape(Symbol s){
+ if ([StrCon] /\"<rest:.*>\"/ := s) {
+     return visit (rest) {
+       case /\\b/           => "\b"
+       case /\\f/           => "\f"
+       case /\\n/           => "\n"
+       case /\\t/           => "\t"
+       case /\\r/           => "\r"  
+       case /\\\"/          => "\""  
+       case /\\\\/          => "\\"
+       case /\\TOP/         => "\255"
+       case /\\EOF/         => "\256"
+       case /\\BOT/         => "\0"
+       case /\\LABEL_START/ => "\257"
+     };      
+   } else if ([SingleQuotedStrCon] /\'<rest:.*>\'/ := s) {
+     return visit (rest) {
+       case /\\b/           => "\b"
+       case /\\f/           => "\f"
+       case /\\n/           => "\n"
+       case /\\t/           => "\t"
+       case /\\r/           => "\r"  
+       case /\\\'/          => "'"  
+       case /\\\\/          => "\\"
+     };      
+   }
+    throw "unexpected string format: <s>";
+}
+/*
 private str unescape(StrCon s) {
    if ([StrCon] /\"<rest:.*>\"/ := s) {
      return visit (rest) {
@@ -191,13 +283,15 @@ private str unescape(StrCon s) {
    }
    throw "unexpected string format: <s>";
 }
+*/
 
 test unescape((StrCon) `"abc"`)  == "abc";
 test unescape((StrCon) `"a\nc"`) == "a\nc";
 test unescape((StrCon) `"a\"c"`) == "a\"c";
 test unescape((StrCon) `"a\\c"`) == "a\\c";
 
-public str unescape(SingleQuotedStrCon s) {
+/*
+private str unescape(SingleQuotedStrCon s) {
    if ([SingleQuotedStrCon] /\'<rest:.*>\'/ := s) {
      return visit (rest) {
        case /\\b/           => "\b"
@@ -211,6 +305,7 @@ public str unescape(SingleQuotedStrCon s) {
    }
    throw "unexpected string format: <s>";
 }
+*/
 
 test unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
 test unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
