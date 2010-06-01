@@ -16,7 +16,6 @@ import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.ast.TypeVar;
@@ -161,7 +160,7 @@ public class TypeDeclarationEvaluator {
 	
 	public void declareAlias(Alias x, Environment env) {
 		try {
-			Type base = new TypeEvaluator(env, null).eval(x.getBase());
+			Type base = new TypeEvaluator(env, eval.getHeap()).eval(x.getBase());
 
 			if (base == null) {
 				throw new UndeclaredTypeError(x.getBase().toString(), x
