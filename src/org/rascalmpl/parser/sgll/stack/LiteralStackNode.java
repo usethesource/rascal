@@ -3,6 +3,8 @@ package org.rascalmpl.parser.sgll.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
+import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.IntegerList;
 
 public final class LiteralStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final IConstructor symbol;
@@ -19,13 +21,22 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 		result = new LiteralNode(symbol, literal);
 	}
 	
-	private LiteralStackNode(LiteralStackNode literalParseStackNode){
-		super(literalParseStackNode);
+	private LiteralStackNode(LiteralStackNode original){
+		super(original);
 		
-		symbol = literalParseStackNode.symbol;
-		literal = literalParseStackNode.literal;
+		symbol = original.symbol;
+		literal = original.literal;
 		
-		result = literalParseStackNode.result;
+		result = original.result;
+	}
+	
+	private LiteralStackNode(LiteralStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
+		super(original, prefixes, prefixStartLocations);
+		
+		symbol = original.symbol;
+		literal = original.literal;
+		
+		result = original.result;
 	}
 	
 	public String getMethodName(){
@@ -52,10 +63,11 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		LiteralStackNode lpsn = new LiteralStackNode(this);
-		lpsn.prefixes = prefixes;
-		lpsn.prefixStartLocations = prefixStartLocations;
-		return lpsn;
+		return new LiteralStackNode(this, prefixes, prefixStartLocations);
+	}
+	
+	public void initializeResultStore(){
+		// Do nothing.
 	}
 	
 	public int getLength(){

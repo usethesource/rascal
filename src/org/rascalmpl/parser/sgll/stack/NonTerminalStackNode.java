@@ -3,26 +3,30 @@ package org.rascalmpl.parser.sgll.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.IntegerList;
 
 public final class NonTerminalStackNode extends AbstractStackNode{
 	private final String nonTerminal;
 	
-	private final INode result;
+	private INode result;
 	
 	public NonTerminalStackNode(int id, String nonTerminal){
 		super(id);
 		
 		this.nonTerminal = nonTerminal;
-		
-		result = null;
 	}
 	
-	private NonTerminalStackNode(NonTerminalStackNode nonTerminalParseStackNode){
-		super(nonTerminalParseStackNode);
+	private NonTerminalStackNode(NonTerminalStackNode original){
+		super(original);
 		
-		nonTerminal = nonTerminalParseStackNode.nonTerminal;
+		nonTerminal = original.nonTerminal;
+	}
+	
+	private NonTerminalStackNode(NonTerminalStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
+		super(original, prefixes, prefixStartLocations);
 		
-		result = new ContainerNode();
+		nonTerminal = original.nonTerminal;
 	}
 	
 	public String getMethodName(){
@@ -42,10 +46,11 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		NonTerminalStackNode ntpsn = new NonTerminalStackNode(this);
-		ntpsn.prefixes = prefixes;
-		ntpsn.prefixStartLocations = prefixStartLocations;
-		return ntpsn;
+		return new NonTerminalStackNode(this, prefixes, prefixStartLocations);
+	}
+	
+	public void initializeResultStore(){
+		result = new ContainerNode();
 	}
 	
 	public int getLength(){

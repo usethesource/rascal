@@ -115,6 +115,7 @@ public abstract class SGLL implements IGLL{
 			node = node.getCleanCopyWithPrefix();
 			node.setStartLocation(startLocation);
 		}
+		node.initializeResultStore();
 		
 		possiblySharedEdgeNodes.add(node);
 		stacksWithNonTerminalsToReduce.add(node);

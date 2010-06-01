@@ -3,13 +3,15 @@ package org.rascalmpl.parser.sgll.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.IntegerList;
 
 public final class OptionalStackNode extends AbstractStackNode implements IListStackNode{
 	private final IConstructor symbol;
 	
 	private final AbstractStackNode optional;
 	
-	private final INode result;
+	private INode result;
 	
 	public OptionalStackNode(int id, IConstructor symbol, AbstractStackNode optional){
 		super(id);
@@ -17,18 +19,22 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		this.symbol = symbol;
 		
 		this.optional = optional;
-		
-		this.result = null;
 	}
 	
-	private OptionalStackNode(OptionalStackNode optionalParseStackNode){
-		super(optionalParseStackNode);
+	private OptionalStackNode(OptionalStackNode original){
+		super(original);
 		
-		symbol = optionalParseStackNode.symbol;
+		symbol = original.symbol;
 		
-		optional = optionalParseStackNode.optional;
+		optional = original.optional;
+	}
+	
+	private OptionalStackNode(OptionalStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
+		super(original, prefixes, prefixStartLocations);
 		
-		result = new ContainerNode();
+		symbol = original.symbol;
+		
+		optional = original.optional;
 	}
 	
 	public int getLength(){
@@ -48,10 +54,11 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		OptionalStackNode opsn = new OptionalStackNode(this);
-		opsn.prefixes = prefixes;
-		opsn.prefixStartLocations = prefixStartLocations;
-		return opsn;
+		return new OptionalStackNode(this, prefixes, prefixStartLocations);
+	}
+	
+	public void initializeResultStore(){
+		result = new ContainerNode();
 	}
 	
 	public AbstractStackNode[] getChildren(){
