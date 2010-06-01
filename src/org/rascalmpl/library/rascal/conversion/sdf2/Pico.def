@@ -1,0 +1,97 @@
+definition
+module languages/pico/syntax/Pico
+
+imports languages/pico/syntax/Identifiers 
+imports languages/pico/syntax/Types
+imports basic/NatCon 
+imports basic/StrCon 
+imports basic/Whitespace
+
+hiddens
+  context-free start-symbols 
+    PROGRAM
+
+exports
+
+  sorts PROGRAM DECLS ID-TYPE STATEMENT EXP
+
+  context-free syntax
+    
+    "begin" DECLS {STATEMENT";" }* "end"                          -> PROGRAM
+    "declare" {ID-TYPE "," }*";"                                  -> DECLS 
+    PICO-ID ":" TYPE                                              -> ID-TYPE
+
+  context-free syntax
+    PICO-ID ":=" EXP                                              -> STATEMENT
+    "if" EXP "then" {STATEMENT";" }* "else" {STATEMENT";" }* "fi" -> STATEMENT
+    "while" EXP "do" {STATEMENT ";" }* "od"                       -> STATEMENT
+ 
+  context-free syntax 
+    PICO-ID       -> EXP
+    NatCon        -> EXP
+    StrCon        -> EXP
+    EXP "+" EXP   -> EXP {left}
+    EXP "-" EXP   -> EXP {left}
+    EXP "||" EXP  -> EXP {left}
+    "(" EXP ")"   -> EXP {bracket}
+
+  context-free priorities
+    EXP "||" EXP -> EXP >
+    EXP "-" EXP -> EXP >
+    EXP "+" EXP -> EXP
+
+module languages/pico/syntax/Types
+
+exports
+  sorts TYPE
+  context-free syntax
+    "natural"     -> TYPE
+    "string"      -> TYPE
+    "nil-type"    -> TYPE
+
+module basic/NatCon
+
+exports
+
+sorts NatCon
+
+lexical syntax
+  
+ [0-9]+ -> NatCon {cons("digits")}
+
+lexical restrictions
+
+ NatCon -/- [0-9]
+module basic/StrCon
+
+exports
+
+sorts StrCon StrChar
+
+lexical syntax
+    "\\n"                      -> StrChar {cons("newline")}
+    "\\t"                      -> StrChar {cons("tab")}
+    "\\\""                     -> StrChar {cons("quote")}
+    "\\\\"                     -> StrChar {cons("backslash")}
+    "\\" a:[0-9]b:[0-9]c:[0-9] -> StrChar {cons("decimal")}
+    ~[\0-\31\n\t\"\\]          -> StrChar {cons("normal")}
+
+    [\"] chars:StrChar* [\"]   -> StrCon  {cons("default")}
+module languages/pico/syntax/Identifiers
+
+exports
+sorts PICO-ID
+
+lexical syntax
+  [a-z] [a-z0-9]* -> PICO-ID  
+
+lexical restrictions
+  PICO-ID -/- [a-z0-9]
+module basic/Whitespace
+
+exports
+  lexical syntax
+    [\ \t\n\r]	-> LAYOUT {cons("whitespace")}
+
+  context-free restrictions
+    LAYOUT? -/- [\ \t\n\r]
