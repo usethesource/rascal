@@ -31,6 +31,12 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> nonEqualToConcreteSyntax(
+			ConcreteSyntaxResult that) {
+		return equalToConcreteSyntax(that).negate();
+	}
+	
+	@Override
 	protected <U extends IValue> Result<U> equalToConcreteSyntax(ConcreteSyntaxResult that) {
 		IConstructor left = this.getValue();
 		IConstructor right = that.getValue();
