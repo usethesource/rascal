@@ -3,6 +3,8 @@ package org.rascalmpl.parser.sgll.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
+import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.IntegerList;
 
 public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final IConstructor symbol;
@@ -30,13 +32,18 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		}
 	}
 	
-	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode contextInsensitiveLiteralParseStackNode){
-		super(contextInsensitiveLiteralParseStackNode);
+	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original){
+		super(original);
 		
-		symbol = contextInsensitiveLiteralParseStackNode.symbol;
-		ciLiteral = contextInsensitiveLiteralParseStackNode.ciLiteral;
+		symbol = original.symbol;
+		ciLiteral = original.ciLiteral;
+	}
+	
+	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
+		super(original, prefixes, prefixStartLocations);
 		
-		result = null;
+		symbol = original.symbol;
+		ciLiteral = original.ciLiteral;
 	}
 	
 	public String getMethodName(){
@@ -75,10 +82,11 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		CaseInsensitiveLiteralStackNode cilpsn = new CaseInsensitiveLiteralStackNode(this);
-		cilpsn.prefixes = prefixes;
-		cilpsn.prefixStartLocations = prefixStartLocations;
-		return cilpsn;
+		return new CaseInsensitiveLiteralStackNode(this, prefixes, prefixStartLocations);
+	}
+	
+	public void initializeResultStore(){
+		// Do nothing.
 	}
 	
 	public int getLength(){

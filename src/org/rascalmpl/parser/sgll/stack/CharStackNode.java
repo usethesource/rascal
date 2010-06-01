@@ -3,6 +3,8 @@ package org.rascalmpl.parser.sgll.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.CharNode;
 import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.IntegerList;
 
 public final class CharStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final char[][] ranges;
@@ -15,10 +17,16 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		this.ranges = ranges;
 	}
 	
-	private CharStackNode(CharStackNode charParseStackNode){
-		super(charParseStackNode);
+	private CharStackNode(CharStackNode original){
+		super(original);
 		
-		ranges = charParseStackNode.ranges;
+		ranges = original.ranges;
+	}
+	
+	private CharStackNode(CharStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
+		super(original, prefixes, prefixStartLocations);
+		
+		ranges = original.ranges;
 	}
 	
 	public String getMethodName(){
@@ -51,10 +59,11 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		CharStackNode cpsn = new CharStackNode(this);
-		cpsn.prefixes = prefixes;
-		cpsn.prefixStartLocations = prefixStartLocations;
-		return cpsn;
+		return new CharStackNode(this, prefixes, prefixStartLocations);
+	}
+	
+	public void initializeResultStore(){
+		// Do nothing.
 	}
 	
 	public int getLength(){

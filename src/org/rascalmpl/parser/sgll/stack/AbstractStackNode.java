@@ -30,15 +30,29 @@ public abstract class AbstractStackNode{
 		startLocation = -1;
 	}
 	
-	public AbstractStackNode(AbstractStackNode parseStackNode){
+	protected AbstractStackNode(AbstractStackNode original){
 		super();
 		
-		id = parseStackNode.id;
+		id = original.id;
 		
-		next = parseStackNode.next;
-		edges = parseStackNode.edges;
+		next = original.next;
+		edges = original.edges;
 		
-		parentProduction = parseStackNode.parentProduction;
+		parentProduction = original.parentProduction;
+	}
+	
+	protected AbstractStackNode(AbstractStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
+		super();
+		
+		id = original.id;
+		
+		next = original.next;
+		edges = original.edges;
+		
+		parentProduction = original.parentProduction;
+		
+		this.prefixes = prefixes;
+		this.prefixStartLocations = prefixStartLocations;
 	}
 	
 	// General.
@@ -165,6 +179,8 @@ public abstract class AbstractStackNode{
 		prefixes.add(prefix);
 		prefixStartLocations.add(length);
 	}
+	
+	public abstract void initializeResultStore();
 	
 	public abstract void addResult(IConstructor production, INode[] children);
 	

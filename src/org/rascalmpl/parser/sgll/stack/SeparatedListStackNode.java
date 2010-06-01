@@ -4,6 +4,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.IntegerList;
 
 public final class SeparatedListStackNode extends AbstractStackNode implements IListStackNode{
 	private final IConstructor symbol;
@@ -12,7 +14,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	private final AbstractStackNode[] separators;
 	private final boolean isPlusList;
 	
-	private final INode result;
+	private INode result;
 	
 	public SeparatedListStackNode(int id, IConstructor symbol, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
 		super(id);
@@ -22,32 +24,36 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		this.child = child;
 		this.separators = separators;
 		this.isPlusList = isPlusList;
-		
-		this.result = null;
 	}
 	
-	public SeparatedListStackNode(int id, IConstructor symbol, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList, INode result){
-		super(id);
+	private SeparatedListStackNode(SeparatedListStackNode original, int newId){
+		super(newId);
 		
-		this.symbol = symbol;
-		
-		this.child = child;
-		this.separators = separators;
-		this.isPlusList = isPlusList;
-		
-		this.result = result;
-	}
-	
-	public SeparatedListStackNode(SeparatedListStackNode separatedListStackNode){
-		super(separatedListStackNode);
-		
-		symbol = separatedListStackNode.symbol;
+		symbol = original.symbol;
 
-		child = separatedListStackNode.child;
-		separators = separatedListStackNode.separators;
-		isPlusList = separatedListStackNode.isPlusList;
+		child = original.child;
+		separators = original.separators;
+		isPlusList = original.isPlusList;
+	}
+	
+	private SeparatedListStackNode(SeparatedListStackNode original){
+		super(original);
 		
-		result = new ContainerNode();
+		symbol = original.symbol;
+
+		child = original.child;
+		separators = original.separators;
+		isPlusList = original.isPlusList;
+	}
+	
+	private SeparatedListStackNode(SeparatedListStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
+		super(original, prefixes, prefixStartLocations);
+		
+		symbol = original.symbol;
+
+		child = original.child;
+		separators = original.separators;
+		isPlusList = original.isPlusList;
 	}
 	
 	public String getMethodName(){
@@ -67,10 +73,11 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		SeparatedListStackNode slpsn = new SeparatedListStackNode(this);
-		slpsn.prefixes = prefixes;
-		slpsn.prefixStartLocations = prefixStartLocations;
-		return slpsn;
+		return new SeparatedListStackNode(this, prefixes, prefixStartLocations);
+	}
+	
+	public void initializeResultStore(){
+		result = new ContainerNode();
 	}
 	
 	public int getLength(){
@@ -79,7 +86,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	
 	public AbstractStackNode[] getChildren(){
 		AbstractStackNode psn = child.getCleanCopy();
-		SeparatedListStackNode slpsn = new SeparatedListStackNode((id | IGLL.LIST_LIST_FLAG), symbol, child, separators, true, new ContainerNode());
+		SeparatedListStackNode slpsn = new SeparatedListStackNode(this, id | IGLL.LIST_LIST_FLAG);
 		
 		AbstractStackNode from = psn;
 		for(int i = 0; i < separators.length; i++){
