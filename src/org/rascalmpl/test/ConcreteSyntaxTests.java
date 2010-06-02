@@ -657,28 +657,28 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("match2();"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void PicoUnQuoted3(){
 		prepareModule("M", UQmoduleM + "public bool match3() { return begin <decls> <stats> end := t1; }\n");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match3();"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void PicoUnQuoted4(){
 		prepareModule("M", UQmoduleM + "public bool match4() { return begin <DECLS decls> <stats> end := t1; }");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match4();"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void PicoUnQuoted5(){
 		prepareModule("M", UQmoduleM + "public bool match5() { return begin <decls> <{STATEMENT \";\"}* stats> end := t1; }");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match5();"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void PicoUnQuoted6(){
 		prepareModule("M", UQmoduleM + "public bool match6() { return begin <DECLS decls> <{STATEMENT \";\"}* stats> end := t1; }");
 		prepareMore("import M;");
