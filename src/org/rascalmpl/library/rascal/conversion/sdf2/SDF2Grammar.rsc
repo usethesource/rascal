@@ -15,6 +15,17 @@ import rascal::parser::Definition;
 import rascal::conversion::sdf2::Load;
 import languages::sdf2::syntax::\Sdf2-Syntax;
 
+// Resolve name clashes between the ParseTree and Grammar datatypes.
+
+// Unfortunately we cannot yet use these aliases since they lead to ambiguities.
+
+alias SDFSymbol = languages::sdf2::syntax::\Sdf2-Syntax::Symbol;
+alias SDFProduction = languages::sdf2::syntax::\Sdf2-Syntax::Production;
+alias SDFStrCon = languages::sdf2::syntax::\Sdf2-Syntax::StrCon;
+alias SDFSingleQuotesStrCon = languages::sdf2::syntax::\Sdf2-Syntax::SingleQuotedStrCon;
+alias SDFCharRange = languages::sdf2::syntax::\Sdf2-Syntax::CharRange;
+alias SDFCharClass =languages::sdf2::syntax::\Sdf2-Syntax::CharClass;
+
 //import rascal::conversion::sdf2::Pico;
 
 public Grammar sdf2grammar(loc input) {
@@ -125,7 +136,7 @@ public set[ParseTree::Symbol] getStartSymbols(SDF definition) {
   }
 }
 
-public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2::Symbol sym, bool isLex) {
+public ParseTree::Symbol getSymbol(SDFSymbol sym, bool isLex) {
   switch (sym) {
     case (Symbol) `<languages::sdf2::syntax::\Sdf2-Syntax::StrCon l> : <languages::sdf2::syntax::\Sdf2-Syntax::Symbol s>`:
 		return label(unescape(l), getSymbol(s,isLex));
