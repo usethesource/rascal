@@ -1,4 +1,4 @@
-module Concrete
+module box::Concrete
 import ParseTree;
 import  ValueIO;
 import  IO;
@@ -11,17 +11,42 @@ alias pairs = list[tuple[Symbol, Tree]] ;
 
 Tree getTree(ParseTree t) {
      switch (t) {
-          case parsetree(Tree top, _): return top;
-          }
-}
+          case parsetree(Tree top, _): {
+              switch(top) {
+                  case appl(prod(_ , _, _), list[Tree] t): { 
+                      Tree q = t[1];
+                      // rawPrintln(q);
+                      return q;
+                      }
+                    }
+                }
+           }
+          return t;    
+      }
 
 bool isTerminal(Symbol s) {
      return ((\lit(_):= s)) ||  (\char-class(_):=s);
      }
 
-bool isIndented(list[Symbol] ls) {
-       return size(ls)>=3 && isTerminal(ls[0])&&!isTerminal(ls[1])&& isTerminal(ls[size(ls)-1]);
+bool _isIndented(pairs u) {
+     for (int i <- [0,2 .. size(u)-2])  {
+          if ((<Symbol s1, _> := u[i]) && (<Symbol s2, _> := u[i+1])) {
+              if (!(isTerminal(s1)&&!isTerminal(s2))) return false;
+              }
        }
+     if (size(u)%2==0) return size(u)>2;
+     if (<Symbol q, _> := u[size(u)-1])
+                     return isTerminal(q);
+     return false;
+     }
+     
+bool isIndented(pairs u) {
+     while (size(u)>=4 && !_isIndented(u)) {
+          u=tail(u);
+          }
+     return size(u)>=4;
+     }
+     
 
 Box ppDefault(pairs u) {
        list[Box] bl = walkThroughSymbols(u, false);
@@ -36,8 +61,8 @@ Box visitParseTree(Tree q) {
    //  rawPrintln(q);
     switch(q) {
        case appl(prod(list[Symbol] s, _, _), list[Tree] t): {
-                      pairs u =[<s[i], t[i]>| int i<-[0,1..size(t)-1]];
-                      return isIndented(s)?V(walkThroughSymbols(u, true)):ppDefault(u);                                      
+                      pairs u =[<s[i], t[i]>| int i<-[0,2..size(t)-1]];
+                      return _isIndented(u)?V(walkThroughSymbols(u, true)):ppDefault(u);                                      
                      }
        case appl(\list(\cf(\iter-star-sep(Symbol s, Symbol sep) )), list[Tree] t): {
                       pairs u =[<s, t[i]>| int i<-[0,2..size(t)-1]];
@@ -91,12 +116,13 @@ list[Box] walkThroughList(pairs u, Symbol sep) {
             out+=L("<t>");
             }   
        default: {
-                    Box  b = visitParseTree(t);
-                     out+= defaultBox(b, false);
-                    }    
+                Box  b = visitParseTree(t);
+                out+= defaultBox(b, false);
+                }    
         }
          if (size(out)==2) {
                        Box b = H([out[0], out[1]]);
+                       b@hs = 0;
                        r+=  b;
                        out=[];
                       }
@@ -104,7 +130,7 @@ list[Box] walkThroughList(pairs u, Symbol sep) {
          } 
          if (size(out)>0) {
               Box b = H(out);
-               r+=  b;
+              r+=  b;
               }
    return r;
 }
@@ -130,9 +156,9 @@ list[Box] walkThroughList(pairs u, Symbol sep) {
             out+=L("<t>");
             }   
        default: {
-                    Box  b = visitParseTree(t);
-                     out+= defaultBox(b, false);
-                    }    
+                Box  b = visitParseTree(t);
+                out+= defaultBox(b, false);
+                }    
         }
          // println("Klaar:<out>");
          } 
@@ -190,11 +216,11 @@ list[Box] walkThroughSymbols(pairs u, bool indent) {
            out += (indent?I([L("<t>")]):L("<t>"));
           }
         case \lit(str c): {
-             // out+=L("<t>");
-             out=compact(out,"<t>");
+             out+= L("<t>");
+             // out=compact(out,"<t>");
             }
        case \char-class(_): {
-            out+=L("<t>");
+            out+= L("<t>");
            }   
        default: {
              Box  b = visitParseTree(t);
@@ -217,10 +243,12 @@ public void main(){
      println(getTree(a));
      }
      
-public text main(String s){
+public text toList(loc asf){
      // ParseTree a = readBinaryValueFile(#ParseTree, |file:///ufs/bertl/asfix/pico/big.asf|);
-     ParseTree a = readBinaryValueFile(#ParseTree, |file:///ufs/bertl/asfix/java/ViewAction.asf|);
+     // ParseTree a = readBinaryValueFile(#ParseTree, |file:///ufs/bertl/asfix/java/ViewAction.asf|);
+     ParseTree a = readBinaryValueFile(#ParseTree, asf);
      Box out = visitParseTree(getTree(a));
+     // println(out);
      return box2text(out);
      }
 
