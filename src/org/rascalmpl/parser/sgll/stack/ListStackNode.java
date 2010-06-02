@@ -13,7 +13,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	private final AbstractStackNode child;
 	private final boolean isPlusList;
 	
-	private INode result;
+	private ContainerNode result;
 	
 	public ListStackNode(int id, IConstructor symbol, AbstractStackNode child, boolean isPlusList){
 		super(id);

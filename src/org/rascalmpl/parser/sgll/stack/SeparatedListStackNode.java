@@ -14,7 +14,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	private final AbstractStackNode[] separators;
 	private final boolean isPlusList;
 	
-	private INode result;
+	private ContainerNode result;
 	
 	public SeparatedListStackNode(int id, IConstructor symbol, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
 		super(id);
