@@ -57,7 +57,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public Object[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	

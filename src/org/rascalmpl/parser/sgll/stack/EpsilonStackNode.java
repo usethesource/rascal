@@ -53,7 +53,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 		return 0;
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public Object[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	
