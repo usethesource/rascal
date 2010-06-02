@@ -19,7 +19,7 @@ import box::Box;
 int maxWidth = 75;
 int hv2h_crit = 60;
 bool decorated = false;
-alias text = list[str];
+
 
 alias options = map [str, int];
 alias   foptions = map[str, list[str]];
@@ -439,6 +439,14 @@ public void main(Box b) {
    } 
 */
 }
+
+public text box2text(Box b) {
+    b = removeHV(b);
+    b = removeHOV(b);
+    decorated =  false;
+    text t = O(b, V([]), oDefault, maxWidth);
+    return t;
+    }
 
 public value toList(Box b) {
   // println("Hallo");

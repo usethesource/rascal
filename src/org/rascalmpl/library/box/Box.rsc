@@ -16,3 +16,5 @@ data Box
     |  VAR(Box  var)
     | NM(Box  nm)
     ;
+    
+alias text = list[str];
