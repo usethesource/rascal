@@ -93,7 +93,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		return ciLiteral.length;
 	}
 	
-	public Object[] getChildren(){
+	public AbstractStackNode[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	

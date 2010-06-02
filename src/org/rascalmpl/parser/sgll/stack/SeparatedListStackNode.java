@@ -84,7 +84,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		throw new UnsupportedOperationException();
 	}
 	
-	public Object[] getChildren(){
+	public AbstractStackNode[] getChildren(){
 		AbstractStackNode psn = child.getCleanCopy();
 		SeparatedListStackNode slpsn = new SeparatedListStackNode(this, id | IGLL.LIST_LIST_FLAG);
 		
@@ -96,20 +96,23 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		}
 		from.addNext(slpsn);
 		
-		psn.addEdge(this, symbol);
-		slpsn.addEdge(this, symbol);
+		psn.addEdge(this);
+		slpsn.addEdge(this);
 		
 		psn.setStartLocation(startLocation);
+		psn.setParentProduction(symbol);
+		slpsn.setParentProduction(symbol);
 		
 		if(isPlusList){
-			return new Object[]{symbol, psn};
+			return new AbstractStackNode[]{psn};
 		}
 		
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
-		epsn.addEdge(this, symbol);
+		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
+		epsn.setParentProduction(symbol);
 		
-		return new Object[]{symbol, psn, epsn};
+		return new AbstractStackNode[]{psn, epsn};
 	}
 	
 	public void addResult(IConstructor production, INode[] children){
