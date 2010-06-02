@@ -61,18 +61,15 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		result = new ContainerNode();
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public Object[] getChildren(){
 		AbstractStackNode copy = optional.getCleanCopy();
-		copy.setParentProduction(symbol);
-		copy.setStartLocation(-1); // Reset.
 		
 		AbstractStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
-		copy.addEdge(this);
-		epsn.addEdge(this);
+		copy.addEdge(this, symbol);
+		epsn.addEdge(this, symbol);
 		epsn.setStartLocation(startLocation);
-		epsn.setParentProduction(symbol);
 		
-		return new AbstractStackNode[]{copy, epsn};
+		return new Object[]{symbol, copy, epsn};
 	}
 	
 	public String getMethodName(){

@@ -70,7 +70,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		return 1;
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public Object[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	

@@ -8,6 +8,7 @@ import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.DoubleArrayList;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
@@ -21,7 +22,7 @@ public abstract class SGLL implements IGLL{
 	private final ArrayList<AbstractStackNode> stacksToExpand;
 	private final RotatingQueue<AbstractStackNode> stacksWithTerminalsToReduce;
 	private final RotatingQueue<AbstractStackNode> stacksWithNonTerminalsToReduce;
-	private final ArrayList<AbstractStackNode[]> lastExpects;
+	private final DoubleArrayList<IConstructor, AbstractStackNode[]> lastExpects;
 	private final ArrayList<AbstractStackNode> possiblySharedExpects;
 	private final ArrayList<AbstractStackNode> possiblySharedExpectsEndNodes;
 	private final ArrayList<AbstractStackNode> possiblySharedNextNodes;
@@ -40,7 +41,7 @@ public abstract class SGLL implements IGLL{
 		stacksWithTerminalsToReduce = new RotatingQueue<AbstractStackNode>();
 		stacksWithNonTerminalsToReduce = new RotatingQueue<AbstractStackNode>();
 		
-		lastExpects = new ArrayList<AbstractStackNode[]>();
+		lastExpects = new DoubleArrayList<IConstructor, AbstractStackNode[]>();
 		possiblySharedExpects = new ArrayList<AbstractStackNode>();
 		possiblySharedExpectsEndNodes = new ArrayList<AbstractStackNode>();
 		
@@ -52,17 +53,13 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	public void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
-		lastExpects.add(symbolsToExpect);
-		
-		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
-		lastNode.setParentProduction(production);
+		lastExpects.add(production, symbolsToExpect);
 	}
 	
 	public void expect(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
-		lastExpects.add(symbolsToExpect);
+		lastExpects.add(production, symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
-		lastNode.setParentProduction(production);
 		lastNode.setFollowRestriction(followRestrictions);
 	}
 	
@@ -81,7 +78,7 @@ public abstract class SGLL implements IGLL{
 			AbstractStackNode possibleAlternative = possiblySharedNextNodes.get(i);
 			if(possibleAlternative.isSimilar(node)){
 				if(node.hasEdges()){
-					possibleAlternative.addEdges(node.getEdges());
+					possibleAlternative.addEdges(node.getEdges(), node.getParentProductions());
 				}
 				return possibleAlternative;
 			}
@@ -125,7 +122,6 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void move(AbstractStackNode node){
-		IConstructor production = node.getParentProduction();
 		INode[][] results = node.getResults();
 		int[] resultStartLocations = node.getResultStartLocations();
 		
@@ -134,7 +130,7 @@ public abstract class SGLL implements IGLL{
 			for(int i = edges.size() - 1; i >= 0; i--){
 				AbstractStackNode edge = edges.get(i);
 				edge = updateEdgeNode(edge);
-				addResults(production, edge, results, resultStartLocations);
+				addResults(node.getParentProduction(i), edge, results, resultStartLocations);
 			}
 		}
 		
@@ -220,12 +216,12 @@ public abstract class SGLL implements IGLL{
 		location = closestNextLocation;
 	}
 	
-	private boolean shareNode(AbstractStackNode node, AbstractStackNode stack){
+	private boolean shareNode(AbstractStackNode node, AbstractStackNode stack, IConstructor parentProduction){
 		if(!node.isEpsilon()){
 			for(int j = possiblySharedExpects.size() - 1; j >= 0; j--){
 				AbstractStackNode possiblySharedNode = possiblySharedExpects.get(j);
 				if(possiblySharedNode.isSimilar(node)){
-					possiblySharedExpectsEndNodes.get(j).addEdge(stack);
+					possiblySharedExpectsEndNodes.get(j).addEdge(stack, parentProduction);
 					return true;
 				}
 			}
@@ -235,12 +231,13 @@ public abstract class SGLL implements IGLL{
 	
 	private void handleExpects(AbstractStackNode stackBeingWorkedOn){
 		for(int i = lastExpects.size() - 1; i >= 0; i--){
-			AbstractStackNode[] expectedNodes = lastExpects.get(i);
+			IConstructor production = lastExpects.getFirst(i);
+			AbstractStackNode[] expectedNodes = lastExpects.getSecond(i);
 			int numberOfNodes = expectedNodes.length;
 			AbstractStackNode first = expectedNodes[0];
 			
 			// Handle sharing (and loops).
-			if(!shareNode(first, stackBeingWorkedOn)){
+			if(!shareNode(first, stackBeingWorkedOn, production)){
 				AbstractStackNode last = expectedNodes[numberOfNodes - 1].getCleanCopy();
 				AbstractStackNode next = last;
 				
@@ -250,7 +247,7 @@ public abstract class SGLL implements IGLL{
 					next = current;
 				}
 				
-				last.addEdge(stackBeingWorkedOn);
+				last.addEdge(stackBeingWorkedOn, production);
 				
 				next.setStartLocation(location);
 				
@@ -272,17 +269,17 @@ public abstract class SGLL implements IGLL{
 			
 			handleExpects(node);
 		}else{ // List
-			AbstractStackNode[] listChildren = node.getChildren();
+			Object[] listChildren = node.getChildren();
 			
-			AbstractStackNode child = listChildren[0];
-			if(!shareNode(child, node)){
+			AbstractStackNode child = (AbstractStackNode) listChildren[1];
+			if(!shareNode(child, node, (IConstructor) listChildren[0])){
 				stacksToExpand.add(child);
 				possiblySharedExpects.add(child);
 				possiblySharedExpectsEndNodes.add(child);
 			}
 			
-			if(listChildren.length > 1){ // Star list or optional.
-				child = listChildren[1];
+			if(listChildren.length > 2){ // Star list or optional.
+				child = (AbstractStackNode) listChildren[2];
 				// This is always epsilon; so shouldn't be shared.
 				stacksToExpand.add(child);
 			}
