@@ -11,7 +11,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	
 	private final AbstractStackNode optional;
 	
-	private INode result;
+	private ContainerNode result;
 	
 	public OptionalStackNode(int id, IConstructor symbol, AbstractStackNode optional){
 		super(id);
