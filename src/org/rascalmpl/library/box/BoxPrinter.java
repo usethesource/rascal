@@ -140,12 +140,13 @@ public class BoxPrinter {
 
 	private URI getFileName() {
 		FileDialog dialog = new FileDialog(shell);
-		String[] filterExtensions = new String[] { "*.rsc" };
+		String[] filterExtensions = new String[] { "*.asf" };
 		dialog.setFilterExtensions(filterExtensions);
-		String defaultDir = System.getProperty("DEFAULTDIR");
+//		String defaultDir = System.getProperty("DEFAULTDIR");
+		String defaultDir = System.getProperty("user.home")+File.separatorChar+"asfix";
+		
 		if (defaultDir != null)
 			dialog.setFilterPath(defaultDir);
-
 		String fileName = dialog.open();
 		if (fileName == null) {
 			System.err.println("Canceled");
@@ -153,6 +154,7 @@ public class BoxPrinter {
 		}
 		try {
 			URI r = new URI("file", fileName, null);
+			System.err.println("uri:"+r);
 			return r;
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
@@ -193,9 +195,9 @@ public class BoxPrinter {
 		}
 	}
 
-	private boolean readData(URI uri) {
+	private boolean readData(URI uri, boolean rich) {
 		// System.err.println("readData:" + uri);
-		IValue v = new MakeBox().toRichTxt(uri);
+		IValue v = rich?new MakeBox().toRichTxt(uri):new MakeBox().toTxt(uri);
 		// System.err.println("MakeBox finished1");
 		if (v == null)
 			return false;
@@ -205,7 +207,7 @@ public class BoxPrinter {
 	}
 	
 	public String getRichText(URI uri) {
-		readData(uri);
+		readData(uri, true);
 		return textToPrint;
 	}
 
@@ -368,7 +370,7 @@ public class BoxPrinter {
 					| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);
 		}
 		URI uri;
-		while (!readData(uri = getFileName()))
+		while (!readData(uri = getFileName(), false))
 			;
 		shell.setText(new File(uri.getPath()).getName());
 		_open(uri);
@@ -377,21 +379,21 @@ public class BoxPrinter {
 		canvas.redraw();
 	}
 
-	public void open(URI uri, Canvas canvas) {
-		// IWorkspaceRoot workspace = ResourcesPlugin.getWorkspace().getRoot();
-		// System.err.println("OK this is this:"+workspace.getProject("box").getFolder("src"));
-		// IFolder folder = workspace.getProject("box").getFolder("src");
-		// System.err.println("HOI:"+folder.exists()+" "+folder.getLocationURI());
-
-		// FileDialog dialog = new FileDialog(shell);
-		// dialog.setFilterPath(string);
-		readData(uri);
-		shell = canvas.getShell();
-		screen = shell.getDisplay();
-		this.canvas = canvas;
-		_open(uri);
-		this.canvas.redraw();
-	}
+//	public void open(URI uri, Canvas canvas) {
+//		// IWorkspaceRoot workspace = ResourcesPlugin.getWorkspace().getRoot();
+//		// System.err.println("OK this is this:"+workspace.getProject("box").getFolder("src"));
+//		// IFolder folder = workspace.getProject("box").getFolder("src");
+//		// System.err.println("HOI:"+folder.exists()+" "+folder.getLocationURI());
+//
+//		// FileDialog dialog = new FileDialog(shell);
+//		// dialog.setFilterPath(string);
+//		readData(uri, false);
+//		shell = canvas.getShell();
+//		screen = shell.getDisplay();
+//		this.canvas = canvas;
+//		_open(uri);
+//		this.canvas.redraw();
+//	}
 
 	private void _open(URI uri) {
         File f = new File(uri.getPath());

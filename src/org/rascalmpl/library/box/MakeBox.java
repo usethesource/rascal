@@ -4,12 +4,15 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
@@ -67,11 +70,11 @@ public class MakeBox {
 		Object ioInstance = commandEvaluator.getJavaBridge()
 				.getJavaClassInstance(IO.class);
 		// Set output collector.
-		((IO) ioInstance).setOutputStream(new PrintStream(System.out));	
+		((IO) ioInstance).setOutputStream(new PrintStream(System.out));
 	}
-	
+
 	private void execute(String s) {
-		commandEvaluator.eval(s,URI.create("box:///"));
+		commandEvaluator.eval(s, URI.create("box:///"));
 	}
 
 	private IValue launchRascalProgram(String resultName) {
@@ -93,7 +96,19 @@ public class MakeBox {
 			return null;
 		}
 	}
-	
+
+	private IValue launchConcreteProgram(URI uri) {
+		final String resultName = "c";
+		execute("import box::Concrete;");
+		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
+		ISourceLocation v = ValueFactoryFactory.getValueFactory()
+				.sourceLocation(uri);
+		store(v, varName);
+		execute(resultName + "=toList(" + varName + ");");
+		IValue r = fetch(resultName);
+		return r;
+	}
+
 	private IValue computeBox(URI uri) {
 		ModuleEnvironment currentModule = (ModuleEnvironment) commandEvaluator
 				.getCurrentEnvt().getRoot();
@@ -122,4 +137,17 @@ public class MakeBox {
 		}
 		return null;
 	}
+
+	public IValue toTxt(URI uri) {
+		start();
+		try {
+			FileInputStream inp = new FileInputStream(uri.getRawPath());
+			inp.close();
+			return launchConcreteProgram(uri);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }
