@@ -79,25 +79,29 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		throw new UnsupportedOperationException();
 	}
 	
-	public Object[] getChildren(){
+	public AbstractStackNode[] getChildren(){
 		AbstractStackNode psn = child.getCleanCopy();
 		ListStackNode lpsn = new ListStackNode(this, id | IGLL.LIST_LIST_FLAG);
 		
 		psn.addNext(lpsn);
-		lpsn.addEdge(this, symbol);
-		psn.addEdge(this, symbol);
+		lpsn.addEdge(this);
+		psn.addEdge(this);
+		
+		psn.setParentProduction(symbol);
+		lpsn.setParentProduction(symbol);
 		
 		psn.setStartLocation(startLocation);
 		
 		if(isPlusList){
-			return new Object[]{symbol, psn};
+			return new AbstractStackNode[]{psn};
 		}
 		
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
-		epsn.addEdge(this, symbol);
+		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
+		epsn.setParentProduction(symbol);
 		
-		return new Object[]{symbol, psn, epsn};
+		return new AbstractStackNode[]{psn, epsn};
 	}
 	
 	public void addResult(IConstructor production, INode[] children){

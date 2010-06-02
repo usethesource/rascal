@@ -19,7 +19,7 @@ public abstract class AbstractStackNode{
 	protected IntegerList prefixStartLocations;
 	
 	// Last node specific stuff
-	private ArrayList<IConstructor> parentProductions;
+	private IConstructor parentProduction;
 	private IReducableStackNode[] followRestrictions;
 	
 	public AbstractStackNode(int id){
@@ -38,7 +38,7 @@ public abstract class AbstractStackNode{
 		next = original.next;
 		edges = original.edges;
 		
-		parentProductions = original.parentProductions;
+		parentProduction = original.parentProduction;
 	}
 	
 	protected AbstractStackNode(AbstractStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
@@ -49,7 +49,7 @@ public abstract class AbstractStackNode{
 		next = original.next;
 		edges = original.edges;
 		
-		parentProductions = original.parentProductions;
+		parentProduction = original.parentProduction;
 		
 		this.prefixes = prefixes;
 		this.prefixStartLocations = prefixStartLocations;
@@ -77,12 +77,12 @@ public abstract class AbstractStackNode{
 	public abstract boolean reduce(char[] input);
 	
 	// Last node specific stuff.
-	public IConstructor getParentProduction(int index){
-		return parentProductions.get(index);
+	public void setParentProduction(IConstructor parentProduction){
+		this.parentProduction = parentProduction;
 	}
 	
-	public ArrayList<IConstructor> getParentProductions(){
-		return parentProductions;
+	public IConstructor getParentProduction(){
+		return parentProduction;
 	}
 	
 	public void setFollowRestriction(IReducableStackNode[] followRestrictions){
@@ -123,17 +123,12 @@ public abstract class AbstractStackNode{
 		return next;
 	}
 	
-	public void addEdge(AbstractStackNode edge, IConstructor parentProduction){
-		if(edges == null){
-			edges = new ArrayList<AbstractStackNode>(1);
-			parentProductions = new ArrayList<IConstructor>();
-		}
-		
+	public void addEdge(AbstractStackNode edge){
+		if(edges == null) edges = new ArrayList<AbstractStackNode>(1);
 		edges.add(edge);
-		parentProductions.add(parentProduction);
 	}
 	
-	public void addEdges(ArrayList<AbstractStackNode> edgesToAdd, ArrayList<IConstructor> parentProductionsToAdd){
+	public void addEdges(ArrayList<AbstractStackNode> edgesToAdd){
 		if(edges != edgesToAdd){
 			OUTER : for(int i = edgesToAdd.size() - 1; i >= 0; i--){
 				AbstractStackNode node = edgesToAdd.get(i);
@@ -143,9 +138,7 @@ public abstract class AbstractStackNode{
 						break OUTER;
 					}
 				}
-				
 				edges.add(node);
-				parentProductions.add(parentProductionsToAdd.get(i));
 			}
 		}
 	}
@@ -174,7 +167,7 @@ public abstract class AbstractStackNode{
 	public abstract int getLength();
 	
 	// Lists.
-	public abstract Object[] getChildren();
+	public abstract AbstractStackNode[] getChildren();
 	
 	// Results.
 	public void addPrefix(INode[] prefix, int length){
