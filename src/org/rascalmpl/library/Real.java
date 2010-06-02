@@ -34,4 +34,8 @@ public class Real {
 	{
 	  return values.string(d.toString());
 	}
+	
+	public IValue round(IReal d) {
+		return d.round();
+	}
 }

@@ -32,3 +32,7 @@ public int java toInt(real d);
 @doc{Convert a real to a string.}
 @javaClass{org.rascalmpl.library.Real}
 public str java toString(real d);
+
+@doc{Round to the nearest integer}
+@javaClass{org.rascalmpl.library.Real}
+public real java round(real d);
