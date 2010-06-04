@@ -64,14 +64,7 @@ public class IndexedStack<E>{
 	}
 	
 	public void clear(){
-		data = (E[]) new Object[DEFAULT_SIZE];
-		indexes = new int[DEFAULT_SIZE];
-		size = 0;
-	}
-	
-	public void clear(int length){
-		data = (E[]) new Object[length];
-		indexes = new int[length];
+		data = (E[]) new Object[data.length];
 		size = 0;
 	}
 }

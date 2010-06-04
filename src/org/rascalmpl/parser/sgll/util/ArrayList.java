@@ -63,12 +63,11 @@ public class ArrayList<E>{
 	}
 	
 	public void clear(){
-		data = (E[]) new Object[DEFAULT_SIZE];
+		data = (E[]) new Object[data.length];
 		size = 0;
 	}
 	
-	public void clear(int length){
-		data = (E[]) new Object[length];
+	public void dirtyClear(){
 		size = 0;
 	}
 	
