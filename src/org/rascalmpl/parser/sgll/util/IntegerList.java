@@ -41,12 +41,6 @@ public class IntegerList{
 	}
 	
 	public void clear(){
-		data = new int[DEFAULT_SIZE];
-		size = 0;
-	}
-	
-	public void clear(int length){
-		data = new int[length];
 		size = 0;
 	}
 	

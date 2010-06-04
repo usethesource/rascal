@@ -8,6 +8,7 @@ import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.DoubleArrayList;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
@@ -22,8 +23,7 @@ public abstract class SGLL implements IGLL{
 	private final RotatingQueue<AbstractStackNode> stacksWithTerminalsToReduce;
 	private final RotatingQueue<AbstractStackNode> stacksWithNonTerminalsToReduce;
 	private final ArrayList<AbstractStackNode[]> lastExpects;
-	private final ArrayList<AbstractStackNode> possiblySharedExpects;
-	private final ArrayList<AbstractStackNode> possiblySharedExpectsEndNodes;
+	private final DoubleArrayList<AbstractStackNode, AbstractStackNode> possiblySharedExpects;
 	private final ArrayList<AbstractStackNode> possiblySharedNextNodes;
 	private final IntegerHashMap<ArrayList<AbstractStackNode>> possiblySharedEdgeNodesMap;
 	
@@ -41,8 +41,7 @@ public abstract class SGLL implements IGLL{
 		stacksWithNonTerminalsToReduce = new RotatingQueue<AbstractStackNode>();
 		
 		lastExpects = new ArrayList<AbstractStackNode[]>();
-		possiblySharedExpects = new ArrayList<AbstractStackNode>();
-		possiblySharedExpectsEndNodes = new ArrayList<AbstractStackNode>();
+		possiblySharedExpects = new DoubleArrayList<AbstractStackNode, AbstractStackNode>();
 		
 		possiblySharedNextNodes = new ArrayList<AbstractStackNode>();
 		possiblySharedEdgeNodesMap = new IntegerHashMap<ArrayList<AbstractStackNode>>();
@@ -188,7 +187,7 @@ public abstract class SGLL implements IGLL{
 		
 		// Reduce terminals.
 		while(!stacksWithTerminalsToReduce.isEmpty()){
-			AbstractStackNode terminal = stacksWithTerminalsToReduce.get();
+			AbstractStackNode terminal = stacksWithTerminalsToReduce.unsafeGet();
 			reduceTerminal(terminal);
 
 			todoList.remove(terminal);
@@ -196,7 +195,7 @@ public abstract class SGLL implements IGLL{
 		
 		// Reduce non-terminals.
 		while(!stacksWithNonTerminalsToReduce.isEmpty()){
-			AbstractStackNode nonTerminal = stacksWithNonTerminalsToReduce.get();
+			AbstractStackNode nonTerminal = stacksWithNonTerminalsToReduce.unsafeGet();
 			reduceNonTerminal(nonTerminal);
 		}
 	}
@@ -208,7 +207,7 @@ public abstract class SGLL implements IGLL{
 			AbstractStackNode node = todoList.get(i);
 			int nextLocation = node.getStartLocation() + node.getLength();
 			if(nextLocation < closestNextLocation){
-				stacksWithTerminalsToReduce.clear();
+				stacksWithTerminalsToReduce.dirtyClear();
 				stacksWithTerminalsToReduce.put(node);
 				closestNextLocation = nextLocation;
 			}else if(nextLocation == closestNextLocation){
@@ -223,9 +222,9 @@ public abstract class SGLL implements IGLL{
 	private boolean shareNode(AbstractStackNode node, AbstractStackNode stack){
 		if(!node.isEpsilon()){
 			for(int j = possiblySharedExpects.size() - 1; j >= 0; j--){
-				AbstractStackNode possiblySharedNode = possiblySharedExpects.get(j);
+				AbstractStackNode possiblySharedNode = possiblySharedExpects.getFirst(j);
 				if(possiblySharedNode.isSimilar(node)){
-					possiblySharedExpectsEndNodes.get(j).addEdge(stack);
+					possiblySharedExpects.getSecond(j).addEdge(stack);
 					return true;
 				}
 			}
@@ -255,8 +254,7 @@ public abstract class SGLL implements IGLL{
 				next.setStartLocation(location);
 				
 				stacksToExpand.add(next);
-				possiblySharedExpects.add(next);
-				possiblySharedExpectsEndNodes.add(last);
+				possiblySharedExpects.add(next, last);
 			}
 		}
 	}
@@ -277,8 +275,7 @@ public abstract class SGLL implements IGLL{
 			AbstractStackNode child = listChildren[0];
 			if(!shareNode(child, node)){
 				stacksToExpand.add(child);
-				possiblySharedExpects.add(child);
-				possiblySharedExpectsEndNodes.add(child);
+				possiblySharedExpects.add(child, child);
 			}
 			
 			if(listChildren.length > 1){ // Star list or optional.
@@ -292,10 +289,9 @@ public abstract class SGLL implements IGLL{
 	private void expand(){
 		if(previousLocation != location){
 			possiblySharedExpects.clear();
-			possiblySharedExpectsEndNodes.clear();
 		}
 		while(stacksToExpand.size() > 0){
-			lastExpects.clear(1);
+			lastExpects.dirtyClear();
 			expandStack(stacksToExpand.remove(stacksToExpand.size() - 1));
 		}
 	}
