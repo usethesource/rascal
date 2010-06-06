@@ -64,13 +64,12 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<URI> collect() {
 		// collect should run the contributors in reverse order
 		List<URI> paths = new LinkedList<URI>();
-		List<IRascalSearchPathContributor> reversed = (List<IRascalSearchPathContributor>) contributors.clone();
-		Collections.reverse(reversed);
-		for (IRascalSearchPathContributor c : reversed) {
+//		List<IRascalSearchPathContributor> reversed = (List<IRascalSearchPathContributor>) contributors.clone();
+//		Collections.reverse(reversed);
+		for (IRascalSearchPathContributor c : contributors) {
 			c.contributePaths(paths);
 		}
 		
