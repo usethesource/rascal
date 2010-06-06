@@ -2,11 +2,14 @@ package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
 public class DefaultTestResultListener implements ITestResultListener{
-	private final PrintWriter err;
+	private PrintWriter err;
 	private int successes;
 	private int failures;
 	private int errors;
+	private int count;
 	
 	public DefaultTestResultListener(PrintWriter errorStream){
 		super();
@@ -17,9 +20,27 @@ public class DefaultTestResultListener implements ITestResultListener{
 		this.errors = 0;
 	}
 	
-	public void report(boolean successful, String test){
+	public void setErrorStream(PrintWriter errorStream) {
+		this.err = errorStream;
+	}
+	
+	public void start(int count) {
+		this.count = count;
+	}
+	
+	public void done() {
+		err.print(successes + " of " + count + " tests succeeded");
+		err.print(failures + " of " + count + " tests failed");
+	}
+	
+	public void report(boolean successful, String test, ISourceLocation loc){
 		synchronized(err){
-			
+			err.print(loc.getURI());
+			err.print(":");
+			err.print(loc.getBeginLine());
+			err.print(",");
+			err.print(loc.getBeginColumn());
+			err.print(":");
 			err.print(successful ? "success : " : "failed  : ");
 			if(successful)
 				successes++;
@@ -37,8 +58,14 @@ public class DefaultTestResultListener implements ITestResultListener{
 		}
 	}
 	
-	public void report(boolean successful, String test, Throwable t){
+	public void report(boolean successful, String test, ISourceLocation loc, Throwable t){
 		synchronized(err){
+			err.print(loc.getURI());
+			err.print(":");
+			err.print(loc.getBeginLine());
+			err.print(",");
+			err.print(loc.getBeginColumn());
+			err.print(":");
 			err.print(successful ? "success : " : "failed  : ");
 			if(successful)
 				successes++;
@@ -50,7 +77,8 @@ public class DefaultTestResultListener implements ITestResultListener{
 				err.print(test.substring(0, 47));
 				err.println("...");
 			}
-			t.printStackTrace(err);
+			err.print("\t" + t.getMessage() + "\n");
+//			t.printStackTrace(err);
 			err.flush();
 		}
 	}

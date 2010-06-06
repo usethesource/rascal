@@ -13,6 +13,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 
 public class TestEvaluator {
 	private final Evaluator eval;
@@ -63,6 +64,7 @@ public class TestEvaluator {
 			eval.setCurrentEnvt(env);
 			
 			Visitor visitor = new Visitor();
+			testResultListener.start(tests.size());
 			for(int i = tests.size() - 1; i >= 0; i--){
 				try {
 					eval.pushEnv();
@@ -78,6 +80,8 @@ public class TestEvaluator {
 				eval.setCurrentEnvt(old);
 			}
 		}
+		
+		testResultListener.done();
 	}
 	
 	private class Visitor extends NullASTVisitor<Result<IBool>>{
@@ -93,12 +97,12 @@ public class TestEvaluator {
 			try{
 				result = x.getExpression().accept(eval);
 			}catch(Throw e){
-				testResultListener.report(false, x.toString(), e);
+				testResultListener.report(false, x.toString(), x.getLocation(), e);
 			}catch(Throwable e){
-				testResultListener.report(false, x.toString(), e);
+				testResultListener.report(false, x.toString(), x.getLocation(), e);
 			}
 			
-			testResultListener.report(result.isTrue(), x.toString());
+			testResultListener.report(result.isTrue(), x.toString(), x.getLocation());
 			
 			return ResultFactory.bool(result.isTrue(), eval);
 		}
@@ -109,13 +113,17 @@ public class TestEvaluator {
 			
 			try{
 				result = x.getExpression().accept(eval);
-			}catch(Throw e){
-				testResultListener.report(false, x.toString(), e);
+			}
+			catch(StaticError e) {
+				testResultListener.report(false, x.toString(), x.getLocation(), e);
+			}
+			catch(Throw e){
+				testResultListener.report(false, x.toString(), x.getLocation(), e);
 			}catch(Throwable e){
-				testResultListener.report(false, x.toString(), e);
+				testResultListener.report(false, x.toString(), x.getLocation(), e);
 			}
 			
-			testResultListener.report(result.isTrue(), x.toString());
+			testResultListener.report(result.isTrue(), x.toString(), x.getLocation());
 			
 			return ResultFactory.bool(result.isTrue(), eval);
 		}

@@ -1,6 +1,7 @@
 package org.rascalmpl.library;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -10,6 +11,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseTree {
@@ -24,14 +26,16 @@ public class ParseTree {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
-		return ctx.getEvaluator().parseObject(startSort, input.getURI());
+		IConstructor pt = ctx.getEvaluator().parseObject(startSort, input.getURI());
+		return ((IList) ParsetreeAdapter.getTop(pt).get("args")).get(1);
 	}
 	
 	public IValue parse(IConstructor start, IString input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
-		return ctx.getEvaluator().parseObject(startSort, input.getValue());
+		IConstructor pt = ctx.getEvaluator().parseObject(startSort, input.getValue());
+		return ((IList) ParsetreeAdapter.getTop(pt).get("args")).get(1);
 	}
 	
 	public IValue parseExperimental(IConstructor start, ISourceLocation input, IEvaluatorContext ctx) {
