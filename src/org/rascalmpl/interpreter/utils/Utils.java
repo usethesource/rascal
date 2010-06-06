@@ -108,14 +108,14 @@ public final class Utils {
 	}
 	
 	public static String unescape(String str) {
-		byte[] bytes = str.getBytes();
+		char[] chars = str.toCharArray();
 		StringBuffer result = new StringBuffer();
 		
-		for (int i = 1; i < bytes.length - 1; i++) {
-			char b = (char) bytes[i];
+		for (int i = 1; i < chars.length - 1; i++) {
+			char b = chars[i];
 			switch (b) {
 			case '\\':
-				switch (bytes[++i]) {
+				switch (chars[++i]) {
 				case '\\':
 					b = '\\'; 
 					break;
@@ -124,6 +124,9 @@ public final class Utils {
 					break;
 				case '"':
 					b = '"'; 
+					break;
+				case '\'':
+					b = '\'';
 					break;
 				case 't':
 					b = '\t'; 
@@ -151,12 +154,12 @@ public final class Utils {
 				case '5':
 				case '6':
 				case '7':
-					b = (char) (bytes[i] - '0');
-					if (i < bytes.length - 1 && Character.isDigit(bytes[i+1])) {
-						b = (char) (b * 8 + (bytes[++i] - '0'));
+					b = (char) (chars[i] - '0');
+					if (i < chars.length - 1 && Character.isDigit(chars[i+1])) {
+						b = (char) (b * 8 + (chars[++i] - '0'));
 						
-						if (i < bytes.length - 1 && Character.isDigit(bytes[i+1])) {
-							b = (char) (b * 8 + (bytes[++i] - '0'));
+						if (i < chars.length - 1 && Character.isDigit(chars[i+1])) {
+							b = (char) (b * 8 + (chars[++i] - '0'));
 						}
 					}
 					break;
