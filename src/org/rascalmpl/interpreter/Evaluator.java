@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Map.Entry;
 
+import junit.framework.TestResult;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -293,6 +295,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private PrintWriter stderr;
 	private PrintWriter stdout;
 
+	private ITestResultListener testReporter;
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
 	private final RascalURIResolver resolver;
 	private final SDFSearchPath sdf;
@@ -384,6 +387,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		registry.registerOutput(resolver.scheme(), resolver);
 	}
 	
+	public void setTestResultListener(ITestResultListener l) {
+		this.testReporter = l;
+	}
+	
 	public SDFSearchPath getSDFSearchPath() {
 		return sdf;
 	}
@@ -469,7 +476,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private IConstructor filterStart(IConstructor startSort, IConstructor ptree) {
 		ptree = ParsetreeAdapter.addPositionInformation(ptree, URI.create("stdin:///"));
-		IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(ptree)).get(1);
+		IConstructor top = ParsetreeAdapter.getTop(ptree);
+		IList args = TreeAdapter.getArgs(top);
+		IConstructor tree = (IConstructor) args.get(1);
 
 		if (TreeAdapter.isAppl(tree)) {
 			IConstructor prod = TreeAdapter.getProduction(tree);
@@ -479,7 +488,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				throw RuntimeExceptionFactory.parseError(TreeAdapter.getLocation(tree), null, null);
 			}
 
-			return tree;
+			return ptree;
 		}
 		else if (TreeAdapter.isAmb(tree)) {
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
@@ -487,7 +496,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				IConstructor rhs = ProductionAdapter.getRhs(prod);
 
 				if (rhs.isEqual(startSort)) {
-					return (IConstructor) alt;
+					return ptree.set("top", top.set("args", args.put(1, alt)));
 				}
 			}
 
@@ -3994,9 +4003,24 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public boolean runTests(){
-		DefaultTestResultListener listener = new DefaultTestResultListener(stderr);
-		new TestEvaluator(this, listener).test();
-		return listener.allOk();
+		final boolean[] allOk = new boolean[] { true };
+		final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(stdout);
+		
+		new TestEvaluator(this, new ITestResultListener() {
+			public void report(boolean successful, String test, ISourceLocation loc, Throwable t) {
+				if (!successful) allOk[0] = false;
+				l.report(successful, test, loc, t);
+			}
+			
+			public void report(boolean successful, String test, ISourceLocation loc) {
+				if (!successful) allOk[0] = false;
+				l.report(successful, test, loc);
+			}
+
+			public void done() {testReporter.done();}
+			public void start(int count) {testReporter.start(count);}
+		}).test();
+		return allOk[0];
 	}
 
 	public IValueFactory getValueFactory() {
