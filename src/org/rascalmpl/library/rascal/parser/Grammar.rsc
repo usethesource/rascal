@@ -20,7 +20,7 @@ data Production = choice(Symbol rhs, set[Production] alternatives)
                 | first(Symbol rhs, list[Production] choices)
                 | \assoc(Symbol rhs, Associativity \assoc, set[Production] alternatives)               
                 | diff(Symbol rhs, Production language, set[Production] alternatives)
-                | restrict(Symbol rhs, Production language, list[CharClass] restrictions)
+                | restrict(Symbol rhs, Production language, list[Symbol] restrictions)  // WAS: CharClass
                 | others(Symbol rhs)
                 ;
 
