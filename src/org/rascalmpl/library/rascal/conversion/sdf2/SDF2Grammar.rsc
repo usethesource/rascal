@@ -14,7 +14,7 @@ import rascal::parser::Grammar;
 import rascal::parser::Definition;
 import rascal::conversion::sdf2::Load;
 import languages::sdf2::syntax::\Sdf2-Syntax;
-test true == false;
+
 // Resolve name clashes between the ParseTree and Grammar datatypes.
 
 // Unfortunately we cannot yet use these aliases since they lead to ambiguities.
@@ -40,23 +40,56 @@ public Grammar sdf2grammar(SDF definition) {
   return grammar(getStartSymbols(definition), getProductions(definition));
 }
 
-public set[ParseTree::Production] getProductions(SDF definition) {
+// ----- getProductions, getProduction -----
+
+public set[ParseTree::Production] getProductions(languages::sdf2::syntax::\Sdf2-Syntax::SDF definition) {
   visit (definition) {
-    case (Grammar) `syntax <languages::sdf2::syntax::\Sdf2-Syntax::Production* prods>`                     : return {getProduction(prod, true) | prod <- prods};
-    case (Grammar) `lexical syntax <languages::sdf2::syntax::\Sdf2-Syntax::Production* prods>`             : return {getProduction(prod, true) | prod <- prods}; 
-    case (Grammar) `context-free syntax <languages::sdf2::syntax::\Sdf2-Syntax::Production* prods>`        : return {getProduction(prod, false) | prod <- prods}; 
-    case (Grammar) `restrictions <languages::sdf2::syntax::\Sdf2-Syntax::Restriction* rests>`              : return {getRestrictions(rest, true) | rest <- rests};
-    case (Grammar) `lexical restrictions <languages::sdf2::syntax::\Sdf2-Syntax::Restriction* rests>`      : return {getRestrictions(rest, true) | rest <- rests};
-    case (Grammar) `context-free restrictions <languages::sdf2::syntax::\Sdf2-Syntax::Restriction* rests>` : return {getRestrictions(rest, false) | rest <- rests};
-    case (Grammar) `priorities <{languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* prios>`             : return {getPriorities(prio,true) | prio <- prios};
-    case (Grammar) `lexical priorities <{languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* prios>`     : return {getPriorities(prio,true) | prio <- prios};
-    case (Grammar) `context-free priorities <{languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* prios>`: return {getPriorities(prio,false) | prio <- prios};
+    case (Grammar) `syntax <languages::sdf2::syntax::\Sdf2-Syntax::Production* prods>`:
+    	return {getProduction(prod, true) | languages::sdf2::syntax::\Sdf2-Syntax::Production prod <- prods};
+    	
+    case (Grammar) `lexical syntax <languages::sdf2::syntax::\Sdf2-Syntax::Production* prods>`:
+    		return {getProduction(prod, true) | languages::sdf2::syntax::\Sdf2-Syntax::Production prod <- prods}; 
+    	
+    case (Grammar) `context-free syntax <languages::sdf2::syntax::\Sdf2-Syntax::Production* prods>`:
+    	return {getProduction(prod, false) | languages::sdf2::syntax::\Sdf2-Syntax::Production prod <- prods}; 
+    	
+    case (Grammar) `restrictions <languages::sdf2::syntax::\Sdf2-Syntax::Restriction* rests>`:
+    	return getRestrictions(rests, true);
+    	
+    case (Grammar) `lexical restrictions <languages::sdf2::syntax::\Sdf2-Syntax::Restriction* rests>`:
+    	return getRestrictions(rests, true);
+    	
+    case (Grammar) `context-free restrictions <languages::sdf2::syntax::\Sdf2-Syntax::Restriction* rests>` :
+    	return getRestrictions(rests, false);
+    	
+    case (Grammar) `priorities <{languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* prios>`:
+    	return {getPriorities(prio,true) | languages::sdf2::syntax::\Sdf2-Syntax::Priority prio <- prios};
+    	
+    case (Grammar) `lexical priorities <{languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* prios>`:
+    	return {getPriorities(prio,true) | languages::sdf2::syntax::\Sdf2-Syntax::Priority prio <- prios};
+    	
+    case (Grammar) `context-free priorities <{languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* prios>`:
+    	return {getPriorities(prio,false) | languages::sdf2::syntax::\Sdf2-Syntax::Priority prio <- prios};
   }
 }
 
-//test getProductions((SDF) `definition module A exports lexical syntax A -> B`) == 
+test getProductions((SDF) `definition module A exports syntax A -> B`) ==
+     {prod([sort("A")],sort("B"),\no-attrs())};
+     
+test getProductions((SDF) `definition module A exports lexical syntax A -> B`) ==
+     {prod([sort("A")],sort("B"),\no-attrs())};
+     
+test getProductions((SDF) `definition module A exports lexical syntax A -> B B -> C`) ==
+     {prod([sort("B")],sort("C"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())};
+     
+test getProductions((SDF) `definition module A exports context-free syntax A -> B`) ==
+     {prod([sort("A")],sort("B"),\no-attrs())};
+     
+test getProductions((SDF) `definition module A exports restrictions ID -/- [a-z]`) ==
+    {restrict(sort("ID"),others(sort("ID")),[\char-class([range(97,122)])])};
 
-public Production getProduction(SDFProduction P, bool isLex) {
+
+public Production getProduction(languages::sdf2::syntax::\Sdf2-Syntax::Production P, bool isLex) {
   switch (P) {
     case (Production) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol* syms> -> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol sym>`:
     	return prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
@@ -84,8 +117,10 @@ test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE`, true) ==
 test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, true) == 
      prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),attrs([term(cons("decl")),assoc(left())]));
 
+// ----- getRestrictions, getRestriction -----
+
 public set[Production] getRestrictions(languages::sdf2::syntax::\Sdf2-Syntax::Restriction* restrictions, bool isLex) {
-  return { getRestrictions(r) | r <- restrictions };
+  return { getRestriction(r, isLex) | languages::sdf2::syntax::\Sdf2-Syntax::Restriction r <- restrictions };
 }
 
 public set[Production] getRestriction(languages::sdf2::syntax::\Sdf2-Syntax::Restriction restriction, bool isLex) {
@@ -107,6 +142,8 @@ test getRestriction((Restriction) `ID -/- [a-z]`, true) ==
      {restrict(sort("ID"),others(sort("ID")),[\char-class([range(97,122)])])};
      
 // test getRestriction((Restriction) `ID NUM -/- [a-z] . [\"]`, true) 
+
+// ----- getLookaheads, getLookahead -----
 
 public set[list[Symbol]] getLookaheads(languages::sdf2::syntax::\Sdf2-Syntax::Lookaheads ls) {
    switch (ls) {
@@ -136,36 +173,68 @@ test getLookaheads((Lookaheads) `[a-z] . [0-9] | [\"]`) ==
 test getLookaheads((Lookaheads) `([a-z])`) == 
      {[\char-class([range(97,122)])]};
 
+// ----- getPriorities, getPriority -----
 
 public set[Production] getPriorities(Priority* priorities) {
-  return {getPriority(p) | p <- priorities};
+  return {getPriority(p) | languages::sdf2::syntax::\Sdf2-Syntax::Priority p <- priorities};
 }
 
-public Production getPriority(Priority priority, bool isLex) {
+public Production getPriority(languages::sdf2::syntax::\Sdf2-Syntax::Group group, bool isLex) {
+	switch (group) {
+    case (Group) `<languages::sdf2::syntax::\Sdf2-Syntax::Production p>` :   
+      	return getProduction(p, isLex);
+       
+    case (Group) `<languages::sdf2::syntax::\Sdf2-Syntax::Group g> .` :
+     	return getPriority(g, isLex); // we ignore non-transitivity here!
+     	
+    case (Group) `<languages::sdf2::syntax::\Sdf2-Syntax::Group g> <languages::sdf2::syntax::\Sdf2-Syntax::ArgumentIndicator i>` : 
+     	return getPriority(g, isLex); // we ignore argument indicators here!
+     	
+    case (Group) `{<languages::sdf2::syntax::\Sdf2-Syntax::Production* ps>}` : 
+       return choice(definedSymbol(ps,isLex), {getProduction(p,isLex) | languages::sdf2::syntax::\Sdf2-Syntax::Production p <- ps});
+       
+    case (Group) `{<languages::sdf2::syntax::\Sdf2-Syntax::Associativity a> : <languages::sdf2::syntax::\Sdf2-Syntax::Production* ps>}` : 
+       return \assoc(definedSymbol(ps, isLex), getAssociativity(a), {getPriority(p,isLex), languages::sdf2::syntax::\Sdf2-Syntax::Production p <- ps});
+       
+    }
+}
+     	
+test getPriority((Group) `A -> B`, true) == prod([sort("A")],sort("B"),\no-attrs());
+test getPriority((Group) `A -> B .`, true) == prod([sort("A")],sort("B"),\no-attrs());
+test getPriority((Group) `A -> B <1>`, true) == prod([sort("A")],sort("B"),\no-attrs());
+test getPriority((Group) `{A -> B C -> D}`, true) == choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
+//test getPriority((Group) `{left: A -> B}`, true) == 
+
+public Production getPriority(languages::sdf2::syntax::\Sdf2-Syntax::Priority priority, bool isLex) {
    switch (priority) {
-     case (Priority) `<Group g>.` : return getPriority((Priority) `<Group g>`, isLex); // we ignore non-transitivity here!
-     case (Priority) `<Group g> <ArgumentIndicator i>` : return getPriority((Priority) `<Group g>`, isLex); // we ignore argument indicators here!
-     case (Priority) `<Production p>` :   
-       return getProduction(p, isLex);
-     case (Priority) `{<Production* ps>}` : 
-       return choice(definedSymbol(ps,isLex), [getProduction(p,isLex) | p <- ps]);
-     case (Priority) `{<Associativity a> : <Production* ps>}` : 
-       return \assoc(definedSymbol(ps, isLex), getAssociativity(a), {getPriority(p,isLex), p <- ps});
-     case (Priority) `<Group g1> <Associativity a> <Group g2>` : 
-       return \assoc(definedSymbol(g1, isLex), getAssociativity(a), {getPriority((Priority) `<Group g1>`, isLex), getPriority((Priority) `<Group g2>`,isLex)});
-     case (Priority) `<{Group ">"}+ groups>` : 
-       return first(definedSymbol(groups,isLex), [getPriority(group,isLex) | group <- groups]);
+   
+     case (Group) `<languages::sdf2::syntax::\Sdf2-Syntax::Group g>`:
+     	return getPriority(g, isLex);
+         
+     case (Priority) `<languages::sdf2::syntax::\Sdf2-Syntax::Group g1> <languages::sdf2::syntax::\Sdf2-Syntax::Associativity a> <languages::sdf2::syntax::\Sdf2-Syntax::Group g2>` : 
+       return \assoc(definedSymbol(g1, isLex), getAssociativity(a), {getPriority((Priority) `<languages::sdf2::syntax::\Sdf2-Syntax::Group g1>`, isLex), getPriority((Priority) `<languages::sdf2::syntax::\Sdf2-Syntax::Group g2>`,isLex)});
+ 
+     case (Priority) `<{languages::sdf2::syntax::\Sdf2-Syntax::Group ">"}+ groups>` : 
+       return first(definedSymbol(groups,isLex), [getPriority(group,isLex) | languages::sdf2::syntax::\Sdf2-Syntax::Group group <- groups]);
    }
 }
+
+test getPriority((Priority) `A -> B`, true) == prod([sort("A")],sort("B"),\no-attrs());
+test getPriority((Priority) `A -> B .`, true) == prod([sort("A")],sort("B"),\no-attrs());
+test getPriority((Priority) `A -> B <1>`, true) == prod([sort("A")],sort("B"),\no-attrs());
+test getPriority((Priority) `{A -> B C -> D}`, true) == choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
+
 
 public Symbol definedSymbol((&T <: Tree) v, bool isLex) {
   // Note that this might not work if there are different right-hand sides in the group...
   // I don't know what to do about this yet.
-  if (/(Production) `<Symbol* _> -> <Symbol s> <Attributes _>` := groups) {
+  if (/(Production) `<languages::sdf2::syntax::\Sdf2-Syntax::Symbol* _> -> <languages::sdf2::syntax::\Sdf2-Syntax::Symbol s> <languages::sdf2::syntax::\Sdf2-Syntax::Attributes _>` := v) {
     return getSymbol(s, isLex);
   }
   throw "could not find a defined symbol in <v>";
 }
+
+// ----- getStartSymbols -----
 
 public set[ParseTree::Symbol] getStartSymbols(SDF definition) {
   visit(definition) {
@@ -184,6 +253,15 @@ test getStartSymbols((SDF) `definition module M exports lexical start-symbols A 
      {sort("A"), sort("B"), sort("C")};
 test getStartSymbols((SDF) `definition module M exports start-symbols A B C`) == 
      {sort("A"), sort("B"), sort("C")};
+
+// ----- getSymsols, getSymbol -----
+     
+public list[Symbol] getSymbols(languages::sdf2::syntax::\Sdf2-Syntax::Symbol* syms, bool isLex){
+    return [getSymbol(sym, isLex) | sym <- syms];
+}
+
+test getSymbols((Symbol*) `A B "ab"`, true) == [sort("A"), sort("B"), lit("ab")];
+     
 
 public ParseTree::Symbol getSymbol(languages::sdf2::syntax::\Sdf2-Syntax::Symbol sym, bool isLex) {
   switch (sym) {
@@ -295,12 +373,8 @@ test getSymbol((Symbol) `{A "x"}+`, true) == \iter-seps(sort("A"),[lit("x")]);
 test getSymbol((Symbol) `{A "x"}*?`, true) == opt(\iter-star-seps(sort("A"),[lit("x")]));
 test getSymbol((Symbol) `{A "x"}+?`, true) == opt(\iter-seps(sort("A"),[lit("x")]));
 
+// ----- unescape -----
 
-public list[Symbol] getSymbols(languages::sdf2::syntax::\Sdf2-Syntax::Symbol* syms, bool isLex){
-    return [getSymbol(sym, isLex) | sym <- syms];
-}
-
-test getSymbols((Symbol*) `A B "ab"`, true) == [sort("A"), sort("B"), lit("ab")];
 
 private str unescape(languages::sdf2::syntax::\Sdf2-Syntax::StrCon s) {
    if ([StrCon] /\"<rest:.*>\"/ := s) {
@@ -358,6 +432,8 @@ private str unescape(languages::sdf2::syntax::\Sdf2-Syntax::Symbol s) {
   throw "unexpected string format: <s>";
 }
 
+// ----- getCharClas -----
+
 private Symbol getCharClass(languages::sdf2::syntax::\Sdf2-Syntax::CharClass cc) {
    switch(cc) {
      case (CharClass) `[]` :
@@ -396,6 +472,8 @@ test getCharClass((CharClass) `~[a]`)       == complement(\char-class([range(97,
 test getCharClass((CharClass) `[a] /\ [b]`) == intersection(\char-class([range(97,97)]), \char-class([range(98,98)]));
 test getCharClass((CharClass) `[a] \/ [b]`) == union(\char-class([range(97,97)]), \char-class([range(98,98)]));
 test getCharClass((CharClass) `[a] / [b]`)  == difference(\char-class([range(97,97)]), \char-class([range(98,98)]));
+
+// ----- getCharRange -----
       
 private CharRange getRange(languages::sdf2::syntax::\Sdf2-Syntax::CharRange r) {
   switch (r) {
@@ -407,6 +485,8 @@ private CharRange getRange(languages::sdf2::syntax::\Sdf2-Syntax::CharRange r) {
 
 test getRange((CharRange) `a`)   == range(97,97);
 test getRange((CharRange) `a-z`) == range(97,122);
+
+// ----- getCharacter -----
 
 private int getCharacter(Character c) {
   switch (c) {
@@ -426,23 +506,40 @@ test getCharacter((Character) `\1`)   == toInt("01");
 test getCharacter((Character) `\12`)  == toInt("012");
 test getCharacter((Character) `\123`) == toInt("0123");
 
-public Attributes getAttributes({Attribute ","}* mods) {
-  return attrs([getAttribute(m) | Attribute m <- mods]);
+// ----- getAttributes, getAttribute -----
+
+public Attributes getAttributes({languages::sdf2::syntax::\Sdf2-Syntax::Attribute ","}* mods) {
+  return attrs([getAttribute(m) | languages::sdf2::syntax::\Sdf2-Syntax::Attribute m <- mods]);
 }
 
 test getAttributes(({Attribute ","}*) `left, cons("decl")`) == attrs([assoc(left()),term(cons("decl"))]);
  
-private Attr getAttribute(languages::sdf2::syntax::\Sdf2-Syntax::Attribute m) {
+public Attr getAttribute(languages::sdf2::syntax::\Sdf2-Syntax::Attribute m) {
   switch (m) {
-    case (Attribute) `left`: return \assoc(left());
-    case (Attribute) `right`: return \assoc(right());
-    case (Attribute) `non-assoc`: return \assoc(\non-assoc());
-    case (Attribute) `assoc`: return \assoc(\assoc());
-    case (Attribute) `bracket`: return \bracket();
-    case (Attribute) `cons(<StrCon c>)` : return term("cons"(unescape(c)));
+    case (Attribute) `<languages::sdf2::syntax::\Sdf2-Syntax::Associativity as>`:
+     	return getAssociativity(as);
+     	
+    case (Attribute) `bracket`:
+    	return \bracket();
+    
+    case (Attribute) `cons(<StrCon c>)` :
+    	return term("cons"(unescape(c)));
+    	
     default: throw "missed a case <m>";
   }
 }
 
 test getAttribute((Attribute) `left`)        == \assoc(left());
 test getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
+
+private Attr getAssociativity(languages::sdf2::syntax::\Sdf2-Syntax::Associativity as){
+  switch (as) {
+    case (Associativity) `left`: return \assoc(left());
+    case (Associativity) `right`: return \assoc(right());
+    case (Associativity) `non-assoc`: return \assoc(\non-assoc());
+    case (Associativity) `assoc`: return \assoc(\assoc());
+  }
+}
+
+test getAssociativity((Associativity) `left`) == \assoc(left());
+
