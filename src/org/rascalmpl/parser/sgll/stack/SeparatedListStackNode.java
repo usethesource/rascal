@@ -76,8 +76,8 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		return new SeparatedListStackNode(this, prefixes, prefixStartLocations);
 	}
 	
-	public void initializeResultStore(){
-		result = new ContainerNode();
+	public void setResultStore(ContainerNode resultStore){
+		result = resultStore;
 	}
 	
 	public int getLength(){

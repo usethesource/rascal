@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.IntegerList;
@@ -180,7 +181,7 @@ public abstract class AbstractStackNode{
 		prefixStartLocations.add(length);
 	}
 	
-	public abstract void initializeResultStore();
+	public abstract void setResultStore(ContainerNode resultStore);
 	
 	public abstract void addResult(IConstructor production, INode[] children);
 	

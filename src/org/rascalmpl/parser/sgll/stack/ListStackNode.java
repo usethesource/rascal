@@ -71,8 +71,8 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		return new ListStackNode(this, prefixes, prefixStartLocations);
 	}
 	
-	public void initializeResultStore(){
-		result = new ContainerNode();
+	public void setResultStore(ContainerNode resultStore){
+		result = resultStore;
 	}
 	
 	public int getLength(){
