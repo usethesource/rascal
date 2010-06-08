@@ -44,7 +44,7 @@ public class SetPattern extends AbstractMatchingResult {
 	private int currentVar;					    // The currently matched variable
     private boolean firstMatch;				    // First match of this pattern?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	public SetPattern(IEvaluatorContext ctx, List<IMatchingResult> list){
 		super(ctx);
