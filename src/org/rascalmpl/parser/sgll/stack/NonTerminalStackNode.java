@@ -49,8 +49,8 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		return new NonTerminalStackNode(this, prefixes, prefixStartLocations);
 	}
 	
-	public void initializeResultStore(){
-		result = new ContainerNode();
+	public void setResultStore(ContainerNode resultStore){
+		result = resultStore;
 	}
 	
 	public int getLength(){

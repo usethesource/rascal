@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
@@ -66,8 +67,8 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 		return new LiteralStackNode(this, prefixes, prefixStartLocations);
 	}
 	
-	public void initializeResultStore(){
-		// Do nothing.
+	public void setResultStore(ContainerNode resultStore){
+		throw new UnsupportedOperationException();
 	}
 	
 	public int getLength(){
