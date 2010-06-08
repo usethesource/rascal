@@ -96,6 +96,16 @@ public class HashSet<E>{
 		return true;
 	}
 	
+	public void unsafePut(E element){
+		ensureCapacity();
+		
+		int hash = element.hashCode();
+		int position = hash & hashMask;
+		
+		entries[position] = new Entry<E>(element, hash, entries[position]);
+		load++;
+	}
+	
 	public boolean remove(E element){
 		int hash = element.hashCode();
 		int position = hash & hashMask;
