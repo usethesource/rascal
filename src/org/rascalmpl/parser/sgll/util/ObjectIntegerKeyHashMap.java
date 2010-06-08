@@ -98,7 +98,7 @@ public class ObjectIntegerKeyHashMap<K, V>{
 		return null;
 	}
 	
-	public V unsafePut(K key, int key2, V value){
+	public void unsafePut(K key, int key2, V value){
 		ensureCapacity();
 		
 		int hash = key.hashCode() ^ (key2 << 5);
@@ -106,8 +106,6 @@ public class ObjectIntegerKeyHashMap<K, V>{
 		
 		entries[position] = new Entry<K, V>(key, key2, value, hash, entries[position]);
 		load++;
-		
-		return null;
 	}
 	
 	public V remove(K key, int key2){
