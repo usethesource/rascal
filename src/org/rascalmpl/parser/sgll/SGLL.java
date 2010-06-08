@@ -10,9 +10,10 @@ import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.DoubleArrayList;
+import org.rascalmpl.parser.sgll.util.HashSet;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerHashMap;
-import org.rascalmpl.parser.sgll.util.LinearObjectIntegerKeyedMap;
+import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
 
 public abstract class SGLL implements IGLL{
@@ -29,8 +30,8 @@ public abstract class SGLL implements IGLL{
 	private final ArrayList<AbstractStackNode> possiblySharedNextNodes;
 	private final IntegerHashMap<ArrayList<AbstractStackNode>> possiblySharedEdgeNodesMap;
 
-	private final LinearObjectIntegerKeyedMap<IConstructor, ContainerNode> resultStoreCache;
-	private final ArrayList<AbstractStackNode> withResults;
+	private final ObjectIntegerKeyHashMap<IConstructor, ContainerNode> resultStoreCache;
+	private final HashSet<AbstractStackNode> withResults;
 	
 	private int previousLocation;
 	private int location;
@@ -51,8 +52,8 @@ public abstract class SGLL implements IGLL{
 		possiblySharedNextNodes = new ArrayList<AbstractStackNode>();
 		possiblySharedEdgeNodesMap = new IntegerHashMap<ArrayList<AbstractStackNode>>();
 		
-		resultStoreCache = new LinearObjectIntegerKeyedMap<IConstructor, ContainerNode>();
-		withResults = new ArrayList<AbstractStackNode>();
+		resultStoreCache = new ObjectIntegerKeyHashMap<IConstructor, ContainerNode>();
+		withResults = new HashSet<AbstractStackNode>();
 		
 		previousLocation = -1;
 		location = 0;
@@ -165,13 +166,13 @@ public abstract class SGLL implements IGLL{
 			node.setStartLocation(startLocation);
 		}
 		
-		ContainerNode resultStore = resultStoreCache.findValue(production, startLocation);
+		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
 		node.setResultStore(resultStore);
 		if(resultStore == null){
 			resultStore = new ContainerNode();
 			node.setResultStore(resultStore);
-			resultStoreCache.add(production, startLocation, resultStore);
-			withResults.add(node);
+			resultStoreCache.unsafePut(production, startLocation, resultStore);
+			withResults.unsafePut(node);
 			addResults(node, production, results, resultStartLocations);
 		}
 		
