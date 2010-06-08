@@ -1,6 +1,6 @@
 module rascal::conversion::sdf2::SDF2Grammar
 
-// this module converts SDF2 grammars to the Rascal internal grammar representation format
+// Convert SDF2 grammars to the Rascal internal grammar representation format
 
 // Todo List:
 // - aliases
@@ -18,6 +18,7 @@ import languages::sdf2::syntax::\Sdf2-Syntax;
 // Resolve name clashes between the ParseTree and Grammar datatypes.
 
 // Unfortunately we cannot yet use these aliases since they lead to ambiguities.
+// Reason: aliases are not resolved in concrete syntax fragments
 
 alias SDFSymbol = languages::sdf2::syntax::\Sdf2-Syntax::Symbol;
 alias SDFProduction = languages::sdf2::syntax::\Sdf2-Syntax::Production;
@@ -26,15 +27,17 @@ alias SDFSingleQuotesStrCon = languages::sdf2::syntax::\Sdf2-Syntax::SingleQuote
 alias SDFCharRange = languages::sdf2::syntax::\Sdf2-Syntax::CharRange;
 alias SDFCharClass =languages::sdf2::syntax::\Sdf2-Syntax::CharClass;
 
-//import rascal::conversion::sdf2::Pico;
-
 public Grammar sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
 }
 
+// test sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Pico.def|);
+
 public Grammar sdf2module2grammar(str name, list[loc] path) {
   return sdf2grammar(loadSDF2Module(name, path));
 }
+
+//loadSDF2Module("Names", [|stdlib:///org/rascalimpl/library/rascal/syntax/Names|]);
 
 public Grammar sdf2grammar(SDF definition) {
   return grammar(getStartSymbols(definition), getProductions(definition));
@@ -43,34 +46,36 @@ public Grammar sdf2grammar(SDF definition) {
 // ----- getProductions, getProduction -----
 
 public set[ParseTree::Production] getProductions(languages::sdf2::syntax::\Sdf2-Syntax::SDF definition) {
-  visit (definition) {
+ res = {};
+ visit (definition) {
     case (Grammar) `syntax <languages::sdf2::syntax::\Sdf2-Syntax::Production* prods>`:
-    	return {getProduction(prod, true) | languages::sdf2::syntax::\Sdf2-Syntax::Production prod <- prods};
+    	res += getProductions(prods, true);
     	
     case (Grammar) `lexical syntax <languages::sdf2::syntax::\Sdf2-Syntax::Production* prods>`:
-    		return {getProduction(prod, true) | languages::sdf2::syntax::\Sdf2-Syntax::Production prod <- prods}; 
+    	res += getProductions(prods, true); 
     	
     case (Grammar) `context-free syntax <languages::sdf2::syntax::\Sdf2-Syntax::Production* prods>`:
-    	return {getProduction(prod, false) | languages::sdf2::syntax::\Sdf2-Syntax::Production prod <- prods}; 
+    	res += getProductions(prods, false); 
     	
     case (Grammar) `restrictions <languages::sdf2::syntax::\Sdf2-Syntax::Restriction* rests>`:
-    	return getRestrictions(rests, true);
+    	res += getRestrictions(rests, true);
     	
     case (Grammar) `lexical restrictions <languages::sdf2::syntax::\Sdf2-Syntax::Restriction* rests>`:
-    	return getRestrictions(rests, true);
+    	res += getRestrictions(rests, true);
     	
     case (Grammar) `context-free restrictions <languages::sdf2::syntax::\Sdf2-Syntax::Restriction* rests>` :
-    	return getRestrictions(rests, false);
+    	res += getRestrictions(rests, false);
     	
     case (Grammar) `priorities <{languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* prios>`:
-    	return {getPriorities(prio,true) | languages::sdf2::syntax::\Sdf2-Syntax::Priority prio <- prios};
+    	res += getPriorities(prios,true);
     	
     case (Grammar) `lexical priorities <{languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* prios>`:
-    	return {getPriorities(prio,true) | languages::sdf2::syntax::\Sdf2-Syntax::Priority prio <- prios};
+    	res += getPriorities(prios,true);
     	
     case (Grammar) `context-free priorities <{languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* prios>`:
-    	return {getPriorities(prio,false) | languages::sdf2::syntax::\Sdf2-Syntax::Priority prio <- prios};
-  }
+    	res += getPriorities(prios,false);
+  };
+  return res;
 }
 
 test getProductions((SDF) `definition module A exports syntax A -> B`) ==
@@ -86,8 +91,15 @@ test getProductions((SDF) `definition module A exports context-free syntax A -> 
      {prod([sort("A")],sort("B"),\no-attrs())};
      
 test getProductions((SDF) `definition module A exports restrictions ID -/- [a-z]`) ==
-    {restrict(sort("ID"),others(sort("ID")),[\char-class([range(97,122)])])};
+     {restrict(sort("ID"),others(sort("ID")),[\char-class([range(97,122)])])};
+    
+test getProductions((SDF) `definition module A exports priorities A -> B > C -> D`) ==
+     {first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())])};
 
+
+public set[Production] getProductions(languages::sdf2::syntax::\Sdf2-Syntax::Production* prods, bool isLex){
+	return {getProduction(prod, isLex) | languages::sdf2::syntax::\Sdf2-Syntax::Production prod <- prods};
+}
 
 public Production getProduction(languages::sdf2::syntax::\Sdf2-Syntax::Production P, bool isLex) {
   switch (P) {
@@ -113,9 +125,11 @@ public Production getProduction(languages::sdf2::syntax::\Sdf2-Syntax::Productio
 
 test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE`, true) == 
      prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),\no-attrs());
-     
-test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, true) == 
-     prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),attrs([term(cons("decl")),assoc(left())]));
+
+test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, true) ==
+     prod([sort("PICO-ID"), lit(":"), sort("TYPE")],
+               sort("ID-TYPE"),
+               attrs([term(cons("decl")),\assoc(left())]));
 
 // ----- getRestrictions, getRestriction -----
 
@@ -138,10 +152,10 @@ public set[Production] getRestriction(languages::sdf2::syntax::\Sdf2-Syntax::Res
 }
 
 test getRestriction((Restriction) `-/- [a-z]`, true) == {};
+
 test getRestriction((Restriction) `ID -/- [a-z]`, true) == 
      {restrict(sort("ID"),others(sort("ID")),[\char-class([range(97,122)])])};
-     
-// test getRestriction((Restriction) `ID NUM -/- [a-z] . [\"]`, true) 
+   
 
 // ----- getLookaheads, getLookahead -----
 
@@ -159,24 +173,29 @@ public set[list[Symbol]] getLookaheads(languages::sdf2::syntax::\Sdf2-Syntax::Lo
      case (Lookaheads) `(<languages::sdf2::syntax::\Sdf2-Syntax::Lookaheads(l)>)` :
      	return getLookaheads(l);
      	
-     case (Lookaheads) `[[<{languages::sdf2::syntax::\Sdf2-Syntax::Lookahead ","}* _>]]`        : throw "unsupported lookahead construction <ls>";
+     case (Lookaheads) `[[<{languages::sdf2::syntax::\Sdf2-Syntax::Lookahead ","}* _>]]`:
+     	throw "unsupported lookahead construction <ls>";
+     	
      default: throw "unsupported lookahead construction <ls>";
    }
 }
 
 test getLookaheads((Lookaheads) `[a-z]`) == 
      {[\char-class([range(97,122)])]};
+     
 test getLookaheads((Lookaheads) `[a-z] . [0-9]`) ==
      {[\char-class([range(97,122)]),\char-class([range(48,57)])]};
+     
 test getLookaheads((Lookaheads) `[a-z] . [0-9] | [\"]`) ==
      {[\char-class([range(97,122)]),\char-class([range(48,57)])],[\char-class([range(34,34)])]};
+     
 test getLookaheads((Lookaheads) `([a-z])`) == 
      {[\char-class([range(97,122)])]};
 
 // ----- getPriorities, getPriority -----
 
-public set[Production] getPriorities(Priority* priorities) {
-  return {getPriority(p) | languages::sdf2::syntax::\Sdf2-Syntax::Priority p <- priorities};
+public set[Production] getPriorities({languages::sdf2::syntax::\Sdf2-Syntax::Priority ","}* priorities, bool isLex) {
+  return {getPriority(p, isLex) | languages::sdf2::syntax::\Sdf2-Syntax::Priority p <- priorities};
 }
 
 public Production getPriority(languages::sdf2::syntax::\Sdf2-Syntax::Group group, bool isLex) {
@@ -194,16 +213,27 @@ public Production getPriority(languages::sdf2::syntax::\Sdf2-Syntax::Group group
        return choice(definedSymbol(ps,isLex), {getProduction(p,isLex) | languages::sdf2::syntax::\Sdf2-Syntax::Production p <- ps});
        
     case (Group) `{<languages::sdf2::syntax::\Sdf2-Syntax::Associativity a> : <languages::sdf2::syntax::\Sdf2-Syntax::Production* ps>}` : 
-       return \assoc(definedSymbol(ps, isLex), getAssociativity(a), {getPriority(p,isLex), languages::sdf2::syntax::\Sdf2-Syntax::Production p <- ps});
-       
+       return \assoc(definedSymbol(ps, isLex), getAssociativity(a), {getProduction(p,isLex) | languages::sdf2::syntax::\Sdf2-Syntax::Production p <- ps});
     }
 }
      	
-test getPriority((Group) `A -> B`, true) == prod([sort("A")],sort("B"),\no-attrs());
-test getPriority((Group) `A -> B .`, true) == prod([sort("A")],sort("B"),\no-attrs());
-test getPriority((Group) `A -> B <1>`, true) == prod([sort("A")],sort("B"),\no-attrs());
-test getPriority((Group) `{A -> B C -> D}`, true) == choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
-//test getPriority((Group) `{left: A -> B}`, true) == 
+test getPriority((Group) `A -> B`, true) == 
+     prod([sort("A")],sort("B"),\no-attrs());
+     
+test getPriority((Group) `A -> B .`, true) == 
+     prod([sort("A")],sort("B"),\no-attrs());
+     
+test getPriority((Group) `A -> B <1>`, true) == 
+     prod([sort("A")],sort("B"),\no-attrs());
+     
+test getPriority((Group) `{A -> B C -> D}`, true) == 
+     choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
+     
+test getPriority((Group) `{left: A -> B}`, true) == 
+     \assoc(sort("B"),\left(),{prod([sort("A")],sort("B"),\no-attrs())});
+     
+test getPriority((Group) `{left: A -> B B -> C}`, true) ==
+     \assoc(sort("B"),\left(),{prod([sort("B")],sort("C"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
 
 public Production getPriority(languages::sdf2::syntax::\Sdf2-Syntax::Priority priority, bool isLex) {
    switch (priority) {
@@ -219,10 +249,23 @@ public Production getPriority(languages::sdf2::syntax::\Sdf2-Syntax::Priority pr
    }
 }
 
-test getPriority((Priority) `A -> B`, true) == prod([sort("A")],sort("B"),\no-attrs());
-test getPriority((Priority) `A -> B .`, true) == prod([sort("A")],sort("B"),\no-attrs());
-test getPriority((Priority) `A -> B <1>`, true) == prod([sort("A")],sort("B"),\no-attrs());
-test getPriority((Priority) `{A -> B C -> D}`, true) == choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
+test getPriority((Priority) `A -> B`, true) == 
+     prod([sort("A")],sort("B"),\no-attrs());
+     
+test getPriority((Priority) `A -> B .`, true) == 
+     prod([sort("A")],sort("B"),\no-attrs());
+     
+test getPriority((Priority) `A -> B <1>`, true) == 
+     prod([sort("A")],sort("B"),\no-attrs());
+     
+test getPriority((Priority) `{A -> B C -> D}`, true) == 
+     choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
+     
+test getPriority((Priority) `A -> B > C -> D`, true) ==
+     first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())]);
+     
+test getPriority((Priority) `A -> B > C -> D > E -> F`, true) ==
+     first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs()),prod([sort("E")],sort("F"),\no-attrs())]);
 
 
 public Symbol definedSymbol((&T <: Tree) v, bool isLex) {
@@ -249,8 +292,10 @@ public set[ParseTree::Symbol] getStartSymbols(SDF definition) {
 
 test getStartSymbols((SDF) `definition module M exports context-free start-symbols A B C`) == 
      {sort("A"), sort("B"), sort("C")};
+     
 test getStartSymbols((SDF) `definition module M exports lexical start-symbols A B C`) == 
      {sort("A"), sort("B"), sort("C")};
+     
 test getStartSymbols((SDF) `definition module M exports start-symbols A B C`) == 
      {sort("A"), sort("B"), sort("C")};
 
@@ -344,34 +389,30 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::\Sdf2-Syntax::Symbol
   }
 }
 
-test getSymbol((Symbol) `"abc"`, false) == lit("abc");
-test getSymbol((Symbol) `ABC`, false) == sort("ABC");
-test getSymbol((Symbol) `'abc'`, false) == cilit("abc");
-test getSymbol((Symbol) `abc : ABC`, false) == label("abc",sort("ABC"));
-test getSymbol((Symbol) `"abc" : ABC`, false) == label("abc",sort("ABC"));
-//test getSymbol((Symbol) `A[[B]]`, false) == \parameterized-sort([sort("B")]);   // <== parameterized sort missing
-test getSymbol((Symbol) `A?`, false) == opt(sort("A"));
-test getSymbol((Symbol) `[a]`, false) == \char-class([range(97,97)]);
-
-test getSymbol((Symbol) `A*`, false) == \iter-star-seps(sort("A"),[layout()]);
-test getSymbol((Symbol) `A+`, false) == \iter-seps(sort("A"),[layout()]);
-test getSymbol((Symbol) `A*?`, false) == opt(\iter-star-seps(sort("A"),[layout()]));
-test getSymbol((Symbol) `A+?`, false) == opt(\iter-seps(sort("A"),[layout()]));
-
-test getSymbol((Symbol) `{A "x"}*`, false) == \iter-star-seps(sort("A"),[layout(),lit("x"),layout()]);
-test getSymbol((Symbol) `{A "x"}+`, false) == \iter-seps(sort("A"),[layout(),lit("x"),layout()]);
-test getSymbol((Symbol) `{A "x"}*?`, false) == opt(\iter-star-seps(sort("A"),[layout(),lit("x"),layout()]));
-test getSymbol((Symbol) `{A "x"}+?`, false) == opt(\iter-seps(sort("A"),[layout(),lit("x"),layout()]));
-
-test getSymbol((Symbol) `A*`, true) == \iter-star(sort("A"));
-test getSymbol((Symbol) `A+`, true) == \iter(sort("A"));
-test getSymbol((Symbol) `A*?`, true) == opt(\iter-star(sort("A")));
-test getSymbol((Symbol) `A+?`, true) == opt(\iter(sort("A")));
-
-test getSymbol((Symbol) `{A "x"}*`, true) == \iter-star-seps(sort("A"),[lit("x")]);
-test getSymbol((Symbol) `{A "x"}+`, true) == \iter-seps(sort("A"),[lit("x")]);
-test getSymbol((Symbol) `{A "x"}*?`, true) == opt(\iter-star-seps(sort("A"),[lit("x")]));
-test getSymbol((Symbol) `{A "x"}+?`, true) == opt(\iter-seps(sort("A"),[lit("x")]));
+test getSymbol((Symbol) `"abc"`, false) 		== lit("abc");
+test getSymbol((Symbol) `ABC`, false) 			== sort("ABC");
+test getSymbol((Symbol) `'abc'`, false) 		== cilit("abc");
+test getSymbol((Symbol) `abc : ABC`, false) 	== label("abc",sort("ABC"));
+test getSymbol((Symbol) `"abc" : ABC`, false) 	== label("abc",sort("ABC"));
+//test getSymbol((Symbol) `A[[B]]`, false) 		== \parameterized-sort([sort("B")]);   // <== parameterized sort missing
+test getSymbol((Symbol) `A?`, false) 			== opt(sort("A"));
+test getSymbol((Symbol) `[a]`, false) 			== \char-class([range(97,97)]);
+test getSymbol((Symbol) `A*`, false) 			== \iter-star-seps(sort("A"),[\layout()]);
+test getSymbol((Symbol) `A+`, false) 			== \iter-seps(sort("A"),[\layout()]);
+test getSymbol((Symbol) `A*?`, false) 			== opt(\iter-star-seps(sort("A"),[\layout()]));
+test getSymbol((Symbol) `A+?`, false) 			== opt(\iter-seps(sort("A"),[\layout()]));
+test getSymbol((Symbol) `{A "x"}*`, false) 		== \iter-star-seps(sort("A"),[\layout(),lit("x"),\layout()]);
+test getSymbol((Symbol) `{A "x"}+`, false) 		== \iter-seps(sort("A"),[\layout(),lit("x"),\layout()]);
+test getSymbol((Symbol) `{A "x"}*?`, false) 	== opt(\iter-star-seps(sort("A"),[\layout(),lit("x"),\layout()]));
+test getSymbol((Symbol) `{A "x"}+?`, false) 	== opt(\iter-seps(sort("A"),[\layout(),lit("x"),\layout()]));
+test getSymbol((Symbol) `A*`, true) 			== \iter-star(sort("A"));
+test getSymbol((Symbol) `A+`, true) 			== \iter(sort("A"));
+test getSymbol((Symbol) `A*?`, true) 			== opt(\iter-star(sort("A")));
+test getSymbol((Symbol) `A+?`, true) 			== opt(\iter(sort("A")));
+test getSymbol((Symbol) `{A "x"}*`, true) 		== \iter-star-seps(sort("A"),[lit("x")]);
+test getSymbol((Symbol) `{A "x"}+`, true) 		== \iter-seps(sort("A"),[lit("x")]);
+test getSymbol((Symbol) `{A "x"}*?`, true) 		== opt(\iter-star-seps(sort("A"),[lit("x")]));
+test getSymbol((Symbol) `{A "x"}+?`, true) 		== opt(\iter-seps(sort("A"),[lit("x")]));
 
 // ----- unescape -----
 
@@ -408,17 +449,19 @@ private str unescape(languages::sdf2::syntax::\Sdf2-Syntax::SingleQuotedStrCon s
        case /\\n/           => "\n"
        case /\\t/           => "\t"
        case /\\r/           => "\r"  
-       case /\\\'/          => "'"  
+      case /\\\'/           => "\'"  
        case /\\\\/          => "\\"
      };      
    }
    throw "unexpected string format: <s>";
 }
 
+
 test unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
 test unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
-test unescape((SingleQuotedStrCon) `'a\'c'`) == "a'c";
+test unescape((SingleQuotedStrCon) `'a\'c'`) == "a\'c";
 test unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
+
 
 // Unescape on Symbols. Note that the function below can currently coexist with the above to unescape functions
 // since StrCon and SingleQuotedStrCons are *not* a subtype of Symbol (which they should be).
@@ -484,6 +527,7 @@ private CharRange getRange(languages::sdf2::syntax::\Sdf2-Syntax::CharRange r) {
 }
 
 test getRange((CharRange) `a`)   == range(97,97);
+
 test getRange((CharRange) `a-z`) == range(97,122);
 
 // ----- getCharacter -----
@@ -501,23 +545,23 @@ private int getCharacter(Character c) {
 
 test getCharacter((Character) `a`)    == charAt("a", 0);
 test getCharacter((Character) `\\`)   == charAt("\\", 0);
-test getCharacter((Character) `\'`)   == charAt("'", 0);
+test getCharacter((Character) `\'`)   == charAt("\'", 0);
 test getCharacter((Character) `\1`)   == toInt("01");
 test getCharacter((Character) `\12`)  == toInt("012");
 test getCharacter((Character) `\123`) == toInt("0123");
 
-// ----- getAttributes, getAttribute -----
+// ----- getAttributes, getAttribute, getAssociativity -----
 
 public Attributes getAttributes({languages::sdf2::syntax::\Sdf2-Syntax::Attribute ","}* mods) {
   return attrs([getAttribute(m) | languages::sdf2::syntax::\Sdf2-Syntax::Attribute m <- mods]);
 }
 
-test getAttributes(({Attribute ","}*) `left, cons("decl")`) == attrs([assoc(left()),term(cons("decl"))]);
- 
+test getAttributes(({Attribute ","}*) `left, cons("decl")`) == attrs([\assoc(\left()),term(cons("decl"))]);
+
 public Attr getAttribute(languages::sdf2::syntax::\Sdf2-Syntax::Attribute m) {
   switch (m) {
     case (Attribute) `<languages::sdf2::syntax::\Sdf2-Syntax::Associativity as>`:
-     	return getAssociativity(as);
+     	return \assoc(getAssociativity(as));
      	
     case (Attribute) `bracket`:
     	return \bracket();
@@ -532,14 +576,14 @@ public Attr getAttribute(languages::sdf2::syntax::\Sdf2-Syntax::Attribute m) {
 test getAttribute((Attribute) `left`)        == \assoc(left());
 test getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
 
-private Attr getAssociativity(languages::sdf2::syntax::\Sdf2-Syntax::Associativity as){
+private Associativity getAssociativity(languages::sdf2::syntax::\Sdf2-Syntax::Associativity as){
   switch (as) {
-    case (Associativity) `left`: return \assoc(left());
-    case (Associativity) `right`: return \assoc(right());
-    case (Associativity) `non-assoc`: return \assoc(\non-assoc());
-    case (Associativity) `assoc`: return \assoc(\assoc());
+    case (Associativity) `left`: return left();
+    case (Associativity) `right`: return right();
+    case (Associativity) `non-assoc`: return \non-assoc();
+    case (Associativity) `assoc`: return \assoc();
   }
 }
-
-test getAssociativity((Associativity) `left`) == \assoc(left());
+ 
+test getAssociativity((Associativity) `left`) == left();
 
