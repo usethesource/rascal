@@ -20,10 +20,10 @@ set[Production] factorize(set[Production] productions) {
   return { factorize(p) | p <- productions };
 }
 
-set[Production] factorize(Production p) {
+public set[Production] factorize(Production p) {
    if (first(Symbol s, list[Production] prods) := p) { 
-      int len = length(prods);
-      levels = [ setToLevel(p, length(postfix)) 
+      int len = size(prods);
+      levels = [ setToLevel(p, s, size(postfix)) 
                | [list[Production] prefix, Production elem, list[Production] postfix] := prods];
       return { choice(level(s, level), {elem, toSet(redefine(prefix, level(s, level)))}) 
                | int level := length(postfix), [list[Production] prefix, Production elem, list[Production] postfix] := levels}; 
@@ -32,6 +32,25 @@ set[Production] factorize(Production p) {
      return {p};
    }
 }
+
+test factorize(first(sort("E"), [
+       prod([sort("Id")],sort("E"),\no-attrs()),
+       prod([sort("E"), lit("*"), sort("E")], sort("E"),\no-attrs()),
+       prod([sort("E"), lit("+"), sort("E")], sort("E"),\no-attrs())
+     ])) ==
+     { choice(sort("E"), {
+         prod([sort("Id")],sort("E"),\no-attrs()),
+         prod([level(sort("E"),1), lit("*"), level(sort("E"),1)], sort("E"),\no-attrs()),
+         prod([level(sort("E"),2), lit("+"), level(sort("E"),2)], sort("E"),\no-attrs())
+             }),
+        choice(sort("E"), {
+         prod([level(sort("E"),1), lit("*"), level(sort("E"),1)], level(sort("E"),1),\no-attrs()),
+         prod([level(sort("E"),2), lit("+"), level(sort("E"),2)], level(sort("E"),1),\no-attrs())
+             }),
+        choice(sort("E"), {
+         prod([level(sort("E"),2), lit("+"), level(sort("E"),2)], level(sort("E"),2),\no-attrs())
+             })             
+     };
          
 list[Production] redefine(list[Production] prods, Symbol s) {
   return visit (prods) {
@@ -51,21 +70,21 @@ Production setToLevel(Production p, Symbol s, int level) {
   
   return visit (p) {
     case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\left()),list[Attr] a2])) => 
-         prod([level(s, level), middle, level(s, level+1)],level(s,level),add(a, priority(level)))
+         prod([level(s, level), middle, level(s, level+1)],level(s,level),a)
     case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\right()),list[Attr] a2])) => 
-         prod([level(s, level+1), middle, level(s, level)],level(s,level),add(a, priority(level)))
+         prod([level(s, level+1), middle, level(s, level)],level(s,level),a)
     case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\assoc()),list[Attr] a2])) => 
-         prod([level(s, level), middle, level(s, level+1)],level(s,level),add(a, priority(level)))
+         prod([level(s, level), middle, level(s, level+1)],level(s,level),a)
     case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\non-assoc()),list[Attr] a2])) => 
-         prod([level(s, level+1), middle, level(s, level+1)],level(s,level),add(a, priority(level)))
+         prod([level(s, level+1), middle, level(s, level+1)],level(s,level),a)
     case prod([s, list[Symbol] middle, s],s,Attributes a) => 
-         prod([level(s, level), middle, level(s, level)],level(s,level),add(a, priority(level)))
+         prod([level(s, level), middle, level(s, level)],level(s,level),a)
     case prod([s, list[Symbol] tail],s,Attributes a)      => 
-         prod([level(s, level), tail], level(s, level), add(a, priority(level)))
+         prod([level(s, level), tail], level(s, level), a)
     case prod([list[Symbol] front, s], s, Attributes a)   => 
-         prod([front, level(s, level)], level(s, level), add(a, priority(level))) 
+         prod([front, level(s, level)], level(s, level), a) 
     case prod(list[Symbol] lhs, s, Attributes a)          => 
-         prod(lhs, level(s, level), add(a, priority(level)))
+         prod(lhs, level(s, level), a)
     case choice(s, set[Production] alts) => choice(level(s, level), alts)
     case \assoc(s, Associativity a, Production p) => \assoc(level(s, level), a, p)
     case \diff(s, Production p, set[Production] alts) => \diff(level(s, level), p, alts)

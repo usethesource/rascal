@@ -770,7 +770,6 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		ctx.setAccumulators(accumulators);
 	}
 
-	@Override
 	public URIResolverRegistry getResolverRegistry() {
 		return ctx.getResolverRegistry();
 	}

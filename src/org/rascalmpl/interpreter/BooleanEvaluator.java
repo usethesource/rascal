@@ -493,7 +493,6 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 		throw new ImplementationError("should not call call");
 	}
 
-	@Override
 	public URIResolverRegistry getResolverRegistry() {
 		return ctx.getResolverRegistry();
 	}
