@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -20,8 +21,13 @@ import org.rascalmpl.uri.URIResolverRegistry;
  * this resolver will look through the Rascal search path and find the proper input stream if it exists.
  */
 public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver {
-	private final ArrayList<IRascalSearchPathContributor> contributors = new ArrayList<IRascalSearchPathContributor>();
-	private final static URIResolverRegistry registry = URIResolverRegistry.getInstance();
+	private final ArrayList<IRascalSearchPathContributor> contributors;
+	private final IEvaluatorContext ctx;
+	
+	public RascalURIResolver(IEvaluatorContext ctx) {
+		this.contributors = new ArrayList<IRascalSearchPathContributor>();
+		this.ctx = ctx;
+	}
 	
 	public void addPathContributor(IRascalSearchPathContributor contrib) {
 		contributors.add(0, contrib);
@@ -34,7 +40,7 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 		try {
 			for (URI dir : collect()) {
 				URI full = getFullURI(getPath(uri), dir);
-				if (URIResolverRegistry.getInstance().exists(full)) {
+				if (ctx.getResolverRegistry().exists(full)) {
 					return full;
 				}
 			}
@@ -52,7 +58,7 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (URIResolverRegistry.getInstance().exists(full)) {
+					if (ctx.getResolverRegistry().exists(full)) {
 						return true;
 					}
 				}
@@ -124,8 +130,8 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (registry.exists(full)) {
-						return registry.getInputStream(full);
+					if (ctx.getResolverRegistry().exists(full)) {
+						return ctx.getResolverRegistry().getInputStream(full);
 					}
 				}
 			}
@@ -143,8 +149,8 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (registry.exists(full)) {
-						return registry.getInputStream(getFullURI(getBinaryPath(uri), dir));
+					if (ctx.getResolverRegistry().exists(full)) {
+						return ctx.getResolverRegistry().getInputStream(getFullURI(getBinaryPath(uri), dir));
 					}
 				}
 			}
@@ -167,8 +173,8 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (registry.exists(full)) {
-						return registry.getOutputStream(full, append);
+					if (ctx.getResolverRegistry().exists(full)) {
+						return ctx.getResolverRegistry().getOutputStream(full, append);
 					}
 				}
 			}
@@ -186,8 +192,8 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (registry.exists(full)) {
-						return registry.getOutputStream(getFullURI(getBinaryPath(uri), dir), false);
+					if (ctx.getResolverRegistry().exists(full)) {
+						return ctx.getResolverRegistry().getOutputStream(getFullURI(getBinaryPath(uri), dir), false);
 					}
 				}
 			}

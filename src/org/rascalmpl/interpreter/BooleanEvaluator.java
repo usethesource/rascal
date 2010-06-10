@@ -73,6 +73,7 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements IEvaluator<IBooleanResult>{
 	private final IEvaluatorContext ctx;
@@ -490,6 +491,11 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	public IValue call(String name, IValue... args) {
 		throw new ImplementationError("should not call call");
+	}
+
+	@Override
+	public URIResolverRegistry getResolverRegistry() {
+		return ctx.getResolverRegistry();
 	}
 
 }

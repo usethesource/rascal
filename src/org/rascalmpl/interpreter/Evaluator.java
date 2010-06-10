@@ -300,6 +300,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private final RascalURIResolver resolver;
 	private final SDFSearchPath sdf;
 	private final ASTBuilder builder;
+	
+	private final URIResolverRegistry resolverRegistry;
 
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this.vf = f;
@@ -312,12 +314,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.heap.addModule(scope);
 		this.classLoaders = new ArrayList<ClassLoader>();
 		this.javaBridge = new JavaBridge(stderr, classLoaders, vf);
-		this.resolver = new RascalURIResolver();
+		this.resolver = new RascalURIResolver(this);
 		this.sdf = new SDFSearchPath();
 		this.parser = new RascalParser();
 		this.stderr = stderr;
 		this.stdout = stdout;
 		this.builder = new ASTBuilder(new ASTFactory());
+		this.resolverRegistry = new URIResolverRegistry();
 
 		updateProperties();
 		
@@ -353,8 +356,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		sdf.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new ArrayList<String>();
-				result.add(new File("/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library").getAbsolutePath());
-//				result.add(new File("/Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library").getAbsolutePath());
+//				result.add(new File("/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library").getAbsolutePath());
+				result.add(new File("/Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library").getAbsolutePath());
 				result.add(Configuration.getSdfLibraryPathProperty());
 				result.add(new File(System.getProperty("user.dir"), "src/org/rascalmpl/test/data").getAbsolutePath());
 				return result;
@@ -368,23 +371,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		classLoaders.add(getClass().getClassLoader());
 
 		// register some schemes
-		URIResolverRegistry registry = URIResolverRegistry.getInstance();
 		FileURIResolver files = new FileURIResolver(); 
-		registry.registerInput(files.scheme(), files);
-		registry.registerOutput(files.scheme(), files);
+		resolverRegistry.registerInput(files.scheme(), files);
+		resolverRegistry.registerOutput(files.scheme(), files);
 
 		HttpURIResolver http = new HttpURIResolver();
-		registry.registerInput(http.scheme(), http);
+		resolverRegistry.registerInput(http.scheme(), http);
 
 		CWDURIResolver cwd = new CWDURIResolver();
-		registry.registerInput(cwd.scheme(), cwd);
-		registry.registerOutput(cwd.scheme(), cwd);
+		resolverRegistry.registerInput(cwd.scheme(), cwd);
+		resolverRegistry.registerOutput(cwd.scheme(), cwd);
 		
 		ClassResourceInputStreamResolver library = new ClassResourceInputStreamResolver("stdlib", this.getClass());
-		registry.registerInput(library.scheme(), library);
+		resolverRegistry.registerInput(library.scheme(), library);
 
-		registry.registerInput(resolver.scheme(), resolver);
-		registry.registerOutput(resolver.scheme(), resolver);
+		resolverRegistry.registerInput(resolver.scheme(), resolver);
+		resolverRegistry.registerOutput(resolver.scheme(), resolver);
 	}
 	
 	public void setTestResultListener(ITestResultListener l) {
@@ -399,6 +401,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return javaBridge;
 	}
 
+	public URIResolverRegistry getResolverRegistry() {
+		return resolverRegistry;
+	}
+	
 	public IValue call(String name, IValue...args) {
 		QualifiedName qualifiedName = Names.toQualifiedName(name);
 		OverloadedFunctionResult func = (OverloadedFunctionResult) getCurrentEnvt().getVariable(qualifiedName);
@@ -423,7 +429,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 */
 	public IConstructor parseObject(IConstructor startSort, URI input) {
 		try {
-			return filterStart(startSort, parser.parseStream(sdf.getSdfSearchPath(), ((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), URIResolverRegistry.getInstance().getInputStream(input)));
+			return filterStart(startSort, parser.parseStream(sdf.getSdfSearchPath(), ((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), resolverRegistry.getInputStream(input)));
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getCurrentAST(), getStackTrace());
 		} catch (SyntaxError e) {
@@ -1171,7 +1177,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		InputStream inputStream = null;
 		try {
-			inputStream = URIResolverRegistry.getInstance().getInputStream(location);
+			inputStream = resolverRegistry.getInputStream(location);
 			data = readModule(inputStream);
 		}
 		finally{

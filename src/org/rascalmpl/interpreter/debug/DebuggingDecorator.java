@@ -103,6 +103,7 @@ import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluator<T> {
 	protected final IDebugger debugger;
@@ -833,6 +834,11 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 
 	public void setAccumulators(Stack<Accumulator> accumulators) {
 		evaluator.setAccumulators(accumulators);
+	}
+
+	@Override
+	public URIResolverRegistry getResolverRegistry() {
+		return evaluator.getResolverRegistry();
 	}
 
 	

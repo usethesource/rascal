@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -145,7 +146,7 @@ public class XMLIO{
 		this.vf = vf;
 	}
 	
-	public IConstructor readXMLFile(ISourceLocation file) throws IOException, SAXException, ParserConfigurationException{
+	public IConstructor readXMLFile(ISourceLocation file, IEvaluatorContext ctx) throws IOException, SAXException, ParserConfigurationException{
 		
 		ErrorHandler errorHandler = new ErrorHandler(){
 			public void fatalError(SAXParseException exception) throws SAXException{
@@ -174,7 +175,7 @@ public class XMLIO{
 		
 		DocumentBuilder parser = dbf.newDocumentBuilder();
 		parser.setErrorHandler(errorHandler);
-		Document document = parser.parse(URIResolverRegistry.getInstance().getInputStream(file.getURI()));
+		Document document = parser.parse(ctx.getResolverRegistry().getInputStream(file.getURI()));
 		
 		TypeStore typeStore = new TypeStore();
 		XMLIOThing xmlToPDB = new XMLIOThing(vf, typeStore, document);

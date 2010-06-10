@@ -26,20 +26,24 @@ throws NoSuchFileError(str msg), IOError(str msg);
 
 @doc{Read the contents from a file location}
 @javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
 public str java readFile(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
 @doc{Check whether a certain location exists}
 @javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
 public bool java exists(loc file);
 
 @doc{Read the contents from a file location into a list of lines.}
 @javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
 public list[str] java readFileLines(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
 @doc{Read the contents from a file location into a list of bytes.}
 @javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
 public list[int] java readFileBytes(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
@@ -51,6 +55,7 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
    * Each value is terminated by a newline character
 }
 @javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
 public void java writeFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
@@ -61,6 +66,7 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
    * Each value is terminated by a newline character
 }
 @javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
 public void java appendToFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 

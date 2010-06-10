@@ -77,7 +77,6 @@ exports
     protocolChars:ProtocolChars                            -> ProtocolPart {cons("NonInterpolated")}
     pathChars:PathChars                                    -> PathPart {cons("NonInterpolated")}
     protocolPart:ProtocolPart pathPart:PathPart            -> LocationLiteral {cons("Default")}
-    pathPart:PathPart                                      -> LocationLiteral {cons("File")}
  
  
 

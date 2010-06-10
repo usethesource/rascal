@@ -26,6 +26,7 @@ import org.jdom.Text;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.xml.Factory;
 
@@ -39,38 +40,38 @@ public class XMLDOM {
 	@SuppressWarnings("serial")
 	private static class Skip extends Exception { }
 
-	public IConstructor readXMLDOMTrim(ISourceLocation file) throws IOException, JDOMException {
-		return readXMLDOM(file, true);
+	public IConstructor readXMLDOMTrim(ISourceLocation file, IEvaluatorContext ctx) throws IOException, JDOMException {
+		return readXMLDOM(file, true, ctx);
 	}
 
-	public IConstructor readXMLDOM(ISourceLocation file) throws IOException, JDOMException {
-		return readXMLDOM(file, false);
+	public IConstructor readXMLDOM(ISourceLocation file, IEvaluatorContext ctx) throws IOException, JDOMException {
+		return readXMLDOM(file, false, ctx);
 	}
 	
-	private IConstructor readXMLDOM(ISourceLocation file, boolean trim) throws IOException, JDOMException {
+	private IConstructor readXMLDOM(ISourceLocation file, boolean trim, IEvaluatorContext ctx) throws IOException, JDOMException {
 		SAXBuilder builder = new SAXBuilder();
-		InputStream stream = URIResolverRegistry.getInstance().getInputStream(file.getURI());
+		InputStream stream = ctx.getResolverRegistry().getInputStream(file.getURI());
 		Document doc = builder.build(stream);
 		return convertDocument(doc, trim);
 	}
 	
 	
 	
-	public void writeXMLRaw(ISourceLocation file, IConstructor node) throws IOException {
-		writeXML(file, node, Format.getRawFormat());
+	public void writeXMLRaw(ISourceLocation file, IConstructor node, IEvaluatorContext ctx) throws IOException {
+		writeXML(file, node, Format.getRawFormat(), ctx);
 	}
 	
-	public void writeXMLPretty(ISourceLocation file, IConstructor node) throws IOException {
-		writeXML(file, node, Format.getPrettyFormat());
+	public void writeXMLPretty(ISourceLocation file, IConstructor node, IEvaluatorContext ctx) throws IOException {
+		writeXML(file, node, Format.getPrettyFormat(), ctx);
 	}
 
-	public void writeXMLCompact(ISourceLocation file, IConstructor node) throws IOException {
-		writeXML(file, node, Format.getCompactFormat());
+	public void writeXMLCompact(ISourceLocation file, IConstructor node, IEvaluatorContext ctx) throws IOException {
+		writeXML(file, node, Format.getCompactFormat(), ctx);
 	}
 	
-	private void writeXML(ISourceLocation file, IConstructor node, Format format) throws IOException {
+	private void writeXML(ISourceLocation file, IConstructor node, Format format, IEvaluatorContext ctx) throws IOException {
 		XMLOutputter outputter = new XMLOutputter(format);
-		OutputStream stream = URIResolverRegistry.getInstance().getOutputStream(file.getURI(), false);
+		OutputStream stream = ctx.getResolverRegistry().getOutputStream(file.getURI(), false);
 		Document doc = nodeToDocument(node);
 		outputter.output(doc, stream);
 		stream.close();

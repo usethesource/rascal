@@ -105,6 +105,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements IEvaluator<IMatchingResult> {
 	private final IEvaluatorContext ctx;
@@ -767,6 +768,11 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 	public void setAccumulators(Stack<Accumulator> accumulators) {
 		ctx.setAccumulators(accumulators);
+	}
+
+	@Override
+	public URIResolverRegistry getResolverRegistry() {
+		return ctx.getResolverRegistry();
 	}
 
 
