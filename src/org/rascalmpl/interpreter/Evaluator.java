@@ -4023,8 +4023,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				l.report(successful, test, loc);
 			}
 
-			public void done() {if (testReporter != null) testReporter.done();}
-			public void start(int count) {if (testReporter != null) testReporter.start(count);}
+			public void done() {l.done();}
+			public void start(int count) {l.start(count);}
 		}).test();
 		return allOk[0];
 	}

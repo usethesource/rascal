@@ -836,12 +836,8 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		evaluator.setAccumulators(accumulators);
 	}
 
-	@Override
 	public URIResolverRegistry getResolverRegistry() {
 		return evaluator.getResolverRegistry();
 	}
-
-	
-
 
 }
