@@ -15,16 +15,21 @@ data Node = document(Node root)
 		  | charRef(int code);             
 
 @javaClass{org.rascalmpl.library.XMLDOM}
+@reflect{Uses URI Resolver Registry}
 public Node java readXMLDOM(loc file);
 
 @javaClass{org.rascalmpl.library.XMLDOM}
+@reflect{Uses URI Resolver Registry}
 public Node java readXMLDOMTrim(loc file);
 
 @javaClass{org.rascalmpl.library.XMLDOM}
+@reflect{Uses URI Resolver Registry}
 public void java writeXMLRaw(loc file, Node x);
 
 @javaClass{org.rascalmpl.library.XMLDOM}
+@reflect{Uses URI Resolver Registry}
 public void java writeXMLCompact(loc file, Node x);
 
 @javaClass{org.rascalmpl.library.XMLDOM}
+@reflect{Uses URI Resolver Registry}
 public void java writeXMLPretty(loc file, Node x);

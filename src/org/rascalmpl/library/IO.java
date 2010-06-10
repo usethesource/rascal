@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
@@ -113,16 +114,16 @@ public class IO{
 		return w.done();
 	}
 	
-	public IValue exists(ISourceLocation file) {
-		return values.bool(URIResolverRegistry.getInstance().exists(file.getURI()));
+	public IValue exists(ISourceLocation file, IEvaluatorContext ctx) {
+		return values.bool(ctx.getResolverRegistry().exists(file.getURI()));
 	}
 	
-	public IValue readFile(ISourceLocation file){
+	public IValue readFile(ISourceLocation file, IEvaluatorContext ctx){
 		StringBuilder result = new StringBuilder();
 		
 		InputStream in = null;
 		try{
-			in = URIResolverRegistry.getInstance().getInputStream(file.getURI());
+			in = ctx.getResolverRegistry().getInputStream(file.getURI());
 			byte[] buf = new byte[4096];
 			int count;
 
@@ -152,14 +153,14 @@ public class IO{
 		}
 	}
 	
-	public void writeFile(ISourceLocation file, IList V) {
-		writeFile(file, V, false);
+	public void writeFile(ISourceLocation file, IList V, IEvaluatorContext ctx) {
+		writeFile(file, V, false, ctx);
 	}
 	
-	private void writeFile(ISourceLocation file, IList V, boolean append){
+	private void writeFile(ISourceLocation file, IList V, boolean append, IEvaluatorContext ctx){
 		OutputStream out = null;
 		try{
-			out = URIResolverRegistry.getInstance().getOutputStream(file.getURI(), append);
+			out = ctx.getResolverRegistry().getOutputStream(file.getURI(), append);
 			
 			for(IValue elem : V){
 				if (elem.getType().isStringType()){
@@ -187,16 +188,16 @@ public class IO{
 		return;
 	}
 	
-	public void appendToFile(ISourceLocation file, IList V){
-		writeFile(file, V, true);
+	public void appendToFile(ISourceLocation file, IList V, IEvaluatorContext ctx){
+		writeFile(file, V, true, ctx);
 	}
 	
-	public IList readFileLines(ISourceLocation file){
+	public IList readFileLines(ISourceLocation file, IEvaluatorContext ctx){
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		BufferedReader in = null;
 		try{
-			InputStream stream = URIResolverRegistry.getInstance().getInputStream(file.getURI());
+			InputStream stream = ctx.getResolverRegistry().getInputStream(file.getURI());
 			in = new BufferedReader(new InputStreamReader(stream));
 			java.lang.String line;
 			
@@ -251,12 +252,12 @@ public class IO{
 		return w.done();
 	}
 	
-	public IList readFileBytes(ISourceLocation file){
+	public IList readFileBytes(ISourceLocation file, IEvaluatorContext ctx){
 		IListWriter w = types.listType(types.integerType()).writer(values);
 		
 		BufferedInputStream in = null;
 		try{
-			InputStream stream = URIResolverRegistry.getInstance().getInputStream(file.getURI());
+			InputStream stream = ctx.getResolverRegistry().getInputStream(file.getURI());
 			in = new BufferedInputStream(stream);
 			int read;
 			final int size = 256;

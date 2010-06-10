@@ -8,19 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class URIResolverRegistry {
-	private final static Map<String,IURIInputStreamResolver> inputResolvers = new HashMap<String, IURIInputStreamResolver>();
-	private final static Map<String,IURIOutputStreamResolver> outputResolvers = new HashMap<String, IURIOutputStreamResolver>();
-	
-	private static class InstanceKeeper {
-		public final static URIResolverRegistry sInstance = new URIResolverRegistry();
-	} 
-	
-	private URIResolverRegistry() {
-		super();
-	}
-	
-	public static URIResolverRegistry getInstance() {
-		return InstanceKeeper.sInstance;
+	private final Map<String,IURIInputStreamResolver> inputResolvers;
+	private final Map<String,IURIOutputStreamResolver> outputResolvers;
+		
+	public URIResolverRegistry() {
+		this.inputResolvers = new HashMap<String, IURIInputStreamResolver>();
+		this.outputResolvers = new HashMap<String, IURIOutputStreamResolver>();
 	}
 	
 	public void registerInput(String scheme, IURIInputStreamResolver resolver) {

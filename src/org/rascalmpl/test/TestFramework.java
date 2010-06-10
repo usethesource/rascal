@@ -80,7 +80,7 @@ public class TestFramework {
 		stdout = new PrintWriter(System.out);
 		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 
-		URIResolverRegistry.getInstance().registerInput("rascal-test", new ClassResourceInputStreamResolver("rascal-test", getClass()));
+		eval.getResolverRegistry().registerInput("rascal-test", new ClassResourceInputStreamResolver("rascal-test", getClass()));
 		
 		// to load modules from benchmarks
 		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
@@ -111,7 +111,7 @@ public class TestFramework {
 	private void reset() {
 		evaluator = getTestEvaluator();
 		this.modules = new TestModuleResolver();
-		URIResolverRegistry.getInstance().registerInput(this.modules.scheme(), this.modules);
+		evaluator.getResolverRegistry().registerInput(this.modules.scheme(), this.modules);
 		evaluator.addRascalSearchPath(URI.create("test-modules:///"));
 	}
 

@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.ATermWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.Typeifier;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -26,14 +27,14 @@ public class ATermIO{
 		this.values = values;
 	}
 	
-	public IValue readTextATermFile(IConstructor type, ISourceLocation loc){
+	public IValue readTextATermFile(IConstructor type, ISourceLocation loc, IEvaluatorContext ctx){
 		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
 		Typeifier.declare(type, store);
 		
 		InputStream in = null;
 		try{
-			in = URIResolverRegistry.getInstance().getInputStream(loc.getURI());
+			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
 			return new ATermReader().read(values, store, start, in);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -48,10 +49,10 @@ public class ATermIO{
 		}
 	}
 	
-	public void writeTextATermFile(ISourceLocation loc, IValue value){
+	public void writeTextATermFile(ISourceLocation loc, IValue value, IEvaluatorContext ctx){
 		OutputStream out = null;
 		try{
-			out = URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
+			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
 			new ATermWriter().write(value, out);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);

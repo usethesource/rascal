@@ -7,6 +7,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 // TODO: this interface needs to be split into an external interface, for clients
 // which want to call Rascal from Java, and an internal interface for managing the global
@@ -37,5 +38,7 @@ public interface IEvaluatorContext {
 	public void popStrategyContext();
 	public void setAccumulators(Stack<Accumulator> accumulators);
 	public Stack<Accumulator> getAccumulators();
-
+	
+	// URI resolver related
+	public URIResolverRegistry getResolverRegistry();
 }

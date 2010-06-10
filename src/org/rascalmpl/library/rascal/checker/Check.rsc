@@ -82,33 +82,33 @@ public Name setUpName(Name n) {
 //
 public Tree check(Tree t, RType adtErrors) {
 	return visit(t) {
-		case Name n => setUpName(n)
-		case Expression e : { 
+		case `<Expression e>` : { 
 			RType expType = checkExpression(e); 
 			if (e@\loc in globalScopeInfo.itBinder) 
 				updateInferredTypeMappings(globalScopeInfo.itBinder[e@\loc], expType); 
 				insert e[@rtype = expType]; 
 		}
-		case Pattern p => p[@rtype = checkPattern(p)]
-		case Statement s => s[@rtype = checkStatement(s)]
-		case Assignable a => a[@rtype = checkAssignable(a)]
-		case Catch c => c[@rtype = checkCatch(c)]
-		case DataTarget dt => dt[@rtype = checkDataTarget(dt)]
-		case PatternWithAction pwa => pwa[@rtype = checkPatternWithAction(pwa)]
-		case Visit v => v[@rtype = checkVisit(v)]
-		case Label l => l[@rtype = checkLabel(l)]
-		case Variable v => v[@rtype = checkVariable(v)]
-		case FunctionBody fb => fb[@rtype = checkFunctionBody(fb)]
-		case Toplevel t => t[@rtype = checkToplevel(t)]
-		case Body b => b[@rtype = checkModuleBody(b)]
-		case Module m : {
+		case `<Pattern p>` => p[@rtype = checkPattern(p)]
+		case `<Statement s>` => s[@rtype = checkStatement(s)]
+		case `<Assignable a>` => a[@rtype = checkAssignable(a)]
+		case `<Catch c>` => c[@rtype = checkCatch(c)]
+		case `<DataTarget dt>` => dt[@rtype = checkDataTarget(dt)]
+		case `<PatternWithAction pwa>` => pwa[@rtype = checkPatternWithAction(pwa)]
+		case `<Visit v>` => v[@rtype = checkVisit(v)]
+		case `<Label l>` => l[@rtype = checkLabel(l)]
+		case `<Variable v>` => v[@rtype = checkVariable(v)]
+		case `<FunctionBody fb>` => fb[@rtype = checkFunctionBody(fb)]
+		case `<Toplevel t>` => t[@rtype = checkToplevel(t)]
+		case `<Body b>` => b[@rtype = checkModuleBody(b)]
+		case `<Module m>` : {
 			RType modType = checkModule(m);
 			if (isVoidType(adtErrors))
 				insert m[@rtype = modType];
 			else
 				insert m[@rtype = collapseFailTypes(adtErrors,modType)];
 		}
-		case Case c => c[@rtype = checkCase(c)]
+		case `<Case c>` => c[@rtype = checkCase(c)]
+		case `<Name n>` => setUpName(n)
 	} 
 }
 
@@ -118,7 +118,7 @@ public Tree check(Tree t, RType adtErrors) {
 //
 public Tree retagNames(Tree t) {
 	return visit(t) {
-		case Name n => setUpName(n)
+		case `<Name n>` => setUpName(n)
 	} 
 }
 
@@ -1115,8 +1115,9 @@ public RType checkSubscriptExpression(Expression ep, Expression el, {Expression 
 		if (size(indexList) > 1) return makeFailType("Subscripts on nodes must contain exactly one element", ep@\loc);
 		RType relLeftType = getRelFields(expType)[0];
 		RType indexType = lubSet({ e@rtype | e <- indexList});
-		if (! (subtypeOf(relLeftType,indexType) || subtypeOf(indexType,relLeftType))) 
-			return makeFailType("The subscript type <prettyPrintType(indexType)> must be comparable to the type of the relation's first projection <prettyPrintType(relLeftType)>", ep@\loc);
+		if (! (subtypeOf(relLeftType,indexType) || subtypeOf(indexType,relLeftType))) { 
+			return makeFailType("The subscript type <prettyPrintType(indexType)> must be comparable to the type of the first projection of the relation, <prettyPrintType(relLeftType)>", ep@\loc);
+		}
 		list[RType] resultTypes = tail(getRelFields(expType));
 		if (size(resultTypes) == 1)
 			return makeSetType(resultTypes[0]);
@@ -2057,10 +2058,10 @@ public RType checkCase(Case c) {
 				
 				case (Statement) `<Label l> <Visit v>` : 0; // no-op
 				
-				case ins : `insert <DataTarget dt> <Statement s>` : {
+				case Statement ins : `insert <DataTarget dt> <Statement s>` : {
 					RType stmtType = getInternalStatementType(s@rtype);
 					if (caseType != stmtType) {
-						failures += makeFailType("Type of insert, <prettyPrintType(stmtType)>, does not match type of case, <prettyPrintType(caseType)>", ins@\loc);
+						failures += makeFailType("Type of insert, <prettyPrintType(stmtType)>, does not match type of case, <prettyPrintType(caseType)>", s@\loc);
 					}
 				} 
 			}
