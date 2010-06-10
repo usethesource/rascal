@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class HTMLIO {
@@ -27,10 +28,10 @@ public class HTMLIO {
 		this.factory = factory;
 	}
 	
-	public IValue readHTMLFile(ISourceLocation file) {
+	public IValue readHTMLFile(ISourceLocation file, IEvaluatorContext ctx) {
 		InputStream in;
 		try {
-			in = file.getURI().toURL().openStream();
+			in = ctx.getResolverRegistry().getInputStream(file.getURI());
 			Constructor cons = new Constructor();
 			new ParserDelegator().parse(new InputStreamReader(in), cons, true);
 			return cons.getValue();
