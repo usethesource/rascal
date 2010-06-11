@@ -97,9 +97,9 @@ public class MakeBox {
 		}
 	}
 
-	private IValue launchConcreteProgram(URI uri) {
+	private IValue launchConcreteProgram(URI uri, String s) {
 		final String resultName = "c";
-		execute("import box::Concrete;");
+		execute("import box::"+s+";");
 		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()
 				.sourceLocation(uri);
@@ -140,14 +140,10 @@ public class MakeBox {
 
 	public IValue toTxt(URI uri) {
 		start();
-		try {
-			FileInputStream inp = new FileInputStream(uri.getRawPath());
-			inp.close();
-			return launchConcreteProgram(uri);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		int tail = uri.getPath().lastIndexOf('.');
+		String s = uri.getPath().substring(tail+1);
+		s = s.substring(0,1).toUpperCase()+s.substring(1);
+		return launchConcreteProgram(uri, s);
 	}
 
 }

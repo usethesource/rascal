@@ -15,6 +15,8 @@ data Box
     |  KW(Box kw)
     |  VAR(Box  var)
     | NM(Box  nm)
+    | REF(int ref)
+    | NULL()
     ;
     
 alias text = list[str];

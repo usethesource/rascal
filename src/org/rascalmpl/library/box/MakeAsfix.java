@@ -35,8 +35,8 @@ public class MakeAsfix {
 		DirectoryDialog directoryDialog = new DirectoryDialog(shell);
 		// String[] filterExtensions = new String[] { "*.rsc" };
 		// dialog.setFilterExtensions(filterExtensions);
-		String defaultDir = System.getProperty("SDFDIR");
-		// System.err.println(defaultDir);
+		final String defaultDir = System.getProperty("SDFDIR");
+		System.err.println(defaultDir);
 		if (defaultDir != null)
 			directoryDialog.setFilterPath(defaultDir+File.separatorChar+"languages");
 		String fileName = directoryDialog.open();

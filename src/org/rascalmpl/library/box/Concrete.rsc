@@ -56,12 +56,64 @@ Box ppDefault(pairs u) {
        return r;
        }
 
+str toString(Attributes att) {
+       if (\attrs(list[Attr] a):=att) {
+          return ("" | it + "_<a[i]>" | i <- [0..size(a)-1]);
+          }
+       return "<att>";
+       }
+       
+Box toValue(Attributes att) {
+       if (\attrs(list[Attr] a):=att) {
+          list[value] vs = [v| \term(\box(value v))  <- a];
+          if (size(vs)>0) {
+              // println("QQ:<vs>");
+              Box r = readTextValueString(#Box, "<vs[0]>");
+              return r;
+              }
+          }
+       return NULL();
+     }
+
+list[Box] getBoxArgs(Box b) {
+     switch(b) {
+        case V(list[Box] l): return l;
+        case H(list[Box] l): return l;
+        case HV(list[Box] l): return l;
+        case HOV(list[Box] l): return l;
+        }
+     return [];
+     }
+     
+ Box newBox(Box b, list[Box] bl) {
+    switch(b) {
+        case V(list[Box] l): return V(bl);
+        case H(list[Box] l): return H(bl);
+        case HV(list[Box] l): return HV(bl);
+        case HOV(list[Box] l): return HOV(bl);
+        }
+     return NULL();
+     }
+     
+ Box ref(Box b, list[Box] bn) {
+     if (REF(int i):=b) {return bn[i];}
+     else return b;
+     }
 
 Box visitParseTree(Tree q) {
    //  rawPrintln(q);
     switch(q) {
-       case appl(prod(list[Symbol] s, _, _), list[Tree] t): {
+       case appl(prod(list[Symbol] s, _, Attributes att), list[Tree] t): {
                       pairs u =[<s[i], t[i]>| int i<-[0,2..size(t)-1]];
+                      Box b = toValue(att);
+                      if (b!=NULL()) {
+                        list[Box] bn = walkThroughSymbols(u, false);
+                        list[Box] bo = getBoxArgs(b);
+                        list[Box] r = [ref(b, bn) | Box b <- bo];
+                        Box v =  newBox(b, r);
+                        println("HOI:<v>");
+                        return v;
+                        }
                       return _isIndented(u)?V(walkThroughSymbols(u, true)):ppDefault(u);                                      
                      }
        case appl(\list(\cf(\iter-star-sep(Symbol s, Symbol sep) )), list[Tree] t): {
@@ -233,9 +285,9 @@ list[Box] walkThroughSymbols(pairs u, bool indent) {
 
 public void main(){
      // ParseTree a = readBinaryValueFile(#ParseTree, |file:///ufs/bertl/asfix/pico/big.asf|);
-     ParseTree a = readBinaryValueFile(#ParseTree, |file:///ufs/bertl/asfix/java/ViewAction.asf|);
-     Box out = visitParseTree(getTree(a));
-     text t = box2text(out);
+    ParseTree a = readBinaryValueFile(#ParseTree, |file:///ufs/bertl/asfix/java/ViewAction.asf|);
+    Box out = visitParseTree(getTree(a));
+    text t = box2text(out);
     for (str r<-t) {
           println(r);
          }

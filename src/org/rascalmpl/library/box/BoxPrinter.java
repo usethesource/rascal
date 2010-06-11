@@ -140,13 +140,13 @@ public class BoxPrinter {
 
 	private URI getFileName() {
 		FileDialog dialog = new FileDialog(shell);
-		String[] filterExtensions = new String[] { "*.asf" };
-		dialog.setFilterExtensions(filterExtensions);
+//		String[] filterExtensions = new String[] { "*.asf" };
+//		dialog.setFilterExtensions(filterExtensions);
 //		String defaultDir = System.getProperty("DEFAULTDIR");
 		String defaultDir = System.getProperty("user.home")+File.separatorChar+"asfix";
-		
 		if (defaultDir != null)
 			dialog.setFilterPath(defaultDir);
+		dialog.setFileName("ViewAction.java");
 		String fileName = dialog.open();
 		if (fileName == null) {
 			System.err.println("Canceled");
