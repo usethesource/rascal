@@ -4,8 +4,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.IntegerList;
+import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class SeparatedListStackNode extends AbstractStackNode implements IListStackNode{
 	private final IConstructor symbol;
@@ -46,8 +48,8 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		isPlusList = original.isPlusList;
 	}
 	
-	private SeparatedListStackNode(SeparatedListStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
-		super(original, prefixes, prefixStartLocations);
+	private SeparatedListStackNode(SeparatedListStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+		super(original, prefixes);
 		
 		symbol = original.symbol;
 
@@ -73,7 +75,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new SeparatedListStackNode(this, prefixes, prefixStartLocations);
+		return new SeparatedListStackNode(this, prefixesMap);
 	}
 	
 	public void setResultStore(ContainerNode resultStore){
@@ -115,7 +117,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		return new AbstractStackNode[]{psn, epsn};
 	}
 	
-	public void addResult(IConstructor production, INode[] children){
+	public void addResult(IConstructor production, Link children){
 		result.addAlternative(production, children);
 	}
 	

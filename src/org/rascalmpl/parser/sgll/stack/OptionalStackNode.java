@@ -3,8 +3,10 @@ package org.rascalmpl.parser.sgll.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.IntegerList;
+import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class OptionalStackNode extends AbstractStackNode implements IListStackNode{
 	private final IConstructor symbol;
@@ -29,8 +31,8 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		optional = original.optional;
 	}
 	
-	private OptionalStackNode(OptionalStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
-		super(original, prefixes, prefixStartLocations);
+	private OptionalStackNode(OptionalStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+		super(original, prefixes);
 		
 		symbol = original.symbol;
 		
@@ -58,7 +60,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new OptionalStackNode(this, prefixes, prefixStartLocations);
+		return new OptionalStackNode(this, prefixesMap);
 	}
 	
 	public void setResultStore(ContainerNode resultStore){
@@ -79,7 +81,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		return new AbstractStackNode[]{copy, epsn};
 	}
 	
-	public void addResult(IConstructor production, INode[] children){
+	public void addResult(IConstructor production, Link children){
 		result.addAlternative(production, children);
 	}
 	

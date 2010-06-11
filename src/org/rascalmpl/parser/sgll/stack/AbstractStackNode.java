@@ -3,8 +3,9 @@ package org.rascalmpl.parser.sgll.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.IntegerList;
+import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public abstract class AbstractStackNode{
 	protected final static int DEFAULT_LIST_EPSILON_ID = -1;
@@ -15,9 +16,8 @@ public abstract class AbstractStackNode{
 	protected final int id;
 	
 	protected int startLocation;
-	
-	protected ArrayList<INode[]> prefixes;
-	protected IntegerList prefixStartLocations;
+
+	protected LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap;
 	
 	// Last node specific stuff
 	private IConstructor parentProduction;
@@ -42,7 +42,7 @@ public abstract class AbstractStackNode{
 		parentProduction = original.parentProduction;
 	}
 	
-	protected AbstractStackNode(AbstractStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
+	protected AbstractStackNode(AbstractStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
 		super();
 		
 		id = original.id;
@@ -52,8 +52,7 @@ public abstract class AbstractStackNode{
 		
 		parentProduction = original.parentProduction;
 		
-		this.prefixes = prefixes;
-		this.prefixStartLocations = prefixStartLocations;
+		this.prefixesMap = prefixes;
 	}
 	
 	// General.
@@ -171,48 +170,31 @@ public abstract class AbstractStackNode{
 	public abstract AbstractStackNode[] getChildren();
 	
 	// Results.
-	public void addPrefix(INode[] prefix, int length){
-		if(prefixes == null){
-			prefixes = new ArrayList<INode[]>(1);
-			prefixStartLocations = new IntegerList(1);
+	public void addPrefix(Link prefix){
+		int prefixStartLocation = prefix.productionStart;
+		ArrayList<Link> prefixes;
+		if(prefixesMap == null){
+			prefixesMap = new LinearIntegerKeyedMap<ArrayList<Link>>();
+			prefixes = new ArrayList<Link>(1);
+			prefixesMap.add(prefixStartLocation, prefixes);
+		}else{
+			prefixes = prefixesMap.findValue(prefixStartLocation);
+			if(prefixes == null){
+				prefixes = new ArrayList<Link>(1);
+				prefixesMap.add(prefixStartLocation, prefixes);
+			}
 		}
 		
 		prefixes.add(prefix);
-		prefixStartLocations.add(length);
+	}
+	
+	public LinearIntegerKeyedMap<ArrayList<Link>> getPrefixesMap(){
+		return prefixesMap;
 	}
 	
 	public abstract void setResultStore(ContainerNode resultStore);
 	
-	public abstract void addResult(IConstructor production, INode[] children);
+	public abstract void addResult(IConstructor production, Link children);
 	
 	public abstract INode getResult();
-	
-	public INode[][] getResults(){
-		if(prefixes == null){
-			return new INode[][]{{getResult()}};
-		}
-		
-		int nrOfPrefixes = prefixes.size();
-		INode[][] results = new INode[nrOfPrefixes][];
-		INode thisResult = getResult();
-		for(int i = nrOfPrefixes - 1; i >= 0; i--){
-			INode[] prefix = prefixes.get(i);
-			int prefixLength = prefix.length;
-			INode[] result = new INode[prefixLength + 1];
-			System.arraycopy(prefix, 0, result, 0, prefixLength);
-			result[prefixLength] = thisResult;
-			
-			results[i] = result;
-		}
-		
-		return results;
-	}
-	
-	public int[] getResultStartLocations(){
-		if(prefixStartLocations == null){
-			return new int[]{startLocation};
-		}
-		
-		return prefixStartLocations.getBackingArray();
-	}
 }

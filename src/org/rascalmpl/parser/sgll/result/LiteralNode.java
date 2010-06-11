@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -23,7 +24,7 @@ public class LiteralNode implements INode{
 		this.content = content;
 	}
 	
-	public void addAlternative(IConstructor production, INode[] children){
+	public void addAlternative(IConstructor production, Link children){
 		throw new UnsupportedOperationException();
 	}
 	

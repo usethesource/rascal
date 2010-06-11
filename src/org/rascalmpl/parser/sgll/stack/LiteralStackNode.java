@@ -4,8 +4,9 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.IntegerList;
+import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class LiteralStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final IConstructor symbol;
@@ -31,8 +32,8 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 		result = original.result;
 	}
 	
-	private LiteralStackNode(LiteralStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
-		super(original, prefixes, prefixStartLocations);
+	private LiteralStackNode(LiteralStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+		super(original, prefixes);
 		
 		symbol = original.symbol;
 		literal = original.literal;
@@ -64,7 +65,7 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new LiteralStackNode(this, prefixes, prefixStartLocations);
+		return new LiteralStackNode(this, prefixesMap);
 	}
 	
 	public void setResultStore(ContainerNode resultStore){
@@ -79,7 +80,7 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(IConstructor production, INode[] children){
+	public void addResult(IConstructor production, Link children){
 		throw new UnsupportedOperationException();
 	}
 	

@@ -4,8 +4,9 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.CharNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.IntegerList;
+import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class CharStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final char[][] ranges;
@@ -24,8 +25,8 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		ranges = original.ranges;
 	}
 	
-	private CharStackNode(CharStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
-		super(original, prefixes, prefixStartLocations);
+	private CharStackNode(CharStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+		super(original, prefixes);
 		
 		ranges = original.ranges;
 	}
@@ -60,7 +61,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new CharStackNode(this, prefixes, prefixStartLocations);
+		return new CharStackNode(this, prefixesMap);
 	}
 	
 	public void setResultStore(ContainerNode resultStore){
@@ -75,7 +76,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(IConstructor production, INode[] children){
+	public void addResult(IConstructor production, Link children){
 		throw new UnsupportedOperationException();
 	}
 	

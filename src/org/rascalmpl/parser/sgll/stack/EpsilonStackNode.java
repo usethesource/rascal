@@ -4,8 +4,9 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.EpsilonNode;
 import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.IntegerList;
+import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class EpsilonStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final static EpsilonNode result = new EpsilonNode();
@@ -18,8 +19,8 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 		super(original);
 	}
 	
-	private EpsilonStackNode(EpsilonStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
-		super(original, prefixes, prefixStartLocations);
+	private EpsilonStackNode(EpsilonStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+		super(original, prefixes);
 	}
 	
 	public String getMethodName(){
@@ -43,7 +44,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new EpsilonStackNode(this, prefixes, prefixStartLocations);
+		return new EpsilonStackNode(this, prefixesMap);
 	}
 	
 	public void setResultStore(ContainerNode resultStore){
@@ -58,7 +59,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(IConstructor production, INode[] children){
+	public void addResult(IConstructor production, Link children){
 		throw new UnsupportedOperationException();
 	}
 	

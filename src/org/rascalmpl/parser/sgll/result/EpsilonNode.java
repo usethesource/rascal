@@ -3,6 +3,7 @@ package org.rascalmpl.parser.sgll.result;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -16,7 +17,7 @@ public class EpsilonNode implements INode{
 		super();
 	}
 	
-	public void addAlternative(IConstructor production, INode[] children){
+	public void addAlternative(IConstructor production, Link children){
 		throw new UnsupportedOperationException();
 	}
 	
