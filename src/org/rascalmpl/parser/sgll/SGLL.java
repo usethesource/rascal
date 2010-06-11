@@ -13,7 +13,7 @@ import org.rascalmpl.parser.sgll.util.DoubleArrayList;
 import org.rascalmpl.parser.sgll.util.HashSet;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerHashMap;
-import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyHashMap;
+import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
 
 public abstract class SGLL implements IGLL{
@@ -30,7 +30,7 @@ public abstract class SGLL implements IGLL{
 	private final ArrayList<AbstractStackNode> possiblySharedNextNodes;
 	private final IntegerHashMap<ArrayList<AbstractStackNode>> possiblySharedEdgeNodesMap;
 
-	private final ObjectIntegerKeyHashMap<IConstructor, ContainerNode> resultStoreCache;
+	private final ObjectIntegerKeyedHashMap<IConstructor, ContainerNode> resultStoreCache;
 	private final HashSet<AbstractStackNode> withResults;
 	
 	private int previousLocation;
@@ -52,7 +52,7 @@ public abstract class SGLL implements IGLL{
 		possiblySharedNextNodes = new ArrayList<AbstractStackNode>();
 		possiblySharedEdgeNodesMap = new IntegerHashMap<ArrayList<AbstractStackNode>>();
 		
-		resultStoreCache = new ObjectIntegerKeyHashMap<IConstructor, ContainerNode>();
+		resultStoreCache = new ObjectIntegerKeyedHashMap<IConstructor, ContainerNode>();
 		withResults = new HashSet<AbstractStackNode>();
 		
 		previousLocation = -1;
