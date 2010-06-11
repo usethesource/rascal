@@ -4,8 +4,9 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.IntegerList;
+import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final IConstructor symbol;
@@ -40,8 +41,8 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		ciLiteral = original.ciLiteral;
 	}
 	
-	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original, ArrayList<INode[]> prefixes, IntegerList prefixStartLocations){
-		super(original, prefixes, prefixStartLocations);
+	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+		super(original, prefixes);
 		
 		symbol = original.symbol;
 		ciLiteral = original.ciLiteral;
@@ -83,7 +84,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	}
 	
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new CaseInsensitiveLiteralStackNode(this, prefixes, prefixStartLocations);
+		return new CaseInsensitiveLiteralStackNode(this, prefixesMap);
 	}
 	
 	public void setResultStore(ContainerNode resultStore){
@@ -98,7 +99,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		throw new UnsupportedOperationException();
 	}
 	
-	public void addResult(IConstructor production, INode[] children){
+	public void addResult(IConstructor production, Link children){
 		throw new UnsupportedOperationException();
 	}
 	

@@ -5,7 +5,9 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.DoubleArrayList;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -14,22 +16,22 @@ public class ContainerNode implements INode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private IConstructor firstProduction;
-	private INode[] firstAlternative;
+	private Link firstAlternative;
 	private ArrayList<IConstructor> productions;
-	private ArrayList<INode[]> alternatives;
+	private ArrayList<Link> alternatives;
 	
 	public ContainerNode(){
 		super();
 	}
 	
-	public void addAlternative(IConstructor production, INode[] children){
+	public void addAlternative(IConstructor production, Link children){
 		if(firstAlternative == null){
 			firstProduction = production;
 			firstAlternative = children;
 		}else{
 			if(alternatives == null){
 				productions = new ArrayList<IConstructor>(1);
-				alternatives = new ArrayList<INode[]>(1);
+				alternatives = new ArrayList<Link>(1);
 			}
 			productions.add(production);
 			alternatives.add(children);
@@ -40,37 +42,38 @@ public class ContainerNode implements INode{
 		return false;
 	}
 	
-	private void printAlternative(IConstructor production, INode[] children, StringBuilder sb){
-		sb.append("appl(");
-		sb.append(production);
-		sb.append(',');
-		sb.append('[');
-		sb.append(children[0]);
-		for(int i = 1; i < children.length; i++){
-			sb.append(',');
-			sb.append(children[i]);
-		}
-		sb.append(']');
-		sb.append(')');
+	private void gatherAlternatives(Link child, DoubleArrayList<INode[], IConstructor> gatheredAlternatives, IConstructor production){
+		gatherProduction(child, new INode[]{child.node}, gatheredAlternatives, production);
 	}
 	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		if(alternatives == null){
-			printAlternative(firstProduction, firstAlternative, sb);
-		}else{
-			sb.append("amb({");
-			for(int i = alternatives.size() - 1; i >= 0; i--){
-				printAlternative(productions.get(i), alternatives.get(i), sb);
-				sb.append(',');
-			}
-			printAlternative(firstProduction, firstAlternative, sb);
-			sb.append('}');
-			sb.append(')');
+	private void gatherProduction(Link child, INode[] postFix, DoubleArrayList<INode[], IConstructor> gatheredAlternatives, IConstructor production){
+		ArrayList<Link> prefixes = child.prefixes;
+		if(prefixes == null){
+			gatheredAlternatives.add(postFix, production);
+			return;
 		}
 		
-		return sb.toString();
+		int nrOfPrefixes = prefixes.size();
+		if(nrOfPrefixes == 1){
+			Link prefix = prefixes.get(0);
+			
+			int length = postFix.length;
+			INode[] newPostFix = new INode[length + 1];
+			System.arraycopy(postFix, 0, newPostFix, 1, length);
+			newPostFix[0] = prefix.node;
+			gatherProduction(prefix, newPostFix, gatheredAlternatives, production);
+			return;
+		}
+		
+		for(int i = nrOfPrefixes - 1; i >= 0; i--){
+			Link prefix = prefixes.get(i);
+			
+			int length = postFix.length;
+			INode[] newPostFix = new INode[length + 1];
+			System.arraycopy(postFix, 0, newPostFix, 1, length);
+			newPostFix[0] = prefix.node;
+			gatherProduction(child.prefixes.get(i), newPostFix, gatheredAlternatives, production);
+		}
 	}
 	
 	private IValue buildAlternative(IConstructor production, INode[] children, IndexedStack<INode> stack, int depth){
@@ -93,14 +96,30 @@ public class ContainerNode implements INode{
 		
 		stack.push(this, depth); // Push.
 		
-		if(alternatives == null){
-			result = buildAlternative(firstProduction, firstAlternative, stack, childDepth);
+		// Gather
+		DoubleArrayList<INode[], IConstructor> gatheredAlternatives = new DoubleArrayList<INode[], IConstructor>();
+		gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction);
+		if(alternatives != null){
+			for(int i = alternatives.size() - 1; i >= 0; i--){
+				gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i));
+			}
+		}
+		
+		// Output.
+		
+		int nrOfAlternatives = gatheredAlternatives.size();
+		if(nrOfAlternatives == 1){
+			IConstructor production = gatheredAlternatives.getSecond(0);
+			INode[] alternative = gatheredAlternatives.getFirst(0);
+			result = buildAlternative(production, alternative, stack, childDepth);
 		}else{
 			ISetWriter ambListWriter = vf.setWriter(Factory.Tree);
-			for(int i = alternatives.size() - 1; i >= 0; i--){
-				ambListWriter.insert(buildAlternative(productions.get(i), alternatives.get(i), stack, childDepth));
+			
+			for(int i = nrOfAlternatives - 1; i >= 0; i--){
+				IConstructor production = gatheredAlternatives.getSecond(0);
+				INode[] alternative = gatheredAlternatives.getFirst(0);
+				ambListWriter.insert(buildAlternative(production, alternative, stack, childDepth));
 			}
-			ambListWriter.insert(buildAlternative(firstProduction, firstAlternative, stack, childDepth));
 			
 			result = vf.constructor(Factory.Tree_Amb, ambListWriter.done());
 		}
