@@ -29,3 +29,4 @@ data Symbol = intersection(Symbol lhs, Symbol rhs)
             | union(Symbol lhs, Symbol rhs)
             | difference(Symbol lhs, Symbol rhs)
             | complement(Symbol cc);
+            

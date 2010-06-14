@@ -79,7 +79,7 @@ public str attr2mod(Attr a) {
     case \assoc(\assoc()): return "assoc";
     case term("lex"()): return "lex";
     case term(t): return "<t>";
-    case bracket(): return "bracket";
+    case \bracket(): return "bracket";
     default: throw "missed a case <a>";
   }
 }
