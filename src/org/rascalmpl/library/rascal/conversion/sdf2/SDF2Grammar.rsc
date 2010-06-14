@@ -10,12 +10,15 @@ import IO;
 import String;
 import Integer;
 import ParseTree;
+import List;
 import rascal::parser::Grammar;
 import rascal::parser::Definition;
 import rascal::conversion::sdf2::Load;
 //import languages::sdf2::syntax::\Sdf2;
 //import languages::sdf2::syntax::\Sdf2-Syntax;
 import languages::sdf2::syntax::Sdf2ForRascal;
+
+//private bool debug = false;
 
 // Resolve name clashes between the ParseTree and Grammar datatypes.
 
@@ -42,12 +45,13 @@ public void print(Grammar G){
 }
 
 // test sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Pico.def|);
+// test print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Rascal.def|));
 
 public Grammar sdf2module2grammar(str name, list[loc] path) {
   return sdf2grammar(loadSDF2Module(name, path));
 }
 
-//loadSDF2Module("Names", [|stdlib:///org/rascalimpl/library/rascal/syntax/Names|]);
+//loadSDF2Module("Names", [|stdlib:///org/rascalimpl/library/rascal/syntax/Names.sdf|]);
 
 public Grammar sdf2grammar(SDF definition) {
   return grammar(getStartSymbols(definition), getProductions(definition));
@@ -112,7 +116,7 @@ public set[Production] getProductions(languages::sdf2::syntax::Sdf2ForRascal::Pr
 }
 
 public Production getProduction(languages::sdf2::syntax::Sdf2ForRascal::Production P, bool isLex) {
-  //ln("getProduction: <P>");
+  if(debug) println("getProduction: <P>");
   switch (P) {
     case (Production) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms> -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym>`:
     	return prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
@@ -146,7 +150,10 @@ test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left
                attrs([term(cons("decl")),\assoc(left())]));
                
 test getProduction((Production) `[\ \t\n\r]	-> LAYOUT {cons("whitespace")}`, true) == 
-     prod([\char-class([range(32,32),range(110,110),range(114,114),range(116,116)])],sort("L"),attrs([term(cons("whitespace"))]));
+     prod([\char-class([range(32,32),range(110,110),range(114,114),range(116,116)])],sort("LAYOUT"),attrs([term(cons("whitespace"))]));
+
+//test getProduction((Production) `{~[\n]* [\n]}* -> Rest`, true);
+
 
 // ----- getRestrictions, getRestriction -----
 
@@ -219,6 +226,7 @@ public set[Production] getPriorities({languages::sdf2::syntax::Sdf2ForRascal::Pr
 }
 
 public Production getPriority(languages::sdf2::syntax::Sdf2ForRascal::Group group, bool isLex) {
+	if(debug) println("getPriority: <group>");
 	switch (group) {
     case (Group) `<languages::sdf2::syntax::Sdf2ForRascal::Production p>` :   
       	return getProduction(p, isLex);
@@ -333,7 +341,7 @@ test getSymbols((Symbol*) `A B "ab"`, true) == [sort("A"), sort("B"), lit("ab")]
      
 
 public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbol sym, bool isLex) {
-  //println("getSymbol: <sym>");
+  if(debug) println("getSymbol: <sym>");
   switch (sym) {
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::StrCon l> : <languages::sdf2::syntax::Sdf2ForRascal::Symbol s>`:
 		return label(unescape(l), getSymbol(s,isLex));
@@ -354,13 +362,16 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbo
     	return cilit(unescape(l));  
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::Sort n>[[<{languages::sdf2::syntax::Sdf2ForRascal::Symbol ","}+ syms>]]`:
-    	return \parametrized-sort("<n>",separgs2symbols(syms,isLex));
+    	return \parameterized-sort("<n>",separgs2symbols(syms,isLex));
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> ?`:
     	return opt(getSymbol(s,isLex));
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::CharClass cc>`:
     	return getCharClass(cc);
+    	
+    case (Symbol) `( <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym> <languages::sdf2::syntax::Sdf2ForRascal::Symbol+ syms> )`:
+    	return \seq(getSymbols((Symbol*) `<sym> <syms>`, isLex));
   }  
   
   if (isLex) switch (sym) {
@@ -377,16 +388,16 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbo
     	return \iter(getSymbol(s,isLex));
     	
     case (Symbol) `{<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sep>} *`  :
-    	return \iter-star-seps(getSymbol(s,isLex), [lit(unescape(sep))]);
+    	return \iter-star-seps(getSymbol(s,isLex), [getSymbol(sep, isLex)]);
     	
     case (Symbol) `{<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sep>} +`  :
-    	return \iter-seps(getSymbol(s,isLex), [lit(unescape(sep))]);
+    	return \iter-seps(getSymbol(s,isLex), [getSymbol(sep, isLex)]);
     	
     case (Symbol) `{<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sep>} *?` :
-    	return \iter-star-seps(getSymbol(s,isLex), [lit(unescape(sep))]);
+    	return \iter-star-seps(getSymbol(s,isLex),  [getSymbol(sep, isLex)]);
     	
     case (Symbol) `{<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sep>} +?` :
-    	return \opt(\iter-sep(getSymbol(s,isLex), lit(unescape(sep))));
+    	return \opt(\iter-seps(getSymbol(s,isLex),  [getSymbol(sep, isLex)]));
     	
     default: throw "missed a case <sym>";
   } 
@@ -496,6 +507,7 @@ test unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
 // Do a deep match (/) to skip the chain function that syntactically includes both subtypes in Symbol.
 
 private str unescape(languages::sdf2::syntax::Sdf2ForRascal::Symbol s) {
+  if(debug) println("unescape: <s>");
   if(/languages::sdf2::syntax::Sdf2ForRascal::SingleQuotedStrCon scon := s)
   	return unescape(scon);
   if(/languages::sdf2::syntax::Sdf2ForRascal::StrCon scon := s)
@@ -506,6 +518,7 @@ private str unescape(languages::sdf2::syntax::Sdf2ForRascal::Symbol s) {
 // ----- getCharClas -----
 
 public Symbol getCharClass(languages::sdf2::syntax::Sdf2ForRascal::CharClass cc) {
+   if(debug) println("getCharClass: <cc>");
    switch(cc) {
      case (CharClass) `[]` :
      	return \char-class([]);
@@ -543,12 +556,14 @@ test getCharClass((CharClass) `~[a]`)       == complement(\char-class([range(97,
 test getCharClass((CharClass) `[a] /\ [b]`) == intersection(\char-class([range(97,97)]), \char-class([range(98,98)]));
 test getCharClass((CharClass) `[a] \/ [b]`) == union(\char-class([range(97,97)]), \char-class([range(98,98)]));
 test getCharClass((CharClass) `[a] / [b]`)  == difference(\char-class([range(97,97)]), \char-class([range(98,98)]));
+test getCharClass((CharClass) `[\n]`)       == \char-class([range(110,110)]);
 test getCharClass((CharClass) `~[\0-\31\n\t\"\\]`) ==
      complement(\char-class([range(0,25),range(34,34),range(92,92),range(110,110),range(116,116)]));
 
 // ----- getCharRange -----
       
-private CharRange getCharRange(languages::sdf2::syntax::Sdf2ForRascal::CharRange r) {
+public CharRange getCharRange(languages::sdf2::syntax::Sdf2ForRascal::CharRange r) {
+  if(debug) println("getCharRange: <r>");
   switch (r) {
     case (CharRange) `<Character c>` : return range(getCharacter(c),getCharacter(c));
     
@@ -562,9 +577,12 @@ test getCharRange((CharRange) `a`)   == range(97,97);
 
 test getCharRange((CharRange) `a-z`) == range(97,122);
 
+test getCharRange((CharRange) `\n`)  ==  range(110,110);
+
 // ----- getCharacter -----
 
 private int getCharacter(Character c) {
+  if(debug) println("getCharacter: <c>");
   switch (c) {
     case [Character] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
     
@@ -586,6 +604,7 @@ test getCharacter((Character) `\'`)   == charAt("\'", 0);
 test getCharacter((Character) `\1`)   == toInt("01");
 test getCharacter((Character) `\12`)  == toInt("012");
 test getCharacter((Character) `\123`) == toInt("0123");
+test getCharacter((Character) `\n`)   == 110;
 
 // ----- getAttributes, getAttribute, getAssociativity -----
 
@@ -606,6 +625,9 @@ public Attr getAttribute(languages::sdf2::syntax::Sdf2ForRascal::Attribute m) {
     case (Attribute) `cons(<StrCon c>)` :
     	return term("cons"(unescape(c)));
     	
+    case (Attribute) `memo`:
+    	return \memo();
+    	
     default: throw "missed a case <m>";
   }
 }
@@ -625,3 +647,6 @@ private Associativity getAssociativity(languages::sdf2::syntax::Sdf2ForRascal::A
  
 test getAssociativity((Associativity) `left`) == left();
 
+private list[Symbol] separgs2symbols({languages::sdf2::syntax::Sdf2ForRascal::Symbol ","}+ args, bool isLex) {
+  return [ getSymbol(s, isLex) | languages::sdf2::syntax::Sdf2ForRascal::Symbol s <- args ];
+}

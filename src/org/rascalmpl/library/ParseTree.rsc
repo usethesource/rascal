@@ -31,7 +31,7 @@ data Attr =
      \bracket() | \reject();
           
 @deprecrated{only supported by SDF2}
-data Attr = \prefer() | \avoid() | id(str moduleName) | memo();
+data Attr = \prefer() | \avoid() | id(str moduleName) | memo();  <== memo in use!
 
 data Associativity =
      \left() | \right() | \assoc() | \non-assoc();
@@ -69,9 +69,9 @@ data Symbol =
      \iter-star-sep(Symbol symbol, Symbol separator)  | 
      \alt(Symbol lhs, Symbol rhs)  |
      \tuple(Symbol head, list[Symbol] rest)  |
-     \seq(list[Symbol] symbols)  |
+     \seq(list[Symbol] symbols)  |                                // <=== stil used!
      \func(list[Symbol] symbols, Symbol symbol)  | 
-     \parameterized-sort(str sort, list[Symbol] parameters)  | 
+     \parameterized-sort(str sort, list[Symbol] parameters)  |   // <=== still used!
      \strategy(Symbol lhs, Symbol rhs)  |
      \var-sym(Symbol symbol) | 
      \iter-n(Symbol symbol, int number)  | 

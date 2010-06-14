@@ -356,8 +356,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		sdf.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new ArrayList<String>();
+
 //				result.add(new File("/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library").getAbsolutePath());
 				result.add(new File("/Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library").getAbsolutePath());
+				result.add(new File("/Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library").getAbsolutePath());
 				result.add(Configuration.getSdfLibraryPathProperty());
 				result.add(new File(System.getProperty("user.dir"), "src/org/rascalmpl/test/data").getAbsolutePath());
 				return result;
@@ -2376,11 +2378,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> variable = getCurrentEnvt().getVariable(name);
 
 		if (variable == null) {
-			throw new UndeclaredVariableError(name.toString(), name);
+			throw new UndeclaredVariableError(Names.fullName(name), name);
 		}
 
 		if (variable.getValue() == null) {
-			throw new UninitializedVariableError(name.toString(), name);
+			throw new UninitializedVariableError(Names.fullName(name), name);
 		}
 
 		return variable;
