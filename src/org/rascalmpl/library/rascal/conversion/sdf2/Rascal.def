@@ -288,9 +288,9 @@ imports languages/rascal/syntax/Expressions
 
 exports
 
-%%syntax
-%%  [\<] <LAYOUT? -CF> <Expression -CF> <LAYOUT? -CF> [\>]  -> <RegExp -LEX> {category("MetaVariable")}
-%%  [\<] <LAYOUT? -CF> <Expression -CF> <LAYOUT? -CF> [\>]  -> <StringCharacter -LEX> {category("MetaVariable")}
+syntax
+  [\<] <LAYOUT? -CF> <Expression -CF> <LAYOUT? -CF> [\>]  -> <RegExp -LEX> {category("MetaVariable")}
+  [\<] <LAYOUT? -CF> <Expression -CF> <LAYOUT? -CF> [\>]  -> <StringCharacter -LEX> {category("MetaVariable")}
 module languages/rascal/syntax/Types
 
 imports languages/rascal/syntax/Tags

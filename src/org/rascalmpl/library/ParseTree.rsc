@@ -31,7 +31,7 @@ data Attr =
      \bracket() | \reject();
           
 @deprecrated{only supported by SDF2}
-data Attr = \prefer() | \avoid() | id(str moduleName) | memo();  <== memo in use!
+data Attr = \prefer() | \avoid() | id(str moduleName) | memo();  // <== memo in use!
 
 data Associativity =
      \left() | \right() | \assoc() | \non-assoc();
