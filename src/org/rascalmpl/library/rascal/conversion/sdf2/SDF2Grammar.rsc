@@ -10,27 +10,29 @@ import IO;
 import String;
 import Integer;
 import ParseTree;
-import List;
+//import List;
 import rascal::parser::Grammar;
 import rascal::parser::Definition;
 import rascal::conversion::sdf2::Load;
+
 //import languages::sdf2::syntax::\Sdf2;
 //import languages::sdf2::syntax::\Sdf2-Syntax;
-import languages::sdf2::syntax::Sdf2ForRascal;
 
-//private bool debug = false;
+import languages::sdf2::syntax::Sdf2ForRascal;
 
 // Resolve name clashes between the ParseTree and Grammar datatypes.
 
 // Unfortunately we cannot yet use these aliases since they lead to ambiguities.
 // Reason: aliases are not resolved in concrete syntax fragments
 
-alias SDFSymbol = languages::sdf2::syntax::Sdf2ForRascal::Symbol;
-alias SDFProduction = languages::sdf2::syntax::Sdf2ForRascal::Production;
-alias SDFStrCon = languages::sdf2::syntax::Sdf2ForRascal::StrCon;
-alias SDFSingleQuotesStrCon = languages::sdf2::syntax::Sdf2ForRascal::SingleQuotedStrCon;
-alias SDFCharRange = languages::sdf2::syntax::Sdf2ForRascal::CharRange;
-alias SDFCharClass =languages::sdf2::syntax::Sdf2ForRascal::CharClass;
+//alias SDFSymbol = languages::sdf2::syntax::Sdf2ForRascal::Symbol;
+//alias SDFProduction = languages::sdf2::syntax::Sdf2ForRascal::Production;
+//alias SDFStrCon = languages::sdf2::syntax::Sdf2ForRascal::StrCon;
+//alias SDFSingleQuotesStrCon = languages::sdf2::syntax::Sdf2ForRascal::SingleQuotedStrCon;
+//alias SDFCharRange = languages::sdf2::syntax::Sdf2ForRascal::CharRange;
+//alias SDFCharClass =languages::sdf2::syntax::Sdf2ForRascal::CharClass;
+
+private bool debug = false;
 
 public Grammar sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
@@ -372,6 +374,16 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbo
     	
     case (Symbol) `( <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym> <languages::sdf2::syntax::Sdf2ForRascal::Symbol+ syms> )`:
     	return \seq(getSymbols((Symbol*) `<sym> <syms>`, isLex));
+    	
+    case (Symbol) `< <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym> -LEX >`:
+        return \lex(getSymbol(sym, isLex));
+        
+    case (Symbol) `< <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym> -CF >`:
+        return \cf(getSymbol(sym, isLex));
+       
+    case (Symbol) `< <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym> -VAR >`:
+        throw "-VAR symbols not supported: <sym>";
+       
   }  
   
   if (isLex) switch (sym) {
@@ -453,6 +465,9 @@ test getSymbol((Symbol) `{A "x"}*`, true) 		== \iter-star-seps(sort("A"),[lit("x
 test getSymbol((Symbol) `{A "x"}+`, true) 		== \iter-seps(sort("A"),[lit("x")]);
 test getSymbol((Symbol) `{A "x"}*?`, true) 		== opt(\iter-star-seps(sort("A"),[lit("x")]));
 test getSymbol((Symbol) `{A "x"}+?`, true) 		== opt(\iter-seps(sort("A"),[lit("x")]));
+
+//test getSymbol((Symbol) `<LAYOUT? -CF>`, true) ==
+//test getSymbol((Symbol) `<RegExp -LEX>`, true) ==
 
 // ----- unescape -----
 
