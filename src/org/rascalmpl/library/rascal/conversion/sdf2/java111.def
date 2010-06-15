@@ -1,0 +1,598 @@
+
+definition
+module languages/java/syntax/java111
+
+imports languages/java/syntax/Syntax
+
+
+module languages/java/syntax/Syntax
+
+imports languages/java/syntax/Main
+
+exports
+  sorts Top-sort
+
+  context-free syntax
+    CompilationUnits -> Top-sort {cons("CompilationUnits1")}
+module basic/Whitespace
+
+exports
+  lexical syntax
+    [\ \t\n\r]	-> LAYOUT {cons("whitespace")}
+
+  context-free restrictions
+    LAYOUT? -/- [\ \t\n\r]
+module languages/java/syntax/Lexical
+
+imports basic/Whitespace
+imports basic/NatCon
+
+exports 
+
+  sorts Identifier Literal NullLiteral StringLiteral
+        CharacterLiteral BooleanLiteral FloatingPointLiteral IntegerLiteral
+        OctalIntegerLiteral HexIntegerLiteral DecimalIntegerLiteral
+        StringCharacter EscapeSequence UnicodeEscape SingleCharacter
+	DecimalLongLiteral HexLongLiteral OctalLongLiteral LongLiteral
+	DoubleLiteral
+
+  context-free syntax
+    "@"NatCon 			-> Identifier {avoid}
+
+  lexical syntax
+    "\\" [u]+ [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] -> UnicodeEscape
+
+    "0" 			-> DecimalIntegerLiteral
+    [1-9] [0-9]* 		-> DecimalIntegerLiteral
+    [0] [xX] [0-9a-fA-F]+	-> HexIntegerLiteral
+    [0] [0-7]+	 		-> OctalIntegerLiteral
+
+    "0" [lL] 			-> DecimalLongLiteral
+    [1-9] [0-9]* [lL] 		-> DecimalLongLiteral
+    [0] [xX] [0-9a-fA-F]+ [lL] 	-> HexLongLiteral
+    [0] [0-7]+ [lL] 		-> OctalLongLiteral
+
+    [0-9]+ "." [0-9]* ( [eE] [\+\-]? [0-9]+ )? [fF] -> FloatingPointLiteral
+    "." [0-9]+ ( [eE] [\+\-]? [0-9]+ )? [fF] -> FloatingPointLiteral
+    [0-9]+ [eE] [\+\-]? [0-9]+ [fF] -> FloatingPointLiteral
+    [0-9]+ ( [eE] [\+\-]? [0-9]+ )? [fF] -> FloatingPointLiteral
+
+    [0-9]+ "." [0-9]* ( [eE] [\+\-]? [0-9]+ )? [dD]? -> DoubleLiteral
+    "." [0-9]+ ( [eE] [\+\-]? [0-9]+ )? [dD]? -> DoubleLiteral
+    [0-9]+ [eE] [\+\-]? [0-9]+ [dD]? -> DoubleLiteral
+    [0-9]+ ( [eE] [\+\-]? [0-9]+ )? [dD] -> DoubleLiteral
+
+    "true" -> BooleanLiteral
+    "false" -> BooleanLiteral
+    "null" -> NullLiteral
+    UnicodeEscape -> SingleCharacter
+    ~[\'\\] -> SingleCharacter
+    "'" SingleCharacter "'" -> CharacterLiteral
+    "\\" [btnfr\"\'\\] -> EscapeSequence
+    "\\" [0-7] -> EscapeSequence
+    "\\" [0-7] [0-7] -> EscapeSequence
+    "\\" [0-3] [0-7] [0-7] -> EscapeSequence
+    "'" EscapeSequence "'" -> CharacterLiteral
+    UnicodeEscape -> StringCharacter
+    ~[\"\\] -> StringCharacter
+    EscapeSequence -> StringCharacter
+    [A-Za-z\_\$] [A-Za-z0-9\_\$]* -> Identifier
+
+    "<init>" -> Identifier
+    "<static-init>" -> Identifier
+    "<default-package>" -> Identifier
+
+    "void" -> Identifier {reject}
+    "class" -> Identifier {reject}
+    "extends" -> Identifier {reject}
+    "implements" -> Identifier {reject}
+    "static" -> Identifier {reject}
+    "this" -> Identifier {reject}
+    "super" -> Identifier {reject}
+    "new" -> Identifier {reject}
+    "instanceof" -> Identifier {reject}
+    "interface" -> Identifier {reject}
+    "true" -> Identifier {reject}
+    "false" -> Identifier {reject}
+    "null" -> Identifier {reject}
+    "throws" -> Identifier {reject}
+    "public" -> Identifier {reject}
+    "protected" -> Identifier {reject}
+    "private" -> Identifier {reject}
+    "abstract" -> Identifier {reject}
+    "final" -> Identifier {reject}
+    "native" -> Identifier {reject}
+    "synchronized" -> Identifier {reject}
+    "transient" -> Identifier {reject}
+    "volatile" -> Identifier {reject}
+    "package" -> Identifier {reject}
+    "import" -> Identifier {reject}
+    "if" -> Identifier {reject}
+    "else" -> Identifier {reject}
+    "switch" -> Identifier {reject}
+    "case" -> Identifier {reject}
+    "default" -> Identifier {reject}
+    "while" -> Identifier {reject}
+    "do" -> Identifier {reject}
+    "for" -> Identifier {reject}
+    "break" -> Identifier {reject}
+    "continue" -> Identifier {reject}
+    "return" -> Identifier {reject}
+    "throw" -> Identifier {reject}
+    "try" -> Identifier {reject}
+    "catch" -> Identifier {reject}
+    "finally" -> Identifier {reject}
+
+
+    "boolean" -> Identifier {reject}
+    "byte" -> Identifier {reject}
+    "short" -> Identifier {reject}
+    "int" -> Identifier {reject}
+    "long" -> Identifier {reject}
+    "char" -> Identifier {reject}
+    "float" -> Identifier {reject}
+    "double" -> Identifier {reject}
+
+    "\"" StringCharacter* "\"" -> StringLiteral {cons("StringCharacter-s")}
+
+  lexical restrictions
+    "void" "class" "extends" "implements" "static" "this" "super" "new" "instanceof" "interface" "true" "false" "null" "throws" "public" "protected" "private" "abstract" "final" "native" "synchronized" "transient" "volatile" "package" "import" "if" "else" "switch" "case" "default" "while" "do" "for" "break" "continue" "return" "throw" "try" "catch" "finally" "boolean" "byte" "short" "int" "long" "char" "float" "double" "<init>" "<static-init>" "<default-package>" -/- [a-zA-Z0-9\_]
+    Identifier -/- [a-zA-Z0-9\_\$]
+    DecimalIntegerLiteral -/- [a-zA-Z0-9\_\.]
+    HexIntegerLiteral -/- [a-zA-Z0-9\_\.]
+    OctalIntegerLiteral -/- [a-zA-Z0-9\_\.]    
+    DecimalLongLiteral -/- [a-zA-Z0-9\_\.]
+    HexLongLiteral -/- [a-zA-Z0-9\_\.]
+    OctalLongLiteral -/- [a-zA-Z0-9\_\.]
+    FloatingPointLiteral -/- [a-zA-Z0-9\_\.]
+    DoubleLiteral -/- [a-zA-Z0-9\_\.]
+
+  context-free syntax
+    DecimalIntegerLiteral 	-> IntegerLiteral {prefer,cons("DecimalIntegerLiteral")}
+    HexIntegerLiteral 		-> IntegerLiteral {prefer,cons("HexIntegerLiteral")}
+    OctalIntegerLiteral 	-> IntegerLiteral {prefer,cons("OctalIntegerLiteral")}
+    IntegerLiteral 		-> Literal {prefer,cons("IntegerLiteral")}
+
+    DecimalLongLiteral 	-> LongLiteral {prefer,cons("DecimalLongLiteral")}
+    HexLongLiteral 	-> LongLiteral {prefer,cons("HexLongLiteral")}
+    OctalLongLiteral 	-> LongLiteral {prefer,cons("OctalLongLiteral")}
+    LongLiteral 	-> Literal {prefer,cons("LongLiteral")}
+
+    FloatingPointLiteral 	-> Literal {prefer,cons("FloatingPointLiteral")}
+    DoubleLiteral		-> Literal {prefer, cons("DoubleLiteral")}
+    BooleanLiteral 		-> Literal {prefer,cons("BooleanLiteral")}
+    CharacterLiteral 		-> Literal {prefer,cons("CharacterLiteral")}
+    StringLiteral 		-> Literal {prefer,cons("StringLiteral")}
+    NullLiteral 		-> Literal {prefer,cons("NullLiteral")}
+module languages/java/syntax/JavaTypes
+
+imports languages/java/syntax/Names
+
+exports
+  sorts ClassType InterfaceType ClassOrInterfaceType PrimitiveType ReferenceType Type ArrayType FloatingPointType IntegralType NumericType
+
+  context-free syntax
+    PrimitiveType -> Type {cons("PrimitiveType")}
+    ReferenceType -> Type {cons("ReferenceType")}
+    NumericType -> PrimitiveType {cons("NumericType")}
+    "boolean" -> PrimitiveType {cons("boolean")}
+    IntegralType -> NumericType {cons("IntegralType")}
+    FloatingPointType -> NumericType {cons("FloatingPointType")}
+    "byte" -> IntegralType {cons("byte")}
+    "short" -> IntegralType {cons("short")}
+    "int" -> IntegralType {cons("int")}
+    "long" -> IntegralType {cons("long")}
+    "char" -> IntegralType {cons("char")}
+    "float" -> FloatingPointType {cons("float")}
+    "double" -> FloatingPointType {cons("double")}
+    ClassOrInterfaceType -> ReferenceType {cons("ClassOrInterfaceType")}
+    ArrayType -> ReferenceType {cons("ArrayType")}
+    Name -> ClassOrInterfaceType {cons("Name")}
+    ClassOrInterfaceType -> ClassType {cons("ClassOrInterfaceType1")}
+    ClassOrInterfaceType -> InterfaceType {cons("ClassOrInterfaceType2")}
+    PrimitiveType "[" "]" -> ArrayType {cons("PrimitiveType1")}
+    Name "[" "]" -> ArrayType {cons("Name1")}
+    ArrayType "[" "]" -> ArrayType {cons("ArrayType1")}
+    Type "." "class" -> Name {cons("class")}
+module basic/NatCon
+
+exports
+
+sorts NatCon
+
+lexical syntax
+  
+ [0-9]+ -> NatCon {cons("digits")}
+
+lexical restrictions
+
+ NatCon -/- [0-9]
+module languages/java/syntax/ClassDecl
+
+imports languages/java/syntax/Statements 
+imports languages/java/syntax/MethodDecl 
+imports languages/java/syntax/Interfaces 
+imports languages/java/syntax/ConstructorDecl
+
+exports
+  sorts ClassBody ClassDeclaration Super Interfaces ClassBodyDeclaration ClassMemberDeclaration StaticInitializer
+
+  context-free syntax
+    Modifier* "class" Identifier Super? Interfaces? ClassBody -> ClassDeclaration {cons("class1")}
+    "extends" ClassType					      -> Super {cons("extends")}
+    "implements" {InterfaceType ","}+			      -> Interfaces {cons("implements-comma")}
+    "{" ClassBodyDeclaration* "}"			      -> ClassBody {cons("ClassBodyDeclaration-s")}
+    ClassMemberDeclaration				      -> ClassBodyDeclaration {cons("ClassMemberDeclaration")}
+    StaticInitializer					      -> ClassBodyDeclaration {cons("StaticInitializer")}
+    ConstructorDeclaration				      -> ClassBodyDeclaration {cons("ConstructorDeclaration")}
+    ";"							      -> ClassBodyDeclaration {cons("semicolon11")}
+    ClassDeclaration					      -> ClassBodyDeclaration {cons("ClassDeclaration1")}
+    FieldDeclaration					      -> ClassMemberDeclaration {cons("FieldDeclaration1")}
+    MethodDeclaration					      -> ClassMemberDeclaration {cons("MethodDeclaration")}
+    "static" Block					      -> StaticInitializer {cons("static1")}
+    InterfaceDeclaration				      -> ClassBodyDeclaration {cons("ClassDeclaration2")}
+    Block						      -> ClassMemberDeclaration {cons("BlockClassMember")}
+module languages/java/syntax/MethodDecl
+
+imports languages/java/syntax/JavaTypes
+imports languages/java/syntax/FieldDecl 
+imports languages/java/syntax/Statements 
+imports languages/java/syntax/Modifiers
+
+exports
+  sorts MethodDeclaration FormalParameter MethodHeader MethodDeclarator Throws MethodBody
+
+exports sorts MethodRes
+  context-free syntax
+    "void" -> MethodRes {cons("void")}
+    Type -> MethodRes {cons("type")}
+
+  context-free syntax
+    MethodHeader MethodBody -> MethodDeclaration {cons("MethodHeader-MethodBody")}
+    Modifier* MethodRes MethodDeclarator Throws? -> MethodHeader {cons("MethodHeader")}
+    Identifier "(" {FormalParameter ","}* ")" -> MethodDeclarator {cons("comma2")}
+    MethodDeclarator "[" "]" -> MethodDeclarator {cons("MethodDeclarator")}
+    Modifier* Type VariableDeclaratorId -> FormalParameter {cons("Type-VariableDeclaratorId")}
+    "throws" {ClassType ","}+ -> Throws {cons("throws-comma")}
+    Block -> MethodBody {cons("Block1")}
+    ";" -> MethodBody {cons("semicolon3")}
+module languages/java/syntax/FieldDecl
+
+imports languages/java/syntax/JavaTypes
+imports languages/java/syntax/Expressions 
+imports languages/java/syntax/Modifiers
+
+exports
+  sorts FieldDeclaration VariableDeclaratorId VariableDeclarator ArrayInitializer VariableInitializer
+
+  context-free syntax
+    Modifier* Type {VariableDeclarator ","}+ ";" -> FieldDeclaration {cons("comma-semicolon")}
+    VariableDeclaratorId -> VariableDeclarator {cons("VariableDeclaratorId")}
+    VariableDeclaratorId "=" VariableInitializer -> VariableDeclarator {cons("equal2")}
+    Identifier -> VariableDeclaratorId {cons("Identifier1")}
+    VariableDeclaratorId "[" "]" -> VariableDeclaratorId {cons("VariableDeclaratorId1")}
+    Expression -> VariableInitializer {cons("Expression")}
+    ArrayInitializer -> VariableInitializer {cons("ArrayInitializer")}
+    "{" {VariableInitializer ","}* ","? "}" -> ArrayInitializer {cons("comma-comma")}
+module languages/java/syntax/ConstructorDecl
+
+imports languages/java/syntax/Statements 
+imports languages/java/syntax/MethodDecl 
+imports languages/java/syntax/Modifiers
+
+exports
+  sorts ConstructorDeclaration ConstructorBody ExplicitConstructorInvocation ConstructorDeclarator
+
+  context-free syntax
+    Modifier* ConstructorDeclarator Throws? ConstructorBody -> ConstructorDeclaration {cons("Modifier-s-ConstructorDeclarator-Throws-opt-ConstructorBody")}
+    SimpleName "(" {FormalParameter ","}* ")" -> ConstructorDeclarator {cons("comma5")}
+    "{" ExplicitConstructorInvocation? BlockStatement* "}" -> ConstructorBody {cons("ExplicitConstructorInvocation-opt-BlockStatement-s")}
+    "this" "(" {Expression ","}* ")" ";" -> ExplicitConstructorInvocation {cons("this-comma-semicolon")}
+    "super" "(" {Expression ","}* ")" ";" -> ExplicitConstructorInvocation {cons("super-comma-semicolon")}
+module languages/java/syntax/Comment
+
+imports basic/Whitespace
+
+exports
+  sorts Asterisk Comment CommentChar
+
+  lexical syntax
+    "/*" CommentChar* "*/" -> Comment
+    ~[\*] -> CommentChar
+    Asterisk -> CommentChar
+    Comment -> LAYOUT
+    [\*] -> Asterisk
+    "//" ~[\n]* [\n] -> Comment
+
+  lexical restrictions
+    Asterisk -/- [\/]
+
+  context-free restrictions
+    LAYOUT? -/- [\/].[\/]
+    LAYOUT? -/- [\/].[\*]
+module languages/java/syntax/Expressions
+
+imports languages/java/syntax/JavaTypes
+imports languages/java/syntax/FieldDecl 
+imports languages/java/syntax/ClassDecl
+
+exports sorts Expression MethodInvocation StatementExpression Assignment Dim
+  AssignmentOperator LeftHandSide ArrayAccess FieldAccess Primary
+  PrimaryNoNewArray DimExpr DimExprInitialized ArrayCreationExpression
+  ClassInstanceCreationExpression
+
+  context-free syntax
+    PrimaryNoNewArray						    -> Primary {cons("PrimaryNoNewArray")}
+    ArrayCreationExpression					    -> Primary {cons("ArrayCreationExpression")}
+    Literal							    -> PrimaryNoNewArray {avoid,cons("Literal")}
+    "this"							    -> PrimaryNoNewArray {cons("this0")}
+    Name "." "this"						    -> PrimaryNoNewArray {cons("this1")}
+    "(" Expression ")"						    -> PrimaryNoNewArray {cons("Expression1")}
+    ClassInstanceCreationExpression				    -> PrimaryNoNewArray {cons("ClassInstanceCreationExpression1")}
+    FieldAccess							    -> PrimaryNoNewArray {cons("FieldAccess")}
+    MethodInvocation						    -> PrimaryNoNewArray {cons("MethodInvocation1")}
+    ArrayAccess							    -> PrimaryNoNewArray {cons("ArrayAccess")}
+    "new" ClassType "(" {Expression ","}* ")"			    -> ClassInstanceCreationExpression {cons("new-comma")}
+    "new" ClassType "(" {Expression ","}* ")" ClassBody		    -> ClassInstanceCreationExpression {cons("new-comma1")}
+    "new" PrimitiveType DimExpr+ Dim*				    -> ArrayCreationExpression {cons("new")}
+    "new" ClassOrInterfaceType DimExpr+ Dim*			    -> ArrayCreationExpression {cons("new1")}
+    "new" PrimitiveType DimExprInitialized+ ArrayInitializer	    -> ArrayCreationExpression {cons("new2")}
+    "new" ClassOrInterfaceType DimExprInitialized+ ArrayInitializer -> ArrayCreationExpression {cons("new3")}
+    "[" Expression? "]"						    -> DimExprInitialized {cons("Expression-opt")}
+    "[" Expression "]"						    -> DimExpr {cons("Expression2")}
+    "[" "]"							    -> Dim {cons("Dim-dunno-a_0")}
+    Name							    -> FieldAccess {avoid, cons("Name11")}
+    Primary "." Identifier					    -> FieldAccess {cons("Primary-Identifier")}
+    "super" "." Identifier					    -> FieldAccess {prefer, cons("super")}
+    Name "(" {Expression ","}* ")"				    -> MethodInvocation {avoid,cons("comma11")}
+    Primary "." Identifier "(" {Expression ","}* ")"		    -> MethodInvocation {cons("comma21")}
+    Primary "." ClassInstanceCreationExpression			    -> MethodInvocation {prefer,cons("MethodInvocationConstructor")}
+    "super" "." Identifier "(" {Expression ","}* ")"		    -> MethodInvocation {prefer,cons("super-comma")}
+    Name "[" Expression "]"					    -> ArrayAccess {cons("Name-Expression")}
+    PrimaryNoNewArray "[" Expression "]"			    -> ArrayAccess {prefer,cons("PrimaryNoNewArray-Expression")}
+    Primary							    -> Expression {prefer, cons("Primary")}
+    Expression "++"						    -> StatementExpression {prefer, cons("incr21")}
+    Expression "--"						    -> StatementExpression {prefer, cons("decr21")}
+    "+" Expression						    -> Expression {cons("plus")}
+    "-" Expression						    -> Expression {cons("minus")}
+    "++" Expression						    -> StatementExpression {prefer, cons("incr31")}
+    "--" Expression						    -> StatementExpression {prefer, cons("decr31")}
+    "~" Expression						    -> Expression {cons("tilde")}
+    "!" Expression						    -> Expression {cons("not")}
+    "(" PrimitiveType Dim* ")" Expression			    -> Expression {cons("PrimitiveType-Dim-s-Expression")}
+    "(" Type ")" Expression					    -> Expression {cons("Cast-Expression")}
+    "(" Name Dim+ ")" Expression				    -> Expression {cons("Name-Dim-p-Expression")}
+    Expression "*" Expression					    -> Expression {left, cons("times1")}
+    Expression "/" Expression					    -> Expression {left, cons("div1")}
+    Expression "%" Expression					    -> Expression {left, cons("mod-Expression11")}
+    Expression "+" Expression					    -> Expression {left, cons("plus-Expression11")}
+    Expression "-" Expression					    -> Expression {left, cons("minus-Expression11")}
+    Expression "<<" Expression					    -> Expression {left, cons("shift-left1")}
+    Expression ">>" Expression					    -> Expression {left, cons("shift-right1")}
+    Expression ">>>" Expression					    -> Expression {left, cons("Expression12")}
+    Expression "<" Expression					    -> Expression {left, cons("lt1")}
+    Expression ">" Expression					    -> Expression {left, cons("gt1")}
+    Expression "<=" Expression					    -> Expression {left, cons("le1")}
+    Expression ">=" Expression					    -> Expression {left, cons("ge1")}
+    Expression "instanceof" ReferenceType			    -> Expression {cons("instanceof")}
+    Expression "==" Expression					    -> Expression {left, cons("equal1")}
+    Expression "!=" Expression					    -> Expression {left, cons("not-equal1")}
+    Expression "&" Expression					    -> Expression {left, cons("address11")}
+    Expression "^" Expression					    -> Expression {left, cons("Expression-Expression31")}
+    Expression "|" Expression					    -> Expression {left, cons("bar11")}
+    Expression "&&" Expression					    -> Expression {left, cons("and11")}
+    Expression "||" Expression					    -> Expression {left, cons("or11")}
+    Expression "?" Expression ":" Expression			    -> Expression {prefer, cons("colon2")}
+    LeftHandSide AssignmentOperator Expression			    -> Assignment {cons("LeftHandSide-AssignmentOperator-Expression")}
+    FieldAccess							    -> LeftHandSide {cons("FieldAccess1")}
+    ArrayAccess							    -> LeftHandSide {cons("ArrayAccess1")}
+    "="								    -> AssignmentOperator {cons("equal1")}
+    "*="							    -> AssignmentOperator {cons("assignMul")}
+    "/="							    -> AssignmentOperator {cons("assignDiv")}
+    "%="							    -> AssignmentOperator {cons("assignMod")}
+    "+="							    -> AssignmentOperator {cons("assignPlus")}
+    "-="							    -> AssignmentOperator {cons("assignMin")}
+    "<<="							    -> AssignmentOperator {cons("assignSL")}
+    ">>="							    -> AssignmentOperator {cons("assignSR")}
+    ">>>="							    -> AssignmentOperator {cons("AssignmentOperator-dunno-b_0")}
+    "&="							    -> AssignmentOperator {cons("assignAnd")}
+    "^="							    -> AssignmentOperator {cons("assignExp")}
+    "|="							    -> AssignmentOperator {cons("assignOr")}
+    Assignment							    -> StatementExpression {cons("Assignment")}
+    StatementExpression						    -> Expression {cons("StatementExpression")}
+    Assignment							    -> Expression {cons("Assignment1")}
+
+  context-free priorities
+    "(" Type ")" Expression -> Expression {cons("Cast-Expression")} >
+    { Expression "++" -> StatementExpression {cons("incr21")}
+      Expression "--" -> StatementExpression {cons("decr21")} } >
+    { "++" Expression -> StatementExpression {cons("incr31")}
+      "--" Expression -> StatementExpression {cons("decr31")}
+      "+" Expression -> Expression {cons("plus")}
+      "-" Expression -> Expression {cons("minus")}
+      "~" Expression -> Expression {cons("tilde")}
+      "!" Expression -> Expression {cons("not")} } >
+    "(" PrimitiveType Dim* ")" Expression -> Expression {cons("PrimitiveType-Dim-s-Expression")} >
+    "(" Name Dim+ ")" Expression -> Expression {cons("Name-Dim-p-Expression")} >
+    Expression "*" Expression -> Expression {cons("times1")} >
+    Expression "/" Expression -> Expression {cons("div1")} >
+    Expression "%" Expression -> Expression {cons("mod-Expression11")} >
+    Expression "+" Expression -> Expression {cons("plus-Expression11")} >
+    Expression "-" Expression -> Expression {cons("minus-Expression11")} >
+    Expression "<<" Expression -> Expression {cons("shift-left1")} >
+    Expression ">>" Expression -> Expression {cons("shift-right1")} >
+    Expression ">>>" Expression -> Expression {cons("Expression12")} >
+    { Expression "<" Expression -> Expression {cons("lt1")}
+      Expression ">" Expression -> Expression {cons("gt1")}
+      Expression "<=" Expression -> Expression {cons("le1")}
+      Expression ">=" Expression -> Expression {cons("ge1")} } >
+    Expression "instanceof" ReferenceType -> Expression {cons("instanceof")} >
+    Expression "==" Expression -> Expression {cons("equal1")} >
+    Expression "!=" Expression -> Expression {cons("not-equal1")} >
+    Expression "&" Expression -> Expression {cons("address11")} >
+    Expression "^" Expression -> Expression {cons("Expression-Expression31")} >
+    Expression "|" Expression -> Expression {cons("bar11")} >
+    Expression "&&" Expression -> Expression {cons("and11")} >
+    Expression "||" Expression -> Expression {cons("or11")} >
+    Assignment -> Expression {cons("Assignment1")}
+module languages/java/syntax/Main
+
+imports languages/java/syntax/Java
+
+exports
+  sorts CompilationUnits
+
+exports
+  context-free syntax
+    CompilationUnit* -> CompilationUnits {cons("CompilationUnits")}
+module languages/java/syntax/Modifiers
+exports
+  sorts Modifier
+
+  context-free syntax
+    "public" -> Modifier {cons("public")}
+    "protected" -> Modifier {cons("protected")}
+    "private" -> Modifier {cons("private")}
+    "static" -> Modifier {cons("static")}
+    "abstract" -> Modifier {cons("abstract")}
+    "final" -> Modifier {cons("final")}
+    "native" -> Modifier {cons("native")}
+    "synchronized" -> Modifier {cons("synchronized1")}
+    "transient" -> Modifier {cons("transient")}
+    "volatile" -> Modifier {cons("volatile")}
+module languages/java/syntax/Java
+
+imports languages/java/syntax/ClassDecl 
+imports languages/java/syntax/ConstructorDecl 
+imports languages/java/syntax/FieldDecl 
+imports languages/java/syntax/MethodDecl 
+imports languages/java/syntax/Statements 
+imports languages/java/syntax/Comment
+
+exports
+  context-free start-symbols CompilationUnit
+
+  sorts CompilationUnit File TypeDeclaration TypeImportOnDemandDeclaration SingleTypeImportDeclaration ImportDeclaration PackageDeclaration FileHeader
+
+  lexical syntax
+    "FILE:" ~[\n]* "\n" -> FileHeader
+
+  context-free syntax
+    FileHeader CompilationUnit -> File {cons("file-with-header")}
+
+  context-free syntax
+    PackageDeclaration? ImportDeclaration* TypeDeclaration+ -> CompilationUnit {prefer,cons("PackageDeclaration-opt-ImportDeclaration-s-TypeDeclaration-s")}
+    "package" Name ";" -> PackageDeclaration {cons("package-semicolon")}
+    SingleTypeImportDeclaration -> ImportDeclaration {cons("SingleTypeImportDeclaration")}
+    TypeImportOnDemandDeclaration -> ImportDeclaration {cons("TypeImportOnDemandDeclaration")}
+    "import" Name ";" -> SingleTypeImportDeclaration {cons("import-semicolon")}
+    "import" Name "." "*" ";" -> TypeImportOnDemandDeclaration {cons("import-times-semicolon")}
+    ClassDeclaration -> TypeDeclaration {cons("ClassDeclaration11")}
+    InterfaceDeclaration -> TypeDeclaration {cons("InterfaceDeclaration")}
+    ";" -> TypeDeclaration {cons("semicolon5")}
+module languages/java/syntax/Interfaces
+
+imports languages/java/syntax/Modifiers 
+imports languages/java/syntax/MethodDecl
+
+exports
+  sorts InterfaceDeclaration ExtendsInterfaces InterfaceBody InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration
+
+  context-free syntax
+    Modifier* "interface" Identifier ExtendsInterfaces? InterfaceBody -> InterfaceDeclaration {cons("interface")}
+    "extends" {InterfaceType ","}+				      -> ExtendsInterfaces {cons("extends-comma")}
+    "{" InterfaceMemberDeclaration* "}"				      -> InterfaceBody {cons("InterfaceMemberDeclaration-s")}
+    ConstantDeclaration						      -> InterfaceMemberDeclaration {cons("ConstantDeclaration")}
+    AbstractMethodDeclaration					      -> InterfaceMemberDeclaration {cons("AbstractMethodDeclaration")}
+    InterfaceDeclaration					      -> InterfaceMemberDeclaration {cons("InnerInterfaceDeclaration")}
+    ClassDeclaration						      -> InterfaceMemberDeclaration {cons("InnerClassDeclaration")}
+    FieldDeclaration						      -> ConstantDeclaration {cons("FieldDeclaration")}
+    MethodHeader ";"						      -> AbstractMethodDeclaration {cons("semicolon4")}
+module languages/java/syntax/Statements
+
+imports languages/java/syntax/Expressions 
+imports languages/java/syntax/MethodDecl 
+imports languages/java/syntax/ClassDecl
+
+exports sorts Block BlockStatement Finally CatchClause TryStatement
+  SynchronizedStatement ThrowStatement ReturnStatement ContinueStatement
+  BreakStatement StatementExpressionList ForUpdate ForInit
+  LocalVariableDeclaration ForStatementNoShortIf StatementNoShortIf
+  ForStatement Statement DoStatement WhileStatementNoShortIf WhileStatement
+  SwitchLabel SwitchBlockStatementGroup SwitchBlock SwitchStatement
+  IfThenElseStatementNoShortIf IfThenElseStatement IfThenStatement
+  ExpressionStatement LabeledStatementNoShortIf LabeledStatement
+  EmptyStatement StatementWithoutTrailingSubstatement
+  LocalVariableDeclarationStatement AssertStatement
+
+  context-free syntax
+    "{" BlockStatement* "}"				            -> Block {cons("BlockStatement-s")}
+    Modifier* LocalVariableDeclarationStatement		            -> BlockStatement {cons("LocalVariableDeclarationStatement")}
+    Statement						            -> BlockStatement {cons("Statement")}
+    LocalVariableDeclaration ";"			            -> LocalVariableDeclarationStatement {cons("semicolon")}
+    Type {VariableDeclarator ","}+			            -> LocalVariableDeclaration {cons("comma")}
+    StatementWithoutTrailingSubstatement		            -> Statement {cons("StatementWithoutTrailingSubstatement")}
+    LabeledStatement					            -> Statement {cons("LabeledStatement")}
+    IfThenStatement					            -> Statement {cons("IfThenStatement")}
+    IfThenElseStatement					            -> Statement {cons("IfThenElseStatement")}
+    WhileStatement					            -> Statement {cons("WhileStatement")}
+    ForStatement					            -> Statement {cons("ForStatement")}
+    StatementWithoutTrailingSubstatement		            -> StatementNoShortIf {cons("StatementWithoutTrailingSubstatement1")}
+    LabeledStatementNoShortIf				            -> StatementNoShortIf {cons("LabeledStatementNoShortIf")}
+    IfThenElseStatementNoShortIf			            -> StatementNoShortIf {cons("IfThenElseStatementNoShortIf")}
+    WhileStatementNoShortIf				            -> StatementNoShortIf {cons("WhileStatementNoShortIf")}
+    ForStatementNoShortIf				            -> StatementNoShortIf {cons("ForStatementNoShortIf")}
+    Block						            -> StatementWithoutTrailingSubstatement {cons("Block")}
+    EmptyStatement					            -> StatementWithoutTrailingSubstatement {cons("EmptyStatement")}
+    ExpressionStatement					            -> StatementWithoutTrailingSubstatement {cons("ExpressionStatement")}
+    SwitchStatement					            -> StatementWithoutTrailingSubstatement {cons("SwitchStatement")}
+    DoStatement						            -> StatementWithoutTrailingSubstatement {cons("DoStatement")}
+    BreakStatement					            -> StatementWithoutTrailingSubstatement {cons("BreakStatement")}
+    ContinueStatement					            -> StatementWithoutTrailingSubstatement {cons("ContinueStatement")}
+    ReturnStatement					            -> StatementWithoutTrailingSubstatement {cons("ReturnStatement")}
+    SynchronizedStatement				            -> StatementWithoutTrailingSubstatement {cons("SynchronizedStatement")}
+    ThrowStatement					            -> StatementWithoutTrailingSubstatement {cons("ThrowStatement")}
+    TryStatement					            -> StatementWithoutTrailingSubstatement {cons("TryStatement")}
+    ";"							            -> EmptyStatement {cons("semicolon1")}
+    Identifier ":" Statement				            -> LabeledStatement {cons("colon")}
+    Identifier ":" StatementNoShortIf			            -> LabeledStatementNoShortIf {cons("colon1")}
+    StatementExpression ";"				            -> ExpressionStatement {cons("semicolon2")}
+    MethodInvocation						    -> StatementExpression {cons("MethodInvocation")}
+    ClassInstanceCreationExpression			            -> StatementExpression {cons("ClassInstanceCreationExpression")}
+    ClassDeclaration						    -> Statement {cons("ClassDeclaration")}
+    "if" "(" Expression ")" Statement				    -> IfThenStatement {cons("if")}
+    "if" "(" Expression ")" StatementNoShortIf "else" Statement	    -> IfThenElseStatement {cons("if-else")}
+    "switch" "(" Expression ")" SwitchBlock			    -> SwitchStatement {cons("switch")}
+    "{" SwitchBlockStatementGroup* SwitchLabel* "}"		    -> SwitchBlock {cons("SwitchBlockStatementGroup-s-SwitchLabel-s")}
+    SwitchLabel+ BlockStatement+				    -> SwitchBlockStatementGroup {cons("SwitchLabel-p-BlockStatement-p")}
+    "case" Expression ":"					    -> SwitchLabel {cons("case-colon")}
+    "default" ":"						    -> SwitchLabel {cons("default-colon")}
+    "while" "(" Expression ")" Statement			    -> WhileStatement {cons("while")}
+    "while" "(" Expression ")" StatementNoShortIf		    -> WhileStatementNoShortIf {cons("while1")}
+    "do" Statement "while" "(" Expression ")" ";"		    -> DoStatement {cons("do-while-semicolon")}
+    "for" "(" ForInit? ";" Expression? ";" ForUpdate? ")" Statement -> ForStatement {cons("for-semicolon-semicolon")}
+    StatementExpressionList					    -> ForInit {cons("StatementExpressionList")}
+    LocalVariableDeclaration					    -> ForInit {cons("LocalVariableDeclaration")}
+    StatementExpressionList					    -> ForUpdate {cons("StatementExpressionList1")}
+    {StatementExpression ","}+					    -> StatementExpressionList {cons("comma1")}
+    "break" Identifier? ";"					    -> BreakStatement {cons("break-semicolon")}
+    "continue" Identifier? ";"					    -> ContinueStatement {cons("continue-semicolon")}
+    "return" Expression? ";"					    -> ReturnStatement {cons("return-semicolon")}
+    "throw" Expression ";"					    -> ThrowStatement {cons("throw-semicolon")}
+    "synchronized" "(" Expression ")" Block			    -> SynchronizedStatement {cons("synchronized")}
+    "try" Block CatchClause+					    -> TryStatement {cons("try")}
+    "try" Block CatchClause* Finally				    -> TryStatement {cons("try1")}
+    "catch" "(" FormalParameter ")" Block			    -> CatchClause {cons("catch")}
+    "finally" Block						    -> Finally {cons("finally")}
+    AssertStatement						    -> Statement {cons("AssertStatement")}
+    "assert" Expression ";"					    -> AssertStatement {prefer, cons("assertWithExpression")}
+module languages/java/syntax/Names
+
+imports languages/java/syntax/Lexical
+
+exports
+  sorts SimpleName Name
+
+  context-free syntax
+    {Identifier "."}+  -> Name {avoid,cons("Identifier-p")}
+    Identifier         -> SimpleName {cons("Identifier")}

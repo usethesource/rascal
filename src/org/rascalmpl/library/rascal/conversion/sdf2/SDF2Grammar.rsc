@@ -48,6 +48,8 @@ public void print(Grammar G){
 
 // test sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Pico.def|);
 // test print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Rascal.def|));
+// test print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/java111.def|));
+// test print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/C.def|));
 
 public Grammar sdf2module2grammar(str name, list[loc] path) {
   return sdf2grammar(loadSDF2Module(name, path));
@@ -169,8 +171,8 @@ public set[Production] getRestriction(languages::sdf2::syntax::Sdf2ForRascal::Re
     	return {};
     	
     case (Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s1> <languages::sdf2::syntax::Sdf2ForRascal::Symbol s2> <languages::sdf2::syntax::Sdf2ForRascal::Symbol* rest> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>` : 
-      return getRestrictions((Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s1> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>`, isLex) 
-           + getRestrictions((Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s2> <languages::sdf2::syntax::Sdf2ForRascal::Symbol* rest> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>`, isLex);
+      return getRestriction((Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s1> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>`, isLex) 
+           + getRestriction((Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s2> <languages::sdf2::syntax::Sdf2ForRascal::Symbol* rest> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>`, isLex);
            
     case (Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s1> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>` :
       return {restrict(getSymbol(s1, isLex), others(getSymbol(s1, isLex)), r) | r <- getLookaheads(ls)};
@@ -314,14 +316,16 @@ public Symbol definedSymbol((&T <: Tree) v, bool isLex) {
 // ----- getStartSymbols -----
 
 public set[ParseTree::Symbol] getStartSymbols(SDF definition) {
+  result = {};
   visit(definition) {
     case (Grammar) `context-free start-symbols <languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms>` :
-    	return { getSymbol(sym, true) | sym <- syms };
+    	result += { getSymbol(sym, true) | sym <- syms };
     case (Grammar) `lexical start-symbols <languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms>`      :
-    	return { getSymbol(sym, true) | sym <- syms };
+    	result += { getSymbol(sym, true) | sym <- syms };
     case (Grammar) `start-symbols <languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms>`              :
-    	return { getSymbol(sym, true) | sym <- syms };
+    	result += { getSymbol(sym, true) | sym <- syms };
   }
+  return result;
 }
 
 test getStartSymbols((SDF) `definition module M exports context-free start-symbols A B C`) == 
