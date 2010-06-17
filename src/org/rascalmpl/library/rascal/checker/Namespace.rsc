@@ -117,8 +117,8 @@ private bool debug = true;
 // This is a hack -- this ensures the empty list is of type list[RType], not list[Void] or list[Value]
 list[RType] mkEmptyList() { return tail([makeVoidType()]); }
 
-// Same hack -- this ensures the empty list is of type list[ScopeItemId], not list[Void] or list[Value]
-list[ScopeItemId] mkEmptySIList() { return tail([3]); }
+// Same hack -- this ensures the empty list is of type list[STItemId], not list[Void] or list[Value]
+list[STItemId] mkEmptySIList() { return tail([3]); }
 
 public list[Import] getImports(Tree t) {
 	if ((Module) `<Header h> <Body b>` := t) {
@@ -291,7 +291,7 @@ public ScopeInfo addImportsToScope(QualifiedName qn, RSignature signature, loc l
 				// has already been type checked, so we don't look for overload conflicts within the import.
 				// If we find an overlap, just don't import the function into the top level scope; it is
 				// still available using a fully qualified name.
-				if (!willFunctionOverlap(fn,st,scopeInfo,scopeInfo.topScopeItemId)) {
+				if (!willFunctionOverlap(fn,st,scopeInfo,scopeInfo.topSTItemId)) {
 					if (debug) println("NAMESPACE: Adding top level scope item for Function signature item <prettyPrintName(fn)>");
 					scopeInfo = justScopeInfo(pushNewFunctionScopeAtTop(fn, getFunctionReturnType(st), [ <RSimpleName(""),t,at,at> | t <- getFunctionArgumentTypes(st) ], [ ], true, at, scopeInfo));
 					scopeInfo = popScope(scopeInfo);
@@ -306,7 +306,7 @@ public ScopeInfo addImportsToScope(QualifiedName qn, RSignature signature, loc l
 				if (debug) println("NAMESPACE: Adding module level scope item for Variable signature item <prettyPrintName(vn)>");
 				scopeInfo = justScopeInfo(addVariableToScope(vn, st, true, at, scopeInfo));
 
-				if (! (size(getItemsForName(scopeInfo, scopeInfo.topScopeItemId, vn)) > 0)) {
+				if (! (size(getItemsForName(scopeInfo, scopeInfo.topSTItemId, vn)) > 0)) {
 					if (debug) println("NAMESPACE: Adding top level scope item for Variable signature item <prettyPrintName(vn)>"); 
 					scopeInfo = justScopeInfo(addVariableToTopScope(vn, st, true, at, scopeInfo));
 				} 
@@ -318,14 +318,14 @@ public ScopeInfo addImportsToScope(QualifiedName qn, RSignature signature, loc l
 			case ConstructorSigItem(cn,RConstructorType(_,st,adttyp),at) : {
 				RName adtName = getADTName(adttyp);
 
-				set[ScopeItemId] possibleADTs = getTypeItemsForNameMB(scopeInfo, scopeInfo.currentScope, adtName);
+				set[STItemId] possibleADTs = getTypeItemsForNameMB(scopeInfo, scopeInfo.currentScope, adtName);
 				possibleADTs = { t | t <- possibleADTs, ADTItem(_,_,_,_) := scopeInfo.scopeItemMap[t] };
 				if (size(possibleADTs) == 0) throw "Error: Cannot find ADT <prettyPrintName(adtName)> to associate with constructor: <item>";
-				ScopeItemId adtItemId = getOneFrom(possibleADTs);
+				STItemId adtItemId = getOneFrom(possibleADTs);
 				if (debug) println("NAMESPACE: Adding module level scope item for Constructor signature item <prettyPrintName(cn)>");
 				scopeInfo = justScopeInfo(addConstructorToScope(cn, st, adtItemId, true, at, scopeInfo));
 
-				possibleADTs = getTypeItemsForName(scopeInfo, scopeInfo.topScopeItemId, adtName);
+				possibleADTs = getTypeItemsForName(scopeInfo, scopeInfo.topSTItemId, adtName);
 				possibleADTs = { t | t <- possibleADTs, ADTItem(_,_,_,_) := scopeInfo.scopeItemMap[t] };
 				if (size(possibleADTs) == 0) throw "Error: Cannot find ADT <prettyPrintName(adtName)> to associate with constructor: <item>";
 				adtItemId = getOneFrom(possibleADTs);
@@ -341,7 +341,7 @@ public ScopeInfo addImportsToScope(QualifiedName qn, RSignature signature, loc l
 			case AnnotationSigItem(an,st,ot,at) : {
 				scopeInfo = justScopeInfo(addAnnotationToScope(an, st, ot, true, at, scopeInfo)); 
 				
-				if (! size(getAnnotationItemsForName(scopeInfo, scopeInfo.topScopeItemId, an)) > 0) { 
+				if (! size(getAnnotationItemsForName(scopeInfo, scopeInfo.topSTItemId, an)) > 0) { 
 					scopeInfo = justScopeInfo(checkForDuplicateAnnotations(addAnnotationToTopScope(an, st, ot, true, at, scopeInfo),at));
 				} 
 			}
@@ -527,7 +527,7 @@ public ScopeInfo handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variabl
 				if (size(getItemsForNameMB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
 					scopeInfo = addScopeError(scopeInfo, n@\loc, "Duplicate declaration of name <n>");
 				} 
-				scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(convertName(n), convertType(t), isPublic(v), vb@\loc, scopeInfo),[<true,n@\loc>])); 
+				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), isPublic(v), vb@\loc, scopeInfo),[<true,n@\loc>])); 
 			}
 				
 			case `<Name n> = <Expression e>` : {
@@ -535,7 +535,7 @@ public ScopeInfo handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variabl
 				if (size(getItemsForNameMB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
 					scopeInfo = addScopeError(scopeInfo, n@\loc, "Duplicate declaration of name <n>"); 
 				}
-				scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(convertName(n), convertType(t), isPublic(v), vb@\loc, scopeInfo),[<true,n@\loc>])); 
+				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), isPublic(v), vb@\loc, scopeInfo),[<true,n@\loc>])); 
 			}
 		}
 	}
@@ -573,7 +573,7 @@ public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
 		ResultTuple rt = pushNewFunctionScope(convertName(n), retType, params, thrsTypes, isPublic, l, scopeInfo);
 
 		// Add uses and get back the final scope info, checking for overlaps
-		scopeInfo = justScopeInfo(checkFunctionOverlap(addScopeItemUses(rt,([<false,l>, <true,n@\loc>] + [<true,p.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] p <- params])),n@\loc));
+		scopeInfo = justScopeInfo(checkFunctionOverlap(addSTItemUses(rt,([<false,l>, <true,n@\loc>] + [<true,p.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] p <- params])),n@\loc));
 
 		// Pop the new scope and exit
 		return popScope(scopeInfo);
@@ -730,7 +730,7 @@ public ScopeInfo handleTest(Test t, loc l, ScopeInfo scopeInfo) {
 public ScopeInfo handleAbstractADTNamesOnly(Tags ts, Visibility v, UserType adtType, loc l, ScopeInfo scopeInfo) {
 	if (debug) println("NAMESPACE: Found Abstract ADT: <adtType>");
 	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
-	scopeInfo = justScopeInfo(addScopeItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, scopeInfo),[<true,getUserTypeRawName(adtType)@\loc>]));
+	scopeInfo = justScopeInfo(addSTItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, scopeInfo),[<true,getUserTypeRawName(adtType)@\loc>]));
 	return scopeInfo;
 }
 
@@ -750,16 +750,16 @@ public ScopeInfo handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc 
 public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeInfo scopeInfo) {
 	if (debug) println("NAMESPACE: Found ADT: <adtType>");
 	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
-	ResultTuple rt = addScopeItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, scopeInfo),[<true,getUserTypeRawName(adtType)@\loc>]);
-	ScopeItemId adtId = head(rt.addedItems);
+	ResultTuple rt = addSTItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, scopeInfo),[<true,getUserTypeRawName(adtType)@\loc>]);
+	STItemId adtId = head(rt.addedItems);
 	scopeInfo = justScopeInfo(rt);
 
 	// Process each given variant, adding it into scope and saving the generated id	
-	set[ScopeItemId] variantSet = { };
+	set[STItemId] variantSet = { };
 	for (var <- vars) {
 		if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
-			ResultTuple rt2 = checkConstructorOverlap(addScopeItemUses(addConstructorToScope(convertName(n), [ convertTypeArg(targ) | targ <- args ], adtId, true, l, scopeInfo),[<true,n@\loc>]),n@\loc);
-			ScopeItemId variantId = head(rt2.addedItems);
+			ResultTuple rt2 = checkConstructorOverlap(addSTItemUses(addConstructorToScope(convertName(n), [ convertTypeArg(targ) | targ <- args ], adtId, true, l, scopeInfo),[<true,n@\loc>]),n@\loc);
+			STItemId variantId = head(rt2.addedItems);
 			scopeInfo = justScopeInfo(rt2);
 			variantSet += variantId; 			
 		}
@@ -789,7 +789,7 @@ public ScopeInfo handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType,
 
 	Name aliasRawName = getUserTypeRawName(aliasType);
 	RName aliasName = convertName(aliasRawName);
-	scopeInfo = justScopeInfo(checkForDuplicateAliases(addScopeItemUses(addAliasToScope(convertType(aliasType), convertType(aliasedType), isPublic(v), l, scopeInfo),[<true,aliasRawName@\loc>]),aliasRawName@\loc));
+	scopeInfo = justScopeInfo(checkForDuplicateAliases(addSTItemUses(addAliasToScope(convertType(aliasType), convertType(aliasedType), isPublic(v), l, scopeInfo),[<true,aliasRawName@\loc>]),aliasRawName@\loc));
 	return scopeInfo;
 }
 
@@ -1440,13 +1440,13 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				// First, push a scope for the left-hand side of the or and evaluate
 				// the expression there
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope1 = scopeInfo.currentScope;
+				STItemId orScope1 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e1, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
 				// Now, do the same for the right-hand side.
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope2 = scopeInfo.currentScope;
+				STItemId orScope2 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e2, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
@@ -1458,13 +1458,13 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				// First, push a scope for the left-hand side of the or and evaluate
 				// the expression there
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope1 = scopeInfo.currentScope;
+				STItemId orScope1 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e1, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
 				// Now, do the same for the right-hand side.
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope2 = scopeInfo.currentScope;
+				STItemId orScope2 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e2, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
@@ -1483,13 +1483,13 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				// First, push a scope for the left-hand side of the or and evaluate
 				// the expression there
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope1 = scopeInfo.currentScope;
+				STItemId orScope1 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e1, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
 				// Now, do the same for the right-hand side.
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope2 = scopeInfo.currentScope;
+				STItemId orScope2 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e2, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
@@ -1501,13 +1501,13 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				// First, push a scope for the left-hand side of the or and evaluate
 				// the expression there
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope1 = scopeInfo.currentScope;
+				STItemId orScope1 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e1, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
 				// Now, do the same for the right-hand side.
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope2 = scopeInfo.currentScope;
+				STItemId orScope2 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e2, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
@@ -1539,13 +1539,13 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				// First, push a scope for the left-hand side of the or and evaluate
 				// the expression there
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope1 = scopeInfo.currentScope;
+				STItemId orScope1 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e1, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
 				// Now, do the same for the right-hand side.
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope2 = scopeInfo.currentScope;
+				STItemId orScope2 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e2, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
@@ -1557,13 +1557,13 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 				// First, push a scope for the left-hand side of the or and evaluate
 				// the expression there
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope1 = scopeInfo.currentScope;
+				STItemId orScope1 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e1, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
 				// Now, do the same for the right-hand side.
 				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				ScopeItemId orScope2 = scopeInfo.currentScope;
+				STItemId orScope2 = scopeInfo.currentScope;
 				scopeInfo = handleExpression(e2, scopeInfo);
 				scopeInfo = popScope(scopeInfo);
 
@@ -1797,7 +1797,7 @@ public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scope
 					if (debug) println("NAMESPACE: Illegal redefinition of <n>");
 				} 
 
-				scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(convertName(n), convertType(t), true, vb@\loc, scopeInfo), [<true,n@\loc>])); 
+				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), true, vb@\loc, scopeInfo), [<true,n@\loc>])); 
 				if (debug) println("NAMESPACE: Added variable <n> with type <prettyPrintType(convertType(t))>");
 			}
 				
@@ -1808,7 +1808,7 @@ public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scope
 					if (debug) println("NAMESPACE: Illegal redefinition of <n>");
 				} 
 
-				scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(convertName(n), convertType(t), true, vb@\loc, scopeInfo), [<true,n@\loc>])); 
+				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), true, vb@\loc, scopeInfo), [<true,n@\loc>])); 
 				scopeInfo = handleExpression(e, scopeInfo);
 				if (debug) println("NAMESPACE: Added variable <n> with type <prettyPrintType(convertType(t))>");
 			}
@@ -1842,7 +1842,7 @@ public ScopeInfo handleCatch(Catch c, ScopeInfo scopeInfo) {
 public ScopeInfo handleLabel(Label l, ScopeInfo scopeInfo) {
 	if ((Label)`<Name n> :` := l) {
 		// First, check to see if this label already exists
-		set[ScopeItemId] ls = getLabelItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n));
+		set[STItemId] ls = getLabelItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n));
 		if (size(ls) > 0) {		
 			scopeInfo = addScopeError(scopeInfo, n@\loc, "Label <n> has already been defined.");
 		}
@@ -1872,7 +1872,7 @@ public ScopeInfo addFreshVariable(RName n, loc nloc, ScopeInfo scopeInfo) {
 	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
 	if (RSimpleName("it") := n) scopeInfo.itBinder[nloc] = freshType;
 	scopeInfo.freshType = scopeInfo.freshType + 1;
-	scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(n, freshType, false, nloc, scopeInfo), [<true,nloc>]));
+	scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(n, freshType, false, nloc, scopeInfo), [<true,nloc>]));
 	return scopeInfo;
 }
 
@@ -1880,7 +1880,7 @@ public ScopeInfo addFreshAnonymousVariable(loc nloc, ScopeInfo scopeInfo) {
 	RType freshType = makeInferredType(scopeInfo.freshType);
 	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
 	scopeInfo.freshType = scopeInfo.freshType + 1;
-	scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(RSimpleName("_"), freshType, false, nloc, scopeInfo), [<true,nloc>]));
+	scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(RSimpleName("_"), freshType, false, nloc, scopeInfo), [<true,nloc>]));
 	return scopeInfo;
 }
 
@@ -1888,7 +1888,7 @@ public ScopeInfo addFreshContainerVariable(RName n, loc nloc, ScopeInfo scopeInf
 	RType freshType = makeContainerType(makeInferredType(scopeInfo.freshType));
 	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
 	scopeInfo.freshType = scopeInfo.freshType + 1;
-	scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(n, freshType, false, nloc, scopeInfo), [<true,nloc>]));
+	scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(n, freshType, false, nloc, scopeInfo), [<true,nloc>]));
 	return scopeInfo;
 }
 
@@ -2009,7 +2009,7 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
 				scopeInfo = addScopeError(scopeInfo, pat@\loc, "Illegal shadowing of already declared name: <n>");
 			} else {
-				scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(convertName(n), convertType(t), pat@\loc, scopeInfo), [<true,n@\loc>]));
+				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), pat@\loc, scopeInfo), [<true,n@\loc>]));
 				if (debug) println("NAMESPACE: Adding new declaration for <n>");
 			}
 		}
@@ -2051,7 +2051,7 @@ public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
 			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
 				scopeInfo = addScopeError(scopeInfo, pat@\loc, "Illegal shadowing of already declared name: <n>");
 			} else {
-				scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(convertName(n), convertType(t), pat@\loc, scopeInfo), [<true,n@\loc>]));
+				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), pat@\loc, scopeInfo), [<true,n@\loc>]));
 				if (debug) println("NAMESPACE: Adding new declaration for <n>");
 			}
 			scopeInfo = handlePattern(p, scopeInfo);
@@ -2104,7 +2104,7 @@ public ScopeInfo handlePatternWithAction(PatternWithAction pwa, ScopeInfo scopeI
 
 public ScopeInfo handleTarget(DataTarget dt, ScopeInfo scopeInfo) {
 	if ((DataTarget)`<Name n> :` := dt) {
-		set[ScopeItemId] items = getLabelItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n));
+		set[STItemId] items = getLabelItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n));
 		if (size(items) == 1) {
 			scopeInfo = addItemUses(scopeInfo, items, n@\loc);
 		} else if (size(items) == 0) {
@@ -2124,7 +2124,7 @@ public bool hasRType(ScopeInfo scopeInfo, loc l) {
 }
 
 public RType getRType(ScopeInfo scopeInfo, loc l) {
-	set[ScopeItemId] items = (l in scopeInfo.itemUses) ? scopeInfo.itemUses[l] : { };
+	set[STItemId] items = (l in scopeInfo.itemUses) ? scopeInfo.itemUses[l] : { };
 	set[str] scopeErrors = (l in scopeInfo.scopeErrorMap) ? scopeInfo.scopeErrorMap[l] : { };
 	
 	if (size(scopeErrors) == 0) {
@@ -2132,7 +2132,7 @@ public RType getRType(ScopeInfo scopeInfo, loc l) {
 			// TODO: Should be an exception
 			return makeVoidType();
 		} else if (size(items) == 1) {
-			ScopeItemId anid = getOneFrom(items);
+			STItemId anid = getOneFrom(items);
 			return getTypeForItem(scopeInfo, getOneFrom(items));
 		} else {
 			return ROverloadedType({ getTypeForItem(scopeInfo, sii) | sii <- items });

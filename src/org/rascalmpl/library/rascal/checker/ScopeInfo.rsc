@@ -11,36 +11,36 @@ import Relation;
 import Map;
 
 // Unique identifiers for scope items
-alias ScopeItemId = int;
+alias STItemId = int;
 
 // Items representing identifiable parts of scope, including layers (modules, functions,
 // blocks) and items (functions, variables, formal parameters, labels).
-data ScopeItem =
+data STItem =
       TopLayer()
-	| ModuleLayer(ScopeItemId itemId, ScopeItemId parentId)
-	| FunctionLayer(ScopeItemId itemId, ScopeItemId parentId)
-	| PatternMatchLayer(ScopeItemId parentId)
-	| BooleanExpLayer(ScopeItemId parentId)
-	| OrLayer(ScopeItemId parentId)
-	| ClosureLayer(ScopeItemId itemId, ScopeItemId parentId)
-	| VoidClosureLayer(ScopeItemId itemId, ScopeItemId parentId)
-	| BlockLayer(ScopeItemId parentId)
+	| ModuleLayer(STItemId itemId, STItemId parentId)
+	| FunctionLayer(STItemId itemId, STItemId parentId)
+	| PatternMatchLayer(STItemId parentId)
+	| BooleanExpLayer(STItemId parentId)
+	| OrLayer(STItemId parentId)
+	| ClosureLayer(STItemId itemId, STItemId parentId)
+	| VoidClosureLayer(STItemId itemId, STItemId parentId)
+	| BlockLayer(STItemId parentId)
 
-	| ModuleItem(RName moduleName, ScopeItemId parentId)
-	| FunctionItem(RName functionName, RType returnType, list[ScopeItemId] parameters, list[RType] throwsTypes, bool isPublic, ScopeItemId parentId)
-	| ClosureItem(RType returnType, list[ScopeItemId] parameters, ScopeItemId parentId)
-	| VoidClosureItem(list[ScopeItemId] parameters, ScopeItemId parentId)
-	| VariableItem(RName variableName, RType variableType, ScopeItemId parentId)
-	| FormalParameterItem(RName parameterName, RType parameterType, ScopeItemId parentId)
-	| LabelItem(RName labelName, ScopeItemId parentId)
-	| AliasItem(RType aliasType, RType aliasedType, bool isPublic, ScopeItemId parentId)
-	| ConstructorItem(RName constructorName, list[RNamedType] constructorArgs, ScopeItemId adtParentId, ScopeItemId parentId)
-	| ADTItem(RType adtType, set[ScopeItemId] variants, bool isPublic, ScopeItemId parentId) 
-	| AnnotationItem(RName annotationName, RType annoType, RType onType, bool isPublic, ScopeItemId parentId) 
-	| RuleItem(RName ruleName, ScopeItemId parentId)
+	| ModuleItem(RName moduleName, STItemId parentId)
+	| FunctionItem(RName functionName, RType returnType, list[STItemId] parameters, list[RType] throwsTypes, bool isPublic, STItemId parentId)
+	| ClosureItem(RType returnType, list[STItemId] parameters, STItemId parentId)
+	| VoidClosureItem(list[STItemId] parameters, STItemId parentId)
+	| VariableItem(RName variableName, RType variableType, STItemId parentId)
+	| FormalParameterItem(RName parameterName, RType parameterType, STItemId parentId)
+	| LabelItem(RName labelName, STItemId parentId)
+	| AliasItem(RType aliasType, RType aliasedType, bool isPublic, STItemId parentId)
+	| ConstructorItem(RName constructorName, list[RNamedType] constructorArgs, STItemId adtParentId, STItemId parentId)
+	| ADTItem(RType adtType, set[STItemId] variants, bool isPublic, STItemId parentId) 
+	| AnnotationItem(RName annotationName, RType annoType, RType onType, bool isPublic, STItemId parentId) 
+	| RuleItem(RName ruleName, STItemId parentId)
 ;
 
-public bool isLayer(ScopeItem si) {
+public bool isLayer(STItem si) {
 	switch(si) {
 		case TopLayer() : return true;
 		case ModuleLayer(_,_) : return true;
@@ -55,11 +55,11 @@ public bool isLayer(ScopeItem si) {
 	}
 }
 
-public bool isItem(ScopeItem si) {
+public bool isItem(STItem si) {
 	return !isLayer(si);
 }
 				
-anno loc ScopeItem@at;
+anno loc STItem@at;
 
 data Namespace =
 	  ModuleName()
@@ -71,23 +71,23 @@ data Namespace =
 	| TagName()
 ;
 
-alias ScopeRel = rel[ScopeItemId scopeId, ScopeItemId itemId];
-alias ItemUses = map[loc useLoc, set[ScopeItemId] usedItems];
-alias ScopeItemMap = map[ScopeItemId,ScopeItem];
-alias ItemLocationRel = rel[loc,ScopeItemId];
+alias ScopeRel = rel[STItemId scopeId, STItemId itemId];
+alias ItemUses = map[loc useLoc, set[STItemId] usedItems];
+alias STItemMap = map[STItemId,STItem];
+alias ItemLocationRel = rel[loc,STItemId];
 
-// TODO: Should be able to use ScopeItemMap here, but if I try it doesn't work, something must be
+// TODO: Should be able to use STItemMap here, but if I try it doesn't work, something must be
 // wrong with the current alias expansion algorithm; this is the same with ItemLocationMap as well
 // for itemLocations...
-alias ScopeInfo = tuple[ScopeItemId topScopeItemId, rel[ScopeItemId scopeId, ScopeItemId itemId] scopeRel, 
-						ItemUses itemUses, ScopeItemId nextScopeId, map[ScopeItemId, ScopeItem] scopeItemMap, 
-                        rel[loc, ScopeItemId] itemLocations, ScopeItemId currentScope, int freshType,
+alias ScopeInfo = tuple[STItemId topSTItemId, rel[STItemId scopeId, STItemId itemId] scopeRel, 
+						ItemUses itemUses, STItemId nextScopeId, map[STItemId, STItem] scopeItemMap, 
+                        rel[loc, STItemId] itemLocations, STItemId currentScope, int freshType,
                         map[loc, set[str]] scopeErrorMap, map[int, RType] inferredTypeMap, map[loc, RType] returnTypeMap,
-						map[loc, RType] itBinder, list[ScopeItemId] scopeStack, 
-						map[RName adtName, tuple[set[ScopeItemId] adtItems, set[ScopeItemId] consItems] adtInfo] adtMap];
+						map[loc, RType] itBinder, list[STItemId] scopeStack, 
+						map[RName adtName, tuple[set[STItemId] adtItems, set[STItemId] consItems] adtInfo] adtMap];
 
-alias AddedItemPair = tuple[ScopeInfo scopeInfo, ScopeItemId addedId];
-alias ScopeUpdatePair = tuple[ScopeInfo scopeInfo, ScopeItemId oldScopeId];
+alias AddedItemPair = tuple[ScopeInfo scopeInfo, STItemId addedId];
+alias ScopeUpdatePair = tuple[ScopeInfo scopeInfo, STItemId oldScopeId];
                         
 public ScopeInfo createNewScopeInfo() {
 	return < -1, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), [ ], ( )>;
@@ -98,11 +98,11 @@ public ScopeInfo createNewScopeInfo() {
 // TODO: How strict should we be with the types here? It is probably wise to "join" any
 // inferred types somehow, otherwise we can leave them for the typechecker to sort out, but
 // if they are inferred this could lead to some odd circumstances.
-public ScopeInfo mergeOrLayers(ScopeInfo scopeInfo, list[ScopeItemId] orLayers, ScopeItemId intoLayer) {
-	set[ScopeItemId] introducedItems = { vi | vi <- scopeInfo.scopeRel[head(orLayers)], VariableItem(vn,vt,_) := scopeInfo.scopeItemMap[vi] };
+public ScopeInfo mergeOrLayers(ScopeInfo scopeInfo, list[STItemId] orLayers, STItemId intoLayer) {
+	set[STItemId] introducedItems = { vi | vi <- scopeInfo.scopeRel[head(orLayers)], VariableItem(vn,vt,_) := scopeInfo.scopeItemMap[vi] };
 	println("Introduced items numbered <introducedItems>");
 	for (oritem <- tail(orLayers)) {
-		set[ScopeItemId] sharedItems = { };
+		set[STItemId] sharedItems = { };
 		for (li <- introducedItems, ri <- scopeInfo.scopeRel[oritem], 
 			 VariableItem(vn,_,_) := scopeInfo.scopeItemMap[li], VariableItem(vn,_,_) := scopeInfo.scopeItemMap[ri]) {
 			sharedItems += li;
@@ -116,7 +116,7 @@ public ScopeInfo mergeOrLayers(ScopeInfo scopeInfo, list[ScopeItemId] orLayers, 
 	scopeInfo = pushScope(intoLayer, scopeInfo);
 	for (oritem <- introducedItems)
 		if(VariableItem(vn,vt,_) := scopeInfo.scopeItemMap[oritem])
-			scopeInfo = justScopeInfo(addScopeItemUses(addVariableToScope(vn, vt, false, scopeInfo.scopeItemMap[oritem]@at, scopeInfo),[<true,scopeInfo.scopeItemMap[oritem]@at>]));
+			scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(vn, vt, false, scopeInfo.scopeItemMap[oritem]@at, scopeInfo),[<true,scopeInfo.scopeItemMap[oritem]@at>]));
 	println("Popping layer <scopeInfo.scopeItemMap[intoLayer]>");				
 	scopeInfo = popScope(scopeInfo);
 	println("Back to layer <scopeInfo.scopeItemMap[scopeInfo.currentScope]>");
@@ -124,7 +124,7 @@ public ScopeInfo mergeOrLayers(ScopeInfo scopeInfo, list[ScopeItemId] orLayers, 
 	return scopeInfo;
 }
 
-public ScopeInfo addItemUse(ScopeInfo scopeInfo, ScopeItemId scopeItem, loc l) {
+public ScopeInfo addItemUse(ScopeInfo scopeInfo, STItemId scopeItem, loc l) {
 	if (l in scopeInfo.itemUses)
 		scopeInfo.itemUses[l] = scopeInfo.itemUses[l] + scopeItem;
 	else
@@ -132,7 +132,7 @@ public ScopeInfo addItemUse(ScopeInfo scopeInfo, ScopeItemId scopeItem, loc l) {
 	return scopeInfo;
 }
 
-public ScopeInfo addItemUses(ScopeInfo scopeInfo, set[ScopeItemId] scopeItems, loc l) {
+public ScopeInfo addItemUses(ScopeInfo scopeInfo, set[STItemId] scopeItems, loc l) {
 	if (l in scopeInfo.itemUses)
 		scopeInfo.itemUses[l] += scopeItems;
 	else
@@ -148,43 +148,43 @@ public ScopeInfo addScopeError(ScopeInfo scopeInfo, loc l, str msg) {
 	return scopeInfo;
 }
 
-public AddedItemPair addScopeLayer(ScopeItem si, loc l, ScopeInfo scopeInfo) {
+public AddedItemPair addScopeLayer(STItem si, loc l, ScopeInfo scopeInfo) {
 	int newItemId = scopeInfo.nextScopeId;
-	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
+	STItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
 	ItemLocationRel newILRel = scopeInfo.itemLocations + <l,scopeInfo.nextScopeId>;
 	scopeInfo = ((scopeInfo[nextScopeId = scopeInfo.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel];
 	return <scopeInfo,newItemId>;				
 }
 
-public AddedItemPair addScopeLayerWithParent(ScopeItem si, ScopeItemId parentId, loc l, ScopeInfo scopeInfo) {
+public AddedItemPair addScopeLayerWithParent(STItem si, STItemId parentId, loc l, ScopeInfo scopeInfo) {
 	int newItemId = scopeInfo.nextScopeId;
 	ScopeRel newScopeRel = scopeInfo.scopeRel + <parentId, scopeInfo.nextScopeId>;
-	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
+	STItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
 	ItemLocationRel newILRel = scopeInfo.itemLocations + <l,scopeInfo.nextScopeId>;
 	scopeInfo = (((scopeInfo[nextScopeId = scopeInfo.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel])[scopeRel = newScopeRel];
 	return <scopeInfo,newItemId>;				
 }
 
-public AddedItemPair addScopeItem(ScopeItem si, loc l, ScopeInfo scopeInfo) {
+public AddedItemPair addSTItem(STItem si, loc l, ScopeInfo scopeInfo) {
 	int newItemId = scopeInfo.nextScopeId;
-	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
+	STItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
 	ItemLocationRel newILRel = scopeInfo.itemLocations + <l,scopeInfo.nextScopeId>;
 	scopeInfo = (((scopeInfo[nextScopeId = scopeInfo.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel]);
 	return <scopeInfo,newItemId>;				
 }
 
-public AddedItemPair addScopeItemWithParent(ScopeItem si, ScopeItemId parentId, loc l, ScopeInfo scopeInfo) {
+public AddedItemPair addSTItemWithParent(STItem si, STItemId parentId, loc l, ScopeInfo scopeInfo) {
 	int newItemId = scopeInfo.nextScopeId;
 	ScopeRel newScopeRel = scopeInfo.scopeRel + <parentId, scopeInfo.nextScopeId>;
-	ScopeItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
+	STItemMap newSIMap = scopeInfo.scopeItemMap + (newItemId : si);
 	ItemLocationRel newILRel = scopeInfo.itemLocations + <l,scopeInfo.nextScopeId>;
 	scopeInfo = (((scopeInfo[nextScopeId = scopeInfo.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel])[scopeRel = newScopeRel];
 	return <scopeInfo,newItemId>;				
 }
 
-public ScopeItemId getLayerAtLocation(loc l, ScopeInfo scopeInfo) {
+public STItemId getLayerAtLocation(loc l, ScopeInfo scopeInfo) {
 	if (l in domain(scopeInfo.itemLocations)) {
-		set[ScopeItemId] layers = { si | si <- scopeInfo.itemLocations[l], isLayer(scopeInfo.scopeItemMap[si]) };
+		set[STItemId] layers = { si | si <- scopeInfo.itemLocations[l], isLayer(scopeInfo.scopeItemMap[si]) };
 		if (size(layers) == 1)
 			return getOneFrom(layers);
 		else 
@@ -194,16 +194,16 @@ public ScopeItemId getLayerAtLocation(loc l, ScopeInfo scopeInfo) {
 	}
 }
 
-public ScopeInfo updateScopeItem(ScopeItem si, ScopeItemId idToUpdate, ScopeInfo scopeInfo) {
+public ScopeInfo updateSTItem(STItem si, STItemId idToUpdate, ScopeInfo scopeInfo) {
 	return scopeInfo[scopeItemMap = scopeInfo.scopeItemMap + (idToUpdate : si)];				
 }
 
-public ScopeItem getScopeItem(ScopeItemId id, ScopeInfo scopeInfo) {
+public STItem getSTItem(STItemId id, ScopeInfo scopeInfo) {
 	return scopeInfo.scopeItemMap[id];
 }
 	
 // DEPRECATED...
-public ScopeUpdatePair changeCurrentScope(ScopeItemId newScopeId, ScopeInfo scopeInfo) {
+public ScopeUpdatePair changeCurrentScope(STItemId newScopeId, ScopeInfo scopeInfo) {
 	int oldScopeId = scopeInfo.currentScope;
 	return < scopeInfo[currentScope = newScopeId], oldScopeId >;
 }
@@ -211,7 +211,7 @@ public ScopeUpdatePair changeCurrentScope(ScopeItemId newScopeId, ScopeInfo scop
 //
 // Pretty printers for scope information
 //
-public str prettyPrintSI(ScopeItem si) {
+public str prettyPrintSI(STItem si) {
 	switch(si) {
 		case TopLayer() : return "TopLayer";
 
@@ -257,8 +257,8 @@ public str prettyPrintSI(ScopeItem si) {
 	}
 }
 
-public set[ScopeItemId] filterNamesForNamespace(ScopeInfo scopeInfo, set[ScopeItemId] scopeItems, Namespace namespace) {
-	set[ScopeItemId] filteredItems = { };
+public set[STItemId] filterNamesForNamespace(ScopeInfo scopeInfo, set[STItemId] scopeItems, Namespace namespace) {
+	set[STItemId] filteredItems = { };
 	for (itemId <- scopeItems) {
 		switch(namespace) {
 			case ModuleName() : {
@@ -316,8 +316,8 @@ public set[ScopeItemId] filterNamesForNamespace(ScopeInfo scopeInfo, set[ScopeIt
 // the same name at higher levels -- i.e., overloading cannot be partially
 // extended.
 //
-public set[ScopeItemId] getItemsForNameWBound(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x, set[Namespace] containingNamespaces, bool funBounded, bool modBounded) {
-	set[ScopeItemId] foundItems = { };
+public set[STItemId] getItemsForNameWBound(ScopeInfo scopeInfo, STItemId currentScopeId, RName x, set[Namespace] containingNamespaces, bool funBounded, bool modBounded) {
+	set[STItemId] foundItems = { };
 
 	// Handle qualified names. If this is not a module name, then we try to switch into the scope
 	// of the module named in the qualified name. If we are looking for modules, handle this
@@ -327,7 +327,7 @@ public set[ScopeItemId] getItemsForNameWBound(ScopeInfo scopeInfo, ScopeItemId c
 		if (RCompoundName(nl) := x) {
 			RName moduleName = (size(tail(nl)) == 1) ? RSimpleName(head(tail(reverse(nl)))) : RCompoundName(reverse(tail(reverse(nl)))); // There should be a better way to do this
 			x = RSimpleName(head(tail(nl,1)));
-			set[ScopeItemId] mods = getModuleItemsForName(scopeInfo, moduleName);
+			set[STItemId] mods = getModuleItemsForName(scopeInfo, moduleName);
 			if (size(mods) == 1) {
 				// Redirect to module scope
 				return getItemsForNameWBound(scopeInfo, scopeInfo.scopeItemMap[getOneFrom(mods)].parentId, x, containingNamespaces, funBounded, modBounded);					
@@ -397,80 +397,80 @@ public set[ScopeItemId] getItemsForNameWBound(ScopeInfo scopeInfo, ScopeItemId c
 // These are specialized versions of the above function to make it easier to get back the
 // right names.
 //
-public set[ScopeItemId] getItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getItemsForName(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, false, false);
 }
 
-public set[ScopeItemId] getItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getItemsForNameFB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, true, false);
 }
 
-public set[ScopeItemId] getItemsForNameMB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getItemsForNameMB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { FCVName() }, false, true);
 }
 
-public set[ScopeItemId] getAnnotationItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getAnnotationItemsForName(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, false, false);
 }
 
-public set[ScopeItemId] getAnnotationItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getAnnotationItemsForNameFB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, true, false);
 }
 
-public set[ScopeItemId] getAnnotationItemsForNameMB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getAnnotationItemsForNameMB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { AnnotationName() }, false, true);
 }
 
-public set[ScopeItemId] getRuleItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getRuleItemsForName(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { RuleName() }, false, false);
 }
 
-public set[ScopeItemId] getRuleItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getRuleItemsForNameFB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { RuleName() }, true, false);
 }
 
-public set[ScopeItemId] getRuleItemsForNameMB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getRuleItemsForNameMB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { RuleName() }, false, true);
 }
 
-public set[ScopeItemId] getLabelItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getLabelItemsForName(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, false, false);
 }
 
-public set[ScopeItemId] getLabelItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getLabelItemsForNameFB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, true, false);
 }
 
-public set[ScopeItemId] getLabelItemsForNameMB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getLabelItemsForNameMB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { LabelName() }, false, true);
 }
 
-public set[ScopeItemId] getTypeItemsForName(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getTypeItemsForName(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, false, false);
 }
 
-public set[ScopeItemId] getTypeItemsForNameFB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getTypeItemsForNameFB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, true, false);
 }
 
-public set[ScopeItemId] getTypeItemsForNameMB(ScopeInfo scopeInfo, ScopeItemId currentScopeId, RName x) {
+public set[STItemId] getTypeItemsForNameMB(ScopeInfo scopeInfo, STItemId currentScopeId, RName x) {
 	return getItemsForNameWBound(scopeInfo, currentScopeId, x, { TypeName() }, false, true);
 }
 
-public set[ScopeItemId] getModuleItemsForName(ScopeInfo scopeInfo, RName x) {
-	return getItemsForNameWBound(scopeInfo, scopeInfo.topScopeItemId, x, { ModuleName() }, false, false);
+public set[STItemId] getModuleItemsForName(ScopeInfo scopeInfo, RName x) {
+	return getItemsForNameWBound(scopeInfo, scopeInfo.topSTItemId, x, { ModuleName() }, false, false);
 }
 
 // Get the function item that encloses a point in the code. This will navigate up to the function layer
 // and then return the item id for the function item that is associated with this layer.
-public ScopeItemId getEnclosingFunctionAux(ScopeInfo scopeInfo, ScopeItemId currentScope) {
-	ScopeItem si = getScopeItem(currentScope, scopeInfo);
+public STItemId getEnclosingFunctionAux(ScopeInfo scopeInfo, STItemId currentScope) {
+	STItem si = getSTItem(currentScope, scopeInfo);
 	if (FunctionLayer(itemId,_) := si) return itemId;
 	if (TopLayer() := si) throw "Cannot get enclosing function at top level";
 	return getEnclosingFunctionAux(scopeInfo, si.parentId);
 }
 
-public ScopeItemId getEnclosingFunction(ScopeInfo scopeInfo) {
+public STItemId getEnclosingFunction(ScopeInfo scopeInfo) {
 	return getEnclosingFunctionAux(scopeInfo, scopeInfo.currentScope);
 }
 
@@ -481,7 +481,7 @@ public RType getEnclosingFunctionType(ScopeInfo scopeInfo) {
 //
 // TODO: This should throw an exception when the type of an untyped name (e.g., a label) is requested
 //
-public RType getTypeForItem(ScopeInfo scopeInfo, ScopeItemId itemId) {
+public RType getTypeForItem(ScopeInfo scopeInfo, STItemId itemId) {
 	if (itemId notin scopeInfo.scopeItemMap) throw "Error, id <itemId> is not in the scopeItemMap";
 
 	switch(scopeInfo.scopeItemMap[itemId]) {
@@ -504,7 +504,7 @@ public RType getTypeForItem(ScopeInfo scopeInfo, ScopeItemId itemId) {
 	}
 }
 
-alias ResultTuple = tuple[ScopeInfo scopeInfo, list[ScopeItemId] addedItems];
+alias ResultTuple = tuple[ScopeInfo scopeInfo, list[STItemId] addedItems];
 
 //
 // Functions to push new scope layers and add scope items; also performs
@@ -513,7 +513,7 @@ alias ResultTuple = tuple[ScopeInfo scopeInfo, list[ScopeItemId] addedItems];
 
 public ResultTuple pushNewTopScope(loc l, ScopeInfo scopeInfo) {
 	AddedItemPair aipTop = addScopeLayer(TopLayer()[@at=l], l, scopeInfo);
-	scopeInfo = aipTop.scopeInfo[topScopeItemId = aipTop.addedId];
+	scopeInfo = aipTop.scopeInfo[topSTItemId = aipTop.addedId];
 	scopeInfo.scopeStack = [ aipTop.addedId ] + scopeInfo.scopeStack;
 	scopeInfo.currentScope = aipTop.addedId;
 	return <scopeInfo,[aipTop.addedId]>; 	
@@ -524,7 +524,7 @@ public ResultTuple pushNewModuleScope(RName moduleName, loc l, ScopeInfo scopeIn
 	AddedItemPair aip = addScopeLayerWithParent(ModuleLayer(-1, scopeInfo.currentScope)[@at=l], scopeInfo.currentScope, l, scopeInfo);
 	aip.scopeInfo.scopeStack = [ aip.addedId ] + aip.scopeInfo.scopeStack;
 	aip.scopeInfo.currentScope = aip.addedId;
-	AddedItemPair aip2 = addScopeItemWithParent(ModuleItem(moduleName, aip.scopeInfo.currentScope)[@at=l], aip.scopeInfo.currentScope, l, aip.scopeInfo);
+	AddedItemPair aip2 = addSTItemWithParent(ModuleItem(moduleName, aip.scopeInfo.currentScope)[@at=l], aip.scopeInfo.currentScope, l, aip.scopeInfo);
 	aip2.scopeInfo.scopeItemMap[aip.addedId].itemId = aip2.addedId;
 	return <aip2.scopeInfo,[aip.addedId,aip2.addedId]>; 	
 }
@@ -564,13 +564,13 @@ public ScopeInfo popScope(ScopeInfo scopeInfo) {
 	return scopeInfo;
 }
 
-public ScopeInfo pushScope(ScopeItemId newScope, ScopeInfo scopeInfo) {
+public ScopeInfo pushScope(STItemId newScope, ScopeInfo scopeInfo) {
 	scopeInfo.scopeStack = [ newScope ] + scopeInfo.scopeStack;
 	scopeInfo.currentScope = newScope;
 	return scopeInfo;
 }
 
-public ResultTuple pushNewFunctionScopeAt(RName functionName, RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, list[RType] throwsTypes, bool isPublic, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
+public ResultTuple pushNewFunctionScopeAt(RName functionName, RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, list[RType] throwsTypes, bool isPublic, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
 	// Create the function layer, adding it to the scope stack and making it the current scope
 	AddedItemPair aipLayer = addScopeLayerWithParent(FunctionLayer(-1, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
 	aipLayer.scopeInfo.scopeStack = [ aipLayer.addedId ] + aipLayer.scopeInfo.scopeStack;
@@ -578,19 +578,19 @@ public ResultTuple pushNewFunctionScopeAt(RName functionName, RType retType, lis
 
 	// Create scope items for each of the parameters
 	scopeInfo = aipLayer.scopeInfo;
-	list[ScopeItemId] paramIds = [ ];
+	list[STItemId] paramIds = [ ];
 	set[RName] namesSeen = { functionName };
 	for (tuple[RName pname, RType ptype, loc ploc, loc nloc] pt <- params) {
 		if (pt.pname != RSimpleName("") && pt.pname in namesSeen) {
 			scopeInfo = addScopeError(scopeInfo, pt.nloc, "Illegal redefinition of <prettyPrintName(pt.pname)>. Parameter names must be different from other parameter names and from the name of the function.");
 		}
 		namesSeen += pt.pname;
-		AddedItemPair aipParam = addScopeItemWithParent(FormalParameterItem(pt.pname, pt.ptype, scopeInfo.currentScope)[@at=pt.ploc], scopeInfo.currentScope, pt.ploc, scopeInfo);
+		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt.pname, pt.ptype, scopeInfo.currentScope)[@at=pt.ploc], scopeInfo.currentScope, pt.ploc, scopeInfo);
 		paramIds += aipParam.addedId; scopeInfo = aipParam.scopeInfo;
 	}
 
 	// Add the actual function item associated with the scope layer
-	AddedItemPair aipItem = addScopeItemWithParent(FunctionItem(functionName, retType, paramIds, throwsTypes, isPublic, scopeInfo.currentScope)[@at=l], scopeInfo.currentScope, l, scopeInfo);
+	AddedItemPair aipItem = addSTItemWithParent(FunctionItem(functionName, retType, paramIds, throwsTypes, isPublic, scopeInfo.currentScope)[@at=l], scopeInfo.currentScope, l, scopeInfo);
 	aipItem.scopeInfo.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
 	
 	return <aipItem.scopeInfo,[aipLayer.addedId] + [aipItem.addedId] + paramIds>;
@@ -601,10 +601,10 @@ public ResultTuple pushNewFunctionScope(RName functionName, RType retType, list[
 }
 
 public ResultTuple pushNewFunctionScopeAtTop(RName functionName, RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, list[RType] throwsTypes, bool isPublic, loc l, ScopeInfo scopeInfo) {
-	return pushNewFunctionScopeAt(functionName, retType, params, throwsTypes, isPublic, l, scopeInfo, scopeInfo.topScopeItemId);
+	return pushNewFunctionScopeAt(functionName, retType, params, throwsTypes, isPublic, l, scopeInfo, scopeInfo.topSTItemId);
 } 
 
-public ResultTuple pushNewClosureScopeAt(RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
+public ResultTuple pushNewClosureScopeAt(RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
 	// Create the function layer, adding it to the scope stack and making it the current scope
 	AddedItemPair aipLayer = addScopeLayerWithParent(ClosureLayer(-1, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
 	aipLayer.scopeInfo.scopeStack = [ aipLayer.addedId ] + aipLayer.scopeInfo.scopeStack;
@@ -612,18 +612,18 @@ public ResultTuple pushNewClosureScopeAt(RType retType, list[tuple[RName pname, 
 
 	// Create scope items for each of the parameters
 	scopeInfo = aipLayer.scopeInfo;
-	list[ScopeItemId] paramIds = [ ];
+	list[STItemId] paramIds = [ ];
 	for (pt <- params) {
 		if (pt.pname in namesSeen) {
 			scopeInfo = addScopeError(scopeInfo, pt.nloc, "Illegal redefinition of <n>. Parameter names must be different from other parameter names and from the name of the function.");
 		}
 		namesSeen += pt.pname;
-		AddedItemPair aipParam = addScopeItemWithParent(FormalParameterItem(pt.pname, pt.ptype, scopeInfo.currentScope)[@at=pt.ploc], scopeInfo.currentScope, pt.ploc, scopeInfo);
+		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt.pname, pt.ptype, scopeInfo.currentScope)[@at=pt.ploc], scopeInfo.currentScope, pt.ploc, scopeInfo);
 		paramIds += aip.addedId; scopeInfo = aip.scopeInfo;
 	}
 
 	// Add the actual function item associated with the scope layer
-	AddedItemPair aipItem = addScopeItemWithParent(ClosureItem(retType, paramIds, scopeInfo.currentScope)[@at=l], scopeInfo.currentScope, l, scopeInfo);
+	AddedItemPair aipItem = addSTItemWithParent(ClosureItem(retType, paramIds, scopeInfo.currentScope)[@at=l], scopeInfo.currentScope, l, scopeInfo);
 	aipItem.scopeInfo.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
 
 	return <aipItem.scopeInfo,[aipLayer.addedId] + [aipItem.addedId] + paramIds>;
@@ -634,10 +634,10 @@ public ResultTuple pushNewClosureScope(RType retType, list[tuple[RName pname, RT
 }
 
 public ResultTuple pushNewClosureScopeAtTop(RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, loc l, ScopeInfo scopeInfo) {
-	return pushNewClosureScopeAt(retType, params, l, scopeInfo, scopeInfo.topScopeItemId);
+	return pushNewClosureScopeAt(retType, params, l, scopeInfo, scopeInfo.topSTItemId);
 } 
 
-public ResultTuple pushNewVoidClosureScopeAt(list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
+public ResultTuple pushNewVoidClosureScopeAt(list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
 	// Create the function layer, adding it to the scope stack and making it the current scope
 	AddedItemPair aipLayer = addScopeLayerWithParent(VoidClosureLayer(-1, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
 	aipLayer.scopeInfo.scopeStack = [ aipLayer.addedId ] + aipLayer.scopeInfo.scopeStack;
@@ -645,18 +645,18 @@ public ResultTuple pushNewVoidClosureScopeAt(list[tuple[RName pname, RType ptype
 
 	// Create scope items for each of the parameters
 	scopeInfo = aipLayer.scopeInfo;
-	list[ScopeItemId] paramIds = [ ];
+	list[STItemId] paramIds = [ ];
 	for (pt <- params) {
 		if (pt.pname in namesSeen) {
 			scopeInfo = addScopeError(scopeInfo, pt.nloc, "Illegal redefinition of <n>. Parameter names must be different from other parameter names and from the name of the function.");
 		}
 		namesSeen += pt.pname;
-		AddedItemPair aipParam = addScopeItemWithParent(FormalParameterItem(pt.pname, pt.ptype, scopeInfo.currentScope)[@at=pt.ploc], scopeInfo.currentScope, pt.ploc, scopeInfo);
+		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt.pname, pt.ptype, scopeInfo.currentScope)[@at=pt.ploc], scopeInfo.currentScope, pt.ploc, scopeInfo);
 		paramIds += aip.addedId; scopeInfo = aip.scopeInfo;
 	}
 
 	// Add the actual function item associated with the scope layer
-	AddedItemPair aipItem = addScopeItemWithParent(VoidClosureItem(paramIds, scopeInfo.currentScope)[@at=l], scopeInfo.currentScope, l, scopeInfo);
+	AddedItemPair aipItem = addSTItemWithParent(VoidClosureItem(paramIds, scopeInfo.currentScope)[@at=l], scopeInfo.currentScope, l, scopeInfo);
 	aipItem.scopeInfo.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
 
 	return <aipItem.scopeInfo,[aipLayer.addedId] + [aipItem.addedId] + paramIds>;
@@ -667,11 +667,11 @@ public ResultTuple pushNewVoidClosureScope(list[tuple[RName pname, RType ptype, 
 }
 
 public ResultTuple pushNewVoidClosureScopeAtTop(list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, loc l, ScopeInfo scopeInfo) {
-	return pushNewVoidClosureScopeAt(params, l, scopeInfo, scopeInfo.topScopeItemId);
+	return pushNewVoidClosureScopeAt(params, l, scopeInfo, scopeInfo.topSTItemId);
 } 
 
-public ResultTuple addAliasToScopeAt(RType aliasType, RType aliasedType, bool isPublic, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
-	AddedItemPair aip = addScopeItemWithParent(AliasItem(aliasType, aliasedType, isPublic, scopeToUse), scopeToUse, l, scopeInfo);
+public ResultTuple addAliasToScopeAt(RType aliasType, RType aliasedType, bool isPublic, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
+	AddedItemPair aip = addSTItemWithParent(AliasItem(aliasType, aliasedType, isPublic, scopeToUse), scopeToUse, l, scopeInfo);
 	return <aip.scopeInfo,[aip.addedId]>;
 }
 
@@ -680,11 +680,11 @@ public ResultTuple addAliasToScope(RType aliasType, RType aliasedType, bool isPu
 }
 
 public ResultTuple addAliasToTopScope(RType aliasType, RType aliasedType, bool isPublic, loc l, ScopeInfo scopeInfo) {
-	return addAliasToScopeAt(aliasType, aliasedType, isPublic, l, scopeInfo, scopeInfo.topScopeItemId);
+	return addAliasToScopeAt(aliasType, aliasedType, isPublic, l, scopeInfo, scopeInfo.topSTItemId);
 }
 
-public ResultTuple addVariableToScopeAt(RName varName, RType varType, bool isPublic, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
-	AddedItemPair aip = addScopeItemWithParent(VariableItem(varName, varType, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
+public ResultTuple addVariableToScopeAt(RName varName, RType varType, bool isPublic, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
+	AddedItemPair aip = addSTItemWithParent(VariableItem(varName, varType, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
 	return <aip.scopeInfo,[aip.addedId]>;
 }
 
@@ -693,11 +693,11 @@ public ResultTuple addVariableToScope(RName varName, RType varType, bool isPubli
 }
 
 public ResultTuple addVariableToTopScope(RName varName, RType varType, bool isPublic, loc l, ScopeInfo scopeInfo) {
-	return addVariableToScopeAt(varName, varType, isPublic, l, scopeInfo, scopeInfo.topScopeItemId);
+	return addVariableToScopeAt(varName, varType, isPublic, l, scopeInfo, scopeInfo.topSTItemId);
 }
 
-public ResultTuple addADTToScopeAt(RType adtName, bool isPublic, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
-	AddedItemPair aip = addScopeItemWithParent(ADTItem(adtName, { }, isPublic, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
+public ResultTuple addADTToScopeAt(RType adtName, bool isPublic, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
+	AddedItemPair aip = addSTItemWithParent(ADTItem(adtName, { }, isPublic, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
 	return <aip.scopeInfo,[aip.addedId]>;
 	return <scopeInfo, []>;
 }
@@ -707,26 +707,26 @@ public ResultTuple addADTToScope(RType adtName, bool isPublic, loc l, ScopeInfo 
 }
 
 public ResultTuple addADTToTopScope(RType adtName, bool isPublic, loc l, ScopeInfo scopeInfo) {
-	return addADTToScopeAt(adtName, isPublic, l, scopeInfo, scopeInfo.topScopeItemId);
+	return addADTToScopeAt(adtName, isPublic, l, scopeInfo, scopeInfo.topSTItemId);
 }
 
 // TODO: Need to get ADT that goes with the adtType and associate this constructor with it, as well as adding this constructor
 // ID to the list maintained as part of the ADT.
-public ResultTuple addConstructorToScopeAt(RName constructorName, list[RNamedType] constructorArgs, ScopeItemId adtItem, bool isPublic, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
-	AddedItemPair aip = addScopeItemWithParent(ConstructorItem(constructorName, constructorArgs, adtItem, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
+public ResultTuple addConstructorToScopeAt(RName constructorName, list[RNamedType] constructorArgs, STItemId adtItem, bool isPublic, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
+	AddedItemPair aip = addSTItemWithParent(ConstructorItem(constructorName, constructorArgs, adtItem, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
 	return <aip.scopeInfo,[aip.addedId]>;
 }
 
-public ResultTuple addConstructorToScope(RName constructorName, list[RNamedType] constructorArgs, ScopeItemId adtItem, bool isPublic, loc l, ScopeInfo scopeInfo) {
+public ResultTuple addConstructorToScope(RName constructorName, list[RNamedType] constructorArgs, STItemId adtItem, bool isPublic, loc l, ScopeInfo scopeInfo) {
 	return addConstructorToScopeAt(constructorName, constructorArgs, adtItem, isPublic, l, scopeInfo, scopeInfo.currentScope);
 }
 
-public ResultTuple addConstructorToTopScope(RName constructorName, list[RNamedType] constructorArgs, ScopeItemId adtItem, bool isPublic, loc l, ScopeInfo scopeInfo) {
-	return addConstructorToScopeAt(constructorName, constructorArgs, adtItem, isPublic, l, scopeInfo, scopeInfo.topScopeItemId);
+public ResultTuple addConstructorToTopScope(RName constructorName, list[RNamedType] constructorArgs, STItemId adtItem, bool isPublic, loc l, ScopeInfo scopeInfo) {
+	return addConstructorToScopeAt(constructorName, constructorArgs, adtItem, isPublic, l, scopeInfo, scopeInfo.topSTItemId);
 }
 
-public ResultTuple addAnnotationToScopeAt(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
-	AddedItemPair aip = addScopeItemWithParent(AnnotationItem(annotationName, annotationType, onType, isPublic, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
+public ResultTuple addAnnotationToScopeAt(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
+	AddedItemPair aip = addSTItemWithParent(AnnotationItem(annotationName, annotationType, onType, isPublic, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
 	return <aip.scopeInfo,[aip.addedId]>;
 }
 
@@ -735,11 +735,11 @@ public ResultTuple addAnnotationToScope(RName annotationName, RType annotationTy
 }
 
 public ResultTuple addAnnotationToTopScope(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, ScopeInfo scopeInfo) {
-	return addAnnotationToScopeAt(annotationName, annotationType, onType, isPublic, l, scopeInfo, scopeInfo.topScopeItemId);
+	return addAnnotationToScopeAt(annotationName, annotationType, onType, isPublic, l, scopeInfo, scopeInfo.topSTItemId);
 }
 
-public ResultTuple addRuleToScopeAt(RName ruleName, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
-	AddedItemPair aip = addScopeItemWithParent(RuleItem(ruleName, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
+public ResultTuple addRuleToScopeAt(RName ruleName, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
+	AddedItemPair aip = addSTItemWithParent(RuleItem(ruleName, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
 	return <aip.scopeInfo,[aip.addedId]>;
 }
 
@@ -748,11 +748,11 @@ public ResultTuple addRuleToScope(RName ruleName, loc l, ScopeInfo scopeInfo) {
 }
 
 public ResultTuple addRuleToTopScope(RName ruleName, loc l, ScopeInfo scopeInfo) {
-	return addRuleToScopeAt(ruleName, l, scopeInfo, scopeInfo.topScopeItemId);
+	return addRuleToScopeAt(ruleName, l, scopeInfo, scopeInfo.topSTItemId);
 }
 
-public ResultTuple addLabelToScopeAt(RName labelName, loc l, ScopeInfo scopeInfo, ScopeItemId scopeToUse) {
-	AddedItemPair aip = addScopeItemWithParent(LabelItem(labelName, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
+public ResultTuple addLabelToScopeAt(RName labelName, loc l, ScopeInfo scopeInfo, STItemId scopeToUse) {
+	AddedItemPair aip = addSTItemWithParent(LabelItem(labelName, scopeToUse)[@at=l], scopeToUse, l, scopeInfo);
 	return <aip.scopeInfo,[aip.addedId]>;
 }
 
@@ -761,7 +761,7 @@ public ResultTuple addLabelToScope(RName labelName, loc l, ScopeInfo scopeInfo) 
 }
 
 public ResultTuple addLabelToTopScope(RName labelName, loc l, ScopeInfo scopeInfo) {
-	return addLabelToScopeAt(labelName, l, scopeInfo, scopeInfo.topScopeItemId);
+	return addLabelToScopeAt(labelName, l, scopeInfo, scopeInfo.topSTItemId);
 }
 
 // Projectors/combinators to work with result tuples
@@ -769,7 +769,7 @@ public ScopeInfo justScopeInfo(ResultTuple result) {
 	return result.scopeInfo;
 }
 
-public ResultTuple addScopeItemUses(ResultTuple result, list[tuple[bool flagUse, loc useloc]] useLocs) {
+public ResultTuple addSTItemUses(ResultTuple result, list[tuple[bool flagUse, loc useloc]] useLocs) {
 	ScopeInfo scopeInfo = result.scopeInfo;
 	for (n <- [0..size(useLocs)-1]) if (useLocs[n].flagUse) scopeInfo = addItemUse(scopeInfo, result.addedItems[n], useLocs[n].useloc);
 	return <scopeInfo, result.addedItems>;
@@ -779,9 +779,9 @@ public ResultTuple addScopeItemUses(ResultTuple result, list[tuple[bool flagUse,
 // TODO: Add locations of conflicting types
 public ResultTuple checkForDuplicateAliasesBounded(ResultTuple result, loc nloc, bool modBounded) {
 	ScopeInfo scopeInfo = result.scopeInfo;
-	ScopeItemId aliasId = result.addedItems[0];
+	STItemId aliasId = result.addedItems[0];
 	RName aliasName = getUserTypeName(scopeInfo.scopeItemMap[aliasId].aliasType);
-	set[ScopeItemId] otherItems = { };
+	set[STItemId] otherItems = { };
 	if (modBounded) {
 		otherItems = getTypeItemsForNameMB(scopeInfo, scopeInfo.currentScope, aliasName) - aliasId;
 	} else {
@@ -820,16 +820,16 @@ public ResultTuple checkForDuplicateAliasesInModule(ResultTuple result, loc nloc
 //
 public ResultTuple checkFunctionOverlap(ResultTuple result, loc nloc) {
 	ScopeInfo scopeInfo = result.scopeInfo;
-	ScopeItemId newFun = result.addedItems[1];
-	ScopeItem newFunItem = getScopeItem(newFun, scopeInfo);
+	STItemId newFun = result.addedItems[1];
+	STItem newFunItem = getSTItem(newFun, scopeInfo);
 	RType newFunItemType = getTypeForItem(scopeInfo, newFun);
 	list[RType] newFunItemArgs = getFunctionArgumentTypes(newFunItemType);
 
-	set[ScopeItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeInfo.currentScope, newFunItem.functionName) - newFun;
+	set[STItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeInfo.currentScope, newFunItem.functionName) - newFun;
 
 	for (oid <- potentialOverlaps) {
 		// Get back information for each of the existing overlapping items
-		ScopeItem overlapItem = getScopeItem(oid, scopeInfo);
+		STItem overlapItem = getSTItem(oid, scopeInfo);
 		RType overlapItemType = getTypeForItem(scopeInfo, oid);
 		if (isFunctionType(overlapItemType)) {
 			list[RType] funItemArgs = getFunctionArgumentTypes(overlapItemType);
@@ -902,14 +902,14 @@ public ResultTuple checkFunctionOverlap(ResultTuple result, loc nloc) {
 // the common code somehow. This is needed because we have situations where we need to check
 // for overlap before the scope item is addded, along with situations where we want to check
 // for overlap after the scope item is added.
-public bool willFunctionOverlap(RName funName, RType funType, ScopeInfo scopeInfo, ScopeItemId scopeToCheck) {
+public bool willFunctionOverlap(RName funName, RType funType, ScopeInfo scopeInfo, STItemId scopeToCheck) {
 	list[RType] funArgs = getFunctionArgumentTypes(funType);
 
-	set[ScopeItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeToCheck, funName);
+	set[STItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeToCheck, funName);
 
 	for (oid <- potentialOverlaps) {
 		// Get back information for each of the existing overlapping items
-		ScopeItem overlapItem = getScopeItem(oid, scopeInfo);
+		STItem overlapItem = getSTItem(oid, scopeInfo);
 		RType overlapItemType = getTypeForItem(scopeInfo, oid);
 		if (isFunctionType(overlapItemType)) {
 			list[RType] funItemArgs = getFunctionArgumentTypes(overlapItemType);
@@ -979,16 +979,16 @@ public bool willFunctionOverlap(RName funName, RType funType, ScopeInfo scopeInf
 
 public ResultTuple checkConstructorOverlap(ResultTuple result, loc nloc) {
 	ScopeInfo scopeInfo = result.scopeInfo;
-	ScopeItemId newCons = result.addedItems[0];
-	ScopeItem newConsItem = getScopeItem(newCons, scopeInfo);
+	STItemId newCons = result.addedItems[0];
+	STItem newConsItem = getSTItem(newCons, scopeInfo);
 	RType newConsItemType = getTypeForItem(scopeInfo, newCons);
 	list[RType] newConsItemArgs = getConstructorArgumentTypes(newConsItemType);
 
-	set[ScopeItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeInfo.currentScope, newConsItem.constructorName) - newCons;
+	set[STItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeInfo.currentScope, newConsItem.constructorName) - newCons;
 
 	for (oid <- potentialOverlaps) {
 		// Get back information for each of the existing overlapping items
-		ScopeItem overlapItem = getScopeItem(oid, scopeInfo);
+		STItem overlapItem = getSTItem(oid, scopeInfo);
 		RType overlapItemType = getTypeForItem(scopeInfo, oid);
 		if (isConstructorType(overlapItemType)) {
 			list[RType] consItemArgs = getConstructorArgumentTypes(overlapItemType);
@@ -1040,13 +1040,13 @@ public ResultTuple checkConstructorOverlap(ResultTuple result, loc nloc) {
 // the common code somehow. This is needed because we have situations where we need to check
 // for overlap before the scope item is addded, along with situations where we want to check
 // for overlap after the scope item is added.
-public bool willConstructorOverlap(RName conName, RType conType, ScopeInfo scopeInfo, ScopeItemId scopeToCheck) {
+public bool willConstructorOverlap(RName conName, RType conType, ScopeInfo scopeInfo, STItemId scopeToCheck) {
 	list[RType] consArgs = getConstructorArgumentTypes(conType);
-	set[ScopeItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeToCheck, conName);
+	set[STItemId] potentialOverlaps = getItemsForName(scopeInfo, scopeToCheck, conName);
 
 	for (oid <- potentialOverlaps) {
 		// Get back information for each of the existing overlapping items
-		ScopeItem overlapItem = getScopeItem(oid, scopeInfo);
+		STItem overlapItem = getSTItem(oid, scopeInfo);
 		RType overlapItemType = getTypeForItem(scopeInfo, oid);
 		if (isConstructorType(overlapItemType)) {
 			list[RType] consItemArgs = getConstructorArgumentTypes(overlapItemType);
@@ -1107,9 +1107,9 @@ public ScopeInfo markReturnType(RType t, Statement s, ScopeInfo scopeInfo) {
 // TODO: We may want to allow repeated annotations of the same name and type
 public ResultTuple checkForDuplicateAnnotationsBounded(ResultTuple result, loc nloc, bool modBounded) {
 	ScopeInfo scopeInfo = result.scopeInfo;
-	ScopeItemId annotationId = result.addedItems[0];
+	STItemId annotationId = result.addedItems[0];
 	RName annotationName = scopeInfo.scopeItemMap[annotationId].annotationName;
-	set[ScopeItemId] otherItems = { };
+	set[STItemId] otherItems = { };
 	if (modBounded) {
 		otherItems = getAnnotationItemsForNameMB(scopeInfo, scopeInfo.currentScope, annotationName) - annotationId;
 	} else {
@@ -1131,9 +1131,9 @@ public ResultTuple checkForDuplicateAnnotationsInModule(ResultTuple result, loc 
 
 public ResultTuple checkForDuplicateRulesBounded(ResultTuple result, loc nloc, bool modBounded) {
 	ScopeInfo scopeInfo = result.scopeInfo;
-	ScopeItemId ruleId = result.addedItems[0];
+	STItemId ruleId = result.addedItems[0];
 	RName ruleName = scopeInfo.scopeItemMap[ruleId].ruleName;
-	set[ScopeItemId] otherItems = { };
+	set[STItemId] otherItems = { };
 	if (modBounded) {
 		otherItems = getRuleItemsForNameMB(scopeInfo, scopeInfo.currentScope, ruleName) - ruleId;
 	} else {
@@ -1162,21 +1162,21 @@ public bool inBoolLayer(ScopeInfo scopeInfo) {
 public ScopeInfo consolidateADTDefinitions(ScopeInfo scopeInfo, RName moduleName) {
 	// Get back the ID for the name of the module being checked -- there should be only one matching
 	// item. TODO: We may want to verify that here.
-	ScopeItemId moduleLayerId = getOneFrom(getModuleItemsForName(scopeInfo, moduleName));
+	STItemId moduleLayerId = getOneFrom(getModuleItemsForName(scopeInfo, moduleName));
 	
 	// Step 1: Pick out all ADT definitions in the loaded scope information (i.e., all ADTs defined
 	// in either the loaded module or its direct imports)
-	set[ScopeItemId] adtIDs = { sid | sid <- scopeInfo.scopeRel[scopeInfo.topScopeItemId], ADTItem(_,_,_,_) := scopeInfo.scopeItemMap[sid] } +
+	set[STItemId] adtIDs = { sid | sid <- scopeInfo.scopeRel[scopeInfo.topSTItemId], ADTItem(_,_,_,_) := scopeInfo.scopeItemMap[sid] } +
 							  { sid | sid <- scopeInfo.scopeRel[scopeInfo.scopeItemMap[moduleLayerId].parentId], ADTItem(_,_,_,_) := scopeInfo.scopeItemMap[sid] };
 							  
 	// Step 2: Group these based on the name of the ADT
-	rel[RName adtName, ScopeItemId adtItemId] nameXADTItem = { < getUserTypeName(n), sid > | sid <- adtIDs, ADTItem(n,_,_,_) := scopeInfo.scopeItemMap[sid] };
+	rel[RName adtName, STItemId adtItemId] nameXADTItem = { < getUserTypeName(n), sid > | sid <- adtIDs, ADTItem(n,_,_,_) := scopeInfo.scopeItemMap[sid] };
 	
 	// Step 3: Gather together all the constructors for the ADTs
-	rel[ScopeItemId adtItemId, ScopeItemId consItemId] adtItemXConsItem = { < sid, cid > | sid <- range(nameXADTItem), cid <- domain(scopeInfo.scopeItemMap), ConstructorItem(_,_,sid,_) := scopeInfo.scopeItemMap[cid] };
+	rel[STItemId adtItemId, STItemId consItemId] adtItemXConsItem = { < sid, cid > | sid <- range(nameXADTItem), cid <- domain(scopeInfo.scopeItemMap), ConstructorItem(_,_,sid,_) := scopeInfo.scopeItemMap[cid] };
 	 
 	// Step 4: Now, directly relate the ADT names to the available constructors
-	rel[RName adtName, ScopeItemId consItemId] nameXConsItem = nameXADTItem o adtItemXConsItem;
+	rel[RName adtName, STItemId consItemId] nameXConsItem = nameXADTItem o adtItemXConsItem;
 	
 	// Step 5: Put these into the needed form for the internal ADT map
 	for (n <- domain(nameXADTItem))

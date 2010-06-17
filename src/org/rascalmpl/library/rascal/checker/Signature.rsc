@@ -1,12 +1,11 @@
 module rascal::checker::Signature
 
 import rascal::checker::Types;
-
 import rascal::\old-syntax::Rascal;
-
 import List;
 import Set;
 
+// Each signature item represents an item visible at the module level.
 data RSignatureItem =
 	  AliasSigItem(RType aliasType, RType sigType, loc at)
 	| FunctionSigItem(RName functionName, RType sigType, loc at)
@@ -18,16 +17,26 @@ data RSignatureItem =
 	| TagSigItem(RName tagName, list[RType] tagTypes, loc at)
 ;
 
+// A module signature, made up of the module name, individual signature items, and imports.
 alias RSignature = tuple[set[RSignatureItem] signatureItems, RName moduleName, set[RName] imports];
 
+// TODO: This code needs to be changed to get information from the imports. This is to
+// construct the visible signature of a module, which may include information imported
+// from other modules indirectly (for instance, aliases)
 private set[RName] getImportInfo(Import* imports) {
-	return { }; // TODO: Obviously, add some code here
+	return { };
 }
 
+// Add a new signature item into the given siguature.
 private RSignature addSignatureItem(RSignature sig, RSignatureItem item) {
 	return sig[signatureItems = sig.signatureItems + item];
 }
  
+// Given a tree, representing a module, create the signature for the module.
+// TODO: Right now we don't use parameters. Add support for them here when
+// we use them in actual programs. Commenting out the part that deals with
+// them for now, so we will get an exception when we finally need to deal
+// with them.
 private RSignature createRSignature(Tree t) {
 	if ((Module) `<Header h> <Body b>` := t) {
 		switch(h) {
@@ -37,19 +46,21 @@ private RSignature createRSignature(Tree t) {
 				return sig;
 			}
 
-			case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
-				RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
-				sig = createModuleBodySignature(b,sig);
-				return sig;
-			}
+//			case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
+//				RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
+//				sig = createModuleBodySignature(b,sig);
+//				return sig;
+//			}
 
-			default : throw "buildNamespace: unexpected syntax for module";
+			default : throw "createRSignature: unexpected module syntax <t>";
 		}
 	} else {
-        throw "buildNamespace: missed a case for <t.prod>";
+        throw "createRSignature: unexpected module syntax <t>";
 	}
 }
 
+// Create the individual signature items in the module body: dispatches out to
+// individual functions to create the various types of signature items.
 private RSignature createModuleBodySignature(Body b, RSignature sig) {
 	if (`<Toplevel* ts>` := b) {
 		for (Toplevel t <- ts) {
@@ -149,6 +160,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 	return sig;
 }
 
+// Find the types of items in a function signature, also taking care of the ... varargs case.
 private list[RType] getParameterTypes(Parameters ps) {
 	list[RType] pTypes = [ ];
 
@@ -174,6 +186,8 @@ private list[RType] getParameterTypes(Parameters ps) {
 	return pTypes;
 }
 
+// Get the type names introduced in the signature items. ADTs and aliases both introduce
+// new type names.
 private set[RName] getLocallyDefinedTypeNames(RSignature sig) {
 	set[RName] definedTypeNames = { };
 	for (si <- sig.signatureItems) {
@@ -185,6 +199,9 @@ private set[RName] getLocallyDefinedTypeNames(RSignature sig) {
 	return definedTypeNames;
 }
 
+// Mark types that are not defined locally, i.e., are not either built-ins (int, list, etc)
+// or type names introduced in this module (via alias or data). These names need to be
+// declared in one of the modules being imported.
 private RSignature markUndefinedTypes(RSignature sig) {
 	set[RName] localNames = getLocallyDefinedTypeNames(sig);
 	sig.signatureItems = 
@@ -194,15 +211,17 @@ private RSignature markUndefinedTypes(RSignature sig) {
 	return sig;
 }
 
+// Allow module headers to carry their signatures.
 anno RSignature Header@sig;
 
+// Given a module, annotate it with its signature.
 public Tree addModuleSignature(Tree t) {
 	return top-down-break visit(t) {
 		case Header h => h[@sig = markUndefinedTypes(createRSignature(t))]
 	}
 }
 
+// Given a module, return its signature.
 public RSignature getModuleSignature(Tree t) {
 	return markUndefinedTypes(createRSignature(t));
 }
-
