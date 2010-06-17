@@ -3118,7 +3118,7 @@ public RType checkADTDefinitionsForConsistency(ScopeInfo scopeInfo, RName module
 
 	// Get back the ID for the name of the module being checked -- there should be only one matching
 	// item. TODO: We may want to verify that here.
-	ScopeItemId moduleLayerId = getOneFrom(getModuleItemsForName(scopeInfo, moduleName));
+	STItemId moduleLayerId = getOneFrom(getModuleItemsForName(scopeInfo, moduleName));
 	
 	// Check each ADT individually	
 	for (n <- domain(scopeInfo.adtMap)) {
@@ -3127,7 +3127,7 @@ public RType checkADTDefinitionsForConsistency(ScopeInfo scopeInfo, RName module
 		// First check imported constructors. If we get errors, we would rather have them on the constructors
 		// defined in the current module, since they are easier to fix -- checking them later preferences the
 		// types assigned to field in imported types.
-		for (ci <- scopeInfo.adtMap[n].consItems, ci in scopeInfo.scopeRel[scopeInfo.topScopeItemId]) {
+		for (ci <- scopeInfo.adtMap[n].consItems, ci in scopeInfo.scopeRel[scopeInfo.topSTItemId]) {
 			if (ConstructorItem(cn,params,_,_) := scopeInfo.scopeItemMap[ci]) {
 				for (RNamedType(nt,nn) <- params) {
 					if (nn notin fieldMap) {
@@ -3194,7 +3194,7 @@ public bool checkPatternCoverage(RType expectedType, set[Pattern] options, Scope
 				println("only 1 item used, not overloaded");
 				if (nloc in domain(scopeInfo.itemLocations)) {
 					println("location in itemLocations");
-					set[ScopeItemId] items = { si | si <- scopeInfo.itemLocations[nloc], isItem(scopeInfo.scopeItemMap[si]) };
+					set[STItemId] items = { si | si <- scopeInfo.itemLocations[nloc], isItem(scopeInfo.scopeItemMap[si]) };
 					if (size(items) == 1) {
 						println("location items = <items>");
 						return (VariableItem(_,_,_) := scopeInfo.scopeItemMap[getOneFrom(items)]);
