@@ -29,8 +29,8 @@ public class DefaultTestResultListener implements ITestResultListener{
 	}
 	
 	public void done() {
-		err.print(successes + " of " + count + " tests succeeded");
-		err.print(failures + " of " + count + " tests failed");
+		err.print(successes + " of " + count + " tests succeeded\n");
+		err.println(failures + " of " + count + " tests failed\n");
 	}
 	
 	public void report(boolean successful, String test, ISourceLocation loc){
