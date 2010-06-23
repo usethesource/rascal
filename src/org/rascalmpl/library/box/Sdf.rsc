@@ -4,16 +4,10 @@ import box::Box;
 import IO;
 import List;
 import String;
-import box::Aux;
-
-import languages::sdf3::syntax::Modules;
-// import languages::sdf3::syntax::Symbols;
-// import languages::sdf3::syntax::Kernel;
-// import languages::sdf3::syntax::Sorts;
-// import languages::sdf3::syntax::Basic;
-// import languages::sdf3::syntax::Literals;
-import languages::sdf3::syntax::Labels;
+import languages::sdf22::syntax::Modules;
+import languages::sdf22::syntax::Labels;
 import basic::StrCon;
+import box::Aux;
 
 
 
@@ -41,20 +35,19 @@ public str getSort(Symbol u) {
    }
 */
 
-public list[Sort]  getSorts(Tree t) {
-   list[Sort] r = [];
-   for (/Grammar s <- t) {
-       if ( `  sorts <Sym* a> ` := s ) {
-          r+=[c | /Sort c <- a];
-       }
-   }
+public set[Sort]  getSorts(Tree t) {
+   set[Sort] r = {getSort(p)|/Prod p <- t};
    return r;
 }
 
+Sort getSort(Prod p) {
+    list[Sort] srt = [s | /Sort s <- p];
+    return srt[size(srt)-1];
+   }
 
 bool isSort(Prod p, Sort sr) {
     list[Sort] srt = [s | /Sort s <- p];
-    return srt[size(srt)-1]==sr;
+    return getSort(p)==sr;
    }
 
 
@@ -63,14 +56,29 @@ public list[Prod] getProductions(Tree t, Sort srt) {
      return g;
      }
 
-public str  makeProgram(Tree t) {
-     str u = "";
-     list[Sort] srts = getSorts(t);
+public str  makeProgram(Tree t, str moduleName) { 
+      str u = "module templates::<moduleName>\n";
+      if (Module m := t) {
+           if (`module <ModuleName n> <ImpSection* v> <Sections g>`:=m) {
+                str s = replaceAll("<n>","/","::");
+                u+="import <s>;\n";
+                }
+           }
+    u+="import box::Box;";
+    for (/Import m <- t) {
+           if (`<Import n>`:=m) {
+                str s = replaceAll("<n>","/","::");
+                u+="import <s>;\n";
+                }
+           }
+     u += "public Box get<moduleName>(Tree q) {\n";
+     set[Sort] srts = getSorts(t);
      for (Sort srt<-srts) {
         println("QQ:<srt>");
          list[Prod] r= getProductions(t, srt);
-         if (size(r)>0) u+="if (`<srt> a`:=q) \nswitch(a) {\n";
+         if (size(r)>0) u+="if (<srt> a:=q) \nswitch(a) {\n";
          for (\Prod p<- r) {
+            // println(`<Symbols a> -> <Sym b>`:=p);
             u+="\tcase `";
             list[Tree] ps = getArgs(p);
             for (Tree z<-ps) {
@@ -92,6 +100,8 @@ public str  makeProgram(Tree t) {
       }
       if (size(r)>0)  u+="}\n";
       }
+      u+="return NULL();\n";
+      u+="}\n";
       return u;
 }
 
@@ -116,10 +126,10 @@ list[Tree] getArgs(Tree q) {
       return [];
 }
    
-public text toList(loc asf){
+public str toStr(loc asf, str moduleName){
      Module a = readFromLoc (asf);
-     println(makeProgram(a));
-     return returnText(a, extraRules);
+     println(asf.path);
+     return makeProgram(a, moduleName);
      }
 
 /*

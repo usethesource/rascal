@@ -4,11 +4,14 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -24,6 +27,7 @@ import org.rascalmpl.interpreter.BoxEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.IO;
 import org.rascalmpl.parser.ASTBuilder;
@@ -32,6 +36,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class MakeBox {
 
 	private final String varName = "boxData";
+	private final String moduleName = "moduleName";
 
 	class Data extends ByteArrayOutputStream {
 		ByteArrayInputStream get() {
@@ -66,6 +71,17 @@ public class MakeBox {
 		PrintWriter stdout = new PrintWriter(System.out);
 		commandEvaluator = new Evaluator(ValueFactoryFactory.getValueFactory(),
 				stderr, stdout, root, heap);
+		// commandEvaluator
+		// .addSdfSearchPathContributor(new ISdfSearchPathContributor() {
+		// public List<String> contributePaths() {
+		// List<String> result = new LinkedList<String>();
+		// File srcDir = new File(
+		// "/ufs/bertl/glt/build/rascal-fragment",
+		// "installed/share/sdf-library/library");
+		// result.add(srcDir.getAbsolutePath());
+		// return result;
+		// }
+		// });
 		commandEvaluator.addClassLoader(getClass().getClassLoader());
 		Object ioInstance = commandEvaluator.getJavaBridge()
 				.getJavaClassInstance(IO.class);
@@ -99,12 +115,29 @@ public class MakeBox {
 
 	private IValue launchConcreteProgram(URI uri, String s) {
 		final String resultName = "c";
-		execute("import box::"+s+";");
+		execute("import box::" + s + ";");
 		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()
 				.sourceLocation(uri);
 		store(v, varName);
 		execute(resultName + "=toList(" + varName + ");");
+		IValue r = fetch(resultName);
+		return r;
+	}
+	
+	private IValue launchTemplateProgram(URI uri, String s) {
+		final String resultName = "c";
+		execute("import box::" + s + ";");
+		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
+		ISourceLocation v = ValueFactoryFactory.getValueFactory()
+				.sourceLocation(uri);
+		store(v, varName);
+		String name = new File(uri.getPath()).getName();
+		name = name.substring(0,name.lastIndexOf('.'));
+		IString w = ValueFactoryFactory.getValueFactory()
+				.string(name);
+		store(w, moduleName);
+		execute(resultName + "=toStr(" + varName + ","+moduleName+");");
 		IValue r = fetch(resultName);
 		return r;
 	}
@@ -141,9 +174,17 @@ public class MakeBox {
 	public IValue toTxt(URI uri) {
 		start();
 		int tail = uri.getPath().lastIndexOf('.');
-		String s = uri.getPath().substring(tail+1);
-		s = s.substring(0,1).toUpperCase()+s.substring(1);
+		String s = uri.getPath().substring(tail + 1);
+		s = s.substring(0, 1).toUpperCase() + s.substring(1);
 		return launchConcreteProgram(uri, s);
+	}
+	
+	public IValue toSrc(URI uri) {
+		start();
+		int tail = uri.getPath().lastIndexOf('.');
+		String s = uri.getPath().substring(tail + 1);
+		s = s.substring(0, 1).toUpperCase() + s.substring(1);
+		return launchTemplateProgram(uri, s);
 	}
 
 }

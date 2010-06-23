@@ -1,17 +1,15 @@
-module box::Concrete
+module box::C
 import ParseTree;
-import  ValueIO;
+
+
 import  IO;
 import List;
 import String;
 import box::Box;
 import box::Box2Text;
+import languages::c::syntax::C;
 
 alias pairs = list[tuple[Symbol, Tree]] ;
-
-Box fNULL(Tree t) {return NULL();}
-
-Box(Tree) userDefined = fNULL; 
 
 bool isTerminal(Symbol s) {
      return ((\lit(_):= s)) ||  (\char-class(_):=s);
@@ -62,19 +60,9 @@ Box boxArgs(pairs u, bool hv, bool indent, int space) {
             }
      }
 
-public void initConcrete(Box(Tree) userDef) {
-    userDefined = userDef;
-    }
-    
-public list[Tree] getA(Tree q) {
-    if (appl(_, list[Tree] t):=q) return t;
-    return[];
-    }
-    
-public Box evPt(Tree q) {
+
+Box visitParseTree(Tree q) {
    //  rawPrintln(q);
-    Box b = userDefined(q); 
-    if (b!=NULL()) return b;
     switch(q) {
        case appl(prod(list[Symbol] s, _, Attributes att), list[Tree] t): {
                       pairs u =[<s[i], t[i]>| int i<-[0,2..(size(t)-1)]];
@@ -118,7 +106,7 @@ list[Box] addTree(list[Box] out, Tree t) {
         case \lit(_):  out= addTree(out, t);
         case \char-class(_): out= addTree(out, t);
         default: {
-                Box  b = evPt(t);
+                Box  b = visitParseTree(t);
                 out+= defaultBox(b, false);
                 }    
         }
@@ -160,44 +148,13 @@ list[Box] walkThroughSymbols(pairs u, bool indent) {
        // println(a);
       if ( \lex(\sort(_)):=a || \lit(_):=a ||  \char-class(_):=a)  out+= L("<t>");
      else {
-             Box  b = evPt(t);
+             Box  b = visitParseTree(t);
               out+= defaultBox(b, indent);
               }   
    }
    return out;
 }
 
-public text  returnText(Tree a, Box(Tree) userDef) {
-     initConcrete(userDef);
-     Box out = evPt(a);
-     // println(out);
-     return box2text(out);
-    }
-
-public void concrete(Tree a) {
-    Box out = evPt(a);
-    text t = box2text(out);
-    for (str r<-t) {
-          println(r);
-         }
-    println(out);
-   }
-
-
-public list[Box] getArgs(Tree g, type[&T<:Tree] filter) {
-   list[Tree] tl = getA(g);
-   list[Box] r = [evPt(t) | Tree t <- tl, &T a := t];
-   return r;
-   }
-   
-public Box cmd(str name, Tree expr, str sep) {
-   Box h = H([evPt(expr), L(sep)]);
-   h@hs = 0;
-   return H([L(name), h]);
-   }
-  
-
-/*
 public void main(){
      // ParseTree a = readBinaryValueFile(#ParseTree, |file:///ufs/bertl/asfix/pico/big.asf|);
     ParseTree a = readBinaryValueFile(#ParseTree, |file:///ufs/bertl/asfix/java/ViewAction.asf|);
@@ -211,10 +168,9 @@ public void main(){
     }
      
 public text toList(loc asf){
-     CompilationUnit a = parse(#CompilationUnit, asf);
+     TranslationUnit a = parse(#TranslationUnit, asf);
      Box out = visitParseTree(a);
      // println(out);
      return box2text(out);
      }
- */
 
