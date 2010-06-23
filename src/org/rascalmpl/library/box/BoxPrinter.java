@@ -146,7 +146,7 @@ public class BoxPrinter {
 		String defaultDir = System.getProperty("user.home")+File.separatorChar+"asfix";
 		if (defaultDir != null)
 			dialog.setFilterPath(defaultDir);
-		dialog.setFileName("ViewAction.java");
+		dialog.setFileName("Modules.sdf");
 		String fileName = dialog.open();
 		if (fileName == null) {
 			System.err.println("Canceled");
@@ -196,7 +196,7 @@ public class BoxPrinter {
 	}
 
 	private boolean readData(URI uri, boolean rich) {
-		// System.err.println("readData:" + uri);
+		System.err.println("readData:" + uri);
 		IValue v = rich?new MakeBox().toRichTxt(uri):new MakeBox().toTxt(uri);
 		// System.err.println("MakeBox finished1");
 		if (v == null)
