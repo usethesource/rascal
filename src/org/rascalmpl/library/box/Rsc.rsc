@@ -3,27 +3,27 @@ import ParseTree;
 import box::Concrete;
 import box::Box;
 import IO;
-import templates::Constructors;
+import box::rascal::Modules;
+import box::rascal::Declarations;
+import box::rascal::Constructors;
+import box::rascal::Rascal;
 
-import languages::rascal::syntax::RascalForConcreteSyntax;
-import languages::rascal::syntax::Modules;
-import languages::rascal::syntax::Names;
+import rascal::\old-syntax::Rascal;
+import rascal::\old-syntax::Modules;
+import rascal::\old-syntax::Names;
 
 
 public Box extraRules(Tree q) {  
-   /*    
-   if (Import a:=q) {
-      if  (` import <ImportedModule m>  ; `  := a )  
-            return cmd("import",  m, ";");
-       }
-   if (Header a:=q) {
-         if  ( `  module  <QualifiedName n>  <Import* imp> `  := a )  {
-             list[Box ] h = [H( [L("module"), evPt(n)])];
-             return V(h+getArgs(imp, #Import));
-         }
-   }
-   */
-   return getConstructors(q);
+   Box b = NULL();
+   b=getModules(q);
+   if (b!=NULL()) return b;
+   b=getDeclarations(q);
+   if (b!=NULL()) return b;
+   b=getConstructors(q);
+   if (b!=NULL()) return b;
+   b=getRascal(q);
+   if (b!=NULL()) return b;
+   return b;
    }
 
  
