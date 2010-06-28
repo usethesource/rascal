@@ -61,24 +61,27 @@ public str  makeProgram(Tree t, str moduleName) {
       if (Module m := t) {
            if (`module <ModuleName n> <ImpSection* v> <Sections g>`:=m) {
                 str s = replaceAll("<n>","/","::");
+                s = replaceAll(s,"old-syntax", "\\old-syntax");
                 u+="import <s>;\n";
                 }
            }
-    u+="import box::Box;";
+    u+="import box::Box;\n";
+    u+="import box::Concrete;\n";
     for (/Import m <- t) {
            if (`<Import n>`:=m) {
                 str s = replaceAll("<n>","/","::");
+                s = replaceAll(s,"old-syntax", "\\old-syntax");
                 u+="import <s>;\n";
                 }
            }
      u += "public Box get<moduleName>(Tree q) {\n";
      set[Sort] srts = getSorts(t);
      for (Sort srt<-srts) {
-        println("QQ:<srt>");
+        // println("QQ:<srt>");
          list[Prod] r= getProductions(t, srt);
          if (size(r)>0) u+="if (<srt> a:=q) \nswitch(a) {\n";
          for (\Prod p<- r) {
-            // println(`<Symbols a> -> <Sym b>`:=p);
+            // Problem: println(`<Symbols a> -> <Sym b> <Attributes at>`:=p);
             u+="\tcase `";
             list[Tree] ps = getArgs(p);
             for (Tree z<-ps) {
