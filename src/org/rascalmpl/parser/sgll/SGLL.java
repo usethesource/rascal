@@ -86,12 +86,37 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
+	private void updateProductionEndNode(AbstractStackNode sharedNode, AbstractStackNode node){
+		AbstractStackNode prev = node;
+		AbstractStackNode next = node.getNext();
+		
+		AbstractStackNode sharedPrev = sharedNode;
+		AbstractStackNode sharedNext = sharedNode.getNext().getCleanCopy();
+		do{
+			prev = next;
+			next = next.getNext();
+			
+			sharedNext = sharedNext.getCleanCopy();
+			sharedPrev.addNext(sharedNext);
+			
+			sharedPrev = sharedNext;
+			sharedNext = sharedNext.getNext();
+			
+			if(prev.hasEdges()){
+				sharedPrev.addEdges(prev.getEdges());
+			}
+		}while(sharedNext != null);
+	}
+	
 	private void updateNextNode(AbstractStackNode next, AbstractStackNode node){
 		for(int i = possiblySharedNextNodes.size() - 1; i >= 0; i--){
 			AbstractStackNode possibleAlternative = possiblySharedNextNodes.get(i);
 			if(possibleAlternative.isSimilar(next)){
 				if(next.hasEdges()){
 					possibleAlternative.addEdges(next.getEdges());
+				}else{
+					// Don't lose any edges.
+					updateProductionEndNode(possibleAlternative, next);
 				}
 				
 				if(possibleAlternative.isClean()){
