@@ -61,14 +61,14 @@ public abstract class SGLL implements IGLL{
 		location = 0;
 	}
 	
-	public void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
+	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
 		lastNode.setParentProduction(production);
 	}
 	
-	public void expect(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
+	protected void expect(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
@@ -239,7 +239,7 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	public Link[] constructResults(LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap, INode result, int startLocation){
+	private Link[] constructResults(LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap, INode result, int startLocation){
 		if(prefixesMap == null){
 			return new Link[]{new Link(null, result, startLocation)};
 		}
