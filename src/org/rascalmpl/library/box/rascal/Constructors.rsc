@@ -1,9 +1,8 @@
 module box::rascal::Constructors
-import rascal::\old-syntax::Constructors;
-import rascal::\old-syntax::Expressions;
 import box::Box;
 import box::Concrete;
-import rascal::\old-syntax::Literals;
+import rascal::\old-syntax::Rascal;
+
 public Box getConstructors(Tree q) {
 if (Expression a:=q) 
 switch(a) {
@@ -12,14 +11,18 @@ switch(a) {
 	case `<BasicType basicType> ( <{Expression ","}*  c > ) `: return NULL();
 	case `<Expression expression> ( <{Expression ","}*  c > ) `: return NULL();
 	case `[ <{Expression ","}*  c > ] `:   {
-	         list[Box] h1 = [L("[")]; h2 = [L("]")]; 
-             return H(h1+getArgs(c, #Expression)+h2);
+             return getConstructor(c, #Expression,"[", "]");
              }
 	case `{ <{Expression ","}*  c > } `: {
-	         list[Box] h1 = [L("{")]; h2 = [L("}")]; 
-             return H(h1+getArgs(c, #Expression)+h2);
+	         return getConstructor(c, #Expression,"{", "}");
              }
-	// case `< <{Expression ","}+  c > > `: return NULL();
+	// case `<<{Expression ","}+  c >>`: return NULL();
+        /*
+	case (Expression)`<<Expression ei>>`: {
+	          return getConstructor(ei, #Expression,"<", ">");
+	          }
+	case `<<Expression ei>, <{Expression ","}* el>>` : return NULL();
+         */
 	// case `<Expression from> : <Expression to> `: return NULL();
 	// case `( <{Mapping ","}*  c > ) `: 
     //         {

@@ -11,24 +11,76 @@ alias pairs = list[tuple[Symbol, Tree]] ;
 
 Box fNULL(Tree t) {return NULL();}
 
+list[int]  pNULL(pairs p) {return [];}
+
 Box(Tree) userDefined = fNULL; 
+
+list[int](pairs)  isIndented = pNULL;
 
 bool isTerminal(Symbol s) {
      return ((\lit(_):= s)) ||  (\char-class(_):=s);
      }
 
-bool isIndented(pairs u) {
+bool classic = false;
+
+public bool isScheme(list[Symbol] q, list[str] b) {
+  if (size(b)!=size(q)) return false;
+  list[tuple[Symbol, bool]] r = [<q[i], (b[i]=="T")> |  int i <-[0  .. size(q)-1]];
+  for (<Symbol s, bool z>  <- r) {
+       if (isTerminal(s)!=z) return false;
+       }
+  return true;
+  }
+
+bool isBlock(list[Symbol] q) {
+   return isScheme(q, ["N", "T","N", "T"]);
+   }
+
+bool isBody(list[Symbol] q) {
+   return isScheme(q, ["T","N", "T"]);
+   }
+
+public list[int] isBody(list[Tree] t, int idx) {
+             Tree g = t[idx];
+             return (isBody(g) && userDefined(g)==NULL())?[idx]:[];
+             }
+
+public bool isBlock(Tree c) {
+         if (appl(prod(list[Symbol] s, _, Attributes att), _):=c) {
+                    list[Symbol]  q =[s[i]  | int i<-[0,2..(size(s)-1)]];
+                    r = isBlock(q);
+                    // if (r) println("Match2:<t>");
+                    return r;
+                  }
+              return false;
+             }
+             
+public list[int] isBlock(list[Tree] t, int idx) {
+            Tree g = t[idx];
+             return (isBlock(g)&&userDefined(g)==NULL()) ?[idx]:[];
+             }
+
+public bool isBody(Tree c) {
+         if (appl(prod(list[Symbol] s, _, Attributes att), _):=c) {
+                    list[Symbol]  q =[s[i]  | int i<-[0,2..(size(s)-1)]];
+                    r = isBody(q);
+                    // if (r) println("Match2:<t>");
+                    return r;
+                  }
+              return false;
+             }
+
+
+list[int] isDefaultIndented(pairs u) {
      for (int i <- [0,2 .. size(u)-2])  {
           if ((<Symbol s1, _> := u[i]) && (<Symbol s2, _> := u[i+1])) {
-              if (!(isTerminal(s1)&&!isTerminal(s2))) return false;
+              if (!(isTerminal(s1)&&!isTerminal(s2))) return [];
               }
        }
-     if (size(u)%2==0) return size(u)>2;
+     if (size(u)%2==0) return size(u)>2?[0]:[];
      if (<Symbol q, _> := u[size(u)-1])
-                     return isTerminal(q);
-     return false;
-     }
-     
+                     return isTerminal(q)?[0]:[];
+}
      
 str toString(Attributes att) {
        if (\attrs(list[Attr] a):=att) {
@@ -48,55 +100,69 @@ Box toValue(Attributes att) {
           }
        return NULL();
      }
-     
-Box boxArgs(pairs u, bool hv, bool indent, int space) {
-     list[Box] bl = walkThroughSymbols(u, indent);
+ 
+Box boxArgs(pairs u, bool hv, list[int] indent, bool doIndent, int space) {
+     list[Box] bl = walkThroughSymbols(u, indent, doIndent);
        if (size(bl)==0) return H([]);
        if (size(bl)==1) {
              return bl[0];
              }
        else {
-            Box r =  (hv&&!indent)?HV(bl):V(bl);
+            Box r =  (hv && !doIndent&&isEmpty(indent))?HV(bl):V(bl);
             r@hs = space;
             return r;
             }
      }
 
-public void initConcrete(Box(Tree) userDef) {
-    userDefined = userDef;
+Box boxArgs(pairs u, bool hv, list[int] indent, int space) {
+    return  boxArgs(u, hv, indent,  false, space);
     }
-    
+
+public void initConcrete(Box(Tree) userDef, list[int] (pairs p) g ) {
+    userDefined = userDef;
+    isIndented = g;
+    }
+
 public list[Tree] getA(Tree q) {
-    if (appl(_, list[Tree] t):=q) return t;
+    if (appl(_, list[Tree] z):=q) return z;
     return[];
     }
-    
+
+public Tree getLast(Tree q) {
+   list[Tree] a = getA(q);
+   return  a[size(a)-1];
+   }
+
 public Box evPt(Tree q) {
+   return evPt(q, false);
+   }
+
+public Box evPt(Tree q, bool doIndent) {
    //  rawPrintln(q);
     Box b = userDefined(q); 
     if (b!=NULL()) return b;
     switch(q) {
        case appl(prod(list[Symbol] s, _, Attributes att), list[Tree] t): {
                       pairs u =[<s[i], t[i]>| int i<-[0,2..(size(t)-1)]];
-                      return boxArgs(u, true, isIndented(u), 1);                                     
+                      Box r = boxArgs(u, true, isIndented(u), doIndent, 1);  
+                      return r;                                   
                      }
         case appl(\list(\cf(\iter-star-sep(Symbol s, Symbol sep) )), list[Tree] t): {
                      pairs u =[<s, t[i]>| int i<-[0,2..(size(t)-1)]];
-                     return boxArgs(u, false, isIndented(u), 0); 
+                     return boxArgs(u, true, [], doIndent, 0); 
                      }
         case appl(\list(\cf(\iter-sep(Symbol s, Symbol sep) )), list[Tree] t): {
                       pairs u =[<s, t[i]>| int i<-[0,2..(size(t)-1)]];
-                      return boxArgs(u, true, false, 0); 
+                      return boxArgs(u, true, [], doIndent, 0); 
                      }
         case appl(\list(\cf(\iter-star(Symbol s) )), list[Tree] t): {
                       pairs u =[<s, t[i]>| int i<-[0,2..(size(t)-1)]];
-                      return boxArgs(u, true, false, 1); 
+                      return boxArgs(u, false, [], doIndent, 1); 
                      }
         case appl(\list(\cf(\iter(Symbol s) )), list[Tree] t): {
                      pairs u =[<s, t[i]>| int i<-[0,2..(size(t)-1)]];
-                     return boxArgs(u, true, false, 1); 
+                     return boxArgs(u, false, [], 1); 
                      }
-       // case appl(Production p , list[Tree] t): {println("<p>:<t>");}
        }
        return H([]);
 }
@@ -107,68 +173,67 @@ list[Box] addTree(list[Box] out, Tree t) {
        return out;
        }
 
-
- list[Box] walkThroughList(pairs u) {
-    list[Box] out = [];
-   for  (<Symbol a, Tree t><-u) {
-       switch(a) {
-        case \opt(Symbol s):  return walkThroughList([<s, t>]);
-        case \iter(Symbol s): return walkThroughList([<s, t>]);
-        case \lex(\sort(_)): out= addTree(out, t);
-        case \lit(_):  out= addTree(out, t);
-        case \char-class(_): out= addTree(out, t);
-        default: {
-                Box  b = evPt(t);
-                out+= defaultBox(b, false);
-                }    
-        }
-         // println("Klaar:<out>");
-         } 
-   return out;
-}
-
-list[Box] defaultBox(Box b, bool indent) {
-               list[Box] out = [];
+Box defaultBox(Box b, bool indent) {
                if (H(list[Box] c):=b ) {
-                           if (size(c)>0) out+=  (indent?I([b]):b); 
+                           if (size(c)>0)  return  (indent?I([b]):b); 
                           }
                       else
                       if (V(list[Box] c):=b) {
-                           if (size(c)>0) out+=   (indent?I([b]):b); 
+                           if (size(c)>0)  return  (indent?I([b]):b); 
                           }
                       else
                       if (HV(list[Box] c):=b) {
-                           if (size(c)>0) out+=  (indent?I([b]):b); 
+                           if (size(c)>0) return  (indent?I([b]):b); 
                           }
                       else
                       if (HOV(list[Box] c):=b) {
-                           if (size(c)>0) out+=  (indent?I([b]):b); 
+                           if (size(c)>0) return  (indent?I([b]):b); 
                           }
                      else 
                      if (L(str c):=b) {
-                           if (size(c)>0) out+=  (indent?I([b]):b); 
+                           if (size(c)>0) return  (indent?I([b]):b); 
                           }
                      else
-                          out+=  (indent?I([b]):b);
-                    return out;
+                           return  (indent?I([b]):b);
+                    return NULL();
               } 
                     
 
-list[Box] walkThroughSymbols(pairs u, bool indent) {
-  list[Box] out = [];
-   for  (<Symbol a, Tree t><-u) {
+list[Box] walkThroughSymbols(pairs u, list[int] indent, bool doIndent) {
+   list[Box] out = [];
+   if (classic) {
+      for  (<Symbol a, Tree t><-u) {
        // println(a);
-      if ( \lex(\sort(_)):=a || \lit(_):=a ||  \char-class(_):=a)  out+= L("<t>");
-     else {
+      if ( \lex(\sort(_)):=a || \lit(_):=a ||  \char-class(_):=a)  out+= L("<t>") ;
+      else {
              Box  b = evPt(t);
-              out+= defaultBox(b, indent);
-              }   
+             b = defaultBox(b, indent);
+             if (b!=NULL()) out+= b;
+             }   
+      } 
+   } else  {
+        bool first = true;
+        for   (int i<-[0, 1 .. (size(u)-1)]) 
+        if (<Symbol a, Tree t>:=u[i]) {
+            if (first && (i in indent)) {
+                 Box r = H(out);
+                 out=[r];
+                 first = false;
+                 }
+             if ( \lex(\sort(_)):=a || \lit(_):=a ||  \char-class(_):=a)  out+=(doIndent?I([L("<t>")]) :L("<t>"));
+             else {
+                // if (i in indent) println("OK<i>: <t>");
+                 Box  b = evPt(t,  (i in indent));
+                 b = defaultBox(b,doIndent);
+                 if (b!=NULL()) out+= b;
+                 }   
+        }
    }
    return out;
 }
 
-public text  returnText(Tree a, Box(Tree) userDef) {
-     initConcrete(userDef);
+public text  returnText(Tree a, Box(Tree) userDef, list[int](pairs) isIndented) {
+     initConcrete(userDef, isIndented);
      Box out = evPt(a);
      // println(out);
      return box2text(out);
@@ -189,6 +254,13 @@ public list[Box] getArgs(Tree g, type[&T<:Tree] filter) {
    list[Box] r = [evPt(t) | Tree t <- tl, &T a := t];
    return r;
    }
+
+public Box getConstructor(Tree g,  type[&T<:Tree] filter, str h1, str h2) {
+          Box r =  HV([L(h1)]+getArgs(g, filter)+L(h2));
+           r@hs = 0;
+           return r;
+           }
+ 
    
 public Box cmd(str name, Tree expr, str sep) {
    Box h = H([evPt(expr), L(sep)]);

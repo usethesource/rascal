@@ -10,6 +10,7 @@ import basic::StrCon;
 import box::Aux;
 
 
+bool debug = false;
 
 public Box extraRules(Tree q) {   
    /*   
@@ -58,6 +59,7 @@ public list[Prod] getProductions(Tree t, Sort srt) {
 
 public str  makeProgram(Tree t, str moduleName) { 
       str u = "module templates::<moduleName>\n";
+      /*
       if (Module m := t) {
            if (`module <ModuleName n> <ImpSection* v> <Sections g>`:=m) {
                 str s = replaceAll("<n>","/","::");
@@ -65,8 +67,11 @@ public str  makeProgram(Tree t, str moduleName) {
                 u+="import <s>;\n";
                 }
            }
+       */
+    u+="import rascal::\\old-syntax::Rascal;\n";     
     u+="import box::Box;\n";
     u+="import box::Concrete;\n";
+    /*
     for (/Import m <- t) {
            if (`<Import n>`:=m) {
                 str s = replaceAll("<n>","/","::");
@@ -74,6 +79,7 @@ public str  makeProgram(Tree t, str moduleName) {
                 u+="import <s>;\n";
                 }
            }
+     */
      u += "public Box get<moduleName>(Tree q) {\n";
      set[Sort] srts = getSorts(t);
      for (Sort srt<-srts) {
@@ -81,7 +87,10 @@ public str  makeProgram(Tree t, str moduleName) {
          list[Prod] r= getProductions(t, srt);
          if (size(r)>0) u+="if (<srt> a:=q) \nswitch(a) {\n";
          for (\Prod p<- r) {
-            // Problem: println(`<Symbols a> -> <Sym b> <Attributes at>`:=p);
+            if (debug) {
+                              println(`<Symbols a> -> <Sym b> <Attributes at>`:=p);
+                              println(p);
+                              }
             u+="\tcase `";
             list[Tree] ps = getArgs(p);
             for (Tree z<-ps) {
