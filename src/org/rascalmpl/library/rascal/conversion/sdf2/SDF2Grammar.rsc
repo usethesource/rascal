@@ -1,23 +1,22 @@
 module rascal::conversion::sdf2::SDF2Grammar
 
-// Convert SDF2 grammars to the Rascal internal grammar representation format
+// Convert SDF2 grammars to the Rascal internal grammar representation format Grammar
 
 // Todo List:
-// - aliases
-// - (lexical) variables
+// - Introduce aliases (needs alias resolution in concrete fragments)
+// - The expression: `(Group) `A -> B <1>`; triggers a bug in AST construction
+// - Propagate info that production came from lexical/cfg section.
+//   . Add extra atribute \term("lexical")?
+//   . Add a boolean field to prod
+// - See some TODOs in the code
 
 import IO;
 import String;
 import Integer;
 import ParseTree;
-//import List;
 import rascal::parser::Grammar;
 import rascal::parser::Definition;
 import rascal::conversion::sdf2::Load;
-
-//import languages::sdf2::syntax::\Sdf2;
-//import languages::sdf2::syntax::\Sdf2-Syntax;
-
 import languages::sdf2::syntax::Sdf2ForRascal;
 
 // Resolve name clashes between the ParseTree and Grammar datatypes.
@@ -34,9 +33,19 @@ import languages::sdf2::syntax::Sdf2ForRascal;
 
 private bool debug = false;
 
+// Convert SDF definition from given location
+
 public Grammar sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
 }
+
+// Some statements to test on given grammars
+// print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Pico.def|));
+// print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Rascal.def|));
+// print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/java111.def|));
+// print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/C.def|));
+
+// Print a Grammar 
 
 public void print(Grammar G){
   println("grammar(<G.start>, {");
@@ -46,20 +55,39 @@ public void print(Grammar G){
   println("})");
 }
 
-// test sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Pico.def|);
-// test print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Rascal.def|));
-// test print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/java111.def|));
-// test print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/C.def|));
-
 public Grammar sdf2module2grammar(str name, list[loc] path) {
   return sdf2grammar(loadSDF2Module(name, path));
 }
 
 //loadSDF2Module("Names", [|stdlib:///org/rascalimpl/library/rascal/syntax/Names.sdf|]);
 
+// Convert given SDF definition
+
 public Grammar sdf2grammar(SDF definition) {
   return grammar(getStartSymbols(definition), getProductions(definition));
 }
+
+test sdf2grammar(
+        `definition
+         module X
+         exports
+           context-free syntax
+              "abc" -> ABC`) ==
+         grammar({},{prod([lit("abc")],sort("ABC"),\no-attrs())});
+
+test sdf2grammar(
+		`definition
+		 module PICOID
+         exports
+           lexical syntax
+             [a-z] [a-z0-9]* -> PICO-ID  
+           lexical restrictions
+             PICO-ID -/- [a-z0-9]`) == 
+                  
+         grammar({},
+                 {restrict(sort("PICO-ID"),others(sort("PICO-ID")),[\char-class([range(48,57),range(97,122)])]),
+                  prod([\char-class([range(97,122)]),\iter-star(\char-class([range(48,57),range(97,122)]))],sort("PICO-ID"),\no-attrs())});
+
 
 // ----- getProductions, getProduction -----
 
@@ -76,7 +104,7 @@ public set[ParseTree::Production] getProductions(languages::sdf2::syntax::Sdf2Fo
     	res += getProductions(prods, false); 
     	
     case (Grammar) `restrictions <languages::sdf2::syntax::Sdf2ForRascal::Restriction* rests>`:
-    	res += getRestrictions(rests, true);
+    	res += getRestrictions(rests, false);
     	
     case (Grammar) `lexical restrictions <languages::sdf2::syntax::Sdf2ForRascal::Restriction* rests>`:
     	res += getRestrictions(rests, true);
@@ -154,7 +182,7 @@ test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left
                attrs([term(cons("decl")),\assoc(left())]));
                
 test getProduction((Production) `[\ \t\n\r]	-> LAYOUT {cons("whitespace")}`, true) == 
-     prod([\char-class([range(32,32),range(110,110),range(114,114),range(116,116)])],sort("LAYOUT"),attrs([term(cons("whitespace"))]));
+     prod([\char-class([range(9,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace"))]));
 
 //test getProduction((Production) `{~[\n]* [\n]}* -> Rest`, true);
 
@@ -301,6 +329,7 @@ test getPriority((Priority) `A -> B > C -> D`, true) ==
 test getPriority((Priority) `A -> B > C -> D > E -> F`, true) ==
      first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs()),prod([sort("E")],sort("F"),\no-attrs())]);
 
+// ----- definedSymbol -----
 
 public Symbol definedSymbol((&T <: Tree) v, bool isLex) {
   // Note that this might not work if there are different right-hand sides in the group...
@@ -564,7 +593,7 @@ public Symbol getCharClass(languages::sdf2::syntax::Sdf2ForRascal::CharClass cc)
    }
 }
 
-//  (CharClass) `[]` == \char-class([]);  // ===> gives unsupported operation
+//  (CharClass) `[]` == \char-class([]);  // ===> TODO: gives unsupported operation
 
 test getCharClass((CharClass) `[]`)         == \char-class([]);
 test getCharClass((CharClass) `[a]`)        == \char-class([range(97,97)]);
@@ -575,9 +604,10 @@ test getCharClass((CharClass) `~[a]`)       == complement(\char-class([range(97,
 test getCharClass((CharClass) `[a] /\ [b]`) == intersection(\char-class([range(97,97)]), \char-class([range(98,98)]));
 test getCharClass((CharClass) `[a] \/ [b]`) == union(\char-class([range(97,97)]), \char-class([range(98,98)]));
 test getCharClass((CharClass) `[a] / [b]`)  == difference(\char-class([range(97,97)]), \char-class([range(98,98)]));
-test getCharClass((CharClass) `[\n]`)       == \char-class([range(110,110)]);
+test getCharClass((CharClass) `[\n]`)       == \char-class([range(10,10)]);
+test getCharClass((CharClass) `[\t\n]`)     == \char-class([range(9,10)]);
 test getCharClass((CharClass) `~[\0-\31\n\t\"\\]`) ==
-     complement(\char-class([range(0,25),range(34,34),range(92,92),range(110,110),range(116,116)]));
+     complement(\char-class([range(0,25),range(34,34),range(92,92)]));
 
 // ----- getCharRange -----
       
@@ -596,11 +626,11 @@ test getCharRange((CharRange) `a`)   == range(97,97);
 
 test getCharRange((CharRange) `a-z`) == range(97,122);
 
-test getCharRange((CharRange) `\n`)  ==  range(110,110);
+test getCharRange((CharRange) `\n`)  ==  range(10,10);
 
 // ----- getCharacter -----
 
-private int getCharacter(Character c) {
+public int getCharacter(Character c) {
   if(debug) println("getCharacter: <c>");
   switch (c) {
     case [Character] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
@@ -608,6 +638,11 @@ private int getCharacter(Character c) {
     case [Character] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
     
     case [Character] /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    
+    case [Character] /\\t/                     : return 9;
+    case [Character] /\\n/                     : return 10;
+    case [Character] /\\r/                     : return 13;
+    case [Character] /\\ /                     : return 32;
     
     case [Character] /\\<esc:["'\-\[\]\\ ]>/   : return charAt(esc, 0);
     
@@ -623,7 +658,7 @@ test getCharacter((Character) `\'`)   == charAt("\'", 0);
 test getCharacter((Character) `\1`)   == toInt("01");
 test getCharacter((Character) `\12`)  == toInt("012");
 test getCharacter((Character) `\123`) == toInt("0123");
-test getCharacter((Character) `\n`)   == 110;
+test getCharacter((Character) `\n`)   == 10;
 
 // ----- getAttributes, getAttribute, getAssociativity -----
 
@@ -656,11 +691,16 @@ test getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
 
 private Associativity getAssociativity(languages::sdf2::syntax::Sdf2ForRascal::Associativity as){
   switch (as) {
-    case (Associativity) `left`: return left();
-    case (Associativity) `right`: return right();
-    case (Associativity) `non-assoc`: return \non-assoc();
-    case (Associativity) `assoc`: return \assoc();
-    default: throw "missed a case <as>";
+    case (Associativity) `left`:
+    	return left();
+    case (Associativity) `right`:
+    	return right();
+    case (Associativity) `non-assoc`:
+    	return \non-assoc();
+    case (Associativity) `assoc`:
+    	return \assoc();
+    default:
+    	throw "missed a case <as>";
   }
 }
  
