@@ -174,14 +174,14 @@ public abstract class SGLL implements IGLL{
 		addPrefixes(next, prefixes);
 	}
 	
-	private void updateEdgeNode(AbstractStackNode node, IConstructor production, Link[] results){
+	private void updateEdgeNode(AbstractStackNode node, ArrayList<Link> prefixes, INode result, IConstructor production){
 		int startLocation = node.getStartLocation();
 		ArrayList<AbstractStackNode> possiblySharedEdgeNodes = possiblySharedEdgeNodesMap.get(startLocation);
 		if(possiblySharedEdgeNodes != null){
 			for(int i = possiblySharedEdgeNodes.size() - 1; i >= 0; i--){
 				AbstractStackNode possibleAlternative = possiblySharedEdgeNodes.get(i);
 				if(possibleAlternative.isSimilar(node)){
-					if(withResults.contains(possibleAlternative)) addResults(possibleAlternative, production, results);
+					if(withResults.contains(possibleAlternative)) addResult(possibleAlternative, prefixes, result, production);
 					return;
 				}
 			}
@@ -202,7 +202,7 @@ public abstract class SGLL implements IGLL{
 			node.setResultStore(resultStore);
 			resultStoreCache.unsafePut(production, startLocation, resultStore);
 			withResults.unsafePut(node);
-			addResults(node, production, results);
+			addResult(node, prefixes, result, production);
 		}
 		
 		if(location == input.length && !node.hasEdges() && !node.hasNext()){
@@ -213,23 +213,25 @@ public abstract class SGLL implements IGLL{
 		stacksWithNonTerminalsToReduce.put(node);
 	}
 	
-	private void addResults(AbstractStackNode edge, IConstructor production, Link[] results){
-		int nrOfResults = results.length;
-		for(int i = nrOfResults - 1; i >= 0; i--){
-			if(edge.getStartLocation() == results[i].productionStart){
-				edge.addResult(production, results[i]);
-			}
-		}
+	private void addResult(AbstractStackNode edge, ArrayList<Link> prefixes, INode result, IConstructor production){
+		edge.addResult(production, new Link(prefixes, result, edge.getStartLocation()));
 	}
 	
 	private void move(AbstractStackNode node){
 		IConstructor production = node.getParentProduction();
 		ArrayList<AbstractStackNode> edges;
 		if((edges = node.getEdges()) != null){
-			Link[] results = constructResults(node.getPrefixesMap(), node.getResult(), node.getStartLocation());
+			LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap = node.getPrefixesMap();
+			INode result = node.getResult();
 			
 			for(int i = edges.size() - 1; i >= 0; i--){
-				updateEdgeNode(edges.get(i), production, results);
+				AbstractStackNode edge = edges.get(i);
+				ArrayList<Link> prefixes = null;
+				if(prefixesMap != null){
+					prefixes = prefixesMap.findValue(edge.getStartLocation());
+					if(prefixes == null) continue;
+				}
+				updateEdgeNode(edge, prefixes, result, production);
 			}
 		}
 		
