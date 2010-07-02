@@ -170,8 +170,7 @@ public abstract class AbstractStackNode{
 	public abstract AbstractStackNode[] getChildren();
 	
 	// Results.
-	public void addPrefix(Link prefix){
-		int prefixStartLocation = prefix.productionStart;
+	public void addPrefix(Link prefix, int prefixStartLocation){
 		ArrayList<Link> prefixes;
 		if(prefixesMap == null){
 			prefixesMap = new LinearIntegerKeyedMap<ArrayList<Link>>();
