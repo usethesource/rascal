@@ -19,9 +19,10 @@ public abstract class AbstractStackNode{
 
 	protected LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap;
 	
-	// Last node specific stuff
+	// Last node specific filter stuff
 	private IConstructor parentProduction;
 	private IReducableStackNode[] followRestrictions;
+	private boolean isReject;
 	
 	public AbstractStackNode(int id){
 		super();
@@ -97,6 +98,14 @@ public abstract class AbstractStackNode{
 			}
 		}
 		return false;
+	}
+	
+	public void setReject(boolean isReject){
+		this.isReject = isReject;
+	}
+	
+	public boolean isReject(){
+		return isReject;
 	}
 	
 	// Sharing.

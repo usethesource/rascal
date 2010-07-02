@@ -68,12 +68,13 @@ public abstract class SGLL implements IGLL{
 		lastNode.setParentProduction(production);
 	}
 	
-	protected void expect(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
+	protected void expect(IConstructor production, IReducableStackNode[] followRestrictions, boolean isReject, AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
 		lastNode.setParentProduction(production);
 		lastNode.setFollowRestriction(followRestrictions);
+		lastNode.setReject(isReject);
 	}
 	
 	private void callMethod(String methodName){
@@ -173,7 +174,9 @@ public abstract class SGLL implements IGLL{
 						ArrayList<Link> edgePrefixes = new ArrayList<Link>();
 						edgePrefixes.add(prefix);
 						ContainerNode resultStore = edge.getResultStore();
-						resultStore.addAlternative(production, new Link(edgePrefixes, next.getResult()));
+						if(!resultStore.isRejected()){
+							resultStore.addAlternative(production, new Link(edgePrefixes, next.getResult()));
+						}
 					}
 				}
 			}
@@ -189,7 +192,11 @@ public abstract class SGLL implements IGLL{
 				if(possibleAlternative.isSimilar(node)){
 					if(withResults.contains(possibleAlternative)){
 						ContainerNode resultStore = possibleAlternative.getResultStore();
-						resultStore.addAlternative(production, new Link(prefixes, result));
+						if(!(possibleAlternative.isReject() || resultStore.isRejected())){
+							resultStore.addAlternative(production, new Link(prefixes, result));
+						}else{
+							resultStore.setRejected(); // Rejected.
+						}
 					}
 					return;
 				}
@@ -205,15 +212,18 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
-		node.setResultStore(resultStore);
 		if(resultStore == null){
-			resultStore = new ContainerNode();
-			node.setResultStore(resultStore);
-			resultStoreCache.unsafePut(production, startLocation, resultStore);
-			withResults.unsafePut(node);
-			
-			resultStore.addAlternative(production, new Link(prefixes, result));
+			if(!node.isReject()){
+				resultStore = new ContainerNode();
+				resultStoreCache.unsafePut(production, startLocation, resultStore);
+				withResults.unsafePut(node);
+				
+				resultStore.addAlternative(production, new Link(prefixes, result));
+			}else{
+				return; // Rejected & pruned.
+			}
 		}
+		node.setResultStore(resultStore);
 		
 		if(location == input.length && !node.hasEdges() && !node.hasNext()){
 			root = node; // Root reached.
