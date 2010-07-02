@@ -20,6 +20,8 @@ public class ContainerNode implements INode{
 	private ArrayList<IConstructor> productions;
 	private ArrayList<Link> alternatives;
 	
+	private boolean rejected;
+	
 	public ContainerNode(){
 		super();
 	}
@@ -40,6 +42,10 @@ public class ContainerNode implements INode{
 	
 	public boolean isEpsilon(){
 		return false;
+	}
+	
+	public void setRejected(){
+		rejected = true;
 	}
 	
 	private void gatherAlternatives(Link child, DoubleArrayList<INode[], IConstructor> gatheredAlternatives, IConstructor production){
@@ -86,6 +92,10 @@ public class ContainerNode implements INode{
 	}
 	
 	public IValue toTerm(IndexedStack<INode> stack, int depth){
+		if(rejected){
+			return vf.constructor(Factory.Tree_Rejected);
+		}
+		
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			return vf.constructor(Factory.Tree_Cycle, firstProduction.get("rhs"), vf.integer(depth - index));
