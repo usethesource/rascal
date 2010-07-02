@@ -193,7 +193,7 @@ public abstract class AbstractStackNode{
 	
 	public abstract void setResultStore(ContainerNode resultStore);
 	
-	public abstract void addResult(IConstructor production, Link children);
+	public abstract ContainerNode getResultStore();
 	
 	public abstract INode getResult();
 }

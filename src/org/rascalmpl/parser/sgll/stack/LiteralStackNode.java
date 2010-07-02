@@ -72,15 +72,15 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 		throw new UnsupportedOperationException();
 	}
 	
+	public ContainerNode getResultStore(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public int getLength(){
 		return literal.length;
 	}
 	
 	public AbstractStackNode[] getChildren(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public void addResult(IConstructor production, Link children){
 		throw new UnsupportedOperationException();
 	}
 	

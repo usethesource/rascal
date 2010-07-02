@@ -6,7 +6,6 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.IntegerList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class ListStackNode extends AbstractStackNode implements IListStackNode{
@@ -77,6 +76,10 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		result = resultStore;
 	}
 	
+	public ContainerNode getResultStore(){
+		return result;
+	}
+	
 	public int getLength(){
 		throw new UnsupportedOperationException();
 	}
@@ -104,10 +107,6 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		epsn.setParentProduction(symbol);
 		
 		return new AbstractStackNode[]{psn, epsn};
-	}
-	
-	public void addResult(IConstructor production, Link children){
-		result.addAlternative(production, children);
 	}
 	
 	public INode getResult(){
