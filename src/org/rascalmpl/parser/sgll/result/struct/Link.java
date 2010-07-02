@@ -6,13 +6,11 @@ import org.rascalmpl.parser.sgll.util.ArrayList;
 public class Link{
 	public final ArrayList<Link> prefixes;
 	public final INode node;
-	public final int productionStart;
 	
-	public Link(ArrayList<Link> prefixes, INode node, int productionStart){
+	public Link(ArrayList<Link> prefixes, INode node){
 		super();
 		
 		this.prefixes = prefixes;
 		this.node = node;
-		this.productionStart = productionStart;
 	}
 }
