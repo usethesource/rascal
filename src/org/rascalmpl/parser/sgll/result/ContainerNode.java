@@ -14,11 +14,11 @@ import org.rascalmpl.values.uptr.Factory;
 
 public class ContainerNode implements INode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	
-	private IConstructor firstProduction;
+
 	private Link firstAlternative;
-	private ArrayList<IConstructor> productions;
+	private IConstructor firstProduction;
 	private ArrayList<Link> alternatives;
+	private ArrayList<IConstructor> productions;
 	
 	private boolean rejected;
 	
@@ -28,15 +28,15 @@ public class ContainerNode implements INode{
 	
 	public void addAlternative(IConstructor production, Link children){
 		if(firstAlternative == null){
-			firstProduction = production;
 			firstAlternative = children;
+			firstProduction = production;
 		}else{
 			if(alternatives == null){
-				productions = new ArrayList<IConstructor>(1);
 				alternatives = new ArrayList<Link>(1);
+				productions = new ArrayList<IConstructor>(1);
 			}
-			productions.add(production);
 			alternatives.add(children);
+			productions.add(production);
 		}
 	}
 	
@@ -46,6 +46,15 @@ public class ContainerNode implements INode{
 	
 	public void setRejected(){
 		rejected = true;
+		
+		// Clean up.
+		firstAlternative = null;
+		alternatives = null;
+		productions = null;
+	}
+	
+	public boolean isRejected(){
+		return rejected;
 	}
 	
 	private void gatherAlternatives(Link child, DoubleArrayList<INode[], IConstructor> gatheredAlternatives, IConstructor production){
