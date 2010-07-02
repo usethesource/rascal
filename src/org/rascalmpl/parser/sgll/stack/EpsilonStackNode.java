@@ -1,6 +1,5 @@
 package org.rascalmpl.parser.sgll.stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.EpsilonNode;
 import org.rascalmpl.parser.sgll.result.INode;
@@ -51,15 +50,15 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 		throw new UnsupportedOperationException();
 	}
 	
+	public ContainerNode getResultStore(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public int getLength(){
 		return 0;
 	}
 	
 	public AbstractStackNode[] getChildren(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public void addResult(IConstructor production, Link children){
 		throw new UnsupportedOperationException();
 	}
 	

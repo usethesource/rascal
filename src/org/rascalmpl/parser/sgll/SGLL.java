@@ -172,7 +172,8 @@ public abstract class SGLL implements IGLL{
 					if(prefix != null){
 						ArrayList<Link> edgePrefixes = new ArrayList<Link>();
 						edgePrefixes.add(prefix);
-						edge.addResult(production, new Link(edgePrefixes, next.getResult()));
+						ContainerNode resultStore = edge.getResultStore();
+						resultStore.addAlternative(production, new Link(edgePrefixes, next.getResult()));
 					}
 				}
 			}
@@ -186,7 +187,10 @@ public abstract class SGLL implements IGLL{
 			for(int i = possiblySharedEdgeNodes.size() - 1; i >= 0; i--){
 				AbstractStackNode possibleAlternative = possiblySharedEdgeNodes.get(i);
 				if(possibleAlternative.isSimilar(node)){
-					if(withResults.contains(possibleAlternative)) addResult(possibleAlternative, prefixes, result, production);
+					if(withResults.contains(possibleAlternative)){
+						ContainerNode resultStore = possibleAlternative.getResultStore();
+						resultStore.addAlternative(production, new Link(prefixes, result));
+					}
 					return;
 				}
 			}
@@ -207,7 +211,8 @@ public abstract class SGLL implements IGLL{
 			node.setResultStore(resultStore);
 			resultStoreCache.unsafePut(production, startLocation, resultStore);
 			withResults.unsafePut(node);
-			addResult(node, prefixes, result, production);
+			
+			resultStore.addAlternative(production, new Link(prefixes, result));
 		}
 		
 		if(location == input.length && !node.hasEdges() && !node.hasNext()){
@@ -216,10 +221,6 @@ public abstract class SGLL implements IGLL{
 		
 		possiblySharedEdgeNodes.add(node);
 		stacksWithNonTerminalsToReduce.put(node);
-	}
-	
-	private void addResult(AbstractStackNode edge, ArrayList<Link> prefixes, INode result, IConstructor production){
-		edge.addResult(production, new Link(prefixes, result));
 	}
 	
 	private void move(AbstractStackNode node){
