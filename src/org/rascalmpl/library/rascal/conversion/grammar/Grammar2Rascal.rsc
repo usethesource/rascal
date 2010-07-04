@@ -6,6 +6,7 @@ module rascal::conversion::grammar::Grammar2Rascal
 // TODO:
 // - Howto translate a lexical rule/restriction/priority? Where do we obtain this info?
 // - Escaping is not yet fullproof
+// -- Restrict/others misses from Rascal syntax format
 
 import rascal::parser::Grammar;
 import IO;
@@ -38,18 +39,18 @@ grammar({sort("PROGRAM")}, {
 	prod([\char-class([range(34,34)]),label("chars",\iter-star(sort("StrChar"))),\char-class([range(34,34)])],sort("StrCon"),attrs([term(cons("default"))])),
 	prod([lit("\\\n")],sort("StrChar"),attrs([term(cons("newline"))])),
 	prod([lit("\\\\\"")],sort("StrChar"),attrs([term(cons("quote"))])),
-//	restrict(sort("NatCon"),others(sort("NatCon")),[\char-class([range(48,57)])]),
+	restrict(sort("NatCon"),others(sort("NatCon")),[\char-class([range(48,57)])]),
 	prod([\char-class([range(9,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace"))])),
 	prod([lit("\\"),label("a",\char-class([range(48,57)])),label("b",\char-class([range(48,57)])),label("c",\char-class([range(48,57)]))],sort("StrChar"),attrs([term(cons("decimal"))])),
 	prod([lit("while"),sort("EXP"),lit("do"),\iter-star-seps(sort("STATEMENT"),[\layout(),lit(";"),\layout()]),lit("od")],sort("STATEMENT"),\no-attrs()),
 	prod([lit("declare"),\iter-star-seps(sort("ID-TYPE"),[\layout(),lit(","),\layout()]),lit(";")],sort("DECLS"),\no-attrs()),
-//	restrict(opt(sort("LAYOUT")),others(opt(sort("LAYOUT"))),[\char-class([range(9,10),range(13,13),range(32,32)])]),
+	restrict(opt(sort("LAYOUT")),others(opt(sort("LAYOUT"))),[\char-class([range(9,10),range(13,13),range(32,32)])]),
 	prod([sort("PICO-ID")],sort("EXP"),\no-attrs()),
 	prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs()),
 	prod([lit("("),sort("EXP"),lit(")")],sort("EXP"),\no-attrs()),
 	prod([sort("NatCon")],sort("EXP"),\no-attrs()),
 	prod([sort("EXP"),lit("-"),sort("EXP")],sort("EXP"),\no-attrs()),
-//	restrict(sort("PICO-ID"),others(sort("PICO-ID")),[\char-class([range(48,57),range(97,122)])]),
+	restrict(sort("PICO-ID"),others(sort("PICO-ID")),[\char-class([range(48,57),range(97,122)])]),
 	prod([sort("PICO-ID"),lit(":="),sort("EXP")],sort("STATEMENT"),\no-attrs()),
 	prod([\char-class([range(97,122)]),\iter-star(\char-class([range(48,57),range(97,122)]))],sort("PICO-ID"),\no-attrs()),
 	prod([lit("natural")],sort("TYPE"),\no-attrs()),
@@ -83,7 +84,8 @@ public str prod2rascal(Production p) {
     case diff(s,p,alts) :
        	return ( "<prod2rascal(p)>\n\t- <prod2rascal(head(alts))>" | "<it>\n\t- <prod2rascal(pr)>" | pr <- tail(alts) );
  
- // restrict
+    case restrict(rhs, language, restrictions):
+    	return "*** restriction <symbol2rascal(rhs)> -/- <for(r <- restrictions){> <symbol2rascal(r)> <}>";
  // others
     case prod(_,lit(_),_) : return "";
     
@@ -114,6 +116,10 @@ test prod2rascal(
 	                   prod([sort("EXP"),lit("-"),sort("EXP")],sort("EXP"),\no-attrs()),
 	                   prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())])) ==
 	"EXP \"||\" EXP \n\t\> EXP \"-\" EXP \n\t\> EXP \"+\" EXP ";
+	
+//test prod2rascal(
+//	restrict(sort("NatCon"),others(sort("NatCon")),[\char-class([range(48,57)])])) ==
+	
 
 public str attrs2mods(Attributes as) {
   switch (as) {
