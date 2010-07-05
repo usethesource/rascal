@@ -25,6 +25,10 @@ public class EpsilonNode implements INode{
 		return true;
 	}
 	
+	public boolean isRejected(){
+		return false;
+	}
+	
 	public String toString(){
 		return EPSILON_STRING;
 	}

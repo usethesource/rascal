@@ -452,6 +452,10 @@ public abstract class SGLL implements IGLL{
 		
 		if(root == null) throw new RuntimeException("Parse Error before: "+(location == Integer.MAX_VALUE ? 0 : location));
 		
-		return root.getResult().toTerm(new IndexedStack<INode>(), 0);
+		IValue result = root.getResult().toTerm(new IndexedStack<INode>(), 0);
+		
+		if(result == null) throw new RuntimeException("Parse Error: all trees were filtered.");
+		
+		return result;
 	}
 }

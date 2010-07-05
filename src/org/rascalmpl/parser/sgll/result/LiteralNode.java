@@ -32,6 +32,10 @@ public class LiteralNode implements INode{
 		return false;
 	}
 	
+	public boolean isRejected(){
+		return false;
+	}
+	
 	private void printCharacter(int character, StringBuilder sb){
 		sb.append("char(");
 		sb.append(character);

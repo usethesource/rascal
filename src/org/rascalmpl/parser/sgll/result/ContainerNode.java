@@ -2,6 +2,7 @@ package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -67,31 +68,34 @@ public class ContainerNode implements INode{
 			gatheredAlternatives.add(postFix, production);
 			return;
 		}
+		
 		for(int i = prefixes.size() - 1; i >= 0; i--){
 			Link prefix = prefixes.get(i);
 			
 			int length = postFix.length;
 			INode[] newPostFix = new INode[length + 1];
 			System.arraycopy(postFix, 0, newPostFix, 1, length);
-			newPostFix[0] = prefix.node;
-			gatherProduction(prefix, newPostFix, gatheredAlternatives, production);
+			INode resultNode = prefix.node;
+			if(!resultNode.isRejected()){
+				newPostFix[0] = resultNode;
+				gatherProduction(prefix, newPostFix, gatheredAlternatives, production);
+			}
 		}
 	}
 	
 	private IValue buildAlternative(IConstructor production, INode[] children, IndexedStack<INode> stack, int depth){
 		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; i--){
-			childrenListWriter.insert(children[i].toTerm(stack, depth));
+			IValue childTerm = children[i].toTerm(stack, depth);
+			if(childTerm == null) return null;
+			
+			childrenListWriter.insert(childTerm);
 		}
 		
 		return vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 	}
 	
 	public IValue toTerm(IndexedStack<INode> stack, int depth){
-		if(rejected){
-			return vf.constructor(Factory.Tree_Rejected);
-		}
-		
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			return vf.constructor(Factory.Tree_Cycle, firstProduction.get("rhs"), vf.integer(depth - index));
@@ -114,20 +118,35 @@ public class ContainerNode implements INode{
 		// Output.
 		
 		int nrOfAlternatives = gatheredAlternatives.size();
-		if(nrOfAlternatives == 1){
+		if(nrOfAlternatives == 1){ // Not ambiguous.
 			IConstructor production = gatheredAlternatives.getSecond(0);
 			INode[] alternative = gatheredAlternatives.getFirst(0);
 			result = buildAlternative(production, alternative, stack, childDepth);
-		}else{
-			ISetWriter ambListWriter = vf.setWriter(Factory.Tree);
+		}else if(nrOfAlternatives == 0){ // Filtered.
+			result = null;
+		}else{ // Possibly ambiguous.
+			ISetWriter ambSetWriter = vf.setWriter(Factory.Tree);
 			
+			// Construct the alternatives.
 			for(int i = nrOfAlternatives - 1; i >= 0; i--){
 				IConstructor production = gatheredAlternatives.getSecond(0);
 				INode[] alternative = gatheredAlternatives.getFirst(0);
-				ambListWriter.insert(buildAlternative(production, alternative, stack, childDepth));
+				IValue alternativeTerm = buildAlternative(production, alternative, stack, childDepth);
+				if(alternativeTerm == null) continue;
+				
+				ambSetWriter.insert(alternativeTerm);
 			}
 			
-			result = vf.constructor(Factory.Tree_Amb, ambListWriter.done());
+			// Construct the result, based on the number of alternatives.
+			ISet ambCluster = ambSetWriter.done();
+			int nrOfAmbiguities = ambCluster.size();
+			if(nrOfAmbiguities == 1){ // Not ambiguous.
+				result = ambCluster.iterator().next();
+			}else if(nrOfAmbiguities == 0){ // Filtered.
+				result = null;
+			}else{ // Ambiguous.
+				result = vf.constructor(Factory.Tree_Amb, ambCluster);
+			}
 		}
 		
 		stack.purge(); // Pop.
