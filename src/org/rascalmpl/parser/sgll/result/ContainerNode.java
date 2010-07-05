@@ -67,27 +67,14 @@ public class ContainerNode implements INode{
 			gatheredAlternatives.add(postFix, production);
 			return;
 		}
-		
-		int nrOfPrefixes = prefixes.size();
-		if(nrOfPrefixes == 1){
-			Link prefix = prefixes.get(0);
-			
-			int length = postFix.length;
-			INode[] newPostFix = new INode[length + 1];
-			System.arraycopy(postFix, 0, newPostFix, 1, length);
-			newPostFix[0] = prefix.node;
-			gatherProduction(prefix, newPostFix, gatheredAlternatives, production);
-			return;
-		}
-		
-		for(int i = nrOfPrefixes - 1; i >= 0; i--){
+		for(int i = prefixes.size() - 1; i >= 0; i--){
 			Link prefix = prefixes.get(i);
 			
 			int length = postFix.length;
 			INode[] newPostFix = new INode[length + 1];
 			System.arraycopy(postFix, 0, newPostFix, 1, length);
 			newPostFix[0] = prefix.node;
-			gatherProduction(child.prefixes.get(i), newPostFix, gatheredAlternatives, production);
+			gatherProduction(prefix, newPostFix, gatheredAlternatives, production);
 		}
 	}
 	
