@@ -10,5 +10,7 @@ public interface INode{
 	
 	boolean isEpsilon();
 	
+	boolean isRejected();
+	
 	IValue toTerm(IndexedStack<INode> stack, int depth);
 }

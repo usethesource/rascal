@@ -28,6 +28,10 @@ public class CharNode implements INode{
 		return false;
 	}
 	
+	public boolean isRejected(){
+		return false;
+	}
+	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
