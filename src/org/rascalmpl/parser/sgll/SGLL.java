@@ -68,13 +68,29 @@ public abstract class SGLL implements IGLL{
 		lastNode.setParentProduction(production);
 	}
 	
-	protected void expect(IConstructor production, IReducableStackNode[] followRestrictions, boolean isReject, AbstractStackNode... symbolsToExpect){
+	protected void expect(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
 		lastNode.setParentProduction(production);
 		lastNode.setFollowRestriction(followRestrictions);
-		lastNode.setReject(isReject);
+	}
+	
+	protected void expectReject(IConstructor production, AbstractStackNode... symbolsToExpect){
+		lastExpects.add(symbolsToExpect);
+		
+		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
+		lastNode.setParentProduction(production);
+		lastNode.markAsReject();
+	}
+	
+	protected void expectReject(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
+		lastExpects.add(symbolsToExpect);
+		
+		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
+		lastNode.setParentProduction(production);
+		lastNode.setFollowRestriction(followRestrictions);
+		lastNode.markAsReject();
 	}
 	
 	private void callMethod(String methodName){
