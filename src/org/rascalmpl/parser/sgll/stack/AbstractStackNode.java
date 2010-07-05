@@ -100,8 +100,8 @@ public abstract class AbstractStackNode{
 		return false;
 	}
 	
-	public void setReject(boolean isReject){
-		this.isReject = isReject;
+	public void markAsReject(){
+		isReject = true;
 	}
 	
 	public boolean isReject(){
