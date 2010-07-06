@@ -2,7 +2,6 @@ package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -58,11 +57,15 @@ public class ContainerNode implements INode{
 		return rejected;
 	}
 	
-	private void gatherAlternatives(Link child, DoubleArrayList<INode[], IConstructor> gatheredAlternatives, IConstructor production){
-		gatherProduction(child, new INode[]{child.node}, gatheredAlternatives, production);
+	private void gatherAlternatives(Link child, DoubleArrayList<IValue[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<INode> stack, int depth){
+		INode resultNode = child.node;
+		IValue result = resultNode.toTerm(stack, depth);
+		if(result == null) return; // Rejected.
+		
+		gatherProduction(child, new IValue[]{result}, gatheredAlternatives, production, stack, depth);
 	}
 	
-	private void gatherProduction(Link child, INode[] postFix, DoubleArrayList<INode[], IConstructor> gatheredAlternatives, IConstructor production){
+	private void gatherProduction(Link child, IValue[] postFix, DoubleArrayList<IValue[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<INode> stack, int depth){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
 			gatheredAlternatives.add(postFix, production);
@@ -73,23 +76,23 @@ public class ContainerNode implements INode{
 			Link prefix = prefixes.get(i);
 			
 			int length = postFix.length;
-			INode[] newPostFix = new INode[length + 1];
+			IValue[] newPostFix = new IValue[length + 1];
 			System.arraycopy(postFix, 0, newPostFix, 1, length);
 			INode resultNode = prefix.node;
 			if(!resultNode.isRejected()){
-				newPostFix[0] = resultNode;
-				gatherProduction(prefix, newPostFix, gatheredAlternatives, production);
+				IValue result = resultNode.toTerm(stack, depth);
+				if(result == null) return; // Rejected.
+				
+				newPostFix[0] = result;
+				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth);
 			}
 		}
 	}
 	
-	private IValue buildAlternative(IConstructor production, INode[] children, IndexedStack<INode> stack, int depth){
+	private IValue buildAlternative(IConstructor production, IValue[] children){
 		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; i--){
-			IValue childTerm = children[i].toTerm(stack, depth);
-			if(childTerm == null) return null;
-			
-			childrenListWriter.insert(childTerm);
+			childrenListWriter.insert(children[i]);
 		}
 		
 		return vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
@@ -102,51 +105,41 @@ public class ContainerNode implements INode{
 		}
 		
 		int childDepth = depth + 1;
-		IValue result;
 		
 		stack.push(this, depth); // Push.
 		
 		// Gather
-		DoubleArrayList<INode[], IConstructor> gatheredAlternatives = new DoubleArrayList<INode[], IConstructor>();
-		gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction);
+		DoubleArrayList<IValue[], IConstructor> gatheredAlternatives = new DoubleArrayList<IValue[], IConstructor>();
+		gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth);
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; i--){
-				gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i));
+				gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth);
 			}
 		}
 		
 		// Output.
+		IValue result;
 		
 		int nrOfAlternatives = gatheredAlternatives.size();
 		if(nrOfAlternatives == 1){ // Not ambiguous.
 			IConstructor production = gatheredAlternatives.getSecond(0);
-			INode[] alternative = gatheredAlternatives.getFirst(0);
-			result = buildAlternative(production, alternative, stack, childDepth);
+			IValue[] alternative = gatheredAlternatives.getFirst(0);
+			result = buildAlternative(production, alternative);
 		}else if(nrOfAlternatives == 0){ // Filtered.
 			result = null;
-		}else{ // Possibly ambiguous.
+		}else{ // Ambiguous.
 			ISetWriter ambSetWriter = vf.setWriter(Factory.Tree);
 			
-			// Construct the alternatives.
 			for(int i = nrOfAlternatives - 1; i >= 0; i--){
 				IConstructor production = gatheredAlternatives.getSecond(0);
-				INode[] alternative = gatheredAlternatives.getFirst(0);
-				IValue alternativeTerm = buildAlternative(production, alternative, stack, childDepth);
+				IValue[] alternative = gatheredAlternatives.getFirst(0);
+				IValue alternativeTerm = buildAlternative(production, alternative);
 				if(alternativeTerm == null) continue;
 				
 				ambSetWriter.insert(alternativeTerm);
 			}
 			
-			// Construct the result, based on the number of alternatives.
-			ISet ambCluster = ambSetWriter.done();
-			int nrOfAmbiguities = ambCluster.size();
-			if(nrOfAmbiguities == 1){ // Not ambiguous.
-				result = ambCluster.iterator().next();
-			}else if(nrOfAmbiguities == 0){ // Filtered.
-				result = null;
-			}else{ // Ambiguous.
-				result = vf.constructor(Factory.Tree_Amb, ambCluster);
-			}
+			result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
 		}
 		
 		stack.purge(); // Pop.
