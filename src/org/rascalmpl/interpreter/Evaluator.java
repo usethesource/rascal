@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Map.Entry;
 
-import junit.framework.TestResult;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -483,7 +481,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	private IConstructor filterStart(IConstructor startSort, IConstructor ptree) {
-		ptree = ParsetreeAdapter.addPositionInformation(ptree, URI.create("stdin:///"));
 		IConstructor top = ParsetreeAdapter.getTop(ptree);
 		IList args = TreeAdapter.getArgs(top);
 		IConstructor tree = (IConstructor) args.get(1);
@@ -1207,7 +1204,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if(tree.getConstructorType() == Factory.ParseTree_Summary){
 			throw parseError(tree, location);
 		}
-		return ParsetreeAdapter.addPositionInformation(tree, location); 
+		return tree;
 	}
 	
 	private byte[] readModule(InputStream inputStream) throws IOException{
