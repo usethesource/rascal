@@ -20,3 +20,9 @@ data Box
     ;
     
 alias text = list[str];
+
+anno int Box@hs;
+anno int Box@vs;
+anno int Box@is;
+anno int Box@width;
+anno int Box@height;

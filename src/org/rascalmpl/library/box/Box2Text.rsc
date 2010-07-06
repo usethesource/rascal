@@ -26,11 +26,7 @@ alias   foptions = map[str, list[str]];
 options  oDefault = ("h":1,"v":0, "i":5);
 map[int, str] toBlank =  ();
 
-anno int Box@hs;
-anno int Box@vs;
-anno int Box@is;
-anno int Box@width;
-anno int Box@height;
+
 anno list[str] Box@format;
 
 

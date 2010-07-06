@@ -1,16 +1,22 @@
 module box::rascal::Declarations
 import rascal::\old-syntax::Declarations;
-import box::Box;
 import box::Concrete;
+import box::Box;
 import rascal::\old-syntax::Tags;
 import rascal::\old-syntax::Types;
 import rascal::\old-syntax::Statements;
 public Box getDeclarations(Tree q) {
-if (Variable a:=q) 
-switch(a) {
-	case `<Name name> `: return NULL();
-	case `<Name name> = <Expression initial> `: return NULL();
-}
+   if (Variable a:=q) 
+   switch(a) {
+	 case `<Name name> `: return NULL();
+	 case `<Name name> = <Expression initial> `: return HV(0, [evPt(name), L("="), evPt(initial)]);
+         }
+    return NULL();
+    }
+
+
+/*
+
 if (Toplevel a:=q) 
 switch(a) {
 	case `<Declaration declaration> `: return NULL();
@@ -80,12 +86,10 @@ switch(a) {
 	case `<Tags tags> rule <Name name> <PatternWithAction patternAction> ; `: return NULL();
 	case `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ; `: return NULL();
 	case `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+  c > ; `: return NULL();
-	/*
 	         {
 	         list[Box] h = [evPt(kind)];
              return H(h+getArgs(c, #Type));
              }
-    */
 }
-return NULL();
-}
+*/
+

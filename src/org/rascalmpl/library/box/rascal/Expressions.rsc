@@ -4,7 +4,23 @@ import box::Box;
 import box::Concrete;
 import IO;
 public Box getExpressions(Tree q) {
+if (Parameters a:=q) 
+switch(a) {
+	case `( <Formals formals> ) `: return getConstructor(getA(formals)[0], #Formal, "(", ")");
+	case `( <Formals formals> ... ) `: return NULL();
+}
+if (Expression a:=q)  
+switch(a) {
+     case `<Expression lhs> in <Expression rhs> `: return H([evPt(lhs),L(" in "), evPt(rhs)]);
+     case `<Expression lhs> notin <Expression rhs> `: return H([evPt(lhs),L(" notin "), evPt(rhs)]);
+    }
+return NULL();
+}
 /*
+if (Formal a:=q) 
+ switch(a) {
+	case `<Type typ> <Name name> `: return H(1, [evPt(typ), evPt(name)]);
+    }
 if (PathPart a:=q) 
 switch(a) {
 	case `<PrePathChars pre> <Expression expression> <PathTail tail> `: return NULL();
@@ -14,10 +30,7 @@ switch(a) {
 	case `<MidPathChars mid> <Expression expression> <PathTail tail> `: return NULL();
 	case `<PostPathChars post> `: return NULL();
 }
-if (Formal a:=q) 
-switch(a) {
-	case `<Type typ> <Name name> `: return NULL();
-}
+
 if (StringTail a:=q) 
 switch(a) {
 	case `<MidStringChars mid> <Expression expression> <StringTail tail> `: return NULL();
@@ -63,9 +76,9 @@ switch(a) {
 	case `<Expression lhs> - <Expression rhs> `: return NULL();
 	case `<Expression lhs> + <Expression rhs> `: return NULL();
 	case `<Expression lhs> - <Expression rhs> `: return NULL();
-	case `<Expression lhs> notin <Expression rhs> `: return NULL();
-	case `<Expression lhs> in <Expression rhs> `: return NULL();
-	case `notin <Expression rhs> `: return NULL();
+	
+	
+	    case `notin <Expression rhs> `: return NULL();
 	case `<Expression lhs> in <Expression rhs> `: return NULL();
 	// case `< <Expression rhs> `: return NULL();
 	case `<Expression lhs> <= <Expression rhs> `: return NULL();
@@ -93,12 +106,7 @@ switch(a) {
 	// case `- `: return NULL();
 }
 */
-if (Parameters a:=q)  {
-switch(a) {
-	case `( <Formals formals> ) `: return getConstructor(getA(formals)[0], #Formal, "(", ")");
-	case `( <Formals formals> ... ) `: return NULL();
-}
-}
+
 /*
 if (Formals a:=q) 
 switch(a) {
@@ -138,5 +146,4 @@ switch(a) {
 	case `<PostProtocolChars post> `: return NULL();
 }
 */
-return NULL();
-}
+
