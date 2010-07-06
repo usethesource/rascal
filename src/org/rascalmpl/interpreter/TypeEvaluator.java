@@ -473,12 +473,12 @@ public class TypeEvaluator {
 					params[i++] = param.accept(this);
 				}
 
+				// this has side-effects that we might need?
 				type.getTypeParameters().match(tf.tupleType(params), bindings);
-
-				type = type.instantiate(new TypeStore(), bindings);
-
+				
 				// Note that instantiation use type variables from the current context, not the declaring context
-				return type.instantiate(theEnv.getStore(), env.getTypeBindings());
+				Type outerInstance = type.instantiate(theEnv.getStore(), env.getTypeBindings());
+				return outerInstance.instantiate(new TypeStore(), bindings);
 			}
 			
 			throw new UndeclaredTypeError(name, x);

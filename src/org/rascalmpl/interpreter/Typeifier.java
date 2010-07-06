@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -66,8 +67,8 @@ public class Typeifier {
 				private final TypeFactory tf = TypeFactory.getInstance();
 
 				public Type visitAbstractData(Type type) {
-					store.declareAbstractDataType(type);
-					declareParameters(next);
+					declareADT(next);
+					declareADTParameters(next);
 					declareConstructors(type, next);
 					return type;
 				}
@@ -75,7 +76,8 @@ public class Typeifier {
 				public Type visitAlias(Type type) {
 					IConstructor aliased = getAliased(next);
 					todo.add(aliased);
-					declareParameters(aliased);
+					// TODO: type parameterized aliases are broken still
+					declareAliasParameters(aliased);
 					return type;
 				}
 
@@ -115,7 +117,7 @@ public class Typeifier {
 				}
 
 				public Type visitParameter(Type parameterType) {
-					throw new ImplementationError("reified parameter types are not supported");
+					return parameterType;
 				}
 
 				public Type visitReal(Type type) {
@@ -161,9 +163,31 @@ public class Typeifier {
 					return type;
 				}
 				
-				private void declareParameters(IConstructor next) {
-					for (IValue p : ((IList) next.get("parameters"))) {
-						todo.add((IConstructor) p);
+				private void declareADT(IConstructor next) {
+					IString name = (IString) next.get("name");
+					IMap bindings = (IMap) next.get("bindings");
+					Type[] parameters = new Type[bindings.size()];
+					int i = 0;
+					
+					for (IValue elem : bindings) {
+						ITuple tuple = (ITuple) elem;
+						parameters[i++] = toType((IConstructor) tuple.get(0));
+					}
+					tf.abstractDataType(store, name.getValue(), parameters);
+				}
+				
+				private void declareADTParameters(IConstructor next) {
+					IMap bindings = (IMap) next.get("bindings");
+					for (IValue elem : bindings) {
+						ITuple tuple = (ITuple) elem;
+						declare((IConstructor) tuple.get(1), store);
+					}
+				}
+				private void declareAliasParameters(IConstructor next) {
+					if (next.has("parameters")) {
+						for (IValue p : ((IList) next.get("parameters"))) {
+							todo.add((IConstructor) p);
+						}
 					}
 				}
 
@@ -179,7 +203,9 @@ public class Typeifier {
 						int i = 0;
 						for (IValue field : fields) {
 							ITuple tuple = (ITuple) field;
-							args[i++] = toType((IConstructor) tuple.get(0));
+							IConstructor fieldType = (IConstructor) tuple.get(0);
+							todo.add(fieldType);
+							args[i++] = toType(fieldType);
 							args[i++] = ((IString) tuple.get(1)).getValue();
 						}
 						
