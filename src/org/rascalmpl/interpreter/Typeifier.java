@@ -165,8 +165,8 @@ public class Typeifier {
 				
 				private void declareADT(IConstructor next) {
 					IString name = (IString) next.get("name");
-					IMap bindings = (IMap) next.get("bindings");
-					Type[] parameters = new Type[bindings.size()];
+					IList bindings = (IList) next.get("bindings");
+					Type[] parameters = new Type[bindings.length()];
 					int i = 0;
 					
 					for (IValue elem : bindings) {
@@ -177,7 +177,7 @@ public class Typeifier {
 				}
 				
 				private void declareADTParameters(IConstructor next) {
-					IMap bindings = (IMap) next.get("bindings");
+					IList bindings = (IList) next.get("bindings");
 					for (IValue elem : bindings) {
 						ITuple tuple = (ITuple) elem;
 						declare((IConstructor) tuple.get(1), store);
