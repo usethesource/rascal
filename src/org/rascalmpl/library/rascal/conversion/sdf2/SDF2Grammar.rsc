@@ -5,9 +5,6 @@ module rascal::conversion::sdf2::SDF2Grammar
 // Todo List:
 // - Introduce aliases (needs alias resolution in concrete fragments)
 // - The expression: `(Group) `A -> B <1>`; triggers a bug in AST construction
-// - Propagate info that production came from lexical/cfg section.
-//   . Add extra atribute \term("lexical")?
-//   . Add a boolean field to prod
 // - See some TODOs in the code
 
 import IO;
@@ -86,7 +83,7 @@ test sdf2grammar(
                   
          grammar({},
                  {restrict(sort("PICO-ID"),others(sort("PICO-ID")),[\char-class([range(48,57),range(97,122)])]),
-                  prod([\char-class([range(97,122)]),\iter-star(\char-class([range(48,57),range(97,122)]))],sort("PICO-ID"),\no-attrs())});
+                  prod([\char-class([range(97,122)]),\iter-star(\char-class([range(48,57),range(97,122)]))],sort("PICO-ID"),attrs([term("lexical")]))});
 
 
 // ----- getProductions, getProduction -----
@@ -113,7 +110,7 @@ public set[ParseTree::Production] getProductions(languages::sdf2::syntax::Sdf2Fo
     	res += getRestrictions(rests, false);
     	
     case (Grammar) `priorities <{languages::sdf2::syntax::Sdf2ForRascal::Priority ","}* prios>`:
-    	res += getPriorities(prios,true);
+    	res += getPriorities(prios,false);
     	
     case (Grammar) `lexical priorities <{languages::sdf2::syntax::Sdf2ForRascal::Priority ","}* prios>`:
     	res += getPriorities(prios,true);
@@ -125,13 +122,13 @@ public set[ParseTree::Production] getProductions(languages::sdf2::syntax::Sdf2Fo
 }
 
 test getProductions((SDF) `definition module A exports syntax A -> B`) ==
-     {prod([sort("A")],sort("B"),\no-attrs())};
+     {prod([sort("A")],sort("B"),attrs([term("lexical")]))};
      
 test getProductions((SDF) `definition module A exports lexical syntax A -> B`) ==
-     {prod([sort("A")],sort("B"),\no-attrs())};
+     {prod([sort("A")],sort("B"),attrs([term("lexical")]))};
      
 test getProductions((SDF) `definition module A exports lexical syntax A -> B B -> C`) ==
-     {prod([sort("B")],sort("C"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())};
+     {prod([sort("B")],sort("C"),attrs([term("lexical")])),prod([sort("A")],sort("B"),attrs([term("lexical")]))};
      
 test getProductions((SDF) `definition module A exports context-free syntax A -> B`) ==
      {prod([sort("A")],sort("B"),\no-attrs())};
@@ -148,13 +145,19 @@ public set[Production] getProductions(languages::sdf2::syntax::Sdf2ForRascal::Pr
 }
 
 public Production getProduction(languages::sdf2::syntax::Sdf2ForRascal::Production P, bool isLex) {
-  if(debug) println("getProduction: <P>");
+  if(debug) println("getProduction: <P>, isLex=<isLex>");
   switch (P) {
     case (Production) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms> -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym>`:
-    	return prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
+    	return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([term("lexical")]))
+    	               : prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
     	
-    case (Production) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms> -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym> {<{languages::sdf2::syntax::Sdf2ForRascal::Attribute ","}* attrs>}` :
-    	return prod(getSymbols(syms, isLex),getSymbol(sym, isLex),getAttributes(attrs));
+    case (Production) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms> -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym> {<{languages::sdf2::syntax::Sdf2ForRascal::Attribute ","}* ats>}` :
+ 		if(attrs([list[Attr] a]) := getAttributes(ats))
+    		return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex), \attrs([a, \term("lexical")]))
+    	              	   : prod(getSymbols(syms, isLex),getSymbol(sym, isLex), \attrs([a]));
+    	else
+    		return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([term("lexical")]))
+    	               	   : prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
     	
     case (Production) `<IdCon id> (<{languages::sdf2::syntax::Sdf2ForRascal::Symbol ","}* syms>) -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym>`:
     	throw "prefix functions not supported by SDF import yet";
@@ -173,16 +176,19 @@ public Production getProduction(languages::sdf2::syntax::Sdf2ForRascal::Producti
   }
 }
 
-test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE`, true) == 
+test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE`, false) == 
      prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),\no-attrs());
+     
+test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE`, true) == 
+     prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),attrs([term("lexical")]));
 
-test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, true) ==
+test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, false) ==
      prod([sort("PICO-ID"), lit(":"), sort("TYPE")],
                sort("ID-TYPE"),
                attrs([term(cons("decl")),\assoc(left())]));
                
 test getProduction((Production) `[\ \t\n\r]	-> LAYOUT {cons("whitespace")}`, true) == 
-     prod([\char-class([range(9,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace"))]));
+     prod([\char-class([range(9,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace")), term("lexical")]));
 
 //test getProduction((Production) `{~[\n]* [\n]}* -> Rest`, true);
 
@@ -279,22 +285,22 @@ public Production getPriority(languages::sdf2::syntax::Sdf2ForRascal::Group grou
     	throw "missing case <group>";}
 }
      	
-test getPriority((Group) `A -> B`, true) == 
+test getPriority((Group) `A -> B`, false) == 
      prod([sort("A")],sort("B"),\no-attrs());
      
-test getPriority((Group) `A -> B .`, true) == 
+test getPriority((Group) `A -> B .`, false) == 
      prod([sort("A")],sort("B"),\no-attrs());
      
-test getPriority((Group) `A -> B <1>`, true) == 
+test getPriority((Group) `A -> B <1>`, false) == 
      prod([sort("A")],sort("B"),\no-attrs());
      
-test getPriority((Group) `{A -> B C -> D}`, true) == 
+test getPriority((Group) `{A -> B C -> D}`, false) == 
      choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
      
-test getPriority((Group) `{left: A -> B}`, true) == 
+test getPriority((Group) `{left: A -> B}`, false) == 
      \assoc(sort("B"),\left(),{prod([sort("A")],sort("B"),\no-attrs())});
      
-test getPriority((Group) `{left: A -> B B -> C}`, true) ==
+test getPriority((Group) `{left: A -> B B -> C}`, false) ==
      \assoc(sort("B"),\left(),{prod([sort("B")],sort("C"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
 
 public Production getPriority(languages::sdf2::syntax::Sdf2ForRascal::Priority priority, bool isLex) {
@@ -311,22 +317,22 @@ public Production getPriority(languages::sdf2::syntax::Sdf2ForRascal::Priority p
    }
 }
 
-test getPriority((Priority) `A -> B`, true) == 
+test getPriority((Priority) `A -> B`, false) == 
      prod([sort("A")],sort("B"),\no-attrs());
      
-test getPriority((Priority) `A -> B .`, true) == 
+test getPriority((Priority) `A -> B .`, false) == 
      prod([sort("A")],sort("B"),\no-attrs());
      
-test getPriority((Priority) `A -> B <1>`, true) == 
+test getPriority((Priority) `A -> B <1>`, false) == 
      prod([sort("A")],sort("B"),\no-attrs());
      
-test getPriority((Priority) `{A -> B C -> D}`, true) == 
+test getPriority((Priority) `{A -> B C -> D}`, false) == 
      choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
      
-test getPriority((Priority) `A -> B > C -> D`, true) ==
+test getPriority((Priority) `A -> B > C -> D`, false) ==
      first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())]);
      
-test getPriority((Priority) `A -> B > C -> D > E -> F`, true) ==
+test getPriority((Priority) `A -> B > C -> D > E -> F`, false) ==
      first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs()),prod([sort("E")],sort("F"),\no-attrs())]);
 
 // ----- definedSymbol -----
