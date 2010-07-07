@@ -77,7 +77,7 @@ public class JavaMethod extends NamedFunction {
 
 			Environment env = ctx.getCurrentEnvt();
 			bindTypeParameters(actualTypesTuple, formals, env); 
-			Type resultType = getReturnType().instantiate(env.getStore(), env.getTypeBindings());
+			Type resultType = getReturnType().instantiate(env.getTypeBindings());
 			return ResultFactory.makeResult(resultType, result, eval);
 		}
 		catch (Throw t) {

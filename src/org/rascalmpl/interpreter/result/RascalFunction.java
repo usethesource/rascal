@@ -51,7 +51,7 @@ public class RascalFunction extends NamedFunction {
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
 		Map<Type,Type> bindings = declarationEnvironment.getTypeBindings();
-		Type instantiatedFormals = getFormals().instantiate(declarationEnvironment.getStore(), bindings);
+		Type instantiatedFormals = getFormals().instantiate(bindings);
 		
 		if (callTracing) {
 			printStartTrace();
@@ -96,7 +96,7 @@ public class RascalFunction extends NamedFunction {
 			Result<IValue> result = e.getValue();
 
 			Type returnType = getReturnType();
-			Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getStore(), ctx.getCurrentEnvt().getTypeBindings());
+			Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
 
 			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
 				throw new UnexpectedTypeError(returnType, result.getType(), e.getLocation());
@@ -123,7 +123,7 @@ public class RascalFunction extends NamedFunction {
 	private void assignFormals(IValue[] actuals, Environment env) {
 		Type formals = getFormals();
 		for (int i = 0; i < formals.getArity(); i++) {
-			Type formal = formals.getFieldType(i).instantiate(env.getStore(), env.getTypeBindings());
+			Type formal = formals.getFieldType(i).instantiate(env.getTypeBindings());
 			
 			Result<IValue> result;
 			if (actuals[i] instanceof AbstractFunction) {
