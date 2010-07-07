@@ -471,14 +471,14 @@ public abstract class SGLL implements IGLL{
 	
 	private IValue makeParseError(){
 		IListWriter errorsWriter = vf.listWriter(org.rascalmpl.values.errors.Factory.Error);
-		errorsWriter.append(vf.constructor(org.rascalmpl.values.errors.Factory.Error_Error, vf.string("Parse error at"+(location == Integer.MAX_VALUE ? 0 : location)), vf.string("")));
+		errorsWriter.append(vf.constructor(org.rascalmpl.values.errors.Factory.Error_Error, vf.string("Parse error at"+(location == Integer.MAX_VALUE ? 0 : location)), vf.listWriter(org.rascalmpl.values.errors.Factory.Subject).done()));
 		
 		return vf.constructor(Factory.ParseTree_Summary, vf.string("-"), vf.string("Parse error"), errorsWriter.done());
 	}
 	
 	private IValue makeFilteredError(){
 		IListWriter errorsWriter = vf.listWriter(org.rascalmpl.values.errors.Factory.Error);
-		errorsWriter.append(vf.constructor(org.rascalmpl.values.errors.Factory.Error_Error, vf.string("All trees were filtered"), vf.string("")));
+		errorsWriter.append(vf.constructor(org.rascalmpl.values.errors.Factory.Error_Error, vf.string("All trees were filtered"), vf.listWriter(org.rascalmpl.values.errors.Factory.Subject).done()));
 		
 		return vf.constructor(Factory.ParseTree_Summary, vf.string("-"), vf.string("Parse error"), errorsWriter.done());
 		
