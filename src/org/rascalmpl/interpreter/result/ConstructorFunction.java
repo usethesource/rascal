@@ -38,10 +38,10 @@ public class ConstructorFunction extends NamedFunction {
 				bindings.put(field, TF.voidType());
 			}
 		}
-		Type instantiated = constructorType.instantiate(ctx.getCurrentEnvt().getStore(), bindings);
+		Type instantiated = constructorType.instantiate(bindings);
 		
 		// TODO: the actual construction of the tree before applying rules should be avoided here!
-		return makeResult(instantiated, te.applyRules(instantiated, instantiated.make(getValueFactory(), actuals)), ctx);
+		return makeResult(instantiated, te.applyRules(instantiated, instantiated.make(getValueFactory(), ctx.getCurrentEnvt().getStore(), actuals)), ctx);
 	}
 	
 	@Override

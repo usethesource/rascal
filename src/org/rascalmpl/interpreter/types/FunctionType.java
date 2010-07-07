@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 /**
  * Function types are an extension of the pdb's type system, especially tailored to Rascal's functions 
@@ -63,7 +62,7 @@ public class FunctionType extends ExternalType {
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					otherType.match(this, bindings);
 					if (bindings.size() != 0) {
-						return isSubtypeOf(otherType.instantiate(new TypeStore(), bindings));
+						return isSubtypeOf(otherType.instantiate(bindings));
 					}
 				}
 				catch (FactMatchException e) {
@@ -147,8 +146,8 @@ public class FunctionType extends ExternalType {
 	}
 	
 	@Override
-	public Type instantiate(TypeStore store, Map<Type, Type> bindings) {
-		return RascalTypeFactory.getInstance().functionType(returnType.instantiate(store, bindings), argumentTypes.instantiate(store, bindings));
+	public Type instantiate(Map<Type, Type> bindings) {
+		return RascalTypeFactory.getInstance().functionType(returnType.instantiate(bindings), argumentTypes.instantiate(bindings));
 	}
 	
 	@Override

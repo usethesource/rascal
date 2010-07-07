@@ -8,7 +8,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Formal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
@@ -423,7 +422,7 @@ public class TypeEvaluator {
 				param = tf.parameterType(Names.name(var.getName()));
 			}
 			if (env != null) {
-				return param.instantiate(env.getStore(), env.getTypeBindings());
+				return param.instantiate(env.getTypeBindings());
 			}
 			return param;
 		}
@@ -477,8 +476,8 @@ public class TypeEvaluator {
 				type.getTypeParameters().match(tf.tupleType(params), bindings);
 				
 				// Note that instantiation use type variables from the current context, not the declaring context
-				Type outerInstance = type.instantiate(theEnv.getStore(), env.getTypeBindings());
-				return outerInstance.instantiate(new TypeStore(), bindings);
+				Type outerInstance = type.instantiate(env.getTypeBindings());
+				return outerInstance.instantiate(bindings);
 			}
 			
 			throw new UndeclaredTypeError(name, x);

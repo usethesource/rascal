@@ -6,7 +6,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 /**
  * A reified type is the type of a value that represents a type. It is parametrized by the type
@@ -74,8 +73,8 @@ public class ReifiedType extends Type {
 	}
 	
 	@Override
-	public Type instantiate(TypeStore store, Map<Type, Type> bindings) {
-		return RascalTypeFactory.getInstance().reifiedType(arg.instantiate(store, bindings));
+	public Type instantiate(Map<Type, Type> bindings) {
+		return RascalTypeFactory.getInstance().reifiedType(arg.instantiate(bindings));
 	}
 	
 	@Override

@@ -762,7 +762,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Type instance;
 
 		if (bindings.size() > 0) {
-			instance = t.instantiate(getCurrentEnvt().getStore(), bindings);
+			instance = t.instantiate(bindings);
 		}
 		else {
 			instance = t;
@@ -1411,7 +1411,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					declaredType.match(v.getType(), bindings);
-					declaredType = declaredType.instantiate(new TypeStore(), bindings);
+					declaredType = declaredType.instantiate(bindings);
 					r = makeResult(declaredType, v.getValue(), this);
 					getCurrentModuleEnvironment().storeVariable(var.getName(), r);
 				} else {
@@ -1552,7 +1552,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					declaredType.match(v.getType(), bindings);
-					declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
+					declaredType = declaredType.instantiate(bindings);
 					// Was: r = makeResult(declaredType, applyRules(v.getValue()));
 					r = makeResult(declaredType, v.getValue(), this);
 					getCurrentEnvt().storeVariable(var.getName(), r);

@@ -67,9 +67,9 @@ public class Typeifier {
 				private final TypeFactory tf = TypeFactory.getInstance();
 
 				public Type visitAbstractData(Type type) {
-					declareADT(next);
+					Type formal = declareADT(next);
+					declareConstructors(formal, next);
 					declareADTParameters(next);
-					declareConstructors(type, next);
 					return type;
 				}
 
@@ -163,7 +163,7 @@ public class Typeifier {
 					return type;
 				}
 				
-				private void declareADT(IConstructor next) {
+				private Type declareADT(IConstructor next) {
 					IString name = (IString) next.get("name");
 					IList bindings = (IList) next.get("bindings");
 					Type[] parameters = new Type[bindings.length()];
@@ -173,7 +173,7 @@ public class Typeifier {
 						ITuple tuple = (ITuple) elem;
 						parameters[i++] = toType((IConstructor) tuple.get(0));
 					}
-					tf.abstractDataType(store, name.getValue(), parameters);
+					return tf.abstractDataType(store, name.getValue(), parameters);
 				}
 				
 				private void declareADTParameters(IConstructor next) {
@@ -183,6 +183,7 @@ public class Typeifier {
 						declare((IConstructor) tuple.get(1), store);
 					}
 				}
+				
 				private void declareAliasParameters(IConstructor next) {
 					if (next.has("parameters")) {
 						for (IValue p : ((IList) next.get("parameters"))) {
