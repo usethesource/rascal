@@ -1,16 +1,22 @@
 module box::rascal::Declarations
-import rascal::\old-syntax::Declarations;
+import rascal::\old-syntax::Rascal;
 import box::Concrete;
 import box::Box;
-import rascal::\old-syntax::Tags;
-import rascal::\old-syntax::Types;
-import rascal::\old-syntax::Statements;
+import IO;
+
 public Box getDeclarations(Tree q) {
    if (Variable a:=q) 
    switch(a) {
-	 case `<Name name> `: return NULL();
+	//  case `<Name name> `: return NULL();
 	 case `<Name name> = <Expression initial> `: return HV(0, [evPt(name), L("="), evPt(initial)]);
          }
+    if (Signature a:=q) 
+     switch(a) {
+	case `<Type typ> <FunctionModifiers modifiers> <Name name> <Parameters parameters> `:  
+                 return  HV(1, [evPt(typ), evPt(modifiers)  , HV(0, [evPt(name), evPt(parameters)])]);                                             
+	case `<Type typ> <FunctionModifiers modifiers> <Name name> <Parameters parameters> throws <{Type ","}+  c > `: 
+                  return HV(1, [evPt(typ), evPt(modifiers)  , HV(0, [evPt(name), evPt(parameters)]), L("throws"), evPt(c)]);        
+        }
     return NULL();
     }
 
@@ -21,11 +27,7 @@ if (Toplevel a:=q)
 switch(a) {
 	case `<Declaration declaration> `: return NULL();
 }
-if (Signature a:=q) 
-switch(a) {
-	case `<Type typ> <FunctionModifiers modifiers> <Name name> <Parameters parameters> `: return NULL();
-	case `<Type typ> <FunctionModifiers modifiers> <Name name> <Parameters parameters> throws <{Type ","}+  c > `: return NULL();
-}
+
 if (FunctionDeclaration a:=q) 
 switch(a) {
 	case `<Tags tags> <Visibility visibility> <Signature signature> <FunctionBody body> `: return NULL();

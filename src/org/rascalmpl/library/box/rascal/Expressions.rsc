@@ -4,11 +4,6 @@ import box::Box;
 import box::Concrete;
 import IO;
 public Box getExpressions(Tree q) {
-if (Parameters a:=q) 
-switch(a) {
-	case `( <Formals formals> ) `: return getConstructor(getA(formals)[0], #Formal, "(", ")");
-	case `( <Formals formals> ... ) `: return NULL();
-}
 if (Expression a:=q)  
 switch(a) {
      case `<Expression lhs> in <Expression rhs> `: return H([evPt(lhs),L(" in "), evPt(rhs)]);
@@ -17,6 +12,11 @@ switch(a) {
 return NULL();
 }
 /*
+if (Parameters a:=q) 
+switch(a) {
+	case `( <Formals formals> ) `: return getConstructor(getA(formals)[0], #Formal, "(", ")");
+	case `( <Formals formals> ... ) `: return NULL();
+}
 if (Formal a:=q) 
  switch(a) {
 	case `<Type typ> <Name name> `: return H(1, [evPt(typ), evPt(name)]);
