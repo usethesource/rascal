@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
@@ -456,31 +457,19 @@ public abstract class SGLL implements IGLL{
 			expand();
 		}while(todoList.size() > 0);
 		
-		if(root == null) return makeParseError();
+		if(root == null){
+			int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
+			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation("-", errorLocation, 0, -1, -1, -1, -1));
+		}
 		
 		IValue result = root.getResult().toTerm(new IndexedStack<INode>(), 0);
 		
-		if(result == null) return makeFilteredError();
+		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation("-"));
 		
 		return makeParseTree(result);
 	}
 	
 	private IValue makeParseTree(IValue tree){
-		return vf.constructor(Factory.ParseTree_Top, tree, vf.integer(-1)); // TODO Amb field is unsupported at the moment.
-	}
-	
-	private IValue makeParseError(){
-		IListWriter errorsWriter = vf.listWriter(org.rascalmpl.values.errors.Factory.Error);
-		errorsWriter.append(vf.constructor(org.rascalmpl.values.errors.Factory.Error_Error, vf.string("Parse error at"+(location == Integer.MAX_VALUE ? 0 : location)), vf.listWriter(org.rascalmpl.values.errors.Factory.Subject).done()));
-		
-		return vf.constructor(Factory.ParseTree_Summary, vf.string("-"), vf.string("Parse error"), errorsWriter.done());
-	}
-	
-	private IValue makeFilteredError(){
-		IListWriter errorsWriter = vf.listWriter(org.rascalmpl.values.errors.Factory.Error);
-		errorsWriter.append(vf.constructor(org.rascalmpl.values.errors.Factory.Error_Error, vf.string("All trees were filtered"), vf.listWriter(org.rascalmpl.values.errors.Factory.Subject).done()));
-		
-		return vf.constructor(Factory.ParseTree_Summary, vf.string("-"), vf.string("Parse error"), errorsWriter.done());
-		
+		return vf.constructor(Factory.ParseTree_Top, tree, vf.integer(-1)); // Amb field is unsupported.
 	}
 }
