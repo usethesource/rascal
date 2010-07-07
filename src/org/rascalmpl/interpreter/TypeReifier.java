@@ -137,10 +137,12 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		
 		IListWriter bindingRepresentation = vf.listWriter(tupleType);
 		int i = 0;
-		for (Type key : formals) {
-			Result<IValue> keyRep = key.accept(this);
-			Result<IValue> value = actuals.getFieldType(i++).accept(this);
-			bindingRepresentation.append(vf.tuple(keyRep.getValue(), value.getValue()));
+		if (! formals.isVoidType()) {
+			for (Type key : formals) {
+				Result<IValue> keyRep = key.accept(this);
+				Result<IValue> value = actuals.getFieldType(i++).accept(this);
+				bindingRepresentation.append(vf.tuple(keyRep.getValue(), value.getValue()));
+			}
 		}
 		
 		result = staticType.make(vf, vf.string(name),  constructorList, bindingRepresentation.done());
