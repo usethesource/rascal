@@ -3,7 +3,9 @@ package org.rascalmpl.parser.sgll;
 import java.lang.reflect.Method;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
@@ -17,8 +19,12 @@ import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 public abstract class SGLL implements IGLL{
+	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	
 	private char[] input;
 	
 	private final ArrayList<AbstractStackNode> todoList;
@@ -450,12 +456,31 @@ public abstract class SGLL implements IGLL{
 			expand();
 		}while(todoList.size() > 0);
 		
-		if(root == null) throw new RuntimeException("Parse Error before: "+(location == Integer.MAX_VALUE ? 0 : location));
+		if(root == null) return makeParseError();
 		
 		IValue result = root.getResult().toTerm(new IndexedStack<INode>(), 0);
 		
-		if(result == null) throw new RuntimeException("Parse Error: all trees were filtered.");
+		if(result == null) return makeFilteredError();
 		
-		return result;
+		return makeParseTree(result);
+	}
+	
+	private IValue makeParseTree(IValue tree){
+		return vf.constructor(Factory.ParseTree_Top, tree, vf.integer(-1)); // TODO Amb field is unsupported at the moment.
+	}
+	
+	private IValue makeParseError(){
+		IListWriter errorsWriter = vf.listWriter(org.rascalmpl.values.errors.Factory.Error);
+		errorsWriter.append(vf.constructor(org.rascalmpl.values.errors.Factory.Error_Error, vf.string("Parse error at"+(location == Integer.MAX_VALUE ? 0 : location)), vf.string("")));
+		
+		return vf.constructor(Factory.ParseTree_Summary, vf.string("-"), vf.string("Parse error"), errorsWriter.done());
+	}
+	
+	private IValue makeFilteredError(){
+		IListWriter errorsWriter = vf.listWriter(org.rascalmpl.values.errors.Factory.Error);
+		errorsWriter.append(vf.constructor(org.rascalmpl.values.errors.Factory.Error_Error, vf.string("All trees were filtered"), vf.string("")));
+		
+		return vf.constructor(Factory.ParseTree_Summary, vf.string("-"), vf.string("Parse error"), errorsWriter.done());
+		
 	}
 }
