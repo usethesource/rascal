@@ -9,19 +9,23 @@ import box::Box2Text;
 
 alias pairs = list[tuple[Symbol, Tree]] ;
 
+alias segment = tuple[int, int];
+
 Box fNULL(Tree t) {return NULL();}
 
-list[int]  pNULL(pairs p) {return [];}
+list[int]  pNULL(list[Symbol] p, list[Tree] q) {return [];}
 
-bool bNULL(pairs o) {return false;}
+list[segment]  cNULL(list[Symbol] p) {return [];}
+
+bool bNULL(list[Symbol] o) {return false;}
 
 Box(Tree) userDefined = fNULL; 
 
-list[int](pairs)  isIndented = pNULL;
+list[int](list[Symbol] , list[Tree])  isIndented = pNULL;
 
-list[int](pairs)  isCompact = pNULL;
+list[segment](list[Symbol])  isCompact = cNULL;
 
-bool(pairs) isSeperated = bNULL;
+bool(list[Symbol]) isSeperated = bNULL;
 
 bool isTerminal(Symbol s) {
      return ((\lit(_):= s)) ||  (\char-class(_):=s);
@@ -119,9 +123,9 @@ Box toValue(Attributes att) {
        return NULL();
      }
  
-Box boxArgs(pairs u, bool hv, list[int] indent, list[int] compact, bool seperated, bool doIndent, int space) {
+Box boxArgs(pairs u, bool hv, list[int] indent, list[segment] compact, bool seperated, bool doIndent, int space) {
      list[Box] bl = walkThroughSymbols(u, indent, compact, seperated, doIndent);
-       if (size(bl)==0) return H([]);
+       if (size(bl)==0) return NULL();
        if (size(bl)==1) {
              return bl[0];
              }
@@ -136,7 +140,7 @@ Box boxArgs(pairs u, bool hv, bool doIndent, int space) {
     return  boxArgs(u, hv, [],  [], false, doIndent, space);
     }
 
-public void initConcrete(Box(Tree) userDef, list[int] (pairs p) g , list[int] (pairs p) h, bool(pairs p) q ) {
+public void initConcrete(Box(Tree) userDef, list[int] (list[Symbol], list[Tree]) g , list[segment] (list[Symbol]) h, bool(list[Symbol]) q ) {
     userDefined = userDef;
     isIndented = g;
     isCompact = h;
@@ -164,7 +168,9 @@ public Box evPt(Tree q, bool doIndent) {
     switch(q) {
        case appl(prod(list[Symbol] s, _, Attributes att), list[Tree] t): {
                       pairs u =[<s[i], t[i]>| int i<-[0,2..(size(t)-1)]];
-                      Box r = boxArgs(u, true, isIndented(u), isCompact(u), isSeperated(u), doIndent, -1);  
+                      list[Symbol] q = [s|<Symbol s, _><-u];
+                      list[Tree] z  = [a |<_, Tree a><-u];
+                      Box r = boxArgs(u, true, isIndented(q, z), isCompact(q), isSeperated(q), doIndent, -1);  
                       return r;                                   
                      }
         case appl(\list(\cf(\iter-star-sep(Symbol s, Symbol sep) )), list[Tree] t): {
@@ -184,7 +190,7 @@ public Box evPt(Tree q, bool doIndent) {
                      return boxArgs(u, false, doIndent, -1); 
                      }
        }
-       return H([]);
+       return NULL();
 }
 
 list[Box] addTree(list[Box] out, Tree t) {
@@ -193,41 +199,47 @@ list[Box] addTree(list[Box] out, Tree t) {
        return out;
        }
 
-Box defaultBox(Box b, bool indent) {
+Box defaultBox(Box b) {
                if (H(list[Box] c):=b ) {
-                           if (size(c)>0)  return  (indent?I([b]):b); 
+                           if (size(c)>0)  return  b; 
                           }
                       else
                       if (V(list[Box] c):=b) {
-                           if (size(c)>0)  return  (indent?I([b]):b); 
+                           if (size(c)>0)  return  b; 
                           }
                       else
                       if (HV(list[Box] c):=b) {
-                           if (size(c)>0) return  (indent?I([b]):b); 
+                           if (size(c)>0) return  b; 
                           }
                       else
                       if (HOV(list[Box] c):=b) {
-                           if (size(c)>0) return  (indent?I([b]):b); 
+                           if (size(c)>0) return  b; 
                           }
                      else 
                      if (L(str c):=b) {
-                           if (size(c)>0) return  (indent?I([b]):b); 
+                           if (size(c)>0 && !startsWith(c, " ")) return  b; 
                           }
                      else
-                           return  (indent?I([b]):b);
+                     if (I(list[Box] c):=b) {
+                           if (size(c)>0) return  b; 
+                          }
+                      else 
+                           return  b;
                     return NULL();
               } 
                     
 
-list[Box] walkThroughSymbols(pairs u, list[int] indent, list[int] compact, bool seperated, bool doIndent) {
+list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, bool seperated, bool doIndent) {
    list[Box] out = [];
+   segment q = isEmpty(compact)?<1000,1000>:head(compact);
+   if (!isEmpty(compact)) compact = tail(compact);
    if (classic) {
       for  (<Symbol a, Tree t><-u) {
        // println(a);
       if ( \lex(\sort(_)):=a || \lit(_):=a ||  \char-class(_):=a)  out+= L("<t>") ;
       else {
              Box  b = evPt(t);
-             b = defaultBox(b, indent);
+             b = defaultBox(b);
              if (b!=NULL()) out+= b;
              }   
       } 
@@ -236,41 +248,34 @@ list[Box] walkThroughSymbols(pairs u, list[int] indent, list[int] compact, bool 
         list[Box] c = [];
         for   (int i<-[0, 1 .. (size(u)-1)]) 
         if (<Symbol a, Tree t>:=u[i]) {
-            if (first && (i in indent || i-2 in compact)) {
+            if (first && (i in indent)) {
                  Box r = H(out);
                  out=[r];
                  first = false;
                  }
-             if ( \lex(\sort(_)):=a || \lit(_):=a ||  \char-class(_):=a) {
-                             if (i+1 notin compact)  {
-                                        if (isEmpty(c) || i-1 notin compact) {
-                                                  out+=(doIndent?I([L("<t>")]) :L("<t>"));
-                                        } 
-                                       else {
-                                              c+= L("<t>");
-                                              out += H(0, c);
-                                              c=[];
-                                       }
-                             }
-                             else c+= L("<t>");                               
-                      }
-             else {
-                // if (i in indent) println("OK<i>: <t>");
-                 Box  b = evPt(t,  (i in indent));
-                 b = defaultBox(b,doIndent); 
-                 if (b!=NULL()) {
-                             if (i in compact) b = HV(0, [b]);
-                             if (isEmpty(c)) out+= b;
-                                   else c += b;
-                             }
-                 }   
-        }
+            Box b = ( \lex(\sort(_)):=a || \lit(_):=a ||  \char-class(_):=a)? L("<t>"):
+                       defaultBox(evPt(t,  (i in indent)));
+              if (b!=NULL()) 
+              if ( i>=q[0] && i<=q[1]) {
+                           if (b!=NULL())  c+= b;   
+                           if (i==q[1]) {
+                                   out += H(0, c);
+                                   c=[];
+                                   if (!isEmpty(compact)) {
+                                              q = head(compact);
+                                              compact = tail(compact);
+                                              }
+                                         } 
+                              }
+                             else 
+                                   out+=(i in indent?I([b]):b);       
+               }
    }
-   return seperated?[H(1, out)]: out;
+   return seperated?[H(1, out)]: (doIndent?[V(out)]:out);
 }
 
-public text  returnText(Tree a, Box(Tree) userDef, list[int](pairs) isIndented, list[int](pairs) isCompact, 
-   bool(pairs) isSeperated ) {
+public text  returnText(Tree a, Box(Tree) userDef, list[int](list[Symbol], list[Tree]) isIndented, list[segment](list[Symbol]) isCompact, 
+   bool(list[Symbol]) isSeperated ) {
      initConcrete(userDef, isIndented, isCompact, isSeperated);
      Box out = evPt(a);
      // println(out);
@@ -307,13 +312,13 @@ public Box cmd(str name, Tree expr, str sep) {
    }
   
 public Box HV(int space, list[Box] bs) {
-   Box r = HV(bs);
+   Box r = HV([b| Box b <- bs, b!=NULL()]);
    if (space>=0) r@hs = space;
    return r;
    }
 
 public Box H(int space, list[Box] bs) {
-   Box r = H(bs);
+   Box r = H([b| Box b <- bs, b!=NULL()]);
    if (space>=0) r@hs = space;
    return r;
    }
