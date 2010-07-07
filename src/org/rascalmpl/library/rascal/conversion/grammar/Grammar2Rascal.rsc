@@ -4,7 +4,6 @@ module rascal::conversion::grammar::Grammar2Rascal
 // a syntax definition in Rascal source code
 
 // TODO:
-// - Howto translate a lexical rule/restriction/priority? Where do we obtain this info?
 // - Escaping is not yet fullproof
 // -- Restrict/others misses from Rascal syntax format
 
@@ -15,6 +14,8 @@ import List;
 import String;
 import ParseTree;
 
+bool debug = false;
+
 public str grammar2rascal(Grammar g, str name) {
   return "module <name> <grammar2rascal(g)>";
 }
@@ -23,39 +24,44 @@ public str grammar2rascal(Grammar g) {
   return ( "" | it + topProd2rascal(p) | Production p <- g.productions);
 }
 
+// Command to test conversion of Pico grammar:
+// println(grammar2rascal(Pico));
+
 public Grammar Pico =
 grammar({sort("PROGRAM")}, {
 	prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),
+	prod([lit("\\\t")],sort("StrChar"),attrs([term(cons("tab")),term("lexical")])),
 	prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),\no-attrs()),
-	prod([lit("\\\t")],sort("StrChar"),attrs([term(cons("tab"))])),
 	prod([lit("nil-type")],sort("TYPE"),\no-attrs()),
+	prod([\char-class([range(34,34)]),label("chars",\iter-star(sort("StrChar"))),\char-class([range(34,34)])],sort("StrCon"),attrs([term(cons("default")),term("lexical")])),
 	prod([lit("string")],sort("TYPE"),\no-attrs()),
-	prod([lit("\\\\")],sort("StrChar"),attrs([term(cons("backslash"))])),
+	prod([complement(\char-class([range(0,25),range(34,34),range(49,49),range(92,92)]))],sort("StrChar"),attrs([term(cons("normal")),term("lexical")])),
 	first(sort("EXP"),[prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),prod([sort("EXP"),lit("-"),sort("EXP")],sort("EXP"),\no-attrs()),prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())]),
+	prod([iter(\char-class([range(48,57)]))],sort("NatCon"),attrs([term(cons("digits")),term("lexical")])),
 	prod([sort("StrCon")],sort("EXP"),\no-attrs()),
-	prod([complement(\char-class([range(0,25),range(34,34),range(49,49),range(92,92)]))],sort("StrChar"),attrs([term(cons("normal"))])),
 	prod([lit("if"),sort("EXP"),lit("then"),\iter-star-seps(sort("STATEMENT"),[\layout(),lit(";"),\layout()]),lit("else"),\iter-star-seps(sort("STATEMENT"),[\layout(),lit(";"),\layout()]),lit("fi")],sort("STATEMENT"),\no-attrs()),
-	prod([iter(\char-class([range(48,57)]))],sort("NatCon"),attrs([term(cons("digits"))])),
-	prod([\char-class([range(34,34)]),label("chars",\iter-star(sort("StrChar"))),\char-class([range(34,34)])],sort("StrCon"),attrs([term(cons("default"))])),
-	prod([lit("\\\n")],sort("StrChar"),attrs([term(cons("newline"))])),
-	prod([lit("\\\\\"")],sort("StrChar"),attrs([term(cons("quote"))])),
+	prod([lit("\\\\\"")],sort("StrChar"),attrs([term(cons("quote")),term("lexical")])),
+	prod([lit("\\"),label("a",\char-class([range(48,57)])),label("b",\char-class([range(48,57)])),label("c",\char-class([range(48,57)]))],sort("StrChar"),attrs([term(cons("decimal")),term("lexical")])),
 	restrict(sort("NatCon"),others(sort("NatCon")),[\char-class([range(48,57)])]),
-	prod([\char-class([range(9,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace"))])),
-	prod([lit("\\"),label("a",\char-class([range(48,57)])),label("b",\char-class([range(48,57)])),label("c",\char-class([range(48,57)]))],sort("StrChar"),attrs([term(cons("decimal"))])),
 	prod([lit("while"),sort("EXP"),lit("do"),\iter-star-seps(sort("STATEMENT"),[\layout(),lit(";"),\layout()]),lit("od")],sort("STATEMENT"),\no-attrs()),
 	prod([lit("declare"),\iter-star-seps(sort("ID-TYPE"),[\layout(),lit(","),\layout()]),lit(";")],sort("DECLS"),\no-attrs()),
 	restrict(opt(sort("LAYOUT")),others(opt(sort("LAYOUT"))),[\char-class([range(9,10),range(13,13),range(32,32)])]),
 	prod([sort("PICO-ID")],sort("EXP"),\no-attrs()),
+	prod([\char-class([range(97,122)]),\iter-star(\char-class([range(48,57),range(97,122)]))],sort("PICO-ID"),attrs([term("lexical")])),
 	prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs()),
 	prod([lit("("),sort("EXP"),lit(")")],sort("EXP"),\no-attrs()),
 	prod([sort("NatCon")],sort("EXP"),\no-attrs()),
+	prod([lit("\\\n")],sort("StrChar"),attrs([term(cons("newline")),term("lexical")])),
+	prod([lit("\\\\")],sort("StrChar"),attrs([term(cons("backslash")),term("lexical")])),
 	prod([sort("EXP"),lit("-"),sort("EXP")],sort("EXP"),\no-attrs()),
 	restrict(sort("PICO-ID"),others(sort("PICO-ID")),[\char-class([range(48,57),range(97,122)])]),
 	prod([sort("PICO-ID"),lit(":="),sort("EXP")],sort("STATEMENT"),\no-attrs()),
-	prod([\char-class([range(97,122)]),\iter-star(\char-class([range(48,57),range(97,122)]))],sort("PICO-ID"),\no-attrs()),
+	prod([\char-class([range(9,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace")),term("lexical")])),
 	prod([lit("natural")],sort("TYPE"),\no-attrs()),
 	prod([lit("begin"),sort("DECLS"),\iter-star-seps(sort("STATEMENT"),[\layout(),lit(";"),\layout()]),lit("end")],sort("PROGRAM"),\no-attrs())
 });
+
+
 
 public str topProd2rascal(Production p) {
   if (/prod(_,lit(_),_) := p) return ""; // ignore generated productions
@@ -66,11 +72,14 @@ public str topProd2rascal(Production p) {
   if (regular(_,_) := p) {
     return ""; // ignore generated stubs
   }
+  if(restrict(rhs, language, restrictions) := p){
+  	return "*** restriction <symbol2rascal(rhs)> -/- <for(r <- restrictions){> <symbol2rascal(r)> <}>\n";
+  }
   throw "could not find out defined symbol for <p>";
 }
 
 public str prod2rascal(Production p) {
-  println("prod2rascal: <p>");
+  if(debug) println("prod2rascal: <p>");
   switch (p) {
     case choice(s, alts) :
 		return ( prod2rascal(head(alts)) | "<it>\n\t|<prod2rascal(pr)>" | pr <- tail(alts) );
@@ -142,6 +151,7 @@ test attrs2mods(\attrs([\assoc(\left())])) == "left";
 test attrs2mods(\attrs([\assoc(\left()), \assoc(\right())])) == "left right";
 test attrs2mods(\attrs([\assoc(\left()), term(cons("C")), \assoc(\right())])) == "left right C:";
 test attrs2mods(\attrs([term(cons("C"))])) == " C:";
+test attrs2mods(\attrs([term(cons("C")), term("lexical")])) == " lex C:";
 
 public str attr2mod(Attr a) {
   switch(a) {
@@ -149,7 +159,7 @@ public str attr2mod(Attr a) {
     case \assoc(\right()): return "right";
     case \assoc(\non-assoc()): return "non-assoc";
     case \assoc(\assoc()): return "assoc";
-    case term("lex"()): return "lex";
+    case term("lexical"): return "lex";
     case term(t): return "<t>";
     case \bracket(): return "bracket";
     default: throw "attr2mod: missing case <a>";
