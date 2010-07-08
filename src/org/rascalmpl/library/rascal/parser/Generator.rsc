@@ -66,26 +66,62 @@ public class <name> extends SGLL{
   <generateParseMethod(p)>
   <}>
 
-  public IValue parse(IConstructor start, java.lang.String input){
-    return parse(start, input.toCharArray());
-  }
-
-  public IValue parse(IConstructor start, char[] sentence){
-      if(SymbolAdapter.isSort(start)){
-		  return parse(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), sentence);
-	  }
-	  if(SymbolAdapter.isStartSort(start)){
-		 return parse(SymbolAdapter.getStart(start), sentence);  
-	  }
-	  throw new IllegalArgumentException(start.toString());
-  }
-
-  public static void main(java.lang.String[] args){
-    <name> parser = new <name>();
-
-    // TODO: this just takes an arbitrary start symbol, if there are more the result can be surprising ;-)
-    System.out.println(parser.parse(read(\"<esc(getOneFrom(g.start))>\",Factory.Symbol), args[0].toCharArray())); 
-  }
+	public IValue parse(IConstructor start, char[] sentence){
+		if(SymbolAdapter.isSort(start)){
+			return parse(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), sentence);
+		}
+		if(SymbolAdapter.isStartSort(start)){
+			return parse(SymbolAdapter.getStart(start), sentence);
+		}
+		throw new IllegalArgumentException(start.toString());
+	}
+	
+	public IValue parse(IConstructor start, java.lang.String sentence){
+		if(SymbolAdapter.isSort(start)){
+			return parseFromString(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), sentence);
+		}
+		if(SymbolAdapter.isStartSort(start)){
+			return parse(SymbolAdapter.getStart(start), sentence);
+		}
+		throw new IllegalArgumentException(start.toString());
+	}
+	
+	public IValue parse(IConstructor start, File inputFile) throws IOException{
+		if(SymbolAdapter.isSort(start)){
+			return parseFromFile(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputFile);
+		}
+		if(SymbolAdapter.isStartSort(start)){
+			return parse(SymbolAdapter.getStart(start), inputFile);
+		}
+		throw new IllegalArgumentException(start.toString());
+	}
+	
+	public IValue parse(IConstructor start, InputStream in) throws IOException{
+		if(SymbolAdapter.isSort(start)){
+			return parseFromStream(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), in);
+		}
+		if(SymbolAdapter.isStartSort(start)){
+			return parse(SymbolAdapter.getStart(start), in);
+		}
+		throw new IllegalArgumentException(start.toString());
+	}
+	
+	public IValue parse(IConstructor start, Reader in) throws IOException{
+		if(SymbolAdapter.isSort(start)){
+			return parseFromReader(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), in);
+		}
+		if(SymbolAdapter.isStartSort(start)){
+			return parse(SymbolAdapter.getStart(start), in);
+		}
+		throw new IllegalArgumentException(start.toString());
+	}
+	
+	public static void main(java.lang.String[] args){
+		<name> parser = new <name>();
+		
+		// TODO: this just takes an arbitrary start symbol, if there are more the result can be surprising ;-)
+		System.out.println(parser.parse(read(\"<esc(getOneFrom(g.start))>\",Factory.Symbol), args[0].toCharArray())); 
+	}
 }
 ";
 }  
