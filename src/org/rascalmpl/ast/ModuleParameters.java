@@ -10,19 +10,15 @@ static public class Default extends ModuleParameters {
 		this.node = node;
 		this.parameters = parameters;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitModuleParametersDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasParameters() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.TypeVar> parameters;
-	@Override
 	public java.util.List<org.rascalmpl.ast.TypeVar> getParameters() { return parameters; }	
 }
 static public class Ambiguity extends ModuleParameters {
@@ -35,8 +31,7 @@ static public class Ambiguity extends ModuleParameters {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitModuleParametersAmbiguity(this);
   }
 }

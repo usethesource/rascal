@@ -11,8 +11,7 @@ static public class Lexical extends CaseInsensitiveStringConstant {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitCaseInsensitiveStringConstantLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends CaseInsensitiveStringConstant {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitCaseInsensitiveStringConstantAmbiguity(this);
   }
 }

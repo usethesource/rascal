@@ -56,6 +56,7 @@ import org.rascalmpl.ast.BasicType.ReifiedFunction;
 import org.rascalmpl.ast.BasicType.ReifiedNonTerminal;
 import org.rascalmpl.ast.BasicType.ReifiedReifiedType;
 import org.rascalmpl.ast.BasicType.ReifiedType;
+import org.rascalmpl.ast.BasicType.ReifiedTypeParameter;
 import org.rascalmpl.ast.BasicType.Relation;
 import org.rascalmpl.ast.BasicType.Set;
 import org.rascalmpl.ast.BasicType.Value;
@@ -181,9 +182,10 @@ import org.rascalmpl.ast.PatternWithAction.Arbitrary;
 import org.rascalmpl.ast.PatternWithAction.Replacing;
 import org.rascalmpl.ast.Prod.AssociativityGroup;
 import org.rascalmpl.ast.Prod.First;
+import org.rascalmpl.ast.Prod.Follow;
 import org.rascalmpl.ast.Prod.Others;
 import org.rascalmpl.ast.Prod.Reference;
-import org.rascalmpl.ast.Prod.Subtract;
+import org.rascalmpl.ast.Prod.Reject;
 import org.rascalmpl.ast.ProdModifier.Associativity;
 import org.rascalmpl.ast.Range.FromTo;
 import org.rascalmpl.ast.Replacement.Conditional;
@@ -275,7 +277,6 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class BoxEvaluator implements IASTVisitor<IValue> {
@@ -1575,11 +1576,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				.getPathPart()));
 		// TODO Auto-generated method stub
 
-	}
-
-	public IValue visitLocationLiteralFile(
-			org.rascalmpl.ast.LocationLiteral.File x) {
-		return L(x.getClass().toString());
 	}
 
 	public IValue visitLongLiteralAmbiguity(
@@ -3445,7 +3441,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return null;
 	}
 
-	public IValue visitProdSubtract(Subtract x) {
+	public IValue visitProdSubtract(Reject x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -3620,6 +3616,21 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitStartPresent(org.rascalmpl.ast.Start.Present x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitBasicTypeReifiedTypeParameter(ReifiedTypeParameter x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdFollow(Follow x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdReject(Reject x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

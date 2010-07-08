@@ -10,19 +10,15 @@ static public class DecimalIntegerLiteral extends IntegerLiteral {
 		this.node = node;
 		this.decimal = decimal;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitIntegerLiteralDecimalIntegerLiteral(this);
 	}
 
-	@Override
 	public boolean isDecimalIntegerLiteral() { return true; }
 
-	@Override
 	public boolean hasDecimal() { return true; }
 
 private final org.rascalmpl.ast.DecimalIntegerLiteral decimal;
-	@Override
 	public org.rascalmpl.ast.DecimalIntegerLiteral getDecimal() { return decimal; }	
 }
 static public class Ambiguity extends IntegerLiteral {
@@ -35,8 +31,7 @@ static public class Ambiguity extends IntegerLiteral {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitIntegerLiteralAmbiguity(this);
   }
 } 
@@ -49,22 +44,17 @@ static public class HexIntegerLiteral extends IntegerLiteral {
 		this.node = node;
 		this.hex = hex;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitIntegerLiteralHexIntegerLiteral(this);
 	}
 
-	@Override
 	public boolean isHexIntegerLiteral() { return true; }
 
-	@Override
 	public boolean hasHex() { return true; }
 
 private final org.rascalmpl.ast.HexIntegerLiteral hex;
-	@Override
 	public org.rascalmpl.ast.HexIntegerLiteral getHex() { return hex; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.OctalIntegerLiteral getOctal() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.OctalIntegerLiteral getOctal() { throw new UnsupportedOperationException(); }
 public boolean hasOctal() { return false; }
 public boolean isOctalIntegerLiteral() { return false; }
 static public class OctalIntegerLiteral extends IntegerLiteral {
@@ -73,19 +63,15 @@ static public class OctalIntegerLiteral extends IntegerLiteral {
 		this.node = node;
 		this.octal = octal;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitIntegerLiteralOctalIntegerLiteral(this);
 	}
 
-	@Override
 	public boolean isOctalIntegerLiteral() { return true; }
 
-	@Override
 	public boolean hasOctal() { return true; }
 
 private final org.rascalmpl.ast.OctalIntegerLiteral octal;
-	@Override
 	public org.rascalmpl.ast.OctalIntegerLiteral getOctal() { return octal; }	
 }
 }

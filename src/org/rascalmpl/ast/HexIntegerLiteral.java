@@ -11,8 +11,7 @@ static public class Lexical extends HexIntegerLiteral {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitHexIntegerLiteralLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends HexIntegerLiteral {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitHexIntegerLiteralAmbiguity(this);
   }
 }

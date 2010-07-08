@@ -11,8 +11,7 @@ static public class Lexical extends SingleQuotedStrCon {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitSingleQuotedStrConLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends SingleQuotedStrCon {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitSingleQuotedStrConAmbiguity(this);
   }
 }

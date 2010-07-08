@@ -11,8 +11,7 @@ public abstract class DecimalLongLiteral extends AbstractAST {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitDecimalLongLiteralLexical(this);
   	}
 } static public class Ambiguity extends DecimalLongLiteral {
@@ -25,10 +24,8 @@ public abstract class DecimalLongLiteral extends AbstractAST {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitDecimalLongLiteralAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

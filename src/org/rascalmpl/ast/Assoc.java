@@ -7,12 +7,10 @@ static public class Left extends Assoc {
 	public Left(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssocLeft(this);
 	}
 
-	@Override
 	public boolean isLeft() { return true; }	
 }
 static public class Ambiguity extends Assoc {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Assoc {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitAssocAmbiguity(this);
   }
 } 
@@ -36,26 +33,21 @@ static public class Right extends Assoc {
 	public Right(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssocRight(this);
 	}
 
-	@Override
 	public boolean isRight() { return true; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isNonAssociative() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isNonAssociative() { return false; }
 static public class NonAssociative extends Assoc {
 /** "non-assoc" -> Assoc {cons("NonAssociative")} */
 	public NonAssociative(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssocNonAssociative(this);
 	}
 
-	@Override
 	public boolean isNonAssociative() { return true; }	
 } 
 public boolean isAssociative() { return false; }
@@ -64,12 +56,10 @@ static public class Associative extends Assoc {
 	public Associative(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssocAssociative(this);
 	}
 
-	@Override
 	public boolean isAssociative() { return true; }	
 }
 }

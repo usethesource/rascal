@@ -16,29 +16,21 @@ static public class Interpolated extends ProtocolPart {
 		this.expression = expression;
 		this.tail = tail;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitProtocolPartInterpolated(this);
 	}
 
-	@Override
 	public boolean isInterpolated() { return true; }
 
-	@Override
 	public boolean hasPre() { return true; }
-	@Override
 	public boolean hasExpression() { return true; }
-	@Override
 	public boolean hasTail() { return true; }
 
 private final org.rascalmpl.ast.PreProtocolChars pre;
-	@Override
 	public org.rascalmpl.ast.PreProtocolChars getPre() { return pre; }
 	private final org.rascalmpl.ast.Expression expression;
-	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }
 	private final org.rascalmpl.ast.ProtocolTail tail;
-	@Override
 	public org.rascalmpl.ast.ProtocolTail getTail() { return tail; }	
 }
 static public class Ambiguity extends ProtocolPart {
@@ -51,8 +43,7 @@ static public class Ambiguity extends ProtocolPart {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitProtocolPartAmbiguity(this);
   }
 } 
@@ -65,21 +56,16 @@ static public class NonInterpolated extends ProtocolPart {
 		this.node = node;
 		this.protocolChars = protocolChars;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitProtocolPartNonInterpolated(this);
 	}
 
-	@Override
 	public boolean isNonInterpolated() { return true; }
 
-	@Override
 	public boolean hasProtocolChars() { return true; }
 
 private final org.rascalmpl.ast.ProtocolChars protocolChars;
-	@Override
 	public org.rascalmpl.ast.ProtocolChars getProtocolChars() { return protocolChars; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

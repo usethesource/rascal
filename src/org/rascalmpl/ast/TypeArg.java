@@ -8,19 +8,15 @@ static public class Default extends TypeArg {
 		this.node = node;
 		this.type = type;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeArgDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
 
 private final org.rascalmpl.ast.Type type;
-	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }	
 }
 static public class Ambiguity extends TypeArg {
@@ -33,8 +29,7 @@ static public class Ambiguity extends TypeArg {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitTypeArgAmbiguity(this);
   }
 } public org.rascalmpl.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; }
@@ -46,26 +41,19 @@ static public class Named extends TypeArg {
 		this.type = type;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeArgNamed(this);
 	}
 
-	@Override
 	public boolean isNamed() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasName() { return true; }
 
 private final org.rascalmpl.ast.Type type;
-	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }
 	private final org.rascalmpl.ast.Name name;
-	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

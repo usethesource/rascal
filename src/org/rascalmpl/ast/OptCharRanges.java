@@ -7,12 +7,10 @@ static public class Absent extends OptCharRanges {
 	public Absent(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitOptCharRangesAbsent(this);
 	}
 
-	@Override
 	public boolean isAbsent() { return true; }	
 }
 static public class Ambiguity extends OptCharRanges {
@@ -25,8 +23,7 @@ static public class Ambiguity extends OptCharRanges {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitOptCharRangesAmbiguity(this);
   }
 } 
@@ -39,21 +36,16 @@ static public class Present extends OptCharRanges {
 		this.node = node;
 		this.ranges = ranges;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitOptCharRangesPresent(this);
 	}
 
-	@Override
 	public boolean isPresent() { return true; }
 
-	@Override
 	public boolean hasRanges() { return true; }
 
 private final org.rascalmpl.ast.CharRanges ranges;
-	@Override
 	public org.rascalmpl.ast.CharRanges getRanges() { return ranges; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

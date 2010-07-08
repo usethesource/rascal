@@ -13,24 +13,18 @@ static public class Default extends Renaming {
 		this.from = from;
 		this.to = to;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitRenamingDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasFrom() { return true; }
-	@Override
 	public boolean hasTo() { return true; }
 
 private final org.rascalmpl.ast.Name from;
-	@Override
 	public org.rascalmpl.ast.Name getFrom() { return from; }
 	private final org.rascalmpl.ast.Name to;
-	@Override
 	public org.rascalmpl.ast.Name getTo() { return to; }	
 }
 static public class Ambiguity extends Renaming {
@@ -43,8 +37,7 @@ static public class Ambiguity extends Renaming {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitRenamingAmbiguity(this);
   }
 }

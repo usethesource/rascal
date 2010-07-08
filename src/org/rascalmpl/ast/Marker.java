@@ -11,8 +11,7 @@ static public class Lexical extends Marker {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitMarkerLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends Marker {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitMarkerAmbiguity(this);
   }
 }

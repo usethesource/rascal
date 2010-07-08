@@ -13,24 +13,18 @@ static public class Anything extends Body {
 		this.marker = marker;
 		this.rest = rest;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBodyAnything(this);
 	}
 
-	@Override
 	public boolean isAnything() { return true; }
 
-	@Override
 	public boolean hasMarker() { return true; }
-	@Override
 	public boolean hasRest() { return true; }
 
 private final org.rascalmpl.ast.Marker marker;
-	@Override
 	public org.rascalmpl.ast.Marker getMarker() { return marker; }
 	private final org.rascalmpl.ast.Rest rest;
-	@Override
 	public org.rascalmpl.ast.Rest getRest() { return rest; }	
 }
 static public class Ambiguity extends Body {
@@ -43,8 +37,7 @@ static public class Ambiguity extends Body {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitBodyAmbiguity(this);
   }
 } 
@@ -57,21 +50,16 @@ static public class Toplevels extends Body {
 		this.node = node;
 		this.toplevels = toplevels;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBodyToplevels(this);
 	}
 
-	@Override
 	public boolean isToplevels() { return true; }
 
-	@Override
 	public boolean hasToplevels() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Toplevel> toplevels;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Toplevel> getToplevels() { return toplevels; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

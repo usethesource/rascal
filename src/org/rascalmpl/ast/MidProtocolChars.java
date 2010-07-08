@@ -11,8 +11,7 @@ static public class Lexical extends MidProtocolChars {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitMidProtocolCharsLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends MidProtocolChars {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitMidProtocolCharsAmbiguity(this);
   }
 }

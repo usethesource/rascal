@@ -11,8 +11,7 @@ static public class Lexical extends NonterminalLabel {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitNonterminalLabelLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends NonterminalLabel {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitNonterminalLabelAmbiguity(this);
   }
 }

@@ -13,24 +13,18 @@ static public class Default extends StructuredType {
 		this.basicType = basicType;
 		this.arguments = arguments;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStructuredTypeDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasBasicType() { return true; }
-	@Override
 	public boolean hasArguments() { return true; }
 
 private final org.rascalmpl.ast.BasicType basicType;
-	@Override
 	public org.rascalmpl.ast.BasicType getBasicType() { return basicType; }
 	private final java.util.List<org.rascalmpl.ast.TypeArg> arguments;
-	@Override
 	public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() { return arguments; }	
 }
 static public class Ambiguity extends StructuredType {
@@ -43,8 +37,7 @@ static public class Ambiguity extends StructuredType {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitStructuredTypeAmbiguity(this);
   }
 }

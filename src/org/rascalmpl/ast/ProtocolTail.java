@@ -16,29 +16,21 @@ static public class Mid extends ProtocolTail {
 		this.expression = expression;
 		this.tail = tail;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitProtocolTailMid(this);
 	}
 
-	@Override
 	public boolean isMid() { return true; }
 
-	@Override
 	public boolean hasMid() { return true; }
-	@Override
 	public boolean hasExpression() { return true; }
-	@Override
 	public boolean hasTail() { return true; }
 
 private final org.rascalmpl.ast.MidProtocolChars mid;
-	@Override
 	public org.rascalmpl.ast.MidProtocolChars getMid() { return mid; }
 	private final org.rascalmpl.ast.Expression expression;
-	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }
 	private final org.rascalmpl.ast.ProtocolTail tail;
-	@Override
 	public org.rascalmpl.ast.ProtocolTail getTail() { return tail; }	
 }
 static public class Ambiguity extends ProtocolTail {
@@ -51,8 +43,7 @@ static public class Ambiguity extends ProtocolTail {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitProtocolTailAmbiguity(this);
   }
 } 
@@ -65,21 +56,16 @@ static public class Post extends ProtocolTail {
 		this.node = node;
 		this.post = post;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitProtocolTailPost(this);
 	}
 
-	@Override
 	public boolean isPost() { return true; }
 
-	@Override
 	public boolean hasPost() { return true; }
 
 private final org.rascalmpl.ast.PostProtocolChars post;
-	@Override
 	public org.rascalmpl.ast.PostProtocolChars getPost() { return post; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -8,19 +8,15 @@ static public class UnInitialized extends Variable {
 		this.node = node;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVariableUnInitialized(this);
 	}
 
-	@Override
 	public boolean isUnInitialized() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
 
 private final org.rascalmpl.ast.Name name;
-	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }	
 }
 static public class Ambiguity extends Variable {
@@ -33,8 +29,7 @@ static public class Ambiguity extends Variable {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitVariableAmbiguity(this);
   }
 } public org.rascalmpl.ast.Expression getInitial() { throw new UnsupportedOperationException(); } public boolean hasInitial() { return false; }
@@ -46,26 +41,19 @@ static public class Initialized extends Variable {
 		this.name = name;
 		this.initial = initial;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVariableInitialized(this);
 	}
 
-	@Override
 	public boolean isInitialized() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasInitial() { return true; }
 
 private final org.rascalmpl.ast.Name name;
-	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final org.rascalmpl.ast.Expression initial;
-	@Override
 	public org.rascalmpl.ast.Expression getInitial() { return initial; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

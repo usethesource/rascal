@@ -52,6 +52,7 @@ context-free syntax
   "num"      -> RascalReservedKeywords
   "on"       -> RascalReservedKeywords 
   "one"      -> RascalReservedKeywords  
+  "parameter" -> RascalReservedKeywords
   "private"  -> RascalReservedKeywords  
   "public"   -> RascalReservedKeywords
   "real"     -> RascalReservedKeywords

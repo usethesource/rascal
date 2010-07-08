@@ -12,29 +12,21 @@ static public class Solve extends Statement {
 		this.bound = bound;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementSolve(this);
 	}
 
-	@Override
 	public boolean isSolve() { return true; }
 
-	@Override
 	public boolean hasVariables() { return true; }
-	@Override
 	public boolean hasBound() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.QualifiedName> variables;
-	@Override
 	public java.util.List<org.rascalmpl.ast.QualifiedName> getVariables() { return variables; }
 	private final org.rascalmpl.ast.Bound bound;
-	@Override
 	public org.rascalmpl.ast.Bound getBound() { return bound; }
 	private final org.rascalmpl.ast.Statement body;
-	@Override
 	public org.rascalmpl.ast.Statement getBody() { return body; }	
 }
 static public class Ambiguity extends Statement {
@@ -47,8 +39,7 @@ static public class Ambiguity extends Statement {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitStatementAmbiguity(this);
   }
 } public org.rascalmpl.ast.Label getLabel() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasLabel() { return false; } public boolean hasGenerators() { return false; } public boolean isFor() { return false; }
@@ -60,32 +51,23 @@ static public class For extends Statement {
 		this.generators = generators;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementFor(this);
 	}
 
-	@Override
 	public boolean isFor() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasGenerators() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private final org.rascalmpl.ast.Label label;
-	@Override
 	public org.rascalmpl.ast.Label getLabel() { return label; }
 	private final java.util.List<org.rascalmpl.ast.Expression> generators;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { return generators; }
 	private final org.rascalmpl.ast.Statement body;
-	@Override
 	public org.rascalmpl.ast.Statement getBody() { return body; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.rascalmpl.ast.Expression> getConditions() { throw new UnsupportedOperationException(); } public boolean hasConditions() { return false; } public boolean isWhile() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.rascalmpl.ast.Expression> getConditions() { throw new UnsupportedOperationException(); } public boolean hasConditions() { return false; } public boolean isWhile() { return false; }
 static public class While extends Statement {
 /** label:Label "while" "(" conditions:{Expression ","}+ ")" body:Statement -> Statement {cons("While")} */
 	public While(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Expression> conditions, org.rascalmpl.ast.Statement body) {
@@ -94,29 +76,21 @@ static public class While extends Statement {
 		this.conditions = conditions;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementWhile(this);
 	}
 
-	@Override
 	public boolean isWhile() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasConditions() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private final org.rascalmpl.ast.Label label;
-	@Override
 	public org.rascalmpl.ast.Label getLabel() { return label; }
 	private final java.util.List<org.rascalmpl.ast.Expression> conditions;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getConditions() { return conditions; }
 	private final org.rascalmpl.ast.Statement body;
-	@Override
 	public org.rascalmpl.ast.Statement getBody() { return body; }	
 } public org.rascalmpl.ast.Expression getCondition() { throw new UnsupportedOperationException(); } public boolean hasCondition() { return false; }
 public boolean isDoWhile() { return false; }
@@ -128,29 +102,21 @@ static public class DoWhile extends Statement {
 		this.body = body;
 		this.condition = condition;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementDoWhile(this);
 	}
 
-	@Override
 	public boolean isDoWhile() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
-	@Override
 	public boolean hasCondition() { return true; }
 
 private final org.rascalmpl.ast.Label label;
-	@Override
 	public org.rascalmpl.ast.Label getLabel() { return label; }
 	private final org.rascalmpl.ast.Statement body;
-	@Override
 	public org.rascalmpl.ast.Statement getBody() { return body; }
 	private final org.rascalmpl.ast.Expression condition;
-	@Override
 	public org.rascalmpl.ast.Expression getCondition() { return condition; }	
 } public org.rascalmpl.ast.Statement getThenStatement() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Statement getElseStatement() { throw new UnsupportedOperationException(); } public boolean hasThenStatement() { return false; } public boolean hasElseStatement() { return false; }
 public boolean isIfThenElse() { return false; }
@@ -163,34 +129,24 @@ static public class IfThenElse extends Statement {
 		this.thenStatement = thenStatement;
 		this.elseStatement = elseStatement;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementIfThenElse(this);
 	}
 
-	@Override
 	public boolean isIfThenElse() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasConditions() { return true; }
-	@Override
 	public boolean hasThenStatement() { return true; }
-	@Override
 	public boolean hasElseStatement() { return true; }
 
 private final org.rascalmpl.ast.Label label;
-	@Override
 	public org.rascalmpl.ast.Label getLabel() { return label; }
 	private final java.util.List<org.rascalmpl.ast.Expression> conditions;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getConditions() { return conditions; }
 	private final org.rascalmpl.ast.Statement thenStatement;
-	@Override
 	public org.rascalmpl.ast.Statement getThenStatement() { return thenStatement; }
 	private final org.rascalmpl.ast.Statement elseStatement;
-	@Override
 	public org.rascalmpl.ast.Statement getElseStatement() { return elseStatement; }	
 } public org.rascalmpl.ast.NoElseMayFollow getNoElseMayFollow() { throw new UnsupportedOperationException(); } public boolean hasNoElseMayFollow() { return false; }
 public boolean isIfThen() { return false; }
@@ -203,34 +159,24 @@ static public class IfThen extends Statement {
 		this.thenStatement = thenStatement;
 		this.noElseMayFollow = noElseMayFollow;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementIfThen(this);
 	}
 
-	@Override
 	public boolean isIfThen() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasConditions() { return true; }
-	@Override
 	public boolean hasThenStatement() { return true; }
-	@Override
 	public boolean hasNoElseMayFollow() { return true; }
 
 private final org.rascalmpl.ast.Label label;
-	@Override
 	public org.rascalmpl.ast.Label getLabel() { return label; }
 	private final java.util.List<org.rascalmpl.ast.Expression> conditions;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Expression> getConditions() { return conditions; }
 	private final org.rascalmpl.ast.Statement thenStatement;
-	@Override
 	public org.rascalmpl.ast.Statement getThenStatement() { return thenStatement; }
 	private final org.rascalmpl.ast.NoElseMayFollow noElseMayFollow;
-	@Override
 	public org.rascalmpl.ast.NoElseMayFollow getNoElseMayFollow() { return noElseMayFollow; }	
 } public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Case> getCases() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; } public boolean hasCases() { return false; }
 public boolean isSwitch() { return false; }
@@ -242,29 +188,21 @@ static public class Switch extends Statement {
 		this.expression = expression;
 		this.cases = cases;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementSwitch(this);
 	}
 
-	@Override
 	public boolean isSwitch() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasExpression() { return true; }
-	@Override
 	public boolean hasCases() { return true; }
 
 private final org.rascalmpl.ast.Label label;
-	@Override
 	public org.rascalmpl.ast.Label getLabel() { return label; }
 	private final org.rascalmpl.ast.Expression expression;
-	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }
 	private final java.util.List<org.rascalmpl.ast.Case> cases;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Case> getCases() { return cases; }	
 } public org.rascalmpl.ast.Visit getVisit() { throw new UnsupportedOperationException(); } public boolean hasVisit() { return false; }
 public boolean isVisit() { return false; }
@@ -275,24 +213,18 @@ static public class Visit extends Statement {
 		this.label = label;
 		this.visit = visit;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementVisit(this);
 	}
 
-	@Override
 	public boolean isVisit() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasVisit() { return true; }
 
 private final org.rascalmpl.ast.Label label;
-	@Override
 	public org.rascalmpl.ast.Label getLabel() { return label; }
 	private final org.rascalmpl.ast.Visit visit;
-	@Override
 	public org.rascalmpl.ast.Visit getVisit() { return visit; }	
 } 
 public boolean isEmptyStatement() { return false; }
@@ -301,12 +233,10 @@ static public class EmptyStatement extends Statement {
 	public EmptyStatement(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementEmptyStatement(this);
 	}
 
-	@Override
 	public boolean isEmptyStatement() { return true; }	
 } public boolean isExpression() { return false; } static public class Expression extends Statement {
 /** expression:Expression ";" -> Statement {cons("Expression")} */
@@ -314,19 +244,15 @@ static public class EmptyStatement extends Statement {
 		this.node = node;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementExpression(this);
 	}
 
-	@Override
 	public boolean isExpression() { return true; }
 
-	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Expression expression;
-	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 } public org.rascalmpl.ast.Assignable getAssignable() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Assignment getOperator() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Statement getStatement() { throw new UnsupportedOperationException(); } public boolean hasAssignable() { return false; } public boolean hasOperator() { return false; } public boolean hasStatement() { return false; } public boolean isAssignment() { return false; } static public class Assignment extends Statement {
 /** assignable:Assignable operator:Assignment statement:Statement -> Statement {cons("Assignment")} */
@@ -336,29 +262,21 @@ private final org.rascalmpl.ast.Expression expression;
 		this.operator = operator;
 		this.statement = statement;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementAssignment(this);
 	}
 
-	@Override
 	public boolean isAssignment() { return true; }
 
-	@Override
 	public boolean hasAssignable() { return true; }
-	@Override
 	public boolean hasOperator() { return true; }
-	@Override
 	public boolean hasStatement() { return true; }
 
 private final org.rascalmpl.ast.Assignable assignable;
-	@Override
 	public org.rascalmpl.ast.Assignable getAssignable() { return assignable; }
 	private final org.rascalmpl.ast.Assignment operator;
-	@Override
 	public org.rascalmpl.ast.Assignment getOperator() { return operator; }
 	private final org.rascalmpl.ast.Statement statement;
-	@Override
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
 } public boolean isAssert() { return false; }
 static public class Assert extends Statement {
@@ -367,19 +285,15 @@ static public class Assert extends Statement {
 		this.node = node;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementAssert(this);
 	}
 
-	@Override
 	public boolean isAssert() { return true; }
 
-	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Expression expression;
-	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 } public org.rascalmpl.ast.Expression getMessage() { throw new UnsupportedOperationException(); } public boolean hasMessage() { return false; }
 public boolean isAssertWithMessage() { return false; }
@@ -390,24 +304,18 @@ static public class AssertWithMessage extends Statement {
 		this.expression = expression;
 		this.message = message;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementAssertWithMessage(this);
 	}
 
-	@Override
 	public boolean isAssertWithMessage() { return true; }
 
-	@Override
 	public boolean hasExpression() { return true; }
-	@Override
 	public boolean hasMessage() { return true; }
 
 private final org.rascalmpl.ast.Expression expression;
-	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }
 	private final org.rascalmpl.ast.Expression message;
-	@Override
 	public org.rascalmpl.ast.Expression getMessage() { return message; }	
 } public boolean isReturn() { return false; } static public class Return extends Statement {
 /** "return" statement:Statement -> Statement {cons("Return")} */
@@ -415,19 +323,15 @@ private final org.rascalmpl.ast.Expression expression;
 		this.node = node;
 		this.statement = statement;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementReturn(this);
 	}
 
-	@Override
 	public boolean isReturn() { return true; }
 
-	@Override
 	public boolean hasStatement() { return true; }
 
 private final org.rascalmpl.ast.Statement statement;
-	@Override
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
 } public boolean isThrow() { return false; } static public class Throw extends Statement {
 /** "throw" statement:Statement -> Statement {cons("Throw")} */
@@ -435,19 +339,15 @@ private final org.rascalmpl.ast.Statement statement;
 		this.node = node;
 		this.statement = statement;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementThrow(this);
 	}
 
-	@Override
 	public boolean isThrow() { return true; }
 
-	@Override
 	public boolean hasStatement() { return true; }
 
 private final org.rascalmpl.ast.Statement statement;
-	@Override
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
 } public org.rascalmpl.ast.DataTarget getDataTarget() { throw new UnsupportedOperationException(); } public boolean hasDataTarget() { return false; } public boolean isInsert() { return false; } static public class Insert extends Statement {
 /** "insert" dataTarget:DataTarget statement:Statement -> Statement {non-assoc, cons("Insert")} */

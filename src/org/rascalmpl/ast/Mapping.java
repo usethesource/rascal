@@ -8,24 +8,18 @@ public abstract class Mapping extends AbstractAST {
 		this.from = from;
 		this.to = to;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitMappingDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasFrom() { return true; }
-	@Override
 	public boolean hasTo() { return true; }
 
 private final org.rascalmpl.ast.Expression from;
-	@Override
 	public org.rascalmpl.ast.Expression getFrom() { return from; }
 	private final org.rascalmpl.ast.Expression to;
-	@Override
 	public org.rascalmpl.ast.Expression getTo() { return to; }	
 } static public class Ambiguity extends Mapping {
   private final java.util.List<org.rascalmpl.ast.Mapping> alternatives;
@@ -37,10 +31,8 @@ private final org.rascalmpl.ast.Expression from;
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitMappingAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

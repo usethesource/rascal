@@ -29,6 +29,7 @@ context-free syntax
   "type"   -> BasicType {cons("ReifiedType")}
   "adt"    -> BasicType {cons("ReifiedAdt")}
   "constructor"  -> BasicType {cons("ReifiedConstructor")}
+  "parameter"  -> BasicType {cons("ReifiedTypeParameter")}
   "fun"   -> BasicType       {cons("ReifiedFunction")}
   "non-terminal" -> BasicType {cons("ReifiedNonTerminal")}
   "reified"      -> BasicType {cons("ReifiedReifiedType")}

@@ -7,12 +7,10 @@ static public class Module extends Kind {
 	public Module(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindModule(this);
 	}
 
-	@Override
 	public boolean isModule() { return true; }	
 }
 static public class Ambiguity extends Kind {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Kind {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitKindAmbiguity(this);
   }
 } 
@@ -36,26 +33,21 @@ static public class Function extends Kind {
 	public Function(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindFunction(this);
 	}
 
-	@Override
 	public boolean isFunction() { return true; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isRule() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isRule() { return false; }
 static public class Rule extends Kind {
 /** "rule" -> Kind {cons("Rule")} */
 	public Rule(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindRule(this);
 	}
 
-	@Override
 	public boolean isRule() { return true; }	
 } 
 public boolean isVariable() { return false; }
@@ -64,12 +56,10 @@ static public class Variable extends Kind {
 	public Variable(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindVariable(this);
 	}
 
-	@Override
 	public boolean isVariable() { return true; }	
 } 
 public boolean isData() { return false; }
@@ -78,12 +68,10 @@ static public class Data extends Kind {
 	public Data(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindData(this);
 	}
 
-	@Override
 	public boolean isData() { return true; }	
 } 
 public boolean isView() { return false; }
@@ -92,12 +80,10 @@ static public class View extends Kind {
 	public View(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindView(this);
 	}
 
-	@Override
 	public boolean isView() { return true; }	
 } 
 public boolean isAlias() { return false; }
@@ -106,12 +92,10 @@ static public class Alias extends Kind {
 	public Alias(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindAlias(this);
 	}
 
-	@Override
 	public boolean isAlias() { return true; }	
 } 
 public boolean isAnno() { return false; }
@@ -120,12 +104,10 @@ static public class Anno extends Kind {
 	public Anno(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindAnno(this);
 	}
 
-	@Override
 	public boolean isAnno() { return true; }	
 } 
 public boolean isTag() { return false; }
@@ -134,12 +116,10 @@ static public class Tag extends Kind {
 	public Tag(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindTag(this);
 	}
 
-	@Override
 	public boolean isTag() { return true; }	
 } 
 public boolean isAll() { return false; }
@@ -148,12 +128,10 @@ static public class All extends Kind {
 	public All(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindAll(this);
 	}
 
-	@Override
 	public boolean isAll() { return true; }	
 }
 }

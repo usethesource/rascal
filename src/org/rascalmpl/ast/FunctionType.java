@@ -13,24 +13,18 @@ static public class TypeArguments extends FunctionType {
 		this.type = type;
 		this.arguments = arguments;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionTypeTypeArguments(this);
 	}
 
-	@Override
 	public boolean isTypeArguments() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasArguments() { return true; }
 
 private final org.rascalmpl.ast.Type type;
-	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }
 	private final java.util.List<org.rascalmpl.ast.TypeArg> arguments;
-	@Override
 	public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() { return arguments; }	
 }
 static public class Ambiguity extends FunctionType {
@@ -43,8 +37,7 @@ static public class Ambiguity extends FunctionType {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFunctionTypeAmbiguity(this);
   }
 }

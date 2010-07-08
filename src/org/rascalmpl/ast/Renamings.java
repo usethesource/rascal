@@ -10,19 +10,15 @@ static public class Default extends Renamings {
 		this.node = node;
 		this.renamings = renamings;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitRenamingsDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasRenamings() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Renaming> renamings;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Renaming> getRenamings() { return renamings; }	
 }
 static public class Ambiguity extends Renamings {
@@ -35,8 +31,7 @@ static public class Ambiguity extends Renamings {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitRenamingsAmbiguity(this);
   }
 }

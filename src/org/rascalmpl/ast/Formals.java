@@ -10,19 +10,15 @@ static public class Default extends Formals {
 		this.node = node;
 		this.formals = formals;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFormalsDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasFormals() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Formal> formals;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Formal> getFormals() { return formals; }	
 }
 static public class Ambiguity extends Formals {
@@ -35,8 +31,7 @@ static public class Ambiguity extends Formals {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFormalsAmbiguity(this);
   }
 }
