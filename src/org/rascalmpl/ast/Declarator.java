@@ -8,24 +8,18 @@ public abstract class Declarator extends AbstractAST {
 		this.type = type;
 		this.variables = variables;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclaratorDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasVariables() { return true; }
 
 private final org.rascalmpl.ast.Type type;
-	@Override
 	public org.rascalmpl.ast.Type getType() { return type; }
 	private final java.util.List<org.rascalmpl.ast.Variable> variables;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Variable> getVariables() { return variables; }	
 } static public class Ambiguity extends Declarator {
   private final java.util.List<org.rascalmpl.ast.Declarator> alternatives;
@@ -37,10 +31,8 @@ private final org.rascalmpl.ast.Type type;
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitDeclaratorAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

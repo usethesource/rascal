@@ -11,8 +11,7 @@ static public class Lexical extends URLChars {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitURLCharsLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends URLChars {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitURLCharsAmbiguity(this);
   }
 }

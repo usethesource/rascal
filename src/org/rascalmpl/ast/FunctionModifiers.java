@@ -10,19 +10,15 @@ static public class List extends FunctionModifiers {
 		this.node = node;
 		this.modifiers = modifiers;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionModifiersList(this);
 	}
 
-	@Override
 	public boolean isList() { return true; }
 
-	@Override
 	public boolean hasModifiers() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers;
-	@Override
 	public java.util.List<org.rascalmpl.ast.FunctionModifier> getModifiers() { return modifiers; }	
 }
 static public class Ambiguity extends FunctionModifiers {
@@ -35,8 +31,7 @@ static public class Ambiguity extends FunctionModifiers {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFunctionModifiersAmbiguity(this);
   }
 }

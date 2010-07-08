@@ -11,8 +11,7 @@ static public class Lexical extends StringConstant {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitStringConstantLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends StringConstant {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitStringConstantAmbiguity(this);
   }
 }

@@ -10,19 +10,15 @@ static public class Associativity extends ProdModifier {
 		this.node = node;
 		this.associativity = associativity;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitProdModifierAssociativity(this);
 	}
 
-	@Override
 	public boolean isAssociativity() { return true; }
 
-	@Override
 	public boolean hasAssociativity() { return true; }
 
 private final org.rascalmpl.ast.Assoc associativity;
-	@Override
 	public org.rascalmpl.ast.Assoc getAssociativity() { return associativity; }	
 }
 static public class Ambiguity extends ProdModifier {
@@ -35,8 +31,7 @@ static public class Ambiguity extends ProdModifier {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitProdModifierAmbiguity(this);
   }
 } 
@@ -46,26 +41,21 @@ static public class Bracket extends ProdModifier {
 	public Bracket(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitProdModifierBracket(this);
 	}
 
-	@Override
 	public boolean isBracket() { return true; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isLexical() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isLexical() { return false; }
 static public class Lexical extends ProdModifier {
 /** "lex" -> ProdModifier {cons("Lexical")} */
 	public Lexical(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitProdModifierLexical(this);
 	}
 
-	@Override
 	public boolean isLexical() { return true; }	
 }
 }

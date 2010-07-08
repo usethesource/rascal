@@ -11,8 +11,7 @@ static public class Lexical extends PathChars {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitPathCharsLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends PathChars {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitPathCharsAmbiguity(this);
   }
 }

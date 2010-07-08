@@ -10,19 +10,15 @@ static public class Build extends LanguageAction {
 		this.node = node;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLanguageActionBuild(this);
 	}
 
-	@Override
 	public boolean isBuild() { return true; }
 
-	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Expression expression;
-	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 }
 static public class Ambiguity extends LanguageAction {
@@ -35,8 +31,7 @@ static public class Ambiguity extends LanguageAction {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitLanguageActionAmbiguity(this);
   }
 } 
@@ -49,21 +44,16 @@ static public class Action extends LanguageAction {
 		this.node = node;
 		this.statements = statements;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLanguageActionAction(this);
 	}
 
-	@Override
 	public boolean isAction() { return true; }
 
-	@Override
 	public boolean hasStatements() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Statement> statements;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Statement> getStatements() { return statements; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

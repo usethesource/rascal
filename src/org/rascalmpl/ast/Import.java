@@ -8,19 +8,15 @@ static public class Default extends Import {
 		this.node = node;
 		this.module = module;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasModule() { return true; }
 
 private final org.rascalmpl.ast.ImportedModule module;
-	@Override
 	public org.rascalmpl.ast.ImportedModule getModule() { return module; }	
 }
 static public class Ambiguity extends Import {
@@ -33,8 +29,7 @@ static public class Ambiguity extends Import {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitImportAmbiguity(this);
   }
 } public boolean isExtend() { return false; }
@@ -44,22 +39,17 @@ static public class Extend extends Import {
 		this.node = node;
 		this.module = module;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportExtend(this);
 	}
 
-	@Override
 	public boolean isExtend() { return true; }
 
-	@Override
 	public boolean hasModule() { return true; }
 
 private final org.rascalmpl.ast.ImportedModule module;
-	@Override
 	public org.rascalmpl.ast.ImportedModule getModule() { return module; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.SyntaxDefinition getSyntax() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.SyntaxDefinition getSyntax() { throw new UnsupportedOperationException(); }
 public boolean hasSyntax() { return false; }
 public boolean isSyntax() { return false; }
 static public class Syntax extends Import {
@@ -68,19 +58,15 @@ static public class Syntax extends Import {
 		this.node = node;
 		this.syntax = syntax;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportSyntax(this);
 	}
 
-	@Override
 	public boolean isSyntax() { return true; }
 
-	@Override
 	public boolean hasSyntax() { return true; }
 
 private final org.rascalmpl.ast.SyntaxDefinition syntax;
-	@Override
 	public org.rascalmpl.ast.SyntaxDefinition getSyntax() { return syntax; }	
 }
 }

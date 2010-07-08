@@ -11,8 +11,7 @@ static public class Lexical extends DateAndTime {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitDateAndTimeLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends DateAndTime {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitDateAndTimeAmbiguity(this);
   }
 }

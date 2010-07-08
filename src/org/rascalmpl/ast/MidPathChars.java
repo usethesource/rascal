@@ -11,8 +11,7 @@ static public class Lexical extends MidPathChars {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitMidPathCharsLexical(this);
   	}
 }
@@ -26,8 +25,7 @@ static public class Ambiguity extends MidPathChars {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitMidPathCharsAmbiguity(this);
   }
 }

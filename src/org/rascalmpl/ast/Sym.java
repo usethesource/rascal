@@ -7,12 +7,10 @@ static public class Parametrized extends Sym {
 	public Parametrized(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymParametrized(this);
 	}
 
-	@Override
 	public boolean isParametrized() { return true; }	
 }
 static public class Ambiguity extends Sym {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Sym {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitSymAmbiguity(this);
   }
 } 
@@ -39,22 +36,17 @@ static public class Nonterminal extends Sym {
 		this.node = node;
 		this.nonterminal = nonterminal;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymNonterminal(this);
 	}
 
-	@Override
 	public boolean isNonterminal() { return true; }
 
-	@Override
 	public boolean hasNonterminal() { return true; }
 
 private final org.rascalmpl.ast.Nonterminal nonterminal;
-	@Override
 	public org.rascalmpl.ast.Nonterminal getNonterminal() { return nonterminal; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Sym getSymbol() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.NonterminalLabel getLabel() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean hasLabel() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Sym getSymbol() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.NonterminalLabel getLabel() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean hasLabel() { return false; }
 public boolean isLabeled() { return false; }
 static public class Labeled extends Sym {
 /** symbol:Sym label:NonterminalLabel -> Sym {cons("Labeled")} */
@@ -63,24 +55,18 @@ static public class Labeled extends Sym {
 		this.symbol = symbol;
 		this.label = label;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymLabeled(this);
 	}
 
-	@Override
 	public boolean isLabeled() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
-	@Override
 	public boolean hasLabel() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }
 	private final org.rascalmpl.ast.NonterminalLabel label;
-	@Override
 	public org.rascalmpl.ast.NonterminalLabel getLabel() { return label; }	
 } public boolean isOptional() { return false; }
 static public class Optional extends Sym {
@@ -89,19 +75,15 @@ static public class Optional extends Sym {
 		this.node = node;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymOptional(this);
 	}
 
-	@Override
 	public boolean isOptional() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
 } public boolean isNonEagerOptional() { return false; }
 static public class NonEagerOptional extends Sym {
@@ -110,19 +92,15 @@ static public class NonEagerOptional extends Sym {
 		this.node = node;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymNonEagerOptional(this);
 	}
 
-	@Override
 	public boolean isNonEagerOptional() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
 } public boolean isIter() { return false; }
 static public class Iter extends Sym {
@@ -131,19 +109,15 @@ static public class Iter extends Sym {
 		this.node = node;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymIter(this);
 	}
 
-	@Override
 	public boolean isIter() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
 } public boolean isIterStar() { return false; }
 static public class IterStar extends Sym {
@@ -152,19 +126,15 @@ static public class IterStar extends Sym {
 		this.node = node;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymIterStar(this);
 	}
 
-	@Override
 	public boolean isIterStar() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
 } public boolean isNonEagerIter() { return false; }
 static public class NonEagerIter extends Sym {
@@ -173,19 +143,15 @@ static public class NonEagerIter extends Sym {
 		this.node = node;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymNonEagerIter(this);
 	}
 
-	@Override
 	public boolean isNonEagerIter() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
 } public boolean isNonEagerIterStar() { return false; }
 static public class NonEagerIterStar extends Sym {
@@ -194,19 +160,15 @@ static public class NonEagerIterStar extends Sym {
 		this.node = node;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymNonEagerIterStar(this);
 	}
 
-	@Override
 	public boolean isNonEagerIterStar() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
 } public org.rascalmpl.ast.StringConstant getSep() { throw new UnsupportedOperationException(); } public boolean hasSep() { return false; } public boolean isIterSep() { return false; }
 static public class IterSep extends Sym {
@@ -216,24 +178,18 @@ static public class IterSep extends Sym {
 		this.symbol = symbol;
 		this.sep = sep;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymIterSep(this);
 	}
 
-	@Override
 	public boolean isIterSep() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
-	@Override
 	public boolean hasSep() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }
 	private final org.rascalmpl.ast.StringConstant sep;
-	@Override
 	public org.rascalmpl.ast.StringConstant getSep() { return sep; }	
 } public boolean isIterStarSep() { return false; }
 static public class IterStarSep extends Sym {
@@ -243,24 +199,18 @@ static public class IterStarSep extends Sym {
 		this.symbol = symbol;
 		this.sep = sep;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymIterStarSep(this);
 	}
 
-	@Override
 	public boolean isIterStarSep() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
-	@Override
 	public boolean hasSep() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }
 	private final org.rascalmpl.ast.StringConstant sep;
-	@Override
 	public org.rascalmpl.ast.StringConstant getSep() { return sep; }	
 } public boolean isNonEagerIterSep() { return false; }
 static public class NonEagerIterSep extends Sym {
@@ -270,24 +220,18 @@ static public class NonEagerIterSep extends Sym {
 		this.symbol = symbol;
 		this.sep = sep;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymNonEagerIterSep(this);
 	}
 
-	@Override
 	public boolean isNonEagerIterSep() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
-	@Override
 	public boolean hasSep() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }
 	private final org.rascalmpl.ast.StringConstant sep;
-	@Override
 	public org.rascalmpl.ast.StringConstant getSep() { return sep; }	
 } public boolean isNonEagerIterStarSep() { return false; }
 static public class NonEagerIterStarSep extends Sym {
@@ -297,24 +241,18 @@ static public class NonEagerIterStarSep extends Sym {
 		this.symbol = symbol;
 		this.sep = sep;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymNonEagerIterStarSep(this);
 	}
 
-	@Override
 	public boolean isNonEagerIterStarSep() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
-	@Override
 	public boolean hasSep() { return true; }
 
 private final org.rascalmpl.ast.Sym symbol;
-	@Override
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }
 	private final org.rascalmpl.ast.StringConstant sep;
-	@Override
 	public org.rascalmpl.ast.StringConstant getSep() { return sep; }	
 } 
 public boolean isStartOfLine() { return false; }
@@ -323,12 +261,10 @@ static public class StartOfLine extends Sym {
 	public StartOfLine(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymStartOfLine(this);
 	}
 
-	@Override
 	public boolean isStartOfLine() { return true; }	
 } 
 public boolean isEndOfLine() { return false; }
@@ -337,12 +273,10 @@ static public class EndOfLine extends Sym {
 	public EndOfLine(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymEndOfLine(this);
 	}
 
-	@Override
 	public boolean isEndOfLine() { return true; }	
 } 
 public org.rascalmpl.ast.IntegerLiteral getColumn() { throw new UnsupportedOperationException(); }
@@ -354,19 +288,15 @@ static public class Column extends Sym {
 		this.node = node;
 		this.column = column;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymColumn(this);
 	}
 
-	@Override
 	public boolean isColumn() { return true; }
 
-	@Override
 	public boolean hasColumn() { return true; }
 
 private final org.rascalmpl.ast.IntegerLiteral column;
-	@Override
 	public org.rascalmpl.ast.IntegerLiteral getColumn() { return column; }	
 } 
 public org.rascalmpl.ast.Class getCharClass() { throw new UnsupportedOperationException(); }
@@ -378,19 +308,15 @@ static public class CharacterClass extends Sym {
 		this.node = node;
 		this.charClass = charClass;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymCharacterClass(this);
 	}
 
-	@Override
 	public boolean isCharacterClass() { return true; }
 
-	@Override
 	public boolean hasCharClass() { return true; }
 
 private final org.rascalmpl.ast.Class charClass;
-	@Override
 	public org.rascalmpl.ast.Class getCharClass() { return charClass; }	
 } 
 public org.rascalmpl.ast.StringConstant getString() { throw new UnsupportedOperationException(); }
@@ -402,19 +328,15 @@ static public class Literal extends Sym {
 		this.node = node;
 		this.string = string;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymLiteral(this);
 	}
 
-	@Override
 	public boolean isLiteral() { return true; }
 
-	@Override
 	public boolean hasString() { return true; }
 
 private final org.rascalmpl.ast.StringConstant string;
-	@Override
 	public org.rascalmpl.ast.StringConstant getString() { return string; }	
 } 
 public org.rascalmpl.ast.CaseInsensitiveStringConstant getCistring() { throw new UnsupportedOperationException(); }
@@ -426,19 +348,15 @@ static public class CaseInsensitiveLiteral extends Sym {
 		this.node = node;
 		this.cistring = cistring;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymCaseInsensitiveLiteral(this);
 	}
 
-	@Override
 	public boolean isCaseInsensitiveLiteral() { return true; }
 
-	@Override
 	public boolean hasCistring() { return true; }
 
 private final org.rascalmpl.ast.CaseInsensitiveStringConstant cistring;
-	@Override
 	public org.rascalmpl.ast.CaseInsensitiveStringConstant getCistring() { return cistring; }	
 }
 }

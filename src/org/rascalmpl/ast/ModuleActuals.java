@@ -10,19 +10,15 @@ static public class Default extends ModuleActuals {
 		this.node = node;
 		this.types = types;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitModuleActualsDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasTypes() { return true; }
 
 private final java.util.List<org.rascalmpl.ast.Type> types;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Type> getTypes() { return types; }	
 }
 static public class Ambiguity extends ModuleActuals {
@@ -35,8 +31,7 @@ static public class Ambiguity extends ModuleActuals {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitModuleActualsAmbiguity(this);
   }
 }

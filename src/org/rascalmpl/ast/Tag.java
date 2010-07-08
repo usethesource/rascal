@@ -10,24 +10,18 @@ static public class Default extends Tag {
 		this.name = name;
 		this.contents = contents;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTagDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasContents() { return true; }
 
 private final org.rascalmpl.ast.Name name;
-	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final org.rascalmpl.ast.TagString contents;
-	@Override
 	public org.rascalmpl.ast.TagString getContents() { return contents; }	
 }
 static public class Ambiguity extends Tag {
@@ -40,8 +34,7 @@ static public class Ambiguity extends Tag {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitTagAmbiguity(this);
   }
 } public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; }
@@ -53,46 +46,35 @@ static public class Expression extends Tag {
 		this.name = name;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTagExpression(this);
 	}
 
-	@Override
 	public boolean isExpression() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasExpression() { return true; }
 
 private final org.rascalmpl.ast.Name name;
-	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }
 	private final org.rascalmpl.ast.Expression expression;
-	@Override
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isEmpty() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isEmpty() { return false; }
 static public class Empty extends Tag {
 /** "@" name:Name -> Tag {cons("Empty"), category("Comment")} */
 	public Empty(INode node, org.rascalmpl.ast.Name name) {
 		this.node = node;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTagEmpty(this);
 	}
 
-	@Override
 	public boolean isEmpty() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
 
 private final org.rascalmpl.ast.Name name;
-	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }	
 }
 }

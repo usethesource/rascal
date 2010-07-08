@@ -11,8 +11,7 @@ public abstract class Name extends AbstractAST {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitNameLexical(this);
   	}
 } static public class Ambiguity extends Name {
@@ -25,10 +24,8 @@ public abstract class Name extends AbstractAST {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitNameAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

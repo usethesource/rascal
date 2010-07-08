@@ -11,8 +11,7 @@ public abstract class DatePart extends AbstractAST {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitDatePartLexical(this);
   	}
 } static public class Ambiguity extends DatePart {
@@ -25,10 +24,8 @@ public abstract class DatePart extends AbstractAST {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitDatePartAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

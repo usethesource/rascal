@@ -11,8 +11,7 @@ public abstract class TimePartNoTZ extends AbstractAST {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitTimePartNoTZLexical(this);
   	}
 } static public class Ambiguity extends TimePartNoTZ {
@@ -25,10 +24,8 @@ public abstract class TimePartNoTZ extends AbstractAST {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitTimePartNoTZAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

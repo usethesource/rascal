@@ -7,12 +7,10 @@ static public class Empty extends Label {
 	public Empty(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLabelEmpty(this);
 	}
 
-	@Override
 	public boolean isEmpty() { return true; }	
 }
 static public class Ambiguity extends Label {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Label {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitLabelAmbiguity(this);
   }
 } 
@@ -39,21 +36,16 @@ static public class Default extends Label {
 		this.node = node;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLabelDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
 
 private final org.rascalmpl.ast.Name name;
-	@Override
 	public org.rascalmpl.ast.Name getName() { return name; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

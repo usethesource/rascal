@@ -11,8 +11,7 @@ public abstract class BooleanLiteral extends AbstractAST {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitBooleanLiteralLexical(this);
   	}
 } static public class Ambiguity extends BooleanLiteral {
@@ -25,10 +24,8 @@ public abstract class BooleanLiteral extends AbstractAST {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitBooleanLiteralAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

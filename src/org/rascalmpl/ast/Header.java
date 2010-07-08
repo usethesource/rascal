@@ -10,29 +10,21 @@ static public class Default extends Header {
 		this.name = name;
 		this.imports = imports;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitHeaderDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasImports() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
-	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.QualifiedName name;
-	@Override
 	public org.rascalmpl.ast.QualifiedName getName() { return name; }
 	private final java.util.List<org.rascalmpl.ast.Import> imports;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Import> getImports() { return imports; }	
 }
 static public class Ambiguity extends Header {
@@ -45,8 +37,7 @@ static public class Ambiguity extends Header {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitHeaderAmbiguity(this);
   }
 } public org.rascalmpl.ast.ModuleParameters getParams() { throw new UnsupportedOperationException(); } public boolean hasParams() { return false; } public boolean isParameters() { return false; }
@@ -59,36 +50,25 @@ static public class Parameters extends Header {
 		this.params = params;
 		this.imports = imports;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitHeaderParameters(this);
 	}
 
-	@Override
 	public boolean isParameters() { return true; }
 
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasParams() { return true; }
-	@Override
 	public boolean hasImports() { return true; }
 
 private final org.rascalmpl.ast.Tags tags;
-	@Override
 	public org.rascalmpl.ast.Tags getTags() { return tags; }
 	private final org.rascalmpl.ast.QualifiedName name;
-	@Override
 	public org.rascalmpl.ast.QualifiedName getName() { return name; }
 	private final org.rascalmpl.ast.ModuleParameters params;
-	@Override
 	public org.rascalmpl.ast.ModuleParameters getParams() { return params; }
 	private final java.util.List<org.rascalmpl.ast.Import> imports;
-	@Override
 	public java.util.List<org.rascalmpl.ast.Import> getImports() { return imports; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -25,6 +25,7 @@ context-free priorities
   prod:Prod action:LanguageAction                            -> Prod {cons("Action"),non-assoc}
 }
 > lhs:Prod "-" rhs:Prod -> Prod {cons("Subtract"), left}
+> lhs:Prod "#" rhs:Prod -> Prod {cons("Follow"), left}
 > lhs:Prod ">" rhs:Prod -> Prod {cons("First"), left}
 > lhs:Prod "|" rhs:Prod -> Prod {cons("All"), left}
 

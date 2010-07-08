@@ -7,12 +7,10 @@ static public class Absent extends Start {
 	public Absent(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStartAbsent(this);
 	}
 
-	@Override
 	public boolean isAbsent() { return true; }	
 }
 static public class Ambiguity extends Start {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Start {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitStartAmbiguity(this);
   }
 } 
@@ -36,14 +33,11 @@ static public class Present extends Start {
 	public Present(INode node) {
 		this.node = node;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStartPresent(this);
 	}
 
-	@Override
 	public boolean isPresent() { return true; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }
