@@ -482,9 +482,41 @@ public abstract class SGLL implements IGLL{
 		char[] input = new char[inputFileLength];
 		Reader in = new BufferedReader(new FileReader(inputFile));
 		try{
-			in.read(input);
+			in.read(input, 0, inputFileLength);
 		}finally{
 			in.close();
+		}
+		
+		return parse(startNode, input);
+	}
+	
+	protected IValue parse(AbstractStackNode startNode, Reader in) throws IOException{
+		int segmentSize = 8192;
+		ArrayList<char[]> segments = new ArrayList<char[]>();
+		
+		// Gather segments.
+		int nrOfWholeSegments = -1;
+		int bytesRead;
+		do{
+			char[] segment = new char[segmentSize];
+			bytesRead = in.read(segment, 0, segmentSize);
+			
+			segments.add(segment);
+			nrOfWholeSegments++;
+		}while(bytesRead < segmentSize);
+		
+		// Glue the segments together.
+		char[] segment = segments.get(nrOfWholeSegments);
+		char[] input;
+		if(bytesRead != -1){
+			input = new char[(nrOfWholeSegments * segmentSize) + bytesRead];
+			System.arraycopy(segment, 0, input, (nrOfWholeSegments * segmentSize), bytesRead);
+		}else{
+			input = new char[(nrOfWholeSegments * segmentSize)];
+		}
+		for(int i = nrOfWholeSegments - 1; i >= 0; i--){
+			segment = segments.get(i);
+			System.arraycopy(segment, 0, input, (i * segmentSize), segmentSize);
 		}
 		
 		return parse(startNode, input);
