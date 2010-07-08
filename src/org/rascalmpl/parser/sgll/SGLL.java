@@ -1,9 +1,13 @@
 package org.rascalmpl.parser.sgll;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Method;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -467,6 +471,23 @@ public abstract class SGLL implements IGLL{
 		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation("-"));
 		
 		return makeParseTree(result);
+	}
+	
+	protected IValue parse(AbstractStackNode startNode, String inputString){
+		return parse(startNode, inputString.toCharArray());
+	}
+	
+	protected IValue parse(AbstractStackNode startNode, File inputFile) throws IOException{
+		int inputFileLength = (int) inputFile.length();
+		char[] input = new char[inputFileLength];
+		Reader in = new BufferedReader(new FileReader(inputFile));
+		try{
+			in.read(input);
+		}finally{
+			in.close();
+		}
+		
+		return parse(startNode, input);
 	}
 	
 	private IValue makeParseTree(IValue tree){
