@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
 
@@ -473,11 +475,11 @@ public abstract class SGLL implements IGLL{
 		return makeParseTree(result);
 	}
 	
-	protected IValue parse(AbstractStackNode startNode, String inputString){
+	protected IValue parseFromString(AbstractStackNode startNode, String inputString){
 		return parse(startNode, inputString.toCharArray());
 	}
 	
-	protected IValue parse(AbstractStackNode startNode, File inputFile) throws IOException{
+	protected IValue parseFromFile(AbstractStackNode startNode, File inputFile) throws IOException{
 		int inputFileLength = (int) inputFile.length();
 		char[] input = new char[inputFileLength];
 		Reader in = new BufferedReader(new FileReader(inputFile));
@@ -490,7 +492,8 @@ public abstract class SGLL implements IGLL{
 		return parse(startNode, input);
 	}
 	
-	protected IValue parse(AbstractStackNode startNode, Reader in) throws IOException{
+	// This is kind of ugly.
+	protected IValue parseFromReader(AbstractStackNode startNode, Reader in) throws IOException{
 		int segmentSize = 8192;
 		ArrayList<char[]> segments = new ArrayList<char[]>();
 		
@@ -520,6 +523,10 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		return parse(startNode, input);
+	}
+	
+	public IValue parseFromStream(AbstractStackNode startNode, InputStream in) throws IOException{
+		return parseFromReader(startNode, new InputStreamReader(in));
 	}
 	
 	private IValue makeParseTree(IValue tree){
