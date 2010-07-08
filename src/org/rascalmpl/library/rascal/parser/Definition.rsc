@@ -16,6 +16,9 @@ import Integer;
     
 // join the rules for the same non-terminal
 rule merge   grammar(set[Symbol] s,{Production p, Production q,set[Production] a}) => grammar(s,{choice(sort(p), {p,q}), a}) when sort(p) == sort(q);
+
+test grammar({}, {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())}) ==
+     grammar({}, {choice(sort("B"), {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())})});
 	
 // these rules flatten complex productions and ignore ordering under diff and assoc and restrict
 rule or     choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})                    => choice(s,a+b); 
@@ -65,7 +68,7 @@ rule order \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, 
      when p < n;
 
 public Symbol sort(Production p) {
-  if (/prod(_,rhs,_) := p || /regular(rhs,_) := p) {
+  if (/prod(_,rhs,_) := p || /regular(rhs,_) := p || /restrict(rhs, _, _) := p) {
     return rhs;
   }
   throw "weird production <p>";
