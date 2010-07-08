@@ -15,7 +15,7 @@ import IO;
 import Integer;
     
 // join the rules for the same non-terminal
-rule merge   grammar(s,{p,q,set[Production] a}) => grammar(s,{choice(sort(p), {p,q}), a}) when sort(p) == sort(q);
+rule merge   grammar(set[Symbol] s,{Production p, Production q,set[Production] a}) => grammar(s,{choice(sort(p), {p,q}), a}) when sort(p) == sort(q);
 	
 // these rules flatten complex productions and ignore ordering under diff and assoc and restrict
 rule or     choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})                    => choice(s,a+b); 
@@ -37,7 +37,7 @@ rule others choice(Symbol s, {set[Production] a, first(Symbol s, [list[Productio
             first(s, b + [choice(s, a)] + c);
   
 // move diff outwards
-rule empty  diff(_,Production p,{})                    => p;
+rule empty  diff(Symbol s,Production p,{})                    => p;
 rule or     choice(Symbol s, {set[Production] a, diff(Symbol t, b, set[Production] c)})   => diff(s, choice(s, a+{b}), c);
 rule xor    first(Symbol s, [list[Production] a, diff(Symbol t, b, set[Production] c),list[Production] d]) => 
                diff(s, first(a+[b]+d), c);
