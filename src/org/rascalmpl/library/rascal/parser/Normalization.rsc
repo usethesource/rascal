@@ -7,7 +7,7 @@
   Mainly these rules simplify processing of grammars by grouping definitions by non-terminal,
   and removing some forms of syntactic sugar.
 }
-module Normalization
+module rascal::parser::Normalization
 
 import rascal::parser::Grammar;
 import rascal::parser::Regular;
