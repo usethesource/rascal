@@ -7,7 +7,7 @@ if (Statement a:=q)
 switch(a) {
         case `<Expression expression> ; `:  return H(0, [evPt(expression), L(";")]);
         case `<Assignable assignable> <Assignment operator> <Statement statement> `:
-                        return HV(0, [evPt(assignable), evPt(operator), evPt(statement)]);
+                        return HV(0, [H(0, [evPt(assignable), evPt(operator)]), I([evPt(statement)])]);
         case `<LocalVariableDeclaration declaration> ; `: return H(0, [evPt(declaration), L(";")]);
         }
 if (Declarator a:=q) 

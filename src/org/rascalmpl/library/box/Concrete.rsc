@@ -30,7 +30,12 @@ bool(list[Symbol]) isSeperated = bNULL;
 bool isTerminal(Symbol s) {
      return ((\lit(_):= s)) ||  (\char-class(_):=s);
      }
-     
+
+str getName(Symbol s) {
+     if (\lit(str q):= s) return q;
+     return "";
+     } 
+        
 bool isTerminal(Symbol s, str c) {
      if (\lit(str a):= s) { 
            if (a==c) return true;
@@ -175,11 +180,15 @@ public Box evPt(Tree q, bool doIndent) {
                      }
         case appl(\list(\cf(\iter-star-sep(Symbol s, Symbol sep) )), list[Tree] t): {
                      pairs u =[<s, t[i]>| int i<-[0,2..(size(t)-1)]];
-                     return boxArgs(u, true, doIndent, 0); 
+                      list[Box] q = [H(0, [ evPt(t[i]), L(getName(sep))])|int i<-[0,4..(size(t)-1)]];
+                      return (getName(sep)==";")?V(q):HV(q);
+                     // return boxArgs(u, true, doIndent, 0); 
                      }
         case appl(\list(\cf(\iter-sep(Symbol s, Symbol sep) )), list[Tree] t): {
                       pairs u =[<s, t[i]>| int i<-[0,2..(size(t)-1)]];
-                      return boxArgs(u, true, doIndent, 0); 
+                      list[Box] q = [H(0, [ evPt(t[i]),  L(getName(sep))])|int i<-[0,4..(size(t)-1)]];
+                      return (getName(sep)==";")?V(q):HV(q);
+                      // return boxArgs(u, true, doIndent, 0); 
                      }
         case appl(\list(\cf(\iter-star(Symbol s) )), list[Tree] t): {
                       pairs u =[<s, t[i]>| int i<-[0,2..(size(t)-1)]];
@@ -319,6 +328,12 @@ public Box HV(int space, list[Box] bs) {
 
 public Box H(int space, list[Box] bs) {
    Box r = H([b| Box b <- bs, b!=NULL()]);
+   if (space>=0) r@hs = space;
+   return r;
+   }
+   
+ public Box V(int space, list[Box] bs) {
+   Box r = V([b| Box b <- bs, b!=NULL()]);
    if (space>=0) r@hs = space;
    return r;
    }
