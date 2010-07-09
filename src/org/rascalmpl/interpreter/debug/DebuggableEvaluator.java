@@ -1,6 +1,5 @@
 package org.rascalmpl.interpreter.debug;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -748,7 +747,7 @@ public class DebuggableEvaluator extends Evaluator {
 		return debugger;
 	}
 
-	public IConstructor parseCommand(String command) throws IOException {
+	public IConstructor parseCommand(String command){
 		return parseCommand(command, URI.create("debug:///"));
 	}
 

@@ -102,9 +102,9 @@ public class SymbolAdapter {
 				return true;
 			}
 			return isLayout(t);
-		} else {
-			return (tree.getConstructorType() == Factory.Symbol_Layout);
 		}
+		
+		return (tree.getConstructorType() == Factory.Symbol_Layout);
 	}
 	
 	private static boolean isProductionList(IConstructor tree){

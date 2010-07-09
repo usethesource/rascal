@@ -14,8 +14,9 @@ public final class TraverseResultFactory {
 			tr.value = value;
 			tr.changed = false;
 			return tr;
-		} else			
-			throw new ImplementationError("TraverseResultFactory");
+		}		
+		
+		throw new ImplementationError("TraverseResultFactory");
 	}
 	
 	public static final TraverseResult makeTraverseResult(IValue value){
@@ -25,8 +26,9 @@ public final class TraverseResultFactory {
 			tr.value = value;
 			tr.changed = false;
 			return tr;
-		} else 
-			throw new ImplementationError("TraverseResultFactory");
+		}
+		
+		throw new ImplementationError("TraverseResultFactory");
 	}
 
 	public static final TraverseResult makeTraverseResult(IValue value, boolean changed){
@@ -36,8 +38,9 @@ public final class TraverseResultFactory {
 			tr.value   = value;
 			tr.changed = changed;
 			return tr;
-		} else 
-			throw new ImplementationError("TraverseResultFactory");
+		}
+		
+		throw new ImplementationError("TraverseResultFactory");
 	}
 	
 	public static final TraverseResult makeTraverseResult(boolean someMatch, IValue value, boolean changed){
@@ -47,8 +50,9 @@ public final class TraverseResultFactory {
 			tr.value   = value;
 			tr.changed = changed;
 			return tr;
-		} else 
-			throw new ImplementationError("TraverseResultFactory");
+		}
+		
+		throw new ImplementationError("TraverseResultFactory");
 	}
 	
 	public static final void freeTraverseResult(TraverseResult tr){
