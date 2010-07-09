@@ -21,7 +21,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.Typeifier;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 public class ValueIO{
 	private final IValueFactory values;

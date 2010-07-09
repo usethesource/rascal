@@ -134,7 +134,7 @@ public class RascalShell {
 		}
 	}
 
-	private String handleInput(final Evaluator command, StringBuffer statement) throws IOException {
+	private String handleInput(final Evaluator command, StringBuffer statement){
 		Result<IValue> value = evaluator.eval(statement.toString(), URI.create("prompt:///"));
 
 		if (value.getValue() == null) {
@@ -151,7 +151,7 @@ public class RascalShell {
 		return ((v != null) ? value.toString(LINE_LIMIT) : null);
 	}
 
-	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException, IOException {
+	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException {
 		String command = statement.toString();
 		
 		try {

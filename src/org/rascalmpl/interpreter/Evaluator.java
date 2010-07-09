@@ -2025,13 +2025,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (hasJavaModifier(x)) {
 			throw new JavaMethodLinkError("may not use java modifier with a function that has a body", null,  x);
 		}
-		else {
-			if (!x.getBody().isDefault()) {
-				throw new MissingModifierError("java", x);
-			}
-
-			lambda = new RascalFunction(this, x, varArgs, getCurrentEnvt(), accumulators);
+		
+		if (!x.getBody().isDefault()) {
+			throw new MissingModifierError("java", x);
 		}
+
+		lambda = new RascalFunction(this, x, varArgs, getCurrentEnvt(), accumulators);
 
 		getCurrentEnvt().storeFunction(lambda.getName(), lambda);
 

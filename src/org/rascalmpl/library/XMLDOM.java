@@ -27,7 +27,6 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.xml.Factory;
 
 public class XMLDOM {
@@ -37,8 +36,9 @@ public class XMLDOM {
 		this.vf = vf;
 	}
 	
-	@SuppressWarnings("serial")
-	private static class Skip extends Exception { }
+	private static class Skip extends Exception {
+		private static final long serialVersionUID = -6330585199877497106L;
+	}
 
 	public IConstructor readXMLDOMTrim(ISourceLocation file, IEvaluatorContext ctx) throws IOException, JDOMException {
 		return readXMLDOM(file, true, ctx);

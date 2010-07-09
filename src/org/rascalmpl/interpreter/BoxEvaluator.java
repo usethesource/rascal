@@ -3155,12 +3155,11 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// System.err.println("visitStrin:" + s.length + " " + x);
 		if (s.length == 1)
 			return BoxADT.getList(L(x));
-		else {
-			IValue[] v = new IValue[s.length];
-			for (int i = 0; i < v.length; i++)
-				v[i] = L(s[i]);
-			return list(v);
-		}
+		
+		IValue[] v = new IValue[s.length];
+		for (int i = 0; i < v.length; i++)
+			v[i] = L(s[i]);
+		return list(v);
 	}
 
 	public IValue visitBasicTypeNum(Num x) {

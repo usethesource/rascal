@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,7 +13,6 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 /**
  * This class implements the rascal:// scheme. If the path component of a given URI represents a module name, then

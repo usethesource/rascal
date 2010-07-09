@@ -25,7 +25,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInputStreamResolver;
 import org.rascalmpl.uri.IURIInputStreamResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -125,13 +124,8 @@ public class TestFramework {
 	}
 
 	public boolean runTest(String command) {
-		try {
-			reset();
-			return execute(command);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new ImplementationError("Exception while running test", e);
-		}
+		reset();
+		return execute(command);
 	}
 	
 	public boolean runRascalTests(String command) {
@@ -139,10 +133,6 @@ public class TestFramework {
 			reset();
 			execute(command);
 			return evaluator.runTests();
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-			throw new ImplementationError("Exception while running test", e);
 		}
 		finally {
 			stderr.flush();
@@ -151,21 +141,13 @@ public class TestFramework {
 	}
 
 	public boolean runTestInSameEvaluator(String command) {
-		try {
-			return execute(command);
-		} catch (IOException e) {
-			throw new ImplementationError("Exception while running test", e);
-		}
+		return execute(command);
 	}
 
 	public boolean runTest(String command1, String command2) {
-		try {
-			reset();
-			execute(command1);
-			return execute(command2);
-		} catch (IOException e) {
-			throw new ImplementationError("Exception while running test", e);
-		}
+		reset();
+		execute(command1);
+		return execute(command2);
 	}
 
 	public TestFramework prepare(String command) {
@@ -208,7 +190,7 @@ public class TestFramework {
 		return true;
 	}
 
-	private boolean execute(String command) throws IOException {
+	private boolean execute(String command){
 		Result<IValue> result = evaluator.eval(command, URI.create("stdin:///"));
 
 		if (result.getType().isVoidType()) {

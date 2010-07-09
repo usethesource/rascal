@@ -1,6 +1,5 @@
 package org.rascalmpl.interpreter.debug;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Stack;
 
@@ -768,7 +767,7 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		return debugger;
 	}
 
-	public IConstructor parseCommand(String command) throws IOException {
+	public IConstructor parseCommand(String command){
 		return evaluator.getEvaluator().parseCommand(command, URI.create("debug:///"));
 	}
 

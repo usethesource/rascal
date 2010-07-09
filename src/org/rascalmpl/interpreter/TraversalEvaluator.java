@@ -25,14 +25,12 @@ import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.RewriteRule;
-import org.rascalmpl.interpreter.matching.ConcreteApplicationPattern;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -385,10 +383,10 @@ public class TraversalEvaluator {
 					//System.err.println("applyCasesOrRules: matches");
 					if(tr.matched){
 						return tr;
-					} else
-						TraverseResultFactory.freeTraverseResult(tr);
-				}
-				finally {
+					}
+					
+					TraverseResultFactory.freeTraverseResult(tr);
+				}finally {
 					eval.unwind(old);
 				}
 			}
@@ -405,8 +403,9 @@ public class TraversalEvaluator {
 					TraverseResult tr = applyOneRule(type, subject, rule.getRule());
 					if(tr.matched){
 						return tr;
-					} else
-						TraverseResultFactory.freeTraverseResult(tr);
+					}
+					
+					TraverseResultFactory.freeTraverseResult(tr);
 				}
 				finally {
 					eval.setCurrentEnvt(oldEnv);
