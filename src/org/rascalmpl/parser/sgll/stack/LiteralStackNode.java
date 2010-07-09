@@ -13,12 +13,12 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 	
 	private final LiteralNode result;
 	
-	public LiteralStackNode(int id, IConstructor symbol, char[] literal){
+	public LiteralStackNode(int id, IConstructor production, char[] literal){
 		super(id);
 		
 		this.literal = literal;
 		
-		result = new LiteralNode(symbol, literal);
+		result = new LiteralNode(production, literal);
 	}
 	
 	private LiteralStackNode(LiteralStackNode original){
