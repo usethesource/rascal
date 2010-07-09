@@ -9,7 +9,7 @@ import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class SeparatedListStackNode extends AbstractStackNode implements IListStackNode{
-	private final IConstructor symbol;
+	private final IConstructor production;
 
 	private final AbstractStackNode child;
 	private final AbstractStackNode[] separators;
@@ -17,10 +17,10 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	
 	private ContainerNode result;
 	
-	public SeparatedListStackNode(int id, IConstructor symbol, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
+	public SeparatedListStackNode(int id, IConstructor production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
 		super(id);
 		
-		this.symbol = symbol;
+		this.production = production;
 		
 		this.child = child;
 		this.separators = separators;
@@ -30,7 +30,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	private SeparatedListStackNode(SeparatedListStackNode original, int newId){
 		super(newId);
 		
-		symbol = original.symbol;
+		production = original.production;
 
 		child = original.child;
 		separators = original.separators;
@@ -40,7 +40,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	private SeparatedListStackNode(SeparatedListStackNode original){
 		super(original);
 		
-		symbol = original.symbol;
+		production = original.production;
 
 		child = original.child;
 		separators = original.separators;
@@ -50,7 +50,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	private SeparatedListStackNode(SeparatedListStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
 		super(original, prefixes);
 		
-		symbol = original.symbol;
+		production = original.production;
 
 		child = original.child;
 		separators = original.separators;
@@ -105,8 +105,8 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		slpsn.addEdge(this);
 		
 		psn.setStartLocation(startLocation);
-		psn.setParentProduction(symbol);
-		slpsn.setParentProduction(symbol);
+		psn.setParentProduction(production);
+		slpsn.setParentProduction(production);
 		
 		if(isPlusList){
 			return new AbstractStackNode[]{psn};
@@ -115,7 +115,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
-		epsn.setParentProduction(symbol);
+		epsn.setParentProduction(production);
 		
 		return new AbstractStackNode[]{psn, epsn};
 	}
@@ -126,7 +126,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(symbol);
+		sb.append(production);
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);

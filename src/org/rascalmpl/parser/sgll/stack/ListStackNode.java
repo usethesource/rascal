@@ -9,17 +9,17 @@ import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class ListStackNode extends AbstractStackNode implements IListStackNode{
-	private final IConstructor symbol;
+	private final IConstructor production;
 
 	private final AbstractStackNode child;
 	private final boolean isPlusList;
 	
 	private ContainerNode result;
 	
-	public ListStackNode(int id, IConstructor symbol, AbstractStackNode child, boolean isPlusList){
+	public ListStackNode(int id, IConstructor production, AbstractStackNode child, boolean isPlusList){
 		super(id);
 		
-		this.symbol = symbol;
+		this.production = production;
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
@@ -28,7 +28,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	private ListStackNode(ListStackNode original, int newId){
 		super(newId);
 		
-		this.symbol = original.symbol;
+		this.production = original.production;
 
 		child = original.child;
 		isPlusList = true;
@@ -37,7 +37,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	private ListStackNode(ListStackNode original){
 		super(original);
 		
-		symbol = original.symbol;
+		production = original.production;
 
 		child = original.child;
 		isPlusList = original.isPlusList;
@@ -46,7 +46,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	private ListStackNode(ListStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
 		super(original, prefixes);
 		
-		symbol = original.symbol;
+		production = original.production;
 
 		child = original.child;
 		isPlusList = original.isPlusList;
@@ -92,8 +92,8 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		lpsn.addEdge(this);
 		psn.addEdge(this);
 		
-		psn.setParentProduction(symbol);
-		lpsn.setParentProduction(symbol);
+		psn.setParentProduction(production);
+		lpsn.setParentProduction(production);
 		
 		psn.setStartLocation(startLocation);
 		
@@ -104,7 +104,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
-		epsn.setParentProduction(symbol);
+		epsn.setParentProduction(production);
 		
 		return new AbstractStackNode[]{psn, epsn};
 	}
@@ -115,7 +115,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(symbol);
+		sb.append(production);
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);

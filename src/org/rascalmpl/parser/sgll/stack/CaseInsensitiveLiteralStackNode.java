@@ -9,15 +9,15 @@ import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IReducableStackNode{
-	private final IConstructor symbol;
+	private final IConstructor production;
 	private final char[][] ciLiteral;
 	
 	private LiteralNode result;
 	
-	public CaseInsensitiveLiteralStackNode(int id, IConstructor symbol, char[] ciLiteral){
+	public CaseInsensitiveLiteralStackNode(int id, IConstructor production, char[] ciLiteral){
 		super(id);
 		
-		this.symbol = symbol;
+		this.production = production;
 		
 		int nrOfCharacters = ciLiteral.length;
 		this.ciLiteral = new char[nrOfCharacters][];
@@ -37,14 +37,14 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original){
 		super(original);
 		
-		symbol = original.symbol;
+		production = original.production;
 		ciLiteral = original.ciLiteral;
 	}
 	
 	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
 		super(original, prefixes);
 		
-		symbol = original.symbol;
+		production = original.production;
 		ciLiteral = original.ciLiteral;
 	}
 	
@@ -71,7 +71,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 			return false; // Did not match.
 		}
 		
-		result = new LiteralNode(symbol, resultLiteral);
+		result = new LiteralNode(production, resultLiteral);
 		return true;
 	}
 	

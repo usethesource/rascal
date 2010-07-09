@@ -8,16 +8,16 @@ import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class OptionalStackNode extends AbstractStackNode implements IListStackNode{
-	private final IConstructor symbol;
+	private final IConstructor production;
 	
 	private final AbstractStackNode optional;
 	
 	private ContainerNode result;
 	
-	public OptionalStackNode(int id, IConstructor symbol, AbstractStackNode optional){
+	public OptionalStackNode(int id, IConstructor production, AbstractStackNode optional){
 		super(id);
 		
-		this.symbol = symbol;
+		this.production = production;
 		
 		this.optional = optional;
 	}
@@ -25,7 +25,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	private OptionalStackNode(OptionalStackNode original){
 		super(original);
 		
-		symbol = original.symbol;
+		production = original.production;
 		
 		optional = original.optional;
 	}
@@ -33,7 +33,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	private OptionalStackNode(OptionalStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
 		super(original, prefixes);
 		
-		symbol = original.symbol;
+		production = original.production;
 		
 		optional = original.optional;
 	}
@@ -72,14 +72,14 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	
 	public AbstractStackNode[] getChildren(){
 		AbstractStackNode copy = optional.getCleanCopy();
-		copy.setParentProduction(symbol);
+		copy.setParentProduction(production);
 		copy.setStartLocation(-1); // Reset.
 		
 		AbstractStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 		copy.addEdge(this);
 		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
-		epsn.setParentProduction(symbol);
+		epsn.setParentProduction(production);
 		
 		return new AbstractStackNode[]{copy, epsn};
 	}
@@ -90,7 +90,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(symbol);
+		sb.append(production);
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
