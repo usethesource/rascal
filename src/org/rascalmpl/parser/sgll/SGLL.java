@@ -30,6 +30,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 public abstract class SGLL implements IGLL{
+	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
+	
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private char[] input;
@@ -494,32 +496,31 @@ public abstract class SGLL implements IGLL{
 	
 	// This is kind of ugly.
 	protected IValue parseFromReader(AbstractStackNode startNode, Reader in) throws IOException{
-		int segmentSize = 8192;
 		ArrayList<char[]> segments = new ArrayList<char[]>();
 		
 		// Gather segments.
 		int nrOfWholeSegments = -1;
 		int bytesRead;
 		do{
-			char[] segment = new char[segmentSize];
-			bytesRead = in.read(segment, 0, segmentSize);
+			char[] segment = new char[STREAM_READ_SEGMENT_SIZE];
+			bytesRead = in.read(segment, 0, STREAM_READ_SEGMENT_SIZE);
 			
 			segments.add(segment);
 			nrOfWholeSegments++;
-		}while(bytesRead < segmentSize);
+		}while(bytesRead < STREAM_READ_SEGMENT_SIZE);
 		
 		// Glue the segments together.
 		char[] segment = segments.get(nrOfWholeSegments);
 		char[] input;
 		if(bytesRead != -1){
-			input = new char[(nrOfWholeSegments * segmentSize) + bytesRead];
-			System.arraycopy(segment, 0, input, (nrOfWholeSegments * segmentSize), bytesRead);
+			input = new char[(nrOfWholeSegments * STREAM_READ_SEGMENT_SIZE) + bytesRead];
+			System.arraycopy(segment, 0, input, (nrOfWholeSegments * STREAM_READ_SEGMENT_SIZE), bytesRead);
 		}else{
-			input = new char[(nrOfWholeSegments * segmentSize)];
+			input = new char[(nrOfWholeSegments * STREAM_READ_SEGMENT_SIZE)];
 		}
 		for(int i = nrOfWholeSegments - 1; i >= 0; i--){
 			segment = segments.get(i);
-			System.arraycopy(segment, 0, input, (i * segmentSize), segmentSize);
+			System.arraycopy(segment, 0, input, (i * STREAM_READ_SEGMENT_SIZE), STREAM_READ_SEGMENT_SIZE);
 		}
 		
 		return parse(startNode, input);
