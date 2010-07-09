@@ -9,7 +9,6 @@ import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class LiteralStackNode extends AbstractStackNode implements IReducableStackNode{
-	private final IConstructor symbol;
 	private final char[] literal;
 	
 	private final LiteralNode result;
@@ -17,7 +16,6 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 	public LiteralStackNode(int id, IConstructor symbol, char[] literal){
 		super(id);
 		
-		this.symbol = symbol;
 		this.literal = literal;
 		
 		result = new LiteralNode(symbol, literal);
@@ -26,7 +24,6 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 	private LiteralStackNode(LiteralStackNode original){
 		super(original);
 		
-		symbol = original.symbol;
 		literal = original.literal;
 		
 		result = original.result;
@@ -35,7 +32,6 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 	private LiteralStackNode(LiteralStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
 		super(original, prefixes);
 		
-		symbol = original.symbol;
 		literal = original.literal;
 		
 		result = original.result;
