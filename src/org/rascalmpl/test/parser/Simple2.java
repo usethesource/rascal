@@ -8,7 +8,6 @@ import java.io.Reader;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.parser.sgll.SGLL;
-import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.LiteralStackNode;
 import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
