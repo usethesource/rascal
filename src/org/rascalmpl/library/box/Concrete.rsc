@@ -135,7 +135,7 @@ Box boxArgs(pairs u, bool hv, list[int] indent, list[segment] compact, bool sepe
              return bl[0];
              }
        else {
-            Box r =  ((hv && !doIndent &&isEmpty(indent))?HV(bl):V(bl));
+            Box r =  ((hv && !doIndent &&isEmpty(indent))?HV(1, bl):V(0, bl));
            if (space>=0)  r@hs = space;
             return r;
             }
@@ -180,14 +180,14 @@ public Box evPt(Tree q, bool doIndent) {
                      }
         case appl(\list(\cf(\iter-star-sep(Symbol s, Symbol sep) )), list[Tree] t): {
                      pairs u =[<s, t[i]>| int i<-[0,2..(size(t)-1)]];
-                      list[Box] q = [H(0, [ evPt(t[i]), L(getName(sep))])|int i<-[0,4..(size(t)-1)]];
-                      return (getName(sep)==";")?V(q):HV(q);
+                      list[Box] q = [H(0, [ evPt(t[i]), (i+2<size(t)?L(getName(sep)):NULL())])|int i<-[0,4..(size(t)-1)]];
+                      return (getName(sep)==";")?V(0, q):HV(0, q);
                      // return boxArgs(u, true, doIndent, 0); 
                      }
         case appl(\list(\cf(\iter-sep(Symbol s, Symbol sep) )), list[Tree] t): {
                       pairs u =[<s, t[i]>| int i<-[0,2..(size(t)-1)]];
-                      list[Box] q = [H(0, [ evPt(t[i]),  L(getName(sep))])|int i<-[0,4..(size(t)-1)]];
-                      return (getName(sep)==";")?V(q):HV(q);
+                      list[Box] q = [H(0, [ evPt(t[i]),  (i+2<size(t)?L(getName(sep)):NULL())])|int i<-[0,4..(size(t)-1)]];
+                      return (getName(sep)==";")?V(0, q):HV(0, q);
                       // return boxArgs(u, true, doIndent, 0); 
                      }
         case appl(\list(\cf(\iter-star(Symbol s) )), list[Tree] t): {
@@ -258,7 +258,7 @@ list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, b
         for   (int i<-[0, 1 .. (size(u)-1)]) 
         if (<Symbol a, Tree t>:=u[i]) {
             if (first && (i in indent)) {
-                 Box r = H(out);
+                 Box r = H(1, out);
                  out=[r];
                  first = false;
                  }
@@ -280,7 +280,7 @@ list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, b
                                    out+=(i in indent?I([b]):b);       
                }
    }
-   return seperated?[H(1, out)]: (doIndent?[V(out)]:out);
+   return seperated?[H(1, out)]: (doIndent?[V(0, out)]:out);
 }
 
 public text  returnText(Tree a, Box(Tree) userDef, list[int](list[Symbol], list[Tree]) isIndented, list[segment](list[Symbol]) isCompact, 
@@ -323,6 +323,7 @@ public Box cmd(str name, Tree expr, str sep) {
 public Box HV(int space, list[Box] bs) {
    Box r = HV([b| Box b <- bs, b!=NULL()]);
    if (space>=0) r@hs = space;
+   r@vs = 0;
    return r;
    }
 
@@ -334,7 +335,7 @@ public Box H(int space, list[Box] bs) {
    
  public Box V(int space, list[Box] bs) {
    Box r = V([b| Box b <- bs, b!=NULL()]);
-   if (space>=0) r@hs = space;
+   if (space>=0) r@vs = space;
    return r;
    }
 /*
