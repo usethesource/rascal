@@ -1,7 +1,12 @@
+@doc{
+  This module implements the semantic of > in Rascal's syntax definition formalism.
+  The factorize function translates the > into a hierarchy of related non-terminals
+  which encode the relative priority of productions.
+}
 module rascal::parser::Priority
 
 import rascal::parser::Grammar;
-import rascal::parser::Definition;
+import rascal::parser::Normalization;
 import ParseTree;
 import List;
 
