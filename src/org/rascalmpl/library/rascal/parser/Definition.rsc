@@ -8,6 +8,7 @@ module rascal::parser::Definition
    
 import rascal::syntax::RascalForImportExtraction;
 import rascal::parser::Grammar;
+import rascal::parser::Regular;
 import List;
 import String;
 import ParseTree;
@@ -91,22 +92,22 @@ private Production prod2prod(Symbol nt, Prod p) {
     case (Prod) `<ProdModifier* ms> <Sym* args>` :
       return prod(args2symbols(args, hasLex(ms)), nt, mods2attrs(ms));
     case (Prod) `<Prod l> | <Prod r>` :
-      return choice(sort(prod2prod(nt,l)),{prod2prod(nt, l), prod2prod(nt, r)});
+      return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
     case (Prod) `<Prod l> # <Prod r>` :
       if (prod(list[Symbol] syms, Symbol s, Attributes a) := prod2prod(nt, r))
         return restrict(sort(prod2prod(nt,l)),prod2prod(nt,l), {syms});
     case (Prod) `<Prod l> > <Prod r>` :
-      return first(sort(prod2prod(nt,l)),[prod2prod(nt, l), prod2prod(nt, r)]);
+      return first(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
     case (Prod) `<Prod l> - <Prod r>` :
-      return diff(sort(prod2prod(nt,l)), prod2prod(nt, l), {attribute(prod2prod(nt, r), reject())});
+      return diff(nt, prod2prod(nt, l), {attribute(prod2prod(nt, r), reject())});
     case (Prod) `left (<Prod p>)` :
-      return \assoc(sort(prod2prod(nt,p)), \left(), {attribute(prod2prod(nt, p), \assoc(\left()))});
+      return \assoc(nt, \left(), {attribute(prod2prod(nt, p), \assoc(\left()))});
     case (Prod) `right (<Prod p>)` :
-      return \assoc(sort(prod2prod(nt,p)), \right(), {attribute(prod2prod(nt, p), \assoc(\right()))});
+      return \assoc(nt, \right(), {attribute(prod2prod(nt, p), \assoc(\right()))});
     case (Prod) `non-assoc (<Prod p>)` :
-      return \assoc(sort(prod2prod(nt,p)), \non-assoc(), {attribute(prod2prod(nt, p), \assoc(\non-assoc()))});
+      return \assoc(nt, \non-assoc(), {attribute(prod2prod(nt, p), \assoc(\non-assoc()))});
     case (Prod) `assoc(<Prod p>)` :
-      return \assoc(sort(prod2prod(nt,p)), \left(), {attribute(prod2prod(nt, p),\assoc(\assoc()))});
+      return \assoc(nt, \left(), {attribute(prod2prod(nt, p),\assoc(\assoc()))});
     case `...`: throw "the ... operator is not yet implemented";
     case `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";
@@ -141,7 +142,7 @@ private Symbol arg2symbol(Sym sym, bool isLex) {
     case (Sym) `<Sym s> <NonterminalLabel n>` : return label("<n>", arg2symbol(s,isLex));
     case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s,isLex));
     case (Sym) `<Sym s> ??` : return opt(arg2symbol(s,isLex));
-    case (Sym) `<Class cc>` : return \char-class(cc2ranges(cc));
+    case (Sym) `<Class cc>` : return cc2ranges(cc);
   }  
   
   if (isLex) switch (sym) {
@@ -186,14 +187,14 @@ private str unescape(StringConstant s) {
    throw "unexpected string format: <s>";
 }
 
-private list[CharRange] cc2ranges(Class cc) {
+private Symbol cc2ranges(Class cc) {
    switch(cc) {
-     case (Class) `[<Range* ranges>]` : return [range(r) | r <- ranges];
-     case (Class) `(<Class c>)`: return cc2ranges(cc2ranges(c));
+     case (Class) `[<Range* ranges>]` : return \char-class([range(r) | r <- ranges]);
+     case (Class) `(<Class c>)`: return cc2ranges(c);
      case (Class) `! <Class c>`: return complement(cc2ranges(c));
-     case (Class) `<Class l> & <Class r>`: return intersection(cc2ranges(l),cc2ranges(r));
-     case (Class) `<Class l> + <Class r>`: return union(cc2ranges(l),cc2ranges(r));
-     case (Class) `<Class l> - <Class r>`: return difference(cc2ranges(l),cc2ranges(r));
+     case (Class) `<Class l> & <Class r>`: return intersection(cc2ranges(l), cc2ranges(r));
+     case (Class) `<Class l> + <Class r>`: return union(cc2ranges(l), cc2ranges(r));
+     case (Class) `<Class l> - <Class r>`: return difference(cc2ranges(l), cc2ranges(r));
      default: throw "missed a case <cc>";
    }
 }
@@ -205,7 +206,7 @@ private CharRange range(Range r) {
     default: throw "missed a case <r>";
   }
 } 
- 
+  
 private int character(Char c) {
   switch (c) {
     case [Char] /<ch:[^"'\-\[\]\\ ]>/        : return charAt(ch, 0); 

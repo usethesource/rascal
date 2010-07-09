@@ -33,6 +33,8 @@ rule \assoc  \assoc(Symbol s, Associativity as, {set[Production] a, first(Symbol
 rule diff   diff(Symbol s, Production p, {set[Production] a, choice(Symbol t, set[Production] b)})   => diff(s, p, a+b);   
 rule diff   diff(Symbol s, Production p, {set[Production] a, first(Symbol t, list[Production] b)})   => diff(s, p, a + { e | e <- b});  // ordering is irrelevant under diff
 rule diff   diff(Symbol s, Production p, {set[Production] a, \assoc(Symbol t, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
+rule restrict restrict(Symbol s, restrict(s, Production p, set[list[Symbol]] q), set[list[Symbol]] r) =>
+              restrict(s, p, q + r);
 
 // this rules merges unordered alternatives with the top-most priority
 rule or     choice(Symbol s, {set[Production] a, first(Symbol t, [Production p, list[Production] rest])})        => first(t, [choice(s, {a,p}), rest]); 
@@ -50,7 +52,14 @@ rule xor    first(Symbol s, [list[Production] a, diff(Symbol t, b, set[Productio
 rule ass    \assoc(Symbol s, Associativity as, {set[Production] a, diff(Symbol t, b, set[Production] c)}) => diff(s, \assoc(s, as, a + {b}), c);
 rule diff   diff(Symbol s, Production p, {set[Production] a, diff(Symbol t, Production q, set[Production] b)})   => diff(s, choice(s, {p,q}), a+b); 
 rule diff   diff(Symbol s, diff(Symbol t, Production a, set[Production] b), set[Production] c)        => diff(s, a, b+c);
-   
+
+// move restrict outwards
+rule choice choice(Symbol s, {restrict(s, Production p, set[list[Symbol]] r), set[Production] q}) =>
+            restrict(s, choice(s,{p,q}), r);
+rule empty  restrict(Symbol s, Production p, set[list[Symbol]] r) => p;
+// TODO: I think we need more reordering rules for restrict soon
+
+// no attributes
 rule simpl  attrs([]) => \no-attrs();  
 
 // character class normalization
