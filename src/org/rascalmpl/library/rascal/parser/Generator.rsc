@@ -45,7 +45,7 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 public class <name> extends SGLL{
 	private static IConstructor read(java.lang.String s, Type type){
 		try{
-			return (IConstructor) new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+			return (IConstructor) new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
 		}catch(FactTypeUseException e){
 			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
 		}catch(IOException e){

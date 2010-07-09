@@ -32,7 +32,7 @@ import org.rascalmpl.values.uptr.Factory;
 public abstract class SGLL implements IGLL{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
 	
-	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private char[] input;
 	
