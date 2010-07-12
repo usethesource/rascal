@@ -1,0 +1,92 @@
+package org.rascalmpl.test.parser;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.parser.sgll.SGLL;
+import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
+import org.rascalmpl.parser.sgll.stack.LiteralStackNode;
+import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.sgll.stack.OptionalStackNode;
+import org.rascalmpl.values.uptr.Factory;
+
+/*
+S ::= aO? | aA
+O ::= A
+A ::= a
+*/
+public class Optional3 extends SGLL{
+	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
+	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Opt, vf.string("A"));
+	private final static IConstructor SYMBOL_O = vf.constructor(Factory.Symbol_Opt, vf.string("O"));
+	private final static IConstructor SYMBOL_OPTIONAL_O = vf.constructor(Factory.Symbol_Opt, SYMBOL_O);
+	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
+	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
+	
+	private final static IConstructor PROD_S_aOPTIONAL_O = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a, SYMBOL_OPTIONAL_O), SYMBOL_START_S, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_S_aA = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a, SYMBOL_A), SYMBOL_START_S, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_OPTIONAL_O_O = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_O), SYMBOL_OPTIONAL_O, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_O_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_O, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_A_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_A, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.list(Factory.Attributes));
+	
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
+	private final static AbstractStackNode LITERAL_a0 = new LiteralStackNode(0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a1 = new LiteralStackNode(1, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode NONTERMINAL_A3 = new NonTerminalStackNode(3, "A");
+	private final static AbstractStackNode NONTERMINAL_A4 = new NonTerminalStackNode(4, "A");
+	private final static AbstractStackNode NON_TERMINAL_O5 = new NonTerminalStackNode(5, "O");
+	private final static AbstractStackNode OPTIONAL_6 = new OptionalStackNode(6, PROD_OPTIONAL_O_O, NON_TERMINAL_O5);
+	
+	public Optional3(){
+		super();
+	}
+	
+	public void S(){
+		expect(PROD_S_aOPTIONAL_O, LITERAL_a0, OPTIONAL_6);
+		
+		expect(PROD_S_aA, LITERAL_a1, NONTERMINAL_A3);
+	}
+	
+	public void A(){
+		expect(PROD_A_a, LITERAL_a2);
+	}
+	
+	public void O(){
+		expect(PROD_O_A, NONTERMINAL_A4);
+	}
+	
+	public IValue parse(IConstructor start, char[] input){
+		throw new UnsupportedOperationException();
+	}
+	
+	public IValue parse(IConstructor start, File inputFile) throws IOException{
+		throw new UnsupportedOperationException();
+	}
+	
+	public IValue parse(IConstructor start, InputStream in) throws IOException{
+		throw new UnsupportedOperationException();
+	}
+	
+	public IValue parse(IConstructor start, Reader in) throws IOException{
+		throw new UnsupportedOperationException();
+	}
+	
+	public IValue parse(IConstructor start, String input){
+		throw new UnsupportedOperationException();
+	}
+	
+	public static void main(String[] args){
+		Optional3 o3 = new Optional3();
+		IValue result = o3.parse(NONTERMINAL_START_S, "aa".toCharArray());
+		System.out.println(result);
+		
+		System.out.println("[S(a,O?(O(A(a)))),S(a,A(a))] <- good");
+	}
+}
+
