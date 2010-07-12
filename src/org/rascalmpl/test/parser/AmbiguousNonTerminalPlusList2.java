@@ -27,7 +27,7 @@ public class AmbiguousNonTerminalPlusList2 extends SGLL{
 	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
 	
 	private final static IConstructor PROD_S_PLUSLISTA = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_A), SYMBOL_START_S, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_PLUSLISTA_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_PLUS_LIST_A, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_PLUSLISTA = vf.constructor(Factory.Production_List, vf.list(SYMBOL_A), vf.list(Factory.Attributes));
 	private final static IConstructor PROD_A_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_A, vf.list(Factory.Attributes));
 	private final static IConstructor PROD_A_aa = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_aa), SYMBOL_A, vf.list(Factory.Attributes));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.list(Factory.Attributes));
@@ -35,7 +35,7 @@ public class AmbiguousNonTerminalPlusList2 extends SGLL{
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode LIST1 = new ListStackNode(1, PROD_PLUSLISTA_A, NONTERMINAL_A0, true);
+	private final static AbstractStackNode LIST1 = new ListStackNode(1, PROD_PLUSLISTA, NONTERMINAL_A0, true);
 	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_aa3 = new LiteralStackNode(3, PROD_aa_aa, new char[]{'a', 'a'});
 	
