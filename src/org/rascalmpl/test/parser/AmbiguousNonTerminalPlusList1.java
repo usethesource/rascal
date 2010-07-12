@@ -27,15 +27,15 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL{
 	
 	private final static IConstructor PROD_S_aPLUSLISTA = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a, SYMBOL_PLUS_LIST_A), SYMBOL_START_S, vf.list(Factory.Attributes));
 	private final static IConstructor PROD_S_PLUSLISTAa = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_A, SYMBOL_a), SYMBOL_START_S, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_PLUSLISTA_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_PLUS_LIST_A, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_PLUSLISTA = vf.constructor(Factory.Production_List, vf.list(SYMBOL_A), vf.list(Factory.Attributes));
 	private final static IConstructor PROD_A_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_A, vf.list(Factory.Attributes));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.list(Factory.Attributes));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
 	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, "A");
-	private final static AbstractStackNode LIST2 = new ListStackNode(2, PROD_PLUSLISTA_A, NONTERMINAL_A0, true);
-	private final static AbstractStackNode LIST3 = new ListStackNode(3, PROD_PLUSLISTA_A, NONTERMINAL_A1, true);
+	private final static AbstractStackNode LIST2 = new ListStackNode(2, PROD_PLUSLISTA, NONTERMINAL_A0, true);
+	private final static AbstractStackNode LIST3 = new ListStackNode(3, PROD_PLUSLISTA, NONTERMINAL_A1, true);
 	private final static AbstractStackNode LITERAL_a4 = new LiteralStackNode(4, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, PROD_a_a, new char[]{'a'});

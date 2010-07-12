@@ -23,11 +23,11 @@ public class CharStarList extends SGLL{
 	private final static IConstructor SYMBOL_STAR_LIST_a_z = vf.constructor(Factory.Symbol_IterStar, SYMBOL_char_a_z);
 	
 	private final static IConstructor PROD_S_STARLISTa_z = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_STAR_LIST_a_z), SYMBOL_START_S, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_STARLISTa_z_a_z = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a_z), SYMBOL_STAR_LIST_a_z, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_STARLISTa_z = vf.constructor(Factory.Production_List, vf.list(SYMBOL_char_a_z), vf.list(Factory.Attributes));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode CHAR0 = new CharStackNode(0, new char[][]{{'a', 'z'}});
-	private final static AbstractStackNode LIST1 = new ListStackNode(1, PROD_STARLISTa_z_a_z, CHAR0, false);
+	private final static AbstractStackNode LIST1 = new ListStackNode(1, PROD_STARLISTa_z, CHAR0, false);
 	
 	public CharStarList(){
 		super();
