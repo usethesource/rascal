@@ -131,8 +131,8 @@ public class ContainerNode implements INode{
 			ISetWriter ambSetWriter = vf.setWriter(Factory.Tree);
 			
 			for(int i = nrOfAlternatives - 1; i >= 0; i--){
-				IConstructor production = gatheredAlternatives.getSecond(0);
-				IValue[] alternative = gatheredAlternatives.getFirst(0);
+				IConstructor production = gatheredAlternatives.getSecond(i);
+				IValue[] alternative = gatheredAlternatives.getFirst(i);
 				ambSetWriter.insert(buildAlternative(production, alternative));
 			}
 			
