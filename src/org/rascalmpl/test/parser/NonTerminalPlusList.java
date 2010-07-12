@@ -15,43 +15,36 @@ import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.values.uptr.Factory;
 
 /*
-S ::= aA+ | A+a
+S ::= A+
 A ::= a
 */
-public class AmbiguousNonTerminalPlusList1 extends SGLL{
+public class NonTerminalPlusList extends SGLL{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_PLUS_LIST_A = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_A);
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
 	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
 	
-	private final static IConstructor PROD_S_aPLUSLISTA = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a, SYMBOL_PLUS_LIST_A), SYMBOL_START_S, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_S_PLUSLISTAa = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_A, SYMBOL_a), SYMBOL_START_S, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_S_PLUSLISTA = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_A), SYMBOL_START_S, vf.list(Factory.Attributes));
 	private final static IConstructor PROD_PLUSLISTA_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_PLUS_LIST_A, vf.list(Factory.Attributes));
 	private final static IConstructor PROD_A_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_A, vf.list(Factory.Attributes));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.list(Factory.Attributes));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, "A");
-	private final static AbstractStackNode LIST2 = new ListStackNode(2, PROD_PLUSLISTA_A, NONTERMINAL_A0, true);
-	private final static AbstractStackNode LIST3 = new ListStackNode(3, PROD_PLUSLISTA_A, NONTERMINAL_A1, true);
-	private final static AbstractStackNode LITERAL_a4 = new LiteralStackNode(4, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LIST1 = new ListStackNode(1, PROD_PLUSLISTA_A, NONTERMINAL_A0, true);
+	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, PROD_a_a, new char[]{'a'});
 	
-	public AmbiguousNonTerminalPlusList1(){
+	public NonTerminalPlusList(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_aPLUSLISTA, LITERAL_a4, LIST2);
-		
-		expect(PROD_S_PLUSLISTAa, LIST3, LITERAL_a5);
+		expect(PROD_S_PLUSLISTA, LIST1);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a6);
+		expect(PROD_A_a, LITERAL_a2);
 	}
 	
 	public IValue parse(IConstructor start, char[] input){
@@ -75,10 +68,10 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL{
 	}
 	
 	public static void main(String[] args){
-		AmbiguousNonTerminalPlusList1 nrpl1 = new AmbiguousNonTerminalPlusList1();
-		IValue result = nrpl1.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		NonTerminalPlusList nrpl = new NonTerminalPlusList();
+		IValue result = nrpl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 		System.out.println(result);
 		
-		System.out.println("[S(a,A+(A(a),A+(A(a)))),S(A+(A(a),A+(A(a))),a)] <- good");
+		System.out.println("S(A+(A(a),A+(A(a),A+(A(a))))) <- good");
 	}
 }
