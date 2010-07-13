@@ -86,7 +86,7 @@ public class EmptyRightRecursion extends SGLL implements IParserTest{
 		IValue result = erre.parse(NONTERMINAL_START_S, "a".toCharArray());
 
 		String expectedInput = "parsetree(appl(prod([sort(\"A\"),sort(\"B\")],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),amb({appl(prod([empty()],sort(\"B\"),\\no-attrs()),[empty()]),appl(prod([sort(\"B\")],sort(\"B\"),\\no-attrs()),[cycle(sort(\"B\"),1)])})]),-1)";
-		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
 	public static void main(String[] args){

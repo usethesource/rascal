@@ -76,7 +76,7 @@ public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 		IValue result = anpl.parse(NONTERMINAL_START_S, "aa".toCharArray());
 
 		String expectedInput = "parsetree(appl(prod([iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[amb({appl(list(sort(\"A\")),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(list(\\char-class([single(97)])),[char(97),appl(list(\\char-class([single(97)])),[char(97)])])])]),appl(list(sort(\"A\")),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(list(\\char-class([single(97)])),[char(97)])]),appl(list(sort(\"A\")),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(list(\\char-class([single(97)])),[char(97)])])])])})]),-1)";
-		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
 	public static void main(String[] args){

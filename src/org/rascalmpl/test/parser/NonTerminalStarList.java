@@ -75,7 +75,7 @@ public class NonTerminalStarList extends SGLL implements IParserTest{
 		IValue result = nrsl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 
 		String expectedInput = "parsetree(appl(prod([\\iter-star(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[appl(list(sort(\"A\")),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(list(sort(\"A\")),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(list(sort(\"A\")),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])]),-1)";
-		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
 	public static void main(String[] args){
