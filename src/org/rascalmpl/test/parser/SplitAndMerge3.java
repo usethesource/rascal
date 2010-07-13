@@ -14,49 +14,62 @@ import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.values.uptr.Factory;
 
 /*
-S ::= aAa
-A ::= Ba | aB
-B ::= a
+S ::= A | C
+A ::= Ba | a
+B ::= Aa | a
+C ::= B
 */
-public class MergeAndSplit1 extends SGLL{
+public class SplitAndMerge3 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));
+	private final static IConstructor SYMBOL_C = vf.constructor(Factory.Symbol_Sort, vf.string("C"));
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
 	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
 	
-	private final static IConstructor PROD_S_aAa = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a, SYMBOL_A, SYMBOL_a), SYMBOL_START_S, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_S_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_START_S, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_S_C = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_C), SYMBOL_START_S, vf.list(Factory.Attributes));
 	private final static IConstructor PROD_A_Ba = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_B, SYMBOL_a), SYMBOL_A, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_A_aB = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a, SYMBOL_B), SYMBOL_A, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_A_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_B, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_A_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_A, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_B_Aa = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A, SYMBOL_a), SYMBOL_B, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_B_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_B, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_C_B = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_B), SYMBOL_C, vf.list(Factory.Attributes));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.list(Factory.Attributes));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode NONTERMINAL_B1 = new NonTerminalStackNode(1, "B");
+	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, "A");
 	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, "B");
-	private final static AbstractStackNode LITERAL_a3 = new LiteralStackNode(3, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a4 = new LiteralStackNode(4, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode NONTERMINAL_B3 = new NonTerminalStackNode(3, "B");
+	private final static AbstractStackNode NONTERMINAL_C4 = new NonTerminalStackNode(4, "C");
 	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a7 = new LiteralStackNode(7, PROD_a_a, new char[]{'a'});
 	
-	public MergeAndSplit1(){
+	public SplitAndMerge3(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_aAa, LITERAL_a3, NONTERMINAL_A0, LITERAL_a4);
+		expect(PROD_S_A, NONTERMINAL_A0);
+
+		expect(PROD_S_C, NONTERMINAL_C4);
 	}
 	
 	public void A(){
-		expect(PROD_A_Ba, NONTERMINAL_B1, LITERAL_a5);
+		expect(PROD_A_Ba, NONTERMINAL_B2, LITERAL_a6);
 		
-		expect(PROD_A_aB, LITERAL_a6, NONTERMINAL_B2);
+		expect(PROD_A_a, LITERAL_a5);
 	}
 	
 	public void B(){
-		expect(PROD_A_a, LITERAL_a7);
+		expect(PROD_B_Aa, NONTERMINAL_A1, LITERAL_a7);
+		
+		expect(PROD_B_a, LITERAL_a5);
+	}
+	
+	public void C(){
+		expect(PROD_C_B, NONTERMINAL_B3);
 	}
 	
 	public IValue parse(IConstructor start, char[] input){
@@ -79,11 +92,17 @@ public class MergeAndSplit1 extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		SplitAndMerge3 ms3 = new SplitAndMerge3();
+		IValue result = ms3.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
-		MergeAndSplit1 ms1 = new MergeAndSplit1();
-		IValue result = ms1.parse(NONTERMINAL_START_S, "aaaa".toCharArray());
+		SplitAndMerge3 ms3 = new SplitAndMerge3();
+		IValue result = ms3.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 		System.out.println(result);
 		
-		System.out.println("S(a,[A(a,B(a)),A(B(a),a)],a) <- good");
+		System.out.println("[S(C(B(A(B(a),a),a))),S(A(B(A(a),a),a))] <- good");
 	}
 }

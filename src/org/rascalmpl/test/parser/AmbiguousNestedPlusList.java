@@ -18,7 +18,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= A+
 A ::= [a]+
 */
-public class AmbiguousNestedPlusList extends SGLL{
+public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_PLUS_LIST_A = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_A);
@@ -68,6 +68,12 @@ public class AmbiguousNestedPlusList extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		AmbiguousNestedPlusList anpl = new AmbiguousNestedPlusList();
+		IValue result = anpl.parse(NONTERMINAL_START_S, "aa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		AmbiguousNestedPlusList anpl = new AmbiguousNestedPlusList();
 		IValue result = anpl.parse(NONTERMINAL_START_S, "aa".toCharArray());

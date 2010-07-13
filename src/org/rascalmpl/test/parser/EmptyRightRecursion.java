@@ -19,7 +19,7 @@ S ::= AB
 A ::= a
 B ::= B | epsilon
 */
-public class EmptyRightRecursion extends SGLL{
+public class EmptyRightRecursion extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));
@@ -78,6 +78,12 @@ public class EmptyRightRecursion extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		EmptyRightRecursion erre = new EmptyRightRecursion();
+		IValue result = erre.parse(NONTERMINAL_START_S, "a".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		EmptyRightRecursion erre = new EmptyRightRecursion();
 		IValue result = erre.parse(NONTERMINAL_START_S, "a".toCharArray());

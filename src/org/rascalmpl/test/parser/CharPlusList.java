@@ -17,7 +17,7 @@ import org.rascalmpl.values.uptr.Factory;
 /*
 S ::= [a-z]+
 */
-public class CharPlusList extends SGLL{
+public class CharPlusList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_char_a_z = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Range, vf.integer(97), vf.integer(122))));
 	private final static IConstructor SYMBOL_PLUS_LIST_a_z = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_char_a_z);
@@ -57,6 +57,12 @@ public class CharPlusList extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		CharPlusList cpl = new CharPlusList();
+		IValue result = cpl.parse(NONTERMINAL_START_S, "abc".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		CharPlusList cpl = new CharPlusList();
 		IValue result = cpl.parse(NONTERMINAL_START_S, "abc".toCharArray());

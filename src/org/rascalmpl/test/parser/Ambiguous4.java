@@ -18,7 +18,7 @@ S ::= AA
 A ::= BB
 B ::= bb | b
 */
-public class Ambiguous4 extends SGLL{
+public class Ambiguous4 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));
@@ -79,6 +79,12 @@ public class Ambiguous4 extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		Ambiguous4 a4 = new Ambiguous4();
+		IValue result = a4.parse(NONTERMINAL_START_S, "bbbbbb".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		Ambiguous4 a4 = new Ambiguous4();
 		IValue result = a4.parse(NONTERMINAL_START_S, "bbbbbb".toCharArray());

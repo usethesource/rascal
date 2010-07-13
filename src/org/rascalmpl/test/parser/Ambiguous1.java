@@ -17,7 +17,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= A | a
 A ::= a
 */
-public class Ambiguous1 extends SGLL{
+public class Ambiguous1 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
@@ -64,6 +64,13 @@ public class Ambiguous1 extends SGLL{
 	
 	public IValue parse(IConstructor start, String input){
 		throw new UnsupportedOperationException();
+	}
+	
+	public boolean executeTest(){
+		Ambiguous1 a1 = new Ambiguous1();
+		IValue result = a1.parse(NONTERMINAL_START_S, "a".toCharArray());
+		
+		return result.equals("TODO");
 	}
 	
 	public static void main(String[] args){

@@ -18,7 +18,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= aA+ | A+a
 A ::= a
 */
-public class AmbiguousNonTerminalPlusList1 extends SGLL{
+public class AmbiguousNonTerminalPlusList1 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_PLUS_LIST_A = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_A);
@@ -74,6 +74,12 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		AmbiguousNonTerminalPlusList1 nrpl1 = new AmbiguousNonTerminalPlusList1();
+		IValue result = nrpl1.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		AmbiguousNonTerminalPlusList1 nrpl1 = new AmbiguousNonTerminalPlusList1();
 		IValue result = nrpl1.parse(NONTERMINAL_START_S, "aaa".toCharArray());

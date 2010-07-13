@@ -16,7 +16,7 @@ import org.rascalmpl.values.uptr.Factory;
 /*
 S ::= SSS | SS | a
 */
-public class AmbiguousRecursive extends SGLL{
+public class AmbiguousRecursive extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
@@ -67,6 +67,12 @@ public class AmbiguousRecursive extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		AmbiguousRecursive ar = new AmbiguousRecursive();
+		IValue result = ar.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		AmbiguousRecursive ar = new AmbiguousRecursive();
 		IValue result = ar.parse(NONTERMINAL_START_S, "aaa".toCharArray());

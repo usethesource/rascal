@@ -18,7 +18,7 @@ S ::= AB
 A ::= a
 B ::= b
 */
-public class Simple2 extends SGLL{
+public class Simple2 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));
@@ -75,6 +75,12 @@ public class Simple2 extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		Simple2 s2 = new Simple2();
+		IValue result = s2.parse(NONTERMINAL_START_S, "ab".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		Simple2 s2 = new Simple2();
 		IValue result = s2.parse(NONTERMINAL_START_S, "ab".toCharArray());

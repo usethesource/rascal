@@ -20,7 +20,7 @@ A ::= a
 
 sep(X, Y) means, a list of X separated by Y's.
 */
-public class SeparatedPlusList extends SGLL{
+public class SeparatedPlusList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_b = vf.constructor(Factory.Symbol_Lit, vf.string("b"));
@@ -73,6 +73,12 @@ public class SeparatedPlusList extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		SeparatedPlusList nrpl = new SeparatedPlusList();
+		IValue result = nrpl.parse(NONTERMINAL_START_S, "ababa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		SeparatedPlusList nrpl = new SeparatedPlusList();
 		IValue result = nrpl.parse(NONTERMINAL_START_S, "ababa".toCharArray());

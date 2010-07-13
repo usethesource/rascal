@@ -18,7 +18,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= A
 A ::= AA | epsilon | a
 */
-public class CycleEpsilon extends SGLL{
+public class CycleEpsilon extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
@@ -74,6 +74,12 @@ public class CycleEpsilon extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		CycleEpsilon ce = new CycleEpsilon();
+		IValue result = ce.parse(NONTERMINAL_START_S, "a".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		CycleEpsilon ce = new CycleEpsilon();
 		IValue result = ce.parse(NONTERMINAL_START_S, "a".toCharArray());

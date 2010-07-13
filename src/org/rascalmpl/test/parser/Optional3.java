@@ -19,7 +19,7 @@ S ::= aO? | aA
 O ::= A
 A ::= a
 */
-public class Optional3 extends SGLL{
+public class Optional3 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Opt, vf.string("A"));
 	private final static IConstructor SYMBOL_O = vf.constructor(Factory.Symbol_Opt, vf.string("O"));
@@ -81,6 +81,12 @@ public class Optional3 extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		Optional3 o3 = new Optional3();
+		IValue result = o3.parse(NONTERMINAL_START_S, "aa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		Optional3 o3 = new Optional3();
 		IValue result = o3.parse(NONTERMINAL_START_S, "aa".toCharArray());
