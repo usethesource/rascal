@@ -1,5 +1,6 @@
 package org.rascalmpl.test.parser;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,11 +8,13 @@ import java.io.Reader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.sgll.SGLL;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.LiteralStackNode;
 import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.sgll.stack.OptionalStackNode;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 /*
@@ -68,10 +71,12 @@ public class Optional1 extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest(){
+	public boolean executeTest() throws IOException{
 		Optional1 o1 = new Optional1();
 		IValue result = o1.parse(NONTERMINAL_START_S, "aa".toCharArray());
-		return result.equals("TODO");
+
+		String expectedInput = "";
+		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
 	public static void main(String[] args){
