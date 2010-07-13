@@ -23,7 +23,7 @@ E ::= F
 F ::= G
 G ::= a
 */
-public class Ambiguous6 extends SGLL{
+public class Ambiguous6 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));
@@ -117,6 +117,12 @@ public class Ambiguous6 extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		Ambiguous6 a6 = new Ambiguous6();
+		IValue result = a6.parse(NONTERMINAL_START_S, "a".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		Ambiguous6 a6 = new Ambiguous6();
 		IValue result = a6.parse(NONTERMINAL_START_S, "a".toCharArray());

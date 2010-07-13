@@ -18,7 +18,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= A+
 A ::= a
 */
-public class NonTerminalPlusList extends SGLL{
+public class NonTerminalPlusList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_PLUS_LIST_A = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_A);
@@ -67,6 +67,12 @@ public class NonTerminalPlusList extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		NonTerminalPlusList nrpl = new NonTerminalPlusList();
+		IValue result = nrpl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		NonTerminalPlusList nrpl = new NonTerminalPlusList();
 		IValue result = nrpl.parse(NONTERMINAL_START_S, "aaa".toCharArray());

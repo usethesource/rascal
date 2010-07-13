@@ -19,7 +19,7 @@ A ::= CC | a
 B ::= AA | CC
 C ::= AA | a
 */
-public class NotAUselessSelfLoop extends SGLL{
+public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));
@@ -93,6 +93,12 @@ public class NotAUselessSelfLoop extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		NotAUselessSelfLoop nausl = new NotAUselessSelfLoop();
+		IValue result = nausl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		NotAUselessSelfLoop nausl = new NotAUselessSelfLoop();
 		IValue result = nausl.parse(NONTERMINAL_START_S, "aaa".toCharArray());

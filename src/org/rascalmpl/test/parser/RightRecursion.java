@@ -17,7 +17,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= A
 A ::= aA | a
 */
-public class RightRecursion extends SGLL{
+public class RightRecursion extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
@@ -68,6 +68,12 @@ public class RightRecursion extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		RightRecursion rr = new RightRecursion();
+		IValue result = rr.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		RightRecursion rr = new RightRecursion();
 		IValue result = rr.parse(NONTERMINAL_START_S, "aaa".toCharArray());

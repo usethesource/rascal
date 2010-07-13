@@ -20,7 +20,7 @@ C ::= Baa | Ba
 B ::= A
 A ::= a
 */
-public class MergeAndSplit2 extends SGLL{
+public class SplitAndMerge2 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));
@@ -52,7 +52,7 @@ public class MergeAndSplit2 extends SGLL{
 	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_aa9 = new LiteralStackNode(9, PROD_aa_aa, new char[]{'a','a'});
 	
-	public MergeAndSplit2(){
+	public SplitAndMerge2(){
 		super();
 	}
 	
@@ -100,8 +100,14 @@ public class MergeAndSplit2 extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		SplitAndMerge2 ms2 = new SplitAndMerge2();
+		IValue result = ms2.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
-		MergeAndSplit2 ms2 = new MergeAndSplit2();
+		SplitAndMerge2 ms2 = new SplitAndMerge2();
 		IValue result = ms2.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 		System.out.println(result);
 		

@@ -17,7 +17,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= Ab
 A ::= aa
 */
-public class Simple1 extends SGLL{
+public class Simple1 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_aa = vf.constructor(Factory.Symbol_Lit, vf.string("aa"));
@@ -66,7 +66,13 @@ public class Simple1 extends SGLL{
 	public IValue parse(IConstructor start, String input){
 		throw new UnsupportedOperationException();
 	}
-
+	
+	public boolean executeTest(){
+		Simple1 s1 = new Simple1();
+		IValue result = s1.parse(NONTERMINAL_START_S, "aab".toCharArray());
+		return result.equals("TODO");
+	}
+	
 	public static void main(String[] args){
 		Simple1 s1 = new Simple1();
 		IValue result = s1.parse(NONTERMINAL_START_S, "aab".toCharArray());

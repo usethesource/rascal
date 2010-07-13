@@ -18,7 +18,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= aO?
 O ::= a
 */
-public class Optional2 extends SGLL{
+public class Optional2 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_O = vf.constructor(Factory.Symbol_Opt, vf.string("O"));
 	private final static IConstructor SYMBOL_OPTIONAL_O = vf.constructor(Factory.Symbol_Opt, SYMBOL_O);
@@ -68,6 +68,12 @@ public class Optional2 extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		Optional2 o2 = new Optional2();
+		IValue result = o2.parse(NONTERMINAL_START_S, "a".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		Optional2 o2 = new Optional2();
 		IValue result = o2.parse(NONTERMINAL_START_S, "a".toCharArray());

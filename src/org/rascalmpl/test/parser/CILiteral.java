@@ -18,7 +18,7 @@ S ::= ci(bla)
 
 NOTE: ci(*) means whatever * represents is Case Insensitive.
 */
-public class CILiteral extends SGLL{
+public class CILiteral extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_bla = vf.constructor(Factory.Symbol_CiLit, vf.string("bla"));
@@ -60,6 +60,12 @@ public class CILiteral extends SGLL{
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean executeTest(){
+		CILiteral cil = new CILiteral();
+		IValue result = cil.parse(NONTERMINAL_START_S, "Bla".toCharArray());
+		return result.equals("TODO");
+	}
+
 	public static void main(String[] args){
 		CILiteral cil = new CILiteral();
 		IValue result = cil.parse(NONTERMINAL_START_S, "Bla".toCharArray());
