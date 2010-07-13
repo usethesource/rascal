@@ -29,7 +29,7 @@ public class NonTerminalPlusList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
 	
 	private final static IConstructor PROD_S_PLUSLISTA = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_A), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_PLUSLISTA = vf.constructor(Factory.Production_List, vf.list(SYMBOL_A), vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_PLUSLISTA = vf.constructor(Factory.Production_List, vf.list(SYMBOL_A));
 	private final static IConstructor PROD_A_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
 	
@@ -74,7 +74,7 @@ public class NonTerminalPlusList extends SGLL implements IParserTest{
 		NonTerminalPlusList nrpl = new NonTerminalPlusList();
 		IValue result = nrpl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 
-		String expectedInput = "";
+		String expectedInput = "parsetree(appl(prod([iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[appl(list([sort(\"A\")]),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(list([sort(\"A\")]),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(list([sort(\"A\")]),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])]),-1)";
 		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
