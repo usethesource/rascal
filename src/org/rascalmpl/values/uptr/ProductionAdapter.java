@@ -94,6 +94,10 @@ public class ProductionAdapter {
 	public static boolean isList(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Production_List;
 	}
+	
+	public static boolean isRegular(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Production_Regular;
+	}
 
 	public static boolean isSeparatedList(IConstructor tree) {
 		IConstructor rhs = getRhs(tree);
