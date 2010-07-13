@@ -61,7 +61,7 @@ public class CharRange extends SGLL implements IParserTest{
 		IValue result = cr.parse(NONTERMINAL_START_S, "a".toCharArray());
 
 		String expectedInput = "parsetree(appl(prod([\\char-class([range(97,122)])],sort(\"S\"),\\no-attrs()),[char(97)]),-1)";
-		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
 	public static void main(String[] args){

@@ -74,7 +74,7 @@ public class Epsilon extends SGLL implements IParserTest{
 		IValue result = e.parse(NONTERMINAL_START_S, "a".toCharArray());
 
 		String expectedInput = "parsetree(appl(prod([sort(\"A\"),empty()],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),empty()]),-1)";
-		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
 	public static void main(String[] args){

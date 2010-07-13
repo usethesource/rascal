@@ -125,7 +125,7 @@ public class Ambiguous6 extends SGLL implements IParserTest{
 		IValue result = a6.parse(NONTERMINAL_START_S, "a".toCharArray());
 
 		String expectedInput = "parsetree(amb({appl(prod([sort(\"E\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"F\")],sort(\"E\"),\\no-attrs()),[appl(prod([sort(\"G\")],sort(\"F\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"D\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])]),appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([sort(\"C\")],sort(\"B\"),\\no-attrs()),[appl(prod([sort(\"D\")],sort(\"C\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"D\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])])}),-1)";
-		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
 	public static void main(String[] args){

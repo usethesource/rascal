@@ -27,7 +27,7 @@ public class SeparatedPlusList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_b = vf.constructor(Factory.Symbol_Lit, vf.string("b"));
-	private final static IConstructor SYMBOL_SEP_PLUS_LIST_A = vf.constructor(Factory.Symbol_IterPlusSep, SYMBOL_A, vf.list(SYMBOL_b));
+	private final static IConstructor SYMBOL_SEP_PLUS_LIST_A = vf.constructor(Factory.Symbol_IterPlusSep, SYMBOL_A, SYMBOL_b);
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
 	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
 	private final static IConstructor SYMBOL_char_b = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(98))));
@@ -81,7 +81,7 @@ public class SeparatedPlusList extends SGLL implements IParserTest{
 		IValue result = nrpl.parse(NONTERMINAL_START_S, "ababa".toCharArray());
 
 		String expectedInput = "parsetree(appl(prod([\\iter-sep(sort(\"A\"),[lit(\"b\")])],sort(\"S\"),\\no-attrs()),[appl(list([sort(\"A\"),[lit(\"b\")]]),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)]),appl(list([sort(\"A\"),[lit(\"b\")]]),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)]),appl(list([sort(\"A\"),[lit(\"b\")]]),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])]),-1)";
-		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
 	public static void main(String[] args){

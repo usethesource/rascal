@@ -74,7 +74,7 @@ public class Ambiguous1 extends SGLL implements IParserTest{
 		IValue result = a1.parse(NONTERMINAL_START_S, "a".toCharArray());
 		
 		String expectedInput = "parsetree(appl(prod([lit(\"a\")],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),-1)";
-		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 	
 	public static void main(String[] args){

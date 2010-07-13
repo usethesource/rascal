@@ -57,6 +57,7 @@ public abstract class SGLL implements IGLL{
 	
 	public SGLL(){
 		super();
+		
 		todoList = new ArrayList<AbstractStackNode>();
 		
 		stacksToExpand = new ArrayList<AbstractStackNode>();
