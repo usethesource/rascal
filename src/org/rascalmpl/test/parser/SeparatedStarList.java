@@ -33,7 +33,7 @@ public class SeparatedStarList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_char_b = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(98))));
 	
 	private final static IConstructor PROD_S_SEPSTARLIST_A_b = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_SEP_STAR_LIST_A), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_SEPSTARLIST_A_b = vf.constructor(Factory.Production_List, vf.list(SYMBOL_A, vf.list(SYMBOL_b)));
+	private final static IConstructor PROD_SEPSTARLIST_A_b = vf.constructor(Factory.Production_Regular, SYMBOL_SEP_STAR_LIST_A);
 	private final static IConstructor PROD_A_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_b_b = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b), SYMBOL_b, vf.constructor(Factory.Attributes_NoAttrs));
@@ -80,7 +80,7 @@ public class SeparatedStarList extends SGLL implements IParserTest{
 		SeparatedStarList nrsl = new SeparatedStarList();
 		IValue result = nrsl.parse(NONTERMINAL_START_S, "ababa".toCharArray());
 
-		String expectedInput = "parsetree(appl(prod([\\iter-star-sep(sort(\"A\"),[lit(\"b\")])],sort(\"S\"),\\no-attrs()),[appl(list([sort(\"A\"),[lit(\"b\")]]),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)]),appl(list([sort(\"A\"),[lit(\"b\")]]),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)]),appl(list([sort(\"A\"),[lit(\"b\")]]),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])]),-1)";
+		String expectedInput = "parsetree(appl(prod([\\iter-star-sep(sort(\"A\"),lit(\"b\"))],sort(\"S\"),\\no-attrs()),[appl(regular(\\iter-star-sep(sort(\"A\"),lit(\"b\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)]),appl(regular(\\iter-star-sep(sort(\"A\"),lit(\"b\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)]),appl(regular(\\iter-star-sep(sort(\"A\"),lit(\"b\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])]),-1)";
 		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
