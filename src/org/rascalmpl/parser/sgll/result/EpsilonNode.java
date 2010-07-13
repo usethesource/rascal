@@ -34,6 +34,6 @@ public class EpsilonNode implements INode{
 	}
 	
 	public IValue toTerm(IndexedStack<INode> stack, int depth){
-		return vf.constructor(Factory.Symbol_Empty);
+		return vf.constructor(Factory.Tree_Empty);
 	}
 }
