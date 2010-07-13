@@ -28,13 +28,13 @@ public class Ambiguous2 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
 	private final static IConstructor SYMBOL_char_b = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(98))));
 	
-	private final static IConstructor PROD_S_Aab = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A, SYMBOL_ab), SYMBOL_START_S, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_S_bab = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_bab), SYMBOL_START_S, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_A_B = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_B), SYMBOL_A, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_B_b = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_b), SYMBOL_B, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_b_b = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b), SYMBOL_b, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_ab_ab = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b, SYMBOL_char_a, SYMBOL_char_b), SYMBOL_ab, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_bab_bab = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b, SYMBOL_char_a, SYMBOL_char_b), SYMBOL_bab, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_S_Aab = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A, SYMBOL_ab), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_bab = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_bab), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_A_B = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_B), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_B_b = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_b), SYMBOL_B, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_b_b = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b), SYMBOL_b, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_ab_ab = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b, SYMBOL_char_a, SYMBOL_char_b), SYMBOL_ab, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_bab_bab = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b, SYMBOL_char_a, SYMBOL_char_b), SYMBOL_bab, vf.constructor(Factory.Attributes_NoAttrs));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");

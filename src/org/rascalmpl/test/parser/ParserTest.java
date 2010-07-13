@@ -1,5 +1,7 @@
 package org.rascalmpl.test.parser;
 
+import java.io.IOException;
+
 import junit.framework.TestCase;
 
 import org.junit.Assert;
@@ -11,7 +13,11 @@ public class ParserTest extends TestCase{
 	}
 	
 	public void executeParser(IParserTest parser){
-		Assert.assertTrue(parser.executeTest());
+		try{
+			Assert.assertTrue(parser.executeTest());
+		}catch(IOException ioex){
+			// Ignore, never happens.
+		}
 	}
 	
 	public void testBasic(){

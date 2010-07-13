@@ -26,8 +26,8 @@ public class CILiteral extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_char_l = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(108))));
 	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
 	
-	private final static IConstructor PROD_S_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_START_S, vf.list(Factory.Attributes));
-	private final static IConstructor PROD_bla_bla = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b, SYMBOL_char_l, SYMBOL_char_a), SYMBOL_bla, vf.list(Factory.Attributes));
+	private final static IConstructor PROD_S_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_bla_bla = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b, SYMBOL_char_l, SYMBOL_char_a), SYMBOL_bla, vf.constructor(Factory.Attributes_NoAttrs));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode LITERAL_bla0 = new CaseInsensitiveLiteralStackNode(0, PROD_bla_bla, new char[]{'b','l','a'});
