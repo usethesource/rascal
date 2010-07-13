@@ -23,7 +23,7 @@ O ::= a
 */
 public class Optional2 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
-	private final static IConstructor SYMBOL_O = vf.constructor(Factory.Symbol_Opt, vf.string("O"));
+	private final static IConstructor SYMBOL_O = vf.constructor(Factory.Symbol_Sort, vf.string("O"));
 	private final static IConstructor SYMBOL_OPTIONAL_O = vf.constructor(Factory.Symbol_Opt, SYMBOL_O);
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
 	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
@@ -75,10 +75,10 @@ public class Optional2 extends SGLL implements IParserTest{
 		Optional2 o2 = new Optional2();
 		IValue result = o2.parse(NONTERMINAL_START_S, "a".toCharArray());
 
-		String expectedInput = "";
+		String expectedInput = "parsetree(appl(prod([lit(\"a\"),opt(sort(\"O\"))],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(prod([sort(\"O\")],opt(sort(\"O\")),\\no-attrs()),[empty()])]),-1)";
 		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
-
+	
 	public static void main(String[] args){
 		Optional2 o2 = new Optional2();
 		IValue result = o2.parse(NONTERMINAL_START_S, "a".toCharArray());

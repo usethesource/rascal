@@ -89,7 +89,7 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 		UselessSelfLoop usl = new UselessSelfLoop();
 		IValue result = usl.parse(NONTERMINAL_START_S, "a".toCharArray());
 
-		String expectedInput = "";
+		String expectedInput = "parsetree(amb({appl(prod([sort(\"B\")],sort(\"S\"),\\no-attrs()),[amb({appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"A\")],sort(\"B\"),\\no-attrs()),[cycle(sort(\"A\"),1)])})]),appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[amb({appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"A\")],sort(\"B\"),\\no-attrs()),[cycle(sort(\"A\"),1)])})])}),-1)";
 		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 

@@ -75,7 +75,7 @@ public class RightRecursion extends SGLL implements IParserTest{
 		RightRecursion rr = new RightRecursion();
 		IValue result = rr.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 
-		String expectedInput = "";
+		String expectedInput = "parsetree(appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\"),sort(\"A\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(prod([lit(\"a\"),sort(\"A\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])]),-1)";
 		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 

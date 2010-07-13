@@ -99,7 +99,7 @@ public class SplitAndMerge3 extends SGLL implements IParserTest{
 		SplitAndMerge3 ms3 = new SplitAndMerge3();
 		IValue result = ms3.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 
-		String expectedInput = "";
+		String expectedInput = "parsetree(amb({appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\"),lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([sort(\"A\"),lit(\"a\")],sort(\"B\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([sort(\"C\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\")],sort(\"C\"),\\no-attrs()),[appl(prod([sort(\"A\"),lit(\"a\")],sort(\"B\"),\\no-attrs()),[appl(prod([sort(\"B\"),lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])}),-1)";
 		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 

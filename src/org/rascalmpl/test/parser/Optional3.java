@@ -24,7 +24,7 @@ A ::= a
 */
 public class Optional3 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
-	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Opt, vf.string("A"));
+	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_O = vf.constructor(Factory.Symbol_Opt, vf.string("O"));
 	private final static IConstructor SYMBOL_OPTIONAL_O = vf.constructor(Factory.Symbol_Opt, SYMBOL_O);
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
@@ -88,10 +88,10 @@ public class Optional3 extends SGLL implements IParserTest{
 		Optional3 o3 = new Optional3();
 		IValue result = o3.parse(NONTERMINAL_START_S, "aa".toCharArray());
 
-		String expectedInput = "";
+		String expectedInput = "parsetree(amb({appl(prod([lit(\"a\"),opt(opt(\"O\"))],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(prod([opt(\"O\")],opt(opt(\"O\")),\\no-attrs()),[appl(prod([sort(\"A\")],opt(\"O\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])]),appl(prod([lit(\"a\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])}),-1)";
 		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
-
+	
 	public static void main(String[] args){
 		Optional3 o3 = new Optional3();
 		IValue result = o3.parse(NONTERMINAL_START_S, "aa".toCharArray());
