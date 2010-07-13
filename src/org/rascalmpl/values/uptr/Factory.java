@@ -46,6 +46,7 @@ public class Factory {
 	public static final Type Tree_Cycle = tf.constructor(uptr, Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycleLength");
 	public static final Type Tree_Amb = tf.constructor(uptr, Tree, "amb", Alternatives, "alternatives");
 	public static final Type Tree_Char = tf.constructor(uptr, Tree, "char", tf.integerType(), "character");
+	public static final Type Tree_Empty = tf.constructor(uptr, Tree, "empty");
 	
 	public static final Type Production_Default = tf.constructor(uptr, Production, "prod", tf.listType(Symbol), "lhs", Symbol, "rhs", Attributes, "attributes");
 	public static final Type Production_List = tf.constructor(uptr, Production, "list", Symbol, "rhs");
