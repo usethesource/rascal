@@ -1,9 +1,10 @@
 package org.rascalmpl.test.parser;
 
-import org.junit.Assert;
-import org.rascalmpl.test.TestFramework;
+import junit.framework.TestCase;
 
-public class ParserTest extends TestFramework{
+import org.junit.Assert;
+
+public class ParserTest extends TestCase{
 	
 	public ParserTest(){
 		super();
@@ -14,39 +15,70 @@ public class ParserTest extends TestFramework{
 	}
 	
 	public void testBasic(){
-		// Simple1+2
-		// Char range
-		// Literal stuff
-		// Epsilon
+		executeParser(new Simple1());
+		executeParser(new Simple2());
+		
+		executeParser(new CharRange());
+		executeParser(new CILiteral());
+		
+		executeParser(new Epsilon());
 	}
 	
 	public void testAmbiguitiesBasic(){
-		// Ambiguous1-6
+		executeParser(new Ambiguous1());
+		executeParser(new Ambiguous2());
+		executeParser(new Ambiguous3());
+		executeParser(new Ambiguous4());
+		executeParser(new Ambiguous5());
+		executeParser(new Ambiguous6());
 	}
 	
 	public void testSplitAndMerge(){
-		// SplitAndMerge1-3
+		executeParser(new SplitAndMerge1());
+		executeParser(new SplitAndMerge2());
+		executeParser(new SplitAndMerge3());
 	}
 	
 	public void testList(){
-		// list *
+		executeParser(new CharPlusList());
+		executeParser(new CharStarList());
+		
+		executeParser(new NonTerminalPlusList());
+		executeParser(new NonTerminalStarList());
 	}
 	
 	public void testSeparatedList(){
-		// sep list *
+		executeParser(new SeparatedPlusList());
+		executeParser(new SeparatedStarList());
 	}
 	
 	public void testOptional(){
-		// Optional1-3
+		executeParser(new Optional1());
+		executeParser(new Optional2());
+		executeParser(new Optional3());
+	}
+	
+	public void testAmbiguousList(){
+		executeParser(new AmbiguousNonTerminalPlusList1());
+		executeParser(new AmbiguousNonTerminalPlusList2());
+		executeParser(new AmbiguousNestedPlusList());
 	}
 	
 	public void testRecursion(){
-		// left / right / amb recursion
+		executeParser(new RightRecursion());
+		executeParser(new LeftRecursion());
+		
+		executeParser(new EmptyRightRecursion());
+	}
+	
+	public void testAmbiguousRecursion(){
+		executeParser(new AmbiguousRecursive());
 	}
 	
 	public void testCycle(){
-		// UselessSelfLoop
-		// Not a useless self loop
-		// Cycle epsilon
+		executeParser(new NotAUselessSelfLoop());
+		executeParser(new UselessSelfLoop());
+		
+		executeParser(new CycleEpsilon());
 	}
 }
