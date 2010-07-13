@@ -26,7 +26,7 @@ public class CharStarList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_STAR_LIST_a_z = vf.constructor(Factory.Symbol_IterStar, SYMBOL_char_a_z);
 	
 	private final static IConstructor PROD_S_STARLISTa_z = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_STAR_LIST_a_z), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_STARLISTa_z = vf.constructor(Factory.Production_List, vf.list(SYMBOL_char_a_z));
+	private final static IConstructor PROD_STARLISTa_z = vf.constructor(Factory.Production_List, SYMBOL_char_a_z);
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode CHAR0 = new CharStackNode(0, new char[][]{{'a', 'z'}});
@@ -64,7 +64,7 @@ public class CharStarList extends SGLL implements IParserTest{
 		CharStarList csl = new CharStarList();
 		IValue result = csl.parse(NONTERMINAL_START_S, "abc".toCharArray());
 
-		String expectedInput = "parsetree(appl(prod([\\iter-star(\\char-class([range(97,122)]))],sort(\"S\"),\\no-attrs()),[appl(list([\\char-class([range(97,122)])]),[char(97),appl(list([\\char-class([range(97,122)])]),[char(98),appl(list([\\char-class([range(97,122)])]),[char(99)])])])]),-1)";
+		String expectedInput = "parsetree(appl(prod([\\iter-star(\\char-class([range(97,122)]))],sort(\"S\"),\\no-attrs()),[appl(list(\\char-class([range(97,122)])),[char(97),appl(list(\\char-class([range(97,122)])),[char(98),appl(list(\\char-class([range(97,122)])),[char(99)])])])]),-1)";
 		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 

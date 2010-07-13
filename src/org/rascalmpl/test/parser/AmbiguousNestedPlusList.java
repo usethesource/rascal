@@ -29,9 +29,9 @@ public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_PLUS_LIST_a = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_char_a);
 	
 	private final static IConstructor PROD_S_PLUSLISTA = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_A), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_PLUSLISTA = vf.constructor(Factory.Production_List, vf.list(SYMBOL_A));
+	private final static IConstructor PROD_PLUSLISTA = vf.constructor(Factory.Production_List, SYMBOL_A);
 	private final static IConstructor PROD_A_PLUSLISTa = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_a), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_PLUSLISTa = vf.constructor(Factory.Production_List, vf.list(SYMBOL_char_a));
+	private final static IConstructor PROD_PLUSLISTa = vf.constructor(Factory.Production_List, SYMBOL_char_a);
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
@@ -75,7 +75,7 @@ public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 		AmbiguousNestedPlusList anpl = new AmbiguousNestedPlusList();
 		IValue result = anpl.parse(NONTERMINAL_START_S, "aa".toCharArray());
 
-		String expectedInput = "parsetree(appl(prod([iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[amb({appl(list([sort(\"A\")]),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(list([\\char-class([single(97)])]),[char(97),appl(list([\\char-class([single(97)])]),[char(97)])])])]),appl(list([sort(\"A\")]),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(list([\\char-class([single(97)])]),[char(97)])]),appl(list([sort(\"A\")]),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(list([\\char-class([single(97)])]),[char(97)])])])])})]),-1)";
+		String expectedInput = "parsetree(appl(prod([iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[amb({appl(list(sort(\"A\")),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(list(\\char-class([single(97)])),[char(97),appl(list(\\char-class([single(97)])),[char(97)])])])]),appl(list(sort(\"A\")),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(list(\\char-class([single(97)])),[char(97)])]),appl(list(sort(\"A\")),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(list(\\char-class([single(97)])),[char(97)])])])])})]),-1)";
 		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
