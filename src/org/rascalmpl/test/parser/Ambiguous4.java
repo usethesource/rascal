@@ -1,5 +1,6 @@
 package org.rascalmpl.test.parser;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,10 +8,12 @@ import java.io.Reader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.sgll.SGLL;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.LiteralStackNode;
 import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 /*
@@ -79,10 +82,12 @@ public class Ambiguous4 extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest(){
+	public boolean executeTest() throws IOException{
 		Ambiguous4 a4 = new Ambiguous4();
 		IValue result = a4.parse(NONTERMINAL_START_S, "bbbbbb".toCharArray());
-		return result.equals("TODO");
+
+		String expectedInput = "parsetree(amb({appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\"),sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"bb\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(98)])],lit(\"bb\"),\\no-attrs()),[char(98),char(98)])]),appl(prod([lit(\"bb\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(98)])],lit(\"bb\"),\\no-attrs()),[char(98),char(98)])])]),appl(prod([sort(\"B\"),sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])]),appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])])])]),appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[amb({appl(prod([sort(\"B\"),sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])]),appl(prod([lit(\"bb\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(98)])],lit(\"bb\"),\\no-attrs()),[char(98),char(98)])])]),appl(prod([sort(\"B\"),sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"bb\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(98)])],lit(\"bb\"),\\no-attrs()),[char(98),char(98)])]),appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])])])}),amb({appl(prod([sort(\"B\"),sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])]),appl(prod([lit(\"bb\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(98)])],lit(\"bb\"),\\no-attrs()),[char(98),char(98)])])]),appl(prod([sort(\"B\"),sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"bb\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(98)])],lit(\"bb\"),\\no-attrs()),[char(98),char(98)])]),appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])])])})]),appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\"),sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])]),appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])])]),appl(prod([sort(\"B\"),sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"bb\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(98)])],lit(\"bb\"),\\no-attrs()),[char(98),char(98)])]),appl(prod([lit(\"bb\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(98)])],lit(\"bb\"),\\no-attrs()),[char(98),char(98)])])])])}),-1)";
+		return result.equals(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
 	}
 
 	public static void main(String[] args){
