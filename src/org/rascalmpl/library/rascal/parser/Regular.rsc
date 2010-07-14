@@ -39,9 +39,9 @@ private set[Symbol] regular(Symbol s) {
        result += {t};
      case t:\iter-star(Symbol n) : 
        result += {t};
-     case t:\iter-sep(Symbol n, list[Symbol] sep) : 
+     case t:\iter-seps(Symbol n, list[Symbol] sep) : 
        result += {t};
-     case t:\iter-star-sep(Symbol n,list[Symbol] sep) : 
+     case t:\iter-star-seps(Symbol n,list[Symbol] sep) : 
        result += {t};
   }
   return result;
