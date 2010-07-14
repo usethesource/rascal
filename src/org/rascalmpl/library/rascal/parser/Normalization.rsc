@@ -86,10 +86,10 @@ public Symbol sort(Production p) {
   throw "weird production <p>";
 }
 
-rule compl complement(\char-class(r1), \char-class(r2)) => \char-class(complement(r1,r2));
-rule diff  difference(\char-class(r1), \char-class(r2)) => \char-class(difference(r1,r2));
-rule union union(\char-class(r1), \char-class(r2)) => \char-class(union(r1,r2));
-rule inter intersection(\char-class(r1), \char-class(r2)) => \char-class(intersection(r1,r2));
+rule compl complement(\char-class(list[CharRange] r1)) => \char-class(complement(r1));
+rule diff  difference(\char-class(list[CharRange] r1), \char-class(list[CharRange]r2)) => \char-class(difference(r1,r2));
+rule union union(\char-class(list[CharRange] r1), \char-class(list[CharRange]r2)) => \char-class(union(r1,r2));
+rule inter intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange]r2)) => \char-class(intersection(r1,r2));
 
 public list[CharRange] complement(list[CharRange] s) {
   return difference([range(0,0xFFFF)],s);
