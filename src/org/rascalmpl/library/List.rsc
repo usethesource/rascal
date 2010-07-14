@@ -1,5 +1,7 @@
 module List
 
+import Exception;
+
 @doc{Delete nth element from list}
 @javaClass{org.rascalmpl.library.List}
 public list[&T] java delete(list[&T] lst, int n);
@@ -10,11 +12,26 @@ public set[int] java domain(list[&T] lst);
 
 @doc{Get the first element of a list}
 @javaClass{org.rascalmpl.library.List}
-public &T java head(list[&T] lst) throws EmptyListError;
+public &T java head(list[&T] lst) throws EmptyList;
+
+@doc{Return the last element of a list, if any}
+public &T last(list[&T] lst) throws EmptyList {
+  if ([list[&T] p, &T l] := lst) 
+    return l;
+  throw EmptyListError();
+}
+
+@doc{Return all but the last element of a list}
+public list[&T] prefix(list[&T] lst) {
+   if ([list[&T] p, &T l] := lst) 
+     return p;
+   else 
+     return [];
+}
 
 @doc{Get the first n elements of a list}
 @javaClass{org.rascalmpl.library.List}
-public list[&T] java head(list[&T] lst, int n) throws IndexOutOfBoundsError;
+public list[&T] java head(list[&T] lst, int n) throws IndexOutOfBounds;
 
 @doc{Get an arbitrary element from a list}
 @javaClass{org.rascalmpl.library.List}
@@ -22,7 +39,7 @@ public &T java getOneFrom(list[&T] lst);
 
 @doc{Add an element at a specific position in a list}
 @javaClass{org.rascalmpl.library.List}
-public list[&T] java insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBoundsError;
+public list[&T] java insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds;
  
 @doc{Is list empty?}
 @javaClass{org.rascalmpl.library.List}

@@ -10,10 +10,6 @@ import rascal::parser::Normalization;
 import ParseTree;
 import List;
 
-@doc{A Symbol constructor that can introduce levels for a certain non-terminal,
-which can be used to implement priorities and associativity}
-data Symbol = level(Symbol symbol, int level);
-
 rule bottom level(Symbol a, int x) => a when x <= 0;
 
 public Grammar factorize(Grammar g) {
@@ -25,13 +21,22 @@ set[Production] factorize(set[Production] productions) {
   return { factorize(p) | p <- productions };
 }
 
+@doc{
+  Introduce new non-terminals to encode priority and associativity relations.
+  
+  The semantics of this function depends highly on the normalization rules in rascal::parser::Normalization
+}
 public set[Production] factorize(Production p) {
    if (first(Symbol s, list[Production] prods) := p) { 
       int len = size(prods);
-      levels = [ setToLevel(p, s, size(postfix)) 
-               | [list[Production] prefix, Production elem, list[Production] postfix] := prods];
-      return { choice(level(s, level), {elem, toSet(redefine(prefix, level(s, level)))}) 
-               | int level := length(postfix), [list[Production] prefix, Production elem, list[Production] postfix] := levels}; 
+      
+      // first we give each level a number
+      levels = for ([list[Production] prefix, Production elem, list[Production] postfix] := prods)
+                 append setToLevel(elem, s, size(prefix)); 
+               
+      // then we define each level by itself and copying all the productions from lower levels
+      return { choice(level(s, l), {elem, toSet(redefine(postfix, level(s, l)))}) 
+             | [list[Production] prefix, Production elem, list[Production] postfix] := levels, int l := size(prefix)}; 
    }
    else {
      return {p};
@@ -56,8 +61,11 @@ test factorize(first(sort("E"), [
          prod([level(sort("E"),2), lit("+"), level(sort("E"),2)], level(sort("E"),2),\no-attrs())
              })             
      };
-         
-list[Production] redefine(list[Production] prods, Symbol s) {
+       
+@doc{
+Redefines some list of productions to produce a new symbol; it deals with all production combinators
+}  
+public list[Production] redefine(list[Production] prods, Symbol s) {
   return visit (prods) {
     case prod(list[Symbol] lhs, _, Attributes a) => prod(lhs, s, a)
     case choice(_, set[Production] alts) => choice(s, alts)
@@ -68,32 +76,33 @@ list[Production] redefine(list[Production] prods, Symbol s) {
   }
 }
 
-Production setToLevel(Production p, Symbol s, int level) {
-  // This visit recognizes left-most and right-most recursive productions.
-  // It replaces each recursive non-terminal, if left-most or right-most, with a wrapped (level) non-terminal
-  // Associativity rules are applied by increasing the level number on selected non-terminals.
-  
+@doc{
+Recognizes left-most and right-most recursive productions.
+It replaces each recursive non-terminal, if left-most or right-most, with a wrapped (level) non-terminal
+Associativity rules are applied by increasing the level number on selected non-terminals.
+}
+public Production setToLevel(Production p, Symbol s, int l) {
   return visit (p) {
     case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\left()),list[Attr] a2])) => 
-         prod([level(s, level), middle, level(s, level+1)],level(s,level),a)
+         prod([level(s, l), middle, level(s, l+1)],level(s,l),a)
     case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\right()),list[Attr] a2])) => 
-         prod([level(s, level+1), middle, level(s, level)],level(s,level),a)
+         prod([level(s, l+1), middle, level(s, l)],level(s,l),a)
     case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\assoc()),list[Attr] a2])) => 
-         prod([level(s, level), middle, level(s, level+1)],level(s,level),a)
+         prod([level(s, l), middle, level(s, l+1)],level(s,l),a)
     case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\non-assoc()),list[Attr] a2])) => 
-         prod([level(s, level+1), middle, level(s, level+1)],level(s,level),a)
+         prod([level(s, l+1), middle, level(s, l+1)],level(s,l),a)
     case prod([s, list[Symbol] middle, s],s,Attributes a) => 
-         prod([level(s, level), middle, level(s, level)],level(s,level),a)
+         prod([level(s, l), middle, level(s, l)],level(s,l),a)
     case prod([s, list[Symbol] tail],s,Attributes a)      => 
-         prod([level(s, level), tail], level(s, level), a)
+         prod([level(s, l), tail], level(s, l), a)
     case prod([list[Symbol] front, s], s, Attributes a)   => 
-         prod([front, level(s, level)], level(s, level), a) 
+         prod([front, level(s, l)], level(s, l), a) 
     case prod(list[Symbol] lhs, s, Attributes a)          => 
-         prod(lhs, level(s, level), a)
-    case choice(s, set[Production] alts) => choice(level(s, level), alts)
-    case \assoc(s, Associativity a, Production p) => \assoc(level(s, level), a, p)
-    case \diff(s, Production p, set[Production] alts) => \diff(level(s, level), p, alts)
-    case \restrict(s, Production language, list[CharClass] restrictions) => restrict(level(s,level), language, restrictions)  
+         prod(lhs, level(s, l), a)
+    case choice(s, set[Production] alts) => choice(level(s, l), alts)
+    case \assoc(s, Associativity a, Production p) => \assoc(level(s, l), a, p)
+    case \diff(s, Production p, set[Production] alts) => \diff(level(s, l), p, alts)
+    case \restrict(s, Production language, list[CharClass] restrictions) => restrict(level(s,l), language, restrictions)  
   }
 }   
 

@@ -436,6 +436,19 @@ public void main(Box b) {
 */
 }
 
+public void fprint(Box b) {
+  print(format(b));
+}
+
+public void fprintln(Box b) {
+  println(format(b));
+}
+
+public str format(Box b) {
+  text t = box2text(b);
+  return "<for (l <- t) {><l>\n<}>";
+}
+
 public text box2text(Box b) {
     b = removeHV(b);
     b = removeHOV(b);
