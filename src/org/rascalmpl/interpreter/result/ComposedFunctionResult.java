@@ -19,7 +19,7 @@ public class ComposedFunctionResult extends AbstractFunction{
 				(FunctionType) RascalTypeFactory.getInstance().functionType(
 						right.getFunctionType().getReturnType(), left.getFunctionType().getArgumentTypes()), 
 						false, 
-						ctx.getCurrentEnvt());
+						ctx.getCurrentEnvt(), false);
 		this.left = left;
 		this.right = right;
 	}

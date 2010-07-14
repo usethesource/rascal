@@ -30,7 +30,9 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.AssignmentToFinalError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -144,7 +146,13 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 	public Result<IValue> visitAssignableVariable(Variable x) {
 		QualifiedName qname = x.getQualifiedName();
 		Result<IValue> previous = env.getVariable(qname);
-		
+
+		if (previous instanceof OverloadedFunctionResult) {
+			OverloadedFunctionResult f = (OverloadedFunctionResult) previous;
+			if (f.isFinal()) {
+				throw new AssignmentToFinalError(x.getQualifiedName());
+			}
+		}
 		//System.out.println("I am assigning: " + x + "(oldvalue = " + previous + ")");
 		
 		if(previous != null && previous.getValue() != null){
