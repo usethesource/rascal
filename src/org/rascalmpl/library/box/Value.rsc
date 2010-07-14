@@ -5,6 +5,7 @@ import box::Box2Text;
 import Node;
 import List;
 import Set;
+import ToString;
 
 @doc{
   a function that formats any value to a easily readable string
@@ -20,7 +21,7 @@ public Box value2box(value y) {
       l = last(getChildren(x));
       return HV([
                H([L(getName(x)), L("(")])[@hs=0], 
-               I([HV([H([value2box(e), L(",")])[@hs=0] | e <- p] + [value2box(l)])[@hs=1]]), 
+               I([HV([H([value2box(e), L(",")])[@hs=0] | e <- p] + [value2box(l)])[@hs=1]])[@is=1], 
                L(")")
                ])[@hs=0];
     }
@@ -37,6 +38,7 @@ public Box value2box(value y) {
       <l,p> = takeOneFrom(x);
       return H([L("{"), I([HOV([H([value2box(e), L(",")])[@hs=0] | e <- p] + [value2box(l)])[@hs=1]]),L("}")])[@hs=0];
     }
+    case str x : return L("\"<x>\"");
     default: return L("<y>"); 
   }
 }
