@@ -943,6 +943,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		out.println(":quit or EOF               Quits the shell");
 		out.println(":declarations              Lists all visible rules, functions and variables");
 		out.println(":set <option> <expression> Sets an option");
+		out.println("e.g. profiling    true/false");
+		out.println("     tracing      true/false");
+		out.println("     saveBinaries true/false");
 		out.println(":edit <modulename>         Opens an editor for that module");
 		out.println(":modules                   Lists all imported modules");
 		out.println(":test                      Runs all unit tests currently loaded");
