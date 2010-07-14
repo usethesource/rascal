@@ -18,10 +18,10 @@ syntax TYPE = natural:"natural" | string:"string" | nil:"nil-type";
 syntax EXP = id: PICOID name
            | strcon: STRCON string
            | natcon: NATCON natcon
-           | left ( cons: EXP lhs "||" EXP rhs
+           | cons: EXP lhs "||" EXP rhs
                   | plus: EXP lhs "-" EXP rhs
                   | minus: EXP lhs "+" EXP rhs
-                  )
+           |
            | bracket "(" EXP e ")"
            ;
                
