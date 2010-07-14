@@ -59,10 +59,16 @@ public class ContainerNode implements INode{
 	
 	private void gatherAlternatives(Link child, DoubleArrayList<IValue[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<INode> stack, int depth){
 		INode resultNode = child.node;
-		IValue result = resultNode.toTerm(stack, depth);
-		if(result == null) return; // Rejected.
 		
-		gatherProduction(child, new IValue[]{result}, gatheredAlternatives, production, stack, depth);
+		if(!(resultNode.isEpsilon() && child.prefixes == null)){
+			IValue result = resultNode.toTerm(stack, depth);
+			if(result == null) return; // Rejected.
+			
+			IValue[] postFix = new IValue[]{result};
+			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth);
+		}else{
+			gatheredAlternatives.add(new IValue[]{}, production);
+		}
 	}
 	
 	private void gatherProduction(Link child, IValue[] postFix, DoubleArrayList<IValue[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<INode> stack, int depth){
@@ -75,14 +81,14 @@ public class ContainerNode implements INode{
 		for(int i = prefixes.size() - 1; i >= 0; i--){
 			Link prefix = prefixes.get(i);
 			
-			int length = postFix.length;
-			IValue[] newPostFix = new IValue[length + 1];
-			System.arraycopy(postFix, 0, newPostFix, 1, length);
 			INode resultNode = prefix.node;
 			if(!resultNode.isRejected()){
 				IValue result = resultNode.toTerm(stack, depth);
 				if(result == null) return; // Rejected.
 				
+				int length = postFix.length;
+				IValue[] newPostFix = new IValue[length + 1];
+				System.arraycopy(postFix, 0, newPostFix, 1, length);
 				newPostFix[0] = result;
 				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth);
 			}
