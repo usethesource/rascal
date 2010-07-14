@@ -18,7 +18,7 @@ public &T java head(list[&T] lst) throws EmptyList;
 public &T last(list[&T] lst) throws EmptyList {
   if ([list[&T] p, &T l] := lst) 
     return l;
-  throw EmptyListError();
+  throw EmptyList();
 }
 
 @doc{Return all but the last element of a list}
