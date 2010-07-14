@@ -30,13 +30,13 @@ public Box value2box(value y) {
       if (x == []) return H([L("["),L("]")])[@hs=0];
       p = prefix(x);
       l = last(x);
-      return H([L("["), I([HOV([H([value2box(e), L(",")])[@hs=0] | e <- p] + [value2box(l)])[@hs=1]]),L("]")])[@hs=0];
+      return H([L("["), I([HOV([H([value2box(e), L(",")])[@hs=0] | e <- p] + [value2box(l)])[@hs=1]])[@is=1],L("]")])[@hs=0];
     }
     case { } : return H([L("{"),L("}")])[@hs=0];
     case set[value] x: {
        if (x == {}) return H([L("{"),L("}")])[@hs=0];
       <l,p> = takeOneFrom(x);
-      return HOV([L("{"), I([HOV([H([value2box(e), L(",")])[@hs=0] | e <- p] + [value2box(l)])[@hs=1]]),L("}")])[@hs=0];
+      return HOV([L("{"), I([HOV([H([value2box(e), L(",")])[@hs=0] | e <- p] + [value2box(l)])[@hs=1]])[@is=1],L("}")])[@hs=0];
     }
     case str x : return L("\"<x>\"");
     default: return L("<y>"); 
