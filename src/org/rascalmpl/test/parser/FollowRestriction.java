@@ -24,6 +24,8 @@ S ::= AC
 A ::= B+ !+ a
 B ::= a
 C ::= a | epsilon
+
+'X !+ Y' means, 'X' does not match when followed by 'Y'.
 */
 public class FollowRestriction extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
