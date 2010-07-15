@@ -293,12 +293,7 @@ public abstract class SGLL implements IGLL{
 		}
 		node.setResultStore(resultStore);
 		
-		if(location == input.length && !node.hasEdges() && !node.hasNext()){
-			root = node; // Root reached.
-		}
-		
 		possiblySharedEdgeNodes.add(node);
-		stacksWithNonTerminalsToReduce.put(node);
 	}
 	
 	private void move(AbstractStackNode node){
