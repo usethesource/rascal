@@ -86,6 +86,7 @@ public class MakeBox {
 	}
 
 	private void execute(String s) {
+		System.err.println("execute:"+s);
 		commandEvaluator.eval(s, URI.create("box:///"));
 	}
 
@@ -111,10 +112,13 @@ public class MakeBox {
 
 	private IValue launchConcreteProgram(URI uri, String s) {
 		final String resultName = "c";
-		execute("import box::" + s + ";");
+		if (s.equals("rsc")) 
+			 s = "rascal"; // Exception at rascal
+		execute("import box::" + s + "::Default;");
 		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()
 				.sourceLocation(uri);
+		System.err.println("launch:"+v.getType().toString());
 		store(v, varName);
 		execute(resultName + "=toList(" + varName + ");");
 		IValue r = fetch(resultName);
@@ -171,7 +175,7 @@ public class MakeBox {
 		start();
 		int tail = uri.getPath().lastIndexOf('.');
 		String s = uri.getPath().substring(tail + 1);
-		s = s.substring(0, 1).toUpperCase() + s.substring(1);
+		// s = s.substring(0, 1).toUpperCase() + s.substring(1);
 		return launchConcreteProgram(uri, s);
 	}
 	

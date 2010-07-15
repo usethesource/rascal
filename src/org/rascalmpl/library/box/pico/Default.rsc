@@ -1,4 +1,4 @@
-module box::Pico
+module box::pico::Default
 import ParseTree;
 import box::Concrete;
 import box::Box;
