@@ -1,4 +1,4 @@
-module box::Rsc
+module box::rascal::Default
 import ParseTree;
 import box::Concrete;
 import box::Box;
@@ -21,7 +21,8 @@ list[UserDefinedFilter] userDefinedFilters = [
        getModules, 
        getDeclarations, 
        getConstructors, 
-       getRascal, getTypes
+       getRascal, 
+       getTypes
        ];
 
 list[int] isIndented(list[Symbol] q, list[Tree] z) {
@@ -45,7 +46,7 @@ list[segment] isCompact(list[Symbol] q) {
         if (isScheme(q , ["N","T", "T", "N", "T", "N", "T", "N"])) return [<2,4>]; // if then else
         if (isScheme(q , ["N","[", "N", "]"])) return [<0,3>]; // if then else
         if (isScheme(q , ["N", "T", "(", "N", ")","{", "N","}"])) return [<2,4>]; // switch, visit
-        if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [1, 3];  // visit
+        if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [<1, 3>];  // visit
      return [];
      }
 
@@ -58,7 +59,8 @@ bool isSeperated(list[Symbol] q) {
      }
      
 public text toList(loc asf){
-     Module a = parse(#Module, asf);
+     Tree a = parse(#Module, asf);
+     // rawPrintln(a);
      return returnText(a, extraRules, isIndented, isCompact, isSeperated);
      }
 
