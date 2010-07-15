@@ -41,6 +41,8 @@ public abstract class AbstractStackNode{
 		edges = original.edges;
 		
 		parentProduction = original.parentProduction;
+		followRestrictions = original.followRestrictions;
+		isReject = original.isReject;
 	}
 	
 	protected AbstractStackNode(AbstractStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
@@ -52,6 +54,8 @@ public abstract class AbstractStackNode{
 		edges = original.edges;
 		
 		parentProduction = original.parentProduction;
+		followRestrictions = original.followRestrictions;
+		isReject = original.isReject;
 		
 		this.prefixesMap = prefixes;
 	}
@@ -94,7 +98,9 @@ public abstract class AbstractStackNode{
 		// Check if follow restrictions apply.
 		if(followRestrictions != null){
 			for(int i = followRestrictions.length - 1; i >= 0; i--){
-				if(followRestrictions[i].reduce(input, location)) return true;
+				IReducableStackNode followRestriction = followRestrictions[i];
+				if((location + followRestriction.getLength()) <= input.length &&
+					followRestriction.reduce(input, location)) return true;
 			}
 		}
 		return false;

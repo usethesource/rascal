@@ -87,4 +87,8 @@ public class ParserTest extends TestCase{
 		
 		executeParser(new CycleEpsilon());
 	}
+	
+	public void testFollowRestriction(){
+		executeParser(new FollowRestriction());
+	}
 }
