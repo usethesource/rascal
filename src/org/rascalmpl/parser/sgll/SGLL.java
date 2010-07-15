@@ -224,10 +224,8 @@ public abstract class SGLL implements IGLL{
 				if(possibleAlternative.isSimilar(node)){
 					if(withResults.contains(possibleAlternative)){
 						ContainerNode resultStore = possibleAlternative.getResultStore();
-						if(!(possibleAlternative.isReject() || resultStore.isRejected())){
+						if(!resultStore.isRejected()){
 							resultStore.addAlternative(production, new Link(prefixes, result));
-						}else{
-							resultStore.setRejected(); // Rejected.
 						}
 					}
 					return;
@@ -245,15 +243,53 @@ public abstract class SGLL implements IGLL{
 		
 		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
 		if(resultStore == null){
-			if(!node.isReject()){
-				resultStore = new ContainerNode();
-				resultStoreCache.unsafePut(production, startLocation, resultStore);
-				withResults.unsafePut(node);
-				
-				resultStore.addAlternative(production, new Link(prefixes, result));
-			}else{
-				return; // Rejected & pruned.
+			resultStore = new ContainerNode();
+			resultStoreCache.unsafePut(production, startLocation, resultStore);
+			withResults.unsafePut(node);
+			
+			resultStore.addAlternative(production, new Link(prefixes, result));
+		}
+		node.setResultStore(resultStore);
+		
+		if(location == input.length && !node.hasEdges() && !node.hasNext()){
+			root = node; // Root reached.
+		}
+		
+		possiblySharedEdgeNodes.add(node);
+		stacksWithNonTerminalsToReduce.put(node);
+	}
+	
+	private void rejectEdge(AbstractStackNode node, IConstructor production){
+		int startLocation = node.getStartLocation();
+		ArrayList<AbstractStackNode> possiblySharedEdgeNodes = possiblySharedEdgeNodesMap.get(startLocation);
+		if(possiblySharedEdgeNodes != null){
+			for(int i = possiblySharedEdgeNodes.size() - 1; i >= 0; i--){
+				AbstractStackNode possibleAlternative = possiblySharedEdgeNodes.get(i);
+				if(possibleAlternative.isSimilar(node)){
+					if(withResults.contains(possibleAlternative)){
+						ContainerNode resultStore = possibleAlternative.getResultStore();
+						resultStore.setRejected();
+					}
+					return;
+				}
 			}
+		}else{
+			possiblySharedEdgeNodes = new ArrayList<AbstractStackNode>();
+			possiblySharedEdgeNodesMap.unsafePut(startLocation, possiblySharedEdgeNodes);
+		}
+		
+		if(!node.isClean()){
+			node = node.getCleanCopyWithPrefix();
+			node.setStartLocation(startLocation);
+		}
+		
+		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
+		if(resultStore == null){
+			resultStore = new ContainerNode();
+			resultStoreCache.unsafePut(production, startLocation, resultStore);
+			withResults.unsafePut(node);
+			
+			resultStore.setRejected();
 		}
 		node.setResultStore(resultStore);
 		
@@ -270,16 +306,28 @@ public abstract class SGLL implements IGLL{
 		ArrayList<AbstractStackNode> edges;
 		if((edges = node.getEdges()) != null){
 			LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap = node.getPrefixesMap();
-			INode result = node.getResult();
-			
-			for(int i = edges.size() - 1; i >= 0; i--){
-				AbstractStackNode edge = edges.get(i);
-				ArrayList<Link> prefixes = null;
-				if(prefixesMap != null){
-					prefixes = prefixesMap.findValue(edge.getStartLocation());
-					if(prefixes == null) continue;
+			if(!node.isReject()){
+				INode result = node.getResult();
+				
+				for(int i = edges.size() - 1; i >= 0; i--){
+					AbstractStackNode edge = edges.get(i);
+					ArrayList<Link> prefixes = null;
+					if(prefixesMap != null){
+						prefixes = prefixesMap.findValue(edge.getStartLocation());
+						if(prefixes == null) continue;
+					}
+					updateEdgeNode(edge, prefixes, result, production);
 				}
-				updateEdgeNode(edge, prefixes, result, production);
+			}else{
+				for(int i = edges.size() - 1; i >= 0; i--){
+					AbstractStackNode edge = edges.get(i);
+					ArrayList<Link> prefixes = null;
+					if(prefixesMap != null){
+						prefixes = prefixesMap.findValue(edge.getStartLocation());
+						if(prefixes == null) continue;
+					}
+					rejectEdge(edge, production);
+				}
 			}
 		}
 		
