@@ -220,7 +220,7 @@ public class TypeEvaluator {
 					throw new UndeclaredTypeError(f.getType().toString(), f);
 				}
 				typesAndNames[index++] = type;
-				typesAndNames[index] = f.getName().toString();
+				typesAndNames[index] = Names.name(f.getName());
 			}
 
 			return tf.tupleType(typesAndNames);
@@ -352,7 +352,7 @@ public class TypeEvaluator {
 				fieldTypes[i] = arg.getType().accept(this);
 
 				if (arg.isNamed()) {
-					fieldLabels[i] = arg.getName().toString();
+					fieldLabels[i] = Names.name(arg.getName());
 					someLabeled = true;
 				} else {
 					fieldLabels[i] = null;
