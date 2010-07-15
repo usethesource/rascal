@@ -91,4 +91,8 @@ public class ParserTest extends TestCase{
 	public void testFollowRestriction(){
 		executeParser(new FollowRestriction());
 	}
+	
+	public void testReject(){
+		executeParser(new Reject());
+	}
 }
