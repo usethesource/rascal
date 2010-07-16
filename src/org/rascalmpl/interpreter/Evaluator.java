@@ -1538,7 +1538,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> r = ResultFactory.nothing();
 
 		for (org.rascalmpl.ast.Variable var : x.getVariables()) {
-			String varAsString = var.getName().toString();
+			String varAsString = Names.name(var.getName());
 
 			if (var.isInitialized()) {  // variable declaration without initialization
 				// first evaluate the initialization, in case the left hand side will shadow something
