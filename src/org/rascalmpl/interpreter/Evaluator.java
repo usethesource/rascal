@@ -355,7 +355,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new ArrayList<String>();
 
-//				result.add(new File("/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library").getAbsolutePath());
+				result.add(new File("/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library").getAbsolutePath());
 				result.add(new File("/Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library").getAbsolutePath());
 				result.add(new File("/Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library").getAbsolutePath());
 				result.add(Configuration.getSdfLibraryPathProperty());
@@ -468,7 +468,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			
 			throw RuntimeExceptionFactory.io(getValueFactory().string("can not parse yet from outside the module where the syntax is defined"), getCurrentAST(), getStackTrace());
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new ImplementationError("unexpected io exception", e);
 		}
 	}

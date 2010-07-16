@@ -303,7 +303,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 	@Override
 	public Result<IValue> visitAssignableFieldAccess(FieldAccess x) {
 		Result<IValue> receiver = x.getReceiver().accept(eval);
-		String label = x.getField().toString();
+		String label = Names.name(x.getField());
 		
 		if(receiver == null || receiver.getValue() == null) {
 			throw new UninitializedVariableError(x.getReceiver().toString(), x.getReceiver());

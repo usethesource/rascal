@@ -1,6 +1,7 @@
 module zoo::pico::syntax::Pico
 
-       
+import ParseTree;
+    
 start syntax PROGRAM = program: "begin" DECLS decls {STATEMENT  ";"}* body "end" ;
   
 syntax DECLS = "declare" {IDTYPE ","}* decls ";" ;
