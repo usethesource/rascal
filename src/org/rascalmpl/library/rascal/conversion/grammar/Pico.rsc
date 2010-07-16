@@ -1,0 +1,32 @@
+syntax PICO_ID = lex [a-z] [a-z0-9]* ;
+syntax ID_TYPE = PICO_ID ":" TYPE ;
+syntax TYPE = "nil-type" ;
+syntax TYPE = "string" ;
+syntax StrCon = lex default: [\"] StrChar* chars [\"] ;
+syntax EXP = EXP "||" EXP 
+	> EXP "-" EXP 
+	> EXP "+" EXP ;
+syntax StrChar = lex newline: "\\n" ;
+syntax EXP = StrCon ;
+syntax NatCon = lex digits: [0-9]+ ;
+syntax STATEMENT = "if" EXP "then" {STATEMENT ";"}* "else" {STATEMENT ";"}* "fi" ;
+syntax StrChar = lex quote: "\\\"" ;
+syntax EXP = EXP "||" EXP ;
+syntax StrChar = lex normal: ~[\000-\0031\n\t\"\\\000-\031\n\t\"\\] ;
+syntax StrChar = lex decimal: "\\" [0-9] a [0-9] b [0-9] c ;
+syntax STATEMENT = "while" EXP "do" {STATEMENT ";"}* "od" ;
+syntax EXP = EXP "-" EXP ;
+syntax DECLS = "declare" {ID_TYPE ","}* ";" ;
+syntax EXP = PICO_ID ;
+syntax StrChar = lex tab: "\\t" ;
+syntax PICO_ID = ... # [a-z0-9] ;
+syntax EXP = NatCon ;
+syntax LAYOUT? = ... # [ \t\n\r] ;
+syntax StrChar = lex backslash: "\\\\" ;
+syntax STATEMENT = PICO_ID ":=" EXP ;
+syntax TYPE = "natural" ;
+syntax EXP = EXP "+" EXP ;
+syntax EXP = "(" EXP ")" ;
+syntax PROGRAM = "begin" DECLS {STATEMENT ";"}* "end" ;
+layout LAYOUT = lex whitespace: [ \t\n\r] ;
+syntax NatCon = ... # [0-9] ;

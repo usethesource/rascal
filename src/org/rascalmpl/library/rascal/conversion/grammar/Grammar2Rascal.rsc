@@ -4,15 +4,16 @@ module rascal::conversion::grammar::Grammar2Rascal
 // a syntax definition in Rascal source code
 
 // TODO:
-// - Escaping is not yet fullproof
-// -- Restrict/others misses from Rascal syntax format
+// - done!
 
+import ParseTree;
 import rascal::parser::Grammar;
 import IO;
 import Set;
 import List;
 import String;
-import ParseTree;
+
+import ValueIO;
 
 bool debug = false;
 
@@ -24,56 +25,22 @@ public str grammar2rascal(Grammar g) {
   return ( "" | it + topProd2rascal(p) | Production p <- g.productions);
 }
 
-// Command to test conversion of Pico grammar:
-// println(grammar2rascal(Pico));
-
-public Grammar Pico =
-grammar({sort("PROGRAM")}, {
-	prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),
-	prod([lit("\\\t")],sort("StrChar"),attrs([term(cons("tab")),term("lexical")])),
-	prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),\no-attrs()),
-	prod([lit("nil-type")],sort("TYPE"),\no-attrs()),
-	prod([\char-class([range(34,34)]),label("chars",\iter-star(sort("StrChar"))),\char-class([range(34,34)])],sort("StrCon"),attrs([term(cons("default")),term("lexical")])),
-	prod([lit("string")],sort("TYPE"),\no-attrs()),
-	prod([complement(\char-class([range(0,25),range(34,34),range(49,49),range(92,92)]))],sort("StrChar"),attrs([term(cons("normal")),term("lexical")])),
-	first(sort("EXP"),[prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),prod([sort("EXP"),lit("-"),sort("EXP")],sort("EXP"),\no-attrs()),prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())]),
-	prod([iter(\char-class([range(48,57)]))],sort("NatCon"),attrs([term(cons("digits")),term("lexical")])),
-	prod([sort("StrCon")],sort("EXP"),\no-attrs()),
-	prod([lit("if"),sort("EXP"),lit("then"),\iter-star-seps(sort("STATEMENT"),[\layout(),lit(";"),\layout()]),lit("else"),\iter-star-seps(sort("STATEMENT"),[\layout(),lit(";"),\layout()]),lit("fi")],sort("STATEMENT"),\no-attrs()),
-	prod([lit("\\\\\"")],sort("StrChar"),attrs([term(cons("quote")),term("lexical")])),
-	prod([lit("\\"),label("a",\char-class([range(48,57)])),label("b",\char-class([range(48,57)])),label("c",\char-class([range(48,57)]))],sort("StrChar"),attrs([term(cons("decimal")),term("lexical")])),
-	restrict(sort("NatCon"),others(sort("NatCon")),{[\char-class([range(48,57)])]}),
-	prod([lit("while"),sort("EXP"),lit("do"),\iter-star-seps(sort("STATEMENT"),[\layout(),lit(";"),\layout()]),lit("od")],sort("STATEMENT"),\no-attrs()),
-	prod([lit("declare"),\iter-star-seps(sort("ID-TYPE"),[\layout(),lit(","),\layout()]),lit(";")],sort("DECLS"),\no-attrs()),
-	restrict(opt(sort("LAYOUT")),others(opt(sort("LAYOUT"))),{[\char-class([range(9,10),range(13,13),range(32,32)])]}),
-	prod([sort("PICO-ID")],sort("EXP"),\no-attrs()),
-	prod([\char-class([range(97,122)]),\iter-star(\char-class([range(48,57),range(97,122)]))],sort("PICO-ID"),attrs([term("lexical")])),
-	prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs()),
-	prod([lit("("),sort("EXP"),lit(")")],sort("EXP"),\no-attrs()),
-	prod([sort("NatCon")],sort("EXP"),\no-attrs()),
-	prod([lit("\\\n")],sort("StrChar"),attrs([term(cons("newline")),term("lexical")])),
-	prod([lit("\\\\")],sort("StrChar"),attrs([term(cons("backslash")),term("lexical")])),
-	prod([sort("EXP"),lit("-"),sort("EXP")],sort("EXP"),\no-attrs()),
-	restrict(sort("PICO-ID"),others(sort("PICO-ID")),{[\char-class([range(48,57),range(97,122)])]}),
-	prod([sort("PICO-ID"),lit(":="),sort("EXP")],sort("STATEMENT"),\no-attrs()),
-	prod([\char-class([range(9,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace")),term("lexical")])),
-	prod([lit("natural")],sort("TYPE"),\no-attrs()),
-	prod([lit("begin"),sort("DECLS"),\iter-star-seps(sort("STATEMENT"),[\layout(),lit(";"),\layout()]),lit("end")],sort("PROGRAM"),\no-attrs())
-});
-
-
+// Commands to test conversion of Pico or Rascal grammar:
+// println(grammar2rascal(readTextValueFile(#Grammar, |stdlib:///org/rascalmpl/library/rascal/conversion/grammar/Pico.grammar|)));
+// println(grammar2rascal(readTextValueFile(#Grammar, |stdlib:///org/rascalmpl/library/rascal/conversion/grammar/Rascal.grammar|)));
 
 public str topProd2rascal(Production p) {
   if (/prod(_,lit(_),_) := p) return ""; // ignore generated productions
 
   if (/prod(_,rhs,_) := p) {
-    return "<(start(_) := rhs) ? "start ":"">syntax <symbol2rascal(rhs)> = <prod2rascal(p)>;\n\n";
+    sym = symbol2rascal(rhs);
+    return "<(start(_) := rhs) ? "start ":""><(sym == "LAYOUT") ? "layout" : "syntax"> <sym> = <prod2rascal(p)>;\n";
   }
   if (regular(_,_) := p) {
     return ""; // ignore generated stubs
   }
   if(restrict(rhs, language, restrictions) := p){
-  	return "*** restriction <symbol2rascal(rhs)> -/- <for(r <- restrictions){> <symbol2rascal(r)> <}>\n";
+  	return "<for(r <- restrictions){>syntax <prod2rascal(language)> = ... # <for(e <- r){><symbol2rascal(e)> <}><}>;\n";
   }
   throw "could not find out defined symbol for <p>";
 }
@@ -81,21 +48,29 @@ public str topProd2rascal(Production p) {
 public str prod2rascal(Production p) {
   if(debug) println("prod2rascal: <p>");
   switch (p) {
-    case choice(s, alts) :
-		return ( prod2rascal(head(alts)) | "<it>\n\t|<prod2rascal(pr)>" | pr <- tail(alts) );
+    case choice(s, alts) : {
+        	<fst, rest> = takeOneFrom(alts);
+			return ( prod2rascal(fst) | "<it>\n\t| <prod2rascal(pr)>" | pr <- rest );
+		}
     	
     case first(s, alts) :
       	return ( prod2rascal(head(alts)) | "<it>\n\t\> <prod2rascal(pr)>" | pr <- tail(alts) );
       
-    case \assoc(s, a, alts) :
-    	return ( "<attr2mod(\assoc(a))> : <prod2rascal(head(alts))>" | "<it>\n\t\> <prod2rascal(pr)>" | pr <- tail(alts) );
- 
-    case diff(s,p,alts) :
-       	return ( "<prod2rascal(p)>\n\t- <prod2rascal(head(alts))>" | "<it>\n\t- <prod2rascal(pr)>" | pr <- tail(alts) );
+    case \assoc(s, a, alts) : {
+    		<fst, rest> = takeOneFrom(alts);
+    		return ( "<attr2mod(\assoc(a))> : <prod2rascal(fst)>" | "<it>\n\t\> <prod2rascal(pr)>" | pr <- rest );
+ 		}
+    case diff(s,p,alts) : {
+    		<fst, rest> = takeOneFrom(alts);
+       		return ( "<prod2rascal(p)>\n\t- <prod2rascal(fst)>" | "<it>\n\t- <prod2rascal(pr)>" | pr <- rest );
+       	}
  
     case restrict(rhs, language, restrictions):
-    	return "*** restriction <symbol2rascal(rhs)> -/- <for(r <- restrictions){> <symbol2rascal(r)> <}>";
- // others
+    	return "<for(r <- restrictions){><symbol2rascal(rhs)> # <for(e <- r){> <symbol2rascal(e)> <}><}>";
+ 
+    case others(sym):
+        return symbol2rascal(sym);
+ 
     case prod(_,lit(_),_) : return "";
     
     case prod(list[Symbol] lhs,Symbol rhs,Attributes attrs) :
@@ -109,16 +84,17 @@ public str prod2rascal(Production p) {
 }
 
 test prod2rascal(prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),\no-attrs()))
-     == "PICO-ID \":\" TYPE ";
+     == "PICO_ID \":\" TYPE ";
 
 test prod2rascal(
      prod([sort("PICO-ID"), lit(":"), sort("TYPE")],
                sort("ID-TYPE"),
               attrs([term(cons("decl")),\assoc(left())]))) ==
-               "left decl:PICO-ID \":\" TYPE ";
+               "left decl: PICO_ID \":\" TYPE ";
                
 test prod2rascal(
-	prod([\char-class([range(9,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace"))]))) == " whitespace:[\\ \\n\\r\\t] ";
+	 prod([\char-class([range(9,9), range(10,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace"))]))) ==
+	 "whitespace: [\\t\\n\\r ] ";
 
 test prod2rascal(
 	first(sort("EXP"),[prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),
@@ -134,24 +110,28 @@ public str attrs2mods(Attributes as) {
   switch (as) {
     case \no-attrs(): 
       return "";
+      
     case \attrs([list[Attr] a,term(cons(c)),list[Attr] b]) : 
-      return attrs2mods(\attrs([a,b])) + " <c>:";
+      return attrs2mods(\attrs([a,b])) + "<c>: ";
+      
     case \attrs([a,b*]): {
         if(size(b) == 0)
-           return "<attr2mod(a)>";
+           return "<attr2mod(a)> ";
         return "<attr2mod(a)> <attrs2mods(\attrs(b))>"; 
       }
+      
     case \attrs([]):
-    	return "";   
+    	return "";  
+    	 
     default:   throw "attrs2rascal: missing case <attrs>";
   }
 }
 
-test attrs2mods(\attrs([\assoc(\left())])) == "left";
-test attrs2mods(\attrs([\assoc(\left()), \assoc(\right())])) == "left right";
-test attrs2mods(\attrs([\assoc(\left()), term(cons("C")), \assoc(\right())])) == "left right C:";
-test attrs2mods(\attrs([term(cons("C"))])) == " C:";
-test attrs2mods(\attrs([term(cons("C")), term("lexical")])) == " lex C:";
+test attrs2mods(\attrs([\assoc(\left())])) == "left ";
+test attrs2mods(\attrs([\assoc(\left()), \assoc(\right())])) == "left right ";
+test attrs2mods(\attrs([\assoc(\left()), term(cons("C")), \assoc(\right())])) == "left right C: ";
+test attrs2mods(\attrs([term(cons("C"))])) == "C: ";
+test attrs2mods(\attrs([term(cons("C")), term("lexical")])) == "lex C: ";
 
 public str attr2mod(Attr a) {
   switch(a) {
@@ -162,6 +142,7 @@ public str attr2mod(Attr a) {
     case term("lexical"): return "lex";
     case term(t): return "<t>";
     case \bracket(): return "bracket";
+    case \memo(): return "memo";
     default: throw "attr2mod: missing case <a>";
   }
 }
@@ -178,10 +159,16 @@ public str symbol2rascal(Symbol sym) {
     	return "\"<escape(x)>\"";
     case cilit(x) :
     	return "\"<escape(x)>\"";
+    case \lex(x):
+    	return symbol2rascal(x);
+    case \cf(x):
+    	return symbol2rascal(x);
     case \parameterized-sort(str name, list[Symbol] parameters):
         return "<name>[[<params2rascal(parameters)>]]";
     case \char-class(x) : 
     	return cc2rascal(x);
+    case \seq(syms):
+        return "( <for(s <- syms){> <symbol2rascal(s)> <}> )";
     case opt(x) : 
     	return "<symbol2rascal(x)>?";
     case iter(x) : 
@@ -210,7 +197,7 @@ public str symbol2rascal(Symbol sym) {
 }
 
 test symbol2rascal(lit("abc")) == "\"abc\"";
-test symbol2rascal(lit("\\\n")) == "\"\\\n\"";
+test symbol2rascal(lit("\\\n")) == "\"\\\\\\n\"";
 test symbol2rascal(sort("ABC")) == "ABC";
 test symbol2rascal(cilit("abc")) == "\"abc\"";
 test symbol2rascal(label("abc",sort("ABC"))) == "ABC abc";
@@ -260,8 +247,10 @@ public str params2rascal(list[Symbol] params){
 
 public str escape(str s){
   res = "";
-  for(int i <- [0 .. size(s)-1])
-     res += char2rascal(charAt(s, i));
+  n = size(s);
+  if(n > 0)
+ 	 for(int i <- [0 .. n-1])
+     	res += char2rascal(charAt(s, i));
   return res;
 }
 
@@ -277,145 +266,147 @@ public str range2rascal(CharRange r) {
   }
 }
 
-test range2rascal(range(97,97)) == "a";
+test range2rascal(range(97,97))  == "a";
 test range2rascal(range(97,122)) == "a-z";
-test range2rascal(range(10,10)) == "\n";
+test range2rascal(range(10,10))  == "\\n";
+test range2rascal(range(34,34))  == "\\\"";
 
-// A good old ASCII table in order to convert numbers < 128 to readable characters.
+// A good old ASCII table in order to convert numbers < 128 to readable (properly escaped) characters.
+// For instance, ascii[10] maps to the string "\\n".
 
 private list[str] ascii =
 [
 
-// Decimal Value   Description
-//-------  -----   --------------------------------
-/* 000 */  "\000", // NUL    (Null char.)
-/* 001 */  "\001", // SOH    (Start of Header)
-/* 002 */  "\002", // STX    (Start of Text)
-/* 003 */  "\003", // ETX    (End of Text)
-/* 004 */  "\004", // EOT    (End of Transmission)
-/* 005 */  "\005", // ENQ    (Enquiry)
-/* 006 */  "\006", // ACK    (Acknowledgment)
-/* 007 */  "\007", // BEL    (Bell)
-/* 008 */  "\010", // BS    (Backspace)
-/* 009 */   "\\t", // HT    (Horizontal Tab)
-/* 010 */   "\\n", // LF    (Line Feed)
-/* 011 */   "\\r", // VT    (Vertical Tab)
-/* 012 */  "\014", // FF    (Form Feed)
-/* 013 */  "\015", // CR    (Carriage Return)
-/* 014 */  "\016", // SO    (Shift Out)
-/* 015 */  "\017", // SI    (Shift In)
-/* 016 */  "\020", // DLE   (Data Link Escape)
-/* 017 */  "\021", // DC1   (Device Control 1)
-/* 018 */  "\022", // DC2   (Device Control 2)
-/* 019 */  "\023", // DC3   (Device Control 3)
-/* 020 */  "\024", // DC4   (Device Control 4)
-/* 021 */  "\025", // NAK   (Negative Acknowledgemnt)
-/* 022 */  "\026", // SYN   (Synchronous Idle)
-/* 023 */  "\027", // ETB   (End of Trans. Block)
-/* 024 */  "\030", // CAN   (Cancel)
-/* 025 */  "\031", // EM    (End of Medium)
-/* 026 */  "\032", // SUB   (Substitute)
-/* 027 */  "\033", // ESC   (Escape)
-/* 028 */  "\034", // FS    (File Separator)
-/* 029 */  "\035", // GS    (Group Separator)
-/* 030 */  "\036", // RS    (Reqst to Send)(Rec. Sep.)
-/* 031 */  "\037", // US    (Unit Separator)
-/* 032 */   "\\ ", // SP    (Space)
-/* 033 */     "!", //  !    (exclamation mark)
-/* 034 */    "\"", //  "    (double quote)
-/* 035 */     "#", //  #    (number sign)
-/* 036 */     "$", //  $    (dollar sign)
-/* 037 */     "%", //  %    (percent)
-/* 038 */     "&", //  &    (ampersand)
-/* 039 */    "\'", //  '    (single quote)
-/* 040 */     "(", //  (  (left/open parenthesis)
-/* 041 */     ")", //  )  (right/closing parenth.)
-/* 042 */     "*", //  *    (asterisk)
-/* 043 */     "+", //  +    (plus)
-/* 044 */     ",", //  ,    (comma)
-/* 045 */     "-", //  -    (minus or dash)
-/* 046 */     ".", //  .    (dot)
-/* 047 */     "/", //  /    (forward slash)
-/* 048 */     "0", //  0
-/* 049 */     "1", //  1
-/* 050 */     "2", //  2
-/* 051 */     "3", //  3
-/* 052 */     "4", //  4
-/* 053 */     "5", //  5
-/* 054 */     "6", //  6
-/* 055 */     "7", //  7
-/* 056 */     "8", //  8
-/* 057 */     "9", //  9
-/* 058 */     ":", //  :    (colon)
-/* 059 */     ";", //  ;    (semi-colon)
-/* 060 */    "\<", //  <    (less than)
-/* 061 */     "=", //  =    (equal sign)
-/* 062 */    "\>", //  >    (greater than)
-/* 063 */     "?", //  ?    (question mark)
-/* 064 */     "@", //  @    (AT symbol)
-/* 065 */     "A", //  A
-/* 066 */     "B", //  B
-/* 067 */     "C", //  C
-/* 068 */     "D", //  D
-/* 069 */     "E", //  E
-/* 070 */     "F", //  F
-/* 071 */     "G", //  G
-/* 072 */     "H", //  H
-/* 073 */     "I", //  I
-/* 074 */     "J", //  J
-/* 075 */     "K", //  K
-/* 076 */     "L", //  L
-/* 077 */     "M", //  M
-/* 078 */     "N", //  N
-/* 079 */     "O", //  O
-/* 080 */     "P", //  P
-/* 081 */     "Q", //  Q
-/* 082 */     "R", //  R
-/* 083 */     "S", //  S
-/* 084 */     "T", //  T
-/* 085 */     "U", //  U
-/* 086 */     "V", //  V
-/* 087 */     "W", //  W
-/* 088 */     "X", //  X
-/* 089 */     "Y", //  Y
-/* 090 */     "Z", //  Z
-/* 091 */     "[", //  [    (left/opening bracket)
-/* 092 */    "\\", //  \    (back slash)
-/* 093 */     "]", //  ]    (right/closing bracket)
-/* 094 */     "^", //  ^    (caret/circumflex)
-/* 095 */     "_", //  _    (underscore)
-/* 096 */     "`", //  `    (backquote)
-/* 097 */     "a", //  a
-/* 098 */     "b", //  b
-/* 099 */     "c", //  c
-/* 100 */     "d", //  d
-/* 101 */     "e", //  e
-/* 102 */     "f", //  f
-/* 103 */     "g", //  g
-/* 104 */     "h", //  h
-/* 105 */     "i", //  i
-/* 106 */     "j", //  j
-/* 107 */     "k", //  k
-/* 108 */     "l", //  l
-/* 109 */     "m", //  m
-/* 110 */     "n", //  n
-/* 111 */     "o", //  o
-/* 112 */     "p", //  p
-/* 113 */     "q", //  q
-/* 114 */     "r", //  r
-/* 115 */     "s", //  s
-/* 116 */     "t", //  t
-/* 117 */     "u", //  u
-/* 118 */     "v", //  v
-/* 119 */     "w", //  w
-/* 120 */     "x", //  x
-/* 121 */     "y", //  y
-/* 122 */     "z", //  z
-/* 123 */     "{", //  {    (left/opening brace)
-/* 124 */     "|", //  |    (vertical bar)
-/* 125 */     "}", //  }    (right/closing brace)
-/* 126 */     "~", //  ~    (tilde)
-/* 127 */  "\177"  //DEL    (delete)
+//Decimal   Value   Description
+//-------  -------  --------------------------------
+/* 000 */  "\\000", // NUL   (Null char.)
+/* 001 */  "\\001", // SOH   (Start of Header)
+/* 002 */  "\\002", // STX   (Start of Text)
+/* 003 */  "\\003", // ETX   (End of Text)
+/* 004 */  "\\004", // EOT   (End of Transmission)
+/* 005 */  "\\005", // ENQ   (Enquiry)
+/* 006 */  "\\006", // ACK   (Acknowledgment)
+/* 007 */  "\\007", // BEL   (Bell)
+/* 008 */    "\\b", // BS    (Backspace)
+/* 009 */    "\\t", // HT    (Horizontal Tab)
+/* 010 */    "\\n", // LF    (Line Feed)
+/* 011 */  "\\013", // VT    (Vertical Tab)
+/* 012 */    "\\f", // FF    (Form Feed)
+/* 013 */    "\\r", // CR    (Carriage Return)
+/* 014 */  "\\016", // SO    (Shift Out)
+/* 015 */  "\\017", // SI    (Shift In)
+/* 016 */  "\\020", // DLE   (Data Link Escape)
+/* 017 */  "\\021", // DC1   (Device Control 1)
+/* 018 */  "\\022", // DC2   (Device Control 2)
+/* 019 */  "\\023", // DC3   (Device Control 3)
+/* 020 */  "\\024", // DC4   (Device Control 4)
+/* 021 */  "\\025", // NAK   (Negative Acknowledgemnt)
+/* 022 */  "\\026", // SYN   (Synchronous Idle)
+/* 023 */  "\\027", // ETB   (End of Trans. Block)
+/* 024 */  "\\030", // CAN   (Cancel)
+/* 025 */  "\\031", // EM    (End of Medium)
+/* 026 */  "\\032", // SUB   (Substitute)
+/* 027 */  "\\033", // ESC   (Escape)
+/* 028 */  "\\034", // FS    (File Separator)
+/* 029 */  "\\035", // GS    (Group Separator)
+/* 030 */  "\\036", // RS    (Reqst to Send)(Rec. Sep.)
+/* 031 */  "\\037", // US    (Unit Separator)
+/* 032 */      " ", // SP    (Space)
+/* 033 */      "!", //  !    (exclamation mark)
+/* 034 */   "\\\"", //  "    (double quote)
+/* 035 */      "#", //  #    (number sign)
+/* 036 */      "$", //  $    (dollar sign)
+/* 037 */      "%", //  %    (percent)
+/* 038 */      "&", //  &    (ampersand)
+/* 039 */     "\'", //  '    (single quote)
+/* 040 */      "(", //  (    (left/open parenthesis)
+/* 041 */      ")", //  )    (right/closing parenth.)
+/* 042 */      "*", //  *    (asterisk)
+/* 043 */      "+", //  +    (plus)
+/* 044 */      ",", //  ,    (comma)
+/* 045 */      "-", //  -    (minus or dash)
+/* 046 */      ".", //  .    (dot)
+/* 047 */      "/", //  /    (forward slash)
+/* 048 */      "0", //  0
+/* 049 */      "1", //  1
+/* 050 */      "2", //  2
+/* 051 */      "3", //  3
+/* 052 */      "4", //  4
+/* 053 */      "5", //  5
+/* 054 */      "6", //  6
+/* 055 */      "7", //  7
+/* 056 */      "8", //  8
+/* 057 */      "9", //  9
+/* 058 */      ":", //  :    (colon)
+/* 059 */      ";", //  ;    (semi-colon)
+/* 060 */   "\\\<", //  <    (less than)
+/* 061 */      "=", //  =    (equal sign)
+/* 062 */   "\\\>", //  >    (greater than)
+/* 063 */      "?", //  ?    (question mark)
+/* 064 */      "@", //  @    (AT symbol)
+/* 065 */      "A", //  A
+/* 066 */      "B", //  B
+/* 067 */      "C", //  C
+/* 068 */      "D", //  D
+/* 069 */      "E", //  E
+/* 070 */      "F", //  F
+/* 071 */      "G", //  G
+/* 072 */      "H", //  H
+/* 073 */      "I", //  I
+/* 074 */      "J", //  J
+/* 075 */      "K", //  K
+/* 076 */      "L", //  L
+/* 077 */      "M", //  M
+/* 078 */      "N", //  N
+/* 079 */      "O", //  O
+/* 080 */      "P", //  P
+/* 081 */      "Q", //  Q
+/* 082 */      "R", //  R
+/* 083 */      "S", //  S
+/* 084 */      "T", //  T
+/* 085 */      "U", //  U
+/* 086 */      "V", //  V
+/* 087 */      "W", //  W
+/* 088 */      "X", //  X
+/* 089 */      "Y", //  Y
+/* 090 */      "Z", //  Z
+/* 091 */      "[", //  [    (left/opening bracket)
+/* 092 */   "\\\\", //  \    (back slash)
+/* 093 */      "]", //  ]    (right/closing bracket)
+/* 094 */      "^", //  ^    (caret/circumflex)
+/* 095 */      "_", //  _    (underscore)
+/* 096 */      "`", //  `    (backquote)
+/* 097 */      "a", //  a
+/* 098 */      "b", //  b
+/* 099 */      "c", //  c
+/* 100 */      "d", //  d
+/* 101 */      "e", //  e
+/* 102 */      "f", //  f
+/* 103 */      "g", //  g
+/* 104 */      "h", //  h
+/* 105 */      "i", //  i
+/* 106 */      "j", //  j
+/* 107 */      "k", //  k
+/* 108 */      "l", //  l
+/* 109 */      "m", //  m
+/* 110 */      "n", //  n
+/* 111 */      "o", //  o
+/* 112 */      "p", //  p
+/* 113 */      "q", //  q
+/* 114 */      "r", //  r
+/* 115 */      "s", //  s
+/* 116 */      "t", //  t
+/* 117 */      "u", //  u
+/* 118 */      "v", //  v
+/* 119 */      "w", //  w
+/* 120 */      "x", //  x
+/* 121 */      "y", //  y
+/* 122 */      "z", //  z
+/* 123 */      "{", //  {    (left/opening brace)
+/* 124 */      "|", //  |    (vertical bar)
+/* 125 */      "}", //  }    (right/closing brace)
+/* 126 */      "~", //  ~    (tilde)
+/* 127 */  "\\177"  //DEL    (delete)
 ];
 
 public str char2rascal(int ch) {
@@ -433,10 +424,11 @@ public str char2rascal(int ch) {
     d3 = r2 % 16; r3 = r2 / 16;
     d4 = r3;
     return "\\u<d4><d3><d2><d1>";
-//  return "\\u<ch % 65536><ch % 4096><ch % 256><ch % 16>";
   }
 }
 
 test char2rascal(97) == "a";
-test char2rascal(255) == "\\<377>";	//TODO "\\377" does not parse
+test char2rascal(10) == "\\n";
+test char2rascal(34) == "\\\"";
 
+test char2rascal(255) == "\\377";
