@@ -163,7 +163,7 @@ public str generateParseMethod(Production p){
 
 public str generateSymbolItemExpects(list[Symbol] syms){
     if(syms == []){
-        return "new AbstractStackNode[0]";
+        return "new EpsilonStackNode(<nextItem()>)`";
     }
     
     return ("<sym2newitem(head(syms))>" | it + ",\n\t\t" + sym2newitem(sym) | sym <- tail(syms));
