@@ -74,7 +74,7 @@ lexical syntax
     "\\\""                     -> StrChar {cons("quote")}
     "\\\\"                     -> StrChar {cons("backslash")}
     "\\" a:[0-9]b:[0-9]c:[0-9] -> StrChar {cons("decimal")}
-    ~[\0-\31\n\t\"\\]          -> StrChar {cons("normal")}
+    ~[\0-\31\n\t\"\\]          -> StrChar {cons("normal")}    %% SDF2Grammar generates wrong prod here
 
     [\"] chars:StrChar* [\"]   -> StrCon  {cons("default")}
 module languages/pico/syntax/Identifiers

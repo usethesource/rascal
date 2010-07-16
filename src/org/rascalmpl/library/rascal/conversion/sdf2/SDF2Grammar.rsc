@@ -1,23 +1,23 @@
 module rascal::conversion::sdf2::SDF2Grammar
 
-// Convert SDF2 grammars to the Rascal internal grammar representation format Grammar
+// Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar)
 
 // Todo List:
-// - Introduce aliases (needs alias resolution in concrete fragments)
-// - The expression: `(Group) `A -> B <1>`; triggers a bug in AST construction
-// - See some TODOs in the code
+// - Escaping of < and > in literals not yet ok.
+// - Some tests are marked with @ignore (and commented out) since they trigger a Rascal bug:
+//   . The expression: `(Group) `A -> B <1>`; triggers a bug in AST construction
+//   . The test (CharClass) `[]` == \char-class([]);  // gives unsupported operation
+// - Introduce aliases (needs alias resolution in concrete fragments; this does not work yet)
 
 import IO;
 import String;
 import Integer;
 import ParseTree;
 import rascal::parser::Grammar;
-import rascal::parser::Definition;
 import rascal::conversion::sdf2::Load;
 import languages::sdf2::syntax::Sdf2ForRascal;
 
 // Resolve name clashes between the ParseTree and Grammar datatypes.
-
 // Unfortunately we cannot yet use these aliases since they lead to ambiguities.
 // Reason: aliases are not resolved in concrete syntax fragments
 
@@ -28,7 +28,7 @@ import languages::sdf2::syntax::Sdf2ForRascal;
 //alias SDFCharRange = languages::sdf2::syntax::Sdf2ForRascal::CharRange;
 //alias SDFCharClass =languages::sdf2::syntax::Sdf2ForRascal::CharClass;
 
-private bool debug = false;
+private bool debug = false; // Print debug output
 
 // Convert SDF definition from given location
 
@@ -46,8 +46,10 @@ public Grammar sdf2grammar(loc input) {
 
 public void print(Grammar G){
   println("grammar(<G.start>, {");
+  sep = "  ";
   for(P <- G.productions){
-  	println("\t<P>,");
+  	println("\t<sep><P>");
+  	sep = ", ";
   }
   println("})");
 }
@@ -81,9 +83,27 @@ test sdf2grammar(
            lexical restrictions
              PICO-ID -/- [a-z0-9]`) == 
                   
-         grammar({},
-                 {restrict(sort("PICO-ID"),others(sort("PICO-ID")),[\char-class([range(48,57),range(97,122)])]),
-                  prod([\char-class([range(97,122)]),\iter-star(\char-class([range(48,57),range(97,122)]))],sort("PICO-ID"),attrs([term("lexical")]))});
+		grammar({}, {
+				prod([\char-class([range(97,122)]),\iter-star(\char-class([range(97,122),range(48,57)]))],sort("PICO-ID"),attrs([term("lexical")])),
+				restrict(sort("PICO-ID"),others(sort("PICO-ID")),{[\char-class([range(97,122),range(48,57)])]})
+		});
+
+test sdf2grammar(
+		`definition
+		 module StrChar
+         exports
+           lexical syntax
+             ~[\0-\31\n\t\"\\]          -> StrChar {cons("normal")}`)
+          == 
+          grammar({},{prod([complement(\char-class([range(0,25),range(10,10),range(9,9),range(34,34),range(92,92)]))],sort("StrChar"),attrs([term(cons("normal")),term("lexical")]))});
+
+// Test that Normalization is not active
+
+test grammar({sort("PROGRAM")}, {prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()), prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())}) !=
+     grammar({sort("PROGRAM")}, {choice(sort("EXP"),{prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())})});
+
+test grammar({},{ prod([lit("a1")], sort("A"), \no-attrs()), prod([lit("a2")], sort("A"), \no-attrs())}) !=
+     grammar({},{choice(sort("A"),{prod([lit("a1")],sort("A"),\no-attrs()),prod([lit("a2")],sort("A"),\no-attrs())})});
 
 
 // ----- getProductions, getProduction -----
@@ -134,7 +154,7 @@ test getProductions((SDF) `definition module A exports context-free syntax A -> 
      {prod([sort("A")],sort("B"),\no-attrs())};
      
 test getProductions((SDF) `definition module A exports restrictions ID -/- [a-z]`) ==
-     {restrict(sort("ID"),others(sort("ID")),[\char-class([range(97,122)])])};
+     {restrict(sort("ID"),others(sort("ID")),{[\char-class([range(97,122)])]})};
     
 test getProductions((SDF) `definition module A exports priorities A -> B > C -> D`) ==
      {first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())])};
@@ -188,7 +208,7 @@ test getProduction((Production) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left
                attrs([term(cons("decl")),\assoc(left())]));
                
 test getProduction((Production) `[\ \t\n\r]	-> LAYOUT {cons("whitespace")}`, true) == 
-     prod([\char-class([range(9,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace")), term("lexical")]));
+	 prod([\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],sort("LAYOUT"),attrs([term(cons("whitespace")),term("lexical")]));
 
 //test getProduction((Production) `{~[\n]* [\n]}* -> Rest`, true);
 
@@ -209,7 +229,7 @@ public set[Production] getRestriction(languages::sdf2::syntax::Sdf2ForRascal::Re
            + getRestriction((Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s2> <languages::sdf2::syntax::Sdf2ForRascal::Symbol* rest> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>`, isLex);
            
     case (Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s1> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>` :
-      return {restrict(getSymbol(s1, isLex), others(getSymbol(s1, isLex)), r) | r <- getLookaheads(ls)};
+      return {restrict(getSymbol(s1, isLex), others(getSymbol(s1, isLex)), getLookaheads(ls))};
       
     default:
     	throw "missing case <restriction>";
@@ -219,7 +239,7 @@ public set[Production] getRestriction(languages::sdf2::syntax::Sdf2ForRascal::Re
 test getRestriction((Restriction) `-/- [a-z]`, true) == {};
 
 test getRestriction((Restriction) `ID -/- [a-z]`, true) == 
-     {restrict(sort("ID"),others(sort("ID")),[\char-class([range(97,122)])])};
+     {restrict(sort("ID"),others(sort("ID")),{[\char-class([range(97,122)])]})};
    
 
 // ----- getLookaheads, getLookahead -----
@@ -291,12 +311,13 @@ test getPriority((Group) `A -> B`, false) ==
 test getPriority((Group) `A -> B .`, false) == 
      prod([sort("A")],sort("B"),\no-attrs());
      
-test getPriority((Group) `A -> B <1>`, false) == 
-     prod([sort("A")],sort("B"),\no-attrs());
+//@ignore
+//test getPriority((Group) `A -> B <1>`, false) == 
+//     prod([sort("A")],sort("B"),\no-attrs());
      
 test getPriority((Group) `{A -> B C -> D}`, false) == 
-     choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
-     
+	 choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});  
+	  
 test getPriority((Group) `{left: A -> B}`, false) == 
      \assoc(sort("B"),\left(),{prod([sort("A")],sort("B"),\no-attrs())});
      
@@ -318,16 +339,17 @@ public Production getPriority(languages::sdf2::syntax::Sdf2ForRascal::Priority p
 }
 
 test getPriority((Priority) `A -> B`, false) == 
-     prod([sort("A")],sort("B"),\no-attrs());
+     first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs())]);
      
 test getPriority((Priority) `A -> B .`, false) == 
-     prod([sort("A")],sort("B"),\no-attrs());
-     
-test getPriority((Priority) `A -> B <1>`, false) == 
-     prod([sort("A")],sort("B"),\no-attrs());
+     first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs())]);
+
+//@ignore   
+//test getPriority((Priority) `A -> B <1>`, false) == 
+//     prod([sort("A")],sort("B"),\no-attrs());
      
 test getPriority((Priority) `{A -> B C -> D}`, false) == 
-     choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
+     first(sort("B"),[choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())})]);
      
 test getPriority((Priority) `A -> B > C -> D`, false) ==
      first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())]);
@@ -375,6 +397,7 @@ test getStartSymbols((SDF) `definition module M exports start-symbols A B C`) ==
 // ----- getSymsols, getSymbol -----
      
 public list[Symbol] getSymbols(languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms, bool isLex){
+    if(debug) println("getSymbols: <syms>");
     return [getSymbol(sym, isLex) | sym <- syms];
 }
 
@@ -397,7 +420,7 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbo
     	return sort("LAYOUT"); 
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::StrCon l>`:
-    	return lit(unescape(l));
+          	return lit(unescape(l));
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::SingleQuotedStrCon l>`:
     	return cilit(unescape(l));  
@@ -481,11 +504,13 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbo
 }
 
 test getSymbol((Symbol) `"abc"`, false) 		== lit("abc");
+test getSymbol((Symbol) `"a\\c"`, false) 		== lit("a\\c");
+test getSymbol((Symbol) `"a>c"`, false) 		== lit("a\>c");
 test getSymbol((Symbol) `ABC`, false) 			== sort("ABC");
 test getSymbol((Symbol) `'abc'`, false) 		== cilit("abc");
 test getSymbol((Symbol) `abc : ABC`, false) 	== label("abc",sort("ABC"));
 test getSymbol((Symbol) `"abc" : ABC`, false) 	== label("abc",sort("ABC"));
-//test getSymbol((Symbol) `A[[B]]`, false) 		== \parameterized-sort([sort("B")]);   // <== parameterized sort missing
+test getSymbol((Symbol) `A[[B]]`, false) 		== \parameterized-sort("A", [sort("B")]);
 test getSymbol((Symbol) `A?`, false) 			== opt(sort("A"));
 test getSymbol((Symbol) `[a]`, false) 			== \char-class([range(97,97)]);
 test getSymbol((Symbol) `A*`, false) 			== \iter-star-seps(sort("A"),[\layout()]);
@@ -509,54 +534,9 @@ test getSymbol((Symbol) `{A "x"}+?`, true) 		== opt(\iter-seps(sort("A"),[lit("x
 //test getSymbol((Symbol) `<RegExp -LEX>`, true) ==
 
 // ----- unescape -----
+// Take a string constant and replace all escaped characters by the character itself.
 
-private str unescape(languages::sdf2::syntax::Sdf2ForRascal::StrCon s) {
-   if ([StrCon] /\"<rest:.*>\"/ := s) {
-     return visit (rest) {
-       case /\\b/           => "\b"
-       case /\\f/           => "\f"
-       case /\\n/           => "\n"
-       case /\\t/           => "\t"
-       case /\\r/           => "\r"  
-       case /\\\"/          => "\""  
-       case /\\\\/          => "\\"
-       case /\\TOP/         => "\255"
-       case /\\EOF/         => "\256"
-       case /\\BOT/         => "\0"
-       case /\\LABEL_START/ => "\257"
-     };      
-   }
-   throw "unexpected string format: <s>";
-}
-
-test unescape((StrCon) `"abc"`)  == "abc";
-test unescape((StrCon) `"a\nc"`) == "a\nc";
-test unescape((StrCon) `"a\"c"`) == "a\"c";
-test unescape((StrCon) `"a\\c"`) == "a\\c";
-
-private str unescape(languages::sdf2::syntax::Sdf2ForRascal::SingleQuotedStrCon s) {
-   if ([SingleQuotedStrCon] /\'<rest:.*>\'/ := s) {
-     return visit (rest) {
-       case /\\b/           => "\b"
-       case /\\f/           => "\f"
-       case /\\n/           => "\n"
-       case /\\t/           => "\t"
-       case /\\r/           => "\r"  
-       case /\\\'/           => "\'"  
-       case /\\\\/          => "\\"
-     };      
-   }
-   throw "unexpected string format: <s>";
-}
-
-
-test unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
-test unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
-test unescape((SingleQuotedStrCon) `'a\'c'`) == "a\'c";
-test unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
-
-
-// Unescape on Symbols. Note that the function below can currently coexist with the above to unescape functions
+// Unescape on Symbols. Note that the function below can currently coexist with the two unescape functions
 // since StrCon and SingleQuotedStrCons are *not* a subtype of Symbol (which they should be).
 // Do a deep match (/) to skip the chain function that syntactically includes both subtypes in Symbol.
 
@@ -568,6 +548,63 @@ private str unescape(languages::sdf2::syntax::Sdf2ForRascal::Symbol s) {
   	return unescape(scon);
   throw "unexpected string format: <s>";
 }
+
+public str unescape(languages::sdf2::syntax::Sdf2ForRascal::StrCon s) { 
+   if ([StrCon] /^\"<chars:.*>\"$/ := s)
+  	return unescapeStr(chars);
+   throw "unexpected string format: <s>";
+}
+
+private str unescape(languages::sdf2::syntax::Sdf2ForRascal::SingleQuotedStrCon s) {
+   if ([SingleQuotedStrCon] /^\'<chars:.*>\'$/ := s)
+     return unescapeStr(chars);
+   throw "unexpected string format: <s>";
+}
+
+test unescape((StrCon) `"abc"`)  == "abc";
+test unescape((StrCon) `"a\nc"`) == "a\nc";
+test unescape((StrCon) `"a\"c"`) == "a\"c";
+test unescape((StrCon) `"a\\c"`) == "a\\c";
+test unescape((StrCon) `"a\\\"c"`) == "a\\\"c";
+
+test unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
+test unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
+test unescape((SingleQuotedStrCon) `'a\'c'`) == "a\'c";
+test unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
+
+// unescapeStr: do the actual unescaping on a string
+// Also takes care of escaping of < and > characters as required for Rascal strings (TO DO/CHECK)
+
+public str unescapeStr(str chars){
+    return visit (chars) {
+       case /^\\b/           => "\b"
+       case /^\\t/           => "\t"
+       case /^\\n/           => "\n"
+       case /^\\f/           => "\f"
+       case /^\\r/           => "\r"  
+       case /^\\\'/          => "\'"
+       case /^\\"/           => "\""
+       case /^\\\\/          => "\\"
+       case /^\\TOP/         => "\255"
+       case /^\\EOF/         => "\256"
+       case /^\\BOT/         => "\0"
+       case /^\\LABEL_START/ => "\257"
+       
+       case /^\</			 => "\<"
+       case /^\>/			 => "\>"
+       
+     };      
+}
+
+test unescapeStr("abc") 	== "abc";
+test unescapeStr("a\nbc") 	== "a\nbc";
+test unescapeStr("a\\\nbc") == "a\\\nbc";
+test unescapeStr("a\"bc") 	== "a\"bc";
+test unescapeStr("a\\\"bc") == "a\"bc";
+test unescapeStr("a\\bc") 	== "a\bc";
+test unescapeStr("a\\\\tc") == "a\\tc";
+test unescapeStr("a\>b")    == "a\>b";
+test unescapeStr("a\<b")    == "a\<b";
 
 // ----- getCharClas -----
 
@@ -599,7 +636,7 @@ public Symbol getCharClass(languages::sdf2::syntax::Sdf2ForRascal::CharClass cc)
    }
 }
 
-//  (CharClass) `[]` == \char-class([]);  // ===> TODO: gives unsupported operation
+
 
 test getCharClass((CharClass) `[]`)         == \char-class([]);
 test getCharClass((CharClass) `[a]`)        == \char-class([range(97,97)]);
@@ -611,9 +648,10 @@ test getCharClass((CharClass) `[a] /\ [b]`) == intersection(\char-class([range(9
 test getCharClass((CharClass) `[a] \/ [b]`) == union(\char-class([range(97,97)]), \char-class([range(98,98)]));
 test getCharClass((CharClass) `[a] / [b]`)  == difference(\char-class([range(97,97)]), \char-class([range(98,98)]));
 test getCharClass((CharClass) `[\n]`)       == \char-class([range(10,10)]);
-test getCharClass((CharClass) `[\t\n]`)     == \char-class([range(9,10)]);
+test getCharClass((CharClass) `[\t\n]`)     == \char-class([range(9,9), range(10,10)]);
 test getCharClass((CharClass) `~[\0-\31\n\t\"\\]`) ==
-     complement(\char-class([range(0,25),range(34,34),range(92,92)]));
+     complement(\char-class([range(0,25),range(10,10),range(9,9),range(34,34),range(92,92)]));
+test getCharClass((CharClass) `[\"]`)       == \char-class([range(34,34)]);
 
 // ----- getCharRange -----
       
@@ -634,24 +672,21 @@ test getCharRange((CharRange) `a-z`) == range(97,122);
 
 test getCharRange((CharRange) `\n`)  ==  range(10,10);
 
+test getCharRange((CharRange) `\1-\31`)  ==  range(1,25);
+
 // ----- getCharacter -----
 
 public int getCharacter(Character c) {
   if(debug) println("getCharacter: <c>");
   switch (c) {
     case [Character] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
-    
     case [Character] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
-    
     case [Character] /\\<oct:[0-7]>/           : return toInt("0<oct>");
-    
     case [Character] /\\t/                     : return 9;
     case [Character] /\\n/                     : return 10;
     case [Character] /\\r/                     : return 13;
     case [Character] /\\ /                     : return 32;
-    
     case [Character] /\\<esc:["'\-\[\]\\ ]>/   : return charAt(esc, 0);
-    
     case [Character] /<ch:[^"'\-\[\]\\ ]>/     : return charAt(ch, 0);
     
     default: throw "missed a case <c>";
