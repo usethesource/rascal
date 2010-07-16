@@ -124,8 +124,10 @@ public class Typeifier {
 				}
 
 				public Type visitRelationType(Type type) {
-					for (IValue child : next) {
-						todo.add((IConstructor) child);
+					IList fields = (IList) next.get("fields");
+					for (IValue child : fields) {
+						ITuple field = (ITuple) child;
+						todo.add((IConstructor) field.get(0));
 					}
 					return type;
 				}
