@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -82,7 +83,7 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	public TypeReifier(IEvaluatorContext ctx, IValueFactory valueFactory) {
 		this.ctx = ctx;
 		this.env = ctx.getCurrentEnvt();
-		this.store = env.getStore();
+		this.store = constructCompleteTypeStore(this.env);
 		this.tf = TypeFactory.getInstance();
 		this.vf = valueFactory;
 		this.param = tf.parameterType("T");
@@ -101,6 +102,27 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 	    this.fieldType = tf.tupleType(typeOfTypes, "type", tf.stringType(), "label");
 	    this.listCons = tf.listType(cons);
 	}
+	
+	private static TypeStore constructCompleteTypeStore(Environment env) {
+	  	TypeStore complete = new TypeStore();
+	  	ModuleEnvironment mod = (ModuleEnvironment) env.getRoot();
+		constructCompleteTypeStoreRec(complete, mod, new HashSet<java.lang.String>());
+		return complete;
+	}
+	
+	private static void constructCompleteTypeStoreRec(TypeStore complete, ModuleEnvironment env, java.util.Set<java.lang.String> done) {
+		if (done.contains(env.getName())) {
+			return;
+		}
+		done.add(env.getName());
+		
+		complete.importStore(env.getStore());
+		
+		for (java.lang.String i : env.getImports()) {
+			constructCompleteTypeStoreRec(complete, env.getImport(i), done);
+		}
+	}
+	
 
 	/**
 	 * Collects all constructor of the ADT, then builds the rather complex reified representation.
