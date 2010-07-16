@@ -1709,7 +1709,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionFieldAccess(
 			org.rascalmpl.ast.Expression.FieldAccess x) {
 		Result<IValue> expr = x.getExpression().accept(this);
-		String field = x.getField().toString();
+		String field = Names.name(x.getField());
 
 
 		return expr.fieldAccess(field, getCurrentEnvt().getStore());
