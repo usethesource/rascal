@@ -110,7 +110,7 @@ public class TypeDeclarationEvaluator {
 					}
 
 					if (arg.hasName()) {
-						labels[i] = arg.getName().toString();
+						labels[i] = Names.name(arg.getName());
 					} else {
 						labels[i] = "arg" + java.lang.Integer.toString(i);
 					}
