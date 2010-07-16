@@ -117,7 +117,7 @@ public class JavaBridge {
 		
 		if (tags.hasTags()) {
 			for (Tag tag : tags.getTags()) {
-				if (tag.getName().toString().equals(JAVA_CLASS_TAG)) {
+				if (Names.name(tag.getName()).equals(JAVA_CLASS_TAG)) {
 					String contents = tag.getContents().toString();
 					
 					if (contents.length() > 2 && contents.startsWith("{")) {
@@ -326,7 +326,7 @@ public class JavaBridge {
 		}
 		
 		String className = getClassName(func);
-		String name = func.getSignature().getName().toString();
+		String name = Names.name(func.getSignature().getName());
 		
 		if(className.length() == 0){
 			throw new MissingTagError(JAVA_CLASS_TAG, func);
