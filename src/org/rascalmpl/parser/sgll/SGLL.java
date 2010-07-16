@@ -259,7 +259,7 @@ public abstract class SGLL implements IGLL{
 		stacksWithNonTerminalsToReduce.put(node);
 	}
 	
-	private void rejectEdge(AbstractStackNode node, IConstructor production){
+	private void rejectEdgeNode(AbstractStackNode node, IConstructor production){
 		int startLocation = node.getStartLocation();
 		ArrayList<AbstractStackNode> possiblySharedEdgeNodes = possiblySharedEdgeNodesMap.get(startLocation);
 		if(possiblySharedEdgeNodes != null){
@@ -321,7 +321,7 @@ public abstract class SGLL implements IGLL{
 						prefixes = prefixesMap.findValue(edge.getStartLocation());
 						if(prefixes == null) continue;
 					}
-					rejectEdge(edge, production);
+					rejectEdgeNode(edge, production);
 				}
 			}
 		}
