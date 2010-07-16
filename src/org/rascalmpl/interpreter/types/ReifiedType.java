@@ -47,6 +47,9 @@ public class ReifiedType extends Type {
 				return arg.isSubtypeOf(((ReifiedType) other).arg);
 			}
 		}
+		if (other.isNodeType()) {
+			return true;
+		}
 		return super.isSubtypeOf(other);
 	}
 	

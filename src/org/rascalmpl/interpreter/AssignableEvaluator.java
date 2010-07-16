@@ -179,7 +179,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 	
 	@Override
 	public Result<IValue> visitAssignableAnnotation(Annotation x) {
-		String label = x.getAnnotation().toString();
+		String label = Names.name(x.getAnnotation());
 		Result<IValue> result = x.getReceiver().accept(eval);
 				
 		if(result == null || result.getValue() == null)

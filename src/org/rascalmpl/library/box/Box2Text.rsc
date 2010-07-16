@@ -16,8 +16,8 @@ import IO;
 import ValueIO;
 import Node;
 import box::Box;
-int maxWidth = 100;
-int hv2h_crit = 80;
+int maxWidth = 80;
+int hv2h_crit = 70;
 bool decorated = false;
 
 
