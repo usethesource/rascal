@@ -36,8 +36,9 @@ public class ParserGenerator {
 			// TODO: add caching
 			IConstructor grammar = (IConstructor) evaluator.call("module2grammar", ParsetreeAdapter.getTop(moduleTree));
 			System.err.println("Imported and normalized grammar: " + grammar);
-			IString classString = (IString) evaluator.call("generate", vf.string("org.rascalmpl.parser.object"), vf.string(name), grammar);
-			Class<IGLL> parser = (Class<IGLL>) bridge.compileJava(loc, packageName + "." + name, classString.getValue());
+			String normName = name.replaceAll("\\.", "_");
+			IString classString = (IString) evaluator.call("generate", vf.string("org.rascalmpl.parser.object"), vf.string(normName), grammar);
+			Class<IGLL> parser = (Class<IGLL>) bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 			return parser.newInstance();
 		} catch (ClassNotFoundException e) {
 			throw new ImplementationError("parser generator", e);
