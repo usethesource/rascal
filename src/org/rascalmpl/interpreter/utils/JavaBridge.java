@@ -16,6 +16,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
 import net.java.dev.hickory.testing.Compilation;
+import net.java.dev.hickory.testing.MemSourceFileObject;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -50,6 +51,8 @@ import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
 import org.rascalmpl.interpreter.staticErrors.MissingTagError;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunctionError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethodError;
+
+import com.sun.xml.internal.ws.util.StringUtils;
 
 
 public class JavaBridge {
@@ -90,9 +93,11 @@ public class JavaBridge {
 
 	public Class<?> compileJava(ISourceLocation loc, String className, String source) throws ClassNotFoundException {
 		Compilation compilation = new Compilation();
+		
+		System.err.println("Trying to compile this source code: " + source);
 
 		try {
-			compilation.addSource(className).openOutputStream().write(source.getBytes());
+			compilation.addSource(className).openWriter().write(source);
 		} catch (IOException e) {
 			throw new ImplementationError("this should not happen", e);
 		}
