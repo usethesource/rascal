@@ -78,6 +78,10 @@ rule merge \char-class([list[CharRange] a,range(int from1, int to1),list[CharRan
 rule order \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, range(int o, int p), list[CharRange] c]) =>
            \char-class(a + [range(o,p)]+b+[range(n,m)]+c)
      when p < n;
+     
+test \char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
+test \char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
+
 
 public Symbol sort(Production p) {
   switch(p){
@@ -95,8 +99,6 @@ public Symbol sort(Production p) {
        	return rhs;
     case others(sym):
       	return sym;
-   // if (/prod(_,rhs,_) := p || /regular(rhs,_) := p || /restrict(rhs, _, _) := p) {
-   // return rhs;
   }
   throw "weird production <p>";
 }
@@ -169,4 +171,19 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
 
   throw "did not expect to end up here! <l> - <r>";
 }
+
+test complement([]) == [range(0,65535)];
+test complement([range(0,0)]) == [range(1,65535)];
+test complement([range(1,1)]) == [range(0,0),range(2,65535)];
+test complement([range(10,20), range(30,40)]) == [range(0,9),range(21,29),range(41,65535)];
+test complement([range(10,35), range(30,40)]) == [range(0,9),range(41,65535)];
+
+test union([range(10,20)], [range(30, 40)]) == [range(10,20), range(30,40)];
+test union([range(10,25)], [range(20, 40)]) == [range(10,40)];
+
+test intersection([range(10,20)], [range(30, 40)]) == [];
+test intersection([range(10,25)], [range(20, 40)]) == [range(20, 25)];
+
+
+
 
