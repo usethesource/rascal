@@ -100,11 +100,11 @@ test sdf2grammar(
 
 // Test that Normalization is not active
 
-test grammar({sort("PROGRAM")}, {prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()), prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())}) !=
-     grammar({sort("PROGRAM")}, {choice(sort("EXP"),{prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())})});
+//test grammar({sort("PROGRAM")}, {prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()), prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())}) !=
+//     grammar({sort("PROGRAM")}, {choice(sort("EXP"),{prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())})});
 
-test grammar({},{ prod([lit("a1")], sort("A"), \no-attrs()), prod([lit("a2")], sort("A"), \no-attrs())}) !=
-     grammar({},{choice(sort("A"),{prod([lit("a1")],sort("A"),\no-attrs()),prod([lit("a2")],sort("A"),\no-attrs())})});
+//test grammar({},{ prod([lit("a1")], sort("A"), \no-attrs()), prod([lit("a2")], sort("A"), \no-attrs())}) !=
+//     grammar({},{choice(sort("A"),{prod([lit("a1")],sort("A"),\no-attrs()),prod([lit("a2")],sort("A"),\no-attrs())})});
 
 
 // ----- getProductions, getProduction -----
@@ -562,11 +562,11 @@ private str unescape(languages::sdf2::syntax::Sdf2ForRascal::SingleQuotedStrCon 
    throw "unexpected string format: <s>";
 }
 
-test unescape((StrCon) `"abc"`)  == "abc";
-test unescape((StrCon) `"a\nc"`) == "a\nc";
-test unescape((StrCon) `"a\"c"`) == "a\"c";
-test unescape((StrCon) `"a\\c"`) == "a\\c";
-test unescape((StrCon) `"a\\\"c"`) == "a\\\"c";
+test unescape((StrCon) `"abc"`)  	== "abc";
+test unescape((StrCon) `"a\nc"`) 	== "a\nc";
+test unescape((StrCon) `"a\"c"`) 	== "a\"c";
+test unescape((StrCon) `"a\\c"`) 	== "a\\c";
+test unescape((StrCon) `"a\\\"c"`)	== "a\\\"c";
 
 test unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
 test unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
@@ -637,8 +637,6 @@ public Symbol getCharClass(languages::sdf2::syntax::Sdf2ForRascal::CharClass cc)
    }
 }
 
-
-
 test getCharClass((CharClass) `[]`)         == \char-class([]);
 test getCharClass((CharClass) `[a]`)        == \char-class([range(97,97)]);
 test getCharClass((CharClass) `[a-z]`)      == \char-class([range(97,122)]);
@@ -667,13 +665,10 @@ public CharRange getCharRange(languages::sdf2::syntax::Sdf2ForRascal::CharRange 
   }
 }
 
-test getCharRange((CharRange) `a`)   == range(97,97);
-
-test getCharRange((CharRange) `a-z`) == range(97,122);
-
-test getCharRange((CharRange) `\n`)  ==  range(10,10);
-
-test getCharRange((CharRange) `\1-\31`)  ==  range(1,25);
+test getCharRange((CharRange) `a`)   	== range(97,97);
+test getCharRange((CharRange) `a-z`) 	== range(97,122);
+test getCharRange((CharRange) `\n`)  	==  range(10,10);
+test getCharRange((CharRange) `\1-\31`)	==  range(1,25);
 
 // ----- getCharacter -----
 
