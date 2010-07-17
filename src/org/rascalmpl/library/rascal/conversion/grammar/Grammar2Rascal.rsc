@@ -426,8 +426,7 @@ public str char2rascal(int ch) {
   }
 }
 
-test char2rascal(97) == "a";
-test char2rascal(10) == "\\n";
-test char2rascal(34) == "\\\"";
-
-test char2rascal(255) == "\\377";
+test char2rascal(97) 	== "a";
+test char2rascal(10) 	== "\\n";
+test char2rascal(34) 	== "\\\"";
+test char2rascal(255) 	== "\\377";

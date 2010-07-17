@@ -56,7 +56,7 @@ rule diff   diff(Symbol s, diff(Symbol t, Production a, set[Production] b), set[
 // move restrict outwards
 rule choice choice(Symbol s, {restrict(s, Production p, set[list[Symbol]] r), set[Production] q}) =>
             restrict(s, choice(s,{p,q}), r);
-rule empty  restrict(Symbol s, Production p, set[list[Symbol]] r) => p;
+//rule empty  restrict(Symbol s, Production p, set[list[Symbol]] r) => p;
 // TODO: I think we need more reordering rules for restrict soon
 
 // no attributes
