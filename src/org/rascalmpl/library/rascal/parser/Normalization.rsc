@@ -81,7 +81,8 @@ rule order \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, 
      
 test \char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
 test \char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
-
+test \char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
+test \char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
 
 public Symbol sort(Production p) {
   switch(p){
@@ -103,28 +104,35 @@ public Symbol sort(Production p) {
   throw "weird production <p>";
 }
 
-rule compl complement(\char-class(list[CharRange] r1)) => \char-class(complement(r1));
-rule diff  difference(\char-class(list[CharRange] r1), \char-class(list[CharRange]r2)) => \char-class(difference(r1,r2));
-rule union union(\char-class(list[CharRange] r1), \char-class(list[CharRange]r2)) => \char-class(union(r1,r2));
-rule inter intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange]r2)) => \char-class(intersection(r1,r2));
+rule compl complement(\char-class(list[CharRange] r1)) 										=> \char-class(complement(r1));
+rule diff  difference(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	=> \char-class(difference(r1,r2));
+rule union union(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 			=> \char-class(union(r1,r2));
+rule inter intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	=> \char-class(intersection(r1,r2));
 
 public list[CharRange] complement(list[CharRange] s) {
   return difference([range(0,0xFFFF)],s);
 }
 
 public list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
-  return union(difference(l,r),difference(r,l));
+  return complement(union(complement(l), complement(r)));
 } 
 
 public list[CharRange] union(list[CharRange] l, list[CharRange] r) {
- return l + r;
+ cc = \char-class(l + r); // Enforce that the ranges are normalized
+ if(\char-class(u) := cc) // and extract them from the normalized char-class
+ 	return u;
+ throw "impossible case in union(<l>, <r>)";
 }
+
+// Take difference of two lists of ranges
+// Precondition: both lists are ordered
+// Postcondition: resulting list is ordered
 
 public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   if (l == [] || r == []) return l;
 
-  <lhead,ltail> = takeOneFrom(l);
-  <rhead,rtail> = takeOneFrom(r);
+  <lhead,ltail> = <head(l), tail(l)>;
+  <rhead,rtail> = <head(r), tail(r)>;
 
   if (lhead == \empty-range()) 
     return difference(ltail, r);
@@ -172,18 +180,19 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   throw "did not expect to end up here! <l> - <r>";
 }
 
-test complement([]) == [range(0,65535)];
-test complement([range(0,0)]) == [range(1,65535)];
-test complement([range(1,1)]) == [range(0,0),range(2,65535)];
-test complement([range(10,20), range(30,40)]) == [range(0,9),range(21,29),range(41,65535)];
-test complement([range(10,35), range(30,40)]) == [range(0,9),range(41,65535)];
+test complement(\char-class([])) == \char-class([range(0,65535)]);
+test complement(\char-class([range(0,0)])) == \char-class([range(1,65535)]);
+test complement(\char-class([range(1,1)])) == \char-class([range(0,0),range(2,65535)]);
+test complement(\char-class([range(10,20), range(30,40)])) == \char-class([range(0,9),range(21,29),range(41,65535)]);
+test complement(\char-class([range(10,35), range(30,40)])) == \char-class([range(0,9),range(41,65535)]);
 
-test union([range(10,20)], [range(30, 40)]) == [range(10,20), range(30,40)];
-test union([range(10,25)], [range(20, 40)]) == [range(10,40)];
+test union(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([range(10,20), range(30,40)]);
+test union(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(10,40)]);
 
-test intersection([range(10,20)], [range(30, 40)]) == [];
-test intersection([range(10,25)], [range(20, 40)]) == [range(20, 25)];
+test intersection(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([]);
+test intersection(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(20, 25)]);
 
-
+test difference(\char-class([range(10,30)]), \char-class([range(20,25)])) == \char-class([range(10,19), range(26,30)]);
+test difference(\char-class([range(10,30), range(40,50)]), \char-class([range(25,45)])) ==\char-class( [range(10,24), range(46,50)]);
 
 
