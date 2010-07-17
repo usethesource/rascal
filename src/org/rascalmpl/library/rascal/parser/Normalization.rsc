@@ -80,8 +80,23 @@ rule order \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, 
      when p < n;
 
 public Symbol sort(Production p) {
-  if (/prod(_,rhs,_) := p || /regular(rhs,_) := p || /restrict(rhs, _, _) := p) {
-    return rhs;
+  switch(p){
+    case prod(_,Symbol rhs,_):
+    	return rhs;
+    case choice(s, alts) :
+     	return s;
+    case first(s, alts) :
+     	return s;
+    case \assoc(s, a, alts) :
+       	return s;
+    case diff(s,p,alts) : 
+      	return s;
+    case restrict(rhs, _, _):
+       	return rhs;
+    case others(sym):
+      	return sym;
+   // if (/prod(_,rhs,_) := p || /regular(rhs,_) := p || /restrict(rhs, _, _) := p) {
+   // return rhs;
   }
   throw "weird production <p>";
 }
