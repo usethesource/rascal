@@ -3,7 +3,9 @@ module rascal::conversion::sdf2::SDF2Grammar
 // Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar)
 
 // Todo List:
-// - Escaping of < and > in literals not yet ok.
+// - Escaping of < and > in literals is still not yet ok. There are various issues here:
+//   . printing of PDB string does not escape < and >
+//   . reading of PDB strings does not remove escaped \< and \> sequences (the < or > is lost)
 // - Some tests are marked with @ignore (and commented out) since they trigger a Rascal bug:
 //   . The expression: `(Group) `A -> B <1>`; triggers a bug in AST construction
 //   . The test (CharClass) `[]` == \char-class([]);  // gives unsupported operation
@@ -16,6 +18,7 @@ import ParseTree;
 import rascal::parser::Grammar;
 import rascal::conversion::sdf2::Load;
 import languages::sdf2::syntax::Sdf2ForRascal;
+import rascal::parser::Normalization;            // Comment, if you want unnormalized grammars
 
 // Resolve name clashes between the ParseTree and Grammar datatypes.
 // Unfortunately we cannot yet use these aliases since they lead to ambiguities.
@@ -57,8 +60,6 @@ public void print(Grammar G){
 public Grammar sdf2module2grammar(str name, list[loc] path) {
   return sdf2grammar(loadSDF2Module(name, path));
 }
-
-//loadSDF2Module("Names", [|stdlib:///org/rascalimpl/library/rascal/syntax/Names.sdf|]);
 
 // Convert given SDF definition
 
