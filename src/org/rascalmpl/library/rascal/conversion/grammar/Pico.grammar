@@ -10,7 +10,7 @@ grammar({sort("PROGRAM")}, {
 	, prod([sort("StrCon")],sort("EXP"),\no-attrs())
 	, prod([lit("if"),sort("EXP"),lit("then"),\iter-star-seps(sort("STATEMENT"),[layout(),lit(";"),layout()]),lit("else"),\iter-star-seps(sort("STATEMENT"),[layout(),lit(";"),layout()]),lit("fi")],sort("STATEMENT"),\no-attrs())
 	, prod([lit("\\\"")],sort("StrChar"),attrs([term(cons("quote")),term("lexical")]))
-	, prod([complement(\char-class([range(0,3),range(49,49),range(10,10),range(9,9),range(34,34),range(92,92),range(0,25),range(10,10),range(9,9),range(34,34),range(92,92)]))],sort("StrChar"),attrs([term(cons("normal")),term("lexical")]))
+	, prod([complement(\char-class([range(0,25),range(10,10),range(9,9),range(34,34),range(92,92)]))],sort("StrChar"),attrs([term(cons("normal")),term("lexical")]))
 	, prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),attrs([]))
 	, prod([lit("\\"),label("a",\char-class([range(48,57)])),label("b",\char-class([range(48,57)])),label("c",\char-class([range(48,57)]))],sort("StrChar"),attrs([term(cons("decimal")),term("lexical")]))
 	, prod([lit("while"),sort("EXP"),lit("do"),\iter-star-seps(sort("STATEMENT"),[layout(),lit(";"),layout()]),lit("od")],sort("STATEMENT"),\no-attrs())
