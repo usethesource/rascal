@@ -41,7 +41,10 @@ public Grammar sdf2grammar(loc input) {
 
 // Some statements to test on given grammars
 // print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Pico.def|));
+// - paste output to /org/rascalmpl/library/rascal/conversion/grammar/Pico.grammar| (or ngrammar)
 // print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/Rascal.def|));
+// - paste output to /org/rascalmpl/library/rascal/conversion/grammar/Rascal.grammar| (or ngrammar)
+// - manually replace "<" => "\<" and ">" => "\>"
 // print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/java111.def|));
 // print(sdf2grammar(|stdlib:///org/rascalmpl/library/rascal/conversion/sdf2/C.def|));
 
@@ -615,8 +618,8 @@ public Symbol getCharClass(languages::sdf2::syntax::Sdf2ForRascal::CharClass cc)
      case (CharClass) `[]` :
      	return \char-class([]);
      	
-     case (CharClass) `[<languages::sdf2::syntax::Sdf2ForRascal::OptCharRanges ranges>]` : 
-     	return \char-class([getCharRange(r) | /languages::sdf2::syntax::Sdf2ForRascal::CharRange r := ranges]);
+     case (CharClass) `[<languages::sdf2::syntax::Sdf2ForRascal::OptCharRanges ranges>]` :
+     		return \char-class([getCharRange(r) | /languages::sdf2::syntax::Sdf2ForRascal::CharRange r := ranges]);
      	
      case (CharClass) `(<languages::sdf2::syntax::Sdf2ForRascal::CharClass c>)`: 
      	return getCharClass(c);

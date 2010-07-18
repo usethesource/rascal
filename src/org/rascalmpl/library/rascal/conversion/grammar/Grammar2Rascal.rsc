@@ -6,6 +6,13 @@ module rascal::conversion::grammar::Grammar2Rascal
 // TODO:
 // - done!
 
+// Commands to test conversion of Pico or Rascal grammar:
+// println(grammar2rascal(readTextValueFile(#Grammar, |stdlib:///org/rascalmpl/library/rascal/conversion/grammar/Pico.grammar|)));
+// - Manually paste output to /org/rascalmpl/library/rascal/conversion/grammar/Pico.rsc
+
+// println(grammar2rascal(readTextValueFile(#Grammar, |stdlib:///org/rascalmpl/library/rascal/conversion/grammar/Rascal.grammar|)));
+// - Manually paste output to /org/rascalmpl/library/rascal/conversion/grammar/Rascal.rsc
+
 import ParseTree;
 import rascal::parser::Grammar;
 import IO;
@@ -23,10 +30,6 @@ public str grammar2rascal(Grammar g, str name) {
 public str grammar2rascal(Grammar g) {
   return ( "" | it + topProd2rascal(p) | Production p <- g.productions);
 }
-
-// Commands to test conversion of Pico or Rascal grammar:
-// println(grammar2rascal(readTextValueFile(#Grammar, |stdlib:///org/rascalmpl/library/rascal/conversion/grammar/Pico.grammar|)));
-// println(grammar2rascal(readTextValueFile(#Grammar, |stdlib:///org/rascalmpl/library/rascal/conversion/grammar/Rascal.grammar|)));
 
 public str topProd2rascal(Production p) {
   if (/prod(_,lit(_),_) := p) return ""; // ignore generated productions
@@ -93,17 +96,13 @@ test prod2rascal(
                
 test prod2rascal(
 	 prod([\char-class([range(9,9), range(10,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace"))]))) ==
-	 "whitespace: [\\t\\n\\r ] ";
+	 "whitespace: [\\t\\n\\r\\ ] ";
 
 test prod2rascal(
 	first(sort("EXP"),[prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),
 	                   prod([sort("EXP"),lit("-"),sort("EXP")],sort("EXP"),\no-attrs()),
 	                   prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())])) ==
-	"EXP \"||\" EXP \n\t\> EXP \"-\" EXP \n\t\> EXP \"+\" EXP ";
-	
-//test prod2rascal(
-//	restrict(sort("NatCon"),others(sort("NatCon")),[\char-class([range(48,57)])])) ==
-	
+	"EXP \"||\" EXP \n\t\> EXP \"-\" EXP \n\t\> EXP \"+\" EXP ";	
 
 public str attrs2mods(Attributes as) {
   switch (as) {
@@ -249,7 +248,7 @@ public str escape(str s){
   n = size(s);
   if(n > 0)
  	 for(int i <- [0 .. n-1])
-     	res += char2rascal(charAt(s, i));
+     	res += stringchar2rascal(charAt(s, i));
   return res;
 }
 
@@ -259,8 +258,8 @@ public str cc2rascal(list[CharRange] ranges) {
 
 public str range2rascal(CharRange r) {
   switch (r) {
-    case range(c,c) : return char2rascal(c);
-    case range(c,d) : return "<char2rascal(c)>-<char2rascal(d)>";
+    case range(c,c) : return charclasschar2rascal(c);
+    case range(c,d) : return "<charclasschar2rascal(c)>-<charclasschar2rascal(d)>";
     default: throw "range2rascal: missing case <range>";
   }
 }
@@ -270,8 +269,10 @@ test range2rascal(range(97,122)) == "a-z";
 test range2rascal(range(10,10))  == "\\n";
 test range2rascal(range(34,34))  == "\\\"";
 
-// A good old ASCII table in order to convert numbers < 128 to readable (properly escaped) characters.
-// For instance, ascii[10] maps to the string "\\n".
+// A good old ASCII table in order to convert numbers < 128 to readable (properly escaped) string
+// characters. For instance, ascii[10] maps to the string "\\n".
+// Note that in charclasses also the characters minus (-) and underscore (_) have to be escaped.
+// This is handled by charclasschar2rascal.
 
 private list[str] ascii =
 [
@@ -408,7 +409,26 @@ private list[str] ascii =
 /* 127 */  "\\177"  //DEL    (delete)
 ];
 
-public str char2rascal(int ch) {
+// In character classes, additional characters have to be escaped.
+// These are filtered here before falling back on the standard string escapes.
+
+public str charclasschar2rascal(int ch){
+  switch(ch){
+  case 32:	return "\\ ";	// space ( )
+  	
+  case 45:	return "\\-";	// minus (-)
+  	
+  case 91:	return "\\[";	// left bracket ([)
+  	
+  case 93:	return "\\]";	// right bracket (])
+  	
+  case 95:	return "\\_";	// underscore (_)
+ 
+  default:	return stringchar2rascal(ch);
+  }
+}
+
+public str stringchar2rascal(int ch) {
   if(ch < 128)
      return ascii[ch];
   if (ch < 256) {
@@ -426,7 +446,7 @@ public str char2rascal(int ch) {
   }
 }
 
-test char2rascal(97) 	== "a";
-test char2rascal(10) 	== "\\n";
-test char2rascal(34) 	== "\\\"";
-test char2rascal(255) 	== "\\377";
+test stringchar2rascal(97) 	== "a";
+test stringchar2rascal(10) 	== "\\n";
+test stringchar2rascal(34) 	== "\\\"";
+test stringchar2rascal(255) == "\\377";
