@@ -101,7 +101,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 			return new AbstractStackNode[]{psn};
 		}
 		
-		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
+		EpsilonStackNode epsn = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
 		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
 		epsn.setParentProduction(production);
