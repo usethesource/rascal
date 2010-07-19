@@ -71,12 +71,14 @@ public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		AmbiguousNestedPlusList anpl = new AmbiguousNestedPlusList();
-		IValue result = anpl.parse(NONTERMINAL_START_S, "aa".toCharArray());
-
+		return anpl.parse(NONTERMINAL_START_S, "aa".toCharArray());
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(appl(prod([iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[amb({appl(regular(iter(sort(\"A\"))),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(\\char-class([single(97)]))),[char(97),appl(regular(iter(\\char-class([single(97)]))),[char(97)])])])]),appl(regular(iter(sort(\"A\"))),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(\\char-class([single(97)]))),[char(97)])]),appl(regular(iter(sort(\"A\"))),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(\\char-class([single(97)]))),[char(97)])])])])})]),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

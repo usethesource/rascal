@@ -76,12 +76,14 @@ public class SeparatedStarList extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		SeparatedStarList nrsl = new SeparatedStarList();
-		IValue result = nrsl.parse(NONTERMINAL_START_S, "ababa".toCharArray());
-
+		return nrsl.parse(NONTERMINAL_START_S, "ababa".toCharArray());
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(appl(prod([\\iter-star-sep(sort(\"A\"),lit(\"b\"))],sort(\"S\"),\\no-attrs()),[appl(regular(\\iter-star-sep(sort(\"A\"),lit(\"b\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)]),appl(regular(\\iter-star-sep(sort(\"A\"),lit(\"b\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)]),appl(regular(\\iter-star-sep(sort(\"A\"),lit(\"b\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])]),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

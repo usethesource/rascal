@@ -96,12 +96,14 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		NotAUselessSelfLoop nausl = new NotAUselessSelfLoop();
-		IValue result = nausl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
-
+		return nausl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(amb({appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])]),appl(prod([sort(\"A\"),sort(\"A\")],sort(\"C\"),\\no-attrs()),[amb({appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])}),appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([sort(\"B\")],sort(\"S\"),\\no-attrs()),[cycle(sort(\"C\"),1)])}),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

@@ -70,12 +70,14 @@ public class NonTerminalStarList extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		NonTerminalStarList nrsl = new NonTerminalStarList();
-		IValue result = nrsl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
-
+		return nrsl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(appl(prod([\\iter-star(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[appl(regular(\\iter-star(sort(\"A\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(regular(\\iter-star(sort(\"A\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(regular(\\iter-star(sort(\"A\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])]),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

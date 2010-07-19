@@ -77,12 +77,14 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		AmbiguousNonTerminalPlusList1 nrpl1 = new AmbiguousNonTerminalPlusList1();
-		IValue result = nrpl1.parse(NONTERMINAL_START_S, "aaa".toCharArray());
-
+		return nrpl1.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(amb({appl(prod([lit(\"a\"),iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(regular(iter(sort(\"A\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(regular(iter(sort(\"A\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])]),appl(prod([iter(sort(\"A\")),lit(\"a\")],sort(\"S\"),\\no-attrs()),[appl(regular(iter(sort(\"A\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(regular(iter(sort(\"A\"))),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])]),appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])}),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

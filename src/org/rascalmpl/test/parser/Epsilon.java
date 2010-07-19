@@ -56,12 +56,14 @@ public class Epsilon extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		Epsilon e = new Epsilon();
-		IValue result = e.parse(NONTERMINAL_START_S, new char[]{});
-
+		return e.parse(NONTERMINAL_START_S, new char[]{});
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(appl(prod([empty()],sort(\"S\"),\\no-attrs()),[]),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

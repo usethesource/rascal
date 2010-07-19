@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.junit.Assert;
 
 public class ParserTest extends TestCase{
@@ -13,8 +14,12 @@ public class ParserTest extends TestCase{
 	}
 	
 	public void executeParser(IParserTest parser){
+		IValue result = parser.executeParser();
 		try{
-			Assert.assertTrue(parser.executeTest());
+			IValue expectedResult = parser.getExpectedResult();
+			if(!result.isEqual(expectedResult)){
+				Assert.fail(parser.getClass().getName()+";\tGot: "+result+"\n\t expected: "+expectedResult);
+			}
 		}catch(IOException ioex){
 			// Ignore, never happens.
 		}

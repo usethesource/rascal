@@ -60,12 +60,14 @@ public class CharPlusList extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		CharPlusList cpl = new CharPlusList();
-		IValue result = cpl.parse(NONTERMINAL_START_S, "abc".toCharArray());
-
+		return cpl.parse(NONTERMINAL_START_S, "abc".toCharArray());
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(appl(prod([iter(\\char-class([range(97,122)]))],sort(\"S\"),\\no-attrs()),[appl(regular(iter(\\char-class([range(97,122)]))),[char(97),appl(regular(iter(\\char-class([range(97,122)]))),[char(98),appl(regular(iter(\\char-class([range(97,122)]))),[char(99)])])])]),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

@@ -56,12 +56,14 @@ public class CharRange extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		CharRange cr = new CharRange();
-		IValue result = cr.parse(NONTERMINAL_START_S, "a".toCharArray());
-
+		return cr.parse(NONTERMINAL_START_S, "a".toCharArray());
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(appl(prod([\\char-class([range(97,122)])],sort(\"S\"),\\no-attrs()),[char(97)]),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){
