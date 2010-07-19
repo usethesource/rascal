@@ -84,12 +84,14 @@ public class Ambiguous2 extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		Ambiguous2 a2 = new Ambiguous2();
-		IValue result = a2.parse(NONTERMINAL_START_S, "bab".toCharArray());
-		
+		return a2.parse(NONTERMINAL_START_S, "bab".toCharArray());
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(amb({appl(prod([sort(\"A\"),lit(\"ab\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])])]),appl(prod([\\char-class([single(98)]),\\char-class([single(97)]),\\char-class([single(98)])],lit(\"ab\"),\\no-attrs()),[char(97),char(98)])]),appl(prod([lit(\"bab\")],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(97)]),\\char-class([single(98)])],lit(\"bab\"),\\no-attrs()),[char(98),char(97),char(98)])])}),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

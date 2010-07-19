@@ -103,12 +103,14 @@ public class SplitAndMerge2 extends SGLL implements IParserTest{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean executeTest() throws IOException{
+	public IValue executeParser(){
 		SplitAndMerge2 ms2 = new SplitAndMerge2();
-		IValue result = ms2.parse(NONTERMINAL_START_S, "aaa".toCharArray());
-
+		return ms2.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+	}
+	
+	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "parsetree(amb({appl(prod([sort(\"D\"),lit(\"a\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"C\")],sort(\"D\"),\\no-attrs()),[appl(prod([sort(\"B\"),lit(\"aa\")],sort(\"C\"),\\no-attrs()),[appl(prod([sort(\"A\")],sort(\"B\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"D\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"C\")],sort(\"D\"),\\no-attrs()),[appl(prod([sort(\"B\"),lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([sort(\"A\")],sort(\"B\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([\\char-class([single(97)]),\\char-class([single(97)])],lit(\"aa\"),\\no-attrs()),[char(97),char(97)])])])])}),-1)";
-		return result.isEqual(new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes())));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){
