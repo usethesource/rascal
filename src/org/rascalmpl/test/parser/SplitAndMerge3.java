@@ -96,8 +96,7 @@ public class SplitAndMerge3 extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		SplitAndMerge3 ms3 = new SplitAndMerge3();
-		return ms3.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aaa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

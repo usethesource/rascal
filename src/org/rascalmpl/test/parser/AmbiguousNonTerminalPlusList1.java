@@ -78,8 +78,7 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		AmbiguousNonTerminalPlusList1 nrpl1 = new AmbiguousNonTerminalPlusList1();
-		return nrpl1.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aaa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

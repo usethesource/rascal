@@ -77,8 +77,7 @@ public class SeparatedPlusList extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		SeparatedPlusList nrpl = new SeparatedPlusList();
-		return nrpl.parse(NONTERMINAL_START_S, "ababa".toCharArray());
+		return parse(NONTERMINAL_START_S, "ababa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

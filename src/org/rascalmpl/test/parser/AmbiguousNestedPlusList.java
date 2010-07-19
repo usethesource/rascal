@@ -72,8 +72,7 @@ public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		AmbiguousNestedPlusList anpl = new AmbiguousNestedPlusList();
-		return anpl.parse(NONTERMINAL_START_S, "aa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

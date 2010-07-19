@@ -57,8 +57,7 @@ public class Epsilon extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		Epsilon e = new Epsilon();
-		return e.parse(NONTERMINAL_START_S, new char[]{});
+		return parse(NONTERMINAL_START_S, new char[]{});
 	}
 	
 	public IValue getExpectedResult() throws IOException{

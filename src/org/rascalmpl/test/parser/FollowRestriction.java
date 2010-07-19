@@ -99,8 +99,7 @@ public class FollowRestriction extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		FollowRestriction fr = new FollowRestriction();
-		return fr.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aaa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

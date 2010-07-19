@@ -72,8 +72,7 @@ public class RightRecursion extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		RightRecursion rr = new RightRecursion();
-		return rr.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aaa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

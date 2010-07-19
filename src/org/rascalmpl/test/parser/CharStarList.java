@@ -61,8 +61,7 @@ public class CharStarList extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		CharStarList csl = new CharStarList();
-		return csl.parse(NONTERMINAL_START_S, "abc".toCharArray());
+		return parse(NONTERMINAL_START_S, "abc".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

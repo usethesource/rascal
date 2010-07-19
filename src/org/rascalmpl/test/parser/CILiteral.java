@@ -64,8 +64,7 @@ public class CILiteral extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		CILiteral cil = new CILiteral();
-		return cil.parse(NONTERMINAL_START_S, "Bla".toCharArray());
+		return parse(NONTERMINAL_START_S, "Bla".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

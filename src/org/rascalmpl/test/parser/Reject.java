@@ -86,8 +86,7 @@ public class Reject extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		Reject r = new Reject();
-		return r.parse(NONTERMINAL_START_S, "aa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
