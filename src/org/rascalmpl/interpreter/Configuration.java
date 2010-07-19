@@ -19,6 +19,7 @@ public class Configuration {
 	private final static String RASCAL2TABLE_BINDIR_PROPERTY = "rascal.rascal2table.dir";
 	private final static String SDF_LIBRARY_PATH_PROPERTY = "rascal.sdf.library.dir";
 	private static final String SDF2TABLE_PROPERTY = "rascal.sdf.sdf2table.command";
+	private static final String RASCAL_JAVA_COMPILER_CLASSPATH = "rascal.java.classpath";
 	private final static String PROFILING_PROPERTY = "rascal.profiling";
 	
 	
@@ -168,6 +169,19 @@ public class Configuration {
 		}
 		
 		return sdfLibraryPathProperty;
+	}
+	
+	public static String getRascalJavaClassPathProperty() {
+		String prop = System.getProperty(RASCAL_JAVA_COMPILER_CLASSPATH);
+		if (prop == null) {
+			prop = System.getProperty("java.class.path");
+			System.setProperty(RASCAL_JAVA_COMPILER_CLASSPATH, prop);
+		}
+		return prop;
+	}
+	
+	public static void setRascalJavaClassPathProperty(String path) {
+		System.setProperty(RASCAL_JAVA_COMPILER_CLASSPATH, path);
 	}
 	
 	public static boolean getProfilingProperty(){
