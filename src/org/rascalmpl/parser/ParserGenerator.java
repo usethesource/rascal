@@ -20,7 +20,7 @@ public class ParserGenerator {
 	private final Evaluator evaluator;
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
-	private static final String packageName = "org.rascalmpl.java.parser";
+	private static final String packageName = "org.rascalmpl.java.parser.object";
 
 	public ParserGenerator(PrintWriter out, List<ClassLoader> loaders, IValueFactory factory) {
 		this.bridge = new JavaBridge(out, loaders, factory);
@@ -37,17 +37,17 @@ public class ParserGenerator {
 			IConstructor grammar = (IConstructor) evaluator.call("module2grammar", ParsetreeAdapter.getTop(moduleTree));
 			System.err.println("Imported and normalized grammar: " + grammar);
 			String normName = name.replaceAll("\\.", "_");
-			IString classString = (IString) evaluator.call("generate", vf.string("org.rascalmpl.parser.object"), vf.string(normName), grammar);
+			IString classString = (IString) evaluator.call("generate", vf.string(packageName), vf.string(normName), grammar);
 			Class<IGLL> parser = (Class<IGLL>) bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 			return parser.newInstance();
 		} catch (ClassNotFoundException e) {
-			throw new ImplementationError("parser generator", e);
+			throw new ImplementationError("parser generator: " + e.getMessage(), e);
 		} catch (ClassCastException e) {
-			throw new ImplementationError("parser generator", e);
+			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (InstantiationException e) {
-			throw new ImplementationError("parser generator", e);
+			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (IllegalAccessException e) {
-			throw new ImplementationError("parser generator", e);
+			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		}
 	}
 }
