@@ -112,7 +112,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 			return new AbstractStackNode[]{psn};
 		}
 		
-		EpsilonStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
+		EpsilonStackNode epsn = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
 		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
 		epsn.setParentProduction(production);

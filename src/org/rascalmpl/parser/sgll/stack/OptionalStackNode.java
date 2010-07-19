@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.INode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
@@ -75,7 +76,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		copy.setParentProduction(production);
 		copy.setStartLocation(-1); // Reset.
 		
-		AbstractStackNode epsn = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
+		AbstractStackNode epsn = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
 		copy.addEdge(this);
 		epsn.addEdge(this);
 		epsn.setStartLocation(startLocation);
