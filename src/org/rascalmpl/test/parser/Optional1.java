@@ -72,8 +72,7 @@ public class Optional1 extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		Optional1 o1 = new Optional1();
-		return o1.parse(NONTERMINAL_START_S, "aa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

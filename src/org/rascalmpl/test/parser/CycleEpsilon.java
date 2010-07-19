@@ -78,8 +78,7 @@ public class CycleEpsilon extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		CycleEpsilon ce = new CycleEpsilon();
-		return ce.parse(NONTERMINAL_START_S, "a".toCharArray());
+		return parse(NONTERMINAL_START_S, "a".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

@@ -86,8 +86,7 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		UselessSelfLoop usl = new UselessSelfLoop();
-		return usl.parse(NONTERMINAL_START_S, "a".toCharArray());
+		return parse(NONTERMINAL_START_S, "a".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

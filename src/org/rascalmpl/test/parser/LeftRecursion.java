@@ -72,8 +72,7 @@ public class LeftRecursion extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		LeftRecursion lr = new LeftRecursion();
-		return lr.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aaa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

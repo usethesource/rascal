@@ -77,8 +77,7 @@ public class SeparatedStarList extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		SeparatedStarList nrsl = new SeparatedStarList();
-		return nrsl.parse(NONTERMINAL_START_S, "ababa".toCharArray());
+		return parse(NONTERMINAL_START_S, "ababa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

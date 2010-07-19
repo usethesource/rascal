@@ -97,8 +97,7 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		NotAUselessSelfLoop nausl = new NotAUselessSelfLoop();
-		return nausl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aaa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

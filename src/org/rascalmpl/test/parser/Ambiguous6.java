@@ -121,8 +121,7 @@ public class Ambiguous6 extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		Ambiguous6 a6 = new Ambiguous6();
-		return a6.parse(NONTERMINAL_START_S, "a".toCharArray());
+		return parse(NONTERMINAL_START_S, "a".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

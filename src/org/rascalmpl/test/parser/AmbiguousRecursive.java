@@ -71,8 +71,7 @@ public class AmbiguousRecursive extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		AmbiguousRecursive ar = new AmbiguousRecursive();
-		return ar.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aaa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

@@ -71,8 +71,7 @@ public class NonTerminalStarList extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		NonTerminalStarList nrsl = new NonTerminalStarList();
-		return nrsl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, "aaa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

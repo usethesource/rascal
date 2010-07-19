@@ -79,8 +79,7 @@ public class Simple2 extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		Simple2 s2 = new Simple2();
-		return s2.parse(NONTERMINAL_START_S, "ab".toCharArray());
+		return parse(NONTERMINAL_START_S, "ab".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

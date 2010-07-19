@@ -71,8 +71,7 @@ public class Simple1 extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		Simple1 s1 = new Simple1();
-		return s1.parse(NONTERMINAL_START_S, "aab".toCharArray());
+		return parse(NONTERMINAL_START_S, "aab".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
