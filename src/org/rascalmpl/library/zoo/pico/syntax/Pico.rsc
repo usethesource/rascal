@@ -1,6 +1,7 @@
 module zoo::pico::syntax::Pico
 
 import ParseTree;
+import IO;
     
 start syntax PROGRAM = program: "begin" DECLS decls {STATEMENT  ";"}* body "end" ;
   
@@ -35,8 +36,15 @@ layout Layout = [\ \t\n\r]
           | "%%" ![\n]* "\n"
           ;
 
+public PROGRAM program(str input) {
+  return parseExperimental(#PROGRAM, input);
+}
+
 public int main() {
-  parseExperimental(#PROGRAM, "begin declare a : natural; a := 10 end");
+  PROGRAM p = parseExperimental(#PROGRAM, "begin declare a : natural; a := 10 end");
+  println("program:", p);
+  rawPrintln("tree:", p);
+  return 0;
 }
 
   

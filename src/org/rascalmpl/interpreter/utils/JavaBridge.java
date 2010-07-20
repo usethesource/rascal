@@ -1,21 +1,14 @@
 package org.rascalmpl.interpreter.utils;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
-
-import net.java.dev.hickory.testing.Compilation;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -57,25 +50,18 @@ public class JavaBridge {
 //	private static final String JAVA_IMPORTS_TAG = "javaImports";
 	private static final String JAVA_CLASS_TAG = "javaClass";
 	
-	private static final String UNWANTED_MESSAGE_PREFIX = "org/rascalmpl/java/";
-	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
-	private static final String METHOD_NAME = "call";
-	
-	private final Writer out;
 	private final List<ClassLoader> loaders;
 	
-	private final static Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
-//	private final static JavaTypes javaTypes = new JavaTypes();
 	private final static JavaClasses javaClasses = new JavaClasses();
 	
 	private final IValueFactory vf;
 	
 	private final HashMap<Class<?>, Object> instanceCache;
 
+	private JavaCompiler<?> javaCompiler = new JavaCompiler<Object>(getClass().getClassLoader(), Arrays.asList(new String[] {"-cp", Configuration.getRascalJavaClassPathProperty()}));
 	
 
 	public JavaBridge(PrintWriter outputStream, List<ClassLoader> classLoaders, IValueFactory valueFactory) {
-		this.out = new PrintWriter(outputStream);
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
@@ -83,35 +69,16 @@ public class JavaBridge {
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
-		
-//		if (ToolProvider.getSystemToolClassLoader() == null) {
-//			throw new ImplementationError("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
-//		}
 	}
 
-	public Class<?> compileJava(ISourceLocation loc, String className, String source) throws ClassNotFoundException {
-		Compilation compilation = new Compilation();
-		System.err.println("Trying to compile this source code: " + source);
-
+	public Class<?> compileJava(ISourceLocation loc, String className, String source) {
 		try {
-			compilation.addSource(className).openWriter().write(source);
-		} catch (IOException e) {
-			throw new ImplementationError("this should not happen", e);
+			return javaCompiler.compile(className, source, null, Object.class);
+		} catch (ClassCastException e) {
+			throw new JavaCompilationError(e.getMessage(), loc);
+		} catch (JavaCompilerException e) {
+			throw new JavaCompilationError(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), loc);
 		}
-	  
-		compilation.doCompile(out, "-cp", Configuration.getRascalJavaClassPathProperty());
-		
-		if (compilation.getDiagnostics().size() != 0) {
-			StringBuilder messages = new StringBuilder();
-			for (Diagnostic<? extends JavaFileObject> d : compilation.getDiagnostics()) {
-				String message = d.getMessage(null);
-				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
-				messages.append(message + "\n");
-			}
-			throw new JavaCompilationError(messages.toString(), loc);
-		}
-
-		return compilation.getOutputClass(className);
 	}
 	
 	private String getClassName(FunctionDeclaration declaration) {

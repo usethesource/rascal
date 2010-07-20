@@ -49,7 +49,7 @@ public class Factory {
 	
 	public static final Type Production_Default = tf.constructor(uptr, Production, "prod", tf.listType(Symbol), "lhs", Symbol, "rhs", Attributes, "attributes");
 	public static final Type Production_List = tf.constructor(uptr, Production, "list", Symbol, "rhs");
-	public static final Type Production_Regular = tf.constructor(uptr, Production, "regular", Symbol, "rhs");
+	public static final Type Production_Regular = tf.constructor(uptr, Production, "regular", Symbol, "rhs", Attributes, "attributes");
 	
 	public static final Type Attributes_NoAttrs = tf.constructor(uptr, Attributes, "no-attrs");
 	public static final Type Attributes_Attrs = tf.constructor(uptr, Attributes, "attrs", tf.listType(Attr), "attrs");
