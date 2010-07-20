@@ -1,6 +1,5 @@
 package org.rascalmpl.parser;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,11 +41,6 @@ public class ParserGenerator {
 			System.err.println("Imported and normalized grammar: " + grammar);
 			String normName = name.replaceAll("\\.", "_");
 			IString classString = (IString) evaluator.call("generate", vf.string(packageName), vf.string(normName), grammar);
-			
-			// TODO remove this debug code
-			FileOutputStream debugFile = new FileOutputStream("/tmp/parser.java");
-			debugFile.write(classString.getValue().getBytes());
-			debugFile.close();
 			Class<IGLL> parser = (Class<IGLL>) bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 			return parser.newInstance();
 		}  catch (ClassCastException e) {
@@ -55,10 +49,6 @@ public class ParserGenerator {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (IllegalAccessException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
-		} catch (FileNotFoundException e) {
-			throw new ImplementationError("parser generator:" + e.getMessage(), e);
-		} catch (IOException e) {
-			throw new ImplementationError("parser generator:" + e.getMessage(), e);
-		}
+		} 
 	}
 }
