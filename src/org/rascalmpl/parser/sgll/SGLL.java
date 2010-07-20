@@ -145,18 +145,19 @@ public abstract class SGLL implements IGLL{
 		for(int i = possiblySharedNextNodes.size() - 1; i >= 0; i--){
 			AbstractStackNode possibleAlternative = possiblySharedNextNodes.get(i);
 			if(possibleAlternative.isSimilar(next)){
-				if(next.hasEdges()){
+				addPrefixes(possibleAlternative, node);
+				
+				ArrayList<AbstractStackNode> edges;
+				if((edges = next.getEdges()) != null){
 					possibleAlternative.addEdges(next.getEdges());
+					
+					if(!possibleAlternative.isClean()){
+						// Something horrible happened; update the prefixes.
+						updatePrefixes(possibleAlternative, node, edges);
+					}
 				}else{
 					// Don't lose any edges.
 					updateProductionEndNode(possibleAlternative, next);
-				}
-				
-				addPrefixes(possibleAlternative, node);
-				
-				if(!possibleAlternative.isClean()){
-					// Something horrible happened; update the prefixes.
-					updatePrefixes(possibleAlternative, node);
 				}
 				return;
 			}
@@ -189,26 +190,23 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void updatePrefixes(AbstractStackNode next, AbstractStackNode node){
+	private void updatePrefixes(AbstractStackNode next, AbstractStackNode node, ArrayList<AbstractStackNode> edges){
 		IConstructor production = next.getParentProduction();
 		
 		LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap = node.getPrefixesMap();
 		INode result = node.getResult();
 		
 		// Update results (if necessary).
-		ArrayList<AbstractStackNode> edges;
-		if((edges = next.getEdges()) != null){
-			for(int i = edges.size() - 1; i >= 0; i--){
-				AbstractStackNode edge = edges.get(i);
-				if(withResults.contains(edge)){
-					Link prefix = constructPrefixesFor(prefixesMap, result, edge.getStartLocation());
-					if(prefix != null){
-						ArrayList<Link> edgePrefixes = new ArrayList<Link>();
-						edgePrefixes.add(prefix);
-						ContainerNode resultStore = edge.getResultStore();
-						if(!resultStore.isRejected()){
-							resultStore.addAlternative(production, new Link(edgePrefixes, next.getResult()));
-						}
+		for(int i = edges.size() - 1; i >= 0; i--){
+			AbstractStackNode edge = edges.get(i);
+			if(withResults.contains(edge)){
+				Link prefix = constructPrefixesFor(prefixesMap, result, edge.getStartLocation());
+				if(prefix != null){
+					ArrayList<Link> edgePrefixes = new ArrayList<Link>();
+					edgePrefixes.add(prefix);
+					ContainerNode resultStore = edge.getResultStore();
+					if(!resultStore.isRejected()){
+						resultStore.addAlternative(production, new Link(edgePrefixes, next.getResult()));
 					}
 				}
 			}
