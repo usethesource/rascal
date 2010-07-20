@@ -452,6 +452,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public IValue parseObjectExperimental(IConstructor startSort, java.lang.String sentence) {
 		IGLL parser = getObjectParser();
+		if (SymbolAdapter.isCf(startSort)) {
+			startSort = SymbolAdapter.getSymbol(startSort);
+		}
 		return parser.parse(startSort, sentence);
 	}
 

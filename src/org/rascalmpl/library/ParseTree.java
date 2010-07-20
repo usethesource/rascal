@@ -47,7 +47,8 @@ public class ParseTree {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
-		return ctx.getEvaluator().parseObjectExperimental(startSort, input.getValue());
+		IConstructor pt = (IConstructor) ctx.getEvaluator().parseObjectExperimental(startSort, input.getValue());
+		return ParsetreeAdapter.getTop(pt);
 	}
 	
 	public IString unparse(IConstructor tree) {
