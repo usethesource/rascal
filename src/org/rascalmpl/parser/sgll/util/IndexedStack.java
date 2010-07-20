@@ -27,6 +27,10 @@ public class IndexedStack<E>{
 		E[] oldData = data;
 		data = (E[]) new Object[size << 1];
 		System.arraycopy(oldData, 0, data, 0, size);
+		
+		int[] oldIndexes = indexes;
+		indexes = new int[size << 1];
+		System.arraycopy(oldIndexes, 0, indexes, 0, size);
 	}
 	
 	public void push(E object, int index){
