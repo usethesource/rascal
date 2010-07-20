@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -18,6 +20,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Test;
+import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
@@ -27,6 +30,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 /**
@@ -41,6 +45,7 @@ public class ModuleEnvironment extends Environment {
 	protected Map<String, ModuleEnvironment> importedModules;
 	protected Map<Type, List<Type>> extensions;
 	protected TypeStore typeStore;
+	protected Set<IValue> productions;
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
 	protected List<Test> tests;
 	private Set<String> importedSDFModules = new HashSet<String>();
@@ -53,9 +58,27 @@ public class ModuleEnvironment extends Environment {
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
 		this.extensions = new HashMap<Type, List<Type>>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
+		this.productions = new HashSet<IValue>();
 		this.typeStore = new TypeStore();
 		this.tests = new LinkedList<Test>();
 		this.initialized = false;
+	}
+	
+	@Override
+	public void declareProduction(Syntax x) {
+		productions.add((IValue) x.getTree());
+	}
+	
+	@Override
+	public ISet getProductions() {
+		ISetWriter w = ValueFactoryFactory.getValueFactory().setWriter();
+		w.insertAll(productions);
+		
+		for (String i : importedModules.keySet()) {
+			ModuleEnvironment m = importedModules.get(i);
+			w.insertAll(m.productions);
+		}
+		return w.done();
 	}
 	
 	public boolean isModuleEnvironment() {

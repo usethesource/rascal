@@ -459,22 +459,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	private IGLL getObjectParser() {
-		// TODO: refactor pg to field
-		try {
-			ParserGenerator pg = getParserGenerator();
-			ModuleEnvironment currentModule = (ModuleEnvironment) getCurrentEnvt().getRoot();
-			
-			if (heap.existsModule(currentModule.getName())) {
-				// TODO: add support for modular grammars (this only uses the syntax definition of the current module
-				IConstructor moduleTree = parseModule(URI.create("rascal:///" + currentModule.getName()), currentModule);
-				return pg.getParser(getCurrentAST().getLocation(), currentModule.getName().replaceAll("::", "."), moduleTree);
-			}
-			
-			throw RuntimeExceptionFactory.io(getValueFactory().string("can not parse yet from outside the module where the syntax is defined"), getCurrentAST(), getStackTrace());
+		ParserGenerator pg = getParserGenerator();
+		ModuleEnvironment currentModule = (ModuleEnvironment) getCurrentEnvt().getRoot();
+
+		String parserName;
+		if (rootScope == currentModule) {
+			parserName = "__Shell__";
 		}
-		catch (IOException e) {
-			throw new ImplementationError("unexpected io exception", e);
+		else {
+			parserName = currentModule.getName().replaceAll("::", ".");
 		}
+
+		return pg.getParser(getCurrentAST().getLocation(), parserName, currentModule.getProductions());
 	}
 
 	private ParserGenerator getParserGenerator() {
@@ -1077,6 +1073,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitImportSyntax(Syntax x) {
 		typeDeclarator.declareSyntaxType(x.getSyntax().getUser(), getCurrentEnvt());
+		getCurrentEnvt().declareProduction(x);
 		return nothing();
 	}
 

@@ -1,12 +1,10 @@
 package org.rascalmpl.parser;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -17,7 +15,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
 
 public class ParserGenerator {
 	private final Evaluator evaluator;
@@ -32,12 +29,20 @@ public class ParserGenerator {
 		evaluator.doImport("rascal::parser::Generator");
 		evaluator.doImport("rascal::parser::Definition");
 	}
-	
+
+	/**
+	 * Generate a parser from a Rascal syntax definition (a set of production rules).
+	 * 
+	 * @param loc     a location for error reporting
+	 * @param name    the name of the parser for use in code generation and for later reference
+	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	public IGLL getParser(ISourceLocation loc, String name, IConstructor moduleTree) {
+	public IGLL getParser(ISourceLocation loc, String name, ISet imports) {
 		try {
 			// TODO: add caching
-			IConstructor grammar = (IConstructor) evaluator.call("module2grammar", ParsetreeAdapter.getTop(moduleTree));
+			IConstructor grammar = (IConstructor) evaluator.call("imports2grammar", imports);
 			System.err.println("Imported and normalized grammar: " + grammar);
 			String normName = name.replaceAll("\\.", "_");
 			IString classString = (IString) evaluator.call("generate", vf.string(packageName), vf.string(normName), grammar);

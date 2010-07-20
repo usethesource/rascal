@@ -14,11 +14,19 @@ import String;
 import ParseTree;
 import IO;  
 import Integer;
-    
+   
+@doc{
+  Converts the syntax definitions of a module to a grammar.
+  Note that this function does not implement the imports of a module
+} 
 public Grammar module2grammar(Module mod) {
   return syntax2grammar(collect(mod));
 }
   
+public Grammar imports2grammar(set[Import] imports) {
+  return syntax2grammar({ s | (Import) `<SyntaxDefinition s>` <- imports});
+}
+
 private set[SyntaxDefinition] collect(Module mod) {
   set[SyntaxDefinition] result = {};
   visit (mod) { case SyntaxDefinition s : result += s; }

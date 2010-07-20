@@ -1,7 +1,7 @@
 module zoo::pico::syntax::Pico
 
-import ParseTree;
-import IO;
+import zoo::pico::syntax::Layout;
+import zoo::pico::syntax::Lexical;
     
 start syntax PROGRAM = program: "begin" DECLS decls {STATEMENT  ";"}* body "end" ;
   
@@ -27,25 +27,10 @@ syntax EXP = id: PICOID name
            | bracket "(" EXP e ")"
            ;
                
-syntax PICOID = lex [a-z][a-z0-9]*;
-syntax NATCON = lex [0-9]+ ;
-syntax STRCON = lex "\"" ![\"]*  "\"";
+
  
-layout Layout = [\ \t\n\r]
-          | "%" ![%]* "%"
-          | "%%" ![\n]* "\n"
-          ;
 
-public PROGRAM program(str input) {
-  return parseExperimental(#PROGRAM, input);
-}
 
-public int main() {
-  PROGRAM p = parseExperimental(#PROGRAM, "begin declare a : natural; a := 10 end");
-  println("program:", p);
-  rawPrintln("tree:", p);
-  return 0;
-}
 
   
 
