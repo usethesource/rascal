@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -17,6 +18,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -551,5 +553,11 @@ public class Environment {
 		this.typeParameters = new HashMap<Type, Type>();
 	}
 
-
+	public void declareProduction(Syntax x) {
+		getRoot().declareProduction(x);
+	}
+	
+	public ISet getProductions() {
+		return getRoot().getProductions();
+	}
 }

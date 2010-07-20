@@ -1,5 +1,6 @@
-module zoo::pico::syntax::Pico
+module zoo::pico::syntax::Lexical
 
-public syntax PICOID = lex id: [a-z] [a-z0-9]+
-public syntax NATCON = lex [0-9]+ ;
-public syntax STRCON = lex "\"" ~[\"]*  "\"";
+syntax PICOID = lex [a-z][a-z0-9]*;
+syntax NATCON = lex [0-9]+ ;
+syntax STRCON = lex "\"" ![\"]*  "\"";
+
