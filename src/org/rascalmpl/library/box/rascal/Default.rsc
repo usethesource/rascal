@@ -1,6 +1,7 @@
 module box::rascal::Default
 import ParseTree;
 import box::Concrete;
+import box::Latex;
 import box::Box;
 import IO;
 import box::rascal::Modules;
@@ -10,6 +11,7 @@ import box::rascal::Expressions;
 import box::rascal::Statements;
 import box::rascal::Types;
 import box::rascal::Rascal;
+import box::rascal::Keywords;
 
 import rascal::\old-syntax::Rascal;
 
@@ -58,10 +60,26 @@ bool isSeperated(list[Symbol] q) {
      return false;
      }
      
+ bool isKeyword(Symbol a) {
+     if (\lit(str s):=a) {
+         if (s in keywords) return true;
+         }
+     return false;
+     }
+     
 public text toList(loc asf){
+     println(locationIntro);
      Tree a = parse(#Module, asf);
      // rawPrintln(a);
-     return returnText(a, extraRules, isIndented, isCompact, isSeperated);
+     return returnText(a, extraRules, isIndented, isCompact, isSeperated, isKeyword);
+     }
+     
+public text toLatex(loc asf, loc locationIntro, loc locationEnd){
+     println(locationIntro);
+     Tree a = parse(#Module, asf);
+     // rawPrintln(a);
+     return intro(locationIntro)+returnText(a, extraRules, isIndented, isCompact, isSeperated, isKeyword)+
+             finish(locationEnd);
      }
 
 // Don't change this part 

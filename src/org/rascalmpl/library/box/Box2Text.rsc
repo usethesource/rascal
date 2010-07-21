@@ -19,6 +19,7 @@ import box::Box;
 int maxWidth = 80;
 int hv2h_crit = 70;
 bool decorated = false;
+bool latex = false;
 
 
 alias options = map [str, int];
@@ -127,7 +128,8 @@ text vv_(text a, text b) {
 
 text LL(str s ) { 
    // println(s);
-   return [s];
+   return latex?[replaceAll(replaceAll(replaceAll(replaceAll(replaceAll(s, "\\{", "\\{"), "\\}", "\\}"), "\\\<", "{\\textless}"),"\\\>","{\\textgreater}"),"\\|","{\\textbar}")]:[s];
+   // return latex?[replaceAll(replaceAll(s, "a", "b"), "c", "d")]:[s];
    }
 
 /*
@@ -261,10 +263,10 @@ text HVHV(text T, int s, list[Box] b, options o,  int m, Box c) {
 
 text font(text t, str tg) {
    if (isEmpty(t)) return t;
-   str h = "\b{<tg>"+t[0];
+   str h = (latex?"\\<tg>{":"\b{<tg>")+t[0];
    int n = size(t)-1;
    if (n==0) {
-       h +="\b}12";
+       h += latex?"}":"\b}12";
        return [h];
        }
    text r = [];
@@ -272,7 +274,7 @@ text font(text t, str tg) {
    for (int i <-[1, 2..(n-1)]) {
        r+=t[i];
       }
-   r+=(t[n]+"\b}12");
+   r+=(t[n]+(latex?"}":"\b}12"));
    return r;
   }
 
@@ -287,9 +289,9 @@ text QQ(Box b, Box c, options o, int m) {
          case  HV(list[Box] bl):{return  HVHV(bl, c, o, m);}
          case  SPACE(int n):{return  hskip(n);}
          case  A(list[Box] bl):{return AA(bl, c, o, f, m);}
-         case KW(Box a):{return decorated?font(O(a, c, o, m),"bf"):O(a,c,o,m);}
-         case VAR(Box a):{return  decorated?font(O( a, c, o, m),"it"):O( a, c, o, m);}
-         case NM(Box a):{return decorated?font(O( a, c, o, m),"nm"):O( a, c, o, m);}
+         case KW(Box a):{return decorated?font(O(a, c, o, m),"KW"):O(a,c,o,m);}
+         case VAR(Box a):{return  decorated?font(O( a, c, o, m),"VR"):O( a, c, o, m);}
+         case NM(Box a):{return decorated?font(O( a, c, o, m),"NM"):O( a, c, o, m);}
      }
 return [];
 }
@@ -450,15 +452,28 @@ public str format(Box b) {
 }
 
 public text box2text(Box b) {
+    decorated =  false;
+    text t = box2data(b);
+    return t;
+    }
+
+public text box2data(Box b) {
     b = removeHV(b);
     b = removeHOV(b);
-    decorated =  false;
     text t = O(b, V([]), oDefault, maxWidth);
+    return t;
+    }
+      
+public text box2latex(Box b) {
+    latex = true;
+    decorated =  true;
+    text t = box2data(b);
+    latex = false;
     return t;
     }
 
 public value toList(Box b) {
-  // println("Hallo");
+  println("Hallo");
   b = removeHV(b);
   b = removeHOV(b);
   println("Reduce finished");

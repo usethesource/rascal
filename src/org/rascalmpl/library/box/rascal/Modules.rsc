@@ -6,7 +6,7 @@ public Box getModules(Tree q) {
 if (Header a:=q) 
 switch(a) {
 	case `<Tags tags> module <QualifiedName name> <Import* imports> `: {
-	         list[Box ] h = [H(1, [L("module"), evPt(name)])];
+	         list[Box ] h = [H(1, [KW(L("module")), evPt(name)])];
              return V(h+getArgs(imports, #Import));
              }
          }
