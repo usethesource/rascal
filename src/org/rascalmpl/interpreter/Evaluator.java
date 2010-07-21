@@ -472,7 +472,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		return pg.getParser(getCurrentAST().getLocation(), parserName, currentModule.getProductions());
 	}
-
+	
+	// for debugging/bootstrapping purposes TODO remove later
+	public IValue getGrammar(String modname) {
+		ModuleEnvironment env = getHeap().getModule(modname);
+		if (env == null) {
+			throw new UndeclaredModuleError(modname, getCurrentAST());
+		}
+		ParserGenerator pg = getParserGenerator();
+		return pg.getGrammar(env.getProductions());
+	}
+	
 	private ParserGenerator getParserGenerator() {
 		if (parserGenerator == null) {
 			parserGenerator = new ParserGenerator(stdout, classLoaders, getValueFactory());
