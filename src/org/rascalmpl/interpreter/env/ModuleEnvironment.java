@@ -463,6 +463,7 @@ public class ModuleEnvironment extends Environment {
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.typeStore = new TypeStore();
 		this.tests = new LinkedList<Test>();
+		this.productions = new HashSet<IValue>();
 		this.initialized = false;
 	}
 }
