@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -32,6 +33,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class MakeBox {
 
 	private final String varName = "boxData";
+	private final String locationIntro = "locationIntro";
+	private final String locationEnd = "locationEnd";
 	private final String moduleName = "moduleName";
 
 	class Data extends ByteArrayOutputStream {
@@ -86,7 +89,7 @@ public class MakeBox {
 	}
 
 	private void execute(String s) {
-		System.err.println("execute:"+s);
+		System.err.println("execute:" + s);
 		commandEvaluator.eval(s, URI.create("box:///"));
 	}
 
@@ -112,19 +115,34 @@ public class MakeBox {
 
 	private IValue launchConcreteProgram(URI uri, String s) {
 		final String resultName = "c";
-		if (s.equals("rsc")) 
-			 s = "rascal"; // Exception at rascal
+		if (s.equals("rsc"))
+			s = "rascal"; // Exception at rascal
 		execute("import box::" + s + "::Default;");
 		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()
 				.sourceLocation(uri);
-		System.err.println("launch:"+v.getType().toString());
 		store(v, varName);
-		execute(resultName + "=toList(" + varName + ");");
+		String project_loc = System.getProperty("project_loc");
+		String loc = project_loc
+				+ "/src/"
+				+ this.getClass().getCanonicalName().replace('.',
+						File.separatorChar);
+		File f = new File(loc);
+		ISourceLocation a = ValueFactoryFactory.getValueFactory()
+				.sourceLocation(
+						new File(f.getParentFile(), "Start.tex").toURI());
+		ISourceLocation b = ValueFactoryFactory.getValueFactory()
+				.sourceLocation(new File(f.getParentFile(), "End.tex").toURI());
+		store(a, locationIntro);
+		store(b, locationEnd);
+		System.err.println(a);
+		// execute(resultName + "=toList(" + varName + ");");
+		execute(resultName + "=toLatex(" + varName + "," + locationIntro + ","
+				+ locationEnd + ");");
 		IValue r = fetch(resultName);
 		return r;
 	}
-	
+
 	private IValue launchTemplateProgram(URI uri, String s) {
 		final String resultName = "c";
 		execute("import box::" + s + ";");
@@ -133,11 +151,10 @@ public class MakeBox {
 				.sourceLocation(uri);
 		store(v, varName);
 		String name = new File(uri.getPath()).getName();
-		name = name.substring(0,name.lastIndexOf('.'));
-		IString w = ValueFactoryFactory.getValueFactory()
-				.string(name);
+		name = name.substring(0, name.lastIndexOf('.'));
+		IString w = ValueFactoryFactory.getValueFactory().string(name);
 		store(w, moduleName);
-		execute(resultName + "=toStr(" + varName + ","+moduleName+");");
+		execute(resultName + "=toStr(" + varName + "," + moduleName + ");");
 		IValue r = fetch(resultName);
 		return r;
 	}
@@ -178,7 +195,7 @@ public class MakeBox {
 		// s = s.substring(0, 1).toUpperCase() + s.substring(1);
 		return launchConcreteProgram(uri, s);
 	}
-	
+
 	public IValue toSrc(URI uri) {
 		start();
 		int tail = uri.getPath().lastIndexOf('.');

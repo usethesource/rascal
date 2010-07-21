@@ -21,6 +21,8 @@ list[segment]  cNULL(list[Symbol] p) {return [];}
 
 bool bNULL(list[Symbol] o) {return false;}
 
+bool sNULL(Symbol o) {return false;}
+
 Box(Tree) userDefined = fNULL; 
 
 list[int](list[Symbol] , list[Tree])  isIndented = pNULL;
@@ -28,6 +30,8 @@ list[int](list[Symbol] , list[Tree])  isIndented = pNULL;
 list[segment](list[Symbol])  isCompact = cNULL;
 
 bool(list[Symbol]) isSeperated = bNULL;
+
+bool(Symbol s) isKeyword = sNULL;
 
 bool isTerminal(Symbol s) {
      return ((\lit(_):= s)) ||  (\char-class(_):=s);
@@ -154,11 +158,12 @@ Box boxArgs(list[Tree] t, pairs u, bool hv, bool doIndent, int space) {
     return  boxArgs(t, u, hv, [],  [], false, doIndent, space);
     }
 
-public void initConcrete(Box(Tree) userDef, list[int] (list[Symbol], list[Tree]) g , list[segment] (list[Symbol]) h, bool(list[Symbol]) q ) {
+public void initConcrete(Box(Tree) userDef, list[int] (list[Symbol], list[Tree]) g , list[segment] (list[Symbol]) h, bool(list[Symbol]) q , bool(Symbol) r) {
     userDefined = userDef;
     isIndented = g;
     isCompact = h;
     isSeperated = q;
+    isKeyword = r;
     }
 
 public list[Tree] getA(Tree q) {
@@ -209,7 +214,7 @@ public Box evPt(Tree q, bool doIndent) {
                 }
         case appl(\list(\lex(\iter(\layout()) )), list[Tree] t): {
               list[Box] g = [b | Tree z <- t, Box b := evPt(z), b!=NULL()];
-              Box r = isEmpty(g)?NULL():V(0, g);
+              Box r = isEmpty(g)?NULL():VAR(V(0, g));
               /*
               if (r!=NULL()) {
               println("Hallo <size(g)>");
@@ -280,7 +285,7 @@ list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, b
               if  ( \lex(\sort(_)):=a || \lit(_):=a) {
                   str s = "<t>";
                   if (endsWith(s,"\n")) s = replaceLast(s,"\n","");
-                  b = L(s);
+                  b = (isKeyword(a)?KW(L(s)):L(s));
                   }
               else b = defaultBox(evPt(t,  (i/2 in indent)));
               if (b!=NULL()) 
@@ -302,11 +307,10 @@ list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, b
 }
 
 public text  returnText(Tree a, Box(Tree) userDef, list[int](list[Symbol], list[Tree]) isIndented, list[segment](list[Symbol]) isCompact, 
-   bool(list[Symbol]) isSeperated ) {
-     initConcrete(userDef, isIndented, isCompact, isSeperated);
+   bool(list[Symbol]) isSeperated, bool(Symbol) isKeyword) {
+     initConcrete(userDef, isIndented, isCompact, isSeperated, isKeyword);
      Box out = evPt(a);
-     // println(out);
-     return box2text(out);
+     return box2latex(out);
     }
 
 public void concrete(Tree a) {
@@ -335,7 +339,7 @@ public Box getConstructor(Tree g,  type[&T<:Tree] filter, str h1, str h2) {
 public Box cmd(str name, Tree expr, str sep) {
    Box h = H([evPt(expr), L(sep)]);
    h@hs = 0;
-   return H([L(name), h]);
+   return H([KW(L(name)), h]);
    }
   
 public Box HV(int space, list[Box] bs) {
