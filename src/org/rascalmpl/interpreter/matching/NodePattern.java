@@ -48,7 +48,7 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 		super.initMatch(subject);
 		hasNext = false;
-		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
+		if(!(subject.getValue().getType().isNodeType() || subject.getValue().getType().isAbstractDataType())){
 			return;
 		}
 		treeSubject = (INode) subject.getValue();
