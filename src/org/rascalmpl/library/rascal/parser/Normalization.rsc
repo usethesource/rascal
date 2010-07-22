@@ -88,6 +88,10 @@ public Symbol sort(Production p) {
   switch(p){
     case prod(_,Symbol rhs,_):
     	return rhs;
+    case regular(Symbol rhs, _):
+        return rhs;
+    case list(Symbol rhs):
+        return rhs;
     case choice(s, alts) :
      	return s;
     case first(s, alts) :
