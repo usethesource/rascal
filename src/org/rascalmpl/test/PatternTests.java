@@ -962,4 +962,10 @@ public class PatternTests extends TestFramework {
 	
 		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt({1,2,3}) == 3;}"));
 	}
+	
+	@Test
+	public void nodeMatchBacktracking() {
+		prepare("import List;");
+		runTestInSameEvaluator("{ x = for(\"f\"({int a, int b, set[int] c}) := \"f\"({1,2,3,4})) append <a,b>; size(x) == 12;}"); 
+	}
 }
