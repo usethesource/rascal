@@ -25,6 +25,7 @@ public class NodePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final QualifiedName qname;
+	private int nextChild;
 	
 	public NodePattern(IEvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
 		super(ctx);
@@ -85,12 +86,17 @@ public class NodePattern extends AbstractMatchingResult {
 			}
 		}
 		
+		hasNext = true;
+		firstMatch = true;
+		
 		for (int i = 0; i < children.size(); i += 1){
 			IValue childValue = treeSubject.get(i);
-			// TODO: see if we can use a static type here!?
-			children.get(i).initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+			IMatchingResult child = children.get(i);
+			child.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+			hasNext &= child.hasNext();
 		}
-		firstMatch = hasNext = true;
+		
+		nextChild = children.size() - 1;
 	}
 	
 	@Override
@@ -159,22 +165,43 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean hasNext(){
-		if(!initialized)
+		if (!initialized) {
 			return false;
-		if(firstMatch)
-			return true;
-		if(!hasNext)
-			return false;
-		
-		if(name == null || name.hasNext()) {
-			if(children.size() > 0){
-				for (int i = 0; i < children.size(); i += 1) {
-					if(children.get(i).hasNext()){
-						return true;
-					}
-				}
-			}
 		}
+		
+		if (firstMatch) {
+			return true;
+		}
+		
+		if (!hasNext) {
+			return false;
+		}
+
+		while (nextChild >= 0) {
+			IMatchingResult child = children.get(nextChild);
+
+			if (child.hasNext()) {
+				for (int i = nextChild + 1; i < children.size(); i++) {
+					IValue childValue = treeSubject.get(i);
+					IMatchingResult tailChild = children.get(i);
+					tailChild.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+				}
+				return true;
+			}
+			nextChild--;
+		}
+		
+		// try everything again with the next match of the node name
+		if (name != null && name.hasNext()) {
+			hasNext = true;
+			for (int i = 0; i < children.size(); i++) {
+				IValue childValue = treeSubject.get(i);
+				IMatchingResult tailChild = children.get(i);
+				tailChild.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+			}
+			return true;
+		}
+		
 		hasNext = false;
 		return false;
 	}
@@ -186,35 +213,44 @@ public class NodePattern extends AbstractMatchingResult {
 		if(!(firstMatch || hasNext))
 			return false;
 
-		if (name != null) {
-			boolean nameNext = name.next();
-			if (!nameNext) {
-				firstMatch = hasNext = false;
-				return false;
+		if (firstMatch) {
+			firstMatch = false;
+			if (name != null) {
+				boolean nameNext = name.next();
+				if (!nameNext) {
+					firstMatch = hasNext = false;
+					return false;
+				}
 			}
-		}
-		
-		if(children.size() == 0){
-			boolean res = firstMatch;
-			firstMatch = hasNext = false;
-			return res;	
-		}
-	   
-		firstMatch = false;
-		hasNext = matchChildren();
-		
-		return hasNext;
-	}
-	
-	boolean matchChildren(){
-		for (int i = 0; i < children.size(); i += 1) {
-			if(!children.get(i).next()){
-				return false;
+			
+			for (IMatchingResult child : children) {
+				if (!child.next()) {
+					return false;
+				}
 			}
+			
+			nextChild = children.size() - 1;
+			return true;
 		}
-		return true;
+		else {
+			// backtracking is on!
+			if (nextChild == -1) { // no children
+				if (!name.next()) {
+					return false;// TODO: backtrack for the node name
+				}
+				nextChild = 0;
+			}
+			
+			// redo the current child and the suffix
+			for (int i = nextChild; i < children.size(); i++) {
+				if (!children.get(i).next()) {
+					return false;
+				}
+			}
+			nextChild = children.size() - 1;
+			return true;
+		}
 	}
-
 	
 	@Override
 	public String toString(){
