@@ -1418,7 +1418,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				Result<IValue> v = var.getInitial().accept(this);
 
 				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
-					throw new RedeclaredVariableError(var.getName().toString(), var);
+					throw new RedeclaredVariableError(Names.name(var.getName()), var);
 				}
 
 				if(v.getType().isSubtypeOf(declaredType)){
@@ -1922,7 +1922,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitAssignableFieldAccess(FieldAccess x) {
 		Result<IValue> receiver = x.getReceiver().accept(this);
-		String label = x.getField().toString();
+		String label = Names.name(x.getField());
 
 		Type receiverType = receiver.getType();
 		if (receiverType.isTupleType()) {
@@ -2931,7 +2931,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionFieldUpdate(FieldUpdate x) {
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> repl = x.getReplacement().accept(this);
-		String name = x.getKey().toString();
+		String name = Names.name(x.getKey());
 		return expr.fieldUpdate(name, repl, getCurrentEnvt().getStore());
 	}
 
@@ -3154,6 +3154,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 						boolean trueConditions = true;
 						for(Expression cond : conditions){
 							//System.err.println("cond = " + cond);
+							System.err.println("p: " + getCurrentEnvt().getVariable("p"));
+							System.err.println("q: " + getCurrentEnvt().getVariable("q"));
 							if(!cond.accept(this).isTrue()){
 								trueConditions = false;
 								//System.err.println("false cond = " + cond);
