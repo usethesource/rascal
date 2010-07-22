@@ -968,4 +968,10 @@ public class PatternTests extends TestFramework {
 		prepare("import List;");
 		runTestInSameEvaluator("{ x = for(\"f\"({int a, int b, set[int] c}) := \"f\"({1,2,3,4})) append <a,b>; size(x) == 12;}"); 
 	}
+	
+	@Test
+	public void tupleMatchBacktracking() {
+		prepare("import List;");
+		runTestInSameEvaluator("{ x = for(<{int a, int b, set[int] c}> := <{1,2,3,4}>) append <a,b>; size(x) == 12;}"); 
+	}
 }
