@@ -606,7 +606,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					profiler.report();
 				}
 			}
-		} catch (Return e){
+		} 
+		catch (Return e){
 			throw new UnguardedReturnError(stat);
 		}
 		catch (Failure e){
@@ -924,8 +925,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	@Override
 	public Result<IValue> visitCommandExpression(org.rascalmpl.ast.Command.Expression x) {
-		setCurrentAST(x.getExpression());
-		return x.getExpression().accept(this);
+		Environment old = getCurrentEnvt();
+
+		try {
+			pushEnv();
+			setCurrentAST(x.getExpression());
+			return x.getExpression().accept(this);
+		}
+		finally {
+			unwind(old);
+		}
 	}
 	
 	@Override
