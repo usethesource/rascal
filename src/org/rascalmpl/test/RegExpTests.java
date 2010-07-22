@@ -81,8 +81,8 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("{ int n = 3; (/<x:\\>>/ := \"\\>\" && x == \"\\>\");}"));
 
 		assertTrue(runTest("{ int n = 3; (/<x:\\<>/ := \"\\<\" && x == \"\\<\");}"));
-		assertTrue(runTest("{ int n = 3; (/<x:\\<<n>>/ := \"\\<3\" && x == \"\\<3\");}"));
-		assertTrue(runTest("{ int n = 3; (/<x:\\<<n>\\>>/ := \"\\<3\\>\" && x == \"\\<3\\>\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:\\< <n>>/ := \"\\< 3\" && x == \"\\< 3\");}"));
+		assertTrue(runTest("{ int n = 3; (/<x:\\< <n>\\>>/ := \"\\< 3\\>\" && x == \"\\< 3\\>\");}"));
 	}
 	
 	@Test
