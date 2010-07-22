@@ -27,6 +27,7 @@ public class ParserGenerator {
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parsergenerator***"), new GlobalEnvironment());
 		this.vf = factory;
 		evaluator.doImport("rascal::parser::Generator");
+		evaluator.doImport("rascal::parser::Normalization");
 		evaluator.doImport("rascal::parser::Definition");
 	}
 
@@ -42,7 +43,7 @@ public class ParserGenerator {
 	public IGLL getParser(ISourceLocation loc, String name, ISet imports) {
 		try {
 			// TODO: add caching
-			IConstructor grammar = (IConstructor) evaluator.call("imports2grammar", imports);
+			IConstructor grammar = getGrammar(imports);
 			System.err.println("Imported and normalized grammar: " + grammar);
 			String normName = name.replaceAll("\\.", "_");
 			IString classString = (IString) evaluator.call("generate", vf.string(packageName), vf.string(normName), grammar);
@@ -55,5 +56,9 @@ public class ParserGenerator {
 		} catch (IllegalAccessException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} 
+	}
+
+	public IConstructor getGrammar(ISet imports) {
+		return (IConstructor) evaluator.call("imports2grammar", imports);
 	}
 }

@@ -20,11 +20,11 @@ syntax TYPE = natural:"natural" | string:"string" | nil:"nil-type";
 syntax EXP = id: PICOID name
            | strcon: STRCON string
            | natcon: NATCON natcon
-           | cons: EXP lhs "||" EXP rhs
-                  | plus: EXP lhs "-" EXP rhs
-                  | minus: EXP lhs "+" EXP rhs
-           |
            | bracket "(" EXP e ")"
+           ;
+           
+syntax EXP = mult: EXP lhs "*" EXP rhs
+           > add: EXP lhs "+" EXP rhs
            ;
                
 
