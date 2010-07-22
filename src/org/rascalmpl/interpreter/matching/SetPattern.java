@@ -45,6 +45,8 @@ public class SetPattern extends AbstractMatchingResult {
     private boolean firstMatch;				    // First match of this pattern?
 	
 	private boolean debug = false;
+	private Type staticSetSubjectType;
+	private Type staticSubjectElementType;
 	
 	public SetPattern(IEvaluatorContext ctx, List<IMatchingResult> list){
 		super(ctx);
@@ -131,14 +133,16 @@ public class SetPattern extends AbstractMatchingResult {
 		
 		super.initMatch(subject);
 		
-		if (!subject.getType().isSetType()) {
+		if (!subject.getValue().getType().isSetType()) {
 			hasNext = false;
 			return;
 		}
 		
 		setSubject = (ISet) subject.getValue();
-		setSubjectType = subject.getType(); // have to use static type here
+		setSubjectType = setSubject.getType(); // have to use static type here
+		staticSetSubjectType = subject.getType();
 		setSubjectElementType = setSubject.getElementType();
+		staticSubjectElementType = staticSetSubjectType.isSetType() ? staticSetSubjectType.getElementType() : tf.valueType();
 		Environment env = ctx.getCurrentEnvt();
 		fixedSetElements = ctx.getValueFactory().set(getType(env).getElementType());
 		
@@ -162,7 +166,7 @@ public class SetPattern extends AbstractMatchingResult {
 				if(!patVar.isAnonymous() && allVars.contains(name)){
 					throw new RedeclaredVariableError(name, getAST());
 				}
-				if(childType.comparable(setSubjectType) || childType.comparable(setSubjectElementType)){
+				if(childType.comparable(staticSetSubjectType) || childType.comparable(staticSubjectElementType)){
 					/*
 					 * An explicitly declared set or element variable.
 					 */
@@ -223,28 +227,28 @@ public class SetPattern extends AbstractMatchingResult {
 						varPat[nVar] = child;
 						isSetVar[nVar] = false;
 						nVar++;
-						env.declareVariable(setSubjectElementType, name);
+						env.declareVariable(staticSubjectElementType, name);
 					} else {
 					    if(varRes.getValue() != null){
 					        Type varType = varRes.getType();
-					        if (varType.comparable(setSubjectType)){
+					        if (varType.comparable(staticSetSubjectType)){
 					        	/*
 					        	 * A set variable declared in the current scope: add its elements
 					        	 */
 					        	fixedSetElements = fixedSetElements.union((ISet)varRes.getValue());
-					        } else if(varType.comparable(setSubjectElementType)){
+					        } else if(varType.comparable(staticSubjectElementType)){
 					        	/*
 					        	 * An element variable in the current scope, add its value.
 					        	 */
 					        	fixedSetElements = fixedSetElements.insert(varRes.getValue());
 					        } else {
-					        	throw new UnexpectedTypeError(setSubject.getType(),varType, getAST());
+					        	throw new UnexpectedTypeError(staticSetSubjectType,varType, getAST());
 					        }
 					    } 
 					    else {
 					    	// JURGEN added this to support pre-declared list variables
 					    
-					    	if(varRes.getType().comparable(setSubjectType) || varRes.getType().comparable(setSubjectElementType)){
+					    	if(varRes.getType().comparable(staticSetSubjectType) || varRes.getType().comparable(staticSubjectElementType)){
 								/*
 								 * An explicitly declared set or element variable.
 								 */
@@ -263,13 +267,13 @@ public class SetPattern extends AbstractMatchingResult {
 			} else if(child instanceof LiteralPattern){
 				IValue lit = child.toIValue(env);
 				Type childType = child.getType(env);
-				if(!childType.comparable(setSubjectElementType)){
+				if(!childType.comparable(staticSubjectElementType)){
 					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				fixedSetElements = fixedSetElements.insert(lit);
 			} else {
 				Type childType = child.getType(env);
-				if(!childType.comparable(setSubjectElementType)){
+				if(!childType.comparable(staticSubjectElementType)){
 					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				java.util.List<String> childVars = child.getVariables();

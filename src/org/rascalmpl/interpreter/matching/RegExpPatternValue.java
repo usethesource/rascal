@@ -73,7 +73,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
 		
-		if(!subject.getType().isSubtypeOf(tf.stringType())) {
+		if(!subject.getValue().getType().isSubtypeOf(tf.stringType())) {
 			hasNext = false;
 			return;
 		}

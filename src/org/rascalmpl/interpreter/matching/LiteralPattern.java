@@ -37,7 +37,7 @@ public class LiteralPattern extends AbstractMatchingResult {
 			return false;
 		hasNext = false;
 	
-		if (isPattern && subject.getType().comparable(literal.getType())) {
+		if (isPattern && subject.getValue().getType().comparable(literal.getType())) {
 			return subject.equals(makeResult(literal.getType(), literal, ctx)).isTrue();
 		}
 		else if (!isPattern) {

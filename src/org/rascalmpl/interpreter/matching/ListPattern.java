@@ -27,7 +27,6 @@ public class ListPattern extends AbstractMatchingResult  {
 	private int reducedPatternSize;               	//  (patternSize + delta - 1)/delta                                    
 	private IList listSubject;						// The subject as list
 	private Type listSubjectType;					// The type of the subject
-	private Type listSubjectElementType;			// The type of list elements
 	private int subjectSize;						// Length of the subject
 	private int reducedSubjectSize;                	// (subjectSize + delta - 1) / delta
 	private boolean [] isListVar;					// Determine which elements are list or variables
@@ -47,6 +46,8 @@ public class ListPattern extends AbstractMatchingResult  {
 	private boolean forward;						// Moving to the right?
 	
 	private boolean debug = false;
+	private Type staticListSubjectElementType;
+	private Type staticListSubjectType;
 
 	
 	public ListPattern(IEvaluatorContext ctx, List<IMatchingResult> list){
@@ -106,13 +107,14 @@ public class ListPattern extends AbstractMatchingResult  {
 			System.err.println("List: initMatch: subject=" + subject);
 		}
 		
-		if (!subject.getType().isListType()) {
+		if (!subject.getValue().getType().isListType()) {
 			hasNext = false;
 			return;
 		}
 		listSubject = (IList) subject.getValue();
-		listSubjectType = subject.getType(); // use static type here!
-		listSubjectElementType = subject.getType().getElementType(); // use static type here!
+		listSubjectType = listSubject.getType(); 
+		staticListSubjectType = subject.getType();
+		staticListSubjectElementType = staticListSubjectType.isListType() ? subject.getType().getElementType() : tf.valueType();
 		
 		subjectCursor = 0;
 		patternCursor = 0;
@@ -229,7 +231,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				        		// suppress comparable test for Nonterminal types
 				        		// TODO: this should be done better
 				        	} else
-				        	if(!varType.comparable(listSubjectElementType)){
+				        	if(!varType.comparable(staticListSubjectElementType)){
 				        		throw new UnexpectedTypeError(listSubjectType, varType, getAST());
 				        	}
 				        }
@@ -244,8 +246,8 @@ public class ListPattern extends AbstractMatchingResult  {
 				
 			    // TODO: pattern matching should be specialized such that matching appl(prod...)'s does not
 				// need to use list matching on the fixed arity children of the application of a production
-				if(!(childType instanceof NonTerminalType) && !childType.comparable(listSubjectElementType)){
-					throw new UnexpectedTypeError(listSubjectElementType,childType, getAST());
+				if(!(childType instanceof NonTerminalType) && !childType.comparable(staticListSubjectElementType)){
+					throw new UnexpectedTypeError(staticListSubjectElementType,childType, getAST());
 				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
@@ -273,7 +275,7 @@ public class ListPattern extends AbstractMatchingResult  {
 	
 		firstMatch = true;
 
-		hasNext = subject.getType().isListType() && 
+		hasNext = subject.getValue().getType().isListType() && 
 		          reducedSubjectSize >= reducedPatternSize - nListVar;
 		
 		if(debug) {
