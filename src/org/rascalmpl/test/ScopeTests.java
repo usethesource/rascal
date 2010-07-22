@@ -9,6 +9,23 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 
 public class ScopeTests extends TestFramework {
 	
+	@Test(expected=UndeclaredVariableError.class)
+	public void noEscapeFromToplevelMatch() {
+		runTest("{ bool a := true; a;}");
+	}
+	
+	@Test(expected=UndeclaredVariableError.class)
+	public void noEscapeFromToplevelMatchStatement() {
+		runTest("bool a := true;");
+		runTestInSameEvaluator("a;");
+	}
+	
+	@Test(expected=UndeclaredVariableError.class)
+	public void noEscapeFromToplevelMatchExpression() {
+		runTest("bool a := true"); // notice the necessary lack of a semi-colon here
+		runTestInSameEvaluator("a;");
+	}
+	
 	@Test(expected=RedeclaredVariableError.class)
 	public void localRedeclarationError1(){
 		runTest("{int n; int n;}");
