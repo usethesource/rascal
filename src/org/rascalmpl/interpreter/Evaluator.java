@@ -3153,26 +3153,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		try {
 			IMatchingResult mp = pat.accept(patternEvaluator);
 			mp.initMatch(subject);
-			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
 			while (mp.hasNext()){
-				//System.err.println("mp.hasNext()==true; mp=" + mp);
-
 				if(mp.next()){
 					try {
 						boolean trueConditions = true;
 						for(Expression cond : conditions){
-							//System.err.println("cond = " + cond);
-							System.err.println("p: " + getCurrentEnvt().getVariable("p"));
-							System.err.println("q: " + getCurrentEnvt().getVariable("q"));
 							if(!cond.accept(this).isTrue()){
 								trueConditions = false;
-								//System.err.println("false cond = " + cond);
 								break;
 							}
 						}
 						if(trueConditions){
-							//System.err.println("evaluating replacement expression: " + replacementExpr);
 							throw new org.rascalmpl.interpreter.control_exceptions.Insert(replacementExpr.accept(this), mp);		
 						}
 					} catch (Failure e){
