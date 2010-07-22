@@ -1,12 +1,17 @@
 package org.rascalmpl.interpreter.matching;
 
+import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -14,89 +19,128 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class NodePattern extends AbstractMatchingResult {
-	private IMatchingResult name;
-	private List<IMatchingResult> children;
-	private INode treeSubject;
-	private boolean firstMatch = false;
-	private boolean debug = false;
 	private final TypeFactory tf = TypeFactory.getInstance();
-	private final QualifiedName qname;
-	private int nextChild;
+	private final TuplePattern tuple;
+	private INode subject;
+	private final NodeWrapperTuple tupleSubject;
+	private boolean isGenericNodeType;
+	private QualifiedName qName;
 	
 	public NodePattern(IEvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
 		super(ctx);
-		this.name = matchPattern;
-		this.qname = name;
-		this.children = list;
-		if(debug){
-			System.err.println("NodePattern: " + name + ", #children: " + list.size());
-			System.err.println("NodePattern name:" + name != null ? name : qname);
-			for(IMatchingResult ap : list){
-				System.err.println(ap);
+		
+		if (matchPattern != null) {
+			list.add(0, matchPattern);
+			isGenericNodeType = true;
+		}
+		else if (name != null) {
+			IString nameVal = ctx.getValueFactory().string(Names.name(Names.lastName(name)));
+			list.add(0, new ValuePattern(ctx, ResultFactory.makeResult(tf.stringType(), nameVal, ctx)));
+			isGenericNodeType = false;
+			qName = name;
+		}
+		
+		this.tuple = new TuplePattern(ctx, list);
+		this.tupleSubject = new NodeWrapperTuple();
+	}
+	
+	private class NodeWrapperTuple implements ITuple {
+		public int arity() {
+			return 1 + subject.arity();
+		}
+
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			if (i == 0) {
+				return ctx.getValueFactory().string(subject.getName());
 			}
+			return subject.get(i - 1);
+		}
+
+		public Type getType() {
+			Type[] kids = new Type[1 + subject.arity()];
+			kids[0] = tf.stringType();
+			for (int i = 0; i < subject.arity(); i++) {
+				kids[i+1] = subject.get(i).getType();
+			}
+			return tf.tupleType(kids);
+		}
+		
+		public boolean isEqual(IValue other) {
+			if (!other.getType().isTupleType()) {
+				return false;
+			}
+			if (other.getType().getArity() != subject.arity()) {
+				return false;
+			}
+			for (int i = 0; i < arity(); i++) {
+				if (!get(i).isEqual(((ITuple)other).get(i))) {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		public Iterator<IValue> iterator() {
+			return new Iterator<IValue>() {
+
+				boolean first = true;
+				Iterator<IValue> subjectIter = subject.iterator();
+				
+				public boolean hasNext() {
+					return first || subjectIter.hasNext(); 
+				}
+
+				public IValue next() {
+					if (first) {
+						first = false;
+						return get(0);
+					}
+					return subjectIter.next();
+				}
+
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+				
+			};
+		}
+		
+		public IValue get(String label) throws FactTypeUseException {
+			throw new UnsupportedOperationException();
+		}
+
+		public IValue select(int... fields) throws IndexOutOfBoundsException {
+			throw new UnsupportedOperationException();
+		}
+
+		public IValue select(String... fields) throws FactTypeUseException {
+			throw new UnsupportedOperationException();
+		}
+
+		public ITuple set(int i, IValue arg) throws IndexOutOfBoundsException {
+			throw new UnsupportedOperationException();
+		}
+
+		public ITuple set(String label, IValue arg) throws FactTypeUseException {
+			throw new UnsupportedOperationException();
+		}
+
+		public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+			throw new UnsupportedOperationException();
 		}
 	}
 	
 	@Override
-	public void initMatch(Result<IValue> subject){
-		if(debug){
-			System.err.println("NodePattern: initMatch");
-			System.err.println("NodePattern: subject type=" + subject.getType());
-		}
-		super.initMatch(subject);
-		hasNext = false;
-		if(!(subject.getValue().getType().isNodeType() || subject.getValue().getType().isAbstractDataType())){
+	public void initMatch(Result<IValue> subject) {
+		if (!subject.getValue().getType().isNodeType()) {
+			hasNext = false;
 			return;
 		}
-		treeSubject = (INode) subject.getValue();
-		if(debug){
-			System.err.println("NodePattern: pattern=" + name != null ? name : qname);
-			System.err.println("NodePattern: treeSubject=" + treeSubject);
-			System.err.println("NodePattern: treeSubject.arity() =" + treeSubject.arity());
-			System.err.println("NodePattern: children.size() =" + children.size());
-		}
-		if(treeSubject.arity() != children.size()){
-			return;
-		}
-		
-		if (name != null) {
-			Environment env = ctx.getCurrentEnvt();
-			Type nameType = name.getType(env);
-			
-			if (nameType.isStringType()) {
-				name.initMatch(ResultFactory.makeResult(tf.stringType(), ctx.getValueFactory().string(treeSubject.getName()), ctx));
-			}
-			else if (nameType.isExternalType()) {
-				if (treeSubject instanceof IConstructor) {
-					Result<IValue> funcSubject = ctx.getCurrentEnvt().getVariable(treeSubject.getName());
-					name.initMatch(funcSubject);
-				}
-			}
-			else {
-				throw new UnexpectedTypeError(tf.stringType(), nameType, name.getAST());
-			}
-		}
-		else {
-			if(!Names.name(Names.lastName(qname)).equals(treeSubject.getName().toString())) {
-				return;
-			}
-		}
-		
-		hasNext = true;
-		firstMatch = true;
-		
-		for (int i = 0; i < children.size(); i += 1){
-			IValue childValue = treeSubject.get(i);
-			IMatchingResult child = children.get(i);
-			child.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
-			hasNext &= child.hasNext();
-		}
-		
-		nextChild = children.size() - 1;
+		this.subject = (INode) subject.getValue();
+		tuple.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
 	}
 	
 	@Override
@@ -108,170 +152,74 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 		return type;
 	}
+
+	private Type getSignatureType(Environment env) {
+		int arity = tuple.getType(env).getArity() - 1;
+
+		Type[] types = new Type[arity];
+
+		for (int i = 1; i < arity + 1; i += 1) {
+			types[i - 1] =  tuple.getType(env).getFieldType(i);
+		}
+
+		return tf.tupleType(types);
+	}
+	
 	
 	public Type getConstructorType(Environment env) {
-		 Type[] types = new Type[children.size()];
+		 Type signature = getSignatureType(env);
 
-		 for (int i = 0; i < children.size(); i += 1) {
-			 types[i] =  children.get(i).getType(env);
-		 }
-		 
-		 Type signature = tf.tupleType(types);
-		 
-		 if (qname != null) {
-			 Result<IValue> constructors = env.getVariable(qname);
+		 if (!isGenericNodeType) {
+			 Result<IValue> constructors = env.getVariable(qName);
 			 
 			 if (constructors != null && constructors instanceof OverloadedFunctionResult) {
 				 for (AbstractFunction d : ((OverloadedFunctionResult) constructors).iterable()) {
 					 if (d.match(signature)) {
-						 return env.getConstructor(d.getReturnType(), Names.name(Names.lastName(qname)), signature);
+						 return env.getConstructor(d.getReturnType(), Names.name(Names.lastName(qName)), signature);
 					 }
 				 }
 			 }
 		 }
-		 
 	     return tf.nodeType();
 	}
 	
 	@Override
-	public IValue toIValue(Environment env){
-		Type[] types = new Type[children.size()];
-		IValue[] vals = new IValue[children.size()];
-		
-		for (int i = 0; i < children.size(); i += 1) {
-			types[i] =  children.get(i).getType(env);
-			vals[i] =  children.get(i).toIValue(env);
+	public IValue toIValue(Environment env) {
+		Type signature = getSignatureType(env);
+		ITuple vals = (ITuple)tuple.toIValue(env);
+		IValue valArray[] = new IValue[vals.arity() - 1];
+		for (int i = 1; i < vals.arity(); i++) {
+			valArray[i - 1] = vals.get(i);
 		}
-		Type signature = tf.tupleType(types);
 		
-		if (qname != null) {
-			if(env.isTreeConstructorName(qname, signature)){
-				Type consType = env.getConstructor(Names.name(Names.lastName(qname)), signature);
+		if (!isGenericNodeType) {
+			if(env.isTreeConstructorName(qName, signature)){
+				Type consType = env.getConstructor(Names.name(Names.lastName(qName)), signature);
 
-				return ctx.getValueFactory().constructor(consType, vals);
+				return ctx.getValueFactory().constructor(consType, valArray);
 			}
 		}
-		return ctx.getValueFactory().node(name.toString(), vals);
+		
+		return ctx.getValueFactory().node(((IString) vals.get(0)).getValue(), valArray);
 	}
 
 	@Override
-	public java.util.List<String> getVariables(){
-		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
-		for (int i = 0; i < children.size(); i += 1) {
-			res.addAll(children.get(i).getVariables());
-		 }
-		return res;
+	public java.util.List<String> getVariables() {
+		return tuple.getVariables();
 	}
 	
 	@Override
 	public boolean hasNext(){
-		if (!initialized) {
-			return false;
-		}
-		
-		if (firstMatch) {
-			return true;
-		}
-		
-		if (!hasNext) {
-			return false;
-		}
-
-		while (nextChild >= 0) {
-			IMatchingResult child = children.get(nextChild);
-
-			if (child.hasNext()) {
-				for (int i = nextChild + 1; i < children.size(); i++) {
-					IValue childValue = treeSubject.get(i);
-					IMatchingResult tailChild = children.get(i);
-					tailChild.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
-				}
-				return true;
-			}
-			nextChild--;
-		}
-		
-		// try everything again with the next match of the node name
-		if (name != null && name.hasNext()) {
-			hasNext = true;
-			for (int i = 0; i < children.size(); i++) {
-				IValue childValue = treeSubject.get(i);
-				IMatchingResult tailChild = children.get(i);
-				tailChild.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
-			}
-			return true;
-		}
-		
-		hasNext = false;
-		return false;
+		return tuple.hasNext();
 	}
 	
 	@Override
 	public boolean next(){
-		checkInitialized();
-		
-		if(!(firstMatch || hasNext))
-			return false;
-
-		if (firstMatch) {
-			firstMatch = false;
-			if (name != null) {
-				boolean nameNext = name.next();
-				if (!nameNext) {
-					firstMatch = hasNext = false;
-					return false;
-				}
-			}
-			
-			for (IMatchingResult child : children) {
-				if (!child.next()) {
-					return false;
-				}
-			}
-			
-			nextChild = children.size() - 1;
-			return true;
-		}
-		else {
-			// backtracking is on!
-			if (nextChild == -1) { // no children
-				if (!name.next()) {
-					return false;// TODO: backtrack for the node name
-				}
-				nextChild = 0;
-			}
-			
-			// redo the current child and the suffix
-			for (int i = nextChild; i < children.size(); i++) {
-				if (!children.get(i).next()) {
-					return false;
-				}
-			}
-			nextChild = children.size() - 1;
-			return true;
-		}
+		return tuple.next();
 	}
 	
 	@Override
 	public String toString(){
-		StringBuilder res = new StringBuilder();
-		
-		if (name != null) {
-			res.append(name);
-		}
-		else {
-		    res.append(Names.name(Names.lastName(qname)));
-		}
-		
-		res.append("(");
-		
-		String sep = "";
-		for(IBooleanResult mp : children){
-			res.append(sep);
-			sep = ", ";
-			res.append(mp.toString());
-		}
-		res.append(")");
-		return res.toString();
+		return "nodeAsTuple:" + tuple.toString();
 	}
 }
