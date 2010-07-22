@@ -9,8 +9,10 @@ import rascal::parser::Grammar;
 import rascal::parser::Normalization;
 import ParseTree;
 import List;
+import IO;
 
 rule bottom level(Symbol a, int x) => a when x <= 0;
+rule label  level(label(str l, Symbol s), int x) => label(l, level(s, x));
 
 public Grammar factorize(Grammar g) {
   g.productions = factorize(g.productions);
@@ -29,11 +31,12 @@ set[Production] factorize(set[Production] productions) {
 public set[Production] factorize(Production p) {
    if (first(Symbol s, list[Production] prods) := p) { 
       int len = size(prods);
-      
+   
       // first we give each level a number
       levels = for ([list[Production] prefix, Production elem, list[Production] postfix] := prods)
                  append setToLevel(elem, s, size(prefix)); 
-               
+          
+           
       // then we define each level by itself and copying all the productions from lower levels
       return { choice(level(s, l), {elem, toSet(redefine(postfix, level(s, l)))}) 
              | [list[Production] prefix, Production elem, list[Production] postfix] := levels, int l := size(prefix)}; 
@@ -83,20 +86,27 @@ Associativity rules are applied by increasing the level number on selected non-t
 }
 public Production setToLevel(Production p, Symbol s, int l) {
   return visit (p) {
-    case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\left()),list[Attr] a2])) => 
-         prod([level(s, l), middle, level(s, l+1)],level(s,l),a)
-    case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\right()),list[Attr] a2])) => 
-         prod([level(s, l+1), middle, level(s, l)],level(s,l),a)
-    case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\assoc()),list[Attr] a2])) => 
-         prod([level(s, l), middle, level(s, l+1)],level(s,l),a)
-    case prod([s, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\non-assoc()),list[Attr] a2])) => 
+    case prod([s1, list[Symbol] middle, s2],s,Attributes a:attrs([list[Attr] a1, \assoc(\left()),list[Attr] a2])) => 
+         prod([level(s1,l), middle, level(s2,l+1)],level(s,l),a)
+      when checkSymbol(s1, s), checkSymbol(s2,s)
+    case prod([s1, list[Symbol] middle, s],s,Attributes a:attrs([list[Attr] a1, \assoc(\right()),list[Attr] a2])) => 
+         prod([level(s1,l+1), middle, level(s2,l)],level(s,l),a)
+      when checkSymbol(s1, s), checkSymbol(s2,s)   
+    case prod([s1, list[Symbol] middle, s],s2,Attributes a:attrs([list[Attr] a1, \assoc(\assoc()),list[Attr] a2])) => 
+         prod([level(s1, l), middle, level(s2, l+1)],level(s,l),a)
+      when checkSymbol(s1, s), checkSymbol(s2,s)      
+    case prod([s1, list[Symbol] middle, s],s2,Attributes a:attrs([list[Attr] a1, \assoc(\non-assoc()),list[Attr] a2])) => 
          prod([level(s, l+1), middle, level(s, l+1)],level(s,l),a)
-    case prod([s, list[Symbol] middle, s],s,Attributes a) => 
+      when checkSymbol(s1, s), checkSymbol(s2,s)    
+    case prod([s1, list[Symbol] middle, s2],s,Attributes a) => 
          prod([level(s, l), middle, level(s, l)],level(s,l),a)
-    case prod([s, list[Symbol] tail],s,Attributes a)      => 
+      when checkSymbol(s1, s), checkSymbol(s2,s)   
+    case prod([s1, list[Symbol] tail],s,Attributes a)      => 
          prod([level(s, l), tail], level(s, l), a)
-    case prod([list[Symbol] front, s], s, Attributes a)   => 
+      when checkSymbol(s1, s)    
+    case prod([list[Symbol] front, s1], s, Attributes a)   => 
          prod([front, level(s, l)], level(s, l), a) 
+      when checkSymbol(s1, s)    
     case prod(list[Symbol] lhs, s, Attributes a)          => 
          prod(lhs, level(s, l), a)
     case choice(s, set[Production] alts) => choice(level(s, l), alts)
@@ -105,6 +115,10 @@ public Production setToLevel(Production p, Symbol s, int l) {
     case \restrict(s, Production language, list[CharClass] restrictions) => restrict(level(s,l), language, restrictions)  
   }
 }   
+
+private bool checkSymbol(Symbol checked, Symbol referenced) {
+  return referenced == checked || label(_, referenced) := checked;
+}
 
 private Attributes add(Attributes attrs, Attr a) {
   switch(attrs) {

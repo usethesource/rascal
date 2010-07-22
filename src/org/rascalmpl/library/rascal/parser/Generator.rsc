@@ -24,9 +24,10 @@ public str generate(str package, str name, loc mod) {
   return generate(package, name, module2grammar(parse(#Module, mod)));
 }
 
-public str generate(str package, str name, Grammar g){
+public str generate(str package, str name, Grammar gr){
     itemId = 0;
-    grammar = factorize(g);
+    grammar = factorize(gr);
+    g = grammar;
     return 
 "
 package <package>;
@@ -61,7 +62,7 @@ public class <name> extends SGLL {
     }
   
     // Production declarations
-    <for (p <- { p | /Production p := g, prod(_,_,_) := p || regular(_,_) := p}) {>private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);
+    <for (p <- { p | /Production p := g, prod(_,_,_) := p || regular(_,_) := p}) {>private static final IConstructor <value2id(p)> = read(\"<esc("<removeLevels(p)>")>\", Factory.Production);
     <}>
     
     public <name>(){
@@ -188,9 +189,10 @@ public str ciliterals2ints(list[Symbol] chars){
 
 public str sym2newitem(Symbol sym){
     int id = nextItem();
-    
     switch(sym){
         case \label(_,s) : return sym2newitem(s); // ignore labels
+        case level(_,_) : 
+            return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \sort(n) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \start(s) : 
@@ -198,7 +200,7 @@ public str sym2newitem(Symbol sym){
         case \lit(l) : {
             if (/p:prod(chars,\lit(l),_) := grammar)  
                 return "new LiteralStackNode(<id>, <value2id(p)>, new char[] {<literals2ints(chars)>})";
-            throw "literal not found in <grammar>??";
+            throw "literal not found in <g>??";
         }
         case \cilit(l) : {
             throw "ci lits not supported yet";
@@ -259,12 +261,18 @@ public str sym2id(Symbol s){
     return "symbol_<value2id(s)>";
 }
 
+public Production removeLevels(Production p) {
+  return visit(p) {
+    case level(Symbol s, int l) => s
+  }
+}
+
 public str value2id(value v){
     switch(v){
         case label(_,v)    : return value2id(v);
         case sort(str s)   : return s;
-        case lit(/<s:^[A-Za-z0-9]+$>/) : return "lit_<s>";
         case cilit(str s)  : return "cilit_<s>";
+	    case lit(/<s:^[A-Za-z0-9]+$>/) : return "lit_<s>"; 
         case int i         : return "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)-1]);
         case node n        : return "<escId(getName(n))>_<("" | it + "_" + value2id(c) | c <- getChildren(n))>";

@@ -47,4 +47,13 @@ data Symbol = intersection(Symbol lhs, Symbol rhs)
   A Symbol constructor that can introduce levels for a certain non-terminal, which can be used to implement priorities and associativity
 }
 data Symbol = level(Symbol symbol, int level);
-            
+        
+@doc{
+  this function is for debugging of Rascal itself, it produces the grammar defined by a certain module.
+  it should dissappear as soon as the # operator can produce the reified representation of non-terminals, which should
+  include a full grammar
+}
+@reflect   
+@javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
+public Grammar java getGrammar(str mod);
+   
