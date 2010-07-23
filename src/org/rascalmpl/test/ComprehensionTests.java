@@ -196,7 +196,8 @@ public class ComprehensionTests extends TestFramework {
 		runTest("any(x <- [1,2,3], \"abc\");");
 	}
 	
-	@Test public void all() {
+	@Test 
+	public void all() {
 		
 		assertTrue(runTest("all(int X <- {1,2,3}, X >= 1);"));
 		assertTrue(runTest("all(int X <- {1,2,3}, X >= 1, X < 10);"));
