@@ -13,25 +13,59 @@ alias pairs = list[tuple[Symbol, Tree]] ;
 
 alias segment = tuple[int, int];
 
-Box fNULL(Tree t) {return NULL();}
+// Userdefined
+Box defaultUserDefined(Tree t) {return NULL();}
 
-list[int]  pNULL(list[Symbol] p, list[Tree] q) {return [];}
+Box(Tree) userDefined = defaultUserDefined; 
 
-list[segment]  cNULL(list[Symbol] p) {return [];}
+public void setUserDefined(Box(Tree) userDef) {
+    userDefined = userDef;
+    }
 
-bool bNULL(list[Symbol] o) {return false;}
+//   ISINDENTED 
 
-bool sNULL(Symbol o) {return false;}
+list[int]  defaultIndented(list[Symbol] p, list[Tree] q) {return [];}
 
-Box(Tree) userDefined = fNULL; 
+list[int](list[Symbol] , list[Tree])  isIndented = defaultIndented;
 
-list[int](list[Symbol] , list[Tree])  isIndented = pNULL;
+public void setIndented(   
+    list[int](list[Symbol], list[Tree]) isIndent) {
+    isIndented = isIndent;
+    }
+    
+//   ISCOMPACT
 
-list[segment](list[Symbol])  isCompact = cNULL;
+list[segment]  defaultCompact(list[Symbol] p) {return [];}
 
-bool(list[Symbol]) isSeperated = bNULL;
+list[segment](list[Symbol])  isCompact = defaultCompact;
 
-bool(Symbol s) isKeyword = sNULL;
+public void setCompact(   
+    list[segment] (list[Symbol]) isCompac) {
+    isCompact = isCompac;
+    }
+
+//   ISSEPARATED
+
+bool defaultSeparated(list[Symbol] o) {return false;}
+
+bool(list[Symbol]) isSeparated = defaultSeparated;
+
+public void setSeparated(   
+    bool (list[Symbol]) isSepar) {
+    isSeparated = isSepar;
+    }
+
+//   ISKEYWORD
+
+bool defaultKeyword(Symbol o) {return false;}
+
+bool(Symbol s) isKeyword = defaultKeyword;
+
+public void setKeyword(   
+    bool (Symbol) isKeywor) {
+    isKeyword = isKeywor;
+    } 
+// End Setting User Defined Filters
 
 bool isTerminal(Symbol s) {
      return ((\lit(_):= s)) ||  (\char-class(_):=s);
@@ -141,8 +175,8 @@ list[Box] mergeComment(list[Tree] t, list[Box] bl) {
     }
 */
 
-Box boxArgs(list[Tree] t, pairs u, bool hv, list[int] indent, list[segment] compact, bool seperated, bool doIndent, int space) {
-     list[Box] bl = walkThroughSymbols(u, indent, compact, seperated, doIndent);
+Box boxArgs(list[Tree] t, pairs u, bool hv, list[int] indent, list[segment] compact, bool separated, bool doIndent, int space) {
+     list[Box] bl = walkThroughSymbols(u, indent, compact, separated, doIndent);
        if (size(bl)==0) return NULL();
        if (size(bl)==1) {
              return bl[0];
@@ -158,6 +192,7 @@ Box boxArgs(list[Tree] t, pairs u, bool hv, bool doIndent, int space) {
     return  boxArgs(t, u, hv, [],  [], false, doIndent, space);
     }
 
+/*
 public void initConcrete(Box(Tree) userDef, list[int] (list[Symbol], list[Tree]) g , list[segment] (list[Symbol]) h, bool(list[Symbol]) q , bool(Symbol) r) {
     userDefined = userDef;
     isIndented = g;
@@ -165,6 +200,7 @@ public void initConcrete(Box(Tree) userDef, list[int] (list[Symbol], list[Tree])
     isSeperated = q;
     isKeyword = r;
     }
+ */
 
 public list[Tree] getA(Tree q) {
     if (appl(_, list[Tree] z):=q) return z;
@@ -189,7 +225,7 @@ public Box evPt(Tree q, bool doIndent) {
                       pairs u =[<s[i], t[i]>| int i<-[0,1..(size(t)-1)]];
                       list[Symbol] q = [s|<Symbol s, _><-u, s!=skip];
                       list[Tree] z  = [a |<Symbol s, Tree a><-u, s!=skip];
-                      Box r = boxArgs(t, u, true, isIndented(q, z), isCompact(q), isSeperated(q), doIndent, -1);  
+                      Box r = boxArgs(t, u, true, isIndented(q, z), isCompact(q), isSeparated(q), doIndent, -1);  
                       return r;                                   
                      }
         case appl(\list(\cf(\iter-star-sep(Symbol s, Symbol sep) )), list[Tree] t): {
@@ -267,7 +303,7 @@ Box defaultBox(Box b) {
               } 
                     
 
-list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, bool seperated, bool doIndent) {
+list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, bool separated, bool doIndent) {
    list[Box] out = [];
    segment q = isEmpty(compact)?<1000,1000>:head(compact);
    if (!isEmpty(compact)) compact = tail(compact);
@@ -303,16 +339,26 @@ list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, b
                              else 
                                    out+=(i/2 in indent?I([b]):b);       
              }
-   return seperated?[H(1, out)]: (doIndent?[V(0, out)]:out);
+   return separated?[H(1, out)]: (doIndent?[V(0, out)]:out);
 }
 
+/*
 public text  returnText(Tree a, Box(Tree) userDef, list[int](list[Symbol], list[Tree]) isIndented, list[segment](list[Symbol]) isCompact, 
    bool(list[Symbol]) isSeperated, bool(Symbol) isKeyword) {
-     initConcrete(userDef, isIndented, isCompact, isSeperated, isKeyword);
-     Box out = evPt(a);
-     return box2latex(out);
+     initConcrete(userDef, isIndented, isCompact, isSeperated, isKeyword);   
+    }
+*/
+
+public text toLatex(Tree a) {
+    Box out = evPt(a);
+    return box2latex(out);
     }
 
+public text toText(Tree a) {
+    Box out = evPt(a);
+    return box2text(out);
+    } 
+     
 public void concrete(Tree a) {
     Box out = evPt(a);
     text t = box2text(out);
@@ -360,6 +406,13 @@ public Box H(int space, list[Box] bs) {
    if (space>=0) r@vs = space;
    return r;
    }
+   
+public void writeLatex(loc asf, text r, str suffix) {
+     str s = substring(asf.path, 0, size(asf.path)-size(suffix));
+     loc g = |file://<s>.tex|;
+     writeFile(g);
+     for (str q <- r) appendToFile(g, "<q>\n");
+     }
 /*
 public void main(){
      // ParseTree a = readBinaryValueFile(#ParseTree, |file:///ufs/bertl/asfix/pico/big.asf|);

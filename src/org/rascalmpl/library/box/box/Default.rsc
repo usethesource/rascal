@@ -1,35 +1,31 @@
 module box::box::Default
 import box::box::Input;
+import box::box::Basic;
 import ParseTree;
 import box::Concrete;
 import box::Box;
 import IO;
-import box::box::Basic;
-
 
 alias UserDefinedFilter = Box(Tree t) ;
 
 list[UserDefinedFilter] userDefinedFilters = [ 
        getBasic
        ];
-
-list[int] isIndented(list[Symbol] q, list[Tree] z) {
-     return [];
-     }
-
-list[segment] isCompact(list[Symbol] q) {
-     return [];
-     }
-
-bool isSeperated(list[Symbol] q) {
-     return false;
-     }
-     
-public text toList(loc asf){
+ 
+public text toText(loc asf){
      Tree a = inPut(asf);
-     return returnText(a, extraRules, isIndented, isCompact, isSeperated);
+     setUserDefined(extraRules);
+     return toText(a);
      }
 
+public text toLatex(loc asf){
+     Tree a = inPut(asf);
+     setUserDefined(extraRules);
+     text r = toLatex(a);
+     writeLatex(asf, r, ".box");
+     return r;
+     } 
+    
 // Don't change this part 
 
 public Box extraRules(Tree q) {  
@@ -37,13 +33,5 @@ public Box extraRules(Tree q) {
            Box b = userDefinedFilter(q);
            if (b!=NULL()) return b;
            }
-    return NULL();
-    }
-    
-
-/*
-public void main(){
-    Tree a = parse(#Module, |file:///ufs/bertl/asfix/A.rsc|);
-    concrete(a);
-    }
-*/
+   return NULL();
+   }

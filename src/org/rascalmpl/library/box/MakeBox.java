@@ -33,8 +33,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class MakeBox {
 
 	private final String varName = "boxData";
-	private final String locationIntro = "locationIntro";
-	private final String locationEnd = "locationEnd";
 	private final String moduleName = "moduleName";
 
 	class Data extends ByteArrayOutputStream {
@@ -128,17 +126,8 @@ public class MakeBox {
 				+ this.getClass().getCanonicalName().replace('.',
 						File.separatorChar);
 		File f = new File(loc);
-		ISourceLocation a = ValueFactoryFactory.getValueFactory()
-				.sourceLocation(
-						new File(f.getParentFile(), "Start.tex").toURI());
-		ISourceLocation b = ValueFactoryFactory.getValueFactory()
-				.sourceLocation(new File(f.getParentFile(), "End.tex").toURI());
-		store(a, locationIntro);
-		store(b, locationEnd);
-		System.err.println(a);
 		// execute(resultName + "=toList(" + varName + ");");
-		execute(resultName + "=toLatex(" + varName + "," + locationIntro + ","
-				+ locationEnd + ");");
+		execute(resultName + "=toLatex(" + varName+");");
 		IValue r = fetch(resultName);
 		return r;
 	}

@@ -142,11 +142,11 @@ public class BoxPrinter {
 		FileDialog dialog = new FileDialog(shell);
 //		String[] filterExtensions = new String[] { "*.asf" };
 //		dialog.setFilterExtensions(filterExtensions);
-//		String defaultDir = System.getProperty("DEFAULTDIR");
-		String defaultDir = System.getProperty("user.home")+File.separatorChar+"asfix";
+	    String defaultDir = System.getProperty("DEFAULTDIR");
+		if (defaultDir==null)  defaultDir = System.getProperty("user.home");/*+File.separatorChar+"asfix";*/
 		if (defaultDir != null)
 			dialog.setFilterPath(defaultDir);
-		dialog.setFileName("Modules.sdf");
+		dialog.setFileName("Concrete.rsc");
 		String fileName = dialog.open();
 		if (fileName == null) {
 			System.err.println("Canceled");

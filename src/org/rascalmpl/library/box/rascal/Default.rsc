@@ -1,7 +1,6 @@
 module box::rascal::Default
 import ParseTree;
 import box::Concrete;
-import box::Latex;
 import box::Box;
 import IO;
 import box::rascal::Modules;
@@ -52,7 +51,7 @@ list[segment] isCompact(list[Symbol] q) {
      return [];
      }
 
-bool isSeperated(list[Symbol] q) {
+bool isSeparated(list[Symbol] q) {
      if (isScheme(q , ["N","N"])) return true;  // type name
      if (isScheme(q , ["case","N"])) return true;  // case pattern-with-action
      if (isScheme(q , ["return","N"])) return true; 
@@ -66,20 +65,29 @@ bool isSeperated(list[Symbol] q) {
          }
      return false;
      }
-     
-public text toList(loc asf){
-     println(locationIntro);
+
+void setUserRules() {
+    setUserDefined(extraRules);
+    setIndented(isIndented);
+    setCompact(isCompact);
+    setKeyword(isKeyword);
+    setSeparated(isSeparated);
+    }  
+      
+public text toText(loc asf){
+    //  println(locationIntro);
      Tree a = parse(#Module, asf);
-     // rawPrintln(a);
-     return returnText(a, extraRules, isIndented, isCompact, isSeperated, isKeyword);
+     setUserRules();
+     return toText(a);
      }
      
-public text toLatex(loc asf, loc locationIntro, loc locationEnd){
-     println(locationIntro);
+public text toLatex(loc asf){
      Tree a = parse(#Module, asf);
      // rawPrintln(a);
-     return intro(locationIntro)+returnText(a, extraRules, isIndented, isCompact, isSeperated, isKeyword)+
-             finish(locationEnd);
+     setUserRules();
+     text r = toLatex(a);
+     writeLatex(asf, r, ".rsc");
+     return r;
      }
 
 // Don't change this part 
