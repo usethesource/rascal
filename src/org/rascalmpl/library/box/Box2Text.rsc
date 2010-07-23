@@ -15,7 +15,9 @@ import String;
 import IO;
 import ValueIO;
 import Node;
+import SystemAPI;
 import box::Box;
+import box::Latex;
 int maxWidth = 80;
 int hv2h_crit = 70;
 bool decorated = false;
@@ -126,10 +128,40 @@ text vv_(text a, text b) {
      return vv(a, b);
 }
 
+public str convert2latex(str s) {
+	return visit (s) { 
+	  case /^\{/ => "\\{"
+	  case /^\}/ => "\\}"
+	  case /^\\/ => "{\\textbackslash}"
+	  case /^\</ => "{\\textless}"
+	  case /^\>/ => "{\\textgreater}"
+	  case /^\|/ => "{\\textbar}"
+	  case /^%/ => "\\%"
+	  // case /^-/ => "{\\textendash}"
+	}	
+}
+
+/*
+str convert2latex(str s) {
+    list[tuple[str, str]] str2latex = [
+         <"\\{", "\\{">,
+         <"\\}", "\\}">,
+         <"\\\\[^{}]", "{\\textbackslash}">,
+         <"\\\<", "{\\textless}">,
+         <"\\\>","{\\textgreater}">,
+         <"\\|","{\\textbar}">,
+         <"%", "\\%" > 
+         ]; 
+     for (<str a, str b> <- str2latex) {
+         s = replaceAll(s, a, b);
+         } 
+     return s;         
+    }
+*/
+
 text LL(str s ) { 
    // println(s);
-   return latex?[replaceAll(replaceAll(replaceAll(replaceAll(replaceAll(s, "\\{", "\\{"), "\\}", "\\}"), "\\\<", "{\\textless}"),"\\\>","{\\textgreater}"),"\\|","{\\textbar}")]:[s];
-   // return latex?[replaceAll(replaceAll(s, "a", "b"), "c", "d")]:[s];
+   return latex?[convert2latex(s)]:[s];
    }
 
 /*
@@ -465,9 +497,11 @@ public text box2data(Box b) {
     }
       
 public text box2latex(Box b) {
+    loc introLoc = getLibraryPath("box/Start.tex");
+    loc finishLoc = getLibraryPath("box/End.tex");
     latex = true;
     decorated =  true;
-    text t = box2data(b);
+    text t = intro(introLoc)+box2data(b)+finish(finishLoc);
     latex = false;
     return t;
     }
@@ -476,7 +510,7 @@ public value toList(Box b) {
   println("Hallo");
   b = removeHV(b);
   b = removeHOV(b);
-  println("Reduce finished");
+  // println("Reduce finished");
   decorated =  true;
   text t = O(b, V([]), oDefault, maxWidth);
   /* for (str r<-t) {
