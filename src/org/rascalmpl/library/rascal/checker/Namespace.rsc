@@ -4,18 +4,13 @@ import rascal::checker::Types;
 import rascal::checker::ListUtils;
 import rascal::checker::SubTypes;
 import rascal::checker::Signature;
-import rascal::checker::ScopeInfo;
+import rascal::checker::SymbolTable;
 
 import List;
 import Graph;
 import IO;
 import Set;
 import Map;
-
-// NOTE: The code in ExampleGraph appears to be out of date, so this doesn't
-// appear to work. Look at other ways to visualize.
-//import viz::Figure::Core;
-//import viz::Figure::Render;
 
 import rascal::\old-syntax::Rascal;
 
@@ -111,9 +106,6 @@ import rascal::\old-syntax::Rascal;
 //     correct contexts.
 //
 
-// Set flag to true to issue debug messages
-private bool debug = true;
-
 // This is a hack -- this ensures the empty list is of type list[RType], not list[Void] or list[Value]
 list[RType] mkEmptyList() { return tail([makeVoidType()]); }
 
@@ -146,91 +138,63 @@ alias SignatureMap = map[Import importedModule, RSignature moduleSignature];
 // we only process one module at a time, although this code can
 // trigger the processing of other modules that are imported.
 //
-public ScopeInfo buildNamespace(Tree t, SignatureMap signatures) {
-	ScopeInfo scopeInfo = createNewScopeInfo();
-	scopeInfo = justScopeInfo(pushNewTopScope(t@\loc, scopeInfo));
+public SymbolTable buildNamespace(Tree t, SignatureMap signatures) {
+	SymbolTable symbolTable = justSymbolTable(pushNewTopScope(t@\loc, createNewSymbolTable()));
 
 	// Add the module present in this tree. This is nested under TopLayer, so we can, in
 	// theory, load multiple modules into the same scope information structure.
 	if ((Module) `<Header h> <Body b>` := t) {
-		switch(h) {
-			case `<Tags t> module <QualifiedName n> <Import* i>` : {
-				scopeInfo = handleModuleImports(i, signatures, scopeInfo);
-				scopeInfo = justScopeInfo(pushNewModuleScope(convertName(n), t@\loc, scopeInfo));
-				scopeInfo = handleModuleBodyFull(b, handleModuleBodyNamesOnly(b, scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			}
-
-			case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
-				scopeInfo = handleModuleImports(i, signatures, scopeInfo);
-				scopeInfo = justScopeInfo(pushNewModuleScope(convertName(n), t@\loc, scopeInfo));
-				scopeInfo = handleModuleBodyFull(b, handleModuleBodyNamesOnly(b, scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			}
-
-			default : throw "buildNamespace: unexpected syntax for module";
+		if (`<Tags t> module <QualifiedName n> <Import* i>` := h || `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` := h) {
+			symbolTable = handleModuleImports(i, signatures, symbolTable);
+			symbolTable = justSymbolTable(pushNewModuleScope(convertName(n), t@\loc, symbolTable));
+			symbolTable = handleModuleBodyFull(b, handleModuleBodyNamesOnly(b, symbolTable));
+			symbolTable = popScope(symbolTable);
+		} else {
+     	   throw "buildNamespace: failed to match module syntax";
 		}
 	} else {
-        throw "buildNamespace: missed a case for <t.prod>";
+        throw "buildNamespace: failed to match module syntax";
 	}
 
-	return scopeInfo;
+	return symbolTable;
 }		
 
 // Load information from the imported modules. Note that the import list is reversed before processing;
 // this is because the last module loaded "wins" in conflicts, but it's easier to model this by starting
 // with the last first then handling duplicate definitions as they arise.
-public ScopeInfo handleModuleImports(Import* il, SignatureMap signatures, ScopeInfo scopeInfo) {
-	list[Import] impList = [imp | imp <- il]; 
-	impList = reverse(impList);
+public SymbolTable handleModuleImports(Import* il, SignatureMap signatures, SymbolTable symbolTable) {
+	list[Import] impList = reverse([imp | imp <- il]); 
 	for (imp <- impList) {
-		switch(imp) {
-			case `import <ImportedModule im> ;` : {
-				if (debug) println("NAMESPACE: Processing module import <imp>");
-				if (imp in signatures)
-					scopeInfo = handleImportedModule(im, signatures[imp], imp@\loc, scopeInfo);
-				else
-					throw "No signature found for imported module <imp>";
-			}
-			case `extend <ImportedModule im> ;` : {
-				if (debug) println("NAMESPACE: Processing module import <imp>");
-				if (imp in signatures)
-					scopeInfo = handleImportedModule(im, signatures[imp], imp@\loc, scopeInfo);
-				else
-					throw "No signature found for imported module <imp>";
-			}
+		if (`import <ImportedModule im> ;` := imp || `extend <ImportedModule im> ;` := imp) {
+			if (imp in signatures)
+				symbolTable = handleImportedModule(im, signatures[imp], imp@\loc, symbolTable);
+			else
+				throw "No signature found for imported module <imp>";
 		}
 	}
-	return scopeInfo;
+	return symbolTable;
 }
 
 //
 // TODO: Need to handle actuals, renamings -- for now, just handle the basic import scenario
 //
-public ScopeInfo handleImportedModule(ImportedModule im, RSignature signature, loc l, ScopeInfo scopeInfo) {
+public SymbolTable handleImportedModule(ImportedModule im, RSignature signature, loc l, SymbolTable symbolTable) {
 	switch(im) {
-		case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` : {
-			if (debug) println("NAMESPACE: Processing import of module <qn>"); 
-			scopeInfo = addImportsToScope(qn, signature, l, scopeInfo);
-		}
-		case `<QualifiedName qn> <ModuleActuals ma>` : {
-			if (debug) println("NAMESPACE: Processing import of module <qn>"); 
-			scopeInfo = addImportsToScope(qn, signature, l, scopeInfo);
-		}
-		case `<QualifiedName qn> <Renamings rn>` : {
-			if (debug) println("NAMESPACE: Processing import of module <qn>"); 
-			scopeInfo = addImportsToScope(qn, signature, l, scopeInfo);
-		}
-		case (ImportedModule)`<QualifiedName qn>` : {
-			if (debug) println("NAMESPACE: Processing import of module <qn>"); 
-			scopeInfo = addImportsToScope(qn, signature, l, scopeInfo);
-		}
-		default : {
-			if (debug) println("NAMESPACE: Missed a case for module import <im>"); println(im);
+		case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
+			return addImportsToScope(qn, signature, l, symbolTable);
+			
+		case `<QualifiedName qn> <ModuleActuals ma>` :
+			return addImportsToScope(qn, signature, l, symbolTable);
+			
+		case `<QualifiedName qn> <Renamings rn>` :
+			return addImportsToScope(qn, signature, l, symbolTable);
+			
+		case (ImportedModule)`<QualifiedName qn>` :
+			return addImportsToScope(qn, signature, l, symbolTable);
+			
+		default :
 			throw "Error in handleImportedModule, case not handled: <im>";
-		}
 	}
-	return scopeInfo;
 }
 
 //
@@ -239,18 +203,15 @@ public ScopeInfo handleImportedModule(ImportedModule im, RSignature signature, l
 // for the imported module to allow both a top-level version of the name and a module-specific
 // version of the name, useful for resolving qualified names.
 //
-public ScopeInfo addImportsToScope(QualifiedName qn, RSignature signature, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("Adding scope item for module <prettyPrintName(convertName(qn))>");
-	scopeInfo = justScopeInfo(pushNewModuleScope(convertName(qn), l, scopeInfo));
+public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc l, SymbolTable symbolTable) {
+	symbolTable = justSymbolTable(pushNewModuleScope(convertName(qn), l, symbolTable));
 	
 	// Load in ADTs first, just in case they are used in the signatures of functions, constructors,
 	// aliases, etc. There is no checking for duplicates at this point; any duplicates will be merged
 	// later, so we can still maintain information about the various locations of definitions if needed.
 	for (ADTSigItem(an,st,at) <- signature.signatureItems) {
-		if (debug) println("NAMESPACE: Adding module level scope item for ADT signature item <prettyPrintType(an)>");
-		scopeInfo = justScopeInfo(addADTToScope(an, true, at, scopeInfo));
-		if (debug) println("NAMESPACE: Adding top level scope item for ADT signature item <prettyPrintType(an)>");
-		scopeInfo = justScopeInfo(addADTToTopScope(an, true, at, scopeInfo));
+		symbolTable = justSymbolTable(addADTToScope(an, true, at, symbolTable));
+		symbolTable = justSymbolTable(addADTToTopScope(an, true, at, symbolTable));
 	}
 
 	// Second, load in aliases. These may use the ADT definitions, and they may be used in definitions
@@ -260,10 +221,8 @@ public ScopeInfo addImportsToScope(QualifiedName qn, RSignature signature, loc l
 	// handled here, but should instead be caught when type checking the module being loaded. So, we
 	// only do a top-level check (which would still happen to catch these), not an in-module-level check.
 	for (AliasSigItem(an,st,at) <- signature.signatureItems) {
-		if (debug) println("NAMESPACE: Adding module level scope item for Alias signature item <prettyPrintType(an)>");
-		scopeInfo = justScopeInfo(addAliasToScope(an, st, true, at, scopeInfo));
-		if (debug) println("NAMESPACE: Adding top level scope item for Alias signature item <prettyPrintType(an)>");
-		scopeInfo = justScopeInfo(checkForDuplicateAliases(addAliasToTopScope(an, st, true, at, scopeInfo), at));
+		symbolTable = justSymbolTable(addAliasToScope(an, st, true, at, symbolTable));
+		symbolTable = justSymbolTable(checkForDuplicateAliases(addAliasToTopScope(an, st, true, at, symbolTable), at));
 	}
 	
 	// Third, load up the other items in the signature. For named items, such as functions, we assume the
@@ -283,32 +242,26 @@ public ScopeInfo addImportsToScope(QualifiedName qn, RSignature signature, loc l
 			// Add a function scope layer and associated item for a function in the imported signature. Note that
 			// we pop the scope after each add, since we don't want to stay inside the function scope.
 			case FunctionSigItem(fn,st,at) : {
-				if (debug) println("NAMESPACE: Adding module level scope item for Function signature item <prettyPrintName(fn)>");
-				scopeInfo = justScopeInfo(pushNewFunctionScope(fn, getFunctionReturnType(st), [ <RSimpleName(""),t,at,at> | t <- getFunctionArgumentTypes(st) ], [ ], true, at, scopeInfo));
-				scopeInfo = popScope(scopeInfo);
+				symbolTable = justSymbolTable(pushNewFunctionScope(fn, getFunctionReturnType(st), [ <RSimpleName(""),t,at,at> | t <- getFunctionArgumentTypes(st) ], [ ], true, at, symbolTable));
+				symbolTable = popScope(symbolTable);
 
 				// This is where we check for overlap, since (like above) we assume the loaded module 
 				// has already been type checked, so we don't look for overload conflicts within the import.
 				// If we find an overlap, just don't import the function into the top level scope; it is
 				// still available using a fully qualified name.
-				if (!willFunctionOverlap(fn,st,scopeInfo,scopeInfo.topSTItemId)) {
-					if (debug) println("NAMESPACE: Adding top level scope item for Function signature item <prettyPrintName(fn)>");
-					scopeInfo = justScopeInfo(pushNewFunctionScopeAtTop(fn, getFunctionReturnType(st), [ <RSimpleName(""),t,at,at> | t <- getFunctionArgumentTypes(st) ], [ ], true, at, scopeInfo));
-					scopeInfo = popScope(scopeInfo);
-				} else {
-					if (debug) println("NAMESPACE: Function <prettyPrintName(fn)> would overlap, not adding to top scope");
+				if (!willFunctionOverlap(fn,st,symbolTable,symbolTable.topSTItemId)) {
+					symbolTable = justSymbolTable(pushNewFunctionScopeAtTop(fn, getFunctionReturnType(st), [ <RSimpleName(""),t,at,at> | t <- getFunctionArgumentTypes(st) ], [ ], true, at, symbolTable));
+					symbolTable = popScope(symbolTable);
 				}
 			}
 
 			// Add a variable item to the top and module-level scopes. If the name already appears in the
 			// top level scope, we do not add it. 
 			case VariableSigItem(vn,st,at) : {
-				if (debug) println("NAMESPACE: Adding module level scope item for Variable signature item <prettyPrintName(vn)>");
-				scopeInfo = justScopeInfo(addVariableToScope(vn, st, true, at, scopeInfo));
+				symbolTable = justSymbolTable(addVariableToScope(vn, st, true, at, symbolTable));
 
-				if (! (size(getItemsForName(scopeInfo, scopeInfo.topSTItemId, vn)) > 0)) {
-					if (debug) println("NAMESPACE: Adding top level scope item for Variable signature item <prettyPrintName(vn)>"); 
-					scopeInfo = justScopeInfo(addVariableToTopScope(vn, st, true, at, scopeInfo));
+				if (! (size(getItemsForName(symbolTable, symbolTable.topSTItemId, vn)) > 0)) {
+					symbolTable = justSymbolTable(addVariableToTopScope(vn, st, true, at, symbolTable));
 				} 
 			}
 
@@ -318,31 +271,29 @@ public ScopeInfo addImportsToScope(QualifiedName qn, RSignature signature, loc l
 			case ConstructorSigItem(cn,RConstructorType(_,st,adttyp),at) : {
 				RName adtName = getADTName(adttyp);
 
-				set[STItemId] possibleADTs = getTypeItemsForNameMB(scopeInfo, scopeInfo.currentScope, adtName);
-				possibleADTs = { t | t <- possibleADTs, ADTItem(_,_,_,_) := scopeInfo.scopeItemMap[t] };
+				set[STItemId] possibleADTs = getTypeItemsForNameMB(symbolTable, symbolTable.currentScope, adtName);
+				possibleADTs = { t | t <- possibleADTs, ADTItem(_,_,_,_) := symbolTable.scopeItemMap[t] };
 				if (size(possibleADTs) == 0) throw "Error: Cannot find ADT <prettyPrintName(adtName)> to associate with constructor: <item>";
 				STItemId adtItemId = getOneFrom(possibleADTs);
-				if (debug) println("NAMESPACE: Adding module level scope item for Constructor signature item <prettyPrintName(cn)>");
-				scopeInfo = justScopeInfo(addConstructorToScope(cn, st, adtItemId, true, at, scopeInfo));
+				symbolTable = justSymbolTable(addConstructorToScope(cn, st, adtItemId, true, at, symbolTable));
 
-				possibleADTs = getTypeItemsForName(scopeInfo, scopeInfo.topSTItemId, adtName);
-				possibleADTs = { t | t <- possibleADTs, ADTItem(_,_,_,_) := scopeInfo.scopeItemMap[t] };
+				possibleADTs = getTypeItemsForName(symbolTable, symbolTable.topSTItemId, adtName);
+				possibleADTs = { t | t <- possibleADTs, ADTItem(_,_,_,_) := symbolTable.scopeItemMap[t] };
 				if (size(possibleADTs) == 0) throw "Error: Cannot find ADT <prettyPrintName(adtName)> to associate with constructor: <item>";
 				adtItemId = getOneFrom(possibleADTs);
 				// Check for overlap here; if we find an overlap, this will trigger an error, since we should not have
 				// overlapping constructors and, unlike functions, we can't just take a "last in wins" approach.
-				if (debug) println("NAMESPACE: Trying to add top level scope item for Constructor signature item <prettyPrintName(cn)>");
-				scopeInfo = justScopeInfo(checkConstructorOverlap(addConstructorToTopScope(cn, st, adtItemId, true, at, scopeInfo),at));
+				symbolTable = justSymbolTable(checkConstructorOverlap(addConstructorToTopScope(cn, st, adtItemId, true, at, symbolTable),at));
 			}
 
 			// Add an annotation item to the top and module-level scopes. If an annotation of the same name 
 			// already appears in the top level scope, we consider this to be an error. This is handled using
 			// checkForDuplicateAnnotations. 
 			case AnnotationSigItem(an,st,ot,at) : {
-				scopeInfo = justScopeInfo(addAnnotationToScope(an, st, ot, true, at, scopeInfo)); 
+				symbolTable = justSymbolTable(addAnnotationToScope(an, st, ot, true, at, symbolTable)); 
 				
-				if (! size(getAnnotationItemsForName(scopeInfo, scopeInfo.topSTItemId, an)) > 0) { 
-					scopeInfo = justScopeInfo(checkForDuplicateAnnotations(addAnnotationToTopScope(an, st, ot, true, at, scopeInfo),at));
+				if (! size(getAnnotationItemsForName(symbolTable, symbolTable.topSTItemId, an)) > 0) { 
+					symbolTable = justSymbolTable(checkForDuplicateAnnotations(addAnnotationToTopScope(an, st, ot, true, at, symbolTable),at));
 				} 
 			}
 
@@ -356,18 +307,14 @@ public ScopeInfo addImportsToScope(QualifiedName qn, RSignature signature, loc l
 		}
 	}
 
-	scopeInfo = popScope(scopeInfo);
-	return scopeInfo;
+	return popScope(symbolTable);
 }
 
 //
 // Process the individual items contained at the top level of the module.
 //
-public ScopeInfo handleModuleBody(Body b, ScopeInfo scopeInfo) {
-	scopeInfo = handleModuleBodyNamesOnly(b, scopeInfo);
-	scopeInfo = handleModuleBodyFull(b, scopeInfo);
-	
-	return scopeInfo;
+public SymbolTable handleModuleBody(Body b, SymbolTable symbolTable) {
+	return handleModuleBodyFull(b, handleModuleBodyNamesOnly(b, symbolTable));
 }
 
 //
@@ -375,251 +322,214 @@ public ScopeInfo handleModuleBody(Body b, ScopeInfo scopeInfo) {
 // can be used in a function declared higher up in the file, for instance) so just the top-level 
 // names are gathered first (i.e., we don't descend into function bodies, etc).
 //
-public ScopeInfo handleModuleBodyNamesOnly(Body b, ScopeInfo scopeInfo) {
-	if (`<Toplevel* ts>` := b) {
+public SymbolTable handleModuleBodyNamesOnly(Body b, SymbolTable symbolTable) {
+	if ((Body)`<Toplevel* ts>` := b) {
 		for (Toplevel t <- ts) {
 			switch(t) {
 				// Variable declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> <Type typ> <{Variable ","}+ vs> ;` : { 
-					scopeInfo = handleVarItemsNamesOnly(tgs, v, typ, vs, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> <Type typ> <{Variable ","}+ vs> ;` :
+					symbolTable = handleVarItemsNamesOnly(tgs, v, typ, vs, symbolTable);
 	
 				// Abstract (i.e., without a body) function declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> ;` : { 
-					scopeInfo = handleAbstractFunctionNamesOnly(tgs,v,s,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> ;` :
+					symbolTable = handleAbstractFunctionNamesOnly(tgs,v,s,t@\loc,symbolTable);
 	 
 	 			// Concrete (i.e., with a body) function declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` : {
-					scopeInfo = handleFunctionNamesOnly(tgs,v,s,fb,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` :
+					symbolTable = handleFunctionNamesOnly(tgs,v,s,fb,t@\loc,symbolTable);
 				
 				// Annotation declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` : {
-					scopeInfo = handleAnnotationDeclarationNamesOnly(tgs,v,typ,otyp,n,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` :
+					symbolTable = handleAnnotationDeclarationNamesOnly(tgs,v,typ,otyp,n,t@\loc,symbolTable);
 									
 				// Tag declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
-					scopeInfo = handleTagDeclarationNamesOnly(tgs,v,k,n,typs,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` :
+					symbolTable = handleTagDeclarationNamesOnly(tgs,v,k,n,typs,t@\loc,symbolTable);
 				
 				// Rule declaration
-				case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
-					scopeInfo = handleRuleDeclarationNamesOnly(tgs,n,pwa,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` :
+					symbolTable = handleRuleDeclarationNamesOnly(tgs,n,pwa,t@\loc,symbolTable);
 				
 				// Test
-				case (Toplevel) `<Test tst> ;` : {
-					scopeInfo = handleTestNamesOnly(tst,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Test tst> ;` :
+					symbolTable = handleTestNamesOnly(tst,t@\loc,symbolTable);
 								
 				// ADT without variants
-				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` : {
-					scopeInfo = handleAbstractADTNamesOnly(tgs,v,typ,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` :
+					symbolTable = handleAbstractADTNamesOnly(tgs,v,typ,t@\loc,symbolTable);
 				
 				// ADT with variants
-				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
-					scopeInfo = handleADTNamesOnly(tgs,v,typ,vars,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> = <{Variant "|"}+ vars> ;` :
+					symbolTable = handleADTNamesOnly(tgs,v,typ,vars,t@\loc,symbolTable);
 
 				// Alias
-				case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` : {
-					scopeInfo = handleAliasNamesOnly(tgs,v,typ,btyp,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` :
+					symbolTable = handleAliasNamesOnly(tgs,v,typ,btyp,t@\loc,symbolTable);
 								
 				// View
-				case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
-					scopeInfo = handleViewNamesOnly(tgs,v,n,sn,alts,t@\loc,scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` :
+					symbolTable = handleViewNamesOnly(tgs,v,n,sn,alts,t@\loc,symbolTable);
 								
 				default: throw "handleModuleBodyNamesOnly: No match for item <t>";
 			}
 		}
 	}
 	
-	return scopeInfo;
+	return symbolTable;
 }
 
 //
 // Identify names used inside functions or in static initializers, noting type information. This pass 
 // actually descends into functions, building the scope information within them as well.
 //
-public ScopeInfo handleModuleBodyFull(Body b, ScopeInfo scopeInfo) {
-	if (`<Toplevel* ts>` := b) {
+public SymbolTable handleModuleBodyFull(Body b, SymbolTable symbolTable) {
+	if ((Body)`<Toplevel* ts>` := b) {
 		for (Toplevel t <- ts) {
 			switch(t) {
 				// Variable declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> <Type typ> <{Variable ","}+ vs> ;` : { 
-					scopeInfo = handleVarItems(tgs, v, typ, vs, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> <Type typ> <{Variable ","}+ vs> ;` :
+					symbolTable = handleVarItems(tgs, v, typ, vs, symbolTable);
 	
 				// Abstract (i.e., without a body) function declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> ;` : { 
-					scopeInfo = handleAbstractFunction(tgs, v, s, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> ;` : 
+					symbolTable = handleAbstractFunction(tgs, v, s, t@\loc, symbolTable);
 	 
 	 			// Concrete (i.e., with a body) function declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` : {
-					scopeInfo = handleFunction(tgs, v, s, fb, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` :
+					symbolTable = handleFunction(tgs, v, s, fb, t@\loc, symbolTable);
 				
 				// Annotation declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` : {
-					scopeInfo = handleAnnotationDeclaration(tgs, v, typ, otyp, n, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` :
+					symbolTable = handleAnnotationDeclaration(tgs, v, typ, otyp, n, t@\loc, symbolTable);
 									
 				// Tag declaration
-				case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
-					scopeInfo = handleTagDeclaration(tgs, v, k, n, typs, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` :
+					symbolTable = handleTagDeclaration(tgs, v, k, n, typs, t@\loc, symbolTable);
 				
 				// Rule declaration
-				case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
-					scopeInfo = handleRuleDeclaration(tgs, n, pwa, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` :
+					symbolTable = handleRuleDeclaration(tgs, n, pwa, t@\loc, symbolTable);
 				
 				// Test
-				case (Toplevel) `<Test tst> ;` : {
-					scopeInfo = handleTest(tst, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Test tst> ;` :
+					symbolTable = handleTest(tst, t@\loc, symbolTable);
 								
 				// ADT without variants
-				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` : {
-					scopeInfo = handleAbstractADT(tgs, v, typ, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` :
+					symbolTable = handleAbstractADT(tgs, v, typ, t@\loc, symbolTable);
 				
 				// ADT with variants
-				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
-					scopeInfo = handleADT(tgs, v, typ, vars, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> = <{Variant "|"}+ vars> ;` :
+					symbolTable = handleADT(tgs, v, typ, vars, t@\loc, symbolTable);
 
 				// Alias
-				case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` : {
-					scopeInfo = handleAlias(tgs, v, typ, btyp, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` :
+					symbolTable = handleAlias(tgs, v, typ, btyp, t@\loc, symbolTable);
 								
 				// View
-				case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
-					scopeInfo = handleView(tgs, v, n, sn, alts, t@\loc, scopeInfo);
-				}
+				case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` :
+					symbolTable = handleView(tgs, v, n, sn, alts, t@\loc, symbolTable);
 				
-								
 				default: throw "handleModuleBodyFull: No match for item <t>";
 			}
 		}
 	}
 	
-	return scopeInfo;
+	return symbolTable;
 }
 
 //
 // Handle variable declarations, with or without initializers
 //
-public ScopeInfo handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
-	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
-	if (debug) println("NAMESPACE: Adding variables in declaration...");
+public SymbolTable handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variable ","}+ vs, SymbolTable symbolTable) {
+	symbolTable = handleTagsNamesOnly(ts, symbolTable);
 	for (vb <- vs) {
-		switch(vb) {
-			case `<Name n>` : {
-				if (debug) println("NAMESPACE: Adding variable <n>");
-				if (size(getItemsForNameMB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
-					scopeInfo = addScopeError(scopeInfo, n@\loc, "Duplicate declaration of name <n>");
-				} 
-				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), isPublic(v), vb@\loc, scopeInfo),[<true,n@\loc>])); 
-			}
-				
-			case `<Name n> = <Expression e>` : {
-				if (debug) println("NAMESPACE: Adding variable <n>");
-				if (size(getItemsForNameMB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
-					scopeInfo = addScopeError(scopeInfo, n@\loc, "Duplicate declaration of name <n>"); 
-				}
-				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), isPublic(v), vb@\loc, scopeInfo),[<true,n@\loc>])); 
-			}
+		if (`<Name n>` := vb || `<Name n> = <Expression e>` := vb) {
+			if (size(getItemsForNameMB(symbolTable, symbolTable.currentScope, convertName(n))) > 0) {		
+				symbolTable = addScopeError(symbolTable, n@\loc, "Duplicate declaration of name <n>");
+			} 
+			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(convertName(n), convertType(t), isPublic(v), vb@\loc, symbolTable),[<true,n@\loc>])); 
 		}
 	}
-	return scopeInfo;
+	return symbolTable;
 }
 
 //
 // Identify any names used inside variable declarations
 //
-public ScopeInfo handleVarItems(Tags ts, Visibility v, Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
-	scopeInfo = handleTags(ts, scopeInfo);
-	for (`<Name n> = <Expression e>` <- vs) scopeInfo = handleExpression(e, scopeInfo);
-	return scopeInfo;
+public SymbolTable handleVarItems(Tags ts, Visibility v, Type t, {Variable ","}+ vs, SymbolTable symbolTable) {
+	symbolTable = handleTags(ts, symbolTable);
+	for (`<Name n> = <Expression e>` <- vs) symbolTable = handleExpression(e, symbolTable);
+	return symbolTable;
 }
 
 //
 // Handle standard function declarations (i.e., function declarations with bodies), but
 // do NOT descend into the bodies
 //
-public ScopeInfo handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, ScopeInfo scopeInfo) {
-	return handleAbstractFunctionNamesOnly(ts,v,s,l,scopeInfo);		
+public SymbolTable handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, SymbolTable symbolTable) {
+	return handleAbstractFunctionNamesOnly(ts,v,s,l,symbolTable);		
 }
 
 //
 // Handle abstract function declarations (i.e., function declarations without bodies)
 //
-public ScopeInfo handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signature s, loc l, ScopeInfo scopeInfo) {
+public SymbolTable handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signature s, loc l, SymbolTable symbolTable) {
 	// Add the new function into the scope and process any parameters.
-	ScopeInfo addFunction(Name n, RType retType, Parameters ps, list[RType] thrsTypes, bool isPublic, ScopeInfo scopeInfo) {
+	SymbolTable addFunction(Name n, RType retType, Parameters ps, list[RType] thrsTypes, bool isPublic, SymbolTable symbolTable) {
 		// Get back a list of tuples representing the parameters; these will actually be added into the scope
 		// in the next step
-		list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(ps, scopeInfo);
+		list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(ps, symbolTable);
 
 		// Add a new function scope, getting back the updated scope and a list of added scope IDs
-		ResultTuple rt = pushNewFunctionScope(convertName(n), retType, params, thrsTypes, isPublic, l, scopeInfo);
+		ResultTuple rt = pushNewFunctionScope(convertName(n), retType, params, thrsTypes, isPublic, l, symbolTable);
 
 		// Add uses and get back the final scope info, checking for overlaps
-		scopeInfo = justScopeInfo(checkFunctionOverlap(addSTItemUses(rt,([<false,l>, <true,n@\loc>] + [<true,p.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] p <- params])),n@\loc));
+		symbolTable = justSymbolTable(checkFunctionOverlap(addSTItemUses(rt,([<false,l>, <true,n@\loc>] + [<true,p.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] p <- params])),n@\loc));
 
 		// Pop the new scope and exit
-		return popScope(scopeInfo);
+		return popScope(symbolTable);
 	}
 
-	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
+	symbolTable = handleTagsNamesOnly(ts, symbolTable);
 	
 	switch(s) {
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
-			if (debug) println("NAMESPACE: Found abstract function " + prettyPrintName(convertName(n)));
-			scopeInfo = addFunction(n, convertType(t), ps, mkEmptyList(), isPublic(v), scopeInfo);
+			symbolTable = addFunction(n, convertType(t), ps, mkEmptyList(), isPublic(v), symbolTable);
 		}
 
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
-			if (debug) println("NAMESPACE: Found abstract function " + prettyPrintName(convertName(n)));
-			scopeInfo = addFunction(n, convertType(t), ps, [convertType(thrsi) | thrsi <- thrs], 
-									isPublic(v), scopeInfo);
+			symbolTable = addFunction(n, convertType(t), ps, [convertType(thrsi) | thrsi <- thrs], 
+									isPublic(v), symbolTable);
 		}
 	}
-	return scopeInfo;
+	return symbolTable;
 }
 
 //
 // Just process the tags; this function has no body, and the function header was processed already.
 //
-public ScopeInfo handleAbstractFunction(Tags ts, Visibility v, Signature s, loc l, ScopeInfo scopeInfo) {
-	return handleTags(ts, scopeInfo);
+public SymbolTable handleAbstractFunction(Tags ts, Visibility v, Signature s, loc l, SymbolTable symbolTable) {
+	return handleTags(ts, symbolTable);
 }
 
 //
 // Handle parameter declarations. Parameters currently have no defaults, etc, so there is no other
 // version of this function.
 //
-public list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] handleParametersNamesOnly(Parameters p, ScopeInfo scopeInfo) {
+public list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] handleParametersNamesOnly(Parameters p, SymbolTable symbolTable) {
 	list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = [];
 
 	// Add each parameter into the scope; the current scope is the function that
 	// is being processed.	
 	if (`( <Formals f> )` := p) {
-		if (`<{Formal ","}* fs>` := f) {
+		if ((Formals)`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if ((Formal)`<Type t> <Name n>` := fp) params += < convertName(n), convertType(t), fp@\loc, n@\loc >; 					
 			}
 		}
 	} else if (`( <Formals f> ... )` := p) {
-		if (`<{Formal ","}* fs>` := f) {
+		if ((Formals)`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if ((Formal)`<Type t> <Name n>` := fp) params += < convertName(n), convertType(t), fp@\loc, n@\loc>; 					
 			}
@@ -635,36 +545,35 @@ public list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] handleParameter
 // already been processed, so this just enters the scope of the header and then processes the
 // function body.
 //
-public ScopeInfo handleFunction(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, ScopeInfo scopeInfo) {
-	scopeInfo = handleTags(ts, scopeInfo);
+public SymbolTable handleFunction(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, SymbolTable symbolTable) {
+	symbolTable = handleTags(ts, symbolTable);
 
 	// First, get back the scope item at location l so we can switch into the proper function scope
-	if (debug) println("NAMESPACE: Switching to function with signature <s>");
-	scopeInfo = pushScope(getLayerAtLocation(l, scopeInfo), scopeInfo);
+	symbolTable = pushScope(getLayerAtLocation(l, symbolTable), symbolTable);
 	
 	switch(s) {
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
-			scopeInfo = handleFunctionBody(b,scopeInfo);
+			symbolTable = handleFunctionBody(b,symbolTable);
 		}
 
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ tts> ` : {
-			scopeInfo = handleFunctionBody(b,scopeInfo);
+			symbolTable = handleFunctionBody(b,symbolTable);
 		}
 	}
 	
-	return popScope(scopeInfo);	
+	return popScope(symbolTable);	
 }
 
 //
 // Handle function bodies
 //
-public ScopeInfo handleFunctionBody(FunctionBody fb, ScopeInfo scopeInfo) {
+public SymbolTable handleFunctionBody(FunctionBody fb, SymbolTable symbolTable) {
 	if (`{ <Statement* ss> }` := fb) {
-		for (s <- ss) scopeInfo = handleStatement(s, scopeInfo);
+		for (s <- ss) symbolTable = handleStatement(s, symbolTable);
 	} else {
 		throw "handleFunctionBody, unexpected syntax for body <fb>";
 	}
-	return scopeInfo;
+	return symbolTable;
 }
 
 //
@@ -678,47 +587,41 @@ private bool isPublic(Visibility v) {
 // Introduce the annotation name into the current scope. Duplicates are not allowed, so we check for them
 // here and tag the name with a scope error if we find one.
 //
-public ScopeInfo handleAnnotationDeclarationNamesOnly(Tags t, Visibility v, Type t, Type ot, Name n, loc l, ScopeInfo scopeInfo) {
-	scopeInfo = handleTagsNamesOnly(t, scopeInfo);
-	scopeInfo = justScopeInfo(checkForDuplicationAnnotations(addAnnotationToScope(convertName(n),convertType(t),convertType(ot),isPublic(v),l,scopeInfo), n@\loc));
-	return scopeInfo;
+public SymbolTable handleAnnotationDeclarationNamesOnly(Tags t, Visibility v, Type ty, Type ot, Name n, loc l, SymbolTable symbolTable) {
+	symbolTable = handleTagsNamesOnly(t, symbolTable);
+	symbolTable = justSymbolTable(checkForDuplicateAnnotations(addAnnotationToScope(convertName(n),convertType(ty),convertType(ot),isPublic(v),l,symbolTable), n@\loc));
+	return symbolTable;
 }
 
 // TODO: The annotation name was handled above, here we just check to make sure the types used are actually
 // in scope.
-public ScopeInfo handleAnnotationDeclaration(Tags t, Visibility v, Type t, Type ot, Name n, loc l, ScopeInfo scopeInfo) {
-	return handleTags(t, scopeInfo);
+public SymbolTable handleAnnotationDeclaration(Tags t, Visibility v, Type ty, Type ot, Name n, loc l, SymbolTable symbolTable) {
+	return handleTags(t, symbolTable);
 }
 
-public ScopeInfo handleTagDeclaration(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, ScopeInfo scopeInfo) {
-	scopeInfo = handleTags(t, scopeInfo);
+public SymbolTable handleTagDeclaration(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, SymbolTable symbolTable) {
+	symbolTable = handleTags(t, symbolTable);
 	throw "handleTagDeclaration not yet implemented";
 }
 
-public ScopeInfo handleTagDeclarationNamesOnly(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, ScopeInfo scopeInfo) {
-	scopeInfo = handleTagsNamesOnly(t, scopeInfo);
+public SymbolTable handleTagDeclarationNamesOnly(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, SymbolTable symbolTable) {
+	symbolTable = handleTagsNamesOnly(t, symbolTable);
 	throw "handleTagDeclarationNamesOnly not yet implemented";
 }
 
-public ScopeInfo handleRuleDeclarationNamesOnly(Tags t, Name n, PatternWithAction p, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("NAMESPACE: Handling rule declaration names for rule <n> = <p>");
-	scopeInfo = handleTagsNamesOnly(t, scopeInfo);
-	scopeInfo = justScopeInfo(checkForDuplicateRules(addRuleToScope(convertName(n), l, scopeInfo), n@\loc));
-	return scopeInfo;
+public SymbolTable handleRuleDeclarationNamesOnly(Tags t, Name n, PatternWithAction p, loc l, SymbolTable symbolTable) {
+	return justSymbolTable(checkForDuplicateRules(addRuleToScope(convertName(n), l, handleTagsNamesOnly(t, symbolTable)), n@\loc));
 }
 								
-public ScopeInfo handleRuleDeclaration(Tags t, Name n, PatternWithAction p, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("NAMESPACE: Handling rule declaration for rule <n> = <p>");
-	scopeInfo = handleTags(t, scopeInfo);
-	scopeInfo = handlePatternWithAction(p, scopeInfo);
-	return scopeInfo;
+public SymbolTable handleRuleDeclaration(Tags t, Name n, PatternWithAction p, loc l, SymbolTable symbolTable) {
+	return handlePatternWithAction(p, handleTags(t, symbolTable));
 }
 
-public ScopeInfo handleTestNamesOnly(Test t, loc l, ScopeInfo scopeInfo) {
+public SymbolTable handleTestNamesOnly(Test t, loc l, SymbolTable symbolTable) {
 	throw "handleTestNamesOnly not yet implemented";
 }
 
-public ScopeInfo handleTest(Test t, loc l, ScopeInfo scopeInfo) {
+public SymbolTable handleTest(Test t, loc l, SymbolTable symbolTable) {
 	throw "handleTest not yet implemented";
 }
 
@@ -727,19 +630,17 @@ public ScopeInfo handleTest(Test t, loc l, ScopeInfo scopeInfo) {
 // that duplicate ADT names are not an error; the constructors of all ADTs sharing the same name will be
 // merged together, allowing them to be introduced piecemeal.
 //
-public ScopeInfo handleAbstractADTNamesOnly(Tags ts, Visibility v, UserType adtType, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("NAMESPACE: Found Abstract ADT: <adtType>");
-	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
-	scopeInfo = justScopeInfo(addSTItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, scopeInfo),[<true,getUserTypeRawName(adtType)@\loc>]));
-	return scopeInfo;
+public SymbolTable handleAbstractADTNamesOnly(Tags ts, Visibility v, UserType adtType, loc l, SymbolTable symbolTable) {
+	symbolTable = handleTagsNamesOnly(ts, symbolTable);
+	return justSymbolTable(addSTItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, symbolTable),[<true,getUserTypeRawName(adtType)@\loc>]));
 }
 
 //
 // This just handles the tags; the ADT name was introduced into scope in handleAbstractADTNamesOnly, so
 // there is nothing left to process at this point.
 //
-public ScopeInfo handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc l, ScopeInfo scopeInfo) {
-	return handleTags(ts, scopeInfo);
+public SymbolTable handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc l, SymbolTable symbolTable) {
+	return handleTags(ts, symbolTable);
 }
 
 //
@@ -747,26 +648,25 @@ public ScopeInfo handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc 
 // scope. It will also check for overlaps with the constructor names to ensure references to introduced
 // constructors can be unambiguous.
 //
-public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("NAMESPACE: Found ADT: <adtType>");
-	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
-	ResultTuple rt = addSTItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, scopeInfo),[<true,getUserTypeRawName(adtType)@\loc>]);
+public SymbolTable handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, SymbolTable symbolTable) {
+	symbolTable = handleTagsNamesOnly(ts, symbolTable);
+	ResultTuple rt = addSTItemUses(addADTToScope(convertUserType(adtType), isPublic(v), l, symbolTable),[<true,getUserTypeRawName(adtType)@\loc>]);
 	STItemId adtId = head(rt.addedItems);
-	scopeInfo = justScopeInfo(rt);
+	symbolTable = justSymbolTable(rt);
 
 	// Process each given variant, adding it into scope and saving the generated id	
 	set[STItemId] variantSet = { };
 	for (var <- vars) {
 		if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
-			ResultTuple rt2 = checkConstructorOverlap(addSTItemUses(addConstructorToScope(convertName(n), [ convertTypeArg(targ) | targ <- args ], adtId, true, l, scopeInfo),[<true,n@\loc>]),n@\loc);
+			ResultTuple rt2 = checkConstructorOverlap(addSTItemUses(addConstructorToScope(convertName(n), [ convertTypeArg(targ) | targ <- args ], adtId, true, l, symbolTable),[<true,n@\loc>]),n@\loc);
 			STItemId variantId = head(rt2.addedItems);
-			scopeInfo = justScopeInfo(rt2);
+			symbolTable = justSymbolTable(rt2);
 			variantSet += variantId; 			
 		}
 	}
 	
-	scopeInfo.scopeItemMap[adtId].variants = variantSet;
-	return scopeInfo;
+	symbolTable.scopeItemMap[adtId].variants = variantSet;
+	return symbolTable;
 }
 
 //
@@ -774,8 +674,8 @@ public ScopeInfo handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Va
 // checks the tags to make sure they are sensible but doesn't further process the
 // ADT.
 //
-public ScopeInfo handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, ScopeInfo scopeInfo) {
-	return handleTags(ts, scopeInfo);
+public SymbolTable handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, SymbolTable symbolTable) {
+	return handleTags(ts, symbolTable);
 }
 
 //
@@ -783,319 +683,220 @@ public ScopeInfo handleADT(Tags ts, Visibility v, UserType adtType, {Variant "|"
 //
 // TODO: Should tag the aliased type with where it comes from
 //
-public ScopeInfo handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
-	if (debug) println("NAMESPACE: Found alias: <aliasType> = <aliasedType>");
-	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
+public SymbolTable handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, SymbolTable symbolTable) {
+	symbolTable = handleTagsNamesOnly(ts, symbolTable);
 
 	Name aliasRawName = getUserTypeRawName(aliasType);
 	RName aliasName = convertName(aliasRawName);
-	scopeInfo = justScopeInfo(checkForDuplicateAliases(addSTItemUses(addAliasToScope(convertType(aliasType), convertType(aliasedType), isPublic(v), l, scopeInfo),[<true,aliasRawName@\loc>]),aliasRawName@\loc));
-	return scopeInfo;
+	symbolTable = justSymbolTable(checkForDuplicateAliases(addSTItemUses(addAliasToScope(convertUserType(aliasType), convertType(aliasedType), isPublic(v), l, symbolTable),[<true,aliasRawName@\loc>]),aliasRawName@\loc));
+	return symbolTable;
 }
 
-public ScopeInfo handleAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, ScopeInfo scopeInfo) {
-	return handleTags(ts, scopeInfo); 
+public SymbolTable handleAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, SymbolTable symbolTable) {
+	return handleTags(ts, symbolTable); 
 }
 
-public ScopeInfo handleViewNamesOnly(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, ScopeInfo scopeInfo) {
-	scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
+public SymbolTable handleViewNamesOnly(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, SymbolTable symbolTable) {
+	symbolTable = handleTagsNamesOnly(ts, symbolTable);
 	throw "handleViewNamesOnly not yet implemented";
 }
 
-public ScopeInfo handleView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, ScopeInfo scopeInfo) {
-	return handleTags(ts, scopeInfo);
+public SymbolTable handleView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, SymbolTable symbolTable) {
+	return handleTags(ts, symbolTable);
 }
 
 //
 // Handle individual statements
 //
-public ScopeInfo handleStatement(Statement s, ScopeInfo scopeInfo) {
+public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 	switch(s) {
 		case `solve (<{QualifiedName ","}+ vs> <Bound b>) <Statement sb>` : {
-			if (debug) println("NAMESPACE: Inside solve statement <s>");
 			
-			for (v <- vs) {
-				if (debug) println("NAMESPACE: Adding use for <v>");
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(v)), v@\loc);
-			}
+			for (v <- vs)
+				symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, convertName(v)), v@\loc);
 			
-			if (`; <Expression e>` := b) {
-				scopeInfo = handleExpression(e, scopeInfo);
-			}
+			if (`; <Expression e>` := b)
+				symbolTable = handleExpression(e, symbolTable);
 			
-			scopeInfo = handleStatement(sb, scopeInfo);		
+			symbolTable = handleStatement(sb, symbolTable);		
 		}
 
 		case `<Label l> for (<{Expression ","}+ es>) <Statement b>` : {
-			if (debug) println("NAMESPACE: Inside for statement <s>");
-			scopeInfo = handleLabel(l,scopeInfo);			
-			scopeInfo = justScopeInfo(pushNewBooleanScope(s@\loc, scopeInfo));
-			for (e <- es) scopeInfo = handleExpression(e, scopeInfo);
-			scopeInfo = handleStatement(b, scopeInfo);
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = handleLabel(l,symbolTable);			
+			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
+			for (e <- es) symbolTable = handleExpression(e, symbolTable);
+			symbolTable = handleStatement(b, symbolTable);
+			symbolTable = popScope(symbolTable);
 		}
 
 		case `<Label l> while (<{Expression ","}+ es>) <Statement b>` : {
-			if (debug) println("NAMESPACE: Inside while statement <s>");
-			scopeInfo = handleLabel(l,scopeInfo);			
-			scopeInfo = justScopeInfo(pushNewBooleanScope(s@\loc, scopeInfo));
-			for (e <- es) scopeInfo = handleExpression(e, scopeInfo);
-			scopeInfo = handleStatement(b, scopeInfo);
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = handleLabel(l,symbolTable);			
+			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
+			for (e <- es) symbolTable = handleExpression(e, symbolTable);
+			symbolTable = handleStatement(b, symbolTable);
+			symbolTable = popScope(symbolTable);
 		}
 
-		case `<Label l> do <Statement b> while (<Expression e>);` : {
-			if (debug) println("NAMESPACE: Inside do statement <s>");
-			scopeInfo = handleExpression(e, handleStatement(b, handleLabel(l,scopeInfo)));			
-		}
+		case `<Label l> do <Statement b> while (<Expression e>);` :
+			symbolTable = handleExpression(e, handleStatement(b, handleLabel(l,symbolTable)));			
 
 		case `<Label l> if (<{Expression ","}+ es>) <Statement bt> else <Statement bf>` : {
-			if (debug) println("NAMESPACE: Inside if with else statement <s>");
-			
-			scopeInfo = handleLabel(l,scopeInfo);			
-			scopeInfo = justScopeInfo(pushNewBooleanScope(s@\loc, scopeInfo));
-			for (e <- es) scopeInfo = handleExpression(e, scopeInfo);
-			scopeInfo = handleStatement(bf, handleStatement(bt, scopeInfo));
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = handleLabel(l,symbolTable);			
+			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
+			for (e <- es) symbolTable = handleExpression(e, symbolTable);
+			symbolTable = handleStatement(bf, handleStatement(bt, symbolTable));
+			symbolTable = popScope(symbolTable);
 		}
 
 		case `<Label l> if (<{Expression ","}+ es>) <Statement bt>` : {
-			if (debug) println("NAMESPACE: Inside if statement <s>");
-			
-			scopeInfo = handleLabel(l,scopeInfo);			
-			scopeInfo = justScopeInfo(pushNewBooleanScope(s@\loc, scopeInfo));
-			for (e <- es) scopeInfo = handleExpression(e, scopeInfo);
-			scopeInfo = handleStatement(bt, scopeInfo);
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = handleLabel(l,symbolTable);			
+			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
+			for (e <- es) symbolTable = handleExpression(e, symbolTable);
+			symbolTable = handleStatement(bt, symbolTable);
+			symbolTable = popScope(symbolTable);
 		}
 
 		case `<Label l> switch (<Expression e>) { <Case+ cs> }` : {
-			if (debug) println("NAMESPACE: Inside switch statement <s>");			
-			scopeInfo = handleExpression(e,handleLabel(l,scopeInfo));						
-			for (c <- cs) scopeInfo = handleCase(c, scopeInfo);
+			symbolTable = handleExpression(e,handleLabel(l,symbolTable));						
+			for (c <- cs) symbolTable = handleCase(c, symbolTable);
 		}
 
-		case (Statement)`<Label l> <Visit v>` : {
-			if (debug) println("NAMESPACE: Inside visit statement <s>");
-			scopeInfo = handleVisit(v, handleLabel(l,scopeInfo));						
-		}
+		case (Statement)`<Label l> <Visit v>` :
+			symbolTable = handleVisit(v, handleLabel(l,symbolTable));						
 			
-		case `<Expression e> ;` : {
-			if (debug) println("NAMESPACE: Inside expression statement <s>");
-			scopeInfo = handleExpression(e, scopeInfo);
-		}
+		case `<Expression e> ;` :
+			symbolTable = handleExpression(e, symbolTable);
 
-		case `<Assignable a> <Assignment op> <Statement b>` : {
-			if (debug) println("NAMESPACE: Inside assignment statement <s>");
-			scopeInfo = handleStatement(b, handleAssignable(a, scopeInfo));
-		}
+		case `<Assignable a> <Assignment op> <Statement b>` :
+			symbolTable = handleStatement(b, handleAssignable(a, symbolTable));
 		
-		case `assert <Expression e> ;` : {
-			if (debug) println("NAMESPACE: Inside assert statement <s>");
-			scopeInfo = handleExpression(e, scopeInfo);
-		}
+		case `assert <Expression e> ;` :
+			symbolTable = handleExpression(e, symbolTable);
 
-		case `assert <Expression e> : <Expression em> ;` : {
-			if (debug) println("NAMESPACE: Inside assert with message statement <s>");
-			scopeInfo = handleExpression(em, handleExpression(e, scopeInfo));
-		}
+		case `assert <Expression e> : <Expression em> ;` :
+			symbolTable = handleExpression(em, handleExpression(e, symbolTable));
 		
 		case `return <Statement b>` : {
-			if (debug) println("NAMESPACE: Inside return statement <s>");
-			scopeInfo = handleStatement(b, scopeInfo);
-			scopeInfo = markReturnType(getEnclosingFunctionType(scopeInfo), s, scopeInfo);
+			symbolTable = handleStatement(b, symbolTable);
+			symbolTable = markReturnType(getEnclosingFunctionType(symbolTable), s, symbolTable);
 		}
 		
-		case `throw <Statement b>` : {
-			if (debug) println("NAMESPACE: Inside throw statement <s>");
-			scopeInfo = handleStatement(b, scopeInfo);
-		}
+		case `throw <Statement b>` :
+			symbolTable = handleStatement(b, symbolTable);
 		
-		case `insert <DataTarget dt> <Statement b>` : {
-			if (debug) println("NAMESPACE: Inside insert statement <s>");
-			scopeInfo = handleStatement(b, handleTarget(dt, scopeInfo));
-		}
+		case `insert <DataTarget dt> <Statement b>` :
+			symbolTable = handleStatement(b, handleTarget(dt, symbolTable));
 		
-		case `append <DataTarget dt> <Statement b>` : {
-			if (debug) println("NAMESPACE: Inside append statement <s>");
-			scopeInfo = handleStatement(b, handleTarget(dt, scopeInfo));
-		}
+		case `append <DataTarget dt> <Statement b>` :
+			symbolTable = handleStatement(b, handleTarget(dt, symbolTable));
 		
 		case (Statement) `<Tags ts> <Visibility v> <Signature sig> <FunctionBody fb>` : {
-			if (debug) println("NAMESPACE: Inside local function statement <s>");
 			// First get back the function signature information, creating the scope item
-			scopeInfo = handleTagsNamesOnly(ts, scopeInfo);
-			scopeInfo = handleFunctionNamesOnly(ts,v,sig,fb,s@\loc,scopeInfo);
+			symbolTable = handleFunctionNamesOnly(ts,v,sig,fb,s@\loc,handleTagsNamesOnly(ts, symbolTable));
 					
 			// Now, descend into the function, processing the body
-			scopeInfo = handleTags(ts, scopeInfo);
-			scopeInfo = handleFunction(ts,v,sig,fb,s@\loc,scopeInfo);
+			symbolTable = handleFunction(ts,v,sig,fb,s@\loc,handleTags(ts, symbolTable));
 		}
 		
-		case (Statement) `<Type t> <{Variable ","}+ vs> ;` : {
-			if (debug) println("NAMESPACE: Inside local variable statement <s>");
-			scopeInfo = handleLocalVarItems(t,vs,scopeInfo);
-		}
+		case (Statement) `<Type t> <{Variable ","}+ vs> ;` :
+			symbolTable = handleLocalVarItems(t,vs,symbolTable);
 		
-		case (Statement) `dynamic <Type t> <{Variable ","}+ vs> ;` : {
-			if (debug) println("NAMESPACE: Inside dynamic local variable statement <s>");
-
+		case (Statement) `dynamic <Type t> <{Variable ","}+ vs> ;` :
 			// TODO: Handle scoping of dynamics properly
-			scopeInfo = handleLocalVarItems(t,vs,scopeInfo);
-		}
+			symbolTable = handleLocalVarItems(t,vs,symbolTable);
 		
-		case `break <Target t> ;` : {
-			if (debug) println("NAMESPACE: Inside break statement <s>");
-			scopeInfo = handleTarget(dt, scopeInfo);
-		}
+		case `break <Target t> ;` :
+			symbolTable = handleTarget(dt, symbolTable);
 		
-		case `fail <Target t> ;` : {
-			if (debug) println("NAMESPACE: Inside fail statement <s>");
-			scopeInfo = handleTarget(dt, scopeInfo);
-		}
+		case `fail <Target t> ;` :
+			symbolTable = handleTarget(dt, symbolTable);
 		
-		case `continue <Target t> ;` : {
-			if (debug) println("NAMESPACE: Inside continue statement <s>");
-			scopeInfo = handleTarget(dt, scopeInfo);
-		}
+		case `continue <Target t> ;` :
+			symbolTable = handleTarget(dt, symbolTable);
 		
 		case `try <Statement b> <Catch+ cs>` : {
-			if (debug) println("NAMESPACE: Inside try without finally statement <s>");
-
-			scopeInfo = handleStatement(b, scopeInfo);
-			for (ct <- cs) scopeInfo = handleCatch(ct, scopeInfo);
+			symbolTable = handleStatement(b, symbolTable);
+			for (ct <- cs) symbolTable = handleCatch(ct, symbolTable);
 		}
 		
 		case `try <Statement b> <Catch+ cs> finally <Statement bf>` : {
-			if (debug) println("NAMESPACE: Inside try with finally statement <s>");
-
-			scopeInfo = handleStatement(b, scopeInfo);
-			for (ct <- cs) scopeInfo = handleCatch(ct, scopeInfo);
-			scopeInfo = handleStatement(bf, scopeInfo);
+			symbolTable = handleStatement(b, symbolTable);
+			for (ct <- cs) symbolTable = handleCatch(ct, symbolTable);
+			symbolTable = handleStatement(bf, symbolTable);
 		}
 		
 		case `<Label l> { <Statement+ bs> }` : {
-			if (debug) println("NAMESPACE: Inside block statement <s>");
-
-			scopeInfo = handleLabel(l,scopeInfo);			
-			scopeInfo = justScopeInfo(pushNewBlockScope(s@\loc, scopeInfo));
-			for (b <- bs) scopeInfo = handleStatement(b,scopeInfo);
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = handleLabel(l,symbolTable);			
+			symbolTable = justSymbolTable(pushNewBlockScope(s@\loc, symbolTable));
+			for (b <- bs) symbolTable = handleStatement(b,symbolTable);
+			symbolTable = popScope(symbolTable);
 		}
 	}
 	
-	return scopeInfo;
+	return symbolTable;
 }
 
 //
 // Handle individual expressions (which could contain closures, for instance)
 //
-public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
-	if (debug) println("NAMESPACE: Inside expression <exp>");
+// TODO: String Interpolation
+// TODO: Location Interpolation
+// TODO: Concrete syntax
+//
+public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
+
+	SymbolTable handleExpName(RName n, loc l, SymbolTable symbolTable) {
+		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {		
+			symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, n), l);
+		} else {
+			symbolTable = addScopeError(symbolTable, l, "<prettyPrintName(n)> not defined before use.");
+		}
+		return symbolTable;
+	}
+	
 	switch(exp) {
-		case (Expression)`<BooleanLiteral bl>` : {
-			if (debug) println("NAMESPACE: BooleanLiteral: <exp>");
-		}
-
-		case (Expression)`<DecimalIntegerLiteral il>`  : {
-			if (debug) println("NAMESPACE: DecimalIntegerLiteral: <exp>");
-		}
-
-		case (Expression)`<OctalIntegerLiteral il>`  : {
-			if (debug) println("NAMESPACE: OctalIntegerLiteral: <exp>");
-		}
-
-		case (Expression)`<HexIntegerLiteral il>`  : {
-			if (debug) println("NAMESPACE: HexIntegerLiteral: <exp>");
-		}
-
-		case (Expression)`<RealLiteral rl>`  : {
-			if (debug) println("NAMESPACE: RealLiteral: <exp>");
-		}
-
-		// TODO: Interpolation
-		case (Expression)`<StringLiteral sl>`  : {
-			if (debug) println("NAMESPACE: StringLiteral: <exp>");
-		}
-
-		// TODO: Interpolation
-		case (Expression)`<LocationLiteral ll>`  : {
-			if (debug) println("NAMESPACE: LocationLiteral: <exp>");
-		}
-
-		case (Expression)`<DateTimeLiteral dtl>`  : {
-			if (debug) println("NAMESPACE: DateTimeLiteral: <exp>");
-		}
-
 		// Name _
-		case (Expression)`_`: {
-			scopeInfo = addScopeError(scopeInfo, exp@\loc, "_ cannot be used as a variable name in an expression.");
-		}
+		case (Expression)`_`: 
+			symbolTable = addScopeError(symbolTable, exp@\loc, "_ cannot be used as a variable name in an expression.");
 		
-		// Name
-		case (Expression)`<Name n>`: {
-			if (debug) println("NAMESPACE: Name: <exp>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
-				if (debug) println("NAMESPACE: Adding use for <n> of items <getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))>");
-			} else {
-				scopeInfo = addScopeError(scopeInfo, n@\loc, "<n> not defined before use.");
-				if (debug) println("NAMESPACE: Found undefined use of <n>");
-			}
-		}
+		// Name (other than _)
+		case (Expression)`<Name n>`: 
+			symbolTable = handleExpName(convertName(n),n@\loc,symbolTable);
 		
 		// QualifiedName
-		case (Expression)`<QualifiedName qn>`: {
-			if (debug) println("NAMESPACE: QualifiedName: <exp>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
-				if (debug) println("NAMESPACE: Adding use for <qn>");
-			} else {
-				scopeInfo = addScopeError(scopeInfo, qn@\loc, "<qn> not defined before use (scope: <scopeInfo.currentScope>).");
-				if (debug) println("NAMESPACE: Found undefined use of <qn>");
-			}
-		}
+		case (Expression)`<QualifiedName qn>`: 
+			symbolTable = handleExpName(convertName(qn),qn@\loc,symbolTable);
 
 		// ReifiedType
-		case `<BasicType t> ( <{Expression ","}* el> )` : {
-			if (debug) println("NAMESPACE: ReifiedType: <exp>");
-			for (ei <- el) scopeInfo = handleExpression(ei, scopeInfo);
-		}
+		case `<BasicType t> ( <{Expression ","}* el> )` :
+			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
 
 		// CallOrTree
 		case `<Expression e1> ( <{Expression ","}* el> )` : {
-			if (debug) println("NAMESPACE: Call or Tree: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
+			symbolTable = handleExpression(e1, symbolTable);
 
 			// Parameters maintain their own scope for backtracking purposes
-			scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-			for (ei <- el) scopeInfo = handleExpression(ei, scopeInfo);
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
+			symbolTable = popScope(symbolTable);
 		}
 
 		// List
-		case `[<{Expression ","}* el>]` : {
-			if (debug) println("NAMESPACE: List: <exp>");
-			for (ei <- el) scopeInfo = handleExpression(ei, scopeInfo);
-		}
+		case `[<{Expression ","}* el>]` :
+			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
 
 		// Set
-		case `{<{Expression ","}* el>}` : {
-			if (debug) println("NAMESPACE: Set: <exp>");
-			for (ei <- el) scopeInfo = handleExpression(ei, scopeInfo);
-		}
+		case `{<{Expression ","}* el>}` :
+			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
 
 		// Tuple, just one expression
-		case (Expression) `<<Expression ei>>` : {
-			if (debug) println("NAMESPACE: Tuple: <exp>");
-			scopeInfo = handleExpression(ei, scopeInfo);
-		}
+		case (Expression) `<<Expression ei>>` :
+			symbolTable = handleExpression(ei, symbolTable);
 
 		// Tuple, more than one expression
 		case `<<Expression ei>, <{Expression ","}* el>>` : {
-			if (debug) println("NAMESPACE: Tuple: <exp>");
-			scopeInfo = handleExpression(ei, scopeInfo);
-			for (eli <- el)	scopeInfo = handleExpression(eli, scopeInfo);
+			symbolTable = handleExpression(ei,symbolTable);
+			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
 		}
 
 		// TODO: Map: Need to figure out a syntax that works for matching this
@@ -1104,1028 +905,736 @@ public ScopeInfo handleExpression(Expression exp, ScopeInfo scopeInfo) {
 
 		// Closure
 		case `<Type t> <Parameters p> { <Statement+ ss> }` : {
-			if (debug) println("NAMESPACE: Closure: <exp>");
-			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(p, scopeInfo);
-			scopeInfo = justScopeInfo(pushNewClosureScope(convertType(t), params, exp@\loc, scopeInfo));
-			for (s <- ss) scopeInfo = handleStatement(s, scopeInfo);
-			scopeInfo = popScope(scopeInfo);
+			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(p, symbolTable);
+			symbolTable = justSymbolTable(pushNewClosureScope(convertType(t), params, exp@\loc, symbolTable));
+			for (s <- ss) symbolTable = handleStatement(s, symbolTable);
+			symbolTable = popScope(symbolTable);
 		}
 
 		// VoidClosure
 		case `<Parameters p> { <Statement* ss> }` : {
-			if (debug) println("NAMESPACE: VoidClosure: <exp>");
-			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(p, scopeInfo);
-			scopeInfo = justScopeInfo(pushNewVoidClosureScope(params, exp@\loc, scopeInfo));
-			for (s <- ss) scopeInfo = handleStatement(s, scopeInfo);
-			scopeInfo = popScope(scopeInfo);
+			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(p, symbolTable);
+			symbolTable = justSymbolTable(pushNewVoidClosureScope(params, exp@\loc, symbolTable));
+			for (s <- ss) symbolTable = handleStatement(s, symbolTable);
+			symbolTable = popScope(symbolTable);
 		}
 
 		// NonEmptyBlock
 		case `{ <Statement+ ss> }` : {
-			if (debug) println("NAMESPACE: NonEmptyBlock: <exp>");
-			scopeInfo = justScopeInfo(pushNewBlockScope(s@\loc, scopeInfo));
-			for (s <- ss) scopeInfo = handleStatement(s,scopeInfo);
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = justSymbolTable(pushNewBlockScope(s@\loc, symbolTable));
+			for (s <- ss) symbolTable = handleStatement(s, symbolTable);
+			symbolTable = popScope(symbolTable);
 		}
 		
 		// Visit
-		case (Expression) `<Label l> <Visit v>` : {
-			if (debug) println("NAMESPACE: Visit: <exp>");
-			scopeInfo = handleVisit(v, handleLabel(l,scopeInfo));						
-		}
+		case (Expression) `<Label l> <Visit v>` :
+			symbolTable = handleVisit(v, handleLabel(l,symbolTable));						
 		
 		// ParenExp
-		case `(<Expression e>)` : {
-			if (debug) println("NAMESPACE: ParenExp: <exp>");
-			scopeInfo = handleExpression(e, scopeInfo);
-		}
+		case `(<Expression e>)` :
+			symbolTable = handleExpression(e, symbolTable);
 
 		// Range
-		case `[ <Expression e1> .. <Expression e2> ]` : {
-			if (debug) println("NAMESPACE: Range: <exp>");
-			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
-		}
+		case `[ <Expression e1> .. <Expression e2> ]` :
+			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// StepRange
-		case `[ <Expression e1>, <Expression e2> .. <Expression e3> ]` : {
-			if (debug) println("NAMESPACE: StepRange: <exp>");
-			scopeInfo = handleExpression(e3, handleExpression(e2, handleExpression(e1, scopeInfo)));
-		}
-
-		// ReifyType
-		case (Expression)`#<Type t>` : {
-			if (debug) println("NAMESPACE: ReifyType: <exp>");
-		}
+		case `[ <Expression e1>, <Expression e2> .. <Expression e3> ]` :
+			symbolTable = handleExpression(e3, handleExpression(e2, handleExpression(e1, symbolTable)));
 
 		// FieldUpdate
-		case `<Expression e1> [<Name n> = <Expression e2>]` : {
-			if (debug) println("NAMESPACE: FieldUpdate: <exp>");
-			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
-			
-			// NOTE: Here we do not add uses for n, since n should be the name of a field
-			// on the type e1. We will instead check this inside the type checker, since we
-			// need to know the type first before we can do this.
-		}
+		// NOTE: Here we do not add uses for n, since n should be the name of a field
+		// on the type e1. We will instead check this inside the type checker, since we
+		// need to know the type first before we can do this.
+		case `<Expression e1> [<Name n> = <Expression e2>]` :
+			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// FieldAccess
-		case `<Expression e1> . <Name n>` : {
-			if (debug) println("NAMESPACE: FieldAccess: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			
-			// NOTE: Here we do not add uses for n, since n should be the name of a field
-			// on the type e1. We will instead check this inside the type checker, since we
-			// need to know the type first before we can do this.
-		}
+		// NOTE: Here we do not add uses for n, since n should be the name of a field
+		// on the type e1. We will instead check this inside the type checker, since we
+		// need to know the type first before we can do this.
+		case `<Expression e1> . <Name n>` :
+			symbolTable = handleExpression(e1, symbolTable);
 
 		// FieldProject
-		case `<Expression e1> < <{Field ","}+ fl> >` : {
-			if (debug) println("NAMESPACE: FieldProject: <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			
-			// NOTE: Here we do not add uses for the fields, since we need to know the type of e1
-			// to check this (these are not uses of names defined in local scope). We will instead 
-			// check this inside the type checker. A field must be either a name or a number.
-		}
+		// NOTE: Here we do not add uses for the fields, since we need to know the type of e1
+		// to check this (these are not uses of names defined in local scope). We will instead 
+		// check this inside the type checker. A field must be either a name or a number.
+		case `<Expression e1> < <{Field ","}+ fl> >` :
+			symbolTable = handleExpression(e1, symbolTable);			
 
 		// Subscript
 		case `<Expression e1> [ <{Expression ","}+ el> ]` : {
-			if (debug) println("NAMESPACE: Subscript <exp>");
-			scopeInfo = handleExpression(e1, scopeInfo);
-			for (e <- el) scopeInfo = handleExpression(e, scopeInfo);
+			symbolTable = handleExpression(e1, symbolTable);
+			for (e <- el) symbolTable = handleExpression(e, symbolTable);
 		}
 
 		// IsDefined
 		case `<Expression e> ?` : {
-			if (debug) println("NAMESPACE: IsDefined: <exp>");
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e, scopeInfo);
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e, symbolTable);
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// Negation
 		case `! <Expression e>` : {
-			if (debug) println("NAMESPACE: Negation: <exp>");
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e, scopeInfo);
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e, symbolTable);
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// Negative
-		case `- <Expression e> ` : {
-			if (debug) println("NAMESPACE: Negative: <exp>");
-			scopeInfo = handleExpression(e, scopeInfo);
-		}
+		case `- <Expression e> ` :
+			symbolTable = handleExpression(e, symbolTable);
 
 		// TransitiveReflexiveClosure
-		case `<Expression e> * ` : {
-			if (debug) println("NAMESPACE: TransitiveReflexiveClosure: <exp>");
-			scopeInfo = handleExpression(e, scopeInfo);
-		}
+		case `<Expression e> * ` :
+			symbolTable = handleExpression(e, symbolTable);
 
 		// TransitiveClosure
-		case `<Expression e> + ` : {
-			if (debug) println("NAMESPACE: TransitiveClosure: <exp>");
-			scopeInfo = handleExpression(e, scopeInfo);
-		}
+		case `<Expression e> + ` :
+			symbolTable = handleExpression(e, symbolTable);
 
 		// GetAnnotation
 		case `<Expression e> @ <Name n>` : {
-			if (debug) println("NAMESPACE: GetAnnotation: <exp>");
-			scopeInfo = handleExpression(e, scopeInfo);
-			if (debug) println("NAMESPACE: Adding use for <n>");
-			scopeInfo = addItemUses(scopeInfo, getAnnotationItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
+			symbolTable = handleExpression(e, symbolTable);
+			symbolTable = addItemUses(symbolTable, getAnnotationItemsForName(symbolTable, symbolTable.currentScope, convertName(n)), n@\loc);
 		}
 
 		// SetAnnotation
 		case `<Expression e1> [@ <Name n> = <Expression e2>]` : {
-			if (debug) println("NAMESPACE: SetAnnotation: <exp>");
-			scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			if (debug) println("NAMESPACE: Adding use for <n>");
-			scopeInfo = addItemUses(scopeInfo, getAnnotationItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
+			symbolTable = handleExpression(e2,handleExpression(e1, symbolTable));
+			symbolTable = addItemUses(symbolTable, getAnnotationItemsForName(symbolTable, symbolTable.currentScope, convertName(n)), n@\loc);
 		}
 
 		// Composition
-		case `<Expression e1> o <Expression e2>` : {
-			if (debug) println("NAMESPACE: Composition: <exp>");
-			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
-		}
+		case `<Expression e1> o <Expression e2>` :
+			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Product
-		case `<Expression e1> * <Expression e2>` : {
-			if (debug) println("NAMESPACE: Times: <exp>");
-			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
-		}
+		case `<Expression e1> * <Expression e2>` :
+			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Join
-		case `<Expression e1> join <Expression e2>` : {
-			if (debug) println("NAMESPACE: Join: <exp>");
-			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
-		}
+		case `<Expression e1> join <Expression e2>` :
+			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Div
-		case `<Expression e1> / <Expression e2>` : {
-			if (debug) println("NAMESPACE: Div: <exp>");
-			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
-		}
+		case `<Expression e1> / <Expression e2>` :
+			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Mod
-		case `<Expression e1> % <Expression e2>` : {
-			if (debug) println("NAMESPACE: Mod: <exp>");
-			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
-		}
+		case `<Expression e1> % <Expression e2>` :
+			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Intersection
-		case `<Expression e1> & <Expression e2>` : {
-			if (debug) println("NAMESPACE: Intersection: <exp>");
-			scopeInfo = handleExpression(e2, handleExpression(e1, scopeInfo));
-		}
+		case `<Expression e1> & <Expression e2>` :
+			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 		
 		// Plus
-		case `<Expression e1> + <Expression e2>` : {
-			if (debug) println("NAMESPACE: Plus: <exp>");
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-		}
+		case `<Expression e1> + <Expression e2>` :
+			symbolTable = handleExpression(e2,handleExpression(e1, symbolTable));
 
 		// Minus
-		case `<Expression e1> - <Expression e2>` : {
-			if (debug) println("NAMESPACE: Minus: <exp>");
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-		}
+		case `<Expression e1> - <Expression e2>` :
+			symbolTable = handleExpression(e2,handleExpression(e1, symbolTable));
 
 		// NotIn
 		case `<Expression e1> notin <Expression e2>` : {
-			if (debug) println("NAMESPACE: NotIn: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// In
 		case `<Expression e1> in <Expression e2>` : {
-			if (debug) println("NAMESPACE: In: <exp>");
-			
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// LessThan
 		case `<Expression e1> < <Expression e2>` : {
-			if (debug) println("NAMESPACE: LessThan: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// LessThanOrEq
 		case `<Expression e1> <= <Expression e2>` : {
-			if (debug) println("NAMESPACE: LessThanOrEq: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// GreaterThan
 		case `<Expression e1> > <Expression e2>` : {
-			if (debug) println("NAMESPACE: GreaterThan: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// GreaterThanOrEq
 		case `<Expression e1> >= <Expression e2>` : {
-			if (debug) println("NAMESPACE: GreaterThanOrEq: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// Equals
 		case `<Expression e1> == <Expression e2>` : {
-			if (debug) println("NAMESPACE: Equals: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// NotEquals
 		case `<Expression e1> != <Expression e2>` : {
-			if (debug) println("NAMESPACE: NotEquals: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// IfThenElse (Ternary)
 		case `<Expression e1> ? <Expression e2> : <Expression e3>` : {
-			if (debug) println("NAMESPACE: IfThenElse: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e3,handleExpression(e2,handleExpression(e1, scopeInfo)));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e3, handleExpression(e2, handleExpression(e1, symbolTable)));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// IfDefinedOtherwise
 		case `<Expression e1> ? <Expression e2>` : {
-			if (debug) println("NAMESPACE: IfDefinedOtherwise: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// Implication
 		case `<Expression e1> ==> <Expression e2>` : {
-			if (debug) println("NAMESPACE: Implication: <exp>");
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			
+			// First, push a scope for the left-hand side of the or and evaluate
+			// the expression there
+			symbolTable = justSymbolTable(pushNewOrScope(exp@\loc, symbolTable));
+			STItemId orScope1 = symbolTable.currentScope;
+			symbolTable = handleExpression(e1, symbolTable);
+			symbolTable = popScope(symbolTable);
 
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
+			// Now, do the same for the right-hand side.
+			symbolTable = justSymbolTable(pushNewOrScope(exp@\loc, symbolTable));
+			STItemId orScope2 = symbolTable.currentScope;
+			symbolTable = handleExpression(e2, symbolTable);
+			symbolTable = popScope(symbolTable);
 
-				// First, push a scope for the left-hand side of the or and evaluate
-				// the expression there
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope1 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
+			// Merge the names shared by both branches of the or into the current scope
+			symbolTable = mergeOrLayers(symbolTable, [orScope1, orScope2], symbolTable.currentScope);
 
-				// Now, do the same for the right-hand side.
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope2 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e2, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
-
-				// Merge the names shared by both branches of the or into the current scope
-				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
-
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				// First, push a scope for the left-hand side of the or and evaluate
-				// the expression there
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope1 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
-
-				// Now, do the same for the right-hand side.
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope2 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e2, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
-
-				// Merge the names shared by both branches of the or into the current scope
-				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
-			}	
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// Equivalence
 		case `<Expression e1> <==> <Expression e2>` : {
-			if (debug) println("NAMESPACE: Equivalence: <exp>");
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
 
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
+			// First, push a scope for the left-hand side of the or and evaluate
+			// the expression there
+			symbolTable = justSymbolTable(pushNewOrScope(exp@\loc, symbolTable));
+			STItemId orScope1 = symbolTable.currentScope;
+			symbolTable = handleExpression(e1, symbolTable);
+			symbolTable = popScope(symbolTable);
 
-				// First, push a scope for the left-hand side of the or and evaluate
-				// the expression there
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope1 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
+			// Now, do the same for the right-hand side.
+			symbolTable = justSymbolTable(pushNewOrScope(exp@\loc, symbolTable));
+			STItemId orScope2 = symbolTable.currentScope;
+			symbolTable = handleExpression(e2, symbolTable);
+			symbolTable = popScope(symbolTable);
 
-				// Now, do the same for the right-hand side.
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope2 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e2, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
+			// Merge the names shared by both branches of the or into the current scope
+			symbolTable = mergeOrLayers(symbolTable, [orScope1, orScope2], symbolTable.currentScope);
 
-				// Merge the names shared by both branches of the or into the current scope
-				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
-
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				// First, push a scope for the left-hand side of the or and evaluate
-				// the expression there
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope1 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
-
-				// Now, do the same for the right-hand side.
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope2 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e2, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
-
-				// Merge the names shared by both branches of the or into the current scope
-				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
-			}	
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// And
 		case `<Expression e1> && <Expression e2>` : {
-			if (debug) println("NAMESPACE: And: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handleExpression(e2, handleExpression(e1,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handleExpression(e2,handleExpression(e1, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handleExpression(e2, handleExpression(e1,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// Or
 		case `<Expression e1> || <Expression e2>` : {
-			if (debug) println("NAMESPACE: Or: <exp>");
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
 
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
+			// First, push a scope for the left-hand side of the or and evaluate
+			// the expression there
+			symbolTable = justSymbolTable(pushNewOrScope(exp@\loc, symbolTable));
+			STItemId orScope1 = symbolTable.currentScope;
+			symbolTable = handleExpression(e1, symbolTable);
+			symbolTable = popScope(symbolTable);
 
-				// First, push a scope for the left-hand side of the or and evaluate
-				// the expression there
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope1 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
+			// Now, do the same for the right-hand side.
+			symbolTable = justSymbolTable(pushNewOrScope(exp@\loc, symbolTable));
+			STItemId orScope2 = symbolTable.currentScope;
+			symbolTable = handleExpression(e2, symbolTable);
+			symbolTable = popScope(symbolTable);
 
-				// Now, do the same for the right-hand side.
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope2 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e2, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
+			// Merge the names shared by both branches of the or into the current scope
+			symbolTable = mergeOrLayers(symbolTable, [orScope1, orScope2], symbolTable.currentScope);
 
-				// Merge the names shared by both branches of the or into the current scope
-				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
-
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				// First, push a scope for the left-hand side of the or and evaluate
-				// the expression there
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope1 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e1, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
-
-				// Now, do the same for the right-hand side.
-				scopeInfo = justScopeInfo(pushNewOrScope(exp@\loc, scopeInfo));
-				STItemId orScope2 = scopeInfo.currentScope;
-				scopeInfo = handleExpression(e2, scopeInfo);
-				scopeInfo = popScope(scopeInfo);
-
-				// Merge the names shared by both branches of the or into the current scope
-				scopeInfo = mergeOrLayers(scopeInfo, [orScope1, orScope2], scopeInfo.currentScope);
-			}	
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 		
 		// Match
 		case `<Pattern p> := <Expression e>` : {
-			if (debug) println("NAMESPACE: Match: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handlePattern(p, handleExpression(e,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handlePattern(p, handleExpression(e, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handlePattern(p, handleExpression(e,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// NoMatch
 		case `<Pattern p> !:= <Expression e>` : {
-			if (debug) println("NAMESPACE: NoMatch: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handlePattern(p, handleExpression(e,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handlePattern(p, handleExpression(e, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handlePattern(p, handleExpression(e,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 
 		// Enumerator
 		case `<Pattern p> <- <Expression e>` : {
-			if (debug) println("NAMESPACE: Enumerator: <exp>");
-
-			if (! inBoolLayer (scopeInfo)) {
-				scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
-				scopeInfo = handlePattern(p, handleExpression(e,scopeInfo));
-				scopeInfo = popScope(scopeInfo);
-			} else {
-				scopeInfo = handlePattern(p, handleExpression(e, scopeInfo));
-			}	
+			bool popAtTheEnd = false;
+			if (! inBoolLayer (symbolTable)) {
+				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
+				popAtTheEnd = true;
+			}
+			symbolTable = handlePattern(p, handleExpression(e,symbolTable));
+			if (popAtTheEnd) symbolTable = popScope(symbolTable);
 		}
 		
 		// Set Comprehension
 		case (Expression) `{ <{Expression ","}+ el> | <{Expression ","}+ er> }` : {
-			if (debug) println("NAMESPACE: SetComprehension: <exp>");
-			for (e <- er) scopeInfo = handleExpression(e, scopeInfo);
-			for (e <- el) scopeInfo = handleExpression(e, scopeInfo);
+			for (e <- er) symbolTable = handleExpression(e, symbolTable);
+			for (e <- el) symbolTable = handleExpression(e, symbolTable);
 		}
 
 		// List Comprehension
 		case (Expression) `[ <{Expression ","}+ el> | <{Expression ","}+ er> ]` : {
-			if (debug) println("NAMESPACE: ListComprehension: <exp>");
-			for (e <- er) scopeInfo = handleExpression(e, scopeInfo);
-			for (e <- el) scopeInfo = handleExpression(e, scopeInfo);
+			for (e <- er) symbolTable = handleExpression(e, symbolTable);
+			for (e <- el) symbolTable = handleExpression(e, symbolTable);
 		}
 		
 		// Map Comprehension
 		case (Expression) `( <Expression ef> : <Expression et> | <{Expression ","}+ er> )` : {
-			if (debug) println("NAMESPACE: MapComprehension: <exp>");
-			for (e <- er) scopeInfo = handleExpression(e, scopeInfo);
-			scopeInfo = handleExpression(et, handleExpression(ef, scopeInfo));
+			for (e <- er) symbolTable = handleExpression(e, symbolTable);
+			symbolTable = handleExpression(et, handleExpression(ef, symbolTable));
 		}
 
 		// Reducer
 		case `( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )` : {
-			if (debug) println("NAMESPACE: Reducer: <exp>");
-			
-			scopeInfo = handleExpression(e1, scopeInfo);
+			symbolTable = handleExpression(e1, symbolTable);
 			
 			// Open a new boolean scope for the generators, this makes them available in the reducer
-			scopeInfo = justScopeInfo(pushNewBooleanScope(exp@\loc, scopeInfo));
+			symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
 			
 			// Calculate the scope info for the generators and expressors; we add "it" as a variable automatically
-			for (e <- egs) scopeInfo = handleExpression(e, scopeInfo);
-			scopeInfo = addFreshVariable(RSimpleName("it"), ei@\loc, scopeInfo);
-			scopeInfo = handleExpression(er, scopeInfo);
+			for (e <- egs) symbolTable = handleExpression(e, symbolTable);
+			symbolTable = addFreshVariable(RSimpleName("it"), ei@\loc, symbolTable);
+			symbolTable = handleExpression(er, symbolTable);
 			
 			// Switch back to the prior scope to take expression bound names and "it" out of scope
-			scopeInfo = popScope(scopeInfo);			
+			symbolTable = popScope(symbolTable);			
 		}
 		
 		// It
-		case `it` : {
-			if (debug) println("NAMESPACE: It: <exp>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, RSimpleName("it"))) > 0) {		
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, RSimpleName("it")), exp@\loc);
-				if (debug) println("NAMESPACE: Adding use for <exp>");
-			} else {
-				scopeInfo = addScopeError(scopeInfo, exp@\loc, "<exp> not currently in scope.");
-				if (debug) println("NAMESPACE: Found undefined use of <exp>");
-			}
-		}
+		case `it` :
+			symbolTable = handleExpName(RSimpleName("it"),exp@\loc,symbolTable);
 			
 		// All 
-		case `all ( <{Expression ","}+ egs> )` : {
-			if (debug) println("NAMESPACE: All: <exp>");
-			for (e <- egs) scopeInfo = handleExpression(e, scopeInfo);
-		}
+		case `all ( <{Expression ","}+ egs> )` :
+			for (e <- egs) symbolTable = handleExpression(e, symbolTable);
 
 		// Any 
-		case `all ( <{Expression ","}+ egs> )` : {
-			if (debug) println("NAMESPACE: Any: <exp>");
-			for (e <- egs) scopeInfo = handleExpression(e, scopeInfo);
-		}
-		
-		// TODO: Look in embedding.sdf for more expression productions
-		
-		// TODO: Add support for interpolation
+		case `all ( <{Expression ","}+ egs> )` :
+			for (e <- egs) symbolTable = handleExpression(e, symbolTable);
 	}
 	
-	return scopeInfo;
+	return symbolTable;
 }
 
 //
 // Handle individual cases
 //
-public ScopeInfo handleCase(Case c, ScopeInfo scopeInfo) {
+public SymbolTable handleCase(Case c, SymbolTable symbolTable) {
 	switch(c) {
-		case `case <PatternWithAction p>` : {
-			scopeInfo = handlePatternWithAction(p, scopeInfo);
-		}
+		case `case <PatternWithAction p>` :
+			symbolTable = handlePatternWithAction(p, symbolTable);
 		
-		case `default : <Statement b>` : {
-			scopeInfo = handleStatement(b, scopeInfo);
-		}
+		case `default : <Statement b>` :
+			symbolTable = handleStatement(b, symbolTable);
 	}
 	
-	return scopeInfo;
+	return symbolTable;
 }
 
-//
-// Handle assignables
-//
-public ScopeInfo handleAssignable(Assignable a, ScopeInfo scopeInfo) {
-	if (debug) println("NAMESPACE: Inside assignable <a>");
+public SymbolTable handleAssignable(Assignable a, SymbolTable symbolTable) {
 	switch(a) {
 		// Name _
-		case (Assignable)`_`: {
-			scopeInfo = addScopeError(scopeInfo, a@\loc, "_ cannot be used as a variable name in an assignable.");
-		}
+		case (Assignable)`_` :
+			symbolTable = addFreshAnonymousVariable(a@\loc, symbolTable);
 	
+		// Assignment to a variable
 		case (Assignable)`<QualifiedName qn>` : {
-			if (debug) println("NAMESPACE: QualifiedName Assignable: <a>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
-				if (debug) println("NAMESPACE: Adding use for <qn>");
+			if (size(getItemsForName(symbolTable, symbolTable.currentScope, convertName(qn))) > 0) {		
+				symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, convertName(qn)), qn@\loc);
 			} else {
-				scopeInfo = addFreshVariable(convertName(qn), qn@\loc, scopeInfo);			
-				if (debug) println("NAMESPACE: Adding fresh type for <qn>");
+				symbolTable = addFreshVariable(convertName(qn), qn@\loc, symbolTable);			
 			}
 		}
 		
-		case `<Assignable al> [ <Expression e> ]` : {
-			if (debug) println("NAMESPACE: Subscripted Assignable: <a>");
-			scopeInfo = handleAssignable(al, scopeInfo);
-			scopeInfo = handleExpression(e, scopeInfo);			
-		}
+		// Subscript assignment
+		case `<Assignable al> [ <Expression e> ]` :
+			symbolTable = handleExpression(e, handleAssignable(al, symbolTable));			
+
+		// Field assignment
+		case `<Assignable al> . <Name n>` :
+			symbolTable = handleAssignable(al, symbolTable);
 		
-		case `<Assignable al> . <Name n>` : {
-			if (debug) println("NAMESPACE: Field Assignable: <a>");
-			scopeInfo = handleAssignable(al, scopeInfo);
-			// TODO: Most likely we don't need the code below, since the names are based on the type, not on
-			// names defined earlier in the current scope. Verify this.
-			//if (debug) println("NAMESPACE: Adding use for <n>");
-			//scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
-		}
+		// If-defined assignment
+		case `<Assignable al> ? <Expression e>` :
+			symbolTable = handleExpression(e, handleAssignable(al, symbolTable));			
 		
-		case `<Assignable al> ? <Expression e>` : {
-			if (debug) println("NAMESPACE: IfDefined Assignable: <a>");
-			scopeInfo = handleAssignable(al, scopeInfo);
-			scopeInfo = handleExpression(e, scopeInfo);			
-		}
-		
+		// Annotation assignment
 		case `<Assignable al> @ <Name n>` : {
-			if (debug) println("NAMESPACE: Attribute Assignable: <a>");
-			scopeInfo = handleAssignable(al, scopeInfo);
-			if (debug) println("NAMESPACE: Adding use for <n>");
-			scopeInfo = addItemUses(scopeInfo, getAnnotationItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
+			symbolTable = handleAssignable(al, symbolTable);
+			symbolTable = addItemUses(symbolTable, getAnnotationItemsForName(symbolTable, symbolTable.currentScope, convertName(n)), n@\loc);
 		}
 
 		// Tuple assignable, with just one tuple element		
-		case (Assignable)`< <Assignable ai> >` : {
-			if (debug) println("NAMESPACE: Tuple Assignable: <a>");
-			scopeInfo = handleAssignable(ai, scopeInfo);
-		}
+		case (Assignable)`< <Assignable ai> >` :
+			symbolTable = handleAssignable(ai, symbolTable);
 
 		// Tuple assignable, with multiple elements in the tuple
 		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
-			if (debug) println("NAMESPACE: Tuple Assignable: <a>");
-			scopeInfo = handleAssignable(ai, scopeInfo);
-			for (ali <- al) {
-				scopeInfo = handleAssignable(ali, scopeInfo);
-			}
+			symbolTable = handleAssignable(ai, symbolTable);
+			for (ali <- al) symbolTable = handleAssignable(ali, symbolTable);
 		}
 		
-		// NOTE: We are not currently supporting this case, as we are considering removing it from
-		// the language as an unsafe operation.
-//		case `<Name n> ( <{Assignable ","}+ al> )` : {
-//			if (debug) println("NAMESPACE: Constructor Assignable: <a>");
-//			if (debug) println("NAMESPACE: Adding use for <qn>");
-//			scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
-//			for (ali <- al) {
-//				scopeInfo = handleAssignable(ali, scopeInfo);
-//			}
-//		}
-
-		default : {
-			if (debug) println("NAMESPACE: Unhandled assignable case! <a>");
+		default : 
 			throw "Found unhandled assignable case during namespace construction: <a>";
-		}
 	}
 	
-	return scopeInfo;
+	return symbolTable;
 }
 
-//
-// Handle local variable declarations, with or without initializers
-//
-public ScopeInfo handleLocalVarItems(Type t, {Variable ","}+ vs, ScopeInfo scopeInfo) {
+public SymbolTable handleLocalVarItems(Type t, {Variable ","}+ vs, SymbolTable symbolTable) {
 	for (vb <- vs) {
 		switch(vb) {
 			case (Variable) `<Name n>` : {
-				if (debug) println("NAMESPACE: Adding variable <n>");
-				if (size(getItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {
-					scopeInfo = addScopeError(scopeInfo, n@\loc, "Illegal redefinition of <n>.");
-					if (debug) println("NAMESPACE: Illegal redefinition of <n>");
-				} 
-
-				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), true, vb@\loc, scopeInfo), [<true,n@\loc>])); 
-				if (debug) println("NAMESPACE: Added variable <n> with type <prettyPrintType(convertType(t))>");
+				if (size(getItemsForNameFB(symbolTable, symbolTable.currentScope, convertName(n))) > 0)
+					symbolTable = addScopeError(symbolTable, n@\loc, "Illegal redefinition of <n>.");
+				symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(convertName(n), convertType(t), true, vb@\loc, symbolTable), [<true,n@\loc>])); 
 			}
 				
 			case (Variable) `<Name n> = <Expression e>` : {
-				if (debug) println("NAMESPACE: Adding variable <n>");
-				if (size(getItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {
-					scopeInfo = addScopeError(scopeInfo, n@\loc, "Illegal redefinition of <n>.");
-					if (debug) println("NAMESPACE: Illegal redefinition of <n>");
-				} 
-
-				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), true, vb@\loc, scopeInfo), [<true,n@\loc>])); 
-				scopeInfo = handleExpression(e, scopeInfo);
-				if (debug) println("NAMESPACE: Added variable <n> with type <prettyPrintType(convertType(t))>");
+				if (size(getItemsForNameFB(symbolTable, symbolTable.currentScope, convertName(n))) > 0)
+					symbolTable = addScopeError(symbolTable, n@\loc, "Illegal redefinition of <n>.");
+				symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(convertName(n), convertType(t), true, vb@\loc, symbolTable), [<true,n@\loc>])); 
+				symbolTable = handleExpression(e, symbolTable);
 			}
 
 			default : throw "Unexpected local var declaration syntax, <vb>";
 		}
 	}
-	return scopeInfo;
+	return symbolTable;
 }
 
-//
-// Handle the "catch" part of a try/catch statement
-//
-public ScopeInfo handleCatch(Catch c, ScopeInfo scopeInfo) {
+public SymbolTable handleCatch(Catch c, SymbolTable symbolTable) {
 	switch(c) {
-		case `catch : <Statement b>` : {
-			scopeInfo = handleStatement(b, scopeInfo);
-		}
+		case `catch : <Statement b>` :
+			symbolTable = handleStatement(b, symbolTable);
 		
-		case `catch <Pattern p> : <Statement b>` : {
-			scopeInfo = handleStatement(b, handlePattern(p, scopeInfo));
-		}
+		case `catch <Pattern p> : <Statement b>` :
+			symbolTable = handleStatement(b, handlePattern(p, symbolTable));
 	}
 	
-	return scopeInfo;
+	return symbolTable;
 }		
 
-//
-// Handle labels
-//
-public ScopeInfo handleLabel(Label l, ScopeInfo scopeInfo) {
+public SymbolTable handleLabel(Label l, SymbolTable symbolTable) {
 	if ((Label)`<Name n> :` := l) {
 		// First, check to see if this label already exists
-		set[STItemId] ls = getLabelItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n));
-		if (size(ls) > 0) {		
-			scopeInfo = addScopeError(scopeInfo, n@\loc, "Label <n> has already been defined.");
-		}
-		scopeInfo = justScopeInfo(addLabelToScope(convertName(n), l@\loc, scopeInfo));					
-	} // label can be empty... 
-	return scopeInfo;
+		set[STItemId] ls = getLabelItemsForNameFB(symbolTable, symbolTable.currentScope, convertName(n));
+		if (size(ls) > 0)
+			symbolTable = addScopeError(symbolTable, n@\loc, "Label <n> has already been defined.");
+		symbolTable = justSymbolTable(addLabelToScope(convertName(n), l@\loc, symbolTable));					
+	} // else Empty label, in which case we do nothing 
+	return symbolTable;
 }
 
-public ScopeInfo handleVisit(Visit v, ScopeInfo scopeInfo) {
-	switch(v) {
-		case `visit (<Expression se>) { <Case+ cs> }` : {
-			scopeInfo = handleExpression(se, scopeInfo);
-			for (c <- cs) scopeInfo = handleCase(c, scopeInfo);
-		}
-		
-		case `<Strategy st> visit (<Expression se>) { <Case+ cs> }` : {
-			scopeInfo = handleExpression(se, scopeInfo);
-			for (c <- cs) scopeInfo = handleCase(c, scopeInfo);		
-		}		
+public SymbolTable handleVisit(Visit v, SymbolTable symbolTable) {
+	if (`visit (<Expression se>) { <Case+ cs> }` := v || `<Strategy st> visit (<Expression se>) { <Case+ cs> }` := v) {
+		symbolTable = handleExpression(se, symbolTable);
+		for (c <- cs) symbolTable = handleCase(c, symbolTable);
 	}
-	
-	return scopeInfo;
+	return symbolTable;
 }
 
-public ScopeInfo addFreshVariable(RName n, loc nloc, ScopeInfo scopeInfo) {
-	RType freshType = makeInferredType(scopeInfo.freshType);
-	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
-	if (RSimpleName("it") := n) scopeInfo.itBinder[nloc] = freshType;
-	scopeInfo.freshType = scopeInfo.freshType + 1;
-	scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(n, freshType, false, nloc, scopeInfo), [<true,nloc>]));
-	return scopeInfo;
+public SymbolTable addFreshVariable(RName n, loc nloc, SymbolTable symbolTable) {
+	RType freshType = makeInferredType(symbolTable.freshType);
+	symbolTable.inferredTypeMap[symbolTable.freshType] = freshType;
+	if (RSimpleName("it") := n) symbolTable.itBinder[nloc] = freshType;
+	symbolTable.freshType = symbolTable.freshType + 1;
+	symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, freshType, false, nloc, symbolTable), [<true,nloc>]));
+	return symbolTable;
 }
 
-public ScopeInfo addFreshAnonymousVariable(loc nloc, ScopeInfo scopeInfo) {
-	RType freshType = makeInferredType(scopeInfo.freshType);
-	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
-	scopeInfo.freshType = scopeInfo.freshType + 1;
-	scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(RSimpleName("_"), freshType, false, nloc, scopeInfo), [<true,nloc>]));
-	return scopeInfo;
+public SymbolTable addFreshAnonymousVariable(loc nloc, SymbolTable symbolTable) {
+	RType freshType = makeInferredType(symbolTable.freshType);
+	symbolTable.inferredTypeMap[symbolTable.freshType] = freshType;
+	symbolTable.freshType = symbolTable.freshType + 1;
+	symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(RSimpleName("_"), freshType, false, nloc, symbolTable), [<true,nloc>]));
+	return symbolTable;
 }
 
-public ScopeInfo addFreshContainerVariable(RName n, loc nloc, ScopeInfo scopeInfo) {
-	RType freshType = makeContainerType(makeInferredType(scopeInfo.freshType));
-	scopeInfo.inferredTypeMap[scopeInfo.freshType] = freshType;
-	scopeInfo.freshType = scopeInfo.freshType + 1;
-	scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(n, freshType, false, nloc, scopeInfo), [<true,nloc>]));
-	return scopeInfo;
+public SymbolTable addFreshContainerVariable(RName n, loc nloc, SymbolTable symbolTable) {
+	RType freshType = makeContainerType(makeInferredType(symbolTable.freshType));
+	symbolTable.inferredTypeMap[symbolTable.freshType] = freshType;
+	symbolTable.freshType = symbolTable.freshType + 1;
+	symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, freshType, false, nloc, symbolTable), [<true,nloc>]));
+	return symbolTable;
 }
 
 //
 // Handle patterns
 //
-public ScopeInfo handlePattern(Pattern pat, ScopeInfo scopeInfo) {
+// TODO: Interpolation
+// TODO: Maps
+//
+public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
+	SymbolTable handlePatternName(RName n, loc l, SymbolTable symbolTable) {
+		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {		
+			symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, n), l);
+		} else {
+			symbolTable = addFreshVariable(n, l, symbolTable);
+		}
+		return symbolTable;
+	}
+	
+	SymbolTable handleMultiPatternName(RName n, loc l, SymbolTable symbolTable) {
+		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {		
+			symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, n), l);
+		} else {
+			symbolTable = addFreshContainerVariable(n, l, symbolTable);
+		}
+		return symbolTable;
+	}
+		
+	SymbolTable handleTypedPatternName(RName n, RType t, loc l, loc pl, SymbolTable symbolTable) {
+		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {		
+			symbolTable = addScopeError(symbolTable, pl, "Illegal shadowing of already declared name: <prettyPrintName(n)>");
+		} else {
+			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, t, pl, symbolTable), [<true,l>]));
+		}
+		return symbolTable;
+	}	
+
 	switch(pat) {
-		case (Pattern)`<BooleanLiteral bl>` : {
-			if (debug) println("NAMESPACE: BooleanLiteralPattern: <pat>");
-		}
+		// Name _
+		case (Pattern)`_` :
+			symbolTable = addFreshAnonymousVariable(pat@\loc, symbolTable);			
 
-		case (Pattern)`<DecimalIntegerLiteral il>`  : {
-			if (debug) println("NAMESPACE: DecimalIntegerLiteralPattern: <pat>");
-		}
-
-		case (Pattern)`<OctalIntegerLiteral il>`  : {
-			if (debug) println("NAMESPACE: OctalIntegerLiteralPattern: <pat>");
-		}
-
-		case (Pattern)`<HexIntegerLiteral il>`  : {
-			if (debug) println("NAMESPACE: HexIntegerLiteralPattern: <pat>");
-		}
-
-		case (Pattern)`<RealLiteral rl>`  : {
-			if (debug) println("NAMESPACE: RealLiteralPattern: <pat>");
-		}
-
-		// TODO: Interpolation
-		case (Pattern)`<StringLiteral sl>`  : {
-			if (debug) println("NAMESPACE: StringLiteralPattern: <pat>");
-		}
-
-		// TODO: Interpolation
-		case (Pattern)`<LocationLiteral ll>`  : {
-			if (debug) println("NAMESPACE: LocationLiteralPattern: <pat>");
-		}
-
-		case (Pattern)`<DateTimeLiteral dtl>`  : {
-			if (debug) println("NAMESPACE: DateTimeLiteralPattern: <pat>");
-		}
-
-		// Name
-		case (Pattern)`_`: {
-			if (debug) println("NAMESPACE: Anonymous NamePattern: <pat>");
-			
-			scopeInfo = addFreshAnonymousVariable(pat@\loc, scopeInfo);			
-			if (debug) println("NAMESPACE: Adding anonymous variable for <pat>");
-		}
-
-		// Name
-		case (Pattern)`<Name n>`: {
-			if (debug) println("NAMESPACE: NamePattern: <pat>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
-				if (debug) println("NAMESPACE: Adding use for <n>");
-			} else {
-				scopeInfo = addFreshVariable(convertName(n), n@\loc, scopeInfo);			
-				if (debug) println("NAMESPACE: Adding fresh type for <n>");
-			}
-		}
+		// Name other than _
+		case (Pattern)`<Name n>` : 
+			symbolTable = handlePatternName(convertName(n), n@\loc, symbolTable);
 		
 		// QualifiedName
-		case (Pattern)`<QualifiedName qn>`: {
-			if (debug) println("NAMESPACE: QualifiedNamePattern: <pat>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
-				if (debug) println("NAMESPACE: Adding use for <qn>");
-			} else {
-				scopeInfo = addFreshVariable(convertName(qn), qn@\loc, scopeInfo);			
-				if (debug) println("NAMESPACE: Adding fresh type for for <qn>");
-			}
-		}
+		case (Pattern)`<QualifiedName qn>` :
+			symbolTable = handlePatternName(convertName(qn), qn@\loc, symbolTable);
 
 		// ReifiedType
-		case `<BasicType t> ( <{Pattern ","}* pl> )` : {
-			if (debug) println("NAMESPACE: ReifiedTypePattern: <pat>");
-			for (p <- pl) scopeInfo = handlePattern(p, scopeInfo);
-		}
+		case `<BasicType t> ( <{Pattern ","}* pl> )` :
+			for (p <- pl) symbolTable = handlePattern(p, symbolTable);
 
 		// CallOrTree
 		case `<Pattern p1> ( <{Pattern ","}* pl> )` : {
-			if (debug) println("NAMESPACE: CallOrTreePattern: <pat>");
-			scopeInfo = handlePattern(p1, scopeInfo);
-			for (p <- pl) scopeInfo = handlePattern(p, scopeInfo);
+			symbolTable = handlePattern(p1, symbolTable);
+			for (p <- pl) symbolTable = handlePattern(p, symbolTable);
 		}
 
 		// List
-		case `[<{Pattern ","}* pl>]` : {
-			if (debug) println("NAMESPACE: ListPattern: <pat>");
-			for (p <- pl) scopeInfo = handlePattern(p, scopeInfo);
-		}
+		case `[<{Pattern ","}* pl>]` :
+			for (p <- pl) symbolTable = handlePattern(p, symbolTable);
 
 		// Set
-		case `{<{Pattern ","}* pl>}` : {
-			if (debug) println("NAMESPACE: SetPattern: <pat>");
-			for (p <- pl) scopeInfo = handlePattern(p, scopeInfo);
-		}
+		case `{<{Pattern ","}* pl>}` :
+			for (p <- pl) symbolTable = handlePattern(p, symbolTable);
 
 		// Tuple, with just one element
-		case `<<Pattern pi>>` : {
-			if (debug) println("NAMESPACE: TuplePattern: <pat>");
-			scopeInfo = handlePattern(pi, scopeInfo);
-		}
+		case `<<Pattern pi>>` :
+			symbolTable = handlePattern(pi, symbolTable);
 
 		// Tuple, with multiple elements
 		case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
-			if (debug) println("NAMESPACE: TuplePattern: <pat>");
-			scopeInfo = handlePattern(pi, scopeInfo);
-			for (p <- pl) scopeInfo = handlePattern(p, scopeInfo);
+			symbolTable = handlePattern(pi, symbolTable);
+			for (p <- pl) symbolTable = handlePattern(p, symbolTable);
 		}
-
-		// TODO: Map: Need to figure out a syntax that works for matching this
 
 		// Typed Variable
-		case (Pattern) `<Type t> <Name n>` : {
-			if (debug) println("NAMESPACE: TypedVariablePattern: <pat>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
-				scopeInfo = addScopeError(scopeInfo, pat@\loc, "Illegal shadowing of already declared name: <n>");
-			} else {
-				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), pat@\loc, scopeInfo), [<true,n@\loc>]));
-				if (debug) println("NAMESPACE: Adding new declaration for <n>");
-			}
-		}
+		case (Pattern) `<Type t> <Name n>` :
+			symbolTable = handleTypedPatternName(convertName(n),convertType(t),n@\loc,pat@\loc,symbolTable);
 
 		// Multi Variable
-		case `<QualifiedName qn> *` : {
-			if (debug) println("NAMESPACE: MultiVariablePattern: <pat>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn))) > 0) {		
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(qn)), qn@\loc);
-				if (debug) println("NAMESPACE: Adding use for <qn>");
-			} else {
-				scopeInfo = addFreshContainerVariable(convertName(qn), qn@\loc, scopeInfo);			
-				if (debug) println("NAMESPACE: Adding fresh container type for for <qn>");
-			}
-		}
+		case `<QualifiedName qn> *` :
+			symbolTable = handleMultiPatternName(convertName(qn), qn@\loc, symbolTable);
 
 		// Descendant
-		case `/ <Pattern p>` : {
-			if (debug) println("NAMESPACE: DescendantPattern: <pat>");
-			scopeInfo = handlePattern(p, scopeInfo);
-		}
+		case `/ <Pattern p>` :
+			symbolTable = handlePattern(p, symbolTable);
 
 		// Variable Becomes
-		case `<Name n> : <Pattern p>` : {
-			if (debug) println("NAMESPACE: VariableBecomesPattern: <pat>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
-				scopeInfo = addItemUses(scopeInfo, getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n)), n@\loc);
-				if (debug) println("NAMESPACE: Adding use for <n>");
-			} else {
-				scopeInfo = addFreshVariable(convertName(qn), qn@\loc, scopeInfo);			
-				if (debug) println("NAMESPACE: Adding fresh type for for <n>");
-			}
-			scopeInfo = handlePattern(p, scopeInfo);
-		}
+		case `<Name n> : <Pattern p>` :
+			symbolTable = handlePattern(p, handlePatternName(convertName(n), n@\loc, symbolTable));
 		
 		// Typed Variable Becomes
-		case `<Type t> <Name n> : <Pattern p>` : {
-			if (debug) println("NAMESPACE: TypedVariableBecomesPattern: <pat>");
-			if (size(getItemsForName(scopeInfo, scopeInfo.currentScope, convertName(n))) > 0) {		
-				scopeInfo = addScopeError(scopeInfo, pat@\loc, "Illegal shadowing of already declared name: <n>");
-			} else {
-				scopeInfo = justScopeInfo(addSTItemUses(addVariableToScope(convertName(n), convertType(t), pat@\loc, scopeInfo), [<true,n@\loc>]));
-				if (debug) println("NAMESPACE: Adding new declaration for <n>");
-			}
-			scopeInfo = handlePattern(p, scopeInfo);
-		}
+		case `<Type t> <Name n> : <Pattern p>` :
+			symbolTable = handlePattern(p, handleTypedPatternName(convertName(n),convertType(t),n@\loc,pat@\loc,symbolTable));
 		
 		// Guarded
-		case `[ <Type t> ] <Pattern p>` : {
-			if (debug) println("NAMESPACE: GuardedPattern: <pat>");
-			scopeInfo = handlePattern(p, scopeInfo);
-		}			
+		case `[ <Type t> ] <Pattern p>` :
+			symbolTable = handlePattern(p, symbolTable);
 		
 		// Anti
-		case `! <Pattern p>` : {
-			if (debug) println("NAMESPACE: AntiPattern: <pat>");
-			scopeInfo = handlePattern(p, scopeInfo);
-		}
+		case `! <Pattern p>` :
+			symbolTable = handlePattern(p, symbolTable);
 	}
 	
-	return scopeInfo;
+	return symbolTable;
 }
 
 //
 // Handle Pattern with Action productions
 //
-public ScopeInfo handlePatternWithAction(PatternWithAction pwa, ScopeInfo scopeInfo) {
+public SymbolTable handlePatternWithAction(PatternWithAction pwa, SymbolTable symbolTable) {
 	switch(pwa) {
 		case `<Pattern p> => <Expression e>` : {
-			scopeInfo = justScopeInfo(pushNewPatternMatchScope(pwa@\loc, scopeInfo));
-			scopeInfo = handleExpression(e, handlePattern(p, scopeInfo));
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = justSymbolTable(pushNewPatternMatchScope(pwa@\loc, symbolTable));
+			symbolTable = handleExpression(e, handlePattern(p, symbolTable));
+			symbolTable = popScope(symbolTable);
 		}
 		
 		case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
-			scopeInfo = justScopeInfo(pushNewPatternMatchScope(pwa@\loc, scopeInfo));
-			scopeInfo = handlePattern(p, scopeInfo);
-			for (e <- es) scopeInfo = handleExpression(e, scopeInfo);
-			scopeInfo = handleExpression(er, scopeInfo);
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = justSymbolTable(pushNewPatternMatchScope(pwa@\loc, symbolTable));
+			symbolTable = handlePattern(p, symbolTable);
+			for (e <- es) symbolTable = handleExpression(e, symbolTable);
+			symbolTable = handleExpression(er, symbolTable);
+			symbolTable = popScope(symbolTable);
 		}
 		
 		case `<Pattern p> : <Statement s>` : {
-			scopeInfo = justScopeInfo(pushNewPatternMatchScope(pwa@\loc, scopeInfo));
-			scopeInfo = handleStatement(s, handlePattern(p, scopeInfo));			
-			scopeInfo = popScope(scopeInfo);
+			symbolTable = justSymbolTable(pushNewPatternMatchScope(pwa@\loc, symbolTable));
+			symbolTable = handleStatement(s, handlePattern(p, symbolTable));			
+			symbolTable = popScope(symbolTable);
 		}
 	}
 	
-	return scopeInfo;
+	return symbolTable;
 }
 
-public ScopeInfo handleTarget(DataTarget dt, ScopeInfo scopeInfo) {
+public SymbolTable handleTarget(DataTarget dt, SymbolTable symbolTable) {
 	if ((DataTarget)`<Name n> :` := dt) {
-		set[STItemId] items = getLabelItemsForNameFB(scopeInfo, scopeInfo.currentScope, convertName(n));
+		set[STItemId] items = getLabelItemsForNameFB(symbolTable, symbolTable.currentScope, convertName(n));
 		if (size(items) == 1) {
-			scopeInfo = addItemUses(scopeInfo, items, n@\loc);
+			symbolTable = addItemUses(symbolTable, items, n@\loc);
 		} else if (size(items) == 0) {
-			scopeInfo = addScopeError(scopeInfo, n@\loc, "Label <n> has not been defined.");			
+			symbolTable = addScopeError(symbolTable, n@\loc, "Label <n> has not been defined.");			
 		} else {
-			scopeInfo = addScopeError(scopeInfo, n@\loc, "Label <n> has multiple definitions.");
+			symbolTable = addScopeError(symbolTable, n@\loc, "Label <n> has multiple definitions.");
 		}
 		
 	}
-	return scopeInfo;
+	return symbolTable;
 }
 
-public bool hasRType(ScopeInfo scopeInfo, loc l) {
-	if (l in scopeInfo.itemUses || l in scopeInfo.scopeErrorMap)
+public bool hasRType(SymbolTable symbolTable, loc l) {
+	if (l in symbolTable.itemUses || l in symbolTable.scopeErrorMap)
 		return true;
 	return false;
 }
 
-public RType getRType(ScopeInfo scopeInfo, loc l) {
-	set[STItemId] items = (l in scopeInfo.itemUses) ? scopeInfo.itemUses[l] : { };
-	set[str] scopeErrors = (l in scopeInfo.scopeErrorMap) ? scopeInfo.scopeErrorMap[l] : { };
+public RType getRType(SymbolTable symbolTable, loc l) {
+	set[STItemId] items = (l in symbolTable.itemUses) ? symbolTable.itemUses[l] : { };
+	set[str] scopeErrors = (l in symbolTable.scopeErrorMap) ? symbolTable.scopeErrorMap[l] : { };
 	
 	if (size(scopeErrors) == 0) {
 		if (size(items) == 0) {
@@ -2133,40 +1642,40 @@ public RType getRType(ScopeInfo scopeInfo, loc l) {
 			return makeVoidType();
 		} else if (size(items) == 1) {
 			STItemId anid = getOneFrom(items);
-			return getTypeForItem(scopeInfo, getOneFrom(items));
+			return getTypeForItem(symbolTable, getOneFrom(items));
 		} else {
-			return ROverloadedType({ getTypeForItem(scopeInfo, sii) | sii <- items });
+			return ROverloadedType({ getTypeForItem(symbolTable, sii) | sii <- items });
 		}
 	} else {
 		return collapseFailTypes({ makeFailType(s,l) | s <- scopeErrors });
 	}
 }
 
-public Tree decorateNames(Tree t, ScopeInfo scopeInfo) {
+public Tree decorateNames(Tree t, SymbolTable symbolTable) {
 	return visit(t) {
-		case `<Name n>` => hasRType(scopeInfo, n@\loc) ? n[@rtype = getRType(scopeInfo, n@\loc)] : n
+		case `<Name n>` => hasRType(symbolTable, n@\loc) ? n[@rtype = getRType(symbolTable, n@\loc)] : n
 		
-		case `<QualifiedName qn>` => hasRType(scopeInfo, qn@\loc) ? qn[@rtype = getRType(scopeInfo, qn@\loc)] : qn
+		case `<QualifiedName qn>` => hasRType(symbolTable, qn@\loc) ? qn[@rtype = getRType(symbolTable, qn@\loc)] : qn
 	}
 }
 
 // TODO: Add tag handling here
-public ScopeInfo handleTagsNamesOnly(Tags ts, ScopeInfo scopeInfo) {
-	return scopeInfo;
+public SymbolTable handleTagsNamesOnly(Tags ts, SymbolTable symbolTable) {
+	return symbolTable;
 }
 
-public ScopeInfo handleTags(Tags ts, ScopeInfo scopeInfo) {
-	return scopeInfo;
+public SymbolTable handleTags(Tags ts, SymbolTable symbolTable) {
+	return symbolTable;
 }
 
 // NOTE: The code in ExampleGraph appears to be out of date, so this doesn't
 // appear to work. Look at other ways to visualize.
-//public void showScope(ScopeInfo scopeInfo, int w, int h) {
+//public void showScope(SymbolTable symbolTable, int w, int h) {
 //	// First, create a node for each item in the scope info
-//	nodes = [ box([id("<n>"), width(20), height(20), fillColor("lightblue")], text("<si>")) | n <- domain(scopeInfo.scopeItemMap), si := scopeInfo.scopeItemMap[n]];
+//	nodes = [ box([id("<n>"), width(20), height(20), fillColor("lightblue")], text("<si>")) | n <- domain(symbolTable.scopeItemMap), si := symbolTable.scopeItemMap[n]];
 //
 //	// Now, create the edges based on the relation
-//	edges = [ edge("<f>", "<t>") | < f, t > <- scopeInfo.scopeRel];
+//	edges = [ edge("<f>", "<t>") | < f, t > <- symbolTable.scopeRel];
 //
 //	// Finally, render
 //	render(graph([width(w), height(h)], nodes, edges));

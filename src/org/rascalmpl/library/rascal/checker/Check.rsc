@@ -7,12 +7,13 @@ import Message;
 import Map;
 import Relation;
 import ParseTree;
+import Reflective;
 
 import rascal::checker::Types;
 import rascal::checker::SubTypes;
-import rascal::checker::Namespace;
 import rascal::checker::TypeRules;
-import rascal::checker::ScopeInfo;
+import rascal::checker::SymbolTable;
+import rascal::checker::Namespace;
 import rascal::checker::Signature;
 
 import rascal::\old-syntax::Rascal;
@@ -84,8 +85,8 @@ public Tree check(Tree t, RType adtErrors) {
 	return visit(t) {
 		case `<Expression e>` : { 
 			RType expType = checkExpression(e); 
-			if (e@\loc in globalScopeInfo.itBinder) 
-				updateInferredTypeMappings(globalScopeInfo.itBinder[e@\loc], expType); 
+			if (e@\loc in globalSymbolTable.itBinder) 
+				updateInferredTypeMappings(globalSymbolTable.itBinder[e@\loc], expType); 
 				insert e[@rtype = expType]; 
 		}
 		case `<Pattern p>` => p[@rtype = checkPattern(p)]
@@ -145,7 +146,7 @@ private RType propagateFailOr(set[RType] checkTypes, RType newType) {
 // information map.
 public RType checkName(Name n) {
 	if (isInferredType(n@rtype)) {
-		return globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)];
+		return globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)];
 	}
 	return n@rtype;
 }
@@ -163,7 +164,7 @@ public RType checkModule(Module m) {
 // that have occurred in nested declarations up to the top level.
 public RType checkModuleBody(Body b) {
 	set[RType] modItemTypes = { };
-	if (`<Toplevel* ts>` := b) modItemTypes = { t@rtype | t <- ts, ( (t@rtype)?) };
+	if ((Body)`<Toplevel* ts>` := b) modItemTypes = { t@rtype | t <- ts, ( (t@rtype)?) };
 	if (size(modItemTypes) > 0 && checkForFail(modItemTypes)) return collapseFailTypes(modItemTypes);
 	return makeVoidType();
 }
@@ -249,7 +250,7 @@ public RType checkVariable(Variable v) {
 			if (checkForFail( { n@rtype, e@rtype })) return collapseFailTypes({ n@rtype, e@rtype });
 
 			if (isInferredType(n@rtype)) {
-				RType mappedType = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)];
+				RType mappedType = globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)];
 				if (isInferredType(mappedType)) {
 					if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(mappedType)> to <prettyPrintType(e@rtype)> on name <n>");
 					updateInferredTypeMappings(mappedType,e@rtype);
@@ -346,7 +347,7 @@ public RType checkAbstractADT(Tags ts, Visibility v, UserType adtType) {
 // Propagate upwards any errors registered on the ADT name or on the variants.
 //
 public RType checkADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars) {
-	if (debug) println("CHECKER: Checking adt <prettyPrintType(convertType(adtType))>");
+	if (debug) println("CHECKER: Checking adt <prettyPrintType(convertUserType(adtType))>");
 	set[RType] adtTypes = { };
 
 	Name adtn = getUserTypeRawName(adtType);
@@ -363,14 +364,14 @@ public RType checkADT(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ va
 // Return any type registered on the alias name, else return a void type. Types on the name
 // most likely represent a scoping error.
 public RType checkAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType) {
-	if (debug) println("CHECKER: Checking alias <prettyPrintType(convertType(aliasType))>");
+	if (debug) println("CHECKER: Checking alias <prettyPrintType(convertUserType(aliasType))>");
 	Name aliasRawName = getUserTypeRawName(aliasType);
 	if ( (aliasRawName@rtype)? ) return aliasRawName@rtype;
 	return makeVoidType();
 }
 
 // TODO: Implement
-// public ScopeInfo checkView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts) {
+// public SymbolTable checkView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts) {
 //	throw "checkView not yet implemented";
 // }
 
@@ -471,7 +472,7 @@ public RType checkSwitchStatement (Statement sp, Label l, Expression e, Case+ ca
 	}
 	
 	if (size(caseFailures) == 0) {
-		if (checkCaseCoverage(e@rtype, cases, globalScopeInfo)) {			
+		if (checkCaseCoverage(e@rtype, cases, globalSymbolTable)) {			
 			return makeStatementType(makeVoidType());
 		} else {
 			return makeStatementType(makeFailType("The switch does not include a default case and the cases may not cover all possibilities.", sp@\loc));
@@ -572,7 +573,7 @@ public RType checkAssertWithMessageStatement(Statement sp, Expression e, Express
 // the expense of maintaining additional data structures.
 public RType checkReturnStatement(Statement sp, Statement b) {
 	RType stmtType = getInternalStatementType(b@rtype);
-	RType retType = getFunctionReturnType(globalScopeInfo.returnTypeMap[sp@\loc]);
+	RType retType = getFunctionReturnType(globalSymbolTable.returnTypeMap[sp@\loc]);
 	if (debug) println("CHECKER: Verifying return type <prettyPrintType(retType)>");
 	if (isFailType(stmtType)) {
 		return makeStatementType(stmtType);
@@ -1561,14 +1562,14 @@ public RType checkExpression(Expression exp) {
 		case (Expression)`<Name n>`: {
 			if (debug) println("CHECKER: Name: <exp>");
 			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(n@rtype));
-			return isInferredType(n@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)] : n@rtype; 
+			return isInferredType(n@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)] : n@rtype; 
 		}
 		
 		// QualifiedName
 		case (Expression)`<QualifiedName qn>`: {
 			if (debug) println("CHECKER: QualifiedName: <exp>");
 			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
-			return isInferredType(qn@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
+			return isInferredType(qn@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
 		}
 
 		// ReifiedType
@@ -2177,7 +2178,7 @@ public RType checkAssignable(Assignable a) {
 		case (Assignable)`<QualifiedName qn>` : {
 			if (debug) println("CHECKER: VariableAssignable: <a>");
 			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
-			RType rt = isInferredType(qn@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype;
+			RType rt = isInferredType(qn@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype;
 			return makeAssignableType(rt,rt); 
 		}
 		
@@ -2264,7 +2265,7 @@ public RType bindInferredTypesToAssignable(RType rt, Assignable a) {
 		case (Assignable)`<QualifiedName qn>` : {
 			if (debug) println("CHECKER: Checking on bind of type <prettyPrintType(rt)> to name <qn>");
 			if (isInferredType(qn@rtype)) {
-				RType t = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)];
+				RType t = globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)];
 				if (isInferredType(t)) {
 					if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(t)> to <prettyPrintType(rt)> on name <qn>");
 					updateInferredTypeMappings(t,rt);
@@ -2611,14 +2612,14 @@ public RType checkPattern(Pattern pat) {
 		case (Pattern)`<Name n>`: {
 			if (debug) println("CHECKER: NamePattern: <pat>");
 			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(n@rtype));
-			return isInferredType(n@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)] : n@rtype; 
+			return isInferredType(n@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)] : n@rtype; 
 		}
 		
 		// QualifiedName
 		case (Pattern)`<QualifiedName qn>`: {
 			if (debug) println("CHECKER: QualifiedNamePattern: <pat>");
 			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
-			return isInferredType(qn@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
+			return isInferredType(qn@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
 		}
 
 		// ReifiedType
@@ -2681,7 +2682,7 @@ public RType checkPattern(Pattern pat) {
 		case `<QualifiedName qn> *` : {
 			if (debug) println("CHECKER: MultiVariablePattern: <pat>");
 			if (debug) println("CHECKER: Assigned type: " + prettyPrintType(qn@rtype));
-			return isInferredType(qn@rtype) ? globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
+			return isInferredType(qn@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
 		}
 
 		// Descendant
@@ -2783,7 +2784,7 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 		case (Pattern)`<Name n>`: {
 			if (debug) println("CHECKER: Checking on bind of type <prettyPrintType(rt)> to name <n>");
 			if (isInferredType(n@rtype)) {
-				RType t = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(n@rtype)];
+				RType t = globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)];
 				if (isInferredType(t)) {
 					if (debug) println("CHECKER: Updating binding of inferred type <prettyPrintType(t)> to <prettyPrintType(rt)> on name <n>");
 					updateInferredTypeMappings(t,rt);
@@ -2805,9 +2806,9 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 		case (Pattern)`<QualifiedName qn>`: {
 			if (debug) println("CHECKER: Checking on bind of type <prettyPrintType(rt)> to qualified name <qn>");
 			if (isInferredType(qn@rtype)) {
-				RType t = globalScopeInfo.inferredTypeMap[getInferredTypeIndex(qn@rtype)];
+				RType t = globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)];
 				if (isInferredType(t)) {
-					updateInferredTypeMappings(globalScopeInfo,t,rt);
+					updateInferredTypeMappings(globalSymbolTable,t,rt);
 					return rt;
 				} else {
 					if (t != rt) {
@@ -2946,12 +2947,12 @@ public RType checkDataTarget(DataTarget dt) {
 // TODO: For now, just update the exact index. If we need to propagate these changes we need to make this
 // code more powerful.
 private void updateInferredTypeMappings(RType t, RType rt) {
-	globalScopeInfo.inferredTypeMap[getInferredTypeIndex(t)] = rt;
+	globalSymbolTable.inferredTypeMap[getInferredTypeIndex(t)] = rt;
 }
 
 // Replace inferred with concrete types
 public RType replaceInferredTypes(RType rt) {
-	return visit(rt) { case RInferredType(n) => globalScopeInfo.inferredTypeMap[n] };
+	return visit(rt) { case RInferredType(n) => globalSymbolTable.inferredTypeMap[n] };
 }
 
 //
@@ -2960,11 +2961,11 @@ public RType replaceInferredTypes(RType rt) {
 public list[RType] getParameterTypes(Parameters p) {
 	list[RType] pTypes = [];
 
-	if (`( <Formals f> )` := p && `<{Formal ","}* fs>` := f) {
+	if (`( <Formals f> )` := p && (Formals)`<{Formal ","}* fs>` := f) {
 		for ((Formal)`<Type t> <Name n>` <- fs) {
 				pTypes += n@rtype;
 		}
-	} else if (`( <Formals f> ... )` := p && `<{Formal ","}* fs>` := f) {
+	} else if (`( <Formals f> ... )` := p && (Formals)`<{Formal ","}* fs>` := f) {
 		for ((Formal)`<Type t> <Name n>` <- fs) {
 				pTypes += n@rtype;
 		}
@@ -3014,9 +3015,9 @@ public Tree typecheckFile(str filePath) {
 //
 public Tree typecheckTree(Tree t) {
 	SignatureMap sigMap = populateSignatureMap(getImports(t));
-	globalScopeInfo = consolidateADTDefinitions(buildNamespace(t, sigMap),getModuleName(t));
-	Tree td = decorateNames(t,globalScopeInfo);
-	RType adtErrors = checkADTDefinitionsForConsistency(globalScopeInfo, getModuleName(t));
+	globalSymbolTable = consolidateADTDefinitions(buildNamespace(t, sigMap),getModuleName(t));
+	Tree td = decorateNames(t,globalSymbolTable);
+	RType adtErrors = checkADTDefinitionsForConsistency(globalSymbolTable, getModuleName(t));
 	Tree tc = retagNames(check(td, adtErrors));
 	if (isFailType(tc@rtype)) tc = tc[@messages = { error(l,s) | RFailType(allFailures) := tc@rtype, <s,l> <- allFailures }];
 	if (debug && isFailType(tc@rtype)) {
@@ -3030,129 +3031,76 @@ public Tree typecheckTree(Tree t) {
 // modules. Until then, we load up the signatures here...
 public SignatureMap populateSignatureMap(list[Import] imports) {
 
-	RName getNameOfImportedModule(ImportedModule im) {
+	str getNameOfImportedModule(ImportedModule im) {
 		switch(im) {
 			case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` : {
-				return convertName(qn);
+				return prettyPrintName(convertName(qn));
 			}
 			case `<QualifiedName qn> <ModuleActuals ma>` : {
-				return convertName(qn);
+				return prettyPrintName(convertName(qn));
 			}
 			case `<QualifiedName qn> <Renamings rn>` : {
-				return convertName(qn);
+				return prettyPrintName(convertName(qn));
 			}
 			case (ImportedModule)`<QualifiedName qn>` : {
-				return convertName(qn);
+				return prettyPrintName(convertName(qn));
 			}
 		}
 		throw "getNameOfImportedModule: invalid syntax for ImportedModule <im>, cannot get name";
 	}
 
-	// A hack to get the paths to the modules; we need a way to ask the environment for these, or do
-	// the linking like we planned (but which is currently disabled)
-	str rascalLibPath = "/Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library";
-	str testPath = "/Users/mhills/Documents/runtime-Rascal/Test/src";
-	map[RName moduleName, str modPath] modPathMap = (
-		RSimpleName("ATermIO") : "<rascalLibPath>/ATermIO.rsc",
-		RSimpleName("AUT") : "<rascalLibPath>/AUT.rsc",
-		RSimpleName("Benchmark") : "<rascalLibPath>/Benchmark.rsc",
-		RSimpleName("Boolean") : "<rascalLibPath>/Boolean.rsc",
-		RSimpleName("DateTime") : "<rascalLibPath>/DateTime.rsc",
-		RSimpleName("ECore") : "<rascalLibPath>/ECore.rsc",
-		RSimpleName("Exception") : "<rascalLibPath>/Exception.rsc",
-		RSimpleName("Graph") : "<rascalLibPath>/Graph.rsc",
-		RSimpleName("HTMLIO") : "<rascalLibPath>/HTMLIO.rsc",
-		RSimpleName("IO") : "<rascalLibPath>/IO.rsc",
-		RSimpleName("Integer") : "<rascalLibPath>/Integer.rsc",
-		RSimpleName("LabeledGraph") : "<rascalLibPath>/LabeledGraph.rsc",
-		RSimpleName("List") : "<rascalLibPath>/List.rsc",
-		RSimpleName("Map") : "<rascalLibPath>/Map.rsc",
-		RSimpleName("Message") : "<rascalLibPath>/Message.rsc",
-		RSimpleName("Node") : "<rascalLibPath>/Node.rsc",
-		RSimpleName("Number") : "<rascalLibPath>/Number.rsc",
-		RSimpleName("ParseTree") : "<rascalLibPath>/ParseTree.rsc",
-		RSimpleName("PriorityQueue") : "<rascalLibPath>/PriorityQueue.rsc",
-		RSimpleName("RSF") : "<rascalLibPath>/RSF.rsc",
-		RSimpleName("Real") : "<rascalLibPath>/Real.rsc",
-		RSimpleName("Relation") : "<rascalLibPath>/Relation.rsc",
-		RSimpleName("Set") : "<rascalLibPath>/Set.rsc",
-		RSimpleName("SourceHierarchy") : "<rascalLibPath>/SourceHierarchy.rsc",
-		RSimpleName("Strategy") : "<rascalLibPath>/Strategy.rsc",
-		RSimpleName("String") : "<rascalLibPath>/String.rsc",
-		RSimpleName("ToString") : "<rascalLibPath>/ToString.rsc",
-		RSimpleName("TopologicalStrategy") : "<rascalLibPath>/TopologicalStrategy.rsc",
-		RSimpleName("UnitTest") : "<rascalLibPath>/UnitTest.rsc",
-		RSimpleName("ValueIO") : "<rascalLibPath>/ValueIO.rsc",
-		RSimpleName("XMLDOM") : "<rascalLibPath>/XMLDOM.rsc",
-		RSimpleName("XMLIO") : "<rascalLibPath>/XMLIO.rsc",
- 		RSimpleName("ListExamples") : "<testPath>/ListExamples.rsc",
-		RSimpleName("SomeTypes") : "<testPath>/SomeTypes.rsc",
-		RSimpleName("Stack") : "<testPath>/Stack.rsc",
-		RSimpleName("StackUser") : "<testPath>/StackUser.rsc",
-		RSimpleName("TupleExample") : "<testPath>/TupleExample.rsc"
-	);
 
 	SignatureMap sigMap = ( );
 	for (i <- imports) {
-		switch(i) {
-			case `import <ImportedModule im> ;` : {
-				loc importLoc = |file://<modPathMap[getNameOfImportedModule(im)]>|;
-				Tree importTree = parse(#Module,importLoc);
-				if (debug) println("CHECKER: Generating signature for module <prettyPrintName(getNameOfImportedModule(im))>");
-				sigMap[i] = getModuleSignature(importTree);
-			}
-			case `extend <ImportedModule im> ;` : {
-				loc importLoc = |file://<modPathMap[getNameOfImportedModule(im)]>|;
-				Tree importTree = parse(#Module,importLoc);
-				if (debug) println("CHECKER: Generating signature for module <prettyPrintName(getNameOfImportedModule(im))>");
-				sigMap[i] = getModuleSignature(importTree);
-			} 
-		}
+		if (`import <ImportedModule im> ;` := i || `extend <ImportedModule im> ;` := i) {
+			Tree importTree = getModuleParseTree(getNameOfImportedModule(im));
+			sigMap[i] = getModuleSignature(importTree);
+		} 
 	}
 
 	return sigMap;
 }
 
-public RType checkADTDefinitionsForConsistency(ScopeInfo scopeInfo, RName moduleName) {
+public RType checkADTDefinitionsForConsistency(SymbolTable table, RName moduleName) {
 	set[RType] consistencyFailures = { };
 
 	// Get back the ID for the name of the module being checked -- there should be only one matching
 	// item. TODO: We may want to verify that here.
-	STItemId moduleLayerId = getOneFrom(getModuleItemsForName(scopeInfo, moduleName));
+	STItemId moduleLayerId = getOneFrom(getModuleItemsForName(table, moduleName));
 	
 	// Check each ADT individually	
-	for (n <- domain(scopeInfo.adtMap)) {
+	for (n <- domain(table.adtMap)) {
 		map[RName fieldName, RType fieldType] fieldMap = ( );
 
 		// First check imported constructors. If we get errors, we would rather have them on the constructors
 		// defined in the current module, since they are easier to fix -- checking them later preferences the
 		// types assigned to field in imported types.
-		for (ci <- scopeInfo.adtMap[n].consItems, ci in scopeInfo.scopeRel[scopeInfo.topSTItemId]) {
-			if (ConstructorItem(cn,params,_,_) := scopeInfo.scopeItemMap[ci]) {
+		for (ci <- table.adtMap[n].consItems, ci in table.scopeRel[table.topSTItemId]) {
+			if (ConstructorItem(cn,params,_,_) := table.scopeItemMap[ci]) {
 				for (RNamedType(nt,nn) <- params) {
 					if (nn notin fieldMap) {
 						fieldMap[nn] = nt;
 					} else if (nn in fieldMap && fieldMap[nn] != nt) {
-						consistencyFailures += makeFailType("Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>",scopeInfo.scopeItemMap[ci]@at);
+						consistencyFailures += makeFailType("Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>",table.scopeItemMap[ci]@at);
 					}
 				}				
 			} else {
-				throw "checkADTDefinitionsForConsistency, unexpected constructor item <scopeInfo.scopeItemMap[ci]>";
+				throw "checkADTDefinitionsForConsistency, unexpected constructor item <table.scopeItemMap[ci]>";
 			}
 		}
 		
 		// TODO: May be good to refactor out identical checking code
-		for (ci <- scopeInfo.adtMap[n].consItems, ci in scopeInfo.scopeRel[moduleLayerId]) {
-			if (ConstructorItem(cn,params,_,_) := scopeInfo.scopeItemMap[ci]) {
+		for (ci <- table.adtMap[n].consItems, ci in table.scopeRel[moduleLayerId]) {
+			if (ConstructorItem(cn,params,_,_) := table.scopeItemMap[ci]) {
 				for (RNamedType(nt,nn) <- params) {
 					if (nn notin fieldMap) {
 						fieldMap[nn] = nt;
 					} else if (nn in fieldMap && fieldMap[nn] != nt) {
-						consistencyFailures += makeFailType("Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>",scopeInfo.scopeItemMap[ci]@at);
+						consistencyFailures += makeFailType("Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>",table.scopeItemMap[ci]@at);
 					}
 				}				
 			} else {
-				throw "checkADTDefinitionsForConsistency, unexpected constructor item <scopeInfo.scopeItemMap[ci]>";
+				throw "checkADTDefinitionsForConsistency, unexpected constructor item <table.scopeItemMap[ci]>";
 			}
 		}
 	}
@@ -3163,41 +3111,41 @@ public RType checkADTDefinitionsForConsistency(ScopeInfo scopeInfo, RName module
 		return makeVoidType();
 }
 
-private ScopeInfo globalScopeInfo = createNewScopeInfo();
+private SymbolTable globalSymbolTable = createNewSymbolTable();
 
 // Check to see if the cases given cover the possible matches of the expected type.
 // If a default is present this is automatically true, else we need to look at the
 // patterns given in the various cases. 
-public bool checkCaseCoverage(RType expectedType, Case+ options, ScopeInfo scopeInfo) {
+public bool checkCaseCoverage(RType expectedType, Case+ options, SymbolTable table) {
 	set[Case] defaultCases = { cs | cs <- options, `default: <Statement b>` := cs };
 	if (size(defaultCases) > 0) return true;	
 	
 	set[Pattern] casePatterns = { p | cs <- options, `case <Pattern p> => <Replacement r>` := cs || `case <Pattern p> : <Statement b>` := cs };
-	return checkPatternCoverage(expectedType, casePatterns, scopeInfo);		
+	return checkPatternCoverage(expectedType, casePatterns, table);		
 }
 
 // Check to see if the patterns in the options set cover the possible matches of the
 // expected type. This can be recursive, for instance with ADT types.
 // TODO: Interpolation
 // TODO: Need to expand support for matching over reified types	
-public bool checkPatternCoverage(RType expectedType, set[Pattern] options, ScopeInfo scopeInfo) {
+public bool checkPatternCoverage(RType expectedType, set[Pattern] options, SymbolTable table) {
 
 	// Check to see if a given use of a name is the same use that defines it. A use is the
 	// defining use if, at the location of the name, there is a use of the name, and that use
 	// is also the location of the definition of a new item.
-	bool isDefiningUse(Name n, ScopeInfo scopeInfo) {
+	bool isDefiningUse(Name n, SymbolTable table) {
 		loc nloc = n@\loc;
 		println("CHECKING FOR DEFINING USE, name <n>, location <n@\loc>");
-		if (nloc in scopeInfo.itemUses) {
+		if (nloc in table.itemUses) {
 			println("location in itemUses");
-			if (size(scopeInfo.itemUses[nloc]) == 1) {
+			if (size(table.itemUses[nloc]) == 1) {
 				println("only 1 item used, not overloaded");
-				if (nloc in domain(scopeInfo.itemLocations)) {
+				if (nloc in domain(table.itemLocations)) {
 					println("location in itemLocations");
-					set[STItemId] items = { si | si <- scopeInfo.itemLocations[nloc], isItem(scopeInfo.scopeItemMap[si]) };
+					set[STItemId] items = { si | si <- table.itemLocations[nloc], isItem(table.scopeItemMap[si]) };
 					if (size(items) == 1) {
 						println("location items = <items>");
-						return (VariableItem(_,_,_) := scopeInfo.scopeItemMap[getOneFrom(items)]);
+						return (VariableItem(_,_,_) := table.scopeItemMap[getOneFrom(items)]);
 					} else if (size(items) > 1) {
 						println("location items = <items>");
 						throw "isDefiningUse: Error, location defines more than one scope item.";
@@ -3212,35 +3160,35 @@ public bool checkPatternCoverage(RType expectedType, set[Pattern] options, Scope
 	// type. This is not complete, since some situations where this is true will return
 	// false here, but it is sound, in that any time we return true it should be the
 	// case that the pattern actually covers the type.
-	bool isDefiningPattern(Pattern p, RType expectedType, ScopeInfo scopeInfo) {
+	bool isDefiningPattern(Pattern p, RType expectedType, SymbolTable table) {
 		if ((Pattern)`_` := p) {
 			return true;
-		} else if ((Pattern)`<Name n>` := p && isDefiningUse(n, scopeInfo)) {
+		} else if ((Pattern)`<Name n>` := p && isDefiningUse(n, table)) {
 			return true;
 		} else if ((Pattern)`<Type t> _` := p && convertType(t) == expectedType) {
 			return true;
-		} else if ((Pattern)`<Type t> <Name n>` := p && isDefiningUse(n, scopeInfo) && convertType(t) == expectedType) {
+		} else if ((Pattern)`<Type t> <Name n>` := p && isDefiningUse(n, table) && convertType(t) == expectedType) {
 			return true;
 		} else if (`<Name n> : <Pattern pd>` := p) {
-			return isDefiningPattern(pd, expectedType, scopeInfo);
+			return isDefiningPattern(pd, expectedType, table);
 		} else if (`<Type t> <Name n> : <Pattern pd>` := p && convertType(t) == expectedType) {
-			return isDefiningPattern(pd, expectedType, scopeInfo);
+			return isDefiningPattern(pd, expectedType, table);
 		} else if (`[ <Type t> ] <Pattern pd>` := p && convertType(t) == expectedType) {
-			return isDefiningPattern(pd, expectedType, scopeInfo);
+			return isDefiningPattern(pd, expectedType, table);
 		}
 		
 		return false;
 	}
 	
 	// Check to see if a 0 or more element pattern is empty (i.e., contains no elements)
-	bool checkEmptyMatch({Pattern ","}* pl, RType expectedType, ScopeInfo scopeInfo) {
+	bool checkEmptyMatch({Pattern ","}* pl, RType expectedType, SymbolTable table) {
 		return size([p | p <- pl]) == 0;
 	}
 
 	// Check to see if a 0 or more element pattern matches an arbitrary sequence of zero or more items;
 	// this means that all the internal patterns have to be of the form x*, like [ xs* ys* ], since this
 	// still allows 0 items total
-	bool checkTotalMatchZeroOrMore({Pattern ","}* pl, RType expectedType, ScopeInfo scopeInfo) {
+	bool checkTotalMatchZeroOrMore({Pattern ","}* pl, RType expectedType, SymbolTable table) {
 		list[Pattern] plst = [p | p <- pl];
 		set[bool] starMatch = { `<QualifiedName qn>*` := p | p <- pl };
 		return (! (false in starMatch) );
@@ -3252,10 +3200,10 @@ public bool checkPatternCoverage(RType expectedType, set[Pattern] options, Scope
 	// [xs* 3 ys*] would not (even though it matches here, there is no static guarantee it does without
 	// checking the values allowed on the right), and [xs* 1000 ys*] does not (again, no static guarantees,
 	// and it definitely doesn't cover the example here).
-	bool checkTotalMatchOneOrMore({Pattern ","}* pl, RType expectedType, ScopeInfo scopeInfo) {
+	bool checkTotalMatchOneOrMore({Pattern ","}* pl, RType expectedType, SymbolTable table) {
 		list[Pattern] plst = [p | p <- pl];
 		set[int] nonStarMatch = { n | n <- domain(plst), ! `<QualifiedName qn>*` := plst[n] };
-		return (size(nonStarMatch) == 1 && isDefiningPattern(plst[getOneFrom(nonStarMatch)], expectedType, scopeInfo));
+		return (size(nonStarMatch) == 1 && isDefiningPattern(plst[getOneFrom(nonStarMatch)], expectedType, table));
 	}
 	
 	if (isBoolType(expectedType)) {
@@ -3263,7 +3211,7 @@ public bool checkPatternCoverage(RType expectedType, set[Pattern] options, Scope
 		// true or false, or b) both the constants true and false are explicitly given in two cases
 		bool foundTrue = false; bool foundFalse = false;
 		for (p <- options) {
-			if (isDefiningPattern(p, expectedType, scopeInfo)) 
+			if (isDefiningPattern(p, expectedType, table)) 
 				return true;
 			else if ((Pattern)`true` := p) 
 				foundTrue = true;
@@ -3276,7 +3224,7 @@ public bool checkPatternCoverage(RType expectedType, set[Pattern] options, Scope
 		// For int, real, num, str, value, loc, lex, datetime, and reified types, just check to see
 		// if a variable if given which could match any value of these types.
 		for (p <- options) {
-			if (isDefiningPattern(p, expectedType, scopeInfo)) return true;
+			if (isDefiningPattern(p, expectedType, table)) return true;
 		}
 		return false;			
 	} else if (isListType(expectedType)) {
@@ -3287,12 +3235,12 @@ public bool checkPatternCoverage(RType expectedType, set[Pattern] options, Scope
 		// list. We don't check anything more advanced, but it would be good to.
 		bool foundEmptyMatch = false; bool foundTotalMatch = false; bool foundSingleMatch = false;
 		for (p <- options) {
-			if (isDefiningPattern(p, expectedType, scopeInfo)) return true;
+			if (isDefiningPattern(p, expectedType, table)) return true;
 			if (`[<{Pattern ","}* pl>]` := p) {
 				RType listElementType = getListElementType(expectedType);
-				if (!foundEmptyMatch) foundEmptyMatch = checkEmptyMatch(pl, listElementType, scopeInfo);
-				if (!foundTotalMatch) foundTotalMatch = checkTotalMatchZeroOrMore(pl, listElementType, scopeInfo);
-				if (!foundSingleMatch) foundSingleMatch = checkTotalMatchOneOrMore(pl, listElementType, scopeInfo);
+				if (!foundEmptyMatch) foundEmptyMatch = checkEmptyMatch(pl, listElementType, table);
+				if (!foundTotalMatch) foundTotalMatch = checkTotalMatchZeroOrMore(pl, listElementType, table);
+				if (!foundSingleMatch) foundSingleMatch = checkTotalMatchOneOrMore(pl, listElementType, table);
 			}
 			if (foundTotalMatch || (foundEmptyMatch && foundSingleMatch)) return true;
 		}
@@ -3300,34 +3248,34 @@ public bool checkPatternCoverage(RType expectedType, set[Pattern] options, Scope
 	} else if (isSetType(expectedType)) {
 		bool foundEmptyMatch = false; bool foundTotalMatch = false; bool foundSingleMatch = false;
 		for (p <- options) {
-			if (isDefiningPattern(p, expectedType, scopeInfo)) return true;
+			if (isDefiningPattern(p, expectedType, table)) return true;
 			if (`{<{Pattern ","}* pl>}` := p) {
 				RType setElementType = getSetElementType(expectedType);
-				if (!foundEmptyMatch) foundEmptyMatch = checkEmptyMatch(pl, setElementType, scopeInfo);
-				if (!foundTotalMatch) foundTotalMatch = checkTotalMatchZeroOrMore(pl, setElementType, scopeInfo);
-				if (!foundSingleMatch) foundSingleMatch = checkTotalMatchOneOrMore(pl, setElementType, scopeInfo);
+				if (!foundEmptyMatch) foundEmptyMatch = checkEmptyMatch(pl, setElementType, table);
+				if (!foundTotalMatch) foundTotalMatch = checkTotalMatchZeroOrMore(pl, setElementType, table);
+				if (!foundSingleMatch) foundSingleMatch = checkTotalMatchOneOrMore(pl, setElementType, table);
 			}
 			if (foundTotalMatch || (foundEmptyMatch && foundSingleMatch)) return true;
 		}
 		return false;
 	} else if (isMapType(expectedType)) {
 		for (p <- options) {
-			if (isDefiningPattern(p, expectedType, scopeInfo)) return true;
+			if (isDefiningPattern(p, expectedType, table)) return true;
 		}
 		return false;					
 	} else if (isRelType(expectedType)) {
 		for (p <- options) {
-			if (isDefiningPattern(p, expectedType, scopeInfo)) return true;
+			if (isDefiningPattern(p, expectedType, table)) return true;
 		}
 		return false;				
 	} else if (isTupleType(expectedType)) {
 		for (p <- options) {
-			if (isDefiningPattern(p, expectedType, scopeInfo)) return true;
+			if (isDefiningPattern(p, expectedType, table)) return true;
 		}
 		return false;				
 	} else if (isADTType(expectedType)) {
 		for (p <- options) {
-			if (isDefiningPattern(p, expectedType, scopeInfo)) return true;
+			if (isDefiningPattern(p, expectedType, table)) return true;
 		}
 		return false;				
 	}

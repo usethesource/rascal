@@ -220,13 +220,12 @@ public class TreeAdapter {
 		private IConstructor addPosInfo(IConstructor tree, URI location,
 				Position cur) throws MalformedURLException {
 			IValueFactory factory = ValueFactoryFactory.getValueFactory();
-
 			int startLine = cur.line;
 			int startCol = cur.col;
 			int startOffset = cur.offset;
 			PositionNode positionNode = new PositionNode(tree, cur.offset);
 			IConstructor result = cache.get(positionNode);
-
+			
 			if (result != null) {
 				ISourceLocation loc = getLocation(result);
 				cur.col = loc.getEndColumn();
@@ -267,14 +266,17 @@ public class TreeAdapter {
 					outermostLayout = true;
 				}
 
-				IListWriter newArgs = factory.listWriter(Factory.Tree);
-				for (IValue arg : args) {
-					newArgs
-							.append(addPosInfo((IConstructor) arg, location,
-									cur));
-				}
-				tree = tree.set("args", newArgs.done());
-
+				// TODO: Talk to Jurgen about this
+//				if (!TreeAdapter.isLexToCf(tree)) {
+					IListWriter newArgs = factory.listWriter(Factory.Tree);
+					for (IValue arg : args) {
+						newArgs
+						.append(addPosInfo((IConstructor) arg, location,
+								cur));
+					}
+					tree = tree.set("args", newArgs.done());
+//				}
+				
 				if (!labelLayout && outermostLayout) {
 					inLayout = false;
 					if (! isComment(tree))

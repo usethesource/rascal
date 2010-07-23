@@ -405,6 +405,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return resolverRegistry;
 	}
 	
+	public RascalURIResolver getRascalResolver() {
+		return resolver;
+	}
+	
 	public IValue call(String name, IValue...args) {
 		QualifiedName qualifiedName = Names.toQualifiedName(name);
 		OverloadedFunctionResult func = (OverloadedFunctionResult) getCurrentEnvt().getVariable(qualifiedName);

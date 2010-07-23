@@ -15,41 +15,31 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class StaticChecker {
 	private final Evaluator eval;
-	
-	private ArrayList<String> checkerPipeline;
-	private ArrayList<Boolean> pipelineElementEnabled;
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
-	
 	public static final String TYPECHECKER = "typecheckTree";
+	private boolean checkerEnabled; 
+	private boolean initialized;
+	private boolean loaded;
 	
-	private static final class InstanceKeeper {
-		public static final StaticChecker sInstance = new StaticChecker();
-	}
-
-	private StaticChecker() {
+	public StaticChecker() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***static-checker***"));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
-
-		this.eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-
-		checkerPipeline = new ArrayList<String>();
-		pipelineElementEnabled = new ArrayList<Boolean>();
-		
-		// Add the pass for type checking
-		checkerPipeline.add(TYPECHECKER); pipelineElementEnabled.add(Boolean.FALSE);
+		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		checkerEnabled = false;
+		initialized = false;
+		loaded = false;
 	}
 	
-	public static StaticChecker getInstance() {
-		return InstanceKeeper.sInstance;
-	}
-
 	private IValue eval(String cmd) {
 		try {
 			return eval.eval(cmd, URI.create("checker:///")).getValue();
@@ -57,8 +47,22 @@ public class StaticChecker {
 			throw new ImplementationError("syntax error in static checker modules", se);
 		}
 	}
+
+	public synchronized void load() {
+		eval("import rascal::checker::Check;");
+//		eval("import rascal::checker::Import;");
+		loaded = true;
+	}
+
+	public void init() {
+		initialized = true;
+	}
 	
-	public IConstructor resolveImports(IConstructor moduleParseTree) {
+	public boolean isInitialized() {
+		return initialized;
+	}
+	
+	private IConstructor resolveImports(IConstructor moduleParseTree) {
 		ISet imports = (ISet) eval.call("importedModules", moduleParseTree);
 		
 		System.err.println("imports: " + imports);
@@ -75,45 +79,40 @@ public class StaticChecker {
 		return (IConstructor) eval.call("linkImportedModules", moduleParseTree, mw.done());
 	}
 	
-	public IConstructor checkModule(IConstructor moduleParseTree) {
+	public synchronized IConstructor checkModule(IConstructor moduleParseTree) {
 		IConstructor res = moduleParseTree;
-		res = resolveImports(res);
-		for (int n = 0; n < checkerPipeline.size(); ++n) {
-			if (pipelineElementEnabled.get(n).booleanValue()) 
-				res = (IConstructor) eval.call(checkerPipeline.get(n), res);
-		}
+//		res = resolveImports(res);
+		if (checkerEnabled) res = (IConstructor) eval.call("typecheckTree", res);
 		return res;
 	}
 
-	public void disablePipelinePass(String passName) {
-		for (int n = 0; n < checkerPipeline.size(); ++n) {
-			if (checkerPipeline.get(n).equalsIgnoreCase(passName)) { 
-				pipelineElementEnabled.set(n, Boolean.FALSE);
-				break;
-			}
-		}
+	public void disableChecker() {
+		checkerEnabled = false;
 	}
 
-	public void enablePipelinePass(String passName) {
-		for (int n = 0; n < checkerPipeline.size(); ++n) {
-			if (checkerPipeline.get(n).equalsIgnoreCase(passName)) { 
-				pipelineElementEnabled.set(n, Boolean.TRUE);
-				break;
-			}
-		}
+	public void enableChecker() {
+		if (!loaded) load();
+		checkerEnabled = true;
+	}
+	
+	public boolean isCheckerEnabled() {
+		return checkerEnabled;
 	}
 
-	public boolean isPassEnabled(String passName) {
-		for (int n = 0; n < checkerPipeline.size(); ++n) {
-			if (checkerPipeline.get(n).equalsIgnoreCase(passName)) {
-				return pipelineElementEnabled.get(n).booleanValue();
-			}
-		}
-		return false;
+	public void addRascalSearchPath(URI uri) {
+		eval.addRascalSearchPath(uri);
 	}
-
-	public void reload() {
-		eval("import rascal::checker::Check;");
-		eval("import rascal::checker::Import;");
+	
+	public void registerInputResolver(IURIInputStreamResolver resolver) {
+		eval.getResolverRegistry().registerInput(resolver.scheme(), resolver);
 	}
+	
+	public void registerOutputResolver(IURIOutputStreamResolver resolver) {
+		eval.getResolverRegistry().registerOutput(resolver.scheme(), resolver);
+	}
+	
+	public void addSDFResolver(ISdfSearchPathContributor resolver) {
+		eval.addSdfSearchPathContributor(resolver);
+	}
+	
 }
