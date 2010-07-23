@@ -221,13 +221,15 @@ public class SetPattern extends AbstractMatchingResult {
 				} else  {
 					Result<IValue> varRes = env.getVariable(name);
 					
-					if(varRes == null){
+					if(varRes == null || qualName.bindingInstance()){
 						// Completely new variable
 						varName[nVar] = name;
 						varPat[nVar] = child;
 						isSetVar[nVar] = false;
 						nVar++;
-						env.declareVariable(staticSubjectElementType, name);
+						// TODO: Why is this here? The pattern also declares the variable,
+						// so this just causes errors when we use variables in set patterns.
+						// env.declareVariable(staticSubjectElementType, name);
 					} else {
 					    if(varRes.getValue() != null){
 					        Type varType = varRes.getType();

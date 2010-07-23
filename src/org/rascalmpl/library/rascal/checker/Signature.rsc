@@ -62,7 +62,7 @@ private RSignature createRSignature(Tree t) {
 // Create the individual signature items in the module body: dispatches out to
 // individual functions to create the various types of signature items.
 private RSignature createModuleBodySignature(Body b, RSignature sig) {
-	if (`<Toplevel* ts>` := b) {
+	if ((Body)`<Toplevel* ts>` := b) {
 		for (Toplevel t <- ts) {
 			switch(t) {
 				// Variable declaration
@@ -83,7 +83,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 						switch(s) {
 							case `<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
 								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps)), t@\loc));
-							case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
+							case `<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
 								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps)), t@\loc));
 						}
 					}
@@ -95,7 +95,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 						switch(s) {
 							case `<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
 								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps)), t@\loc));
-							case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
+							case `<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
 								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps)), t@\loc));
 						}
 					}
@@ -144,7 +144,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 				// Alias
 				// TODO: Currently visibility is ignored. Should update this from any visibility to just public when this changes.
 				case (Toplevel) `<Tags tgs> <Visibility vis> alias <UserType typ> = <Type btyp> ;` : {
-					sig = addSignatureItem(sig, AliasSigItem(convertType(typ), convertType(btyp), t@\loc));
+					sig = addSignatureItem(sig, AliasSigItem(convertUserType(typ), convertType(btyp), t@\loc));
 				}
 								
 				// View
@@ -165,14 +165,14 @@ private list[RType] getParameterTypes(Parameters ps) {
 	list[RType] pTypes = [ ];
 
 	if (`( <Formals f> )` := ps) {
-		if (`<{Formal ","}* fs>` := f) {
+		if ((Formals)`<{Formal ","}* fs>` := f) {
 			for ((Formal)`<Type t> <Name n>` <- fs) {
 				pTypes += convertType(t);
 			}
 		}
 	} else if (`( <Formals f> ... )` := ps) {
 		varArgs = true;
-		if (`<{Formal ","}* fs>` := f) {
+		if ((Formals)`<{Formal ","}* fs>` := f) {
 			for ((Formal)`<Type t> <Name n>` <- fs) {
 				pTypes += convertType(t);
 			}

@@ -1,8 +1,8 @@
 package org.rascalmpl.interpreter.result;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
@@ -29,7 +29,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		if (candidates.size() <= 0) {
 			throw new ImplementationError("at least need one function");
 		}
-		this.candidates = new LinkedList<AbstractFunction>();
+		this.candidates = new ArrayList<AbstractFunction>(candidates.size());
 		this.candidates.addAll(candidates);
 		this.name = name;
 	}
@@ -45,7 +45,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	
 	public OverloadedFunctionResult(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
-		this.candidates = new LinkedList<AbstractFunction>();
+		this.candidates = new ArrayList<AbstractFunction>(1);
 		this.candidates.add(function);
 		this.name = function.getName();
 	}
@@ -87,7 +87,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	}
 	
 	public OverloadedFunctionResult join(OverloadedFunctionResult other) {
-		List<AbstractFunction> joined = new LinkedList<AbstractFunction>();
+		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(other.candidates.size() + candidates.size());
 		joined.addAll(candidates);
 		
 		for (AbstractFunction cand : other.candidates) {
@@ -106,7 +106,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			}
 		}
 		
-		List<AbstractFunction> joined = new LinkedList<AbstractFunction>();
+		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(candidates.size() + 1);
 		joined.addAll(candidates);
 		
 		if (!joined.contains(candidate)) {
@@ -209,7 +209,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	@SuppressWarnings("unchecked")
 	@Override
 	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunctionResult that) {
-		List<AbstractFunction> newAlternatives = new LinkedList<AbstractFunction>();
+		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(candidates.size());
 		
 		for (AbstractFunction f : candidates) {
 			for (AbstractFunction g : that.candidates) {
@@ -229,7 +229,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	@SuppressWarnings("unchecked")
 	@Override
 	public <U extends IValue> Result<U> composeFunction(AbstractFunction g) {
-		List<AbstractFunction> newAlternatives = new LinkedList<AbstractFunction>();
+		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(candidates.size());
 
 		for (AbstractFunction f : candidates) {
 			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {

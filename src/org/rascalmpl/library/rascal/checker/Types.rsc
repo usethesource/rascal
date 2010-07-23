@@ -10,7 +10,7 @@ import rascal::checker::ListUtils;
 import rascal::\old-syntax::Rascal;
 
 //
-// Abstract syntax for names
+// Abstract syntax for names 
 //
 data RName =
 	  RSimpleName(str name)
@@ -18,7 +18,7 @@ data RName =
 ;
 
 public RName convertName(QualifiedName qn) {
-	if (`<{Name "::"}+ nl>` := qn) { 
+	if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
 		nameParts = [ "<n>" | n <- nl];
 		if (size(nameParts) > 1) {
 			return RCompoundName(nameParts);
@@ -29,8 +29,12 @@ public RName convertName(QualifiedName qn) {
 	throw "Unexpected syntax for qualified name: <qn>";
 }
 
+public RName convertName(Name n) {
+	return RSimpleName("<n>");
+}
+
 private Name getLastName(QualifiedName qn) {
-	if (`<{Name "::"}+ nl>` := qn) { 
+	if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
 		nameParts = [ n | n <- nl];
 		return head(tail(nameParts,1));
 	}
@@ -145,16 +149,23 @@ public RNamedType convertTypeArg(TypeArg ta) {
 	}
 }
 
-public list[RNamedType] convertTypeArgList({TypeArg ","}+ tas) {
+public list[RNamedType] convertTypeArgList({TypeArg ","}* tas) {
 	return [convertTypeArg(ta) | ta <- tas];
 }
 
 public RType convertStructuredType(StructuredType st) {
+	RType buildMapType(StructuredType st, list[RNamedType] mapTypes) {
+		if (size(mapTypes) != 2) {
+			throw "Invalid arguments provided for building map type: <st>";
+		}
+		return RMapType(mapTypes[0],mapTypes[1]);
+	}
+	
 	switch(st) {
 		case (StructuredType) `list [ < {TypeArg ","}+ tas > ]` : return RListType(getElementType(head(convertTypeArgList(tas)))); 
 		case (StructuredType) `set [ < {TypeArg ","}+ tas > ]` : return RSetType(getElementType(head(convertTypeArgList(tas)))); 
 		case (StructuredType) `bag [ < {TypeArg ","}+ tas > ]` : return RBagType(getElementType(head(convertTypeArgList(tas)))); 
-		case (StructuredType) `map [ < {TypeArg ","}+ tas > ]` : return RMapType(convertTypeArgList(tas)); 
+		case (StructuredType) `map [ < {TypeArg ","}+ tas > ]` : return buildMapType(st,convertTypeArgList(tas)); 
 		case (StructuredType) `rel [ < {TypeArg ","}+ tas > ]` : return RRelType(convertTypeArgList(tas)); 
 		case (StructuredType) `tuple [ < {TypeArg ","}+ tas > ]` : return RTupleType(convertTypeArgList(tas));
 		case (StructuredType) `type [ < {TypeArg ","}+ tas > ]` : return RReifiedType(convertTypeArgList(tas));
