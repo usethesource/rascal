@@ -21,11 +21,12 @@ public interface IMatchingResult extends IBooleanResult {
 	public Type getType(Environment env);
 	
 	/**
-	 * @param subject to be matched
+	 * @param subject to be matched is stored in the matching result, which initialized the state for lazy backtracking behavior.
 	 */
 	public void initMatch(Result<IValue> subject);
 	
 	/**
+	 * returns false if the static type of the pattern is incomparable with the given subject type.
 	 * @param subject
 	 * @param env
 	 */
@@ -36,6 +37,11 @@ public interface IMatchingResult extends IBooleanResult {
 	 */
 	public java.util.List<String> getVariables();
 
+	/**
+	 * Compute an IValue for this pattern, which is only possible if getVariables returns an empty lost (i.e. its a constant pattern)
+	 * @param env
+	 * @return an ivalue representing this pattern
+	 */
 	public IValue toIValue(Environment env);
 
 	public AbstractAST getAST();

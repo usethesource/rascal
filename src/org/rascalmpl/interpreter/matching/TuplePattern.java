@@ -10,14 +10,12 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
 
 public class TuplePattern extends AbstractMatchingResult {
 	private List<IMatchingResult> children;
 	private ITuple treeSubject;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private int nextChild;
-	private Environment[] olds;
 	
 	public TuplePattern(IEvaluatorContext ctx, List<IMatchingResult> list){
 		super(ctx);
@@ -90,6 +88,15 @@ public class TuplePattern extends AbstractMatchingResult {
 
 			if (nextPattern.hasNext() && nextPattern.next()) {
 				if (nextChild == children.size() - 1) {
+					// We need to make sure if there are no
+					// more possible matches for any of the tuple's fields, 
+					// then the next call to hasNext() will definitely returns false.
+					for (int i = nextChild; i >= 0; i--) {
+						if (!children.get(i).hasNext()) {
+							hasNext = false;
+							break;
+						}
+					}
 					return true;
 				}
 				else {
@@ -99,10 +106,12 @@ public class TuplePattern extends AbstractMatchingResult {
 			else {
 				nextChild--;
 
-				for (int i = nextChild + 1; i < children.size(); i++) {
-					IValue childValue = treeSubject.get(i);
-					IMatchingResult tailChild = children.get(i);
-					tailChild.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+				if (nextChild >= 0) {
+					for (int i = nextChild + 1; i < children.size(); i++) {
+						IValue childValue = treeSubject.get(i);
+						IMatchingResult tailChild = children.get(i);
+						tailChild.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+					}
 				}
 			}
 		}

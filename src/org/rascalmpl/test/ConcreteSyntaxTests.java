@@ -450,7 +450,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	
-    @Test
+    @Test @Ignore("can not know that `d` should be a D+ list without a type checker")
 	public void enumeratorDs1Untyped(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `d` ]; L == [`d`];}"));
@@ -474,7 +474,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{L = [X | D X <- `d d d` ]; L == [`d`, `d`, `d`];}"));
 	}
 	
-	@Test
+	@Test @Ignore("Can not know that `e` should be an E* or E+ list without a type-checker")
 	public void enumeratorEs1Untyped(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `e` ]; L == [ `e` ];}"));
