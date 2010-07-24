@@ -36,7 +36,7 @@ public class EnumeratorResult extends BasicBooleanResult {
 			hasNext = true;
 			return true;
 		}
-		if(hasNext){
+		if (hasNext) {
 			boolean hn = pat.hasNext() || iterator.hasNext();
 			if(!hn){
 				hasNext = false;
