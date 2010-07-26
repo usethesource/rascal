@@ -460,9 +460,8 @@ public abstract class SGLL implements IGLL{
 			}
 			
 			if(listChildren.length > 1){ // Star list or optional.
-				child = listChildren[1];
 				// This is always epsilon; so shouldn't be shared.
-				stacksToExpand.add(child);
+				stacksToExpand.add(listChildren[1]);
 			}
 		}
 	}
@@ -549,7 +548,7 @@ public abstract class SGLL implements IGLL{
 			
 			segments.add(segment);
 			nrOfWholeSegments++;
-		}while(bytesRead < STREAM_READ_SEGMENT_SIZE);
+		}while(bytesRead == STREAM_READ_SEGMENT_SIZE);
 		
 		// Glue the segments together.
 		char[] segment = segments.get(nrOfWholeSegments);
