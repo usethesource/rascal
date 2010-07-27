@@ -14,7 +14,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
-import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
@@ -176,7 +176,7 @@ public abstract class SGLL implements IGLL{
 	
 	private void addPrefixes(AbstractStackNode next, AbstractStackNode node){
 		LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap = node.getPrefixesMap();
-		INode result = node.getResult();
+		AbstractNode result = node.getResult();
 		
 		if(prefixesMap == null){
 			next.addPrefix(new Link(null, result), node.getStartLocation());
@@ -194,7 +194,7 @@ public abstract class SGLL implements IGLL{
 		IConstructor production = next.getParentProduction();
 		
 		LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap = node.getPrefixesMap();
-		INode result = node.getResult();
+		AbstractNode result = node.getResult();
 		
 		// Update results (if necessary).
 		for(int i = edges.size() - 1; i >= 0; i--){
@@ -213,7 +213,7 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void updateEdgeNode(AbstractStackNode node, ArrayList<Link> prefixes, INode result, IConstructor production){
+	private void updateEdgeNode(AbstractStackNode node, ArrayList<Link> prefixes, AbstractNode result, IConstructor production){
 		int startLocation = node.getStartLocation();
 		ArrayList<AbstractStackNode> possiblySharedEdgeNodes = possiblySharedEdgeNodesMap.get(startLocation);
 		if(possiblySharedEdgeNodes != null){
@@ -300,7 +300,7 @@ public abstract class SGLL implements IGLL{
 		if((edges = node.getEdges()) != null){
 			LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap = node.getPrefixesMap();
 			if(!node.isReject()){
-				INode result = node.getResult();
+				AbstractNode result = node.getResult();
 				
 				for(int i = edges.size() - 1; i >= 0; i--){
 					AbstractStackNode edge = edges.get(i);
@@ -330,7 +330,7 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private Link constructPrefixesFor(LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap, INode result, int startLocation){
+	private Link constructPrefixesFor(LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap, AbstractNode result, int startLocation){
 		if(prefixesMap == null){
 			return new Link(null, result);
 		}
@@ -511,7 +511,7 @@ public abstract class SGLL implements IGLL{
 			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation("-", errorLocation, 0, -1, -1, -1, -1));
 		}
 		
-		IValue result = root.getResult().toTerm(new IndexedStack<INode>(), 0);
+		IValue result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0);
 		
 		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation("-"));
 		

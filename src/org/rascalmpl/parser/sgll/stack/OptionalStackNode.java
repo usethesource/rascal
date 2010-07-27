@@ -3,7 +3,7 @@ package org.rascalmpl.parser.sgll.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
-import org.rascalmpl.parser.sgll.result.INode;
+import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
@@ -85,7 +85,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		return new AbstractStackNode[]{copy, epsn};
 	}
 	
-	public INode getResult(){
+	public AbstractNode getResult(){
 		return result;
 	}
 

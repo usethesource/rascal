@@ -10,7 +10,7 @@ import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
-public class LiteralNode implements INode{
+public class LiteralNode extends AbstractNode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private final IConstructor production;
@@ -59,7 +59,7 @@ public class LiteralNode implements INode{
 		return sb.toString();
 	}
 	
-	public IValue toTerm(IndexedStack<INode> stack, int depth){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth){
 		int numberOfCharacters = content.length;
 		IListWriter listWriter = vf.listWriter(Factory.Tree);
 		for(int i = 0; i < numberOfCharacters; i++){

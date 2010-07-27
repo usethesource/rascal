@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 
-public class EpsilonNode implements INode{
+public class EpsilonNode extends AbstractNode{
 	private final static String EPSILON_STRING = "empty()";
 	
 	public EpsilonNode(){
@@ -28,7 +28,7 @@ public class EpsilonNode implements INode{
 		return EPSILON_STRING;
 	}
 	
-	public IValue toTerm(IndexedStack<INode> stack, int depth){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth){
 		throw new UnsupportedOperationException(); // This should never be called.
 	}
 }

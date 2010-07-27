@@ -12,7 +12,7 @@ import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
-public class ContainerNode implements INode{
+public class ContainerNode extends AbstractNode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	private Link firstAlternative;
@@ -57,8 +57,8 @@ public class ContainerNode implements INode{
 		return rejected;
 	}
 	
-	private void gatherAlternatives(Link child, DoubleArrayList<IValue[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<INode> stack, int depth){
-		INode resultNode = child.node;
+	private void gatherAlternatives(Link child, DoubleArrayList<IValue[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth){
+		AbstractNode resultNode = child.node;
 		
 		if(!(resultNode.isEpsilon() && child.prefixes == null)){
 			IValue result = resultNode.toTerm(stack, depth);
@@ -71,7 +71,7 @@ public class ContainerNode implements INode{
 		}
 	}
 	
-	private void gatherProduction(Link child, IValue[] postFix, DoubleArrayList<IValue[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<INode> stack, int depth){
+	private void gatherProduction(Link child, IValue[] postFix, DoubleArrayList<IValue[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
 			gatheredAlternatives.add(postFix, production);
@@ -81,7 +81,7 @@ public class ContainerNode implements INode{
 		for(int i = prefixes.size() - 1; i >= 0; i--){
 			Link prefix = prefixes.get(i);
 			
-			INode resultNode = prefix.node;
+			AbstractNode resultNode = prefix.node;
 			if(!resultNode.isRejected()){
 				IValue result = resultNode.toTerm(stack, depth);
 				if(result == null) return; // Rejected.
@@ -104,7 +104,7 @@ public class ContainerNode implements INode{
 		return vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 	}
 	
-	public IValue toTerm(IndexedStack<INode> stack, int depth){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth){
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			return vf.constructor(Factory.Tree_Cycle, firstProduction.get("rhs"), vf.integer(depth - index));
