@@ -241,7 +241,7 @@ public abstract class SGLL implements IGLL{
 		
 		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
 		if(resultStore == null){
-			resultStore = new ContainerNode();
+			resultStore = new ContainerNode(node.isList());
 			resultStoreCache.unsafePut(production, startLocation, resultStore);
 			withResults.unsafePut(node);
 			
@@ -283,7 +283,7 @@ public abstract class SGLL implements IGLL{
 		
 		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
 		if(resultStore == null){
-			resultStore = new ContainerNode();
+			resultStore = new ContainerNode(node.isList());
 			resultStoreCache.unsafePut(production, startLocation, resultStore);
 			withResults.unsafePut(node);
 			
@@ -457,6 +457,7 @@ public abstract class SGLL implements IGLL{
 			if(!shareNode(child, node)){
 				stacksToExpand.add(child);
 				possiblySharedExpects.add(child, child);
+				possiblySharedNextNodes.add(child); // For epsilon list cycles.
 			}
 			
 			if(listChildren.length > 1){ // Star list or optional.
