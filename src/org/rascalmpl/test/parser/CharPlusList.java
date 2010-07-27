@@ -26,7 +26,7 @@ public class CharPlusList extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_PLUS_LIST_a_z = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_char_a_z);
 	
 	private final static IConstructor PROD_S_PLUSLISTa_z = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_a_z), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_PLUSLISTa_z = vf.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a_z);
+	private final static IConstructor PROD_PLUSLISTa_z = vf.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a_z, vf.constructor(Factory.Attributes_NoAttrs));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode CHAR0 = new CharStackNode(0, new char[][]{{'a', 'z'}});
@@ -65,7 +65,7 @@ public class CharPlusList extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(appl(prod([iter(\\char-class([range(97,122)]))],sort(\"S\"),\\no-attrs()),[appl(regular(iter(\\char-class([range(97,122)]))),[char(97),appl(regular(iter(\\char-class([range(97,122)]))),[char(98),appl(regular(iter(\\char-class([range(97,122)]))),[char(99)])])])]),-1)";
+		String expectedInput = "parsetree(appl(prod([iter(\\char-class([range(97,122)]))],sort(\"S\"),\\no-attrs()),[appl(regular(iter(\\char-class([range(97,122)])),\\no-attrs()),[char(97),char(98),char(99)])]),-1)";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
