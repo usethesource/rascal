@@ -2,8 +2,8 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.IGLL;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
@@ -23,15 +23,6 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
-	}
-	
-	private ListStackNode(ListStackNode original, int newId){
-		super(newId);
-		
-		this.production = original.production;
-
-		child = original.child;
-		isPlusList = true;
 	}
 	
 	private ListStackNode(ListStackNode original){
@@ -85,28 +76,25 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	}
 	
 	public AbstractStackNode[] getChildren(){
-		AbstractStackNode psn = child.getCleanCopy();
-		ListStackNode lpsn = new ListStackNode(this, id | IGLL.LIST_LIST_FLAG);
+		AbstractStackNode listNode = child.getCleanCopy();
 		
-		psn.addNext(lpsn);
-		lpsn.addEdge(this);
-		psn.addEdge(this);
-		
-		psn.setParentProduction(production);
-		lpsn.setParentProduction(production);
-		
-		psn.setStartLocation(startLocation);
+		listNode.addNext(listNode);
+		listNode.addEdge(this);
+		listNode.addPrefix(null, startLocation);
+		listNode.setStartLocation(startLocation);
+		listNode.setParentProduction(production);
 		
 		if(isPlusList){
-			return new AbstractStackNode[]{psn};
+			return new AbstractStackNode[]{listNode};
 		}
 		
-		EpsilonStackNode epsn = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
-		epsn.addEdge(this);
-		epsn.setStartLocation(startLocation);
-		epsn.setParentProduction(production);
+		EpsilonStackNode empty = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
+
+		empty.addEdge(this);
+		empty.setStartLocation(startLocation);
+		empty.setParentProduction(production);
 		
-		return new AbstractStackNode[]{psn, epsn};
+		return new AbstractStackNode[]{listNode, empty};
 	}
 	
 	public AbstractNode getResult(){

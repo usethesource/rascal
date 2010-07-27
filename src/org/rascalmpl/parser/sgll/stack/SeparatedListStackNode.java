@@ -2,8 +2,8 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.IGLL;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
@@ -25,16 +25,6 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		this.child = child;
 		this.separators = separators;
 		this.isPlusList = isPlusList;
-	}
-	
-	private SeparatedListStackNode(SeparatedListStackNode original, int newId){
-		super(newId);
-		
-		production = original.production;
-
-		child = original.child;
-		separators = original.separators;
-		isPlusList = original.isPlusList;
 	}
 	
 	private SeparatedListStackNode(SeparatedListStackNode original){
@@ -90,34 +80,38 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	}
 	
 	public AbstractStackNode[] getChildren(){
-		AbstractStackNode psn = child.getCleanCopy();
-		SeparatedListStackNode slpsn = new SeparatedListStackNode(this, id | IGLL.LIST_LIST_FLAG);
+		AbstractStackNode listNode = child.getCleanCopy();
 		
-		AbstractStackNode from = psn;
-		for(int i = 0; i < separators.length; i++){
-			AbstractStackNode to = separators[i].getCleanCopy();
+		listNode.addEdge(this);
+		listNode.addPrefix(null, startLocation);
+		listNode.setStartLocation(startLocation);
+		listNode.setParentProduction(production);
+		
+		AbstractStackNode from = listNode;
+		AbstractStackNode to = separators[0].getCleanCopy();
+		AbstractStackNode firstSeparator = to;
+		from.addNext(to);
+		from = to;
+		for(int i = 1; i < separators.length; i++){
+			to = separators[i].getCleanCopy();
 			from.addNext(to);
 			from = to;
 		}
-		from.addNext(slpsn);
+		from.addNext(listNode);
 		
-		psn.addEdge(this);
-		slpsn.addEdge(this);
-		
-		psn.setStartLocation(startLocation);
-		psn.setParentProduction(production);
-		slpsn.setParentProduction(production);
+		listNode.addNext(firstSeparator);
 		
 		if(isPlusList){
-			return new AbstractStackNode[]{psn};
+			return new AbstractStackNode[]{listNode};
 		}
 		
-		EpsilonStackNode epsn = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
-		epsn.addEdge(this);
-		epsn.setStartLocation(startLocation);
-		epsn.setParentProduction(production);
+		EpsilonStackNode empty = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
 		
-		return new AbstractStackNode[]{psn, epsn};
+		empty.addEdge(this);
+		empty.setStartLocation(startLocation);
+		empty.setParentProduction(production);
+		
+		return new AbstractStackNode[]{listNode, empty};
 	}
 	
 	public AbstractNode getResult(){

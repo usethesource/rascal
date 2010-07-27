@@ -2,8 +2,8 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.IGLL;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
@@ -72,17 +72,17 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	}
 	
 	public AbstractStackNode[] getChildren(){
-		AbstractStackNode copy = optional.getCleanCopy();
-		copy.setParentProduction(production);
-		copy.setStartLocation(-1); // Reset.
+		AbstractStackNode child = optional.getCleanCopy();
+		AbstractStackNode empty = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
+		child.addEdge(this);
+		empty.addEdge(this);
 		
-		AbstractStackNode epsn = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
-		copy.addEdge(this);
-		epsn.addEdge(this);
-		epsn.setStartLocation(startLocation);
-		epsn.setParentProduction(production);
+		child.setStartLocation(startLocation);
+		child.setParentProduction(production);
+		empty.setStartLocation(startLocation);
+		empty.setParentProduction(production);
 		
-		return new AbstractStackNode[]{copy, epsn};
+		return new AbstractStackNode[]{child, empty};
 	}
 	
 	public AbstractNode getResult(){
