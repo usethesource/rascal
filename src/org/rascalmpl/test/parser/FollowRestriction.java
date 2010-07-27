@@ -39,7 +39,7 @@ public class FollowRestriction extends SGLL implements IParserTest{
 	
 	private final static IConstructor PROD_S_AC = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A, SYMBOL_C), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_A_PLUSLISTB = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_B), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_PLUSLISTB = vf.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_B);
+	private final static IConstructor PROD_PLUSLISTB = vf.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_B, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_B_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_B, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_C_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_C, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_C_epsilon = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_epsilon), SYMBOL_C, vf.constructor(Factory.Attributes_NoAttrs));
@@ -103,7 +103,7 @@ public class FollowRestriction extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(appl(prod([sort(\"A\"),sort(\"C\")],sort(\"S\"),\\no-attrs()),[appl(prod([iter(sort(\"B\"))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(sort(\"B\"))),[appl(prod([lit(\"a\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(regular(iter(sort(\"B\"))),[appl(prod([lit(\"a\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(regular(iter(sort(\"B\"))),[appl(prod([lit(\"a\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])]),appl(prod([empty()],sort(\"C\"),\\no-attrs()),[])]),-1)";
+		String expectedInput = "parsetree(appl(prod([sort(\"A\"),sort(\"C\")],sort(\"S\"),\\no-attrs()),[appl(prod([iter(sort(\"B\"))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(sort(\"B\")),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])]),appl(prod([empty()],sort(\"C\"),\\no-attrs()),[])]),-1)";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 	
