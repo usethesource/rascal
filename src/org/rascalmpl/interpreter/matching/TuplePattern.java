@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -17,8 +18,8 @@ public class TuplePattern extends AbstractMatchingResult {
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private int nextChild;
 	
-	public TuplePattern(IEvaluatorContext ctx, List<IMatchingResult> list){
-		super(ctx);
+	public TuplePattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list){
+		super(ctx, x);
 		this.children = list;
 	}
 	
@@ -58,15 +59,6 @@ public class TuplePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public IValue toIValue(Environment env){
-		IValue[] vals = new IValue[children.size()];
-		for (int i = 0; i < children.size(); i++) {
-			 vals[i] =  children.get(i).toIValue(env);
-		}
-		return ctx.getValueFactory().tuple(vals);
-	}
-
-	@Override
 	public java.util.List<String> getVariables(){
 		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
 		for (int i = 0; i < children.size(); i += 1) {
@@ -91,11 +83,9 @@ public class TuplePattern extends AbstractMatchingResult {
 					// We need to make sure if there are no
 					// more possible matches for any of the tuple's fields, 
 					// then the next call to hasNext() will definitely returns false.
+					hasNext = false;
 					for (int i = nextChild; i >= 0; i--) {
-						if (!children.get(i).hasNext()) {
-							hasNext = false;
-							break;
-						}
+						hasNext |= children.get(i).hasNext();
 					}
 					return true;
 				}

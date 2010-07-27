@@ -1,6 +1,5 @@
 package org.rascalmpl.interpreter.matching;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -11,7 +10,7 @@ class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 	public ConcreteAmbiguityPattern(
 			IEvaluatorContext ctx, CallOrTree x,
 			java.util.List<AbstractBooleanResult> args) {
-		super(ctx);
+		super(ctx, x);
 	}
 
 	@Override
@@ -25,11 +24,4 @@ class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	@Override
-	public IValue toIValue(Environment env) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 }

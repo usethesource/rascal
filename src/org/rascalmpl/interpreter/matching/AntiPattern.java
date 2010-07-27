@@ -2,6 +2,7 @@ package org.rascalmpl.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -10,8 +11,8 @@ public class AntiPattern extends AbstractMatchingResult {
 	private IMatchingResult pat;
 	private boolean stop;
 
-	public AntiPattern(IEvaluatorContext ctx, IMatchingResult pat) {
-		super(ctx);
+	public AntiPattern(IEvaluatorContext ctx, Expression.Anti anti, IMatchingResult pat) {
+		super(ctx, anti);
 		this.pat = pat;
 	}
 
@@ -55,11 +56,5 @@ public class AntiPattern extends AbstractMatchingResult {
 		}
 		
 		return true;
-	}
-
-	@Override
-	public IValue toIValue(Environment env) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

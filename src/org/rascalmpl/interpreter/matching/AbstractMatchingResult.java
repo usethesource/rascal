@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
@@ -14,13 +15,15 @@ import org.rascalmpl.values.uptr.Factory;
 
 public abstract class AbstractMatchingResult extends AbstractBooleanResult implements IMatchingResult {
 	protected Result<IValue> subject = null;
+	private final AbstractAST ast;
 	
-	public AbstractMatchingResult(IEvaluatorContext ctx) {
+	public AbstractMatchingResult(IEvaluatorContext ctx, AbstractAST ast) {
 		super(ctx);
+		this.ast = ast;
 	}
 	
 	public AbstractAST getAST(){
-		return ctx.getCurrentAST();
+		return ast;
 	}
 	
 	public void initMatch(Result<IValue> subject) {
@@ -47,8 +50,6 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 		return new java.util.LinkedList<String>();
 	}
 	
-	abstract public IValue toIValue(Environment env);
-	
 	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<IMatchingResult> iterator){
 		while (iterator.hasNext()) {
 			if (!iterator.next().next()){
@@ -58,6 +59,12 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 		return true;
 	}
 
+	public IValue toIValue() {
+		// if a pattern does not contain variables, simply evaluating it as an expression should
+		// yield a proper value
+		return ctx.getEvaluator().eval((Expression) getAST()).getValue();
+	}
+	
 	abstract public Type getType(Environment env);
 
 	abstract public boolean next();

@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -14,8 +15,8 @@ import org.rascalmpl.interpreter.result.Result;
 public class ValuePattern extends AbstractMatchingResult {
 	private Result<?> val;
 
-	public ValuePattern(IEvaluatorContext ctx, Result<?> val) {
-		super(ctx);
+	public ValuePattern(IEvaluatorContext ctx, Expression x, Result<?> val) {
+		super(ctx, x);
 		this.val = val;
 	}
 
@@ -35,10 +36,5 @@ public class ValuePattern extends AbstractMatchingResult {
 		boolean result = hasNext;
 		hasNext = false;
 		return result;
-	}
-
-	@Override
-	public IValue toIValue(Environment env) {
-		return val.getValue();
 	}
 }

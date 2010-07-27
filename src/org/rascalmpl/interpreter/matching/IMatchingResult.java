@@ -37,12 +37,7 @@ public interface IMatchingResult extends IBooleanResult {
 	 */
 	public java.util.List<String> getVariables();
 
-	/**
-	 * Compute an IValue for this pattern, which is only possible if getVariables returns an empty lost (i.e. its a constant pattern)
-	 * @param env
-	 * @return an ivalue representing this pattern
-	 */
-	public IValue toIValue(Environment env);
-
 	public AbstractAST getAST();
+	
+	public IValue toIValue();
 }

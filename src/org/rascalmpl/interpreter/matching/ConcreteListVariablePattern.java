@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
@@ -24,9 +25,9 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private boolean iDeclaredItMyself;
 	
-	public ConcreteListVariablePattern(IEvaluatorContext ctx, 
+	public ConcreteListVariablePattern(IEvaluatorContext ctx, AbstractAST x,
 			org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
-		super(ctx);
+		super(ctx, x);
 		this.name = Names.name(name);
 		this.declaredType = (NonTerminalType) type;
 		this.anonymous = Names.name(name).equals("_");
@@ -44,11 +45,6 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
 		res.addFirst(name);
 		return res;
-	}
-
-	@Override
-	public IValue toIValue(Environment env) {
-		throw new UnsupportedOperationException("toIValue on Variable");
 	}
 
 	public String getName() {

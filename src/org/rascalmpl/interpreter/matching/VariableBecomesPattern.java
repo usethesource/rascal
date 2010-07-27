@@ -2,6 +2,7 @@ package org.rascalmpl.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -10,9 +11,9 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	private IMatchingResult pat;
 	private IMatchingResult var;
 
-	public VariableBecomesPattern(IEvaluatorContext ctx, 
+	public VariableBecomesPattern(IEvaluatorContext ctx, Expression x,
 			IMatchingResult var, IMatchingResult pat){
-		super(ctx);
+		super(ctx, x);
 		this.pat = pat;
 		this.var = var;
 	}
@@ -40,10 +41,5 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 			return false;
 		}
 		return var.next();
-	}
-
-	@Override
-	public IValue toIValue(Environment env) {
-		return null;
 	}
 }

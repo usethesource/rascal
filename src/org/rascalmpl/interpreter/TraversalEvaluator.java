@@ -513,7 +513,6 @@ public class TraversalEvaluator {
 	private TraverseResult applyOneRule(Type type, IValue subject, org.rascalmpl.ast.PatternWithAction rule) {
 
 		//System.err.println("applyOneRule: subject=" + subject + ", type=" + subject.getType() + ", rule=" + rule);
-
 		if (rule.isArbitrary()){
 			if(eval.matchAndEval(makeResult(type, subject, eval), rule.getPattern(), rule.getStatement())) {
 				return TraverseResultFactory.makeTraverseResult(true, subject);

@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -29,8 +30,8 @@ public class NodePattern extends AbstractMatchingResult {
 	private boolean isGenericNodeType;
 	private QualifiedName qName;
 	
-	public NodePattern(IEvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
-		super(ctx);
+	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
+		super(ctx, x);
 		
 		if (matchPattern != null) {
 			list.add(0, matchPattern);
@@ -38,12 +39,12 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 		else if (name != null) {
 			IString nameVal = ctx.getValueFactory().string(Names.name(Names.lastName(name)));
-			list.add(0, new ValuePattern(ctx, ResultFactory.makeResult(tf.stringType(), nameVal, ctx)));
+			list.add(0, new ValuePattern(ctx, x, ResultFactory.makeResult(tf.stringType(), nameVal, ctx)));
 			isGenericNodeType = false;
 			qName = name;
 		}
 		
-		this.tuple = new TuplePattern(ctx, list);
+		this.tuple = new TuplePattern(ctx, x, list);
 		this.tupleSubject = new NodeWrapperTuple();
 	}
 	
@@ -183,26 +184,6 @@ public class NodePattern extends AbstractMatchingResult {
 	     return tf.nodeType();
 	}
 	
-	@Override
-	public IValue toIValue(Environment env) {
-		Type signature = getSignatureType(env);
-		ITuple vals = (ITuple)tuple.toIValue(env);
-		IValue valArray[] = new IValue[vals.arity() - 1];
-		for (int i = 1; i < vals.arity(); i++) {
-			valArray[i - 1] = vals.get(i);
-		}
-		
-		if (!isGenericNodeType) {
-			if(env.isTreeConstructorName(qName, signature)){
-				Type consType = env.getConstructor(Names.name(Names.lastName(qName)), signature);
-
-				return ctx.getValueFactory().constructor(consType, valArray);
-			}
-		}
-		
-		return ctx.getValueFactory().node(((IString) vals.get(0)).getValue(), valArray);
-	}
-
 	@Override
 	public java.util.List<String> getVariables() {
 		return tuple.getVariables();

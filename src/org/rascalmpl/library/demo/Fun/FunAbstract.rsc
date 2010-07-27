@@ -139,7 +139,7 @@ rule a1 constraints([list[Cons] C1, c(intcon(int N), Type T), list[Cons]C2]) =>
         	
 rule a2 constraints([list[Cons] C1, c(strcon(str S), Type T), list[Cons]C2]) =>
         	(T == strType()) ? constraints([C1, C2]) : constraints([C1, error(constant(strcon(S))), C2]);
-        
+       
 rule a3 constraints([list[Cons] C1, c(var(str Nm1), Type T1), list[Cons]C2,  c(var(str Nm2), Type T2), list[Cons]C3]):{
         if(Nm1 == Nm2){
            if(T1 == T2) {

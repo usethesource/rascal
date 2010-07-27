@@ -46,7 +46,7 @@ end
 `;
        
 /*********************************************/
-
+/* do not change this program (regression tests!) */
 public PROGRAM fac = `
 begin
   declare
@@ -55,7 +55,7 @@ begin
     repnr: natural,
     rep: natural;
 
-  input := 50;
+  input := 10;
   output := 1;
   while input - 1 do
     rep := output;

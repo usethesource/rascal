@@ -1,7 +1,7 @@
 package org.rascalmpl.interpreter.matching;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
@@ -9,8 +9,8 @@ import org.rascalmpl.interpreter.env.Environment;
 /* package */ class MapPattern extends AbstractMatchingResult {
 	private java.util.List<IMatchingResult> children;
 	
-	MapPattern(IEvaluatorContext ctx, java.util.List<IMatchingResult> children){
-		super(ctx);
+	MapPattern(IEvaluatorContext ctx, Expression.Map x, java.util.List<IMatchingResult> children){
+		super(ctx, x);
 		this.children = children;
 	}
 	
@@ -21,15 +21,6 @@ import org.rascalmpl.interpreter.env.Environment;
 			res.addAll(children.get(i).getVariables());
 		 }
 		return res;
-	}
-	
-	@Override
-	public IValue toIValue(Environment env){
-		IValue[] vals = new IValue[children.size()];
-		for (int i = 0; i < children.size(); i++) {
-			 vals[i] =  children.get(i).toIValue(env);
-		 }
-		return null; //TODO: make correct
 	}
 	
 	@Override

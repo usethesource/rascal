@@ -1,8 +1,8 @@
 package org.rascalmpl.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ResultFactory;
@@ -21,9 +21,9 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 	private boolean iDeclaredItMyself;
 	private Environment cachedEnv;
 
-	public TypedVariablePattern(IEvaluatorContext ctx, 
+	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
-		super(ctx);
+		super(ctx, x);
 		this.name = Names.name(name);
 		this.declaredType = type;
 		this.anonymous = Names.name(name).equals("_");
@@ -41,11 +41,6 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
 		res.addFirst(name);
 		return res;
-	}
-	
-	@Override
-	public IValue toIValue(Environment env){
-		throw new UnsupportedOperationException("toIValue on Variable");
 	}
 	
 	public String getName(){
