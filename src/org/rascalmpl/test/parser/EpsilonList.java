@@ -73,7 +73,7 @@ public class EpsilonList extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(appl(prod([iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[amb({appl(regular(iter(sort(\"A\")),\\no-attrs()),[appl(prod([empty()],sort(\"A\"),\\no-attrs()),[])]),appl(regular(iter(sort(\"A\")),\\no-attrs()),[appl(regular(iter(sort(\"A\")),\\no-attrs()),[appl(regular(iter(sort(\"A\")),\\no-attrs()),appl(prod([empty()],sort(\"A\"),\\no-attrs()),[])),cycle(regular(iter(sort(\"A\")),\\no-attrs()),1)])])})]),-1)";
+		String expectedInput = "parsetree(appl(prod([iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[amb({appl(regular(iter(sort(\"A\")),\\no-attrs()),[appl(prod([empty()],sort(\"A\"),\\no-attrs()),[])]),appl(regular(iter(sort(\"A\")),\\no-attrs()),[amb({appl(regular(iter(sort(\"A\")),\\no-attrs()),[appl(prod([empty()],sort(\"A\"),\\no-attrs()),[])]),cycle(iter(sort(\"A\")),1)})])})]),-1)";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 	

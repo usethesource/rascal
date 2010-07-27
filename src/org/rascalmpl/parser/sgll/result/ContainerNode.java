@@ -152,14 +152,15 @@ public class ContainerNode extends AbstractNode{
 					IValue[] newPostFix = new IValue[length - repeatLength + 1];
 					System.arraycopy(postFix, repeatLength, newPostFix, 1, length - repeatLength);
 					
-					IValue[] subList = new IValue[repeatLength + 1];
-					System.arraycopy(postFix, 0, subList, 1, repeatLength);
-					subList[0] = production;
+					IListWriter subList = vf.listWriter(Factory.Tree);
+					for(int j = repeatLength - 1; j >= 0; j--){
+						subList.insert(postFix[j]);
+					}
 					
-					IListWriter cycleChildren = vf.listWriter(Factory.Tree);
-					cycleChildren.append(vf.constructor(Factory.Tree_Appl, subList));
-					cycleChildren.append(vf.constructor(Factory.Tree_Cycle, production, vf.integer(1)));
-					IConstructor ambSubListNode = vf.constructor(Factory.Tree_Appl, production, cycleChildren.done());
+					ISetWriter cycleChildren = vf.setWriter(Factory.Tree);
+					cycleChildren.insert(vf.constructor(Factory.Tree_Appl, production, subList.done()));
+					cycleChildren.insert(vf.constructor(Factory.Tree_Cycle, production.get("rhs"), vf.integer(1)));
+					IConstructor ambSubListNode = vf.constructor(Factory.Tree_Amb, cycleChildren.done());
 					newPostFix[0] = ambSubListNode;
 					
 					blackList.push(prefixNode);
