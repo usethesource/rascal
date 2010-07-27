@@ -7,6 +7,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
@@ -50,12 +52,12 @@ public class ListPattern extends AbstractMatchingResult  {
 	private Type staticListSubjectType;
 
 	
-	public ListPattern(IEvaluatorContext ctx, List<IMatchingResult> list){
-		this(ctx, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
+	public ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list){
+		this(ctx, x, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
 	}
 	
-	ListPattern(IEvaluatorContext ctx, List<IMatchingResult> list, int delta){
-		super(ctx);
+	ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list, int delta){
+		super(ctx, x);
 		if(delta < 1)
 			throw new ImplementationError("Wrong delta");
 		this.delta = delta;
@@ -76,15 +78,6 @@ public class ListPattern extends AbstractMatchingResult  {
 			res.addAll(patternChildren.get(i).getVariables());
 		 }
 		return res;
-	}
-	
-	@Override
-	public IValue toIValue(Environment env){
-		IValue[] vals = new IValue[patternChildren.size()];
-		for (int i = 0; i < patternChildren.size(); i += delta) {
-			 vals[i] =  patternChildren.get(i).toIValue(env);
-		 }
-		return ctx.getValueFactory().list(vals);
 	}
 	
 	public static boolean isAnyListType(Type type){

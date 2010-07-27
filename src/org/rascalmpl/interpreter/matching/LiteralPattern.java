@@ -5,6 +5,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -14,8 +15,8 @@ public class LiteralPattern extends AbstractMatchingResult {
 	private IValue literal;
 	private boolean isPattern = false;
 	
-	public LiteralPattern(IEvaluatorContext ctx, IValue literal){
-		super(ctx);
+	public LiteralPattern(IEvaluatorContext ctx, AbstractAST x, IValue literal){
+		super(ctx, x);
 		this.literal = literal;
 	}
 	
@@ -52,7 +53,6 @@ public class LiteralPattern extends AbstractMatchingResult {
 		return false;
 	}
 	
-	@Override
 	public IValue toIValue(Environment env){
 		return literal;
 	}

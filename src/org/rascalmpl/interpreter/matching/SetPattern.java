@@ -7,6 +7,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -48,8 +49,8 @@ public class SetPattern extends AbstractMatchingResult {
 	private Type staticSetSubjectType;
 	private Type staticSubjectElementType;
 	
-	public SetPattern(IEvaluatorContext ctx, List<IMatchingResult> list){
-		super(ctx);
+	public SetPattern(IEvaluatorContext ctx, Expression.Set x, List<IMatchingResult> list){
+		super(ctx, x);
 		this.patternChildren = list;
 		this.patternSize = list.size();
 	}
@@ -70,15 +71,6 @@ public class SetPattern extends AbstractMatchingResult {
 			}
 		}
 		return tf.setType(elemType);
-	}
-	
-	@Override
-	public IValue toIValue(Environment env){
-		IValue[] vals = new IValue[patternChildren.size()];
-		for (int i = 0; i < patternChildren.size(); i++) {
-			 vals[i] =  patternChildren.get(i).toIValue(env);
-		 }
-		return ctx.getValueFactory().set(vals);
 	}
 	
 	@Override
@@ -267,7 +259,7 @@ public class SetPattern extends AbstractMatchingResult {
 				    }
 				}
 			} else if(child instanceof LiteralPattern){
-				IValue lit = child.toIValue(env);
+				IValue lit = ((LiteralPattern) child).toIValue(env);
 				Type childType = child.getType(env);
 				if(!childType.comparable(staticSubjectElementType)){
 					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
@@ -286,9 +278,9 @@ public class SetPattern extends AbstractMatchingResult {
 					isSetVar[nVar] = false;
 					nVar++;
 				} else {
-					fixedSetElements = fixedSetElements.insert(child.toIValue(env));
+					fixedSetElements = fixedSetElements.insert(child.toIValue());
 				}
-			}
+			} 
 		}
 		/*
 		 * Pass #2: set up subset generation

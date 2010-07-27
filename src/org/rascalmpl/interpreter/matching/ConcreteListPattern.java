@@ -8,7 +8,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
@@ -25,7 +24,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	private CallOrTree callOrTree;
 
 	public ConcreteListPattern(IEvaluatorContext ctx, CallOrTree x, List<IMatchingResult> list) {
-		super(ctx);
+		super(ctx, x);
 		callOrTree = x;
 		initListPatternDelegate(list);
 		//System.err.println("ConcreteListPattern");
@@ -40,19 +39,19 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			if (SymbolAdapter.isCf(rhs)) {	
 				IConstructor cfSym = SymbolAdapter.getSymbol(rhs);
 				if (SymbolAdapter.isIterPlus(cfSym) || SymbolAdapter.isIterStar(cfSym)) {
-					pat = new ListPattern(ctx, list, 2);
+					pat = new ListPattern(ctx, callOrTree, list, 2);
 				}
 				else if (SymbolAdapter.isIterPlusSep(cfSym) || SymbolAdapter.isIterStarSep(cfSym)) {
-					pat = new ListPattern(ctx, list, 4);
+					pat = new ListPattern(ctx, callOrTree, list, 4);
 				}
 			}
 			else if (SymbolAdapter.isLex(rhs)){
 				IConstructor lexSym = SymbolAdapter.getSymbol(rhs);
 				if (SymbolAdapter.isIterPlus(lexSym) || SymbolAdapter.isIterStar(lexSym)) {
-					pat = new ListPattern(ctx, list, 1);
+					pat = new ListPattern(ctx, callOrTree, list, 1);
 				}
 				else if (SymbolAdapter.isIterPlusSep(lexSym) || SymbolAdapter.isIterStarSep(lexSym)) {
-					pat = new ListPattern(ctx, list, 2);
+					pat = new ListPattern(ctx, callOrTree, list, 2);
 				}
 			}
 			else {
@@ -110,11 +109,6 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 		
 	}
 
-	@Override
-	public IValue toIValue(Environment env) {
-		throw new NotYetImplemented("is this dead?");
-	}
-	
 	@Override
 	public java.util.List<String> getVariables() {
 		return pat.getVariables();

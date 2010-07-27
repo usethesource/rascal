@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -16,8 +17,8 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private boolean iWroteItMySelf;
 	
-	public QualifiedNamePattern(IEvaluatorContext ctx, org.rascalmpl.ast.QualifiedName name){
-		super(ctx);
+	public QualifiedNamePattern(IEvaluatorContext ctx, Expression x, org.rascalmpl.ast.QualifiedName name){
+		super(ctx, x);
 		this.name = name;
 		this.anonymous = getName().equals("_");
 		Environment env = ctx.getCurrentEnvt();
@@ -53,11 +54,6 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
 		res.addFirst(getName());
 		return res;
-	}
-	
-	@Override
-	public IValue toIValue(Environment env){
-		throw new UnsupportedOperationException("toIValue on Variable");
 	}
 	
 	public String getName(){

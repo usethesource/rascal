@@ -3138,7 +3138,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					} catch (Failure e){
 						if(debug) System.err.println("failure occurred");
 						rollback(getCurrentEnvt());
-						// unwind(old); // can not clean up because you don't know how far to roll back
+//						 unwind(old); // can not clean up because you don't know how far to roll back
 					}
 				}
 			}

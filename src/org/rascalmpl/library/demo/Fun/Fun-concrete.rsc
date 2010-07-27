@@ -2,14 +2,14 @@ module \Fun-concrete
 
 // OUTDATED, see Fun-abstract
 
-import syntax-syntax;
+import \Fun-syntax;
 
 set[Var] allVars(Exp E) {
-    return {V | Var V : E};
+    return {V | Var V <- E};
 }
 
 set[Var] boundVars(Exp E) {
-    return {V | fn <Var V> => <Exp E1> : E};
+    return {V | `fn <Var V>` <- E};
 } 
 
 set[Var] freeVars(Exp E) {

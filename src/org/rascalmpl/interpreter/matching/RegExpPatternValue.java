@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.RegExpLiteral;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
@@ -35,8 +36,8 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 //	private static HashMap<String,Matcher> matcherCache = 
 //		new HashMap<String,Matcher>();
 	
-	public RegExpPatternValue(IEvaluatorContext ctx, String s, List<String> patternVars) {
-		super(ctx);
+	public RegExpPatternValue(IEvaluatorContext ctx,  AbstractAST x, String s, List<String> patternVars) {
+		super(ctx, x);
 		RegExpAsString = removeRascalSpecificEscapes(s);
 		this.patternVars = patternVars;
 		initialized = false;
@@ -153,12 +154,6 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	@Override
 	public String toString(){
 		return "RegExpPatternValue(" + RegExpAsString + ", " + patternVars + ")";
-	}
-
-	@Override
-	public IValue toIValue(Environment env) {
-		// TODO implement
-		throw new NotYetImplemented(ctx.getCurrentAST());
 	}
 
 	@Override

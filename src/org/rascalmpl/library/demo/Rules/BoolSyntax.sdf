@@ -11,3 +11,4 @@ exports
     "bfalse"       -> Bool
     Bool "&" Bool  -> Bool {left}
     Bool "|" Bool  -> Bool {right}
+    "("Bool ")" -> Bool {bracket}

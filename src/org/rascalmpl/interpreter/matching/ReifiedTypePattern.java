@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.BasicType;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -12,10 +13,10 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 	private final BasicType basic;
 	private final NodePattern nodePattern;
 
-	public ReifiedTypePattern(IEvaluatorContext ctx, BasicType type, java.util.List<IMatchingResult> arguments) {
-		super(ctx);
+	public ReifiedTypePattern(IEvaluatorContext ctx, Expression x, BasicType type, java.util.List<IMatchingResult> arguments) {
+		super(ctx, x);
 		this.basic = type;
-        this.nodePattern = new NodePattern(ctx, new LiteralPattern(ctx, ctx.getValueFactory().string(basic.toString())), null, arguments);
+        this.nodePattern = new NodePattern(ctx, x, new LiteralPattern(ctx, type, ctx.getValueFactory().string(basic.toString())), null, arguments);
 	}
 
 	@Override
@@ -40,11 +41,4 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 		}
 		return false;
 	}
-
-	@Override
-	public IValue toIValue(Environment env) {
-		// TODO: check if this would do it
-		return nodePattern.toIValue(env);
-	}
-
 }

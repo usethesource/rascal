@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -15,8 +16,8 @@ public class GuardedPattern extends AbstractMatchingResult {
 	private Type type;
 	private IMatchingResult pat;
 	
-	public GuardedPattern(IEvaluatorContext ctx, Type type, IMatchingResult pat){
-		super(ctx);
+	public GuardedPattern(IEvaluatorContext ctx, Expression.Guarded x, Type type, IMatchingResult pat){
+		super(ctx, x);
 		this.type = type;
 		this.pat = pat;
 	}
@@ -61,11 +62,5 @@ public class GuardedPattern extends AbstractMatchingResult {
 	@Override
 	public boolean next() {
 		return pat.next();
-	}
-
-	@Override
-	public IValue toIValue(Environment env) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
