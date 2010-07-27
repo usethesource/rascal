@@ -9,7 +9,7 @@ import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
-public class CharNode implements INode{
+public class CharNode extends AbstractNode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private final char character;
@@ -42,7 +42,7 @@ public class CharNode implements INode{
 		return sb.toString();
 	}
 	
-	public IValue toTerm(IndexedStack<INode> stack, int depth){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth){
 		IInteger characterValue = vf.integer(getNumericCharValue(character));
 		return vf.constructor(Factory.Tree_Char, characterValue);
 	}
