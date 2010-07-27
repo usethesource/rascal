@@ -84,6 +84,6 @@ public class NonTerminalPlusList extends SGLL implements IParserTest{
 		IValue result = nrpl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 		System.out.println(result);
 		
-		System.out.println("S(A+(A(a),A+(A(a),A+(A(a))))) <- good");
+		System.out.println("S(A+(A(a),A(a),A(a))) <- good");
 	}
 }

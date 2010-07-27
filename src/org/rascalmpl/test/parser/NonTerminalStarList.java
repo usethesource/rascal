@@ -84,6 +84,6 @@ public class NonTerminalStarList extends SGLL implements IParserTest{
 		IValue result = nrsl.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 		System.out.println(result);
 		
-		System.out.println("S(A*(A(a),A*(A(a),A*(A(a))))) <- good");
+		System.out.println("S(A*(A(a),A(a),A(a))) <- good");
 	}
 }

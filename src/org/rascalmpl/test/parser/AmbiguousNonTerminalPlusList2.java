@@ -90,6 +90,6 @@ public class AmbiguousNonTerminalPlusList2 extends SGLL implements IParserTest{
 		IValue result = nrpl2.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 		System.out.println(result);
 		
-		System.out.println("S([A+(A(a),[A+(A(a),A+(A(a))),A+(A(aa))]),A+(A(aa),A+(A(a)))]) <- good");
+		System.out.println("S([A+(A(a),A(aa)),A+(A(a),A(a),A(a)),A+(A(aa),A(a))]) <- good");
 	}
 }
