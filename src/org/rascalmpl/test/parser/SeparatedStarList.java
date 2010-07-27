@@ -90,6 +90,6 @@ public class SeparatedStarList extends SGLL implements IParserTest{
 		IValue result = nrsl.parse(NONTERMINAL_START_S, "ababa".toCharArray());
 		System.out.println(result);
 		
-		System.out.println("S((Ab)*(A(a),b,(Ab)*(A(a),b,(Ab)*(A(a))))) <- good");
+		System.out.println("S((Ab)*(A(a),b,A(a),b,A(a))) <- good");
 	}
 }

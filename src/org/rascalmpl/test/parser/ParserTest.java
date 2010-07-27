@@ -93,6 +93,11 @@ public class ParserTest extends TestCase{
 		executeParser(new CycleEpsilon());
 	}
 	
+	public void testListCycle(){
+		executeParser(new EpsilonList());
+		executeParser(new AmbiguousEpsilonList());
+	}
+	
 	public void testFollowRestriction(){
 		executeParser(new FollowRestriction());
 	}

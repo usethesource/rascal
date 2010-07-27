@@ -74,6 +74,6 @@ public class CharPlusList extends SGLL implements IParserTest{
 		IValue result = cpl.parse(NONTERMINAL_START_S, "abc".toCharArray());
 		System.out.println(result);
 		
-		System.out.println("S([a-z]+([a-z](a),[a-z]+([a-z](b),[a-z]+([a-z](c))))) <- good");
+		System.out.println("S([a-z]+([a-z](a),[a-z](b),[a-z](c))) <- good");
 	}
 }

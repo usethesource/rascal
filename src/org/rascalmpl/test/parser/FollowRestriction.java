@@ -112,6 +112,6 @@ public class FollowRestriction extends SGLL implements IParserTest{
 		IValue result = fr.parse(NONTERMINAL_START_S, "aaa".toCharArray());
 		System.out.println(result);
 		
-		System.out.println("S(A(B+(a,B+(a,B+(a)))),C()) <- good");
+		System.out.println("S(A(B+(a,a,a)),C()) <- good");
 	}
 }
