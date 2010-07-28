@@ -70,11 +70,16 @@ public class TuplePattern extends AbstractMatchingResult {
 	@Override
 	public boolean next(){
 		checkInitialized();
-		
+
 		if (!hasNext) {
 			return false;
 		}
 
+		if (children.size() == 0) {
+			hasNext = false;
+			return true;
+		}
+		
 		while (nextChild >= 0) {
 			IMatchingResult nextPattern = children.get(nextChild);
 
