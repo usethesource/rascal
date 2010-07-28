@@ -120,6 +120,7 @@ public list[Import] getImports(Tree t) {
 			default : throw "Unexpected module format";
 		}
 	}
+	throw "getModuleName, unexpected module syntax, cannot find module name";
 }
 
 public RName getModuleName(Tree t) {
