@@ -389,6 +389,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		resolverRegistry.registerOutput(resolver.scheme(), resolver);
 	}
 	
+	public PrintWriter getStdOut() {
+		return stdout;
+	}
+	
+	public PrintWriter getStdErr() {
+		return stderr;
+	}
+	
 	public void setTestResultListener(ITestResultListener l) {
 		this.testReporter = l;
 	}
