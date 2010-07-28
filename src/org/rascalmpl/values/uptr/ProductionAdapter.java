@@ -165,10 +165,12 @@ public class ProductionAdapter {
 		}
 		return false;
 	}
+	
+	public static boolean hasLexAttribute(IConstructor tree) {
+		return hasAttribute(tree, Factory.Attribute_Lex);
+	}
 
 	public static boolean hasAvoidAttribute(IConstructor tree) {
 		return hasAttribute(tree, Factory.Attr_Avoid.make(ValueFactoryFactory.getValueFactory()));
 	}
-
-
 }
