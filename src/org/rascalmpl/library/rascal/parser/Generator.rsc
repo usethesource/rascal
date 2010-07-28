@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -74,52 +75,52 @@ public class <name> extends SGLL {
         <generateParseMethod(p)>
     <}>
     
-    public IValue parse(IConstructor start, char[] sentence){
+    public IValue parse(IConstructor start, URI inputURI, char[] sentence){
         if(SymbolAdapter.isSort(start)){
-            return parse(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), sentence);
+            return parse(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, sentence);
         }
         if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), sentence);
+            return parse(SymbolAdapter.getStart(start), inputURI, sentence);
         }
         throw new IllegalArgumentException(start.toString());
     }
     
-    public IValue parse(IConstructor start, java.lang.String sentence){
+    public IValue parse(IConstructor start, URI inputURI, java.lang.String sentence){
         if(SymbolAdapter.isSort(start)){
-            return parseFromString(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), sentence);
+            return parseFromString(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, sentence);
         }
         if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), sentence);
+            return parse(SymbolAdapter.getStart(start), inputURI, sentence);
         }
         throw new IllegalArgumentException(start.toString());
     }
     
-    public IValue parse(IConstructor start, File inputFile) throws IOException{
+    public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
         if(SymbolAdapter.isSort(start)){
-            return parseFromFile(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputFile);
+            return parseFromFile(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, inputFile);
         }
         if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), inputFile);
+            return parse(SymbolAdapter.getStart(start), inputURI, inputFile);
         }
         throw new IllegalArgumentException(start.toString());
     }
     
-    public IValue parse(IConstructor start, InputStream in) throws IOException{
+    public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
         if(SymbolAdapter.isSort(start)){
-            return parseFromStream(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), in);
+            return parseFromStream(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, in);
         }
         if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), in);
+            return parse(SymbolAdapter.getStart(start), inputURI, in);
         }
         throw new IllegalArgumentException(start.toString());
     }
     
-    public IValue parse(IConstructor start, Reader in) throws IOException{
+    public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
         if(SymbolAdapter.isSort(start)){
-            return parseFromReader(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), in);
+            return parseFromReader(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, in);
         }
         if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), in);
+            return parse(SymbolAdapter.getStart(start), inputURI, in);
         }
         throw new IllegalArgumentException(start.toString());
     }
@@ -128,7 +129,7 @@ public class <name> extends SGLL {
         <name> parser = new <name>();
         
         // TODO: this just takes an arbitrary start symbol, if there are more the result can be surprising ;-)
-        System.out.println(parser.parse(read(\"<esc(getOneFrom(g.start))>\",Factory.Symbol), args[0].toCharArray())); 
+        System.out.println(parser.parse(read(\"<esc(getOneFrom(g.start))>\",Factory.Symbol), null, args[0].toCharArray())); 
     }
 }
 ";

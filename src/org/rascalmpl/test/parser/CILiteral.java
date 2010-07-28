@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -43,28 +44,28 @@ public class CILiteral extends SGLL implements IParserTest{
 		expect(PROD_S_A, LITERAL_bla0);
 	}
 	
-	public IValue parse(IConstructor start, char[] input){
+	public IValue parse(IConstructor start, URI inputURI, char[] input){
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, File inputFile) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, InputStream in) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, Reader in) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, String input){
+	public IValue parse(IConstructor start, URI inputURI, String input){
 		throw new UnsupportedOperationException();
 	}
 	
 	public IValue executeParser(){
-		return parse(NONTERMINAL_START_S, "Bla".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "Bla".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -74,7 +75,7 @@ public class CILiteral extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		CILiteral cil = new CILiteral();
-		IValue result = cil.parse(NONTERMINAL_START_S, "Bla".toCharArray());
+		IValue result = cil.parse(NONTERMINAL_START_S, null, "Bla".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(Bla) <- good");

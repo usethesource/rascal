@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -13,9 +14,9 @@ public interface IGLL{
 	
 	public final static int DEFAULT_LIST_EPSILON_ID = -2; // (0xeffffffe | 0x80000000)
 	
-	IValue parse(IConstructor start, char[] input);
-	IValue parse(IConstructor start, String input);
-	IValue parse(IConstructor start, InputStream in) throws IOException;
-	IValue parse(IConstructor start, Reader in) throws IOException;
-	IValue parse(IConstructor start, File inputFile) throws IOException;
+	IValue parse(IConstructor start, URI inputURI, char[] input);
+	IValue parse(IConstructor start, URI inputURI, String input);
+	IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException;
+	IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException;
+	IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException;
 }

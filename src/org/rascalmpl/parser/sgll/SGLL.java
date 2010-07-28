@@ -8,13 +8,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
@@ -34,6 +35,7 @@ public abstract class SGLL implements IGLL{
 	
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
+	private URI inputURI;
 	private char[] input;
 	
 	private final ArrayList<AbstractStackNode> todoList;
@@ -241,7 +243,7 @@ public abstract class SGLL implements IGLL{
 		
 		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
 		if(resultStore == null){
-			resultStore = new ContainerNode(node.isList());
+			resultStore = new ContainerNode(inputURI, startLocation, location - startLocation, node.isList());
 			resultStoreCache.unsafePut(production, startLocation, resultStore);
 			withResults.unsafePut(node);
 			
@@ -283,7 +285,7 @@ public abstract class SGLL implements IGLL{
 		
 		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
 		if(resultStore == null){
-			resultStore = new ContainerNode(node.isList());
+			resultStore = new ContainerNode(inputURI, startLocation, location - startLocation, node.isList());
 			resultStoreCache.unsafePut(production, startLocation, resultStore);
 			withResults.unsafePut(node);
 			
@@ -491,9 +493,11 @@ public abstract class SGLL implements IGLL{
 		return false;
 	}
 	
-	protected IValue parse(AbstractStackNode startNode, char[] input){
+	protected IValue parse(AbstractStackNode startNode, URI inputURI, char[] input){
 		// Initialize.
+		this.inputURI = inputURI;
 		this.input = input;
+		
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		stacksToExpand.add(rootNode);
@@ -519,11 +523,11 @@ public abstract class SGLL implements IGLL{
 		return makeParseTree(result);
 	}
 	
-	protected IValue parseFromString(AbstractStackNode startNode, String inputString){
-		return parse(startNode, inputString.toCharArray());
+	protected IValue parseFromString(AbstractStackNode startNode, URI inputURI, String inputString){
+		return parse(startNode, inputURI, inputString.toCharArray());
 	}
 	
-	protected IValue parseFromFile(AbstractStackNode startNode, File inputFile) throws IOException{
+	protected IValue parseFromFile(AbstractStackNode startNode, URI inputURI, File inputFile) throws IOException{
 		int inputFileLength = (int) inputFile.length();
 		char[] input = new char[inputFileLength];
 		Reader in = new BufferedReader(new FileReader(inputFile));
@@ -533,11 +537,11 @@ public abstract class SGLL implements IGLL{
 			in.close();
 		}
 		
-		return parse(startNode, input);
+		return parse(startNode, inputURI, input);
 	}
 	
 	// This is kind of ugly.
-	protected IValue parseFromReader(AbstractStackNode startNode, Reader in) throws IOException{
+	protected IValue parseFromReader(AbstractStackNode startNode, URI inputURI, Reader in) throws IOException{
 		ArrayList<char[]> segments = new ArrayList<char[]>();
 		
 		// Gather segments.
@@ -565,11 +569,11 @@ public abstract class SGLL implements IGLL{
 			System.arraycopy(segment, 0, input, (i * STREAM_READ_SEGMENT_SIZE), STREAM_READ_SEGMENT_SIZE);
 		}
 		
-		return parse(startNode, input);
+		return parse(startNode, inputURI, input);
 	}
 	
-	public IValue parseFromStream(AbstractStackNode startNode, InputStream in) throws IOException{
-		return parseFromReader(startNode, new InputStreamReader(in));
+	public IValue parseFromStream(AbstractStackNode startNode, URI inputURI, InputStream in) throws IOException{
+		return parseFromReader(startNode, inputURI, new InputStreamReader(in));
 	}
 	
 	private IValue makeParseTree(IValue tree){

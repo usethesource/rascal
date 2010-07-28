@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -75,28 +76,28 @@ public class SplitAndMerge3 extends SGLL implements IParserTest{
 		expect(PROD_C_B, NONTERMINAL_B3);
 	}
 	
-	public IValue parse(IConstructor start, char[] input){
+	public IValue parse(IConstructor start, URI inputURI, char[] input){
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, File inputFile) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, InputStream in) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, Reader in) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, String input){
+	public IValue parse(IConstructor start, URI inputURI, String input){
 		throw new UnsupportedOperationException();
 	}
 	
 	public IValue executeParser(){
-		return parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -106,7 +107,7 @@ public class SplitAndMerge3 extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		SplitAndMerge3 ms3 = new SplitAndMerge3();
-		IValue result = ms3.parse(NONTERMINAL_START_S, "aaa".toCharArray());
+		IValue result = ms3.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S(C(B(A(B(a),a),a))),S(A(B(A(a),a),a))] <- good");

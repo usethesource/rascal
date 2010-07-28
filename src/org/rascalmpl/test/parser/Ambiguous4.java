@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -62,28 +63,28 @@ public class Ambiguous4 extends SGLL implements IParserTest{
 		expect(PROD_B_bb, LITERAL_bb5);
 	}
 	
-	public IValue parse(IConstructor start, char[] input){
+	public IValue parse(IConstructor start, URI inputURI, char[] input){
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, File inputFile) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, InputStream in) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, Reader in) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, String input){
+	public IValue parse(IConstructor start, URI inputURI, String input){
 		throw new UnsupportedOperationException();
 	}
 	
 	public IValue executeParser(){
-		return parse(NONTERMINAL_START_S, "bbbbbb".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "bbbbbb".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -93,7 +94,7 @@ public class Ambiguous4 extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		Ambiguous4 a4 = new Ambiguous4();
-		IValue result = a4.parse(NONTERMINAL_START_S, "bbbbbb".toCharArray());
+		IValue result = a4.parse(NONTERMINAL_START_S, null, "bbbbbb".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S(A(B(bb),B(bb)),A(B(b),B(b))),S(A(B(b),B(b)),A(B(bb),B(bb))),S([A(B(b),B(bb)),A(B(bb),B(b))],[A(B(b),B(bb)),A(B(bb),B(b))])] <- good");

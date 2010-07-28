@@ -462,12 +462,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public IValue parseObjectExperimental(IConstructor startSort, java.lang.String sentence) {
+	public IValue parseObjectExperimental(IConstructor startSort, URI inputURI) throws IOException{
 		IGLL parser = getObjectParser();
 		if (SymbolAdapter.isCf(startSort)) {
 			startSort = SymbolAdapter.getSymbol(startSort);
 		}
-		return parser.parse(startSort, sentence);
+		return parser.parse(startSort, inputURI, inputURI.toURL().openStream());
+	}
+	
+	public IValue parseObjectExperimental(IConstructor startSort, URI inputURI, java.lang.String sentence) {
+		IGLL parser = getObjectParser();
+		if (SymbolAdapter.isCf(startSort)) {
+			startSort = SymbolAdapter.getSymbol(startSort);
+		}
+		return parser.parse(startSort, inputURI, sentence);
 	}
 
 	private IGLL getObjectParser() {
