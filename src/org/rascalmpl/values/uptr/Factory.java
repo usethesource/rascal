@@ -1,8 +1,11 @@
 package org.rascalmpl.values.uptr;
 
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * UPTR stands for Universal Parse Node Representation (formerly known as AsFix). It is
@@ -100,6 +103,15 @@ public class Factory {
 	
 	public static final String Location = "loc";
 	public static final String Length = "len";
+
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	public static final IValue Attribute_Lex = Attr_Term.make(vf, vf.node("lex"));
+	public static final IValue Attribute_Assoc_Left = Attr_Assoc.make(vf, Associativity_Left.make(vf));
+	public static final IValue Attribute_Assoc_Right = Attr_Assoc.make(vf, Associativity_Right.make(vf));
+	public static final IValue Attribute_Assoc_Non_Assoc = Attr_Assoc.make(vf, Associativity_NonAssoc.make(vf));
+	public static final IValue Attribute_Assoc_Assoc =  Attr_Assoc.make(vf, Associativity_Assoc.make(vf));
+	public static final IValue Attribute_Bracket = Attr_Bracket.make(vf);
+	
 	
 	private static final class InstanceHolder {
 		public final static Factory factory = new Factory();
