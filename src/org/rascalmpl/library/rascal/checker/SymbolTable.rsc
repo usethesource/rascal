@@ -40,6 +40,7 @@ data STItem =
 	| ADTItem(RType adtType, set[STItemId] variants, bool isPublic, STItemId parentId) 
 	| AnnotationItem(RName annotationName, RType annoType, RType onType, bool isPublic, STItemId parentId) 
 	| RuleItem(RName ruleName, STItemId parentId)
+	| TypeVariableItem(RType typeVar, STItemId parentId)
 ;
 
 // Is this a symbol table layer (true) or an actual symbol table entry (false)?
@@ -63,6 +64,18 @@ public bool isItem(STItem si) {
 	return !isLayer(si);
 }
 				
+public bool isFunctionItem(STItem si) {
+	return (FunctionItem(_,_,_,_,_,_) := si);
+}
+
+public bool isConstructorItem(STItem si) {
+	return (ConstructorItem(_,_,_,_) := si);
+}
+
+public bool isFunctionOrConstructorItem(STItem si) {
+	return isFunctionItem(si) || isConstructorItem(si);
+}
+
 // Symbol table items can have an associated location
 anno loc STItem@at;
 
@@ -75,6 +88,7 @@ data Namespace =
 	| AnnotationName()
 	| RuleName()
 	| TagName()
+	| TypeVarName()
 ;
 
 // TODO: Should be able to use STItemMap here, but if I try it doesn't work, something must be
@@ -101,25 +115,40 @@ alias ItemLocationRel = rel[loc,STItemId];
 //           inside the proper scope
 // scopeStack: a stack of scope layers, allows entering and leaving scopes by pushing and popping
 // adtItems: map from the ADT name to the related ADT and constructor symbol table items
-alias SymbolTable = tuple[STItemId topSTItemId, rel[STItemId scopeId, STItemId itemId] scopeRel, 
-						ItemUses itemUses, STItemId nextScopeId, map[STItemId, STItem] scopeItemMap, 
-                        rel[loc, STItemId] itemLocations, STItemId currentScope, int freshType,
-                        map[loc, set[str]] scopeErrorMap, map[int, RType] inferredTypeMap, map[loc, RType] returnTypeMap,
-						map[loc, RType] itBinder, list[STItemId] scopeStack, 
-						map[RName adtName, tuple[set[STItemId] adtItems, set[STItemId] consItems] adtInfo] adtMap];
+alias SymbolTable = 
+	tuple[
+		  STItemId topSTItemId, 
+          rel[STItemId scopeId, STItemId itemId] scopeRel, 
+		  ItemUses itemUses, 
+		  STItemId nextScopeId, 
+		  map[STItemId, STItem] scopeItemMap, 
+          rel[loc, STItemId] itemLocations, 
+          STItemId currentScope, 
+          int freshType,
+          map[loc, set[str]] scopeErrorMap, 
+          map[int, RType] inferredTypeMap,
+          map[int, RType] typeVarMap, 
+          map[loc, RType] returnTypeMap,
+		  map[loc, RType] itBinder, 
+		  list[STItemId] scopeStack, 
+		  map[RName adtName,tuple[set[STItemId] adtItems,set[STItemId] consItems] adtInfo] adtMap
+		 ];
 
 alias AddedItemPair = tuple[SymbolTable symbolTable, STItemId addedId];
 alias ScopeUpdatePair = tuple[SymbolTable symbolTable, STItemId oldScopeId];
                         
 // Create an empty symbol table                        
 public SymbolTable createNewSymbolTable() {
-	return < -1, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), [ ], ( )>;
+	return < -1, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), [ ], ( )>;
 }                    
 
 // Given a number of different OR scope layers in the symbol table, find the subset of
 // variables declared in all the layers. Note that, at this point, we just pick one of
 // the identical variable as a representative, since they are all considered the same.
 // TODO: Is this true? Should also check declared types
+// TODO: Should we do anything here for parameterized types? For instance, if one or
+// branch introduced one set of bindings, and the other introduced (somehow) a different
+// set of bindings?
 public SymbolTable mergeOrLayers(SymbolTable symbolTable, list[STItemId] orLayers, STItemId intoLayer) {
 	set[STItemId] introducedItems = { vi | vi <- symbolTable.scopeRel[head(orLayers)], VariableItem(vn,vt,_) := symbolTable.scopeItemMap[vi] };
 	for (oritem <- tail(orLayers)) {
@@ -260,6 +289,8 @@ public str prettyPrintSI(STItem si) {
 		case VoidClosureItem(ags,_,_) : return "VoidClosureItem: (" + joinList(ags,prettyPrintSI,",","") + ")";
 
 		case VariableItem(x,t,_) : return "VariableItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
+
+		case TypeVariableItem(t,_) : return "TypeVariableItem: " + prettyPrintType(t);
 		
 		case FormalParameterItem(x,t,_) : return "FormalParameterItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
 		
@@ -306,6 +337,12 @@ public set[STItemId] filterNamesForNamespace(SymbolTable symbolTable, set[STItem
 				switch(symbolTable.scopeItemMap[itemId]) {
 					case ADTItem(_,_,_,_) : filteredItems += itemId;
 					case AliasItem(_,_,_,_) : filteredItems += itemId;
+				}	
+			}
+			
+			case TypeVarName() : {
+				switch(symbolTable.scopeItemMap[itemId]) {
+					case TypeVariableItem(_,_) : filteredItems += itemId;
 				}	
 			}
 			
@@ -375,6 +412,8 @@ public set[STItemId] getItemsForNameWBound(SymbolTable symbolTable, STItemId cur
 			case ModuleItem(x,_) : foundItems += itemId;
 			case FormalParameterItem(x,_,_) : foundItems += itemId;
 			case VariableItem(x,_,_) : foundItems += itemId;
+			case TypeVariableItem(RTypeVar(RFreeTypeVar(x)),_) : foundItems += itemId; 
+			case TypeVariableItem(RTypeVar(RBoundTypeVar(x,_)),_) : foundItems += itemId; 
 			case FunctionItem(x,_,_,_,_,_) : foundItems += itemId;
 			case LabelItem(x,_) : foundItems += itemId;
 			case ConstructorItem(x,_,_,_) : foundItems += itemId;
@@ -477,6 +516,18 @@ public set[STItemId] getTypeItemsForNameMB(SymbolTable symbolTable, STItemId cur
 	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeName() }, false, true);
 }
 
+public set[STItemId] getTypeVarItemsForName(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeVarName() }, false, false);
+}
+
+public set[STItemId] getTypeVarItemsForNameFB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeVarName() }, true, false);
+}
+
+public set[STItemId] getTypeVarItemsForNameMB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeVarName() }, false, true);
+}
+
 public set[STItemId] getModuleItemsForName(SymbolTable symbolTable, RName x) {
 	return getItemsForNameWBound(symbolTable, symbolTable.topSTItemId, x, { ModuleName() }, false, false);
 }
@@ -498,6 +549,12 @@ public RType getEnclosingFunctionType(SymbolTable symbolTable) {
 	return getTypeForItem(symbolTable, getEnclosingFunction(symbolTable)); 
 }
 
+public bool insideEnclosingFunction(SymbolTable symbolTable, STItemId currentScope) {
+	STItem si = getSTItem(currentScope, symbolTable);
+	if (FunctionLayer(itemId,_) := si) return true;
+	if (TopLayer() := si) return false;
+	return getEnclosingFunctionAux(symbolTable, si.parentId);
+}
 //
 // TODO: This should throw an exception when the type of an untyped name (e.g., a label) is requested
 //
@@ -508,6 +565,8 @@ public RType getTypeForItem(SymbolTable symbolTable, STItemId itemId) {
 		case FormalParameterItem(_,t,_) : return t;
 		
 		case VariableItem(_,t,_) : return t;
+		
+		case TypeVariableItem(t,_) : return t;
 		
 		case FunctionItem(_,t,paramIds,_,_,_) : 
 			return makeFunctionType(t,[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
@@ -714,6 +773,19 @@ public ResultTuple addVariableToScope(RName varName, RType varType, bool isPubli
 
 public ResultTuple addVariableToTopScope(RName varName, RType varType, bool isPublic, loc l, SymbolTable symbolTable) {
 	return addVariableToScopeAt(varName, varType, isPublic, l, symbolTable, symbolTable.topSTItemId);
+}
+
+public ResultTuple addTypeVariableToScopeAt(RType varType, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
+	AddedItemPair aip = addSTItemWithParent(TypeVariableItem(varType, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
+	return <aip.symbolTable,[aip.addedId]>;
+}
+
+public ResultTuple addTypeVariableToScope(RType varType, loc l, SymbolTable symbolTable) {
+	return addTypeVariableToScopeAt(varType, l, symbolTable, symbolTable.currentScope);
+}
+
+public ResultTuple addTypeVariableToTopScope(RType varType, loc l, SymbolTable symbolTable) {
+	return addTypeVariableToScopeAt(varType, l, symbolTable, symbolTable.topSTItemId);
 }
 
 public ResultTuple addADTToScopeAt(RType adtName, bool isPublic, loc l, SymbolTable symbolTable, STItemId scopeToUse) {

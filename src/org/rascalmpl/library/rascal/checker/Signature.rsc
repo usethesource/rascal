@@ -46,11 +46,11 @@ private RSignature createRSignature(Tree t) {
 				return sig;
 			}
 
-//			case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
-//				RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
-//				sig = createModuleBodySignature(b,sig);
-//				return sig;
-//			}
+			case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
+				RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
+				sig = createModuleBodySignature(b,sig);
+				return sig;
+			}
 
 			default : throw "createRSignature: unexpected module syntax <t>";
 		}

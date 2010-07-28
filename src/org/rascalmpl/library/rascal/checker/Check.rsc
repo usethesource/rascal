@@ -81,12 +81,38 @@ public Name setUpName(Name n) {
 // the initializing expression. "it" is created as an inferrence variable with scope just
 // inside the middle part (the reduction) of the reducer expression.
 //
+public Tree updateOverloadedCall(Tree t, RType ty) {
+	// TODO: Handle qualified names as well	
+	Tree updateCallName(Tree t, RType ty) {
+		return top-down-break visit(t) {
+			case `<Name n>` : {
+				if ( (ty@at)? )
+					insert t[@rtype = ty][@link = ty@at];
+				else
+					insert t[@rtype = ty]; 
+			}
+		};
+	}
+	
+	if ((Expression) `<Name n1> ( <{Expression ","}* el> )` := t) return updateCallName(t,ty);
+	return t;
+}
+
 public Tree check(Tree t, RType adtErrors) {
 	return visit(t) {
-		case `<Expression e>` : { 
+		case `<Expression e>` : {
+			if (`<Expression e1> ( <{Expression ","}* el> )` := e) {
+				if (isOverloadedType(e1@rtype)) {
+					RType resolvedType = resolveOverloadedCallOrTreeExpression(e,e1,el);
+					if (resolvedType != e1@rtype) {
+						e = updateOverloadedCall(e,resolvedType);						
+					} 
+				}
+			}
 			RType expType = checkExpression(e); 
 			if (e@\loc in globalSymbolTable.itBinder) 
-				updateInferredTypeMappings(globalSymbolTable.itBinder[e@\loc], expType); 
+				updateInferredTypeMappings(globalSymbolTable.itBinder[e@\loc], expType);
+			else 
 				insert e[@rtype = expType]; 
 		}
 		case `<Pattern p>` => p[@rtype = checkPattern(p)]
@@ -777,6 +803,71 @@ private RType checkReifiedTypeExpression(Expression ep, Type t, {Expression ","}
 // TODO: May need to handle source location "calls" here as well (based on the code
 // in the SourceLocation result class)
 //
+
+//
+// This function actually resolves the overloading, giving the new type which will be assigned to
+// ec; the call or tree function then just needs to get the result type of ec and check for failures.
+//
+public Type resolveOverloadedCallOrTreeExpression(Expression ep, Expression ec, {Expression ","}* es) {
+	RType resultType = makeFailType("We assume bad, bad things!",ep@\loc);
+
+	// First, if we have any failures, just leave the same type -- we cannot resolve the overloading.	
+	if (checkForFail({ ec@rtype } + { e@rtype | e <- es })) return ec@rtype;
+			
+	// We can have overloaded functions and overloaded data constructors. If the type
+	// is overloaded, we need to check each overloading to find the one that works.
+	// TODO: We should codify the rules for resolving overloaded functions, since
+	// we need those rules here. It should be the case that the most specific function
+	// wins, but we probably also need errors to indicate when definitions make this
+	// impossible, like f(int,value) versus f(value,int).
+	
+	// Set up the possible alternatives. We will treat the case of no overloads as a trivial
+	// case of overloading with only one alternative.
+	set[ROverloadedType] alternatives = isOverloadedType(ec@rtype) ? getOverloadOptions(ec@rtype) : { ROverloadedType(ec@rtype) };
+	
+	// Now, try each alternative, seeing if one matches.
+	list[Expression] args = [ e | e <- es ];
+	for (a <- alternatives) {
+		RType potentialResultType;
+		list[RType] argTypes = [];
+		RType altType = a.overloadType;
+		bool altHasLoc = (ROverloadedTypeWithLoc(_,_) := a);
+		
+		if (isFunctionType(altType)) {
+			argTypes = getFunctionArgumentTypes(altType);
+			potentialResultType = altType;
+			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadedLoc];
+		} else if (isConstructorType(altType)) {
+			argTypes = getConstructorArgumentTypes(altType);
+			potentialResultType = altType;
+			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadedLoc];
+		} else {
+			potentialResultType = makeFailType("Type <prettyPrintType(altType)> is not a function or constructor type.",ep@\loc);
+		}
+		
+		if (isFunctionType(altType) || isConstructorType(altType)) {
+			if (size(argTypes) == size(args)) {
+				for (e <- args) {
+					RType argType = head(argTypes); argTypes = tail(argTypes);
+					if (argType != e@rtype) {
+						potentialResultType = makeFailType("Bad function invocation or constructor usage, argument type mismatch",ep@\loc); // TODO: Improve error message
+					}
+				}			
+			} else {
+				potentialResultType = makeFailType("Arity mismatch, function accepts <size(argTypes)> arguments but was given <size(args)>", ep@\loc); // TODO: Improve error message
+			}
+		}
+				
+		// This will cause us to keep the last error in cases where we cannot find a valid function
+		// or constructor to use.
+		if (isFailType(resultType)) resultType = potentialResultType;
+	}
+		
+	return isFailType(resultType) ? ec@rtype : resultType;	
+}
+
+// TODO: Should streamline this logic now, since we winnow down the results above; this is correct,
+// but quite redundant.
 public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression ","}* es) {
 	RType resultType = makeFailType("We assume bad, bad things!",ep@\loc);
 
@@ -796,25 +887,26 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 	
 	// Set up the possible alternatives. We will treat the case of no overloads as a trivial
 	// case of overloading with only one alternative.
-	set[RType] alternatives = isOverloadedType(ec@rtype) ? getOverloadOptions(ec@rtype) : { ec@rtype };
+	set[ROverloadedType] alternatives = isOverloadedType(ec@rtype) ? getOverloadOptions(ec@rtype) : { ROverloadedType(ec@rtype) };
 	
 	// Now, try each alternative, seeing if one matches.
 	list[Expression] args = [ e | e <- es ];
 	for (a <- alternatives) {
 		RType potentialResultType;
 		list[RType] argTypes = [];
+		RType altType = a.overloadType;
 		
-		if (isFunctionType(a)) {
-			argTypes = getFunctionArgumentTypes(a);
-			potentialResultType = getFunctionReturnType(a);
-		} else if (isConstructorType(a)) {
-			argTypes = getConstructorArgumentTypes(a);
-			potentialResultType = getConstructorResultType(a);
+		if (isFunctionType(altType)) {
+			argTypes = getFunctionArgumentTypes(altType);
+			potentialResultType = getFunctionReturnType(altType);
+		} else if (isConstructorType(altType)) {
+			argTypes = getConstructorArgumentTypes(altType);
+			potentialResultType = getConstructorResultType(altType);
 		} else {
-			potentialResultType = makeFailType("Type <prettyPrintType(a)> is not a function or constructor type.",ep@\loc);
+			potentialResultType = makeFailType("Type <prettyPrintType(altType)> is not a function or constructor type.",ep@\loc);
 		}
 		
-		if (isFunctionType(a) || isConstructorType(a)) {
+		if (isFunctionType(altType) || isConstructorType(altType)) {
 			if (size(argTypes) == size(args)) {
 				for (e <- args) {
 					RType argType = head(argTypes); argTypes = tail(argTypes);
@@ -2225,20 +2317,24 @@ public RType checkCallOrTreePattern(Pattern pp, Pattern pc, {Pattern ","}* ps) {
 	
 	// Set up the possible alternatives. We will treat the case of no overloads as a trivial
 	// case of overloading with only one alternative.
-	set[RType] alternatives = isOverloadedType(pc@rtype) ? getOverloadOptions(pc@rtype) : { pc@rtype };
+	set[ROverloadedType] alternatives = isOverloadedType(pc@rtype) ? getOverloadOptions(pc@rtype) : { ROverloadedType(pc@rtype) };
 	
 	// Now, try each alternative, seeing if one matches.
 	for (a <- alternatives) {
 		list[Pattern] args = [ p | p <- ps ];
 		list[RType] argTypes = [];
 		RType potentialResultType;
+		RType altType = a.overloadType;
+		bool altHasLoc = (ROverloadedTypeWithLoc(_,_) := a);
 		
-		if (isFunctionType(a)) {
-			argTypes = getFunctionArgumentTypes(a);
-			potentialResultType = getFunctionReturnType(a);
-		} else if (isConstructorType(a)) {
-			argTypes = getConstructorArgumentTypes(a);
-			potentialResultType = getConstructorResultType(a);
+		if (isFunctionType(altType)) {
+			argTypes = getFunctionArgumentTypes(altType);
+			potentialResultType = getFunctionReturnType(altType);
+			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadedLoc];
+		} else if (isConstructorType(altType)) {
+			argTypes = getConstructorArgumentTypes(altType);
+			potentialResultType = getConstructorResultType(altType);
+			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadedLoc];
 		}
 		
 		if (size(argTypes) == size(args)) {

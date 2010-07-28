@@ -69,7 +69,6 @@ public str prettyPrintOp(ROp ro) {
 //
 // NOTE: There are no cases for types void, lex, type, adt, non-terminal, reified. This is not an oversight.
 public RType expressionType(RType lType, RType rType, ROp rop, loc l) {
-	println("Getting type for <lType> <rop> <rType>");
 	switch(<lType, rop, rType>) {
 		// BOOL CASES
 		case <RBoolType(), RLt(), RBoolType()> : return RBoolType();
