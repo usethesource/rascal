@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -65,28 +66,28 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 		expect(PROD_B_a, LITERAL_a2);
 	}
 	
-	public IValue parse(IConstructor start, char[] input){
+	public IValue parse(IConstructor start, URI inputURI, char[] input){
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, File inputFile) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, InputStream in) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, Reader in) throws IOException{
+	public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IValue parse(IConstructor start, String input){
+	public IValue parse(IConstructor start, URI inputURI, String input){
 		throw new UnsupportedOperationException();
 	}
 	
 	public IValue executeParser(){
-		return parse(NONTERMINAL_START_S, "a".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -96,7 +97,7 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		UselessSelfLoop usl = new UselessSelfLoop();
-		IValue result = usl.parse(NONTERMINAL_START_S, "a".toCharArray());
+		IValue result = usl.parse(NONTERMINAL_START_S, null, "a".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S([A([B(cycle(A,2)),B(a)]),A(a)]),S([B([A(cycle(B,2)),A(a)]),B(a)])] <- good");

@@ -1,5 +1,7 @@
 package org.rascalmpl.parser.sgll.result;
 
+import java.net.URI;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -15,18 +17,26 @@ import org.rascalmpl.values.uptr.Factory;
 
 public class ContainerNode extends AbstractNode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	
+	private final URI input;
+	private final int offset;
+	private final int length;
+	
+	private final boolean isListContainer;
+	
+	private boolean rejected;
 
 	private Link firstAlternative;
 	private IConstructor firstProduction;
 	private ArrayList<Link> alternatives;
 	private ArrayList<IConstructor> productions;
 	
-	private final boolean isListContainer;
-	
-	private boolean rejected;
-	
-	public ContainerNode(boolean isListContainer){
+	public ContainerNode(URI input, int offset, int length, boolean isListContainer){
 		super();
+		
+		this.input = input;
+		this.offset = offset;
+		this.length = length;
 		
 		this.isListContainer = isListContainer;
 	}
@@ -115,7 +125,7 @@ public class ContainerNode extends AbstractNode{
 				IValue[] postFix = new IValue[]{result};
 				gatherList(child, postFix, gatheredAlternatives, production, stack, depth, listElementStack, 1, new Stack<AbstractNode>());
 				
-				listElementStack.pop();
+				listElementStack.purge();
 			}else{
 				gatherList(child, new IValue[]{result}, gatheredAlternatives, production, stack, depth, listElementStack, 1, new Stack<AbstractNode>());
 			}
@@ -158,8 +168,12 @@ public class ContainerNode extends AbstractNode{
 					}
 					
 					ISetWriter cycleChildren = vf.setWriter(Factory.Tree);
-					cycleChildren.insert(vf.constructor(Factory.Tree_Appl, production, subList.done()));
-					cycleChildren.insert(vf.constructor(Factory.Tree_Cycle, production.get("rhs"), vf.integer(1)));
+					IConstructor subListNode = vf.constructor(Factory.Tree_Appl, production, subList.done());
+					subListNode = subListNode.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
+					cycleChildren.insert(subListNode);
+					IConstructor cycleNode = vf.constructor(Factory.Tree_Cycle, production.get("rhs"), vf.integer(1));
+					cycleNode = cycleNode.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
+					cycleChildren.insert(cycleNode);
 					IConstructor ambSubListNode = vf.constructor(Factory.Tree_Amb, cycleChildren.done());
 					newPostFix[0] = ambSubListNode;
 					
@@ -182,7 +196,7 @@ public class ContainerNode extends AbstractNode{
 						newPostFix[0] = result;
 						gatherList(prefix, newPostFix, gatheredAlternatives, production, stack, depth, listElementStack, elementNr + 1, blackList);
 						
-						listElementStack.pop();
+						listElementStack.purge();
 					}else{
 						IValue result = prefixNode.toTerm(stack, depth);
 						if(result == null) return; // Rejected.
@@ -195,7 +209,7 @@ public class ContainerNode extends AbstractNode{
 		}
 	}
 	
-	private IValue buildAlternative(IConstructor production, IValue[] children){
+	private IConstructor buildAlternative(IConstructor production, IValue[] children){
 		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; i--){
 			childrenListWriter.insert(children[i]);
@@ -207,7 +221,9 @@ public class ContainerNode extends AbstractNode{
 	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth){
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
-			return vf.constructor(Factory.Tree_Cycle, firstProduction.get("rhs"), vf.integer(depth - index));
+			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, firstProduction.get("rhs"), vf.integer(depth - index));
+			if(input != null) cycle = cycle.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
+			return cycle;
 		}
 		
 		int childDepth = depth + 1;
@@ -234,13 +250,14 @@ public class ContainerNode extends AbstractNode{
 		}
 		
 		// Output.
-		IValue result;
+		IConstructor result;
 		
 		int nrOfAlternatives = gatheredAlternatives.size();
 		if(nrOfAlternatives == 1){ // Not ambiguous.
 			IConstructor production = gatheredAlternatives.getSecond(0);
 			IValue[] alternative = gatheredAlternatives.getFirst(0);
 			result = buildAlternative(production, alternative);
+			if(input != null) result = result.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
 		}else if(nrOfAlternatives == 0){ // Filtered.
 			result = null;
 		}else{ // Ambiguous.
@@ -249,7 +266,10 @@ public class ContainerNode extends AbstractNode{
 			for(int i = nrOfAlternatives - 1; i >= 0; i--){
 				IConstructor production = gatheredAlternatives.getSecond(i);
 				IValue[] alternative = gatheredAlternatives.getFirst(i);
-				ambSetWriter.insert(buildAlternative(production, alternative));
+				
+				IConstructor alt = buildAlternative(production, alternative);
+				if(input != null) alt = alt.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
+				ambSetWriter.insert(alt);
 			}
 			
 			result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
