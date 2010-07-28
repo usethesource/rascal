@@ -29,17 +29,29 @@ set[Production] factorize(set[Production] productions) {
   The semantics of this function depends highly on the normalization rules in rascal::parser::Normalization
 }
 public set[Production] factorize(Production p) {
-   if (first(Symbol s, list[Production] prods) := p) { 
+   if (choice(Symbol s, {set[Production] unordered, first(s, list[Production] prods)}) := p) {
+       int len = size(prods);
+   
+      // first we give each level a number
+      levels = for ([list[Production] prefix, Production elem, list[Production] postfix] := prods)
+                 append setToLevel(elem, s, size(postfix)); 
+          
+           
+      // then we define each level by itself and copying all the productions from lower levels
+      return { choice(level(s, l), {elem, removeOrderings(unordered), toSet(redefine(prefix, level(s, l)))}) 
+             | [list[Production] prefix, Production elem, list[Production] postfix] := levels, int l := size(postfix)}; 
+   }
+   else if (first(Symbol s, list[Production] prods) := p) { 
       int len = size(prods);
    
       // first we give each level a number
       levels = for ([list[Production] prefix, Production elem, list[Production] postfix] := prods)
-                 append setToLevel(elem, s, size(prefix)); 
+                 append setToLevel(elem, s, size(postfix)); 
           
            
       // then we define each level by itself and copying all the productions from lower levels
-      return { choice(level(s, l), {elem, toSet(redefine(postfix, level(s, l)))}) 
-             | [list[Production] prefix, Production elem, list[Production] postfix] := levels, int l := size(prefix)}; 
+      return { choice(level(s, l), {elem, toSet(redefine(prefix, level(s, l)))}) 
+             | [list[Production] prefix, Production elem, list[Production] postfix] := levels, int l := size(postfix)}; 
    }
    else {
      return {p};
