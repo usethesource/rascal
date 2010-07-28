@@ -1727,10 +1727,8 @@ public RType getRType(SymbolTable symbolTable, loc l) {
 			STItemId anid = getOneFrom(items);
 			STItem stitem = getSTItem(anid, symbolTable);
 			if ( isFunctionOrConstructorItem(stitem) && ((stitem@at) ?)) {
-				println("Adding RLocatedType <prettyPrintType(getTypeForItem(symbolTable, getOneFrom(items)))> for item at location <l>");
 				return RLocatedType(getTypeForItem(symbolTable, getOneFrom(items)),stitem@at);
 			} else {
-				println("Adding standard type <prettyPrintType(getTypeForItem(symbolTable, getOneFrom(items)))> for item at location <l>");
 				return getTypeForItem(symbolTable, getOneFrom(items));
 			}
 		} else {
@@ -1742,7 +1740,6 @@ public RType getRType(SymbolTable symbolTable, loc l) {
 				else
 					overloads = ROverloadedType(getTypeForItem(symbolTable, sii));
 			}
-			println("Adding overloaded type <prettyPrintType(ROverloadedType(overloads))>");
 			return ROverloadedType(overloads);
 		}
 	} else {
@@ -1756,7 +1753,6 @@ public Tree decorateNames(Tree t, SymbolTable symbolTable) {
 			if (hasRType(symbolTable, n@\loc)) {
 				RType rt = getRType(symbolTable, n@\loc);
 				if (RLocatedType(rt2,l) := rt) {
-					println("Inserting type location <l> for name <n>, type <prettyPrintType(rt2)>");
 					insert(n[@rtype = rt2][@link = l]);
 				} else
 					insert(n[@rtype = rt]);
@@ -1767,7 +1763,6 @@ public Tree decorateNames(Tree t, SymbolTable symbolTable) {
 			if (hasRType(symbolTable, qn@\loc)) {
 				RType rt = getRType(symbolTable, qn@\loc);
 				if (RLocatedType(rt2,l) := rt) {
-					println("Inserting type location <l> for name <qn>, type <prettyPrintType(rt2)>");
 					insert(qn[@rtype = rt2][@link = l]);
 				} else
 					insert(qn[@rtype = rt]);
