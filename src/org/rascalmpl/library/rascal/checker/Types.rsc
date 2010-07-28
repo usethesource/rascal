@@ -260,7 +260,7 @@ public str prettyPrintType(RType t) {
 		case RDateTimeType() : return "datetime";
 		case RFailType(sls) :  return "Failure: " + joinList(toList(sls),printLocMsgPair,", ","");
 		case RInferredType(n) : return "Inferred Type: <n>";
-		case ROverloadedType(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p | p <- pts.overloadType]);
+		case ROverloadedType(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p.overloadType | p <- pts]);
 		case RVarArgsType(vt) : return "<prettyPrintType(vt)>...";
 		case RStatementType(rt) : return "Statement: <prettyPrintType(rt)>";
 		case RAliasType(an,at) : return "Alias <prettyPrintType(an)> = <prettyPrintType(at)>";
@@ -501,7 +501,7 @@ public int getInferredTypeIndex(RType t) {
 	throw "Error: Cannot get inferred type index from non-inferred type <prettyPrintType(t)>";
 }
 
-public set[RType] getOverloadOptions(RType t) {
+public set[ROverloadedType] getOverloadOptions(RType t) {
 	if (ROverloadedType(s) := t) return s;
 	throw "Error: Cannot get overloaded options from non-overloaded type <prettyPrintType(t)>";
 }

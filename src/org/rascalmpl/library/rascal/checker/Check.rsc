@@ -808,7 +808,7 @@ private RType checkReifiedTypeExpression(Expression ep, Type t, {Expression ","}
 // This function actually resolves the overloading, giving the new type which will be assigned to
 // ec; the call or tree function then just needs to get the result type of ec and check for failures.
 //
-public Type resolveOverloadedCallOrTreeExpression(Expression ep, Expression ec, {Expression ","}* es) {
+public RType resolveOverloadedCallOrTreeExpression(Expression ep, Expression ec, {Expression ","}* es) {
 	RType resultType = makeFailType("We assume bad, bad things!",ep@\loc);
 
 	// First, if we have any failures, just leave the same type -- we cannot resolve the overloading.	
@@ -836,11 +836,11 @@ public Type resolveOverloadedCallOrTreeExpression(Expression ep, Expression ec, 
 		if (isFunctionType(altType)) {
 			argTypes = getFunctionArgumentTypes(altType);
 			potentialResultType = altType;
-			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadedLoc];
+			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadLoc];
 		} else if (isConstructorType(altType)) {
 			argTypes = getConstructorArgumentTypes(altType);
 			potentialResultType = altType;
-			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadedLoc];
+			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadLoc];
 		} else {
 			potentialResultType = makeFailType("Type <prettyPrintType(altType)> is not a function or constructor type.",ep@\loc);
 		}
@@ -2330,11 +2330,11 @@ public RType checkCallOrTreePattern(Pattern pp, Pattern pc, {Pattern ","}* ps) {
 		if (isFunctionType(altType)) {
 			argTypes = getFunctionArgumentTypes(altType);
 			potentialResultType = getFunctionReturnType(altType);
-			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadedLoc];
+			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadLoc];
 		} else if (isConstructorType(altType)) {
 			argTypes = getConstructorArgumentTypes(altType);
 			potentialResultType = getConstructorResultType(altType);
-			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadedLoc];
+			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadLoc];
 		}
 		
 		if (size(argTypes) == size(args)) {
