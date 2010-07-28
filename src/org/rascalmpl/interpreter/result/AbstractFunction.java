@@ -158,7 +158,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		b.append("call  >");
 		printNesting(b);
 		printHeader(b);
-		System.out.println(b.toString());
+		eval.getStdOut().println(b.toString());
+		eval.getStdOut().flush();
 		callNesting++;
 	}
 
@@ -168,7 +169,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		b.append("return>");
 		printNesting(b);
 		printHeader(b);
-		System.out.println(b);
+		eval.getStdOut().println(b);
+		eval.getStdOut().flush();
 	}
 	
 	protected void bindTypeParameters(Type actualTypes, Type formals, Environment env) {
