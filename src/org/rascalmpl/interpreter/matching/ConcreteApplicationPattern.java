@@ -31,7 +31,8 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern
-		this.production = (IConstructor) ctx.getEvaluator().eval(x.getArguments().get(0)).getValue();
+//		this.production = (IConstructor) ctx.getEvaluator().eval(x.getArguments().get(0)).getValue();
+		this.production = TreeAdapter.getProduction((IConstructor) getAST().getTree());
 		
 		// use a tuple pattern to match the children of this pattern
 		this.tupleMatcher = new TuplePattern(ctx, x, list);
@@ -140,7 +141,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				hasNext = false;
 				return;
 			}
-			
+					
 			if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
 				// fail early if the subject's production is not the same
 				hasNext = false;
