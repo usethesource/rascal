@@ -125,7 +125,7 @@ public list[Import] getImports(Tree t) {
 public RName getModuleName(Tree t) {
 	if ((Module) `<Tags t> module <QualifiedName n> <Import* i> <Body b>` := t) {
 		return convertName(n);
-	} else if ((Module) `<Tags t> module <QualifiedName n> <Import* i> <Body b>` := t) {
+	} else if ((Module) `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i> <Body b>` := t) {
 		return convertName(n);
 	}
 	throw "getModuleName, unexpected module syntax, cannot find module name";
@@ -441,14 +441,59 @@ public SymbolTable handleModuleBodyFull(Body b, SymbolTable symbolTable) {
 //
 // Handle variable declarations, with or without initializers
 //
+public tuple[RType,SymbolTable] instantiateTypeVars(RType t, loc l, SymbolTable symbolTable) {
+	if (typeHasTypeVars(t)) {
+		// First sanity check: a type variable use can only occur inside a function
+		if (insideEnclosingFunction(symbolTable, symbolTable.currentScope)) {
+			set[RType] typeVars = collectTypeVars(t);
+			map[RName,RType] instantiatedVars = ( );
+			
+			for (tv <- typeVars) {
+				// Second sanity check: we should not restate (or change) bounds at the point of type variable use
+				if (RBoundTypeVar(_,_) := tv) {
+					symbolTable = addScopeError(symbolTable, l, "Warning, type variables should not include bounds at the point of use. The bound will be ignored.");
+				}
+				
+				// Why MB? Because of nested functions
+				set[STItemId] varItems = getTypeVarItemsForNameMB(symbolTable, symbolTable.currentScope, getTypeVarName(tv));
+				
+				// Third sanity check: we should only have one definition of the type variable in scope
+				if (size(varItems) > 1) {
+					symbolTable = addScopeError(symbolTable, l, "Multiple definitions found for the same type variable <prettyPrintType(tv)> used in type <prettyPrintType(t)>");
+					instantiatedVars[getTypeVarName(tv)] = makeVoidType();
+				} else if (size(varItems) < 1) {
+					symbolTable = addScopeError(symbolTable, l, "Unbound type parameter <prettyPrintType(tv)> in type <prettyPrintType(t)>");	
+					instantiatedVars[getTypeVarName(tv)] = makeVoidType();
+				} else {
+					RType typeAsDeclared = getSTItem(getOneFrom(varItems), symbolTable).typeVar;
+					instantiatedVars[getTypeVarName(tv)] = getTypeVarBound(typeAsDeclared); 
+				}
+			}
+			
+			// Now, using the instantiation map, replace instances of type variables with the bound
+			t = visit(t) {
+				case RTypeVar(RFreeTypeVar(n)) => instantiatedVars[n]
+				case RTypeVar(RBoundTypeVar(n,_)) => instantiatedVars[n]
+			};			
+		} else {
+			symbolTable = addScopeError(symbolTable, l, "Unbound type parameters in type <prettyPrintType(t)>");
+		}	
+	}
+	return <t,symbolTable>;
+}
+
 public SymbolTable handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variable ","}+ vs, SymbolTable symbolTable) {
 	symbolTable = handleTagsNamesOnly(ts, symbolTable);
+	
+	RType varType = convertType(t);
+	< varType, symbolTable > = instantiateTypeVars(varType, t@\loc, symbolTable);
+	
 	for (vb <- vs) {
 		if (`<Name n>` := vb || `<Name n> = <Expression e>` := vb) {
 			if (size(getItemsForNameMB(symbolTable, symbolTable.currentScope, convertName(n))) > 0) {		
 				symbolTable = addScopeError(symbolTable, n@\loc, "Duplicate declaration of name <n>");
 			} 
-			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(convertName(n), convertType(t), isPublic(v), vb@\loc, symbolTable),[<true,n@\loc>])); 
+			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(convertName(n), varType, isPublic(v), vb@\loc, symbolTable),[<true,n@\loc>]));
 		}
 	}
 	return symbolTable;
@@ -480,13 +525,28 @@ public SymbolTable handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signat
 		// Get back a list of tuples representing the parameters; these will actually be added into the scope
 		// in the next step
 		list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(ps, symbolTable);
-
+ 		
 		// Add a new function scope, getting back the updated scope and a list of added scope IDs
 		ResultTuple rt = pushNewFunctionScope(convertName(n), retType, params, thrsTypes, isPublic, l, symbolTable);
 
-		// Add uses and get back the final scope info, checking for overlaps
+		// Add uses, checking for overlaps
 		symbolTable = justSymbolTable(checkFunctionOverlap(addSTItemUses(rt,([<false,l>, <true,n@\loc>] + [<true,p.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] p <- params])),n@\loc));
 
+		// Check to make sure that any type variables included in the parameters or the return type are
+		// consistent.
+		// TODO: Check to make sure the bounds are consistent
+		// TODO: Add checking for type parameters in function parameters 
+ 		if (typeHasTypeVars(retType)) {
+ 			set[RType] retTypeVars = collectTypeVars(retType);
+ 			set[RName] retTypeVarNames = { getTypeVarName(tv) | tv <- retTypeVars };
+ 			
+			for (tvn <- retTypeVarNames) {
+				if (insideEnclosingFunction(symbolTable, symbolTable.currentScope) && size(getTypeVarItemsForNameMB(symbolTable, symbolTable.currentScope, tvn)) == 0) {
+					symbolTable = addScopeError(symbolTable, l, "Type variable <prettyPrintName(tvn)>, included in return type, is not bound");
+				}
+			}
+ 		}
+ 		
 		// Pop the new scope and exit
 		return popScope(symbolTable);
 	}
@@ -1450,6 +1510,27 @@ public SymbolTable handleVisit(Visit v, SymbolTable symbolTable) {
 	return symbolTable;
 }
 
+public SymbolTable addFreshTypeVar(RType t, loc nloc, SymbolTable symbolTable) {
+	RType freshType = makeInferredType(symbolTable.freshType);
+	symbolTable.inferredTypeMap[symbolTable.freshType] = freshType;
+	symbolTable = justSymbolTable(addTypeVariableToScope(t, symbolTable.freshType, nloc, symbolTable));
+	symbolTable.freshType = symbolTable.freshType + 1;
+	return symbolTable;
+}
+
+public SymbolTable addFreshTypeVarIfMissing(RType t, loc nloc, SymbolTable symbolTable) {
+	if (insideEnclosingFunction(symbolTable, symbolTable.currentScope)) {
+		if (size(getTypeVarItemsForNameFB(symbolTable, symbolTable.currentScope, convertName(n))) == 0) {
+			symbolTable = addFreshTypeVar(t, nloc, symbolTable);		
+		} 
+	} else {
+		if (size(getTypeVarItemsForNameMB(symbolTable, symbolTable.currentScope, convertName(n))) == 0) {		
+			symbolTable = addFreshTypeVar(t, nloc, symbolTable);		
+		} 
+	}	
+	return symbolTable;
+}
+
 public SymbolTable addFreshVariable(RName n, loc nloc, SymbolTable symbolTable) {
 	RType freshType = makeInferredType(symbolTable.freshType);
 	symbolTable.inferredTypeMap[symbolTable.freshType] = freshType;
@@ -1632,6 +1713,8 @@ public bool hasRType(SymbolTable symbolTable, loc l) {
 	return false;
 }
 
+data RType = RLocatedType(RType actualType, loc l);
+
 public RType getRType(SymbolTable symbolTable, loc l) {
 	set[STItemId] items = (l in symbolTable.itemUses) ? symbolTable.itemUses[l] : { };
 	set[str] scopeErrors = (l in symbolTable.scopeErrorMap) ? symbolTable.scopeErrorMap[l] : { };
@@ -1642,9 +1725,25 @@ public RType getRType(SymbolTable symbolTable, loc l) {
 			return makeVoidType();
 		} else if (size(items) == 1) {
 			STItemId anid = getOneFrom(items);
-			return getTypeForItem(symbolTable, getOneFrom(items));
+			STItem stitem = getSTItem(anid, symbolTable);
+			if ( isFunctionOrConstructorItem(stitem) && ((stitem@at) ?)) {
+				println("Adding RLocatedType <prettyPrintType(getTypeForItem(symbolTable, getOneFrom(items)))> for item at location <l>");
+				return RLocatedType(getTypeForItem(symbolTable, getOneFrom(items)),stitem@at);
+			} else {
+				println("Adding standard type <prettyPrintType(getTypeForItem(symbolTable, getOneFrom(items)))> for item at location <l>");
+				return getTypeForItem(symbolTable, getOneFrom(items));
+			}
 		} else {
-			return ROverloadedType({ getTypeForItem(symbolTable, sii) | sii <- items });
+			set[ROverloadedType] overloads = { };
+			for (sii <- items) {
+				STItem stitem = getSTItem(sii, symbolTable);
+				if ( (stitem@at) ?)
+					overloads += ROverloadedTypeWithLoc(getTypeForItem(symbolTable, sii), stitem@at);
+				else
+					overloads = ROverloadedType(getTypeForItem(symbolTable, sii));
+			}
+			println("Adding overloaded type <prettyPrintType(ROverloadedType(overloads))>");
+			return ROverloadedType(overloads);
 		}
 	} else {
 		return collapseFailTypes({ makeFailType(s,l) | s <- scopeErrors });
@@ -1653,9 +1752,27 @@ public RType getRType(SymbolTable symbolTable, loc l) {
 
 public Tree decorateNames(Tree t, SymbolTable symbolTable) {
 	return visit(t) {
-		case `<Name n>` => hasRType(symbolTable, n@\loc) ? n[@rtype = getRType(symbolTable, n@\loc)] : n
+		case `<Name n>` : {
+			if (hasRType(symbolTable, n@\loc)) {
+				RType rt = getRType(symbolTable, n@\loc);
+				if (RLocatedType(rt2,l) := rt) {
+					println("Inserting type location <l> for name <n>, type <prettyPrintType(rt2)>");
+					insert(n[@rtype = rt2][@link = l]);
+				} else
+					insert(n[@rtype = rt]);
+			}
+		}
 		
-		case `<QualifiedName qn>` => hasRType(symbolTable, qn@\loc) ? qn[@rtype = getRType(symbolTable, qn@\loc)] : qn
+		case `<QualifiedName qn>` : {
+			if (hasRType(symbolTable, qn@\loc)) {
+				RType rt = getRType(symbolTable, qn@\loc);
+				if (RLocatedType(rt2,l) := rt) {
+					println("Inserting type location <l> for name <qn>, type <prettyPrintType(rt2)>");
+					insert(qn[@rtype = rt2][@link = l]);
+				} else
+					insert(qn[@rtype = rt]);
+			}
+		}
 	}
 }
 

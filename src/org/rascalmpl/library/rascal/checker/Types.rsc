@@ -89,7 +89,7 @@ data RType =
 
 	| RFailType(set[tuple[str failMsg, loc failLoc]])
 	| RInferredType(int tnum)
-	| ROverloadedType(set[RType] possibleTypes)
+	| ROverloadedType(set[ROverloadedType] possibleTypes)
 	| RVarArgsType(RType vt)
 
     | RStatementType(RType internalType)
@@ -104,6 +104,11 @@ data RType =
 	| RUnknownType(RType wrappedType)
 ;
 
+data ROverloadedType =
+	  ROverloadedType(RType overloadType)
+	| ROverloadedTypeWithLoc(RType overloadType, loc overloadLoc)
+	;
+	
 data RNamedType =
 	  RUnnamedType(RType typeArg)
 	| RNamedType(RType typeArg, RName typeName)
@@ -255,7 +260,7 @@ public str prettyPrintType(RType t) {
 		case RDateTimeType() : return "datetime";
 		case RFailType(sls) :  return "Failure: " + joinList(toList(sls),printLocMsgPair,", ","");
 		case RInferredType(n) : return "Inferred Type: <n>";
-		case ROverloadedType(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p | p <- pts]);
+		case ROverloadedType(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p | p <- pts.overloadType]);
 		case RVarArgsType(vt) : return "<prettyPrintType(vt)>...";
 		case RStatementType(rt) : return "Statement: <prettyPrintType(rt)>";
 		case RAliasType(an,at) : return "Alias <prettyPrintType(an)> = <prettyPrintType(at)>";
@@ -264,6 +269,7 @@ public str prettyPrintType(RType t) {
 		case RParameterizedUserType(tn, tps) : return "<prettyPrintName(tn)>(<prettyPrintTypeList(tps)>)";
 		case RTypeVar(tv) : return prettyPrintTypeVar(tv);
 		case RAssignableType(wt,pt) : return "Assignable type, whole <prettyPrintType(wt)>, part <prettyPrintType(pt)>";
+		case RLocatedType(rlt,l) : return "Located type <prettyPrintType(rlt)> at location <l>";
 	}
 }
 
@@ -289,6 +295,11 @@ public str prettyPrintTypeVar(RTypeVar tv) {
 // Annotation for adding types to expressions
 //
 anno RType Tree@rtype; 
+
+//
+// Annotation for adding locations to types
+//
+anno loc RType@at;
 
 //
 // Helper routines for querying/building/etc types
@@ -415,8 +426,42 @@ public bool isInferredType(RType t) {
 	return RInferredType(_) := t;
 }
 
+public bool isTypeVar(RType t) {
+	return RTypeVar(_) := t;
+}
+
+public set[RType] collectTypeVars(RType t) {
+	set[RType] typeVars = { };
+	visit(t) { case RTypeVar(v) : typeVars += RTypeVar(v); }
+	return typeVars;
+}
+
+public bool typeHasTypeVars(RType t) {
+	return size(collectTypeVars(t)) > 0;
+}
+
 public bool isAssignableType(RType t) {
 	return RAssignableType(_,_) := t;
+}
+
+public RName getTypeVarName(RType t) {
+	if (RTypeVar(tv) := t) {
+		if (RFreeTypeVar(n) := tv) return n;
+		if (RBoundTypeVar(n,_) := tv) return n;
+		throw "Type <t> has an unhandled type var case";
+	} else {
+		throw "Type <t> not a type var type";
+	}
+}
+
+public RType getTypeVarBound(RType t) {
+	if (RTypeVar(tv) := t) {
+		if (RFreeTypeVar(_) := tv) return makeValueType();
+		if (RBoundTypeVar(_,bt) := tv) return bt;
+		throw "Type <t> has an unhandled type var case";
+	} else {
+		throw "Type <t> not a type var type";
+	}
 }
 
 public RType getSetElementType(RType t) {
