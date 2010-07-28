@@ -37,9 +37,10 @@ rule restrict restrict(Symbol s, restrict(s, Production p, set[list[Symbol]] q),
               restrict(s, p, q + r);
 
 // this rules merges unordered alternatives with the top-most priority
-rule or     choice(Symbol s, {set[Production] a, first(Symbol t, [Production p, list[Production] rest])})        => first(t, [choice(s, {a,p}), rest]); 
+// rule or     choice(Symbol s, {set[Production] a, first(Symbol t, [Production p, list[Production] rest])})        => first(t, [choice(s, {a,p}), rest]); 
 
 // this makes sure the ... (others) are merged in at the right place
+// TODO: we have problems here because unordered productions will also be given an order...
 rule others choice(Symbol s, {set[Production] a, others(s)}) => choice(s, a);
 rule others choice(Symbol s, {set[Production] a, first(Symbol s, [list[Production] b, others(s), list[Production] c])}) =>
             first(s, b + [choice(s, a)] + c);
