@@ -497,12 +497,12 @@ public text box2data(Box b) {
     }
       
 public text box2latex(Box b) {
-    loc introLoc = getLibraryPath("box/Start.tex");
-    loc finishLoc = getLibraryPath("box/End.tex");
+    // println("Start box2latex");
     latex = true;
     decorated =  true;
-    text t = intro(introLoc)+box2data(b)+finish(finishLoc);
+    text t = getFileContent("box/Start.tex")+box2data(b)+getFileContent("box/End.tex");
     latex = false;
+    // println("End box2latex");
     return t;
     }
 

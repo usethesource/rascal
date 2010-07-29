@@ -52,6 +52,12 @@ public class BoxPrinter {
 	static Printer printer;
 
 	private String outputFile, outputDir;
+	
+	final private MakeBox makeBox = new MakeBox();
+	
+	public void setPrintStream(PrintStream p) {
+		  makeBox.setPrintStream(p);
+	}
 
 	// public static final String EditorId =
 	// "org.rascalmpl.eclipse.box.boxprinter";
@@ -118,7 +124,7 @@ public class BoxPrinter {
 		close();
 	}
 
-	static void close() {
+	static public void close() {
 		while (shell != null && !shell.isDisposed()) {
 			if (!screen.readAndDispatch())
 				screen.sleep();
@@ -197,7 +203,7 @@ public class BoxPrinter {
 
 	private boolean readData(URI uri, boolean rich) {
 		System.err.println("readData:" + uri);
-		IValue v = rich?new MakeBox().toRichTxt(uri):new MakeBox().toTxt(uri);
+		IValue v = rich?makeBox.toRichTxt(uri):makeBox.toTxt(uri);
 		// System.err.println("MakeBox finished1");
 		if (v == null)
 			return false;
@@ -251,8 +257,9 @@ public class BoxPrinter {
 		item.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				shell.close();
-				shell.dispose();
-				System.exit(0);
+				// shell.dispose();
+				// shell = null;
+				// System.exit(0);
 			}
 		});
 	}
@@ -294,6 +301,13 @@ public class BoxPrinter {
 			public void handleEvent(Event e) {
 				adjustHandles(image);
 				canvas.redraw();
+			}
+		});
+		canvas.addListener(SWT.Dispose, new Listener() {
+			public void handleEvent(Event e) {
+				shell.close();
+				shell.dispose();
+				shell = null;
 			}
 		});
 		for (Listener q : canvas.getListeners(SWT.Show)) {

@@ -3,6 +3,7 @@ import ParseTree;
 import box::Concrete;
 import box::Box;
 import IO;
+import SystemAPI;
 import box::rascal::Modules;
 import box::rascal::Declarations;
 import box::rascal::Constructors;
@@ -11,6 +12,7 @@ import box::rascal::Statements;
 import box::rascal::Types;
 import box::rascal::Rascal;
 import box::rascal::Keywords;
+
 
 import rascal::\old-syntax::Rascal;
 
@@ -82,7 +84,8 @@ public text toText(loc asf){
      }
      
 public text toLatex(loc asf){
-     Tree a = parse(#Module, asf);
+     str s = getRascalFileContent(asf);
+     Tree a = parse(#Module, s);
      // rawPrintln(a);
      setUserRules();
      text r = toLatex(a);
