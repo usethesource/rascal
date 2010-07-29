@@ -467,7 +467,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (SymbolAdapter.isCf(startSort)) {
 			startSort = SymbolAdapter.getSymbol(startSort);
 		}
-		return parser.parse(startSort, inputURI, inputURI.toURL().openStream());
+		return parser.parse(startSort, inputURI, resolver.getInputStream(inputURI));
 	}
 	
 	public IValue parseObjectExperimental(IConstructor startSort, URI inputURI, java.lang.String sentence) {
