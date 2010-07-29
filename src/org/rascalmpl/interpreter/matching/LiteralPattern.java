@@ -2,6 +2,9 @@ package org.rascalmpl.interpreter.matching;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -18,6 +21,11 @@ public class LiteralPattern extends AbstractMatchingResult {
 	public LiteralPattern(IEvaluatorContext ctx, AbstractAST x, IValue literal){
 		super(ctx, x);
 		this.literal = literal;
+	}
+	
+	@Override
+	public List<String> getVariables() {
+		return Collections.emptyList();
 	}
 	
 	@Override

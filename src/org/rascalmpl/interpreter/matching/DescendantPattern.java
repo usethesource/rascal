@@ -1,6 +1,7 @@
 package org.rascalmpl.interpreter.matching;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -29,6 +30,11 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	@Override
 	public boolean mayMatch(Type subjectType, Environment env){
 		return ctx.getEvaluator().mayOccurIn(getType(env), subjectType);
+	}
+	
+	@Override
+	public List<String> getVariables() {
+		return pat.getVariables();
 	}
 	
 	@Override

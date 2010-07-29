@@ -44,6 +44,10 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		this.myType = x._getType();
 	}
 	
+	public List<String> getVariables() {
+		return tupleMatcher.getVariables();
+	}
+	
 	private class TreeAsTuple implements ITuple {
 		// notice how this class skips the layout nodes...
 		

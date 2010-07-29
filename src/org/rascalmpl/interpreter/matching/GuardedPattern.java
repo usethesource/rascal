@@ -1,5 +1,7 @@
 package org.rascalmpl.interpreter.matching;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -30,6 +32,11 @@ public class GuardedPattern extends AbstractMatchingResult {
 	@Override
 	public boolean hasNext() {
 		return pat.hasNext();
+	}
+	
+	@Override
+	public List<String> getVariables() {
+		return pat.getVariables();
 	}
 	
 	@Override
