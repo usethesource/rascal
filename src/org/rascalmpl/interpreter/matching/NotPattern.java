@@ -7,6 +7,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
+// TODO: jurgen: i don't understand why this class exists, the boolean negation is not a pattern,
+// it should be like AndResult and abstract BooleanResult
 public class NotPattern extends AbstractMatchingResult {
 	private final IMatchingResult arg;
 
