@@ -91,12 +91,14 @@ import org.rascalmpl.ast.Expression.Addition;
 import org.rascalmpl.ast.Expression.All;
 import org.rascalmpl.ast.Expression.Ambiguity;
 import org.rascalmpl.ast.Expression.And;
+import org.rascalmpl.ast.Expression.Anti;
 import org.rascalmpl.ast.Expression.Any;
 import org.rascalmpl.ast.Expression.Bracket;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.ast.Expression.Closure;
 import org.rascalmpl.ast.Expression.Composition;
 import org.rascalmpl.ast.Expression.Comprehension;
+import org.rascalmpl.ast.Expression.Descendant;
 import org.rascalmpl.ast.Expression.Division;
 import org.rascalmpl.ast.Expression.Equivalence;
 import org.rascalmpl.ast.Expression.FieldProject;
@@ -118,6 +120,7 @@ import org.rascalmpl.ast.Expression.List;
 import org.rascalmpl.ast.Expression.Literal;
 import org.rascalmpl.ast.Expression.Match;
 import org.rascalmpl.ast.Expression.Modulo;
+import org.rascalmpl.ast.Expression.MultiVariable;
 import org.rascalmpl.ast.Expression.Negation;
 import org.rascalmpl.ast.Expression.Negative;
 import org.rascalmpl.ast.Expression.NoMatch;
@@ -137,6 +140,8 @@ import org.rascalmpl.ast.Expression.TransitiveClosure;
 import org.rascalmpl.ast.Expression.TransitiveReflexiveClosure;
 import org.rascalmpl.ast.Expression.Tuple;
 import org.rascalmpl.ast.Expression.TypedVariable;
+import org.rascalmpl.ast.Expression.TypedVariableBecomes;
+import org.rascalmpl.ast.Expression.VariableBecomes;
 import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.FunctionDeclaration.Abstract;
 import org.rascalmpl.ast.Header.Parameters;
@@ -3400,6 +3405,46 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return x.getArgument().accept(this).transitiveReflexiveClosure();
 	}
 
+	@Override
+	public Result<IValue> visitExpressionMultiVariable(MultiVariable x) {
+		Name name = x.getName();
+		Result<IValue> variable = getCurrentEnvt().getVariable(name);
+
+		if (variable == null) {
+			throw new UndeclaredVariableError(Names.name(name), name);
+		}
+
+		if (variable.getValue() == null) {
+			throw new UninitializedVariableError(Names.name(name), name);
+		}
+
+		return variable;
+	}
+	
+	@Override
+	public Result<IValue> visitExpressionAnti(Anti x) {
+		// TODO: what would be the value of an anti expression???
+		return ResultFactory.nothing();
+	}
+	
+	@Override
+	public Result<IValue> visitExpressionDescendant(Descendant x) {
+		// TODO: what would be the value of a descendant pattern???
+		return ResultFactory.nothing();
+
+	}
+	
+	@Override
+	public Result<IValue> visitExpressionTypedVariableBecomes(
+			TypedVariableBecomes x) {
+		return x.getPattern().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitExpressionVariableBecomes(VariableBecomes x) {
+		return x.getPattern().accept(this);
+	}
+	
 	// Comprehensions ----------------------------------------------------
 
 	@Override
