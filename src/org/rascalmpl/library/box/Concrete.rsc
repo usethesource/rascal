@@ -410,6 +410,7 @@ public Box H(int space, list[Box] bs) {
 public void writeLatex(loc asf, text r, str suffix) {
      str s = substring(asf.path, 0, size(asf.path)-size(suffix));
      loc g = |file://<s>.tex|;
+     println("Written latex content in file:\"<g>\"");
      writeFile(g);
      for (str q <- r) appendToFile(g, "<q>\n");
      }

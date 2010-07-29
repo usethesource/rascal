@@ -30,6 +30,7 @@ import org.rascalmpl.library.IO;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+
 public class MakeBox {
 
 	private final String varName = "boxData";
@@ -43,12 +44,24 @@ public class MakeBox {
 
 	BoxEvaluator eval = new BoxEvaluator();
 
-	private Evaluator commandEvaluator;
-	private GlobalEnvironment heap;
-	private ModuleEnvironment root;
+	
+	final private GlobalEnvironment heap = new GlobalEnvironment();
+	final private ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***makeBox***"));
+	final PrintWriter stderr = new PrintWriter(System.err);
+	final PrintWriter stdout = new PrintWriter(System.out);
+	final private Evaluator commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
+			stderr, stdout, root, heap);
 	private Data data;
 	private TypeStore ts = BoxEvaluator.getTypeStore();
 	private Type adt = BoxEvaluator.getType();
+	
+	public void setPrintStream(PrintStream p) {
+		Object ioInstance = commandEvaluator.getJavaBridge()
+		.getJavaClassInstance(IO.class);
+// Set output collector.
+       ((IO) ioInstance).setOutputStream(p);
+		
+	}
 
 	void store(IValue v, String varName) {
 		Result<IValue> r = makeResult(v.getType(), v, commandEvaluator);
@@ -61,13 +74,7 @@ public class MakeBox {
 		return r.getValue();
 	}
 
-	private void start() {
-		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment("***makeBox***"));
-		PrintWriter stderr = new PrintWriter(System.err);
-		PrintWriter stdout = new PrintWriter(System.out);
-		commandEvaluator = new Evaluator(ValueFactoryFactory.getValueFactory(),
-				stderr, stdout, root, heap);
+	private void start() { 
 		// commandEvaluator
 		// .addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 		// public List<String> contributePaths() {
@@ -80,10 +87,8 @@ public class MakeBox {
 		// }
 		// });
 		commandEvaluator.addClassLoader(getClass().getClassLoader());
-		Object ioInstance = commandEvaluator.getJavaBridge()
-				.getJavaClassInstance(IO.class);
-		// Set output collector.
-		((IO) ioInstance).setOutputStream(new PrintStream(System.out));
+		// setPrintStream(new PrintStream(System.out));
+		// ((IO) ioInstance).setErrorStream(new PrintStream(System.out));
 	}
 
 	private void execute(String s) {
@@ -120,12 +125,14 @@ public class MakeBox {
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()
 				.sourceLocation(uri);
 		store(v, varName);
+		/*
 		String project_loc = System.getProperty("project_loc");
 		String loc = project_loc
 				+ "/src/"
 				+ this.getClass().getCanonicalName().replace('.',
 						File.separatorChar);
 		File f = new File(loc);
+		*/
 		// execute(resultName + "=toList(" + varName + ");");
 		execute(resultName + "=toLatex(" + varName+");");
 		IValue r = fetch(resultName);
