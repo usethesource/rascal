@@ -171,9 +171,7 @@ public class ContainerNode extends AbstractNode{
 					newPostFix[0] = ambSubListNode;
 					
 					blackList.push(prefixNode);
-					
 					gatherList(prefix, newPostFix, gatheredAlternatives, production, stack, depth, listElementStack, elementNr + 1, blackList);
-					
 					blackList.pop();
 				}else{
 					int length = postFix.length;
