@@ -119,16 +119,9 @@ public class ContainerNode extends AbstractNode{
 			
 			IndexedStack<AbstractNode> listElementStack = new IndexedStack<AbstractNode>();
 			
-			if(resultNode.isContainer()){
-				listElementStack.push(resultNode, 0);
-				
-				IValue[] postFix = new IValue[]{result};
-				gatherList(child, postFix, gatheredAlternatives, production, stack, depth, listElementStack, 1, new Stack<AbstractNode>());
-				
-				listElementStack.purge();
-			}else{
-				gatherList(child, new IValue[]{result}, gatheredAlternatives, production, stack, depth, listElementStack, 1, new Stack<AbstractNode>());
-			}
+			if(resultNode.isContainer()) listElementStack.push(resultNode, 0);
+			gatherList(child, new IValue[]{result}, gatheredAlternatives, production, stack, depth, listElementStack, 1, new Stack<AbstractNode>());
+			if(resultNode.isContainer()) listElementStack.purge();
 		}else{
 			gatheredAlternatives.add(new IValue[]{}, production);
 		}
@@ -187,23 +180,15 @@ public class ContainerNode extends AbstractNode{
 					IValue[] newPostFix = new IValue[length + 1];
 					System.arraycopy(postFix, 0, newPostFix, 1, length);
 					
-					if(prefixNode.isContainer()){
-						listElementStack.push(prefixNode, elementNr);
-						
-						IValue result = prefixNode.toTerm(stack, depth);
-						if(result == null) return; // Rejected.
-						
-						newPostFix[0] = result;
-						gatherList(prefix, newPostFix, gatheredAlternatives, production, stack, depth, listElementStack, elementNr + 1, blackList);
-						
-						listElementStack.purge();
-					}else{
-						IValue result = prefixNode.toTerm(stack, depth);
-						if(result == null) return; // Rejected.
-						
-						newPostFix[0] = result;
-						gatherList(prefix, newPostFix, gatheredAlternatives, production, stack, depth, listElementStack, elementNr + 1, blackList);
-					}
+					if(prefixNode.isContainer()) listElementStack.push(prefixNode, elementNr);
+					
+					IValue result = prefixNode.toTerm(stack, depth);
+					if(result == null) return; // Rejected.
+					
+					newPostFix[0] = result;
+					gatherList(prefix, newPostFix, gatheredAlternatives, production, stack, depth, listElementStack, elementNr + 1, blackList);
+					
+					if(prefixNode.isContainer()) listElementStack.purge();
 				}
 			}
 		}
