@@ -271,14 +271,16 @@ public class SetPattern extends AbstractMatchingResult {
 					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				java.util.List<String> childVars = child.getVariables();
-				if(!childVars.isEmpty()){
+				if(!childVars.isEmpty()){ 
 					allVars.addAll(childVars);
 					varName[nVar] = child.toString();
 					varPat[nVar] = child;
 					isSetVar[nVar] = false;
 					nVar++;
 				} else {
+					// TODO: this should check for isConstant or something, which includes a check for anti patterns and deep patterns
 					fixedSetElements = fixedSetElements.insert(child.toIValue());
+					// TODO: Paul, not all other patterns have to be fixedElements? right?
 				}
 			} 
 		}

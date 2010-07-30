@@ -29,5 +29,6 @@ data RuntimeException =
 	| Java(str message)
 	| ParseError(loc location)
 	| IllegalIdentifier(str name)
+	| MissingCase(value x)
 	| Subversion(str message)
 	;

@@ -330,6 +330,13 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		
 		@Override
 		public Result<IValue> fieldSelect(int[] selectedFields) {
+			if (!getType().getElementType().isVoidType()) {
+				for (int i : selectedFields) {
+					if (i < 0 || i >= getType().getArity()) {
+						throw RuntimeExceptionFactory.indexOutOfBounds(ctx.getValueFactory().integer(i), ctx.getCurrentAST(), ctx.getStackTrace());
+					}
+				}
+			}
 		   return makeResult(type.select(selectedFields), value.select(selectedFields), ctx);
 		}
 		

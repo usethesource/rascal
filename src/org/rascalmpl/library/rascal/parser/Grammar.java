@@ -14,6 +14,8 @@ public class Grammar {
 	}
 	
 	public IValue getGrammar(IString modName, IEvaluatorContext ctx) {
-		return ctx.getEvaluator().getGrammar(modName.getValue());
+		IValue g = ctx.getEvaluator().getGrammar(modName.getValue());
+		System.err.println("getGrammar(" + modName + ") = " + g);
+		return g;
 	}
 }

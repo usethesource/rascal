@@ -46,9 +46,10 @@ public class ParserGenerator {
 	public IGLL getParser(ISourceLocation loc, String name, ISet imports) {
 		try {
 			// TODO: add caching
+			System.err.println("Importing and normalizing grammar");
 			IConstructor grammar = getGrammar(imports);
-			System.err.println("Imported and normalized grammar: " + grammar);
 			String normName = name.replaceAll("\\.", "_");
+			System.err.println("Generating java source code for parser");
 			IString classString = (IString) evaluator.call("generate", vf.string(packageName), vf.string(normName), grammar);
 			FileOutputStream s = null;
 			try {
@@ -67,7 +68,9 @@ public class ParserGenerator {
 					}
 				}
 			}
+			System.err.println("compiling generated java code");
 			Class<IGLL> parser = (Class<IGLL>) bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
+			System.err.println("instantiating generated parser class");
 			return parser.newInstance();
 		}  catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
