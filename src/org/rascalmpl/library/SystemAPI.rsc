@@ -1,5 +1,6 @@
 module SystemAPI
 
+import Exception;
 import String;
 
 @doc{Api to the System for example System Variables or System Commands.}
@@ -18,4 +19,5 @@ public list[str] java getFileContent(str g);
 @doc{Returns content of location <loc> which is assumed a rascal program. The backquotes
 will be replaced by stringquotes. And the stringquotes inside them will be escaped.}
 @javaClass{org.rascalmpl.library.SystemAPI}
-public str java getRascalFileContent(loc g);
+public str java getRascalFileContent(loc g) throws 
+              UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);

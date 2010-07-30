@@ -1,6 +1,7 @@
 package org.rascalmpl.library;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
 public class SystemAPI {
@@ -106,15 +108,25 @@ public class SystemAPI {
 	}
 
 	public IValue getRascalFileContent(ISourceLocation g) {
+		FileReader a = null;
 		try {
-			FileReader a = new FileReader(g.getURI().getPath());
+			a = new FileReader(g.getURI().getPath());
 			IList r = readLines(a, "`", "\"", "\"", "\\\\\"");
 			// System.out.println(((IString) r.get(0)).getValue());
 			return r.get(0);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
+		} 
+		catch(FileNotFoundException fnfex){
+			throw RuntimeExceptionFactory.pathNotFound(g, null, null);
+		}catch(IOException ioex){
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+		}finally{
+			if(a != null){
+				try{
+					a.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				}
+			}
 		}
 	}
 
