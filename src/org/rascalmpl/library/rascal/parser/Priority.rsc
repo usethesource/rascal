@@ -71,20 +71,14 @@ public set[Production] associativity(Production p) {
              + { \assoc(s, a, {q}) | q:prod(_,_,attrs([_*,\assoc(a),_*])) <- alts};
      rest    = { q | q <- alts, q notin assocs, all(!(\assoc(_,_,{q}) <- assocs))}; 
       
-     println("assocs: <assocs>");
-     println("rest: <rest>");
-     
      // then we give each associativity group a number, and remove recursion here and there
      groups  = {<newPrime(), makeAssoc(q, s, a, prime)> | q:\assoc(s,a,g) <- assocs}; 
-     println("groups: <groups>");
      
      // these are the original rules with just some recursion removed
      basic   = rest + groups<1>; 
-     println("basic: <basic>");
       
      // now we generate new non-terminals that each exclude one of the groups
      new     = {redefine(choice(s, basic - g), exclude(s,i)) | <i,g> <- groups}; 
-     println("new: <new>");
      
      // finally we reconstruct the basic non-terminal and remove all assoc rules
      return {removeAssoc(choice(s,basic))} + {removeAssoc(q) | q <- new};
@@ -123,7 +117,7 @@ public Production redefine(Production p, Symbol s) {
   return visit (p) {
     case prod(list[Symbol] lhs, _, Attributes a) => prod(lhs, s, a)
     case choice(_, set[Production] alts) => choice(s, alts)
-    case \assoc(_, Associativity a, Production p) => \assoc(s, a, p)
+    case \assoc(_, Associativity a, set[Production] p) => \assoc(s, a, p)
     case \diff(_, Production p, set[Production] alts) => \diff(s, p, alts)
     case \restrict(Symbol r, Production language, list[CharClass] restrictions) => restrict(s, language, restrictions)
     case Production x : throw "missed a case: <x>";

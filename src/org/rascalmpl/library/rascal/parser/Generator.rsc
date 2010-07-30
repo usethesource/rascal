@@ -192,7 +192,7 @@ public str sym2newitem(Symbol sym){
     int id = nextItem();
     switch(sym){
         case \label(_,s) : return sym2newitem(s); // ignore labels
-        case prime(_,_,_) : 
+        case \prime(_,_,_) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \sort(n) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";

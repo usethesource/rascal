@@ -59,7 +59,7 @@ data Symbol = prime(Symbol symbol, str reason, list[int] primes);
 }
 rule collapse 
   prime(prime(Symbol s, str r1, list[int] p1), str r2, list[int] p2) =>
-  prime(s, r1 + " and " + r2, p1 + p2);
+  prime(s, r1 + "_and_" + r2, p1 + p2);
      
 @doc{
   This rule pushes labels out of primes to limit case distinctions in the back-end
