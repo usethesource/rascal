@@ -23,14 +23,34 @@ list[segment] isCompact(list[Symbol] q) {
      if (isScheme(q , ["while", "N", "do", "N", "od"])) return [<1,1>];
      return [];
      }
-
-bool isSeperated(list[Symbol] q) {
+     
+bool isKeyword(Symbol a) {
+     if (\lit(str s):=a) {
+         if (s=="begin" || s == "end" || s == "declare" || s == "while" || s == "if"
+            || s == "then" || s == "do" || s == "od" || s == "fi") return true;
+         }
      return false;
      }
      
-public text toList(loc asf){
+void setUserRules() {
+    setIndented(isIndented);
+    setCompact(isCompact);
+    setKeyword(isKeyword);
+    }  
+     
+public text toText(loc asf){
      PROGRAM a = parse(#PROGRAM, asf);
-     return returnText(a, extraRules, isIndented, isCompact, isSeperated);
+     setUserRules();
+     return toText(a);
+     }
+   
+public text toLatex(loc asf){
+     PROGRAM a = parse(#PROGRAM, asf);
+     // rawPrintln(a);
+     setUserRules();
+     text r = toLatex(a);
+     writeLatex(asf, r, ".pico");
+     return r;
      }
 
 // Don't change this part 
@@ -43,10 +63,3 @@ public Box extraRules(Tree q) {
     return NULL();
     }
     
-
-/*
-public void main(){
-    Tree a = parse(#Module, |file:///ufs/bertl/asfix/A.rsc|);
-    concrete(a);
-    }
-*/
