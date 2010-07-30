@@ -575,7 +575,7 @@ public RType getTypeForItem(SymbolTable symbolTable, STItemId itemId) {
 		
 		case ADTItem(ut,_,_,_) : return ut; // TODO: Should also extract type parameters, if needed
 
-		case AliasItem(ut,_,_,_) : return ut; // TODO: Should also extract type parameters, if needed
+		case AliasItem(ut,ut2_,_) : return RAliasType(ut,ut2); // TODO: Should also extract type parameters, if needed
 		
 		default : { 
 			return makeVoidType(); 

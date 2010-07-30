@@ -15,6 +15,7 @@ import rascal::checker::TypeRules;
 import rascal::checker::SymbolTable;
 import rascal::checker::Namespace;
 import rascal::checker::Signature;
+import rascal::checker::ListUtils;
 
 import rascal::\old-syntax::Rascal;
 
@@ -104,7 +105,7 @@ public Tree check(Tree t, RType adtErrors) {
 			if (`<Expression e1> ( <{Expression ","}* el> )` := e) {
 				if (isOverloadedType(e1@rtype)) {
 					RType resolvedType = resolveOverloadedCallOrTreeExpression(e,e1,el);
-					if (resolvedType != e1@rtype) {
+					if (! typeEquality(resolvedType,e1@rtype)) {
 						e = updateOverloadedCall(e,resolvedType);						
 					} 
 				}
@@ -279,7 +280,7 @@ public RType checkVariable(Variable v) {
 					updateInferredTypeMappings(mappedType,e@rtype);
 					return e@rtype;
 				} else {
-					if (mappedType != e@rtype) {
+					if (! typeEquality(mappedType, e@rtype)) {
 						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: <prettyPrintType(e@rtype)>, <prettyPrintType(mappedType)>", v@\loc);
 					} else {
 						return e@rtype;
@@ -849,8 +850,8 @@ public RType resolveOverloadedCallOrTreeExpression(Expression ep, Expression ec,
 			if (size(argTypes) == size(args)) {
 				for (e <- args) {
 					RType argType = head(argTypes); argTypes = tail(argTypes);
-					if (argType != e@rtype) {
-						potentialResultType = makeFailType("Bad function invocation or constructor usage, argument type mismatch",ep@\loc); // TODO: Improve error message
+					if (! subtypeOf(e@rtype, e@rtype)) {
+						potentialResultType = makeFailType("Bad function invocation or constructor usage, type of <e>, <prettyPrintType(e@rtype)>, should be a subtype of <prettyPrintType(argType)>",ep@\loc); // TODO: Improve error message
 					}
 				}			
 			} else {
@@ -864,6 +865,27 @@ public RType resolveOverloadedCallOrTreeExpression(Expression ep, Expression ec,
 	}
 		
 	return isFailType(resultType) ? ec@rtype : resultType;	
+}
+
+public rel[RName,RType] getMappings(RType source, RType target) {
+	if (RTypeVar(tv) := source) {
+		RName tvn = getTypeVarNames(source);
+		return { < tvn, target > };
+	} else {
+		return { getMappings(se,te) | <se,te> <- zip(getElementTypes(source),getElementTypes(target)) }; 
+	}
+}
+
+public rel[RName,RType] getTypeVarMappings(list[tuple[Expression,RType]] argAndTypes) {
+	return { getMappings(e@rtype,rt) | <e,rt> <- argAndTypes };
+}
+
+public map[RName,RType] consolidateMappings(rel[RName,RType] varMappings) {
+	map[RName,RType] mt = ( );
+	for(n <- domain(varMappings)) {
+		mt[n] = lubSet(varMappings[n]);
+	}
+	return mt;
 }
 
 // TODO: Should streamline this logic now, since we winnow down the results above; this is correct,
@@ -906,14 +928,22 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 			potentialResultType = makeFailType("Type <prettyPrintType(altType)> is not a function or constructor type.",ep@\loc);
 		}
 		
+		// TODO: Add consistency check for type variables here, plus add information
+		// about the return type based on the input types (assuming the return type
+		// then is also based on a parametric type)
 		if (isFunctionType(altType) || isConstructorType(altType)) {
 			if (size(argTypes) == size(args)) {
+				argAndTypes = zip(args,argTypes);
 				for (e <- args) {
 					RType argType = head(argTypes); argTypes = tail(argTypes);
-					if (argType != e@rtype) {
-						potentialResultType = makeFailType("Bad function invocation or constructor usage, argument type mismatch",ep@\loc); // TODO: Improve error message
+					if (! subtypeOf(e@rtype, argType)) {
+						potentialResultType = makeFailType("Bad function invocation or constructor usage, type of <e>, <prettyPrintType(e@rtype)>, should be a subtype of <prettyPrintType(argType)>",ep@\loc); // TODO: Improve error message
 					}
-				}			
+				}
+//				if (! isFailType(potentialResultType) && containsTypeVar(potentialResultType)) {
+//					map[RName,RType] varMappings = consolidateMappings(getTypeVarMappings(argAndTypes));
+//					potentialResultType = instantiateVars(varMappings, potentialResultType);
+//				}
 			} else {
 				potentialResultType = makeFailType("Arity mismatch, function accepts <size(argTypes)> arguments but was given <size(args)>", ep@\loc); // TODO: Improve error message
 			}
@@ -1356,7 +1386,7 @@ public RType checkIfThenElseExpression(Expression ep, Expression eb, Expression 
 		if (!isBoolType(eb@rtype)) {
 			return makeFailType("Expression <eb> should have type <prettyPrintType(makeBoolType())>, but instead has type <prettyPrintType(eb@rtype)>",ep@\loc);
 		} else {
-			if (et@rtype != ef@rtype && !subtypeOf(et@rtype,ef@rtype) & !subtypeOf(ef@rtype,et@rtype)) {
+			if (!typeEquality(et@rtype,ef@rtype) && !subtypeOf(et@rtype,ef@rtype) & !subtypeOf(ef@rtype,et@rtype)) {
 				return makeFailType("Expressions <et> and <ef> should have matching types or be in a subtype relation, but instead have types <prettyPrintType(et@rtype)> and <prettyPrintType(ef@rtype)>",ep@\loc);
 			} else {
 				return lub(et@rtype,ef@rtype);
@@ -1952,7 +1982,7 @@ public RType checkCase(Case c) {
 				
 				case Statement ins : `insert <DataTarget dt> <Statement s>` : {
 					RType stmtType = getInternalStatementType(s@rtype);
-					if (caseType != stmtType) {
+					if (! subtypeOf(stmtType, caseType)) {
 						failures += makeFailType("Type of insert, <prettyPrintType(stmtType)>, does not match type of case, <prettyPrintType(caseType)>", s@\loc);
 					}
 				} 
@@ -2340,7 +2370,7 @@ public RType checkCallOrTreePattern(Pattern pp, Pattern pc, {Pattern ","}* ps) {
 		if (size(argTypes) == size(args)) {
 			for (p <- args) {
 				RType argType = head(argTypes); argTypes = tail(argTypes);
-				if (argType != p@rtype) {
+				if (! subtypeOf(p@rtype,argType)) {
 					potentialResultType = makeFailType("Bad function or constructor pattern, argument type mismatch",pp@\loc); // TODO: Improve error message
 				}
 			}			
@@ -2596,7 +2626,7 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 					updateInferredTypeMappings(t,rt);
 					return rt;
 				} else {
-					if (t != rt) {
+					if (! typeEquality(t,rt)) {
 						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: <prettyPrintType(rt)>, <prettyPrintType(t)>", n@\loc);
 					} else {
 						return t;
@@ -2615,7 +2645,7 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 					updateInferredTypeMappings(globalSymbolTable,t,rt);
 					return rt;
 				} else {
-					if (t != rt) {
+					if (! typeEquality(t,rt)) {
 						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <qn>: <prettyPrintType(rt)>, <prettyPrintType(t)>", qn@\loc);
 					} else {
 						return t;
@@ -2705,15 +2735,15 @@ public RType checkPatternWithAction(PatternWithAction pat) {
 	switch(pat) {
 		case `<Pattern p> => <Expression e>` : {
 			if (checkForFail( { p@rtype, e@rtype } )) return collapseFailTypes( { p@rtype, e@rtype } );
-			if (p@rtype != e@rtype) return makeFailType("Type of pattern, <prettyPrintType(p@rtype)>, and action expression, <prettyPrintType(e@rtype)>, must be identical.", pat@\loc); 
-			return e@rtype;
+			if (!subtypeOf(e@rtype,p@rtype)) return makeFailType("Type of pattern, <prettyPrintType(p@rtype)>, and action expression, <prettyPrintType(e@rtype)>, must be identical.", pat@\loc); 
+			return e@rtype; // TODO: Or p@rtype?
 		}
 		
 		case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
 			set[RType] whenTypes = { e@rtype | e <- es };
 			if (checkForFail( whenTypes + p@rtype + e@rtype )) return collapseFailTypes( whenTypes + p@rtype + e@rtype );
-			if (p@rtype != e@rtype) return makeFailType("Type of pattern, <prettyPrintType(p@rtype)>, and action expression, <prettyPrintType(e@rtype)>, must be identical.", pat@\loc); 
-			return e@rtype;
+			if (!subtypeOf(e@rtype,p@rtype)) return makeFailType("Type of pattern, <prettyPrintType(p@rtype)>, and action expression, <prettyPrintType(e@rtype)>, must be identical.", pat@\loc); 
+			return e@rtype; // TODO: Or p@rtype?
 		}
 		
 		case `<Pattern p> : <Statement s>` : {
@@ -2871,7 +2901,7 @@ public RType checkADTDefinitionsForConsistency(SymbolTable table, RName moduleNa
 				for (RNamedType(nt,nn) <- params) {
 					if (nn notin fieldMap) {
 						fieldMap[nn] = nt;
-					} else if (nn in fieldMap && fieldMap[nn] != nt) {
+					} else if (nn in fieldMap && !typeEquality(fieldMap[nn],nt)) {
 						consistencyFailures += makeFailType("Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>",table.scopeItemMap[ci]@at);
 					}
 				}				
@@ -2886,7 +2916,7 @@ public RType checkADTDefinitionsForConsistency(SymbolTable table, RName moduleNa
 				for (RNamedType(nt,nn) <- params) {
 					if (nn notin fieldMap) {
 						fieldMap[nn] = nt;
-					} else if (nn in fieldMap && fieldMap[nn] != nt) {
+					} else if (nn in fieldMap && !typeEquality(fieldMap[nn],nt)) {
 						consistencyFailures += makeFailType("Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>",table.scopeItemMap[ci]@at);
 					}
 				}				

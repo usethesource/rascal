@@ -7,8 +7,12 @@ import rascal::checker::Types;
 
 // Encode the subtyping relation t1 <: t2
 // TODO: Look through IMP and add extra subtyping rules
+// TODO: Add support for functions
 public bool subtypeOf(RType t1, RType t2) {
-
+	// First, unroll aliases
+	t1 = unwindAliases(t1);
+	t2 = unwindAliases(t2);
+	
 	// If the types match, they are by default subtypes of one another: forall t : Types, t <: t
 	if (t1 == t2) return true;
 	
@@ -43,6 +47,25 @@ public bool subtypeOf(RType t1, RType t2) {
 		return size([ n | n <- [0 .. (size(t1s)-1)], !subtypeOf(getElementType(t1s[n]),getElementType(t2s[n]))]) == 0; 
 	}
 
+	// type variables
+	if (RTypeVar(RFreeTypeVar(_)) := t1 && RTypeVar(RFreeTypeVar(_)) := t2) {
+		return true;
+	} else if(RTypeVar(RBoundTypeVar(_,vb1)) := t1 && RTypeVar(RFreeTypeVar(_)) := t2) {
+		return subtypeOf(vb1,makeValueType());
+	} else if (RTypeVar(RFreeTypeVar(_)) := t1 && RTypeVar(RBoundTypeVar(_,vb2)) := t2) {
+		return subtypeOf(makeValueType(),vb2);
+	} else if (RTypeVar(RBoundTypeVar(_,vb1)) := t1 && RTypeVar(RBoundTypeVar(_,vb2)) := t2) {
+		return subtypeOf(vb1,vb2);
+	} else if (RTypeVar(RFreeTypeVar(_)) := t1) {
+		return subtypeOf(makeValueType(),t2);
+	} else if (RTypeVar(RFreeTypeVar(_)) := t2) {
+		return subtypeOf(t1,makeValueType());
+	} else if (RTypeVar(RBoundTypeVar(_,vb1)) := t1) {
+		return subtypeOf(vb1,t2);
+	} else if (RTypeVar(RBoundTypeVar(_,vb2)) := t2) {
+		return subtypeOf(t1,vb2);
+	}
+	
 	// Default case: if none of the above match,  not t1 <: t2
 	return false;
 }
