@@ -95,6 +95,7 @@ data RType =
     | RStatementType(RType internalType)
 
 	| RAliasType(RType aliasName, RType aliasedType)
+	| RParameterizedAliasType(RType aliasName, list[RType] typeParams, RType aliasedType)
 
 	| RDataTypeSelector(RName source, RName target)
 	| RUserType(RName typeName)
@@ -165,7 +166,7 @@ public RType convertStructuredType(StructuredType st) {
 		}
 		return RMapType(mapTypes[0],mapTypes[1]);
 	}
-	
+	// TODO: Add aliases here, they can have parameters as well
 	switch(st) {
 		case (StructuredType) `list [ < {TypeArg ","}+ tas > ]` : return RListType(getElementType(head(convertTypeArgList(tas)))); 
 		case (StructuredType) `set [ < {TypeArg ","}+ tas > ]` : return RSetType(getElementType(head(convertTypeArgList(tas)))); 
@@ -173,7 +174,7 @@ public RType convertStructuredType(StructuredType st) {
 		case (StructuredType) `map [ < {TypeArg ","}+ tas > ]` : return buildMapType(st,convertTypeArgList(tas)); 
 		case (StructuredType) `rel [ < {TypeArg ","}+ tas > ]` : return RRelType(convertTypeArgList(tas)); 
 		case (StructuredType) `tuple [ < {TypeArg ","}+ tas > ]` : return RTupleType(convertTypeArgList(tas));
-		case (StructuredType) `type [ < {TypeArg ","}+ tas > ]` : return RReifiedType(convertTypeArgList(tas));
+		case (StructuredType) `type [ < {TypeArg ","}+ tas > ]` : return RReifiedType(getElementType(head(convertTypeArgList(tas)))); // TODO: Fix this
 		case (StructuredType) `<BasicType bt> [ < {TypeArg ","}+ tas > ]` : throw "Invalid basic type <bt> in definition of structured type <st>";  
 	}
 }
@@ -263,10 +264,11 @@ public str prettyPrintType(RType t) {
 		case ROverloadedType(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p.overloadType | p <- pts]);
 		case RVarArgsType(vt) : return "<prettyPrintType(vt)>...";
 		case RStatementType(rt) : return "Statement: <prettyPrintType(rt)>";
-		case RAliasType(an,at) : return "Alias <prettyPrintType(an)> = <prettyPrintType(at)>";
+		case RAliasType(an,at) : return "Alias: <prettyPrintType(an)> = <prettyPrintType(at)>";
+		case RParameterizedAliasType(an,tps,at) : return "<prettyPrintType(an)>[<prettyPrintTypeList(tps)>]";
 		case RDataTypeSelector(s,t) : return "Selector <s>.<t>";
 		case RUserType(tn) : return "<prettyPrintName(tn)>";
-		case RParameterizedUserType(tn, tps) : return "<prettyPrintName(tn)>(<prettyPrintTypeList(tps)>)";
+		case RParameterizedUserType(tn, tps) : return "<prettyPrintName(tn)>[<prettyPrintTypeList(tps)>]";
 		case RTypeVar(tv) : return prettyPrintTypeVar(tv);
 		case RAssignableType(wt,pt) : return "Assignable type, whole <prettyPrintType(wt)>, part <prettyPrintType(pt)>";
 		case RLocatedType(rlt,l) : return "Located type <prettyPrintType(rlt)> at location <l>";
@@ -756,3 +758,49 @@ public RName getUserTypeName(RType ut) {
 		default: throw "Cannot get user type name from non user type <prettyPrintType(ut)>";
 	}
 } 
+
+// TODO: Add parameterized alias types here
+public RType unwindAliases(RType t) {
+	return visit(t) { case RAliasType(tl,tr) => tr };
+}
+
+public bool typeEquality(RType t1, RType t2) {
+	t1 = unwindAliases(t1);
+	t2 = unwindAliases(t2);
+	return t1 == t2;
+}
+
+public bool containsTypeVar(RType t1) {
+	return /RTypeVar(_) := t1;
+}
+
+public set[RName] typeVarNames(RType t1) {
+	set[RName] varNames = { };
+	visit(t1) {
+		case RTypeVar(RFreeTypeVar(n)) : varNames += n;
+		case RTypeVar(RBoundTypeVar(n,_)) : varNames += n;	
+	}
+	return varNames;
+}
+
+public list[RType] getElementTypes(RType t) {
+	switch(t) {
+		case RListType(et) : return [ et ];
+		case RSetType(et) : return [ et ];
+		case RContainerType(et) : [ et ];
+		case RBagType(et) : return [ et ];
+		case RMapType(dt,rt) : return [ getElementType(dt), getElementType(rt) ];
+		case RRelType(nts) : return [ getElementType(nt) | nt <- nts ];
+		case RTupleType(nts) : return [ getElementType(nt) | nt <- nts ];
+		case RFunctionType(rt, pts) : return getElementTypes(rt) + [ getElementType(pt) | pt <- pts ];
+		case RReifiedType(rt) : return getElementTypes(rt);
+	}
+	return [ ];
+}
+
+public RType instantiateVars(map[RName,RType] varMappings, RType rt) {
+	return visit(rt) {
+		case RTypeVar(RFreeTypeVar(n)) : if (n in varMappings) insert(varMappings[n]);
+		case RTypeVar(RBoundTypeVar(n,_)) : if (n in varMappings) insert(varMappings[n]);	
+	};
+}
