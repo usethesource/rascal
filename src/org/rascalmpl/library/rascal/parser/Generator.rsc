@@ -63,7 +63,7 @@ public class <name> extends SGLL {
     }
   
     // Production declarations
-    <for (p <- { p | /Production p := g, prod(_,_,_) := p || regular(_,_) := p}) {>private static final IConstructor <value2id(p)> = read(\"<esc("<removeLevels(p)>")>\", Factory.Production);
+    <for (p <- { p | /Production p := g, prod(_,_,_) := p || regular(_,_) := p}) {>private static final IConstructor <value2id(p)> = read(\"<esc("<removePrimes(p)>")>\", Factory.Production);
     <}>
     
     public <name>(){
@@ -192,7 +192,7 @@ public str sym2newitem(Symbol sym){
     int id = nextItem();
     switch(sym){
         case \label(_,s) : return sym2newitem(s); // ignore labels
-        case level(_,_) : 
+        case prime(_,_,_) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \sort(n) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
@@ -262,15 +262,16 @@ public str sym2id(Symbol s){
     return "symbol_<value2id(s)>";
 }
 
-public Production removeLevels(Production p) {
+public Production removePrimes(Production p) {
   return visit(p) {
-    case level(Symbol s, int l) => s
+    case prime(Symbol s,_,_) => s
   }
 }
 
 public str value2id(value v){
     switch(v){
         case label(_,v)    : return value2id(v);
+        case prime(Symbol s, str reason, list[int] indexes) : return "<value2id(s)>_<reason>_<value2id(indexes)>";
         case sort(str s)   : return s;
         case cilit(str s)  : return "cilit_<s>";
 	    case lit(/<s:^[A-Za-z0-9]+$>/) : return "lit_<s>"; 

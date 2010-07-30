@@ -228,7 +228,7 @@ private int character(Char c) {
 }
 
 private Attributes mods2attrs(Name name, ProdModifier* mods) {
-  return attrs([term(cons("<name>"))]);
+  return attrs([term(cons("<name>"))] + [ mod2attr(m) | m <- mods]);
 }
 
 private Attributes mods2attrs(ProdModifier* mods) {
@@ -236,6 +236,7 @@ private Attributes mods2attrs(ProdModifier* mods) {
 }
  
 private Attr mod2attr(ProdModifier m) {
+println("transforming modifier <m>");
   switch (m) {
     case (ProdModifier) `lex`: return term("lex"());
     case (ProdModifier) `left`: return \assoc(\left());

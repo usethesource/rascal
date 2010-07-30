@@ -47,6 +47,9 @@ data Symbol = intersection(Symbol lhs, Symbol rhs)
   A Symbol constructor that can be used to generate new non-terminal names from existing non-terminal names.
   Applications include the introduction of levels to a grammar with priorities, or non-terminals that exclude
   certain productions to implement associativity.
+  
+  One particular feature of primes symbols is that they will not end up visible in any resulting parse tree.
+  They are all replaced by the symbol that is primed.
 }
 data Symbol = prime(Symbol symbol, str reason, list[int] primes);
 

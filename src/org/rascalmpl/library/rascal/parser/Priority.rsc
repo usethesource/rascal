@@ -4,19 +4,19 @@
   which encode the relative priority of productions.
 }
 module rascal::parser::Priority
- 
+  
 import rascal::parser::Grammar;
 import rascal::parser::Normalization;
 import ParseTree;
 import List;
 import Set;
-import IO;
+import IO; 
 
 @doc{Generates a new non-terminal name for a priority level}
 public Symbol level(Symbol s, int l) {
   return (l == 0) ? s : prime(s, "prio", [l]);
 }
-
+  
 @doc{Generates a new non-terminal name for an associativity group}
 public Symbol exclude(Symbol s, int p) {
   return prime(s, "assoc", [p]);
@@ -51,7 +51,7 @@ public set[Production] priority(Production p) {
    }
    else {
      return {p};
-   }
+   } 
 }
 
 @doc{
@@ -67,26 +67,42 @@ public set[Production] associativity(Production p) {
   
   if (choice(Symbol s, set[Production] alts) := p) {
      // first we split the total set in productions with and without associativity
-     assocs  = { p | p:\assoc(_,_,_) <- alts}
-             + { \assoc(s, a, {p}) | p:prod(_,_,attrs([_*,\assoc(a),_*])) <- alts};
-     rest  = alts - assocs;
+     assocs  = { q | q:\assoc(_,_,_) <- alts}
+             + { \assoc(s, a, {q}) | q:prod(_,_,attrs([_*,\assoc(a),_*])) <- alts};
+     rest    = { q | q <- alts, q notin assocs, all(!(\assoc(_,_,{q}) <- assocs))}; 
+      
+     println("assocs: <assocs>");
+     println("rest: <rest>");
      
      // then we give each associativity group a number, and remove recursion here and there
-     groups  = {<newPrime(), makeAssoc(p, s, a, prime)> | p:\assoc(s,a,g) <- assocs}; 
+     groups  = {<newPrime(), makeAssoc(q, s, a, prime)> | q:\assoc(s,a,g) <- assocs}; 
+     println("groups: <groups>");
      
      // these are the original rules with just some recursion removed
      basic   = rest + groups<1>; 
-     
+     println("basic: <basic>");
+      
      // now we generate new non-terminals that each exclude one of the groups
-     new     = {redefine(choice(s, basic - p), exclude(s,i)) | <i,g> <- groups}; 
+     new     = {redefine(choice(s, basic - g), exclude(s,i)) | <i,g> <- groups}; 
+     println("new: <new>");
      
      // finally we reconstruct the basic non-terminal and remove all assoc rules
-     return {removeAssoc(choice(s,basic))} + {removeAssoc(p) | p <- new};
+     return {removeAssoc(choice(s,basic))} + {removeAssoc(q) | q <- new};
   }    
   else {
     return {p};
   }
 }
+
+test associativity(choice(sort("E"), {prod([],sort("E"),\no-attrs()),prod([sort("E"),sort("E")],sort("E"),attrs([\assoc(\left())]))}))
+        == {choice(sort("E"), {prod([sort("E"), prime(sort("E"),"assoc",1)], sort("E"), attrs([\assoc(\left())]))})
+           ,choice(prime(sort("E"),"assoc",1), {prod([],prime(sort("E"),"assoc",1),\no-attrs())})
+           };
+
+test associativity(choice(sort("EXP"),{prod([label("lhs",sort("EXP")),\iter-star(\layout()),lit("+"),\iter-star(\layout()),label("rhs",sort("EXP"))],sort("EXP"),attrs([term(cons("plus")),\assoc(\left())])),prod([label("name",sort("PICOID"))],sort("EXP"),attrs([term(cons("id"))]))}))
+     == {choice(prime(sort("EXP"),"assoc",[1]),{prod([label("name",sort("PICOID"))],prime(sort("EXP"),"assoc",[1]),attrs([term(cons("id"))]))})
+        ,choice(sort("EXP"),{prod([label("name",sort("PICOID"))],sort("EXP"),attrs([term(cons("id"))])),prod([label("lhs",sort("EXP")),\iter-star(\layout()),lit("+"),\iter-star(\layout()),label("rhs",prime(sort("EXP"),"assoc",[1]))],sort("EXP"),attrs([term(cons("plus")),\assoc(\left())]))})};
+
 
 set[Production] removeFirst(set[Production] ps) {
   return visit(ps) {
@@ -94,7 +110,7 @@ set[Production] removeFirst(set[Production] ps) {
   }
 }
 
-set[Production] removeAssoc(Production p) {
+Production removeAssoc(Production p) {
   return visit(p) {
       case \assoc(Symbol s, Associativity a, set[Production] alts) => choice(s, alts)
   }
@@ -103,13 +119,13 @@ set[Production] removeAssoc(Production p) {
 @doc{
   Redefines some list of productions to produce a new symbol; it deals with all production combinators
 }  
-public list[Production] redefine(list[Production] prods, Symbol s) {
-  return visit (prods) {
+public Production redefine(Production p, Symbol s) {
+  return visit (p) {
     case prod(list[Symbol] lhs, _, Attributes a) => prod(lhs, s, a)
     case choice(_, set[Production] alts) => choice(s, alts)
     case \assoc(_, Associativity a, Production p) => \assoc(s, a, p)
     case \diff(_, Production p, set[Production] alts) => \diff(s, p, alts)
-    case \restrict(_, Production language, list[CharClass] restrictions) => restrict(s, language, restrictions)
+    case \restrict(Symbol r, Production language, list[CharClass] restrictions) => restrict(s, language, restrictions)
     case Production x : throw "missed a case: <x>";
   }
 }
@@ -134,14 +150,14 @@ public Production makePrio(Production p, Symbol s, int l) {
 
 public Production makeAssoc(Production p, Symbol s, Associativity a, int l) {
   return visit (p) {
-    case prod([Symbol leftRec, list[Symbol] middle, Symbol rightRec],s,Attributes a) => 
-         prod([leftRec, middle, exclude(rightRec,l)],s,a)
+    case prod([Symbol leftRec, list[Symbol] middle, Symbol rightRec],s,Attributes as) => 
+         prod([leftRec, middle, exclude(rightRec,l)],s,as)
       when a == \left() || a == \assoc(), checkSymbol(leftRec, s), checkSymbol(rightRec,s)
-    case prod([Symbol leftRec, list[Symbol] middle, Symbol rightRec],s,Attributes a) => 
-         prod([exclude(leftRec,l), middle, rightRec],s,a)
+    case prod([Symbol leftRec, list[Symbol] middle, Symbol rightRec],s,Attributes as) => 
+         prod([exclude(leftRec,l), middle, rightRec],s,as)
       when a == \right(), checkSymbol(leftRec, s), checkSymbol(rightRec,s)   
-    case prod([Symbol leftRec, list[Symbol] middle, Symbol rightRec],s,Attributes a) => 
-         prod([exclude(s,l), middle, exclude(s,l)],s,a)
+    case prod([Symbol leftRec, list[Symbol] middle, Symbol rightRec],s,Attributes as) => 
+         prod([exclude(s,l), middle, exclude(s,l)],s,as)
       when a == \non-assoc(), checkSymbol(leftRec, s), checkSymbol(rightRec,s)
   }   
 }
