@@ -1563,7 +1563,7 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {		
 			symbolTable = addScopeError(symbolTable, pl, "Illegal shadowing of already declared name: <prettyPrintName(n)>");
 		} else {
-			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, t, pl, symbolTable), [<true,l>]));
+			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, t, false, pl, symbolTable), [<true,l>]));
 		}
 		return symbolTable;
 	}	
