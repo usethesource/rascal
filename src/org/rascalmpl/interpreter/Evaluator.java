@@ -468,10 +468,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public IValue parseObjectExperimental(IConstructor startSort, URI inputURI) throws IOException{
+		System.err.println("Generating a parser");
 		IGLL parser = getObjectParser();
 		if (SymbolAdapter.isCf(startSort)) {
 			startSort = SymbolAdapter.getSymbol(startSort);
 		}
+		System.err.println("Calling the parser");
 		return parser.parse(startSort, inputURI, resolver.getInputStream(inputURI));
 	}
 	
@@ -1792,8 +1794,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 			}
 
-			if (selectedFields[i] < 0 || selectedFields[i] > baseType.getArity()) {
-				throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
+			if (!baseType.getElementType().isVoidType()) {
+				if (selectedFields[i] < 0 || selectedFields[i] > baseType.getArity()) {
+					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
+				}
 			}
 		}
 

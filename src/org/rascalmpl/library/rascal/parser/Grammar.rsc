@@ -44,12 +44,27 @@ data Symbol = intersection(Symbol lhs, Symbol rhs)
             | complement(Symbol cc);
             
 @doc{
-  A Symbol constructor that can introduce levels for a certain non-terminal, which can be used to implement priorities and associativity
+  A Symbol constructor that can be used to generate new non-terminal names from existing non-terminal names.
+  Applications include the introduction of levels to a grammar with priorities, or non-terminals that exclude
+  certain productions to implement associativity.
 }
-data Symbol = level(Symbol symbol, int level);
-        
+data Symbol = prime(Symbol symbol, str reason, list[int] primes);
+
 @doc{
-  this function is for debugging of Rascal itself, it produces the grammar defined by a certain module.
+  This rules simplifies complex nested primes non-terminals to improve readability of generated grammars
+  and to limit the need for case distinctions in some parts of the back-end
+}
+rule collapse 
+  prime(prime(Symbol s, str r1, list[int] p1), str r2, list[int] p2) =>
+  prime(s, r1 + " and " + r2, p1 + p2);
+     
+@doc{
+  This rule pushes labels out of primes to limit case distinctions in the back-end
+}
+rule label prime(label(str l, Symbol s), str r, list[int] p) => label(l, prime(s, r, p));
+    
+@doc{
+  This function is for debugging of Rascal itself, it produces the grammar defined by a certain module.
   it should dissappear as soon as the # operator can produce the reified representation of non-terminals, which should
   include a full grammar
 }

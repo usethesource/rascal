@@ -183,9 +183,9 @@ public str literals2ints(list[Symbol] chars){
     return result;
 }
 
+// TODO
 public str ciliterals2ints(list[Symbol] chars){
-    println("chars: ",chars);
-    return "hoi";
+    throw "case insensitive literals not yet implemented by parser generator";
 }
 
 public str sym2newitem(Symbol sym){
