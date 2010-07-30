@@ -634,14 +634,18 @@ public SymbolTable handleAnnotationDeclaration(Tags t, Visibility v, Type ty, Ty
 	return handleTags(t, symbolTable);
 }
 
+// TODO: Implement
 public SymbolTable handleTagDeclaration(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, SymbolTable symbolTable) {
 	symbolTable = handleTags(t, symbolTable);
-	throw "handleTagDeclaration not yet implemented";
+	//throw "handleTagDeclaration not yet implemented";
+	return symbolTable;
 }
 
+// TODO: Implement
 public SymbolTable handleTagDeclarationNamesOnly(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, SymbolTable symbolTable) {
 	symbolTable = handleTagsNamesOnly(t, symbolTable);
-	throw "handleTagDeclarationNamesOnly not yet implemented";
+	//throw "handleTagDeclarationNamesOnly not yet implemented";
+	return symbolTable;
 }
 
 public SymbolTable handleRuleDeclarationNamesOnly(Tags t, Name n, PatternWithAction p, loc l, SymbolTable symbolTable) {
@@ -652,12 +656,16 @@ public SymbolTable handleRuleDeclaration(Tags t, Name n, PatternWithAction p, lo
 	return handlePatternWithAction(p, handleTags(t, symbolTable));
 }
 
+// TODO: Implement
 public SymbolTable handleTestNamesOnly(Test t, loc l, SymbolTable symbolTable) {
-	throw "handleTestNamesOnly not yet implemented";
+	//throw "handleTestNamesOnly not yet implemented";
+	return symbolTable;
 }
 
+// TODO: Implement
 public SymbolTable handleTest(Test t, loc l, SymbolTable symbolTable) {
-	throw "handleTest not yet implemented";
+	//throw "handleTest not yet implemented";
+	return symbolTable;
 }
 
 //
@@ -731,9 +739,11 @@ public SymbolTable handleAlias(Tags ts, Visibility v, UserType aliasType, Type a
 	return handleTags(ts, symbolTable); 
 }
 
+// TODO: Implement
 public SymbolTable handleViewNamesOnly(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, SymbolTable symbolTable) {
 	symbolTable = handleTagsNamesOnly(ts, symbolTable);
-	throw "handleViewNamesOnly not yet implemented";
+	//throw "handleViewNamesOnly not yet implemented";
+	return symbolTable;
 }
 
 public SymbolTable handleView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, SymbolTable symbolTable) {

@@ -353,7 +353,8 @@ public RType checkRuleDeclaration(Tags t, Name n, PatternWithAction p) {
 
 // TODO: Implement
 public RType checkTestDeclaration(Test t) {
-	throw "checkTestDeclaration not yet implemented";
+	//throw "checkTestDeclaration not yet implemented";
+	return makeVoidType();
 }
 
 //
@@ -2064,7 +2065,8 @@ public RType checkIfDefinedOrDefaultAssignable(Assignable ap, Assignable a, Expr
 
 // TODO: Implement
 public RType checkAnnotationAssignable(Assignable ap, Assignable a, Name n) {
-	throw "Function checkAnnotationAssignable not implemented!";
+	//throw "Function checkAnnotationAssignable not implemented!";
+	return makeAssignableType(getWholeType(a@rtype),makeVoidType());
 }
 
 //
