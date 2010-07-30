@@ -21,6 +21,7 @@ import org.rascalmpl.test.library.ValueIOTests;
 	SetTests.class,
 	StringTests.class,
 	SubscriptTests.class,
+	ProjectionTests.class,
 	StatementTests.class,
 	TryCatchTests.class,
 	ValueIOTests.class,
