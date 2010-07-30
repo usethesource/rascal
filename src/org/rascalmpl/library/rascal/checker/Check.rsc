@@ -1387,7 +1387,7 @@ public RType checkIfThenElseExpression(Expression ep, Expression eb, Expression 
 		if (!isBoolType(eb@rtype)) {
 			return makeFailType("Expression <eb> should have type <prettyPrintType(makeBoolType())>, but instead has type <prettyPrintType(eb@rtype)>",ep@\loc);
 		} else {
-			if (!typeEquality(et@rtype,ef@rtype) && !subtypeOf(et@rtype,ef@rtype) & !subtypeOf(ef@rtype,et@rtype)) {
+			if (!typeEquality(et@rtype,ef@rtype) && !subtypeOf(et@rtype,ef@rtype) && !subtypeOf(ef@rtype,et@rtype)) {
 				return makeFailType("Expressions <et> and <ef> should have matching types or be in a subtype relation, but instead have types <prettyPrintType(et@rtype)> and <prettyPrintType(ef@rtype)>",ep@\loc);
 			} else {
 				return lub(et@rtype,ef@rtype);
