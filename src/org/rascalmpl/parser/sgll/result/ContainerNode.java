@@ -14,6 +14,7 @@ import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.Stack;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ContainerNode extends AbstractNode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -164,7 +165,7 @@ public class ContainerNode extends AbstractNode{
 					IConstructor subListNode = vf.constructor(Factory.Tree_Appl, production, subList.done());
 					subListNode = subListNode.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
 					cycleChildren.insert(subListNode);
-					IConstructor cycleNode = vf.constructor(Factory.Tree_Cycle, production.get("rhs"), vf.integer(1));
+					IConstructor cycleNode = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), vf.integer(1));
 					cycleNode = cycleNode.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
 					cycleChildren.insert(cycleNode);
 					IConstructor ambSubListNode = vf.constructor(Factory.Tree_Amb, cycleChildren.done());
@@ -206,7 +207,7 @@ public class ContainerNode extends AbstractNode{
 		
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
-			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, firstProduction.get("rhs"), vf.integer(depth - index));
+			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), vf.integer(depth - index));
 			if(input != null) cycle = cycle.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
 			return cycle;
 		}
