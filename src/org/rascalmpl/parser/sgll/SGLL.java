@@ -29,6 +29,7 @@ import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public abstract class SGLL implements IGLL{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
@@ -241,10 +242,10 @@ public abstract class SGLL implements IGLL{
 			node.setStartLocation(startLocation);
 		}
 		
-		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
+		ContainerNode resultStore = resultStoreCache.get(ProductionAdapter.getRhs(production), startLocation);
 		if(resultStore == null){
 			resultStore = new ContainerNode(inputURI, startLocation, location - startLocation, node.isList());
-			resultStoreCache.unsafePut(production, startLocation, resultStore);
+			resultStoreCache.unsafePut(ProductionAdapter.getRhs(production), startLocation, resultStore);
 			withResults.unsafePut(node);
 			
 			resultStore.addAlternative(production, new Link(prefixes, result));
@@ -281,10 +282,10 @@ public abstract class SGLL implements IGLL{
 			node.setStartLocation(startLocation);
 		}
 		
-		ContainerNode resultStore = resultStoreCache.get(production, startLocation);
+		ContainerNode resultStore = resultStoreCache.get(ProductionAdapter.getRhs(production), startLocation);
 		if(resultStore == null){
 			resultStore = new ContainerNode(inputURI, startLocation, location - startLocation, node.isList());
-			resultStoreCache.unsafePut(production, startLocation, resultStore);
+			resultStoreCache.unsafePut(ProductionAdapter.getRhs(production), startLocation, resultStore);
 			withResults.unsafePut(node);
 			
 			resultStore.setRejected();
