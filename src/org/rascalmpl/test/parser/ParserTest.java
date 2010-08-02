@@ -4,21 +4,40 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.junit.Assert;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParserTest extends TestCase{
+	private final static TypeFactory tf = TypeFactory.getInstance();
+	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	public ParserTest(){
 		super();
 	}
 	
 	public void executeParser(IParserTest parser){
-		IValue result = parser.executeParser();
 		try{
 			IValue expectedResult = parser.getExpectedResult();
-			if(!result.isEqual(expectedResult)){
-				Assert.fail(parser.getClass().getName()+";\tGot: "+result+"\n\t expected: "+expectedResult);
+			if(expectedResult.getType().equals(tf.stringType())){
+				try{
+					parser.executeParser();
+					Assert.fail("Expected a parse error to occur:\n"+expectedResult);
+				}catch(SyntaxError se){
+					IString message = vf.string(se.getMessage());
+					if(!message.isEqual(expectedResult)){
+						Assert.fail("Expected a parse error to occur:\n"+expectedResult+"\nError was:\n"+message);
+					}
+				}
+			}else{
+				IValue result = parser.executeParser();
+				if(!result.isEqual(expectedResult)){
+					Assert.fail(parser.getClass().getName()+";\tGot: "+result+"\n\t expected: "+expectedResult);
+				}
 			}
 		}catch(IOException ioex){
 			// Ignore, never happens.
@@ -104,5 +123,7 @@ public class ParserTest extends TestCase{
 	
 	public void testReject(){
 		executeParser(new Reject());
+		executeParser(new Reject2());
+		executeParser(new Reject3());
 	}
 }

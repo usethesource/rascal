@@ -117,7 +117,7 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		if(currentStartEntry != null){
 			Entry<K, V> entry = currentStartEntry;
 			do{
-				if(hash == entry.hash && entry.key.equals(key)){
+				if(hash == entry.hash && entry.key2 == key2 && entry.key.equals(key)){
 					if(previous == null){
 						entries[position] = entry.next;
 					}else{
@@ -140,7 +140,7 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		
 		Entry<K, V> entry = entries[position];
 		while(entry != null){
-			if(hash == entry.hash && key.equals(entry.key)) return entry.value;
+			if(hash == entry.hash && key2 == entry.key2 && key.equals(entry.key)) return entry.value;
 			
 			entry = entry.next;
 		}
