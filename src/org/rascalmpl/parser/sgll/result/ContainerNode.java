@@ -202,6 +202,8 @@ public class ContainerNode extends AbstractNode{
 	}
 	
 	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth){
+		if(rejected) return null;
+		
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, firstProduction.get("rhs"), vf.integer(depth - index));

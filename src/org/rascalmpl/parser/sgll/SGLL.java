@@ -266,10 +266,8 @@ public abstract class SGLL implements IGLL{
 			for(int i = possiblySharedEdgeNodes.size() - 1; i >= 0; i--){
 				AbstractStackNode possibleAlternative = possiblySharedEdgeNodes.get(i);
 				if(possibleAlternative.isSimilar(node)){
-					if(withResults.contains(possibleAlternative)){
-						ContainerNode resultStore = possibleAlternative.getResultStore();
-						resultStore.setRejected();
-					}
+					ContainerNode resultStore = possibleAlternative.getResultStore();
+					resultStore.setRejected();
 					return;
 				}
 			}
@@ -313,7 +311,7 @@ public abstract class SGLL implements IGLL{
 					}
 					updateEdgeNode(edge, prefixes, result, production);
 				}
-			}else{
+			}else if(!node.getResultStore().isRejected()){
 				for(int i = edges.size() - 1; i >= 0; i--){
 					AbstractStackNode edge = edges.get(i);
 					ArrayList<Link> prefixes = null;
