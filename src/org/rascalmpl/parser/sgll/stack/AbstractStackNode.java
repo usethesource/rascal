@@ -17,6 +17,8 @@ public abstract class AbstractStackNode{
 
 	protected LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap;
 	
+	private boolean markedAsWithResults;
+	
 	// Last node specific filter stuff
 	private IConstructor parentProduction;
 	private IReducableStackNode[] followRestrictions;
@@ -228,6 +230,14 @@ public abstract class AbstractStackNode{
 	
 	public LinearIntegerKeyedMap<ArrayList<Link>> getPrefixesMap(){
 		return prefixesMap;
+	}
+	
+	public void markAsWithResults(){
+		markedAsWithResults = true;
+	}
+	
+	public boolean isMarkedAsWithResults(){
+		return markedAsWithResults;
 	}
 	
 	public abstract void setResultStore(ContainerNode resultStore);

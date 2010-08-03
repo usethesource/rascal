@@ -21,7 +21,6 @@ import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.DoubleArrayList;
-import org.rascalmpl.parser.sgll.util.HashSet;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
@@ -51,7 +50,6 @@ public abstract class SGLL implements IGLL{
 	private final IntegerKeyedHashMap<ArrayList<AbstractStackNode>> possiblySharedEdgeNodesMap;
 
 	private final ObjectIntegerKeyedHashMap<IConstructor, ContainerNode> resultStoreCache;
-	private final HashSet<AbstractStackNode> withResults;
 	
 	private int previousLocation;
 	private int location;
@@ -74,7 +72,6 @@ public abstract class SGLL implements IGLL{
 		possiblySharedEdgeNodesMap = new IntegerKeyedHashMap<ArrayList<AbstractStackNode>>();
 		
 		resultStoreCache = new ObjectIntegerKeyedHashMap<IConstructor, ContainerNode>();
-		withResults = new HashSet<AbstractStackNode>();
 		
 		previousLocation = -1;
 		location = 0;
@@ -206,7 +203,7 @@ public abstract class SGLL implements IGLL{
 			for(int j = edgesPart.size() - 1; j >= 0; j--){
 				AbstractStackNode edge = edgesPart.get(j);
 				
-				if(withResults.contains(edge)){
+				if(edge.isMarkedAsWithResults()){
 					Link prefix = constructPrefixesFor(prefixesMap, result, startLocation);
 					if(prefix != null){
 						ArrayList<Link> edgePrefixes = new ArrayList<Link>();
@@ -228,7 +225,7 @@ public abstract class SGLL implements IGLL{
 			for(int i = possiblySharedEdgeNodes.size() - 1; i >= 0; i--){
 				AbstractStackNode possibleAlternative = possiblySharedEdgeNodes.get(i);
 				if(possibleAlternative.isSimilar(node)){
-					if(withResults.contains(possibleAlternative)){
+					if(possibleAlternative.isMarkedAsWithResults()){
 						ContainerNode resultStore = possibleAlternative.getResultStore();
 						if(!resultStore.isRejected()){
 							resultStore.addAlternative(production, new Link(prefixes, result));
@@ -251,7 +248,7 @@ public abstract class SGLL implements IGLL{
 		if(resultStore == null){
 			resultStore = new ContainerNode(inputURI, startLocation, location - startLocation, node.isList());
 			resultStoreCache.unsafePut(ProductionAdapter.getRhs(production), startLocation, resultStore);
-			withResults.unsafePut(node);
+			node.markAsWithResults();
 			
 			resultStore.addAlternative(production, new Link(prefixes, result));
 		}
@@ -286,16 +283,6 @@ public abstract class SGLL implements IGLL{
 			node = node.getCleanCopyWithPrefix();
 			node.setStartLocation(startLocation);
 		}
-		
-		ContainerNode resultStore = resultStoreCache.get(ProductionAdapter.getRhs(production), startLocation);
-		if(resultStore == null){
-			resultStore = new ContainerNode(inputURI, startLocation, location - startLocation, node.isList());
-			resultStoreCache.unsafePut(ProductionAdapter.getRhs(production), startLocation, resultStore);
-			withResults.unsafePut(node);
-			
-			resultStore.setRejected();
-		}
-		node.setResultStore(resultStore);
 		
 		possiblySharedEdgeNodes.add(node);
 	}
@@ -380,7 +367,6 @@ public abstract class SGLL implements IGLL{
 			possiblySharedNextNodes.clear();
 			possiblySharedEdgeNodesMap.clear();
 			resultStoreCache.clear();
-			withResults.clear();
 		}
 		
 		// Reduce terminals.
