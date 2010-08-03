@@ -61,6 +61,7 @@ public class ParserTest extends TestCase{
 		executeParser(new Ambiguous4());
 		executeParser(new Ambiguous5());
 		executeParser(new Ambiguous6());
+		executeParser(new Ambiguous7());
 	}
 	
 	public void testSplitAndMerge(){
