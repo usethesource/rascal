@@ -35,6 +35,7 @@ public class Ambiguous1 extends SGLL implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
 	private final static AbstractStackNode LITERAL_a1 = new LiteralStackNode(1, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, PROD_a_a, new char[]{'a'});
 	
 	public Ambiguous1(){
 		super();
@@ -47,7 +48,7 @@ public class Ambiguous1 extends SGLL implements IParserTest{
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a1);
+		expect(PROD_A_a, LITERAL_a2);
 	}
 	
 	public IValue parse(IConstructor start, URI inputURI, char[] input){
@@ -75,7 +76,7 @@ public class Ambiguous1 extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(appl(prod([lit(\"a\")],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),-1)";
+		String expectedInput = "parsetree(amb({appl(prod([lit(\"a\")],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])}),-1)";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 	
