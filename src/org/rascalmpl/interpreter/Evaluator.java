@@ -935,11 +935,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	// Commands 
 	@Override
 	public Result<IValue> visitCommandShell(Shell x) {
+		setCurrentAST(x);
 		return x.getCommand().accept(this);
 	}
 
 	@Override
 	public Result<IValue> visitCommandDeclaration(org.rascalmpl.ast.Command.Declaration x) {
+		setCurrentAST(x);
 		return x.getDeclaration().accept(this);
 	}
 
