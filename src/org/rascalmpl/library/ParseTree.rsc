@@ -41,7 +41,7 @@ data CharRange = single(int start);
 
 data CharRange = range(int start, int end);
 
-data Constructor = cons(str name);
+// data Constructor = cons(str name);
 
 alias CharClass = list[CharRange];
 

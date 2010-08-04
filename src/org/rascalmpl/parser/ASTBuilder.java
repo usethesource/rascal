@@ -613,7 +613,16 @@ public class ASTBuilder {
 				stats.setAmbiguous(true);
 			}
 
-			Expression ast = new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
+			// this generates a node instead of a constructor for the cons name, to match the representation
+			// that is produced by SGLR
+			Expression func;
+			if (!name.equals("cons")) {
+				func = makeQualifiedName(source, name);
+			}
+			else {
+				func = makeStringExpression(source, name);
+			}
+			Expression ast = new Expression.CallOrTree(source, func, args);
 			ast._setType(nonterminalType);
 
 			if (loc != null && !match) {
@@ -708,6 +717,11 @@ public class ASTBuilder {
 		else {
 			throw new ImplementationError("Illegal value encountered while lifting a concrete syntax pattern:" + pattern);
 		}
+	}
+
+	private org.rascalmpl.ast.Expression.Literal makeStringExpression(
+			IConstructor source, String name) {
+		return new Expression.Literal(source, new Literal.String(source, new StringLiteral.NonInterpolated(source, new StringConstant.Lexical(source, "\""+  name + "\""))));
 	}
 
 	private Expression addLocationAnnotationSetterExpression(
