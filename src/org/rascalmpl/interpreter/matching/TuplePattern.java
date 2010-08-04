@@ -94,9 +94,8 @@ public class TuplePattern extends AbstractMatchingResult {
 					}
 					return true;
 				}
-				else {
-					nextChild++;
-				}
+				
+				nextChild++;
 			}
 			else {
 				nextChild--;
