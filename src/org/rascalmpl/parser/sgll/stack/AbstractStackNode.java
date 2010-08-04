@@ -172,7 +172,7 @@ public abstract class AbstractStackNode{
 						AbstractStackNode edgeToAdd = edgesToAdd.get(j);
 						for(int k = edges.size() - 1; k >= 0; k--){
 							AbstractStackNode edge = edges.get(k);
-							if(edgeToAdd == edge || (edgeToAdd.getId() == edge.getId())){
+							if(edgeToAdd == edge){
 								continue OUTER;
 							}
 						}
