@@ -10,7 +10,7 @@ module rascal::conversion::sdf2::SDF2Grammar
 //   . The expression: `(Group) `A -> B <1>`; triggers a bug in AST construction
 //   . The test (CharClass) `[]` == \char-class([]);  // gives unsupported operation
 // - Introduce aliases (needs alias resolution in concrete fragments; this does not work yet)
-
+ 
 import IO;
 import String;
 import Integer;

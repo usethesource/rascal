@@ -188,7 +188,7 @@ public str symbol2rascal(Symbol sym) {
     case difference(lhs,rhs):
      	return "<symbol2rascal(lhs)>-<symbol2rascal(rhs)>";
     case complement(lhs):
-     	return "~<symbol2rascal(lhs)>";
+     	return "!<symbol2rascal(lhs)>";
 
   }
   throw "symbol2rascal: missing case <sym>";
@@ -276,7 +276,7 @@ test range2rascal(range(34,34))  == "\\\"";
 
 private list[str] ascii =
 [
-
+ 
 //Decimal   Value   Description
 //-------  -------  --------------------------------
 /* 000 */  "\\000", // NUL   (Null char.)
@@ -422,7 +422,7 @@ public str charclasschar2rascal(int ch){
   	
   case 93:	return "\\]";	// right bracket (])
   	
-  case 95:	return "\\_";	// underscore (_)
+  case 95:	return "_";	// underscore (_)
  
   default:	return stringchar2rascal(ch);
   }
