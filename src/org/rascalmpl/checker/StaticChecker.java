@@ -2,7 +2,6 @@ package org.rascalmpl.checker;
 
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMapWriter;

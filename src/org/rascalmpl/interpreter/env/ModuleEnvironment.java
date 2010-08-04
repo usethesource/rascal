@@ -66,7 +66,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void declareProduction(Syntax x) {
-		productions.add((IValue) x.getTree());
+		productions.add(x.getTree());
 	}
 	
 	@Override
