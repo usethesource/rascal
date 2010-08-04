@@ -145,7 +145,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				hasNext = false;
 				return;
 			}
-					
+
 			if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
 				// fail early if the subject's production is not the same
 				hasNext = false;
