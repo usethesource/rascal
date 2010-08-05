@@ -17,9 +17,9 @@ import Integer;
 import ParseTree;
 import rascal::parser::Grammar;
 import rascal::conversion::sdf2::Load;
-import languages::sdf2::syntax::Sdf2ForRascal;
-import rascal::parser::Normalization;            // Comment, if you want unnormalized grammars
-
+import languages::sdf2::syntax::Sdf2ForRascal;   
+// import rascal::parser::Normalization;            // Comment, if you want unnormalized grammars
+     
 // Resolve name clashes between the ParseTree and Grammar datatypes.
 // Unfortunately we cannot yet use these aliases since they lead to ambiguities.
 // Reason: aliases are not resolved in concrete syntax fragments
@@ -71,7 +71,7 @@ public Grammar sdf2grammar(SDF definition) {
 }
 
 test sdf2grammar(
-        `definition
+        `definition 
          module X
          exports
            context-free syntax
@@ -722,6 +722,15 @@ public Attr getAttribute(languages::sdf2::syntax::Sdf2ForRascal::Attribute m) {
     case (Attribute) `memo`:
     	return \memo();
     	
+    case (Attribute) `prefer`:
+        return \prefer();
+        
+    case (Attribute) `avoid` :
+        return \avoid();
+    	
+    case (Attribute) `reject` :
+        return \reject();
+        
     default: throw "missed a case <m>";
   }
 }
