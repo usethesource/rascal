@@ -59,7 +59,7 @@ lexical syntax
   OctalEscapeSequence        -> Char {category("Constant")}
   UnicodeEscape              -> Char {category("Constant")}
  ~[\"\'\\\-\[\]\ \<\>]       -> Char {category("Constant")}  
-"\\" [btnfr\"\'\\\<\>\-\[\]] -> Char {category("Constant")}
+"\\" [btnfr\"\'\\\<\>\-\[\]\ ] -> Char {category("Constant")}
  
 
 context-free priorities
