@@ -80,8 +80,8 @@ data RType =
   	| RRelType(list[RNamedType] elementTypes) 
   	| RTupleType(list[RNamedType] elementTypes) 
   	| RLexType()
-  	| RADTType(RType adtName, list[RType] constructors)
-  	| RConstructorType(RName cname, list[RNamedType] elementTypes, RType adtType) 
+  	| RADTType(RType adtName)
+  	| RConstructorType(RName constructorName, RType adtType, list[RNamedType] elementTypes) 
   	| RFunctionType(RType returnType, list[RNamedType] parameterTypes)
   	| RNonTerminalType()
   	| RReifiedType(RType baseType)
@@ -103,6 +103,7 @@ data RType =
 	| RTypeVar(RTypeVar tv)
 	| RAssignableType(RType wholeType, RType partType)
 	| RUnknownType(RType wrappedType)
+	| RPartialMatch(list[RType] partialMatches)
 ;
 
 data ROverloadedType =
@@ -139,8 +140,8 @@ public RType convertBasicType(BasicType t) {
 		case `tuple` : return RTupleType([]);
 		case `lex` : return RLexType();
 		case `type` : return RReifiedType(RVoidType());
-		case `adt` : return RADTType(RUserType(RSimpleName("unnamed")),[]);
-		case `constructor` : return RConstructorType(RSimpleName("unnamed"),[],RVoidType());
+		case `adt` : return RADTType(RUserType(RSimpleName("unnamedADT")));
+		case `constructor` : return RConstructorType(RSimpleName("unnamedConstructor"),RUserType(RSimpleName("unnamedADT")),[]);
 		case `fun` : return RFunctionType(RVoidType,[]);
 		case `non-terminal` : return RNonTerminalType();
 		case `reified` : return RReifiedType(RVoidType());
@@ -253,8 +254,8 @@ public str prettyPrintType(RType t) {
 		case RRelType(nts) : return "rel[<prettyPrintNamedTypeList(nts)>]";
 		case RTupleType(nts) : return "tuple[<prettyPrintNamedTypeList(nts)>]";
 		case RLexType() : return "lex";
-		case RADTType(n,cs) : return "adt <prettyPrintType(n)>: <prettyPrintTypeList(cs)>"; // TODO: Add more detail on the pretty printer
-		case RConstructorType(cn, ets, at) : return "Constructor for type <prettyPrintType(at)>: <prettyPrintName(cn)>(<prettyPrintNamedTypeList(ets)>)";
+		case RADTType(n) : return "<prettyPrintType(n)>"; // TODO: Add more detail on the pretty printer
+		case RConstructorType(cn, an, ets) : return "Constructor for type <prettyPrintType(an)>: <prettyPrintName(cn)>(<prettyPrintNamedTypeList(ets)>)";
 		case RFunctionType(rt, pts) : return "<prettyPrintType(rt)> (<prettyPrintNamedTypeList(pts)>)";
 		case RNonTerminalType() : return "non-terminal";
 		case RReifiedType(rt) : return "type(<prettyPrintType(t)>)";
@@ -272,6 +273,7 @@ public str prettyPrintType(RType t) {
 		case RTypeVar(tv) : return prettyPrintTypeVar(tv);
 		case RAssignableType(wt,pt) : return "Assignable type, whole <prettyPrintType(wt)>, part <prettyPrintType(pt)>";
 		case RLocatedType(rlt,l) : return "Located type <prettyPrintType(rlt)> at location <l>";
+		default : return "Unhandled type <t>";
 	}
 }
 
@@ -381,7 +383,7 @@ public bool isFunctionType(RType t) {
 }
 
 public bool isADTType(RType t) {
-	return RADTType(_,_) := t;
+	return RADTType(_) := t;
 }
 
 public bool isConstructorType(RType t) {
@@ -589,71 +591,8 @@ public RType getMapRangeType(RType t) {
 	throw "Cannot get domain of non-map type <prettyPrintType(t)>";
 }
 
-@doc{Check to see if a relation defines a field.}
-public bool relHasField(RType t, RName fn) {
-	if (RRelType(tas) := t) {
-		for (ta <- tas) {
-			if (RNamedType(_,fn) := ta) return true;	
-		}
-	}
-	return false;
-}
-
-@doc{Return the type of a field defined on a relation.}
-public RType getRelFieldType(RType t, RName fn) {
-	if (RRelType(tas) := t) {
-		for (ta <- tas) {
-			if (RNamedType(ft,fn) := ta) return ft;	
-		}
-	}
-	throw "Relation <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
-}
-
-public list[RType] getRelFields(RType t) {
-	if (RRelType(tas) := t) {
-		return [ getElementType(ta) | ta <- tas ];
-	}
-	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
-}
-
-public list[RNamedType] getRelFieldsWithNames(RType t) {
-	if (RRelType(tas) := t) {
-		return [ ta | ta <- tas ];
-	}
-	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
-}
-
-@doc{Check to see if an ADT defines a field.}
-public bool adtHasField(RType t, RName fn) {
-	if (RADTType(n,cs) := t) {
-		for (RConstructorType(cn,cts,at) <- cs) {
-			for (ta <- cts) {
-				if (RNamedType(_,fn) := ta) return true;
-			}	
-		}
-	}
-	return false;
-}
-
-//
-// Look up the type of field fn on ADT t. Note that fields have a unique type in a given ADT, even if
-// they appear on multiple constructors, so we can always use the first occurrence of the field we
-// find on a constructor.
-//
-@doc{Return the type of a field on an ADT.}
-public RType getADTFieldType(RType t, RName fn) {
-	if (RADTType(n,cs) := t) {
-		for (RConstructorType(cn,cts,at) <- cs) {
-			for (ta <- cts) {
-				if (RNamedType(ft,fn) := ta) return ft;
-			}	
-		}
-	}
-	throw "ADT <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
-}
-
 public RName getADTName(RType t) {
-	if (RADTType(n,_) := t) return getUserTypeName(n);
+	if (RADTType(n) := t) return getUserTypeName(n);
 	throw "getADTName, invalid type given: <prettyPrintType(t)>";
 }
 
@@ -727,9 +666,13 @@ public RType extendFailType(RType ft, set[tuple[str s, loc l]] sls) {
 	throw "Cannot extend a non-failure type with failure information, type <prettyPrintType(ft)>";
 }
  
-public RType collapseFailTypes(set[RType] rt) { return RFailType({ s | RFailType(ss) <- rt, s <- ss }); }
+public RType collapseFailTypes(set[RType] rt) { 
+	return RFailType({ s | RFailType(ss) <- rt, s <- ss }); 
+}
 
-public RType makeConstructorType(RName cname, list[RNamedType] tas, RType tn) { 	return RConstructorType(cname, tas, tn); }
+public RType makeConstructorType(RName consName, RType adtType, list[RNamedType] consArgs) { 	
+	return RConstructorType(consName, adtType, consArgs); 
+}
 
 public list[RType] getFunctionArgumentTypes(RType ft) {
 	if (RFunctionType(_, ats) := ft) return [ getElementType(argType) | argType <- ats ];
@@ -742,12 +685,12 @@ public RType getFunctionReturnType(RType ft) {
 }
 
 public list[RType] getConstructorArgumentTypes(RType ct) {
-	if (RConstructorType(cn, cts, pt) := ct) return [ getElementType(argType) | argType <- cts ]; 
+	if (RConstructorType(_,_,cts) := ct) return [ getElementType(argType) | argType <- cts ]; 
 	throw "Cannot get constructor arguments from non-constructor type <prettyPrintType(ct)>";
 }
 
 public RType getConstructorResultType(RType ct) {
-	if (RConstructorType(cn, cts, pt) := ct) return pt;
+	if (RConstructorType(cn, an, cts) := ct) return an;
 	throw "Cannot get constructor ADT type from non-constructor type <prettyPrintType(ft)>";
 }
 

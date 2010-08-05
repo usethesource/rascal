@@ -7,13 +7,13 @@ import Set;
 
 // Each signature item represents an item visible at the module level.
 data RSignatureItem =
-	  AliasSigItem(RType aliasType, RType sigType, loc at)
-	| FunctionSigItem(RName functionName, RType sigType, loc at)
-	| VariableSigItem(RName variableName, RType sigType, loc at)
-	| ADTSigItem(RType adtType, RType sigType, loc at)
-	| ConstructorSigItem(RName conName, RType sigType, loc at)
+	  AliasSigItem(RName aliasName, RType aliasType, RType aliasedType, loc at)
+	| FunctionSigItem(RName functionName, RType functionType, loc at)
+	| VariableSigItem(RName variableName, RType variableType, loc at)
+	| ADTSigItem(RName adtName, RType adtType, loc at)
+	| ConstructorSigItem(RName conName, RName adtName, list[RNamedType] constructorType, loc at)
 	| RuleSigItem(RName ruleName, loc at)
-    | AnnotationSigItem(RName annName, RType sigType, RType onType, loc at)
+    | AnnotationSigItem(RName annName, RType annType, RType onType, loc at)
 	| TagSigItem(RName tagName, list[RType] tagTypes, loc at)
 ;
 
@@ -127,16 +127,16 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 				// ADT without variants
 				// TODO: Currently visibility is ignored. Should update this from any visibility to just public when this changes.
 				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> ;` : {
-					sig = addSignatureItem(sig, ADTSigItem(convertUserType(typ), RADTType(convertUserType(typ),[]), t@\loc));
+					sig = addSignatureItem(sig, ADTSigItem(convertName(getUserTypeRawName(typ)), convertUserType(typ), t@\loc));
 				}
 				
 				// ADT with variants
 				// TODO: Currently visibility is ignored. Should update this from any visibility to just public when this changes.
 				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
-					sig = addSignatureItem(sig, ADTSigItem(convertUserType(typ), RADTType(convertUserType(typ),[]), t@\loc));
+					sig = addSignatureItem(sig, ADTSigItem(convertName(getUserTypeRawName(typ)), convertUserType(typ), t@\loc));
 					for (var <- vars) {
 						if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
-							sig = addSignatureItem(sig,ConstructorSigItem(convertName(n), RConstructorType(convertName(n), [ convertTypeArg(targ) | targ <- args ], RADTType(convertUserType(typ),[])), t@\loc));
+							sig = addSignatureItem(sig,ConstructorSigItem(convertName(n), convertName(getUserTypeRawName(typ)), [ convertTypeArg(targ) | targ <- args ], t@\loc));
 						}
 					}
 				}
@@ -144,7 +144,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 				// Alias
 				// TODO: Currently visibility is ignored. Should update this from any visibility to just public when this changes.
 				case (Toplevel) `<Tags tgs> <Visibility vis> alias <UserType typ> = <Type btyp> ;` : {
-					sig = addSignatureItem(sig, AliasSigItem(convertUserType(typ), convertType(btyp), t@\loc));
+					sig = addSignatureItem(sig, AliasSigItem(convertName(getUserTypeRawName(typ)), convertUserType(typ), convertType(btyp), t@\loc));
 				}
 								
 				// View
@@ -192,8 +192,8 @@ private set[RName] getLocallyDefinedTypeNames(RSignature sig) {
 	set[RName] definedTypeNames = { };
 	for (si <- sig.signatureItems) {
 		switch(si) {
-			case AliasSigItem(t,_,_) : definedTypeNames += getUserTypeName(t);
-			case ADTSigItem(t,_,_) : definedTypeNames += getUserTypeName(t); 
+			case AliasSigItem(n,_,_,_) : definedTypeNames += n;
+			case ADTSigItem(n,_,_) : definedTypeNames += n; 
 		}
 	}
 	return definedTypeNames;
