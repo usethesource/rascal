@@ -14,8 +14,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Import;
+import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.ast.TypeVar;
@@ -65,18 +67,21 @@ public class TypeDeclarationEvaluator {
 		for (Import i : imports) {
 			if (i.isSyntax()) {
 				// TODO: declare all the embedded regular symbols as well
-				declareSyntaxType(i.getSyntax().getUser(), env);
+				declareSyntaxType(i.getSyntax().getDefined(), env);
 			}
 		}
 	}
 
-	public void declareSyntaxType(UserType type, Environment env) {
+	public void declareSyntaxType(Sym type, Environment env) {
 		IValueFactory vf = eval.getValueFactory();
 		
-		String nt = Names.typeName(type.getName());
+		if (type.isNonterminal()) {
+			String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
 		
-		// TODO: at some point the cf wrapper needs to be dropped here...
-		env.concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Cf.make(vf, Factory.Symbol_Sort.make(vf, vf.string(nt))));
+			// TODO: at some point the cf wrapper needs to be dropped here...
+			env.concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Cf.make(vf, Factory.Symbol_Sort.make(vf, vf.string(nt))));
+		}
+		// do nothing
 	}
 
 	private void declareConstructors(Set<Data> constructorDecls) {
