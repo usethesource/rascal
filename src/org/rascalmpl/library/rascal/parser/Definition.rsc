@@ -39,15 +39,15 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] layouts = {};
     
   for (def <- defs) switch (def) {  
-    case (SyntaxDefinition) `start syntax <UserType u> = <Prod p>;`  : {
-       Symbol top = user2symbol(u);
+    case (SyntaxDefinition) `start syntax <Sym u> = <Prod p>;`  : {
+       Symbol top = arg2symbol(u, false);
        starts += start(top);
-       prods += prod2prod(user2symbol(u), p);
+       prods += prod2prod(top, p);
     }
-    case (SyntaxDefinition) `layout <UserType u> = <Prod p>;`  : 
-      layouts += prod2prod(user2symbol(u), p);
-    case (SyntaxDefinition) `syntax <UserType u> = <Prod p>;`  : {
-      prods += prod2prod(user2symbol(u), p);
+    case (SyntaxDefinition) `layout <Sym u> = <Prod p>;`  : 
+      layouts += prod2prod(arg2symbol(u, false), p);
+    case (SyntaxDefinition) `syntax <Sym u> = <Prod p>;`  : {
+      prods += prod2prod(arg2symbol(u, false), p);
     }
     default: throw "missed case: <def>";
   }
@@ -214,15 +214,20 @@ private CharRange range(Range r) {
     default: throw "missed a case <r>";
   }
 } 
-  
+ 
 private int character(Char c) {
   switch (c) {
-    case [Char] /<ch:[^"'\-\[\]\\ ]>/        : return charAt(ch, 0); 
+    case [Char] /\\n/ : charAt("\n", 0);
+    case [Char] /\\t/ : charAt("\t", 0);
+    case [Char] /\\b/ : charAt("\b", 0);
+    case [Char] /\\r/ : charAt("\r", 0);
+    case [Char] /\\f/ : charAt("\f", 0);
+    case [Char] /<ch:[^"'\-\[\]\\\>\< ]>/        : return charAt(ch, 0); 
     case [Char] /\\<esc:["'\-\[\]\\ ]>/        : return charAt(esc, 0);
     case [Char] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
-    case [Char] /\\<oct:[0-7]>/           : return toInt("0<oct>");
-    case [Char] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
     case [Char] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
+    case [Char] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
+    case [Char] /\\<oct:[0-7]>/           : return toInt("0<oct>");
     default: throw "missed a case <c>";
   }
 }
@@ -248,9 +253,3 @@ println("transforming modifier <m>");
   }
 }
   
-private Symbol user2symbol(UserType u) {
-  switch (u) {
-   case (UserType) `<Name n>` : return sort("<n>");
-   default: throw "missed case: <u>";
-  } 
-} 
