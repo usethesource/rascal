@@ -5,7 +5,7 @@ import IO;
 import Exception;
 import String;
 
-public Definition loadSDF2Module(str name, list[loc] path) {
+public SDF loadSDF2Module(str name, list[loc] path) {
   set[str] names = {};
   set[Module] modules = {};
   set[str] newnames = {name};
@@ -20,10 +20,12 @@ public Definition loadSDF2Module(str name, list[loc] path) {
   }
 
   mods = (Module*) ``;
-  for (m <- modules) mods = (Module*) `<Module* mods> <Module m>`;
-  return (SDF) `definition <Module* mods>`;
+  for (Module m <- modules) {
+    mods = (Module*) `<[Module] m> <[Module*] mods>`;
+  }
+  return (SDF) `definition <[Module*] mods>`;
 }
 
 public set[str] getImports(Module mod) {
-  return { "<name>" | /Import i := mod,  /ModuleName name := i};
+  return { "<name>" | /Import i := mod,  /ModuleId name := i};
 }
