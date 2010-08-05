@@ -3,6 +3,7 @@ module rascal::checker::TypeRules
 import rascal::checker::SubTypes;
 import rascal::checker::Types;
 import rascal::checker::ListUtils;
+import rascal::checker::SymbolTable;
 
 import List;
 import Set;
@@ -69,9 +70,9 @@ public str prettyPrintOp(ROp ro) {
 //
 // NOTE: There are no cases for types void, lex, type, adt, non-terminal, reified. This is not an oversight.
 public RType expressionType(RType lType, RType rType, ROp rop, loc l) {
-	if (RAliasType(al,ar) := lType) return expressionType(ar,rType,rop,l);
-	if (RAliasType(al,ar) := rType) return expressionType(lType,ar,rop,l);
-	
+	lType = unwindAliases(lType);
+	rType = unwindAliases(rType);
+		
 	switch(<lType, rop, rType>) {
 		// BOOL CASES
 		case <RBoolType(), RLt(), RBoolType()> : return RBoolType();
@@ -358,8 +359,9 @@ public RType expressionType(RType lType, RType rType, ROp rop, loc l) {
 		
 		// CONSTRUCTOR CASES
 		// TODO: Should take ADT type into account
-		case <RConstructorType(_,_,_), REq(), RConstructorType(_,_,_)> : return RBoolType();
-		case <RConstructorType(_,_,_), RNEq(), RConstructorType(_,_,_)> : return RBoolType();
+		// NOTE: Should not hit these, we would be comparing ADTs, not individual constructor types
+		//case <RConstructorType(_,_,_), REq(), RConstructorType(_,_,_)> : return RBoolType();
+		//case <RConstructorType(_,_,_), RNEq(), RConstructorType(_,_,_)> : return RBoolType();
 
 		// FUN CASES
 		case <RFunctionType(_,_), REq(), RFunctionType(_,_)> : return RBoolType();
@@ -371,6 +373,21 @@ public RType expressionType(RType lType, RType rType, ROp rop, loc l) {
 		case <RDateTimeType(), RGtEq(), RDateTimeType()> : return RBoolType();
 		case <RDateTimeType(), REq(), RDateTimeType()> : return RBoolType();
 		case <RDateTimeType(), RNEq(), RDateTimeType()> : return RBoolType();
+		
+		// ADT CASES
+		case <RADTType(_), REq(), RADTType(_)> : return RBoolType();
+		case <RADTType(_), RNEq(), RADTType(_)> : return RBoolType();
+		
+		// NODE CASES
+		case <RNodeType(), REq(), RNodeType()> : return RBoolType();
+		case <RNodeType(), RNEq(), RNodeType()> : return RBoolType();
+		
+		// MIXED ADT/NODE CASES
+		case <RADTType(_), REq(), RNodeType()> : return RBoolType();
+		case <RADTType(_), RNEq(), RNodeType()> : return RBoolType();
+		case <RNodeType(), REq(), RADTType(_)> : return RBoolType();
+		case <RNodeType(), RNEq(), RADTType(_)> : return RBoolType();
+		
 	}
 	return makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rType)> must be a subtype of <prettyPrintType(lType)>",l);
 }
@@ -407,8 +424,8 @@ public bool typeAllowsFields(RType rt) {
 	return (isADTType(rt) || isTupleType(rt) || isRelType(rt) || isLocType(rt) || isDateTimeType(rt) || isMapType(rt));
 }
 
-public bool typeHasField(RType rt, RName fn) {
-	if (isADTType(rt)) return adtHasField(rt, fn);
+public bool typeHasField(RType rt, RName fn, SymbolTable symbolTable) {
+	if (isADTType(rt)) return adtHasField(rt, fn, symbolTable);
 	if (isTupleType(rt)) return tupleHasField(rt, fn);
 	if (isRelType(rt)) return relHasField(rt, fn);
 	if (isLocType(rt)) return locHasField(fn);
@@ -418,8 +435,8 @@ public bool typeHasField(RType rt, RName fn) {
 	throw "Type <prettyPrintType(rt)> does not allow fields.";
 }
 
-public RType getFieldType(RType rt, RName fn, loc l) {
-	if (isADTType(rt) && typeHasField(rt,fn)) return getADTFieldType(rt, fn);
+public RType getFieldType(RType rt, RName fn, SymbolTable symbolTable, loc l) {
+	if (isADTType(rt) && typeHasField(rt,fn,symbolTable)) return getADTFieldType(rt, fn, symbolTable);
 	if (isADTType(rt)) return makeFailType("ADT <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
 	if (isTupleType(rt) && typeHasField(rt,fn)) return getTupleFieldType(rt, fn);
@@ -437,5 +454,68 @@ public RType getFieldType(RType rt, RName fn, loc l) {
 	if (isDateTimeType(rt) && typeHasField(rt,fn)) return typeForField(rt, fn);
 	if (isDateTimeType(rt)) return makeFailType("DateTime <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 	
-	return makeFailType("Type <prettyPrintType(rt)> does not have fields", l);
+	return makeFailType("Type <prettyType(rt)> does not have fields", l);
+}
+
+@doc{Check to see if a relation defines a field.}
+public bool relHasField(RType t, RName fn) {
+	if (RRelType(tas) := t) {
+		for (ta <- tas) {
+			if (RNamedType(_,fn) := ta) return true;	
+		}
+	}
+	return false;
+}
+
+@doc{Return the type of a field defined on a relation.}
+public RType getRelFieldType(RType t, RName fn) {
+	if (RRelType(tas) := t) {
+		for (ta <- tas) {
+			if (RNamedType(ft,fn) := ta) return ft;	
+		}
+	}
+	throw "Relation <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
+}
+
+public list[RType] getRelFields(RType t) {
+	if (RRelType(tas) := t) {
+		return [ getElementType(ta) | ta <- tas ];
+	}
+	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
+}
+
+public list[RNamedType] getRelFieldsWithNames(RType t) {
+	if (RRelType(tas) := t) {
+		return [ ta | ta <- tas ];
+	}
+	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
+}
+
+@doc{Check to see if an ADT defines a field.}
+public bool adtHasField(RType t, RName fn, SymbolTable symbolTable) {
+	if (RADTType(n) := t) {
+		for (ci <- symbolTable.adtMap[getUserTypeName(n)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
+			for (ta <- cts) {
+				if (RNamedType(_,fn) := ta) return true;
+			}	
+		}
+	}
+	return false;
+}
+
+//
+// Look up the type of field fn on ADT t. Note that fields have a unique type in a given ADT, even if
+// they appear on multiple constructors, so we can always use the first occurrence of the field we
+// find on a constructor.
+//
+@doc{Return the type of a field on an ADT.}
+public RType getADTFieldType(RType t, RName fn, SymbolTable symbolTable) {
+	if (RADTType(n) := t) {
+		for (ci <- symbolTable.adtMap[getUserTypeName(n)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
+			for (ta <- cts) {
+				if (RNamedType(ft,fn) := ta) return ft;
+			}	
+		}
+	}	
+	throw "ADT <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
 }

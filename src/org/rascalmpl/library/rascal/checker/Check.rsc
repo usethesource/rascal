@@ -9,13 +9,13 @@ import Relation;
 import ParseTree;
 import Reflective;
 
+import rascal::checker::ListUtils;
 import rascal::checker::Types;
 import rascal::checker::SubTypes;
-import rascal::checker::TypeRules;
 import rascal::checker::SymbolTable;
-import rascal::checker::Namespace;
 import rascal::checker::Signature;
-import rascal::checker::ListUtils;
+import rascal::checker::TypeRules;
+import rascal::checker::Namespace;
 
 import rascal::\old-syntax::Rascal;
 
@@ -99,7 +99,7 @@ public Tree updateOverloadedCall(Tree t, RType ty) {
 	return t;
 }
 
-public Tree check(Tree t, RType adtErrors) {
+public Tree check(Tree t) {
 	return visit(t) {
 		case `<Expression e>` : {
 			if (`<Expression e1> ( <{Expression ","}* el> )` := e) {
@@ -128,13 +128,7 @@ public Tree check(Tree t, RType adtErrors) {
 		case `<FunctionBody fb>` => fb[@rtype = checkFunctionBody(fb)]
 		case `<Toplevel t>` => t[@rtype = checkToplevel(t)]
 		case `<Body b>` => b[@rtype = checkModuleBody(b)]
-		case `<Module m>` : {
-			RType modType = checkModule(m);
-			if (isVoidType(adtErrors))
-				insert m[@rtype = modType];
-			else
-				insert m[@rtype = collapseFailTypes(adtErrors,modType)];
-		}
+		case `<Module m>` => m[@rtype = checkModule(m)]
 		case `<Case c>` => c[@rtype = checkCase(c)]
 		case `<Name n>` => setUpName(n)
 	} 
@@ -181,8 +175,14 @@ public RType checkName(Name n) {
 // To check a module, currently we just propagate up errors on the body. In the future,
 // we may need to make use of the module header as well (a possible TODO).
 public RType checkModule(Module m) {
-	if ((Module) `<Header h> <Body b>` := m) 
-		return b@rtype;
+	if ((Module) `<Header h> <Body b>` := m) {
+		set[str] scopeErrors = (m@\loc in globalSymbolTable.scopeErrorMap) ? symbolTable.scopeErrorMap[m@\loc] : { };
+	 	if (size(scopeErrors) > 0) {
+	 		return collapseFailTypes({ makeFailType(s,m@\loc) | s <- scopeErrors } + b@rtype);
+	 	} else {
+	 		return b@rtype;
+	 	}
+	}
 	throw "checkModule: unexpected module syntax";
 }
 
@@ -230,7 +230,7 @@ public RType checkToplevel(Toplevel t) {
 			
 		// Test
 		case (Toplevel) `<Test tst> ;` : {
-			return checkTest(tst);
+			return checkTestDeclaration(tst);
 		}
 							
 		// ADT without variants
@@ -670,7 +670,7 @@ public RType checkStatement(Statement s) {
 			RType rt = checkWhileStatement(s,l,es,b);
 			return rt;
 		}
-
+		
 		case `<Label l> do <Statement b> while (<Expression e>);` : {
 			RType rt = checkDoWhileStatement(s,l,b,e);
 			return rt;
@@ -788,6 +788,10 @@ public RType checkStatement(Statement s) {
 		case `<Label l> { <Statement+ bs> }` : {
 			RType rt = checkBlockStatement(s, l, bs);
 			return rt;
+		}
+		
+		case `;` : {
+			return makeStatementType(makeVoidType());
 		}
 	}
 	
@@ -1058,7 +1062,7 @@ public RType checkStepRangeExpression(Expression ep, Expression e1, Expression e
 
 public RType checkFieldUpdateExpression(Expression ep, Expression el, Name n, Expression er) {
 	if (checkForFail({el@rtype,er@rtype})) return collapseFailTypes({el@rtype,er@rtype});
-	RType ft = getFieldType(el@rtype, convertName(n), ep@\loc);
+	RType ft = getFieldType(el@rtype, convertName(n), globalSymbolTable, ep@\loc);
 	if (isFailType(ft)) return ft;
 	if (subtypeOf(er@rtype,ft))
 		return el@rtype;
@@ -1070,7 +1074,7 @@ public RType checkFieldUpdateExpression(Expression ep, Expression el, Name n, Ex
 // Fields can be included on ADTs (defined in constructors), 
 public RType checkFieldAccessExpression(Expression ep, Expression el, Name n) {
 	if (checkForFail({el@rtype})) return collapseFailTypes({el@rtype});
-	return getFieldType(el@rtype, convertName(n), ep@\loc);
+	return getFieldType(el@rtype, convertName(n), globalSymbolTable, ep@\loc);
 }
 
 private list[tuple[Field field, int offset]] getFieldOffsets(list[RNamedType] fieldTypes, list[Field] fields) {
@@ -1442,17 +1446,17 @@ public RType checkOrExpression(Expression ep, Expression el, Expression er) {
 
 public RType checkMatchExpression(Expression ep, Pattern p, Expression e) {
 	if (checkForFail({ p@rtype, e@rtype })) return collapseFailTypes({ p@rtype, e@rtype });
+	if (! subtypeOf(e@rtype, p@rtype)) return makeFailType("The type of the expression, <prettyPrintType(e@rtype)>, must be a subtype of the pattern type, <prettyPrintType(p@rtype)>", ep@\loc);
 	RType boundType = bindInferredTypesToPattern(e@rtype, p);
 	if (isFailType(boundType)) return boundType;
-	if (! subtypeOf(e@rtype, boundType)) return makeFailType("The type of the expression, <prettyPrintType(e@rtype)>, must be a subtype of the pattern type, <prettyPrintType(boundType)>", ep@\loc);
 	return makeBoolType();
 }
 
 public RType checkNoMatchExpression(Expression ep, Pattern p, Expression e) {
 	if (checkForFail({ p@rtype, e@rtype })) return collapseFailTypes({ p@rtype, e@rtype });
+	if (! subtypeOf(e@rtype, p@rtype)) return makeFailType("The type of the expression, <prettyPrintType(e@rtype)>, must be a subtype of the pattern type, <prettyPrintType(p@rtype)>");
 	RType boundType = bindInferredTypesToPattern(e@rtype, p);
 	if (isFailType(boundType)) return boundType;
-	if (! subtypeOf(e@rtype, boundType)) return makeFailType("The type of the expression, <prettyPrintType(e@rtype)>, must be a subtype of the pattern type, <prettyPrintType(boundType)>");
 	return makeBoolType();
 }
 
@@ -1461,18 +1465,19 @@ public RType checkEnumeratorExpression(Expression ep, Pattern p, Expression e) {
 		return collapseFailTypes({ p@rtype, e@rtype });
 	} else if (isListType(e@rtype) && subtypeOf(getListElementType(e@rtype), p@rtype)) {
 		RType elementType = getListElementType(e@rtype);
+		if (! subtypeOf(elementType, p@rtype)) return makeFailType("The type of the list elements, <prettyPrintType(elementType)>, must be a subtype of the pattern type, <prettyPrintType(p@rtype)>", ep@\loc);
 		RType boundType = bindInferredTypesToPattern(elementType, p);
 		if (isFailType(boundType)) return boundType;
-		if (! subtypeOf(elementType, boundType)) return makeFailType("The type of the list elements, <prettyPrintType(elementType)>, must be a subtype of the pattern type, <prettyPrintType(boundType)>", ep@\loc);
 		return makeBoolType();
 	} else if (isSetType(e@rtype) && subtypeOf(getSetElementType(e@rtype), p@rtype)) {
 		RType elementType = getSetElementType(e@rtype);
+		if (! subtypeOf(elementType, p@rtype)) return makeFailType("The type of the expression, <prettyPrintType(e@rtype)>, must be a subtype of the pattern type, <prettyPrintType(p@rtype)>", ep@\loc);
 		RType boundType = bindInferredTypesToPattern(elementType, p);
 		if (isFailType(boundType)) return boundType;
-		if (! subtypeOf(elementType, boundType)) return makeFailType("The type of the expression, <prettyPrintType(e@rtype)>, must be a subtype of the pattern type, <prettyPrintType(boundType)>", ep@\loc);
 		return makeBoolType();
 	} else {
-		throw "Unhandled enumerator case, <p> \<- <e>";
+		println("Unhandled enumerator case, <p> \<- <e>");
+		return makeBoolType();
 	}
 }
 
@@ -1601,12 +1606,20 @@ public RType checkExpression(Expression exp) {
 
 		// TODO: See if we ever have this; a qualified name, not a name, is an expression
 		case (Expression)`<Name n>`: {
-			return isInferredType(n@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)] : n@rtype; 
+			if ( (n@rtype) ?) {
+				return isInferredType(n@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)] : n@rtype;
+			} else {
+				return makeFailType("No type declared or deduced for <n>",exp@\loc);
+			} 
 		}
 		
 		// QualifiedName
 		case (Expression)`<QualifiedName qn>`: {
-			return isInferredType(qn@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
+			if ( (qn@rtype) ?) {
+				return isInferredType(qn@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype;
+			} else {
+				return makeFailType("No type declared or deduced for <qn>",exp@\loc);
+			} 
 		}
 
 		// ReifiedType
@@ -2046,7 +2059,7 @@ public RType checkFieldAccessAssignable(Assignable ap, Assignable a, Name n) {
 	if (checkForFail({a@rtype})) return collapseFailTypes({a@rtype});
 	RType partType = getPartType(a@rtype);
 	RType wholeType = getWholeType(a@rtype);
-	RType rt = getFieldType(partType, convertName(n), ap@\loc);
+	RType rt = getFieldType(partType, convertName(n), globalSymbolTable, ap@\loc);
 	if (isFailType(rt)) return rt;
 	return makeAssignableType(wholeType, rt);
 }
@@ -2331,14 +2344,27 @@ public RType checkReifiedTypePattern(Pattern pp, Type t, {Pattern ","}* pl) {
 // useful for the user to know)
 //
 public RType checkCallOrTreePattern(Pattern pp, Pattern pc, {Pattern ","}* ps) {
-	RType resultType = makeFailType("We assume bad, bad things!",pp@\loc);
+	list[RType] matches = getCallOrTreePatternType(pp, pc, ps);
+	if (size(matches) > 1) { 
+		return RPartialMatch(matches);
+	} else if (size(matches) == 1 && rt := head(matches) && isFailType(rt)) {
+		return rt;
+	} else if (size(matches) == 1 && rt := head(matches) && isConstructorType(rt)) {
+		return getConstructorResultType(rt);
+	} else {
+		throw "Unexpected situation, checkCallOrTreePattern, found the following matches: <matches>";
+	}
+}
+
+public list[RType] getCallOrTreePatternType(Pattern pp, Pattern pc, {Pattern ","}* ps) {
+	RType resultType = makeFailType("Error, no possible matches found",pp@\loc);
 
 	// First, if we have any failures, just propagate those upwards, don't bother to
 	// check the rest of the call.
 	// TODO: We may want to check arity, etc anyway, since we could catch errors
 	// where no function or constructor could possibly match.	
 	if (checkForFail({ pc@rtype } + { p@rtype | p <- ps }))
-		return collapseFailTypes({ pc@rtype } + { p@rtype | p <- ps });
+		return [ collapseFailTypes({ pc@rtype } + { p@rtype | p <- ps }) ];
 			
 	// We can have overloaded functions and overloaded data constructors. If the type
 	// is overloaded, we need to check each overloading to find the one that works.
@@ -2351,46 +2377,76 @@ public RType checkCallOrTreePattern(Pattern pp, Pattern pc, {Pattern ","}* ps) {
 	// case of overloading with only one alternative.
 	set[ROverloadedType] alternatives = isOverloadedType(pc@rtype) ? getOverloadOptions(pc@rtype) : { ROverloadedType(pc@rtype) };
 	
-	// Now, try each alternative, seeing if one matches.
+	// Now, try each alternative, seeing if one matches. Note: we could have multiple matches (for
+	// instance, if we have inference vars in a constructor), even if the instances themselves
+	// did not overlap. e.g., S(int,bool) and S(str,loc) would not overlap, but both would
+	// be acceptable alternatives for S(x,y) := e.
+	list[RType] matches = [ ];
+	
 	for (a <- alternatives) {
 		list[Pattern] args = [ p | p <- ps ];
-		list[RType] argTypes = [];
 		RType potentialResultType;
 		RType altType = a.overloadType;
 		bool altHasLoc = (ROverloadedTypeWithLoc(_,_) := a);
 		
-		if (isFunctionType(altType)) {
-			argTypes = getFunctionArgumentTypes(altType);
-			potentialResultType = getFunctionReturnType(altType);
-			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadLoc];
-		} else if (isConstructorType(altType)) {
-			argTypes = getConstructorArgumentTypes(altType);
+		if (isConstructorType(altType)) {
+			list[RType] argTypes = getConstructorArgumentTypes(altType);
 			potentialResultType = getConstructorResultType(altType);
 			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadLoc];
-		}
-		
-		if (size(argTypes) == size(args)) {
-			for (p <- args) {
-				RType argType = head(argTypes); argTypes = tail(argTypes);
-				if (! subtypeOf(p@rtype,argType)) {
-					potentialResultType = makeFailType("Bad function or constructor pattern, argument type mismatch",pp@\loc); // TODO: Improve error message
+
+			if (size(argTypes) == size(args)) {
+				for (p <- args) {
+					RType argType = head(argTypes); argTypes = tail(argTypes);
+					if (! subtypeOf(argType,p@rtype)) {
+						potentialResultType = makeFailType("Bad function or constructor pattern, argument type mismatch, pattern type is <prettyPrintType(p@rtype)> but argument type is <prettyPrintType(argType)>",pp@\loc); // TODO: Improve error message
+					}
 				}
-			}			
+				if (altHasLoc) 
+					matches = matches + [ altType[@at=a.overloadLoc ]];
+				else
+					matches = matches + [ altType ];			
+			} else {
+				potentialResultType = makeFailType("Arity mismatch, constructor type <prettyPrintType(altType)> has arity <size(argTypes)> while pattern <pp> has arity <size(args)>", pp@\loc);
+			}
 		} else {
-			potentialResultType = makeFailType("Arity mismatch", pp@\loc); // TODO: Improve error message
+			potentialResultType = makeFailType("Invalid type, must be a declared constructor, not <prettyPrintType(altType)>",pp@\loc);
 		}
 		
-		// This will cause us to keep the last error in cases where we cannot find a valid function
-		// or constructor to use.
+		// This will cause us to keep the last error in cases where we cannot find a valid constructor to use
 		if (isFailType(resultType)) resultType = potentialResultType;
 	}
-		
-	return resultType;	
+
+	// If we had failures, those take precedence over possible matches	
+	if (isFailType(resultType))
+		return [resultType];
+	else
+		return matches;
 }
- 
+
+//
+// This handles returning the correct type for a pattern in a list. There are several cases:
+//
+// 1. A name that represents a list. This can be treated like an element of the list, since [1,x,2], where x
+//    is [3,4], just expands to [1,3,4,2]. More formally, in these cases, if t = list(te), we return te.
+//
+// 2. A pattern that is explicitly given a name or typed name (name becomes patterns) or guarded pattern. Here
+//    we look at the next level of pattern and treat it according to these rules.
+//
+// 3. All other patterns. Here we just return the type of the pattern.
+//  
+public RType getPatternTypeForList(Pattern pat) {
+	if ((Pattern)`<Name n>` := pat || (Pattern)`<QualifiedName qn>` := pat || (Pattern)`<Type t><Name n>` := pat || (Pattern)`<QualifiedName qn> *` := pat) {
+		if (isListType(pat@rtype)) return getListElementType(pat@rtype);    
+	} else if ((Pattern)`<Name n> : <Pattern p>` := pat || (Pattern)`<Type t> <Name n> : <Pattern p>` := pat || (Pattern)`[ <Type t> ] <Pattern p>` := pat) {
+	    return getPatternTypeForList(p);
+	}
+	return pat@rtype;
+}
+		
 public RType checkListPattern(Pattern pp, {Pattern ","}* ps) {
 	if (checkForFail({ p@rtype | p <- ps })) return collapseFailTypes({ p@rtype | p <- ps });
-	return makeListType(lubList([p@rtype | p <- ps]));
+	RType resultType = lubList([getPatternTypeForList(p) | p <- ps]);
+	return makeListType(lubList([getPatternTypeForList(p) | p <- ps]));
 }
 
 public RType checkSetPattern(Pattern pp, {Pattern ","}* ps) {
@@ -2422,8 +2478,12 @@ public RType checkMapPattern(Pattern pp) {
 // Also, TODO check to see if this construct can bind inference vars.
 //
 public RType checkVariableBecomesPattern(Pattern pp, Name n, Pattern p) {
-	if (checkForFail({ n@rtype, p@rtype })) return collapseFailTypes({ n@rtype, p@rtype });
-	return n@rtype;
+	if ( (n@rtype) ?) {
+		if (checkForFail({ n@rtype, p@rtype })) return collapseFailTypes({ n@rtype, p@rtype });
+		return n@rtype;
+	} else {
+		return collapseFailTypes({ makeFailType("No type declared or deduced for <n>",pp@\loc), p@rtype});	
+	}
 }
 
 //
@@ -2432,8 +2492,12 @@ public RType checkVariableBecomesPattern(Pattern pp, Name n, Pattern p) {
 // the type of n.
 //
 public RType checkTypedVariableBecomesPattern(Pattern pp, Type t, Name n, Pattern p) {
-	if (checkForFail({ n@rtype, p@rtype })) return collapseFailTypes({ n@rtype, p@rtype });
-	return n@rtype;
+	if ( (n@rtype) ?) {
+		if (checkForFail({ n@rtype, p@rtype })) return collapseFailTypes({ n@rtype, p@rtype });
+		return n@rtype;
+	} else {
+		return collapseFailTypes({ makeFailType("No type declared or deduced for <n>",pp@\loc), p@rtype});	
+	}
 }
 
 //
@@ -2489,7 +2553,11 @@ public RType checkPattern(Pattern pat) {
 
 		// TODO: See if we ever have this; a qualified name, not a name, is a Pattern
 		case (Pattern)`<Name n>`: {
-			return isInferredType(n@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)] : n@rtype; 
+			if ( (n@rtype) ?) {
+				return isInferredType(n@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)] : n@rtype;
+			} else {
+				return makeFailType("No type declared or deduced for <n>",pat@\loc);
+			} 
 		}
 		
 		// QualifiedName
@@ -2536,12 +2604,16 @@ public RType checkPattern(Pattern pat) {
 
 		// Typed Variable
 		case (Pattern) `<Type t> <Name n>` : {
-			return n@rtype;
+			return ( (n@rtype)?) ? n@rtype : makeFailType("No type declared or deduced for <n>",pat@\loc);
 		}
 
 		// Multi Variable
 		case `<QualifiedName qn> *` : {
-			return isInferredType(qn@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype; 
+			if ( (qn@rtype)? ) {
+				return isInferredType(qn@rtype) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)] : qn@rtype;
+			} else {
+				return makeFailType("No type declared or deduced for <qn>",pat@\loc);
+			} 
 		}
 
 		// Descendant
@@ -2584,55 +2656,93 @@ public RType checkPattern(Pattern pat) {
 // as the source type rt, excepting for type inference vars.
 //
 // TODO: Finish bind cases, some cases are just set to return the current pattern type type
+// TODO: Interpolation
+//
+// NOTE: These checks are probably over-cautious; it should be the case that rt <: pat@rtype when
+// this is called.
+// TODO: Add a check for this at the start?
 //
 public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
+	if (isFailType(rt) || isFailType(pat@rtype)) return collapseFailTypes({ rt, pat@rtype });
+	
 	switch(pat) {
 		case (Pattern)`<BooleanLiteral bl>` : {
-			return pat@rtype;
+			if (isBoolType(rt) && isBoolType(pat@rtype)) {
+				return pat@rtype;
+			} else {
+				return makeFailType("Boolean literal pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		case (Pattern)`<DecimalIntegerLiteral il>`  : {
-			return pat@rtype;
+			if (isIntType(rt) && isIntType(pat@rtype)) {
+				return pat@rtype;
+			} else {
+				return makeFailType("Integer literal pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		case (Pattern)`<OctalIntegerLiteral il>`  : {
-			return pat@rtype;
+			if (isIntType(rt) && isIntType(pat@rtype)) {
+				return pat@rtype;
+			} else {
+				return makeFailType("Integer literal pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		case (Pattern)`<HexIntegerLiteral il>`  : {
-			return pat@rtype;
+			if (isIntType(rt) && isIntType(pat@rtype)) {
+				return pat@rtype;
+			} else {
+				return makeFailType("Integer literal pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		case (Pattern)`<RealLiteral rl>`  : {
-			return pat@rtype;
+			if (isRealType(rt) && isRealType(pat@rtype)) {
+				return pat@rtype;
+			} else {
+				return makeFailType("Real literal pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		// TODO: Interpolation
 		case (Pattern)`<StringLiteral sl>`  : {
-			return pat@rtype;
+			if (isStrType(rt) && isStrType(pat@rtype)) {
+				return pat@rtype;
+			} else {
+				return makeFailType("String literal pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		// TODO: Interpolation
 		case (Pattern)`<LocationLiteral ll>`  : {
-			return pat@rtype;
+			if (isLocType(rt) && isLocType(pat@rtype)) {
+				return pat@rtype;
+			} else {
+				return makeFailType("Location literal pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		case (Pattern)`<DateTimeLiteral dtl>`  : {
-			return pat@rtype;
+			if (isDateTimeType(rt) && isDateTimeType(pat@rtype)) {
+				return pat@rtype;
+			} else {
+				return makeFailType("DateTime literal pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
+		// Name
 		case (Pattern)`<Name n>`: {
 			if (isInferredType(n@rtype)) {
 				RType t = globalSymbolTable.inferredTypeMap[getInferredTypeIndex(n@rtype)];
 				if (isInferredType(t)) {
 					updateInferredTypeMappings(t,rt);
 					return rt;
+				} else if (! typeEquality(t,rt)) {
+					return makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: <prettyPrintType(rt)>, <prettyPrintType(t)>", n@\loc);
 				} else {
-					if (! typeEquality(t,rt)) {
-						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: <prettyPrintType(rt)>, <prettyPrintType(t)>", n@\loc);
-					} else {
-						return t;
-					}
+					return pat@rtype;
 				}
 			} else {
 				return pat@rtype;
@@ -2646,88 +2756,164 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 				if (isInferredType(t)) {
 					updateInferredTypeMappings(globalSymbolTable,t,rt);
 					return rt;
+				} else if (! typeEquality(t,rt)) {
+					return makeFailType("Attempt to bind multiple types to the same implicitly typed name <qn>: <prettyPrintType(rt)>, <prettyPrintType(t)>", qn@\loc);
 				} else {
-					if (! typeEquality(t,rt)) {
-						return makeFailType("Attempt to bind multiple types to the same implicitly typed name <qn>: <prettyPrintType(rt)>, <prettyPrintType(t)>", qn@\loc);
-					} else {
-						return t;
-					}
+					return pat@rtype;
 				}
 			} else {
 				return pat@rtype;
 			}
 		}
 
-		// TODO: ReifiedType
-		case `<BasicType t> ( <{Pattern ","}* pl> )` : {
-			return pat@rtype;
+		// TODO: ReifiedType, see if we need to expand matching for this
+		case (Pattern) `<BasicType t> ( <{Pattern ","}* pl> )` : {
+			if (RReifiedType(bt) := rt) {
+				return rt; // TODO: Will need to change to really get this working, just return the binder type for now
+			} else {
+				return makeFailType("Type of pattern, <prettyPrintType(pat@rtype)>, is not compatible with the type of the binding expression, <prettyPrintType(rt)>",pat@\loc);
+			}
 		}
 
 		// CallOrTree
-		case `<Pattern p1> ( <{Pattern ","}* pl> )` : {
-			return pat@rtype;
+		// TODO: Review this -- don't remember why we need to get the type again, seems redundant
+		case (Pattern) `<Pattern p1> ( <{Pattern ","}* pl> )` : {
+			list[Pattern] patternFields = [p | p <- pl];
+
+			RType patternType = pat@rtype;
+			if (RPartialMatch(ptl) := patternType) patternType = head(ptl); // TODO: Need to actually use partial matches to find real match
+	
+			if (isConstructorType(patternType) && isConstructorType(rt) && size(getConstructorArgumentTypes(patternType)) == size(patternFields)) {
+				set[RType] potentialFailures = { };
+				list[RType] patArgTypes = getConstructorArgumentTypes(patternType);
+				list[RType] rtArgTypes = getConstructorArgumentTypes(rt); 
+				for (n <- domain(patArgTypes))
+					potentialFailures += bindInferredTypesToPattern(rtArgTypes[n],patArgTypes[n]);
+				if (checkForFail(potentialFailures)) return collapseFailTypes(potentialFailures);
+				
+				return getConstructorResultType(patternType);
+			} else {
+				return makeFailType("Expected constructor types with matching arities for pattern and subject, but instead found <prettyPrintType(patternType)>, <prettyPrintType(rt)>",pat@\loc);
+			}
 		}
 
 		// List
-		case `[<{Pattern ","}* pl>]` : {
-			return pat@rtype;
+		case (Pattern) `[<{Pattern ","}* pl>]` : {
+			if (isListType(rt) && isListType(pat@rtype)) {
+				list[RType] elementTypes = [ ];
+				for (p <- pl) {
+					elementTypes += bindInferredTypesToPattern(getListElementType(rt),p);
+				}
+				if (checkForFail(elementTypes)) return collapseFailTypes(elementTypes);
+				return makeListType(lubList(elementTypes));
+			} else {
+				return makeFailType("list pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		// Set
-		case `{<{Pattern ","}* pl>}` : {
-			return pat@rtype;
+		case (Pattern) `{<{Pattern ","}* pl>}` : {
+			if (isSetType(rt) && isSetType(pat@rtype)) {
+				list[RType] elementTypes = [ ];
+				for (p <- pl) {
+					elementTypes += bindInferredTypesToPattern(getSetElementType(rt),p);
+				}
+				if (checkForFail(elementTypes)) return collapseFailTypes(elementTypes);
+				return makeSetType(lubList(elementTypes));
+			} else {
+				return makeFailType("set pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		// Tuple
-		case `<<Pattern pi>>` : {
-			return pat@rtype;
+		case (Pattern) `<<Pattern pi>>` : {
+			if (isTupleType(rt) && isTupleType(pat@rtype)) {
+				list[RType] tupleFields = getTupleFields(rt);
+				if (size(tupleFields) == 1) {
+					RType resultType = bindInferredTypesToPattern(head(tupleFields),pi);
+					if (isFailType(resultType))
+						return resultType;
+					else
+						return makeTupleType([resultType]);
+				} else {
+					return makeFailType("Tuple type <prettyPrintType(rt)> has more fields than pattern <pat>",pat@\loc);
+				}
+			} else {
+				return makeFailType("tuple pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
-		case `<<Pattern pi>, <{Pattern ","}* pl>>` : {
-			return pat@rtype;
+		case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+			if (isTupleType(rt) && isTupleType(pat@rtype)) {
+				list[RType] tupleFields = getTupleFields(rt);
+				list[Pattern] patternFields = [pi] + [p | p <- pl];
+				
+				if (size(tupleFields) == size(patternFields)) {
+					list[RType] elementTypes = [ ];
+					for (n <- domain(tupleFields))
+						elementTypes += bindInferredTypesToPattern(tupleFields[n],patternFields[n]);
+					if (checkForFail(elementTypes)) return collapseFailTypes(elementTypes);
+					return makeTupleType(elementTypes);
+				} else {
+					return makeFailType("Tuple type <prettyPrintType(rt)> should have the same number of elements at pattern type <prettyPrintType(pat@rtype)>",pat@\loc);
+				}
+			} else {
+				return makeFailType("tuple pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
+			}
 		}
 
 		// TODO: Map: Need to figure out a syntax that works for matching maps
 
-		// Typed Variable
-		case (Pattern) `<Type t> <Name n>` : {
-			return pat@rtype;
-		}
-
 		// Multi Variable
-		case `<QualifiedName qn> *` : {
-			return pat@rtype;
+		case (Pattern) `<QualifiedName qn> *` : {
+			if (isInferredType(qn@rtype)) {
+				RType t = globalSymbolTable.inferredTypeMap[getInferredTypeIndex(qn@rtype)];
+				if (isInferredType(t)) {
+					updateInferredTypeMappings(globalSymbolTable,t,makeContainerType(rt));
+					return makeContainerType(rt);
+				} else if (! typeEquality(t,makeContainerType(rt))) {
+					return makeFailType("Attempt to bind multiple types to the same implicitly typed name <qn>: <prettyPrintType(rt)>, <prettyPrintType(t)>", qn@\loc);
+				} else {
+					return pat@rtype;
+				}
+			} else {
+				return pat@rtype;
+			}
 		}
 
 		// Descendant
 		// TODO: If Descendant is an inferred type, bind to value here -- this means that no type was given, so
 		// it could actually match anything.
-		case `/ <Pattern p>` : {
+		case (Pattern) `/ <Pattern p>` : {
 			return bindInferredTypesToPattern(rt, p);
 		}
 
 		// Variable Becomes
-		case `<Name n> : <Pattern p>` : {
+		case (Pattern) `<Name n> : <Pattern p>` : {
 			return bindInferredTypesToPattern(rt, p);
 		}
 		
 		// Typed Variable Becomes
-		case `<Type t> <Name n> : <Pattern p>` : {
-			return bindInferredTypesToPattern(rt, p);
+		case (Pattern) `<Type t> <Name n> : <Pattern p>` : {
+			RType resultType = bindInferredTypesToPattern(rt, p);
+			if (isFailType(resultType)) return resultType;
+			return pat@rtype;
 		}
 		
 		// Guarded
-		case `[ <Type t> ] <Pattern p>` : {
-			return bindInferredTypesToPattern(rt, p);
+		case (Pattern) `[ <Type t> ] <Pattern p>` : {
+			RType resultType = bindInferredTypesToPattern(rt, p);
+			if (isFailType(resultType)) return resultType;
+			return pat@rtype;
 		}			
 		
 		// Anti -- TODO see if this makes sense, check the interpreter
-		case `! <Pattern p>` : {
+		case (Pattern) `! <Pattern p>` : {
 			return bindInferredTypesToPattern(rt, p);
 		}
 	}
 
-	throw ("CHECKER: Did not match a case for binding inferred types on pattern <pat>!");
+	throw "Missing case on checkPattern for pattern <p>";
 }
 
 //
@@ -2738,19 +2924,21 @@ public RType checkPatternWithAction(PatternWithAction pat) {
 		case `<Pattern p> => <Expression e>` : {
 			if (checkForFail( { p@rtype, e@rtype } )) return collapseFailTypes( { p@rtype, e@rtype } );
 			if (!subtypeOf(e@rtype,p@rtype)) return makeFailType("Type of pattern, <prettyPrintType(p@rtype)>, and action expression, <prettyPrintType(e@rtype)>, must be identical.", pat@\loc); 
-			return e@rtype; // TODO: Or p@rtype?
+			return p@rtype; 
 		}
 		
 		case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
 			set[RType] whenTypes = { e@rtype | e <- es };
-			if (checkForFail( whenTypes + p@rtype + e@rtype )) return collapseFailTypes( whenTypes + p@rtype + e@rtype );
-			if (!subtypeOf(e@rtype,p@rtype)) return makeFailType("Type of pattern, <prettyPrintType(p@rtype)>, and action expression, <prettyPrintType(e@rtype)>, must be identical.", pat@\loc); 
-			return e@rtype; // TODO: Or p@rtype?
+			if (checkForFail( whenTypes + p@rtype + er@rtype )) return collapseFailTypes( whenTypes + p@rtype + er@rtype );
+			if (!subtypeOf(er@rtype,p@rtype)) return makeFailType("Type of pattern, <prettyPrintType(p@rtype)>, and action expression, <prettyPrintType(er@rtype)>, must be identical.", pat@\loc); 
+			return p@rtype; 
 		}
 		
 		case `<Pattern p> : <Statement s>` : {
 			RType stmtType = getInternalStatementType(s@rtype);
 			if (checkForFail( { p@rtype, stmtType })) return collapseFailTypes( { p@rtype, stmtType });
+			RType rt = bindInferredTypesToPattern(p@rtype,p);
+			if (isFailType(rt)) return rt;
 			return stmtType;
 		}
 	}
@@ -2838,10 +3026,9 @@ public Tree typecheckFile(str filePath) {
 //
 public Tree typecheckTree(Tree t) {
 	SignatureMap sigMap = populateSignatureMap(getImports(t));
-	globalSymbolTable = consolidateADTDefinitions(buildNamespace(t, sigMap),getModuleName(t));
+	globalSymbolTable = buildNamespace(t, sigMap);
 	Tree td = decorateNames(t,globalSymbolTable);
-	RType adtErrors = checkADTDefinitionsForConsistency(globalSymbolTable, getModuleName(t));
-	Tree tc = retagNames(check(td, adtErrors));
+	Tree tc = retagNames(check(td));
 	if (isFailType(tc@rtype)) tc = tc[@messages = { error(l,s) | RFailType(allFailures) := tc@rtype, <s,l> <- allFailures }];
 	if (debug && isFailType(tc@rtype)) {
 		println("CHECKER: Found type checking errors");
@@ -2884,56 +3071,6 @@ public SignatureMap populateSignatureMap(list[Import] imports) {
 	return sigMap;
 }
 
-public RType checkADTDefinitionsForConsistency(SymbolTable table, RName moduleName) {
-	set[RType] consistencyFailures = { };
-
-	// Get back the ID for the name of the module being checked -- there should be only one matching
-	// item. TODO: We may want to verify that here.
-	STItemId moduleLayerId = getOneFrom(getModuleItemsForName(table, moduleName));
-	
-	// Check each ADT individually	
-	for (n <- domain(table.adtMap)) {
-		map[RName fieldName, RType fieldType] fieldMap = ( );
-
-		// First check imported constructors. If we get errors, we would rather have them on the constructors
-		// defined in the current module, since they are easier to fix -- checking them later preferences the
-		// types assigned to field in imported types.
-		for (ci <- table.adtMap[n].consItems, ci in table.scopeRel[table.topSTItemId]) {
-			if (ConstructorItem(cn,params,_,_) := table.scopeItemMap[ci]) {
-				for (RNamedType(nt,nn) <- params) {
-					if (nn notin fieldMap) {
-						fieldMap[nn] = nt;
-					} else if (nn in fieldMap && !typeEquality(fieldMap[nn],nt)) {
-						consistencyFailures += makeFailType("Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>",table.scopeItemMap[ci]@at);
-					}
-				}				
-			} else {
-				throw "checkADTDefinitionsForConsistency, unexpected constructor item <table.scopeItemMap[ci]>";
-			}
-		}
-		
-		// TODO: May be good to refactor out identical checking code
-		for (ci <- table.adtMap[n].consItems, ci in table.scopeRel[moduleLayerId]) {
-			if (ConstructorItem(cn,params,_,_) := table.scopeItemMap[ci]) {
-				for (RNamedType(nt,nn) <- params) {
-					if (nn notin fieldMap) {
-						fieldMap[nn] = nt;
-					} else if (nn in fieldMap && !typeEquality(fieldMap[nn],nt)) {
-						consistencyFailures += makeFailType("Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>",table.scopeItemMap[ci]@at);
-					}
-				}				
-			} else {
-				throw "checkADTDefinitionsForConsistency, unexpected constructor item <table.scopeItemMap[ci]>";
-			}
-		}
-	}
-	
-	if (size(consistencyFailures) > 0) 
-		return collapseFailTypes(consistencyFailures);
-	else
-		return makeVoidType();
-}
-
 private SymbolTable globalSymbolTable = createNewSymbolTable();
 
 // Check to see if the cases given cover the possible matches of the expected type.
@@ -2958,19 +3095,19 @@ public bool checkPatternCoverage(RType expectedType, set[Pattern] options, Symbo
 	// is also the location of the definition of a new item.
 	bool isDefiningUse(Name n, SymbolTable table) {
 		loc nloc = n@\loc;
-		println("CHECKING FOR DEFINING USE, name <n>, location <n@\loc>");
+		// println("CHECKING FOR DEFINING USE, name <n>, location <n@\loc>");
 		if (nloc in table.itemUses) {
-			println("location in itemUses");
+			// println("location in itemUses");
 			if (size(table.itemUses[nloc]) == 1) {
-				println("only 1 item used, not overloaded");
+				// println("only 1 item used, not overloaded");
 				if (nloc in domain(table.itemLocations)) {
-					println("location in itemLocations");
+					// println("location in itemLocations");
 					set[STItemId] items = { si | si <- table.itemLocations[nloc], isItem(table.scopeItemMap[si]) };
 					if (size(items) == 1) {
-						println("location items = <items>");
+						// println("location items = <items>");
 						return (VariableItem(_,_,_) := table.scopeItemMap[getOneFrom(items)]);
 					} else if (size(items) > 1) {
-						println("location items = <items>");
+						// println("location items = <items>");
 						throw "isDefiningUse: Error, location defines more than one scope item.";
 					}				
 				}

@@ -37,7 +37,7 @@ data STItem =
 	| LabelItem(RName labelName, STItemId parentId)
 	| AliasItem(RType aliasType, RType aliasedType, bool isPublic, STItemId parentId)
 	| ConstructorItem(RName constructorName, list[RNamedType] constructorArgs, STItemId adtParentId, STItemId parentId)
-	| ADTItem(RType adtType, set[STItemId] variants, bool isPublic, STItemId parentId) 
+	| ADTItem(RType adtType, bool isPublic, STItemId parentId) 
 	| AnnotationItem(RName annotationName, RType annoType, RType onType, bool isPublic, STItemId parentId) 
 	| RuleItem(RName ruleName, STItemId parentId)
 	| TypeVariableItem(RType typeVar, STItemId parentId)
@@ -161,14 +161,11 @@ public SymbolTable mergeOrLayers(SymbolTable symbolTable, list[STItemId] orLayer
 	}
 
 	// Finally, inject them into the intoLayer
-	println("Pushing layer <symbolTable.scopeItemMap[intoLayer]>");
 	symbolTable = pushScope(intoLayer, symbolTable);
 	for (oritem <- introducedItems)
 		if(VariableItem(vn,vt,_) := symbolTable.scopeItemMap[oritem])
 			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(vn, vt, false, symbolTable.scopeItemMap[oritem]@at, symbolTable),[<true,symbolTable.scopeItemMap[oritem]@at>]));
-	// println("Popping layer <symbolTable.scopeItemMap[intoLayer]>");				
 	symbolTable = popScope(symbolTable);
-	// println("Back to layer <symbolTable.scopeItemMap[symbolTable.currentScope]>");
 
 	return symbolTable;
 }
@@ -300,7 +297,7 @@ public str prettyPrintSI(STItem si) {
 			
 		case ConstructorItem(cn,tas,_,_) : 	return "Constructor: " + prettyPrintName(cn) + "(" + prettyPrintNamedTypeList(tas) + ")";
 		
-		case ADTItem(ut, vs, _, _) : return "ADT: " + prettyPrintType(ut) + " = " + joinList(vs,prettyPrintSI," | ","");
+		case ADTItem(ut,_,_) : return "ADT: " + prettyPrintType(ut);
 		 			
 		case AnnotationItem(x,atyp,otyp,_,_) : return "Annotation: <prettyPrintType(atyp)> <prettyPrintType(otyp)>@<prettyPrintName(x)>";
 		
@@ -335,7 +332,7 @@ public set[STItemId] filterNamesForNamespace(SymbolTable symbolTable, set[STItem
 					
 			case TypeName() : {
 				switch(symbolTable.scopeItemMap[itemId]) {
-					case ADTItem(_,_,_,_) : filteredItems += itemId;
+					case ADTItem(_,_,_) : filteredItems += itemId;
 					case AliasItem(_,_,_,_) : filteredItems += itemId;
 				}	
 			}
@@ -421,8 +418,8 @@ public set[STItemId] getItemsForNameWBound(SymbolTable symbolTable, STItemId cur
 			case RuleItem(x,_) : foundItems += itemId;
 			case AliasItem(RUserType(x),_,_,_) : foundItems += itemId; 
 			case AliasItem(RParameterizedUserType(x,_),_,_,_) : foundItems += itemId; 
-			case ADTItem(RUserType(x),_,_,_) : foundItems += itemId; 
-			case ADTItem(RParameterizedUserType(x,_),_,_,_) : foundItems += itemId; 
+			case ADTItem(RUserType(x),_,_) : foundItems += itemId; 
+			case ADTItem(RParameterizedUserType(x,_),_,_) : foundItems += itemId; 
 			case FunctionLayer(funItemId,_) : if (FunctionItem(x,_,_,_,_,_) := symbolTable.scopeItemMap[funItemId]) foundItems += funItemId;
 			case ModuleLayer(modItemId,_) : if (ModuleItem(x,_) := symbolTable.scopeItemMap[modItemId]) foundItems += modItemId; 			
 		}
@@ -555,27 +552,140 @@ public bool insideEnclosingFunction(SymbolTable symbolTable, STItemId currentSco
 	if (TopLayer() := si) return false;
 	return getEnclosingFunctionAux(symbolTable, si.parentId);
 }
+
+public list[RNamedType] markUserTypesForNamedTypeList(list[RNamedType] ntl, SymbolTable symbolTable, STItemId currentScope) {
+	return [ markUserTypesForNamedType(nt,symbolTable,currentScope) | nt <- ntl ];
+}
+
+public RNamedType markUserTypesForNamedType(RNamedType nt, SymbolTable symbolTable, STItemId currentScope) {
+	switch(nt) {
+		case RUnnamedType(rt) : return RUnnamedType(markUserTypes(rt,symbolTable,currentScope));
+		case RNamedType(rt,tn) : return RNamedType(markUserTypes(rt,symbolTable,currentScope),tn);
+	}
+}
+
+public RTypeVar markUserTypesForTypeVar(RTypeVar tv, SymbolTable symbolTable, STItemId currentScope) {
+	if (RBoundTypeVar(vn,tb) := tv)
+		return RBoundTypeVar(vn,markUserTypes(tb,symbolTable,currentScope));
+	return tv;
+}
+
+// Aliases are generally given just as User Types (i.e., type names); here we want
+// to identify that these names are the names of aliases, using an alias type to indicate
+// the actual type being pointed to. Since aliases are scoped, at least at the module level,
+// this needs to happen as we go, not just at the end. 
+
+// Note that we don't need to handle all types here; some of the types, such as statement 
+// types, are just used internally, and at the point they are encountered aliases should 
+// already be marked. This is really just needed on types that can be created from converting 
+// the syntactic types we get in Rascal (i.e., actual types that could be given on variables,
+// generated from expressions, etc.
+public RType markUserTypes(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+	switch(rt) {
+		// First, types we don't expand; include these as well, so we can catch unhandled
+		// cases, since we shouldn't have any.
+		case RBoolType() : return rt;
+		case RIntType() : return rt;
+		case RRealType() : return rt;
+		case RNumType() : return rt;
+		case RStrType() : return rt;
+		case RValueType() : return rt;
+		case RNodeType() : return rt;
+		case RVoidType() : return rt;
+		case RLocType() : return rt;
+		case RDateTimeType() : return rt;
+		case RInferredType(_) : return rt; // May be assigned to a name
+
+		// Now, types we do expand. These are just the types we can find "in the wild", i.e.,
+		// not types we generate in the checker like RStmtType, since these are types that are
+		// either assigned to a variable using an explicit type or inferred for a variable.		
+		case RListType(et) : return RListType(markUserTypes(et,symbolTable,currentScope));
+		case RSetType(et) : return RSetType(markUserTypes(et,symbolTable,currentScope));
+		case RBagType(et) : return RBagType(markUserTypes(et,symbolTable,currentScope));
+		case RContainerType(et) : return RContainerType(markUserTypes(et,symbolTable,currentScope));
+		case RMapType(dt,rt) : return RMapType(markUserTypesForNamedType(dt,symbolTable,currentScope),markUserTypesForNamedType(rt,symbolTable,currentScope));
+		case RRelType(nts) : return RRelType(markUserTypesForNamedTypeList(nts,symbolTable,currentScope));
+		case RTupleType(nts) : return RTupleType(markUserTypesForNamedTypeList(nts,symbolTable,currentScope));
+		case RFunctionType(rt, pts) : return RFunctionType(markUserTypes(rt,symbolTable,currentScope),[markUserTypesForNamedType(pt,symbolTable,currentScope) | pt <- pts]);
+		case RReifiedType(rt) : return RReifiedType(markUserTypes(rt,symbolTable,currentScope));
+		case RVarArgsType(vt) : return RVarArgsType(markUserTypes(vt,symbolTable,currentScope));
+		case RTypeVar(tv) : return RTypeVar(markUserTypesForTypeVar(tv,symbolTable,currentScope));
+		case RAliasType(an,at) : return RAliasType(an,markUserTypes(at,symbolTable,currentScope));
+		case RParameterizedAliasType(an,tps,at) : return RParameterizedAliasType(an,[markUserTypes(tp,symbolTable,currentScope) | tp <- tps],markUserTypes(at,symbolTable,currentScope));
+
+		// Handle ADTs; note that we no longer do anything here for them
+		case RADTType(n) : return rt;
+
+		// Things we include just because they are found in the types given above -- these can't be given
+		// as types directly, but (like types of individual constructors) can be included in other types
+		// (like ADT types)
+		case RConstructorType(n,pt,ets) : return RConstructorType(n,pt,[markUserTypesForNamedType(et,symbolTable,currentScope) | et <- ets]);
+
+		// Special cases
+		case RUnknownType(_) : return rt; // TODO: This may be a good place to check to see if the contained type is now known
+				
+		// Things we explicitly don't expand -- they should not actually occur in a program (at least right now)
+		// TODO: May need to move these up if they become real types that people can use
+		case RLexType() : throw "Should not find this in real life: markUserTypes for type <rt>";
+		case RNonTerminalType() : throw "Should not find this in real life: markUserTypes for type <rt>";
+		case RFailType(_) :  throw "Should not find this as the type of a name: markUserTypes for type <rt>";
+		case ROverloadedType(_) : throw "Should not find this as the type of a name during type expansion: markUserTypes for type <rt>";		
+		case RStatementType(_) : throw "Should not find this in real life: markUserTypes for type <rt>";
+		case RDataTypeSelector(_,_) : throw "Should not find this in real life: markUserTypes for type <rt>";
+		case RAssignableType(_,_) : throw "Should not find this as the type of a name during type expansion: markUserTypes for <rt>";
+	}
+
+	// Now, these are the real expansion cases: the user types. Here, we want to expand any user types 
+	// by looking up the actual type and recursing.
+	if (RUserType(tn) := rt) {
+		set[STItemId] userTypes = getTypeItemsForName(symbolTable,currentScope,tn);
+		set[STItemId] aliasItems = { pi | pi <- userTypes, AliasItem(_,_,_,_) := symbolTable.scopeItemMap[pi] };
+		set[STItemId] adtItems = userTypes - aliasItems;
+		if (size(adtItems) > 0) {
+			STItemId adtItemId = getOneFrom(adtItems);
+			RType resultType = getTypeForItem(symbolTable, adtItemId);
+			return resultType;  
+		} else if (size(aliasItems) >= 1) {
+			STItemId aliasItemId = getOneFrom(aliasItems);
+			RType resultType = getTypeForItem(symbolTable, aliasItemId);
+			return resultType;
+		}
+	} else if (RParameterizedUserType(tn,tps) := rt) {
+		set[STItemId] potentialAliasItems = getTypeItemsForName(symbolTable,currentScope,tn);
+		set[STItemId] aliasItems = { pi | pi <- potentialAliasItems, AliasItem(_,_,_,_) := symbolTable.scopeItemMap[pi] };
+		// TODO: The number found should be equal to 1; if not, we have a typing error, just pick one
+		if (size(aliasItems) >= 1) {
+			throw "Case not yet handled!";
+		}		
+	}
+	
+	return rt;
+}
+
 //
 // TODO: This should throw an exception when the type of an untyped name (e.g., a label) is requested
 //
 public RType getTypeForItem(SymbolTable symbolTable, STItemId itemId) {
 	if (itemId notin symbolTable.scopeItemMap) throw "Error, id <itemId> is not in the scopeItemMap";
-
+	STItem si = symbolTable.scopeItemMap[itemId];
 	switch(symbolTable.scopeItemMap[itemId]) {
-		case FormalParameterItem(_,t,_) : return t;
+		case FormalParameterItem(_,t,_) : return markUserTypes(t,symbolTable,si.parentId);
 		
-		case VariableItem(_,t,_) : return t;
+		case VariableItem(_,t,_) : return markUserTypes(t,symbolTable,si.parentId);
 		
-		case TypeVariableItem(t,_) : return t;
+		case TypeVariableItem(t,_) : return markUserTypes(t,symbolTable,si.parentId);
 		
 		case FunctionItem(_,t,paramIds,_,_,_) : 
-			return makeFunctionType(t,[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
-		
-		case ConstructorItem(n,tas,adtParentId,_) : return makeConstructorType(n,tas,getTypeForItem(symbolTable,adtParentId));
-		
-		case ADTItem(ut,_,_,_) : return ut; // TODO: Should also extract type parameters, if needed
+			return makeFunctionType(markUserTypes(t,symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
 
-		case AliasItem(ut,ut2_,_) : return RAliasType(ut,ut2); // TODO: Should also extract type parameters, if needed
+		case ConstructorItem(n,tas,adtParentId,_) : 
+			return makeConstructorType(n,RADTType(symbolTable.scopeItemMap[adtParentId].adtType),[markUserTypesForNamedType(t,symbolTable,si.parentId) | t <- tas]);
+		
+		case ADTItem(ut,_,_) : 
+			return RADTType(ut);
+		
+		case AliasItem(ut,ut2_,_) : 
+			return RAliasType(ut,markUserTypes(ut2,symbolTable,si.parentId)); 
 		
 		default : { 
 			return makeVoidType(); 
@@ -599,7 +709,6 @@ public ResultTuple pushNewTopScope(loc l, SymbolTable symbolTable) {
 }
 
 public ResultTuple pushNewModuleScope(RName moduleName, loc l, SymbolTable symbolTable) {
-	println("Adding module layer to parent <symbolTable.scopeItemMap[symbolTable.currentScope]>");
 	AddedItemPair aip = addScopeLayerWithParent(ModuleLayer(-1, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
 	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
 	aip.symbolTable.currentScope = aip.addedId;
@@ -789,7 +898,7 @@ public ResultTuple addTypeVariableToTopScope(RType varType, loc l, SymbolTable s
 }
 
 public ResultTuple addADTToScopeAt(RType adtName, bool isPublic, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	AddedItemPair aip = addSTItemWithParent(ADTItem(adtName, { }, isPublic, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
+	AddedItemPair aip = addSTItemWithParent(ADTItem(adtName, isPublic, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
 	return <aip.symbolTable,[aip.addedId]>;
 	return <symbolTable, []>;
 }
@@ -886,7 +995,7 @@ public ResultTuple checkForDuplicateAliasesBounded(ResultTuple result, loc nloc,
 					symbolTable = addScopeError(symbolTable, nloc, "Scope Error: Definition of alias <prettyPrintName(aliasName)> conflicts with another alias of the same name");	
 				}
 			}
-			case ADTItem(_,_,_,_) : {
+			case ADTItem(_,_,_) : {
 				symbolTable = addScopeError(symbolTable, nloc, "Scope Error: Definition of alias <prettyPrintName(aliasName)> conflicts with an ADT of the same name");
 			} 
 		}
@@ -1254,15 +1363,32 @@ public bool inBoolLayer(SymbolTable symbolTable) {
 public SymbolTable consolidateADTDefinitions(SymbolTable symbolTable, RName moduleName) {
 	// Get back the ID for the name of the module being checked -- there should be only one matching
 	// item. TODO: We may want to verify that here.
-	STItemId moduleLayerId = getOneFrom(getModuleItemsForName(symbolTable, moduleName));
-	
+	STItemId moduleItemId = getOneFrom(getModuleItemsForName(symbolTable, moduleName));
+	STItemId moduleLayerId = moduleItemId.parentId;
+	return consolidateADTDefinitionsForLayer(symbolTable, moduleLayerId, true);
+}
+
+public STItemId getEnclosingModuleAux(SymbolTable symbolTable, STItemId currentScope) {
+	STItem si = getSTItem(currentScope, symbolTable);
+	if (ModuleLayer(itemId,_) := si) return itemId;
+	if (TopLayer() := si) throw "Cannot get enclosing module at top level";
+	return getEnclosingModuleAux(symbolTable, si.parentId);
+}
+
+public STItemId getEnclosingModule(SymbolTable symbolTable) {
+	return getEnclosingModuleAux(symbolTable, symbolTable.currentScope);
+}
+
+public SymbolTable consolidateADTDefinitionsForLayer(SymbolTable symbolTable, STItemId layerId, bool includeTopLayer) {
 	// Step 1: Pick out all ADT definitions in the loaded scope information (i.e., all ADTs defined
 	// in either the loaded module or its direct imports)
-	set[STItemId] adtIDs = { sid | sid <- symbolTable.scopeRel[symbolTable.topSTItemId], ADTItem(_,_,_,_) := symbolTable.scopeItemMap[sid] } +
-							  { sid | sid <- symbolTable.scopeRel[symbolTable.scopeItemMap[moduleLayerId].parentId], ADTItem(_,_,_,_) := symbolTable.scopeItemMap[sid] };
+	set[STItemId] adtIDs = { sid | sid <- symbolTable.scopeRel[layerId], ADTItem(_,_,_) := symbolTable.scopeItemMap[sid] };
+	if (includeTopLayer) {
+		adtIDs = adtIDs + { sid | sid <- symbolTable.scopeRel[symbolTable.topSTItemId], ADTItem(_,_,_) := symbolTable.scopeItemMap[sid] };
+	}
 							  
 	// Step 2: Group these based on the name of the ADT
-	rel[RName adtName, STItemId adtItemId] nameXADTItem = { < getUserTypeName(n), sid > | sid <- adtIDs, ADTItem(n,_,_,_) := symbolTable.scopeItemMap[sid] };
+	rel[RName adtName, STItemId adtItemId] nameXADTItem = { < getUserTypeName(n), sid > | sid <- adtIDs, ADTItem(n,_,_) := symbolTable.scopeItemMap[sid] };
 	
 	// Step 3: Gather together all the constructors for the ADTs
 	rel[STItemId adtItemId, STItemId consItemId] adtItemXConsItem = { < sid, cid > | sid <- range(nameXADTItem), cid <- domain(symbolTable.scopeItemMap), ConstructorItem(_,_,sid,_) := symbolTable.scopeItemMap[cid] };
@@ -1277,4 +1403,3 @@ public SymbolTable consolidateADTDefinitions(SymbolTable symbolTable, RName modu
 	// Finally, return the scopeinfo with the consolidated ADT information
 	return symbolTable;
 }
-
