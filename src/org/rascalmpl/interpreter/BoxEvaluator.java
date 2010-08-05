@@ -904,16 +904,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return cStat(eX(x.getType()), null, null, null, eXs(x.getVariables()));
 	}
 
-	public IValue visitEscapeSequenceAmbiguity(
-			org.rascalmpl.ast.EscapeSequence.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitEscapeSequenceLexical(
-			org.rascalmpl.ast.EscapeSequence.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitEscapedNameAmbiguity(
 			org.rascalmpl.ast.EscapedName.Ambiguity x) {
 		return L(x.getClass().toString());
@@ -3630,6 +3620,18 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitProdReject(Reject x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitOctalEscapeSequenceAmbiguity(
+			org.rascalmpl.ast.OctalEscapeSequence.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitOctalEscapeSequenceLexical(
+			org.rascalmpl.ast.OctalEscapeSequence.Lexical x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

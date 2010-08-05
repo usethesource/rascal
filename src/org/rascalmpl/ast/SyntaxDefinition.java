@@ -1,13 +1,13 @@
 package org.rascalmpl.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class SyntaxDefinition extends AbstractAST { 
-  public org.rascalmpl.ast.Start getStart() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.UserType getUser() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Prod getProduction() { throw new UnsupportedOperationException(); } public boolean hasStart() { return false; } public boolean hasUser() { return false; } public boolean hasProduction() { return false; } public boolean isLanguage() { return false; }
+  public org.rascalmpl.ast.Start getStart() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Sym getDefined() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Prod getProduction() { throw new UnsupportedOperationException(); } public boolean hasStart() { return false; } public boolean hasDefined() { return false; } public boolean hasProduction() { return false; } public boolean isLanguage() { return false; }
 static public class Language extends SyntaxDefinition {
-/** start:Start "syntax" user:UserType "=" production:Prod ";" -> SyntaxDefinition {cons("Language")} */
-	public Language(INode node, org.rascalmpl.ast.Start start, org.rascalmpl.ast.UserType user, org.rascalmpl.ast.Prod production) {
+/** start:Start "syntax" defined:Sym "=" production:Prod ";" -> SyntaxDefinition {cons("Language")} */
+	public Language(INode node, org.rascalmpl.ast.Start start, org.rascalmpl.ast.Sym defined, org.rascalmpl.ast.Prod production) {
 		this.node = node;
 		this.start = start;
-		this.user = user;
+		this.defined = defined;
 		this.production = production;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -17,13 +17,13 @@ static public class Language extends SyntaxDefinition {
 	public boolean isLanguage() { return true; }
 
 	public boolean hasStart() { return true; }
-	public boolean hasUser() { return true; }
+	public boolean hasDefined() { return true; }
 	public boolean hasProduction() { return true; }
 
 private final org.rascalmpl.ast.Start start;
 	public org.rascalmpl.ast.Start getStart() { return start; }
-	private final org.rascalmpl.ast.UserType user;
-	public org.rascalmpl.ast.UserType getUser() { return user; }
+	private final org.rascalmpl.ast.Sym defined;
+	public org.rascalmpl.ast.Sym getDefined() { return defined; }
 	private final org.rascalmpl.ast.Prod production;
 	public org.rascalmpl.ast.Prod getProduction() { return production; }	
 }
@@ -42,10 +42,10 @@ static public class Ambiguity extends SyntaxDefinition {
   }
 } public boolean isLayout() { return false; }
 static public class Layout extends SyntaxDefinition {
-/** "layout" user:UserType "=" production:Prod ";" -> SyntaxDefinition {cons("Layout")} */
-	public Layout(INode node, org.rascalmpl.ast.UserType user, org.rascalmpl.ast.Prod production) {
+/** "layout" defined:Sym "=" production:Prod ";" -> SyntaxDefinition {cons("Layout")} */
+	public Layout(INode node, org.rascalmpl.ast.Sym defined, org.rascalmpl.ast.Prod production) {
 		this.node = node;
-		this.user = user;
+		this.defined = defined;
 		this.production = production;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -54,11 +54,11 @@ static public class Layout extends SyntaxDefinition {
 
 	public boolean isLayout() { return true; }
 
-	public boolean hasUser() { return true; }
+	public boolean hasDefined() { return true; }
 	public boolean hasProduction() { return true; }
 
-private final org.rascalmpl.ast.UserType user;
-	public org.rascalmpl.ast.UserType getUser() { return user; }
+private final org.rascalmpl.ast.Sym defined;
+	public org.rascalmpl.ast.Sym getDefined() { return defined; }
 	private final org.rascalmpl.ast.Prod production;
 	public org.rascalmpl.ast.Prod getProduction() { return production; }	
 }

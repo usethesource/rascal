@@ -1120,7 +1120,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	@Override
 	public Result<IValue> visitImportSyntax(Syntax x) {
-		typeDeclarator.declareSyntaxType(x.getSyntax().getUser(), getCurrentEnvt());
+		typeDeclarator.declareSyntaxType(x.getSyntax().getDefined(), getCurrentEnvt());
 		getCurrentEnvt().declareProduction(x);
 		return nothing();
 	}

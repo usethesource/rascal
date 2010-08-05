@@ -1,6 +1,5 @@
 package org.rascalmpl.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 public abstract class Name extends AbstractAST { 
   static public class Lexical extends Name {
 	private final String string;
@@ -15,10 +14,6 @@ public abstract class Name extends AbstractAST {
  	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitNameLexical(this);
   	}
- 	@Override
- 	public String toString() {
- 		throw new ImplementationError("should use Names.name() and not toString()");
- 	}
 } static public class Ambiguity extends Name {
   private final java.util.List<org.rascalmpl.ast.Name> alternatives;
   public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Name> alternatives) {
