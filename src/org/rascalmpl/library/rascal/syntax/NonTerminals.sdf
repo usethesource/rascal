@@ -56,10 +56,10 @@ context-free syntax
   "(" charclass:Class ")"              -> Class     {cons("Bracket"),bracket}
 
 lexical syntax
-  EscapeSequence   -> Char {category("Constant")}
-  UnicodeEscape    -> Char {category("Constant")}
- ~[\"\'\\\-\[\]\ ] -> Char {category("Constant")}  
- "\\" [\-\[\]\ ]   -> Char {category("Constant")}
+  OctalEscapeSequence        -> Char {category("Constant")}
+  UnicodeEscape              -> Char {category("Constant")}
+ ~[\"\'\\\-\[\]\ \<\>]       -> Char {category("Constant")}  
+"\\" [btnfr\"\'\\\<\>\-\[\]] -> Char {category("Constant")}
  
 
 context-free priorities
