@@ -18,7 +18,7 @@ imported:Import            -> Command {cons("Import")}
 
 context-free priorities 
   %% forbid direct nesting of closures as commands, since they don't compute anything and don't have an effect.
-  expression:Expression -> Command {prefer, cons(Expression)} >
+  expression:Expression -> Command {prefer, cons("Expression")} >
   "{" statements:Statement+ "}"    -> Expression {cons("NonEmptyBlock")}
 
 sorts ShellCommand
