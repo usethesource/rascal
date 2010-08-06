@@ -200,8 +200,8 @@ private Symbol cc2ranges(Class cc) {
      case (Class) `[<Range* ranges>]` : return \char-class([range(r) | r <- ranges]);
      case (Class) `(<Class c>)`: return cc2ranges(c);
      case (Class) `! <Class c>`: return complement(cc2ranges(c));
-     case (Class) `<Class l> & <Class r>`: return intersection(cc2ranges(l), cc2ranges(r));
-     case (Class) `<Class l> + <Class r>`: return union(cc2ranges(l), cc2ranges(r));
+     case (Class) `<Class l> && <Class r>`: return intersection(cc2ranges(l), cc2ranges(r));
+     case (Class) `<Class l> || <Class r>`: return union(cc2ranges(l), cc2ranges(r));
      case (Class) `<Class l> - <Class r>`: return difference(cc2ranges(l), cc2ranges(r));
      default: throw "missed a case <cc>";
    }
