@@ -28,21 +28,78 @@ public str grammar2rascal(Grammar g, str name) {
 }
 
 public str grammar2rascal(Grammar g) {
-  return ( "" | it + topProd2rascal(p) | Production p <- g.productions);
+  <normals,literals> = separateLiterals(g.productions);
+  return ( "" | it + "\n" + topProd2rascal(p) | group <- groupByNonTerminal(normals), p <- group)
+       + "\n\n"
+       + ( "" | it + "\n" + topProd2rascal(p) | Production p <- literals);
+}
+
+tuple[set[Production],set[Production]] separateLiterals(set[Production] prods) {
+  literals = { p | p:prod(_,lit(_),_) <- prods } 
+           + { p | p:restrict(lit(_),_,_) <- prods };
+  return <prods - literals, literals>;
+}
+
+set[set[Production]] groupByNonTerminal(set[Production] productions) {
+  solve (productions) {
+    switch (productions) {
+      case {set[Production] r, Production p:prod(_,Symbol rhs,_)} : 
+        productions = {r, choice(rhs, {p})};
+      case {set[Production] r, choice(Symbol s, set[Production] a1), choice(s, set[Production] a2)} :
+        productions = {r, choice(s, a1 + a2)};
+      case {set[Production] r, choice(Symbol s, set[Production] a1), restrict(s, others(s), set[list[Symbol]] restr)} :
+        productions = {r, restrict(s,choice(s,a1), restr)};
+    }
+  }
+  
+  set[set[Production]] result = {{productions}};
+  solve (result) {
+    switch (result) {
+      case {a:{Production p, _*}, b:{Production q, _*}, rest*} :
+           if (same(p,q)) result = { rest, a + b };
+    }
+  }
+  return result;
+}
+
+bool same(Production p, Production q) {
+  return sort(p) == sort(q);
+}
+
+Symbol sort(Production p) {
+  switch(p){
+    case prod(_,Symbol rhs,_):
+    	return rhs;
+    case regular(Symbol rhs, _):
+        return rhs;
+    case list(Symbol rhs):
+        return rhs;
+    case choice(s, alts) :
+     	return s;
+    case first(s, alts) :
+     	return s;
+    case \assoc(s, a, alts) :
+       	return s;
+    case diff(s,p,alts) : 
+      	return s;
+    case restrict(rhs, _, _):
+       	return rhs;
+    case others(sym):
+      	return sym;
+  }
+  throw "weird production <p>";
 }
 
 public str topProd2rascal(Production p) {
-  if (/prod(_,lit(_),_) := p) return ""; // ignore generated productions
-
   if (/prod(_,rhs,_) := p) {
     sym = symbol2rascal(rhs);
-    return "<(start(_) := rhs) ? "start ":""><(sym == "LAYOUT") ? "layout" : "syntax"> <sym> = <prod2rascal(p)>;\n";
+    return "<(start(_) := rhs) ? "start ":""><(sym == "LAYOUT") ? "layout" : "syntax"> <sym>\n\t= <prod2rascal(p)>;\n";
   }
   if (regular(_,_) := p) {
     return ""; // ignore generated stubs
   }
   if(restrict(rhs, language, restrictions) := p){
-  	return "<for(r <- restrictions){>syntax <prod2rascal(language)> = ... # <for(e <- r){><symbol2rascal(e)> <}><}>;\n";
+  	return "<for(r <- restrictions){>syntax <symbol2rascal(rhs)> =\n\t<prod2rascal(language)>\n\t# <for(e <- r){><symbol2rascal(e)> <}><}>;\n";
   }
   throw "could not find out defined symbol for <p>";
 }
@@ -60,7 +117,7 @@ public str prod2rascal(Production p) {
       
     case \assoc(s, a, alts) : {
     		<fst, rest> = takeOneFrom(alts);
-    		return ( "<attr2mod(\assoc(a))> : <prod2rascal(fst)>" | "<it>\n\t\> <prod2rascal(pr)>" | pr <- rest );
+    		return ( "<attr2mod(\assoc(a))> (  <prod2rascal(fst)> " | "<it>\n\t\t\> <prod2rascal(pr)>" | pr <- rest ) + "\n\t)";
  		}
     case diff(s,p,alts) : {
     		<fst, rest> = takeOneFrom(alts);
@@ -68,10 +125,10 @@ public str prod2rascal(Production p) {
        	}
  
     case restrict(rhs, language, restrictions):
-    	return "<for(r <- restrictions){><symbol2rascal(rhs)> # <for(e <- r){> <symbol2rascal(e)> <}><}>";
+    	return "<for(r <- restrictions){><symbol2rascal(rhs)>\n\t# <for(e <- r){> <symbol2rascal(e)> <}><}>";
  
     case others(sym):
-        return symbol2rascal(sym);
+        return "...";
  
     case prod(_,lit(_),_) : return "";
     
@@ -109,8 +166,10 @@ public str attrs2mods(Attributes as) {
     case \no-attrs(): 
       return "";
       
-    case \attrs([list[Attr] a,term(cons(c)),list[Attr] b]) : 
+    case \attrs([list[Attr] a,term("cons"(c)),list[Attr] b]) : {
+    println("cons is <c>");
       return attrs2mods(\attrs([a,b])) + "<c>: ";
+      }
       
     case \attrs([a,b*]): {
         if(size(b) == 0)
@@ -138,10 +197,8 @@ public str attr2mod(Attr a) {
     case \assoc(\non-assoc()): return "non-assoc";
     case \assoc(\assoc()): return "assoc";
     case term("lexical"): return "lex";
-    case term(t): return "<t>";
     case \bracket(): return "bracket";
-    case \memo(): return "memo";
-    default: throw "attr2mod: missing case <a>";
+    default : return "/*<a>*/";
   }
 }
 
@@ -162,7 +219,7 @@ public str symbol2rascal(Symbol sym) {
     case \cf(x):
     	return symbol2rascal(x);
     case \parameterized-sort(str name, list[Symbol] parameters):
-        return "<name>[[<params2rascal(parameters)>]]";
+        return "<name>[<params2rascal(parameters)>]";
     case \char-class(x) : 
     	return cc2rascal(x);
     case \seq(syms):
@@ -182,11 +239,11 @@ public str symbol2rascal(Symbol sym) {
     case \start(x):
     	return symbol2rascal(x);
     case intersection(lhs, rhs):
-        return "<symbol2rascal(lhs)>/\\<symbol2rascal(rhs)>";
+        return "<symbol2rascal(lhs)> && <symbol2rascal(rhs)>";
     case union(lhs,rhs):
-     	return "<symbol2rascal(lhs)>\\/<symbol2rascal(rhs)>";
+     	return "<symbol2rascal(lhs)> || <symbol2rascal(rhs)>";
     case difference(lhs,rhs):
-     	return "<symbol2rascal(lhs)>-<symbol2rascal(rhs)>";
+     	return "<symbol2rascal(lhs)> -  <symbol2rascal(rhs)>";
     case complement(lhs):
      	return "!<symbol2rascal(lhs)>";
 
@@ -318,7 +375,7 @@ private list[str] ascii =
 /* 036 */      "$", //  $    (dollar sign)
 /* 037 */      "%", //  %    (percent)
 /* 038 */      "&", //  &    (ampersand)
-/* 039 */     "\'", //  '    (single quote)
+/* 039 */   "\\\'", //  '    (single quote)
 /* 040 */      "(", //  (    (left/open parenthesis)
 /* 041 */      ")", //  )    (right/closing parenth.)
 /* 042 */      "*", //  *    (asterisk)
