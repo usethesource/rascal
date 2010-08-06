@@ -1,17 +1,28 @@
 package org.rascalmpl.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Sym extends AbstractAST { 
-  public boolean isParametrized() { return false; }
+  public org.rascalmpl.ast.Nonterminal getNonterminal() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Sym> getParameters() { throw new UnsupportedOperationException(); } public boolean hasNonterminal() { return false; } public boolean hasParameters() { return false; }
+public boolean isParametrized() { return false; }
 static public class Parametrized extends Sym {
-/** Nonterminal "[" {Sym ","}+ "]" -> Sym {cons("Parametrized")} */
-	public Parametrized(INode node) {
+/** nonterminal:Nonterminal "[" parameters:{Sym ","}+ "]" -> Sym {cons("Parametrized")} */
+	public Parametrized(INode node, org.rascalmpl.ast.Nonterminal nonterminal, java.util.List<org.rascalmpl.ast.Sym> parameters) {
 		this.node = node;
+		this.nonterminal = nonterminal;
+		this.parameters = parameters;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymParametrized(this);
 	}
 
-	public boolean isParametrized() { return true; }	
+	public boolean isParametrized() { return true; }
+
+	public boolean hasNonterminal() { return true; }
+	public boolean hasParameters() { return true; }
+
+private final org.rascalmpl.ast.Nonterminal nonterminal;
+	public org.rascalmpl.ast.Nonterminal getNonterminal() { return nonterminal; }
+	private final java.util.List<org.rascalmpl.ast.Sym> parameters;
+	public java.util.List<org.rascalmpl.ast.Sym> getParameters() { return parameters; }	
 }
 static public class Ambiguity extends Sym {
   private final java.util.List<org.rascalmpl.ast.Sym> alternatives;
@@ -26,10 +37,7 @@ static public class Ambiguity extends Sym {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitSymAmbiguity(this);
   }
-} 
-public org.rascalmpl.ast.Nonterminal getNonterminal() { throw new UnsupportedOperationException(); }
-public boolean hasNonterminal() { return false; }
-public boolean isNonterminal() { return false; }
+} public boolean isNonterminal() { return false; }
 static public class Nonterminal extends Sym {
 /** nonterminal:Nonterminal -> Sym {cons("Nonterminal")} */
 	public Nonterminal(INode node, org.rascalmpl.ast.Nonterminal nonterminal) {
