@@ -17,7 +17,7 @@ lexical restrictions
 sorts Sym
 
 context-free priorities
-  Nonterminal "[" {Sym ","}+ "]"     -> Sym {cons("Parametrized")}
+  nonterminal:Nonterminal "[" parameters:{Sym ","}+ "]"     -> Sym {cons("Parametrized")}
   non-assoc %% to prevent ambiguity with character classes
   Sym -> Sym+
 
@@ -65,5 +65,5 @@ lexical syntax
 context-free priorities
   "!" charClass:Class     -> Class {cons("Complement")} >
   lhs:Class "-" rhs:Class -> Class {cons("Difference"), left} >
-  lhs:Class "&" rhs:Class -> Class {cons("Intersection"), left} >
-  lhs:Class "+" rhs:Class -> Class {cons("Union"), left}
+  lhs:Class "&&" rhs:Class -> Class {cons("Intersection"), left} >
+  lhs:Class "||" rhs:Class -> Class {cons("Union"), left}
