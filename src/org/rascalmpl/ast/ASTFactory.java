@@ -323,8 +323,8 @@ return new org.rascalmpl.ast.Sym.Nonterminal(node, nonterminal);
 public org.rascalmpl.ast.Sym.Ambiguity makeSymAmbiguity(INode node, java.util.List<org.rascalmpl.ast.Sym> alternatives) { 
 return new org.rascalmpl.ast.Sym.Ambiguity(node, alternatives); 
 }
-public org.rascalmpl.ast.Sym.Parametrized makeSymParametrized(INode node) { 
-return new org.rascalmpl.ast.Sym.Parametrized(node); 
+public org.rascalmpl.ast.Sym.Parametrized makeSymParametrized(INode node, org.rascalmpl.ast.Nonterminal nonterminal, java.util.List<org.rascalmpl.ast.Sym> parameters) { 
+return new org.rascalmpl.ast.Sym.Parametrized(node, nonterminal, parameters); 
 }
 public org.rascalmpl.ast.Range.FromTo makeRangeFromTo(INode node, org.rascalmpl.ast.Char start, org.rascalmpl.ast.Char end) { 
 return new org.rascalmpl.ast.Range.FromTo(node, start, end); 
