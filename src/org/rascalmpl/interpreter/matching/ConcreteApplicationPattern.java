@@ -16,6 +16,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteApplicationPattern extends AbstractMatchingResult {
@@ -38,7 +39,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		this.tupleMatcher = new TuplePattern(ctx, x, list);
 		
 		// this prototype can be used for every subject that comes through initMatch
-		this.tupleSubject = new TreeAsTuple();
+		this.tupleSubject = ProductionAdapter.isLexical(production) ? new LexicalTreeAsTuple() : new TreeAsTuple();
 		
 		// save the type of this tree
 		this.myType = x._getType();
@@ -56,11 +57,15 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		}
 
 		public IValue get(int i) throws IndexOutOfBoundsException {
-			return subjectArgs.get(i * 2);
+			IConstructor arg = (IConstructor) subjectArgs.get(i * 2);
+			if (TreeAdapter.isList(arg)) {
+				return TreeAdapter.getArgs(arg);
+			}
+			return arg;
 		}
 
 		public Type getType() {
-			Type[] fields = new Type[(subjectArgs.length() + 1)/ 2];
+			Type[] fields = new Type[arity()];
 			for (int i = 0; i < fields.length; i++) {
 				fields[i] = get(i).getType();
 			}
@@ -78,7 +83,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			
 			int i = 0;
 			for (IValue otherChild : (ITuple) other) {
-				if (!get(i).isEqual(otherChild)) {
+				if (!get(i++).isEqual(otherChild)) {
 					return false;
 				}
 			}
@@ -92,11 +97,11 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				int currentIndex = 0;
 
 				public boolean hasNext() {
-					return currentIndex < subjectArgs.length();
+					return currentIndex < arity();
 				}
 
 				public IValue next() {
-					return subjectArgs.get(currentIndex+=2);
+					return get(currentIndex++);
 				}
 
 				public void remove() {
@@ -127,6 +132,21 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 
 		public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 			throw new UnsupportedOperationException();
+		}
+	}
+	
+	private class LexicalTreeAsTuple extends TreeAsTuple {
+		// notice how this class does not skip the layout nodes...
+		public int arity() {
+			return subjectArgs.length();
+		}
+
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			IConstructor arg = (IConstructor) subjectArgs.get(i);
+//			if (TreeAdapter.isList(arg)) {
+//				return TreeAdapter.getArgs(arg);
+//			}
+			return arg;
 		}
 	}
 	

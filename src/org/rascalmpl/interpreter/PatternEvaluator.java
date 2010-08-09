@@ -7,6 +7,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -106,6 +107,7 @@ import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements IEvaluator<IMatchingResult> {
 	private final IEvaluatorContext ctx;
@@ -297,6 +299,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		}
 		return Names.name(Names.lastName(tree.getExpression().getQualifiedName())).equals("amb") && tree._getType() instanceof NonTerminalType;
 	}
+	
 
 	private boolean isConcreteSyntaxList(CallOrTree tree){
 		return isConcreteSyntaxAppl(tree) && isConcreteListProd((CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof NonTerminalType;
@@ -320,7 +323,6 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	@Override
 	public IMatchingResult visitExpressionCallOrTree(CallOrTree x) {
 		Expression nameExpr = x.getExpression();
-
 		if(isConcreteSyntaxList(x)) {
 			List args = (List)x.getArguments().get(1);
 			// TODO what if somebody writes a variable in  the list production itself?
@@ -328,7 +330,12 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 					visitElements(args.getElements()));
 		}
 		if(isConcreteSyntaxAppl(x)){
-			return new ConcreteApplicationPattern(ctx, x, visitConcreteArguments(x));
+			if (TreeAdapter.isLexical((IConstructor) x.getTree())) {
+				return new ConcreteApplicationPattern(ctx, x, visitConcreteLexicalArguments(x));
+			}
+			else {
+				return new ConcreteApplicationPattern(ctx, x, visitConcreteArguments(x));
+			}
 		}
 		if (isConcreteSyntaxAmb(x)) {
 			throw new AmbiguousConcretePattern(x);
@@ -354,6 +361,14 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		java.util.List<org.rascalmpl.ast.Expression> elements = x.getArguments();
 		return visitElements(elements);
 	}
+
+	private java.util.List<IMatchingResult> visitConcreteLexicalArguments(CallOrTree x){
+        Expression args = x.getArguments().get(1);
+        
+		java.util.List<org.rascalmpl.ast.Expression> elements = args.getElements();
+		return visitElements(elements);
+	}
+
 	
 	private java.util.List<IMatchingResult> visitConcreteArguments(CallOrTree x){
         Expression args = x.getArguments().get(1);

@@ -108,11 +108,7 @@ public class ProductionAdapter {
 	}
 
 	public static boolean isLexical(IConstructor tree) {
-		IConstructor rhs = getRhs(tree);
-		if (SymbolAdapter.isLex(rhs) || SymbolAdapter.isCf(rhs)) {
-			rhs = SymbolAdapter.getSymbol(rhs);
-		}
-		return SymbolAdapter.isLayout(rhs);
+		return SymbolAdapter.isLex(getRhs(tree));
 	}
 
 	public static boolean isLexToCf(IConstructor tree) {

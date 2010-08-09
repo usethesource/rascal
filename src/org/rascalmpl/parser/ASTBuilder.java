@@ -543,7 +543,7 @@ public class ASTBuilder {
 			if (type.isAbstractDataType()) {
 				IConstructor tree = (IConstructor) pattern;
 
-				if (tree.getConstructorType() == Factory.Tree_Appl) {
+				if (TreeAdapter.isAppl(tree)) {
 					loc = TreeAdapter.getLocation(tree);
 					
 					if (TreeAdapter.isList(tree)) {
@@ -584,12 +584,17 @@ public class ASTBuilder {
 					IConstructor sym =  ProductionAdapter.getRhs(TreeAdapter.getProduction(tree));
 					nonterminalType = RascalTypeFactory.getInstance().nonTerminalType(sym);
 				}
-				else if (tree.getConstructorType() == Factory.Tree_Amb) {
+				else if (TreeAdapter.isAmb(tree)) {
 					isAmb = true;
+					source = tree;
 					IConstructor sym = ProductionAdapter.getRhs(TreeAdapter.getProduction((IConstructor) TreeAdapter.getAlternatives(tree).iterator().next()));
 					nonterminalType = RascalTypeFactory.getInstance().nonTerminalType(sym);
 				}
+				else if (TreeAdapter.isChar(tree)) {
+					source = tree;
+				}
 			}
+			
 
 			String name = node.getName();
 			List<Expression> args = new ArrayList<Expression>(node.arity());
