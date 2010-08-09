@@ -58,9 +58,9 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			IConstructor arg = (IConstructor) subjectArgs.get(i * 2);
-			if (TreeAdapter.isList(arg)) {
-				return TreeAdapter.getArgs(arg);
-			}
+//			if (TreeAdapter.isList(arg)) {
+//				return TreeAdapter.getArgs(arg);
+//			}
 			return arg;
 		}
 
