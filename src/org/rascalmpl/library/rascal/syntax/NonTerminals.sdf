@@ -21,6 +21,7 @@ lexical syntax
 
 lexical restrictions
   ParameterizedNonterminal -/- ~[\[]
+  Nonterminal -/- [\[]
 
 sorts Sym
 
@@ -35,8 +36,7 @@ context-free syntax
   "{" symbol:Sym sep:StringConstant "}" "+"  -> Sym {cons("IterSep")}                
   "{" symbol:Sym sep:StringConstant "}" "*"  -> Sym {cons("IterStarSep")} 
   
-context-free restrictions    
-  Sym -/- [\[]
+
 
 context-free syntax
     "^"                                    -> Sym {cons("StartOfLine")}
