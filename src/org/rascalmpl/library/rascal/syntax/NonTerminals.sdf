@@ -14,27 +14,29 @@ lexical restrictions
   Nonterminal -/- [A-Za-z0-9\_]
   NonterminalLabel -/- [A-Za-z0-9\_]
 
+sorts ParameterizedNonterminal
+
+lexical syntax
+  [A-Z] [A-Za-z0-9\_]*  -> ParameterizedNonterminal 
+
+lexical restrictions
+  ParameterizedNonterminal -/- ~[\[]
+
 sorts Sym
 
-context-free priorities
-  nonterminal:Nonterminal "[" parameters:{Sym ","}+ "]"     -> Sym {cons("Parametrized")}
-  non-assoc %% to prevent ambiguity with character classes
-  Sym -> Sym+
-
 context-free syntax
+  pnonterminal:ParameterizedNonterminal "[" parameters:{Sym ","}+ "]"     -> Sym {cons("Parametrized")}
+  "&" nonterminal:Nonterminal       -> Sym {cons("Parameter")}
   nonterminal:Nonterminal            -> Sym {cons("Nonterminal")}
   symbol:Sym label:NonterminalLabel  -> Sym {cons("Labeled")}
   symbol:Sym "?"                     -> Sym {cons("Optional")}    
-  symbol:Sym "??"                    -> Sym {cons("NonEagerOptional")}               
   symbol:Sym "+"                     -> Sym {cons("Iter")}                   
   symbol:Sym "*"                     -> Sym {cons("IterStar")} 
-  symbol:Sym "+?"                    -> Sym {cons("NonEagerIter")}                   
-  symbol:Sym "*?"                    -> Sym {cons("NonEagerIterStar")}
   "{" symbol:Sym sep:StringConstant "}" "+"  -> Sym {cons("IterSep")}                
   "{" symbol:Sym sep:StringConstant "}" "*"  -> Sym {cons("IterStarSep")} 
-  "{" symbol:Sym sep:StringConstant "}" "+?" -> Sym {cons("NonEagerIterSep")}                
-  "{" symbol:Sym sep:StringConstant "}" "*?" -> Sym {cons("NonEagerIterStarSep")} 
-
+  
+context-free restrictions    
+  Sym -/- [\[]
 
 context-free syntax
     "^"                                    -> Sym {cons("StartOfLine")}
@@ -43,9 +45,6 @@ context-free syntax
     charClass:Class                        -> Sym {cons("CharacterClass")}         
     string:StringConstant                  -> Sym {cons("Literal")}                
     cistring:CaseInsensitiveStringConstant -> Sym {cons("CaseInsensitiveLiteral")}
-
-context-free restrictions
-  Sym -/- [\?]
 
 sorts Class Range
 

@@ -235,12 +235,10 @@ import org.rascalmpl.ast.StringTail.MidInterpolated;
 import org.rascalmpl.ast.StringTail.MidTemplate;
 import org.rascalmpl.ast.Sym.Column;
 import org.rascalmpl.ast.Sym.EndOfLine;
-import org.rascalmpl.ast.Sym.NonEagerIter;
 import org.rascalmpl.ast.Sym.NonEagerIterSep;
-import org.rascalmpl.ast.Sym.NonEagerIterStar;
 import org.rascalmpl.ast.Sym.NonEagerIterStarSep;
-import org.rascalmpl.ast.Sym.NonEagerOptional;
 import org.rascalmpl.ast.Sym.Nonterminal;
+import org.rascalmpl.ast.Sym.Parameter;
 import org.rascalmpl.ast.Sym.Parametrized;
 import org.rascalmpl.ast.Sym.StartOfLine;
 import org.rascalmpl.ast.Symbol.Alternative;
@@ -704,10 +702,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitCommandImport(org.rascalmpl.ast.Command.Import x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitCommandLexical(org.rascalmpl.ast.Command.Lexical x) {
 		return L(x.getClass().toString());
 	}
 
@@ -3511,31 +3505,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return null;
 	}
 
-	public IValue visitSymNonEagerIter(NonEagerIter x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitSymNonEagerIterSep(NonEagerIterSep x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitSymNonEagerIterStar(NonEagerIterStar x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitSymNonEagerIterStarSep(NonEagerIterStarSep x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitSymNonEagerOptional(NonEagerOptional x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public IValue visitSymNonterminal(Nonterminal x) {
 		// TODO Auto-generated method stub
 		return null;
@@ -3632,6 +3601,33 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitOctalEscapeSequenceLexical(
 			org.rascalmpl.ast.OctalEscapeSequence.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitParameterizedNonterminalAmbiguity(
+			org.rascalmpl.ast.ParameterizedNonterminal.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitParameterizedNonterminalLexical(
+			org.rascalmpl.ast.ParameterizedNonterminal.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymParameter(Parameter x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymNonEagerIterSep(NonEagerIterSep x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitSymNonEagerIterStarSep(NonEagerIterStarSep x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

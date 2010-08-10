@@ -19,13 +19,13 @@ syntax TagString
 	= lex "{" TagChar* "}" ;
 
 syntax Assignment
-	= Division: "/=" 
-	| Product: "*=" 
+	= Division: 	"/=" 
+	| Product: 		"*=" 
 	| Intersection: "&=" 
-	| Subtraction: "-=" 
-	| Default: "=" 
-	| Addition: "+=" 
-	| IfDefined: "?=" ;
+	| Subtraction: 	"-=" 
+	| Default: 		"=" 
+	| Addition: 	"+=" 
+	| IfDefined: 	"?=" ;
 
 syntax RascalReservedKeywords
 	= RascalReservedKeywords
@@ -33,16 +33,16 @@ syntax RascalReservedKeywords
 
 syntax QualifiedName
 	= QualifiedName
-	#  [:]  [:] ;
+	#  [:][:] ;
 
 syntax Variable
 	= Initialized: Name name "=" Expression initial 
 	| UnInitialized: Name name ;
 
 syntax StringLiteral
-	= Interpolated: PreStringChars pre Expression expression StringTail tail 
-	| Template: PreStringChars pre StringTemplate template StringTail tail 
-	| NonInterpolated: StringConstant constant ;
+	= Interpolated: 	PreStringChars pre Expression expression StringTail tail 
+	| Template: 		PreStringChars pre StringTemplate template StringTail tail 
+	| NonInterpolated: 	StringConstant constant ;
 
 syntax Name
 	= Name

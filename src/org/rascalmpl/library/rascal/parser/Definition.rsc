@@ -146,7 +146,7 @@ private Symbol arg2symbol(Sym sym, bool isLex) {
   switch (sym) {
     case (Sym) `<Nonterminal n>`          : return sort("<n>");
     case (Sym) `<StringConstant l>` : return lit(unescape(l));
-    case (Sym) `<Nonterminal n>[<{Sym ","}+ syms>]` : return \parametrized-sort("<n>",separgs2symbols(syms,isLex));
+    case (Sym) `<Nonterminal n>[<{Sym ","}+ syms>]` : return \parameterized-sort("<n>",separgs2symbols(syms,isLex));
     case (Sym) `<Sym s> <NonterminalLabel n>` : return label("<n>", arg2symbol(s,isLex));
     case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s,isLex));
     case (Sym) `<Sym s> ??` : return opt(arg2symbol(s,isLex));
@@ -217,11 +217,11 @@ private CharRange range(Range r) {
  
 private int character(Char c) {
   switch (c) {
-    case [Char] /\\n/ : charAt("\n", 0);
-    case [Char] /\\t/ : charAt("\t", 0);
-    case [Char] /\\b/ : charAt("\b", 0);
-    case [Char] /\\r/ : charAt("\r", 0);
-    case [Char] /\\f/ : charAt("\f", 0);
+    case [Char] /\\n/ : return charAt("\n", 0);
+    case [Char] /\\t/ : return charAt("\t", 0);
+    case [Char] /\\b/ : return charAt("\b", 0);
+    case [Char] /\\r/ : return charAt("\r", 0);
+    case [Char] /\\f/ : return charAt("\f", 0);
     case [Char] /<ch:[^"'\-\[\]\\\>\< ]>/        : return charAt(ch, 0); 
     case [Char] /\\<esc:["'\-\[\]\\ ]>/        : return charAt(esc, 0);
     case [Char] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
@@ -233,7 +233,7 @@ private int character(Char c) {
 }
 
 private Attributes mods2attrs(Name name, ProdModifier* mods) {
-  return attrs([term(cons("<name>"))] + [ mod2attr(m) | m <- mods]);
+  return attrs([term("cons"("<name>"))] + [ mod2attr(m) | m <- mods]);
 }
 
 private Attributes mods2attrs(ProdModifier* mods) {

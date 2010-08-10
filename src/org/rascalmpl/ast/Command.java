@@ -54,10 +54,7 @@ static public class Statement extends Command {
 
 private final org.rascalmpl.ast.Statement statement;
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
-public boolean hasExpression() { return false; }
-public boolean isExpression() { return false; }
-static public class Expression extends Command {
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasExpression() { return false; } public boolean isExpression() { return false; } static public class Expression extends Command {
 /** expression:Expression -> Command {prefer, cons("Expression")} */
 	public Expression(INode node, org.rascalmpl.ast.Expression expression) {
 		this.node = node;
@@ -73,8 +70,7 @@ static public class Expression extends Command {
 
 private final org.rascalmpl.ast.Expression expression;
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
-} 
-public org.rascalmpl.ast.Declaration getDeclaration() { throw new UnsupportedOperationException(); }
+} public org.rascalmpl.ast.Declaration getDeclaration() { throw new UnsupportedOperationException(); }
 public boolean hasDeclaration() { return false; }
 public boolean isDeclaration() { return false; }
 static public class Declaration extends Command {
@@ -113,19 +109,5 @@ static public class Import extends Command {
 
 private final org.rascalmpl.ast.Import imported;
 	public org.rascalmpl.ast.Import getImported() { return imported; }	
-} 
-static public class Lexical extends Command {
-	private final String string;
-         public Lexical(INode node, String string) {
-		this.node = node;
-		this.string = string;
-	}
-	public String getString() {
-		return string;
-	}
-
- 	public <T> T accept(IASTVisitor<T> v) {
-     		return v.visitCommandLexical(this);
-  	}
 }
 }
