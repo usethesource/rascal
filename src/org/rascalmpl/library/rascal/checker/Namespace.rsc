@@ -1850,7 +1850,7 @@ public Tree decorateNames(Tree t, SymbolTable symbolTable) {
 			if (hasRType(symbolTable, n@\loc)) {
 				RType rt = getRType(symbolTable, n@\loc);
 				if (RLocatedType(rt2,l) := rt) {
-					insert(n[@rtype = rt2][@link = l]);
+					insert(n[@rtype = rt2[@at=l]][@link = l]);
 				} else
 					insert(n[@rtype = rt]);
 				scopeErrorLocs = scopeErrorLocs - n@\loc;
@@ -1861,7 +1861,7 @@ public Tree decorateNames(Tree t, SymbolTable symbolTable) {
 			if (hasRType(symbolTable, qn@\loc)) {
 				RType rt = getRType(symbolTable, qn@\loc);
 				if (RLocatedType(rt2,l) := rt) {
-					insert(qn[@rtype = rt2][@link = l]);
+					insert(qn[@rtype = rt2[@at=l]][@link = l]);
 				} else
 					insert(qn[@rtype = rt]);
 				scopeErrorLocs = scopeErrorLocs - n@\loc;

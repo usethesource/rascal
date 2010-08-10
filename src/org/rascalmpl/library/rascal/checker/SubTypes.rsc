@@ -30,8 +30,9 @@ public bool subtypeOf(RType t1, RType t2) {
 	// assignments, where, for a = e, type(e) must be <: type(a)
 	if (isInferredType(t2)) return true;
 	
-	// TODO: Should inferred types also be subtypes of all types?
-
+	// They are also subtypes for all types
+	if (isInferredType(t1)) return true;
+	
 	// t1 <: t2 -> list[t1] <: list[t2]
 	if (isListType(t1) && isListType(t2) && subtypeOf(getListElementType(t1),getListElementType(t2))) return true;
 

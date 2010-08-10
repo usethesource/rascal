@@ -102,21 +102,43 @@ public Tree updateOverloadedCall(Tree t, RType ty) {
 public Tree check(Tree t) {
 	return visit(t) {
 		case `<Expression e>` : {
-			if (`<Expression e1> ( <{Expression ","}* el> )` := e) {
-				if (isOverloadedType(e1@rtype)) {
-					RType resolvedType = resolveOverloadedCallOrTreeExpression(e,e1,el);
-					if (! typeEquality(resolvedType,e1@rtype)) {
-						e = updateOverloadedCall(e,resolvedType);						
-					} 
-				}
-			}
+			// Now, check the expression, using the updated value above
 			RType expType = checkExpression(e); 
+			if (`<Expression e1> ( <{Expression ","}* el> )` := e && !isFailType(expType)) {
+				e = updateOverloadedCall(e,expType);
+			}
+
+			// Tag the type of it expressions
 			if (e@\loc in globalSymbolTable.itBinder) 
 				updateInferredTypeMappings(globalSymbolTable.itBinder[e@\loc], expType);
-			else 
-				insert e[@rtype = expType]; 
+
+			// Handle types for functions and constructors, which are the function or constructor
+			// type; we need to extract the return/result type and save the function or constructor
+			// type for later use
+			if (`<Expression e1> ( <{Expression ","}* el> )` := e) {
+				if (isConstructorType(expType)) {
+					insert e[@rtype = getConstructorResultType(expType)][@fctype = expType];
+				} else if (isFunctionType(expType)) { 
+					insert e[@rtype = getFunctionReturnType(expType)][@fctype = expType];
+				} else {
+					insert e[@rtype = expType]; // Probably a failure type
+				}
+			} else {
+				insert e[@rtype = expType];
+			} 
 		}
-		case `<Pattern p>` => p[@rtype = checkPattern(p)]
+		case `<Pattern p>` : {
+			RType patType = checkPattern(p);
+			if (`<Pattern p1> ( <{Pattern ","}* pl> )` := p) {
+				if (isConstructorType(patType)) {
+					insert p[@rtype = getConstructorResultType(patType)][@fctype = patType];
+				} else {
+					insert p[@rtype = patType]; // Probably a failure type
+				}
+			} else {
+				insert(p[@rtype = patType]);
+			}
+		}
 		case `<Statement s>` => s[@rtype = checkStatement(s)]
 		case `<Assignable a>` => a[@rtype = checkAssignable(a)]
 		case `<Catch c>` => c[@rtype = checkCatch(c)]
@@ -809,69 +831,6 @@ private RType checkReifiedTypeExpression(Expression ep, Type t, {Expression ","}
 // TODO: May need to handle source location "calls" here as well (based on the code
 // in the SourceLocation result class)
 //
-
-//
-// This function actually resolves the overloading, giving the new type which will be assigned to
-// ec; the call or tree function then just needs to get the result type of ec and check for failures.
-//
-public RType resolveOverloadedCallOrTreeExpression(Expression ep, Expression ec, {Expression ","}* es) {
-	RType resultType = makeFailType("We assume bad, bad things!",ep@\loc);
-
-	// First, if we have any failures, just leave the same type -- we cannot resolve the overloading.	
-	if (checkForFail({ ec@rtype } + { e@rtype | e <- es })) return ec@rtype;
-			
-	// We can have overloaded functions and overloaded data constructors. If the type
-	// is overloaded, we need to check each overloading to find the one that works.
-	// TODO: We should codify the rules for resolving overloaded functions, since
-	// we need those rules here. It should be the case that the most specific function
-	// wins, but we probably also need errors to indicate when definitions make this
-	// impossible, like f(int,value) versus f(value,int).
-	
-	// Set up the possible alternatives. We will treat the case of no overloads as a trivial
-	// case of overloading with only one alternative.
-	set[ROverloadedType] alternatives = isOverloadedType(ec@rtype) ? getOverloadOptions(ec@rtype) : { ROverloadedType(ec@rtype) };
-	
-	// Now, try each alternative, seeing if one matches.
-	list[Expression] args = [ e | e <- es ];
-	for (a <- alternatives) {
-		RType potentialResultType;
-		list[RType] argTypes = [];
-		RType altType = a.overloadType;
-		bool altHasLoc = (ROverloadedTypeWithLoc(_,_) := a);
-		
-		if (isFunctionType(altType)) {
-			argTypes = getFunctionArgumentTypes(altType);
-			potentialResultType = altType;
-			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadLoc];
-		} else if (isConstructorType(altType)) {
-			argTypes = getConstructorArgumentTypes(altType);
-			potentialResultType = altType;
-			if (altHasLoc) potentialResultType = potentialResultType[@at=a.overloadLoc];
-		} else {
-			potentialResultType = makeFailType("Type <prettyPrintType(altType)> is not a function or constructor type.",ep@\loc);
-		}
-		
-		if (isFunctionType(altType) || isConstructorType(altType)) {
-			if (size(argTypes) == size(args)) {
-				for (e <- args) {
-					RType argType = head(argTypes); argTypes = tail(argTypes);
-					if (! subtypeOf(e@rtype, e@rtype)) {
-						potentialResultType = makeFailType("Bad function invocation or constructor usage, type of <e>, <prettyPrintType(e@rtype)>, should be a subtype of <prettyPrintType(argType)>",ep@\loc); // TODO: Improve error message
-					}
-				}			
-			} else {
-				potentialResultType = makeFailType("Arity mismatch, function accepts <size(argTypes)> arguments but was given <size(args)>", ep@\loc); // TODO: Improve error message
-			}
-		}
-				
-		// This will cause us to keep the last error in cases where we cannot find a valid function
-		// or constructor to use.
-		if (isFailType(resultType)) resultType = potentialResultType;
-	}
-		
-	return isFailType(resultType) ? ec@rtype : resultType;	
-}
-
 public rel[RName,RType] getMappings(RType source, RType target) {
 	if (RTypeVar(tv) := source) {
 		RName tvn = getTypeVarNames(source);
@@ -893,9 +852,22 @@ public map[RName,RType] consolidateMappings(rel[RName,RType] varMappings) {
 	return mt;
 }
 
-// TODO: Should streamline this logic now, since we winnow down the results above; this is correct,
-// but quite redundant.
 public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression ","}* es) {
+	list[RType] matches = getCallOrTreeExpressionType(ep, ec, es);
+	if (size(matches) > 1) { 
+		return makeFailType("There are multiple possible matches for this function or constructor expression. Please add additional type information.");
+	} else if (size(matches) == 1 && rt := head(matches) && isFailType(rt)) {
+		return rt;
+	} else if (size(matches) == 1 && rt := head(matches) && isConstructorType(rt)) {
+		return rt;
+	} else if (size(matches) == 1 && rt := head(matches) && isFunctionType(rt)) {
+		return rt;
+	} else {
+		throw "Unexpected situation, checkCallOrTreeExpression, found the following matches: <matches>";
+	}
+}
+
+public list[RType] getCallOrTreeExpressionType(Expression ep, Expression ec, {Expression ","}* es) {
 	RType resultType = makeFailType("We assume bad, bad things!",ep@\loc);
 
 	// First, if we have any failures, just propagate those upwards, don't bother to
@@ -903,7 +875,7 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 	// TODO: We may want to check arity, etc anyway, since we could catch errors
 	// where no function or constructor could possibly match.	
 	if (checkForFail({ ec@rtype } + { e@rtype | e <- es }))
-		return collapseFailTypes({ ec@rtype } + { e@rtype | e <- es });
+		return [collapseFailTypes({ ec@rtype } + { e@rtype | e <- es })];
 			
 	// We can have overloaded functions and overloaded data constructors. If the type
 	// is overloaded, we need to check each overloading to find the one that works.
@@ -918,10 +890,16 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 	
 	// Now, try each alternative, seeing if one matches.
 	list[Expression] args = [ e | e <- es ];
+	list[RType] matches = [ ];
+	
 	for (a <- alternatives) {
 		RType potentialResultType;
 		list[RType] argTypes = [];
 		RType altType = a.overloadType;
+		
+		if (ROverloadedTypeWithLoc(_,_) := a) {
+			altType = altType[@at = a.overloadLoc];
+		}
 		
 		if (isFunctionType(altType)) {
 			argTypes = getFunctionArgumentTypes(altType);
@@ -953,23 +931,52 @@ public RType checkCallOrTreeExpression(Expression ep, Expression ec, {Expression
 				potentialResultType = makeFailType("Arity mismatch, function accepts <size(argTypes)> arguments but was given <size(args)>", ep@\loc); // TODO: Improve error message
 			}
 		}
+		
+		if (!isFailType(potentialResultType)) matches = matches + [ altType];
 				
 		// This will cause us to keep the last error in cases where we cannot find a valid function
 		// or constructor to use.
 		if (isFailType(resultType)) resultType = potentialResultType;
 	}
-		
-	return resultType;	
+	
+	if (isFailType(resultType))
+		return [ resultType ];
+	else
+		return matches;	
 }
  
 public RType checkListExpression(Expression ep, {Expression ","}* es) {
 	if (checkForFail({ e@rtype | e <- es })) return collapseFailTypes({ e@rtype | e <- es });
-	return makeListType(lubList([e@rtype | e <- es]));
+	list[RType] listTypes = [ ];
+	// This handles list splicing -- we splice if we have a var l of list type and an exp like [ l ],
+	// but we do not splice if we explicitly include the brackets, i.e. if we say [ [ l ] ].
+	for (e <- es) {
+		if (isListType(e@rtype) && `[<{Expression ","}* el>]` := e) {
+			listTypes = listTypes + [ e@rtype ];		
+		} else if (isListType(e@rtype)) {
+			listTypes = listTypes + [ getListElementType(e@rtype) ];
+		} else {
+			listTypes = listTypes + [ e@rtype ];
+		}
+	}
+	return makeListType(lubList(listTypes));
 }
 
 public RType checkSetExpression(Expression ep, {Expression ","}* es) {
 	if (checkForFail({ e@rtype | e <- es })) return collapseFailTypes({ e@rtype | e <- es });
-	return makeSetType(lubList([e@rtype | e <- es]));
+	list[RType] setTypes = [ ];
+	// This handles set splicing -- we splice if we have a var s of set type and an exp like { s },
+	// but we do not splice if we explicitly include the brackets, i.e. if we say { { s } }.
+	for (e <- es) {
+		if (isSetType(e@rtype) && `{<{Expression ","}* el>}` := e) {
+			setTypes = setTypes + [ e@rtype ];
+		} else if (isSetType(e@rtype)) {
+			setTypes = setTypes + [ getSetElementType(e@rtype) ];
+		} else {
+			setTypes = setTypes + [ e@rtype ];
+		}
+	}
+	return makeSetType(lubList(setTypes));
 }
 
 public RType checkTrivialTupleExpression(Expression ep, Expression ei) {
@@ -2346,11 +2353,13 @@ public RType checkReifiedTypePattern(Pattern pp, Type t, {Pattern ","}* pl) {
 public RType checkCallOrTreePattern(Pattern pp, Pattern pc, {Pattern ","}* ps) {
 	list[RType] matches = getCallOrTreePatternType(pp, pc, ps);
 	if (size(matches) > 1) { 
-		return RPartialMatch(matches);
+		// TODO: Use the information from the matches to improve this message
+		return makeFailType("There are multiple possible matches for this constructor pattern. Please add additional type information.");
 	} else if (size(matches) == 1 && rt := head(matches) && isFailType(rt)) {
 		return rt;
 	} else if (size(matches) == 1 && rt := head(matches) && isConstructorType(rt)) {
-		return getConstructorResultType(rt);
+		RType boundType = bindInferredTypesToPattern(rt, pp[@rtype=getConstructorResultType(rt)][@fctype=rt]);
+		return rt;
 	} else {
 		throw "Unexpected situation, checkCallOrTreePattern, found the following matches: <matches>";
 	}
@@ -2397,11 +2406,11 @@ public list[RType] getCallOrTreePatternType(Pattern pp, Pattern pc, {Pattern ","
 			if (size(argTypes) == size(args)) {
 				for (p <- args) {
 					RType argType = head(argTypes); argTypes = tail(argTypes);
-					if (! subtypeOf(argType,p@rtype)) {
+					if (! subtypeOf(p@rtype,argType)) {
 						potentialResultType = makeFailType("Bad function or constructor pattern, argument type mismatch, pattern type is <prettyPrintType(p@rtype)> but argument type is <prettyPrintType(argType)>",pp@\loc); // TODO: Improve error message
 					}
 				}
-				if (altHasLoc) 
+				if (altHasLoc && !isFailType(potentialResultType)) 
 					matches = matches + [ altType[@at=a.overloadLoc ]];
 				else
 					matches = matches + [ altType ];			
@@ -2776,24 +2785,29 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 		}
 
 		// CallOrTree
-		// TODO: Review this -- don't remember why we need to get the type again, seems redundant
+		// NOTE: The assumption here is that we have already checked to ensure that the expression
+		// being assigned has a type that is a subtype of the pattern type -- i.e., given e:t1 and
+		// p:t2, t1 <: t2. So, we know that here with p:t2, isADTType(t2), and e:t1, isADTType(t1).
+		// However, we have no way STATICALLY of knowing what the constructor used to construct
+		// t1 is, so we cannot descent here. The exception to this is when we have been invoked during
+		// pattern construction, and we are using this functionality to bind the correct types to
+		// constructor inference vars. In that case, we are given a constructor type directly,
+		// not an ADT type.
 		case (Pattern) `<Pattern p1> ( <{Pattern ","}* pl> )` : {
 			list[Pattern] patternFields = [p | p <- pl];
 
-			RType patternType = pat@rtype;
-			if (RPartialMatch(ptl) := patternType) patternType = head(ptl); // TODO: Need to actually use partial matches to find real match
-	
+			RType patternType = pat@fctype; // Get back the constructor type used, not the ADT types
+
 			if (isConstructorType(patternType) && isConstructorType(rt) && size(getConstructorArgumentTypes(patternType)) == size(patternFields)) {
 				set[RType] potentialFailures = { };
-				list[RType] patArgTypes = getConstructorArgumentTypes(patternType);
 				list[RType] rtArgTypes = getConstructorArgumentTypes(rt); 
-				for (n <- domain(patArgTypes))
-					potentialFailures += bindInferredTypesToPattern(rtArgTypes[n],patArgTypes[n]);
+				for (n <- domain(rtArgTypes))
+					potentialFailures += bindInferredTypesToPattern(rtArgTypes[n],patternFields[n]);
 				if (checkForFail(potentialFailures)) return collapseFailTypes(potentialFailures);
 				
 				return getConstructorResultType(patternType);
 			} else {
-				return makeFailType("Expected constructor types with matching arities for pattern and subject, but instead found <prettyPrintType(patternType)>, <prettyPrintType(rt)>",pat@\loc);
+				return pat@rtype;
 			}
 		}
 
@@ -2804,7 +2818,7 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 				for (p <- pl) {
 					elementTypes += bindInferredTypesToPattern(getListElementType(rt),p);
 				}
-				if (checkForFail(elementTypes)) return collapseFailTypes(elementTypes);
+				if (checkForFail(toSet(elementTypes))) return collapseFailTypes(toSet(elementTypes));
 				return makeListType(lubList(elementTypes));
 			} else {
 				return makeFailType("list pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
@@ -2818,7 +2832,7 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 				for (p <- pl) {
 					elementTypes += bindInferredTypesToPattern(getSetElementType(rt),p);
 				}
-				if (checkForFail(elementTypes)) return collapseFailTypes(elementTypes);
+				if (checkForFail(toSet(elementTypes))) return collapseFailTypes(toSet(elementTypes));
 				return makeSetType(lubList(elementTypes));
 			} else {
 				return makeFailType("set pattern has unexpected pattern and subject types: <prettyPrintType(pat@rtype)>, <prettyPrintType(rt)>");
@@ -2852,7 +2866,7 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 					list[RType] elementTypes = [ ];
 					for (n <- domain(tupleFields))
 						elementTypes += bindInferredTypesToPattern(tupleFields[n],patternFields[n]);
-					if (checkForFail(elementTypes)) return collapseFailTypes(elementTypes);
+					if (checkForFail(toSet(elementTypes))) return collapseFailTypes(toSet(elementTypes));
 					return makeTupleType(elementTypes);
 				} else {
 					return makeFailType("Tuple type <prettyPrintType(rt)> should have the same number of elements at pattern type <prettyPrintType(pat@rtype)>",pat@\loc);
@@ -2863,7 +2877,12 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 		}
 
 		// TODO: Map: Need to figure out a syntax that works for matching maps
-
+		
+		// Typed Variable
+		case (Pattern) `<Type t> <Name n>` : {
+			return pat@rtype;
+		}
+		
 		// Multi Variable
 		case (Pattern) `<QualifiedName qn> *` : {
 			if (isInferredType(qn@rtype)) {
@@ -2913,7 +2932,7 @@ public RType bindInferredTypesToPattern(RType rt, Pattern pat) {
 		}
 	}
 
-	throw "Missing case on checkPattern for pattern <p>";
+	throw "Missing case on checkPattern for pattern <pat>";
 }
 
 //
@@ -3025,13 +3044,33 @@ public Tree typecheckFile(str filePath) {
 // Check a tree
 //
 public Tree typecheckTree(Tree t) {
-	SignatureMap sigMap = populateSignatureMap(getImports(t));
+	println("TYPE CHECKER: Getting Imports for Module");
+	list[Import] imports = getImports(t);
+	println("TYPE CHECKER: Got Imports");
+	
+	println("TYPE CHECKER: Generating Signature Map");
+	SignatureMap sigMap = populateSignatureMap(imports);
+	println("TYPE CHECKER: Generated Signature Map");
+	
+	println("TYPE CHECKER: Generating Symbol Table"); 
 	globalSymbolTable = buildNamespace(t, sigMap);
+	println("TYPE CHECKER: Generated Symbol Table");
+	
+	println("TYPE CHECKER: Decorating Names with Type Information");
 	Tree td = decorateNames(t,globalSymbolTable);
-	Tree tc = retagNames(check(td));
+	println("TYPE CHECKER: Names Decorated");
+	
+	println("TYPE CHECKER: Type Checking Module");
+	Tree tc = check(td);
+	println("TYPE CHECKER: Type Checked Module");
+	
+	println("TYPE CHECKER: Retagging Names with Type Information");
+	tc = retagNames(tc);
+	println("TYPE CHECKER: Retagged Names");
+	
 	if (isFailType(tc@rtype)) tc = tc[@messages = { error(l,s) | RFailType(allFailures) := tc@rtype, <s,l> <- allFailures }];
 	if (debug && isFailType(tc@rtype)) {
-		println("CHECKER: Found type checking errors");
+		println("TYPE CHECKER: Found type checking errors");
 		for (RFailType(allFailures) := tc@rtype, <s,l> <- allFailures) println("<l>: <s>");
 	}
 	return tc;

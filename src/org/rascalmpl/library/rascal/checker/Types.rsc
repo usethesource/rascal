@@ -4,6 +4,7 @@ import List;
 import Set;
 import IO;
 import ParseTree;
+import String;
 
 import rascal::checker::ListUtils;
 
@@ -19,7 +20,7 @@ data RName =
 
 public RName convertName(QualifiedName qn) {
 	if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
-		nameParts = [ "<n>" | n <- nl];
+		nameParts = [ (startsWith("<n>","\\") ? substring("<n>",1) : "<n>") | n <- nl];
 		if (size(nameParts) > 1) {
 			return RCompoundName(nameParts);
 		} else {
@@ -30,7 +31,10 @@ public RName convertName(QualifiedName qn) {
 }
 
 public RName convertName(Name n) {
-	return RSimpleName("<n>");
+	if (startsWith("<n>","\\"))
+		return RSimpleName(substring("<n>",1));
+	else
+		return RSimpleName("<n>");
 }
 
 private Name getLastName(QualifiedName qn) {
@@ -299,6 +303,10 @@ public str prettyPrintTypeVar(RTypeVar tv) {
 // Annotation for adding types to expressions
 //
 anno RType Tree@rtype; 
+
+//
+// Annotation for adding an alternate type to expressions
+anno RType Tree@fctype;
 
 //
 // Annotation for adding locations to types
@@ -691,7 +699,7 @@ public list[RType] getConstructorArgumentTypes(RType ct) {
 
 public RType getConstructorResultType(RType ct) {
 	if (RConstructorType(cn, an, cts) := ct) return an;
-	throw "Cannot get constructor ADT type from non-constructor type <prettyPrintType(ft)>";
+	throw "Cannot get constructor ADT type from non-constructor type <prettyPrintType(ct)>";
 }
 
 public RName getUserTypeName(RType ut) {
