@@ -32,7 +32,7 @@ set[Production] expand(set[Production] prods) {
        instantiated += \parameterized-sort(name,actuals);
        substs = (formals[i]:actuals[i] | int i <- domain(actuals) & domain(formals));
        instances += visit (def) {
-         case Symbol par:\sort(_) => substs[par]?par
+         case Symbol par:\parameter(_) => substs[par]?par
        }; 
     }
   
