@@ -77,7 +77,7 @@ public abstract class AbstractStackNode{
 		return (this instanceof IListStackNode);
 	}
 	
-	public abstract String getMethodName();
+	public abstract String getName();
 	
 	public abstract boolean reduce(char[] input);
 	

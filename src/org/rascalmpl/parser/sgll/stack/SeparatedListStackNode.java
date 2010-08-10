@@ -47,7 +47,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		isPlusList = original.isPlusList;
 	}
 	
-	public String getMethodName(){
+	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	

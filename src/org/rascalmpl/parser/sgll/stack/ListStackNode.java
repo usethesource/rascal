@@ -43,7 +43,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		isPlusList = original.isPlusList;
 	}
 	
-	public String getMethodName(){
+	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	

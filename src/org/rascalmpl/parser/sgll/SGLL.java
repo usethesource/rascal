@@ -109,9 +109,9 @@ public abstract class SGLL implements IGLL{
 		lastNode.markAsReject();
 	}
 	
-	private void callMethod(String methodName){
+	protected void invokeExpects(String name){
 		try{
-			Method method = getClass().getMethod(methodName);
+			Method method = getClass().getMethod(name);
 			method.invoke(this);
 		}catch(Exception ex){
 			// Not going to happen.
@@ -450,7 +450,7 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		if(!node.isList()){
-			callMethod(node.getMethodName());
+			invokeExpects(node.getName());
 			
 			handleExpects(node);
 		}else{ // List
