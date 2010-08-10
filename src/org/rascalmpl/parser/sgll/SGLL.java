@@ -310,7 +310,7 @@ public abstract class SGLL implements IGLL{
 						updateEdgeNode(edge, prefixes, result, production);
 					}
 				}
-			}else if(!node.getResultStore().isRejected()){
+			}else if(node.isReducable() || !node.getResultStore().isRejected()){
 				for(int i = edges.size() - 1; i >= 0; i--){
 					ArrayList<Link> prefixes = null;
 					if(prefixesMap != null){

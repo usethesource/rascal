@@ -126,5 +126,6 @@ public class ParserTest extends TestCase{
 		executeParser(new Reject());
 		executeParser(new Reject2());
 		executeParser(new Reject3());
+		executeParser(new Reject4());
 	}
 }
