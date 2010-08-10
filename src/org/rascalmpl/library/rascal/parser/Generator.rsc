@@ -137,6 +137,14 @@ public class <name> extends SGLL {
 
 
 public str generateParseMethod(Production p){
+    if(prod(_,\parameterized-sort(str name, list[Symbol] params)) := p) {
+      return "public void <name> (<generateSymbolFormals(params)>) {
+         // <p>
+         expect(<value2id(p)>,
+         <generateSymbolItemExpects(p.lhs)>);       
+      ";
+    }
+    
     if(prod(_,Symbol rhs,_) := p){
         return "public void <sym2name(rhs)>(){
             // <p>
@@ -163,6 +171,10 @@ public str generateParseMethod(Production p){
     throw "not implemented <p>";
 }
 
+public str generateSymbolFormals(list[Symbol] params) {
+  return ("String param_<head(params).name>" | it + ", param_<par.name>" | par <- params);
+}
+ 
 public str generateSymbolItemExpects(list[Symbol] syms){
     if(syms == []){
         return "new EpsilonStackNode(<nextItem()>)";
@@ -196,6 +208,8 @@ public str sym2newitem(Symbol sym){
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \sort(n) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
+        case \parameter(n) :
+            throw "all parameters should have been instantiated by now";
         case \start(s) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \lit(l) : {

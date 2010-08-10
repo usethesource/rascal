@@ -1,24 +1,5 @@
 module Set
 
-/*
- * Library functions for sets:
- * - getOneFrom
- * - index
- * - isEmpty
- * - mapper
- * - max
- * - min
- * - power
- * - power1
- * - reducer
- * - size
- * - takeOneFrom
- * - toList
- * - toMap
- * - toMapUnique
- * - toString
- */
- 
 @doc{Pick a random element from a set}
 @javaClass{org.rascalmpl.library.Set}
 public &T java getOneFrom(set[&T] st);
@@ -128,3 +109,15 @@ public map[&A,&B] java toMapUnique(rel[&A, &B] st);
 @doc{Convert a set to a string}
 @javaClass{org.rascalmpl.library.Set}
 public str java toString(set[&T] st);
+
+@doc{Group elements in a set given an equivalence function}
+public set[set[&T]] group(set[&T] input, bool (&T a, &T b) similar) {
+  set[set[&T]] result = {};
+  while (input != {}) {
+    <e, input> = takeOneFrom(input);
+    set[&T] same = { f | f <- input, similar(e, f) };
+    input -= same;
+    result = result + {{same, e}};
+  }
+  return result;
+}

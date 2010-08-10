@@ -74,4 +74,29 @@ rule label prime(label(str l, Symbol s), str r, list[int] p) => label(l, prime(s
 @reflect   
 @javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
 public Grammar java getGrammar(str mod);
+
+@doc{returns the symbol that a production defines}
+public Symbol sort(Production p) {
+  switch(p){
+    case prod(_,Symbol rhs,_):
+    	return rhs;
+    case regular(Symbol rhs, _):
+        return rhs;
+    case list(Symbol rhs):
+        return rhs;
+    case choice(s, alts) :
+     	return s;
+    case first(s, alts) :
+     	return s;
+    case \assoc(s, a, alts) :
+       	return s;
+    case diff(s,p,alts) : 
+      	return s;
+    case restrict(rhs, _, _):
+       	return rhs;
+    case others(sym):
+      	return sym;
+  }
+  throw "unsupported production <p>";
+}
    

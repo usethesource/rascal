@@ -33,7 +33,7 @@ rule wrap    grammar(set[Symbol] s,{set[Production] a, \assoc(Symbol t, Associat
                  
 test grammar({}, {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())}) ==
      grammar({}, {choice(sort("B"), {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())})});
-     	
+     
 // these rules flatten complex productions and ignore ordering under diff and assoc and restrict
 rule or     \choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})                    => choice(s,a+b); 
 rule single \first(Symbol s, [Production p]) => p;  
@@ -94,30 +94,6 @@ test \char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
 test \char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
 test \char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
 test \char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
-
-public Symbol sort(Production p) {
-  switch(p){
-    case prod(_,Symbol rhs,_):
-    	return rhs;
-    case regular(Symbol rhs, _):
-        return rhs;
-    case list(Symbol rhs):
-        return rhs;
-    case choice(s, alts) :
-     	return s;
-    case first(s, alts) :
-     	return s;
-    case \assoc(s, a, alts) :
-       	return s;
-    case diff(s,p,alts) : 
-      	return s;
-    case restrict(rhs, _, _):
-       	return rhs;
-    case others(sym):
-      	return sym;
-  }
-  throw "weird production <p>";
-}
 
 rule compl complement(\char-class(list[CharRange] r1)) 										=> \char-class(complement(r1));
 rule diff  difference(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	=> \char-class(difference(r1,r2));
