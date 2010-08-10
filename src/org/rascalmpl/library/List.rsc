@@ -132,9 +132,9 @@ public list[&T] sort(list[&T] lst)
   
   for(&T elm <- lst){
      if(elm <= pivot){
-       less = elm + less;
+       less = [elm] + less;
      } else {
-       greater = elm + greater;
+       greater = [elm] + greater;
      }
   }
   
@@ -156,9 +156,9 @@ public list[&T] sort(list[&T] lst, bool (&T a, &T b) lessThanOrEqual)
   
   for(&T elm <- lst){
      if(lessThanOrEqual(elm,pivot)){
-       less = elm + less;
+       less = [elm] + less;
      } else {
-       greater = elm + greater;
+       greater = [elm] + greater;
      }
   }
   
