@@ -716,9 +716,9 @@ public Attr getAttribute(languages::sdf2::syntax::Sdf2ForRascal::Attribute m) {
     case (Attribute) `bracket`:
     	return \bracket();
     
-    case (Attribute) `cons(<StrCon c>)` :
+    case (Attribute) `cons(<StrCon c>)` : {
     	return term("cons"(unescape(c)));
-    	
+    	}
     case (Attribute) `memo`:
     	return \memo();
     	
@@ -730,6 +730,12 @@ public Attr getAttribute(languages::sdf2::syntax::Sdf2ForRascal::Attribute m) {
     	
     case (Attribute) `reject` :
         return \reject();
+        
+    case (Attribute) `<IdCon c>(<StrCon a>)` : 
+        return term("<c>"(unescape(a)));
+        
+    case (Attribute) `<ATerm t>`:
+        return term("<t>");
         
     default: throw "missed a case <m>";
   }

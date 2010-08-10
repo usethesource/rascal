@@ -60,6 +60,8 @@ data Symbol =
      \iter-star(Symbol symbol)  | 
      \iter-seps(Symbol symbol, list[Symbol] separators)  | 
      \iter-star-seps(Symbol symbol, list[Symbol] separators) |
+     \parameterized-sort(str sort, list[Symbol] parameters)  |
+     \parameter(str name) |
      \layout()  | 
      \char-class(list[CharRange] ranges);
      
@@ -71,7 +73,7 @@ data Symbol =
      \tuple(Symbol head, list[Symbol] rest)  |
      \seq(list[Symbol] symbols)  |                                // <=== stil used!
      \func(list[Symbol] symbols, Symbol symbol)  | 
-     \parameterized-sort(str sort, list[Symbol] parameters)  |   // <=== still used!
+    
      \strategy(Symbol lhs, Symbol rhs)  |
      \var-sym(Symbol symbol) | 
      \iter-n(Symbol symbol, int number)  | 

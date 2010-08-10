@@ -29,7 +29,7 @@ public str grammar2rascal(Grammar g, str name) {
 
 public str grammar2rascal(Grammar g) {
   <normals,literals> = separateLiterals(g.productions);
-  return ( "" | it + "\n" + topProd2rascal(p) | group <- groupByNonTerminal(normals), p <- group)
+  return ( "" | it + "\n" + topProd2rascal(p) | gr <- groupByNonTerminal(normals), Production p <- gr)
        + "\n\n"
        + ( "" | it + "\n" + topProd2rascal(p) | Production p <- literals);
 }
@@ -51,43 +51,12 @@ set[set[Production]] groupByNonTerminal(set[Production] productions) {
         productions = {r, restrict(s,choice(s,a1), restr)};
     }
   }
-  
-  set[set[Production]] result = {{productions}};
-  solve (result) {
-    switch (result) {
-      case {a:{Production p, _*}, b:{Production q, _*}, rest*} :
-           if (same(p,q)) result = { rest, a + b };
-    }
-  }
-  return result;
+   
+  return group(productions, same);
 }
 
 bool same(Production p, Production q) {
   return sort(p) == sort(q);
-}
-
-Symbol sort(Production p) {
-  switch(p){
-    case prod(_,Symbol rhs,_):
-    	return rhs;
-    case regular(Symbol rhs, _):
-        return rhs;
-    case list(Symbol rhs):
-        return rhs;
-    case choice(s, alts) :
-     	return s;
-    case first(s, alts) :
-     	return s;
-    case \assoc(s, a, alts) :
-       	return s;
-    case diff(s,p,alts) : 
-      	return s;
-    case restrict(rhs, _, _):
-       	return rhs;
-    case others(sym):
-      	return sym;
-  }
-  throw "weird production <p>";
 }
 
 public str topProd2rascal(Production p) {
@@ -166,8 +135,7 @@ public str attrs2mods(Attributes as) {
     case \no-attrs(): 
       return "";
       
-    case \attrs([list[Attr] a,term("cons"(c)),list[Attr] b]) : {
-    println("cons is <c>");
+    case \attrs([list[Attr] a,term(node zz:"cons"(str c)),list[Attr] b]) : {
       return attrs2mods(\attrs([a,b])) + "<c>: ";
       }
       
