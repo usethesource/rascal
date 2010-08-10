@@ -96,7 +96,7 @@ private final org.rascalmpl.ast.Class lhs;
 	public org.rascalmpl.ast.Class getRhs() { return rhs; }	
 } public boolean isIntersection() { return false; }
 static public class Intersection extends Class {
-/** lhs:Class "&" rhs:Class -> Class {cons("Intersection"), left} */
+/** lhs:Class "&&" rhs:Class -> Class {cons("Intersection"), left} */
 	public Intersection(INode node, org.rascalmpl.ast.Class lhs, org.rascalmpl.ast.Class rhs) {
 		this.node = node;
 		this.lhs = lhs;
@@ -117,7 +117,7 @@ private final org.rascalmpl.ast.Class lhs;
 	public org.rascalmpl.ast.Class getRhs() { return rhs; }	
 } public boolean isUnion() { return false; }
 static public class Union extends Class {
-/** lhs:Class "+" rhs:Class -> Class {cons("Union"), left} */
+/** lhs:Class "||" rhs:Class -> Class {cons("Union"), left} */
 	public Union(INode node, org.rascalmpl.ast.Class lhs, org.rascalmpl.ast.Class rhs) {
 		this.node = node;
 		this.lhs = lhs;

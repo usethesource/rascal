@@ -266,6 +266,12 @@ return new org.rascalmpl.ast.NonterminalLabel.Ambiguity(node, alternatives);
 public org.rascalmpl.ast.NonterminalLabel.Lexical makeNonterminalLabelLexical(INode node, String string) { 
 return new org.rascalmpl.ast.NonterminalLabel.Lexical(node, string); 
 }
+public org.rascalmpl.ast.ParameterizedNonterminal.Ambiguity makeParameterizedNonterminalAmbiguity(INode node, java.util.List<org.rascalmpl.ast.ParameterizedNonterminal> alternatives) { 
+return new org.rascalmpl.ast.ParameterizedNonterminal.Ambiguity(node, alternatives); 
+}
+public org.rascalmpl.ast.ParameterizedNonterminal.Lexical makeParameterizedNonterminalLexical(INode node, String string) { 
+return new org.rascalmpl.ast.ParameterizedNonterminal.Lexical(node, string); 
+}
 public org.rascalmpl.ast.Sym.CaseInsensitiveLiteral makeSymCaseInsensitiveLiteral(INode node, org.rascalmpl.ast.CaseInsensitiveStringConstant cistring) { 
 return new org.rascalmpl.ast.Sym.CaseInsensitiveLiteral(node, cistring); 
 }
@@ -296,20 +302,11 @@ return new org.rascalmpl.ast.Sym.IterStarSep(node, symbol, sep);
 public org.rascalmpl.ast.Sym.IterSep makeSymIterSep(INode node, org.rascalmpl.ast.Sym symbol, org.rascalmpl.ast.StringConstant sep) { 
 return new org.rascalmpl.ast.Sym.IterSep(node, symbol, sep); 
 }
-public org.rascalmpl.ast.Sym.NonEagerIterStar makeSymNonEagerIterStar(INode node, org.rascalmpl.ast.Sym symbol) { 
-return new org.rascalmpl.ast.Sym.NonEagerIterStar(node, symbol); 
-}
-public org.rascalmpl.ast.Sym.NonEagerIter makeSymNonEagerIter(INode node, org.rascalmpl.ast.Sym symbol) { 
-return new org.rascalmpl.ast.Sym.NonEagerIter(node, symbol); 
-}
 public org.rascalmpl.ast.Sym.IterStar makeSymIterStar(INode node, org.rascalmpl.ast.Sym symbol) { 
 return new org.rascalmpl.ast.Sym.IterStar(node, symbol); 
 }
 public org.rascalmpl.ast.Sym.Iter makeSymIter(INode node, org.rascalmpl.ast.Sym symbol) { 
 return new org.rascalmpl.ast.Sym.Iter(node, symbol); 
-}
-public org.rascalmpl.ast.Sym.NonEagerOptional makeSymNonEagerOptional(INode node, org.rascalmpl.ast.Sym symbol) { 
-return new org.rascalmpl.ast.Sym.NonEagerOptional(node, symbol); 
 }
 public org.rascalmpl.ast.Sym.Optional makeSymOptional(INode node, org.rascalmpl.ast.Sym symbol) { 
 return new org.rascalmpl.ast.Sym.Optional(node, symbol); 
@@ -320,11 +317,14 @@ return new org.rascalmpl.ast.Sym.Labeled(node, symbol, label);
 public org.rascalmpl.ast.Sym.Nonterminal makeSymNonterminal(INode node, org.rascalmpl.ast.Nonterminal nonterminal) { 
 return new org.rascalmpl.ast.Sym.Nonterminal(node, nonterminal); 
 }
+public org.rascalmpl.ast.Sym.Parameter makeSymParameter(INode node, org.rascalmpl.ast.Nonterminal nonTerminal) { 
+return new org.rascalmpl.ast.Sym.Parameter(node, nonTerminal); 
+}
 public org.rascalmpl.ast.Sym.Ambiguity makeSymAmbiguity(INode node, java.util.List<org.rascalmpl.ast.Sym> alternatives) { 
 return new org.rascalmpl.ast.Sym.Ambiguity(node, alternatives); 
 }
-public org.rascalmpl.ast.Sym.Parametrized makeSymParametrized(INode node, org.rascalmpl.ast.Nonterminal nonterminal, java.util.List<org.rascalmpl.ast.Sym> parameters) { 
-return new org.rascalmpl.ast.Sym.Parametrized(node, nonterminal, parameters); 
+public org.rascalmpl.ast.Sym.Parametrized makeSymParametrized(INode node, org.rascalmpl.ast.ParameterizedNonterminal pnonterminal, java.util.List<org.rascalmpl.ast.Sym> parameters) { 
+return new org.rascalmpl.ast.Sym.Parametrized(node, pnonterminal, parameters); 
 }
 public org.rascalmpl.ast.Range.FromTo makeRangeFromTo(INode node, org.rascalmpl.ast.Char start, org.rascalmpl.ast.Char end) { 
 return new org.rascalmpl.ast.Range.FromTo(node, start, end); 
@@ -361,9 +361,6 @@ return new org.rascalmpl.ast.Char.Ambiguity(node, alternatives);
 }
 public org.rascalmpl.ast.Char.Lexical makeCharLexical(INode node, String string) { 
 return new org.rascalmpl.ast.Char.Lexical(node, string); 
-}
-public org.rascalmpl.ast.Command.Lexical makeCommandLexical(INode node, String string) { 
-return new org.rascalmpl.ast.Command.Lexical(node, string); 
 }
 public org.rascalmpl.ast.Command.Import makeCommandImport(INode node, org.rascalmpl.ast.Import imported) { 
 return new org.rascalmpl.ast.Command.Import(node, imported); 

@@ -2,6 +2,7 @@ module rascal::parser::Generator
 
 import rascal::parser::Grammar;
 import rascal::parser::Priority;
+import rascal::parser::Parameters;
 import rascal::parser::Normalization;
 import rascal::parser::Definition;
 import ParseTree;
@@ -26,7 +27,9 @@ public str generate(str package, str name, loc mod) {
 
 public str generate(str package, str name, Grammar gr){
     itemId = 0;
-    grammar = factorize(gr);
+    
+    grammar = expandParameterizedSymbols(gr);
+    grammar = factorize(grammar);
     g = grammar;
     return 
 "
@@ -137,14 +140,6 @@ public class <name> extends SGLL {
 
 
 public str generateParseMethod(Production p){
-    if(prod(_,\parameterized-sort(str name, list[Symbol] params)) := p) {
-      return "public void <name> (<generateSymbolFormals(params)>) {
-         // <p>
-         expect(<value2id(p)>,
-         <generateSymbolItemExpects(p.lhs)>);       
-      ";
-    }
-    
     if(prod(_,Symbol rhs,_) := p){
         return "public void <sym2name(rhs)>(){
             // <p>
@@ -171,10 +166,6 @@ public str generateParseMethod(Production p){
     throw "not implemented <p>";
 }
 
-public str generateSymbolFormals(list[Symbol] params) {
-  return ("String param_<head(params).name>" | it + ", param_<par.name>" | par <- params);
-}
- 
 public str generateSymbolItemExpects(list[Symbol] syms){
     if(syms == []){
         return "new EpsilonStackNode(<nextItem()>)";
@@ -207,6 +198,8 @@ public str sym2newitem(Symbol sym){
         case \prime(_,_,_) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \sort(n) : 
+            return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
+        case \parameterized-sort(n,args): 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \parameter(n) :
             throw "all parameters should have been instantiated by now";
@@ -287,6 +280,7 @@ public str value2id(value v){
         case label(_,v)    : return value2id(v);
         case prime(Symbol s, str reason, list[int] indexes) : return "<value2id(s)>_<reason>_<value2id(indexes)>";
         case sort(str s)   : return s;
+        case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<value2id(arg)>" | arg <- args);
         case cilit(str s)  : return "cilit_<s>";
 	    case lit(/<s:^[A-Za-z0-9]+$>/) : return "lit_<s>"; 
         case int i         : return "<i>";

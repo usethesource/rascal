@@ -1,13 +1,16 @@
 package org.rascalmpl.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Sym extends AbstractAST { 
-  public org.rascalmpl.ast.Nonterminal getNonterminal() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Sym> getParameters() { throw new UnsupportedOperationException(); } public boolean hasNonterminal() { return false; } public boolean hasParameters() { return false; }
+  public org.rascalmpl.ast.ParameterizedNonterminal getPnonterminal() { throw new UnsupportedOperationException(); }
+	public java.util.List<org.rascalmpl.ast.Sym> getParameters() { throw new UnsupportedOperationException(); }
+public boolean hasPnonterminal() { return false; }
+	public boolean hasParameters() { return false; }
 public boolean isParametrized() { return false; }
 static public class Parametrized extends Sym {
-/** nonterminal:Nonterminal "[" parameters:{Sym ","}+ "]" -> Sym {cons("Parametrized")} */
-	public Parametrized(INode node, org.rascalmpl.ast.Nonterminal nonterminal, java.util.List<org.rascalmpl.ast.Sym> parameters) {
+/** pnonterminal:ParameterizedNonterminal "[" parameters:{Sym ","}+ "]" -> Sym {cons("Parametrized")} */
+	public Parametrized(INode node, org.rascalmpl.ast.ParameterizedNonterminal pnonterminal, java.util.List<org.rascalmpl.ast.Sym> parameters) {
 		this.node = node;
-		this.nonterminal = nonterminal;
+		this.pnonterminal = pnonterminal;
 		this.parameters = parameters;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -16,11 +19,11 @@ static public class Parametrized extends Sym {
 
 	public boolean isParametrized() { return true; }
 
-	public boolean hasNonterminal() { return true; }
+	public boolean hasPnonterminal() { return true; }
 	public boolean hasParameters() { return true; }
 
-private final org.rascalmpl.ast.Nonterminal nonterminal;
-	public org.rascalmpl.ast.Nonterminal getNonterminal() { return nonterminal; }
+private final org.rascalmpl.ast.ParameterizedNonterminal pnonterminal;
+	public org.rascalmpl.ast.ParameterizedNonterminal getPnonterminal() { return pnonterminal; }
 	private final java.util.List<org.rascalmpl.ast.Sym> parameters;
 	public java.util.List<org.rascalmpl.ast.Sym> getParameters() { return parameters; }	
 }
@@ -37,7 +40,27 @@ static public class Ambiguity extends Sym {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitSymAmbiguity(this);
   }
-} public boolean isNonterminal() { return false; }
+} 
+public boolean isParameter() { return false; }
+static public class Parameter extends Sym {
+/** "&" non-terminal:Nonterminal -> Sym {cons("Parameter")} */
+	public Parameter(INode node, org.rascalmpl.ast.Nonterminal nonterminal) {
+		this.node = node;
+		this.nonterminal = nonterminal;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitSymParameter(this);
+	}
+
+	public boolean isParameter() { return true; }
+
+	public boolean hasNonterminal() { return true; }
+
+private final org.rascalmpl.ast.Nonterminal nonterminal;
+	public org.rascalmpl.ast.Nonterminal getNonterminal() { return nonterminal; }	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Nonterminal getNonterminal() { throw new UnsupportedOperationException(); }
+public boolean hasNonterminal() { return false; }
+public boolean isNonterminal() { return false; }
 static public class Nonterminal extends Sym {
 /** nonterminal:Nonterminal -> Sym {cons("Nonterminal")} */
 	public Nonterminal(INode node, org.rascalmpl.ast.Nonterminal nonterminal) {
@@ -54,7 +77,7 @@ static public class Nonterminal extends Sym {
 
 private final org.rascalmpl.ast.Nonterminal nonterminal;
 	public org.rascalmpl.ast.Nonterminal getNonterminal() { return nonterminal; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.Sym getSymbol() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.NonterminalLabel getLabel() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean hasLabel() { return false; }
+} public org.rascalmpl.ast.Sym getSymbol() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.NonterminalLabel getLabel() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean hasLabel() { return false; }
 public boolean isLabeled() { return false; }
 static public class Labeled extends Sym {
 /** symbol:Sym label:NonterminalLabel -> Sym {cons("Labeled")} */
@@ -93,23 +116,6 @@ static public class Optional extends Sym {
 
 private final org.rascalmpl.ast.Sym symbol;
 	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
-} public boolean isNonEagerOptional() { return false; }
-static public class NonEagerOptional extends Sym {
-/** symbol:Sym "??" -> Sym {cons("NonEagerOptional")} */
-	public NonEagerOptional(INode node, org.rascalmpl.ast.Sym symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymNonEagerOptional(this);
-	}
-
-	public boolean isNonEagerOptional() { return true; }
-
-	public boolean hasSymbol() { return true; }
-
-private final org.rascalmpl.ast.Sym symbol;
-	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
 } public boolean isIter() { return false; }
 static public class Iter extends Sym {
 /** symbol:Sym "+" -> Sym {cons("Iter")} */
@@ -139,40 +145,6 @@ static public class IterStar extends Sym {
 	}
 
 	public boolean isIterStar() { return true; }
-
-	public boolean hasSymbol() { return true; }
-
-private final org.rascalmpl.ast.Sym symbol;
-	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
-} public boolean isNonEagerIter() { return false; }
-static public class NonEagerIter extends Sym {
-/** symbol:Sym "+?" -> Sym {cons("NonEagerIter")} */
-	public NonEagerIter(INode node, org.rascalmpl.ast.Sym symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymNonEagerIter(this);
-	}
-
-	public boolean isNonEagerIter() { return true; }
-
-	public boolean hasSymbol() { return true; }
-
-private final org.rascalmpl.ast.Sym symbol;
-	public org.rascalmpl.ast.Sym getSymbol() { return symbol; }	
-} public boolean isNonEagerIterStar() { return false; }
-static public class NonEagerIterStar extends Sym {
-/** symbol:Sym "*?" -> Sym {cons("NonEagerIterStar")} */
-	public NonEagerIterStar(INode node, org.rascalmpl.ast.Sym symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymNonEagerIterStar(this);
-	}
-
-	public boolean isNonEagerIterStar() { return true; }
 
 	public boolean hasSymbol() { return true; }
 
