@@ -30,7 +30,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		ranges = original.ranges;
 	}
 	
-	public String getMethodName(){
+	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	

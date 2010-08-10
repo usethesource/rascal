@@ -39,7 +39,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		optional = original.optional;
 	}
 	
-	public String getMethodName(){
+	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	
