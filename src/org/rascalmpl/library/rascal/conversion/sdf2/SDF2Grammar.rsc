@@ -165,7 +165,14 @@ test getProductions((SDF) `definition module A exports priorities A -> B > C -> 
 
 
 public set[Production] getProductions(languages::sdf2::syntax::Sdf2ForRascal::Production* prods, bool isLex){
-	return {getProduction(prod, isLex) | languages::sdf2::syntax::Sdf2ForRascal::Production prod <- prods};
+	return {fixParameters(getProduction(prod, isLex)) | languages::sdf2::syntax::Sdf2ForRascal::Production prod <- prods};
+}
+
+Production fixParameters(Production input) {
+  return innermost visit(input) {
+    case prod(lhs, \parameterized-sort(str name, [pre*, sort(str x), post*]), as) =>
+         prod(visit (lhs) { case sort(x) => \parameter(x) }, \parameterized-sort(name,[pre,\parameter(x),post]),as)
+  }
 }
 
 public Production getProduction(languages::sdf2::syntax::Sdf2ForRascal::Production P, bool isLex) {
@@ -174,7 +181,7 @@ public Production getProduction(languages::sdf2::syntax::Sdf2ForRascal::Producti
     case (Production) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms> -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym>`:
     	return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([term("lexical")]))
     	               : prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
-    	
+    
     case (Production) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms> -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym> {<{languages::sdf2::syntax::Sdf2ForRascal::Attribute ","}* ats>}` :
  		if(attrs([list[Attr] a]) := getAttributes(ats))
     		return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex), \attrs([a, \term("lexical")]))

@@ -178,6 +178,8 @@ public str symbol2rascal(Symbol sym) {
     	return "<symbol2rascal(x)> <l>";  
     case sort(x) :
     	return replaceAll(x, "-", "_");
+    case \parameter(x) :
+        return "&" + replaceAll(x, "-", "_");
     case lit(x) :
     	return "\"<escape(x)>\"";
     case cilit(x) :
