@@ -138,7 +138,7 @@ public abstract class SGLL implements IGLL{
 			if(prev.hasEdges()){
 				sharedPrev.addEdges(prev.getEdges());
 			}
-		}while(sharedNext != null);
+		}while(!(next == null || next == node));
 	}
 	
 	private void updateNextNode(AbstractStackNode next, AbstractStackNode node){
