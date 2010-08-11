@@ -47,7 +47,6 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethodError;
 
 
 public class JavaBridge {
-//	private static final String JAVA_IMPORTS_TAG = "javaImports";
 	private static final String JAVA_CLASS_TAG = "javaClass";
 	
 	private final List<ClassLoader> loaders;
@@ -57,9 +56,6 @@ public class JavaBridge {
 	private final IValueFactory vf;
 	
 	private final HashMap<Class<?>, Object> instanceCache;
-
-	private JavaCompiler<?> javaCompiler = new JavaCompiler<Object>(getClass().getClassLoader(), Arrays.asList(new String[] {"-cp", Configuration.getRascalJavaClassPathProperty()}));
-	
 
 	public JavaBridge(PrintWriter outputStream, List<ClassLoader> classLoaders, IValueFactory valueFactory) {
 		this.loaders = classLoaders;
@@ -73,6 +69,10 @@ public class JavaBridge {
 
 	public Class<?> compileJava(ISourceLocation loc, String className, String source) {
 		try {
+			// watch out, if you start sharing this compiler, classes will not be able to reload
+			ClassLoader loader = getClass().getClassLoader();
+			List<String> commandline = Arrays.asList(new String[] {"-cp", Configuration.getRascalJavaClassPathProperty()});
+			JavaCompiler<Object> javaCompiler = new JavaCompiler<Object>(loader, commandline);
 			return javaCompiler.compile(className, source, null, Object.class);
 		} catch (ClassCastException e) {
 			throw new JavaCompilationError(e.getMessage(), loc);
