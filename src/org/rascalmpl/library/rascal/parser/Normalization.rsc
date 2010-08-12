@@ -48,9 +48,9 @@ rule restrict restrict(Symbol s, restrict(s, Production p, set[list[Symbol]] q),
 
 // this makes sure the ... (others) are merged in at the right place
 // TODO: we have problems here because unordered productions will also be given an order...
-rule others choice(Symbol s, {set[Production] a, others(s)}) => choice(s, a);
-rule others choice(Symbol s, {set[Production] a, first(Symbol s, [list[Production] b, others(s), list[Production] c])}) =>
-            first(s, b + [choice(s, a)] + c);
+rule others choice(Symbol s, {set[Production] a, others(Symbol t)}) => choice(s, a) when t == s;
+rule others choice(Symbol s, {set[Production] a, first(Symbol t, [list[Production] b, others(Symbol u), list[Production] c])}) =>
+            first(s, b + [choice(s, a)] + c) when t == s && t == u;
   
 // move diff outwards
 // TODO: we have to distribute diff and restrict over the prioritized elements of a first, such that the restrictions and the

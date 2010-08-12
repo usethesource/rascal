@@ -120,6 +120,7 @@ public Production redefine(Production p, Symbol s) {
     case \assoc(_, Associativity a, set[Production] p) => \assoc(s, a, p)
     case \diff(_, Production p, set[Production] alts) => \diff(s, p, alts)
     case \restrict(Symbol r, Production language, list[CharClass] restrictions) => restrict(s, language, restrictions)
+    case \others(Symbol r) : throw "... should have been resolved before expanding priorities";
     case Production x : throw "missed a case: <x>";
   }
 }
