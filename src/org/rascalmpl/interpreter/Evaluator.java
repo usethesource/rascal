@@ -987,11 +987,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	@Override
 	public Result<IValue> visitCommandImport(org.rascalmpl.ast.Command.Import x) {
+		setCurrentAST(x);
 		return x.getImported().accept(this);
 	}
 	
 	@Override
 	public Result<IValue> visitShellCommandHelp(Help x) {
+		setCurrentAST(x);
 		printHelpMessage(stdout);
 		return ResultFactory.nothing();
 	}
