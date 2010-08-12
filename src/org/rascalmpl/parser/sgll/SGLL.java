@@ -54,6 +54,8 @@ public abstract class SGLL implements IGLL{
 	private int previousLocation;
 	private int location;
 	
+	private boolean nullableEncountered;
+	
 	private AbstractStackNode root;
 	
 	public SGLL(){
@@ -312,11 +314,9 @@ public abstract class SGLL implements IGLL{
 				}
 			}else if(node.isReducable() || !node.getResultStore().isRejected()){
 				for(int i = edges.size() - 1; i >= 0; i--){
-					ArrayList<Link> prefixes = null;
 					if(prefixesMap != null){
 						int startLocation = edges.getKey(i);
-						prefixes = prefixesMap.findValue(startLocation);
-						if(prefixes == null) continue;
+						if(prefixesMap.findValue(startLocation) == null) continue;
 					}
 
 					ArrayList<AbstractStackNode> edgeList = edges.getValue(i);
@@ -331,6 +331,22 @@ public abstract class SGLL implements IGLL{
 		AbstractStackNode next;
 		if((next = node.getNext()) != null){
 			updateNextNode(next, node);
+		}
+	}
+	
+	private void moveNullable(AbstractStackNode node, AbstractStackNode edge){
+		IConstructor production = node.getParentProduction();
+		
+		LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap = node.getPrefixesMap();
+		if(!node.isReject()){
+			ArrayList<Link> prefixes = null;
+			if(prefixesMap != null){
+				prefixes = prefixesMap.findValue(location);
+			}
+
+			updateEdgeNode(edge, prefixes, node.getResult(), production);
+		}else if(node.isReducable() || !node.getResultStore().isRejected()){
+			rejectEdgeNode(edge, production);
 		}
 	}
 	
@@ -408,6 +424,9 @@ public abstract class SGLL implements IGLL{
 			for(int j = possiblySharedExpects.size() - 1; j >= 0; j--){
 				AbstractStackNode possiblySharedNode = possiblySharedExpects.getFirst(j);
 				if(possiblySharedNode.isSimilar(node)){
+					if(!possiblySharedNode.isClean()){ // Is nullable.
+						moveNullable(possiblySharedExpects.getSecond(j), stack);
+					}
 					possiblySharedExpects.getSecond(j).addEdge(stack);
 					return true;
 				}
@@ -505,11 +524,12 @@ public abstract class SGLL implements IGLL{
 		expand();
 		
 		do{
-			findStacksToReduce();
-			
+			if(!nullableEncountered) findStacksToReduce();
+
+			nullableEncountered = false;
 			reduce();
 			
-			expand();
+			if(!nullableEncountered) expand();
 		}while(todoList.size() > 0);
 		
 		if(root == null){
