@@ -330,8 +330,8 @@ syntax StringCharacter
 	| lex ![\"\'\\\<\>] ;
 
 syntax NoElseMayFollow
-	= NoElseMayFollow
-	#  [e]  [l]  [s]  [e] ;
+	= 
+	#  "else";
 
 syntax MidPathChars
 	= lex "\>" URLChars "\<" ;

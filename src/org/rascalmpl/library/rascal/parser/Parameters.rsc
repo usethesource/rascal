@@ -29,11 +29,11 @@ set[Production] expand(set[Production] prods) {
   while (uses != {}) {
     instances = {};
     for (\parameterized-sort(name,actuals) <- uses, def <- defs, \parameterized-sort(name,formals) := sort(def)) {
-       instantiated += \parameterized-sort(name,actuals);
+       instantiated += {\parameterized-sort(name,actuals)};
        substs = (formals[i]:actuals[i] | int i <- domain(actuals) & domain(formals));
-       instances += visit (def) {
+       instances = {instances, visit (def) {
          case Symbol par:\parameter(_) => substs[par]?par
-       }; 
+       }}; 
     }
   
     // now, we may have created more uses of parameterized symbols, by instantiating nested parameterized symbols

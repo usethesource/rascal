@@ -21,6 +21,11 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 		result = new LiteralNode(production, literal);
 	}
 	
+	public LiteralStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, char[] literal){
+		this(id, production, literal);
+		setFollowRestriction(followRestrictions);
+	}
+	
 	private LiteralStackNode(LiteralStackNode original){
 		super(original);
 		

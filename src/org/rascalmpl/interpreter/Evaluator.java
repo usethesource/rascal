@@ -165,6 +165,7 @@ import org.rascalmpl.ast.ShellCommand.Edit;
 import org.rascalmpl.ast.ShellCommand.Help;
 import org.rascalmpl.ast.ShellCommand.ListDeclarations;
 import org.rascalmpl.ast.ShellCommand.Quit;
+import org.rascalmpl.ast.ShellCommand.Undeclare;
 import org.rascalmpl.ast.ShellCommand.Unimport;
 import org.rascalmpl.ast.Statement.Append;
 import org.rascalmpl.ast.Statement.Assert;
@@ -488,16 +489,28 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private IGLL getObjectParser() {
 		ParserGenerator pg = getParserGenerator();
 		ModuleEnvironment currentModule = (ModuleEnvironment) getCurrentEnvt().getRoot();
+		Class<IGLL> parser = currentModule.getParser();
+		
+		if (parser == null) {
+			String parserName;
+			if (rootScope == currentModule) {
+				parserName = "__Shell__";
+			}
+			else {
+				parserName = currentModule.getName().replaceAll("::", ".");
+			}
 
-		String parserName;
-		if (rootScope == currentModule) {
-			parserName = "__Shell__";
+			parser = pg.getParser(getCurrentAST().getLocation(), parserName, currentModule.getProductions());
+			currentModule.safeParser(parser);
 		}
-		else {
-			parserName = currentModule.getName().replaceAll("::", ".");
+		
+		try {
+			return parser.newInstance();
+		} catch (InstantiationException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			throw new ImplementationError(e.getMessage(), e);
 		}
-
-		return pg.getParser(getCurrentAST().getLocation(), parserName, currentModule.getProductions());
 	}
 	
 	// for debugging/bootstrapping purposes TODO remove later
@@ -938,7 +951,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		setCurrentAST(x);
 		return x.getCommand().accept(this);
 	}
-
+	
+	@Override
+	public Result<IValue> visitCommandAmbiguity(
+			org.rascalmpl.ast.Command.Ambiguity x) {
+		throw new ImplementationError("ambiguity in command " + x, x.getLocation());
+	}
+	
 	@Override
 	public Result<IValue> visitCommandDeclaration(org.rascalmpl.ast.Command.Declaration x) {
 		setCurrentAST(x);

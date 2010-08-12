@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.JavaBridge;
@@ -43,7 +44,7 @@ public class ParserGenerator {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public IGLL getParser(ISourceLocation loc, String name, ISet imports) {
+	public Class<IGLL> getParser(ISourceLocation loc, String name, ISet imports) {
 		try {
 			// TODO: add caching
 			System.err.println("Importing and normalizing grammar");
@@ -69,16 +70,12 @@ public class ParserGenerator {
 				}
 			}
 			System.err.println("compiling generated java code");
-			Class<IGLL> parser = (Class<IGLL>) bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
-			System.err.println("instantiating generated parser class");
-			return parser.newInstance();
+			return (Class<IGLL>) bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		}  catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
-		} catch (InstantiationException e) {
-			throw new ImplementationError("parser generator:" + e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError("parser generator:" + e.getMessage(), e);
-		} 
+		} catch (Throw e) {
+			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
+		}
 	}
 
 	public IConstructor getGrammar(ISet imports) {

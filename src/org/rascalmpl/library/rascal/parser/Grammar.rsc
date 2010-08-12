@@ -84,15 +84,15 @@ public Symbol sort(Production p) {
         return rhs;
     case list(Symbol rhs):
         return rhs;
-    case choice(s, alts) :
+    case choice(s, _) :
      	return s;
-    case first(s, alts) :
+    case first(s, _) :
      	return s;
-    case \assoc(s, a, alts) :
+    case \assoc(Symbol s, _, _) :
        	return s;
-    case diff(s,p,alts) : 
+    case diff(Symbol s,_,_) : 
       	return s;
-    case restrict(rhs, _, _):
+    case restrict(Symbol rhs, _, _):
        	return rhs;
     case others(sym):
       	return sym;
