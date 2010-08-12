@@ -100,6 +100,8 @@ public class ParserTest extends TestCase{
 		executeParser(new LeftRecursion());
 		
 		executeParser(new EmptyRightRecursion());
+
+		executeParser(new NullableSharing());
 	}
 	
 	public void testAmbiguousRecursion(){

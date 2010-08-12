@@ -335,6 +335,8 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void moveNullable(AbstractStackNode node, AbstractStackNode edge){
+		nullableEncountered = true;
+		
 		IConstructor production = node.getParentProduction();
 		
 		LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap = node.getPrefixesMap();
@@ -530,7 +532,7 @@ public abstract class SGLL implements IGLL{
 			reduce();
 			
 			if(!nullableEncountered) expand();
-		}while(todoList.size() > 0);
+		}while((todoList.size() > 0) || nullableEncountered);
 		
 		if(root == null){
 			int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
