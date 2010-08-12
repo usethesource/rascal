@@ -266,6 +266,8 @@ public str sym2newitem(Symbol sym){
         case \start(s) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \lit(l) : {
+            if (/restrict(\lit(l), choice(\lit(l), {prod(chars,\lit(l),_)}), restrictions) := grammar) 
+                return "new LiteralStackNode(<id>, <value2id(p)>, <generateLookaheads(restrictions)>, new char[] {<literals2ints(chars)>})";
             if (/p:prod(chars,\lit(l),_) := grammar)  
                 return "new LiteralStackNode(<id>, <value2id(p)>, new char[] {<literals2ints(chars)>})";
             throw "literal not found in <g>??";
