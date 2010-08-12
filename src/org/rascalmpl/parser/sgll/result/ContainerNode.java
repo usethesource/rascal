@@ -32,6 +32,8 @@ public class ContainerNode extends AbstractNode{
 	private ArrayList<Link> alternatives;
 	private ArrayList<IConstructor> productions;
 	
+	private IConstructor cachedResult;
+	
 	public ContainerNode(URI input, int offset, int length, boolean isListContainer){
 		super();
 		
@@ -203,13 +205,15 @@ public class ContainerNode extends AbstractNode{
 	}
 	
 	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth){
+		if(cachedResult != null) return cachedResult;
+		
 		if(rejected) return null;
 		
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), vf.integer(depth - index));
 			if(input != null) cycle = cycle.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
-			return cycle;
+			return (cachedResult = cycle);
 		}
 		
 		int childDepth = depth + 1;
@@ -263,6 +267,6 @@ public class ContainerNode extends AbstractNode{
 		
 		stack.purge(); // Pop.
 		
-		return result;
+		return (cachedResult = result);
 	}
 }
