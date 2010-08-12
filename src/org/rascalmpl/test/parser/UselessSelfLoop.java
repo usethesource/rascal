@@ -42,7 +42,8 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_B1 = new NonTerminalStackNode(1, "B");
 	private final static AbstractStackNode NONTERMINAL_A2 = new NonTerminalStackNode(2, "A");
 	private final static AbstractStackNode NONTERMINAL_B3 = new NonTerminalStackNode(3, "B");
-	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(4, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a4 = new LiteralStackNode(4, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
 	
 	public UselessSelfLoop(){
 		super();
@@ -57,13 +58,13 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 	public void A(){
 		expect(PROD_A_B, NONTERMINAL_B3);
 		
-		expect(PROD_A_a, LITERAL_a2);
+		expect(PROD_A_a, LITERAL_a4);
 	}
 	
 	public void B(){
 		expect(PROD_B_A, NONTERMINAL_A2);
 		
-		expect(PROD_B_a, LITERAL_a2);
+		expect(PROD_B_a, LITERAL_a5);
 	}
 	
 	public IValue parse(IConstructor start, URI inputURI, char[] input){
@@ -91,7 +92,7 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(amb({appl(prod([sort(\"B\")],sort(\"S\"),\\no-attrs()),[amb({appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"A\")],sort(\"B\"),\\no-attrs()),[cycle(sort(\"A\"),1)])})]),appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[amb({appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"A\")],sort(\"B\"),\\no-attrs()),[cycle(sort(\"A\"),1)])})])}),-1)";
+		String expectedInput = "?";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
