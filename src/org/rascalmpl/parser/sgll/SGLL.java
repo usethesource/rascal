@@ -7,12 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Calendar;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
@@ -115,10 +118,17 @@ public abstract class SGLL implements IGLL{
 		try{
 			Method method = getClass().getMethod(name);
 			method.invoke(this);
-		}catch(Exception ex){
-			// Not going to happen.
-			ex.printStackTrace(); // Temp
-		}
+		} catch (SecurityException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (NoSuchMethodException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (IllegalArgumentException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} 
 	}
 	
 	private void updateProductionEndNode(AbstractStackNode sharedNode, AbstractStackNode node){
@@ -520,11 +530,13 @@ public abstract class SGLL implements IGLL{
 		this.inputURI = inputURI;
 		this.input = input;
 		
+		System.err.println("starting to parse, expanding initial stacks");
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		stacksToExpand.add(rootNode);
 		expand();
 		
+		System.err.println("parsing");
 		do{
 			if(!nullableEncountered) findStacksToReduce();
 
@@ -539,8 +551,10 @@ public abstract class SGLL implements IGLL{
 			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation("-", errorLocation, 0, -1, -1, -1, -1));
 		}
 		
+		System.err.println("parsing done, now producing PDB term");
 		IValue result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0);
 		
+		System.err.println("done building pdb term");
 		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation("-"));
 		
 		return makeParseTree(result);

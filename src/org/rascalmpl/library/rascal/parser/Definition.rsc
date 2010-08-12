@@ -8,7 +8,6 @@ module rascal::parser::Definition
    
 import rascal::syntax::RascalForImportExtraction;
 import rascal::parser::Grammar;
-import rascal::parser::Regular;
 import List;
 import String;
 import ParseTree;
@@ -59,7 +58,6 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
                        + {prod([rhs],\layout(),\no-attrs()) | /prod(_,Symbol rhs,_) <- layouts }
                        + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods+layouts}
                        + {prod(cistr2syms(s),lit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods+layouts}
-                       + makeRegularStubs(prods+layouts)
                 );
 } 
    
@@ -116,7 +114,7 @@ private Production prod2prod(Symbol nt, Prod p) {
       return \assoc(nt, \non-assoc(), {attribute(prod2prod(nt, p), \assoc(\non-assoc()))});
     case (Prod) `assoc(<Prod p>)` :
       return \assoc(nt, \left(), {attribute(prod2prod(nt, p),\assoc(\assoc()))});
-    case `...`: throw "the ... operator is not yet implemented";
+    case `...`: return \others(nt);
     case `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";
   } 
@@ -146,11 +144,12 @@ private Symbol arg2symbol(Sym sym, bool isLex) {
   switch (sym) {
     case (Sym) `<Nonterminal n>`          : return sort("<n>");
     case (Sym) `<StringConstant l>` : return lit(unescape(l));
-    case (Sym) `<Nonterminal n>[<{Sym ","}+ syms>]` : return \parameterized-sort("<n>",separgs2symbols(syms,isLex));
+    case (Sym) `<ParameterizedNonterminal n>[<{Sym ","}+ syms>]` : return \parameterized-sort("<n>",separgs2symbols(syms,isLex));
     case (Sym) `<Sym s> <NonterminalLabel n>` : return label("<n>", arg2symbol(s,isLex));
     case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s,isLex));
     case (Sym) `<Sym s> ??` : return opt(arg2symbol(s,isLex));
     case (Sym) `<Class cc>` : return cc2ranges(cc);
+    case (Sym) `&<Nonterminal n>` : return \parameter("<n>");
   }  
   
   if (isLex) switch (sym) {

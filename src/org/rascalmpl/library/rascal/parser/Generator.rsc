@@ -3,6 +3,7 @@ module rascal::parser::Generator
 import rascal::parser::Grammar;
 import rascal::parser::Priority;
 import rascal::parser::Parameters;
+import rascal::parser::Regular;
 import rascal::parser::Normalization;
 import rascal::parser::Definition;
 import ParseTree;
@@ -29,6 +30,7 @@ public str generate(str package, str name, Grammar gr){
     itemId = 0;
     
     grammar = expandParameterizedSymbols(gr);
+    grammar.productions += makeRegularStubs(grammar);
     grammar = factorize(grammar);
     g = grammar;
     return 
@@ -127,19 +129,15 @@ public class <name> extends SGLL {
         }
         throw new IllegalArgumentException(start.toString());
     }
-    
-    public static void main(java.lang.String[] args){
-        <name> parser = new <name>();
-        
-        // TODO: this just takes an arbitrary start symbol, if there are more the result can be surprising ;-)
-        System.out.println(parser.parse(read(\"<esc(getOneFrom(g.start))>\",Factory.Symbol), null, args[0].toCharArray())); 
-    }
 }
 ";
 }  
 
 
 public str generateParseMethod(Production p){
+    // note that this code heavily leans on the fact that production combinators are normalized 
+    // (distribution and factoring laws have been applied to put a production expression in canonical form)
+    
     if(prod(_,Symbol rhs,_) := p){
         return "public void <sym2name(rhs)>(){
             // <p>
@@ -149,6 +147,7 @@ public str generateParseMethod(Production p){
     }
 
     if(choice(Symbol rhs, set[Production] ps) := p){
+    println("choice prod");
         return "public void <sym2name(rhs)>(){
             <for (Production q:prod(_,_,_) <- ps){>
                 // <q>
@@ -157,13 +156,74 @@ public str generateParseMethod(Production p){
             <}>  
         }";
     }
-
+    
+    if (restrict(Symbol rhs, choice(rhs, set[Production] ps), set[list[Symbol]] restrictions) := p) {
+       str lookaheads = generateLookaheads(restrictions);
+       return "public void <sym2name(rhs)>() {
+             <for (Production q:prod(_,_,_) <- ps){>
+                // <q>
+                expect(<value2id(q)>, <lookaheads>,
+                <generateSymbolItemExpects(q.lhs)>);
+            <}>         
+       }";
+    }
+    
+    if (diff(Symbol rhs, choice(rhs, set[Production] choices), set[Production] rejects) := p) {
+       return "public void <sym2name(rhs)>() {
+            <for (Production q:prod(_,_,_) <- rejects){>
+                // <q>
+                expectReject(<value2id(q)>,
+                <generateSymbolItemExpects(q.lhs)>);
+            <}>
+            <for (Production q:prod(_,_,_) <- choices){>
+                // <q>
+                expect(<value2id(q)>,
+                <generateSymbolItemExpects(q.lhs)>);
+            <}>
+       }";
+    }
+    
+    if (diff(Symbol rhs, restrict(Symbol rhs, choice(rhs, set[Production] choices), set[list[Symbol]] restrictions), set[Production] rejects) := p) {
+       str lookaheads = generateLookaheads(restrictions);
+       return "public void <sym2name(rhs)>() {
+            <for (Production q:prod(_,_,_) <- rejects){>
+                // <q>
+                expectReject(<value2id(q)>, <lookaheads>, 
+                <generateSymbolItemExpects(q.lhs)>);
+            <}>
+            <for (Production q:prod(_,_,_) <- choices){>
+                // <q>
+                expect(<value2id(q)>, <lookaheads>, 
+                <generateSymbolItemExpects(q.lhs)>);
+            <}>
+       }";
+    }
+    
     if (regular(_,_) := p) {
         // do not occur as defined symbols
         return "";
     }
     
     throw "not implemented <p>";
+}
+
+@doc{
+  generate stack nodes for the restrictions. Note that although the abstract grammar for restrictions
+  may seem pretty general (i.e. any symbol can be a restriction), we actually only allow finite languages
+  defined as either sequences of character classes or literals.
+}
+public str generateLookaheads(set[list[Symbol]] restrictions) {
+  result = "new IReducableStackNode[] {"; 
+
+  // not that only single symbol restrictions are allowed at the moment.
+  // the run-time only supports character-classes and literals BTW, which should
+  // be validated by a static checker for Rascal.  
+  for ([Symbol l] <- restrictions) {
+     result += sym2newitem(l);
+  }
+  
+  result += "}";
+  return result;
 }
 
 public str generateSymbolItemExpects(list[Symbol] syms){

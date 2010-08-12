@@ -118,6 +118,10 @@ public class JavaMethod extends NamedFunction {
 				((Throw) targetException).setTrace(eval.getStackTrace());
 				throw th;
 			}
+			else if (targetException instanceof ImplementationError) {
+				ImplementationError ex = (ImplementationError) targetException;
+			    throw ex;
+			}
 			
 			e.printStackTrace();
 			String msg = targetException.getMessage() != null ? targetException.getMessage() : "Exception in Java code";

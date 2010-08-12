@@ -10,7 +10,6 @@
 module rascal::parser::Normalization
 
 import rascal::parser::Grammar;
-import rascal::parser::Regular;
 import List;
 import String;
 import ParseTree;
@@ -57,18 +56,24 @@ rule others choice(Symbol s, {set[Production] a, first(Symbol s, [list[Productio
 // TODO: we have to distribute diff and restrict over the prioritized elements of a first, such that the restrictions and the
 // diff's will be applied on all levels of the priority chains
 rule empty  diff(Symbol s,Production p,{})                    => p;
-rule or     choice(Symbol s, {set[Production] a, diff(Symbol t, b, set[Production] c)})   => diff(s, choice(s, a+{b}), c);
-rule xor    first(Symbol s, [list[Production] a, diff(Symbol t, b, set[Production] c),list[Production] d]) => 
+rule or     choice(Symbol s, {set[Production] a, diff(Symbol t, Production b, set[Production] c)})   => diff(s, choice(s, a+{b}), c);
+rule xor    first(Symbol s, [list[Production] a, diff(Symbol t, Production b, set[Production] c),list[Production] d]) => 
                diff(s, first(a+[b]+d), c);
 rule ass    \assoc(Symbol s, Associativity as, {set[Production] a, diff(Symbol t, b, set[Production] c)}) => diff(s, \assoc(s, as, a + {b}), c);
 rule diff   diff(Symbol s, Production p, {set[Production] a, diff(Symbol t, Production q, set[Production] b)})   => diff(s, choice(s, {p,q}), a+b); 
 rule diff   diff(Symbol s, diff(Symbol t, Production a, set[Production] b), set[Production] c)        => diff(s, a, b+c);
+rule restrict restrict(Symbol s, diff(s, Production p, set[Production] o), set[list[Symbol]] r) =>
+              diff(s, restrict(s, p, r), o);
 
-// move restrict outwards
+rule prod   diff(Symbol s, prod(list[Symbol] lhs, Symbol t, Attributes a), set[Production] diffs) =>
+            diff(s, choice(s, {prod(lhs,t,a)}), diffs);
+                          
 rule choice choice(Symbol s, {restrict(s, Production p, set[list[Symbol]] r), set[Production] q}) =>
             restrict(s, choice(s,{p,q}), r);
-//rule empty  restrict(Symbol s, Production p, set[list[Symbol]] r) => p;
-// TODO: I think we need more reordering rules for restrict soon
+rule first  first(Symbol s, [list[Production] pre, restrict(s, Production p, set[list[Symbol]] r), list[Production] post]) =>
+            restrict(s, first(s, [pre, p, post]), r);
+rule prod   restrict(Symbol s, prod(list[Symbol] lhs, Symbol t, Attributes a), set[list[Symbol]] r) =>
+            restrict(s, choice(s,{prod(lhs,t,a)}), r);
 
 // no attributes
 rule simpl  attrs([]) => \no-attrs();  
