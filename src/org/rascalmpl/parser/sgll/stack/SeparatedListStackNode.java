@@ -27,6 +27,16 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		this.isPlusList = isPlusList;
 	}
 	
+	public SeparatedListStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
+		super(id, followRestrictions);
+		
+		this.production = production;
+		
+		this.child = child;
+		this.separators = separators;
+		this.isPlusList = isPlusList;
+	}
+	
 	private SeparatedListStackNode(SeparatedListStackNode original){
 		super(original);
 		

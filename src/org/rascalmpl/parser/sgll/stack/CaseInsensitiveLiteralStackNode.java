@@ -19,19 +19,32 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		
 		this.production = production;
 		
+		this.ciLiteral = fill(ciLiteral);
+	}
+	
+	public CaseInsensitiveLiteralStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, char[] ciLiteral){
+		super(id, followRestrictions);
+		
+		this.production = production;
+		
+		this.ciLiteral = fill(ciLiteral);
+	}
+	
+	private char[][] fill(char[] ciLiteral){
 		int nrOfCharacters = ciLiteral.length;
-		this.ciLiteral = new char[nrOfCharacters][];
+		char[][] ciLiteralResult = new char[nrOfCharacters][];
 		for(int i = nrOfCharacters - 1; i >= 0; --i){
 			char character = ciLiteral[i];
 			int type = Character.getType(character);
 			if(type == Character.LOWERCASE_LETTER){
-				this.ciLiteral[i] = new char[]{character, Character.toUpperCase(character)};
+				ciLiteralResult[i] = new char[]{character, Character.toUpperCase(character)};
 			}else if(type == Character.UPPERCASE_LETTER){
-				this.ciLiteral[i] = new char[]{character, Character.toLowerCase(character)};
+				ciLiteralResult[i] = new char[]{character, Character.toLowerCase(character)};
 			}else{
-				this.ciLiteral[i] = new char[]{character};
+				ciLiteralResult[i] = new char[]{character};
 			}
 		}
+		return ciLiteralResult;
 	}
 	
 	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original){

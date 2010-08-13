@@ -32,6 +32,16 @@ public abstract class AbstractStackNode{
 		startLocation = -1;
 	}
 	
+	public AbstractStackNode(int id, IReducableStackNode[] followRestrictions){
+		super();
+		
+		this.id = id;
+		
+		startLocation = -1;
+		
+		this.followRestrictions = followRestrictions;
+	}
+	
 	protected AbstractStackNode(AbstractStackNode original){
 		super();
 		
@@ -57,7 +67,7 @@ public abstract class AbstractStackNode{
 		followRestrictions = original.followRestrictions;
 		isReject = original.isReject;
 		
-		this.prefixesMap = prefixes;
+		prefixesMap = prefixes;
 	}
 	
 	// General.
