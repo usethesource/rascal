@@ -27,25 +27,23 @@ public class IntegerList{
 	}
 	
 	public void add(int integer){
-		int index = size;
 		if(size == data.length){
 			enlarge();
 		}
-		++size;
 		
-		data[index] = integer;
+		data[size++] = integer;
 	}
 	
 	public int get(int index){
 		return data[index];
 	}
 	
-	public void clear(){
-		size = 0;
-	}
-	
 	public int size(){
 		return size;
+	}
+	
+	public void clear(){
+		size = 0;
 	}
 	
 	public int[] getBackingArray(){
