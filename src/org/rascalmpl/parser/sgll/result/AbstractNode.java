@@ -21,5 +21,19 @@ public abstract class AbstractNode{
 	
 	public abstract void addAlternative(IConstructor production, Link children);
 	
-	public abstract IValue toTerm(IndexedStack<AbstractNode> stack, int depth);
+	public abstract IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark);
+	
+	public static class CycleMark{
+		public int depth = Integer.MAX_VALUE;
+		
+		public void setMark(int depth){
+			if(depth < this.depth){
+				this.depth = depth;
+			}
+		}
+		
+		public void reset(){
+			depth = Integer.MAX_VALUE;
+		}
+	}
 }

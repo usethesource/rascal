@@ -42,7 +42,7 @@ public class CharNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark){
 		IInteger characterValue = vf.integer(getNumericCharValue(character));
 		return vf.constructor(Factory.Tree_Char, characterValue);
 	}
