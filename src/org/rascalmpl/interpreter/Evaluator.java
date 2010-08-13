@@ -676,9 +676,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> eval(Expression expr) {
 		interrupt = false;
 		currentAST = expr;
-		Result<IValue> r = expr.accept(this);
-		if(r != null){
-			return r;
+		if(doProfiling){
+			profiler = new Profiler(this);
+			profiler.start();
+
+		}
+		try {
+			Result<IValue> r = expr.accept(this);
+			if(r != null){
+				return r;
+			}
+		}
+		finally {
+			if(doProfiling){
+				profiler.pleaseStop();
+				profiler.report();
+			}
 		}
 
 		throw new NotYetImplemented(expr.toString());
@@ -730,7 +743,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public Result<IValue> eval(Command command) {
 		interrupt = false;
-		return command.accept(this);
+		if (doProfiling){
+			profiler = new Profiler(this);
+			profiler.start();
+
+		}
+		try {
+			return command.accept(this);
+		}
+		finally {
+			if(doProfiling){
+				profiler.pleaseStop();
+				profiler.report();
+			}
+		}
 	}
 	
 //	protected void evalSDFModule(Default x) {
