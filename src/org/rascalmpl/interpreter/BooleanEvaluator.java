@@ -497,4 +497,13 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 		return ctx.getResolverRegistry();
 	}
 
+	public void interrupt() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean isInterrupted() {
+		return false;
+	}
+
 }

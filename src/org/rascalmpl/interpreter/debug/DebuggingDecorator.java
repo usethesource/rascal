@@ -839,4 +839,12 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		return evaluator.getResolverRegistry();
 	}
 
+	public void interrupt() {
+		evaluator.interrupt();
+	}
+
+	public boolean isInterrupted() {
+		return evaluator.isInterrupted();
+	}
+
 }

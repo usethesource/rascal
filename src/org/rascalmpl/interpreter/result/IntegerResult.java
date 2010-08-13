@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 
 public class IntegerResult extends ElementResult<IInteger> {
@@ -219,6 +220,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 			do {
 				w.append(iFrom);
 				iFrom = iFrom.add(diff);
+				if (ctx.isInterrupted()) throw new InterruptException(ctx.getStackTrace());
 			} while (iFrom.lessEqual(iTo).getValue());
 		} 
 		else if (iFrom.greaterEqual(iTo).getValue() && diff.less(zero).getValue()) {

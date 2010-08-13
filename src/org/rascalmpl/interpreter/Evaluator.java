@@ -165,7 +165,6 @@ import org.rascalmpl.ast.ShellCommand.Edit;
 import org.rascalmpl.ast.ShellCommand.Help;
 import org.rascalmpl.ast.ShellCommand.ListDeclarations;
 import org.rascalmpl.ast.ShellCommand.Quit;
-import org.rascalmpl.ast.ShellCommand.Undeclare;
 import org.rascalmpl.ast.ShellCommand.Unimport;
 import org.rascalmpl.ast.Statement.Append;
 import org.rascalmpl.ast.Statement.Assert;
@@ -200,6 +199,7 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
@@ -278,6 +278,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private StrategyContextStack strategyContextStack;
 
 	protected final GlobalEnvironment heap;
+	private boolean interrupt = false;
 
 	private final JavaBridge javaBridge;
 
@@ -393,6 +394,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		resolverRegistry.registerInput(resolver.scheme(), resolver);
 		resolverRegistry.registerOutput(resolver.scheme(), resolver);
+	}
+	
+	public void interrupt() {
+		this.interrupt = true;
+	}
+	
+	public boolean isInterrupted() {
+		return interrupt;
 	}
 	
 	public PrintWriter getStdOut() {
@@ -630,6 +639,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @return
 	 */
 	public Result<IValue> eval(Statement stat) {
+		interrupt = false;
 		try {
 			if(doProfiling){
 				profiler = new Profiler(this);
@@ -664,6 +674,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @return
 	 */
 	public Result<IValue> eval(Expression expr) {
+		interrupt = false;
 		currentAST = expr;
 		Result<IValue> r = expr.accept(this);
 		if(r != null){
@@ -718,6 +729,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public Result<IValue> eval(Command command) {
+		interrupt = false;
 		return command.accept(this);
 	}
 	
@@ -750,6 +762,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @return
 	 */
 	public Result<IValue> eval(Declaration declaration) {
+		interrupt = false;
 		currentAST = declaration;
 		Result<IValue> r = declaration.accept(this);
 		if(r != null){
@@ -765,6 +778,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @return
 	 */
 	public Result<IValue> eval(org.rascalmpl.ast.Import imp) {
+		interrupt = false;
 		currentAST = imp;
 		Result<IValue> r = imp.accept(this);
 		if(r != null){
@@ -1647,6 +1661,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	@Override
 	public Result<IValue> visitExpressionCallOrTree(CallOrTree x){
+		if (interrupt) throw new InterruptException(getStackTrace());
+		
 		setCurrentAST(x);
 
 		Result<IValue> function = x.getExpression().accept(this);
@@ -2244,6 +2260,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				pushEnv();
 
 				while(i >= 0 && i < size) {		
+					if (interrupt) throw new InterruptException(getStackTrace());
 					if(gens[i].hasNext() && gens[i].next()){
 						if(i == size - 1){
 							body.accept(this);
@@ -3802,6 +3819,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			pushEnv();
 
 			while (i >= 0 && i < size) {
+				if (interrupt) throw new InterruptException(getStackTrace());
 				if (gens[i].hasNext() && gens[i].next()) {
 					if(i == size - 1){
 						w.append();
@@ -3881,7 +3899,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			olds[0] = getCurrentEnvt();
 			pushEnv();
 
-			while(i >= 0 && i < size) {		
+			while(i >= 0 && i < size) {	
+				if (interrupt) throw new InterruptException(getStackTrace());
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						// NB: no result handling here.
@@ -4035,6 +4054,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			while (change && (max == -1 || iterations < max)){
 				change = false;
 				iterations++;
+				if (interrupt) throw new InterruptException(getStackTrace());
 				bodyResult = body.accept(this);
 				for(int i = 0; i < size; i++){
 					QualifiedName var = vars[i];

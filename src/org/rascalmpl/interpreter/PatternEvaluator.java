@@ -787,5 +787,13 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		return ctx.getResolverRegistry();
 	}
 
+	public void interrupt() {
+		
+	}
+
+	public boolean isInterrupted() {
+		return false;
+	}
+
 
 }
