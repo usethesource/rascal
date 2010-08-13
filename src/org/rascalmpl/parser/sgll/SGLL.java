@@ -530,13 +530,11 @@ public abstract class SGLL implements IGLL{
 		this.inputURI = inputURI;
 		this.input = input;
 		
-		System.err.println("starting to parse, expanding initial stacks");
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		stacksToExpand.add(rootNode);
 		expand();
 		
-		System.err.println("parsing");
 		do{
 			if(!nullableEncountered) findStacksToReduce();
 
@@ -551,10 +549,8 @@ public abstract class SGLL implements IGLL{
 			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation("-", errorLocation, 0, -1, -1, -1, -1));
 		}
 		
-		System.err.println("parsing done, now producing PDB term");
 		IValue result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0);
 		
-		System.err.println("done building pdb term");
 		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation("-"));
 		
 		return makeParseTree(result);
