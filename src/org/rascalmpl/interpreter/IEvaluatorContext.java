@@ -20,6 +20,8 @@ public interface IEvaluatorContext {
 	
 	/** for "internal use" */
 	public Evaluator getEvaluator();
+	public boolean isInterrupted();
+	public void interrupt();
 	public Environment getCurrentEnvt();
 	public void setCurrentEnvt(Environment environment);
 	

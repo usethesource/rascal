@@ -23,6 +23,7 @@ import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.RewriteRule;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
@@ -138,6 +139,7 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint) {
 		//System.err.println("traverse: subject=" + subject + ", casesOrRules=" + casesOrRules);
 		do {
+			if (eval.isInterrupted()) throw new InterruptException(eval.getStackTrace());
 			TraverseResult tr = traverseOnce(subject, casesOrRules, direction, progress);
 			
 			// TODO: what's going on? Will this go all the way back in the tree?
