@@ -11,6 +11,7 @@ import ParseTree;
 import List;
 import Set;
 import IO; 
+import Map;
 
 @doc{Generates a new non-terminal name for a priority level}
 public Symbol level(Symbol s, int l) {
@@ -23,9 +24,13 @@ public Symbol exclude(Symbol s, int p) {
 }
 
 public Grammar factorize(Grammar g) {
+  println("first priority");
   productions = {priority(choice(nont, g.rules[nont])) | nont <- g.rules};
+  println("regrouping to <size(domain(g.rules))>");
   g = grammar(g.start, productions); // re-normalize
+  println("then associativity");
   productions = {associativity(choice(nont, g.rules[nont])) | nont <- g.rules};
+  println("regrouping to <size(domain(g.rules))>");
   return grammar(g.start, productions); // re-normalize
 }
 
@@ -131,7 +136,7 @@ public Production redefine(Production p, Symbol s) {
   It replaces each recursive non-terminal, if left-most or right-most, with a wrapped (level) non-terminal
 }
 public Production makePrio(Production p, Symbol s, int l) {
-  return visit (p) {
+  return top-down-break visit (p) {
     case prod([leftRec, list[Symbol] middle, rightRec],s,Attributes a) => 
          prod([level(s, l), middle, level(s, l)],s,a)   
     when checkSymbol(leftRec, s), checkSymbol(rightRec,s)   
@@ -145,7 +150,7 @@ public Production makePrio(Production p, Symbol s, int l) {
 }   
 
 public Production makeAssoc(Production p, Symbol s, Associativity a, int l) {
-  return visit (p) {
+  return top-down-break visit (p) {
     case prod([Symbol leftRec, list[Symbol] middle, Symbol rightRec],s,Attributes as) => 
          prod([leftRec, middle, exclude(rightRec,l)],s,as)
       when a == \left() || a == \assoc(), checkSymbol(leftRec, s), checkSymbol(rightRec,s)

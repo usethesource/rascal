@@ -11,6 +11,7 @@ import List;
 import Node;
 import Set;
 import IO;
+import Exception;
 
 private int itemId = 0;
 private Grammar grammar = grammar({},{});
@@ -23,10 +24,13 @@ private int nextItem(){
 
 public str generate(str package, str name, Grammar gr){
     itemId = 0;
-    
+    println("expanding parameterized symbols");
     grammar = expandParameterizedSymbols(gr);
+    println("generating stubs for regular");
     grammar = makeRegularStubs(grammar);
+    println("factorizing priorities and associativity");
     grammar = factorize(grammar);
+    println("printing the source code");
     g = grammar;
     return 
 "
@@ -136,16 +140,14 @@ public str generateParseMethod(Production p){
     if (prod(_,lit(_),_) := p) {
       return ""; // ignore literal productions
     }
-    
-    if(prod(_,Symbol rhs,_) := p){
+    else if(prod(_,Symbol rhs,_) := p){
         return "public void <sym2name(rhs)>(){
             // <p>
             expect(<value2id(p)>,
             <generateSymbolItemExpects(p.lhs)>);  
         }";
     }
-
-    if(choice(Symbol rhs, set[Production] ps) := p){
+    else if(choice(Symbol rhs, set[Production] ps) := p){
         return "public void <sym2name(rhs)>(){
             <for (Production q:prod(_,_,_) <- ps){>
                 // <q>
@@ -154,8 +156,7 @@ public str generateParseMethod(Production p){
             <}>  
         }";
     }
-    
-    if (restrict(Symbol rhs, choice(rhs, set[Production] ps), set[list[Symbol]] restrictions) := p) {
+    else if (restrict(Symbol rhs, choice(rhs, set[Production] ps), set[list[Symbol]] restrictions) := p) {
        str lookaheads = generateLookaheads(restrictions);
        return "public void <sym2name(rhs)>() {
              <for (Production q:prod(_,_,_) <- ps){>
@@ -165,8 +166,7 @@ public str generateParseMethod(Production p){
             <}>         
        }";
     }
-    
-    if (diff(Symbol rhs, choice(rhs, set[Production] choices), set[Production] rejects) := p) {
+    else if (diff(Symbol rhs, choice(rhs, set[Production] choices), set[Production] rejects) := p) {
        return "public void <sym2name(rhs)>() {
             <for (Production q:prod(_,_,_) <- rejects){>
                 // <q>
@@ -180,8 +180,7 @@ public str generateParseMethod(Production p){
             <}>
        }";
     }
-    
-    if (diff(Symbol rhs, restrict(Symbol rhs, choice(rhs, set[Production] choices), set[list[Symbol]] restrictions), set[Production] rejects) := p) {
+    else if (diff(Symbol rhs, restrict(Symbol rhs, choice(rhs, set[Production] choices), set[list[Symbol]] restrictions), set[Production] rejects) := p) {
        str lookaheads = generateLookaheads(restrictions);
        return "public void <sym2name(rhs)>() {
             <for (Production q:prod(_,_,_) <- rejects){>
@@ -196,8 +195,7 @@ public str generateParseMethod(Production p){
             <}>
        }";
     }
-    
-    if (regular(_,_) := p) {
+    else if (regular(_,_) := p) {
         // do not occur as defined symbols
         return "";
     }
@@ -335,8 +333,14 @@ public Production removePrimes(Production p) {
   }
 }
 
-public str value2id(value v){
-    switch(v){
+map[value,str] idCache = ();
+
+public str value2id(value v) {
+  return idCache[v]? str () { idCache[v] = v2i(v); return idCache[v]; }();
+}
+
+str v2i(value v) {
+    switch (v) {
         case label(_,v)    : return value2id(v);
         case prime(Symbol s, str reason, list[int] indexes) : return "<value2id(s)>_<reason>_<value2id(indexes)>";
         case sort(str s)   : return s;
