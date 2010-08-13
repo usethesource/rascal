@@ -40,7 +40,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 	
 	public boolean reduce(char[] input, int location){
 		char next = input[location];
-		for(int i = ranges.length - 1; i >= 0; i--){
+		for(int i = ranges.length - 1; i >= 0; --i){
 			char[] range = ranges[i];
 			if(next >= range[0] && next <= range[1]){
 				result = new CharNode(next);
@@ -87,7 +87,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append('[');
-		for(int i = ranges.length - 1; i >= 0; i--){
+		for(int i = ranges.length - 1; i >= 0; --i){
 			char[] range = ranges[i];
 			sb.append(range[0]);
 			sb.append('-');

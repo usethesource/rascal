@@ -57,9 +57,11 @@ public class Ambiguous6 extends SGLL implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_C2 = new NonTerminalStackNode(2, "C");
 	private final static AbstractStackNode NONTERMINAL_D3 = new NonTerminalStackNode(3, "D");
 	private final static AbstractStackNode NONTERMINAL_E4 = new NonTerminalStackNode(4, "E");
-	private final static AbstractStackNode NONTERMINAL_F5 = new NonTerminalStackNode(5, "F");
-	private final static AbstractStackNode NONTERMINAL_G6 = new NonTerminalStackNode(6, "G");
-	private final static AbstractStackNode LITERAL_a7 = new LiteralStackNode(7, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode NONTERMINAL_E5 = new NonTerminalStackNode(5, "E");
+	private final static AbstractStackNode NONTERMINAL_F6 = new NonTerminalStackNode(6, "F");
+	private final static AbstractStackNode NONTERMINAL_G7 = new NonTerminalStackNode(7, "G");
+	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a9 = new LiteralStackNode(9, PROD_a_a, new char[]{'a'});
 	
 	public Ambiguous6(){
 		super();
@@ -84,21 +86,21 @@ public class Ambiguous6 extends SGLL implements IParserTest{
 	}
 	
 	public void D(){
-		expect(PROD_D_E, NONTERMINAL_E4);
+		expect(PROD_D_E, NONTERMINAL_E5);
 		
-		expect(PROD_D_a, LITERAL_a7);
+		expect(PROD_D_a, LITERAL_a8);
 	}
 	
 	public void E(){
-		expect(PROD_E_F, NONTERMINAL_F5);
+		expect(PROD_E_F, NONTERMINAL_F6);
 	}
 	
 	public void F(){
-		expect(PROD_F_G, NONTERMINAL_G6);
+		expect(PROD_F_G, NONTERMINAL_G7);
 	}
 	
 	public void G(){
-		expect(PROD_G_a, LITERAL_a7);
+		expect(PROD_G_a, LITERAL_a9);
 	}
 	
 	public IValue parse(IConstructor start, URI inputURI, char[] input){
@@ -126,7 +128,7 @@ public class Ambiguous6 extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(amb({appl(prod([sort(\"E\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"F\")],sort(\"E\"),\\no-attrs()),[appl(prod([sort(\"G\")],sort(\"F\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"D\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])]),appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([sort(\"C\")],sort(\"B\"),\\no-attrs()),[appl(prod([sort(\"D\")],sort(\"C\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"D\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])])}),-1)";
+		String expectedInput = "parsetree(amb({appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([sort(\"C\")],sort(\"B\"),\\no-attrs()),[appl(prod([sort(\"D\")],sort(\"C\"),\\no-attrs()),[amb({appl(prod([lit(\"a\")],sort(\"D\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"E\")],sort(\"D\"),\\no-attrs()),[appl(prod([sort(\"F\")],sort(\"E\"),\\no-attrs()),[appl(prod([sort(\"G\")],sort(\"F\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"G\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])})])])])]),appl(prod([sort(\"E\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"F\")],sort(\"E\"),\\no-attrs()),[appl(prod([sort(\"G\")],sort(\"F\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"G\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])}),-1)";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 

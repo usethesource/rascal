@@ -43,7 +43,7 @@ public class LinearIntegerKeyedMap<V>{
 	}
 	
 	public V findValue(int key){
-		for(int i = size - 1; i >= 0; i--){
+		for(int i = size - 1; i >= 0; --i){
 			if(keys[i] == key){
 				return values[i];
 			}

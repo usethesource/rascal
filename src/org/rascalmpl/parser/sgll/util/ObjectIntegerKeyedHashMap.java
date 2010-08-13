@@ -34,7 +34,7 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		
 		int newLoad = load;
 		int oldSize = oldEntries.length;
-		for(int i = oldSize - 1; i >= 0; i--){
+		for(int i = oldSize - 1; i >= 0; --i){
 			Entry<K, V> e = oldEntries[i];
 			if(e != null){
 				Entry<K, V> lastCurrentEntry = currentEntryRoot;
@@ -93,7 +93,7 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		}
 		
 		entries[position] = new Entry<K, V>(key, key2, value, hash, currentStartEntry);
-		load++;
+		++load;
 		
 		return null;
 	}
@@ -105,7 +105,7 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		int position = hash & hashMask;
 		
 		entries[position] = new Entry<K, V>(key, key2, value, hash, entries[position]);
-		load++;
+		++load;
 	}
 	
 	public V remove(K key, int key2){

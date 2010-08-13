@@ -49,7 +49,7 @@ public class Stack<E>{
 	}
 	
 	public boolean contains(E object){
-		for(int i = size - 1; i >= 0; i--){
+		for(int i = size - 1; i >= 0; --i){
 			if(data[i].equals(object)) return true;
 		}
 		return false;

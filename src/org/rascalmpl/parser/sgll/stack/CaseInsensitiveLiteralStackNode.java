@@ -21,7 +21,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		
 		int nrOfCharacters = ciLiteral.length;
 		this.ciLiteral = new char[nrOfCharacters][];
-		for(int i = nrOfCharacters - 1; i >= 0; i--){
+		for(int i = nrOfCharacters - 1; i >= 0; --i){
 			char character = ciLiteral[i];
 			int type = Character.getType(character);
 			if(type == Character.LOWERCASE_LETTER){
@@ -59,9 +59,9 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	public boolean reduce(char[] input, int location){
 		int literalLength = ciLiteral.length;
 		char[] resultLiteral = new char[literalLength];
-		OUTER : for(int i = literalLength - 1; i >= 0; i--){
+		OUTER : for(int i = literalLength - 1; i >= 0; --i){
 			char[] ciLiteralPart = ciLiteral[i];
-			for(int j = ciLiteralPart.length - 1; j >= 0; j--){
+			for(int j = ciLiteralPart.length - 1; j >= 0; --j){
 				char character = ciLiteralPart[j];
 				if(character == input[location + i]){
 					resultLiteral[i] = character;
@@ -109,7 +109,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < ciLiteral.length; i++){
+		for(int i = 0; i < ciLiteral.length; ++i){
 			sb.append(ciLiteral[i][0]);
 		}
 		sb.append(getId());
