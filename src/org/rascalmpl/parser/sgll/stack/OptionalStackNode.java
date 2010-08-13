@@ -23,6 +23,14 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		this.optional = optional;
 	}
 	
+	public OptionalStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode optional){
+		super(id, followRestrictions);
+		
+		this.production = production;
+		
+		this.optional = optional;
+	}
+	
 	private OptionalStackNode(OptionalStackNode original){
 		super(original);
 		

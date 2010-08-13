@@ -17,6 +17,12 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		this.nonTerminal = nonTerminal;
 	}
 	
+	public NonTerminalStackNode(int id, IReducableStackNode[] followRestrictions, String nonTerminal){
+		super(id, followRestrictions);
+		
+		this.nonTerminal = nonTerminal;
+	}
+	
 	private NonTerminalStackNode(NonTerminalStackNode original){
 		super(original);
 		

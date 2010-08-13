@@ -25,6 +25,15 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		this.isPlusList = isPlusList;
 	}
 	
+	public ListStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode child, boolean isPlusList){
+		super(id, followRestrictions);
+		
+		this.production = production;
+		
+		this.child = child;
+		this.isPlusList = isPlusList;
+	}
+	
 	private ListStackNode(ListStackNode original){
 		super(original);
 		

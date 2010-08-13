@@ -89,14 +89,6 @@ public abstract class SGLL implements IGLL{
 		lastNode.setParentProduction(production);
 	}
 	
-	protected void expect(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
-		lastExpects.add(symbolsToExpect);
-		
-		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
-		lastNode.setParentProduction(production);
-		lastNode.setFollowRestriction(followRestrictions);
-	}
-	
 	protected void expectReject(IConstructor production, AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
 		
