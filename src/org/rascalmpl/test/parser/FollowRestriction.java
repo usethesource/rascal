@@ -50,12 +50,11 @@ public class FollowRestriction extends SGLL implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
 	private final static AbstractStackNode NONTERMINAL_B1 = new NonTerminalStackNode(1, "B");
 	private final static AbstractStackNode NONTERMINAL_C2 = new NonTerminalStackNode(2, "C");
-	private final static AbstractStackNode LIST4 = new ListStackNode(4, PROD_PLUSLISTB, NONTERMINAL_B1, true);
+	private final static IReducableStackNode LITERAL_a99 = new LiteralStackNode(99, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LIST4 = new ListStackNode(4, PROD_PLUSLISTB, new IReducableStackNode[]{LITERAL_a99}, NONTERMINAL_B1, true);
 	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode EPSILON_7 = new EpsilonStackNode(7);
-	
-	private final static IReducableStackNode LITERAL_a99 = new LiteralStackNode(99, PROD_a_a, new char[]{'a'});
 	
 	public FollowRestriction(){
 		super();
@@ -66,7 +65,7 @@ public class FollowRestriction extends SGLL implements IParserTest{
 	}
 	
 	public void A(){
-		expect(PROD_A_PLUSLISTB, new IReducableStackNode[]{LITERAL_a99}, LIST4);
+		expect(PROD_A_PLUSLISTB, LIST4);
 	}
 	
 	public void B(){
