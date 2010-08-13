@@ -36,7 +36,7 @@ public class IntegerKeyedHashMap<V>{
 		
 		int newLoad = load;
 		int oldSize = oldEntries.length;
-		for(int i = oldSize - 1; i >= 0; i--){
+		for(int i = oldSize - 1; i >= 0; --i){
 			Entry<V> e = oldEntries[i];
 			if(e != null){
 				Entry<V> lastCurrentEntry = currentEntryRoot;
@@ -94,7 +94,7 @@ public class IntegerKeyedHashMap<V>{
 		}
 		
 		entries[position] = new Entry<V>(key, value, currentStartEntry);
-		load++;
+		++load;
 		
 		return null;
 	}
@@ -104,7 +104,7 @@ public class IntegerKeyedHashMap<V>{
 		
 		int position = key & hashMask;
 		entries[position] = new Entry<V>(key, value, entries[position]);
-		load++;
+		++load;
 		
 		return null;
 	}

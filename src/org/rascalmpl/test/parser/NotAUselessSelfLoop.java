@@ -44,10 +44,17 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
 	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, "A");
-	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, "B");
-	private final static AbstractStackNode NONTERMINAL_C3 = new NonTerminalStackNode(3, "C");
-	private final static AbstractStackNode NONTERMINAL_C4 = new NonTerminalStackNode(4, "C");
-	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode NONTERMINAL_A2 = new NonTerminalStackNode(2, "A");
+	private final static AbstractStackNode NONTERMINAL_A3 = new NonTerminalStackNode(3, "A");
+	private final static AbstractStackNode NONTERMINAL_A4 = new NonTerminalStackNode(4, "A");
+	private final static AbstractStackNode NONTERMINAL_A5 = new NonTerminalStackNode(5, "A");
+	private final static AbstractStackNode NONTERMINAL_B6 = new NonTerminalStackNode(6, "B");
+	private final static AbstractStackNode NONTERMINAL_C7 = new NonTerminalStackNode(7, "C");
+	private final static AbstractStackNode NONTERMINAL_C8 = new NonTerminalStackNode(8, "C");
+	private final static AbstractStackNode NONTERMINAL_C9 = new NonTerminalStackNode(9, "C");
+	private final static AbstractStackNode NONTERMINAL_C10 = new NonTerminalStackNode(10, "C");
+	private final static AbstractStackNode LITERAL_a11 = new LiteralStackNode(11, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a12 = new LiteralStackNode(12, PROD_a_a, new char[]{'a'});
 	
 	public NotAUselessSelfLoop(){
 		super();
@@ -56,25 +63,25 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 	public void S(){
 		expect(PROD_S_AA, NONTERMINAL_A0, NONTERMINAL_A1);
 		
-		expect(PROD_S_B, NONTERMINAL_B2);
+		expect(PROD_S_B, NONTERMINAL_B6);
 	}
 	
 	public void A(){
-		expect(PROD_A_CC, NONTERMINAL_C3, NONTERMINAL_C4);
+		expect(PROD_A_CC, NONTERMINAL_C7, NONTERMINAL_C8);
 		
-		expect(PROD_A_a, LITERAL_a5);
+		expect(PROD_A_a, LITERAL_a11);
 	}
 	
 	public void B(){
-		expect(PROD_B_AA, NONTERMINAL_A0, NONTERMINAL_A1);
+		expect(PROD_B_AA, NONTERMINAL_A2, NONTERMINAL_A3);
 
-		expect(PROD_B_CC, NONTERMINAL_C3, NONTERMINAL_C4);
+		expect(PROD_B_CC, NONTERMINAL_C9, NONTERMINAL_C10);
 	}
 	
 	public void C(){
-		expect(PROD_C_AA, NONTERMINAL_A0, NONTERMINAL_A1);
+		expect(PROD_C_AA, NONTERMINAL_A4, NONTERMINAL_A5);
 		
-		expect(PROD_C_a, LITERAL_a5);
+		expect(PROD_C_a, LITERAL_a12);
 	}
 	
 	public IValue parse(IConstructor start, URI inputURI, char[] input){
@@ -102,7 +109,7 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(amb({appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])]),appl(prod([sort(\"A\"),sort(\"A\")],sort(\"C\"),\\no-attrs()),[amb({appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])}),appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"A\"),sort(\"A\")],sort(\"C\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])]),appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])}),-1)";
+		String expectedInput = "parsetree(amb({appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])]),appl(prod([sort(\"A\"),sort(\"A\")],sort(\"S\"),\\no-attrs()),[amb({appl(prod([sort(\"A\"),sort(\"A\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])}),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([sort(\"B\")],sort(\"S\"),\\no-attrs()),[amb({appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"A\"),sort(\"A\")],sort(\"C\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])]),appl(prod([sort(\"C\"),sort(\"C\")],sort(\"A\"),\\no-attrs()),[appl(prod([sort(\"A\"),sort(\"A\")],sort(\"C\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([lit(\"a\")],sort(\"A\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])]),appl(prod([lit(\"a\")],sort(\"C\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])})])}),-1)";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
@@ -111,6 +118,6 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 		IValue result = nausl.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
-		System.out.println("[S([B(C(A(a),A(a)),C(a)),B(C(a),C(A(a),A(a))),B(A(a),A(C(a),C(a))),B(A(C(a),C(a)),A(a))]),S(A(a),A(C(a),C(a))),S(A(C(a),C(a)),A(a))] <- good");
+		System.out.println("[S(A(a),A(C(a),C(a))),S([B(A(C(a),C(a)),A(a)),B(A(a),A(C(a),C(a))),B(C(a),C(A(a),A(a))),B(C(A(a),A(a)),C(a))]),S(A(C(a),C(a)),A(a))] <- good");
 	}
 }

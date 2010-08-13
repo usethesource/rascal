@@ -31,7 +31,7 @@ public class IntegerList{
 		if(size == data.length){
 			enlarge();
 		}
-		size++;
+		++size;
 		
 		data[index] = integer;
 	}

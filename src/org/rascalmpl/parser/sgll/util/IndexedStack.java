@@ -69,7 +69,7 @@ public class IndexedStack<E>{
 	}
 	
 	public int contains(E object){
-		for(int i = size - 1; i >= 0; i--){
+		for(int i = size - 1; i >= 0; --i){
 			if(data[i].equals(object)) return indexes[i];
 		}
 		return -1;

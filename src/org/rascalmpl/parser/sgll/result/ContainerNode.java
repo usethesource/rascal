@@ -96,7 +96,7 @@ public class ContainerNode extends AbstractNode{
 			return;
 		}
 		
-		for(int i = prefixes.size() - 1; i >= 0; i--){
+		for(int i = prefixes.size() - 1; i >= 0; --i){
 			Link prefix = prefixes.get(i);
 			
 			AbstractNode resultNode = prefix.node;
@@ -137,7 +137,7 @@ public class ContainerNode extends AbstractNode{
 			return;
 		}
 		
-		for(int i = prefixes.size() - 1; i >= 0; i--){
+		for(int i = prefixes.size() - 1; i >= 0; --i){
 			Link prefix = prefixes.get(i);
 			
 			if(prefix == null){
@@ -159,7 +159,7 @@ public class ContainerNode extends AbstractNode{
 					System.arraycopy(postFix, repeatLength, newPostFix, 1, length - repeatLength);
 					
 					IListWriter subList = vf.listWriter(Factory.Tree);
-					for(int j = repeatLength - 1; j >= 0; j--){
+					for(int j = repeatLength - 1; j >= 0; --j){
 						subList.insert(postFix[j]);
 					}
 					
@@ -197,7 +197,7 @@ public class ContainerNode extends AbstractNode{
 	
 	private IConstructor buildAlternative(IConstructor production, IValue[] children){
 		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
-		for(int i = children.length - 1; i >= 0; i--){
+		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
 		}
 		
@@ -234,14 +234,14 @@ public class ContainerNode extends AbstractNode{
 		if(!isListContainer){
 			gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark);
 			if(alternatives != null){
-				for(int i = alternatives.size() - 1; i >= 0; i--){
+				for(int i = alternatives.size() - 1; i >= 0; --i){
 					gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark);
 				}
 			}
 		}else{
 			gatherListAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark);
 			if(alternatives != null){
-				for(int i = alternatives.size() - 1; i >= 0; i--){
+				for(int i = alternatives.size() - 1; i >= 0; --i){
 					gatherListAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark);
 				}
 			}
@@ -261,7 +261,7 @@ public class ContainerNode extends AbstractNode{
 		}else{ // Ambiguous.
 			ISetWriter ambSetWriter = vf.setWriter(Factory.Tree);
 			
-			for(int i = nrOfAlternatives - 1; i >= 0; i--){
+			for(int i = nrOfAlternatives - 1; i >= 0; --i){
 				IConstructor production = gatheredAlternatives.getSecond(i);
 				IValue[] alternative = gatheredAlternatives.getFirst(i);
 				

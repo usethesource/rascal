@@ -49,7 +49,7 @@ public class LiteralNode extends AbstractNode{
 		sb.append(',');
 		sb.append('[');
 		printCharacter(CharNode.getNumericCharValue(content[0]), sb);
-		for(int i = 1; i < content.length; i++){
+		for(int i = 1; i < content.length; ++i){
 			sb.append(',');
 			printCharacter(CharNode.getNumericCharValue(content[i]), sb);
 		}
@@ -62,7 +62,7 @@ public class LiteralNode extends AbstractNode{
 	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark){
 		int numberOfCharacters = content.length;
 		IListWriter listWriter = vf.listWriter(Factory.Tree);
-		for(int i = 0; i < numberOfCharacters; i++){
+		for(int i = 0; i < numberOfCharacters; ++i){
 			IInteger characterValue = vf.integer(CharNode.getNumericCharValue(content[i]));
 			listWriter.append(vf.constructor(Factory.Tree_Char, characterValue));
 		}
