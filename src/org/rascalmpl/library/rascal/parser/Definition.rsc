@@ -25,10 +25,14 @@ public Grammar module2grammar(Module mod) {
 public Grammar imports2grammar(set[Import] imports) {
   return syntax2grammar({ s | (Import) `<SyntaxDefinition s>` <- imports});
 }
-
+ 
 private set[SyntaxDefinition] collect(Module mod) {
   set[SyntaxDefinition] result = {};
-  visit (mod) { case SyntaxDefinition s : result += s; }
+  
+  top-down-break visit (mod) {
+    case SyntaxDefinition s : result += s; 
+    case Body b => b
+  }
   return result;
 }  
    
@@ -62,7 +66,7 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
 } 
    
 private set[Production] \layout(set[Production] prods) {
-  return visit (prods) {
+  return top-down-break visit (prods) {
     case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs),rhs,attrs(as)) 
       when start(_) !:= rhs, term("lex"()) notin as  
     case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) => prod(intermix(lhs),rhs,\no-attrs()) 
@@ -221,6 +225,8 @@ private int character(Char c) {
     case [Char] /\\b/ : return charAt("\b", 0);
     case [Char] /\\r/ : return charAt("\r", 0);
     case [Char] /\\f/ : return charAt("\f", 0);
+    case [Char] /\\\>/ : return charAt("\>", 0);
+    case [Char] /\\\</ : return charAt("\<", 0);
     case [Char] /<ch:[^"'\-\[\]\\\>\< ]>/        : return charAt(ch, 0); 
     case [Char] /\\<esc:["'\-\[\]\\ ]>/        : return charAt(esc, 0);
     case [Char] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
@@ -240,7 +246,6 @@ private Attributes mods2attrs(ProdModifier* mods) {
 }
  
 private Attr mod2attr(ProdModifier m) {
-println("transforming modifier <m>");
   switch (m) {
     case (ProdModifier) `lex`: return term("lex"());
     case (ProdModifier) `left`: return \assoc(\left());
@@ -251,4 +256,3 @@ println("transforming modifier <m>");
     default: throw "missed a case <m>";
   }
 }
-  

@@ -2,10 +2,16 @@ module rascal::parser::Regular
 
 import rascal::parser::Grammar;
 import ParseTree;
+import Set;
 
 public Grammar expandRegularSymbols(Grammar G) {
-  for (regular(rhs,_) <- G.productions) {
+  for (grammar(_,set[Production] _) := G, regular(rhs,_) <- G.productions) {
     G.productions += expand(rhs);
+  }
+  for (grammar(_,map[Symbol,set[Production]] _) := G, Symbol rhs <- G.rules) {
+    if ({regular(rhs,_)} := G.rules[nont]) {
+      G.rules[nont] = expand(rhs);
+    }
   }
   return G;
 }
@@ -22,8 +28,15 @@ private set[Production] expand(Symbol s) {
    throw "missed a case <s>";                   
 }
 
-public set[Production] makeRegularStubs(Grammar g) {
-  return makeRegularStubs(g.productions);
+public Grammar makeRegularStubs(Grammar g) {
+  if (grammar(set[Symbol] s,set[Production] _) := g) {
+    return grammar(s, g.productions + makeRegularStubs(g.productions));
+  }
+  else if (grammar(set[Symbol] s, map[Symbol,set[Production]] rules) := g) {
+    prods = {g.rules[nont] | Symbol nont <- g.rules};
+    stubs = makeRegularStubs(prods);
+    return grammar(s, prods + stubs);
+  }
 }
 
 public set[Production] makeRegularStubs(set[Production] prods) {

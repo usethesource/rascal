@@ -14,6 +14,6 @@ public class InterruptException extends ControlException {
 	
 	@Override
 	public String toString() {
-		return "interrupted" + ((stackTrace != null) ? (": " + stackTrace) : "");
+		return "interrupted" + ((stackTrace != null && stackTrace.length() != 0) ? (": " + stackTrace) : "");
 	}
 }

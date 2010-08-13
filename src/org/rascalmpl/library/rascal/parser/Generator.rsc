@@ -5,7 +5,6 @@ import rascal::parser::Priority;
 import rascal::parser::Parameters;
 import rascal::parser::Regular;
 import rascal::parser::Normalization;
-import rascal::parser::Definition;
 import ParseTree;
 import String;
 import List;
@@ -22,15 +21,11 @@ private int nextItem(){
     return id;
 }
 
-public str generate(str package, str name, loc mod) {
-  return generate(package, name, module2grammar(parse(#Module, mod)));
-}
-
 public str generate(str package, str name, Grammar gr){
     itemId = 0;
     
     grammar = expandParameterizedSymbols(gr);
-    grammar.productions += makeRegularStubs(grammar);
+    grammar = makeRegularStubs(grammar);
     grammar = factorize(grammar);
     g = grammar;
     return 
@@ -76,8 +71,8 @@ public class <name> extends SGLL {
     }
     
     // Parse methods    
-    <for (Production p <- g.productions){>
-        <generateParseMethod(p)>
+    <for (Symbol nont <- g.rules) { >
+        <generateParseMethod(choice(nont, g.rules[nont]))>
     <}>
     
     public IValue parse(IConstructor start, URI inputURI, char[] sentence){
@@ -133,10 +128,14 @@ public class <name> extends SGLL {
 ";
 }  
 
-
+   
 public str generateParseMethod(Production p){
     // note that this code heavily leans on the fact that production combinators are normalized 
     // (distribution and factoring laws have been applied to put a production expression in canonical form)
+    
+    if (prod(_,lit(_),_) := p) {
+      return ""; // ignore literal productions
+    }
     
     if(prod(_,Symbol rhs,_) := p){
         return "public void <sym2name(rhs)>(){
@@ -147,7 +146,6 @@ public str generateParseMethod(Production p){
     }
 
     if(choice(Symbol rhs, set[Production] ps) := p){
-    println("choice prod");
         return "public void <sym2name(rhs)>(){
             <for (Production q:prod(_,_,_) <- ps){>
                 // <q>

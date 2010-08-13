@@ -10,9 +10,11 @@ module rascal::parser::Grammar
 import ParseTree;
 
 @doc{
-  A grammar is simply a set of productions
+  A grammar is simply a set of productions, or a map for every
+  non-terminal to a set of productions.
 }
-data Grammar = grammar(set[Symbol] start, set[Production] productions);
+data Grammar = grammar(set[Symbol] start, set[Production] productions)
+             | grammar(set[Symbol] start, map[Symbol, set[Production]] rules);
 
 @doc{
 Here we extend productions with basic combinators allowing to

@@ -23,9 +23,10 @@ public Symbol exclude(Symbol s, int p) {
 }
 
 public Grammar factorize(Grammar g) {
-  g.productions = {priority(p) | p <- g.productions};
-  g.productions = {associativity(p) | p <- g.productions};
-  return g;
+  productions = {priority(choice(nont, g.rules[nont])) | nont <- g.rules};
+  g = grammar(g.start, productions); // re-normalize
+  productions = {associativity(choice(nont, g.rules[nont])) | nont <- g.rules};
+  return grammar(g.start, productions); // re-normalize
 }
 
 @doc{
@@ -115,12 +116,12 @@ Production removeAssoc(Production p) {
 }  
 public Production redefine(Production p, Symbol s) {
   return visit (p) {
-    case prod(list[Symbol] lhs, _, Attributes a) => prod(lhs, s, a)
-    case choice(_, set[Production] alts) => choice(s, alts)
+    case \prod(list[Symbol] lhs, _, Attributes a) => prod(lhs, s, a)
+    case \choice(_, set[Production] alts) => choice(s, alts)
     case \assoc(_, Associativity a, set[Production] p) => \assoc(s, a, p)
     case \diff(_, Production p, set[Production] alts) => \diff(s, p, alts)
-    case \restrict(Symbol r, Production language, list[CharClass] restrictions) => restrict(s, language, restrictions)
-    case \others(Symbol r) : throw "... should have been resolved before expanding priorities";
+    case \restrict(Symbol r, Production language, set[list[Symbol]] restrictions) => restrict(s, language, restrictions)
+    case \others(Symbol r) : throw "The ... (others) operator should have been desugared before expanding priorities";
     case Production x : throw "missed a case: <x>";
   }
 }
