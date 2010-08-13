@@ -60,6 +60,14 @@ public class IndexedStack<E>{
 		data[--size] = null;
 	}
 	
+	public E dirtyPop(){
+		return data[--size];
+	}
+	
+	public void dirtyPurge(){
+		--size;
+	}
+	
 	public int contains(E object){
 		for(int i = size - 1; i >= 0; i--){
 			if(data[i].equals(object)) return indexes[i];

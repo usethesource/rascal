@@ -59,7 +59,7 @@ public class LiteralNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark){
 		int numberOfCharacters = content.length;
 		IListWriter listWriter = vf.listWriter(Factory.Tree);
 		for(int i = 0; i < numberOfCharacters; i++){
