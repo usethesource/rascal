@@ -16,7 +16,8 @@ data Symbol = eoi();     // end-of-input marker
 public alias KernelProduction  = tuple[Symbol nonTerminal, list[Symbol] symbols];
 public data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProduction] productions); 
 
-public KernelGrammar importGrammar(Grammar G){
+public KernelGrammar importGrammar(Grammar G) {
+  // TODO: will not work for the other grammar constructor
    return kernelGrammar(G.start, { <rhs,removeLabels(lhs)> | /prod(lhs,rhs,_) <- expandRegularSymbols(G).productions});
 } 
 

@@ -23,8 +23,8 @@ syntax EXP = id: PICOID name
            | bracket "(" EXP e ")"
            ;
            
-syntax EXP = mult: EXP lhs "*" EXP rhs
-           > add: EXP lhs "+" EXP rhs
+syntax EXP = left mult: EXP lhs "*" EXP rhs
+           > left add: EXP lhs "+" EXP rhs
            ;
                
 import ParseTree;

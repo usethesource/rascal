@@ -121,3 +121,14 @@ public set[set[&T]] group(set[&T] input, bool (&T a, &T b) similar) {
   }
   return result;
 }
+
+@doc{indexes elements in a set into a map}
+public map[&K,set[&V]] index(set[&V] input, &K (&V) getKey) {
+  map[&K,set[&V]] result = ();
+  set[&V] empty = {};
+  for (elem <- input) {
+    &K key = getKey(elem);
+    result[key]?empty += {elem};
+  }
+  return result;
+}

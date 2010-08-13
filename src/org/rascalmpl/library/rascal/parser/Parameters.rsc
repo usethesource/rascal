@@ -7,9 +7,10 @@ import rascal::parser::Grammar;
 import rascal::parser::Normalization; // this module assumes normalized grammars
 import ParseTree;
 import List;
+import Set;
 
 public Grammar expandParameterizedSymbols(Grammar g) {
-  g.productions = expand(g.productions);
+  g.rules = index(expand({ g.rules[s] | s <- g.rules }), Symbol (Production p) { return sort(p); });
   return g;
 } 
  

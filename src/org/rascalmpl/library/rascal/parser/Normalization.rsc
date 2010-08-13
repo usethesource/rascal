@@ -15,21 +15,11 @@ import String;
 import ParseTree;
 import IO;  
 import Integer;
+import Set;
 
-// join the rules for the same non-terminal
-rule merge   grammar(set[Symbol] s,{Production p, Production q,set[Production] a}) => grammar(s,{choice(sort(p), {p,q}), a}) when sort(p) == sort(q);
+rule merge grammar(set[Symbol] starts,set[Production] prods) =>
+           grammar(starts, index(prods, Symbol (Production p) { return sort(p); }));
 
-// if a non-terminal consists only of prioritized productions we wrap it with a choice node to limit case distinctions
-rule wrap    grammar(set[Symbol] s,{set[Production] a, first(Symbol t, list[Production] alts)}) =>  
-             grammar(s,{a, choice(t, {first(t, alts)})});
-             
-rule wrap    grammar(set[Symbol] s,{set[Production] a, \assoc(Symbol t, Associativity b, set[Production] alts)}) =>  
-             grammar(s,{a, choice(t, {\assoc(t, b, alts)})});
-
-// adding this rule makes the normalizer too slow to work with
-//rule wrap    grammar(set[Symbol] s, {set[Production] a, Production p:prod(list[Symbol] lhs, Symbol rhs, Attributes attrs)}) =>
-//             grammar(s, {a, choice(rhs, {p})});
-                 
 test grammar({}, {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())}) ==
      grammar({}, {choice(sort("B"), {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())})});
      

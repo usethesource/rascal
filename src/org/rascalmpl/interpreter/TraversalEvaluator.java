@@ -396,6 +396,7 @@ public class TraversalEvaluator {
 			//System.err.println("hasRules");
 			for(RewriteRule rule : casesOrRules.getRules()){
 				Environment oldEnv = eval.getCurrentEnvt();
+				if (eval.isInterrupted()) throw new InterruptException(eval.getStackTrace());
 				
 				try {
 					eval.setCurrentAST(rule.getRule());
