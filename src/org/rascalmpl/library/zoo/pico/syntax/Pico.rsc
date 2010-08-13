@@ -27,9 +27,11 @@ syntax EXP = mult: EXP lhs "*" EXP rhs
            > add: EXP lhs "+" EXP rhs
            ;
                
+import ParseTree;
 
- 
-
+public EXP exp(str input) {
+  return parseExperimental(#EXP, input);
+}
 
 
   
