@@ -2,6 +2,7 @@ package org.rascalmpl.library;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -116,6 +118,34 @@ public class IO{
 	public IValue exists(ISourceLocation file, IEvaluatorContext ctx) {
 		return values.bool(ctx.getResolverRegistry().exists(file.getURI()));
 	}
+	
+	public IValue isDirectory(ISourceLocation file, IEvaluatorContext ctx) {
+		File f = new File(file.getURI().getPath());
+		return values.bool(f.isDirectory());
+	}
+	
+	public IValue isFile(ISourceLocation file, IEvaluatorContext ctx) {
+		File f = new File(file.getURI().getPath());
+		System.err.println("isFile: " + file.getURI().getPath() + "; isFile = " + f.isFile());
+		return values.bool(f.isFile());
+	}
+	
+	public IValue mkDirectory(ISourceLocation file, IEvaluatorContext ctx) {
+		File f = new File(file.getURI().getPath());
+		System.err.println("mkDirectory: " + file.getURI().getPath());
+		return values.bool(f.mkdir());
+	}
+	
+	public IValue listEntries(ISourceLocation file, IEvaluatorContext ctx) {
+		File f = new File(file.getURI().getPath());
+		java.lang.String[] entries = f.list();
+		IListWriter w = values.listWriter(types.stringType());
+		for(java.lang.String entry : entries){
+			w.append(values.string(entry));
+		}
+		return w.done();
+	}
+	
 	
 	public IValue readFile(ISourceLocation file, IEvaluatorContext ctx){
 		StringBuilder result = new StringBuilder();

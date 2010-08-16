@@ -35,6 +35,26 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 @reflect{Uses URI Resolver Registry}
 public bool java exists(loc file);
 
+@doc{Check whether a certain location is a directory}
+@javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
+public bool java isDirectory(loc file);
+
+@doc{Create a directory}
+@javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
+public bool java mkDirectory(loc file);
+
+@doc{Check whether a certain location is a file}
+@javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
+public bool java isFile(loc file);
+
+@doc{List the entries in a directory}
+@javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
+public list[str] java listEntries(loc file);
+
 @doc{Read the contents from a file location into a list of lines.}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
