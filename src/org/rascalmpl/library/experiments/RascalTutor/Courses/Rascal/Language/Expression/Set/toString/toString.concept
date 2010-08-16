@@ -1,0 +1,20 @@
+Name:toString
+
+Related:
+
+Synopsis: str toString(set[&T] s)
+
+Description: Converts a set to a string.
+
+Examples:
+<screen>
+import Set;
+toString({1, 2, 3});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

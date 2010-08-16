@@ -2,10 +2,10 @@ Name:Product
 
 Related:
 
-Synopsis: SetExpr1 * SetExpr2
+Synopsis: SetExp1 * SetExp2
 
 Description:
-Yields a relation resulting from the product of the values od $SetExpr1$ and $SetExpr2$. It contains a tuple for each combination of values from both arguments.
+Yields a relation resulting from the product of the values od $SetExp1$ and $SetExp2$. It contains a tuple for each combination of values from both arguments.
 
 Examples:
 <screen>

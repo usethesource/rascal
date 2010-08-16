@@ -1,0 +1,22 @@
+Name:Conditional
+
+Related:
+
+Synopsis: ( BoolExp ) ? SetExp1 : SetExp2
+
+
+Description: Yields the value of $SetExp1$ if the value of $BoolExp$ is <tt>true</tt> and the value of $SetExp2$ otherwise. 
+
+
+Examples:
+<screen>
+( 3 > 2 ) ? {1, 2} : {3, 4};
+( 3 < 2 ) ? {1, 2} : {3, 4};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

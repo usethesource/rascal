@@ -1,0 +1,21 @@
+Name:isEmpty
+
+Related:
+
+Synopsis: bool isEmpty(set[&T] s)
+
+Description: Yields <tt>true</tt> if <tt>s</tt> is empty, and <tt>false</tt> otherwise.
+
+Examples:
+<screen>
+import Set;
+isEmpty({1, 2, 3});
+isEmpty({});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

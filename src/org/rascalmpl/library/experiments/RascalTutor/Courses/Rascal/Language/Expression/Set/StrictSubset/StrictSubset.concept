@@ -2,10 +2,10 @@ Name:StrictSubset
 
 Related:
 
-Synopsis: SetExpr1 < SetExpr2
+Synopsis: SetExp1 < SetExp2
 
 Description:
-Yields <tt>true</tt> if the value of $SetExpr1$ is a strict subset of the value of $SetExpr2$,  and <tt>false</tt> otherwise.
+Yields <tt>true</tt> if the value of $SetExp1$ is a strict subset of the value of $SetExp2$,  and <tt>false</tt> otherwise.
 
 Examples:
 <screen>

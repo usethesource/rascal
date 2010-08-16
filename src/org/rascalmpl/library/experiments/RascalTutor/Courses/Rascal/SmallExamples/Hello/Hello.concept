@@ -9,15 +9,13 @@ Description: Variations on the ubiquitous ''Hello World'' example.
 Examples:
 
 == First version: hello on the command line ==
-<warning>Output of println disappears</warning>
 
-First, we import the library module IO since hello world requires printing. Next, we call <tt>println</tt> and proudly observe our first Rascal output!
+We demonstrate hello via an interactive session with the Rascal system. First we get the prompt '''<tt>rascal></tt>''' that shows that Rascal is ready for our input. Next, we import the library module IO since hello world requires printing. Rascal responds with the feedback '''<tt>ok</tt>''' so we know that all went well. Finally, we call <tt>println</tt> and proudly observe our first Rascal output!
 <screen>
 import IO;
 println("Hello world, this is my first Rascal program");
 </screen>
 
-Observe that <tt>rascal></tt> is the prompt of the Rascal system that shows that is ready for new input.
 
 == Second version: hello in a function ==
 

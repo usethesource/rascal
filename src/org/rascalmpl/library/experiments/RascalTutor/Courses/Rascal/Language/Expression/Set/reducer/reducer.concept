@@ -1,0 +1,21 @@
+Name:reducer
+
+Related:
+
+Synopsis: &T reducer(set[&T] s, &T (&T, &T) fn, &T unit)
+
+Description: Apply the function <tt>fn</tt> to successive elements of set <tt>s</tt> starting with <tt>unit</tt>.
+
+Examples:
+<screen>
+import Set;
+int add(int x, int y) { return x + y; }
+reducer({10, 20, 30, 40}, add, 0); 
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

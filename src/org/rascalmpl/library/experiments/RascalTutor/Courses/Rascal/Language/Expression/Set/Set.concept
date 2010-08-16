@@ -2,7 +2,7 @@ Name:Set
 
 Related:
 
-Synopsis: { Expr1, Expr2, ... }
+Synopsis: { Exp1, Exp2, ... }
 
 Description: A set is an unordered sequence of values and has the following properties:
 * All elements have the same static type.

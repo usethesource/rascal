@@ -1,6 +1,5 @@
 TODO List for RascalTutor
 
-- In <screen> output of println disappears
 - Remove spaces when comparing types.
 - Remove all references to my home directory (used for testing, bad for deployment).
 - Scripting.rsc add a timer to catch endless loops
@@ -21,3 +20,4 @@ Completed:
 - Extract search terms from the synopsis.
 - The <screen> </screen> markup should allow comments
 - Add a feedback mechanism in questions (say what was wrong).
+- In <screen> output of println disappears

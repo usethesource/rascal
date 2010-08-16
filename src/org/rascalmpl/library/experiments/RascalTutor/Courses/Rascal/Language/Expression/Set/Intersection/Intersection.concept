@@ -2,10 +2,10 @@ Name:Intersection
 
 Related:
 
-Synopsis: Expr1 & Expr2
+Synopsis: Exp1 & Exp2
 
 Description:
-If both $Expr1$ and $Expr2$ have a set as value, the result is the intersection of these two set values. If one of $Expr1$ or $Expr2$ does not have a set as value, it is first converted to a set before the intersection is computed.
+If both $Exp1$ and $Exp2$ have a set as value, the result is the intersection of these two set values. If one of $Exp1$ or $Exp2$ does not have a set as value, it is first converted to a set before the intersection is computed.
 
 Examples:
 <warning>& seems to miss the case for a non-set argument</warning>

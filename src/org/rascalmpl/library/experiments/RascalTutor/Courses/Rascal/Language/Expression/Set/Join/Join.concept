@@ -2,7 +2,7 @@ Name:Join
 
 Related:
 
-Synopsis: SetExpr1 join SetExpr2
+Synopsis: SetExp1 join SetExp2
 
 Description:
 Relation resulting from the natural join of the set values of the two arguments.

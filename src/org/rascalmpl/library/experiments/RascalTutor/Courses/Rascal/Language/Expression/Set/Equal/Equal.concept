@@ -2,7 +2,7 @@ Name:Equal
 
 Related:
 
-Synopsis: SetExpr1 == SetExpr2
+Synopsis: SetExp1 == SetExp2
 
 Description:
 Yields <tt>true</tt> if both arguments are equal sets and <tt>false</tt> otherwise.
