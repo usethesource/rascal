@@ -37,6 +37,14 @@ public list[&T] java head(list[&T] lst, int n) throws IndexOutOfBounds;
 @javaClass{org.rascalmpl.library.List}
 public &T java getOneFrom(list[&T] lst);
 
+@doc{Get the indices of a list}
+public list[int] index(list[&T] lst){
+  n = size(lst);
+  if(n == 0)
+    return [];
+  return [0 .. n - 1];
+}
+
 @doc{Add an element at a specific position in a list}
 @javaClass{org.rascalmpl.library.List}
 public list[&T] java insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds;
