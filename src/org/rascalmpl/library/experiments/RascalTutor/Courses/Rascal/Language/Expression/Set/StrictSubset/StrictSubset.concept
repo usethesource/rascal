@@ -1,0 +1,24 @@
+Name:StrictSubset
+
+Related:
+
+Synopsis: SetExpr1 < SetExpr2
+
+Description:
+Yields <tt>true</tt> if the value of $SetExpr1$ is a strict subset of the value of $SetExpr2$,  and <tt>false</tt> otherwise.
+
+Examples:
+<screen>
+{1, 2, 3} < {1, 2, 3, 4};
+{1, 2, 3} < {1, 3, 4};
+{1, 2, 3} < {1, 2, 3};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: <set[arb]> < <prev[0]>
+

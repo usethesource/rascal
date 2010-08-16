@@ -1,0 +1,23 @@
+Name:NotEqual
+
+Related:
+
+Synopsis: SetExpr1 != SetExpr2
+
+Description:
+Yields <tt>true</tt> if both arguments are unequal sets and <tt>false</tt> otherwise.
+
+Examples:
+<screen>
+{1, 2, 3} != {3, 2, 1};
+{1, 2, 3} != {1, 2};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: <set[arb]> != <prev[0]>
+

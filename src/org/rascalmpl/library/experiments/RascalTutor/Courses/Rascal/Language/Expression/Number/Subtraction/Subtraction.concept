@@ -1,0 +1,27 @@
+Name:Subtraction
+
+Related:
+
+Synopsis: NumExp1 - NumExp2
+
+Description: Yields the numerical result of subtracting the value of $NumExp2$ from the value of $NumExp1$.
+
+Examples:
+<screen>
+13 - 12
+13.5 - 12
+12 - 13
+12 - 13.5
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: <int> - <int>
+ExprType: <int> - <real>
+ExprType: <real> - <int>
+Expr:     <num> - <num>
+

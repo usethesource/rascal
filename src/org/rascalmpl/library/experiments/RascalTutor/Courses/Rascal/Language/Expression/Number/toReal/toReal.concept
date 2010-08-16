@@ -1,0 +1,21 @@
+Name:toReal
+
+Related: Real
+
+Synopsis: real toReal(num n)
+
+Description: Convert a number to a real
+
+Examples:
+<screen>
+import Number;
+toReal(12)
+toReal(3.14)
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

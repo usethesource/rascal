@@ -1,0 +1,26 @@
+Name:min
+
+Related:
+
+Synopsis: &T <: num min(&T <: num n, &T <: num m)
+
+Description: The smallest of two numbers. The type of the result is the same as the type of the smallest argument.
+
+Examples:
+<screen>
+import Number;
+min(12, 13);
+min(12, -13);
+min(3.14, 4);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: min(<int>, <int>)
+ExprType: min(<int>, <real>)
+ExprType: min(<real>, <real>)
+Expr:     min(<num>, <num>)

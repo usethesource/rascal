@@ -1,0 +1,30 @@
+Name:Conditional
+
+Related:
+
+Synopsis: ( BoolExp ) ? NumExp1 : NumExp2
+
+Description: If the value of $BoolExp$ is <tt>true</tt> then the value of $NumExp1$ else the value of $NumExp2$.
+
+Examples:
+<screen>
+(3 > 2) ? 10 : 20
+(3 > 20) ? 10 : 20
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: (<int> > <int>) ? <int> : <int>
+
+ExprType: (<int> > <int>) ? <real> : <real>
+
+ExprType: (<int> > <int>) ? <int> : <real>
+
+Expr: (<int> > <int>) ? <int> : <int>
+
+Expr: (<int> > <int>) ? <int> : <real>
+

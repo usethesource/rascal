@@ -1,0 +1,255 @@
+body {
+	background-color: Snow;
+	color: black;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+}
+
+h1, th {
+	font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+h1 {
+    font-size: 14pt;
+    font-style: bold;
+}
+
+h2 {
+	font-size: 13pt;
+    font-style: italic;
+}
+
+
+table {
+	border-collapse: collapse;
+}
+
+th, td {
+	padding: 10px;
+	border: 2px #666 solid;
+	text-align: center;
+}
+
+.sectionHead {
+    background-color: #777777;
+    color:white;
+    font-size: 14pt;
+}
+
+#Name{ padding: 5px 0px; }
+#Synopsis{ padding: 5px 0px; }
+#Description { padding: 5px 0px; }
+#Examples{ padding: 5px 0px; }
+#Benefits{ padding: 5px 0px; }
+#PittFalls{ padding: 5px 0px; }
+#Questions{ padding: 5px 0px; }
+
+#searchBox {
+    top:  0;
+    right: 0;
+    float: right;
+    margin-top: 0.7em;
+    position: absolute;
+}
+
+#searchfield {
+/*	font: 1.2em verdana, arial, helvetica, sans-serif; */
+}
+
+.suggestions {
+	background-color: #FFF;
+	padding: 2px 6px;
+	border: 1px solid #000;
+}
+
+.suggestions:hover {
+	background-color: #69F;
+}
+
+#popups {
+	position: absolute;
+}
+
+#searchField.error {
+	background-color: Pink;
+}
+
+#editMenu {
+    padding: 10px 0px;
+    font-size: 10px;
+}
+
+textarea {
+    font-size: 18px;
+}
+
+.editSubmit{
+    font-size: 12pt;
+}
+
+.answerSubmit, .cheatSubmit, .anotherSubmit{
+    
+    font-size: 12pt;
+}
+
+.answerSubmit {
+  float: left;
+  margin-left: 0em;
+
+}
+
+.cheatSubmit, .anotherSubmit{
+    font-size: 70%;
+    color: gray;
+    float: right;
+    margin-right: 1em;
+}
+
+.answerFeedback{
+    color: red;
+    font-size: 12pt;
+}
+
+tt {
+    font-family: Courier, sans-serif;
+    font-size: 12pt;
+    /* background-color: #eeff88; */
+}
+
+#Questions h2 {
+	background: url(images/open.png) no-repeat 0% 100%;
+	padding-left: 20px;
+	cursor: pointer;
+}
+#Questions h2.close {
+	background-image: url(images/close.png);
+}
+
+pre.screen
+{
+        font-family:monospace;
+        white-space: pre;
+        width: 96%;
+/*        background-color: #C0C0FF; */
+/*        background-color: #ffccff; */
+        background-color: PapayaWhip;
+        border:solid;
+        color: #000000;
+        border-color: #9b8c8b;
+        border-left: solid #9b8c8b 1px;
+        border-right: solid #9b8c8b 1px;
+        border-top: solid #9b8c8b 1px;
+        border-bottom: solid #9b8c8b 1px;
+
+        padding-left: 15px;
+        padding-right: 10px;
+}
+
+pre.listing
+{
+        font-family:monospace;
+        white-space: pre;
+        width: 96%;
+/*        background-color: #ffffdd; */
+/*        background-color: #eeff88; */
+        background-color: MintCream;
+        border:solid;
+        color: #000000;
+        border-color: #9b8c8b;
+        border-left: solid #9b8c8b 1px;
+        border-right: solid #9b8c8b 1px;
+        border-top: solid #9b8c8b 1px;
+        border-bottom: solid #9b8c8b 1px;
+
+        padding-left: 15px;
+        padding-right: 10px;
+}
+/*
+H1
+{
+//        color: #ffffff;
+//        border: solid 3px #c5c6b2;
+//        background-color: #3c3c36;
+        font-variant: small-caps;
+       //        width: 100%;
+}
+
+H1.TITLE
+{
+//        color: #ffffff;
+//        border: solid 3px #c5c6b2;
+//        background-color: #3c3c36;
+//        font-variant: small-caps;
+        font-size: 120%;
+
+        width: 100%;
+}
+
+H2
+{       
+//        COLOR: #ffffff ;
+        font-style: italic;
+//        BACKGROUND-color: #c5c6b2;
+//        BORDER: solid 3px #3c3c36;
+//        PADDING: 1px
+}
+
+
+.TITLE a {
+        color: #ffffff; 
+        text-decoration: none;
+}
+
+.TITLE a:active {
+        color: #ffffff; 
+        text-decoration: none;
+}
+
+.TITLE a:visited {
+        color: #ffffff; 
+        text-decoration: none;
+}
+
+*/
+
+IMPORTANT
+{
+        font-style:italic;
+        border: solid 1px #ff0000;
+        width: 70%;
+        margin-left: 15%;       
+}
+CAUTION
+{
+        font-style:italic;
+        border: ridge 1px #ffff00;
+        width: 70%;
+        margin-left: 15%;       
+}
+
+NOTE
+{
+        font-style:italic;
+        border: solid 1px #000000;
+        width: 70%;
+        margin-left: 15%;       
+}
+TIP
+{
+        font-style:italic;
+        border: solid 1px #000000;
+        width: 70%;
+        margin-left: 15%;       
+}
+
+WARNING
+{
+        font-style:italic;
+        font-weight: bold;
+        border: ridge 4px #ff0000;
+        
+        width: 70%;
+        margin-left: 15%; 
+        display: block;      
+}
+

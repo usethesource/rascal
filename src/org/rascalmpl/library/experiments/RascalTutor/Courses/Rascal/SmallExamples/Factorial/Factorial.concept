@@ -1,0 +1,38 @@
+Name:Factorial
+
+Related:
+
+Synopsis:
+
+Description:
+Compute the factorial function.
+
+Examples:
+
+<listing>
+module demo::Factorial
+
+public int fac(int N)
+{
+  if(N <= 0)
+     return 1; 
+  else
+     return N * fac(N - 1);
+}
+</listing>
+
+It uses a conditional statement to distinguish cases and here is how to use it:
+<screen>
+import demo::Factorial;
+fac(47);
+</screen>
+
+Indeed, Rascal has arbitrary length integers.
+
+
+Benefits:
+
+Pittfalls: This example illustrates some ordinary programming features in Rascal. It does not highlight Rascal's specific strength.
+
+Questions:
+

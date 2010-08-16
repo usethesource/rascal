@@ -1,0 +1,30 @@
+Name:max
+
+Related:
+
+Synopsis: &T <: num max(&T <: num n, &T <: num m)
+
+Description: The largest of two numbers. The type of the result is the same as the type of the largest argument.
+
+Examples:
+<screen>
+import Number;
+max(12, 13);
+max(12, 13.5);
+max(12, 11.5);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType:import Number;
+         max(<int>, <int>)
+ExprType:import Number;
+         max(<int>, <real>)
+ExprType:import Number;
+         max(<real>, <real>)
+Expr:    import Number;
+         max(<num>, <num>)

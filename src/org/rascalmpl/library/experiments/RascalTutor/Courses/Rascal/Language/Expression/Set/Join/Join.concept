@@ -1,0 +1,26 @@
+Name:Join
+
+Related:
+
+Synopsis: SetExpr1 join SetExpr2
+
+Description:
+Relation resulting from the natural join of the set values of the two arguments.
+This relation contains tuples that are the result from concatenating the elements from both arguments.
+
+Examples:
+<screen>
+{<1,2>, <10,20>} join {<2,3>};
+{<1,2>} join {3, 4};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: <set[tuple[arb[int,str]]]> join <set[tuple[arb,str,int]]>
+Expr: <set[tuple[arb[int,str]]]> join <set[tuple[arb,str,int]]>
+
+

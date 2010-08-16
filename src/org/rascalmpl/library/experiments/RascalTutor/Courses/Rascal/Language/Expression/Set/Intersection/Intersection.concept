@@ -1,0 +1,36 @@
+Name:Intersection
+
+Related:
+
+Synopsis: Expr1 & Expr2
+
+Description:
+If both $Expr1$ and $Expr2$ have a set as value, the result is the intersection of these two set values. If one of $Expr1$ or $Expr2$ does not have a set as value, it is first converted to a set before the intersection is computed.
+
+Examples:
+<warning>& seems to miss the case for a non-set argument</warning>
+<screen>
+{1, 2, 3, 4, 5} & {4, 5, 6};
+{1, 2, 3} & 4;
+1 & {1, 2, 3, 4};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Choice: When you compute the intersection of two sets, the number of elements in the result is always:
+b: Greater than the number of elements in both sets.
+b: Greater than or equal the number of elements in both sets.
+b: Smaller than the number of elements in both sets.
+g: Smaller than or equal the number of elements in both sets.
+
+
+ExprType: <set[arb[int,str]]> & <prev[0]>
+
+ExprType: <set[arb]> & <prev[0]>
+
+Expr: <set[arb[0,int,str,num,real]]> & <prev[0]>
+

@@ -1,0 +1,28 @@
+Name:LessThanOrEqual
+
+Related:
+
+Synopsis: NumExp1 <= NumExp2
+
+Description: Yields <tt>true</tt> if the value of $NumExp1$ is numerically less than or equal to the value of $NumExp2$, and <tt>false</tt> otherwise.
+
+Examples:
+<screen>
+13 <= 12
+12 <= 13
+13.5 <= 12
+12.5 <= 13
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: <int> <= <int>
+ExprType: <real> <= <real>
+ExprType: <num> <= <num>
+ExprType: <num> <= <num>
+Expr: <num> <= <num>
+

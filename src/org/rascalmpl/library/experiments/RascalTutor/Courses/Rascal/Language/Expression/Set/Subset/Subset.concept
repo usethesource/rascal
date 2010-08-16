@@ -1,0 +1,23 @@
+Name:Subset
+
+Related:
+
+Synopsis: SetExpr1 <= SetExpr2
+
+Description:
+Yields <tt>true</tt> if the value of $SetExpr1$ is a subset of the value of $SetExpr2$, and <tt>false</tt> otherwise.
+
+Examples:
+<screen>
+{1, 2, 3} <= {1, 2, 3, 4};
+{1, 2, 3} <= {1, 2, 3};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: <set[arb[0,int,str,real]]> <= <prev[0]>
+

@@ -1,0 +1,26 @@
+Name: Rascal
+
+Related:
+
+Synopsis:
+
+Description: Rascal is a language for ''meta-programming'', that is, 
+it is intended for reading, analyzing, and transforming other programs. Main features are:
+* Statically typed: many programming errors are caught before execution.
+* Value-oriented: all values are immutable once they have been created.
+* ...
+
+Examples:
+* A program to refactor Java source code.
+* Implementation of a ''domain-specific language'' (DSL) for describing business processes.
+
+Benefits:
+* Very high-level language: many problems can be solved with a concise Rascal program.
+* Rich feature set.
+
+Pittfalls:
+* Rascal programs are not yet highly optimized so execution maybe slow for some programs.
+
+Questions:
+
+

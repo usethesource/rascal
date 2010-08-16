@@ -1,0 +1,26 @@
+Name:abs
+
+Related:
+
+Synopsis: &T <: num abs(&T <: num n)
+
+Description: Absolute value of the number <tt>n</tt>. The result type is equal to the type of the argument <tt>n</tt>.
+
+Examples:
+<screen>
+import Number;
+abs(13)
+abs(-13)
+abs(3.14)
+abs(-3.14)
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Expr: import Number;
+      abs(<num>)
+

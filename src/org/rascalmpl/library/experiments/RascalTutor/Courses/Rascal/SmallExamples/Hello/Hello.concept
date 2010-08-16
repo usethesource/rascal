@@ -1,0 +1,62 @@
+Name:Hello
+
+Related:
+
+Synopsis:
+
+Description: Variations on the ubiquitous ''Hello World'' example.
+
+Examples:
+
+== First version: hello on the command line ==
+<warning>Output of println disappears</warning>
+
+First, we import the library module IO since hello world requires printing. Next, we call <tt>println</tt> and proudly observe our first Rascal output!
+<screen>
+import IO;
+println("Hello world, this is my first Rascal program");
+</screen>
+
+Observe that <tt>rascal></tt> is the prompt of the Rascal system that shows that is ready for new input.
+
+== Second version: hello in a function ==
+
+A slightly more audacious approach is to wrap the print statement in a function and call it:
+<screen>
+import IO;
+void hello() {
+   println("Hello world, this is my first Rascal program");
+}
+//When you type in a command and continue it on a new line //the Rascal systems prompts you with <tt>>>>>>>></tt> to //indicate that more input is needed. Don't get scared by //the <tt>void (): void hello();</tt> that you get back //when typing in the hello function. The first 
+// <tt>void ()</tt> part says the result is a function that // returns //nothing, and the second part 
+// <tt>void hello()</tt> summarizes its value 
+// (or would you prefer a hex dump?).
+// Finally, we call the <tt>hello</tt> function and enjoy its output.
+hello();
+</screen>
+
+== Third version: hello in a module ==
+The summit of hello-engineering can be reached by placing all the above in a separate module:
+<listing>
+module demo::Hello
+import IO;
+
+public void hello() {
+   println("Hello world, this is my first Rascal program");
+}
+</listing>
+Note that we added a public modifier to the definition of hello, since we want it to be visible outside the Hello module. Using this Hello module is now simple:
+
+<screen>
+import demo::Hello;
+hello();
+</screen>
+
+
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

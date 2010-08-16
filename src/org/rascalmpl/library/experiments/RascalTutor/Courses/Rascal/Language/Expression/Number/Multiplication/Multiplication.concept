@@ -1,0 +1,26 @@
+Name:Multiplication
+
+Related:
+
+Synopsis: NumExp1 * NumExp2
+
+Description: Yields the result of multiplying the values of $NumExp1$ and $NumExp2$.
+
+Examples:
+<screen>
+12 * 13
+12 * 13.5
+-12*13
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: <int> * <int>
+ExprType: <int> * <real>
+ExprType: <real> * <int>
+Expr:     <num> * <num>
+
