@@ -120,12 +120,12 @@ Production removeAssoc(Production p) {
   Redefines some list of productions to produce a new symbol; it deals with all production combinators
 }  
 public Production redefine(Production p, Symbol s) {
-  return visit (p) {
+  return top-down-break visit (p) {
     case \prod(list[Symbol] lhs, _, Attributes a) => prod(lhs, s, a)
-    case \choice(_, set[Production] alts) => choice(s, alts)
-    case \assoc(_, Associativity a, set[Production] p) => \assoc(s, a, p)
-    case \diff(_, Production p, set[Production] alts) => \diff(s, p, alts)
-    case \restrict(Symbol r, Production language, set[list[Symbol]] restrictions) => restrict(s, language, restrictions)
+    case \choice(_, set[Production] alts) => choice(s, {redefine(a,s) | a <- alts})
+    case \assoc(_, Associativity a, set[Production] p) => \assoc(s, a, {redefine(x,s) | x <- p})
+    case \diff(_, Production p, set[Production] alts) => \diff(s, {redefine(x,s) | x <- p}, {redefine(x,s) | x <- alts})
+    case \restrict(Symbol r, Production language, set[list[Symbol]] restrictions) => restrict(s, redefine(language,s), restrictions)
     case \others(Symbol r) : throw "The ... (others) operator should have been desugared before expanding priorities";
     case Production x : throw "missed a case: <x>";
   }
