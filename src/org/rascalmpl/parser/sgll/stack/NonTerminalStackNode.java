@@ -1,10 +1,9 @@
 package org.rascalmpl.parser.sgll.stack;
 
-import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class NonTerminalStackNode extends AbstractStackNode{
 	private final String nonTerminal;
@@ -29,7 +28,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		nonTerminal = original.nonTerminal;
 	}
 	
-	private NonTerminalStackNode(NonTerminalStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+	private NonTerminalStackNode(NonTerminalStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
 		nonTerminal = original.nonTerminal;
@@ -50,7 +49,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 	public AbstractStackNode getCleanCopy(){
 		return new NonTerminalStackNode(this);
 	}
-	
+
 	public AbstractStackNode getCleanCopyWithPrefix(){
 		return new NonTerminalStackNode(this, prefixesMap);
 	}

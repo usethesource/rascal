@@ -1,11 +1,10 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.CharNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
-import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class CharStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final char[][] ranges;
@@ -24,7 +23,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		ranges = original.ranges;
 	}
 	
-	private CharStackNode(CharStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+	private CharStackNode(CharStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
 		ranges = original.ranges;
@@ -58,7 +57,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 	public AbstractStackNode getCleanCopy(){
 		return new CharStackNode(this);
 	}
-	
+
 	public AbstractStackNode getCleanCopyWithPrefix(){
 		return new CharStackNode(this, prefixesMap);
 	}

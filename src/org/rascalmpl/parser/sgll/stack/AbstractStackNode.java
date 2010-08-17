@@ -10,13 +10,13 @@ import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 public abstract class AbstractStackNode{
 	protected AbstractStackNode next;
 	protected LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap;
+	protected ArrayList<Link>[] prefixesMap;
 	
 	protected final int id;
 	
 	protected int startLocation;
 
-	protected LinearIntegerKeyedMap<ArrayList<Link>> prefixesMap;
-	
+	protected boolean isEndNode;
 	private boolean markedAsWithResults;
 	
 	// Last node specific filter stuff
@@ -48,31 +48,47 @@ public abstract class AbstractStackNode{
 		id = original.id;
 		
 		next = original.next;
-		edgesMap = original.edgesMap;
+		edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>();
+		
+		startLocation = original.startLocation;
+		
+		isEndNode = original.isEndNode;
 		
 		parentProduction = original.parentProduction;
 		followRestrictions = original.followRestrictions;
 		isReject = original.isReject;
 	}
 	
-	protected AbstractStackNode(AbstractStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+	protected AbstractStackNode(AbstractStackNode original, ArrayList<Link>[] prefixes){
 		super();
 		
 		id = original.id;
 		
+		edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>(original.edgesMap);
 		next = original.next;
-		edgesMap = original.edgesMap;
+		
+		prefixesMap = prefixes;
+		
+		startLocation = original.startLocation;
+		
+		isEndNode = original.isEndNode;
 		
 		parentProduction = original.parentProduction;
 		followRestrictions = original.followRestrictions;
 		isReject = original.isReject;
-		
-		prefixesMap = prefixes;
 	}
 	
 	// General.
 	public int getId(){
 		return id;
+	}
+	
+	public void markAsEndNode(){
+		isEndNode = true;
+	}
+	
+	public boolean isEndNode(){
+		return isEndNode;
 	}
 	
 	public final boolean isReducable(){
@@ -98,10 +114,6 @@ public abstract class AbstractStackNode{
 	
 	public IConstructor getParentProduction(){
 		return parentProduction;
-	}
-	
-	public void setFollowRestriction(IReducableStackNode[] followRestrictions){
-		this.followRestrictions = followRestrictions;
 	}
 	
 	public boolean isReductionFiltered(char[] input, int location){
@@ -151,51 +163,30 @@ public abstract class AbstractStackNode{
 	public void addEdge(AbstractStackNode edge){
 		int startLocation = edge.getStartLocation();
 		
-		ArrayList<AbstractStackNode> edges;
-		if(edgesMap == null){
-			edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>();
+		ArrayList<AbstractStackNode> edges = edgesMap.findValue(startLocation);
+		if(edges == null){
 			edges = new ArrayList<AbstractStackNode>(1);
 			edgesMap.add(startLocation, edges);
-		}else{
-			edges = edgesMap.findValue(startLocation);
-			if(edges == null){
-				edges = new ArrayList<AbstractStackNode>(1);
-				edgesMap.add(startLocation, edges);
-			}
 		}
 		
 		edges.add(edge);
 	}
 	
 	public void addEdges(LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMapToAdd){
-		if(edgesMap != edgesMapToAdd){
+		if(edgesMap.size() == 0){
+			edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>(edgesMapToAdd);
+		}else if(edgesMap != edgesMapToAdd){
 			for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
 				int startLocation = edgesMapToAdd.getKey(i);
-				ArrayList<AbstractStackNode> edgesToAdd = edgesMapToAdd.getValue(i);
-				
-				ArrayList<AbstractStackNode> edges = edgesMap.findValue(startLocation);
-				
-				if(edges == null){
-					edgesMap.add(startLocation, edgesToAdd);
-				}else if(edges != edgesToAdd){
-					OUTER : for(int j = edgesToAdd.size() - 1; j >= 0; --j){
-						AbstractStackNode edgeToAdd = edgesToAdd.get(j);
-						for(int k = edges.size() - 1; k >= 0; --k){
-							AbstractStackNode edge = edges.get(k);
-							if(edgeToAdd == edge){
-								continue OUTER;
-							}
-						}
-						
-						edges.add(edgeToAdd);
-					}
+				if(edgesMap.findValue(startLocation) == null){
+					edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
 				}
 			}
 		}
 	}
 	
 	public boolean hasEdges(){
-		return (edgesMap != null);
+		return (edgesMap.size() != 0);
 	}
 	
 	public LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> getEdges(){
@@ -224,21 +215,32 @@ public abstract class AbstractStackNode{
 	public void addPrefix(Link prefix, int prefixStartLocation){
 		ArrayList<Link> prefixes;
 		if(prefixesMap == null){
-			prefixesMap = new LinearIntegerKeyedMap<ArrayList<Link>>();
+			prefixesMap = (ArrayList<Link>[]) new ArrayList[edgesMap.size()];
 			prefixes = new ArrayList<Link>(1);
-			prefixesMap.add(prefixStartLocation, prefixes);
+			prefixesMap[edgesMap.findKey(prefixStartLocation)] = prefixes;
 		}else{
-			prefixes = prefixesMap.findValue(prefixStartLocation);
+			int index = edgesMap.findKey(prefixStartLocation);
+			int capacity = prefixesMap.length;
+			if(index >= capacity){
+				int newCapacity = capacity << 1;
+				do{
+					newCapacity <<= 1;
+				}while(index >= newCapacity);
+				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
+				prefixesMap = (ArrayList<Link>[]) new ArrayList[newCapacity];
+				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, capacity);
+			}
+			prefixes = prefixesMap[index];
 			if(prefixes == null){
 				prefixes = new ArrayList<Link>(1);
-				prefixesMap.add(prefixStartLocation, prefixes);
+				prefixesMap[index] = prefixes;
 			}
 		}
 		
 		prefixes.add(prefix);
 	}
 	
-	public LinearIntegerKeyedMap<ArrayList<Link>> getPrefixesMap(){
+	public ArrayList<Link>[] getPrefixesMap(){
 		return prefixesMap;
 	}
 	

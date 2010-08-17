@@ -6,9 +6,10 @@ import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class OptionalStackNode extends AbstractStackNode implements IListStackNode{
+	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
+	
 	private final IConstructor production;
 	
 	private final AbstractStackNode optional;
@@ -39,7 +40,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		optional = original.optional;
 	}
 	
-	private OptionalStackNode(OptionalStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+	private OptionalStackNode(OptionalStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
 		production = original.production;
@@ -66,7 +67,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	public AbstractStackNode getCleanCopy(){
 		return new OptionalStackNode(this);
 	}
-	
+
 	public AbstractStackNode getCleanCopyWithPrefix(){
 		return new OptionalStackNode(this, prefixesMap);
 	}
@@ -81,12 +82,14 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	
 	public AbstractStackNode[] getChildren(){
 		AbstractStackNode child = optional.getCleanCopy();
-		AbstractStackNode empty = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
+		child.markAsEndNode();
 		child.addEdge(this);
-		empty.addEdge(this);
-		
 		child.setStartLocation(startLocation);
 		child.setParentProduction(production);
+
+		AbstractStackNode empty = EMPTY.getCleanCopy();
+		empty.markAsEndNode();
+		empty.addEdge(this);
 		empty.setStartLocation(startLocation);
 		empty.setParentProduction(production);
 		
