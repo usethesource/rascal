@@ -6,9 +6,10 @@ import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class SeparatedListStackNode extends AbstractStackNode implements IListStackNode{
+	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
+	
 	private final IConstructor production;
 
 	private final AbstractStackNode child;
@@ -47,7 +48,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		isPlusList = original.isPlusList;
 	}
 	
-	private SeparatedListStackNode(SeparatedListStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+	private SeparatedListStackNode(SeparatedListStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
 		production = original.production;
@@ -72,7 +73,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	public AbstractStackNode getCleanCopy(){
 		return new SeparatedListStackNode(this);
 	}
-	
+
 	public AbstractStackNode getCleanCopyWithPrefix(){
 		return new SeparatedListStackNode(this, prefixesMap);
 	}
@@ -91,7 +92,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	
 	public AbstractStackNode[] getChildren(){
 		AbstractStackNode listNode = child.getCleanCopy();
-		
+		listNode.markAsEndNode();
 		listNode.addEdge(this);
 		listNode.addPrefix(null, startLocation);
 		listNode.setStartLocation(startLocation);
@@ -114,9 +115,9 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		if(isPlusList){
 			return new AbstractStackNode[]{listNode};
 		}
-		
-		EpsilonStackNode empty = new EpsilonStackNode(IGLL.DEFAULT_LIST_EPSILON_ID);
-		
+
+		AbstractStackNode empty = EMPTY.getCleanCopy();
+		empty.markAsEndNode();
 		empty.addEdge(this);
 		empty.setStartLocation(startLocation);
 		empty.setParentProduction(production);

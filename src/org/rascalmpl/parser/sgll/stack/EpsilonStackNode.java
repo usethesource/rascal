@@ -1,11 +1,10 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.EpsilonNode;
-import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class EpsilonStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final static EpsilonNode result = new EpsilonNode();
@@ -18,7 +17,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 		super(original);
 	}
 	
-	private EpsilonStackNode(EpsilonStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+	private EpsilonStackNode(EpsilonStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 	}
 	
@@ -41,7 +40,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 	public AbstractStackNode getCleanCopy(){
 		return new EpsilonStackNode(this);
 	}
-	
+
 	public AbstractStackNode getCleanCopyWithPrefix(){
 		return new EpsilonStackNode(this, prefixesMap);
 	}

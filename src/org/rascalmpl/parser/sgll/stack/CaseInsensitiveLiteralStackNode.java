@@ -1,12 +1,11 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
-import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final IConstructor production;
@@ -54,7 +53,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		ciLiteral = original.ciLiteral;
 	}
 	
-	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original, LinearIntegerKeyedMap<ArrayList<Link>> prefixes){
+	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
 		production = original.production;
@@ -95,7 +94,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	public AbstractStackNode getCleanCopy(){
 		return new CaseInsensitiveLiteralStackNode(this);
 	}
-	
+
 	public AbstractStackNode getCleanCopyWithPrefix(){
 		return new CaseInsensitiveLiteralStackNode(this, prefixesMap);
 	}

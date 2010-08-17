@@ -75,6 +75,13 @@ public class IndexedStack<E>{
 		return -1;
 	}
 	
+	public int findIndex(E object){
+		for(int i = size - 1; i >= 0; --i){
+			if(data[i].equals(object)) return indexes[i];
+		}
+		return -1;
+	}
+	
 	public void clear(){
 		data = (E[]) new Object[data.length];
 		size = 0;
