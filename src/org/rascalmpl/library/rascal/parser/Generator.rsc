@@ -72,23 +72,26 @@ public class <name> extends SGLL {
     }
     
     // Parse methods    
-    <for (Symbol nont:sort(_) <- g.rules) { >
+    <for (Symbol nont <- g.rules, isNonterminal(nont)) { >
         <generateParseMethod(choice(nont, g.rules[nont]))>
-    <}>
-    <for (Symbol nont:\parameterized-sort(_,_) <- g.rules) { >
-        <generateParseMethod(choice(nont, g.rules[nont]))>
-    <}>
-    <for (Symbol nont:start(_) <- g.rules) { >
-        <generateParseMethod(choice(nont, g.rules[nont]))>
-    <}>
-    <if (\layout() in g.rules) { >
-        <generateParseMethod(choice(\layout(), g.rules[\layout()]))>
     <}>
 }
 ";
 }  
 
-   
+@doc{this function selects all symbols for which a parse method should be generated}
+private bool isNonterminal(Symbol s) {
+  switch (s) {
+    case \sort(_) : return true;
+    case \prime(sort(_),_,_) : return true;
+    case \parameterized-sort(_,_) : return true;
+    case \prime(\parameterized-sort(_,_)) : return true;
+    case \start(_) : return true;
+    case \layout() : return true;
+    default: return false;
+  }
+}
+
 public str generateParseMethod(Production p){
     // note that this code heavily leans on the fact that production combinators are normalized 
     // (distribution and factoring laws have been applied to put a production expression in canonical form)
