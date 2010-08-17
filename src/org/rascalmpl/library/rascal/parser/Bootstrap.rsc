@@ -24,6 +24,6 @@ public void bootFromRascal() {
   println("generating Java source code");
   str source = generate("org.rascalmpl.library.rascal.parser","RascalRascal", gr);
   println("writing a file");
-  writeFile(|project://RascalLibrary/src/rascal/syntax/RascalRascal.java|, source);
+  writeFile(|project://RascalLibrary/src/rascal/parser/RascalRascal.java|, source);
   println("rascal parser has been generated");  
 }

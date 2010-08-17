@@ -1,6 +1,5 @@
 module rascal::syntax::RascalRascal
 
-
 syntax Module
 	= Default: Header header Body body ;
 
