@@ -165,10 +165,10 @@ public class ContainerNode extends AbstractNode{
 					
 					ISetWriter cycleChildren = vf.setWriter(Factory.Tree);
 					IConstructor subListNode = vf.constructor(Factory.Tree_Appl, production, subList.done());
-					subListNode = subListNode.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
+					if(input != null) subListNode = subListNode.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
 					cycleChildren.insert(subListNode);
 					IConstructor cycleNode = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), vf.integer(1));
-					cycleNode = cycleNode.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
+					if(input != null) cycleNode = cycleNode.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
 					cycleChildren.insert(cycleNode);
 					IConstructor ambSubListNode = vf.constructor(Factory.Tree_Amb, cycleChildren.done());
 					newPostFix[0] = ambSubListNode;
