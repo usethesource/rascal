@@ -61,7 +61,8 @@ public class RuntimeExceptionFactory {
 	public static Type InvalidUseOfDateTime = TF.constructor(TS, Exception, "InvalidUseOfDateTime", TF.dateTimeType(), "msg");
 	public static Type DateTimeParsingError = TF.constructor(TS, Exception, "DateTimeParsingError", TF.stringType(), "message");
 	public static Type DateTimePrintingError = TF.constructor(TS, Exception, "DateTimePrintingError", TF.stringType(), "message");
-
+	public static Type Timeout = TF.constructor(TS, Exception, "Timeout");
+	
     public static Throw indexOutOfBounds(IInteger i, AbstractAST ast, String trace) {
     	return new Throw(IndexOutOfBounds.make(VF, i), ast, trace);
     }
@@ -195,4 +196,8 @@ public class RuntimeExceptionFactory {
 	public static Throw noParent(ISourceLocation loc, AbstractAST ast, String trace) {
 		return new Throw(NoParent.make(VF, loc), ast, trace);
 	}
+	
+	public static Throw timeout(AbstractAST ast, String trace) {
+    	return new Throw(Timeout.make(VF), ast, trace);
+    }
 }

@@ -2,7 +2,6 @@ package org.rascalmpl.library;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringBufferInputStream;
 import java.io.StringWriter;
@@ -14,7 +13,6 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.RascalShell;
@@ -33,7 +31,7 @@ public class Scripting {
 	public Scripting(IValueFactory values){
 		super();
 		this.values = values;
-		duration = values.integer(1000);
+		duration = values.integer(1000); // default duration for eval and shell
 	}
 
 	public IValue shell(IList lines, IInteger duration) throws IOException {
@@ -48,8 +46,6 @@ public class Scripting {
 	public IValue shell(IList lines) throws IOException {
 		return shell(lines, duration);
 	}
-	
-
 	
 	public IValue shell(IString input, IInteger duration) throws IOException {
 	
@@ -81,7 +77,10 @@ public class Scripting {
 					result = result.substring(0, result.length()- prompt.length());
 			if(timer.hasExpired()){
 				System.err.println("Timeout");
-			    result = result.concat("\nRascal killed after timeout\n");
+				// Remove stack trace due to killing the shell
+				int k = result.lastIndexOf("Unexpected exception");
+				result = result.substring(0, k);
+			    result = result.concat("\n*** Rascal killed after timeout ***\n");
 			}
 			java.lang.String lines[] = result.split("[\r\n]+");
 			IListWriter w = values.listWriter(types.stringType());
@@ -142,15 +141,15 @@ public class Scripting {
 		Evaluator evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, root, heap);
 		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
 		timer.start();
-		timer.cancel();
 		
 		Result<IValue> result = null;
 		if(!timer.hasExpired() && commands.length() > 0){
 			for(IValue command : commands){
-				timer.run();
 				result = evaluator.eval(((IString) command).getValue(), URI.create("stdin:///"));
-				timer.cancel();
 			}
+			timer.cancel();
+			if(timer.hasExpired())
+			  throw RuntimeExceptionFactory.timeout(null, null);
 			return result;
 		} else
 			throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
@@ -171,6 +170,8 @@ public class Scripting {
 		}
 
 		public void run() {
+			running = true;
+			elapsed = 0;
 			while (running) {
 				try {
 					sleep(sample);
