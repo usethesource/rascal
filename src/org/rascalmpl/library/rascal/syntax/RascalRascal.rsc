@@ -1,6 +1,5 @@
 module rascal::syntax::RascalRascal
 
-
 syntax BooleanLiteral
 	= lex "false" 
 	| lex "true" ;
