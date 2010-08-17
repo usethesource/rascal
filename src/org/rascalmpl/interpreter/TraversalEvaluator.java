@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Replacement;
@@ -372,6 +373,7 @@ public class TraversalEvaluator {
 		if(casesOrRules.hasCases()){
 			for (Case cs : casesOrRules.getCases()) {
 				Environment old = eval.getCurrentEnvt();
+				AbstractAST prevAst = eval.getCurrentAST();
 				
 				try {
 					eval.pushEnv();
@@ -390,12 +392,14 @@ public class TraversalEvaluator {
 					TraverseResultFactory.freeTraverseResult(tr);
 				}finally {
 					eval.unwind(old);
+					eval.setCurrentAST(prevAst);
 				}
 			}
 		} else {
 			//System.err.println("hasRules");
 			for(RewriteRule rule : casesOrRules.getRules()){
 				Environment oldEnv = eval.getCurrentEnvt();
+				AbstractAST oldAST = eval.getCurrentAST();
 				if (eval.isInterrupted()) throw new InterruptException(eval.getStackTrace());
 				
 				try {
@@ -411,6 +415,7 @@ public class TraversalEvaluator {
 					TraverseResultFactory.freeTraverseResult(tr);
 				}
 				finally {
+					eval.setCurrentAST(oldAST);
 					eval.setCurrentEnvt(oldEnv);
 				}
 			}

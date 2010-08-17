@@ -66,6 +66,7 @@ public class RascalFunction extends NamedFunction {
 		}
 
 		Environment old = ctx.getCurrentEnvt();
+		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
 		
 		try {
@@ -117,6 +118,7 @@ public class RascalFunction extends NamedFunction {
 			}
 			ctx.setCurrentEnvt(old);
 			ctx.setAccumulators(oldAccus);
+			ctx.setCurrentAST(oldAST);
 		}
 	}
 	
