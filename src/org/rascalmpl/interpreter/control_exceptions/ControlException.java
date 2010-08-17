@@ -31,41 +31,45 @@ public class ControlException extends RuntimeException{
 	
 	@Override
 	public void printStackTrace(){
-		if(!initialized){
-			super.fillInStackTrace();
-			initialized = true;
-		}
-		
-		super.printStackTrace();
+		return;
+//		if(!initialized){
+//			super.fillInStackTrace();
+//			initialized = true;
+//		}
+//		
+//		super.printStackTrace();
 	}
 	
 	@Override
 	public void printStackTrace(PrintStream s){
-		if(!initialized){
-			super.fillInStackTrace();
-			initialized = true;
-		}
-		
-		super.printStackTrace(s);
+		return;
+//		if(!initialized){
+//			super.fillInStackTrace();
+//			initialized = true;
+//		}
+//		
+//		super.printStackTrace(s);
 	}
 	
 	@Override
 	public void printStackTrace(PrintWriter s){
-		if(!initialized){
-			super.fillInStackTrace();
-			initialized = true;
-		}
-		
-		super.printStackTrace(s);
+		return;
+//		if(!initialized){
+//			super.fillInStackTrace();
+//			initialized = true;
+//		}
+//		
+//		super.printStackTrace(s);
 	}
 	
 	@Override
 	public StackTraceElement[] getStackTrace(){
-		if(!initialized){
-			super.fillInStackTrace();
-			initialized = true;
-		}
-		
-		return super.getStackTrace();
+		return null;
+//		if(!initialized){
+//			super.fillInStackTrace();
+//			initialized = true;
+//		}
+//		
+//		return super.getStackTrace();
 	}
 }

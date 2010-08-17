@@ -651,9 +651,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				return stat.accept(this);
 			}
 			finally {
-				if(doProfiling){
-					profiler.pleaseStop();
-					profiler.report();
+				if(doProfiling) {
+					if (profiler != null) {
+						profiler.pleaseStop();
+						profiler.report();
+					}
 				}
 			}
 		} 
@@ -689,8 +691,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		finally {
 			if(doProfiling){
-				profiler.pleaseStop();
-				profiler.report();
+				if (profiler != null) {
+					profiler.pleaseStop();
+					profiler.report();
+				}
 			}
 		}
 
@@ -753,8 +757,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		finally {
 			if(doProfiling){
-				profiler.pleaseStop();
-				profiler.report();
+				if (profiler != null) {
+					profiler.pleaseStop();
+					profiler.report();
+				}
 			}
 		}
 	}
@@ -2471,7 +2477,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			IList list = (IList)value.getValue();
 			for (IValue elt: list) {
-				result.append(toString(elt).getValue());
+				appendToString(elt, result);
 			}
 		}
 
@@ -2905,10 +2911,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> pre = x.getPre().accept(this);
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
+		StringBuilder result = new StringBuilder();
 
-		String result = ((IString) pre.getValue()).getValue() + toString(expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		result.append(((IString) pre.getValue()).getValue());
+		appendToString(expr.getValue(), result);
+		result.append(((IString) tail.getValue()).getValue());
 
-		return makeResult(tf.stringType(), vf.string(result), this);
+		return makeResult(tf.stringType(), vf.string(result.toString()), this);
 	}
 
 	@Override
@@ -2917,10 +2926,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> pre = x.getMid().accept(this);
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
+		StringBuilder result = new StringBuilder();
 
-		String result = ((IString) pre.getValue()).getValue() + toString(expr.getValue()).getValue() + ((IString) tail.getValue()).getValue();
+		result.append(((IString) pre.getValue()).getValue());
+		appendToString(expr.getValue(), result);
+		result.append(((IString) tail.getValue()).getValue());
 
-		return makeResult(tf.stringType(), vf.string(result), this);
+		return makeResult(tf.stringType(), vf.string(result.toString()), this);
 	}
 
 	@Override
@@ -2934,13 +2946,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> pre = x.getPre().accept(this);
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
+		StringBuilder result = new StringBuilder();
 
-		String preString = ((IString) pre.getValue()).getValue();
-		String exprString = toString(expr.getValue()).getValue();
-		String tailString = ((IString) tail.getValue()).getValue();
-		String result = preString + exprString + tailString;
+		result.append(((IString) pre.getValue()).getValue());
+		appendToString(expr.getValue(), result);
+		result.append(((IString) tail.getValue()).getValue());
 
-		return makeResult(tf.stringType(), vf.string(result), this);
+		return makeResult(tf.stringType(), vf.string(result.toString()), this);
 	}
 
 	@Override
@@ -2977,13 +2989,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> mid = x.getMid().accept(this);
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> tail = x.getTail().accept(this);
+		StringBuilder result = new StringBuilder();
 
-		String midString = ((IString) mid.getValue()).getValue();
-		String exprString = toString(expr.getValue()).getValue();
-		String tailString = ((IString) tail.getValue()).getValue();
-		String result = midString + exprString + tailString;
+		result.append(((IString) mid.getValue()).getValue());
+		appendToString(expr.getValue(), result);
+		result.append(((IString) tail.getValue()).getValue());
 
-		return makeResult(tf.stringType(), vf.string(result), this);
+		return makeResult(tf.stringType(), vf.string(result.toString()), this);
 	}
 
 	@Override
@@ -4223,15 +4235,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.accumulators = accumulators;
 	}
 	
-	private IString toString(IValue value)
+	private void appendToString(IValue value, StringBuilder b)
 	{
 		if (value.getType() == Factory.Tree) {
-			return vf.string(TreeAdapter.yield((IConstructor) value));
+			b.append(TreeAdapter.yield((IConstructor) value));
 		}
-		if (value.getType().isStringType()) {
-			return (IString) value;
+		else if (value.getType().isStringType()) {
+			b.append(((IString) value).getValue());
 		}
-		return vf.string(value.toString());
+		else {
+			b.append(value.toString());
+		}
 	}
 
 
