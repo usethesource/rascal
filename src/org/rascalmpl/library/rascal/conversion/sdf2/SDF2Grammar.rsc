@@ -177,18 +177,27 @@ Production fixParameters(Production input) {
 
 public Production getProduction(languages::sdf2::syntax::Sdf2ForRascal::Production P, bool isLex) {
   if(debug) println("getProduction: <P>, isLex=<isLex>");
+  
   switch (P) {
     case (Production) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms> -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym>`:
     	return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([term("lexical")]))
     	               : prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
     
     case (Production) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol* syms> -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym> {<{languages::sdf2::syntax::Sdf2ForRascal::Attribute ","}* ats>}` :
- 		if(attrs([list[Attr] a]) := getAttributes(ats))
-    		return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex), \attrs([a, \term("lexical")]))
-    	              	   : prod(getSymbols(syms, isLex),getSymbol(sym, isLex), \attrs([a]));
-    	else
+ 		if(attrs([list[Attr] a]) := getAttributes(ats)) {
+ 		    newSym = getSymbol(sym, isLex);
+    		result = (isLex) ? prod(getSymbols(syms, isLex),newSym, \attrs([a, \term("lexical")]))
+    	               	     : prod(getSymbols(syms, isLex),newSym, \attrs([a]));
+    	    
+    	    if (\reject() in a) {
+ 		       return diff(newSym, \others(newSym), {result});
+ 		    }
+ 		    return result;
+    	}
+    	else {
     		return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([term("lexical")]))
     	               	   : prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
+    	}
     	
     case (Production) `<IdCon id> (<{languages::sdf2::syntax::Sdf2ForRascal::Symbol ","}* syms>) -> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sym>`:
     	throw "prefix functions not supported by SDF import yet";
@@ -428,7 +437,7 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbo
     	return sort("<n>");
     	
    	case (Symbol) `LAYOUT`:
-    	return sort("LAYOUT"); 
+    	return \layout(); 
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::StrCon l>`:
           	return lit(unescape(l));

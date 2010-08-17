@@ -37,7 +37,7 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 	
 	protected void checkInitialized(){
 		if(!initialized){
-			throw new ImplementationError("hasNext or match called before initMatch");
+			throw new ImplementationError("hasNext or match called before initMatch", ast.getLocation());
 		}
 	}
 	

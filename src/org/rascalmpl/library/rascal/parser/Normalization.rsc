@@ -33,7 +33,7 @@ rule \assoc \assoc(Symbol s, Associativity as, {set[Production] a, first(Symbol 
 rule diff   \diff(Symbol s, Production p, {set[Production] a, choice(Symbol t, set[Production] b)})   => diff(s, p, a+b);   
 rule diff   \diff(Symbol s, Production p, {set[Production] a, first(Symbol t, list[Production] b)})   => diff(s, p, a + { e | e <- b});  // ordering is irrelevant under diff
 rule diff   \diff(Symbol s, Production p, {set[Production] a, \assoc(Symbol t, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
-rule restrict restrict(Symbol s, restrict(s, Production p, set[list[Symbol]] q), set[list[Symbol]] r) =>
+rule restrict restrict(Symbol s, restrict(s, Production p, set[Production] q), set[Production] r) =>
               restrict(s, p, q + r);
 
 // this makes sure the ... (others) are merged in at the right place
@@ -52,18 +52,22 @@ rule xor    first(Symbol s, [list[Production] a, diff(Symbol t, Production b, se
 rule ass    \assoc(Symbol s, Associativity as, {set[Production] a, diff(Symbol t, b, set[Production] c)}) => diff(s, \assoc(s, as, a + {b}), c);
 rule diff   diff(Symbol s, Production p, {set[Production] a, diff(Symbol t, Production q, set[Production] b)})   => diff(s, choice(s, {p,q}), a+b); 
 rule diff   diff(Symbol s, diff(Symbol t, Production a, set[Production] b), set[Production] c)        => diff(s, a, b+c);
-rule restrict restrict(Symbol s, diff(s, Production p, set[Production] o), set[list[Symbol]] r) =>
+rule restrict restrict(Symbol s, diff(Symbol t, Production p, set[Production] o), set[Production] r) =>
               diff(s, restrict(s, p, r), o);
 
 rule prod   diff(Symbol s, prod(list[Symbol] lhs, Symbol t, Attributes a), set[Production] diffs) =>
             diff(s, choice(s, {prod(lhs,t,a)}), diffs);
                           
-rule choice choice(Symbol s, {restrict(s, Production p, set[list[Symbol]] r), set[Production] q}) =>
+rule choice choice(Symbol s, {restrict(Symbol t, Production p, set[Production] r), set[Production] q}) =>
             restrict(s, choice(s,{p,q}), r);
-rule first  first(Symbol s, [list[Production] pre, restrict(s, Production p, set[list[Symbol]] r), list[Production] post]) =>
+rule first  first(Symbol s, [list[Production] pre, restrict(Symbol t, Production p, set[Production] r), list[Production] post]) =>
             restrict(s, first(s, [pre, p, post]), r);
-rule prod   restrict(Symbol s, prod(list[Symbol] lhs, Symbol t, Attributes a), set[list[Symbol]] r) =>
+rule prod   restrict(Symbol s, prod(list[Symbol] lhs, Symbol t, Attributes a), set[Production] r) =>
             restrict(s, choice(s,{prod(lhs,t,a)}), r);
+rule restrict restrict(Symbol s, Production p, {restrict(Symbol t, Production q, set[Production] r), set[Production] o})=>
+              restrict(s, choice(s, {p,q}), r + o);
+rule diff     restrict(Symbol s, Production p, {diff(Symbol t, Production q, set[Production] d), set[Production] o}) =>
+              diff(t, restrict(s, choice(t, {p,q}), o), o);
 
 // no attributes
 rule simpl  attrs([]) => \no-attrs();  

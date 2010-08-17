@@ -21,6 +21,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
+import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
 import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
@@ -88,11 +89,28 @@ public abstract class SGLL implements IGLL{
 		lastNode.setParentProduction(production);
 	}
 	
+	protected void expect(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
+		lastExpects.add(symbolsToExpect);
+		
+		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
+		lastNode.setParentProduction(production);
+		lastNode.setFollowRestriction(followRestrictions);
+	}
+	
 	protected void expectReject(IConstructor production, AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
 		lastNode.setParentProduction(production);
+		lastNode.markAsReject();
+	}
+	
+	protected void expectReject(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
+		lastExpects.add(symbolsToExpect);
+		
+		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
+		lastNode.setParentProduction(production);
+		lastNode.setFollowRestriction(followRestrictions);
 		lastNode.markAsReject();
 	}
 	
