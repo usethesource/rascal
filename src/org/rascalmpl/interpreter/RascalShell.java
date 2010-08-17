@@ -39,6 +39,7 @@ public class RascalShell {
 	
 	private final ConsoleReader console;
 	private final Evaluator evaluator;
+	private volatile boolean running;
 	
 	
 	// TODO: cleanup these constructors.
@@ -49,6 +50,7 @@ public class RascalShell {
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		running = true;
 	}
 	
 	public RascalShell(InputStream stdin, PrintWriter stderr, PrintWriter stdout) throws IOException {
@@ -58,13 +60,14 @@ public class RascalShell {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 		Object ioInstance = evaluator.getJavaBridge().getJavaClassInstance(IO.class);
 		((IO) ioInstance).setOutputStream(new WriterPrintStream(stdout));
+		running = true;
 	}
 	
 	public void run() throws IOException {
 		StringBuffer input = new StringBuffer();
 		String line;
 		
-		next:while (true) {
+		next:while (running) {
 			try {
 				input.delete(0, input.length());
 				String prompt = PROMPT;
@@ -126,6 +129,11 @@ public class RascalShell {
 				printStacktrace(console, e);
 			}
 		}
+	}
+	
+	public synchronized void stop(){
+		running = false;
+		evaluator.interrupt();
 	}
 	
 	private void printStacktrace(ConsoleReader console, Throwable e) throws IOException {
