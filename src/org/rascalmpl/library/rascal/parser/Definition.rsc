@@ -104,8 +104,7 @@ private Production prod2prod(Symbol nt, Prod p) {
     case (Prod) `<Prod l> | <Prod r>` :
       return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
     case (Prod) `<Prod l> # <Prod r>` :
-      if (prod(list[Symbol] syms, Symbol s, Attributes a) := prod2prod(nt, r))
-        return restrict(sort(prod2prod(nt,l)),prod2prod(nt,l), {syms});
+        return restrict(nt,prod2prod(nt,l), {prod2prod(nt,r)});
     case (Prod) `<Prod l> > <Prod r>` :
       return first(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
     case (Prod) `<Prod l> - <Prod r>` :

@@ -33,7 +33,7 @@ data Production = choice(Symbol rhs, set[Production] alternatives)
                 | first(Symbol rhs, list[Production] choices)
                 | \assoc(Symbol rhs, Associativity \assoc, set[Production] alternatives)               
                 | diff(Symbol rhs, Production language, set[Production] alternatives)
-                | restrict(Symbol rhs, Production language, set[list[Symbol]] restrictions)
+                | restrict(Symbol rhs, Production language, set[Production] restrictions)
                 | others(Symbol rhs)
                 ;
 
@@ -76,6 +76,13 @@ rule label prime(label(str l, Symbol s), str r, list[int] p) => label(l, prime(s
 @reflect   
 @javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
 public Grammar java getGrammar(str mod);
+
+@doc{
+  This function is for debugging of Rascal, it parses a module with the new bootstrapped Rascal parser.
+}
+@reflect   
+@javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
+public Grammar java parseModule(loc mod);
 
 @doc{returns the symbol that a production defines}
 public Symbol sort(Production p) {

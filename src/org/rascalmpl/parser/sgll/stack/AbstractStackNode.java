@@ -119,6 +119,10 @@ public abstract class AbstractStackNode{
 		return parentProduction;
 	}
 	
+	public void setFollowRestriction(IReducableStackNode[] followRestrictions) {
+		this.followRestrictions = followRestrictions;
+	}
+	
 	public boolean isReductionFiltered(char[] input, int location){
 		// Check if follow restrictions apply.
 		if(followRestrictions != null){

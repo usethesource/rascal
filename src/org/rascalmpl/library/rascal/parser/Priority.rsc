@@ -125,7 +125,7 @@ public Production redefine(Production p, Symbol s) {
     case \choice(_, set[Production] alts) => choice(s, {redefine(a,s) | a <- alts})
     case \assoc(_, Associativity a, set[Production] p) => \assoc(s, a, {redefine(x,s) | x <- p})
     case \diff(_, Production p, set[Production] alts) => \diff(s, {redefine(x,s) | x <- p}, {redefine(x,s) | x <- alts})
-    case \restrict(Symbol r, Production language, set[list[Symbol]] restrictions) => restrict(s, redefine(language,s), restrictions)
+    case \restrict(Symbol r, Production language, set[Production] restrictions) => restrict(s, redefine(language,s), redefine(restrictions,s))
     case \others(Symbol r) : throw "The ... (others) operator should have been desugared before expanding priorities";
     case Production x : throw "missed a case: <x>";
   }
@@ -138,14 +138,14 @@ public Production redefine(Production p, Symbol s) {
 public Production makePrio(Production p, Symbol s, int l) {
   return top-down-break visit (p) {
     case prod([leftRec, list[Symbol] middle, rightRec],s,Attributes a) => 
-         prod([level(s, l), middle, level(s, l)],s,a)   
+         prod([level(leftRec, l), middle, level(rightRec, l)],s,a)   
     when checkSymbol(leftRec, s), checkSymbol(rightRec,s)   
     case prod([leftRec, list[Symbol] tail],s,Attributes a)      => 
-         prod([level(s, l), tail], s, a)               
+         prod([level(leftRec, l), tail], s, a)               
     when checkSymbol(leftRec, s)    
-    case prod([list[Symbol] front, leftRec], s, Attributes a)   => 
-         prod([front, level(s, l)], s, a)              
-    when checkSymbol(leftRec, s)    
+    case prod([list[Symbol] front, rightRec], s, Attributes a)   => 
+         prod([front, level(rightRec, l)], s, a)              
+    when checkSymbol(rightRec, s)    
   }
 }   
 
@@ -158,7 +158,7 @@ public Production makeAssoc(Production p, Symbol s, Associativity a, int l) {
          prod([exclude(leftRec,l), middle, rightRec],s,as)
       when a == \right(), checkSymbol(leftRec, s), checkSymbol(rightRec,s)   
     case prod([Symbol leftRec, list[Symbol] middle, Symbol rightRec],s,Attributes as) => 
-         prod([exclude(s,l), middle, exclude(s,l)],s,as)
+         prod([exclude(leftRec,l), middle, exclude(rightRec,l)],s,as)
       when a == \non-assoc(), checkSymbol(leftRec, s), checkSymbol(rightRec,s)
   }   
 }

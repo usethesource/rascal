@@ -1345,9 +1345,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return tree;
 	}
 	
-	public IConstructor parseModuleExperimental(char[] data, URI location, ModuleEnvironment env) {
+	public IConstructor parseModuleExperimental(InputStream stream, URI location) {
 		IGLL parser = new RascalRascal();
-		return parser.parse("Module", location, data);
+		try {
+			return parser.parse("Module", location, stream);
+		} catch (IOException e) {
+			// TODO
+			throw new ImplementationError("TODO");
+		}
 	}
 		
 	private byte[] readModule(InputStream inputStream) throws IOException{

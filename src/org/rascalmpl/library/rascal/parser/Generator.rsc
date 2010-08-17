@@ -32,26 +32,23 @@ public str generate(str package, str name, Grammar gr){
     grammar = factorize(grammar);
     println("printing the source code");
     g = grammar;
+    
+    uniqueProductions = {removePrimes(p) | /Production p := g, prod(_,_,_) := p || regular(_,_) := p};
+    
     return 
 "
 package <package>;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.parser.sgll.SGLL;
 import org.rascalmpl.parser.sgll.stack.*;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class <name> extends SGLL {
     private static IConstructor read(java.lang.String s, Type type) {
@@ -67,7 +64,7 @@ public class <name> extends SGLL {
     }
   
     // Production declarations
-    <for (p <- { p | /Production p := g, prod(_,_,_) := p || regular(_,_) := p}) {>private static final IConstructor <value2id(p)> = read(\"<esc("<removePrimes(p)>")>\", Factory.Production);
+    <for (p <- uniqueProductions) {>private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);
     <}>
     
     public <name>(){
@@ -75,59 +72,18 @@ public class <name> extends SGLL {
     }
     
     // Parse methods    
-    <for (Symbol nont <- g.rules) { >
+    <for (Symbol nont:sort(_) <- g.rules) { >
         <generateParseMethod(choice(nont, g.rules[nont]))>
     <}>
-    
-    public IValue parse(IConstructor start, URI inputURI, char[] sentence){
-        if(SymbolAdapter.isSort(start)){
-            return parse(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, sentence);
-        }
-        if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), inputURI, sentence);
-        }
-        throw new IllegalArgumentException(start.toString());
-    }
-    
-    public IValue parse(IConstructor start, URI inputURI, java.lang.String sentence){
-        if(SymbolAdapter.isSort(start)){
-            return parseFromString(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, sentence);
-        }
-        if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), inputURI, sentence);
-        }
-        throw new IllegalArgumentException(start.toString());
-    }
-    
-    public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
-        if(SymbolAdapter.isSort(start)){
-            return parseFromFile(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, inputFile);
-        }
-        if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), inputURI, inputFile);
-        }
-        throw new IllegalArgumentException(start.toString());
-    }
-    
-    public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
-        if(SymbolAdapter.isSort(start)){
-            return parseFromStream(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, in);
-        }
-        if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), inputURI, in);
-        }
-        throw new IllegalArgumentException(start.toString());
-    }
-    
-    public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
-        if(SymbolAdapter.isSort(start)){
-            return parseFromReader(new NonTerminalStackNode(-1, SymbolAdapter.getName(start)), inputURI, in);
-        }
-        if(SymbolAdapter.isStartSort(start)){
-            return parse(SymbolAdapter.getStart(start), inputURI, in);
-        }
-        throw new IllegalArgumentException(start.toString());
-    }
+    <for (Symbol nont:\parameterized-sort(_,_) <- g.rules) { >
+        <generateParseMethod(choice(nont, g.rules[nont]))>
+    <}>
+    <for (Symbol nont:start(_) <- g.rules) { >
+        <generateParseMethod(choice(nont, g.rules[nont]))>
+    <}>
+    <if (\layout() in g.rules) { >
+        <generateParseMethod(choice(\layout(), g.rules[\layout()]))>
+    <}>
 }
 ";
 }  
@@ -143,7 +99,7 @@ public str generateParseMethod(Production p){
     else if(prod(_,Symbol rhs,_) := p){
         return "public void <sym2name(rhs)>(){
             // <p>
-            expect(<value2id(p)>,
+            expect(<value2id(removePrimes(p))>,
             <generateSymbolItemExpects(p.lhs)>);  
         }";
     }
@@ -151,17 +107,17 @@ public str generateParseMethod(Production p){
         return "public void <sym2name(rhs)>(){
             <for (Production q:prod(_,_,_) <- ps){>
                 // <q>
-                expect(<value2id(q)>,
+                expect(<value2id(removePrimes(q))>,
                 <generateSymbolItemExpects(q.lhs)>);
             <}>  
         }";
     }
-    else if (restrict(Symbol rhs, choice(rhs, set[Production] ps), set[list[Symbol]] restrictions) := p) {
+    else if (restrict(Symbol rhs, choice(rhs, set[Production] ps), set[Production] restrictions) := p) {
        str lookaheads = generateLookaheads(restrictions);
        return "public void <sym2name(rhs)>() {
-             <for (Production q:prod(_,_,_) <- ps){>
+             <for (Production q:prod(_,_,_) <- ps) {>
                 // <q>
-                expect(<value2id(q)>, <lookaheads>,
+                expect(<value2id(removePrimes(q))>, <lookaheads>,
                 <generateSymbolItemExpects(q.lhs)>);
             <}>         
        }";
@@ -170,27 +126,27 @@ public str generateParseMethod(Production p){
        return "public void <sym2name(rhs)>() {
             <for (Production q:prod(_,_,_) <- rejects){>
                 // <q>
-                expectReject(<value2id(q)>,
+                expectReject(<value2id(removePrimes(q))>,
                 <generateSymbolItemExpects(q.lhs)>);
             <}>
             <for (Production q:prod(_,_,_) <- choices){>
                 // <q>
-                expect(<value2id(q)>,
+                expect(<value2id(removePrimes(q))>,
                 <generateSymbolItemExpects(q.lhs)>);
             <}>
        }";
     }
-    else if (diff(Symbol rhs, restrict(Symbol rhs, choice(rhs, set[Production] choices), set[list[Symbol]] restrictions), set[Production] rejects) := p) {
+    else if (diff(Symbol rhs, restrict(Symbol rhs, choice(rhs, set[Production] choices), set[Production] restrictions), set[Production] rejects) := p) {
        str lookaheads = generateLookaheads(restrictions);
        return "public void <sym2name(rhs)>() {
             <for (Production q:prod(_,_,_) <- rejects){>
                 // <q>
-                expectReject(<value2id(q)>, <lookaheads>, 
+                expectReject(<value2id(removePrimes(q))>, <lookaheads>, 
                 <generateSymbolItemExpects(q.lhs)>);
             <}>
             <for (Production q:prod(_,_,_) <- choices){>
                 // <q>
-                expect(<value2id(q)>, <lookaheads>, 
+                expect(<value2id(removePrimes(q))>, <lookaheads>, 
                 <generateSymbolItemExpects(q.lhs)>);
             <}>
        }";
@@ -208,14 +164,16 @@ public str generateParseMethod(Production p){
   may seem pretty general (i.e. any symbol can be a restriction), we actually only allow finite languages
   defined as either sequences of character classes or literals.
 }
-public str generateLookaheads(set[list[Symbol]] restrictions) {
+public str generateLookaheads(set[Production] restrictions) {
   result = "new IReducableStackNode[] {"; 
-
+  
   // not that only single symbol restrictions are allowed at the moment.
   // the run-time only supports character-classes and literals BTW, which should
   // be validated by a static checker for Rascal.  
-  for ([Symbol l] <- restrictions) {
-     result += sym2newitem(l);
+  lookaheads = [ l | /prod([Symbol l],_,_) <- restrictions];
+ 
+  if (lookaheads != []) {
+    result += (sym2newitem(head(lookaheads)) | it + ", <sym2newitem(x)>" | x <- tail(lookaheads));
   }
   
   result += "}";
@@ -262,7 +220,7 @@ public str sym2newitem(Symbol sym){
         case \start(s) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \lit(l) : {
-            if (/restrict(\lit(l), choice(\lit(l), {prod(chars,\lit(l),_)}), restrictions) := grammar.rules[sym]) { 
+            if (/restrict(\lit(l), choice(\lit(l), {p:prod(chars,\lit(l),_)}), restrictions) := grammar.rules[sym]) { 
                 return "new LiteralStackNode(<id>, <value2id(p)>, <generateLookaheads(restrictions)>, new char[] {<literals2ints(chars)>})";
             }
             else if (/p:prod(chars,\lit(l),_) := grammar.rules[sym]) {  
@@ -343,7 +301,7 @@ public str value2id(value v) {
 
 str v2i(value v) {
     switch (v) {
-        case label(_,v)    : return value2id(v);
+        case label(str x,Symbol u) : return escId(x) + "_" + value2id(u);
         case prime(Symbol s, str reason, list[int] indexes) : return "<value2id(s)>_<reason>_<value2id(indexes)>";
         case sort(str s)   : return s;
         case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<value2id(arg)>" | arg <- args);
@@ -351,6 +309,7 @@ str v2i(value v) {
 	    case lit(/<s:^[A-Za-z0-9]+$>/) : return "lit_<s>"; 
         case int i         : return "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)-1]);
+        case str s()       : return escId(s);
         case node n        : return "<escId(getName(n))>_<("" | it + "_" + value2id(c) | c <- getChildren(n))>";
         case list[value] l : return ("" | it + "_" + value2id(e) | e <- l);
         default            : throw "value not supported <v>";
