@@ -249,7 +249,7 @@ public set[Production] getRestriction(languages::sdf2::syntax::Sdf2ForRascal::Re
            + getRestriction((Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s2> <languages::sdf2::syntax::Sdf2ForRascal::Symbol* rest> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>`, isLex);
            
     case (Restriction) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s1> -/- <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>` :
-      return {restrict(getSymbol(s1, isLex), others(getSymbol(s1, isLex)), getLookaheads(ls))};
+      return {restrict(getSymbol(s1, isLex), others(getSymbol(s1, isLex)), getLookaheads(getSymbol(s1,isLex),ls))};
       
     default:
     	throw "missing case <restriction>";
@@ -264,19 +264,18 @@ test getRestriction((Restriction) `ID -/- [a-z]`, true) ==
 
 // ----- getLookaheads, getLookahead -----
 
-public set[list[Symbol]] getLookaheads(languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls) {
+public set[Production] getLookaheads(ParseTree::Symbol sym, languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls) {
    switch (ls) {
      case (Lookaheads) `<languages::sdf2::syntax::Sdf2ForRascal::CharClass c>` :
-     	return {[getCharClass(c)]};
+     	return {prod([getCharClass(c)],sym,\no-attrs())};
      	
-     case (Lookaheads) `<languages::sdf2::syntax::Sdf2ForRascal::CharClass c>.<languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>` :
-     	return {[getCharClass(c)] + other | other <- getLookaheads(ls)};
-     	
+     case (Lookaheads) `<languages::sdf2::syntax::Sdf2ForRascal::CharClass c>.<languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>` : 
+     	return {prod([getCharClass(c)] + x, sym, \no-attrs()) | prod(list[Symbol] x, _,_) <- getLookaheads(sym,ls)};
      case (Lookaheads) `<languages::sdf2::syntax::Sdf2ForRascal::Lookaheads l> | <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads r>` :
-     	return getLookaheads(l) + getLookaheads(r);
+     	return getLookaheads(sym,l) + getLookaheads(sym,r);
      	
      case (Lookaheads) `(<languages::sdf2::syntax::Sdf2ForRascal::Lookaheads(l)>)` :
-     	return getLookaheads(l);
+     	return getLookaheads(sym,l);
      	
      case (Lookaheads) `[[<{languages::sdf2::syntax::Sdf2ForRascal::Lookahead ","}* _>]]`:
      	throw "unsupported lookahead construction <ls>";

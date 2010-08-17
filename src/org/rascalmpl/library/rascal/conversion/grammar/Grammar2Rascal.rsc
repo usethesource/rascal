@@ -96,12 +96,12 @@ public str prod2rascal(Production p) {
     		return ( "<attr2mod(\assoc(a))> (  <prod2rascal(fst)> " | "<it>\n\t\t\> <prod2rascal(pr)>" | pr <- rest ) + "\n\t)";
  		}
     case diff(s,q,alts) : {
-    		<fst, rest> = takeOneFrom(alts);
-       		return ( "<prod2rascal(q)>\n\t- <prod2rascal(fst)>" | "<it>\n\t- <prod2rascal(pr)>" | pr <- rest );
-       	}
+      <fst, rest> = takeOneFrom(alts);
+      return ( "<prod2rascal(q)>\n\t- <prod2rascal(fst)>" | "<it>\n\t- <prod2rascal(pr)>" | pr <- rest );
+    }
  
     case restrict(rhs, language, restrictions):
-    	return "<for(r <- restrictions){><prod2rascal(language)>\n\t# <for(e <- r){> <symbol2rascal(e)> <}><}>";
+    	return "<prod2rascal(language)><for(r <- restrictions){>\n\t# <prod2rascal(r)><}>";
  
     case others(sym):
         return "...";
