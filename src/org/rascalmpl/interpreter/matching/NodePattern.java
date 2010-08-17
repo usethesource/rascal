@@ -29,6 +29,7 @@ public class NodePattern extends AbstractMatchingResult {
 	private final NodeWrapperTuple tupleSubject;
 	private boolean isGenericNodeType;
 	private QualifiedName qName;
+	private Type type;
 	
 	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
 		super(ctx, x);
@@ -49,6 +50,8 @@ public class NodePattern extends AbstractMatchingResult {
 	}
 	
 	private class NodeWrapperTuple implements ITuple {
+		private Type type;
+		
 		public int arity() {
 			return 1 + subject.arity();
 		}
@@ -61,12 +64,15 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		public Type getType() {
-			Type[] kids = new Type[1 + subject.arity()];
-			kids[0] = tf.stringType();
-			for (int i = 0; i < subject.arity(); i++) {
-				kids[i+1] = subject.get(i).getType();
+			if (type == null) {
+				Type[] kids = new Type[1 + subject.arity()];
+				kids[0] = tf.stringType();
+				for (int i = 0; i < subject.arity(); i++) {
+					kids[i+1] = subject.get(i).getType();
+				}
+				type = tf.tupleType(kids);
 			}
-			return tf.tupleType(kids);
+			return type;
 		}
 		
 		public boolean isEqual(IValue other) {
@@ -146,10 +152,12 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public Type getType(Environment env) {
-		Type type = getConstructorType(env);
-		
-		if (type.isConstructorType()) {
-			return getConstructorType(env).getAbstractDataType();
+		if (type == null) {
+			type = getConstructorType(env);
+
+			if (type.isConstructorType()) {
+				type = getConstructorType(env).getAbstractDataType();
+			}
 		}
 		return type;
 	}

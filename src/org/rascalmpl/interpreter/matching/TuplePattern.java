@@ -17,6 +17,7 @@ public class TuplePattern extends AbstractMatchingResult {
 	private ITuple treeSubject;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private int nextChild;
+	private Type type;
 	
 	public TuplePattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list){
 		super(ctx, x);
@@ -51,11 +52,14 @@ public class TuplePattern extends AbstractMatchingResult {
 	
 	@Override
 	public Type getType(Environment env) {
-		Type fieldTypes[] = new Type[children.size()];
-		for(int i = 0; i < children.size(); i++){
-			fieldTypes[i] = children.get(i).getType(env);
+		if (type == null) {
+			Type fieldTypes[] = new Type[children.size()];
+			for(int i = 0; i < children.size(); i++){
+				fieldTypes[i] = children.get(i).getType(env);
+			}
+			type = tf.tupleType(fieldTypes);
 		}
-		return tf.tupleType(fieldTypes);
+		return type;
 	}
 	
 	@Override

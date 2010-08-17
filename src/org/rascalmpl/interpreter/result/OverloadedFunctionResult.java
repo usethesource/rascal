@@ -78,6 +78,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		Type tuple = getTypeFactory().tupleType(argTypes);
 		
 		for (AbstractFunction candidate : candidates) {
+			// TODO: if match would accept an array of argTypes, the tuple type would not need to be constructed
 			if (candidate.match(tuple)) {
 				return candidate.call(argTypes, argValues);
 			}
