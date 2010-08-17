@@ -28,10 +28,17 @@ public str grammar2rascal(Grammar g, str name) {
 }
 
 public str grammar2rascal(Grammar g) {
-  <normals,literals> = separateLiterals(g.productions);
-  return ( "" | it + "\n" + topProd2rascal(p) | gr <- groupByNonTerminal(normals), Production p <- gr)
-       + "\n\n"
-       + ( "" | it + "\n" + topProd2rascal(p) | Production p <- literals);
+  if (grammar(set[Symbol] start, set[Production] productions) := g) {
+    <normals,literals> = separateLiterals(productions);
+    return ( "" | it + "\n" + topProd2rascal(p) | gr <- groupByNonTerminal(normals), Production p <- gr)
+         + "\n\n"
+         + ( "" | it + "\n" + topProd2rascal(p) | Production p <- literals);
+  }
+  else if (grammar(set[Symbol] start, map[Symbol,set[Production]] rules) := g) {
+    return ("" | it + "\n" + topProd2rascal(choice(nont, rules[nont])) | nont <- rules, lit(_) !:= nont)
+         + "\n\n"
+         + ("" | it + "\n" + topProd2rascal(p) | Symbol nont:lit(_) <- rules, p <- rules[nont]);
+  }
 }
 
 tuple[set[Production],set[Production]] separateLiterals(set[Production] prods) {

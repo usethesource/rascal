@@ -21,6 +21,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
+import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
@@ -482,7 +483,7 @@ public abstract class SGLL implements IGLL{
 		return false;
 	}
 	
-	protected IValue parse(AbstractStackNode startNode, URI inputURI, char[] input){
+	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input){
 		// Initialize.
 		this.inputURI = inputURI;
 		this.input = input;
@@ -513,11 +514,11 @@ public abstract class SGLL implements IGLL{
 		return makeParseTree(result);
 	}
 	
-	protected IValue parseFromString(AbstractStackNode startNode, URI inputURI, String inputString){
+	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString){
 		return parse(startNode, inputURI, inputString.toCharArray());
 	}
 	
-	protected IValue parseFromFile(AbstractStackNode startNode, URI inputURI, File inputFile) throws IOException{
+	protected IConstructor parseFromFile(AbstractStackNode startNode, URI inputURI, File inputFile) throws IOException{
 		int inputFileLength = (int) inputFile.length();
 		char[] input = new char[inputFileLength];
 		Reader in = new BufferedReader(new FileReader(inputFile));
@@ -531,7 +532,7 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	// This is kind of ugly.
-	protected IValue parseFromReader(AbstractStackNode startNode, URI inputURI, Reader in) throws IOException{
+	protected IConstructor parseFromReader(AbstractStackNode startNode, URI inputURI, Reader in) throws IOException{
 		ArrayList<char[]> segments = new ArrayList<char[]>();
 		
 		// Gather segments.
@@ -562,11 +563,31 @@ public abstract class SGLL implements IGLL{
 		return parse(startNode, inputURI, input);
 	}
 	
-	public IValue parseFromStream(AbstractStackNode startNode, URI inputURI, InputStream in) throws IOException{
+	public IConstructor parseFromStream(AbstractStackNode startNode, URI inputURI, InputStream in) throws IOException{
 		return parseFromReader(startNode, inputURI, new InputStreamReader(in));
 	}
 	
-	private IValue makeParseTree(IValue tree){
+	private IConstructor makeParseTree(IValue tree){
 		return vf.constructor(Factory.ParseTree_Top, tree, vf.integer(-1)); // Amb field is unsupported.
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, char[] input) {
+		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, input);
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, String input) {
+		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, input);
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, InputStream in) throws IOException {
+		return parseFromStream(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, in);
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, Reader in) throws IOException {
+		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, in);
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, File inputFile) throws IOException {
+		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, inputFile);
 	}
 }

@@ -33,7 +33,7 @@ public class CILiteral extends SGLL implements IParserTest{
 	private final static IConstructor PROD_S_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_bla_bla = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b, SYMBOL_char_l, SYMBOL_char_a), SYMBOL_bla, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
 	private final static AbstractStackNode LITERAL_bla0 = new CaseInsensitiveLiteralStackNode(0, PROD_bla_bla, new char[]{'b','l','a'});
 	
 	public CILiteral(){
@@ -42,26 +42,6 @@ public class CILiteral extends SGLL implements IParserTest{
 	
 	public void S(){
 		expect(PROD_S_A, LITERAL_bla0);
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, char[] input){
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, String input){
-		throw new UnsupportedOperationException();
 	}
 	
 	public IValue executeParser(){

@@ -253,6 +253,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Utils;
+import org.rascalmpl.library.rascal.parser.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.RascalParser;
@@ -480,19 +481,37 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IValue parseObjectExperimental(IConstructor startSort, URI inputURI) throws IOException{
 		System.err.println("Generating a parser");
 		IGLL parser = getObjectParser();
+		String name = "";
 		if (SymbolAdapter.isCf(startSort)) {
 			startSort = SymbolAdapter.getSymbol(startSort);
 		}
+		if (SymbolAdapter.isStart(startSort)) {
+			name = "start__";
+			startSort = SymbolAdapter.getStart(startSort);
+		}
+		if (SymbolAdapter.isSort(startSort)) {
+			name += SymbolAdapter.getName(startSort);
+		}
 		System.err.println("Calling the parser");
-		return parser.parse(startSort, inputURI, resolver.getInputStream(inputURI));
+		return parser.parse(name, inputURI, resolver.getInputStream(inputURI));
 	}
 	
 	public IValue parseObjectExperimental(IConstructor startSort, URI inputURI, java.lang.String sentence) {
+		System.err.println("Generating a parser");
 		IGLL parser = getObjectParser();
+		String name = "";
 		if (SymbolAdapter.isCf(startSort)) {
 			startSort = SymbolAdapter.getSymbol(startSort);
 		}
-		return parser.parse(startSort, inputURI, sentence);
+		if (SymbolAdapter.isStart(startSort)) {
+			name = "start__";
+			startSort = SymbolAdapter.getStart(startSort);
+		}
+		if (SymbolAdapter.isSort(startSort)) {
+			name += SymbolAdapter.getName(startSort);
+		}
+		System.err.println("Calling the parser");
+		return parser.parse(name, inputURI, sentence);
 	}
 
 	private IGLL getObjectParser() {
@@ -1326,6 +1345,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return tree;
 	}
 	
+	public IConstructor parseModuleExperimental(char[] data, URI location, ModuleEnvironment env) {
+		IGLL parser = new RascalRascal();
+		return parser.parse("Module", location, data);
+	}
+		
 	private byte[] readModule(InputStream inputStream) throws IOException{
 		byte[] buffer = new byte[8192];
 		

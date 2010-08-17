@@ -39,7 +39,7 @@ public class SeparatedPlusList extends SGLL implements IParserTest{
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_b_b = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b), SYMBOL_b, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
 	private final static AbstractStackNode LITERAL_b1 = new LiteralStackNode(1, PROD_b_b, new char[]{'b'});
 	private final static AbstractStackNode LIST2 = new SeparatedListStackNode(2, PROD_SEPPLUSLIST_A_b, NONTERMINAL_A0, new AbstractStackNode[]{LITERAL_b1}, true);
@@ -55,26 +55,6 @@ public class SeparatedPlusList extends SGLL implements IParserTest{
 	
 	public void A(){
 		expect(PROD_A_a, LITERAL_a3);
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, char[] input){
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, String input){
-		throw new UnsupportedOperationException();
 	}
 	
 	public IValue executeParser(){
