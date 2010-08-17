@@ -31,4 +31,5 @@ data RuntimeException =
 	| IllegalIdentifier(str name)
 	| MissingCase(value x)
 	| Subversion(str message)
+	| Timeout()
 	;
