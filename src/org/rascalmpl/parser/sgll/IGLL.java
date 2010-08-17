@@ -7,16 +7,11 @@ import java.io.Reader;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
 
-public interface IGLL{
-	public final static int START_SYMBOL_ID = -1;
-	
-	public final static int DEFAULT_LIST_EPSILON_ID = -2; // (0xeffffffe | 0x80000000)
-	
-	IValue parse(IConstructor start, URI inputURI, char[] input);
-	IValue parse(IConstructor start, URI inputURI, String input);
-	IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException;
-	IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException;
-	IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException;
+public interface IGLL {
+	public IConstructor parse(String nonterminal, URI inputURI, char[] input);
+	public IConstructor parse(String nonterminal, URI inputURI, String input);
+	public IConstructor parse(String nonterminal, URI inputURI, InputStream in) throws IOException;
+	public IConstructor parse(String nonterminal, URI inputURI, Reader in) throws IOException;
+	public IConstructor parse(String nonterminal, URI inputURI, File inputFile) throws IOException;
 }

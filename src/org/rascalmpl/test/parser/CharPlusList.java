@@ -29,7 +29,7 @@ public class CharPlusList extends SGLL implements IParserTest{
 	private final static IConstructor PROD_S_PLUSLISTa_z = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_a_z), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_PLUSLISTa_z = vf.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a_z, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
 	private final static AbstractStackNode CHAR0 = new CharStackNode(0, new char[][]{{'a', 'z'}});
 	private final static AbstractStackNode LIST1 = new ListStackNode(1, PROD_PLUSLISTa_z, CHAR0, true);
 	
@@ -39,26 +39,6 @@ public class CharPlusList extends SGLL implements IParserTest{
 	
 	public void S(){
 		expect(PROD_S_PLUSLISTa_z, LIST1);
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, char[] input){
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, String input){
-		throw new UnsupportedOperationException();
 	}
 	
 	public IValue executeParser(){

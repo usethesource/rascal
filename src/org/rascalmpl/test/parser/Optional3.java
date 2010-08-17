@@ -38,7 +38,7 @@ public class Optional3 extends SGLL implements IParserTest{
 	private final static IConstructor PROD_A_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(START_SYMBOL_ID, "S");
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
 	private final static AbstractStackNode LITERAL_a0 = new LiteralStackNode(0, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a1 = new LiteralStackNode(1, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, PROD_a_a, new char[]{'a'});
@@ -63,26 +63,6 @@ public class Optional3 extends SGLL implements IParserTest{
 	
 	public void O(){
 		expect(PROD_O_A, NONTERMINAL_A4);
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, char[] input){
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, File inputFile) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, InputStream in) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, Reader in) throws IOException{
-		throw new UnsupportedOperationException();
-	}
-	
-	public IValue parse(IConstructor start, URI inputURI, String input){
-		throw new UnsupportedOperationException();
 	}
 	
 	public IValue executeParser(){
