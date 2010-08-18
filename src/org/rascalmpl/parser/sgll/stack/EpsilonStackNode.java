@@ -29,7 +29,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 		return true;
 	}
 	
-	public boolean reduce(char[] input, int location){
+	public boolean reduceWithoutResult(char[] input, int location){
 		return true;
 	}
 	

@@ -129,7 +129,7 @@ public abstract class AbstractStackNode{
 			for(int i = followRestrictions.length - 1; i >= 0; --i){
 				IReducableStackNode followRestriction = followRestrictions[i];
 				if((location + followRestriction.getLength()) <= input.length &&
-					followRestriction.reduce(input, location)) return true;
+					followRestriction.reduceWithoutResult(input, location)) return true;
 			}
 		}
 		return false;
