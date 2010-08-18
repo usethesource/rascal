@@ -65,17 +65,13 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	}
 	
 	public boolean reduce(char[] input){
-		return reduce(input, startLocation);
-	}
-	
-	public boolean reduce(char[] input, int location){
 		int literalLength = ciLiteral.length;
 		char[] resultLiteral = new char[literalLength];
 		OUTER : for(int i = literalLength - 1; i >= 0; --i){
 			char[] ciLiteralPart = ciLiteral[i];
 			for(int j = ciLiteralPart.length - 1; j >= 0; --j){
 				char character = ciLiteralPart[j];
-				if(character == input[location + i]){
+				if(character == input[startLocation + i]){
 					resultLiteral[i] = character;
 					continue OUTER;
 				}
@@ -84,6 +80,21 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		}
 		
 		result = new LiteralNode(production, resultLiteral);
+		return true;
+	}
+	
+	public boolean reduceWithoutResult(char[] input, int location){
+		int literalLength = ciLiteral.length;
+		OUTER : for(int i = literalLength - 1; i >= 0; --i){
+			char[] ciLiteralPart = ciLiteral[i];
+			for(int j = ciLiteralPart.length - 1; j >= 0; --j){
+				char character = ciLiteralPart[j];
+				if(character == input[location + i]){
+					continue OUTER;
+				}
+			}
+			return false; // Did not match.
+		}
 		return true;
 	}
 	
