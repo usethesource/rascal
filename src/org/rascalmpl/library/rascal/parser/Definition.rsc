@@ -48,17 +48,17 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   // NOTE: this implies only one layout definition per scope is allowed, which needs to be checked  
   if ((SyntaxDefinition) `layout <Nonterminal u> = <Prod p>;` <- defs) {
       layoutName = "<u>"; 
-      layoutProd = prod2prod(\layouts(layoutName), p, layoutName);
+      layoutProd = prod2prod(\layouts(layoutName), p, layoutName, true);
   }
     
   for ((SyntaxDefinition) `start syntax <Sym u> = <Prod p>;` <- defs) {
     Symbol top = arg2symbol(u, false, layoutName);
     starts += start(top);
-    prods += prod2prod(top, p, layoutName);
+    prods += prod2prod(top, p, layoutName, false);
   }
   
   for ((SyntaxDefinition) `syntax <Sym u> = <Prod p>;` <- defs) {
-    prods += prod2prod(arg2symbol(u, false, layoutName), p, layoutName);
+    prods += prod2prod(arg2symbol(u, false, layoutName), p, layoutName, false);
   }
 
   return grammar(starts, \layouts(prods, layoutName) 
@@ -99,28 +99,28 @@ private list[Symbol] intermix(list[Symbol] syms, str layoutName) {
   return tail([\layouts(layoutName), s | s <- syms]);
 }
 
-private Production prod2prod(Symbol nt, Prod p, str layoutName) {
+private Production prod2prod(Symbol nt, Prod p, str layoutName, bool inLayout) {
   switch(p) {
     case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
-      return prod(args2symbols(args, hasLex(ms), layoutName), nt, mods2attrs(n, ms));
+      return prod(args2symbols(args, inLayout || hasLex(ms), layoutName), nt, mods2attrs(n, ms));
     case (Prod) `<ProdModifier* ms> <Sym* args>` :
-      return prod(args2symbols(args, hasLex(ms),layoutName), nt, mods2attrs(ms));
+      return prod(args2symbols(args, inLayout || hasLex(ms),layoutName), nt, mods2attrs(ms));
     case (Prod) `<Prod l> | <Prod r>` :
-      return choice(nt,{prod2prod(nt, l, layoutName), prod2prod(nt, r, layoutName)});
+      return choice(nt,{prod2prod(nt, l, layoutName, inLayout), prod2prod(nt, r, layoutName, inLayout)});
     case (Prod) `<Prod l> # <Prod r>` :
-        return restrict(nt,prod2prod(nt,l,layoutName), {prod2prod(nt,r,layoutName)});
+        return restrict(nt,prod2prod(nt,l,layoutName, inLayout), {prod2prod(nt,r,layoutName, inLayout)});
     case (Prod) `<Prod l> > <Prod r>` :
-      return first(nt,[prod2prod(nt, l, layoutName), prod2prod(nt, r, layoutName)]);
+      return first(nt,[prod2prod(nt, l, layoutName, inLayout), prod2prod(nt, r, layoutName, inLayout)]);
     case (Prod) `<Prod l> - <Prod r>` :
-      return diff(nt, prod2prod(nt, l, layoutName), {attribute(prod2prod(nt, r, layoutName), reject())});
+      return diff(nt, prod2prod(nt, l, layoutName, inLayout), {attribute(prod2prod(nt, r, layoutName, inLayout), reject())});
     case (Prod) `left (<Prod p>)` :
-      return \assoc(nt, \left(), {attribute(prod2prod(nt, p, layoutName), \assoc(\left()))});
+      return \assoc(nt, \left(), {attribute(prod2prod(nt, p, layoutName, inLayout), \assoc(\left()))});
     case (Prod) `right (<Prod p>)` :
-      return \assoc(nt, \right(), {attribute(prod2prod(nt, p, layoutName), \assoc(\right()))});
+      return \assoc(nt, \right(), {attribute(prod2prod(nt, p, layoutName, inLayout), \assoc(\right()))});
     case (Prod) `non-assoc (<Prod p>)` :
-      return \assoc(nt, \non-assoc(), {attribute(prod2prod(nt, p, layoutName), \assoc(\non-assoc()))});
+      return \assoc(nt, \non-assoc(), {attribute(prod2prod(nt, p, layoutName, inLayout), \assoc(\non-assoc()))});
     case (Prod) `assoc(<Prod p>)` :
-      return \assoc(nt, \left(), {attribute(prod2prod(nt, p, layoutName),\assoc(\assoc()))});
+      return \assoc(nt, \left(), {attribute(prod2prod(nt, p, layoutName, inLayout),\assoc(\assoc()))});
     case `...`: return \others(nt);
     case `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";
