@@ -1,6 +1,9 @@
 module zoo::pico::syntax::Layout
 
-layout Layout = [\ \t\n\r]
-          | "%" ![%]* "%"
-          | "%%" ![\n]* "\n"
-          ;
+layout PicoLayout = WhitespaceAndComment*;
+
+syntax WhitespaceAndComment 
+   = lex [\ \t\n\r]
+   | lex "%" ![%]* "%"
+   | lex "%%" ![\n]* "\n"
+   ;

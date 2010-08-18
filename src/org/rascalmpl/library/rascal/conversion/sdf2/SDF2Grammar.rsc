@@ -67,7 +67,9 @@ public Grammar sdf2module2grammar(str name, list[loc] path) {
 // Convert given SDF definition
 
 public Grammar sdf2grammar(SDF definition) {
-  return grammar(getStartSymbols(definition), getProductions(definition));
+  return grammar(getStartSymbols(definition), 
+                 getProductions(definition) 
+                 + {prod([\iter-star(sort("LAYOUT"))],layouts("LAYOUTLIST"),\no-attrs())});
 }
 
 test sdf2grammar(
@@ -426,6 +428,8 @@ test getSymbols((Symbol*) `A B "ab"`, true) == [sort("A"), sort("B"), lit("ab")]
 public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbol sym, bool isLex) {
   if(debug) println("getSymbol: <sym>");
   switch (sym) {
+    case (Symbol) `LAYOUT ?`:
+        return \layouts("LAYOUTLIST");
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::StrCon l> : <languages::sdf2::syntax::Sdf2ForRascal::Symbol s>`:
 		return label(unescape(l), getSymbol(s,isLex));
 		
@@ -436,7 +440,7 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbo
     	return sort("<n>");
     	
    	case (Symbol) `LAYOUT`:
-    	return \layout(); 
+    	return sort("LAYOUT"); 
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::StrCon l>`:
           	return lit(unescape(l));
@@ -496,28 +500,28 @@ public ParseTree::Symbol getSymbol(languages::sdf2::syntax::Sdf2ForRascal::Symbo
   } 
   else switch (sym) {  
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> *`:
-    	return \iter-star-seps(getSymbol(s,isLex),[\layout()]);
+    	return \iter-star-seps(getSymbol(s,isLex),[\layouts("LAYOUTLIST")]);
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> +` :
-    	return \iter-seps(getSymbol(s,isLex),[\layout()]);
+    	return \iter-seps(getSymbol(s,isLex),[\layouts("LAYOUTLIST")]);
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> *?`:
-    	return \iter-star-seps(getSymbol(s,isLex),[\layout()]);
+    	return \iter-star-seps(getSymbol(s,isLex),[\layouts("LAYOUTLIST")]);
     	
     case (Symbol) `<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> +?`:
-    	return \iter-seps(getSymbol(s,isLex),[\layout()]);
+    	return \iter-seps(getSymbol(s,isLex),[\layouts("LAYOUTLIST")]);
     	
     case (Symbol) `{<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sep>} *` :
-    	return \iter-star-seps(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    	return \iter-star-seps(getSymbol(s,isLex), [\layouts("LAYOUTLIST"),getSymbol(sep, isLex),\layouts("LAYOUTLIST")]);
     	
     case (Symbol) `{<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sep>} +` :
-    	return \iter-seps(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    	return \iter-seps(getSymbol(s,isLex), [\layouts("LAYOUTLIST"),getSymbol(sep, isLex),\layouts("LAYOUTLIST")]);
     	
     case (Symbol) `{<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sep>} *?`:
-    	return \iter-star-seps(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    	return \iter-star-seps(getSymbol(s,isLex), [\layouts("LAYOUTLIST"),getSymbol(sep, isLex),\layouts("LAYOUTLIST")]);
     	
     case (Symbol) `{<languages::sdf2::syntax::Sdf2ForRascal::Symbol s> <languages::sdf2::syntax::Sdf2ForRascal::Symbol sep>} +?`:
-    	return \iter-seps(getSymbol(s,isLex), [\layout(),getSymbol(sep, isLex),\layout()]);
+    	return \iter-seps(getSymbol(s,isLex), [\layouts("LAYOUTLIST"),getSymbol(sep, isLex),\layouts("LAYOUTLIST")]);
     default: throw "missed a case <sym>";  
   }
 }
@@ -532,14 +536,14 @@ test getSymbol((Symbol) `"abc" : ABC`, false) 	== label("abc",sort("ABC"));
 test getSymbol((Symbol) `A[[B]]`, false) 		== \parameterized-sort("A", [sort("B")]);
 test getSymbol((Symbol) `A?`, false) 			== opt(sort("A"));
 test getSymbol((Symbol) `[a]`, false) 			== \char-class([range(97,97)]);
-test getSymbol((Symbol) `A*`, false) 			== \iter-star-seps(sort("A"),[\layout()]);
-test getSymbol((Symbol) `A+`, false) 			== \iter-seps(sort("A"),[\layout()]);
-test getSymbol((Symbol) `A*?`, false) 			== opt(\iter-star-seps(sort("A"),[\layout()]));
-test getSymbol((Symbol) `A+?`, false) 			== opt(\iter-seps(sort("A"),[\layout()]));
-test getSymbol((Symbol) `{A "x"}*`, false) 		== \iter-star-seps(sort("A"),[\layout(),lit("x"),\layout()]);
-test getSymbol((Symbol) `{A "x"}+`, false) 		== \iter-seps(sort("A"),[\layout(),lit("x"),\layout()]);
-test getSymbol((Symbol) `{A "x"}*?`, false) 	== opt(\iter-star-seps(sort("A"),[\layout(),lit("x"),\layout()]));
-test getSymbol((Symbol) `{A "x"}+?`, false) 	== opt(\iter-seps(sort("A"),[\layout(),lit("x"),\layout()]));
+test getSymbol((Symbol) `A*`, false) 			== \iter-star-seps(sort("A"),[\layouts("LAYOUTLIST")]);
+test getSymbol((Symbol) `A+`, false) 			== \iter-seps(sort("A"),[\layouts("LAYOUTLIST")]);
+test getSymbol((Symbol) `A*?`, false) 			== opt(\iter-star-seps(sort("A"),[\layouts("LAYOUTLIST")]));
+test getSymbol((Symbol) `A+?`, false) 			== opt(\iter-seps(sort("A"),[\layouts("LAYOUTLIST")]));
+test getSymbol((Symbol) `{A "x"}*`, false) 		== \iter-star-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]);
+test getSymbol((Symbol) `{A "x"}+`, false) 		== \iter-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]);
+test getSymbol((Symbol) `{A "x"}*?`, false) 	== opt(\iter-star-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]));
+test getSymbol((Symbol) `{A "x"}+?`, false) 	== opt(\iter-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]));
 test getSymbol((Symbol) `A*`, true) 			== \iter-star(sort("A"));
 test getSymbol((Symbol) `A+`, true) 			== \iter(sort("A"));
 test getSymbol((Symbol) `A*?`, true) 			== opt(\iter-star(sort("A")));

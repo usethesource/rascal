@@ -68,26 +68,36 @@ bool same(Production p, Production q) {
 
 public str topProd2rascal(Production p) {
   if (/prod(_,rhs,_) := p) {
-    sym = symbol2rascal(rhs);
-    return "<(start(_) := rhs) ? "start ":""><(sym == "LAYOUT") ? "layout" : "syntax"> <sym>\n\t= <prod2rascal(p)>;\n";
+    return "<(start(_) := rhs) ? "start ":""><(\layouts(_) := rhs) ? "layout <layoutname(rhs)>" : "syntax <symbol2rascal(rhs)>">\n\t= <prod2rascal(p)>;\n";
   }
+  
   if (regular(_,_) := p) {
     return ""; // ignore generated stubs
   }
+  
   if(restrict(rhs, language, restrictions) := p){
   	return "<for(r <- restrictions){>syntax <symbol2rascal(rhs)> =\n\t<prod2rascal(language)>\n\t# <for(e <- r){><symbol2rascal(e)> <}><}>;\n";
   }
   throw "could not find out defined symbol for <p>";
 }
 
+str layoutname(Symbol s) {
+  if (\layouts(str name) := s)
+    return name;
+  throw "unexpected <s>";
+}
+
 public str prod2rascal(Production p) {
   if(debug) println("prod2rascal: <p>");
   switch (p) {
-    case choice(s, alts) : {
+    case choice(s, alts) : 
+        if (alts != {}) {
         	<fst, rest> = takeOneFrom(alts);
 			return ( prod2rascal(fst) | "<it>\n\t| <prod2rascal(pr)>" | pr <- rest );
 		}
-    	
+		else {
+		  return "...";
+		}
     case first(s, alts) :
       	return ( prod2rascal(head(alts)) | "<it>\n\t\> <prod2rascal(pr)>" | pr <- tail(alts) );
       
@@ -211,7 +221,7 @@ public str symbol2rascal(Symbol sym) {
         return iterseps2rascal(x, seps, "+");
     case \iter-star-seps(x,seps) : 
     	return iterseps2rascal(x, seps, "*");
-    case \layout(): 
+    case \layouts(str x): 
     	return "";
     case \start(x):
     	return symbol2rascal(x);

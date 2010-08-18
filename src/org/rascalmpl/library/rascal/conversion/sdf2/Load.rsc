@@ -4,19 +4,23 @@ import languages::sdf2::syntax::Sdf2;
 import IO;
 import Exception;
 import String;
+import Set;
 
 public SDF loadSDF2Module(str name, list[loc] path) {
-  set[str] names = {};
   set[Module] modules = {};
   set[str] newnames = {name};
-
-  solve (names) for (n <- newnames) {
-    newnames = {};
-    file = find(replaceAll(n,"::","/") + ".sdf", path);
-    mod = parse(#Module, file);
-    modules += mod;
-    newnames += getImports(mod);
-    names += newnames;
+  set[str] done = {};
+  
+  while (newnames != {}) {
+    <n,newnames> = takeOneFrom(newnames);
+    
+    if (n notin done) {
+      file = find(replaceAll(n,"::","/") + ".sdf", path);
+      mod = parse(#Module, file);
+      modules += mod;
+      newnames += getImports(mod);
+      done += {n};
+    }
   }
 
   mods = (Module*) ``;
