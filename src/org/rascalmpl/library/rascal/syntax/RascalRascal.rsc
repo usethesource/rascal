@@ -528,7 +528,7 @@ syntax PatternWithAction
 
 syntax LAYOUT
 	= lex Comment 
-	| lex whitespace: [\t-\n\r\ ] ;
+	| lex whitespace: [\t\n\r\ ] ;
 
 syntax Visit
 	= GivenStrategy: Strategy strategy "visit" "(" Expression subject ")" "{" Case+ cases "}" 
@@ -560,7 +560,7 @@ syntax PathTail
 	| Post: PostPathChars post ;
 
 syntax CommentChar
-	= lex [\000-)+-\u15151515] 
+	= lex ![*]
 	| lex Asterisk ;
 
 syntax Visibility
@@ -575,7 +575,7 @@ syntax StringLiteral
 
 syntax Comment
 	= /*term(category("Comment"))*/ lex "/*" CommentChar* "*/" 
-	| /*term(category("Comment"))*/ lex "//" [\000-\t\013-\u15151515]* [\n] ;
+	| /*term(category("Comment"))*/ lex "//" ![\n]* [\n] ;
 
 syntax RegExp
 	= /*term(category("MetaVariable"))*/ lex [\<]  Expression  [\>] ;
