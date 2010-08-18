@@ -33,7 +33,7 @@ rule \assoc \assoc(Symbol s, Associativity as, {set[Production] a, first(Symbol 
 rule diff   \diff(Symbol s, Production p, {set[Production] a, choice(Symbol t, set[Production] b)})   => diff(s, p, a+b);   
 rule diff   \diff(Symbol s, Production p, {set[Production] a, first(Symbol t, list[Production] b)})   => diff(s, p, a + { e | e <- b});  // ordering is irrelevant under diff
 rule diff   \diff(Symbol s, Production p, {set[Production] a, \assoc(Symbol t, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
-rule restrict restrict(Symbol s, restrict(s, Production p, set[Production] q), set[Production] r) =>
+rule restrict restrict(Symbol s, restrict(Symbol t, Production p, set[Production] q), set[Production] r) =>
               restrict(s, p, q + r);
 
 // this makes sure the ... (others) are merged in at the right place

@@ -82,7 +82,7 @@ public Grammar java getGrammar(str mod);
 }
 @reflect   
 @javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
-public Grammar java parseModule(loc mod);
+public ParseTree java parseModule(loc mod);
 
 @doc{returns the symbol that a production defines}
 public Symbol sort(Production p) {

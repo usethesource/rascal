@@ -14,6 +14,8 @@ import ParseTree;
 import IO;  
 import Integer;
    
+
+
 @doc{
   Converts the syntax definitions of a module to a grammar.
   Note that this function does not implement the imports of a module
@@ -39,37 +41,39 @@ private set[SyntaxDefinition] collect(Module mod) {
 private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] prods = {};
   set[Symbol] starts = {};
-  set[Production] layouts = {};
+  str layoutName = "*no-layout*";
+  Production layoutProd = prod([],\layouts(layoutName),\no-attrs());
     
-  for (def <- defs) switch (def) {  
-    case (SyntaxDefinition) `start syntax <Sym u> = <Prod p>;`  : {
-       Symbol top = arg2symbol(u, false);
-       starts += start(top);
-       prods += prod2prod(top, p);
-    }
-    case (SyntaxDefinition) `layout <Sym u> = <Prod p>;`  : 
-      layouts += prod2prod(arg2symbol(u, false), p);
-    case (SyntaxDefinition) `syntax <Sym u> = <Prod p>;`  : {
-      prods += prod2prod(arg2symbol(u, false), p);
-    }
-    default: throw "missed case: <def>";
+  // first we need to find the layout definition, because it affects all other productions
+  // NOTE: this implies only one layout definition per scope is allowed, which needs to be checked  
+  if ((SyntaxDefinition) `layout <Nonterminal u> = <Prod p>;` <- defs) {
+      layoutName = "<u>"; 
+      layoutProd = prod2prod(\layouts(layoutName), p, layoutName);
+  }
+    
+  for ((SyntaxDefinition) `start syntax <Sym u> = <Prod p>;` <- defs) {
+    Symbol top = arg2symbol(u, false, layoutName);
+    starts += start(top);
+    prods += prod2prod(top, p, layoutName);
+  }
+  
+  for ((SyntaxDefinition) `syntax <Sym u> = <Prod p>;` <- defs) {
+    prods += prod2prod(arg2symbol(u, false, layoutName), p, layoutName);
   }
 
-  return grammar(starts, \layout(prods) 
-                       + layouts  
-                       + {regular(\iter-star(\layout()),\no-attrs())}
-                       + {prod([\iter-star(\layout()), top, \iter-star(\layout())],start(top),\no-attrs()) | start(top) <- starts} 
-                       + {prod([rhs],\layout(),\no-attrs()) | /prod(_,Symbol rhs,_) <- layouts }
-                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods+layouts}
-                       + {prod(cistr2syms(s),lit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods+layouts}
+  return grammar(starts, \layouts(prods, layoutName) 
+                       + {layoutProd}  
+                       + {prod([\layouts(layoutName), top,\layouts(layoutName)],start(top),\no-attrs()) | start(top) <- starts} 
+                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods+{layoutProd}}
+                       + {prod(cistr2syms(s),cilit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods+{layoutProd}}
                 );
 } 
    
-private set[Production] \layout(set[Production] prods) {
+private set[Production] \layouts(set[Production] prods, str layoutName) {
   return top-down-break visit (prods) {
-    case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs),rhs,attrs(as)) 
+    case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs, layoutName),rhs,attrs(as)) 
       when start(_) !:= rhs, term("lex"()) notin as  
-    case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) => prod(intermix(lhs),rhs,\no-attrs()) 
+    case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) => prod(intermix(lhs, layoutName),rhs,\no-attrs()) 
       when start(_) !:= rhs
   }
 }  
@@ -90,33 +94,33 @@ private list[Symbol] cistr2syms(str x) {
   } 
 }
 
-private list[Symbol] intermix(list[Symbol] syms) {
+private list[Symbol] intermix(list[Symbol] syms, str layoutName) {
   if (syms == []) return syms;
-  return tail([\iter-star(\layout()), s | s <- syms]);
+  return tail([\layouts(layoutName), s | s <- syms]);
 }
 
-private Production prod2prod(Symbol nt, Prod p) {
+private Production prod2prod(Symbol nt, Prod p, str layoutName) {
   switch(p) {
     case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
-      return prod(args2symbols(args, hasLex(ms)), nt, mods2attrs(n, ms));
+      return prod(args2symbols(args, hasLex(ms), layoutName), nt, mods2attrs(n, ms));
     case (Prod) `<ProdModifier* ms> <Sym* args>` :
-      return prod(args2symbols(args, hasLex(ms)), nt, mods2attrs(ms));
+      return prod(args2symbols(args, hasLex(ms),layoutName), nt, mods2attrs(ms));
     case (Prod) `<Prod l> | <Prod r>` :
-      return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
+      return choice(nt,{prod2prod(nt, l, layoutName), prod2prod(nt, r, layoutName)});
     case (Prod) `<Prod l> # <Prod r>` :
-        return restrict(nt,prod2prod(nt,l), {prod2prod(nt,r)});
+        return restrict(nt,prod2prod(nt,l,layoutName), {prod2prod(nt,r,layoutName)});
     case (Prod) `<Prod l> > <Prod r>` :
-      return first(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
+      return first(nt,[prod2prod(nt, l, layoutName), prod2prod(nt, r, layoutName)]);
     case (Prod) `<Prod l> - <Prod r>` :
-      return diff(nt, prod2prod(nt, l), {attribute(prod2prod(nt, r), reject())});
+      return diff(nt, prod2prod(nt, l, layoutName), {attribute(prod2prod(nt, r, layoutName), reject())});
     case (Prod) `left (<Prod p>)` :
-      return \assoc(nt, \left(), {attribute(prod2prod(nt, p), \assoc(\left()))});
+      return \assoc(nt, \left(), {attribute(prod2prod(nt, p, layoutName), \assoc(\left()))});
     case (Prod) `right (<Prod p>)` :
-      return \assoc(nt, \right(), {attribute(prod2prod(nt, p), \assoc(\right()))});
+      return \assoc(nt, \right(), {attribute(prod2prod(nt, p, layoutName), \assoc(\right()))});
     case (Prod) `non-assoc (<Prod p>)` :
-      return \assoc(nt, \non-assoc(), {attribute(prod2prod(nt, p), \assoc(\non-assoc()))});
+      return \assoc(nt, \non-assoc(), {attribute(prod2prod(nt, p, layoutName), \assoc(\non-assoc()))});
     case (Prod) `assoc(<Prod p>)` :
-      return \assoc(nt, \left(), {attribute(prod2prod(nt, p),\assoc(\assoc()))});
+      return \assoc(nt, \left(), {attribute(prod2prod(nt, p, layoutName),\assoc(\assoc()))});
     case `...`: return \others(nt);
     case `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";
@@ -135,46 +139,46 @@ private bool hasLex(ProdModifier* ms) {
   return /(ProdModifier) `lex` := ms;
 }
 
-private list[Symbol] args2symbols(Sym* args, bool isLex) {
-  return [ arg2symbol(s, isLex) | Sym s <- args ];
+private list[Symbol] args2symbols(Sym* args, bool isLex, str layoutName) {
+  return [ arg2symbol(s, isLex, layoutName) | Sym s <- args ];
 }
 
-private list[Symbol] separgs2symbols({Sym ","}+ args, bool isLex) {
-  return [ arg2symbol(s, isLex) | Sym s <- args ];
+private list[Symbol] separgs2symbols({Sym ","}+ args, bool isLex, str layoutName) {
+  return [ arg2symbol(s, isLex, layoutName) | Sym s <- args ];
 }
    
-private Symbol arg2symbol(Sym sym, bool isLex) {
+private Symbol arg2symbol(Sym sym, bool isLex, str layoutName) {
   switch (sym) {
     case (Sym) `<Nonterminal n>`          : return sort("<n>");
     case (Sym) `<StringConstant l>` : return lit(unescape(l));
-    case (Sym) `<ParameterizedNonterminal n>[<{Sym ","}+ syms>]` : return \parameterized-sort("<n>",separgs2symbols(syms,isLex));
-    case (Sym) `<Sym s> <NonterminalLabel n>` : return label("<n>", arg2symbol(s,isLex));
-    case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s,isLex));
-    case (Sym) `<Sym s> ??` : return opt(arg2symbol(s,isLex));
+    case (Sym) `<ParameterizedNonterminal n>[<{Sym ","}+ syms>]` : return \parameterized-sort("<n>",separgs2symbols(syms,isLex,layoutName));
+    case (Sym) `<Sym s> <NonterminalLabel n>` : return label("<n>", arg2symbol(s,isLex,layoutName));
+    case (Sym) `<Sym s> ?`  : return opt(arg2symbol(s,isLex,layoutName));
+    case (Sym) `<Sym s> ??` : return opt(arg2symbol(s,isLex,layoutName));
     case (Sym) `<Class cc>` : return cc2ranges(cc);
     case (Sym) `&<Nonterminal n>` : return \parameter("<n>");
   }  
   
   if (isLex) switch (sym) {
-    case (Sym) `<Sym s> *`  : return \iter-star(arg2symbol(s,isLex));
-    case (Sym) `<Sym s> +`  : return \iter(arg2symbol(s,isLex));
-    case (Sym) `<Sym s> *?` : return \iter-star(arg2symbol(s,isLex));
-    case (Sym) `<Sym s> +?` : return \iter(arg2symbol(s,isLex));
-    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-seps(arg2symbol(s,isLex), [lit(unescape(sep))]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-seps(arg2symbol(s,isLex), [lit(unescape(sep))]);
-    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-seps(arg2symbol(s,isLex), [lit(unescape(sep))]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-seps(arg2symbol(s,isLex), [lit(unescape(sep))]);
+    case (Sym) `<Sym s> *`  : return \iter-star(arg2symbol(s,isLex,layoutName));
+    case (Sym) `<Sym s> +`  : return \iter(arg2symbol(s,isLex,layoutName));
+    case (Sym) `<Sym s> *?` : return \iter-star(arg2symbol(s,isLex,layoutName));
+    case (Sym) `<Sym s> +?` : return \iter(arg2symbol(s,isLex,layoutName));
+    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-seps(arg2symbol(s,isLex,layoutName), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-seps(arg2symbol(s,isLex,layoutName), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-seps(arg2symbol(s,isLex,layoutName), [lit(unescape(sep))]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-seps(arg2symbol(s,isLex,layoutName), [lit(unescape(sep))]);
     default: throw "missed a case <sym>";
   } 
   else switch (sym) {  
-    case (Sym) `<Sym s> *`  : return \iter-star-seps(arg2symbol(s,isLex),[\iter-star(\layout())]);
-    case (Sym) `<Sym s> +`  : return \iter-seps(arg2symbol(s,isLex),[\iter-star(\layout())]);
-    case (Sym) `<Sym s> *?` : return \iter-star-seps(arg2symbol(s,isLex),[\iter-star(\layout())]);
-    case (Sym) `<Sym s> +?` : return \iter-seps(arg2symbol(s,isLex),[\iter-star(\layout())]);
-    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-seps(arg2symbol(s,isLex), [\iter-star(\layout()),lit(unescape(sep)),\iter-star(\layout())]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-seps(arg2symbol(s,isLex), [\iter-star(\layout()),lit(unescape(sep)),\iter-star(\layout())]);
-    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-seps(arg2symbol(s,isLex), [\iter-star(\layout()),lit(unescape(sep)),\iter-star(\layout())]);
-    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-seps(arg2symbol(s,isLex), [\iter-star(\layout()),lit(unescape(sep)),\iter-star(\layout())]);
+    case (Sym) `<Sym s> *`  : return \iter-star-seps(arg2symbol(s,isLex,layoutName),[\layouts(layoutName)]);
+    case (Sym) `<Sym s> +`  : return \iter-seps(arg2symbol(s,isLex,layoutName),[\layouts(layoutName)]);
+    case (Sym) `<Sym s> *?` : return \iter-star-seps(arg2symbol(s,isLex,layoutName),[\layouts(layoutName)]);
+    case (Sym) `<Sym s> +?` : return \iter-seps(arg2symbol(s,isLex,layoutName),[\layouts(layoutName)]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *`  : return \iter-star-seps(arg2symbol(s,isLex,layoutName), [\layouts(layoutName),lit(unescape(sep)),\layouts(layoutName)]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +`  : return \iter-seps(arg2symbol(s,isLex,layoutName), [\layouts(layoutName),lit(unescape(sep)),\layouts(layoutName)]);
+    case (Sym) `{<Sym s> <StringConstant sep>} *?` : return \iter-star-seps(arg2symbol(s,isLex,layoutName), [\layouts(layoutName),lit(unescape(sep)),\layouts(layoutName)]);
+    case (Sym) `{<Sym s> <StringConstant sep>} +?` : return \iter-seps(arg2symbol(s,isLex,layoutName), [\layouts(layoutName),lit(unescape(sep)),\layouts(layoutName)]);
     default: throw "missed a case <sym>";  
   }
 }

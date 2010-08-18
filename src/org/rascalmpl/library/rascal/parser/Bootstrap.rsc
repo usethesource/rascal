@@ -12,6 +12,7 @@ import IO;
 public void bootFromSDF() {
   rascaldef = loadSDF2Module("languages::rascal::syntax::Rascal", [|file:///Users/jurgenv/Sources/Rascal/rascal-grammar/spec|,|file:///Users/jurgenv/Sources/Rascal/sdf-library/library|]);
   gr = sdf2grammar(rascaldef);
+  // println("grammar: <gr>");
   source = grammar2rascal(gr);
   writeFile(|project://RascalLibrary/src/rascal/syntax/RascalRascal.rsc|, "module rascal::syntax::RascalRascal\n\n" + source); 
 }

@@ -96,6 +96,8 @@ public class Factory {
 	public static final Type Symbol_Strategy = tf.constructor(uptr, Symbol, "strategy", Symbol, "lhs", Symbol, "rhs");
 	public static final Type Symbol_VarSym = tf.constructor(uptr, Symbol, "varsym", tf.stringType(), "string");
 	public static final Type Symbol_Layout = tf.constructor(uptr, Symbol, "layout");
+	public static final Type Symbol_LayoutX = tf.constructor(uptr, Symbol, "layouts", tf.stringType(), "string");
+	
 	public static final Type Symbol_CharClass = tf.constructor(uptr, Symbol, "char-class", tf.listType(CharRange), "ranges");
 		
 	public static final Type CharRange_Single = tf.constructor(uptr, CharRange, "single", tf.integerType(), "start");

@@ -2,16 +2,16 @@ module rascal::syntax::RascalRascal
 
 
 syntax BooleanLiteral
-	= lex "true" 
-	| lex "false" ;
+	= lex "false" 
+	| lex "true" ;
 
 syntax Literal
-	= String: StringLiteral stringLiteral 
+	= DateTime: DateTimeLiteral dateTimeLiteral 
 	| RegExp: RegExpLiteral regExpLiteral 
-	| Boolean: BooleanLiteral booleanLiteral 
 	| Real: RealLiteral realLiteral 
 	| Integer: IntegerLiteral integerLiteral 
-	| DateTime: DateTimeLiteral dateTimeLiteral 
+	| Boolean: BooleanLiteral booleanLiteral 
+	| String: StringLiteral stringLiteral 
 	| Location: LocationLiteral locationLiteral ;
 
 syntax Module
@@ -26,162 +26,243 @@ syntax ModuleParameters
 syntax DateAndTime
 	= lex "$" DatePart "T" TimePartNoTZ TimeZonePart? ;
 
+syntax Asterisk
+	= lex [*] 
+	# [/] ;
+
+syntax Strategy
+	= Outermost: "outermost" 
+	| TopDown: "top-down" 
+	| BottomUp: "bottom-up" 
+	| BottomUpBreak: "bottom-up-break" 
+	| TopDownBreak: "top-down-break" 
+	| Innermost: "innermost" ;
+
 syntax UnicodeEscape
 	= lex "\\" [u]+ [0-9A-Fa-f] [0-9A-Fa-f] [0-9A-Fa-f] [0-9A-Fa-f] ;
-
-syntax Variable
-	= Initialized: Name name "=" Expression initial 
-	| UnInitialized: Name name ;
-
-syntax OctalIntegerLiteral
-	= lex [0] [0-7]+ 
-	# [0-9A-Z_a-z] ;
 
 syntax TypeArg
 	= Default: Type type 
 	| Named: Type type Name name ;
 
-syntax Catch
-	= Binding: "catch" Pattern pattern ":" Statement body 
-	| Default: "catch" ":" Statement body ;
+syntax OctalIntegerLiteral
+	= lex [0] [0-7]+ 
+	# [0-9A-Z_a-z] ;
+
+syntax Variable
+	= Initialized: Name name "=" Expression initial 
+	| UnInitialized: Name name ;
 
 syntax Renaming
 	= Default: Name from "=\>" Name to ;
 
-syntax PathChars
-	= lex URLChars [|] ;
+syntax Catch
+	= Default: "catch" ":" Statement body 
+	| Binding: "catch" Pattern pattern ":" Statement body ;
 
 syntax HexLongLiteral
 	= lex [0] [Xx] [0-9A-Fa-f]+ [Ll] 
 	# [0-9A-Z_a-z] ;
 
+syntax PathChars
+	= lex URLChars [|] ;
+
 syntax Signature
 	= NoThrows: Type type FunctionModifiers modifiers Name name Parameters parameters 
 	| WithThrows: Type type FunctionModifiers modifiers Name name Parameters parameters "throws" {Type ","}+ exceptions ;
 
+syntax Sym
+	= StartOfLine: "^" 
+	| IterSep: "{" Sym symbol StringConstant sep "}" "+" 
+	| Column: "@" IntegerLiteral column 
+	| CharacterClass: Class charClass 
+	| Literal: StringConstant string 
+	| EndOfLine: "$" 
+	| Labeled: Sym symbol NonterminalLabel label 
+	| Nonterminal: Nonterminal nonterminal 
+	| Parameter: "&" Nonterminal nonterminal 
+	| IterStar: Sym symbol "*" 
+	| Parametrized: ParameterizedNonterminal pnonterminal "[" {Sym ","}+ parameters "]" 
+	| Optional: Sym symbol "?" 
+	| IterStarSep: "{" Sym symbol StringConstant sep "}" "*" 
+	| CaseInsensitiveLiteral: CaseInsensitiveStringConstant cistring 
+	| Iter: Sym symbol "+" ;
+
 syntax TimePartNoTZ
-	= lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [,.] [0-9] 
+	= lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [,.] [0-9] [0-9] 
 	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [,.] [0-9] [0-9] [0-9] 
-	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] 
 	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [,.] [0-9] [0-9] [0-9] 
-	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [,.] [0-9] 
+	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] 
+	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [,.] [0-9] 
 	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] 
-	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [,.] [0-9] [0-9] 
-	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [,.] [0-9] [0-9] ;
+	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [,.] [0-9] 
+	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [,.] [0-9] [0-9] ;
 
 syntax DecimalLongLiteral
-	= lex "0" [Ll] 
-	| lex [1-9] [0-9]* [Ll] 
+	= lex [1-9] [0-9]* [Ll] 
+	| lex "0" [Ll] 
 	# [0-9A-Z_a-z] ;
+
+syntax CharClass
+	= Complement: "~" CharClass charClass 
+	> left /*memo()*/ Difference: CharClass lhs "/" CharClass rhs 
+	> left /*memo()*/ Intersection: CharClass lhs "/\\" CharClass rhs 
+	> left Union: CharClass lhs "\\/" CharClass rhs 
+	| SimpleCharclass: "[" OptCharRanges optionalCharRanges "]" 
+	| bracket /*avoid()*/ Bracket: "(" CharClass charClass ")" ;
+
+syntax SingleQuotedStrCon
+	= lex [\'] SingleQuotedStrChar* chars [\'] ;
 
 syntax Header
 	= Parameters: Tags tags "module" QualifiedName name ModuleParameters params Import* imports 
 	| Default: Tags tags "module" QualifiedName name Import* imports ;
 
 syntax Name
-	= lex [A-Z_a-z] [0-9A-Z_a-z]* 
-	| lex EscapedName 
+	= lex EscapedName 
+	| lex [A-Z_a-z] [0-9A-Z_a-z]* 
 	# [0-9A-Z_a-z] 
 	- /*reject()*/ RascalReservedKeywords ;
 
+syntax SyntaxDefinition
+	= Layout: "layout" Sym defined "=" Prod production ";" 
+	| Language: Start start "syntax" Sym defined "=" Prod production ";" ;
+
 syntax Kind
-	= All: "all" 
+	= View: "view" 
 	| Variable: "variable" 
+	| All: "all" 
 	| Anno: "anno" 
 	| Data: "data" 
 	| Function: "function" 
 	| Rule: "rule" 
-	| View: "view" 
 	| Alias: "alias" 
 	| Module: "module" 
 	| Tag: "tag" ;
 
 syntax Test
-	= Unlabeled: Tags tags "test" Expression expression 
-	| Labeled: Tags tags "test" Expression expression ":" StringLiteral labeled ;
+	= Labeled: Tags tags "test" Expression expression ":" StringLiteral labeled 
+	| Unlabeled: Tags tags "test" Expression expression ;
 
 syntax ImportedModule
-	= Default: QualifiedName name 
+	= Renamings: QualifiedName name Renamings renamings 
+	| Default: QualifiedName name 
 	| ActualsRenaming: QualifiedName name ModuleActuals actuals Renamings renamings 
-	| Renamings: QualifiedName name Renamings renamings 
 	| Actuals: QualifiedName name ModuleActuals actuals ;
 
-syntax IntegerLiteral
-	= /*prefer()*/ HexIntegerLiteral: HexIntegerLiteral hex 
-	| /*prefer()*/ OctalIntegerLiteral: OctalIntegerLiteral octal 
-	| /*prefer()*/ DecimalIntegerLiteral: DecimalIntegerLiteral decimal ;
+syntax StrCon
+	= lex [\"] StrChar* chars [\"] ;
 
 syntax Target
-	= Labeled: Name name 
-	| Empty: ;
+	= Empty: 
+	| Labeled: Name name ;
+
+syntax IntegerLiteral
+	= /*prefer()*/ DecimalIntegerLiteral: DecimalIntegerLiteral decimal 
+	| /*prefer()*/ HexIntegerLiteral: HexIntegerLiteral hex 
+	| /*prefer()*/ OctalIntegerLiteral: OctalIntegerLiteral octal ;
+
+syntax OptCharRanges
+	= Present: CharRanges ranges 
+	| Absent: ;
 
 syntax FunctionBody
 	= Default: "{" Statement* statements "}" ;
 
+syntax Symbol
+	= Literal: StrCon string 
+	| IterSep: "{" Symbol symbol StrCon sep "}" "+" 
+	| Sequence: "(" Symbol head Symbol+ tail ")" 
+	| Optional: Symbol symbol "?" 
+	| Empty: "(" ")" 
+	| CaseInsensitiveLiteral: SingleQuotedStrCon singelQuotedString 
+	| IterStar: Symbol symbol "*" 
+	| Optional: Symbol symbol "?" 
+	| Iter: Symbol symbol "+" 
+	> right Alternative: Symbol lhs "|" Symbol rhs 
+	| Iter: Symbol symbol "+" 
+	| IterStarSep: "{" Symbol symbol StrCon sep "}" "*" 
+	| CharacterClass: CharClass charClass 
+	| IterStar: Symbol symbol "*" 
+	| right Alternative: Symbol lhs "|" Symbol rhs ;
+
 syntax Expression
 	= Tuple: "\<" {Expression ","}+ elements "\>" 
 	| bracket Bracket: "(" Expression expression ")" 
+	| Closure: Type type Parameters parameters "{" Statement+ statements "}" 
 	| StepRange: "[" Expression first "," Expression second ".." Expression last "]" 
+	| VoidClosure: Parameters parameters "{" Statement* statements "}" 
 	| Visit: Label label Visit visit 
-	| Set: "{" {Expression ","}* elements "}" 
-	| Subscript: Expression expression "[" {Expression ","}+ subscripts "]" 
-	> ReifyType: "#" Type type 
+	| Reducer: "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
+	| NonEmptyBlock: "{" Statement+ statements "}" 
 	| ReifiedType: BasicType basicType "(" {Expression ","}* arguments ")" 
 	| Literal: Literal literal 
+	| Comprehension: Comprehension comprehension 
+	| Set: "{" {Expression ","}* elements "}" 
+	| right IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp 
+	> Default: Expression from ":" Expression to 
+	| non-assoc IfDefinedOtherwise: Expression lhs "?" Expression rhs 
+	> non-assoc (  non-assoc Match: Pattern pattern ":=" Expression expression  
+		> non-assoc NoMatch: Pattern pattern "!:=" Expression expression 
+	)
+	> /*prefer()*/ Enumerator: Pattern pattern "\<-" Expression expression 
+	> left Equals: Expression lhs "==" Expression rhs 
 	| ReifyType: "#" Type type 
-	| NonEmptyBlock: "{" Statement+ statements "}" 
 	| Range: "[" Expression first ".." Expression last "]" 
-	| CallOrTree: Expression expression "(" {Expression ","}* arguments ")" 
-	| Expression "*" Expression 
+	| Map: "(" {Mapping[Expression] ","}* mappings ")" 
 	| Expression "+" Expression 
+	| Expression "*" Expression 
 	> "-" Expression 
-	| VoidClosure: Parameters parameters "{" Statement* statements "}" 
-	| Closure: Type type Parameters parameters "{" Statement+ statements "}" 
+	| List: "[" {Expression ","}* elements "]" 
+	| It: "it" 
+	| All: "all" "(" {Expression ","}+ generators ")" 
 	| QualifiedName: QualifiedName qualifiedName 
-	| CallOrTree: Expression expression "(" {Expression ","}* arguments ")" 
+	| Subscript: Expression expression "[" {Expression ","}+ subscripts "]" 
+	> ReifyType: "#" Type type 
+	| Subscript: Expression expression "[" {Expression ","}+ subscripts "]" 
 	| FieldAccess: Expression expression "." Name field 
 	| FieldUpdate: Expression expression "[" Name key "=" Expression replacement "]" 
-	| ReifiedType: BasicType basicType "(" {Expression ","}* arguments ")" 
-	| Subscript: Expression expression "[" {Expression ","}+ subscripts "]" 
 	| FieldProject: Expression expression "\<" {Field ","}+ fields "\>" 
+	| ReifiedType: BasicType basicType "(" {Expression ","}* arguments ")" 
+	| CallOrTree: Expression expression "(" {Expression ","}* arguments ")" 
 	> IsDefined: Expression argument "?" 
-	> Negative: "-" Expression argument 
-	| Negation: "!" Expression argument 
+	> Negation: "!" Expression argument 
+	| Negative: "-" Expression argument 
 	> TransitiveClosure: Expression argument "+" 
 	| TransitiveReflexiveClosure: Expression argument "*" 
-	> SetAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
-	| GetAnnotation: Expression expression "@" Name name 
+	> GetAnnotation: Expression expression "@" Name name 
+	| SetAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
 	> left Composition: Expression lhs "o" Expression rhs 
 	> left (  left Product: Expression lhs "*" Expression rhs  
 		> left Join: Expression lhs "join" Expression rhs 
 	)
-	> left (  left Modulo: Expression lhs "%" Expression rhs  
-		> left Division: Expression lhs "/" Expression rhs 
+	> left (  left Division: Expression lhs "/" Expression rhs  
+		> left Modulo: Expression lhs "%" Expression rhs 
 	)
 	> left Intersection: Expression lhs "&" Expression rhs 
 	> left (  left Subtraction: Expression lhs "-" Expression rhs  
 		> left Addition: Expression lhs "+" Expression rhs 
 	)
-	> non-assoc (  non-assoc In: Expression lhs "in" Expression rhs  
-		> non-assoc NotIn: Expression lhs "notin" Expression rhs 
+	> non-assoc (  non-assoc NotIn: Expression lhs "notin" Expression rhs  
+		> non-assoc In: Expression lhs "in" Expression rhs 
 	)
-	> non-assoc (  non-assoc LessThanOrEq: Expression lhs "\<=" Expression rhs  
+	> non-assoc (  non-assoc GreaterThanOrEq: Expression lhs "\>=" Expression rhs  
+		> non-assoc LessThanOrEq: Expression lhs "\<=" Expression rhs 
 		> non-assoc LessThan: Expression lhs "\<" Expression rhs 
 		> non-assoc GreaterThan: Expression lhs "\>" Expression rhs 
-		> non-assoc GreaterThanOrEq: Expression lhs "\>=" Expression rhs 
 	)
-	> left (  right IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp  
+	> left (  left Equals: Expression lhs "==" Expression rhs  
+		> right IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp 
 		> left NonEquals: Expression lhs "!=" Expression rhs 
-		> left Equals: Expression lhs "==" Expression rhs 
 	)
 	> non-assoc IfDefinedOtherwise: Expression lhs "?" Expression rhs 
-	> non-assoc (  right Implication: Expression lhs "==\>" Expression rhs  
-		> right Equivalence: Expression lhs "\<==\>" Expression rhs 
+	> non-assoc (  right Equivalence: Expression lhs "\<==\>" Expression rhs  
+		> right Implication: Expression lhs "==\>" Expression rhs 
 	)
 	> left And: Expression lhs "&&" Expression rhs 
 	> left Or: Expression lhs "||" Expression rhs 
-	| List: "[" {Expression ","}* elements "]" 
-	| Map: "(" {Mapping[Expression] ","}* mappings ")" ;
+	| CallOrTree: Expression expression "(" {Expression ","}* arguments ")" 
+	| Any: "any" "(" {Expression ","}+ generators ")" ;
 
 syntax UserType
 	= Parametric: QualifiedName name "[" {Type ","}+ parameters "]" 
@@ -198,22 +279,26 @@ syntax Body
 syntax URLChars
 	= lex [\000-\b\013-\f\016-\037!-;=-{}-\u15151515]* ;
 
+syntax LanguageAction
+	= Action: "{" Statement* statements "}" 
+	| Build: "=\>" Expression expression ;
+
 syntax TimeZonePart
 	= lex [+\-] [0-1] [0-9] [0-5] [0-9] 
 	| lex "Z" 
-	| lex [+\-] [0-1] [0-9] ":" [0-5] [0-9] 
-	| lex [+\-] [0-1] [0-9] ;
+	| lex [+\-] [0-1] [0-9] 
+	| lex [+\-] [0-1] [0-9] ":" [0-5] [0-9] ;
 
 syntax ProtocolPart
 	= Interpolated: PreProtocolChars pre Expression expression ProtocolTail tail 
 	| NonInterpolated: ProtocolChars protocolChars ;
 
 syntax StringTemplate
-	= DoWhile: "do" "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
-	| While: "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
+	= IfThenElse: "if" "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
+	| IfThen: "if" "(" {Expression ","}+ conditions ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
 	| For: "for" "(" {Expression ","}+ generators ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	| IfThenElse: "if" "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
-	| IfThen: "if" "(" {Expression ","}+ conditions ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
+	| DoWhile: "do" "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
+	| While: "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
 
 syntax PreStringChars
 	= lex [\"] StringCharacter* [\<] ;
@@ -226,8 +311,15 @@ syntax Backslash
 	# [/\<\>\\] ;
 
 syntax Label
-	= Default: Name name ":" 
-	| Empty: ;
+	= Empty: 
+	| Default: Name name ":" ;
+
+syntax ShortChar
+	= lex [\\] [\032-/:-@\[-`nrt{-\u15151515] escape 
+	| lex [0-9A-Za-z] character ;
+
+syntax NumChar
+	= lex [\\] [0-9]+ number ;
 
 syntax NoElseMayFollow
 	= Default: 
@@ -240,12 +332,12 @@ syntax NamedBackslash
 	= lex [\\] 
 	# [\<\>\\] ;
 
-syntax Field
-	= Index: IntegerLiteral fieldIndex 
-	| Name: Name fieldName ;
-
 syntax JustDate
 	= lex "$" DatePart ;
+
+syntax Field
+	= Name: Name fieldName 
+	| Index: IntegerLiteral fieldIndex ;
 
 syntax PostPathChars
 	= lex "\>" URLChars "|" ;
@@ -261,21 +353,26 @@ syntax DatePart
 syntax FunctionModifier
 	= Java: "java" ;
 
+syntax CharRanges
+	= Range: CharRange range 
+	| bracket Bracket: "(" CharRanges ranges ")" 
+	| right /*memo()*/ Concatenate: CharRanges lhs CharRanges rhs ;
+
 syntax Assignment
-	= Addition: "+=" 
+	= Product: "*=" 
 	| Division: "/=" 
-	| Product: "*=" 
 	| Intersection: "&=" 
 	| Subtraction: "-=" 
 	| Default: "=" 
+	| Addition: "+=" 
 	| IfDefined: "?=" ;
 
 syntax Assignable
 	= FieldAccess: Assignable receiver "." Name field 
 	| Subscript: Assignable receiver "[" Expression subscript "]" 
 	| IfDefinedOrDefault: Assignable receiver "?" Expression defaultExpression 
-	> non-assoc (  non-assoc Annotation: Assignable receiver "@" Name annotation  
-		> Tuple: "\<" {Assignable ","}+ elements "\>" 
+	> non-assoc (  Tuple: "\<" {Assignable ","}+ elements "\>"  
+		> non-assoc Annotation: Assignable receiver "@" Name annotation 
 		> non-assoc Constructor: Name name "(" {Assignable ","}+ arguments ")" 
 	)
 	| Variable: QualifiedName qualifiedName ;
@@ -283,22 +380,44 @@ syntax Assignable
 syntax StringConstant
 	= /*term(category("Constant"))*/ lex "\"" StringCharacter* "\"" ;
 
+syntax Assoc
+	= NonAssociative: "non-assoc" 
+	| Associative: "assoc" 
+	| Left: "left" 
+	| Right: "right" ;
+
+syntax Replacement
+	= Conditional: Expression replacementExpression "when" {Expression ","}+ conditions 
+	| Unconditional: Expression replacementExpression ;
+
 syntax TagChar
-	= lex [\\] [\\}] 
-	| lex [\000-|~-\u15151515] ;
+	= lex [\000-|~-\u15151515] 
+	| lex [\\] [\\}] ;
+
+syntax ParameterizedNonterminal
+	= lex [A-Z] [0-9A-Z_a-z]* 
+	# [\000-Z\\-\u15151515] ;
 
 syntax DataTarget
-	= Empty: 
-	| Labeled: Name label ":" ;
+	= Labeled: Name label ":" 
+	| Empty: ;
 
 syntax StringCharacter
-	= lex OctalEscapeSequence 
+	= lex [\000-!#-&(-;=?-\[\]-\u15151515] 
 	| lex UnicodeEscape 
-	| lex "\\" [\"\'\<\>\\bfnrt] 
-	| lex [\000-!#-&(-;=?-\[\]-\u15151515] ;
+	| lex OctalEscapeSequence 
+	| lex "\\" [\"\'\<\>\\bfnrt] ;
 
 syntax JustTime
 	= lex "$T" TimePartNoTZ TimeZonePart? ;
+
+syntax StrChar
+	= lex "\\\"" 
+	| lex "\\t" 
+	| lex newline: "\\n" 
+	| lex "\\" [0-9] a [0-9] b [0-9] c 
+	| lex [\032-!#-\[\]-\u15151515] 
+	| lex "\\\\" ;
 
 syntax MidStringChars
 	= lex [\>] StringCharacter* [\<] ;
@@ -320,26 +439,51 @@ syntax Parameters
 	= VarArgs: "(" Formals formals "..." ")" 
 	| Default: "(" Formals formals ")" ;
 
+syntax Character
+	= Top: "\\TOP" 
+	| EOF: "\\EOF" 
+	| Short: ShortChar shortChar 
+	| Bottom: "\\BOT" 
+	| Numeric: NumChar numChar ;
+
 syntax RegExp
 	= lex "\<" Name ":" NamedRegExp* "\>" 
 	| lex "\<" Name "\>" 
 	| lex [\\] [/\<\>\\] 
-	| lex [\000-.0-;=?-\[\]-\u15151515] 
-	| lex Backslash ;
+	| lex Backslash 
+	| lex [\000-.0-;=?-\[\]-\u15151515] ;
+
+layout LAYOUTLIST
+	= LAYOUT* 
+	# [/] [/] 
+	# [\t-\n\r\ ] 
+	# [/] [*] ;
+
+syntax SingleQuotedStrChar
+	= lex [\032-&(-\[\]-\u15151515] 
+	| lex "\\t" 
+	| lex "\\\'" 
+	| lex "\\" [0-9] a [0-9] b [0-9] c 
+	| lex "\\\\" 
+	| lex "\\n" ;
 
 syntax LocalVariableDeclaration
-	= Dynamic: "dynamic" Declarator declarator 
-	| Default: Declarator declarator ;
+	= Default: Declarator declarator 
+	| Dynamic: "dynamic" Declarator declarator ;
 
 syntax RealLiteral
-	= lex "." [0-9]+ [Ee] [+\-]? [0-9]+ [DFdf]? 
+	= lex [0-9]+ "." [0-9]* [DFdf]? 
 	| lex [0-9]+ "." [0-9]* [Ee] [+\-]? [0-9]+ [DFdf]? 
+	| lex "." [0-9]+ [Ee] [+\-]? [0-9]+ [DFdf]? 
 	| lex [0-9]+ [Ee] [+\-]? [0-9]+ [DFdf]? 
 	| lex [0-9]+ [DFdf] 
 	| lex "." [0-9]+ [DFdf]? 
-	| lex [0-9]+ "." [0-9]* [DFdf]? 
 	| lex [0-9]+ [Ee] [+\-]? [0-9]+ [DFdf] 
 	# [0-9A-Z_a-z] ;
+
+syntax Range
+	= FromTo: Char start "-" Char end 
+	| Character: Char character ;
 
 syntax LocationLiteral
 	= Default: ProtocolPart protocolPart PathPart pathPart ;
@@ -357,9 +501,9 @@ syntax ShellCommand
 	| ListModules: "modules" ;
 
 syntax StringMiddle
-	= Template: MidStringChars mid StringTemplate template StringMiddle tail 
-	| Mid: MidStringChars mid 
-	| Interpolated: MidStringChars mid Expression expression StringMiddle tail ;
+	= Interpolated: MidStringChars mid Expression expression StringMiddle tail 
+	| Template: MidStringChars mid StringTemplate template StringMiddle tail 
+	| Mid: MidStringChars mid ;
 
 syntax QualifiedName
 	= Default: {Name "::"}+ names 
@@ -374,39 +518,67 @@ syntax DataTypeSelector
 	= Selector: QualifiedName sort "." Name production ;
 
 syntax StringTail
-	= Post: PostStringChars post 
-	| MidTemplate: MidStringChars mid StringTemplate template StringTail tail 
-	| MidInterpolated: MidStringChars mid Expression expression StringTail tail ;
+	= MidInterpolated: MidStringChars mid Expression expression StringTail tail 
+	| Post: PostStringChars post 
+	| MidTemplate: MidStringChars mid StringTemplate template StringTail tail ;
+
+syntax PatternWithAction
+	= Arbitrary: Pattern pattern ":" Statement statement 
+	| Replacing: Pattern pattern "=\>" Replacement replacement ;
+
+syntax LAYOUT
+	= lex Comment 
+	| lex whitespace: [\t-\n\r\ ] ;
+
+syntax Visit
+	= GivenStrategy: Strategy strategy "visit" "(" Expression subject ")" "{" Case+ cases "}" 
+	| DefaultStrategy: "visit" "(" Expression subject ")" "{" Case+ cases "}" ;
+
+syntax Command
+	= Shell: ":" ShellCommand command 
+	| /*prefer()*/ Expression: Expression expression 
+	| /*prefer()*/ Expression: Expression expression 
+	> NonEmptyBlock: "{" Statement+ statements "}" 
+	| /*avoid()*/ Declaration: Declaration declaration 
+	| Statement: Statement statement 
+	| Import: Import imported ;
 
 syntax TagString
 	= lex "{" TagChar* "}" ;
 
-syntax Command
-	= /*prefer()*/ Expression: Expression expression 
-	> NonEmptyBlock: "{" Statement+ statements "}" 
-	| /*prefer()*/ Expression: Expression expression 
-	| /*avoid()*/ Declaration: Declaration declaration 
-	| Shell: ":" ShellCommand command 
-	| Statement: Statement statement 
-	| Import: Import imported ;
-
 syntax ProtocolTail
-	= Mid: MidProtocolChars mid Expression expression ProtocolTail tail 
-	| Post: PostProtocolChars post ;
+	= Post: PostProtocolChars post 
+	| Mid: MidProtocolChars mid Expression expression ProtocolTail tail ;
+
+syntax Nonterminal
+	= lex [A-Z] [0-9A-Z_a-z]* 
+	# [\[] 
+	# [0-9A-Z_a-z] ;
 
 syntax PathTail
 	= Mid: MidPathChars mid Expression expression PathTail tail 
 	| Post: PostPathChars post ;
 
+syntax CommentChar
+	= lex [\000-)+-\u15151515] 
+	| lex Asterisk ;
+
 syntax Visibility
-	= Public: "public" 
-	| Default: 
-	| Private: "private" ;
+	= Default: 
+	| Private: "private" 
+	| Public: "public" ;
 
 syntax StringLiteral
 	= Interpolated: PreStringChars pre Expression expression StringTail tail 
 	| Template: PreStringChars pre StringTemplate template StringTail tail 
 	| NonInterpolated: StringConstant constant ;
+
+syntax Comment
+	= /*term(category("Comment"))*/ lex "/*" CommentChar* "*/" 
+	| /*term(category("Comment"))*/ lex "//" [\000-\t\013-\u15151515]* [\n] ;
+
+syntax RegExp
+	= /*term(category("MetaVariable"))*/ lex [\<]  Expression  [\>] ;
 
 syntax Renamings
 	= Default: "renaming" {Renaming ","}+ renamings ;
@@ -420,64 +592,76 @@ syntax Formals
 syntax PostProtocolChars
 	= lex "\>" URLChars "://" ;
 
+syntax Start
+	= Absent: 
+	| Present: "start" ;
+
 syntax Statement
-	= Assignment: Assignable assignable Assignment operator Statement statement 
+	= non-assoc Try: "try" Statement body Catch+ handlers 
 	| Expression: Expression expression ";" 
-	| IfThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement NoElseMayFollow noElseMayFollow 
 	| Assert: "assert" Expression expression ";" 
-	| IfThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
+	| TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
+	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
 	| FunctionDeclaration: FunctionDeclaration functionDeclaration 
-	| Switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
 	| Return: "return" Statement statement 
 	| Fail: "fail" Target target ";" 
+	| NonEmptyBlock: Label label "{" Statement+ statements "}" 
 	| Break: "break" Target target ";" 
-	| TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
+	| Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
+	| Expression: Expression expression ";" 
+	> NonEmptyBlock: "{" Statement+ statements "}" 
+	| Visit: Label label Visit visit 
 	| Throw: "throw" Statement statement 
-	| For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
 	| VariableDeclaration: LocalVariableDeclaration declaration ";" 
 	| DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
-	| EmptyStatement: ";" 
+	| IfThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
+	| For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
+	| Switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
 	| Append: "append" DataTarget dataTarget Statement statement 
-	| Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
+	| EmptyStatement: ";" 
 	| Continue: "continue" Target target ";" 
 	| GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
+	| Assignment: Assignable assignable Assignment operator Statement statement 
+	| IfThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement NoElseMayFollow noElseMayFollow 
 	| Visit: Label label Visit visit 
 	| AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
-	| non-assoc Try: "try" Statement body Catch+ handlers 
-	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
 	| Insert: "insert" DataTarget dataTarget Statement statement 
-	| non-assoc (  Assignment: Assignable assignable Assignment operator Statement statement  
-		> non-assoc Throw: "throw" Statement statement 
+	| non-assoc (  non-assoc Throw: "throw" Statement statement  
 		> non-assoc Insert: "insert" DataTarget dataTarget Statement statement 
+		> Assignment: Assignable assignable Assignment operator Statement statement 
 		> non-assoc Return: "return" Statement statement 
 		> non-assoc Append: "append" DataTarget dataTarget Statement statement 
 	)
 	> FunctionDeclaration: FunctionDeclaration functionDeclaration 
-	| VariableDeclaration: LocalVariableDeclaration declaration ";" 
-	| Expression: Expression expression ";" 
-	> Visit: Label label Visit visit 
-	| NonEmptyBlock: "{" Statement+ statements "}" 
-	| NonEmptyBlock: Label label "{" Statement+ statements "}" ;
+	| VariableDeclaration: LocalVariableDeclaration declaration ";" ;
 
 syntax StructuredType
 	= Default: BasicType basicType "[" {TypeArg ","}+ arguments "]" ;
 
+syntax NonterminalLabel
+	= lex [a-z] [0-9A-Z_a-z]* 
+	# [0-9A-Z_a-z] ;
+
 syntax FunctionType
 	= TypeArguments: Type type "(" {TypeArg ","}* arguments ")" ;
+
+syntax Case
+	= PatternWithAction: "case" PatternWithAction patternWithAction 
+	| Default: "default" ":" Statement statement ;
 
 syntax Declarator
 	= Default: Type type {Variable ","}+ variables 
 	| Default: Type type {Variable ","}+ variables 
-	> IterStar: Symbol symbol "*" 
-	| Optional: Symbol symbol "?" 
-	| Iter: Symbol symbol "+" ;
+	> Optional: Symbol symbol "?" 
+	| Iter: Symbol symbol "+" 
+	| IterStar: Symbol symbol "*" ;
 
 syntax Bound
 	= Empty: 
 	| Default: ";" Expression expression ;
 
 syntax RascalReservedKeywords
-	= "type" 
+	= "module" 
 	| "true" 
 	| "bag" 
 	| "num" 
@@ -485,13 +669,13 @@ syntax RascalReservedKeywords
 	| "finally" 
 	| "private" 
 	| "real" 
-	| "fail" 
 	| "list" 
+	| "fail" 
 	| "lex" 
 	| "if" 
 	| "tag" 
-	| "append" 
 	| "extend" 
+	| "append" 
 	| "repeat" 
 	| "rel" 
 	| "void" 
@@ -499,20 +683,21 @@ syntax RascalReservedKeywords
 	| "assoc" 
 	| "test" 
 	| "anno" 
-	| "join" 
 	| "layout" 
 	| "LAYOUT" 
 	| "data" 
+	| "join" 
 	| "it" 
 	| "bracket" 
-	| "import" 
 	| "in" 
+	| "import" 
 	| "view" 
-	| "global" 
 	| "false" 
+	| "global" 
 	| "all" 
 	| "dynamic" 
 	| "solve" 
+	| "type" 
 	| "try" 
 	| "catch" 
 	| "notin" 
@@ -522,8 +707,8 @@ syntax RascalReservedKeywords
 	| "switch" 
 	| "return" 
 	| "case" 
-	| "while" 
 	| "adt" 
+	| "while" 
 	| "str" 
 	| "throws" 
 	| "visit" 
@@ -538,7 +723,6 @@ syntax RascalReservedKeywords
 	| "lang" 
 	| "int" 
 	| "any" 
-	| "module" 
 	| "bool" 
 	| "public" 
 	| "one" 
@@ -553,48 +737,73 @@ syntax RascalReservedKeywords
 	| "value" 
 	# [\-0-9A-Z_a-z] ;
 
-syntax Declaration
-	= View: Tags tags Visibility visibility "view" Name view "\<:" Name superType "=" {Alternative "|"}+ alts ";" 
-	| Annotation: Tags tags Visibility visibility "anno" Type annoType Type onType "@" Name name ";" 
-	| Test: Test test ";" 
-	| Data: Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";" 
-	| Tag: Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
-	| Alias: Tags tags Visibility visibility "alias" UserType user "=" Type base ";" 
-	| Function: FunctionDeclaration functionDeclaration 
-	| Variable: Tags tags Visibility visibility Type type {Variable ","}+ variables ";" 
-	| DataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
-	| Rule: Tags tags "rule" Name name PatternWithAction patternAction ";" ;
-
 syntax Type
 	= Basic: BasicType basic 
 	| User: UserType user 
-	| bracket Bracket: "(" Type type ")" 
 	| Function: FunctionType function 
+	| bracket Bracket: "(" Type type ")" 
 	| Structured: StructuredType structured 
+	| Selector: DataTypeSelector selector 
 	| Variable: TypeVar typeVar 
-	| Selector: DataTypeSelector selector ;
+	| Symbol: Symbol symbol 
+	> Sort: QualifiedName name 
+	| right Alternative: Symbol lhs "|" Symbol rhs ;
+
+syntax Declaration
+	= DataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
+	| Annotation: Tags tags Visibility visibility "anno" Type annoType Type onType "@" Name name ";" 
+	| Test: Test test ";" 
+	| View: Tags tags Visibility visibility "view" Name view "\<:" Name superType "=" {Alternative "|"}+ alts ";" 
+	| Variable: Tags tags Visibility visibility Type type {Variable ","}+ variables ";" 
+	| Alias: Tags tags Visibility visibility "alias" UserType user "=" Type base ";" 
+	| Function: FunctionDeclaration functionDeclaration 
+	| Tag: Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
+	| Rule: Tags tags "rule" Name name PatternWithAction patternAction ";" 
+	| Data: Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";" ;
+
+syntax Class
+	= SimpleCharclass: "[" Range* ranges "]" 
+	| Complement: "!" Class charClass 
+	> left Difference: Class lhs "-" Class rhs 
+	> left Intersection: Class lhs "&&" Class rhs 
+	> left Union: Class lhs "||" Class rhs 
+	| bracket Bracket: "(" Class charclass ")" ;
 
 syntax RegExpLiteral
 	= lex "/" RegExp* "/" RegExpModifier ;
 
+syntax CharRange
+	= Character: Character character 
+	| Range: Character start "-" Character end ;
+
 syntax FunctionModifiers
 	= List: FunctionModifier* modifiers ;
+
+syntax Comprehension
+	= Set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
+	| Map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
+	| List: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
 
 syntax Variant
 	= NAryConstructor: Name name "(" {TypeArg ","}* arguments ")" ;
 
 syntax FunctionDeclaration
-	= Default: Tags tags Visibility visibility Signature signature FunctionBody body 
-	| Abstract: Tags tags Visibility visibility Signature signature ";" ;
+	= Abstract: Tags tags Visibility visibility Signature signature ";" 
+	| Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 syntax PreProtocolChars
 	= lex "|" URLChars "\<" ;
 
 syntax NamedRegExp
-	= lex [\000-.0-;=?-\[\]-\u15151515] 
+	= lex [\\] [/\<\>\\] 
 	| lex "\<" Name "\>" 
-	| lex [\\] [/\<\>\\] 
-	| lex NamedBackslash ;
+	| lex NamedBackslash 
+	| lex [\000-.0-;=?-\[\]-\u15151515] ;
+
+syntax ProdModifier
+	= Lexical: "lex" 
+	| Associativity: Assoc associativity 
+	| Bracket: "bracket" ;
 
 syntax Toplevel
 	= GivenVisibility: Declaration declaration ;
@@ -606,31 +815,31 @@ syntax HexIntegerLiteral
 	= lex [0] [Xx] [0-9A-Fa-f]+ 
 	# [0-9A-Z_a-z] ;
 
-syntax TypeVar
-	= Free: "&" Name name 
-	| Bounded: "&" Name name "\<:" Type bound ;
-
 syntax OctalEscapeSequence
-	= lex "\\" [0-7] 
+	= lex "\\" [0-7] [0-7] 
 	| lex "\\" [0-3] [0-7] [0-7] 
-	| lex "\\" [0-7] [0-7] 
+	| lex "\\" [0-7] 
 	# [0-7] ;
+
+syntax TypeVar
+	= Bounded: "&" Name name "\<:" Type bound 
+	| Free: "&" Name name ;
 
 syntax OctalLongLiteral
 	= lex [0] [0-7]+ [Ll] 
 	# [0-9A-Z_a-z] ;
 
 syntax BasicType
-	= Bag: "bag" 
+	= Num: "num" 
 	| Loc: "loc" 
 	| Node: "node" 
-	| Num: "num" 
 	| ReifiedType: "type" 
+	| Bag: "bag" 
 	| Int: "int" 
 	| Relation: "rel" 
 	| ReifiedTypeParameter: "parameter" 
-	| ReifiedFunction: "fun" 
 	| Real: "real" 
+	| ReifiedFunction: "fun" 
 	| Tuple: "tuple" 
 	| String: "str" 
 	| Bool: "bool" 
@@ -641,14 +850,32 @@ syntax BasicType
 	| DateTime: "datetime" 
 	| Set: "set" 
 	| Map: "map" 
-	| List: "list" 
 	| ReifiedConstructor: "constructor" 
+	| List: "list" 
 	| ReifiedAdt: "adt" 
 	| Lex: "lex" ;
 
+syntax Char
+	= /*term(category("Constant"))*/ lex [\000-\037!#-&(-,.-;=?-Z^-\u15151515] 
+	| /*term(category("Constant"))*/ lex UnicodeEscape 
+	| /*term(category("Constant"))*/ lex "\\" [\ \"\'\-\<\>\[-\]bfnrt] 
+	| /*term(category("Constant"))*/ lex OctalEscapeSequence ;
+
+syntax Prod
+	= AssociativityGroup: Assoc associativity "(" Prod group ")" 
+	| Unlabeled: ProdModifier* modifiers Sym* args 
+	| non-assoc Action: Prod prod LanguageAction action 
+	| Reference: ":" Name referenced 
+	| Labeled: ProdModifier* modifiers Name name ":" Sym* args 
+	| Others: "..." 
+	> left Reject: Prod lhs "-" Prod rhs 
+	> left Follow: Prod lhs "#" Prod rhs 
+	> left First: Prod lhs "\>" Prod rhs 
+	> left All: Prod lhs "|" Prod rhs ;
+
 syntax DateTimeLiteral
-	= /*prefer()*/ TimeLiteral: JustTime time 
-	| /*prefer()*/ DateLiteral: JustDate date 
+	= /*prefer()*/ DateLiteral: JustDate date 
+	| /*prefer()*/ TimeLiteral: JustTime time 
 	| /*prefer()*/ DateAndTimeLiteral: DateAndTime dateAndTime ;
 
 syntax PrePathChars
@@ -665,10 +892,20 @@ syntax LongLiteral
 syntax MidPathChars
 	= lex "\>" URLChars "\<" ;
 
+syntax Pattern
+	= CallOrTree: Pattern expression "(" {Pattern ","}* arguments ")" 
+	> Guarded: "[" Type type "]" Pattern pattern 
+	| Descendant: "/" Pattern pattern 
+	| VariableBecomes: Name name ":" Pattern pattern 
+	| Anti: "!" Pattern pattern 
+	| TypedVariableBecomes: Type type Name name ":" Pattern pattern 
+	| MultiVariable: QualifiedName qualifiedName "*" 
+	| TypedVariable: Type type Name name ;
+
 syntax Tag
-	= /*term(category("Comment"))*/ Expression: "@" Name name "=" Expression expression 
-	| /*term(category("Comment"))*/ Default: "@" Name name TagString contents 
-	| /*term(category("Comment"))*/ Empty: "@" Name name ;
+	= /*term(category("Comment"))*/ Default: "@" Name name TagString contents 
+	| /*term(category("Comment"))*/ Empty: "@" Name name 
+	| /*term(category("Comment"))*/ Expression: "@" Name name "=" Expression expression ;
 
 syntax ModuleActuals
 	= Default: "[" {Type ","}+ types "]" ;
@@ -711,6 +948,10 @@ syntax "fun"
 	= ...
 	# ;
 
+syntax "|"
+	= ...
+	# ;
+
 syntax "non-terminal"
 	= ...
 	# ;
@@ -735,11 +976,11 @@ syntax "module"
 	= ...
 	# ;
 
-syntax "append"
+syntax "extend"
 	= ...
 	# ;
 
-syntax "extend"
+syntax "append"
 	= ...
 	# ;
 
@@ -763,11 +1004,11 @@ syntax "return"
 	= ...
 	# ;
 
-syntax "str"
+syntax "while"
 	= ...
 	# ;
 
-syntax "while"
+syntax "str"
 	= ...
 	# ;
 
@@ -779,15 +1020,19 @@ syntax ":"
 	= ...
 	# ;
 
+syntax ":"
+	= ...
+	# ;
+
 syntax "type"
 	= ...
 	# ;
 
-syntax "notin"
+syntax "reified"
 	= ...
 	# ;
 
-syntax "reified"
+syntax "notin"
 	= ...
 	# ;
 
@@ -799,11 +1044,11 @@ syntax "\>"
 	= ...
 	# ;
 
-syntax "?"
+syntax "solve"
 	= ...
 	# ;
 
-syntax "solve"
+syntax "?"
 	= ...
 	# ;
 
@@ -815,11 +1060,23 @@ syntax "\<"
 	= ...
 	# ;
 
+syntax "\<"
+	= ...
+	# ;
+
+syntax "="
+	= ...
+	# ;
+
 syntax "="
 	= ...
 	# ;
 
 syntax "false"
+	= ...
+	# ;
+
+syntax "!"
 	= ...
 	# ;
 
@@ -855,11 +1112,11 @@ syntax "join"
 	= ...
 	# ;
 
-syntax "+"
+syntax "it"
 	= ...
 	# ;
 
-syntax "it"
+syntax "+"
 	= ...
 	# ;
 
@@ -919,11 +1176,11 @@ syntax "void"
 	= ...
 	# ;
 
-syntax "tag"
+syntax "://"
 	= ...
 	# ;
 
-syntax "://"
+syntax "tag"
 	= ...
 	# ;
 
@@ -943,11 +1200,11 @@ syntax "real"
 	= ...
 	# ;
 
-syntax "private"
+syntax "finally"
 	= ...
 	# ;
 
-syntax "finally"
+syntax "private"
 	= ...
 	# ;
 
@@ -967,11 +1224,11 @@ syntax "adt"
 	= ...
 	# ;
 
-syntax "catch"
+syntax "try"
 	= ...
 	# ;
 
-syntax "try"
+syntax "catch"
 	= ...
 	# ;
 

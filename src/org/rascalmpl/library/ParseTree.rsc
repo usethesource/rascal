@@ -56,17 +56,18 @@ data Symbol =
      \empty()  |
      \opt(Symbol symbol)  |
      \sort (str string)  | 
+     \layouts(str name) |
      \iter(Symbol symbol)  | 
      \iter-star(Symbol symbol)  | 
      \iter-seps(Symbol symbol, list[Symbol] separators)  | 
      \iter-star-seps(Symbol symbol, list[Symbol] separators) |
      \parameterized-sort(str sort, list[Symbol] parameters)  |
      \parameter(str name) |
-     \layout()  | 
      \char-class(list[CharRange] ranges);
      
 @deprecated{Used in SDF2, but not used in Rascal anymore}
 data Symbol =
+     \layout()  | 
      \iter-sep(Symbol symbol, Symbol separator) |
      \iter-star-sep(Symbol symbol, Symbol separator)  | 
      \alt(Symbol lhs, Symbol rhs)  |

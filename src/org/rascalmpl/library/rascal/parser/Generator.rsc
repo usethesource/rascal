@@ -87,7 +87,7 @@ private bool isNonterminal(Symbol s) {
     case \parameterized-sort(_,_) : return true;
     case \prime(\parameterized-sort(_,_)) : return true;
     case \start(_) : return true;
-    case \layout() : return true;
+    case \layouts(_) : return true;
     default: return false;
   }
 }
@@ -216,6 +216,8 @@ public str sym2newitem(Symbol sym){
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \sort(n) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
+        case \layouts(_) :
+            return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";  
         case \parameterized-sort(n,args): 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
         case \parameter(n) :
@@ -246,8 +248,7 @@ public str sym2newitem(Symbol sym){
             return "new OptionalStackNode(<id>, <value2id(regular(sym,\no-attrs()))>, <sym2newitem(s)>)";
         case \char-class(list[CharRange] ranges) : 
             return "new CharStackNode(<id>, new char[][]{<generateCharClassArrays(ranges)>})";
-        case \layout() :
-            return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";   
+       
         default: 
             throw "not yet implemented <sym>";
     }
