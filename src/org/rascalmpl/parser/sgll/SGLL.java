@@ -424,6 +424,26 @@ public abstract class SGLL implements IGLL{
 		return false;
 	}
 	
+	private boolean shareListNode(AbstractStackNode node, AbstractStackNode stack){
+		for(int j = possiblySharedNextNodes.size() - 1; j >= 0; --j){
+			AbstractStackNode possiblySharedNode = possiblySharedNextNodes.get(j);
+			if(possiblySharedNode.isSimilar(node)){
+				if(!possiblySharedNode.isClean()){ // Is nullable.
+					AbstractStackNode last;
+					AbstractStackNode next = possiblySharedNode;
+					do{
+						last = next;
+					}while((next = next.getNext()) != null);
+					moveNullable(last, stack);
+				}
+				possiblySharedNode.addEdge(stack);
+				possiblySharedNode.addPrefix(null, location);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private void handleExpects(AbstractStackNode stackBeingWorkedOn){
 		for(int i = lastExpects.size() - 1; i >= 0; --i){
 			AbstractStackNode[] expectedNodes = lastExpects.get(i);
@@ -464,9 +484,8 @@ public abstract class SGLL implements IGLL{
 			AbstractStackNode[] listChildren = node.getChildren();
 			
 			AbstractStackNode child = listChildren[0];
-			if(!shareNode(child, node)){
+			if(!shareListNode(child, node)){
 				stacksToExpand.add(child);
-				possiblySharedExpects.add(child);
 				possiblySharedNextNodes.add(child); // For epsilon list cycles.
 			}
 			
