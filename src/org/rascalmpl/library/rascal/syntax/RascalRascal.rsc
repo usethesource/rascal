@@ -1,6 +1,5 @@
 module rascal::syntax::RascalRascal
 
-
 syntax BooleanLiteral
 	= lex "true" 
 	| lex "false" ;
@@ -212,7 +211,7 @@ syntax Expression
 	| Expression "+" Expression 
 	| Expression "*" Expression 
 	> "-" Expression 
-	| List: "[" {Expression ","}* elements "]" 
+    | List: "[" {Expression ","}* elements "]" 
 	| It: "it" 
 	| All: "all" "(" {Expression ","}+ generators ")" 
 	| QualifiedName: QualifiedName qualifiedName 

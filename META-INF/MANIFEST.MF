@@ -12,6 +12,7 @@ Bundle-ClassPath: rascal.jar,
  lib/joda-time-1.6.jar,
  lib/xercesImpl.jar,
  lib/jdom.jar,
+ lib/mail.jar,
  src
 Export-Package: org.jdom,
  org.jdom.adapters,
