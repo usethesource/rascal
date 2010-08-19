@@ -3,11 +3,12 @@ package org.rascalmpl.parser.sgll.stack;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.EpsilonNode;
+import org.rascalmpl.parser.sgll.result.StartOfLineNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
 public class StartOfLineStackNode extends AbstractStackNode implements IReducableStackNode{
-	private final static EpsilonNode result = new EpsilonNode();
+	private final static StartOfLineNode result = new StartOfLineNode();
 	
 	private boolean isReduced;
 	

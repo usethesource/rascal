@@ -1,34 +1,36 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.AtColumnNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
-import org.rascalmpl.parser.sgll.result.EpsilonNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-public class AtLocationStackNode extends AbstractStackNode implements IReducableStackNode{
-	private final static EpsilonNode result = new EpsilonNode();
+public class AtColumnStackNode extends AbstractStackNode implements IReducableStackNode{
+	private final AtColumnNode result ;
 	
 	private final int atLocation;
 	
 	private boolean isReduced;
 	
-	public AtLocationStackNode(int id, int location){
+	public AtColumnStackNode(int id, int column){
 		super(id);
-		
-		this.atLocation = location;
+		this.result = new AtColumnNode(column);
+		this.atLocation = column;
 	}
 	
-	private AtLocationStackNode(AtLocationStackNode original){
+	private AtColumnStackNode(AtColumnStackNode original){
 		super(original);
 		
 		atLocation = original.atLocation;
+		result = original.result;
 	}
 	
-	private AtLocationStackNode(AtLocationStackNode original, ArrayList<Link>[] prefixes){
+	private AtColumnStackNode(AtColumnStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
 		atLocation = original.atLocation;
+		result = original.result;
 	}
 	
 	public String getName(){
@@ -49,11 +51,11 @@ public class AtLocationStackNode extends AbstractStackNode implements IReducable
 	}
 	
 	public AbstractStackNode getCleanCopy(){
-		return new AtLocationStackNode(this);
+		return new AtColumnStackNode(this);
 	}
 
 	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new AtLocationStackNode(this, prefixesMap);
+		return new AtColumnStackNode(this, prefixesMap);
 	}
 	
 	public void setResultStore(ContainerNode resultStore){

@@ -17,7 +17,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ContainerNode extends AbstractNode{
-	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	
 	
 	private final URI input;
 	private final int offset;

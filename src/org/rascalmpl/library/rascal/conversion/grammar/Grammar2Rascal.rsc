@@ -15,6 +15,7 @@ module rascal::conversion::grammar::Grammar2Rascal
 
 import ParseTree;
 import rascal::parser::Grammar;
+import rascal::parser::Characters;
 import IO;
 import Set;
 import List;
@@ -208,7 +209,12 @@ public str symbol2rascal(Symbol sym) {
     case \parameterized-sort(str name, list[Symbol] parameters):
         return "<name>[<params2rascal(parameters)>]";
     case \char-class(x) : 
-    	return cc2rascal(x);
+       if (\char-class(y) := complement(sym)) {
+         str norm = cc2rascal(x);
+         str comp = cc2rascal(y);
+         return size(norm) > size(comp) ? "!<comp>" : norm;
+       } 
+       else throw "weird result of character class complement";
     case \seq(syms):
         return "( <for(s <- syms){> <symbol2rascal(s)> <}> )";
     case opt(x) : 
@@ -233,7 +239,12 @@ public str symbol2rascal(Symbol sym) {
      	return "<symbol2rascal(lhs)> -  <symbol2rascal(rhs)>";
     case complement(lhs):
      	return "!<symbol2rascal(lhs)>";
-
+    case \at-column(int i) : 
+        return "@<i>";
+    case \start-of-line() :
+        return "^";
+    case \end-of-line():
+        return "$";
   }
   throw "symbol2rascal: missing case <sym>";
 }
@@ -304,7 +315,7 @@ public str range2rascal(CharRange r) {
   switch (r) {
     case range(c,c) : return charclasschar2rascal(c);
     case range(c,d) : return "<charclasschar2rascal(c)>-<charclasschar2rascal(d)>";
-    default: throw "range2rascal: missing case <range>";
+    default: throw "range2rascal: missing case <r>";
   }
 }
 
@@ -472,22 +483,25 @@ public str charclasschar2rascal(int ch){
   }
 }
 
+private list[str] hex = ["<i>" | i <- [0..9]] + ["A","B","C","D","E","F"];
+
 public str stringchar2rascal(int ch) {
-  if(ch < 128)
+  if(ch < 128) {
      return ascii[ch];
+  }
+  
   if (ch < 256) {
     d1 = ch % 8; r1 = ch / 8;
     d2 = r1 % 8; r2 = r1 / 8;
     d3 = r2;
     return "\\<d3><d2><d1>";
   }
-  else {
-    d1 = ch % 16; r1 = ch / 16;
-    d2 = r1 % 16; r2 = r1 / 16;
-    d3 = r2 % 16; r3 = r2 / 16;
-    d4 = r3;
-    return "\\u<d4><d3><d2><d1>";
-  }
+       
+  d1 = ch % 16; r1 = ch / 16;
+  d2 = r1 % 16; r2 = r1 / 16;
+  d3 = r2 % 16; r3 = r2 / 16;
+  d4 = r3;
+  return "\\u<hex[d4]><hex[d3]><hex[d2]><hex[d1]>";
 }
 
 test stringchar2rascal(97) 	== "a";

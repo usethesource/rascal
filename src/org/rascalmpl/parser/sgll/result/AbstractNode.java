@@ -2,11 +2,13 @@ package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class AbstractNode{
-	
+	protected  final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	public AbstractNode(){
 		super();
 	}
