@@ -52,7 +52,7 @@ public class ListOverlap extends SGLL implements IParserTest{
 	}
 	
 	public IValue executeParser(){
-		return parse("Decl", null, "a".toCharArray());
+		return parse("Decl", null, "  a".toCharArray());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
