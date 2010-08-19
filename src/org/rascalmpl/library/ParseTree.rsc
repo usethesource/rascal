@@ -63,7 +63,10 @@ data Symbol =
      \iter-star-seps(Symbol symbol, list[Symbol] separators) |
      \parameterized-sort(str sort, list[Symbol] parameters)  |
      \parameter(str name) |
-     \char-class(list[CharRange] ranges);
+     \char-class(list[CharRange] ranges) |
+     \at-column(int column) |
+     \start-of-line() |
+     \end-of-line();
      
 @deprecated{Used in SDF2, but not used in Rascal anymore}
 data Symbol =

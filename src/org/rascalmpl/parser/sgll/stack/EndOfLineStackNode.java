@@ -2,12 +2,12 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
-import org.rascalmpl.parser.sgll.result.EpsilonNode;
+import org.rascalmpl.parser.sgll.result.EndOfLineNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
 public class EndOfLineStackNode extends AbstractStackNode implements IReducableStackNode{
-	private final static EpsilonNode result = new EpsilonNode();
+	private final static EndOfLineNode result = new EndOfLineNode();
 	
 	private boolean isReduced;
 	
@@ -30,7 +30,7 @@ public class EndOfLineStackNode extends AbstractStackNode implements IReducableS
 	public boolean reduce(char[] input){
 		isReduced = true;
 		// Follow by 'end of file' || Windows or pre-MacOS9 (\r\n, \r) || UNIX (\n)
-		return (startLocation == input.length) || (input[startLocation + 1] == '\r') || (input[startLocation + 1] == '\n');
+		return (startLocation == input.length) || (input[startLocation] == '\r') || (input[startLocation] == '\n');
 	}
 	
 	public boolean reduceWithoutResult(char[] input, int location){

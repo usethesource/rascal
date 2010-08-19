@@ -211,6 +211,7 @@ public str ciliterals2ints(list[Symbol] chars){
 public str sym2newitem(Symbol sym){
     int id = nextItem();
     switch(sym){
+        
         case \label(_,s) : return sym2newitem(s); // ignore labels
         case \prime(_,_,_) : 
             return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
@@ -248,7 +249,12 @@ public str sym2newitem(Symbol sym){
             return "new OptionalStackNode(<id>, <value2id(regular(sym,\no-attrs()))>, <sym2newitem(s)>)";
         case \char-class(list[CharRange] ranges) : 
             return "new CharStackNode(<id>, new char[][]{<generateCharClassArrays(ranges)>})";
-       
+        case \start-of-line() : 
+            return "new StartOfLineStackNode(<id>)";
+        case \end-of-line() :
+            return "new EndOfLineStackNode(<id>)";
+        case \at-column(int column) :
+            return "new AtColumnStackNode(<id>, <column>)"; 
         default: 
             throw "not yet implemented <sym>";
     }
