@@ -262,6 +262,7 @@ import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
+import org.rascalmpl.uri.MailToResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.errors.SubjectAdapter;
@@ -385,6 +386,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		HttpURIResolver http = new HttpURIResolver();
 		resolverRegistry.registerInput(http.scheme(), http);
+		
+		MailToResolver mailto = new MailToResolver();
+		resolverRegistry.registerOutput(mailto.scheme(), mailto);
 
 		CWDURIResolver cwd = new CWDURIResolver();
 		resolverRegistry.registerInput(cwd.scheme(), cwd);
