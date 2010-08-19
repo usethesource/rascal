@@ -130,4 +130,8 @@ public class ParserTest extends TestCase{
 		executeParser(new Reject3());
 		executeParser(new Reject4());
 	}
+	
+	public void testListSharing(){
+		executeParser(new ListOverlap());
+	}
 }
