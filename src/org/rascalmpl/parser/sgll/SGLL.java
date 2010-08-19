@@ -54,8 +54,6 @@ public abstract class SGLL implements IGLL{
 	private int previousLocation;
 	private int location;
 	
-	private boolean nullableEncountered;
-	
 	private AbstractStackNode root;
 	
 	public SGLL(){
@@ -307,26 +305,6 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void moveNullable(AbstractStackNode node, AbstractStackNode edge){
-		nullableEncountered = true;
-		
-		IConstructor production = node.getParentProduction();
-		
-		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
-		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
-		ArrayList<Link> prefixes = null;
-		if(prefixesMap != null){
-			prefixes = prefixesMap[edgesMap.findKey(location)];
-		}
-		
-		ContainerNode resultStore = resultStoreCache.get(edge.getName(), location);
-		if(!node.isReject()){
-			if(!resultStore.isRejected()) resultStore.addAlternative(production, new Link(prefixes, node.getResult()));
-		}else if(node.isReducable() || !node.getResultStore().isRejected()){
-			resultStore.setRejected();
-		}
-	}
-	
 	private Link constructPrefixesFor(LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap, AbstractNode result, int startLocation){
 		if(prefixesMap == null){
 			return new Link(null, result);
@@ -410,14 +388,6 @@ public abstract class SGLL implements IGLL{
 		for(int j = possiblySharedNextNodes.size() - 1; j >= 0; --j){
 			AbstractStackNode possiblySharedNode = possiblySharedNextNodes.get(j);
 			if(possiblySharedNode.isSimilar(node)){
-				if(!possiblySharedNode.isClean()){ // Is nullable.
-					AbstractStackNode last;
-					AbstractStackNode next = possiblySharedNode;
-					do{
-						last = next;
-					}while((next = next.getNext()) != null);
-					moveNullable(last, stack);
-				}
 				possiblySharedNode.addEdge(stack);
 				possiblySharedNode.addPrefix(null, location);
 				return true;
@@ -513,13 +483,12 @@ public abstract class SGLL implements IGLL{
 		expand();
 		
 		do{
-			if(!nullableEncountered) findStacksToReduce();
-
-			nullableEncountered = false;
+			findStacksToReduce();
+			
 			reduce();
 			
-			if(!nullableEncountered) expand();
-		}while((todoList.size() > 0) || nullableEncountered);
+			expand();
+		}while(todoList.size() > 0);
 		
 		if(root == null){
 			int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
