@@ -1,16 +1,18 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.sgll.SGLL;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public final class OptionalStackNode extends AbstractStackNode implements IListStackNode{
 	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 	
 	private final IConstructor production;
+	private final String name;
 	
 	private final AbstractStackNode optional;
 	
@@ -20,6 +22,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		super(id);
 		
 		this.production = production;
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
 		
 		this.optional = optional;
 	}
@@ -28,6 +31,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		super(id, followRestrictions);
 		
 		this.production = production;
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
 		
 		this.optional = optional;
 	}
@@ -36,6 +40,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		super(original);
 		
 		production = original.production;
+		name = original.name;
 		
 		optional = original.optional;
 	}
@@ -44,12 +49,13 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		super(original, prefixes);
 		
 		production = original.production;
+		name = original.name;
 		
 		optional = original.optional;
 	}
 	
 	public String getName(){
-		throw new UnsupportedOperationException();
+		return name;
 	}
 	
 	public int getLength(){

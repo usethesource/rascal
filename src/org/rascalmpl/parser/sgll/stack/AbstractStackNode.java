@@ -20,7 +20,6 @@ public abstract class AbstractStackNode{
 	protected int startLocation;
 
 	protected boolean isEndNode;
-	private boolean markedAsWithResults;
 	
 	// Last node specific filter stuff
 	private IConstructor parentProduction;
@@ -249,14 +248,6 @@ public abstract class AbstractStackNode{
 	
 	public ArrayList<Link>[] getPrefixesMap(){
 		return prefixesMap;
-	}
-	
-	public void markAsWithResults(){
-		markedAsWithResults = true;
-	}
-	
-	public boolean isMarkedAsWithResults(){
-		return markedAsWithResults;
 	}
 	
 	public abstract void setResultStore(ContainerNode resultStore);

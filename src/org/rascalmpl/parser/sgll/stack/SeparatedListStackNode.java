@@ -5,11 +5,14 @@ import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public final class SeparatedListStackNode extends AbstractStackNode implements IListStackNode{
 	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 	
 	private final IConstructor production;
+	private final String name;
 
 	private final AbstractStackNode child;
 	private final AbstractStackNode[] separators;
@@ -21,6 +24,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		super(id);
 		
 		this.production = production;
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
 		
 		this.child = child;
 		this.separators = separators;
@@ -31,6 +35,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		super(id, followRestrictions);
 		
 		this.production = production;
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
 		
 		this.child = child;
 		this.separators = separators;
@@ -41,6 +46,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		super(original);
 		
 		production = original.production;
+		name = original.name;
 
 		child = original.child;
 		separators = original.separators;
@@ -51,6 +57,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		super(original, prefixes);
 		
 		production = original.production;
+		name = original.name;
 
 		child = original.child;
 		separators = original.separators;
@@ -58,7 +65,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	}
 	
 	public String getName(){
-		throw new UnsupportedOperationException();
+		return name;
 	}
 	
 	public boolean reduce(char[] input){
