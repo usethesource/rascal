@@ -1,16 +1,18 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.sgll.SGLL;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public final class ListStackNode extends AbstractStackNode implements IListStackNode{
 	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
 	
 	private final IConstructor production;
+	private final String name;
 
 	private final AbstractStackNode child;
 	private final boolean isPlusList;
@@ -21,6 +23,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		super(id);
 		
 		this.production = production;
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
@@ -30,6 +33,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		super(id, followRestrictions);
 		
 		this.production = production;
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
@@ -39,6 +43,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		super(original);
 		
 		production = original.production;
+		name = original.name;
 
 		child = original.child;
 		isPlusList = original.isPlusList;
@@ -48,13 +53,14 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		super(original, prefixes);
 		
 		production = original.production;
+		name = original.name;
 
 		child = original.child;
 		isPlusList = original.isPlusList;
 	}
 	
 	public String getName(){
-		throw new UnsupportedOperationException();
+		return name;
 	}
 	
 	public boolean reduce(char[] input){

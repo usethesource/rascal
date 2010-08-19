@@ -9,6 +9,8 @@ import org.rascalmpl.parser.sgll.util.ArrayList;
 public final class EpsilonStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final static EpsilonNode result = new EpsilonNode();
 	
+	private boolean isReduced;
+	
 	public EpsilonStackNode(int id){
 		super(id);
 	}
@@ -26,6 +28,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 	}
 	
 	public boolean reduce(char[] input){
+		isReduced = true;
 		return true;
 	}
 	
@@ -34,7 +37,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 	}
 	
 	public boolean isClean(){
-		return true;
+		return !isReduced;
 	}
 	
 	public AbstractStackNode getCleanCopy(){
