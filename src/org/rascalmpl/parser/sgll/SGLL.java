@@ -179,12 +179,12 @@ public abstract class SGLL implements IGLL{
 			
 			// Update one (because of sharing all will be updated).
 			AbstractStackNode edge = edgesPart.get(0);
-			Link prefix = constructPrefixesFor(edgesMap, prefixesMap, result, startLocation);
-			if(prefix != null){
+			ContainerNode resultStore = edge.getResultStore();
+			if(!resultStore.isRejected()){
 				ArrayList<Link> edgePrefixes = new ArrayList<Link>();
+				Link prefix = constructPrefixesFor(edgesMap, prefixesMap, result, startLocation);
 				edgePrefixes.add(prefix);
-				ContainerNode resultStore = edge.getResultStore();
-				if(!resultStore.isRejected()) resultStore.addAlternative(production, new Link(edgePrefixes, next.getResult()));
+				resultStore.addAlternative(production, new Link(edgePrefixes, next.getResult()));
 			}
 		}
 	}
@@ -298,7 +298,7 @@ public abstract class SGLL implements IGLL{
 				updateRejects(node);
 			}
 		}
-		
+
 		AbstractStackNode next;
 		if((next = node.getNext()) != null){
 			updateNextNode(next, node);
@@ -311,11 +311,7 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		int index = edgesMap.findKey(startLocation);
-		ArrayList<Link> prefixes = prefixesMap[index];
-		if(prefixes != null){
-			return new Link(prefixes, result);
-		}
-		return null;
+		return new Link(prefixesMap[index], result);
 	}
 	
 	private void reduceTerminal(AbstractStackNode terminal){

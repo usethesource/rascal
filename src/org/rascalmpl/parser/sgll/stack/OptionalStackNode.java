@@ -22,7 +22,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		super(id);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
 		this.optional = optional;
 	}
@@ -31,7 +31,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		super(id, followRestrictions);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
 		this.optional = optional;
 	}
@@ -108,7 +108,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(production);
+		sb.append(name);
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
