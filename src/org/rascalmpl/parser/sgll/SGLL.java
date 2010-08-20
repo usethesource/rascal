@@ -24,6 +24,7 @@ import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
 import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.HashMap;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
@@ -56,6 +57,8 @@ public abstract class SGLL implements IGLL{
 	
 	private AbstractStackNode root;
 	
+	private final HashMap<String, Method> methodCache;
+	
 	public SGLL(){
 		super();
 		
@@ -74,6 +77,8 @@ public abstract class SGLL implements IGLL{
 		
 		previousLocation = -1;
 		location = 0;
+		
+		methodCache = new HashMap<String, Method>();
 	}
 	
 	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
@@ -109,15 +114,18 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	protected void invokeExpects(String name){
+		Method method = methodCache.get(name);
+		if(method == null){
+			try{
+				method = getClass().getMethod(name);
+			}catch(NoSuchMethodException e){
+				throw new ImplementationError(e.getMessage(), e);
+			}
+			methodCache.putUnsafe(name, method);
+		}
+		
 		try{
-			Method method = getClass().getMethod(name);
 			method.invoke(this);
-		}catch(SecurityException e){
-			throw new ImplementationError(e.getMessage(), e);
-		}catch(NoSuchMethodException e){
-			throw new ImplementationError(e.getMessage(), e);
-		}catch(IllegalArgumentException e){
-			throw new ImplementationError(e.getMessage(), e);
 		}catch(IllegalAccessException e){
 			throw new ImplementationError(e.getMessage(), e);
 		}catch(InvocationTargetException e){
