@@ -31,6 +31,7 @@ import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
+import static org.rascalmpl.interpreter.utils.Timing.getUserTime;
 
 public abstract class SGLL implements IGLL{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
@@ -82,6 +83,7 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
+//		System.err.println("expect " + production);
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
@@ -333,13 +335,14 @@ public abstract class SGLL implements IGLL{
 		// Filtering
 		if(terminal.isReductionFiltered(input, location)) return;
 		
+//		System.err.println("reducing " + terminal);
 		move(terminal);
 	}
 	
 	private void reduceNonTerminal(AbstractStackNode nonTerminal){
 		// Filtering
 		if(nonTerminal.isReductionFiltered(input, location)) return;
-		
+//		System.err.println("reducing " + nonTerminal);
 		move(nonTerminal);
 	}
 	
@@ -486,6 +489,8 @@ public abstract class SGLL implements IGLL{
 		this.inputURI = inputURI;
 		this.input = input;
 		
+		long time = getUserTime();
+
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		stacksToExpand.add(rootNode);
@@ -504,10 +509,15 @@ public abstract class SGLL implements IGLL{
 			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation("-", errorLocation, 0, -1, -1, -1, -1));
 		}
 		
+		long span = (getUserTime() - time) / (1000 * 1000);
+		System.err.println("parsing took: " + span + " ms");
+		System.err.println("building tree starts");
+		time = getUserTime();
 		IValue result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark());
 		
+		span = (getUserTime() - time) / (1000 * 1000);
 		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation("-"));
-		
+		System.err.println("building tree took " + span + " ms");
 		return makeParseTree(result);
 	}
 	
