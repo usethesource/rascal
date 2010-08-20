@@ -26,7 +26,8 @@ public Symbol exclude(Symbol s, int p) {
 @doc{This function replaces first by choice for debugging purposes}
 public Grammar removePriorityAndAssociativity(Grammar g) {
   return visit (g) {
-    case first(Symbol s, list[Production] alts) => choice(s, { p | p <- alts})
+    case \first(Symbol s, list[Production] alts) => choice(s, { p | p <- alts})
+    case \assoc(Symbol s, _, set[Production] alts) => choice(s, alts)
   }
 }
 
