@@ -2,7 +2,6 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
-import org.rascalmpl.parser.sgll.result.EpsilonNode;
 import org.rascalmpl.parser.sgll.result.StartOfLineNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
