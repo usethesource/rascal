@@ -64,22 +64,13 @@ set[set[Production]] groupByNonTerminal(set[Production] productions) {
 }
 
 bool same(Production p, Production q) {
-  return sort(p) == sort(q);
+  return p.rhs == q.rhs;
 }
 
 public str topProd2rascal(Production p) {
-  if (/prod(_,rhs,_) := p) {
-    return "<(start(_) := rhs) ? "start ":""><(\layouts(_) := rhs) ? "layout <layoutname(rhs)>" : "syntax <symbol2rascal(rhs)>">\n\t= <prod2rascal(p)>;\n";
-  }
+  if (regular(_,_) := p.rhs) return "";
   
-  if (regular(_,_) := p) {
-    return ""; // ignore generated stubs
-  }
-  
-  if(restrict(rhs, language, restrictions) := p){
-  	return "<for(r <- restrictions){>syntax <symbol2rascal(rhs)> =\n\t<prod2rascal(language)>\n\t# <for(e <- r){><symbol2rascal(e)> <}><}>;\n";
-  }
-  throw "could not find out defined symbol for <p>";
+  return "<(start(_) := nont) ? "start ":""><(\layouts(_) := nont) ? "layout <layoutname(p.rhs)>" : "syntax <symbol2rascal(p.rhs)>">\n\t= <prod2rascal(p)>;\n";
 }
 
 str layoutname(Symbol s) {
@@ -117,7 +108,7 @@ public str prod2rascal(Production p) {
     case others(sym):
         return "...";
  
-    case prod(_,lit(_),_) : return "";
+    // case prod(_,lit(_),_) : return "";
     
     case prod(list[Symbol] lhs,Symbol rhs,Attributes attrs) :
       	return "<attrs2mods(attrs)><for(s <- lhs){><symbol2rascal(s)> <}>";
@@ -308,7 +299,7 @@ public str escape(str s){
 }
 
 public str cc2rascal(list[CharRange] ranges) {
-  return "[<for (r <- ranges){><range2rascal(r)><}>]";
+  return "[<range2rascal(head(ranges))><for (r <- tail(ranges)){> <range2rascal(r)><}>]";
 }
 
 public str range2rascal(CharRange r) {

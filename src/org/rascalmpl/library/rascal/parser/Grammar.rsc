@@ -83,29 +83,3 @@ public Grammar java getGrammar(str mod);
 @reflect   
 @javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
 public ParseTree java parseModule(loc mod);
-
-@doc{returns the symbol that a production defines}
-public Symbol sort(Production p) {
-  switch(p){
-    case prod(_,Symbol rhs,_):
-    	return rhs;
-    case regular(Symbol rhs, _):
-        return rhs;
-    case list(Symbol rhs):
-        return rhs;
-    case choice(s, _) :
-     	return s;
-    case first(s, _) :
-     	return s;
-    case \assoc(Symbol s, _, _) :
-       	return s;
-    case diff(Symbol s,_,_) : 
-      	return s;
-    case restrict(Symbol rhs, _, _):
-       	return rhs;
-    case others(sym):
-      	return sym;
-  }
-  throw "unsupported production <p>";
-}
-   

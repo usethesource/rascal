@@ -10,13 +10,13 @@ import List;
 import Set;
 
 public Grammar expandParameterizedSymbols(Grammar g) {
-  g.rules = index(expand({ g.rules[s] | s <- g.rules }), Symbol (Production p) { return sort(p); });
+  g.rules = index(expand({ g.rules[s] | s <- g.rules }), Symbol (Production p) { return p.rhs; });
   return g;
 } 
  
 set[Production] expand(set[Production] prods) {
   // First we collect all the parametrized definitions
-  defs = { p | p <- prods, \parameterized-sort(_,_) := sort(p) };
+  defs = { p | p <- prods, \parameterized-sort(_,_) := p.rhs };
   result = prods - defs;
   
   // Then we collect all the uses of parameterized sorts in the other productions
@@ -29,7 +29,7 @@ set[Production] expand(set[Production] prods) {
   instantiated = {};
   while (uses != {}) {
     instances = {};
-    for (\parameterized-sort(name,actuals) <- uses, def <- defs, \parameterized-sort(name,formals) := sort(def)) {
+    for (\parameterized-sort(name,actuals) <- uses, def <- defs, \parameterized-sort(name,formals) := def.rhs) {
        instantiated += {\parameterized-sort(name,actuals)};
        substs = (formals[i]:actuals[i] | int i <- domain(actuals) & domain(formals));
        instances = {instances, visit (def) {
