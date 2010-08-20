@@ -118,6 +118,7 @@ public abstract class SGLL implements IGLL{
 		if(method == null){
 			try{
 				method = getClass().getMethod(name);
+				method.setAccessible(true); // Try to bypass the 'isAccessible' check to save time.
 			}catch(NoSuchMethodException e){
 				throw new ImplementationError(e.getMessage(), e);
 			}
