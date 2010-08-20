@@ -118,19 +118,23 @@ public abstract class SGLL implements IGLL{
 		if(method == null){
 			try{
 				method = getClass().getMethod(name);
-				method.setAccessible(true); // Try to bypass the 'isAccessible' check to save time.
-			}catch(NoSuchMethodException e){
-				throw new ImplementationError(e.getMessage(), e);
+				try{
+					method.setAccessible(true); // Try to bypass the 'isAccessible' check to save time.
+				}catch(SecurityException sex){
+					// Ignore this if it happens.
+				}
+			}catch(NoSuchMethodException nsmex){
+				throw new ImplementationError(nsmex.getMessage(), nsmex);
 			}
 			methodCache.putUnsafe(name, method);
 		}
 		
 		try{
 			method.invoke(this);
-		}catch(IllegalAccessException e){
-			throw new ImplementationError(e.getMessage(), e);
-		}catch(InvocationTargetException e){
-			throw new ImplementationError(e.getMessage(), e);
+		}catch(IllegalAccessException iaex){
+			throw new ImplementationError(iaex.getMessage(), iaex);
+		}catch(InvocationTargetException itex){
+			throw new ImplementationError(itex.getMessage(), itex);
 		} 
 	}
 	
