@@ -94,11 +94,16 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append('[');
-		for(int i = ranges.length - 1; i >= 0; --i){
-			char[] range = ranges[i];
-			sb.append(range[0]);
+		char[] range = ranges[0];
+		sb.append(Character.getNumericValue(range[0]));
+		sb.append('-');
+		sb.append(Character.getNumericValue(range[1]));
+		for(int i = ranges.length - 2; i >= 0; --i){
+			sb.append(',');
+			range = ranges[i];
+			sb.append(Character.getNumericValue(range[0]));
 			sb.append('-');
-			sb.append(range[1]);
+			sb.append(Character.getNumericValue(range[1]));
 		}
 		sb.append(']');
 		
