@@ -23,6 +23,14 @@ public Symbol exclude(Symbol s, int p) {
   return prime(s, "assoc", [p]);
 }
 
+@doc{This function replaces first by choice for debugging purposes}
+public Grammar removePriorityAndAssociativity(Grammar g) {
+  return visit (g) {
+    case first(Symbol s, list[Production] alts) => choice(s, { p | p <- alts})
+  }
+}
+
+@doc{This function generates new non-terminals to encode priority and associativity rules}
 public Grammar factorize(Grammar g) {
   println("first priority");
   productions = {priority(choice(nont, g.rules[nont])) | nont <- g.rules};

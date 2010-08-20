@@ -29,6 +29,11 @@ public str generate(str package, str name, Grammar gr){
     println("generating stubs for regular");
     grammar = makeRegularStubs(grammar);
     println("factorizing priorities and associativity");
+    // grammar = visit (grammar) {
+      // case first(Symbol s, list[Production] alts) =>
+           // choice(s, { p | p <- alts})
+    // }
+    // println("zitten lits hierin? <grammar>");
     grammar = factorize(grammar);
     println("printing the source code");
     g = grammar;
@@ -96,17 +101,14 @@ public str generateParseMethod(Production p){
     // note that this code heavily leans on the fact that production combinators are normalized 
     // (distribution and factoring laws have been applied to put a production expression in canonical form)
     
-    if (prod(_,lit(_),_) := p) {
-      return ""; // ignore literal productions
-    }
-    else if(prod(_,Symbol rhs,_) := p){
+    if (prod(_,Symbol rhs,_) := p){
         return "public void <sym2name(rhs)>(){
             // <p>
             expect(<value2id(removePrimes(p))>,
             <generateSymbolItemExpects(p.lhs)>);  
         }";
     }
-    else if(choice(Symbol rhs, set[Production] ps) := p){
+    else if (choice(Symbol rhs, set[Production] ps) := p){
         return "public void <sym2name(rhs)>(){
             <for (Production q:prod(_,_,_) <- ps){>
                 // <q>
@@ -153,10 +155,6 @@ public str generateParseMethod(Production p){
                 <generateSymbolItemExpects(q.lhs)>);
             <}>
        }";
-    }
-    else if (regular(_,_) := p) {
-        // do not occur as defined symbols
-        return "";
     }
     
     throw "not implemented <p>";

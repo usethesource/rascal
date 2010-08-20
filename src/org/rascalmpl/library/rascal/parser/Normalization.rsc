@@ -19,7 +19,7 @@ import Integer;
 import Set;
 
 rule merge grammar(set[Symbol] starts,set[Production] prods) =>
-           grammar(starts, index(prods, Symbol (Production p) { return sort(p); }));
+           grammar(starts, index(prods, Symbol (Production p) { return p.rhs; }));
 
 test grammar({}, {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())}) ==
      grammar({}, {choice(sort("B"), {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())})});

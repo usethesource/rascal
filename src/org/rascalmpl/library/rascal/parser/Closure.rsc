@@ -17,8 +17,12 @@ public alias KernelProduction  = tuple[Symbol nonTerminal, list[Symbol] symbols]
 public data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProduction] productions); 
 
 public KernelGrammar importGrammar(Grammar G) {
-  // TODO: will not work for the other grammar constructor
-   return kernelGrammar(G.start, { <rhs,removeLabels(lhs)> | /prod(lhs,rhs,_) <- expandRegularSymbols(G).productions});
+   if (grammar(set[Symbol] starts, set[Production] nonterminals) := G) { 
+     return kernelGrammar(starts, { <rhs,removeLabels(lhs)> | /prod(lhs,rhs,_) <- expandRegularSymbols(G).productions});
+   }
+   else if (grammar(set[Symbol] starts, map[Symbol,set[Production]] rules) := G) {
+     return kernelGrammar(starts, { <rhs, removeLabels(lhs)> | /prod(lhs,rhs,_) <- expandRegularSymbols(G).rules});
+   }
 } 
 
 // Utilities on Symbols
