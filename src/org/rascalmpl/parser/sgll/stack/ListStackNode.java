@@ -23,7 +23,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		super(id);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
@@ -33,7 +33,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		super(id, followRestrictions);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production));
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
 		this.child = child;
 		this.isPlusList = isPlusList;
@@ -119,7 +119,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(production);
+		sb.append(name);
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
