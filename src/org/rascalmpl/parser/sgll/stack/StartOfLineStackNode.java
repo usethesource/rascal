@@ -73,6 +73,7 @@ public class StartOfLineStackNode extends AbstractStackNode implements IReducabl
 	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
+		sb.append('^');
 		sb.append('(');
 		sb.append(startLocation);
 		sb.append(')');
