@@ -18,8 +18,13 @@ Pittfalls:
 
 Questions:
 
-ExprType: <int> + <int>
-ExprType: <int> + <real>
-ExprType: <real> + <int>
-Expr:     <num> + <num>
+Type: <A:int> + <B:int>
+Value: <A:int> + <B:int>  
 
+Type:<A:int> + <B:real> 
+Value:<A:int> + <B:real> 
+
+Type: <A:real> + <B:int> 
+Value: <A:real> + <B:int> 
+
+Value: <A:num> + <B:num>

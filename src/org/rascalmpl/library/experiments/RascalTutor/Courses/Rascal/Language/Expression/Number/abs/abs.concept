@@ -21,6 +21,7 @@ Pittfalls:
 
 Questions:
 
-Expr: import Number;
-      abs(<num>)
+Value: 
+prep: import Number;
+test: abs(<A:num>)
 

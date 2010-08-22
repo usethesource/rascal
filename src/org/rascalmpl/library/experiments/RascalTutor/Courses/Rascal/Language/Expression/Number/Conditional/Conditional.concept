@@ -18,13 +18,13 @@ Pittfalls:
 
 Questions:
 
-ExprType: (<int> > <int>) ? <int> : <int>
+Type: (<A:int> > <B:int>) ? <C:int> : <D:int>
 
-ExprType: (<int> > <int>) ? <real> : <real>
+Type: (<A:int> > <B:int>) ? <C:real> : <D:real>
 
-ExprType: (<int> > <int>) ? <int> : <real>
+Type: (<A:int> > <B:int>) ? <C:int> : <D:real>
 
-Expr: (<int> > <int>) ? <int> : <int>
+Value: (<A:int> > <B:int>) ? <C:int> : <D:int>
 
-Expr: (<int> > <int>) ? <int> : <real>
+Value: (<A:int> > <B:int>) ? <C:int> : <D:real>
 

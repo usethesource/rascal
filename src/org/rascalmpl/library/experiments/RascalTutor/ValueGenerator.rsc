@@ -12,35 +12,13 @@ import IO;
 import DateTime;
 import experiments::RascalTutor::CourseModel;
      
-public str generateValue(str t){
-   return generateValue(parseType(t));
-}
-
-public str generateValue(RascalType t){
-     switch(t){
-       case \bool(): 		return toString(arbBool());
-       case \int(): 		return toString(arbInt(20));
-       case \real(): 		return toString(20 * arbReal());
-       case \num(): 		return generateNumber();
-       case \str(): 		return generateString();
-       case \loc():			return generateLoc();
-       case \dateTime():	return generateDateTime();
-       case \list(et): 		return generateList(et);
-       case \set(et):		return generateSet(et);
-       case \map(kt, vt):	return generateMap(kt, vt);
-       case \tuple(list[RascalType] ets):	
-       						return generateTuple(ets);
-       case \rel(list[RascalType] ets):	
-       						return generateSet(\tuple(ets));
-     }
-     throw "Unknown type: <t>";
-}
+// ---- Parsing types
 
 private list[RascalType] baseTypes = [\bool(), \int(), \real(), \num(), \str(), \loc(), \dateTime()];
 private list[RascalType] reducedBaseTypes = [\bool(), \int(), \real(), \str()];
 
-
 public RascalType parseType(str txt){
+   println("parseType: <txt>");
    switch(txt){
      case /^bool$/:		return \bool();
      case /^int$/: 		return \int();
@@ -66,6 +44,8 @@ public RascalType parseType(str txt){
      					
      case /^rel\[<ets:.+>\]$/:
      					return \set(\tuple(parseTypeList(ets)));
+     case /^value$/: 	return \value();
+     case /^void$/:		return \void();
      					
      case /^arb\[<depth:[0-9]>\]$/:{
      						return \arb(toInt(depth), baseTypes);
@@ -82,8 +62,8 @@ public RascalType parseType(str txt){
      					
      case /^arb$/:		return \arb(0, baseTypes);
      
-     case /^prev\[<depth:[0-9]>\]$/:
-     					return \prev(toInt(depth));
+     case /^same\[<name:[A-Za-z0-9]+>\]$/:
+     					return \same(name);
    }
    throw "Parse error in type: <txt>";
 }
@@ -124,73 +104,146 @@ test parseType("rel[int,tuple[real,str]]") == \set(\tuple([\int(), \tuple([\real
 test parseType("arb[0]") == \arb(0, [\bool(),\int(),\real(),\num(),\str(),\loc(),\dateTime()]);
 test parseType("set[arb]") == \set(\arb(0,[\bool(),\int(),\real(),\num(),\str(),\loc(),\dateTime()]));
 
-public RascalType generateType(str t){
-  return generateType(parseType(t), []);
+test parseType("value") == \value();
+test parseType("set[value]") == \set(\value());
+test parseType("void") == \void();
+
+
+// --- printing types
+
+public str toString(RascalType t){
+     switch(t){
+       case \bool(): 		return "bool";
+       case \int(): 		return "int";
+       case \real(): 		return "real";
+       case \num(): 		return "num";
+       case \str(): 		return "str";
+       case \loc():			return "loc";
+       case \dateTime():	return "datetime";
+       case \list(et): 		return "list[<toString(et)>]";
+       case \set(et):		return "set[<toString(et)>]";
+       case \map(kt, vt):	return "map[<toString(kt)>,<toString(vt)>]";
+       case \tuple(list[RascalType] ets):	
+       						return "tuple[<for(i<-index(ets)){><(i>0)?",":""><toString(ets[i])><}>]";
+       case \rel(list[RascalType] ets):	
+       						return "rel[<for(i<-index(ets)){><(i>0)?",":""><toString(ets[i])><}>]";
+       case \value():		return "value";
+       case \void():		return "void";
+     }
+     throw "Unknown type: <t>";
 }
 
-public RascalType generateType(RascalType t, list[RascalType] previous){
-     println("generateType(<t>, <previous>)");
+// ---- Generating types
+
+public RascalType generateType(str t){
+  return generateType(parseType(t), ());
+}
+
+public RascalType generateType(str t, VarEnv env){
+  return generateType(parseType(t), env);
+}
+
+public RascalType generateType(RascalType t){
+  return generateType(t, ());
+}
+
+public RascalType generateType(RascalType t, VarEnv env){
+     println("generateType(<t>, <env>)");
      switch(t){
-       case \list(et): 		return \list(generateType(et, previous));
-       case \set(et):		return \set(generateType(et, previous));
-       case \map(kt, vt):  	return \map(generateType(kt, previous), generateType(vt, previous));
+       case \list(et): 		return \list(generateType(et, env));
+       case \set(et):		return \set(generateType(et, env));
+       case \map(kt, vt):  	return \map(generateType(kt, env), generateType(vt, env));
        case \tuple(list[RascalType] ets):	
-       						return generateTupleType(ets, previous);
+       						return generateTupleType(ets, env);
        case \rel(list[RascalType] ets):	
-       						return generateRelType(ets, previous);
+       						return generateRelType(ets, env);
        case \arb(int d, list[RascalType] tps):
-       						return generateArbType(d, tps);
-       case \prev(int p):	return previous[p];
+       						return generateArbType(d, tps, env);
+       case \same(str name):return env[name].rtype;
        default:				return t;
      }
      throw "Unknown type: <t>";
 }
 
-public RascalType generateTupleType(list[RascalType] ets, list[RascalType] previous){
-   return \tuple([generateType(et, previous) | et <- ets ]);
+// ---- Variables used in a RascalType
+
+public set[str] uses(RascalType t){
+     println("uses(<t>)");
+     set[str] u = {};
+     visit(t){
+       case \same(str name): u += name;
+     }
+    return u;
 }
 
-public RascalType generateRelType(list[RascalType] ets, list[RascalType] previous){
-   return \rel([generateType(et, previous) | et <- ets ]);
+public RascalType generateTupleType(list[RascalType] ets, VarEnv env){
+   return \tuple([generateType(et, env) | et <- ets ]);
 }
 
-test generateType(\bool(), []) == \bool();
-test generateType(\int(), []) == \int();
-test generateType(\real(), []) == \real();
-test generateType(\num(), []) == \num();
-test generateType(\loc(), []) == \loc();
-test generateType(\dateTime(), []) == \dateTime();
-test generateType(\list(\int()), []) == \list(\int());
-test generateType(\set(\int()), []) == \set(\int());
-test generateType(\map(\str(), \int()), []) == \map(\str(), \int());
-test generateType(\tuple([\int(), \str()]), []) == \tuple([\int(), \str()]);
-test generateType(\rel([\int(), \str()]), []) == \rel([\int(), \str()]);
-test generateType(\prev(0), [\int(), \str()]) == \int();
-test generateType(\prev(1), [\int(), \str()]) == \str();
-test generateType(\list(\prev(1)), [\int(), \str()]) == \list(\str());
+public RascalType generateRelType(list[RascalType] ets, VarEnv env){
+   return \rel([generateType(et, env) | et <- ets ]);
+}
 
+test generateType(\bool(), ()) == \bool();
+test generateType(\int(), ()) == \int();
+test generateType(\real(), ()) == \real();
+test generateType(\num(), ()) == \num();
+test generateType(\loc(), ()) == \loc();
+test generateType(\dateTime(), ()) == \dateTime();
+test generateType(\list(\int()), ()) == \list(\int());
+test generateType(\set(\int()), ()) == \set(\int());
+test generateType(\map(\str(), \int()), ()) == \map(\str(), \int());
+test generateType(\tuple([\int(), \str()]), ()) == \tuple([\int(), \str()]);
+test generateType(\rel([\int(), \str()]), ()) == \rel([\int(), \str()]);
+test generateType(\same("A"), ("A" : <\int(),"">, "B" : <\str(), "">)) == \int();
+test generateType(\same("B"), ("A" : <\int(),"">, "B" : <\str(), "">)) == \str();
+test generateType(\list(\same("B")), ("A" : <\int(),"">, "B" : <\str(), "">)) == \list(\str());
 
-public RascalType generateArbType(int n, list[RascalType] prefs){
+public RascalType generateArbType(int n, list[RascalType] prefs, VarEnv env){
    if(n <= 0)
    	  return getOneFrom(prefs);
    	  
    switch(arbInt(5)){
-     case 0: return \list(generateArbType(n-1, prefs));
-     case 1: return \set(generateArbType(n-1, prefs));
-     case 2: return \map(generateArbType(n-1, prefs), generateArbType(n-1, prefs));
-     case 3: return generateArbTupleType(n-1, prefs);
-     case 4: return generateArbRelType(n-1, prefs);
+     case 0: return \list(generateArbType(n-1, prefs, env));
+     case 1: return \set(generateArbType(n-1, prefs, env));
+     case 2: return \map(generateArbType(n-1, prefs, env), generateArbType(n-1, prefs, env));
+     case 3: return generateArbTupleType(n-1, prefs, env);
+     case 4: return generateArbRelType(n-1, prefs, env);
    }
 } 
 
-public RascalType generateArbTupleType(int n, list[RascalType] prefs){
-   return \tuple([generateArbType(n - 1, prefs) | int i <- [0 .. arbInt(5)] ]);
+// ---- Generating values
+
+public str generateValue(str t){
+   return generateValue(parseType(t), ());
 }
 
-public RascalType generateArbRelType(int n, list[RascalType] prefs){
-   return \rel([generateArbType(n - 1, prefs) | int i <- [0 .. arbInt(5)] ]);
+public str generateValue(RascalType t){
+   return generateValue(t, ());
 }
 
+public str generateValue(RascalType t, VarEnv env){
+     switch(t){
+       case \bool(): 		return toString(arbBool());
+       case \int(): 		return toString(arbInt(20));
+       case \real(): 		return toString(20 * arbReal());
+       case \num(): 		return generateNumber();
+       case \str(): 		return generateString();
+       case \loc():			return generateLoc();
+       case \dateTime():	return generateDateTime();
+       case \list(et): 		return generateList(et, env);
+       case \set(et):		return generateSet(et, env);
+       case \map(kt, vt):	return generateMap(kt, vt, env);
+       case \tuple(list[RascalType] ets):	
+       						return generateTuple(ets, env);
+       case \rel(list[RascalType] ets):	
+       						return generateSet(\tuple(ets), env);
+       case \value():		return generateArb(0, baseTypes, env);
+       case \arb(d, tps):   return generateArb(d, tps, env);
+       case \same(name):	return generateValue(env[name].rtype, env);
+     }
+     throw "Unknown type: <t>";
+}
 
 set[set[str]] vocabularies =
 {
@@ -247,7 +300,7 @@ public str generateNumber(){
 }
 
 public str generateLoc(){
-   return "|file:///home/paulk/pico.trm|(0,1,\<2,3\>,\<4,5\>)";
+  return "|file:///home/paulk/pico.trm|(0,1,\<2,3\>,\<4,5\>)";
    /*
    scheme = getOneFrom(["http", "file", "stdlib", "cwd"]);
    authority = "auth";
@@ -305,37 +358,102 @@ public str generateString(){
   return "\"<getOneFrom(vocabulary)>\"";
 }
 
-public str generateList(RascalType et){
-   return "[<for(int i <- [0 .. arbInt(5)]){><(i==0)?"":", "><generateValue(et)><}>]";
+public str generateList(RascalType et, VarEnv env){
+   return "[<for(int i <- [0 .. arbInt(5)]){><(i==0)?"":", "><generateValue(et, env)><}>]";
 }
 
-public str generateSet(RascalType et){
-   return "{<for(int i <- [0 .. arbInt(5)]){><(i==0)?"":", "><generateValue(et)><}>}";
+public str generateSet(RascalType et, VarEnv env){
+   return "{<for(int i <- [0 .. arbInt(5)]){><(i==0)?"":", "><generateValue(et, env)><}>}";
 }
 
-public str generateMap(RascalType kt, RascalType vt){
-   return "(<for(int i <- [0 .. arbInt(5)]){><(i==0)?"":", "><generateValue(kt)> : <generateValue(vt)><}>)";
+public str generateMap(RascalType kt, RascalType vt, VarEnv env){
+   return "(<for(int i <- [0 .. arbInt(5)]){><(i==0)?"":", "><generateValue(kt, env)> : <generateValue(vt, env)><}>)";
 }
 
-public str generateTuple(list[RascalType] ets){
-   return "\<<for(int i <- [0 .. size(ets)-1]){><(i==0)?"":", "><generateValue(ets[i])><}>\>";
+public str generateTuple(list[RascalType] ets, VarEnv env){
+   return "\<<for(int i <- [0 .. size(ets)-1]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
 }
 
-public str generateRel(list[RascalType] ets){
-   return "\<<for(int i <- [0 .. size(elts)-1]){><(i==0)?"":", "><generateValue(ets[i])><}>\>";
+public str generateRel(list[RascalType] ets, VarEnv env){
+   return "\<<for(int i <- [0 .. size(elts)-1]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
 }
 
-public str generateExpr(str expr){
-  previous = [];
-  return
+public str generateArb(int n, list[RascalType] prefs, VarEnv env){
+   if(n <= 0)
+   	  return generateValue(getOneFrom(prefs), env);
+   	  
+   switch(arbInt(5)){
+     case 0: return \list(generateArb(n-1, prefs, env));
+     case 1: return \set(generateArb(n-1, prefs, env));
+     case 2: return \map(generateArb(n-1, prefs, env), generateArb(n-1, prefs, env));
+     case 3: return generateArbTuple(n-1, prefs, env);
+     case 4: return generateArbRel(n-1, prefs, env);
+   }
+} 
+
+public RascalType generateArbTupleType(int n, list[RascalType] prefs, VarEnv env){
+   return \tuple([generateArbType(n - 1, prefs, env) | int i <- [0 .. arbInt(5)] ]);
+}
+
+public RascalType generateArbRelType(int n, list[RascalType] prefs, VarEnv env){
+   return \rel([generateArbType(n - 1, prefs, env) | int i <- [0 .. arbInt(5)] ]);
+}
+
+public list[tuple[str,RascalType]] autoDeclare(str expr){
+    list[tuple[str,RascalType]] d = [];
+    set[str] decls = {};
     visit(expr){
-      case /^\<<tp:[a-z0-9,\[\]]+>\>/: {
-        println("tp = <tp>, previous = <previous>");
-        atp = generateType(parseType(tp), previous);
-        println("atp = <atp>");
-        previous += atp;
-        insert generateValue(atp);
+      case /^\<<name:[A-Za-z0-9]>:<tp:[A-Za-z0-9,\[\]]+>\>/: {
+        atp = parseType(tp);
+        u = uses(atp);
+        if(u - decls != {})
+        	throw "reference to undefined sort: <u - decls>";
+        d += <name, atp>;
+        decls += name;
+      }
+      case /^\<@?<name:[A-Za-z0-9]>\>/: {
+        throw "name reference \<<name>\>not allowed";
+      }
+      case/^\<<tp:[A-Za-z0-9,\[\]]+>\>/: {
+        throw "nameless type \<<tp>\> not allowed";
       }
     };
+    return d;
 }
-     
+
+// ---- Substitute given value assignment in a text
+
+public str subst(str txt, VarEnv env){
+  println("subst(<txt>,<env>)");
+  return visit(txt){
+     case /^\<<name:[A-Z]>\>/: {
+        println("name = <name>");
+        v = env[name].rval;
+        insert v;
+      }
+      case /^\<<name:[A-Z]>:<tp:[A-Za-z0-9,\[\]]+>\>/: {
+        println("name = <name>");
+        v = env[name].rval;
+        insert v;
+      }
+      case /^\<@<name:[A-Z]>\>/: {
+        println("name = <name>");
+        v = toString(env[name].rtype);
+        insert v;
+      }
+  };
+}
+
+// ---- Used variables in a text
+
+public set[str] uses(str txt){
+  println("uses(<txt>)");
+  set[str] u = {};
+  visit(txt){
+     case /^\<@?<name:[A-Z]>\>/: {
+        println("name = <name>");
+        u += name;
+      }
+  };
+  return u;
+}

@@ -54,6 +54,7 @@ b: The type of the first element that was first added to the set.
 b: The upperbound of the type of two arbitrary elements.
 g: The upperbound of the type of all elements.
 
-Type: set[arb]
-ExprType: {<int>, <str>, <int>}
+Type: <A:set[arb]>
+
+Type: {<A:int>, <B:str>, <C:int>}
 

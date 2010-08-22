@@ -19,5 +19,5 @@ Pittfalls:
 
 Questions:
 
-ExprType: <set[arb]> > <prev[0]>
+Type: <A:set[arb]> > <B:same[A]>
 

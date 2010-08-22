@@ -19,5 +19,5 @@ Pittfalls:
 
 Questions:
 
-ExprType: <set[arb[0,int,str,real]]> <= <prev[0]>
+Type: <A:set[arb[0,int,str,real]]> <= <B:same[A]>
 

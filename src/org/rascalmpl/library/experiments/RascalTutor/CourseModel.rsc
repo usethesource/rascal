@@ -41,14 +41,29 @@ data Concept =
         		
 data Question = choiceQuestion(QuestionName name, str descr, list[Choice] choices)
               | textQuestion(QuestionName name, str descr, set[str] replies)
-              | typeQuestion(QuestionName name, str descr, list[str] setup, str tp)
-              | exprQuestion(QuestionName name, str descr, list[str] setup, str expr)
-              | exprTypeQuestion(QuestionName name, str descr, list[str] setup, str expr)
+              | tvQuestion(TVkind kind, TVdetails details)
+ // Some future possibilities:
               | commandQuestion(QuestionName name, str descr, list[str] setup, str expr, str validate)
               | funQuestion(QuestionName name, str descr, str fname, RascalType resultType, list[RascalType] argTypes, str reference)
               | moduleQuestion(QuestionName name, str descr, str mname, str fname, RascalType resultType, list[RascalType] argTypes, str reference)
 			  ;
-		
+data TVdetails = details(QuestionName name, 
+                         str descr, 
+                         list[str] setup,   // setup code
+                         str lstBefore,     //  listing before hole
+                         str lstAfter,      // listing after hole
+                         str cndBefore,     // condition before hole
+                         str cndAfter,      // condition after hole
+                         bool holeInLst,     // is there a hole in the listing?
+                         bool holeInCnd,    // is there a hole included in the condition?
+                         list[tuple[str,RascalType]] vars, 
+                         list[tuple[str,str]] auxVars, 
+                         RascalType rtype,
+                         str hint)
+              ;
+data TVkind   = valueOfExpr()
+              | typeOfExpr()
+              ;
 // TODO:
 // - labels in tuples and relations are not yet handled
 
@@ -65,13 +80,17 @@ data RascalType =
      | \map(RascalType key, RascalType val)
      | \tuple(list[RascalType] tps)
      | \rel(list[RascalType] tps)
+     | \value()
+     | \void()
      | \arb(int depth, list[RascalType] tps)	// arbitrary type of max depth and preference for leaf types
-     | \prev(int idx)             				// a previously generated type
+     | \same(str name)             				// a previously generated type
      ;
 
 data Choice = good(str description)
             | bad(str description)
             ;
+            
+alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
             
 // Common utilities
 

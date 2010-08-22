@@ -20,11 +20,37 @@ Pittfalls:
 
 Questions:
 
-ExprType:import Number;
-         max(<int>, <int>)
-ExprType:import Number;
-         max(<int>, <real>)
-ExprType:import Number;
-         max(<real>, <real>)
-Expr:    import Number;
-         max(<num>, <num>)
+Value: max(<A:num>, <B:num>)
+prep:  import Number;
+
+Value:
+prep: import Number;
+make: A = num
+make:  B = num
+expr: B = <A> + abs(<B>)
+test: max(<A>, <?>) == <B>
+
+Value:
+prep: import Number;
+make: A = int
+make:  B = int
+hint: <B> - <A>
+test: <A> + <?> == <B>
+
+Value:
+prep: import Set;
+prep: import Number;
+make: A = int
+expr: B = abs(<A>)
+test: size({ <?> }) == <B>
+
+Type: <A:set[int]>
+prep: import Set;
+
+Value:{ <?> }
+prep: import Set;
+type: set[int]
+
+
+
+

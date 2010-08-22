@@ -20,7 +20,14 @@ Pittfalls:
 
 Questions:
 
-ExprType: min(<int>, <int>)
-ExprType: min(<int>, <real>)
-ExprType: min(<real>, <real>)
-Expr:     min(<num>, <num>)
+Type: min(<A:int>, <B:int>)
+prep: import Number;
+
+Type: min(<A:int>, <B:real>)
+prep: import Number;
+
+Type: min(<A:real>, <B:real>)
+prep: import Number;
+
+Value: min(<A:num>, <B:num>)
+prep:  import Number;

@@ -1,0 +1,135 @@
+Name: Test
+
+Related:
+
+Synopsis: a + b
+
+Description: Just testing questions
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+XXXType: <A:int> + <B:int>
+
+XXXValue: <A:int> + <B:int>
+
+Value: <A:arb[int,str]> + <B:same[A]>
+
+XXXValue: <A:int> + <?> == <B:int>
+
+XXXType:  { 1, <?> }
+type:  set[int]
+
+XXXValue:
+desc: Complete a variable declaration with a XXXType.
+make: A = str
+hint: the XXXType <@A>
+list:
+<?> X = <A>;
+
+XXXType: <A:int> + <B:int>
+
+XXXType:
+make: A = int
+test: <A>
+
+XXXType:
+prep: import Set;
+make: A = set[int]
+XXXType: same[A]
+test: { <?> }
+
+XXXType:
+prep: import Set;
+make: A = set[int]
+XXXType: same[A]
+test: {1, <?> }
+
+XXXType:
+make: A = int
+XXXType: same[A]
+list: 
+N = <A>;
+test: N
+
+XXXType:
+make: A = int
+XXXType: same[A]
+list: 
+N = <?>;
+test: N
+
+XXXType:
+prep: import Set;
+make: A = set[arb[bool,int,str,real,num]]
+XXXType: same[A]
+list: N = <A>;
+test: N
+
+XXXValue:
+make: A = int
+make: B = int
+expr: B = <A> + 1
+hint: any XXXValue unequal to <B>
+list: 
+N = <A>;
+if(<B> == <?>){
+   N += 1;
+}
+test: N == <A>;
+
+XXXValue:
+make: A = int
+hint: <A>
+list:
+N = <A>;
+test: N
+
+XXXValue:
+prep: import Number;
+make: A = num
+make: B = num
+test: max(<A>, <B>)
+
+XXXValue:
+prep: import Number;
+make: A = num
+make: B = num
+expr: C = <A> + abs(<B>)
+hint: <C>
+test: max(<A>, <?>) == <C>
+
+XXXValue:
+prep: import Number;
+make: A = int
+make: B = int
+expr: C = <B> - <A>
+expr: D = (<C> > 0) ?  "\"<C>\"" : "\"(<C>)\" A negative number that follows a + operator has to be surrounded by ( and )"
+hint: <D>
+test: <A> + <?> == <B>
+
+XXXValue:
+prep: import Set;
+prep: import Number;
+make: A = int
+expr: B = abs(<A>)
+hint: <B> XXXValues separated by commas
+test: size({ <?> }) == <B>
+
+XXXValue:
+prep: import Set;
+prep: import Number;
+make: A = set[int]
+make: B = set[int]
+expr: C = <A> + <B>
+hint: <C>
+test: <A> + <?> == <C>
+
+
+
+

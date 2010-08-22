@@ -22,9 +22,9 @@ Pittfalls:
 
 Questions:
 
-ExprType: <int> != <int>
-ExprType: <real> != <real>
-ExprType: <num> != <num>
-ExprType: <num> != <num>
-Expr: <num> != <num>
+Type:  <A:int> != <B:int>
+Type:  <A:real> != <B:real>
+Type:  <A:num> != <B:num>
+Type:  <A:num> != <B:num>
+Value: <A:num> != <B:num>
 

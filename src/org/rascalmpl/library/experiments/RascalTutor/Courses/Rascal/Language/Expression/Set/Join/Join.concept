@@ -20,7 +20,7 @@ Pittfalls:
 
 Questions:
 
-ExprType: <set[tuple[arb[int,str]]]> join <set[tuple[arb,str,int]]>
-Expr: <set[tuple[arb[int,str]]]> join <set[tuple[arb,str,int]]>
+Type:  <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb,str,int]]>
+Value: <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb,str,int]]>
 
 

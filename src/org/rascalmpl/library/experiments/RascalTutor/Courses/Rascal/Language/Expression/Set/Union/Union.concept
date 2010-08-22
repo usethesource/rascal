@@ -27,9 +27,9 @@ b: Smaller than the number of elements in both sets.
 b: Smaller than or equal the number of elements in both sets.
 
 
-ExprType: <set[arb[int,str]]> + <prev[0]>
+Type: <A:set[arb[int,str]]> + <B:same[A]>
 
-ExprType: <set[arb]> + <prev[0]>
+Type: <A:set[arb]> + <B:same[A]>
 
-Expr: <set[arb[0,int,str,num,real]]> + <prev[0]>
+Value: <A:set[arb[0,int,str,num,real]]> + <B:same[A]>
 

@@ -8,6 +8,11 @@ Description: Variations on the ubiquitous ''Hello World'' example.
 
 Examples:
 
+An endless loop:
+<screen>
+while(true) 10;
+</screen>
+
 == First version: hello on the command line ==
 
 We demonstrate hello via an interactive session with the Rascal system. First we get the prompt '''<tt>rascal></tt>''' that shows that Rascal is ready for our input. Next, we import the library module IO since hello world requires printing. Rascal responds with the feedback '''<tt>ok</tt>''' so we know that all went well. Finally, we call <tt>println</tt> and proudly observe our first Rascal output!
@@ -25,8 +30,13 @@ import IO;
 void hello() {
    println("Hello world, this is my first Rascal program");
 }
-//When you type in a command and continue it on a new line //the Rascal systems prompts you with <tt>>>>>>>></tt> to //indicate that more input is needed. Don't get scared by //the <tt>void (): void hello();</tt> that you get back //when typing in the hello function. The first 
-// <tt>void ()</tt> part says the result is a function that // returns //nothing, and the second part 
+//When you type in a command and continue it on a new line 
+//the Rascal systems prompts you with <tt>>>>>>>></tt> to 
+//indicate that more input is needed. Don't get scared by 
+//the <tt>void (): void hello();</tt> that you get back 
+//when typing in the hello function. The first 
+// <tt>void ()</tt> part says the result is a function that 
+// returns nothing, and the second part 
 // <tt>void hello()</tt> summarizes its value 
 // (or would you prefer a hex dump?).
 // Finally, we call the <tt>hello</tt> function and enjoy its output.

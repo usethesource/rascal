@@ -19,7 +19,7 @@ Pittfalls:
 
 Questions:
 
-ExprType: -<int>
-ExprType: -<real>
-Expr:     -<num>
+Type:  -<A:int>
+Type:  -<A:real>
+Value: -<A:num>
 
