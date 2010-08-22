@@ -69,9 +69,9 @@ data TVkind   = valueOfExpr()
 
 data RascalType =
        \bool()
-     | \int()
-     | \real()
-     | \num()
+     | \int(int from, int to)
+     | \real(int from, int to)
+     | \num(int from, int to)
      | \str()
      | \loc()
      | \dateTime()
