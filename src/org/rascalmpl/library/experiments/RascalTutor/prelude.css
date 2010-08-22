@@ -79,8 +79,15 @@ th, td {
     font-size: 10px;
 }
 
-textarea {
+.answerText {
     font-size: 18px;
+    height: 12pt;
+    width: 20em;
+}
+
+textarea {
+    width: 80em;
+    height: 40em;
 }
 
 .editSubmit{
@@ -149,7 +156,7 @@ pre.listing
 {
         font-family:monospace;
         white-space: pre;
-        width: 96%;
+/*        width: 96%; */
 /*        background-color: #ffffdd; */
 /*        background-color: #eeff88; */
         background-color: MintCream;
@@ -164,6 +171,27 @@ pre.listing
         padding-left: 15px;
         padding-right: 10px;
 }
+
+pre.question
+{
+        font-family:monospace;
+        white-space: pre;
+/*        width: 96%; */
+/*        background-color: #ffffdd; */
+/*        background-color: #eeff88; */
+        background-color: lightblue;
+        border:solid;
+        color: #000000;
+        border-color: #9b8c8b;
+        border-left: solid #9b8c8b 1px;
+        border-right: solid #9b8c8b 1px;
+        border-top: solid #9b8c8b 1px;
+        border-bottom: solid #9b8c8b 1px;
+
+        padding-left: 15px;
+        padding-right: 10px;
+}
+
 /*
 H1
 {

@@ -16,8 +16,9 @@ public str mkConceptTemplate(ConceptName cn){
 return "Name: <cn>\n\nRelated:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
 }
 
-//parseConcept(|stdlib:///org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Language/Expression/Number/max.concept|, courseRoot);
-
+public void tst(){
+   parseConcept(|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/Test/Test.concept|, "/Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/");
+}
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
 // Questions is the last section and is treated special: it contains questions that are analyzed later
 
@@ -63,7 +64,7 @@ public list[str] splitLines(str text){
 public Concept parseConcept(loc file, str coursePath){
    return parseConcept(file, readFileLines(file), coursePath);
 }
-   
+
 public Concept parseConcept(loc file, list[str] script, str coursePath){
 
    println("parseConcept: script = ***<script>***");
@@ -125,7 +126,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           questions += textQuestion("<cname><nquestions>", markup([question]), answers);
           nquestions += 1;
        }
-     case /^Choice:<question:.*>$/: {
+       case /^Choice:<question:.*>$/: {
           i += 1;
           good_answers = [];
           bad_answers = [];
@@ -143,63 +144,19 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           questions += choiceQuestion("<cname><nquestions>", markup([question]), choices);
           nquestions += 1;
        }
-       
-     case /^Type:\s*<tp:.*>\s*$/: {
-          setup = (size(tp) != 0) ? [tp] : [];
-          i += 1;
-          while(i < n && /^[A-Z][A-Za-z]+:/ !:= qsection[i] ){
-             if(/\S+/ := qsection[i])
-             	setup += qsection[i];
-             i += 1;
-          }
-          try {
-          println("Type question: tp = <tp>, setup = <setup>");
-            tp = last(setup);
-            setup = head(setup, size(setup)-1);
-            parseType(tp); // to make sure it is correct
-         	questions += typeQuestion("<cname><nquestions>", "", setup, tp);
-         	nquestions += 1;
-          } catch:
-            throw "TypeQuestion: syntax error in type specification <tp>";
+ 
+      case /^Value:\s*<cnd:.*>$/: {
+           <i, q> = getTvQuestion(valueOfExpr(), "<cname><nquestions>", qsection, i, cnd);
+           questions += q;
+           nquestions += 1;
       }
       
-      case /^Expr:\s*<expr:.*>$/: {
-          setup = (size(expr) != 0) ? [expr] : [];
-          i += 1;
-          while(i < n && /^[A-Z][A-Za-z]+:/ !:= qsection[i] ){
-             if(/\S+/ := qsection[i])
-             	setup += qsection[i];
-             i += 1;
-          }
-          try {
-            println("Expr question: expr = <expr>, setup = <setup>");
-            expr = last(setup);
-            setup = head(setup, size(setup)-1);
-            // TODO: to make sure it is correct
-         	questions += exprQuestion("<cname><nquestions>", "", setup, expr);
-         	nquestions += 1;
-          } catch:
-            throw "ExprQuestion: syntax error in expression";
+      case /^Type:\s*<cnd:.*>$/: {
+           <i, q> = getTvQuestion(typeOfExpr(), "<cname><nquestions>", qsection, i, cnd);
+           questions += q;
+           nquestions += 1;
       }
       
-      case /^ExprType:\s*<expr:.*>$/: {
-          setup = (size(expr) != 0) ? [expr] : [];
-          i += 1;
-          while(i < n && /^[A-Z][A-Za-z]+:/ !:= qsection[i] ){
-             if(/\S+/ := qsection[i])
-             	setup += qsection[i];
-             i += 1;
-          }
-          try {
-            // TODO: to make sure it is correct
-            println("ExprType question: expr = <expr>, setup = <setup>");
-            expr = last(setup);
-            setup = head(setup, size(setup)-1);
-         	questions += exprTypeQuestion("<cname><nquestions>", "", setup, expr);
-         	nquestions += 1;
-          } catch:
-            throw "ExprQuestion: syntax error in expression";
-      }
       case /^\s*$/:
             i += 1;
    
@@ -210,6 +167,171 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
      }
    }
    return questions;
+}
+
+public tuple[int, Question] getTvQuestion(TVkind kind, str name, list[str] qsection, int i, str cnd){
+     n = size(qsection);
+	 if(cnd != "")
+	   qsection[i] = "test: <cnd>";
+	 else
+	   i += 1;
+	 
+	 setup = [];
+	 desc = "";
+     vars = [];
+     auxVars = [];
+     hint = "";
+     rtype = \void();
+     listing = "";
+	 cndBefore = "";
+	 cndAfter = "";
+	 lstBefore = "";
+	 lstAfter = "";
+	 holeInCnd = false;
+	 holeInLst = false;
+	 
+	 set[str] definedVars = {};
+	 set[str] usedVars = {};
+	 
+	 while(i < n && /^[A-Z][A-Za-z]+:/ !:= qsection[i]){
+	   println(qsection[i]);
+	   switch(qsection[i]){
+	   
+	    case /^desc:\s*<rest:.*>$/:
+	     { desc += rest; i += 1; }
+	   
+	    case /^prep:\s*<rest:.*>$/: 
+	      { setup += rest; i += 1;}
+	    
+	    case /^make:\s*<name:[A-Za-z0-9]+>\s*\=\s*<tp:.*>$/:
+	      { try { vars += <name, parseType(tp)>; }
+	        catch:
+	            throw "Question <name>: type of generated variable <name> is incorrect";
+	        definedVars += name;	
+	        i += 1; 
+	      }
+	      
+	    case /^expr:\s*<name:[A-Za-z0-9]+>\s*\=\s*<expr:.*>$/:
+	      { auxVars += <name, expr>;
+	        u = uses(expr);
+	        if(u - definedVars != {})
+	           throw "Question <name>: expr uses undefined variables: <u - definedVars>";
+	        definedVars += name;
+	        usedVars += u;
+	        i += 1; 
+	      }
+	      
+	    case /^type:\s*<tp:.*>$/: {
+	        rtype = \void();
+			try { rtype = parseType(tp); }
+			catch:
+			    throw "Question <name>: cannot parse type of expected type";
+	        usedVars += uses(rtype);
+	        i += 1; 
+		}
+		case /^hint:\s*<txt:.*>$/: {
+			hint = txt; 
+	        usedVars += uses(txt);
+	        i += 1; 
+		}
+		case /^test:\s*<e:.*>$/: {
+		   if(cndBefore + cndAfter != "")
+		      throw "Question <name>: has already a test <cnd>";
+		   if (/^<b:.*>\<\?\><a:.*>$/ := e){
+		     cndBefore = b;
+		     cndAfter = a;
+		     holeInCnd = true;
+		   } else {
+		     cndBefore = e;
+		   }
+	       usedVars += uses(cndBefore + cndAfter);
+		   i += 1;
+		}
+	      
+	    case /^list:\s*<rest:.*>$/: {
+	      if(size(rest) > 0)
+	        qsection[i] = rest;
+	      else
+	         i += 1;
+	      while(i < n && /^[A-Z][A-Za-z]+:/ !:= qsection[i] && /^test:/ !:= qsection[i]){
+	        println(qsection[i]);
+	        if (/^<b:.*>\<\?\><a:.*>$/ := qsection[i]){
+	          lstBefore += b;
+	          lstAfter = a + "\n";
+	          holeInLst = true;
+	        } else {
+	          if(holeInLst) 
+	            lstAfter += qsection[i] + "\n";
+	          else
+	       		 lstBefore += qsection[i] + "\n";
+	        }
+	        usedVars += uses(lstBefore + lstAfter);
+	        i += 1;
+	       
+          } //while
+	    } // case
+
+        case /^\s*$/:
+          i += 1;
+
+        default: {
+          println("Skipping: <qsection[i]>"); i += 1;
+        }
+	   } // switch
+	 } // while
+	
+    println("setup = <setup>");
+    println("vars = <vars>");
+    println("auxVars = <auxVars>");
+    println("hint = <hint>");
+
+	 println("Details: setup = <setup>, lstBefore = <lstBefore>, holeInLst = <holeInLst>, cndBefore = <cndBefore>, cndAfter = <cndAfter>, holeInCnd = <holeInCnd>, vars = <vars>, auxVars = <auxVars>");
+
+/*
+       Lst holeInLst holeInCnd Exp
+Value   +      +         +      0   ERROR
+        +      +         -      0
+        +      -         +      0
+        +      -         -      0
+        -      +         0      0   ERROR
+        -      -         +      0
+        -      -         -      0
+        -      -         -      0   ERROR
+        
+Type    +      +         +      0   ERROR
+        +      +         -      0
+        +      -         +      0
+        +      -         -      0
+        -      +         0      0   ERROR
+        -      -         +      +
+        -      -         +      -   ERROR
+        -      -         -      0
+        -      -         -      0   ERROR    
+*/
+     if(holeInLst && holeInCnd)
+        throw "Question <name> should have at most one hole";
+        
+     if((lstBefore + lstAfter) == "" && holeInLst)
+        throw "Question <name> has an empty listing with a hole";
+        
+     if((cndBefore + cndAfter) == "" && !(holeInLst))
+        throw "Question <name> has no test";
+        
+     if(kind == typeOfExpr() && holeInCnd && rtype == \void())
+           throw "Type question <name> has condition with a hole and requires an expected type";
+     
+     if(usedVars - definedVars != {})
+        throw "Question <name>: undefined variables <usedVars - definedVars>";
+        
+     if(definedVars - usedVars != {})
+        throw "Question <name>: unused variables <definedVars - usedVars>";
+        
+     if(definedVars == {} && vars == [])
+        try {
+          vars = autoDeclare(cndBefore + cndAfter);
+        } catch: throw "Question <name>: illegal type in test";
+
+     return <i, tvQuestion(kind, details(name, desc, setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
 }
 
 // Compute the refinements induced by the path

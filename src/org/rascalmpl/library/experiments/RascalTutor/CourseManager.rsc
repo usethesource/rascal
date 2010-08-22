@@ -43,8 +43,8 @@ public map[str, ConceptName] related = ();
 private void initialize(){
   if(root == ""){
      //c = readTextValueFile(#Course, |file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Rascal.course|);
-     //c = course("Rascal Tutorial",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/|,"Rascal",("Rascal/Expression/Integer/Addition":concept("Addition",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Expression/Integer/Addition.concept|,[],"\<tt\> \<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>"," Exp1 + Exp2\n\n",{"+"}," ","","","",[]),"Rascal/Expression":concept("Expression",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Expression/Expression.concept|,[],"","\n\n",{}," ","","","",[]),"Rascal/Datastructure/Tuple":concept("Tuple",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Datastructure/Tuple/Tuple.concept|,[],"","\n\n",{},"xxxx yyyy","","","",[]),"Rascal/Expression/Integer":concept("Integer",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Expression/Integer/Integer.concept|,[],"","\n\n",{}," ","","","",[]),"Rascal/Datastructure/Set/Comprehension":concept("Comprehension",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Datastructure/Set/Comprehension.concept|,[],"\<tt\> {\<i\>Exp\</i\> | \<i\>Gen\</i\>\<i\>Or\</i\>\<i\>Test\</i\>\<sub\>1\</sub\>, \<i\>Gen\</i\>\<i\>Or\</i\>\<i\>Test\</i\>\<sub\>2\</sub\>, ... }\</tt\>"," {Exp | GenOrTest1, GenOrTest2, ... }\n\n",{"...","}",",","|","{"}," A set comprehension ...",""," ","",[]),"Rascal/Expression/Real/Addition":concept("Addition",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Expression/Real/Addition.concept|,[],"\<tt\>\t\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>","\tExp1 + Exp2\n\n",{"+","\t"}," ","","","",[]),"Rascal":concept("Rascal",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Rascal.concept|,[],"","\n\n",{}," Rascal is a language for \<i\>meta-programming\</i\>, that is, it is intended for reading, analyzing, and transforming other programs. Main features are:\<ul\>\n\<li\> Statically typed: many programming errors are caught before execution.\</li\>\n\<li\> Value-oriented: all values are immutable once they have been created.\</li\>\n\<li\> ...\</li\>\n\n\</ul\>\n","\<ul\>\n\<li\> A program to refactor Java source code.\</li\>\n\<li\> Implementation of a \<i\>domain-specific language\</i\> (DSL) for describing business processes.\</li\>\n\n\</ul\>\n","\<ul\>\n\<li\> Very high-level language: many problems can be solved with a concise Rascal program.\</li\>\n\<li\> Rich feature set.\</li\>\n\n\</ul\>\n","\<ul\>\n\<li\> Rascal programs are not yet highly optimized so execution maybe slow for some programs.\</li\>\n\n\</ul\>\n",[]),"Rascal/Expression/Integer/Multiplication":concept("Multiplication",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Expression/Integer/Multiplication.concept|,[],"\<tt\>  \<i\>Exp\</i\>\<sub\>1\</sub\> * \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>","  Exp1 * Exp2\n\n",{"*"}," xxxyyyzzzaaa 111 222 333 4444 555 666 777"," \<ul\>\n\<li\> wqqwqw\</li\>\n\<li\> zzzzz\</li\>\n\<li\> A \<b\>big\</b\> example\</li\>\n\n\</ul\>\n","","",[]),"Rascal/Datastructure/Tuple/Toople":concept("Toople",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Datastructure/Tuple/Toople/Toople.concept|,[],"","\n\n",{},"","","","",[]),"Rascal/Datastructure/Set/Union":concept("Union",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Datastructure/Set/Union.concept|,[],"\<tt\> \<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>"," Exp1 + Exp2\n\n",{"+"}," Union is an operation that combines two sets. The \<tt\>+\</tt\> operator is used to denote set union.","\<ul\>\n\<li\> \<tt\> {1, 2, 3} + {3, 4}\</tt\> // Union of two sets of integers; result is \<tt\>{1, 2, 3, 4}\</tt\>.\</li\>\n\n\</ul\>\n"," ","",[choiceQuestion("Union1"," What is the value of \<tt\>{1,3,5} + {3,4,5}\</tt\>?",[good("\<tt\>{1,3,4,5}\</tt\>"),good("\<tt\>{5,4,3,1}\</tt\>"),bad("\<tt\>{1,3,5,3,4,5}\</tt\>")]),typeQuestion("Union2","","set[int]"),exprQuestion("Union3","","\<set[int]\> + \<set[int]\>")]),"Rascal/Datastructure/Set":concept("Set",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Datastructure/Set/Set.concept|,[],"\<tt\> {\<i\>Exp\</i\>\<sub\>1\</sub\>, \<i\>Exp\</i\>\<sub\>2\</sub\>, ...}\</tt\>"," {Exp1, Exp2, ...}\n\n",{"...}",",","{"}," A set is an unordered collection of values without duplicates.\<h1\>Heading level 1\</h1\>\nHere is some text for the main section of the description. Now let\'\\s try a subsection ...\<h2\>Heading level 2\</h2\>\n... and \<b\>here\</b\> is the text of that subsection!"," This is just plain text with possible \<b\>markup\</b\>.Here is a set of integers: \<tt\>{3,2,1}\</tt\>. The type of this set is \<tt\>set[int]\</tt\> as can be seen when we type it into the Rascal evaluator:\<pre class=\"screen\"\>\<b\>rascal\>\</b\>{1, 2, 3}\nset[int]: {3,2,1}\n\</pre\>Here is a program listing:\<pre class=\"listing\"\>if(x \< 0)\n   x = 5;\n\</pre\>Other examples of sets are:\<ul\>\n\<li\> \<tt\> {1, 2, 3}\</tt\> // A set of integers\</li\>\n\<li\> \<tt\> {} \</tt\>       // The empty set\</li\>\n\<li\> \<tt\> {\"abc\"}\</tt\>   // A set containing a single string\</li\>\n\n\</ul\>\n"," Sets allow the storage of, in principle unbounded, numbers of values and provide many effcicient operations such as, for instance, membership test, union, intersection and many more.","\<ul\>\n\<li\> If the order of elements is relevant, one can better use lists than sets.\</li\>\n\<li\> If the multiplicity of elements is relevant, one can better use a map to represent the number of occurrences of a value.\</li\>\n\n\</ul\>\n",[textQuestion("Set1"," The type of the value \<tt\>{1, 2, 3}\</tt\> is",{"xxx","set[int]"}),choiceQuestion("Set2"," What is the value of \<tt\>{1,3,5} + {3,4,5}\</tt\>?",[good("{1,3,4,5}"),good("{5,4,3,1}"),bad("{1,3,5,3,4,5}")]),typeQuestion("Set3","","set[arb]"),typeQuestion("Set4","","set[str]"),typeQuestion("Set5","","set[list[int]]"),exprQuestion("Set6","","\<set[int]\> + \<set[int]\>")]),"Rascal/Datastructure/Map/Comprehension":concept("Comprehension",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Datastructure/Map/Comprehension.concept|,[],"\<tt\> (\<i\>Exp\</i\> | \<i\>Gen\</i\>\<i\>Or\</i\>\<i\>Test\</i\>\<sub\>1\</sub\>, \<i\>Gen\</i\>\<i\>Or\</i\>\<i\>Test\</i\>\<sub\>2\</sub\>, ... )\</tt\>"," (Exp | GenOrTest1, GenOrTest2, ... )\n\n",{"...",",","|",")","("}," A map comprehension ...",""," ","",[]),"Rascal/Expression/Real/Multiplication":concept("Multiplication",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Expression/Real/Multiplication.concept|,[],"\<tt\>   \<i\>Exp\</i\>\<sub\>1\</sub\> * \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>","   Exp1 * Exp2\n\n",{"*"}," ","","","",[]),"Rascal/Datastructure":concept("Datastructure",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Datastructure/Datastructure.concept|,[],"","\n\n",{}," Rascal has several built-in datatypes such as Booleans, Integers, Reals. Rascal also provides structured datatypes such such as lists, sets, maps and relations and also provides user-defined data structures","\<ul\>\n\<li\> \<tt\>data YesOrNo = yes() | no();\", []),\</tt\> // A set of integers\</li\>\n\n\</ul\>\n","\<ul\>\n\<li\> A rich set of options for representating application data.\</li\>\n\<li\> Efficient implementation.\</li\>\n\<li\> Static typechecking to prevent programming errors.\</li\>\n\n\</ul\>\n","\<ul\>\n\<li\> The choice between different data structures may be hard. \</li\>\n\n\</ul\>\n",[]),"Rascal/Expression/Integer/arbInt":concept("arbInt",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Expression/Integer/arbInt.concept|,[],"\<ul\>\<li\>\<tt\> int arbInt()\</tt\>\</li\>\n\<li\>\<tt\>          int arbInt(int limit)\</tt\>\</li\>\n\</ul\>"," int arbInt()\n          int arbInt(int limit)\n\n",{"int","arbInt","limit",")","(","()"}," \<tt\>arbInt\</tt\> generates an arbitrary integer. With the extra argument limit, an integer value in the range [0 .. \<tt\>limit\</tt\>].","","","",[]),"Rascal/Datastructure/Map":concept("Map",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Datastructure/Map/Map.concept|,[],"\<tt\> ( \<i\>Key\</i\>\<sub\>1\</sub\> : \<i\>Value\</i\>\<sub\>1\</sub\>, ... )\</tt\>"," ( Key1 : Value1, ... )\n\n",{"...",",",":",")","("}," A map is a dictionary ...",""," ","",[]),"Rascal/Expression/Real":concept("Real",|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/Tutor/Courses/Rascal/Expression/Real/Real.concept|,[],"","\n\n",{}," ","","","",[])),{<"Rascal/Datastructure/Tuple","Rascal/Datastructure/Tuple/Toople">,<"Rascal/Datastructure","Rascal/Datastructure/Set">,<"Rascal/Expression/Real","Rascal/Expression/Real/Multiplication">,<"Rascal/Expression/Integer","Rascal/Expression/Integer/arbInt">,<"Rascal/Datastructure","Rascal/Datastructure/Map">,<"Rascal/Datastructure/Map","Rascal/Datastructure/Map/Comprehension">,<"Rascal","Rascal/Expression">,<"Rascal/Datastructure/Set","Rascal/Datastructure/Set/Union">,<"Rascal/Expression/Real","Rascal/Expression/Real/Addition">,<"Rascal/Expression","Rascal/Expression/Real">,<"Rascal/Datastructure/Set","Rascal/Datastructure/Set/Comprehension">,<"Rascal","Rascal/Datastructure">,<"Rascal/Expression/Integer","Rascal/Expression/Integer/Multiplication">,<"Rascal/Expression","Rascal/Expression/Integer">,<"Rascal/Datastructure","Rascal/Datastructure/Tuple">,<"Rascal/Expression/Integer","Rascal/Expression/Integer/Addition">},["\t","(","()",")","*","+",",","...","...}",":","Addition","Comprehension","Datastructure","Expression","Integer","Map","Multiplication","Rascal","Real","Set","Toople","Tuple","Union","arbInt","int","limit","{","|","}"],());
      c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
+     //c = compileCourse("Test", "Testing", courseRoot);
 
      reinitialize(c);
   }
@@ -147,7 +147,7 @@ public str editMenu(ConceptName cn){
 }
 
 // Edit a concept
-// *** called from servlet Edit in TutorLauncher
+// *** called from  Edit in RascalTutor
 
 public str edit(ConceptName cn, bool newConcept){
   initialize();
@@ -175,8 +175,8 @@ public list[str] getPathNames(str path){
   return [ name | /<name:[A-Za-z]+>(\/|$)/ := path ];
 }
 
-// Edit a concept
-// *** called from servlet Edit in TutorLauncher
+// Save a concept
+// *** called from servlet Edit in RascalTutor
 
 public str save(ConceptName cn, str text, bool newConcept){
   initialize();
@@ -327,7 +327,7 @@ public str status(QuestionName qid){
 
 public str showQuestion(ConceptName cpid, Question q){
 println("showQuestion: <cpid>, <q>");
-  qid = q.name;
+  qid = q.details.name;
   qdescr = "";
   qexpr  = "";
   qform = "";
@@ -340,40 +340,92 @@ println("showQuestion: <cpid>, <q>");
     }
     case textQuestion(qid,descr,replies): {
       qdescr = descr;
-      qform = "\<textarea rows=\"1\" cols=\"60\" name=\"answer\"\>\</textarea\>";
+      qform = "\<textarea rows=\"1\" cols=\"60\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
     }
-    
-    case typeQuestion(qid,descr,setup,tp): {
-      qtype = generateType(tp);
-      qexpr = escapeForHtml(generateValue(qtype));
-      qdescr = descr + "What is the type of <tt(qexpr)>?";
-      qform = "\<input type=\"hidden\" name=\"expr\" value=\"<qexpr>\"\>" +
-              "\<textarea rows=\"1\" cols=\"60\" name=\"answer\"\>\</textarea\>";
-    }                               
-                                     
-    case exprQuestion(qid,descr,setup,expr): {
-      qexpr = escapeForHtml(generateExpr(expr));
-      qdescr = descr + "What is the value of <tt(qexpr)>?";
-      qform = "\<input type=\"hidden\" name=\"expr\" value=\"<qexpr>\"\>" +
-              "\<textarea rows=\"1\" cols=\"60\" name=\"answer\"\>\</textarea\>";
-    }
-    case exprTypeQuestion(qid,descr,setup,expr): {
-      qexpr = escapeForHtml(generateExpr(expr));
-      qdescr = descr + "What is the type of <tt(qexpr)>?";
-      qform = "\<input type=\"hidden\" name=\"expr\" value=\"<qexpr>\"\>" +
-              "\<textarea rows=\"1\" cols=\"60\" name=\"answer\"\>\</textarea\>";
+    case tvQuestion(qkind, qdetails): {
+      qid    = qdetails.name;
+      descr  = qdetails.descr;
+      setup  = qdetails.setup;
+      lstBefore = qdetails.lstBefore;
+      lstAfter = qdetails.lstAfter;
+      cndBefore = qdetails.cndBefore;
+      cndAfter = qdetails.cndAfter;
+      holeInLst = qdetails.holeInLst;
+      holeInCnd = qdetails.holeInCnd;
+      vars   = qdetails.vars;
+      auxVars = qdetails.auxVars;
+      rtype = qdetails.rtype;
+	  hint = qdetails.hint;
+
+      VarEnv env = ();
+      generatedVars = [];
+      for(<name, tp> <- vars){
+        tp1 = generateType(tp, env);
+        env[name] = <tp1, generateValue(tp1, env)>;
+        generatedVars += name;
+	  }
+
+	  for(<name, exp> <- auxVars){
+         exp1 = subst(exp, env);
+         println("exp1 = <exp1>");
+         try {
+           env[name] = <parseType("<evalType(setup + exp1)>"), "<eval(setup + exp1)>">;
+         } catch: throw "Error in computing <name>, <exp>";
+      }
+      println("env = <env>");
+      
+      lstBefore = escapeForHtml(subst(lstBefore, env));
+      lstAfter = escapeForHtml(subst(lstAfter, env));
+      cndBefore = escapeForHtml(subst(cndBefore, env));
+      cndAfter = escapeForHtml(subst(cndAfter, env));
+      
+      qdescr = descr;
+      qform = "<for(param <- generatedVars){>\<input type=\"hidden\" name=\"<param>\" value=\"<escapeForHtml(env[param].rval)>\"\>\n<}>";
+      
+      qtextarea = "\<textarea rows=\"1\" cols=\"30\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
+      
+      if(lstBefore != "" || lstAfter != ""){  // A listing is present in the question
+         if(holeInLst)
+            qform +=  "Fill in " + "\<pre class=\"question\"\>" + lstBefore + qtextarea + lstAfter + "\</pre\>";
+         else
+            qform += "Given " + "\<pre class=\"question\"\>" + lstBefore + "\</pre\>";
+      }
+      	        
+      if(qkind == valueOfExpr()){ // A Value question
+      	    //if(lstBefore != "")
+      	    //    if (holeInLst) qform += "and make the following true:";
+      	        
+         if(holeInCnd)
+      	    qform += "\<pre class=\"question\"\>" + cndBefore + qtextarea + cndAfter +  "\</pre\>";
+         else if(cndBefore + cndAfter != "")
+            if(holeInLst)
+               qform += " and make the following true:" + "\<pre class=\"question\"\>" + cndBefore + "\</pre\>";
+            else
+      	       qform += ((lstBefore != "") ? "Make the following true:" : "") + "\<pre class=\"question\"\>" + cndBefore + " == " + qtextarea + "\</pre\>"; 
+      } else {                     // A Type question
+      	if(holeInCnd)
+      	   qform +=  "The type of " + tt(cndBefore) + qtextarea + tt(cndAfter) + " is " + tt(toString(generateType(rtype, env)));
+         else if(holeInLst)
+           qform += "and make the type of " + tt(cndBefore) + " equal to " + tt(toString(generateType(rtype, env)));  
+         else
+           qform += "The type of " + tt(cndBefore) + " is " + qtextarea; 
+       }
     }
     default:
       throw "Unimplemented question type: <q>";
   }
   answerForm = answerFormBegin(cpid, qid, "answerForm") + qform  + br() + answerFormEnd("Give answer", "answerSubmit");
 
-  return div(qid, b(basename(qid)) + " " + status(qid + "good", good()) + status(qid + "bad", bad()) +  br() +  
+  return div(qid, b(basename(qid)) + " " + status(qid + "good", good()) + status(qid + "bad", bad()) + br() +
                   qdescr + "\n\<span id=\"answerFeedback<qid>\" class=\"answerFeedback\"\>\</span\>\n" +
                   answerForm + 
                   anotherQuestionForm(cpid, qid) + 
                   cheatForm(cpid, qid, qexpr) +  br() +
                   hr());
+}
+
+public void tstq(){
+println(showQuestion("xxx", tvQuestion(typeOfExpr(), details("qid", "descr", [], "\<A:int\> + \<B:int\>", "", (), ()))));
 }
 
 public QuestionName lastQuestion = "";
@@ -388,25 +440,34 @@ public str trim (str txt){
 }
 
 public Question getQuestion(ConceptName cid, QuestionName qid){
-  //println("getQuestion(<cid>, <qid>)");
-  //println("concepts=<concepts>");
   c = concepts[cid];
   for(q <- c.questions)
-  	if(q.name == qid)
+  	if(q.details.name == qid)
   		return q;
   throw "Question <qid> not found";
 }
 
 // Validate an answer, also handles the requests: "cheat" and "another"
-// *** called from servlet Edit in TutorLauncher
+// *** called from servlet Edit in RascalTutor
 
-public str validateAnswer(ConceptName cpid, QuestionName qid, str answer, str expr, bool cheat, bool another){
+public str validateAnswer(map[str,str] params){
+    ConceptName cpid = params["concept"];
+    QuestionName qid = params["exercise"];
+    
+    answer = trim(params["answer"]) ? "";
+    expr = params["exp"] ? "";
+    cheat = params["cheat"] ? "no";
+	another = params["another"] ? "no";
+	
     initialize();
 	lastQuestion = qid;
 	q = getQuestion(cpid, qid);
-	if(cheat)
+	
+	println("Validate: <params>");
+	println("Validate: <q>");
+	if(cheat == "yes")
 	   return showCheat(cpid, qid, q, expr);
-	if(another)
+	if(another == "yes")
 	   return showAnother(cpid, qid, q);
 	   
 	switch(q){
@@ -419,32 +480,170 @@ public str validateAnswer(ConceptName cpid, QuestionName qid, str answer, str ex
       }
       
       case textQuestion(qid,descr,replies):
-        return (trim(answer) in replies) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
+        return (answer in replies) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
+ 
+      case tvQuestion(qkind, qdetails): {
+        qid    = qdetails.name;
+       	descr  = qdetails.descr;
+        setup  = qdetails.setup;
+        lstBefore = qdetails.lstBefore;
+        lstAfter  = qdetails.lstAfter;
+        cndBefore = qdetails.cndBefore;
+        cndAfter  = qdetails.cndAfter;
+        holeInLst = qdetails.holeInLst;
+        holeInCnd = qdetails.holeInCnd;
+        vars   = qdetails.vars;
+        auxVars = qdetails.auxVars;
+        rtype = qdetails.rtype;
+        hint = qdetails.hint;
         
-      case typeQuestion(qid,descr,setup,tp):
-        	try {
-              expected = evalType(setup + expr);
-              println("expected = <expected>; answer = <answer>");
-        	  return (trim(answer) == expected) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "I expected as answer: <expected>.");
-        	} catch:
-        		 return wrongAnswer(cpid, qid, "Something went wrong!");
+        println("qdetails = <qdetails>");
         
-      case exprQuestion(qid,descr,setup,tp): {
-          try {
-            expected = eval(setup + expr);
-            given = eval(answer);
-            return (given == expected) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "I expected as answer: <expected>.");
-          } catch:
-             return wrongAnswer(cpid, qid, "Something went wrong!");
+        VarEnv env = ();
+        generatedVars = [];
+        for(<name, tp> <- vars){
+          env[name] = <parseType(evalType(params[name] + ";")), params[name]>;
+          generatedVars += name;
+	    }
+  
+	    for(<name, exp> <- auxVars){
+          exp1 = subst(exp, env) + ";";
+          println("exp1 = <exp1>");
+          env[name] = <parseType("<evalType(setup + exp1)>"), "<eval(setup + exp1)>">;
         }
         
-        case exprTypeQuestion(qid,descr,setup,tp): {
-          try {
-            expected = evalType(setup + expr);
-            return (answer == expected) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "I expected as answer: <expected>.");
-          } catch:
-             return wrongAnswer(cpid, qid, "Something went wrong!");
-        }
+        lstBefore = subst(lstBefore, env);
+	    lstAfter = subst(lstAfter, env);
+	    cndBefore = subst(cndBefore, env);
+	    cndAfter = subst(cndAfter, env);
+          
+        switch(qkind){
+          case valueOfExpr(): {
+	        try {
+	            if(lstBefore + lstAfter == ""){
+	              println("YES!");
+	              if(holeInCnd){
+	                 computedAnswer = eval(setup + (cndBefore + answer + cndAfter + ";"));
+	                 if(computedAnswer == true)
+	                   return correctAnswer(cpid, qid);
+	                 wrongAnswer(cpid, qid, hint);
+	              } else {
+	                 println("YES2");
+	                 computedAnswer = eval(setup + (cndBefore + ";"));
+	                 givenAnswer = eval(setup + (answer + ";"));
+	                 if(computedAnswer == givenAnswer)
+	                   return correctAnswer(cpid, qid);
+	                 return wrongAnswer(cpid, qid, "I expected <computedAnswer>.");
+	               } 
+	            }
+	            validate = (holeInLst) ? lstBefore + answer + lstAfter + cndBefore	             
+	                                     : ((holeInCnd) ? lstBefore + cndBefore + answer + cndAfter
+	                                                    : lstBefore + cndBefore + "==" + answer);
+	            
+	            println("Evaluating validate: <validate>");
+	            output =  shell(setup + validate);
+	            println("result is <output>");
+	            
+	            a = size(output) -1;
+	            while(a > 0 && startsWith(output[a], "cancelled") ||startsWith(output[a], "rascal"))
+	               a -= 1;
+	               
+	            errors = [line | line <- output, /[Ee]rror/ := line];
+	            
+	            if(size(errors) == 0 && cndBefore == "")
+	               return correctAnswer(cpid, qid);
+	               
+	            if(size(errors) == 0 && output[a] == "bool: true")
+	              return correctAnswer(cpid, qid);
+	            if(hint != ""){
+	               return wrongAnswer(cpid, qid, "I expected <subst(hint, env)>.");
+	            }
+	            //if(!(holeInLst || holeInCnd)){
+	           //    return wrongAnswer(cpid, qid, "I expected <eval(subst(cndBefore, env))>.");
+	           // }  
+	            return wrongAnswer(cpid, qid, "I have no expected answer for you.");
+	          } catch:
+	             return wrongAnswer(cpid, qid, "Something went wrong!");
+	      }
+
+          case typeOfExpr(): {
+	          try {
+	            if(lstBefore == ""){ // Type question without listing
+	               answerType = answer;
+	               expectedType = "";
+	               errorMsg = "";
+	               if(holeInCnd){
+	                  validate = cndBefore + answer + cndAfter;
+	                  println("Evaluating validate: <validate>");
+	                  answerType = evalType(setup + validate);
+	                  expectedType = toString(generateType(rtype, env));
+	               } else
+	                  expectedType = evalType(setup + cndBefore);
+	                  
+	               println("answerType is <answerType>");
+	               println("expectedType is <expectedType>");
+	               if(answerType == expectedType)
+	              		return correctAnswer(cpid, qid);
+	              errorMsg = "I expected the answer <expectedType> instead of <answerType>.";
+	              if(!holeInCnd){
+	                 try parseType(answer); catch: errorMsg = "I expected the answer <expectedType>; \"<answer>\" is not a legal Rascal type.";
+	              }
+	              return  wrongAnswer(cpid, qid, errorMsg);
+	            } else {   // Type question with a listing
+	              validate = (holeInLst) ? lstBefore + answer + lstAfter + cndBefore	             
+	                                     : ((holeInCnd) ? lstBefore + cndBefore + answer + cndAfter
+	                                                    : lstBefore + cndBefore);
+	            
+	              println("Evaluating validate: <validate>");
+	              output =  shell(setup + validate);
+	              println("result is <output>");
+	              
+	              a = size(output) -1;
+	              while(a > 0 && startsWith(output[a], "cancelled") ||startsWith(output[a], "rascal"))
+	                 a -= 1;
+	                 
+	              expectedType = toString(generateType(rtype, env));
+	              
+	              errors = [line | line <- output, /[Ee]rror/ := line];
+	              println("errors = <errors>");
+	               
+	              if(size(errors) == 0 && /^<answerType:.*>:/ := output[a]){
+	                 println("answerType = <answerType>, expectedType = <expectedType>, answer = <answer>");
+	                 ok = ((holeInLst || holeInCnd) ? answerType : answer) == expectedType;
+	                 if(ok)
+	                    return correctAnswer(cpid, qid);
+	                    
+	                 errorMsg = "I expected the answer <expectedType> instead of <answerType>.";
+	                 if(!holeInCnd){
+	                    try parseType(answer); catch: errorMsg = "I expected the answer <expectedType>; \"<answer>\" is not a legal Rascal type.";
+	                 }
+	                 wrongAnswer(cpid, qid, errorMsg);
+	              }
+	              
+	              errorMsg = "";
+	              for(error <- errors){
+	                   if(/Parse error/ := error)
+	                      errorMsg = "There is a syntax error in your answer. ";
+	              }
+	              if(errorMsg == "" && size(errors) > 0)
+	                 errorMsg = "There is an error in your answer. ";
+	                 
+	              errorMsg += (holeInLst) ? "I expected a value of type <expectedType>. "
+	                                      : "I expected the answer <expectedType>. ";
+	                                      
+	              if(!(holeInCnd || holeInLst)){
+	                 try parseType(answer); catch: errorMsg = "Note that \"<answer>\" is not a legal Rascal type.";
+	              }
+	            
+	              return  wrongAnswer(cpid, qid, errorMsg);
+	            }
+	          } //catch SyntaxError(l): wrongAnswer(cpid, qid, "There is a syntax error in your answer.");
+	            //catch e:  wrongAnswer(cpid, qid, "There is an error in your answer: <e>");
+	            catch:
+	             return wrongAnswer(cpid, qid, "Cannot assess your answer.");
+	      }
+	    }
+      }
     }
     throw "Cannot validate answer: <qid>";
 }

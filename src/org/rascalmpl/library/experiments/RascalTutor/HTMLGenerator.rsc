@@ -49,31 +49,6 @@ private str closeLists(){
   return endList;
 }
 
-public void tst(){
-println(markup(
-["The value of 2 + 3 is @@2 + 3@@.",
-"A set of integers: ",
-"@@{1, 2, 3}@@. The type of this set is \<tt\>set[int]\</tt\> ",
-"as can be seen when we type it into the Rascal evaluator:",
-"\<screen\>",
-"{1, 2, 3}",
-"\</screen\>",
-"xxxx",
-"\<listing\>",
-"if(a \> b)",
-"   x = 5;",
-"\</listing\>",
-"yyy",
-"and now we first do an import",
-"\<screen\>",
-"import List",
-"and now we apply a function from the List library:",
-"size([1,2,3]);",
-"\</screen\>",
-"xxx"
-]));
-}
-
 public void tst2(){
 println(markup([
 "Other examples of sets are:",
@@ -163,7 +138,7 @@ public str markupRestLine(str line){
   }
 }   
 
-test markupRestLine("The value of 2 + 3 is @@2 + 3@@") == "The value of 2 + 3 is \<tt\>5\</tt\>";
+//test markupRestLine("The value of 2 + 3 is @@2 + 3@@") == "The value of 2 + 3 is \<tt\>5\</tt\>";
 
 
 public str markupRascalPrompt(list[str] lines){
@@ -174,11 +149,15 @@ public void tst3(){
 println(markup([
 
 "\<screen\>",
+"//AAA",
 "import IO;",
+"//BBB",
 "void hello() {",
 "   println(\"Hello world, this is my first Rascal program\");",
 "}",
+"//CCC",
 "hello();",
+"//DDD",
 "\</screen\>"
 ]));
 }
@@ -187,7 +166,6 @@ public str markupScreen(list[str] lines){
    stripped_code = "<for(line <- lines){><(startsWith(line, "//")) ? "" : (line + "\n")><}>";
    result_lines = shell(stripped_code);
    
-   println("markupScreen: lines=<lines>; result_lines=<result_lines>");
    int i = 0; int upbi = size(lines);
    int j = 0; int upbj = size(result_lines);
    pre_open = "\<pre class=\"screen\"\>";
@@ -196,14 +174,26 @@ public str markupScreen(list[str] lines){
    prompt =       "rascal\>";
    continuation = "\>\>\>\>\>\>\>";
    while(i < upbi && j < upbj){
-         code += b(prompt) + lines[i] + "\n";
-         i += 1; j += 1;
+   		 if(i < upbi && startsWith(lines[i], "//")){
+           start = i;
+           while(i < upbi && startsWith(lines[i], "//")){
+               lines[i] = substring(lines[i], 2);
+               i += 1;
+           }
+           code += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
+         }
+         if(i <upbi) {
+         	code += b(prompt) + lines[i] + "\n";
+         	i += 1; j += 1;
+         }
          while(j < upbj && !startsWith(result_lines[j], prompt)){
            code += result_lines[j] + "\n";
-           if(i < upbi && startsWith(result_lines[j], continuation))
-             i += 1;
+           if(i < upbi && startsWith(result_lines[j], continuation)){
+              i += 1;
+             }
            j += 1;
          }
+         
          if(i < upbi && startsWith(lines[i], "//")){
            start = i;
            while(i < upbi && startsWith(lines[i], "//")){
@@ -212,12 +202,11 @@ public str markupScreen(list[str] lines){
            }
            code += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
          }
+
    }
    code += "\</pre\>";
    return code;
 }
-// pre("screen", markupRascalPrompt(shell(code)));
-
 
 public str markupSynopsis(list[str] lines){
   
@@ -241,9 +230,9 @@ public str markupSynopsis(list[str] lines){
   }
 }
 
-test markupSynopsis(["Exp1 + Exp2"])          == "\<tt\>\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>";
-test markupSynopsis(["Exp1 + Exp2", "  "])    == "\<tt\>\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>";
-test markupSynopsis(["Exp1 + Exp2", "Exp3"])  == "\<ul\>\<tt\>\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>\<tt\>\<i\>Exp\</i\>\<sub\>3\</sub\>\</tt\>\</ul\>";
+//test markupSynopsis(["Exp1 + Exp2"])          == "\<tt\>\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>";
+//test markupSynopsis(["Exp1 + Exp2", "  "])    == "\<tt\>\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>";
+//test markupSynopsis(["Exp1 + Exp2", "Exp3"])  == "\<ul\>\<tt\>\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>\<tt\>\<i\>Exp\</i\>\<sub\>3\</sub\>\</tt\>\</ul\>";
 
 public set[str] searchTermsSynopsis(list[str] lines){
    set[str] terms = {};

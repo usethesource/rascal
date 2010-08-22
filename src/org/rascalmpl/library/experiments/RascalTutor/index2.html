@@ -1,0 +1,479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+
+            "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+            <html xmlns="http://www.w3.org/1999/xhtml">
+
+             
+<head>
+<title>Addition</title>
+
+<script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+
+<script type="text/javascript" src="prelude.js"></script>
+<style type="text/css">body {
+	background-color: Snow;
+	color: black;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+}
+
+h1, th {
+	font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+h1 {
+    font-size: 14pt;
+    font-style: bold;
+}
+
+h2 {
+	font-size: 13pt;
+    font-style: italic;
+}
+
+
+table {
+	border-collapse: collapse;
+}
+
+th, td {
+	padding: 10px;
+	border: 2px #666 solid;
+	text-align: center;
+}
+
+.sectionHead {
+    background-color: #777777;
+    color:white;
+    font-size: 14pt;
+}
+
+#Name{ padding: 5px 0px; }
+#Synopsis{ padding: 5px 0px; }
+#Description { padding: 5px 0px; }
+#Examples{ padding: 5px 0px; }
+#Benefits{ padding: 5px 0px; }
+#PittFalls{ padding: 5px 0px; }
+#Questions{ padding: 5px 0px; }
+
+#searchBox {
+    top:  0;
+    right: 0;
+    float: right;
+    margin-top: 0.7em;
+    position: absolute;
+}
+
+#searchfield {
+/*	font: 1.2em verdana, arial, helvetica, sans-serif; */
+}
+
+.suggestions {
+	background-color: #FFF;
+	padding: 2px 6px;
+	border: 1px solid #000;
+}
+
+.suggestions:hover {
+	background-color: #69F;
+}
+
+#popups {
+	position: absolute;
+}
+
+#searchField.error {
+	background-color: Pink;
+}
+
+#editMenu {
+    padding: 10px 0px;
+    font-size: 10px;
+}
+
+textarea {
+    font-size: 18px;
+}
+
+.editSubmit{
+    font-size: 12pt;
+}
+
+.answerSubmit, .cheatSubmit, .anotherSubmit{
+    
+    font-size: 12pt;
+}
+
+.answerSubmit {
+  float: left;
+  margin-left: 0em;
+
+}
+
+.cheatSubmit, .anotherSubmit{
+    font-size: 70%;
+    color: gray;
+    float: right;
+    margin-right: 1em;
+}
+
+.answerFeedback{
+    color: red;
+    font-size: 12pt;
+}
+
+tt {
+    font-family: Courier, sans-serif;
+    font-size: 12pt;
+    /* background-color: #eeff88; */
+}
+
+#Questions h2 {
+	background: url(images/open.png) no-repeat 0% 100%;
+	padding-left: 20px;
+	cursor: pointer;
+}
+#Questions h2.close {
+	background-image: url(images/close.png);
+}
+
+pre.screen
+{
+        font-family:monospace;
+        white-space: pre;
+        width: 96%;
+/*        background-color: #C0C0FF; */
+/*        background-color: #ffccff; */
+        background-color: PapayaWhip;
+        border:solid;
+        color: #000000;
+        border-color: #9b8c8b;
+        border-left: solid #9b8c8b 1px;
+        border-right: solid #9b8c8b 1px;
+        border-top: solid #9b8c8b 1px;
+        border-bottom: solid #9b8c8b 1px;
+
+        padding-left: 15px;
+        padding-right: 10px;
+}
+
+pre.listing
+{
+        font-family:monospace;
+        white-space: pre;
+        width: 96%;
+/*        background-color: #ffffdd; */
+/*        background-color: #eeff88; */
+        background-color: MintCream;
+        border:solid;
+        color: #000000;
+        border-color: #9b8c8b;
+        border-left: solid #9b8c8b 1px;
+        border-right: solid #9b8c8b 1px;
+        border-top: solid #9b8c8b 1px;
+        border-bottom: solid #9b8c8b 1px;
+
+        padding-left: 15px;
+        padding-right: 10px;
+}
+/*
+H1
+{
+//        color: #ffffff;
+//        border: solid 3px #c5c6b2;
+//        background-color: #3c3c36;
+        font-variant: small-caps;
+       //        width: 100%;
+}
+
+H1.TITLE
+{
+//        color: #ffffff;
+//        border: solid 3px #c5c6b2;
+//        background-color: #3c3c36;
+//        font-variant: small-caps;
+        font-size: 120%;
+
+        width: 100%;
+}
+
+H2
+{       
+//        COLOR: #ffffff ;
+        font-style: italic;
+//        BACKGROUND-color: #c5c6b2;
+//        BORDER: solid 3px #3c3c36;
+//        PADDING: 1px
+}
+
+
+.TITLE a {
+        color: #ffffff; 
+        text-decoration: none;
+}
+
+.TITLE a:active {
+        color: #ffffff; 
+        text-decoration: none;
+}
+
+.TITLE a:visited {
+        color: #ffffff; 
+        text-decoration: none;
+}
+
+*/
+
+IMPORTANT
+{
+        font-style:italic;
+        border: solid 1px #ff0000;
+        width: 70%;
+        margin-left: 15%;       
+}
+CAUTION
+{
+        font-style:italic;
+        border: ridge 1px #ffff00;
+        width: 70%;
+        margin-left: 15%;       
+}
+
+NOTE
+{
+        font-style:italic;
+        border: solid 1px #000000;
+        width: 70%;
+        margin-left: 15%;       
+}
+TIP
+{
+        font-style:italic;
+        border: solid 1px #000000;
+        width: 70%;
+        margin-left: 15%;       
+}
+
+WARNING
+{
+        font-style:italic;
+        font-weight: bold;
+        border: ridge 4px #ff0000;
+        
+        width: 70%;
+        margin-left: 15%; 
+        display: block;      
+}
+
+</style>
+
+<script type="text/javascript">var baseConcepts = new Array("!=","%","&","(","(&",")","*","+",",","-","...","/",":","<","<:","<=","==",">",">=","?","Addition","Concepts","Conditional","Difference","Division","Equal","Expression","Factorial","GreaterThan","GreaterThanOrEqual","Hello","Integer","Intersection","Join","Language","LessThan","LessThanOrEqual","Map","Multiplication","Negation","NotEqual","Number","Product","Rascal","Remainder","Set","SmallExamples","Statement","StrictSubset","StrictSuperset","Subset","Subtraction","Superset","TypesAndValues","Union","[","[&","]","]]","abs","arbInt","arbReal","bool","else","emptySet","fn","getOneFrom","if","in","int","isEmpty","join","limit","list","m","map","mapper","max","min","n","notin","num","power","power1","real","reducer","s","set","size","str","takeOneFrom","throws","toInt","toList","toMap","toMapUnique","toReal","toString","tuple","unit","{","}");
+          </script>
+
+</head>
+<body>
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="show?concept=Rascal">Rascal</a>/<a href="show?concept=Rascal/Language">Language</a>/<a href="show?concept=Rascal/Language/Expression">Expression</a>/<a href="show?concept=Rascal/Language/Expression/Number">Number</a>/<a href="show?concept=Rascal/Language/Expression/Number/Addition">Addition</a>
+
+</div>
+
+<div id="searchBox">
+              <form method="GET" id="searchForm" action="/search"><b>Search</b><br />
+              <input type="text" id="searchField" name="term" autocomplete="off"><br />
+              <div id="popups"></div>
+              </form>
+            </div>
+
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span> <tt> <i>NumExp</i><sub>1</sub> + <i>NumExp</i><sub>2</sub></tt>
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  Yields the numerical sum of the values of <i>NumExp</i><sub>1</sub> and <i>NumExp</i><sub>2</sub>.
+</div>
+
+<div id="Examples">
+<span class="sectionHead">Examples</span> <pre class="screen"><b>rascal></b>12 + 13
+int: 25
+
+<b>rascal></b>12 + 13.5
+real: 25.5
+</pre>
+</div>
+<span class="sectionHead">Questions</span> <br/>
+
+<div id="Addition1">
+<b>Addition1</b> 
+<span id="Addition1good" class="answerStatus">
+<img height="25" width="25" src="images/good.png"/>
+</span>
+
+<span id="Addition1bad" class="answerStatus">
+<img height="25" width="25" src="images/bad.png"/>
+
+</span>
+<br/>
+What is the type of <tt>19 + 4</tt>?
+<span id="answerFeedbackAddition1" class="answerFeedback"></span>
+
+<form method="GET" action="validate" class="answerForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition1">
+<input type="hidden" name="expr" value="19 + 4"><textarea rows="1" cols="60" name="answer"></textarea><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+
+<input type="hidden" name="exercise" value="Addition1">
+<input type="hidden" name="another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form>
+<form method="GET" action="validate" class="cheatForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition1">
+<input type="hidden" name="expr" value="19 + 4">
+<input type="hidden" name="cheat" value="yes">
+
+<input type="submit" value="I am cheating today" class="cheatSubmit">
+</form><br/>
+<hr>
+
+</div>
+ 
+
+<div id="Addition2">
+<b>Addition2</b> 
+<span id="Addition2good" class="answerStatus">
+<img height="25" width="25" src="images/good.png"/>
+</span>
+
+<span id="Addition2bad" class="answerStatus">
+<img height="25" width="25" src="images/bad.png"/>
+</span>
+<br/>
+What is the type of <tt>7 + 0.5397095569720567000</tt>?
+<span id="answerFeedbackAddition2" class="answerFeedback"></span>
+
+<form method="GET" action="validate" class="answerForm">
+
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition2">
+<input type="hidden" name="expr" value="7 + 0.5397095569720567000"><textarea rows="1" cols="60" name="answer"></textarea><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition2">
+<input type="hidden" name="another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form>
+<form method="GET" action="validate" class="cheatForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition2">
+
+<input type="hidden" name="expr" value="7 + 0.5397095569720567000">
+<input type="hidden" name="cheat" value="yes">
+
+<input type="submit" value="I am cheating today" class="cheatSubmit">
+</form><br/>
+<hr>
+
+</div>
+ 
+<div id="Addition3">
+<b>Addition3</b> 
+<span id="Addition3good" class="answerStatus">
+<img height="25" width="25" src="images/good.png"/>
+</span>
+
+<span id="Addition3bad" class="answerStatus">
+
+<img height="25" width="25" src="images/bad.png"/>
+</span>
+<br/>
+What is the type of <tt>7.96858944274699600 + 10</tt>?
+<span id="answerFeedbackAddition3" class="answerFeedback"></span>
+
+<form method="GET" action="validate" class="answerForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition3">
+<input type="hidden" name="expr" value="7.96858944274699600 + 10"><textarea rows="1" cols="60" name="answer"></textarea><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm">
+
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition3">
+<input type="hidden" name="another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form>
+<form method="GET" action="validate" class="cheatForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition3">
+<input type="hidden" name="expr" value="7.96858944274699600 + 10">
+<input type="hidden" name="cheat" value="yes">
+
+<input type="submit" value="I am cheating today" class="cheatSubmit">
+</form><br/>
+<hr>
+
+</div>
+
+ 
+<div id="Addition4">
+<b>Addition4</b> 
+<span id="Addition4good" class="answerStatus">
+<img height="25" width="25" src="images/good.png"/>
+</span>
+
+<span id="Addition4bad" class="answerStatus">
+<img height="25" width="25" src="images/bad.png"/>
+</span>
+<br/>
+What is the value of <tt>16 + 12</tt>?
+<span id="answerFeedbackAddition4" class="answerFeedback"></span>
+
+<form method="GET" action="validate" class="answerForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition4">
+<input type="hidden" name="expr" value="16 + 12"><textarea rows="1" cols="60" name="answer"></textarea><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+<input type="hidden" name="exercise" value="Addition4">
+<input type="hidden" name="another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form>
+<form method="GET" action="validate" class="cheatForm">
+<input type="hidden" name="concept" value="Rascal/Language/Expression/Number/Addition">
+
+<input type="hidden" name="exercise" value="Addition4">
+<input type="hidden" name="expr" value="16 + 12">
+<input type="hidden" name="cheat" value="yes">
+
+<input type="submit" value="I am cheating today" class="cheatSubmit">
+</form><br/>
+<hr>
+
+</div>
+ 
+<div id="editMenu">
+              [<a id="editAction" href="/edit?concept=Rascal/Language/Expression/Number/Addition&new=false"><b>Edit</b></a>] | 
+              [<a id="newAction" href="/edit?concept=Rascal/Language/Expression/Number/Addition&new=true"><b>New</b></a>]
+            </div>
+
+</body>
+</html>

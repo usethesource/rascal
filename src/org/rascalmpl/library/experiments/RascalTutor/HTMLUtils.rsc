@@ -89,5 +89,15 @@ public str sectionHead(str txt){
   return "\<span class=\"sectionHead\"\><txt>\</span\>";
 }
 
+public str escapeForRascal(str input){
+  return 
+    visit(input){
+      case /\</ => "\\\<"
+      case /\>/ => "\\\>"
+      case /"/  => "\\\""
+      case /'/  => "\\\'"
+    };
+}
+
 
 
