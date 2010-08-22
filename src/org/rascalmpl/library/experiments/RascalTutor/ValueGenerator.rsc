@@ -14,16 +14,37 @@ import experiments::RascalTutor::CourseModel;
      
 // ---- Parsing types
 
-private list[RascalType] baseTypes = [\bool(), \int(), \real(), \num(), \str(), \loc(), \dateTime()];
-private list[RascalType] reducedBaseTypes = [\bool(), \int(), \real(), \str()];
+private int maxInt = 20;
+private int minInt = -20;
+private int maxReal = maxInt;
+private int minReal = -maxReal;
+
+private list[RascalType] baseTypes = [\bool(), \int(minInt,maxInt), \real(minReal,maxReal), \num(minInt,maxInt), \str(), \loc(), \dateTime()];
+private list[RascalType] reducedBaseTypes = [\bool(), \int(minInt,maxInt), \real(minReal,maxReal), \str()];
+
 
 public RascalType parseType(str txt){
    println("parseType: <txt>");
    switch(txt){
      case /^bool$/:		return \bool();
-     case /^int$/: 		return \int();
-     case /^real$/: 	return \real();
-     case /^num$/: 		return \num();
+     case /^int$/: 		return \int(minInt, maxInt);
+     case /^int\[<f:\-?[0-9]+>\]/:
+     					return \int(toInt(f), maxInt);
+     case /^int\[<f:\-?[0-9]+>,<t:\-?[0-9]+>\]/:
+     					return \int(toInt(f), toInt(t));
+     					
+     case /^real$/: 	return \real(minReal, maxReal);
+     case /^real\[<f:\-?[0-9\.]+>\]/:
+     					return \real(toReal(f), maxReal);
+     case /^real\[<f:\-?[0-9\.]+>,<t:\-?[0-9\.]+>\]/:
+     					return \int(toReal(f), toReal(t));
+     
+     case /^num$/: 		return \num(minInt, maxInt);
+     
+     case /^num\[<f:\-?[0-9]+>\]/:
+     					return \num(toInt(f), maxInt);
+     case /^num\[<f:\-?[0-9]+>,<t:\-?[0-9]+>\]/:
+     					return \num(toInt(f), toInt(t));
      case /^str$/: 		return \str();
      case /^loc$/: 		return \loc();
      case /^dateTime$/: return \dateTime();
@@ -85,24 +106,24 @@ public list[RascalType] parseTypeList(str txt){
 }
 
 test parseType("bool") == \bool();
-test parseType("int") == \int();
-test parseType("real") == \real();
-test parseType("num") == \num();
+test parseType("int") == \int(minInt,maxInt);
+test parseType("real") == \real(minReal,maxReal);
+test parseType("num") == \num(minInt,maxInt);
 test parseType("str") == \str();
 test parseType("loc") == \loc();
 test parseType("dateTime") == \dateTime();
-test parseType("list[int]") == \list(\int());
-test parseType("list[list[int]]") == \list(\list(\int()));
-test parseType("set[int]") == \set(\int());
-test parseType("set[list[int]]") == \set(\list(\int()));
-test parseType("map[str,int]") == \map(\str(),\int());
+test parseType("list[int]") == \list(\int(minInt,maxInt));
+test parseType("list[list[int]]") == \list(\list(\int(minInt,maxInt)));
+test parseType("set[int]") == \set(\int(minInt,maxInt));
+test parseType("set[list[int]]") == \set(\list(\int(minInt,maxInt)));
+test parseType("map[str,int]") == \map(\str(),\int(minInt,maxInt));
 
-test parseType("tuple[int,str]") == \tuple([\int(), \str()]);
-test parseType("tuple[int,tuple[real,str]]") == \tuple([\int(), \tuple([\real(),\str()])]);
-test parseType("rel[int,str]") == \set(\tuple([\int(), \str()]));
-test parseType("rel[int,tuple[real,str]]") == \set(\tuple([\int(), \tuple([\real(),\str()])]));
-test parseType("arb[0]") == \arb(0, [\bool(),\int(),\real(),\num(),\str(),\loc(),\dateTime()]);
-test parseType("set[arb]") == \set(\arb(0,[\bool(),\int(),\real(),\num(),\str(),\loc(),\dateTime()]));
+test parseType("tuple[int,str]") == \tuple([\int(minInt,maxInt), \str()]);
+test parseType("tuple[int,tuple[real,str]]") == \tuple([\int(minInt,maxInt), \tuple([\real(minReal,maxReal),\str()])]);
+test parseType("rel[int,str]") == \set(\tuple([\int(minInt,maxInt), \str()]));
+test parseType("rel[int,tuple[real,str]]") == \set(\tuple([\int(minInt,maxInt), \tuple([\real(minReal,maxReal),\str()])]));
+test parseType("arb[0]") == \arb(0, [\bool(),\int(minInt,maxInt),\real(minReal,maxReal),\num(minInt,maxInt),\str(),\loc(),\dateTime()]);
+test parseType("set[arb]") == \set(\arb(0,[\bool(),\int(minInt,maxInt),\real(minReal,maxReal),\num(minInt,maxInt),\str(),\loc(),\dateTime()]));
 
 test parseType("value") == \value();
 test parseType("set[value]") == \set(\value());
@@ -114,9 +135,9 @@ test parseType("void") == \void();
 public str toString(RascalType t){
      switch(t){
        case \bool(): 		return "bool";
-       case \int(): 		return "int";
-       case \real(): 		return "real";
-       case \num(): 		return "num";
+       case \int(f, t): 	return "int";
+       case \real(f,t):		return "real";
+       case \num(f, t): 	return "num";
        case \str(): 		return "str";
        case \loc():			return "loc";
        case \dateTime():	return "datetime";
@@ -185,19 +206,19 @@ public RascalType generateRelType(list[RascalType] ets, VarEnv env){
 }
 
 test generateType(\bool(), ()) == \bool();
-test generateType(\int(), ()) == \int();
-test generateType(\real(), ()) == \real();
-test generateType(\num(), ()) == \num();
+test generateType(\int(minInt,maxInt), ()) == \int(minInt,maxInt);
+test generateType(\real(minReal,maxReal), ()) == \real(minReal,maxReal);
+test generateType(\num(minInt,maxInt), ()) == \num(minInt,maxInt);
 test generateType(\loc(), ()) == \loc();
 test generateType(\dateTime(), ()) == \dateTime();
-test generateType(\list(\int()), ()) == \list(\int());
-test generateType(\set(\int()), ()) == \set(\int());
-test generateType(\map(\str(), \int()), ()) == \map(\str(), \int());
-test generateType(\tuple([\int(), \str()]), ()) == \tuple([\int(), \str()]);
-test generateType(\rel([\int(), \str()]), ()) == \rel([\int(), \str()]);
-test generateType(\same("A"), ("A" : <\int(),"">, "B" : <\str(), "">)) == \int();
-test generateType(\same("B"), ("A" : <\int(),"">, "B" : <\str(), "">)) == \str();
-test generateType(\list(\same("B")), ("A" : <\int(),"">, "B" : <\str(), "">)) == \list(\str());
+test generateType(\list(\int(minInt,maxInt)), ()) == \list(\int(minInt,maxInt));
+test generateType(\set(\int(minInt,maxInt)), ()) == \set(\int(minInt,maxInt));
+test generateType(\map(\str(), \int(minInt,maxInt)), ()) == \map(\str(), \int(minInt,maxInt));
+test generateType(\tuple([\int(minInt,maxInt), \str()]), ()) == \tuple([\int(minInt,maxInt), \str()]);
+test generateType(\rel([\int(minInt,maxInt), \str()]), ()) == \rel([\int(minInt,maxInt), \str()]);
+test generateType(\same("A"), ("A" : <\int(minInt,maxInt),"">, "B" : <\str(), "">)) == \int(minInt,maxInt);
+test generateType(\same("B"), ("A" : <\int(minInt,maxInt),"">, "B" : <\str(), "">)) == \str();
+test generateType(\list(\same("B")), ("A" : <\int(minInt,maxInt),"">, "B" : <\str(), "">)) == \list(\str());
 
 public RascalType generateArbType(int n, list[RascalType] prefs, VarEnv env){
    if(n <= 0)
@@ -224,10 +245,13 @@ public str generateValue(RascalType t){
 
 public str generateValue(RascalType t, VarEnv env){
      switch(t){
-       case \bool(): 		return toString(arbBool());
-       case \int(): 		return toString(arbInt(20));
-       case \real(): 		return toString(20 * arbReal());
-       case \num(): 		return generateNumber();
+       case \bool(): 		return generateBool();
+       case \int(int f,int t): 		
+       						return generateInt(f,t);
+       case \real(int f, int t):    
+       						return generateReal(f, t);
+       case \num(int f, int t): 	
+       						return generateNumber(f, t);
        case \str(): 		return generateString();
        case \loc():			return generateLoc();
        case \dateTime():	return generateDateTime();
@@ -287,16 +311,16 @@ public str generateBool(){
    return toString(arbBool());
 }
  
- public str generateInt(){
-   return toString(arbInt(20));
+ public str generateInt(int from, int to){
+   return toString(from + arbInt(to - from));
 }
  
- public str generateReal(){
-   return toString(20 * arbReal());
+ public str generateReal(int from, int to){
+   return toString(from + arbReal() * (to - from));
 }
 
-public str generateNumber(){
-   return (arbBool()) ? generateInt() : generateReal();
+public str generateNumber(int from, int to){
+   return (arbBool()) ? generateInt(from, to) : generateReal(from, to);
 }
 
 public str generateLoc(){
