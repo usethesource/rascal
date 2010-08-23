@@ -34,6 +34,10 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IReduc
 		characters = original.characters;
 	}
 	
+	public int getLevelId(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

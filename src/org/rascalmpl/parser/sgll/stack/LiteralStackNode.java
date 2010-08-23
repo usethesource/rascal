@@ -44,6 +44,10 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 		result = original.result;
 	}
 	
+	public int getLevelId(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

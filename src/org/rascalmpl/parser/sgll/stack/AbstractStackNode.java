@@ -9,6 +9,7 @@ import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 
 public abstract class AbstractStackNode{
 	public final static int START_SYMBOL_ID = -1;
+	public final static int DEFAULT_LEVEL_ID = 0;
 	protected final static int DEFAULT_LIST_EPSILON_ID = -2; // (0xeffffffe | 0x80000000)
 	
 	protected AbstractStackNode next;
@@ -84,6 +85,8 @@ public abstract class AbstractStackNode{
 	public int getId(){
 		return id;
 	}
+	
+	public abstract int getLevelId();
 	
 	public void markAsEndNode(){
 		isEndNode = true;

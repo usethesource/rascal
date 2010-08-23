@@ -59,6 +59,10 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		isPlusList = original.isPlusList;
 	}
 	
+	public int getLevelId(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getName(){
 		return name;
 	}

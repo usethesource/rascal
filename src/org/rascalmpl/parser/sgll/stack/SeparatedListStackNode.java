@@ -64,6 +64,10 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		isPlusList = original.isPlusList;
 	}
 	
+	public int getLevelId(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getName(){
 		return name;
 	}

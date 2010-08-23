@@ -212,17 +212,17 @@ public str sym2newitem(Symbol sym){
         
         case \label(_,s) : return sym2newitem(s); // ignore labels
         case \prime(_,_,_) : 
-            return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
+            return "new NonTerminalStackNode(<id>, <v2li(sym)>, \"<sym2name(sym)>\")";
         case \sort(n) : 
-            return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
+            return "new NonTerminalStackNode(<id>, AbstractStackNode.DEFAULT_LEVEL_ID, \"<sym2name(sym)>\")";
         case \layouts(_) :
-            return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";  
+            return "new NonTerminalStackNode(<id>, AbstractStackNode.DEFAULT_LEVEL_ID, \"<sym2name(sym)>\")";  
         case \parameterized-sort(n,args): 
-            return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
+            return "new NonTerminalStackNode(<id>, AbstractStackNode.DEFAULT_LEVEL_ID, \"<sym2name(sym)>\")";
         case \parameter(n) :
             throw "all parameters should have been instantiated by now";
         case \start(s) : 
-            return "new NonTerminalStackNode(<id>, \"<sym2name(sym)>\")";
+            return "new NonTerminalStackNode(<id>, AbstractStackNode.DEFAULT_LEVEL_ID, \"<sym2name(sym)>\")";
         case \lit(l) : {
             if (/restrict(\lit(l), choice(\lit(l), {p:prod(chars,\lit(l),_)}), restrictions) := grammar.rules[sym]) { 
                 return "new LiteralStackNode(<id>, <value2id(p)>, <generateLookaheads(restrictions)>, new char[] {<literals2ints(chars)>})";
@@ -322,4 +322,24 @@ str v2i(value v) {
         case list[value] l : return ("" | it + "_" + value2id(e) | e <- l);
         default            : throw "value not supported <v>";
     }
+}
+
+private int itemLevelId = 0;
+
+map[value, int] levelIdCache = ();
+
+public int value2levelId(value v){
+	return levelIdCache[v]? int(){
+  			int id = itemLevelId;
+  			itemLevelId += 1;
+  			levelIdCache[v] = id;
+  			return id;
+  		}();
+}
+
+int v2li(value v){
+	switch(v){
+		case prime(Symbol s, str reason, list[int] indexes) : return value2LevelId(s);
+        default: return 0;
+	}
 }

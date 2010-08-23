@@ -54,6 +54,10 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		optional = original.optional;
 	}
 	
+	public int getLevelId(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getName(){
 		return name;
 	}

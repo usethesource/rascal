@@ -60,6 +60,10 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		ciLiteral = original.ciLiteral;
 	}
 	
+	public int getLevelId(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}
