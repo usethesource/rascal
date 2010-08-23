@@ -48,7 +48,7 @@ public abstract class SGLL implements IGLL{
 	private final RotatingQueue<AbstractStackNode> stacksWithNonTerminalsToReduce;
 	
 	private final ArrayList<AbstractStackNode[]> lastExpects;
-	private final ObjectIntegerKeyedHashMap<String, AbstractStackNode[]> cachedExpects;
+	private final HashMap<String, AbstractStackNode[]> cachedExpects;
 	
 	private final ArrayList<AbstractStackNode> possiblySharedNextNodes;
 
@@ -71,7 +71,7 @@ public abstract class SGLL implements IGLL{
 		stacksWithNonTerminalsToReduce = new RotatingQueue<AbstractStackNode>();
 		
 		lastExpects = new ArrayList<AbstractStackNode[]>();
-		cachedExpects = new ObjectIntegerKeyedHashMap<String, AbstractStackNode[]>();
+		cachedExpects = new HashMap<String, AbstractStackNode[]>();
 		
 		possiblySharedNextNodes = new ArrayList<AbstractStackNode>();
 		
@@ -421,7 +421,7 @@ public abstract class SGLL implements IGLL{
 			expects[i] = next;
 		}
 		
-		cachedExpects.put(stackBeingWorkedOn.getName(), stackBeingWorkedOn.getLevelId(), expects);
+		cachedExpects.put(stackBeingWorkedOn.getName(), expects);
 	}
 	
 	private void expandStack(AbstractStackNode stack){
@@ -431,7 +431,7 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		if(!stack.isList()){
-			AbstractStackNode[] expects = cachedExpects.get(stack.getName(), stack.getLevelId());
+			AbstractStackNode[] expects = cachedExpects.get(stack.getName());
 			if(expects != null){
 				for(int i = expects.length - 1; i >= 0; --i){
 					expects[i].addEdge(stack);
@@ -568,22 +568,22 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, char[] input){
-		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, AbstractStackNode.DEFAULT_LEVEL_ID, nonterminal), inputURI, input);
+		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, input);
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, String input){
-		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, AbstractStackNode.DEFAULT_LEVEL_ID, nonterminal), inputURI, input);
+		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, input);
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, InputStream in) throws IOException{
-		return parseFromStream(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, AbstractStackNode.DEFAULT_LEVEL_ID, nonterminal), inputURI, in);
+		return parseFromStream(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, in);
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, Reader in) throws IOException{
-		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, AbstractStackNode.DEFAULT_LEVEL_ID, nonterminal), inputURI, in);
+		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, in);
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, File inputFile) throws IOException{
-		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, AbstractStackNode.DEFAULT_LEVEL_ID, nonterminal), inputURI, inputFile);
+		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, inputFile);
 	}
 }

@@ -6,24 +6,18 @@ import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
 public final class NonTerminalStackNode extends AbstractStackNode{
-	private final int levelId;
-	
 	private final String nonTerminal;
 	
 	private ContainerNode result;
 	
-	public NonTerminalStackNode(int id, int levelId, String nonTerminal){
+	public NonTerminalStackNode(int id, String nonTerminal){
 		super(id);
-		
-		this.levelId = levelId;
 		
 		this.nonTerminal = nonTerminal;
 	}
 	
-	public NonTerminalStackNode(int id, int levelId, IReducableStackNode[] followRestrictions, String nonTerminal){
+	public NonTerminalStackNode(int id, IReducableStackNode[] followRestrictions, String nonTerminal){
 		super(id, followRestrictions);
-		
-		this.levelId = levelId;
 		
 		this.nonTerminal = nonTerminal;
 	}
@@ -31,21 +25,13 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 	private NonTerminalStackNode(NonTerminalStackNode original){
 		super(original);
 		
-		levelId = original.levelId;
-		
 		nonTerminal = original.nonTerminal;
 	}
 	
 	private NonTerminalStackNode(NonTerminalStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
-		levelId = original.levelId;
-		
 		nonTerminal = original.nonTerminal;
-	}
-	
-	public int getLevelId(){
-		return levelId;
 	}
 	
 	public String getName(){
