@@ -331,7 +331,7 @@ Type    +      +         +      0   ERROR
           vars = autoDeclare(cndBefore + cndAfter);
         } catch: throw "Question <name>: illegal type in test";
 
-     return <i, tvQuestion(kind, details(name, desc, setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
+     return <i, tvQuestion(name, kind, details(markup([desc]), setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
 }
 
 // Compute the refinements induced by the path

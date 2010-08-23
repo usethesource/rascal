@@ -41,14 +41,13 @@ data Concept =
         		
 data Question = choiceQuestion(QuestionName name, str descr, list[Choice] choices)
               | textQuestion(QuestionName name, str descr, set[str] replies)
-              | tvQuestion(TVkind kind, TVdetails details)
+              | tvQuestion(QuestionName name, TVkind kind, TVdetails details)
  // Some future possibilities:
               | commandQuestion(QuestionName name, str descr, list[str] setup, str expr, str validate)
               | funQuestion(QuestionName name, str descr, str fname, RascalType resultType, list[RascalType] argTypes, str reference)
               | moduleQuestion(QuestionName name, str descr, str mname, str fname, RascalType resultType, list[RascalType] argTypes, str reference)
 			  ;
-data TVdetails = details(QuestionName name, 
-                         str descr, 
+data TVdetails = details(str descr,         // Optional descriptive text
                          list[str] setup,   // setup code
                          str lstBefore,     //  listing before hole
                          str lstAfter,      // listing after hole
