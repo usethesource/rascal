@@ -23,6 +23,10 @@ public class StartOfLineStackNode extends AbstractStackNode implements IReducabl
 		super(original, prefixes);
 	}
 	
+	public int getLevelId(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

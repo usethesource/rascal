@@ -23,6 +23,10 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 		super(original, prefixes);
 	}
 	
+	public int getLevelId(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

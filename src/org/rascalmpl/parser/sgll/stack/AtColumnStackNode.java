@@ -6,6 +6,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
+// TODO Fix this to use columns instead of positions.
 public class AtColumnStackNode extends AbstractStackNode implements IReducableStackNode{
 	private final AtColumnNode result ;
 	
@@ -31,6 +32,10 @@ public class AtColumnStackNode extends AbstractStackNode implements IReducableSt
 		
 		atLocation = original.atLocation;
 		result = original.result;
+	}
+	
+	public int getLevelId(){
+		throw new UnsupportedOperationException();
 	}
 	
 	public String getName(){

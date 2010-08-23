@@ -30,8 +30,8 @@ public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 	private final static IConstructor PROD_A_PLUSLISTa = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_a), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_PLUSLISTa = vf.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, AbstractStackNode.DEFAULT_LEVEL_ID, "S");
+	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, AbstractStackNode.DEFAULT_LEVEL_ID, "A");
 	private final static AbstractStackNode LIST1 = new ListStackNode(1, PROD_PLUSLISTA, NONTERMINAL_A0, true);
 	private final static AbstractStackNode CHAR2 = new CharStackNode(2, new char[][]{{'a', 'a'}});
 	private final static AbstractStackNode CHAR_LIST3 = new ListStackNode(3, PROD_PLUSLISTa, CHAR2, true);
