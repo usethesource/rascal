@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.parser.sgll.SGLL;
-import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.CharStackNode;
 import org.rascalmpl.parser.sgll.stack.ListStackNode;
 import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
@@ -43,9 +42,9 @@ public class ListOverlap extends SGLL implements IParserTest{
 	
 	public void Decl(){
 		expect(iter_star_layout_elems_iter_star_seps_Id_iter_star_layout_iter_star_layout_Decl,
-				new ListStackNode(3, iter_star_layout, new NonTerminalStackNode(4, AbstractStackNode.DEFAULT_LEVEL_ID, "Whitespace"), false),
-				new ListStackNode(5, iter_star_Id, new NonTerminalStackNode(6, AbstractStackNode.DEFAULT_LEVEL_ID, "Id"), false),
-				new ListStackNode(7, iter_star_layout, new NonTerminalStackNode(8, AbstractStackNode.DEFAULT_LEVEL_ID, "Whitespace"), false));
+				new ListStackNode(3, iter_star_layout, new NonTerminalStackNode(4, "Whitespace"), false),
+				new ListStackNode(5, iter_star_Id, new NonTerminalStackNode(6, "Id"), false),
+				new ListStackNode(7, iter_star_layout, new NonTerminalStackNode(8, "Whitespace"), false));
 	}
 	
 	public void Id(){

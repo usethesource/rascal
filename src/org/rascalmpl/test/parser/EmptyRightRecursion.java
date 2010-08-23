@@ -33,10 +33,10 @@ public class EmptyRightRecursion extends SGLL implements IParserTest{
 	private final static IConstructor PROD_B_epsilon = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_epsilon), SYMBOL_B, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, AbstractStackNode.DEFAULT_LEVEL_ID, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, AbstractStackNode.DEFAULT_LEVEL_ID, "A");
-	private final static AbstractStackNode NONTERMINAL_B1 = new NonTerminalStackNode(1, AbstractStackNode.DEFAULT_LEVEL_ID, "B");
-	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, AbstractStackNode.DEFAULT_LEVEL_ID, "B");
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
+	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
+	private final static AbstractStackNode NONTERMINAL_B1 = new NonTerminalStackNode(1, "B");
+	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, "B");
 	private final static AbstractStackNode LITERAL_a3 = new LiteralStackNode(3, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode EPSILON_4 = new EpsilonStackNode(4);
 	

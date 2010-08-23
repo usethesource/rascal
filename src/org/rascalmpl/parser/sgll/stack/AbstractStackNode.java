@@ -86,8 +86,6 @@ public abstract class AbstractStackNode{
 		return id;
 	}
 	
-	public abstract int getLevelId();
-	
 	public void markAsEndNode(){
 		isEndNode = true;
 	}
