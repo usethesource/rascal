@@ -132,7 +132,7 @@ public str showConceptPath(ConceptName cn){
 
 public str searchBox(){
   return "\n\<div id=\"searchBox\"\>
-              \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\>\<b\>Search\</b\>\<br /\>
+              \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\>\<b\>Search\</b\>
               \<input type=\"text\" id=\"searchField\" name=\"term\" autocomplete=\"off\"\>\<br /\>
               \<div id=\"popups\"\>\</div\>
               \</form\>
@@ -254,18 +254,25 @@ public bool contains(str subject, str key){
    return false;
 }
 
+// Approximate a function declaration in a synopsis
+bool isFunction(str txt){
+  if(/^<first:.*>\n/ := txt)  // consider only first line
+    txt = first;
+  return /^\s*[A-Za-z0-9\[\]\&\ \<:,]+\(.*\)\s*(throws|.*$)/ := txt;
+}
+
 public list[str] doSearch(str term){
   if(size(term) == 0)
     return [];
-  if(/^[A-Za-z]*$/ := term)
-  	return [showConceptPath(name) | name <- conceptNames, /<term>/ := name];
-  if(term == "(" || term == ")" || term == ","){
-     // Skip synopsis that contains function declaration
-     return [showConceptPath(name) | name <- conceptNames, 
-                                     /[A-Za-z0-9]+\(.*\)/ !:= concepts[name].rawSynopsis,
-                                     contains(concepts[name].rawSynopsis, term) ];
-  }
-  return [showConceptPath(name) | name <- conceptNames, contains(concepts[name].rawSynopsis, term) ];
+  println("conceptNames=<conceptNames>");
+  return [showConceptPath(name) | 
+          name <- conceptNames, ( /^[A-Za-z0-9]+$/ := term 
+                                  && (startsWith(name, term) || endsWith(name, "/" + term) || /\/<term>\// := name)
+                                ) ||
+                                ( !isFunction(concepts[name].rawSynopsis) 
+                                  && contains(concepts[name].rawSynopsis, term)
+                                )
+         ];
 }
 
 public str search(str term){
@@ -327,24 +334,23 @@ public str status(QuestionName qid){
 
 public str showQuestion(ConceptName cpid, Question q){
 println("showQuestion: <cpid>, <q>");
-  qid = q.details.name;
+  qid = q.name;
   qdescr = "";
   qexpr  = "";
   qform = "";
   
   switch(q){
     case choiceQuestion(qid, descr, choices): {
-      idx = [0 .. size(choices)-1];
       qdescr = descr;
+      idx = [0 .. size(choices)-1];
       qform = "<for(int i <- idx){><(i>0)?br():"">\<input type=\"radio\" name=\"answer\" value=\"<i>\"\><choices[i].description>\n<}>";
     }
     case textQuestion(qid,descr,replies): {
       qdescr = descr;
       qform = "\<textarea rows=\"1\" cols=\"60\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
     }
-    case tvQuestion(qkind, qdetails): {
-      qid    = qdetails.name;
-      descr  = qdetails.descr;
+    case tvQuestion(qid, qkind, qdetails): {
+      qdescr = qdetails.descr;
       setup  = qdetails.setup;
       lstBefore = qdetails.lstBefore;
       lstAfter = qdetails.lstAfter;
@@ -379,7 +385,6 @@ println("showQuestion: <cpid>, <q>");
       cndBefore = escapeForHtml(subst(cndBefore, env));
       cndAfter = escapeForHtml(subst(cndAfter, env));
       
-      qdescr = descr;
       qform = "<for(param <- generatedVars){>\<input type=\"hidden\" name=\"<param>\" value=\"<escapeForHtml(env[param].rval)>\"\>\n<}>";
       
       qtextarea = "\<textarea rows=\"1\" cols=\"30\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
@@ -414,7 +419,7 @@ println("showQuestion: <cpid>, <q>");
     default:
       throw "Unimplemented question type: <q>";
   }
-  answerForm = answerFormBegin(cpid, qid, "answerForm") + qform  + br() + answerFormEnd("Give answer", "answerSubmit");
+  answerForm = answerFormBegin(cpid, qid, "answerForm") + qform  + answerFormEnd("Give answer", "answerSubmit");
 
   return div(qid, b(basename(qid)) + " " + status(qid + "good", good()) + status(qid + "bad", bad()) + br() +
                   qdescr + "\n\<span id=\"answerFeedback<qid>\" class=\"answerFeedback\"\>\</span\>\n" +
@@ -442,7 +447,7 @@ public str trim (str txt){
 public Question getQuestion(ConceptName cid, QuestionName qid){
   c = concepts[cid];
   for(q <- c.questions)
-  	if(q.details.name == qid)
+  	if(q.name == qid)
   		return q;
   throw "Question <qid> not found";
 }
@@ -482,9 +487,7 @@ public str validateAnswer(map[str,str] params){
       case textQuestion(qid,descr,replies):
         return (answer in replies) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
  
-      case tvQuestion(qkind, qdetails): {
-        qid    = qdetails.name;
-       	descr  = qdetails.descr;
+      case tvQuestion(qid, qkind, qdetails): {
         setup  = qdetails.setup;
         lstBefore = qdetails.lstBefore;
         lstAfter  = qdetails.lstAfter;
@@ -529,8 +532,12 @@ public str validateAnswer(map[str,str] params){
 	                 wrongAnswer(cpid, qid, hint);
 	              } else {
 	                 println("YES2");
-	                 computedAnswer = eval(setup + (cndBefore + ";"));
-	                 givenAnswer = eval(setup + (answer + ";"));
+	                 if(!endsWith(cndBefore, ";"))
+	                   cndBefore += ";";
+	                 computedAnswer = eval(setup + cndBefore);
+	                 if(!endsWith(answer, ";"))
+	                    answer += ";";
+	                 givenAnswer = eval(setup + answer);
 	                 if(computedAnswer == givenAnswer)
 	                   return correctAnswer(cpid, qid);
 	                 return wrongAnswer(cpid, qid, "I expected <computedAnswer>.");

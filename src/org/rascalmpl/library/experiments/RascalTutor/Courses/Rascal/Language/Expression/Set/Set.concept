@@ -29,13 +29,13 @@ Note that
 * {1, 2, 3} and {1, 2, 3, 1} are also identical sets (since duplication is not relevant).
 
 == List splicing ==
-<warning>Something funny going one here</warning>
+
 <screen>
-//Introduce a set variable
+//Introduce a set variable <tt>S</tt>
 S = {1, 2, 3};
-// and observe how it is spliced in another set
+// and observe how <tt>S</tt> is spliced in another set
 {10, S, 20};
-//or when it is surrounded with an extra braces;
+//or becomes a subset when it is surrounded with extra braces
 {10, {S}, 20};
 </screen>
 Benefits:
@@ -53,6 +53,11 @@ Choice: The type of a set is determined by:
 b: The type of the first element that was first added to the set.
 b: The upperbound of the type of two arbitrary elements.
 g: The upperbound of the type of all elements.
+
+
+Type: {1, <?> }
+type: set[int]
+hint: one or more integer values separated by commas
 
 Type: <A:set[arb]>
 

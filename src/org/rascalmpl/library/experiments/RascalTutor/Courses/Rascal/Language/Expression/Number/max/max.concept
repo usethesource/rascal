@@ -19,6 +19,11 @@ Benefits:
 Pittfalls:
 
 Questions:
+Type: max(<A:int>, <B:int>)
+prep: import Number;
+
+Type: max(<A:int>, <B:real>)
+prep: import Number;
 
 Value: max(<A:num>, <B:num>)
 prep:  import Number;
@@ -26,30 +31,19 @@ prep:  import Number;
 Value:
 prep: import Number;
 make: A = num
-make:  B = num
-expr: B = <A> + abs(<B>)
-test: max(<A>, <?>) == <B>
+make: B = num[0,20]
+expr: C = <A> + <B>
+hint: <C>
+test: max(<A>, <?>) == <C>
 
 Value:
 prep: import Number;
-make: A = int
-make:  B = int
-hint: <B> - <A>
-test: <A> + <?> == <B>
+make: A = num
+hint: any value smaller than <A>
+test: max(<A>, <?>) == <A>
 
-Value:
-prep: import Set;
-prep: import Number;
-make: A = int
-expr: B = abs(<A>)
-test: size({ <?> }) == <B>
 
-Type: <A:set[int]>
-prep: import Set;
 
-Value:{ <?> }
-prep: import Set;
-type: set[int]
 
 
 

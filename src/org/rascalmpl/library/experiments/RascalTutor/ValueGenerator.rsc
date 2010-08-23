@@ -28,22 +28,22 @@ public RascalType parseType(str txt){
    switch(txt){
      case /^bool$/:		return \bool();
      case /^int$/: 		return \int(minInt, maxInt);
-     case /^int\[<f:\-?[0-9]+>\]/:
+     case /^int\[<f:-?[0-9]+>\]/:
      					return \int(toInt(f), maxInt);
-     case /^int\[<f:\-?[0-9]+>,<t:\-?[0-9]+>\]/:
+     case /^int\[<f:-?[0-9]+>,<t:-?[0-9]+>\]/:
      					return \int(toInt(f), toInt(t));
      					
      case /^real$/: 	return \real(minReal, maxReal);
-     case /^real\[<f:\-?[0-9\.]+>\]/:
-     					return \real(toReal(f), maxReal);
-     case /^real\[<f:\-?[0-9\.]+>,<t:\-?[0-9\.]+>\]/:
-     					return \int(toReal(f), toReal(t));
+     case /^real\[<f:-?[0-9]+>\]/:
+     					return \real(toInt(f), maxReal);
+     case /^real\[<f:-?[0-9]+>,<t:-?[0-9]+>\]/:
+     					return \real(toInt(f), toInt(t));
      
      case /^num$/: 		return \num(minInt, maxInt);
      
-     case /^num\[<f:\-?[0-9]+>\]/:
+     case /^num\[<f:-?[0-9]+>\]/:
      					return \num(toInt(f), maxInt);
-     case /^num\[<f:\-?[0-9]+>,<t:\-?[0-9]+>\]/:
+     case /^num\[<f:-?[0-9]+>,<t:-?[0-9]+>\]/:
      					return \num(toInt(f), toInt(t));
      case /^str$/: 		return \str();
      case /^loc$/: 		return \loc();
@@ -135,9 +135,12 @@ test parseType("void") == \void();
 public str toString(RascalType t){
      switch(t){
        case \bool(): 		return "bool";
-       case \int(f, t): 	return "int";
-       case \real(f,t):		return "real";
-       case \num(f, t): 	return "num";
+       case \int(int f, int t): 	
+       						return "int";
+       case \real(int f, int t):		
+       						return "real";
+       case \num(int f, int t): 	
+       						return "num";
        case \str(): 		return "str";
        case \loc():			return "loc";
        case \dateTime():	return "datetime";
@@ -427,7 +430,7 @@ public list[tuple[str,RascalType]] autoDeclare(str expr){
     list[tuple[str,RascalType]] d = [];
     set[str] decls = {};
     visit(expr){
-      case /^\<<name:[A-Za-z0-9]>:<tp:[A-Za-z0-9,\[\]]+>\>/: {
+      case /^\<<name:[A-Za-z0-9]>:<tp:[A-Za-z0-9\-,\[\]]+>\>/: {
         atp = parseType(tp);
         u = uses(atp);
         if(u - decls != {})
@@ -438,7 +441,7 @@ public list[tuple[str,RascalType]] autoDeclare(str expr){
       case /^\<@?<name:[A-Za-z0-9]>\>/: {
         throw "name reference \<<name>\>not allowed";
       }
-      case/^\<<tp:[A-Za-z0-9,\[\]]+>\>/: {
+      case/^\<<tp:[A-Za-z0-9\-,\[\]]+>\>/: {
         throw "nameless type \<<tp>\> not allowed";
       }
     };
@@ -455,7 +458,7 @@ public str subst(str txt, VarEnv env){
         v = env[name].rval;
         insert v;
       }
-      case /^\<<name:[A-Z]>:<tp:[A-Za-z0-9,\[\]]+>\>/: {
+      case /^\<<name:[A-Z]>:<tp:[A-Za-z0-9\-,\[\]]+>\>/: {
         println("name = <name>");
         v = env[name].rval;
         insert v;

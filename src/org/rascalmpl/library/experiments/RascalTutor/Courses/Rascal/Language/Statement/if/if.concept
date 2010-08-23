@@ -12,6 +12,8 @@ Examples:
 <screen>
 if( 3 > 2 ) 30; else 40;
 if( 3 > 2 ) 30;
+// An if-then statement yields <tt>void</tt>  when its test is false
+// (demonstrated by the '''ok''' that is printed by the Rascal system):
 if( 2 > 3 ) 30;
 </screen>
 
@@ -20,4 +22,10 @@ Benefits:
 Pittfalls:
 
 Questions:
+
+Type: if( <A:int> > <B:int> ) 10; else 20;
+
+Type: if( <A:int> > <B:int> ) <C:str>; else <D:str>;
+
+Value: if( <A:int> > <B:int> ) 10; else 20;
 

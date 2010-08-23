@@ -19,3 +19,8 @@ Pittfalls:
 
 Questions:
 
+Value:
+prep: import Set;
+make: N = int[0,5]
+hint: <N> values separated by commas
+test: size({ <?> }) == <N>

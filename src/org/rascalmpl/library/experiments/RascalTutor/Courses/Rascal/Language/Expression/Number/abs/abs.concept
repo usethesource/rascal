@@ -21,7 +21,17 @@ Pittfalls:
 
 Questions:
 
+Type: abs(<A:int>)
+prep: import Number;
+
+Type: abs(<A:real>)
+prep: import Number;
+
 Value: 
 prep: import Number;
-test: abs(<A:num>)
+test: abs(<A:int[-20,-1]>)
+
+Value: 
+prep: import Number;
+test: abs(<A:real[-20,-1]>)
 

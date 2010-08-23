@@ -18,13 +18,24 @@ Pittfalls:
 
 Questions:
 
-Type: <A:int> + <B:int>
-Value: <A:int> + <B:int>  
+Type: <A:int[0]> + <B:int[0]>
+desc: Adding integers. 
 
-Type:<A:int> + <B:real> 
-Value:<A:int> + <B:real> 
+Value: <A:int[0]> + <B:int[0]> 
+desc: Adding integers. 
 
-Type: <A:real> + <B:int> 
-Value: <A:real> + <B:int> 
+Type:<A:int[0]> + <B:real[0]>
+desc: Adding integers and reals.
 
-Value: <A:num> + <B:num>
+Value:<A:int[0]> + <B:real[0]> 
+Adding integers and reals.
+
+Value: <A:int> + (<B:int[-20,-1]>)
+desc:Use parentheses when addition and negative numbers interact.
+
+Value: 
+desc: Use parentheses when addition and negative numbers interact.
+make: A = int
+make: B = int[0,10]
+expr: C = <A> - <B>
+test: <A> + <?> == <C>

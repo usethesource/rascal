@@ -2,7 +2,7 @@ Name:toList
 
 Related:
 
-Synopsis: list[&T] toList[set[&T] s)
+Synopsis: list[&T] toList(set[&T] s)
 
 Description: Convert a set to a list.
 

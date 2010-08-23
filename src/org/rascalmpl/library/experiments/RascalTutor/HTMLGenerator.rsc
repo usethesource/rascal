@@ -1,6 +1,7 @@
 module experiments::RascalTutor::HTMLGenerator
 
 import experiments::RascalTutor::HTMLUtils;
+
 import String;
 import ToString;
 import IO;
@@ -97,14 +98,24 @@ public str markup(list[str] lines){
       i += 1;
       }
       
-    case /^\<listing\>\s*<code:.*>$/: {
+    case /^\<include\s*<file:.*>\>$/: {
+      println("file = <file>");
+      loc L = |stdlib:///|[path = file];
+      code = readFileLines(L);
+      println("code = <code>");
+      res += markupListing(code);
+    }
+      
+    case /^\<listing\>\s*<rest:.*>$/: {
       res += closeLists();
       i += 1;
+      code = [];
       while((i < n) && /^\<\/listing\>/ !:= lines[i]){
-         code += lines[i] + "\n";
+         code += lines[i];
          i += 1;
       }
-      res += pre("listing", code);
+      //res += pre("listing", code);
+      res += markupListing(code);
       i += 1;
       }
       
@@ -139,6 +150,13 @@ public str markupRestLine(str line){
 }   
 
 //test markupRestLine("The value of 2 + 3 is @@2 + 3@@") == "The value of 2 + 3 is \<tt\>5\</tt\>";
+
+public str markupListing(list[str] lines){
+  txt = "";
+  for(line <- lines)
+    txt += line + "\n";
+  return pre("listing", txt);
+}
 
 
 public str markupRascalPrompt(list[str] lines){

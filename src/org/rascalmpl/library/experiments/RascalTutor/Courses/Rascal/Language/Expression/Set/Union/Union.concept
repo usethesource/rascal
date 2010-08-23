@@ -27,9 +27,17 @@ b: Smaller than the number of elements in both sets.
 b: Smaller than or equal the number of elements in both sets.
 
 
-Type: <A:set[arb[int,str]]> + <B:same[A]>
+Type: <A:set[arb[int,str,real]]> + <B:same[A]>
 
-Type: <A:set[arb]> + <B:same[A]>
+Value: <A:set[arb[int,str,real]]> + <B:same[A]>
+
+Value:
+make: A = set[arb[int,str]]
+make: B = same[A]
+expr: C = <A> + <B>
+hint: <B>
+test: <A> + <?> == <C>
+
 
 Value: <A:set[arb[0,int,str,num,real]]> + <B:same[A]>
 
