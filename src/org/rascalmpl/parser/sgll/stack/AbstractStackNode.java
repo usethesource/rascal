@@ -229,12 +229,8 @@ public abstract class AbstractStackNode{
 			int index = edgesMap.findKey(prefixStartLocation);
 			int capacity = prefixesMap.length;
 			if(index >= capacity){
-				int newCapacity = capacity << 1;
-				do{
-					newCapacity <<= 1;
-				}while(index >= newCapacity);
 				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
-				prefixesMap = (ArrayList<Link>[]) new ArrayList[newCapacity];
+				prefixesMap = (ArrayList<Link>[]) new ArrayList[edgesMap.size()];
 				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, capacity);
 			}
 			prefixes = prefixesMap[index];
