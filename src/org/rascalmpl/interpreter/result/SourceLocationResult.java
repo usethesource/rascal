@@ -211,7 +211,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());
+				String path = ((IString) repl.getValue()).getValue();
+				if(!path.startsWith("/"))
+					path = "/" + path;
+				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
 			}
 			else if (name.equals("file")) {
 				if (!replType.isStringType()) {
