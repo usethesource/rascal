@@ -412,9 +412,9 @@ public abstract class SGLL implements IGLL{
 				current.addNext(next);
 				next = current;
 			}
-			
-			next.addEdge(stackBeingWorkedOn);
+
 			next.setStartLocation(location);
+			next.addEdge(stackBeingWorkedOn);
 			
 			stacksToExpand.add(next);
 			

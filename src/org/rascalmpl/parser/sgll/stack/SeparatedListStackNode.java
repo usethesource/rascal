@@ -103,10 +103,10 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	public AbstractStackNode[] getChildren(){
 		AbstractStackNode listNode = child.getCleanCopy();
 		listNode.markAsEndNode();
-		listNode.addEdge(this);
-		listNode.addPrefix(null, startLocation);
 		listNode.setStartLocation(startLocation);
 		listNode.setParentProduction(production);
+		listNode.addEdge(this);
+		listNode.addPrefix(null, startLocation);
 		
 		AbstractStackNode from = listNode;
 		AbstractStackNode to = separators[0].getCleanCopy();
@@ -128,9 +128,9 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 
 		AbstractStackNode empty = EMPTY.getCleanCopy();
 		empty.markAsEndNode();
-		empty.addEdge(this);
 		empty.setStartLocation(startLocation);
 		empty.setParentProduction(production);
+		empty.addEdge(this);
 		
 		return new AbstractStackNode[]{listNode, empty};
 	}
