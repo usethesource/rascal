@@ -45,6 +45,7 @@ public class SplitAndMerge3 extends SGLL implements IParserTest{
 	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a7 = new LiteralStackNode(7, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, PROD_a_a, new char[]{'a'});
 	
 	public SplitAndMerge3(){
 		super();
@@ -57,15 +58,15 @@ public class SplitAndMerge3 extends SGLL implements IParserTest{
 	}
 	
 	public void A(){
-		expect(PROD_A_Ba, NONTERMINAL_B2, LITERAL_a6);
+		expect(PROD_A_Ba, NONTERMINAL_B2, LITERAL_a5);
 		
-		expect(PROD_A_a, LITERAL_a5);
+		expect(PROD_A_a, LITERAL_a6);
 	}
 	
 	public void B(){
 		expect(PROD_B_Aa, NONTERMINAL_A1, LITERAL_a7);
 		
-		expect(PROD_B_a, LITERAL_a5);
+		expect(PROD_B_a, LITERAL_a8);
 	}
 	
 	public void C(){
