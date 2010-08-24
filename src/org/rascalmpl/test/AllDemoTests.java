@@ -122,8 +122,8 @@ public class AllDemoTests extends TestFramework {
 	}
 	
 	@Test
-	public void Factorial() {
-		assertTrue(runRascalTests("import demo::Factorial;"));
+	public void FactorialTest() {
+		assertTrue(runRascalTests("import demo::FactorialTest;"));
 	}
 
 	@Test
