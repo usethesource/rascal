@@ -6,36 +6,36 @@ import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
 public final class NonTerminalStackNode extends AbstractStackNode{
-	private final String nonTerminal;
+	private final String expectIdentifier;
 	
 	private ContainerNode result;
 	
-	public NonTerminalStackNode(int id, String nonTerminal){
+	public NonTerminalStackNode(int id, String expectIdentifier){
 		super(id);
 		
-		this.nonTerminal = nonTerminal;
+		this.expectIdentifier = expectIdentifier;
 	}
 	
-	public NonTerminalStackNode(int id, IReducableStackNode[] followRestrictions, String nonTerminal){
+	public NonTerminalStackNode(int id, IReducableStackNode[] followRestrictions, String expectIdentifier){
 		super(id, followRestrictions);
 		
-		this.nonTerminal = nonTerminal;
+		this.expectIdentifier = expectIdentifier;
 	}
 	
 	private NonTerminalStackNode(NonTerminalStackNode original){
 		super(original);
 		
-		nonTerminal = original.nonTerminal;
+		expectIdentifier = original.expectIdentifier;
 	}
 	
 	private NonTerminalStackNode(NonTerminalStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
-		nonTerminal = original.nonTerminal;
+		expectIdentifier = original.expectIdentifier;
 	}
 	
 	public String getName(){
-		return nonTerminal;
+		return expectIdentifier;
 	}
 	
 	public boolean reduce(char[] input){
@@ -76,7 +76,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(nonTerminal);
+		sb.append(expectIdentifier);
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
