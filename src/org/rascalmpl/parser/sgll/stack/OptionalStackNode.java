@@ -93,15 +93,15 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	public AbstractStackNode[] getChildren(){
 		AbstractStackNode child = optional.getCleanCopy();
 		child.markAsEndNode();
-		child.addEdge(this);
 		child.setStartLocation(startLocation);
 		child.setParentProduction(production);
+		child.addEdge(this);
 
 		AbstractStackNode empty = EMPTY.getCleanCopy();
 		empty.markAsEndNode();
-		empty.addEdge(this);
 		empty.setStartLocation(startLocation);
 		empty.setParentProduction(production);
+		empty.addEdge(this);
 		
 		return new AbstractStackNode[]{child, empty};
 	}
