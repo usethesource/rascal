@@ -1,5 +1,6 @@
 package org.rascalmpl.uri;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -19,7 +20,11 @@ public class ClassResourceInputStreamResolver implements
 	}
 
 	public InputStream getInputStream(URI uri) throws IOException {
-		return clazz.getResourceAsStream(uri.getPath());
+		
+		InputStream resourceAsStream = clazz.getResourceAsStream(uri.getPath());
+		if(resourceAsStream != null)
+			return resourceAsStream;
+		throw new FileNotFoundException(uri.toString());
 	}
 
 	public String scheme() {
