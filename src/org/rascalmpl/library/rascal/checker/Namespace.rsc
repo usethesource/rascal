@@ -205,6 +205,8 @@ public SymbolTable handleImportedModule(ImportedModule im, RSignature signature,
 // version of the name, useful for resolving qualified names.
 //
 public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc l, SymbolTable symbolTable) {
+//	println("NAMESPACE: Importing Contents of Module <qn>");
+	
 	symbolTable = justSymbolTable(pushNewModuleScope(convertName(qn), l, symbolTable));
 	
 	// First, load in aliases. These may used in the definitions of ADTs (and may use ADTs, but just as names)
@@ -216,6 +218,7 @@ public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc
 	// TODO: We assume here that the signature is unordered, and aliases in the signature cannot refer
 	// to other aliases in the same module signature. If this is not true, we will need to order the
 	// additions of the aliases based on which aliases refer to which other aliases. 
+//	println("NAMESPACE: Importing Aliases of Module <qn>");
 	for (AliasSigItem(aliasName,aliasType,aliasedType,at) <- signature.signatureItems) {
 		symbolTable = justSymbolTable(addAliasToScope(aliasType, aliasedType, true, at, symbolTable));
 		symbolTable = justSymbolTable(checkForDuplicateAliases(addAliasToTopScope(aliasType, aliasedType, true, at, symbolTable), at));
@@ -226,6 +229,7 @@ public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc
 	// later, so we can still maintain information about the various locations of definitions if needed.
 	// Note that, at this point, we don't add anything from the ADT signature; there are instead given as
 	// separate constructor items.
+//	println("NAMESPACE: Importing ADTs of Module <qn>");
 	for (ADTSigItem(adtName,adtType,at) <- signature.signatureItems) {
 		symbolTable = justSymbolTable(addADTToScope(adtType, true, at, symbolTable));
 		symbolTable = justSymbolTable(addADTToTopScope(adtType, true, at, symbolTable));
@@ -248,6 +252,7 @@ public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc
 			// Add a function scope layer and associated item for a function in the imported signature. Note that
 			// we pop the scope after each add, since we don't want to stay inside the function scope.
 			case FunctionSigItem(fn,st,at) : {
+//				println("NAMESPACE: Importing Function <fn> of Module <qn>");
 				symbolTable = justSymbolTable(pushNewFunctionScope(fn, getFunctionReturnType(st), [ <RSimpleName(""),t,at,at> | t <- getFunctionArgumentTypes(st) ], [ ], true, at, symbolTable));
 				symbolTable = popScope(symbolTable);
 
@@ -266,6 +271,8 @@ public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc
 			// Add a variable item to the top and module-level scopes. If the name already appears in the
 			// top level scope, we do not add it. 
 			case VariableSigItem(vn,st,at) : {
+//				println("NAMESPACE: Importing Function <vn> of Module <qn>");
+
 				symbolTable = justSymbolTable(addVariableToScope(vn, st, true, at, symbolTable));
 
 				if (! (size(getItemsForName(symbolTable, symbolTable.topSTItemId, vn)) > 0)) {
@@ -277,6 +284,8 @@ public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc
 			// scope so we can tie the constructor to the appropriate ADT. In cases where the ADT appears
 			// more than once, we just use an arbitrary item ID, since we will later consolidate them.
 			case ConstructorSigItem(constructorName,adtName,constructorTypes,at) : {
+//				println("NAMESPACE: Importing constructor <constructorName> of Module <qn>");
+
 				set[STItemId] possibleADTs = getTypeItemsForNameMB(symbolTable, symbolTable.currentScope, adtName);
 				possibleADTs = { t | t <- possibleADTs, ADTItem(_,_,_) := symbolTable.scopeItemMap[t] };
 				if (size(possibleADTs) == 0) throw "Error: Cannot find ADT <prettyPrintName(adtName)> to associate with constructor: <item>";
@@ -296,6 +305,8 @@ public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc
 			// already appears in the top level scope, we consider this to be an error. This is handled using
 			// checkForDuplicateAnnotations. 
 			case AnnotationSigItem(an,st,ot,at) : {
+//				println("NAMESPACE: Importing annotation <an> of Module <qn>");
+
 				symbolTable = justSymbolTable(addAnnotationToScope(an, st, ot, true, at, symbolTable)); 
 				
 				if (size(getAnnotationItemsForName(symbolTable, symbolTable.topSTItemId, an)) == 0) { 
@@ -313,6 +324,7 @@ public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc
 		}
 	}
 
+//	println("NAMESPACE: Contents of Module <qn> Imported");
 	return popScope(symbolTable);
 }
 
@@ -504,21 +516,6 @@ public SymbolTable handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signat
 		// Add uses, checking for overlaps
 		symbolTable = justSymbolTable(checkFunctionOverlap(addSTItemUses(rt,([<false,l>, <true,n@\loc>] + [<true,p.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] p <- params])),n@\loc));
 
-		// Check to make sure that any type variables included in the parameters or the return type are
-		// consistent.
-		// TODO: Check to make sure the bounds are consistent
-		// TODO: Add checking for type parameters in function parameters 
- 		if (typeHasTypeVars(retType)) {
- 			set[RType] retTypeVars = collectTypeVars(retType);
- 			set[RName] retTypeVarNames = { getTypeVarName(tv) | tv <- retTypeVars };
- 			
-			for (tvn <- retTypeVarNames) {
-				if (insideEnclosingFunction(symbolTable, symbolTable.currentScope) && size(getTypeVarItemsForNameMB(symbolTable, symbolTable.currentScope, tvn)) == 0) {
-					symbolTable = addScopeError(symbolTable, l, "Type variable <prettyPrintName(tvn)>, included in return type, is not bound");
-				}
-			}
- 		}
- 		
 		// Pop the new scope and exit
 		return popScope(symbolTable);
 	}
@@ -552,9 +549,6 @@ public SymbolTable handleAbstractFunction(Tags ts, Visibility v, Signature s, lo
 public list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] handleParametersNamesOnly(Parameters p, SymbolTable symbolTable) {
 	list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = [];
 
-	// Add each parameter into the scope; the current scope is the function that
-	// is being processed.
-	// TODO: Add type variables into environment here	
 	if (`( <Formals f> )` := p) {
 		if ((Formals)`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
@@ -888,10 +882,12 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 
 	SymbolTable handleExpName(RName n, loc l, SymbolTable symbolTable) {
-		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {		
+		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {
+                        if (RSimpleName("makeAssoc") := n) println("Found items <getItemsForName(symbolTable,symbolTable.currentScope,n)> at scope <symbolTable.currentScope>");
 			symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, n), l);
 		} else {
-			symbolTable = addScopeError(symbolTable, l, "<prettyPrintName(n)> not defined before use.");
+		        if (RSimpleName("makeAssoc") := n) println("Found no items at scope <symbolTable.currentScope>");
+			symbolTable = addScopeError(symbolTable, l, "<prettyPrintName(n)> not defined before use in scope <symbolTable.currentScope>.");
 		}
 		return symbolTable;
 	}
@@ -938,7 +934,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		// Tuple, more than one expression
 		case `<<Expression ei>, <{Expression ","}* el>>` : {
 			symbolTable = handleExpression(ei,symbolTable);
-			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
+			for (eli <- el) symbolTable = handleExpression(eli, symbolTable);
 		}
 
 		// TODO: Map: Need to figure out a syntax that works for matching this
@@ -1549,6 +1545,14 @@ public SymbolTable addFreshContainerVariable(RName n, loc nloc, SymbolTable symb
 	return symbolTable;
 }
 
+public SymbolTable addFreshAnonymousContainerVariable(loc nloc, SymbolTable symbolTable) {
+	RType freshType = makeContainerType(makeInferredType(symbolTable.freshType));
+	symbolTable.inferredTypeMap[symbolTable.freshType] = freshType;
+	symbolTable.freshType = symbolTable.freshType + 1;
+	symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(RSimpleName("_"), freshType, false, nloc, symbolTable), [<true,nloc>]));
+	return symbolTable;
+}
+
 public SymbolTable addFreshVariableWithType(RName n, loc nloc, RType rt, SymbolTable symbolTable) {
 	if (RSimpleName("it") := n) symbolTable.itBinder[nloc] = rt;
 	symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, rt, false, nloc, symbolTable), [<true,nloc>]));
@@ -1658,7 +1662,7 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 		case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` : {
 			// println("NAMESPACE: Handling tuple pattern <pat>");
 			symbolTable = handlePattern(pi, symbolTable);
-			for (p <- pl) symbolTable = handlePattern(p, symbolTable);
+			for (pli <- pl) symbolTable = handlePattern(pli, symbolTable);
 		}
 
 		// Typed Variable
@@ -1667,38 +1671,44 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 			symbolTable = handleTypedPatternName(convertName(n),convertType(t),n@\loc,pat@\loc,symbolTable);
 		}
 
+		// Anonymous Multi Variable
+		case (Pattern) `_ *` : {
+			// println("NAMESPACE: Handling multivariable pattern <pat>");
+			symbolTable = addFreshAnonymousContainerVariable(pat@\loc, symbolTable);
+		}			
+
 		// Multi Variable
-		case `<QualifiedName qn> *` : {
+		case (Pattern) `<QualifiedName qn> *` : {
 			// println("NAMESPACE: Handling multivariable pattern <pat>");
 			symbolTable = handleMultiPatternName(convertName(qn), qn@\loc, symbolTable);
 		}
 
 		// Descendant
-		case `/ <Pattern p>` : {
+		case (Pattern) `/ <Pattern p>` : {
 			// println("NAMESPACE: Handling descendant pattern <pat>");
 			symbolTable = handlePattern(p, symbolTable);
 		}
 
 		// Variable Becomes
-		case `<Name n> : <Pattern p>` : {
+		case (Pattern) `<Name n> : <Pattern p>` : {
 			// println("NAMESPACE: Handling variable becomes pattern <pat>");
 			symbolTable = handlePattern(p, handlePatternName(convertName(n), n@\loc, symbolTable));
 		}
 		
 		// Typed Variable Becomes
-		case `<Type t> <Name n> : <Pattern p>` : {
+		case (Pattern) `<Type t> <Name n> : <Pattern p>` : {
 			// println("NAMESPACE: Handling typed variable becomes pattern <pat>");
 			symbolTable = handlePattern(p, handleTypedPatternName(convertName(n),convertType(t),n@\loc,pat@\loc,symbolTable));
 		}
 		
 		// Guarded
-		case `[ <Type t> ] <Pattern p>` : {
+		case (Pattern) `[ <Type t> ] <Pattern p>` : {
 			// println("NAMESPACE: Handling guarded pattern <pat>");
 			symbolTable = handlePattern(p, symbolTable);
 		}
 		
 		// Anti
-		case `! <Pattern p>` : {
+		case (Pattern) `! <Pattern p>` : {
 			// println("NAMESPACE: Handling anti pattern <pat>");
 			symbolTable = handlePattern(p, symbolTable);
 		}
@@ -1800,88 +1810,6 @@ public SymbolTable handleTarget(DataTarget dt, SymbolTable symbolTable) {
 		
 	}
 	return symbolTable;
-}
-
-public bool hasRType(SymbolTable symbolTable, loc l) {
-	if (l in symbolTable.itemUses || l in symbolTable.scopeErrorMap)
-		return true;
-	return false;
-}
-
-data RType = RLocatedType(RType actualType, loc l);
-
-public RType getRType(SymbolTable symbolTable, loc l) {
-	set[STItemId] items = (l in symbolTable.itemUses) ? symbolTable.itemUses[l] : { };
-	set[str] scopeErrors = (l in symbolTable.scopeErrorMap) ? symbolTable.scopeErrorMap[l] : { };
-	
-	if (size(scopeErrors) == 0) {
-		if (size(items) == 0) {
-			// TODO: Should be an exception
-			return makeVoidType();
-		} else if (size(items) == 1) {
-			STItemId anid = getOneFrom(items);
-			STItem stitem = getSTItem(anid, symbolTable);
-			if ( isFunctionOrConstructorItem(stitem) && ((stitem@at) ?)) {
-				return RLocatedType(getTypeForItem(symbolTable, anid),stitem@at);
-			} else {
-				return getTypeForItem(symbolTable, anid);
-			}
-		} else {
-			set[ROverloadedType] overloads = { };
-			for (sii <- items) {
-				STItem stitem = getSTItem(sii, symbolTable);
-				if ( (stitem@at) ?)
-					overloads += ROverloadedTypeWithLoc(getTypeForItem(symbolTable, sii), stitem@at);
-				else
-					overloads = ROverloadedType(getTypeForItem(symbolTable, sii));
-			}
-			return ROverloadedType(overloads);
-		}
-	} else {
-		return collapseFailTypes({ makeFailType(s,l) | s <- scopeErrors });
-	}
-}
-
-public Tree decorateNames(Tree t, SymbolTable symbolTable) {
-	set[loc] scopeErrorLocs = domain(symbolTable.scopeErrorMap);
-	
-	t = visit(t) {
-		case `<Name n>` : {
-			if (hasRType(symbolTable, n@\loc)) {
-				RType rt = getRType(symbolTable, n@\loc);
-				if (RLocatedType(rt2,l) := rt) {
-					insert(n[@rtype = rt2[@at=l]][@link = l]);
-				} else
-					insert(n[@rtype = rt]);
-				scopeErrorLocs = scopeErrorLocs - n@\loc;
-			}
-		}
-		
-		case `<QualifiedName qn>` : {
-			if (hasRType(symbolTable, qn@\loc)) {
-				RType rt = getRType(symbolTable, qn@\loc);
-				if (RLocatedType(rt2,l) := rt) {
-					insert(qn[@rtype = rt2[@at=l]][@link = l]);
-				} else
-					insert(qn[@rtype = rt]);
-				scopeErrorLocs = scopeErrorLocs - n@\loc;
-			}
-		}
-	}
-	
-	t = visit(t) {
-		case `<Module m>` : {
-			if (size(scopeErrorLocs) > 0) {
-				set[str] scopeErrors = { symbolTable.scopeErrorMap[l] | l <- scopeErrorLocs };
-				if ( (m@rtype)? )
-					insert(m[@rtype = collapseFailTypes({ makeFailType(s,m@\loc) | s <- scopeErrors } + {m@rtype})]);
-				else
-					insert(m[@rtype = collapseFailTypes({ makeFailType(s,m@\loc) | s <- scopeErrors })]);
-			}
-		}
-	}
-	
-	return t;
 }
 
 // TODO: Add tag handling here

@@ -5,6 +5,7 @@ import Set;
 import IO;
 import ParseTree;
 import String;
+import Map;
 
 import rascal::checker::ListUtils;
 
@@ -107,7 +108,7 @@ data RType =
 	| RTypeVar(RTypeVar tv)
 	| RAssignableType(RType wholeType, RType partType)
 	| RUnknownType(RType wrappedType)
-	| RPartialMatch(list[RType] partialMatches)
+	| RLubType(list[RType] lubOptions)
 ;
 
 data ROverloadedType =
@@ -232,7 +233,11 @@ public RType convertType(Type t) {
 }
 
 public str prettyPrintTypeList(list[RType] tList) {
-	return joinList(tList,prettyPrintType,", ","");
+	return joinList(tList, prettyPrintType, ", ", "");
+}
+
+public str prettyPrintTypeListWLoc(list[RType] tList) {
+	return joinList(tList,str (RType t) { if ( (t@at)? ) { return "<prettyPrintType(t)> at <t@at>"; } else { return prettyPrintType(t); } }, ", ", "");
 }
 
 public str printLocMsgPair(tuple[str failMsg, loc failLoc] lmp) {
@@ -254,12 +259,12 @@ public str prettyPrintType(RType t) {
 		case RSetType(et) : return "set[<prettyPrintType(et)>]";
 		case RContainerType(et) : return "container[<prettyPrintType(et)>]";
 		case RBagType(et) : return "bag[<prettyPrintType(et)>]";
-		case RMapType(dt,rt) : return "map[<prettyPrintNamedType(dt)>,<prettyPrintNamdType(rt)>]";
+		case RMapType(dt,rt) : return "map[<prettyPrintNamedType(dt)>,<prettyPrintNamedType(rt)>]";
 		case RRelType(nts) : return "rel[<prettyPrintNamedTypeList(nts)>]";
 		case RTupleType(nts) : return "tuple[<prettyPrintNamedTypeList(nts)>]";
 		case RLexType() : return "lex";
 		case RADTType(n) : return "<prettyPrintType(n)>"; // TODO: Add more detail on the pretty printer
-		case RConstructorType(cn, an, ets) : return "Constructor for type <prettyPrintType(an)>: <prettyPrintName(cn)>(<prettyPrintNamedTypeList(ets)>)";
+		case RConstructorType(cn, an, ets) : return "<prettyPrintType(an)>: <prettyPrintName(cn)>(<prettyPrintNamedTypeList(ets)>)";
 		case RFunctionType(rt, pts) : return "<prettyPrintType(rt)> (<prettyPrintNamedTypeList(pts)>)";
 		case RNonTerminalType() : return "non-terminal";
 		case RReifiedType(rt) : return "type(<prettyPrintType(t)>)";
@@ -277,6 +282,7 @@ public str prettyPrintType(RType t) {
 		case RTypeVar(tv) : return prettyPrintTypeVar(tv);
 		case RAssignableType(wt,pt) : return "Assignable type, whole <prettyPrintType(wt)>, part <prettyPrintType(pt)>";
 		case RLocatedType(rlt,l) : return "Located type <prettyPrintType(rlt)> at location <l>";
+		case RLubType(ll) : return "Unresolved LUB type: <prettyPrintTypeList(ll)>";
 		default : return "Unhandled type <t>";
 	}
 }
@@ -357,7 +363,7 @@ public bool isListType(RType t) {
 }
 
 public bool isSetType(RType t) {
-	return RSetType(_) := t;
+	return RSetType(_) := t || RRelType(_) := t;
 }
 
 public bool isBagType(RType t) {
@@ -373,7 +379,9 @@ public bool isMapType(RType t) {
 }
 
 public bool isRelType(RType t) {
-	return RRelType(_) := t;
+        if (RRelType(_) := t) return true;
+        if (RSetType(RTupleType(_)) := t) return true;
+        return false;
 }
 
 public bool isTupleType(RType t) {
@@ -443,9 +451,7 @@ public bool isTypeVar(RType t) {
 }
 
 public set[RType] collectTypeVars(RType t) {
-	set[RType] typeVars = { };
-	visit(t) { case RTypeVar(v) : typeVars += RTypeVar(v); }
-	return typeVars;
+	return { rt | / RType rt : RTypeVar(RTypeVar v) <- t };
 }
 
 public bool typeHasTypeVars(RType t) {
@@ -494,6 +500,8 @@ public RType getElementType(RNamedType t) {
 
 public RType getRelElementType(RType t) {
 	if (RRelType(ets) := t)
+		return RTupleType(ets);
+	if (RSetType(RTupleType(ets)) := t)
 		return RTupleType(ets);
 	throw "Error: Cannot get relation element type from type <prettyPrintType(t)>";
 }
@@ -545,7 +553,7 @@ public list[RType] getTupleFields(RType t) {
 
 public list[RNamedType] getTupleFieldsWithNames(RType t) {
 	if (RTupleType(tas) := t) {
-		return [ ta | ta <- tas ];
+		return tas;
 	}
 	throw "Cannot get tuple fields from type <prettyPrintType(t)>";	
 }
@@ -754,4 +762,78 @@ public RType instantiateVars(map[RName,RType] varMappings, RType rt) {
 		case RTypeVar(RFreeTypeVar(n)) : if (n in varMappings) insert(varMappings[n]);
 		case RTypeVar(RBoundTypeVar(n,_)) : if (n in varMappings) insert(varMappings[n]);	
 	};
+}
+
+public bool hasDeferredTypes(RType rt) {
+	return (size ( [ tt | tt:/RLubType(_) <- rt ] + [ tt | tt:/RInferredType(_) <- rt] ) > 0);
+}
+
+// TODO: Need to enforce bounds here
+public map[RName varName, RType varType] findMappings(list[RType] formalTypes, list[RType] actualTypes) {
+        // A consolidated map of names to types for the list of parameters
+        map[RName varName, RType varType] mres = findMappingsForList(formalTypes, actualTypes);
+        return mres;
+}
+
+public map[RName varName, RType varType] findMappingsForList(list[RType] formalTypes, list[RType] actualTypes) {
+        // A consolidated map of names to types for the list of parameters
+        map[RName varName, RType varType] mres = ( );
+	
+	if (size(actualTypes) == 0) return mres;
+	
+        // Go through each of the parameters in the list, finding the mappings, as well as looking for
+        // situations where we have multiple mappings to the same type variable.
+        for (n <- [0..size(actualTypes)-1]) {
+	        RType formalType = (n < size(formalTypes)) ? formalTypes[n] : formalTypes[size(formalTypes)-1];
+		if (isVarArgsType(formalType)) formalType = getVarArgsType(formalType);
+                mresp = findElementMappings(formalType,actualTypes[n]);
+                for (mrd <- mresp) {
+		        if (mrd in mres && mres[mrd] != mresp[mrd]) {
+			        if (RLubType(lubs) := mres[mrd])
+				        mres[mrd] = RLubType(lubs + mresp[mrd]);
+				else
+                                        mres[mrd] = RLubType(mres[mrd] + mresp[mrd]);
+                        } else {
+                                mres[mrd] = mresp[mrd];
+                        }
+	         }
+        }
+
+        return mres;
+}
+
+// TODO: Put the bounds check here?
+public map[RName varName, RType varType] findElementMappings(RType formalType, RType actualType) {
+       if (isTypeVar(formalType)) return ( getTypeVarName(formalType) : actualType );
+
+       switch(<formalType,actualType>) {
+               case < RListType(let), RListType(ret) > : return findElementMappings(let,ret);
+               case < RListType(let), RContainerType(ret) > : return findElementMappings(let,ret);
+               case < RContainerType(let), RListType(ret) > : return findElementMappings(let,ret);
+
+               case < RSetType(let), RSetType(ret) > : return findElementMappings(let,ret);
+               case < RSetType(let), RContainerType(ret) > : return findElementMappings(let,ret);
+               case < RContainerType(let), RSetType(ret) > : return findElementMappings(let,ret);
+
+               case < RBagType(let), RBagType(ret) > : return findElementMappings(let,ret);
+               case < RBagType(let), RContainerType(ret) > : return findElementMappings(let,ret);
+               case < RContainerType(let), RBagType(ret) > : return findElementMappings(let,ret);
+
+               case < RListType(let), RListType(ret) > : return findElementMappings(let,ret);
+               case < RListType(let), RContainerType(ret) > : return findElementMappings(let,ret);
+               case < RContainerType(let), RListType(ret) > : return findElementMappings(let,ret);
+
+               case < RContainerType(let), RContainerType(ret) > : return findElementMappings(let,ret);
+	       
+	       case < RMapType(ldt,lrt), RMapType(rdt,rrt) > : 
+	               return findElementMappings(getElementType(ldt),getElementType(lrt)) + findElementMappings(getElementType(rdt),getElementType(rrt));
+
+	       case < RRelType(lnt), RRelType(rnt) > : return findMappingsForList(lnt,rnt);
+	       case < RRelType(lnt), RSetType(RTupleType(rnt)) > : return findMappingsForList(lnt,rnt);
+	       case < RSetType(RTupleType(lnt)), RRelType(rnt) > : return findMappingsForList(lnt,rnt);
+
+	       case < RTupleType(lnt), RTupleType(rnt) > : return findMappingsForList(lnt,rnt);
+       }
+
+       return ( );
 }

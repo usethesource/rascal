@@ -43,20 +43,37 @@ data STItem =
 	| TypeVariableItem(RType typeVar, STItemId parentId)
 ;
 
-// Is this a symbol table layer (true) or an actual symbol table entry (false)?
-public bool isLayer(STItem si) {
-	switch(si) {
-		case TopLayer() : return true;
-		case ModuleLayer(_,_) : return true;
-		case FunctionLayer(_,_) : return true;
-		case PatternMatchLayer(_) : return true;
-		case BooleanExpLayer(_) : return true;
-		case OrLayer(_) : return true;
-		case ClosureLayer(_,_) : return true;
-		case VoidClosureLayer(_,_) : return true;
-		case BlockLayer(_) : return true;
-		default : return false;
+public bool itemHasName(STItem item) {
+        return ( ModuleItem(_,_) := item || FunctionItem(_,_,_,_,_,_) := item || VariableItem(_,_,_) := item || FormalParameterItem(_,_,_) := item ||
+       	         LabelItem(_,_) := item || AliasItem(_,_,_,_) := item || ConstructorItem(_,_,_,_) := item || ADTItem(_,_,_) := item ||
+		 AnnotationItem(_,_,_,_,_) := item || RuleItem(_,_) := item || TypeVariableItem(_,_) := item);
+}
+
+public RName getItemName(STItem item) {
+        switch(item) {
+		case ModuleItem(n,_) : return n;
+		case FunctionItem(n,_,_,_,_,_) : return n;
+		case VariableItem(n,_,_) : return n;
+		case FormalParameterItem(n,_,_) : return n;
+		case LabelItem(n,_) : return n;
+		case AliasItem(tn,_,_,_) : return getUserTypeName(tn);
+		case ConstructorItem(n,_,_,_) : return n;
+		case ADTItem(tn,_,_) : return getUserTypeName(tn);
+		case AnnotationItem(n,_,_,_,_) : return n;
+		case RuleItem(n,_) : return n;
+		case TypeVariableItem(RTypeVar(RFreeTypeVar(n)),_) : return n;
+		case TypeVariableItem(RTypeVar(RBoundTypeVar(n,_)),_) : return n;
+		default : throw "Item does not have a name, use itemHasHame(STItem item) to check first to ensure the item has a name";
 	}
+}
+
+//
+// Is this a symbol table layer (true) or an actual symbol table entry (false)?
+//
+public bool isLayer(STItem si) {
+       return (TopLayer() := si || ModuleLayer(_,_) := si || FunctionLayer(_,_) := si || PatternMatchLayer(_) := si ||
+               BooleanExpLayer(_) := si || OrLayer(_) := si || ClosureLayer(_,_) := si || VoidClosureLayer(_,_) := si ||
+               BlockLayer(_) := si);
 }
 
 // Is this a symbol table item (true) or a scoping layer (false)?
@@ -95,6 +112,7 @@ data Namespace =
 // wrong with the current alias expansion algorithm; this is the same with ItemLocationMap as well
 // for itemLocations...
 alias ScopeRel = rel[STItemId scopeId, STItemId itemId];
+alias ScopeNamesRel = rel[STItemId scopeId, RName itemName, STItemId itemId];
 alias ItemUses = map[loc useLoc, set[STItemId] usedItems];
 alias STItemMap = map[STItemId,STItem];
 alias ItemLocationRel = rel[loc,STItemId];
@@ -117,8 +135,9 @@ alias ItemLocationRel = rel[loc,STItemId];
 // adtItems: map from the ADT name to the related ADT and constructor symbol table items
 alias SymbolTable = 
 	tuple[
-		  STItemId topSTItemId, 
-          rel[STItemId scopeId, STItemId itemId] scopeRel, 
+		  STItemId topSTItemId,	
+          rel[STItemId scopeId, STItemId itemId] scopeRel,
+	  rel[STItemId scopeId, RName itemName, STItemId itemId] scopeNames,
 		  ItemUses itemUses, 
 		  STItemId nextScopeId, 
 		  map[STItemId, STItem] scopeItemMap, 
@@ -139,7 +158,7 @@ alias ScopeUpdatePair = tuple[SymbolTable symbolTable, STItemId oldScopeId];
                         
 // Create an empty symbol table                        
 public SymbolTable createNewSymbolTable() {
-	return < -1, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), [ ], ( )>;
+	return < -1, { }, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), [ ], ( )>;
 }                    
 
 // Given a number of different OR scope layers in the symbol table, find the subset of
@@ -194,6 +213,10 @@ public SymbolTable addScopeError(SymbolTable symbolTable, loc l, str msg) {
 	return symbolTable;
 }
 
+//
+// Add a new layer WITHOUT a parent into the scope. These are layers that are not
+// nested inside other layers, such as the top layer.
+//
 public AddedItemPair addScopeLayer(STItem si, loc l, SymbolTable symbolTable) {
 	int newItemId = symbolTable.nextScopeId;
 	STItemMap newSIMap = symbolTable.scopeItemMap + (newItemId : si);
@@ -202,6 +225,13 @@ public AddedItemPair addScopeLayer(STItem si, loc l, SymbolTable symbolTable) {
 	return <symbolTable,newItemId>;				
 }
 
+//
+// Add a new layer WITH a parent into the scope. These are layers that are nested
+// inside other layers, such as the module layers (inside the top layer), function
+// layers (inside modules or other functions), etc. Note that layers do not
+// have names, only normal items, so we do not need to update the scope names
+// relation here.
+//
 public AddedItemPair addScopeLayerWithParent(STItem si, STItemId parentId, loc l, SymbolTable symbolTable) {
 	int newItemId = symbolTable.nextScopeId;
 	ScopeRel newScopeRel = symbolTable.scopeRel + <parentId, symbolTable.nextScopeId>;
@@ -211,20 +241,26 @@ public AddedItemPair addScopeLayerWithParent(STItem si, STItemId parentId, loc l
 	return <symbolTable,newItemId>;				
 }
 
-public AddedItemPair addSTItem(STItem si, loc l, SymbolTable symbolTable) {
-	int newItemId = symbolTable.nextScopeId;
-	STItemMap newSIMap = symbolTable.scopeItemMap + (newItemId : si);
-	ItemLocationRel newILRel = symbolTable.itemLocations + <l,symbolTable.nextScopeId>;
-	symbolTable = (((symbolTable[nextScopeId = symbolTable.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel]);
-	return <symbolTable,newItemId>;				
-}
-
+//
+// Add a new symbol table item within a scope layer.
+//
 public AddedItemPair addSTItemWithParent(STItem si, STItemId parentId, loc l, SymbolTable symbolTable) {
 	int newItemId = symbolTable.nextScopeId;
 	ScopeRel newScopeRel = symbolTable.scopeRel + <parentId, symbolTable.nextScopeId>;
 	STItemMap newSIMap = symbolTable.scopeItemMap + (newItemId : si);
 	ItemLocationRel newILRel = symbolTable.itemLocations + <l,symbolTable.nextScopeId>;
-	symbolTable = (((symbolTable[nextScopeId = symbolTable.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel])[scopeRel = newScopeRel];
+	if (itemHasName(si)) {
+		ScopeNamesRel newScopeNamesRel = symbolTable.scopeNames + <parentId, getItemName(si), symbolTable.nextScopeId>;
+		// Special case -- if the item is a function or a module, it should also be added into the scope name rel of the
+		// parent of the current layer. This is because it is (for instance) hanging below a function layer, but its name
+		// is visible at the same level -- essentially, it provides a name for the function layer.
+		if (FunctionItem(n,_,_,_,_,_) := si || ModuleItem(n,_) := si) {
+		   newScopeNamesRel = newScopeNamesRel + < symbolTable.scopeItemMap[parentId].parentId, n, symbolTable.nextScopeId>;
+		}
+		symbolTable = (((symbolTable[nextScopeId = symbolTable.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel])[scopeRel = newScopeRel][scopeNames = newScopeNamesRel];
+	} else {
+		symbolTable = (((symbolTable[nextScopeId = symbolTable.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel])[scopeRel = newScopeRel];
+	}
 	return <symbolTable,newItemId>;				
 }
 
@@ -306,57 +342,24 @@ public str prettyPrintSI(STItem si) {
 }
 
 public set[STItemId] filterNamesForNamespace(SymbolTable symbolTable, set[STItemId] scopeItems, Namespace namespace) {
-	set[STItemId] filteredItems = { };
-	for (itemId <- scopeItems) {
-		switch(namespace) {
-			case ModuleName() : {
-				switch(symbolTable.scopeItemMap[itemId]) {
-					case ModuleItem(_,_) : filteredItems += itemId;
-				}	
-			}
-			
-			case LabelName() : {
-				switch(symbolTable.scopeItemMap[itemId]) {
-					case LabelItem(_,_) : filteredItems += itemId;
-				}	
-			}
-			
-			case FCVName() : {
-				switch(symbolTable.scopeItemMap[itemId]) {
-					case FunctionItem(_,_,_,_,_,_) : filteredItems += itemId;
-					case VariableItem(_,_,_) : filteredItems += itemId;
-					case FormalParameterItem(_,_,_) : filteredItems += itemId;
-					case ConstructorItem(_,_,_,_) : filteredItems += itemId;
-				}	
-			}
+       switch(namespace) {
+          case ModuleName() : return { i | i <- scopeItems, ModuleItem(_,_) := symbolTable.scopeItemMap[i] };
+	  
+	  case LabelName() : return { i | i <- scopeItems, LabelItem(_,_) := symbolTable.scopeItemMap[i] };
+	         			       
+          case FCVName() : return { i | i <- scopeItems, si := symbolTable.scopeItemMap[i], FunctionItem(_,_,_,_,_,_) := si || VariableItem(_,_,_) := si || 
+	       		   	        FormalParameterItem(_,_,_) := si || ConstructorItem(_,_,_,_) := si };
 					
-			case TypeName() : {
-				switch(symbolTable.scopeItemMap[itemId]) {
-					case ADTItem(_,_,_) : filteredItems += itemId;
-					case AliasItem(_,_,_,_) : filteredItems += itemId;
-				}	
-			}
+	  case TypeName() : return { i | i <- scopeItems, si := symbolTable.scopeItemMap[i], ADTItem(_,_,_) := si || AliasItem(_,_,_,_) := si };
+
+	  case TypeVarName() : return { i | i <- scopeItems, TypeVariableItem(_,_) := symbolTable.scopeItemMap[i] };
 			
-			case TypeVarName() : {
-				switch(symbolTable.scopeItemMap[itemId]) {
-					case TypeVariableItem(_,_) : filteredItems += itemId;
-				}	
-			}
-			
-			case AnnotationName() : {
-				switch(symbolTable.scopeItemMap[itemId]) {
-					case AnnotationItem(_,_,_,_) : filteredItems += itemId;
-				}
-			}
-			
-			case RuleName() : {
-				switch(symbolTable.scopeItemMap[itemId]) {
-					case RuleItem(_,_) : filteredItems += itemId;
-				}
-			}
-		}
+	  case AnnotationName() : return { i | i <- scopeItems, AnnotationItem(_,_,_,_) := symbolTable.scopeItemMap[i] };
+
+	  case RuleName() : return { i | i <- scopeItems, RuleItem(_,_) := symbolTable.scopeItemMap[i] };
 	}
-	return filteredItems;
+
+	throw "Unmatched namespace in filterNamesForNamespace: <namespace>";
 }
 
 //
@@ -373,57 +376,35 @@ public set[STItemId] filterNamesForNamespace(SymbolTable symbolTable, set[STItem
 public set[STItemId] getItemsForNameWBound(SymbolTable symbolTable, STItemId currentScopeId, RName x, set[Namespace] containingNamespaces, bool funBounded, bool modBounded) {
 	set[STItemId] foundItems = { };
 
-	// Handle qualified names. If this is not a module name, then we try to switch into the scope
-	// of the module named in the qualified name. If we are looking for modules, handle this
-	// below, since modules do have qualified names, so we don't want to deconstruct the name
-	// first.	
-	if (ModuleName() notin containingNamespaces) {
-		if (RCompoundName(nl) := x) {
-			RName moduleName = (size(tail(nl)) == 1) ? RSimpleName(head(tail(reverse(nl)))) : RCompoundName(reverse(tail(reverse(nl)))); // There should be a better way to do this
-			x = RSimpleName(head(tail(nl,1)));
-			set[STItemId] mods = getModuleItemsForName(symbolTable, moduleName);
-			if (size(mods) == 1) {
-				// Redirect to module scope
-				return getItemsForNameWBound(symbolTable, symbolTable.scopeItemMap[getOneFrom(mods)].parentId, x, containingNamespaces, funBounded, modBounded);					
-			} else if (size(mods) > 1) {
-				// TODO: Error, should be caught processing imports -- this means multiple modules have the same name
-				// BUT: When we have parameterized modules, this could happen -- how will we distinguish?
-				return { }; 
-			} else {
-				return { };
-			}
-		}
-	} else if (ModuleName() in containingNamespaces && size(containingNamespaces) > 1) {
+	// First, if we are looking up module names (and other names) split this off into two lookups, one for module names, one for
+	// the other names.
+	if (ModuleName() in containingNamespaces && size(containingNamespaces) > 1)
 		return getItemsForNameWBound(symbolTable, currentScopeId, x, { ModuleName() }, funBounded, modBounded) +
 				getItemsForNameWBound(symbolTable, currentScopeId, x, containingNamespaces - ModuleName(), funBounded, modBounded);
+
+	// Now, handle qualified names. Module names can be qualified names, and are stored as such, but other names aren't, so if we
+	// encounter a qualified name and are not looking up a module name change into the module scope and just lookup the simple name.
+	if (ModuleName() notin containingNamespaces && RCompoundName(nl) := x) {
+		RName moduleName = (size(nl) == 2) ? RSimpleName(nl[0]) : RCompoundName(head(nl,size(nl)-1)); 
+		x = RSimpleName(nl[size(nl)-1]);
+		set[STItemId] mods = getModuleItemsForName(symbolTable, moduleName);
+		if (size(mods) == 1) {
+			// Redirect to module scope
+			return getItemsForNameWBound(symbolTable, symbolTable.scopeItemMap[getOneFrom(mods)].parentId, x, containingNamespaces, funBounded, modBounded);
+		} else if (size(mods) > 1) {
+			// TODO: Error, should be caught processing imports -- this means multiple modules have the same name
+			// BUT: When we have parameterized modules, this could happen -- how will we distinguish?
+			return { }; 
+		} else {
+			return { };
+		}
 	}
 
 	// We fall through to here IF a) the name is not a qualified name, or b) the name IS a qualified name but is
 	// the name of a module. Otherwise, it is taken care of above.
 
-	// Find all the scope items at the current level of scope that match the name we are looking for. Note that we need
-	// special handling for functions and modules, since the function and module items are actually store inside the function
-	// and module layers. The other layers are not named, so could never lead to a match.
-	for (itemId <- symbolTable.scopeRel[currentScopeId]) {
-		switch(symbolTable.scopeItemMap[itemId]) {
-			case ModuleItem(x,_) : foundItems += itemId;
-			case FormalParameterItem(x,_,_) : foundItems += itemId;
-			case VariableItem(x,_,_) : foundItems += itemId;
-			case TypeVariableItem(RTypeVar(RFreeTypeVar(x)),_) : foundItems += itemId; 
-			case TypeVariableItem(RTypeVar(RBoundTypeVar(x,_)),_) : foundItems += itemId; 
-			case FunctionItem(x,_,_,_,_,_) : foundItems += itemId;
-			case LabelItem(x,_) : foundItems += itemId;
-			case ConstructorItem(x,_,_,_) : foundItems += itemId;
-			case AnnotationItem(x,_,_,_) : foundItems += itemId;
-			case RuleItem(x,_) : foundItems += itemId;
-			case AliasItem(RUserType(x),_,_,_) : foundItems += itemId; 
-			case AliasItem(RParameterizedUserType(x,_),_,_,_) : foundItems += itemId; 
-			case ADTItem(RUserType(x),_,_) : foundItems += itemId; 
-			case ADTItem(RParameterizedUserType(x,_),_,_) : foundItems += itemId; 
-			case FunctionLayer(funItemId,_) : if (FunctionItem(x,_,_,_,_,_) := symbolTable.scopeItemMap[funItemId]) foundItems += funItemId;
-			case ModuleLayer(modItemId,_) : if (ModuleItem(x,_) := symbolTable.scopeItemMap[modItemId]) foundItems += modItemId; 			
-		}
-	}
+	// Get back the items at this level with the given name
+	foundItems += symbolTable.scopeNames[currentScopeId,x];
 
 	// Now, filter it down based on the namespaces we are looking for
 	foundItems = { f | ns <- containingNamespaces, f <- filterNamesForNamespace(symbolTable, foundItems, ns) };
@@ -433,16 +414,18 @@ public set[STItemId] getItemsForNameWBound(SymbolTable symbolTable, STItemId cur
 	// or the top level is reached. If this is a bounded search, don't pass through 
 	// function boundaries.
 	if (size(foundItems) == 0) {
-		switch(symbolTable.scopeItemMap[currentScopeId]) {
-			case ModuleLayer(_,parentScopeId) : if (!modBounded) foundItems = getItemsForNameWBound(symbolTable, parentScopeId, x, containingNamespaces, funBounded,modBounded);
-			case FunctionLayer(_,parentScopeId) : if (!funBounded) foundItems = getItemsForNameWBound(symbolTable,parentScopeId,x,containingNamespaces,funBounded,modBounded);
-			case PatternMatchLayer(parentScopeId) : foundItems = getItemsForNameWBound(symbolTable,parentScopeId,x,containingNamespaces,funBounded,modBounded);
-			case BooleanExpLayer(parentScopeId) : foundItems = getItemsForNameWBound(symbolTable,parentScopeId,x,containingNamespaces,funBounded,modBounded);
-			case OrLayer(parentScopeId) : foundItems = getItemsForNameWBound(symbolTable,parentScopeId,x,containingNamespaces,funBounded,modBounded);
-			case ClosureLayer(_,parentScopeId) : if (!funBounded) foundItems = getItemsForNameWBound(symbolTable,parentScopeId,x,containingNamespaces,funBounded,modBounded);
-			case VoidClosureLayer(_,parentScopeId) : if (!funBounded) foundItems = getItemsForNameWBound(symbolTable,parentScopeId,x,containingNamespaces,funBounded,modBounded);
-			case BlockLayer(parentScopeId) : foundItems = getItemsForNameWBound(symbolTable,parentScopeId,x,containingNamespaces,funBounded,modBounded);
-		}
+	   STItem cl = symbolTable.scopeItemMap[currentScopeId];
+	   if (ModuleLayer(_,pid) := cl) {
+              if (!modBounded) {
+	         foundItems = getItemsForNameWBound(symbolTable,pid,x,containingNamespaces,funBounded,modBounded);
+              }
+	   } else if (FunctionLayer(_,pid) := cl || ClosureLayer(_,pid) := cl || VoidClosureLayer(_,pid) := cl) {
+              if (!funBounded) {
+	         foundItems = getItemsForNameWBound(symbolTable,pid,x,containingNamespaces,funBounded,modBounded);
+              }
+	   } else if (TopLayer() !:= cl) {
+	      foundItems = getItemsForNameWBound(symbolTable,cl.parentId,x,containingNamespaces,funBounded,modBounded);
+           }
 	}
 
 	// NOTE: This can be empty (for instance, when looking up a declaration of a variable that is not explicitly declared)	
@@ -534,6 +517,8 @@ public set[STItemId] getModuleItemsForName(SymbolTable symbolTable, RName x) {
 public STItemId getEnclosingFunctionAux(SymbolTable symbolTable, STItemId currentScope) {
 	STItem si = getSTItem(currentScope, symbolTable);
 	if (FunctionLayer(itemId,_) := si) return itemId;
+	if (ClosureLayer(itemId,_) := si) return itemId;
+	if (VoidClosureLayer(itemId,_) := si) return itemId;
 	if (TopLayer() := si) throw "Cannot get enclosing function at top level";
 	return getEnclosingFunctionAux(symbolTable, si.parentId);
 }
@@ -549,8 +534,10 @@ public RType getEnclosingFunctionType(SymbolTable symbolTable) {
 public bool insideEnclosingFunction(SymbolTable symbolTable, STItemId currentScope) {
 	STItem si = getSTItem(currentScope, symbolTable);
 	if (FunctionLayer(itemId,_) := si) return true;
+	if (ClosureLayer(itemId,_) := si) return true;
+	if (VoidClosureLayer(itemId,_) := si) return true;
 	if (TopLayer() := si) return false;
-	return getEnclosingFunctionAux(symbolTable, si.parentId);
+	return insideEnclosingFunction(symbolTable, si.parentId);
 }
 
 public list[RNamedType] markUserTypesForNamedTypeList(list[RNamedType] ntl, SymbolTable symbolTable, STItemId currentScope) {
@@ -603,7 +590,7 @@ public RType markUserTypes(RType rt, SymbolTable symbolTable, STItemId currentSc
 		case RSetType(et) : return RSetType(markUserTypes(et,symbolTable,currentScope));
 		case RBagType(et) : return RBagType(markUserTypes(et,symbolTable,currentScope));
 		case RContainerType(et) : return RContainerType(markUserTypes(et,symbolTable,currentScope));
-		case RMapType(dt,rt) : return RMapType(markUserTypesForNamedType(dt,symbolTable,currentScope),markUserTypesForNamedType(rt,symbolTable,currentScope));
+		case RMapType(dt,rgt) : return RMapType(markUserTypesForNamedType(dt,symbolTable,currentScope),markUserTypesForNamedType(rgt,symbolTable,currentScope));
 		case RRelType(nts) : return RRelType(markUserTypesForNamedTypeList(nts,symbolTable,currentScope));
 		case RTupleType(nts) : return RTupleType(markUserTypesForNamedTypeList(nts,symbolTable,currentScope));
 		case RFunctionType(rt, pts) : return RFunctionType(markUserTypes(rt,symbolTable,currentScope),[markUserTypesForNamedType(pt,symbolTable,currentScope) | pt <- pts]);
@@ -622,7 +609,11 @@ public RType markUserTypes(RType rt, SymbolTable symbolTable, STItemId currentSc
 		case RConstructorType(n,pt,ets) : return RConstructorType(n,pt,[markUserTypesForNamedType(et,symbolTable,currentScope) | et <- ets]);
 
 		// Special cases
-		case RUnknownType(_) : return rt; // TODO: This may be a good place to check to see if the contained type is now known
+		// TODO: We could accidentally link this to an unintented type -- how do we prevent this?
+		case RUnknownType(ut) : {
+		     RType utRes = markUserTypes(ut,symbolTable,currentScope);
+		     if (utRes != ut) return utRes;
+		}
 				
 		// Things we explicitly don't expand -- they should not actually occur in a program (at least right now)
 		// TODO: May need to move these up if they become real types that people can use
@@ -678,13 +669,19 @@ public RType getTypeForItem(SymbolTable symbolTable, STItemId itemId) {
 		case FunctionItem(_,t,paramIds,_,_,_) : 
 			return makeFunctionType(markUserTypes(t,symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
 
+		case ClosureItem(t,paramIds,_) :
+		        return makeFunctionType(markUserTypes(t,symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
+
+		case VoidClosureItem(paramIds,_) :
+		        return makeFunctionType(markUserTypes(RVoidType(),symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
+
 		case ConstructorItem(n,tas,adtParentId,_) : 
 			return makeConstructorType(n,RADTType(symbolTable.scopeItemMap[adtParentId].adtType),[markUserTypesForNamedType(t,symbolTable,si.parentId) | t <- tas]);
 		
 		case ADTItem(ut,_,_) : 
 			return RADTType(ut);
 		
-		case AliasItem(ut,ut2_,_) : 
+		case AliasItem(ut,ut2,_,_) : 
 			return RAliasType(ut,markUserTypes(ut2,symbolTable,si.parentId)); 
 		
 		default : { 
@@ -718,28 +715,28 @@ public ResultTuple pushNewModuleScope(RName moduleName, loc l, SymbolTable symbo
 }
 
 public ResultTuple pushNewBooleanScope(loc l, SymbolTable symbolTable) {
-	AddedItemPair aip = addScopeLayer(BooleanExpLayer(symbolTable.currentScope)[@at=l], l, symbolTable);
+	AddedItemPair aip = addScopeLayerWithParent(BooleanExpLayer(symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
 	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
 	aip.symbolTable.currentScope = aip.addedId;
 	return <aip.symbolTable,[aip.addedId]>; 	
 }
 
 public ResultTuple pushNewOrScope(loc l, SymbolTable symbolTable) {
-	AddedItemPair aip = addScopeLayer(OrLayer(symbolTable.currentScope)[@at=l], l, symbolTable);
+	AddedItemPair aip = addScopeLayerWithParent(OrLayer(symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
 	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
 	aip.symbolTable.currentScope = aip.addedId;
 	return <aip.symbolTable,[aip.addedId]>; 	
 }
 
 public ResultTuple pushNewBlockScope(loc l, SymbolTable symbolTable) {
-	AddedItemPair aip = addScopeLayer(BlockLayer(symbolTable.currentScope)[@at=l], l, symbolTable);
+	AddedItemPair aip = addScopeLayerWithParent(BlockLayer(symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
 	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
 	aip.symbolTable.currentScope = aip.addedId;
 	return <aip.symbolTable,[aip.addedId]>; 	
 }
 
 public ResultTuple pushNewPatternMatchScope(loc l, SymbolTable symbolTable) {
-	AddedItemPair aip = addScopeLayer(PatternMatchLayer(symbolTable.currentScope)[@at=l], l, symbolTable);
+	AddedItemPair aip = addScopeLayerWithParent(PatternMatchLayer(symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
 	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
 	aip.symbolTable.currentScope = aip.addedId;
 	return <aip.symbolTable,[aip.addedId]>; 	
@@ -777,6 +774,28 @@ public ResultTuple pushNewFunctionScopeAt(RName functionName, RType retType, lis
 		paramIds += aipParam.addedId; symbolTable = aipParam.symbolTable;
 	}
 
+	// Create scope items for type variables in the parameters; this way these types will be in scope
+	// TODO: Here should check to make sure variables with the same name have the same bounds
+	set[RType] typeVars = { tvv | p <- params, tvv <- collectTypeVars(p[1]) };
+	for (tvv <- typeVars) {
+	    // See if the name is not yet in scope -- if it is in scope, it must be defined by a surrounding function
+	    if (size(getTypeVarItemsForNameMB(symbolTable, symbolTable.currentScope, getTypeVarName(tvv))) == 0) {
+	       AddedItemPair aipTV = addSTItemWithParent(TypeVariableItem(tvv, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
+	       symbolTable = aipTV.symbolTable;
+	    }
+	}
+
+	// Check if the return type has any type variables
+	// TODO: Need to check to make sure all return type variables are present in the function parameters -- the type var can use a type
+	// variable defined in the surrounding function context, but only if the function parameters include this var as well
+	set[RType] rTypeVars = collectTypeVars(retType);
+	for (tvv <- rTypeVars) {
+	    // See if the name is not yet in scope -- if it is in scope, it must be defined by a surrounding function
+	    if (size(getTypeVarItemsForNameMB(symbolTable, symbolTable.currentScope, getTypeVarName(tvv))) == 0) {
+	       symbolTable = addScopeError(symbolTable, l, "Type variable <prettyPrintType(tvv)> given in return type for function not in scope.");
+	    }
+	}
+
 	// Add the actual function item associated with the scope layer
 	AddedItemPair aipItem = addSTItemWithParent(FunctionItem(functionName, retType, paramIds, throwsTypes, isPublic, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
 	aipItem.symbolTable.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
@@ -801,13 +820,14 @@ public ResultTuple pushNewClosureScopeAt(RType retType, list[tuple[RName pname, 
 	// Create scope items for each of the parameters
 	symbolTable = aipLayer.symbolTable;
 	list[STItemId] paramIds = [ ];
+	set[RName] namesSeen = { };
 	for (pt <- params) {
-		if (pt.pname in namesSeen) {
-			symbolTable = addScopeError(symbolTable, pt.nloc, "Illegal redefinition of <n>. Parameter names must be different from other parameter names and from the name of the function.");
+		if (pt[0] in namesSeen) {
+			symbolTable = addScopeError(symbolTable, pt[3], "Illegal redefinition of <n>. Parameter names must be different from other parameter names and from the name of the function.");
 		}
-		namesSeen += pt.pname;
-		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt.pname, pt.ptype, symbolTable.currentScope)[@at=pt.ploc], symbolTable.currentScope, pt.ploc, symbolTable);
-		paramIds += aip.addedId; symbolTable = aip.symbolTable;
+		namesSeen += pt[0];
+		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt[0], pt[1], symbolTable.currentScope)[@at=pt[2]], symbolTable.currentScope, pt[2], symbolTable);
+		paramIds += aipParam.addedId; symbolTable = aipParam.symbolTable;
 	}
 
 	// Add the actual function item associated with the scope layer
@@ -834,13 +854,14 @@ public ResultTuple pushNewVoidClosureScopeAt(list[tuple[RName pname, RType ptype
 	// Create scope items for each of the parameters
 	symbolTable = aipLayer.symbolTable;
 	list[STItemId] paramIds = [ ];
+	set[RName] namesSeen = { };
 	for (pt <- params) {
 		if (pt.pname in namesSeen) {
 			symbolTable = addScopeError(symbolTable, pt.nloc, "Illegal redefinition of <n>. Parameter names must be different from other parameter names and from the name of the function.");
 		}
 		namesSeen += pt.pname;
 		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt.pname, pt.ptype, symbolTable.currentScope)[@at=pt.ploc], symbolTable.currentScope, pt.ploc, symbolTable);
-		paramIds += aip.addedId; symbolTable = aip.symbolTable;
+		paramIds += aipParam.addedId; symbolTable = aipParam.symbolTable;
 	}
 
 	// Add the actual function item associated with the scope layer
@@ -1402,4 +1423,70 @@ public SymbolTable consolidateADTDefinitionsForLayer(SymbolTable symbolTable, ST
 		
 	// Finally, return the scopeinfo with the consolidated ADT information
 	return symbolTable;
+}
+
+public bool hasRType(SymbolTable symbolTable, loc l) {
+	if (l in symbolTable.itemUses || l in symbolTable.scopeErrorMap)
+		return true;
+	return false;
+}
+
+data RType = RLocatedType(RType actualType, loc l);
+
+public RType getRType(SymbolTable symbolTable, loc l) {
+	set[STItemId] items = (l in symbolTable.itemUses) ? symbolTable.itemUses[l] : { };
+	set[str] scopeErrors = (l in symbolTable.scopeErrorMap) ? symbolTable.scopeErrorMap[l] : { };
+	
+	if (size(scopeErrors) == 0) {
+		if (size(items) == 0) {
+			// TODO: Should be an exception
+			return makeVoidType();
+		} else if (size(items) == 1) {
+			STItemId anid = getOneFrom(items);
+			STItem stitem = getSTItem(anid, symbolTable);
+			if ( isFunctionOrConstructorItem(stitem) && ((stitem@at) ?)) {
+				return RLocatedType(getTypeForItem(symbolTable, anid),stitem@at);
+			} else {
+				return getTypeForItem(symbolTable, anid);
+			}
+		} else {
+			set[ROverloadedType] overloads = { };
+			for (sii <- items) {
+				STItem stitem = getSTItem(sii, symbolTable);
+				if ( (stitem@at) ?)
+					overloads += ROverloadedTypeWithLoc(getTypeForItem(symbolTable, sii), stitem@at);
+				else
+					overloads = ROverloadedType(getTypeForItem(symbolTable, sii));
+			}
+			return ROverloadedType(overloads);
+		}
+	} else {
+		return collapseFailTypes({ makeFailType(s,l) | s <- scopeErrors });
+	}
+}
+
+public RType getTypeForName(SymbolTable symbolTable, RName theName, loc theLoc) {
+	if (hasRType(symbolTable, theLoc)) {
+		RType rt = getRType(symbolTable, theLoc);
+		if (RLocatedType(rt2,l) := rt) {
+			return rt2[@at=l];
+		} else {
+			return isInferredType(rt) ? symbolTable.inferredTypeMap[getInferredTypeIndex(rt)] : rt;
+		}
+	} else {
+		return makeFailType("No type declared or deduced for <theName>",theLoc);
+	}
+}
+
+public RType getTypeForNameLI(SymbolTable symbolTable, RName theName, loc theLoc) {
+	if (hasRType(symbolTable, theLoc)) {
+		RType rt = getRType(symbolTable, theLoc);
+		if (RLocatedType(rt2,l) := rt) {
+			return rt2[@at=l];
+		} else {
+			return rt;
+		}
+	} else {
+		return makeFailType("No type declared or deduced for <theName>",theLoc);
+	}
 }

@@ -459,7 +459,7 @@ public RType getFieldType(RType rt, RName fn, SymbolTable symbolTable, loc l) {
 
 @doc{Check to see if a relation defines a field.}
 public bool relHasField(RType t, RName fn) {
-	if (RRelType(tas) := t) {
+	if (RRelType(tas) := t || RSetType(RTupleType(tas)) := t) {
 		for (ta <- tas) {
 			if (RNamedType(_,fn) := ta) return true;	
 		}
@@ -469,7 +469,7 @@ public bool relHasField(RType t, RName fn) {
 
 @doc{Return the type of a field defined on a relation.}
 public RType getRelFieldType(RType t, RName fn) {
-	if (RRelType(tas) := t) {
+	if (RRelType(tas) := t || RSetType(RTupleType(tas)) := t) {
 		for (ta <- tas) {
 			if (RNamedType(ft,fn) := ta) return ft;	
 		}
@@ -478,14 +478,14 @@ public RType getRelFieldType(RType t, RName fn) {
 }
 
 public list[RType] getRelFields(RType t) {
-	if (RRelType(tas) := t) {
+	if (RRelType(tas) := t || RSetType(RTupleType(tas)) := t) {
 		return [ getElementType(ta) | ta <- tas ];
 	}
 	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
 }
 
 public list[RNamedType] getRelFieldsWithNames(RType t) {
-	if (RRelType(tas) := t) {
+	if (RRelType(tas) := t || RSetType(RTupleType(tas)) := t) {
 		return [ ta | ta <- tas ];
 	}
 	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
@@ -513,7 +513,11 @@ public RType getADTFieldType(RType t, RName fn, SymbolTable symbolTable) {
 	if (RADTType(n) := t) {
 		for (ci <- symbolTable.adtMap[getUserTypeName(n)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
 			for (ta <- cts) {
-				if (RNamedType(ft,fn) := ta) return ft;
+				// See if we have a match on the field name
+				if (RNamedType(ft,fn) := ta) {
+					RType retType = markUserTypes(ft,symbolTable,symbolTable.scopeItemMap[ci].parentId);
+					return retType;
+				}
 			}	
 		}
 	}	
