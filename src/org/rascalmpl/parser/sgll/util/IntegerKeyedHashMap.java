@@ -99,7 +99,7 @@ public class IntegerKeyedHashMap<V>{
 		return null;
 	}
 	
-	public V unsafePut(int key, V value){
+	public V putUnsafe(int key, V value){
 		ensureCapacity();
 		
 		int position = key & hashMask;

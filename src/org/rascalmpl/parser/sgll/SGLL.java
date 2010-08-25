@@ -26,6 +26,7 @@ import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.HashMap;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
+import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
@@ -50,7 +51,7 @@ public abstract class SGLL implements IGLL{
 	private final ArrayList<AbstractStackNode[]> lastExpects;
 	private final HashMap<String, AbstractStackNode[]> cachedExpects;
 	
-	private final ArrayList<AbstractStackNode> possiblySharedNextNodes;
+	private final IntegerKeyedHashMap<AbstractStackNode> sharedNextNodes;
 
 	private final ObjectIntegerKeyedHashMap<String, ContainerNode> resultStoreCache;
 	
@@ -73,7 +74,7 @@ public abstract class SGLL implements IGLL{
 		lastExpects = new ArrayList<AbstractStackNode[]>();
 		cachedExpects = new HashMap<String, AbstractStackNode[]>();
 		
-		possiblySharedNextNodes = new ArrayList<AbstractStackNode>();
+		sharedNextNodes = new IntegerKeyedHashMap<AbstractStackNode>();
 		
 		resultStoreCache = new ObjectIntegerKeyedHashMap<String, ContainerNode>();
 		
@@ -141,40 +142,38 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void updateNextNode(AbstractStackNode next, AbstractStackNode node){
-		for(int i = possiblySharedNextNodes.size() - 1; i >= 0; --i){
-			AbstractStackNode possibleAlternative = possiblySharedNextNodes.get(i);
-			if(possibleAlternative.isSimilar(next)){
-				possibleAlternative.updateNode(node);
-				
-				if(next.isEndNode()){
-					if(!possibleAlternative.isClean() && possibleAlternative.getStartLocation() == location){
-						if(possibleAlternative != node){ // List cycle fix.
-							// Encountered self recursive epsilon cycle; update the prefixes.
-							updatePrefixes(possibleAlternative, node);
-						}
+		int id = next.getId();
+		AbstractStackNode alternative = sharedNextNodes.get(id);
+		if(alternative != null){
+			alternative.updateNode(node);
+			
+			if(next.isEndNode()){
+				if(!alternative.isClean() && alternative.getStartLocation() == location){
+					if(alternative != node){ // List cycle fix.
+						// Encountered self recursive epsilon cycle; update the prefixes.
+						updatePrefixes(alternative, node);
 					}
 				}
-				return;
 			}
-		}
-		
-		if(next.startLocationIsSet()){
-			next = next.getCleanCopy();
-		}
-		
-		next.setStartLocation(location);
-		next.updateNode(node);
-		
-		if(!next.isReducable()){ // Is non-terminal or list.
-			ContainerNode resultStore = resultStoreCache.get(next.getName(), location);
-			if(resultStore != null){ // Is nullable, add the known results.
-				next.setResultStore(resultStore);
-				stacksWithNonTerminalsToReduce.put(next);
+		}else{
+			if(next.startLocationIsSet()){
+				next = next.getCleanCopy();
 			}
+			
+			next.setStartLocation(location);
+			next.updateNode(node);
+			
+			if(!next.isReducable()){ // Is non-terminal or list.
+				ContainerNode resultStore = resultStoreCache.get(next.getName(), location);
+				if(resultStore != null){ // Is nullable, add the known results.
+					next.setResultStore(resultStore);
+					stacksWithNonTerminalsToReduce.put(next);
+				}
+			}
+			
+			sharedNextNodes.putUnsafe(id, next);
+			stacksToExpand.add(next);
 		}
-		
-		possiblySharedNextNodes.add(next);
-		stacksToExpand.add(next);
 	}
 	
 	private void updatePrefixes(AbstractStackNode next, AbstractStackNode node){
@@ -331,7 +330,7 @@ public abstract class SGLL implements IGLL{
 	
 	private void reduce(){
 		if(previousLocation != location){ // Epsilon fix.
-			possiblySharedNextNodes.clear();
+			sharedNextNodes.clear();
 			resultStoreCache.clear();
 		}
 		
@@ -369,13 +368,13 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private boolean shareListNode(AbstractStackNode node, AbstractStackNode stack){
-		for(int j = possiblySharedNextNodes.size() - 1; j >= 0; --j){
-			AbstractStackNode possiblySharedNode = possiblySharedNextNodes.get(j);
-			if(possiblySharedNode.isSimilar(node)){
-				possiblySharedNode.addEdgeWithPrefix(stack, null, location);
-				return true;
-			}
+		int id = node.getId();
+		AbstractStackNode sharedNode = sharedNextNodes.get(id);
+		if(sharedNode != null){
+			sharedNode.addEdgeWithPrefix(stack, null, location);
+			return true;
 		}
+		sharedNextNodes.putUnsafe(id, node);
 		return false;
 	}
 	
@@ -430,7 +429,6 @@ public abstract class SGLL implements IGLL{
 			AbstractStackNode child = listChildren[0];
 			if(!shareListNode(child, stack)){
 				stacksToExpand.add(child);
-				possiblySharedNextNodes.add(child); // For epsilon list cycles.
 			}
 			
 			if(listChildren.length > 1){ // Star list or optional.
