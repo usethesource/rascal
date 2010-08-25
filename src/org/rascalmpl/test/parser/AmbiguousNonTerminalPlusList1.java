@@ -33,25 +33,24 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL implements IParserTest{
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, "A");
+	private final static AbstractStackNode LIST1 = new ListStackNode(1, PROD_PLUSLISTA, NONTERMINAL_A0, true);
 	private final static AbstractStackNode LIST2 = new ListStackNode(2, PROD_PLUSLISTA, NONTERMINAL_A0, true);
-	private final static AbstractStackNode LIST3 = new ListStackNode(3, PROD_PLUSLISTA, NONTERMINAL_A1, true);
+	private final static AbstractStackNode LITERAL_a3 = new LiteralStackNode(3, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a4 = new LiteralStackNode(4, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, PROD_a_a, new char[]{'a'});
 	
 	public AmbiguousNonTerminalPlusList1(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_aPLUSLISTA, LITERAL_a4, LIST2);
+		expect(PROD_S_aPLUSLISTA, LITERAL_a3, LIST1);
 		
-		expect(PROD_S_PLUSLISTAa, LIST3, LITERAL_a5);
+		expect(PROD_S_PLUSLISTAa, LIST2, LITERAL_a4);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a6);
+		expect(PROD_A_a, LITERAL_a5);
 	}
 	
 	
