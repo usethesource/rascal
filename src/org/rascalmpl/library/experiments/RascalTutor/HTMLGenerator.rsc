@@ -8,6 +8,8 @@ import IO;
 import List;
 import Scripting;
 
+private str NC1 = "&#x2776";  // Negative circled 1
+
 private list[str] listNesting = [];
 
 private void pushList(str listType){
@@ -98,12 +100,14 @@ public str markup(list[str] lines){
       i += 1;
       }
       
-    case /^\<include\s*<file:.*>\>$/: {
-      println("file = <file>");
-      loc L = |stdlib:///|[path = file];
-      code = readFileLines(L);
-      println("code = <code>");
-      res += markupListing(code);
+    case /^\<listing\s*<name:.+>\>$/: {
+      loc L = |stdlib:///|[path = name];
+      try {
+      	code = readFileLines(L);
+      	println("code = <code>");
+      	res += markupListing(code);
+      } catch: res += "\<warning\>File <name> not found.\</warning\>";
+      i += 1;
     }
       
     case /^\<listing\>\s*<rest:.*>$/: {
@@ -140,24 +144,31 @@ public str markupRestLine(str line){
        insert (n == 1) ? i(text) : ((n == 2) ? b(text) : b(i(text)));
     }
     
+    case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"images/<dig>.png\"\>"
+    
     case /^@@<code:[^\@]*>@@/ => closeLists() + tt(toString(eval(code)))
     
     case /^\$<var:[A-Z][A-Za-z]*><subscript:[0-9]>?\$/ =>
                                 i(var) + ((subscript == "") ? "" : sub(subscript))
     
     case /^\[<url:[^\]]>\]\]/ => link(url)
-  }
-}   
+  } + "\n";
+}
 
 //test markupRestLine("The value of 2 + 3 is @@2 + 3@@") == "The value of 2 + 3 is \<tt\>5\</tt\>";
 
 public str markupListing(list[str] lines){
   txt = "";
   for(line <- lines)
-    txt += line + "\n";
+    txt += markupListingLine(line) + "\n";
   return pre("listing", txt);
 }
 
+public str markupListingLine(str line){
+  return visit(line){
+    case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"images/<dig>.png\"\>"
+  }
+}
 
 public str markupRascalPrompt(list[str] lines){
   return  "<for(str line <- lines){><visit(line){ case /^rascal\>/ => b("rascal\>") }>\n<}>";

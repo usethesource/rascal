@@ -123,7 +123,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           }
           if(size(answers) == 0)
           	throw "TextQuestion with no or malformed answers";
-          questions += textQuestion("<cname><nquestions>", markup([question]), answers);
+          questions += textQuestion("<nquestions>", markup([question]), answers);
           nquestions += 1;
        }
        case /^Choice:<question:.*>$/: {
@@ -141,18 +141,18 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           	throw "ChoiceQuestion with insufficient or malformed answers";
           	
           choices = [good(g) | g <- good_answers] + [bad(b) | b <- bad_answers];
-          questions += choiceQuestion("<cname><nquestions>", markup([question]), choices);
+          questions += choiceQuestion("<nquestions>", markup([question]), choices);
           nquestions += 1;
        }
  
       case /^Value:\s*<cnd:.*>$/: {
-           <i, q> = getTvQuestion(valueOfExpr(), "<cname><nquestions>", qsection, i, cnd);
+           <i, q> = getTvQuestion(valueOfExpr(), "<nquestions>", qsection, i, cnd);
            questions += q;
            nquestions += 1;
       }
       
       case /^Type:\s*<cnd:.*>$/: {
-           <i, q> = getTvQuestion(typeOfExpr(), "<cname><nquestions>", qsection, i, cnd);
+           <i, q> = getTvQuestion(typeOfExpr(), "<nquestions>", qsection, i, cnd);
            questions += q;
            nquestions += 1;
       }

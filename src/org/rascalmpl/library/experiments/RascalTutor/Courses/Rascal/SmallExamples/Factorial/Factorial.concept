@@ -9,17 +9,7 @@ Compute the factorial function.
 
 Examples:
 
-<listing>
-module demo::Factorial
-
-public int fac(int N)
-{
-  if(N <= 0)
-     return 1; 
-  else
-     return N * fac(N - 1);
-}
-</listing>
+<listing org/rascalmpl/library/demo/Factorial.rsc>
 
 It uses a conditional statement to distinguish cases and here is how to use it:
 <screen>

@@ -2,7 +2,7 @@ Name:Integer
 
 Related:
 
-Synopsis:
+Synopsis: int
 
 Description:
 The integer values are represented by the type <tt>int</tt> and are written as usual. They can be arbitrarily large.
