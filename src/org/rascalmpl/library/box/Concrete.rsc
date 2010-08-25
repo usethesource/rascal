@@ -59,12 +59,21 @@ public void setSeparated(
 
 bool defaultKeyword(Symbol o) {return false;}
 
+bool defaultString(Symbol o) {return false;}
+
 bool(Symbol s) isKeyword = defaultKeyword;
+
+bool(Symbol s) isString = defaultString;
 
 public void setKeyword(   
     bool (Symbol) isKeywor) {
     isKeyword = isKeywor;
-    } 
+    }
+    
+public void setString(   
+    bool (Symbol) isStrin) {
+    isString = isStrin;
+    }  
 // End Setting User Defined Filters
 
 bool isTerminal(Symbol s) {
@@ -250,7 +259,7 @@ public Box evPt(Tree q, bool doIndent) {
                 }
         case appl(\list(\lex(\iter(\layout()) )), list[Tree] t): {
               list[Box] g = [b | Tree z <- t, Box b := evPt(z), b!=NULL()];
-              Box r = isEmpty(g)?NULL():VAR(V(0, g));
+              Box r = isEmpty(g)?NULL():COMM(V(0, g));
               /*
               if (r!=NULL()) {
               println("Hallo <size(g)>");
@@ -318,6 +327,10 @@ list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, b
                  first = false;
                  }
               Box b = NULL();
+              if (isString(a)) {
+                   b = STRING(L("<t>"));
+                   }
+              else
               if  ( \lex(\sort(_)):=a || \lit(_):=a) {
                   str s = "<t>";
                   if (endsWith(s,"\n")) s = replaceLast(s,"\n","");

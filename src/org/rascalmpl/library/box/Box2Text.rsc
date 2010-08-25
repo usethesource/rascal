@@ -130,6 +130,8 @@ text vv_(text a, text b) {
 
 public str convert2latex(str s) {
 	return visit (s) { 
+	  case /^`/ => "{\\textasciigrave}"
+	  case /^\"/ => "{\\textacutedbl}"
 	  case /^\{/ => "\\{"
 	  case /^\}/ => "\\}"
 	  case /^\\/ => "{\\textbackslash}"
@@ -161,6 +163,10 @@ str convert2latex(str s) {
 
 text LL(str s ) { 
    // println(s);
+   if (startsWith(s,"\"`") && endsWith(s,"`\"")) {
+       s = substring(s, 1, size(s)-1);
+       s = replaceAll(s, "\\\\\"", "\"");
+       }
    return latex?[convert2latex(s)]:[s];
    }
 
@@ -324,6 +330,8 @@ text QQ(Box b, Box c, options o, int m) {
          case KW(Box a):{return decorated?font(O(a, c, o, m),"KW"):O(a,c,o,m);}
          case VAR(Box a):{return  decorated?font(O( a, c, o, m),"VR"):O( a, c, o, m);}
          case NM(Box a):{return decorated?font(O( a, c, o, m),"NM"):O( a, c, o, m);}
+         case STRING(Box a):{return decorated?font(O( a, c, o, m),"SG"):O( a, c, o, m);}
+         case COMM(Box a):{return decorated?font(O( a, c, o, m),"CT"):O( a, c, o, m);}
      }
 return [];
 }
@@ -503,19 +511,20 @@ public text box2latex(Box b) {
     text t = getFileContent("box/Start.tex")+box2data(b)+getFileContent("box/End.tex");
     latex = false;
     // println("End box2latex");
+    /* for (str r<-t) {
+          println(r);
+     } 
+     */
     return t;
     }
 
 public value toList(Box b) {
-  println("Hallo");
+  // println("Hallo");
   b = removeHV(b);
   b = removeHOV(b);
   // println("Reduce finished");
   decorated =  true;
   text t = O(b, V([]), oDefault, maxWidth);
-  /* for (str r<-t) {
-          println(r);
-   }  */
   return t;
 }
 

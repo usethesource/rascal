@@ -15,6 +15,8 @@ data Box
     |  KW(Box kw)
     |  VAR(Box  var)
     | NM(Box  nm)
+    | STRING(Box  string)
+    | COMM(Box  comm)
     | REF(int ref)
     | NULL()
     ;
