@@ -48,8 +48,14 @@ th, td {
     top:  0;
     right: 0;
     float: right;
-    margin-top: 0.7em;
+    margin-top: 8px;
+    margin-right: 20px;
     position: absolute;
+}
+
+#searchIcon {
+    top: 8px;
+    position: relative;
 }
 
 #searchfield {
@@ -60,7 +66,7 @@ th, td {
 	background-color: #FFF;
 	padding: 2px 6px;
 	border: 1px solid #000;
-    left: 68px;
+    left: 25px;
     position: relative;
 }
 
@@ -81,10 +87,32 @@ th, td {
     font-size: 15px;
 }
 
+.answerForm tt {
+    background-color: lightgray;
+    border:solid;
+    color: #000000;
+    border-color: #9b8c8b;
+    border-left: solid #9b8c8b 1px;
+    border-right: solid #9b8c8b 1px;
+    border-top: solid #9b8c8b 1px;
+    border-bottom: solid #9b8c8b 1px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
 .answerText {
-    font-size: 18px;
+    font-size: 12pt;
     height: 12pt;
-    width: 20em;
+    width: 200pt;
+    padding-bottom: 1px;
+    position: relative;
+    bottom : -2px;
+}
+
+.answerStatus {
+    height: 12pt;
+    position: relative;
+    top: 6px;
 }
 
 textarea {
@@ -104,14 +132,15 @@ textarea {
 .answerSubmit {
   float: left;
   margin-left: 0em;
+  margin-top: 16px;
 
 }
 
 .cheatSubmit, .anotherSubmit{
-    font-size: 70%;
-    color: gray;
+    font-size: 60%;
+    color: black;
     float: right;
-    margin-right: 1em;
+    margin-right: 10px;
 }
 
 .answerFeedback{
@@ -130,18 +159,16 @@ tt {
 	padding-left: 20px;
 	cursor: pointer;
 }
+
 #Questions h2.close {
 	background-image: url(images/close.png);
 }
 
-pre.screen
+pre
 {
         font-family:monospace;
         white-space: pre;
         width: 96%;
-/*        background-color: #C0C0FF; */
-/*        background-color: #ffccff; */
-        background-color: PapayaWhip;
         border:solid;
         color: #000000;
         border-color: #9b8c8b;
@@ -149,98 +176,26 @@ pre.screen
         border-right: solid #9b8c8b 1px;
         border-top: solid #9b8c8b 1px;
         border-bottom: solid #9b8c8b 1px;
-
         padding-left: 15px;
         padding-right: 10px;
+}
+
+
+pre.screen
+{
+        background-color: PapayaWhip;
 }
 
 pre.listing
 {
-        font-family:monospace;
-        white-space: pre;
-/*        width: 96%; */
-/*        background-color: #ffffdd; */
-/*        background-color: #eeff88; */
         background-color: MintCream;
-        border:solid;
-        color: #000000;
-        border-color: #9b8c8b;
-        border-left: solid #9b8c8b 1px;
-        border-right: solid #9b8c8b 1px;
-        border-top: solid #9b8c8b 1px;
-        border-bottom: solid #9b8c8b 1px;
-
-        padding-left: 15px;
-        padding-right: 10px;
 }
 
 pre.question
 {
-        font-family:monospace;
-        white-space: pre;
-/*        width: 96%; */
-/*        background-color: #ffffdd; */
-/*        background-color: #eeff88; */
-        background-color: lightblue;
-        border:solid;
-        color: #000000;
-        border-color: #9b8c8b;
-        border-left: solid #9b8c8b 1px;
-        border-right: solid #9b8c8b 1px;
-        border-top: solid #9b8c8b 1px;
-        border-bottom: solid #9b8c8b 1px;
-
-        padding-left: 15px;
-        padding-right: 10px;
+        background-color: lightgrey;
+        padding-bottom: 4px;
 }
-
-/*
-H1
-{
-//        color: #ffffff;
-//        border: solid 3px #c5c6b2;
-//        background-color: #3c3c36;
-        font-variant: small-caps;
-       //        width: 100%;
-}
-
-H1.TITLE
-{
-//        color: #ffffff;
-//        border: solid 3px #c5c6b2;
-//        background-color: #3c3c36;
-//        font-variant: small-caps;
-        font-size: 120%;
-
-        width: 100%;
-}
-
-H2
-{       
-//        COLOR: #ffffff ;
-        font-style: italic;
-//        BACKGROUND-color: #c5c6b2;
-//        BORDER: solid 3px #3c3c36;
-//        PADDING: 1px
-}
-
-
-.TITLE a {
-        color: #ffffff; 
-        text-decoration: none;
-}
-
-.TITLE a:active {
-        color: #ffffff; 
-        text-decoration: none;
-}
-
-.TITLE a:visited {
-        color: #ffffff; 
-        text-decoration: none;
-}
-
-*/
 
 IMPORTANT
 {
@@ -264,6 +219,7 @@ NOTE
         width: 70%;
         margin-left: 15%;       
 }
+
 TIP
 {
         font-style:italic;

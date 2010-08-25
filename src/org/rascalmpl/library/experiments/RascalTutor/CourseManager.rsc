@@ -132,7 +132,8 @@ public str showConceptPath(ConceptName cn){
 
 public str searchBox(){
   return "\n\<div id=\"searchBox\"\>
-              \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\>\<b\>Search\</b\>
+              \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\> 
+              \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"images/magnify.png\"\>
               \<input type=\"text\" id=\"searchField\" name=\"term\" autocomplete=\"off\"\>\<br /\>
               \<div id=\"popups\"\>\</div\>
               \</form\>
@@ -414,6 +415,8 @@ println("showQuestion: <cpid>, <q>");
            qform += "and make the type of " + tt(cndBefore) + " equal to " + tt(toString(generateType(rtype, env)));  
          else
            qform += "The type of " + tt(cndBefore) + " is " + qtextarea; 
+           
+         qform += br();
        }
     }
     default:
@@ -421,12 +424,10 @@ println("showQuestion: <cpid>, <q>");
   }
   answerForm = answerFormBegin(cpid, qid, "answerForm") + qform  + answerFormEnd("Give answer", "answerSubmit");
 
-  return div(qid, b(basename(qid)) + " " + status(qid + "good", good()) + status(qid + "bad", bad()) + br() +
-                  qdescr + "\n\<span id=\"answerFeedback<qid>\" class=\"answerFeedback\"\>\</span\>\n" +
-                  answerForm + 
-                  anotherQuestionForm(cpid, qid) + 
-                  cheatForm(cpid, qid, qexpr) +  br() +
-                  hr());
+  return div(qid, br() + b(basename("Question " + qid + ". ")) + status(qid + "good", good()) + status(qid + "bad", bad()) +
+                  "\n\<span id=\"answerFeedback<qid>\" class=\"answerFeedback\"\>\</span\>\n" + 
+                  qdescr +  answerForm + 
+                  anotherQuestionForm(cpid, qid) + cheatForm(cpid, qid, qexpr) +  br() +  hr());
 }
 
 public void tstq(){
