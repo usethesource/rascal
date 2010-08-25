@@ -67,12 +67,25 @@ bool isSeparated(list[Symbol] q) {
          }
      return false;
      }
+     
+ bool isString(Symbol a) {
+     if (\cf(\sort(str s)):=a) {
+        // println("Found isString1 <s>");
+        if (s=="StringLiteral") return true;
+        }
+     if (\lex(\sort(str s)):=a) {
+        // println("Found isString2 <s>");
+        if (s=="RegExpLiteral") return true;
+        }
+     return false;
+     }
 
 void setUserRules() {
     setUserDefined(extraRules);
     setIndented(isIndented);
     setCompact(isCompact);
     setKeyword(isKeyword);
+    setString(isString);
     setSeparated(isSeparated);
     }  
       
