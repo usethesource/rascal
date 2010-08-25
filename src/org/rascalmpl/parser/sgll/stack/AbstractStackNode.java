@@ -154,7 +154,7 @@ public abstract class AbstractStackNode{
 		return (node.getId() == getId());
 	}
 	
-	// Linking.
+	// Linking & prefixes.
 	public void addNext(AbstractStackNode next){
 		this.next = next;
 	}
@@ -179,14 +179,133 @@ public abstract class AbstractStackNode{
 		edges.add(edge);
 	}
 	
-	public void addEdges(LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMapToAdd){
-		if(edgesMap.size() == 0){
+	public void addEdgeWithPrefix(AbstractStackNode edge, Link prefix, int startLocation){
+		int edgesMapSize = edgesMap.size();
+		if(prefixesMap == null){
+			prefixesMap = (ArrayList<Link>[]) new ArrayList[(edgesMapSize + 1) << 1];
+		}else{
+			int prefixesMapSize = prefixesMap.length;
+			int possibleMaxSize = edgesMapSize + 1;
+			if(prefixesMapSize < possibleMaxSize){
+				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
+				prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize << 1];
+				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
+			}
+		}
+		
+		ArrayList<AbstractStackNode> edges;
+		int index = edgesMap.findKey(startLocation);
+		if(index == -1){
+			index = edgesMap.size();
+			
+			edges = new ArrayList<AbstractStackNode>(1);
+			edgesMap.add(startLocation, edges);
+		}else{
+			edges = edgesMap.getValue(index);
+		}
+		edges.add(edge);
+		
+		ArrayList<Link> prefixes = prefixesMap[index];
+		if(prefixes == null){
+			prefixes = new ArrayList<Link>(1);
+			prefixesMap[index] = prefixes;
+		}
+		prefixes.add(prefix);
+	}
+	
+	private void addPrefix(Link prefix, int prefixStartLocation){
+		int index = edgesMap.findKey(prefixStartLocation);
+		
+		ArrayList<Link> prefixes = prefixesMap[index];
+		if(prefixes == null){
+			prefixes = new ArrayList<Link>(1);
+			prefixesMap[index] = prefixes;
+		}
+		
+		prefixes.add(prefix);
+	}
+	
+	public void updateNode(AbstractStackNode predecessor){
+		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMapToAdd = predecessor.edgesMap;
+		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
+		AbstractNode result = predecessor.getResult();
+		
+		int edgesMapSize = edgesMap.size();
+		if(edgesMapSize == 0){
 			edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>(edgesMapToAdd);
+
+			if(prefixesMap == null){
+				prefixesMap = (ArrayList<Link>[]) new ArrayList[edgesMap.size()];
+			}
+			
+			if(prefixesMapToAdd == null){
+				addPrefix(new Link(null, result), predecessor.getStartLocation());
+			}else{
+				int nrOfPrefixes = edgesMapToAdd.size();
+				for(int i = nrOfPrefixes - 1; i >= 0; --i){
+					ArrayList<Link> prefixes = prefixesMap[i];
+					if(prefixes == null){
+						prefixes = new ArrayList<Link>(1);
+						prefixesMap[i] = prefixes;
+					}
+					
+					prefixes.add(new Link(prefixesMapToAdd[i], result));
+				}
+			}
 		}else if(edgesMap != edgesMapToAdd){
-			for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
-				int startLocation = edgesMapToAdd.getKey(i);
-				if(edgesMap.findValue(startLocation) == null){
-					edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
+			int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
+			if(prefixesMap == null){
+				prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize];
+			}else{
+				if(prefixesMap.length < possibleMaxSize){
+					ArrayList<Link>[] oldPrefixesMap = prefixesMap;
+					prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize];
+					System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
+				}
+			}
+			
+			if(prefixesMapToAdd == null){
+				int startLocation = edgesMapToAdd.getKey(0);
+				int index = edgesMap.findKey(startLocation);
+				if(index == -1){
+					edgesMap.add(startLocation, edgesMapToAdd.getValue(0));
+				}
+				
+				addPrefix(new Link(null, result), predecessor.getStartLocation());
+			}else{
+				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
+					int startLocation = edgesMapToAdd.getKey(i);
+					int index = edgesMap.findKey(startLocation);
+					if(index == -1){
+						index = edgesMap.size();
+						edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
+					}
+					
+					ArrayList<Link> prefixes = prefixesMap[index];
+					if(prefixes == null){
+						prefixes = new ArrayList<Link>(1);
+						prefixesMap[index] = prefixes;
+					}
+					prefixes.add(new Link(prefixesMapToAdd[i], result));
+				}
+			}
+		}else{
+			if(prefixesMap == null){
+				prefixesMap = (ArrayList<Link>[]) new ArrayList[edgesMap.size()];
+			}
+			
+			if(prefixesMapToAdd == null){
+				addPrefix(new Link(null, result), predecessor.getStartLocation());
+			}else{
+				int nrOfPrefixes = edgesMapToAdd.size();
+				for(int i = nrOfPrefixes - 1; i >= 0; --i){
+					ArrayList<Link> prefixes = prefixesMap[i];
+					if(prefixes == null){
+						prefixes = new ArrayList<Link>(1);
+						prefixesMap[i] = prefixes;
+					}
+					
+					prefixes.add(new Link(prefixesMapToAdd[i], result));
 				}
 			}
 		}
@@ -198,6 +317,10 @@ public abstract class AbstractStackNode{
 	
 	public LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> getEdges(){
 		return edgesMap;
+	}
+	
+	public ArrayList<Link>[] getPrefixesMap(){
+		return prefixesMap;
 	}
 	
 	// Location.
@@ -219,34 +342,6 @@ public abstract class AbstractStackNode{
 	public abstract AbstractStackNode[] getChildren();
 	
 	// Results.
-	public void addPrefix(Link prefix, int prefixStartLocation){
-		ArrayList<Link> prefixes;
-		if(prefixesMap == null){
-			prefixesMap = (ArrayList<Link>[]) new ArrayList[edgesMap.size()];
-			prefixes = new ArrayList<Link>(1);
-			prefixesMap[edgesMap.findKey(prefixStartLocation)] = prefixes;
-		}else{
-			int index = edgesMap.findKey(prefixStartLocation);
-			int capacity = prefixesMap.length;
-			if(index >= capacity){
-				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
-				prefixesMap = (ArrayList<Link>[]) new ArrayList[edgesMap.size()];
-				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, capacity);
-			}
-			prefixes = prefixesMap[index];
-			if(prefixes == null){
-				prefixes = new ArrayList<Link>(1);
-				prefixesMap[index] = prefixes;
-			}
-		}
-		
-		prefixes.add(prefix);
-	}
-	
-	public ArrayList<Link>[] getPrefixesMap(){
-		return prefixesMap;
-	}
-	
 	public abstract void setResultStore(ContainerNode resultStore);
 	
 	public abstract ContainerNode getResultStore();
