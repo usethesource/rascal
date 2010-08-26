@@ -165,7 +165,7 @@ public class ContainerNode extends AbstractNode{
 		
 		// Output.
 		ArrayList<IConstructor> alternatives = buildAlternatives(gatheredAlternatives, stack, depth + 1, cycleMark, locationStore);
-
+		
 		IConstructor result;
 		int nrOfAlternatives = alternatives.size();
 		if(nrOfAlternatives == 0){ // Filtered.
