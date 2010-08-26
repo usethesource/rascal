@@ -28,7 +28,7 @@ public class EpsilonNode extends AbstractNode{
 		return EPSILON_STRING;
 	}
 	
-	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, LocationStore locationStore){
 		throw new UnsupportedOperationException(); // This should never be called.
 	}
 }
