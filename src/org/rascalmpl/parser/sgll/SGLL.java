@@ -483,11 +483,11 @@ public abstract class SGLL implements IGLL{
 		
 		if(root == null){
 			int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
-			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation("-", errorLocation, 0, -1, -1, -1, -1));
+			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, -1, -1, -1, -1));
 		}
 		
 		IValue result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), new LocationStore());
-		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation("-"));
+		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation(inputURI));
 		
 		return makeParseTree(result);
 	}
