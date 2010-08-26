@@ -30,7 +30,7 @@ public class EndOfLineNode extends AbstractNode{
 		return ENDOFLINE;
 	}
 	
-	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, LocationStore locationStore){
 		return constantTree; 
 	}
 }

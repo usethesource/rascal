@@ -59,11 +59,21 @@ public class LiteralNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, LocationStore locationStore){
 		int numberOfCharacters = content.length;
 		IListWriter listWriter = vf.listWriter(Factory.Tree);
 		for(int i = 0; i < numberOfCharacters; ++i){
-			IInteger characterValue = vf.integer(CharNode.getNumericCharValue(content[i]));
+			char character = content[i];
+			
+			if(character == END_LINE_CHAR){
+				locationStore.hitEndLine();
+			}else if(character == CARRIAGE_RETURN_CHAR){
+				locationStore.hitCarriageReturn();
+			}else{
+				locationStore.hitCharacter();
+			}
+			
+			IInteger characterValue = vf.integer(CharNode.getNumericCharValue(character));
 			listWriter.append(vf.constructor(Factory.Tree_Char, characterValue));
 		}
 		
