@@ -38,8 +38,8 @@ list[int] isIndented(list[Symbol] q, list[Tree] z) {
         if (isScheme(q , ["T", "T", "N"])) return isBlock(z, 2);  // catch
         if (isScheme(q , ["T", "N", "T", "N"])) return  isBlock(z, 3);  // catch
         if (isScheme(q , ["N", ":", "N"])) return isBlock(z, 2);  // pattern with action
-        if (isScheme(q , ["N", "T", "(", "N", ")","{", "N","}"])) return [5, 6, 7];  // switch visit
-        if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [4, 5, 6];  // visit
+        if (isScheme(q , ["N", "T", "(", "N", ")","{", "N","}"])) return [-1, 6];  // switch visit
+        if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [-1, 5];  // visit
      return [];
      }
 

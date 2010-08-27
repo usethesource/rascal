@@ -310,10 +310,21 @@ Box defaultBox(Box b) {
                            return  b;
                     return NULL();
               } 
+              
+tuple[Box, Box] compactStyle(Box b) {
+         // println("CompactStyle:<b>");
+         if (V(list[Box] v) := b) {
+              return <v[0], V(tail(v))>;
+              }
+         return <NULL(), b>;
+         }
+              
                     
 
 list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, bool separated, bool doIndent) {
-   list[Box] out = [];
+   list[Box] out = [], collectList = [];
+   bool fromIndent = size(indent)==2 && indent[0]<0;
+   bool collect = false;
    segment q = isEmpty(compact)?<1000,1000>:head(compact);
    if (!isEmpty(compact)) compact = tail(compact);
         bool first = true;
@@ -321,11 +332,7 @@ list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, b
         for   (int i<-[0, 1 .. (size(u)-1)]) 
         if (<Symbol a, Tree t>:=u[i] && !(\char-class(_):=a))
             {
-            if (first && (i/2 in indent)) {
-                 Box r = H(1, out);
-                 out=[r];
-                 first = false;
-                 }
+            
               Box b = NULL();
               if (isString(a)) {
                    b = STRING(L("<t>"));
@@ -350,9 +357,35 @@ list[Box] walkThroughSymbols(pairs u, list[int] indent, list[segment] compact, b
                                          } 
                               }
                              else 
-                                   out+=(i/2 in indent?I([b]):b);       
+                             if (i/2 in indent) {
+                                  collect = fromIndent?true:false;
+                                  if (!collect) {
+                                     tuple[Box, Box] c = compactStyle(b);
+                                     if (c[0]==NULL()) out+=c[1];
+                                     else {
+                                       out += c[0];
+                                       if (first) {
+                                            Box r = H(1, out);
+                                            out=[r];
+                                            first = false;
+                                            }
+                                       else {
+                                            Box last1 = out[size(out)-1], last2 = out[size(out)-2];
+                                            out = slice(out, 0, size(out)-2);
+                                            out+=H([last2, last1]);
+                                            }
+                                       out += I([c[1]]);
+                                       }
+                                     } else {
+                                        out = [H(1, out)];
+                                        collectList+= b;
+                                        }
+                                  } 
+                             else if (!collect) 
+                                 out+=(i/2 in indent?I([b]):b);  
+                             else collectList+= b;    
              }
-   return separated?[H(1, out)]: (doIndent?[V(0, out)]:out);
+   return separated?[H(1, out)]: (doIndent?[V(0, out)]:(!collect?out:[V([out, I([V(collectList)])])]));
 }
 
 /*
@@ -364,6 +397,7 @@ public text  returnText(Tree a, Box(Tree) userDef, list[int](list[Symbol], list[
 
 public text toLatex(Tree a) {
     Box out = evPt(a);
+    // println(out);
     return box2latex(out);
     }
 
