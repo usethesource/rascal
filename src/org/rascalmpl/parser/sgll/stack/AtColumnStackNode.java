@@ -6,31 +6,31 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-// TODO Fix this to use columns instead of positions.
 public class AtColumnStackNode extends AbstractStackNode implements IReducableStackNode{
-	private final AtColumnNode result ;
+	private final AtColumnNode result;
 	
-	private final int atLocation;
+	private final int atColumn;
 	
 	private boolean isReduced;
 	
 	public AtColumnStackNode(int id, int column){
 		super(id);
+		
 		this.result = new AtColumnNode(column);
-		this.atLocation = column;
+		this.atColumn = column;
 	}
 	
 	private AtColumnStackNode(AtColumnStackNode original){
 		super(original);
 		
-		atLocation = original.atLocation;
+		atColumn = original.atColumn;
 		result = original.result;
 	}
 	
 	private AtColumnStackNode(AtColumnStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
-		atLocation = original.atLocation;
+		atColumn = original.atColumn;
 		result = original.result;
 	}
 	
@@ -42,13 +42,14 @@ public class AtColumnStackNode extends AbstractStackNode implements IReducableSt
 		throw new UnsupportedOperationException();
 	}
 	
+	// TODO Fix this to use columns instead of locations.
 	public boolean reduce(char[] input){
 		isReduced = true;
-		return (atLocation == startLocation);
+		return (atColumn == startLocation);
 	}
 	
 	public boolean reduceWithoutResult(char[] input, int location){
-		return (atLocation == location);
+		return (atColumn == location);
 	}
 	
 	public boolean isClean(){

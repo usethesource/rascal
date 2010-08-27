@@ -40,11 +40,11 @@ public class Optional2 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_aOPTIONAL_O, LITERAL_a0, OPTIONAL_3);
 	}
 	
-	public void O(){
+	public void O(int parentId){
 		expect(PROD_O_a, LITERAL_a1);
 	}
 	

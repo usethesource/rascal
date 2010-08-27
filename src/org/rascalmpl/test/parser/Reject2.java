@@ -81,40 +81,40 @@ public class Reject2 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_START_S_ABp, NONTERMINAL_ABp4);
 		
 		expectReject(PROD_START_S_X, NONTERMINAL_X9);
 		expectReject(PROD_START_S_Y, NONTERMINAL_Y10);
 	}
 	
-	public void AB(){
+	public void AB(int parentId){
 		expect(PROD_AB_PLUSLISTaABb, LITERAL_a11, NONTERMINAL_AB0, LITERAL_b12);
 		
 		expect(PROD_AB_empty, EPSILON_15);
 	}
 	
-	public void BC(){
+	public void BC(int parentId){
 		expect(PROD_BC_PLUSLISTbBCc, LITERAL_b13, NONTERMINAL_BC2, LITERAL_c14);
 
 		expect(PROD_BC_empty, EPSILON_16);
 	}
 	
-	public void ABp(){
+	public void ABp(int parentId){
 		expect(PROD_ABp_ABPLUSLISTc, NONTERMINAL_AB1, LIST19);
 	}
 	
-	public void BCp(){
+	public void BCp(int parentId){
 		expect(PROD_BCp_PLUSLISTaBC, LIST18, NONTERMINAL_BC3);
 	}
 	
-	public void X(){
+	public void X(int parentId){
 		expect(PROD_X_ABp, NONTERMINAL_ABp5);
 		
 		expectReject(PROD_X_BCp, NONTERMINAL_BCp7);
 	}
 	
-	public void Y(){
+	public void Y(int parentId){
 		expect(PROD_Y_BCp, NONTERMINAL_BCp8);
 		
 		expectReject(PROD_Y_ABp, NONTERMINAL_ABp6);

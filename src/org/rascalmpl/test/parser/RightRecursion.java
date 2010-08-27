@@ -38,11 +38,11 @@ public class RightRecursion extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_A, NONTERMINAL_A0);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_aA, LITERAL_a2, NONTERMINAL_A1);
 		
 		expect(PROD_A_a, LITERAL_a3);

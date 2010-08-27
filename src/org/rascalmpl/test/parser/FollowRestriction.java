@@ -56,19 +56,19 @@ public class FollowRestriction extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_AC, NONTERMINAL_A0, NONTERMINAL_C2);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_PLUSLISTB, LIST4);
 	}
 	
-	public void B(){
+	public void B(int parentId){
 		expect(PROD_B_a, LITERAL_a5);
 	}
 	
-	public void C(){
+	public void C(int parentId){
 		expect(PROD_C_a, LITERAL_a6);
 		
 		expect(PROD_C_epsilon, EPSILON_7);

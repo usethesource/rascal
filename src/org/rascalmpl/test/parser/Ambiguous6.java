@@ -63,43 +63,41 @@ public class Ambiguous6 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_A, NONTERMINAL_A0);
 		
 		expect(PROD_S_E, NONTERMINAL_E4);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_B, NONTERMINAL_B1);
 	}
 	
-	public void B(){
+	public void B(int parentId){
 		expect(PROD_B_C, NONTERMINAL_C2);
 	}
 	
-	public void C(){
+	public void C(int parentId){
 		expect(PROD_C_D, NONTERMINAL_D3);
 	}
 	
-	public void D(){
+	public void D(int parentId){
 		expect(PROD_D_E, NONTERMINAL_E5);
 		
 		expect(PROD_D_a, LITERAL_a8);
 	}
 	
-	public void E(){
+	public void E(int parentId){
 		expect(PROD_E_F, NONTERMINAL_F6);
 	}
 	
-	public void F(){
+	public void F(int parentId){
 		expect(PROD_F_G, NONTERMINAL_G7);
 	}
 	
-	public void G(){
+	public void G(int parentId){
 		expect(PROD_G_a, LITERAL_a9);
 	}
-	
-	
 	
 	public IValue executeParser(){
 		return parse(NONTERMINAL_START_S, null, "a".toCharArray());

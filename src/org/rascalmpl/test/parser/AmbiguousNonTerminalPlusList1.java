@@ -43,17 +43,15 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_aPLUSLISTA, LITERAL_a3, LIST1);
 		
 		expect(PROD_S_PLUSLISTAa, LIST2, LITERAL_a4);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_a, LITERAL_a5);
 	}
-	
-	
 	
 	public IValue executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());

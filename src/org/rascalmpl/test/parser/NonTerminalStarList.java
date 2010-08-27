@@ -39,11 +39,11 @@ public class NonTerminalStarList extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_STARLISTA, LIST1);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_a, LITERAL_a2);
 	}
 	

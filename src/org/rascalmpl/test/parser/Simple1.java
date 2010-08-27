@@ -39,11 +39,11 @@ public class Simple1 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_Ab, NONTERMINAL_A0, LITERAL_b2);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_aa, LITERAL_aa1);
 	}
 	
