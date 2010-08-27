@@ -36,18 +36,18 @@ public class ListOverlap extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void Whitespace(int parentId){
+	public void Whitespace(){
 		expect(char32_Whitespace, new CharStackNode(1, new char[][]{{32, 32}}));
 	}
 	
-	public void Decl(int parentId){
+	public void Decl(){
 		expect(iter_star_layout_elems_iter_star_seps_Id_iter_star_layout_iter_star_layout_Decl,
 				new ListStackNode(3, iter_star_layout, new NonTerminalStackNode(4, "Whitespace"), false),
 				new ListStackNode(5, iter_star_Id, new NonTerminalStackNode(6, "Id"), false),
 				new ListStackNode(7, iter_star_layout, new NonTerminalStackNode(8, "Whitespace"), false));
 	}
 	
-	public void Id(int parentId){
+	public void Id(){
 		expect(char97_Id, new CharStackNode(10, new char[][]{{97, 97}}));
 	}
 	

@@ -38,15 +38,15 @@ public class NullableSharing extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_NN, NONTERMINAL_N1, NONTERMINAL_N2);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_empty, EPSILON3);
 	}
 	
-	public void N(int parentId){
+	public void N(){
 		expect(PROD_N_A, NONTERMINAL_A0);
 	}
 	

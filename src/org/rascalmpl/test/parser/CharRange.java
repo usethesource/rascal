@@ -29,7 +29,7 @@ public class CharRange extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_PLUSLISTa_z_a_z, CHAR_a0);
 	}
 	

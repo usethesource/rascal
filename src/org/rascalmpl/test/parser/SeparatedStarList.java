@@ -45,11 +45,11 @@ public class SeparatedStarList extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_SEPSTARLIST_A_b, LIST2);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_a, LITERAL_a3);
 	}
 	

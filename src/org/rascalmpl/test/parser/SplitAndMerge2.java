@@ -56,27 +56,27 @@ public class SplitAndMerge2 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_D, NONTERMINAL_D4);
 		
 		expect(PROD_S_Da, NONTERMINAL_D5, LITERAL_a6);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_a, LITERAL_a7);
 	}
 	
-	public void B(int parentId){
+	public void B(){
 		expect(PROD_B_A, NONTERMINAL_A0);
 	}
 	
-	public void C(int parentId){
+	public void C(){
 		expect(PROD_C_Ba, NONTERMINAL_B1, LITERAL_a8);
 		
 		expect(PROD_C_Baa, NONTERMINAL_B2, LITERAL_aa9);
 	}
 	
-	public void D(int parentId){
+	public void D(){
 		expect(PROD_D_C, NONTERMINAL_C3);
 	}
 	

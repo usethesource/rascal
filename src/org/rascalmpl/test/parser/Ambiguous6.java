@@ -63,39 +63,39 @@ public class Ambiguous6 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_A, NONTERMINAL_A0);
 		
 		expect(PROD_S_E, NONTERMINAL_E4);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_B, NONTERMINAL_B1);
 	}
 	
-	public void B(int parentId){
+	public void B(){
 		expect(PROD_B_C, NONTERMINAL_C2);
 	}
 	
-	public void C(int parentId){
+	public void C(){
 		expect(PROD_C_D, NONTERMINAL_D3);
 	}
 	
-	public void D(int parentId){
+	public void D(){
 		expect(PROD_D_E, NONTERMINAL_E5);
 		
 		expect(PROD_D_a, LITERAL_a8);
 	}
 	
-	public void E(int parentId){
+	public void E(){
 		expect(PROD_E_F, NONTERMINAL_F6);
 	}
 	
-	public void F(int parentId){
+	public void F(){
 		expect(PROD_F_G, NONTERMINAL_G7);
 	}
 	
-	public void G(int parentId){
+	public void G(){
 		expect(PROD_G_a, LITERAL_a9);
 	}
 	

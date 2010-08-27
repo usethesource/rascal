@@ -56,25 +56,25 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_AA, NONTERMINAL_A0, NONTERMINAL_A1);
 		
 		expect(PROD_S_B, NONTERMINAL_B6);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_CC, NONTERMINAL_C7, NONTERMINAL_C8);
 		
 		expect(PROD_A_a, LITERAL_a11);
 	}
 	
-	public void B(int parentId){
+	public void B(){
 		expect(PROD_B_AA, NONTERMINAL_A2, NONTERMINAL_A3);
 
 		expect(PROD_B_CC, NONTERMINAL_C9, NONTERMINAL_C10);
 	}
 	
-	public void C(int parentId){
+	public void C(){
 		expect(PROD_C_AA, NONTERMINAL_A4, NONTERMINAL_A5);
 		
 		expect(PROD_C_a, LITERAL_a12);

@@ -29,7 +29,7 @@ public class Epsilon extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_epsilon, EPSILON_1);
 	}
 	
