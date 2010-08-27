@@ -44,21 +44,19 @@ public class Ambiguous5 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_A, NONTERMINAL_A0);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_BB, NONTERMINAL_B1, NONTERMINAL_B2);
 	}
 	
-	public void B(){
+	public void B(int parentId){
 		expect(PROD_B_a, LITERAL_a3);
 		
 		expect(PROD_B_aa, LITERAL_aa4);
 	}
-	
-	
 	
 	public IValue executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());

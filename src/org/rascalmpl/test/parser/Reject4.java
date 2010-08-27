@@ -41,13 +41,13 @@ public class Reject4 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_aa, LITERAL_aa2);
 		
 		expect(PROD_S_Aa, NONTERMINAL_A0, LITERAL_a3);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_a, LITERAL_a4);
 		
 		expectReject(PROD_A_a, LITERAL_a5);

@@ -33,7 +33,7 @@ public class CharStarList extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_STARLISTa_z, LIST1);
 	}
 	

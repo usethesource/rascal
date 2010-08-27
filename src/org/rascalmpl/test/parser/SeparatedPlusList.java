@@ -45,11 +45,11 @@ public class SeparatedPlusList extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_SEPPLUSLIST_A_b, LIST2);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_a, LITERAL_a3);
 	}
 	

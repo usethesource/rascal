@@ -117,11 +117,14 @@ public abstract class SGLL implements IGLL{
 		lastNode.markAsReject();
 	}
 	
-	protected void invokeExpects(String name){
+	Class<?>[] expectArguments = new Class<?>[]{int.class};
+	
+	protected void invokeExpects(AbstractStackNode nonTerminal){
+		String name = nonTerminal.getName();
 		Method method = methodCache.get(name);
 		if(method == null){
 			try{
-				method = getClass().getMethod(name);
+				method = getClass().getMethod(name, expectArguments);
 				try{
 					method.setAccessible(true); // Try to bypass the 'isAccessible' check to save time.
 				}catch(SecurityException sex){
@@ -134,7 +137,7 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		try{
-			method.invoke(this);
+			method.invoke(this, Integer.valueOf(nonTerminal.getId()));
 		}catch(IllegalAccessException iaex){
 			throw new ImplementationError(iaex.getMessage(), iaex);
 		}catch(InvocationTargetException itex){
@@ -420,7 +423,7 @@ public abstract class SGLL implements IGLL{
 					expects[i].addEdge(stack);
 				}
 			}else{
-				invokeExpects(stack.getName());
+				invokeExpects(stack);
 				
 				handleExpects(stack);
 			}

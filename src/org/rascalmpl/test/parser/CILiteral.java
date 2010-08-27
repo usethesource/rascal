@@ -36,7 +36,7 @@ public class CILiteral extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_A, LITERAL_bla0);
 	}
 	

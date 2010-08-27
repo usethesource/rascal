@@ -43,15 +43,15 @@ public class Simple2 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(){
+	public void S(int parentId){
 		expect(PROD_S_AB, NONTERMINAL_A0, NONTERMINAL_B1);
 	}
 	
-	public void A(){
+	public void A(int parentId){
 		expect(PROD_A_a, LITERAL_a2);
 	}
 	
-	public void B(){
+	public void B(int parentId){
 		expect(PROD_B_b, LITERAL_b3);
 	}
 	
