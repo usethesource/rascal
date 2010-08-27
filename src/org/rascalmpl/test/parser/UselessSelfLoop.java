@@ -45,19 +45,19 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_A, NONTERMINAL_A0);
 		
 		expect(PROD_S_B, NONTERMINAL_B1);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_B, NONTERMINAL_B3);
 		
 		expect(PROD_A_a, LITERAL_a4);
 	}
 	
-	public void B(int parentId){
+	public void B(){
 		expect(PROD_B_A, NONTERMINAL_A2);
 		
 		expect(PROD_B_a, LITERAL_a5);

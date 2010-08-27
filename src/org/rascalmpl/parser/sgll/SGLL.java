@@ -38,8 +38,6 @@ import org.rascalmpl.values.uptr.Factory;
 public abstract class SGLL implements IGLL{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
 	
-	private final static Class<?>[] expectArguments = new Class<?>[]{int.class};
-	
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private URI inputURI;
@@ -55,6 +53,7 @@ public abstract class SGLL implements IGLL{
 	
 	private final ArrayList<AbstractStackNode[]> lastExpects;
 	private final HashMap<String, AbstractStackNode[]> cachedExpects;
+	protected int currentParentId;
 	
 	private final IntegerKeyedHashMap<AbstractStackNode> sharedNextNodes;
 
@@ -128,7 +127,7 @@ public abstract class SGLL implements IGLL{
 		Method method = methodCache.get(name);
 		if(method == null){
 			try{
-				method = getClass().getMethod(name, expectArguments);
+				method = getClass().getMethod(name);
 				try{
 					method.setAccessible(true); // Try to bypass the 'isAccessible' check to save time.
 				}catch(SecurityException sex){
@@ -141,7 +140,8 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		try{
-			method.invoke(this, Integer.valueOf(nonTerminal.getId()));
+			currentParentId = nonTerminal.getId();
+			method.invoke(this);
 		}catch(IllegalAccessException iaex){
 			throw new ImplementationError(iaex.getMessage(), iaex);
 		}catch(InvocationTargetException itex){

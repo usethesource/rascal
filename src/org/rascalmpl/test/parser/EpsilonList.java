@@ -37,11 +37,11 @@ public class EpsilonList extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_PLUSLISTA, LIST1);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_epsilon, EPSILON2);
 	}
 	

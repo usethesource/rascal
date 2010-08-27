@@ -47,17 +47,17 @@ public class Optional3 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_aOPTIONAL_O, LITERAL_a0, OPTIONAL_6);
 		
 		expect(PROD_S_aA, LITERAL_a1, NONTERMINAL_A3);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_a, LITERAL_a2);
 	}
 	
-	public void O(int parentId){
+	public void O(){
 		expect(PROD_O_A, NONTERMINAL_A4);
 	}
 	

@@ -43,13 +43,13 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_aPLUSLISTA, LITERAL_a3, LIST1);
 		
 		expect(PROD_S_PLUSLISTAa, LIST2, LITERAL_a4);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_a, LITERAL_a5);
 	}
 	

@@ -39,7 +39,7 @@ public class AmbiguousRecursive extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_SSS, NONTERMINAL_S0, NONTERMINAL_S1, NONTERMINAL_S2);
 		
 		expect(PROD_S_SS, NONTERMINAL_S3, NONTERMINAL_S4);

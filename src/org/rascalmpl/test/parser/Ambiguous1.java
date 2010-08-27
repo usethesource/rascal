@@ -37,13 +37,13 @@ public class Ambiguous1 extends SGLL implements IParserTest{
 		super();
 	}
 	
-	public void S(int parentId){
+	public void S(){
 		expect(PROD_S_A, NONTERMINAL_A0);
 		
 		expect(PROD_S_a, LITERAL_a1);
 	}
 	
-	public void A(int parentId){
+	public void A(){
 		expect(PROD_A_a, LITERAL_a2);
 	}
 	
