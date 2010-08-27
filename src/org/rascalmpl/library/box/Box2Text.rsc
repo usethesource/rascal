@@ -56,10 +56,11 @@ text wd(text a) {
 
 /* Computes the length of unescaped string s */
 int width(str s) {
-     s = replaceAll(s,"\b...",""); 
+     s = replaceAll(s,"\r...",""); 
      int b = size(s); 
      return b;
      }
+
 
 /* Computes the maximum width of text t */
 int twidth(text t) {
@@ -301,10 +302,10 @@ text HVHV(text T, int s, list[Box] b, options o,  int m, Box c) {
 
 text font(text t, str tg) {
    if (isEmpty(t)) return t;
-   str h = (latex?"\\<tg>{":"\b{<tg>")+t[0];
+   str h = "\r{<tg>"+t[0];
    int n = size(t)-1;
    if (n==0) {
-       h += latex?"}":"\b}12";
+       h += "\r}12";
        return [h];
        }
    text r = [];
@@ -312,7 +313,7 @@ text font(text t, str tg) {
    for (int i <-[1, 2..(n-1)]) {
        r+=t[i];
       }
-   r+=(t[n]+(latex?"}":"\b}12"));
+   r+=(t[n]+"\r}12");
    return r;
   }
 
@@ -503,12 +504,24 @@ public text box2data(Box b) {
     text t = O(b, V([]), oDefault, maxWidth);
     return t;
     }
+
+str text2latex(str t) {
+    return visit(t) {
+       case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<key>}"
+       }
+    }
+
+text text2latex(text t) {
+    return [text2latex(s)|s<-t];
+    }
       
 public text box2latex(Box b) {
     // println("Start box2latex");
     latex = true;
     decorated =  true;
-    text t = getFileContent("box/Start.tex")+box2data(b)+getFileContent("box/End.tex");
+    lt = text2latex(box2data(b));
+    text t = getFileContent("box/Start.tex")+lt+getFileContent("box/End.tex");
+    
     latex = false;
     // println("End box2latex");
     /* for (str r<-t) {
