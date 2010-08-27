@@ -39,11 +39,16 @@ public abstract class StaticError extends RuntimeException {
 	public String getMessage() {
 		if (loc != null) {
 			URI url = loc.getURI();
-			
-			return (url.getScheme().equals("file") ? url.getPath() : url) 
+			if(url != null){
+				return (url.getScheme().equals("file") ? url.getPath() : url) 
 					+ ":" + loc.getBeginLine() 
 					+ "," + loc.getBeginColumn() 
 					+ ": " + super.getMessage();
+			}
+			
+			return ":" + loc.getBeginLine() 
+				+ "," + loc.getBeginColumn() 
+				+ ": " + super.getMessage();
 		}
 		
 		// TODO remove once all errors have locations
