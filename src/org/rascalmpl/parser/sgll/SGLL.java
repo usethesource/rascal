@@ -31,16 +31,20 @@ import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 public abstract class SGLL implements IGLL{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
 	
+	private final static Class<?>[] expectArguments = new Class<?>[]{int.class};
+	
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private URI inputURI;
 	private char[] input;
+	private final PositionStore positionStore;
 	
 	private final ArrayList<AbstractStackNode> todoList;
 	
@@ -65,6 +69,8 @@ public abstract class SGLL implements IGLL{
 	
 	public SGLL(){
 		super();
+		
+		positionStore = new PositionStore();
 		
 		todoList = new ArrayList<AbstractStackNode>();
 		
@@ -116,8 +122,6 @@ public abstract class SGLL implements IGLL{
 		lastNode.setFollowRestriction(followRestrictions);
 		lastNode.markAsReject();
 	}
-	
-	Class<?>[] expectArguments = new Class<?>[]{int.class};
 	
 	protected void invokeExpects(AbstractStackNode nonTerminal){
 		String name = nonTerminal.getName();
@@ -470,6 +474,7 @@ public abstract class SGLL implements IGLL{
 		// Initialize.
 		this.inputURI = inputURI;
 		this.input = input;
+		positionStore.index(input);
 
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
@@ -486,7 +491,9 @@ public abstract class SGLL implements IGLL{
 		
 		if(root == null){
 			int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
-			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, -1, -1, -1, -1));
+			int line = positionStore.findLine(errorLocation);
+			int column = positionStore.getColumn(errorLocation, line);
+			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, line, line, column, column));
 		}
 		
 		IValue result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), new LocationStore());
