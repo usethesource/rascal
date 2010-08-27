@@ -29,7 +29,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		this.isPlusList = isPlusList;
 	}
 	
-	public ListStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode child, boolean isPlusList){
+	public ListStackNode(int id, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, boolean isPlusList){
 		super(id, followRestrictions);
 		
 		this.production = production;
@@ -67,7 +67,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		return name;
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}
 	

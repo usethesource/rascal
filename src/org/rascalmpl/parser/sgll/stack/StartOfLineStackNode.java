@@ -6,7 +6,7 @@ import org.rascalmpl.parser.sgll.result.StartOfLineNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-public class StartOfLineStackNode extends AbstractStackNode implements IReducableStackNode{
+public class StartOfLineStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final static StartOfLineNode result = new StartOfLineNode();
 	
 	private boolean isReduced;
@@ -31,13 +31,13 @@ public class StartOfLineStackNode extends AbstractStackNode implements IReducabl
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		isReduced = true;
 		// Preceded by 'start of file' || UNIX / Windows (\n and \r\n) || pre-MacOS9 (\r)
 		return (startLocation == 0) || (input[startLocation - 1] == '\n') || (input[startLocation - 1] == '\r');
 	}
 	
-	public boolean reduceWithoutResult(char[] input, int location){
+	public boolean matchWithoutResult(char[] input, int location){
 		// Preceded by 'start of file' || UNIX / Windows (\n and \r\n) || pre-MacOS9 (\r)
 		return (location == 0) || (input[location - 1] == '\n') || (input[location - 1] == '\r');
 	}

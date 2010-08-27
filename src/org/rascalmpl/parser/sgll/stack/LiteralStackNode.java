@@ -7,7 +7,7 @@ import org.rascalmpl.parser.sgll.result.LiteralNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-public final class LiteralStackNode extends AbstractStackNode implements IReducableStackNode{
+public final class LiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final char[] literal;
 	
 	private final LiteralNode result;
@@ -20,7 +20,7 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 		result = new LiteralNode(production, literal);
 	}
 	
-	public LiteralStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, char[] literal){
+	public LiteralStackNode(int id, IConstructor production, IMatchableStackNode[] followRestrictions, char[] literal){
 		super(id, followRestrictions);
 		
 		this.literal = literal;
@@ -52,14 +52,14 @@ public final class LiteralStackNode extends AbstractStackNode implements IReduca
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		for(int i = literal.length - 1; i >= 0; --i){
 			if(literal[i] != input[startLocation + i]) return false; // Did not match.
 		}
 		return true;
 	}
 	
-	public boolean reduceWithoutResult(char[] input, int location){
+	public boolean matchWithoutResult(char[] input, int location){
 		for(int i = literal.length - 1; i >= 0; --i){
 			if(literal[i] != input[location + i]) return false; // Did not match.
 		}
