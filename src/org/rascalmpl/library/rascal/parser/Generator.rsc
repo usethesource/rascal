@@ -166,7 +166,7 @@ public str generateParseMethod(Production p){
   defined as either sequences of character classes or literals.
 }
 public str generateLookaheads(set[Production] restrictions) {
-  result = "new IReducableStackNode[] {"; 
+  result = "new IMatchableStackNode[] {"; 
   
   // not that only single symbol restrictions are allowed at the moment.
   // the run-time only supports character-classes and literals BTW, which should
