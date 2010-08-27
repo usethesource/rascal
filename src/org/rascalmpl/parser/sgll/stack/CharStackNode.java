@@ -6,7 +6,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-public final class CharStackNode extends AbstractStackNode implements IReducableStackNode{
+public final class CharStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final char[][] ranges;
 	
 	private AbstractNode result;
@@ -37,7 +37,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		char next = input[startLocation];
 		for(int i = ranges.length - 1; i >= 0; --i){
 			char[] range = ranges[i];
@@ -50,7 +50,7 @@ public final class CharStackNode extends AbstractStackNode implements IReducable
 		return false;
 	}
 	
-	public boolean reduceWithoutResult(char[] input, int location){
+	public boolean matchWithoutResult(char[] input, int location){
 		char next = input[location];
 		for(int i = ranges.length - 1; i >= 0; --i){
 			char[] range = ranges[i];

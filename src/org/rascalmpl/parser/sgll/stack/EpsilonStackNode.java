@@ -6,7 +6,7 @@ import org.rascalmpl.parser.sgll.result.EpsilonNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-public final class EpsilonStackNode extends AbstractStackNode implements IReducableStackNode{
+public final class EpsilonStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final static EpsilonNode result = new EpsilonNode();
 	
 	private boolean isReduced;
@@ -31,12 +31,12 @@ public final class EpsilonStackNode extends AbstractStackNode implements IReduca
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		isReduced = true;
 		return true;
 	}
 	
-	public boolean reduceWithoutResult(char[] input, int location){
+	public boolean matchWithoutResult(char[] input, int location){
 		return true;
 	}
 	

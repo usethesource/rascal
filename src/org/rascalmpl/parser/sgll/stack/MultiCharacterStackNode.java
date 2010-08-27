@@ -7,7 +7,7 @@ import org.rascalmpl.parser.sgll.result.LiteralNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-public class MultiCharacterStackNode extends AbstractStackNode implements IReducableStackNode{
+public class MultiCharacterStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final IConstructor production;
 	private final char[][] characters;
 	
@@ -42,7 +42,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IReduc
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		int nrOfCharacters = characters.length;
 		char[] resultArray = new char[nrOfCharacters];
 		
@@ -65,7 +65,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IReduc
 		return true;
 	}
 	
-	public boolean reduceWithoutResult(char[] input, int location){
+	public boolean matchWithoutResult(char[] input, int location){
 		int nrOfCharacters = characters.length;
 		OUTER : for(int i = nrOfCharacters - 1; i >= 0; --i){
 			char next = input[location + i];

@@ -16,7 +16,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		this.expectIdentifier = expectIdentifier;
 	}
 	
-	public NonTerminalStackNode(int id, IReducableStackNode[] followRestrictions, String expectIdentifier){
+	public NonTerminalStackNode(int id, IMatchableStackNode[] followRestrictions, String expectIdentifier){
 		super(id, followRestrictions);
 		
 		this.expectIdentifier = expectIdentifier;
@@ -38,7 +38,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		return expectIdentifier;
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}
 	

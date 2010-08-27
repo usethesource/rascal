@@ -27,7 +27,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		this.optional = optional;
 	}
 	
-	public OptionalStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode optional){
+	public OptionalStackNode(int id, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode optional){
 		super(id, followRestrictions);
 		
 		this.production = production;
@@ -66,7 +66,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}
 	

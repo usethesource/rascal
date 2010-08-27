@@ -7,7 +7,7 @@ import org.rascalmpl.parser.sgll.result.LiteralNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IReducableStackNode{
+public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final IConstructor production;
 	private final char[][] ciLiteral;
 	
@@ -21,7 +21,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		this.ciLiteral = fill(ciLiteral);
 	}
 	
-	public CaseInsensitiveLiteralStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, char[] ciLiteral){
+	public CaseInsensitiveLiteralStackNode(int id, IConstructor production, IMatchableStackNode[] followRestrictions, char[] ciLiteral){
 		super(id, followRestrictions);
 		
 		this.production = production;
@@ -68,7 +68,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		int literalLength = ciLiteral.length;
 		char[] resultLiteral = new char[literalLength];
 		OUTER : for(int i = literalLength - 1; i >= 0; --i){
@@ -87,7 +87,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		return true;
 	}
 	
-	public boolean reduceWithoutResult(char[] input, int location){
+	public boolean matchWithoutResult(char[] input, int location){
 		int literalLength = ciLiteral.length;
 		OUTER : for(int i = literalLength - 1; i >= 0; --i){
 			char[] ciLiteralPart = ciLiteral[i];

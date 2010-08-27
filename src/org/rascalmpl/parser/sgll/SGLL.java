@@ -22,7 +22,7 @@ import org.rascalmpl.parser.sgll.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.sgll.result.AbstractNode.LocationStore;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
-import org.rascalmpl.parser.sgll.stack.IReducableStackNode;
+import org.rascalmpl.parser.sgll.stack.IMatchableStackNode;
 import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.HashMap;
@@ -92,7 +92,7 @@ public abstract class SGLL implements IGLL{
 		lastNode.setParentProduction(production);
 	}
 	
-	protected void expect(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
+	protected void expect(IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
@@ -108,7 +108,7 @@ public abstract class SGLL implements IGLL{
 		lastNode.markAsReject();
 	}
 	
-	protected void expectReject(IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
+	protected void expectReject(IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
@@ -317,7 +317,7 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void reduceTerminal(AbstractStackNode terminal){
-		if(!terminal.reduce(input)) return;
+		if(!terminal.match(input)) return;
 		
 		// Filtering
 		if(terminal.isReductionFiltered(input, location)) return;

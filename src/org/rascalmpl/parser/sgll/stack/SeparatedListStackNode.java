@@ -31,7 +31,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		this.isPlusList = isPlusList;
 	}
 	
-	public SeparatedListStackNode(int id, IConstructor production, IReducableStackNode[] followRestrictions, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
+	public SeparatedListStackNode(int id, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
 		super(id, followRestrictions);
 		
 		this.production = production;
@@ -72,7 +72,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		return name;
 	}
 	
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}
 	

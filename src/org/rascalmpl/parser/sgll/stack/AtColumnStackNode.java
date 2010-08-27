@@ -6,7 +6,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-public class AtColumnStackNode extends AbstractStackNode implements IReducableStackNode{
+public class AtColumnStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final AtColumnNode result;
 	
 	private final int atColumn;
@@ -43,12 +43,12 @@ public class AtColumnStackNode extends AbstractStackNode implements IReducableSt
 	}
 	
 	// TODO Fix this to use columns instead of locations.
-	public boolean reduce(char[] input){
+	public boolean match(char[] input){
 		isReduced = true;
 		return (atColumn == startLocation);
 	}
 	
-	public boolean reduceWithoutResult(char[] input, int location){
+	public boolean matchWithoutResult(char[] input, int location){
 		return (atColumn == location);
 	}
 	

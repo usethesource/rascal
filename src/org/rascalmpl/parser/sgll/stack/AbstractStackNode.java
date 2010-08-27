@@ -24,7 +24,7 @@ public abstract class AbstractStackNode{
 	
 	// Last node specific filter stuff
 	private IConstructor parentProduction;
-	private IReducableStackNode[] followRestrictions;
+	private IMatchableStackNode[] followRestrictions;
 	private boolean isReject;
 	
 	public AbstractStackNode(int id){
@@ -35,7 +35,7 @@ public abstract class AbstractStackNode{
 		startLocation = -1;
 	}
 	
-	public AbstractStackNode(int id, IReducableStackNode[] followRestrictions){
+	public AbstractStackNode(int id, IMatchableStackNode[] followRestrictions){
 		super();
 		
 		this.id = id;
@@ -95,7 +95,7 @@ public abstract class AbstractStackNode{
 	}
 	
 	public final boolean isReducable(){
-		return (this instanceof IReducableStackNode);
+		return (this instanceof IMatchableStackNode);
 	}
 	
 	public final boolean isEpsilon(){
@@ -108,7 +108,7 @@ public abstract class AbstractStackNode{
 	
 	public abstract String getName();
 	
-	public abstract boolean reduce(char[] input);
+	public abstract boolean match(char[] input);
 	
 	// Last node specific stuff.
 	public void setParentProduction(IConstructor parentProduction){
@@ -119,7 +119,7 @@ public abstract class AbstractStackNode{
 		return parentProduction;
 	}
 	
-	public void setFollowRestriction(IReducableStackNode[] followRestrictions) {
+	public void setFollowRestriction(IMatchableStackNode[] followRestrictions) {
 		this.followRestrictions = followRestrictions;
 	}
 	
@@ -127,9 +127,9 @@ public abstract class AbstractStackNode{
 		// Check if follow restrictions apply.
 		if(followRestrictions != null){
 			for(int i = followRestrictions.length - 1; i >= 0; --i){
-				IReducableStackNode followRestriction = followRestrictions[i];
+				IMatchableStackNode followRestriction = followRestrictions[i];
 				if((location + followRestriction.getLength()) <= input.length &&
-					followRestriction.reduceWithoutResult(input, location)) return true;
+					followRestriction.matchWithoutResult(input, location)) return true;
 			}
 		}
 		return false;
