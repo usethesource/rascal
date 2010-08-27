@@ -414,6 +414,10 @@ public abstract class SGLL implements IGLL{
 		cachedExpects.put(stackBeingWorkedOn.getName(), expects);
 	}
 	
+	protected boolean isPrioFiltered(int parentId, int childId){
+		return false; // Default implementation; intended to be overwritten in sub-classes.
+	}
+	
 	private void expandStack(AbstractStackNode stack){
 		if(stack.isReducable()){
 			if((location + stack.getLength()) <= input.length) todoList.add(stack);
@@ -423,8 +427,10 @@ public abstract class SGLL implements IGLL{
 		if(!stack.isList()){
 			AbstractStackNode[] expects = cachedExpects.get(stack.getName());
 			if(expects != null){
+				int parentId = stack.getId();
 				for(int i = expects.length - 1; i >= 0; --i){
-					expects[i].addEdge(stack);
+					AbstractStackNode expect = expects[i];
+					if(!isPrioFiltered(parentId, expect.getId())) expect.addEdge(stack);
 				}
 			}else{
 				invokeExpects(stack);
