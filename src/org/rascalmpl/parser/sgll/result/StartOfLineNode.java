@@ -8,7 +8,7 @@ import org.rascalmpl.values.uptr.Factory;
 
 public class StartOfLineNode extends AbstractNode{
 	private final static String STARTOFLINE = "start-of-line()";
-	private final static IValue constantTree = Factory.Tree_Appl.make(vf, Factory.Production_Regular.make(vf, Factory.Symbol_StartOfLine.make(vf), Factory.Attributes_NoAttrs.make(vf)), Factory.Args.make(vf));
+	private final static IValue result = vf.constructor(Factory.Tree_Appl, vf.constructor(Factory.Production_Regular, vf.constructor(Factory.Symbol_StartOfLine), vf.constructor(Factory.Attributes_NoAttrs)), vf.listWriter().done());
 	
 	public StartOfLineNode(){
 		super();
@@ -31,6 +31,6 @@ public class StartOfLineNode extends AbstractNode{
 	}
 	
 	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, LocationStore locationStore){
-		return constantTree; 
+		return result; 
 	}
 }

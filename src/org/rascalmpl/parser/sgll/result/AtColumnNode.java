@@ -7,13 +7,14 @@ import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.values.uptr.Factory;
 
 public class AtColumnNode extends AbstractNode{
-	private final static String ATCOLUMN = "at-column";
-	private final IValue constantTree;
+	private final static String ATCOLUMN = "at-column()";
+	private final IValue result;
 	
-	public AtColumnNode(int col){
+	public AtColumnNode(int column){
 		super();
-		IValue symbol = Factory.Symbol_AtColumn.make(vf, col);
-		this.constantTree = Factory.Tree_Appl.make(vf, Factory.Production_Regular.make(vf, symbol, Factory.Attributes_NoAttrs.make(vf)), Factory.Args.make(vf));
+		
+		IValue symbol = vf.constructor(Factory.Symbol_AtColumn, vf.integer(column));
+		result = vf.constructor(Factory.Tree_Appl, vf.constructor(Factory.Production_Regular, symbol, vf.constructor(Factory.Attributes_NoAttrs)), vf.listWriter().done());
 	}
 	
 	public void addAlternative(IConstructor production, Link children){
@@ -33,6 +34,6 @@ public class AtColumnNode extends AbstractNode{
 	}
 	
 	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, LocationStore locationStore){
-		return constantTree; 
+		return result; 
 	}
 }
