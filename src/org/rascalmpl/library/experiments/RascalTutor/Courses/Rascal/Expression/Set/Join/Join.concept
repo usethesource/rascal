@@ -1,0 +1,28 @@
+Name:Join
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: SetExp1 join SetExp2
+
+Description:
+Relation resulting from the natural join of the set values of the two arguments.
+This relation contains tuples that are the result from concatenating the elements from both arguments.
+
+Examples:
+<screen>
+{<1,2>, <10,20>} join {<2,3>};
+{<1,2>} join {3, 4};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type:  <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb,str,int]]>
+Value: <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb,str,int]]>
+
+

@@ -1,0 +1,26 @@
+Name:StrictSubset
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: SetExp1 < SetExp2
+
+Description:
+Yields <tt>true</tt> if the value of $SetExp1$ is a strict subset of the value of $SetExp2$,  and <tt>false</tt> otherwise.
+
+Examples:
+<screen>
+{1, 2, 3} < {1, 2, 3, 4};
+{1, 2, 3} < {1, 3, 4};
+{1, 2, 3} < {1, 2, 3};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type: <A:set[arb]> < <B:same[A]>
+

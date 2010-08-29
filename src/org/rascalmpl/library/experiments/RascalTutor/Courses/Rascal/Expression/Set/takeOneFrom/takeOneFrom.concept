@@ -1,0 +1,24 @@
+Name:takeOneFrom
+
+Categories: Library
+
+Related:
+
+Synopsis: tuple[&T, set[&T]] takeOneFrom(set[&T] s)
+
+Description: Remove an arbitrary element from set <tt>s</tt> and return a tuple consisting of the element and the modified set.
+
+Examples:
+<screen>
+import Set;
+takeOneFrom({1, 2, 3, 4});
+takeOneFrom({1, 2, 3, 4});
+takeOneFrom({1, 2, 3, 4});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

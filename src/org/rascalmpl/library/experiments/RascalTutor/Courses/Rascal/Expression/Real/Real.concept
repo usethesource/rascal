@@ -1,0 +1,23 @@
+Name:Real
+
+Categories: Syntax Type
+
+Related:
+
+Synopsis: real
+
+Description:
+The real values are represented by the type <tt>real</tt> and are written as usual in most programming languages.
+They can have arbitrary size and precision.
+
+Examples:
+* 1.5
+* 3.14e-123
+
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

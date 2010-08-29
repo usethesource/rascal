@@ -1,0 +1,57 @@
+Name:String
+
+Categories: Syntax Type
+
+Related:
+
+Synopsis: str
+
+Description:
+<warning>The generated HTML is erroneous due to angle brackets in source code</warning>
+The string values are represented by the type <tt>str</tt> and consist of character 
+sequences surrounded by double quotes. e.g., <tt>"a"</tt> or <tt>"a\nlong\nstring"</tt>.
+
+String literals support so-called ''string interpolation'': 
+inside string constants text between angle brackets (<tt><</tt> and <tt>></tt>) is first executed and then replaced by its string value.
+Various statements (if, for, while, do) also return a value and can be used in this way. In the interpolation variant of these statements the block or blocks that are part of the statement become arbitrary text 
+(that may itself contain interpolations). 
+
+<tt><if(''Exp''){> ... ''Text'' ... <}></tt>
+
+* <
+* >
+* &
+
+
+Their forms are:
+
+* <tt><if(''Exp''){> ... ''Text'' ... <}></tt>
+* <tt><if(''Exp''){> ... ''Text'' ... <} else {>  ... ''Text'' ... <}></tt>
+* <tt><for(''Exp''){>... ''Text'' ... <}></tt>
+* <tt><while(''Exp''){> ... ''Text'' ... <}></tt>
+* <tt><do {>... ''Text'' ... <} while (''Exp'')></tt>
+Here ''Text'' is arbitrary text that may itself contain again contain interpolations.
+
+Examples:
+<screen>
+N = 13;
+"The value of N is <N>";
+"The value of N*N is <N*N>";
+"The value is <(N < 10) ? 10 : N*N>";
+//As you can see the string value of variables and expressions is interpolated in the result as expected. 
+//<br>
+//Some examples of more advances string interpolation 
+"N is <if(N < 10){> small <} else {> large <}>";
+"N is <if(N < 10){> small <} else {> large (<N>)<}>";
+"before <for(x<-[1..5]){>a <x> b <}>after";
+</screen>
+
+
+Benefits:
+String interpolation enables very flexible template-based text generation as used in generators for
+source code, markup and the like.
+
+Pittfalls:
+
+Questions:
+

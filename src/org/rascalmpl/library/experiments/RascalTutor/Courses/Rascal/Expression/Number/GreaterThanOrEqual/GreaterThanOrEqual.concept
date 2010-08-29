@@ -1,0 +1,30 @@
+Name:GreaterThanOrEqual
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: NumExp1 >= NumExp2
+
+Description: Yields <tt>true</tt> if the value of $NumExp1$ is numerically greather than or equal to the value of $NumExp2$, and <tt>false</tt> otherwise.
+
+Examples:
+<screen>
+13 >= 12
+12 >= 13
+13.5 >= 12
+12.5 >= 13
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type:  <A:int> >= <B:int>
+Type:  <A:real> >= <B:real>
+Type:  <A:num> >= <B:num>
+Type:  <A:num> >= <B:num>
+Value: <A:num> >= <B:num>
+

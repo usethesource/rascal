@@ -1,0 +1,25 @@
+Name:Superset
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: SetExp1 >= SetExp2
+
+Description:
+Yields <tt>true</tt> if the vaue of $SetExp1$ is a superset of the value of $SetExp2$ and <tt>false</tt> otherwise.
+
+Examples:
+<screen>
+{1, 2, 3, 4} >= {3, 2, 1};
+{1, 2, 3, 4} >= {4, 3, 2, 1};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type: <A:set[arb]> >= <B:same[A]>
+

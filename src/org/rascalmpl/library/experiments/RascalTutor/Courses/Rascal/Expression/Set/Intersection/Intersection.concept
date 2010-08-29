@@ -1,0 +1,38 @@
+Name:Intersection
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: Exp1 & Exp2
+
+Description:
+If both $Exp1$ and $Exp2$ have a set as value, the result is the intersection of these two set values. If one of $Exp1$ or $Exp2$ does not have a set as value, it is first converted to a set before the intersection is computed.
+
+Examples:
+<warning>& seems to miss the case for a non-set argument</warning>
+<screen>
+{1, 2, 3, 4, 5} & {4, 5, 6};
+{1, 2, 3} & 4;
+1 & {1, 2, 3, 4};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Choice: When you compute the intersection of two sets, the number of elements in the result is always:
+b: Greater than the number of elements in both sets.
+b: Greater than or equal the number of elements in both sets.
+b: Smaller than the number of elements in both sets.
+g: Smaller than or equal the number of elements in both sets.
+
+
+Type:  <A:set[arb[int,str]]> & <B:same[A]>
+
+Type:  <A:set[arb]> & <B:same[A]>
+
+Value: <A:set[arb[0,int,str,num,real]]> & <B:same[A]>
+

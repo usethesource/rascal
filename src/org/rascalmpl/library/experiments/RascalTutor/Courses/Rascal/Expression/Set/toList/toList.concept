@@ -1,0 +1,22 @@
+Name:toList
+
+Categories: Library
+
+Related:
+
+Synopsis: list[&T] toList(set[&T] s)
+
+Description: Convert a set to a list.
+
+Examples:
+<screen>
+import Set;
+toList({1, 2, 3, 4});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

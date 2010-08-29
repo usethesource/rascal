@@ -1,0 +1,28 @@
+Name:Multiplication
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: NumExp1 * NumExp2
+
+Description: Yields the result of multiplying the values of $NumExp1$ and $NumExp2$.
+
+Examples:
+<screen>
+12 * 13
+12 * 13.5
+-12*13
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type:  <A:int> * <B:int>
+Type:  <A:int> * <B:real>
+Type:  <A:real> * <B:int>
+Value: <A:num> * <B:num>
+

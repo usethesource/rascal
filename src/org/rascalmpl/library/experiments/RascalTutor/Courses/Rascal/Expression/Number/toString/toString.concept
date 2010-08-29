@@ -1,0 +1,23 @@
+Name:toString
+
+Categories: Library
+
+Related:
+
+Synopsis: str toString(num n)
+
+Description: Convert a number to a string.
+
+Examples:
+<screen>
+import Number;
+toString(12)
+toString(3.14)
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

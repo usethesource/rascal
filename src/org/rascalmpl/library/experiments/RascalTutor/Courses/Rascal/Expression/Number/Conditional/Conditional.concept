@@ -1,0 +1,32 @@
+Name:Conditional
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: ( BoolExp ) ? NumExp1 : NumExp2
+
+Description: If the value of $BoolExp$ is <tt>true</tt> then the value of $NumExp1$ else the value of $NumExp2$.
+
+Examples:
+<screen>
+(3 > 2) ? 10 : 20
+(3 > 20) ? 10 : 20
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type: (<A:int> > <B:int>) ? <C:int> : <D:int>
+
+Type: (<A:int> > <B:int>) ? <C:real> : <D:real>
+
+Type: (<A:int> > <B:int>) ? <C:int> : <D:real>
+
+Value: (<A:int> > <B:int>) ? <C:int> : <D:int>
+
+Value: (<A:int> > <B:int>) ? <C:int> : <D:real>
+

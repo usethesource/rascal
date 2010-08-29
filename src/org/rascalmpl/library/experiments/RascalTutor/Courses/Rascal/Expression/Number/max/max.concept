@@ -1,0 +1,52 @@
+Name:max
+
+Categories: Library
+
+Related:
+
+Synopsis: &T <: num max(&T <: num n, &T <: num m)
+
+Description: The largest of two numbers. The type of the result is the same as the type of the largest argument.
+
+Examples:
+<screen>
+import Number;
+max(12, 13);
+max(12, 13.5);
+max(12, 11.5);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+Type: max(<A:int>, <B:int>)
+prep: import Number;
+
+Type: max(<A:int>, <B:real>)
+prep: import Number;
+
+Value: max(<A:num>, <B:num>)
+prep:  import Number;
+
+Value:
+prep: import Number;
+make: A = num
+make: B = num[0,20]
+expr: C = <A> + <B>
+hint: <C>
+test: max(<A>, <?>) == <C>
+
+Value:
+prep: import Number;
+make: A = num
+hint: any value smaller than <A>
+test: max(<A>, <?>) == <A>
+
+
+
+
+
+
+

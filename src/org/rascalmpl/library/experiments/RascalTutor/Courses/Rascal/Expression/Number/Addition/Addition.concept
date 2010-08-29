@@ -1,0 +1,43 @@
+Name:Addition
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: NumExp1 + NumExp2
+
+Description: Yields the numerical sum of the values of $NumExp1$ and $NumExp2$.
+
+Examples:
+<screen>
+12 + 13
+12 + 13.5
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type: <A:int[0]> + <B:int[0]>
+desc: Adding integers. 
+
+Value: <A:int[0]> + <B:int[0]> 
+desc: Adding integers. 
+
+Type:<A:int[0]> + <B:real[0]>
+desc: Adding integers and reals.
+
+Value:<A:int[0]> + <B:real[0]> 
+Adding integers and reals.
+
+Value: <A:int> + (<B:int[-20,-1]>)
+desc:Use parentheses when addition and negative numbers interact.
+
+Value: 
+desc: Use parentheses when addition and negative numbers interact.
+make: A = int
+make: B = int[0,10]
+expr: C = <A> - <B>
+test: <A> + <?> == <C>

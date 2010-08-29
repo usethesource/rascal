@@ -1,0 +1,20 @@
+Name:Value
+
+Categories: Syntax Type
+
+Related:
+
+Synopsis: value
+
+Description:
+Value stands for all possible Rascal values and is represented by the type <tt>value</tt>.
+This type is a container for all other types and does not have any values itself.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

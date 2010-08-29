@@ -1,0 +1,27 @@
+Name:Negation
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: - NumExp
+
+Description: Yields the negated values of $NumExp$.
+
+Examples:
+<screen>
+-12
+-13.5
+- -12
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type:  -<A:int>
+Type:  -<A:real>
+Value: -<A:num>
+

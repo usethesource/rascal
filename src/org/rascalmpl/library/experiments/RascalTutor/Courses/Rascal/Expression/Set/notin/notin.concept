@@ -1,0 +1,22 @@
+Name:notin
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: Exp notin SetExp
+
+Description: Yields <tt>true</tt> if the value of $Exp$ does not occur as element in the value of $SetExp$ and <tt>false</tt> otherwise. The type of $Exp$ should be compatible with the element type of $SetExp$.
+
+Examples:
+<screen>
+4 notin {1, 2, 3};
+4 notin {1, 2, 3, 4};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

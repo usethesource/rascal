@@ -1,0 +1,32 @@
+Name:NotEqual
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: NumExp1 != NumExp2
+
+Description: Yields <tt>true</tt> if the value of both arguments is numerically unequal, and <tt>false</tt> otherwise.
+
+Examples:
+<screen>
+12 != 13
+12 != 12
+12 != 13.0
+12.0 != 13
+3.14 != 3
+3.14 != 3.14
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type:  <A:int> != <B:int>
+Type:  <A:real> != <B:real>
+Type:  <A:num> != <B:num>
+Type:  <A:num> != <B:num>
+Value: <A:num> != <B:num>
+

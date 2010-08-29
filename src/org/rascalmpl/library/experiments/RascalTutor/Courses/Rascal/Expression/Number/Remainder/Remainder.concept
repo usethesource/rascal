@@ -1,0 +1,30 @@
+Name:Remainder
+
+Categories: Syntax Operator
+
+Related:
+
+Synopsis: IntExp1 % IntExp2
+
+Description: Yields the remainder when dividing the of $IntExp1$ by the value of $IntExp2$.
+
+Examples:
+<screen>
+12 % 5
+12 % 6
+</screen>
+
+Benefits:
+
+Pittfalls: Remainder is only defined on integers:
+<screen>
+13.5 % 6
+</screen>
+
+Questions:
+
+Type:  <A:int> % <B:int>
+Type:  <A:int> % <B:real>
+Type:  <A:real> % <B:int>
+Value: <A:num> % <B:num>
+
