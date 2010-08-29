@@ -1,11 +1,22 @@
 $(document).ready(function(){
+  attachHandlers();
+});
+
+function attachHandlers(){
   $('#searchField').keyup(searchSuggest);
   $('.answerForm').submit(handleAnswer);
   $('.cheatForm').submit(handleCheat);
   $('.anotherForm').submit(handleAnother);
+  $('.categoryButton').click(categoryClick);
+  
   $('.answerStatus').hide();
   $('.answerFeedback').hide();
-});
+}
+
+function reload(data){
+  $('body').html(data);
+  attachHandlers();
+}
 
 // ------------ Handler for suggestions for searchBox -------------------
 
@@ -41,6 +52,24 @@ function makeChoice() {
    	$('#searchField').val($(this).text());
 	$('#popups').html("");
     $('#searchForm').submit();
+}
+
+// ------------ Handler for category selection
+
+function categoryClick(){
+  var formData="";
+  
+  $(".categoryButton").each(function(){
+    var button = $(this);
+    formData += (button.attr("name") + "=" + button.is(":checked") + "&");
+   });
+   
+  var cn = $('#categoryForm input[name=concept]').attr("value");
+  formData += "concept=" + cn;
+  $.get("category", formData,
+    function processCategorySelectionResult(data, textStatus){
+     reload(data);
+   });
 }
 
 // ------------ Handler for answers to exercises

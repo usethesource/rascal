@@ -13,16 +13,15 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.result.Result;
 
 @SuppressWarnings("serial")
-public class Search extends TutorHttpServlet {
+public class Category extends TutorHttpServlet {
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		System.err.println("Search, doGet: " + request.getRequestURI() + request.getQueryString());
-		String concept = escapeForRascal(getStringParameter(request, "concept"));
-		String term = escapeForRascal(getStringParameter(request,"term"));
+		System.err.println("Category, doGet: " + request.getRequestURI() + request.getQueryString());
+		String pmap = getParametersAsMap(request);
 		
 		PrintWriter out = response.getWriter();
-		Result<IValue> result = evaluator.eval("search(\"" + concept + "\",\"" + term + "\")", URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval("category(" + pmap + ")", URI.create("stdin:///"));
 
 		out.println(((IString) result.getValue()).getValue());
 		out.close();

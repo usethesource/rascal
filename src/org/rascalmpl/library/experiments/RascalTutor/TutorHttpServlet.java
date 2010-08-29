@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.RascalTutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -62,6 +63,28 @@ public class TutorHttpServlet extends HttpServlet {
 		  return (paramString == null) ? "" : paramString;
 	}
 	  
+	  public static String getParametersAsMap(HttpServletRequest request){
+		  Enumeration<String> pnames = request.getParameterNames();
+
+		  StringBuffer pmap = new StringBuffer().append("(");
+		  boolean first = true;
+		  while(pnames.hasMoreElements()){
+			  String pname = pnames.nextElement();
+			  String pvalue = escapeForRascal(request.getParameter(pname));
+			  pname = escapeForRascal(pname);
+			  if(first){
+				  first = false;
+			  } else {
+				  pmap.append(", ");
+			  }
+			  pmap.append("\"").append(pname).append("\"").append(" : ").
+			  append("\"").append(pvalue).append("\"");
+		  }
+		  pmap.append(")");
+		  System.err.println("pmap = " + pmap);
+		  return pmap.toString();
+	  }
+	  
 	  /** Escape characters that have special meaning in a Rascal string.
 	   *  Specifically, given a string, this method replaces all 
 	   *  occurrences of  
@@ -69,7 +92,7 @@ public class TutorHttpServlet extends HttpServlet {
 	   *  '<' with '\<', all occurrences of '>' with
 	   *  '\>', and (to handle cases that occur inside attribute
 	   *  values), all occurrences of double quotes with
-	   *  '\"'.
+	   *  '\"' and the escape character itself.
 	   *  Without such filtering, an arbitrary string
 	   *  could not safely be inserted in a Rascal expression.
 	   *  }
@@ -88,6 +111,8 @@ public class TutorHttpServlet extends HttpServlet {
 	        case '>': filtered.append("\\>"); break;
 	        case '"': filtered.append("\\\""); break;
 	        case '\'': filtered.append("\\'"); break;
+	        case '\\': filtered.append("\\\\"); break;
+	        
 	        default: filtered.append(c);
 	      }
 	    }
@@ -105,6 +130,7 @@ public class TutorHttpServlet extends HttpServlet {
 	          case '>': flag = true; break;
 	          case '"': flag = true; break;
 	          case '\'': flag = true; break;
+	          case '\\': flag = true; break;
 	        }
 	      }
 	    }

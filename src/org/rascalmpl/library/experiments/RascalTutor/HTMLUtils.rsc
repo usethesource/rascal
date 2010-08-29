@@ -96,7 +96,18 @@ public str escapeForRascal(str input){
       case /\>/ => "\\\>"
       case /"/  => "\\\""
       case /'/  => "\\\'"
+      case /\\/ => "\\\\"
     };
+}
+
+public str escapeForHtml(str txt){
+  return
+    visit(txt){
+      case /^\</ => "&lt;"
+      case /^\>/ => "&gt;"
+      case /^"/ => "&quot;"
+      case /^&/ => "&amp;"
+    }
 }
 
 

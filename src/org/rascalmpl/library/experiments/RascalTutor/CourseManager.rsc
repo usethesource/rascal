@@ -20,7 +20,7 @@ import Scripting;
 
 loc courseRoot = |file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
 
-public Course thisCourse = course("",|file://X/|,"",(),{},[],());
+public Course thisCourse = course("",|file://X/|,"",(),{},[],(),{});
 
 public ConceptName root = "";
 
@@ -35,6 +35,10 @@ public Graph[ConceptName] refinements = {};
 public list[str] baseConcepts = [];
 
 public map[str, ConceptName] related = ();
+
+public set[str] categories = {};
+
+set[str] enabledCategories = {};
 
 // Initialize CourseManager. 
 // ** Be aware that this function should be called at the beginning of each function that can be
@@ -59,6 +63,8 @@ private void reinitialize(Course c){
      refinements = c.refinements;
      baseConcepts = c.baseConcepts;
      related = c.related;
+     categories = c.categories;
+     enabledCategories = categories;
 }
 
 public set[QuestionName] goodAnswer = {};
@@ -87,28 +93,52 @@ public str prelude(){
 // Present a concept
 // *** called from servlet Show in RascalTutor
 
-public str showConcept(ConceptName id){
+public str showConcept(ConceptName cn){
  
   initialize();
-  C = concepts[id];
-  refs = sort(toList(refinements[id]));
+  try {
+    C = concepts[cn];
+    return showConcept(cn, C);
+   } catch: {
+     options = [ name | name <- conceptNames, endsWith(name, "/" + cn)];
+     if(size(options) == 0)
+        return html(head(title("Concept <cn> does not exist") + prelude()),
+                    body(h1("Concept <cn> does not exist, please correct source!")));
+     if(size(options) == 1)
+       return showConcept(options[0], concepts[options[0]]);
+     else {
+        return html(head(title("Ambiguous concept <cn>") + prelude()),
+                    body(h1("Concept <cn> is ambiguous, select one of:") +
+                         ul("<for(name <- options){> \<li\><showConceptPath(name)>\</li\>\n<}>")));
+     }
+  }
+}
+
+public str showConcept(ConceptName cn, Concept C){
+  filteredRefinements = {r | r <- refinements[cn], isEnabled(r)};
+  refs = sort(toList(filteredRefinements));
+  
+  filteredRelated = {r | r <- C.related, isEnabled(related[r])};
+  rels = sort(toList(filteredRelated));
   questions = C.questions;
   return html(
   	head(title(C.name) + prelude()),
   	body(
-  	  section("Name", showConceptPath(id)) +
-  	  searchBox() + 
+  	  categoryMenu(cn) +
+  	  section("Name", showConceptPath(cn)) +
+  	  searchBox(cn) + 
   	  ((isEmpty(refs)) ? "" : "<sectionHead("Details")> <for(ref <- refs){><showConceptURL(ref, basename(ref))> &#032 <}>") +
-  	  ((isEmpty(C.related)) ? "" : p("<b("Related")>: <for(rl <- C.related){><showConceptURL(related[rl], basename(rl))> &#032 <}>")) +
+  	  ((isEmpty(rels)) ? "" : p("<sectionHead("Related")>: <for(rl <- rels){><showConceptURL(related[rl], basename(rl))> &#032 <}>")) +
   	  section("Synopsis", C.synopsis) +
   	  section("Description", C.description) +
   	  section("Examples", C.examples) +
   	  section("Benefits", C.benefits) +
   	  section("Pittfalls", C.pittfalls) +
-  	  ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(id,quest)> <}>") +
-  	  editMenu(id)
+  	  ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(cn,quest)> <}>") +
+  	  editMenu(cn)
   	)
   );
+
 }
 
 public str section(str name, str txt){
@@ -130,14 +160,42 @@ public str showConceptPath(ConceptName cn){
   return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i), names[i])><}>";
 }
 
-public str searchBox(){
+public str searchBox(ConceptName cn){
   return "\n\<div id=\"searchBox\"\>
               \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\> 
               \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"images/magnify.png\"\>
+              \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\>
               \<input type=\"text\" id=\"searchField\" name=\"term\" autocomplete=\"off\"\>\<br /\>
               \<div id=\"popups\"\>\</div\>
               \</form\>
             \</div\>\n";
+}
+
+public str categoryMenu(ConceptName cn){
+  return "\n\<div id=\"categoryMenu\"\>
+  		\<form method=\"GET\" id=\"categoryForm\" action=\"/category\"\>
+  		View: 
+  		\<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\>
+  		<for(cat <- sort(toList(categories))){>\<input type=\"checkbox\" name=\"<cat>\" class=\"categoryButton\" <cat in enabledCategories ? "checked" : "">\><cat>\n<}>
+  		\</form\>
+  		\</div\>\n";
+}
+
+// Enable/disable a category
+// *** called from servlet Category in RascalTutor
+
+public str category(map[str,str] categories){
+  initialize();
+  println("category(<categories>)");
+  cn = categories["concept"];
+  enabledCategories = { cat | cat <- categories, cat != "concept", categories[cat] == "true"};
+  println("enabledCategories = <enabledCategories>");
+  return showConcept(cn);
+}
+
+private bool isEnabled(ConceptName cn){
+  cats = concepts[cn].categories;
+  return isEmpty(cats) || !isEmpty(cats & enabledCategories);
 }
 
 public str editMenu(ConceptName cn){
@@ -157,7 +215,7 @@ public str edit(ConceptName cn, bool newConcept){
     content = mkConceptTemplate(cn + "/");
   } else {
   	c = concepts[cn];
-  	content = readFile(c.file);  //TODO: IO exception (not writable, does not exist)
+  	content = escapeForHtml(readFile(c.file));  //TODO: IO exception (not writable, does not exist)
   }
   return html(head(title("Editing <cn>") + prelude()),
               body(
@@ -256,33 +314,54 @@ public bool contains(str subject, str key){
 }
 
 // Approximate a function declaration in a synopsis
-bool isFunction(str txt){
+public bool isFunction(str txt){
   if(/^<first:.*>\n/ := txt)  // consider only first line
     txt = first;
-  return /^\s*[A-Za-z0-9\[\]\&\ \<:,]+\(.*\)\s*(throws|.*$)/ := txt;
+  return /^\s*[A-Za-z0-9\[\]\&\ \<:,]+\s+[A-Za-z0-9]+\s*\(.*\)\s*(throws|.*$)/ := txt;
 }
 
 public list[str] doSearch(str term){
   if(size(term) == 0)
     return [];
   println("conceptNames=<conceptNames>");
-  return [showConceptPath(name) | 
-          name <- conceptNames, ( /^[A-Za-z0-9]+$/ := term 
-                                  && (startsWith(name, term) || endsWith(name, "/" + term) || /\/<term>\// := name)
-                                ) ||
-                                ( !isFunction(concepts[name].rawSynopsis) 
-                                  && contains(concepts[name].rawSynopsis, term)
-                                )
+  return [name | name <- conceptNames,
+          
+                ( /^[A-Za-z0-9]+$/ := term 
+                  && (startsWith(name, term) || endsWith(name, "/" + term) || /\/<term>\// := name)
+                ) ||
+                ( !isFunction(concepts[name].rawSynopsis) 
+                  && contains(concepts[name].rawSynopsis, term)
+                )
          ];
 }
 
-public str search(str term){
-  results = doSearch(term);
-  return html(body(title("Search results for <term>") + prelude()),
-             (size(results) == 0) ? ("I found no results found for <i(term)>" + searchBox())
-                              : ("I found the following results for <i(term)>:" + searchBox() +
-                                 ul("<for(res <- results){>\<li\><res>\</li\>\n<}>"))
-         );
+private str plural(int n){
+  return (n != 1) ? "s" : "";
+}
+
+public str search(ConceptName cn, str term){
+  allResults = doSearch(term);
+  enabledResults = [res | res <- allResults, isEnabled(res)];
+  otherResults = allResults - enabledResults;
+  output = br() + br();
+  
+  if(size(enabledResults) == 1)
+    return showConcept(allResults[0]);
+  
+  if(size(allResults) == 0)
+    output +=  h1("I found no results found for <i(term)>") + categoryMenu(cn) + searchBox(cn);
+  else {
+    N = size(enabledResults);
+    output += h1("I found <N> result<plural(N)> for <i(term)> in viewed categories:") + categoryMenu(cn) + searchBox(cn) +
+                                 ul("<for(res <- enabledResults){>\<li\><showConceptPath(res)>\</li\>\n<}>");
+    if(size(otherResults) != 0){
+      N = size(otherResults);
+      output += h1("I found <N> result<plural(N)> for <i(term)> in other categories:") +
+                                 ul("<for(res <- otherResults){>\<li\><showConceptPath(res)> \<small\>categories: <concepts[res].categories - enabledCategories>\</small\>\</li\>\n<}>");
+    }
+  }
+  
+  return html(head(title("Search results for <term>") + prelude()), body(output));
 }
 
 // Present a Question
@@ -315,6 +394,10 @@ private str cheatForm(ConceptName cpid, QuestionName qid, str expr){
 
 public str div(str id, str txt){
 	return "\n\<div id=\"<id>\"\>\n<txt>\n\</div\>\n";
+}
+
+public str div(str id, str class, str txt){
+	return "\n\<div id=\"<id>\" class=\"<class>\"\>\n<txt>\n\</div\>\n";
 }
 
 public str status(str id, str txt){
@@ -392,9 +475,9 @@ println("showQuestion: <cpid>, <q>");
       
       if(lstBefore != "" || lstAfter != ""){  // A listing is present in the question
          if(holeInLst)
-            qform +=  "Fill in " + "\<pre class=\"question\"\>" + lstBefore + qtextarea + lstAfter + "\</pre\>";
+            qform +=  "Fill in " + "\<pre class=\"prequestion\"\>" + lstBefore + qtextarea + lstAfter + "\</pre\>";
          else
-            qform += "Given " + "\<pre class=\"question\"\>" + lstBefore + "\</pre\>";
+            qform += "Given " + "\<pre class=\"prequestion\"\>" + lstBefore + "\</pre\>";
       }
       	        
       if(qkind == valueOfExpr()){ // A Value question
@@ -402,12 +485,12 @@ println("showQuestion: <cpid>, <q>");
       	    //    if (holeInLst) qform += "and make the following true:";
       	        
          if(holeInCnd)
-      	    qform += "\<pre class=\"question\"\>" + cndBefore + qtextarea + cndAfter +  "\</pre\>";
+      	    qform += "\<pre class=\"prequestion\"\>" + cndBefore + qtextarea + cndAfter +  "\</pre\>";
          else if(cndBefore + cndAfter != "")
             if(holeInLst)
-               qform += " and make the following true:" + "\<pre class=\"question\"\>" + cndBefore + "\</pre\>";
+               qform += " and make the following true:" + "\<pre class=\"prequestion\"\>" + cndBefore + "\</pre\>";
             else
-      	       qform += ((lstBefore != "") ? "Make the following true:" : "") + "\<pre class=\"question\"\>" + cndBefore + " == " + qtextarea + "\</pre\>"; 
+      	       qform += ((lstBefore != "") ? "Make the following true:" : "") + "\<pre class=\"prequestion\"\>" + cndBefore + " == " + qtextarea + "\</pre\>"; 
       } else {                     // A Type question
       	if(holeInCnd)
       	   qform +=  "The type of " + tt(cndBefore) + qtextarea + tt(cndAfter) + " is " + tt(toString(generateType(rtype, env)));
@@ -424,10 +507,11 @@ println("showQuestion: <cpid>, <q>");
   }
   answerForm = answerFormBegin(cpid, qid, "answerForm") + qform  + answerFormEnd("Give answer", "answerSubmit");
 
-  return div(qid, br() + b(basename("Question " + qid + ". ")) + status(qid + "good", good()) + status(qid + "bad", bad()) +
+  return div(qid, "question",
+                  b(basename("Question " + qid + ". ")) + status(qid + "good", good()) + status(qid + "bad", bad()) +
                   "\n\<span id=\"answerFeedback<qid>\" class=\"answerFeedback\"\>\</span\>\n" + 
                   qdescr +  answerForm + 
-                  anotherQuestionForm(cpid, qid) + cheatForm(cpid, qid, qexpr) +  br() +  hr());
+                  anotherQuestionForm(cpid, qid) + cheatForm(cpid, qid, qexpr) + br());
 }
 
 public void tstq(){
@@ -758,12 +842,4 @@ public str XMLResponses(map[str,str] values){
     return "\<responses\><for(field <- values){>\<response id=\"<field>\"\><escapeForHtml(values[field])>\</response\><}>\</responses\>";
 }
 
-public str escapeForHtml(str txt){
-  return
-    visit(txt){
-      case /^\</ => "&lt;"
-      case /^\>/ => "&gt;"
-      case /^"/ => "&quot;"
-      case /^&/ => "&amp;"
-    }
-}
+
