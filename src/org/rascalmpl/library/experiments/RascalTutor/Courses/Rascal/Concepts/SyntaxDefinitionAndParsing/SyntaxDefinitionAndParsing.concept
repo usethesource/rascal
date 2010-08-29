@@ -1,0 +1,71 @@
+Name:SyntaxDefinitionAndParsing
+
+Categories:
+
+Related:
+
+Synopsis:
+
+Description:
+
+All source code analysis projects need to extract information directly from the source code. 
+There are two main approaches to this:
+
+* ''Lexical information'': Use regular expressions to extract useful, but somewhat superficial, flat, information. 
+*: This can be achieved using regular expression patterns.
+* ''Structured information'': Use syntax analysis to extract the complete, nested, structure of the source code 
+*: in the form of a syntax tree.
+
+In Rascal, we reuse the Syntax Definition Formalism (SDF) and its tooling. 
+See [[http://www.meta-environment.org/Meta-Environment/Documentation]] for tutorials and manuals for SDF.
+
+SDF modules define grammars and these modules can be imported in a Rascal module. 
+These grammar rules can be applied in writing concrete patterns to match parts of parsed source code. 
+Here is an example of the same pattern we saw in [[Concepts/PatternMatching]], but now in concrete form:
+
+<listing>
+while &lt;Exp> do &lt;Stats> od
+</listing>
+Importing an SDF module has the following effects:
+
+* All non-terminals (sorts in SDF jargon) that are used in the imported grammar are implicitly 
+*: declared as Rascal types. For each SDF sort S also composite symbols like ~~S*~~, ~~{S ","}+~~ also become 
+*: available as type. This makes it possible to handle parse trees and parse tree fragments as fully typed 
+*: values and assign them to variables, store them in larger datastructures or pass them as arguments 
+*: to functions and use them in pattern matching.
+* For all ''start symbols'' of the grammar ''parse functions'' are implicitly declared that can parse source files 
+*: according to a specific start symbol.
+* Concrete syntax patterns for that specific grammar can be used.
+* Concrete syntax constructors can be used that allow the construction of new parse trees.
+
+Examples:
+
+The following example parses a Java compilation unit from a text file and counts the number of method declarations:
+
+<listing>
+module Count
+import languages::java::syntax::Java;
+import ParseTree;
+
+public int countMethods(loc file){
+  int n = 0;
+  for(/MethodDeclaration md <- parse(#CompilationUnit, file))
+      n += 1;
+  return n;
+}
+</listing>
+First observe that importing the Java grammar has as effect that non-terminals like ~~MethodDeclaration~~ and 
+~~CompilationUnit~~ become available as type in the Rascal program.
+
+The implicitly declared function ~~parse~~ takes a reified type (~~#CompilationUnit~~) and a location 
+as arguments and parses the contents of the location according to the given non-terminal. 
+Next, a match for embedded ~~MethodDeclaration~~s is done in the enumerator of the for statement. 
+
+Benefits:
+
+Pittfalls:
+This example ignores many potential error conditions but does illustrate some of Rascal's syntax and 
+parsing features.
+
+Questions:
+
