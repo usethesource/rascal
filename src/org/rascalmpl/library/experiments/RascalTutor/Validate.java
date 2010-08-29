@@ -33,23 +33,24 @@ public class Validate extends TutorHttpServlet {
 		String D = getOptionalStringParameter(request, "D");
 		String E = getOptionalStringParameter(request, "E");
 		*/
-		Enumeration<String> pnames = request.getParameterNames();
-
-		
-		StringBuffer pmap = new StringBuffer().append("(");
-		boolean first = true;
-		while(pnames.hasMoreElements()){
-			String pname = pnames.nextElement();
-			if(first){
-				first = false;
-			} else {
-				pmap.append(", ");
-			}
-			pmap.append("\"").append(pname).append("\"").append(" : ").
-			     append("\"").append(escapeForRascal(request.getParameter(pname))).append("\"");
-		}
-		pmap.append(")");
-		System.err.println("pmap = " + pmap);
+//		Enumeration<String> pnames = request.getParameterNames();
+//
+//		
+//		StringBuffer pmap = new StringBuffer().append("(");
+//		boolean first = true;
+//		while(pnames.hasMoreElements()){
+//			String pname = pnames.nextElement();
+//			if(first){
+//				first = false;
+//			} else {
+//				pmap.append(", ");
+//			}
+//			pmap.append("\"").append(pname).append("\"").append(" : ").
+//			     append("\"").append(escapeForRascal(request.getParameter(pname))).append("\"");
+//		}
+//		pmap.append(")");
+//		System.err.println("pmap = " + pmap);
+		String pmap = getParametersAsMap(request);
 		//response.setContentType("text/plain; UTF-8");
 		response.setContentType("text/xml");
 		//response.setContentType("application/json");

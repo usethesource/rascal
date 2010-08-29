@@ -8,8 +8,6 @@ import IO;
 import List;
 import Scripting;
 
-private str NC1 = "&#x2776";  // Negative circled 1
-
 private list[str] listNesting = [];
 
 private void pushList(str listType){
@@ -54,15 +52,24 @@ private str closeLists(){
 
 public void tst2(){
 println(markup([
+"xxxxx\<tt\>\<if(\'\'Exp\'\'){\> ... \'\'Text\'\' ... \<}\>\</tt\>",
 "Other examples of sets are:",
 "",
+"* \<tt\>\<if(\'\'Exp\'\'){\> ... \'\'Text\'\' ... \<}\>\</tt\>",
 "* \<tt\> {1, 2, 3}\</tt\> // A set of integers",
 "* \<tt\> {} \</tt\>       // The empty set",
 "* \<tt\> {\"abc\"}\</tt\>   // A set containing a single string"
 ]));
 }
 
-public str markup(list[str] lines){
+private str conceptPath = "";
+
+private str markup(list[str] lines){
+  return markup(lines, conceptPath);
+}
+
+public str markup(list[str] lines, str cp){
+  conceptPath = cp;
   n = size(lines);
   int i = 0;
   str res = "";
@@ -75,19 +82,25 @@ public str markup(list[str] lines){
     case /^----/: { res += hr(); i += 1; }
     
     // Unordered lists
-    case /^<stars:[\*]+><entry:.*>/: {res += listEntry("ul", size(stars), entry); i += 1; }
+    case /^<stars:[\*]+><entry:.*>/: {
+       i += 1;
+       while(i < n && /^\*\:<more:.*>/ := lines[i]){
+         entry += " " + more;
+         i += 1;
+       }
+       res += listEntry("ul", size(stars), entry); 
+    }
   		
     // Ordered lists
-    case /^<hashes:[\#]+><entry:.*>/: { res += listEntry("ol", size(hashes), entry); i += 1; }
-    
-    case /^:\*<entry:.*>/: {
-      if(size(listNesting) > 0){
-        res += "\</<popList()>\>" + li(markupRestLine(entry));
-      } else
-           res + markupRestLine(entry);
-      i += 1;
+    case /^<hashes:[\#]+><entry:.*>/: { 
+       i += 1;
+       while(i < n && /^\#\:<more:.*>/ := lines[i]){
+         entry += " " + more;
+         i += 1;
+       }
+      res += listEntry("ol", size(hashes), entry); 
     }
-    
+   
     case /^\<screen\>\s*<code:.*>$/: {
       res += closeLists();
       i += 1;
@@ -122,9 +135,18 @@ public str markup(list[str] lines){
       res += markupListing(code);
       i += 1;
       }
+    case /^$/: {
+      res += closeLists();
+      i += 1;
+      if(i < n && size(lines[i]) == 0){
+        i += 1;
+        res += br() + br();
+      } else
+        res += "\n";
+    }
       
     default: {
-      res += closeLists() + markupRestLine(lines[i]);
+      res += closeLists() + markupRestLine(lines[i]) + "\n";
       i += 1;
     }
   }
@@ -146,13 +168,36 @@ public str markupRestLine(str line){
     
     case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"images/<dig>.png\"\>"
     
-    case /^@@<code:[^\@]*>@@/ => closeLists() + tt(toString(eval(code)))
+    case /^~~<code:[^\~]*>~~/ => tt(markupRestLine(code))
     
     case /^\$<var:[A-Z][A-Za-z]*><subscript:[0-9]>?\$/ =>
                                 i(var) + ((subscript == "") ? "" : sub(subscript))
+                                
+    case /^\[\[\[<file:[A-Za-z0-9\-\_]+\.png><opts:[^\]]*>\]\]\]/ => "\<img <getImgOpts(opts)> src=\"<conceptPath>/<file>\"\>"
     
-    case /^\[<url:[^\]]>\]\]/ => link(url)
-  } + "\n";
+    case /^\[\[http:<url:[^\]]+>\]\]/ => link("http:" + url)
+    
+    case /^\[\[<concept:[^\]]+>\]\]/  => show(concept)
+    
+   };
+}
+
+public str show(str cn){
+  return "\<a href=\"/show?concept=<cn>\"\><cn>\</a\>";
+}
+
+public str link(str url){
+  return "\<a href=\"<url>\"\><url>\</a\>";
+}
+
+public str getImgOpts(str txt){
+  opts = "";
+  visit(txt){
+    case /^\s*\|\s*left/: {opts += "align=\"left\" "; }
+    case /^\s*\|\s*right/: {opts += "align=\"right\" "; }
+    case /^\s*\|\s*<N:[0-9]+>\s*px/: {opts += "width=\"<N>px\" height=\"<N>px\" "; }
+  }
+  return opts;
 }
 
 //test markupRestLine("The value of 2 + 3 is @@2 + 3@@") == "The value of 2 + 3 is \<tt\>5\</tt\>";
@@ -212,7 +257,7 @@ public str markupScreen(list[str] lines){
            code += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
          }
          if(i <upbi) {
-         	code += b(prompt) + lines[i] + "\n";
+         	code += b(prompt) + escapeForHtml(lines[i]) + "\n";
          	i += 1; j += 1;
          }
          while(j < upbj && !startsWith(result_lines[j], prompt)){

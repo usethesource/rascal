@@ -18,10 +18,11 @@ public class Search extends TutorHttpServlet {
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		System.err.println("Search, doGet: " + request.getRequestURI() + request.getQueryString());
+		String concept = escapeForRascal(getStringParameter(request, "concept"));
 		String term = escapeForRascal(getStringParameter(request,"term"));
 		
 		PrintWriter out = response.getWriter();
-		Result<IValue> result = evaluator.eval("search(\"" + term + "\")", URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval("search(\"" + concept + "\",\"" + term + "\")", URI.create("stdin:///"));
 
 		out.println(((IString) result.getValue()).getValue());
 		out.close();

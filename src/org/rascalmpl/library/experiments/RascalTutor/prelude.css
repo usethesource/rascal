@@ -36,7 +36,10 @@ th, td {
     font-size: 14pt;
 }
 
-#Name{ padding: 5px 0px; }
+#Name { padding: 5px 0px;
+    margin-top: 40px;
+    position: relative;
+}
 #Synopsis{ padding: 5px 0px; }
 #Description { padding: 5px 0px; }
 #Examples{ padding: 5px 0px; }
@@ -44,11 +47,24 @@ th, td {
 #PittFalls{ padding: 5px 0px; }
 #Questions{ padding: 5px 0px; }
 
+.question {
+    border: 1px dotted #000;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 10px;
+    padding-bottom:10px;
+    position: relative;
+}
+
+/* Search box */
+
 #searchBox {
-    top:  0;
+    top:  5px;
     right: 0;
     float: right;
-    margin-top: 8px;
+    margin-top: 6px;
     margin-right: 20px;
     position: absolute;
 }
@@ -82,6 +98,17 @@ th, td {
 	background-color: Pink;
 }
 
+#categoryMenu {
+    top:  10px;
+    left: 5px;
+    float: left;
+    margin-top: 8px;
+    margin-right: 20px;
+    position: absolute;
+    
+    font-size: 60%;
+}
+
 #editMenu {
     padding: 10px 0px;
     font-size: 15px;
@@ -102,11 +129,11 @@ th, td {
 
 .answerText {
     font-size: 12pt;
-    height: 12pt;
+    height: 11pt;
     width: 200pt;
     padding-bottom: 1px;
     position: relative;
-    bottom : -2px;
+    bottom : -5px;
 }
 
 .answerStatus {
@@ -131,7 +158,7 @@ textarea {
 
 .answerSubmit {
   float: left;
-  margin-left: 0em;
+  margin-left: 1em;
   margin-top: 16px;
 
 }
@@ -141,6 +168,7 @@ textarea {
     color: black;
     float: right;
     margin-right: 10px;
+    margin-top: 10px;
 }
 
 .answerFeedback{
@@ -191,10 +219,9 @@ pre.listing
         background-color: MintCream;
 }
 
-pre.question
+pre.prequestion
 {
         background-color: lightgrey;
-        padding-bottom: 4px;
 }
 
 IMPORTANT

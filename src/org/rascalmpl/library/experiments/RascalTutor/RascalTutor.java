@@ -39,6 +39,7 @@ public class RascalTutor {
 		        context.addServlet(Validate.class, "/validate");
 		        context.addServlet(Eval.class, "/eval");
 		        context.addServlet(Search.class, "/search");
+		        context.addServlet(Category.class, "/category");
 		        context.addServlet(Edit.class, "/edit");
 		        context.addServlet(Save.class, "/save");
 

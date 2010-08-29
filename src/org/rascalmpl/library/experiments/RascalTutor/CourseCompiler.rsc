@@ -13,7 +13,7 @@ import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 
 public str mkConceptTemplate(ConceptName cn){
-return "Name: <cn>\n\nRelated:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
+return "Name: <cn>\n\nCategories:\n\nRelated:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
 }
 
 public void tst(){
@@ -22,7 +22,13 @@ public void tst(){
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
 // Questions is the last section and is treated special: it contains questions that are analyzed later
 
-public str sectionKeyword = "(?:Name|Related|Synopsis|Description|Examples|Benefits|Pittfalls|Questions)";
+public str sectionKeyword = "(?:Name|Categories|Related|Synopsis|Description|Examples|Benefits|Pittfalls|Questions)";
+
+private str conceptPath = "";
+
+private str markup1(list[str] lines){
+  return markup(lines, conceptPath);
+}
 
 public list[str] getSection(str section, list[str] script){
   n = size(script);
@@ -31,16 +37,30 @@ public list[str] getSection(str section, list[str] script){
   for(int i <- [0 .. n-1]){
      if(insection){
         if(/^<sectionKeyword>:/ := script[i])
-           return res;
+           return trim(res);
         res += script[i];
-     } else if(/^<section>:<text:.*>/ := script[i]){
+     } else if(/^<section>:\s*<text:.*>/ := script[i]){
      	insection = true;
-     	res += text;
+     	if(size(text) > 0)
+     		res += text;
      }
   }
   if(insection)
-    return res;
+    return trim(res);
   throw "Section <section> not found";
+}
+
+list[str] trim(list[str] script){
+  if(all(line <- script, /^\s*$/ := line))
+    return [];
+  return script;
+}
+
+public list[str] getOptionalSection(str section, list[str] script){
+   try {
+     return getSection(section, script);
+   } catch:
+     return [];
 }
 
 public str combine(list[str] lines){
@@ -68,29 +88,39 @@ public Concept parseConcept(loc file, str coursePath){
 public Concept parseConcept(loc file, list[str] script, str coursePath){
 
    println("parseConcept: script = ***<script>***");
+
    name 		= trim(combine(getSection("Name", script)));
+   fullName = getFullConceptName(file.path, coursePath);
+         
+   if(name != basename(fullName))
+      throw "Got concept name \"<name>\", but \"<basename(fullName)>\" is required";
+      
+   conceptPath = "Courses/" + fullName;
+   
+   categories  = getCategories(getOptionalSection("Categories", script));
    related 		= getPath(combine(getSection("Related", script)));
    synopsisSection = getSection("Synopsis", script);
    rawSynopsis  = combine(synopsisSection);
    searchTerms =  searchTermsSynopsis(synopsisSection);
    synopsis 	= markupSynopsis(synopsisSection);
-   description	= markup(getSection("Description", script));
-   examples 	= markup(getSection("Examples", script));
-   benefits 	= markup(getSection("Benefits", script));
-   pittfalls 	= markup(getSection("Pittfalls", script));
+   description	= markup1(getSection("Description", script));
+   examples 	= markup1(getSection("Examples", script));
+   benefits 	= markup1(getSection("Benefits", script));
+   pittfalls 	= markup1(getSection("Pittfalls", script));
    questions 	= getAllQuestions(name, getSection("Questions", script));
    
-   fullName = getFullConceptName(file.path, coursePath);
-         
-   if(name != basename(fullName))
-      throw "Got concept name \"<name>\", but \"<basename(fullName)>\" is required";
-   
-   return concept(name, file, related, synopsis, rawSynopsis, searchTerms, description, examples, benefits, pittfalls, questions);
+   return concept(name, file, categories, related, synopsis, rawSynopsis, searchTerms, description, examples, benefits, pittfalls, questions);
 }
 
 // Extract the path named from a Related section
 public list[str] getPath(str related){
    return [ path | /<path:[A-Za-z\-\_\/]+>/ := related];
+}
+
+// Extract categories
+
+public set[str] getCategories(list[str] lines){
+   return { cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line };
 }
 
 // Extract specific question type from Questions section
@@ -123,7 +153,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           }
           if(size(answers) == 0)
           	throw "TextQuestion with no or malformed answers";
-          questions += textQuestion("<nquestions>", markup([question]), answers);
+          questions += textQuestion("<nquestions>", markup1([question]), answers);
           nquestions += 1;
        }
        case /^Choice:<question:.*>$/: {
@@ -141,7 +171,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           	throw "ChoiceQuestion with insufficient or malformed answers";
           	
           choices = [good(g) | g <- good_answers] + [bad(b) | b <- bad_answers];
-          questions += choiceQuestion("<nquestions>", markup([question]), choices);
+          questions += choiceQuestion("<nquestions>", markup1([question]), choices);
           nquestions += 1;
        }
  
@@ -331,7 +361,7 @@ Type    +      +         +      0   ERROR
           vars = autoDeclare(cndBefore + cndAfter);
         } catch: throw "Question <name>: illegal type in test";
 
-     return <i, tvQuestion(name, kind, details(markup([desc]), setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
+     return <i, tvQuestion(name, kind, details(markup1([desc]), setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
 }
 
 // Compute the refinements induced by the path
@@ -373,11 +403,13 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     // Global sanity checks on concept dependencies
     Graph[ConceptName] fullRefinements = {};
     Graph[ConceptName] baseRefinements = {};
+    set[str] categories = {};
     
     for(cn <- conceptMap){
        // println("cn = <cn>");
        baseRefinements += getBaseRefinements(basenames(cn));
        fullRefinements += getFullRefinements(basenames(cn));
+       categories += conceptMap[cn].categories;
     }
     
     generalizations = invert(baseRefinements);
@@ -430,7 +462,7 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     println("fullRelated = <fullRelated>");
     println("searchTerms= <searchTerms>");
     println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTerms))>");
-    return course(title, courseDir, rootConcept, conceptMap, fullRefinements, sort(toList(allBaseConcepts + searchTerms)), fullRelated);
+    return course(title, courseDir, rootConcept, conceptMap, fullRefinements, sort(toList(allBaseConcepts + searchTerms)), fullRelated, categories);
 }
 
 public loc courseRoot = |file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;

@@ -15,7 +15,6 @@ Our trees can have red and black nodes and we want to perform the following oper
 * Extend the tree data type with green nodes.
 * Replace all red nodes by green ones.
 
-
 Examples:
 The definition of ColoredTrees is as follows:
 <listing org/rascalmpl/library/demo/ColoredTrees.rsc>
@@ -49,7 +48,7 @@ the constructor and recursion is used to visit substructures. This style becomes
 for data types with large numbers of constructors such as, for instance, abstract syntax trees for real
 programming languages.
 
-Pittfalls: The visit statement is based on new paradigm one has to learn.
+Pittfalls: The visit statement is based on a new paradigm one has to learn.
 
 Questions:
 

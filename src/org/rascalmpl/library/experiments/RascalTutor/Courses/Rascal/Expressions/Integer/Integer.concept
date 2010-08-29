@@ -1,10 +1,12 @@
 Name:Integer
 
-Categories: Syntax Type
+Categories: Language
 
 Related:
 
-Synopsis: int
+Synopsis:
+Type: <tt>int</tt>
+Values: sequence of digits of arbitrary length.
 
 Description:
 The integer values are represented by the type <tt>int</tt> and are written as usual. They can be arbitrarily large.

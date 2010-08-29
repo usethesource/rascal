@@ -22,12 +22,14 @@ data Course =
 			rel[ConceptName,ConceptName] refinements, // Tree structure of concept refinements
 			list[str]  baseConcepts,                  // List of baseConcepts (e.g. names that occur on path of
 			                                          // of some ConceptName)
-			map[str,ConceptName] related              // Mapping abbreviated concept names to full ConceptNames
+			map[str,ConceptName] related,             // Mapping abbreviated concept names to full ConceptNames
+            set[str] categories                       // Categories used in all concepts
      );
 
 data Concept = 
 	 concept(ConceptName name,                     	// Name of the concept
 			loc file,                             	// Its source file
+			set[str] categories,                    // Categories it belongs to
 			list[ConceptName] related,            	// List of related concepts (abbreviated ConeptNames)
 			str synopsis,                         	// Text of the various sections
 			str rawSynopsis,                        // Synopsis without markup (used for search)

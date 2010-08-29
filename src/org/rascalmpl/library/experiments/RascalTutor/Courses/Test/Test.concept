@@ -1,5 +1,7 @@
 Name: Test
 
+Categories: Cat1 Cat2
+
 Related:
 
 Synopsis: a + b
@@ -14,7 +16,7 @@ Pittfalls:
 
 Questions:
 
-XXXType: <A:int> + <B:int>
+Type: <A:int> + <B:int>
 
 XXXValue: <A:int> + <B:int>
 

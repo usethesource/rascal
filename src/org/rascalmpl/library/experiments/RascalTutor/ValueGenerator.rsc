@@ -24,7 +24,7 @@ private list[RascalType] reducedBaseTypes = [\bool(), \int(minInt,maxInt), \real
 
 
 public RascalType parseType(str txt){
-   println("parseType: <txt>");
+   //("parseType: <txt>");
    switch(txt){
      case /^bool$/:		return \bool();
      case /^int$/: 		return \int(minInt, maxInt);
@@ -172,7 +172,7 @@ public RascalType generateType(RascalType t){
 }
 
 public RascalType generateType(RascalType t, VarEnv env){
-     println("generateType(<t>, <env>)");
+     //println("generateType(<t>, <env>)");
      switch(t){
        case \list(et): 		return \list(generateType(et, env));
        case \set(et):		return \set(generateType(et, env));
@@ -192,7 +192,7 @@ public RascalType generateType(RascalType t, VarEnv env){
 // ---- Variables used in a RascalType
 
 public set[str] uses(RascalType t){
-     println("uses(<t>)");
+     //println("uses(<t>)");
      set[str] u = {};
      visit(t){
        case \same(str name): u += name;
@@ -451,30 +451,20 @@ public list[tuple[str,RascalType]] autoDeclare(str expr){
 // ---- Substitute given value assignment in a text
 
 public str subst(str txt, VarEnv env){
-  println("subst(<txt>,<env>)");
+  //println("subst(<txt>,<env>)");
   return visit(txt){
-     case /^\<<name:[A-Z]>\>/: {
-        println("name = <name>");
-        v = env[name].rval;
-        insert v;
-      }
-      case /^\<<name:[A-Z]>:<tp:[A-Za-z0-9\-,\[\]]+>\>/: {
-        println("name = <name>");
-        v = env[name].rval;
-        insert v;
-      }
-      case /^\<@<name:[A-Z]>\>/: {
-        println("name = <name>");
-        v = toString(env[name].rtype);
-        insert v;
-      }
+     case /^\<<name:[A-Z]>\>/ => env[name].rval
+      
+      case /^\<<name:[A-Z]>:<tp:[A-Za-z0-9\-,\[\]]+>\>/ => env[name].rval
+      
+      case /^\<@<name:[A-Z]>\>/ => toString(env[name].rtype)
   };
 }
 
 // ---- Used variables in a text
 
 public set[str] uses(str txt){
-  println("uses(<txt>)");
+  //println("uses(<txt>)");
   set[str] u = {};
   visit(txt){
      case /^\<@?<name:[A-Z]>\>/: {
