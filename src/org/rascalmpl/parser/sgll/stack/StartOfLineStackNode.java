@@ -5,9 +5,12 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.StartOfLineNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
-public class StartOfLineStackNode extends AbstractStackNode implements IMatchableStackNode{
+public class StartOfLineStackNode extends AbstractStackNode implements IMatchableStackNode, ILocatableStackNode{
 	private final static StartOfLineNode result = new StartOfLineNode();
+	
+	private PositionStore positionStore;
 	
 	private boolean isReduced;
 	
@@ -23,23 +26,27 @@ public class StartOfLineStackNode extends AbstractStackNode implements IMatchabl
 		super(original, prefixes);
 	}
 	
-	public int getLevelId(){
-		throw new UnsupportedOperationException();
-	}
-	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	
+	public void setPositionStore(PositionStore positionStore){
+		this.positionStore = positionStore;
+	}
+	
 	public boolean match(char[] input){
-		isReduced = true;
-		// Preceded by 'start of file' || UNIX / Windows (\n and \r\n) || pre-MacOS9 (\r)
-		return (startLocation == 0) || (input[startLocation - 1] == '\n') || (input[startLocation - 1] == '\r');
+		if(positionStore.startsLine(startLocation)){
+			isReduced = true;
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean matchWithoutResult(char[] input, int location){
-		// Preceded by 'start of file' || UNIX / Windows (\n and \r\n) || pre-MacOS9 (\r)
-		return (location == 0) || (input[location - 1] == '\n') || (input[location - 1] == '\r');
+		if(positionStore.startsLine(location)){
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean isClean(){

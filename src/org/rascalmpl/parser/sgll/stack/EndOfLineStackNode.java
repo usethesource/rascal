@@ -5,9 +5,12 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.EndOfLineNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
-public class EndOfLineStackNode extends AbstractStackNode implements IMatchableStackNode{
+public class EndOfLineStackNode extends AbstractStackNode implements IMatchableStackNode, ILocatableStackNode{
 	private final static EndOfLineNode result = new EndOfLineNode();
+	
+	private PositionStore positionStore;
 	
 	private boolean isReduced;
 	
@@ -23,23 +26,27 @@ public class EndOfLineStackNode extends AbstractStackNode implements IMatchableS
 		super(original, prefixes);
 	}
 	
-	public int getLevelId(){
-		throw new UnsupportedOperationException();
-	}
-	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	
+	public void setPositionStore(PositionStore positionStore){
+		this.positionStore = positionStore;
+	}
+	
 	public boolean match(char[] input){
-		isReduced = true;
-		// Follow by 'end of file' || Windows or pre-MacOS9 (\r\n, \r) || UNIX (\n)
-		return (startLocation == input.length) || (input[startLocation] == '\r') || (input[startLocation] == '\n');
+		if(positionStore.endsLine(startLocation)){
+			isReduced = true;
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean matchWithoutResult(char[] input, int location){
-		// Follow by 'end of file' || Windows or pre-MacOS9 (\r\n, \r) || UNIX (\n)
-		return (location == input.length) || (input[location + 1] == '\r') || (input[location + 1] == '\n');
+		if(positionStore.endsLine(location)){
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean isClean(){

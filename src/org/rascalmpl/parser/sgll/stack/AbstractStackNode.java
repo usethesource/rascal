@@ -6,6 +6,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public abstract class AbstractStackNode{
 	public final static int START_SYMBOL_ID = -1;
@@ -94,12 +95,12 @@ public abstract class AbstractStackNode{
 		return isEndNode;
 	}
 	
-	public final boolean isReducable(){
+	public final boolean isMatchable(){
 		return (this instanceof IMatchableStackNode);
 	}
 	
-	public final boolean isEpsilon(){
-		return (this instanceof EpsilonStackNode);
+	public final boolean isLocatable(){
+		return (this instanceof ILocatableStackNode);
 	}
 	
 	public final boolean isList(){
@@ -107,6 +108,8 @@ public abstract class AbstractStackNode{
 	}
 	
 	public abstract String getName();
+	
+	public abstract void setPositionStore(PositionStore positionStore);
 	
 	public abstract boolean match(char[] input);
 	

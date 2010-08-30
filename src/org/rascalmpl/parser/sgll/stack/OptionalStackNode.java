@@ -5,6 +5,7 @@ import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -54,15 +55,11 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		optional = original.optional;
 	}
 	
-	public int getLevelId(){
-		throw new UnsupportedOperationException();
-	}
-	
 	public String getName(){
 		return name;
 	}
 	
-	public int getLength(){
+	public void setPositionStore(PositionStore positionStore){
 		throw new UnsupportedOperationException();
 	}
 	
@@ -88,6 +85,10 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	
 	public ContainerNode getResultStore(){
 		return result;
+	}
+	
+	public int getLength(){
+		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractStackNode[] getChildren(){

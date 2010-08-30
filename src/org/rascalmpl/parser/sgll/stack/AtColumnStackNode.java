@@ -5,11 +5,14 @@ import org.rascalmpl.parser.sgll.result.AtColumnNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
-public class AtColumnStackNode extends AbstractStackNode implements IMatchableStackNode{
+public class AtColumnStackNode extends AbstractStackNode implements IMatchableStackNode, ILocatableStackNode{
 	private final AtColumnNode result;
 	
-	private final int atColumn;
+	private final int column;
+	
+	private PositionStore positionStore;
 	
 	private boolean isReduced;
 	
@@ -17,39 +20,44 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 		super(id);
 		
 		this.result = new AtColumnNode(column);
-		this.atColumn = column;
+		this.column = column;
 	}
 	
 	private AtColumnStackNode(AtColumnStackNode original){
 		super(original);
 		
-		atColumn = original.atColumn;
+		column = original.column;
 		result = original.result;
 	}
 	
 	private AtColumnStackNode(AtColumnStackNode original, ArrayList<Link>[] prefixes){
 		super(original, prefixes);
 		
-		atColumn = original.atColumn;
+		column = original.column;
 		result = original.result;
-	}
-	
-	public int getLevelId(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	
-	// TODO Fix this to use columns instead of locations.
+	public void setPositionStore(PositionStore positionStore){
+		this.positionStore = positionStore;
+	}
+	
 	public boolean match(char[] input){
-		isReduced = true;
-		return (atColumn == startLocation);
+		if(positionStore.isAtColumn(startLocation, column)){
+			isReduced = true;
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean matchWithoutResult(char[] input, int location){
-		return (atColumn == location);
+		if(positionStore.isAtColumn(location, column)){
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean isClean(){
