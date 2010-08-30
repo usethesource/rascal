@@ -4,6 +4,7 @@ import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public final class NonTerminalStackNode extends AbstractStackNode{
 	private final String expectIdentifier;
@@ -36,6 +37,10 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 	
 	public String getName(){
 		return expectIdentifier;
+	}
+	
+	public void setPositionStore(PositionStore positionStore){
+		throw new UnsupportedOperationException();
 	}
 	
 	public boolean match(char[] input){

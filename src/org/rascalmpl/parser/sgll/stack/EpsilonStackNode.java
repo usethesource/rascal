@@ -5,6 +5,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.EpsilonNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public final class EpsilonStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final static EpsilonNode result = new EpsilonNode();
@@ -23,11 +24,11 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		super(original, prefixes);
 	}
 	
-	public int getLevelId(){
+	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	
-	public String getName(){
+	public void setPositionStore(PositionStore positionStore){
 		throw new UnsupportedOperationException();
 	}
 	

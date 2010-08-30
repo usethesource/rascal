@@ -6,6 +6,7 @@ import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final IConstructor production;
@@ -60,11 +61,11 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		ciLiteral = original.ciLiteral;
 	}
 	
-	public int getLevelId(){
+	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	
-	public String getName(){
+	public void setPositionStore(PositionStore positionStore){
 		throw new UnsupportedOperationException();
 	}
 	

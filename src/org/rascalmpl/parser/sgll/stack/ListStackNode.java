@@ -5,6 +5,7 @@ import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -59,12 +60,12 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		isPlusList = original.isPlusList;
 	}
 	
-	public int getLevelId(){
-		throw new UnsupportedOperationException();
-	}
-	
 	public String getName(){
 		return name;
+	}
+	
+	public void setPositionStore(PositionStore positionStore){
+		throw new UnsupportedOperationException();
 	}
 	
 	public boolean match(char[] input){

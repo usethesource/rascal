@@ -33,13 +33,15 @@ public class PositionStore{
 			if(character == CARRIAGE_RETURN_CHAR){
 				encounteredCarriageReturn = true;
 			}else if(character == END_LINE_CHAR){
-				add(i);
+				add(i + 1);
 				encounteredCarriageReturn = false;
 			}else if(encounteredCarriageReturn){
-				add(i - 1);
+				add(i);
 				encounteredCarriageReturn = false;
 			}
 		}
+		
+		add(input.length); // EOF marker.
 	}
 	
 	private void add(int offset){
@@ -54,17 +56,21 @@ public class PositionStore{
 		cursor = 0;
 	}
 	
+	public void setCursorTo(int index){
+		cursor = index;
+	}
+	
 	public int findLine(int offset){
 		int line = cursor;
 		
-		if(offsets[line] < offset){
+		if(offsets[line] <= offset){
 			++line;
-			while(line < size && offsets[line] < offset){
+			while(line < size && offsets[line] <= offset){
 				++line;
 			}
 			cursor = line - 1;
 		}else{
-			while(line >= 0 && offsets[line] >= offset){
+			while(line > 0 && offsets[line] > offset){
 				--line;
 			}
 			cursor = line;
@@ -75,6 +81,18 @@ public class PositionStore{
 	
 	public int getColumn(int offset, int line){
 		return (offset - offsets[line]);
+	}
+	
+	public boolean startsLine(int offset){
+		return (isAtColumn(offset, 0));
+	}
+	
+	public boolean endsLine(int offset){
+		return (isAtColumn(offset, 0));
+	}
+	
+	public boolean isAtColumn(int offset, int column){
+		return (offset - offsets[findLine(offset)]) == column;
 	}
 	
 	public void clear(){

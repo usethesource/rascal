@@ -171,7 +171,7 @@ public abstract class SGLL implements IGLL{
 			next.setStartLocation(location);
 			next.updateNode(node);
 			
-			if(!next.isReducable()){ // Is non-terminal or list.
+			if(!next.isMatchable()){ // Is non-terminal or list.
 				ContainerNode resultStore = resultStoreCache.get(next.getName(), location);
 				if(resultStore != null){ // Is nullable, add the known results.
 					next.setResultStore(resultStore);
@@ -300,7 +300,7 @@ public abstract class SGLL implements IGLL{
 		if(node.isEndNode()){
 			if(!node.isReject()){
 				updateEdges(node);
-			}else if(node.isReducable() || !node.getResultStore().isRejected()){
+			}else if(node.isMatchable() || !node.getResultStore().isRejected()){
 				updateRejects(node);
 			}
 		}
@@ -321,6 +321,8 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void reduceTerminal(AbstractStackNode terminal){
+		if(terminal.isLocatable()) terminal.setPositionStore(positionStore); // Ugly, but necessary.
+		
 		if(!terminal.match(input)) return;
 		
 		// Filtering
@@ -419,7 +421,7 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void expandStack(AbstractStackNode stack){
-		if(stack.isReducable()){
+		if(stack.isMatchable()){
 			if((location + stack.getLength()) <= input.length) todoList.add(stack);
 			return;
 		}
