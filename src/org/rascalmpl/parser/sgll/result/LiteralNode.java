@@ -58,12 +58,15 @@ public class LiteralNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, LocationContainer locationContainer){
 		int numberOfCharacters = content.length;
+		
 		IListWriter listWriter = vf.listWriter(Factory.Tree);
 		for(int i = 0; i < numberOfCharacters; ++i){
 			listWriter.append(vf.constructor(Factory.Tree_Char, vf.integer(CharNode.getNumericCharValue(content[i]))));
 		}
+		
+		locationContainer.offset += numberOfCharacters;
 		
 		return vf.constructor(Factory.Tree_Appl, production, listWriter.done());
 	}

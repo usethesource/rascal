@@ -30,7 +30,7 @@ public class EndOfLineNode extends AbstractNode{
 		return ENDOFLINE;
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, LocationContainer locationContainer){
 		return result; 
 	}
 }

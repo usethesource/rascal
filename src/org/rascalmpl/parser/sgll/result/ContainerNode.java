@@ -108,7 +108,7 @@ public class ContainerNode extends AbstractNode{
 		}
 	}
 	
-	private ArrayList<IConstructor> buildAlternatives(DoubleArrayList<AbstractNode[], IConstructor> alternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+	private ArrayList<IConstructor> buildAlternatives(DoubleArrayList<AbstractNode[], IConstructor> alternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, LocationContainer locationContainer){
 		ArrayList<IConstructor> results = new ArrayList<IConstructor>();
 		
 		int beginLine = -1;
@@ -119,13 +119,14 @@ public class ContainerNode extends AbstractNode{
 		}
 		
 		OUTER : for(int i = alternatives.size() - 1; i >= 0; --i){
+			if(input != null) positionStore.setCursorTo(beginLine); // Reduce search time.
+			locationContainer.offset = offset; // Reset for the next child.
+			
 			IConstructor production = alternatives.getSecond(i);
 			AbstractNode[] children = alternatives.getFirst(i);
 			IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 			for(int j = 0; j < children.length; ++j){
-				if(input != null) positionStore.setCursorTo(beginLine); // Reduce search time.
-				
-				IConstructor item = children[j].toTerm(stack, depth, cycleMark, positionStore);
+				IConstructor item = children[j].toTerm(stack, depth, cycleMark, positionStore, locationContainer);
 				if(item == null) continue OUTER; // Rejected.
 				
 				childrenListWriter.append(item);
@@ -133,8 +134,9 @@ public class ContainerNode extends AbstractNode{
 			
 			IConstructor result = vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 			if(input != null){
-				int endLine = -1; // TODO
-				int endColumn = -1; // TODO
+				int endOffset = locationContainer.offset;
+				int endLine = positionStore.findLine(endOffset);
+				int endColumn = positionStore.getColumn(endOffset, endLine);
 				
 				result = result.setAnnotation(POSITION_ANNNOTATION_LABEL, vf.sourceLocation(input, offset, length, beginLine, endLine, beginColumn, endColumn));
 			}
@@ -143,7 +145,7 @@ public class ContainerNode extends AbstractNode{
 		return results;
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, LocationContainer locationContainer){
 		if(cachedResult != null && (depth <= cycleMark.depth)){
 			if(depth == cycleMark.depth){
 				cycleMark.reset();
@@ -174,7 +176,7 @@ public class ContainerNode extends AbstractNode{
 		}
 		
 		// Output.
-		ArrayList<IConstructor> alternatives = buildAlternatives(gatheredAlternatives, stack, depth + 1, cycleMark, positionStore);
+		ArrayList<IConstructor> alternatives = buildAlternatives(gatheredAlternatives, stack, depth + 1, cycleMark, positionStore, locationContainer);
 		
 		IConstructor result;
 		int nrOfAlternatives = alternatives.size();

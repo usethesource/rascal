@@ -41,7 +41,8 @@ public class CharNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, LocationContainer locationContainer){
+		++locationContainer.offset;
 		return vf.constructor(Factory.Tree_Char, vf.integer(getNumericCharValue(character)));
 	}
 	

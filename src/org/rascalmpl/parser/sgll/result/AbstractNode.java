@@ -26,7 +26,7 @@ public abstract class AbstractNode{
 	
 	public abstract void addAlternative(IConstructor production, Link children);
 	
-	public abstract IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore);
+	public abstract IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, LocationContainer locationContainer);
 	
 	public static class CycleMark{
 		public int depth = Integer.MAX_VALUE;
@@ -44,5 +44,9 @@ public abstract class AbstractNode{
 		public void reset(){
 			depth = Integer.MAX_VALUE;
 		}
+	}
+	
+	public static class LocationContainer{
+		public int offset;
 	}
 }
