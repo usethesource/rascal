@@ -2,7 +2,6 @@ package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
@@ -59,7 +58,7 @@ public class LiteralNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		int numberOfCharacters = content.length;
 		IListWriter listWriter = vf.listWriter(Factory.Tree);
 		for(int i = 0; i < numberOfCharacters; ++i){
