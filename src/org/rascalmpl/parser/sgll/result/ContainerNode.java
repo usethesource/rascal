@@ -113,6 +113,7 @@ public class ContainerNode extends AbstractNode{
 		
 		int beginLine = -1;
 		int beginColumn = -1;
+		int endOffset = -1;
 		if(input != null){
 			beginLine = positionStore.findLine(offset);
 			beginColumn = positionStore.getColumn(offset, beginLine);
@@ -134,7 +135,7 @@ public class ContainerNode extends AbstractNode{
 			
 			IConstructor result = vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 			if(input != null){
-				int endOffset = locationContainer.offset;
+				endOffset = locationContainer.offset;
 				int endLine = positionStore.findLine(endOffset);
 				int endColumn = positionStore.getColumn(endOffset, endLine);
 				
@@ -142,6 +143,9 @@ public class ContainerNode extends AbstractNode{
 			}
 			results.add(result);
 		}
+		
+		locationContainer.offset = endOffset; // Set it, just in case the last alternative(s) were rejected.
+		
 		return results;
 	}
 	
