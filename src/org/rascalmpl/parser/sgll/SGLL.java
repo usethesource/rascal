@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -503,10 +502,14 @@ public abstract class SGLL implements IGLL{
 			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, line, line, column, column));
 		}
 		
-		IValue result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
+		IConstructor result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
 		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation(inputURI));
 		
 		return makeParseTree(result);
+	}
+	
+	private IConstructor makeParseTree(IConstructor tree){
+		return vf.constructor(Factory.ParseTree_Top, tree, vf.integer(-1)); // Amb counter is unsupported.
 	}
 	
 	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString){
@@ -560,10 +563,6 @@ public abstract class SGLL implements IGLL{
 	
 	public IConstructor parseFromStream(AbstractStackNode startNode, URI inputURI, InputStream in) throws IOException{
 		return parseFromReader(startNode, inputURI, new InputStreamReader(in));
-	}
-	
-	private IConstructor makeParseTree(IValue tree){
-		return vf.constructor(Factory.ParseTree_Top, tree, vf.integer(-1)); // Amb field is unsupported.
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, char[] input){

@@ -5,7 +5,6 @@ import java.net.URI;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.DoubleArrayList;
@@ -117,7 +116,7 @@ public class ContainerNode extends AbstractNode{
 			AbstractNode[] children = alternatives.getFirst(i);
 			IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 			for(int j = 0; j < children.length; ++j){
-				IValue item = children[j].toTerm(stack, depth, cycleMark, positionStore);
+				IConstructor item = children[j].toTerm(stack, depth, cycleMark, positionStore);
 				if(item == null) continue OUTER; // Rejected.
 				
 				childrenListWriter.append(item);
@@ -138,7 +137,7 @@ public class ContainerNode extends AbstractNode{
 		return results;
 	}
 	
-	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		if(cachedResult != null && (depth <= cycleMark.depth)){
 			if(depth == cycleMark.depth){
 				cycleMark.reset();
