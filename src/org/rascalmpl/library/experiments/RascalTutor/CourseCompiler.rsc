@@ -13,7 +13,7 @@ import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 
 public str mkConceptTemplate(ConceptName cn){
-return "Name: <cn>\n\nCategories:\n\nRelated:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
+return "Name: <cn>\n\nDetails:\n\nCategories:\n\nRelated:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
 }
 
 public void tst(){
@@ -97,11 +97,12 @@ public Concept parseConcept(loc file, list[str] script, str coursePath){
       
    conceptPath = "Courses/" + fullName;
    
-   categories  = getCategories(getOptionalSection("Categories", script));
+   optDetails      = getNames(getOptionalSection("Details", script));
+   optCategories   = toSet(getNames(getOptionalSection("Categories", script)));
    related 		= getPath(combine(getSection("Related", script)));
    synopsisSection = getSection("Synopsis", script);
    rawSynopsis  = combine(synopsisSection);
-   searchTerms =  searchTermsSynopsis(synopsisSection);
+   searchTerms  =  searchTermsSynopsis(synopsisSection);
    synopsis 	= markupSynopsis(synopsisSection);
    description	= markup1(getSection("Description", script));
    examples 	= markup1(getSection("Examples", script));
@@ -109,7 +110,7 @@ public Concept parseConcept(loc file, list[str] script, str coursePath){
    pittfalls 	= markup1(getSection("Pittfalls", script));
    questions 	= getAllQuestions(name, getSection("Questions", script));
    
-   return concept(name, file, categories, related, synopsis, rawSynopsis, searchTerms, description, examples, benefits, pittfalls, questions);
+   return concept(name, file, optDetails, optCategories, related, synopsis, rawSynopsis, searchTerms, description, examples, benefits, pittfalls, questions);
 }
 
 // Extract the path named from a Related section
@@ -119,8 +120,8 @@ public list[str] getPath(str related){
 
 // Extract categories
 
-public set[str] getCategories(list[str] lines){
-   return { cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line };
+public list[str] getNames(list[str] lines){
+   return [ cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line ];
 }
 
 // Extract specific question type from Questions section
@@ -458,6 +459,15 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
          } // else
        } // for(r <-
     } // for(cname
+    
+    for(cname <- conceptMap){
+       C = conceptMap[cname];
+       for(d <- C.details){
+         println("Detail: <d>");
+         if((cname + "/" + d) notin fullRefinements[cname])
+            println("*** <cname>: non-existent detail <d>");
+       }
+    }
     
     println("fullRelated = <fullRelated>");
     println("searchTerms= <searchTerms>");
