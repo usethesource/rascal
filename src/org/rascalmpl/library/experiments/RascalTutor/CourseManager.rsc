@@ -96,10 +96,12 @@ public str prelude(){
 public str showConcept(ConceptName cn){
  
   initialize();
+  println("showConcept(<cn>), <concepts>");
   try {
     C = concepts[cn];
+    println("concept = <C>");
     return showConcept(cn, C);
-   } catch: {
+   } catch NoSuchKey(value key): {
      options = [ name | name <- conceptNames, endsWith(name, "/" + cn)];
      if(size(options) == 0)
         return html(head(title("Concept <cn> does not exist") + prelude()),
@@ -115,20 +117,19 @@ public str showConcept(ConceptName cn){
 }
 
 public str showConcept(ConceptName cn, Concept C){
-  filteredRefinements = {r | r <- refinements[cn], isEnabled(r)};
-  refs = sort(toList(filteredRefinements));
-  
+  childs = children(cn);
+  println("childs=<childs>");
   filteredRelated = {r | r <- C.related, isEnabled(related[r])};
   rels = sort(toList(filteredRelated));
   questions = C.questions;
   return html(
   	head(title(C.name) + prelude()),
   	body(
-  	  categoryMenu(cn) +
-  	  section("Name", showConceptPath(cn)) +
+  	  
+  	  section("Name", showConceptPath(cn)) + navigationMenu(cn) + categoryMenu(cn) +
   	  searchBox(cn) + 
-  	  ((isEmpty(refs)) ? "" : "<sectionHead("Details")> <for(ref <- refs){><showConceptURL(ref, basename(ref))> &#032 <}>") +
-  	  ((isEmpty(rels)) ? "" : p("<sectionHead("Related")>: <for(rl <- rels){><showConceptURL(related[rl], basename(rl))> &#032 <}>")) +
+  	  ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
+  	  ((isEmpty(rels)) ? "" : section("Related", "<for(rl <- rels){><showConceptURL(related[rl], basename(rl))> &#032 <}>")) +
   	  section("Synopsis", C.synopsis) +
   	  section("Description", C.description) +
   	  section("Examples", C.examples) +
@@ -138,7 +139,6 @@ public str showConcept(ConceptName cn, Concept C){
   	  editMenu(cn)
   	)
   );
-
 }
 
 public str section(str name, str txt){
@@ -180,6 +180,82 @@ public str categoryMenu(ConceptName cn){
   		\</form\>
   		\</div\>\n";
 }
+
+public str navigationMenu(ConceptName cn){
+  println("navigationMenu(<cn>)");
+  println("left=<navLeft(cn)>");
+  println("up=<navUp(cn)>");
+  println("right=<navRight(cn)>");
+  println("+++");
+  res = "\n\<div id=\"navigationMenu\"\>
+         \<a href=\"show?concept=<navLeft(cn)>\"\>\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"images/left_arrow.png\"\>\</a\>
+         \<a href=\"show?concept=<navUp(cn)>\"\>\<img id=\"upIcon\" height=\"40\" width=\"40\" src=\"images/up_arrow.png\"\>\</a\>
+         \<a href=\"show?concept=<navDown(cn)>\"\>\<img id=\"downIcon\" height=\"40\" width=\"40\" src=\"images/down_arrow.png\"\>\</a\>
+         \<a href=\"show?concept=<navRight(cn)>\"\>\<img id=\"rightIcon\" height=\"40\" width=\"40\" src=\"images/right_arrow.png\"\>\</a\>
+         \</div\>\n";
+         
+   println("navigationMenu(<cn>) returns <res>");
+   return res;
+}
+
+public str navUp(ConceptName cn){
+   //println("navUp(<cn>)");
+   bns = basenames(cn);
+   if(size(bns) == 1)
+      return cn;
+   res = compose(slice(bns, 0, size(bns)-1));
+   //println("returns <res>");
+   return res;
+}
+
+list[ConceptName] children(ConceptName cn){
+  println("children(<cn>)");
+  try { C = concepts[cn];
+       res = [cn + "/" + r | r <- C.details, isEnabled(cn + "/" + r)] +
+             sort([r | r <- refinements[cn], isEnabled(r), basename(r) notin C.details]);
+       println("children(<cn>) returns <res>");
+       return res;
+   } catch NoSuchKey(k): {
+     println("*** children(<cn>): no such key <k>");
+   }
+}
+
+public str navDown(ConceptName cn){
+  childs = children(cn);
+  if(size(childs) == 0)
+     return cn;
+  return childs[0];
+}
+
+public str navRight(ConceptName cn){
+ //println("navRight(<cn>)");
+  parent = navUp(cn);
+  if(parent == cn)
+     return cn;
+  siblings = children(parent);
+  //println("navRight(<cn>): <siblings>");
+  for(int i <- index(siblings)){
+      if(siblings[i] == cn)
+         return (i + 1) < size(siblings) ? siblings[i+1] : parent;
+  }
+  return navRight(parent);
+}
+
+public str navLeft(ConceptName cn){
+  //println("navLeft(<cn>)");
+  parent = navUp(cn);
+   //println("navLeft(<cn>): parent = <parent>");
+  if(parent == cn)
+     return cn;
+  siblings = children(parent);
+  //println("navLeft(<cn>): <siblings>");
+  for(int i <- index(siblings)){
+      if(siblings[i] == cn)
+        return (i > 0) ? siblings[i-1] : cn;
+  }
+  return navLeft(parent);
+}
+     
 
 // Enable/disable a category
 // *** called from servlet Category in RascalTutor
