@@ -10,6 +10,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public abstract class AbstractNode{
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
+	protected final static String POSITION_ANNNOTATION_LABEL = "loc";
+	
 	public AbstractNode(){
 		super();
 	}
