@@ -19,7 +19,6 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode.CycleMark;
-import org.rascalmpl.parser.sgll.result.AbstractNode.LocationStore;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.IMatchableStackNode;
@@ -504,7 +503,7 @@ public abstract class SGLL implements IGLL{
 			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, line, line, column, column));
 		}
 		
-		IValue result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), new LocationStore());
+		IValue result = root.getResult().toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
 		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation(inputURI));
 		
 		return makeParseTree(result);
