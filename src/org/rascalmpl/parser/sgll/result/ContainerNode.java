@@ -111,11 +111,20 @@ public class ContainerNode extends AbstractNode{
 	private ArrayList<IConstructor> buildAlternatives(DoubleArrayList<AbstractNode[], IConstructor> alternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		ArrayList<IConstructor> results = new ArrayList<IConstructor>();
 		
+		int beginLine = -1;
+		int beginColumn = -1;
+		if(input != null){
+			beginLine = positionStore.findLine(offset);
+			beginColumn = positionStore.getColumn(offset, beginLine);
+		}
+		
 		OUTER : for(int i = alternatives.size() - 1; i >= 0; --i){
 			IConstructor production = alternatives.getSecond(i);
 			AbstractNode[] children = alternatives.getFirst(i);
 			IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 			for(int j = 0; j < children.length; ++j){
+				if(input != null) positionStore.setCursorTo(beginLine); // Reduce search time.
+				
 				IConstructor item = children[j].toTerm(stack, depth, cycleMark, positionStore);
 				if(item == null) continue OUTER; // Rejected.
 				
@@ -124,13 +133,10 @@ public class ContainerNode extends AbstractNode{
 			
 			IConstructor result = vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 			if(input != null){
-				int beginLine = positionStore.findLine(offset);
-				int beginColumn = positionStore.getColumn(offset, beginLine);
-				
 				int endLine = -1; // TODO
 				int endColumn = -1; // TODO
 				
-				result = result.setAnnotation("loc", vf.sourceLocation(input, offset, length, beginLine, endLine, beginColumn, endColumn));
+				result = result.setAnnotation(POSITION_ANNNOTATION_LABEL, vf.sourceLocation(input, offset, length, beginLine, endLine, beginColumn, endColumn));
 			}
 			results.add(result);
 		}
