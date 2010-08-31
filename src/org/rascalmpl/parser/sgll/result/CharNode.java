@@ -1,11 +1,11 @@
 package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -42,15 +42,8 @@ public class CharNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, LocationStore locationStore){
-		if(character == END_LINE_CHAR){
-			locationStore.hitEndLine();
-		}else{
-			locationStore.hitCharacter();
-		}
-		
-		IInteger characterValue = vf.integer(getNumericCharValue(character));
-		return vf.constructor(Factory.Tree_Char, characterValue);
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+		return vf.constructor(Factory.Tree_Char, vf.integer(getNumericCharValue(character)));
 	}
 	
 	public static int getNumericCharValue(char character){

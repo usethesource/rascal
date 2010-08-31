@@ -10,6 +10,7 @@ import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.DoubleArrayList;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
+import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
@@ -108,32 +109,36 @@ public class ContainerNode extends AbstractNode{
 		}
 	}
 	
-	private ArrayList<IConstructor> buildAlternatives(DoubleArrayList<AbstractNode[], IConstructor> alternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, LocationStore locationStore){
+	private ArrayList<IConstructor> buildAlternatives(DoubleArrayList<AbstractNode[], IConstructor> alternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		ArrayList<IConstructor> results = new ArrayList<IConstructor>();
 		
 		OUTER : for(int i = alternatives.size() - 1; i >= 0; --i){
-			LocationStore childLocationStore = new LocationStore(locationStore);
-			
 			IConstructor production = alternatives.getSecond(i);
 			AbstractNode[] children = alternatives.getFirst(i);
 			IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 			for(int j = 0; j < children.length; ++j){
-				IValue item = children[j].toTerm(stack, depth, cycleMark, childLocationStore);
+				IValue item = children[j].toTerm(stack, depth, cycleMark, positionStore);
 				if(item == null) continue OUTER; // Rejected.
 				
 				childrenListWriter.append(item);
 			}
 			
 			IConstructor result = vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
-			if(input != null) result = result.setAnnotation("loc", vf.sourceLocation(input, offset, length, locationStore.line, locationStore.column, childLocationStore.line, childLocationStore.column));
+			if(input != null){
+				int beginLine = positionStore.findLine(offset);
+				int beginColumn = positionStore.getColumn(offset, beginLine);
+				
+				int endLine = -1; // TODO
+				int endColumn = -1; // TODO
+				
+				result = result.setAnnotation("loc", vf.sourceLocation(input, offset, length, beginLine, endLine, beginColumn, endColumn));
+			}
 			results.add(result);
-			
-			locationStore.updateTo(childLocationStore); // Need to do this every time, since we may encounter rejected trees.
 		}
 		return results;
 	}
 	
-	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, LocationStore locationStore){
+	public IValue toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		if(cachedResult != null && (depth <= cycleMark.depth)){
 			if(depth == cycleMark.depth){
 				cycleMark.reset();
@@ -164,7 +169,7 @@ public class ContainerNode extends AbstractNode{
 		}
 		
 		// Output.
-		ArrayList<IConstructor> alternatives = buildAlternatives(gatheredAlternatives, stack, depth + 1, cycleMark, locationStore);
+		ArrayList<IConstructor> alternatives = buildAlternatives(gatheredAlternatives, stack, depth + 1, cycleMark, positionStore);
 		
 		IConstructor result;
 		int nrOfAlternatives = alternatives.size();
