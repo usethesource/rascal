@@ -7,6 +7,7 @@ public class PositionStore{
 	private final static int DEFAULT_SIZE = 8;
 	
 	private int[] offsets;
+	private int endOfFile;
 	
 	private int size;
 	
@@ -27,8 +28,10 @@ public class PositionStore{
 	public void index(char[] input){
 		add(0);
 		
+		endOfFile = input.length;
+		
 		boolean encounteredCarriageReturn = false;
-		for(int i = 0; i < input.length; ++i){
+		for(int i = 0; i < endOfFile; ++i){
 			char character = input[i];
 			if(character == CARRIAGE_RETURN_CHAR){
 				encounteredCarriageReturn = true;
@@ -40,8 +43,6 @@ public class PositionStore{
 				encounteredCarriageReturn = false;
 			}
 		}
-		
-		add(input.length); // EOF marker.
 	}
 	
 	private void add(int offset){
@@ -88,7 +89,7 @@ public class PositionStore{
 	}
 	
 	public boolean endsLine(int offset){
-		return (isAtColumn(offset, 0));
+		return (offset == endOfFile) || (isAtColumn(offset, 0));
 	}
 	
 	public boolean isAtColumn(int offset, int column){
