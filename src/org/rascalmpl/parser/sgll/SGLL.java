@@ -386,6 +386,8 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void handleExpects(AbstractStackNode stackBeingWorkedOn){
+		int parentId = stackBeingWorkedOn.getId();
+		
 		int nrOfExpects = lastExpects.size();
 		AbstractStackNode[] expects = new AbstractStackNode[nrOfExpects];
 		
@@ -403,7 +405,7 @@ public abstract class SGLL implements IGLL{
 			}
 
 			next.setStartLocation(location);
-			next.addEdge(stackBeingWorkedOn);
+			if(!isPrioFiltered(parentId, next.getId())) next.addEdge(stackBeingWorkedOn);
 			
 			stacksToExpand.add(next);
 			
