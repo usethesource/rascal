@@ -75,7 +75,11 @@ rule choice choice(Symbol rhs, {Production p:prod(list[Symbol] _,Symbol _,attrs(
             choice(rhs, {\assoc(rhs, a, {p}), rest});
 rule first  first(Symbol rhs, [list[Production] pre, Production p:prod(list[Symbol] _, Symbol _,attrs([list[Attr] _,\assoc(Associativity a),list[Attr] _])), list[Production] post]) =>
             first(rhs, [pre, \assoc(rhs, a, {p}), post]);
-                                   
+
+// remove nested assocs (the inner assoc has no meaning after this)
+rule nested \assoc(Symbol rhs, Associativity a, {set[Production] rest, \assoc(Symbol rhs2, Associativity b, set[Production] alts)}) =>
+            \assoc(rhs, a, rest + alts);
+                                                
 // no attributes
 rule simpl  attrs([]) => \no-attrs();  
 

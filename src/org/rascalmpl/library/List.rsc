@@ -197,6 +197,14 @@ public map[&A,&B] java toMapUnique(list[tuple[&A, &B]] lst) throws DuplicateKey;
 @javaClass{org.rascalmpl.library.List}
 public set[&T] java toSet(list[&T] lst);
 
+@doc{
+  Convert a list to relation, where each tuple encodes which elements are followed by each other.
+  This function will return an empty relation for empty lists and for singleton lists
+}
+public rel[&T,&T] toRel(list[&T] lst) {
+  return { <from,to> | [_*, &T from, &T to, _*] := lst };
+}
+
 @doc{Convert a list to a string}
 @javaClass{org.rascalmpl.library.List}
 public str java toString(list[&T] lst);

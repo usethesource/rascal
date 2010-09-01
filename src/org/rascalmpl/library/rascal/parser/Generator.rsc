@@ -120,24 +120,27 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
   
   visit (g) {
     case Production p:prod([],Symbol s,_) : 
-       items[s]?fresh += (item(p, 0):"new EpsilonStackNode(<newItem()>)");
+       items[s]?fresh += (item(p, 0):<"new EpsilonStackNode(<newItem()>)", counter>);
     case Production p:prod(list[Symbol] lhs, Symbol s,_) : 
       for (int i <- index(lhs)) 
         items[s]?fresh += (item(p, i): sym2newitem(g, lhs[i], newItem));
-    case Production p:regular(s:\iter(Symbol elem),_) : 
-       items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem));
-    case Production p:regular(s:\iter-star(Symbol elem),_) : 
-       items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem));
-    case Production p:regular(s:\iter-sep(Symbol elem, list[Symbol] seps),_) : {
-       items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem));
-       for (int i <- index(seps)) 
-         items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], newItem));
-    }
-    case Production p:regular(s:\iter-star-sep(Symbol elem, list[Symbol] seps),_) : {
-       items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem));
-       for (int i <- index(seps)) 
-         items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], newItem));
-    } 
+    case Production p:regular(Symbol s, _) :
+      switch(s) {
+        case \iter(Symbol elem) : 
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem));
+        case \iter-star(Symbol elem) : 
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem));
+        case \iter-sep(Symbol elem, list[Symbol] seps) : {
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem));
+          for (int i <- index(seps)) 
+            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], newItem));
+        }
+        case \iter-star-sep(Symbol elem, list[Symbol] seps) : {
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem));
+          for (int i <- index(seps)) 
+            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], newItem));
+        } 
+     }
   }
   return items;
 }
@@ -213,6 +216,7 @@ rel[int,int] computeDontNests(Items items, map[Production, int] prodItems, Produ
       return computePriorities(items, prodItems, levels);
     case \assoc(_, Associativity a, set[Production] alts) :
       return computeAssociativities(items, prodItems, a, alts);
+    case \others(_) : return {};
     default:
       throw "missed a case <p>";
   }
@@ -220,6 +224,8 @@ rel[int,int] computeDontNests(Items items, map[Production, int] prodItems, Produ
 
 rel[int,int] computeAssociativities(Items items, map[Production, int] prodItems, Associativity a, set[Production] alts) {
   result = {};
+  // assoc is not transitive, but it is reflexive
+  
   switch (a) {
     case \left(): {
       for (Production p1 <- alts, Production p2:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- alts, symbolMatch(r,rhs)) {
@@ -244,11 +250,8 @@ rel[int,int] computeAssociativities(Items items, map[Production, int] prodItems,
     }
   }
   
-  println("assoc rel is <result>");
   
-  
-  // assoc is not transitive
-  return result; // note that under assoc there is no further nesting of assoc or priority
+  return result;
 }
 
 rel[int,int] computePriorities(Items items, map[Production, int] prodItems, list[Production] levels) {
@@ -256,17 +259,19 @@ rel[int,int] computePriorities(Items items, map[Production, int] prodItems, list
   ordering = { <p1,p2> | [pre*,Production p1, Production p2, post*] := levels };
 
   // flatten nested structure to obtain direct relations
-  solve (ordering) {
-    <prio,ordering> = takeOneFrom(ordering);
+  todo = ordering;
+  ordering = {};
+  while (todo != {}) {
+    <prio,todo> = takeOneFrom(todo);
     switch (prio) {
       case <choice(_,set[Production] alts),Production p2> :
-        ordering += alts * {p2};
+        todo += alts * {p2};
       case <Production p1, choice(_,set[Production] alts)> :
-        ordering += {p1} * alts;
+        todo += {p1} * alts;
       case <\assoc(_,_,set[Production] alts),Production p2> :
-        ordering += alts * {p2};
+        todo += alts * {p2};
       case <Production p1, \assoc(_,_,set[Production] alts)> :
-        ordering += {p1} * alts; 
+        todo += {p1} * alts;
       default:
         ordering += prio;
     }
@@ -275,12 +280,9 @@ rel[int,int] computePriorities(Items items, map[Production, int] prodItems, list
   ordering = ordering+; // priority is transitive
   result = {};
   for (<Production p1, Production p2> <- ordering) {
-    println("<p1> \> <p2>");
     switch (p1) {
       case prod(lhs:[Symbol l,_*,Symbol r],Symbol rhs,_) :
         if (symbolMatch(l,rhs) && symbolMatch(l,rhs)) {
-        println("items[<rhs>] = <items[rhs]>");
-        println("prodItems = <prodItems>");
           result += {<items[rhs][item(p1,0)].itemId,prodItems[p2]>,<items[rhs][item(p1,size(lhs) - 1)].itemId,prodItems[p2]>};   
         }
         else fail;
@@ -290,7 +292,7 @@ rel[int,int] computePriorities(Items items, map[Production, int] prodItems, list
         }
         else fail;
       case prod(lhs:[_*,Symbol r],Symbol rhs,_) :
-        if (symbolMatch(l,rhs)) {
+        if (symbolMatch(r,rhs)) {
           result += {<items[rhs][item(p1,size(lhs) - 1)].itemId,prodItems[p2]>};   
         }
         else fail;
@@ -311,7 +313,7 @@ private bool symbolMatch(Symbol checked, Symbol referenced) {
   defined as either sequences of character classes or literals.
 }
 public str generateLookaheads(Grammar grammar, int() id, set[Production] restrictions) {
-  result = "new IReducableStackNode[] {"; 
+  result = "new IMatchableStackNode[] {"; 
   
   // not that only single symbol restrictions are allowed at the moment.
   // the run-time only supports character-classes and literals BTW, which should
@@ -319,7 +321,7 @@ public str generateLookaheads(Grammar grammar, int() id, set[Production] restric
   las = [ l | /Production p:prod([Symbol l],_,_) <- restrictions];
  
   if (las != []) {
-    result += ("(IReducableStackNode) <sym2newitem(grammar, head(las), id).new>" | it + ", (IReducableStackNode) <sym2newitem(grammar,l,id).new>" | l <- tail(las));
+    result += ("(IMatchableStackNode) <sym2newitem(grammar, head(las), id).new>" | it + ", (IMatchableStackNode) <sym2newitem(grammar,l,id).new>" | l <- tail(las));
   }
   
   result += "}";
@@ -340,7 +342,7 @@ public str generateLookaheads(set[Production] restrictions) {
   las = [ p | /Production p:prod([Symbol l],_,_) <- restrictions];
  
   if (las != []) {
-    result += ("(IReducableStackNode) <value2id(item(head(las),0))>" | it + ", (IReducableStackNode) <value2id(item(l,0))>" | l <- tail(las));
+    result += ("(IMatchableStackNode) <value2id(item(head(las),0))>" | it + ", (IMatchableStackNode) <value2id(item(l,0))>" | l <- tail(las));
   }
   
   result += "}";
