@@ -8,7 +8,7 @@ public Box getRascal(Tree q) {
 if (Body a:=q) 
 switch(a) {
 	case `<Toplevel* toplevels> `:  
-             return V(1, getArgs(toplevels, #Toplevel));
+             return V(1, getArgs(toplevels));
 }
 return NULL();
 }

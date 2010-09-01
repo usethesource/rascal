@@ -7,7 +7,7 @@ if (Header a:=q)
 switch(a) {
 	case `<Tags tags> module <QualifiedName name> <Import* imports> `: {
 	         list[Box ] h = [H(1, [KW(L("module")), evPt(name)])];
-             return V(h+getArgs(imports, #Import));
+             return V(h+getArgs(imports));
              }
          }
 if (Import a:=q) 

@@ -12,7 +12,7 @@ switch(a) {
         }
 if (Declarator a:=q) 
 switch(a) {
-	case `<Type typ> <{Variable ","}+  c > `:  return HV(1,[evPt(typ)]+ getArgs(c, #Variable));
+	case `<Type typ> <{Variable ","}+  c > `:  return HV(1,[evPt(typ)]+ getArgsSep(c));
 }
 return NULL();
 }

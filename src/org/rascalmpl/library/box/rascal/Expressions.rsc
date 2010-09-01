@@ -14,7 +14,7 @@ return NULL();
 /*
 if (Parameters a:=q) 
 switch(a) {
-	case `( <Formals formals> ) `: return getConstructor(getA(formals)[0], #Formal, "(", ")");
+	case `( <Formals formals> ) `: return getConstructor(getA(formals)[0],  "(", ")");
 	case `( <Formals formals> ... ) `: return NULL();
 }
 if (Formal a:=q) 
