@@ -5,6 +5,10 @@ import String;
 
 @doc{Api to the System for example System Variables or System Commands.}
 
+@doc{For using the char backquote in Rascal Programs without interpretation.}
+
+public str backquote = "`";
+
 @javaClass{org.rascalmpl.library.SystemAPI}
 public str java getSystemProperty(str property);
 
