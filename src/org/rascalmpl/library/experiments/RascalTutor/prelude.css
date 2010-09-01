@@ -10,12 +10,12 @@ h1, th {
 }
 
 h1 {
-    font-size: 14pt;
+    font-size: 120%;
     font-style: bold;
 }
 
 h2 {
-	font-size: 13pt;
+	font-size: 110%;
     font-style: italic;
 }
 
@@ -27,26 +27,27 @@ table {
 th, td {
 	padding: 10px;
 	border: 2px #666 solid;
-	text-align: center;
 }
+
 
 .sectionHead {
     background-color: #777777;
     color:white;
-    font-size: 14pt;
+    font-size: 120%;
 }
 
-#Name { padding: 5px 0px;
-    margin-top: 20px;
+#Name { 
+    padding: 5px 0px;
+    margin-top: 2em;
     position: relative;
 }
-#Details { padding: 5px 0px; }
-#Synopsis{ padding: 5px 0px; }
-#Description { padding: 5px 0px; }
-#Examples{ padding: 5px 0px; }
-#Benefits{ padding: 5px 0px; }
-#PittFalls{ padding: 5px 0px; }
-#Questions{ padding: 5px 0px; }
+#Details { padding: 0.5em 0em; }
+#Synopsis{ padding: 0.5em 0em; }
+#Description { padding: 0.5em 0em; }
+#Examples{ padding: 0.5em 0em; }
+#Benefits{ padding: 0.5em 0em; }
+#PittFalls{ padding: 0.5em 0em; }
+#Questions{ padding: 0.5em 0em; }
 
 .question {
     border: 1px dotted #000;
@@ -62,7 +63,7 @@ th, td {
 /* Search box */
 
 #searchBox {
-    top:  15px;
+    top:  1.8em;
     right: 0;
     float: right;
     margin-top: 6px;
@@ -71,7 +72,7 @@ th, td {
 }
 
 #searchIcon {
-    top: 8px;
+    top: 0.5em;
     position: relative;
 }
 
@@ -100,19 +101,19 @@ th, td {
 }
 
 #categoryMenu {
-    top:  2px;
-    right: 10px;
+    top:  0.1em;
+    right: 1em;
     float: right;
-    margin-top: 4px;
-    margin-right: 20px;
+    margin-top: 0.2em;
+    margin-right: 2em;
     position: absolute;
     
     font-size: 60%;
 }
 
 #navigationMenu {
-    top: 20px;
-    right: 160px;
+    top: 1.8em;
+    right: 10em;
     float right;
     margin-right: 20px;
 
@@ -122,7 +123,7 @@ th, td {
 
 #editMenu {
     padding: 10px 0px;
-    font-size: 15px;
+    font-size: 80%;
 }
 
 .answerForm tt {
@@ -139,7 +140,7 @@ th, td {
 }
 
 .answerText {
-    font-size: 12pt;
+    font-size: 100%;
     height: 11pt;
     width: 200pt;
     padding-bottom: 1px;
@@ -159,12 +160,12 @@ textarea {
 }
 
 .editSubmit{
-    font-size: 12pt;
+    font-size: 100%;
 }
 
 .answerSubmit, .cheatSubmit, .anotherSubmit{
     
-    font-size: 12pt;
+    font-size: 100%;
 }
 
 .answerSubmit {
