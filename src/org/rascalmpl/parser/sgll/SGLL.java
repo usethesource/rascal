@@ -45,7 +45,6 @@ public abstract class SGLL implements IGLL{
 	
 	private final ArrayList<AbstractStackNode> todoList;
 	
-	// Updatable
 	private final ArrayList<AbstractStackNode> stacksToExpand;
 	private final RotatingQueue<AbstractStackNode> stacksWithTerminalsToReduce;
 	private final RotatingQueue<AbstractStackNode> stacksWithNonTerminalsToReduce;
