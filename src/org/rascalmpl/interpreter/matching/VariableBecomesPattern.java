@@ -25,7 +25,13 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	public void initMatch(Result<IValue> subject){
 		super.initMatch(subject);
 		var.initMatch(subject);
-		pat.initMatch(subject);
+		if (var.hasNext()) { 
+			pat.initMatch(subject);
+			hasNext = pat.hasNext();
+		}
+		else {
+			hasNext = false;
+		}
 	}
 	
 	@Override
@@ -45,7 +51,7 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean hasNext(){
-		return pat.hasNext() && var.hasNext();
+		return hasNext && pat.hasNext() && var.hasNext();
 	}
 
 	@Override
