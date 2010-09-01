@@ -38,9 +38,7 @@ public class BitSet{
 			enlarge();
 		}
 		
-		int block = position >> BLOCK_SHIFT;
-		int index = (position++ & BLOCK_MASK);
-		bits[block] |= (1 << index);
+		bits[position >> BLOCK_SHIFT] |= (1 << (position++ & BLOCK_MASK));
 	}
 	
 	public void addUnset(){
