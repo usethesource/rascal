@@ -16,7 +16,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 public class ContainerNode extends AbstractNode{
 	private final URI input;
 	private final int offset;
-	private final int length;
+	private final int endOffset;
 	
 	private final boolean isListContainer;
 	
@@ -29,12 +29,12 @@ public class ContainerNode extends AbstractNode{
 	
 	private IConstructor cachedResult;
 	
-	public ContainerNode(URI input, int offset, int length, boolean isListContainer){
+	public ContainerNode(URI input, int offset, int endOffset, boolean isListContainer){
 		super();
 		
 		this.input = input;
 		this.offset = offset;
-		this.length = length;
+		this.endOffset = endOffset;
 		
 		this.isListContainer = isListContainer;
 	}
@@ -108,48 +108,44 @@ public class ContainerNode extends AbstractNode{
 		}
 	}
 	
-	private ArrayList<IConstructor> buildAlternatives(DoubleArrayList<AbstractNode[], IConstructor> alternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, LocationContainer locationContainer){
+	private ArrayList<IConstructor> buildAlternatives(DoubleArrayList<AbstractNode[], IConstructor> alternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		ArrayList<IConstructor> results = new ArrayList<IConstructor>();
 		
 		int beginLine = -1;
 		int beginColumn = -1;
-		int endOffset = -1;
+		int endLine = -1;
+		int endColumn = -1;
+		int length = -1;
 		if(input != null){
 			beginLine = positionStore.findLine(offset);
 			beginColumn = positionStore.getColumn(offset, beginLine);
+			endLine = positionStore.findLine(endOffset);
+			endColumn = positionStore.getColumn(endOffset, endLine);
+			length = endOffset - offset;
 		}
 		
 		OUTER : for(int i = alternatives.size() - 1; i >= 0; --i){
 			if(input != null) positionStore.setCursorTo(beginLine); // Reduce search time.
-			locationContainer.offset = offset; // Reset for the next child.
 			
 			IConstructor production = alternatives.getSecond(i);
 			AbstractNode[] children = alternatives.getFirst(i);
 			IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 			for(int j = 0; j < children.length; ++j){
-				IConstructor item = children[j].toTerm(stack, depth, cycleMark, positionStore, locationContainer);
+				IConstructor item = children[j].toTerm(stack, depth, cycleMark, positionStore);
 				if(item == null) continue OUTER; // Rejected.
 				
 				childrenListWriter.append(item);
 			}
 			
 			IConstructor result = vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
-			if(input != null){
-				endOffset = locationContainer.offset;
-				int endLine = positionStore.findLine(endOffset);
-				int endColumn = positionStore.getColumn(endOffset, endLine);
-				
-				result = result.setAnnotation(POSITION_ANNNOTATION_LABEL, vf.sourceLocation(input, offset, length, beginLine, endLine, beginColumn, endColumn));
-			}
+			if(input != null) result = result.setAnnotation(POSITION_ANNNOTATION_LABEL, vf.sourceLocation(input, offset, length, beginLine, endLine, beginColumn, endColumn));
 			results.add(result);
 		}
-		
-		locationContainer.offset = endOffset; // Set it, just in case the last alternative(s) were rejected.
 		
 		return results;
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, LocationContainer locationContainer){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		if(cachedResult != null && (depth <= cycleMark.depth)){
 			if(depth == cycleMark.depth){
 				cycleMark.reset();
@@ -162,7 +158,7 @@ public class ContainerNode extends AbstractNode{
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), vf.integer(depth - index));
-			if(input != null) cycle = cycle.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, length, -1, -1, -1, -1));
+			if(input != null) cycle = cycle.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, endOffset - offset, -1, -1, -1, -1));
 			
 			cycleMark.setMark(index);
 			return cycle;
@@ -180,7 +176,7 @@ public class ContainerNode extends AbstractNode{
 		}
 		
 		// Output.
-		ArrayList<IConstructor> alternatives = buildAlternatives(gatheredAlternatives, stack, depth + 1, cycleMark, positionStore, locationContainer);
+		ArrayList<IConstructor> alternatives = buildAlternatives(gatheredAlternatives, stack, depth + 1, cycleMark, positionStore);
 		
 		IConstructor result;
 		int nrOfAlternatives = alternatives.size();
