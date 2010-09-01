@@ -8,6 +8,7 @@ import rascal::parser::Grammar;
 import rascal::parser::Generator;
 import rascal::syntax::RascalForImportExtraction;
 import IO;
+import ValueIO;
 
 public void bootFromSDF() {
   rascaldef = loadSDF2Module("languages::rascal::syntax::Rascal", [|file:///Users/jurgenv/Sources/Rascal/rascal-grammar/spec|,|file:///Users/jurgenv/Sources/Rascal/sdf-library/library|]);
@@ -22,6 +23,8 @@ public void bootFromRascal() {
   Module \module = parse(#Module, |project://RascalLibrary/src/rascal/syntax/RascalRascal.rsc|);
   println("imploding the syntax definition and normalizing and desugaring it");
   Grammar gr = module2grammar(\module);
+  println("dumping grammar");
+  writeBinaryValueFile(|project://RascalLibrary/src/rascal/parser/Rascal.grammar|, gr);
   println("generating Java source code");
   str source = generate("org.rascalmpl.library.rascal.parser","RascalRascal", gr);
   println("writing a file");

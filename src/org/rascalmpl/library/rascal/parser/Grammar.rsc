@@ -82,4 +82,5 @@ public Grammar java getGrammar(str mod);
 }
 @reflect   
 @javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
-public ParseTree java parseModule(loc mod);
+public ParseTree java parseModule(loc mod, bool old);
+

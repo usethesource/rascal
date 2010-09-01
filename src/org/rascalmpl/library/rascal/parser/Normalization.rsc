@@ -70,6 +70,12 @@ rule restrict restrict(Symbol s, Production p, {restrict(Symbol t, Production q,
 rule diff     restrict(Symbol s, Production p, {diff(Symbol t, Production q, set[Production] d), set[Production] o}) =>
               diff(t, restrict(s, choice(t, {p,q}), o), o);
 
+// lift singleton assocs to assoc groups
+rule choice choice(Symbol rhs, {Production p:prod(list[Symbol] _,Symbol _,attrs([list[Attr] _,\assoc(Associativity a), list[Attr] _])), set[Production] rest}) =>
+            choice(rhs, {\assoc(rhs, a, {p}), rest});
+rule first  first(Symbol rhs, [list[Production] pre, Production p:prod(list[Symbol] _, Symbol _,attrs([list[Attr] _,\assoc(Associativity a),list[Attr] _])), list[Production] post]) =>
+            first(rhs, [pre, \assoc(rhs, a, {p}), post]);
+                                   
 // no attributes
 rule simpl  attrs([]) => \no-attrs();  
 
