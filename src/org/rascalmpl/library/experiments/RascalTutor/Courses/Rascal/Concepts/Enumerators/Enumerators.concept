@@ -20,11 +20,11 @@ int x <- [ 1 .. 10 ]
 </listing>
 
 The first two produce the integer elements of a set of integers, respectively, a range of integers. 
-Observe that the left-hand side of an enumerator is a pattern, of which ~~int x~~ is a specific instance. 
+Observe that the left-hand side of an enumerator is a pattern, of which `int x` is a specific instance. 
 The use of more general patterns is illustrated by the third enumerator that does a deep traversal 
-(as denoted by the descendant operator /) of the complete program ~~P~~ (that is assumed to have a 
-~~PROGRAM~~ as value) and only yields statements that match the assignment pattern (~~asgStat~~).
-Note the use of an anonymous variable at the ~~EXP~~ position in the pattern.
+(as denoted by the descendant operator `/`) of the complete program `P` (that is assumed to have a 
+`PROGRAM` as value) and only yields statements that match the assignment pattern (`asgStat`).
+Note the use of an anonymous variable at the `EXP` position in the pattern.
 
 Benefits:
 

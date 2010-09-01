@@ -13,7 +13,7 @@ There are no runtime type casts as in Java and there are therefore less opportun
 The language provides higher-order, parametric polymorphism. 
 A type aliasing mechanism allows documenting specific uses of a type. 
 Built-in operators are heavily overloaded. 
-For instance, the operator ~~+~~ is used for addition on integers and reals but also for list concatenation, 
+For instance, the operator `+` is used for addition on integers and reals but also for list concatenation, 
 set union and the like.
 
 

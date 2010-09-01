@@ -35,17 +35,17 @@ int triple(int x) { return 3 * x; }
 int f(int x, int (int) multi){ return multi(x); }
 </listing>
 
-The functions ~~double~~ and ~~triple~~ simply multiply their argument with a constant. 
-Function ~~f~~ is, however, more interesting. 
-It takes an integer ~~x~~ and a function ~~multi~~ (with integer argument and integer result) as argument and 
-applies multi to its own argument. ~~f(5, triple)~~ will hence return ~~15~~. 
+The functions `double` and `triple` simply multiply their argument with a constant. 
+Function `f` is, however, more interesting. 
+It takes an integer `x` and a function `multi` (with integer argument and integer result) as argument and 
+applies multi to its own argument. `f(5, triple)` will hence return `15`. 
 Function values can also be created anonymously as illustrated by the following, alternative, 
-manner of writing this same call to ~~f~~:
+manner of writing this same call to `f`:
 <listing>
 f(5, int (int y){return 3 * y;});
 </listing>
 
-Here the second argument of ~~f~~ is an anonymous function.
+Here the second argument of `f` is an anonymous function.
 
 Benefits:
 

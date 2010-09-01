@@ -9,21 +9,21 @@ Synopsis:
 Description:
 
 Rascal provides a rich set of datatypes:
-* Booleans (~~bool~~).
-* Infinite precision integers (~~int~~), reals (~~real~~), and numbers (~~num~~).
-* Strings (~~str~~) that can act as templates with embedded expressions and statements. 
-* Source code locations (~~loc~~) based on an extension of Universal Resource Identifiers (URI) that allow precise description of text areas in local and remote files.
-* Date and time values (~~dateTime~~).
-* Lists (~~list~~).
-* Tuples (~~tuple~~).
-* Sets (~~set~~).
-* Maps (~~map~~) 
-* Relations (~~rel~~). 
-* Untyped tree structures (~~node~~).  
-* User-defined algebraic datatypes (~~data~~) allow the introduction of problem-specific types and are a subtype of node. This makes it possible to have typed
+* Booleans (`bool`).
+* Infinite precision integers (`int`), reals (`real`), and numbers (`num`).
+* Strings (`str`) that can act as templates with embedded expressions and statements. 
+* Source code locations (`loc`) based on an extension of Universal Resource Identifiers (URI) that allow precise description of text areas in local and remote files.
+* Date and time values (`dateTime`).
+* Lists (`list`).
+* Tuples (`tuple`).
+* Sets (`set`).
+* Maps (`map`) 
+* Relations (`rel`). 
+* Untyped tree structures (`node`).  
+* User-defined algebraic datatypes (`data`) allow the introduction of problem-specific types and are a subtype of node. This makes it possible to have typed
 *:and untyped views on the same data. 
 *:A special case are syntax trees that are the result of parsing source files are represented 
-*:as datatypes (~~Tree~~).
+*:as datatypes (`Tree`).
 
 There is a wealth of built-in operators and library functions available on the standard datatypes. 
 
@@ -49,20 +49,20 @@ Here are some examples of the built-in data types:
 <colgroup>
 <col align="left" span="2">
 <thead>
-<tr><th>'''Type'''</th> <th>'''Examples'''</th></tr>
+<tr><th>_Type_</th> <th>_Examples_</th></tr>
 <tbody>
-<tr><td>~~bool~~</td>	                   <td>~~true~~, ~~false~~</td></tr>
-<tr><td>~~int~~</td>	                   <td>~~1~~, ~~0~~, ~~-1~~, ~~123456789~~</td></tr>
-<tr><td>~~real~~</td>	                   <td>~~1.0~~, ~~1.0232e20~~, ~~-25.5~~</td></tr>
-<tr><td>~~str~~</td>	                   <td>~~"abc"~~, ~~"first\nnext"~~, ~~"result: <X>"~~</td></tr>
-<tr><td>~~loc~~</td>	                    <td>~~|file:///etc/passwd|~~</td></tr>
-<tr><td>~~dateTime~~</td>                  <td>~~$2101-09-05T07:16:19.714+0200~~</td></tr>
-<tr><td>~~tuple[$T1$,...,$Tn$]~~</td><td>~~<1,2>~~, ~~<"john", 43, true>~~</td></tr>
-<tr><td>~~list[$T$]~~</td>	            <td>~~[]~~, ~~[1]~~, ~~[1,2,3]~~, ~~[true, 2, "abc"]~~</td></tr>
-<tr><td>~~set[$T$]~~</td>	            <td>~~{}~~, ~~{1,2,3,5,7}~~, ~~{"john", 4.0}~~</td></tr>
-<tr><td>~~rel[$T1$,...,$Tn$]~~</td>    <td>~~{<1,2>,<2,3>,<1,3>}~~, ~~{<1,10,100>, <2,20,200>}~~</td></tr>
-<tr><td>~~map[$T$, $U$]~~</td>	    <td>~~()~~, ~~(1:true, 2:false)~~, ~~("a":1, "b":2)~~</td></tr>
-<tr><td>~~node~~</td>	                    <td>~~f()~~, ~~add(x,y)~~, ~~g("abc", [2,3,4])~~</td></tr>
+<tr><td>`bool`</td>	                   <td>`true`, `false`</td></tr>
+<tr><td>`int`</td>	                   <td>`11, 101, 1-11, 1123456789`</td></tr>
+<tr><td>`real`</td>	                   <td>`1.01, 11.0232e201, 1-25.5`</td></tr>
+<tr><td>`str`</td>	                   <td>`"abc"`, `"first\nnext"`, `"result: <X>"`</td></tr>
+<tr><td>`loc`</td>	                    <td>`|file:///etc/passwd|`</td></tr>
+<tr><td>`dateTime`</td>               	<td>`$2101-09-05T07:16:19.714+0200`</td></tr>
+<tr><td>`tuple[$T1$,...,$Tn$]`			</td><td>`<1,2>`, `<"john", 43, true>`</td></tr>
+<tr><td>`list[$T$]`</td>	            <td>`[]`, `[1]`, `[1,2,3]`, `[true, 2, "abc"]`</td></tr>
+<tr><td>`set[$T$]`</td>	            	<td>`{}`, `{1,2,3,5,7}`, `{"john", 4.0}`</td></tr>
+<tr><td>`rel[$T1$,...,$Tn$]`</td>    	<td>`{<1,2>,<2,3>,<1,3>}`, `{<1,10,100>, <2,20,200>}`</td></tr>
+<tr><td>`map[$T$, $U$]`</td>	    	<td>`()`, `(1:true, 2:false)`, `("a":1, "b":2)`</td></tr>
+<tr><td>`node`</td>	                    <td>`f()`, `add(x,y)`, `g("abc", [2,3,4])`</td></tr>
 </table>
 <br>
 A fragment of the datatype that defines the abstract syntax for statements (assignment, if, while) in a programming language would look as follows:

@@ -8,7 +8,7 @@ Synopsis:
 
 Description:
 
-Control structures like [[if]] and [[while]] statement are driven by Boolean expressions.
+Control structures like [if] and [while] statement are driven by Boolean expressions.
 Actually, combinations of generators and Boolean expressions can be used to drive the control structures. 
 In the latter case, the Boolean expression is executed for each generated value.
 
@@ -29,7 +29,7 @@ for(/asgStat(Id name, _) <- P, size(name) > 10){
     println(name);
 }
 </listing>
-This statement prints all identifiers in assignment statements (~~asgStat~~) that consist of more than 10 characters.
+This statement prints all identifiers in assignment statements (`asgStat`) that consist of more than 10 characters.
 
 Benefits:
 

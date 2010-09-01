@@ -78,56 +78,35 @@ public str markup(list[str] lines, str cp){
     // Sections
     case /^=<eqs:[=]+><label:[^=]*>[=]+/: { res += h(size(eqs), label); i += 1; }
     
+    // Horizontal line
+    case /^----/: { res += hr(); i += 1; }
+    
     // Unordered lists
     case /^<stars:[\*]+><entry:.*>/: {
        i += 1;
-       nl = 0;
-       while(i < n && nl < 2){
-         more = lines[i];
-         if(startsWith(more, "*"))
-            nl = 2;
-         else {
-            if(/^\s*$/ := more)
-              nl += 1;
-            else if(nl > 0){
-               nl = 0;
-               entry +=  br() + br() + more;
-            } else
-              entry += " " + more;
-            i += 1;
-          }
+       while(i < n && /^\*\:<more:.*>/ := lines[i]){
+         entry += " " + more;
+         i += 1;
        }
        res += listEntry("ul", size(stars), entry); 
     }
-    
+  		
     // Ordered lists
-    case /^<hashes:[\#]+><entry:.*>/: {
+    case /^<hashes:[\#]+><entry:.*>/: { 
        i += 1;
-       nl = 0;
-       while(i < n && nl < 2){
-         more = lines[i];
-         if(startsWith(more, "#"))
-            nl = 2;
-         else {
-            if(/^\s*$/ := more)
-              nl += 1;
-            else if(nl > 0){
-               nl = 0;
-               entry +=  br() + br() + more;
-            } else
-              entry += " " + more;
-            i += 1;
-          }
+       while(i < n && /^\#\:<more:.*>/ := lines[i]){
+         entry += " " + more;
+         i += 1;
        }
-       res += listEntry("ol", size(hashes), entry); 
+      res += listEntry("ol", size(hashes), entry); 
     }
    
-    case /^\<screen\>\s*<codeLines:.*>$/: {
+    case /^\<screen\>\s*<code:.*>$/: {
       res += closeLists();
       i += 1;
       start = i;
       while((i < n) && /^\<\/screen\>/ !:= lines[i]){
-         codeLines += lines[i] + "\n";
+         code += lines[i] + "\n";
          i += 1;
       }
       res += markupScreen(slice(lines, start, i - start));
@@ -137,9 +116,9 @@ public str markup(list[str] lines, str cp){
     case /^\<listing\s*<name:.+>\>$/: {
       loc L = |stdlib:///|[path = name];
       try {
-      	codeLines = readFileLines(L);
-      	println("codeLines = <codeLines>");
-      	res += markupListing(codeLines);
+      	code = readFileLines(L);
+      	println("code = <code>");
+      	res += markupListing(code);
       } catch: res += "\<warning\>File <name> not found.\</warning\>";
       i += 1;
     }
@@ -147,13 +126,13 @@ public str markup(list[str] lines, str cp){
     case /^\<listing\>\s*<rest:.*>$/: {
       res += closeLists();
       i += 1;
-      codeLines = [];
+      code = [];
       while((i < n) && /^\<\/listing\>/ !:= lines[i]){
-         codeLines += lines[i];
+         code += lines[i];
          i += 1;
       }
-      //res += pre("listing", codeLines);
-      res += markupListing(codeLines);
+      //res += pre("listing", code);
+      res += markupListing(code);
       i += 1;
       }
     case /^$/: {
@@ -180,72 +159,35 @@ public str markup(list[str] lines, str cp){
 public str markupRestLine(str line){
   ///println("markupRestLine(<line>)");
   return visit(line){
-    case /^\\\\/ =>	"\\"
-    case /^\\`/  =>	"`"
-    case /^\\\*/ =>	"*"
-    case /^\\_/  =>	"_"
-    case /^\\\+/ =>	"+"
-    case /^\\\./ =>	"."
-    case /^_<text:[^_]+>_/       => i(text)
-    case /^__<text:[^_]+>__/     => b(text)
-    case /^\*<text:[^*]+>\*/     => i(text)
-    case /^\*\*<text:[^*]+>\*\*/ => b(text)
+  
+     // '' = Italic; ''' = Bold; ''''' = Bold Italic
+    case /^'<apo:[']+><text:[^']+>'+/: {
+       n = size(apo);
+       insert (n == 1) ? i(text) : ((n == 2) ? b(text) : b(i(text)));
+    }
     
-    case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"images/<dig>.png\"\>"
+    case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"images/<dig>.png\"\>"
     
-    case /^`<c:[^`]*>`/ => code(markupCode(c))
+    case /^~~<code:[^\~]*>~~/ => tt(markupRestLine(code))
     
-    case /^\$<var:[A-Za-z]*><subscript:[0-9]+>?\$/ =>
+    case /^\$<var:[A-Z][A-Za-z]*><subscript:[0-9]>?\$/ =>
                                 i(var) + ((subscript == "") ? "" : sub(subscript))
-    case /^\$<var:[A-Za-z]*>_<subscript:[A-Za-z0-9]+>\$/ => i(var) + sub(subscript)
-    case /^\$<var:[A-Za-z]*>\^<subscript:[A-Za-z0-9]+>\$/ => i(var) + sup(subscript)
                                 
     case /^\[\[\[<file:[A-Za-z0-9\-\_]+\.png><opts:[^\]]*>\]\]\]/ => "\<img <getImgOpts(opts)> src=\"<conceptPath>/<file>\"\>"
     
-    case /^\[<text:[^\]]*>\]\(<url:[^)]+>\)/ => link(url, text)
+    case /^\[\[http:<url:[^\]]+>\]\]/ => link("http:" + url)
     
-    case /^\[<concept:[A-Za-z0-9\/]+>\]/  => show(concept)
-    
-    case /^<span:\<[^\>]+\>>/ => span
-    
-    case /^<ent:&[A-Za-z]+;>/ => ent
-    
-    case /^<ent:#[0-9aAbBcCdDeEfF]+>/ => ent
-    
-    case /^&/ => "&"
-    
-    case /^\</ => "&lt;"
+    case /^\[\[<concept:[^\]]+>\]\]/  => show(concept)
     
    };
 }
-
-test markupRestLine("\\\\") ==  "\\";
-test markupRestLine("\\`") ==  "`";
-test markupRestLine("\\*") ==  "*";
-test markupRestLine("\\_") ==  "_";
-test markupRestLine("\\+") ==  "+";
-test markupRestLine("\\.") ==  ".";
-
-test markupRestLine("*abc*") == "\<i\>abc\</i\>";
-test markupRestLine("**abc**") == "\<b\>abc\</b\>";
-test markupRestLine("_abc_") == "\<i\>abc\</i\>";
-test markupRestLine("__abc__") == "\<b\>abc\</b\>";
-
-test markupRestLine("`printf()`") == "\<code\>printf()\</code\>";
-test markupRestLine("x\<sub\>1\</sub\>") ==  "x\<sub\>1\</sub\>";
-test markupRestLine("x\<y") ==  "x\<sub\>1\</sub\>";
-
-test markupRestLine("&copy;") == "&copy;";
-test markupRestLine("C&A") == "C&A";
-
-
 
 public str show(str cn){
   return "\<a href=\"/show?concept=<cn>\"\><cn>\</a\>";
 }
 
-public str link(str url, str text){
-  return "\<a href=\"<url>\"\><(text=="")?url:text>\</a\>";
+public str link(str url){
+  return "\<a href=\"<url>\"\><url>\</a\>";
 }
 
 public str getImgOpts(str txt){
@@ -263,21 +205,14 @@ public str getImgOpts(str txt){
 public str markupListing(list[str] lines){
   txt = "";
   for(line <- lines)
-    txt += markupCode(line) + "\n";
+    txt += markupListingLine(line) + "\n";
   return pre("listing", txt);
 }
 
-public str markupCode(str text){
-  return visit(text){
-    case /^\</   => "&lt;"
-    case /^&/    => "&amp;"
-    case /^\$\$/ => "$"
+public str markupListingLine(str line){
+  return visit(line){
     case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"images/<dig>.png\"\>"
-    case /^\$<var:[A-Za-z]*><subscript:[0-9]+>?\$/ =>
-                                i(var) + ((subscript == "") ? "" : sub(subscript))
-    case /^\$<var:[A-Za-z]*>_<subscript:[A-Za-z0-9]+>\$/ => i(var) + sub(subscript)
-    case /^\$<var:[A-Za-z]*>\^<subscript:[A-Za-z0-9]+>\$/ => i(var) + sup(subscript)
-  };
+  }
 }
 
 public str markupRascalPrompt(list[str] lines){
@@ -308,7 +243,7 @@ public str markupScreen(list[str] lines){
    int i = 0; int upbi = size(lines);
    int j = 0; int upbj = size(result_lines);
    pre_open = "\<pre class=\"screen\"\>";
-   codeLines = pre_open;
+   code = pre_open;
    inPre = true;
    prompt =       "rascal\>";
    continuation = "\>\>\>\>\>\>\>";
@@ -319,14 +254,14 @@ public str markupScreen(list[str] lines){
                lines[i] = substring(lines[i], 2);
                i += 1;
            }
-           codeLines += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
+           code += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
          }
          if(i <upbi) {
-         	codeLines += b(prompt) + escapeForHtml(lines[i]) + "\n";
+         	code += b(prompt) + escapeForHtml(lines[i]) + "\n";
          	i += 1; j += 1;
          }
          while(j < upbj && !startsWith(result_lines[j], prompt)){
-           codeLines += result_lines[j] + "\n";
+           code += result_lines[j] + "\n";
            if(i < upbi && startsWith(result_lines[j], continuation)){
               i += 1;
              }
@@ -339,12 +274,12 @@ public str markupScreen(list[str] lines){
                lines[i] = substring(lines[i], 2);
                i += 1;
            }
-           codeLines += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
+           code += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
          }
 
    }
-   codeLines += "\</pre\>";
-   return codeLines;
+   code += "\</pre\>";
+   return code;
 }
 
 public str markupSynopsis(list[str] lines){

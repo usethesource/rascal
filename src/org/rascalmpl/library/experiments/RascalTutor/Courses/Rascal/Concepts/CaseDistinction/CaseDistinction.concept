@@ -10,14 +10,14 @@ Description:
 
 The switch statement as known from C and Java is generalized: the subject value to switch on may be an 
 arbitrary value and the cases are arbitrary patterns followed by a statement. 
-Each case is comparable to a ''transaction'': when the pattern succeeds and the following statement is 
+Each case is comparable to a _transaction_: when the pattern succeeds and the following statement is 
 executed successfully, all changes to variables made by the statement are committed and thus become permanent. 
 The variables bound by the pattern are always local to the statement associated with the case. 
-When a match fails or when the associated statement fails, a ''rollback'' takes place and all side-effects are undone. 
+When a match fails or when the associated statement fails, a _rollback_ takes place and all side-effects are undone. 
 External side-effects like I/O and side-effects in user-defined Java code are not undone. 
 
 Examples:
-Here is an example where we take a program ~~P~~ and distinguish two cases for while and if statement:
+Here is an example where we take a program `P` and distinguish two cases for while and if statement:
 <listing>
 switch (P){
 case whileStat(_, _):

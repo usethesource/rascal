@@ -6,7 +6,7 @@ Related:
 
 Synopsis: int size(set[&T] s)
 
-Description: Returns the number of elements in <tt>s</tt>.
+Description: Returns the number of elements in `s`.
 
 Examples:
 <screen>

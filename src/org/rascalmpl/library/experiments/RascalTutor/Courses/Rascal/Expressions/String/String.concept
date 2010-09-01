@@ -7,11 +7,11 @@ Related:
 Synopsis: str
 
 Description:
-The string values are represented by the type ~~str~~ and consist of character 
-sequences surrounded by double quotes. e.g., ~~"a"~~ or ~~"a\nlong\nstring"~~.
+The string values are represented by the type `str` and consist of character 
+sequences surrounded by double quotes. e.g., `"a"` or `"a\nlong\nstring"`.
 
-String literals support so-called ''string interpolation'': 
-inside string constants text between angle brackets (~~&lt;~~ and ~~&gt;~~) is first executed and then replaced by
+String literals support so-called _string interpolation_: 
+inside string constants text between angle brackets (`<` and `>`) is first executed and then replaced by
  its string value.
 Various statements (if, for, while, do) also return a value and can be used in this way.
 In the interpolation variant of these statements the block or blocks that are part of the statement become arbitrary text 
@@ -20,12 +20,14 @@ In the interpolation variant of these statements the block or blocks that are pa
 
 Their forms are:
 
-* ~~&lt;if(''Exp''){> ... ''Text'' ... &lt;}>~~
-* ~~&lt;if(''Exp''){> ... ''Text'' ... &lt;} else {>  ... ''Text'' ... &lt;}>~~
-* ~~&lt;for(''Exp''){>... ''Text'' ... &lt;}>~~
-* ~~&lt;while(''Exp''){> ... ''Text'' ... &lt;}>~~
-* ~~&lt;do {>... ''Text'' ... &lt;} while (''Exp'')>~~
-Here ''Text'' is arbitrary text that may itself contain again contain interpolations.
+* `<if($Exp$){> ... $Text$ ... <}>`
+* `<if($Exp$){> ... $Text$ ... <} else {>  ... $Text$ ... <}>`
+* `<for($Exp$){>... $Text$ ... <}>`
+* `<while($Exp$){> ... $Text$ ... <}>`
+* `<do {>... $Text$ ... <} while ($Exp$)>`
+
+
+Here `$Text$` is arbitrary text that may itself contain again contain interpolations.
 
 Examples:
 <screen>
@@ -40,7 +42,6 @@ N = 13;
 "N is <if(N < 10){> small <} else {> large (<N>)<}>";
 "before <for(x<-[1..5]){>a <x> b <}>after";
 </screen>
-
 
 Benefits:
 String interpolation enables very flexible template-based text generation as used in generators for

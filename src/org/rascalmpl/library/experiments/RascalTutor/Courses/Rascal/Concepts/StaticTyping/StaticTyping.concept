@@ -7,19 +7,18 @@ Related: Boolean Integer Real Set Map
 Synopsis:
 
 Description:
-Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called ''type lattice'' shown in the following figure. <br>
+Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called _type lattice_ shown in the following figure. <br>
 
 [[[type-lattice.png|right|400px]]]
 <br>
-The arrows describe a ''subtype-of'' relation between types. The type <tt>void</tt> is the ''smallest'' type and 
-is included in all other types and the type <tt>value</tt> is the ''largest'' type that includes all other types. 
-We also see that <tt>rel</tt> is a subtype of <tt>set</tt> and that each ADT is a subtype of <tt>node</tt>. 
+The arrows describe a _subtype-of_ relation between types. The type `void` is the _smallest_ type and 
+is included in all other types and the type `value` is the _largest_ type that includes all other types. 
+We also see that `rel` is a subtype of `set` and that each ADT is a subtype of `node`. 
 A special role is played by the datatype <tt>Tree</tt> that is the generic type of syntax trees. 
-Syntax trees for specific languages are all subtypes of Tree. As a result, syntax trees can be addressed at two levels: 
-* in a generic fashion as <tt>Tree</tt> and,
+Syntax trees for specific languages are all subtypes of `Tree`. As a result, syntax trees can be addressed at two levels: 
+* in a generic fashion as `Tree` and,
 * in a specific fashion as a more precisely typed syntax tree. 
-Finally, each <tt>alias</tt> is structurally equivalent to one or more specific other types.
-
+Finally, each `alias` is structurally equivalent to one or more specific other types.
 
 Examples:
 

@@ -9,11 +9,11 @@ Type: <tt>bool</tt>
 Values: <tt>true</tt> and <tt>false</tt>
 
 Description:
-The Booleans are represented by the type <tt>bool</tt> which has two values: <tt>true</tt> and <tt>false</tt>.
+The Booleans are represented by the type `bool` which has two values: `true` and `false`.
 
 Examples:
-* true
-* false
+* `true`
+* `false`
 
 Benefits:
 

@@ -6,7 +6,7 @@ Related:
 
 Synopsis: tuple[&T, set[&T]] takeOneFrom(set[&T] s)
 
-Description: Remove an arbitrary element from set <tt>s</tt> and return a tuple consisting of the element and the modified set.
+Description: Remove an arbitrary element from set `s` and return a tuple consisting of the element and the modified set.
 
 Examples:
 <screen>

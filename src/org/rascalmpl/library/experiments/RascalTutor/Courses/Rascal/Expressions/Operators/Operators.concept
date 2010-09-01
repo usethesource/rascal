@@ -1,0 +1,76 @@
+Name:Operators
+
+Details:
+
+Categories:
+
+Related:
+
+Synopsis:
+
+Description:
+<table width="100%">
+<col align=left width="20%">
+<col align=left width="15%">
+<col align=left width="65%">
+
+<tr><th align="left">Operator</th>	                  <th align="left">Name</th>	                   <th align="left">Description</th></tr>
+
+<tr><td>`$Exp$ . $Name$`</td>	                 <td>Field selection</td>          <td>Exp should evaluate to a tuple or datatype with field $Name$; 
+                                                                                                                                            return the value of that field</td></tr>
+
+<tr><td>`$Exp1$ [ $Name$ = $Exp2$ ]`</td>   <td>Field assignment</td>        <td>$Exp1$ should evaluate to a tuple or datatype with a field $Name$; 
+                                                                                                                                              assign value $Exp2$ to that field</tr>
+
+<tr><td>`$Exp$ < $field1$, ... >`</td>              <td>Field projection</td>         <td>$Exp$ should evaluate to a tuple or relation, and field should be 
+                                                                                                                                            a field name or an integer constant. A new tuple or relation is
+                                                                                                                                            returned that only contains the listed fields.</td></tr>
+
+<tr><td>`$Exp1$ [ $Exp2$ , $Exp3$, .... ]`</td> <td>Subscription</td>              <td>The value of $Exp2$ , $Exp3$, ... are used as index in $Exp1$'s value. 
+                                                                                                                                             On list, tuple return the element with given (single!) index value; 
+                                                                                                                                              for map return the value associated with $Exp2$ 's value. 
+                                                                                                                                              On relations more than one index is allowed. 
+                                                                                                                                              All tuples are returned that have the values of 
+                                                                                                                                              $Exp2$, $Exp3$, ... as first elements. These values are 
+                                                                                                                                               removed from each tuple.</td></tr>
+
+<tr><td>`- $Exp$`</td>                                        <td>Negation</td>	               <td>Negative of $Exp$'s integer or real value</td></tr>
+
+<tr><td>`$Exp$ +`</td>	                                          <td>Transitive closure</td>	<td>Transitive closure on relation</td></tr>
+
+<tr><td>`$Exp$ *`</td>                                            <td>Reflexive transitive closure</td>
+                                                                                                                                         <td>Reflexive transitive closure on relation</td></tr>
+
+<tr><td>`$Exp$ @ $Name$`</td>	                    <td>Annotation selection</td>	    <td>Value of annotation $Name$ of $Exp$'s value</td></tr>
+
+<tr><td>`$Exp1$ [@ $Name$ = $Exp2$]`</td>	     <td>Annotation replacement</td>   <td>Assign value of $Exp2$ to annotation $Name$ of $Exp1$'s 
+                                                                                                                                                        value</td></tr>
+
+<tr><td>`$Exp1$ o $Exp2$`</td>	                      <td>Composition</td>	                <td>$Exp1$ and $Exp2$ should evaluate to a relation; 
+                                                                                                                                                         return their composition. Note: the letter "o" is thus a
+                                                                                                                                                          keyword!</td></tr>
+
+<tr><td>`$Exp1$ / $Exp2$`</td>	                       <td>Division</td>	                        <td>Divide two integers and reals</td></tr>
+
+<tr><td>`$Exp1$ % $Exp2$`</td>	                        <td>Modulo</td>	                         <td>Modulo on integer</td></tr>
+
+<tr><td>`$Exp1$ * $Exp2$`</td>	                        <td>Multiplication / Product</td>	<td>Multiply integers or real; product of list, set, relation</td></tr>
+
+<tr><td>`$Exp1$ & $Exp2$`</td>                              <td>Intersection</td>                      <td>Intersection of list, set, map or relation</td></tr>
+<tr><td>`$Exp1$ + $Exp2$`</td>	                         <td>Addition / concatenation / union</td> 
+                                                                                                                                                   <td> Add integer and real; concatenate string, list or tuple; 
+                                                                                                                                                             union on set, map, or relation</td></tr>
+
+<tr><td>`$Exp1$ - $Exp2$`</td>                                  <td>Subtraction / difference</td>	<td>Subtract integer or real; difference of list, set, map,
+                                                                                                                                                                         or relation</td></tr>
+<tr><td>`$Exp1$ join $Exp2$`</td>	                            <td>Join</td>                                        <td>Join on relation</td></tr>
+</table>
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

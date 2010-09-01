@@ -57,6 +57,10 @@ public str tt(str txt){
   return "\<tt\><txt>\</tt\>";
 }
 
+public str code(str txt){
+  return "\<code\><txt>\</code\>";
+}
+
 public str blockquote(str txt){
   return "\<blockquote\><txt>\</blockquote\>";
 }
@@ -75,6 +79,10 @@ public str li(str txt){
 
 public str sub(str txt){
 return "\<sub\><txt>\</sub\>";
+}
+
+public str sup(str txt){
+return "\<sup\><txt>\</sup\>";
 }
 
 public str ul(str txt){
