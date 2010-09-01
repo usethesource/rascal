@@ -18,8 +18,6 @@ public class ContainerNode extends AbstractNode{
 	private final int offset;
 	private final int endOffset;
 	
-	private final boolean isListContainer;
-	
 	private boolean rejected;
 
 	private Link firstAlternative;
@@ -29,14 +27,12 @@ public class ContainerNode extends AbstractNode{
 	
 	private IConstructor cachedResult;
 	
-	public ContainerNode(URI input, int offset, int endOffset, boolean isListContainer){
+	public ContainerNode(URI input, int offset, int endOffset){
 		super();
 		
 		this.input = input;
 		this.offset = offset;
 		this.endOffset = endOffset;
-		
-		this.isListContainer = isListContainer;
 	}
 	
 	public void addAlternative(IConstructor production, Link children){

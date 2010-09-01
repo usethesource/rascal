@@ -224,7 +224,7 @@ public abstract class SGLL implements IGLL{
 			if(resultStore != null){
 				if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 			}else{
-				resultStore = new ContainerNode(inputURI, startLocation, location, edge.isList());
+				resultStore = new ContainerNode(inputURI, startLocation, location);
 				resultStoreCache.unsafePut(nodeName, startLocation, resultStore);
 				resultStore.addAlternative(production, resultLink);
 				
@@ -265,7 +265,7 @@ public abstract class SGLL implements IGLL{
 			if(resultStore != null){
 				resultStore.setRejected();
 			}else{
-				resultStore = new ContainerNode(inputURI, startLocation, location, edge.isList());
+				resultStore = new ContainerNode(inputURI, startLocation, location);
 				resultStoreCache.unsafePut(nodeName, startLocation, resultStore);
 				resultStore.setRejected();
 				
