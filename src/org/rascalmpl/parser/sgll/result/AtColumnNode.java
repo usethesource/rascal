@@ -33,7 +33,7 @@ public class AtColumnNode extends AbstractNode{
 		return ATCOLUMN;
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, LocationContainer locationContainer){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		return result; 
 	}
 }
