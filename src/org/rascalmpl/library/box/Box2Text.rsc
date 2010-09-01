@@ -131,7 +131,7 @@ text vv_(text a, text b) {
 
 public str convert2latex(str s) {
 	return visit (s) { 
-	  case /^`/ => "{\\textasciigrave}"
+	  case /^<backquote>/ => "{\\textasciigrave}"
 	  case /^\"/ => "{\\textacutedbl}"
 	  case /^\{/ => "\\{"
 	  case /^\}/ => "\\}"
@@ -164,7 +164,7 @@ str convert2latex(str s) {
 
 text LL(str s ) { 
    // println(s);
-   if (startsWith(s,"\"`") && endsWith(s,"`\"")) {
+   if (startsWith(s,"\"<backquote>") && endsWith(s,"<backquote>\"")) {
        s = substring(s, 1, size(s)-1);
        s = replaceAll(s, "\\\\\"", "\"");
        }
@@ -499,9 +499,11 @@ public text box2text(Box b) {
     }
 
 public text box2data(Box b) {
+    println("BEGIN box2data");
     b = removeHV(b);
     b = removeHOV(b);
     text t = O(b, V([]), oDefault, maxWidth);
+    println("END box2data");
     return t;
     }
 
@@ -520,14 +522,9 @@ public text box2latex(Box b) {
     latex = true;
     decorated =  true;
     lt = text2latex(box2data(b));
-    text t = getFileContent("box/Start.tex")+lt+getFileContent("box/End.tex");
-    
+    text t = getFileContent("box/Start.tex")+lt+getFileContent("box/End.tex");    
     latex = false;
     // println("End box2latex");
-    /* for (str r<-t) {
-          println(r);
-     } 
-     */
     return t;
     }
 

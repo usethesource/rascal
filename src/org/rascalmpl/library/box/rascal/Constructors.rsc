@@ -11,15 +11,15 @@ switch(a) {
 	case `<BasicType basicType> ( <{Expression ","}*  c > ) `: return NULL();
 	case `<Expression expression> ( <{Expression ","}*  c > ) `: return NULL();
 	case `[ <{Expression ","}*  c > ] `:   {
-             return getConstructor(c, #Expression,"[", "]");
+             return getConstructor(c, "[", "]");
              }
 	case `{ <{Expression ","}*  c > } `: {
-	         return getConstructor(c, #Expression,"{", "}");
+	         return getConstructor(c, "{", "}");
              }
 	// case `<<{Expression ","}+  c >>`: return NULL();
         /*
 	case (Expression)`<<Expression ei>>`: {
-	          return getConstructor(ei, #Expression,"<", ">");
+	          return getConstructor(ei, "<", ">");
 	          }
 	case `<<Expression ei>, <{Expression ","}* el>>` : return NULL();
          */

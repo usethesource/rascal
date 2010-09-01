@@ -98,9 +98,12 @@ public text toText(loc asf){
      
 public text toLatex(loc asf){
      str s = getRascalFileContent(asf);
+     println("toLatex: parse");
      Tree a = parse(#Module, s);
+     println("toLatex: parsed");
      // rawPrintln(a);
      setUserRules();
+     println("start:");
      text r = toLatex(a);
      writeLatex(asf, r, ".rsc");
      return r;

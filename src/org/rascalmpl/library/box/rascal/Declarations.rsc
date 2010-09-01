@@ -90,7 +90,7 @@ switch(a) {
 	case `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+  c > ; `: return NULL();
 	         {
 	         list[Box] h = [evPt(kind)];
-             return H(h+getArgs(c, #Type));
+             return H(h+getArgs(c));
              }
 }
 */
