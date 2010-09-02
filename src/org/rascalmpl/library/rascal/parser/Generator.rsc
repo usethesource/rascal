@@ -4,6 +4,7 @@ import rascal::parser::Grammar;
 import rascal::parser::Parameters;
 import rascal::parser::Regular;
 import rascal::parser::Normalization;
+import rascal::parser::Lookahead;
 import ParseTree;
 import String;
 import List;
@@ -311,7 +312,7 @@ private bool symbolMatch(Symbol checked, Symbol referenced) {
   may seem pretty general (i.e. any symbol can be a restriction), we actually only allow finite languages
   defined as either sequences of character classes or literals.
 }
-public str generateLookaheads(Grammar grammar, int() id, set[Production] restrictions) {
+public str generateRestrictions(Grammar grammar, int() id, set[Production] restrictions) {
   result = "new IMatchableStackNode[] {"; 
   
   // not that only single symbol restrictions are allowed at the moment.
@@ -332,7 +333,7 @@ public str generateLookaheads(Grammar grammar, int() id, set[Production] restric
   may seem pretty general (i.e. any symbol can be a restriction), we actually only allow finite languages
   defined as either sequences of character classes or literals.
 }
-public str generateLookaheads(set[Production] restrictions) {
+public str generateRestrictions(set[Production] restrictions) {
   result = "new IMatchableStackNode[] {"; 
   
   // not that only single symbol restrictions are allowed at the moment.
@@ -410,7 +411,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
             Production litProd = choice(sym, grammar.rules[sym]);
             
             if (restrict(\lit(l), choice(\lit(l), {p:prod(list[Symbol] chars,\lit(l),_)}), restrictions) := litProd) { 
-                return <"new LiteralStackNode(<itemId>, <value2id(p)>, <generateLookaheads(grammar,id,restrictions)>, new char[] {<literals2ints(chars)>})",itemId>;
+                return <"new LiteralStackNode(<itemId>, <value2id(p)>, <generateRestrictions(grammar,id,restrictions)>, new char[] {<literals2ints(chars)>})",itemId>;
             }
             else if (p:prod(chars,\lit(l),_) := litProd) {  
                 return <"new LiteralStackNode(<itemId>, <value2id(p)>, new char[] {<literals2ints(chars)>})",itemId>;
