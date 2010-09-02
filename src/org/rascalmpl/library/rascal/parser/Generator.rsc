@@ -97,7 +97,7 @@ public class <name> extends SGLL{
 	<for (Symbol s <- newItems, lit(_) !:= s) { items = newItems[s]; >
 	private static class <value2id(s)>{
 		<for (Item i <- items) {>
-		public static final AbstractStackNode <value2id(i.production)>_<value2id(i.index)> = <items[i].new>;
+		private static final AbstractStackNode <value2id(i.production)>_<value2id(i.index)> = <items[i].new>;
 		<}>
 	}
 	<}>
