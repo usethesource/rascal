@@ -21,7 +21,6 @@ import box::Latex;
 int maxWidth = 80;
 int hv2h_crit = 70;
 bool decorated = false;
-bool latex = false;
 
 
 alias options = map [str, int];
@@ -129,38 +128,7 @@ text vv_(text a, text b) {
      return vv(a, b);
 }
 
-public str convert2latex(str s) {
-	return visit (s) { 
-	  case /^<backquote>/ => "{\\textasciigrave}"
-	  case /^\"/ => "{\\textacutedbl}"
-	  case /^\{/ => "\\{"
-	  case /^\}/ => "\\}"
-	  case /^\\/ => "{\\textbackslash}"
-	  case /^\</ => "{\\textless}"
-	  case /^\>/ => "{\\textgreater}"
-	  case /^\|/ => "{\\textbar}"
-	  case /^%/ => "\\%"
-	  // case /^-/ => "{\\textendash}"
-	}	
-}
 
-/*
-str convert2latex(str s) {
-    list[tuple[str, str]] str2latex = [
-         <"\\{", "\\{">,
-         <"\\}", "\\}">,
-         <"\\\\[^{}]", "{\\textbackslash}">,
-         <"\\\<", "{\\textless}">,
-         <"\\\>","{\\textgreater}">,
-         <"\\|","{\\textbar}">,
-         <"%", "\\%" > 
-         ]; 
-     for (<str a, str b> <- str2latex) {
-         s = replaceAll(s, a, b);
-         } 
-     return s;         
-    }
-*/
 
 text LL(str s ) { 
    // println(s);
@@ -168,7 +136,7 @@ text LL(str s ) {
        s = substring(s, 1, size(s)-1);
        s = replaceAll(s, "\\\\\"", "\"");
        }
-   return latex?[convert2latex(s)]:[s];
+   return [s];
    }
 
 /*
@@ -492,11 +460,7 @@ public str format(Box b) {
   return "<for (l <- t) {><l>\n<}>";
 }
 
-public text box2text(Box b) {
-    decorated =  false;
-    text t = box2data(b);
-    return t;
-    }
+
 
 public text box2data(Box b) {
     println("BEGIN box2data");
@@ -506,25 +470,70 @@ public text box2data(Box b) {
     println("END box2data");
     return t;
     }
+    
+public str convert2latex(str s) {
+	return visit (s) { 
+	  case /^\r\{/ => "\r{"
+	  case /^\r\}/ => "\r}"
+	  case /^<backquote>/ => "{\\textasciigrave}"
+	  case /^\"/ => "{\\textacutedbl}"
+	  case /^\{/ => "\\{"
+	  case /^\}/ => "\\}"
+	  case /^\\/ => "{\\textbackslash}"
+	  case /^\</ => "{\\textless}"
+	  case /^\>/ => "{\\textgreater}"
+	  case /^\|/ => "{\\textbar}"
+	  case /^%/ => "\\%"
+	  // case /^-/ => "{\\textendash}"
+	}	
+}
 
 str text2latex(str t) {
+    t = convert2latex(t);
     return visit(t) {
        case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<key>}"
        }
     }
-
+    
+str text2txt(str t) {
+    return visit(t) {
+       case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "<key>"
+       }
+    }
+    
 text text2latex(text t) {
     return [text2latex(s)|s<-t];
     }
-      
+    
+text text2txt(text t) {
+    return [text2txt(s)|s<-t];
+    }   
+
+map[Box, text] aux=();
+     
 public text box2latex(Box b) {
     // println("Start box2latex");
-    latex = true;
     decorated =  true;
-    lt = text2latex(box2data(b));
-    text t = getFileContent("box/Start.tex")+lt+getFileContent("box/End.tex");    
-    latex = false;
+    text q = [];
+    if (aux[b]?) q = aux[b];
+    else {
+        q = box2data(b);
+        aux+=(b:q);
+        }
+    text t = getFileContent("box/Start.tex")+text2latex(q)+getFileContent("box/End.tex");    
     // println("End box2latex");
+    return t;
+    }
+    
+ public text box2text(Box b) {
+    decorated =  true;
+    text q = [];
+    if (aux[b]?) q = aux[b];
+    else {
+        q = box2data(b);
+        aux+=(b:q);
+        }
+    text t = text2txt(q);
     return t;
     }
 

@@ -27,8 +27,13 @@ list[UserDefinedFilter] userDefinedFilters = [
        getRascal, 
        getTypes
        ];
-
-list[int] isIndented(list[Symbol] q, list[Tree] z) {
+       
+list[int] isIndent(list[Symbol] q) {
+       if (isScheme(q , ["N", "T", "(", "N", ")","{", "N","}"])) return [6, 7];
+       return [];
+       }
+       
+list[int] isBlok(list[Symbol] q, list[Tree] z) {
         if (isScheme(q , ["N","T", "(", "N", ")", "N"])) return isBlock(z, 5);  // for
         if (isScheme(q , ["N","T", "(", "N", ")", "N", "N"])) return isBlock(z, 5); // if then
         if (isScheme(q , ["N", "N", "N", "N"])) return isBody(z,3); // Visibility Signature FunctionBody
@@ -38,7 +43,7 @@ list[int] isIndented(list[Symbol] q, list[Tree] z) {
         if (isScheme(q , ["T", "T", "N"])) return isBlock(z, 2);  // catch
         if (isScheme(q , ["T", "N", "T", "N"])) return  isBlock(z, 3);  // catch
         if (isScheme(q , ["N", ":", "N"])) return isBlock(z, 2);  // pattern with action
-        if (isScheme(q , ["N", "T", "(", "N", ")","{", "N","}"])) return [-1, 6];  // switch visit
+          // switch visit
         if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [-1, 5];  // visit
      return [];
      }
@@ -82,7 +87,8 @@ bool isSeparated(list[Symbol] q) {
 
 void setUserRules() {
     setUserDefined(extraRules);
-    setIndented(isIndented);
+    setIndent(isIndent);
+    setBlok(isBlok);
     setCompact(isCompact);
     setKeyword(isKeyword);
     setString(isString);
@@ -91,9 +97,14 @@ void setUserRules() {
       
 public text toText(loc asf){
     //  println(locationIntro);
-     Tree a = parse(#Module, asf);
+     // Tree a = parse(#Module, asf);
+     str s = getRascalFileContent(asf);
+     println("Txt: parse");
+     Tree a = parse(#Module, s);
      setUserRules();
-     return toText(a);
+     text r = toText(a);
+     writeData(asf, r, ".txt");
+     return r;
      }
      
 public text toLatex(loc asf){
@@ -104,10 +115,24 @@ public text toLatex(loc asf){
      // rawPrintln(a);
      setUserRules();
      println("start:");
-     text r = toLatex(a);
-     writeLatex(asf, r, ".rsc");
+     text r =[];
+     r = toText(a);
+     writeData(asf, r, ".txt");
+     r = toLatex(a);
+     writeData(asf, r, ".tex");
      return r;
      }
+     
+public Box getDefault(Tree q) {
+if (LocationLiteral a:=q) 
+switch(a) {
+	case `<ProtocolPart protocolPart> <PathPart pathPart>`: {
+	         return STRING(L("<protocolPart><pathPart>"));
+	         }
+	
+}
+return NULL();
+}    
 
 // Don't change this part 
 
@@ -116,6 +141,8 @@ public Box extraRules(Tree q) {
            Box b = userDefinedFilter(q);
            if (b!=NULL()) return b;
            }
+    b = getDefault(q);
+    if (b!=NULL()) return b;
     return NULL();
     }
     
