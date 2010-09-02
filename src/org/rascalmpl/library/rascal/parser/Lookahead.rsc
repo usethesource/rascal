@@ -10,8 +10,8 @@ import Set;
 import IO;
 import Exception;
 
-// This production wrapper encodes what the lookahead is of the first non-terminal of a production
-public data Production = lookahead(Symbol rhs, set[Symbol] classes, set[Production] ifMatched);
+// This production wrapper encodes what the lookahead set is for the productions it wraps
+public data Production = lookahead(Symbol rhs, set[Symbol] classes, Production production);
 public data Symbol = eoi();     // end-of-input marker
 
 @doc{This function wraps productions with their single character lookahead sets for parser generation}
@@ -19,7 +19,7 @@ public Grammar computeLookaheads(Grammar G) {
   <first, follow> = firstAndFollow(g);
   
   return visit(G) {
-    case Production p:prod([], Symbol rhs, _) => lookahead(rhs, follow[rhs], {p})
+    case Production p:prod([], Symbol rhs, _) => lookahead(rhs, follow[rhs], p)
     case Production p:prod(list[Symbol] lhs, Symbol rhs, _) : {
       // we start with the first set of the leftmost symbol
       <h,lhs> = takeOneFrom(lhs);
@@ -35,14 +35,14 @@ public Grammar computeLookaheads(Grammar G) {
       }
       // merge the character classes and construct a production wrapper
       // TODO: should we really remove empty here?
-      insert lookahead(rhs, mergeCC(classes - {empty()}), {p});        
+      insert lookahead(rhs, mergeCC(classes - {empty()}), p);        
     }
   }
 }
 
 @doc{
-  This function evaluates lookahead sets to obtain an (near) optimal production selection automaton
-  As a side-effect it also erases priority ordering!  
+  This function evaluates lookahead sets to obtain an optimal production selection automaton
+  As a side-effect it also needs to replace priority ordering and associativity by the simple choice operator!  
 }
 public Grammar compileLookaheads(Grammar G) {
   return innermost visit(G) {
@@ -50,15 +50,16 @@ public Grammar compileLookaheads(Grammar G) {
     case lookahead(rhs, {}, a) => choice(rhs, {})
     // merge equal classes
     case choice(rhs, { lookahead(rhs, c, a1), lookahead(rhs, c, a2), rest* }) =>
-         choice(rhs, { lookahead(rhs, c, a1 + a2) })
+         choice(rhs, { lookahead(rhs, c, choice(rhs, a1 + a2)), rest})
     // factor commonalities
     case choice(rhs, { lookahead(rhs, c1, a1), lookahead(rhs, c2, a2), rest* }) =>
-         choice(rhs, { lookahead(rhs, common, a1), lookahead(rhs, forA1, a1), lookahead(rhs, forA2, a2), rest})
+         choice(rhs, { lookahead(rhs, common, choice(rhs, {a1,a2})), lookahead(rhs, forA1, a1), lookahead(rhs, forA2, a2), rest})
       when common := intersect(c1, c2)
          , common != {}
          , forA1 := diff(c1,c2)
          , forA2 := diff(c2,c1)        
     case first(rhs, list[Production] order) => choice(rhs, { p | p <- order })
+    case \assoc(rhs, _, a) => choice(rhs, a)
   }
 }
 
