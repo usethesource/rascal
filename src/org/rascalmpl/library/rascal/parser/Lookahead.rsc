@@ -1,8 +1,9 @@
-module rascal::parser::Closure
+module rascal::parser::Lookahead
   
 import rascal::parser::Grammar;
 import rascal::parser::Regular;
 import rascal::parser::Characters;
+import rascal::parser::Normalization;
 import ParseTree;
 import List;
 import Set;
@@ -10,52 +11,12 @@ import IO;
 import Exception;
 
 // This production wrapper encodes what the lookahead is of the first non-terminal of a production
-public data Production         = lookahead(Symbol rhs, set[Symbol] classes, set[Production] alternatives);
-
-data Symbol = eoi();     // end-of-input marker
-
-// Define an internal "kernel" grammar format that is more convenient.It essentially removes all
-// the above combinators
-
-private alias KernelProduction  = tuple[Symbol nonTerminal, list[Symbol] symbols];
-private data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProduction] productions); 
-
-@doc{This function evaluate lookahead sets to obtain an (near) optimal production selection automaton}
-public Grammar compileLookaheads(Grammar G) {
-  return innermost visit(G) {
-    // no lookahead means always
-    case lookahead(rhs, {}, a) => choice(rhs, a)
-    // merge equal classes
-    case choice(rhs, { lookahead(rhs, c, a1), lookahead(rhs, c, a2), rest* }) =>
-         choice(rhs, { lookahead(rhs, c, a1 + a2) })
-    // factor commonalities
-    case choice(rhs, { lookahead(rhs, c1, a1), lookahead(rhs, c2, a2), rest* }) =>
-         choice(rhs, { lookahead(rhs, common, a1), lookahead(rhs, forA1, a1), lookahead(rhs, forA2, a2), rest})
-      when common := intersect(c1, c2)
-         , common != {}
-         , forA1 := diff(c1,c2)
-         , forA2 := diff(c2,c1)        
-  }
-}
-
-public SymbolUse intersect(SymbolUse u1, SymbolUse u2) {
-  if ({\char-class(r1), r1*} := u1, {\char-class(r2), r2*} := u2) {
-    return mergeCC({\char-class(intersection(r1,r2))} + (r1 & r2));
-  }
-  return u1 & u2;
-}
-
-public SymbolUse diff(SymbolUse u1, SymbolUse u2) {
-  if ({\char-class(r1), r1*} := u1, {\char-class(r2), r2*} := u2) {
-    return mergeCC({\char-class(difference(r1,r2))} + (u1 - u2));
-  }
-  return u1 - u2;
-}
+public data Production = lookahead(Symbol rhs, set[Symbol] classes, set[Production] ifMatched);
+public data Symbol = eoi();     // end-of-input marker
 
 @doc{This function wraps productions with their single character lookahead sets for parser generation}
 public Grammar computeLookaheads(Grammar G) {
-  KernelGrammar kg = importGrammar(G);
-  <first, follow> = firstAndFollow(kg);
+  <first, follow> = firstAndFollow(g);
   
   return visit(G) {
     case Production p:prod([], Symbol rhs, _) => lookahead(rhs, follow[rhs], {p})
@@ -79,14 +40,42 @@ public Grammar computeLookaheads(Grammar G) {
   }
 }
 
-public KernelGrammar importGrammar(Grammar G) {
-   if (grammar(set[Symbol] starts, set[Production] nonterminals) := G) { 
-     return kernelGrammar(starts, { <rhs,removeLabels(lhs)> | /prod(lhs,rhs,_) <- expandRegularSymbols(G).productions});
-   }
-   else if (grammar(set[Symbol] starts, map[Symbol,set[Production]] rules) := G) {
-     return kernelGrammar(starts, { <rhs, removeLabels(lhs)> | /prod(lhs,rhs,_) <- expandRegularSymbols(G).rules});
-   }
-} 
+@doc{
+  This function evaluates lookahead sets to obtain an (near) optimal production selection automaton
+  As a side-effect it also erases priority ordering!  
+}
+public Grammar compileLookaheads(Grammar G) {
+  return innermost visit(G) {
+    // no lookahead means never
+    case lookahead(rhs, {}, a) => choice(rhs, {})
+    // merge equal classes
+    case choice(rhs, { lookahead(rhs, c, a1), lookahead(rhs, c, a2), rest* }) =>
+         choice(rhs, { lookahead(rhs, c, a1 + a2) })
+    // factor commonalities
+    case choice(rhs, { lookahead(rhs, c1, a1), lookahead(rhs, c2, a2), rest* }) =>
+         choice(rhs, { lookahead(rhs, common, a1), lookahead(rhs, forA1, a1), lookahead(rhs, forA2, a2), rest})
+      when common := intersect(c1, c2)
+         , common != {}
+         , forA1 := diff(c1,c2)
+         , forA2 := diff(c2,c1)        
+    case first(rhs, list[Production] order) => choice(rhs, { p | p <- order })
+  }
+}
+
+public SymbolUse intersect(SymbolUse u1, SymbolUse u2) {
+  if ({\char-class(r1), r1*} := u1, {\char-class(r2), r2*} := u2) {
+    return mergeCC({\char-class(intersection(r1,r2))} + (r1 & r2));
+  }
+  return u1 & u2;
+}
+
+public SymbolUse diff(SymbolUse u1, SymbolUse u2) {
+  if ({\char-class(r1), r1*} := u1, {\char-class(r2), r2*} := u2) {
+    return mergeCC({\char-class(difference(r1,r2))} + (u1 - u2));
+  }
+  return u1 - u2;
+}
+
 
 // Utilities on Symbols
 
@@ -96,19 +85,19 @@ public list[Symbol] removeLabels(list[Symbol] syms) {
   }
 }
 
-public set[Symbol] usedSymbols(KernelGrammar G){
-   return { s |  KernelProduction p <- G.productions, /Symbol s <- p.symbols };
+public set[Symbol] usedSymbols(Grammar G){
+   return { s |  Symbol t <- G.rules, Production p <- G.rules[t], /Symbol s <- p.lhs };
 }
 
-public set[Symbol] definedSymbols(KernelGrammar G) {
-   return { p.nonTerminal |  KernelProduction p <- G.productions};
+public set[Symbol] definedSymbols(Grammar G) {
+   return { p.rhs |  Symbol t <- G.rules, Production p <- G.rules[t]};
 }
 
-public set[Symbol] allSymbols(KernelGrammar G){
+public set[Symbol] allSymbols(Grammar G){
    return definedSymbols(G) + usedSymbols(G);
 }
 
-public set[Symbol] terminalSymbols(KernelGrammar G){
+public set[Symbol] terminalSymbols(Grammar G){
    return { S | S:\char-class(_) <- usedSymbols(G)};
 }
 
@@ -133,30 +122,31 @@ public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
 
 // First set of a grammar
 
-public SymbolUse first(KernelGrammar G){
-        defSymbols = definedSymbols(G);
+public SymbolUse first(Grammar G){
+  defSymbols = definedSymbols(G);
 
-	SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) + 
-	                  (S : {}      | Symbol S   <- defSymbols);
+  SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) 
+                  + (S : {}      | Symbol S   <- defSymbols);
 	        
-	solve (FIRST) 
-          for (Symbol S <- defSymbols, list[Symbol] symbols <- G.productions[S]) 	
-             FIRST[S] += isEmpty(symbols) ? {empty()} : first(symbols, FIRST) - {empty()};
-          
+  solve (FIRST) {
+    for (Symbol S <- defSymbols, Production p <- G.rules[S], list[Symbol] symbols := p.lhs) { 	
+      FIRST[S] += isEmpty(symbols) ? {empty()} : first(symbols, FIRST) - {empty()};
+    }
+  }
 		
-	return FIRST;
+  return FIRST;
 }
 
-public SymbolUse follow(KernelGrammar G,  SymbolUse FIRST){
+public SymbolUse follow(Grammar G,  SymbolUse FIRST){
    defSymbols = definedSymbols(G);
    FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
   
    solve (FOLLOW) {
-     for (KernelProduction p <- G.productions, [_*, current, symbols*] := p.symbols) {
+     for (S <- defSymbols, p <- G.rules[S], [_*, current, symbols*] := p.lhs) {
        flw =  first(symbols, FIRST);
        if (current in defSymbols) {
          if (empty() in flw || isEmpty(symbols)) {
-           FOLLOW[current] += FOLLOW[p.nonTerminal] + (flw - {empty()});
+           FOLLOW[current] += FOLLOW[p.rhs] + (flw - {empty()});
          }
          else {
            FOLLOW[current] += flw;
