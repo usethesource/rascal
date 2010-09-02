@@ -405,9 +405,10 @@ public abstract class SGLL implements IGLL{
 			}
 
 			next.setStartLocation(location);
-			if(!isPrioFiltered(parentId, next.getId())) next.addEdge(stackBeingWorkedOn);
-			
-			stacksToExpand.add(next);
+			if(!isPrioFiltered(parentId, next.getId())){
+				next.addEdge(stackBeingWorkedOn);
+				stacksToExpand.add(next);
+			}
 			
 			expects[i] = next;
 		}
@@ -431,7 +432,10 @@ public abstract class SGLL implements IGLL{
 				int parentId = stack.getId();
 				for(int i = expects.length - 1; i >= 0; --i){
 					AbstractStackNode expect = expects[i];
-					if(!isPrioFiltered(parentId, expect.getId())) expect.addEdge(stack);
+					if(!isPrioFiltered(parentId, expect.getId())){
+						if(!expect.hasEdges()) stacksToExpand.add(expect);
+						expect.addEdge(stack);
+					}
 				}
 			}else{
 				invokeExpects(stack);
