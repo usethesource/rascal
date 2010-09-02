@@ -101,16 +101,15 @@ public Concept parseConcept(loc file, list[str] script, str coursePath){
    optCategories   = toSet(getNames(getOptionalSection("Categories", script)));
    related 		= getPath(combine(getSection("Related", script)));
    synopsisSection = getSection("Synopsis", script);
-   rawSynopsis  = combine(synopsisSection);
    searchTerms  =  searchTermsSynopsis(synopsisSection);
-   synopsis 	= markupSynopsis(synopsisSection);
+   synopsis 	= markup1(synopsisSection);
    description	= markup1(getSection("Description", script));
    examples 	= markup1(getSection("Examples", script));
    benefits 	= markup1(getSection("Benefits", script));
    pittfalls 	= markup1(getSection("Pittfalls", script));
    questions 	= getAllQuestions(name, getSection("Questions", script));
    
-   return concept(name, file, optDetails, optCategories, related, synopsis, rawSynopsis, searchTerms, description, examples, benefits, pittfalls, questions);
+   return concept(name, file, optDetails, optCategories, related, synopsis, searchTerms, description, examples, benefits, pittfalls, questions);
 }
 
 // Extract the path named from a Related section

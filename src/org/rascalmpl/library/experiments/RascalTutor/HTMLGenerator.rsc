@@ -50,18 +50,6 @@ private str closeLists(){
   return endList;
 }
 
-public void tst2(){
-println(markup([
-"xxxxx\<tt\>\<if(\'\'Exp\'\'){\> ... \'\'Text\'\' ... \<}\>\</tt\>",
-"Other examples of sets are:",
-"",
-"* \<tt\>\<if(\'\'Exp\'\'){\> ... \'\'Text\'\' ... \<}\>\</tt\>",
-"* \<tt\> {1, 2, 3}\</tt\> // A set of integers",
-"* \<tt\> {} \</tt\>       // The empty set",
-"* \<tt\> {\"abc\"}\</tt\>   // A set containing a single string"
-]));
-}
-
 private str conceptPath = "";
 
 private str markup(list[str] lines){
@@ -180,27 +168,30 @@ public str markup(list[str] lines, str cp){
 public str markupRestLine(str line){
   ///println("markupRestLine(<line>)");
   return visit(line){
-    case /^\\\\/ =>	"\\"
-    case /^\\`/  =>	"`"
-    case /^\\\*/ =>	"*"
-    case /^\\_/  =>	"_"
-    case /^\\\+/ =>	"+"
-    case /^\\\./ =>	"."
+  
+    case /^`<c:[^`]*>`/ => code(markupCode(c))
+    
+    case /^\\<char:.>/ :         //TODO nested matching is broken, since wrong last match is used!
+      if(char == "\\") 	    insert	"\\";
+      else if(char ==  "`") insert	"`";
+      else if(char == "*")	insert "*";
+      else if(char == "_")  insert "_";
+      else if(char == "+")	insert "+";
+      else if(char == ".")	insert ".";
+      else insert char;
+    
     case /^_<text:[^_]+>_/       => i(text)
     case /^__<text:[^_]+>__/     => b(text)
     case /^\*<text:[^*]+>\*/     => i(text)
     case /^\*\*<text:[^*]+>\*\*/ => b(text)
     
     case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"images/<dig>.png\"\>"
-    
-    case /^`<c:[^`]*>`/ => code(markupCode(c))
-    
-    case /^\$<var:[A-Za-z]*><subscript:[0-9]+>?\$/ =>
-                                i(var) + ((subscript == "") ? "" : sub(subscript))
-    case /^\$<var:[A-Za-z]*>_<subscript:[A-Za-z0-9]+>\$/ => i(var) + sub(subscript)
-    case /^\$<var:[A-Za-z]*>\^<subscript:[A-Za-z0-9]+>\$/ => i(var) + sup(subscript)
+       
+    case /^\$<var:[A-Za-z]*><op:[_\^]><subsup:[A-Za-z0-9]+>\$/ => 
+                                    i(var) + ((op == "_") ? sub(subsup) : sup(subsup))
+    case /^\$<var:[A-Za-z]+>\$/ => i(var)
                                 
-    case /^\[\[\[<file:[A-Za-z0-9\-\_]+\.png><opts:[^\]]*>\]\]\]/ => "\<img <getImgOpts(opts)> src=\"<conceptPath>/<file>\"\>"
+    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_]+\.png><opts:[^\)]*>\)/ => "\<img <getImgOpts(opts)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
     
     case /^\[<text:[^\]]*>\]\(<url:[^)]+>\)/ => link(url, text)
     
@@ -238,8 +229,6 @@ test markupRestLine("x\<y") ==  "x\<sub\>1\</sub\>";
 test markupRestLine("&copy;") == "&copy;";
 test markupRestLine("C&A") == "C&A";
 
-
-
 public str show(str cn){
   return "\<a href=\"/show?concept=<cn>\"\><cn>\</a\>";
 }
@@ -258,8 +247,6 @@ public str getImgOpts(str txt){
   return opts;
 }
 
-//test markupRestLine("The value of 2 + 3 is @@2 + 3@@") == "The value of 2 + 3 is \<tt\>5\</tt\>";
-
 public str markupListing(list[str] lines){
   txt = "";
   for(line <- lines)
@@ -272,33 +259,15 @@ public str markupCode(str text){
     case /^\</   => "&lt;"
     case /^&/    => "&amp;"
     case /^\$\$/ => "$"
+    case /^\$<var:[A-Za-z]*><op:[_\^]><subsup:[A-Za-z0-9]+>\$/ => 
+                                    i(var) + ((op == "_") ? sub(subsup) : sup(subsup))
+    case /^\$<var:[A-Za-z]+>\$/ => i(var)
     case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"images/<dig>.png\"\>"
-    case /^\$<var:[A-Za-z]*><subscript:[0-9]+>?\$/ =>
-                                i(var) + ((subscript == "") ? "" : sub(subscript))
-    case /^\$<var:[A-Za-z]*>_<subscript:[A-Za-z0-9]+>\$/ => i(var) + sub(subscript)
-    case /^\$<var:[A-Za-z]*>\^<subscript:[A-Za-z0-9]+>\$/ => i(var) + sup(subscript)
   };
 }
 
 public str markupRascalPrompt(list[str] lines){
   return  "<for(str line <- lines){><visit(line){ case /^rascal\>/ => b("rascal\>") }>\n<}>";
-}
-
-public void tst3(){
-println(markup([
-
-"\<screen\>",
-"//AAA",
-"import IO;",
-"//BBB",
-"void hello() {",
-"   println(\"Hello world, this is my first Rascal program\");",
-"}",
-"//CCC",
-"hello();",
-"//DDD",
-"\</screen\>"
-]));
 }
 
 public str markupScreen(list[str] lines){
@@ -347,53 +316,32 @@ public str markupScreen(list[str] lines){
    return codeLines;
 }
 
-public str markupSynopsis(list[str] lines){
-  
-  rlines = for(int k <- [0 .. size(lines) - 1])
-             if(/\S/ := lines[k])
-                append tt(visit(lines[k]){
-                          case /^<name:[a-z][A-Za-z0-9]*>/ => name
-                          
-                          case /^&<name:[A-Za-z0-9]+>/ => "&" + name
-      
-                          case /^<var:[A-Z][A-Za-z]*><subscript:[0-9]>?/ =>
-                                i(var) + ((subscript == "") ? "" : sub(subscript))
-                         });
-  switch(size(rlines)){
-    case 0:
-      return "";
-    case 1:
-      return rlines[0];
-    default:
-     return ul("<for(line <- rlines){><li(line)><}>");
+public set[str] searchTermsCode(str line){
+  set[str] terms = {};
+  visit(line){
+    case /^\s+/: insert "";
+    case /^\$[^\$]*\$/: insert "";
+    case /^<kw:[a-zA-z]+>/: {terms += kw; insert ""; }
+    case /^<op:[^a-zA-Z\$\ \t]+>/: { terms += op; insert ""; }
   }
+  return terms;
 }
-
-//test markupSynopsis(["Exp1 + Exp2"])          == "\<tt\>\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>";
-//test markupSynopsis(["Exp1 + Exp2", "  "])    == "\<tt\>\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>";
-//test markupSynopsis(["Exp1 + Exp2", "Exp3"])  == "\<ul\>\<tt\>\<i\>Exp\</i\>\<sub\>1\</sub\> + \<i\>Exp\</i\>\<sub\>2\</sub\>\</tt\>\<tt\>\<i\>Exp\</i\>\<sub\>3\</sub\>\</tt\>\</ul\>";
-
 public set[str] searchTermsSynopsis(list[str] lines){
    set[str] terms = {};
    for(int k <- [0 .. size(lines) - 1])
        visit(lines[k]){
-         case /^<name:[a-z][A-Za-z0-9]*>/: {terms += name; insert "";} // BUG IN VISIT
+         case /Syntax:[^`]*`<syn:[^`]*>`$/: {terms += searchTermsCode(syn); insert ""; }
          
-         case /^\&<name:[A-Za-z0-9]+>/: {insert "";}
-      
-         case /^<var:[A-Z][a-z]*><subscript:[0-9]>?/: {insert "";}
-                          
-         case /^\s*<op:[^A-Za-z \t\r\n]+>/: {terms += op; insert "";}
+         case /Type:[^`]*`<tp:[^`]*>`$/: {terms += searchTermsCode(tp) - {"[", "]", ","}; insert "";}
+         //TODO: more than one ` ` section
        };
     return terms;
 }
 
 test markup(["===Level 2==="]) == "\<h2\>Level 2\</h2\>\n";
 
-test markup(["----"]) == "\<hr\>\n";
-test markup(["\'\'abc\'\'"]) == "\<i\>abc\</i\>";
-test markup(["\'\'\'abc\'\'\'"]) == "\<b\>abc\</b\>";
-test markup(["\'\'\'\'\'abc\'\'\'\'\'"]) == "\<b\>\<i\>abc\</i\>\</b\>";
+test markup(["_abc_"]) == "\<i\>abc\</i\>";
+test markup(["__abc__"]) == "\<b\>abc\</b\>";
 
 test markup(["* abc"]) == "\<ul\>\n\<li\> abc\</li\>\n\</ul\>\n";
 test markup(["* abc"]) == "\<ul\>\n\<li\> abc\</li\>\n\</ul\>\n";
@@ -401,6 +349,6 @@ test markup(["* abc", "X"]) == "\<ul\>\n\<li\> abc\</li\>\n\</ul\>\nX";
 test markup(["* abc", "* def", "X"]) == "\<ul\>\n\<li\> abc\</li\>\n\<li\> def\</li\>\n\</ul\>\nX";
 test markup(["* abc", "** def", "* ghi", "X"]) == "\<ul\>\n\<li\> abc\</li\>\n\<ul\>\n\<li\> def\</li\>\n\n\</ul\>\n\<li\> ghi\</li\>\n\</ul\>\nX";
 test markup(["* abc", "## def", "* ghi", "X"]) == "\<ul\>\n\<li\> abc\</li\>\n\<ol\>\n\<li\> def\</li\>\n\n\</ol\>\n\<li\> ghi\</li\>\n\</ul\>\nX";
-test markup(["* \'\'abc\'\'"]) == "\<ul\>\n\<li\> \<i\>abc\</i\>\</li\>\n\n\</ul\>\n";
-test markup(["* abc", "* def", "\'\'ghi\'\'"]) == "\<ul\>\n\<li\> abc\</li\>\n\<li\> def\</li\>\n\</ul\>\n\<i\>ghi\</i\>";
+test markup(["* __abc__"]) == "\<ul\>\n\<li\> \<i\>abc\</i\>\</li\>\n\n\</ul\>\n";
+test markup(["* abc", "* def", "_ghi__"]) == "\<ul\>\n\<li\> abc\</li\>\n\<li\> def\</li\>\n\</ul\>\n\<i\>ghi\</i\>";
 
