@@ -2,19 +2,82 @@ module rascal::parser::Closure
   
 import rascal::parser::Grammar;
 import rascal::parser::Regular;
+import rascal::parser::Characters;
 import ParseTree;
 import List;
 import Set;
 import IO;
 import Exception;
 
+// This production wrapper encodes what the lookahead is of the first non-terminal of a production
+public data Production         = lookahead(Symbol rhs, set[Symbol] classes, set[Production] alternatives);
+
 data Symbol = eoi();     // end-of-input marker
 
 // Define an internal "kernel" grammar format that is more convenient.It essentially removes all
 // the above combinators
 
-public alias KernelProduction  = tuple[Symbol nonTerminal, list[Symbol] symbols];
-public data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProduction] productions); 
+private alias KernelProduction  = tuple[Symbol nonTerminal, list[Symbol] symbols];
+private data KernelGrammar      = kernelGrammar(set[Symbol] start, set[KernelProduction] productions); 
+
+@doc{This function evaluate lookahead sets to obtain an (near) optimal production selection automaton}
+public Grammar compileLookaheads(Grammar G) {
+  return innermost visit(G) {
+    // no lookahead means always
+    case lookahead(rhs, {}, a) => choice(rhs, a)
+    // merge equal classes
+    case choice(rhs, { lookahead(rhs, c, a1), lookahead(rhs, c, a2), rest* }) =>
+         choice(rhs, { lookahead(rhs, c, a1 + a2) })
+    // factor commonalities
+    case choice(rhs, { lookahead(rhs, c1, a1), lookahead(rhs, c2, a2), rest* }) =>
+         choice(rhs, { lookahead(rhs, common, a1), lookahead(rhs, forA1, a1), lookahead(rhs, forA2, a2), rest})
+      when common := intersect(c1, c2)
+         , common != {}
+         , forA1 := diff(c1,c2)
+         , forA2 := diff(c2,c1)        
+  }
+}
+
+public SymbolUse intersect(SymbolUse u1, SymbolUse u2) {
+  if ({\char-class(r1), r1*} := u1, {\char-class(r2), r2*} := u2) {
+    return mergeCC({\char-class(intersection(r1,r2))} + (r1 & r2));
+  }
+  return u1 & u2;
+}
+
+public SymbolUse diff(SymbolUse u1, SymbolUse u2) {
+  if ({\char-class(r1), r1*} := u1, {\char-class(r2), r2*} := u2) {
+    return mergeCC({\char-class(difference(r1,r2))} + (u1 - u2));
+  }
+  return u1 - u2;
+}
+
+@doc{This function wraps productions with their single character lookahead sets for parser generation}
+public Grammar computeLookaheads(Grammar G) {
+  KernelGrammar kg = importGrammar(G);
+  <first, follow> = firstAndFollow(kg);
+  
+  return visit(G) {
+    case Production p:prod([], Symbol rhs, _) => lookahead(rhs, follow[rhs], {p})
+    case Production p:prod(list[Symbol] lhs, Symbol rhs, _) : {
+      // we start with the first set of the leftmost symbol
+      <h,lhs> = takeOneFrom(lhs);
+      SymbolUse classes = first[h];
+      // add the first of all symbols from left to right until one does not contain empty
+      while (lhs != [], empty() in first[h]) {
+        <h,lhs> = takeOneFrom(lhs);
+        classes += first[h];
+      }
+      // if all symbols had empty in the first, add the follow of the rhs
+      if (lhs == [], empty() in first[h]) {
+        classes += follow[rhs];
+      }
+      // merge the character classes and construct a production wrapper
+      // TODO: should we really remove empty here?
+      insert lookahead(rhs, mergeCC(classes - {empty()}), {p});        
+    }
+  }
+}
 
 public KernelGrammar importGrammar(Grammar G) {
    if (grammar(set[Symbol] starts, set[Production] nonterminals) := G) { 
@@ -117,6 +180,7 @@ public tuple[SymbolUse, SymbolUse] firstAndFollow(Grammar G){
 private SymbolUse mergeCC(SymbolUse su) {
   return innermost visit(su) {
      case {\char-class(r1),\char-class(r2),a*} => {a,\char-class(r1+r2)}
+     case {\char-class([]), a*} => a
   }
 }
 

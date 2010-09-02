@@ -1,7 +1,6 @@
 module rascal::parser::Generator
 
 import rascal::parser::Grammar;
-import rascal::parser::Priority;
 import rascal::parser::Parameters;
 import rascal::parser::Regular;
 import rascal::parser::Normalization;
