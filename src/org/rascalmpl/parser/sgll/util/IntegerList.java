@@ -38,6 +38,13 @@ public class IntegerList{
 		return data[index];
 	}
 	
+	public boolean contains(int integer){
+		for(int i = size - 1; i >= 0; --i){
+			if(data[i] == integer) return true;
+		}
+		return false;
+	}
+	
 	public int size(){
 		return size;
 	}
