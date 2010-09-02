@@ -4,7 +4,9 @@ Categories: Language
 
 Related:
 
-Synopsis: SetExp1 != SetExp2
+Synopsis:
+* Syntax: `$SetExp_1$ != $SetExp_2$`
+* Type: `bool`
 
 Description:
 Yields <tt>true</tt> if both arguments are unequal sets and <tt>false</tt> otherwise.

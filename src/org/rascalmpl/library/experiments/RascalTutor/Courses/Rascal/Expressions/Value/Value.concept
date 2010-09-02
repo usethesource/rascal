@@ -4,7 +4,7 @@ Categories: Language
 
 Related:
 
-Synopsis: value
+Synopsis: Type: `value`
 
 Description:
 Value stands for all possible Rascal values and is represented by the type `value`.

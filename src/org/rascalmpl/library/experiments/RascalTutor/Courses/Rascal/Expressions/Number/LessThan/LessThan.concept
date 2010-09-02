@@ -4,9 +4,11 @@ Categories: Language
 
 Related:
 
-Synopsis: NumExp1 < NumExp2
+Synopsis:
+* Syntax: `$NumExp_1$ < $NumExp_2$`
+* Type: `bool`
 
-Description: Yields <tt>true</tt> if the value of $NumExp1$ is numerically less than the value of $NumExp2$, and <tt>false</tt> otherwise.
+Description: Yields `true` if the value of $NumExp_1$ is numerically less than the value of $NumExp_2$, and `false` otherwise.
 
 Examples:
 <screen>

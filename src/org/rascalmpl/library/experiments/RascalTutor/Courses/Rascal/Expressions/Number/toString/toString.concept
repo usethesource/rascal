@@ -4,7 +4,7 @@ Categories: Library
 
 Related:
 
-Synopsis: str toString(num n)
+Synopsis: Function: `str toString(num n)`
 
 Description: Convert a number to a string.
 

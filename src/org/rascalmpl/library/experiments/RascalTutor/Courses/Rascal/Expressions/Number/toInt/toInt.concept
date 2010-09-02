@@ -4,7 +4,7 @@ Categories: Library
 
 Related:
 
-Synopsis: int toInt(num n)
+Synopsis: Function: `int toInt(num n)`
 
 Description:
 

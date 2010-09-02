@@ -4,9 +4,11 @@ Categories: Language
 
 Related:
 
-Synopsis: IntExp1 % IntExp2
+Synopsis:
+* Syntax: `$IntExp_1$ % $IntExp_2$`
+* Type: `int`
 
-Description: Yields the remainder when dividing the of $IntExp1$ by the value of $IntExp2$.
+Description: Yields the remainder when dividing the of $IntExp_1$ by the value of $IntExp_2$.
 
 Examples:
 <screen>

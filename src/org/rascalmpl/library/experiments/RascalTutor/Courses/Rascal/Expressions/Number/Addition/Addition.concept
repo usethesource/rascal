@@ -4,9 +4,11 @@ Categories: Language
 
 Related:
 
-Synopsis: NumExp1 + NumExp2
+Synopsis:
+* Syntax: `$NumExp_1$ + $NumExp_2$`
+* Type: `int` or `real`
 
-Description: Yields the numerical sum of the values of $NumExp1$ and $NumExp2$.
+Description: Yields the numerical sum of the values of $NumExp_1$ and $NumExp_2$.
 
 Examples:
 <screen>

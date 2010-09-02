@@ -4,7 +4,9 @@ Categories: Language
 
 Related:
 
-Synopsis: - NumExp
+Synopsis:
+* Syntax: `- $NumExp$`
+* Type: `int` or `real`
 
 Description: Yields the negated values of $NumExp$.
 

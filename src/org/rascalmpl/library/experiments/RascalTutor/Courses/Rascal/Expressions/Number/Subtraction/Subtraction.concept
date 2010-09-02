@@ -4,9 +4,11 @@ Categories: Language
 
 Related:
 
-Synopsis: NumExp1 - NumExp2
+Synopsis:
+* Syntax: `$NumExp_1$ - $NumExp_2$`
+* Type: `int` or `real`
 
-Description: Yields the numerical result of subtracting the value of $NumExp2$ from the value of $NumExp1$.
+Description: Yields the numerical result of subtracting the value of $NumExp_2$ from the value of $NumExp_1$.
 
 Examples:
 <screen>

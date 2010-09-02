@@ -4,7 +4,7 @@ Categories: Library
 
 Related:
 
-Synopsis: list[&T] toList(set[&T] s)
+Synopsis: Function: `list[&T] toList(set[&T] s)`
 
 Description: Convert a set to a list.
 

@@ -4,7 +4,7 @@ Categories: Library
 
 Related: Real
 
-Synopsis: real toReal(num n)
+Synopsis:Function: `real toReal(num n)`
 
 Description: Convert a number to a real
 

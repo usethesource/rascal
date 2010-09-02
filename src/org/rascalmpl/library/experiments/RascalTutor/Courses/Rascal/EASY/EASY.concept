@@ -7,7 +7,7 @@ Related:
 Synopsis:
 
 Description:
-[[[easy-workflow.png|300px|right]]]
+![Easy Wokflow](easy-workflow.png|300px|right)
 Many meta-programming problems follow a fixed pattern. 
 Starting with some input system (a black box that we usually call _system-of-interest_), 
 first relevant information is extracted from it and stored in an internal representation. 

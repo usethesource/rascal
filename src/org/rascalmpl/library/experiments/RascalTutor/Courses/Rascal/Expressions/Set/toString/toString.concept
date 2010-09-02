@@ -4,7 +4,7 @@ Categories: Library
 
 Related:
 
-Synopsis: str toString(set[&T] s)
+Synopsis: Function: `str toString(set[&T] s)`
 
 Description: Converts a set to a string.
 

@@ -4,10 +4,11 @@ Categories: Language
 
 Related:
 
-Synopsis: if ( BoolExp ) Statement
-if ( BoolExp ) Statement1 else Statement2
+Synopsis: 
+* Syntax: `if ( $BoolExp$ ) $Statement$`
+* Syntax: `if ( $BoolExp$ ) $Statement_1$ else $Statement_2$`
 
-Description: The test $BoolExp$ is evaluated and its outcome determines the statement to be executed: $Statement1$ if $BoolExp$ is `true` and $Statement2$ otherwise. The value of an if-then statement is equal to $Statement$ when its test is true. Otherwise it is void.
+Description: The test $BoolExp$ is evaluated and its outcome determines the statement to be executed: $Statement_1$ if $BoolExp$ is `true` and $Statement_2$ otherwise. The value of an if-then statement is equal to $Statement$ when its test is true. Otherwise it is void.
 The value of an if-then-else statement is the value of the statement that was executed.
 
 Examples:

@@ -4,9 +4,9 @@ Categories: Library
 
 Related:
 
-Synopsis: &T reducer(set[&T] s, &T (&T, &T) fn, &T unit)
+Synopsis: Function: `&T reducer(set[&T] s, &T (&T, &T) fn, &T unit)`
 
-Description: Apply the function <tt>fn</tt> to successive elements of set <tt>s</tt> starting with <tt>unit</tt>.
+Description: Apply the function `fn` to successive elements of set `s` starting with `unit`.
 
 Examples:
 <screen>

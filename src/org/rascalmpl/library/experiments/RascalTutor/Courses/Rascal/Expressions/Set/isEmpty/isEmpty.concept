@@ -4,9 +4,9 @@ Categories: Library
 
 Related:
 
-Synopsis: bool isEmpty(set[&T] s)
+Synopsis: Function: `bool isEmpty(set[&T] s)`
 
-Description: Yields <tt>true</tt> if <tt>s</tt> is empty, and <tt>false</tt> otherwise.
+Description: Yields `true` if `s` is empty, and `false` otherwise.
 
 Examples:
 <screen>

@@ -5,8 +5,9 @@ Categories: Language
 Related:
 
 Synopsis:
-Type: <tt>int</tt>
-Values: sequence of digits of arbitrary length.
+* Syntax: sequence of digits of arbitrary length.
+* Type: `int`
+
 
 Description:
 The integer values are represented by the type <tt>int</tt> and are written as usual. They can be arbitrarily large.

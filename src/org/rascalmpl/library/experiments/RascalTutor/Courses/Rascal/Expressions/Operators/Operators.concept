@@ -9,61 +9,150 @@ Related:
 Synopsis:
 
 Description:
+
+An _operator expression_ consists of an operator and one or more operands. The evaluation order of the operands depends on the operator. 
+The operator is applied to the operands and the resulting value (or values in some cases) is the result of the operator expression. 
+
+All operators are summarized in the following table. They are listed from highest precendence
+ to lowest precedence. In other words, operators listed earlier in the table bind stronger.
+
+
 <table width="100%">
-<col align=left width="20%">
-<col align=left width="15%">
-<col align=left width="65%">
+<caption>__Rascal Operators (from highest to lowest precedence)__</caption>
+<col align=left width="30%">
+<col align=left width="30%">
+<col align=left width="40%">
 
-<tr><th align="left">Operator</th>	                  <th align="left">Name</th>	                   <th align="left">Description</th></tr>
+<tr><th align="left">Operator</th>	                   <th align="left">See</th>	               <th align="left">Short Description</th></tr>
+  
+<tr><td>`$Exp$ . $Name$`</td>	                   <td>[FieldSelection]</td>                 <td>Select named field from structured value</td></tr>
 
-<tr><td>`$Exp$ . $Name$`</td>	                 <td>Field selection</td>          <td>Exp should evaluate to a tuple or datatype with field $Name$; 
-                                                                                                                                            return the value of that field</td></tr>
+<tr><td>`$Exp_1$ [ $Name$ = $Exp_2$ ]`</td>     <td>[FieldAssignment]</td>             <td>Change value of named field of structured value</tr>
 
-<tr><td>`$Exp1$ [ $Name$ = $Exp2$ ]`</td>   <td>Field assignment</td>        <td>$Exp1$ should evaluate to a tuple or datatype with a field $Name$; 
-                                                                                                                                              assign value $Exp2$ to that field</tr>
+<tr><td>`$Exp$ < $field_1$, ... >`</td>               <td>[FieldProjection]</td>                <td>Select fields from relation or structured value</td></tr>
 
-<tr><td>`$Exp$ < $field1$, ... >`</td>              <td>Field projection</td>         <td>$Exp$ should evaluate to a tuple or relation, and field should be 
-                                                                                                                                            a field name or an integer constant. A new tuple or relation is
-                                                                                                                                            returned that only contains the listed fields.</td></tr>
+<tr><td>`$Exp_1$ [ $Exp_2$ , $Exp_3$, .... ]`</td> <td>[Subscription]</td>                    <td>Retrieve values for given index from list, tuple or relation.</td></tr>
 
-<tr><td>`$Exp1$ [ $Exp2$ , $Exp3$, .... ]`</td> <td>Subscription</td>              <td>The value of $Exp2$ , $Exp3$, ... are used as index in $Exp1$'s value. 
-                                                                                                                                             On list, tuple return the element with given (single!) index value; 
-                                                                                                                                              for map return the value associated with $Exp2$ 's value. 
-                                                                                                                                              On relations more than one index is allowed. 
-                                                                                                                                              All tuples are returned that have the values of 
-                                                                                                                                              $Exp2$, $Exp3$, ... as first elements. These values are 
-                                                                                                                                               removed from each tuple.</td></tr>
+<tr><td> `$Exp$?`</td>                                        <td>[Boolean/IsDefined]</td>          <td>Test whether an expression has a defined value</td></tr>
 
-<tr><td>`- $Exp$`</td>                                        <td>Negation</td>	               <td>Negative of $Exp$'s integer or real value</td></tr>
+<tr><td> `!$Exp$`</td>                                          <td>[Boolean/Negation]</td>           <td>Negate a Boolean value</td></tr>
 
-<tr><td>`$Exp$ +`</td>	                                          <td>Transitive closure</td>	<td>Transitive closure on relation</td></tr>
+<tr><td>`- $Exp$`</td>                                        <td>[Integer/Negation],
+                                                                                            [Real/Negation],
+                                                                                            [Number/Negation]</td>	       <td>Negation of integer, real or number</td></tr>
 
-<tr><td>`$Exp$ *`</td>                                            <td>Reflexive transitive closure</td>
-                                                                                                                                         <td>Reflexive transitive closure on relation</td></tr>
+<tr><td>`$Exp$ +`</td>	                                   <td>Transitive closure</td>	       <td>Transitive closure on relation</td></tr>
 
-<tr><td>`$Exp$ @ $Name$`</td>	                    <td>Annotation selection</td>	    <td>Value of annotation $Name$ of $Exp$'s value</td></tr>
+<tr><td>`$Exp$ *`</td>                                        <td>Reflexive transitive closure</td>
+                                                                                                                                               <td>Reflexive transitive closure on relation</td></tr>
 
-<tr><td>`$Exp1$ [@ $Name$ = $Exp2$]`</td>	     <td>Annotation replacement</td>   <td>Assign value of $Exp2$ to annotation $Name$ of $Exp1$'s 
+<tr><td>`$Exp$ @ $Name$`</td>	                   <td>Annotation selection</td>	       <td>Value of annotation $Name$ of $Exp$'s value</td></tr>
+
+<tr><td>`$Exp_1$ [@ $Name$ = $Exp_2$]`</td>	   <td>Annotation replacement</td>   <td>Assign value of $Exp_2$ to annotation $Name$ of $Exp_1$'s 
                                                                                                                                                         value</td></tr>
 
-<tr><td>`$Exp1$ o $Exp2$`</td>	                      <td>Composition</td>	                <td>$Exp1$ and $Exp2$ should evaluate to a relation; 
+<tr><td>`$Exp_1$ o $Exp_2$`</td>	                   <td>Composition</td>	               <td>$Exp_1$ and $Exp_2$ should evaluate to a relation; 
                                                                                                                                                          return their composition. Note: the letter "o" is thus a
                                                                                                                                                           keyword!</td></tr>
 
-<tr><td>`$Exp1$ / $Exp2$`</td>	                       <td>Division</td>	                        <td>Divide two integers and reals</td></tr>
+<tr><td>`$Exp_1$ x $Exp_2$`</td>	                   <td>CarthesianProduct</td>	        <td>Carthesian product of two relations</td></tr>
 
-<tr><td>`$Exp1$ % $Exp2$`</td>	                        <td>Modulo</td>	                         <td>Modulo on integer</td></tr>
 
-<tr><td>`$Exp1$ * $Exp2$`</td>	                        <td>Multiplication / Product</td>	<td>Multiply integers or real; product of list, set, relation</td></tr>
+<tr><td>`$Exp_1$ / $Exp_2$`</td>	                   <td>[Integer/Division],
+                                                                                                [Real/Division],
+                                                                                                [Number/Division]</td>	        <td>Divide two integers, reals or numbers</td></tr>
 
-<tr><td>`$Exp1$ & $Exp2$`</td>                              <td>Intersection</td>                      <td>Intersection of list, set, map or relation</td></tr>
-<tr><td>`$Exp1$ + $Exp2$`</td>	                         <td>Addition / concatenation / union</td> 
-                                                                                                                                                   <td> Add integer and real; concatenate string, list or tuple; 
+<tr><td>`$Exp_1$ % $Exp_2$`</td>	                   <td>[Integer/Modulo]</td>	        <td>Modulo on integers</td></tr>
+
+<tr><td>`$Exp_1$ * $Exp_2$`</td>	                   <td>[Integer/Multiplication],
+                                                                                                 [Real/Multiplication],
+                                                                                                 [Number/Multiplication],
+                                                                                                 [List/Product],
+                                                                                                 [Set/Product],
+                                                                                                 [Relation/Product]</td>	<td>Multiply integers, reals or number; product of list, set, or relation</td></tr>
+
+<tr><td>`$Exp_1$ & $Exp_2$`</td>                        <td>[List/Intersection],
+                                                                                                  [Set/Intersection],
+                                                                                                  [Map/Intersection],
+                                                                                                  [Relation/Intersection]</td><td>Intersection of list, set, map or relation</td></tr>
+
+<tr><td>`$Exp_1$ + $Exp_2$`</td>	                   <td>[Integer/Addition],
+                                                                                                 [Real/Addition],
+                                                                                                 [Number/Addition],
+                                                                                                 [String/Concatenate],
+                                                                                                 [List/Concatenate],
+                                                                                                 [Tuple/Concatenate],
+                                                                                                 [Set/Union],
+                                                                                                 [Map/Union],
+                                                                                                 [Relation/Union]</td>           <td> Add integer, real or number; concatenate string, list or tuple; 
                                                                                                                                                              union on set, map, or relation</td></tr>
 
-<tr><td>`$Exp1$ - $Exp2$`</td>                                  <td>Subtraction / difference</td>	<td>Subtract integer or real; difference of list, set, map,
+<tr><td>`$Exp_1$ - $Exp_2$`</td>                         <td>[Integer/Subtraction],
+                                                                                                 [Real/Subtraction],
+                                                                                                 [Number/Subtraction],
+                                                                                                 
+                                                                                                 [List/Difference],
+                                                                                                
+                                                                                                 [Set/Difference],
+                                                                                                 [Map/Difference],
+                                                                                                 [Relation/Difference]</td>	<td>Subtract integer, real or number; difference of list, set, map,
                                                                                                                                                                          or relation</td></tr>
-<tr><td>`$Exp1$ join $Exp2$`</td>	                            <td>Join</td>                                        <td>Join on relation</td></tr>
+
+<tr><td>`$Exp_1$ join $Exp_2$`</td>	                   <td>[Relation/Join]</td>                                        <td>Join on relation</td></tr>
+
+<tr><td>`$Exp_1$ in $Exp_2$`</td>	                   <td>ElementOf</td>                         <td>Membership test for element in  list, map, set or relation</td></tr>
+
+<tr><td>`$Exp_1$ notin $Exp_2$`</td>	           <td>NotElementOf</td>                   <td>Negated membership test for element in  list, map, set or relation</td></tr>
+
+<tr><td>`$Exp_1$ <= $Exp_2$`</td>	                   <td>[Integer/LessThanOrEqual], [Real/LessThanOrEqual],[Number/LessThanOrEqual],
+                                                                                              [String/LessThanOrEqual], [Location/LessThanOrEqual], [DateTime/LessThanOrEqual],
+                                                                                              [List/SubList], [Set/SubSet], [Map/SubSet], [Relation/Subset]</td>
+                                                                                                                                              <td>Less than or equal on all values</td></tr>
+
+<tr><td>`$Exp_1$ < $Exp_2$`</td>	                    <td>[Integer/LessThan], [Real/LessThan],[Number/LessThan],
+                                                                                              [String/LessThan], [Location/LessThan], [DateTime/LessThan],
+                                                                                              [List/StrictSubList], [Set/StrictSubSet], [Map/StrictSubSet], [Relation/StrictSubset]</td>
+                                                                                                                                              <td>Less than on all values</td></tr>
+
+<tr><td>`$Exp_1$ >= $Exp_2$`</td>	                    <td>[Integer/GreaterThanOrEqual], [Real/GreaterThanOrEqual],[Number/GreaterThanOrEqual],
+                                                                                              [String/GreaterThanOrEqual], [Location/GreaterThanOrEqual], [DateTime/GreaterThanOrEqual],
+                                                                                              [List/SuperList], [Set/SuperSet], [Map/SuperSet], [Relation/Superset]</td>
+                                                                                                                                              <td>Greater than or equal on all values</td></tr>
+
+<tr><td>`$Exp_1$ > $Exp_2$`</td>	                   <td>[Integer/GreaterThan], [Real/GreaterThan],[Number/GreaterThan],
+                                                                                              [String/GreaterThan], [Location/GreaterThan], [DateTime/GreaterThan],
+                                                                                              [List/StrictSuperList], [Set/StrictSuperSet], [Map/StrictSuperSet], [Relation/StrictSuperset]</td>
+                                                                                                                                              <td>Greater than on all values.</td></tr>
+
+<tr><td> `$Pat$ := $Exp$`</td>                           <td>Match</td>                             <td>Pattern matches value of expression</td></tr>
+
+<tr><td> `$Pat$ !:= $Exp$`</td>                          <td>NoMatch</td>                         <td>Pattern does not match value of expression</td></tr>
+
+<tr><td>`$Exp_1$ == $Exp_2$`</td>	                   <td>[Integer/Equal], [Real/Equal],[Number/Equal],
+                                                                                              [String/Equal], [Location/Equal], [DateTime/Equal],
+                                                                                              [List/Equal], [Set/Equal], [Map/Equal], [Relation/Equal]</td>
+                                                                                                                                              <td>Equality on all values</td></tr>
+
+<tr><td>`$Exp_1$ != $Exp_2$`</td>	                   <td>[Integer/NotEqual], [Real/NotEqual],[Number/NotEqual],
+                                                                                              [String/NotEqual], [Location/NotEqual], [DateTime/NotEqual],
+                                                                                              [List/NotEqual], [Set/NotEqual], [Map/NotEqual], [Relation/NotEqual]</td>
+                                                                                                                                              <td>Inequality on integers, reals, numbers, strings,
+                                                                                                                                                          locations, dateTime, value,
+                                                                                                                                                          lists, 
+                                                                                                                                                          maps, sets, relations.</td></tr>
+<tr><td>`$Exp_1$ ? $Exp_2$`</td>                     <td>IfDefinedOtherwise</td>        <td>Value of expression when it is defined, 
+                                                                                                                                                        otherwise alternative value</td></tr>
+
+<tr><td>`$Exp_1$ ? $Exp_2$ : $Exp_3$`</td>          <td>ConditionalExpressions</td> <td>Conditional expression for all types</td></tr>
+
+<tr><td> `$Exp_1$ ==> $Exp_2$`</td>                  <td>Implication</td>                    <td>Implication on Boolean values</td></tr>
+
+<tr><td> `$Exp_1$ <==> $Exp_2$`</td>               <td>Equivalence</td>                   <td>Equivalence on Boolean values</td></tr>
+
+<tr><td> `$Exp_1$ && $Exp_2$`</td>                     <td>And</td>                                <td>And on Boolean values</td></tr>
+
+<tr><td> `$Exp_1$ || $Exp_2$`</td>                       <td>Or</td>                                    <td>Or on Boolean values</td></tr>
+
 </table>
 
 Examples:

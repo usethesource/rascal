@@ -4,7 +4,7 @@ Categories: Library
 
 Related:
 
-Synopsis: &T <: num max(&T <: num n, &T <: num m)
+Synopsis: Function: `&T <: num max(&T <: num n, &T <: num m)`
 
 Description: The largest of two numbers. The type of the result is the same as the type of the largest argument.
 

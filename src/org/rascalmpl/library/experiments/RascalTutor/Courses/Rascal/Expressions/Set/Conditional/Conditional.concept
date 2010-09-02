@@ -4,10 +4,12 @@ Categories: Language
 
 Related:
 
-Synopsis: ( BoolExp ) ? SetExp1 : SetExp2
+Synopsis:
+* Syntax: `( $BoolExp$ ) ? $SetExp_1$ : $SetExp_2$`
+* Type: `set[$Type$]`
 
 
-Description: Yields the value of $SetExp1$ if the value of $BoolExp$ is <tt>true</tt> and the value of $SetExp2$ otherwise. 
+Description: Yields the value of $SetExp_1$ if the value of $BoolExp$ is `true` and the value of $SetExp_2$ otherwise. 
 
 
 Examples:

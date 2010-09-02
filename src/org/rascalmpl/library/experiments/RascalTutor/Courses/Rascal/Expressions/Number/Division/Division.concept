@@ -4,7 +4,9 @@ Categories: Language
 
 Related:
 
-Synopsis: NumExp1 / NumExp2
+Synopsis: 
+* Syntax: `$NumExp_1$ / $NumExp_2$`
+* Type: `int` or `real`
 
 Description: Yields the result of dividing the value of $NumExp1$ by the value of $NumExp2$.
 

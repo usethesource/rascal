@@ -33,7 +33,6 @@ data Concept =
 			set[str] categories,                    // Categories it belongs to
 			list[ConceptName] related,            	// List of related concepts (abbreviated ConceptNames)
 			str synopsis,                         	// Text of the various sections
-			str rawSynopsis,                        // Synopsis without markup (used for search)
 			set[str] searchTerms,
 			str description,
 			str examples,

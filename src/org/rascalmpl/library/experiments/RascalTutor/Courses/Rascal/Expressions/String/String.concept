@@ -4,7 +4,9 @@ Categories:Language
 
 Related:
 
-Synopsis: str
+Synopsis:
+* Syntax: <warning>explain string syntax</warning>
+* Type: `str`
 
 Description:
 The string values are represented by the type `str` and consist of character 

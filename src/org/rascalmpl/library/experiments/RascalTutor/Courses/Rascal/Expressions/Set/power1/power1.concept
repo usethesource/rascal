@@ -4,9 +4,9 @@ Categories: Library
 
 Related:
 
-Synopsis: set[set[&T]] power1(set[&T] s)
+Synopsis: Function: `set[set[&T]] power1(set[&T] s)`
 
-Description: Return all subsets (excluding the empty set) of <tt>s</tt>.
+Description: Return all subsets (excluding the empty set) of `s`.
 
 Examples:
 <screen>

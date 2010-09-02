@@ -4,9 +4,9 @@ Categories: Library
 
 Related:
 
-Synopsis: &T getOneFrom(set[&T] s) throws emptySet
+Synopsis: Function: `&T getOneFrom(set[&T] s) throws emptySet`
 
-Description: Returns a random element from set <tt>s</tt>.
+Description: Returns a random element from set `s`.
 
 Examples:
 <screen>

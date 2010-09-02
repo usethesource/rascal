@@ -378,8 +378,8 @@ public str saveError(str msg){
   throw msg;
 }
 
-// TODO: This should be in the library
-
+// TODO: This functionality should be in the library
+/*
 public bool contains(str subject, str key){
    if(size(subject) == 0)
      return false;
@@ -388,13 +388,7 @@ public bool contains(str subject, str key){
       	return true;
    return false;
 }
-
-// Approximate a function declaration in a synopsis
-public bool isFunction(str txt){
-  if(/^<first:.*>\n/ := txt)  // consider only first line
-    txt = first;
-  return /^\s*[A-Za-z0-9\[\]\&\ \<:,]+\s+[A-Za-z0-9]+\s*\(.*\)\s*(throws|.*$)/ := txt;
-}
+*/
 
 public list[str] doSearch(str term){
   if(size(term) == 0)
@@ -405,9 +399,7 @@ public list[str] doSearch(str term){
                 ( /^[A-Za-z0-9]+$/ := term 
                   && (startsWith(name, term) || endsWith(name, "/" + term) || /\/<term>\// := name)
                 ) ||
-                ( !isFunction(concepts[name].rawSynopsis) 
-                  && contains(concepts[name].rawSynopsis, term)
-                )
+                (term in concepts[name].searchTerms)
          ];
 }
 

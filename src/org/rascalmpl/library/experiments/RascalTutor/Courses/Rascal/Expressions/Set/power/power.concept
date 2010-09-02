@@ -4,9 +4,9 @@ Categories: Library
 
 Related:
 
-Synopsis: set[set[&T]] power(set[&T] s)
+Synopsis: Function: `set[set[&T]] power(set[&T] s)`
 
-Description: Returns a set with all subsets of <tt>s</tt>.
+Description: Returns a set with all subsets of `s`.
 
 Examples:
 <warning> Break long output lines </warning>

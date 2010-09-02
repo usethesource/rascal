@@ -4,7 +4,9 @@ Categories: Language
 
 Related:
 
-Synopsis: ( BoolExp ) ? NumExp1 : NumExp2
+Synopsis:
+* Syntax: `( $BoolExp$ ) ? $NumExp_1$ : $NumExp_2$`
+* Type: `int` or `real`
 
 Description: If the value of $BoolExp$ is <tt>true</tt> then the value of $NumExp1$ else the value of $NumExp2$.
 

@@ -4,7 +4,7 @@ Categories: Library
 
 Related:
 
-Synopsis: map[&A, set[&B]] toMap(set[tuple[&A, &B]] s)
+Synopsis: Function: `map[&A, set[&B]] toMap(set[tuple[&A, &B]] s)`
 
 Description: Convert a set of tuples to a map in which the first element of each tuple is associated with the set of second elements of all tuples with the same first element.
 

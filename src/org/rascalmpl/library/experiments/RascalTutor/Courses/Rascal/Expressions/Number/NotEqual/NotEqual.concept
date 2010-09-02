@@ -4,9 +4,11 @@ Categories: Language
 
 Related:
 
-Synopsis: NumExp1 != NumExp2
+Synopsis:
+* Syntax: `$NumExp_1$ != $NumExp_2$`
+* Type: `int` or `real`
 
-Description: Yields <tt>true</tt> if the value of both arguments is numerically unequal, and <tt>false</tt> otherwise.
+Description: Yields `true` if the value of both arguments is numerically unequal, and `false` otherwise.
 
 Examples:
 <screen>

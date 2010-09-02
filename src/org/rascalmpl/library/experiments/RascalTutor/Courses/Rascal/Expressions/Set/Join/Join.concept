@@ -4,7 +4,9 @@ Categories: Language
 
 Related:
 
-Synopsis: SetExp1 join SetExp2
+Synopsis:
+* Syntax: `$SetExp_1$ join $SetExp_2$`
+* Type: `set[$Type$]`
 
 Description:
 Relation resulting from the natural join of the set values of the two arguments.

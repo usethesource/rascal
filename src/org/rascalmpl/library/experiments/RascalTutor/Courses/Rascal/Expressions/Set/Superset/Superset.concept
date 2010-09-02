@@ -4,10 +4,12 @@ Categories: Language
 
 Related:
 
-Synopsis: SetExp1 >= SetExp2
+Synopsis:
+* Syntax: `$SetExp_1$ >= $SetExp_2$`
+* Type: `bool`
 
 Description:
-Yields <tt>true</tt> if the vaue of $SetExp1$ is a superset of the value of $SetExp2$ and <tt>false</tt> otherwise.
+Yields `true` if the vaue of $SetExp_1$ is a superset of the value of $SetExp_2$ and `false` otherwise.
 
 Examples:
 <screen>

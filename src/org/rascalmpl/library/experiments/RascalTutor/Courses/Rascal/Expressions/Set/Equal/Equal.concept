@@ -4,10 +4,12 @@ Categories: Language
 
 Related:
 
-Synopsis: SetExp1 == SetExp2
+Synopsis:
+* Syntax: `$SetExp_1$ == $SetExp_2$
+* Type: `bool`
 
 Description:
-Yields <tt>true</tt> if both arguments are equal sets and <tt>false</tt> otherwise.
+Yields `true` if both arguments are equal sets and `false` otherwise.
 
 Examples:
 <screen>

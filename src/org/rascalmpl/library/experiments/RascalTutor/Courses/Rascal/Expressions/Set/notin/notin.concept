@@ -4,9 +4,11 @@ Categories: Language
 
 Related:
 
-Synopsis: Exp notin SetExp
+Synopsis:
+* Syntax: `$Exp$ notin $SetExp$`
+* Type: `bool`
 
-Description: Yields <tt>true</tt> if the value of $Exp$ does not occur as element in the value of $SetExp$ and <tt>false</tt> otherwise. The type of $Exp$ should be compatible with the element type of $SetExp$.
+Description: Yields `true` if the value of $Exp$ does not occur as element in the value of $SetExp$ and `false` otherwise. The type of $Exp$ should be compatible with the element type of $SetExp$.
 
 Examples:
 <screen>

@@ -4,7 +4,9 @@ Categories: Language
 
 Related:
 
-Synopsis: NumExp1 == NumExp2
+Synopsis: 
+* Syntax: `$NumExp_1$ == $NumExp_2$`
+* Type: `bool`
 
 Description: Yields <tt>true</tt> if the value of both arguments is numerically equal, and <tt>false</tt> otherwise.
 
