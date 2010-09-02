@@ -46,68 +46,73 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.sgll.SGLL;
 import org.rascalmpl.parser.sgll.stack.*;
+import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
+import org.rascalmpl.parser.sgll.util.IntegerList;
 import org.rascalmpl.values.uptr.Factory;
 
-public class <name> extends SGLL {
-    private static IConstructor read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
-        try {
-          return (IConstructor) new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
-        }
-        catch(FactTypeUseException e){
-          throw new RuntimeException(\"unexpected exception in generated parser\", e);  
-        }
-        catch(IOException e){
-          throw new RuntimeException(\"unexpected exception in generated parser\", e);  
-      }
-    }
-    
-    private static final java.util.TreeMap\<Integer,java.util.List\<Integer\>\> dontNest;
-    
+public class <name> extends SGLL{
+	private static IConstructor read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
+		try{
+			return (IConstructor) new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+		}catch(FactTypeUseException e){
+			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
+		}catch(IOException e){
+			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
+		}
+	}
+	
+	private static final IntegerKeyedHashMap\<IntegerList\> dontNest;
+	
     private static void putDontNest(int i, int j) {
-      java.util.List\<Integer\> donts = dontNest.get(i);
-      if (donts == null) {
-        donts = new java.util.LinkedList\<Integer\>();
-        dontNest.put(i, donts);
-      }
-      donts.add(j);
+    	IntegerList donts = dontNest.get(i);
+    	if(donts == null){
+    		donts = new IntegerList();
+    		dontNest.put(i, donts);
+    	}
+    	donts.add(j);
     }
     
-    static {
-      dontNest = new java.util.TreeMap\<Integer,java.util.List\<Integer\>\>();
+    static{
+      dontNest = new IntegerKeyedHashMap\<IntegerList\>();
       <for(<int parent, int child> <- dontNest) {>
       putDontNest(<parent>,<child>); <}>
     }
     
-    protected boolean isPrioFiltered(int parentItem, int child) {
-      java.util.List\<Integer\> donts = dontNest.get(parentItem);
-      if (donts == null) return false;
-      return donts.contains(child);
-    }
-  
+	protected boolean isPrioFiltered(int parentItem, int child) {
+		IntegerList donts = dontNest.get(parentItem);
+		if(donts == null) return false;
+		return donts.contains(child);
+	}
+	
     // Production declarations
-    <for (p <- uniqueProductions) {>
-    private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);<}>
+	<for (p <- uniqueProductions) {>
+	switch(p){
+	case prod(_,lit(_),\no-attrs()):
+	default:	
+	private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);
+	}
+	<}>
     
-    // Item declarations
-    <for (Symbol s <- newItems, lit(_) !:= s) { items = newItems[s]; >
-    private static class <value2id(s)> {
-      <for (Item i <- items) {>
-      public static final AbstractStackNode <value2id(i.production)>_<value2id(i.index)> = <items[i].new>;<}>
-    }
-    <}>
-    
-    public <name>(){
-        super();
-    }
-    
-    // Parse methods    
-    <for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
-        <generateParseMethod(newItems, choice(nont, gr.rules[nont]))>
-    <}>
+	// Item declarations
+	<for (Symbol s <- newItems, lit(_) !:= s) { items = newItems[s]; >
+	private static class <value2id(s)>{
+		<for (Item i <- items) {>
+		public static final AbstractStackNode <value2id(i.production)>_<value2id(i.index)> = <items[i].new>;
+		<}>
+	}
+	<}>
+	
+	public <name>(){
+		super();
+	}
+	
+	// Parse methods    
+	<for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
+		<generateParseMethod(newItems, choice(nont, gr.rules[nont]))>
+	<}>
 }
 ";
 }  
-
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
@@ -250,7 +255,6 @@ rel[int,int] computeAssociativities(Items items, map[Production, int] prodItems,
     }
   }
   
-  
   return result;
 }
 
@@ -321,7 +325,7 @@ public str generateRestrictions(Grammar grammar, int() id, set[Production] restr
   las = [ l | /Production p:prod([Symbol l],_,_) <- restrictions];
  
   if (las != []) {
-    result += ("(IMatchableStackNode) <sym2newitem(grammar, head(las), id).new>" | it + ", (IMatchableStackNode) <sym2newitem(grammar,l,id).new>" | l <- tail(las));
+    result += ("<sym2newitem(grammar, head(las), id).new>" | it + ", <sym2newitem(grammar,l,id).new>" | l <- tail(las));
   }
   
   result += "}";
@@ -342,7 +346,7 @@ public str generateRestrictions(set[Production] restrictions) {
   las = [ p | /Production p:prod([Symbol l],_,_) <- restrictions];
  
   if (las != []) {
-    result += ("(IMatchableStackNode) <value2id(item(head(las),0))>" | it + ", (IMatchableStackNode) <value2id(item(l,0))>" | l <- tail(las));
+    result += ("<value2id(item(head(las),0))>" | it + ", <value2id(item(l,0))>" | l <- tail(las));
   }
   
   result += "}";
