@@ -5,6 +5,7 @@ import java.net.URI;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.DoubleArrayList;
@@ -108,16 +109,11 @@ public class ContainerNode extends AbstractNode{
 		ArrayList<IConstructor> results = new ArrayList<IConstructor>();
 		
 		int beginLine = -1;
-		int beginColumn = -1;
-		int endLine = -1;
-		int endColumn = -1;
-		int length = -1;
+		ISourceLocation sourceLocation = null;
 		if(input != null){
 			beginLine = positionStore.findLine(offset);
-			beginColumn = positionStore.getColumn(offset, beginLine);
-			endLine = positionStore.findLine(endOffset);
-			endColumn = positionStore.getColumn(endOffset, endLine);
-			length = endOffset - offset;
+			int endLine = positionStore.findLine(endOffset);
+			sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine, endLine, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 		}
 		
 		OUTER : for(int i = alternatives.size() - 1; i >= 0; --i){
@@ -134,7 +130,7 @@ public class ContainerNode extends AbstractNode{
 			}
 			
 			IConstructor result = vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
-			if(input != null) result = result.setAnnotation(POSITION_ANNNOTATION_LABEL, vf.sourceLocation(input, offset, length, beginLine, endLine, beginColumn, endColumn));
+			if(input != null) result = result.setAnnotation(POSITION_ANNNOTATION_LABEL, sourceLocation);
 			results.add(result);
 		}
 		
