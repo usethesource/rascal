@@ -44,7 +44,7 @@ list[int] defaultBlok(list[Symbol] p,list[Tree] q) {
 
 list[int] ( list[Symbol],list[Tree] ) isBlok=defaultBlok ;
 
-public void setBlok(list[int] ( list[Symbol],list[Tree] ) isBl) {
+public void setBlock(list[int] ( list[Symbol],list[Tree] ) isBl) {
      isBlok=isBl;
      }
 
@@ -113,8 +113,8 @@ bool isTerminal(Symbol s,str c) {
      }
 
 public bool isScheme(list[Symbol] q,list[str] b) {
-     if (size(b)!=size(q)) return false;
-     list[tuple[Symbol,str]] r=[<q[i],b[i]>|int i<-[0..size(q)-1]];
+     if (size(b)!=(size(q)+1)/2) return false;
+     list[tuple[Symbol,str]] r=[<q[2*i],b[i]>|int i<-[0..size(b)-1]];
      for (<Symbol s,str z><-r) {
           if (!isTerminal(s)) {
                if (z!="N") return false;
@@ -135,28 +135,28 @@ bool isBody(list[Symbol] q) {
      }
 
 public list[int] isBody(list[Tree] t,int idx) {
-     Tree g=t[idx];
+     Tree g=t[idx*2];
      return (isBody(g)&&userDefined(g)==NULL())?[idx]:[];
      }
 
 public bool isBlock(Tree c) {
      if (appl(prod(list[Symbol] s,_,Attributes att),_):=c) {
-          list[Symbol] q=[u|Symbol u<-s,u!=skip];
-          r=isBlock(q);
+          r=isBlock(s);
           return r;
           }
      return false;
      }
 
 public list[int] isBlock(list[Tree] t,int idx) {
-     Tree g=t[idx];
-     return (isBlock(g)&&userDefined(g)==NULL())?[idx]:[];
+     Tree g=t[idx*2];
+     list[int] r =  (isBlock(g)&&userDefined(g)==NULL())?[idx]:[];
+     println(r);
+     return r;
      }
 
 public bool isBody(Tree c) {
      if (appl(prod(list[Symbol] s,_,Attributes att),_):=c) {
-          list[Symbol] q=[u|Symbol u<-s,u!=skip];
-          r=isBody(q);
+          r=isBody(s);
           return r;
           }
      return false;
@@ -227,7 +227,7 @@ public Box evPt(Tree q,bool doIndent) {
      if (b!=NULL()) return b;
      switch (q) {
           case appl ( prod(list[Symbol] s,_,Attributes att),list[Tree] t ) : {
-                    pairs u=[<s[i],t[i]>|int i<-[0,2..(size(t)-1)]];
+                    pairs u=[<s[i],t[i]>|int i<-[0,1..(size(t)-1)]];
                     Box r=walkThroughSymbols(u,true,doIndent,-1);
                     return r;
                     }
@@ -238,11 +238,11 @@ public Box evPt(Tree q,bool doIndent) {
                     return HV(0,getIterSep(q));
                     }
           case appl ( \list(\cf(\iter-star(Symbol s))),list[Tree] t ) : {
-                    pairs u=[<s,t[i]>|int i<-[0,2..(size(t)-1)]];
+                    pairs u=[<s,t[i]>|int i<-[0,1..(size(t)-1)]];
                     return boxArgs(u,doIndent,-1);
                     }
           case appl ( \list(\cf(\iter(Symbol s))),list[Tree] t ) : {
-                    pairs u=[<s,t[i]>|int i<-[0,2..(size(t)-1)]];
+                    pairs u=[<s,t[i]>|int i<-[0,1..(size(t)-1)]];
                     return boxArgs(u,doIndent,-1);
                     }
           case appl ( \list(\lex(\iter(\layout()))),list[Tree] t ) : {
@@ -291,29 +291,23 @@ tuple[Box,Box] compactStyle(Box b) {
      return <NULL(),b>;
      }
 
-Symbol p0(tuple[Symbol,Tree] t) {
-     return t[0];
-     }
-
-Tree p1(tuple[Symbol,Tree] t) {
-     return t[1];
-     }
-
 list[Symbol] proj0(list[tuple[Symbol,Tree]] t) {
-     return mapper(t,p0);
+     return [q[0]|tuple[Symbol, Tree] q <- t];
      }
 
 list[Tree] proj1(list[tuple[Symbol,Tree]] t) {
-     return mapper(t,p1);
+     return [q[1]|tuple[Symbol, Tree] q <- t];
      }
 
 Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
      list[Box] out=[],collectList=[],compactList=[];
      list[Symbol] y=proj0(u);
      list[Tree] z=proj1(u);
-     list[int] block=isBlok(y,z);
-     list[int] indent = isIndent(y);
-     list[segment] compact=isCompact(y);
+     // println(y);
+     list[int] block = [2*q| int q <-isBlok(y,z)];
+     // if (size(block)>0) println(block);
+     list[int] indent = [2*q| int q<-isIndent(y)];
+     list[segment] compact=[<2*q[0], 2*q[1]> | segment q<-isCompact(y)];
      bool collect=false;
      segment q=isEmpty(compact)?<1000,1000>:head(compact);
      if (!isEmpty(compact)) compact=tail(compact);
