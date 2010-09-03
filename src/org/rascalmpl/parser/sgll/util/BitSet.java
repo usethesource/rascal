@@ -1,9 +1,9 @@
 package org.rascalmpl.parser.sgll.util;
 
 public class BitSet{
-	private final int BLOCK_SHIFT = 5;
-	private final int BLOCK_SIZE = 1 << BLOCK_SHIFT;
-	private final int BLOCK_MASK = 0x0000001f;
+	private final static int BLOCK_SHIFT = 5;
+	private final static int BLOCK_SIZE = 1 << BLOCK_SHIFT;
+	private final static int BLOCK_MASK = 0x0000001f;
 	
 	private int[] bits;
 	private int capacity;
