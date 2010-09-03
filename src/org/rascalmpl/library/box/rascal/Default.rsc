@@ -30,6 +30,7 @@ list[UserDefinedFilter] userDefinedFilters = [
        
 list[int] isIndent(list[Symbol] q) {
        if (isScheme(q , ["N", "T", "(", "N", ")","{", "N","}"])) return [6, 7];
+       if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [5, 6];  // visit
        return [];
        }
        
@@ -44,7 +45,6 @@ list[int] isBlok(list[Symbol] q, list[Tree] z) {
         if (isScheme(q , ["T", "N", "T", "N"])) return  isBlock(z, 3);  // catch
         if (isScheme(q , ["N", ":", "N"])) return isBlock(z, 2);  // pattern with action
           // switch visit
-        if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [-1, 5];  // visit
      return [];
      }
 
@@ -88,7 +88,7 @@ bool isSeparated(list[Symbol] q) {
 void setUserRules() {
     setUserDefined(extraRules);
     setIndent(isIndent);
-    setBlok(isBlok);
+    setBlock(isBlok);
     setCompact(isCompact);
     setKeyword(isKeyword);
     setString(isString);

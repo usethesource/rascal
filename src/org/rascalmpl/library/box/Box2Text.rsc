@@ -492,6 +492,8 @@ str text2latex(str t) {
     t = convert2latex(t);
     return visit(t) {
        case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<key>}"
+       case /^\r\{<tg:..><key:[^\r]*>/ => "\\<tg>{<key>"
+       case /^\r\}../ => "}"
        }
     }
     
