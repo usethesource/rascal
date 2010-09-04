@@ -17,8 +17,8 @@ private data Grammar = simple(set[Symbol] start, set[Production] productions);
 
 @doc{This function wraps productions with their single character lookahead sets for parser generation}
 public Grammar computeLookaheads(Grammar G) {
-  Grammar SimpleG = simple(G.start, { p | /Production p:prod(_,_,_) := G} + {p | /Production p:regular(_,_) := G});
-  <fst, fol> = firstAndFollow(expandRegularSymbols(removeLabels(SimpleG)));
+  G = expandRegularSymbols(removeLabels(G));
+  <fst, fol> = firstAndFollow(simple(G.start, { p | /Production p:prod(_,_,_) := G}));
     
   return visit(G) {
     case Production p:prod([], Symbol rhs, _) => lookahead(rhs, fol[rhs], p)
@@ -49,22 +49,46 @@ public Grammar computeLookaheads(Grammar G) {
   As a side-effect it also needs to replace priority ordering and associativity by the simple choice operator!  
 }
 public Grammar compileLookaheads(Grammar G) {
-  return visit(G) {
-    // no lookahead means never
+  // first we remove first and assoc groups for simplicity's sake
+  G = visit (G) {
     case lookahead(rhs, {}, a) => choice(rhs, {})
-    // merge equal classes  
-    case choice(rhs, alts) =>
-         choice(rhs, {lookahead(rhs, c,  choice(rhs, {a1,a2}))} + rest)
-    // factor commonalities
-    case choice(rhs, {lookahead(rhs, c1, Production a1), lookahead(rhs, c2, Production a2), rest* }) =>
-         choice(rhs, {lookahead(rhs, common, choice(rhs, {a1,a2})), lookahead(rhs, forA1, a1), lookahead(rhs, forA2, a2)} + rest)
-      when common := intersect(c1, c2)
-         , common != {}
-         , forA1 := diff(c1,c2)
-         , forA2 := diff(c2,c1)        
-    case first(rhs, list[Production] order) => choice(rhs, { p | p <- order })
-    case \assoc(rhs, _, set[Production] a) => choice(rhs, a)
+    case first(rhs, order)     => choice(rhs, {p | p <- order})
+    case \assoc(rhs, a, alts)  => choice(rhs, alts)
   }
+  // give the normalizer the chance to merge choices as much as possible 
+  G.rules = (s:{choice(s,G.rules[s])} | s <- G.rules);
+
+  // now we optimize the lookaheads  
+  return visit(G) {
+    case choice(rhs, alts) => optimizeLookaheads(rhs, alts)
+  }
+}
+
+public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
+  solve (alts) {
+    for (a:lookahead(_,c1,p1) <- alts, b:lookahead(_,c2,p2) <- alts, a != b) {
+      if (c1 == c2) {
+        // merge similars first (also makes alts smaller for optimal performance and termination
+        alts -= {a,b};
+        alts += {lookahead(rhs, c1, choice(rhs, {p1,p2}))};
+      }
+      else {
+        common = intersect(c1, c2);
+        if (common != {}) {
+          // split overlapping classes, making each class smaller for termination
+          diff1 = diff(c1,c2);
+          diff2 = diff(c2,c1);
+          alts -= {a,b};
+          alts += {lookahead(rhs, common, choice(rhs, {p1,p2}))};
+          if (diff1 != {}) 
+            alts += lookahead(rhs, diff1, p1);
+          if (diff2 != {})
+            alts += lookahead(rhs, diff2, p2); 
+        }
+      }
+    }
+  }
+  return choice(rhs, alts);
 }
 
 public set[Symbol] intersect(set[Symbol] u1, set[Symbol] u2) {
@@ -75,8 +99,8 @@ public set[Symbol] intersect(set[Symbol] u1, set[Symbol] u2) {
 }
 
 public set[Symbol] diff(set[Symbol] u1, set[Symbol] u2) {
-  if ({\char-class(r1), _*} := u1, {\char-class(r2), _*} := u2) {
-    return mergeCC({\char-class(difference(r1,r2))} + (u1 - u2));
+  if ({\char-class(r1), s1*} := u1, {\char-class(r2), s2*} := u2) {
+    return mergeCC({\char-class(difference(r1,r2))} + (s1 - s2));
   }
   return u1 - u2;
 }
@@ -85,14 +109,13 @@ public set[Symbol] diff(set[Symbol] u1, set[Symbol] u2) {
 // Utilities on Symbols
 
 public Grammar removeLabels(Grammar G) {
-  G.productions = { prod(removeLabels(lhs), s, a) | prod(lhs,s,a) <- G.productions };
-  return G;
+  return visit(G) {
+    case prod(lhs, rhs, a) => prod(removeLabels(lhs), rhs, a)
+  }
 }
 
 public list[Symbol] removeLabels(list[Symbol] syms) {
-  return visit(syms) {
-    case label(_,sym) => sym
-  }
+  return [(label(_,s2) := s) ? s2 : s | s <- syms ];
 }
 
 public set[Symbol] usedSymbols(Grammar G){
