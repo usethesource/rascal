@@ -31,6 +31,12 @@ public str generate(str package, str name, Grammar gr){
     println("computing priority and associativity filter");
     dontNest = computeDontNests(newItems, gr);
     
+    println("computing lookahead sets");
+    gr = computeLookaheads(gr);
+    
+    println("optimizing lookahead automaton");
+    gr = compiledLookaheads(gr);
+    
     println("printing the source code of the parser class");
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p};
     
@@ -165,6 +171,7 @@ private bool isNonterminal(Symbol s) {
 
 public str generateParseMethod(Items items, Production p) {
   return "public void <sym2name(p.rhs)>() {
+            char next = input[location];
             <generateExpect(items, p)>
           }";
 }
@@ -175,29 +182,51 @@ public str generateExpect(Items items, Production p){
     
     switch (p) {
       case prod(_,_,_) :
-        return "// <p>\n\texpect(<value2id(p)>, <generateSymbolItemExpects(p)>);";  
+        return "// <p>\n\texpect(<value2id(p)>, <generateSymbolItemExpects(p)>);"; 
+      case lookahead(_, classes, Production p) :
+        return "if (<generateClassConditional(classes)>) {
+                  <generateExpect(items, p)>
+               }";
+      case choice(_, {lookahead(_, classes, Production p), set[Production] rest}) :
+        return "if (<generateClassConditional(classes)>) {
+                  <generateExpect(items, p)>
+                } else {
+                  <generateExpect(items, choice(p.rhs, rest))>
+                }";
       case choice(_, set[Production] ps) :
         return "<for (Production q <- ps){><generateExpect(items, q)>
                 <}>";
-      case restrict(_, choice(rhs, set[Production] ps), set[Production] restrictions) : 
-        return "<for (q <- ps) {><generateExpect(items, q)>
-               <}>";
+      case restrict(_, Production p, set[Production] restrictions) : 
+        return generateExpect(items, p);
       case diff(_, Production n, set[Production] rejects) :
         return "<for (Production q <- rejects){>expectReject(<value2id(q)>, <generateSymbolItemExpects(q)>);
                 <}>
                 <generateExpect(items, n)>";
-      case first(_, list[Production] ps) : {
-         return "<for (q <- ps) {><generateExpect(items, q)>
-                <}>
-               ";
-        }
+      case first(_, list[Production] ps) : 
+        throw "unexpected first at generation time";
+        // return generateExpect(items, choice(p.rhs, { q | q <- ps }));
       case \assoc(_,_,set[Production] ps) :
-        return "<for (q <- ps) {><generateExpect(items, q)>
-                <}>
-               ";
+        throw "unexpected assoc at generation time";
+        // return generateExpect(items, choice(p.rhs, ps)); 
     }
     
     throw "not implemented <p>";
+}
+
+str generateClassConditional(set[Symbol] classes) {
+  return (eoi() in classes ? "location == input.length()" : "true" 
+         | " || <generateRangeConditional(range)>"
+         | \char-class(list[CharRange] ranges) <- classes, CharRange range <- ranges); 
+}
+
+str generateRangeConditional(CharRange range) {
+  switch (range) {
+    case single(int i) : return "(next == (char) <i>)";
+    case range(1,65535) : return "(true /*every char*/)";
+    case range(int i, i) : return "(next == (char) <i>)";
+    case range(int i, int j) : return "((next \>= (char) <i>) && (next \<= (char) <j>))";
+    default: throw "unexpected range type: <range>";
+  }
 }
 
 rel[int,int] computeDontNests(Items items, Grammar grammar) {
