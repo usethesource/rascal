@@ -9,20 +9,30 @@ public Grammar expandRegularSymbols(Grammar G) {
     G.productions += expand(rhs);
   }
   for (grammar(_,map[Symbol,set[Production]] _) := G, Symbol rhs <- G.rules) {
-    if ({regular(rhs,_)} := G.rules[nont]) {
-      G.rules[nont] = expand(rhs);
+    if ({regular(rhs,_)} := G.rules[rhs]) {
+      set[Production] init = {};
+      
+      for (p <- expand(rhs)) {
+        G.rules[p.rhs]?init += {p};
+      }
     }
   }
   return G;
 }
 
-private set[Production] expand(Symbol s) {
+public set[Production] expand(Symbol s) {
   switch (s) {
-    case \opt(t) : return {choice({prod([],s,\no-attrs()),prod([t],s,\no-attrs())})};
-    case \iter(t) : return {choice({prod([t],s,\no-attrs()),prod([t,s],s,\no-attrs())})};
-    case \iter-star(t) : return {choice({prod([],s,\no-attrs()),prod([iter(t)],s,\no-attrs())})} + expand(iter(t));
-    case \iter-sep(t,list[Symbol] seps) : return {choice({prod([t],s,\no-attrs()),prod([t,seps,s],s,\no-attrs())})};
-    case \iter-star-sep(t, list[Symbol] seps) : return {choice({prod([],s,\no-attrs()),prod([\iter-sep(t,seps)],s,\no-attrs())})} + expand(\iter-sep(t,seps));
+    case \opt(t) : 
+      return {choice(s,{prod([],s,\no-attrs()),prod([t],s,\no-attrs())})};
+    case \iter(t) : 
+      return {choice(s,{prod([t],s,\no-attrs()),prod([t,s],s,\no-attrs())})};
+    case \iter-star(t) : 
+      return {choice(s,{prod([],s,\no-attrs()),prod([iter(t)],s,\no-attrs())})} + expand(iter(t));
+    case \iter-seps(t,list[Symbol] seps) : 
+      return {choice(s, {prod([t],s,\no-attrs()),prod([t,seps,s],s,\no-attrs())})};
+    case \iter-star-seps(t, list[Symbol] seps) : 
+      return {choice(s,{prod([],s,\no-attrs()),prod([\iter-seps(t,seps)],s,\no-attrs())})} 
+             + expand(\iter-seps(t,seps));
    }   
 
    throw "missed a case <s>";                   
