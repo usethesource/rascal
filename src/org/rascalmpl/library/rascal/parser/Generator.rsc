@@ -35,7 +35,7 @@ public str generate(str package, str name, Grammar gr){
     gr = computeLookaheads(gr);
     
     println("optimizing lookahead automaton");
-    gr = compiledLookaheads(gr);
+    gr = compileLookaheads(gr);
     
     println("printing the source code of the parser class");
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p};
@@ -91,13 +91,8 @@ public class <name> extends SGLL{
 	}
 	
     // Production declarations
-	<for (p <- uniqueProductions) {>
-	switch(p){
-	case prod(_,lit(_),\no-attrs()):
-	default:	
-	private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);
-	}
-	<}>
+	<for (p <- uniqueProductions, lit(_) !:= p.rhs) {>
+	private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);<}>
     
 	// Item declarations
 	<for (Symbol s <- newItems, lit(_) !:= s) { items = newItems[s]; >
@@ -183,15 +178,17 @@ public str generateExpect(Items items, Production p){
     switch (p) {
       case prod(_,_,_) :
         return "// <p>\n\texpect(<value2id(p)>, <generateSymbolItemExpects(p)>);"; 
-      case lookahead(_, classes, Production p) :
+      case lookahead(_, classes, Production q) :
         return "if (<generateClassConditional(classes)>) {
-                  <generateExpect(items, p)>
+                  <generateExpect(items, q)>
                }";
-      case choice(_, {lookahead(_, classes, Production p), set[Production] rest}) :
+      case choice(_, {l:lookahead(_, _, q)}) :
+        return generateExpect(items, l);
+      case choice(_, {lookahead(_, classes, Production q), set[Production] rest}) :
         return "if (<generateClassConditional(classes)>) {
-                  <generateExpect(items, p)>
+                  <generateExpect(items, q)>
                 } else {
-                  <generateExpect(items, choice(p.rhs, rest))>
+                  <generateExpect(items, choice(q.rhs, rest))>
                 }";
       case choice(_, set[Production] ps) :
         return "<for (Production q <- ps){><generateExpect(items, q)>
@@ -214,18 +211,26 @@ public str generateExpect(Items items, Production p){
 }
 
 str generateClassConditional(set[Symbol] classes) {
-  return (eoi() in classes ? "location == input.length()" : "true" 
-         | " || <generateRangeConditional(range)>"
-         | \char-class(list[CharRange] ranges) <- classes, CharRange range <- ranges); 
+  if (eoi() in classes) {
+    return ("location == input.length()" 
+           | it + " || <generateRangeConditional(r)>"
+           | \char-class(list[CharRange] ranges) <- classes, r <- ranges);
+  }
+  else {
+    ranges = [r | \char-class(ranges) <- classes, r <- ranges];
+    
+    return ("<generateRangeConditional(head(ranges))>"| it + " || <generateRangeConditional(r)> "
+           | r <- tail(ranges));
+  } 
 }
 
-str generateRangeConditional(CharRange range) {
-  switch (range) {
-    case single(int i) : return "(next == (char) <i>)";
+str generateRangeConditional(CharRange r) {
+  switch (r) {
+    case single(i) : return "(next == <i>)";
     case range(1,65535) : return "(true /*every char*/)";
-    case range(int i, i) : return "(next == (char) <i>)";
-    case range(int i, int j) : return "((next \>= (char) <i>) && (next \<= (char) <j>))";
-    default: throw "unexpected range type: <range>";
+    case range(i, i) : return "(next == <i>)";
+    case range(i, j) : return "((next \>= <i>) && (next \<= <j>))";
+    default: throw "unexpected range type: <r>";
   }
 }
 
