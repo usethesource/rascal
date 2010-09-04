@@ -185,6 +185,12 @@ public list[&T] java tail(list[&T] lst, int len) throws IndexOutOfBoundsError;
 @javaClass{org.rascalmpl.library.List}
 public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst);
 
+public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
+  if ([&T h, list[&T] t] := lst)
+    return <h, t>;
+  throw EmptyList();
+}
+
 @doc{Convert a list of tuples to a map; first elements are associated with a set of second elements}
 @javaClass{org.rascalmpl.library.List}
 public map[&A,set[&B]] java toMap(list[tuple[&A, &B]] lst) throws DuplicateKey;

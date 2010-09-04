@@ -238,6 +238,8 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
 
 rel[int,int] computeDontNests(Items items, map[Production, int] prodItems, Production p) {
   switch (p) {
+    case prod(_,_,attrs([_*,\assoc(Associativity a),_*])) : 
+      return computeAssociativities(items, prodItems, a, {p});
     case prod(_,_,_) : return {};
     case regular(_,_) : return {};
     case choice(_, set[Production] alts) : 
@@ -250,6 +252,8 @@ rel[int,int] computeDontNests(Items items, map[Production, int] prodItems, Produ
       return computePriorities(items, prodItems, levels);
     case \assoc(_, Associativity a, set[Production] alts) :
       return computeAssociativities(items, prodItems, a, alts);
+    case \lookahead(_,_,q) :
+      return computeDontNests(items,prodItems,q); 
     case \others(_) : return {};
     default:
       throw "missed a case <p>";
