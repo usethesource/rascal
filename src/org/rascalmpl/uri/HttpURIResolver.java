@@ -25,4 +25,26 @@ public class HttpURIResolver implements IURIInputStreamResolver {
 		}
 	}
 
+	public boolean isDirectory(URI uri) {
+		return false;
+	}
+
+	public boolean isFile(URI uri) {
+		return exists(uri);
+	}
+
+	public long lastModified(URI uri) {
+		try {
+			return uri.toURL().openConnection().getLastModified();
+		}
+		catch (IOException e) {
+			return 0L;
+		}
+	}
+
+	public String[] listEntries(URI uri) {
+		String [] ls = {};
+		return ls;
+	}
+
 }

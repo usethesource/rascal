@@ -1,9 +1,13 @@
 package org.rascalmpl.uri;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
+
+import org.joda.time.DateTime;
 
 public class ClassResourceInputStreamResolver implements
 		IURIInputStreamResolver {
@@ -29,6 +33,27 @@ public class ClassResourceInputStreamResolver implements
 
 	public String scheme() {
 		return scheme;
+	}
+
+	public boolean isDirectory(URI uri) {
+		URL res = clazz.getResource(uri.getPath());
+		return (res == null) ? false : new File(res.getPath()).isDirectory();
+	}
+
+	public boolean isFile(URI uri) {
+		URL res = clazz.getResource(uri.getPath());
+		return (res == null) ? false : new File(res.getPath()).isFile();
+	}
+
+	public long lastModified(URI uri) {
+		URL res = clazz.getResource(uri.getPath());
+		return (res == null) ? 0L : new File(res.getPath()).lastModified();
+	}
+
+	public String[] listEntries(URI uri) {
+		String[] ls = {};
+		URL res = clazz.getResource(uri.getPath());
+		return (res == null) ? ls : new File(res.getPath()).list();
 	}
 
 }

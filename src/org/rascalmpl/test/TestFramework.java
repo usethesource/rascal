@@ -66,6 +66,26 @@ public class TestFramework {
 		public String scheme() {
 			return "test-modules";
 		}
+
+		public boolean isDirectory(URI uri) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean isFile(URI uri) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public long lastModified(URI uri) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		public String[] listEntries(URI uri) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	public TestFramework() {

@@ -10,12 +10,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -111,34 +111,33 @@ public class IO{
 				}
 			}
 		}
-		
 		return w.done();
 	}
 	
-	public IValue exists(ISourceLocation file, IEvaluatorContext ctx) {
-		return values.bool(ctx.getResolverRegistry().exists(file.getURI()));
+	public IValue exists(ISourceLocation sloc, IEvaluatorContext ctx) {
+		return values.bool(ctx.getResolverRegistry().exists(sloc.getURI()));
 	}
 	
-	public IValue isDirectory(ISourceLocation file, IEvaluatorContext ctx) {
-		File f = new File(file.getURI().getPath());
-		return values.bool(f.isDirectory());
+	public IValue lastModified(ISourceLocation sloc, IEvaluatorContext ctx) {
+		return values.datetime(ctx.getResolverRegistry().lastModified(sloc.getURI()));
 	}
 	
-	public IValue isFile(ISourceLocation file, IEvaluatorContext ctx) {
-		File f = new File(file.getURI().getPath());
-		System.err.println("isFile: " + file.getURI().getPath() + "; isFile = " + f.isFile());
-		return values.bool(f.isFile());
+	public IValue isDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
+		return values.bool(ctx.getResolverRegistry().isDirectory(sloc.getURI()));
 	}
 	
-	public IValue mkDirectory(ISourceLocation file, IEvaluatorContext ctx) {
-		File f = new File(file.getURI().getPath());
-		System.err.println("mkDirectory: " + file.getURI().getPath());
+	public IValue isFile(ISourceLocation sloc, IEvaluatorContext ctx) {
+		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
+	}
+	
+	public IValue mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
+		File f = new File(sloc.getURI().getPath());
+		System.err.println("mkDirectory: " + sloc.getURI().getPath());
 		return values.bool(f.mkdir());
 	}
 	
-	public IValue listEntries(ISourceLocation file, IEvaluatorContext ctx) {
-		File f = new File(file.getURI().getPath());
-		java.lang.String[] entries = f.list();
+	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
+		java.lang.String [] entries = ctx.getResolverRegistry().listEntries(sloc.getURI());
 		IListWriter w = values.listWriter(types.stringType());
 		for(java.lang.String entry : entries){
 			w.append(values.string(entry));
@@ -147,12 +146,12 @@ public class IO{
 	}
 	
 	
-	public IValue readFile(ISourceLocation file, IEvaluatorContext ctx){
+	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
 		StringBuilder result = new StringBuilder();
 		
 		InputStream in = null;
 		try{
-			in = ctx.getResolverRegistry().getInputStream(file.getURI());
+			in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
 			byte[] buf = new byte[4096];
 			int count;
 
@@ -162,13 +161,13 @@ public class IO{
 			
 			java.lang.String str = result.toString();
 			
-			if(file.getOffset() != -1){
-				str = str.substring(file.getOffset(), file.getOffset() + file.getLength());
+			if(sloc.getOffset() != -1){
+				str = str.substring(sloc.getOffset(), sloc.getOffset() + sloc.getLength());
 			}
 			
 			return values.string(str);
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}finally{
@@ -182,14 +181,14 @@ public class IO{
 		}
 	}
 	
-	public void writeFile(ISourceLocation file, IList V, IEvaluatorContext ctx) {
-		writeFile(file, V, false, ctx);
+	public void writeFile(ISourceLocation sloc, IList V, IEvaluatorContext ctx) {
+		writeFile(sloc, V, false, ctx);
 	}
 	
-	private void writeFile(ISourceLocation file, IList V, boolean append, IEvaluatorContext ctx){
+	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
 		OutputStream out = null;
 		try{
-			out = ctx.getResolverRegistry().getOutputStream(file.getURI(), append);
+			out = ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append);
 			
 			for(IValue elem : V){
 				if (elem.getType().isStringType()){
@@ -201,7 +200,7 @@ public class IO{
 				}
 			}
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}finally{
@@ -217,25 +216,25 @@ public class IO{
 		return;
 	}
 	
-	public void appendToFile(ISourceLocation file, IList V, IEvaluatorContext ctx){
-		writeFile(file, V, true, ctx);
+	public void appendToFile(ISourceLocation sloc, IList V, IEvaluatorContext ctx){
+		writeFile(sloc, V, true, ctx);
 	}
 	
-	public IList readFileLines(ISourceLocation file, IEvaluatorContext ctx){
+	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		BufferedReader in = null;
 		try{
-			InputStream stream = ctx.getResolverRegistry().getInputStream(file.getURI());
+			InputStream stream = ctx.getResolverRegistry().getInputStream(sloc.getURI());
 			in = new BufferedReader(new InputStreamReader(stream));
 			java.lang.String line;
 			
 			int i = 0;
-			int offset = file.getOffset();
-			int beginLine = file.getBeginLine();
-			int beginColumn = file.getBeginColumn();
-			int endLine = file.getEndLine();
-			int endColumn = file.getEndColumn();
+			int offset = sloc.getOffset();
+			int beginLine = sloc.getBeginLine();
+			int beginColumn = sloc.getBeginColumn();
+			int endLine = sloc.getEndLine();
+			int endColumn = sloc.getEndColumn();
 
 			do{
 				line = in.readLine();
@@ -264,8 +263,10 @@ public class IO{
 					}
 				}
 			}while(line != null);
+		}catch(MalformedURLException e){
+		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
 		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
@@ -281,12 +282,12 @@ public class IO{
 		return w.done();
 	}
 	
-	public IList readFileBytes(ISourceLocation file, IEvaluatorContext ctx){
+	public IList readFileBytes(ISourceLocation sloc, IEvaluatorContext ctx){
 		IListWriter w = types.listType(types.integerType()).writer(values);
 		
 		BufferedInputStream in = null;
 		try{
-			InputStream stream = ctx.getResolverRegistry().getInputStream(file.getURI());
+			InputStream stream = ctx.getResolverRegistry().getInputStream(sloc.getURI());
 			in = new BufferedInputStream(stream);
 			int read;
 			final int size = 256;
@@ -299,7 +300,7 @@ public class IO{
 				}
 			}while(read != -1);
 		}catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(file, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
