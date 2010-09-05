@@ -34,4 +34,20 @@ public class CWDURIResolver implements IURIInputStreamResolver,
 		return getAbsolutePath(uri).exists();
 	}
 
+	public boolean isDirectory(URI uri) {
+		return getAbsolutePath(uri).isDirectory();
+	}
+
+	public boolean isFile(URI uri) {
+		return getAbsolutePath(uri).isFile();
+	}
+
+	public long lastModified(URI uri) {
+		return getAbsolutePath(uri).lastModified();
+	}
+
+	public String[] listEntries(URI uri) {
+		return getAbsolutePath(uri).list();
+	}
+
 }

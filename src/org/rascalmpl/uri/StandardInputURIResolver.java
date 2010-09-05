@@ -16,4 +16,21 @@ public class StandardInputURIResolver implements IURIInputStreamResolver {
 	public String scheme() {
 		return "stdin";
 	}
+
+	public boolean isDirectory(URI uri) {
+		return false;
+	}
+
+	public boolean isFile(URI uri) {
+		return false;
+	}
+
+	public long lastModified(URI uri) {
+		return 0L;
+	}
+
+	public String[] listEntries(URI uri) {
+		String [] ls = {};
+		return ls;
+	}
 }

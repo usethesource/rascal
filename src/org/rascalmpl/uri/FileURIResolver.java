@@ -38,4 +38,20 @@ public class FileURIResolver implements IURIInputStreamResolver, IURIOutputStrea
 	public boolean exists(URI uri) {
 		return new File(uri.getPath()).exists();
 	}
+
+	public boolean isDirectory(URI uri) {
+		return new File(uri.getPath()).isDirectory();
+	}
+
+	public boolean isFile(URI uri) {
+		return new File(uri.getPath()).isFile();
+	}
+
+	public long lastModified(URI uri) {
+		return new File(uri.getPath()).lastModified();
+	}
+
+	public String[] listEntries(URI uri) {
+		return new File(uri.getPath()).list();
+	}
 }

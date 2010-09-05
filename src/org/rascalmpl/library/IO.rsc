@@ -35,6 +35,11 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 @reflect{Uses URI Resolver Registry}
 public bool java exists(loc file);
 
+@doc{Check last modification time of location}
+@javaClass{org.rascalmpl.library.IO}
+@reflect{Uses URI Resolver Registry}
+public datetime java lastModified(loc file);
+
 @doc{Check whether a certain location is a directory}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}

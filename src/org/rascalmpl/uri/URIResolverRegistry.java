@@ -34,6 +34,43 @@ public class URIResolverRegistry {
 		return resolver.exists(uri);
 	}
 	
+	public boolean isDirectory(URI uri) {
+		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		
+		if (resolver == null) {
+			return false;
+		}
+		return resolver.isDirectory(uri);
+	}
+
+	public boolean isFile(URI uri) {
+		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		
+		if (resolver == null) {
+			return false;
+		}
+		return resolver.isFile(uri);
+	}
+
+	public long lastModified(URI uri) {
+		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		
+		if (resolver == null) {
+			return 0L;
+		}
+		return resolver.lastModified(uri);
+	}
+
+	public String[] listEntries(URI uri) {
+		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		String[] ls = {};
+		
+		if (resolver == null) {
+			return ls;
+		}
+		return resolver.listEntries(uri);
+	}
+	
 	public InputStream getInputStream(URI uri) throws IOException {
 		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
 		

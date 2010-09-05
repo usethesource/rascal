@@ -396,6 +396,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		ClassResourceInputStreamResolver library = new ClassResourceInputStreamResolver("stdlib", this.getClass());
 		resolverRegistry.registerInput(library.scheme(), library);
+		
+		// Allow writing via stdlib scheme
+		FileURIResolver stdlib = new FileURIResolver(); 
+		resolverRegistry.registerOutput(library.scheme(), stdlib);
 
 		resolverRegistry.registerInput(resolver.scheme(), resolver);
 		resolverRegistry.registerOutput(resolver.scheme(), resolver);

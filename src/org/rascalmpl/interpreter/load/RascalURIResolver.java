@@ -201,4 +201,86 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 			throw new IOException(e.getMessage(), e);
 		}
 	}
+	
+	public boolean isDirectory(URI uri) {
+		System.err.println("isDirectory: " + uri.getPath());
+		try {
+			if (uri.getScheme().equals(scheme())) {
+				String path = getPath(uri);
+				
+				for (URI dir : collect()) {
+					URI full = getFullURI(path, dir);
+					System.err.println("full = " + full.getPath());
+					if (ctx.getResolverRegistry().exists(full) &&
+						ctx.getResolverRegistry().isDirectory(full)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		} 
+		catch (URISyntaxException e) {
+			return false;
+		}
+	}
+	
+	public boolean isFile(URI uri) {
+		try {
+			if (uri.getScheme().equals(scheme())) {
+				String path = getPath(uri);
+				
+				for (URI dir : collect()) {
+					URI full = getFullURI(path, dir);
+					if (ctx.getResolverRegistry().exists(full) &&
+					    ctx.getResolverRegistry().isFile(full)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		} 
+		catch (URISyntaxException e) {
+			return false;
+		}
+	}
+	
+	public long lastModified(URI uri) {
+		try {
+			if (uri.getScheme().equals(scheme())) {
+				String path = getPath(uri);
+				
+				for (URI dir : collect()) {
+					URI full = getFullURI(path, dir);
+					if (ctx.getResolverRegistry().exists(full)) {
+						return ctx.getResolverRegistry().lastModified(full);
+					}
+				}
+			}
+			return 0L;
+		} 
+		catch (URISyntaxException e) {
+			return 0L;
+		}
+	}
+	
+	public String[] listEntries(URI uri) {
+		java.lang.String[] ls = {};
+		try {
+			if (uri.getScheme().equals(scheme())) {
+				String path = getPath(uri);
+				
+				for (URI dir : collect()) {
+					URI full = getFullURI(path, dir);
+					if (ctx.getResolverRegistry().exists(full)) {
+						return ctx.getResolverRegistry().listEntries(full);
+					}
+				}
+			}
+			return ls;
+		} 
+		catch (URISyntaxException e) {
+			return ls;
+		}
+	}
+
 }
