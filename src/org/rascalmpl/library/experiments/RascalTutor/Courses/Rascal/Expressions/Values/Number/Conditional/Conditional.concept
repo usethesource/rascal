@@ -5,10 +5,10 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `( $BoolExp$ ) ? $NumExp_1$ : $NumExp_2$`
+* Syntax: `$Exp^bool$ ? $Exp_1^num$ : $Exp_2^num$`
 * Type: `int` or `real`
 
-Description: If the value of $BoolExp$ is <tt>true</tt> then the value of $NumExp1$ else the value of $NumExp2$.
+Description: If the value of $Exp$ is `true` then the value of $Exp_1$ else the value of $Exp_2$.
 
 Examples:
 <screen>

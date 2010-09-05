@@ -26,7 +26,7 @@ public class RascalTutor {
 		return eval;
 	}
 	
-	final static String BASE = "/Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/";
+//	final static String BASE = "/Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/";
 	
 	public static void main(String[] args) throws Exception
 	    {
@@ -43,10 +43,11 @@ public class RascalTutor {
 		        context.addServlet(Edit.class, "/edit");
 		        context.addServlet(Save.class, "/save");
 
-		        context.setResourceBase(BASE); 
+//		        context.setResourceBase(BASE); 
 		      
-		        String welcome[] = { BASE + "index.html"};
-		        context.setWelcomeFiles(welcome);
+//		        String welcome[] = { BASE + "index.html"};
+//		        context.setWelcomeFiles(welcome);
+		        
 /*		        
 		        WebAppContext wac = new WebAppContext();
 		        

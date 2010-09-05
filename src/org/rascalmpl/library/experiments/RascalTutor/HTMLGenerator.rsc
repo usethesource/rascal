@@ -168,8 +168,20 @@ public str markup(list[str] lines, str cp){
 public str markupRestLine(str line){
   ///println("markupRestLine(<line>)");
   return visit(line){
-  
+    
+    case /^<op1:__?>+<text:[^_]><op2:__?>/: {
+       if(op1 != op2)
+          fail;
+       insert (size(op1) == 1) ? i(text) : b(text);
+    }
+    
     case /^`<c:[^`]*>`/ => code(markupCode(c))
+    
+    case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => code(i(var) + markupSubs(ext))              
+    
+    case /^\[<text:[^\]]*>\]\(<url:[^)]+>\)/ => link(url, text)
+    
+    case /^\[<concept:[A-Za-z0-9\/]+>\]/  => show(concept)
     
     case /^\\<char:.>/ :         //TODO nested matching is broken, since wrong last match is used!
       if(char == "\\") 	    insert	"\\";
@@ -180,32 +192,17 @@ public str markupRestLine(str line){
       else if(char == ".")	insert ".";
       else insert char;
     
-    case /^_<text:[^_]+>_/       => i(text)
-    case /^__<text:[^_]+>__/     => b(text)
-    case /^\*<text:[^*]+>\*/     => i(text)
-    case /^\*\*<text:[^*]+>\*\*/ => b(text)
-    
-    case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"images/<dig>.png\"\>"
-       
-    case /^\$<var:[A-Za-z]*><op:[_\^]><subsup:[A-Za-z0-9]+>\$/ => 
-                                    i(var) + ((op == "_") ? sub(subsup) : sup(subsup))
-    case /^\$<var:[A-Za-z]+>\$/ => i(var)
-                                
-    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_]+\.png><opts:[^\)]*>\)/ => "\<img <getImgOpts(opts)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
-    
-    case /^\[<text:[^\]]*>\]\(<url:[^)]+>\)/ => link(url, text)
-    
-    case /^\[<concept:[A-Za-z0-9\/]+>\]/  => show(concept)
-    
     case /^<span:\<[^\>]+\>>/ => span
     
-    case /^<ent:&[A-Za-z]+;>/ => ent
+    case /^<ent:&[A-Za-z0-9]+;>/ => ent
     
-    case /^<ent:#[0-9aAbBcCdDeEfF]+>/ => ent
-    
-    case /^&/ => "&"
+    case /^&/ => "&amp;"
     
     case /^\</ => "&lt;"
+    
+    case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"images/<dig>.png\"\>"
+    
+    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_]+\.png><opts:[^\)]*>\)/ => "\<img <getImgOpts(opts)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
     
    };
 }
@@ -228,6 +225,13 @@ test markupRestLine("x\<y") ==  "x\<sub\>1\</sub\>";
 
 test markupRestLine("&copy;") == "&copy;";
 test markupRestLine("C&A") == "C&A";
+
+public str markupSubs(str txt){
+  return visit(txt){
+    case /^_<subsup:[A-Za-z0-9]+>/  => sub(subsup) 
+    case /^\^<subsup:[A-Za-z0-9]+>/ => sup(subsup)   
+  }
+}
 
 public str show(str cn){
   return "\<a href=\"/show?concept=<cn>\"\><cn>\</a\>";
@@ -259,9 +263,7 @@ public str markupCode(str text){
     case /^\</   => "&lt;"
     case /^&/    => "&amp;"
     case /^\$\$/ => "$"
-    case /^\$<var:[A-Za-z]*><op:[_\^]><subsup:[A-Za-z0-9]+>\$/ => 
-                                    i(var) + ((op == "_") ? sub(subsup) : sup(subsup))
-    case /^\$<var:[A-Za-z]+>\$/ => i(var)
+    case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
     case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"images/<dig>.png\"\>"
   };
 }
@@ -326,7 +328,7 @@ public set[str] searchTermsCode(str line){
   }
   return terms;
 }
-public set[str] searchTermsSynopsis(list[str] lines){
+public set[str]  searchTermsSynopsis(list[str] lines){
    set[str] terms = {};
    for(int k <- [0 .. size(lines) - 1])
        visit(lines[k]){
