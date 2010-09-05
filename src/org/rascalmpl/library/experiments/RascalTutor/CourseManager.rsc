@@ -317,7 +317,8 @@ public str save(ConceptName cn, str text, bool newConcept){
   initialize();
   if(newConcept) {
      lines = splitLines(text);
-     fullName = trim(combine(getSection("Name", lines)));
+     sections = getSections(lines);
+     fullName = sections["Name"][0];  //trim(combine(getSection("Name", lines)));
      path = getPathNames(fullName);
      
      if(size(path) == 0)
@@ -358,11 +359,12 @@ public str save(ConceptName cn, str text, bool newConcept){
      
      // We have now the proper file name for the new concept and process it
      file = directory[file = directory.file + "/" + fullName + "/" + cname + suffix];
-     lines[0] = "Name:" + cname;  // Replace full path name by t concept name
+     //lines[0] = "Name:" + cname;  // Replace full path name by t concept name
+     sections["Name"] = [cname];// Replace full path name by the concept name
      println("lines = <lines>");
      println("Write to file <file>");
      writeFile(file, combine(lines));
-     concepts[fullName] = parseConcept(file, lines, directory.path);
+     concepts[fullName] = parseConcept(file, sections, directory.path);
      thisCourse.concepts = concepts;
      reinitialize(recompileCourse(thisCourse));
      return showConcept(fullName);
