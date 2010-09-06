@@ -18,13 +18,13 @@ import ValueIO;
 import IO;
 import Scripting;
 
-loc courseRoot = |file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
+loc courseRoot = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
 
-public Course thisCourse = course("",|file://X/|,"",(),{},[],(),{});
+public Course thisCourse = course("",|file://X/|,"",[], (),{},[],(),{});
 
 public ConceptName root = "";
 
-public loc directory = |file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
+public loc directory = courseRoot;
 
 public map[ConceptName, Concept] concepts = ();
 
@@ -46,8 +46,7 @@ set[str] enabledCategories = {};
 
 private void initialize(){
   if(root == ""){
-     //c = readTextValueFile(#Course, |file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Rascal.course|);
-     c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
+      c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
      //c = compileCourse("Test", "Testing", courseRoot);
 
      reinitialize(c);
@@ -119,17 +118,13 @@ public str showConcept(ConceptName cn){
 public str showConcept(ConceptName cn, Concept C){
   childs = children(cn);
   println("childs=<childs>");
-  filteredRelated = {r | r <- C.related, isEnabled(related[r])};
-  rels = sort(toList(filteredRelated));
   questions = C.questions;
   return html(
   	head(title(C.name) + prelude()),
   	body(
-  	  
   	  section("Name", showConceptPath(cn)) + navigationMenu(cn) + categoryMenu(cn) +
   	  searchBox(cn) + 
   	  ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
-  	  ((isEmpty(rels)) ? "" : section("Related", "<for(rl <- rels){><showConceptURL(related[rl], basename(rl))> &#032 <}>")) +
   	  section("Synopsis", C.synopsis) +
   	  section("Description", C.description) +
   	  section("Examples", C.examples) +
@@ -142,18 +137,16 @@ public str showConcept(ConceptName cn, Concept C){
 }
 
 public str section(str name, str txt){
-println("section: <name>: \<\<\<<txt>\>\>\>");
   return (/^\s*$/s := txt) ? "" : div(name, sectionHead(name) +  " " + txt);
- // return div(name, b(name) + ": " + txt);
 }
 
 public str showConceptURL(ConceptName c, str name){
    return "\<a href=\"show?concept=<c>\"\><name>\</a\>";
 }
 
-public str showConceptURL(ConceptName c){
-   return showConceptURL(c, c);
-}
+//public str showConceptURL(ConceptName c){
+//   return showConceptURL(c, c);
+//}
 
 public str showConceptPath(ConceptName cn){
   names = basenames(cn);
@@ -318,7 +311,7 @@ public str save(ConceptName cn, str text, bool newConcept){
   if(newConcept) {
      lines = splitLines(text);
      sections = getSections(lines);
-     fullName = sections["Name"][0];  //trim(combine(getSection("Name", lines)));
+     fullName = sections["Name"][0];
      path = getPathNames(fullName);
      
      if(size(path) == 0)

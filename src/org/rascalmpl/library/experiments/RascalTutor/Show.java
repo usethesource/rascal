@@ -25,5 +25,6 @@ public class Show extends TutorHttpServlet {
 		Result<IValue> result = evaluator.eval("showConcept(\"" + concept + "\")", URI.create("stdin:///"));
 		out.println(((IString) result.getValue()).getValue());
 		out.close();
+		//System.err.println("ShowConcept, " + ((IString) result.getValue()).getValue());
 	}
 }

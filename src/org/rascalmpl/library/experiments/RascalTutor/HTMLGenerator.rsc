@@ -1,12 +1,27 @@
 module experiments::RascalTutor::HTMLGenerator
 
 import experiments::RascalTutor::HTMLUtils;
+import experiments::RascalTutor::CourseModel;
 
 import String;
 import ToString;
 import IO;
 import List;
 import Scripting;
+
+// Collect related concepts that occur in links.
+
+private set[ConceptName] relatedConcepts = {};
+
+private void addRelated(ConceptName cn){
+  relatedConcepts += cn;
+}
+
+public set[ConceptName] getAndClearRelated(){
+  r = relatedConcepts;
+  relatedConcepts = {};
+  return r;
+}
 
 private list[str] listNesting = [];
 
@@ -153,6 +168,21 @@ public str markup(list[str] lines, str cp){
       } else
         res += "\n";
     }
+    
+    case /^\|/: {
+      headings = getHeadings(lines[i]);
+      i += 1;
+      if(i < n){
+        alignments = getAlignments(lines[i]);
+        i += 1;
+        rows = "";
+        while(i < n && startsWith(lines[i], "|")){
+          rows += tableRow(lines[i]);
+          i += 1;
+        }
+        res += table(headings, alignments, rows);
+      }
+    }
       
     default: {
       res += closeLists() + markupRestLine(lines[i]) + "\n";
@@ -165,11 +195,59 @@ public str markup(list[str] lines, str cp){
   return res;
 }
 
+public list[str] getAlignments(str txt){
+  alignments = [];
+  visit(txt){
+    case /^\|:-+/: { alignments += "left"; insert "";}
+    case /^\|-+:/:  { alignments += "right"; insert "";}
+    case /^\|-+/:  { alignments += "center"; insert "";}
+  }
+  return alignments;
+}
+
+public list[str] getHeadings(str txt){
+println("getHeadings(<txt>)");
+  headings = [];
+  visit(txt){
+    case /^\|<h:[^|]+>/: { headings += markupRestLine(h); insert "";}
+  }
+  return headings;
+}
+
+public str table(list[str] headings, list[str] alignments, str rows){
+println("table(<headings>, <alignments>, <rows>)");
+  res = "";
+  for(int i <- index(headings))
+     res += th(headings[i], alignments[i] ? "center");
+  res = tr(res);
+  for(a <- alignments)
+     res += col(a);
+  return table(res + rows);
+}
+
+public str tableRow(str txt){
+  entries = "";
+  visit(txt){
+      case /^\|<entry:[^\|]+>/: {entries += td(markupRestLine(entry)); insert "";}
+  }
+  return tr(entries);
+}
+
+public str tst(){
+return
+markup([
+"| A | B |",
+"|---|---|",
+"| 1 | 2 |"
+]);
+
+}
+
 public str markupRestLine(str line){
   ///println("markupRestLine(<line>)");
   return visit(line){
     
-    case /^<op1:__?>+<text:[^_]><op2:__?>/: {
+    case /^<op1:__?>+<text:[^_]*><op2:__?>/: {
        if(op1 != op2)
           fail;
        insert (size(op1) == 1) ? i(text) : b(text);
@@ -181,7 +259,7 @@ public str markupRestLine(str line){
     
     case /^\[<text:[^\]]*>\]\(<url:[^)]+>\)/ => link(url, text)
     
-    case /^\[<concept:[A-Za-z0-9\/]+>\]/  => show(concept)
+    case /^\[<concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert show(concept); }
     
     case /^\\<char:.>/ :         //TODO nested matching is broken, since wrong last match is used!
       if(char == "\\") 	    insert	"\\";
@@ -293,11 +371,11 @@ public str markupScreen(list[str] lines){
            codeLines += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
          }
          if(i <upbi) {
-         	codeLines += b(prompt) + escapeForHtml(lines[i]) + "\n";
+         	codeLines += b(prompt) + limitWidth(escapeForHtml(lines[i]), 80) + "\n";
          	i += 1; j += 1;
          }
          while(j < upbj && !startsWith(result_lines[j], prompt)){
-           codeLines += result_lines[j] + "\n";
+           codeLines += limitWidth(result_lines[j], 80) + "\n";
            if(i < upbi && startsWith(result_lines[j], continuation)){
               i += 1;
              }
@@ -316,6 +394,12 @@ public str markupScreen(list[str] lines){
    }
    codeLines += "\</pre\>";
    return codeLines;
+}
+
+public str limitWidth(str txt, int limit){
+  if(size(txt) < limit)
+    return txt;
+  return substring(txt, 0, limit) + "&raquo;\n" + limitWidth(substring(txt, limit), limit);
 }
 
 public set[str] searchTermsCode(str line){

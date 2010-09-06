@@ -22,18 +22,21 @@ h2 {
 
 table {
 	border-collapse: collapse;
+    padding-top: 0.5em;
+    margin-top: 0.5em;
 }
 
 th, td {
-	padding: 10px;
+	padding: 5px;
 	border: 2px #666 solid;
 }
 
 
 .sectionHead {
-    background-color: #777777;
-    color:white;
+    color:blck;
     font-size: 120%;
+    font-style: bold;
+    text-shadow: silver 2px 2px 2px;
 }
 
 #Name { 
