@@ -50,4 +50,8 @@ public class CWDURIResolver implements IURIInputStreamResolver,
 		return getAbsolutePath(uri).list();
 	}
 
+	public boolean mkDirectory(URI uri) {
+		return getAbsolutePath(uri).mkdir();
+	}
+
 }

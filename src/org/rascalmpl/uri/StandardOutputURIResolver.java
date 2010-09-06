@@ -15,4 +15,8 @@ public class StandardOutputURIResolver implements IURIOutputStreamResolver {
 		return "stdout";
 	}
 
+	public boolean mkDirectory(URI uri) {
+		return false;
+	}
+
 }
