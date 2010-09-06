@@ -4,6 +4,19 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
 public final class Timing {
+	private static long start;
+	
+	public static void start() {
+		start = getCpuTime();
+	}
+	
+	public static long duration() {
+		long now = getCpuTime();
+		long diff = now - start;
+		start = now;
+		return diff;
+	}
+	
 	public static long getCpuTime( ) {
 	    ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
 	    return bean.isCurrentThreadCpuTimeSupported( ) ?
