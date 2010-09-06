@@ -193,8 +193,12 @@ public str generateExpect(Items items, Production p){
       case choice(_, set[Production] ps) :
         return "<for (Production q <- ps){><generateExpect(items, q)>
                 <}>";
-      case restrict(_, Production p, set[Production] restrictions) : 
-        return generateExpect(items, p);
+      case restrict(_, Production q, {lookahead(_,_,Production r), set[Production] rest}) :
+        return generateExpect(items, restrict(p.rhs, q, {r} + rest)); 
+      case restrict(_, Production q, set[Production] restrictions) : 
+        return generateExpect(items, q);
+      case diff(_, Production n, {lookahead(_,_,Production q), set[Production] rest}) :
+        return generateExpect(items, diff(p.rhs, n, {q} + rest));
       case diff(_, Production n, set[Production] rejects) :
         return "<for (Production q <- rejects){>expectReject(<value2id(q)>, <generateSymbolItemExpects(q)>);
                 <}>
