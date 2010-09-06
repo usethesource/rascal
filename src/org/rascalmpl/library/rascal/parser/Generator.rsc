@@ -91,14 +91,14 @@ public class <name> extends SGLL{
 	}
 	
     // Production declarations
-	<for (p <- uniqueProductions, lit(_) !:= p.rhs) {>
+	<for (p <- uniqueProductions) {>
 	private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);<}>
     
 	// Item declarations
-	<for (Symbol s <- newItems, lit(_) !:= s) { items = newItems[s]; >
+	<for (Symbol s <- newItems) { items = newItems[s]; >
 	private static class <value2id(s)>{
 		<for (Item i <- items) {>
-		private static final AbstractStackNode <value2id(i.production)>_<value2id(i.index)> = <items[i].new>;
+		public static final AbstractStackNode <value2id(i.production)>_<value2id(i.index)> = <items[i].new>;
 		<}>
 	}
 	<}>
@@ -166,7 +166,7 @@ private bool isNonterminal(Symbol s) {
 
 public str generateParseMethod(Items items, Production p) {
   return "public void <sym2name(p.rhs)>() {
-            char next = input[location];
+            char next = (location == input.length) ? 0 : input[location];
             <generateExpect(items, p)>
           }";
 }
@@ -200,11 +200,9 @@ public str generateExpect(Items items, Production p){
                 <}>
                 <generateExpect(items, n)>";
       case first(_, list[Production] ps) : 
-        throw "unexpected first at generation time";
-        // return generateExpect(items, choice(p.rhs, { q | q <- ps }));
+        return generateExpect(items, choice(p.rhs, { q | q <- ps }));
       case \assoc(_,_,set[Production] ps) :
-        throw "unexpected assoc at generation time";
-        // return generateExpect(items, choice(p.rhs, ps)); 
+        return generateExpect(items, choice(p.rhs, ps)); 
     }
     
     throw "not implemented <p>";
@@ -212,7 +210,7 @@ public str generateExpect(Items items, Production p){
 
 str generateClassConditional(set[Symbol] classes) {
   if (eoi() in classes) {
-    return ("location == input.length()" 
+    return ("location == input.length" 
            | it + " || <generateRangeConditional(r)>"
            | \char-class(list[CharRange] ranges) <- classes, r <- ranges);
   }
@@ -543,11 +541,12 @@ str v2i(value v) {
         case item(p:prod(_,Symbol u,_), int i) : return "<value2id(u)>.<value2id(p)>_<value2id(i)>";
         // case prod(_,Symbol u,attrs([a*,term(cons(str name)),b*])) : return "prod_<value2id(u)>_<escId(name)>_<value2id(a)>_<value2id(b)>";
         case label(str x,Symbol u) : return escId(x) + "_" + value2id(u);
-        case prime(Symbol s, str reason, list[int] indexes) : return "<value2id(s)>_<reason>_<value2id(indexes)>";
+        case layouts(str x) : return "layouts_<escId(x)>";
+        case "cons"(str x) : return "cons_<escId(x)>";
         case sort(str s)   : return s;
         case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<value2id(arg)>" | arg <- args);
-        case cilit(str s)  : return "cilit_<s>";
-	    case lit(/<s:^[A-Za-z0-9]+$>/) : return "lit_<s>"; 
+        case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
+	    case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)-1]);
         case str s()       : return escId(s);
