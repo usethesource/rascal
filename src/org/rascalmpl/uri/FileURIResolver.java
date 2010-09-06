@@ -54,4 +54,8 @@ public class FileURIResolver implements IURIInputStreamResolver, IURIOutputStrea
 	public String[] listEntries(URI uri) {
 		return new File(uri.getPath()).list();
 	}
+
+	public boolean mkDirectory(URI uri) {
+		return new File(uri.getPath()).mkdir();
+	}
 }

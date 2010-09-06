@@ -42,6 +42,15 @@ public class URIResolverRegistry {
 		}
 		return resolver.isDirectory(uri);
 	}
+	
+	public boolean mkDirectory(URI uri) {
+		IURIOutputStreamResolver resolver = outputResolvers.get(uri.getScheme());
+		
+		if (resolver == null) {
+			return false;
+		}
+		return resolver.mkDirectory(uri);
+	}
 
 	public boolean isFile(URI uri) {
 		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());

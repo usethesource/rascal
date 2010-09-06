@@ -283,4 +283,21 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 		}
 	}
 
+	public boolean mkDirectory(URI uri) {
+		try {
+			if (uri.getScheme().equals(scheme())) {
+				String path = getPath(uri);
+				
+				for (URI dir : collect()) {
+					URI full = getFullURI(path, dir);
+						return ctx.getResolverRegistry().mkDirectory(full);
+				}
+			}
+			return false;
+		} 
+		catch (URISyntaxException e) {
+			return false;
+		}
+	}
+
 }

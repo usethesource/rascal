@@ -112,6 +112,10 @@ public class MailToResolver implements IURIOutputStreamResolver {
 			transport.close();
 		}
 	}
+
+	public boolean mkDirectory(URI uri) {
+		return false;
+	}
 }
 
 
