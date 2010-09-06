@@ -11,7 +11,8 @@ import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.DoubleArrayList;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
-import org.rascalmpl.parser.sgll.util.Stack;
+import org.rascalmpl.parser.sgll.util.IntegerList;
+import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -73,7 +74,7 @@ public class ContainerNode extends AbstractNode{
 		return rejected;
 	}
 	
-	private void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, int beginLine){
+	private void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		AbstractNode resultNode = child.node;
 		
 		if(!(resultNode.isEpsilon() && child.prefixes == null)){
@@ -81,13 +82,13 @@ public class ContainerNode extends AbstractNode{
 			if(result == null) return; // Rejected.
 			
 			IConstructor[] postFix = new IConstructor[]{result};
-			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, beginLine);
+			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore);
 		}else{
 			gatheredAlternatives.add(new IConstructor[]{}, production);
 		}
 	}
 	
-	private void gatherProduction(Link child, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, int beginLine){
+	private void gatherProduction(Link child, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
 			gatheredAlternatives.add(postFix, production);
@@ -99,7 +100,6 @@ public class ContainerNode extends AbstractNode{
 			
 			AbstractNode resultNode = prefix.node;
 			if(!resultNode.isRejected()){
-				if(input != null) positionStore.setCursorTo(beginLine); // Reduce search time.
 				IConstructor result = resultNode.toTerm(stack, depth, cycleMark, positionStore);
 				if(result == null) return; // Rejected.
 				
@@ -107,36 +107,53 @@ public class ContainerNode extends AbstractNode{
 				IConstructor[] newPostFix = new IConstructor[length + 1];
 				System.arraycopy(postFix, 0, newPostFix, 1, length);
 				newPostFix[0] = result;
-				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, beginLine);
+				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore);
 			}
 		}
 	}
 	
-	private void gatherListAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, int beginLine){
-		AbstractNode resultNode = child.node;
+	private void gatherListAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+		AbstractNode childNode = child.node;
 		
-		if(!(resultNode.isEpsilon() && child.prefixes == null)){
-			IConstructor result = resultNode.toTerm(stack, depth, cycleMark, positionStore);
-			if(result == null) return; // Rejected.
+		IndexedStack<AbstractNode> listElementStack = new IndexedStack<AbstractNode>();
+		
+		if(!(childNode.isEpsilon() && child.prefixes == null)){
+			IConstructor result = childNode.toTerm(stack, depth, cycleMark, positionStore);
 			
-			IndexedStack<AbstractNode> listElementStack = new IndexedStack<AbstractNode>();
-			
-			if(resultNode.isContainer()) listElementStack.push(resultNode, 0);
-			gatherList(child, new IConstructor[]{result}, gatheredAlternatives, production, stack, depth, cycleMark, listElementStack, 1, new Stack<AbstractNode>(), positionStore, beginLine);
-			if(resultNode.isContainer()) listElementStack.dirtyPurge();
+			if(childNode.isContainer()) listElementStack.push(childNode, 0);
+			int start = gatheredAlternatives.size();
+			IntegerList foundCycles = gatherList(child, new IConstructor[]{result}, gatheredAlternatives, production, stack, depth, cycleMark, listElementStack, 1, positionStore);
+			if(foundCycles != null){
+				gatheredAlternatives.resetTo(start);
+				
+				ISetWriter ambCycleList = vf.setWriter(Factory.Tree);
+				IListWriter cycleChildrenList = vf.listWriter(Factory.Tree);
+				cycleChildrenList.append(result);
+				ambCycleList.insert(vf.constructor(Factory.Tree_Appl, production, cycleChildrenList.done()));
+				ambCycleList.insert(vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), vf.integer(1)));
+				IConstructor cycle = vf.constructor(Factory.Tree_Amb, ambCycleList.done());
+				
+				gatherList(child, new IConstructor[]{cycle}, gatheredAlternatives, production, stack, depth, cycleMark, listElementStack, 1, positionStore);
+			}
+			if(childNode.isContainer()) listElementStack.pop();
 		}else{
 			gatheredAlternatives.add(new IConstructor[]{}, production);
 		}
 	}
 	
-	private void gatherList(Link child, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, IndexedStack<AbstractNode> listElementStack, int elementNr, Stack<AbstractNode> blackList, PositionStore positionStore, int beginLine){
+	private IntegerList gatherList(Link child, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, IndexedStack<AbstractNode> listElementStack, int elementNr, PositionStore positionStore){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
 			gatheredAlternatives.add(postFix, production);
-			return;
+			return null;
 		}
 		
+		IntegerList cycles = null;
+		
+		LinearIntegerKeyedMap<IntegerList> cyclesList = null;
 		for(int i = prefixes.size() - 1; i >= 0; --i){
+			int start = gatheredAlternatives.size();
+			
 			Link prefix = prefixes.get(i);
 			
 			if(prefix == null){
@@ -146,59 +163,88 @@ public class ContainerNode extends AbstractNode{
 			
 			AbstractNode prefixNode = prefix.node;
 			
-			if(!prefixNode.isRejected()){
-				if(blackList.contains(prefixNode)) continue;
+			int index = listElementStack.findIndex(prefixNode);
+			if(index != -1){
+				if(cycles == null) cycles = new IntegerList();
+				cycles.add(index);
+				continue;
+			}
+			
+			int length = postFix.length;
+			IConstructor[] newPostFix = new IConstructor[length + 1];
+			System.arraycopy(postFix, 0, newPostFix, 1, length);
+			
+			if(prefixNode.isContainer()) listElementStack.push(prefixNode, elementNr);
+			
+			newPostFix[0] = prefixNode.toTerm(stack, depth, cycleMark, positionStore);
+			IntegerList foundCycles = gatherList(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, listElementStack, elementNr + 1, positionStore);
+			
+			if(prefixNode.isContainer()) listElementStack.pop();
+			
+			if(foundCycles != null){
+				gatheredAlternatives.resetTo(start);
 				
-				int index = listElementStack.contains(prefixNode);
-				if(index == -1){
-					int length = postFix.length;
-					IConstructor[] newPostFix = new IConstructor[length + 1];
-					System.arraycopy(postFix, 0, newPostFix, 1, length);
+				if(cyclesList == null){
+					cyclesList = new LinearIntegerKeyedMap<IntegerList>();
+				}
+				cyclesList.add(i, foundCycles);
+			}
+		}
+		
+		if(cycles != null) return cycles;
+		
+		if(cyclesList != null){
+			for(int k = cyclesList.size() - 1; k >= 0; k--){
+				int cycleIndex = cyclesList.getKey(k);
+				IntegerList foundCycles = cyclesList.getValue(k);
+				for(int j = foundCycles.size() - 1; j >= 0; --j){
+					int oldLength = postFix.length;
+					int repeatLength = elementNr - foundCycles.get(j);
+					IConstructor[] cyclePostFix = new IConstructor[oldLength - repeatLength + 1];
+					System.arraycopy(postFix, repeatLength, cyclePostFix, 1, oldLength - repeatLength);
 					
-					if(prefixNode.isContainer()) listElementStack.push(prefixNode, elementNr);
-					
-					if(input != null) positionStore.setCursorTo(beginLine); // Reduce search time.
-					IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore);
-					if(result == null) return; // Rejected.
-					
-					newPostFix[0] = result;
-					gatherList(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, listElementStack, elementNr + 1, blackList, positionStore, beginLine);
-					
-					if(prefixNode.isContainer()) listElementStack.dirtyPurge();
-				}else{
-					int length = postFix.length;
-					int repeatLength = elementNr - index;
-					
-					IConstructor[] newPostFix = new IConstructor[length - repeatLength + 1];
-					System.arraycopy(postFix, repeatLength, newPostFix, 1, length - repeatLength);
-					
-					IListWriter subList = vf.listWriter(Factory.Tree);
-					for(int j = repeatLength - 1; j >= 0; --j){
-						subList.insert(postFix[j]);
+					ISetWriter ambCycleList = vf.setWriter(Factory.Tree);
+					IListWriter cycleChildrenList = vf.listWriter(Factory.Tree);
+					cycleChildrenList.append(prefixes.get(cycleIndex).node.toTerm(listElementStack, depth, cycleMark, positionStore));
+					for(int i = 0; i < repeatLength; ++i){
+						cycleChildrenList.append(postFix[i]);
 					}
+					ambCycleList.insert(vf.constructor(Factory.Tree_Appl, production, cycleChildrenList.done()));
+					ambCycleList.insert(vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), vf.integer(1)));
+					IConstructor cycle = vf.constructor(Factory.Tree_Amb, ambCycleList.done());
 					
-					ISourceLocation positionAnnotation = null;
-					if(input != null){
-						int endLine = positionStore.findLine(endOffset);
-						positionAnnotation = vf.sourceLocation(input, offset, endOffset - offset, beginLine, endLine, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
+					if(cycleIndex == 0 && prefixes.size() == 1){
+						gatheredAlternatives.add(new IConstructor[]{cycle}, production); // This cycle is the only thing in the list.
+					}else{
+						for(int i = prefixes.size() - 1; i >= 0; --i){
+							if(i == cycleIndex) continue;
+							
+							Link prefix = prefixes.get(i);
+							
+							if(prefix == null){
+								gatheredAlternatives.add(new IConstructor[]{cycle}, production); // This cycle is the only thing in the list.
+								continue;
+							}
+							
+							AbstractNode prefixNode = prefix.node;
+			
+							int length = cyclePostFix.length;
+							IConstructor[] newPostFix = new IConstructor[length + 1];
+							System.arraycopy(cyclePostFix, 0, newPostFix, 1, length);
+							
+							if(prefixNode.isContainer()) listElementStack.push(prefixNode, elementNr);
+							
+							newPostFix[0] = prefixNode.toTerm(stack, depth, cycleMark, positionStore);
+							gatherList(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, listElementStack, elementNr + 1, positionStore);
+							
+							if(prefixNode.isContainer()) listElementStack.dirtyPurge();
+						}
 					}
-					
-					ISetWriter cycleChildren = vf.setWriter(Factory.Tree);
-					IConstructor subListNode = vf.constructor(Factory.Tree_Appl, production, subList.done());
-					if(input != null) subListNode = subListNode.setAnnotation(Factory.Location, positionAnnotation);
-					cycleChildren.insert(subListNode);
-					IConstructor cycleNode = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), vf.integer(1));
-					if(input != null) cycleNode = cycleNode.setAnnotation(Factory.Location, positionAnnotation);
-					cycleChildren.insert(cycleNode);
-					IConstructor ambSubListNode = vf.constructor(Factory.Tree_Amb, cycleChildren.done());
-					newPostFix[0] = ambSubListNode;
-					
-					blackList.push(prefixNode);
-					gatherList(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, listElementStack, elementNr + 1, blackList, positionStore, beginLine);
-					blackList.pop();
 				}
 			}
 		}
+		
+		return null;
 	}
 	
 	private IConstructor buildAlternative(IConstructor production, IValue[] children){
@@ -220,10 +266,9 @@ public class ContainerNode extends AbstractNode{
 		
 		if(rejected) return null;
 		
-		int beginLine = -1;
 		ISourceLocation sourceLocation = null;
 		if(input != null){
-			beginLine = positionStore.findLine(offset);
+			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
 			sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine, endLine, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 		}
@@ -246,17 +291,17 @@ public class ContainerNode extends AbstractNode{
 		DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives = new DoubleArrayList<IConstructor[], IConstructor>();
 		
 		if(!isListContainer){
-			gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore, beginLine);
+			gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore);
 			if(alternatives != null){
 				for(int i = alternatives.size() - 1; i >= 0; --i){
-					gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, beginLine);
+					gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore);
 				}
 			}
 		}else{
-			gatherListAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore, beginLine);
+			gatherListAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore);
 			if(alternatives != null){
 				for(int i = alternatives.size() - 1; i >= 0; --i){
-					gatherListAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, beginLine);
+					gatherListAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore);
 				}
 			}
 		}
