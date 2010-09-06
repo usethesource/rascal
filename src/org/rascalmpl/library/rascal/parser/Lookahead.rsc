@@ -17,8 +17,8 @@ private data Grammar = simple(set[Symbol] start, set[Production] productions);
 
 @doc{This function wraps productions with their single character lookahead sets for parser generation}
 public Grammar computeLookaheads(Grammar G) {
-  G = expandRegularSymbols(removeLabels(G));
-  <fst, fol> = firstAndFollow(simple(G.start, { p | /Production p:prod(_,_,_) := G}));
+  G2 = expandRegularSymbols(removeLabels(G));
+  <fst, fol> = firstAndFollow(simple(G2.start, { p | /Production p:prod(_,_,_) := G2}));
     
   return visit(G) {
     case Production p:prod([], Symbol rhs, _) => lookahead(rhs, fol[rhs], p)
