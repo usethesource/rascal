@@ -39,7 +39,7 @@ public abstract class SGLL implements IGLL{
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private URI inputURI;
-	private char[] input;
+	protected char[] input;
 	private final PositionStore positionStore;
 	
 	private final ArrayList<AbstractStackNode> todoList;
@@ -57,7 +57,7 @@ public abstract class SGLL implements IGLL{
 	private final ObjectIntegerKeyedHashMap<String, ContainerNode> resultStoreCache;
 	
 	private int previousLocation;
-	private int location;
+	protected int location;
 	
 	private AbstractStackNode root;
 	
@@ -142,7 +142,7 @@ public abstract class SGLL implements IGLL{
 		}catch(IllegalAccessException iaex){
 			throw new ImplementationError(iaex.getMessage(), iaex);
 		}catch(InvocationTargetException itex){
-			throw new ImplementationError(itex.getMessage(), itex);
+			throw new ImplementationError(itex.getTargetException().getMessage(), itex.getTargetException());
 		} 
 	}
 	
