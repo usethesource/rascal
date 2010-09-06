@@ -73,6 +73,10 @@ public class DoubleArrayList<F, S>{
 		second[size] = null;
 	}
 	
+	public void resetTo(int index){
+		size = index;
+	}
+	
 	public void clear(){
 		first = (F[]) new Object[DEFAULT_SIZE];
 		second = (S[]) new Object[DEFAULT_SIZE];

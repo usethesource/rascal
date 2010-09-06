@@ -62,6 +62,10 @@ public class ArrayList<E>{
 		return null;
 	}
 	
+	public void resetTo(int index){
+		size = index;
+	}
+	
 	public void clear(){
 		data = (E[]) new Object[data.length];
 		size = 0;
