@@ -5,10 +5,19 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `$SetExp_1$ join $SetExp_2$`
-* Type: `set[$Type$]`
+* Syntax: `$Exp_1$ join $Exp_2$`
+* Type:
+
+
+| `$Exp_1$`                                      |  `$Exp_2$`                                         | Result                                                                                                |
+|:----------------------------|:------------------------------|:-----------------------------------------------------|
+| `rel[$T_11$, $T_12$, $T_13$, ...]`  |  `rel[$T_21$, $T_22$, $T_23$, ...]`   | `rel[$T_11$, $T_12$, $T_13$, ..., $T_21$, $T_22$, $T_23$, ...]`   |
+
+
+
 
 Description:
+<warning>Move to relation</warning>
 Relation resulting from the natural join of the set values of the two arguments.
 This relation contains tuples that are the result from concatenating the elements from both arguments.
 

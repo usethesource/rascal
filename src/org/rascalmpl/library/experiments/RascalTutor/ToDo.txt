@@ -1,6 +1,5 @@
 TODO List for RascalTutor
 
-- Remove all references to my home directory (used for testing, bad for deployment).
 - Turn all print messages in compiler into throws
 - Handle errors in new/save dialog (add a report field).
 - Add more question types.
@@ -13,6 +12,7 @@ and ...
 
 
 Completed:
+- Remove all references to my home directory (used for testing, bad for deployment).
 - Scripting.rsc add a timer to catch endless loops
 - Remove spaces when comparing types.
 - Bug in search box suggestions: when there is one choice left, the first letter and not the

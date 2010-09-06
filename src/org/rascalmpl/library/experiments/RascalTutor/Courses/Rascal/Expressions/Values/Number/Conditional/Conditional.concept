@@ -5,8 +5,15 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `$Exp^bool$ ? $Exp_1^num$ : $Exp_2^num$`
-* Type: `int` or `real`
+* Syntax: `$Exp_1$ ? $Exp_2$ : $Exp_3$`
+* Type:
+
+
+| `$Exp_1$`   | `$Exp_2$`  |  `$Exp_3$` | Result   |
+|:----------|:----------|:----------|-------|
+|   `bool`       | `int`           |  `int`            | `int`   |
+|  `bool`       | `int`           |  `real`          | `real`  |
+|  `bool`       | `real`         |  `real`          | `real`  |
 
 Description: If the value of $Exp$ is `true` then the value of $Exp_1$ else the value of $Exp_2$.
 

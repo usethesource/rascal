@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.RascalTutor;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -26,7 +27,8 @@ public class RascalTutor {
 		return eval;
 	}
 	
-//	final static String BASE = "/Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/";
+	final static String BASE = System.getProperty("user.dir") +
+	                           "/src/org/rascalmpl/library/experiments/RascalTutor/";
 	
 	public static void main(String[] args) throws Exception
 	    {
@@ -43,10 +45,11 @@ public class RascalTutor {
 		        context.addServlet(Edit.class, "/edit");
 		        context.addServlet(Save.class, "/save");
 
-//		        context.setResourceBase(BASE); 
+		        System.err.println("BASE = " + BASE);
+		        context.setResourceBase(BASE); 
 		      
-//		        String welcome[] = { BASE + "index.html"};
-//		        context.setWelcomeFiles(welcome);
+		        String welcome[] = { BASE + "index.html"};
+		        context.setWelcomeFiles(welcome);
 		        
 /*		        
 		        WebAppContext wac = new WebAppContext();

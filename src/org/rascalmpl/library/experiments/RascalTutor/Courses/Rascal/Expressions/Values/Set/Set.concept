@@ -6,7 +6,8 @@ Related:
 
 Synopsis:
 * Syntax: `{ $Exp_1$, $Exp_2$, ... }`
-* Type: `set[$Type$]`
+* ITypes: `$Type_i$ $Exp_i$` with $i$ in {1, 2, ...}.
+* OType: `set[lub($Type_i$)]`
 
 Description: A set is an unordered sequence of values and has the following properties:
 * All elements have the same static type.

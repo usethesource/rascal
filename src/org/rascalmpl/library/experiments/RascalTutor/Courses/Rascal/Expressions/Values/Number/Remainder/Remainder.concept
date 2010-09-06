@@ -5,8 +5,13 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `$IntExp_1$ % $IntExp_2$`
-* Type: `int`
+* Syntax: `$Exp_1$ % $Exp_2$`
+* Type:
+
+
+| `$Exp_1$`  |  `$Exp_2$` | Result   |
+|:----------|:----------|:------|
+| `int`           |  `int`            | `int`   |
 
 Description: Yields the remainder when dividing the of $IntExp_1$ by the value of $IntExp_2$.
 

@@ -5,11 +5,16 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `( $BoolExp$ ) ? $SetExp_1$ : $SetExp_2$`
-* Type: `set[$Type$]`
+* Syntax: `$Exp_1$ ? $Exp_2$ : $Exp_3$`
+* Type:
 
 
-Description: Yields the value of $SetExp_1$ if the value of $BoolExp$ is `true` and the value of $SetExp_2$ otherwise. 
+| `$Exp_1$`   | `$Exp_2$`     |  `$Exp_3$`        | Result   |
+|:----------|:------------|:-------------|-------|
+|   `bool`       | `set[$T_2$]`  |   `set[$T_3$]`      | `set[lub($T_2$,$T_3$)]`  |
+
+
+Description: Yields the value of $Exp_2$ if the value of $Exp_1$ is `true` and the value of $Exp_3$ otherwise. 
 
 
 Examples:

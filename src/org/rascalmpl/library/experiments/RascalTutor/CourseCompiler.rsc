@@ -16,9 +16,6 @@ public str mkConceptTemplate(ConceptName cn){
 return "Name: <cn>\n\nDetails:\n\nCategories:\n\nRelated:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
 }
 
-public bool tst(){
-   return parseConcept(|stdlib:///org/rascalmpl/library/experiments/RascalTutor/Courses/Test/Test.concept|, "/Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/");
-}
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
 // Questions is the last section and is treated special: it contains questions that are analyzed later
 
@@ -30,6 +27,7 @@ private str conceptPath = "";
 private str markup1(list[str] lines){
   return markup(lines, conceptPath);
 }
+
 
 public map[str,list[str]] getSections(list[str] script){
   sections = ();
@@ -73,7 +71,19 @@ public str combine(list[str] lines){
   return "<for(str s <- lines){><s>\n<}>";
 }
 
+str compiledExtension = "concept.pre";
+
 public Concept parseConcept(loc file, str coursePath){
+   binFile = file[extension = compiledExtension];
+   println("binFile=<binFile>; <exists(binFile)>; <lastModified(binFile)>; <lastModified(file)>");
+   if(false && exists(binFile) && lastModified(binFile) > lastModified(file)){
+     println(" reading concept from file ...");
+     try {
+        C = readTextValueFile(#Concept, binFile);
+        println("parseConcept returns: <C>");
+        return C;
+     } catch: println("Reading <binFile> failed, regenerating it");
+   }
    return parseConcept(file, readFileLines(file), coursePath);
 }
 
@@ -83,10 +93,12 @@ public Concept parseConcept(loc file, list[str] script, str coursePath){
 
 public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePath){
 
-   println("parseConcept: sections = ***<sections>***");
+   println("parseConcept: file=<file>, coursePath=<coursePath>");
 
    name 		= sections["Name"][0];
    fullName = getFullConceptName(file.path, coursePath);
+   
+   println("parseConcept: name=<name>, fullName=<fullName>");
          
    if(name != basename(fullName))
       throw "Got concept name \"<name>\", but \"<basename(fullName)>\" is required";
@@ -95,7 +107,7 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
    
    optDetails      = sections["Details"] ? [];
    optCategories   = getNames(sections["Categories"] ? []);
-   related 		= getPath(sections["Related"]);
+ 
    synopsisSection = sections["Synopsis"];
    searchTerms  =  searchTermsSynopsis(synopsisSection);
    synopsis 	= markup1(synopsisSection);
@@ -105,18 +117,20 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
    pittfalls 	= markup1(sections["Pittfalls"]);
    questions 	= getAllQuestions(name, sections["Questions"]);
    
+   //related 		= getPath(sections["Related"]);
+   related = getAndClearRelated();
+   
    Concept C = concept(name, file, optDetails, optCategories, related, synopsis, searchTerms, description, examples, benefits, pittfalls, questions);
-   binFile = file[extension = "concept.bin"];
+   binFile = file[extension = compiledExtension];
    println("binFile=<binFile>");
-   writeFile(binFile, C);
+   writeTextValueFile(binFile, C);
    return C;
-
 }
 
 // Extract the path named from a Related section
-public list[str] getPath(list[str] lines){
-   return [ path | line <- lines, /<path:[A-Za-z\-\_\/]+>/ := line];
-}
+//public list[str] getPath(list[str] lines){
+//   return [ path | line <- lines, /<path:[A-Za-z\-\_\/]+>/ := line];
+//}
 
 // Extract categories
 
@@ -385,6 +399,8 @@ public Course recompileCourse(Course course){
   return validatedCourse(course.root, course.title, course.directory, course.concepts);
 }
 
+loc courseRoot = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
+   
 public Course compileCourse(ConceptName rootConcept, str title, loc courseDir){
     map[ConceptName,Concept] conceptMap = ();
     coursePath = courseRoot.path;
@@ -425,13 +441,14 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     
     undefinedFullConcepts =  allFullConcepts - domain(conceptMap);
     
+    warnings = [];
     if(!isEmpty(undefinedFullConcepts))
-    	println("*** Undefined concepts: <undefinedFullConcepts>");
+    	warnings += "Undefined concepts: <undefinedFullConcepts>";
     roots = top(baseRefinements);
     if(size(roots) != 1)
-        println("Root is not unique: <roots>");
+        warnings += "Root is not unique: <roots>";
     if(roots != {rootConcept})
-        println("Roots = <roots> unequal course name <rootConcept>");
+        warnings += "Roots = <roots> unequal course name <rootConcept>";
     
     map[str, ConceptName] fullRelated = ();
     set[str] searchTerms = {};
@@ -442,15 +459,15 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
          println("related.r = <r>");
          rbasenames = basenames(r);
          if(!(toSet(rbasenames) <= allBaseConcepts))
-         	println("*** <cname>: unknown related concept <r>");
+         	warnings += "<cname>: unknown related concept <r>";
          else {
             parents = generalizations[rbasenames[0]];
             if(size(parents) > 1)
-               println("*** <cname>: ambiguous related concept <rbasenames[0]>, choose from <parents>");
+               warnings += "<cname>: ambiguous related concept <rbasenames[0]>, choose from <parents>";
             if(size(rbasenames) >= 2){
                for(int i <- [0 .. size(rbasenames)-2]){
                    if(<rbasenames[i], rbasenames[i+1]> notin baseRefinements)
-                      println("*** <cname>: related concept contains non-existing refinement <rbasenames[i]>/<rbasenames[i+1]>");
+                      warnings += "<cname>: related concept contains non-existing refinement <rbasenames[i]>/<rbasenames[i+1]>";
                } // for
             } // if
             fullPath = shortestPathPair(baseRefinements, rootConcept, last(rbasenames));
@@ -465,17 +482,16 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
        for(d <- C.details){
          println("Detail: <d>");
          if((cname + "/" + d) notin fullRefinements[cname])
-            println("*** <cname>: non-existent detail <d>");
+            warnings += "<cname>: non-existent detail <d>";
        }
     }
     
     println("fullRelated = <fullRelated>");
     println("searchTerms= <searchTerms>");
     println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTerms))>");
-    return course(title, courseDir, rootConcept, conceptMap, fullRefinements, sort(toList(allBaseConcepts + searchTerms)), fullRelated, categories);
+    println("Warnings:\n<for(w <- warnings){><w>\n<}>");
+    return course(title, courseDir, rootConcept, warnings, conceptMap, fullRefinements, sort(toList(allBaseConcepts + searchTerms)), fullRelated, categories);
 }
-
-public loc courseRoot = |stdlib:///org/rascalmpl/library/experiments/RascalTutor/Courses/|;
 
 public loc catenate(loc basedir, str entry){
    baseuri = basedir.uri;
@@ -485,6 +501,7 @@ public loc catenate(loc basedir, str entry){
 }
 
 public list[loc] crawl(loc dir, str suffix){
+  println("crawl: <dir>, <listEntries(dir)>");
   list[loc] res = [];
   for( str entry <- listEntries(dir) ){
     loc sub = catenate(dir, entry);
@@ -496,9 +513,22 @@ public list[loc] crawl(loc dir, str suffix){
   return res;
 }
 
+// --- Fo testing purposes:
+
+public Concept tst(){
+   return parseConcept(|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Test/Test.concept|, "/org/rascalmpl/library/experiments/RascalTutor/Courses/");
+}
+
 public Course cc(){
+
    c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
-//   writeTextValueFile(|stdlib:///org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Rascal.course|, c);
    println(c);
    return c; 
+}
+
+public str tst2(){
+   l = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/xxx|;
+   writeTextValueFile(l, "a b c d");
+   s = readTextValueFile(#str, l);
+   return s;
 }

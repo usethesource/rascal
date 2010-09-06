@@ -5,8 +5,15 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `$NumExp_1$ - $NumExp_2$`
-* Type: `int` or `real`
+* Syntax: `$Exp_1$ - $Exp_2$`
+* Type:
+
+
+| `$Exp_1$`  |  `$Exp_2$` | Result   |
+|:----------|:----------|:------|
+| `int`           |  `int`            | `int`   |
+| `int`           |  `real`          | `real`  |
+| `real`         |  `real`          | `real`  |
 
 Description: Yields the numerical result of subtracting the value of $NumExp_2$ from the value of $NumExp_1$.
 

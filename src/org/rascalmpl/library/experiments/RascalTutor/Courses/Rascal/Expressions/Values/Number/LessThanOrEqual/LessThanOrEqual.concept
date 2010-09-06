@@ -5,8 +5,15 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `$NumExp_1$ <= $NumExp_2$`
-* Type: `bool`
+* Syntax: `$Exp_1$ <= $Exp_2$`
+* Type:
+
+
+| `$Exp_1$`  |  `$Exp_2$` | Result   |
+|:----------|:----------|:------|
+| `int`           |  `int`            | `bool`   |
+| `int`           |  `real`          | `bool`  |
+| `real`         |  `real`          | `bool`  |
 
 Description: Yields `true` if the value of $NumExp_1$ is numerically less than or equal to the value of $NumExp_2$, and `false` otherwise.
 

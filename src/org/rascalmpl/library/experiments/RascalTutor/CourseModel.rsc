@@ -18,6 +18,7 @@ data Course =
      course(str title,                                // Title to be displayed
 			loc directory,                            // Directory where source files reside
 			ConceptName root,                         // Name of the root concept
+			list[str] warnings,                       // List of course compiler warnings
 			map[ConceptName,Concept] concepts,        // Mapping ConceptNames to their description
 			rel[ConceptName,ConceptName] refinements, // Tree structure of concept refinements
 			list[str]  baseConcepts,                  // List of baseConcepts (e.g. names that occur on path of
@@ -31,7 +32,7 @@ data Concept =
 			loc file,                             	// Its source file
 			list[ConceptName] details,              // Optional (ordered!) list of details
 			set[str] categories,                    // Categories it belongs to
-			list[ConceptName] related,            	// List of related concepts (abbreviated ConceptNames)
+			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)
 			str synopsis,                         	// Text of the various sections
 			set[str] searchTerms,
 			str description,
@@ -98,8 +99,7 @@ alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
 public str suffix = ".concept";
 
 public str getFullConceptName(str path, str coursePath){
-   path = replaceFirst(path, coursePath, "");
-   if(/^<full:.*>\.concept$/ := path){
+   if(/^.*<coursePath><cpath:.*$>/ := path && /^<full:.*>\.concept$/ := cpath){
       base = basename(full);
       bb = "<base>/<base>";
       if(endsWith(full, bb))

@@ -5,8 +5,16 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `- $NumExp$`
-* Type: `int` or `real`
+* Syntax: `- $Exp$`
+
+* Type:
+
+
+| `$Exp$`  |  Result   |
+|:--------|:-------|
+| `int`        |  `int`     |
+| `real`      |  `real`    |
+
 
 Description: Yields the negated values of $NumExp$.
 

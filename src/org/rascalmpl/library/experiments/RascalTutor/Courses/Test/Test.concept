@@ -6,13 +6,29 @@ Categories:
 
 Related:
 
-Synopsis: a + b
+Synopsis:
+* Syntax: `$Exp_1$ + $Exp_2$`
+* Types:
+
+
+| $Exp_1$             | $Exp_2$           | Result                                |
+|--------------|-------------|---------------------|
+| `set[$T_1$]`       | `set[$T_2$]`    | `set[lub($T_1$, $T_2$)]` |
+| `$T_1$`              | `set[$T_2$]`    | `set[lub($T_1$, $T_2$)]` |
+| `set[$T_1$]`       | `$T_2$`           | `set[lub($T_1$, $T_2$)]` |
+
 
 Description:
+This text to see how spaces are treated.
+Here is a table:
+| A | B |
+|--|--|
+| 1| 2  |
+
 Here is a list:
 
 *  xxx xxx xxx xxx xx xxx
-    yyyy yyy yyy yyy yyy yyyy
+    yyyy yyy yyy yyy yyy yyyy zzz
 
     ppp ppp ppp ppp ppp 
 ** qq qqq qq qq qqq

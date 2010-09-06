@@ -5,8 +5,14 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `$SetExp_1$ <= $SetExp_2$`
-* Type: `bool`
+* Syntax: `$Exp_1$ <= $Exp_2$`
+* Type:
+
+
+| `$Exp_1$`    |  `$Exp_2$`      | Result      |
+|:-----------|:------------|:--------|
+| `set[$T_1$]`  |  `set[$T_2$]`   | `bool`   |
+
 
 Description:
 Yields `true` if the value of $SetExp_1$ is a subset of the value of $SetExp_2$, and `false` otherwise.

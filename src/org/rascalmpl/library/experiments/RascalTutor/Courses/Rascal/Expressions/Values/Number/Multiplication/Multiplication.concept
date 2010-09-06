@@ -5,8 +5,16 @@ Categories: Language
 Related:
 
 Synopsis:
-* Syntax: `$NumExp_1$ * $NumExp_2$`
-* Type: `bool`
+* Syntax: `$Exp_1$ * $Exp_2$`
+
+* Type:
+
+
+| `$Exp_1$`  |  `$Exp_2$` | Result   |
+|:----------|:----------|:------|
+| `int`           |  `int`            | `int`   |
+| `int`           |  `real`          | `real`  |
+| `real`         |  `real`          | `real`  |
 
 Description: Yields the result of multiplying the values of $NumExp_1$ and $NumExp_2$.
 

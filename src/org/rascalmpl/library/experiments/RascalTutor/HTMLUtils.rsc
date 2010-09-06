@@ -89,6 +89,26 @@ public str ul(str txt){
   return "\<ul\><txt>\</ul\>";
 }
 
+public str td(str txt){
+  return "\<td\><txt>\</td\>";
+}
+
+public str tr(str txt){
+  return "\<tr\><txt>\</tr\>";
+}
+
+public str table(str txt){
+  return "\<table\><txt>\</table\>";
+}
+
+public str th(str txt, str align){
+  return "\<th align=\"<align>\"\><txt>\</th\>";
+}
+
+public str col(str align){
+  return "\<col align=\"<align>\" /\>";
+}
+
 public str pre(str class, str txt){
   return "\<pre class=\"<class>\"\><txt>\</pre\>";
 }
