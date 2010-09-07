@@ -150,7 +150,6 @@ public bool isBlock(Tree c) {
 public list[int] isBlock(list[Tree] t,int idx) {
      Tree g=t[idx*2];
      list[int] r =  (isBlock(g)&&userDefined(g)==NULL())?[idx]:[];
-     println(r);
      return r;
      }
 
@@ -358,12 +357,18 @@ Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
                        collectList+= b;
                        }
                     else {
-                      list[Box] q = isEmpty(collectList)?[]:[I([V(collectList)])];
-                      out+= (q+b);
-                      collectList=[];
+                      if (!isEmpty(collectList)) {
+                          out = [H(out)];
+                          out = [V(out+I([V(collectList)])+b)];
+                          collectList=[];
+                          }
+                      else out+=b;
                     }
            }
-     if (!isEmpty(collectList)) out+=I([V(collectList)]);
+     if (!isEmpty(collectList)) {
+          out = [H(out)];
+          out = [V(out+I([V(collectList)]))];
+          }
      list[Box]
      bl=
      (hv&&isSeparated(y))?[H(1,out)]:

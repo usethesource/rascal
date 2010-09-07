@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -197,6 +198,23 @@ public class MakeBox {
 		String s = uri.getPath().substring(tail + 1);
 		s = s.substring(0, 1).toUpperCase() + s.substring(1);
 		return launchTemplateProgram(uri, s);
+	}
+	
+	private String text2String(IValue v) {
+		IList rules = (IList) v;
+		StringBuffer b = new StringBuffer();
+		for (int i = 0; i < rules.length(); i++) {
+			// if (((IString) rules.get(i)).getValue().isEmpty())
+			// System.err.println("OK");
+			b.append(((IString) rules.get(i)).getValue());
+			b.append("\n");
+		}
+		return b.toString();
+	}
+	
+	public String toLatex(URI uri) {
+		IValue v = toTxt(uri);
+		return text2String(v);
 	}
 
 }

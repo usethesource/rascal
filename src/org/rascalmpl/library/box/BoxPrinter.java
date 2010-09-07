@@ -203,14 +203,17 @@ public class BoxPrinter {
 
 	private boolean readData(URI uri, boolean rich) {
 		System.err.println("readData:" + uri);
-		IValue v = rich?makeBox.toRichTxt(uri):makeBox.toTxt(uri);
-		// System.err.println("MakeBox finished1");
-		if (v == null)
-			return false;
-		textToPrint = toString(v);
+		textToPrint = makeBox.toLatex(uri);
+//		IValue v = rich?makeBox.toRichTxt(uri):makeBox.toTxt(uri);
+//		// System.err.println("MakeBox finished1");
+//		if (v == null)
+//			return false;
+//		textToPrint = text2String(v);
 		return true;
 		// System.err.println("MakeBox finished2");
 	}
+	
+	
 	
 	public String getRichText(URI uri) {
 		readData(uri, true);
@@ -538,17 +541,8 @@ public class BoxPrinter {
 		}
 	}
 
-	private String toString(IValue v) {
-		IList rules = (IList) v;
-		StringBuffer b = new StringBuffer();
-		for (int i = 0; i < rules.length(); i++) {
-			// if (((IString) rules.get(i)).getValue().isEmpty())
-			// System.err.println("OK");
-			b.append(((IString) rules.get(i)).getValue());
-			b.append("\n");
-		}
-		return b.toString();
-	}
+	
+	
 
 	void save(File f) {
 		String[] data = textToPrint.split("\b.{3}");
