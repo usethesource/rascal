@@ -44,6 +44,7 @@ list[int] isBlok(list[Symbol] q, list[Tree] z) {
         if (isScheme(q , ["T", "T", "N"])) return isBlock(z, 2);  // catch
         if (isScheme(q , ["T", "N", "T", "N"])) return  isBlock(z, 3);  // catch
         if (isScheme(q , ["N", ":", "N"])) return isBlock(z, 2);  // pattern with action
+        if (isScheme(q , ["N"])) return isBody(z, 0); // pattern with action
           // switch visit
      return [];
      }
