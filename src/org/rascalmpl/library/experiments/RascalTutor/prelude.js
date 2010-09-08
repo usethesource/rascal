@@ -8,9 +8,12 @@ function attachHandlers(){
   $('.cheatForm').submit(handleCheat);
   $('.anotherForm').submit(handleAnother);
   $('.categoryButton').click(categoryClick);
-  
+
   $('.answerStatus').hide();
   $('.answerFeedback').hide();
+  
+  $('#editErrors').hide();
+  $('#editForm').submit(handleSave);
 }
 
 function reload(data){
@@ -150,5 +153,26 @@ function handleAnother(evt){
     });
 
  return false;
+}
+
+// ------------ Handle "save" request while editing
+
+function handleSave(evt){
+  var formData = $(this).serialize();
+  //alert("handleSave: " + formData);
+  evt.preventDefault();
+  $.get("save", formData, 
+    function processSaveFeedback(data, textStatus){
+     var c = $('#concept', data).text();
+     var e = $('#error', data).text();
+     var r = $('#replacement', data).text();
+     //alert("c = " + c + "; e = " + e);
+     if(e != ""){
+        $('#editErrors').html("<img height=\"25\" width=\"25\" src=\"images/bad.png\">Correct error: " + e);
+        $('#editErrors').fadeIn(500);
+     } else
+        reload(r);
+    });
+  return false;
 }
 

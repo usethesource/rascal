@@ -20,8 +20,9 @@ public class Edit extends TutorHttpServlet {
 		System.err.println("Edit, doGet: " + request.getRequestURI() + "?" + request.getQueryString());
 		String concept = getStringParameter(request, "concept");
 		boolean newConcept = getStringParameter(request, "new").equals("true");
+		boolean check = getStringParameter(request, "check").equals("true");
 		
-		Result<IValue> result = evaluator.eval("edit(\"" + concept + "\"," + newConcept + ")", URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval("edit(\"" + concept + "\"," + newConcept + "," + check + ")", URI.create("stdin:///"));
 
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
@@ -29,7 +30,7 @@ public class Edit extends TutorHttpServlet {
 		String resp = ((IString) result.getValue()).getValue();
 		out.println(resp);
 		out.close();
-		System.err.println("Returns: " + resp);
+		//System.err.println("Returns: " + resp);
 	}
 
 }

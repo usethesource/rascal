@@ -2,6 +2,9 @@ module experiments::RascalTutor::HTMLUtils
 
 // HTML utilities
 
+import List;
+import experiments::RascalTutor::CourseModel;
+
 public str html(str head, str body) {
 	return "\<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n
             \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\>\n
@@ -136,6 +139,15 @@ public str escapeForHtml(str txt){
       case /^"/ => "&quot;"
       case /^&/ => "&amp;"
     }
+}
+
+public str showConceptURL(ConceptName c, str name){
+   return "\<a href=\"show?concept=<c>\"\><name>\</a\>";
+}
+
+public str showConceptPath(ConceptName cn){
+  names = basenames(cn);
+  return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i), names[i])><}>";
 }
 
 

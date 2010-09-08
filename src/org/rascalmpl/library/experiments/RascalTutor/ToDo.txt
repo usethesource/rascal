@@ -1,7 +1,5 @@
 TODO List for RascalTutor
 
-- Turn all print messages in compiler into throws
-- Handle errors in new/save dialog (add a report field).
 - Add more question types.
 - General code cleanup
 - Start page for RascalTutor that lists the available courses.
@@ -12,6 +10,8 @@ and ...
 
 
 Completed:
+- Turn all print messages in compiler into throws
+- Handle errors in new/save dialog (add a report field).
 - Remove all references to my home directory (used for testing, bad for deployment).
 - Scripting.rsc add a timer to catch endless loops
 - Remove spaces when comparing types.

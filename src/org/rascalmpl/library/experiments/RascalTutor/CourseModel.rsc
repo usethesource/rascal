@@ -4,6 +4,7 @@ import Graph;
 import List;
 import IO;
 import String;
+import Exception;
 
 // A ConceptName is the "pathname" of a concept in the concept hierarchy, e.g., "Rascal/Datastructure/Set"
 
@@ -91,6 +92,8 @@ data RascalType =
 data Choice = good(str description)
             | bad(str description)
             ;
+            
+data Exception = ConceptError(str cause);
             
 alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
             
