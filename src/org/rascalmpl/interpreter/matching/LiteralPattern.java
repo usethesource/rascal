@@ -16,7 +16,6 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 
 public class LiteralPattern extends AbstractMatchingResult {
 	private IValue literal;
-	private boolean isPattern = false;
 	
 	public LiteralPattern(IEvaluatorContext ctx, AbstractAST x, IValue literal){
 		super(ctx, x);
@@ -36,29 +35,24 @@ public class LiteralPattern extends AbstractMatchingResult {
 	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
-		isPattern = true;
+		if (subject.getValue().getType().comparable(literal.getType())) {
+			hasNext = subject.equals(makeResult(literal.getType(), literal, ctx)).isTrue();
+		}
+		else {
+			hasNext = false;
+		}
 	}
 	
 	@Override
 	public boolean next(){
 		checkInitialized();
-		if(!hasNext)
+		if (!hasNext) {
 			return false;
-		hasNext = false;
-	
-		if (isPattern && subject.getValue().getType().comparable(literal.getType())) {
-			return subject.equals(makeResult(literal.getType(), literal, ctx)).isTrue();
 		}
-		else if (!isPattern) {
-			if (literal.getType().isBoolType()) {
-				return ((IBool) literal).getValue(); 
-			}
-			
-			throw new UnexpectedTypeError(tf.boolType(), literal.getType(), ctx.getCurrentAST());
+		else {
+			hasNext = false;
+			return true;
 		}
-		
-		
-		return false;
 	}
 	
 	public IValue toIValue(Environment env){

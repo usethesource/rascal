@@ -44,7 +44,10 @@ public class TuplePattern extends AbstractMatchingResult {
 			IValue childValue = treeSubject.get(i);
 			IMatchingResult child = children.get(i);
 			child.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
-			hasNext &= child.hasNext();
+			hasNext = child.hasNext();
+			if (!hasNext) {
+				break; // saves time!
+			}
 		}
 		
 		nextChild = 0;
