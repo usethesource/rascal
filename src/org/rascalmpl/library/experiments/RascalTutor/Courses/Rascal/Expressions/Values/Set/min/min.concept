@@ -2,7 +2,6 @@ Name:min
 
 Categories: Library
 
-Related:
 
 Synopsis: Function: `&T min(set[&T] s)`
 

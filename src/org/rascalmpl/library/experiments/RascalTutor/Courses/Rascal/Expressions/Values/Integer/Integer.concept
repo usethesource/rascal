@@ -2,8 +2,6 @@ Name:Integer
 
 Categories: Language
 
-Related:
-
 Synopsis:
 * Syntax: sequence of digits of arbitrary length.
 * Type: `int`

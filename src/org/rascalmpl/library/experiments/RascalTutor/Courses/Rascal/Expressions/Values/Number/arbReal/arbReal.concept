@@ -2,8 +2,6 @@ Name:arbReal
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `real arbReal( )`
 
 Description: Returns an arbitrary real value in the interval [0.0, 1.0].

@@ -2,8 +2,6 @@ Name:toReal
 
 Categories: Library
 
-Related: Real
-
 Synopsis:Function: `real toReal(num n)`
 
 Description: Convert a number to a real

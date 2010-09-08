@@ -2,8 +2,6 @@ Name:arbInt
 
 Categories: Library
 
-Related:
-
 Synopsis:
 * Function: `int arbInt( )`
 * Function: `int arbInt(int limit)`

@@ -2,8 +2,6 @@ Name:Negation
 
 Categories: Language
 
-Related:
-
 Synopsis:
 * Syntax: `- $Exp$`
 

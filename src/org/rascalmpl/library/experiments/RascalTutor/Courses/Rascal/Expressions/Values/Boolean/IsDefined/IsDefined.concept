@@ -1,0 +1,26 @@
+Name: IsDefined
+
+Details:
+
+Categories:
+
+Synopsis:
+
+* Syntax: `$Exp$ ?`
+* Type:
+
+
+| `$Exp$` | `$Exp$ ?` |
+|:-------|:---------|
+|  `$T$`   |   `bool`      |
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

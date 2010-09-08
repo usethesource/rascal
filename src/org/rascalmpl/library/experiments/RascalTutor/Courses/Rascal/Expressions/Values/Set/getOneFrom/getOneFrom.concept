@@ -2,8 +2,6 @@ Name:getOneFrom
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `&T getOneFrom(set[&T] s) throws emptySet`
 
 Description: Returns a random element from set `s`.

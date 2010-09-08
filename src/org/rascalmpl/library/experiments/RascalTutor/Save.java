@@ -15,10 +15,10 @@ import org.rascalmpl.interpreter.result.Result;
 @SuppressWarnings("serial")
 public class Save extends TutorHttpServlet {
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		System.err.println("Save, doPost: " + request.getRequestURI());
+		System.err.println("Save, doGet: " + request.getRequestURI());
 		
 		String concept = getStringParameter(request, "concept");
 		String newContent = escapeForRascal(getStringParameter(request, "newcontent"));
@@ -29,8 +29,13 @@ public class Save extends TutorHttpServlet {
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
 		PrintWriter out = response.getWriter();
+		
 		String resp = ((IString) result.getValue()).getValue();
-		out.println(resp);
+		if(resp.startsWith("<!DOCTYPE"))
+			out.println("<responses><response id=\"replacement\">" + escapeForHtml(resp) + "</response></responses>");
+		else
+			out.println("<responses><response id=\"error\">" + escapeForHtml(resp) + "</response></responses>");
 		out.close();
+		System.err.println("Response = " + resp);
 	}
 }

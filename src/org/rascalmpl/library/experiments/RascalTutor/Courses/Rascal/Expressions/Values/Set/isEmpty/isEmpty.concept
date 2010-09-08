@@ -2,8 +2,6 @@ Name:isEmpty
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `bool isEmpty(set[&T] s)`
 
 Description: Yields `true` if `s` is empty, and `false` otherwise.

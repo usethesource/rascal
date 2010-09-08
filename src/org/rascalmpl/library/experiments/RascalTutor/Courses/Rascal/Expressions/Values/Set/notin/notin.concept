@@ -2,13 +2,17 @@ Name:notin
 
 Categories: Language
 
-Related:
-
 Synopsis:
-* Syntax: `$Exp$ notin $SetExp$`
-* Type: `bool`
+* Syntax: `$Exp_1$ notin $Exp_2$`
+* Type:
 
-Description: Yields `true` if the value of $Exp$ does not occur as element in the value of $SetExp$ and `false` otherwise. The type of $Exp$ should be compatible with the element type of $SetExp$.
+
+| `$Exp_1$`                  |  `$Exp_2$`      | Result      |
+|:------------------|:------------|:--------|
+| `$T_1$`  <: `$T_2$` |  `set[$T_2$]`   | `bool`   |
+
+
+Description: Yields `true` if the value of $Exp_1$ does not occur as element in the value of $Exp_2$ and `false` otherwise. The type of $Exp_1$ should be compatible with the element type of $Exp_2$.
 
 Examples:
 <screen>

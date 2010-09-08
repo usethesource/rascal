@@ -2,8 +2,6 @@ Name:reducer
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `&T reducer(set[&T] s, &T (&T, &T) fn, &T unit)`
 
 Description: Apply the function `fn` to successive elements of set `s` starting with `unit`.

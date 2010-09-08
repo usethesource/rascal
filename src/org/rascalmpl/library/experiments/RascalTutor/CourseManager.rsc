@@ -46,7 +46,7 @@ set[str] enabledCategories = {};
 
 private void initialize(){
   if(root == ""){
-      c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
+     c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
      //c = compileCourse("Test", "Testing", courseRoot);
 
      reinitialize(c);
@@ -78,7 +78,7 @@ public set[QuestionName] badAnswer = {};
 public str prelude(){
   css = readFile(|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/prelude.css|);
   nbc = size(baseConcepts) - 1;
-  println("prelude: <baseConcepts>");
+  //println("prelude: <baseConcepts>");
  
   return "\n\<script type=\"text/javascript\" src=\"jquery-1.4.2.min.js\"\>\</script\>\n" +
          "\n\<script type=\"text/javascript\" src=\"prelude.js\"\>\</script\>\n" +
@@ -95,10 +95,10 @@ public str prelude(){
 public str showConcept(ConceptName cn){
  
   initialize();
-  println("showConcept(<cn>), <concepts>");
+  //println("showConcept(<cn>), <concepts>");
   try {
     C = concepts[cn];
-    println("concept = <C>");
+    //println("concept = <C>");
     return showConcept(cn, C);
    } catch NoSuchKey(value key): {
      options = [ name | name <- conceptNames, endsWith(name, "/" + cn)];
@@ -117,7 +117,7 @@ public str showConcept(ConceptName cn){
 
 public str showConcept(ConceptName cn, Concept C){
   childs = children(cn);
-  println("childs=<childs>");
+  //println("childs=<childs>");
   questions = C.questions;
   return html(
   	head(title(C.name) + prelude()),
@@ -140,18 +140,7 @@ public str section(str name, str txt){
   return (/^\s*$/s := txt) ? "" : div(name, sectionHead(name) +  " " + txt);
 }
 
-public str showConceptURL(ConceptName c, str name){
-   return "\<a href=\"show?concept=<c>\"\><name>\</a\>";
-}
 
-//public str showConceptURL(ConceptName c){
-//   return showConceptURL(c, c);
-//}
-
-public str showConceptPath(ConceptName cn){
-  names = basenames(cn);
-  return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i), names[i])><}>";
-}
 
 public str searchBox(ConceptName cn){
   return "\n\<div id=\"searchBox\"\>
@@ -175,20 +164,12 @@ public str categoryMenu(ConceptName cn){
 }
 
 public str navigationMenu(ConceptName cn){
-  println("navigationMenu(<cn>)");
-  println("left=<navLeft(cn)>");
-  println("up=<navUp(cn)>");
-  println("right=<navRight(cn)>");
-  println("+++");
-  res = "\n\<div id=\"navigationMenu\"\>
+  return "\n\<div id=\"navigationMenu\"\>
          \<a href=\"show?concept=<navLeft(cn)>\"\>\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"images/left_arrow.png\"\>\</a\>
          \<a href=\"show?concept=<navUp(cn)>\"\>\<img id=\"upIcon\" height=\"40\" width=\"40\" src=\"images/up_arrow.png\"\>\</a\>
          \<a href=\"show?concept=<navDown(cn)>\"\>\<img id=\"downIcon\" height=\"40\" width=\"40\" src=\"images/down_arrow.png\"\>\</a\>
          \<a href=\"show?concept=<navRight(cn)>\"\>\<img id=\"rightIcon\" height=\"40\" width=\"40\" src=\"images/right_arrow.png\"\>\</a\>
          \</div\>\n";
-         
-   println("navigationMenu(<cn>) returns <res>");
-   return res;
 }
 
 public str navUp(ConceptName cn){
@@ -202,11 +183,11 @@ public str navUp(ConceptName cn){
 }
 
 list[ConceptName] children(ConceptName cn){
-  println("children(<cn>)");
+  //println("children(<cn>)");
   try { C = concepts[cn];
        res = [cn + "/" + r | r <- C.details, isEnabled(cn + "/" + r)] +
              sort([r | r <- refinements[cn], isEnabled(r), basename(r) notin C.details]);
-       println("children(<cn>) returns <res>");
+       //println("children(<cn>) returns <res>");
        return res;
    } catch NoSuchKey(k): {
      println("*** children(<cn>): no such key <k>");
@@ -269,34 +250,55 @@ private bool isEnabled(ConceptName cn){
 
 public str editMenu(ConceptName cn){
   return "\n\<div id=\"editMenu\"\>
-              [\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false\"\>\<b\>Edit\</b\>\</a\>] | 
-              [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true\"\>\<b\>New\</b\>\</a\>]
+              [\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false&check=false\"\>\<b\>Edit\</b\>\</a\>] | 
+              [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true&check=true\"\>\<b\>New\</b\>\</a\>] |
+              [\<a id=\"checkAction\" href=\"/edit?concept=<cn>&new=false&check=true\"\>\<b\>Check\</b\>\</a\>]
             \</div\>\n";
 }
 
 // Edit a concept
 // *** called from  Edit in RascalTutor
 
-public str edit(ConceptName cn, bool newConcept){
+public str edit(ConceptName cn, bool newConcept, bool check){
   initialize();
+ 
   str content = "";
   if(newConcept){
-    content = mkConceptTemplate(cn + "/");
+    content = mkConceptTemplate("");
   } else {
+    if(check)
+       return doCheck(cn);
   	c = concepts[cn];
   	content = escapeForHtml(readFile(c.file));  //TODO: IO exception (not writable, does not exist)
   }
   return html(head(title("Editing <cn>") + prelude()),
               body(
               "\n\<div id=\"editArea\"\>
-                    \<form method=\"POST\" action=\"/save\"\>
-                    \<textarea rows=\"20\" cols=\"60\" name=\"newcontent\" class=\"editTextarea\"\><content>\</textarea\>
+                    \<form method=\"POST\" action=\"/save\" id=\"editForm\"\>
+                    \<textarea rows=\"15\" cols=\"60\" name=\"newcontent\" id=\"editTextArea\"\><content>\</textarea\>
                     \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\> \<br /\>
                     \<input type=\"hidden\" name=\"new\" value=\"<newConcept>\"\> \<br /\>
-                    \<input type=\"submit\" value=\"Save\" class=\"editSubmit\"\>
+                    \<div id=\"editErrors\"\>errors\</div\>\n
+                    \<input type=\"submit\" value=\"Save\"\>
                     \</form\>
                   \</div\>\n"
              ));
+}
+
+public str doCheck(ConceptName cn){
+    thisCourse = recompileCourse(thisCourse);
+    warnings = thisCourse.warnings;
+    reinitialize(thisCourse);
+    back = "\<a href=\"show?concept=<cn>\"\>" +
+                     "\<img width=\"30\" height=\"30\" src=\"images/back.png\"\>" +
+           "\</a\>";
+    return  html(head(title("Warnings") + prelude()),
+              body(back +
+                h1("\<img width=\"30\" height=\"30\" src=\"images/warning.png\"\>" +
+                   "I found <size(warnings)> warnings:") +
+                ul("<for(w <- warnings){><li(w)><}>") +
+                back
+              ));
 }
 
 public list[str] getPathNames(str path){
@@ -311,66 +313,60 @@ public str save(ConceptName cn, str text, bool newConcept){
   if(newConcept) {
      lines = splitLines(text);
      sections = getSections(lines);
-     fullName = sections["Name"][0];
-     path = getPathNames(fullName);
-     
-     if(size(path) == 0)
-     	return saveError("Name \"<fullName>\" is not a proper concept name");
-     	
-     cname = last(path);
-     parent = head(path, size(path)-1);
-     parentName = "<for(int i <- index(parent)){><(i>0)?"/":""><parent[i]><}>";
-     
-     // Does the concept name start with the root concept?
-     
-     println("name = <fullName>; path = <path>; parent = <parent>; cname = <cname>");
-     if(path[0] != root)
-        return saveError("Concept name should start with root concept \"<root>\"");
-     
-     // Does the parent directory exist?
-     file = directory[file = directory.file + "/" + parentName];
-     if(!exists(file))
-     	return saveError("Parent directory <file> does not exist (spelling error?)");
-     
+     cname = sections["Name"][0];
+     if(/[A-Za-z0-9]+/ !:= cname)
+       return saveFeedback("Name \"<cname>\" is not a proper concept name", "");
+     fullName = cn + "/" + cname;
+
      // Does the file for this concept already exist as main concept?
      file = directory[file = directory.file + "/" + fullName + suffix];
      if(exists(file))
-     	return saveError("File <file> exists already");
+     	return saveFeedback("File <file> exists already", "");
      	
      // Does the file for this concept already exist as a subconcept?
      file = directory[file = directory.file + "/" + fullName + "/" + cname + suffix];
      if(exists(file))
-     	return saveError("File <file> exists already");
+     	return saveFeedback("File <file> exists already", "");
      
      // Create proper directory if it does not yet exist
      dir = directory[file = directory.file + "/" + fullName];	
      if(!isDirectory(dir)){
        println("Create dir <dir>");
        if(!mkDirectory(dir))
-       	  return saveError("Cannot create directory <dir>");
+       	  return saveFeedback("Cannot create directory <dir>", "");
      }
      
      // We have now the proper file name for the new concept and process it
      file = directory[file = directory.file + "/" + fullName + "/" + cname + suffix];
-     //lines[0] = "Name:" + cname;  // Replace full path name by t concept name
-     sections["Name"] = [cname];// Replace full path name by the concept name
-     println("lines = <lines>");
+
      println("Write to file <file>");
      writeFile(file, combine(lines));
-     concepts[fullName] = parseConcept(file, sections, directory.path);
-     thisCourse.concepts = concepts;
-     reinitialize(recompileCourse(thisCourse));
-     return showConcept(fullName);
+     try {
+       concepts[fullName] = parseConcept(file, sections, directory.path);
+       thisCourse.concepts = concepts;
+       reinitialize(thisCourse);
+       return saveFeedback("", showConcept(fullName));
+     } catch CourseError(e): {
+       return saveFeedback(e, "");
+     }
   } else {
     c = concepts[cn];
-    writeFile(c.file, text);
-    concepts[cn] = parseConcept(c.file, directory.path);
+    try {
+      writeFile(c.file, text);
+      println("Parsing concept");
+      concepts[cn] = parseConcept(c.file, directory.path);
+      thisCourse.concepts = concepts;
+      thisCourse = recompileCourse(thisCourse);
+      warnings = thisCourse.warnings;
+      reinitialize(thisCourse);
+      println("parsed, returning feedback");
+      return saveFeedback("", showConcept(cn));
+    } catch ConceptError(e): {
+       return saveFeedback(e, "");
+    }
+    println("Other error");
     return showConcept(cn);
   }
-}
-
-public str saveError(str msg){
-  throw msg;
 }
 
 // TODO: This functionality should be in the library
@@ -899,6 +895,10 @@ public str wrongAnswer(ConceptName cpid, QuestionName qid, str explanation){
     goodAnswer -= qid;
     feedback = explanation + ((arbInt(100) < 25) ? (" " + getOneFrom(negativeFeedback)) : "");
 	return  XMLResponses(("concept" : cpid, "exercise" : qid, "validation" : "false", "feedback" : feedback));
+}
+
+public str saveFeedback(str error, str replacement){
+  return (error != "") ? error : replacement;
 }
 
 public str XMLResponses(map[str,str] values){

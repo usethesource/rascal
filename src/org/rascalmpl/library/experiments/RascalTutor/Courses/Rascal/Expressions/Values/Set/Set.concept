@@ -2,12 +2,14 @@ Name:Set
 
 Categories: Language
 
-Related:
-
 Synopsis:
 * Syntax: `{ $Exp_1$, $Exp_2$, ... }`
-* ITypes: `$Type_i$ $Exp_i$` with $i$ in {1, 2, ...}.
-* OType: `set[lub($Type_i$)]`
+* Type:
+
+
+|  `$Exp_1$` |  `$Exp_2$`            |  ...    |  Result                                   |
+|:---------|:----------------|:----|:-----------------------|
+| `$T_1$`    | `$T_2$`                  |  ...    |  `set[lub($T_1$, $T_2$, ...)]` |
 
 Description: A set is an unordered sequence of values and has the following properties:
 * All elements have the same static type.
@@ -15,8 +17,9 @@ Description: A set is an unordered sequence of values and has the following prop
 * A set contains an element only once. In other words, duplicate elements are eliminated and no matter how many times an element is added to a set, it will occur in it only once.
 
 
-The type of a set has the form `set[$Type$]`,
-where `$Type$` is an arbitrary type.
+The type of a set has the form `set[$T$]`,
+where `$T$` is an arbitrary type.
+
 
 When variables of type set occur inside a set, their elements are automatically _spliced_ into the surrounding set. This can be prevented by surrounding them with extra `{` and `}` brackets. Note that this approach is atypical: in Rascal splicing is implicit while in other languages it has to be indicated explicitly by the programmer.
 
@@ -33,6 +36,7 @@ Examples:
 Note that
 * `{1, 2, 3}` and `{3, 2, 1}` are identical sets (since order is not relevant).
 * ` {1, 2, 3}` and `{1, 2, 3, 1}` are also identical sets (since duplication is not relevant).
+
 
 
 == Set splicing ==

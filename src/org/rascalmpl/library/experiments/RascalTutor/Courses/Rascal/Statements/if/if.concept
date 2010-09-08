@@ -2,8 +2,6 @@ Name:if
 
 Categories: Language
 
-Related:
-
 Synopsis: 
 * Syntax: `if ( $BoolExp$ ) $Statement$`
 * Syntax: `if ( $BoolExp$ ) $Statement_1$ else $Statement_2$`

@@ -2,8 +2,6 @@ Name:takeOneFrom
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `tuple[&T, set[&T]] takeOneFrom(set[&T] s)`
 
 Description: Remove an arbitrary element from set `s` and return a tuple consisting of the element and the modified set.

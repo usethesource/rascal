@@ -1,0 +1,28 @@
+Name: NoMatch
+
+Details:
+
+Categories:
+
+Related:
+
+Synopsis:
+
+* Syntax: `$Pat$ !:= $Exp$`
+* Type:
+
+
+| `$Pat$`  | `$Exp$` |`$Pat$ !:= $Exp$`|
+|:-------|:-------|:--------------|
+| Pattern  | `value`    | `bool`                   |
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

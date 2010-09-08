@@ -2,8 +2,6 @@ Name:toString
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `str toString(set[&T] s)`
 
 Description: Converts a set to a string.

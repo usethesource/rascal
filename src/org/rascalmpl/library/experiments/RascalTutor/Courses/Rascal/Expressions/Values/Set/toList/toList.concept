@@ -2,8 +2,6 @@ Name:toList
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `list[&T] toList(set[&T] s)`
 
 Description: Convert a set to a list.

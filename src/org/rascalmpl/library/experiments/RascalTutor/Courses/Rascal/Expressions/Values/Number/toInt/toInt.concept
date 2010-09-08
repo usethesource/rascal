@@ -2,8 +2,6 @@ Name:toInt
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `int toInt(num n)`
 
 Description:

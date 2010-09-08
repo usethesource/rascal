@@ -129,6 +129,15 @@ th, td {
     font-size: 80%;
 }
 
+#editTextArea {
+    font-family: Courier, sans-serif;
+    font-size: 90%;
+}
+
+#editErrors {
+    color: red;
+}
+
 .answerForm tt {
     background-color: lightgray;
     border:solid;

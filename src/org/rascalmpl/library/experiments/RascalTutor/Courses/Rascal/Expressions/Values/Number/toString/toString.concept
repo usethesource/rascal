@@ -2,8 +2,6 @@ Name:toString
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `str toString(num n)`
 
 Description: Convert a number to a string.

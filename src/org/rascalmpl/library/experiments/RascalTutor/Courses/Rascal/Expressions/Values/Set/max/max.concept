@@ -2,8 +2,6 @@ Name:max
 
 Categories: Library
 
-Related:
-
 Synopsis: Function: `&T max(set[&T] s)`
 
 Description: Returns the largest element from a set.

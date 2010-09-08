@@ -9,17 +9,18 @@ import Map;
 import Graph;
 import IO;
 import ValueIO;
+import experiments::RascalTutor::HTMLUtils;
 import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 
 public str mkConceptTemplate(ConceptName cn){
-return "Name: <cn>\n\nDetails:\n\nCategories:\n\nRelated:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
+return "Name: <cn>\n\nDetails:\n\nCategories:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
 }
 
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
 // Questions is the last section and is treated special: it contains questions that are analyzed later
 
-public set[str] sectionKeywords = {"Name", "Categories", "Related", "Synopsis", "Description",
+public set[str] sectionKeywords = {"Name", "Categories", "Synopsis", "Description",
                                    "Examples", "Benefits", "Pittfalls", "Questions"};
 
 private str conceptPath = "";
@@ -76,7 +77,7 @@ str compiledExtension = "concept.pre";
 public Concept parseConcept(loc file, str coursePath){
    binFile = file[extension = compiledExtension];
    println("binFile=<binFile>; <exists(binFile)>; <lastModified(binFile)>; <lastModified(file)>");
-   if(false && exists(binFile) && lastModified(binFile) > lastModified(file)){
+   if(exists(binFile) && lastModified(binFile) > lastModified(file)){
      println(" reading concept from file ...");
      try {
         C = readTextValueFile(#Concept, binFile);
@@ -94,37 +95,45 @@ public Concept parseConcept(loc file, list[str] script, str coursePath){
 public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePath){
 
    println("parseConcept: file=<file>, coursePath=<coursePath>");
-
-   name 		= sections["Name"][0];
-   fullName = getFullConceptName(file.path, coursePath);
    
-   println("parseConcept: name=<name>, fullName=<fullName>");
-         
-   if(name != basename(fullName))
-      throw "Got concept name \"<name>\", but \"<basename(fullName)>\" is required";
+   if(!(sections["Name"]?))
+      throw ConceptError("<file>: Missing section \"Name\"");
       
-   conceptPath = "Courses/" + fullName;
-   
-   optDetails      = sections["Details"] ? [];
-   optCategories   = getNames(sections["Categories"] ? []);
- 
-   synopsisSection = sections["Synopsis"];
-   searchTerms  =  searchTermsSynopsis(synopsisSection);
-   synopsis 	= markup1(synopsisSection);
-   description	= markup1(sections["Description"]);
-   examples 	= markup1(sections["Examples"]);
-   benefits 	= markup1(sections["Benefits"]);
-   pittfalls 	= markup1(sections["Pittfalls"]);
-   questions 	= getAllQuestions(name, sections["Questions"]);
-   
-   //related 		= getPath(sections["Related"]);
-   related = getAndClearRelated();
-   
-   Concept C = concept(name, file, optDetails, optCategories, related, synopsis, searchTerms, description, examples, benefits, pittfalls, questions);
-   binFile = file[extension = compiledExtension];
-   println("binFile=<binFile>");
-   writeTextValueFile(binFile, C);
-   return C;
+   name = sections["Name"][0];
+   fullName = getFullConceptName(file.path, coursePath);
+   try {
+	   println("parseConcept: name=<name>, fullName=<fullName>");
+	         
+	   if(name != basename(fullName))
+	      throw ConceptError("Got concept name \"<name>\", but \"<basename(fullName)>\" is required");
+	      
+	   conceptPath = "Courses/" + fullName;
+	   
+	   optDetails      = sections["Details"] ? [];
+	   optCategories   = getNames(sections["Categories"] ? []);
+	 
+	   synopsisSection = sections["Synopsis"];
+	   searchTerms  =  searchTermsSynopsis(synopsisSection);
+	   synopsis 	= markup1(synopsisSection);
+	   description	= markup1(sections["Description"]);
+	   examples 	= markup1(sections["Examples"]);
+	   benefits 	= markup1(sections["Benefits"]);
+	   pittfalls 	= markup1(sections["Pittfalls"]);
+	   questions 	= getAllQuestions(name, sections["Questions"]);
+	   
+	   //related 		= getPath(sections["Related"]);
+	   related = getAndClearRelated();
+	   
+	   Concept C = concept(name, file, optDetails, optCategories, related, synopsis, searchTerms, description, examples, benefits, pittfalls, questions);
+	   binFile = file[extension = compiledExtension];
+	   println("binFile=<binFile>");
+	   writeTextValueFile(binFile, C);
+	   return C;
+	} catch NoSuchKey(e):
+	    throw ConceptError("<fullName>: Missing section \"<e>\"");
+	  catch IOError(e):
+	    throw ConceptError("<fullName>: <e>");
+	throw ConceptError("<fullName>: uncaught error");
 }
 
 // Extract the path named from a Related section
@@ -167,7 +176,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
             i += 1;
           }
           if(size(answers) == 0)
-          	throw "TextQuestion with no or malformed answers";
+          	throw ConceptError("TextQuestion with no or malformed answers");
           questions += textQuestion("<nquestions>", markup1([question]), answers);
           nquestions += 1;
        }
@@ -183,7 +192,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
             i += 1;
           }
           if(size(good_answers) == 0 || size(bad_answers) == 0)
-          	throw "ChoiceQuestion with insufficient or malformed answers";
+          	throw ConceptError("ChoiceQuestion with insufficient or malformed answers");
           	
           choices = [good(g) | g <- good_answers] + [bad(b) | b <- bad_answers];
           questions += choiceQuestion("<nquestions>", markup1([question]), choices);
@@ -251,7 +260,7 @@ public tuple[int, Question] getTvQuestion(TVkind kind, str name, list[str] qsect
 	    case /^make:\s*<name:[A-Za-z0-9]+>\s*\=\s*<tp:.*>$/:
 	      { try { vars += <name, parseType(tp)>; }
 	        catch:
-	            throw "Question <name>: type of generated variable <name> is incorrect";
+	            throw ConceptError("Question <name>: type of generated variable <name> is incorrect");
 	        definedVars += name;	
 	        i += 1; 
 	      }
@@ -260,7 +269,7 @@ public tuple[int, Question] getTvQuestion(TVkind kind, str name, list[str] qsect
 	      { auxVars += <name, expr>;
 	        u = uses(expr);
 	        if(u - definedVars != {})
-	           throw "Question <name>: expr uses undefined variables: <u - definedVars>";
+	           throw ConceptError("Question <name>: expr uses undefined variables: <u - definedVars>");
 	        definedVars += name;
 	        usedVars += u;
 	        i += 1; 
@@ -270,7 +279,7 @@ public tuple[int, Question] getTvQuestion(TVkind kind, str name, list[str] qsect
 	        rtype = \void();
 			try { rtype = parseType(tp); }
 			catch:
-			    throw "Question <name>: cannot parse type of expected type";
+			     throw ConceptError("Question <name>: cannot parse type of expected type");
 	        usedVars += uses(rtype);
 	        i += 1; 
 		}
@@ -281,7 +290,7 @@ public tuple[int, Question] getTvQuestion(TVkind kind, str name, list[str] qsect
 		}
 		case /^test:\s*<e:.*>$/: {
 		   if(cndBefore + cndAfter != "")
-		      throw "Question <name>: has already a test <cnd>";
+		      throw ConceptError("Question <name>: has already a test <cnd>");
 		   if (/^<b:.*>\<\?\><a:.*>$/ := e){
 		     cndBefore = b;
 		     cndAfter = a;
@@ -354,27 +363,27 @@ Type    +      +         +      0   ERROR
         -      -         -      0   ERROR    
 */
      if(holeInLst && holeInCnd)
-        throw "Question <name> should have at most one hole";
+        throw ConceptError("Question <name> should have at most one hole");
         
      if((lstBefore + lstAfter) == "" && holeInLst)
-        throw "Question <name> has an empty listing with a hole";
+        throw ConceptError("Question <name> has an empty listing with a hole");
         
      if((cndBefore + cndAfter) == "" && !(holeInLst))
-        throw "Question <name> has no test";
+        throw ConceptError("Question <name> has no test");
         
      if(kind == typeOfExpr() && holeInCnd && rtype == \void())
-           throw "Type question <name> has condition with a hole and requires an expected type";
+           throw ConceptError("Type question <name> has condition with a hole and requires an expected type");
      
      if(usedVars - definedVars != {})
-        throw "Question <name>: undefined variables <usedVars - definedVars>";
+        throw ConceptError("Question <name>: undefined variables <usedVars - definedVars>");
         
      if(definedVars - usedVars != {})
-        throw "Question <name>: unused variables <definedVars - usedVars>";
+        throw ConceptError("Question <name>: unused variables <definedVars - usedVars>");
         
      if(definedVars == {} && vars == [])
         try {
           vars = autoDeclare(cndBefore + cndAfter);
-        } catch: throw "Question <name>: illegal type in test";
+        } catch: throw ConceptError("Question <name>: illegal type in test");
 
      return <i, tvQuestion(name, kind, details(markup1([desc]), setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
 }
@@ -448,7 +457,7 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     if(size(roots) != 1)
         warnings += "Root is not unique: <roots>";
     if(roots != {rootConcept})
-        warnings += "Roots = <roots> unequal course name <rootConcept>";
+        warnings += "Roots <roots> unequal to course name \"<rootConcept>\"";
     
     map[str, ConceptName] fullRelated = ();
     set[str] searchTerms = {};
@@ -459,15 +468,15 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
          println("related.r = <r>");
          rbasenames = basenames(r);
          if(!(toSet(rbasenames) <= allBaseConcepts))
-         	warnings += "<cname>: unknown related concept <r>";
+         	warnings += "<showConceptPath(cname)>: unknown related concept \"<r>\"";
          else {
             parents = generalizations[rbasenames[0]];
             if(size(parents) > 1)
-               warnings += "<cname>: ambiguous related concept <rbasenames[0]>, choose from <parents>";
+               warnings += "<showConceptPath(cname)>: ambiguous related concept \"<rbasenames[0]>\", choose from <parents>";
             if(size(rbasenames) >= 2){
                for(int i <- [0 .. size(rbasenames)-2]){
                    if(<rbasenames[i], rbasenames[i+1]> notin baseRefinements)
-                      warnings += "<cname>: related concept contains non-existing refinement <rbasenames[i]>/<rbasenames[i+1]>";
+                      warnings += "<showConceptPath(cname)>: related concept contains non-existing refinement \"<rbasenames[i]>/<rbasenames[i+1]>\"";
                } // for
             } // if
             fullPath = shortestPathPair(baseRefinements, rootConcept, last(rbasenames));
@@ -482,7 +491,7 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
        for(d <- C.details){
          println("Detail: <d>");
          if((cname + "/" + d) notin fullRefinements[cname])
-            warnings += "<cname>: non-existent detail <d>";
+            warnings += "<showConceptPath(cname)>: non-existent detail \"<d>\"";
        }
     }
     

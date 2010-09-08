@@ -2,8 +2,6 @@ Name:Boolean
 
 Categories: Language
 
-Related:
-
 Synopsis:
 
 * Syntax: `true` and `false`
@@ -79,15 +77,15 @@ If a match expression occurs in a larger Boolean expression, a subsequent subexp
 </listing>
 where we are looking for a solution in which L has a non-empty list as value. Evaluation proceeds as follows:
 
-* The left argument of the && operator is evaluated: the match expression is evaluated resulting in the bindings L = [] and M = [2, 3, 2, 4];
+* The left argument of the `&&` operator is evaluated: the match expression is evaluated resulting in the bindings `L = []` and `M = [2, 3, 2, 4]`;
 
-* The right argument of the && operator is evaluated: size(L) > 0 yields false;
+* The right argument of the `&&` operator is evaluated: `size(L) > 0` yields `false`;
 
-* Backtrack to the left argument of the && operator to check for more solutions: indeed there are more solutions resulting in the bindings L = [2,3] and M = [4];
+* Backtrack to the left argument of the `&&` operator to check for more solutions: indeed there are more solutions resulting in the bindings `L = [2,3]` and `M = [4]`;
 
-* Proceed to the right operator of &&: this time size(L) > 0 yields true;
+* Proceed to the right operator of `&&`: this time `size(L) > 0` yields `true`;
 
-* The result of evaluating the complete expression is true.
+* The result of evaluating the complete expression is `true`.
 
 Benefits:
 

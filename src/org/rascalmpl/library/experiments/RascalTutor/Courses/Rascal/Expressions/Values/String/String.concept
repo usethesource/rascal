@@ -2,8 +2,6 @@ Name:String
 
 Categories:Language
 
-Related:
-
 Synopsis:
 * Syntax: <warning>explain string syntax</warning>
 * Type: `str`
