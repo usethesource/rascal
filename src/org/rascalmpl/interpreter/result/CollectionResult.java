@@ -27,6 +27,11 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 	protected <U extends IValue> Result<U> addInteger(IntegerResult n) {
 		return insertElement(n);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addNumber(NumberResult n) {
+		return insertElement(n);
+	}
 
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult n) {
