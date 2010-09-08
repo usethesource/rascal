@@ -147,7 +147,18 @@ public class NodePattern extends AbstractMatchingResult {
 			return;
 		}
 		this.subject = (INode) subject.getValue();
-		tuple.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
+		
+		// We should only call initMatch if the node types line up, otherwise the tuple matcher might throw a "static error" exception.
+		// The following decision code decides whether it is worth it and safe to call initMatch on the tuple matcher.
+		Type patternType = getConstructorType(ctx.getCurrentEnvt());
+		Type subjectType = subject.getType();
+		if (patternType.comparable(subjectType)) {
+			tuple.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
+			hasNext = tuple.hasNext;
+		}
+		else {
+			hasNext = false;
+		}
 	}
 	
 	@Override
@@ -203,8 +214,11 @@ public class NodePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public boolean next(){
-		return tuple.next();
+	public boolean next() {
+		if (hasNext) {
+			return tuple.next();
+		}
+		return false;
 	}
 	
 	@Override
