@@ -14,5 +14,6 @@ public class PrettyPrint {
 	public IValue toLatex(ISourceLocation q) {
 		String s = new MakeBox().toLatex(q.getURI());
 		return values.string(s);
-	}		
+	}
+	
 }

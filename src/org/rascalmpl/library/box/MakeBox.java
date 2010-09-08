@@ -125,15 +125,6 @@ public class MakeBox {
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()
 				.sourceLocation(uri);
 		store(v, varName);
-		/*
-		String project_loc = System.getProperty("project_loc");
-		String loc = project_loc
-				+ "/src/"
-				+ this.getClass().getCanonicalName().replace('.',
-						File.separatorChar);
-		File f = new File(loc);
-		*/
-		// execute(resultName + "=toList(" + varName + ");");
 		execute(resultName + "=toLatex(" + varName+");");
 		IValue r = fetch(resultName);
 		return r;
@@ -216,5 +207,6 @@ public class MakeBox {
 		IValue v = toTxt(uri);
 		return text2String(v);
 	}
+	
 
 }
