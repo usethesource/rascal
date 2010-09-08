@@ -97,10 +97,8 @@ void setUserRules() {
     }  
       
 public text toText(loc asf){
-    //  println(locationIntro);
-     // Tree a = parse(#Module, asf);
      str s = getRascalFileContent(asf);
-     println("Txt: parse");
+     // println("Txt: parse");
      Tree a = parse(#Module, s);
      setUserRules();
      text r = toText(a);
@@ -110,12 +108,12 @@ public text toText(loc asf){
      
 public text toLatex(loc asf){
      str s = getRascalFileContent(asf);
-     println("toLatex: parse");
+     // println("toLatex: parse");
      Tree a = parse(#Module, s);
-     println("toLatex: parsed");
+     // println("toLatex: parsed");
      // rawPrintln(a);
      setUserRules();
-     println("start:");
+     // println("start:");
      text r =[];
      r = toText(a);
      writeData(asf, r, ".txt");
