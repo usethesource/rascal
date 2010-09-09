@@ -2,7 +2,6 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
@@ -22,6 +21,7 @@ public abstract class AbstractStackNode{
 	protected int startLocation;
 
 	protected boolean isEndNode;
+	private boolean isSeparator;
 	
 	// Last node specific filter stuff
 	private IConstructor parentProduction;
@@ -57,6 +57,7 @@ public abstract class AbstractStackNode{
 		startLocation = original.startLocation;
 		
 		isEndNode = original.isEndNode;
+		isSeparator = original.isSeparator;
 		
 		parentProduction = original.parentProduction;
 		followRestrictions = original.followRestrictions;
@@ -76,6 +77,7 @@ public abstract class AbstractStackNode{
 		startLocation = original.startLocation;
 		
 		isEndNode = original.isEndNode;
+		isSeparator = original.isSeparator;
 		
 		parentProduction = original.parentProduction;
 		followRestrictions = original.followRestrictions;
@@ -93,6 +95,14 @@ public abstract class AbstractStackNode{
 	
 	public boolean isEndNode(){
 		return isEndNode;
+	}
+	
+	public void markAsSeparator(){
+		isSeparator = true;
+	}
+	
+	public boolean isSeparator(){
+		return isSeparator;
 	}
 	
 	public final boolean isMatchable(){
@@ -345,9 +355,9 @@ public abstract class AbstractStackNode{
 	public abstract AbstractStackNode[] getChildren();
 	
 	// Results.
-	public abstract void setResultStore(ContainerNode resultStore);
+	public abstract void setResultStore(AbstractNode resultStore);
 	
-	public abstract ContainerNode getResultStore();
+	public abstract AbstractNode getResultStore();
 	
 	public abstract AbstractNode getResult();
 }

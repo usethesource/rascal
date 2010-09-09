@@ -30,6 +30,18 @@ public class LiteralNode extends AbstractNode{
 		return false;
 	}
 	
+	public boolean isNullable(){
+		return false;
+	}
+	
+	public boolean isSeparator(){
+		return false;
+	}
+	
+	public void setRejected(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public boolean isRejected(){
 		return false;
 	}

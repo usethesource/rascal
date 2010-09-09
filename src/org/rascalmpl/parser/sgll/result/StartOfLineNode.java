@@ -22,6 +22,18 @@ public class StartOfLineNode extends AbstractNode{
 		return false;
 	}
 	
+	public boolean isNullable(){
+		return true;
+	}
+	
+	public boolean isSeparator(){
+		return false;
+	}
+	
+	public void setRejected(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public boolean isRejected(){
 		return false;
 	}
