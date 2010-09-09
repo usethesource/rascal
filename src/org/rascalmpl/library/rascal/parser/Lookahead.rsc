@@ -39,7 +39,7 @@ public Grammar computeLookaheads(Grammar G) {
       }
       // merge the character classes and construct a production wrapper
       // TODO: should we really remove empty here?
-      insert lookahead(rhs, classes - {empty()}, p);        
+      insert lookahead(rhs, mergeCC(classes - {empty()}), p);        
     }
   }
 }
@@ -65,6 +65,55 @@ public Grammar compileLookaheads(Grammar G) {
 }
 
 public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
+  list[CharRange] l = [];
+  map[CharRange,set[Production]] m = ();
+  list[CharRange] order(list[CharRange] x) {
+    return sort([ e | e <- x, e != \empty-range()], lessThan);
+  }  
+  set[Production] init = {};
+  
+  for (lookahead(_,set[Symbol] classes, Production p) <- alts) { 
+    for (\char-class(rs) <- classes, r <- rs) {
+      // find the first range that is not smaller than the pivot
+      if ([pre*, post*] := l, all(z <- post, !lessThan(z,r)) || post == []) {
+        // find all ranges that overlap with the pivot
+        if ([overlapping*, post2*] := post, all(o <- overlapping, intersect(r,o) != \empty-range())) {
+          // overlapping with existing ranges (contained in 'overlap')
+          common = intersection(overlapping,[r]);
+          onlyR = difference([r],overlapping);
+          onlyOverlapping = difference(overlapping,[r]);
+          l = pre + order(onlyR+common+onlyOverlapping) + post2;
+          for (c <- common) {
+            m[c]?init += {p}; // production belonging to r
+            m[c] += {m[o] | o <- overlapping, intersect(o,c) != \empty-range()}; // productions for others
+          }
+          for (z <- onlyR) {
+            m[z]?init += {p};
+          }
+          for (z <- onlyOverlapping) {
+            m[z]?init += {m[o] | o <- overlapping, intersect(o,z) != \empty-range()}; // productions for others
+          }
+        }
+        else {
+          // not overlapping with existing ranges
+          l = pre + [r] + post;
+          m[r] = {p};
+        }
+      }
+      else {
+        l = [r] + l;
+        m[r] = {p};
+      }
+    }
+  }
+    
+  endOfInputClasses = { p | lookahead(_,classes,p) <- alts, eoi() in classes};
+  
+  return choice(rhs, {lookahead(rhs, {\char-class([r])}, choice(rhs, m[r])) | r <- l}
+                  +  ((endOfInputClasses != {}) ? {lookahead(rhs, {eoi()}, choice(rhs, endOfInputClasses))} : {}));
+}
+
+public Production optimizeLookaheadsOld(Symbol rhs, set[Production] alts) {
   solve (alts) {
     for (a:lookahead(_,c1,p1) <- alts, b:lookahead(_,c2,p2) <- alts, a != b) {
       if (c1 == c2) {
@@ -93,14 +142,14 @@ public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
 
 public set[Symbol] intersect(set[Symbol] u1, set[Symbol] u2) {
   if ({\char-class(r1), _*} := u1, {\char-class(r2), _*} := u2) {
-    return mergeCC({\char-class(intersection(r1,r2))} + (u1 & u2));
+    return {\char-class(intersection(r1,r2))} + (u1 & u2);
   }
   return u1 & u2;
 }
 
 public set[Symbol] diff(set[Symbol] u1, set[Symbol] u2) {
   if ({\char-class(r1), s1*} := u1, {\char-class(r2), s2*} := u2) {
-    return mergeCC({\char-class(difference(r1,r2))} + (s1 - s2));
+    return {\char-class(difference(r1,r2))} + (s1 - s2);
   }
   return u1 - u2;
 }
@@ -172,7 +221,7 @@ public SymbolUse first(Grammar G){
 
 public SymbolUse follow(Grammar G,  SymbolUse FIRST){
    defSymbols = definedSymbols(G);
-   FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
+    map[Symbol, set[Symbol]] FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
   
    solve (FOLLOW) {
      for (Production p <- G.productions, [_*, current, symbols*] := p.lhs) {
@@ -199,17 +248,17 @@ public tuple[SymbolUse, SymbolUse] firstAndFollow(Grammar G){
   // catch NoSuchKey(Symbol s) : throw "Undefined non-terminal <s>";
   // throw "wtf?";
 }
-
+  
 private SymbolUse mergeCC(SymbolUse su) {
   return innermost visit(su) {
-     case {\char-class(r1),\char-class(r2),a*} => {a,\char-class(r1+r2)}
-     case {\char-class([]), a*} => a
+     case set[Symbol] x:{\char-class(r1),\char-class(r2),a*} => {a,\char-class(union(r1,r2))}
+     case set[Symbol] x:{\char-class([]), a*} => a
   }
 }
 
 private set[Symbol] mergeCC(set[Symbol] su) {
   switch (su) {
-     case {\char-class(r1),\char-class(r2),a*} : return {a,\char-class(r1+r2)};
+     case {\char-class(r1),\char-class(r2),a*} : return {a,\char-class(union(r1,r2))};
      case {\char-class([]), a*} : return a;
      default: return su;
   }

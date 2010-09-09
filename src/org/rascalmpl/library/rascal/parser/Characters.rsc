@@ -9,7 +9,7 @@ import ParseTree;
 import rascal::parser::Grammar;
 import List;
 
-private data CharRange = \empty-range();
+public data CharRange = \empty-range();    
   
 rule empty range(int from, int to) => \empty-range() when to < from;
 rule empty \char-class([list[CharRange] a,\empty-range(),list[CharRange] b]) => \char-class(a+b);
@@ -35,19 +35,211 @@ rule diff  difference(\char-class(list[CharRange] r1), \char-class(list[CharRang
 rule union union(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 			=> \char-class(union(r1,r2));
 rule inter intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	=> \char-class(intersection(r1,r2));
 
+public bool lessThan(CharRange r1, CharRange r2) {
+  if (range(s1,e1) := r1, range(s2,e2) := r2) {
+    return e1 < s2;
+  }
+  throw "unexpected ranges <r1> and <r2>";
+}
+
+public CharRange difference(CharRange l, CharRange r) {
+  if (l == \empty-range() || r == \empty-range()) return l;
+  
+  if (\char-range(ls,le) := l, \char-range(rs,re) := r) {
+    // left beyond right
+    // <-right-> --------
+    // --------- <-left->
+    if (ls > re) 
+      return l; 
+
+    // left before right
+    // <-left-> ----------
+    // -------- <-right->
+    if (le < rs) 
+      return l;
+
+    // inclusion of left into right
+    // <--------right------->
+    // ---------<-left->-----
+    if (ls >= rs && le <= re) 
+      return \empty-range(); 
+
+    // inclusion of right into left
+    // -------<-right->------->
+    // <---------left--------->
+    if (rs >= ls && re <= le) 
+      return range(ls,rs-1);
+
+    // overlap on left side of right
+    // <--left-------->----------
+    // ---------<-----right----->
+    if (le < re) 
+      return range(ls,rs-1); 
+    
+    // overlap on right side of right
+    // -------------<---left---->
+    // <----right------->--------
+    if (ls > rs)
+      return range(re+1,le);
+
+  }
+  
+  throw "did not expect to end up here! <l> - <r>"; 
+}
+
+public CharRange intersect(CharRange r1, CharRange r2) {
+  if (r1 == \empty-range() || r2 == \empty-range()) return \empty-range();
+  
+  if (range(s1,e1) := r1, range(s2,e2) := r2) {
+    // left beyond right
+    // <-right-> --------
+    // --------- <-left->
+    if (s1 > e2) 
+      return \empty-range(); 
+
+    // left before right
+    // <-left-> ----------
+    // -------- <-right->
+    if (e1 < s2) 
+      return \empty-range();
+
+    // inclusion of left into right
+    // <--------right------->
+    // ---------<-left->-----
+    if (s1 >= s2 && e1 <= e2) 
+      return r1; 
+
+    // inclusion of right into left
+    // -------<-right->------->
+    // <---------left--------->
+    if (s2 >= s1 && e2 <= e1) 
+      return r2; 
+
+    // overlap on left side of right
+    // <--left-------->----------
+    // ---------<-----right----->
+    if (e1 < e2) 
+      return range(s2,e1); 
+    
+    // overlap on right side of right
+    // -------------<---left---->
+    // <----right------->--------
+    if (s1 > s2)
+      return range(s1,e2); 
+  }
+  
+  throw "unexpected ranges <r1> and <r2>";
+}
+
 public list[CharRange] complement(list[CharRange] s) {
   return difference([range(0,0xFFFF)],s);
 }
 
 public list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
-  return complement(union(complement(l), complement(r)));
+  if (l == r) return l;
+  if (l == [] || r == []) return [];
+  
+  <lhead,ltail> = <head(l), tail(l)>;
+  <rhead,rtail> = <head(r), tail(r)>;
+
+  if (lhead == \empty-range()) 
+    return intersection(ltail, r);
+
+  if (rhead == \empty-range()) 
+    return intersection(l, rtail);
+
+  // left beyond right
+  // <-right-> --------
+  // --------- <-left->
+  if (lhead.start > rhead.end) 
+    return intersection(l,rtail); 
+
+  // left before right
+  // <-left-> ----------
+  // -------- <-right->
+  if (lhead.end < rhead.start) 
+    return intersection(ltail,r);
+
+  // inclusion of left into right
+  // <--------right------->
+  // ---------<-left->-----
+  if (lhead.start >= rhead.start && lhead.end <= rhead.end) 
+    return lhead + intersection(ltail,r); 
+
+  // inclusion of right into left
+  // -------<-right->------->
+  // <---------left--------->
+  if (rhead.start >= lhead.start && rhead.end <= lhead.end) 
+    return rhead + intersection(l,rtail); 
+
+  // overlap on left side of right
+  // <--left-------->----------
+  // ---------<-----right----->
+  if (lhead.end < rhead.end) 
+    return range(rhead.start,lhead.end) + intersection(ltail,r); 
+    
+  // overlap on right side of right
+  // -------------<---left---->
+  // <----right------->--------
+  if (lhead.start > rhead.start)
+    return range(lhead.start,rhead.end) + intersection(l,rtail); 
+    
+  throw "did not expect to end up here! <l> - <r>";
+  
 } 
 
 public list[CharRange] union(list[CharRange] l, list[CharRange] r) {
- cc = \char-class(l + r); // Enforce that the ranges are normalized
- if(\char-class(u) := cc) // and extract them from the normalized char-class
- 	return u;
- throw "impossible case in union(<l>, <r>)";
+  if (l == r) return l;
+  if (l == []) return r;
+  if (r == []) return l;
+  
+  <lhead,ltail> = <head(l), tail(l)>;
+  <rhead,rtail> = <head(r), tail(r)>;
+
+  if (lhead == \empty-range()) 
+    return union(ltail, r);
+
+  if (rhead == \empty-range()) 
+    return union(l, rtail);
+
+  // left beyond right
+  // <-right-> --------
+  // --------- <-left->
+  if (lhead.start > rhead.end) 
+    return rhead + union(l,rtail); 
+
+  // left before right
+  // <-left-> ----------
+  // -------- <-right->
+  if (lhead.end < rhead.start) 
+    return lhead + union(ltail,r);
+
+  // inclusion of left into right
+  // <--------right------->
+  // ---------<-left->-----
+  if (lhead.start >= rhead.start && lhead.end <= rhead.end) 
+    return union(ltail,r); 
+
+  // inclusion of right into left
+  // -------<-right->------->
+  // <---------left--------->
+  if (rhead.start >= lhead.start && rhead.end <= lhead.end) 
+    return union(l,rtail); 
+
+  // overlap on left side of right
+  // <--left-------->----------
+  // ---------<-----right----->
+  if (lhead.end < rhead.end) 
+    return union(range(lhead.start,rhead.end) + ltail, rtail); 
+    
+  // overlap on right side of right
+  // -------------<---left---->
+  // <----right------->--------
+  if (lhead.start > rhead.start)
+    return union(ltail,range(rhead.start,lhead.end) + rtail); 
+    
+  throw "did not expect to end up here! <l> - <r>";
+  
 }
 
 // Take difference of two lists of ranges
@@ -56,7 +248,8 @@ public list[CharRange] union(list[CharRange] l, list[CharRange] r) {
 
 public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   if (l == [] || r == []) return l;
-
+  if (l == r) return [];
+  
   <lhead,ltail> = <head(l), tail(l)>;
   <rhead,rtail> = <head(r), tail(r)>;
 
@@ -76,7 +269,7 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   // <-left-> ----------
   // -------- <-right->
   if (lhead.end < rhead.start) 
-    return [lhead] + difference(ltail,r);
+    return lhead + difference(ltail,r);
 
   // inclusion of left into right
   // <--------right------->
@@ -88,20 +281,20 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   // -------<-right->------->
   // <---------left--------->
   if (rhead.start >= lhead.start && rhead.end <= lhead.end) 
-    return [range(lhead.start,rhead.start-1)] 
-         + difference([range(rhead.end+1,lhead.end)]+ltail,rtail);
+    return range(lhead.start,rhead.start-1) 
+         + difference(range(rhead.end+1,lhead.end)+ltail,rtail);
 
   // overlap on left side of right
   // <--left-------->----------
   // ---------<-----right----->
   if (lhead.end < rhead.end) 
-    return [range(lhead.start,rhead.start-1)] + difference(ltail,r); 
+    return range(lhead.start,rhead.start-1) + difference(ltail,r); 
     
   // overlap on right side of right
   // -------------<---left---->
   // <----right------->--------
   if (lhead.start > rhead.start)
-    return difference([range(rhead.end+1,lhead.end)]+ltail, rtail);
+    return difference(range(rhead.end+1,lhead.end)+ltail, rtail);
 
   throw "did not expect to end up here! <l> - <r>";
 }
@@ -114,7 +307,7 @@ test complement(\char-class([range(10,35), range(30,40)])) == \char-class([range
 
 test union(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([range(10,20), range(30,40)]);
 test union(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(10,40)]);
-
+ 
 test intersection(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([]);
 test intersection(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(20, 25)]);
 

@@ -21,6 +21,8 @@ import org.rascalmpl.interpreter.utils.LimitedResultOutputStream;
 import org.rascalmpl.interpreter.utils.LimitedResultOutputStream.IOLimitReachedException;
 import org.rascalmpl.values.uptr.Factory;
 
+import com.sun.xml.internal.ws.api.server.ContainerResolver;
+
 // TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).
 
 public abstract class Result<T extends IValue> implements Iterator<Result<IValue>> {
@@ -285,6 +287,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	///////
+	
+	protected <U extends IValue, V extends IValue> Result<U> insertElement(Result<V> that) {
+		return that.undefinedError("insert into collection", this);
+	}
+
 	
 	protected <U extends IValue> Result<U> addInteger(IntegerResult that) {
 		return that.undefinedError(ADDITION_STRING, this);

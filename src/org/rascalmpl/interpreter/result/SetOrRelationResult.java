@@ -73,10 +73,9 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 			}
 
 	@Override
-	protected <U extends IValue, V extends IValue> Result<U> insertElement(
-			ElementResult<V> valueResult) {
-				return addElement(valueResult);
-			}
+	protected <U extends IValue, V extends IValue> Result<U> insertElement(Result<V> valueResult) {
+				return addElement((ElementResult<V>) valueResult);
+	}
 
 	protected <U extends IValue, V extends IValue> Result<U> addElement(
 			ElementResult<V> that) {

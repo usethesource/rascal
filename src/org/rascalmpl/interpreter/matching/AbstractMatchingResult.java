@@ -62,7 +62,8 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 	public IValue toIValue() {
 		// if a pattern does not contain variables, simply evaluating it as an expression should
 		// yield a proper value
-		return ctx.getEvaluator().eval((Expression) getAST()).getValue();
+		return getAST().accept(ctx.getEvaluator()).getValue();
+//		return ctx.getEvaluator().eval((Expression) getAST()).getValue();
 	}
 	
 	abstract public Type getType(Environment env);

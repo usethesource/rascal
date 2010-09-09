@@ -4,7 +4,6 @@ package org.rascalmpl.interpreter.result;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class CollectionResult<T extends IValue> extends ElementResult<T> {
 	/*
@@ -46,10 +45,6 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 	@Override 
 	protected <U extends IValue> Result<U> addTuple(TupleResult t) {
 		return insertElement(t);
-	}
-	
-	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> result) {
-		throw new ImplementationError("this method should be specialized in subclasses");
 	}
 
 

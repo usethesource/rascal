@@ -25,6 +25,9 @@ public str generate(str package, str name, Grammar gr){
     println("generating stubs for regular");
     gr = makeRegularStubs(gr);
     
+    println("establishing production set");
+    uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p};
+    
     println("generating item allocations");
     newItems = generateNewItems(gr);
     
@@ -38,7 +41,6 @@ public str generate(str package, str name, Grammar gr){
     gr = compileLookaheads(gr);
     
     println("printing the source code of the parser class");
-    uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p};
     
     return 
 "
@@ -95,13 +97,11 @@ public class <name> extends SGLL{
 	private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);<}>
     
 	// Item declarations
-	<for (Symbol s <- newItems) { items = newItems[s]; >
-	private static class <value2id(s)>{
+	<for (Symbol s <- newItems, isNonterminal(s)) { items = newItems[s]; >
+	private static class <value2id(s)> {
 		<for (Item i <- items) {>
-		public static final AbstractStackNode <value2id(i.production)>_<value2id(i.index)> = <items[i].new>;
-		<}>
-	}
-	<}>
+		public static final AbstractStackNode <value2id(i.production)>_<value2id(i.index)> = <items[i].new>;<}>
+	}<}>
 	
 	public <name>(){
 		super();
@@ -363,7 +363,7 @@ public str generateRestrictions(Grammar grammar, int() id, set[Production] restr
   // the run-time only supports character-classes and literals BTW, which should
   // be validated by a static checker for Rascal.  
   las = [ l | /Production p:prod([Symbol l],_,_) <- restrictions];
- 
+
   if (las != []) {
     result += ("<sym2newitem(grammar, head(las), id).new>" | it + ", <sym2newitem(grammar,l,id).new>" | l <- tail(las));
   }
@@ -406,7 +406,7 @@ public str generateSeparatorExpects(Production reg, list[Symbol] seps) {
      return "";
    }
    
-   return (value2id(item(reg, 1)) | it + ", <value2id(item(reg, i+2))>" | int i <- index(seps));
+   return (value2id(item(reg, 1)) | it + ", <value2id(item(reg, i+2))>" | int i <- index(tail(seps)));
 }
 
 public str generateSeparatorExpects(Grammar grammar, int() id, list[Symbol] seps) {
@@ -414,7 +414,7 @@ public str generateSeparatorExpects(Grammar grammar, int() id, list[Symbol] seps
      return "";
    }
    
-   return (sym2newitem(grammar, head(seps), id).new | it + ", <sym2newitem(grammar,s,id).new>" | s <- seps);
+   return (sym2newitem(grammar, head(seps), id).new | it + ", <sym2newitem(grammar,s,id).new>" | s <- tail(seps));
 }
 
 public str literals2ints(list[Symbol] chars){
@@ -437,52 +437,42 @@ public str ciliterals2ints(list[Symbol] chars){
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int() id){
     itemId = id();
     
-    switch(sym){
-        case \label(_,s) : return sym2newitem(grammar, s,id); // ignore labels
-        case \prime(_,_,_) : 
-            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\")", itemId>;
+    switch (sym) {
+        case \label(_,s) : 
+            return sym2newitem(grammar, s,id); // ignore labels
         case \sort(n) : 
-            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\")", itemId>;
+            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\" <generateRestrictions(grammar, sym, id)>)", itemId>;
         case \layouts(_) :
-            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\")", itemId>;  
+            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\" <generateRestrictions(grammar, sym, id)>)", itemId>;  
         case \parameterized-sort(n,args): 
-            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\")", itemId>;
+            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\" <generateRestrictions(grammar, sym, id)>)", itemId>;
         case \parameter(n) :
             throw "all parameters should have been instantiated by now";
         case \start(s) : 
-            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\")", itemId>;
-        case \lit(l) : {
-            Production litProd = choice(sym, grammar.rules[sym]);
-            
-            if (restrict(\lit(l), choice(\lit(l), {p:prod(list[Symbol] chars,\lit(l),_)}), restrictions) := litProd) { 
-                return <"new LiteralStackNode(<itemId>, <value2id(p)>, <generateRestrictions(grammar,id,restrictions)>, new char[] {<literals2ints(chars)>})",itemId>;
-            }
-            else if (p:prod(chars,\lit(l),_) := litProd) {  
-                return <"new LiteralStackNode(<itemId>, <value2id(p)>, new char[] {<literals2ints(chars)>})",itemId>;
-            }
-            else if (choice(lit(l),{p:prod(chars,\lit(l),_)}) := litProd) {  
-                return <"new LiteralStackNode(<itemId>, <value2id(p)>, new char[] {<literals2ints(chars)>})",itemId>;
-            }
-            throw "literal not found in <grammer>??";
-        }
-        case \cilit(l) : {
-            throw "ci lits not supported yet";
-        }
+            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\" <generateRestrictions(grammar, sym, id)>)", itemId>;
+        case \lit(l) : 
+            if (/p:prod(list[Symbol] chars,sym,_) := grammar.rules[sym])
+                return <"new LiteralStackNode(<itemId>, <value2id(p)> <generateRestrictions(grammar, sym, id)>, new char[] {<literals2ints(chars)>})",itemId>;
+            else throw "literal not found in grammar: <grammar>";
+        case \cilit(l) : 
+            if (/prod(list[Symbol] chars,sym,_) := grammar.rules[sym])
+                return <"new CaseInsensitiveLiteralStackNode(<itemId>, <value2id(p)> <generateRestrictions(grammar, sym, id)>, new char[] {<literals2ints(chars)>})",itemId>;
+            else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 
-            return <"new ListStackNode(<itemId>, <value2id(regular(sym,\no-attrs()))>, <sym2newitem(grammar, s, id).new>, true)",itemId>;
+            return <"new ListStackNode(<itemId>, <value2id(regular(sym,\no-attrs()))> <generateRestrictions(grammar, sym, id)>, <sym2newitem(grammar, s, id).new>, true)",itemId>;
         case \iter-star(s) :
-            return <"new ListStackNode(<itemId>, <value2id(regular(sym,\no-attrs()))>, <sym2newitem(grammar, s, id).new>, false)", itemId>;
+            return <"new ListStackNode(<itemId>, <value2id(regular(sym,\no-attrs()))> <generateRestrictions(grammar, sym, id)>, <sym2newitem(grammar, s, id).new>, false)", itemId>;
         case \iter-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym,\no-attrs());
-            return <"new SeparatedListStackNode(<itemId>, <value2id(reg)>, <sym2newitem(grammar, s, id).new>, new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, true)",itemId>;
+            return <"new SeparatedListStackNode(<itemId>, <value2id(reg)> <generateRestrictions(grammar, sym, id)>, <sym2newitem(grammar, s, id).new>, new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, true)",itemId>;
         }
         case \iter-star-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym,\no-attrs());
-            return <"new SeparatedListStackNode(<itemId>, <value2id(reg)>, <sym2newitem(grammar, s, id).new>, new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, false)",itemId>;
+            return <"new SeparatedListStackNode(<itemId>, <value2id(reg)> <generateRestrictions(grammar, sym, id)>, <sym2newitem(grammar, s, id).new>, new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, false)",itemId>;
         }
         case \opt(s) : {
             reg =  regular(sym,\no-attrs());
-            return <"new OptionalStackNode(<itemId>, <value2id(reg)>, <sym2newitem(grammar, s, id).new>)", itemId>;
+            return <"new OptionalStackNode(<itemId>, <value2id(reg)> <generateRestrictions(grammar, sym, id)>, <sym2newitem(grammar, s, id).new>)", itemId>;
         }
         case \char-class(list[CharRange] ranges) : 
             return <"new CharStackNode(<itemId>, new char[][]{<generateCharClassArrays(ranges)>})", itemId>;
@@ -495,6 +485,15 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         default: 
             throw "not yet implemented <sym>";
     }
+}
+
+public str generateRestrictions(Grammar grammar, Symbol sym, int() id) {
+  if (/restrict(sym, _, set[Production] restrictions) := grammar.rules[sym]) {
+    return ", <generateRestrictions(grammar, id, restrictions)>";
+  }
+  else {
+    return "";
+  }
 }
 
 public str generateCharClassArrays(list[CharRange] ranges){
