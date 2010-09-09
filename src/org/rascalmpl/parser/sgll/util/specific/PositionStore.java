@@ -1,7 +1,7 @@
 package org.rascalmpl.parser.sgll.util.specific;
 
 public class PositionStore{
-	private final static char END_LINE_CHAR = '\n';
+	private final static char LINE_FEED_CHAR = '\n';
 	private final static char CARRIAGE_RETURN_CHAR = '\r';
 	
 	private final static int DEFAULT_SIZE = 8;
@@ -35,7 +35,7 @@ public class PositionStore{
 			char character = input[i];
 			if(character == CARRIAGE_RETURN_CHAR){
 				encounteredCarriageReturn = true;
-			}else if(character == END_LINE_CHAR){
+			}else if(character == LINE_FEED_CHAR){
 				add(i + 1);
 				encounteredCarriageReturn = false;
 			}else if(encounteredCarriageReturn){
