@@ -1,7 +1,6 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.StartOfLineNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
@@ -61,11 +60,11 @@ public class StartOfLineStackNode extends AbstractStackNode implements IMatchabl
 		return new StartOfLineStackNode(this, prefixesMap);
 	}
 	
-	public void setResultStore(ContainerNode resultStore){
+	public void setResultStore(AbstractNode resultStore){
 		throw new UnsupportedOperationException();
 	}
 	
-	public ContainerNode getResultStore(){
+	public AbstractNode getResultStore(){
 		throw new UnsupportedOperationException();
 	}
 	

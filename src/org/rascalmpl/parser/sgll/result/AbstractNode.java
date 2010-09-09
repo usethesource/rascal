@@ -16,15 +16,21 @@ public abstract class AbstractNode{
 		super();
 	}
 	
+	public abstract void addAlternative(IConstructor production, Link children);
+	
 	public boolean isContainer(){
 		return (this instanceof ContainerNode);
 	}
 	
-	public abstract boolean isEpsilon();
+	protected abstract boolean isEpsilon();
+	
+	protected abstract boolean isNullable();
+	
+	protected abstract boolean isSeparator();
+	
+	public abstract void setRejected();
 	
 	public abstract boolean isRejected();
-	
-	public abstract void addAlternative(IConstructor production, Link children);
 	
 	public abstract IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore);
 	

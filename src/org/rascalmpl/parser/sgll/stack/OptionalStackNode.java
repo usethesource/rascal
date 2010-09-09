@@ -2,7 +2,6 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
@@ -17,7 +16,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	
 	private final AbstractStackNode optional;
 	
-	private ContainerNode result;
+	private AbstractNode result;
 	
 	public OptionalStackNode(int id, IConstructor production, AbstractStackNode optional){
 		super(id);
@@ -79,11 +78,11 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		return new OptionalStackNode(this, prefixesMap);
 	}
 	
-	public void setResultStore(ContainerNode resultStore){
+	public void setResultStore(AbstractNode resultStore){
 		result = resultStore;
 	}
 	
-	public ContainerNode getResultStore(){
+	public AbstractNode getResultStore(){
 		return result;
 	}
 	
