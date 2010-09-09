@@ -403,7 +403,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		resolverRegistry.registerInput(resolver.scheme(), resolver);
 		resolverRegistry.registerOutput(resolver.scheme(), resolver);
-	}
+	}  
 	
 	public void interrupt() {
 		this.interrupt = true;
@@ -654,8 +654,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				b.append('\t');
 				b.append(uri.getRawPath()+ ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + ": " + name);
 				b.append('\n');
+			} else if (name != null) {
+				b.append('\t');
+				b.append("somewhere in: " + name);
+				b.append('\n');
 			}
-			env = env.getParent();
+			//                     env = env.getParent();
+			env = env.getCallerScope();
 		}
 		return b.toString();
 	}
@@ -2230,6 +2235,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			olds[0] = getCurrentEnvt();
 			pushEnv();
 			while(i >= 0 && i < size) {		
+				if (interrupt) throw new InterruptException(getStackTrace());
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						setCurrentAST(body);
@@ -2275,7 +2281,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			olds[0] = getCurrentEnvt();
 			pushEnv();
 
-			while(i >= 0 && i < size) {		
+			while(i >= 0 && i < size) {	
+				if (interrupt) throw new InterruptException(getStackTrace());
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						setCurrentAST(body);
@@ -2374,6 +2381,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 				gen = makeBooleanResult(generator);
 				gen.init();
+				if (interrupt) throw new InterruptException(getStackTrace());
 				if(!(gen.hasNext() && gen.next())) {
 					IValue value = accumulators.pop().done();
 					return makeResult(value.getType(), value, this);
@@ -2849,6 +2857,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IBooleanResult mp = makeBooleanResult(x);
 		mp.init();
 		while(mp.hasNext()){
+			if (interrupt) throw new InterruptException(getStackTrace());
 			if(mp.next()) {
 				return ResultFactory.bool(true, this);
 			}
@@ -3258,6 +3267,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			if(debug)System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
 				pushEnv();
+				if (interrupt) throw new InterruptException(getStackTrace());
 				if(debug)System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
 					if(debug)System.err.println("matchAndEval: mp.next()==true");
@@ -3299,6 +3309,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			mp.initMatch(subject);
 
 			while (mp.hasNext()){
+				if (interrupt) throw new InterruptException(getStackTrace());
 				if(mp.next()){
 					try {
 						boolean trueConditions = true;
@@ -3848,6 +3859,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			pushEnv();
 
 			while (i >= 0 && i < size) {
+				if (interrupt) throw new InterruptException(getStackTrace());
 				if (gens[i].hasNext() && gens[i].next()) {
 					if(i == size - 1){
 						getCurrentEnvt().storeVariable(IT, it);
@@ -4018,6 +4030,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		gens[0] = makeBooleanResult(generators.get(0));
 		gens[0].init();
 		while (i >= 0 && i < size) {
+			if (interrupt) throw new InterruptException(getStackTrace());
 			if (gens[i].hasNext() && gens[i].next()) {
 				if (i == size - 1) {
 					return new BoolResult(tf.boolType(), vf.bool(true), this);
@@ -4050,6 +4063,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			pushEnv();
 
 			while (i >= 0 && i < size) {
+				if (interrupt) throw new InterruptException(getStackTrace());
 				if (gens[i].hasNext()) {
 					if (!gens[i].next()) {
 						return new BoolResult(tf.boolType(), vf.bool(false), this);

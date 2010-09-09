@@ -210,6 +210,9 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean hasNext(){
+		if (!hasNext) {
+			return false;
+		}
 		return tuple.hasNext();
 	}
 	

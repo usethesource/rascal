@@ -30,6 +30,11 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 	
 	@Override
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
+		return that.insertElement(this);
+	}
+	
+	@Override
 	protected <U extends IValue> Result<U> inSet(SetResult s) {
 		return s.elementOf(this);
 	}

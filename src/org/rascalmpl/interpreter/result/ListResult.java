@@ -136,7 +136,7 @@ public class ListResult extends CollectionResult<IList> {
 	
 	
 	@Override
-	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> that) {
+	protected <U extends IValue, V extends IValue> Result<U> insertElement(Result<V> that) {
 		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
 		return makeResult(newType, value.insert(that.getValue()), ctx);
 	}

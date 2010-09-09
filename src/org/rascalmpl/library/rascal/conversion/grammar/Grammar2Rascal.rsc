@@ -68,9 +68,9 @@ bool same(Production p, Production q) {
 }
 
 public str topProd2rascal(Production p) {
-  if (regular(_,_) := p.rhs) return "";
+  if (regular(_,_) := p) return "";
   
-  return "<(start(_) := nont) ? "start ":""><(\layouts(_) := nont) ? "layout <layoutname(p.rhs)>" : "syntax <symbol2rascal(p.rhs)>">\n\t= <prod2rascal(p)>;\n";
+  return "<(start(_) := p.rhs) ? "start ":""><(\layouts(_) := p.rhs) ? "layout <layoutname(p.rhs)>" : "syntax <symbol2rascal(p.rhs)>">\n\t= <prod2rascal(p)>;\n";
 }
 
 str layoutname(Symbol s) {
