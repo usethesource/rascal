@@ -1,0 +1,28 @@
+Name: size
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `int size(list[&T] lst)`
+
+Synopsis:
+
+Description: Returns the number of elements in a list.
+
+Examples:
+<screen>
+import List;
+size([10, 20, 30]);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

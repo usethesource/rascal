@@ -2,7 +2,7 @@ Name:toReal
 
 Categories: Library
 
-Synopsis:Function: `real toReal(num n)`
+Function: `real toReal(num n)`
 
 Description: Convert a number to a real
 

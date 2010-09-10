@@ -1,15 +1,22 @@
 TODO List for RascalTutor
 
-- Add more question types.
-- General code cleanup
+- Fix screen/listing inside list [Moderate]
+- Fix cheat functionality [Moderate]
+- Generate PDF [some work]
+- Generate a map for each concept [some work]
+- Rename exercises Type, Value, etc to something like QType, QValue, etc. [Trivial]
+- Fix too long lines in exercises [Easy]
+- Add more question types [Unclear]
+- General code cleanup [Some work, is going on]
 - Start page for RascalTutor that lists the available courses.
-- Fix bug in ValueIO to enable writing compiled course to a file.
+- Include output of visualization in course pages [hard]
 
 and ...
 - Convert Rascal manual :-)
 
-
 Completed:
+- Fix bug in ValueIO to enable writing compiled course to a file. [Now using text IO]
+- Split Synopsis section into: Syntax, Type, Function, and Synopsis sections
 - Turn all print messages in compiler into throws
 - Handle errors in new/save dialog (add a report field).
 - Remove all references to my home directory (used for testing, bad for deployment).

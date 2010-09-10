@@ -35,6 +35,9 @@ data Concept =
 			set[str] categories,                    // Categories it belongs to
 			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)
 			str synopsis,                         	// Text of the various sections
+			str syntaxSynopsis,
+			str typesSynopsis,
+			str functionSynopsis,
 			set[str] searchTerms,
 			str description,
 			str examples,

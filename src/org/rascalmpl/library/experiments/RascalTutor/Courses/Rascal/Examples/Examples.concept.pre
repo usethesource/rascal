@@ -1,1 +1,1 @@
-concept("Examples",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Examples/Examples.concept|,[],{"Example"},{},"\n",{},"\n","\n","\n","\n",[])
+concept("Examples",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Examples/Examples.concept|,["Hello","Factorial","ColoredTrees"],{"Example"},{},"","","","",{},"","","","",[])

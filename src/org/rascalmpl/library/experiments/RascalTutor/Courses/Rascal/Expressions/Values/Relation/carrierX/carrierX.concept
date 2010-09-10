@@ -1,0 +1,28 @@
+Name: carrierX
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `rel[&T,&T] carrierX (rel[&T,&T] R, set[&T] S)`
+
+Synopsis:
+
+Description: Returns relation `R` excluding tuples with some element in `S`.
+
+Examples:
+<screen>
+import Relation;
+carrierX({<1,10>, <2,20>, <3,30>}, {10, 1, 20});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

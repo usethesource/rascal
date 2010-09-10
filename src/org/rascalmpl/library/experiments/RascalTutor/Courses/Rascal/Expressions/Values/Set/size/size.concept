@@ -2,7 +2,7 @@ Name:size
 
 Categories: Library
 
-Synopsis: Function: `int size(set[&T] s)`
+Function: `int size(set[&T] s)`
 
 Description: Returns the number of elements in `s`.
 

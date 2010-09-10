@@ -2,16 +2,14 @@ Name:Negation
 
 Categories: Language
 
-Synopsis:
-* Syntax: `- $Exp$`
+Syntax: `- $Exp$`
 
-* Type:
+Types:
 
-
-| `$Exp$`  |  Result   |
-|:--------|:-------|
-| `int`        |  `int`     |
-| `real`      |  `real`    |
+| `$Exp$`  |  `- $Exp$` |
+|:---------|:-----------|
+| `int`    |  `int`     |
+| `real`   |  `real`    |
 
 
 Description: Yields the negated values of $NumExp$.

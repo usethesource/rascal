@@ -1,0 +1,20 @@
+Name:reducer
+
+Categories: Library
+
+Function: `&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)`
+
+Description: Apply the function `fn` to successive elements of list `lst` starting with `unit`.
+
+Examples:
+<screen>
+import List;
+int add(int x, int y) { return x + y; }
+reducer([10, 20, 30, 40], add, 0); 
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

@@ -1,0 +1,32 @@
+Name:notin
+
+Categories: Language
+
+Syntax: `$Exp_1$ notin $Exp_2$`
+
+Types:
+
+
+| `$Exp_1$`           |  `$Exp_2$`      | `$Exp_1$ notin $Exp_2$` |
+|:--------------------|:----------------|:------------------------|
+| `$T_1$`  <: `$T_2$` |  `list[$T_2$]`  | `bool`                  |
+
+
+Description: Yields `true` if the value of $Exp_1$ does not occur as element in the value of $Exp_2$ and `false` otherwise. 
+The type of $Exp_1$ should be compatible with the element type of $Exp_2$.
+
+Examples:
+<screen>
+4 notin [1, 2, 3];
+2 notin [1, 2, 3];
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+
+
+

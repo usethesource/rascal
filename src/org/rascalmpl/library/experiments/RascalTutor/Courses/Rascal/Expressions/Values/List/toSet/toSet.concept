@@ -1,0 +1,29 @@
+Name: toSet
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `set[&T] toSet(list[&T] lst)`
+
+Synopsis:
+
+Description: Convert `lst` to a set.
+
+Examples:
+<screen>
+import List;
+toSet([10, 20, 30, 40]);
+toSet(["a", "b", "c"]);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

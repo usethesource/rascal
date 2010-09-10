@@ -2,9 +2,9 @@ Name:arbInt
 
 Categories: Library
 
-Synopsis:
-* Function: `int arbInt( )`
-* Function: `int arbInt(int limit)`
+Function:
+* `int arbInt( )`
+* `int arbInt(int limit)`
 
 Description: Return an arbitrary integer value. When the argument `limit` is given, the generated value is in the interval [0, `limit`].
 

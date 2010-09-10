@@ -4,23 +4,21 @@ Details:
 
 Categories:
 
-Synopsis: 
-* Syntax: `! $Exp$`
-* Type:
+Syntax: `! $Exp$`
 
-
+Types:
 | ` $Exp$` | `! $Exp$` |
-|:--------|:--------|
-| `bool`     | `bool`       |
+|:---------|:----------|
+| `bool`   | `bool`    |
 
 Description:
 
 The _not_ operator on Boolean values defined as follows:
 
 | `$Exp$`  | `! $Exp$` |
-|:---------|:-------|
-| `true`       | `false`     |
-| `false`       | `true`     |
+|:---------|:----------|
+| `true`   | `false`   |
+| `false`  | `true`    |
 
 
 Examples:

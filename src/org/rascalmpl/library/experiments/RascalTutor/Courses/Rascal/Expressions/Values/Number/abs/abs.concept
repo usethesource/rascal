@@ -2,7 +2,7 @@ Name:abs
 
 Categories: Library
 
-Synopsis: Function: `&T <: num abs(&T <: num n)`
+Function: `&T <: num abs(&T <: num n)`
 
 Description: Absolute value of the number <tt>n</tt>. The result type is equal to the type of the argument <tt>n</tt>.
 

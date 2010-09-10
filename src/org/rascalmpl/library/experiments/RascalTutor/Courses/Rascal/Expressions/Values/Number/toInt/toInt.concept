@@ -2,7 +2,7 @@ Name:toInt
 
 Categories: Library
 
-Synopsis: Function: `int toInt(num n)`
+Function: `int toInt(num n)`
 
 Description:
 

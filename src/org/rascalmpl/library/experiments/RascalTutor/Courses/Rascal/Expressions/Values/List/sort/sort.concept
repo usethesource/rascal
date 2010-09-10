@@ -1,0 +1,30 @@
+Name: sort
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `list[&T] sort(list[&T] lst)`
+
+Synopsis:
+
+Description: Sort the elements of a list.
+
+Examples:
+<warning> Something wrong here</warning>
+<screen>
+import List;
+sort([10, 4, -2, 11, 100, 5]);
+sort(["pear", "apple", "banana", "ananas", "kiwi"]);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

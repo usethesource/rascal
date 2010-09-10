@@ -2,9 +2,9 @@ Name:String
 
 Categories:Language
 
-Synopsis:
-* Syntax: <warning>explain string syntax</warning>
-* Type: `str`
+Syntax: <warning>explain string syntax</warning>
+
+Types: `str`
 
 Description:
 The string values are represented by the type `str` and consist of character 

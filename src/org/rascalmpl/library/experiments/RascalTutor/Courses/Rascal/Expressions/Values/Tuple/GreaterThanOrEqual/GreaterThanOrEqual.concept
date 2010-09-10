@@ -1,0 +1,33 @@
+Name:GreaterThanOrEqual
+
+Categories: Language
+
+Syntax: `$Exp_1$ >= $Exp_2$`
+
+Types:
+
+| `$Exp_1$`                    |  `$Exp_2$`                    | `$Exp_1$ >= $Exp_2$` |
+|:-----------------------------|:------------------------------|:---------------------|
+| `tuple[$T_11$, $T_12$, ...]` |  `tuple[$T_21$, $T_22$, ...]` | `bool`               |
+
+
+Description:
+Yields `true` if 
+* both tuples are equal, or
+* the left-most element in the tuple value of $Exp_1$ that differs from the corresponding element in the tuple 
+value of $Exp_2$ is greater than that element in $Exp_2$.
+
+
+Otherwise the result if `false`.
+
+Examples:
+<screen>
+<1, "abc", true> > <1, "abc", true>;
+<1, "def", true> > <1, "abc", true>;
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

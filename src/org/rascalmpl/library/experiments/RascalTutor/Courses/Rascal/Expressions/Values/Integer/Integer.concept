@@ -2,9 +2,9 @@ Name:Integer
 
 Categories: Language
 
-Synopsis:
-* Syntax: sequence of digits of arbitrary length.
-* Type: `int`
+
+Syntax: sequence of digits of arbitrary length.
+Types: `int`
 
 
 Description:

@@ -1,0 +1,29 @@
+Name:Equal
+
+Categories: Language
+
+Syntax: `$Exp_1$ == $Exp_2$`
+
+Types:
+
+| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ == $Exp_2$` |
+|:--------------|:---------------|:---------------------|
+| `list[$T_1$]` |  `list[$T_2$]` | `bool`               |
+
+
+Description:
+Yields `true` if both arguments are equal lists and `false` otherwise.
+
+Examples:
+<screen>
+[1, 2, 3] == [1, 2, 3];
+[1, 2, 3] == [3, 2, 1];
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+ExprType: <A:list[arb]> == <B:same[A]>

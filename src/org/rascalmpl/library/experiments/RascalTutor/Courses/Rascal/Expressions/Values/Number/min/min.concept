@@ -2,7 +2,7 @@ Name:min
 
 Categories: Library
 
-Synopsis: Function: `&T <: num min(&T <: num n, &T <: num m)`
+Function: `&T <: num min(&T <: num n, &T <: num m)`
 
 Description: The smallest of two numbers. The type of the result is the same as the type of the smallest argument.
 

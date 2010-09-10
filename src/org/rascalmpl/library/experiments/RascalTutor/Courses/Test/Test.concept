@@ -7,15 +7,17 @@ Categories:
 Related:
 
 Synopsis:
-* Syntax: `$Exp_1$ + $Exp_2$`
-* Types:
 
+Syntax:
+`$Exp_1$ + $Exp_2$`
 
-| $Exp_1$             | $Exp_2$           | Result                                |
-|--------------|-------------|---------------------|
-| `set[$T_1$]`       | `set[$T_2$]`    | `set[lub($T_1$, $T_2$)]` |
-| `$T_1$`              | `set[$T_2$]`    | `set[lub($T_1$, $T_2$)]` |
-| `set[$T_1$]`       | `$T_2$`           | `set[lub($T_1$, $T_2$)]` |
+Types: 
+
+| $Exp_1$      | $Exp_2$      | Result                   |
+|--------------|--------------|--------------------------|
+| `set[$T_1$]` | `set[$T_2$]` | `set[lub($T_1$, $T_2$)]` |
+| `$T_1$`      | `set[$T_2$]` | `set[lub($T_1$, $T_2$)]` |
+| `set[$T_1$]` | `$T_2$`      | `set[lub($T_1$, $T_2$)]` |
 
 
 Description:
@@ -59,11 +61,11 @@ Pittfalls:
 
 Questions:
 
-Type: <A:int> + <B:int>
+TypeQ: <A:int> + <B:int>
 
 XXXValue: <A:int> + <B:int>
 
-Value: <A:arb[int,str]> + <B:same[A]>
+ValueQ: <A:arb[int,str]> + <B:same[A]>
 
 XXXValue: <A:int> + <?> == <B:int>
 

@@ -3,7 +3,7 @@ Name:min
 Categories: Library
 
 
-Synopsis: Function: `&T min(set[&T] s)`
+Function: `&T min(set[&T] s)`
 
 Description: Returns the smallest element from a set.
 

@@ -14,13 +14,13 @@ import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 
 public str mkConceptTemplate(ConceptName cn){
-return "Name: <cn>\n\nDetails:\n\nCategories:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
+return "Name: <cn>\n\nDetails:\n\nCategories:\n\nSyntax:\n\nTypes:\n\nFunction:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
 }
 
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
 // Questions is the last section and is treated special: it contains questions that are analyzed later
 
-public set[str] sectionKeywords = {"Name", "Categories", "Synopsis", "Description",
+public set[str] sectionKeywords = {"Name", "Details", "Categories", "Syntax", "Types", "Function", "Synopsis", "Description",
                                    "Examples", "Benefits", "Pittfalls", "Questions"};
 
 private str conceptPath = "";
@@ -29,7 +29,6 @@ private str markup1(list[str] lines){
   return markup(lines, conceptPath);
 }
 
-
 public map[str,list[str]] getSections(list[str] script){
   sections = ();
   start = 0;
@@ -37,27 +36,35 @@ public map[str,list[str]] getSections(list[str] script){
   for(int i <- index(script)){
     if(/^<section:[A-Z][A-Za-z]*>:\s*<text:.*>/ := script[i] && section in sectionKeywords){
       if(currentSection != ""){
-        j = i - 1;
-        while(/^\s*$/ := script[j] && j > start)
-          j -= 1;
-      	sections[currentSection] = slice(script, start, j - start + 1);
+      	sections[currentSection] = trimLines(script, start, i);
+      	//println("<currentSection> = <sections[currentSection]>");
       }
+      //println("Section=<section>");
       if(/^\s*$/ := text)
-         start = i + 1;
+         start = i + 1;       // no info following section header
       else {
-        script[i] = text;    
+        script[i] = text;    // remove the section header
         start = i;
       } 
       currentSection = section;
     }
   }
   if(currentSection != ""){
-     j = size(script) - 1;
-     while(/^\s*$/ := script[j] && j > start)
-          j -= 1;
-     sections[currentSection] = slice(script, start, j - start + 1);
+     sections[currentSection] = trimLines(script, start, size(script));
   }
   return sections;
+}
+
+public list[str] trimLines(list[str] lines, int start, int end){
+  //println("trimlines(<size(lines)>,start=<start>,end=<end>");
+  while(start < end && /^\s*$/ := lines[start])
+    start += 1;
+  while(end > start && /^\s*$/ := lines[end - 1])
+    end -= 1;
+  //println("slice(<start>,<end-start>)");
+  if(start != end)
+  	return slice(lines, start, end - start);
+  return [];
 }
 
 public list[str] splitLines(str text){
@@ -95,6 +102,7 @@ public Concept parseConcept(loc file, list[str] script, str coursePath){
 public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePath){
 
    println("parseConcept: file=<file>, coursePath=<coursePath>");
+   for(s <- sections) println("<s>: <sections[s]>");
    
    if(!(sections["Name"]?))
       throw ConceptError("<file>: Missing section \"Name\"");
@@ -109,22 +117,29 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	      
 	   conceptPath = "Courses/" + fullName;
 	   
-	   optDetails      = sections["Details"] ? [];
-	   optCategories   = getNames(sections["Categories"] ? []);
+	   optDetails      	= getNames(sections["Details"] ? []);
+	   optCategories   	= toSet(getNames(sections["Categories"] ? []));
 	 
-	   synopsisSection = sections["Synopsis"];
-	   searchTerms  =  searchTermsSynopsis(synopsisSection);
-	   synopsis 	= markup1(synopsisSection);
-	   description	= markup1(sections["Description"]);
-	   examples 	= markup1(sections["Examples"]);
-	   benefits 	= markup1(sections["Benefits"]);
-	   pittfalls 	= markup1(sections["Pittfalls"]);
-	   questions 	= getAllQuestions(name, sections["Questions"]);
+	   syntaxSection 	= sections["Syntax"] ? [];
+	   typesSection 	= sections["Types"] ? [];
+	   functionSection 	= sections["Function"] ? [];
+	   synopsisSection 	= sections["Synopsis"] ? [];
+	   searchTerms  	=  searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
+       syntaxSynopsis   = markup1(syntaxSection);
+       typesSynopsis    = markup1(typesSection);
+       functionSynopsis = markup1(functionSection);
+	   synopsis 		= markup1(synopsisSection);
+	   description		= markup1(sections["Description"]);
+	   examples 		= markup1(sections["Examples"]);
+	   benefits 		= markup1(sections["Benefits"]);
+	   pittfalls 		= markup1(sections["Pittfalls"]);
+	   questions 		= getAllQuestions(name, sections["Questions"]);
 	   
-	   //related 		= getPath(sections["Related"]);
 	   related = getAndClearRelated();
 	   
-	   Concept C = concept(name, file, optDetails, optCategories, related, synopsis, searchTerms, description, examples, benefits, pittfalls, questions);
+	   Concept C = concept(name, file, optDetails, optCategories, related, synopsis,
+	                       syntaxSynopsis, typesSynopsis, functionSynopsis, 
+	                       searchTerms, description, examples, benefits, pittfalls, questions);
 	   binFile = file[extension = compiledExtension];
 	   println("binFile=<binFile>");
 	   writeTextValueFile(binFile, C);
@@ -133,7 +148,8 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	    throw ConceptError("<fullName>: Missing section \"<e>\"");
 	  catch IOError(e):
 	    throw ConceptError("<fullName>: <e>");
-	throw ConceptError("<fullName>: uncaught error");
+	  catch e: 
+	    throw ConceptError("<fullName>: uncaught exception <e>");
 }
 
 // Extract the path named from a Related section
@@ -143,8 +159,8 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 
 // Extract categories
 
-public set[str] getNames(list[str] lines){
-   return { cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line };
+public list[str] getNames(list[str] lines){
+   return [ cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line ];
 }
 
 // Extract specific question type from Questions section
@@ -194,7 +210,8 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           if(size(good_answers) == 0 || size(bad_answers) == 0)
           	throw ConceptError("ChoiceQuestion with insufficient or malformed answers");
           	
-          choices = [good(g) | g <- good_answers] + [bad(b) | b <- bad_answers];
+          choices = [good(g) | str g <- good_answers] + [bad(b) | str b <- bad_answers];
+      
           questions += choiceQuestion("<nquestions>", markup1([question]), choices);
           nquestions += 1;
        }
@@ -525,7 +542,7 @@ public list[loc] crawl(loc dir, str suffix){
 // --- Fo testing purposes:
 
 public Concept tst(){
-   return parseConcept(|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Test/Test.concept|, "/org/rascalmpl/library/experiments/RascalTutor/Courses/");
+   return parseConcept(|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Expressions/Values/Set/Intersection/Intersection.concept|, "/org/rascalmpl/library/experiments/RascalTutor/Courses/");
 }
 
 public Course cc(){

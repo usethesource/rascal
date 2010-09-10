@@ -4,17 +4,13 @@ Details:
 
 Categories:
 
-Related:
+Syntax: `$Pat$ !:= $Exp$`
 
-Synopsis:
-
-* Syntax: `$Pat$ !:= $Exp$`
-* Type:
-
+Types:
 
 | `$Pat$`  | `$Exp$` |`$Pat$ !:= $Exp$`|
-|:-------|:-------|:--------------|
-| Pattern  | `value`    | `bool`                   |
+|:---------|:--------|:----------------|
+| Pattern  | `value` | `bool`          |
 
 Description:
 

@@ -23,13 +23,16 @@ All operators are summarized in the following table. They are listed from highes
 
 <tr><th align="left">Operator</th>	                   <th align="left">See</th>	               <th align="left">Short Description</th></tr>
   
-<tr><td>`$Exp$ . $Name$`</td>	                   <td>[FieldSelection]</td>                 <td>Select named field from structured value</td></tr>
+<tr><td>`$Exp$ . $Name$`</td>	                   <td>[Tuple/FieldSelection],
+                                                       [Relation/FieldSelection]</td>                 <td>Select named field from structured value</td></tr>
 
 <tr><td>`$Exp_1$ [ $Name$ = $Exp_2$ ]`</td>     <td>[FieldAssignment]</td>             <td>Change value of named field of structured value</tr>
 
 <tr><td>`$Exp$ < $field_1$, ... >`</td>               <td>[FieldProjection]</td>                <td>Select fields from relation or structured value</td></tr>
 
-<tr><td>`$Exp_1$ [ $Exp_2$ , $Exp_3$, .... ]`</td> <td>[Subscription]</td>                    <td>Retrieve values for given index from list, tuple or relation.</td></tr>
+<tr><td>`$Exp_1$ [ $Exp_2$ , $Exp_3$, .... ]`</td> <td>[List/Subscription], 
+                                                       [Tuple/Subscription],
+                                                       [Relation/Subscription]</td>               <td>Retrieve values for given index from list, tuple or relation.</td></tr>
 
 <tr><td> `$Exp$?`</td>                                        <td>[Boolean/IsDefined]</td>          <td>Test whether an expression has a defined value</td></tr>
 
@@ -105,23 +108,23 @@ All operators are summarized in the following table. They are listed from highes
                                                                                             [Relation/notin]</td>                   <td>Negated membership test for element in  list, map, set or relation</td></tr>
 
 <tr><td>`$Exp_1$ <= $Exp_2$`</td>	                   <td>[Integer/LessThanOrEqual], [Real/LessThanOrEqual],[Number/LessThanOrEqual],
-                                                                                              [String/LessThanOrEqual], [Location/LessThanOrEqual], [DateTime/LessThanOrEqual],
-                                                                                              [List/SubList], [Set/SubSet], [Map/SubSet], [Relation/Subset]</td>
+                                                           [String/LessThanOrEqual], [Location/LessThanOrEqual], [DateTime/LessThanOrEqual],
+                                                           [List/SubList], [Set/SubSet], [Map/SubSet], [Relation/Subset]</td>
                                                                                                                                               <td>Less than or equal on all values</td></tr>
 
 <tr><td>`$Exp_1$ < $Exp_2$`</td>	                    <td>[Integer/LessThan], [Real/LessThan],[Number/LessThan],
-                                                                                              [String/LessThan], [Location/LessThan], [DateTime/LessThan],
-                                                                                              [List/StrictSubList], [Set/StrictSubSet], [Map/StrictSubSet], [Relation/StrictSubset]</td>
+                                                            [String/LessThan], [Location/LessThan], [DateTime/LessThan],
+                                                            [List/StrictSubList], [Set/StrictSubSet], [Map/StrictSubSet], [Relation/StrictSubset]</td>
                                                                                                                                               <td>Less than on all values</td></tr>
 
 <tr><td>`$Exp_1$ >= $Exp_2$`</td>	                    <td>[Integer/GreaterThanOrEqual], [Real/GreaterThanOrEqual],[Number/GreaterThanOrEqual],
-                                                                                              [String/GreaterThanOrEqual], [Location/GreaterThanOrEqual], [DateTime/GreaterThanOrEqual],
+                                                            [String/GreaterThanOrEqual], [Location/GreaterThanOrEqual], [DateTime/GreaterThanOrEqual],
                                                                                               [List/SuperList], [Set/SuperSet], [Map/SuperSet], [Relation/Superset]</td>
                                                                                                                                               <td>Greater than or equal on all values</td></tr>
 
 <tr><td>`$Exp_1$ > $Exp_2$`</td>	                   <td>[Integer/GreaterThan], [Real/GreaterThan],[Number/GreaterThan],
-                                                                                              [String/GreaterThan], [Location/GreaterThan], [DateTime/GreaterThan],
-                                                                                              [List/StrictSuperList], [Set/StrictSuperSet], [Map/StrictSuperSet], [Relation/StrictSuperset]</td>
+                                                           [String/GreaterThan], [Location/GreaterThan], [DateTime/GreaterThan],
+                                                           [List/StrictSuperList], [Set/StrictSuperSet], [Map/StrictSuperSet], [Relation/StrictSuperset]</td>
                                                                                                                                               <td>Greater than on all values.</td></tr>
 
 <tr><td> `$Pat$ := $Exp$`</td>                           <td>[Boolean/Match]</td>                             <td>Pattern matches value of expression</td></tr>
@@ -143,7 +146,7 @@ All operators are summarized in the following table. They are listed from highes
 <tr><td>`$Exp_1$ ? $Exp_2$`</td>                     <td>[Boolean/IfDefinedElse]</td>        <td>Value of expression when it is defined, 
                                                                                                                                                         otherwise alternative value</td></tr>
 
-<tr><td>`$Exp_1$ ? $Exp_2$ : $Exp_3$`</td>          <td>ConditionalExpressions</td> <td>Conditional expression for all types</td></tr>
+<tr><td>`$Exp_1$ ? $Exp_2$ : $Exp_3$`</td>          <td>[Value/Conditional]</td> <td>Conditional expression for all types</td></tr>
 
 <tr><td> `$Exp_1$ ==> $Exp_2$`</td>                  <td>Implication</td>                    <td>Implication on Boolean values</td></tr>
 

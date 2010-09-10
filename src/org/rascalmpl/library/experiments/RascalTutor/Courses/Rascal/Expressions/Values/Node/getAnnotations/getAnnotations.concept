@@ -1,0 +1,35 @@
+Name: getAnnotations
+
+Details:
+
+Categories: Library
+
+Syntax: `map[str,value] getAnnotations(node x)`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Retrieve the annnotations of a node value as a map.
+
+Examples:
+<warning> anno declaration on node is broken </warning>
+<screen>
+import Node;
+// Declare an string-valued annotation on nodes, named color:
+anno str node @ color;
+// Create a node with two annotations:
+N = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+// and retrieve those annotations:
+getAnnotations(N);
+N@color;
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

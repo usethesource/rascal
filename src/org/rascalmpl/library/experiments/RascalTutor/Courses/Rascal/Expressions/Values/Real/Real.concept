@@ -2,7 +2,7 @@ Name:Real
 
 Categories: Language
 
-Synopsis: real
+Types: `real`
 
 Description:
 The real values are represented by the type <tt>real</tt> and are written as usual in most programming languages.

@@ -4,8 +4,8 @@ Categories: Language
 
 Synopsis:
 
-* Syntax: `true` and `false`
-* Type: `bool`
+Syntax: `true`, `false`
+Types: `bool`
 
 Description:
 The Booleans are represented by the type `bool` which has two values: `true` and `false`.

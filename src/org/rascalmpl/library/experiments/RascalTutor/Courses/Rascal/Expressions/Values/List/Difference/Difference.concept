@@ -1,0 +1,28 @@
+Name: Difference
+
+Syntax: `$Exp_1$ - $Exp_2$`
+
+Types:
+
+| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ - $Exp_2$`       |
+|:--------------|:---------------|:--------------------------|
+| `list[$T_1$]` |  `list[$T_2$]` | `list[lub($T_1$,$T_2$)]`  |
+| `list[$T_1$]` |  `$T_2$`       | `list[lub($T_1$,$T_2$)]`  |
+| `$T_1$`       |  `list[$T_2$]` | `list[lub($T_1$,$T_2$)]`  |
+
+Description:
+If both $Exp_1$ and $Exp_2$ have a set as value, the result is the difference of these two list values. If one of $Exp_1$ or $Exp_2$ does not have a list as value, it is first converted to a list before the difference is computed.
+
+Examples:
+<screen>
+[1, 2, 3, 4] - [1, 2, 3];
+[1, 2, 3, 4] - [3];
+[1, 2, 3, 4] - 3;
+[1, 2, 3, 4] - [5, 6, 7];
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

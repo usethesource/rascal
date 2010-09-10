@@ -1,0 +1,19 @@
+Name:max
+
+Categories: Library
+
+Function: `&T max(list[&T] s)`
+
+Description: Returns the largest element from a list.
+
+Examples:
+<screen>
+import List;
+max([1, 3, 5, 2, 4]);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
