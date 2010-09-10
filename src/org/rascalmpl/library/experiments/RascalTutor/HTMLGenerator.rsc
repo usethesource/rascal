@@ -412,14 +412,20 @@ public set[str] searchTermsCode(str line){
   }
   return terms;
 }
-public set[str]  searchTermsSynopsis(list[str] lines){
+
+public set[str] searchTermsSynopsis(list[str] syn, list[str] tp, list[str] fn, list[str] synop){
+  return searchTerms(syn) + (searchTerms(tp)-  {"[", "]", ","});
+         // TODO what do we do with searchTerms(fn), searchTerms(synop)?
+}
+
+private set[str]  searchTerms(list[str] lines){
    set[str] terms = {};
-   for(int k <- [0 .. size(lines) - 1])
+   n = size(lines);
+   if(n == 0)
+     return terms;
+   for(int k <- [0 .. n - 1])
        visit(lines[k]){
-         case /Syntax:[^`]*`<syn:[^`]*>`$/: {terms += searchTermsCode(syn); insert ""; }
-         
-         case /Type:[^`]*`<tp:[^`]*>`$/: {terms += searchTermsCode(tp) - {"[", "]", ","}; insert "";}
-         //TODO: more than one ` ` section
+         case /`<syn:[^`]*>`/: {terms += searchTermsCode(syn); insert ""; }
        };
     return terms;
 }

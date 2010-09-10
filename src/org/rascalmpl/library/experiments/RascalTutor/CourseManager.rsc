@@ -95,10 +95,10 @@ public str prelude(){
 public str showConcept(ConceptName cn){
  
   initialize();
-  //println("showConcept(<cn>), <concepts>");
+  println("showConcept(<cn>), <concepts>");
   try {
     C = concepts[cn];
-    //println("concept = <C>");
+    println("concept = <C>");
     return showConcept(cn, C);
    } catch NoSuchKey(value key): {
      options = [ name | name <- conceptNames, endsWith(name, "/" + cn)];
@@ -125,6 +125,9 @@ public str showConcept(ConceptName cn, Concept C){
   	  section("Name", showConceptPath(cn)) + navigationMenu(cn) + categoryMenu(cn) +
   	  searchBox(cn) + 
   	  ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
+      section("Syntax", C.syntaxSynopsis) +
+      section("Types", C.typesSynopsis) +
+      section("Function", C.functionSynopsis) +
   	  section("Synopsis", C.synopsis) +
   	  section("Description", C.description) +
   	  section("Examples", C.examples) +
@@ -191,6 +194,7 @@ list[ConceptName] children(ConceptName cn){
        return res;
    } catch NoSuchKey(k): {
      println("*** children(<cn>): no such key <k>");
+     return [];
    }
 }
 
@@ -406,7 +410,10 @@ public str search(ConceptName cn, str term){
   
   if(size(enabledResults) == 1)
     return showConcept(allResults[0]);
-  
+    
+  back = "\<a href=\"show?concept=<cn>\"\>" +
+                     "\<img width=\"30\" height=\"30\" src=\"images/back.png\"\>" +
+           "\</a\>";
   if(size(allResults) == 0)
     output +=  h1("I found no results found for <i(term)>") + categoryMenu(cn) + searchBox(cn);
   else {
@@ -420,7 +427,7 @@ public str search(ConceptName cn, str term){
     }
   }
   
-  return html(head(title("Search results for <term>") + prelude()), body(output));
+  return html(head(title("Search results for <term>") + prelude()), body(back + output + back));
 }
 
 // Present a Question

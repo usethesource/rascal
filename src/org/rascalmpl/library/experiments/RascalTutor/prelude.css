@@ -46,6 +46,9 @@ th, td {
 }
 #Details { padding: 0.5em 0em; }
 #Synopsis{ padding: 0.5em 0em; }
+#Syntax{ padding: 0.5em 0em; }
+#Types{ padding: 0.5em 0em; }
+#Function{ padding: 0.5em 0em; }
 #Description { padding: 0.5em 0em; }
 #Examples{ padding: 0.5em 0em; }
 #Benefits{ padding: 0.5em 0em; }

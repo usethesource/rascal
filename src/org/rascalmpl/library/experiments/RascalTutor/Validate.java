@@ -3,8 +3,6 @@ package org.rascalmpl.library.experiments.RascalTutor;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.Enumeration;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

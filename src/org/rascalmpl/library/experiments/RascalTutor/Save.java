@@ -36,6 +36,6 @@ public class Save extends TutorHttpServlet {
 		else
 			out.println("<responses><response id=\"error\">" + escapeForHtml(resp) + "</response></responses>");
 		out.close();
-		System.err.println("Response = " + resp);
+		//System.err.println("Response = " + resp);
 	}
 }
