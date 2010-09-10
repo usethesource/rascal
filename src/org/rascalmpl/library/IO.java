@@ -119,7 +119,11 @@ public class IO{
 	}
 	
 	public IValue lastModified(ISourceLocation sloc, IEvaluatorContext ctx) {
-		return values.datetime(ctx.getResolverRegistry().lastModified(sloc.getURI()));
+		try {
+			return values.datetime(ctx.getResolverRegistry().lastModified(sloc.getURI()));
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+		}
 	}
 	
 	public IValue isDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
@@ -137,12 +141,16 @@ public class IO{
 	}
 	
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
-		java.lang.String [] entries = ctx.getResolverRegistry().listEntries(sloc.getURI());
-		IListWriter w = values.listWriter(types.stringType());
-		for(java.lang.String entry : entries){
-			w.append(values.string(entry));
-		}
-		return w.done();
+		try {
+			java.lang.String [] entries = ctx.getResolverRegistry().listEntries(sloc.getURI());
+			IListWriter w = values.listWriter(types.stringType());
+			for(java.lang.String entry : entries){
+				w.append(values.string(entry));
+			}
+			return w.done();
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+		} 
 	}
 	
 	

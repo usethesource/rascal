@@ -23,23 +23,18 @@ public Grammar computeLookaheads(Grammar G) {
   return visit(G) {
     case Production p:prod([], Symbol rhs, _) => lookahead(rhs, fol[rhs], p)
     case Production p:prod(list[Symbol] lhs, Symbol rhs, _) : {
-      // we start with the first set of the leftmost symbol
       lhs = removeLabels(lhs);
-      <h,lhs> = headTail(lhs);
-      classes = fst[h];
-
-      // add the first of all symbols from left to right until one does not contain empty
-      while (lhs != [], empty() in fst[h]) {
-        classes += fst[h];
-        <h,lhs> = headTail(lhs);
-      }
-      // if all symbols had empty in the first, add the follow of the rhs
-      if (lhs == [], empty() in fst[h]) {
-        classes += fol[rhs];
-      }
+      
+	  classes = first(lhs, fst);
+	  
+	  if (lhs == [] || empty() in classes)
+	    classes += fol[rhs];
+      
+      classes -= empty();
+      
       // merge the character classes and construct a production wrapper
       // TODO: should we really remove empty here?
-      insert lookahead(rhs, mergeCC(classes - {empty()}), p);        
+      insert lookahead(rhs, mergeCC(classes), p);        
     }
   }
 }
@@ -193,12 +188,11 @@ public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
   for (Symbol S <- symbols) {
     f = FIRST[S];
     if (empty() notin f) {
-      return result + f;
+      return result - empty() + f;
     } else {
       result += f;
     }
   }
-  
   return result;
 }
 
@@ -212,7 +206,7 @@ public SymbolUse first(Grammar G){
 	        
   solve (FIRST) {
     for (S <- defSymbols, prod(lhs, S, _) <- G.productions) {
-      FIRST[S] += isEmpty(lhs) ? {empty()} : first(lhs, FIRST) - {empty()};
+      FIRST[S] += isEmpty(lhs) ? {empty()} : first(lhs, FIRST); //- {empty()};
     }
   }
 		
@@ -221,7 +215,7 @@ public SymbolUse first(Grammar G){
 
 public SymbolUse follow(Grammar G,  SymbolUse FIRST){
    defSymbols = definedSymbols(G);
-    map[Symbol, set[Symbol]] FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
+   SymbolUse FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
   
    solve (FOLLOW) {
      for (Production p <- G.productions, [_*, current, symbols*] := p.lhs) {
@@ -267,6 +261,26 @@ private set[Symbol] mergeCC(set[Symbol] su) {
 
 // -------- Examples and tests -------------------
 
+// Commented out to optimize load time...
+
+// public Grammar G1 = 
+// simple({sort("Module")}, {
+  // prod([sort("Modifier"),\layouts("Module"),\iter-seps(sort("Modifier"),[\layouts("Module")])],\iter-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
+  // prod([sort("Modifier")],\iter-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
+  // prod([\iter-seps(sort("Modifier"),[\layouts("Module")])],\iter-star-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
+  // prod([],\iter-star-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
+  // prod([\iter-star-seps(sort("Modifier"),[\layouts("Module")]),\layouts("Module"),lit("x")],sort("Module"),\no-attrs()),
+  // prod([lit("@")],sort("Modifier"),\no-attrs()),
+  // prod([\char-class([range(64,64)])],lit("@"),\no-attrs()),
+  // prod([\char-class([range(120,120)])],lit("x"),\no-attrs()),
+  // prod([\iter-star(sort("WS"))],\layouts("Module"),\no-attrs()),
+  // prod([\char-class([range(32,32)])],sort("WS"),\no-attrs()),
+  // prod([],\iter-star(sort("WS")),\no-attrs()),
+  // prod([\iter(sort("WS"))],\iter-star(sort("WS")),\no-attrs()),
+  // prod([sort("WS")],\iter(sort("WS")),\no-attrs()),
+  // prod([sort("WS"),\iter(sort("WS"))],\iter(sort("WS")),\no-attrs())
+// });
+                    
 /*
 public Grammar G0 = grammar({sort("S")},
 {

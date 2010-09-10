@@ -229,7 +229,7 @@ str generateClassConditional(set[Symbol] classes) {
 str generateRangeConditional(CharRange r) {
   switch (r) {
     case single(i) : return "(next == <i>)";
-    case range(1,65535) : return "(true /*every char*/)";
+    case range(0,65535) : return "(true /*every char*/)";
     case range(i, i) : return "(next == <i>)";
     case range(i, j) : return "((next \>= <i>) && (next \<= <j>))";
     default: throw "unexpected range type: <r>";
@@ -441,15 +441,15 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         case \label(_,s) : 
             return sym2newitem(grammar, s,id); // ignore labels
         case \sort(n) : 
-            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\" <generateRestrictions(grammar, sym, id)>)", itemId>;
+            return <"new NonTerminalStackNode(<itemId> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;
         case \layouts(_) :
-            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\" <generateRestrictions(grammar, sym, id)>)", itemId>;  
+            return <"new NonTerminalStackNode(<itemId> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;  
         case \parameterized-sort(n,args): 
-            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\" <generateRestrictions(grammar, sym, id)>)", itemId>;
+            return <"new NonTerminalStackNode(<itemId> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;
         case \parameter(n) :
             throw "all parameters should have been instantiated by now";
         case \start(s) : 
-            return <"new NonTerminalStackNode(<itemId>, \"<sym2name(sym)>\" <generateRestrictions(grammar, sym, id)>)", itemId>;
+            return <"new NonTerminalStackNode(<itemId> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;
         case \lit(l) : 
             if (/p:prod(list[Symbol] chars,sym,_) := grammar.rules[sym])
                 return <"new LiteralStackNode(<itemId>, <value2id(p)> <generateRestrictions(grammar, sym, id)>, new char[] {<literals2ints(chars)>})",itemId>;
