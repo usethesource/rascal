@@ -25,7 +25,7 @@ public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;
 	private final boolean isVoidFunction;
 	private final Stack<Accumulator> accumulators;
-			
+
 	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators, boolean isStatic) {
 		this(func, eval,

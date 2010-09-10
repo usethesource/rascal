@@ -43,7 +43,7 @@ public class URIResolverRegistry {
 		return resolver.isDirectory(uri);
 	}
 	
-	public boolean mkDirectory(URI uri) {
+	public boolean mkDirectory(URI uri) throws IOException {
 		IURIOutputStreamResolver resolver = outputResolvers.get(uri.getScheme());
 		
 		if (resolver == null) {
@@ -61,21 +61,20 @@ public class URIResolverRegistry {
 		return resolver.isFile(uri);
 	}
 
-	public long lastModified(URI uri) {
+	public long lastModified(URI uri) throws IOException {
 		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
 		
 		if (resolver == null) {
-			return 0L;
+			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 		return resolver.lastModified(uri);
 	}
 
-	public String[] listEntries(URI uri) {
+	public String[] listEntries(URI uri) throws IOException {
 		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
-		String[] ls = {};
 		
 		if (resolver == null) {
-			return ls;
+			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 		return resolver.listEntries(uri);
 	}

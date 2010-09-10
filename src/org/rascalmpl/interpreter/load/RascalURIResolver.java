@@ -11,8 +11,10 @@ import java.util.List;
 
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
+import org.rascalmpl.uri.UnsupportedSchemeException;
 
 /**
  * This class implements the rascal:// scheme. If the path component of a given URI represents a module name, then
@@ -244,7 +246,7 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 		}
 	}
 	
-	public long lastModified(URI uri) {
+	public long lastModified(URI uri) throws IOException {
 		try {
 			if (uri.getScheme().equals(scheme())) {
 				String path = getPath(uri);
@@ -256,14 +258,14 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 					}
 				}
 			}
-			return 0L;
+			throw new UnsupportedSchemeException(uri.toString());
 		} 
 		catch (URISyntaxException e) {
-			return 0L;
+			throw new BadURIException(e);
 		}
 	}
 	
-	public String[] listEntries(URI uri) {
+	public String[] listEntries(URI uri) throws IOException {
 		java.lang.String[] ls = {};
 		try {
 			if (uri.getScheme().equals(scheme())) {
@@ -276,14 +278,14 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 					}
 				}
 			}
-			return ls;
+			throw new UnsupportedSchemeException(uri.toString());
 		} 
 		catch (URISyntaxException e) {
-			return ls;
+			throw new BadURIException(e);
 		}
 	}
 
-	public boolean mkDirectory(URI uri) {
+	public boolean mkDirectory(URI uri) throws IOException {
 		try {
 			if (uri.getScheme().equals(scheme())) {
 				String path = getPath(uri);
