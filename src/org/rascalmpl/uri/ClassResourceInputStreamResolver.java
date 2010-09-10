@@ -11,8 +11,8 @@ import org.joda.time.DateTime;
 
 public class ClassResourceInputStreamResolver implements
 		IURIInputStreamResolver {
-	private final Class<?> clazz;
-	private final String scheme;
+	protected final Class<?> clazz;
+	protected final String scheme;
 
 	public ClassResourceInputStreamResolver(String scheme, Class<?> clazz) {
 		this.clazz = clazz;
