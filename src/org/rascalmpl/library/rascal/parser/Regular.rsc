@@ -3,13 +3,14 @@ module rascal::parser::Regular
 import rascal::parser::Grammar;
 import ParseTree;
 import Set;
+import IO;
 
 public Grammar expandRegularSymbols(Grammar G) {
   for (grammar(_,set[Production] _) := G, regular(rhs,_) <- G.productions) {
     G.productions += expand(rhs);
   }
   for (grammar(_,map[Symbol,set[Production]] _) := G, Symbol rhs <- G.rules) {
-    if ({regular(rhs,_)} := G.rules[rhs]) {
+    if ({regular(rhs,_)} := G.rules[rhs]) { 
       set[Production] init = {};
       
       for (p <- expand(rhs)) {
