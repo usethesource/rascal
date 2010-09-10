@@ -56,8 +56,6 @@ All operators are summarized in the following table. They are listed from highes
                                                                                                                                                          return their composition. Note: the letter "o" is thus a
                                                                                                                                                           keyword!</td></tr>
 
-<tr><td>`$Exp_1$ x $Exp_2$`</td>	                   <td>CarthesianProduct</td>	        <td>Carthesian product of two relations</td></tr>
-
 
 <tr><td>`$Exp_1$ / $Exp_2$`</td>	                   <td>[Integer/Division],
                                                                                                 [Real/Division],
@@ -70,12 +68,13 @@ All operators are summarized in the following table. They are listed from highes
                                                                                                  [Number/Multiplication],
                                                                                                  [List/Product],
                                                                                                  [Set/Product],
-                                                                                                 [Relation/Product]</td>	<td>Multiply integers, reals or number; product of list, set, or relation</td></tr>
+                                                                                                 [Relation/CarthesianProduct]
+                                                                                                 </td>	<td>Multiply integers, reals or number; product of list, set, or relation</td></tr>
 
 <tr><td>`$Exp_1$ & $Exp_2$`</td>                        <td>[List/Intersection],
                                                                                                   [Set/Intersection],
                                                                                                   [Map/Intersection],
-                                                                                                  [Relation/Intersection]</td><td>Intersection of list, set, map or relation</td></tr>
+                                                                                                  </td><td>Intersection of list, set, map or relation</td></tr>
 
 <tr><td>`$Exp_1$ + $Exp_2$`</td>	                   <td>[Integer/Addition],
                                                                                                  [Real/Addition],
@@ -84,8 +83,8 @@ All operators are summarized in the following table. They are listed from highes
                                                                                                  [List/Concatenate],
                                                                                                  [Tuple/Concatenate],
                                                                                                  [Set/Union],
-                                                                                                 [Map/Union],
-                                                                                                 [Relation/Union]</td>           <td> Add integer, real or number; concatenate string, list or tuple; 
+                                                                                                 [Map/Union]
+                                                                                                 </td>           <td> Add integer, real or number; concatenate string, list or tuple; 
                                                                                                                                                              union on set, map, or relation</td></tr>
 
 <tr><td>`$Exp_1$ - $Exp_2$`</td>                         <td>[Integer/Subtraction],
@@ -96,30 +95,30 @@ All operators are summarized in the following table. They are listed from highes
                                                                                                 
                                                                                                  [Set/Difference],
                                                                                                  [Map/Difference],
-                                                                                                 [Relation/Difference]</td>	<td>Subtract integer, real or number; difference of list, set, map,
+                                                                                                 </td>	<td>Subtract integer, real or number; difference of list, set, map,
                                                                                                                                                                          or relation</td></tr>
 
 <tr><td>`$Exp_1$ join $Exp_2$`</td>	                   <td>[Relation/Join]</td>                                        <td>Join on relation</td></tr>
 
 <tr><td>`$Exp_1$ in $Exp_2$`</td>	                   <td>[List/in], [Set/in], [Map/in],
-                                                                                            [Relation/in]</td>                            <td>Membership test for element in  list, map, set or relation</td></tr>
+                                                       </td>                            <td>Membership test for element in  list, map, set or relation</td></tr>
 
 <tr><td>`$Exp_1$ notin $Exp_2$`</td>	           <td>[List/notin], [Set/notin], [Map/notin],
-                                                                                            [Relation/notin]</td>                   <td>Negated membership test for element in  list, map, set or relation</td></tr>
+                                                                     </td>                   <td>Negated membership test for element in  list, map, set or relation</td></tr>
 
 <tr><td>`$Exp_1$ <= $Exp_2$`</td>	                   <td>[Integer/LessThanOrEqual], [Real/LessThanOrEqual],[Number/LessThanOrEqual],
                                                            [String/LessThanOrEqual], [Location/LessThanOrEqual], [DateTime/LessThanOrEqual],
-                                                           [List/SubList], [Set/SubSet], [Map/SubSet], [Relation/Subset]</td>
+                                                           [List/SubList], [Set/SubSet], [Map/SubSet]</td>
                                                                                                                                               <td>Less than or equal on all values</td></tr>
 
 <tr><td>`$Exp_1$ < $Exp_2$`</td>	                    <td>[Integer/LessThan], [Real/LessThan],[Number/LessThan],
                                                             [String/LessThan], [Location/LessThan], [DateTime/LessThan],
-                                                            [List/StrictSubList], [Set/StrictSubSet], [Map/StrictSubSet], [Relation/StrictSubset]</td>
+                                                            [List/StrictSubList], [Set/StrictSubSet], [Map/StrictSubSet]</td>
                                                                                                                                               <td>Less than on all values</td></tr>
 
 <tr><td>`$Exp_1$ >= $Exp_2$`</td>	                    <td>[Integer/GreaterThanOrEqual], [Real/GreaterThanOrEqual],[Number/GreaterThanOrEqual],
                                                             [String/GreaterThanOrEqual], [Location/GreaterThanOrEqual], [DateTime/GreaterThanOrEqual],
-                                                                                              [List/SuperList], [Set/SuperSet], [Map/SuperSet], [Relation/Superset]</td>
+                                                            [List/SuperList], [Set/SuperSet], [Map/SuperSet]</td>
                                                                                                                                               <td>Greater than or equal on all values</td></tr>
 
 <tr><td>`$Exp_1$ > $Exp_2$`</td>	                   <td>[Integer/GreaterThan], [Real/GreaterThan],[Number/GreaterThan],
@@ -148,13 +147,13 @@ All operators are summarized in the following table. They are listed from highes
 
 <tr><td>`$Exp_1$ ? $Exp_2$ : $Exp_3$`</td>          <td>[Value/Conditional]</td> <td>Conditional expression for all types</td></tr>
 
-<tr><td> `$Exp_1$ ==> $Exp_2$`</td>                  <td>Implication</td>                    <td>Implication on Boolean values</td></tr>
+<tr><td> `$Exp_1$ ==> $Exp_2$`</td>                  <td>[Boolean/Implication]</td>                    <td>Implication on Boolean values</td></tr>
 
-<tr><td> `$Exp_1$ <==> $Exp_2$`</td>               <td>Equivalence</td>                   <td>Equivalence on Boolean values</td></tr>
+<tr><td> `$Exp_1$ <==> $Exp_2$`</td>               <td>[Boolean/Equivalence]</td>                   <td>Equivalence on Boolean values</td></tr>
 
-<tr><td> `$Exp_1$ && $Exp_2$`</td>                     <td>And</td>                                <td>And on Boolean values</td></tr>
+<tr><td> `$Exp_1$ && $Exp_2$`</td>                     <td>[Boolean/And]</td>                                <td>And on Boolean values</td></tr>
 
-<tr><td> `$Exp_1$ || $Exp_2$`</td>                       <td>Or</td>                                    <td>Or on Boolean values</td></tr>
+<tr><td> `$Exp_1$ || $Exp_2$`</td>                       <td>[Boolean/Or]</td>                                    <td>Or on Boolean values</td></tr>
 
 </table>
 
