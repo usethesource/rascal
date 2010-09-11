@@ -34,15 +34,6 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		this.name = name;
 	}
 	
-	public boolean isFinal() {
-		for (AbstractFunction f : candidates) {
-			if (!f.isFinal() || f.getName() == null) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
 	public OverloadedFunctionResult(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
 		this.candidates = new ArrayList<AbstractFunction>(1);

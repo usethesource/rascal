@@ -250,12 +250,15 @@ public AddedItemPair addSTItemWithParent(STItem si, STItemId parentId, loc l, Sy
 	STItemMap newSIMap = symbolTable.scopeItemMap + (newItemId : si);
 	ItemLocationRel newILRel = symbolTable.itemLocations + <l,symbolTable.nextScopeId>;
 	if (itemHasName(si)) {
-		ScopeNamesRel newScopeNamesRel = symbolTable.scopeNames + <parentId, getItemName(si), symbolTable.nextScopeId>;
-		// Special case -- if the item is a function or a module, it should also be added into the scope name rel of the
-		// parent of the current layer. This is because it is (for instance) hanging below a function layer, but its name
-		// is visible at the same level -- essentially, it provides a name for the function layer.
+	        ScopeNamesRel newScopeNamesRel = { };
+		// For functions and modules, we add the name to the parent layer, since (at least in the case of functions)
+		// we want to make sure that the name is only visible at the actual defining level of scope. If we define
+		// it inside the function layer we block calls to overloads with the same name, since we will always find
+		// this one first and won't continue up the symbol table hierarchy looking for others.
 		if (FunctionItem(n,_,_,_,_,_) := si || ModuleItem(n,_) := si) {
-		   newScopeNamesRel = newScopeNamesRel + < symbolTable.scopeItemMap[parentId].parentId, n, symbolTable.nextScopeId>;
+	                newScopeNamesRel = symbolTable.scopeNames + < symbolTable.scopeItemMap[parentId].parentId, n, symbolTable.nextScopeId>;
+		} else {
+		        newScopeNamesRel = symbolTable.scopeNames + <parentId, getItemName(si), symbolTable.nextScopeId>;
 		}
 		symbolTable = (((symbolTable[nextScopeId = symbolTable.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel])[scopeRel = newScopeRel][scopeNames = newScopeNamesRel];
 	} else {
@@ -408,11 +411,12 @@ public set[STItemId] getItemsForNameWBound(SymbolTable symbolTable, STItemId cur
 
 	// Now, filter it down based on the namespaces we are looking for
 	foundItems = { f | ns <- containingNamespaces, f <- filterNamesForNamespace(symbolTable, foundItems, ns) };
-		
+
 	// If no names were found at this level, step back up one level to find them
 	// in the parent scope. This will recurse until either the names are found
 	// or the top level is reached. If this is a bounded search, don't pass through 
-	// function boundaries.
+	// function and/or module boundaries.
+
 	if (size(foundItems) == 0) {
 	   STItem cl = symbolTable.scopeItemMap[currentScopeId];
 	   if (ModuleLayer(_,pid) := cl) {
@@ -545,112 +549,159 @@ public list[RNamedType] markUserTypesForNamedTypeList(list[RNamedType] ntl, Symb
 }
 
 public RNamedType markUserTypesForNamedType(RNamedType nt, SymbolTable symbolTable, STItemId currentScope) {
-	switch(nt) {
-		case RUnnamedType(rt) : return RUnnamedType(markUserTypes(rt,symbolTable,currentScope));
-		case RNamedType(rt,tn) : return RNamedType(markUserTypes(rt,symbolTable,currentScope),tn);
+        if (RUnnamedType(rt) := nt) {
+	        return RUnnamedType(markUserTypes(rt,symbolTable,currentScope));
+	} else if (RNamedType(rt,tn) := nt) {
+	        return RNamedType(markUserTypes(rt, symbolTable, currentScope), tn);
+	} else {
+	        throw "markUserTypesForNamedType given unexpected type <nt>";
 	}
 }
 
-public RTypeVar markUserTypesForTypeVar(RTypeVar tv, SymbolTable symbolTable, STItemId currentScope) {
-	if (RBoundTypeVar(vn,tb) := tv)
-		return RBoundTypeVar(vn,markUserTypes(tb,symbolTable,currentScope));
-	return tv;
-}
-
-// Aliases are generally given just as User Types (i.e., type names); here we want
-// to identify that these names are the names of aliases, using an alias type to indicate
-// the actual type being pointed to. Since aliases are scoped, at least at the module level,
-// this needs to happen as we go, not just at the end. 
-
+//
+// Aliases and ADTs are given just as names, but we want to make sure we mark them as having the proper
+// type. So, recurse over the structure of the type, expanding out any user names that we find. We could
+// find them anywhere -- e.g., as part of the bound on a type variable, as part of the parameter on an
+// alias or ADT, etc, so we need to check through the entire type structure.
+//
 // Note that we don't need to handle all types here; some of the types, such as statement 
 // types, are just used internally, and at the point they are encountered aliases should 
 // already be marked. This is really just needed on types that can be created from converting 
 // the syntactic types we get in Rascal (i.e., actual types that could be given on variables,
 // generated from expressions, etc.
+//
+// Note also that we use matching here instead of the isAliasType, isIntType, etc functions.
+// This is because this is faster. However, we need to maintain the ordering to make sure
+// we handle aliases and type vars as aliases and type vars, not as their underlying aliased
+// or bound types.
+//
 public RType markUserTypes(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-	switch(rt) {
-		// First, types we don't expand; include these as well, so we can catch unhandled
-		// cases, since we shouldn't have any.
-		case RBoolType() : return rt;
-		case RIntType() : return rt;
-		case RRealType() : return rt;
-		case RNumType() : return rt;
-		case RStrType() : return rt;
-		case RValueType() : return rt;
-		case RNodeType() : return rt;
-		case RVoidType() : return rt;
-		case RLocType() : return rt;
-		case RDateTimeType() : return rt;
-		case RInferredType(_) : return rt; // May be assigned to a name
+        RType res = rt;
 
-		// Now, types we do expand. These are just the types we can find "in the wild", i.e.,
-		// not types we generate in the checker like RStmtType, since these are types that are
-		// either assigned to a variable using an explicit type or inferred for a variable.		
-		case RListType(et) : return RListType(markUserTypes(et,symbolTable,currentScope));
-		case RSetType(et) : return RSetType(markUserTypes(et,symbolTable,currentScope));
-		case RBagType(et) : return RBagType(markUserTypes(et,symbolTable,currentScope));
-		case RContainerType(et) : return RContainerType(markUserTypes(et,symbolTable,currentScope));
-		case RMapType(dt,rgt) : return RMapType(markUserTypesForNamedType(dt,symbolTable,currentScope),markUserTypesForNamedType(rgt,symbolTable,currentScope));
-		case RRelType(nts) : return RRelType(markUserTypesForNamedTypeList(nts,symbolTable,currentScope));
-		case RTupleType(nts) : return RTupleType(markUserTypesForNamedTypeList(nts,symbolTable,currentScope));
-		case RFunctionType(rt, pts) : return RFunctionType(markUserTypes(rt,symbolTable,currentScope),[markUserTypesForNamedType(pt,symbolTable,currentScope) | pt <- pts]);
-		case RReifiedType(rt) : return RReifiedType(markUserTypes(rt,symbolTable,currentScope));
-		case RVarArgsType(vt) : return RVarArgsType(markUserTypes(vt,symbolTable,currentScope));
-		case RTypeVar(tv) : return RTypeVar(markUserTypesForTypeVar(tv,symbolTable,currentScope));
-		case RAliasType(an,at) : return RAliasType(an,markUserTypes(at,symbolTable,currentScope));
-		case RParameterizedAliasType(an,tps,at) : return RParameterizedAliasType(an,[markUserTypes(tp,symbolTable,currentScope) | tp <- tps],markUserTypes(at,symbolTable,currentScope));
+        // NOTE: Alias type comes before the other types so we can handle it specially here. This is needed because it
+	// also responds with true to the is...Type question that applies to the aliased type. For instance, alias l = list[int]
+	// responds true to both isAliasType(l) and isListType(l).
+        if (RAliasType(_,_) := rt) res = aliasTypeHasParameters(rt) 
+                ? makeParameterizedAliasType(getAliasName(rt), markUserTypes(getAliasedType(rt), symbolTable, currentScope), 
+                  [markUserTypes(rti, symbolTable, currentScope) | rti <- getAliasTypeParameters(rt)])
+	        : makeAliasType(getAliasName(rt), markUserTypes(getAliasedType(rt), symbolTable, currentScope));
 
-		// Handle ADTs; note that we no longer do anything here for them
-		case RADTType(n) : return rt;
+	// NOTE: Type vars also come first for the same reason, in this case based on their bound versus on the aliased
+	// type.
+	else if (RTypeVar(_) := rt) res = typeVarHasBound(rt) ? makeTypeVarWithBound(getTypeVarName(rt),markUserTypes(getTypeVarBound(rt), symbolTable, currentScope)) : rt;
 
-		// Things we include just because they are found in the types given above -- these can't be given
-		// as types directly, but (like types of individual constructors) can be included in other types
-		// (like ADT types)
-		case RConstructorType(n,pt,ets) : return RConstructorType(n,pt,[markUserTypesForNamedType(et,symbolTable,currentScope) | et <- ets]);
+	// NOTE: Rel comes before set because it is also a set. This allows us to handle it individually here.
+        else if (RRelType(_) := rt) res = makeRelTypeFromTuple(markUserTypes(getRelElementType(rt), symbolTable, currentScope));
 
-		// Special cases
-		// TODO: We could accidentally link this to an unintented type -- how do we prevent this?
-		case RUnknownType(ut) : {
-		     RType utRes = markUserTypes(ut,symbolTable,currentScope);
-		     if (utRes != ut) return utRes;
-		}
-				
-		// Things we explicitly don't expand -- they should not actually occur in a program (at least right now)
-		// TODO: May need to move these up if they become real types that people can use
-		case RLexType() : throw "Should not find this in real life: markUserTypes for type <rt>";
-		case RNonTerminalType() : throw "Should not find this in real life: markUserTypes for type <rt>";
-		case RFailType(_) :  throw "Should not find this as the type of a name: markUserTypes for type <rt>";
-		case ROverloadedType(_) : throw "Should not find this as the type of a name during type expansion: markUserTypes for type <rt>";		
-		case RStatementType(_) : throw "Should not find this in real life: markUserTypes for type <rt>";
-		case RDataTypeSelector(_,_) : throw "Should not find this in real life: markUserTypes for type <rt>";
-		case RAssignableType(_,_) : throw "Should not find this as the type of a name during type expansion: markUserTypes for <rt>";
+	// Special handling for unknown types. These are types that are imported, but where the module that was imported did not
+	// contain the declaration of the type. We see if we can find it here (for instance, a module may use an ADT imported
+	// from another module; as long as we imported that other module as well, the ADT will be in scope and we can resolve it)
+	else if (RUnknownType(_) := rt) {
+	        RType utRes = markUserTypes(getUnknownType(rt), symbolTable, currentScope);
+		res = (utRes != getUnknownType(rt)) ? utRes : rt; // If the type changed, we at least partially resolved it, return that
 	}
+
+	// ADTs also have type parameters, handle them similarly to aliases
+        else if (RADTType(_) := rt) res = aliasHasTypeParameters(rt) ? 
+                makeParameterizedADTType(getADTName(rt), [markUserTypes(rti, symbolTable, currentScope) | rti <- getADTTypeParameters(rt)]) : makeADTType(getAliasName(rt));
+
+	// Now, handle the other containers
+        else if (RListType(_) := rt) res = makeListType(markUserTypes(getListElementType(rt), symbolTable, currentScope));
+        else if (RSetType(_) := rt) res = makeSetType(markUserTypes(getSetElementType(rt), symbolTable, currentScope));
+        else if (RBagType(_) := rt) res = makeBagType(markUserTypes(getBagElementType(rt), symbolTable, currentScope));
+        else if (RContainerType(_) := rt) res = makeContainerType(markUserTypes(getContainerElementType(rt), symbolTable, currentScope));
+        else if (RMapType(_,_) := rt) res = makeMapTypeWithNames(markUserTypesForNamedType(getMapFieldsWithNames(rt)[0], symbolTable, currentScope), 
+                                                      markUserTypesForNamedType(getMapFieldsWithNames(rt)[1], symbolTable, currentScope));
+        else if (RTupleType(_) := rt) res = makeTupleTypeWithNames(markUserTypesForNamedTypeList(getTupleFieldsWithNames(rt), symbolTable, currentScope));
+        else if (RFunctionType(_,_) := rt) res = makeFunctionTypeWithNames(markUserTypes(getFunctionReturnType(rt), symbolTable, currentScope),
+                                                                markUserTypesForNamedTypeList(getFunctionArgumentTypesWithNames(rt), symbolTable, currentScope));
+        else if (RConstructorType(_,_,_) := rt) res = makeConstructorType(getConstructorName(rt), markUserTypes(getConstructorResultType(rt), symbolTable, currentScope), 
+                                                             markUserTypesForNamedTypeList(getConstructorArgumentTypesWithNames(rt), symbolTable, currentScope));
+        else if (RReifiedType(_) := rt) res = makeReifiedType(markUserTypes(getReifiedType(rt), symbolTable, currentScope));
+	else if (RVarArgsType(_) := rt) res = makeVarArgsType(markUserTypes(getVarArgsType(rt), symbolTable, currentScope));
+
+	// Now, handle the types that do not contain other types.
+        else if (RBoolType() := rt) res = rt;
+        else if (RIntType() := rt) res = rt;
+        else if (RRealType() := rt) res = rt;
+        else if (RNumType() := rt) res = rt;
+        else if (RStrType() := rt) res = rt;
+        else if (RValueType() := rt) res = rt;
+        else if (RNodeType() := rt) res = rt;
+        else if (RVoidType() := rt) res = rt;
+        else if (RLocType() := rt) res = rt;
+        else if (RDateTimeType() := rt) res = rt;
+        else if (RInferredType(_) := rt) res = rt;
+
+	// Now, handle types that we should not encounter, this helps us to determine if we missed something...
+	else if (RLexType() := rt) throw "Should not find this in real life: markUserTypes for type <rt>";
+	else if (RNonTerminalType() := rt) throw "Should not find this in real life: markUserTypes for type <rt>";
+	else if (RFailType(_) := rt) throw "Should not find this as the type of a name: markUserTypes for type <rt>";
+	else if (ROverloadedType(_) := rt) throw "Should not find this as the type of a name during type expansion: markUserTypes for type <rt>";
+	else if (RStatementType(_) := rt) throw "Should not find this in real life: markUserTypes for type <rt>";
+	else if (RDateTypeSelector(_,_) := rt) throw "Should not find this in real life: markUserTypes for type <rt>";
+	else if (RAssignableType(_,_) := rt) throw "Should not find this as the type of a name during type expansion: markUserTypes for <rt>";
 
 	// Now, these are the real expansion cases: the user types. Here, we want to expand any user types 
 	// by looking up the actual type and recursing.
-	if (RUserType(tn) := rt) {
+	else if (RUserType(tn) := rt) {
 		set[STItemId] userTypes = getTypeItemsForName(symbolTable,currentScope,tn);
 		set[STItemId] aliasItems = { pi | pi <- userTypes, AliasItem(_,_,_,_) := symbolTable.scopeItemMap[pi] };
-		set[STItemId] adtItems = userTypes - aliasItems;
+		set[STItemId] adtItems = { pi | pi <- userTypes, ADTItem(_,_,_) := symbolTable.scopeItemMap[pi] };
+
+		if (size(userTypes - aliasItems - adtItems) > 0) 
+                        throw "Unexpected case, got a user type that is not an alias or an adt, example: <symbolTable.scopeItemMap[getOneFrom(userTypes-aliasItems-adtItems)]>";
+		
+		// Preference ADTs, although scope rules should keep us from adding both ADTs and aliases with the same name
 		if (size(adtItems) > 0) {
 			STItemId adtItemId = getOneFrom(adtItems);
 			RType resultType = getTypeForItem(symbolTable, adtItemId);
+			return resultType; // we return here, we want to keep whatever @at annotation was added
+		} else if (size(aliasItems) > 0) {
+			STItemId aliasItemId = getOneFrom(aliasItems);
+			RType resultType = getTypeForItem(symbolTable, aliasItemId);
+			return resultType; // we return here, we want to keep whatever @at annotation was added
+		}
+	} 
+        else if (RParameterizedUserType(tn,tps) := rt) {
+		list[RType] params = [ markUserTypes(tp,symbolTable,currentScope) | tp <- tps];
+
+		set[STItemId] userTypes = getTypeItemsForName(symbolTable,currentScope,tn);
+		set[STItemId] aliasItems = { pi | pi <- userTypes, AliasItem(_,_,_,_) := symbolTable.scopeItemMap[pi] };
+		set[STItemId] adtItems = { pi | pi <- userTypes, ADTItem(_,_,_) := symbolTable.scopeItemMap[pi] };
+
+		if (size(userTypes - aliasItems - adtItems) > 0) 
+                        throw "Unexpected case, got a user type that is not an alias or an adt, example: <symbolTable.scopeItemMap[getOneFrom(userTypes-aliasItems-adtItems)]>";
+
+		// Preference ADTs, although scope rules should keep us from adding both ADTs and aliases with the same name
+		if (size(adtItems) > 0) {
+			STItemId adtItemId = getOneFrom(adtItems);
+			RType resultType = getTypeForItem(symbolTable, adtItemId);
+			if (size(params) > 0)
+			        // TODO: We need to verify that the number of parameters given is correct
+			        resultType = makeParameterizedADTType(getADTName(resultType), params);
 			return resultType;  
 		} else if (size(aliasItems) >= 1) {
 			STItemId aliasItemId = getOneFrom(aliasItems);
 			RType resultType = getTypeForItem(symbolTable, aliasItemId);
+			if (size(params) > 0) {
+			        // Instantiate the variables in the aliased type, based on the type parameters
+				// TODO: Any need to check bounds here? Or have we done that elsewhere? 
+				list[RName] aliasParams = [ getTypeVarName(atp) | atp <- getAliasTypeParameters(resultType), isTypeVar(atp)];
+
+				map[RName, RType] bindings = ( );
+				for (n <- [0..size(aliasParams)-1]) bindings = bindings + (aliasParams[n] : params[n]);
+				RType instantiatedAliased = instantiateVars(bindings, getAliasedType(resultType));
+			        resultType = makeParameterizedAliasType(getAliasName(resultType), instantiatedAliased, params);
+			}
 			return resultType;
 		}
-	} else if (RParameterizedUserType(tn,tps) := rt) {
-		set[STItemId] potentialAliasItems = getTypeItemsForName(symbolTable,currentScope,tn);
-		set[STItemId] aliasItems = { pi | pi <- potentialAliasItems, AliasItem(_,_,_,_) := symbolTable.scopeItemMap[pi] };
-		// TODO: The number found should be equal to 1; if not, we have a typing error, just pick one
-		if (size(aliasItems) >= 1) {
-			throw "Case not yet handled!";
-		}		
+	} else {
+	        println("markUserTypes, warning, did not handle type <prettyPrintType(rt)>, internal form <rt>");
 	}
 	
-	return rt;
+	if ( (rt@at)? ) res = res[@at = rt@at];
+	return res;
 }
 
 //
@@ -659,35 +710,41 @@ public RType markUserTypes(RType rt, SymbolTable symbolTable, STItemId currentSc
 public RType getTypeForItem(SymbolTable symbolTable, STItemId itemId) {
 	if (itemId notin symbolTable.scopeItemMap) throw "Error, id <itemId> is not in the scopeItemMap";
 	STItem si = symbolTable.scopeItemMap[itemId];
-	switch(symbolTable.scopeItemMap[itemId]) {
-		case FormalParameterItem(_,t,_) : return markUserTypes(t,symbolTable,si.parentId);
+	RType retType = makeVoidType();
+	switch(si) {
+		case FormalParameterItem(_,t,_) : retType = markUserTypes(t,symbolTable,si.parentId);
 		
-		case VariableItem(_,t,_) : return markUserTypes(t,symbolTable,si.parentId);
+		case VariableItem(_,t,_) : retType = markUserTypes(t,symbolTable,si.parentId);
 		
-		case TypeVariableItem(t,_) : return markUserTypes(t,symbolTable,si.parentId);
+		case TypeVariableItem(t,_) : retType = markUserTypes(t,symbolTable,si.parentId);
 		
-		case FunctionItem(_,t,paramIds,_,_,_) : 
-			return makeFunctionType(markUserTypes(t,symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
+		case FunctionItem(_,t,paramIds,_,_,_) : {
+			retType = makeFunctionType(markUserTypes(t,symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
+			if ( (si@at)? ) retType = retType[@at = si@at];
+	 	}
 
 		case ClosureItem(t,paramIds,_) :
-		        return makeFunctionType(markUserTypes(t,symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
+		        retType = makeFunctionType(markUserTypes(t,symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
 
 		case VoidClosureItem(paramIds,_) :
-		        return makeFunctionType(markUserTypes(RVoidType(),symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
+		        retType = makeFunctionType(markUserTypes(RVoidType(),symbolTable,si.parentId),[getTypeForItem(symbolTable, paramId) | paramId <- paramIds]);
 
-		case ConstructorItem(n,tas,adtParentId,_) : 
-			return makeConstructorType(n,RADTType(symbolTable.scopeItemMap[adtParentId].adtType),[markUserTypesForNamedType(t,symbolTable,si.parentId) | t <- tas]);
+		case ConstructorItem(n,tas,adtParentId,_) : {
+			retType = makeConstructorType(n,RADTType(symbolTable.scopeItemMap[adtParentId].adtType),[markUserTypesForNamedType(t,symbolTable,si.parentId) | t <- tas]);
+			if ( (si@at)? ) retType = retType[@at = si@at];
+		}
 		
 		case ADTItem(ut,_,_) : 
-			return RADTType(ut);
+			retType = RADTType(ut);
 		
 		case AliasItem(ut,ut2,_,_) : 
-			return RAliasType(ut,markUserTypes(ut2,symbolTable,si.parentId)); 
+			retType = RAliasType(ut,markUserTypes(ut2,symbolTable,si.parentId)); 
 		
 		default : { 
-			return makeVoidType(); 
+			retType = makeVoidType(); 
 		}
 	}
+	return retType;
 }
 
 alias ResultTuple = tuple[SymbolTable symbolTable, list[STItemId] addedItems];
@@ -776,6 +833,7 @@ public ResultTuple pushNewFunctionScopeAt(RName functionName, RType retType, lis
 
 	// Create scope items for type variables in the parameters; this way these types will be in scope
 	// TODO: Here should check to make sure variables with the same name have the same bounds
+	// TODO: SEe if logic changes require any changes here!!!! BBBBBBBBBBBBBBBBB
 	set[RType] typeVars = { tvv | p <- params, tvv <- collectTypeVars(p[1]) };
 	for (tvv <- typeVars) {
 	    // See if the name is not yet in scope -- if it is in scope, it must be defined by a surrounding function
@@ -800,6 +858,7 @@ public ResultTuple pushNewFunctionScopeAt(RName functionName, RType retType, lis
 	AddedItemPair aipItem = addSTItemWithParent(FunctionItem(functionName, retType, paramIds, throwsTypes, isPublic, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
 	aipItem.symbolTable.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
 	
+	// TODO: Add the IDs for the type vars?
 	return <aipItem.symbolTable,[aipLayer.addedId] + [aipItem.addedId] + paramIds>;
 }
 
@@ -821,19 +880,42 @@ public ResultTuple pushNewClosureScopeAt(RType retType, list[tuple[RName pname, 
 	symbolTable = aipLayer.symbolTable;
 	list[STItemId] paramIds = [ ];
 	set[RName] namesSeen = { };
-	for (pt <- params) {
-		if (pt[0] in namesSeen) {
-			symbolTable = addScopeError(symbolTable, pt[3], "Illegal redefinition of <n>. Parameter names must be different from other parameter names and from the name of the function.");
+	for (tuple[RName pname, RType ptype, loc ploc, loc nloc] pt <- params) {
+		if (pt.pname in namesSeen) {
+			symbolTable = addScopeError(symbolTable, pt.nloc, "Illegal redefinition of <prettyPrintName(pt.pname)>. Parameter names must be different from other parameter names and from the name of the function.");
 		}
-		namesSeen += pt[0];
-		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt[0], pt[1], symbolTable.currentScope)[@at=pt[2]], symbolTable.currentScope, pt[2], symbolTable);
+		namesSeen += pt.pname;
+		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt.pname, pt.ptype, symbolTable.currentScope)[@at=pt.ploc], symbolTable.currentScope, pt.ploc, symbolTable);
 		paramIds += aipParam.addedId; symbolTable = aipParam.symbolTable;
+	}
+
+	// Create scope items for type variables in the parameters; this way these types will be in scope
+	// TODO: Here should check to make sure variables with the same name have the same bounds
+	set[RType] typeVars = { tvv | p <- params, tvv <- collectTypeVars(p[1]) };
+	for (tvv <- typeVars) {
+	    // See if the name is not yet in scope -- if it is in scope, it must be defined by a surrounding function
+	    if (size(getTypeVarItemsForNameMB(symbolTable, symbolTable.currentScope, getTypeVarName(tvv))) == 0) {
+	       AddedItemPair aipTV = addSTItemWithParent(TypeVariableItem(tvv, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
+	       symbolTable = aipTV.symbolTable;
+	    }
+	}
+
+	// Check if the return type has any type variables
+	// TODO: Need to check to make sure all return type variables are present in the function parameters -- the type var can use a type
+	// variable defined in the surrounding function context, but only if the function parameters include this var as well
+	set[RType] rTypeVars = collectTypeVars(retType);
+	for (tvv <- rTypeVars) {
+	    // See if the name is not yet in scope -- if it is in scope, it must be defined by a surrounding function
+	    if (size(getTypeVarItemsForNameMB(symbolTable, symbolTable.currentScope, getTypeVarName(tvv))) == 0) {
+	       symbolTable = addScopeError(symbolTable, l, "Type variable <prettyPrintType(tvv)> given in return type for function not in scope.");
+	    }
 	}
 
 	// Add the actual function item associated with the scope layer
 	AddedItemPair aipItem = addSTItemWithParent(ClosureItem(retType, paramIds, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
 	aipItem.symbolTable.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
 
+	// TODO: Add the IDs for the type vars?
 	return <aipItem.symbolTable,[aipLayer.addedId] + [aipItem.addedId] + paramIds>;
 }
 
@@ -857,17 +939,29 @@ public ResultTuple pushNewVoidClosureScopeAt(list[tuple[RName pname, RType ptype
 	set[RName] namesSeen = { };
 	for (pt <- params) {
 		if (pt.pname in namesSeen) {
-			symbolTable = addScopeError(symbolTable, pt.nloc, "Illegal redefinition of <n>. Parameter names must be different from other parameter names and from the name of the function.");
+			symbolTable = addScopeError(symbolTable, pt.nloc, "Illegal redefinition of <prettyPrintName(pt.pname)>. Parameter names must be different from other parameter names and from the name of the function.");
 		}
 		namesSeen += pt.pname;
 		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt.pname, pt.ptype, symbolTable.currentScope)[@at=pt.ploc], symbolTable.currentScope, pt.ploc, symbolTable);
 		paramIds += aipParam.addedId; symbolTable = aipParam.symbolTable;
 	}
 
+	// Create scope items for type variables in the parameters; this way these types will be in scope
+	// TODO: Here should check to make sure variables with the same name have the same bounds
+	set[RType] typeVars = { tvv | p <- params, tvv <- collectTypeVars(p[1]) };
+	for (tvv <- typeVars) {
+	    // See if the name is not yet in scope -- if it is in scope, it must be defined by a surrounding function
+	    if (size(getTypeVarItemsForNameMB(symbolTable, symbolTable.currentScope, getTypeVarName(tvv))) == 0) {
+	       AddedItemPair aipTV = addSTItemWithParent(TypeVariableItem(tvv, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
+	       symbolTable = aipTV.symbolTable;
+	    }
+	}
+
 	// Add the actual function item associated with the scope layer
 	AddedItemPair aipItem = addSTItemWithParent(VoidClosureItem(paramIds, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
 	aipItem.symbolTable.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
 
+	// TODO: Add the IDs for the type vars?
 	return <aipItem.symbolTable,[aipLayer.addedId] + [aipItem.addedId] + paramIds>;
 }
 
@@ -1083,7 +1177,6 @@ public ResultTuple checkFunctionOverlap(ResultTuple result, loc nloc) {
 					RType t1 = funItemArgs[n]; RType t2 = newFunItemArgs[n];
 					if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
 				}
-				
 				if (!foundIncomparable) {
 					symbolTable = addScopeError(symbolTable, nloc, "Overlapping overload of function <newFunItem.functionName> declared");
 				}
@@ -1107,7 +1200,6 @@ public ResultTuple checkFunctionOverlap(ResultTuple result, loc nloc) {
 					RType t1 = consItemArgs[n]; RType t2 = newFunItemArgs[n];
 					if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
 				}
-				
 				if (!foundIncomparable) {
 					symbolTable = addScopeError(symbolTable, nloc, "Overlapping overload of function <newFunItem.functionName> declared");
 				}
@@ -1125,6 +1217,8 @@ public ResultTuple checkFunctionOverlap(ResultTuple result, loc nloc) {
 // for overlap before the scope item is addded, along with situations where we want to check
 // for overlap after the scope item is added.
 public bool willFunctionOverlap(RName funName, RType funType, SymbolTable symbolTable, STItemId scopeToCheck) {
+	funType = markUserTypes(funType, symbolTable, scopeToCheck);
+
 	list[RType] funArgs = getFunctionArgumentTypes(funType);
 
 	set[STItemId] potentialOverlaps = getItemsForName(symbolTable, scopeToCheck, funName);
@@ -1158,12 +1252,11 @@ public bool willFunctionOverlap(RName funName, RType funType, SymbolTable symbol
 			// overlap between the two functions.
 			if (size(funItemArgs) == size(funArgs)) {
 				bool foundIncomparable = false;
-	
+
 				for (n <- domain(funItemArgs)) {
 					RType t1 = funItemArgs[n]; RType t2 = funArgs[n];
 					if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
 				}
-				
 				if (!foundIncomparable) {
 					return true; 
 				}
@@ -1187,7 +1280,6 @@ public bool willFunctionOverlap(RName funName, RType funType, SymbolTable symbol
 					RType t1 = consItemArgs[n]; RType t2 = funArgs[n];
 					if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
 				}
-				
 				if (!foundIncomparable) {
 					return true; 
 				}
@@ -1221,7 +1313,6 @@ public ResultTuple checkConstructorOverlap(ResultTuple result, loc nloc) {
 					RType t1 = consItemArgs[n]; RType t2 = newConsItemArgs[n];
 					if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
 				}
-				
 				if (!foundIncomparable) {
 					symbolTable = addScopeError(symbolTable, nloc, "Overlapping overload of constructor <newConsItem.constructorName> declared");
 				}
@@ -1245,7 +1336,6 @@ public ResultTuple checkConstructorOverlap(ResultTuple result, loc nloc) {
 					RType t1 = funItemArgs[n]; RType t2 = newConsItemArgs[n];
 					if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
 				}
-				
 				if (!foundIncomparable) {
 					symbolTable = addScopeError(symbolTable, nloc, "Overlapping overload of constructor <newConsItem.constructorName> declared");
 				}
@@ -1263,6 +1353,7 @@ public ResultTuple checkConstructorOverlap(ResultTuple result, loc nloc) {
 // for overlap before the scope item is addded, along with situations where we want to check
 // for overlap after the scope item is added.
 public bool willConstructorOverlap(RName conName, RType conType, SymbolTable symbolTable, STItemId scopeToCheck) {
+       conType = markUserTypes(conType, symbolTable, scopeToCheck);
 	list[RType] consArgs = getConstructorArgumentTypes(conType);
 	set[STItemId] potentialOverlaps = getItemsForName(symbolTable, scopeToCheck, conName);
 
@@ -1279,7 +1370,6 @@ public bool willConstructorOverlap(RName conName, RType conType, SymbolTable sym
 					RType t1 = consItemArgs[n]; RType t2 = consArgs[n];
 					if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
 				}
-				
 				if (!foundIncomparable) {
 					return true; 
 				}
@@ -1303,7 +1393,6 @@ public bool willConstructorOverlap(RName conName, RType conType, SymbolTable sym
 					RType t1 = funItemArgs[n]; RType t2 = consArgs[n];
 					if ( ! ( (t1 == t2) || (subtypeOf(t1,t2)) || (subtypeOf(t2,t1)) ) ) foundIncomparable = true;
 				}
-				
 				if (!foundIncomparable) {
 					return true; 
 				}
@@ -1361,9 +1450,10 @@ public ResultTuple checkForDuplicateRulesBounded(ResultTuple result, loc nloc, b
 	} else {
 		otherItems = getRuleItemsForName(symbolTable, symbolTable.currentScope, ruleName) - ruleId;
 	}
-	if (size(otherItems) > 0) {
-		symbolTable = addScopeError(symbolTable, nloc, "Scope Error: Definition of rule <prettyPrintName(ruleName)> conflicts with another rule of the same name");	
-	}
+	// NOTE: Rules can share names, disabling this check for now...
+	//if (size(otherItems) > 0) {
+	//	symbolTable = addScopeError(symbolTable, nloc, "Scope Error: Definition of rule <prettyPrintName(ruleName)> conflicts with another rule of the same name");	
+	//}
 	return <symbolTable, result.addedItems>;
 }
 
@@ -1433,32 +1523,41 @@ public bool hasRType(SymbolTable symbolTable, loc l) {
 
 data RType = RLocatedType(RType actualType, loc l);
 
+//
+// Get the RType of the item(s) used at location l. We can return multiple types if we have a function
+// or constructor with overloads. Note that we could also return multiple items even when these items
+// have the same type, for instance when we merge the items created along different or branches into
+// the parent layer (we don't go back and remove the old items). This code specifically checks for that
+// by ensuring that the types, and not just the items, are different.
+//
 public RType getRType(SymbolTable symbolTable, loc l) {
-	set[STItemId] items = (l in symbolTable.itemUses) ? symbolTable.itemUses[l] : { };
+	set[STItemId] itemIds = (l in symbolTable.itemUses) ? symbolTable.itemUses[l] : { };
 	set[str] scopeErrors = (l in symbolTable.scopeErrorMap) ? symbolTable.scopeErrorMap[l] : { };
 	
 	if (size(scopeErrors) == 0) {
-		if (size(items) == 0) {
-			// TODO: Should be an exception
-			return makeVoidType();
-		} else if (size(items) == 1) {
-			STItemId anid = getOneFrom(items);
-			STItem stitem = getSTItem(anid, symbolTable);
-			if ( isFunctionOrConstructorItem(stitem) && ((stitem@at) ?)) {
-				return RLocatedType(getTypeForItem(symbolTable, anid),stitem@at);
-			} else {
-				return getTypeForItem(symbolTable, anid);
-			}
+	        if (size(itemIds) == 0) {
+		        return makeFailType("Error, attemting to find type of item at location <l>, but not item found",l);
 		} else {
-			set[ROverloadedType] overloads = { };
-			for (sii <- items) {
-				STItem stitem = getSTItem(sii, symbolTable);
-				if ( (stitem@at) ?)
-					overloads += ROverloadedTypeWithLoc(getTypeForItem(symbolTable, sii), stitem@at);
-				else
-					overloads = ROverloadedType(getTypeForItem(symbolTable, sii));
+			if (size({ getTypeForItem(symbolTable, itemId) | itemId <- itemIds }) > 1) {
+			        // We have multiple items with multiple distinct types, so return an overload type
+  			        set[ROverloadedType] overloads = { };
+			        for (itemId <- itemIds) {
+				        STItem item = getSTItem(itemId, symbolTable);
+				        if ( (item@at) ?)
+					        overloads += ROverloadedTypeWithLoc(getTypeForItem(symbolTable, itemId), item@at);
+				        else
+					        overloads = ROverloadedType(getTypeForItem(symbolTable, itemId));
+			        }
+			        return ROverloadedType(overloads);
+			} else {
+			        STItemId itemId = getOneFrom(itemIds);
+			        STItem item = getSTItem(itemId, symbolTable);
+			        if ( isFunctionOrConstructorItem(item) && ((item@at) ?)) {
+				        return RLocatedType(getTypeForItem(symbolTable, itemId), item@at);
+			        } else {
+				        return getTypeForItem(symbolTable, itemId);
+			        }
 			}
-			return ROverloadedType(overloads);
 		}
 	} else {
 		return collapseFailTypes({ makeFailType(s,l) | s <- scopeErrors });
@@ -1474,7 +1573,7 @@ public RType getTypeForName(SymbolTable symbolTable, RName theName, loc theLoc) 
 			return isInferredType(rt) ? symbolTable.inferredTypeMap[getInferredTypeIndex(rt)] : rt;
 		}
 	} else {
-		return makeFailType("No type declared or deduced for <theName>",theLoc);
+		return makeFailType("No type declared or inferred for <prettyPrintName(theName)>",theLoc);
 	}
 }
 
@@ -1487,6 +1586,98 @@ public RType getTypeForNameLI(SymbolTable symbolTable, RName theName, loc theLoc
 			return rt;
 		}
 	} else {
-		return makeFailType("No type declared or deduced for <theName>",theLoc);
+		return makeFailType("No type declared or inferred for <prettyPrintName(theName)>",theLoc);
 	}
+}
+
+//
+// Provide consistency checking and expansion on type conversion.
+//
+// TODO: Add checks to ensure that the correct number of type parameters are
+// given. For example, T[&U] should not be used as T[int,bool].
+//
+
+alias ConvertTuple = tuple[SymbolTable symbolTable, RType rtype];
+alias ConvertTupleN = tuple[SymbolTable symbolTable, RNamedType rtype];
+
+public ConvertTuple convertRascalType(SymbolTable symbolTable, Type t) {
+        // Step 1: convert the type
+	RType rt = convertType(t);
+
+	// Step 2: look for any errors marked on the converted type
+	list[tuple[str msg, loc at]] conversionErrors = [ ];
+	visit(rt) { 
+	        case RType ct : 
+		        if ( (ct@errinfo)? ) conversionErrors = conversionErrors + ct@errinfo;
+        }
+
+	// Step 3: if we found errors, add them as scope errors
+	if (size(conversionErrors) > 0) {
+	        for (<cmsg,cloc> <- conversionErrors) symbolTable = addScopeError(symbolTable, cloc, cmsg);
+	}
+
+	// Step 4: finally return the type
+	return <symbolTable, rt>;	
+}
+
+public ConvertTuple convertRascalUserType(SymbolTable symbolTable, UserType t) {
+        // Step 1: convert the type
+	RType rt = convertUserType(t);
+
+	// Step 2: look for any errors marked on the converted type
+	list[tuple[str msg, loc at]] conversionErrors = [ ];
+	visit(rt) { case RType ct : if ( (ct@errinfo)? ) conversionErrors = conversionErrors + ct@errinfo; }
+
+	// Step 3: if we found errors, add them as scope errors
+	if (size(conversionErrors) > 0) {
+	        for (<cmsg,cloc> <- conversionErrors) symbolTable = addScopeError(symbolTable, cloc, cmsg);
+	}
+
+	// Step 4: finally return the type
+	return <symbolTable, rt>;	
+}
+
+public ConvertTupleN convertRascalTypeArg(SymbolTable symbolTable, TypeArg t) {
+        // Step 1: convert the type
+	RNamedType rt = convertTypeArg(t);
+
+	// Step 2: look for any errors marked on the converted type
+	list[tuple[str msg, loc at]] conversionErrors = [ ];
+	visit(rt) { case RType ct : if ( (ct@errinfo)? ) conversionErrors = conversionErrors + ct@errinfo; }
+
+	// Step 3: if we found errors, add them as scope errors
+	if (size(conversionErrors) > 0) {
+	        for (<cmsg,cloc> <- conversionErrors) symbolTable = addScopeError(symbolTable, cloc, cmsg);
+	}
+
+	// Step 4: finally return the type
+	return <symbolTable, rt>;	
+}
+
+//
+// TODO: Not sure if this is sufficient for parameterized ADTs, need
+// to verify that this works for them as well.
+//
+public set[RType] reachableTypes(SymbolTable symbolTable, RType t) {
+        set[RType] foundSet = {  };
+        set[RType] workingSet = { t };
+	set[STItemId] foundItems = { };
+
+        do {
+                RType working = getOneFrom(workingSet); 
+		workingSet = workingSet - working; foundSet = foundSet + working;
+		for (/RType found := working) { 
+        	        if (found notin foundSet) workingSet += found;
+	        	    if (RADTType(_) := found) {
+		                set[STItemId] constructors = symbolTable.adtMap[getADTName(found)].consItems;
+			        for (ci <- constructors, ci notin foundItems) {
+				        foundItems = foundItems + ci;
+			                RType ct = getTypeForItem(symbolTable, ci);
+				        if (ct notin foundSet) workingSet = workingSet + ct;
+			        }
+		        }
+	        }
+        } while (size(workingSet) > 0);
+	foundSet = foundSet - { fi | fi <- foundSet, RUserType(_) := fi || RParameterizedUserType(_,_) := fi };
+        return foundSet;
 }

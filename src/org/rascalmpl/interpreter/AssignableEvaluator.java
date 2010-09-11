@@ -147,12 +147,10 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 		QualifiedName qname = x.getQualifiedName();
 		Result<IValue> previous = env.getVariable(qname);
 
-		if (previous instanceof OverloadedFunctionResult) {
-			OverloadedFunctionResult f = (OverloadedFunctionResult) previous;
-			if (f.isFinal()) {
-				throw new AssignmentToFinalError(x.getQualifiedName());
-			}
+		if (previous instanceof OverloadedFunctionResult && env.isNameFinal(qname)) {
+			throw new AssignmentToFinalError(x.getQualifiedName());
 		}
+		
 		//System.out.println("I am assigning: " + x + "(oldvalue = " + previous + ")");
 		
 		if(previous != null && previous.getValue() != null){

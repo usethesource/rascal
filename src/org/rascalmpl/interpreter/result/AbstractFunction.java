@@ -32,7 +32,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
     
 	protected final Environment declarationEnvironment;
     protected final Evaluator eval;
-    protected final boolean isFinal;
     
     protected FunctionType functionType;
 	protected final boolean hasVarArgs;
@@ -46,19 +45,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static boolean callTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
-	public AbstractFunction(AbstractAST ast, Evaluator eval, FunctionType functionType, boolean varargs, Environment env, boolean isFinal) {
+	public AbstractFunction(AbstractAST ast, Evaluator eval, FunctionType functionType, boolean varargs, Environment env) {
 		super(functionType, null, eval);
-		this.isFinal = isFinal;
 		this.ast = ast;
 		this.functionType = functionType;
 		this.eval = eval;
 		this.hasVarArgs = varargs;
 		this.declarationEnvironment = env;
 		this.vf = eval.getValueFactory();
-	}
-	
-	public boolean isFinal() {
-		return isFinal;
 	}
 	
 	public static void setCallTracing(boolean value){

@@ -9,8 +9,8 @@ abstract public class NamedFunction extends AbstractFunction {
 	protected String name;
 	
 	public NamedFunction(AbstractAST ast, Evaluator eval, FunctionType functionType, String name,
-			boolean varargs, Environment env, boolean isStatic) {
-		super(ast, eval, functionType, varargs, env, isStatic);
+			boolean varargs, Environment env) {
+		super(ast, eval, functionType, varargs, env);
 		this.name = name;
 	}
 

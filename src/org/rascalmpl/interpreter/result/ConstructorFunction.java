@@ -20,7 +20,7 @@ public class ConstructorFunction extends NamedFunction {
 	private TraversalEvaluator te;
 
 	public ConstructorFunction(AbstractAST ast, Evaluator eval, Environment env, Type constructorType) {
-		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, env, true);
+		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, env);
 		this.constructorType = constructorType;
 		this.te = new TraversalEvaluator(eval);
 	}

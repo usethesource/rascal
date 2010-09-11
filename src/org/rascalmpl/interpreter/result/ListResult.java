@@ -92,8 +92,11 @@ public class ListResult extends CollectionResult<IList> {
 		if (!key.getType().isIntegerType()) {
 			throw new UnexpectedTypeError(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
 		}
+		if (getValue().length() == 0) {
+			throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
+		}
 		IInteger index = ((IInteger)key.getValue());
-		if (index.intValue() >= getValue().length()) {
+		if ( (index.intValue() >= getValue().length()) || (index.intValue() < 0) ) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		return makeResult(getType().getElementType(), getValue().get(index.intValue()), ctx);

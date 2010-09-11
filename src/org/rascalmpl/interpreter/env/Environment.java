@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.env;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,8 +34,27 @@ import org.rascalmpl.interpreter.utils.Names;
  * TODO: this class does not support shadowing of variables and functions yet, which is wrong.
  */
 public class Environment {
+	
+	private class NameFlags {
+		public final static int FINAL_NAME = 0x01;
+		private int flags = 0;
+
+		public NameFlags(int flags) {
+			this.flags = flags;
+		}
+		
+		public int getFlags() {
+			return flags;
+		}
+		
+		public void setFlags(int flags) {
+			this.flags = flags;
+		}
+	}
+	
 	protected Map<String, Result<IValue>> variableEnvironment;
 	protected Map<String, OverloadedFunctionResult> functionEnvironment;
+	protected Map<String,NameFlags> nameFlags;
 	protected Map<Type, Type> typeParameters;
 	protected final Environment parent;
 	protected final Environment callerScope;
@@ -42,7 +62,7 @@ public class Environment {
 	protected final ISourceLocation loc;
 	protected Cache cache = null;
 	protected final String name;
-	
+
 	public Environment(String name) {
 		this(null, null, null, null, null, name);
 	}
@@ -62,6 +82,7 @@ public class Environment {
 	protected Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, Cache cache, ISourceLocation loc, String name) {
 		this.variableEnvironment = new HashMap<String, Result<IValue>>();
 		this.functionEnvironment = new HashMap<String, OverloadedFunctionResult>();
+		this.nameFlags = new HashMap<String, NameFlags>();
 		this.typeParameters = new HashMap<Type, Type>();
 		this.parent = parent;
 		this.cache = cache;
@@ -217,6 +238,49 @@ public class Environment {
 		if(resultFromParent == null) return result;
 		
 		return result.join(resultFromParent);
+	}
+
+	public boolean isNameFinal(QualifiedName name) {
+		if (name.getNames().size() > 1) {
+			Environment current = this;
+			while (!current.isRootScope()) {
+				current = current.parent;
+			}
+
+			return current.isNameFinal(name);
+		}
+
+		String simpleName = Names.name(Names.lastName(name));
+		return isNameFinal(simpleName);
+	}
+	
+	public boolean isNameFinal(String name) {
+		return (nameFlags.containsKey(name) &&
+				(nameFlags.get(name).getFlags() & NameFlags.FINAL_NAME) == NameFlags.FINAL_NAME);
+	}
+
+	public void markNameFinal(QualifiedName name) {
+		if (name.getNames().size() > 1) {
+			Environment current = this;
+			while (!current.isRootScope()) {
+				current = current.parent;
+			}
+
+			markNameFinal(name);
+			return;
+		}
+
+		String simpleName = Names.name(Names.lastName(name));
+		markNameFinal(simpleName);
+		return;
+	}
+	
+	public void markNameFinal(String name) {
+		if (nameFlags.containsKey(name))
+			nameFlags.get(name).setFlags(nameFlags.get(name).getFlags() | NameFlags.FINAL_NAME);
+		else
+			nameFlags.put(name, new NameFlags(NameFlags.FINAL_NAME));
+		return;
 	}
 
 	public void storeParameterType(Type par, Type type) {
