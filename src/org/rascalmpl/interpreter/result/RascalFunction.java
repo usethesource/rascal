@@ -27,18 +27,18 @@ public class RascalFunction extends NamedFunction {
 	private final Stack<Accumulator> accumulators;
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env,
-				Stack<Accumulator> accumulators, boolean isStatic) {
+				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				(FunctionType) new TypeEvaluator(env, eval.getHeap()).eval(func.getSignature()),
 				varargs,
-				func.getBody().getStatements(), env, accumulators, isStatic);
+				func.getBody().getStatements(), env, accumulators);
 		this.name = Names.name(func.getSignature().getName());
 	}
 	
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, Evaluator eval, FunctionType functionType,
-			boolean varargs, List<Statement> body, Environment env, Stack<Accumulator> accumulators, boolean isStatic) {
-		super(ast, eval, functionType, null, varargs, env, isStatic);
+			boolean varargs, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
+		super(ast, eval, functionType, null, varargs, env);
 		this.body = body;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();

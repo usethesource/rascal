@@ -659,7 +659,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				b.append("somewhere in: " + name);
 				b.append('\n');
 			}
-			//                     env = env.getParent();
 			env = env.getCallerScope();
 		}
 		return b.toString();
@@ -2195,9 +2194,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new MissingModifierError("java", x);
 		}
 
-		lambda = new RascalFunction(this, x, varArgs, getCurrentEnvt(), accumulators, true);
+		lambda = new RascalFunction(this, x, varArgs, getCurrentEnvt(), accumulators);
 
 		getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+		getCurrentEnvt().markNameFinal(lambda.getName());
 
 		lambda.setPublic(x.getVisibility().isPublic());
 		return lambda;
@@ -3077,7 +3077,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Type returnType = evalType(x.getType());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 		return new org.rascalmpl.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(returnType, formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
-					accumulators, false);
+					accumulators);
 	}
 
 	@Override
@@ -3085,7 +3085,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Type formals = new TypeEvaluator(getCurrentEnvt(), heap).eval(x.getParameters());
 		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 		return new org.rascalmpl.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(tf.voidType(), formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
-					accumulators, false);
+					accumulators);
 
 	}
 

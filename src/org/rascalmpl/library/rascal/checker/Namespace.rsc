@@ -5,6 +5,7 @@ import rascal::checker::ListUtils;
 import rascal::checker::SubTypes;
 import rascal::checker::Signature;
 import rascal::checker::SymbolTable;
+import rascal::checker::TreeUtils;
 
 import List;
 import Graph;
@@ -106,12 +107,19 @@ import rascal::\old-syntax::Rascal;
 //     correct contexts.
 //
 
+//
 // This is a hack -- this ensures the empty list is of type list[RType], not list[Void] or list[Value]
+//
 list[RType] mkEmptyList() { return tail([makeVoidType()]); }
 
+//
 // Same hack -- this ensures the empty list is of type list[STItemId], not list[Void] or list[Value]
+//
 list[STItemId] mkEmptySIList() { return tail([3]); }
 
+//
+// Retrieve the list of imports from the module
+//
 public list[Import] getImports(Tree t) {
 	if ((Module) `<Header h> <Body b>` := t) {
 		switch(h) {
@@ -123,6 +131,9 @@ public list[Import] getImports(Tree t) {
 	throw "getModuleName, unexpected module syntax, cannot find module name";
 }
 
+//
+// Get the name of the module
+//
 public RName getModuleName(Tree t) {
 	if ((Module) `<Tags t> module <QualifiedName n> <Import* i> <Body b>` := t) {
 		return convertName(n);
@@ -132,6 +143,9 @@ public RName getModuleName(Tree t) {
 	throw "getModuleName, unexpected module syntax, cannot find module name";
 }
 
+//
+// Signature maps: maps from the imported module to the module signature
+//
 alias SignatureMap = map[Import importedModule, RSignature moduleSignature];
 
 //
@@ -140,10 +154,12 @@ alias SignatureMap = map[Import importedModule, RSignature moduleSignature];
 // trigger the processing of other modules that are imported.
 //
 public SymbolTable buildNamespace(Tree t, SignatureMap signatures) {
+        // Create the new symbol table, including pushing the top layer
 	SymbolTable symbolTable = justSymbolTable(pushNewTopScope(t@\loc, createNewSymbolTable()));
 
-	// Add the module present in this tree. This is nested under TopLayer, so we can, in
-	// theory, load multiple modules into the same scope information structure.
+	// Add the module present in this tree. This also handles loading the
+	// modules imported by this module. Each module is attached under the
+	// top layer.
 	if ((Module) `<Header h> <Body b>` := t) {
 		if (`<Tags t> module <QualifiedName n> <Import* i>` := h || `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` := h) {
 			symbolTable = handleModuleImports(i, signatures, symbolTable);
@@ -151,24 +167,43 @@ public SymbolTable buildNamespace(Tree t, SignatureMap signatures) {
 			symbolTable = handleModuleBodyFull(b, handleModuleBodyNamesOnly(b, symbolTable));
 			symbolTable = popScope(symbolTable);
 		} else {
-     	   throw "buildNamespace: failed to match module syntax";
+     	                throw "buildNamespace: failed to match module syntax";
 		}
 	} else {
-        throw "buildNamespace: failed to match module syntax";
+                throw "buildNamespace: failed to match module syntax";
 	}
 
+	// NOTE: We remain inside the top scope, we don't pop that when we are done.
 	return symbolTable;
 }		
 
+//
 // Load information from the imported modules. Note that the import list is reversed before processing;
 // this is because the last module loaded "wins" in conflicts, but it's easier to model this by starting
 // with the last first then handling duplicate definitions as they arise.
+//
 public SymbolTable handleModuleImports(Import* il, SignatureMap signatures, SymbolTable symbolTable) {
 	list[Import] impList = reverse([imp | imp <- il]); 
 	for (imp <- impList) {
 		if (`import <ImportedModule im> ;` := imp || `extend <ImportedModule im> ;` := imp) {
 			if (imp in signatures)
-				symbolTable = handleImportedModule(im, signatures[imp], imp@\loc, symbolTable);
+				symbolTable = handleImportedModuleStep1(im, signatures[imp], imp@\loc, symbolTable);
+			else
+				throw "No signature found for imported module <imp>";
+		}
+	}
+	for (imp <- impList) {
+		if (`import <ImportedModule im> ;` := imp || `extend <ImportedModule im> ;` := imp) {
+			if (imp in signatures)
+				symbolTable = handleImportedModuleStep2(im, signatures[imp], imp@\loc, symbolTable);
+			else
+				throw "No signature found for imported module <imp>";
+		}
+	}
+	for (imp <- impList) {
+		if (`import <ImportedModule im> ;` := imp || `extend <ImportedModule im> ;` := imp) {
+			if (imp in signatures)
+				symbolTable = handleImportedModuleStep3(im, signatures[imp], imp@\loc, symbolTable);
 			else
 				throw "No signature found for imported module <imp>";
 		}
@@ -179,74 +214,118 @@ public SymbolTable handleModuleImports(Import* il, SignatureMap signatures, Symb
 //
 // TODO: Need to handle actuals, renamings -- for now, just handle the basic import scenario
 //
-public SymbolTable handleImportedModule(ImportedModule im, RSignature signature, loc l, SymbolTable symbolTable) {
+// TODO: Factor out common code in steps 1-3 below, this is highly repetitive.
+//
+public SymbolTable handleImportedModuleStep1(ImportedModule im, RSignature signature, loc l, SymbolTable symbolTable) {
 	switch(im) {
 		case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
-			return addImportsToScope(qn, signature, l, symbolTable);
+			return addImportedAliasesToScope(qn, signature, l, symbolTable);
 			
 		case `<QualifiedName qn> <ModuleActuals ma>` :
-			return addImportsToScope(qn, signature, l, symbolTable);
+			return addImportedAliasesToScope(qn, signature, l, symbolTable);
 			
 		case `<QualifiedName qn> <Renamings rn>` :
-			return addImportsToScope(qn, signature, l, symbolTable);
+			return addImportedAliasesToScope(qn, signature, l, symbolTable);
 			
 		case (ImportedModule)`<QualifiedName qn>` :
-			return addImportsToScope(qn, signature, l, symbolTable);
+			return addImportedAliasesToScope(qn, signature, l, symbolTable);
 			
 		default :
-			throw "Error in handleImportedModule, case not handled: <im>";
+			throw "Error in handleImportedModuleStep1, case not handled: <im>";
+	}
+}
+
+public SymbolTable handleImportedModuleStep2(ImportedModule im, RSignature signature, loc l, SymbolTable symbolTable) {
+	switch(im) {
+		case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
+			return addImportedADTsToScope(qn, signature, l, symbolTable);
+			
+		case `<QualifiedName qn> <ModuleActuals ma>` :
+			return addImportedADTsToScope(qn, signature, l, symbolTable);
+			
+		case `<QualifiedName qn> <Renamings rn>` :
+			return addImportedADTsToScope(qn, signature, l, symbolTable);
+			
+		case (ImportedModule)`<QualifiedName qn>` :
+			return addImportedADTsToScope(qn, signature, l, symbolTable);
+			
+		default :
+			throw "Error in handleImportedModuleStep2, case not handled: <im>";
+	}
+}
+
+public SymbolTable handleImportedModuleStep3(ImportedModule im, RSignature signature, loc l, SymbolTable symbolTable) {
+	switch(im) {
+		case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
+			return addImportedItemsToScope(qn, signature, l, symbolTable);
+			
+		case `<QualifiedName qn> <ModuleActuals ma>` :
+			return addImportedItemsToScope(qn, signature, l, symbolTable);
+			
+		case `<QualifiedName qn> <Renamings rn>` :
+			return addImportedItemsToScope(qn, signature, l, symbolTable);
+			
+		case (ImportedModule)`<QualifiedName qn>` :
+			return addImportedItemsToScope(qn, signature, l, symbolTable);
+			
+		default :
+			throw "Error in handleImportedModuleStep3, case not handled: <im>";
 	}
 }
 
 //
-// Load the imported signatures into scope. This function assumes that we are currently at the
-// top level scope -- i.e., that we are not inside a module scope. A new module scope is added
-// for the imported module to allow both a top-level version of the name and a module-specific
-// version of the name, useful for resolving qualified names.
+// First, load in aliases. These may used in the definitions of ADTs (and may use ADTs, but just as names)
+// and for variables, constructors, etc. Check for duplicates, since we do not allow distinct aliases
+// to be loaded more than once (two declarations of the form alias A = int are fine). We assume
+// the signature itself is fine, though -- any errors with duplicates within a module are not
+// handled here, but should instead be caught when type checking the module being loaded. So, we
+// only do a top-level check (which would still happen to catch these), not an in-module-level check.
 //
-public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc l, SymbolTable symbolTable) {
-//	println("NAMESPACE: Importing Contents of Module <qn>");
-	
+// NOTE: We also add the new module scope here, since it's the first thing we're doing anyway.
+//
+public SymbolTable addImportedAliasesToScope(QualifiedName qn, RSignature signature, loc l, SymbolTable symbolTable) {
 	symbolTable = justSymbolTable(pushNewModuleScope(convertName(qn), l, symbolTable));
 	
-	// First, load in aliases. These may used in the definitions of ADTs (and may use ADTs, but just as names)
-	// and for variables, constructors, etc. Check for duplicates, since we do not allow distinct aliases
-	// to be loaded more than once (two declarations of the form alias A = int are fine). We assume
-	// the signature itself is fine, though -- any errors with duplicates within a module are not
-	// handled here, but should instead be caught when type checking the module being loaded. So, we
-	// only do a top-level check (which would still happen to catch these), not an in-module-level check.
-	// TODO: We assume here that the signature is unordered, and aliases in the signature cannot refer
-	// to other aliases in the same module signature. If this is not true, we will need to order the
-	// additions of the aliases based on which aliases refer to which other aliases. 
-//	println("NAMESPACE: Importing Aliases of Module <qn>");
 	for (AliasSigItem(aliasName,aliasType,aliasedType,at) <- signature.signatureItems) {
 		symbolTable = justSymbolTable(addAliasToScope(aliasType, aliasedType, true, at, symbolTable));
 		symbolTable = justSymbolTable(checkForDuplicateAliases(addAliasToTopScope(aliasType, aliasedType, true, at, symbolTable), at));
 	}
+	return popScope(symbolTable);
+}
+
+// Load in ADTs second, just in case they are used in the signatures of functions, constructors,
+// etc., and use aliases. There is no checking for duplicates at this point; any duplicates will be merged
+// later, so we can still maintain information about the various locations of definitions if needed.
+// Note that, at this point, we don't add anything from the ADT signature; there are instead given as
+// separate constructor items.
+public SymbolTable addImportedADTsToScope(QualifiedName qn, RSignature signature, loc l, SymbolTable symbolTable) {
+	symbolTable = pushScope(getOneFrom(symbolTable.scopeNames[symbolTable.currentScope,convertName(qn)]), symbolTable);
 	
-	// Load in ADTs second, just in case they are used in the signatures of functions, constructors,
-	// etc., and use aliases. There is no checking for duplicates at this point; any duplicates will be merged
-	// later, so we can still maintain information about the various locations of definitions if needed.
-	// Note that, at this point, we don't add anything from the ADT signature; there are instead given as
-	// separate constructor items.
-//	println("NAMESPACE: Importing ADTs of Module <qn>");
 	for (ADTSigItem(adtName,adtType,at) <- signature.signatureItems) {
 		symbolTable = justSymbolTable(addADTToScope(adtType, true, at, symbolTable));
 		symbolTable = justSymbolTable(addADTToTopScope(adtType, true, at, symbolTable));
 	}
 
-	// Third, load up the other items in the signature. For named items, such as functions, we assume the
-	// signature is fine, but we will have to check to see if the names are duplicates of already-defined
-	// items when we load them into the top level. If we find an overlap, we ignore it -- we don't
-	// register an error, we just don't add the item.
-	//
-	// TODO: This is potentially confusing. For instance, say we import modules M1 and M2. M1 has f(str)
-	// and f(int), while M2 has f(int) and f(bool). So, there is an overlap between f(int) in M1 and M2.
-	// Under the current policy, where the last wins, this means we get M1.f(str), M2.f(int), and
-	// M2.f(bool). This could be confusing, though, since the user may not realize there is a clash, and
-	// may expect that he is calling M1.f(int) instead. Worse, M1.f(str) may call m1.f(int), so different
-	// public functions would be called depending on the caller. We should at least issue a warning here,
-	// but we may want to do something more rigorous.
+	return popScope(symbolTable);
+}
+
+//
+// Third, load up the other items in the signature. For named items, such as functions, we assume the
+// signature is fine, but we will have to check to see if the names are duplicates of already-defined
+// items when we load them into the top level. If we find an overlap, we ignore it -- we don't
+// register an error, we just don't add the item.
+//
+// TODO: This is potentially confusing. For instance, say we import modules M1 and M2. M1 has f(str)
+// and f(int), while M2 has f(int) and f(bool). So, there is an overlap between f(int) in M1 and M2.
+// Under the current policy, where the last wins, this means we get M1.f(str), M2.f(int), and
+// M2.f(bool). This could be confusing, though, since the user may not realize there is a clash, and
+// may expect that he is calling M1.f(int) instead. Worse, M1.f(str) may call m1.f(int), so different
+// public functions would be called depending on the caller. We should at least issue a warning here,
+// but we may want to do something more rigorous.
+//
+public SymbolTable addImportedItemsToScope(QualifiedName qn, RSignature signature, loc l, SymbolTable symbolTable) {
+	symbolTable = pushScope(getOneFrom(symbolTable.scopeNames[symbolTable.currentScope,convertName(qn)]), symbolTable);
+
 	for (item <- signature.signatureItems) {
 		switch(item) {
 			// Add a function scope layer and associated item for a function in the imported signature. Note that
@@ -324,7 +403,6 @@ public SymbolTable addImportsToScope(QualifiedName qn, RSignature signature, loc
 		}
 	}
 
-//	println("NAMESPACE: Contents of Module <qn> Imported");
 	return popScope(symbolTable);
 }
 
@@ -338,7 +416,12 @@ public SymbolTable handleModuleBody(Body b, SymbolTable symbolTable) {
 //
 // Gather the names of variables and functions. These are visible throughout the module (a variable 
 // can be used in a function declared higher up in the file, for instance) so just the top-level 
-// names are gathered first (i.e., we don't descend into function bodies, etc).
+// names are gathered first (i.e., we don't descend into function bodies, etc). We process the
+// names in a specific order: first aliases, then ADTs, then everything else. The first two
+// could potentially be merged, but doing aliases and ADTs first ensures all type names are
+// visible when we start to process functions, variables, etc.
+//
+// TODO: See if it makes sense to merge the first two loops.
 //
 public SymbolTable handleModuleBodyNamesOnly(Body b, SymbolTable symbolTable) {
 	if ((Body)`<Toplevel* ts>` := b) {
@@ -467,11 +550,15 @@ public SymbolTable handleModuleBodyFull(Body b, SymbolTable symbolTable) {
 }
 
 //
-// Handle variable declarations, with or without initializers
+// Handle variable declarations, with or without initializers. We don't allow duplicate top-level names, but we do
+// allow this name to shadow a name from an imported module. This is why the duplicate check is module bounded.
 //
 public SymbolTable handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variable ","}+ vs, SymbolTable symbolTable) {
 	symbolTable = handleTagsNamesOnly(ts, symbolTable);
-	RType varType = convertType(t);
+
+	ConvertTuple ct = convertRascalType(symbolTable, t);
+	RType varType = ct.rtype; symbolTable = ct.symbolTable;
+
 	for (vb <- vs) {
 		if (`<Name n>` := vb || `<Name n> = <Expression e>` := vb) {
 			if (size(getItemsForNameMB(symbolTable, symbolTable.currentScope, convertName(n))) > 0) {		
@@ -508,7 +595,9 @@ public SymbolTable handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signat
 	SymbolTable addFunction(Name n, RType retType, Parameters ps, list[RType] thrsTypes, bool isPublic, SymbolTable symbolTable) {
 		// Get back a list of tuples representing the parameters; these will actually be added into the scope
 		// in the next step
-		list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(ps, symbolTable);
+		tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] paramsI = handleParametersNamesOnly(ps, symbolTable);
+		symbolTable = paramsI.symbolTable;
+		list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = paramsI.params;
  		
 		// Add a new function scope, getting back the updated scope and a list of added scope IDs
 		ResultTuple rt = pushNewFunctionScope(convertName(n), retType, params, thrsTypes, isPublic, l, symbolTable);
@@ -524,19 +613,24 @@ public SymbolTable handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signat
 	
 	switch(s) {
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
-			symbolTable = addFunction(n, convertType(t), ps, mkEmptyList(), isPublic(v), symbolTable);
+	                ConvertTuple ct = convertRascalType(symbolTable, t);
+	                RType retType = ct.rtype; symbolTable = ct.symbolTable;
+			symbolTable = addFunction(n, retType, ps, mkEmptyList(), isPublic(v), symbolTable);
 		}
 
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
-			symbolTable = addFunction(n, convertType(t), ps, [convertType(thrsi) | thrsi <- thrs], 
-									isPublic(v), symbolTable);
+	                ConvertTuple ct = convertRascalType(symbolTable, t);
+	                RType retType = ct.rtype; symbolTable = ct.symbolTable;
+			list[RType] throwsTypes = [ ];
+			for (thrsi <- thrs) { ct = convertRascalType(symbolTable, thrsi); throwsTypes = throwsTypes + ct.rtype; symbolTable = ct.symbolTable; }
+			symbolTable = addFunction(n, retType, ps, throwsTypes, isPublic(v), symbolTable);
 		}
 	}
 	return symbolTable;
 }
 
 //
-// Just process the tags; this function has no body, and the function header was processed already.
+// This function has no body, and the function header was processed already, so just process the tags.
 //
 public SymbolTable handleAbstractFunction(Tags ts, Visibility v, Signature s, loc l, SymbolTable symbolTable) {
 	return handleTags(ts, symbolTable);
@@ -544,16 +638,18 @@ public SymbolTable handleAbstractFunction(Tags ts, Visibility v, Signature s, lo
 
 //
 // Handle parameter declarations. Parameters currently have no defaults, etc, so there is no other
-// version of this function.
+// version of this function (no non "NamesOnly" version).
 //
-public list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] handleParametersNamesOnly(Parameters p, SymbolTable symbolTable) {
+public tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] handleParametersNamesOnly(Parameters p, SymbolTable symbolTable) {
 	list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = [];
 
 	if (`( <Formals f> )` := p) {
 		if ((Formals)`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if ((Formal)`<Type t> <Name n>` := fp) {
-					params += < convertName(n), convertType(t), fp@\loc, n@\loc >;
+	                                ConvertTuple ct = convertRascalType(symbolTable, t);
+	                                RType paramType = ct.rtype; symbolTable = ct.symbolTable;
+					params += < convertName(n), paramType, fp@\loc, n@\loc >;
 				} 					
 			}
 		}
@@ -561,14 +657,16 @@ public list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] handleParameter
 		if ((Formals)`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if ((Formal)`<Type t> <Name n>` := fp) {
-					params += < convertName(n), convertType(t), fp@\loc, n@\loc>;
+	                                ConvertTuple ct = convertRascalType(symbolTable, t);
+	                                RType paramType = ct.rtype; symbolTable = ct.symbolTable;
+					params += < convertName(n), paramType, fp@\loc, n@\loc>;
 				} 					
 			}
 			params[size(params)-1].ptype = makeVarArgsType(params[size(params)-1].ptype);
 		}
 	}
 
-	return params;
+	return <symbolTable, params>;
 }
 
 //
@@ -582,6 +680,7 @@ public SymbolTable handleFunction(Tags ts, Visibility v, Signature s, FunctionBo
 	// First, get back the scope item at location l so we can switch into the proper function scope
 	symbolTable = pushScope(getLayerAtLocation(l, symbolTable), symbolTable);
 	
+	// Now, process the function body
 	switch(s) {
 		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
 			symbolTable = handleFunctionBody(b,symbolTable);
@@ -618,50 +717,84 @@ private bool isPublic(Visibility v) {
 // Introduce the annotation name into the current scope. Duplicates are not allowed, so we check for them
 // here and tag the name with a scope error if we find one.
 //
+// TODO: We should probably put these into a table, like the ADTs, so we can figure out more easily
+// during checking which values have which annotations.
+//
+// TODO: Make sure the duplicate check only checks for duplicates on the same type, we can have multiple
+// declarations for the same annotation name as long as they are on different types.
+//
 public SymbolTable handleAnnotationDeclarationNamesOnly(Tags t, Visibility v, Type ty, Type ot, Name n, loc l, SymbolTable symbolTable) {
 	symbolTable = handleTagsNamesOnly(t, symbolTable);
-	symbolTable = justSymbolTable(checkForDuplicateAnnotations(addAnnotationToScope(convertName(n),convertType(ty),convertType(ot),isPublic(v),l,symbolTable), n@\loc));
+	ConvertTuple ct = convertRascalType(symbolTable, ty);
+	RType annoType = ct.rtype; symbolTable = ct.symbolTable;
+	ct = convertRascalType(symbolTable, ot);
+	RType onType = ct.rtype; symbolTable = ct.symbolTable;
+	symbolTable = justSymbolTable(checkForDuplicateAnnotations(addAnnotationToScope(convertName(n),annoType,onType,isPublic(v),l,symbolTable), n@\loc));
 	return symbolTable;
 }
 
+//
 // TODO: The annotation name was handled above, here we just check to make sure the types used are actually
 // in scope.
+//
 public SymbolTable handleAnnotationDeclaration(Tags t, Visibility v, Type ty, Type ot, Name n, loc l, SymbolTable symbolTable) {
 	return handleTags(t, symbolTable);
 }
 
+//
 // TODO: Implement
+//
 public SymbolTable handleTagDeclaration(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, SymbolTable symbolTable) {
 	symbolTable = handleTags(t, symbolTable);
 	//throw "handleTagDeclaration not yet implemented";
 	return symbolTable;
 }
 
+//
 // TODO: Implement
+//
 public SymbolTable handleTagDeclarationNamesOnly(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, SymbolTable symbolTable) {
 	symbolTable = handleTagsNamesOnly(t, symbolTable);
 	//throw "handleTagDeclarationNamesOnly not yet implemented";
 	return symbolTable;
 }
 
+//
+// In this first pass we just worry about the name of the rule, we don't yet descend into the pattern.
+//
+// TODO: Is it proper to have the same rule name on multiple rules? If so, change the logic for checkForDuplicateRules
+//
 public SymbolTable handleRuleDeclarationNamesOnly(Tags t, Name n, PatternWithAction p, loc l, SymbolTable symbolTable) {
+        symbolTable = handleTagsNamesOnly(t, symbolTable);
 	return justSymbolTable(checkForDuplicateRules(addRuleToScope(convertName(n), l, handleTagsNamesOnly(t, symbolTable)), n@\loc));
 }
-								
+
+//
+// For the second pass, descend into the rule pattern with action.
+//							
 public SymbolTable handleRuleDeclaration(Tags t, Name n, PatternWithAction p, loc l, SymbolTable symbolTable) {
 	return handlePatternWithAction(p, handleTags(t, symbolTable));
 }
 
-// TODO: Implement
+//
+// Tests don't introduce any top-level names, so we only need to handle the test tag on this first pass.
+//
 public SymbolTable handleTestNamesOnly(Test t, loc l, SymbolTable symbolTable) {
-	//throw "handleTestNamesOnly not yet implemented";
-	return symbolTable;
+        if (`<Tags tgs> test <Expression exp>` := t || `<Tags tgs> test <Expression exp> : <StringLiteral sl>` := t) {
+	        return handleTagsNamesOnly(tgs, symbolTable);
+        }
+        throw "Unexpected syntax for test: <t>";
 }
 
-// TODO: Implement
+//
+// Tests can use names in the test expression, so we need to descend into the expression of the test
+// on the second pass.
+//
 public SymbolTable handleTest(Test t, loc l, SymbolTable symbolTable) {
-	//throw "handleTest not yet implemented";
-	return symbolTable;
+        if (`<Tags tgs> test <Expression exp>` := t || `<Tags tgs> test <Expression exp> : <StringLiteral sl>` := t) {
+	        return handleExpression(exp,handleTags(tgs, symbolTable));
+	}
+        throw "Unexpected syntax for test: <t>";
 }
 
 //
@@ -696,7 +829,9 @@ public SymbolTable handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {
 	// Process each given variant, adding it into scope	
 	for (var <- vars) {
 		if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
-			symbolTable = justSymbolTable(checkConstructorOverlap(addSTItemUses(addConstructorToScope(convertName(n), [ convertTypeArg(targ) | targ <- args ], adtId, true, l, symbolTable),[<true,n@\loc>]),n@\loc));
+		        list[RNamedType] cparams = [ ];
+		        for (targ <- args) { ConvertTupleN ct = convertRascalTypeArg(symbolTable, targ); cparams = cparams + ct.rtype; symbolTable = ct.symbolTable; }
+			symbolTable = justSymbolTable(checkConstructorOverlap(addSTItemUses(addConstructorToScope(convertName(n), cparams, adtId, true, l, symbolTable),[<true,n@\loc>]),n@\loc));
 		}
 	}
 	
@@ -713,30 +848,44 @@ public SymbolTable handleADT(Tags ts, Visibility v, UserType adtType, {Variant "
 }
 
 //
-// Handle alias declarations
-//
-// TODO: Should tag the aliased type with where it comes from
+// Handle alias declarations. Note that we don't check to see if the type being pointed to exists, since it may
+// be another alias, ADT, etc that is also being processed in this first step.
 //
 public SymbolTable handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, SymbolTable symbolTable) {
 	symbolTable = handleTagsNamesOnly(ts, symbolTable);
-
 	Name aliasRawName = getUserTypeRawName(aliasType);
 	RName aliasName = convertName(aliasRawName);
-	symbolTable = justSymbolTable(checkForDuplicateAliases(addSTItemUses(addAliasToScope(convertUserType(aliasType), convertType(aliasedType), isPublic(v), l, symbolTable),[<true,aliasRawName@\loc>]),aliasRawName@\loc));
+
+	ConvertTuple ct = convertRascalUserType(symbolTable, aliasType);
+	RType aType = ct.rtype; symbolTable = ct.symbolTable;
+	ct = convertRascalType(symbolTable, aliasedType);
+	RType tType = ct.rtype; symbolTable = ct.symbolTable;
+
+	symbolTable = justSymbolTable(checkForDuplicateAliases(addSTItemUses(addAliasToScope(aType, tType, isPublic(v), l, symbolTable),[<true,aliasRawName@\loc>]),aliasRawName@\loc));
 	return symbolTable;
 }
 
+//
+// Handle the alias declaration in the second pass.
+//
+// TODO: This may be a good time to verify that the aliased type actually exists.
+//
 public SymbolTable handleAlias(Tags ts, Visibility v, UserType aliasType, Type aliasedType, loc l, SymbolTable symbolTable) {
 	return handleTags(ts, symbolTable); 
 }
 
-// TODO: Implement
+//
+// TODO: Implement later, views aren't currently supported
+//
 public SymbolTable handleViewNamesOnly(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, SymbolTable symbolTable) {
 	symbolTable = handleTagsNamesOnly(ts, symbolTable);
 	//throw "handleViewNamesOnly not yet implemented";
 	return symbolTable;
 }
 
+//
+// TODO: Implement later
+//
 public SymbolTable handleView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, SymbolTable symbolTable) {
 	return handleTags(ts, symbolTable);
 }
@@ -746,6 +895,7 @@ public SymbolTable handleView(Tags ts, Visibility v, Name n, Name sn, {Alternati
 //
 public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 	switch(s) {
+                // solve statement; note that the names are not binders, they should already be in scope
 		case `solve (<{QualifiedName ","}+ vs> <Bound b>) <Statement sb>` : {
 			
 			for (v <- vs)
@@ -757,6 +907,7 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 			symbolTable = handleStatement(sb, symbolTable);		
 		}
 
+                // for statement; this opens a boolean scope, ensuring bindings in the for expression are visible just in the body
 		case `<Label l> for (<{Expression ","}+ es>) <Statement b>` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
@@ -765,6 +916,7 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 			symbolTable = popScope(symbolTable);
 		}
 
+                // while statement; this opens a boolean scope, ensuring bindings in the while expression are visible just in the body
 		case `<Label l> while (<{Expression ","}+ es>) <Statement b>` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
@@ -773,9 +925,11 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 			symbolTable = popScope(symbolTable);
 		}
 
+		// do statement; in this case the expression is not a binder, since it comes after the first iteration
 		case `<Label l> do <Statement b> while (<Expression e>);` :
 			symbolTable = handleExpression(e, handleStatement(b, handleLabel(l,symbolTable)));			
 
+                // if statement; this opens a boolean scope, ensuring bindings in the if guard expression are visible just in the body		
 		case `<Label l> if (<{Expression ","}+ es>) <Statement bt> else <Statement bf>` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
@@ -784,6 +938,7 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 			symbolTable = popScope(symbolTable);
 		}
 
+                // if statement with no else; this opens a boolean scope, ensuring bindings in the if guard expression are visible just in the body
 		case `<Label l> if (<{Expression ","}+ es>) <Statement bt>` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
@@ -792,40 +947,51 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 			symbolTable = popScope(symbolTable);
 		}
 
+		// switch statement
 		case `<Label l> switch (<Expression e>) { <Case+ cs> }` : {
 			symbolTable = handleExpression(e,handleLabel(l,symbolTable));						
 			for (c <- cs) symbolTable = handleCase(c, symbolTable);
 		}
 
+		// visit statement
 		case (Statement)`<Label l> <Visit v>` :
 			symbolTable = handleVisit(v, handleLabel(l,symbolTable));						
 			
+		// expression statement
 		case `<Expression e> ;` :
 			symbolTable = handleExpression(e, symbolTable);
 
+		// assignment statement
 		case `<Assignable a> <Assignment op> <Statement b>` :
 			symbolTable = handleStatement(b, handleAssignable(a, symbolTable));
 		
+		// assert statement
 		case `assert <Expression e> ;` :
 			symbolTable = handleExpression(e, symbolTable);
 
+		// assert statement with guard
 		case `assert <Expression e> : <Expression em> ;` :
 			symbolTable = handleExpression(em, handleExpression(e, symbolTable));
 		
+		// return statement; we mark the return type here so we can find it during checking
 		case `return <Statement b>` : {
 			symbolTable = handleStatement(b, symbolTable);
 			symbolTable = markReturnType(getEnclosingFunctionType(symbolTable), s, symbolTable);
 		}
 		
+		// throw statement
 		case `throw <Statement b>` :
 			symbolTable = handleStatement(b, symbolTable);
 		
+		// insert statement
 		case `insert <DataTarget dt> <Statement b>` :
-			symbolTable = handleStatement(b, handleTarget(dt, symbolTable));
+			symbolTable = handleStatement(b, handleDataTarget(dt, symbolTable));
 		
+		// append statement
 		case `append <DataTarget dt> <Statement b>` :
-			symbolTable = handleStatement(b, handleTarget(dt, symbolTable));
+			symbolTable = handleStatement(b, handleDataTarget(dt, symbolTable));
 		
+		// local function declaration; the called functions handle the scoping so we don't have to here
 		case (Statement) `<Tags ts> <Visibility v> <Signature sig> <FunctionBody fb>` : {
 			// First get back the function signature information, creating the scope item
 			symbolTable = handleFunctionNamesOnly(ts,v,sig,fb,s@\loc,handleTagsNamesOnly(ts, symbolTable));
@@ -834,33 +1000,40 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 			symbolTable = handleFunction(ts,v,sig,fb,s@\loc,handleTags(ts, symbolTable));
 		}
 		
+		// local variable declaration
 		case (Statement) `<Type t> <{Variable ","}+ vs> ;` :
 			symbolTable = handleLocalVarItems(t,vs,symbolTable);
 		
+		// dynamic variable declaration; TODO this is not implemented yet by Rascal
 		case (Statement) `dynamic <Type t> <{Variable ","}+ vs> ;` :
-			// TODO: Handle scoping of dynamics properly
 			symbolTable = handleLocalVarItems(t,vs,symbolTable);
-		
+
+		// break statement		
 		case `break <Target t> ;` :
-			symbolTable = handleTarget(dt, symbolTable);
+			symbolTable = handleTarget(t, symbolTable);
 		
+		// fail statement
 		case `fail <Target t> ;` :
-			symbolTable = handleTarget(dt, symbolTable);
+			symbolTable = handleTarget(t, symbolTable);
 		
+		// continue statement
 		case `continue <Target t> ;` :
-			symbolTable = handleTarget(dt, symbolTable);
+			symbolTable = handleTarget(t, symbolTable);
 		
+		// try/catch statement
 		case `try <Statement b> <Catch+ cs>` : {
 			symbolTable = handleStatement(b, symbolTable);
 			for (ct <- cs) symbolTable = handleCatch(ct, symbolTable);
 		}
 		
+		// try/catch/finally statement
 		case `try <Statement b> <Catch+ cs> finally <Statement bf>` : {
 			symbolTable = handleStatement(b, symbolTable);
 			for (ct <- cs) symbolTable = handleCatch(ct, symbolTable);
 			symbolTable = handleStatement(bf, symbolTable);
 		}
 		
+		// labeled statement block
 		case `<Label l> { <Statement+ bs> }` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBlockScope(s@\loc, symbolTable));
@@ -873,26 +1046,105 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 }
 
 //
+// Pick apart a map to properly introduce its names into scope
+//
+public list[Tree] getMapMappings(Tree t) {
+        list[Tree] mapParts = [ ];
+
+        // t[1] holds the parse tree contents for the map
+	if (list[Tree] mapTop := t[1]) {
+	        // mapTop[0] = (, mapTop[1] = layout, mapTop[2] = map contents, mapTop[3] = layout, mapTop[4] = ), so we get out 2
+ 		if (appl(_,list[Tree] mapItems) := mapTop[2]) {
+		        if (size(mapItems) > 0) {
+			        // The map items include layout and commas, so we use a mod 4 to account for this: we have
+                                // item layout comma layout item layout comma layout etc
+			        list[Tree] mapMappings = [ mapItems[n] | n <- [0..size(mapItems)-1], n % 4 == 0];
+
+				// Each item should have the domain and range inside. It is organized as pat layout : layout pat
+				for (n <- [0..size(mapMappings)-1]) {
+				    if (appl(_,list[Tree] mapContents) := mapMappings[n]) {
+				        if (size(mapContents) == 5 && `<Tree tl>` := mapContents[0] && `<Tree tr>` := mapContents[4]) {
+					        mapParts = mapParts + [ tl, tr ]; 
+					}
+                                    } 
+				}
+			}
+                }
+	}
+
+	return mapParts;
+}
+
+//
+// Return domain : range expression pairs as a list of tuples for a map
+//
+public list[tuple[Expression mapDomain, Expression mapRange]] getMapExpressionContents(Expression exp) {
+	list[Tree] mm = getMapMappings(exp);
+	// What comes back is in the form [domain,range,domain,range,...]
+	if (size(mm) > 0)
+	        return [ <el, er> | n <- [0..size(mm)-1], n % 2 == 0, `<Expression el>` := mm[n], `<Expression er>` := mm[n+1] ];
+        else
+                return [ ];
+}
+
+//
+// Return domain : range pattern pairs as a list of tuples for a map
+//
+public list[tuple[Pattern mapDomain, Pattern mapRange]] getMapPatternContents(Pattern pat) {
+	list[Tree] mm = getMapMappings(pat);
+	// What comes back is in the form [domain,range,domain,range,...]
+	if (size(mm) > 0)
+	        return [ <pl, pr> | n <- [0..size(mm)-1], n % 2 == 0, `<Pattern pl>` := mm[n], `<Pattern pr>` := mm[n+1] ];
+        else
+                return [ ];
+}
+
+//
+// Scope handling for map expressions -- this is done separately since we cannot use matching to get back
+// the parts of the map.
+//
+public SymbolTable handleMapExpression(Expression exp, SymbolTable symbolTable) {
+        list[tuple[Expression mapDomain, Expression mapRange]] mapContents = getMapExpressionContents(exp);
+	for (<md,mr> <- mapContents) symbolTable = handleExpression(mr, handleExpression(md, symbolTable));
+	return symbolTable;
+}
+
+//
 // Handle individual expressions (which could contain closures, for instance)
 //
-// TODO: String Interpolation
-// TODO: Location Interpolation
 // TODO: Concrete syntax
 //
 public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 
 	SymbolTable handleExpName(RName n, loc l, SymbolTable symbolTable) {
 		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {
-                        if (RSimpleName("makeAssoc") := n) println("Found items <getItemsForName(symbolTable,symbolTable.currentScope,n)> at scope <symbolTable.currentScope>");
+			//if (RSimpleName("showConceptURL") := n) println("Found IDs <getItemsForName(symbolTable, symbolTable.currentScope, n)>");
 			symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, n), l);
 		} else {
-		        if (RSimpleName("makeAssoc") := n) println("Found no items at scope <symbolTable.currentScope>");
-			symbolTable = addScopeError(symbolTable, l, "<prettyPrintName(n)> not defined before use in scope <symbolTable.currentScope>.");
+			symbolTable = addScopeError(symbolTable, l, "<prettyPrintName(n)> not defined before use");
 		}
 		return symbolTable;
 	}
 	
 	switch(exp) {
+	        // Strings (in case of interpolation)
+		case (Expression)`<StringLiteral sl>`: {
+		        list[Tree] ipl = prodFilter(sl, 
+                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+			for (ipe <- ipl) {
+			        if (`<Expression ipee>` := ipe)
+			                symbolTable = handleExpression(ipee, symbolTable);
+				else if (`<StringTemplate ipet>` := ipe)
+				        symbolTable = handleStringTemplate(ipet, symbolTable);
+			}
+		}
+
+		// Locations (in case of interpolation)
+		case (Expression)`<LocationLiteral ll>`: {
+		        list[Expression] ipl = prodFilter(ll, bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd; });
+			for (ipe <- ipl) symbolTable = handleExpression(ipe, symbolTable);
+		}
+
 		// Name _
 		case (Expression)`_`: 
 			symbolTable = addScopeError(symbolTable, exp@\loc, "_ cannot be used as a variable name in an expression.");
@@ -937,22 +1189,27 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 			for (eli <- el) symbolTable = handleExpression(eli, symbolTable);
 		}
 
-		// TODO: Map: Need to figure out a syntax that works for matching this
-		// case ...
-		//case appl(prod([],cf(sort("Expression")),no-attrs),[...]) :
-
 		// Closure
 		case `<Type t> <Parameters p> { <Statement+ ss> }` : {
-			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(p, symbolTable);
-			symbolTable = justSymbolTable(pushNewClosureScope(convertType(t), params, exp@\loc, symbolTable));
+			tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] paramsI = handleParametersNamesOnly(p, symbolTable);
+			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = paramsI.params;
+			symbolTable = paramsI.symbolTable;
+
+	                ConvertTuple ct = convertRascalType(symbolTable, t);
+	                RType retType = ct.rtype; symbolTable = ct.symbolTable;
+			ResultTuple rt = pushNewClosureScope(retType, params, exp@\loc, symbolTable);
+			symbolTable = justSymbolTable(addSTItemUses(rt,([<false,exp@\loc>, <false,exp@\loc>] + [<true,prm.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] prm <- params])));
 			for (s <- ss) symbolTable = handleStatement(s, symbolTable);
 			symbolTable = popScope(symbolTable);
 		}
 
 		// VoidClosure
 		case `<Parameters p> { <Statement* ss> }` : {
-			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = handleParametersNamesOnly(p, symbolTable);
-			symbolTable = justSymbolTable(pushNewVoidClosureScope(params, exp@\loc, symbolTable));
+			tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] paramsI = handleParametersNamesOnly(p, symbolTable);
+			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = paramsI.params;
+			symbolTable = paramsI.symbolTable;
+			ResultTuple rt = pushNewVoidClosureScope(params, exp@\loc, symbolTable);
+			symbolTable = justSymbolTable(addSTItemUses(rt,([<false,exp@\loc>, <false,exp@\loc>] + [<true,prm.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] prm <- params])));
 			for (s <- ss) symbolTable = handleStatement(s, symbolTable);
 			symbolTable = popScope(symbolTable);
 		}
@@ -1358,7 +1615,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 
 		// Reducer
 		case `( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )` : {
-			symbolTable = handleExpression(e1, symbolTable);
+			symbolTable = handleExpression(ei, symbolTable);
 			
 			// Open a new boolean scope for the generators, this makes them available in the reducer
 			symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1384,7 +1641,113 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		case `all ( <{Expression ","}+ egs> )` :
 			for (e <- egs) symbolTable = handleExpression(e, symbolTable);
 	}
-	
+
+	// Logic for handling maps -- we cannot directly match them, so instead we need to pick apart the tree
+	// representing the map.
+        // exp[0] is the production used, exp[1] is the actual parse tree contents
+	if (prod(_,_,attrs([_*,term(cons("Map")),_*])) := exp[0]) {
+	        symbolTable = handleMapExpression(exp, symbolTable);
+	}
+
+	return symbolTable;
+}
+
+//
+// Handle string templates
+//
+public SymbolTable handleStringTemplate(StringTemplate s, SymbolTable symbolTable) {
+	switch(s) {
+		case `for (<{Expression ","}+ gens>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
+			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
+			for (e <- gens) symbolTable = handleExpression(e, symbolTable);
+			for (st <- pre) symbolTable = handleStatement(st, symbolTable);
+		        list[Tree] ipl = prodFilter(body, 
+                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+			for (ipe <- ipl) {
+			        if (`<Expression ipee>` := ipe)
+			                symbolTable = handleExpression(ipee, symbolTable);
+				else if (`<StringTemplate ipet>` := ipe)
+				        symbolTable = handleStringTemplate(ipet, symbolTable);
+			}
+			for (st <- post) symbolTable = handleStatement(st, symbolTable);
+			symbolTable = popScope(symbolTable);		
+		}
+
+		case `if (<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
+			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
+			for (e <- conds) symbolTable = handleExpression(e, symbolTable);
+			for (st <- pre) symbolTable = handleStatement(st, symbolTable);
+		        list[Tree] ipl = prodFilter(body, 
+                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+			for (ipe <- ipl) {
+			        if (`<Expression ipee>` := ipe)
+			                symbolTable = handleExpression(ipee, symbolTable);
+				else if (`<StringTemplate ipet>` := ipe)
+				        symbolTable = handleStringTemplate(ipet, symbolTable);
+			}
+			for (st <- post) symbolTable = handleStatement(st, symbolTable);
+			symbolTable = popScope(symbolTable);		
+		}
+
+		case `if (<{Expression ","}+ conds>) { <Statement* preThen> <StringMiddle bodyThen> <Statement* postThen> } else { <Statement* preElse> <StringMiddle bodyElse> <Statement* postElse> }` : {
+			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
+			for (e <- conds) symbolTable = handleExpression(e, symbolTable);
+			for (st <- preThen) symbolTable = handleStatement(st, symbolTable);
+		        list[Tree] ipl = prodFilter(bodyThen, 
+                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+			for (ipe <- ipl) {
+			        if (`<Expression ipee>` := ipe)
+			                symbolTable = handleExpression(ipee, symbolTable);
+				else if (`<StringTemplate ipet>` := ipe)
+				        symbolTable = handleStringTemplate(ipet, symbolTable);
+			}
+			for (st <- postThen) symbolTable = handleStatement(st, symbolTable);
+			for (st <- preElse) symbolTable = handleStatement(st, symbolTable);
+		        ipl = prodFilter(bodyElse, 
+                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+			for (ipe <- ipl) {
+			        if (`<Expression ipee>` := ipe)
+			                symbolTable = handleExpression(ipee, symbolTable);
+				else if (`<StringTemplate ipet>` := ipe)
+				        symbolTable = handleStringTemplate(ipet, symbolTable);
+			}
+			for (st <- postElse) symbolTable = handleStatement(st, symbolTable);
+			symbolTable = popScope(symbolTable);		
+		}
+
+		case `while (<Expression cond>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
+			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
+			symbolTable = handleExpression(cond, symbolTable);
+			for (st <- pre) symbolTable = handleStatement(st, symbolTable);
+		        list[Tree] ipl = prodFilter(body, 
+                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+			for (ipe <- ipl) {
+			        if (`<Expression ipee>` := ipe)
+			                symbolTable = handleExpression(ipee, symbolTable);
+				else if (`<StringTemplate ipet>` := ipe)
+				        symbolTable = handleStringTemplate(ipet, symbolTable);
+			}
+			for (st <- post) symbolTable = handleStatement(st, symbolTable);
+			symbolTable = popScope(symbolTable);		
+		}
+
+		case `do { <Statement* pre> <StringMiddle body> <Statement* post> } while (<Expression cond>)` : {
+			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
+			for (st <- pre) symbolTable = handleStatement(st, symbolTable);
+		        list[Tree] ipl = prodFilter(body, 
+                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+			for (ipe <- ipl) {
+			        if (`<Expression ipee>` := ipe)
+			                symbolTable = handleExpression(ipee, symbolTable);
+				else if (`<StringTemplate ipet>` := ipe)
+				        symbolTable = handleStringTemplate(ipet, symbolTable);
+			}
+			for (st <- post) symbolTable = handleStatement(st, symbolTable);
+			symbolTable = handleExpression(cond, symbolTable);
+			symbolTable = popScope(symbolTable);		
+		}
+	}
+
 	return symbolTable;
 }
 
@@ -1422,7 +1785,7 @@ public SymbolTable handleAssignable(Assignable a, SymbolTable symbolTable) {
 		case `<Assignable al> [ <Expression e> ]` :
 			symbolTable = handleExpression(e, handleAssignable(al, symbolTable));			
 
-		// Field assignment
+		// Field assignment, since the field name is part of the type, not a declared variable, we don't mark it here
 		case `<Assignable al> . <Name n>` :
 			symbolTable = handleAssignable(al, symbolTable);
 		
@@ -1453,12 +1816,19 @@ public SymbolTable handleAssignable(Assignable a, SymbolTable symbolTable) {
 	return symbolTable;
 }
 
+//
+// Build symbol table information for local variable declarations. We do allow shadowing of names declared
+// outside the function, but we do not allow shadowing inside the function, so our duplicates check is
+// function bounded.
+//
 public SymbolTable handleLocalVarItems(Type t, {Variable ","}+ vs, SymbolTable symbolTable) {
 	for (vb <- vs) {
 		if ((Variable)`<Name n>` := vb || (Variable)`<Name n> = <Expression e>` := vb) {
 			if (size(getItemsForNameFB(symbolTable, symbolTable.currentScope, convertName(n))) > 0)
 				symbolTable = addScopeError(symbolTable, n@\loc, "Illegal redefinition of <n>.");
-			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(convertName(n), convertType(t), true, vb@\loc, symbolTable), [<true,n@\loc>])); 
+	                ConvertTuple ct = convertRascalType(symbolTable, t);
+	                RType varType = ct.rtype; symbolTable = ct.symbolTable;
+			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(convertName(n), varType, true, vb@\loc, symbolTable), [<true,n@\loc>])); 
 		}
 		
 		if ((Variable)`<Name n> = <Expression e>` := vb) {		
@@ -1539,7 +1909,7 @@ public SymbolTable addFreshAnonymousVariable(loc nloc, SymbolTable symbolTable) 
 
 public SymbolTable addFreshContainerVariable(RName n, loc nloc, SymbolTable symbolTable) {
 	RType freshType = makeContainerType(makeInferredType(symbolTable.freshType));
-	symbolTable.inferredTypeMap[symbolTable.freshType] = freshType;
+	symbolTable.inferredTypeMap[symbolTable.freshType] = getContainerElementType(freshType);
 	symbolTable.freshType = symbolTable.freshType + 1;
 	symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, freshType, false, nloc, symbolTable), [<true,nloc>]));
 	return symbolTable;
@@ -1547,7 +1917,7 @@ public SymbolTable addFreshContainerVariable(RName n, loc nloc, SymbolTable symb
 
 public SymbolTable addFreshAnonymousContainerVariable(loc nloc, SymbolTable symbolTable) {
 	RType freshType = makeContainerType(makeInferredType(symbolTable.freshType));
-	symbolTable.inferredTypeMap[symbolTable.freshType] = freshType;
+	symbolTable.inferredTypeMap[symbolTable.freshType] = getContainerElementType(freshType);
 	symbolTable.freshType = symbolTable.freshType + 1;
 	symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(RSimpleName("_"), freshType, false, nloc, symbolTable), [<true,nloc>]));
 	return symbolTable;
@@ -1569,11 +1939,17 @@ public SymbolTable addFreshContainerVariableWithType(RName n, loc nloc, RType rt
 	return symbolTable;
 }
 
+public SymbolTable handleMapPattern(Pattern pat, SymbolTable symbolTable) {
+        list[tuple[Pattern mapDomain, Pattern mapRange]] mapContents = getMapPatternContents(pat);
+	for (<md,mr> <- mapContents) symbolTable = handlePattern(mr, handlePattern(md, symbolTable));
+	return symbolTable;
+}
+
 //
 // Handle patterns
 //
-// TODO: Interpolation
-// TODO: Maps
+// NOTE: We don't handle interpolation here. Does it make sense to allow this inside
+// either string or location patterns? (for instance, to create the string to match against?)
 //
 public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 	SymbolTable handlePatternName(RName n, loc l, SymbolTable symbolTable) {
@@ -1606,9 +1982,22 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 		return symbolTable;
 	}	
 
-	// println("NAMESPACE: Handling pattern <pat>");
-	
 	switch(pat) {
+		// Regular Expression literal
+		case (Pattern)`<RegExpLiteral rl>` : {
+		    list[Tree] names = prodFilter(rl, bool(Production prd) { return prod(_,lex(sort("Name")),_) := prd; });
+	            // For each name, either introduce it into scope, or tag the use of an existing name; we can
+		    // assume that names are of type string, since they will hold parts of strings
+		    for (n <- names) {
+                        RName rn = RSimpleName("<n>");
+			if (size(getItemsForNameMB(symbolTable, symbolTable.currentScope, rn)) > 0) {
+			    symbolTable = addItemUses(symbolTable, getItemsForNameMB(symbolTable, symbolTable.currentScope, rn), n@\loc);
+		         } else {
+		            symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(rn, makeStrType(), false, n@\loc, symbolTable), [<true,n@\loc>]));
+			 }
+		    }
+		}
+
 		// Name _
 		case (Pattern)`_` : {
 			// println("NAMESPACE: Handling name pattern <pat>");
@@ -1668,7 +2057,9 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 		// Typed Variable
 		case (Pattern) `<Type t> <Name n>` : {
 			// println("NAMESPACE: Handling typed variable pattern <pat>");
-			symbolTable = handleTypedPatternName(convertName(n),convertType(t),n@\loc,pat@\loc,symbolTable);
+	                ConvertTuple ct = convertRascalType(symbolTable, t);
+	                RType varType = ct.rtype; symbolTable = ct.symbolTable;
+			symbolTable = handleTypedPatternName(convertName(n),varType,n@\loc,pat@\loc,symbolTable);
 		}
 
 		// Anonymous Multi Variable
@@ -1698,7 +2089,9 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 		// Typed Variable Becomes
 		case (Pattern) `<Type t> <Name n> : <Pattern p>` : {
 			// println("NAMESPACE: Handling typed variable becomes pattern <pat>");
-			symbolTable = handlePattern(p, handleTypedPatternName(convertName(n),convertType(t),n@\loc,pat@\loc,symbolTable));
+	                ConvertTuple ct = convertRascalType(symbolTable, t);
+	                RType varType = ct.rtype; symbolTable = ct.symbolTable;
+			symbolTable = handlePattern(p, handleTypedPatternName(convertName(n),varType,n@\loc,pat@\loc,symbolTable));
 		}
 		
 		// Guarded
@@ -1714,32 +2107,30 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 		}
 	}
 	
+	// Logic for handling maps -- we cannot directly match them, so instead we need to pick apart the tree
+	// representing the map.
+        // pat[0] is the production used, pat[1] is the actual parse tree contents
+	if (prod(_,_,attrs([_*,term(cons("Map")),_*])) := pat[0]) {
+	        symbolTable = handleMapPattern(pat, symbolTable);
+	}
+
 	return symbolTable;
 }
 
+//
+// We have separate logic here since we don't allow general patterns to be used for the constructor position
+// in a call or tree pattern. So, here we ensure that this is actually a name of some sort, either an explicit
+// simple Name (A) or a Qualified Name (A::B).
+//
 public SymbolTable handlePatternConstructorName(Pattern pat, SymbolTable symbolTable) {
 	SymbolTable handlePatternName(RName n, loc l, SymbolTable symbolTable) {
-		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {		
+		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {
 			symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, n), l);
 		} else {
 			symbolTable = addScopeError(symbolTable, l, "Constructor name <prettyPrintName(n)> must be declared");
 		}
 		return symbolTable;
 	}
-	
-	SymbolTable handleTypedPatternName(RName n, RType t, loc l, loc pl, SymbolTable symbolTable) {
-		if (size(getItemsForNameFB(symbolTable, symbolTable.currentScope, n)) > 0) {
-			set[STItemId] conflictItems = getItemsForNameFB(symbolTable, symbolTable.currentScope, n);
-			set[loc] conflictLocations = { symbolTable.scopeItemMap[si]@at | si <- conflictItems, ( (symbolTable.scopeItemMap[si]@at)?) };		
-			symbolTable = addScopeError(symbolTable, l, "Illegal shadowing of already declared name <prettyPrintName(n)>; other declarations at <conflictLocations>");
-		} else {
-			// println("Adding typed variable pattern name for type <prettyPrintType(t)>, name <prettyPrintName(n)>");
-			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, t, false, pl, symbolTable), [<true,l>]));
-		}
-		return symbolTable;
-	}	
-
-	// println("NAMESPACE: Handling call or tree constructor name pattern <pat>");
 	
 	switch(pat) {
 		// Name other than _
@@ -1752,12 +2143,6 @@ public SymbolTable handlePatternConstructorName(Pattern pat, SymbolTable symbolT
 		case (Pattern)`<QualifiedName qn>` : {
 			// println("NAMESPACE: Handling qualified name pattern <pat>");
 			symbolTable = handlePatternName(convertName(qn), qn@\loc, symbolTable);
-		}
-
-		// Typed Variable
-		case (Pattern) `<Type t> <Name n>` : {
-			// println("NAMESPACE: Handling typed variable pattern <pat>");
-			symbolTable = handleTypedPatternName(convertName(n),convertType(t),n@\loc,pat@\loc,symbolTable);
 		}
 
 		default : {
@@ -1797,7 +2182,7 @@ public SymbolTable handlePatternWithAction(PatternWithAction pwa, SymbolTable sy
 	return symbolTable;
 }
 
-public SymbolTable handleTarget(DataTarget dt, SymbolTable symbolTable) {
+public SymbolTable handleDataTarget(DataTarget dt, SymbolTable symbolTable) {
 	if ((DataTarget)`<Name n> :` := dt) {
 		set[STItemId] items = getLabelItemsForNameFB(symbolTable, symbolTable.currentScope, convertName(n));
 		if (size(items) == 1) {
@@ -1807,7 +2192,20 @@ public SymbolTable handleTarget(DataTarget dt, SymbolTable symbolTable) {
 		} else {
 			symbolTable = addScopeError(symbolTable, n@\loc, "Label <n> has multiple definitions.");
 		}
-		
+	}
+	return symbolTable;
+}
+
+public SymbolTable handleTarget(Target t, SymbolTable symbolTable) {
+	if ((Target)`<Name n>` := t) {
+		set[STItemId] items = getLabelItemsForNameFB(symbolTable, symbolTable.currentScope, convertName(n));
+		if (size(items) == 1) {
+			symbolTable = addItemUses(symbolTable, items, n@\loc);
+		} else if (size(items) == 0) {
+			symbolTable = addScopeError(symbolTable, n@\loc, "Label <n> has not been defined.");			
+		} else {
+			symbolTable = addScopeError(symbolTable, n@\loc, "Label <n> has multiple definitions.");
+		}
 	}
 	return symbolTable;
 }
@@ -1834,14 +2232,16 @@ public SymbolTable checkADTDefinitionsForConsistency(SymbolTable symbolTable) {
 		// defined in the current module, since they are easier to fix -- checking them later preferences the
 		// types assigned to field in imported types.
 		for (ci <- symbolTable.adtMap[n].consItems, ci in symbolTable.scopeRel[symbolTable.topSTItemId]) {
-			if (ConstructorItem(cn,params,_,_) := symbolTable.scopeItemMap[ci]) {
-				for (RNamedType(nt,nn) <- params) {
+		        RType consType = getTypeForItem(symbolTable, ci);
+			if (isConstructorType(consType)) {
+			        list[RNamedType] argTypes = getConstructorArgumentTypesWithNames(consType);
+				for (RNamedType(nt,nn) <- argTypes) {
 					if (nn notin fieldMap) {
 						fieldMap[nn] = nt;
-					} else if (nn in fieldMap && !typeEquality(fieldMap[nn],nt)) {
-						symbolTable = addScopeError(symbolTable, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>", moduleLoc);
+					} else if (nn in fieldMap && !equivalent(fieldMap[nn],nt)) {
+						symbolTable = addScopeError(symbolTable, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
 					}
-				}				
+				}
 			} else {
 				throw "checkADTDefinitionsForConsistency, unexpected constructor item <symbolTable.scopeItemMap[ci]>";
 			}
@@ -1849,13 +2249,15 @@ public SymbolTable checkADTDefinitionsForConsistency(SymbolTable symbolTable) {
 		
 		// Now check the fields on the ADTs defined in the current module.
 		// TODO: May be good to refactor out identical checking code
-		for (ci <- symbolTable.adtMap[n].consItems, ci in symbolTable.scopeRel[moduleLayerId]) {
-			if (ConstructorItem(cn,params,_,_) := symbolTable.scopeItemMap[ci]) {
-				for (RNamedType(nt,nn) <- params) {
+		for (ci <- symbolTable.adtMap[n].consItems, ci in symbolTable.scopeRel[symbolTable.topSTItemId]) {
+		        RType consType = getTypeForItem(symbolTable, ci);
+			if (isConstructorType(consType)) {
+			        list[RNamedType] argTypes = getConstructorArgumentTypesWithNames(consType);
+				for (RNamedType(nt,nn) <- argTypes) {
 					if (nn notin fieldMap) {
 						fieldMap[nn] = nt;
-					} else if (nn in fieldMap && !typeEquality(fieldMap[nn],nt)) {
-						symbolTable = addScopeError(symbolTable, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>", moduleLoc);
+					} else if (nn in fieldMap && !equivalent(fieldMap[nn],nt)) {
+						symbolTable = addScopeError(symbolTable, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
 					}
 				}				
 			} else {
@@ -1866,16 +2268,4 @@ public SymbolTable checkADTDefinitionsForConsistency(SymbolTable symbolTable) {
 	
 	return symbolTable;	
 }
-
-// NOTE: The code in ExampleGraph appears to be out of date, so this doesn't
-// appear to work. Look at other ways to visualize.
-//public void showScope(SymbolTable symbolTable, int w, int h) {
-//	// First, create a node for each item in the scope info
-//	nodes = [ box([id("<n>"), width(20), height(20), fillColor("lightblue")], text("<si>")) | n <- domain(symbolTable.scopeItemMap), si := symbolTable.scopeItemMap[n]];
-//
-//	// Now, create the edges based on the relation
-//	edges = [ edge("<f>", "<t>") | < f, t > <- symbolTable.scopeRel];
-//
-//	// Finally, render
-//	render(graph([width(w), height(h)], nodes, edges));
 

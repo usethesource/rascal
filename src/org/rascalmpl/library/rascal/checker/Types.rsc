@@ -97,10 +97,9 @@ data RType =
 	| ROverloadedType(set[ROverloadedType] possibleTypes)
 	| RVarArgsType(RType vt)
 
-    | RStatementType(RType internalType)
+        | RStatementType(RType internalType)
 
 	| RAliasType(RType aliasName, RType aliasedType)
-	| RParameterizedAliasType(RType aliasName, list[RType] typeParams, RType aliasedType)
 
 	| RDataTypeSelector(RName source, RName target)
 	| RUserType(RName typeName)
@@ -126,6 +125,11 @@ data RTypeVar =
 	| RBoundTypeVar(RName varName, RType varTypeBound)
 ;
 
+//
+// Convert basic types into their Rascal analogs. Add error information
+// if needed -- for instance, if we just see list that is an error, since
+// just list isn't a type, we need list[something].
+//
 public RType convertBasicType(BasicType t) {
 	switch(t) {
 		case `bool` : return RBoolType();
@@ -137,23 +141,40 @@ public RType convertBasicType(BasicType t) {
 		case `node` : return RNodeType();
 		case `void` : return RVoidType();
 		case `loc` : return RLocType();
-		case `list` : return RListType(RVoidType());
-		case `set` : return RSetType(RVoidType());
-		case `bag` : return RBagType(RVoidType());
-		case `map` : return RMapType(RUnnamedType(RVoidType()),RUnnamedType(RVoidType()));
-		case `rel` : return RRelType([]);
-		case `tuple` : return RTupleType([]);
 		case `lex` : return RLexType();
-		case `type` : return RReifiedType(RVoidType());
-		case `adt` : return RADTType(RUserType(RSimpleName("unnamedADT")));
-		case `constructor` : return RConstructorType(RSimpleName("unnamedConstructor"),RUserType(RSimpleName("unnamedADT")),[]);
-		case `fun` : return RFunctionType(RVoidType,[]);
-		case `non-terminal` : return RNonTerminalType();
-		case `reified` : return RReifiedType(RVoidType());
 		case `datetime` : return RDateTimeType();
+		case `non-terminal` : return RNonTerminalType();
+
+		case `list` : 
+                        return RListType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
+		case `set` : 
+                        return RSetType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
+		case `bag` : 
+                        return RBagType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
+		case `map` : 
+                        return RMapType(RUnnamedType(RVoidType()),RUnnamedType(RVoidType()))[@errinfo = <"Non-well-formed type, type should have two type arguments", t@\loc>];
+		case `rel` : 
+                        return RRelType([])[@errinfo = <"Non-well-formed type, type should have one or more type arguments", t@\loc>];
+		case `tuple` : 
+                        return RTupleType([])[@errinfo = <"Non-well-formed type, type should have one or more type arguments", t@\loc>];
+		case `type` : 
+                        return RReifiedType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
+		case `adt` : 
+                        return RADTType(RUserType(RSimpleName("unnamedADT")))[@errinfo = <"Non-well-formed type", t@\loc>];
+		case `parameter` : 
+                        return RTypeVar(RFreeTypeVar(RSimpleName("unnamedVar")))[@errinfo = <"Non-well-formed type", t@\loc>];
+		case `constructor` : 
+                        return RConstructorType(RSimpleName("unnamedConstructor"),RUserType(RSimpleName("unnamedADT")),[])[@errinfo = <"Non-well-formed type", t@\loc>];
+		case `fun` : 
+                        return RFunctionType(RVoidType,[])[@errinfo = <"Non-well-formed type", t@\loc>];
+		case `reified` : 
+                        return RReifiedType(RVoidType())[@errinfo = <"Non-well-formed type", t@\loc>];
 	}
 }
 
+//
+// Convert type arguments into Rascal named types, which are types with an optional name.
+//
 public RNamedType convertTypeArg(TypeArg ta) {
 	switch(ta) {
 		case (TypeArg) `<Type t>` : return RUnnamedType(convertType(t));
@@ -161,33 +182,118 @@ public RNamedType convertTypeArg(TypeArg ta) {
 	}
 }
 
+//
+// Convenience function to convert an entire list of named type args.
+//
 public list[RNamedType] convertTypeArgList({TypeArg ","}* tas) {
 	return [convertTypeArg(ta) | ta <- tas];
 }
 
+//
+// Convert structured types, such as list[int]. Check here for certain
+// syntactical conditions, such as: all field names must be distinct in
+// a given type; lists require exactly one type argument.
+//
 public RType convertStructuredType(StructuredType st) {
-	RType buildMapType(StructuredType st, list[RNamedType] mapTypes) {
-		if (size(mapTypes) != 2) {
-			throw "Invalid arguments provided for building map type: <st>";
-		}
-		return RMapType(mapTypes[0],mapTypes[1]);
-	}
-	// TODO: Add aliases here, they can have parameters as well
 	switch(st) {
-		case (StructuredType) `list [ < {TypeArg ","}+ tas > ]` : return RListType(getElementType(head(convertTypeArgList(tas)))); 
-		case (StructuredType) `set [ < {TypeArg ","}+ tas > ]` : return RSetType(getElementType(head(convertTypeArgList(tas)))); 
-		case (StructuredType) `bag [ < {TypeArg ","}+ tas > ]` : return RBagType(getElementType(head(convertTypeArgList(tas)))); 
-		case (StructuredType) `map [ < {TypeArg ","}+ tas > ]` : return buildMapType(st,convertTypeArgList(tas)); 
-		case (StructuredType) `rel [ < {TypeArg ","}+ tas > ]` : return RRelType(convertTypeArgList(tas)); 
-		case (StructuredType) `tuple [ < {TypeArg ","}+ tas > ]` : return RTupleType(convertTypeArgList(tas));
-		case (StructuredType) `type [ < {TypeArg ","}+ tas > ]` : return RReifiedType(getElementType(head(convertTypeArgList(tas)))); // TODO: Fix this
-		case (StructuredType) `<BasicType bt> [ < {TypeArg ","}+ tas > ]` : throw "Invalid basic type <bt> in definition of structured type <st>";  
+		case (StructuredType) `list [ < {TypeArg ","}+ tas > ]` : {
+		        l = convertTypeArgList(tas);
+			if (size(l) == 1 && RUnnamedType(_) := l[0])
+		                return RListType(getElementType(l[0]));
+			else if (size(l) == 1 && RNamedType(_,_) := l[0])
+		                return RListType(getElementType(l[0]))[@errinfo=<"A name cannot be given to the list element type",st@\loc>];
+			else 
+		                return RListType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a list",st@\loc>];
+				
+		}
+
+		case (StructuredType) `set [ < {TypeArg ","}+ tas > ]` : {
+		        l = convertTypeArgList(tas);
+			if (size(l) == 1 && RUnnamedType(_) := l[0])
+		                return RSetType(getElementType(l[0]));
+			else if (size(l) == 1 && RNamedType(_,_) := l[0])
+		                return RSetType(getElementType(l[0]))[@errinfo=<"A name cannot be given to the set element type",st@\loc>];
+			else 
+		                return RSetType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a set",st@\loc>];
+		}
+
+		case (StructuredType) `bag [ < {TypeArg ","}+ tas > ]` : {
+		        l = convertTypeArgList(tas);
+			if (size(l) == 1 && RUnnamedType(_) := l[0])
+		                return RBagType(getElementType(l[0]));
+			else if (size(l) == 1 && RNamedType(_,_) := l[0])
+		                return RBagType(getElementType(l[0]))[@errinfo=<"A name cannot be given to the bag element type",st@\loc>];
+			else 
+		                return RBagType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a bag",st@\loc>];
+		}
+
+		case (StructuredType) `map [ < {TypeArg ","}+ tas > ]` : {
+		        l = convertTypeArgList(tas);
+			if (size(l) == 2 && RUnnamedType(_) := l[0] && RUnnamedType(_) := l[1])
+		                return RMapType(l[0],l[1]);
+			else if (size(l) == 2 && RNamedType(_,n1) := l[0] && RNamedType(_,n2) := l[1] && n1 != n2)
+		                return RMapType(l[0],l[1]);
+			else if (size(l) == 2 && RNamedType(_,n1) := l[0] && RNamedType(_,n2) := l[1] && n1 == n2)
+			        return RMapType(RUnnamedType(getElementType(l[0])),RUnnamedType(getElementType(l[0])))[@errinfo=<"The names given to the type arguments must be distinct",st@\loc>];
+			else if (size(l) == 2)
+			        return RMapType(RUnnamedType(getElementType(l[0])),RUnnamedType(getElementType(l[0])))[@errinfo=<"Names must either be given to both the domain and range or to neither",st@\loc>];
+			else if (size(l) > 2)
+			        return RMapType(RUnnamedType(getElementType(l[0])),RUnnamedType(getElementType(l[0])))[@errinfo=<"Only two type arguments should be given",st@\loc>];
+			else 
+		                return RMapType(RUnnamedType(RVoidType()), RUnnamedType(RVoidType()))[@errinfo=<"Two type arguments must be given for a map",st@\loc>];
+		}
+
+		case (StructuredType) `rel [ < {TypeArg ","}+ tas > ]` : {
+		        l = convertTypeArgList(tas);
+			if (size([n | n <- [0..size(l)-1], RUnnamedType(_) := l[n]]) == size(l))
+			        return RRelType(l);
+			else if (size({tn | n <- [0..size(l)-1], RNamedType(_,tn) := l[n]}) == size(l))
+			        return RRelType(l);
+			else if (size([n | n <- [0..size(l)-1], RNamedType(_,_) := l[n]]) == size(l))
+			        return RRelType([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"If names are given to type arguments they must all be distinct.",st@\loc>];
+			else
+			        return RRelType([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"Named must be given either to all type arguments or to none.",st@\loc>];
+		}
+
+		case (StructuredType) `tuple [ < {TypeArg ","}+ tas > ]` : {
+		        l = convertTypeArgList(tas);
+			if (size([n | n <- [0..size(l)-1], RUnnamedType(_) := l[n]]) == size(l))
+			        return RTupleType(l);
+			else if (size({tn | n <- [0..size(l)-1], RNamedType(_,tn) := l[n]}) == size(l))
+			        return RTupleType(l);
+			else if (size([n | n <- [0..size(l)-1], RNamedType(_,_) := l[n]]) == size(l))
+			        return RTupleType([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"If names are given to type arguments they must all be distinct.",st@\loc>];
+			else
+			        return RTupleType([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"Named must be given either to all type arguments or to none.",st@\loc>];
+		}
+
+		case (StructuredType) `type [ < {TypeArg ","}+ tas > ]` : {
+		        l = convertTypeArgList(tas);
+			if (size(l) == 1 && RUnnamedType(_) := l[0])
+		                return RReifiedType(getElementType(l[0]));
+			else if (size(l) == 1 && RNamedType(_,_) := l[0])
+		                return RReifiedType(getElementType(l[0]))[@errinfo=<"A name cannot be given to the type element type",st@\loc>];
+			else 
+		                return RReifiedType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a type",st@\loc>];
+		}
+
+		case (StructuredType) `<BasicType bt> [ < {TypeArg ","}+ tas > ]` : {
+		        return RVoidType()[@errinfo=<"Type <bt> does not accept type parameters",st@\loc>];
+		}
 	}
 }
 
 public RType convertFunctionType(FunctionType ft) {
 	switch(ft) {
-		case (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )` : return RFunctionType(convertType(t),convertTypeArgList(tas));
+		case (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )` : {
+		        l = convertTypeArgList(tas);
+			if (size(l) == 0)
+			        return RFunctionType(convertType(t), [ ]);
+		        else if (size(l) != size([n | n <- [0..size(l)-1], RUnnamedType(_) := l[n]]))
+                                return RFunctionType(convertType(t),[RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"Names cannot be given to the arguments in a function type",ft@\loc>];
+			else
+                                return RFunctionType(convertType(t),convertTypeArgList(tas));
+		}
 	}
 }
 
@@ -275,7 +381,6 @@ public str prettyPrintType(RType t) {
 		case RVarArgsType(vt) : return "<prettyPrintType(vt)>...";
 		case RStatementType(rt) : return "Statement: <prettyPrintType(rt)>";
 		case RAliasType(an,at) : return "Alias: <prettyPrintType(an)> = <prettyPrintType(at)>";
-		case RParameterizedAliasType(an,tps,at) : return "<prettyPrintType(an)>[<prettyPrintTypeList(tps)>]";
 		case RDataTypeSelector(s,t) : return "Selector <s>.<t>";
 		case RUserType(tn) : return "<prettyPrintName(tn)>";
 		case RParameterizedUserType(tn, tps) : return "<prettyPrintName(tn)>[<prettyPrintTypeList(tps)>]";
@@ -320,118 +425,513 @@ anno RType Tree@fctype;
 anno loc RType@at;
 
 //
-// Helper routines for querying/building/etc types
+// Annotation for adding error information to types
+//
+anno tuple[str msg, loc at] RType@errinfo;
+
+//
+// Routines for dealing with bool types
 //
 public bool isBoolType(RType t) {
+        if (RAliasType(_,at) := t) return isBoolType(at);
+        if (RTypeVar(_) := t) return isBoolType(getTypeVarBound(t));
 	return RBoolType() := t;
 }
 
+public RType makeBoolType() { return RBoolType(); }
+
+//
+// Routines for dealing with int types
+//
 public bool isIntType(RType t) {
+        if (RAliasType(_,at) := t) return isIntType(at);
+        if (RTypeVar(_) := t) return isIntType(getTypeVarBound(t));
 	return RIntType() := t;
 }
 
+public RType makeIntType() { return RIntType(); }
+
+//
+// Routines for dealing with real types
+//
 public bool isRealType(RType t) {
+        if (RAliasType(_,at) := t) return isRealType(at);
+        if (RTypeVar(_) := t) return isRealType(getTypeVarBound(t));
 	return RRealType() := t;
 }
 
+public RType makeRealType() { return RRealType(); }
+
+//
+// Routines for dealing with num types
+//
 public bool isNumType(RType t) {
+        if (RAliasType(_,at) := t) return isNumType(at);
+        if (RTypeVar(_) := t) return isNumType(getTypeVarBound(t));
 	return RNumType() := t;
 }
 
+public RType makeNumType() { return RNumType(); }
+
+//
+// Routines for dealing with str types
+//
 public bool isStrType(RType t) {
+        if (RAliasType(_,at) := t) return isStrType(at);
+        if (RTypeVar(_) := t) return isStrType(getTypeVarBound(t));
 	return RStrType() := t;
 }
 
+public RType makeStrType() { return RStrType(); }
+
+//
+// Routines for dealing with value types
+//
 public bool isValueType(RType t) {
+        if (RAliasType(_,at) := t) return isValueType(at);
+        if (RTypeVar(_) := t) return isValueType(getTypeVarBound(t));
 	return RValueType() := t;
 }
 
+public RType makeValueType() { return RValueType(); }
+
+//
+// Routines for dealing with node types
+//
 public bool isNodeType(RType t) {
-	return RNodeType() := t;
+        if (RAliasType(_,at) := t) return isNodeType(at);
+        if (RTypeVar(_) := t) return isNodeType(getTypeVarBound(t));
+	return (RNodeType() := t || RADTType(_) := t);
 }
 
+public RType makeNodeType() { return RNodeType(); }
+//
+// Routines for dealing with void types
+//
 public bool isVoidType(RType t) {
+        if (RAliasType(_,at) := t) return isVoidType(at);
+        if (RTypeVar(_) := t) return isVoidType(getTypeVarBound(t));
 	return RVoidType() := t;
 }
 
+public RType makeVoidType() { return RVoidType(); }
+
+//
+// Routines for dealing with loc types
+//
 public bool isLocType(RType t) {
+        if (RAliasType(_,at) := t) return isLocType(at);
+        if (RTypeVar(_) := t) return isLocType(getTypeVarBound(t));
 	return RLocType() := t;
 }
 
+public RType makeLocType() { return RLocType(); }
+
+//
+// Routines for dealing with list types
+//
 public bool isListType(RType t) {
+        if (RAliasType(_,at) := t) return isListType(at);
+        if (RTypeVar(_) := t) return isListType(getTypeVarBound(t));
 	return RListType(_) := t;
 }
 
+public RType makeListType(RType itemType) { return RListType(itemType); }
+
+public RType getListElementType(RType t) {
+        if (RAliasType(_,at) := t) return getListElementType(at);
+        if (RTypeVar(_) := t) return getListElementType(getTypeVarBound(t));
+	if (RListType(et) := t) return et;
+	throw "Error: Cannot get list element type from type <prettyPrintType(t)>";
+}
+
+//
+// Routines for dealing with set types
+//
 public bool isSetType(RType t) {
+        if (RAliasType(_,at) := t) return isSetType(at);
+        if (RTypeVar(_) := t) return isSetType(getTypeVarBound(t));
 	return RSetType(_) := t || RRelType(_) := t;
 }
 
+public RType makeSetType(RType itemType) { return RSetType(itemType); }
+
+public RType getSetElementType(RType t) {
+        if (RAliasType(_,at) := t) return getSetElementType(at);
+        if (RTypeVar(_) := t) return getSetElementType(getTypeVarBound(t));
+	if (RSetType(et) := t) return et;
+	if (RRelType(ets) := t) return RTupleType(ets);
+	throw "Error: Cannot get set element type from type <prettyPrintType(t)>";
+}
+
+//
+// Routines for dealing with bag types
+//
 public bool isBagType(RType t) {
+        if (RAliasType(_,at) := t) return isBagType(at);
+        if (RTypeVar(_) := t) return isBagType(getTypeVarBound(t));
 	return RBagType(_) := t;
 }
 
-public bool isContainerType(RType t) {
-	return RContainerType(_) := t;
-}
-
+//
+// Routines for dealing with map types
+//
 public bool isMapType(RType t) {
+        if (RAliasType(_,at) := t) return isMapType(at);
+        if (RTypeVar(_) := t) return isMapType(getTypeVarBound(t));
 	return RMapType(_,_) := t;
 }
 
+public RType makeMapType(RType domainType, RType rangeType) { return RMapType(RUnnamedType(domainType), RUnnamedType(rangeType)); }
+
+public RType makeMapTypeWithNames(RNamedType domainType, RNamedType rangeType) { return RMapType(domainType, rangeType); }
+
+public RType makeMapTypeFromTuple(RType t) {
+        if (RAliasType(_,at) := t) return makeMapTypeFromTuple(at);
+        if (RTypeVar(_) := t) return makeMapTypeFromTuple(getTypeVarBound(t));
+        if (RTupleType([lt,rt]) := t) return RMapType(lt,rt);
+        throw "makeMapTypeFromTuple called with unexpected type <prettyPrintType(t)>";
+}
+
+public RType getMapFieldsAsTuple(RType t) {
+        if (RAliasType(_,at) := t) return getMapFieldsAsTuple(at);
+        if (RTypeVar(_) := t) return getMapFieldsAsTuple(getTypeVarBound(t));
+	if (RMapType(lt,rt) := t) return RTupleType([lt,rt]);
+        throw "getMapFieldsAsTuple called with unexpected type <prettyPrintType(t)>";
+}       
+
+@doc{Check to see if a map defines a field.}
+public bool mapHasField(RType t, RName fn) {
+        if (RAliasType(_,at) := t) return mapHasField(at,fn);
+        if (RTypeVar(_) := t) return mapHasField(getTypeVarBound(t),fn);
+	if (RMapType(tl,tr) := t) {
+		if (RNamedType(_,fn) := tl) return true;	
+		if (RNamedType(_,fn) := tr) return true;	
+	}
+	return false;
+}
+
+@doc{Return the type of a field defined on a map.}
+public RType getMapFieldType(RType t, RName fn) {
+        if (RAliasType(_,at) := t) return getMapFieldType(at,fn);
+        if (RTypeVar(_) := t) return getMapFieldType(getTypeVarBound(t),fn);
+	if (RMapType(tl,tr) := t) {
+		if (RNamedType(ft,fn) := tl) return ft;	
+		if (RNamedType(ft,fn) := tr) return ft;	
+	}
+	throw "Map <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
+}
+
+public list[RType] getMapFields(RType t) {
+        if (RAliasType(_,at) := t) return getMapFields(at);
+        if (RTypeVar(_) := t) return getMapFields(getTypeVarBound(t));
+	if (RMapType(tl, tr) := t) {
+		return [ getElementType(tl), getElementType(tr) ];
+	}
+	throw "Cannot get map fields from type <prettyPrintType(t)>";	
+}
+
+public list[RNamedType] getMapFieldsWithNames(RType t) {
+        if (RAliasType(_,at) := t) return getMapFieldsWithNames(at);
+        if (RTypeVar(_) := t) return getMapFieldsWithNames(getTypeVarBound(t));
+	if (RMapType(tl, tr) := t) {
+		return [ tl, tr ];
+	}
+	throw "Cannot get map fields from type <prettyPrintType(t)>";	
+}
+
+public bool mapHasFieldNames(RType t) {
+        if (RAliasType(_,at) := t) return mapHasFieldNames(at);
+        if (RTypeVar(_) := t) return mapHasFieldNames(getTypeVarBound(t));
+        if (RMapType(tl, tr) := t) {
+	        return (namedTypeHasName(tl) && namedTypeHasName(tr));
+	}
+	throw "mapHasFieldNames given non-Map type <prettyPrintType(t)>";
+}
+
+public tuple[RName domainName, RName rangeName] getMapFieldNames(RType t) {
+        if (RAliasType(_,at) := t) return getMapFieldNames(at);
+        if (RTypeVar(_) := t) return getMapFieldNames(getTypeVarBound(t));
+        if (RMapType(tl, tr) := t) {
+	        if (mapHasFieldNames(t)) {
+		        return < getTypeName(tl), getTypeName(tr) >;
+		}
+		throw "getMapFieldNames given map type without field names: <prettyPrintType(t)>";        
+        }
+        throw "getMapFieldNames given non-Map type <prettyPrintType(t)>";
+}
+
+public RType getMapDomainType(RType t) {
+        if (RAliasType(_,at) := t) return getMapDomainType(at);
+        if (RTypeVar(_) := t) return getMapDomainType(getTypeVarBound(t));
+	if (RMapType(tl,_) := t) return getElementType(tl);
+	throw "Cannot get domain of non-map type <prettyPrintType(t)>";
+}
+
+public RType getMapRangeType(RType t) {
+        if (RAliasType(_,at) := t) return getMapRangeType(at);
+        if (RTypeVar(_) := t) return getMapRangeType(getTypeVarBound(t));
+	if (RMapType(_,tr) := t) return getElementType(tr);
+	throw "Cannot get domain of non-map type <prettyPrintType(t)>";
+}
+
+//
+// Routines for dealing with rel types
+//
 public bool isRelType(RType t) {
+        if (RAliasType(_,at) := t) return isRelType(at);
+        if (RTypeVar(_) := t) return isRelType(getTypeVarBound(t));
         if (RRelType(_) := t) return true;
         if (RSetType(RTupleType(_)) := t) return true;
         return false;
 }
 
+public RType makeRelType(list[RType] its) { return RRelType([ RUnnamedType( t ) | t <- its ]); }
+
+public RType makeRelTypeFromTuple(RType t) { return RRelType(getTupleFieldsWithNames(t)); }
+
+public RType getRelElementType(RType t) {
+        if (RAliasType(_,at) := t) return getRelElementType(at);
+        if (RTypeVar(_) := t) return getRelElementType(getTypeVarBound(t));
+	if (RRelType(ets) := t)
+		return RTupleType(ets);
+	if (RSetType(RTupleType(ets)) := t)
+		return RTupleType(ets);
+	throw "Error: Cannot get relation element type from type <prettyPrintType(t)>";
+}
+
+public bool relHasFieldNames(RType t) {
+        if (RAliasType(_,at) := t) return relHasFieldNames(at);
+        if (RTypeVar(_) := t) return relHasFieldNames(getTypeVarBound(t));
+        if (RRelType(tls) := t || RSetType(RTupleType(tls)) := t) {
+                return size(tls) == size([n | n <- [0..size(tls)-1], namedTypeHasName(tls[n])]);
+        }
+        throw "relHasFieldNames given non-Relation type <prettyPrintType(t)>";
+}
+
+public list[RName] getRelFieldNames(RType t) {
+        if (RAliasType(_,at) := t) return getRelFieldNames(at);
+        if (RTypeVar(_) := t) return getRelFieldNames(getTypeVarBound(t));
+        if (RRelType(tls) := t || RSetType(RTupleType(tls)) := t) {
+	        if (relHasFieldNames(t)) {
+		        return [ getTypeName(tli) | tli <- tls ];
+		}
+		throw "getRelFieldNames given rel type without field names: <prettyPrintType(t)>";        
+        }
+        throw "getRelFieldNames given non-Relation type <prettyPrintType(t)>";
+}
+
+//
+// Routines for dealing with tuple types
+//
 public bool isTupleType(RType t) {
+        if (RAliasType(_,at) := t) return isTupleType(at);
+        if (RTypeVar(_) := t) return isTupleType(getTypeVarBound(t));
 	return RTupleType(_) := t;
 }
 
-public bool isReifiedType(RType t) {
-	return RReifiedType(_) := t;
+public RType makeTupleType(list[RType] its) { 	return RTupleType([ RUnnamedType( t ) | t <- its ]); }
+
+public RType makeTupleTypeWithNames(list[RNamedType] its) { return RTupleType(its); }
+
+public bool tupleHasField(RType t, RName fn) {
+        if (RAliasType(_,at) := t) return tupleHasField(at,fn);
+        if (RTypeVar(_) := t) return tupleHasField(getTypeVarBound(t),fn);
+	if (RTupleType(tas) := t) {
+		for (ta <- tas) {
+			if (RNamedType(_,fn) := ta) return true;	
+		}
+	}
+	return false;
 }
 
-// TODO: Add other is...
-
-public bool isFunctionType(RType t) {
-	return RFunctionType(_,_)  := t;
+public RType getTupleFieldType(RType t, RName fn) {
+        if (RAliasType(_,at) := t) return getTupleFieldName(at,fn);
+        if (RTypeVar(_) := t) return getTupleFieldName(getTypeVarBound(t),fn);
+	if (RTupleType(tas) := t) {
+		for (ta <- tas) {
+			if (RNamedType(ft,fn) := ta) return ft;	
+		}
+	}
+	throw "Tuple <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
 }
 
+public list[RType] getTupleFields(RType t) {
+        if (RAliasType(_,at) := t) return getTupleFields(at);
+        if (RTypeVar(_) := t) return getTupleFields(getTypeVarBound(t));
+	if (RTupleType(tas) := t) {
+		return [ getElementType(ta) | ta <- tas ];
+	}
+	throw "Cannot get tuple fields from type <prettyPrintType(t)>";	
+}
+
+public list[RNamedType] getTupleFieldsWithNames(RType t) {
+        if (RAliasType(_,at) := t) return getTupleFieldsWithNames(at);
+        if (RTypeVar(_) := t) return getTupleFieldsWithNames(getTypeVarBound(t));
+	if (RTupleType(tas) := t) {
+		return tas;
+	}
+	throw "Cannot get tuple fields from type <prettyPrintType(t)>";	
+}
+
+public int getTupleFieldCount(RType t) {
+        if (RAliasType(_,at) := t) return getTupleFieldCount(at);
+        if (RTypeVar(_) := t) return getTupleFieldCount(getTypeVarBound(t));
+	if (RTupleType(tas) := t) {
+		return size(tas);
+	}
+	throw "Cannot get tuple field count from type <prettyPrintType(t)>";	
+}
+
+public bool tupleHasFieldNames(RType t) {
+        if (RAliasType(_,at) := t) return tupleHasFieldNames(at);
+        if (RTypeVar(_) := t) return tupleHasFieldNames(getTypeVarBound(t));
+        if (RTupleType(tls) := t) {
+                return size(tls) == size([n | n <- [0..size(tls)-1], namedTypeHasName(tls[n])]);
+        }
+        throw "tupleHasFieldNames given non-Tuple type <prettyPrintType(t)>";
+}
+
+public list[RName] getTupleFieldNames(RType t) {
+        if (RAliasType(_,at) := t) return getTupleFieldNames(at);
+        if (RTypeVar(_) := t) return getTupleFieldNames(getTypeVarBound(t));
+        if (RTupleType(tls) := t) {
+	        if (tupleHasFieldNames(t)) {
+		        return [ getTypeName(tli) | tli <- tls ];
+		}
+		throw "getTupleFieldNames given tuple type without field names: <prettyPrintType(t)>";        
+        }
+        throw "getTupleFieldNames given non-Tuple type <prettyPrintType(t)>";
+}
+
+//
+// Routines for dealing with lex types
+//
+public bool isLexType(RType t) {
+        if (RAliasType(_,at) := t) return isLexType(at);
+        if (RTypeVar(_) := t) return isLexType(getTypeVarBound(t));
+	return RLexType() := t;
+}
+
+//
+// Routines for dealing with adt types
+//
 public bool isADTType(RType t) {
+        if (RAliasType(_,at) := t) return isADTType(at);
+        if (RTypeVar(_) := t) return isADTType(getTypeVarBound(t));
 	return RADTType(_) := t;
 }
 
+public RType makeADTType(RName n) {
+       return RADTType(RUserType(n));
+}
+
+public RType makeParameterizedADTType(RName n, list[RType] p) {
+       return RADTType(RParameterizedUserType(n,p));
+}
+
+public RName getADTName(RType t) {
+        if (RAliasType(_,at) := t) return getADTName(at);
+        if (RTypeVar(_) := t) return getADTName(getTypeVarBound(t));
+	if (RADTType(ut) := t) return getUserTypeName(ut);
+	if (RConstructorType(_,RADTType(ut),_) := t) return getUserTypeName(ut);
+	throw "getADTName, invalid type given: <prettyPrintType(t)>";
+}
+
+public bool adtHasTypeParameters(RType t) {
+        if (RAliasType(_,at) := t) return adtHasTypeParameters(at);
+        if (RTypeVar(_) := t) return adtHasTypeParameters(getTypeVarBound(t));
+        if (RADTType(ut) := t) return userTypeHasParameters(ut);
+        if (RConstructorType(_,RADTType(ut),_)) return userTypeHasParameters(ut);
+        throw "ADTHasTypeParameters given non-ADT type <prettyPrintType(t)>";
+}
+
+public list[RType] getADTTypeParameters(RType t) {
+        if (RAliasType(_,at) := t) return getADTTypeParameters(at);
+        if (RTypeVar(_) := t) return getADTTypeParameters(getTypeVarBound(t));
+        if (RADTType(ut) := t) return getUserTypeParameters(ut);
+        if (RConstructorType(_,RADTType(ut),_)) return getUserTypeParameters(ut);
+        throw "getADTTypeParameters given non-ADT type <prettyPrintType(t)>";
+}
+
+//
+// Routines for dealing with constructor types
+//
 public bool isConstructorType(RType t) {
+        if (RAliasType(_,at) := t) return isConstructorType(at);
+        if (RTypeVar(_) := t) return isConstructorType(getTypeVarBound(t));
 	return RConstructorType(_,_,_) := t;
 }
-	
-public bool isDateTimeType(RType t) {
-	return RDateTimeType() := t;
+
+public RType makeConstructorType(RName consName, RType adtType, list[RNamedType] consArgs) { 	
+	return RConstructorType(consName, adtType, consArgs); 
 }
 
-public bool isFailType(RType t) {
-	return RFailType(_) := t; 
+public list[RType] getConstructorArgumentTypes(RType ct) {
+        if (RAliasType(_,at) := ct) return getConstructorArgumentTypes(at);
+        if (RTypeVar(_) := ct) return getConstructorArgumentTypes(getTypeVarBound(ct));
+	if (RConstructorType(_,_,cts) := ct) return [ getElementType(argType) | argType <- cts ]; 
+	throw "Cannot get constructor arguments from non-constructor type <prettyPrintType(ct)>";
 }
 
-public bool isStatementType(RType t) {
-	return RStatementType(_) := t;
+public list[RNamedType] getConstructorArgumentTypesWithNames(RType ct) {
+        if (RAliasType(_,at) := ct) return getConstructorArgumentTypesWithNames(at);
+        if (RTypeVar(_) := ct) return getConstructorArgumentTypesWithNames(getTypeVarBound(ct));
+	if (RConstructorType(_,_,cts) := ct) return [ argType | argType <- cts ]; 
+	throw "Cannot get constructor arguments from non-constructor type <prettyPrintType(ct)>";
 }
 
-public bool isVarArgsType(RType t) {
-	return RVarArgsType(_) := t;
+public RType getConstructorResultType(RType ct) {
+        if (RAliasType(_,at) := ct) return getConstructorResultType(at);
+        if (RTypeVar(_) := ct) return getConstructorResultType(getTypeVarBound(ct));
+	if (RConstructorType(cn, an, cts) := ct) return an;
+	throw "Cannot get constructor ADT type from non-constructor type <prettyPrintType(ct)>";
 }
 
-public RType getVarArgsType(RType t) {
-	if (RVarArgsType(vt) := t) return vt;
-	throw "Cannot return var args type for type <prettyPrintType(t)>";
+public RName getConstructorName(RType ct) {
+        if (RAliasType(_,at) := ct) return getConstructorName(at);
+        if (RTypeVar(_) := ct) return getConstructorName(getTypeVarBound(ct));
+	if (RConstructorType(n,_,_) := ct) return n;
+	throw "Cannot get constructor name from non-constructor type <prettyPrintType(ct)>";
 }
 
-public bool isOverloadedType(RType t) {
-	return ROverloadedType(_) := t;
+//
+// Routines for dealing with function types
+//
+public bool isFunctionType(RType t) {
+        if (RAliasType(_,at) := t) return isFunctionType(at);
+        if (RTypeVar(_) := t) return isFunctionType(getTypeVarBound(t));
+	return RFunctionType(_,_)  := t;
+}
+
+public RType makeFunctionType(RType retType, list[RType] paramTypes) { return RFunctionType(retType, [ RUnnamedType( x ) | x <- paramTypes ]); }
+
+public RType makeFunctionTypeWithNames(RType retType, list[RNamedType] paramTypes) { return RFunctionType(retType, paramTypes); }
+
+public list[RType] getFunctionArgumentTypes(RType ft) {
+        if (RAliasType(_,at) := ft) return getFunctionArgumentTypes(at);
+        if (RTypeVar(_) := ft) return getFunctionArgumentTypes(getTypeVarBound(ft));
+	if (RFunctionType(_, ats) := ft) return [ getElementType(argType) | argType <- ats ];
+	throw "Cannot get function arguments from non-function type <prettyPrintType(ft)>";
+}
+
+public list[RNamedType] getFunctionArgumentTypesWithNames(RType ft) {
+        if (RAliasType(_,at) := ft) return getFunctionArgumentTypesWithNames(at);
+        if (RTypeVar(_) := ft) return getFunctionArgumentTypesWithNames(getTypeVarBound(ft));
+	if (RFunctionType(_, ats) := ft) return ats;
+	throw "Cannot get function arguments from non-function type <prettyPrintType(ft)>";
+}
+
+public RType getFunctionReturnType(RType ft) {
+        if (RAliasType(_,at) := ft) return getFunctionReturnType(at);
+        if (RTypeVar(_) := ft) return getFunctionReturnType(getTypeVarBound(ft));
+	if (RFunctionType(retType, _) := ft) return retType; 
+	throw "Cannot get function return type from non-function type <prettyPrintType(ft)>";
 }
 
 public bool isVarArgsFun(RType t) {
+        if (RAliasType(_,at) := t) return isVarArgsFun(at);
+        if (RTypeVar(_) := t) return isVarArgsFun(getTypeVarBound(t));
 	if (RFunctionType(_,ps) := t) {
 		if (size(ps) > 0) {
 			if (isVarArgsType(getElementType(head(tail(ps,1))))) {
@@ -442,238 +942,64 @@ public bool isVarArgsFun(RType t) {
 	return false;
 }
 
-public bool isInferredType(RType t) {
-	return RInferredType(_) := t;
+//
+// Routines for dealing with nonterminal types
+//
+public bool isNonTerminalType(RType t) {
+       return RNonTerminalType(_) := t;
 }
 
-public bool isTypeVar(RType t) {
-	return RTypeVar(_) := t;
+//
+// Routines for dealing with reified types
+//
+public bool isReifiedType(RType t) {
+        if (RAliasType(_,at) := t) return isReifiedType(at);
+        if (RTypeVar(_) := t) return isReifiedType(getTypeVarBound(t));
+	return RReifiedType(_) := t;
 }
 
-public set[RType] collectTypeVars(RType t) {
-	return { rt | / RType rt : RTypeVar(RTypeVar v) <- t };
+public RType getReifiedType(RType t) {
+       if (RAliasType(_,at) := t) return getReifiedType(at);
+       if (RTypeVar(_) := t) return getReifiedType(getTypeVarBound(t));
+       if (RReifiedType(rt) := t) return rt;
+       throw "getReifiedType given unexpected type: <prettyPrintType(t)>";
 }
 
-public bool typeHasTypeVars(RType t) {
-	return size(collectTypeVars(t)) > 0;
+public RType makeReifiedType(RType mainType) { return RReifiedType(mainType); }
+
+//
+// Routines for dealing with datetime types
+//
+public bool isDateTimeType(RType t) {
+        if (RAliasType(_,at) := t) return isDateTimeType(at);
+        if (RTypeVar(_) := t) return isDateTimeType(getTypeVarBound(t));
+	return RDateTimeType() := t;
 }
 
-public bool isAssignableType(RType t) {
-	return RAssignableType(_,_) := t;
+public RType makeDateTimeType() { return RDateTimeType(); }
+
+//
+// Routines for dealing with container types
+//
+public bool isContainerType(RType t) {
+	return RContainerType(_) := t;
 }
 
-public RName getTypeVarName(RType t) {
-	if (RTypeVar(tv) := t) {
-		if (RFreeTypeVar(n) := tv) return n;
-		if (RBoundTypeVar(n,_) := tv) return n;
-		throw "Type <t> has an unhandled type var case";
-	} else {
-		throw "Type <t> not a type var type";
-	}
-}
-
-public RType getTypeVarBound(RType t) {
-	if (RTypeVar(tv) := t) {
-		if (RFreeTypeVar(_) := tv) return makeValueType();
-		if (RBoundTypeVar(_,bt) := tv) return bt;
-		throw "Type <t> has an unhandled type var case";
-	} else {
-		throw "Type <t> not a type var type";
-	}
-}
-
-public RType getSetElementType(RType t) {
-	if (RSetType(et) := t)
-		return et;
-	if (RRelType(ets) := t)
-		return RTupleType(ets);
-	throw "Error: Cannot get set element type from type <prettyPrintType(t)>";
-}
-
-public RType getElementType(RNamedType t) {
-	switch(t) {
-		case RUnnamedType(rt) : return rt;
-
-		case RNamedType(rt,_) : return rt;
-	}
-}
-
-public RType getRelElementType(RType t) {
-	if (RRelType(ets) := t)
-		return RTupleType(ets);
-	if (RSetType(RTupleType(ets)) := t)
-		return RTupleType(ets);
-	throw "Error: Cannot get relation element type from type <prettyPrintType(t)>";
-}
-
-public RType getListElementType(RType t) {
-	if (RListType(et) := t) return et;
-	throw "Error: Cannot get list element type from type <prettyPrintType(t)>";
-}
+public RType makeContainerType(RType itemType) { return RContainerType(itemType); }
 
 public RType getContainerElementType(RType t) {
 	if (RContainerType(et) := t) return et;
 	throw "Error: Cannot get container element type from type <prettyPrintType(t)>";
 }
 
-public int getInferredTypeIndex(RType t) {
-	if (RInferredType(n) := t) return n;
-	throw "Error: Cannot get inferred type index from non-inferred type <prettyPrintType(t)>";
-}
-
-public set[ROverloadedType] getOverloadOptions(RType t) {
-	if (ROverloadedType(s) := t) return s;
-	throw "Error: Cannot get overloaded options from non-overloaded type <prettyPrintType(t)>";
-}
-
-public bool tupleHasField(RType t, RName fn) {
-	if (RTupleType(tas) := t) {
-		for (ta <- tas) {
-			if (RNamedType(_,fn) := ta) return true;	
-		}
-	}
-	return false;
-}
-
-public RType getTupleFieldType(RType t, RName fn) {
-	if (RTupleType(tas) := t) {
-		for (ta <- tas) {
-			if (RNamedType(ft,fn) := ta) return ft;	
-		}
-	}
-	throw "Tuple <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
-}
-
-public list[RType] getTupleFields(RType t) {
-	if (RTupleType(tas) := t) {
-		return [ getElementType(ta) | ta <- tas ];
-	}
-	throw "Cannot get tuple fields from type <prettyPrintType(t)>";	
-}
-
-public list[RNamedType] getTupleFieldsWithNames(RType t) {
-	if (RTupleType(tas) := t) {
-		return tas;
-	}
-	throw "Cannot get tuple fields from type <prettyPrintType(t)>";	
-}
-
-public int getTupleFieldCount(RType t) {
-	if (RTupleType(tas) := t) {
-		return size(tas);
-	}
-	throw "Cannot get tuple field count from type <prettyPrintType(t)>";	
-}
-
-@doc{Check to see if a map defines a field.}
-public bool mapHasField(RType t, RName fn) {
-	if (RMapType(tl,tr) := t) {
-		if (RNamedType(_,fn) := tl) return true;	
-		if (RNamedType(_,fn) := tr) return true;	
-	}
-	return false;
-}
-
-@doc{Return the type of a field defined on a map.}
-public RType getMapFieldType(RType t, RName fn) {
-	if (RMapType(tl,tr) := t) {
-		if (RNamedType(ft,fn) := tl) return ft;	
-		if (RNamedType(ft,fn) := tr) return ft;	
-	}
-	throw "Map <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
-}
-
-public list[RType] getMapFields(RType t) {
-	if (RMapType(tl, tr) := t) {
-		return [ getElementType(tl), getElementType(tr) ];
-	}
-	throw "Cannot get map fields from type <prettyPrintType(t)>";	
-}
-
-public list[RNamedType] getMapFieldsWithNames(RType t) {
-	if (RMapType(tl, tr) := t) {
-		return [ tl, tr ];
-	}
-	throw "Cannot get map fields from type <prettyPrintType(t)>";	
-}
-
-public RType getMapDomainType(RType t) {
-	if (RMapType(tl,_) := t) return getElementType(tl);
-	throw "Cannot get domain of non-map type <prettyPrintType(t)>";
-}
-
-public RType getMapRangeType(RType t) {
-	if (RMapType(_,tr) := t) return getElementType(tr);
-	throw "Cannot get domain of non-map type <prettyPrintType(t)>";
-}
-
-public RName getADTName(RType t) {
-	if (RADTType(n) := t) return getUserTypeName(n);
-	throw "getADTName, invalid type given: <prettyPrintType(t)>";
-}
-
-public RType getWholeType(RType rt) {
-	if (RAssignableType(wt,_) := rt) return wt;
-	throw "Expected assignable type, got <prettyPrintType(rt)> instead.";
-}
-
-public RType getPartType(RType rt) {
-	if (RAssignableType(_,pt) := rt) return pt;
-	throw "Expected assignable type, got <prettyPrintType(rt)> instead.";
-}
-	
 //
-// Functions to build various types
+// Routines for dealing with fail types
 //
-public RType makeIntType() { return RIntType(); }
+public bool isFailType(RType t) {
+	return RFailType(_) := t; 
+}
 
-public RType makeRealType() { return RRealType(); }
-
-public RType makeNumType() { return RNumType(); }
-
-public RType makeBoolType() { return RBoolType(); }
-
-public RType makeStrType() { return RStrType(); }
-
-public RType makeVoidType() { return RVoidType(); }
-
-public RType makeValueType() { return RValueType(); }
-
-public RType makeLocType() { return RLocType(); }
-
-public RType makeDateTimeType() { return RDateTimeType(); }
-
-public RType makeListType(RType itemType) { return RListType(itemType); }
-
-public RType makeSetType(RType itemType) { return RSetType(itemType); }
-
-public RType makeContainerType(RType itemType) { return RContainerType(itemType); }
-
-public RType makeMapType(RType domainType, RType rangeType) { return RMapType(RUnnamedType(domainType), RUnnamedType(rangeType)); }
-
-public RType makeTupleType(list[RType] its) { 	return RTupleType([ RUnnamedType( t ) | t <- its ]); }
-
-public RType makeFunctionType(RType retType, list[RType] paramTypes) { return RFunctionType(retType, [ RUnnamedType( x ) | x <- paramTypes ]); }
-
-public RType makeReifiedType(RType mainType) { return RReifiedType(mainType); }
-
-public RType makeVarArgsType(RType t) { return RVarArgsType(t); }
-	
 public RType makeFailType(str s, loc l) { return RFailType({<s,l>}); }
-
-// TODO: Come up with a less stupid name for this
-public RType makeBiggerFailType(RType ft, set[tuple[str s, loc l]] sls) { return RFailType({ < e.s, e.l > | e <- sls }); }
-
-public RType makeInferredType(int n) { return RInferredType(n); }
-
-public RType makeStatementType(RType rt) { return RStatementType(rt); }
-
-public RType makeAssignableType(RType wt, RType pt) { return RAssignableType(wt,pt); } 
-
-public RType getInternalStatementType(RType st) {
-	if (RStatementType(rt) := st) return rt;
-	throw "Cannot get internal statement type from type <prettyPrintType(st)>";
-}
 
 public RType extendFailType(RType ft, set[tuple[str s, loc l]] sls) {
 	if (RFailType(sls2) := ft) {
@@ -686,154 +1012,250 @@ public RType collapseFailTypes(set[RType] rt) {
 	return RFailType({ s | RFailType(ss) <- rt, s <- ss }); 
 }
 
-public RType makeConstructorType(RName consName, RType adtType, list[RNamedType] consArgs) { 	
-	return RConstructorType(consName, adtType, consArgs); 
+// TODO: Come up with a less stupid name for this
+public RType makeBiggerFailType(RType ft, set[tuple[str s, loc l]] sls) { return RFailType({ < e.s, e.l > | e <- sls }); }
+
+//
+// Routines for dealing with inferred types
+//
+public bool isInferredType(RType t) {
+	return RInferredType(_) := t;
 }
 
-public list[RType] getFunctionArgumentTypes(RType ft) {
-	if (RFunctionType(_, ats) := ft) return [ getElementType(argType) | argType <- ats ];
-	throw "Cannot get function arguments from non-function type <prettyPrintType(ft)>";
-}
+public RType makeInferredType(int n) { return RInferredType(n); }
 
-public RType getFunctionReturnType(RType ft) {
-	if (RFunctionType(retType, _) := ft) return retType; 
-	throw "Cannot get function return type from non-function type <prettyPrintType(ft)>";
-}
-
-public list[RType] getConstructorArgumentTypes(RType ct) {
-	if (RConstructorType(_,_,cts) := ct) return [ getElementType(argType) | argType <- cts ]; 
-	throw "Cannot get constructor arguments from non-constructor type <prettyPrintType(ct)>";
-}
-
-public RType getConstructorResultType(RType ct) {
-	if (RConstructorType(cn, an, cts) := ct) return an;
-	throw "Cannot get constructor ADT type from non-constructor type <prettyPrintType(ct)>";
-}
-
-public RName getUserTypeName(RType ut) {
-	switch(ut) {
-		case RUserType(x) : return x;
-		case RParameterizedUserType(x,_) : return x;
-		default: throw "Cannot get user type name from non user type <prettyPrintType(ut)>";
-	}
-} 
-
-// TODO: Add parameterized alias types here
-public RType unwindAliases(RType t) {
-	return visit(t) { case RAliasType(tl,tr) => tr };
-}
-
-public bool typeEquality(RType t1, RType t2) {
-	t1 = unwindAliases(t1);
-	t2 = unwindAliases(t2);
-	return t1 == t2;
-}
-
-public bool containsTypeVar(RType t1) {
-	return /RTypeVar(_) := t1;
-}
-
-public set[RName] typeVarNames(RType t1) {
-	set[RName] varNames = { };
-	visit(t1) {
-		case RTypeVar(RFreeTypeVar(n)) : varNames += n;
-		case RTypeVar(RBoundTypeVar(n,_)) : varNames += n;	
-	}
-	return varNames;
-}
-
-public list[RType] getElementTypes(RType t) {
-	switch(t) {
-		case RListType(et) : return [ et ];
-		case RSetType(et) : return [ et ];
-		case RContainerType(et) : [ et ];
-		case RBagType(et) : return [ et ];
-		case RMapType(dt,rt) : return [ getElementType(dt), getElementType(rt) ];
-		case RRelType(nts) : return [ getElementType(nt) | nt <- nts ];
-		case RTupleType(nts) : return [ getElementType(nt) | nt <- nts ];
-		case RFunctionType(rt, pts) : return getElementTypes(rt) + [ getElementType(pt) | pt <- pts ];
-		case RReifiedType(rt) : return getElementTypes(rt);
-	}
-	return [ ];
-}
-
-public RType instantiateVars(map[RName,RType] varMappings, RType rt) {
-	return visit(rt) {
-		case RTypeVar(RFreeTypeVar(n)) : if (n in varMappings) insert(varMappings[n]);
-		case RTypeVar(RBoundTypeVar(n,_)) : if (n in varMappings) insert(varMappings[n]);	
-	};
+public int getInferredTypeIndex(RType t) {
+	if (RInferredType(n) := t) return n;
+	throw "Error: Cannot get inferred type index from non-inferred type <prettyPrintType(t)>";
 }
 
 public bool hasDeferredTypes(RType rt) {
 	return (size ( [ tt | tt:/RLubType(_) <- rt ] + [ tt | tt:/RInferredType(_) <- rt] ) > 0);
 }
 
-// TODO: Need to enforce bounds here
-public map[RName varName, RType varType] findMappings(list[RType] formalTypes, list[RType] actualTypes) {
-        // A consolidated map of names to types for the list of parameters
-        map[RName varName, RType varType] mres = findMappingsForList(formalTypes, actualTypes);
-        return mres;
+//
+// Routines for dealing with overloaded types
+//
+public bool isOverloadedType(RType t) {
+	return ROverloadedType(_) := t;
 }
 
-public map[RName varName, RType varType] findMappingsForList(list[RType] formalTypes, list[RType] actualTypes) {
-        // A consolidated map of names to types for the list of parameters
-        map[RName varName, RType varType] mres = ( );
-	
-	if (size(actualTypes) == 0) return mres;
-	
-        // Go through each of the parameters in the list, finding the mappings, as well as looking for
-        // situations where we have multiple mappings to the same type variable.
-        for (n <- [0..size(actualTypes)-1]) {
-	        RType formalType = (n < size(formalTypes)) ? formalTypes[n] : formalTypes[size(formalTypes)-1];
-		if (isVarArgsType(formalType)) formalType = getVarArgsType(formalType);
-                mresp = findElementMappings(formalType,actualTypes[n]);
-                for (mrd <- mresp) {
-		        if (mrd in mres && mres[mrd] != mresp[mrd]) {
-			        if (RLubType(lubs) := mres[mrd])
-				        mres[mrd] = RLubType(lubs + mresp[mrd]);
-				else
-                                        mres[mrd] = RLubType(mres[mrd] + mresp[mrd]);
-                        } else {
-                                mres[mrd] = mresp[mrd];
-                        }
-	         }
-        }
-
-        return mres;
+public set[ROverloadedType] getOverloadOptions(RType t) {
+	if (ROverloadedType(s) := t) return s;
+	throw "Error: Cannot get overloaded options from non-overloaded type <prettyPrintType(t)>";
 }
 
-// TODO: Put the bounds check here?
-public map[RName varName, RType varType] findElementMappings(RType formalType, RType actualType) {
-       if (isTypeVar(formalType)) return ( getTypeVarName(formalType) : actualType );
+//
+// Routines for dealing with varargs types
+//
+public bool isVarArgsType(RType t) {
+	return RVarArgsType(_) := t;
+}
 
-       switch(<formalType,actualType>) {
-               case < RListType(let), RListType(ret) > : return findElementMappings(let,ret);
-               case < RListType(let), RContainerType(ret) > : return findElementMappings(let,ret);
-               case < RContainerType(let), RListType(ret) > : return findElementMappings(let,ret);
+public RType makeVarArgsType(RType t) { return RVarArgsType(t); }
 
-               case < RSetType(let), RSetType(ret) > : return findElementMappings(let,ret);
-               case < RSetType(let), RContainerType(ret) > : return findElementMappings(let,ret);
-               case < RContainerType(let), RSetType(ret) > : return findElementMappings(let,ret);
+public RType getVarArgsType(RType t) {
+	if (RVarArgsType(vt) := t) return vt;
+	throw "Cannot return var args type for type <prettyPrintType(t)>";
+}
 
-               case < RBagType(let), RBagType(ret) > : return findElementMappings(let,ret);
-               case < RBagType(let), RContainerType(ret) > : return findElementMappings(let,ret);
-               case < RContainerType(let), RBagType(ret) > : return findElementMappings(let,ret);
+//
+// Routines for dealing with statement types
+//
+public bool isStatementType(RType t) {
+	return RStatementType(_) := t;
+}
 
-               case < RListType(let), RListType(ret) > : return findElementMappings(let,ret);
-               case < RListType(let), RContainerType(ret) > : return findElementMappings(let,ret);
-               case < RContainerType(let), RListType(ret) > : return findElementMappings(let,ret);
+public RType makeStatementType(RType rt) { return RStatementType(rt); }
 
-               case < RContainerType(let), RContainerType(ret) > : return findElementMappings(let,ret);
-	       
-	       case < RMapType(ldt,lrt), RMapType(rdt,rrt) > : 
-	               return findElementMappings(getElementType(ldt),getElementType(lrt)) + findElementMappings(getElementType(rdt),getElementType(rrt));
+public RType getInternalStatementType(RType st) {
+	if (RStatementType(rt) := st) return rt;
+	throw "Cannot get internal statement type from type <prettyPrintType(st)>";
+}
 
-	       case < RRelType(lnt), RRelType(rnt) > : return findMappingsForList(lnt,rnt);
-	       case < RRelType(lnt), RSetType(RTupleType(rnt)) > : return findMappingsForList(lnt,rnt);
-	       case < RSetType(RTupleType(lnt)), RRelType(rnt) > : return findMappingsForList(lnt,rnt);
+//
+// Routines for dealing with alias types
+//
+public bool isAliasType(RType t) {
+       return RAliasType(_,_) := t;
+}
 
-	       case < RTupleType(lnt), RTupleType(rnt) > : return findMappingsForList(lnt,rnt);
-       }
+public RName getAliasName(RType t) {
+	if (RAliasType(ut,_) := t) return getUserTypeName(ut);
+	throw "getAliasName, invalid type given: <prettyPrintType(t)>";
+}
 
-       return ( );
+public RType getAliasedType(RType t) {
+       if (RAliasType(_,at) := t) return at;
+       throw "getAliasedType, invalid type given: <prettyPrintType(t)>";
+}
+
+public RType makeAliasType(RName n, RType t) {
+       return RAliasType(RUserType(n),t);
+}
+
+public RType makeParameterizedAliasType(RName n, RType t, list[RType] p) {
+       return RAliasType(RParameterizedUserType(n,p),t);
+}
+
+public bool aliasHasTypeParameters(RType t) {
+       if (RAliasType(ut,_) := t) return userTypeHasParameters(ut);
+       throw "AliasHasTypeParameters given non-alias type <prettyPrintType(t)>";
+}
+
+public list[RType] getAliasTypeParameters(RType t) {
+       if (RAliasType(ut,_) := t) return getUserTypeParameters(ut);
+       throw "getAliasTypeParameters given non-alias type <prettyPrintType(t)>";
+}
+
+public RType unwindAliases(RType t) {
+	return visit(t) { case RAliasType(tl,tr) => tr };
+}
+
+//
+// Routines for dealing with data type selector types
+//
+public bool isDataTypeSelectorType(RType t) {
+       return RDataTypeSelector(_,_) := t;
+}
+
+//
+// Routines for dealing with user types
+//
+public RName getUserTypeName(RType ut) {
+        if (RUserType(x) := ut || RParameterizedUserType(x,_) := ut) return x;
+        throw "Cannot get user type name from non user type <prettyPrintType(ut)>";
+} 
+
+public bool userTypeHasParameters(RType ut) {
+        return (RParameterizedUserType(_,ps) := ut && size(ps) > 0);
+}
+
+public list[RType] getUserTypeParameters(RType ut) {
+       if (RParameterizedUserType(_,ps) := ut) return ps;
+       throw "error in getUserTypeParameters: given unparameterized type <prettyPrintType(ut)>";
+}
+
+//
+// Routines for dealing with parameterized user types
+//
+
+//
+// Routines for dealing with type var types
+//
+public bool isTypeVar(RType t) {
+	return RTypeVar(_) := t;
+}
+
+public RType makeTypeVar(RName varName) {
+       return RTypeVar(RFreeTypeVar(varName));
+}
+
+public RType makeTypeVarWithBound(RName varName, RType varBound) {
+       return RTypeVar(RBoundTypeVar(varName, varBound));
+}
+
+public RName getTypeVarName(RType t) {
+        if (RTypeVar(RFreeTypeVar(n)) := t || RTypeVar(RBoundTypeVar(n,_)) := t) return n;
+	throw "getTypeVarName given unexpected type: <prettyPrintType(t)>";
+}
+
+public bool typeVarHasBound(RType t) {
+        if (RTypeVar(RBoundTypeVar(_,_)) := t) return true;
+	if (RTypeVar(RFreeTypeVar(_)) := t) return false;
+	throw "typeVarHasBound given unexpected type: <prettyPrintType(t)>";
+}
+
+public RType getTypeVarBound(RType t) {
+	if (RTypeVar(RFreeTypeVar(_)) := t) return makeValueType();
+	if (RTypeVar(RBoundTypeVar(_,bt)) := t) return bt;
+	throw "getTypeVarBound given unexpected type: <prettyPrintType(t)>";
+}
+
+public set[RType] collectTypeVars(RType t) {
+	return { rt | / RType rt : RTypeVar(RTypeVar v) <- t };
+}
+
+public bool typeContainsTypeVars(RType t) {
+	return size(collectTypeVars(t)) > 0;
+}
+
+public set[RName] typeVarNames(RType t) {
+        return { n | tv <- collectTypeVars(t), RTypeVar(RFreeTypeVar(n)) := tv || RTypeVar(RBoundTypeVar(n,_)) := tv };
+}
+
+//
+// Instantiate type variables based on a var name to type mapping.
+//
+// NOTE: We assume that bounds have already been checked, so this should not violate the bounds
+// given on bounded type variables.
+//
+// NOTE: Commented out for now. Unfortunately, the visit could change some things that we normally
+// would not change, so we need to instead do this using standard recursion. It is now in SubTypes
+// along with the functionality which finds the mappings.
+//public RType instantiateVars(map[RName,RType] varMappings, RType rt) {
+//	return visit(rt) {
+//		case RTypeVar(RFreeTypeVar(n)) : if (n in varMappings) insert(varMappings[n]);
+//		case RTypeVar(RBoundTypeVar(n,_)) : if (n in varMappings) insert(varMappings[n]);	
+//	};
+//}
+
+//
+// Routines for dealing with assignable types
+//
+public bool isAssignableType(RType t) {
+	return RAssignableType(_,_) := t;
+}
+
+public RType makeAssignableType(RType wt, RType pt) { return RAssignableType(wt,pt); } 
+
+public RType getWholeType(RType rt) {
+	if (RAssignableType(wt,_) := rt) return wt;
+	throw "Expected assignable type, got <prettyPrintType(rt)> instead.";
+}
+
+public RType getPartType(RType rt) {
+	if (RAssignableType(_,pt) := rt) return pt;
+	throw "Expected assignable type, got <prettyPrintType(rt)> instead.";
+}
+
+//
+// Routines for dealing with unknown types
+//
+public bool isUnknownType(RType rt) {
+       return RUnknownType(_) := rt;
+}
+
+public RType getUnknownType(RType rt) {
+       if (RUnknownType(t) := rt) return t;
+       throw "getUnknownType given unexpected type: <prettyPrintType(rt)>";
+}
+
+//
+// Routines for dealing with lub types
+//
+public bool isLubType(RType t) {
+       return RLubType(_) := t;
+}
+
+
+public RType makeLubType(list[RType] tl) {
+       return RLubType(tl);
+}
+
+//
+// Routines for dealing with named types
+//
+public RType getElementType(RNamedType t) {
+       if (RUnnamedType(rt) := t || RNamedType(rt,_) := t) return rt;
+       throw "getElementType given unexpected type <t>";
+}
+
+public bool namedTypeHasName(RNamedType t) {
+       return RNamedType(_,_) := t;
+}
+
+public RName getTypeName(RNamedType t) {
+       if (RNamedType(_,n) := t) return n;
+       throw "Cannot get type name on an unnamed type";
 }

@@ -58,348 +58,413 @@ public ROp opForAOp(RAssignmentOp a) {
 data ROp = RProduct() | RDiv() | RMod() | RPlus() | RMinus() | RNotIn() | RIn() | RLt() | RLtEq() | RGt() | RGtEq() | REq() | RNEq() | RInter() | RJoin();
 
 private map[ROp,str] opStr = ( RProduct() : "*", RDiv() : "/", RMod() : "%", RPlus() : "+", RMinus() : "-", RNotIn() : "notin" , RIn() : "in",
-											   RLt() : "\<", RLtEq() : "\<=", RGt() : "\>", RGtEq() : "\>=", REq() : "=", RNEq() : "!=", RInter() : "&", RJoin() : "join"); 
+			       RLt() : "\<", RLtEq() : "\<=", RGt() : "\>", RGtEq() : "\>=", REq() : "=", RNEq() : "!=", RInter() : "&", RJoin() : "join"); 
 
 public str prettyPrintOp(ROp ro) {
 	if (ro in opStr) return opStr[ro];
 	throw "Operator <ro> is not in the operator/string map";
 }
 
+private set[ROp] relationalOps = { RLt(), RLtEq(), RGt(), RGtEq(), REq(), RNEq() };
+private set[ROp] arithOpsWithMod = { RProduct(), RDiv(), RMod(), RPlus(), RMinus() };	
+private set[ROp] arithOps = { RProduct(), RDiv(), RPlus(), RMinus() };	
+
 // TODO: For documentation purposes, I'm not sure if it makes the most sense to organize this
 // by types (the way it is now) or by operators. Should decide which is easier to follow.
 //
 // NOTE: There are no cases for types void, lex, type, adt, non-terminal, reified. This is not an oversight.
+//
+// TODO: See if we need RContainerType rules...
+//
 public RType expressionType(RType lType, RType rType, ROp rop, loc l) {
-	lType = unwindAliases(lType);
-	rType = unwindAliases(rType);
-		
-	switch(<lType, rop, rType>) {
-		// BOOL CASES
-		case <RBoolType(), RLt(), RBoolType()> : return RBoolType();
-		case <RBoolType(), RLtEq(), RBoolType()> : return RBoolType();
-		case <RBoolType(), RGt(), RBoolType()> : return RBoolType();
-		case <RBoolType(), RGtEq(), RBoolType()> : return RBoolType();
-		case <RBoolType(), REq(), RBoolType()> : return RBoolType();
-		case <RBoolType(), RNEq(), RBoolType()> : return RBoolType();
-
-		// INT CASES
-		case <RIntType(), RProduct(), RIntType()> : return RIntType();
-		case <RIntType(), RDiv(), RIntType()> : return RIntType();
-		case <RIntType(), RMod(), RIntType()> : return RIntType();
-		case <RIntType(), RPlus(), RIntType()> : return RIntType();
-		case <RIntType(), RMinus(), RIntType()> : return RIntType();
-		case <RIntType(), RLt(), RIntType()> : return RBoolType();
-		case <RIntType(), RLtEq(), RIntType()> : return RBoolType();
-		case <RIntType(), RGt(), RIntType()> : return RBoolType();
-		case <RIntType(), RGtEq(), RIntType()> : return RBoolType();
-		case <RIntType(), REq(), RIntType()> : return RBoolType();
-		case <RIntType(), RNEq(), RIntType()> : return RBoolType();
-
-		// REAL CASES
-		case <RRealType(), RProduct(), RRealType()> : return RRealType();
-		case <RRealType(), RDiv(), RRealType()> : return RRealType();
-		case <RRealType(), RPlus(), RRealType()> : return RRealType();
-		case <RRealType(), RMinus(), RRealType()> : return RRealType();
-		case <RRealType(), RLt(), RRealType()> : return RBoolType();
-		case <RRealType(), RLtEq(), RRealType()> : return RBoolType();
-		case <RRealType(), RGt(), RRealType()> : return RBoolType();
-		case <RRealType(), RGtEq(), RRealType()> : return RBoolType();
-		case <RRealType(), REq(), RRealType()> : return RBoolType();
-		case <RRealType(), RNEq(), RRealType()> : return RBoolType();
-
-		// MIXED INT/REAL CASES
-		case <RIntType(), RProduct(), RRealType()> : return RRealType();
-		case <RIntType(), RDiv(), RRealType()> : return RRealType();
-		case <RIntType(), RPlus(), RRealType()> : return RRealType();
-		case <RIntType(), RMinus(), RRealType()> : return RRealType();
-		case <RIntType(), RLt(), RRealType()> : return RBoolType();
-		case <RIntType(), RLtEq(), RRealType()> : return RBoolType();
-		case <RIntType(), RGt(), RRealType()> : return RBoolType();
-		case <RIntType(), RGtEq(), RRealType()> : return RBoolType();
-		case <RIntType(), REq(), RRealType()> : return RBoolType();
-		case <RIntType(), RNEq(), RRealType()> : return RBoolType();
-
-		// MIXED REAL/INT CASES
-		case <RRealType(), RProduct(), RIntType()> : return RRealType();
-		case <RRealType(), RDiv(), RIntType()> : return RRealType();
-		case <RRealType(), RPlus(), RIntType()> : return RRealType();
-		case <RRealType(), RMinus(), RIntType()> : return RRealType();
-		case <RRealType(), RLt(), RIntType()> : return RBoolType();
-		case <RRealType(), RLtEq(), RIntType()> : return RBoolType();
-		case <RRealType(), RGt(), RIntType()> : return RBoolType();
-		case <RRealType(), RGtEq(), RIntType()> : return RBoolType();
-		case <RRealType(), REq(), RIntType()> : return RBoolType();
-		case <RRealType(), RNEq(), RIntType()> : return RBoolType();
-
-		// MIXED INT/NUM CASES
-		case <RIntType(), RProduct(), RNumType()> : return RNumType();
-		case <RIntType(), RDiv(), RNumType()> : return RNumType();
-		case <RIntType(), RPlus(), RNumType()> : return RNumType();
-		case <RIntType(), RMinus(), RNumType()> : return RNumType();
-		case <RIntType(), RLt(), RNumType()> : return RBoolType();
-		case <RIntType(), RLtEq(), RNumType()> : return RBoolType();
-		case <RIntType(), RGt(), RNumType()> : return RBoolType();
-		case <RIntType(), RGtEq(), RNumType()> : return RBoolType();
-		case <RIntType(), REq(), RNumType()> : return RBoolType();
-		case <RIntType(), RNEq(), RNumType()> : return RBoolType();
-
-		// MIXED NUM/INT CASES
-		case <RNumType(), RProduct(), RIntType()> : return RNumType();
-		case <RNumType(), RDiv(), RIntType()> : return RNumType();
-		case <RNumType(), RPlus(), RIntType()> : return RNumType();
-		case <RNumType(), RMinus(), RIntType()> : return RNumType();
-		case <RNumType(), RLt(), RIntType()> : return RBoolType();
-		case <RNumType(), RLtEq(), RIntType()> : return RBoolType();
-		case <RNumType(), RGt(), RIntType()> : return RBoolType();
-		case <RNumType(), RGtEq(), RIntType()> : return RBoolType();
-		case <RNumType(), REq(), RIntType()> : return RBoolType();
-		case <RNumType(), RNEq(), RIntType()> : return RBoolType();
-
-		// MIXED NUM/REAL CASES
-		case <RNumType(), RProduct(), RRealType()> : return RNumType();
-		case <RNumType(), RDiv(), RRealType()> : return RNumType();
-		case <RNumType(), RPlus(), RRealType()> : return RNumType();
-		case <RNumType(), RMinus(), RRealType()> : return RNumType();
-		case <RNumType(), RLt(), RRealType()> : return RBoolType();
-		case <RNumType(), RLtEq(), RRealType()> : return RBoolType();
-		case <RNumType(), RGt(), RRealType()> : return RBoolType();
-		case <RNumType(), RGtEq(), RRealType()> : return RBoolType();
-		case <RNumType(), REq(), RRealType()> : return RBoolType();
-		case <RNumType(), RNEq(), RRealType()> : return RBoolType();
-
-		// MIXED REAL/NUM CASES
-		case <RRealType(), RProduct(), RNumType()> : return RNumType();
-		case <RRealType(), RDiv(), RNumType()> : return RNumType();
-		case <RRealType(), RPlus(), RNumType()> : return RNumType();
-		case <RRealType(), RMinus(), RNumType()> : return RNumType();
-		case <RRealType(), RLt(), RNumType()> : return RBoolType();
-		case <RRealType(), RLtEq(), RNumType()> : return RBoolType();
-		case <RRealType(), RGt(), RNumType()> : return RBoolType();
-		case <RRealType(), RGtEq(), RNumType()> : return RBoolType();
-		case <RRealType(), REq(), RNumType()> : return RBoolType();
-		case <RRealType(), RNEq(), RNumType()> : return RBoolType();
-
-		// STR CASES
-		case <RStrType(), RPlus(), RStrType()> : return RStrType();
-		case <RStrType(), RLt(), RStrType()> : return RBoolType();
-		case <RStrType(), RLtEq(), RStrType()> : return RBoolType();
-		case <RStrType(), RGt(), RStrType()> : return RBoolType();
-		case <RStrType(), RGtEq(), RStrType()> : return RBoolType();
-		case <RStrType(), REq(), RStrType()> : return RBoolType();
-		case <RStrType(), RNEq(), RStrType()> : return RBoolType();
-
-		// MIXED VALUE/OTHER CASES
-		case <RValueType(), REq(), RIntType()> : return RBoolType();
-		case <RValueType(), REq(), RRealType()> : return RBoolType();
-		case <RValueType(), REq(), RStrType()> : return RBoolType();
-		case <RValueType(), REq(), RListType(_)> : return RBoolType();
-		case <RValueType(), REq(), RSetType(_)> : return RBoolType();
-		case <RValueType(), REq(), RMapType(_,_)> : return RBoolType();
-		case <RValueType(), REq(), RNodeType()> : return RBoolType();
-		case <RValueType(), REq(), RLocType()> : return RBoolType();
-		case <RValueType(), REq(), RRelType(_)> : return RBoolType();
-		case <RValueType(), REq(), RTupleType(_)> : return RBoolType();
-		case <RValueType(), REq(), RBoolType()> : return RBoolType();
-		case <RValueType(), REq(), RValueType()> : return RBoolType();
-		case <RValueType(), REq(), RDateTimeType()> : return RBoolType();
-		case <RValueType(), RNEq(), RIntType()> : return RBoolType();
-		case <RValueType(), RNEq(), RRealType()> : return RBoolType();
-		case <RValueType(), RNEq(), RStrType()> : return RBoolType();
-		case <RValueType(), RNEq(), RListType(_)> : return RBoolType();
-		case <RValueType(), RNEq(), RSetType(_)> : return RBoolType();
-		case <RValueType(), RNEq(), RMapType(_,_)> : return RBoolType();
-		case <RValueType(), RNEq(), RNodeType()> : return RBoolType();
-		case <RValueType(), RNEq(), RLocType()> : return RBoolType();
-		case <RValueType(), RNEq(), RRelType(_)> : return RBoolType();
-		case <RValueType(), RNEq(), RTupleType(_)> : return RBoolType();
-		case <RValueType(), RNEq(), RBoolType()> : return RBoolType();
-		case <RValueType(), RNEq(), RValueType()> : return RBoolType();
-		case <RValueType(), RNEq(), RDateTimeType()> : return RBoolType();
-
-		// MIXED OTHER/VALUE CASES
-		case <RIntType(), REq(), RValueType()> : return RBoolType();
-		case <RRealType(), REq(), RValueType()> : return RBoolType();
-		case <RStrType(), REq(), RValueType()> : return RBoolType();
-		case <RListType(_), REq(), RValueType()> : return RBoolType();
-		case <RSetType(_), REq(), RValueType()> : return RBoolType();
-		case <RMapType(_,_), REq(), RValueType()> : return RBoolType();
-		case <RNodeType(), REq(), RValueType()> : return RBoolType();
-		case <RLocType(), REq(), RValueType()> : return RBoolType();
-		case <RRelType(_), REq(), RValueType()> : return RBoolType();
-		case <RTupleType(_), REq(), RValueType()> : return RBoolType();
-		case <RBoolType(), REq(), RValueType()> : return RBoolType();
-		case <RValueType(), REq(), RValueType()> : return RBoolType();
-		case <RDateTimeType(), REq(), RValueType()> : return RBoolType();
-		case <RIntType(), RNEq(), RValueType()> : return RBoolType();
-		case <RRealType(), RNEq(), RValueType()> : return RBoolType();
-		case <RStrType(), RNEq(), RValueType()> : return RBoolType();
-		case <RListType(_), RNEq(), RValueType()> : return RBoolType();
-		case <RSetType(_), RNEq(), RValueType()> : return RBoolType();
-		case <RMapType(_,_), RNEq(), RValueType()> : return RBoolType();
-		case <RNodeType(), RNEq(), RValueType()> : return RBoolType();
-		case <RLocType(), RNEq(), RValueType()> : return RBoolType();
-		case <RRelType(_), RNEq(), RValueType()> : return RBoolType();
-		case <RTupleType(_), RNEq(), RValueType()> : return RBoolType();
-		case <RBoolType(), RNEq(), RValueType()> : return RBoolType();
-		case <RValueType(), RNEq(), RValueType()> : return RBoolType();
-		case <RDateTimeType(), RNEq(), RValueType()> : return RBoolType();
-
-		// NODE CASES
-		// TODO: Should take subtypes into account
-		case <RNodeType(), RLt(), RNodeType()> : return RBoolType();
-		case <RNodeType(), RLtEq(), RNodeType()> : return RBoolType();
-		case <RNodeType(), RGt(), RNodeType()> : return RBoolType();
-		case <RNodeType(), RGtEq(), RNodeType()> : return RBoolType();
-		case <RNodeType(), REq(), RNodeType()> : return RBoolType();
-		case <RNodeType(), RNEq(), RNodeType()> : return RBoolType();
-
-		// LOC CASES
-		case <RLocType(), RPlus(), RStrType()> : return RLocType();
-		case <RLocType(), REq(), RLocType()> : return RBoolType();
-		
-		// LIST CASES
-		case <lt, RNotIn(), RListType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <lt, RIn(), RListType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RListType(lt), RProduct(), RListType(rt)> : return makeListType(makeTupleType([lt,rt]));
-		case <RListType(lt), RPlus(), RListType(rt)> : return makeListType(lub(lt,rt));
-		case <RListType(lt), RPlus(), rt> : return makeListType(lub(lt,rt));
-		case <lt, RPlus(), RListType(rt)> : return makeListType(lub(lt,rt));
-		case <RListType(lt), RMinus(), RListType(rt)> : return subtypeOf(rt,lt) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RListType(lt), RMinus(), rt> : return subtypeOf(rt,lt) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RListType(lt), RLt(), RListType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RListType(lt), RLtEq(), RListType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RListType(lt), RGt(), RListType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RListType(lt), RGtEq(), RListType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RListType(lt), REq(), RListType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RListType(lt), RNEq(), RListType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-
-		// SET CASES
-		case <lt, RNotIn(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <lt, RIn(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RProduct(), RSetType(rt)> : return makeRelType(makeTupleType([lt,rt]));
-		case <RSetType(lt), RPlus(), RSetType(rt)> : return makeSetType(lub(lt,rt));
-		case <RSetType(lt), RPlus(), rt> : return makeSetType(lub(lt,rt));
-		case <lt, RPlus(), RSetType(rt)> : return makeSetType(lub(lt,rt));
-		case <RSetType(lt), RMinus(), RSetType(rt)> : return subtypeOf(rt,lt) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RSetType(lt), RMinus(), rt> : return subtypeOf(rt,lt) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RSetType(lt), RLt(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RLtEq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RGt(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RGtEq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), REq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RNEq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RInter(), RSetType(rt)> : return subtypeOf(rt,lt) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RSetType(lt), RJoin(), RSetType(rt)> : return makeRelType([lt,rt]);
-
-		// BAG CASES TODO: Bags are not implemented yet
-
-		// MAP CASES
-		case <lt, RNotIn(), RMapType(rtd,rtr)> : return subtypeOf(lt,rtd) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rtd)>",l);
-		case <lt, RIn(), RMapType(rtd,rtr)> : return subtypeOf(lt,rtd) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rtd)>",l);
-		case <RMapType(ltd,ltr), RPlus(), RMapType(rtd,rtr)> : return makeMapType(lub(ltd,rtd),lub(ltr,rtr));
-		case <RMapType(ltd,ltr), RMinus(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
-		case <RMapType(ltd,ltr), RLt(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
-		case <RMapType(ltd,ltr), RLtEq(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
-		case <RMapType(ltd,ltr), RGt(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
-		case <RMapType(ltd,ltr), RGtEq(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
-		case <RMapType(ltd,ltr), REq(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
-		case <RMapType(ltd,ltr), RNEq(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
-		case <RMapType(ltd,ltr), RInter(), RMapType(rtd,rtr)> : return (subtypeOf(rtd,ltd) && subtypeOf(rtr,ltr)) ? lType : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rtd)> must be a subtype of <prettyPrintType(ltd)> and type <prettyPrint(rtr)> must be a subtype of <prettyPrintType(ltr)>",l);
-
-		// REL CASES
-		// TODO: Add code to support maintaining field names, when possible
-		case <lt, RNotIn(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <lt, RIn(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RProduct(), RSetType(rt)> : return makeRelType(makeTupleType([lt,rt]));
-		case <RRelType(lt), RProduct(), RSetType(rt)> : return makeRelType(makeTupleType([lt,rt]));
-		case <RSetType(lt), RProduct(), RRelType(rt)> : return makeRelType(makeTupleType([lt,rt]));
-		case <RRelType(lt), RProduct(), RRelType(rt)> : return makeRelType(makeTupleType([lt,rt]));
-		case <RRelType(lt), RPlus(), RRelType(rt)> : return makeRelType(lub(lt,rt));
-		case <RSetType(lt), RPlus(), RRelType(rt)> : return makeRelType(lub(lt,rt));
-		case <RRelType(lt), RPlus(), RSetType(rt)> : return makeRelType(lub(lt,rt));
-		case <RRelType(lt), RPlus(), rt> : return makeRelType(lub(lt,rt));
-		case <lt, RPlus(), RRelType(rt)> : return makeRelType(lub(lt,rt));
-		case <RRelType(lt), RMinus(), RRelType(rt)> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RRelType(lt), RMinus(), RSetType(rt)> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RSetType(lt), RMinus(), RRelType(rt)> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RRelType(lt), RMinus(), rt> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RRelType(lt), RLt(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RLt(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RLt(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RLtEq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RLtEq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RLtEq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RGt(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RGt(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RGt(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RGtEq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RGtEq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RGtEq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), REq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), REq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), REq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RNEq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RSetType(lt), RNEq(), RRelType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RNEq(), RSetType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RRelType(lt), RInter(), RRelType(rt)> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RRelType(lt), RInter(), RSetType(rt)> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RSetType(lt), RInter(), RRelType(rt)> : return subtypeOf(rt,lt) ? RRelType(lt) : makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rt)> must be a subtype of <prettyPrintType(lt)>",l);
-		case <RRelType(lt), RJoin(), RRelType(rt)> : return RRelType(lt+rt);
-		case <RSetType(lt), RJoin(), RRelType(rt)> : return RRelType([lt]+rt);
-		case <RRelType(lt), RJoin(), RSetType(rt)> : return RRelType(lt+[rt]);
-
-		// TUPLE CASES
-		case <RTupleType(lt), RPlus(), RTupleType(rt)> : return RTupleType(lt+rt);
-		case <RTupleType(lt), RLt(), RTupleType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RTupleType(lt), RLtEq(), RTupleType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RTupleType(lt), RGt(), RTupleType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RTupleType(lt), RGtEq(), RTupleType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RTupleType(lt), REq(), RTupleType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		case <RTupleType(lt), RNEq(), RTupleType(rt)> : return subtypeOf(lt,rt) ? RBoolType() : makeFailType("In comparison operation <prettyPrintOp(rop)> type <prettyPrintType(lt)> must be a subtype of <prettyPrintType(rt)>",l);
-		
-		// CONSTRUCTOR CASES
-		// TODO: Should take ADT type into account
-		// NOTE: Should not hit these, we would be comparing ADTs, not individual constructor types
-		//case <RConstructorType(_,_,_), REq(), RConstructorType(_,_,_)> : return RBoolType();
-		//case <RConstructorType(_,_,_), RNEq(), RConstructorType(_,_,_)> : return RBoolType();
-
-		// FUN CASES
-		case <RFunctionType(_,_), REq(), RFunctionType(_,_)> : return RBoolType();
-
-		// DATETIME CASES
-		case <RDateTimeType(), RLt(), RDateTimeType()> : return RBoolType();
-		case <RDateTimeType(), RLtEq(), RDateTimeType()> : return RBoolType();
-		case <RDateTimeType(), RGt(), RDateTimeType()> : return RBoolType();
-		case <RDateTimeType(), RGtEq(), RDateTimeType()> : return RBoolType();
-		case <RDateTimeType(), REq(), RDateTimeType()> : return RBoolType();
-		case <RDateTimeType(), RNEq(), RDateTimeType()> : return RBoolType();
-		
-		// ADT CASES
-		case <RADTType(_), REq(), RADTType(_)> : return RBoolType();
-		case <RADTType(_), RNEq(), RADTType(_)> : return RBoolType();
-		
-		// NODE CASES
-		case <RNodeType(), REq(), RNodeType()> : return RBoolType();
-		case <RNodeType(), RNEq(), RNodeType()> : return RBoolType();
-		
-		// MIXED ADT/NODE CASES
-		case <RADTType(_), REq(), RNodeType()> : return RBoolType();
-		case <RADTType(_), RNEq(), RNodeType()> : return RBoolType();
-		case <RNodeType(), REq(), RADTType(_)> : return RBoolType();
-		case <RNodeType(), RNEq(), RADTType(_)> : return RBoolType();
-		
+	RType notSupported() {
+	        return makeFailType("Operation <prettyPrintOp(rop)> not supported on <prettyPrintType(lType)> and <prettyPrintType(rType)>",l);
 	}
-	return makeFailType("In operation <prettyPrintOp(rop)> type <prettyPrintType(rType)> must be a subtype of <prettyPrintType(lType)>",l);
+
+	// First, manually unroll aliases until we get to an actual type -- which could still
+	// have aliases inside (for instance, in a function's parameters), but that's not a problem
+	if (RAliasType(_,at) := lType) return expressionType(at, rType, rop, l);
+	if (RAliasType(_,at) := rType) return expressionType(lType, at, rop, l);
+
+	// Second, treat any type variables as their bounds -- we need this in cases where
+	// type variables are declared in the scope, since we will actually then get situations
+	// like &T <: int x, then later x + y, and the type of x wil be &T <: int.
+	if (RTypeVar(_) := lType) return expressionType(getTypeVarBound(lType), rType, rop, l);
+	if (RTypeVar(_) := rType) return expressionType(lType, getTypeVarBound(rType), rop, l);
+
+	// Third, we key off the type of the first argument, then the operator, then the second
+	// argument. This is the easiest way to tie the results back to the interpreter. First,
+	// handle the scalar types. We don't have a case for void, since void can't be used in
+	// binary operations anyway.
+	if (RBoolType() := lType) {
+	        if (rop in relationalOps && RBoolType() := rType) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	if (RIntType() := lType) {
+	        if (rop in arithOpsWithMod && RIntType() := rType) return makeIntType();
+		if (rop in arithOps && RRealType() := rType) return makeRealType();
+		if (rop in arithOps && RNumType() := rType) return makeNumType();
+		
+		if (rop in relationalOps && RIntType() := rType) return makeBoolType();
+		if (rop in relationalOps && RRealType() := rType) return makeBoolType();
+		if (rop in relationalOps && RNumType() := rType) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	if (RRealType() := lType) {
+	        if (rop in arithOps && RIntType() := rType) return makeRealType();
+		if (rop in arithOps && RRealType() := rType) return makeRealType();
+		if (rop in arithOps && RNumType() := rType) return makeNumType();
+		
+		if (rop in relationalOps && RIntType() := rType) return makeBoolType();
+		if (rop in relationalOps && RRealType() := rType) return makeBoolType();
+		if (rop in relationalOps && RNumType() := rType) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	if (RNumType() := lType) {
+	        if (rop in arithOps && RIntType() := rType) return makeNumType();
+		if (rop in arithOps && RRealType() := rType) return makeNumType();
+		if (rop in arithOps && RNumType() := rType) return makeNumType();
+		
+		if (rop in relationalOps && RIntType() := rType) return makeBoolType();
+		if (rop in relationalOps && RRealType() := rType) return makeBoolType();
+		if (rop in relationalOps && RNumType() := rType) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	if (RStrType() := lType) {
+	        if (RPlus() := rop && RStrType() := rType) return makeStrType();
+		if (rop in relationalOps && RStrType() := rType) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	if (RValueType() := lType) {
+	        if (rop in { REq(), RNEq() }) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	if (RNodeType() := lType) {
+	        if (rop in relationalOps && RConstructorType(_,_,_) := lType) return makeBoolType();
+		if (rop in relationalOps && RNodeType() := lType) return makeBoolType();
+		if (rop in relationalOps && RADTType(_) := lType) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	if (RLocType() := lType) {
+	        if (RPlus() := rop && RStrType() := rType) return makeLocType();
+		if (rop in { REq(), RNEq() } && RLocType() := rType) return makeLocType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	if (RDateTimeType() := lType) {
+	        if (rop in relationalOps && RDateTimeType() := rType) return makeDateTimeType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	// Tuples and ADTs are "hybrid" types -- they contain other data, but are not general containers
+	if (RTupleType(_) := lType) {
+	        if (RPlus() := rop && RTupleType(_) := rType) {
+	                list[RNamedType] tFields1 = getTupleFieldsWithNames(lType);
+	                list[RNamedType] tFields2 = getTupleFieldsWithNames(rType);
+			if (tupleHasFieldNames(lType) && tupleHasFieldNames(rType)) {
+			        // Need to check for consistency to see if we should use the field names
+			        if (size({ nm | nm <- (getTupleFieldNames(lType) + getTupleFieldNames(rType)) }) != size(tFields1 + tFields2)) {
+				        // If we don't have the same number of field names as we have fields, we must have some duplicates,
+					// so we strip the field names off.
+					return makeTupleTypeWithNames([RUnnamedType(getElementType(ti)) | ti <- (tFields1 + tFields2)]);
+				} else {
+				        return makeTupleTypeWithNames(tFields1 + tFields2);
+				}
+			} else {
+		                return makeTupleTypeWithNames([RUnnamedType(getElementType(ti)) | ti <- (tFields1 + tFields2)]);
+			}
+		}
+
+		if (rop in relationalOps && RTupleType(_) := rType) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+	
+	if (RADTType(_) := lType) {
+	        if (rop in relationalOps && RConstructorType(_,_,_) := lType) return makeBoolType();
+		if (rop in relationalOps && RNodeType() := lType) return makeBoolType();
+		if (rop in relationalOps && RADTType(_) := lType) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	// Now functions and constructors
+	if (RFunctionType(_,_) := lType) {
+	        if (REq() := rop && RFunctionType(_,_) := rType) return makeBoolType();
+	}
+
+	if (RConstructorType(_,_,_) := lType) {
+	        if (rop in relationalOps && RConstructorType(_,_,_) := lType) return makeBoolType();
+		if (rop in relationalOps && RNodeType() := lType) return makeBoolType();
+		if (rop in relationalOps && RADTType(_) := lType) return makeBoolType();
+
+		if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(lType,getListElementType(rType)));
+		if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(lType, getSetElementType(rType)));
+		if (RPlus() := rop && RBagType(_) := rType) return makeBagType(lub(lType, getBagElementType(rType)));
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	// Now containers
+	if (RListType(_) := lType) {
+	        if (RPlus() := rop && RListType(_) := rType) return makeListType(lub(getListElementType(lType),getListElementType(rType)));
+		//if (RPlus() := rop && RContainerType(_) := rType) return makeListType(lub(getListElementType(lType),getContainerElementType(rType)));
+		if (RPlus() := rop) return makeListType(lub(getListElementType(lType), rType));
+
+	        if (RMinus() := rop && RListType(_) := rType) return makeListType(getListElementType(lType));
+		//if (RMinus() := rop && RContainerType(_) := rType) return makeListType(getListElementType(lType));
+		if (RMinus() := rop) return makeListType(getListElementType(lType));
+
+	        if (RProduct() := rop && RListType(_) := rType) return makeListType(makeTupleType([getListElementType(lType),getListElementType(rType)]));
+		//if (RProduct() := rop && RContainerType(_) := rType) return makeListType(makeTupleType([getListElementType(lType),getContainerElementType(rType)]));
+		if (RProduct() := rop) return makeListType(makeTupleType([getListElementType(lType),rType]));
+
+		if (rop in relationalOps && RListType(_) := rType) return makeBoolType();
+		//if (rop in relationalOps && RContainerType(_) := rType) return makeBoolType();
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	if (RRelType(_) := lType) {
+		if (RPlus() := rop && RRelType(_) := rType) {
+		        if (comparable(getRelElementType(lType),getRelElementType(rType)))
+			        return makeRelTypeFromTuple(lub(getRelElementType(lType),getRelElementType(rType)));
+			else
+				return makeSetType(lub(getRelElementType(lType),getRelElementType(rType)));
+		}
+		if (RPlus() := rop && RTupleType(_) := rType) {
+		        if (comparable(getRelElementType(lType),rType))
+			        return makeRelTypeFromTuple(lub(getRelElementType(lType),rType));
+			else
+				return makeSetType(lub(getRelElementType(lType),rType));
+
+		}
+	        if (RPlus() := rop && RSetType(RTupleType(_)) := rType) {
+		        if (comparable(getRelElementType(lType),getSetElementType(rType)))
+			        return makeRelTypeFromTuple(lub(getRelElementType(lType),getSetElementType(rType)));
+			else
+				return makeSetType(lub(getRelElementType(lType),getSetElementType(rType)));
+		}
+	        if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(getRelElementType(lType),getSetElementType(rType)));
+		//if (RPlus() := rop && RContainerType(_) := rType) return makeSetType(lub(getRelElementType(lType),getContainerElementType(rType)));
+
+	        if (RMinus() := rop && RRelType(_) := rType && comparable(getRelElementType(lType),getRelElementType(rType))) 
+		        return makeRelType(getRelElementType(lType));
+		if (RMinus() := rop && RTupleType(_) := rType && comparable(getRelElementType(lType),rType)) 
+		        return makeRelType(getRelElementType(lType));
+	        if (RMinus() := rop && RSetType(RTupleType(_)) := rType && comparable(getRelElementType(lType),getSetElementType(rType))) 
+		        return makeRelType(getRelElementType(lType));
+
+ 		if (RProduct() := rop && RRelType(_) := rType) 
+		        return makeRelTypeFromTuple(makeTupleType([getRelElementType(lType),getRelElementType(rType)]));
+	        if (RProduct() := rop && RSetType(_) := rType) 
+		        return makeRelTypeFromTuple(makeTupleType([getRelElementType(lType),getSetElementType(rType)]));
+ 		//if (RProduct() := rop && RContainerType(_) := rType) 
+		 //       return makeRelTypeFromTuple(makeTupleType([getRelElementType(lType),getContainerElementType(rType)]));
+
+		if (RInter() := rop && RRelType(_) := rType)
+		        return makeRelTypeFromTuple(lub(getRelElementType(lType),getRelElementType(rType)));
+		if (RInter() := rop && RSetType(_) := rType)
+		        return makeRelTypeFromTuple(lub(getRelElementType(lType),getSetElementType(rType)));
+
+	        if (RJoin() := rop && (RRelType(_) := rType || RSetType(RTupleType(_)) := rType)) {
+		        RType lTuple = getRelElementTypes(lType);
+			RType rTuple = getRelElementTypes(rTypes);
+	                list[RNamedType] tFields1 = getTupleFieldsWithNames(lTuple);
+	                list[RNamedType] tFields2 = getTupleFieldsWithNames(rTuple);
+			if (tupleHasFieldNames(lTuple) && tupleHasFieldNames(rTuple)) {
+			        // Need to check for consistency to see if we should use the field names
+			        if (size({ nm | nm <- (getTupleFieldNames(lTuple)+getTupleFieldNames(rTuple)) }) != size(tFields1 + tFields2)) {
+				        // If we don't have the same number of field names as we have fields, we must have some duplicates,
+					// so we strip the field names off.
+					return makeRelTypeFromTuple(makeTupleTypeWithNames([RUnnamedType(getElementType(ti)) | ti <- (tFields1 + tFields2)]));
+				} else {
+				        return makeRelTypeFromTuple(makeTupleTypeWithNames(tFields1 + tFields2));
+				}
+			} else {
+		                return makeRelTypeFromTuple(makeTupleTypeWithNames([RUnnamedType(getElementType(ti)) | ti <- (tFields1 + tFields2)]));
+			}
+		}
+
+		if (RJoin() := rop && RSetType(_) := rType) {
+		        RType lTuple = getRelElementTypes(lType);
+	                list[Type] tFields1 = [ getElementType(ti) | ti <- getTupleFieldsWithNames(lTuple)];
+			return makeRelTypeFromTuple(makeTupleType(tFields1+getSetElementType(rType)));
+		}
+
+		if (rop in relationalOps && RSetType(_) := rType) return makeBoolType();
+		//if (rop in relationalOps && RContainerType(_) := rType) return makeBoolType();
+		if (rop in relationalOps && RRelType(_) := rType) return makeBoolType();
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+
+	}
+
+	if (RSetType(_) := lType) {
+	        if (RPlus() := rop && RSetType(_) := rType) return makeSetType(lub(getSetElementType(lType),getSetElementType(rType)));
+		//if (RPlus() := rop && RContainerType(_) := rType) return makeSetType(lub(getSetElementType(lType),getContainerElementType(rType)));
+		if (RPlus() := rop && RRelType(_) := rType) return makeSetType(lub(getSetElementType(lType),getRelElementType(rType)));
+		if (RPlus() := rop) return makeSetType(lub(getSetElementType(lType), rType));
+
+	        if (RMinus() := rop && RSetType(_) := rType) return makeSetType(getSetElementType(lType));
+		//if (RMinus() := rop && RContainerType(_) := rType) return makeSetType(getSetElementType(lType));
+		if (RMinus() := rop) return makeSetType(getSetElementType(lType));
+
+	        if (RProduct() := rop && RSetType(_) := rType) return makeRelTypeFromTuple(makeTupleType([getSetElementType(lType),getSetElementType(rType)]));
+ 		//if (RProduct() := rop && RContainerType(_) := rType) return makeRelTypeFromTuple(makeTupleType([getSetElementType(lType),getContainerElementType(rType)]));
+ 		if (RProduct() := rop && RRelType(_) := rType) return makeRelTypeFromTuple(makeTupleType([getSetElementType(lType),getRelElementType(rType)]));
+		if (RProduct() := rop) return makeRelTypeFromTuple(makeTupleType([getSetElementType(lType),rType]));
+
+		if (RInter() := rop && RSetType(_) := rType && comparable(getSetElementType(lType),getSetElementType(rType))) return makeSetType(getSetElementType(lType));
+
+		if (RJoin() := rop && RSetType(_) := rType) return makeRelTypeFromTuple(makeTupleType([getSetElementType(lType),getSetElementType(rType)]));
+		if (RJoin() := rop && RRelType(_) := rType) return makeRelTypeFromTuple(makeTupleType([getSetElementType(lType),getRelElementType(rType)]));
+
+		if (rop in relationalOps && RSetType(_) := rType) return makeBoolType();
+		//if (rop in relationalOps && RContainerType(_) := rType) return makeBoolType();
+		if (rop in relationalOps && RRelType(_) := rType) return makeBoolType();
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+
+	}
+
+	if (RMapType(_,_) := lType) {
+	        if (RPlus() := rop && RMapType(_,_) := rType)
+		        return makeMapTypeFromTuple(lub(getMapFieldsAsTuple(lType),getMapFieldsAsTuple(rType)));
+
+		if (RMinus() := rop && RMapType(_,_) := rType && comparable(lType,rType)) 
+		        return makeMapTypeFromTuple(getMapFieldsAsTuple(lType));
+
+		if (RInter() := rop && RMapType(_,_) := rType && comparable(lType,rType)) 
+		        return makeMapTypeFromTuple(getMapFieldsAsTuple(lType));
+
+		if (rop in relationalOps && RMapType(_,_) := rType) return makeBoolType();
+
+		if (rop in { RIn(), RNotIn() } && RListType(_) := rType && subtypeOf(lType,getListElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RSetType(_) := rType && subtypeOf(lType,getSetElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RBagType(_) := rType && subtypeOf(lType,getBagElementType(rType))) return makeBoolType();
+		if (rop in { RIn(), RNotIn() } && RMapType(_,_) := rType && subtypeOf(lType,getMapDomainType(rType))) return makeBoolType();
+	}
+
+	return notSupported();
 }
 
+// TODO: Guessing at type of children in loc, not implemented yet
 private map[RType,map[str,RType]] fieldMap =
 	( RLocType() :
-		( "scheme" : RStrType(), "authority" : RStrType(), "host" : RStrType(), "path" : RStrType(), "extension" : RStrType(), "fragment" : RStrType(),
-		  "query" : RStrType(), "user" : RStrType(), "port" : RIntType(), "length" : RIntType(), "offset" : RIntType(), "begin" : makeTupleType([RIntType(),RIntType()]),
+		( "scheme" : RStrType(), "authority" : RStrType(), "host" : RStrType(), "path" : RStrType(), "parent" : RStrType(),
+                  "file" : RStrType(), "children" : makeListType(makeLocType()), "extension" : RStrType(), 
+                  "fragment" : RStrType(), "query" : RStrType(), "user" : RStrType(), "port" : RIntType(), "length" : RIntType(), 
+                  "offset" : RIntType(), "begin" : makeTupleType([RIntType(),RIntType()]),
 		  "end" : makeTupleType([RIntType(),RIntType()]), "uri" : RStrType()),
 	  RDateTimeType() :
 		( "year" : RIntType(), "month" : RIntType(), "day" : RIntType(), "hour" : RIntType(), "minute" : RIntType(), "second" : RIntType(),
-          "millisecond" : RIntType(), "timezoneOffsetHours" : RIntType(), "timezoneOffsetMinutes" : RIntType(), "century" : RIntType(),
+                  "millisecond" : RIntType(), "timezoneOffsetHours" : RIntType(), "timezoneOffsetMinutes" : RIntType(), "century" : RIntType(),
 		  "isDate" : RBoolType(), "isTime" : RBoolType(), "isDateTime" : RBoolType(), "justDate" : RDateTimeType(), "justTime" : RDateTimeType())
 	);
 
@@ -439,19 +504,19 @@ public RType getFieldType(RType rt, RName fn, SymbolTable symbolTable, loc l) {
 	if (isADTType(rt) && typeHasField(rt,fn,symbolTable)) return getADTFieldType(rt, fn, symbolTable);
 	if (isADTType(rt)) return makeFailType("ADT <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isTupleType(rt) && typeHasField(rt,fn)) return getTupleFieldType(rt, fn);
+	if (isTupleType(rt) && typeHasField(rt,fn,symbolTable)) return getTupleFieldType(rt, fn);
 	if (isTupleType(rt)) return makeFailType("Tuple <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isRelType(rt) && typeHasField(rt,fn)) return getRelFieldType(rt, fn);
+	if (isRelType(rt) && typeHasField(rt,fn,symbolTable)) return getRelFieldType(rt, fn);
 	if (isRelType(rt)) return makeFailType("Relation <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isMapType(rt) && typeHasField(rt,fn)) return getMapFieldType(rt, fn);
+	if (isMapType(rt) && typeHasField(rt,fn,symbolTable)) return getMapFieldType(rt, fn);
 	if (isMapType(rt)) return makeFailType("Map <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isLocType(rt) && typeHasField(rt,fn)) return typeForField(rt, fn);
+	if (isLocType(rt) && typeHasField(rt,fn,symbolTable)) return typeForField(rt, prettyPrintName(fn));
 	if (isLocType(rt)) return makeFailType("Location <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isDateTimeType(rt) && typeHasField(rt,fn)) return typeForField(rt, fn);
+	if (isDateTimeType(rt) && typeHasField(rt,fn,symbolTable)) return typeForField(rt, prettyPrintName(fn));
 	if (isDateTimeType(rt)) return makeFailType("DateTime <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 	
 	return makeFailType("Type <prettyType(rt)> does not have fields", l);
@@ -459,48 +524,49 @@ public RType getFieldType(RType rt, RName fn, SymbolTable symbolTable, loc l) {
 
 @doc{Check to see if a relation defines a field.}
 public bool relHasField(RType t, RName fn) {
-	if (RRelType(tas) := t || RSetType(RTupleType(tas)) := t) {
+        if (isRelType(t)) {
+	        list[RNamedType] tas = getTupleFieldsWithNames(getRelElementType(t));
 		for (ta <- tas) {
 			if (RNamedType(_,fn) := ta) return true;	
 		}
+		return false;
 	}
-	return false;
+	throw "Cannot check for relation field on type <prettyPrintType(t)>";	
 }
 
 @doc{Return the type of a field defined on a relation.}
 public RType getRelFieldType(RType t, RName fn) {
-	if (RRelType(tas) := t || RSetType(RTupleType(tas)) := t) {
+        if (isRelType(t)) {
+	        list[RNamedType] tas = getTupleFieldsWithNames(getRelElementType(t));
 		for (ta <- tas) {
 			if (RNamedType(ft,fn) := ta) return ft;	
 		}
+	        throw "Relation <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
 	}
-	throw "Relation <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
+	throw "Cannot get relation field type from type <prettyPrintType(t)>";	
 }
 
 public list[RType] getRelFields(RType t) {
-	if (RRelType(tas) := t || RSetType(RTupleType(tas)) := t) {
-		return [ getElementType(ta) | ta <- tas ];
-	}
+        if (isRelType(t)) return getTupleFields(getRelElementType(t));
 	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
 }
 
 public list[RNamedType] getRelFieldsWithNames(RType t) {
-	if (RRelType(tas) := t || RSetType(RTupleType(tas)) := t) {
-		return [ ta | ta <- tas ];
-	}
+        if (isRelType(t)) return getTupleFieldsWithNames(getRelElementType(t));
 	throw "Cannot get relation fields from type <prettyPrintType(t)>";	
 }
 
 @doc{Check to see if an ADT defines a field.}
 public bool adtHasField(RType t, RName fn, SymbolTable symbolTable) {
-	if (RADTType(n) := t) {
-		for (ci <- symbolTable.adtMap[getUserTypeName(n)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
+       if (isADTType(t)) {
+		for (ci <- symbolTable.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
 			for (ta <- cts) {
 				if (RNamedType(_,fn) := ta) return true;
 			}	
 		}
+	        return false;
 	}
-	return false;
+	throw "adtHasField: given unexpected type <prettyPrintType(t)>";
 }
 
 //
@@ -510,16 +576,16 @@ public bool adtHasField(RType t, RName fn, SymbolTable symbolTable) {
 //
 @doc{Return the type of a field on an ADT.}
 public RType getADTFieldType(RType t, RName fn, SymbolTable symbolTable) {
-	if (RADTType(n) := t) {
-		for (ci <- symbolTable.adtMap[getUserTypeName(n)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
+	if (isADTType(t)) {
+		for (ci <- symbolTable.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
 			for (ta <- cts) {
 				// See if we have a match on the field name
 				if (RNamedType(ft,fn) := ta) {
-					RType retType = markUserTypes(ft,symbolTable,symbolTable.scopeItemMap[ci].parentId);
-					return retType;
+					return markUserTypes(ft,symbolTable,symbolTable.scopeItemMap[ci].parentId);
 				}
 			}	
 		}
+		throw "ADT <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
 	}	
-	throw "ADT <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
+	throw "adtHasField: given unexpected type <prettyPrintType(t)>";
 }
