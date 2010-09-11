@@ -95,10 +95,10 @@ public str prelude(){
 public str showConcept(ConceptName cn){
  
   initialize();
-  println("showConcept(<cn>), <concepts>");
+//  println("showConcept(<cn>), <concepts>");
   try {
     C = concepts[cn];
-    println("concept = <C>");
+//    println("concept = <C>");
     return showConcept(cn, C);
    } catch NoSuchKey(value key): {
      options = [ name | name <- conceptNames, endsWith(name, "/" + cn)];
