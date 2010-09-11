@@ -1,0 +1,30 @@
+Name:SubSet
+
+Categories: Language
+
+Syntax: `$Exp_1$ <= $Exp_2$`
+
+Types:
+
+| `$Exp_1$`    |  `$Exp_2$`    | `$Exp_1$ <= $Exp_2$`  |
+|:-------------|:--------------|:----------------------|
+| `set[$T_1$]` |  `set[$T_2$]` | `bool`                |
+
+
+Description:
+Yields `true` if the value of $SetExp_1$ is a subset of the value of $SetExp_2$, and `false` otherwise.
+
+Examples:
+<screen>
+{1, 2, 3} <= {1, 2, 3, 4};
+{1, 2, 3} <= {1, 2, 3};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+Type: <A:set[arb[0,int,str,real]]> <= <B:same[A]>
+
