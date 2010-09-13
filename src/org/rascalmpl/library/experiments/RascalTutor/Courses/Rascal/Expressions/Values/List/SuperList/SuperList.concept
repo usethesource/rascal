@@ -13,7 +13,8 @@ Types:
 
 
 Description:
-Yields `true` if the value of $Exp_2$ is a sublist of the value of $Exp_1$,  and `false` otherwise.
+
+Yields `true` if the value of $Exp_2$ is equal to or a sublist of the value of $Exp_1$,  and `false` otherwise.
 
 Examples:
 <screen>
