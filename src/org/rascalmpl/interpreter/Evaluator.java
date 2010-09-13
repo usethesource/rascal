@@ -2198,6 +2198,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		getCurrentEnvt().storeFunction(lambda.getName(), lambda);
 		getCurrentEnvt().markNameFinal(lambda.getName());
+		getCurrentEnvt().markNameOverloadable(lambda.getName());
 
 		lambda.setPublic(x.getVisibility().isPublic());
 		return lambda;
@@ -2214,6 +2215,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		AbstractFunction lambda = new JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
 		String name = Names.name(x.getSignature().getName());
 		getCurrentEnvt().storeFunction(name, lambda);
+		getCurrentEnvt().markNameFinal(lambda.getName());
+		getCurrentEnvt().markNameOverloadable(lambda.getName());
 
 		lambda.setPublic(x.getVisibility().isPublic());
 		return lambda;

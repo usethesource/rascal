@@ -37,6 +37,7 @@ public class Environment {
 	
 	private class NameFlags {
 		public final static int FINAL_NAME = 0x01;
+		public final static int OVERLOADABLE_NAME = 0x02;
 		private int flags = 0;
 
 		public NameFlags(int flags) {
@@ -240,49 +241,71 @@ public class Environment {
 		return result.join(resultFromParent);
 	}
 
-	public boolean isNameFinal(QualifiedName name) {
+	private boolean isNameFlagged(QualifiedName name, int flags) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRootScope()) {
 				current = current.parent;
 			}
-
-			return current.isNameFinal(name);
+			
+			return current.isNameFlagged(name, flags);
 		}
-
+		
 		String simpleName = Names.name(Names.lastName(name));
-		return isNameFinal(simpleName);
+		return isNameFlagged(simpleName, flags);
+		
 	}
 	
-	public boolean isNameFinal(String name) {
-		return (nameFlags.containsKey(name) &&
-				(nameFlags.get(name).getFlags() & NameFlags.FINAL_NAME) == NameFlags.FINAL_NAME);
+	private boolean isNameFlagged(String name, int flags) {
+			return nameFlags.containsKey(name) && (0 != (nameFlags.get(name).getFlags() & flags));
 	}
 
-	public void markNameFinal(QualifiedName name) {
+	public boolean isNameFinal(QualifiedName name) {
+		return isNameFlagged(name, NameFlags.FINAL_NAME);
+	}
+
+	public boolean isNameOverloadable(QualifiedName name) {
+		return isNameFlagged(name, NameFlags.OVERLOADABLE_NAME);
+	}
+
+	private void flagName(QualifiedName name, int flags) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRootScope()) {
 				current = current.parent;
 			}
-
-			markNameFinal(name);
-			return;
+			
+			current.flagName(name, flags);
 		}
-
+		
 		String simpleName = Names.name(Names.lastName(name));
-		markNameFinal(simpleName);
-		return;
+		flagName(simpleName, flags);
+		
+	}
+	
+	private void flagName(String name, int flags) {
+			if (nameFlags.containsKey(name))
+				nameFlags.get(name).setFlags(nameFlags.get(name).getFlags() | flags);
+			else
+				nameFlags.put(name, new NameFlags(flags));
+	}
+	
+	public void markNameFinal(QualifiedName name) {
+		flagName(name, NameFlags.FINAL_NAME);
 	}
 	
 	public void markNameFinal(String name) {
-		if (nameFlags.containsKey(name))
-			nameFlags.get(name).setFlags(nameFlags.get(name).getFlags() | NameFlags.FINAL_NAME);
-		else
-			nameFlags.put(name, new NameFlags(NameFlags.FINAL_NAME));
-		return;
+		flagName(name, NameFlags.FINAL_NAME);
 	}
 
+	public void markNameOverloadable(QualifiedName name) {
+		flagName(name, NameFlags.OVERLOADABLE_NAME);
+	}
+
+	public void markNameOverloadable(String name) {
+		flagName(name, NameFlags.OVERLOADABLE_NAME);
+	}
+	
 	public void storeParameterType(Type par, Type type) {
 		typeParameters.put(par, type);
 	}
@@ -380,7 +403,7 @@ public class Environment {
  
 	public void storeFunction(String name, AbstractFunction function) {
 		OverloadedFunctionResult list = functionEnvironment.get(name);
-		if (list == null) {
+		if (list == null || !this.isNameFlagged(name,NameFlags.OVERLOADABLE_NAME)) {
 			// NB: we store null in the cache so that rollback will remove the table entry on name
 			// instead of restoring an empty list.
 			updateFunctionCache(name, functionEnvironment, null);
