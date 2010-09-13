@@ -17,6 +17,8 @@ data Box
     | NM(Box  nm)
     | STRING(Box  string)
     | COMM(Box  comm)
+    | MATH(Box math)
+    | ESC(Box esc)
     | REF(int ref)
     | NULL()
     ;

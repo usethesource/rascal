@@ -301,6 +301,8 @@ text QQ(Box b, Box c, options o, int m) {
          case NM(Box a):{return decorated?font(O( a, c, o, m),"NM"):O( a, c, o, m);}
          case STRING(Box a):{return decorated?font(O( a, c, o, m),"SG"):O( a, c, o, m);}
          case COMM(Box a):{return decorated?font(O( a, c, o, m),"CT"):O( a, c, o, m);}
+         case MATH(Box a):{return decorated?font(O( a, c, o, m),"MT"):O( a, c, o, m);}
+         case ESC(Box a):{return decorated?font(O( a, c, o, m),"SC"):O( a, c, o, m);}
      }
 return [];
 }

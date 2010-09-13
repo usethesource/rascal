@@ -15,14 +15,16 @@ list[UserDefinedFilter] userDefinedFilters = [
 public text toText(loc asf){
      Tree a = inPut(asf);
      setUserDefined(extraRules);
-     return toText(a);
+     text r = toText(a);
+     writeData(asf, r, ".txt");
+     return r;
      }
 
 public text toLatex(loc asf){
      Tree a = inPut(asf);
      setUserDefined(extraRules);
      text r = toLatex(a);
-     writeLatex(asf, r, ".box");
+     writeData(asf, r, ".tex");
      return r;
      } 
     
