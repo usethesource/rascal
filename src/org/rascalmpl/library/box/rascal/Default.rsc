@@ -119,6 +119,18 @@ public text toLatex(loc asf){
      writeData(asf, r, ".txt");
      r = toLatex(a);
      writeData(asf, r, ".tex");
+     r = toHtml(a);
+     writeData(asf, r, ".html");
+     return r;
+     }
+     
+public text toHtml(loc asf){
+     str s = getRascalFileContent(asf);
+     // println("Txt: parse");
+     Tree a = parse(#Module, s);
+     setUserRules();
+     text r = toHtml(a);
+     writeData(asf, r, ".html");
      return r;
      }
      
