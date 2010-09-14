@@ -96,6 +96,15 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
+		if (that.getValue().getElementType().isVoidType()) {
+			return makeResult(getTypeFactory().setType(this.getType()), that.getValue().insert(this.getValue()), ctx);
+		} else {
+			return super.addRelation(that);
+		}
+	}
+
+	@Override
 	public <U extends IValue, V extends IValue> Result<U> setAnnotation(String annoName, Result<V> anno, Environment env) {
 				Type annoType = env.getAnnotationType(getType(), annoName);
 			
