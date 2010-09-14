@@ -284,6 +284,8 @@ public class ModuleEnvironment extends Environment {
 		Type cons = TF.constructorFromTuple(typeStore, adt, name, tupleType);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);
+		markNameFinal(name);
+		markNameOverloadable(name);
 		return function;
 	}
 	
@@ -293,6 +295,8 @@ public class ModuleEnvironment extends Environment {
 		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);
+		markNameFinal(name);
+		markNameOverloadable(name);
 		return function;
 	}
 	
@@ -301,6 +305,8 @@ public class ModuleEnvironment extends Environment {
 		Type cons = TF.constructor(typeStore, nodeType, name, children);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);
+		markNameFinal(name);
+		markNameOverloadable(name);
 		return function;
 	}
 	
