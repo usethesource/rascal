@@ -395,6 +395,16 @@ public text toLatex(Tree a) {
           }
      return box2latex(q);
      }
+     
+public text toHtml(Tree a) {
+     Box q=NULL();
+     if (aux[a]?) q=aux[a]; else {
+          q=evPt(a);
+          println("End evPt");
+          aux+=(a:q);
+          }
+     return box2html(q);
+     }
 
 public text toText(Tree a) {
      Box q=NULL();

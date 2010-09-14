@@ -281,7 +281,7 @@ text font(text t, str tg) {
    for (int i <-[1, 2..(n-1)]) {
        r+=t[i];
       }
-   r+=(t[n]+"\r}12");
+   r+=(t[n]+"\r}<tg>");
    return r;
   }
 
@@ -490,12 +490,59 @@ public str convert2latex(str s) {
 	}	
 }
 
+
+
 str text2latex(str t) {
     t = convert2latex(t);
     return visit(t) {
        case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<key>}"
        case /^\r\{<tg:..><key:[^\r]*>/ => "\\<tg>{<key>"
-       case /^\r\}../ => "}"
+       case /^\r\}<tg:..>/ => "}"
+       }
+    }
+
+str selectTag(str tg, str key) {
+   if (tg=="KW") return "\<B\><key>\</B\>";
+   if (tg=="CT") return "\<I\><key>\</I\>";
+   if (tg=="SG") return "\<FONT color=\"blue\"\><key>\</FONT\>";
+   return key;
+}
+
+str selectBeginTag(str tg, str key) {
+   if (tg=="KW") return "\<B\><key>";
+   if (tg=="CT") return "\<I\><key>";
+   if (tg=="SG") return "\<FONT color=\"blue\"\><key>";
+   return key;
+}
+
+str selectEndTag(str tg) {
+   if (tg=="KW") return "\</B\>";
+   if (tg=="CT") return "\</I\>";
+   if (tg=="SG") return "\</FONT\>";
+   return "";
+}
+   
+public str convert2html(str s) {
+	return visit (s) { 
+	  case /^\r\{/ => "\r{"
+	  case /^\r\}/ => "\r}"
+	  case /^ / => "&nbsp;"
+	  case /^\"/ => "&quot;"
+	  case /^&/ => "&amp;"
+	  // case /^\{/ => "\\{"
+	  // case /^\}/ => "\\}"
+	  case /^\</ => "&lt;"
+	  case /^\>/ => "&gt;"
+	  case /^%/ => "\\%"
+	}	
+}
+
+str text2html(str t) {
+    t = convert2html(t);
+    return visit(t) {
+       case /^\r\{<tg:..><key:[^\r]*>\r\}../ => selectTag(tg, key)
+       case /^\r\{<tg:..><key:[^\r]*>/ =>  selectBeginTag(tg, key)
+       case /^\r\}../ => selectEndTag(tg)
        }
     }
     
@@ -509,10 +556,14 @@ text text2latex(text t) {
     return [text2latex(s)|s<-t];
     }
     
+text text2html(text t) {
+    return ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>"|s<-t];
+    }
+    
 text text2txt(text t) {
     return [text2txt(s)|s<-t];
-    }   
-
+    } 
+       
 map[Box, text] aux=();
      
 public text box2latex(Box b) {
@@ -525,6 +576,20 @@ public text box2latex(Box b) {
         aux+=(b:q);
         }
     text t = getFileContent("box/Start.tex")+text2latex(q)+getFileContent("box/End.tex");    
+    // println("End box2latex");
+    return t;
+    }
+    
+public text box2html(Box b) {
+    // println("Start box2latex");
+    decorated =  true;
+    text q = [];
+    if (aux[b]?) q = aux[b];
+    else {
+        q = box2data(b);
+        aux+=(b:q);
+        }
+    text t = getFileContent("box/Start.html")+text2html(q)+getFileContent("box/End.html");    
     // println("End box2latex");
     return t;
     }
