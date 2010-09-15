@@ -30,6 +30,11 @@ public class ListResult extends CollectionResult<IList> {
 	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
 		return result.subtractList(this);
 	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result) {
+		return result.intersectList(this);
+	}
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> result) {
@@ -135,6 +140,17 @@ public class ListResult extends CollectionResult<IList> {
 			}
 		}
 		return makeResult(type, w.done(), ctx);	
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> intersectList(ListResult that) {
+		// Note the reversal of args
+		IListWriter w = type.writer(getValueFactory());
+		Type type = getType().lub(that.getType());
+		for(IValue v : that.getValue())
+			if(getValue().contains(v))
+				w.append(v);
+		return makeResult(type, w.done(), ctx);
 	}
 	
 	
