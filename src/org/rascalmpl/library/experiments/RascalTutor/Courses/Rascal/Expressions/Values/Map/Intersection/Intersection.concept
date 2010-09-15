@@ -1,0 +1,27 @@
+Name: Intersection
+
+Details:
+
+Categories: Language
+
+Syntax:`$Exp_1$ & $Exp_2$`
+
+Types:
+ `$Exp_1$`    |  `$Exp_2$`      | `$Exp_1$ & $Exp_2$`     |
+|:-------------|:----------------|:------------------------|
+| `map[$T_11$, $T12$]` |  `set[$T_2$]`   | `set[lub($T_1$,$T_2$)]` |
+
+Function:
+
+Synopsis:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

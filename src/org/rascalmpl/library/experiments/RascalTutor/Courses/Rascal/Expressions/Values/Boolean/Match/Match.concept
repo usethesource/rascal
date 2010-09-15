@@ -2,14 +2,14 @@ Name: Match
 
 Details:
 
-Categories:
+Categories: Language
 
 Syntax: `$Pat$ := $Exp$`
 
 Types:
 | `$Pat$`   | `$Exp$` |`$Pat$ := $Exp$`|
 |:----------|:--------|:---------------|
-| [Pattern] | `value` | `bool`         |
+| [Patterns] | `value` | `bool`         |
 
 
 Description:

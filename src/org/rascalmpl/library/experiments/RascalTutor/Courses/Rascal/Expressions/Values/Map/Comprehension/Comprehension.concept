@@ -1,0 +1,30 @@
+Name: Comprehension
+
+Details:
+
+Categories: Language
+
+Syntax: `( $Exp_1$ : $Exp_2$ | $Gen_1$, $Gen_2$, ... ]`
+
+Types:
+| `$Exp_1$` | `$Exp_2$` | `( $Exp_1$ : $Exp_2$ | $Gen_1$, $Gen_2$, ... )` |
+|:----------|:----------|:-------------------------------------------------|
+| `$T_1$`   | `$T_2$`   | `map[$T_1$, $T_2$]`                              |
+
+Function:
+
+Synopsis:
+
+Description:
+A map comprehension consists of a number of two contributing expressions $Exp_1$ (for key values), 
+and $Exp_2$ (the values associated with those key values) and a number of
+generators $Gen_1$, $Gen_2$, $Gen_3$, ... that are evaluated as described in [Expressions/Comprehensions].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

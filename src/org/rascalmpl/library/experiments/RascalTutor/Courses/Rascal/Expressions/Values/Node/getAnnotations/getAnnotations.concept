@@ -4,11 +4,11 @@ Details:
 
 Categories: Library
 
-Syntax: `map[str,value] getAnnotations(node x)`
+Syntax: 
 
 Types:
 
-Function:
+Function:`map[str,value] getAnnotations(node x)`
 
 Synopsis:
 

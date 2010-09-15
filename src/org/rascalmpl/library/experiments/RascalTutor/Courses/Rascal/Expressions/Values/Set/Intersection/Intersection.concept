@@ -17,7 +17,7 @@ Description:
 If both $Exp_1$ and $Exp_2$ have a set as value, the result is the intersection of these two set values. If one of $Exp_1$ or $Exp_2$ does not have a set as value, it is first converted to a set before the intersection is computed.
 
 Examples:
-<warning>& seems to miss the case for a non-set argument</warning>
+<warning>Rascal implementation: & seems to miss the case for a non-set argument</warning>
 <screen>
 {1, 2, 3, 4, 5} & {4, 5, 6};
 {1, 2, 3} & 4;
