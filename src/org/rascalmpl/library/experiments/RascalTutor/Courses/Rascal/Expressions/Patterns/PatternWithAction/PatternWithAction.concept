@@ -1,0 +1,54 @@
+Name: PatternWithAction
+
+Details:
+
+Categories:
+
+Syntax:
+# `$Pattern$ => $Exp$`
+# `$Pattern$: $Statement$`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+Patterns can be used in various contexts, but a common context is a PatternWithAction, 
+which in its turn, may be used in various statements such [Switch], [Visit] and [Rule].
+
+There are two variants as listed above:
+
+# When the subject matches $Pattern$, the expression $Exp$ is evaluated and the subject is replaced with the result.
+
+# When the subject matches Pat, the Statement is executed.
+
+
+In [Switch] statements, only the form `$Pattern$ : $Statement$` is allowed. 
+When the subject matches $Pattern$, the $Statement$ is executed and the execution of the switch statement is complete. 
+However, when a fail statement is executed in $Statement$ all its side effects are undone and further alternatives of
+$Pattern$ are tried. If no alternatives remain, PatternWithAction as a whole fails and subsequent cases of 
+the switch statement are tried.
+
+
+In [Visit] expressions, the form `$Pattern$ => $Exp$` describes subtree replacement: 
+the current subtree of the subject of the visit expression is replaced by the value of $Exp$. 
+The form `$Pattern$ : $Statement$` is as described for switch statements, with the addition that execution of an 
+[Insert] statement will replace the current subtree. After both succes or failure of the PatternWithAction, 
+the traversal of the subject continues.
+
+
+In rewrite rules, see [Rule], both forms are allowed. The form `$Pattern$ => $Exp$` behaves as described for visit expressions.
+The form `$Pattern$ : $Statement$` is as described for switch statement. If the PatternWithAction fails another
+rule will be tried. 
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

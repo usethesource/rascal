@@ -17,6 +17,7 @@ Concrete patterns operate on these trees.
 A _concrete pattern_ is a quoted concrete syntax fragment that may contain variables. The syntax that is used to parse the concrete pattern may come from any SDF module that has been imported in the module in which the concrete pattern occurs.
 
 A concrete pattern may have the following forms:
+<warning>Wrong HTML is generated here</warning>
 
 * _Quoted pattern_
 <listing>
