@@ -1,0 +1,36 @@
+Name: Insert
+
+Details:
+
+Categories:
+
+Syntax: `insert $Exp$;`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+An insert statement may only occur in the action part of a [PatternWithAction], more precisely in
+
+* A case in a [Visit] expression. The value matched by the pattern of this case is eplaced by the value of $Exp$.
+
+* An action of a rewrite [Rule]. The value matched by the pattern of the rewrite rule is replaced by the value of $Exp$.
+
+
+The following rule applies:
+
+* The static type of $Exp$ should be a subtype of the type of the value that is replaced.
+
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

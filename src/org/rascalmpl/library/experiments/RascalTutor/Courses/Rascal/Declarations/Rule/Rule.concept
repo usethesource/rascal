@@ -1,0 +1,56 @@
+Name: Rule
+
+Details:
+
+Categories: Language
+
+Syntax: `rule $Name$ $PatternWithAction$;`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+Functions are the workhorses of Rascal. They can have any value as parameter or result and are explicitly called by the user. Also, functions are declared inside modules and their visibility can be controlled.
+
+Rewrite rules, on the other hand, operate only on nodes and [Declarations/AlgebraicDataType], they are implicitly applied when a 
+new value (we refer to this as the _subject_ value) is constructed. The scope of rewrite rules is the whole Rascal program. 
+Rewrite rules are applied to the subject value in a bottom-up fashion. As a result, the subject value may be changed. 
+This process is repeated as long as there are rules that can be applied to the current subject value. 
+Technically, this is called _innermost rewriting_. When done, the result of rewriting the original subject value is used instead of that original value.
+
+
+During execution of rules the following applies:
+
+* Rules are applied non-deterministically, and in any order of matching.
+
+* The right-hand side of rules can contain fail statements, which cause backtracking over the alternative matches or alternative rules for a certain constructor.
+
+* When the right-hand side is a statement, an [Insert] statement determines the value of the actual replacement. 
+
+
+
+
+Examples:
+<screen>
+// First define an Algebraic Data Type `Bool` that represents Booleans:
+data Bool = btrue()
+          | bfalse()
+          | band(Bool left, Bool right)
+          | bor(Bool left, Bool right);
+// Next define some classic rewrite rules on Bool:
+rule a1 band(btrue(), Bool B)    => B;
+rule a2 band(bfalse(), Bool B)   => bfalse;
+band(band(btrue(),btrue()),band(btrue(), bfalse()));
+</screen>
+
+You may wonder why we write btrue and bfalse instead of true and false. The explanation is that the latter are reserved words that cannot be used as ordinary names. Reserved words can, however, be used as ordinary names by escaping them; this is done by prefixing them with a backslash (`\`), e.g. `\true` and `\false`.
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

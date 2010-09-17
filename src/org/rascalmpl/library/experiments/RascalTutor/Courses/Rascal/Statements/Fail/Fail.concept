@@ -1,0 +1,27 @@
+Name: Fail
+
+Details:
+
+Categories: Language
+
+Syntax: `fail;`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+A fail statement may only occur in the action part of a [PatternWithAction].
+The fail statement forces the failure of that action. 
+Any bindings caused by the pattern or side-effects caused by the action are undone.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,74 @@
+Name: Function
+
+Details:
+
+Categories: Language
+
+Syntax: 
+# `$Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) $Statement$`
+# `$Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ $Type_0$ $Name_0$... ) $Statement$`
+# `$Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) throws $Exception_1$, $Exception_2$, ... $Statement$ `
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+=== Variant 1 ===
+A function declaration introduces a new function with name $Name$, typed formal parameters `$Type_1$ $Var_1$`, a return type $Type$
+and a $Statement$ that forms the function body.
+The type of $Statement$ should be equal to $Type$.
+
+The formal parameters may be used in $Statement$ and get their value when function $Name$ is invoked.
+
+=== Variant 2 ===
+A function may have a variable list of arguments, this has as syntax variant 2 given above.
+
+The last parameter of a function may be followed by `...` and this has as effect that all remaining actual parameters
+that occur in a call to this function are collected as list value of the last formal parameter. 
+Inside the function body, the type of this parameter will therefore be `list[$Type_0$]`.
+
+=== Variant 3 ===
+The exceptions that can be thrown by a function can be (optionally) declared as shown in syntax variant 3 above. 
+
+=== Parameterized types in function declaration ===
+The types that occur in function declarations may also contain [TypeParameters].
+In this way functions can be defined for arbitrary types. The type variable is bound at the moment the function is called.
+
+
+Examples:
+<screen>
+// Declare a function
+rel[int, int] invert(rel[int,int] R){
+   return {<Y, X> | <int X, int Y> <- R };
+}
+// Call it
+invert({<1,10>, <2,20>});
+</screen>
+
+In the following example we illustrate the use of type vriables in function declarations.
+Declare an inversion function that is applicable to any binary relation:
+<warning> A scoping issue again</warning>
+<screen>
+rel[&T2, &T1] invert2(rel[&T1,&T2] R){  
+   return {<Y, X> | <&T1 X, &T2 Y> <- R };
+}
+//Now apply it to relations with different types:
+invert2({<1,10>, <2,20>});
+invert2({<"mon", 1>, <"tue", 2>});
+// As another example declare a function that can be used to swap the elements of pairs of arbitrary types:
+//<warning> Unexplained syntax error, escaping of < broken?</warning>
+tuple[&T2, &T1] swap(tuple[&T1 A, &T2 B]) { return <B, A>;}
+swap(<1, 2>);
+swap(<"wed", 3>);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

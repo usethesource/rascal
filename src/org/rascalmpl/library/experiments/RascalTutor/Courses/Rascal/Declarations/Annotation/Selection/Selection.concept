@@ -1,0 +1,29 @@
+Name: Selection
+
+Details:
+
+Categories: Language
+
+Syntax: `$Expr$ @ $Name$`
+
+Types:
+| `$Expr$`       | `$Expr$ @ $Name$`                             |
+|:--------------|:-----------------------------------------------|
+| `$T$ <: node` | Determined by annotation declaration of $Name$ |
+
+Function:
+
+Synopsis:
+
+Description:
+
+Retrieves the value of annotation $Name$ of the value of $Exp$ (may be undefined!).
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
