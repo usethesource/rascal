@@ -20,7 +20,7 @@ Description: Values of type `node` represent untyped trees and are constructed a
 * zero or more expressions of type `value` are the node\'s children.
 
 
-Nodes can have [Annotations].
+Nodes can have [Annotation]s.
 
 Examples:
 <screen>
