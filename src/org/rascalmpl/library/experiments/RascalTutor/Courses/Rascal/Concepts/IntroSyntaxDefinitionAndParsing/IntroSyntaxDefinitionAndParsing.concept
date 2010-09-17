@@ -20,7 +20,7 @@ See [](http://www.meta-environment.org/Meta-Environment/Documentation) for tutor
 
 SDF modules define grammars and these modules can be imported in a Rascal module. 
 These grammar rules can be applied in writing concrete patterns to match parts of parsed source code. 
-Here is an example of the same pattern we saw in [Concepts/PatternMatching], but now in concrete form:
+Here is an example of the same pattern we saw in [Concepts/IntroPatternMatching], but now in concrete form:
 
 <listing>
 while <Exp> do <Stats> od

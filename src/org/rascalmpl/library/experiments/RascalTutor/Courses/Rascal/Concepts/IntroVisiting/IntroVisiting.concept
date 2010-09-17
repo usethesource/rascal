@@ -18,6 +18,7 @@ with that case are executed. These cases may:
 * execute an [Insert] statement that replaces the current element;
 * execute a [Fail] statement that causes the match for the current case to fail (and undoing all side-effects due to the successful match itself and the execution of the statements so far).
 
+
 The value of a visit expression is the original subject value with all replacements made as dictated by matching cases. The traversal order in a visit expressions can be explicitly defined by the programmer. 
 
 Examples:

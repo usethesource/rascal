@@ -6,7 +6,7 @@ Synopsis:
 
 Description:
 
-Control structures like [If] and [While] statement are driven by Boolean expressions.
+Control structures like [If], [While] and [For] statement are driven by Boolean expressions.
 Actually, combinations of generators and Boolean expressions can be used to drive the control structures. 
 In the latter case, the Boolean expression is executed for each generated value.
 

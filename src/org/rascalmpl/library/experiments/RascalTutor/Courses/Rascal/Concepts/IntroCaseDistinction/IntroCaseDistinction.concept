@@ -14,6 +14,9 @@ The variables bound by the pattern are always local to the statement associated 
 When a match fails or when the associated statement fails, a _rollback_ takes place and all side-effects are undone. 
 External side-effects like I/O and side-effects in user-defined Java code are not undone. 
 
+
+See [Switch],[Visit] and [PatternWithAction] for more details.
+
 Examples:
 Here is an example where we take a program `P` and distinguish two cases for while and if statement:
 <listing>
