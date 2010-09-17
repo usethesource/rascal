@@ -1,0 +1,29 @@
+Name: toReal
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Maps `true` to `1,0` and `false` to `0.0`.
+
+Examples:
+<screen>
+import Boolean;
+toReal(true);
+toReal(false);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

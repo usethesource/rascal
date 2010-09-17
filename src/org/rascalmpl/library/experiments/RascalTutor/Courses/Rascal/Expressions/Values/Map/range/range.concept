@@ -1,0 +1,27 @@
+Name: range
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `set[&V] range(map[&K, &V] M)`
+
+Synopsis:
+
+Description: Returns the range (set of values) of map `M`.
+
+Examples:
+<screen>
+import Map;
+range(("apple": 1, "pear": 2));
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

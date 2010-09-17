@@ -1,0 +1,37 @@
+Name: Equal
+
+Details:
+
+Categories: Language
+
+Syntax: `$Exp_1$ == $Exp_2$`
+
+Types:
+| `$Exp_1$`   | `$Exp_2$` | `$Exp_1$ == $Exp_2$` |
+|:------------|:----------|:---------------------|
+| `value`     |  `value`  | `bool`               |
+
+Function:
+
+Synopsis:
+
+Description: Yields `true` if both arguments are identical and `false` otherwise.
+
+
+Examples:
+<screen>
+// Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
+value X = "abc";
+value Y = "abc";
+value Z = 3.14;
+// Now compare `X` and `Y` for equality:
+X == Y;
+// and `X` and `Z`:
+X == Z;
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

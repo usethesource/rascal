@@ -1,0 +1,30 @@
+Name: toReal
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`real toReal(str s) throws IllegalArgument(value v)`
+
+Synopsis:
+
+Description: Converts string `s` to a real. Throws `IllegalArgument` when `s` cannot be converted.
+
+Examples:
+<screen>
+import String;
+toReal("2.5e-3");
+toReal("123");
+toReal("abc");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

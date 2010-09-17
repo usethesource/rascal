@@ -1,0 +1,25 @@
+Name:arbBool
+
+Categories: Library
+
+Function: `bool arbBool( )`
+
+
+Description: Return an arbitrary Boolean value.
+
+Examples:
+<screen>
+import Boolean;
+arbBool();
+arbBool();
+arbBool();
+</screen>
+
+Benefits: <tt>arbInt</tt> is a convenient generator for arbitrary binary choices.
+
+Pittfalls:
+
+Questions:
+
+
+

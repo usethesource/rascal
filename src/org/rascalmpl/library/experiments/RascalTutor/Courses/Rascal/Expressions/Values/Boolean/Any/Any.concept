@@ -1,0 +1,31 @@
+Name: Any
+
+Details:
+
+Categories: Language
+
+Syntax: `any ( $Exp_1$, $Exp_2$, ... )`
+
+Types:
+| `$Exp_1$` | `$Exp_2$` | ... | `any ( $Exp_1$, $Exp_2$, ... )` |
+|:----------|:----------|:----|:--------------------------------|
+|`bool`     | `bool`    | ... | `bool`                          |
+
+Function:
+
+Synopsis:
+
+Description:
+Yields `true` when at least one combination of values of $Exp_i$ is true.
+
+Examples:
+<screen>
+any(int n <- [1 .. 10], n % 2 == 0);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

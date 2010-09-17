@@ -14,8 +14,7 @@ Types:
 
 
 Description:
-<warning>Move to relation</warning>
-Relation resulting from the natural join of the set values of the two arguments.
+Relation resulting from the natural join of the relation values of the two arguments.
 This relation contains tuples that are the result from concatenating the elements from both arguments.
 
 Examples:

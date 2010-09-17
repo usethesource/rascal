@@ -19,7 +19,8 @@ A map is a set of key : value pairs and has the following properties:
 
 * A key can only occur once.
 
-Maps are represented by the type map[T1, T2], where T1 and T2 are arbitrary types. Examples are map[int,int], and map[str,int]. Maps are denoted by a list of pairs, separated by comma's and enclosed in parentheses as in (K1: V1, ..., Kn: Vn), where the Kn (1 <= i<= n) are expressions that yield the keys of the map and Vn (1 <= i<= n) are expressions that yield the values for each key. Maps resemble functions rather than relations in the sense that only a single value can be associated with each key. 
+
+Maps resemble functions rather than relations in the sense that only a single value can be associated with each key. 
 
 Examples:
 <screen>

@@ -1,0 +1,34 @@
+Name: GreaterThanOrEqual
+
+Details:
+
+Categories: Language
+
+Syntax:`$Exp_1$ >= $Exp_2$`
+
+Types:
+| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ >= $Exp_2$` |
+|:----------|:----------|:---------------------|
+| `str`     |  `str`    | `bool`               |
+
+Function:
+
+Synopsis:
+
+Description: Yields `true` if the string value of $Exp_1$ is lexicographically greater
+than the string value of $Exp_2$ or if both strings are equal, and `false` otherwise.
+
+Examples:
+<screen>
+"abc" >= "abc";
+"abcdef" >= "abc";
+"defghi" >= "abcdef";
+"a" >= "abc";
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

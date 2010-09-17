@@ -1,0 +1,27 @@
+Name: rangeR
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `map[&K, &V] rangeR(map[&K, &V] M, set[&V] S)`
+
+Synopsis:
+
+Description: Returns the map restricted to pairs with values in `S`.
+
+Examples:
+<screen>
+import Map;
+rangeR(("apple": 1, "pear": 2, "ananas": 3), {2, 3});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

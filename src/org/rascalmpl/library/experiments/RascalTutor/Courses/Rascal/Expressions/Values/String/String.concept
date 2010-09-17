@@ -3,6 +3,7 @@ Name:String
 Categories:Language
 
 Syntax: <warning>explain string syntax</warning>
+<warning>Library functions replaceAll, replaceFirst, replaceLast not yet includd (reconsider) </warning>
 
 Types: `str`
 

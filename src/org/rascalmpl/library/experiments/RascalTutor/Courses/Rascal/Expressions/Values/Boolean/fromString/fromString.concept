@@ -1,0 +1,25 @@
+Name: fromString
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `bool fromString(str s)`;
+
+Synopsis:
+
+Description: Maps the strings `"true"` and `"false"` to `true`, respectively, `false`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+<warning>Rascal implementation: remove since useless?</warning>
+
+Questions:
+
