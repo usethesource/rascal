@@ -31,6 +31,7 @@ data Course =
 data Concept = 
 	 concept(ConceptName name,                     	// Name of the concept
 			loc file,                             	// Its source file
+			list[str] warnings,                     // Explicit warnings in concept text
 			list[ConceptName] details,              // Optional (ordered!) list of details
 			set[str] categories,                    // Categories it belongs to
 			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)

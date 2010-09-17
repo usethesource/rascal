@@ -104,7 +104,7 @@ public str showConcept(ConceptName cn){
      options = [ name | name <- conceptNames, endsWith(name, "/" + cn)];
      if(size(options) == 0)
         return html(head(title("Concept <cn> does not exist") + prelude()),
-                    body(h1("Concept <cn> does not exist, please correct source!")));
+                    body(h1("Concept <cn> does not exist, please add concept or correct link!")));
      if(size(options) == 1)
        return showConcept(options[0], concepts[options[0]]);
      else {

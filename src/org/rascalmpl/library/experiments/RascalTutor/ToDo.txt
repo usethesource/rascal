@@ -1,5 +1,7 @@
 TODO List for RascalTutor
 
+- Fix | symbol in table header.
+- Fix column alignment in tables.
 - Fix screen/listing inside list [Moderate]
 - Fix cheat functionality [Moderate]
 - Generate PDF [some work]
@@ -28,3 +30,4 @@ Completed:
 - The <screen> </screen> markup should allow comments
 - Add a feedback mechanism in questions (say what was wrong).
 - In <screen> output of println disappears
+
