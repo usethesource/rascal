@@ -13,6 +13,7 @@ import Scripting;
 
 private set[ConceptName] relatedConcepts = {};
 
+
 private void addRelated(ConceptName cn){
   relatedConcepts += cn;
 }
@@ -21,6 +22,15 @@ public set[ConceptName] getAndClearRelated(){
   r = relatedConcepts;
   relatedConcepts = {};
   return r;
+}
+
+// Allow for warnings in concepts
+
+private list[str] warnings = [];
+public list[str] getAndClearWarnings(){
+  w = warnings;
+  warnings = [];
+  return w;
 }
 
 private list[str] listNesting = [];
@@ -159,6 +169,13 @@ public str markup(list[str] lines, str cp){
       res += markupListing(codeLines);
       i += 1;
       }
+      
+    case /^\<warning\><txt:.*>\<\/warning\>/:{
+      warnings += txt;
+      res += "\<warning\><txt>\</warning\>";
+      i += 1;
+      }
+       
     case /^$/: {
       res += closeLists();
       i += 1;
@@ -209,7 +226,7 @@ public list[str] getHeadings(str txt){
 println("getHeadings(<txt>)");
   headings = [];
   visit(txt){
-    case /^\|<h:[^|]+>/: { headings += markupRestLine(h); insert "";}
+    case /^\|<h:(`[^`]*`|[^|])+>/: { headings += markupRestLine(h); insert "";}
   }
   return headings;
 }
@@ -280,7 +297,7 @@ public str markupRestLine(str line){
     
     case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"images/<dig>.png\"\>"
     
-    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_]+\.png><opts:[^\)]*>\)/ => "\<img <getImgOpts(opts)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
+    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img <getImgOpts(opts)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
     
    };
 }
@@ -414,7 +431,9 @@ public set[str] searchTermsCode(str line){
 }
 
 public set[str] searchTermsSynopsis(list[str] syn, list[str] tp, list[str] fn, list[str] synop){
-  return searchTerms(syn) + (searchTerms(tp)-  {"[", "]", ","});
+  
+  return (searchTerms(syn) - {"...", "...,"}) + 
+         {t | str t <- searchTerms(tp), /\{\}\[\]\(\),/ !:= t, t notin {"...", "...,", ",...", ",...,"}};
          // TODO what do we do with searchTerms(fn), searchTerms(synop)?
 }
 

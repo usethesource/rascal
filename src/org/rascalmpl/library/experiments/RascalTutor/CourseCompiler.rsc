@@ -84,7 +84,7 @@ str compiledExtension = "concept.pre";
 public Concept parseConcept(loc file, str coursePath){
    binFile = file[extension = compiledExtension];
    println("binFile=<binFile>; <exists(binFile)>; <lastModified(binFile)>; <lastModified(file)>");
-   if(exists(binFile) && lastModified(binFile) > lastModified(file)){
+   if(false && exists(binFile) && lastModified(binFile) > lastModified(file)){
      println(" reading concept from file ...");
      try {
         C = readTextValueFile(#Concept, binFile);
@@ -136,8 +136,9 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	   questions 		= getAllQuestions(name, sections["Questions"]);
 	   
 	   related = getAndClearRelated();
+	   warnings = getAndClearWarnings();
 	   
-	   Concept C = concept(name, file, optDetails, optCategories, related, synopsis,
+	   Concept C = concept(name, file, warnings, optDetails, optCategories, related, synopsis,
 	                       syntaxSynopsis, typesSynopsis, functionSynopsis, 
 	                       searchTerms, description, examples, benefits, pittfalls, questions);
 	   binFile = file[extension = compiledExtension];
@@ -151,11 +152,6 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	  catch e: 
 	    throw ConceptError("<fullName>: uncaught exception <e>");
 }
-
-// Extract the path named from a Related section
-//public list[str] getPath(list[str] lines){
-//   return [ path | line <- lines, /<path:[A-Za-z\-\_\/]+>/ := line];
-//}
 
 // Extract categories
 
@@ -485,15 +481,15 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
          println("related.r = <r>");
          rbasenames = basenames(r);
          if(!(toSet(rbasenames) <= allBaseConcepts))
-         	warnings += "<showConceptPath(cname)>: unknown related concept \"<r>\"";
+         	warnings += "<showConceptPath(cname)>: unknown concept \"<r>\"";
          else {
             parents = generalizations[rbasenames[0]];
             if(size(parents) > 1)
-               warnings += "<showConceptPath(cname)>: ambiguous related concept \"<rbasenames[0]>\", choose from <parents>";
+               warnings += "<showConceptPath(cname)>: ambiguous concept \"<rbasenames[0]>\", add one of the parents <parents>";
             if(size(rbasenames) >= 2){
                for(int i <- [0 .. size(rbasenames)-2]){
                    if(<rbasenames[i], rbasenames[i+1]> notin baseRefinements)
-                      warnings += "<showConceptPath(cname)>: related concept contains non-existing refinement \"<rbasenames[i]>/<rbasenames[i+1]>\"";
+                      warnings += "<showConceptPath(cname)>: unknown concept \"<rbasenames[i]>/<rbasenames[i+1]>\"";
                } // for
             } // if
             fullPath = shortestPathPair(baseRefinements, rootConcept, last(rbasenames));
@@ -510,6 +506,8 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
          if((cname + "/" + d) notin fullRefinements[cname])
             warnings += "<showConceptPath(cname)>: non-existent detail \"<d>\"";
        }
+       for(w <- C.warnings)
+         warnings += "<showConceptPath(cname)>: <w>";
     }
     
     println("fullRelated = <fullRelated>");
