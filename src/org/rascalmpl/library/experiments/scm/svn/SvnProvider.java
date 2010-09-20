@@ -51,20 +51,17 @@ public class SvnProvider implements ScmProvider<SvnLogEntryHandler> {
 		new SvnProvider().extractLogs(repository, (RascalFunction) extractFacts, logEntriesWriter);
 	}
 	
-	@Override
 	public SvnLogEntryHandler extractLogs(IConstructor repository, RascalFunction factExtractor, IListWriter logEntriesWriter) throws ScmProviderException {
 		SvnLogEntryHandler handler = createLogEntryHandler(repository, factExtractor, logEntriesWriter);
 		extractLogs(repository, handler);
 		return handler;
 	}
 	
-	@Override
 	public SvnLogEntryHandler createLogEntryHandler(IConstructor repository,
 			RascalFunction factExtractor, IListWriter logEntriesWriter) {
 		return new SvnLogEntryHandler(repository, factExtractor, logEntriesWriter);
 	}
 	
-	@Override
 	public ISet getResources(IConstructor repositoryConfig) throws ScmProviderException {
 		IConstructor connection = ScmTypes.Repository.getConnection(repositoryConfig);
 		ISVNAuthenticationManager authManager = getAuthManager(connection);
@@ -85,7 +82,6 @@ public class SvnProvider implements ScmProvider<SvnLogEntryHandler> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void checkoutResources(IConstructor checkoutUnit, IConstructor repositoryConfig) throws ScmProviderException {
 		try {
 			SVNRevision revision;
@@ -174,8 +170,6 @@ public class SvnProvider implements ScmProvider<SvnLogEntryHandler> {
 		}
 	}
 	
-	
-	@Override
 	public void extractLogs(IConstructor repositoryConfig, SvnLogEntryHandler handler) throws ScmProviderException {
 		
 		try {

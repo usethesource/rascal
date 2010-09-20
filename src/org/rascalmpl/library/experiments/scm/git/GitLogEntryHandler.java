@@ -187,7 +187,6 @@ public class GitLogEntryHandler extends AbstractScmLogEntryHandler<Commit> {
 		return true;
 	}
 	
-	@Override
 	public void handleLogEntry(Commit c) {
 		if (c.getMergeOrigin() != null) {
 			if (todoMerges.size() > 0 && !todoMerges.iterator().next().getSha().equals(c.getSha())) {

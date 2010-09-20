@@ -130,7 +130,6 @@ public class SvnLogEntryHandler extends AbstractScmLogEntryHandler<SVNLogEntry> 
 		return Resource.FILE;	
 	}
 	
-	@Override
 	public void handleLogEntry(SVNLogEntry logEntry) {
 		if (DEBUG) {
 			System.out.println("---------------------------------------------" );

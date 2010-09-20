@@ -290,7 +290,6 @@ public class Scm {
     
     public static IList listFiles(ISourceLocation directory) {
     	return listFilesAndDirs(directory, new FileFilter() {
-			@Override
 			public boolean accept(File pathname) {
 				return pathname.isFile();
 			}
@@ -299,7 +298,6 @@ public class Scm {
     
     public static IList listDirs(ISourceLocation directory) {
     	return listFilesAndDirs(directory, new FileFilter() {
-			@Override
 			public boolean accept(File pathname) {
 				return pathname.isDirectory();
 			}
@@ -310,7 +308,6 @@ public class Scm {
     	
     	final String regex = filterRegex.getValue();
     	FileFilter fileFilter = new FileFilter() {
-			@Override
 			public boolean accept(File pathname) {
 				/*System.out.println("File:" + pathname + " has path '" + 
 					pathname.getPath() + "' and abs: '" + 
@@ -326,7 +323,6 @@ public class Scm {
     	
     	final String regex = filterRegex.getValue();
     	FileFilter fileFilter = new FileFilter() {
-			@Override
 			public boolean accept(File pathname) {
 				return pathname.isDirectory() && pathname.getPath().matches(regex);
 			}
