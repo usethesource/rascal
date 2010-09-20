@@ -20,11 +20,13 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.interpreter.utils.Sound;
 
 public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;
 	private final boolean isVoidFunction;
 	private final Stack<Accumulator> accumulators;
+	private static Sound sound = new Sound();
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
@@ -55,6 +57,11 @@ public class RascalFunction extends NamedFunction {
 		
 		if (callTracing) {
 			printStartTrace();
+		}
+		
+		if (soundCallTracing) {
+			if (!callTracing) callNesting++;
+			sound.play(note(), 20);
 		}
 
 		Type actualTypesTuple;
@@ -116,12 +123,20 @@ public class RascalFunction extends NamedFunction {
 			if (callTracing) {
 				printEndTrace();
 			}
+			if (soundCallTracing) {
+				if (!callTracing) callNesting--;
+				sound.play(note(), 20);
+			}
 			ctx.setCurrentEnvt(old);
 			ctx.setAccumulators(oldAccus);
 			ctx.setCurrentAST(oldAST);
 		}
 	}
 	
+	private int note() {
+		return (int) Math.min(Math.log1p((callNesting + 1) * 5), 12);
+	}
+
 	private void assignFormals(IValue[] actuals, Environment env) {
 		Type formals = getFormals();
 		for (int i = 0; i < formals.getArity(); i++) {

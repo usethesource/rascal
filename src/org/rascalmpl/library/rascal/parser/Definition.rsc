@@ -72,9 +72,9 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
 private set[Production] \layouts(set[Production] prods, str layoutName) {
   return top-down-break visit (prods) {
     case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs, layoutName),rhs,attrs(as)) 
-      when start(_) !:= rhs, term("lex"()) notin as  
+      when restricted(_) !:= rhs, start(_) !:= rhs, term("lex"()) notin as  
     case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) => prod(intermix(lhs, layoutName),rhs,\no-attrs()) 
-      when start(_) !:= rhs
+      when restricted(_) !:= rhs, start(_) !:= rhs
   }
 }  
 
@@ -108,7 +108,7 @@ private Production prod2prod(Symbol nt, Prod p, str layoutName, bool inLayout) {
     case (Prod) `<Prod l> | <Prod r>` :
       return choice(nt,{prod2prod(nt, l, layoutName, inLayout), prod2prod(nt, r, layoutName, inLayout)});
     case (Prod) `<Prod l> # <Prod r>` :
-        return restrict(nt,prod2prod(nt,l,layoutName, inLayout), {prod2prod(nt,r,layoutName, inLayout)});
+        return restrict(nt,prod2prod(nt,l,layoutName, inLayout), {prod2prod(restricted(nt),r,layoutName, true)});
     case (Prod) `<Prod l> > <Prod r>` :
       return first(nt,[prod2prod(nt, l, layoutName, inLayout), prod2prod(nt, r, layoutName, inLayout)]);
     case (Prod) `<Prod l> - <Prod r>` :

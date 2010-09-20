@@ -269,12 +269,10 @@ test getRestriction((Restriction) `ID -/- [a-z]`, true) ==
 public set[Production] getLookaheads(ParseTree::Symbol sym, languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls) {
    switch (ls) {
      case (Lookaheads) `<languages::sdf2::syntax::Sdf2ForRascal::CharClass c>` :
-        // note the use of empty() here for a dummy non-terminal
-     	return {prod([getCharClass(c)],empty(),\no-attrs())};
+     	return {prod([getCharClass(c)],restricted(sym),\no-attrs())};
      	
      case (Lookaheads) `<languages::sdf2::syntax::Sdf2ForRascal::CharClass c>.<languages::sdf2::syntax::Sdf2ForRascal::Lookaheads ls>` :
-        // note the use of empty() here for a dummy non-terminal 
-     	return {prod([getCharClass(c)] + x, empty(), \no-attrs()) | prod(list[Symbol] x, _,_) <- getLookaheads(sym,ls)};
+     	return {prod([getCharClass(c)] + x, restricted(sym), \no-attrs()) | prod(list[Symbol] x, _,_) <- getLookaheads(sym,ls)};
      case (Lookaheads) `<languages::sdf2::syntax::Sdf2ForRascal::Lookaheads l> | <languages::sdf2::syntax::Sdf2ForRascal::Lookaheads r>` :
      	return getLookaheads(sym,l) + getLookaheads(sym,r);
      	

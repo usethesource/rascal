@@ -38,6 +38,11 @@ data Production = choice(Symbol rhs, set[Production] alternatives)
                 ;
 
 @doc{
+  this symbol indicates the language of lookahead restrictions for a certain other symbol
+}
+data Symbol = restricted(Symbol s);
+
+@doc{
   These combinators are defined on Symbol, but we assume that only char-class constructors are passed in
 }
 data Symbol = intersection(Symbol lhs, Symbol rhs)
@@ -83,4 +88,11 @@ public Grammar java getGrammar(str mod);
 @reflect   
 @javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
 public ParseTree java parseModule(loc mod, bool old);
+
+@doc{
+  This function is for debugging of Rascal, it parses a command with the new bootstrapped Rascal parser.
+}
+@reflect   
+@javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
+public ParseTree java parseCommand(str cmd, bool old);
 
