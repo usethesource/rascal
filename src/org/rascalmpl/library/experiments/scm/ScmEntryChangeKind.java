@@ -31,7 +31,6 @@ public interface ScmEntryChangeKind {
 			this.statusCode = statusCode;
 		}
 		
-		@Override
 		public ChangeCode getStatusCode() {
 			return statusCode;
 		}
@@ -77,7 +76,6 @@ public interface ScmEntryChangeKind {
 			this.statusCode = statusCode;
 		}
 		
-		@Override
 		public ChangeCode getStatusCode() {
 			return statusCode;
 		}

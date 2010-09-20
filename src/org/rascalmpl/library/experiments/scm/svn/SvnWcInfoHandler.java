@@ -30,7 +30,6 @@ public class SvnWcInfoHandler implements ISVNInfoHandler {
 		resourceFilesWriter = ScmTypes.VF.setWriter(WcResource.getAbstractType());
 	}
 	
-	@Override
 	public void handleInfo(SVNInfo info) throws SVNException {
 		long revNumber = info.getCommittedRevision().getNumber();
 		boolean isDir = (info.getKind() == SVNNodeKind.DIR);

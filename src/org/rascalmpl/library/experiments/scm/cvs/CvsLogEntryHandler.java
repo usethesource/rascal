@@ -45,7 +45,6 @@ public class CvsLogEntryHandler extends AbstractScmLogEntryHandler<LogInformatio
 		workspace = ScmTypes.Repository.getWorkspace(repository).getURI().getPath();
 	}
 
-	@Override
 	public void handleLogEntry(LogInformation logInfo) {
 		ISetWriter resources = ScmTypes.VF.setWriter(ScmTypes.Resource.getAbstractType());
 		
@@ -101,8 +100,7 @@ public class CvsLogEntryHandler extends AbstractScmLogEntryHandler<LogInformatio
 		}
 		return ScmTypes.RevisionChange.from(changeKind, false);
 	}
-		
-	@Override
+	
 	public void fileInfoGenerated(FileInfoEvent e) {
 		FileInfoContainer infoContainer = e.getInfoContainer();
 		if (infoContainer instanceof LogInformation) {
@@ -112,49 +110,41 @@ public class CvsLogEntryHandler extends AbstractScmLogEntryHandler<LogInformatio
 		}
 	}
 
-	@Override
 	public void commandTerminated(TerminationEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void fileAdded(FileAddedEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void fileRemoved(FileRemovedEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void fileToRemove(FileToRemoveEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void fileUpdated(FileUpdatedEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void messageSent(MessageEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void messageSent(BinaryMessageEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void moduleExpanded(ModuleExpansionEvent e) {
 		// TODO Auto-generated method stub
 		

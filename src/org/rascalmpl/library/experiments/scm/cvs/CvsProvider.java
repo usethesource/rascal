@@ -61,14 +61,12 @@ public class CvsProvider implements ScmProvider<CvsLogEntryHandler> {
 		new CvsProvider().extractLogs(repository, (RascalFunction) extractFacts, logEntriesWriter);
 	}
 	
-	@Override
 	public CvsLogEntryHandler extractLogs(IConstructor repository, RascalFunction factExtractor, IListWriter logEntriesWriter) throws ScmProviderException {
 		CvsLogEntryHandler handler = createLogEntryHandler(repository, factExtractor, logEntriesWriter);
 		extractLogs(repository, handler);
 		return handler;
 	}
 	
-	@Override
 	public CvsLogEntryHandler createLogEntryHandler(IConstructor repository,
 			RascalFunction factExtractor, IListWriter logEntriesWriter) {
 		return new CvsLogEntryHandler(repository, factExtractor, logEntriesWriter);
@@ -131,7 +129,6 @@ public class CvsProvider implements ScmProvider<CvsLogEntryHandler> {
 		return client;
 	}
 	
-	@Override
 	public void checkoutResources(IConstructor checkoutUnit, IConstructor repository) throws ScmProviderException {
 		if (!ScmTypes.CheckoutUnit.hasDate(checkoutUnit)) {
 			throw new ScmProviderException("CvsProvider can't checkout on a checkoutUnit without a date");
@@ -172,7 +169,6 @@ public class CvsProvider implements ScmProvider<CvsLogEntryHandler> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public ISet getResources(IConstructor repository) throws ScmProviderException {
 		IConstructor conn = ScmTypes.Repository.getConnection(repository);
 		ISourceLocation workspace = ScmTypes.Repository.getWorkspace(repository);
@@ -211,7 +207,6 @@ public class CvsProvider implements ScmProvider<CvsLogEntryHandler> {
 	    parser.outputDone();
 	}
 	
-	@Override
 	public void extractLogs(IConstructor repository, CvsLogEntryHandler handler) throws ScmProviderException {
 		IConstructor conn = ScmTypes.Repository.getConnection(repository);
 		

@@ -101,14 +101,12 @@ public class GitProvider implements ScmProvider<GitLogEntryHandler> {
 	    }
 	}
 	
-	@Override
 	public GitLogEntryHandler extractLogs(IConstructor repository, RascalFunction factExtractor, IListWriter logEntriesWriter) throws ScmProviderException {
 		GitLogEntryHandler handler = createLogEntryHandler(repository, factExtractor, logEntriesWriter);
 		extractLogs(repository, handler);
 		return handler;
 	}
 	
-	@Override
 	public GitLogEntryHandler createLogEntryHandler(IConstructor repository,
 			RascalFunction factExtractor, IListWriter logEntriesWriter) {
 		return new GitLogEntryHandler(repository, factExtractor, logEntriesWriter);
@@ -128,8 +126,6 @@ public class GitProvider implements ScmProvider<GitLogEntryHandler> {
 		JavaGitConfiguration.setGitPath(gitPath);
 	}
 	
-	
-	@Override
 	public void checkoutResources(IConstructor checkoutUnit, IConstructor repository) throws ScmProviderException {
 		
 		String val;
@@ -173,7 +169,6 @@ public class GitProvider implements ScmProvider<GitLogEntryHandler> {
 		}
 	}
 	
-	@Override
 	public ISet getResources(IConstructor repository) throws ScmProviderException {
 		DotGit dotGit = getDotGitInstance(repository);
 		WorkingTree workingTree = dotGit.getWorkingTree();
@@ -203,7 +198,6 @@ public class GitProvider implements ScmProvider<GitLogEntryHandler> {
 		return DotGit.getInstance(repositoryDirectory);
 	}
 	
-	@Override
 	public void extractLogs(IConstructor repository, GitLogEntryHandler handler) throws ScmProviderException {
 		IConstructor connection = Repository.getConnection(repository);
 		if (Annotation.LOG_FILE.has(connection)) {
