@@ -21,6 +21,7 @@ public Grammar computeLookaheads(Grammar G) {
   <fst, fol> = firstAndFollow(simple(G2.start, { p | /Production p:prod(_,_,_) := G2}));
     
   return visit(G) {
+    case Production p:prod(_,restricted(_),_) => p
     case Production p:prod([], Symbol rhs, _) => lookahead(rhs, fol[rhs], p)
     case Production p:prod(list[Symbol] lhs, Symbol rhs, _) : {
       lhs = removeLabels(lhs);
@@ -244,18 +245,27 @@ public tuple[SymbolUse, SymbolUse] firstAndFollow(Grammar G){
 }
   
 private SymbolUse mergeCC(SymbolUse su) {
-  return innermost visit(su) {
-     case set[Symbol] x:{\char-class(r1),\char-class(r2),a*} => {a,\char-class(union(r1,r2))}
-     case set[Symbol] x:{\char-class([]), a*} => a
-  }
+  for (Symbol s <- su)
+    su[s] = mergeCC(su[s]); 
+  return su;
 }
 
 private set[Symbol] mergeCC(set[Symbol] su) {
-  switch (su) {
-     case {\char-class(r1),\char-class(r2),a*} : return {a,\char-class(union(r1,r2))};
-     case {\char-class([]), a*} : return a;
-     default: return su;
-  }
+  result = {};
+  if (empty() in su) 
+    result += empty();
+    
+  if (eoi() in su) 
+    result += eoi();
+  
+  rs = [];  
+  for (\char-class(r) <- su) 
+    rs = union(rs, r);
+  
+  if (rs != []) 
+    result += \char-class(rs);
+  
+  return result;  
 }
 
 

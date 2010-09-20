@@ -95,7 +95,7 @@ public str prod2rascal(Production p) {
       
     case \assoc(s, a, alts) : {
     		<fst, rest> = takeOneFrom(alts);
-    		return ( "<attr2mod(\assoc(a))> (  <prod2rascal(fst)> " | "<it>\n\t\t\> <prod2rascal(pr)>" | pr <- rest ) + "\n\t)";
+    		return ( "<attr2mod(\assoc(a))> (  <prod2rascal(fst)> " | "<it>\n\t\t| <prod2rascal(pr)>" | pr <- rest ) + "\n\t)";
  		}
     case diff(s,q,alts) : {
       <fst, rest> = takeOneFrom(alts);

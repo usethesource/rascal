@@ -69,6 +69,8 @@ rule restrict restrict(Symbol s, Production p, {restrict(Symbol t, Production q,
               restrict(s, choice(s, {p,q}), r + o);
 rule diff     restrict(Symbol s, Production p, {diff(Symbol t, Production q, set[Production] d), set[Production] o}) =>
               diff(t, restrict(s, choice(t, {p,q}), o), o);
+              
+rule restricted restricted(restricted(Symbol l)) => restricted(l);
 
 // remove nested assocs (the inner assoc has no meaning after this)
 rule nested \assoc(Symbol rhs, Associativity a, {set[Production] rest, \assoc(Symbol rhs2, Associativity b, set[Production] alts)}) =>

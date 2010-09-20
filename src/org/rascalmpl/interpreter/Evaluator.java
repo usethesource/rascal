@@ -6,6 +6,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.nothing;
 import static org.rascalmpl.interpreter.utils.Utils.unescape;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -773,6 +774,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			return tree;
 		} catch (IOException e) {
 			throw new ImplementationError("something weird happened", e);
+		}
+	}
+	
+	public IConstructor parseCommandExperimental(String command, URI location) {
+		IGLL parser = new RascalRascal();
+		try {
+			return parser.parse("Command", location, new ByteArrayInputStream(command.getBytes()));
+		} catch (IOException e) {
+			// TODO
+			throw new ImplementationError("TODO: " + e.getMessage());
 		}
 	}
 
@@ -4190,6 +4201,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		else {
 			AbstractFunction.setCallTracing(false);
+		}
+		
+		String sound = System.getProperty("rascal.config.soundTracing");
+		if (sound != null) {
+			AbstractFunction.setSoundCallTracing(sound.equals("true"));
+		}
+		else {
+			AbstractFunction.setSoundCallTracing(false);
 		}
 		
 		String binaryWriting = System.getProperty("rascal.config.saveBinaries");

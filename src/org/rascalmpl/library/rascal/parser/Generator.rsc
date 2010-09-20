@@ -26,7 +26,7 @@ public str generate(str package, str name, Grammar gr){
     gr = makeRegularStubs(gr);
     
     println("establishing production set");
-    uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p};
+    uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p, restricted(_) !:= p.rhs};
     
     println("generating item allocations");
     newItems = generateNewItems(gr);
@@ -176,8 +176,11 @@ public str generateExpect(Items items, Production p){
     // (distribution and factoring laws have been applied to put a production expression in canonical form)
     
     switch (p) {
-      case prod(_,_,_) :
-        return "// <p>\n\texpect(<value2id(p)>, <generateSymbolItemExpects(p)>);"; 
+      case prod(_,_,_) : 
+        if (restricted(_) !:= p.rhs) 
+	       return "// <p>\n\texpect(<value2id(p)>, <generateSymbolItemExpects(p)>);";
+	    else 
+	       return ""; 
       case lookahead(_, classes, Production q) :
         return "if (<generateClassConditional(classes)>) {
                   <generateExpect(items, q)>
@@ -193,8 +196,8 @@ public str generateExpect(Items items, Production p){
       case choice(_, set[Production] ps) :
         return "<for (Production q <- ps){><generateExpect(items, q)>
                 <}>";
-      case restrict(_, Production q, {lookahead(_,_,Production r), set[Production] rest}) :
-        return generateExpect(items, restrict(p.rhs, q, {r} + rest)); 
+      // case restrict(_, Production q, {lookahead(_,_,Production r), set[Production] rest}) :
+        // return generateExpect(items, restrict(p.rhs, q, {r} + rest)); 
       case restrict(_, Production q, set[Production] restrictions) : 
         return generateExpect(items, q);
       case diff(_, Production n, {lookahead(_,_,Production q), set[Production] rest}) :
@@ -367,6 +370,9 @@ public str generateRestrictions(Grammar grammar, int() id, set[Production] restr
   if (las != []) {
     result += ("<sym2newitem(grammar, head(las), id).new>" | it + ", <sym2newitem(grammar,l,id).new>" | l <- tail(las));
   }
+  else if (size(las) != size(restrictions)) {
+    println("WARNING: some restrictions could not be implemented because they are not single token lookaheads: <restrictions>");
+  }
   
   result += "}";
   return result;
@@ -387,6 +393,9 @@ public str generateRestrictions(set[Production] restrictions) {
  
   if (las != []) {
     result += ("<value2id(item(head(las),0))>" | it + ", <value2id(item(l,0))>" | l <- tail(las));
+  }
+  else if (size(las) != size(restrictions)) {
+    println("WARNING: some restrictions could not be implemented because they are not single token lookaheads: <restrictions>");
   }
   
   result += "}";

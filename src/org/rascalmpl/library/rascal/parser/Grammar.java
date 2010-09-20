@@ -1,6 +1,7 @@
 package org.rascalmpl.library.rascal.parser;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -37,6 +38,15 @@ public class Grammar {
 			}
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(factory.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+	}
+	
+	public IValue parseCommand(IString cmd, IBool old, IEvaluatorContext ctx) {
+		if (old.getValue()) {
+			return ctx.getEvaluator().parseCommand(cmd.getValue(), URI.create("debug:///"));
+		}
+		else {
+			return ctx.getEvaluator().parseCommandExperimental(cmd.getValue(), URI.create("debug:///"));
 		}
 	}
 }
