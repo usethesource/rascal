@@ -1,6 +1,6 @@
 Name:reducer
 
-Categories: Library
+Categories: Library Beginner
 
 Function: `&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)`
 

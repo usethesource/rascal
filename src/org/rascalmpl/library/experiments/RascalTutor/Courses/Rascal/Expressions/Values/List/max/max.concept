@@ -1,6 +1,6 @@
 Name:max
 
-Categories: Library
+Categories: Library Beginner
 
 Function: `&T max(list[&T] s)`
 

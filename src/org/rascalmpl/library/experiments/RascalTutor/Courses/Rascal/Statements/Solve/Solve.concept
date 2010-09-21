@@ -5,10 +5,7 @@ Details:
 Categories: Language
 
 Syntax:
-<listing>
-solve($Var_1$, $Var_2$, ..., $Var_n$; $Exp$)
-  $Statement$
-</listing>
+`solve($Var_1$, $Var_2$, ..., $Var_n$; $Exp$) $Statement$;`
 
 Types:
 

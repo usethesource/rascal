@@ -1,6 +1,6 @@
 Name:IntroPatternMatching
 
-Categories:
+Categories: Beginner
 
 Synopsis:
 
@@ -11,12 +11,9 @@ Pattern Matching
 Pattern matching determines whether a given pattern matches a given value. 
 The outcome can be `false` (no match) or `true` (a match). A pattern match that succeeds may bind values to variables.
 
-
 Pattern matching is _the_ mechanism for case distinction ([Switch] statement) and search ([Visit] statement) in Rascal. Patterns can also be used in an explicit match operator `:=` and can then be part of larger boolean expressions. Since a pattern match may have more than one solution, local backtracking over the alternatives of a match is provided. Patterns can also be used in [Enumerator]s and control structures like [For] and [While] statement.
 
-
 A very rich pattern language is provided that includes string matching based on regular expressions, matching of abstract patterns, and matching of concrete syntax patterns. Some of the features that are provided are list (associative) matching, set (associative, commutative, idempotent) matching, and deep matching of descendant patterns. All these forms of matching can be used in a single pattern and can be nested. Patterns may contain variables that are bound when the match is successful. Anonymous (don't care) positions are indicated by the underscore (`_`).
-
 
 Here is a _regular expression_ that matches a line of text, finds the first alphanumeric word in it, and extracts the word itself as well as the before and after it (`\W` matches all non-word characters; `\w` matches all word characters):
 
@@ -31,7 +28,6 @@ Regular expressions follow the Java regular expression syntax with one exception
 </listing>
 
 If `$RegularExpression$` matches, the matched substring is assigned to string variable `$Name$`.
-
 
 The following abstract pattern matches the abstract syntax of a while statement defined earlier:
 
@@ -51,8 +47,7 @@ or, if you are not interested in the actual value of the statements as
 whileStat(EXP Exp, _*)
 </listing>
 
-When there is a grammar for this example language (in the form of an imported SDF definition), we can also write concrete patterns as we will see.
-<warning> add link</warning>
+When there is a grammar for this example language (in the form of an imported SDF definition), we can also write concrete patterns as we will see in [Patterns/Concrete].
 
 Examples:
 

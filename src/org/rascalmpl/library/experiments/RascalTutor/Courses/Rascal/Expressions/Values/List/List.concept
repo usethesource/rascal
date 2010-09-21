@@ -1,6 +1,6 @@
 Name:List
 
-Categories: Language
+Categories: Language Beginner
 
 Syntax: `[ $Exp_1$, $Exp_2$, ... ]`
 
@@ -19,10 +19,7 @@ Description: A list is an ordered sequence of values and has the following prope
 The type of a list has the form `list[$T$]`,
 where `$T$` is an arbitrary type.
 
-
 When variables of type list occur inside a list, their elements are automatically _spliced_ into the surrounding set. This can be prevented by surrounding them with extra `[` and `]` brackets. Note that this approach is atypical: in Rascal splicing is implicit while in other languages it has to be indicated explicitly by the programmer.
-
-
 
 Examples:
 <screen>

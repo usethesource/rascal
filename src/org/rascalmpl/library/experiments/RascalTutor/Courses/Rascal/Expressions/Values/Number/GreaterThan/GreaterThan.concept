@@ -12,7 +12,7 @@ Types:
 | `int`      |  `real`    | `bool`               |
 | `real`     |  `real`    | `bool`               |
 
-Description: Yields `true` if the value of $NumExp_1$ is numerically greater than the value of $NumExp_2$, and `false` otherwise.
+Description: Yields `true` if the value of $Exp_1$ is numerically greater than the value of $Exp_2$, and `false` otherwise.
 
 Examples:
 <screen>

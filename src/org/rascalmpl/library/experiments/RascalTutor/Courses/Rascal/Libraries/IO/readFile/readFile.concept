@@ -1,0 +1,27 @@
+Name: readFile
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: 
+`str readFile(loc file) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)`
+
+Synopsis:
+
+Description:
+Return the contents of a file location as a single string.
+Also see [readFileLines].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

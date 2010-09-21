@@ -1,0 +1,26 @@
+Name: readFileBytes
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: 
+`list[int] readFileBytes(loc file) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)`
+
+Synopsis:
+
+Description:
+Return the contents of a file location as a list of bytes.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -17,7 +17,6 @@ Date, time, and datetime values are represented by the `datetime` type.
 a time, preceded by `T` and given in hour, minute, second, millisecond, (optional) timezone offset order; 
 or a datetime, which is a date and a time, in the orders given above, and separated by a `T`. 
 
-
 The following fields provide access to information about the value, but cannot be set:
 
 * `isDate`: returns `true` if the value is a date value, `false` if the value is a
@@ -43,9 +42,8 @@ and can be accessed using [DateTime/FieldSelection] and be assigned using [DateT
 * `timezoneOffsetHours`
 * `timezoneOffsetMinutes`
 
+
 Not all fields are available on all values as indicated by the following table:
-
-
 
 | Field                   | `date` | `datetime` | `time` |
 |:------------------------|--------|------------|--------|
@@ -58,8 +56,6 @@ Not all fields are available on all values as indicated by the following table:
 | `millisecond`           |        |  x         | x      |
 | `timezoneOffsetHours`   |        |  x         | x      |
 | `timezoneOffsetMinutes` |        |  x         | x      |
-
-
 
 The `isDate`, `isTime`, and `isDateTime` fields can be checked in advance to determine what
 kind of value is stored in a variable of type `datetime`.

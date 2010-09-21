@@ -5,9 +5,7 @@ Details:
 Categories: Language
 
 Syntax:
-<listing>
-throw $Exp$
-</listing>
+`throw $Exp$`
 
 Types:
 

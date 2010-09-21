@@ -26,7 +26,7 @@ Location values are represented by the type `loc` and serve the following purpos
   This is very handy to associate a source code location which extracted facts.
 
 
-URIs are explained in [Uniform Resource Identifier)[http://en.wikipedia.org/wiki/Uniform_Resource_Identifier]. From their original definition in RFC3986 we cite the following useful overview of an URI:
+URIs are explained in [Uniform Resource Identifier](http://en.wikipedia.org/wiki/Uniform_Resource_Identifier). From their original definition in RFC3986 we cite the following useful overview of an URI:
 <listing>
 
          foo://example.com:8042/over/there?name=ferret#nose
@@ -42,23 +42,24 @@ The elements of a location value can be accessed and modified using the standard
 
 * `uri`: the URI of the location. Also subfields of the URI can be accessed:
 
-**`scheme`: the scheme (or protocol) like `http` or `file`. Also supported is `cwd`: for current working directory (the directory from which Rascal was started).
+  **`scheme`: the scheme (or protocol) like `http` or `file`. 
+     Also supported is `cwd`: for current working directory (the directory from which Rascal was started).
 
-**`authority`: the domain where the data are located.
+  **`authority`: the domain where the data are located.
 
-**`host`: the host where the URI is hosted (part of authority).
+  **`host`: the host where the URI is hosted (part of authority).
 
-**`port`: port on host (part ofauthority).
+  **`port`: port on host (part ofauthority).
 
-**`path`: path name of file on host.
+  **`path`: path name of file on host.
 
-**`extension`: file name extension.
+  **`extension`: file name extension.
 
-**`query`: query data
+  **`query`: query data
 
-**`fragment`: the fragment name following the path name and query data.
+  **`fragment`: the fragment name following the path name and query data.
 
-**`user`: user info (only present in schemes like mailto).
+  **`user`: user info (only present in schemes like mailto).
 
 *`offset`: start of text area.
 

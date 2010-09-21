@@ -1,0 +1,35 @@
+Name: print
+
+Details:
+
+Categories: Library Beginner
+
+Syntax:
+
+Types:
+
+Function: `bool print(value V...)`
+
+Synopsis:
+
+Description:
+Print a list of values on the output stream and always return `true`. 
+
+Examples:
+Note that the only difference with [println] is that `true` is returned instead of `void`:
+<screen>
+import IO;
+print("Hello World");
+// Introduce to variable and print their values:
+S = "Hello World";
+L = ["a", "b", "c"];
+print(S, L);
+</screen>
+
+Benefits:
+This function is handy when debugging complicated expressions.
+
+Pittfalls:
+
+Questions:
+

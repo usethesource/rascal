@@ -2,7 +2,7 @@ Name: Variable
 
 Details:
 
-Categories: Language
+Categories: Language Beginner
 
 Syntax: 
 # `$Type$ $Name$ = $Exp$;`
@@ -24,7 +24,6 @@ to assign the value of expression $Exp$ to $Name$. A mention of $Name$ later on 
 will be replaced by this value, provided that $Name$\s value has not been changed by an intermediate assignment. 
 
 When a variable is declared, it has as scope the nearest enclosing block, or the module when declared at the module level.
-
 
 The following rules apply:
 

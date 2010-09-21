@@ -2,7 +2,7 @@ Name: Module
 
 Details:
 
-Categories: Language
+Categories: Language Beginner
 
 Syntax:
 <listing>
@@ -34,8 +34,6 @@ $Name_1$::$Name_2$:: ... ::$Name_n$
 which corresponds to a path relative to the root of the current workspace.
 
 The constituents of a module are shown in the figure below.
-
-
 ![Module Parts](module-parts.png|right|500px)
 
 An [Import] declares other modules that are used by the current module.

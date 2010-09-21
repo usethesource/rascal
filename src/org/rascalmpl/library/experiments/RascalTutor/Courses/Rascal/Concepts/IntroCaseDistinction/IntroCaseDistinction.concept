@@ -1,6 +1,6 @@
 Name:IntroCaseDistinction
 
-Categories:
+Categories: Beginner
 
 Synopsis:
 
@@ -13,7 +13,6 @@ executed successfully, all changes to variables made by the statement are commit
 The variables bound by the pattern are always local to the statement associated with the case. 
 When a match fails or when the associated statement fails, a _rollback_ takes place and all side-effects are undone. 
 External side-effects like I/O and side-effects in user-defined Java code are not undone. 
-
 
 See [Switch],[Visit] and [PatternWithAction] for more details.
 

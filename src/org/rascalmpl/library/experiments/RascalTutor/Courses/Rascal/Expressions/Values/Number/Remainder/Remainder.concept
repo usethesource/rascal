@@ -10,7 +10,7 @@ Types:
 |:-----------|:-----------|:--------------------|
 | `int`      |  `int`     | `int`               |
 
-Description: Yields the remainder when dividing the of $IntExp_1$ by the value of $IntExp_2$.
+Description: Yields the remainder when dividing the of $Exp_1$ by the value of $Exp_2$.
 
 Examples:
 <screen>

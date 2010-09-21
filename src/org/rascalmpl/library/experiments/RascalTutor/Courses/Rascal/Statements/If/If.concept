@@ -3,10 +3,23 @@ Name:If
 Categories: Language
 
 Syntax:
-* `if ( $BoolExp$ ) $Statement$`
-* `if ( $BoolExp$ ) $Statement_1$ else $Statement_2$`
+* `if ( $Exp$ ) $Statement$;`
+* `if ( $Exp$ ) $Statement_1$ else $Statement_2$;`
 
-Description: The test $BoolExp$ is evaluated and its outcome determines the statement to be executed: $Statement_1$ if $BoolExp$ is `true` and $Statement_2$ otherwise. The value of an if-then statement is equal to $Statement$ when its test is true. Otherwise it is void.
+Types:
+
+| `$Exp$` | `if ( $Exp$ ) $Statement$;` |
+|:--------|:----------------------------|
+| `bool`  |  `void`                     |
+
+| `$Exp$` | $Statement_1$ | $Statement_2$ | `if ( $Exp$ ) $Statement_1$ else $Statement_2$;` |
+|:--------|:--------------|:--------------|:-------------------------------------------------|
+| `bool`  |  $T_1$        | $T_2$         | `lub($T_1$, $T_2$)`                              |
+ 
+
+Description: The test $Exp$ is evaluated and its outcome determines the statement to be executed: 
+$Statement_1$ if $Exp$ yields `true` and $Statement_2$ otherwise. 
+The value of an if-then statement is equal to $Statement$ when its test is true. Otherwise it is void.
 The value of an if-then-else statement is the value of the statement that was executed.
 
 Examples:

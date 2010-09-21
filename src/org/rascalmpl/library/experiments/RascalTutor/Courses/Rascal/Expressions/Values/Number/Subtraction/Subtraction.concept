@@ -12,7 +12,7 @@ Types:
 | `int`     |  `real`    | `real`              |
 | `real`    |  `real`    | `real`              |
 
-Description: Yields the numerical result of subtracting the value of $NumExp_2$ from the value of $NumExp_1$.
+Description: Yields the numerical result of subtracting the value of $Exp_2$ from the value of $Exp_1$.
 
 Examples:
 <screen>

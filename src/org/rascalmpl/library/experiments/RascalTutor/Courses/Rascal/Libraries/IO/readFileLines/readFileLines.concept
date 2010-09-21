@@ -1,0 +1,28 @@
+Name: readFileLines
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`list[str] readFileLines(loc filename) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)`
+
+
+Synopsis:
+
+Description:
+Return the contents of a file location as a list of lines.
+Also see [readFile].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

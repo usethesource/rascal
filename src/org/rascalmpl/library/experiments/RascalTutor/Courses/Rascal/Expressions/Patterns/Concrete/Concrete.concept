@@ -17,29 +17,29 @@ Concrete patterns operate on these trees.
 A _concrete pattern_ is a quoted concrete syntax fragment that may contain variables. The syntax that is used to parse the concrete pattern may come from any SDF module that has been imported in the module in which the concrete pattern occurs.
 
 A concrete pattern may have the following forms:
-<warning>Wrong HTML is generated here</warning>
 
 * _Quoted pattern_
 <listing>
-\` $Token_1$ $Token_2$ ... $Token_n$ \`
+` $Token_1$ $Token_2$ ... $Token_n$ `
 </listing>
 Inside a quoted pattern arbitrary lexical tokens may occur. Quoted patterns may contain variable declaration patterns and variable patterns (see below).
 
-* A_ typed quoted pattern_
+* A _typed quoted pattern_
 <listing>
-($Symbol$) \` $Token_1$ $Token_2$ ... $Token_n$ \`
+($Symbol$) ` $Token_1$ $Token_2$ ... $Token_n$ `
 </listing>
-is a quoted pattern that is preceded by an SDF symbol to define its desired syntactic type.
+is a quoted pattern that is preceeded by an SDF symbol to define its desired syntactic type.
 
 * A _typed variable pattern_
 <listing>
 <$Type$ $Var$>
-<listing>
+</listing>
 
 * A _variable pattern_
-</listing>
+<listing>
 <$Var$>
 </listing>
+
 
 
 Inside concrete syntax patterns, layout is ignored.
@@ -53,18 +53,18 @@ Examples (in a context where an SDF module has been imported that defines the ap
 </listing>
 Two observations can be made about this example:
 
-**The non-terminals (sorts in SDF parlance) $EXP$ and ${STATEMENT ";"}*$ are declared in the imported SDF module and can be used 
+**The non-terminals (sorts in SDF parlance) `EXP` and `{STATEMENT ";"}*` are declared in the imported SDF module and can be used 
 as types in the Rascal program.
 
-** When this pattern is matched successfully against a subject, the variables $Exp$ and $Stats$ will be bound.
+** When this pattern is matched successfully against a subject, the variables `Exp` and `Stats` will be bound.
 
-* Quoted syntax pattern with two pattern variable uses ($Exp$ and $Stats$ should already have a value):
+* Quoted syntax pattern with two pattern variable uses (`Exp` and `Stats` should already have a value):
 <listing>
-\` while <Exp> do <Stats> od \`
+` while <Exp> do <Stats> od `
 </listing>
 * Identical to the previous example, but with a declaration of the desired syntactic type:
 <listing>
-STATEMENT \` while <Exp> do <Stats> od \`
+STATEMENT ` while <Exp> do <Stats> od `
 </listing>
 
 Benefits:

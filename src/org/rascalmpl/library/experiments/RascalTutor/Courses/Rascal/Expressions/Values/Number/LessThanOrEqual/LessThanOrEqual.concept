@@ -12,7 +12,7 @@ Types:
 | `int`     |  `real`    | `bool`               |
 | `real`    |  `real`    | `bool`               |
 
-Description: Yields `true` if the value of $NumExp_1$ is numerically less than or equal to the value of $NumExp_2$, and `false` otherwise.
+Description: Yields `true` if the value of $Exp_1$ is numerically less than or equal to the value of $Exp_2$, and `false` otherwise.
 
 Examples:
 <screen>

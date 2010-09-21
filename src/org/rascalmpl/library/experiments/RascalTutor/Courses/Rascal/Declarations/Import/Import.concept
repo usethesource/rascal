@@ -2,7 +2,7 @@ Name: Import
 
 Details:
 
-Categories: Language
+Categories: Language Beginner
 
 Syntax: `import $QualifiedName$;`
 
@@ -18,6 +18,7 @@ An import has as effect that all public entities declared in module $QualifiedNa
 
 * Another Rascal module.
 * An SDF module that defines the syntax of some language, say $L$.
+
 
 In the former case, all publicly visible entities in the imported module become available in the importing module. In the latter case, all non-terminals (symbols in SDF parlance) that are declared in $L$ become available as types in the importing module. In addition, concrete syntax patterns and parse functions can be used for any non-terminal that is defined in $L$.
 

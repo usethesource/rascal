@@ -2,14 +2,26 @@ Name:String
 
 Categories:Language
 
-Syntax: <warning>explain string syntax</warning>
-<warning>Library functions replaceAll, replaceFirst, replaceLast not yet includd (reconsider) </warning>
+Syntax: `"$StringChar_1$$StringChar_2$..."`
+where $StringChar$ may be one of the following:
+* __Ordinary character__: Any character except `<`, `>`, `"`, `'` or `\`.
+* __Escaped character__: Backslash `\` followed by any of  `<`, `>`, `"`, `'` or `\` represents the escaped character itself.
+  Other escape sequences that are supported are:
+** `\n`: newline
+** `\t`: tab
+** `\r`: carriage return
+** `\b`: backspace
+** <warning>make list complete</warning>
+
+* __String Interpolation__: `<$Exp$>`
 
 Types: `str`
 
 Description:
+<warning>Library functions replaceAll, replaceFirst, replaceLast not yet included (reconsider) </warning>
 The string values are represented by the type `str` and consist of character 
-sequences surrounded by double quotes. e.g., `"a"` or `"a\nlong\nstring"`.
+sequences surrounded by double quotes, e.g., `"a"` or `"a\nlong\nstring"`.
+Strings may span more than one line.
 
 String literals support so-called _string interpolation_: 
 inside string constants text between angle brackets (`<` and `>`) is first executed and then replaced by
@@ -17,7 +29,6 @@ inside string constants text between angle brackets (`<` and `>`) is first execu
 Various statements (if, for, while, do) also return a value and can be used in this way.
 In the interpolation variant of these statements the block or blocks that are part of the statement become arbitrary text 
 (that may itself contain interpolations). 
-
 
 Their forms are:
 

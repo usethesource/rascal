@@ -1,6 +1,6 @@
 Name:IntroComprehensions
 
-Categories:
+Categories: Beginner
 
 Synopsis:
 
@@ -13,11 +13,9 @@ A comprehension consists of an expression that determines the successive element
 result and a list of enumerators and tests (boolean expressions). 
 The enumerators produce values and the tests filter them. 
 
-
 See [Comprehensions], [List/Comprehension], [Set/Comprehension], and [Map/Comprehension] for details.
 
 Examples:
-
 A standard example is
 
 <listing>
@@ -29,7 +27,6 @@ are divisible by 3. A more intriguing example is
 <listing>
 {name | /asgStat(Id name, _) <- P}
 </listing>
-
 which traverses program `P` and constructs a set of all identifiers that occur on the left hand 
 side of assignment statements in `P`.
 

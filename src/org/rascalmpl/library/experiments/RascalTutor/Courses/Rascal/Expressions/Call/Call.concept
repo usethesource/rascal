@@ -4,10 +4,10 @@ Details:
 
 Categories: Language
 
-Syntax: `$Name$ ( $Exp_1$, $EXp_2$, ... )`
+Syntax: `$Name$ ( $Exp_1$, $Exp_2$, ... )`
 
 Types:
-| `$Exp_1$`  | `$Exp_2$` | ... | `$Name$ ( $Exp_1$, $EXp_2$, ... )` |
+| `$Exp_1$`  | `$Exp_2$` | ... | `$Name$ ( $Exp_1$, $Exp_2$, ... )` |
 |:-----------|:----------|:----|:-----------------------------------|
 | `$T_1$`    | `$T_2$`   | ... | Determined by $Name$, $T_i$ and function declarations |
 

@@ -9,50 +9,29 @@ Related:
 Synopsis:
 
 Syntax:
-`$Exp_1$ + $Exp_2$`
 
 Types: 
 
-| $Exp_1$      | $Exp_2$      | Result                   |
-|--------------|--------------|--------------------------|
-| `set[$T_1$]` | `set[$T_2$]` | `set[lub($T_1$, $T_2$)]` |
-| `$T_1$`      | `set[$T_2$]` | `set[lub($T_1$, $T_2$)]` |
-| `set[$T_1$]` | `$T_2$`      | `set[lub($T_1$, $T_2$)]` |
-
 
 Description:
-This text to see how spaces are treated.
-Here is a table:
-| A | B |
-|--|--|
-| 1| 2  |
-
-Here is a list:
-
-*  xxx xxx xxx xxx xx xxx
-    yyyy yyy yyy yyy yyy yyyy zzz
-
-    ppp ppp ppp ppp ppp 
-** qq qqq qq qq qqq
  
-* aaa
+Sentence 1 before bullets.
+Sentence 2 before bullets.
+Sentence 3 before bullets.
+* First bullet   
+** SECOND BULLET
+xxxxxx yyyyyyyyyyyyy zzzzzzzzzzzzzzzz
 
-  bbb
-*ccc
-
-
-
-# 11111
-   111111
-## 222222
-2222
-
-222
-222
-# 33333
-
-
-
+aaaaaaaaaaaaaaaaaaaaaaaaa
+<screen>
+123;
+456;
+</screen>
+rrrrr
+ssss
+ttttt
+uuuuu
+* Third bullet
 Examples:
 
 Benefits:
@@ -60,123 +39,4 @@ Benefits:
 Pittfalls:
 
 Questions:
-
-TypeQ: <A:int> + <B:int>
-
-XXXValue: <A:int> + <B:int>
-
-ValueQ: <A:arb[int,str]> + <B:same[A]>
-
-XXXValue: <A:int> + <?> == <B:int>
-
-XXXType:  { 1, <?> }
-type:  set[int]
-
-XXXValue:
-desc: Complete a variable declaration with a XXXType.
-make: A = str
-hint: the XXXType <@A>
-list:
-<?> X = <A>;
-
-XXXType: <A:int> + <B:int>
-
-XXXType:
-make: A = int
-test: <A>
-
-XXXType:
-prep: import Set;
-make: A = set[int]
-XXXType: same[A]
-test: { <?> }
-
-XXXType:
-prep: import Set;
-make: A = set[int]
-XXXType: same[A]
-test: {1, <?> }
-
-XXXType:
-make: A = int
-XXXType: same[A]
-list: 
-N = <A>;
-test: N
-
-XXXType:
-make: A = int
-XXXType: same[A]
-list: 
-N = <?>;
-test: N
-
-XXXType:
-prep: import Set;
-make: A = set[arb[bool,int,str,real,num]]
-XXXType: same[A]
-list: N = <A>;
-test: N
-
-XXXValue:
-make: A = int
-make: B = int
-expr: B = <A> + 1
-hint: any XXXValue unequal to <B>
-list: 
-N = <A>;
-if(<B> == <?>){
-   N += 1;
-}
-test: N == <A>;
-
-XXXValue:
-make: A = int
-hint: <A>
-list:
-N = <A>;
-test: N
-
-XXXValue:
-prep: import Number;
-make: A = num
-make: B = num
-test: max(<A>, <B>)
-
-XXXValue:
-prep: import Number;
-make: A = num
-make: B = num
-expr: C = <A> + abs(<B>)
-hint: <C>
-test: max(<A>, <?>) == <C>
-
-XXXValue:
-prep: import Number;
-make: A = int
-make: B = int
-expr: C = <B> - <A>
-expr: D = (<C> > 0) ?  "\"<C>\"" : "\"(<C>)\" A negative number that follows a + operator has to be surrounded by ( and )"
-hint: <D>
-test: <A> + <?> == <B>
-
-XXXValue:
-prep: import Set;
-prep: import Number;
-make: A = int
-expr: B = abs(<A>)
-hint: <B> XXXValues separated by commas
-test: size({ <?> }) == <B>
-
-XXXValue:
-prep: import Set;
-prep: import Number;
-make: A = set[int]
-make: B = set[int]
-expr: C = <A> + <B>
-hint: <C>
-test: <A> + <?> == <C>
-
-
-
 

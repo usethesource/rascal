@@ -14,7 +14,7 @@ Types:
 | `int`     |  `real`    | `real`              |
 | `real`    |  `real`    | `real`              |
 
-Description: Yields the result of multiplying the values of $NumExp_1$ and $NumExp_2$.
+Description: Yields the result of multiplying the values of $Exp_1$ and $Exp_2$.
 
 Examples:
 <screen>

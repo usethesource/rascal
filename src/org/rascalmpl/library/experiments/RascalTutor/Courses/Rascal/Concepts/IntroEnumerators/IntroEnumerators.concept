@@ -1,6 +1,6 @@
 Name:IntroEnumerators
 
-Categories:
+Categories: Beginner
 
 Synopsis:
 
@@ -9,7 +9,6 @@ Enumerators enumerate the values in a given (finite) domain, be it the elements 
 or all the nodes in a tree. 
 Each value that is enumerated is first matched against a pattern before it can possibly contribute to the result of 
 the enumerator.
-
 
 See [Enumerator] for details.
 

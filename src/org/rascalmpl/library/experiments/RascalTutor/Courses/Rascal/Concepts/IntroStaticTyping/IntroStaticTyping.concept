@@ -1,14 +1,13 @@
 Name:IntroStaticTyping
 
-Categories: Language
+Categories: Beginner Language
 
 Synopsis:
 
 Description:
-Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called _type lattice_ shown in the following figure. <br>
-
+Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called _type lattice_ shown in the following figure.
 ![Type Lattice](type-lattice.png|right|400px)
-<br>
+
 The arrows describe a _subtype-of_ relation between types. The type `void` is the _smallest_ type and 
 is included in all other types and the type `value` is the _largest_ type that includes all other types. 
 We also see that `rel` is a subtype of `set` and that each ADT is a subtype of `node`. 

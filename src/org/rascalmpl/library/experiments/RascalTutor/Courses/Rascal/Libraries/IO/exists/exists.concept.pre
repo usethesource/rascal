@@ -1,0 +1,1 @@
+concept("exists",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/IO/exists/exists.concept|,[],[],{"Library"},{},"","",""," \<code\>bool exists(loc file)\</code\>\n",{}," Check whether a certain location exists, i.e., whether an actual file is associated with it.\n","","","",[])

@@ -5,9 +5,7 @@ Details:
 Categories: Language
 
 Syntax:
-<listing>
-do $Statement$ while ( $Exp$ );
-</listing>
+`do $Statement$ while ( $Exp$ );`
 
 Types:
 

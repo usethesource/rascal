@@ -1,0 +1,1 @@
+concept("isDirectory",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/IO/isDirectory/isDirectory.concept|,[],[],{"Library"},{},"","",""," \<code\>bool isDirectory(loc file)\</code\>\n",{}," Check whether the location \<code\>file\</code\> is a directory.\n","","","",[])

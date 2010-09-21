@@ -6,7 +6,8 @@ Types:
 `int`, `real`, `num`
 
 Description:
-Numbers include integers (values of type <tt>int</tt>) and reals (values of type <tt>real</tt>). If both operands have the same type (<tt>int</tt> or <tt>real</tt>) then the operator is the corresponding operator on integers or reals. Otherwise, integer arguments are first converted to real and the real operator is applied.
+Numbers include integers (values of type `int`) and reals (values of type `real`). 
+If both operands have the same type (`int` or `real`) then the operator is the corresponding operator on integers or reals. Otherwise, integer arguments are first converted to real and the real operator is applied.
 
 Examples:
 

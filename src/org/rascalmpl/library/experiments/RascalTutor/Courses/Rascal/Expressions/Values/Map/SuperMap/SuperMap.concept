@@ -16,7 +16,6 @@ Yields `true` if all key/value pairs in the map value of $Exp_2$ occur in the ma
 or the values of $Exp_1$ and $EXp_2$ are equal, and `false` otherwise.
 
 Examples:
-<warning> wrong cutoff of HTML code </warning>
 <screen>
 ("pear": 2, "apple": 1) >= ("apple": 1, "pear": 2);
 ("pear": 2, "apple": 1, "banana" : 3) >= ("apple": 1, "pear": 2);

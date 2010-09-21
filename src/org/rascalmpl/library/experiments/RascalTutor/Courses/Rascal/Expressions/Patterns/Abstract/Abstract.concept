@@ -65,7 +65,7 @@ In both cases set matching is applied and the variable can match an arbitrary nu
 
 * A _tuple pattern_
 <listing>
-\< $Pat_1$, $Pat_2$, ..., $Pat_n$ >
+< $Pat_1$, $Pat_2$, ..., $Pat_n$ >
 </listing>
 A tuple pattern matches a tuple value, provided that $Pat_1$, $Pat_2$, ..., $Pat_n$  match the elements of that tuple in order.
 

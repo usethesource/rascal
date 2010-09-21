@@ -5,9 +5,9 @@ Details:
 Categories: Language
 
 Syntax:
-<listing>
-for ( $Exp_1$ , $Exp_2$ , ... , $Exp_n$ ) $Statement$
-</listing>
+
+`for ( $Exp_1$ , $Exp_2$ , ... , $Exp_n$ ) $Statement$;`
+
 
 Types:
 

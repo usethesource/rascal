@@ -2,7 +2,7 @@ Name: Comprehension
 
 Details:
 
-Categories: Language
+Categories: Language Beginner
 
 Syntax: `[ $Exp_1$, $Exp_2$, ... | $Gen_1$, $Gen_2$, ... ]`
 

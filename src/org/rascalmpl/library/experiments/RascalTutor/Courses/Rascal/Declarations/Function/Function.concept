@@ -2,7 +2,7 @@ Name: Function
 
 Details:
 
-Categories: Language
+Categories: Language Beginner
 
 Syntax: 
 # `$Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) $Statement$`

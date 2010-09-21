@@ -12,7 +12,7 @@ Types:
 | `real`   |  `real`    |
 
 
-Description: Yields the negated values of $NumExp$.
+Description: Yields the negated values of $Exp$.
 
 Examples:
 <screen>

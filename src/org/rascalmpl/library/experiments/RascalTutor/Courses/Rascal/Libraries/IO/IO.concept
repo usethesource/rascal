@@ -1,0 +1,24 @@
+Name: IO
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis: `import IO;`
+
+Description: Provides functions for the input/output of values.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

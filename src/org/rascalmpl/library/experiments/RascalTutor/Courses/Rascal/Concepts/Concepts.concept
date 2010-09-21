@@ -2,7 +2,7 @@ Name:Concepts
 
 Details: IntroStaticTyping
 
-Categories: Language
+Categories: Beginner Language
 
 Synopsis:
 
@@ -16,9 +16,7 @@ Built-in operators are heavily overloaded.
 For instance, the operator `+` is used for addition on integers and reals but also for list concatenation, 
 set union and the like.
 
-
 The flow of Rascal program execution is completely explicit. Boolean expressions determine choices that drive the control structures. Rewrite rules form the only exception to the explicit control flow principle. Only local backtracking is provided in the context of boolean expressions and pattern matching; side effects are undone in case of backtracking.
-
 
 Most language concepts are described separately but some features we just mention here:
 

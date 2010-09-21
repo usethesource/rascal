@@ -25,8 +25,8 @@ An annotation declaration defines:
 * $OnTYpe$, the type of the values that are being annotated,
 * $Name$, the name of the annotation.
 
-Any value of any named type can be annotated and the type of these annotations can be declared precisely.
 
+Any value of any named type can be annotated and the type of these annotations can be declared precisely.
 
 The following constructs are provided for handling annotations:
 

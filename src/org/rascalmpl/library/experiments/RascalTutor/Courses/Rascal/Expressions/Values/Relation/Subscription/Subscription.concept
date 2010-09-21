@@ -28,14 +28,12 @@ Synopsis:
 
 Description: Relation resulting from subscription of a relation $Exp_0$.
 
-
 ===Variant 1===
 Subscription with the index values of $Exp_1$, $Exp_2$, .... 
 The result is a relation with all tuples that have these index values as first elements 
 with the index values removed from the tuple. 
 If the resulting tuple has only a single element, a set is returned instead of a relation. 
 A wildcard `_` as index value matches all possible values at that index position.
-
 
 ===Variant 2===
 Subscription with a set of the index values of $Exp_1$.

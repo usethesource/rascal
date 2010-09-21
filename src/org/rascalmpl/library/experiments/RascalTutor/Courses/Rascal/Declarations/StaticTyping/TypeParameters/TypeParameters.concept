@@ -45,7 +45,6 @@ swap("abc", 3);
 </screen>
 Observe that the type parameters that are used in the return type should be defined in the declarations of the formal parameter of the function.
 
-
 An [Alias] declaration may also be parameterized. So we can generalize graphs as follows:
 <screen>
 alias Graph[&Node] = rel[&Node, &Node];
@@ -54,7 +53,6 @@ Graph[str] GS = {<"a", "b">, <"c","d">, <"d", "a">};
 </screen>
 The type parameters that are used in the type in the right part of the alias declaration 
 should be defined in the left part of the alias definition.
-
 
 Benefits:
 

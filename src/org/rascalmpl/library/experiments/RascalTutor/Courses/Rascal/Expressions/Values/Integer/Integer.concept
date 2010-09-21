@@ -1,6 +1,6 @@
 Name:Integer
 
-Categories: Language
+Categories: Language Beginner
 
 Syntax: sequence of digits of arbitrary length.
 Types: `int`

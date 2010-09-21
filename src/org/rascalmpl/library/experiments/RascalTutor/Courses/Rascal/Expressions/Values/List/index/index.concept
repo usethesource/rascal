@@ -2,13 +2,13 @@ Name: index
 
 Details:
 
-Categories: Library
+Categories: Library Beginner
 
 Syntax:
 
 Types:
 
-Function: `set[int] index(list[&T] lst)`
+Function: `list[int] index(list[&T] lst)`
 
 Synopsis:
 

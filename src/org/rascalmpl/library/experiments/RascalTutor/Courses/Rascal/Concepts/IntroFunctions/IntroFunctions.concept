@@ -1,6 +1,6 @@
 Name:IntroFunctions
 
-Categories:
+Categories: Beginner
 
 Synopsis:
 
@@ -9,7 +9,6 @@ Description:
 Functions allow the definition of frequently used operations. They have a name and formal parameters. They are explicitly declared and are fully typed. 
 Functions can also be used as values thus enabling higher-order functions. 
 Rascal is a higher-order language in which functions are first-class values.
-
 
 See [Function] for details.
 
