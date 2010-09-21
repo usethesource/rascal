@@ -124,7 +124,7 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	   typesSection 	= sections["Types"] ? [];
 	   functionSection 	= sections["Function"] ? [];
 	   synopsisSection 	= sections["Synopsis"] ? [];
-	   searchTerms  	=  searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
+	   searchTerms  	= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
        syntaxSynopsis   = markup1(syntaxSection);
        typesSynopsis    = markup1(typesSection);
        functionSynopsis = markup1(functionSection);
@@ -510,11 +510,22 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
          warnings += "<showConceptPath(cname)>: <w>";
     }
     
+    // Map same search term with/without capitalization to the one with capitalization
+    searchTerms1 = {};
+    for(trm <- searchTerms){
+    println("trm = <trm>");
+        if(/^<S:[a-z]><tail:[A-Za-z0-9]*>$/ := trm){
+           if((toUpperCase(S) + tail) notin allBaseConcepts)
+              searchTerms1 += {trm};
+        } else 
+          searchTerms1 += {trm};
+   }               
+    
     println("fullRelated = <fullRelated>");
-    println("searchTerms= <searchTerms>");
+    println("searchTerms1= <searchTerms1>");
     println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTerms))>");
     println("Warnings:\n<for(w <- warnings){><w>\n<}>");
-    return course(title, courseDir, rootConcept, warnings, conceptMap, fullRefinements, sort(toList(allBaseConcepts + searchTerms)), fullRelated, categories);
+    return course(title, courseDir, rootConcept, warnings, conceptMap, fullRefinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated, categories);
 }
 
 public loc catenate(loc basedir, str entry){
@@ -543,11 +554,8 @@ public Concept tst(){
    return parseConcept(|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Expressions/Values/Set/Intersection/Intersection.concept|, "/org/rascalmpl/library/experiments/RascalTutor/Courses/");
 }
 
-public Course cc(){
-
+public void cc(){
    c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
-   println(c);
-   return c; 
 }
 
 public str tst2(){

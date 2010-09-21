@@ -92,6 +92,10 @@ public str ul(str txt){
   return "\<ul\><txt>\</ul\>";
 }
 
+public str ol(str txt){
+  return "\<ol\><txt>\</ol\>";
+}
+
 public str td(str txt){
   return "\<td\><txt>\</td\>";
 }
@@ -123,11 +127,11 @@ public str sectionHead(str txt){
 public str escapeForRascal(str input){
   return 
     visit(input){
-      case /\</ => "\\\<"
-      case /\>/ => "\\\>"
-      case /"/  => "\\\""
-      case /'/  => "\\\'"
-      case /\\/ => "\\\\"
+      case /^\</ => "\\\<"
+      case /^\>/ => "\\\>"
+      case /^"/  => "\\\""
+      case /^'/  => "\\\'"
+      case /^\\/ => "\\\\"
     };
 }
 
@@ -139,6 +143,15 @@ public str escapeForHtml(str txt){
       case /^"/ => "&quot;"
       case /^&/ => "&amp;"
     }
+}
+
+public str escapeForJavascript(str txt){
+  return
+    visit(txt){
+      case /^"/ => "\\\""
+      case /^'/ => "\\\'"
+      case /^\\/ => "\\\\"
+    };
 }
 
 public str showConceptURL(ConceptName c, str name){

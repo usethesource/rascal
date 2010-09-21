@@ -85,7 +85,7 @@ public str prelude(){
   
         // "\<link type=\"text/css\" rel=\"stylesheet\" href=\"prelude.css\"/\>\n";
          "\<style type=\"text/css\"\><css>\</style\>" +
-          "\n\<script type=\"text/javascript\"\>var baseConcepts = new Array(<for(int i <- [0 .. nbc]){><(i==0)?"":",">\"<baseConcepts[i]>\"<}>);
+          "\n\<script type=\"text/javascript\"\>var baseConcepts = new Array(<for(int i <- [0 .. nbc]){><(i==0)?"":",">\"<escapeForJavascript(baseConcepts[i])>\"<}>);
           \</script\>\n";
 }
 
@@ -249,6 +249,8 @@ public str category(map[str,str] categories){
 
 private bool isEnabled(ConceptName cn){
   cats = concepts[cn].categories;
+  if("Beginner" in enabledCategories && "Beginner" notin cats)
+     return false;
   return isEmpty(cats) || !isEmpty(cats & enabledCategories);
 }
 
