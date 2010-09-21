@@ -542,7 +542,7 @@ str text2html(str t) {
     return visit(t) {
        case /^\r\{<tg:..><key:[^\r]*>\r\}../ => selectTag(tg, key)
        case /^\r\{<tg:..><key:[^\r]*>/ =>  selectBeginTag(tg, key)
-       case /^\r\}../ => selectEndTag(tg)
+       case /^\r\}<tg:..>/ => selectEndTag(tg)
        }
     }
     

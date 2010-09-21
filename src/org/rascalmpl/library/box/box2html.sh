@@ -8,7 +8,6 @@ do
   fi
 ${BINDIR}/rascal -Drascal.no_cwd_path=true <<END
 import box::$SUFFIX::Default;
-toText(|file://$A|);
+toHtml(|file://$A|);
 END
 done
-

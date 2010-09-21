@@ -17,9 +17,13 @@ public class ShellScriptWriter {
 	
 	static final File box2latexSh = new File(".", "box2latex.sh");
 	
+	static final File box2htmlSh = new File(".", "box2html.sh");
+	
 	static final File box2textSh = new File(".", "box2text.sh");
 	
     static final File box2latexFile = new File(binDir, "box2latex");
+    
+    static final File box2htmlFile = new File(binDir, "box2html");
 	
 	static final File box2textFile = new File(binDir, "box2text");
 
@@ -45,6 +49,7 @@ public class ShellScriptWriter {
 		try {
 			PrintStream rascalStream = new PrintStream(rascalFile), 
 			box2textStream = new PrintStream(box2textFile),
+			box2htmlStream = new PrintStream(box2htmlFile),
 			box2latexStream = new PrintStream(box2latexFile);
 			String javaHome = System.getProperty("java.home");
 			// System.err.println("javaHome:" + javaHome);
@@ -61,10 +66,18 @@ public class ShellScriptWriter {
 			rascalStream.println("JAVAHOME="+javaHome);
 		    copyFile(rascalSh, rascalStream);
 		    System.out.println("copy to "+rascalFile.getCanonicalPath()+ " finished");
+		    box2textStream.println("#!/bin/bash");
+		    box2textStream.println("BINDIR="+binDir);
 		    copyFile(box2textSh, box2textStream);
 		    System.out.println("copy to "+box2textFile.getCanonicalPath()+ " finished");
+		    box2latexStream.println("#!/bin/bash");
+		    box2latexStream.println("BINDIR="+binDir);
 		    copyFile(box2latexSh, box2latexStream);
 		    System.out.println("copy to "+box2latexFile.getCanonicalPath()+ " finished");
+		    box2htmlStream.println("#!/bin/bash");
+		    box2htmlStream.println("BINDIR="+binDir);
+		    copyFile(box2htmlSh, box2htmlStream);
+		    System.out.println("copy to "+box2htmlFile.getCanonicalPath()+ " finished");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
