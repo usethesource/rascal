@@ -1,17 +1,17 @@
-module box::rascal::Default
+module box::rsc::Default
 import ParseTree;
 import box::Concrete;
 import box::Box;
 import IO;
 import SystemAPI;
-import box::rascal::Modules;
-import box::rascal::Declarations;
-import box::rascal::Constructors;
-import box::rascal::Expressions;
-import box::rascal::Statements;
-import box::rascal::Types;
-import box::rascal::Rascal;
-import box::rascal::Keywords;
+import box::rsc::Modules;
+import box::rsc::Declarations;
+import box::rsc::Constructors;
+import box::rsc::Expressions;
+import box::rsc::Statements;
+import box::rsc::Types;
+import box::rsc::Rascal;
+import box::rsc::Keywords;
 
 
 import rascal::\old-syntax::Rascal;

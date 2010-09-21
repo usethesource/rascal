@@ -1,4 +1,4 @@
-module box::rascal::Keywords
+module box::rsc::Keywords
 public set[str] keywords = {
   "alias"    ,
   "all"      ,

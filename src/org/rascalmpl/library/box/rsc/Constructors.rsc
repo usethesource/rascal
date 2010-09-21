@@ -1,4 +1,4 @@
-module box::rascal::Constructors
+module box::rsc::Constructors
 import box::Box;
 import box::Concrete;
 import rascal::\old-syntax::Rascal;

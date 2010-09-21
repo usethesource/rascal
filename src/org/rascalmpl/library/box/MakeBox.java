@@ -118,8 +118,10 @@ public class MakeBox {
 
 	private IValue launchConcreteProgram(URI uri, String s) {
 		final String resultName = "c";
+		/*
 		if (s.equals("rsc"))
 			s = "rascal"; // Exception at rascal
+		*/
 		execute("import box::" + s + "::Default;");
 		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()

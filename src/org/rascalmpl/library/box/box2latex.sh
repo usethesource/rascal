@@ -1,4 +1,3 @@
-#!/bin/bash
 for A 
 in $@
 do
@@ -7,11 +6,7 @@ do
   then
      A=`pwd`/$A
   fi
-  if test "${SUFFIX}" = "rsc" 
-  then
-     SUFFIX=rascal
-  fi
-rascal <<END
+${BINDIR}/rascal -Drascal.no_cwd_path=true <<END
 import box::$SUFFIX::Default;
 toLatex(|file://$A|);
 END
