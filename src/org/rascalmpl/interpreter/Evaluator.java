@@ -1917,10 +1917,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 			}
 
-			if (!baseType.getElementType().isVoidType()) {
+			if (!baseType.isMapType() && !baseType.getElementType().isVoidType()) {
 				if (selectedFields[i] < 0 || selectedFields[i] > baseType.getArity()) {
 					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
 				}
+			}
+			else if (baseType.isMapType() && selectedFields[i] < 0 || selectedFields[i] > 1) {
+				throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
 			}
 		}
 

@@ -8,6 +8,7 @@ import ParseTree;
 import List;
 import Set;
 import IO;
+import Map;
 import Exception;
 
 // This production wrapper encodes what the lookahead set is for the productions it wraps
@@ -35,6 +36,8 @@ public Grammar computeLookaheads(Grammar G) {
       
       // merge the character classes and construct a production wrapper
       // TODO: should we really remove empty here?
+      if (rhs == sort("FunctionDeclaration")) 
+        println("lookaheads for <p> are <classes>");
       insert lookahead(rhs, mergeCC(classes), p);        
     }
   }
@@ -62,12 +65,11 @@ public Grammar compileLookaheads(Grammar G) {
 
 public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
   list[CharRange] l = [];
-  map[CharRange,set[Production]] m = ();
   list[CharRange] order(list[CharRange] x) {
     return sort([ e | e <- x, e != \empty-range()], lessThan);
   }  
-  set[Production] init = {};
   
+  // first we identify which unique ranges there are for all the different productions
   for (lookahead(_,set[Symbol] classes, Production p) <- alts) { 
     for (\char-class(rs) <- classes, r <- rs) {
       // find the first range that is not smaller than the pivot
@@ -79,33 +81,44 @@ public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
           onlyR = difference([r],overlapping);
           onlyOverlapping = difference(overlapping,[r]);
           l = pre + order(onlyR+common+onlyOverlapping) + post2;
-          for (c <- common) {
-            m[c]?init += {p}; // production belonging to r
-            m[c] += {m[o] | o <- overlapping, intersect(o,c) != \empty-range()}; // productions for others
-          }
-          for (z <- onlyR) {
-            m[z]?init += {p};
-          }
-          for (z <- onlyOverlapping) {
-            m[z]?init += {m[o] | o <- overlapping, intersect(o,z) != \empty-range()}; // productions for others
-          }
         }
         else {
           // not overlapping with existing ranges
           l = pre + [r] + post;
-          m[r] = {p};
         }
       }
       else {
+        println("does this ever happen? <r> and <l>");
         l = [r] + l;
-        m[r] = {p};
       }
     }
   }
-    
+ 
+  if (rhs == sort("FunctionDeclaration")) 
+  println("unique ranges for <rhs> are <l>");
+  // second part; map productions into the ranges
+  map[CharRange range,set[Production] prods] m = ();
+  set[Production] init = {};
+  for (lookahead(_,set[Symbol] classes, Production p) <- alts, \char-class(rs) <- classes) {
+    for (CharRange r <- l) {
+      if (intersection([r],rs) != []) {
+        m[r]?init += {p};
+      }
+    }
+  }
+
+  // third part, group by ranges that predict the same set of productions  
+  map[set[Production] prod, set[CharRange] range] mInv = ();
+  set[CharRange] init2 = {};
+  for (<r,s> <- m<range,prods>) {
+    mInv[s]?init2 += {r}; 
+  }
+  
+  if (rhs == sort("FunctionDeclaration")) 
+  println("lookahead map for <rhs> is <m>");
   endOfInputClasses = { p | lookahead(_,classes,p) <- alts, eoi() in classes};
   
-  return choice(rhs, {lookahead(rhs, {\char-class([r])}, choice(rhs, m[r])) | r <- l}
+  return choice(rhs, {lookahead(rhs, {\char-class([r | r <- mInv[s]])}, choice(rhs, s)) | s <- mInv}
                   +  ((endOfInputClasses != {}) ? {lookahead(rhs, {eoi()}, choice(rhs, endOfInputClasses))} : {}));
 }
 
