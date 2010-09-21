@@ -31,6 +31,8 @@ th, td {
 	border: 2px #666 solid;
 }
 
+th { background-color: silver; }
+
 
 .sectionHead {
     color:blck;
@@ -47,7 +49,14 @@ th, td {
 #Details { padding: 0.5em 0em; }
 #Synopsis{ padding: 0.5em 0em; }
 #Syntax{ padding: 0.5em 0em; }
+
+#Syntax code {
+ border: 1px solid #000;
+ background-color: MintCream;
+}
 #Types{ padding: 0.5em 0em; }
+
+#Types th {background-color: silver;}
 #Function{ padding: 0.5em 0em; }
 #Description { padding: 0.5em 0em; }
 #Examples{ padding: 0.5em 0em; }
