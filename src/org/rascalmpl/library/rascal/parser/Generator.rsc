@@ -19,28 +19,28 @@ private data Item = item(Production production, int index);
 private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 
 public str generate(str package, str name, Grammar gr){
-    println("name = <gr.rules[sort("Name")]>");
+    
     println("expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
-    println("name = <gr.rules[sort("Name")]>");
+   
     println("generating stubs for regular");
     gr = makeRegularStubs(gr);
-    println("name = <gr.rules[sort("Name")]>");
+   
     println("establishing production set");
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p, restricted(_) !:= p.rhs};
-    println("name = <gr.rules[sort("Name")]>");
+ 
     println("generating item allocations");
     newItems = generateNewItems(gr);
-    println("name = <gr.rules[sort("Name")]>");
+   
     println("computing priority and associativity filter");
     dontNest = computeDontNests(newItems, gr);
-    println("name = <gr.rules[sort("Name")]>");
+   
     println("computing lookahead sets");
     gr = computeLookaheads(gr);
-    println("name = <gr.rules[sort("Name")]>");
+  
     println("optimizing lookahead automaton");
     gr = compileLookaheads(gr);
-    println("name = <gr.rules[sort("Name")]>");
+   
     println("printing the source code of the parser class");
     
     return 
