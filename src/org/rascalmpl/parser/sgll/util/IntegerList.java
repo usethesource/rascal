@@ -27,7 +27,7 @@ public class IntegerList{
 	}
 	
 	public void add(int integer){
-		if(size == data.length){
+		while(size >= data.length){
 			enlarge();
 		}
 		

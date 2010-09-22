@@ -34,7 +34,7 @@ public class DoubleArrayList<F, S>{
 	}
 	
 	public void add(F firstObject, S secondObject){
-		if(size == first.length){
+		while(size >= first.length){
 			enlarge();
 		}
 		

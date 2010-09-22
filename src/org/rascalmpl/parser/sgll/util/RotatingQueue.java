@@ -34,27 +34,27 @@ public class RotatingQueue<E>{
 	}
 	
 	private void ensureCapacity(){
-		if(nextPutIndex == getIndex){
-			int size = capacity;
-			capacityMask = (capacity <<= 1) - 1;
-			E[] newQueue = (E[]) new Object[capacity];
-			if(getIndex == 0){
-				System.arraycopy(queue, 0, newQueue, 0, queue.length);
-			}else{
-				int numElemsTillEnd = size - getIndex;
-				System.arraycopy(queue, getIndex, newQueue, 0, numElemsTillEnd);
-				System.arraycopy(queue, 0, newQueue, numElemsTillEnd, getIndex);
-				
-				getIndex = 0;
-			}
-			nextPutIndex = size;
+		int size = capacity;
+		capacityMask = (capacity <<= 1) - 1;
+		E[] newQueue = (E[]) new Object[capacity];
+		if(getIndex == 0){
+			System.arraycopy(queue, 0, newQueue, 0, queue.length);
+		}else{
+			int numElemsTillEnd = size - getIndex;
+			System.arraycopy(queue, getIndex, newQueue, 0, numElemsTillEnd);
+			System.arraycopy(queue, 0, newQueue, numElemsTillEnd, getIndex);
 			
-			queue = newQueue;
+			getIndex = 0;
 		}
+		nextPutIndex = size;
+		
+		queue = newQueue;
 	}
 	
 	public void put(E element){
-		ensureCapacity();
+		if(nextPutIndex == getIndex){
+			ensureCapacity();
+		}
 		
 		queue[nextPutIndex] = element;
 		

@@ -27,7 +27,7 @@ public class Stack<E>{
 	}
 	
 	public void push(E object){
-		if(size == data.length){
+		while(size >= data.length){
 			enlarge();
 		}
 		
