@@ -35,6 +35,8 @@ public class IntegerList{
 	}
 	
 	public int get(int index){
+		if(index >= data.length) throw new IndexOutOfBoundsException();
+		
 		return data[index];
 	}
 	
