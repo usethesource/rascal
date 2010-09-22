@@ -2,7 +2,9 @@
 package org.rascalmpl.library.rascal.parser;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -24,6 +26,14 @@ public class RascalRascal extends SGLL{
 		}
 	}
 	
+	public static void main(String[] args) {
+		RascalRascal p = new RascalRascal();
+		try {
+			p.parse("Module", URI.create("file:///" + args[0]), new File(args[0]));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	private static final IntegerKeyedHashMap<IntegerList> dontNest;
 	
     private static void putDontNest(int i, int j) {
@@ -4530,7 +4540,6 @@ public class RascalRascal extends SGLL{
                   // prod([sort("RascalReservedKeywords")],sort("Name"),attrs([reject()]))
 	expectReject(prod___RascalReservedKeywords_Name_attrs___reject, Name.prod___RascalReservedKeywords_Name_attrs___reject_0);
                }
-                
                 if (((next >= 65) && (next <= 90)) || (next == 95)  || ((next >= 97) && (next <= 122)) ) {
                   // prod([\char-class([range(65,90),range(95,95),range(97,122)]),\iter-star(\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))],sort("Name"),attrs([term(lex())]))
 	expect(prod___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_Name_attrs___term__lex, Name.prod___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_Name_attrs___term__lex_0,
