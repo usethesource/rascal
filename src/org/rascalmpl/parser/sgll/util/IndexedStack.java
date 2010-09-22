@@ -34,7 +34,7 @@ public class IndexedStack<E>{
 	}
 	
 	public void push(E object, int index){
-		if(size == data.length){
+		while(size >= data.length){
 			enlarge();
 		}
 		

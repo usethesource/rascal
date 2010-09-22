@@ -40,7 +40,7 @@ public class LinearIntegerKeyedMap<V>{
 	}
 	
 	public void add(int key, V value){
-		if(size == keys.length){
+		while(size >= keys.length){
 			enlarge();
 		}
 		

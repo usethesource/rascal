@@ -27,7 +27,7 @@ public class ArrayList<E>{
 	}
 	
 	public void add(E object){
-		if(size == data.length){
+		while(size >= data.length){
 			enlarge();
 		}
 		
