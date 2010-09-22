@@ -121,8 +121,9 @@ syntax Header
 syntax Name
 	= lex [A-Z _ a-z] [0-9 A-Z _ a-z]* 
 	| lex EscapedName 
-	# [0-9 A-Z _ a-z] 
-	- /*reject()*/ RascalReservedKeywords ;
+	
+	- /*reject()*/ RascalReservedKeywords 
+	# [0-9 A-Z _ a-z] ;
 
 syntax SyntaxDefinition
 	= Layout: "layout" Sym defined "=" Prod production ";" 

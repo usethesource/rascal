@@ -94,8 +94,6 @@ public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
     }
   }
  
-  if (rhs == sort("FunctionDeclaration")) 
-  println("unique ranges for <rhs> are <l>");
   // second part; map productions into the ranges
   map[CharRange range,set[Production] prods] m = ();
   set[Production] init = {};
@@ -114,8 +112,6 @@ public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
     mInv[s]?init2 += {r}; 
   }
   
-  if (rhs == sort("FunctionDeclaration")) 
-  println("lookahead map for <rhs> is <m>");
   endOfInputClasses = { p | lookahead(_,classes,p) <- alts, eoi() in classes};
   
   return choice(rhs, {lookahead(rhs, {\char-class([r | r <- mInv[s]])}, choice(rhs, s)) | s <- mInv}
