@@ -111,8 +111,11 @@ private Production prod2prod(Symbol nt, Prod p, str layoutName, bool inLayout) {
         return restrict(nt,prod2prod(nt,l,layoutName, inLayout), {prod2prod(restricted(nt),r,layoutName, true)});
     case (Prod) `<Prod l> > <Prod r>` :
       return first(nt,[prod2prod(nt, l, layoutName, inLayout), prod2prod(nt, r, layoutName, inLayout)]);
-    case (Prod) `<Prod l> - <Prod r>` :
-      return diff(nt, prod2prod(nt, l, layoutName, inLayout), {attribute(prod2prod(nt, r, layoutName, inLayout), reject())});
+    case (Prod) `<Prod l> - <Prod r>` : { println("found diff! <l> - <r>");
+      res = diff(nt, prod2prod(nt, l, layoutName, inLayout), {attribute(prod2prod(nt, r, layoutName, inLayout), reject())});
+      println("diff res = <res>");
+      return res;
+      }
     case (Prod) `left (<Prod p>)` :
       return \assoc(nt, \left(), {attribute(prod2prod(nt, p, layoutName, inLayout), \assoc(\left()))});
     case (Prod) `right (<Prod p>)` :

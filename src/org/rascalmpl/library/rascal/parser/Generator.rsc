@@ -19,27 +19,28 @@ private data Item = item(Production production, int index);
 private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 
 public str generate(str package, str name, Grammar gr){
+    println("name = <gr.rules[sort("Name")]>");
     println("expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
-    
+    println("name = <gr.rules[sort("Name")]>");
     println("generating stubs for regular");
     gr = makeRegularStubs(gr);
-    
+    println("name = <gr.rules[sort("Name")]>");
     println("establishing production set");
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p, restricted(_) !:= p.rhs};
-    
+    println("name = <gr.rules[sort("Name")]>");
     println("generating item allocations");
     newItems = generateNewItems(gr);
-    
+    println("name = <gr.rules[sort("Name")]>");
     println("computing priority and associativity filter");
     dontNest = computeDontNests(newItems, gr);
-    
+    println("name = <gr.rules[sort("Name")]>");
     println("computing lookahead sets");
     gr = computeLookaheads(gr);
-    
+    println("name = <gr.rules[sort("Name")]>");
     println("optimizing lookahead automaton");
     gr = compileLookaheads(gr);
-    
+    println("name = <gr.rules[sort("Name")]>");
     println("printing the source code of the parser class");
     
     return 
@@ -167,49 +168,45 @@ private bool isNonterminal(Symbol s) {
 public str generateParseMethod(Items items, Production p) {
   return "public void <sym2name(p.rhs)>() {
             char next = (location == input.length) ? 0 : input[location];
-            <generateExpect(items, p)>
+            <generateExpect(items, p, false)>
           }";
 }
 
-public str generateExpect(Items items, Production p){
+public str generateExpect(Items items, Production p, bool reject){
     // note that this code heavily leans on the fact that production combinators are normalized 
     // (distribution and factoring laws have been applied to put a production expression in canonical form)
     
     switch (p) {
       case prod(_,_,_) : 
         if (restricted(_) !:= p.rhs) 
-	       return "// <p>\n\texpect(<value2id(p)>, <generateSymbolItemExpects(p)>);";
+	       return "// <p>\n\texpect<reject ? "Reject" : "">(<value2id(p)>, <generateSymbolItemExpects(p)>);";
 	    else 
 	       return ""; 
       case lookahead(_, classes, Production q) :
         return "if (<generateClassConditional(classes)>) {
-                  <generateExpect(items, q)>
+                  <generateExpect(items, q, reject)>
                }";
       case choice(_, {l:lookahead(_, _, q)}) :
-        return generateExpect(items, l);
+        return generateExpect(items, l, reject);
       case choice(_, {lookahead(_, classes, Production q), set[Production] rest}) :
         return "if (<generateClassConditional(classes)>) {
-                  <generateExpect(items, q)>
+                  <generateExpect(items, q, reject)>
                 } else {
-                  <generateExpect(items, choice(q.rhs, rest))>
+                  <generateExpect(items, choice(q.rhs, rest), reject)>
                 }";
       case choice(_, set[Production] ps) :
-        return "<for (Production q <- ps){><generateExpect(items, q)>
+        return "<for (Production q <- ps){><generateExpect(items, q, reject)>
                 <}>";
-      // case restrict(_, Production q, {lookahead(_,_,Production r), set[Production] rest}) :
-        // return generateExpect(items, restrict(p.rhs, q, {r} + rest)); 
       case restrict(_, Production q, set[Production] restrictions) : 
-        return generateExpect(items, q);
-      case diff(_, Production n, {lookahead(_,_,Production q), set[Production] rest}) :
-        return generateExpect(items, diff(p.rhs, n, {q} + rest));
+        return generateExpect(items, q, reject);
       case diff(_, Production n, set[Production] rejects) :
-        return "<for (Production q <- rejects){>expectReject(<value2id(q)>, <generateSymbolItemExpects(q)>);
+        return "<for (Production q <- rejects){><generateExpect(items, q, true)>
                 <}>
-                <generateExpect(items, n)>";
+                <generateExpect(items, n, false)>";
       case first(_, list[Production] ps) : 
-        return generateExpect(items, choice(p.rhs, { q | q <- ps }));
+        return generateExpect(items, choice(p.rhs, { q | q <- ps }), reject);
       case \assoc(_,_,set[Production] ps) :
-        return generateExpect(items, choice(p.rhs, ps)); 
+        return generateExpect(items, choice(p.rhs, ps), reject); 
     }
     
     throw "not implemented <p>";

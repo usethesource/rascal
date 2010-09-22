@@ -36,6 +36,9 @@ rule diff   \diff(Symbol s, Production p, {set[Production] a, first(Symbol t, li
 rule diff   \diff(Symbol s, Production p, {set[Production] a, \assoc(Symbol t, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
 rule restrict restrict(Symbol s, restrict(Symbol t, Production p, set[Production] q), set[Production] r) =>
               restrict(s, p, q + r);
+              
+// rule restricted restrict(Symbol s, Production p, {Production q:prod(list[Symbol] lhs, Symbol t, Attributes a), set[Production] r}) =>
+                // restrict(s, p, {prod(lhs,restricted(t),a), r}) when s == t;
 
 // this makes sure the ... (others) are merged in at the right place
 // TODO: we have problems here because unordered productions will also be given an order...

@@ -557,7 +557,7 @@ public void pie1(){
 
 public void pie2(){
  	render(pieChart("pie2", ("a" : 1, "b" : 2, "c" : 10, "z": 50),
- 	         subtitle("A very, very, very long subtitle don't you think?"))
+ 	         subtitle("A very, very, very long subtitle don\'t you think?"))
  	
  	);
 }
