@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -21,9 +22,13 @@ public class DescendantReader implements Iterator<IValue> {
 	Stack<Object> spine = new Stack<Object>();
 
 	private boolean debug = false;
+
+	// is set to true when the descendant reader is allowed to skip layout nodes and do other optimizations
+	private boolean interpretTree;
 	
-	DescendantReader(IValue val){
+	DescendantReader(IValue val, boolean interpretTree){
 		if(debug)System.err.println("DescendantReader: " + val);
+		this.interpretTree = interpretTree;
 		push(val);
 	}
 
@@ -58,7 +63,7 @@ public class DescendantReader implements Iterator<IValue> {
 	private void push(IValue v){
 		Type type = v.getType();
 		if(type.isNodeType() || type.isConstructorType() || type.isAbstractDataType()){
-			if((type.isConstructorType() || type.isAbstractDataType()) && type.getName().equals("Tree")){
+			if(interpretTree && (type.isConstructorType() || type.isAbstractDataType()) && type == Factory.Tree){
 				pushConcreteSyntaxNode((IConstructor) v);
 				return;
 			}

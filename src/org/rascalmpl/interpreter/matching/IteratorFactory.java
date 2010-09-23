@@ -35,7 +35,7 @@ public class IteratorFactory {
 				checkMayOccur(patType, subjectType.getElementType(), ctx);
 				return ((IList) subjectValue).iterator();
 			}
-			return new DescendantReader(subjectValue);
+			return new DescendantReader(subjectValue, false);
 			
 		// Set
 		} else 	if(subjectType.isSetType()){				
@@ -43,7 +43,7 @@ public class IteratorFactory {
 				checkMayOccur(patType, subjectType.getElementType(), ctx);
 				return ((ISet) subjectValue).iterator();
 			}
-			return new DescendantReader(subjectValue);
+			return new DescendantReader(subjectValue, false);
 		
 		// Map
 		} else if(subjectType.isMapType()){				
@@ -51,9 +51,9 @@ public class IteratorFactory {
 				checkMayOccur(patType, subjectType.getKeyType(), ctx);
 				return ((IMap) subjectValue).iterator();
 			}
-			return new DescendantReader(subjectValue);
+			return new DescendantReader(subjectValue, false);
 			
-		// NonTerminal	
+		// NonTerminal (both pattern and subject are non-terminals, so we can skip layout and stuff)
 		} else if(subjectType.isExternalType()){
 			if(subjectType instanceof NonTerminalType){
 				IConstructor tree = (IConstructor) subjectValue;
@@ -72,7 +72,7 @@ public class IteratorFactory {
 				if(shallow)
 					checkMayOccur(patType, subjectType, ctx);
 				
-				return new DescendantReader(tree);
+				return new DescendantReader(tree, patType instanceof NonTerminalType);
 				
 			}
 			return new SingleIValueIterator(subjectValue);
@@ -83,7 +83,7 @@ public class IteratorFactory {
 				checkMayOccur(patType, subjectType, ctx);
 				return new NodeChildIterator((INode) subjectValue);
 			}
-			return new DescendantReader(subjectValue);
+			return new DescendantReader(subjectValue, false);
 			
 		} else if(subjectType.isTupleType()){
 			if(shallow){
@@ -95,7 +95,7 @@ public class IteratorFactory {
 				}
 				return new TupleElementIterator((ITuple)subjectValue);
 			}
-			return new DescendantReader(subjectValue);
+			return new DescendantReader(subjectValue, false);
 			
 		} else if(subjectType.isBoolType() ||
 				subjectType.isIntegerType() ||
