@@ -40,15 +40,16 @@ public set[str] categories = {};
 
 set[str] enabledCategories = {};
 
+map[str, Course] courses = ();
+
 // Initialize CourseManager. 
 // ** Be aware that this function should be called at the beginning of each function that can be
 // ** called from a servlet to ensure proper initialisation.
 
 private void initialize(){
   if(root == ""){
-     c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
-     //c = compileCourse("Test", "Testing", courseRoot);
-
+     //c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
+     c = compileCourse("Test", "Testing", courseRoot);
      reinitialize(c);
   }
 }
@@ -65,6 +66,24 @@ private void reinitialize(Course c){
      categories = c.categories;
      enabledCategories = categories;
 }
+
+// Start a new course
+// *** called from servlet Start in RascalTutor
+
+public str start(str name){
+ if(name in courses){
+   reinitialize(courses[name]);
+   return showConcept(name);
+ }
+ if(name in listEntries(courseRoot)){
+    c = compileCourse(name, name, courseRoot);
+    courses[name] = c;
+    reinitialize(c);
+    return showConcept(name);
+ } else
+   throw "Course <name> not found";
+}
+
 
 public set[QuestionName] goodAnswer = {};
 public set[QuestionName] badAnswer = {};
@@ -122,6 +141,7 @@ public str showConcept(ConceptName cn, Concept C){
   return html(
   	head(title(C.name) + prelude()),
   	body(
+  	  "[\<a id=\"tutorAction\" href=\"http://localhost:8081/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]" +
   	  section("Name", showConceptPath(cn)) + navigationMenu(cn) + categoryMenu(cn) +
   	  searchBox(cn) + 
   	  ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
@@ -258,7 +278,8 @@ public str editMenu(ConceptName cn){
   return "\n\<div id=\"editMenu\"\>
               [\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false&check=false\"\>\<b\>Edit\</b\>\</a\>] | 
               [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true&check=true\"\>\<b\>New\</b\>\</a\>] |
-              [\<a id=\"checkAction\" href=\"/edit?concept=<cn>&new=false&check=true\"\>\<b\>Check\</b\>\</a\>]
+              [\<a id=\"checkAction\" href=\"/edit?concept=<cn>&new=false&check=true\"\>\<b\>Check\</b\>\</a\>] |
+              [\<a id=\"tutorAction\" href=\"http://localhost:8081/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]
             \</div\>\n";
 }
 
@@ -624,7 +645,7 @@ public str validateAnswer(map[str,str] params){
 	println("Validate: <params>");
 	println("Validate: <q>");
 	if(cheat == "yes")
-	   return showCheat(cpid, qid, q, expr);
+	   return showCheat(cpid, qid, q, params);
 	if(another == "yes")
 	   return showAnother(cpid, qid, q);
 	   
@@ -805,10 +826,10 @@ public str validateAnswer(map[str,str] params){
 	    }
       }
     }
-    throw "Cannot validate answer: <qid>";
+    throw wrongAnswer(cpid, qid, "Cannot validate your answer");
 }
 
-public str showCheat(ConceptName cpid, QuestionName qid, Question q, str expr){
+public str showCheat(ConceptName cpid, QuestionName qid, Question q, map[str,str] params){
    switch(q){
       case choiceQuestion(qid,descr,choices): {
         gcnt = 0;
@@ -823,31 +844,30 @@ public str showCheat(ConceptName cpid, QuestionName qid, Question q, str expr){
         plural = (size(replies) > 1) ? "s" : "";
         return cheatAnswer(cpid, qid, "The expected answer<plural>: <for(r <- replies){><r> <}>");
       }
+      
+      case tvQuestion(qid, qkind, qdetails): {
+        setup  = qdetails.setup;
+        lstBefore = qdetails.lstBefore;
+        lstAfter  = qdetails.lstAfter;
+        cndBefore = qdetails.cndBefore;
+        cndAfter  = qdetails.cndAfter;
+        holeInLst = qdetails.holeInLst;
+        holeInCnd = qdetails.holeInCnd;
+        vars   = qdetails.vars;
+        auxVars = qdetails.auxVars;
+        rtype = qdetails.rtype;
+        hint = qdetails.hint;
         
-      case typeQuestion(qid,descr,setup,tp):
-        try {
-          expected = evalType(expr);
-          return cheatAnswer(cpid, qid, "The expected answer: <expected>");
-        } catch:
-        	cheatAnswer(cpid, qid, "Error while coputing the cheat");
-        
-      case exprQuestion(qid,descr,setup,tp): {
-          try {
-            expected = eval(expr);
-            return cheatAnswer(cpid, qid, "The expected answer: <expected>");
-          } catch:
-             return cheatAnswer(cpid, qid, "Error while computing the cheat");
+        switch(qkind){
+          case valueOfExpr():
+            return cheatAnswer(cpid, qid, "The expected answer: <hint>");
+          
+          case typeOfExpr():
+            return cheatAnswer(cpid, qid, "The expected answer: <rtype>");
         }
-        case exprTypeQuestion(qid,descr,setup,tp): {
-          try {
-            expected = evalType(expr);
-            return cheatAnswer(cpid, qid, "The expected answer: <expected>");
-          } catch:
-             return cheatAnswer(cpid, qid, "Error while computing the cheat");
-        }
+      }
     }
     throw "Cannot give cheat for: <qid>";
-
 }
 
 public str showAnother(ConceptName cpid, QuestionName qid, Question q){

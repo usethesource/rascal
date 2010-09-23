@@ -96,8 +96,8 @@ public str ol(str txt){
   return "\<ol\><txt>\</ol\>";
 }
 
-public str td(str txt){
-  return "\<td\><txt>\</td\>";
+public str td(str txt, str align){
+  return "\<td align=\"<align>\"\><txt>\</td\>";
 }
 
 public str tr(str txt){

@@ -39,7 +39,6 @@ public map[str,list[str]] getSections(list[str] script){
       	sections[currentSection] = trimLines(script, start, i);
       	//println("<currentSection> = <sections[currentSection]>");
       }
-      //println("Section=<section>");
       if(/^\s*$/ := text)
          start = i + 1;       // no info following section header
       else {
@@ -83,12 +82,11 @@ str compiledExtension = "concept.pre";
 
 public Concept parseConcept(loc file, str coursePath){
    binFile = file[extension = compiledExtension];
-   println("binFile=<binFile>; <exists(binFile)>; <lastModified(binFile)>; <lastModified(file)>");
-   if(false && exists(binFile) && lastModified(binFile) > lastModified(file)){
-     println(" reading concept from file ...");
+   //println("binFile=<binFile>; <exists(binFile)>; <lastModified(binFile)>; <lastModified(file)>");
+   if(exists(binFile) && lastModified(binFile) > lastModified(file)){
+     //println(" reading concept from file ...");
      try {
         C = readTextValueFile(#Concept, binFile);
-        println("parseConcept returns: <C>");
         return C;
      } catch: println("Reading <binFile> failed, regenerating it");
    }
@@ -101,8 +99,7 @@ public Concept parseConcept(loc file, list[str] script, str coursePath){
 
 public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePath){
 
-   println("parseConcept: file=<file>, coursePath=<coursePath>");
-   for(s <- sections) println("<s>: <sections[s]>");
+   //println("parseConcept: file=<file>, coursePath=<coursePath>");
    
    if(!(sections["Name"]?))
       throw ConceptError("<file>: Missing section \"Name\"");
@@ -110,12 +107,12 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
    name = sections["Name"][0];
    fullName = getFullConceptName(file.path, coursePath);
    try {
-	   println("parseConcept: name=<name>, fullName=<fullName>");
 	         
 	   if(name != basename(fullName))
 	      throw ConceptError("Got concept name \"<name>\", but \"<basename(fullName)>\" is required");
 	      
 	   conceptPath = "Courses/" + fullName;
+//     conceptPath = fullName;
 	   
 	   optDetails      	= getNames(sections["Details"] ? []);
 	   optCategories   	= toSet(getNames(sections["Categories"] ? []));
@@ -142,7 +139,6 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	                       syntaxSynopsis, typesSynopsis, functionSynopsis, 
 	                       searchTerms, description, examples, benefits, pittfalls, questions);
 	   binFile = file[extension = compiledExtension];
-	   println("binFile=<binFile>");
 	   writeTextValueFile(binFile, C);
 	   return C;
 	} catch NoSuchKey(e):
@@ -178,9 +174,9 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
    questions = [];
    int i = 0;
    while(i < n){
-     println("getQuestions: <qsection[i]>");
+     //println("getQuestions: <qsection[i]>");
      switch(qsection[i]){
-       case /^Text:<question:.*>$/: {
+       case /^QText:<question:.*>$/: {
           i += 1;
           set[str] answers = {};
           while(i < n && /^a:\s*<text:.*>/ := qsection[i]){
@@ -192,7 +188,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           questions += textQuestion("<nquestions>", markup1([question]), answers);
           nquestions += 1;
        }
-       case /^Choice:<question:.*>$/: {
+       case /^QChoice:<question:.*>$/: {
           i += 1;
           good_answers = [];
           bad_answers = [];
@@ -212,13 +208,13 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           nquestions += 1;
        }
  
-      case /^Value:\s*<cnd:.*>$/: {
+      case /^QValue:\s*<cnd:.*>$/: {
            <i, q> = getTvQuestion(valueOfExpr(), "<nquestions>", qsection, i, cnd);
            questions += q;
            nquestions += 1;
       }
       
-      case /^Type:\s*<cnd:.*>$/: {
+      case /^QType:\s*<cnd:.*>$/: {
            <i, q> = getTvQuestion(typeOfExpr(), "<nquestions>", qsection, i, cnd);
            questions += q;
            nquestions += 1;
@@ -261,7 +257,7 @@ public tuple[int, Question] getTvQuestion(TVkind kind, str name, list[str] qsect
 	 set[str] usedVars = {};
 	 
 	 while(i < n && /^[A-Z][A-Za-z]+:/ !:= qsection[i]){
-	   println(qsection[i]);
+	   //println(qsection[i]);
 	   switch(qsection[i]){
 	   
 	    case /^desc:\s*<rest:.*>$/:
@@ -321,7 +317,7 @@ public tuple[int, Question] getTvQuestion(TVkind kind, str name, list[str] qsect
 	      else
 	         i += 1;
 	      while(i < n && /^[A-Z][A-Za-z]+:/ !:= qsection[i] && /^test:/ !:= qsection[i]){
-	        println(qsection[i]);
+	        //println(qsection[i]);
 	        if (/^<b:.*>\<\?\><a:.*>$/ := qsection[i]){
 	          lstBefore += b;
 	          lstAfter = a + "\n";
@@ -347,12 +343,12 @@ public tuple[int, Question] getTvQuestion(TVkind kind, str name, list[str] qsect
 	   } // switch
 	 } // while
 	
-    println("setup = <setup>");
-    println("vars = <vars>");
-    println("auxVars = <auxVars>");
-    println("hint = <hint>");
+    //println("setup = <setup>");
+    //println("vars = <vars>");
+    //println("auxVars = <auxVars>");
+    //println("hint = <hint>");
 
-	 println("Details: setup = <setup>, lstBefore = <lstBefore>, holeInLst = <holeInLst>, cndBefore = <cndBefore>, cndAfter = <cndAfter>, holeInCnd = <holeInCnd>, vars = <vars>, auxVars = <auxVars>");
+	 //println("Details: setup = <setup>, lstBefore = <lstBefore>, holeInLst = <holeInLst>, cndBefore = <cndBefore>, cndAfter = <cndAfter>, holeInCnd = <holeInCnd>, vars = <vars>, auxVars = <auxVars>");
 
 /*
        Lst holeInLst holeInCnd Exp
@@ -430,7 +426,6 @@ public Course compileCourse(ConceptName rootConcept, str title, loc courseDir){
     for(file <- courseFiles){
        cpt = parseConcept(file, coursePath);
        fullName = getFullConceptName(file.path, coursePath);
-       println("fullName = <fullName>");
        if(conceptMap[fullName]?)
        	  println("Double declaration for <fullName>");
        conceptMap[fullName] = cpt;       	 
@@ -478,7 +473,7 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
        C = conceptMap[cname];
        searchTerms += C.searchTerms;
        for(r <- C.related){
-         println("related.r = <r>");
+         //println("related.r = <r>");
          rbasenames = basenames(r);
          if(!(toSet(rbasenames) <= allBaseConcepts))
          	warnings += "<showConceptPath(cname)>: unknown concept \"<r>\"";
@@ -493,7 +488,7 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
                } // for
             } // if
             fullPath = shortestPathPair(baseRefinements, rootConcept, last(rbasenames));
-            println("fullPath = <fullPath>");
+            //println("fullPath = <fullPath>");
             fullRelated[r] = compose(fullPath);
          } // else
        } // for(r <-
@@ -502,7 +497,6 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     for(cname <- conceptMap){
        C = conceptMap[cname];
        for(d <- C.details){
-         println("Detail: <d>");
          if((cname + "/" + d) notin fullRefinements[cname])
             warnings += "<showConceptPath(cname)>: non-existent detail \"<d>\"";
        }
@@ -513,7 +507,6 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     // Map same search term with/without capitalization to the one with capitalization
     searchTerms1 = {};
     for(trm <- searchTerms){
-    println("trm = <trm>");
         if(/^<S:[a-z]><tail:[A-Za-z0-9]*>$/ := trm){
            if((toUpperCase(S) + tail) notin allBaseConcepts)
               searchTerms1 += {trm};
@@ -521,10 +514,10 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
           searchTerms1 += {trm};
    }               
     
-    println("fullRelated = <fullRelated>");
-    println("searchTerms1= <searchTerms1>");
-    println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTerms))>");
-    println("Warnings:\n<for(w <- warnings){><w>\n<}>");
+   // println("fullRelated = <fullRelated>");
+   // println("searchTerms1= <searchTerms1>");
+   // println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTerms))>");
+   // println("Warnings:\n<for(w <- warnings){><w>\n<}>");
     return course(title, courseDir, rootConcept, warnings, conceptMap, fullRefinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated, categories);
 }
 
@@ -536,7 +529,7 @@ public loc catenate(loc basedir, str entry){
 }
 
 public list[loc] crawl(loc dir, str suffix){
-  println("crawl: <dir>, <listEntries(dir)>");
+  //println("crawl: <dir>, <listEntries(dir)>");
   list[loc] res = [];
   for( str entry <- listEntries(dir) ){
     loc sub = catenate(dir, entry);

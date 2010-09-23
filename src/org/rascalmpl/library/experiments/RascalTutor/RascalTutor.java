@@ -41,6 +41,7 @@ public class RascalTutor {
 		        context.addServlet(Category.class, "/category");
 		        context.addServlet(Edit.class, "/edit");
 		        context.addServlet(Save.class, "/save");
+		        context.addServlet(Start.class, "/start");
 
 		        System.err.println("BASE = " + BASE);
 		        context.setResourceBase(BASE); 

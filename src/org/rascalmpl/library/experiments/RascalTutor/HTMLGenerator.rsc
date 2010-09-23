@@ -145,7 +145,6 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
       codeLines = [];
       while((i < n) && /^\<\/listing\>/ !:= lines[i]){
          codeLines += lines[i];
-         println("listing line: <lines[i]>");
          i += 1;
       }
       return < markupListing(codeLines), skipOneNL(lines, i+1, n)  >;
@@ -174,7 +173,7 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
         i += 1;
         rows = "";
         while(i < n && startsWith(lines[i], "|")){
-          rows += tableRow(lines[i]);
+          rows += tableRow(lines[i], alignments);
           i += 1;
         }
         return <table(headings, alignments, rows), skipOneNL(lines, i+1, n)>;
@@ -193,9 +192,9 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
 private list[str] getAlignments(str txt){
   alignments = [];
   visit(txt){
-    case /^\|:-+/: { alignments += "left"; insert "";}
-    case /^\|-+:/:  { alignments += "right"; insert "";}
-    case /^\|-+/:  { alignments += "center"; insert "";}
+    case /^\|:\-+/: { alignments += "left"; insert "";}
+    case /^\|\-+:/: { alignments += "right"; insert "";}
+    case /^\|\-+/:  { alignments += "center"; insert "";}
   }
   return alignments;
 }
@@ -203,7 +202,6 @@ private list[str] getAlignments(str txt){
 // Get the headings of a table
 
 private list[str] getHeadings(str txt){
-println("getHeadings(<txt>)");
   headings = [];
   visit(txt){
     case /^\|<h:(`[^`]*`|[^|])+>/: { headings += markupRestLine(h); insert "";}
@@ -214,22 +212,24 @@ println("getHeadings(<txt>)");
 // Format a table
 
 private str table(list[str] headings, list[str] alignments, str rows){
-println("table(<headings>, <alignments>, <rows>)");
-  res = "";
-  for(int i <- index(headings))
-     res += th(headings[i], alignments[i] ? "center");
-  res = tr(res);
+  cols = "";
   for(a <- alignments)
-     res += col(a);
-  return table(res + rows);
+     cols += col(a);
+  hds = "";
+  for(int i <- index(headings))
+     hds += th(headings[i], alignments[i] ? "center");
+  hds = tr(hds);
+  return table(cols + hds + rows);
 }
 
 // Format a table row
+// Also add alignment to each table datum, since col does not seems to work properly
 
-private str tableRow(str txt){
+private str tableRow(str txt, list[str] alignments){
   entries = "";
+  k = 0;
   visit(txt){
-      case /^\|<entry:[^\|]+>/: {entries += td(markupRestLine(entry)); insert "";}
+      case /^\|<entry:[^\|]+>/: {entries += td(markupRestLine(entry), alignments[k] ? "left"); k += 1; insert "";}
   }
   return tr(entries);
 }
@@ -237,7 +237,6 @@ private str tableRow(str txt){
 // Take care of other markup in a line
 
 private str markupRestLine(str line){
-  ///println("markupRestLine(<line>)");
   return visit(line){
     
     case /^<op1:__?>+<text:[^_]*><op2:__?>/: {
@@ -384,9 +383,7 @@ private str markupScreen(list[str] lines){
    return codeLines;
 }
 
-// Restrict the width of generated lines in screens and listings
-
-private str limitWidth(str txt, int limit){
+public str limitWidth(str txt, int limit){
   if(size(txt) < limit)
     return escapeForHtml(txt);
   return escapeForHtml(substring(txt, 0, limit)) + "&raquo;\n" + limitWidth(substring(txt, limit), limit);
@@ -421,7 +418,6 @@ private set[str]  searchTerms(list[str] lines){
      return terms;
    k = 0;
    while(k < n){
-       println(lines[k]);
        if(/\<listing\>/ := lines[k]){
            k += 1;
            while(k < n && /\<\/listing\>/ !:= lines[k]){
