@@ -28,22 +28,22 @@ Pittfalls:
 
 Questions:
 
-Type: <A:int[0]> + <B:int[0]>
+QType: <A:int[0]> + <B:int[0]>
 desc: Adding integers. 
 
-Value: <A:int[0]> + <B:int[0]> 
+QValue: <A:int[0]> + <B:int[0]> 
 desc: Adding integers. 
 
-Type:<A:int[0]> + <B:real[0]>
+QType:<A:int[0]> + <B:real[0]>
 desc: Adding integers and reals.
 
-Value:<A:int[0]> + <B:real[0]> 
+QValue:<A:int[0]> + <B:real[0]> 
 Adding integers and reals.
 
-Value: <A:int> + (<B:int[-20,-1]>)
+QValue: <A:int> + (<B:int[-20,-1]>)
 desc:Use parentheses when addition and negative numbers interact.
 
-Value: 
+QValue: 
 desc: Use parentheses when addition and negative numbers interact.
 make: A = int
 make: B = int[0,10]

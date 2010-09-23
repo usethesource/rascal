@@ -26,5 +26,5 @@ Pittfalls:
 
 Questions:
 
-Type: <A:set[arb[0,int,str,real]]> <= <B:same[A]>
+QType: <A:set[arb[0,int,str,real]]> <= <B:same[A]>
 

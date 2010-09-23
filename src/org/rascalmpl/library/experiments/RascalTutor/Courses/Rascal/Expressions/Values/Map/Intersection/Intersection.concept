@@ -15,9 +15,15 @@ Function:
 
 Synopsis:
 
-Description: <warning>Add description</warning>
+Description:
+Returns the intersection of the two map values of $Exp_1$ and $Exp_2$, i.e., a map that contains the key/value pairs that
+occur in both maps.
 
 Examples:
+<screen>
+("apple": 1, "pear": 2) & ("banana": 3, "apple": 1);
+("apple": 1, "pear": 2) & ("banana": 3, "apple": 4);
+</screen>
 
 Benefits:
 

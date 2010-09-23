@@ -15,23 +15,10 @@ Types:
 
 Description:
  
-Sentence 1 before bullets.
-Sentence 2 before bullets.
-Sentence 3 before bullets.
-* First bullet   
-** SECOND BULLET
-xxxxxx yyyyyyyyyyyyy zzzzzzzzzzzzzzzz
+| ABC  | DEF     |
+|-----:|---------|
+|  1   |  22222  |
 
-aaaaaaaaaaaaaaaaaaaaaaaaa
-<screen>
-123;
-456;
-</screen>
-rrrrr
-ssss
-ttttt
-uuuuu
-* Third bullet
 Examples:
 
 Benefits:
@@ -39,4 +26,7 @@ Benefits:
 Pittfalls:
 
 Questions:
+
+QType: <A:int>
+QValue: 2 * <A:int>
 

@@ -30,9 +30,9 @@ Pittfalls:
 
 Questions:
 
-Type:  <A:int> != <B:int>
-Type:  <A:real> != <B:real>
-Type:  <A:num> != <B:num>
-Type:  <A:num> != <B:num>
-Value: <A:num> != <B:num>
+QType:  <A:int> != <B:int>
+QType:  <A:real> != <B:real>
+QType:  <A:num> != <B:num>
+QType:  <A:num> != <B:num>
+QValue: <A:num> != <B:num>
 

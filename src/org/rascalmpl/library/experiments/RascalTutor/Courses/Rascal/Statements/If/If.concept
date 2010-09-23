@@ -37,9 +37,9 @@ Pittfalls:
 
 Questions:
 
-Type: if( <A:int> > <B:int> ) 10; else 20;
+QType: if( <A:int> > <B:int> ) 10; else 20;
 
-Type: if( <A:int> > <B:int> ) <C:str>; else <D:str>;
+QType: if( <A:int> > <B:int> ) <C:str>; else <D:str>;
 
-Value: if( <A:int> > <B:int> ) 10; else 20;
+QValue: if( <A:int> > <B:int> ) 10; else 20;
 

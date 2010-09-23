@@ -26,13 +26,13 @@ Pittfalls:
 
 Questions:
 
-Type: (<A:int> > <B:int>) ? <C:int> : <D:int>
+QType: (<A:int> > <B:int>) ? <C:int> : <D:int>
 
-Type: (<A:int> > <B:int>) ? <C:real> : <D:real>
+QType: (<A:int> > <B:int>) ? <C:real> : <D:real>
 
-Type: (<A:int> > <B:int>) ? <C:int> : <D:real>
+QType: (<A:int> > <B:int>) ? <C:int> : <D:real>
 
-Value: (<A:int> > <B:int>) ? <C:int> : <D:int>
+QValue: (<A:int> > <B:int>) ? <C:int> : <D:int>
 
-Value: (<A:int> > <B:int>) ? <C:int> : <D:real>
+QValue: (<A:int> > <B:int>) ? <C:int> : <D:real>
 

@@ -21,17 +21,17 @@ Pittfalls:
 
 Questions:
 
-Type: abs(<A:int>)
+QType: abs(<A:int>)
 prep: import Number;
 
-Type: abs(<A:real>)
+QType: abs(<A:real>)
 prep: import Number;
 
-Value: 
+QValue: 
 prep: import Number;
 test: abs(<A:int[-20,-1]>)
 
-Value: 
+QValue: 
 prep: import Number;
 test: abs(<A:real[-20,-1]>)
 

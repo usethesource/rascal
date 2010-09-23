@@ -54,22 +54,22 @@ Pittfalls:
 
 Questions:
 
-Choice: Sets can be used to represent a sequence of values when
+QChoice: Sets can be used to represent a sequence of values when
 b: The values have duplicates.
 g: The values have no duplicates and no order.
 b: The values are unordered.
 
-Choice: The type of a set is determined by:
+QChoice: The type of a set is determined by:
 b: The type of the first element that was first added to the set.
 b: The upperbound of the type of two arbitrary elements.
 g: The upperbound of the type of all elements.
 
 
-Type: {1, <?> }
+QType: {1, <?> }
 type: set[int]
 hint: one or more integer values separated by commas
 
-Type: <A:set[arb]>
+QType: <A:set[arb]>
 
-Type: {<A:int>, <B:str>, <C:int>}
+QType: {<A:int>, <B:str>, <C:int>}
 

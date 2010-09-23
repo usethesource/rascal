@@ -30,15 +30,15 @@ Pittfalls:
 
 Questions:
 
-Choice: When you compute the difference of two sets, the number of elements in the result is always:
+QChoice: When you compute the difference of two sets, the number of elements in the result is always:
 b: Greater than the number of elements in both sets.
 b: Greater than or equal the number of elements in the first set.
 b: Smaller than the number of elements in both sets.
 g: Smaller than or equal the number of elements in the first set.
 
-Type: <A:set[arb[int,str]]> + <B:same[A]>
+QType: <A:set[arb[int,str]]> + <B:same[A]>
 
-Type: <A:set[arb]> - <A:same[A]>
+QType: <A:set[arb]> - <A:same[A]>
 
-Value: <A:set[arb[0,int,str,num,real]]> - <B:same[A]>
+QValue: <A:set[arb[0,int,str,num,real]]> - <B:same[A]>
 

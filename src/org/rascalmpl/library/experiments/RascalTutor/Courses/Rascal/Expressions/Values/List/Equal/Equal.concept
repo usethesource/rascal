@@ -26,4 +26,4 @@ Pittfalls:
 
 Questions:
 
-ExprType: <A:list[arb]> == <B:same[A]>
+QType: <A:list[arb]> == <B:same[A]>

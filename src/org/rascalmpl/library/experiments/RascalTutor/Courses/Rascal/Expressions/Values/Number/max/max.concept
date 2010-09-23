@@ -19,16 +19,16 @@ Benefits:
 Pittfalls:
 
 Questions:
-Type: max(<A:int>, <B:int>)
+QType: max(<A:int>, <B:int>)
 prep: import Number;
 
-Type: max(<A:int>, <B:real>)
+QType: max(<A:int>, <B:real>)
 prep: import Number;
 
-Value: max(<A:num>, <B:num>)
+QValue: max(<A:num>, <B:num>)
 prep:  import Number;
 
-Value:
+QValue:
 prep: import Number;
 make: A = num
 make: B = num[0,20]
@@ -36,7 +36,7 @@ expr: C = <A> + <B>
 hint: <C>
 test: max(<A>, <?>) == <C>
 
-Value:
+QValue:
 prep: import Number;
 make: A = num
 hint: any value smaller than <A>

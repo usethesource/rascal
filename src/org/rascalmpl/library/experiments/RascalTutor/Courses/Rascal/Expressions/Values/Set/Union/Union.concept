@@ -29,24 +29,23 @@ Pittfalls:
 
 Questions:
 
-Choice: When you compute the union of two sets, the number of elements in the result is always:
+QChoice: When you compute the union of two sets, the number of elements in the result is always:
 b: Greater than the number of elements in both sets.
 g: Greater than or equal the number of elements in both sets.
 b: Smaller than the number of elements in both sets.
 b: Smaller than or equal the number of elements in both sets.
 
 
-Type: <A:set[arb[int,str,real]]> + <B:same[A]>
+QType: <A:set[arb[int,str,real]]> + <B:same[A]>
 
-Value: <A:set[arb[int,str,real]]> + <B:same[A]>
+QValue: <A:set[arb[int,str,real]]> + <B:same[A]>
 
-Value:
+QValue:
 make: A = set[arb[int,str]]
 make: B = same[A]
 expr: C = <A> + <B>
 hint: <B>
 test: <A> + <?> == <C>
 
-
-Value: <A:set[arb[0,int,str,num,real]]> + <B:same[A]>
+QValue: <A:set[arb[0,int,str,num,real]]> + <B:same[A]>
 

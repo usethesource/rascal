@@ -4,7 +4,7 @@ Details:
 
 Categories: Language
 
-Syntax: `( $Exp_1$ : $Exp_2$ | $Gen_1$, $Gen_2$, ... ]`
+Syntax: `( $Exp_1$ : $Exp_2$ | $Gen_1$, $Gen_2$, ... )`
 
 Types:
 | `$Exp_1$` | `$Exp_2$` | `( $Exp_1$ : $Exp_2$ | $Gen_1$, $Gen_2$, ... )` |

@@ -27,11 +27,11 @@ Pittfalls:
 
 Questions:
 
-Type: <A:list[arb[int,str]]> * <B:same[A]>
+QType: <A:list[arb[int,str]]> * <B:same[A]>
 
-Type: <A:list[arb]> * <B:same[A]>
+QType: <A:list[arb]> * <B:same[A]>
 
-Value: <A:list[arb[0,int,str,num,real]]> * <B:same[A]>
+QValue: <A:list[arb[0,int,str,num,real]]> * <B:same[A]>
 
 
 

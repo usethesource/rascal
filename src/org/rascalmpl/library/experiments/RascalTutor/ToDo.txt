@@ -1,21 +1,22 @@
 TODO List for RascalTutor
 
-- Fix column alignment in tables.
-- Fix screen/listing inside list [Moderate]
 - Fix cheat functionality [Moderate]
 - Generate PDF [some work]
 - Generate a map for each concept [some work]
-- Rename exercises Type, Value, etc to something like QType, QValue, etc. [Trivial]
 - Fix too long lines in exercises [Easy]
 - Add more question types [Unclear]
 - General code cleanup [Some work, is going on]
 - Start page for RascalTutor that lists the available courses.
 - Include output of visualization in course pages [hard]
+- Add a Tutor for the Tutor itself
 
 and ...
 - Convert Rascal manual :-)
 
 Completed:
+- Rename exercises Type, Value, etc to something like QType, QValue, etc. [Trivial]
+- Fix column alignment in tables.
+- Fix screen/listing inside list [Moderate]
 - Escape " etc in generated JS search terms
 - Add a Beginner category
 - Fix | symbol in table header.

@@ -29,5 +29,5 @@ Pittfalls:
 
 Questions:
 
-Type: <A:set[arb]> <= <B:same[A]>
+QType: <A:set[arb]> <= <B:same[A]>
 

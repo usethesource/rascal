@@ -27,7 +27,7 @@ Pittfalls:
 
 Questions:
 
-Type:  -<A:int>
-Type:  -<A:real>
-Value: -<A:num>
+QType:  -<A:int>
+QType:  -<A:real>
+QValue: -<A:num>
 

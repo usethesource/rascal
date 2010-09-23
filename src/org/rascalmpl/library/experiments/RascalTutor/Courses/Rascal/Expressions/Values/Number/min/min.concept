@@ -20,14 +20,14 @@ Pittfalls:
 
 Questions:
 
-Type: min(<A:int>, <B:int>)
+QType: min(<A:int>, <B:int>)
 prep: import Number;
 
-Type: min(<A:int>, <B:real>)
+QType: min(<A:int>, <B:real>)
 prep: import Number;
 
-Type: min(<A:real>, <B:real>)
+QType: min(<A:real>, <B:real>)
 prep: import Number;
 
-Value: min(<A:num>, <B:num>)
+QValue: min(<A:num>, <B:num>)
 prep:  import Number;

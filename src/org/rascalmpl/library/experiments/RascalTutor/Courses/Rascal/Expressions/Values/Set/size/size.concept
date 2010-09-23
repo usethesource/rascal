@@ -19,7 +19,7 @@ Pittfalls:
 
 Questions:
 
-Value:
+QValue:
 prep: import Set;
 make: N = int[0,5]
 hint: <N> values separated by commas

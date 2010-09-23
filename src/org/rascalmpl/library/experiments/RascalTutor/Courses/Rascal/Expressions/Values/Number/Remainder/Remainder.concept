@@ -27,8 +27,6 @@ Pittfalls: Remainder is only defined on integers:
 
 Questions:
 
-Type:  <A:int> % <B:int>
-Type:  <A:int> % <B:real>
-Type:  <A:real> % <B:int>
-Value: <A:num> % <B:num>
+QType:  <A:int> % <B:int>
+QValue: <A:int> % <B:int>
 

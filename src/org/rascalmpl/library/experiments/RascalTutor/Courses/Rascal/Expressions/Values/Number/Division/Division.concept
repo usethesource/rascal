@@ -29,8 +29,8 @@ Pittfalls:
 
 Questions:
 
-Type:  <A:int> / <B:int>
-Type:  <A:int> / <B:real>
-Type:  <A:real> / <B:int>
-Value: <A:num> / <B:num>
+QType:  <A:int> / <B:int>
+QType:  <A:int> / <B:real>
+QType:  <A:real> / <B:int>
+QValue: <A:num> / <B:num>
 
