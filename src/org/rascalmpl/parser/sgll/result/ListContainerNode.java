@@ -16,71 +16,11 @@ import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
-public class ListContainerNode extends AbstractNode{
-	private final URI input;
-	private final int offset;
-	private final int endOffset;
-	
-	private boolean rejected;
-	
-	private final boolean isNullable;
-	private final boolean isSeparator;
-	
-	private Link firstAlternative;
-	private IConstructor firstProduction;
-	private ArrayList<Link> alternatives;
-	private ArrayList<IConstructor> productions;
-	
+public class ListContainerNode extends ContainerNode{
 	private IConstructor cachedResult;
 	
 	public ListContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator){
-		super();
-		
-		this.input = input;
-		this.offset = offset;
-		this.endOffset = endOffset;
-		
-		this.isNullable = isNullable;
-		this.isSeparator = isSeparator;
-	}
-	
-	public void addAlternative(IConstructor production, Link children){
-		if(firstAlternative == null){
-			firstAlternative = children;
-			firstProduction = production;
-		}else{
-			if(alternatives == null){
-				alternatives = new ArrayList<Link>(1);
-				productions = new ArrayList<IConstructor>(1);
-			}
-			alternatives.add(children);
-			productions.add(production);
-		}
-	}
-	
-	public boolean isEpsilon(){
-		return false;
-	}
-	
-	public boolean isNullable(){
-		return isNullable;
-	}
-	
-	public boolean isSeparator(){
-		return isSeparator;
-	}
-	
-	public void setRejected(){
-		rejected = true;
-		
-		// Clean up.
-		firstAlternative = null;
-		alternatives = null;
-		productions = null;
-	}
-	
-	public boolean isRejected(){
-		return rejected;
+		super(input, offset, endOffset, isNullable, isSeparator);
 	}
 	
 	private void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor> sharedPrefixCache, PositionStore positionStore){

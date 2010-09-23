@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.EpsilonNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
@@ -52,11 +53,11 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		return new EpsilonStackNode(this, prefixesMap);
 	}
 	
-	public void setResultStore(AbstractNode resultStore){
+	public void setResultStore(ContainerNode resultStore){
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractNode getResultStore(){
+	public ContainerNode getResultStore(){
 		throw new UnsupportedOperationException();
 	}
 	

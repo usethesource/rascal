@@ -2,6 +2,7 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.AtColumnNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
@@ -71,11 +72,11 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 		return new AtColumnStackNode(this, prefixesMap);
 	}
 	
-	public void setResultStore(AbstractNode resultStore){
+	public void setResultStore(ContainerNode resultStore){
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractNode getResultStore(){
+	public ContainerNode getResultStore(){
 		throw new UnsupportedOperationException();
 	}
 	

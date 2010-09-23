@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
@@ -8,7 +9,7 @@ import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 public final class NonTerminalStackNode extends AbstractStackNode{
 	private final String expectIdentifier;
 	
-	private AbstractNode result;
+	private ContainerNode result;
 	
 	public NonTerminalStackNode(int id, String expectIdentifier){
 		super(id);
@@ -58,11 +59,11 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		return new NonTerminalStackNode(this, prefixesMap);
 	}
 	
-	public void setResultStore(AbstractNode resultStore){
+	public void setResultStore(ContainerNode resultStore){
 		result = resultStore;
 	}
 	
-	public AbstractNode getResultStore(){
+	public ContainerNode getResultStore(){
 		return result;
 	}
 	
