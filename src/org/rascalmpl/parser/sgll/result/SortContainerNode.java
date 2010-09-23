@@ -15,7 +15,7 @@ import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
-public class ContainerNode extends AbstractNode{
+public class SortContainerNode extends AbstractNode{
 	private final URI input;
 	private final int offset;
 	private final int endOffset;
@@ -32,7 +32,7 @@ public class ContainerNode extends AbstractNode{
 	
 	private IConstructor cachedResult;
 	
-	public ContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator){
+	public SortContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator){
 		super();
 		
 		this.input = input;
@@ -162,7 +162,6 @@ public class ContainerNode extends AbstractNode{
 		
 		// Gather
 		DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives = new DoubleArrayList<IConstructor[], IConstructor>();
-		
 		gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore);
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){

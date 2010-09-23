@@ -19,7 +19,7 @@ public abstract class AbstractNode{
 	public abstract void addAlternative(IConstructor production, Link children);
 	
 	public boolean isContainer(){
-		return (this instanceof ContainerNode);
+		return (this instanceof SortContainerNode);
 	}
 	
 	protected abstract boolean isEpsilon();
