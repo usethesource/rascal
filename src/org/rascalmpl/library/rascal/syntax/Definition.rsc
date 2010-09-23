@@ -4,10 +4,10 @@
  It also implements a part of the semantics of Rascal's syntax definition formalism,
  i.e. by interspersing symbols with layout nodes and expanding literals.
 }  
-module rascal::parser::Definition
+module rascal::syntax::Definition
    
 import rascal::syntax::RascalForImportExtraction;
-import rascal::parser::Grammar;
+import rascal::syntax::Grammar;
 import List;
 import String;
 import ParseTree;
@@ -69,7 +69,7 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
                 );
 } 
    
-private set[Production] \layouts(set[Production] prods, str layoutName) {
+public set[Production] \layouts(set[Production] prods, str layoutName) {
   return top-down-break visit (prods) {
     case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs, layoutName),rhs,attrs(as)) 
       when restricted(_) !:= rhs, start(_) !:= rhs, term("lex"()) notin as  
@@ -79,7 +79,7 @@ private set[Production] \layouts(set[Production] prods, str layoutName) {
 }  
 
 public list[Symbol] str2syms(str x) {
-  // TODO: escaping
+  // TODO: escaping?
   return [\char-class([range(c,c)]) | i <- [0..size(x)-1], int c:= charAt(x,i)]; 
 }
 

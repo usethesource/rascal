@@ -254,7 +254,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Utils;
-import org.rascalmpl.library.rascal.parser.RascalRascal;
+import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.RascalParser;

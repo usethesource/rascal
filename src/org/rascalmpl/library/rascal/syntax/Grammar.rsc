@@ -5,17 +5,25 @@
   productions. Where there is interaction between productions, usually to define disambiguation filters, the Production
   type is extended with combinators.
 }
-module rascal::parser::Grammar
+module rascal::syntax::Grammar
 
 import ParseTree;
+import Set;
 
 @doc{
-  A grammar is simply a set of productions, or a map for every
-  non-terminal to a set of productions.
+  A grammar is a set of productions and set of start symbols.
+  The most efficient representation (using a map) allows for fast lookup of the
+  rules for a non-terminal. The other representation is easier to construct.
 }
-data Grammar = grammar(set[Symbol] start, set[Production] productions)
-             | grammar(set[Symbol] start, map[Symbol, set[Production]] rules);
+data Grammar = grammar(set[Symbol] start, map[Symbol, set[Production]] rules);
 
+@doc{
+  Conveniently construct a grammar from a set of production rules
+}
+public Grammar grammar(set[Symbol] starts, set[Production] prods) {
+  return grammar(starts, index(prods, Symbol (Production p) { return p.rhs; }));
+}
+           
 @doc{
 Here we extend productions with basic combinators allowing to
 construct ordered and un-ordered compositions, and also a difference operator.
@@ -43,36 +51,25 @@ data Production = choice(Symbol rhs, set[Production] alternatives)
 data Symbol = restricted(Symbol s);
 
 @doc{
-  These combinators are defined on Symbol, but we assume that only char-class constructors are passed in
+  These combinators are defined on Symbol, but we assume that only char-classes are passed in.
 }
 data Symbol = intersection(Symbol lhs, Symbol rhs)
             | union(Symbol lhs, Symbol rhs)
             | difference(Symbol lhs, Symbol rhs)
             | complement(Symbol cc);
             
-@doc{
-  A Symbol constructor that can be used to generate new non-terminal names from existing non-terminal names.
-  Applications include the introduction of levels to a grammar with priorities, or non-terminals that exclude
-  certain productions to implement associativity.
-  
-  One particular feature of primes symbols is that they will not end up visible in any resulting parse tree.
-  They are all replaced by the symbol that is primed.
-}
-data Symbol = prime(Symbol symbol, str reason, list[int] primes);
 
 @doc{
-  This rules simplifies complex nested primes non-terminals to improve readability of generated grammars
-  and to limit the need for case distinctions in some parts of the back-end
+  Compose two grammars, by adding the rules of g2 to the rules of g1.
+  The start symbols of g1 will be the start symbols of the resulting grammar.
 }
-rule collapse 
-  prime(prime(Symbol s, str r1, list[int] p1), str r2, list[int] p2) =>
-  prime(s, r1 + "_and_" + r2, p1 + p2);
-     
-@doc{
-  This rule pushes labels out of primes to limit case distinctions in the back-end
-}
-rule label prime(label(str l, Symbol s), str r, list[int] p) => label(l, prime(s, r, p));
-    
+public Grammar compose(Grammar g1, Grammar g2) {
+  set[Production] empty = {};
+  for (s <- g2.rules)
+    g1.rules[s]?empty += g2.rules[s];
+  return g1;
+}    
+
 @doc{
   This function is for debugging of Rascal itself, it produces the grammar defined by a certain module.
   it should dissappear as soon as the # operator can produce the reified representation of non-terminals, which should

@@ -1,4 +1,4 @@
-package org.rascalmpl.library.rascal.parser;
+package org.rascalmpl.library.rascal.syntax;
 
 import java.io.IOException;
 import java.net.URI;

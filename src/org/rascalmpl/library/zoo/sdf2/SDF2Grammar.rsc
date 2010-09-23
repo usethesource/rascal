@@ -1,4 +1,4 @@
-module rascal::conversion::sdf2::SDF2Grammar
+module zoo::sdf2::SDF2Grammar
 
 // Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar)
 
@@ -15,8 +15,8 @@ import IO;
 import String;
 import Integer;
 import ParseTree;
-import rascal::parser::Grammar;
-import rascal::conversion::sdf2::Load;
+import rascal::syntax::Grammar;
+import zoo::sdf2::Load;
 import languages::sdf2::syntax::Sdf2ForRascal;   
 // import rascal::parser::Normalization;            // Comment, if you want unnormalized grammars
      

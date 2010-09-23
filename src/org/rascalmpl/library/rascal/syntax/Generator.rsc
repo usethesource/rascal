@@ -1,10 +1,10 @@
-module rascal::parser::Generator
+module rascal::syntax::Generator
 
-import rascal::parser::Grammar;
-import rascal::parser::Parameters;
-import rascal::parser::Regular;
-import rascal::parser::Normalization;
-import rascal::parser::Lookahead;
+import rascal::syntax::Grammar;
+import rascal::syntax::Parameters;
+import rascal::syntax::Regular;
+import rascal::syntax::Normalization;
+import rascal::syntax::Lookahead;
 import ParseTree;
 import String;
 import List;
@@ -156,9 +156,7 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
 private bool isNonterminal(Symbol s) {
   switch (s) {
     case \sort(_) : return true;
-    case \prime(sort(_),_,_) : return true;
     case \parameterized-sort(_,_) : return true;
-    case \prime(\parameterized-sort(_,_)) : return true;
     case \start(_) : return true;
     case \layouts(_) : return true;
     default: return false;

@@ -1,5 +1,5 @@
 
-package org.rascalmpl.library.rascal.parser;
+package org.rascalmpl.library.rascal.syntax;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

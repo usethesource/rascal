@@ -11,7 +11,7 @@ module ValueIO
 
 @doc{Read  a value from a binary file in PBF format}
 public value readValueFile(loc file) {
-  return readValueFile(#value, file);
+  return readBinaryValueFile(#value, file);
 }
 
 
