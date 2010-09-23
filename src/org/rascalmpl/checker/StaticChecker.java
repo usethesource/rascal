@@ -16,6 +16,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -33,7 +34,7 @@ public class StaticChecker {
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***static-checker***"));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
-		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, new LegacyRascalParser(), root, heap);
 		checkerEnabled = false;
 		initialized = false;
 		loaded = false;

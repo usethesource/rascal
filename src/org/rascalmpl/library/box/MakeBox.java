@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.IO;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -50,7 +51,7 @@ public class MakeBox {
 	final PrintWriter stderr = new PrintWriter(System.err);
 	final PrintWriter stdout = new PrintWriter(System.out);
 	final private Evaluator commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
-			stderr, stdout, root, heap);
+			stderr, stdout, new LegacyRascalParser(), root, heap);
 	private Data data;
 	private TypeStore ts = BoxEvaluator.getTypeStore();
 	private Type adt = BoxEvaluator.getType();

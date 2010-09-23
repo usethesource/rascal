@@ -20,6 +20,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Scripting {
@@ -138,7 +139,7 @@ public class Scripting {
 		
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***scripting***"));
-		Evaluator evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, root, heap);
+		Evaluator evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, new LegacyRascalParser(), root, heap);
 		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
 		timer.start();
 		
