@@ -35,8 +35,6 @@ public class ArrayList<E>{
 	}
 	
 	public E get(int index){
-		if(index >= data.length) throw new IndexOutOfBoundsException();
-		
 		return data[index];
 	}
 	

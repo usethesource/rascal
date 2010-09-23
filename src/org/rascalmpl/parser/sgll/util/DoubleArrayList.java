@@ -43,14 +43,10 @@ public class DoubleArrayList<F, S>{
 	}
 	
 	public F getFirst(int i){
-		if(i >= first.length) throw new IndexOutOfBoundsException();
-		
 		return first[i];
 	}
 	
 	public S getSecond(int i){
-		if(i >= second.length) throw new IndexOutOfBoundsException();
-		
 		return second[i];
 	}
 	
