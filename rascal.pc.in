@@ -5,7 +5,7 @@ Description:
 Version: 0.1.5
 Requires: sglr-invoker,rascal-grammar,sdf-library
 JarFile=rascal.jar
-LocalJars=lib/hickory_check.jar:lib/jline-0.9.94.jar:lib/junit-4.5.jar:lib/pdb_values.jar:lib/core.jar:lib/treemap.jar:lib/svnkit.jar:lib/xercesImpl.jar:lib/joda-time-1.6.jar:lib/pdf.jar:lib/itext.jar:.
+LocalJars=lib/hickory_check.jar:lib/jline-0.9.94.jar:lib/junit-4.5.jar:lib/pdb_values.jar:lib/core.jar:lib/treemap.jar:lib/svnkit.jar:lib/xercesImpl.jar:lib/joda-time-1.6.jar:lib/pdf.jar:lib/itext.jar:lib/jetty-continuation-7.1.5.v20100705.jar:lib/jetty-http-7.1.5.v20100705.jar:lib/jetty-io-7.1.5.v20100705.jar:lib/jetty-security-7.1.5.v20100705.jar:lib/jetty-server-7.1.5.v20100705.jar:lib/jetty-servlet-7.1.5.v20100705.jar:lib/jetty-util-7.1.5.v20100705.jar:lib/jetty-webapp-7.1.5.v20100705.jar:lib/jetty-xml-7.1.5.v20100705.jar:.
 Jars=${prefix}/share/${JarFile}
 Packages=org.rascalmpl.ast,org.rascalmpl.values.errors,org.rascalmpl.values.locations,org.rascalmpl.interpreter,org.rascalmpl.parser,org.rascalmpl.values.uptr,org.rascalmpl.interpreter.env,org.rascalmpl.values.uptr.visitors,org.rascalmpl.interpreter.staticErrors,org.rascalmpl.interpreter.control_exceptions,org.rascalmpl.interpreter.load,org.rascalmpl.interpreter.result,org.rascalmpl.std,org.rascalmpl,org.rascalmpl.library.box
 TestClass=test/All
