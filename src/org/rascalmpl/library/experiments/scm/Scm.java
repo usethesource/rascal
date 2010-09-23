@@ -13,8 +13,6 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDateTime;
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -26,7 +24,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.result.RascalFunction;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.scm.ScmTypes.ChangeSet;
 import org.rascalmpl.library.experiments.scm.ScmTypes.Info;
 import org.rascalmpl.library.experiments.scm.ScmTypes.Repository;
@@ -39,7 +36,7 @@ import org.rascalmpl.library.experiments.scm.svn.SvnProvider;
 
 public class Scm {
 	
-	private static final CvsProvider cvsProvider = new CvsProvider();;
+	private static final CvsProvider cvsProvider = new CvsProvider();
 	private static final SvnProvider svnProvider = new SvnProvider();
 	private static final GitProvider gitProvider = new GitProvider();
 		

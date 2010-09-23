@@ -33,9 +33,7 @@ public class Grammar {
 			if (old.getValue()) {
 				return ctx.getEvaluator().parseModule(loc.getURI(), new ModuleEnvironment("***dummy***"));
 			}
-			else {
-				return ctx.getEvaluator().parseModuleExperimental(ctx.getResolverRegistry().getInputStream(loc.getURI()), loc.getURI());
-			}
+			return ctx.getEvaluator().parseModuleExperimental(ctx.getResolverRegistry().getInputStream(loc.getURI()), loc.getURI());
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(factory.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
@@ -45,8 +43,6 @@ public class Grammar {
 		if (old.getValue()) {
 			return ctx.getEvaluator().parseCommand(cmd.getValue(), URI.create("debug:///"));
 		}
-		else {
-			return ctx.getEvaluator().parseCommandExperimental(cmd.getValue(), URI.create("debug:///"));
-		}
+		return ctx.getEvaluator().parseCommandExperimental(cmd.getValue(), URI.create("debug:///"));
 	}
 }

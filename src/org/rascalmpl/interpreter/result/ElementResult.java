@@ -99,9 +99,8 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
 		if (that.getValue().getElementType().isVoidType()) {
 			return makeResult(getTypeFactory().setType(this.getType()), that.getValue().insert(this.getValue()), ctx);
-		} else {
-			return super.addRelation(that);
 		}
+		return super.addRelation(that);
 	}
 
 	@Override

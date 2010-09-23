@@ -104,9 +104,8 @@ public interface ScmEntryChangeKind {
 				if (gitChangeCode.code == firstChar) {
 					if (input.length() > 1) {
 						return new ChangeCodeValue(gitChangeCode.getStatusCode(), input.substring(1));
-					} else {
-						return gitChangeCode.getStatusCode();
 					}
+					return gitChangeCode.getStatusCode();
 				}
 			}
 			throw new IllegalArgumentException("Don't have an GitChangeCode for the input '" + input + "'");

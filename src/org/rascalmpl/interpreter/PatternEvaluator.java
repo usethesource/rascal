@@ -333,9 +333,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 			if (TreeAdapter.isLexical((IConstructor) x.getTree())) {
 				return new ConcreteApplicationPattern(ctx, x, visitConcreteLexicalArguments(x));
 			}
-			else {
-				return new ConcreteApplicationPattern(ctx, x, visitConcreteArguments(x));
-			}
+			return new ConcreteApplicationPattern(ctx, x, visitConcreteArguments(x));
 		}
 		if (isConcreteSyntaxAmb(x)) {
 			throw new AmbiguousConcretePattern(x);
