@@ -49,14 +49,10 @@ public class LinearIntegerKeyedMap<V>{
 	}
 	
 	public int getKey(int index){
-		if(index >= keys.length) throw new IndexOutOfBoundsException();
-		
 		return keys[index];
 	}
 	
 	public V getValue(int index){
-		if(index >= values.length) throw new IndexOutOfBoundsException();
-		
 		return values[index];
 	}
 	
