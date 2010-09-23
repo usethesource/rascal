@@ -36,7 +36,7 @@ import sglr.IInvoker;
 import sglr.LegacySGLRInvoker;
 import sglr.SGLRInvoker;
 
-public class LegacyRascalParser {
+public class LegacyRascalParser implements IRascalParser {
 	private static final String TBL_EXTENSION = ".tbl";
 	private static final String SYMBOLS_EXTENSION = ".symbols";
 	
@@ -101,8 +101,8 @@ public class LegacyRascalParser {
 		}
 	}
 
-	/**
-	 * Parse a command in the context of a number of imported concrete syntax modules
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.parser.IRascalParser#parseCommand(java.util.Set, java.util.List, java.net.URI, java.lang.String)
 	 */
 	public IConstructor parseCommand(Set<String> sdfImports, List<String> sdfSearchPath, URI location, String command) throws IOException {
 		TableInfo table = lookupTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
@@ -115,6 +115,9 @@ public class LegacyRascalParser {
 		declareConcreteSyntaxTypes(info.getSymbolsName(), env);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.parser.IRascalParser#parseModule(java.util.List, java.util.Set, java.net.URI, java.io.InputStream, org.rascalmpl.interpreter.env.ModuleEnvironment)
+	 */
 	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, URI location, InputStream source, ModuleEnvironment env) throws IOException {
 		TableInfo table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		declareConcreteSyntaxTypes(table.getSymbolsName(), env);
@@ -126,6 +129,9 @@ public class LegacyRascalParser {
 		} 
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.parser.IRascalParser#parseModule(java.util.List, java.util.Set, java.net.URI, byte[], org.rascalmpl.interpreter.env.ModuleEnvironment)
+	 */
 	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, URI location, byte[] data, ModuleEnvironment env) throws IOException {
 		TableInfo table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		declareConcreteSyntaxTypes(table.getSymbolsName(), env);
@@ -320,8 +326,8 @@ public class LegacyRascalParser {
 		return new String(result) + "-" + key + TBL_EXTENSION;
 	}
 	
-	/**
-	 * Parse a sentence in an object language defined by the sdfImports
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.parser.IRascalParser#parseString(java.util.List, java.util.Set, java.lang.String)
 	 */
 	public IConstructor parseString(List<String> sdfSearchPath, Set<String> sdfImports, String source)
 			throws IOException {
@@ -339,8 +345,8 @@ public class LegacyRascalParser {
 				return result;
 			}
 
-	/**
-	 * Parse a sentence in an object language defined by the sdfImports
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.parser.IRascalParser#parseStream(java.util.List, java.util.Set, java.io.InputStream)
 	 */
 	public IConstructor parseStream(List<String> sdfSearchPath, Set<String> sdfImports, InputStream source)
 			throws IOException {

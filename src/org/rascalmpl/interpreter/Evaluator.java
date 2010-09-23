@@ -256,8 +256,9 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Utils;
 import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.parser.IRascalParser;
 import org.rascalmpl.parser.LegacyRascalParser;
+import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputStreamResolver;
@@ -297,7 +298,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private final java.util.List<ClassLoader> classLoaders;
 	protected final ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
-	private final LegacyRascalParser parser;
+	private final IRascalParser parser;
 
 	private PrintWriter stderr;
 	private PrintWriter stdout;
@@ -1241,7 +1242,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		
 		try {
-			parser.generateModuleParser(sdf.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), mod);
+			((LegacyRascalParser) parser).generateModuleParser(sdf.getSdfSearchPath(), getCurrentModuleEnvironment().getSDFImports(), mod);
 		} catch (IOException e) {
 			RuntimeExceptionFactory.io(vf.string("IO exception while importing module " + x), x, getStackTrace());
 		}
@@ -1355,7 +1356,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		java.util.List<String> sdfSearchPath = sdf.getSdfSearchPath();
 		java.util.Set<String> sdfImports;
 
-		sdfImports = parser.getSdfImports(sdfSearchPath, location, data);
+		sdfImports = ((LegacyRascalParser) parser).getSdfImports(sdfSearchPath, location, data);
 
 		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
 		if(tree.getConstructorType() == Factory.ParseTree_Summary){
