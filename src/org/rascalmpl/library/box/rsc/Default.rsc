@@ -31,6 +31,7 @@ list[UserDefinedFilter] userDefinedFilters = [
 list[int] isIndent(list[Symbol] q) {
        if (isScheme(q , ["N", "T", "(", "N", ")","{", "N","}"])) return [6, 7];
        if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [5, 6];  // visit
+       // if (isScheme(q , ["N","when", "N"])) return [2]; // pattern with action when
        return [];
        }
        
@@ -44,7 +45,9 @@ list[int] isBlok(list[Symbol] q, list[Tree] z) {
         if (isScheme(q , ["T", "T", "N"])) return isBlock(z, 2);  // catch
         if (isScheme(q , ["T", "N", "T", "N"])) return  isBlock(z, 3);  // catch
         if (isScheme(q , ["N", ":", "N"])) return isBlock(z, 2);  // pattern with action
-        if (isScheme(q , ["N"])) return isBody(z, 0); // pattern with action
+        if (isScheme(q , ["N", "=\>", "N"])) return isBody(z, 2);  // pattern with replacement
+        // if (isScheme(q , ["N"])) return isBody(z, 0); // pattern with action
+        // if (isScheme(q , ["N","when", "N"])) return isBody(z, 0); // replacementexpr when
           // switch visit
      return [];
      }
@@ -53,7 +56,7 @@ list[segment] isCompact(list[Symbol] q) {
         if (isScheme(q , ["N","T", "T", "N", "T", "N"])) return [<2,4>];  // for
         if (isScheme(q , ["N","T", "T", "N", "T", "N", "N"])) return [<2,4>]; // if then
         if (isScheme(q , ["N","T", "T", "N", "T", "N", "T", "N"])) return [<2,4>]; // if then else
-        if (isScheme(q , ["N","[", "N", "]"])) return [<0,3>]; // if then else
+        if (isScheme(q , ["N","[", "N", "]"])) return [<0,3>]; // select
         if (isScheme(q , ["N", "T", "(", "N", ")","{", "N","}"])) return [<2,4>]; // switch, visit
         if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [<1, 3>];  // visit
      return [];
@@ -115,12 +118,14 @@ public text toLatex(loc asf){
      setUserRules();
      // println("start:");
      text r =[];
+     /*
      r = toText(a);
      writeData(asf, r, ".txt");
-     r = toLatex(a);
-     writeData(asf, r, ".tex");
      r = toHtml(a);
      writeData(asf, r, ".html");
+     */
+     r = toLatex(a);
+     writeData(asf, r, ".tex");
      return r;
      }
      

@@ -117,7 +117,7 @@ public class MakeBox {
 		}
 	}
 
-	private IValue launchConcreteProgram(URI uri, String s) {
+	private IValue launchConcreteProgram(String cmd, URI uri, String s) {
 		final String resultName = "c";
 		/*
 		if (s.equals("rsc"))
@@ -128,7 +128,7 @@ public class MakeBox {
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()
 				.sourceLocation(uri);
 		store(v, varName);
-		execute(resultName + "=toLatex(" + varName+");");
+		execute(resultName + "="+cmd+"(" + varName+");");
 		IValue r = fetch(resultName);
 		return r;
 	}
@@ -178,13 +178,15 @@ public class MakeBox {
 		return null;
 	}
 
+	/*
 	public IValue toTxt(URI uri) {
 		start();
 		int tail = uri.getPath().lastIndexOf('.');
 		String s = uri.getPath().substring(tail + 1);
 		// s = s.substring(0, 1).toUpperCase() + s.substring(1);
-		return launchConcreteProgram(uri, s);
+		return launchConcreteProgram("toLatex", uri, s);
 	}
+	*/
 
 	public IValue toSrc(URI uri) {
 		start();
@@ -206,9 +208,12 @@ public class MakeBox {
 		return b.toString();
 	}
 	
-	public String toLatex(URI uri) {
-		IValue v = toTxt(uri);
-		return text2String(v);
+	public String toPrint(String cmd, URI uri) {
+		start();
+		int tail = uri.getPath().lastIndexOf('.');
+		String s = uri.getPath().substring(tail + 1);
+		// s = s.substring(0, 1).toUpperCase() + s.substring(1);
+		return text2String(launchConcreteProgram(cmd, uri, s));
 	}
 	
 

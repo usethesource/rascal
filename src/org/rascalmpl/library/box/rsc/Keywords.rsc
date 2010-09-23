@@ -60,6 +60,7 @@ public set[str] keywords = {
   "view"     ,
   "visit"    ,
   "void"     ,
+  "when"     ,
   "while"    ,
   "adt"          ,
   "constructor"  ,
