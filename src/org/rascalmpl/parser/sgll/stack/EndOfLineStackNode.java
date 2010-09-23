@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
+import org.rascalmpl.parser.sgll.result.ContainerNode;
 import org.rascalmpl.parser.sgll.result.EndOfLineNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
@@ -60,11 +61,11 @@ public class EndOfLineStackNode extends AbstractStackNode implements IMatchableS
 		return new EndOfLineStackNode(this, prefixesMap);
 	}
 	
-	public void setResultStore(AbstractNode resultStore){
+	public void setResultStore(ContainerNode resultStore){
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractNode getResultStore(){
+	public ContainerNode getResultStore(){
 		throw new UnsupportedOperationException();
 	}
 	
