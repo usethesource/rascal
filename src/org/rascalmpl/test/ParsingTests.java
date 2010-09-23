@@ -15,13 +15,14 @@ import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Module.Default;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.IRascalParser;
 import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.values.uptr.Factory;
 
 public class ParsingTests extends TestCase {
 
 	public void doParse(String dir) {
-		LegacyRascalParser parser = new LegacyRascalParser();
+		IRascalParser parser = new LegacyRascalParser();
 		
 		File directory = new File("demo/" + dir);
 
