@@ -3479,17 +3479,25 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitExpressionIfThenElse(
 			org.rascalmpl.ast.Expression.IfThenElse x) {
-		Result<IValue> cval = x.getCondition().accept(this);
+		
+		Environment old = getCurrentEnvt();
+		pushEnv();
 
-		if (!cval.getType().isBoolType()) {
-			throw new UnexpectedTypeError(tf.boolType(), cval.getType(), x);
+		try {
+			Result<IValue> cval = x.getCondition().accept(this);
+	
+			if (!cval.getType().isBoolType()) {
+				throw new UnexpectedTypeError(tf.boolType(), cval.getType(), x);
+			}
+	
+			if (cval.isTrue()) {
+				return x.getThenExp().accept(this);
+			}
+	
+			return x.getElseExp().accept(this);	
+		} finally {
+			unwind(old);
 		}
-
-		if (cval.isTrue()) {
-			return x.getThenExp().accept(this);
-		}
-
-		return x.getElseExp().accept(this);	
 	}
 
 
