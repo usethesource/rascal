@@ -581,7 +581,7 @@ public text box2latex(Box b) {
     }
     
 public text box2html(Box b) {
-    // println("Start box2latex");
+    println("Start box2latex");
     decorated =  true;
     text q = [];
     if (aux[b]?) q = aux[b];
@@ -590,7 +590,7 @@ public text box2html(Box b) {
         aux+=(b:q);
         }
     text t = getFileContent("box/Start.html")+text2html(q)+getFileContent("box/End.html");    
-    // println("End box2latex");
+    println("End box2latex");
     return t;
     }
     

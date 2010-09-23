@@ -107,6 +107,7 @@ str getName(Symbol s) {
 
 bool isTerminal(Symbol s,str c) {
      if (\lit(str a):=s) {
+          // if (c=="=\>") println("<a> <c> <a==c>");
           if (a==c) return true;
           }
      return false;
@@ -155,6 +156,13 @@ public list[int] isBlock(list[Tree] t,int idx) {
 
 public bool isBody(Tree c) {
      if (appl(prod(list[Symbol] s,_,Attributes att),_):=c) {
+          if (size(s)>=1) {
+                c = getFirst(c);
+                 if (appl(prod(list[Symbol] s,_,Attributes att),_):=c) {
+                    // println("<s> <isBody(s)>" );
+                    if (isBody(s)) return true;
+                    }
+                }
           r=isBody(s);
           return r;
           }
@@ -192,7 +200,12 @@ public Tree getLast(Tree q) {
      list[Tree] a=getA(q);
      return a[size(a)-1];
      }
-
+     
+public Tree getFirst(Tree q) {
+     list[Tree] a=getA(q);
+     return a[0];
+     }
+     
 public Box evPt(Tree q) {
      return evPt(q,false);
      }
@@ -226,9 +239,19 @@ public Box evPt(Tree q,bool doIndent) {
      if (b!=NULL()) return b;
      switch (q) {
           case appl ( prod(list[Symbol] s,_,Attributes att),list[Tree] t ) : {
-                    pairs u=[<s[i],t[i]>|int i<-[0,1..(size(t)-1)]];
-                    Box r=walkThroughSymbols(u,true,doIndent,-1);
-                    return r;
+                    if (size(s)>=1 && isBody(t[0])) {
+                           Tree q1 = t[0];
+                           if (appl(prod(list[Symbol] s1,_,Attributes att),list[Tree] t1):= q1) {
+                               pairs u1=[<s1[i],t1[i]>|int i<-[0,1..(size(t1)-1)]];
+                               Box r=walkThroughSymbols(u1,true,doIndent,-1);
+                               if (size(s)==1) return r;
+                               pairs u=[<s[i],t[i]>|int i<-[2,3..(size(t)-1)]];
+                               r=H([r, walkThroughSymbols(u,true,doIndent,-1)]);
+                               return r;
+                               }
+                           }
+                       pairs u=[<s[i],t[i]>|int i<-[0,1..(size(t)-1)]];
+                       return walkThroughSymbols(u,true,doIndent,-1);        
                     }
           case appl ( \list(\cf(\iter-star-sep(Symbol s,Symbol sep))),list[Tree] t ) : {
                     return HV(0,getIterSep(q));
@@ -397,6 +420,7 @@ public text toLatex(Tree a) {
      }
      
 public text toHtml(Tree a) {
+     // println("toHtml Concrete");
      Box q=NULL();
      if (aux[a]?) q=aux[a]; else {
           q=evPt(a);
