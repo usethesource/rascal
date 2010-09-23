@@ -1,0 +1,29 @@
+Name: successors
+
+Details:
+
+Categories: Libary
+
+Syntax:
+
+Types:
+
+Function:`set[&T] successors(Graph[&T] G, &T From)`
+
+Synopsis:
+
+Description:
+Returns the direct successors of node `From` in Graph `G`.
+
+Examples:
+<screen>
+import Graph;
+successors({<1,2>, <1,3>, <2,4>, <3,4>}, 1);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

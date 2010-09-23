@@ -1,0 +1,27 @@
+Name: cpuTime
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `int cpuTime()`
+# `int cpuTime(void () block)`
+
+Synopsis:
+
+Description:
+# Current cpu time in nanoseconds since the start of the thread that runs the code that calls this function.
+# The cpu time in nanoseconds used by the execution the code `block`.
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,29 @@
+Name: predecessors
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`set[&T] predecessors(Graph[&T] G, &T From)`
+
+Synopsis:
+
+Description:
+Returns the direct predecessors of node `From` in Graph `G`.
+
+Examples:
+<screen>
+import Graph;
+predecessors({<1,2>, <1,3>, <2,4>, <3,4>}, 4);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

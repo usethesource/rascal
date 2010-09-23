@@ -1,0 +1,25 @@
+Name: Graph
+
+Details:
+
+Categories: Library
+
+Syntax:`alias Graph[&T] = rel[&T from, &T to];`
+
+Types:
+
+Function:
+
+Synopsis: `import Graph;`
+
+Description: The Graph data type is a binary relation and all operators and functions defined
+on [Relation] are also defined on Graph.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,25 @@
+Name: shortestPathPair
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`list[&T] shortestPathPair(LGraph[&T] G, &T From, &T To)`
+
+Synopsis:
+
+Description:
+Returns the shortest path between nodes `From` and `To` in LabeledGraph `G`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
