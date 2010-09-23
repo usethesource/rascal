@@ -76,20 +76,20 @@ public Grammar compose(Grammar g1, Grammar g2) {
   include a full grammar
 }
 @reflect   
-@javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
+@javaClass{org.rascalmpl.library.rascal.syntax.Grammar}    
 public Grammar java getGrammar(str mod);
 
 @doc{
   This function is for debugging of Rascal, it parses a module with the new bootstrapped Rascal parser.
 }
 @reflect   
-@javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
+@javaClass{org.rascalmpl.library.rascal.syntax.Grammar}    
 public ParseTree java parseModule(loc mod, bool old);
 
 @doc{
   This function is for debugging of Rascal, it parses a command with the new bootstrapped Rascal parser.
 }
 @reflect   
-@javaClass{org.rascalmpl.library.rascal.parser.Grammar}    
+@javaClass{org.rascalmpl.library.rascal.syntax.Grammar}    
 public ParseTree java parseCommand(str cmd, bool old);
 
