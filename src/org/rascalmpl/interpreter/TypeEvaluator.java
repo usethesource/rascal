@@ -85,12 +85,7 @@ public class TypeEvaluator {
 	}
 	
 	public Type eval(org.rascalmpl.ast.Type type) {
-		Type result = type._getType();
-		if (result == null) {
-			result = type.accept(visitor);
-			type._setType(result);
-		}
-		return result;
+		return type.accept(visitor);
 	}
 
 	public Type eval(org.rascalmpl.ast.Parameters parameters) {
