@@ -70,7 +70,7 @@ public class GitLogEntryHandler extends AbstractScmLogEntryHandler<Commit> {
 		
 		if (author) {
 			name = commit.getAuthor();
-			date = commit.getDateString();;
+			date = commit.getDateString();
 		} else {
 			name = commit.getCommitter();
 			date = commit.getCommitDate();

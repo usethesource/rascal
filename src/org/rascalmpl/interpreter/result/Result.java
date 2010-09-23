@@ -21,8 +21,6 @@ import org.rascalmpl.interpreter.utils.LimitedResultOutputStream;
 import org.rascalmpl.interpreter.utils.LimitedResultOutputStream.IOLimitReachedException;
 import org.rascalmpl.values.uptr.Factory;
 
-import com.sun.xml.internal.ws.api.server.ContainerResolver;
-
 // TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).
 
 public abstract class Result<T extends IValue> implements Iterator<Result<IValue>> {

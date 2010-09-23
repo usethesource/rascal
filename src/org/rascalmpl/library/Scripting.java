@@ -152,8 +152,9 @@ public class Scripting {
 			if(timer.hasExpired())
 			  throw RuntimeExceptionFactory.timeout(null, null);
 			return result;
-		} else
-			throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
+		}
+		
+		throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
 	}
 
 	class Timer extends Thread {

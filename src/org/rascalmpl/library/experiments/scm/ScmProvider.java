@@ -2,15 +2,11 @@ package org.rascalmpl.library.experiments.scm;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.library.experiments.scm.ScmTypes.Info;
-import org.rascalmpl.library.experiments.scm.ScmTypes.Resource;
 import org.rascalmpl.library.experiments.scm.ScmTypes.Revision;
 import org.rascalmpl.library.experiments.scm.ScmTypes.WcResource;
-import org.tmatesoft.svn.core.SVNException;
-
 
 public interface ScmProvider<E extends ScmLogEntryHandler<?>> {
 	

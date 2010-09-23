@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 
-import org.joda.time.DateTime;
-
 public class ClassResourceInputStreamResolver implements
 		IURIInputStreamResolver {
 	protected final Class<?> clazz;
