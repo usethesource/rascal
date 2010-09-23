@@ -28,7 +28,6 @@ import org.rascalmpl.parser.sgll.util.HashMap;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
-import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -55,7 +54,7 @@ public abstract class SGLL implements IGLL{
 	
 	private final IntegerKeyedHashMap<AbstractStackNode> sharedNextNodes;
 
-	private final ObjectIntegerKeyedHashMap<String, AbstractNode> resultStoreCache;
+	private final IntegerKeyedHashMap<HashMap<String, AbstractNode>> resultStoreCache;
 	
 	private int previousLocation;
 	protected int location;
@@ -80,7 +79,7 @@ public abstract class SGLL implements IGLL{
 		
 		sharedNextNodes = new IntegerKeyedHashMap<AbstractStackNode>();
 		
-		resultStoreCache = new ObjectIntegerKeyedHashMap<String, AbstractNode>();
+		resultStoreCache = new IntegerKeyedHashMap<HashMap<String, AbstractNode>>();
 		
 		previousLocation = -1;
 		location = 0;
@@ -170,10 +169,13 @@ public abstract class SGLL implements IGLL{
 			next.updateNode(node);
 			
 			if(!next.isMatchable()){ // Is non-terminal or list.
-				AbstractNode resultStore = resultStoreCache.get(next.getName(), location);
-				if(resultStore != null){ // Is nullable, add the known results.
-					next.setResultStore(resultStore);
-					stacksWithNonTerminalsToReduce.put(next);
+				HashMap<String, AbstractNode> levelResultStoreMap = resultStoreCache.get(location);
+				if(levelResultStoreMap != null){
+					AbstractNode resultStore = levelResultStoreMap.get(next.getName());
+					if(resultStore != null){ // Is nullable, add the known results.
+						next.setResultStore(resultStore);
+						stacksWithNonTerminalsToReduce.put(next);
+					}
 				}
 			}
 			
@@ -220,13 +222,20 @@ public abstract class SGLL implements IGLL{
 			
 			AbstractStackNode edge = edgeList.get(0);
 			String nodeName = edge.getName();
-			AbstractNode resultStore = resultStoreCache.get(nodeName, startLocation);
+			HashMap<String, AbstractNode> levelResultStoreMap = resultStoreCache.get(startLocation);
+			AbstractNode resultStore = null;
+			if(levelResultStoreMap != null){
+				resultStore = levelResultStoreMap.get(nodeName);
+			}else{
+				levelResultStoreMap = new HashMap<String, AbstractNode>();
+				resultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
+			}
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			if(resultStore != null){
 				if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 			}else{
 				resultStore = (!edge.isList()) ? new ContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator());
-				resultStoreCache.unsafePut(nodeName, startLocation, resultStore);
+				levelResultStoreMap.putUnsafe(nodeName, resultStore);
 				resultStore.addAlternative(production, resultLink);
 				
 				if(!edge.isClean()){
@@ -262,12 +271,19 @@ public abstract class SGLL implements IGLL{
 			
 			AbstractStackNode edge = edgeList.get(0);
 			String nodeName = edge.getName();
-			AbstractNode resultStore = resultStoreCache.get(nodeName, startLocation);
+			HashMap<String, AbstractNode> levelResultStoreMap = resultStoreCache.get(startLocation);
+			AbstractNode resultStore = null;
+			if(levelResultStoreMap != null){
+				resultStore = levelResultStoreMap.get(nodeName);
+			}else{
+				levelResultStoreMap = new HashMap<String, AbstractNode>();
+				resultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
+			}
 			if(resultStore != null){
 				resultStore.setRejected();
 			}else{
 				resultStore = (!edge.isList()) ? new ContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator());
-				resultStoreCache.unsafePut(nodeName, startLocation, resultStore);
+				levelResultStoreMap.putUnsafe(nodeName, resultStore);
 				resultStore.setRejected();
 				
 				if(!edge.isClean()){
