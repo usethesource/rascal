@@ -16,7 +16,7 @@ import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
-public class ListContainerNode extends ContainerNode{
+public class ListContainerNode extends AbstractContainerNode{
 	private IConstructor cachedResult;
 	
 	public ListContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator){

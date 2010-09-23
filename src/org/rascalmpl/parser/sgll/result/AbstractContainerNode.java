@@ -6,7 +6,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 
-public abstract class ContainerNode extends AbstractNode{
+public abstract class AbstractContainerNode extends AbstractNode{
 	protected final URI input;
 	protected final int offset;
 	protected final int endOffset;
@@ -21,7 +21,7 @@ public abstract class ContainerNode extends AbstractNode{
 	protected ArrayList<Link> alternatives;
 	protected ArrayList<IConstructor> productions;
 	
-	public ContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator){
+	public AbstractContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator){
 		super();
 		
 		this.input = input;
