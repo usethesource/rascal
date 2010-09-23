@@ -1,8 +1,8 @@
-module rascal::parser::ASTGen
+module rascal::syntax::ASTGen
 
-import rascal::parser::Grammar;
-import rascal::parser::Bootstrap;
-import rascal::parser::Parameters;
+import rascal::syntax::Grammar;
+import rascal::syntax::Bootstrap;
+import rascal::syntax::Parameters;
 import ParseTree;
 
 import IO;

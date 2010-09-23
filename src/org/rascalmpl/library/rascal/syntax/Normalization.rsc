@@ -7,10 +7,10 @@
   Mainly these rules simplify processing of grammars by grouping definitions by non-terminal,
   and removing some forms of syntactic sugar.
 }
-module rascal::parser::Normalization
+module rascal::syntax::Normalization
 
-import rascal::parser::Grammar;
-import rascal::parser::Characters;
+import rascal::syntax::Grammar;
+import rascal::syntax::Characters;
 import List;
 import String;
 import ParseTree;
@@ -18,12 +18,6 @@ import IO;
 import Integer;
 import Set;
 
-rule merge grammar(set[Symbol] starts,set[Production] prods) =>
-           grammar(starts, index(prods, Symbol (Production p) { return p.rhs; }));
-
-test grammar({}, {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())}) ==
-     grammar({}, {choice(sort("B"), {prod([sort("A1")],sort("B"),\no-attrs()), prod([sort("A2")],sort("B"),\no-attrs())})});
-     
 // these rules flatten complex productions and ignore ordering under diff and assoc and restrict
 rule or     \choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})                    => choice(s,a+b); 
 rule single \first(Symbol s, [Production p]) => p;  

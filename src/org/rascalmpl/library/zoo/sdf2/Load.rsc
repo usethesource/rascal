@@ -1,4 +1,4 @@
-module rascal::conversion::sdf2::Load
+module zoo::sdf2::Load
 
 import languages::sdf2::syntax::Sdf2;
 import IO;

@@ -1,15 +1,12 @@
-module rascal::parser::Regular
+module rascal::syntax::Regular
 
-import rascal::parser::Grammar;
+import rascal::syntax::Grammar;
 import ParseTree;
 import Set;
 import IO;
 
 public Grammar expandRegularSymbols(Grammar G) {
-  for (grammar(_,set[Production] _) := G, regular(rhs,_) <- G.productions) {
-    G.productions += expand(rhs);
-  }
-  for (grammar(_,map[Symbol,set[Production]] _) := G, Symbol rhs <- G.rules) {
+  for (Symbol rhs <- G.rules) {
     if ({regular(rhs,_)} := G.rules[rhs]) { 
       set[Production] init = {};
       
@@ -40,14 +37,9 @@ public set[Production] expand(Symbol s) {
 }
 
 public Grammar makeRegularStubs(Grammar g) {
-  if (grammar(set[Symbol] s,set[Production] _) := g) {
-    return grammar(s, g.productions + makeRegularStubs(g.productions));
-  }
-  else if (grammar(set[Symbol] s, map[Symbol,set[Production]] rules) := g) {
-    prods = {g.rules[nont] | Symbol nont <- g.rules};
-    stubs = makeRegularStubs(prods);
-    return grammar(s, prods + stubs);
-  }
+  prods = {g.rules[nont] | Symbol nont <- g.rules};
+  stubs = makeRegularStubs(prods);
+  return compose(g, grammar({},stubs));
 }
 
 public set[Production] makeRegularStubs(set[Production] prods) {

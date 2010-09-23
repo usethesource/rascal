@@ -1,10 +1,10 @@
 @doc{
   This module implements the support for parameterized syntax definitions
 }
-module rascal::parser::Parameters
+module rascal::syntax::Parameters
 
-import rascal::parser::Grammar;
-import rascal::parser::Normalization; // this module assumes normalized grammars
+import rascal::syntax::Grammar;
+import rascal::syntax::Normalization; // this module assumes normalized grammars
 import ParseTree;
 import List;
 import Set;

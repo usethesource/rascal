@@ -1,9 +1,9 @@
-module rascal::parser::Lookahead
+module rascal::syntax::Lookahead
   
-import rascal::parser::Grammar;
-import rascal::parser::Regular;
-import rascal::parser::Characters;
-import rascal::parser::Normalization;
+import rascal::syntax::Grammar;
+import rascal::syntax::Regular;
+import rascal::syntax::Characters;
+import rascal::syntax::Normalization;
 import ParseTree;
 import List;
 import Set;

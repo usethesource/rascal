@@ -3,10 +3,10 @@
   
   It also provides a number of convenience functions on character classes.
 }
-module rascal::parser::Characters
+module rascal::syntax::Characters
 
 import ParseTree;
-import rascal::parser::Grammar;
+import rascal::syntax::Grammar;
 import List;
 
 public data CharRange = \empty-range();    

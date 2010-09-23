@@ -1,11 +1,11 @@
-module rascal::parser::Bootstrap
+module rascal::syntax::Bootstrap
 
-import rascal::conversion::sdf2::SDF2Grammar;
-import rascal::conversion::sdf2::Load;
-import rascal::conversion::grammar::Grammar2Rascal;
-import rascal::parser::Definition;
-import rascal::parser::Grammar;
-import rascal::parser::Generator;
+import zoo::sdf2::SDF2Grammar;
+import zoo::sdf2::Load;
+import rascal::syntax::Grammar2Rascal;
+import rascal::syntax::Definition;
+import rascal::syntax::Grammar;
+import rascal::syntax::Generator;
 import rascal::syntax::RascalForImportExtraction;
 import IO;
 import ValueIO;
@@ -53,10 +53,10 @@ public void bootFromRascal() {
   println("imploding the syntax definition and normalizing and desugaring it");
   Grammar gr = module2grammar(\module);
   println("dumping grammar");
-  writeBinaryValueFile(|project://RascalLibrary/src/rascal/parser/Rascal.grammar|, gr);
+  writeBinaryValueFile(|project://RascalLibrary/src/rascal/syntax/Rascal.grammar|, gr);
   println("generating Java source code");
-  str source = generate("org.rascalmpl.library.rascal.parser","RascalRascal", gr);
+  str source = generate("org.rascalmpl.library.rascal.syntax","RascalRascal", gr);
   println("writing a file");
-  writeFile(|project://RascalLibrary/src/rascal/parser/RascalRascal.java|, source);
+  writeFile(|project://RascalLibrary/src/rascal/syntax/RascalRascal.java|, source);
   println("rascal parser has been generated");  
 }
