@@ -28,7 +28,7 @@ public class ParserGenerator {
 
 	public ParserGenerator(PrintWriter out, List<ClassLoader> loaders, IValueFactory factory) {
 		this.bridge = new JavaBridge(out, loaders, factory);
-		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parsergenerator***"), new GlobalEnvironment());
+		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new LegacyRascalParser(), new ModuleEnvironment("***parsergenerator***"), new GlobalEnvironment());
 		this.vf = factory;
 		evaluator.doImport("rascal::parser::Generator");
 		evaluator.doImport("rascal::parser::Normalization");

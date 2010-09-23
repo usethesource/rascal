@@ -1,6 +1,5 @@
 module rascal::syntax::RascalRascal
 
-
 syntax BooleanLiteral
 	= lex "true" 
 	| lex "false" ;
@@ -14,9 +13,20 @@ syntax Literal
 	| DateTime: DateTimeLiteral dateTimeLiteral 
 	| Location: LocationLiteral locationLiteral ;
 
-syntax Module
+start syntax Module
 	= Default: Header header Body body ;
 
+start syntax PreModule
+    = Default: Header header Marker Rest;
+
+syntax Marker = 
+              # "import"
+              # "syntax"
+              # "start"
+              ;
+
+syntax Rest = lex {![\n]* "\n"}+;              
+                   
 syntax Alternative
 	= NamedType: Name name Type type ;
 
@@ -322,7 +332,7 @@ syntax NumChar
 
 syntax NoElseMayFollow
 	= Default: 
-	# [e] [l] [s] [e] ;
+	# "else" ;
 
 syntax MidProtocolChars
 	= lex "\>" URLChars "\<" ;
@@ -463,8 +473,8 @@ syntax SingleQuotedStrChar
 layout LAYOUTLIST
 	= LAYOUT* 
 	# [\t-\n \r \ ] 
-	# [/] [/] 
-	# [/] [*] ;
+	# "//" 
+	# "/*" ;
 
 syntax LocalVariableDeclaration
 	= Default: Declarator declarator 
@@ -509,7 +519,7 @@ syntax StringMiddle
 
 syntax QualifiedName
 	= Default: {Name "::"}+ names 
-	# [:] [:] ;
+	# "::" ;
 
 syntax DecimalIntegerLiteral
 	= lex "0" 

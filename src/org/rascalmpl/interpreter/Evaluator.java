@@ -257,7 +257,7 @@ import org.rascalmpl.interpreter.utils.Utils;
 import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.parser.RascalParser;
+import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputStreamResolver;
@@ -297,7 +297,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private final java.util.List<ClassLoader> classLoaders;
 	protected final ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
-	private final RascalParser parser;
+	private final LegacyRascalParser parser;
 
 	private PrintWriter stderr;
 	private PrintWriter stdout;
@@ -310,7 +310,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	private final URIResolverRegistry resolverRegistry;
 
-	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
+	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, LegacyRascalParser parser, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this.vf = f;
 		this.patternEvaluator = new PatternEvaluator(this);
 		this.strategyContextStack = new StrategyContextStack();
@@ -323,7 +323,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.javaBridge = new JavaBridge(stderr, classLoaders, vf);
 		this.resolver = new RascalURIResolver(this);
 		this.sdf = new SDFSearchPath();
-		this.parser = new RascalParser();
+		this.parser = parser;
 		this.stderr = stderr;
 		this.stdout = stdout;
 		this.builder = new ASTBuilder(new ASTFactory());

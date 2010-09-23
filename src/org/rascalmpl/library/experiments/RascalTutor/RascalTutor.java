@@ -1,19 +1,16 @@
 package org.rascalmpl.library.experiments.RascalTutor;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.net.URI;
 
-import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.values.ValueFactoryFactory;
-import java.lang.StringBuilder;
 
 public class RascalTutor {
 	
@@ -22,7 +19,7 @@ public class RascalTutor {
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("*** TUTOR ***"));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
-		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, new LegacyRascalParser(), root, heap);
 		eval.eval("import " + tutorModule + ";", URI.create("stdin:///"));
 		return eval;
 	}

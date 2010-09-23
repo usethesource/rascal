@@ -36,8 +36,7 @@ import sglr.IInvoker;
 import sglr.LegacySGLRInvoker;
 import sglr.SGLRInvoker;
 
-
-public class RascalParser {
+public class LegacyRascalParser {
 	private static final String TBL_EXTENSION = ".tbl";
 	private static final String SYMBOLS_EXTENSION = ".symbols";
 	
