@@ -3,55 +3,46 @@ module zoo::pico::syntax::Pico
 import zoo::pico::syntax::Layout;
 import zoo::pico::syntax::Lexical;
     
-start syntax PROGRAM = program: "begin" DECLS decls {STATEMENT  ";"}* body "end" ;
-  
-syntax DECLS = "declare" {IDTYPE ","}* decls ";" ;
+start syntax Program = program: "begin" DECLS decls {Statement  ";"}* body "end" ;
+
+syntax Decls = "declare" {IdType ","}* decls ";" ;
  
-syntax STATEMENT = assign: PICOID var ":="  EXP val
-                 | cond:   "if" EXP cond "then" {STATEMENT ";"}*  thenPart "else" {STATEMENT ";"}* elsePart
-                 | cond:   "if" EXP cond "then" {STATEMENT ";"}*  thenPart
-                 | loop:   "while" EXP cond "do" {STATEMENT ";"}* body "od"
+syntax Statement = assign: Id var ":="  Exp val
+                 | cond:   "if" Exp cond "then" {Statement ";"}*  thenPart "else" {Statement ";"}* elsePart
+                 | cond:   "if" Exp cond "then" {Statement ";"}*  thenPart
+                 | loop:   "while" Exp cond "do" {Statement ";"}* body "od"
                  ;
 
-syntax IDTYPE = PICOID id ":" TYPE typ;
+syntax IDTYPE = Id id ":" Type typ;
    
-syntax TYPE = natural:"natural" | string:"string" | nil:"nil-type";
+syntax TYPE = natural:"natural" 
+            | string:"string" 
+            | nil:"nil-type"
+            ;
 
-syntax EXP = id: PICOID name
-           | strcon: STRCON string
-           | natcon: NATCON natcon
-           | bracket "(" EXP e ")"
+syntax Exp = id: Id name
+           | strcon: Str string
+           | natcon: Nat natcon
+           | bracket "(" Exp e ")"
            ;
            
-syntax EXP =  left mult: EXP lhs "*" EXP rhs
-           >  left add: EXP lhs "+" EXP rhs
+syntax Exp =  left  mult: Exp lhs "||" Exp rhs
+           >  left ( sub: Exp lhs "-" Exp rhs
+                   | add: Exp lhs "-" Exp rhs
+           )
            ;
-   
-syntax PICOID = ...
-              - "begin" 
-              - "end" 
-              - "declare" 
-              - "natural" 
-              - "string" 
-              - "nil-type" 
-              - "if" 
-              - "while" 
-              - "do" 
-              - "then"
-              - "else"
-              - "od"
-              ;
-              
-import ParseTree;
+           
+syntax Id  = lex [a-z][a-z0-9]* # [a-z0-9];
+syntax Nat = lex [0-9]+ ;
+syntax Str = lex "\"" ![\"]*  "\"";
 
-public EXP exp(str input) {
-  return parseExperimental(#EXP, input);
-}
+layout Pico = WhitespaceAndComment*
+            # [\ \t\n\r]
+            # "%"
+            ;
 
-public PROGRAM progr(str input) {
-  return parseExperimental(#PROGRAM, input);
-}
-
-
-  
-
+syntax WhitespaceAndComment 
+   = lex [\ \t\n\r]
+   | lex "%" ![%]* "%"
+   | lex "%%" ![\n]* "\n"
+   ;
