@@ -16,7 +16,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
+import org.rascalmpl.parser.sgll.result.SortContainerNode;
 import org.rascalmpl.parser.sgll.result.ListContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.sgll.result.struct.Link;
@@ -234,7 +234,7 @@ public abstract class SGLL implements IGLL{
 			if(resultStore != null){
 				if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 			}else{
-				resultStore = (!edge.isList()) ? new ContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator());
+				resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator());
 				levelResultStoreMap.putUnsafe(nodeName, resultStore);
 				resultStore.addAlternative(production, resultLink);
 				
@@ -282,7 +282,7 @@ public abstract class SGLL implements IGLL{
 			if(resultStore != null){
 				resultStore.setRejected();
 			}else{
-				resultStore = (!edge.isList()) ? new ContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator());
+				resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator());
 				levelResultStoreMap.putUnsafe(nodeName, resultStore);
 				resultStore.setRejected();
 				
