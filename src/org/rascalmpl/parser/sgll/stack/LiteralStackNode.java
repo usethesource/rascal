@@ -2,7 +2,7 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
+import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
@@ -79,11 +79,11 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		return new LiteralStackNode(this, prefixesMap);
 	}
 	
-	public void setResultStore(ContainerNode resultStore){
+	public void setResultStore(AbstractContainerNode resultStore){
 		throw new UnsupportedOperationException();
 	}
 	
-	public ContainerNode getResultStore(){
+	public AbstractContainerNode getResultStore(){
 		throw new UnsupportedOperationException();
 	}
 	

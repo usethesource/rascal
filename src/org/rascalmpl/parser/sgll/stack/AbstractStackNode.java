@@ -2,7 +2,7 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.ContainerNode;
+import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
@@ -356,9 +356,9 @@ public abstract class AbstractStackNode{
 	public abstract AbstractStackNode[] getChildren();
 	
 	// Results.
-	public abstract void setResultStore(ContainerNode resultStore);
+	public abstract void setResultStore(AbstractContainerNode resultStore);
 	
-	public abstract ContainerNode getResultStore();
+	public abstract AbstractContainerNode getResultStore();
 	
 	public abstract AbstractNode getResult();
 }
