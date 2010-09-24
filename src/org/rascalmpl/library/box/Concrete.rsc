@@ -112,13 +112,22 @@ bool isTerminal(Symbol s,str c) {
           }
      return false;
      }
-
+     
+bool isNonTerminal(Symbol s,str c) {
+     // println(s);
+     if (\sort(str a):=s || \cf(\sort(str a)):=s) {
+          // println("<a> <c>");
+          if (a==c) return true;
+          }
+     return false;
+     }
+     
 public bool isScheme(list[Symbol] q,list[str] b) {
      if (size(b)!=(size(q)+1)/2) return false;
      list[tuple[Symbol,str]] r=[<q[2*i],b[i]>|int i<-[0..size(b)-1]];
      for (<Symbol s,str z><-r) {
           if (!isTerminal(s)) {
-               if (z!="N") return false;
+               if (z!="N"&&!isNonTerminal(s,z)) return false;
                }
           else {
                if (z!="T"&&!isTerminal(s,z)) return false;
@@ -156,6 +165,7 @@ public list[int] isBlock(list[Tree] t,int idx) {
 
 public bool isBody(Tree c) {
      if (appl(prod(list[Symbol] s,_,Attributes att),_):=c) {
+          /*
           if (size(s)>=1) {
                 c = getFirst(c);
                  if (appl(prod(list[Symbol] s,_,Attributes att),_):=c) {
@@ -164,7 +174,8 @@ public bool isBody(Tree c) {
                     }
                 }
           r=isBody(s);
-          return r;
+          */
+          return isBody(s);
           }
      return false;
      }
@@ -239,17 +250,6 @@ public Box evPt(Tree q,bool doIndent) {
      if (b!=NULL()) return b;
      switch (q) {
           case appl ( prod(list[Symbol] s,_,Attributes att),list[Tree] t ) : {
-                    if (size(s)>=1 && isBody(t[0])) {
-                           Tree q1 = t[0];
-                           if (appl(prod(list[Symbol] s1,_,Attributes att),list[Tree] t1):= q1) {
-                               pairs u1=[<s1[i],t1[i]>|int i<-[0,1..(size(t1)-1)]];
-                               Box r=walkThroughSymbols(u1,true,doIndent,-1);
-                               if (size(s)==1) return r;
-                               pairs u=[<s[i],t[i]>|int i<-[2,3..(size(t)-1)]];
-                               r=H([r, walkThroughSymbols(u,true,doIndent,-1)]);
-                               return r;
-                               }
-                           }
                        pairs u=[<s[i],t[i]>|int i<-[0,1..(size(t)-1)]];
                        return walkThroughSymbols(u,true,doIndent,-1);        
                     }
@@ -360,6 +360,9 @@ Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
                     }
                }
           else if (i in block) {
+                         // println("Block:<i> <b>");
+                         if (isEmpty(out)) out+=I([b]);
+                         else {
                          tuple[Box,Box] c=compactStyle(b);
                          if (c[0]==NULL()) out+=c[1]; else {
                               out+=c[0];
@@ -375,6 +378,7 @@ Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
                                    }
                               out+=I([c[1]]);
                               }
+                             }
                          }
                else if (i in indent) {
                        collectList+= b;
@@ -401,7 +405,7 @@ Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
           return bl[0];
           }
      else {
-          Box r=(hv&&!doIndent&&isEmpty(block))?HV(-1,bl):V(0,bl);
+          Box r=(hv&&!doIndent &&isEmpty(block))?HV(-1,bl):V(0,bl);
           if (space>=0) r@hs=space;
           return r;
           }
