@@ -92,7 +92,8 @@ public class ProductionAdapter {
 	}
 
 	public static boolean isList(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Production_List;
+		return tree.getConstructorType() == Factory.Production_List 
+		    || tree.getConstructorType() == Factory.Production_Regular;
 	}
 	
 	public static boolean isRegular(IConstructor tree) {
@@ -104,7 +105,7 @@ public class ProductionAdapter {
 		if (SymbolAdapter.isLex(rhs) || SymbolAdapter.isCf(rhs)) {
 			rhs = SymbolAdapter.getSymbol(rhs);
 		}
-		return SymbolAdapter.isIterPlusSep(rhs) || SymbolAdapter.isIterStarSep(rhs);
+		return SymbolAdapter.isIterPlusSep(rhs) || SymbolAdapter.isIterStarSep(rhs) || SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs);
 	}
 
 	public static boolean isLexical(IConstructor tree) {

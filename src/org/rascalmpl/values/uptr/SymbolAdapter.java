@@ -296,4 +296,12 @@ public class SymbolAdapter {
 	private static boolean isAlt(IConstructor symbol) {
 		return symbol.getConstructorType() == Factory.Symbol_Alt;
 	}
+
+	public static boolean isIterStarSeps(IConstructor rhs) {
+		return rhs.getConstructorType() == Factory.Symbol_IterStarSepX;
+	}
+	
+	public static boolean isIterPlusSeps(IConstructor rhs) {
+		return rhs.getConstructorType() == Factory.Symbol_IterSepX;
+	}
 }

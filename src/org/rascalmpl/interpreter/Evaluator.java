@@ -222,7 +222,7 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.AmbiguousConcretePattern;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
 import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
@@ -311,7 +311,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	private final URIResolverRegistry resolverRegistry;
 
-	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, LegacyRascalParser parser, ModuleEnvironment scope, GlobalEnvironment heap) {
+	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, IRascalParser parser, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this.vf = f;
 		this.patternEvaluator = new PatternEvaluator(this);
 		this.strategyContextStack = new StrategyContextStack();
@@ -1019,7 +1019,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		//			for (Expression exp: x.getAlternatives()) {
 		//				System.err.println("Alt " + i++ + ": " + exp.getTree());
 		//			}
-		throw new AmbiguousConcretePattern(x);
+		throw new UnexpectedAmbiguity(x);
 	}
 
 
@@ -1040,7 +1040,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitCommandAmbiguity(
 			org.rascalmpl.ast.Command.Ambiguity x) {
-		throw new ImplementationError("ambiguity in command " + x, x.getLocation());
+		throw new UnexpectedAmbiguity(x);
 	}
 	
 	@Override
@@ -2421,7 +2421,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IBooleanResult makeBooleanResult(org.rascalmpl.ast.Expression pat){
 		if (pat instanceof Expression.Ambiguity) {
 			// TODO: wrong exception here.
-			throw new AmbiguousConcretePattern(pat);
+			throw new UnexpectedAmbiguity(pat);
 		}
 
 		BooleanEvaluator pe = new BooleanEvaluator(this);

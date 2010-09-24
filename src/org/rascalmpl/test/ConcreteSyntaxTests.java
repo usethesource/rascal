@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.rascalmpl.interpreter.staticErrors.AmbiguousConcretePattern;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 
@@ -88,7 +88,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("`a b` := `  a   b  `;"));
 	}
 	
-	@Test(expected=AmbiguousConcretePattern.class)
+	@Test(expected=UnexpectedAmbiguity.class)
 	public void varAQuoted(){
 		prepare("import GrammarABCDE;");
 		runTestInSameEvaluator("`<someA>` := `a`;");
@@ -228,7 +228,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 
 	
-	@Test(expected=AmbiguousConcretePattern.class)
+	@Test(expected=UnexpectedAmbiguity.class)
 	public void Dvars(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("`<Xs>` := `d d`;"));
