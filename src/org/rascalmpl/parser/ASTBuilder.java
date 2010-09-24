@@ -38,7 +38,7 @@ import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.StringLiteral;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.AmbiguousConcretePattern;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
@@ -162,7 +162,12 @@ public class ASTBuilder {
 		}	
 		
 		if (isLexical(tree)) {
-			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
+			if (TreeAdapter.isRascalLexical(tree)) {
+				return buildLexicalNode(tree);
+			}
+			else {
+				return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
+			}
 		}
 		
 		if (sortName(tree).equals("FunctionBody") && TreeAdapter.getConstructorName(tree).equals("Java")) {
@@ -225,6 +230,10 @@ public class ASTBuilder {
 		
 		String cons = capitalize(constructorName);
 		String sort = sortName(tree);
+		
+		if (sort.length() == 0) {
+			throw new ImplementationError("Could not retrieve sort name for " + tree);
+		}
 		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 
 		IList args = getASTArgs(tree);
@@ -324,6 +333,9 @@ public class ASTBuilder {
 		}
 		String sort = capitalize(sortName(tree));
 
+		if (sort.length() == 0) {
+			throw new ImplementationError("could not retrieve sort name for " + tree);
+		}
 		Class<?> formals[] = new Class<?>[] { INode.class, String.class };
 		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
 
@@ -341,14 +353,14 @@ public class ASTBuilder {
 		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
 		String sort = "";
 		ASTStatistics ref = null;
-		AmbiguousConcretePattern lastCaughtACP = null;
+		UnexpectedAmbiguity lastCaughtACP = null;
 		
 		for (IValue alt : altsIn) {
 			sort = sortName((IConstructor) alt);
 			AbstractAST ast = null;
 			try {
 				ast = buildValue(alt);
-			} catch (AmbiguousConcretePattern acp) {
+			} catch (UnexpectedAmbiguity acp) {
 				lastCaughtACP = acp;
 			}
 			
@@ -514,7 +526,7 @@ public class ASTBuilder {
 			stats.setConcreteFragmentSize(TreeAdapter.getLocation(pattern).getLength());
 			
 			if (stats.isAmbiguous()) {
-				throw new AmbiguousConcretePattern(ast);
+				throw new UnexpectedAmbiguity(ast);
 			}
 		}
 		
@@ -865,10 +877,10 @@ public class ASTBuilder {
 	}
 
 	private IList getASTArgs(IConstructor tree) {
-		if (!TreeAdapter.isContextFree(tree)) {
-			throw new ImplementationError("This is not a context-free production: "
-					+ tree);
-		}
+//		if (!TreeAdapter.isContextFree(tree)) {
+//			throw new ImplementationError("This is not a context-free production: "
+//					+ tree);
+//		}
 	
 		IList children = TreeAdapter.getArgs(tree);
 		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
@@ -931,6 +943,9 @@ public class ASTBuilder {
 	private boolean isLexical(IConstructor tree) {
 		if (TreeAdapter.isLexToCf(tree)) {
 			return !isRascalLiteral(tree);
+		}
+		if (TreeAdapter.isRascalLexical(tree)) {
+			return true;
 		}
 		return false;
 	}

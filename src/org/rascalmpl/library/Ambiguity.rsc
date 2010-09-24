@@ -3,6 +3,11 @@ module Ambiguity
 import ParseTree;
 import IO;
 
+public void report(Tree amb) {
+  for (x <- uniqueProductions(amb.alternatives))
+    println(x);
+}
+
 @doc{
   Summarize trees as sets of productions.
 }

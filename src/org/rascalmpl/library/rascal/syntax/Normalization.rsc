@@ -3,9 +3,6 @@
   
   These rules are an important part of the semantics of Rascal's syntax definition.
   Before generating a parser one should always have these rules applied.
-  
-  Mainly these rules simplify processing of grammars by grouping definitions by non-terminal,
-  and removing some forms of syntactic sugar.
 }
 module rascal::syntax::Normalization
 
@@ -18,63 +15,66 @@ import IO;
 import Integer;
 import Set;
 
-// these rules flatten complex productions and ignore ordering under diff and assoc and restrict
-rule or     \choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})                    => choice(s,a+b); 
-rule single \first(Symbol s, [Production p]) => p;  
-rule xor    \first(Symbol s, [list[Production] a,first(Symbol t, list[Production] b),list[Production] c])  => first(s,a+b+c); 
-rule xor    \first(Symbol s, [list[Production] a,choice(Symbol t, {Production b}),list[Production] c])     => first(s,a+[b]+c); 
-rule \assoc \assoc(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) => \assoc(s, as, a+b); 
-rule \assoc \assoc(Symbol s, Associativity as, {set[Production] a, first(Symbol t, list[Production] b)}) => \assoc(s, as, a + { e | e <- b}); // ordering does not work under assoc
-rule diff   \diff(Symbol s, Production p, {set[Production] a, choice(Symbol t, set[Production] b)})   => diff(s, p, a+b);   
-rule diff   \diff(Symbol s, Production p, {set[Production] a, first(Symbol t, list[Production] b)})   => diff(s, p, a + { e | e <- b});  // ordering is irrelevant under diff
-rule diff   \diff(Symbol s, Production p, {set[Production] a, \assoc(Symbol t, a, set[Production] b)}) => diff(s, p, a + b);  // assoc is irrelevant under diff
-rule restrict restrict(Symbol s, restrict(Symbol t, Production p, set[Production] q), set[Production] r) =>
-              restrict(s, p, q + r);
-              
-// rule restricted restrict(Symbol s, Production p, {Production q:prod(list[Symbol] lhs, Symbol t, Attributes a), set[Production] r}) =>
-                // restrict(s, p, {prod(lhs,restricted(t),a), r}) when s == t;
+// Explanation of rewrite rule names:
+// "noop" means nested application of some operator is ignored
+// "factor" means nested application of some operator is factored out
+// "flat" means unnecessary nestings are removed (like a choice in a choice)
+// "fuse" means several productions are merged from different parts (like to implement "...")
 
-// this makes sure the ... (others) are merged in at the right place
-// TODO: we have problems here because unordered productions will also be given an order...
-rule others choice(Symbol s, {set[Production] a, others(Symbol t)}) => choice(s, a) when t == s;
-rule others choice(Symbol s, {set[Production] a, first(Symbol t, [list[Production] b, others(Symbol u), list[Production] c])}) =>
-            first(s, b + [choice(s, a)] + c) when t == s && t == u;
+rule flat \choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)}) 
+             => \choice(s,a+b);
+rule flat \first(Symbol s, [list[Production] a, first(Symbol t, list[Production] b),list[Production] c])
+             => \first(s,a+b+c); 
+rule flat \assoc(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
+             => \assoc(s, as, a+b); 
+rule flat \diff(Symbol s, Production p, {set[Production] a, choice(Symbol t, set[Production] b)})   
+             => \diff(s, p, a+b);
+rule flat \diff(Symbol s, Production p, {set[Production] a, diff(Symbol t, Production q, set[Production] b)})   
+             => \diff(s, choice(s, {p,q}), a+b); 
+rule flat \diff(Symbol s, diff(Symbol t, Production a, set[Production] b), set[Production] c)        
+             => \diff(s, a, b+c);
+rule flat \restrict(Symbol s, restrict(Symbol t, Production p, set[Production] q), set[Production] r) 
+             => \restrict(s, p, q + r);
+rule flat \restrict(Symbol s, Production p, {restrict(Symbol t, Production q, set[Production] r), set[Production] o})
+             => \restrict(s, choice(s, {p,q}), r + o);
+rule flat \choice(Symbol s, {others(Symbol t)}) 
+             => others(t);
+             
+rule noop \assoc(Symbol rhs, Associativity a, {\assoc(Symbol rhs2, Associativity b, set[Production] alts), set[Production] rest}) 
+             => \assoc(rhs, a, rest + alts);
+rule noop \assoc(Symbol s, Associativity as, {set[Production] a, first(Symbol t, list[Production] b)}) 
+             => \assoc(s, as, a + { e | e <- b}); 
+
+rule fuse \choice(Symbol s, {set[Production] a, others(Symbol t)}) 
+             => \choice(s, a) when t == s;
+rule fuse \choice(Symbol s, {set[Production] a, first(Symbol t, [list[Production] b, others(Symbol u), list[Production] c])}) 
+             => \first(s, b + [choice(s, a)] + c);
   
-// move diff outwards
-// TODO: we have to distribute diff and restrict over the prioritized elements of a first, such that the restrictions and the
-// diff's will be applied on all levels of the priority chains
-rule empty  diff(Symbol s,Production p,{})                    => p;
-rule or     choice(Symbol s, {set[Production] a, diff(Symbol t, Production b, set[Production] c)})   => diff(s, choice(s, a+{b}), c);
-rule xor    first(Symbol s, [list[Production] a, diff(Symbol t, Production b, set[Production] c),list[Production] d]) => 
-               diff(s, first(a+[b]+d), c);
-rule ass    \assoc(Symbol s, Associativity as, {set[Production] a, diff(Symbol t, b, set[Production] c)}) => diff(s, \assoc(s, as, a + {b}), c);
-rule diff   diff(Symbol s, Production p, {set[Production] a, diff(Symbol t, Production q, set[Production] b)})   => diff(s, choice(s, {p,q}), a+b); 
-rule diff   diff(Symbol s, diff(Symbol t, Production a, set[Production] b), set[Production] c)        => diff(s, a, b+c);
-rule restrict restrict(Symbol s, diff(Symbol t, Production p, set[Production] o), set[Production] r) =>
-              diff(s, restrict(s, p, r), o);
+// factoring out diff  
+rule factor \choice(Symbol s, {diff(Symbol t, Production b, set[Production] c), set[Production] a})   
+               => \diff(s, choice(s, a+{b}), c);
+rule factor \first(Symbol s, [list[Production] a, diff(Symbol t, Production b, set[Production] c),list[Production] d]) 
+               => \diff(s, first(a+[b]+d), c);
+rule factor \assoc(Symbol s, Associativity as, {set[Production] a, diff(Symbol t, b, set[Production] c)}) 
+               => \diff(s, \assoc(s, as, a + {b}), c);
+rule factor \restrict(Symbol s, diff(Symbol t, Production p, set[Production] o), set[Production] r) 
+               => \diff(s, restrict(s, p, r), o);
+rule factor \restrict(Symbol s, Production p, {diff(Symbol t, Production q, set[Production] d), set[Production] o}) 
+               => \diff(t, restrict(s, choice(t, {p,q}), o), d);
 
-rule prod   diff(Symbol s, prod(list[Symbol] lhs, Symbol t, Attributes a), set[Production] diffs) =>
-            diff(s, choice(s, {prod(lhs,t,a)}), diffs);
-                          
-rule choice choice(Symbol s, {restrict(Symbol t, Production p, set[Production] r), set[Production] q}) =>
-            restrict(s, choice(s,{p,q}), r);
-rule first  first(Symbol s, [list[Production] pre, restrict(Symbol t, Production p, set[Production] r), list[Production] post]) =>
-            restrict(s, first(s, [pre, p, post]), r);
-rule prod   restrict(Symbol s, prod(list[Symbol] lhs, Symbol t, Attributes a), set[Production] r) =>
-            restrict(s, choice(s,{prod(lhs,t,a)}), r);
-rule restrict restrict(Symbol s, Production p, {restrict(Symbol t, Production q, set[Production] r), set[Production] o})=>
-              restrict(s, choice(s, {p,q}), r + o);
-rule diff     restrict(Symbol s, Production p, {diff(Symbol t, Production q, set[Production] d), set[Production] o}) =>
-              diff(t, restrict(s, choice(t, {p,q}), o), o);
-              
-rule restricted restricted(restricted(Symbol l)) => restricted(l);
+// factoring out restrict                          
+rule factor \choice(Symbol s, {restrict(Symbol t, Production p, set[Production] r), set[Production] q}) 
+               => \restrict(s, choice(s,{p,q}), r);
+rule factor \first(Symbol s, [list[Production] pre, restrict(Symbol t, Production p, set[Production] r), list[Production] post])
+               => restrict(s, first(s, [pre, p, post]), r);
+rule factor \assoc(Symbol s, Associativity as, {set[Production] a, restrict(Symbol t, Production p, set[Production] r)}) 
+               => \restrict(t, \assoc(s,as,a + {p}), r);
+     
+// restricted is idempotent              
+rule idem restricted(restricted(Symbol l)) => restricted(l);
 
-// remove nested assocs (the inner assoc has no meaning after this)
-rule nested \assoc(Symbol rhs, Associativity a, {set[Production] rest, \assoc(Symbol rhs2, Associativity b, set[Production] alts)}) =>
-            \assoc(rhs, a, rest + alts);
-                                                
-// no attributes
-rule simpl  attrs([]) => \no-attrs();  
+// \no-attrs is a synonym for attrs([])                                                
+rule synonym  attrs([]) => \no-attrs();  
 
 
 

@@ -198,42 +198,38 @@ syntax Symbol
 	| IterStar: Symbol symbol "*" ;
 
 syntax Expression
-	= NonEmptyBlock: "{" Statement+ statements "}" 
+	= NonEmptyBlock  : "{" Statement+ statements "}" 
 	| bracket Bracket: "(" Expression expression ")" 
-	| Closure: Type type Parameters parameters "{" Statement+ statements "}" 
-	| StepRange: "[" Expression first "," Expression second ".." Expression last "]" 
-	| VoidClosure: Parameters parameters "{" Statement* statements "}" 
-	| Visit: Label label Visit visit 
-	| Reducer: "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
-	| ReifiedType: BasicType basicType "(" {Expression ","}* arguments ")" 
-	| Literal: Literal literal 
-	| Comprehension: Comprehension comprehension 
-	| Set: "{" {Expression ","}* elements "}" 
-	| ReifyType: "#" Type type 
-	| Range: "[" Expression first ".." Expression last "]" 
-	| Map: "(" {Mapping[Expression] ","}* mappings ")" 
-	| Expression "+" Expression 
-	| Expression "*" Expression 
-	> "-" Expression 
-	| List: "[" {Expression ","}* elements "]" 
-	| It: "it" 
-	| All: "all" "(" {Expression ","}+ generators ")" 
+	| Closure        : Type type Parameters parameters "{" Statement+ statements "}" 
+	| StepRange      : "[" Expression first "," Expression second ".." Expression last "]" 
+	| VoidClosure    : Parameters parameters "{" Statement* statements "}" 
+	| Visit          : Label label Visit visit 
+	| Reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
+	| ReifiedType    : BasicType basicType "(" {Expression ","}* arguments ")" 
+	| Literal        : Literal literal 
+	| Any            : "any" "(" {Expression ","}+ generators ")" 
+	| All            : "all" "(" {Expression ","}+ generators ")" 
+	| Comprehension  : Comprehension comprehension 
+	| Set            : "{" {Expression ","}* elements "}" 
+	| List           : "[" {Expression ","}* elements "]"
+	| ReifyType      : "#" Type type 
+	| Range          : "[" Expression first ".." Expression last "]" 
+	| Tuple          : "\<" {Expression ","}+ elements "\>" 
+	| Map            : "(" {Mapping[Expression] ","}* mappings ")" 
+	| It             : "it" 
+	| QualifiedName  : QualifiedName qualifiedName 
 	| right IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp 
-	> non-assoc (  non-assoc NoMatch: Pattern pattern "!:=" Expression expression  
-		| non-assoc Match: Pattern pattern ":=" Expression expression 
-	)
-	> /*prefer()*/ Enumerator: Pattern pattern "\<-" Expression expression 
-	> left Equals: Expression lhs "==" Expression rhs 
-	| QualifiedName: QualifiedName qualifiedName 
-	| Subscript: Expression expression "[" {Expression ","}+ subscripts "]" 
-	> ReifyType: "#" Type type 
-	| Tuple: "\<" {Expression ","}+ elements "\>" 
-	| FieldAccess: Expression expression "." Name field 
-	| FieldUpdate: Expression expression "[" Name key "=" Expression replacement "]" 
+	> non-assoc ( NoMatch: Pattern pattern "!:=" Expression expression  
+		        | Match: Pattern pattern ":=" Expression expression 
+		        | /*prefer()*/ Enumerator: Pattern pattern "\<-" Expression expression 
+	            )
+	>  Subscript  : Expression expression "[" {Expression ","}+ subscripts "]" 
+	| FieldAccess : Expression expression "." Name field 
+	| FieldUpdate : Expression expression "[" Name key "=" Expression replacement "]" 
 	| FieldProject: Expression expression "\<" {Field ","}+ fields "\>" 
-	| ReifiedType: BasicType basicType "(" {Expression ","}* arguments ")" 
-	| Subscript: Expression expression "[" {Expression ","}+ subscripts "]" 
-	| CallOrTree: Expression expression "(" {Expression ","}* arguments ")" 
+	| ReifiedType : BasicType basicType "(" {Expression ","}* arguments ")" 
+	| Subscript   : Expression expression "[" {Expression ","}+ subscripts "]" 
+	| CallOrTree  : Expression expression "(" {Expression ","}* arguments ")" 
 	> IsDefined: Expression argument "?" 
 	> Negation: "!" Expression argument 
 	| Negative: "-" Expression argument 
@@ -242,37 +238,43 @@ syntax Expression
 	> SetAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
 	| GetAnnotation: Expression expression "@" Name name 
 	> left Composition: Expression lhs "o" Expression rhs 
-	> left (  left Product: Expression lhs "*" Expression rhs  
-		| left Join: Expression lhs "join" Expression rhs 
-	)
-	> left (  left Modulo: Expression lhs "%" Expression rhs  
-		| left Division: Expression lhs "/" Expression rhs 
-	)
+	> left ( Product: Expression lhs "*" Expression rhs  
+		   | Join   : Expression lhs "join" Expression rhs 
+	       )
+	> left ( Modulo: Expression lhs "%" Expression rhs  
+		   | Division: Expression lhs "/" Expression rhs 
+	       )
 	> left Intersection: Expression lhs "&" Expression rhs 
-	> left (  left Addition: Expression lhs "+" Expression rhs  
-		| left Subtraction: Expression lhs "-" Expression rhs 
+	> left ( Addition   : Expression lhs "+" Expression rhs  
+		   | Subtraction: Expression lhs "-" Expression rhs 
+	       )
+	> non-assoc (  NotIn: Expression lhs "notin" Expression rhs  
+		        |  In: Expression lhs "in" Expression rhs 
 	)
-	> non-assoc (  non-assoc NotIn: Expression lhs "notin" Expression rhs  
-		| non-assoc In: Expression lhs "in" Expression rhs 
-	)
-	> non-assoc (  non-assoc GreaterThanOrEq: Expression lhs "\>=" Expression rhs  
-		| non-assoc LessThanOrEq: Expression lhs "\<=" Expression rhs 
-		| non-assoc LessThan: Expression lhs "\<" Expression rhs 
-		| non-assoc GreaterThan: Expression lhs "\>" Expression rhs 
-	)
-	> left (  right IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp  
-		| left NonEquals: Expression lhs "!=" Expression rhs 
-		| left Equals: Expression lhs "==" Expression rhs 
-	)
+	> non-assoc ( Equals         : Expression lhs "==" Expression rhs   
+	            | GreaterThanOrEq: Expression lhs "\>=" Expression rhs  
+		        | LessThanOrEq   : Expression lhs "\<=" Expression rhs 
+		        | LessThan       : Expression lhs "\<" Expression rhs 
+		        | GreaterThan    : Expression lhs "\>" Expression rhs 
+		        | NonEquals      : Expression lhs "!=" Expression rhs 
+		        | Equals         : Expression lhs "==" Expression rhs
+	            )
 	> non-assoc IfDefinedOtherwise: Expression lhs "?" Expression rhs 
-	> non-assoc (  right Implication: Expression lhs "==\>" Expression rhs  
-		| right Equivalence: Expression lhs "\<==\>" Expression rhs 
-	)
+	> non-assoc ( Implication: Expression lhs "==\>" Expression rhs  
+		        | Equivalence: Expression lhs "\<==\>" Expression rhs 
+	            )
 	> left And: Expression lhs "&&" Expression rhs 
 	> left Or: Expression lhs "||" Expression rhs 
-	| CallOrTree: Expression expression "(" {Expression ","}* arguments ")" 
-	| Any: "any" "(" {Expression ","}+ generators ")" ;
+	> CallOrTree: Expression expression "(" {Expression ","}* arguments ")" 
+	; 
 
+// extra priorities duplicate productions from above
+// TODO: replace by constructor references
+syntax Exp = TransitiveClosure         : Exp argument "+" 
+	       // | TransitiveReflexiveClosure: Exp argument "*" 
+           > List                      : "[" {Exp ","}* elements "]"
+           ;
+           
 syntax UserType
 	= Name: QualifiedName name 
 	| Parametric: QualifiedName name "[" {Type ","}+ parameters "]" ;
@@ -546,7 +548,7 @@ syntax Visit
 	= GivenStrategy: Strategy strategy "visit" "(" Expression subject ")" "{" Case+ cases "}" 
 	| DefaultStrategy: "visit" "(" Expression subject ")" "{" Case+ cases "}" ;
 
-syntax Command
+start syntax Command
 	= /*prefer()*/ Expression: Expression expression 
 	| /*avoid()*/ Declaration: Declaration declaration 
 	| Shell: ":" ShellCommand command 
@@ -870,8 +872,8 @@ syntax Prod
 	| Unlabeled: ProdModifier* modifiers Sym* args 
 	> left Reject: Prod lhs "-" Prod rhs 
 	> left Follow: Prod lhs "#" Prod rhs 
-	> left First: Prod lhs "\>" Prod rhs 
 	> left All: Prod lhs "|" Prod rhs 
+	> left First: Prod lhs "\>" Prod rhs
 	| AssociativityGroup: Assoc associativity "(" Prod group ")" ;
 
 syntax DateTimeLiteral
@@ -1139,7 +1141,7 @@ syntax "/"
 
 syntax ","
 	= ...
-	# [.] [.] ;
+	# ".." ;
 
 syntax "-"
 	= ...
@@ -1219,7 +1221,7 @@ syntax "private"
 
 syntax "\<="
 	= ...
-	# [=] [\>] ;
+	# "=\>";
 
 syntax "num"
 	= ...

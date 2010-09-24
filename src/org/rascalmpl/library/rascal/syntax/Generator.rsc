@@ -32,6 +32,7 @@ public str generate(str package, str name, Grammar gr){
     println("generating item allocations");
     newItems = generateNewItems(gr);
    
+    println("def of Expression = <for (e <- gr.rules[sort("Expression")]) {>\n<e><}>");
     println("computing priority and associativity filter");
     dontNest = computeDontNests(newItems, gr);
    
@@ -242,6 +243,7 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
 }
 
 rel[int,int] computeDontNests(Items items, map[Production, int] prodItems, Production p) {
+// println("computing priorities for <p.rhs>\n\t<p>");
   switch (p) {
     case prod(_,_,attrs([_*,\assoc(Associativity a),_*])) : 
       return computeAssociativities(items, prodItems, a, {p});
@@ -253,10 +255,12 @@ rel[int,int] computeDontNests(Items items, map[Production, int] prodItems, Produ
       return computeDontNests(items, prodItems, a);
     case restrict(_,Production a,_) :
       return computeDontNests(items, prodItems,a);
-    case first(_, list[Production] levels) : 
+    case first(_, list[Production] levels) : {
       return computePriorities(items, prodItems, levels);
-    case \assoc(_, Associativity a, set[Production] alts) :
+    }
+    case \assoc(_, Associativity a, set[Production] alts) : {
       return computeAssociativities(items, prodItems, a, alts);
+    }
     case \lookahead(_,_,q) :
       return computeDontNests(items,prodItems,q); 
     case \others(_) : return {};
@@ -320,6 +324,7 @@ rel[int,int] computePriorities(Items items, map[Production, int] prodItems, list
   }
   
   ordering = ordering+; // priority is transitive
+  println("priorities: <ordering>");
   result = {};
   for (<Production p1, Production p2> <- ordering) {
     switch (p1) {
