@@ -15,13 +15,27 @@ public void tree1(){
     	[    	  
     	];
     	  
-    render(tree([gap(10), top()], nodes, edges, "A"));
+    render(tree([gap(10)], nodes, edges, "A"));
+}
+
+public void tree1a(){
+
+   nodes =
+     	[ box([id("A"), width(20), height(20), fillColor("green")])
+     	];
+     	
+    edges = 
+    	[    	  
+    	];
+    	  
+    render(hcat([center()],
+                [ ellipse([size(30)]), tree([gap(10)], nodes, edges, "A")]));
 }
 
 public void tree22(){
 
    nodes1 =
-     	[ box([id("A"), width(20), height(20), fillColor("green"), popup("A")])
+     	[ box([id("A"), width(40), height(40), fillColor("green"), popup("A")])
      	];
      	
     edges = 
@@ -35,7 +49,7 @@ public void tree22(){
     t1 = tree([gap(10), top()], nodes1, edges, "A");
     t2 = tree([gap(10), top()], nodes2, edges, "C");
     
-    render(hcat([gap(100)], [t1, t2]));
+    render(hcat([gap(100), bottom()], [t1, t2]));
 }
 
 // Tree: 2 nodes
@@ -87,7 +101,7 @@ public void tree3a(){
     	];
     	  
     render(hcat([ ellipse([size(30)]), 
-                  tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges, "A")
+                  tree([gap(10), size(20), lineWidth(1)], nodes, edges, "A")
                 ]));
 }
 
@@ -129,7 +143,7 @@ public void tree5a(){
     	  edge("B", "G")
     	];
     	    
-    render(tree([gap(10), top(), size(20), lineWidth(1)], nodes, edges, "A"));
+    render(tree([gap(10), size(20), lineWidth(1)], nodes, edges, "A"));
 }
 
 
@@ -309,18 +323,18 @@ public void tree9(){
 
 // TODO: 2 trees in a hcat
 
-public void tree10(){
+public Figure T1(){
  nodes1 =
-     	[ box([id("A"), width(20), height(20), fillColor("green"), popup("1:Text For Box A")]),
-     	  box([id("B"), width(20), height(20), fillColor("red"), popup("1:Text For Box B")]),
-     	  box([id("C"), width(20), height(20), fillColor("blue"), popup("1:Text For Box C")]),
-     	  box([id("D"), width(20), height(20), fillColor("purple"), popup("1:Text For Box D")]),
-     	  box([id("E"), width(20), height(20), fillColor("lightblue"), popup("1:Text For Box E")]),
-     	  box([id("F"), width(20), height(20), fillColor("orange"), popup("1:ext For Box F")]),
-     	  box([id("G"), width(20), height(20), fillColor("brown"), popup("1:Text For Box G")]),
-     	  box([id("H"), width(20), height(20), fillColor("black"), popup("1:Text For Box H")]),
-     	  box([id("I"), width(20), height(20), fillColor("grey"), popup("1:Text For Box I")]),
-     	  box([id("J"), width(20), height(20), fillColor("white"), popup("1:Text For Box J")])
+     	[ box([id("A"), size(20), fillColor("green"), popup("1:Text For Box A")]),
+     	  box([id("B"), size(20), fillColor("red"), popup("1:Text For Box B")]),
+     	  box([id("C"), size(20), fillColor("blue"), popup("1:Text For Box C")]),
+     	  box([id("D"), size(20), fillColor("purple"), popup("1:Text For Box D")]),
+     	  box([id("E"), size(20), fillColor("lightblue"), popup("1:Text For Box E")]),
+     	  box([id("F"), size(20), fillColor("orange"), popup("1:ext For Box F")]),
+     	  box([id("G"), size(20), fillColor("brown"), popup("1:Text For Box G")]),
+     	  box([id("H"), size(20), fillColor("black"), popup("1:Text For Box H")]),
+     	  box([id("I"), size(20), fillColor("grey"), popup("1:Text For Box I")]),
+     	  box([id("J"), size(20), fillColor("white"), popup("1:Text For Box J")])
      	];
     edges1 = 
     	[ edge([lineWidth(1)], "A", "B"),
@@ -332,22 +346,25 @@ public void tree10(){
     	  edge([lineWidth(1)], "E", "G"),
     	  edge([lineWidth(1)], "E", "I"),
     	  edge([lineWidth(1)], "E", "J")
-    	  
     	];	
     	
-   atree1 = tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes1, edges1, "A");    
-  
-   nodes2 =
-     	[ ellipse([id("A"), width(20), height(20), fillColor("green"), popup("2:Text For ellipse A")]),
-     	  ellipse([id("B"), width(20), height(20), fillColor("red"), popup("2:Text For ellipse B")]),
-     	  ellipse([id("C"), width(20), height(20), fillColor("blue"), popup("2:Text For ellipse C")]),
-     	  ellipse([id("D"), width(20), height(20), fillColor("purple"), popup("2:Text For ellipse D")]),
-     	  ellipse([id("E"), width(20), height(20), fillColor("lightblue"), popup("2:Text For ellipse E")]),
-     	  ellipse([id("F"), width(20), height(20), fillColor("orange"), popup("2:Text For ellipse F")]),
-     	  ellipse([id("G"), width(20), height(20), fillColor("brown"), popup("2:Text For ellipse G")]),
-     	  ellipse([id("H"), width(20), height(20), fillColor("black"), popup("2:Text For ellipse H")]),
-     	  ellipse([id("I"), width(20), height(20), fillColor("grey"), popup("2:Text For ellipse I")]),
-     	  ellipse([id("J"), width(20), height(20), fillColor("white"), popup("2:Text For ellipse J")])
+   return tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes1, edges1, "A");    
+}
+
+public Figure T2(){
+  nodes2 =
+     	[ ellipse([id("A"), size(25), fillColor("green"), popup("2:Text For ellipse A")]),
+     	  ellipse([id("B"), size(25), fillColor("red"), popup("2:Text For ellipse B")]),
+     	  ellipse([id("C"), size(25), fillColor("blue"), popup("2:Text For ellipse C")]),
+     	  ellipse([id("D"), size(25), fillColor("purple"), popup("2:Text For ellipse D")]),
+     	  ellipse([id("E"), size(25), fillColor("lightblue"), popup("2:Text For ellipse E")]),
+     	  ellipse([id("F"), size(25), fillColor("orange"), popup("2:Text For ellipse F")]),
+     	  ellipse([id("G"), size(25), fillColor("brown"), popup("2:Text For ellipse G")]),
+     	  ellipse([id("H"), size(25), fillColor("black"), popup("2:Text For ellipse H")]),
+     	  ellipse([id("I"), size(25), fillColor("grey"), popup("2:Text For ellipse I")]),
+     	  ellipse([id("J"), size(25), fillColor("white"), popup("2:Text For ellipse J")]),
+     	  ellipse([id("K"), size(25), fillColor("pink"), popup("2:Text For ellipse K")]),
+     	  ellipse([id("L"), size(25), fillColor("snow"), popup("2:Text For ellipse L")])
      	];
     edges2 = 
     	[ edge([lineWidth(1)], "A", "B"),
@@ -358,10 +375,34 @@ public void tree10(){
     	  edge([lineWidth(1)], "E", "F"),
     	  edge([lineWidth(1)], "E", "G"),
     	  edge([lineWidth(1)], "E", "I"),
-    	  edge([lineWidth(1)], "E", "J")
-    	  
+    	  edge([lineWidth(1)], "E", "J"),
+    	  edge([lineWidth(1)], "J", "K"),
+    	  edge([lineWidth(1)], "K", "L")
     	];	    
-    atree2 = tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes2, edges2, "A");
-    
-    render(hcat([top()], [atree1, atree2]));
+    return tree([gap(10), top(), lineWidth(1), fillColor("black")], nodes2, edges2, "A");
 }
+
+public void tree10a(){
+    render(hcat([top(), gap(20), top()], [T1(), T2()]));
+}
+
+public void tree10b(){
+    render(hcat([top(), gap(20)], [T1(), T2()]));
+}
+
+public void tree10c(){
+    render(hcat([top(), gap(20), bottom()], [T1(), T2()]));
+}
+
+public void tree10d(){
+    render(vcat([top(), gap(20), left()], [T1(), T2()]));
+}
+
+public void tree10e(){
+    render(vcat([top(), gap(20), center()], [T1(), T2()]));
+}
+public void tree10f(){
+    render(vcat([top(), gap(20), right()], [T1(), T2()]));
+}
+
+
