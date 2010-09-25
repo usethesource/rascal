@@ -1,3 +1,4 @@
+
 package org.rascalmpl.library.viz.Figure;
 
 import java.util.ArrayList;
@@ -45,11 +46,11 @@ public class TreeNode extends Figure {
 	 * @param rootMidX	x coordinate of center of the root figure
 	 * @param rootTop	y coordinate of top of root figure
 	 * @param raster	NodeRaster to be used
-	 * @return the x position of the root
+	 * @return the x position of the center of the root
 	 */
 	float shapeTree(float rootMidX, float rootTop, TreeNodeRaster raster) {
-
-		System.err.printf("shapeTree: rootMidX=%f, rootTop=%f\n", rootMidX, rootTop);
+        String id = figure.getIdProperty();
+		System.err.printf("shapeTree: id=%s, rootMidX=%f, rootTop=%f\n", id, rootMidX, rootTop);
 		figure.bbox();
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
@@ -60,7 +61,6 @@ public class TreeNode extends Figure {
 		
 		height = figure.height;
 		width = figure.width;
-		
 		
 		int nChildren = children.size();
 
@@ -85,7 +85,7 @@ public class TreeNode extends Figure {
 			// Place leftmost child
 			leftPosition = children.get(0).shapeTree(branchPosition, childTop, raster);
 			
-			System.err.printf("shapeTree(%f, %f) => branchPosition=%f, leftPosition=%f\n", rootMidX, rootTop, branchPosition, leftPosition);
+			System.err.printf("shapeTree(%s, %f, %f) => branchPosition=%f, leftPosition=%f\n", id, rootMidX, rootTop, branchPosition, leftPosition);
 			rightPosition = leftPosition;
 			
 			float heightChildren = children.get(0).height;
@@ -102,11 +102,11 @@ public class TreeNode extends Figure {
 			leftPosition = rightPosition = width/2;
 		}
 	
-		// After placing all children, we can finally add the current figure to the tree.
+		// After placing all children, we can finally add the current root figure to the raster.
 		raster.add(position, rootTop, figure.width, figure.height);
 		this.left = position - width/2;
 		this.top = rootTop;
-		System.err.printf("shapeTree(%f, %f) => position=%f, left=%f, top=%f, width=%f, height=%f\n", rootMidX, rootTop, position, left, top, width, height);
+		System.err.printf("shapeTree(%s, %f, %f) => position=%f, left=%f, top=%f, width=%f, height=%f\n", id, rootMidX, rootTop, position, left, top, width, height);
 		return position;
 	}
 	
@@ -117,52 +117,108 @@ public class TreeNode extends Figure {
 	
 	@Override
 	void draw(float left, float top){
-		
-		System.err.printf("draw(%f,%f)\n", this.left, this.top);
-	//	this.left = left;
-	//	this.top = top;
-	//	left += leftDragged;
-	//	top += topDragged;
+		String id = figure.getIdProperty();
 		boolean squareStyle = true;
-		
-		applyProperties();
-		float figMiddleX = left + leftPosition + (rightPosition - leftPosition)/2;
-		System.err.printf("draw figure at %f, %f", figMiddleX - figure.width/2, top);
-		System.err.printf(", left = %f, leftPosition=%f, rightPosition=%f\n", left, leftPosition, rightPosition);
-		figure.draw(figMiddleX - figure.width/2, top + this.top);
-		
 		int nChildren = children.size();
 		
+		applyProperties();
+		
+		if(nChildren == 0){
+			figure.draw(left + this.left, top + this.top);
+			return;
+		}
+	
+		float absPosition = left + leftPosition + (rightPosition - leftPosition)/2;
+		float absLeftRootFig = absPosition - figure.width/2;
+		float absMiddleXofFig = absPosition;
+		System.err.printf("draw figure %s at %f, %f", id, absLeftRootFig, top + this.top);
+		System.err.printf(", left = %f, this.left=%f, leftPosition=%f, rightPosition=%f\n", left, this.left, leftPosition, rightPosition);
+//		figure.draw(figMiddleX - figure.width/2, this.top);
+		figure.draw(absLeftRootFig, top + this.top);
+		
+	
+		
 		if(nChildren > 0 && visible){
-			float figBottomY = top + figure.height;
+			float absFigBottomY = top + this.top + figure.height;
 			float vgap = getVGapProperty();
-			final float childTop = figBottomY + vgap;
-			float horLineY = figBottomY + vgap/2;
+			final float absChildTop = absFigBottomY + vgap;
+			float absHorLineY = absFigBottomY + vgap/2;
 		
 			if(squareStyle){
-				System.err.printf("figMiddleX=%f, figBottomY=%f\n", figMiddleX, figBottomY);
-				vlp.line(figMiddleX, figBottomY, figMiddleX, horLineY);
+				// Vertical line from bottom of current figure to horizontal line
+				System.err.printf("%s: absFigMiddleX=%f, absFigBottomY=%f\n", id, absMiddleXofFig, absFigBottomY);
+				vlp.line(absMiddleXofFig, absFigBottomY, absMiddleXofFig, absHorLineY);
 			
 			// TODO line style!
 		
 				for(TreeNode child : children){
 					if(!squareStyle)
-						vlp.line(figMiddleX, figBottomY, child.figure.left + child.figure.width/2, childTop);
-					float midChild = child.getRealMiddle();
+						vlp.line(absMiddleXofFig, absFigBottomY, child.figure.left + child.figure.width/2, absChildTop);
+					float absMidChild = left + child.getRealMiddle();
 					
-					System.err.printf("midChild=%f, childCurrentTop=%f\n", midChild,  child.getRealTop());
+					System.err.printf("%s: absMidChild=%f, childCurrentTop=%f\n", id, absMidChild,  child.getRealTop());
 					
-					vlp.line(midChild, child.getRealTop(), midChild, horLineY);
+					// Vertical line from horizontal line to top of this child
+					vlp.line(absMidChild, top + child.getRealTop(), absMidChild, absHorLineY);
 					child.draw(left, top);
-				
 				}
 				
 				if(nChildren> 1)
-					vlp.line(children.get(0).getRealMiddle(), horLineY, children.get(nChildren-1).getRealMiddle(), horLineY);
+					vlp.line(left + children.get(0).getRealMiddle(), absHorLineY, left + children.get(nChildren-1).getRealMiddle(), absHorLineY);
 			}
 
 		}
 	}
+	
+//	void xxxdraw(float left, float top){
+//		String id = figure.getIdProperty();
+//		
+//		System.err.printf("draw(%s, %f,%f)\n", id, this.left, this.top);
+//	//	this.left = left;
+//	//	this.top = top;
+//	//	left += leftDragged;
+//	//	top += topDragged;
+//		boolean squareStyle = true;
+//		
+//		applyProperties();
+//		float figMiddleX = left + this.left + leftPosition + (rightPosition - leftPosition)/2;
+//		System.err.printf("draw figure %s at %f, %f", id, figMiddleX - figure.width/2, top);
+//		System.err.printf(", left = %f, leftPosition=%f, rightPosition=%f\n", left, leftPosition, rightPosition);
+////		figure.draw(figMiddleX - figure.width/2, this.top);
+//		figure.draw(this.left + left, this.top + top);
+//		
+//		int nChildren = children.size();
+//		
+//		if(nChildren > 0 && visible){
+//			float figBottomY = this.top + figure.height;
+//			float vgap = getVGapProperty();
+//			final float childTop = figBottomY + vgap;
+//			float horLineY = figBottomY + vgap/2;
+//		
+//			if(squareStyle){
+//				System.err.printf("%s: figMiddleX=%f, figBottomY=%f\n", id, figMiddleX, figBottomY);
+//				vlp.line(figMiddleX, figBottomY, figMiddleX, horLineY);
+//			
+//			// TODO line style!
+//		
+//				for(TreeNode child : children){
+//					if(!squareStyle)
+//						vlp.line(figMiddleX, figBottomY, child.figure.left + child.figure.width/2, childTop);
+//					float midChild = this.left + child.getRealMiddle();
+//					
+//					System.err.printf("%s: midChild=%f, childCurrentTop=%f\n", id, midChild,  child.getRealTop());
+//					
+//					vlp.line(midChild, child.getRealTop(), midChild, horLineY);
+//					child.draw(left, top);
+//				
+//				}
+//				
+//				if(nChildren> 1)
+//					vlp.line(this.left + children.get(0).getRealMiddle(), horLineY, this.left + children.get(nChildren-1).getRealMiddle(), horLineY);
+//			}
+//
+//		}
+//	}
 	
 	@Override
 	public boolean mouseInside(int mousex, int mousey){

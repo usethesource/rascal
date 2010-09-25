@@ -21,10 +21,6 @@ import processing.core.PConstants;
  * 
  */
 
-/**
- * @author paulk
- *
- */
 public class Container extends Figure {
 
 	protected Figure inside;
