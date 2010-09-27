@@ -367,8 +367,7 @@ Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
                          if (c[0]==NULL()) out+=c[1]; else {
                               out+=c[0];
                               if (first) {
-                                   Box r=H(1,out);
-                                   out=[r];
+                                   out = [H(1,out)];
                                    first=false;
                                    }
                               else {
@@ -381,31 +380,31 @@ Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
                              }
                          }
                else if (i in indent) {
+                      if (first) {
+                          out = [H(1,out)];
+                          first=false;
+                          }
                        collectList+= b;
                        }
                     else {
                       if (!isEmpty(collectList)) {
-                          out = [H(out)];
-                          out = [V(out+I([V(collectList)])+b)];
+                          out += I([V(collectList)]);
+                          out+= b;
                           collectList=[];
                           }
                       else out+=b;
                     }
            }
      if (!isEmpty(collectList)) {
-          out = [H(out)];
-          out = [V(out+I([V(collectList)]))];
+          out += I([V(collectList)]);
           }
-     list[Box]
-     bl=
-     (hv&&isSeparated(y))?[H(1,out)]:
-     (doIndent?[V(0,out)]:(!collect?out:[V([out,I([V(collectList)])])]));
-     if (size(bl)==0) return NULL();
-     if (size(bl)==1) {
-          return bl[0];
+     if (hv && isSeparated(y)) out = [H(1,out)];
+     if (size(out)==0) return NULL();
+     if (size(out)==1) {
+          return out[0];
           }
      else {
-          Box r=(hv&&!doIndent &&isEmpty(block))?HV(-1,bl):V(0,bl);
+          Box r=(hv&&!doIndent &&isEmpty(block) && isEmpty(indent))?HV(-1,out):V(0,out);
           if (space>=0) r@hs=space;
           return r;
           }
