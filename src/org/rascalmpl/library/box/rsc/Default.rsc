@@ -31,6 +31,7 @@ list[UserDefinedFilter] userDefinedFilters = [
 list[int] isIndent(list[Symbol] q) {
        if (isScheme(q , ["N", "T", "(", "N", ")","{", "N","}"])) return [6, 7];
        if (isScheme(q , ["T", "(", "N", ")","{", "N","}"])) return [5, 6];  // visit
+       if (isScheme(q , ["N","T", "(", "N", ")", "N", "else", "N"])) return  [5, 7];
        // if (isScheme(q , ["N","when", "N"])) return [2]; // pattern with action when
        return [];
        }
@@ -39,7 +40,7 @@ list[int] isBlok(list[Symbol] q, list[Tree] z) {
         if (isScheme(q , ["N","T", "(", "N", ")", "N"])) return isBlock(z, 5);  // for
         if (isScheme(q , ["N","T", "(", "N", ")", "N", "N"])) return isBlock(z, 5); // if then
         if (isScheme(q , ["N", "N", "N", "N"])) return isBody(z,3); // Visibility Signature FunctionBody
-        if (isScheme(q , ["N","T", "(", "N", ")", "N", "else", "N"]))
+        if (isScheme(q , ["N","T", "(", "N", ")", "N", "else", "N"])) 
                       return isBlock(z,5)+isBlock(z,7); // If then else
         if (isScheme(q , ["T", "N", "N"])) return isBlock(z, 1);  // try
         if (isScheme(q , ["T", "T", "N"])) return isBlock(z, 2);  // catch
