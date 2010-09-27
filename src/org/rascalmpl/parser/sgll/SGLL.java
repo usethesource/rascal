@@ -485,7 +485,13 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
+	protected boolean isAtEndOfInput(){
+		return (location == input.length);
+	}
+	
 	protected boolean isInLookAhead(char[][] ranges, char[] characters){
+		if(location == input.length) return false;
+		
 		char next = input[location];
 		for(int i = ranges.length - 1; i >= 0; --i){
 			char[] range = ranges[i];
