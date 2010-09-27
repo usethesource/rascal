@@ -1,8 +1,8 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
+import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
@@ -14,6 +14,7 @@ public abstract class AbstractStackNode{
 	protected final static int DEFAULT_LIST_EPSILON_ID = -2; // (0xeffffffe | 0x80000000)
 	
 	protected AbstractStackNode next;
+	protected LinearIntegerKeyedMap<AbstractStackNode> alternateNexts;
 	protected LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap;
 	protected ArrayList<Link>[] prefixesMap;
 	
@@ -53,6 +54,7 @@ public abstract class AbstractStackNode{
 		id = original.id;
 		
 		next = original.next;
+		alternateNexts = original.alternateNexts;
 		edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>();
 		
 		startLocation = original.startLocation;
@@ -71,6 +73,7 @@ public abstract class AbstractStackNode{
 		id = original.id;
 
 		next = original.next;
+		alternateNexts = original.alternateNexts;
 		edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>(original.edgesMap);
 		
 		prefixesMap = prefixes;
@@ -169,8 +172,19 @@ public abstract class AbstractStackNode{
 	}
 	
 	// Linking & prefixes.
-	public void addNext(AbstractStackNode next){
+	public void setNext(AbstractStackNode next){
 		this.next = next;
+	}
+	
+	public void addNext(AbstractStackNode next){
+		if(this.next == null){
+			this.next = next;
+		}else{
+			if(alternateNexts == null){
+				alternateNexts = new LinearIntegerKeyedMap<AbstractStackNode>();
+			}
+			alternateNexts.add(next.getId(), next);
+		}
 	}
 	
 	public boolean hasNext(){
@@ -179,6 +193,10 @@ public abstract class AbstractStackNode{
 	
 	public AbstractStackNode getNext(){
 		return next;
+	}
+	
+	public LinearIntegerKeyedMap<AbstractStackNode> getAlternateNexts(){
+		return alternateNexts;
 	}
 	
 	public void addEdge(AbstractStackNode edge){
@@ -323,6 +341,11 @@ public abstract class AbstractStackNode{
 				}
 			}
 		}
+	}
+	
+	public void updatePrefixSharedNode(LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+		this.edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>(edgesMap);
+		this.prefixesMap = prefixesMap;
 	}
 	
 	public boolean hasEdges(){
