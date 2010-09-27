@@ -1,3 +1,0 @@
-#! /bin/sh
-
-meta-build || (echo "Please install meta-build-env first" && false)
