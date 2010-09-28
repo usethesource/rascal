@@ -128,8 +128,8 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
   int newItem() { counter += 1; return counter; }
   
   visit (g) {
-    case Production p:prod([],Symbol s,_) : 
-       items[s]?fresh += (item(p, 0):<"new EpsilonStackNode(<newItem()>)", counter>);
+    case Production p:prod([],Symbol s,_) :
+       items[s]?fresh += (item(p, -1):<"new EpsilonStackNode(<newItem()>)", counter>);
     case Production p:prod(list[Symbol] lhs, Symbol s,_) : 
       for (int i <- index(lhs)) 
         items[s]?fresh += (item(p, i): sym2newitem(g, lhs[i], newItem));
@@ -237,8 +237,8 @@ str generateRangeConditional(CharRange r) {
 }
 
 rel[int,int] computeDontNests(Items items, Grammar grammar) {
-  // first we compute a map from productions to their first items
-  prodItems = ( p:items[rhs][item(p,0)].itemId | /Production p:prod(_,Symbol rhs, _) := grammar);
+  // first we compute a map from productions to their last items (which identify each production)
+  prodItems = ( p:items[rhs][item(p,size(lhs)-1)].itemId | /Production p:prod(list[Symbol] lhs,Symbol rhs, _) := grammar);
    
   return {computeDontNests(items, prodItems, p) | Symbol s <- grammar.rules, Production p <- grammar.rules[s]};
 }
@@ -404,7 +404,7 @@ public str generateRestrictions(set[Production] restrictions) {
 
 public str generateSymbolItemExpects(Production prod){
     if(prod.lhs == []){
-        return value2id(item(prod, 0));
+        return value2id(item(prod, -1));
     }
     
     return ("<value2id(item(prod, 0))>" | it + ",\n\t\t" + value2id(item(prod, i+1)) | int i <- index(tail(prod.lhs)));
