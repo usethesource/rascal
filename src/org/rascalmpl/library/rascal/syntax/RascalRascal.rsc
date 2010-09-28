@@ -378,14 +378,14 @@ syntax Assignment
 	| Addition: "+=" ;
 
 syntax Assignable
-	= Subscript: Assignable receiver "[" Expression subscript "]" 
-	| FieldAccess: Assignable receiver "." Name field 
+	= bracket Bracket   : "(" Assignable arg ")"
+	| Variable          : QualifiedName qualifiedName
+    | Subscript         : Assignable receiver "[" Expression subscript "]" 
+	| FieldAccess       : Assignable receiver "." Name field 
 	| IfDefinedOrDefault: Assignable receiver "?" Expression defaultExpression 
-	> non-assoc (  non-assoc Constructor: Name name "(" {Assignable ","}+ arguments ")"  
-		| non-assoc Annotation: Assignable receiver "@" Name annotation 
-		| Tuple: "\<" {Assignable ","}+ elements "\>" 
-	)
-	| Variable: QualifiedName qualifiedName ;
+	| Constructor       : Name name "(" {Assignable ","}+ arguments ")"  
+	| Tuple             : "\<" {Assignable ","}+ elements "\>" 
+	| Annotation        : Assignable receiver "@" Name annotation  ;
 
 syntax StringConstant
 	= /*term(category("Constant"))*/ lex "\"" StringCharacter* "\"" ;
