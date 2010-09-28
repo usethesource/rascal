@@ -32,7 +32,6 @@ public str generate(str package, str name, Grammar gr){
     println("generating item allocations");
     newItems = generateNewItems(gr);
    
-    println("def of Expression = <for (e <- gr.rules[sort("Expression")]) {>\n<e><}>");
     println("computing priority and associativity filter");
     dontNest = computeDontNests(newItems, gr);
    

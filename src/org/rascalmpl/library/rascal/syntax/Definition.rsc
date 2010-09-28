@@ -58,7 +58,7 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   }
   
   for ((SyntaxDefinition) `syntax <Sym u> = <Prod p>;` <- defs) {
-    prods += prod2prod(arg2symbol(u, false, layoutName), p, layoutName, false);
+     prods += prod2prod(arg2symbol(u, false, layoutName), p, layoutName, false);
   }
 
   return grammar(starts, \layouts(prods, layoutName) 
@@ -109,7 +109,7 @@ private Production prod2prod(Symbol nt, Prod p, str layoutName, bool inLayout) {
       return choice(nt,{prod2prod(nt, l, layoutName, inLayout), prod2prod(nt, r, layoutName, inLayout)});
     case (Prod) `<Prod l> # <Prod r>` :
         return restrict(nt,prod2prod(nt,l,layoutName, inLayout), {prod2prod(restricted(nt),r,layoutName, true)});
-    case (Prod) `<Prod l> > <Prod r>` :
+    case (Prod) `<Prod l> > <Prod r>` : 
       return first(nt,[prod2prod(nt, l, layoutName, inLayout), prod2prod(nt, r, layoutName, inLayout)]);
     case (Prod) `<Prod l> - <Prod r>` : 
       return diff(nt, prod2prod(nt, l, layoutName, inLayout), {attribute(prod2prod(nt, r, layoutName, inLayout), reject())});
