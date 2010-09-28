@@ -213,7 +213,7 @@ syntax Expression
 	| Set            : "{" {Expression ","}* elements "}" 
 	| List           : "[" {Expression ","}* elements "]"
 	| ReifyType      : "#" Type type 
-	| Range          : "[" Expression first ".." Expression last "]" 
+	| Range          : "[" Expression first ".." Expression last "]"
 	| Tuple          : "\<" {Expression ","}+ elements "\>" 
 	| Map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| It             : "it" 
@@ -229,7 +229,6 @@ syntax Expression
 	| FieldProject: Expression expression "\<" {Field ","}+ fields "\>" 
 	| ReifiedType : BasicType basicType "(" {Expression ","}* arguments ")" 
 	| Subscript   : Expression expression "[" {Expression ","}+ subscripts "]" 
-	| CallOrTree  : Expression expression "(" {Expression ","}* arguments ")" 
 	> IsDefined: Expression argument "?" 
 	> Negation: "!" Expression argument 
 	| Negative: "-" Expression argument 

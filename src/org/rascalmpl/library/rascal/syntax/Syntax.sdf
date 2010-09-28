@@ -26,8 +26,8 @@ context-free priorities
 }
 > lhs:Prod "-" rhs:Prod -> Prod {cons("Reject"), left}
 > lhs:Prod "#" rhs:Prod -> Prod {cons("Follow"), left}
-> lhs:Prod ">" rhs:Prod -> Prod {cons("First"), left}
 > lhs:Prod "|" rhs:Prod -> Prod {cons("All"), left}
+> lhs:Prod ">" rhs:Prod -> Prod {cons("First"), left}
 
 
 context-free syntax

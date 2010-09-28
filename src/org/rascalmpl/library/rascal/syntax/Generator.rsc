@@ -37,6 +37,8 @@ public str generate(str package, str name, Grammar gr){
    
     println("computing lookahead sets");
     gr = computeLookaheads(gr);
+    
+    
   
     println("optimizing lookahead automaton");
     gr = compileLookaheads(gr);
@@ -242,7 +244,6 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
 }
 
 rel[int,int] computeDontNests(Items items, map[Production, int] prodItems, Production p) {
-// println("computing priorities for <p.rhs>\n\t<p>");
   switch (p) {
     case prod(_,_,attrs([_*,\assoc(Associativity a),_*])) : 
       return computeAssociativities(items, prodItems, a, {p});
@@ -323,7 +324,7 @@ rel[int,int] computePriorities(Items items, map[Production, int] prodItems, list
   }
   
   ordering = ordering+; // priority is transitive
-  println("priorities: <ordering>");
+
   result = {};
   for (<Production p1, Production p2> <- ordering) {
     switch (p1) {

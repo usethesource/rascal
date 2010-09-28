@@ -53,7 +53,7 @@ public void bootFromRascal() {
   Module \module = parse(#Module, |project://RascalLibrary/src/rascal/syntax/RascalRascal.rsc|);
   println("imploding the syntax definition and normalizing and desugaring it");
   Grammar gr = module2grammar(\module);
-  treeView(gr.rules[sort("Expression")]);
+//  treeView(gr.rules[sort("Expression")]);
   println("dumping grammar");
   writeBinaryValueFile(|project://RascalLibrary/src/rascal/syntax/Rascal.grammar|, gr);
   println("generating Java source code");
