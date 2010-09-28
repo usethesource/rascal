@@ -516,6 +516,9 @@ public abstract class SGLL implements IGLL{
 					continue EXPECT;
 				}
 				
+				sharedNode.setParentProduction(last.getParentProduction());
+				sharedNode.setFollowRestriction(last.getFollowRestriction());
+				sharedNode.setReject(last.isReject());
 				sharedNode.markAsEndNode();
 				
 				continue EXPECT;
