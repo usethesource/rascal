@@ -270,10 +270,10 @@ syntax Expression
 
 // extra priorities duplicate productions from above
 // TODO: replace by constructor references
-syntax Exp = TransitiveClosure         : Exp argument "+" 
+// syntax Expression = TransitiveClosure  : Expression argument "+" 
 	       // | TransitiveReflexiveClosure: Exp argument "*" 
-           > List                      : "[" {Exp ","}* elements "]"
-           ;
+           // > List                      : "[" {Expression ","}* elements "]"
+           // ;
            
 syntax UserType
 	= Name: QualifiedName name 
@@ -1087,7 +1087,7 @@ syntax "false"
 	= ...
 	# [\- 0-9 A-Z _ a-z] ;
 
-syntax "on "
+syntax "on"
 	= ...
 	# [\- 0-9 A-Z _ a-z] ;
 
