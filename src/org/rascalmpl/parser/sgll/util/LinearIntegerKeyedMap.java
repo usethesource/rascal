@@ -15,6 +15,13 @@ public class LinearIntegerKeyedMap<V>{
 		values = (V[]) new Object[DEFAULT_SIZE];
 	}
 	
+	public LinearIntegerKeyedMap(int size){
+		super();
+		
+		keys = new int[size];
+		values = (V[]) new Object[size];
+	}
+	
 	public LinearIntegerKeyedMap(LinearIntegerKeyedMap<V> original){
 		super();
 		
