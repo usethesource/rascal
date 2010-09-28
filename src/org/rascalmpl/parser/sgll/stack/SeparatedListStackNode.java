@@ -106,6 +106,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		listNode.markAsEndNode();
 		listNode.setStartLocation(startLocation);
 		listNode.setParentProduction(production);
+		listNode.initEdges();
 		listNode.addEdgeWithPrefix(this, null, startLocation);
 		
 		AbstractStackNode from = listNode;
@@ -129,6 +130,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		empty.markAsEndNode();
 		empty.setStartLocation(startLocation);
 		empty.setParentProduction(production);
+		empty.initEdges();
 		empty.addEdge(this);
 		
 		return new AbstractStackNode[]{listNode, empty};
