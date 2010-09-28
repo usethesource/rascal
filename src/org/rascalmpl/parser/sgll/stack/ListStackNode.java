@@ -102,6 +102,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		listNode.setStartLocation(startLocation);
 		listNode.setParentProduction(production);
 		listNode.setNext(listNode);
+		listNode.initEdges();
 		listNode.addEdgeWithPrefix(this, null, startLocation);
 		
 		if(isPlusList){
@@ -112,6 +113,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		empty.markAsEndNode();
 		empty.setStartLocation(startLocation);
 		empty.setParentProduction(production);
+		empty.initEdges();
 		empty.addEdge(this);
 		
 		return new AbstractStackNode[]{listNode, empty};
