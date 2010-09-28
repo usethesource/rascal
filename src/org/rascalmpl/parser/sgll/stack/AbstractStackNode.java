@@ -139,6 +139,10 @@ public abstract class AbstractStackNode{
 		this.followRestrictions = followRestrictions;
 	}
 	
+	public IMatchableStackNode[] getFollowRestriction() {
+		return followRestrictions;
+	}
+	
 	public boolean isReductionFiltered(char[] input, int location){
 		// Check if follow restrictions apply.
 		if(followRestrictions != null){
@@ -153,6 +157,10 @@ public abstract class AbstractStackNode{
 	
 	public void markAsReject(){
 		isReject = true;
+	}
+	
+	public void setReject(boolean isReject){
+		this.isReject = isReject;
 	}
 	
 	public boolean isReject(){
