@@ -15,6 +15,7 @@ import org.rascalmpl.library.rascal.syntax.RascalRascal;
 public class NewRascalParser implements IRascalParser {
 	private static final String START_COMMAND = "start__Command";
 	private static final String START_MODULE = "start__Module";
+	private static IParserInfo info; // do not use for parsing (parsers cache state local to a sentence)
 	
 	public IConstructor parseCommand(Set<String> sdfImports,
 			List<String> sdfSearchPath, URI location, String command)
@@ -25,7 +26,9 @@ public class NewRascalParser implements IRascalParser {
 	public IConstructor parseModule(List<String> sdfSearchPath,
 			Set<String> sdfImports, URI location, InputStream source,
 			ModuleEnvironment env) throws IOException {
-		return new RascalRascal().parse(START_MODULE, location, source);
+		RascalRascal rp = new RascalRascal();
+		info = (IParserInfo) rp;
+		return rp.parse(START_MODULE, location, source);
 	}
 
 	public IConstructor parseModule(List<String> sdfSearchPath,
@@ -51,4 +54,10 @@ public class NewRascalParser implements IRascalParser {
 		throw new NotYetImplemented("new rascal parser");
 	}
 
+	public IParserInfo getInfo() {
+		if (info == null) {
+			info = (IParserInfo) new RascalRascal();
+		}
+		return info;
+	}
 }

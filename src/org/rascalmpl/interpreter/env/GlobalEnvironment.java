@@ -1,11 +1,13 @@
 package org.rascalmpl.interpreter.env;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.PatternWithAction;
@@ -29,9 +31,15 @@ public class GlobalEnvironment {
 	/** Normalizing rules are a global feature */
 	private final Map<Type, List<RewriteRule>> ruleEnvironment = new HashMap<Type, List<RewriteRule>>();
 	
+	/** Keeping track of module locations */
+	private final Map<String, URI> moduleLocations = new HashMap<String,URI>();
+	private final Map<URI, String> locationModules = new HashMap<URI,String>();
+	
 	public void clear() {
 		moduleEnvironment.clear();
 		ruleEnvironment.clear();
+		moduleLocations.clear();
+		locationModules.clear();
 	}
 	
 	/**
@@ -127,8 +135,16 @@ public class GlobalEnvironment {
 		moduleEnvironment.remove(env.getName());
 	}
 
-
+	public void setModuleURI(String name, URI location) {
+		moduleLocations.put(name, location);
+		locationModules.put(location, name);
+	}
 	
-
+	public URI getModuleURI(String name) {
+		return moduleLocations.get(name);
+	}
 	
+	public String getModuleForURI(URI location) {
+		return locationModules.get(location);
+	}
 }

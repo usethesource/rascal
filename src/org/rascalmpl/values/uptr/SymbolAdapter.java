@@ -16,6 +16,10 @@ public class SymbolAdapter {
 	public static boolean isCf(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Cf;
 	}
+	
+	public static boolean isLabel(IConstructor sym) {
+		return sym.getConstructorType() == Factory.Symbol_Label;
+	}
 
 	public static boolean isLex(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Lex;
@@ -41,7 +45,7 @@ public class SymbolAdapter {
 	}
 
 	public static IConstructor getSymbol(IConstructor tree) {
-		if (isCf(tree) || isLex(tree) || isOpt(tree) || isIterPlus(tree) || isIterPlusSep(tree) || isIterStar(tree) || isIterStarSep(tree)) {
+		if (isLabel(tree) || isCf(tree) || isLex(tree) || isOpt(tree) || isIterPlus(tree) || isIterPlusSep(tree) || isIterStar(tree) || isIterStarSep(tree)) {
 			return ((IConstructor) tree.get("symbol"));
 		}
 		
@@ -63,9 +67,20 @@ public class SymbolAdapter {
 		else if (isParameterizedSort(tree)) {
 			return ((IString) tree.get("sort")).getValue();
 		}
+		else if (isLabel(tree)) {
+			return ((IString) tree.get("name")).getValue();
+		}
 		else {
 			throw new ImplementationError("Symbol does not have a child named \"name\": " + tree);
 		}
+	}
+	
+	public static String getLabel(IConstructor tree) {
+		if (isLabel(tree)) {
+			return ((IString) tree.get("label")).getValue();
+		}
+		
+		throw new ImplementationError("Symbol does not have a child named \"label\" : " + tree);
 	}
 
 	public static boolean isParameterizedSort(IConstructor tree) {

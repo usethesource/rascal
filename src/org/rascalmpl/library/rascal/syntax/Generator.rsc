@@ -5,6 +5,7 @@ import rascal::syntax::Parameters;
 import rascal::syntax::Regular;
 import rascal::syntax::Normalization;
 import rascal::syntax::Lookahead;
+import rascal::syntax::Actions;
 import ParseTree;
 import String;
 import List;
@@ -19,6 +20,8 @@ private data Item = item(Production production, int index);
 private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 
 public str generate(str package, str name, Grammar gr){
+    println("extracting actions");
+    <gr, actions> = extractActions(gr);
     
     println("expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
@@ -38,8 +41,6 @@ public str generate(str package, str name, Grammar gr){
     println("computing lookahead sets");
     gr = computeLookaheads(gr);
     
-    
-  
     println("optimizing lookahead automaton");
     gr = compileLookaheads(gr);
    
@@ -52,7 +53,13 @@ package <package>;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ITuple;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.sgll.SGLL;
@@ -60,11 +67,14 @@ import org.rascalmpl.parser.sgll.stack.*;
 import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.IntegerList;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.IParserInfo;
 
-public class <name> extends SGLL{
-	private static IConstructor read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
+public class <name> extends SGLL implements IParserInfo {
+	private static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
 		try{
-			return (IConstructor) new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+			return new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
 		}catch(FactTypeUseException e){
 			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
 		}catch(IOException e){
@@ -72,32 +82,48 @@ public class <name> extends SGLL{
 		}
 	}
 	
-	private static final IntegerKeyedHashMap\<IntegerList\> dontNest;
+	private static final TypeFactory _tf = TypeFactory.getInstance();
+	private static final IMap _actions = (IMap) _read(<split("<actions>")>, _tf.mapType(Factory.Production, Factory.Tree));
+	private static final IRelation _prios = (IRelation) _read(<split("<dontNest>")>, _tf.relType(_tf.integerType(),_tf.integerType()));
+	private static final IntegerKeyedHashMap\<IntegerList\> _dontNest;
+	private static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions;
 	
-    private static void putDontNest(int i, int j) {
-    	IntegerList donts = dontNest.get(i);
+    private static void _putDontNest(int i, int j) {
+    	IntegerList donts = _dontNest.get(i);
     	if(donts == null){
     		donts = new IntegerList();
-    		dontNest.put(i, donts);
+    		_dontNest.put(i, donts);
     	}
     	donts.add(j);
     }
     
-    static{
-      dontNest = new IntegerKeyedHashMap\<IntegerList\>();
-      <for(<int parent, int child> <- dontNest) {>
-      putDontNest(<parent>,<child>); <}>
+    static {
+      _dontNest = new IntegerKeyedHashMap\<IntegerList\>();
+      for (IValue e : _prios) {
+        ITuple t = (ITuple) e;
+        _putDontNest(((IInteger) t.get(0)).intValue(), ((IInteger) t.get(1)).intValue());
+      }
+      
+      ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
+      _languageActions = new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>();
+      for (IValue key : _actions) {
+        _languageActions.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(_actions.get(key)));
+      }
+    }
+    
+    public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
+      return _languageActions.get(prod);
     }
     
 	protected boolean isPrioFiltered(int parentItem, int child) {
-		IntegerList donts = dontNest.get(parentItem);
+		IntegerList donts = _dontNest.get(parentItem);
 		if(donts == null) return false;
 		return donts.contains(child);
 	}
 	
     // Production declarations
 	<for (p <- uniqueProductions) {>
-	private static final IConstructor <value2id(p)> = read(\"<esc("<p>")>\", Factory.Production);<}>
+	private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", Factory.Production);<}>
     
 	// Item declarations
 	<for (Symbol s <- newItems, isNonterminal(s)) { items = newItems[s]; >
@@ -152,6 +178,15 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
      }
   }
   return items;
+}
+
+private str split(str x) {
+  if (size(x) <= 10000) {
+    return "\"<esc(x)>\"";
+  }
+  else {
+    return "<split(substring(x, 0,10000))> + <split(substring(x, 10000))>"; 
+  }
 }
 
 @doc{this function selects all symbols for which a parse method should be generated}

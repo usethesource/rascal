@@ -518,7 +518,7 @@ public class TypeEvaluator {
 		
 		@Override
 		public Type visitTypeSymbol(Symbol x) {
-			return new NonTerminalType(x);
+			return RascalTypeFactory.getInstance().nonTerminalType(x);
 		}
 	}
 }

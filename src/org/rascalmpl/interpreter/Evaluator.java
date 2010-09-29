@@ -256,8 +256,11 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Utils;
 import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.ActionExecutor;
+import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.IRascalParser;
 import org.rascalmpl.parser.LegacyRascalParser;
+import org.rascalmpl.parser.NewRascalParser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.uri.CWDURIResolver;
@@ -499,7 +502,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			name += SymbolAdapter.getName(startSort);
 		}
 		System.err.println("Calling the parser");
-		return parser.parse(name, inputURI, resolver.getInputStream(inputURI));
+		IConstructor forest = parser.parse(name, inputURI, resolver.getInputStream(inputURI));
+		
+		System.err.println("Executing actions");
+		ActionExecutor exec = new ActionExecutor(this, (IParserInfo) parser);
+		return exec.execute(forest);
 	}
 	
 	public IValue parseObjectExperimental(IConstructor startSort, URI inputURI, java.lang.String sentence) {
@@ -517,7 +524,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			name += SymbolAdapter.getName(startSort);
 		}
 		System.err.println("Calling the parser");
-		return parser.parse(name, inputURI, sentence);
+		IConstructor forest = parser.parse(name, inputURI, sentence);
+		
+		System.err.println("Executing actions");
+		ActionExecutor exec = new ActionExecutor(this, (IParserInfo) parser);
+		return exec.execute(forest);
 	}
 
 	private IGLL getObjectParser() {
@@ -764,6 +775,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		try {
 			tree = parser.parseCommand(getSDFImports(), sdf.getSdfSearchPath(), location, command);
 			
+			if (parser instanceof NewRascalParser) {
+				// execute the parse actions
+				// TODO: hide this inside the parser
+				tree = new ActionExecutor(this, ((NewRascalParser) parser).getInfo()).execute(tree);
+			}
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw parseError(tree, location);
 			}
@@ -1449,6 +1465,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				if (!getModuleName(module).equals(name)) {
 					throw new ModuleNameMismatchError(getModuleName(module), name, x);
 				}
+				heap.setModuleURI(name, module.getLocation().getURI());
 				module.accept(this);
 				return module;
 			}
@@ -3848,7 +3865,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 
-	private static final Name IT = new Name.Lexical(null, "<it>");
+	public static final Name IT = new Name.Lexical(null, "<it>");
 	private ParserGenerator parserGenerator;
 	
 	@Override

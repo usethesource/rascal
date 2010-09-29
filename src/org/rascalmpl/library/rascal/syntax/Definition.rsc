@@ -113,14 +113,16 @@ private Production prod2prod(Symbol nt, Prod p, str layoutName, bool inLayout) {
       return first(nt,[prod2prod(nt, l, layoutName, inLayout), prod2prod(nt, r, layoutName, inLayout)]);
     case (Prod) `<Prod l> - <Prod r>` : 
       return diff(nt, prod2prod(nt, l, layoutName, inLayout), {attribute(prod2prod(nt, r, layoutName, inLayout), reject())});
-    case (Prod) `left (<Prod p>)` :
-      return \assoc(nt, \left(), {attribute(prod2prod(nt, p, layoutName, inLayout), \assoc(\left()))});
-    case (Prod) `right (<Prod p>)` :
-      return \assoc(nt, \right(), {attribute(prod2prod(nt, p, layoutName, inLayout), \assoc(\right()))});
-    case (Prod) `non-assoc (<Prod p>)` :
-      return \assoc(nt, \non-assoc(), {attribute(prod2prod(nt, p, layoutName, inLayout), \assoc(\non-assoc()))});
-    case (Prod) `assoc(<Prod p>)` :
-      return \assoc(nt, \left(), {attribute(prod2prod(nt, p, layoutName, inLayout),\assoc(\assoc()))});
+    case (Prod) `left (<Prod q>)` :
+      return \assoc(nt, \left(), {attribute(prod2prod(nt, q, layoutName, inLayout), \assoc(\left()))});
+    case (Prod) `right (<Prod q>)` :
+      return \assoc(nt, \right(), {attribute(prod2prod(nt, q, layoutName, inLayout), \assoc(\right()))});
+    case (Prod) `non-assoc (<Prod q>)` :
+      return \assoc(nt, \non-assoc(), {attribute(prod2prod(nt, q, layoutName, inLayout), \assoc(\non-assoc()))});
+    case (Prod) `assoc(<Prod q>)` :
+      return \assoc(nt, \left(), {attribute(prod2prod(nt, q, layoutName, inLayout),\assoc(\assoc()))});
+    case (Prod) `<Prod q> <LanguageAction a>` :
+      return \action(nt, prod2prod(nt, q, layoutName, inLayout), a);
     case `...`: return \others(nt);
     case `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";

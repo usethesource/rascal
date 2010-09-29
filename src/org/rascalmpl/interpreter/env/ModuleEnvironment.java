@@ -265,7 +265,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Type concreteSyntaxType(String name, org.rascalmpl.ast.Type type) {
-		NonTerminalType sort = new NonTerminalType(type);
+		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(type);
 		concreteSyntaxTypes.put(name, sort);
 		clearParser();
 		return sort;
@@ -477,6 +477,7 @@ public class ModuleEnvironment extends Environment {
 		this.tests = new LinkedList<Test>();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
+		this.parser = null;
 	}
 
 	public Class<IGLL> getParser() {
