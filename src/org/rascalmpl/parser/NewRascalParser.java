@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.rascal.syntax.RascalRascal;
@@ -32,12 +31,13 @@ public class NewRascalParser implements IRascalParser {
 	public IConstructor parseModule(List<String> sdfSearchPath,
 			Set<String> sdfImports, URI location, byte[] data,
 			ModuleEnvironment env) throws IOException {
-		Timing.start();
+		Timing t = new Timing();
+		t.start();
 		char[] input = new char[data.length];
 		for (int i = 0; i < data.length; i++) {
 			input[i] = (char) data[i];
 		}
-		System.err.println("converting bytes to chars took " + (Timing.duration() / 1000 * 1000));
+		System.err.println("converting bytes to chars took " + (t.duration() / 1000 * 1000));
 		return new RascalRascal().parse(START_MODULE, location,  input);
 	}
 

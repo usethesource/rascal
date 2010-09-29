@@ -4,13 +4,17 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
 public final class Timing {
-	private static long start;
+	private long start;
 	
-	public static void start() {
+	public Timing(){
+		super();
+	}
+	
+	public void start() {
 		start = getCpuTime();
 	}
 	
-	public static long duration() {
+	public long duration() {
 		long now = getCpuTime();
 		long diff = now - start;
 		start = now;
