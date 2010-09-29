@@ -12,10 +12,12 @@ import Set;
 
 @doc{
   A grammar is a set of productions and set of start symbols.
-  The most efficient representation (using a map) allows for fast lookup of the
-  rules for a non-terminal. The other representation is easier to construct.
+  We also provide constructors for grammar modules (grammars with names and imports).
 }
-data Grammar = grammar(set[Symbol] start, map[Symbol, set[Production]] rules);
+data Grammar = \grammar(set[Symbol] start, map[Symbol, set[Production]] rules)
+             // | \module(str name, set[str] imports, Grammar grammar)
+             // | \modules(str main, set[Grammar] modules)
+             ;
 
 @doc{
   Conveniently construct a grammar from a set of production rules
@@ -37,12 +39,13 @@ The intended semantics are that
     'others' means '...', which is substituted for a choice among the other definitions
     'restrict' means the language defined by rhs, but predicated on a certain lookahead restriction
 } 
-data Production = choice(Symbol rhs, set[Production] alternatives)                  
-                | first(Symbol rhs, list[Production] choices)
+data Production = \choice(Symbol rhs, set[Production] alternatives)                  
+                | \first(Symbol rhs, list[Production] choices)
                 | \assoc(Symbol rhs, Associativity \assoc, set[Production] alternatives)               
-                | diff(Symbol rhs, Production language, set[Production] alternatives)
-                | restrict(Symbol rhs, Production language, set[Production] restrictions)
-                | others(Symbol rhs)
+                | \diff(Symbol rhs, Production language, set[Production] alternatives)
+                | \restrict(Symbol rhs, Production language, set[Production] restrictions)
+                | \others(Symbol rhs)
+                | \action(Symbol rhs, Production prod, Tree action)
                 ;
 
 @doc{

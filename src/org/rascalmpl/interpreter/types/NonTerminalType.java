@@ -38,7 +38,7 @@ public class NonTerminalType extends ExternalType {
 		}
 	}
 	
-	public NonTerminalType(org.rascalmpl.ast.Type type) {
+    /*package*/ NonTerminalType(org.rascalmpl.ast.Type type) {
 		this((IConstructor) Symbols.typeToSymbol(type));
 	}
 	

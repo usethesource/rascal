@@ -24,6 +24,7 @@ import org.rascalmpl.ast.DecimalIntegerLiteral;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.IntegerLiteral;
 import org.rascalmpl.ast.JavaFunctionBody;
+import org.rascalmpl.ast.LanguageAction;
 import org.rascalmpl.ast.Literal;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.Module;
@@ -38,8 +39,8 @@ import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.StringLiteral;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Symbols;
@@ -114,6 +115,10 @@ public class ASTBuilder {
 		return buildSort(parseTree, "Statement");
 	}
 	
+	public LanguageAction buildAction(IConstructor parseTree) {
+		return buildSort(parseTree, "LanguageAction");
+	}
+	
 	public Command buildCommand(IConstructor parseTree) {
 		return buildSort(parseTree, "Command");
 	}
@@ -146,7 +151,7 @@ public class ASTBuilder {
 		throw new ImplementationError("This is not a " + sort +  ": " + top);
 	}
 	
-	private AbstractAST buildValue(IValue arg)  {
+	public AbstractAST buildValue(IValue arg)  {
 		IConstructor tree = (IConstructor) arg;
 		
 		if (TreeAdapter.isList(tree)) {

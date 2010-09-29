@@ -206,6 +206,7 @@ syntax Expression
 	| Visit          : Label label Visit visit 
 	| Reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| ReifiedType    : BasicType basicType "(" {Expression ","}* arguments ")" 
+	| CallOrTree     : Expression expression "(" {Expression ","}* arguments ")"
 	| Literal        : Literal literal 
 	| Any            : "any" "(" {Expression ","}+ generators ")" 
 	| All            : "all" "(" {Expression ","}+ generators ")" 
@@ -264,7 +265,6 @@ syntax Expression
 	            )
 	> left And: Expression lhs "&&" Expression rhs 
 	> left Or: Expression lhs "||" Expression rhs 
-	> CallOrTree: Expression expression "(" {Expression ","}* arguments ")" 
 	; 
 
 // extra priorities duplicate productions from above
@@ -551,7 +551,12 @@ start syntax Command
 	= /*prefer()*/ Expression: Expression expression 
 	| /*avoid()*/ Declaration: Declaration declaration 
 	| Shell: ":" ShellCommand command 
-	| Statement: Statement statement 
+	| Statement: Statement statement {
+	  // local variable declarations would be ambiguous with the "global" declarations defined above
+	  if (appl(prod(_,sort("Command"),_),[appl(prod(_,sort("Statement"),attrs([term(cons("VariableDeclaration"))])),_)]) := it) { 
+	    fail;
+	  }
+	}
 	| Import: Import imported ;
 
 syntax TagString
