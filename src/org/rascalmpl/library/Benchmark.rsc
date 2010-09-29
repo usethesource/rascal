@@ -17,6 +17,11 @@ public int java systemTime();
 @javaClass{org.rascalmpl.library.Benchmark}
 public int java cpuTime();
 
+@doc{Current time in milliseconds since the start of the thread that runs the code that calls this function.}
+@javaImport{import java.lang.System;}
+@javaClass{org.rascalmpl.library.Benchmark}
+public int java realTime();
+
 @doc{Measure and report the execution time of name:void-closure pairs}
 public void benchmark(map[str, void()] Cases)
 {
@@ -47,4 +52,11 @@ public int systemTime(void () block) {
    int now = systemTime();
    block();
    return systemTime() - now;
+}
+
+@doc{Measure the exact running time of a block of code}
+public int realTime(void () block) {
+   int now = realTime();
+   block();
+   return realTime() - now;
 }

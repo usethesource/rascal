@@ -14,20 +14,26 @@ public class Benchmark {
 	}
 
 	public IValue userTime()
-	// @doc{currentTimeMillis -- current time in milliseconds since January 1, 1970 GMT.}
+	// @doc{userTime -- User time spend by this thread in nanoseconds.}
 	{
 		return values.integer(Timing.getUserTime());
 	}
 	
 	public IValue systemTime()
-	// @doc{currentTimeMillis -- current time in milliseconds since January 1, 1970 GMT.}
+	// @doc{systemTime -- System time spend by this thread in nanoseconds.}
 	{
 		return values.integer(Timing.getSystemTime());
 	}
 	
 	public IValue cpuTime()
-	// @doc{currentTimeMillis -- current time in milliseconds since January 1, 1970 GMT.}
+	// @doc{cpuTime -- Cpu time spend by this thread in nanoseconds.}
 	{
 		return values.integer(Timing.getCpuTime());
+	}
+	
+	public IValue realTime()
+	// @doc{realTime -- current time in milliseconds since January 1, 1970 GMT.}
+	{
+		return values.integer(System.currentTimeMillis());
 	}
 }
