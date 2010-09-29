@@ -41,7 +41,9 @@ void setUserRules() {
 public text toText(loc asf){
      PROGRAM a = parse(#PROGRAM, asf);
      setUserRules();
-     return toText(a);
+     text r = toText(a);
+     writeData(asf, r, ".txt");
+     return r;
      }
    
 public text toLatex(loc asf){
@@ -49,7 +51,7 @@ public text toLatex(loc asf){
      // rawPrintln(a);
      setUserRules();
      text r = toLatex(a);
-     writeLatex(asf, r, ".pico");
+     writeData(asf, r, ".tex");
      return r;
      }
 

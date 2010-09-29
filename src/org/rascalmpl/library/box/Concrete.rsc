@@ -23,7 +23,14 @@ Box ( Tree ) userDefined=defaultUserDefined ;
 public void setUserDefined(Box ( Tree ) userDef) {
      userDefined=userDef;
      }
-
+     
+//  startEnd Block
+tuple[str, str] defaultStartEndBlock = <"{", "}">;
+tuple[str, str] startEndBlock = defaultStartEndBlock;
+public void setStartEndBlock(str startSym, str endSym) {
+    startEndBlock = <startSym, endSym>;
+    }
+    
 //   ISINDENT 
 
 list[int] defaultIndent(list[Symbol] p) {
@@ -137,11 +144,11 @@ public bool isScheme(list[Symbol] q,list[str] b) {
      }
 
 bool isBlock(list[Symbol] q) {
-     return isScheme(q,["N","{","N","}"]);
+     return isScheme(q,["N",startEndBlock[0],"N","startEndBlock[1]"]);
      }
 
 bool isBody(list[Symbol] q) {
-     return isScheme(q,["{","N","}"]);
+     return isScheme(q,[startEndBlock[0],"N",startEndBlock[1]]);
      }
 
 public list[int] isBody(list[Tree] t,int idx) {
