@@ -61,6 +61,8 @@ public abstract class SGLL implements IGLL{
 	private int previousLocation;
 	protected int location;
 	
+	protected char lookAheadChar;
+	
 	private AbstractStackNode root;
 	
 	private final HashMap<String, Method> methodCache;
@@ -612,14 +614,13 @@ public abstract class SGLL implements IGLL{
 	protected boolean isInLookAhead(char[][] ranges, char[] characters){
 		if(location == input.length) return false;
 		
-		char next = input[location];
 		for(int i = ranges.length - 1; i >= 0; --i){
 			char[] range = ranges[i];
-			if(next >= range[0] && next <= range[1]) return true;
+			if(lookAheadChar >= range[0] && lookAheadChar <= range[1]) return true;
 		}
 		
 		for(int i = characters.length - 1; i >= 0; --i){
-			if(next == characters[i]) return true;
+			if(lookAheadChar == characters[i]) return true;
 		}
 		
 		return false;
@@ -635,13 +636,15 @@ public abstract class SGLL implements IGLL{
 		rootNode.initEdges();
 		rootNode.setStartLocation(0);
 		stacksToExpand.add(rootNode);
+		lookAheadChar = (input.length > 0) ? input[0] : 0;
 		expand();
 		
 		do{
 			findStacksToReduce();
 			
 			reduce();
-			
+
+			lookAheadChar = (location < input.length) ? input[location] : 0;
 			expand();
 		}while(todoList.size() > 0);
 		

@@ -167,7 +167,6 @@ private bool isNonterminal(Symbol s) {
 
 public str generateParseMethod(Items items, Production p) {
   return "public void <sym2name(p.rhs)>() {
-            char next = (location == input.length) ? 0 : input[location];
             <generateExpect(items, p, false)>
           }";
 }
@@ -228,10 +227,10 @@ str generateClassConditional(set[Symbol] classes) {
 
 str generateRangeConditional(CharRange r) {
   switch (r) {
-    case single(i) : return "(next == <i>)";
+    case single(i) : return "(lookAheadChar == <i>)";
     case range(0,65535) : return "(true /*every char*/)";
-    case range(i, i) : return "(next == <i>)";
-    case range(i, j) : return "((next \>= <i>) && (next \<= <j>))";
+    case range(i, i) : return "(lookAheadChar == <i>)";
+    case range(i, j) : return "((lookAheadChar \>= <i>) && (lookAheadChar \<= <j>))";
     default: throw "unexpected range type: <r>";
   }
 }
