@@ -271,7 +271,7 @@ public abstract class SGLL implements IGLL{
 			if(resultStore != null){
 				if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 			}else{
-				resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator());
+				resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
 				levelResultStoreMap.putUnsafe(nodeName, resultStore);
 				resultStore.addAlternative(production, resultLink);
 				
@@ -319,7 +319,7 @@ public abstract class SGLL implements IGLL{
 			if(resultStore != null){
 				resultStore.setRejected();
 			}else{
-				resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator());
+				resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
 				levelResultStoreMap.putUnsafe(nodeName, resultStore);
 				resultStore.setRejected();
 				

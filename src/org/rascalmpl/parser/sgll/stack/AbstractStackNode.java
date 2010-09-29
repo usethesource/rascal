@@ -24,6 +24,7 @@ public abstract class AbstractStackNode{
 
 	protected boolean isEndNode;
 	private boolean isSeparator;
+	private boolean isLayout;
 	
 	// Last node specific filter stuff
 	private IConstructor parentProduction;
@@ -60,6 +61,7 @@ public abstract class AbstractStackNode{
 		
 		isEndNode = original.isEndNode;
 		isSeparator = original.isSeparator;
+		isLayout = original.isLayout;
 		
 		parentProduction = original.parentProduction;
 		followRestrictions = original.followRestrictions;
@@ -81,6 +83,7 @@ public abstract class AbstractStackNode{
 		
 		isEndNode = original.isEndNode;
 		isSeparator = original.isSeparator;
+		isLayout = original.isLayout;
 		
 		parentProduction = original.parentProduction;
 		followRestrictions = original.followRestrictions;
@@ -106,6 +109,14 @@ public abstract class AbstractStackNode{
 	
 	public boolean isSeparator(){
 		return isSeparator;
+	}
+	
+	public void markAsLayout(){
+		isLayout = true;
+	}
+	
+	public boolean isLayout(){
+		return isLayout;
 	}
 	
 	public final boolean isMatchable(){
