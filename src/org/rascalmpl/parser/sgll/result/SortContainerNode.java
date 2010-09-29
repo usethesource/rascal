@@ -18,8 +18,8 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 public class SortContainerNode extends AbstractContainerNode{
 	private IConstructor cachedResult;
 	
-	public SortContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator){
-		super(input, offset, endOffset, isNullable, isSeparator);
+	public SortContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
+		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
 	}
 	
 	private void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
@@ -80,7 +80,7 @@ public class SortContainerNode extends AbstractContainerNode{
 		if(rejected) return null;
 		
 		ISourceLocation sourceLocation = null;
-		if(input != null){
+		if(!isLayout && input != null){
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
 			sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine, endLine, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));

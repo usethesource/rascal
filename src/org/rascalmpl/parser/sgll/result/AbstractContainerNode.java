@@ -15,13 +15,14 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	
 	protected final boolean isNullable;
 	protected final boolean isSeparator;
+	protected final boolean isLayout;
 
 	protected Link firstAlternative;
 	protected IConstructor firstProduction;
 	protected ArrayList<Link> alternatives;
 	protected ArrayList<IConstructor> productions;
 	
-	public AbstractContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator){
+	public AbstractContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super();
 		
 		this.input = input;
@@ -30,6 +31,7 @@ public abstract class AbstractContainerNode extends AbstractNode{
 		
 		this.isNullable = isNullable;
 		this.isSeparator = isSeparator;
+		this.isLayout = isLayout;
 	}
 	
 	public void addAlternative(IConstructor production, Link children){
