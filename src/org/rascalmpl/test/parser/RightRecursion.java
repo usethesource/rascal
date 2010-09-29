@@ -48,7 +48,7 @@ public class RightRecursion extends SGLL implements IParserTest{
 		expect(PROD_A_a, LITERAL_a3);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 	}
 	
@@ -59,7 +59,7 @@ public class RightRecursion extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		RightRecursion rr = new RightRecursion();
-		IValue result = rr.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		IConstructor result = rr.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(A(a,A(a,A(a)))) <- good");

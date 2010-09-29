@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -34,7 +35,7 @@ public class ParserTest extends TestCase{
 					}
 				}
 			}else{
-				IValue result = parser.executeParser();
+				IConstructor result = parser.executeParser();
 				if(!result.isEqual(expectedResult)){
 					Assert.fail(parser.getClass().getName()+";\tGot: "+result+"\n\t expected: "+expectedResult);
 				}
@@ -62,6 +63,8 @@ public class ParserTest extends TestCase{
 		executeParser(new Ambiguous5());
 		executeParser(new Ambiguous6());
 		executeParser(new Ambiguous7());
+		executeParser(new Ambiguous8());
+		executeParser(new Ambiguous9());
 	}
 	
 	public void testSplitAndMerge(){
@@ -125,7 +128,7 @@ public class ParserTest extends TestCase{
 	}
 	
 	public void testReject(){
-		executeParser(new Reject());
+		executeParser(new Reject1());
 		executeParser(new Reject2());
 		executeParser(new Reject3());
 		executeParser(new Reject4());

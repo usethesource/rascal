@@ -33,7 +33,7 @@ public class CharRange extends SGLL implements IParserTest{
 		expect(PROD_PLUSLISTa_z_a_z, CHAR_a0);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
 	}
 	
@@ -44,7 +44,7 @@ public class CharRange extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		CharRange cr = new CharRange();
-		IValue result = cr.parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		IConstructor result = cr.parse(NONTERMINAL_START_S, null, "a".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S([a-z](a)) <- good");

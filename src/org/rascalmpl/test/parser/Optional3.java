@@ -61,7 +61,7 @@ public class Optional3 extends SGLL implements IParserTest{
 		expect(PROD_O_A, NONTERMINAL_A4);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aa".toCharArray());
 	}
 	
@@ -72,7 +72,7 @@ public class Optional3 extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		Optional3 o3 = new Optional3();
-		IValue result = o3.parse(NONTERMINAL_START_S, null, "aa".toCharArray());
+		IConstructor result = o3.parse(NONTERMINAL_START_S, null, "aa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S(a,O?(O(A(a)))),S(a,A(a))] <- good");

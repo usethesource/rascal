@@ -45,7 +45,7 @@ public class EpsilonList extends SGLL implements IParserTest{
 		expect(PROD_A_epsilon, EPSILON2);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "".toCharArray());
 	}
 	
@@ -56,7 +56,7 @@ public class EpsilonList extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		EpsilonList el = new EpsilonList();
-		IValue result = el.parse(NONTERMINAL_START_S, null, "".toCharArray());
+		IConstructor result = el.parse(NONTERMINAL_START_S, null, "".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S([A+(A()),A+(repeat(A())))]) <- good");

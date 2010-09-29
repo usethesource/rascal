@@ -73,7 +73,7 @@ public class SplitAndMerge3 extends SGLL implements IParserTest{
 		expect(PROD_C_B, NONTERMINAL_B3);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 	}
 	
@@ -84,7 +84,7 @@ public class SplitAndMerge3 extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		SplitAndMerge3 ms3 = new SplitAndMerge3();
-		IValue result = ms3.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		IConstructor result = ms3.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S(C(B(A(B(a),a),a))),S(A(B(A(a),a),a))] <- good");

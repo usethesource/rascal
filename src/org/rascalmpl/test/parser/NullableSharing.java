@@ -50,7 +50,7 @@ public class NullableSharing extends SGLL implements IParserTest{
 		expect(PROD_N_A, NONTERMINAL_A0);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "".toCharArray());
 	}
 	
@@ -61,7 +61,7 @@ public class NullableSharing extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		NullableSharing ns = new NullableSharing();
-		IValue result = ns.parse(NONTERMINAL_START_S, null, "".toCharArray());
+		IConstructor result = ns.parse(NONTERMINAL_START_S, null, "".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(N(A()),N(A())) <- good");

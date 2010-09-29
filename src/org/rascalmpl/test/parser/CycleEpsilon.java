@@ -54,7 +54,7 @@ public class CycleEpsilon extends SGLL implements IParserTest{
 		expect(PROD_A_epsilon, EPSILON_4);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
 	}
 	
@@ -65,7 +65,7 @@ public class CycleEpsilon extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		CycleEpsilon ce = new CycleEpsilon();
-		IValue result = ce.parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		IConstructor result = ce.parse(NONTERMINAL_START_S, null, "a".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S([A([A(cycle(A,1),cycle(A,1)),A()],cycle(A,1)),A(cycle(A,1),[A(cycle(A,1),cycle(A,1)),A()]),A(a)]) <- good");

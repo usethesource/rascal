@@ -47,7 +47,7 @@ public class Simple1 extends SGLL implements IParserTest{
 		expect(PROD_A_aa, LITERAL_aa1);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aab".toCharArray());
 	}
 	
@@ -58,7 +58,7 @@ public class Simple1 extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		Simple1 s1 = new Simple1();
-		IValue result = s1.parse(NONTERMINAL_START_S, null, "aab".toCharArray());
+		IConstructor result = s1.parse(NONTERMINAL_START_S, null, "aab".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(A(aa),b) <- good");

@@ -18,7 +18,7 @@ S ::= aa | Aa
 A ::= a | reject(B)
 B ::= a
 */
-public class Reject extends SGLL implements IParserTest{
+public class Reject1 extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));
@@ -42,7 +42,7 @@ public class Reject extends SGLL implements IParserTest{
 	private final static AbstractStackNode LITERAL_a4 = new LiteralStackNode(4, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
 	
-	public Reject(){
+	public Reject1(){
 		super();
 	}
 	
@@ -62,7 +62,7 @@ public class Reject extends SGLL implements IParserTest{
 		expect(PROD_B_a, LITERAL_a5);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aa".toCharArray());
 	}
 	
@@ -72,8 +72,8 @@ public class Reject extends SGLL implements IParserTest{
 	}
 	
 	public static void main(String[] args){
-		Reject r = new Reject();
-		IValue result = r.parse(NONTERMINAL_START_S, null, "aa".toCharArray());
+		Reject1 r1 = new Reject1();
+		IConstructor result = r1.parse(NONTERMINAL_START_S, null, "aa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(aa) <- good");

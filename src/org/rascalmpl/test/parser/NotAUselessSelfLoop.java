@@ -80,7 +80,7 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 		expect(PROD_C_a, LITERAL_a12);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 	}
 	
@@ -91,7 +91,7 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		NotAUselessSelfLoop nausl = new NotAUselessSelfLoop();
-		IValue result = nausl.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		IConstructor result = nausl.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S(A(a),A(C(a),C(a))),S([B(A(C(a),C(a)),A(a)),B(A(a),A(C(a),C(a))),B(C(a),C(A(a),A(a))),B(C(A(a),A(a)),C(a))]),S(A(C(a),C(a)),A(a))] <- good");

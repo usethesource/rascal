@@ -47,7 +47,7 @@ public class AmbiguousRecursive extends SGLL implements IParserTest{
 		expect(PROD_S_a, LITERAL_a5);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 	}
 	
@@ -58,7 +58,7 @@ public class AmbiguousRecursive extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		AmbiguousRecursive ar = new AmbiguousRecursive();
-		IValue result = ar.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		IConstructor result = ar.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S(S(a),S(a),S(a)),S(S(a),S(S(a),S(a))),S(S(S(a),S(a)),S(a))] <- good");
