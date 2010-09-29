@@ -136,7 +136,7 @@ public class IntegerKeyedHashMap<V>{
 					}else{
 						previous.next = entry.next;
 					}
-					load--;
+					--load;
 					return entry.value;
 				}
 				
