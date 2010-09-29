@@ -63,7 +63,7 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 		expect(PROD_B_a, LITERAL_a5);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
 	}
 	
@@ -74,7 +74,7 @@ public class UselessSelfLoop extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		UselessSelfLoop usl = new UselessSelfLoop();
-		IValue result = usl.parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		IConstructor result = usl.parse(NONTERMINAL_START_S, null, "a".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S([A([B(cycle(A,2)),B(a)]),A(a)]),S([B([A(cycle(B,2)),A(a)]),B(a)])] <- good");

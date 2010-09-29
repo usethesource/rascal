@@ -33,7 +33,7 @@ public class Epsilon extends SGLL implements IParserTest{
 		expect(PROD_S_epsilon, EPSILON_1);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, new char[]{});
 	}
 	
@@ -44,7 +44,7 @@ public class Epsilon extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		Epsilon e = new Epsilon();
-		IValue result = e.parse(NONTERMINAL_START_S, null, new char[]{});
+		IConstructor result = e.parse(NONTERMINAL_START_S, null, new char[]{});
 		System.out.println(result);
 		
 		System.out.println("S() <- good");

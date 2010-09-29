@@ -53,7 +53,7 @@ public class AmbiguousEpsilonList extends SGLL implements IParserTest{
 		expect(PROD_A_epsilon, EPSILON3);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
 	}
 	
@@ -64,7 +64,7 @@ public class AmbiguousEpsilonList extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		AmbiguousEpsilonList ael = new AmbiguousEpsilonList();
-		IValue result = ael.parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		IConstructor result = ael.parse(NONTERMINAL_START_S, null, "a".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S([A+([A+(A([a](a))),A+(repeat(A()),A([a](a)))],repeat(A())),A+(repeat(A()),A([a](a))),A+(A([a](a)))]) <- good");

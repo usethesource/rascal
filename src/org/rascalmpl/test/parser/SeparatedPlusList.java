@@ -53,7 +53,7 @@ public class SeparatedPlusList extends SGLL implements IParserTest{
 		expect(PROD_A_a, LITERAL_a3);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "ababa".toCharArray());
 	}
 	
@@ -64,7 +64,7 @@ public class SeparatedPlusList extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		SeparatedPlusList nrpl = new SeparatedPlusList();
-		IValue result = nrpl.parse(NONTERMINAL_START_S, null, "ababa".toCharArray());
+		IConstructor result = nrpl.parse(NONTERMINAL_START_S, null, "ababa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S((Ab)+(A(a),b,A(a),b,A(a))) <- good");

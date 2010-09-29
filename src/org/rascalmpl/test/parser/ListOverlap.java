@@ -51,7 +51,7 @@ public class ListOverlap extends SGLL implements IParserTest{
 		expect(char97_Id, new CharStackNode(10, new char[][]{{97, 97}}));
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse("Decl", null, "  a".toCharArray());
 	}
 	
@@ -62,7 +62,7 @@ public class ListOverlap extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		ListOverlap lo = new ListOverlap();
-		IValue result = lo.parse("Decl", null, "  a".toCharArray());
+		IConstructor result = lo.parse("Decl", null, "  a".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("? <- good");

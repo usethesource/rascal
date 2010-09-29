@@ -53,7 +53,7 @@ public class Reject4 extends SGLL implements IParserTest{
 		expectReject(PROD_A_a, LITERAL_a5);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aa".toCharArray());
 	}
 	
@@ -64,7 +64,7 @@ public class Reject4 extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		Reject4 r4 = new Reject4();
-		IValue result = r4.parse(NONTERMINAL_START_S, null, "aa".toCharArray());
+		IConstructor result = r4.parse(NONTERMINAL_START_S, null, "aa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(aa) <- good");

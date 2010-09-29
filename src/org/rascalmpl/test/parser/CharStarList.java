@@ -37,7 +37,7 @@ public class CharStarList extends SGLL implements IParserTest{
 		expect(PROD_S_STARLISTa_z, LIST1);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "abc".toCharArray());
 	}
 	
@@ -48,7 +48,7 @@ public class CharStarList extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		CharStarList csl = new CharStarList();
-		IValue result = csl.parse(NONTERMINAL_START_S, null, "abc".toCharArray());
+		IConstructor result = csl.parse(NONTERMINAL_START_S, null, "abc".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S([a-z]*([a-z](a),[a-z](b),[a-z](c))) <- good");

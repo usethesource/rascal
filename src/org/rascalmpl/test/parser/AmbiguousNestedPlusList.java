@@ -48,7 +48,7 @@ public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 		expect(PROD_A_PLUSLISTa, CHAR_LIST3);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aa".toCharArray());
 	}
 	
@@ -59,7 +59,7 @@ public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		AmbiguousNestedPlusList anpl = new AmbiguousNestedPlusList();
-		IValue result = anpl.parse(NONTERMINAL_START_S, null, "aa".toCharArray());
+		IConstructor result = anpl.parse(NONTERMINAL_START_S, null, "aa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S([A+(A([a]+([a](a))),A([a]+([a](a)))),A+(A([a]+([a](a),[a](a))))]) <- good");

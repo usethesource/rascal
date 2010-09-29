@@ -48,7 +48,7 @@ public class LeftRecursion extends SGLL implements IParserTest{
 		expect(PROD_A_a, LITERAL_a3);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 	}
 	
@@ -59,7 +59,7 @@ public class LeftRecursion extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		LeftRecursion lr = new LeftRecursion();
-		IValue result = lr.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		IConstructor result = lr.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(A(A(A(a),a),a)) <- good");

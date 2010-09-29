@@ -40,7 +40,7 @@ public class CILiteral extends SGLL implements IParserTest{
 		expect(PROD_S_A, LITERAL_bla0);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "Bla".toCharArray());
 	}
 	
@@ -51,7 +51,7 @@ public class CILiteral extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		CILiteral cil = new CILiteral();
-		IValue result = cil.parse(NONTERMINAL_START_S, null, "Bla".toCharArray());
+		IConstructor result = cil.parse(NONTERMINAL_START_S, null, "Bla".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(Bla) <- good");

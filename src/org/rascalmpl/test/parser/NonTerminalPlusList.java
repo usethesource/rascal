@@ -47,7 +47,7 @@ public class NonTerminalPlusList extends SGLL implements IParserTest{
 		expect(PROD_A_a, LITERAL_a2);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 	}
 	
@@ -58,7 +58,7 @@ public class NonTerminalPlusList extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		NonTerminalPlusList nrpl = new NonTerminalPlusList();
-		IValue result = nrpl.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		IConstructor result = nrpl.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(A+(A(a),A(a),A(a))) <- good");

@@ -47,7 +47,7 @@ public class Ambiguous1 extends SGLL implements IParserTest{
 		expect(PROD_A_a, LITERAL_a2);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
 	}
 	
@@ -58,7 +58,7 @@ public class Ambiguous1 extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		Ambiguous1 a1 = new Ambiguous1();
-		IValue result = a1.parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		IConstructor result = a1.parse(NONTERMINAL_START_S, null, "a".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S(A(a)),S(a)] <- good");

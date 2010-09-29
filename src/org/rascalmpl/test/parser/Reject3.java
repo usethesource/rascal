@@ -117,7 +117,7 @@ public class Reject3 extends SGLL implements IParserTest{
 		expectReject(PROD_Y_ABp, NONTERMINAL_ABp6);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "abbcc".toCharArray());
 	}
 	
@@ -127,7 +127,7 @@ public class Reject3 extends SGLL implements IParserTest{
 	
 	public static void main(String[] args){
 		Reject3 r3 = new Reject3();
-		IValue result = r3.parse(NONTERMINAL_START_S, null, "abbcc".toCharArray());
+		IConstructor result = r3.parse(NONTERMINAL_START_S, null, "abbcc".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S() <- good");

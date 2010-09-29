@@ -58,7 +58,7 @@ public class EmptyRightRecursion extends SGLL implements IParserTest{
 		expect(PROD_B_epsilon, EPSILON_4);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
 	}
 	
@@ -69,7 +69,7 @@ public class EmptyRightRecursion extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		EmptyRightRecursion erre = new EmptyRightRecursion();
-		IValue result = erre.parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		IConstructor result = erre.parse(NONTERMINAL_START_S, null, "a".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("S(A(a),[B(cycle(B,1)),B()])");

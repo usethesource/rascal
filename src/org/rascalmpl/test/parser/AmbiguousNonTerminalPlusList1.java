@@ -53,7 +53,7 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL implements IParserTest{
 		expect(PROD_A_a, LITERAL_a5);
 	}
 	
-	public IValue executeParser(){
+	public IConstructor executeParser(){
 		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 	}
 	
@@ -64,7 +64,7 @@ public class AmbiguousNonTerminalPlusList1 extends SGLL implements IParserTest{
 
 	public static void main(String[] args){
 		AmbiguousNonTerminalPlusList1 nrpl1 = new AmbiguousNonTerminalPlusList1();
-		IValue result = nrpl1.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		IConstructor result = nrpl1.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S(a,A+(A(a),A(a))),S(A+(A(a),A(a)),a)] <- good");
