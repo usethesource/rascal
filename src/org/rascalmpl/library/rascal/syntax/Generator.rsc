@@ -19,7 +19,14 @@ private data Item = item(Production production, int index);
 // TODO: replace this complex data structure with several simple ones
 private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 
-public str generate(str package, str name, Grammar gr){
+public str generate(str package, str name, Grammar gr) {
+    // TODO: it would be better if this was not necessary, i.e. by changing the grammar 
+    // representation to grammar(set[Symbol] start, map[Symbol,Production] rules)
+    println("merging composed non-terminals");
+    for (Symbol nt <- gr.rules) {
+      gr.rules[nt] = {choice(nt, gr.rules[nt])};
+    }
+    
     println("extracting actions");
     <gr, actions> = extractActions(gr);
     

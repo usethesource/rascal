@@ -35,9 +35,6 @@ public Grammar computeLookaheads(Grammar G) {
       classes -= empty();
       
       // merge the character classes and construct a production wrapper
-      // TODO: should we really remove empty here?
-      if (rhs == sort("FunctionDeclaration")) 
-        println("lookaheads for <p> are <classes>");
       insert lookahead(rhs, mergeCC(classes), p);        
     }
   }
