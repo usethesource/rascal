@@ -99,14 +99,15 @@ syntax Sym
 	| StartOfLine: "^" ;
 
 syntax TimePartNoTZ
-	= lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [, .] [0-9] [0-9] 
-	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] [0-9] [0-9] 
-	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [, .] [0-9] [0-9] [0-9] 
-	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] 
+	= lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9]
 	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [, .] [0-9] 
+	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [, .] [0-9] [0-9] 
+	| lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [, .] [0-9] [0-9] [0-9] 
 	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] 
 	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] 
-	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] [0-9] ;
+	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] [0-9]
+	| lex [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] [0-9] [0-9] 
+	;
 
 syntax DecimalLongLiteral
 	= lex "0" [L l] 
@@ -475,12 +476,11 @@ syntax LocalVariableDeclaration
 
 syntax RealLiteral
 	= lex [0-9]+ [D F d f] 
-	| lex [0-9]+ "." [0-9]* [E e] [+ \-]? [0-9]+ [D F d f]? 
-	| lex "." [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]? 
-	| lex [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]? 
-	| lex "." [0-9]+ [D F d f]? 
+	| lex [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]?
 	| lex [0-9]+ "." [0-9]* [D F d f]? 
-	| lex [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f] 
+	| lex [0-9]+ "." [0-9]* [E e] [+ \-]? [0-9]+ [D F d f]? 
+	| lex "." [0-9]+ [D F d f]? 
+	| lex "." [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]? 
 	# [0-9 A-Z _ a-z] ;
 
 syntax Range
@@ -612,25 +612,25 @@ syntax Statement
 	    fail;
 	  }
 	}
-	| TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
-	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
-	| FunctionDeclaration: FunctionDeclaration functionDeclaration 
-	| Fail: "fail" Target target ";" 
-	| NonEmptyBlock: Label label "{" Statement+ statements "}" 
-	| Break: "break" Target target ";" 
-	| Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
-	| VariableDeclaration: LocalVariableDeclaration declaration ";" 
-	| non-assoc Try: "try" Statement body Catch+ handlers 
-	| DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
-	| IfThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
-	| For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
-	| Switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
-	| EmptyStatement: ";" 
-	| Continue: "continue" Target target ";" 
-	| GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
-	| IfThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement NoElseMayFollow noElseMayFollow 
-	| Visit: Label label Visit visit 
 	| AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
+	| FunctionDeclaration: FunctionDeclaration functionDeclaration 
+	| VariableDeclaration: LocalVariableDeclaration declaration ";" 
+	| Visit: Label label Visit visit 
+	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
+	| DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
+	| For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
+	| IfThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement NoElseMayFollow noElseMayFollow 
+	| IfThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
+	| Switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
+	| Fail: "fail" Target target ";" 
+	| Break: "break" Target target ";" 
+	| Continue: "continue" Target target ";" 
+	| Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
+	| non-assoc Try: "try" Statement body Catch+ handlers 
+	| TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
+	| NonEmptyBlock: Label label "{" Statement+ statements "}" 
+	| EmptyStatement: ";" 
+	| GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
 	| non-assoc ( Return    : "return" Statement statement  
 		        | Throw     : "throw" Statement statement 
 		        | Insert    : "insert" DataTarget dataTarget Statement statement 
@@ -750,14 +750,15 @@ syntax Type
 syntax Declaration
 	= Variable    : Tags tags Visibility visibility Type type {Variable ","}+ variables ";" 
 	| Annotation  : Tags tags Visibility visibility "anno" Type annoType Type onType "@" Name name ";" 
-	| Test        : Test test ";" 
 	| View        : Tags tags Visibility visibility "view" Name view "\<:" Name superType "=" {Alternative "|"}+ alts ";" 
 	| Alias       : Tags tags Visibility visibility "alias" UserType user "=" Type base ";" 
-	| Function    : FunctionDeclaration functionDeclaration 
 	| Tag         : Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
 	| DataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
+	| Data        : Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";"
 	| Rule        : Tags tags "rule" Name name PatternWithAction patternAction ";" 
-	| Data        : Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";" ;
+	| Function    : FunctionDeclaration functionDeclaration 
+	| Test        : Test test ";" 
+	;
 
 syntax Class
 	= SimpleCharclass: "[" Range* ranges "]" 
@@ -901,8 +902,8 @@ syntax MidPathChars
 syntax Pattern
 	= Set: "{" {Pattern ","}* elements "}" 
 	| List: "[" {Pattern ","}* elements "]" 
-	| MultiVariable: QualifiedName qualifiedName "*" 
 	| QualifiedName: QualifiedName qualifiedName 
+	| MultiVariable: QualifiedName qualifiedName "*" 
 	| Literal: Literal literal 
 	| Tuple: "\<" {Pattern ","}+ elements "\>" 
 	| TypedVariable: Type type Name name 
