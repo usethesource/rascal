@@ -251,7 +251,7 @@ public class ListContainerNode extends AbstractContainerNode{
 		if(rejected) return null;
 		
 		ISourceLocation sourceLocation = null;
-		if(!isLayout && input != null){
+		if(!(isLayout || input == null)){
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
 			sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine, endLine, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
