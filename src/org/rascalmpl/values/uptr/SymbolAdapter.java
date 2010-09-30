@@ -319,4 +319,8 @@ public class SymbolAdapter {
 	public static boolean isIterPlusSeps(IConstructor rhs) {
 		return rhs.getConstructorType() == Factory.Symbol_IterSepX;
 	}
+
+	public static IList getSeparators(IConstructor rhs) {
+		return (IList) rhs.get("separators");
+	}
 }

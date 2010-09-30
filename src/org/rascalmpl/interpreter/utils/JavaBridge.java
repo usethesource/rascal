@@ -268,6 +268,7 @@ public class JavaBridge {
 					return instance;
 				}
 				catch(ClassNotFoundException e){
+					System.err.println("wtf? " + e);
 					continue;
 				} 
 			}
