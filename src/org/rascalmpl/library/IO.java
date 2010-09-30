@@ -26,7 +26,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class IO{
+public class IO {
 	private static final TypeFactory types = TypeFactory.getInstance();	
 
 	private final IValueFactory values;

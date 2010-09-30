@@ -170,4 +170,12 @@ public class ProductionAdapter {
 	public static boolean hasAvoidAttribute(IConstructor tree) {
 		return hasAttribute(tree, Factory.Attr_Avoid.make(ValueFactoryFactory.getValueFactory()));
 	}
+
+	public static boolean isNewSeparatedList(IConstructor production) {
+		if (isRegular(production)) {
+			IConstructor rhs = getRhs(production);
+			return rhs.getConstructorType() == Factory.Symbol_IterStarSepX || rhs.getConstructorType() == Factory.Symbol_IterSepX;
+		}
+		return false;
+	}
 }

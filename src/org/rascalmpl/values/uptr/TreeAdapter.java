@@ -118,9 +118,22 @@ public class TreeAdapter {
 			IValue kid = children.get(i);
 			writer.append(kid);
 			// skip layout and/or separators
-			i += (isSeparatedList(tree) ? 3 : 1);
+			if (isNewSeparatedList(tree)) {
+				i += getSeparatorCount(tree);
+			}
+			else {
+				i += (isSeparatedList(tree) ? 3 : 1);
+			}
 		}
 		return writer.done();
+	}
+
+	private static int getSeparatorCount(IConstructor tree) {
+		return SymbolAdapter.getSeparators(ProductionAdapter.getRhs(getProduction(tree))).length();
+	}
+
+	private static boolean isNewSeparatedList(IConstructor tree) {
+		return ProductionAdapter.isNewSeparatedList(getProduction(tree));
 	}
 
 	public static boolean isLexical(IConstructor tree) {

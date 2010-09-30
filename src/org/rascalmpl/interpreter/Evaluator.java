@@ -1368,11 +1368,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public IConstructor parseModule(byte[] data, URI location, ModuleEnvironment env) throws IOException {
-		
 		java.util.List<String> sdfSearchPath = sdf.getSdfSearchPath();
 		java.util.Set<String> sdfImports;
 
-		sdfImports = ((LegacyRascalParser) parser).getSdfImports(sdfSearchPath, location, data);
+		// TODO: remove support for SDF2 imports
+		if (parser instanceof LegacyRascalParser) {
+			sdfImports = ((LegacyRascalParser) parser).getSdfImports(sdfSearchPath, location, data);
+		}
+		else {
+			sdfImports = Collections.emptySet();
+		}
 
 		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, location, data, env);
 		if(tree.getConstructorType() == Factory.ParseTree_Summary){
@@ -1427,7 +1432,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		try{
 			IConstructor tree = null;
 			
-			if (!saveParsedModules) {
+			if (!saveParsedModules && !(parser instanceof NewRascalParser)) {
 				tree = tryLoadBinary(name);
 			}
 			
@@ -1435,7 +1440,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				tree = parseModule(URI.create("rascal:///" + name), env);
 			}
 			
-			if (saveParsedModules) {
+			if (saveParsedModules && !(parser instanceof NewRascalParser)) {
 				writeBinary(name, tree);
 			}
 			
