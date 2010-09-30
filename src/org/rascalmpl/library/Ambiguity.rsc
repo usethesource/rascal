@@ -11,7 +11,7 @@ public void report(str amb) {
 
 public void report(Tree amb) {
   for (x <- uniqueProductions(amb.alternatives)) {
-    println("alternative: <for (e <- x) {>\n\t<prod2rascal(e)><}>");
+    println("alternative: <for (e <- x) {>\n\tsyntax <symbol2rascal(e.rhs)> = <prod2rascal(e)><}>");
   }
 }
 

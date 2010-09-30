@@ -222,7 +222,6 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
 import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
@@ -1027,18 +1026,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionAmbiguity(Ambiguity x) {
-		// TODO: assuming that that is the only reason for an expression to be ambiguous
-		// we might also check if this is an "appl" constructor...
-
-		//			System.err.println("Env: " + currentEnvt);
-		//			int i = 0;
-		//			for (Expression exp: x.getAlternatives()) {
-		//				System.err.println("Alt " + i++ + ": " + exp.getTree());
-		//			}
-		throw new UnexpectedAmbiguity(x);
+		throw new Ambiguous((IConstructor) x.getTree());
 	}
-
-
 
 	@Override
 	public Result<IValue> visitStatementAmbiguity(
@@ -1056,7 +1045,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitCommandAmbiguity(
 			org.rascalmpl.ast.Command.Ambiguity x) {
-		throw new UnexpectedAmbiguity(x);
+		throw new Ambiguous((IConstructor) x.getTree());
 	}
 	
 	@Override
@@ -2443,7 +2432,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IBooleanResult makeBooleanResult(org.rascalmpl.ast.Expression pat){
 		if (pat instanceof Expression.Ambiguity) {
 			// TODO: wrong exception here.
-			throw new UnexpectedAmbiguity(pat);
+			throw new Ambiguous((IConstructor) pat.getTree());
 		}
 
 		BooleanEvaluator pe = new BooleanEvaluator(this);

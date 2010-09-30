@@ -38,9 +38,9 @@ import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.StringLiteral;
 import org.rascalmpl.ast.Expression.CallOrTree;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Symbols;
@@ -358,14 +358,14 @@ public class ASTBuilder {
 		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
 		String sort = "";
 		ASTStatistics ref = null;
-		UnexpectedAmbiguity lastCaughtACP = null;
+		Ambiguous lastCaughtACP = null;
 		
 		for (IValue alt : altsIn) {
 			sort = sortName((IConstructor) alt);
 			AbstractAST ast = null;
 			try {
 				ast = buildValue(alt);
-			} catch (UnexpectedAmbiguity acp) {
+			} catch (Ambiguous acp) {
 				lastCaughtACP = acp;
 			}
 			
@@ -465,7 +465,7 @@ public class ASTBuilder {
 			return null;
 //			throw new ImplementationError("Accidentally all ambiguous derivations of a list have been filtered", argTree.getLocation());
 		default:
-			throw new ImplementationError("Unexpected ambiguous list after filtering", TreeAdapter.getLocation(argTree));
+			throw new Ambiguous(argTree);
 		}
 	}
 
@@ -531,7 +531,7 @@ public class ASTBuilder {
 			stats.setConcreteFragmentSize(TreeAdapter.getLocation(pattern).getLength());
 			
 			if (stats.isAmbiguous()) {
-				throw new UnexpectedAmbiguity(ast);
+				throw new Ambiguous((IConstructor) ast.getTree());
 			}
 		}
 		
