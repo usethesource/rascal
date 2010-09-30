@@ -1,4 +1,5 @@
 module box::rsc::Default
+import rascal::syntax::Grammar;
 import ParseTree;
 import box::Concrete;
 import box::Box;
@@ -112,9 +113,12 @@ public text toText(loc asf){
      }
      
 public text toLatex(loc asf){
+     /*
      str s = getRascalFileContent(asf);
-     // println("toLatex: parse");
+     println("toLatex: <s>");
      Tree a = parse(#Module, s);
+     */
+     Tree a =  parseModule(asf, true).top;
      // println("toLatex: parsed");
      // rawPrintln(a);
      setUserRules();
