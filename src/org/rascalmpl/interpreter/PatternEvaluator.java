@@ -73,6 +73,7 @@ import org.rascalmpl.ast.Literal.Real;
 import org.rascalmpl.ast.Literal.RegExp;
 import org.rascalmpl.ast.Literal.String;
 import org.rascalmpl.ast.RegExp.Lexical;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -98,7 +99,6 @@ import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
@@ -338,7 +338,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 			}
 		}
 		if (isConcreteSyntaxAmb(x)) {
-			throw new UnexpectedAmbiguity(x);
+			new Ambiguous((IConstructor) x.getTree());
 			//			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
 		}
 
@@ -525,7 +525,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	@Override
 	public IMatchingResult visitExpressionAmbiguity(
 			org.rascalmpl.ast.Expression.Ambiguity x) {
-		throw new UnexpectedAmbiguity(x);
+		throw new Ambiguous((IConstructor) x.getTree());
 	}
 	@Override
 	public IMatchingResult visitExpressionAnd(And x) {

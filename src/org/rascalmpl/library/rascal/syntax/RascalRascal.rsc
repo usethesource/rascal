@@ -606,7 +606,12 @@ syntax Start
 
 syntax Statement
 	= Assert: "assert" Expression expression ";" 
-	| Expression: Expression expression ";" 
+	| Expression: Expression expression ";" {
+	   if (appl(prod(_,_,attrs([_*,term(cons("NonEmptyBlock")),_*])),_) := expression
+	     ||appl(prod(_,_,attrs([_*,term(cons("Visit")),_*])),_) := expression ) { 
+	    fail;
+	  }
+	}
 	| TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
 	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
 	| FunctionDeclaration: FunctionDeclaration functionDeclaration 
@@ -898,17 +903,17 @@ syntax Pattern
 	| List: "[" {Pattern ","}* elements "]" 
 	| MultiVariable: QualifiedName qualifiedName "*" 
 	| QualifiedName: QualifiedName qualifiedName 
-	| CallOrTree: Pattern expression "(" {Pattern ","}* arguments ")" 
-	> VariableBecomes: Name name ":" Pattern pattern 
-	| Guarded: "[" Type type "]" Pattern pattern 
-	| Descendant: "/" Pattern pattern 
-	| Anti: "!" Pattern pattern 
-	| TypedVariableBecomes: Type type Name name ":" Pattern pattern 
 	| Literal: Literal literal 
 	| Tuple: "\<" {Pattern ","}+ elements "\>" 
 	| TypedVariable: Type type Name name 
 	| Map: "(" {Mapping[Pattern] ","}* mappings ")" 
 	| ReifiedType: BasicType basicType "(" {Pattern ","}* arguments ")" 
+	| CallOrTree: Pattern expression "(" {Pattern ","}* arguments ")" 
+	> VariableBecomes: Name name ":" Pattern pattern
+	| Guarded: "[" Type type "]" Pattern pattern 
+	| Descendant: "/" Pattern pattern 
+	| Anti: "!" Pattern pattern 
+	| TypedVariableBecomes: Type type Name name ":" Pattern pattern 
     ;
     
 // TODO @category="Comment"    
