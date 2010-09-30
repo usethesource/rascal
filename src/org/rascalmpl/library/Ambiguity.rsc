@@ -2,10 +2,17 @@ module Ambiguity
 
 import ParseTree;
 import IO;
+import ValueIO;
+import rascal::syntax::Grammar2Rascal;
+
+public void report(str amb) {
+  report(readTextValueString(#Tree, amb));
+}
 
 public void report(Tree amb) {
-  for (x <- uniqueProductions(amb.alternatives))
-    println(x);
+  for (x <- uniqueProductions(amb.alternatives)) {
+    println("alternative: <for (e <- x) {>\n\t<prod2rascal(e)><}>");
+  }
 }
 
 @doc{

@@ -1,5 +1,7 @@
 module rascal::syntax::Escape
 
+import String;
+
 @doc{
   A good old ASCII table in order to convert numbers < 128 to readable (properly escaped) string
   characters. For instance, ascii[10] maps to the string "\\n".
@@ -187,7 +189,7 @@ test makeStringChar(255) == "\\377";
 }
 public str escape(str s){
   if (s == "") return s;
-  return (""| it + makeStringChar(charAt(s, i)) | i <- [0..n-1]);
+  return (""| it + makeStringChar(charAt(s, i)) | i <- [0..size(s)-1]);
 }
 
 @doc{

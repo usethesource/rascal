@@ -1043,7 +1043,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitStatementAmbiguity(
 			org.rascalmpl.ast.Statement.Ambiguity x) {
-		throw new Ambiguous(x.toString());
+		throw new Ambiguous((IConstructor) x.getTree());
 	}
 
 	// Commands 
@@ -2205,7 +2205,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitAssignableAmbiguity(
 			org.rascalmpl.ast.Assignable.Ambiguity x) {
-		throw new Ambiguous(x.toString());
+		throw new Ambiguous((IConstructor) x.getTree());
 	}
 
 	@Override
