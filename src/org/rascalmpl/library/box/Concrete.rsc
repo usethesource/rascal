@@ -130,6 +130,7 @@ bool isNonTerminal(Symbol s,str c) {
      }
      
 public bool isScheme(list[Symbol] q,list[str] b) {
+     // println("<size(b)>==<(size(q)+1)/2>");
      if (size(b)!=(size(q)+1)/2) return false;
      list[tuple[Symbol,str]] r=[<q[2*i],b[i]>|int i<-[0..size(b)-1]];
      for (<Symbol s,str z><-r) {
@@ -144,7 +145,7 @@ public bool isScheme(list[Symbol] q,list[str] b) {
      }
 
 bool isBlock(list[Symbol] q) {
-     return isScheme(q,["N",startEndBlock[0],"N","startEndBlock[1]"]);
+     return isScheme(q,["N",startEndBlock[0],"N",startEndBlock[1]]);
      }
 
 bool isBody(list[Symbol] q) {
