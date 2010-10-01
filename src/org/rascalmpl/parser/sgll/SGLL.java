@@ -192,7 +192,7 @@ public abstract class SGLL implements IGLL{
 		return next;
 	}
 	
-	private void updateAlternativeNextNode(AbstractStackNode next, AbstractStackNode node, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+	private void updateAlternativeNextNode(AbstractStackNode next, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
 		int id = next.getId();
 		AbstractStackNode alternative = sharedNextNodes.get(id);
 		if(alternative != null){
@@ -366,7 +366,7 @@ public abstract class SGLL implements IGLL{
 				ArrayList<Link>[] prefixesMap = next.getPrefixesMap();
 				
 				for(int i = alternateNexts.size() - 1; i >= 0; --i){
-					updateAlternativeNextNode(alternateNexts.getValue(i), node, edgesMap, prefixesMap);
+					updateAlternativeNextNode(alternateNexts.getValue(i), edgesMap, prefixesMap);
 				}
 			}
 		}
