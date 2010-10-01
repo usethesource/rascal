@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -65,20 +67,40 @@ public class SystemAPI {
 				: new java.lang.String[] { b };
 		IListWriter r = values.listWriter(TypeFactory.getInstance()
 				.stringType());
+		Pattern p = Pattern.compile("\\(\\w*\\)[ \t]*$");
+		java.lang.String found = null;
 		for (java.lang.String e : d) {
-			if (regex_replacement.length == 4) {
+			if (regex_replacement.length == 8) {
 				java.lang.String[] f = e.split(regex_replacement[0]);
 				StringBuffer a = new StringBuffer();
 				for (int i = 0; i < f.length; i++) {
 					if (i % 2 == 1) {
 						a.append(regex_replacement[1]);
+						if (found!=null) {
+							// System.err.println("found"+found);
+							a.append(found);
+							found = null;
+						}
 						a.append(regex_replacement[0]);
-						a.append(f[i].replaceAll(regex_replacement[2],
-								regex_replacement[3]));
+						java.lang.String q = f[i];
+						q=q.replaceAll(regex_replacement[2],
+								regex_replacement[3]);
+						q=q.replaceAll(regex_replacement[4],
+								regex_replacement[5]);
+						q=q.replaceAll(regex_replacement[6],
+								regex_replacement[7]);
+						a.append(q);
 						a.append(regex_replacement[0]);
 						a.append(regex_replacement[1]);
-					} else
-						a.append(f[i]);
+					} else {
+						Matcher m = p.matcher(f[i]);
+						boolean z = m.find();
+						if (z) {
+							found = m.group();
+							a.append(m.replaceFirst(""));
+						    }
+						else a.append(f[i]);
+					    }
 				}
 				e = a.toString();
 			}
@@ -111,20 +133,22 @@ public class SystemAPI {
 		FileReader a = null;
 		try {
 			a = new FileReader(g.getURI().getPath());
-			IList r = readLines(a, "`", "\"", "\"", "\\\\\"");
+			IList r = readLines(a, "`", "\"", "\"", "\\\\\"", "<", "\\\\<",
+					">", "\\\\>");
 			// System.out.println(((IString) r.get(0)).getValue());
 			return r.get(0);
-		} 
-		catch(FileNotFoundException fnfex){
+		} catch (FileNotFoundException fnfex) {
 			throw RuntimeExceptionFactory.pathNotFound(g, null, null);
-		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-		}finally{
-			if(a != null){
-				try{
+		} catch (IOException ioex) {
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()),
+					null, null);
+		} finally {
+			if (a != null) {
+				try {
 					a.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				} catch (IOException ioex) {
+					throw RuntimeExceptionFactory.io(values.string(ioex
+							.getMessage()), null, null);
 				}
 			}
 		}
