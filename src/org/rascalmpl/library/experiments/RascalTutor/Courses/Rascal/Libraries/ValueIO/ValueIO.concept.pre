@@ -1,0 +1,1 @@
+concept("ValueIO",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/ValueIO/ValueIO.concept|,[],[],{"Library"},{}," \<code\>import ValueIO;\</code\>\n","","","",{}," Functions for reading and writing values in textual and binary format.\n","","","",[])

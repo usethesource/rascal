@@ -1,0 +1,30 @@
+Name: extractMinimum
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`tuple[int, int, PriorityQueue] extractMinimum(PriorityQueue Q)`
+
+Synopsis:
+
+Description:
+Find the pair with the minimum priority and remove it from PriorityQueue `Q`.
+Return a tuple consisting of:
+* minimum priority
+* associated value
+* PriorityQueue with minimal pair removed
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+
+Questions:
+

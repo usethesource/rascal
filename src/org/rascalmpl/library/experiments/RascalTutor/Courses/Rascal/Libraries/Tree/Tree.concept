@@ -1,0 +1,61 @@
+Name: Tree
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+`Tree` is the universal parse tree data type and can be used to parse text in any language. 
+We do not give its full declaration here since internal details are never needed by Rascal users. 
+The following is noteworthy:
+
+* `Tree` is a subtype of the type [Node].
+
+* All parse trees for a specific language are a subtype of `Tree`.
+
+* Trees can be annotated in various ways:
+  ** Source code location:
+<listing>
+anno loc Tree@\loc;
+</listing>
+
+  ** An (error) message (see [Message]) related to a certain sub-tree:
+<listing>
+anno Message Tree@message;
+</listing>
+
+  ** All (error) messages relevant for a certain sub-tree:
+<listing>
+anno set[Message] Tree@messages;
+</listing>
+
+  ** A documentation string for this parse tree node:
+<listing>
+anno str Tree@doc;
+</listing>
+
+  ** The target of a link associated with a parse tree node:
+<listing>
+anno loc Tree@link;
+</listing>
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
+for the type of [Location]s.
+Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
+
+Questions:
+

@@ -150,6 +150,17 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
       return < markupListing(codeLines), skipOneNL(lines, i+1, n)  >;
     }
     
+    // render a figure
+    case /^\<figure\s*<file:.*>\>$/: {
+      i += 1;
+      codeLines = [];
+      while((i < n) && /^\<\/figure\>/ !:= lines[i]){
+         codeLines += lines[i];
+         i += 1;
+      }
+      return < markupFigure(codeLines, file), skipOneNL(lines, i+1, n)  >;
+    }
+    
     // warning
     case /^\<warning\><txt:.*>\<\/warning\><rest:.*>$/:{
       warnings += txt;
@@ -303,10 +314,12 @@ public str link(str url, str text){
 private str getImgOpts(str txt){
   opts = "";
   visit(txt){
-    case /^\s*\|\s*left/: {opts += "align=\"left\" "; }
-    case /^\s*\|\s*right/: {opts += "align=\"right\" "; }
-    case /^\s*\|\s*<N:[0-9]+>\s*px/: {opts += "width=\"<N>px\" height=\"<N>px\" "; }
+    case /^\s*\|\s*left/: {opts += "style=\"float: left;\" "; insert "";}
+    case /^\s*\|\s*right/: {opts += "style=\"float: right;\" "; insert "";}
+    case /^\s*\|\s*center/: {opts += "style=\"float: center;\" "; insert "";}
+    case /^\s*\|\s*<N:[0-9]+>\s*px/: {opts += "width=\"<N>px\" height=\"<N>px\" "; insert ""; }
   }
+  println("getImgOpts(<txt>) returns <opts>");
   return opts;
 }
 
@@ -329,6 +342,35 @@ private str markupCode(str text){
     case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
     case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"images/<dig>.png\"\>"
   };
+}
+
+private str markupFigure(list[str] lines, str file){
+  n = size(lines);
+  str renderCall = lines[n-1];
+  errors = "";
+  if(/\s*render\(<arg:.*>\);/ := renderCall){
+      // replace the render call by a call to renderSave
+	  absPath = courseRoot.path + "../<conceptPath>/<file>";
+	  println("absPath = <absPath>; conceptPath=<conceptPath>; file=<file>");
+	  lines[n-1] = "renderSave(<arg>, |cwd://<absPath>|);";
+	  out = shell(["import viz::Figure::Core;", 
+	               "import viz::Figure::Render;"] + 
+	              lines, 
+	              5000);
+	  println("**** shell output ****\n<out>");
+	  errors = "";
+	  for(line <- out)
+	     if(/.*[Ee]rror/ := line)
+	       errors += line;
+	  println("errors = <errors>");
+	  // Restore original call for listing
+	  lines[n-1] = renderCall;
+  } else
+    errors = "Last line should be a call to \"render\"";
+    
+  if(errors != "")
+    errors = "\<warning\>" + errors + "\</warning\>";
+  return errors + markupListing(lines);
 }
 
 private str markupRascalPrompt(list[str] lines){
@@ -396,8 +438,8 @@ private set[str] searchTermsCode(str line){
   visit(line){
     case /^\s+/: insert "";
     case /^\$[^\$]*\$/: insert "";
-    case /^<kw:[a-zA-z]+>/: {terms += kw; insert ""; }
-    case /^<op:[^a-zA-Z\$\ \t]+>/: { terms += op; insert ""; }
+    case /^<kw:\w+>/: {terms += kw; println("kw = <kw>"); insert ""; }
+    case /^<op:[^a-zA-Z\$\ \t]+>/: { terms += op; println("op = <op>"); insert ""; }
   }
   return terms;
 }
@@ -407,7 +449,7 @@ private set[str] searchTermsCode(str line){
 public set[str] searchTermsSynopsis(list[str] syn, list[str] tp, list[str] fn, list[str] synop){
   
   return (searchTerms(syn) - {"...", "...,"}) + 
-         {t | str t <- searchTerms(tp), /\{\}\[\]\(\),/ !:= t, t notin {"...", "...,", ",...", ",...,"}};
+         {t | str t <- searchTerms(tp), /\{\}\[\]\(\)[,]?/ !:= t, t notin {"...", "...,", ",...", ",...,"}};
          // TODO what do we do with searchTerms(fn), searchTerms(synop)?
 }
 

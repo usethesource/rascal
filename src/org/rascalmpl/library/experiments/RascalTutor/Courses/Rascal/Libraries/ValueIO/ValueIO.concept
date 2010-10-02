@@ -1,0 +1,25 @@
+Name: ValueIO
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis: `import ValueIO;`
+
+Description:
+Functions for reading and writing values in textual and binary format.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

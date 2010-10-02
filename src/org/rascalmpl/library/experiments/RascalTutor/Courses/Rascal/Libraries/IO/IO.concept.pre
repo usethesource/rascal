@@ -1,1 +1,1 @@
-concept("IO",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/IO/IO.concept|,[],[],{"Library"},{}," \<code\>import IO;\</code\>\n","","","",{}," Provides functions for the input/output of values.\n","","","",[])
+concept("IO",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/IO/IO.concept|,[],[],{"Library","Beginner"},{}," \<code\>import IO;\</code\>\n","","","",{}," Provides functions for the input/output of values.\n","","","",[])

@@ -1,0 +1,28 @@
+Name: mkPriorityQueue
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `PriorityQueue mkPriorityQueue()`
+# `PriorityQueue mkPriorityQueue(int priority, int val)`
+
+Synopsis:
+
+Description:
+# Create an empty PriorityQueue.
+# Create a PriorityQueue with one (value, priority) pair.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

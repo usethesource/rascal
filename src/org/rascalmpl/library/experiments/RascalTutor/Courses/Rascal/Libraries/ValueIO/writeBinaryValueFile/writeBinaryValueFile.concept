@@ -1,0 +1,26 @@
+Name: writeBinaryValueFile
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`void writeBinaryValueFile(loc file, value val)`
+
+Synopsis:
+
+Description:
+Write a value to a file using an efficient binary file format.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

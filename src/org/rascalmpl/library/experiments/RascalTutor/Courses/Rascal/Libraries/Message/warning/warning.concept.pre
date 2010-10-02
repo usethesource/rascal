@@ -1,0 +1,1 @@
+concept("warning",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Message/warning/warning.concept|,[],[],{"Library"},{},"","",""," \<code\>Message warning(loc source, str msg)\</code\>\n",{}," Created a warning message.\n","","","",[])

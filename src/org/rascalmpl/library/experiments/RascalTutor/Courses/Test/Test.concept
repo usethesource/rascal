@@ -10,7 +10,7 @@ Synopsis:
 
 Syntax:
 
-Types: 
+Types: `map[lub($T_1$, $T_2$), $T_3$]`
 
 
 Description:
@@ -18,6 +18,22 @@ Description:
 | ABC  | DEF     |
 |-----:|---------|
 |  1   |  22222  |
+
+The Figure
+<figure box1.png>
+A = box([size(100), lineColor("black"), lineWidth(2), fillColor("violet")]);
+B = ellipse([size(100), lineColor("black"), lineWidth(1), fillColor("yellow")]);
+render(hcat([gap(10)], [A, B, A]));
+</figure>
+will be displayed as
+
+|  xx | yy |
+|-----|----|
+| ![Box 1](box1.png) | zzz |
+
+or as ![Box 1](box1.png|height=210px|width=110px) 
+
+
 
 Examples:
 

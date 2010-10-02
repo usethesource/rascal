@@ -1,0 +1,31 @@
+Name: evalType
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `value evalType(str command) throws Timeout`
+# `value evalType(str command, int duration) throws Timeout`
+# `value evalType(list[str] commands) throws Timeout`
+# `value evalType(list[str] commands, int duration) throws Timeout`
+
+Synopsis:
+
+Description:
+Evaluate a command or a list of commands and return the type of the value of the last command that is executed.
+An optional `duration` argument may be present to limit the time
+(in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

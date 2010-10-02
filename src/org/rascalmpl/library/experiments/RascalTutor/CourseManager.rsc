@@ -50,11 +50,11 @@ private void initialize(){
   if(root == ""){
      //c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
      c = compileCourse("Test", "Testing", courseRoot);
-     reinitialize(c);
+     reinitialize(c, {});
   }
 }
 
-private void reinitialize(Course c){
+private void reinitialize(Course c, set[str] enabled){
      thisCourse = c;
      root = c.root;
      directory = c.directory;
@@ -64,7 +64,7 @@ private void reinitialize(Course c){
      baseConcepts = c.baseConcepts;
      related = c.related;
      categories = c.categories;
-     enabledCategories = categories;
+     enabledCategories = isEmpty(enabled) ? categories : enabled;
 }
 
 // Start a new course
@@ -72,13 +72,13 @@ private void reinitialize(Course c){
 
 public str start(str name){
  if(name in courses){
-   reinitialize(courses[name]);
+   reinitialize(courses[name], {});
    return showConcept(name);
  }
  if(name in listEntries(courseRoot)){
     c = compileCourse(name, name, courseRoot);
     courses[name] = c;
-    reinitialize(c);
+    reinitialize(c, {});
     return showConcept(name);
  } else
    throw "Course <name> not found";
@@ -141,7 +141,7 @@ public str showConcept(ConceptName cn, Concept C){
   return html(
   	head(title(C.name) + prelude()),
   	body(
-  	  "[\<a id=\"tutorAction\" href=\"http://localhost:8081/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]" +
+  	  "[\<a id=\"tutorAction\" href=\"http://localhost:8081/Courses/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]" +
   	  section("Name", showConceptPath(cn)) + navigationMenu(cn) + categoryMenu(cn) +
   	  searchBox(cn) + 
   	  ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
@@ -269,9 +269,13 @@ public str category(map[str,str] categories){
 
 private bool isEnabled(ConceptName cn){
   cats = concepts[cn].categories;
+  if(isEmpty(cats))
+    cats = categories;
+    
   if("Beginner" in enabledCategories && "Beginner" notin cats)
      return false;
-  return isEmpty(cats) || !isEmpty(cats & enabledCategories);
+
+  return !isEmpty(cats & enabledCategories);
 }
 
 public str editMenu(ConceptName cn){
@@ -279,7 +283,7 @@ public str editMenu(ConceptName cn){
               [\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false&check=false\"\>\<b\>Edit\</b\>\</a\>] | 
               [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true&check=true\"\>\<b\>New\</b\>\</a\>] |
               [\<a id=\"checkAction\" href=\"/edit?concept=<cn>&new=false&check=true\"\>\<b\>Check\</b\>\</a\>] |
-              [\<a id=\"tutorAction\" href=\"http://localhost:8081/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]
+              [\<a id=\"tutorAction\" href=\"http://localhost:8081/Courses/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]
             \</div\>\n";
 }
 
@@ -315,7 +319,7 @@ public str edit(ConceptName cn, bool newConcept, bool check){
 public str doCheck(ConceptName cn){
     thisCourse = recompileCourse(thisCourse);
     warnings = thisCourse.warnings;
-    reinitialize(thisCourse);
+    reinitialize(thisCourse, enabledCategories);
     back = "\<a href=\"show?concept=<cn>\"\>" +
                      "\<img width=\"30\" height=\"30\" src=\"images/back.png\"\>" +
            "\</a\>";
@@ -371,7 +375,7 @@ public str save(ConceptName cn, str text, bool newConcept){
      try {
        concepts[fullName] = parseConcept(file, sections, directory.path);
        thisCourse.concepts = concepts;
-       reinitialize(thisCourse);
+       reinitialize(thisCourse, enabledCategories);
        return saveFeedback("", showConcept(fullName));
      } catch CourseError(e): {
        return saveFeedback(e, "");
@@ -385,7 +389,7 @@ public str save(ConceptName cn, str text, bool newConcept){
       thisCourse.concepts = concepts;
       thisCourse = recompileCourse(thisCourse);
       warnings = thisCourse.warnings;
-      reinitialize(thisCourse);
+      reinitialize(thisCourse, enabledCategories);
       println("parsed, returning feedback");
       return saveFeedback("", showConcept(cn));
     } catch ConceptError(e): {
@@ -603,10 +607,6 @@ println("showQuestion: <cpid>, <q>");
                   anotherQuestionForm(cpid, qid) + cheatForm(cpid, qid, qexpr) + br());
 }
 
-public void tstq(){
-println(showQuestion("xxx", tvQuestion(typeOfExpr(), details("qid", "descr", [], "\<A:int\> + \<B:int\>", "", (), ()))));
-}
-
 public QuestionName lastQuestion = "";
 
 // trim layout from a string
@@ -818,9 +818,7 @@ public str validateAnswer(map[str,str] params){
 	            
 	              return  wrongAnswer(cpid, qid, errorMsg);
 	            }
-	          } //catch SyntaxError(l): wrongAnswer(cpid, qid, "There is a syntax error in your answer.");
-	            //catch e:  wrongAnswer(cpid, qid, "There is an error in your answer: <e>");
-	            catch:
+	          } catch:
 	             return wrongAnswer(cpid, qid, "Cannot assess your answer.");
 	      }
 	    }

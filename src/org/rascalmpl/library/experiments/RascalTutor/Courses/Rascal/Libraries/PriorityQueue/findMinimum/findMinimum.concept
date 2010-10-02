@@ -1,0 +1,25 @@
+Name: findMinimum
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `int findMinimum(PriorityQueue Q)`
+
+Synopsis:
+
+Description:
+Find the minimum priority in PriorityQueue Q.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

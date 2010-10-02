@@ -1,0 +1,1 @@
+concept("Scripting",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Scripting/Scripting.concept|,[],[],{"Library"},{},"","","","",{}," A framework for calling the Rascal shell and Rascal evaluator from Rascal programs.\n","","","",[])

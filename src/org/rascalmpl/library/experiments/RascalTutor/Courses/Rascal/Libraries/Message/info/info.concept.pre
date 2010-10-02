@@ -1,0 +1,1 @@
+concept("info",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Message/info/info.concept|,[],[],{},{},"","",""," \<code\>Message info(loc source, str msg)\</code\>\n",{}," Creates an info message.\n","","","",[])

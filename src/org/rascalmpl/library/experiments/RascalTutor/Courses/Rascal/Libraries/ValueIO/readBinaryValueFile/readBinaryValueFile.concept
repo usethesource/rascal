@@ -1,0 +1,29 @@
+Name: readBinaryValueFile
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `value readBinaryValueFile(loc file)`
+# `&T readBinaryValueFile(type[&T] result, loc file)`
+
+
+Synopsis:
+
+Description:
+# Read a value from a binary file.
+# Read a typed value from a binary file.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
