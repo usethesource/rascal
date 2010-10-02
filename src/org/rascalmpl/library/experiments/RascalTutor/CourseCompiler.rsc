@@ -416,8 +416,6 @@ public rel[str,str] getBaseRefinements(list[str] names){
 public Course recompileCourse(Course course){
   return validatedCourse(course.root, course.title, course.directory, course.concepts);
 }
-
-loc courseRoot = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
    
 public Course compileCourse(ConceptName rootConcept, str title, loc courseDir){
     map[ConceptName,Concept] conceptMap = ();

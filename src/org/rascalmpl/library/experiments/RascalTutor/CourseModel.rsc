@@ -6,6 +6,8 @@ import IO;
 import String;
 import Exception;
 
+public loc courseRoot = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
+
 // A ConceptName is the "pathname" of a concept in the concept hierarchy, e.g., "Rascal/Datastructure/Set"
 
 alias ConceptName = str;
