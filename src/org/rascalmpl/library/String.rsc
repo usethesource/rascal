@@ -1,5 +1,14 @@
 module String
 
+
+@doc{Convert a character code into a string}
+@javaClass{org.rascalmpl.library.String}
+public str java stringChar(int char);
+
+@doc{Convert a list of character codes into a string}
+@javaClass{org.rascalmpl.library.String}
+public str java stringChars(list[int] chars);
+
 @doc{Return the character at position i in string s.}
 @javaClass{org.rascalmpl.library.String}
 public int java charAt(str s, int i) throws out_of_range(str msg);
