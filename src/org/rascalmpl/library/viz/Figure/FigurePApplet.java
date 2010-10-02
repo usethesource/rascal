@@ -10,7 +10,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
-import processing.pdf.*;
 
 /**
  * 
@@ -33,7 +32,6 @@ public class FigurePApplet extends PApplet {
 	private HashMap<String,GraphNode> registered;
 	private static boolean debug = true;
 	private boolean saveFigure = true;
-	private boolean saveDone = false;
 	private String file;
 	private float scale = 1.0f;
 	private int left = 0;
@@ -50,7 +48,6 @@ public class FigurePApplet extends PApplet {
 	public FigurePApplet(IConstructor elem, ISourceLocation sloc, IEvaluatorContext ctx){
 		registered = new HashMap<String,GraphNode>();
 		saveFigure = true;
-		saveDone = false;
 		try {
 			this.file = ctx.getResolverRegistry().absolutePath(sloc.getURI());
 			System.err.println("will save drawing to " + file);
@@ -64,7 +61,6 @@ public class FigurePApplet extends PApplet {
 	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
 		registered = new HashMap<String,GraphNode>();
 		saveFigure = false;
-		saveDone = false;
 		this.figure = FigureFactory.make(this, elem, null, ctx);
 	}
 	
