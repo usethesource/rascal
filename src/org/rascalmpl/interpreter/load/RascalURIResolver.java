@@ -266,7 +266,6 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 	}
 	
 	public String[] listEntries(URI uri) throws IOException {
-		java.lang.String[] ls = {};
 		try {
 			if (uri.getScheme().equals(scheme())) {
 				String path = getPath(uri);
@@ -300,6 +299,16 @@ public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStr
 		catch (URISyntaxException e) {
 			return false;
 		}
+	}
+
+	public String absolutePath(URI uri) {
+		try {
+			return ctx.getResolverRegistry().absolutePath(uri);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
