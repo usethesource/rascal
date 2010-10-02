@@ -315,34 +315,8 @@ public class PropertyManager {
 		vanchor = 0.5f;
 		vgap = 0;
 		width = 0;
-		
-//		origMouseOverProperties = null;
-//		mouseOver = false;
-//		mouseOverproperties = null;
 		mouseOverFigure = null;
 	}
 	
-//	public void applyProperties(){
-//		if(mouseOver && mouseOverproperties != null)
-//			mouseOverproperties.applyProperties();
-//		else {
-//			vlp.fill(fillColor);
-//			vlp.stroke(lineColor);
-//			vlp.strokeWeight(lineWidth);
-//			vlp.textSize(fontSize);
-//		}
-//	}
-//	
-//	public void applyFontColorProperty(){
-//		if(mouseOver && mouseOverproperties != null)
-//			mouseOverproperties.applyProperties();
-//		else {
-//			vlp.fill(fontColor);
-//		}
-//	}
-	
-//	public void setMouseOver(boolean on){
-//		mouseOver = on;
-//	}
 
 }

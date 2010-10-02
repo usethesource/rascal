@@ -269,8 +269,10 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	protected boolean mouseInside(int mousex, int mousey){
-		return (mousex > left + leftDragged && mousex < left + leftDragged + width) &&
+		boolean cond = (mousex > left + leftDragged && mousex < left + leftDragged + width) &&
 		        (mousey > top + topDragged  && mousey < top + topDragged + height);
+		System.err.printf("mouseInside(%d,%d), left=%f, top=%f => %s", mousex, mousey, left, top, cond?"true":"false");
+		return cond;
 	}
 	
 	public void drag(float mousex, float mousey){

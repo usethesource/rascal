@@ -76,10 +76,10 @@ public void K33(){
 
 public void graph4(){
      nodes =
-     	[ box([id("A"), width(20), height(20), fillColor("green")], text("A")),
-     	  box([id("B"),  width(20), height(20), fillColor("red")], text("B")),
-     	  box([id("C"),  width(20), height(20), fillColor("blue")], text("C")),
-     	  box([id("D"), width(20), height(20), fillColor("purple")], text("D"))
+     	[ box([id("A"), size(20), fillColor("green")], text("A")),
+     	  box([id("B"),  size(30), fillColor("red")], text("B")),
+     	  ellipse([id("C"),  size(20), fillColor("blue")], text("C")),
+     	  ellipse([id("D"), size(20, 40), fillColor("purple")], text("D"))
      	];
     edges = 
     	[ edge("A", "B"),

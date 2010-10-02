@@ -237,7 +237,7 @@ public void tree6(){
 // Tree with text popups.
 
 public FProperty popup(str s){
-	return mouseOver(box([width(0), height(0), gap(1), fillColor("yellow")], text(s)));
+	return mouseOver(box([gap(1), fillColor("yellow")], text(s)));
 }
 
 public void tree7(){

@@ -168,8 +168,8 @@ public Figure xyChart(str title, list[NamedPairSeries] facts, ChartSetting setti
   xshift = (xmin > 0) ? 0 : -xmin;
   yshift = (ymin > 0) ? 0 : -ymin;
   
-  println("xmin=<xmin>, xmax=<xmax>\nymin=<ymin>, ymax=<ymax>");
-  println("xscale=<xscale>, yscale=<yscale>, xshift=<xshift>, yshift=<yshift>");
+  //println("xmin=<xmin>, xmax=<xmax>\nymin=<ymin>, ymax=<ymax>");
+  //println("xscale=<xscale>, yscale=<yscale>, xshift=<xshift>, yshift=<yshift>");
   
   // Add vertical axis at x=0
   funPlots += shape([lineColor("darkgrey"), lineWidth(1), connectedShape()],
@@ -234,7 +234,7 @@ public void p0(){
      mydata = [
                <"h", [<0,0>, <10,10>, <20,20>, <30,30>, <40,40>, <50,50>, <60,60>]>
                ];
-     render(xyChart("Test Title P0", 
+     render(xyChart("P0", 
 	                 mydata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis")
                   )
            );
@@ -243,7 +243,7 @@ public void p0(){
 // Scatter plot
 
 public void p1(){
-	render(xyChart("Test Title P1", 
+	render(xyChart("P1", 
 	                 pdata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis")
                   )
            );
@@ -252,7 +252,7 @@ public void p1(){
 // Line plot
 
 public void p2(){
-	render(xyChart("Test Title P2", 
+	render(xyChart("P2", 
 	                 pdata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis"),
 	                 linePlot()
                   )
@@ -262,7 +262,7 @@ public void p2(){
 // Curve plot
 
 public void p3(){
-	render(xyChart("Test Title P3", 
+	render(xyChart("P3", 
 	                 pdata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis"),
 	                 linePlot(), curvePlot()
                   )
@@ -308,7 +308,7 @@ public Figure barChart(str title, NamedNumbers facts, ChartSetting settings...){
   	categories += [k];
   	ifacts += <k, [v]>;
   }
-  println("categories=<categories>\nifacts=<ifacts>");
+  //println("categories=<categories>\nifacts=<ifacts>");
   return barChart(title, categories, ifacts, settings);
 }
 
@@ -355,11 +355,11 @@ public Figure barChart(str title, list[str] categories, NamedNumberSeries facts,
      barGap = 0;
   }
   
-  println("barWidth=<barWidth>, barGap=<barGap>, groupWidth=<groupWidth>, groupGap=<groupGap>");
+  //println("barWidth=<barWidth>, barGap=<barGap>, groupWidth=<groupWidth>, groupGap=<groupGap>");
   
   // Compute translation
 
-  println("yscale=<yscale>");
+  //println("yscale=<yscale>");
   fns = ();
   for(<str fname, list[num] values> <- facts){
     fcolorName = palette(size(funColors));
