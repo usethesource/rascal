@@ -187,6 +187,11 @@ data Figure =
      text(FProperties props, str s)		  		// text label
    | text(str s)			              		// text label
    
+   												// file outline
+   | outline(FProperties props, map[int,Color] coloredLines)
+   | outline(map[int,Color] coloredLines)
+   
+   
 /* primitives/containers */
 
    | box(FProperties props)			          	// rectangular box

@@ -235,17 +235,17 @@ public void pack0(){
 }
 
 public void pack1(){
-  boxes = [box([width(50), height(50),fillColor("red")]), box([width(30), height(30),fillColor("yellow")]), 
-           box([width(30), height(30),fillColor("green")]), box([width(70), height(50),fillColor("blue")]),
-           box([width(70), height(70),fillColor("black")]), box([width(10), height(20),fillColor("orange")]),
-           box([width(80), height(10),fillColor("grey")]), box([width(10), height(150),fillColor("white")]),
-           box([width(10), height(10),fillColor("lightblue")]),
-           box([width(10), height(10),fillColor("lightblue")]),
-           box([width(10), height(10),fillColor("lightblue")]),
-           box([width(10), height(20),fillColor("orange")]) ,
-           box([width(10), height(20),fillColor("orange")]),
-           box([width(10), height(20),fillColor("orange")]) ,
-           box([width(10), height(20),fillColor("orange")])                  
+  boxes = [box([size(50),fillColor("red")]), box([size(30),fillColor("yellow")]), 
+           box([size(30) ,fillColor("green")]), box([size(70,50),fillColor("blue")]),
+           box([size(70),fillColor("black")]), box([size(10,20),fillColor("orange")]),
+           box([size(80,10),fillColor("grey")]), box([size(10,150),fillColor("black")]),
+           box([size(10),fillColor("lightblue")]),
+           box([size(10),fillColor("lightblue")]),
+           box([size(10),fillColor("lightblue")]),
+           box([size(10,20),fillColor("orange")]) ,
+           box([size(10,20),fillColor("orange")]),
+           box([size(10,20),fillColor("orange")]) ,
+           box([size(10,20),fillColor("orange")])                  
            ];
 
   render(pack([width(200), height(170), lineWidth(0), gap(5,10), top()], boxes));

@@ -59,7 +59,7 @@ public class Pack extends Compose {
 		if(debug){
 			System.err.println("SORTED ELEMENTS:");
 			for(Figure v : figures){
-				System.err.printf("\twidth=%f, height=%f\n", v.width, v.height);
+				System.err.printf("\t%s, width=%f, height=%f\n", v.getIdProperty(), v.width, v.height);
 			}
 		}
 		
@@ -130,7 +130,7 @@ class Node {
 	}
 	
 	public Node insert(Figure v){
-		if(Pack.debug)System.err.printf("insert: %f, %f\n", v.width, v.height);
+		if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", v.getIdProperty(), v.width, v.height);
 		if(!leaf()){
 			// Not a leaf, try to insert in left child
 			Node newNode = lnode.insert(v);
@@ -150,8 +150,8 @@ class Node {
 		float height = bottom - top;
 		
 		if(Pack.debug){
-			System.err.printf("width=%f, height=%f\n", width, height);
-			System.err.printf("ve.width=%f, ve.height=%f\n", v.width, v.height);
+			System.err.printf("%s: width=%f, height=%f\n", v.getIdProperty(), width, height);
+			System.err.printf("%s: v.width=%f, v.height=%f\n", v.getIdProperty(), v.width, v.height);
 		}
 		
 		// If we are too small return
@@ -162,7 +162,7 @@ class Node {
 		float dw = width - v.width;
         float dh = height - v.height;
         
-       if(Pack.debug)System.err.printf("dw=%f, dh=%f\n", dw, dh);
+       if(Pack.debug)System.err.printf("%s: dw=%f, dh=%f\n", v.getIdProperty(), dw, dh);
 		
 		if ((dw <= 0) || (dh <= 0))
 			return null;
@@ -176,13 +176,13 @@ class Node {
 		// Create two children and decide how to split
 
         if(dw > dh) {
-        	if(Pack.debug)System.err.println("case dw > dh");
+        	if(Pack.debug)System.err.printf("%s: case dw > dh\n", v.getIdProperty());
 //        	lnode = new Node(left,                 top, left + v.width + hgap, bottom);
 //        	rnode = new Node(left + v.width + hgap, top, right,                bottom);
         	lnode = new Node(left,                 top, left + v.width + hgap, bottom);
         	rnode = new Node(left + v.width + hgap, top, right,                bottom);
         } else {
-        	if(Pack.debug)System.err.println("case dw <= dh");
+        	if(Pack.debug)System.err.printf("%s: case dw <= dh\n", v.getIdProperty());
 //        	lnode = new Node(left, top,                  right, top + v.height + vgap);
 //        	rnode = new Node(left, top + v.height + vgap, right, bottom);
            	lnode = new Node(left, top,                  right, top + v.height + vgap);
