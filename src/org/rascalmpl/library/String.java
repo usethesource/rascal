@@ -3,6 +3,7 @@ package org.rascalmpl.library;
 import java.math.BigInteger;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -16,6 +17,20 @@ public class String {
 		super();
 		
 		this.values = values;
+	}
+	
+	public IValue stringChar(IInteger i){
+		byte ccode[] = { (byte) i.intValue()};
+		return values.string(new java.lang.String(ccode));
+	}
+	
+	public IValue stringChars(IList lst){
+		int n = lst.length();
+		byte ccodes[] = new byte[n];
+		for(int i = 0; i < n; i ++){
+			ccodes[i] = (byte) ((IInteger) lst.get(i)).intValue();
+		}
+		return values.string(new java.lang.String(ccodes));
 	}
 	
 	public IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
