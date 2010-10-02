@@ -54,4 +54,8 @@ public class ClassResourceInputStreamResolver implements
 		return (res == null) ? ls : new File(res.getPath()).list();
 	}
 
+	public String absolutePath(URI uri) {
+		return clazz.getResource(uri.getPath()).getPath();
+	}
+
 }

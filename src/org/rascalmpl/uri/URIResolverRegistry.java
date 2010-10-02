@@ -34,6 +34,16 @@ public class URIResolverRegistry {
 		return resolver.exists(uri);
 	}
 	
+	public String absolutePath(URI uri) throws IOException {
+		IURIInputStreamResolver iresolver = inputResolvers.get(uri.getScheme());
+		if(iresolver != null)
+			return iresolver.absolutePath(uri);
+		IURIOutputStreamResolver oresolver = outputResolvers.get(uri.getScheme());
+		if(oresolver != null)
+			return oresolver.absolutePath(uri);
+		throw new UnsupportedSchemeException(uri.getScheme());
+	}
+	
 	public boolean isDirectory(URI uri) {
 		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
 		
