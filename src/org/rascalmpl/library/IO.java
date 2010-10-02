@@ -2,7 +2,6 @@ package org.rascalmpl.library;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -134,10 +133,19 @@ public class IO {
 		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
 	}
 	
-	public IValue mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
-		File f = new File(sloc.getURI().getPath());
-		System.err.println("mkDirectory: " + sloc.getURI().getPath());
-		return values.bool(f.mkdir());
+	public IValue absolutePath(ISourceLocation sloc, IEvaluatorContext ctx) {
+		try {
+			return values.string(ctx.getResolverRegistry().absolutePath(sloc.getURI()));
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+		}
+	}
+	
+	public IValue mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) throws IOException {
+		//File f = new File(sloc.getURI().getPath());
+		//System.err.println("mkDirectory: " + sloc.getURI().getPath());
+		//return values.bool(f.mkdir());
+		return values.bool(ctx.getResolverRegistry().mkDirectory(sloc.getURI()));
 	}
 	
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
