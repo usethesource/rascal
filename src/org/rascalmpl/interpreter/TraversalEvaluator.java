@@ -488,11 +488,12 @@ public class TraversalEvaluator {
 					if(replacementString == null)
 						replacementString = new StringBuffer();
 					
-					// Copy replacement into replacement string
+					// Copy string before the match to the replacement string
 					for(; subjectCursorForResult < subjectCursor + start; subjectCursorForResult++){
 						replacementString.append(subjectString.charAt(subjectCursorForResult));
 					}
 					subjectCursorForResult = subjectCursor + end;
+					// Copy replacement into replacement string
 					replacementString.append(((IString)repl).getValue());
 
 					matched = changed = true;
