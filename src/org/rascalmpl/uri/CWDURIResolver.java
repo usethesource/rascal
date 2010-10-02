@@ -18,8 +18,12 @@ public class CWDURIResolver implements IURIInputStreamResolver,
 		return new FileInputStream(getAbsolutePath(uri));
 	}
 
+	public String absolutePath(URI uri) {
+		return System.getProperty("user.dir") + uri.getPath();
+	}
+	
 	private File getAbsolutePath(URI uri) {
-		return new File(System.getProperty("user.dir"), uri.getPath());
+		return new File(absolutePath(uri));
 	}
 
 	public String scheme() {

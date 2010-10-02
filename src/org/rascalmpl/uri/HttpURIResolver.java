@@ -47,4 +47,8 @@ public class HttpURIResolver implements IURIInputStreamResolver {
 		return ls;
 	}
 
+	public String absolutePath(URI uri) {
+		return uri.getPath();
+	}
+
 }

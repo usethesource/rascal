@@ -58,4 +58,8 @@ public class FileURIResolver implements IURIInputStreamResolver, IURIOutputStrea
 	public boolean mkDirectory(URI uri) {
 		return new File(uri.getPath()).mkdir();
 	}
+
+	public String absolutePath(URI uri) {
+		return uri.getPath();
+	}
 }

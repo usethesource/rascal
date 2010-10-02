@@ -33,4 +33,8 @@ public class StandardInputURIResolver implements IURIInputStreamResolver {
 		String [] ls = {};
 		return ls;
 	}
+
+	public String absolutePath(URI uri) {
+		return "stdin";
+	}
 }

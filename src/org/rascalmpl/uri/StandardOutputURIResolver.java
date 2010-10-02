@@ -19,4 +19,8 @@ public class StandardOutputURIResolver implements IURIOutputStreamResolver {
 		return false;
 	}
 
+	public String absolutePath(URI uri) {
+		return "stdout";
+	}
+
 }
