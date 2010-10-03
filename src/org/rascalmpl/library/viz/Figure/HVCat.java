@@ -5,15 +5,15 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 
 
 /**
- * Align elements on consecutive rows. Width is determined by the width property, height is
+ * HVCat elements on consecutive rows. Width is determined by the width property, height is
  * determined by the number and size of the elements. This is similar to aligning words in
  * a text but is opposed to composition in a grid, where the elements are placed on fixed
- * grid ositions.
+ * grid positions.
  * 
  * @author paulk
  *
  */
-public class Align extends Compose {
+public class HVCat extends Compose {
 	
 	float leftElem[];
 	float topRowElem[];
@@ -22,7 +22,7 @@ public class Align extends Compose {
 	int inRow[];
 	static boolean debug = false;
 
-	Align(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+	HVCat(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(vlp, inheritedProps, props, elems, ctx);
 		leftElem = new float[elems.length()];
 		topRowElem = new float[elems.length()];
@@ -69,7 +69,7 @@ public class Align extends Compose {
 		height += hrow;
 		if(nrow == 0)
 			width = w - hgap;
-		if(debug)System.err.printf("Align.bbox: width=%f, height=%f\n", width, height);
+		if(debug)System.err.printf("HVCat.bbox: width=%f, height=%f\n", width, height);
 	}
 	
 	@Override

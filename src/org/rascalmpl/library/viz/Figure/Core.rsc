@@ -217,8 +217,8 @@ data Figure =
    | vcat(Figures elems)                        // vertical concatenation
    | vcat(FProperties props, Figures elems)
    
-   | align(Figures elems)                       // horizontal and vertical composition
-   | align(FProperties props, Figures elems)
+   | hvcat(Figures elems)                       // horizontal and vertical concatenation
+   | hvcat(FProperties props, Figures elems)
    
    | overlay(Figures elems)                     // overlay (stacked) composition
    | overlay(FProperties props, Figures elems)
