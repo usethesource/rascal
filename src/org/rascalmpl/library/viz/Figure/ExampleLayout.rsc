@@ -4,93 +4,93 @@ import viz::Figure::Core;
 import viz::Figure::Render; 
 import Set;
 
-// Alignment of boxes
+// HVCat of boxes
 
 public void align1(){
   boxes = [box([size(50,50),fillColor("red")])];
 
-  render(align([width(125), gap(10), top(), left()], boxes));
+  render(hvcat([width(125), gap(10), top(), left()], boxes));
 }
 
-public void aligntl(){
+public void hvcattl(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), top(), left()], boxes));
+  render(hvcat([width(125), gap(10), top(), left()], boxes));
 }
 
-public void aligntc(){
+public void hvcattc(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), top(), hcenter()], boxes));
+  render(hvcat([width(125), gap(10), top(), hcenter()], boxes));
 }
 
-public void aligntr(){
+public void hvcattr(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), top(), right()], boxes));
+  render(hvcat([width(125), gap(10), top(), right()], boxes));
 }
 
-public void aligncl(){
+public void hvcatcl(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), vcenter(), left()], boxes));
+  render(hvcat([width(125), gap(10), vcenter(), left()], boxes));
 }
 
-public void aligncc(){
+public void hvcatcc(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), center()], boxes));
+  render(hvcat([width(125), gap(10), center()], boxes));
 }
 
-public void aligncr(){
+public void hvcatcr(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), vcenter(), right()], boxes));
+  render(hvcat([width(125), gap(10), vcenter(), right()], boxes));
 }
 
-public void alignbl(){
+public void hvcatbl(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), bottom(), left()], boxes));
+  render(hvcat([width(125), gap(10), bottom(), left()], boxes));
 }
 
-public void alignbc(){
+public void hvcatbc(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), bottom(), hcenter()], boxes));
+  render(hvcat([width(125), gap(10), bottom(), hcenter()], boxes));
 }
 
-public void alignbr(){
+public void hvcatbr(){
   boxes = [box([size(50,50),fillColor("red")]), box([size(30,30),fillColor("yellow")]), 
            box([size(30,30),fillColor("green")]), box([size(70,50),fillColor("blue")]),
            box([size(70,70),fillColor("black")])
            ];
 
-  render(align([width(125), gap(10), bottom(), right()], boxes));
+  render(hvcat([width(125), gap(10), bottom(), right()], boxes));
 }
 
 // Grid alignment

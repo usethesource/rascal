@@ -24,13 +24,13 @@ public class FigureFactory {
 	static IList emptyList = vf.list();
 	
 	enum Primitives {
-		ALIGN, 
 		BOX, 
 		EDGE, 
 		ELLIPSE, 
 		GRAPH, 
 		GRID,
 		HCAT, 
+		HVCAT,
 		OUTLINE,
 		OVERLAY, 
 		PACK, 
@@ -48,13 +48,13 @@ public class FigureFactory {
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     {
-    	put("align",		Primitives.ALIGN);	
     	put("box",			Primitives.BOX);
     	put("edge",			Primitives.EDGE);
     	put("ellipse",		Primitives.ELLIPSE);
     	put("graph",		Primitives.GRAPH);
     	put("grid",			Primitives.GRID);
     	put("hcat",			Primitives.HCAT);
+    	put("hvcat",		Primitives.HVCAT);	
       	put("outline",		Primitives.OUTLINE);	
     	put("overlay",		Primitives.OVERLAY);	
     	put("pack",			Primitives.PACK);	
@@ -86,10 +86,6 @@ public class FigureFactory {
 		String ename = c.getName();
 	
 		switch(pmap.get(ename)){
-		
-		case ALIGN: 
-			getOneOrTwoArgs(c); 
-			return new Align(vlp, inheritedProps, props, elems, ctx);
 			
 		case BOX:
 			if(c.arity() == 2)
@@ -122,6 +118,10 @@ public class FigureFactory {
 		case HCAT:
 			getOneOrTwoArgs(c);
 			return new HCat(vlp, inheritedProps, props, elems, ctx);
+			
+		case HVCAT: 
+			getOneOrTwoArgs(c); 
+			return new HVCat(vlp, inheritedProps, props, elems, ctx);
 			
 		case OUTLINE: 
 			if(c.arity() == 2)

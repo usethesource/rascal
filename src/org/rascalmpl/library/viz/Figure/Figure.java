@@ -271,7 +271,7 @@ public abstract class Figure implements Comparable<Figure> {
 	protected boolean mouseInside(int mousex, int mousey){
 		boolean cond = (mousex > left + leftDragged && mousex < left + leftDragged + width) &&
 		        (mousey > top + topDragged  && mousey < top + topDragged + height);
-		System.err.printf("mouseInside(%d,%d), left=%f, top=%f => %s", mousex, mousey, left, top, cond?"true":"false");
+		//System.err.printf("mouseInside(%d,%d), left=%f, top=%f => %s", mousex, mousey, left, top, cond?"true":"false");
 		return cond;
 	}
 	

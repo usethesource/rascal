@@ -128,18 +128,15 @@ public class TreeNode extends Figure {
 			return;
 		}
 	
-		float absPosition = left + leftPosition + (rightPosition - leftPosition)/2;
-		float absLeftRootFig = absPosition - figure.width/2;
-		float absMiddleXofFig = absPosition;
+		float absMiddleXofFig = left + leftPosition + leftDragged + (rightPosition - leftPosition)/2;
+		float absLeftRootFig = absMiddleXofFig - figure.width/2;
 		System.err.printf("draw figure %s at %f, %f", id, absLeftRootFig, top + this.top);
 		System.err.printf(", left = %f, this.left=%f, leftPosition=%f, rightPosition=%f\n", left, this.left, leftPosition, rightPosition);
 //		figure.draw(figMiddleX - figure.width/2, this.top);
-		figure.draw(absLeftRootFig, top + this.top);
-		
-	
+		figure.draw(absLeftRootFig, top + this.top + topDragged);
 		
 		if(nChildren > 0 && visible){
-			float absFigBottomY = top + this.top + figure.height;
+			float absFigBottomY = top + this.top + topDragged + figure.height;
 			float vgap = getVGapProperty();
 			final float absChildTop = absFigBottomY + vgap;
 			float absHorLineY = absFigBottomY + vgap/2;
@@ -154,13 +151,13 @@ public class TreeNode extends Figure {
 				for(TreeNode child : children){
 					if(!squareStyle)
 						vlp.line(absMiddleXofFig, absFigBottomY, child.figure.left + child.figure.width/2, absChildTop);
-					float absMidChild = left + child.getRealMiddle();
+					float absMidChild = left + leftDragged + child.getRealMiddle();
 					
 					System.err.printf("%s: absMidChild=%f, childCurrentTop=%f\n", id, absMidChild,  child.getRealTop());
 					
 					// Vertical line from horizontal line to top of this child
-					vlp.line(absMidChild, top + child.getRealTop(), absMidChild, absHorLineY);
-					child.draw(left, top);
+					vlp.line(absMidChild, top + topDragged + child.getRealTop(), absMidChild, absHorLineY);
+					child.draw(left + leftDragged, top + topDragged);
 				}
 				
 				if(nChildren> 1)
