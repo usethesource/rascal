@@ -122,7 +122,7 @@ class Node {
 		this.top = top;
 		this.right = right;
 		this.bottom = bottom;
-		if(Pack.debug) System.err.printf("Node(%f,%f,%f,%f)\n", left, top, right, bottom);
+		if(Pack.debug) System.err.printf("Create Node(%f,%f,%f,%f)\n", left, top, right, bottom);
 	}
 	
 	boolean leaf(){
@@ -130,29 +130,29 @@ class Node {
 	}
 	
 	public Node insert(Figure v){
-		if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", v.getIdProperty(), v.width, v.height);
+		String id = v.getIdProperty();
+		if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, v.width, v.height);
 		if(!leaf()){
 			// Not a leaf, try to insert in left child
+			if(Pack.debug)System.err.printf("insert:%s in left child\n", id);
 			Node newNode = lnode.insert(v);
-			if(newNode != null)
+			if(newNode != null){
+				if(Pack.debug)System.err.printf("insert: %s in left child succeeded\n", id);
 				return newNode;
+			}
 			// No room, try it in right child
+			if(Pack.debug)System.err.printf("insert: %s in left child failed, try right child\n", id);
 			return rnode.insert(v);
 		}
 		
 		// We are a leaf, if there is already a velem return
 		if(figure != null){
-			//System.err.println("Already occupied");
+			if(Pack.debug)System.err.printf("insert: %s: Already occupied\n", id);
 			return null;
 		}
 		
 		float width = right - left;
 		float height = bottom - top;
-		
-		if(Pack.debug){
-			System.err.printf("%s: width=%f, height=%f\n", v.getIdProperty(), width, height);
-			System.err.printf("%s: v.width=%f, v.height=%f\n", v.getIdProperty(), v.width, v.height);
-		}
 		
 		// If we are too small return
 		
@@ -162,27 +162,28 @@ class Node {
 		float dw = width - v.width;
         float dh = height - v.height;
         
-       if(Pack.debug)System.err.printf("%s: dw=%f, dh=%f\n", v.getIdProperty(), dw, dh);
+       if(Pack.debug)System.err.printf("%s: dw=%f, dh=%f\n", id, dw, dh);
 		
-		if ((dw <= 0) || (dh <= 0))
+		if ((dw < hgap) || (dh < vgap))
 			return null;
 		
 		// If we are exactly right return
 		if((dw  <= 2 * hgap) && (dh <= 2 * vgap)){
-			if(Pack.debug)System.err.println("FIT!");
+			if(Pack.debug)System.err.printf("insert: %s FITS!\n", id);
 			return this;
 		}
 		
 		// Create two children and decide how to split
 
         if(dw > dh) {
-        	if(Pack.debug)System.err.printf("%s: case dw > dh\n", v.getIdProperty());
+        	if(Pack.debug)System.err.printf("%s: case dw > dh\n", id);
 //        	lnode = new Node(left,                 top, left + v.width + hgap, bottom);
 //        	rnode = new Node(left + v.width + hgap, top, right,                bottom);
         	lnode = new Node(left,                 top, left + v.width + hgap, bottom);
         	rnode = new Node(left + v.width + hgap, top, right,                bottom);
         } else {
-        	if(Pack.debug)System.err.printf("%s: case dw <= dh\n", v.getIdProperty());
+        	if(Pack.debug)System.err.printf("%s: case dw <= dh\n", id);
+        	
 //        	lnode = new Node(left, top,                  right, top + v.height + vgap);
 //        	rnode = new Node(left, top + v.height + vgap, right, bottom);
            	lnode = new Node(left, top,                  right, top + v.height + vgap);
