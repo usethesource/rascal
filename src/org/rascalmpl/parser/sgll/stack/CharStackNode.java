@@ -12,8 +12,8 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 	
 	private AbstractNode result;
 	
-	public CharStackNode(int id, char[][] ranges){
-		super(id);
+	public CharStackNode(int id, int dot, char[][] ranges){
+		super(id, dot);
 
 		this.ranges = ranges;
 	}

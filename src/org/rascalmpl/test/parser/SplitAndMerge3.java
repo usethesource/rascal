@@ -36,16 +36,16 @@ public class SplitAndMerge3 extends SGLL implements IParserTest{
 	private final static IConstructor PROD_C_B = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_B), SYMBOL_C, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, "A");
-	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, "B");
-	private final static AbstractStackNode NONTERMINAL_B3 = new NonTerminalStackNode(3, "B");
-	private final static AbstractStackNode NONTERMINAL_C4 = new NonTerminalStackNode(4, "C");
-	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a7 = new LiteralStackNode(7, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
+	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, 0, "A");
+	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, 0, "B");
+	private final static AbstractStackNode NONTERMINAL_B3 = new NonTerminalStackNode(3, 0, "B");
+	private final static AbstractStackNode NONTERMINAL_C4 = new NonTerminalStackNode(4, 0, "C");
+	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 1, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a7 = new LiteralStackNode(7, 1, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, 0, PROD_a_a, new char[]{'a'});
 	
 	public SplitAndMerge3(){
 		super();

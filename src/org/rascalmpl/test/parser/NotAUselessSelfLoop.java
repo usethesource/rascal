@@ -37,20 +37,20 @@ public class NotAUselessSelfLoop extends SGLL implements IParserTest{
 	private final static IConstructor PROD_C_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_C, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, "A");
-	private final static AbstractStackNode NONTERMINAL_A2 = new NonTerminalStackNode(2, "A");
-	private final static AbstractStackNode NONTERMINAL_A3 = new NonTerminalStackNode(3, "A");
-	private final static AbstractStackNode NONTERMINAL_A4 = new NonTerminalStackNode(4, "A");
-	private final static AbstractStackNode NONTERMINAL_A5 = new NonTerminalStackNode(5, "A");
-	private final static AbstractStackNode NONTERMINAL_B6 = new NonTerminalStackNode(6, "B");
-	private final static AbstractStackNode NONTERMINAL_C7 = new NonTerminalStackNode(7, "C");
-	private final static AbstractStackNode NONTERMINAL_C8 = new NonTerminalStackNode(8, "C");
-	private final static AbstractStackNode NONTERMINAL_C9 = new NonTerminalStackNode(9, "C");
-	private final static AbstractStackNode NONTERMINAL_C10 = new NonTerminalStackNode(10, "C");
-	private final static AbstractStackNode LITERAL_a11 = new LiteralStackNode(11, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a12 = new LiteralStackNode(12, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
+	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, 1, "A");
+	private final static AbstractStackNode NONTERMINAL_A2 = new NonTerminalStackNode(2, 0, "A");
+	private final static AbstractStackNode NONTERMINAL_A3 = new NonTerminalStackNode(3, 1, "A");
+	private final static AbstractStackNode NONTERMINAL_A4 = new NonTerminalStackNode(4, 0, "A");
+	private final static AbstractStackNode NONTERMINAL_A5 = new NonTerminalStackNode(5, 1, "A");
+	private final static AbstractStackNode NONTERMINAL_B6 = new NonTerminalStackNode(6, 0, "B");
+	private final static AbstractStackNode NONTERMINAL_C7 = new NonTerminalStackNode(7, 0, "C");
+	private final static AbstractStackNode NONTERMINAL_C8 = new NonTerminalStackNode(8, 1, "C");
+	private final static AbstractStackNode NONTERMINAL_C9 = new NonTerminalStackNode(9, 0, "C");
+	private final static AbstractStackNode NONTERMINAL_C10 = new NonTerminalStackNode(10, 1, "C");
+	private final static AbstractStackNode LITERAL_a11 = new LiteralStackNode(11, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a12 = new LiteralStackNode(12, 0, PROD_a_a, new char[]{'a'});
 	
 	public NotAUselessSelfLoop(){
 		super();

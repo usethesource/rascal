@@ -10,7 +10,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public final class OptionalStackNode extends AbstractStackNode implements IListStackNode{
-	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
+	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID, 0);
 	
 	private final IConstructor production;
 	private final String name;
@@ -19,8 +19,8 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	
 	private AbstractContainerNode result;
 	
-	public OptionalStackNode(int id, IConstructor production, AbstractStackNode optional){
-		super(id);
+	public OptionalStackNode(int id, int dot, IConstructor production, AbstractStackNode optional){
+		super(id, dot);
 		
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
@@ -28,8 +28,8 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		this.optional = optional;
 	}
 	
-	public OptionalStackNode(int id, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode optional){
-		super(id, followRestrictions);
+	public OptionalStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode optional){
+		super(id, dot, followRestrictions);
 		
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.

@@ -30,10 +30,10 @@ public class Simple1 extends SGLL implements IParserTest{
 	private final static IConstructor PROD_aa_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a, SYMBOL_char_a), SYMBOL_aa, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_b_b = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b), SYMBOL_b, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode LITERAL_aa1 = new LiteralStackNode(1, PROD_aa_a, new char[]{'a','a'});
-	private final static AbstractStackNode LITERAL_b2 = new LiteralStackNode(2, PROD_b_b, new char[]{'b'});
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
+	private final static AbstractStackNode LITERAL_aa1 = new LiteralStackNode(1, 0, PROD_aa_a, new char[]{'a','a'});
+	private final static AbstractStackNode LITERAL_b2 = new LiteralStackNode(2, 1, PROD_b_b, new char[]{'b'});
 	
 	public Simple1(){
 		super();

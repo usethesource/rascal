@@ -14,16 +14,16 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	
 	private LiteralNode result;
 	
-	public CaseInsensitiveLiteralStackNode(int id, IConstructor production, char[] ciLiteral){
-		super(id);
+	public CaseInsensitiveLiteralStackNode(int id, int dot, IConstructor production, char[] ciLiteral){
+		super(id, dot);
 		
 		this.production = production;
 		
 		this.ciLiteral = fill(ciLiteral);
 	}
 	
-	public CaseInsensitiveLiteralStackNode(int id, IConstructor production, IMatchableStackNode[] followRestrictions, char[] ciLiteral){
-		super(id, followRestrictions);
+	public CaseInsensitiveLiteralStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, char[] ciLiteral){
+		super(id, dot, followRestrictions);
 		
 		this.production = production;
 		

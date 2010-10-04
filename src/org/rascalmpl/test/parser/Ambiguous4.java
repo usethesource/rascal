@@ -33,13 +33,13 @@ public class Ambiguous4 extends SGLL implements IParserTest{
 	private final static IConstructor PROD_b_b = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b), SYMBOL_b, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_bb_bb = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b, SYMBOL_char_b), SYMBOL_bb, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, "A");
-	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, "B");
-	private final static AbstractStackNode NONTERMINAL_B3 = new NonTerminalStackNode(3, "B");
-	private final static AbstractStackNode LITERAL_b4 = new LiteralStackNode(4, PROD_b_b, new char[]{'b'});
-	private final static AbstractStackNode LITERAL_bb5 = new LiteralStackNode(5, PROD_bb_bb, new char[]{'b','b'});
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
+	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, 1, "A");
+	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, 0, "B");
+	private final static AbstractStackNode NONTERMINAL_B3 = new NonTerminalStackNode(3, 1, "B");
+	private final static AbstractStackNode LITERAL_b4 = new LiteralStackNode(4, 0, PROD_b_b, new char[]{'b'});
+	private final static AbstractStackNode LITERAL_bb5 = new LiteralStackNode(5, 0, PROD_bb_bb, new char[]{'b','b'});
 	
 	public Ambiguous4(){
 		super();

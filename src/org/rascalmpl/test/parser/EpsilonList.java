@@ -28,10 +28,10 @@ public class EpsilonList extends SGLL implements IParserTest{
 	private final static IConstructor PROD_PLUSLISTA = vf.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_A, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_A_epsilon = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_epsilon), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode LIST1 = new ListStackNode(1, PROD_PLUSLISTA, NONTERMINAL_A0, true);
-	private final static AbstractStackNode EPSILON2 = new EpsilonStackNode(3);
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
+	private final static AbstractStackNode LIST1 = new ListStackNode(1, 0, PROD_PLUSLISTA, NONTERMINAL_A0, true);
+	private final static AbstractStackNode EPSILON2 = new EpsilonStackNode(3, 0);
 	
 	public EpsilonList(){
 		super();

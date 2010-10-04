@@ -28,11 +28,11 @@ public class NullableSharing extends SGLL implements IParserTest{
 	private final static IConstructor PROD_N_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_N, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_A_empty = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_empty), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode NONTERMINAL_N1 = new NonTerminalStackNode(1, "N");
-	private final static AbstractStackNode NONTERMINAL_N2 = new NonTerminalStackNode(2, "N");
-	private final static AbstractStackNode EPSILON3 = new EpsilonStackNode(3);
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
+	private final static AbstractStackNode NONTERMINAL_N1 = new NonTerminalStackNode(1, 0, "N");
+	private final static AbstractStackNode NONTERMINAL_N2 = new NonTerminalStackNode(2, 1, "N");
+	private final static AbstractStackNode EPSILON3 = new EpsilonStackNode(3, 0);
 	
 	public NullableSharing(){
 		super();

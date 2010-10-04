@@ -14,8 +14,8 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 	
 	private AbstractNode result;
 	
-	public MultiCharacterStackNode(int id, IConstructor production, char[][] characters){
-		super(id);
+	public MultiCharacterStackNode(int id, int dot, IConstructor production, char[][] characters){
+		super(id, dot);
 		
 		this.production = production;
 		this.characters = characters;

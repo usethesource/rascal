@@ -51,6 +51,7 @@ public abstract class SGLL implements IGLL{
 	
 	private final ArrayList<AbstractStackNode[]> lastExpects;
 	private final LinearIntegerKeyedMap<AbstractStackNode> sharedLastExpects;
+	private final LinearIntegerKeyedMap<AbstractStackNode> sharedPrefixNext;
 	private final HashMap<String, LinearIntegerKeyedMap<AbstractStackNode>> cachedExpects;
 	protected int currentParentId;
 	
@@ -80,6 +81,7 @@ public abstract class SGLL implements IGLL{
 		
 		lastExpects = new ArrayList<AbstractStackNode[]>();
 		sharedLastExpects = new LinearIntegerKeyedMap<AbstractStackNode>();
+		sharedPrefixNext = new LinearIntegerKeyedMap<AbstractStackNode>();
 		cachedExpects = new HashMap<String, LinearIntegerKeyedMap<AbstractStackNode>>();
 		
 		sharedNextNodes = new IntegerKeyedHashMap<AbstractStackNode>();
@@ -168,10 +170,7 @@ public abstract class SGLL implements IGLL{
 			return alternative;
 		}
 		
-		if(next.startLocationIsSet()){
-			next = next.getCleanCopy();
-		}
-		
+		next = next.getCleanCopy();
 		next.setStartLocation(location);
 		next.updateNode(node);
 		
@@ -198,10 +197,7 @@ public abstract class SGLL implements IGLL{
 		if(alternative != null){
 			alternative.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 		}else{
-			if(next.startLocationIsSet()){
-				next = next.getCleanCopy();
-			}
-			
+			next = next.getCleanCopy();
 			next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 			next.setStartLocation(location);
 			
@@ -356,17 +352,44 @@ public abstract class SGLL implements IGLL{
 			}
 		}
 
-		AbstractStackNode next;
-		if((next = node.getNext()) != null){
+		if(node.hasNext()){
+			int nextDot = node.getDot() + 1;
+
+			AbstractStackNode[] prod = node.getNext();
+			AbstractStackNode next = prod[nextDot];
+			next.setNext(prod);
 			next = updateNextNode(next, node);
 			
-			LinearIntegerKeyedMap<AbstractStackNode> alternateNexts = node.getAlternateNexts();
-			if(alternateNexts != null){
+			LinearIntegerKeyedMap<AbstractStackNode[]> alternateProds = node.getAlternateNexts();
+			if(alternateProds != null){
+				int nextNextDot = nextDot + 1;
+				
+				// Handle alternative nexts (and prefix sharing).
+				sharedPrefixNext.dirtyClear();
+				
+				sharedPrefixNext.add(next.getId(), next);
+				
 				LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = next.getEdges();
 				ArrayList<Link>[] prefixesMap = next.getPrefixesMap();
 				
-				for(int i = alternateNexts.size() - 1; i >= 0; --i){
-					updateAlternativeNextNode(alternateNexts.getValue(i), edgesMap, prefixesMap);
+				for(int i = alternateProds.size() - 1; i >= 0; --i){
+					prod = alternateProds.getValue(i);
+					AbstractStackNode alternativeNext = prod[nextDot];
+					int alternativeNextId = alternativeNext.getId();
+					
+					AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
+					if(sharedNext == null){
+						alternativeNext.setNext(prod);
+						updateAlternativeNextNode(alternativeNext, edgesMap, prefixesMap);
+						
+						sharedPrefixNext.add(alternativeNextId, alternativeNext);
+					}else if(nextNextDot < prod.length){
+						if(sharedNext.hasNext()){
+							sharedNext.addNext(prod);
+						}else{
+							sharedNext.setNext(prod);
+						}
+					}
 				}
 			}
 		}
@@ -457,96 +480,35 @@ public abstract class SGLL implements IGLL{
 		int nrOfExpects = lastExpects.size();
 		LinearIntegerKeyedMap<AbstractStackNode> expects = new LinearIntegerKeyedMap<AbstractStackNode>(nrOfExpects);
 		
-		EXPECT : for(int i = nrOfExpects - 1; i >= 0; --i){
+		for(int i = nrOfExpects - 1; i >= 0; --i){
 			AbstractStackNode[] expectedNodes = lastExpects.get(i);
-			int numberOfNodes = expectedNodes.length;
 			
-			AbstractStackNode last = expectedNodes[numberOfNodes - 1];
+			AbstractStackNode last = expectedNodes[expectedNodes.length - 1];
 			if(isPrioFiltered(parentId, last.getId())){
 				continue;
 			}
+			last.markAsEndNode();
+			last.setParentProduction(last.getParentProduction());
+			last.setFollowRestriction(last.getFollowRestriction());
+			last.setReject(last.isReject());
 			
 			AbstractStackNode first = expectedNodes[0];
 			
 			// Handle prefix sharing.
-			AbstractStackNode sharedNode = sharedLastExpects.findValue(first.getId());
-			
-			if(sharedNode != null){
-				int index = 1;
-				for(; index < numberOfNodes; ++index){
-					AbstractStackNode next = expectedNodes[index];
-					int nextId = next.getId();
-					AbstractStackNode nextShared = sharedNode.getNext();
-					if(nextShared == null){
-						last = last.getCleanCopy();
-						last.markAsEndNode();
-						
-						for(int k = numberOfNodes - 2; k >= index; --k){
-							AbstractStackNode current = expectedNodes[k].getCleanCopy();
-							current.setNext(last);
-							last = current;
-						}
-						
-						sharedNode.addNext(last);
-						continue EXPECT;
-					}
-					
-					if(nextShared.getId() == nextId){
-						sharedNode = nextShared;
-						continue;
-					}
-					
-					LinearIntegerKeyedMap<AbstractStackNode> alternateSharedNexts = sharedNode.getAlternateNexts();
-					if(alternateSharedNexts != null){
-						nextShared = alternateSharedNexts.findValue(nextId);
-						if(nextShared != null){
-							sharedNode = nextShared;
-							continue;
-						}
-					}
-					
-					last = last.getCleanCopy();
-					last.markAsEndNode();
-					
-					for(int k = numberOfNodes - 2; k >= index; --k){
-						AbstractStackNode current = expectedNodes[k].getCleanCopy();
-						current.setNext(last);
-						last = current;
-					}
-					
-					sharedNode.addNext(last);
-					continue EXPECT;
-				}
-				
-				sharedNode.setParentProduction(last.getParentProduction());
-				sharedNode.setFollowRestriction(last.getFollowRestriction());
-				sharedNode.setReject(last.isReject());
-				sharedNode.markAsEndNode();
-				
-				continue EXPECT;
+			int firstId = first.getId();
+			AbstractStackNode sharedNode;
+			if((sharedNode = sharedLastExpects.findValue(firstId)) != null){
+				sharedNode.addNext(expectedNodes);
+				continue;
 			}
 			
-			AbstractStackNode next = last.getCleanCopy();
-			next.markAsEndNode();
-			
-			if(numberOfNodes - 2 >= 0){
-				for(int j = numberOfNodes - 2; j >= 1; --j){
-					AbstractStackNode current = expectedNodes[j].getCleanCopy();
-					current.setNext(next);
-					next = current;
-				}
-				
-				first = first.getCleanCopy();
-				first.setNext(next);
-			}else{
-				first = next; // Chain rule.
-			}
-
+			first = first.getCleanCopy();
 			first.setStartLocation(location);
+			first.setNext(expectedNodes);
 			first.initEdges();
 			first.addEdge(stackBeingWorkedOn);
 			
-			sharedLastExpects.add(first.getId(), first);
+			sharedLastExpects.add(firstId, first);
 			
 			stacksToExpand.add(first);
 			
@@ -719,22 +681,22 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, char[] input){
-		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, input);
+		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, String input){
-		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, input);
+		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, InputStream in) throws IOException{
-		return parseFromStream(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, in);
+		return parseFromStream(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in);
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, Reader in) throws IOException{
-		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, in);
+		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in);
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, File inputFile) throws IOException{
-		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, nonterminal), inputURI, inputFile);
+		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, inputFile);
 	}
 }

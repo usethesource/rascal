@@ -15,8 +15,10 @@ import org.rascalmpl.values.uptr.Factory;
 
 /*
 S ::= SSS | SS | a
+
+NOTE: This test, tests prefix sharing.
 */
-public class AmbiguousRecursive extends SGLL implements IParserTest{
+public class AmbiguousRecursivePrefixShared extends SGLL implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
@@ -31,18 +33,16 @@ public class AmbiguousRecursive extends SGLL implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_S0 = new NonTerminalStackNode(0, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_S1 = new NonTerminalStackNode(1, 1, "S");
 	private final static AbstractStackNode NONTERMINAL_S2 = new NonTerminalStackNode(2, 2, "S");
-	private final static AbstractStackNode NONTERMINAL_S3 = new NonTerminalStackNode(3, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_S4 = new NonTerminalStackNode(4, 1, "S");
 	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 0, PROD_a_a, new char[]{'a'});
 	
-	public AmbiguousRecursive(){
+	public AmbiguousRecursivePrefixShared(){
 		super();
 	}
 	
 	public void S(){
 		expect(PROD_S_SSS, NONTERMINAL_S0, NONTERMINAL_S1, NONTERMINAL_S2);
 		
-		expect(PROD_S_SS, NONTERMINAL_S3, NONTERMINAL_S4);
+		expect(PROD_S_SS, NONTERMINAL_S0, NONTERMINAL_S1);
 		
 		expect(PROD_S_a, LITERAL_a5);
 	}
@@ -57,8 +57,8 @@ public class AmbiguousRecursive extends SGLL implements IParserTest{
 	}
 
 	public static void main(String[] args){
-		AmbiguousRecursive ar = new AmbiguousRecursive();
-		IConstructor result = ar.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		AmbiguousRecursivePrefixShared arps = new AmbiguousRecursivePrefixShared();
+		IConstructor result = arps.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
 		System.out.println(result);
 		
 		System.out.println("[S(S(a),S(a),S(a)),S(S(a),S(S(a),S(a))),S(S(S(a),S(a)),S(a))] <- good");

@@ -30,11 +30,11 @@ public class Optional2 extends SGLL implements IParserTest{
 	private final static IConstructor PROD_O_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_O, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode LITERAL_a0 = new LiteralStackNode(0, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a1 = new LiteralStackNode(1, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode NON_TERMINAL_O2 = new NonTerminalStackNode(2, "O");
-	private final static AbstractStackNode OPTIONAL_3 = new OptionalStackNode(3, PROD_OPTIONAL_O_O, NON_TERMINAL_O2);
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode LITERAL_a0 = new LiteralStackNode(0, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a1 = new LiteralStackNode(1, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode NON_TERMINAL_O2 = new NonTerminalStackNode(2, 0, "O");
+	private final static AbstractStackNode OPTIONAL_3 = new OptionalStackNode(3, 1, PROD_OPTIONAL_O_O, NON_TERMINAL_O2);
 	
 	public Optional2(){
 		super();
