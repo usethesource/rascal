@@ -11,14 +11,14 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 	
 	private AbstractContainerNode result;
 	
-	public NonTerminalStackNode(int id, String expectIdentifier){
-		super(id);
+	public NonTerminalStackNode(int id, int dot, String expectIdentifier){
+		super(id, dot);
 		
 		this.expectIdentifier = expectIdentifier;
 	}
 	
-	public NonTerminalStackNode(int id, IMatchableStackNode[] followRestrictions, String expectIdentifier){
-		super(id, followRestrictions);
+	public NonTerminalStackNode(int id, int dot, IMatchableStackNode[] followRestrictions, String expectIdentifier){
+		super(id, dot, followRestrictions);
 		
 		this.expectIdentifier = expectIdentifier;
 	}

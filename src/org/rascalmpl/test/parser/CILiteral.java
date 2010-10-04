@@ -29,8 +29,8 @@ public class CILiteral extends SGLL implements IParserTest{
 	private final static IConstructor PROD_S_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_bla_bla = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_b, SYMBOL_char_l, SYMBOL_char_a), SYMBOL_bla, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode LITERAL_bla0 = new CaseInsensitiveLiteralStackNode(0, PROD_bla_bla, new char[]{'b','l','a'});
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode LITERAL_bla0 = new CaseInsensitiveLiteralStackNode(0, 0, PROD_bla_bla, new char[]{'b','l','a'});
 	
 	public CILiteral(){
 		super();

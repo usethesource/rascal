@@ -47,17 +47,17 @@ public class Ambiguous6 extends SGLL implements IParserTest{
 	private final static IConstructor PROD_G_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_G, vf.constructor(Factory.Attributes_NoAttrs));
 	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, "A");
-	private final static AbstractStackNode NONTERMINAL_B1 = new NonTerminalStackNode(1, "B");
-	private final static AbstractStackNode NONTERMINAL_C2 = new NonTerminalStackNode(2, "C");
-	private final static AbstractStackNode NONTERMINAL_D3 = new NonTerminalStackNode(3, "D");
-	private final static AbstractStackNode NONTERMINAL_E4 = new NonTerminalStackNode(4, "E");
-	private final static AbstractStackNode NONTERMINAL_E5 = new NonTerminalStackNode(5, "E");
-	private final static AbstractStackNode NONTERMINAL_F6 = new NonTerminalStackNode(6, "F");
-	private final static AbstractStackNode NONTERMINAL_G7 = new NonTerminalStackNode(7, "G");
-	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a9 = new LiteralStackNode(9, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
+	private final static AbstractStackNode NONTERMINAL_B1 = new NonTerminalStackNode(1, 0, "B");
+	private final static AbstractStackNode NONTERMINAL_C2 = new NonTerminalStackNode(2, 0, "C");
+	private final static AbstractStackNode NONTERMINAL_D3 = new NonTerminalStackNode(3, 0, "D");
+	private final static AbstractStackNode NONTERMINAL_E4 = new NonTerminalStackNode(4, 0, "E");
+	private final static AbstractStackNode NONTERMINAL_E5 = new NonTerminalStackNode(5, 0, "E");
+	private final static AbstractStackNode NONTERMINAL_F6 = new NonTerminalStackNode(6, 0, "F");
+	private final static AbstractStackNode NONTERMINAL_G7 = new NonTerminalStackNode(7, 0, "G");
+	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a9 = new LiteralStackNode(9, 0, PROD_a_a, new char[]{'a'});
 	
 	public Ambiguous6(){
 		super();

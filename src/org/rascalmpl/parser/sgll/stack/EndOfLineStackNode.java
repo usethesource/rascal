@@ -14,8 +14,8 @@ public class EndOfLineStackNode extends AbstractStackNode implements IMatchableS
 	
 	private boolean isReduced;
 	
-	public EndOfLineStackNode(int id){
-		super(id);
+	public EndOfLineStackNode(int id, int dot){
+		super(id, dot);
 	}
 	
 	private EndOfLineStackNode(EndOfLineStackNode original){

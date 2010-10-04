@@ -22,8 +22,8 @@ public class Epsilon extends SGLL implements IParserTest{
 	
 	private final static IConstructor PROD_S_epsilon = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_epsilon), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, "S");
-	private final static AbstractStackNode EPSILON_1 = new EpsilonStackNode(1);
+	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode EPSILON_1 = new EpsilonStackNode(1, 0);
 	
 	public Epsilon(){
 		super();

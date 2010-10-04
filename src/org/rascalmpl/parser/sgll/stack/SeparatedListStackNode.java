@@ -1,8 +1,8 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
+import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
@@ -10,7 +10,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public final class SeparatedListStackNode extends AbstractStackNode implements IListStackNode{
-	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
+	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID, 0);
 	
 	private final IConstructor production;
 	private final String name;
@@ -21,8 +21,8 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	
 	private AbstractContainerNode result;
 	
-	public SeparatedListStackNode(int id, IConstructor production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
-		super(id);
+	public SeparatedListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
+		super(id, dot);
 		
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
@@ -32,8 +32,8 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		this.isPlusList = isPlusList;
 	}
 	
-	public SeparatedListStackNode(int id, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
-		super(id, followRestrictions);
+	public SeparatedListStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
+		super(id, dot, followRestrictions);
 		
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
@@ -109,18 +109,18 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		listNode.initEdges();
 		listNode.addEdgeWithPrefix(this, null, startLocation);
 		
-		AbstractStackNode from = listNode;
-		AbstractStackNode to = separators[0].getCleanCopy();
-		to.markAsSeparator();
-		from.setNext(to);
-		from = to;
-		for(int i = 1; i < separators.length; ++i){
-			to = separators[i].getCleanCopy();
-			to.markAsSeparator();
-			from.setNext(to);
-			from = to;
+		int numberOfSeparators = separators.length;
+		AbstractStackNode[] prod = new AbstractStackNode[numberOfSeparators + 2];
+		
+		listNode.setNext(prod);
+		prod[0] = listNode; // Start
+		for(int i = numberOfSeparators - 1; i >= 0; --i){
+			AbstractStackNode separator = separators[i];
+			separator.setNext(prod);
+			separator.markAsSeparator();
+			prod[i + 1] = separator;
 		}
-		from.setNext(listNode);
+		prod[numberOfSeparators + 1] = listNode; // End
 		
 		if(isPlusList){
 			return new AbstractStackNode[]{listNode};

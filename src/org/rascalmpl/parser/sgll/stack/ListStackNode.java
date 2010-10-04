@@ -1,8 +1,8 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
+import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
@@ -10,7 +10,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public final class ListStackNode extends AbstractStackNode implements IListStackNode{
-	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID);
+	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID, 0);
 	
 	private final IConstructor production;
 	private final String name;
@@ -20,8 +20,8 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	
 	private AbstractContainerNode result;
 	
-	public ListStackNode(int id, IConstructor production, AbstractStackNode child, boolean isPlusList){
-		super(id);
+	public ListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, boolean isPlusList){
+		super(id, dot);
 		
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
@@ -30,8 +30,8 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		this.isPlusList = isPlusList;
 	}
 	
-	public ListStackNode(int id, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, boolean isPlusList){
-		super(id, followRestrictions);
+	public ListStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, boolean isPlusList){
+		super(id, dot, followRestrictions);
 		
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
@@ -101,7 +101,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		listNode.markAsEndNode();
 		listNode.setStartLocation(startLocation);
 		listNode.setParentProduction(production);
-		listNode.setNext(listNode);
+		listNode.setNext(new AbstractStackNode[]{listNode, listNode});
 		listNode.initEdges();
 		listNode.addEdgeWithPrefix(this, null, startLocation);
 		

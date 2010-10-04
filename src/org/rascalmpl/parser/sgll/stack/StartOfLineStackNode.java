@@ -14,8 +14,8 @@ public class StartOfLineStackNode extends AbstractStackNode implements IMatchabl
 	
 	private boolean isReduced;
 	
-	public StartOfLineStackNode(int id){
-		super(id);
+	public StartOfLineStackNode(int id, int dot){
+		super(id, dot);
 	}
 	
 	private StartOfLineStackNode(StartOfLineStackNode original){

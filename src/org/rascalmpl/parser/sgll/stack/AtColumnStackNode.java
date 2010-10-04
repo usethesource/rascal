@@ -16,8 +16,8 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 	
 	private boolean isReduced;
 	
-	public AtColumnStackNode(int id, int column){
-		super(id);
+	public AtColumnStackNode(int id, int dot, int column){
+		super(id, dot);
 		
 		this.result = new AtColumnNode(column);
 		this.column = column;
