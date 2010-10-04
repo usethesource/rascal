@@ -50,7 +50,7 @@ public Attributes add(Attributes a1, Attributes a2) {
 }
 public void bootFromRascal() {
   println("parsing the rascal definition of rascal");
-  Module \module = parse(#Module, |rascal:///rascal/syntax/RascalRascal.rsc|);
+  Module \module = parse(#Module, |project://RascalLibrary/src/rascal/syntax/RascalRascal.rsc|);
   println("imploding the syntax definition and normalizing and desugaring it");
   Grammar gr = module2grammar(\module);
 //  treeView(gr.rules[sort("Expression")]);
