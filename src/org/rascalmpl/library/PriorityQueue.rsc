@@ -30,7 +30,7 @@ import IO;
 
 // Binomial Trees
 
-private data BinomialTree = binomialTree(int priority,                // priority of this tree
+private data BinomialTree[&T] = binomialTree(int priority,            // priority of this tree
                                          int val,                     // payload
                                          int degree,                  // degree of tree
                                          list[BinomialTree] children  // subtrees
@@ -60,11 +60,11 @@ data PriorityQueue = priorityQueue(list[BinomialTree] trees,  // trees in the he
                                    int minIndex               // index of minimal tree
                                   );
 
-public PriorityQueue priorityQueue(){
+public PriorityQueue mkPriorityQueue(){
    return priorityQueue([], -1);
 }
 
-public PriorityQueue priorityQueue(int priority, int val){
+public PriorityQueue mkPriorityQueue(int priority, int val){
    return priorityQueue([binomialTree(priority, val, 0, [])], 0);
 }
 
@@ -187,7 +187,7 @@ private PriorityQueue mergeQueue(PriorityQueue p, PriorityQueue q){
     
 test bool() {
    
-   Q = priorityQueue();
+   Q = mkPriorityQueue();
    
    elms = [10, 8, 50, 30, 1];
    for(int i <- elms)

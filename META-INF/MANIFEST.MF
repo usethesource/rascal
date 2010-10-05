@@ -48,4 +48,6 @@ Export-Package: org.jdom,
 Require-Bundle: sglr_invoker,
  org.eclipse.imp.pdb.values,
  org.eclipse.swt
-Import-Package: org.eclipse.swt
+Import-Package: javax.servlet,
+ javax.servlet.http,
+ org.eclipse.swt

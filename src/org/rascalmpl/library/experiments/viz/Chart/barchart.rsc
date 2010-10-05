@@ -1,14 +1,14 @@
 module experiments::viz::Chart::barchart
 
-import viz::Chart;
+import viz::Figure::Chart;
 
 public void b1(){
   barChart("Sales Prognosis 1", 
                      ["First Quarter", "Second Quarter"],
            [<"2009", [20,              25]>,
             <"2010", [40,              60]>],
-            domainLabel("Quarters"), 
-            rangeLabel("Sales")
+            xLabel("Quarters"), 
+            yLabel("Sales")
             );
 }
 
@@ -17,8 +17,8 @@ public void b2(){
                      ["First Quarter", "Second Quarter"],
            [<"2009", [20,              25]>,
             <"2010", [40,              60]>],
-            domainLabel("Quarters"), 
-            rangeLabel("Sales"),
+            xLabel("Quarters"), 
+            yLabel("Sales"),
             dim3()
             );
 }
@@ -28,8 +28,8 @@ public void b3(){
                      ["First Quarter", "Second Quarter"],
            [<"2009", [20,              25]>,
             <"2010", [40,              60]>],
-            domainLabel("Quarters"), 
-            rangeLabel("Sales"),
+            xLabel("Quarters"), 
+            yLabel("Sales"),
             dim3(),
             horizontal()
             );
@@ -40,8 +40,8 @@ public void b4(){
                      ["First Quarter", "Second Quarter"],
            [<"2009", [20,              25]>,
             <"2010", [40,              60]>],
-            domainLabel("Quarters"), 
-            rangeLabel("Sales"),
+            xLabel("Quarters"), 
+            yLabel("Sales"),
             dim3(),
             stacked()
             );

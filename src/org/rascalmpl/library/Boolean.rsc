@@ -1,19 +1,10 @@
 module Boolean
 
-/*
- * Functions on Booleans:
- * - arbBool
- * - fromInt
- * - fromString
- * - toInt
- * - toReal
- * - toString
- */
-
 @doc{Get an arbitrary boolean value.}
 @javaClass{org.rascalmpl.library.Boolean}
 public bool java arbBool();
 
+@deprecated{Useless function that will be removed}
 @doc{Convert an integer to a bool}
 public bool fromInt(int i)
 {

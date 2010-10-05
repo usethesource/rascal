@@ -239,6 +239,9 @@ data Figure =
    | tree(Figures nodes, list[Edge] edges, str root) 
    | tree(FProperties, Figures nodes, list[Edge] edges, str root)
    
+   | treemap(Figures nodes, list[Edge] edges, str root) 
+   | treemap(FProperties, Figures nodes, list[Edge] edges, str root)
+   
 /* transformation */
 
    | rotate(num angle, Figure elem)			    // Rotate element around its anchor point
@@ -253,6 +256,8 @@ data Figure =
  * - boxes with round corners
  * - dashed/dotted lines
  * - ngons
+ * - bitmap import and display
  * - svg/png/pdf export
+ * - new layouts (circuar) treemap, icecle
  */
 
