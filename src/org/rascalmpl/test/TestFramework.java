@@ -67,6 +67,11 @@ public class TestFramework {
 		public String scheme() {
 			return "test-modules";
 		}
+		
+		public String absolutePath(URI uri) throws IOException{
+			// TODO Auto-generated method stub
+			return null;
+		}
 
 		public boolean isDirectory(URI uri) {
 			// TODO Auto-generated method stub
