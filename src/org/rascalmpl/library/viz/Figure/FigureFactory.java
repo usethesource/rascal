@@ -40,6 +40,7 @@ public class FigureFactory {
 		SPACE,
 		TEXT, 
 		TREE,
+		TREEMAP,
 		USE,
 		VCAT,
 		VERTEX,
@@ -64,6 +65,7 @@ public class FigureFactory {
     	put("space",		Primitives.SPACE);
     	put("text",			Primitives.TEXT);	    		
     	put("tree",			Primitives.TREE);
+       	put("treemap",		Primitives.TREEMAP);
     	put("use",			Primitives.USE);
     	put("vcat",			Primitives.VCAT);
     	put("vertex",		Primitives.VERTEX);
@@ -165,7 +167,14 @@ public class FigureFactory {
 				return new Tree(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), (IString) c.get(3), ctx);
 			
 			return new Tree(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), (IString) c.get(2), ctx);
-	
+
+		case TREEMAP: 
+			if(c.arity() == 4)
+				return new TreeMap(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), (IString) c.get(3), ctx);
+			
+			return new TreeMap(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), (IString) c.get(2), ctx);
+
+			
 		case USE:
 			if(c.arity() == 2)
 				return new Use(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
