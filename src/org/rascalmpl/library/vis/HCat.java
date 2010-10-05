@@ -16,8 +16,8 @@ public class HCat extends Compose {
 	float bottomAnchor = 0;
 	private static boolean debug = true;
 
-	HCat(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, elems, ctx);
+	HCat(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, elems, ctx);
 	}
 	
 	@Override

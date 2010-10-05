@@ -23,19 +23,19 @@ public class TreeMap extends Figure {
 	private HashSet<TreeMapNode> hasParent;
 	TreeMapNode root = null;
 	
-	TreeMap(FigurePApplet fapplet, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
-		super(fapplet, inheritedProps, props, ctx);		
+	TreeMap(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, ctx);		
 		nodeMap = new HashMap<String,TreeMapNode>();
 		hasParent = new HashSet<TreeMapNode>();
 		
 		// Construct TreeMapNodes
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			Figure fig = FigureFactory.make(fapplet, c, properties, ctx);
+			Figure fig = FigureFactory.make(fpa, c, properties, ctx);
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
-			TreeMapNode tn = new TreeMapNode(fapplet, this, inheritedProps, props, fig, ctx);
+			TreeMapNode tn = new TreeMapNode(fpa, this, inheritedProps, props, fig, ctx);
 			nodeMap.put(name, tn);
 		}
 		

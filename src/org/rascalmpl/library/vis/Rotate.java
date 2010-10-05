@@ -17,12 +17,12 @@ public class Rotate extends Figure {
 	private float bottomAnchor;
 	private static boolean debug = false;
 	
-	Rotate(FigurePApplet vlp, PropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
-		super(vlp, ctx);
+	Rotate(FigurePApplet fpa, PropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
+		super(fpa, ctx);
 		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
 		angle = PApplet.radians(a);
-		figure = FigureFactory.make(vlp, c, properties, ctx);
+		figure = FigureFactory.make(fpa, c, properties, ctx);
 	}
 
 	@Override
@@ -57,17 +57,17 @@ public class Rotate extends Figure {
 
 	@Override
 	void draw(float left, float top) {
-		vlp.pushMatrix();
-		vlp.translate((left + figure.leftAnchor()), (top + figure.topAnchor()));
+		fpa.pushMatrix();
+		fpa.translate((left + figure.leftAnchor()), (top + figure.topAnchor()));
 		//vlp.translate(-left, -top);
-		vlp.rotate(angle);
+		fpa.rotate(angle);
 		//vlp.translate(left, top);
-		vlp.translate(-(left + figure.leftAnchor()), -(top + figure.topAnchor()));
+		fpa.translate(-(left + figure.leftAnchor()), -(top + figure.topAnchor()));
 		//vlp.translate(-leftAnchor, -topAnchor);
 		figure.draw(-figure.leftAnchor(), -figure.topAnchor());
 		//velem.draw(0,0);
 		
-		vlp.popMatrix();
+		fpa.popMatrix();
 	}
 	
 	@Override

@@ -25,9 +25,9 @@ public class TreeNode extends Figure {
 	private static boolean debug = true;
 	private boolean visible = true;
 	
-	public TreeNode(FigurePApplet fapplet, Tree tree, PropertyManager inheritedProps,
+	public TreeNode(FigurePApplet fpa, Tree tree, PropertyManager inheritedProps,
 			IList props, Figure fig, IEvaluatorContext ctx) {
-		super(fapplet, inheritedProps, props, ctx);
+		super(fpa, inheritedProps, props, ctx);
 		this.tree = tree;
 		figure = fig;
 		children = new ArrayList<TreeNode>();
@@ -144,24 +144,24 @@ public class TreeNode extends Figure {
 			if(squareStyle){
 				// Vertical line from bottom of current figure to horizontal line
 				System.err.printf("%s: absFigMiddleX=%f, absFigBottomY=%f\n", id, absMiddleXofFig, absFigBottomY);
-				vlp.line(absMiddleXofFig, absFigBottomY, absMiddleXofFig, absHorLineY);
+				fpa.line(absMiddleXofFig, absFigBottomY, absMiddleXofFig, absHorLineY);
 			
 			// TODO line style!
 		
 				for(TreeNode child : children){
 					if(!squareStyle)
-						vlp.line(absMiddleXofFig, absFigBottomY, child.figure.left + child.figure.width/2, absChildTop);
+						fpa.line(absMiddleXofFig, absFigBottomY, child.figure.left + child.figure.width/2, absChildTop);
 					float absMidChild = left + leftDragged + child.getRealMiddle();
 					
 					System.err.printf("%s: absMidChild=%f, childCurrentTop=%f\n", id, absMidChild,  child.getRealTop());
 					
 					// Vertical line from horizontal line to top of this child
-					vlp.line(absMidChild, top + topDragged + child.getRealTop(), absMidChild, absHorLineY);
+					fpa.line(absMidChild, top + topDragged + child.getRealTop(), absMidChild, absHorLineY);
 					child.draw(left + leftDragged, top + topDragged);
 				}
 				
 				if(nChildren> 1)
-					vlp.line(left + children.get(0).getRealMiddle(), absHorLineY, left + children.get(nChildren-1).getRealMiddle(), absHorLineY);
+					fpa.line(left + children.get(0).getRealMiddle(), absHorLineY, left + children.get(nChildren-1).getRealMiddle(), absHorLineY);
 			}
 
 		}
@@ -229,9 +229,9 @@ public class TreeNode extends Figure {
 	
 	@Override
 	public void drawFocus(){
-		vlp.stroke(255, 0,0);
-		vlp.noFill();
-		vlp.rect(left + leftDragged, top + topDragged, width, height);
+		fpa.stroke(255, 0,0);
+		fpa.noFill();
+		fpa.rect(left + leftDragged, top + topDragged, width, height);
 	}
 	
 	@Override
@@ -252,8 +252,8 @@ public class TreeNode extends Figure {
 			if(child.mousePressed(mousex, mousey))
 				return true;
 		if(mouseInside(mousex, mousey)){
-			vlp.registerFocus(this);
-			if(vlp.mouseButton == PConstants.RIGHT)
+			fpa.registerFocus(this);
+			if(fpa.mouseButton == PConstants.RIGHT)
 				visible = false;
 			else
 				visible = true;
@@ -270,7 +270,7 @@ public class TreeNode extends Figure {
 				return true;
 		if(debug)System.err.println("TreeNode.mouseDragged: children do not match\n");
 		if(mouseInside(mousex, mousey)){
-			vlp.registerFocus(this);
+			fpa.registerFocus(this);
 			drag(mousex, mousey);
 			return true;
 		}

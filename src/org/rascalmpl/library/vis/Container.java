@@ -29,10 +29,10 @@ public class Container extends Figure {
 	float hgap;
 	float vgap;
 
-	public Container(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);
+	public Container(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, ctx);
 		if(inside != null){
-			this.inside = FigureFactory.make(vlp, inside, this.properties, ctx);
+			this.inside = FigureFactory.make(fpa, inside, this.properties, ctx);
 			insideVisible = isContentsVisible();
 		}
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
@@ -104,7 +104,7 @@ public class Container extends Figure {
 		if(inside != null && insideVisible &&  inside.mouseOver(mousex, mousey))
 				return true;
 		if(mouseInside(mousex, mousey)){
-			vlp.registerFocus(this);
+			fpa.registerFocus(this);
 			return true;
 		}
 		return false;
@@ -115,8 +115,8 @@ public class Container extends Figure {
 		if(inside != null && insideVisible && inside.mousePressed(mousex, mousey))
 				return true;
 		if(mouseInside(mousex, mousey)){
-			vlp.registerFocus(this);
-			if(vlp.mouseButton == PConstants.RIGHT)
+			fpa.registerFocus(this);
+			if(fpa.mouseButton == PConstants.RIGHT)
 				insideVisible = false;
 			else
 				insideVisible = true;

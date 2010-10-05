@@ -22,9 +22,9 @@ public class Pack extends Compose {
 	static protected boolean debug = false;
 	boolean initialized = false;
 
-	Pack(FigurePApplet vlp, PropertyManager inheritedProps, IList props,
+	Pack(FigurePApplet fpa, PropertyManager inheritedProps, IList props,
 			IList elems, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, elems, ctx);
+		super(fpa, inheritedProps, props, elems, ctx);
 	}
 
 	@Override
@@ -98,8 +98,8 @@ public class Pack extends Compose {
 			if(debug)System.err.printf("pack.draw: left=%f, top=%f\n", left, top);
 			root.draw(left, top);
 		} else {
-			vlp.fill(0);
-			vlp.rect(left, top, width, height);
+			fpa.fill(0);
+			fpa.rect(left, top, width, height);
 		}
 	}
 }

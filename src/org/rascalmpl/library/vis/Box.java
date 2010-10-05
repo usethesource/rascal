@@ -12,12 +12,12 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
  */
 public class Box extends Container {
 
-	public Box(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, inside, ctx);
+	public Box(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, inside, ctx);
 	}
 
 	@Override
 	void drawContainer(){
-		vlp.rect(left + leftDragged, top + topDragged, width, height);
+		fpa.rect(left + leftDragged, top + topDragged, width, height);
 	}
 }

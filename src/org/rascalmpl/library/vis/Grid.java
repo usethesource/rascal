@@ -22,8 +22,8 @@ public class Grid extends Compose {
 	float extRight = 0;
 	private static boolean debug = false;
 
-	Grid(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, elems, ctx);
+	Grid(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, elems, ctx);
 		xElem = new float[elems.length()];
 		yElem = new float[elems.length()];
 	}

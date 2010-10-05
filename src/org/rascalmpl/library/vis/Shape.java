@@ -24,8 +24,8 @@ public class Shape extends Compose {
 	float topAnchor;
 	float bottomAnchor;
 
-	Shape(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, elems, ctx);
+	Shape(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, elems, ctx);
 	}
 	
 	@Override
@@ -58,8 +58,8 @@ public class Shape extends Compose {
 		boolean connected = isConnected() || curved;
 		
 		if(connected){
-			vlp.noFill();
-			vlp.beginShape();
+			fpa.noFill();
+			fpa.beginShape();
 		}
 		
 		/*
@@ -73,11 +73,11 @@ public class Shape extends Compose {
 		float nextTop = bottom - next.deltay;
 		if(connected && closed){
 			// Add a vertex at origin
-			vlp.vertex(left + leftAnchor, bottom);
-			vlp.vertex(nextLeft, nextTop);
+			fpa.vertex(left + leftAnchor, bottom);
+			fpa.vertex(nextLeft, nextTop);
 		}
 		if(connected && curved)
-			vlp.curveVertex(nextLeft, nextTop);
+			fpa.curveVertex(nextLeft, nextTop);
 		
 		for(Figure ve : figures){
 			next = (Vertex)ve;
@@ -87,23 +87,23 @@ public class Shape extends Compose {
 			applyProperties();
 			if(connected){
 				if(!closed)
-						vlp.noFill();
+						fpa.noFill();
 				if(curved)
-					vlp.curveVertex(nextLeft,nextTop);
+					fpa.curveVertex(nextLeft,nextTop);
 				else
-					vlp.vertex(nextLeft,nextTop);
+					fpa.vertex(nextLeft,nextTop);
 			}
 		}
 		if(connected){
 			if(curved){
 				next = (Vertex)figures[figures.length-1];
-				vlp.curveVertex(left + leftAnchor + next.deltax, bottom - next.deltay);
+				fpa.curveVertex(left + leftAnchor + next.deltax, bottom - next.deltay);
 			}
 			if(closed){
-				vlp.vertex(nextLeft, bottom);
-				vlp.endShape(PConstants.CLOSE);
+				fpa.vertex(nextLeft, bottom);
+				fpa.endShape(PConstants.CLOSE);
 			} else 
-				vlp.endShape();
+				fpa.endShape();
 		}
 		
 		for(Figure ve : figures){

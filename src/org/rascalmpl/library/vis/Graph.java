@@ -29,26 +29,26 @@ public class Graph extends Figure {
 	protected int temperature;
 	private static boolean debug = false;
 
-	Graph(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);		
+	Graph(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, ctx);		
 		this.nodes = new ArrayList<GraphNode>();
 		width = getWidthProperty();
 		height = getHeightProperty();
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			Figure ve = FigureFactory.make(vlp, c, properties, ctx);
+			Figure ve = FigureFactory.make(fpa, c, properties, ctx);
 			String name = ve.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
 			GraphNode node = new GraphNode(this, name, ve);
 			this.nodes.add(node);
-			vlp.register(name, node);
+			fpa.register(name, node);
 		}
 	
 		this.edges = new ArrayList<GraphEdge>();
 		for(IValue v : edges){
 			IConstructor c = (IConstructor) v;
-			GraphEdge e = FigureFactory.makeGraphEdge(this, vlp, c, properties, ctx);
+			GraphEdge e = FigureFactory.makeGraphEdge(this, fpa, c, properties, ctx);
 			this.edges.add(e);
 			e.from.addOut(e.to);
 			e.to.addIn(e.from);
@@ -77,8 +77,8 @@ public class Graph extends Figure {
 //		}
 		for(GraphNode n : nodes){
 			if(n != root){
-				n.x = vlp.random(width);
-				n.y = vlp.random(height);
+				n.x = fpa.random(width);
+				n.y = fpa.random(height);
 			}
 		}
 	}

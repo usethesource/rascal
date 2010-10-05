@@ -31,8 +31,8 @@ public class Vertex extends Figure {
 		return 0;
 		
 	}
-	public Vertex(FigurePApplet vlp, IValue dx, IValue dy, IEvaluatorContext ctx) {
-		super(vlp, ctx);
+	public Vertex(FigurePApplet fpa, IValue dx, IValue dy, IEvaluatorContext ctx) {
+		super(fpa, ctx);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 	}

@@ -19,8 +19,8 @@ public class Outline extends Figure {
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
 
-	public Outline(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IMap coloredLines, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);
+	public Outline(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IMap coloredLines, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, ctx);
 		this.coloredLines = coloredLines;
 	}
 
@@ -45,12 +45,12 @@ public class Outline extends Figure {
 		applyProperties();
 		if(debug) System.err.println("Outline.draw => " + width + ", " + height);
 		if(height > 0 && width > 0){
-			vlp.rect(left, top, width, height);
+			fpa.rect(left, top, width, height);
 			for(IValue key : coloredLines){
 				int lino = ((IInteger) key).intValue();
 				int lineCol = ((IInteger) coloredLines.get(key)).intValue();
-				vlp.stroke(lineCol);
-				vlp.line(left + lw, top+lino, left + width - lw, top+lino);
+				fpa.stroke(lineCol);
+				fpa.line(left + lw, top+lino, left + width - lw, top+lino);
 			}
 		}
 	}

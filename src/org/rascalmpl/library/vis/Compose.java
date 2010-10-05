@@ -16,15 +16,15 @@ public abstract class Compose extends Figure {
 	protected Figure[] figures;
 	private static boolean debug = false;
 
-	Compose(FigurePApplet vlp,PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);	
+	Compose(FigurePApplet fpa,PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, ctx);	
 		int n = elems.length();
 		figures = new Figure[n];
 		for(int i = 0; i < n; i++){
 			IValue v = elems.get(i);
 			IConstructor c = (IConstructor) v;
 			if(debug)System.err.println("Compose, elem = " + c.getName());
-			figures[i] = FigureFactory.make(vlp, c, properties, ctx);
+			figures[i] = FigureFactory.make(fpa, c, properties, ctx);
 		}
 	}
 	
