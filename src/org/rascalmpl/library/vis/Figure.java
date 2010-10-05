@@ -17,7 +17,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class Figure implements Comparable<Figure> {
 	
-	protected FigurePApplet vlp;
+	protected FigurePApplet fpa;
 	
 	protected IValueFactory vf;
 	
@@ -36,7 +36,7 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	Figure(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IEvaluatorContext ctx){
-		this.vlp = vlp;
+		this.fpa = vlp;
 		properties = new PropertyManager(vlp, inheritedProps, props, ctx);
 		vf = ValueFactoryFactory.getValueFactory();
 		leftDragged = topDragged = 0;
@@ -79,16 +79,16 @@ public abstract class Figure implements Comparable<Figure> {
 	public void applyProperties(){
 		PropertyManager pm = getProperties();
 		
-		vlp.fill(pm.fillColor);
-		vlp.stroke(pm.lineColor);
-		vlp.strokeWeight(pm.lineWidth);
-		vlp.textSize(pm.fontSize);
+		fpa.fill(pm.fillColor);
+		fpa.stroke(pm.lineColor);
+		fpa.strokeWeight(pm.lineWidth);
+		fpa.textSize(pm.fontSize);
 	}
 	
 	public void applyFontColorProperty(){
 		PropertyManager pm = getProperties();
 		
-		vlp.fill(pm.fontColor);
+		fpa.fill(pm.fontColor);
 	}
 	
 	protected float getHeightProperty(){
@@ -252,9 +252,9 @@ public abstract class Figure implements Comparable<Figure> {
 	 * Draw focus around this figure
 	 */
 	public void drawFocus(){
-		vlp.stroke(255, 0,0);
-		vlp.noFill();
-		vlp.rect(left + leftDragged, top + topDragged, width, height);
+		fpa.stroke(255, 0,0);
+		fpa.noFill();
+		fpa.rect(left + leftDragged, top + topDragged, width, height);
 	}
 	
 	/**
@@ -291,7 +291,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public boolean mouseOver(int mousex, int mousey){
 		if(mouseInside(mousex, mousey)){
 		   //properties.setMouseOver(true);
-		   vlp.registerFocus(this);
+		   fpa.registerFocus(this);
 		   return true;
 		}
 		return false;
@@ -299,7 +299,7 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	public boolean mousePressed(int mousex, int mousey){
 		if(mouseInside(mousex, mousey)){
-			vlp.registerFocus(this);
+			fpa.registerFocus(this);
 //			leftDragged = leftDragged - (mousex - left);
 //			topDragged = topDragged - (mousey - top);
 			System.err.printf("Figure.mousePressed: %f (%f),%f (%f)\n", left, leftDragged, top, topDragged);
@@ -311,7 +311,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public boolean mouseDragged(int mousex, int mousey){
 		if(!isPinned() && mouseInside(mousex, mousey)){
 			//properties.setMouseOver(true);
-			vlp.registerFocus(this);
+			fpa.registerFocus(this);
 			drag(mousex, mousey);
 			System.err.printf("Figure.mouseDragged: %f,%f\n", leftDragged, topDragged);
 			return true;

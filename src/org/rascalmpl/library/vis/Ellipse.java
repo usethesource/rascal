@@ -16,15 +16,15 @@ import processing.core.PConstants;
  */
 public class Ellipse extends Container {
 
-	public Ellipse(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, inside, ctx);
+	public Ellipse(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, inside, ctx);
 	}
 	
 	@Override
 	void drawContainer(){
-		vlp.ellipseMode(PConstants.CORNERS);
+		fpa.ellipseMode(PConstants.CORNERS);
 		float l = left + leftDragged;
 		float t = top + topDragged;
-		vlp.ellipse(l, t, l + width, t + height);
+		fpa.ellipse(l, t, l + width, t + height);
 	}
 }

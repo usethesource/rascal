@@ -31,8 +31,8 @@ public class Tree extends Figure {
 	private TreeNodeRaster raster;
 	TreeNode root = null;
 	
-	Tree(FigurePApplet fapplet, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
-		super(fapplet, inheritedProps, props, ctx);		
+	Tree(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, ctx);		
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();
 		raster = new TreeNodeRaster();
@@ -40,11 +40,11 @@ public class Tree extends Figure {
 		// Construct TreeNodes
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			Figure fig = FigureFactory.make(fapplet, c, properties, ctx);
+			Figure fig = FigureFactory.make(fpa, c, properties, ctx);
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
-			TreeNode tn = new TreeNode(fapplet, this, inheritedProps, props, fig, ctx);
+			TreeNode tn = new TreeNode(fpa, this, inheritedProps, props, fig, ctx);
 			nodeMap.put(name, tn);
 		}
 		

@@ -84,118 +84,118 @@ public class FigureFactory {
 			elems = (IList) c.get(0);
 		}
 	}
-	public static Figure make(FigurePApplet vlp, IConstructor c, PropertyManager inheritedProps, IEvaluatorContext ctx){
+	public static Figure make(FigurePApplet fpa, IConstructor c, PropertyManager inheritedProps, IEvaluatorContext ctx){
 		String ename = c.getName();
 	
 		switch(pmap.get(ename)){
 			
 		case BOX:
 			if(c.arity() == 2)
-				return new Box(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+				return new Box(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
 			
-			return new Box(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+			return new Box(fpa, inheritedProps, (IList) c.get(0), null, ctx);
 		
 		case EDGE:
 			if(c.arity() == 3)
-				return new GraphEdge(null,vlp, inheritedProps, (IList) c.get(0), (IString)c.get(1), (IString)c.get(2), ctx);
+				return new GraphEdge(null,fpa, inheritedProps, (IList) c.get(0), (IString)c.get(1), (IString)c.get(2), ctx);
 			
-			return new GraphEdge(null,vlp, inheritedProps, emptyList, (IString)c.get(0), (IString)c.get(1), ctx);
+			return new GraphEdge(null,fpa, inheritedProps, emptyList, (IString)c.get(0), (IString)c.get(1), ctx);
 		
 		case ELLIPSE:
 			if(c.arity() == 2)
-				return new Ellipse(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+				return new Ellipse(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
 			
-			return new Ellipse(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+			return new Ellipse(fpa, inheritedProps, (IList) c.get(0), null, ctx);
 		
 		case GRAPH: 
 			if(c.arity() == 3)
-				return new Graph(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
+				return new Graph(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
 			
-			return new Graph(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
+			return new Graph(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
 			
 		case GRID: 
 			getOneOrTwoArgs(c); 
-			return new Grid(vlp, inheritedProps, props, elems, ctx);
+			return new Grid(fpa, inheritedProps, props, elems, ctx);
 
 		case HCAT:
 			getOneOrTwoArgs(c);
-			return new HCat(vlp, inheritedProps, props, elems, ctx);
+			return new HCat(fpa, inheritedProps, props, elems, ctx);
 			
 		case HVCAT: 
 			getOneOrTwoArgs(c); 
-			return new HVCat(vlp, inheritedProps, props, elems, ctx);
+			return new HVCat(fpa, inheritedProps, props, elems, ctx);
 			
 		case OUTLINE: 
 			if(c.arity() == 2)
-				return new Outline(vlp, inheritedProps, (IList) c.get(0), (IMap)c.get(1), ctx);
-			return new Outline(vlp, inheritedProps, emptyList, (IMap)c.get(0), ctx);
+				return new Outline(fpa, inheritedProps, (IList) c.get(0), (IMap)c.get(1), ctx);
+			return new Outline(fpa, inheritedProps, emptyList, (IMap)c.get(0), ctx);
 			
 		case OVERLAY: 
 			getOneOrTwoArgs(c); 
-			return new Overlay(vlp, inheritedProps, props, elems, ctx);
+			return new Overlay(fpa, inheritedProps, props, elems, ctx);
 			
 		case PACK: 
 			getOneOrTwoArgs(c); 
-			return new Pack(vlp, inheritedProps, props, elems, ctx);
+			return new Pack(fpa, inheritedProps, props, elems, ctx);
 			
 		case ROTATE:
-			return new Rotate(vlp, inheritedProps, c.get(0), (IConstructor) c.get(1), ctx);
+			return new Rotate(fpa, inheritedProps, c.get(0), (IConstructor) c.get(1), ctx);
 			
 		case SCALE:
 			if(c.arity() == 2)
-				return new Scale(vlp, inheritedProps, c.get(0), c.get(0), (IConstructor) c.get(1), ctx);
+				return new Scale(fpa, inheritedProps, c.get(0), c.get(0), (IConstructor) c.get(1), ctx);
 			
-			return new Scale(vlp, inheritedProps, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
+			return new Scale(fpa, inheritedProps, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
 		case SHAPE: 
 			getOneOrTwoArgs(c); 
-			return new Shape(vlp, inheritedProps, props, elems, ctx);
+			return new Shape(fpa, inheritedProps, props, elems, ctx);
 			
 		case SPACE:
 			if(c.arity() == 2)
-				return new Space(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+				return new Space(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
 			
-			return new Space(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+			return new Space(fpa, inheritedProps, (IList) c.get(0), null, ctx);
 			
 		case TEXT:
 			if(c.arity() == 1)
-				return new Text(vlp, inheritedProps, emptyList, (IString) c.get(0), ctx);
+				return new Text(fpa, inheritedProps, emptyList, (IString) c.get(0), ctx);
 			
-			return new Text(vlp, inheritedProps,  (IList) c.get(0), (IString) c.get(1), ctx);
+			return new Text(fpa, inheritedProps,  (IList) c.get(0), (IString) c.get(1), ctx);
 			
 		case TREE: 
 			if(c.arity() == 4)
-				return new Tree(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), (IString) c.get(3), ctx);
+				return new Tree(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), (IString) c.get(3), ctx);
 			
-			return new Tree(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), (IString) c.get(2), ctx);
+			return new Tree(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), (IString) c.get(2), ctx);
 
 		case TREEMAP: 
 			if(c.arity() == 4)
-				return new TreeMap(vlp,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), (IString) c.get(3), ctx);
+				return new TreeMap(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), (IString) c.get(3), ctx);
 			
-			return new TreeMap(vlp,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), (IString) c.get(2), ctx);
+			return new TreeMap(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), (IString) c.get(2), ctx);
 
 			
 		case USE:
 			if(c.arity() == 2)
-				return new Use(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+				return new Use(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
 			
-			return new Use(vlp, inheritedProps, emptyList, (IConstructor) c.get(0), ctx);
+			return new Use(fpa, inheritedProps, emptyList, (IConstructor) c.get(0), ctx);
 			
 		case VCAT:
 			getOneOrTwoArgs(c);
-			return new VCat(vlp, inheritedProps, props, elems, ctx);
+			return new VCat(fpa, inheritedProps, props, elems, ctx);
 			
 		case VERTEX:
 			if(c.arity() == 3)
-				return new Vertex(vlp, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
+				return new Vertex(fpa, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
 			
-			return new Vertex(vlp, c.get(0), c.get(1), ctx);
+			return new Vertex(fpa, c.get(0), c.get(1), ctx);
 			
 		case WEDGE:
 			if(c.arity() == 2)
-				return new Wedge(vlp, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
+				return new Wedge(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
 			
-			return new Wedge(vlp, inheritedProps, (IList) c.get(0), null, ctx);
+			return new Wedge(fpa, inheritedProps, (IList) c.get(0), null, ctx);
 									
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());

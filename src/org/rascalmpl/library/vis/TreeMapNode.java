@@ -22,9 +22,9 @@ public class TreeMapNode extends Figure {
 	private boolean visible;
 	private static boolean debug = true;
 	
-	public TreeMapNode(FigurePApplet fapplet, TreeMap treeMap, PropertyManager inheritedProps,
+	public TreeMapNode(FigurePApplet fpa, TreeMap treeMap, PropertyManager inheritedProps,
 			IList props, Figure fig, IEvaluatorContext ctx) {
-		super(fapplet, inheritedProps, props, ctx);
+		super(fpa, inheritedProps, props, ctx);
 		this.treemap = treeMap;
 		figure = fig;
 		children = new ArrayList<TreeMapNode>();
@@ -93,7 +93,7 @@ public class TreeMapNode extends Figure {
 	void draw(float left, float top){
 		System.err.printf("draw: %s at %f, %f\n", figure.getIdProperty(), left + this.left + leftDragged,  top + this.top + topDragged);
 		figure.applyProperties();
-		vlp.rect(left + this.left + leftDragged, top + this.top + topDragged, width, height);
+		fpa.rect(left + this.left + leftDragged, top + this.top + topDragged, width, height);
 		
 		for(TreeMapNode child : children){
 			child.draw(left, top);
@@ -112,9 +112,9 @@ public class TreeMapNode extends Figure {
 	
 	@Override
 	public void drawFocus(){
-		vlp.stroke(255, 0,0);
-		vlp.noFill();
-		vlp.rect(left + leftDragged, top + topDragged, width, height);
+		fpa.stroke(255, 0,0);
+		fpa.noFill();
+		fpa.rect(left + leftDragged, top + topDragged, width, height);
 	}
 	
 	@Override
@@ -135,8 +135,8 @@ public class TreeMapNode extends Figure {
 			if(child.mousePressed(mousex, mousey))
 				return true;
 		if(mouseInside(mousex, mousey)){
-			vlp.registerFocus(this);
-			if(vlp.mouseButton == PConstants.RIGHT)
+			fpa.registerFocus(this);
+			if(fpa.mouseButton == PConstants.RIGHT)
 				visible = false;
 			else
 				visible = true;
@@ -153,7 +153,7 @@ public class TreeMapNode extends Figure {
 				return true;
 		if(debug)System.err.println("TreeMapNode.mouseDragged: children do not match\n");
 		if(mouseInside(mousex, mousey)){
-			vlp.registerFocus(this);
+			fpa.registerFocus(this);
 			drag(mousex, mousey);
 			return true;
 		}

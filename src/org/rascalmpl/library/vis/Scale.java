@@ -11,16 +11,16 @@ public class Scale extends Figure {
 	float yscale;
 	Figure figure;
 
-	public Scale(FigurePApplet vlp, PropertyManager inheritedProps, IValue xs,
+	public Scale(FigurePApplet fpa, PropertyManager inheritedProps, IValue xs,
 			IValue ys, IConstructor c, IEvaluatorContext ctx) {
-		super(vlp, ctx);
+		super(fpa, ctx);
 		xscale = xs.getType().isIntegerType() ? ((IInteger) xs).intValue()
 				                              : ((IReal) xs).floatValue();
 		
 		yscale = ys.getType().isIntegerType() ? ((IInteger) ys).intValue()
                 							  : ((IReal) ys).floatValue();
 		
-		figure = FigureFactory.make(vlp, c, properties, ctx);
+		figure = FigureFactory.make(fpa, c, properties, ctx);
 	}
 
 	@Override
@@ -32,11 +32,11 @@ public class Scale extends Figure {
 
 	@Override
 	void draw(float left, float top) {
-		vlp.pushMatrix();
-		vlp.translate(left, top);
-		vlp.scale(xscale, yscale);
+		fpa.pushMatrix();
+		fpa.translate(left, top);
+		fpa.scale(xscale, yscale);
 		figure.draw(0,0);
-		vlp.popMatrix();
+		fpa.popMatrix();
 	}
 
 }

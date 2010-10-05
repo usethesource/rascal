@@ -143,7 +143,7 @@ public class PropertyManager {
 		return ((IInteger) arg).intValue();
 	}
 
-	PropertyManager(FigurePApplet vlp, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
+	PropertyManager(FigurePApplet fpa, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
 		if(inherited != null)
 			importProperties(inherited);
 		else
@@ -229,7 +229,7 @@ public class PropertyManager {
 				//mouseOverproperties = new PropertyManager(vlp, this, (IList) c.get(0), ctx);
 				//if(c.arity() == 2){
 					//mouseOverFigure = FigureFactory.make(vlp, (IConstructor)c.get(1), mouseOverproperties, ctx);
-					mouseOverFigure = FigureFactory.make(vlp, (IConstructor)c.get(0), null, ctx);
+					mouseOverFigure = FigureFactory.make(fpa, (IConstructor)c.get(0), null, ctx);
 				//}
 				break;	
 			case PINNED:

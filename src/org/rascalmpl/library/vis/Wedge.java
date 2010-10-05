@@ -8,8 +8,8 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 /**
- * A wedge is a vee-shaped element mostly used in pie charts. 
- * With a non-null inner radius wedge becomes a shape that can be used in ring strutcures.
+ * A wedge is a vee-shaped figure mostly used in pie charts. 
+ * With a non-null inner radius wedge becomes a shape that can be used in ring structures.
  * 
  * Relevant properties:
  * - height			radius
@@ -55,8 +55,8 @@ public class Wedge extends Container {
 	
 	private static boolean debug = false;
 
-	public Wedge(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, inside, ctx);
+	public Wedge(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, inside, ctx);
 	}
 	
 	// Determine quadrant of angle according to numbering scheme:
@@ -223,7 +223,7 @@ public class Wedge extends Container {
 			/*
 			 * Add a bezierVertex between (Fx,Fy) and (Tx,Ty) using (Mx,My) as control point
 			 */
-			vlp.bezierVertex(Fx, Fy, Mx, My, Tx, Ty);
+			fpa.bezierVertex(Fx, Fy, Mx, My, Tx, Ty);
 	    } else {
 	    	/*
 	    	 * Split when difference is larger than PI/2
@@ -243,13 +243,13 @@ public class Wedge extends Container {
 		
 		applyProperties();
 			
-		vlp.beginShape();
-		vlp.vertex(centerX + Ax, centerY + Ay);
+		fpa.beginShape();
+		fpa.vertex(centerX + Ax, centerY + Ay);
 		arcVertex(radius, fromAngle, toAngle);
-		vlp.vertex(centerX + Cx, centerY + Cy);
+		fpa.vertex(centerX + Cx, centerY + Cy);
 		arcVertex(innerRadius, toAngle, fromAngle);
-		vlp.vertex(centerX + Ax, centerY + Ay);
-		vlp.endShape();
+		fpa.vertex(centerX + Ax, centerY + Ay);
+		fpa.endShape();
 	}
 	
 	@Override 

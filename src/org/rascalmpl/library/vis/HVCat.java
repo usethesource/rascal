@@ -22,8 +22,8 @@ public class HVCat extends Compose {
 	int inRow[];
 	static boolean debug = false;
 
-	HVCat(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, elems, ctx);
+	HVCat(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, elems, ctx);
 		leftElem = new float[elems.length()];
 		topRowElem = new float[elems.length()];
 		rowHeight = new float[elems.length()];

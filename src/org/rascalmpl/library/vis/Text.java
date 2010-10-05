@@ -20,8 +20,8 @@ public class Text extends Figure {
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
 
-	public Text(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IString text, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);
+	public Text(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IString text, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, ctx);
 		this.txt = text.getValue();
 		if(debug)System.err.printf("Text: %s\n", txt);
 	}
@@ -29,14 +29,14 @@ public class Text extends Figure {
 	@Override
 	void bbox(){
 	
-		vlp.textSize(getFontSizeProperty());
-		topAnchor = vlp.textAscent() ;
-		bottomAnchor = vlp.textDescent();
+		fpa.textSize(getFontSizeProperty());
+		topAnchor = fpa.textAscent() ;
+		bottomAnchor = fpa.textDescent();
 		
 		height = topAnchor + bottomAnchor;
-		width = vlp.textWidth(txt);
+		width = fpa.textWidth(txt);
 		if(debug){
-			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", vlp.getFont(), vlp.textAscent(), vlp.textDescent() );
+			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", fpa.getFont(), fpa.textAscent(), fpa.textDescent() );
 			System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%f\n", txt, width, height, getTextAngleProperty());
 		}
 		if(getTextAngleProperty() != 0){
@@ -70,15 +70,15 @@ public class Text extends Figure {
 		if(height > 0 && width > 0){
 			float angle = getTextAngleProperty();
 
-			vlp.textAlign(PConstants.CENTER,PConstants.CENTER);
+			fpa.textAlign(PConstants.CENTER,PConstants.CENTER);
 			if(angle != 0){
-				vlp.pushMatrix();
-				vlp.translate(left + width/2, top + height/2);
-				vlp.rotate(PApplet.radians(angle));
-				vlp.text(txt, 0, 0);
-				vlp.popMatrix();
+				fpa.pushMatrix();
+				fpa.translate(left + width/2, top + height/2);
+				fpa.rotate(PApplet.radians(angle));
+				fpa.text(txt, 0, 0);
+				fpa.popMatrix();
 			} else {
-				vlp.text(txt, left + width/2, top + height/2);
+				fpa.text(txt, left + width/2, top + height/2);
 //				vlp.rectMode(PConstants.CORNERS);
 //				vlp.text(txt, left, top, left+width, top+height);
 			}

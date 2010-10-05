@@ -148,7 +148,7 @@ public class GraphNode {
 	
 	public boolean mouseOver(int mousex, int mousey){
 		if(figure.mouseInside(mousex, mousey)){
-			figure.vlp.registerFocus(figure);
+			figure.fpa.registerFocus(figure);
 			return true;
 		}
 		return false;
@@ -156,7 +156,7 @@ public class GraphNode {
 	
 	public boolean mousePressed(int mousex, int mousey){
 		if(figure.mouseInside(mousex, mousey)){
-			figure.vlp.registerFocus(figure);
+			figure.fpa.registerFocus(figure);
 			return true;
 		}
 		return false;

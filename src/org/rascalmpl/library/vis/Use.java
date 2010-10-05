@@ -19,10 +19,10 @@ public class Use extends Figure {
 	private Figure inside;
 	private static boolean debug = false;
 
-	public Use(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);
+	public Use(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, ctx);
 		if(inside != null){
-			this.inside = FigureFactory.make(vlp, inside, this.properties, ctx);
+			this.inside = FigureFactory.make(fpa, inside, this.properties, ctx);
 		}
 		if(debug)System.err.println("use.init: width=" + width + ", height=" + height);
 	}

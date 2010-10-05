@@ -17,14 +17,14 @@ public class GraphEdge extends Figure {
 	GraphNode to;
 	private static boolean debug = false;
 	
-	public GraphEdge(Graph G, FigurePApplet vlp, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
-		super(vlp, inheritedProps, props, ctx);
-		from = vlp.getRegistered(fromName.getValue());
+	public GraphEdge(Graph G, FigurePApplet fpa, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
+		super(fpa, inheritedProps, props, ctx);
+		from = fpa.getRegistered(fromName.getValue());
 		// TODO Generate exceptions for null cases
 		if(from == null){
 			System.err.println("No node " + fromName.getValue());
 		}
-		to = vlp.getRegistered(toName.getValue());
+		to = fpa.getRegistered(toName.getValue());
 		if(to == null){
 			System.err.println("No node " + toName.getValue());
 		}
@@ -58,7 +58,7 @@ public class GraphEdge extends Figure {
 		applyProperties();
 		if(debug) System.err.println("edge: (" + from.name + ": " + from.x + "," + from.y + ") -> (" + 
 								                 to.name + ": " + to.x + "," + to.y + ")");
-		vlp.line(left + from.figX(), top + from.figY(), 
+		fpa.line(left + from.figX(), top + from.figY(), 
 				 left + to.figX(), top + to.figY());
 	}
 
