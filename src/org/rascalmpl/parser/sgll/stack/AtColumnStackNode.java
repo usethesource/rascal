@@ -2,9 +2,6 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.AtColumnNode;
-import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
-import org.rascalmpl.parser.sgll.result.struct.Link;
-import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public class AtColumnStackNode extends AbstractStackNode implements IMatchableStackNode, ILocatableStackNode{
@@ -13,8 +10,6 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 	private final int column;
 	
 	private PositionStore positionStore;
-	
-	private boolean isReduced;
 	
 	public AtColumnStackNode(int id, int dot, int column){
 		super(id, dot);
@@ -30,13 +25,6 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 		result = original.result;
 	}
 	
-	private AtColumnStackNode(AtColumnStackNode original, ArrayList<Link>[] prefixes){
-		super(original, prefixes);
-		
-		column = original.column;
-		result = original.result;
-	}
-	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}
@@ -46,38 +34,15 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 	}
 	
 	public boolean match(char[] input){
-		if(positionStore.isAtColumn(startLocation, column)){
-			isReduced = true;
-			return true;
-		}
-		return false;
+		return positionStore.isAtColumn(startLocation, column);
 	}
 	
 	public boolean matchWithoutResult(char[] input, int location){
-		if(positionStore.isAtColumn(location, column)){
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean isClean(){
-		return !isReduced;
+		return positionStore.isAtColumn(location, column);
 	}
 	
 	public AbstractStackNode getCleanCopy(){
 		return new AtColumnStackNode(this);
-	}
-
-	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new AtColumnStackNode(this, prefixesMap);
-	}
-	
-	public void setResultStore(AbstractContainerNode resultStore){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractContainerNode getResultStore(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public int getLength(){

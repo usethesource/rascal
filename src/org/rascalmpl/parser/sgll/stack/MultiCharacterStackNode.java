@@ -2,10 +2,7 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
-import org.rascalmpl.parser.sgll.result.struct.Link;
-import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public class MultiCharacterStackNode extends AbstractStackNode implements IMatchableStackNode{
@@ -24,13 +21,6 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 	private MultiCharacterStackNode(MultiCharacterStackNode original){
 		super(original);
 		
-		production = original.production;
-		characters = original.characters;
-	}
-	
-	private MultiCharacterStackNode(MultiCharacterStackNode original, ArrayList<Link>[] prefixes){
-		super(original, prefixes);
-
 		production = original.production;
 		characters = original.characters;
 	}
@@ -84,24 +74,8 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		return true;
 	}
 	
-	public boolean isClean(){
-		return true;
-	}
-	
 	public AbstractStackNode getCleanCopy(){
 		return new MultiCharacterStackNode(this);
-	}
-
-	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new MultiCharacterStackNode(this, prefixesMap);
-	}
-	
-	public void setResultStore(AbstractContainerNode resultStore){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractContainerNode getResultStore(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public int getLength(){

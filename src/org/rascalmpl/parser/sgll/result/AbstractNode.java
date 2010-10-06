@@ -22,11 +22,11 @@ public abstract class AbstractNode{
 		return (this instanceof SortContainerNode);
 	}
 	
-	protected abstract boolean isEpsilon();
+	public abstract boolean isEpsilon();
 	
-	protected abstract boolean isNullable();
+	public abstract boolean isNullable();
 	
-	protected abstract boolean isSeparator();
+	public abstract boolean isSeparator();
 	
 	public abstract void setRejected();
 	

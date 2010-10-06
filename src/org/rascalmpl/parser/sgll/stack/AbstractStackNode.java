@@ -1,7 +1,6 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.ArrayList;
@@ -59,29 +58,6 @@ public abstract class AbstractStackNode{
 		
 		next = original.next;
 		alternateNexts = original.alternateNexts;
-		
-		startLocation = original.startLocation;
-		
-		isEndNode = original.isEndNode;
-		isSeparator = original.isSeparator;
-		isLayout = original.isLayout;
-		
-		parentProduction = original.parentProduction;
-		followRestrictions = original.followRestrictions;
-		isReject = original.isReject;
-	}
-	
-	protected AbstractStackNode(AbstractStackNode original, ArrayList<Link>[] prefixes){
-		super();
-		
-		id = original.id;
-		dot = original.dot;
-
-		next = original.next;
-		alternateNexts = original.alternateNexts;
-		edgesMap = original.edgesMap;
-		
-		prefixesMap = prefixes;
 		
 		startLocation = original.startLocation;
 		
@@ -183,11 +159,7 @@ public abstract class AbstractStackNode{
 	}
 	
 	// Sharing.
-	public abstract boolean isClean();
-	
 	public abstract AbstractStackNode getCleanCopy();
-	
-	public abstract AbstractStackNode getCleanCopyWithPrefix();
 	
 	public boolean isSimilar(AbstractStackNode node){
 		return (node.getId() == getId());
@@ -287,10 +259,9 @@ public abstract class AbstractStackNode{
 		prefixes.add(prefix);
 	}
 	
-	public void updateNode(AbstractStackNode predecessor){
+	public void updateNode(AbstractStackNode predecessor, AbstractNode result){
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
-		AbstractNode result = predecessor.getResult();
 		
 		if(edgesMap == null){
 			edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>(edgesMapToAdd);
@@ -405,9 +376,5 @@ public abstract class AbstractStackNode{
 	public abstract AbstractStackNode[] getChildren();
 	
 	// Results.
-	public abstract void setResultStore(AbstractContainerNode resultStore);
-	
-	public abstract AbstractContainerNode getResultStore();
-	
 	public abstract AbstractNode getResult();
 }

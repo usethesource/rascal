@@ -1,10 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.struct.Link;
-import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -16,8 +13,6 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	private final String name;
 
 	private final AbstractStackNode[] children;
-	
-	private AbstractContainerNode result;
 	
 	public ListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, boolean isPlusList){
 		super(id, dot);
@@ -39,15 +34,6 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	
 	private ListStackNode(ListStackNode original){
 		super(original);
-		
-		production = original.production;
-		name = original.name;
-
-		children = original.children;
-	}
-	
-	private ListStackNode(ListStackNode original, ArrayList<Link>[] prefixes){
-		super(original, prefixes);
 		
 		production = original.production;
 		name = original.name;
@@ -84,24 +70,8 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean isClean(){
-		return (result == null);
-	}
-	
 	public AbstractStackNode getCleanCopy(){
 		return new ListStackNode(this);
-	}
-
-	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new ListStackNode(this, prefixesMap);
-	}
-	
-	public void setResultStore(AbstractContainerNode resultStore){
-		result = resultStore;
-	}
-	
-	public AbstractContainerNode getResultStore(){
-		return result;
 	}
 	
 	public int getLength(){
@@ -113,7 +83,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	}
 	
 	public AbstractNode getResult(){
-		return result;
+		throw new UnsupportedOperationException();
 	}
 
 	public String toString(){

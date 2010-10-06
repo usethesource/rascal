@@ -1,10 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.EndOfLineNode;
-import org.rascalmpl.parser.sgll.result.struct.Link;
-import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public class EndOfLineStackNode extends AbstractStackNode implements IMatchableStackNode, ILocatableStackNode{
@@ -12,18 +9,12 @@ public class EndOfLineStackNode extends AbstractStackNode implements IMatchableS
 	
 	private PositionStore positionStore;
 	
-	private boolean isReduced;
-	
 	public EndOfLineStackNode(int id, int dot){
 		super(id, dot);
 	}
 	
 	private EndOfLineStackNode(EndOfLineStackNode original){
 		super(original);
-	}
-	
-	private EndOfLineStackNode(EndOfLineStackNode original, ArrayList<Link>[] prefixes){
-		super(original, prefixes);
 	}
 	
 	public String getName(){
@@ -35,38 +26,15 @@ public class EndOfLineStackNode extends AbstractStackNode implements IMatchableS
 	}
 	
 	public boolean match(char[] input){
-		if(positionStore.endsLine(startLocation)){
-			isReduced = true;
-			return true;
-		}
-		return false;
+		return positionStore.endsLine(startLocation);
 	}
 	
 	public boolean matchWithoutResult(char[] input, int location){
-		if(positionStore.endsLine(location)){
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean isClean(){
-		return !isReduced;
+		return positionStore.endsLine(location);
 	}
 	
 	public AbstractStackNode getCleanCopy(){
 		return new EndOfLineStackNode(this);
-	}
-
-	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new EndOfLineStackNode(this, prefixesMap);
-	}
-	
-	public void setResultStore(AbstractContainerNode resultStore){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractContainerNode getResultStore(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public int getLength(){
