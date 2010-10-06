@@ -1,16 +1,11 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.EpsilonNode;
-import org.rascalmpl.parser.sgll.result.struct.Link;
-import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public final class EpsilonStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final static EpsilonNode result = new EpsilonNode();
-	
-	private boolean isReduced;
 	
 	public EpsilonStackNode(int id, int dot){
 		super(id, dot);
@@ -18,10 +13,6 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 	
 	private EpsilonStackNode(EpsilonStackNode original){
 		super(original);
-	}
-	
-	private EpsilonStackNode(EpsilonStackNode original, ArrayList<Link>[] prefixes){
-		super(original, prefixes);
 	}
 	
 	public String getName(){
@@ -33,7 +24,6 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 	}
 	
 	public boolean match(char[] input){
-		isReduced = true;
 		return true;
 	}
 	
@@ -41,24 +31,8 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		return true;
 	}
 	
-	public boolean isClean(){
-		return !isReduced;
-	}
-	
 	public AbstractStackNode getCleanCopy(){
 		return new EpsilonStackNode(this);
-	}
-
-	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new EpsilonStackNode(this, prefixesMap);
-	}
-	
-	public void setResultStore(AbstractContainerNode resultStore){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractContainerNode getResultStore(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public int getLength(){

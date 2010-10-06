@@ -1,10 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.struct.Link;
-import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -16,8 +13,6 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	private final String name;
 
 	private final AbstractStackNode[] children;
-	
-	private AbstractContainerNode result;
 	
 	public SeparatedListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
 		super(id, dot);
@@ -43,15 +38,6 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		production = original.production;
 		name = original.name;
 		
-		children = original.children;
-	}
-	
-	private SeparatedListStackNode(SeparatedListStackNode original, ArrayList<Link>[] prefixes){
-		super(original, prefixes);
-		
-		production = original.production;
-		name = original.name;
-
 		children = original.children;
 	}
 	
@@ -96,24 +82,8 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean isClean(){
-		return (result == null);
-	}
-	
 	public AbstractStackNode getCleanCopy(){
 		return new SeparatedListStackNode(this);
-	}
-
-	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new SeparatedListStackNode(this, prefixesMap);
-	}
-	
-	public void setResultStore(AbstractContainerNode resultStore){
-		result = resultStore;
-	}
-	
-	public AbstractContainerNode getResultStore(){
-		return result;
 	}
 	
 	public int getLength(){
@@ -125,7 +95,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	}
 	
 	public AbstractNode getResult(){
-		return result;
+		throw new UnsupportedOperationException();
 	}
 
 	public String toString(){

@@ -2,9 +2,6 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.CharNode;
-import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
-import org.rascalmpl.parser.sgll.result.struct.Link;
-import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public final class CharStackNode extends AbstractStackNode implements IMatchableStackNode{
@@ -20,12 +17,6 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 	
 	private CharStackNode(CharStackNode original){
 		super(original);
-		
-		ranges = original.ranges;
-	}
-	
-	private CharStackNode(CharStackNode original, ArrayList<Link>[] prefixes){
-		super(original, prefixes);
 		
 		ranges = original.ranges;
 	}
@@ -63,24 +54,8 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		return false;
 	}
 	
-	public boolean isClean(){
-		return true;
-	}
-	
 	public AbstractStackNode getCleanCopy(){
 		return new CharStackNode(this);
-	}
-
-	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new CharStackNode(this, prefixesMap);
-	}
-	
-	public void setResultStore(AbstractContainerNode resultStore){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractContainerNode getResultStore(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public int getLength(){

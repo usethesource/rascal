@@ -2,10 +2,7 @@ package org.rascalmpl.parser.sgll.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
-import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
-import org.rascalmpl.parser.sgll.result.struct.Link;
-import org.rascalmpl.parser.sgll.util.ArrayList;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public final class LiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
@@ -37,14 +34,6 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		result = original.result;
 	}
 	
-	private LiteralStackNode(LiteralStackNode original, ArrayList<Link>[] prefixes){
-		super(original, prefixes);
-		
-		literal = original.literal;
-		
-		result = original.result;
-	}
-	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}
@@ -67,24 +56,8 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		return true;
 	}
 	
-	public boolean isClean(){
-		return true;
-	}
-	
 	public AbstractStackNode getCleanCopy(){
 		return new LiteralStackNode(this);
-	}
-
-	public AbstractStackNode getCleanCopyWithPrefix(){
-		return new LiteralStackNode(this, prefixesMap);
-	}
-	
-	public void setResultStore(AbstractContainerNode resultStore){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractContainerNode getResultStore(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public int getLength(){
