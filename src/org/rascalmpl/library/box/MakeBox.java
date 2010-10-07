@@ -196,7 +196,7 @@ public class MakeBox {
 		return launchTemplateProgram(uri, s);
 	}
 	
-	private String text2String(IValue v) {
+	public String text2String(IValue v) {
 		IList rules = (IList) v;
 		StringBuffer b = new StringBuffer();
 		for (int i = 0; i < rules.length(); i++) {
