@@ -114,7 +114,7 @@ public text toText(loc asf){
      
 public text toLatex(loc asf){
      str s = getRascalFileContent(asf);
-     println("toLatex: <s>");
+     // println("toLatex: <s>");
      Tree a = parse(#Module, s);
      /*
      Tree a =  parseModule(asf, true).top;
