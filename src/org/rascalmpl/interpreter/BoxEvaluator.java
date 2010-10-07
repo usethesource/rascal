@@ -571,7 +571,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// TODO Auto-generated method stub
 		// return I(H(1, H(0, KW("default"), BoxADT.COLON),
 		// eX(x.getStatement())));
-		return cStat("default", BoxADT.COLON, null, null,  eX(x.getStatement()));
+		return cStat("default", BoxADT.COLON, null, null, eX(x.getStatement()));
 	}
 
 	public IValue visitCasePatternWithAction(PatternWithAction x) {
@@ -945,7 +945,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		 * Expression {cons("CallOrTree")}
 		 */
 		if (x._getType() != null && x._getType() instanceof NonTerminalType) {
-			System.err.println("Backquote! " + x);
+			// System.err.println("Backquote! " + x);
+			return STRING("`" + x.toString() + "`");
 		}
 		isFunctionName = true;
 		IValue t = H(0, eX(x.getExpression()), BoxADT.LPAR);
@@ -1164,14 +1165,10 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitExpressionSetAnnotation(SetAnnotation x) {
-		String s = TreeAdapter
-				.yield((IConstructor) x.getExpression().getTree());
-		String[] q = s.split("\n");
-		IValue[] v = new IValue[q.length];
+		/** expression:Expression "[" "@" name:Name "=" value: Expression "]"} */
 
-		for (int i = 0; i < q.length; i++)
-			v[i] = L(q[i]);
-		return V(L("`"), list(v), L("`"));
+		return list(eX(x.getExpression()), BoxADT.LBRACK, H(0, BoxADT.AT, eX(x
+				.getName())), BoxADT.RBRACK, BoxADT.ASSIGN, eX(x.getValue()));
 	}
 
 	public IValue visitExpressionStepRange(StepRange x) {
@@ -1502,7 +1499,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitLiteralBoolean(Boolean x) {
-		return NM(x.getBooleanLiteral().toString());
+		return eX(x.getBooleanLiteral());
 	}
 
 	public IValue visitLiteralDateTime(org.rascalmpl.ast.Literal.DateTime x) {
@@ -1510,7 +1507,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitLiteralInteger(Integer x) {
-		return NM(x.getIntegerLiteral().getDecimal().toString());
+		return eX(x.getIntegerLiteral());
 	}
 
 	public IValue visitLiteralLocation(Location x) {
@@ -1556,8 +1553,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitLocationLiteralDefault(
 			org.rascalmpl.ast.LocationLiteral.Default x) {
 		/* protocolPart:ProtocolPart pathPart:PathPart */
-		return list(eX(x.getProtocolPart()), eX(x
-				.getPathPart()));
+		return list(eX(x.getProtocolPart()), eX(x.getPathPart()));
 		// TODO Auto-generated method stub
 
 	}
@@ -2295,7 +2291,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitStringConstantLexical(
 			org.rascalmpl.ast.StringConstant.Lexical x) {
-		return L(x.getString());
+		return STRING(x.getString());
 	}
 
 	public IValue visitStringLiteralAmbiguity(
@@ -2307,15 +2303,15 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 			org.rascalmpl.ast.StringLiteral.Interpolated x) {
 		// return V(0, H(0, list(eX(x.getPre())), eX(x.getExpression())),
 		// System.err.println("stringLiteral:"+x.getTail().toString());
-		IValue r = VAR(V(0, cTempl(eX(x.getPre()), HV(eX(x.getExpression())),
-				eX(x.getTail()))));
+		IValue r = STRING(V(0, cTempl(eX(x.getPre()),
+				HV(eX(x.getExpression())), eX(x.getTail()))));
 		return r;
 	}
 
 	public IValue visitStringLiteralNonInterpolated(
 			org.rascalmpl.ast.StringLiteral.NonInterpolated x) {
-		// System.err.println("visitStringLiteralNonInterpolated:"+x.getConstant().getClass());
-		return VAR(eX(x.getConstant()));
+		// .err.println("visitStringLiteralNonInterpolated:"+x.getConstant().getClass());
+		return STRING(eX(x.getConstant()));
 	}
 
 	public IValue visitStringLiteralTemplate(Template x) {
@@ -2521,7 +2517,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitTagStringLexical(org.rascalmpl.ast.TagString.Lexical x) {
-		return L(x.getString());
+		return STRING(x.getString());
 	}
 
 	public IValue visitTagsAmbiguity(org.rascalmpl.ast.Tags.Ambiguity x) {
@@ -2828,6 +2824,18 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return BoxADT.TAG.VAR.create(BoxADT.TAG.L.create(s));
 	}
 
+	static IValue STRING(String s) {
+		if (s == null)
+			return null;
+		return BoxADT.TAG.STRING.create(BoxADT.TAG.L.create(s));
+	}
+
+	static IValue COMM(String s) {
+		if (s == null)
+			return null;
+		return BoxADT.TAG.COMM.create(BoxADT.TAG.L.create(s));
+	}
+
 	static IValue KW(IValue s) {
 		return BoxADT.TAG.KW.create(s);
 	}
@@ -2838,6 +2846,14 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	static IValue VAR(IValue s) {
 		return BoxADT.TAG.VAR.create(s);
+	}
+
+	static IValue STRING(IValue s) {
+		return BoxADT.TAG.STRING.create(s);
+	}
+
+	static IValue COMM(IValue s) {
+		return BoxADT.TAG.COMM.create(s);
 	}
 
 	static IValue L(String s) {
@@ -3115,7 +3131,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 			String s = TreeAdapter.yield((IConstructor) t);
 			if (s.endsWith("\n") && r.length() == c.length() - 1)
 				s = s.substring(0, s.length() - 1);
-			r = r.append(L(s));
+			r = r.append(STRING(s));
 		}
 		if (c.length() >= 2)
 			return list(H(0, r));
@@ -3139,7 +3155,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// System.err.println("visitStrin:" + s.length + " " + x);
 		if (s.length == 1)
 			return BoxADT.getList(L(x));
-		
+
 		IValue[] v = new IValue[s.length];
 		for (int i = 0; i < v.length; i++)
 			v[i] = L(s[i]);
