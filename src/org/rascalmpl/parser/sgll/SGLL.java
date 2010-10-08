@@ -161,7 +161,7 @@ public abstract class SGLL implements IGLL{
 			alternative.updateNode(node, result);
 			
 			if(alternative.isEndNode()){
-				if(result.isNullable() && node.getName() == next.getName()){
+				if(result.isNullable() && !node.isMatchable() && !next.isMatchable() && node.getName() == next.getName()){
 					if(alternative.getId() != node.getId()){ // List cycle fix.
 						HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName());
