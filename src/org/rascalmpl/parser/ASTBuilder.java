@@ -19,9 +19,11 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.ASTStatistics;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Body;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.DecimalIntegerLiteral;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.IntegerLiteral;
 import org.rascalmpl.ast.JavaFunctionBody;
 import org.rascalmpl.ast.LanguageAction;
@@ -37,6 +39,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.StringLiteral;
+import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -58,6 +61,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class ASTBuilder {
 	private static final String RASCAL_SORT_PREFIX = "_";
 	private static final String MODULE_SORT = "Module";
+	private static final String PRE_MODULE_SORT = "PreModule";
 	private ASTFactory factory;
     private Class<? extends ASTFactory> clazz;
     
@@ -87,8 +91,22 @@ public class ASTBuilder {
 	}
 	
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
-		IConstructor tree = ParsetreeAdapter.getTop(parseTree);
+		IConstructor tree = parseTree.getConstructorType() == Factory.ParseTree_Top ? ParsetreeAdapter.getTop(parseTree) : parseTree;
+		
 		if (TreeAdapter.isAppl(tree)) {
+			if (sortName(tree).equals(MODULE_SORT)) {
+				// t must be an appl so call buildValue directly
+				return (Module) buildValue(tree);
+			}
+			else if (sortName(tree).equals(PRE_MODULE_SORT)) {
+				// TODO temporary solution while bootstrapping (if we regenerate the ast hierarchy this can be solved more elegantly)
+				IList moduleArgs = (IList) tree.get(1);
+				IConstructor headerTree = (IConstructor) moduleArgs.get(0);
+				Header header = (Header) buildValue(headerTree);
+				return new Module.Default(tree, header, 
+						new Body.Toplevels((INode) moduleArgs.get(2), 
+								Collections.<Toplevel>emptyList()));
+			}
 			return buildSort(parseTree, MODULE_SORT);
 		}
 		if (TreeAdapter.isAmb(tree)) {
@@ -101,6 +119,18 @@ public class ASTBuilder {
 				if (sortName(t).equals(MODULE_SORT)) {
 					// t must be an appl so call buildValue directly
 					return (Module) buildValue(t);
+				}
+				else if (sortName(t).equals(PRE_MODULE_SORT)) {
+					// TODO temporary solution while bootstrapping (if we regenerate the ast hierarchy this can be solved more elegantly)
+					throw new Ambiguous(parseTree);
+//					IList startArgs = (IList) ((IConstructor) val).get(1);
+//					IConstructor moduleTop = (IConstructor) startArgs.get(1);
+//					IList moduleArgs = (IList) moduleTop.get(1);
+//					IConstructor headerTree = (IConstructor) moduleArgs.get(0);
+//					Header header = (Header) buildValue(headerTree);
+//					return new Module.Default(tree, header, 
+//							new Body.Toplevels((INode) moduleArgs.get(2), 
+//									Collections.<Toplevel>emptyList()));
 				}
 			}
 		}

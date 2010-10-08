@@ -52,6 +52,7 @@ public class ModuleEnvironment extends Environment {
 	private Set<String> importedSDFModules = new HashSet<String>();
 	private boolean initialized;
 	protected Class<IGLL> parser;
+	protected Class<IGLL> rascalParser;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -418,7 +419,9 @@ public class ModuleEnvironment extends Environment {
 			for (String i : getImports()) {
 				ModuleEnvironment mod = getImport(i);
 				
-				type = mod.lookupConcreteSyntaxType(name);
+				if (mod != this) {
+					type = mod.lookupConcreteSyntaxType(name);
+				}
 				
 				if (type != null) {
 					return type;
@@ -467,6 +470,10 @@ public class ModuleEnvironment extends Environment {
 	public void setInitialized() {
 		this.initialized = true;
 	}
+	
+	public void setInitialized(boolean init) {
+		this.initialized = init;
+	}
 
 	public void reset() {
 		super.reset();
@@ -477,18 +484,27 @@ public class ModuleEnvironment extends Environment {
 		this.tests = new LinkedList<Test>();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
-		this.parser = null;
+		clearParser();
 	}
 
 	public Class<IGLL> getParser() {
 		return parser;
 	}
 
-	public void safeParser(Class<IGLL> parser) {
+	public void saveParser(Class<IGLL> parser) {
 		this.parser = parser;
+	}
+
+	public void saveRascalParser(Class<IGLL> parser) {
+		this.rascalParser = parser;
 	}
 	
 	private void clearParser() {
 		this.parser = null;
+		this.rascalParser = null;
+	}
+
+	public Class<IGLL> getRascalParser() {
+		return rascalParser;
 	}
 }

@@ -23,9 +23,12 @@ syntax Marker =
               # "import"
               # "syntax"
               # "start"
+              # "layout"
               ;
 
-syntax Rest = lex {![\n]* "\n"}+;              
+syntax Rest = ![]*
+            # ![]
+            ;          
                    
 syntax Alternative
 	= NamedType: Name name Type type ;
@@ -900,20 +903,20 @@ syntax MidPathChars
 	= lex "\>" URLChars "\<" ;
 
 syntax Pattern
-	= Set: "{" {Pattern ","}* elements "}" 
-	| List: "[" {Pattern ","}* elements "]" 
-	| QualifiedName: QualifiedName qualifiedName 
-	| MultiVariable: QualifiedName qualifiedName "*" 
-	| Literal: Literal literal 
-	| Tuple: "\<" {Pattern ","}+ elements "\>" 
-	| TypedVariable: Type type Name name 
-	| Map: "(" {Mapping[Pattern] ","}* mappings ")" 
-	| ReifiedType: BasicType basicType "(" {Pattern ","}* arguments ")" 
-	| CallOrTree: Pattern expression "(" {Pattern ","}* arguments ")" 
-	> VariableBecomes: Name name ":" Pattern pattern
-	| Guarded: "[" Type type "]" Pattern pattern 
-	| Descendant: "/" Pattern pattern 
-	| Anti: "!" Pattern pattern 
+	= Set                 : "{" {Pattern ","}* elements "}" 
+	| List                : "[" {Pattern ","}* elements "]" 
+	| QualifiedName       : QualifiedName qualifiedName 
+	| MultiVariable       : QualifiedName qualifiedName "*" 
+	| Literal             : Literal literal 
+	| Tuple               : "\<" {Pattern ","}+ elements "\>" 
+	| TypedVariable       : Type type Name name 
+	| Map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
+	| ReifiedType         : BasicType basicType "(" {Pattern ","}* arguments ")" 
+	| CallOrTree          : Pattern expression "(" {Pattern ","}* arguments ")" 
+	> VariableBecomes     : Name name ":" Pattern pattern
+	| Guarded             : "[" Type type "]" Pattern pattern 
+	| Descendant          : "/" Pattern pattern 
+	| Anti                : "!" Pattern pattern 
 	| TypedVariableBecomes: Type type Name name ":" Pattern pattern 
     ;
     

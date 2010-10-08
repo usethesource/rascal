@@ -6,6 +6,7 @@ import rascal::syntax::Regular;
 import rascal::syntax::Normalization;
 import rascal::syntax::Lookahead;
 import rascal::syntax::Actions;
+import rascal::syntax::Assimilator;
 import ParseTree;
 import String;
 import List;
@@ -18,8 +19,43 @@ private data Item = item(Production production, int index);
 
 // TODO: replace this complex data structure with several simple ones
 private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
+public anno str Symbol@prefix;
 
-public str generate(str package, str name, Grammar gr) {
+@doc{Used in bootstrapping only, to generate a parser for Rascal modules without concrete syntax.}
+public str generateMetaParser(str package, str name, Grammar gr) {
+  // we annotate the grammar to generate identifiers that are different from object grammar identifiers
+  gr = visit (gr) { case s:sort(_) => s[@prefix="$"] }; 
+  int uniqueItem = -3; // -1 and -2 are reserved by the SGLL implementation
+  int newItem() { uniqueItem -= 1; return uniqueItem; };
+  return generate(package, name, "org.rascalmpl.parser.sgll.SGLL", newItem, false, gr);
+}
+
+@doc{Used to generate parser that parse object language only}
+public str generateObjectParser(str package, str name, Grammar gr) {
+  int uniqueItem = 2;
+  int newItem() { uniqueItem += 2; return uniqueItem; };
+  return generate(package, name, "org.rascalmpl.library.rascal.syntax.RascalRascal", newItem, false, gr);
+}
+
+@doc{
+  Used to generate subclasses of object grammars that can be used to parse Rascal modules
+  with embedded concrete syntax fragments.
+}   
+public str generateAssimilatedParser(str package, str name, str super, Grammar gr) {
+  int uniqueItem = 1; // we use the odd numbers here
+  int newItem() { uniqueItem += 2; return uniqueItem; };
+  
+  fr = grammar({}, fromRascal(gr));
+  tr = grammar({}, toRascal(gr));
+  q = grammar({}, quotes()); // TODO parametrize quotes to use quote definitions
+  ols = grammar({}, layoutProductions(gr));
+  
+  full = compose(fr, compose(tr, compose(q, ols)));
+  
+  return generate(package, name, super, newItem, true, full);
+}
+
+public str generate(str package, str name, str super, int () newItem, bool callSuper, Grammar gr) {
     // TODO: it would be better if this was not necessary, i.e. by changing the grammar 
     // representation to grammar(set[Symbol] start, map[Symbol,Production] rules)
     println("merging composed non-terminals");
@@ -40,7 +76,7 @@ public str generate(str package, str name, Grammar gr) {
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p, restricted(_) !:= p.rhs};
  
     println("generating item allocations");
-    newItems = generateNewItems(gr);
+    newItems = generateNewItems(gr, newItem);
    
     println("computing priority and associativity filter");
     dontNest = computeDontNests(newItems, gr);
@@ -69,7 +105,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.sgll.SGLL;
 import org.rascalmpl.parser.sgll.stack.*;
 import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.IntegerList;
@@ -78,8 +113,8 @@ import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IParserInfo;
 
-public class <name> extends SGLL implements IParserInfo {
-	private static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
+public class <name> extends <super> implements IParserInfo {
+	protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
 		try{
 			return new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
 		}catch(FactTypeUseException e){
@@ -95,7 +130,7 @@ public class <name> extends SGLL implements IParserInfo {
 	private static final IntegerKeyedHashMap\<IntegerList\> _dontNest;
 	private static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions;
 	
-    private static void _putDontNest(int i, int j) {
+    protected static void _putDontNest(int i, int j) {
     	IntegerList donts = _dontNest.get(i);
     	if(donts == null){
     		donts = new IntegerList();
@@ -126,7 +161,7 @@ public class <name> extends SGLL implements IParserInfo {
 		IntegerList donts = _dontNest.get(parentItem);
 		if(donts == null) return false;
 		return donts.contains(child);
-	}
+	}  
 	
     // Production declarations
 	<for (p <- uniqueProductions) {>
@@ -145,7 +180,7 @@ public class <name> extends SGLL implements IParserInfo {
 	
 	// Parse methods    
 	<for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
-		<generateParseMethod(newItems, choice(nont, gr.rules[nont]))>
+      <generateParseMethod(newItems, callSuper, choice(nont, gr.rules[nont]))>
 	<}>
 }
 ";
@@ -154,15 +189,15 @@ public class <name> extends SGLL implements IParserInfo {
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
 constants to improve run-time efficiency of the generated parser}
-private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
+private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g, int () newItem) {
   map[Symbol,map[Item,tuple[str new, int itemId]]] items = ();
-  int counter = 0;
   map[Item,tuple[str new, int itemId]] fresh = ();
-  int newItem() { counter += 1; return counter; }
   
   visit (g) {
-    case Production p:prod([],Symbol s,_) :
-       items[s]?fresh += (item(p, -1):<"new EpsilonStackNode(<newItem()>, 0)", counter>);
+    case Production p:prod([],Symbol s,_) : {
+       int counter = newItem();
+       items[s]?fresh += (item(p, -1):<"new EpsilonStackNode(<counter>, 0)", counter>);
+    }
     case Production p:prod(list[Symbol] lhs, Symbol s,_) : 
       for (int i <- index(lhs)) 
         items[s]?fresh += (item(p, i): sym2newitem(g, lhs[i], newItem, i));
@@ -172,12 +207,12 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
           items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
         case \iter-star(Symbol elem) : 
           items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
-        case \iter-sep(Symbol elem, list[Symbol] seps) : {
+        case \iter-seps(Symbol elem, list[Symbol] seps) : {
           items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
           for (int i <- index(seps)) 
             items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], newItem, i+1));
         }
-        case \iter-star-sep(Symbol elem, list[Symbol] seps) : {
+        case \iter-star-seps(Symbol elem, list[Symbol] seps) : {
           items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
           for (int i <- index(seps)) 
             items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], newItem, i+1));
@@ -207,8 +242,9 @@ private bool isNonterminal(Symbol s) {
   }
 }
 
-public str generateParseMethod(Items items, Production p) {
+public str generateParseMethod(Items items, bool callSuper, Production p) {
   return "public void <sym2name(p.rhs)>() {
+            <if (callSuper) {>super.<sym2name(p.rhs)>();<}>
             <generateExpect(items, p, false)>
           }";
 }
@@ -497,7 +533,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
                 return <"new LiteralStackNode(<itemId>, <dot>, <value2id(p)> <generateRestrictions(grammar, sym, id)>, new char[] {<literals2ints(chars)>})",itemId>;
             else throw "literal not found in grammar: <grammar>";
         case \cilit(l) : 
-            if (/prod(list[Symbol] chars,sym,attrs([term("literal"())])) := grammar.rules[sym])
+            if (/p:prod(list[Symbol] chars,sym,attrs([term("literal"())])) := grammar.rules[sym])
                 return <"new CaseInsensitiveLiteralStackNode(<itemId>, <dot>, <value2id(p)> <generateRestrictions(grammar, sym, id)>, new char[] {<literals2ints(chars)>})",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 
@@ -530,12 +566,14 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
 }
 
 public str generateRestrictions(Grammar grammar, Symbol sym, int() id) {
-  if (/restrict(sym, _, set[Production] restrictions) := grammar.rules[sym]) {
-    return ", <generateRestrictions(grammar, id, restrictions)>";
-  }
-  else {
-    return "";
-  }
+  try {
+    if (/restrict(sym, _, set[Production] restrictions) := grammar.rules[sym]) {
+      return ", <generateRestrictions(grammar, id, restrictions)>";
+    }
+    else {
+       return "";
+    }
+  } catch NoSuchKey(_) : return "";
 }
 
 public str generateCharClassArrays(list[CharRange] ranges){
@@ -566,37 +604,30 @@ public str escId(str s){
 
 public str sym2name(Symbol s){
     switch(s){
-        case sort(x) : return x;
+        case sort(x) : return "<s@prefix?""><x>";
         default      : return value2id(s);
     }
 }
 
-public str sym2id(Symbol s){
-    return "symbol_<value2id(s)>";
-}
-
-map[value,str] idCache = ();
-
 public str value2id(value v) {
-  return idCache[v]? str () { idCache[v] = v2i(v); return idCache[v]; }();
+  return v2i(v);
 }
 
 str v2i(value v) {
     switch (v) {
-        case item(p:prod(_,Symbol u,_), int i) : return "<value2id(u)>.<value2id(p)>_<value2id(i)>";
-        // case prod(_,Symbol u,attrs([a*,term(cons(str name)),b*])) : return "prod_<value2id(u)>_<escId(name)>_<value2id(a)>_<value2id(b)>";
-        case label(str x,Symbol u) : return escId(x) + "_" + value2id(u);
+        case item(p:prod(_,Symbol u,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
+        case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
         case layouts(str x) : return "layouts_<escId(x)>";
         case "cons"(str x) : return "cons_<escId(x)>";
-        case sort(str s)   : return s;
-        case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<value2id(arg)>" | arg <- args);
+        case Symbol x:sort(str s)   : return "<x@prefix?""><s>";
+        case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
 	    case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)-1]);
         case str s()       : return escId(s);
-        case node n        : return "<escId(getName(n))>_<("" | it + "_" + value2id(c) | c <- getChildren(n))>";
-        case list[value] l : return ("" | it + "_" + value2id(e) | e <- l);
+        case node n        : return "<escId(getName(n))>_<("" | it + "_" + v2i(c) | c <- getChildren(n))>";
+        case list[value] l : return ("" | it + "_" + v2i(e) | e <- l);
         default            : throw "value not supported <v>";
     }
 }

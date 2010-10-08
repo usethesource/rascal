@@ -11,6 +11,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TypedVariablePattern extends AbstractMatchingResult {
@@ -82,8 +83,11 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 			Type subjectType = subject.getValue().getType(); 
 			if (subjectType.isSubtypeOf(Factory.Tree) && ((IConstructor)subject.getValue()).getConstructorType() == Factory.Tree_Appl) {
 				IConstructor tree = (IConstructor)subject.getValue();
-				if (((NonTerminalType)declaredType).getSymbol().isEqual(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)))) {
-					if(anonymous) {
+				// TODO: to implement bootstrapping using modules that are parsed using the old parser, but have to match
+				// trees that come from the new parser we have to relax sort equality a bit here. 
+				// For this we use the special SymbolAdapter.isEqual method
+				if (SymbolAdapter.isEqual(((NonTerminalType)declaredType).getSymbol(), ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)))) {
+					if(anonymous) { 
 						return true;
 					}				
 					ctx.getCurrentEnvt().storeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));

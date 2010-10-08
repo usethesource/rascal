@@ -54,6 +54,13 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 					pat = new ListPattern(ctx, callOrTree, list, 2);
 				}
 			}
+			// these are the new ones (for bootstrapped Rascal):
+			else if (SymbolAdapter.isIterPlus(rhs) || SymbolAdapter.isIterStar(rhs)) {
+				pat = new ListPattern(ctx, callOrTree, list, 1);
+			}
+			else if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
+				pat = new ListPattern(ctx, callOrTree, list, SymbolAdapter.getSeparators(rhs).length() + 1);
+			}
 			else {
 				throw new ImplementationError("crooked production: non (cf or lex) list symbol: " + rhs);
 			}

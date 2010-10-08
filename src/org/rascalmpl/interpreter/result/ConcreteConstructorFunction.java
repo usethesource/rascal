@@ -86,7 +86,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 			IConstructor nestedRhs = ProductionAdapter.getRhs(nested);
 			IConstructor surroundingRhs = ProductionAdapter.getRhs(surrounding);
 			
-			if (surroundingRhs.isEqual(nestedRhs)) {
+			if (SymbolAdapter.isEqual(surroundingRhs,nestedRhs)) {
 				return true;
 			}
 			
@@ -96,11 +96,15 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 			}
 			
 			if ((SymbolAdapter.isIterPlusSep(surroundingRhs) && SymbolAdapter.isIterStarSep(nestedRhs)) || (SymbolAdapter.isIterStarSep(surroundingRhs) && SymbolAdapter.isIterPlusSep(nestedRhs))) {
-				return SymbolAdapter.getSymbol(surroundingRhs).equals(SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparator(surroundingRhs).equals(SymbolAdapter.getSeparator(nestedRhs));
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs),SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.isEqual(SymbolAdapter.getSeparator(surroundingRhs),SymbolAdapter.getSeparator(nestedRhs));
 			}
 
 			if ((SymbolAdapter.isIterPlus(surroundingRhs) && SymbolAdapter.isIterStar(nestedRhs)) || (SymbolAdapter.isIterStar(surroundingRhs) && SymbolAdapter.isIterPlus(nestedRhs))) {
-				return SymbolAdapter.getSymbol(surroundingRhs).equals(SymbolAdapter.getSymbol(nestedRhs));
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs),SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparators(surroundingRhs).isEqual(SymbolAdapter.getSeparators(nestedRhs));
+			}
+			
+			if ((SymbolAdapter.isIterPlusSeps(surroundingRhs) && SymbolAdapter.isIterStarSeps(nestedRhs)) || (SymbolAdapter.isIterStarSeps(surroundingRhs) && SymbolAdapter.isIterPlusSeps(nestedRhs))) {
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs),SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparators(surroundingRhs).isEqual(SymbolAdapter.getSeparators(nestedRhs));
 			}
 		}
 		return false;
@@ -123,7 +127,11 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 			if (SymbolAdapter.isIterPlusSep(rhs) || SymbolAdapter.isIterStarSep(rhs)) {
 				return 3;
 			}
+			
 			return 1;
+		}
+		else if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
+			return SymbolAdapter.getSeparators(rhs).length();
 		}
 		else {
 			return 0;

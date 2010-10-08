@@ -41,28 +41,32 @@ private set[SyntaxDefinition] collect(Module mod) {
 private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] prods = {};
   set[Symbol] starts = {};
-  str layoutName = "*no-layout*";
+  str layoutName = "EMPTY_LAYOUT";
   Production layoutProd = prod([],\layouts(layoutName),\no-attrs());
     
   // first we need to find the layout definition, because it affects all other productions
-  // NOTE: this implies only one layout definition per scope is allowed, which needs to be checked  
+  // NOTE: this implies only one layout definition per scope is allowed, which needs to be checked
+  println("locating layout definition");  
   if ((SyntaxDefinition) `layout <Nonterminal u> = <Prod p>;` <- defs) {
       layoutName = "<u>"; 
       layoutProd = prod2prod(\layouts(layoutName), p, layoutName, true);
   }
     
+    
+  println("locating start defs");
   for ((SyntaxDefinition) `start syntax <Sym u> = <Prod p>;` <- defs) {
     Symbol top = arg2symbol(u, false, layoutName);
     starts += start(top);
     prods += prod2prod(top, p, layoutName, false);
   }
   
+  println("locating normal synax definitions");
   for ((SyntaxDefinition) `syntax <Sym u> = <Prod p>;` <- defs) {
      prods += prod2prod(arg2symbol(u, false, layoutName), p, layoutName, false);
   }
 
   return grammar(starts, \layouts(prods, layoutName) 
-                       + {layoutProd}  
+                       + {layoutProd, prod([],layouts("EMPTY_LAYOUT"),\no-attrs())}  
                        + {prod([\layouts(layoutName), top,\layouts(layoutName)],start(top),\no-attrs()) | start(top) <- starts} 
                        + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods+{layoutProd}}
                        + {prod(cistr2syms(s),cilit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods+{layoutProd}}
