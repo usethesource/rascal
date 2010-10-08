@@ -81,8 +81,8 @@ public class SortContainerNode extends AbstractContainerNode{
 		
 		ISourceLocation sourceLocation = null;
 		if(!(isLayout || input == null)){
-			int beginLine = positionStore.findLine(offset);
-			int endLine = positionStore.findLine(endOffset);
+			int beginLine = positionStore.findLine(offset) + 1;
+			int endLine = positionStore.findLine(endOffset) + 1;
 			sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine, endLine, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 		}
 		
