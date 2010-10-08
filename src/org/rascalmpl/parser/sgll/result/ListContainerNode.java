@@ -260,7 +260,7 @@ public class ListContainerNode extends AbstractContainerNode{
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), vf.integer(depth - index));
-			if(input != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
+			if(sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
 			cycleMark.setMark(index);
 			
@@ -289,7 +289,7 @@ public class ListContainerNode extends AbstractContainerNode{
 			IConstructor production = gatheredAlternatives.getSecond(0);
 			IValue[] alternative = gatheredAlternatives.getFirst(0);
 			result = buildAlternative(production, alternative);
-			if(input != null) result = result.setAnnotation(Factory.Location, sourceLocation);
+			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}else if(nrOfAlternatives == 0){ // Filtered.
 			result = null;
 		}else{ // Ambiguous.
@@ -300,12 +300,12 @@ public class ListContainerNode extends AbstractContainerNode{
 				IValue[] alternative = gatheredAlternatives.getFirst(i);
 				
 				IConstructor alt = buildAlternative(production, alternative);
-				if(input != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
+				if(sourceLocation != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
 				ambSetWriter.insert(alt);
 			}
 			
 			result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
-			if(input != null) result = result.setAnnotation(Factory.Location, sourceLocation);
+			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
 		stack.dirtyPurge(); // Pop.
