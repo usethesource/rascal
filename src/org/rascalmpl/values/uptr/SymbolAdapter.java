@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.hamcrest.core.IsEqual;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class SymbolAdapter {
@@ -45,7 +46,7 @@ public class SymbolAdapter {
 	}
 
 	public static IConstructor getSymbol(IConstructor tree) {
-		if (isLabel(tree) || isCf(tree) || isLex(tree) || isOpt(tree) || isIterPlus(tree) || isIterPlusSep(tree) || isIterStar(tree) || isIterStarSep(tree)) {
+		if (isLabel(tree) || isCf(tree) || isLex(tree) || isOpt(tree) || isIterPlus(tree) || isIterPlusSep(tree) || isIterStar(tree) || isIterStarSep(tree) || isIterPlusSeps(tree) || isIterStarSeps(tree)) {
 			return ((IConstructor) tree.get("symbol"));
 		}
 		
@@ -119,7 +120,11 @@ public class SymbolAdapter {
 			return isLayout(t);
 		}
 		
-		return (tree.getConstructorType() == Factory.Symbol_Layout);
+		return (tree.getConstructorType() == Factory.Symbol_Layout) || tree.getConstructorType() == Factory.Symbol_LayoutX;
+	}
+	
+	public static boolean isLayouts(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Symbol_LayoutX;
 	}
 	
 	private static boolean isProductionList(IConstructor tree){
@@ -139,14 +144,14 @@ public class SymbolAdapter {
 			tree = getSymbol(tree);
 		}
 		
-		return isIterPlus(tree) || isIterPlusSep(tree);
+		return isIterPlus(tree) || isIterPlusSep(tree) || isIterPlusSep(tree) || isIterStarSeps(tree);
 	}
 	
 	public static boolean isSepList(IConstructor tree){
 		if (isCf(tree) || SymbolAdapter.isLex(tree)) {
 			tree = getSymbol(tree);
 		}
-		return isIterStarSep(tree) || isIterPlusSep(tree);
+		return isIterStarSep(tree) || isIterPlusSep(tree) || isIterPlusSeps(tree) || isIterStarSeps(tree);
 	}
 	
 	public static boolean isAnyList(IConstructor tree) {
@@ -193,6 +198,19 @@ public class SymbolAdapter {
 		if (isIterPlusSep(symbol)) {
 			return '{' + toString(getSymbol(symbol)) + ' ' + toString(getSeparator(symbol)) + '}' + '+';
 		}
+		
+		if (isIterPlusSep(symbol)) {
+			IList seps = getSeparators(symbol);
+			return '{' + toString(getSymbol(symbol)) + ' ' 
+			+ toString((IConstructor) seps.get(seps.length() / 2)) + '}' + '+';
+		}
+		
+		if (isIterStarSep(symbol)) {
+			IList seps = getSeparators(symbol);
+			return '{' + toString(getSymbol(symbol)) + ' ' 
+			+ toString((IConstructor) seps.get(seps.length() / 2)) + '}' + '*';
+		}
+		
 		if (isOpt(symbol)) {
 			return toString(getSymbol(symbol)) + '?';
 		}
@@ -322,5 +340,94 @@ public class SymbolAdapter {
 
 	public static IList getSeparators(IConstructor rhs) {
 		return (IList) rhs.get("separators");
+	}
+
+	/** 
+	 * TODO: remove it and its use after bootstrapping
+	 * This method facilitates bootstrapping by allowing old symbols to be equal to new symbols
+	 */
+	public static boolean isEqual(IConstructor fst, IConstructor snd) {
+		if (fst.isEqual(snd)) {
+			return true;
+		}
+		
+		if (isLex(fst) || isCf(fst)) {
+			fst = getSymbol(fst);
+		}
+		
+		if (isLex(snd) || isCf(snd)) {
+			snd = getSymbol(snd);
+		}
+		
+		if (isSort(fst) && isSort(snd)) {
+			return fst.isEqual(snd);
+		}
+		
+		if ((isIterPlusSep(fst) && isIterPlusSeps(snd))
+				|| (isIterStarSep(fst) && isIterStarSeps(snd))
+				|| (isIterPlus(fst) && isIterPlusSeps(snd))
+				|| (isIterStar(fst) && isIterStarSeps(snd))) {
+			return isEqual(snd, fst);
+		}
+		
+		if ((isIterPlusSeps(fst) && isIterPlus(snd))
+				|| (isIterStarSeps(fst) && isIterStar(snd))) {
+			IList seps = getSeparators(fst);
+			if (!isEqual(getSymbol(fst),getSymbol(snd))) {
+				return false;
+			}
+			
+			switch (seps.length()) {
+			case 1: 
+				if (isLayouts((IConstructor) seps.get(0))) {
+					return true; // would have been an Cf Iter without seps  
+				}
+				// is a lexical iter
+				return false;
+			case 3:
+				return false;
+			}
+		}
+		
+		if ((isIterPlusSeps(fst) && isIterPlusSep(snd))
+				|| (isIterStarSeps(fst) && isIterStarSep(snd))) {
+			IList seps = getSeparators(fst);
+			if (!isEqual(getSymbol(fst),getSymbol(snd))) {
+				return false;
+			}
+			
+			switch (seps.length()) {
+			case 1: 
+				if (isLayouts((IConstructor) seps.get(0))) {
+					return false; // would have been an Cf Iter without seps  
+				}
+				// is a lexical iter
+				return isEqual((IConstructor) seps.get(0),getSeparator(snd));
+			case 3:
+				return isEqual((IConstructor) seps.get(1),getSeparator(snd));
+			}
+		}
+		
+		if (isCfOptLayout(fst) && isLayouts(snd)) {
+			return true;
+		}
+		
+		if (isCfOptLayout(snd) && isLayouts(fst)) {
+			return true;
+		}
+		
+		return fst.isEqual(snd);
+	}
+
+	public static boolean isEqual(IList s1, IList s2) {
+		if (s1.length() != s2.length()) {
+			return false;
+		}
+		for (int i = 0; i < s1.length(); i++) {
+			if (!SymbolAdapter.isEqual((IConstructor) s1.get(i), (IConstructor) s2.get(i))) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

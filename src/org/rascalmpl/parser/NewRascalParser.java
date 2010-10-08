@@ -13,9 +13,9 @@ import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.rascal.syntax.RascalRascal;
 
 public class NewRascalParser implements IRascalParser {
-	private static final String START_COMMAND = "start__Command";
-	private static final String START_MODULE = "start__Module";
-	private static IParserInfo info; // do not use for parsing (parsers cache state local to a sentence)
+	public static final String START_COMMAND = "start__$Command";
+	public static final String START_MODULE = "start__$Module";
+	public static final String START_PRE_MODULE = "start__$PreModule";
 	
 	public IConstructor parseCommand(Set<String> sdfImports,
 			List<String> sdfSearchPath, URI location, String command)
@@ -26,14 +26,20 @@ public class NewRascalParser implements IRascalParser {
 	public IConstructor parseModule(List<String> sdfSearchPath,
 			Set<String> sdfImports, URI location, InputStream source,
 			ModuleEnvironment env) throws IOException {
-		RascalRascal rp = new RascalRascal();
-		info = (IParserInfo) rp;
-		return rp.parse(START_MODULE, location, source);
+		return new RascalRascal().parse(START_MODULE, location, source);
+	}
+	  
+	public IConstructor preParseModule(URI location, byte[] data) throws IOException {
+		return new RascalRascal().parse(START_PRE_MODULE, location, bytesToChars(data));
 	}
 
 	public IConstructor parseModule(List<String> sdfSearchPath,
 			Set<String> sdfImports, URI location, byte[] data,
 			ModuleEnvironment env) throws IOException {
+		return new RascalRascal().parse(START_MODULE, location,  bytesToChars(data));
+	}
+
+	public static char[] bytesToChars(byte[] data) {
 		Timing t = new Timing();
 		t.start();
 		char[] input = new char[data.length];
@@ -41,7 +47,7 @@ public class NewRascalParser implements IRascalParser {
 			input[i] = (char) data[i];
 		}
 		System.err.println("converting bytes to chars took " + (t.duration() / 1000 * 1000));
-		return new RascalRascal().parse(START_MODULE, location,  input);
+		return input;
 	}
 
 	public IConstructor parseStream(List<String> sdfSearchPath,
@@ -55,9 +61,6 @@ public class NewRascalParser implements IRascalParser {
 	}
 
 	public IParserInfo getInfo() {
-		if (info == null) {
-			info = (IParserInfo) new RascalRascal();
-		}
-		return info;
+		return new RascalRascal();
 	}
 }

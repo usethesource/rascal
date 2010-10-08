@@ -110,16 +110,20 @@ public class DescendantReader implements Iterator<IValue> {
 		if(debug)System.err.println("ctype.getSymbol=" + ctype.getSymbol());
 		IConstructor sym = ctype.getSymbol();
         if(SymbolAdapter.isAnyList(sym)){
+        	boolean wasOld = SymbolAdapter.isCf(sym);
         	sym = SymbolAdapter.getSymbol(sym);
         	
         	int delta = 1;          // distance between "real" list elements, e.g. non-layout and non-separator
         	IList listElems = (IList) tree.get(1);
 			if(SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterStar(sym)){
 				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlus or isIterStar");
-				delta = 2;
+				delta = wasOld ? 2 : 1; // new iters never have layout separators
 			} else if(SymbolAdapter.isIterPlusSep(sym) || SymbolAdapter.isIterStarSep(sym)){
 				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlusSep or isIterStarSep");
 				delta = 4;
+			} else if (SymbolAdapter.isIterPlusSeps(sym) || SymbolAdapter.isIterStarSeps(sym)) {
+				if(debug)System.err.println("pushConcreteSyntaxChildren: isIterPlusSeps or isIterStarSeps");
+				delta = SymbolAdapter.getSeparators(sym).length() + 1;
 			}
 			if(debug)
 				for(int i = 0; i < listElems.length(); i++){
