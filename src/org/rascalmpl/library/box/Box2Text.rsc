@@ -505,6 +505,8 @@ str selectTag(str tg, str key) {
    if (tg=="KW") return "\<B\><key>\</B\>";
    if (tg=="CT") return "\<I\><key>\</I\>";
    if (tg=="SG") return "\<FONT color=\"blue\"\><key>\</FONT\>";
+   if (tg=="NM") return "\<FONT color=\"blue\"\><key>\</FONT\>";
+   if (tg=="SC") return "\<I\><key>\</I\>";
    return key;
 }
 
@@ -512,6 +514,8 @@ str selectBeginTag(str tg, str key) {
    if (tg=="KW") return "\<B\><key>";
    if (tg=="CT") return "\<I\><key>";
    if (tg=="SG") return "\<FONT color=\"blue\"\><key>";
+   if (tg=="NM") return "\<FONT color=\"blue\"\><key>";
+   if (tg=="SC") return "\<I\><key>";
    return key;
 }
 
@@ -519,6 +523,8 @@ str selectEndTag(str tg) {
    if (tg=="KW") return "\</B\>";
    if (tg=="CT") return "\</I\>";
    if (tg=="SG") return "\</FONT\>";
+   if (tg=="NM") return "\</FONT\>";
+   if (tg=="SC") return "\</I\>";
    return "";
 }
    
