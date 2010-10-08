@@ -191,8 +191,10 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	@Override
 	public boolean next(){
 		checkInitialized();
-		
-		return tupleMatcher.next();
+		if (hasNext) {
+			return tupleMatcher.next();
+		}
+		return false;
 	}
 	
 	@Override
