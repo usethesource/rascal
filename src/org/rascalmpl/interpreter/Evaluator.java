@@ -2102,6 +2102,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					break;
 				}
 			}
+			
+			throw e;
 		}
 		finally {
 			if (finallyBody != null) {
