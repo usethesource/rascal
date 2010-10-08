@@ -25,6 +25,9 @@ data Production = \list(Symbol rhs);
 data Attributes = 
      \no-attrs() | \attrs(list[Attr] attrs);
 
+@deprecated{for bootstrapping purposes}
+data TempAttr = \lex() | \literal();
+
 data Attr =
      \assoc(Associativity \assoc) | 
      \term(value \term) |  

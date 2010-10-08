@@ -95,4 +95,3 @@ public ParseTree java parseModule(loc mod, bool old);
 @reflect   
 @javaClass{org.rascalmpl.library.rascal.syntax.Grammar}    
 public ParseTree java parseCommand(str cmd, bool old);
-

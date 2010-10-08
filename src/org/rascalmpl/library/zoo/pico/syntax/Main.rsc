@@ -1,7 +1,5 @@
 module zoo::pico::syntax::Main
 
-import IO;
-
 start syntax Program = program: "begin" Decls decls {Statement  ";"}* body "end" ;
 
 syntax Decls = "declare" {IdType ","}* decls ";" ;  
@@ -45,5 +43,4 @@ syntax WhitespaceAndComment
    | lex "%%" ![\n]* "\n"
    ;
 
-public list[tuple[Id,Exp]] assignments = [];
-
+public Program p = (Program) `begin declare; end`;

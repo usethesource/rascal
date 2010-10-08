@@ -30,7 +30,6 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -51,8 +50,6 @@ public class ModuleEnvironment extends Environment {
 	protected List<Test> tests;
 	private Set<String> importedSDFModules = new HashSet<String>();
 	private boolean initialized;
-	protected Class<IGLL> parser;
-	protected Class<IGLL> rascalParser;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -69,7 +66,6 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void declareProduction(Syntax x) {
-		clearParser();
 		productions.add(x.getTree());
 	}
 	
@@ -92,7 +88,6 @@ public class ModuleEnvironment extends Environment {
 	public void addImport(String name, ModuleEnvironment env) {
 		importedModules.put(name, env);
 		typeStore.importStore(env.typeStore);
-		clearParser();
 	}
 	
 	public void addTest(Test test) {
@@ -268,14 +263,12 @@ public class ModuleEnvironment extends Environment {
 	public Type concreteSyntaxType(String name, org.rascalmpl.ast.Type type) {
 		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(type);
 		concreteSyntaxTypes.put(name, sort);
-		clearParser();
 		return sort;
 	}
 	
 	public Type concreteSyntaxType(String name, IConstructor symbol) {
 		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(symbol);
 		concreteSyntaxTypes.put(name, sort);
-		clearParser();
 		return sort;
 	}
 	
@@ -419,9 +412,8 @@ public class ModuleEnvironment extends Environment {
 			for (String i : getImports()) {
 				ModuleEnvironment mod = getImport(i);
 				
-				if (mod != this) {
-					type = mod.lookupConcreteSyntaxType(name);
-				}
+				// don't recurse here (cyclic imports!)
+				type = mod.concreteSyntaxTypes.get(name);
 				
 				if (type != null) {
 					return type;
@@ -484,27 +476,5 @@ public class ModuleEnvironment extends Environment {
 		this.tests = new LinkedList<Test>();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
-		clearParser();
-	}
-
-	public Class<IGLL> getParser() {
-		return parser;
-	}
-
-	public void saveParser(Class<IGLL> parser) {
-		this.parser = parser;
-	}
-
-	public void saveRascalParser(Class<IGLL> parser) {
-		this.rascalParser = parser;
-	}
-	
-	private void clearParser() {
-		this.parser = null;
-		this.rascalParser = null;
-	}
-
-	public Class<IGLL> getRascalParser() {
-		return rascalParser;
 	}
 }

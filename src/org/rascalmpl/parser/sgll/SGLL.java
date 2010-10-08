@@ -161,7 +161,7 @@ public abstract class SGLL implements IGLL{
 			alternative.updateNode(node, result);
 			
 			if(alternative.isEndNode()){
-				if(result.isNullable() && node.getName() == next.getName()){
+				if(result.isNullable() && !node.isMatchable() && !next.isMatchable() && node.getName() == next.getName()){
 					if(alternative.getId() != node.getId()){ // List cycle fix.
 						HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName());
@@ -342,7 +342,7 @@ public abstract class SGLL implements IGLL{
 			next.setNext(prod);
 			next = updateNextNode(next, node, result);
 			
-			LinearIntegerKeyedMap<AbstractStackNode[]> alternateProds = node.getAlternateNexts();
+			ArrayList<AbstractStackNode[]> alternateProds = node.getAlternateNexts();
 			if(alternateProds != null){
 				int nextNextDot = nextDot + 1;
 				
@@ -355,7 +355,7 @@ public abstract class SGLL implements IGLL{
 				ArrayList<Link>[] prefixesMap = next.getPrefixesMap();
 				
 				for(int i = alternateProds.size() - 1; i >= 0; --i){
-					prod = alternateProds.getValue(i);
+					prod = alternateProds.get(i);
 					AbstractStackNode alternativeNext = prod[nextDot];
 					int alternativeNextId = alternativeNext.getId();
 					
