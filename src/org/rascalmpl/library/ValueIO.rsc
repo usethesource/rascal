@@ -52,4 +52,3 @@ public void java writeBinaryValueFile(loc file, value val);
 @javaClass{org.rascalmpl.library.ValueIO}
 @reflect{Uses URI Resolver Registry}
 public void java writeTextValueFile(loc file, value val);
-	

@@ -541,8 +541,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	private IGLL getObjectParser(ModuleEnvironment currentModule) {
 		ParserGenerator pg = getParserGenerator();
-		Class<IGLL> parser = currentModule.getParser();
-		
+		ISet productions = currentModule.getProductions();
+		Class<IGLL> parser = getHeap().getObjectParser(currentModule.getName(), productions);
+
 		if (parser == null) {
 			String parserName;
 			if (rootScope == currentModule) {
@@ -552,10 +553,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parserName = currentModule.getName().replaceAll("::", ".");
 			}
 
-			parser = pg.getParser(getCurrentAST().getLocation(), parserName, currentModule.getProductions());
-			currentModule.saveParser(parser);
+			parser = pg.getParser(getCurrentAST().getLocation(), parserName, productions);
+			getHeap().storeObjectParser(currentModule.getName(), productions, parser);
 		}
-		
+	
 		try {
 			return parser.newInstance();
 		} catch (InstantiationException e) {
@@ -568,21 +569,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private IGLL getRascalParser(ModuleEnvironment env) {
 		ParserGenerator pg = getParserGenerator();
 		IGLL objectParser = getObjectParser(env);
-		Class<IGLL> parser = env.getRascalParser();
-		
+		ISet productions = env.getProductions();
+		Class<IGLL> parser = getHeap().getRascalParser(env.getName(), productions);
+
 		if (parser == null) {
 			String parserName;
 			if (rootScope == env) {
-				parserName = "RASCAL__Shell__";
+				parserName = "__Shell__";
 			}
 			else {
 				parserName = env.getName().replaceAll("::", ".");
 			}
 
-			parser = pg.getRascalParser(getCurrentAST().getLocation(), parserName, env.getProductions(), objectParser);
-			env.saveRascalParser(parser);
+			parser = pg.getRascalParser(getCurrentAST().getLocation(), parserName, productions, objectParser);
+			getHeap().storeRascalParser(env.getName(), productions, parser);
 		}
-		
+			
 		try {
 			return parser.newInstance();
 		} catch (InstantiationException e) {
@@ -807,13 +809,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IConstructor parseCommand(String command, URI location) {
 		IConstructor tree;
 		try {
-			tree = parser.parseCommand(getSDFImports(), sdf.getSdfSearchPath(), location, command);
+			if (!command.contains("`")) {
+				tree = parser.parseCommand(getSDFImports(), sdf.getSdfSearchPath(), location, command);
+			}
+			else {
+				IGLL rp = getRascalParser(getCurrentModuleEnvironment());
+				tree = rp.parse("start__$Command", location, command);
+			}
 			
 			if (parser instanceof NewRascalParser) {
 				// execute the parse actions
 				// TODO: hide this inside the parser
 				tree = new ActionExecutor(this, ((NewRascalParser) parser).getInfo()).execute(tree);
 			}
+			
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw parseError(tree, location);
 			}
@@ -1412,15 +1421,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(prefix)).get(1));
 			
 			// take care of imports and declare syntax
-			String name = ((IString) preModule.accept(this).getValue()).getValue();
-			ModuleEnvironment myEnv = heap.getModule(name);
-			
-			if (myEnv != env) {
-				throw new ImplementationError("funny environments?");
-			}
+			preModule.accept(this);
 			
 			ISet prods = env.getProductions();
-			if (prods.isEmpty()) {
+			if (prods.isEmpty() || !preModule.toString().contains("`")) {
 				return rp.parseModule(sdfSearchPath, Collections.<java.lang.String>emptySet(), location, data, env);
 			}
 			else {

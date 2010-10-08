@@ -215,8 +215,10 @@ public class ASTBuilder {
 			return lift(tree, true);
 		}
 
-		if (sortName(tree).equals("Expression") && isEmbedding(tree)) {
-			return lift(tree, false);
+		if (sortName(tree).equals("Expression")) {
+			if (isEmbedding(tree)) {
+				return lift(tree, false);
+			}
 		}
 		
 		return buildContextFreeNode((IConstructor) arg);

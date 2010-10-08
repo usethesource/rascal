@@ -14,8 +14,6 @@ import ParseTree;
 import IO;  
 import Integer;
    
-
-
 @doc{
   Converts the syntax definitions of a module to a grammar.
   Note that this function does not implement the imports of a module
