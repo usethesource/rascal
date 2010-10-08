@@ -305,6 +305,7 @@ public class ListContainerNode extends AbstractContainerNode{
 			}
 			
 			result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
+			if(input != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
 		stack.dirtyPurge(); // Pop.
