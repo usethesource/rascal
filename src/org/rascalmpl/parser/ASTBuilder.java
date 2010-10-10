@@ -875,7 +875,8 @@ public class ASTBuilder {
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" Pattern ">" -> STAT in the grammar and "<STAT t>" in the pattern. STAT == STAT.
-			if (type.equals(expected)) {
+			// TODO: watch out when Cf is removed from typeToSymbol after bootstrapping!
+			if (type.equals(expected) || SymbolAdapter.getSymbol((IConstructor) type).equals(expected)) {
 				return true;
 			}
 			return false;
