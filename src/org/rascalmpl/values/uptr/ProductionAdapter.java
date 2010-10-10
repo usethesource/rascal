@@ -15,6 +15,9 @@ public class ProductionAdapter {
 
 	// TODO: for bootstrapping purposes we need a relaxed form of production equality
 	public static boolean isEqual(IConstructor p1, IConstructor p2) {
+		if (p1.isEqual(p2)) {
+			return true;
+		}
 		if (isList(p1) && isList(p2)) {
 			return SymbolAdapter.isEqual(getRhs(p1), getRhs(p2));
 		}

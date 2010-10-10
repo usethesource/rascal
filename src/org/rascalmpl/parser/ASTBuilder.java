@@ -887,7 +887,7 @@ public class ASTBuilder {
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" [Type] Pattern ">" -> STAT in the grammar and "<[STAT] pattern>" in the pattern. STAT == STAT.
-			if (type.equals(expected)) {
+			if (type.equals(expected) || SymbolAdapter.getSymbol((IConstructor) type).equals(expected)) {
 				return true;
 			}
 			return false;

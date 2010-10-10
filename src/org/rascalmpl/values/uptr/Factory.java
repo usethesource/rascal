@@ -97,7 +97,7 @@ public class Factory {
 	public static final Type Symbol_Strategy = tf.constructor(uptr, Symbol, "strategy", Symbol, "lhs", Symbol, "rhs");
 	public static final Type Symbol_VarSym = tf.constructor(uptr, Symbol, "varsym", tf.stringType(), "string");
 	public static final Type Symbol_Layout = tf.constructor(uptr, Symbol, "layout");
-	public static final Type Symbol_LayoutX = tf.constructor(uptr, Symbol, "layouts", tf.stringType(), "string");
+	public static final Type Symbol_LayoutX = tf.constructor(uptr, Symbol, "layouts", tf.stringType(), "name");
 	public static final Type Symbol_StartOfLine = tf.constructor(uptr, Symbol, "start-of-line");
 	public static final Type Symbol_EndOfLine = tf.constructor(uptr, Symbol, "end-of-line");
 	public static final Type Symbol_AtColumn = tf.constructor(uptr, Symbol, "at-column", tf.integerType(), "column");
