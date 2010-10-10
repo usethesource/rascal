@@ -99,6 +99,14 @@ public class IntegerKeyedHashMap<V>{
 		return null;
 	}
 	
+	public void putAll(IntegerKeyedHashMap<V> all) {
+		for (Entry<V> e : all.entries) {
+			if (e != null) {
+				put(e.key, e.value);
+			}
+		}
+	}
+	
 	public V putUnsafe(int key, V value){
 		ensureCapacity();
 		

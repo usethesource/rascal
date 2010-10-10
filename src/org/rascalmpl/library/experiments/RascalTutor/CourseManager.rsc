@@ -95,7 +95,7 @@ public set[QuestionName] badAnswer = {};
 // In the mean time we just paste prelude.css in the generated html-page.
 
 public str prelude(){
-  css = readFile(|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/prelude.css|);
+  css = readFile(|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/prelude.css|);
   nbc = size(baseConcepts) - 1;
   //println("prelude: <baseConcepts>");
  

@@ -27,14 +27,14 @@ public str generateMetaParser(str package, str name, Grammar gr) {
   gr = visit (gr) { case s:sort(_) => s[@prefix="$"] }; 
   int uniqueItem = -3; // -1 and -2 are reserved by the SGLL implementation
   int newItem() { uniqueItem -= 1; return uniqueItem; };
-  return generate(package, name, "org.rascalmpl.parser.sgll.SGLL", newItem, false, gr);
+  return generate(package, name, "org.rascalmpl.parser.sgll.SGLL", newItem, false, true, gr);
 }
 
 @doc{Used to generate parser that parse object language only}
 public str generateObjectParser(str package, str name, Grammar gr) {
   int uniqueItem = 2;
   int newItem() { uniqueItem += 2; return uniqueItem; };
-  return generate(package, name, "org.rascalmpl.library.rascal.syntax.RascalRascal", newItem, false, gr);
+  return generate(package, name, "org.rascalmpl.library.rascal.syntax.RascalRascal", newItem, false, false, gr);
 }
 
 @doc{
@@ -52,10 +52,10 @@ public str generateAssimilatedParser(str package, str name, str super, Grammar g
   
   full = compose(fr, compose(tr, compose(q, ols)));
   
-  return generate(package, name, super, newItem, true, full);
+  return generate(package, name, super, newItem, true, false, full);
 }
 
-public str generate(str package, str name, str super, int () newItem, bool callSuper, Grammar gr) {
+public str generate(str package, str name, str super, int () newItem, bool callSuper, bool isRoot, Grammar gr) {
     // TODO: it would be better if this was not necessary, i.e. by changing the grammar 
     // representation to grammar(set[Symbol] start, map[Symbol,Production] rules)
     println("merging composed non-terminals");
@@ -114,6 +114,7 @@ import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IParserInfo;
 
 public class <name> extends <super> implements IParserInfo {
+    <if (isRoot) {>
 	protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
 		try{
 			return new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
@@ -124,11 +125,9 @@ public class <name> extends <super> implements IParserInfo {
 		}
 	}
 	
-	private static final TypeFactory _tf = TypeFactory.getInstance();
-	private static final IMap _actions = (IMap) _read(<split("<actions>")>, _tf.mapType(Factory.Production, Factory.Tree));
-	private static final IRelation _prios = (IRelation) _read(<split("<dontNest>")>, _tf.relType(_tf.integerType(),_tf.integerType()));
-	private static final IntegerKeyedHashMap\<IntegerList\> _dontNest;
-	private static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions;
+	protected static final TypeFactory _tf = TypeFactory.getInstance();
+	protected static final IntegerKeyedHashMap\<IntegerList\> _dontNest = new IntegerKeyedHashMap\<IntegerList\>();
+	protected static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> = _languageActions new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>();
 	
     protected static void _putDontNest(int i, int j) {
     	IntegerList donts = _dontNest.get(i);
@@ -139,30 +138,30 @@ public class <name> extends <super> implements IParserInfo {
     	donts.add(j);
     }
     
+    protected boolean isPrioFiltered(int parentItem, int child) {
+		IntegerList donts = _dontNest.get(parentItem);
+		if(donts == null) return false;
+		return donts.contains(child);
+	}
+	
+    public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
+      return _languageActions.get(prod);
+    }
+    <}>
+
+    // initialize priorities and actions    
     static {
-      _dontNest = new IntegerKeyedHashMap\<IntegerList\>();
-      for (IValue e : _prios) {
+      for (IValue e : (IRelation) _read(<split("<dontNest>")>, _tf.relType(_tf.integerType(),_tf.integerType()))) {
         ITuple t = (ITuple) e;
         _putDontNest(((IInteger) t.get(0)).intValue(), ((IInteger) t.get(1)).intValue());
       }
       
       ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
-      _languageActions = new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>();
-      for (IValue key : _actions) {
+      for (IValue key : (IMap) _read(<split("<actions>")>, _tf.mapType(Factory.Production, Factory.Tree))) {
         _languageActions.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(_actions.get(key)));
       }
     }
     
-    public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
-      return _languageActions.get(prod);
-    }
-    
-	protected boolean isPrioFiltered(int parentItem, int child) {
-		IntegerList donts = _dontNest.get(parentItem);
-		if(donts == null) return false;
-		return donts.contains(child);
-	}  
-	
     // Production declarations
 	<for (p <- uniqueProductions) {>
 	private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", Factory.Production);<}>
