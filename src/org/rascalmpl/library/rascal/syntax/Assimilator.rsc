@@ -31,18 +31,11 @@ public set[Production] quotes() {
 }
 
 public set[Production] layoutProductions(Grammar object) {
-  set[Production] r = {p | /p:prod(_,layouts(str n), _) := object};
-  
-  // transitively close grammar dependencies
-  solve (r) 
-     r += { object.rules[s] | /prod([_*,/Symbol s,_*],_,_) <- r, sort(_) := s || lit(_) := s || cilit(_) := s};
-
-  return r;
+  return {prod([\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],layouts("$QUOTES"),attrs([term("lex"())]))};
 }
 
 public set[Production] fromRascal(Grammar object) {
-  layoutName = (/prod(_,layouts(str n), _) := object) ? n : "EMPTY_LAYOUT";
-  rl = layouts(layoutName);
+  rl = layouts("$QUOTES");
   
   return  { prod([lit("`"),rl,nont,rl,lit("`")],sort("Expression")[@prefix="$"],attrs([term("cons"("ConcreteQuoted"))])),
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],sort("Expression")[@prefix="$"],attrs([term("cons"("ConcreteTypedQuoted"))])),
@@ -53,8 +46,7 @@ public set[Production] fromRascal(Grammar object) {
 }
 
 public set[Production] toRascal(Grammar object) {
-  layoutName = (/prod(_,layouts(str n), _) := object) ? n : "EMPTY_LAYOUT";
-  rl = layouts(layoutName);
+  rl = layouts("$QUOTES");
   
   return  { prod([lit("\<"),rl,sort("Pattern")[@prefix="$"],rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
           | Symbol nont <- object.rules, isNonterminal(nont) };
