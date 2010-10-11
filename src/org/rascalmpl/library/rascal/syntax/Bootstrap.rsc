@@ -9,7 +9,6 @@ import rascal::syntax::Generator;
 import rascal::syntax::RascalForImportExtraction;
 import IO;
 import ValueIO;
-import viz::Basic;
 
 public void bootFromSDF() {
   rascaldef = loadSDF2Module("languages::rascal::syntax::Rascal", [|file:///Users/jurgenv/Sources/Rascal/rascal-grammar/spec|,|file:///Users/jurgenv/Sources/Rascal/sdf-library/library|]);
@@ -48,6 +47,7 @@ public Attributes add(Attributes a1, Attributes a2) {
     case <attrs(a),attrs(b)> : return attrs(a+b);
   }
 }
+
 public void bootFromRascal() {
   println("parsing the rascal definition of rascal");
   Module \module = parse(#Module, |project://RascalLibrary/src/rascal/syntax/RascalRascal.rsc|);

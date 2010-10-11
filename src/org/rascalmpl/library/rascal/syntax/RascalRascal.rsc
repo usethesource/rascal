@@ -26,9 +26,7 @@ syntax Marker =
               # "layout"
               ;
 
-syntax Rest = ![]*
-            # ![]
-            ;          
+syntax Rest = ![]* # ![];          
                    
 syntax Alternative
 	= NamedType: Name name Type type ;
@@ -195,7 +193,8 @@ syntax Symbol
 	| CharacterClass: CharClass charClass 
 	| Optional: Symbol symbol "?" 
 	| Iter: Symbol symbol "+" 
-	| IterStar: Symbol symbol "*" 
+	| IterStar: Symbol symbol "*"
+	| Sort: QualifiedName name 
 	> right Alternative: Symbol lhs "|" Symbol rhs
     ;
     
@@ -610,8 +609,8 @@ syntax Start
 syntax Statement
 	= Assert: "assert" Expression expression ";" 
 	| Expression: Expression expression ";" {
-	   if (appl(prod(_,_,attrs([_*,term(cons("NonEmptyBlock")),_*])),_) := expression
-	     ||appl(prod(_,_,attrs([_*,term(cons("Visit")),_*])),_) := expression ) { 
+	   if (appl(prod(_,sort("Expression"),attrs([_*,term(cons("NonEmptyBlock")),_*])),_) := expression
+	     ||appl(prod(_,sort("Expression"),attrs([_*,term(cons("Visit")),_*])),_) := expression ) { 
 	    fail;
 	  }
 	}
@@ -748,7 +747,12 @@ syntax Type
 	| Basic: BasicType basic 
 	| Selector: DataTypeSelector selector 
 	| Variable: TypeVar typeVar 
-	| Symbol: Symbol symbol ;
+	| Symbol: Symbol symbol {
+	   if (appl(prod(_,sort("Symbol"),attrs([_*,term(cons("Sort")),_*])),_) := symbol) {
+	    fail;
+	   }
+	} 
+	;
 
 syntax Declaration
 	= Variable    : Tags tags Visibility visibility Type type {Variable ","}+ variables ";" 
@@ -888,7 +892,7 @@ syntax PrePathChars
 
 syntax Mapping[&T]
 	= Default: &T from ":" &T to {
-	  if (prod(_,sort("Expression"),attrs([_*,term(cons("IfDefinedOtherwise")),_*])) := from) {
+	  if (appl(prod(_,sort("Expression"),attrs([_*,term(cons("IfDefinedOtherwise")),_*])),_) := from) {
 	    fail;
 	  }
 	} 

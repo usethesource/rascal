@@ -136,7 +136,7 @@ public class <name> extends <super> implements IParserInfo {
 	
 	protected static final TypeFactory _tf = TypeFactory.getInstance();
 	protected static final IntegerKeyedHashMap\<IntegerList\> _dontNest = new IntegerKeyedHashMap\<IntegerList\>();
-	protected static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> = _languageActions new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>();
+	protected static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions = new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>();
 	
     protected static void _putDontNest(int i, int j) {
     	IntegerList donts = _dontNest.get(i);
@@ -166,8 +166,9 @@ public class <name> extends <super> implements IParserInfo {
       }
       
       ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
-      for (IValue key : (IMap) _read(<split("<actions>")>, _tf.mapType(Factory.Production, Factory.Tree))) {
-        _languageActions.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(_actions.get(key)));
+      IMap tmp = (IMap) _read(<split("<actions>")>, _tf.mapType(Factory.Production, Factory.Tree));
+      for (IValue key : tmp) {
+        _languageActions.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(tmp.get(key)));
       }
     }
     

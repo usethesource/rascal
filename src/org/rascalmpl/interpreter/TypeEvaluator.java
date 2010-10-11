@@ -54,6 +54,7 @@ import org.rascalmpl.ast.TypeArg.Default;
 import org.rascalmpl.ast.TypeArg.Named;
 import org.rascalmpl.ast.UserType.Name;
 import org.rascalmpl.ast.UserType.Parametric;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
@@ -64,7 +65,6 @@ import org.rascalmpl.interpreter.staticErrors.NonWellformedTypeError;
 import org.rascalmpl.interpreter.staticErrors.PartiallyLabeledFieldsError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
@@ -513,7 +513,7 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitTypeAmbiguity(Ambiguity x) {
-			throw new ImplementationError("Ambiguous type: " + x);
+			throw new Ambiguous((IConstructor) x.getTree());
 		}
 		
 		@Override
