@@ -38,6 +38,7 @@ public str generateObjectParser(str package, str name, Grammar gr) {
   int newItem() { uniqueItem += 2; return uniqueItem; };
   // make sure the < is expected for every non-terminal
   rel[Symbol,Symbol] quotes = {<x,\char-class([range(60,60)])> | Symbol x:sort(_) <- gr.rules} // any sort could start with <
+                            + {<x,\char-class([range(60,60)])> | Symbol x:layouts(_) <- gr.rules}
                             + {<layouts("$QUOTES"),\char-class([range(0,65535)])>} // always expect quoting layout (because the actual content is unknown at generation time)
                             ; 
   // prepare definitions for quoting layout
