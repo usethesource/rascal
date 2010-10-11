@@ -606,9 +606,9 @@ public abstract class SGLL implements IGLL{
 		
 		if(root == null){
 			int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
-			int line = positionStore.findLine(errorLocation) + 1;
+			int line = positionStore.findLine(errorLocation);
 			int column = positionStore.getColumn(errorLocation, line);
-			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, line, line, column, column));
+			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
 		}
 		
 		HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
