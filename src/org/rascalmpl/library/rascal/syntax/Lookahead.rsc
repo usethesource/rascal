@@ -16,8 +16,13 @@ public data Production = lookahead(Symbol rhs, set[Symbol] classes, Production p
 public data Symbol = eoi();     // end-of-input marker
 private data Grammar = simple(set[Symbol] start, set[Production] productions);
 
-@doc{This function wraps productions with their single character lookahead sets for parser generation}
-public Grammar computeLookaheads(Grammar G) {
+@doc{
+  This function wraps productions with their single character lookahead sets for 
+  parser generation.
+  
+  'extra' contains extra lookahead symbols per symbol
+}
+public Grammar computeLookaheads(Grammar G, rel[Symbol,Symbol] extra) {
   G2 = expandRegularSymbols(removeLabels(G));
   <fst, fol> = firstAndFollow(simple(G2.start, { p | /Production p:prod(_,_,_) := G2}));
     
@@ -35,7 +40,7 @@ public Grammar computeLookaheads(Grammar G) {
       classes -= empty();
       
       // merge the character classes and construct a production wrapper
-      insert lookahead(rhs, mergeCC(classes), p);        
+      insert lookahead(rhs, mergeCC(classes + extra[rhs]), p);        
     }
   }
 }
@@ -205,7 +210,7 @@ public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
 
 // First set of a grammar
 
-public SymbolUse first(Grammar G){
+public SymbolUse first(Grammar G) {
   defSymbols = definedSymbols(G);
 
   SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) 

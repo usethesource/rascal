@@ -27,14 +27,22 @@ public str generateMetaParser(str package, str name, Grammar gr) {
   gr = visit (gr) { case s:sort(_) => s[@prefix="$"] }; 
   int uniqueItem = -3; // -1 and -2 are reserved by the SGLL implementation
   int newItem() { uniqueItem -= 1; return uniqueItem; };
-  return generate(package, name, "org.rascalmpl.parser.sgll.SGLL", newItem, false, true, gr);
+  // make sure the ` sign is expected for expressions and every non-terminal which' first set is governed by Pattern or Expression, even though ` not in the language yet
+  rel[Symbol,Symbol] quotes = { <x, \char-class([range(40,40),range(96,96)])> | x <- [sort("Expression"),sort("Pattern"),sort("Command"),sort("Statement"),layouts("LAYOUTLIST")]}; 
+  return generate(package, name, "org.rascalmpl.parser.sgll.SGLL", newItem, false, true, quotes, gr);
 }
 
 @doc{Used to generate parser that parse object language only}
 public str generateObjectParser(str package, str name, Grammar gr) {
   int uniqueItem = 2;
   int newItem() { uniqueItem += 2; return uniqueItem; };
-  return generate(package, name, "org.rascalmpl.library.rascal.syntax.RascalRascal", newItem, false, false, gr);
+  // make sure the < is expected for every non-terminal
+  rel[Symbol,Symbol] quotes = {<x,\char-class([range(60,60)])> | Symbol x:sort(_) <- gr.rules} // any sort could start with <
+                            + {<layouts("$QUOTES"),\char-class([range(0,65535)])>} // always expect quoting layout (because the actual content is unknown at generation time)
+                            ; 
+  // prepare definitions for quoting layout
+  gr = compose(gr, grammar({}, layoutProductions(gr)));
+  return generate(package, name, "org.rascalmpl.library.rascal.syntax.RascalRascal", newItem, false, false, quotes, gr);
 }
 
 @doc{
@@ -48,14 +56,14 @@ public str generateAssimilatedParser(str package, str name, str super, Grammar g
   fr = grammar({}, fromRascal(gr));
   tr = grammar({}, toRascal(gr));
   q = grammar({}, quotes()); // TODO parametrize quotes to use quote definitions
-  ols = grammar({}, layoutProductions(gr));
+  l = grammar({}, layoutProductions(gr));
   
-  full = compose(fr, compose(tr, compose(q, ols)));
+  full = compose(fr, compose(tr, compose(q, l)));
   
-  return generate(package, name, super, newItem, true, false, full);
+  return generate(package, name, super, newItem, true, false, {}, full);
 }
 
-public str generate(str package, str name, str super, int () newItem, bool callSuper, bool isRoot, Grammar gr) {
+public str generate(str package, str name, str super, int () newItem, bool callSuper, bool isRoot, rel[Symbol,Symbol] extraLookaheads, Grammar gr) {
     // TODO: it would be better if this was not necessary, i.e. by changing the grammar 
     // representation to grammar(set[Symbol] start, map[Symbol,Production] rules)
     println("merging composed non-terminals");
@@ -82,7 +90,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
     dontNest = computeDontNests(newItems, gr);
    
     println("computing lookahead sets");
-    gr = computeLookaheads(gr);
+    gr = computeLookaheads(gr, extraLookaheads);
     
     println("optimizing lookahead automaton");
     gr = compileLookaheads(gr);
