@@ -238,7 +238,7 @@ public abstract class SGLL implements IGLL{
 		levelResultStoreMap.get(edge.getName()).addAlternative(production, new Link(edgePrefixes, resultStore));
 	}
 	
-	private void updateEdges(AbstractStackNode node, AbstractNode result){
+	private void updateEdges(AbstractStackNode node, AbstractNode result){ // TODO Fix priority system incompatibility
 		IConstructor production = node.getParentProduction();
 		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
@@ -283,7 +283,7 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void updateRejects(AbstractStackNode node){
+	private void updateRejects(AbstractStackNode node){ // TODO Fix priority system incompatibility
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
