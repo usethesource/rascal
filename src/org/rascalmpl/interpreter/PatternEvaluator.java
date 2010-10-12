@@ -309,7 +309,9 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		if (!prod.getExpression().isQualifiedName()) {
 			return false;
 		}
-		return Names.name(Names.lastName(prod.getExpression().getQualifiedName())).equals("list");
+		java.lang.String name = Names.name(Names.lastName(prod.getExpression().getQualifiedName()));
+		// TODO: note how this code breaks if we start using regular for other things besides lists...
+		return name.equals("list") || name.equals("regular"); 
 	}
 
 	@Override

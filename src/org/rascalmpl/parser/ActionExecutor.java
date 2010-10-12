@@ -71,10 +71,11 @@ public class ActionExecutor {
 	}
 	
 	private IConstructor rec(IConstructor forest) {
-		IConstructor result = cache.get(forest);
+		IConstructor result = null; // cache.get(forest);
+		// TODO: why if we add caching do ambiguities remain in the forest? I don't get it.
 		
 		if (result != null) {
-			return cache.get(forest);
+			return result;
 		}
 		
 		if (forest.getConstructorType() == Factory.Tree_Appl) {
@@ -94,6 +95,7 @@ public class ActionExecutor {
 	private IConstructor recAmb(IConstructor forest) {
 		ISetWriter newAlternatives = eval.getValueFactory().setWriter(Factory.Tree);
 		boolean oneChanged = false;
+		IConstructor only = null;
 		changed = false;
 		
 		for (IValue alt : TreeAdapter.getAlternatives(forest)) {
@@ -103,6 +105,7 @@ public class ActionExecutor {
 			}
 			if (newAlt != filtered) {
 				newAlternatives.insert(newAlt);
+				only = newAlt;
 			}
 			changed = false;
 		}
@@ -110,11 +113,10 @@ public class ActionExecutor {
 		changed = oneChanged;
 		
 		if (changed) {
-			if (newAlternatives.size() != 0) {
-				return forest.set("alternatives", newAlternatives.done());
-			}
-			else {
-				return filtered;
+			switch (newAlternatives.size()) {
+			case 0: return filtered;
+			case 1: return only;
+			default: return forest.set("alternatives", newAlternatives.done());
 			}
 		}
 		else {

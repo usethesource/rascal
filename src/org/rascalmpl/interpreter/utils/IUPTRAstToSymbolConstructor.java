@@ -139,6 +139,14 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 			return vf.constructor(Factory.Symbol_Sort, vf.string(str));
 		}
 		
+		if (name.equals("layouts")) {
+			StringConstant.Lexical arg = (org.rascalmpl.ast.StringConstant.Lexical) 
+				x.getArguments().get(0).getLiteral().getStringLiteral().getConstant();
+			String str = arg.getString();
+			str = str.substring(1, str.length() - 1);
+			return vf.constructor(Factory.Symbol_LayoutX, vf.string(str));
+		}
+		
 
 		if (name.equals("iter")) {
 			IConstructor arg = x.getArguments().get(0).accept(this);
@@ -160,6 +168,26 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 			IConstructor arg = x.getArguments().get(0).accept(this);
 			IConstructor sep = x.getArguments().get(1).accept(this);
 			return vf.constructor(Factory.Symbol_IterStarSep, arg, sep);
+		}
+		
+		if (name.equals("iter-star-seps")) {
+			IConstructor arg = x.getArguments().get(0).accept(this);
+			Expression.List args = (Expression.List) x.getArguments().get(1);
+			IList seps = vf.list(Factory.Args);
+			for (Expression elem: args.getElements()) {
+				seps = seps.append(elem.accept(this));
+			}
+			return vf.constructor(Factory.Symbol_IterStarSepX, arg, seps);
+		}
+		
+		if (name.equals("iter-seps")) {
+			IConstructor arg = x.getArguments().get(0).accept(this);
+			Expression.List args = (Expression.List) x.getArguments().get(1);
+			IList seps = vf.list(Factory.Args);
+			for (Expression elem: args.getElements()) {
+				seps = seps.append(elem.accept(this));
+			}
+			return vf.constructor(Factory.Symbol_IterSepX, arg, seps);
 		}
 		
 		if (name.equals("iter-n")) {
@@ -239,6 +267,6 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 			return vf.constructor(Factory.CharRange_Range, num1, num2);
 		}
 
-		throw new ImplementationError("Non-IUPTR AST expression: " + x);
+		throw new ImplementationError("Non-IUPTR AST expression: " + name + ", " + x);
 	}
 }
