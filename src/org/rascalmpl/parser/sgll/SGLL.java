@@ -54,7 +54,6 @@ public abstract class SGLL implements IGLL{
 	private final LinearIntegerKeyedMap<AbstractStackNode> sharedLastExpects;
 	private final LinearIntegerKeyedMap<AbstractStackNode> sharedPrefixNext;
 	private final HashMap<String, LinearIntegerKeyedMap<AbstractStackNode>> cachedExpects;
-	protected int currentParentId;
 	
 	private final IntegerKeyedHashMap<AbstractStackNode> sharedNextNodes;
 
@@ -145,7 +144,6 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		try{
-			currentParentId = nonTerminal.getId();
 			method.invoke(this);
 		}catch(IllegalAccessException iaex){
 			throw new ImplementationError(iaex.getMessage(), iaex);
