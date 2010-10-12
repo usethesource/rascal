@@ -879,6 +879,13 @@ public class ASTBuilder {
 			if (type.equals(expected) || SymbolAdapter.getSymbol((IConstructor) type).equals(expected)) {
 				return true;
 			}
+			if (SymbolAdapter.isAnyList((IConstructor) type)) {
+				if (SymbolAdapter.isCf((IConstructor) type) || SymbolAdapter.isLex((IConstructor) type)) {
+					type = SymbolAdapter.getSymbol((IConstructor) type);
+				}
+				IConstructor elem = SymbolAdapter.getSymbol((IConstructor) type);
+				return elem.equals(expected);
+			}
 			return false;
 		}
 		else if (exp.isGuarded()) {

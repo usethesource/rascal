@@ -1241,7 +1241,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		String name = getUnescapedModuleName(x);
 
 		//		TODO If a SDF module and a Rascal module are located in the same directory thing doesn't always do what you want.
+		// TODO: this code will be removed once bootstrapping is complete
 		if (isSDFModule(name)) {
+			if (!(parser instanceof LegacyRascalParser)) {
+				// ignore!
+				return nothing();
+			}
 			if (!heap.existsModule(name)) {
 				heap.addModule(new ModuleEnvironment(name));
 				addImportToCurrentModule(x, name);
@@ -1412,25 +1417,25 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			if(tree.getConstructorType() == Factory.ParseTree_Summary){
 				throw parseError(tree, location);
 			}
-
 			return tree;
 		}
 		else {
 			NewRascalParser rp = (NewRascalParser) parser;
 			IConstructor prefix = rp.preParseModule(location, data);
 			Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(prefix)).get(1));
+			ActionExecutor exec = new ActionExecutor(this, new RascalRascal());
 			
 			// take care of imports and declare syntax
 			preModule.accept(this);
 			
 			ISet prods = env.getProductions();
 			if (prods.isEmpty() || !preModule.toString().contains("`")) {
-				return rp.parseModule(sdfSearchPath, Collections.<java.lang.String>emptySet(), location, data, env);
+				return exec.execute(rp.parseModule(sdfSearchPath, Collections.<java.lang.String>emptySet(), location, data, env));
 			}
 			else {
 				// generate a parser and use it
 				IGLL mp = getRascalParser(env);
-				return mp.parse(NewRascalParser.START_MODULE, location, NewRascalParser.bytesToChars(data));
+				return exec.execute(mp.parse(NewRascalParser.START_MODULE, location, NewRascalParser.bytesToChars(data)));
 			}
 		}
 	}
