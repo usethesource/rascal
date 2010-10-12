@@ -118,15 +118,13 @@ public class <name> extends SGLL implements IParserInfo {
       }
     }
     
+	protected IntegerList getFilteredChildren(int parentId) {
+		return _dontNest.get(parentId);
+	}
+    
     public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
       return _languageActions.get(prod);
     }
-    
-	protected boolean isPrioFiltered(int parentItem, int child) {
-		IntegerList donts = _dontNest.get(parentItem);
-		if(donts == null) return false;
-		return donts.contains(child);
-	}
 	
     // Production declarations
 	<for (p <- uniqueProductions) {>
