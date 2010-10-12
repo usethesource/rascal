@@ -60,7 +60,7 @@ public abstract class SGLL implements IGLL{
 	private final IntegerKeyedHashMap<HashMap<String, AbstractContainerNode>> resultStoreCache;
 	
 	private int previousLocation;
-	protected int location;
+	private int location;
 	
 	protected char lookAheadChar;
 	
