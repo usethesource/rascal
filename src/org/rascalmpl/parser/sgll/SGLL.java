@@ -29,6 +29,7 @@ import org.rascalmpl.parser.sgll.util.DoubleRotatingQueue;
 import org.rascalmpl.parser.sgll.util.HashMap;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
+import org.rascalmpl.parser.sgll.util.IntegerList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
@@ -458,13 +459,11 @@ public abstract class SGLL implements IGLL{
 		int nrOfExpects = lastExpects.size();
 		LinearIntegerKeyedMap<AbstractStackNode> expects = new LinearIntegerKeyedMap<AbstractStackNode>(nrOfExpects);
 		
+		IntegerList filteredChildren = getFilteredChildren(parentId);
 		for(int i = nrOfExpects - 1; i >= 0; --i){
 			AbstractStackNode[] expectedNodes = lastExpects.get(i);
 			
 			AbstractStackNode last = expectedNodes[expectedNodes.length - 1];
-			if(isPrioFiltered(parentId, last.getId())){
-				continue;
-			}
 			last.markAsEndNode();
 			last.setParentProduction(last.getParentProduction());
 			last.setFollowRestriction(last.getFollowRestriction());
@@ -484,11 +483,14 @@ public abstract class SGLL implements IGLL{
 			first.setStartLocation(location);
 			first.setNext(expectedNodes);
 			first.initEdges();
-			first.addEdge(stackBeingWorkedOn);
+			
+			if(filteredChildren == null || !filteredChildren.contains(last.getId())){
+				first.addEdge(stackBeingWorkedOn);
+				
+				stacksToExpand.add(first);
+			}
 			
 			sharedLastExpects.add(firstId, first);
-			
-			stacksToExpand.add(first);
 			
 			expects.add(last.getId(), first);
 		}
@@ -496,8 +498,8 @@ public abstract class SGLL implements IGLL{
 		cachedExpects.put(stackBeingWorkedOn.getName(), expects);
 	}
 	
-	protected boolean isPrioFiltered(int parentId, int childId){
-		return false; // Default implementation; intended to be overwritten in sub-classes.
+	protected IntegerList getFilteredChildren(int parentId){
+		return null; // Default implementation; intended to be overwritten in sub-classes.
 	}
 	
 	private void expandStack(AbstractStackNode stack){
@@ -510,10 +512,14 @@ public abstract class SGLL implements IGLL{
 			LinearIntegerKeyedMap<AbstractStackNode> expects = cachedExpects.get(stack.getName());
 			if(expects != null){
 				int parentId = stack.getId();
+				IntegerList filteredChildren = getFilteredChildren(parentId);
+				
 				for(int i = expects.size() - 1; i >= 0; --i){
-					if(!isPrioFiltered(parentId, expects.getKey(i))){
+					if(filteredChildren == null || !filteredChildren.contains(expects.getKey(i))){
 						AbstractStackNode expect = expects.getValue(i);
-						if(!expect.hasEdges()) stacksToExpand.add(expect);
+						if(!expect.hasEdges()){
+							stacksToExpand.add(expect);
+						}
 						expect.addEdge(stack);
 					}
 				}
@@ -587,8 +593,8 @@ public abstract class SGLL implements IGLL{
 		positionStore.index(input);
 
 		AbstractStackNode rootNode = startNode.getCleanCopy();
-		rootNode.initEdges();
 		rootNode.setStartLocation(0);
+		rootNode.initEdges();
 		stacksToExpand.add(rootNode);
 		lookAheadChar = (input.length > 0) ? input[0] : 0;
 		expand();
