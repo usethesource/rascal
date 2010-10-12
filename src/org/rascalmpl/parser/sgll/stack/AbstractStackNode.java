@@ -350,7 +350,7 @@ public abstract class AbstractStackNode{
 	}
 	
 	public boolean hasEdges(){
-		return (edgesMap.size() != 0);
+		return (edgesMap.size() > 0);
 	}
 	
 	public LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> getEdges(){
