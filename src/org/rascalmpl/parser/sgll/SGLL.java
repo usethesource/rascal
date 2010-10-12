@@ -177,16 +177,6 @@ public abstract class SGLL implements IGLL{
 		next.setStartLocation(location);
 		next.updateNode(node, result);
 		
-		if(!next.isMatchable()){ // Is non-terminal or list.
-			HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-			if(levelResultStoreMap != null){
-				AbstractContainerNode resultStore = levelResultStoreMap.get(next.getName());
-				if(resultStore != null){ // Is nullable, queue for reduction.
-					stacksWithNonTerminalsToReduce.put(next, resultStore);
-				}
-			}
-		}
-		
 		sharedNextNodes.putUnsafe(id, next);
 		stacksToExpand.add(next);
 		
@@ -202,16 +192,6 @@ public abstract class SGLL implements IGLL{
 			next = next.getCleanCopy();
 			next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 			next.setStartLocation(location);
-			
-			if(!next.isMatchable()){ // Is non-terminal or list.
-				HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-				if(levelResultStoreMap != null){
-					AbstractContainerNode resultStore = levelResultStoreMap.get(next.getName());
-					if(resultStore != null){ // Is nullable, add the known results.
-						stacksWithNonTerminalsToReduce.put(next, resultStore);
-					}
-				}
-			}
 			
 			sharedNextNodes.putUnsafe(id, next);
 			stacksToExpand.add(next);
@@ -507,6 +487,14 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		if(!stack.isList()){
+			HashMap<String, AbstractContainerNode>  levelResultStoreMap = resultStoreCache.get(location);
+			if(levelResultStoreMap != null){
+				AbstractContainerNode resultStore = levelResultStoreMap.get(stack.getName());
+				if(resultStore != null){
+					stacksWithNonTerminalsToReduce.put(stack, resultStore);
+				}
+			}
+			
 			LinearIntegerKeyedMap<AbstractStackNode> expects = cachedExpects.get(stack.getName());
 			if(expects != null){
 				int parentId = stack.getId();
@@ -596,10 +584,12 @@ public abstract class SGLL implements IGLL{
 		do{
 			findStacksToReduce();
 			
-			reduce();
-
 			lookAheadChar = (location < input.length) ? input[location] : 0;
-			expand();
+			do{
+				reduce();
+				
+				expand();
+			}while(!stacksWithNonTerminalsToReduce.isEmpty());
 		}while(todoList.size() > 0);
 		
 		if(root == null){
