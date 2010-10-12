@@ -255,7 +255,7 @@ public str generateExpect(Items items, Production p, bool reject){
 
 str generateClassConditional(set[Symbol] classes) {
   if (eoi() in classes) {
-    return ("location == input.length" 
+    return ("lookAheadChar == 0" 
            | it + " || <generateRangeConditional(r)>"
            | \char-class(list[CharRange] ranges) <- classes, r <- ranges);
   }
