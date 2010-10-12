@@ -10745,7 +10745,7 @@ public class RascalRascal extends SGLL implements IParserInfo {
           }
 	
 		public void Marker() {
-            if (location == input.length) {
+            if (lookAheadChar == 0) {
                   // prod([],sort("Marker"),\no-attrs())
 	expect(prod___Marker_no_attrs, Marker.prod___Marker_no_attrs_min_1);
                 
@@ -11522,7 +11522,7 @@ public class RascalRascal extends SGLL implements IParserInfo {
 	expect(prod___toplevels_iter_star_seps__Toplevel__layouts_LAYOUTLIST_Body_attrs___term__cons_Toplevels, Body.prod___toplevels_iter_star_seps__Toplevel__layouts_LAYOUTLIST_Body_attrs___term__cons_Toplevels_0);
                 
                 } else {
-                  if (location == input.length) {
+                  if (lookAheadChar == 0) {
                   // prod([label("toplevels",\iter-star-seps(sort("Toplevel"),[layouts("LAYOUTLIST")]))],sort("Body"),attrs([term(cons("Toplevels"))]))
 	expect(prod___toplevels_iter_star_seps__Toplevel__layouts_LAYOUTLIST_Body_attrs___term__cons_Toplevels, Body.prod___toplevels_iter_star_seps__Toplevel__layouts_LAYOUTLIST_Body_attrs___term__cons_Toplevels_0);
                 
@@ -11735,7 +11735,7 @@ public class RascalRascal extends SGLL implements IParserInfo {
           }
 	
 		public void NoElseMayFollow() {
-            if (location == input.length) {
+            if (lookAheadChar == 0) {
                   // prod([],sort("NoElseMayFollow"),attrs([term(cons("Default"))]))
 	expect(prod___NoElseMayFollow_attrs___term__cons_Default, NoElseMayFollow.prod___NoElseMayFollow_attrs___term__cons_Default_min_1);
                 
@@ -11821,7 +11821,7 @@ public class RascalRascal extends SGLL implements IParserInfo {
 	expect(prod___iter_seps__iter_star__char_class___range__0_9_range__11_65535__lit___10_Rest_attrs___term__lex, Rest.prod___iter_seps__iter_star__char_class___range__0_9_range__11_65535__lit___10_Rest_attrs___term__lex_0);
                 
                 } else {
-                  if (location == input.length) {
+                  if (lookAheadChar == 0) {
                   // prod([\iter-seps(\iter-star(\char-class([range(0,9),range(11,65535)])),[lit("\n")])],sort("Rest"),attrs([term(lex())]))
 	expect(prod___iter_seps__iter_star__char_class___range__0_9_range__11_65535__lit___10_Rest_attrs___term__lex, Rest.prod___iter_seps__iter_star__char_class___range__0_9_range__11_65535__lit___10_Rest_attrs___term__lex_0);
                 
@@ -11983,7 +11983,7 @@ public class RascalRascal extends SGLL implements IParserInfo {
 	expect(prod___iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_RegExpModifier_attrs___term__lex, RegExpModifier.prod___iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_RegExpModifier_attrs___term__lex_0);
                 
                 } else {
-                  if (location == input.length) {
+                  if (lookAheadChar == 0) {
                   // prod([\iter-star(\char-class([range(100,100),range(105,105),range(109,109),range(115,115)]))],sort("RegExpModifier"),attrs([term(lex())]))
 	expect(prod___iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_RegExpModifier_attrs___term__lex, RegExpModifier.prod___iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_RegExpModifier_attrs___term__lex_0);
                 
@@ -12059,7 +12059,7 @@ public class RascalRascal extends SGLL implements IParserInfo {
           }
 	
 		public void layouts_LAYOUTLIST() {
-            if (location == input.length) {
+            if (lookAheadChar == 0) {
                   // prod([\iter-star(sort("LAYOUT"))],layouts("LAYOUTLIST"),\no-attrs())
 	expect(prod___iter_star__LAYOUT_layouts_LAYOUTLIST_no_attrs, layouts_LAYOUTLIST.prod___iter_star__LAYOUT_layouts_LAYOUTLIST_no_attrs_0);
                 
