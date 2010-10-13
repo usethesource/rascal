@@ -225,16 +225,19 @@ public abstract class SGLL implements IGLL{
 		
 		IConstructor production = next.getParentProduction();
 		
-		// Update one (because of sharing all will be updated).
-		ArrayList<Link> edgePrefixes = new ArrayList<Link>();
-		Link prefix = constructPrefixesFor(edgesMap, prefixesMap, resultStore, location);
-		edgePrefixes.add(prefix);
-		
-		ArrayList<AbstractStackNode> edgesPart = edgesMap.findValue(location);
-		AbstractStackNode edge = edgesPart.get(0);
-		
-		HashMap<String, AbstractContainerNode>  levelResultStoreMap = resultStoreCache.get(location);
-		levelResultStoreMap.get(edge.getName()).addAlternative(production, new Link(edgePrefixes, resultStore));
+		for(int i = edgesMap.size() - 1; i >= 0; --i){
+			int edgeStartLocation = edgesMap.getKey(i);
+			
+			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
+			Link prefix = constructPrefixesFor(prefixesMap, i, resultStore);
+			edgePrefixes.add(prefix);
+			
+			ArrayList<AbstractStackNode> edgesPart = edgesMap.getValue(i);
+			// Update one (because of sharing all will be updated).
+			AbstractStackNode edge = edgesPart.get(0);
+			HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(edgeStartLocation);
+			levelResultStoreMap.get(edge.getName()).addAlternative(production, new Link(edgePrefixes, resultStore));
+		}
 	}
 	
 	private void updateEdges(AbstractStackNode node, AbstractNode result){ // TODO Fix priority system incompatibility
@@ -376,12 +379,11 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private Link constructPrefixesFor(LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap, AbstractNode result, int startLocation){
+	private Link constructPrefixesFor(ArrayList<Link>[] prefixesMap, int index, AbstractNode result){
 		if(prefixesMap == null){
 			return new Link(null, result);
 		}
 		
-		int index = edgesMap.findKey(startLocation);
 		return new Link(prefixesMap[index], result);
 	}
 	
