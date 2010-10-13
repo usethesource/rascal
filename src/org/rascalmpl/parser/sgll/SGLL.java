@@ -226,12 +226,11 @@ public abstract class SGLL implements IGLL{
 		if(edgesPart != null){
 			IConstructor production = next.getParentProduction();
 			
-			// Update one (because of sharing all will be updated).
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
 			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), resultStore, location);
 			edgePrefixes.add(prefix);
 			
-			
+			// Update one (because of sharing all will be updated).
 			AbstractStackNode edge = edgesPart.get(0);
 			
 			HashMap<String, AbstractContainerNode>  levelResultStoreMap = resultStoreCache.get(location);
