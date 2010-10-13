@@ -31,7 +31,7 @@ public class ListContainerNode extends AbstractContainerNode{
 			if(result == null) return; // Rejected.
 			
 			ArrayList<AbstractNode> blackList = new ArrayList<AbstractNode>();
-			if(childNode.isNullable()){
+			if(childNode.isEmpty()){
 				IConstructor[] cycle = gatherCycle(child, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList);
 				if(cycle != null){
 					if(cycle.length == 1){
@@ -76,7 +76,7 @@ public class ListContainerNode extends AbstractContainerNode{
 			IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore);
 			if(result == null) return; // Rejected.
 			
-			if(prefixNode.isNullable() && !prefixNode.isSeparator()){ // Possibly a cycle.
+			if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
 				IConstructor[] cycle = gatherCycle(prefix, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList);
 				if(cycle != null){
 					IConstructor[] newPostFix = buildCycle(cycle, postFix, result, production);
@@ -122,7 +122,7 @@ public class ListContainerNode extends AbstractContainerNode{
 				IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore);
 				if(result == null) return; // Rejected.
 				
-				if(prefixNode.isNullable() && !prefixNode.isSeparator()){ // Possibly a cycle.
+				if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
 					IConstructor[] cycle = gatherCycle(prefix, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList);
 					if(cycle != null){
 						IConstructor[] newPostFix = buildCycle(cycle, postFix, result, production);
@@ -212,7 +212,7 @@ public class ListContainerNode extends AbstractContainerNode{
 					return postFix;
 				}
 				
-				if(prefixNode.isNullable()){
+				if(prefixNode.isEmpty()){
 					int length = postFix.length;
 					IConstructor[] newPostFix = new IConstructor[length + 1];
 					System.arraycopy(postFix, 0, newPostFix, 1, length);
