@@ -1,0 +1,46 @@
+Name: anchor
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `FProperty hanchor(num h)`
+# `FProperty vanchor(num v)`
+# `FProperty anchor(num h, num v)`
+# `FProperty left()`
+# `FProperty hcenter()`
+# `FProperty right()`
+# `FProperty top()`
+# `FProperty vcenter()`
+# `FProperty bottom()`
+# `FProperty center()`
+
+
+Synopsis:
+
+Description: The arguments `h` and `v` indicate a percentage and should have a value between 0.0 and 1.0. 
+Set the horizontal and vertical anchor of a figure:
+# Set the horizontal anchor to `h`%.
+# Set the vertical anchor to `v`%.
+# Set the horizontal anchor to `h`% and the vertical anchor to `v`%.
+# `left()` is equivalent to `hanchor(0.0)`.
+# `hcenter()` is equivalent to `hanchor(0.5)`.
+# `right()` is equivalent to `hanchor(1.0)`.
+# `top()` is equivalent to `vanchor(0.0)`.
+# `vcenter()` is equivalent to `vanchor(0.5)`.
+# `bottom()` is equivalent to `vanchor(1.0)`.
+# `center()` is equivalent to `anchor(0.5, 0.5)`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

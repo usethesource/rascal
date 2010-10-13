@@ -14,6 +14,15 @@ Types: `map[lub($T_1$, $T_2$), $T_3$]`
 
 
 Description:
+
+Text in Figure:
+<figure t1.png>
+render(text("ABCD"));
+</figure>
+
+gives: ![t1](t1.png)
+
+-----
  
 | ABC  | DEF     |
 |-----:|---------|

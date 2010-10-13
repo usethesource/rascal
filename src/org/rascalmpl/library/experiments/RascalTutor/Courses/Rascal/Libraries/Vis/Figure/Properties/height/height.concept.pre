@@ -1,0 +1,1 @@
+concept("height",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/height/height.concept|,[],[],{"Library"},{},"","",""," \<code\>FProperty height(num h)\</code\>\n",{}," Sets the height of a figure to \<code\>h\</code\>.\n","","","",[])

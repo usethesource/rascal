@@ -1,0 +1,24 @@
+Name: lineWidth
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty lineWidth(int w)`
+
+Synopsis:
+
+Description: Set the width of lines and borders of figures to `w`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,35 @@
+Name: fontColor
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `FProperty fontColor(Color c)`
+# `FProperty fontColor(str cname)`
+
+Synopsis:
+
+Description: Sets the color to be used for text:
+# Set font color `c`.
+# Set font color with name `cname`.
+
+Examples:
+<figure t1.png>
+t1 = text([fontColor("red")], "Rascal rocks");
+t2 = text([fontColor("blue")], "Rascal rocks");
+render(vcat([t1, t2]));
+</figure>
+gives: ![t1](t1.png)
+
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
