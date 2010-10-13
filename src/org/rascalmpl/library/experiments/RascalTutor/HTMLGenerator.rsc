@@ -353,8 +353,8 @@ private str markupFigure(list[str] lines, str file){
 	  absPath = courseRoot.path + "../<conceptPath>/<file>";
 	  println("absPath = <absPath>; conceptPath=<conceptPath>; file=<file>");
 	  lines[n-1] = "renderSave(<arg>, |cwd://<absPath>|);";
-	  out = shell(["import viz::Figure::Core;", 
-	               "import viz::Figure::Render;"] + 
+	  out = shell(["import vis::Figure;", 
+	               "import vis::Rendering;"] + 
 	              lines, 
 	              5000);
 	  println("**** shell output ****\n<out>");
