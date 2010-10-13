@@ -27,7 +27,7 @@ public class CharNode extends AbstractNode{
 		return false;
 	}
 	
-	public boolean isNullable(){
+	public boolean isEmpty(){
 		return false;
 	}
 	

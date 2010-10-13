@@ -20,7 +20,7 @@ public class EpsilonNode extends AbstractNode{
 		return true;
 	}
 	
-	public boolean isNullable(){
+	public boolean isEmpty(){
 		return true;
 	}
 	
