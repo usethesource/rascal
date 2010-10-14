@@ -116,6 +116,26 @@ public class MakeBox {
 			return null;
 		}
 	}
+	
+	private IValue launchRascalProgram(String cmd, URI src, URI dest) {
+		execute("import box::Box2Text;");
+		try {
+			IValue d= new PBFReader().read(ValueFactoryFactory
+					.getValueFactory(), ts, adt, data.get());
+			store(d, "d");
+			ISourceLocation v = ValueFactoryFactory.getValueFactory()
+			.sourceLocation(src), w = ValueFactoryFactory.getValueFactory()
+			.sourceLocation(dest);
+	        store(v, "v"); store(w, "w");
+			execute("c="+cmd+"(d, v, w);");
+			IValue r = fetch("c");
+			data.close();
+			return r;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 	private IValue launchConcreteProgram(String cmd, URI uri, String s) {
 		final String resultName = "c";
@@ -129,6 +149,23 @@ public class MakeBox {
 				.sourceLocation(uri);
 		store(v, varName);
 		execute(resultName + "="+cmd+"(" + varName+");");
+		IValue r = fetch(resultName);
+		return r;
+	}
+	
+	private IValue launchConcreteProgram(String cmd, URI src, URI dest, String s) {
+		final String resultName = "c";
+		/*
+		if (s.equals("rsc"))
+			s = "rascal"; // Exception at rascal
+		*/
+		execute("import box::" + s + "::Default;");
+		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
+		ISourceLocation v = ValueFactoryFactory.getValueFactory()
+				.sourceLocation(src), w = ValueFactoryFactory.getValueFactory()
+				.sourceLocation(dest);
+		store(v, "v"); store(w, "w");
+		execute(resultName + "="+cmd+"(" + "v"+","+"w"+");");
 		IValue r = fetch(resultName);
 		return r;
 	}
@@ -177,6 +214,19 @@ public class MakeBox {
 		}
 		return null;
 	}
+	
+	public IValue toRichTxt(String cmd, URI src, URI dest) {
+		start();
+		try {
+			IValue box = computeBox(src);
+			data = new Data();
+			new PBFWriter().write(box, data, ts);
+			return launchRascalProgram(cmd, src, dest);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	/*
 	public IValue toTxt(URI uri) {
@@ -216,5 +266,12 @@ public class MakeBox {
 		return text2String(launchConcreteProgram(cmd, uri, s));
 	}
 	
+	public String toPrint(String cmd, URI src, URI dest) {
+		start();
+		int tail = src.getPath().lastIndexOf('.');
+		String s = src.getPath().substring(tail + 1);
+		// s = s.substring(0, 1).toUpperCase() + s.substring(1);
+		return text2String(launchConcreteProgram(cmd, src, dest, s));
+	}
 
 }
