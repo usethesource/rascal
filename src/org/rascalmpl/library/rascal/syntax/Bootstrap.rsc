@@ -26,28 +26,28 @@ public void bootstrap() {
 
 public Grammar getRascalGrammar() {
   println("parsing the rascal definition of rascal");
-  Module \module = parse(#Module, folder + "<grammarName>.rsc");
+  Module \module = parse(#Module, folder + "/<grammarName>.rsc");
   println("imploding the syntax definition and normalizing and desugaring it");
   return module2grammar(\module);
 }
 
-public void bootRootParser(Grammar g) {
+public void bootRootParser(Grammar gr) {
   println("generating root parser");
-  str source = generateMetaParser(package,rootName, gr);
+  str source = generateRootParser(package,rootName, gr);
   println("writing rascal root parser");
-  writeFile(folder + "<rootName>.java", source);
+  writeFile(folder + "/<rootName>.java", source);
 }
 
-public void bootObjectParser(Grammar g) {
+public void bootObjectParser(Grammar gr) {
   println("generating rascal object parser");
   source = generateObjectParser(package, objectName, gr);
   println("writing rascal object parser");
-  writeFile(folder + "<objectName>.java", source);
+  writeFile(folder + "/<objectName>.java", source);
 }
 
-public void bootMetaParser(Grammar g) {
+public void bootMetaParser(Grammar gr) {
   println("generating assimilated rascal for rascal parser");
-  source = generateAssimilatedParser(package, metaName, objectName, gr);
+  source = generateMetaParser(package, metaName, objectName, gr);
   println("writing assimilated parser");
-  writeFile(folder + "<metaName>.java", source);
+  writeFile(folder + "/<metaName>.java", source);
 }

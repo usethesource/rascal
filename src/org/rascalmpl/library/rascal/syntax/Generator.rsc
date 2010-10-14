@@ -22,13 +22,13 @@ private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]]
 public anno str Symbol@prefix;
 
 @doc{Used in bootstrapping only, to generate a parser for Rascal modules without concrete syntax.}
-public str generateMetaParser(str package, str name, Grammar gr) {
+public str generateRootParser(str package, str name, Grammar gr) {
   // we annotate the grammar to generate identifiers that are different from object grammar identifiers
-  gr = visit (gr) { case s:sort(_) => s[@prefix="$"] }; 
+  gr = visit (gr) { case s:sort(_) => meta(s) case s:layouts(_) => meta(s) }; 
   int uniqueItem = -3; // -1 and -2 are reserved by the SGLL implementation
   int newItem() { uniqueItem -= 1; return uniqueItem; };
   // make sure the ` sign is expected for expressions and every non-terminal which' first set is governed by Pattern or Expression, even though ` not in the language yet
-  rel[Symbol,Symbol] quotes = { <x, \char-class([range(40,40),range(96,96)])> | x <- [sort("Expression"),sort("Pattern"),sort("Command"),sort("Statement"),layouts("LAYOUTLIST")]}; 
+  rel[Symbol,Symbol] quotes = { <x, \char-class([range(40,40),range(96,96)])> | x <- [meta(sort("Expression")),meta(sort("Pattern")),meta(sort("Command")),meta(sort("Statement")),meta(layouts("LAYOUTLIST"))]}; 
   return generate(package, name, "org.rascalmpl.parser.sgll.SGLL", newItem, false, true, quotes, gr);
 }
 
@@ -50,7 +50,7 @@ public str generateObjectParser(str package, str name, Grammar gr) {
   Used to generate subclasses of object grammars that can be used to parse Rascal modules
   with embedded concrete syntax fragments.
 }   
-public str generateAssimilatedParser(str package, str name, str super, Grammar gr) {
+public str generateMetaParser(str package, str name, str super, Grammar gr) {
   int uniqueItem = 1; // we use the odd numbers here
   int newItem() { uniqueItem += 2; return uniqueItem; };
   
@@ -182,7 +182,7 @@ public class <name> extends <super> implements IParserInfo {
     
     // Production declarations
 	<for (p <- uniqueProductions) {>
-	private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", Factory.Production);<}>
+	private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<unmeta(p)>")>\", Factory.Production);<}>
     
 	// Item declarations
 	<for (Symbol s <- newItems, isNonterminal(s)) { items = newItems[s]; >
@@ -202,6 +202,12 @@ public class <name> extends <super> implements IParserInfo {
 }
 ";
 }  
+
+private Production unmeta(Production p) {
+  return visit(p) {
+    case meta(s) => s
+  }
+}
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
@@ -252,6 +258,7 @@ private str split(str x) {
 private bool isNonterminal(Symbol s) {
   switch (s) {
     case \sort(_) : return true;
+    case \meta(x) : return isNonterminal(x);
     case \parameterized-sort(_,_) : return true;
     case \start(_) : return true;
     case \layouts(_) : return true;
@@ -532,13 +539,13 @@ public str ciliterals2ints(list[Symbol] chars){
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int() id, int dot){
     itemId = id();
     
-    switch (sym) {
+    switch ((meta(_) := sym) ? sym.wrapped : sym) {
         case \label(_,s) : 
             return sym2newitem(grammar, s, id, dot); // ignore labels
         case \sort(n) : 
             return <"new NonTerminalStackNode(<itemId>, <dot> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;
         case \layouts(_) :
-            return <"new NonTerminalStackNode(<itemId>, <dot> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;  
+            return <"new NonTerminalStackNode(<itemId>, <dot> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;
         case \parameterized-sort(n,args): 
             return <"new NonTerminalStackNode(<itemId>, <dot> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;
         case \parameter(n) :
@@ -621,7 +628,8 @@ public str escId(str s){
 
 public str sym2name(Symbol s){
     switch(s){
-        case sort(x) : return "<s@prefix?""><x>";
+        case sort(x) : return "<x>";
+        case meta(x) : return "$<sym2name(x)>";
         default      : return value2id(s);
     }
 }
@@ -636,7 +644,8 @@ str v2i(value v) {
         case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
         case layouts(str x) : return "layouts_<escId(x)>";
         case "cons"(str x) : return "cons_<escId(x)>";
-        case Symbol x:sort(str s)   : return "<x@prefix?""><s>";
+        case sort(str s)   : return "<s>";
+        case meta(Symbol s) : return "$<v2i(s)>";
         case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
 	    case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 

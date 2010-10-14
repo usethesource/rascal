@@ -12,7 +12,6 @@ import rascal::syntax::Definition;
 import rascal::syntax::Normalization;
 import rascal::syntax::Escape;
 
-anno str Symbol@prefix;
 public data Symbol = meta(Symbol wrapped);
 
 bool isNonterminal(Symbol x) { 
@@ -21,7 +20,7 @@ bool isNonterminal(Symbol x) {
        && \char-class(_) !:= x 
        && \layouts(_) !:= x
        && \start(_) !:= x
-       && \parametrized-sort(_,[parameter(_),_*]) !:= x;
+       && \parametrized-sort(_,[\parameter(_),_*]) !:= x;
 }
   
 @doc{
@@ -39,16 +38,16 @@ public set[Production] layoutProductions(Grammar object) {
 private Symbol rl = layouts("$QUOTES");
 
 public set[Production] fromRascal(Grammar object) {
-  return  { prod([lit("`"),rl,nont,rl,lit("`")],sort("Expression")[@prefix="$"],attrs([term("cons"("ConcreteQuoted"))])),
-        prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],sort("Expression")[@prefix="$"],attrs([term("cons"("ConcreteTypedQuoted"))])),
-        prod([lit("`"),rl,nont,rl,lit("`")],sort("Pattern")[@prefix="$"],attrs([term("cons"("ConcreteQuoted"))])),
-        prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],sort("Pattern")[@prefix="$"],attrs([term("cons"("ConcreteTypedQuoted"))])),
+  return  { prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteQuoted"))])),
+        prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteTypedQuoted"))])),
+        prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteQuoted"))])),
+        prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteTypedQuoted"))])),
         { prod(str2syms(L),l,attrs([term("literal"())])) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
       | Symbol nont <- object.rules, isNonterminal(nont), symLits := symbolLiterals(nont) };
 }
 
 public set[Production] toRascal(Grammar object) {
-  return  { prod([lit("\<"),rl,sort("Pattern")[@prefix="$"],rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
+  return  { prod([lit("\<"),rl,meta(sort("Pattern")),rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
           | Symbol nont <- object.rules, isNonterminal(nont) };
 }
 
