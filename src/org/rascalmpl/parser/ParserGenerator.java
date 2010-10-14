@@ -75,7 +75,7 @@ public class ParserGenerator {
 			IConstructor grammar = getGrammar(imports);
 			String normName = name.replaceAll("\\.", "_");
 			System.err.println("Generating java source code for Rascal parser");
-			IString classString = (IString) evaluator.call("generateAssimilatedParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
+			IString classString = (IString) evaluator.call("generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
 			debugOutput(classString, "/tmp/metaParser.java");
 			System.err.println("compiling generated java code");
 			return bridge.compileJava(IGLL.class, loc, packageName + ".$Rascal_" + normName, objectParser.getClass(), classString.getValue());

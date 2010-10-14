@@ -1,3 +1,5 @@
+@doc{The syntax definition of Rascal, excluding concrete syntax fragments}
+@bootstrapParser{org.rascalmpl.library.rascal.syntax.MetaRascalRascal}  
 module rascal::syntax::RascalRascal
 
 syntax BooleanLiteral
