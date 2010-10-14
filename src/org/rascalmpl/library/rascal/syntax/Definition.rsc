@@ -127,8 +127,8 @@ private Production prod2prod(Symbol nt, Prod p, str layoutName, bool inLayout) {
       return \assoc(nt, \left(), {attribute(prod2prod(nt, q, layoutName, inLayout),\assoc(\assoc()))});
     case (Prod) `<Prod q> <LanguageAction a>` :
       return \action(nt, prod2prod(nt, q, layoutName, inLayout), a);
-    case `...`: return \others(nt);
-    case `: <Name n>`: throw "prod referencing is not yet implemented";
+    case (Prod) `...`: return \others(nt);
+    case (Prod) `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";
   } 
 }
