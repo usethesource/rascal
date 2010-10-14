@@ -91,6 +91,7 @@ public class ParserGenerator {
 		try {
 			s = new FileOutputStream(file);
 			s.write(classString.getValue().getBytes());
+			s.flush();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

@@ -138,6 +138,14 @@ public class <name> extends <super> implements IParserInfo {
 	protected static final IntegerKeyedHashMap\<IntegerList\> _dontNest = new IntegerKeyedHashMap\<IntegerList\>();
 	protected static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions = new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>();
 	
+	protected static java.lang.String _concat(String ...args) {
+	  java.lang.StringBuilder b = new java.lang.StringBuilder();
+	  for (java.lang.String s : args) {
+	    b.append(s);
+	  }
+	  return b.toString();
+	}
+	
     protected static void _putDontNest(int i, int j) {
     	IntegerList donts = _dontNest.get(i);
     	if(donts == null){
@@ -160,13 +168,13 @@ public class <name> extends <super> implements IParserInfo {
 
     // initialize priorities and actions    
     static {
-      for (IValue e : (IRelation) _read(<split("<dontNest>")>, _tf.relType(_tf.integerType(),_tf.integerType()))) {
+      for (IValue e : (IRelation) _read(_concat(<split("<dontNest>")>), _tf.relType(_tf.integerType(),_tf.integerType()))) {
         ITuple t = (ITuple) e;
         _putDontNest(((IInteger) t.get(0)).intValue(), ((IInteger) t.get(1)).intValue());
       }
       
       ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
-      IMap tmp = (IMap) _read(<split("<actions>")>, _tf.mapType(Factory.Production, Factory.Tree));
+      IMap tmp = (IMap) _read(_concat(<split("<actions>")>), _tf.mapType(Factory.Production, Factory.Tree));
       for (IValue key : tmp) {
         _languageActions.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(tmp.get(key)));
       }
@@ -232,11 +240,11 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
 }
 
 private str split(str x) {
-  if (size(x) <= 10000) {
+  if (size(x) <= 20000) {
     return "\"<esc(x)>\"";
   }
   else {
-    return "<split(substring(x, 0,10000))> + <split(substring(x, 10000))>"; 
+    return "<split(substring(x, 0,10000))>, <split(substring(x, 10000))>"; 
   }
 }
 

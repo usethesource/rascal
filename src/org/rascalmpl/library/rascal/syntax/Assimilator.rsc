@@ -13,13 +13,15 @@ import rascal::syntax::Normalization;
 import rascal::syntax::Escape;
 
 anno str Symbol@prefix;
+public data Symbol = meta(Symbol wrapped);
 
 bool isNonterminal(Symbol x) { 
     return lit(_) !:= x 
        && cilit(_) !:= x 
        && \char-class(_) !:= x 
        && \layouts(_) !:= x
-       && \start(_) !:= x; 
+       && \start(_) !:= x
+       && \parametrized-sort(_,[parameter(_),_*]) !:= x;
 }
   
 @doc{
@@ -34,9 +36,9 @@ public set[Production] layoutProductions(Grammar object) {
   return {prod([\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],layouts("$QUOTES"),attrs([term("lex"())]))};
 }
 
+private Symbol rl = layouts("$QUOTES");
+
 public set[Production] fromRascal(Grammar object) {
-  rl = layouts("$QUOTES");
-  
   return  { prod([lit("`"),rl,nont,rl,lit("`")],sort("Expression")[@prefix="$"],attrs([term("cons"("ConcreteQuoted"))])),
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],sort("Expression")[@prefix="$"],attrs([term("cons"("ConcreteTypedQuoted"))])),
         prod([lit("`"),rl,nont,rl,lit("`")],sort("Pattern")[@prefix="$"],attrs([term("cons"("ConcreteQuoted"))])),
@@ -46,8 +48,6 @@ public set[Production] fromRascal(Grammar object) {
 }
 
 public set[Production] toRascal(Grammar object) {
-  rl = layouts("$QUOTES");
-  
   return  { prod([lit("\<"),rl,sort("Pattern")[@prefix="$"],rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
           | Symbol nont <- object.rules, isNonterminal(nont) };
 }

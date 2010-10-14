@@ -3,11 +3,13 @@
  
  It also implements a part of the semantics of Rascal's syntax definition formalism,
  i.e. by interspersing symbols with layout nodes and expanding literals.
-}  
+}
+@bootstrapParser{org.rascalmpl.library.rascal.syntax.MetaRascalRascal}  
 module rascal::syntax::Definition
    
 import rascal::syntax::RascalForImportExtraction;
 import rascal::syntax::Grammar;
+import rascal::syntax::RascalRascal;
 import List;
 import String;
 import ParseTree;
