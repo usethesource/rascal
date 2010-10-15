@@ -503,7 +503,7 @@ public class ASTBuilder {
 			return null;
 		}
 		
-		return new Expression.Ambiguity(antiQuote, result);
+		return factory.makeExpressionAmbiguity(antiQuote, result);
 	}
 
 	private AbstractAST lift(IConstructor tree, boolean match) {
@@ -644,7 +644,7 @@ public class ASTBuilder {
 			else {
 				func = makeStringExpression(source, name);
 			}
-			Expression ast = new Expression.CallOrTree(source, func, args);
+			Expression ast = factory.makeExpressionCallOrTree(source, func, args);
 			ast._setType(nonterminalType);
 
 			if (loc != null && !match) {
@@ -686,22 +686,22 @@ public class ASTBuilder {
 					result.add(ast);
 				}
 			}
-			Expression.List ast = new Expression.List(source, result);
+			Expression.List ast = factory.makeExpressionList(source, result);
 			ast.setStats(stats);
 			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
 			return ast;
 		}
 		else if (type.isStringType()) {
-			Expression result = new Expression.Literal(source, 
-									new Literal.String(source,
-											new StringLiteral.NonInterpolated(source, 
-													new StringConstant.Lexical(source, pattern.toString()))));
+			Expression result = factory.makeExpressionLiteral(source, 
+									factory.makeLiteralString(source,
+											factory.makeStringLiteralNonInterpolated(source, 
+													factory.makeStringConstantLexical(source, pattern.toString()))));
 			matchCache.putUnsafe(pattern, result);
 			constructorCache.putUnsafe(pattern, result);
 			return result;
 		}
 		else if (type.isIntegerType()) {
-			Expression result = new Expression.Literal(source, new Literal.Integer(source, new IntegerLiteral.DecimalIntegerLiteral(source, new DecimalIntegerLiteral.Lexical(source, pattern.toString()))));
+			Expression result = factory.makeExpressionLiteral(source, factory.makeLiteralInteger(source, factory.makeIntegerLiteralDecimalIntegerLiteral(source, factory.makeDecimalIntegerLiteralLexical(source, pattern.toString()))));
 			matchCache.putUnsafe(pattern, result);
 			constructorCache.putUnsafe(pattern, result);
 			return result;
@@ -731,7 +731,7 @@ public class ASTBuilder {
 				return null; // all alts filtered
 			}
 			
-			Expression.Set ast = new Expression.Set(source, result);
+			Expression.Set ast = factory.makeExpressionSet(source, result);
 			ast.setStats(ref != null ? ref : new ASTStatistics());
 			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
 			return ast;
@@ -743,7 +743,7 @@ public class ASTBuilder {
 
 	private org.rascalmpl.ast.Expression.Literal makeStringExpression(
 			IConstructor source, String name) {
-		return new Expression.Literal(source, new Literal.String(source, new StringLiteral.NonInterpolated(source, new StringConstant.Lexical(source, "\""+  name + "\""))));
+		return factory.makeExpressionLiteral(source, factory.makeLiteralString(source, factory.makeStringLiteralNonInterpolated(source, factory.makeStringConstantLexical(source, "\""+  name + "\""))));
 	}
 
 	private Expression addLocationAnnotationSetterExpression(
@@ -755,25 +755,25 @@ public class ASTBuilder {
 		List<Expression> begin = new ArrayList<Expression>(2);
 		begin.add(createIntegerExpression(source, loc.getBeginLine()));
 		begin.add(createIntegerExpression(source, loc.getBeginColumn()));
-		positions.add(new Expression.Tuple(source, begin));
+		positions.add(factory.makeExpressionTuple(source, begin));
 		
 		List<Expression> end = new ArrayList<Expression>(2);
 		end.add(createIntegerExpression(source, loc.getEndLine()));
 		end.add(createIntegerExpression(source, loc.getEndColumn()));
-		positions.add(new Expression.Tuple(source, end));
+		positions.add(factory.makeExpressionTuple(source, end));
 		
 		String host = loc.getURI().getAuthority();
 		String uriPath = loc.getURI().getPath();
 		String path = host != null ? host : "" + "/" + uriPath != null ? uriPath : "";
-		ast = new Expression.SetAnnotation(source, ast, Names.toName("loc"), 
-				new Expression.CallOrTree(source, new Expression.Literal(source, 
-						new Literal.Location(source, 
-								new LocationLiteral.Default(source, 
-										new ProtocolPart.NonInterpolated(source, 
-												new ProtocolChars.Lexical(source, "|" + loc.getURI().getScheme() + "://")
+		ast = factory.makeExpressionSetAnnotation(source, ast, Names.toName("loc"), 
+				factory.makeExpressionCallOrTree(source, factory.makeExpressionLiteral(source, 
+						factory.makeLiteralLocation(source, 
+								factory.makeLocationLiteralDefault(source, 
+										factory.makeProtocolPartNonInterpolated(source, 
+												factory.makeProtocolCharsLexical(source, "|" + loc.getURI().getScheme() + "://")
 										), 
-										new PathPart.NonInterpolated(source, 
-												new PathChars.Lexical(source, path + "|"))))),
+										factory.makePathPartNonInterpolated(source, 
+												factory.makePathCharsLexical(source, path + "|"))))),
 												positions
 												));
 //		ast._setType(ast._getType());
@@ -782,7 +782,7 @@ public class ASTBuilder {
 
 	private org.rascalmpl.ast.Expression.Literal createIntegerExpression(
 			IConstructor source, int offset) {
-		return new Expression.Literal(source, new Literal.Integer(source, new IntegerLiteral.DecimalIntegerLiteral(source, new DecimalIntegerLiteral.Lexical(source, Integer.toString(offset)))));
+		return factory.makeExpressionLiteral(source, factory.makeLiteralInteger(source, factory.makeIntegerLiteralDecimalIntegerLiteral(source, factory.makeDecimalIntegerLiteralLexical(source, Integer.toString(offset)))));
 	}
 
 	// TODO: optimize, this can be really slowing things down
@@ -830,10 +830,10 @@ public class ASTBuilder {
 
 
 	private org.rascalmpl.ast.Expression makeQualifiedName(IConstructor node, String name) {
-		Name simple = new Name.Lexical(node, name);
+		Name simple = factory.makeNameLexical(node, name);
 		List<Name> list = new ArrayList<Name>(1);
 		list.add(simple);
-		return new Expression.QualifiedName(node, new QualifiedName.Default(node, list));
+		return factory.makeExpressionQualifiedName(node, factory.makeQualifiedNameDefault(node, list));
 	}
 
 	private boolean correctlyNestedPattern(IConstructor expected, Expression exp) {

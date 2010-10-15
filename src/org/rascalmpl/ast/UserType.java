@@ -4,7 +4,7 @@ public abstract class UserType extends AbstractAST {
   public org.rascalmpl.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isName() { return false; }
 static public class Name extends UserType {
 /** name:QualifiedName -> UserType {cons("Name")} */
-	public Name(INode node, org.rascalmpl.ast.QualifiedName name) {
+	protected Name(INode node, org.rascalmpl.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
 	}
@@ -21,7 +21,7 @@ private final org.rascalmpl.ast.QualifiedName name;
 }
 static public class Ambiguity extends UserType {
   private final java.util.List<org.rascalmpl.ast.UserType> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.UserType> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.UserType> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -36,7 +36,7 @@ static public class Ambiguity extends UserType {
 public boolean isParametric() { return false; }
 static public class Parametric extends UserType {
 /** name:QualifiedName "[" parameters:{Type ","}+ "]" -> UserType {cons("Parametric")} */
-	public Parametric(INode node, org.rascalmpl.ast.QualifiedName name, java.util.List<org.rascalmpl.ast.Type> parameters) {
+	protected Parametric(INode node, org.rascalmpl.ast.QualifiedName name, java.util.List<org.rascalmpl.ast.Type> parameters) {
 		this.node = node;
 		this.name = name;
 		this.parameters = parameters;

@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class RegExp extends AbstractAST { 
   static public class Lexical extends RegExp {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -16,7 +16,7 @@ public abstract class RegExp extends AbstractAST {
   	}
 } static public class Ambiguity extends RegExp {
   private final java.util.List<org.rascalmpl.ast.RegExp> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.RegExp> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.RegExp> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

@@ -4,7 +4,7 @@ public abstract class Variable extends AbstractAST {
   public org.rascalmpl.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isUnInitialized() { return false; }
 static public class UnInitialized extends Variable {
 /** name:Name -> Variable {cons("UnInitialized")} */
-	public UnInitialized(INode node, org.rascalmpl.ast.Name name) {
+	protected UnInitialized(INode node, org.rascalmpl.ast.Name name) {
 		this.node = node;
 		this.name = name;
 	}
@@ -21,7 +21,7 @@ private final org.rascalmpl.ast.Name name;
 }
 static public class Ambiguity extends Variable {
   private final java.util.List<org.rascalmpl.ast.Variable> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Variable> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Variable> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -36,7 +36,7 @@ static public class Ambiguity extends Variable {
 public boolean isInitialized() { return false; }
 static public class Initialized extends Variable {
 /** name:Name "=" initial:Expression -> Variable {cons("Initialized")} */
-	public Initialized(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Expression initial) {
+	protected Initialized(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Expression initial) {
 		this.node = node;
 		this.name = name;
 		this.initial = initial;

@@ -10,7 +10,7 @@ public boolean hasMid() { return false; }
 public boolean isMid() { return false; }
 static public class Mid extends PathTail {
 /** mid:MidPathChars expression:Expression tail:PathTail -> PathTail {cons("Mid")} */
-	public Mid(INode node, org.rascalmpl.ast.MidPathChars mid, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.PathTail tail) {
+	protected Mid(INode node, org.rascalmpl.ast.MidPathChars mid, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.PathTail tail) {
 		this.node = node;
 		this.mid = mid;
 		this.expression = expression;
@@ -35,7 +35,7 @@ private final org.rascalmpl.ast.MidPathChars mid;
 }
 static public class Ambiguity extends PathTail {
   private final java.util.List<org.rascalmpl.ast.PathTail> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PathTail> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PathTail> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -52,7 +52,7 @@ public boolean hasPost() { return false; }
 public boolean isPost() { return false; }
 static public class Post extends PathTail {
 /** post:PostPathChars -> PathTail {cons("Post")} */
-	public Post(INode node, org.rascalmpl.ast.PostPathChars post) {
+	protected Post(INode node, org.rascalmpl.ast.PostPathChars post) {
 		this.node = node;
 		this.post = post;
 	}

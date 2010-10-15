@@ -4,7 +4,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
   public org.rascalmpl.ast.Declarator getDeclarator() { throw new UnsupportedOperationException(); } public boolean hasDeclarator() { return false; } public boolean isDefault() { return false; }
 static public class Default extends LocalVariableDeclaration {
 /** declarator:Declarator -> LocalVariableDeclaration {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Declarator declarator) {
+	protected Default(INode node, org.rascalmpl.ast.Declarator declarator) {
 		this.node = node;
 		this.declarator = declarator;
 	}
@@ -21,7 +21,7 @@ private final org.rascalmpl.ast.Declarator declarator;
 }
 static public class Ambiguity extends LocalVariableDeclaration {
   private final java.util.List<org.rascalmpl.ast.LocalVariableDeclaration> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LocalVariableDeclaration> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LocalVariableDeclaration> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -35,7 +35,7 @@ static public class Ambiguity extends LocalVariableDeclaration {
 } public boolean isDynamic() { return false; }
 static public class Dynamic extends LocalVariableDeclaration {
 /** "dynamic" declarator:Declarator -> LocalVariableDeclaration {cons("Dynamic")} */
-	public Dynamic(INode node, org.rascalmpl.ast.Declarator declarator) {
+	protected Dynamic(INode node, org.rascalmpl.ast.Declarator declarator) {
 		this.node = node;
 		this.declarator = declarator;
 	}

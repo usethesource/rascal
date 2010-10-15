@@ -8,7 +8,7 @@ public boolean hasProtocolPart() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends LocationLiteral {
 /** protocolPart:ProtocolPart pathPart:PathPart -> LocationLiteral {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.ProtocolPart protocolPart, org.rascalmpl.ast.PathPart pathPart) {
+	protected Default(INode node, org.rascalmpl.ast.ProtocolPart protocolPart, org.rascalmpl.ast.PathPart pathPart) {
 		this.node = node;
 		this.protocolPart = protocolPart;
 		this.pathPart = pathPart;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.ProtocolPart protocolPart;
 }
 static public class Ambiguity extends LocationLiteral {
   private final java.util.List<org.rascalmpl.ast.LocationLiteral> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LocationLiteral> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LocationLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.interpreter.BoxEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
@@ -192,7 +193,7 @@ public class MakeBox {
 		try {
 			IConstructor moduleTree = commandEvaluator.parseModule(uri,
 					currentModule);
-			ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
+			ASTBuilder astBuilder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
 			Module moduleAst = astBuilder.buildModule(moduleTree);
 			if (moduleAst != null)
 				return eval.evalRascalModule(moduleAst);

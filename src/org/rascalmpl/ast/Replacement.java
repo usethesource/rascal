@@ -4,7 +4,7 @@ public abstract class Replacement extends AbstractAST {
   public org.rascalmpl.ast.Expression getReplacementExpression() { throw new UnsupportedOperationException(); } public boolean hasReplacementExpression() { return false; } public boolean isUnconditional() { return false; }
 static public class Unconditional extends Replacement {
 /** replacementExpression:Expression -> Replacement {cons("Unconditional")} */
-	public Unconditional(INode node, org.rascalmpl.ast.Expression replacementExpression) {
+	protected Unconditional(INode node, org.rascalmpl.ast.Expression replacementExpression) {
 		this.node = node;
 		this.replacementExpression = replacementExpression;
 	}
@@ -21,7 +21,7 @@ private final org.rascalmpl.ast.Expression replacementExpression;
 }
 static public class Ambiguity extends Replacement {
   private final java.util.List<org.rascalmpl.ast.Replacement> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Replacement> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Replacement> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -36,7 +36,7 @@ static public class Ambiguity extends Replacement {
 public boolean isConditional() { return false; }
 static public class Conditional extends Replacement {
 /** replacementExpression:Expression "when" conditions:{Expression ","}+ -> Replacement {cons("Conditional")} */
-	public Conditional(INode node, org.rascalmpl.ast.Expression replacementExpression, java.util.List<org.rascalmpl.ast.Expression> conditions) {
+	protected Conditional(INode node, org.rascalmpl.ast.Expression replacementExpression, java.util.List<org.rascalmpl.ast.Expression> conditions) {
 		this.node = node;
 		this.replacementExpression = replacementExpression;
 		this.conditions = conditions;

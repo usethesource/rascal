@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class TimePartNoTZ extends AbstractAST { 
   static public class Lexical extends TimePartNoTZ {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -16,7 +16,7 @@ public abstract class TimePartNoTZ extends AbstractAST {
   	}
 } static public class Ambiguity extends TimePartNoTZ {
   private final java.util.List<org.rascalmpl.ast.TimePartNoTZ> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TimePartNoTZ> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TimePartNoTZ> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

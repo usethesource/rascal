@@ -8,7 +8,7 @@ public boolean hasHeader() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Module {
 /** header:Header body:Body -> Module {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Header header, org.rascalmpl.ast.Body body) {
+	protected Default(INode node, org.rascalmpl.ast.Header header, org.rascalmpl.ast.Body body) {
 		this.node = node;
 		this.header = header;
 		this.body = body;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.Header header;
 }
 static public class Ambiguity extends Module {
   private final java.util.List<org.rascalmpl.ast.Module> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Module> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Module> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

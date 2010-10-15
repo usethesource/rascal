@@ -6,7 +6,7 @@ public boolean hasExpression() { return false; }
 public boolean isBuild() { return false; }
 static public class Build extends LanguageAction {
 /** "=>" expression:Expression -> LanguageAction {cons("Build")} */
-	public Build(INode node, org.rascalmpl.ast.Expression expression) {
+	protected Build(INode node, org.rascalmpl.ast.Expression expression) {
 		this.node = node;
 		this.expression = expression;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.Expression expression;
 }
 static public class Ambiguity extends LanguageAction {
   private final java.util.List<org.rascalmpl.ast.LanguageAction> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LanguageAction> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LanguageAction> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ public boolean hasStatements() { return false; }
 public boolean isAction() { return false; }
 static public class Action extends LanguageAction {
 /** "{" statements:Statement* "}" -> LanguageAction {cons("Action")} */
-	public Action(INode node, java.util.List<org.rascalmpl.ast.Statement> statements) {
+	protected Action(INode node, java.util.List<org.rascalmpl.ast.Statement> statements) {
 		this.node = node;
 		this.statements = statements;
 	}

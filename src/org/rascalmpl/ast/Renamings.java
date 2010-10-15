@@ -6,7 +6,7 @@ public boolean hasRenamings() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Renamings {
 /** "renaming" renamings:{Renaming ","}+ -> Renamings {cons("Default")} */
-	public Default(INode node, java.util.List<org.rascalmpl.ast.Renaming> renamings) {
+	protected Default(INode node, java.util.List<org.rascalmpl.ast.Renaming> renamings) {
 		this.node = node;
 		this.renamings = renamings;
 	}
@@ -23,7 +23,7 @@ private final java.util.List<org.rascalmpl.ast.Renaming> renamings;
 }
 static public class Ambiguity extends Renamings {
   private final java.util.List<org.rascalmpl.ast.Renamings> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Renamings> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Renamings> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

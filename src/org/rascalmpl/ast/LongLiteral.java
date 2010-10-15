@@ -6,7 +6,7 @@ public boolean hasDecimalLong() { return false; }
 public boolean isDecimalLongLiteral() { return false; }
 static public class DecimalLongLiteral extends LongLiteral {
 /** decimalLong:DecimalLongLiteral -> LongLiteral {prefer, cons("DecimalLongLiteral")} */
-	public DecimalLongLiteral(INode node, org.rascalmpl.ast.DecimalLongLiteral decimalLong) {
+	protected DecimalLongLiteral(INode node, org.rascalmpl.ast.DecimalLongLiteral decimalLong) {
 		this.node = node;
 		this.decimalLong = decimalLong;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.DecimalLongLiteral decimalLong;
 }
 static public class Ambiguity extends LongLiteral {
   private final java.util.List<org.rascalmpl.ast.LongLiteral> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LongLiteral> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LongLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ public boolean hasHexLong() { return false; }
 public boolean isHexLongLiteral() { return false; }
 static public class HexLongLiteral extends LongLiteral {
 /** hexLong:HexLongLiteral -> LongLiteral {prefer, cons("HexLongLiteral")} */
-	public HexLongLiteral(INode node, org.rascalmpl.ast.HexLongLiteral hexLong) {
+	protected HexLongLiteral(INode node, org.rascalmpl.ast.HexLongLiteral hexLong) {
 		this.node = node;
 		this.hexLong = hexLong;
 	}
@@ -59,7 +59,7 @@ public boolean hasOctalLong() { return false; }
 public boolean isOctalLongLiteral() { return false; }
 static public class OctalLongLiteral extends LongLiteral {
 /** octalLong:OctalLongLiteral -> LongLiteral {prefer, cons("OctalLongLiteral")} */
-	public OctalLongLiteral(INode node, org.rascalmpl.ast.OctalLongLiteral octalLong) {
+	protected OctalLongLiteral(INode node, org.rascalmpl.ast.OctalLongLiteral octalLong) {
 		this.node = node;
 		this.octalLong = octalLong;
 	}

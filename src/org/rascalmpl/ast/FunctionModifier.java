@@ -4,7 +4,7 @@ public abstract class FunctionModifier extends AbstractAST {
 public boolean isJava() { return false; }
 static public class Java extends FunctionModifier {
 /** "java" -> FunctionModifier {cons("Java")} */
-	public Java(INode node) {
+	protected Java(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Java extends FunctionModifier {
 }
 static public class Ambiguity extends FunctionModifier {
   private final java.util.List<org.rascalmpl.ast.FunctionModifier> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionModifier> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionModifier> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

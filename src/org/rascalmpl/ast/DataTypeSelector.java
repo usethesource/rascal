@@ -8,7 +8,7 @@ public boolean hasSort() { return false; }
 public boolean isSelector() { return false; }
 static public class Selector extends DataTypeSelector {
 /** sort:QualifiedName "." production:Name -> DataTypeSelector {cons("Selector")} */
-	public Selector(INode node, org.rascalmpl.ast.QualifiedName sort, org.rascalmpl.ast.Name production) {
+	protected Selector(INode node, org.rascalmpl.ast.QualifiedName sort, org.rascalmpl.ast.Name production) {
 		this.node = node;
 		this.sort = sort;
 		this.production = production;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.QualifiedName sort;
 }
 static public class Ambiguity extends DataTypeSelector {
   private final java.util.List<org.rascalmpl.ast.DataTypeSelector> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DataTypeSelector> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DataTypeSelector> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

@@ -5,7 +5,7 @@ public abstract class Tag extends AbstractAST {
 public boolean isDefault() { return false; }
 static public class Default extends Tag {
 /** "@" name:Name contents:TagString -> Tag {cons("Default"), category("Comment")} */
-	public Default(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.TagString contents) {
+	protected Default(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.TagString contents) {
 		this.node = node;
 		this.name = name;
 		this.contents = contents;
@@ -26,7 +26,7 @@ private final org.rascalmpl.ast.Name name;
 }
 static public class Ambiguity extends Tag {
   private final java.util.List<org.rascalmpl.ast.Tag> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Tag> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Tag> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -41,7 +41,7 @@ static public class Ambiguity extends Tag {
 public boolean isExpression() { return false; }
 static public class Expression extends Tag {
 /** "@" name:Name "=" expression:Expression -> Tag {cons("Expression"), category("Comment")} */
-	public Expression(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Expression expression) {
+	protected Expression(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Expression expression) {
 		this.node = node;
 		this.name = name;
 		this.expression = expression;
@@ -62,7 +62,7 @@ private final org.rascalmpl.ast.Name name;
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isEmpty() { return false; }
 static public class Empty extends Tag {
 /** "@" name:Name -> Tag {cons("Empty"), category("Comment")} */
-	public Empty(INode node, org.rascalmpl.ast.Name name) {
+	protected Empty(INode node, org.rascalmpl.ast.Name name) {
 		this.node = node;
 		this.name = name;
 	}

@@ -6,7 +6,7 @@ public boolean hasDate() { return false; }
 public boolean isDateLiteral() { return false; }
 static public class DateLiteral extends DateTimeLiteral {
 /** date:JustDate -> DateTimeLiteral {prefer, cons("DateLiteral")} */
-	public DateLiteral(INode node, org.rascalmpl.ast.JustDate date) {
+	protected DateLiteral(INode node, org.rascalmpl.ast.JustDate date) {
 		this.node = node;
 		this.date = date;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.JustDate date;
 }
 static public class Ambiguity extends DateTimeLiteral {
   private final java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ public boolean hasTime() { return false; }
 public boolean isTimeLiteral() { return false; }
 static public class TimeLiteral extends DateTimeLiteral {
 /** time:JustTime -> DateTimeLiteral {prefer, cons("TimeLiteral")} */
-	public TimeLiteral(INode node, org.rascalmpl.ast.JustTime time) {
+	protected TimeLiteral(INode node, org.rascalmpl.ast.JustTime time) {
 		this.node = node;
 		this.time = time;
 	}
@@ -59,7 +59,7 @@ public boolean hasDateAndTime() { return false; }
 public boolean isDateAndTimeLiteral() { return false; }
 static public class DateAndTimeLiteral extends DateTimeLiteral {
 /** dateAndTime:DateAndTime -> DateTimeLiteral {prefer, cons("DateAndTimeLiteral")} */
-	public DateAndTimeLiteral(INode node, org.rascalmpl.ast.DateAndTime dateAndTime) {
+	protected DateAndTimeLiteral(INode node, org.rascalmpl.ast.DateAndTime dateAndTime) {
 		this.node = node;
 		this.dateAndTime = dateAndTime;
 	}

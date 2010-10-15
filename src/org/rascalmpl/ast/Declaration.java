@@ -9,7 +9,7 @@ public abstract class Declaration extends AbstractAST {
 public boolean isView() { return false; }
 static public class View extends Declaration {
 /** tags:Tags visibility:Visibility "view" view:Name "<:" superType:Name "=" alts:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
-	public View(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Name view, org.rascalmpl.ast.Name superType, java.util.List<org.rascalmpl.ast.Alternative> alts) {
+	protected View(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Name view, org.rascalmpl.ast.Name superType, java.util.List<org.rascalmpl.ast.Alternative> alts) {
 		this.node = node;
 		this.tags = tags;
 		this.visibility = visibility;
@@ -42,7 +42,7 @@ private final org.rascalmpl.ast.Tags tags;
 }
 static public class Ambiguity extends Declaration {
   private final java.util.List<org.rascalmpl.ast.Declaration> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Declaration> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Declaration> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -57,7 +57,7 @@ static public class Ambiguity extends Declaration {
 public boolean isAlias() { return false; }
 static public class Alias extends Declaration {
 /** tags:Tags visibility:Visibility "alias" user:UserType "=" base:Type ";" -> Declaration {cons("Alias")} */
-	public Alias(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.UserType user, org.rascalmpl.ast.Type base) {
+	protected Alias(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.UserType user, org.rascalmpl.ast.Type base) {
 		this.node = node;
 		this.tags = tags;
 		this.visibility = visibility;
@@ -87,7 +87,7 @@ private final org.rascalmpl.ast.Tags tags;
 public boolean isData() { return false; }
 static public class Data extends Declaration {
 /** tags:Tags visibility:Visibility "data" user:UserType "=" variants:{Variant "|"}+ ";" -> Declaration {cons("Data")} */
-	public Data(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.UserType user, java.util.List<org.rascalmpl.ast.Variant> variants) {
+	protected Data(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.UserType user, java.util.List<org.rascalmpl.ast.Variant> variants) {
 		this.node = node;
 		this.tags = tags;
 		this.visibility = visibility;
@@ -116,7 +116,7 @@ private final org.rascalmpl.ast.Tags tags;
 } public boolean isDataAbstract() { return false; }
 static public class DataAbstract extends Declaration {
 /** tags:Tags visibility:Visibility "data" user:UserType ";" -> Declaration {cons("DataAbstract")} */
-	public DataAbstract(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.UserType user) {
+	protected DataAbstract(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.UserType user) {
 		this.node = node;
 		this.tags = tags;
 		this.visibility = visibility;
@@ -144,7 +144,7 @@ public boolean hasTest() { return false; }
 public boolean isTest() { return false; }
 static public class Test extends Declaration {
 /** test:Test ";" -> Declaration {cons("Test")} */
-	public Test(INode node, org.rascalmpl.ast.Test test) {
+	protected Test(INode node, org.rascalmpl.ast.Test test) {
 		this.node = node;
 		this.test = test;
 	}
@@ -164,7 +164,7 @@ public boolean hasFunctionDeclaration() { return false; }
 public boolean isFunction() { return false; }
 static public class Function extends Declaration {
 /** functionDeclaration:FunctionDeclaration -> Declaration {cons("Function")} */
-	public Function(INode node, org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
+	protected Function(INode node, org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
 		this.node = node;
 		this.functionDeclaration = functionDeclaration;
 	}
@@ -184,7 +184,7 @@ private final org.rascalmpl.ast.FunctionDeclaration functionDeclaration;
 public boolean isVariable() { return false; }
 static public class Variable extends Declaration {
 /** tags:Tags visibility:Visibility type:Type variables:{Variable ","}+ ";" -> Declaration {cons("Variable")} */
-	public Variable(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Type type, java.util.List<org.rascalmpl.ast.Variable> variables) {
+	protected Variable(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Type type, java.util.List<org.rascalmpl.ast.Variable> variables) {
 		this.node = node;
 		this.tags = tags;
 		this.visibility = visibility;
@@ -214,7 +214,7 @@ private final org.rascalmpl.ast.Tags tags;
 public boolean isRule() { return false; }
 static public class Rule extends Declaration {
 /** tags:Tags "rule" name:Name patternAction:PatternWithAction ";" -> Declaration {cons("Rule")} */
-	public Rule(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Name name, org.rascalmpl.ast.PatternWithAction patternAction) {
+	protected Rule(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Name name, org.rascalmpl.ast.PatternWithAction patternAction) {
 		this.node = node;
 		this.tags = tags;
 		this.name = name;
@@ -241,7 +241,7 @@ private final org.rascalmpl.ast.Tags tags;
 	public boolean hasOnType() { return false; } public boolean isAnnotation() { return false; }
 static public class Annotation extends Declaration {
 /** tags:Tags visibility:Visibility  "anno" annoType:Type onType:Type "@" name:Name ";" -> Declaration {cons("Annotation")} */
-	public Annotation(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Type annoType, org.rascalmpl.ast.Type onType, org.rascalmpl.ast.Name name) {
+	protected Annotation(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Type annoType, org.rascalmpl.ast.Type onType, org.rascalmpl.ast.Name name) {
 		this.node = node;
 		this.tags = tags;
 		this.visibility = visibility;
@@ -275,7 +275,7 @@ private final org.rascalmpl.ast.Tags tags;
 public boolean isTag() { return false; }
 static public class Tag extends Declaration {
 /** tags:Tags visibility:Visibility  "tag"  kind:Kind name:Name "on" types:{Type ","}+ ";" -> Declaration {cons("Tag")} */
-	public Tag(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Kind kind, org.rascalmpl.ast.Name name, java.util.List<org.rascalmpl.ast.Type> types) {
+	protected Tag(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Kind kind, org.rascalmpl.ast.Name name, java.util.List<org.rascalmpl.ast.Type> types) {
 		this.node = node;
 		this.tags = tags;
 		this.visibility = visibility;
