@@ -206,6 +206,7 @@ public class ListContainerNode extends AbstractContainerNode{
 			
 			for(int i = nrOfPrefixes - 1; i >= 0; --i){
 				Link prefix = prefixes.get(i);
+				if(prefix == null) continue;
 				AbstractNode prefixNode = prefix.node;
 				
 				if(prefixNode == originNode){
