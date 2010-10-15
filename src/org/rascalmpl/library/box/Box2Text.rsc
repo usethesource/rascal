@@ -630,7 +630,7 @@ public value toText(Box b, loc src, loc dest) {
      
 public value toLatex(Box b, loc src, loc dest) {
      text t = box2latex(b);
-     writeData(src, dest, t, ".latex");
+     writeData(src, dest, t, ".tex");
      return t;
      }
      
