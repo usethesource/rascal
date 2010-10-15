@@ -6,7 +6,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 public class JavaFunctionBody extends FunctionBody {
 	private final String string;
 
-	public JavaFunctionBody(INode node, String string) {
+	protected JavaFunctionBody(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
