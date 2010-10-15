@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class HexLongLiteral extends AbstractAST { 
 static public class Lexical extends HexLongLiteral {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -17,7 +17,7 @@ static public class Lexical extends HexLongLiteral {
 }
 static public class Ambiguity extends HexLongLiteral {
   private final java.util.List<org.rascalmpl.ast.HexLongLiteral> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.HexLongLiteral> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.HexLongLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

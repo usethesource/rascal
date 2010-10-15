@@ -10,7 +10,7 @@ public boolean hasMid() { return false; }
 public boolean isMid() { return false; }
 static public class Mid extends ProtocolTail {
 /** mid:MidProtocolChars expression:Expression tail:ProtocolTail -> ProtocolTail {cons("Mid")} */
-	public Mid(INode node, org.rascalmpl.ast.MidProtocolChars mid, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.ProtocolTail tail) {
+	protected Mid(INode node, org.rascalmpl.ast.MidProtocolChars mid, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.ProtocolTail tail) {
 		this.node = node;
 		this.mid = mid;
 		this.expression = expression;
@@ -35,7 +35,7 @@ private final org.rascalmpl.ast.MidProtocolChars mid;
 }
 static public class Ambiguity extends ProtocolTail {
   private final java.util.List<org.rascalmpl.ast.ProtocolTail> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ProtocolTail> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ProtocolTail> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -52,7 +52,7 @@ public boolean hasPost() { return false; }
 public boolean isPost() { return false; }
 static public class Post extends ProtocolTail {
 /** post:PostProtocolChars -> ProtocolTail {cons("Post")} */
-	public Post(INode node, org.rascalmpl.ast.PostProtocolChars post) {
+	protected Post(INode node, org.rascalmpl.ast.PostProtocolChars post) {
 		this.node = node;
 		this.post = post;
 	}

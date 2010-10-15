@@ -4,7 +4,7 @@ public abstract class StringTemplate extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Statement> getPreStats() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.StringMiddle getBody() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Statement> getPostStats() { throw new UnsupportedOperationException(); } public boolean hasGenerators() { return false; } public boolean hasPreStats() { return false; } public boolean hasBody() { return false; } public boolean hasPostStats() { return false; } public boolean isFor() { return false; }
 static public class For extends StringTemplate {
 /** "for" "(" generators:{Expression ","}+ ")" "{" preStats:Statement* body:StringMiddle postStats:Statement* "}" -> StringTemplate {cons("For")} */
-	public For(INode node, java.util.List<org.rascalmpl.ast.Expression> generators, java.util.List<org.rascalmpl.ast.Statement> preStats, org.rascalmpl.ast.StringMiddle body, java.util.List<org.rascalmpl.ast.Statement> postStats) {
+	protected For(INode node, java.util.List<org.rascalmpl.ast.Expression> generators, java.util.List<org.rascalmpl.ast.Statement> preStats, org.rascalmpl.ast.StringMiddle body, java.util.List<org.rascalmpl.ast.Statement> postStats) {
 		this.node = node;
 		this.generators = generators;
 		this.preStats = preStats;
@@ -33,7 +33,7 @@ private final java.util.List<org.rascalmpl.ast.Expression> generators;
 }
 static public class Ambiguity extends StringTemplate {
   private final java.util.List<org.rascalmpl.ast.StringTemplate> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringTemplate> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringTemplate> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -47,7 +47,7 @@ static public class Ambiguity extends StringTemplate {
 } public java.util.List<org.rascalmpl.ast.Expression> getConditions() { throw new UnsupportedOperationException(); } public boolean hasConditions() { return false; } public boolean isIfThen() { return false; }
 static public class IfThen extends StringTemplate {
 /** "if" "(" conditions:{Expression ","}+ ")" "{" preStats:Statement* body:StringMiddle postStats:Statement* "}" -> StringTemplate {cons("IfThen")} */
-	public IfThen(INode node, java.util.List<org.rascalmpl.ast.Expression> conditions, java.util.List<org.rascalmpl.ast.Statement> preStats, org.rascalmpl.ast.StringMiddle body, java.util.List<org.rascalmpl.ast.Statement> postStats) {
+	protected IfThen(INode node, java.util.List<org.rascalmpl.ast.Expression> conditions, java.util.List<org.rascalmpl.ast.Statement> preStats, org.rascalmpl.ast.StringMiddle body, java.util.List<org.rascalmpl.ast.Statement> postStats) {
 		this.node = node;
 		this.conditions = conditions;
 		this.preStats = preStats;
@@ -87,7 +87,7 @@ private final java.util.List<org.rascalmpl.ast.Expression> conditions;
 public boolean isIfThenElse() { return false; }
 static public class IfThenElse extends StringTemplate {
 /** "if" "(" conditions:{Expression ","}+ ")" "{" preStatsThen:Statement* thenString:StringMiddle postStatsThen:Statement* "}" "else" "{" preStatsElse:Statement* elseString:StringMiddle postStatsElse:Statement*  "}" -> StringTemplate {cons("IfThenElse")} */
-	public IfThenElse(INode node, java.util.List<org.rascalmpl.ast.Expression> conditions, java.util.List<org.rascalmpl.ast.Statement> preStatsThen, org.rascalmpl.ast.StringMiddle thenString, java.util.List<org.rascalmpl.ast.Statement> postStatsThen, java.util.List<org.rascalmpl.ast.Statement> preStatsElse, org.rascalmpl.ast.StringMiddle elseString, java.util.List<org.rascalmpl.ast.Statement> postStatsElse) {
+	protected IfThenElse(INode node, java.util.List<org.rascalmpl.ast.Expression> conditions, java.util.List<org.rascalmpl.ast.Statement> preStatsThen, org.rascalmpl.ast.StringMiddle thenString, java.util.List<org.rascalmpl.ast.Statement> postStatsThen, java.util.List<org.rascalmpl.ast.Statement> preStatsElse, org.rascalmpl.ast.StringMiddle elseString, java.util.List<org.rascalmpl.ast.Statement> postStatsElse) {
 		this.node = node;
 		this.conditions = conditions;
 		this.preStatsThen = preStatsThen;
@@ -128,7 +128,7 @@ private final java.util.List<org.rascalmpl.ast.Expression> conditions;
 } public org.rascalmpl.ast.Expression getCondition() { throw new UnsupportedOperationException(); } public boolean hasCondition() { return false; } public boolean isWhile() { return false; }
 static public class While extends StringTemplate {
 /** "while" "(" condition:Expression ")" "{" preStats:Statement* body:StringMiddle postStats:Statement* "}" -> StringTemplate {cons("While")} */
-	public While(INode node, org.rascalmpl.ast.Expression condition, java.util.List<org.rascalmpl.ast.Statement> preStats, org.rascalmpl.ast.StringMiddle body, java.util.List<org.rascalmpl.ast.Statement> postStats) {
+	protected While(INode node, org.rascalmpl.ast.Expression condition, java.util.List<org.rascalmpl.ast.Statement> preStats, org.rascalmpl.ast.StringMiddle body, java.util.List<org.rascalmpl.ast.Statement> postStats) {
 		this.node = node;
 		this.condition = condition;
 		this.preStats = preStats;
@@ -157,7 +157,7 @@ private final org.rascalmpl.ast.Expression condition;
 } public boolean isDoWhile() { return false; }
 static public class DoWhile extends StringTemplate {
 /** "do" "{" preStats:Statement* body:StringMiddle  postStats:Statement* "}" "while" "(" condition:Expression ")" -> StringTemplate {cons("DoWhile")} */
-	public DoWhile(INode node, java.util.List<org.rascalmpl.ast.Statement> preStats, org.rascalmpl.ast.StringMiddle body, java.util.List<org.rascalmpl.ast.Statement> postStats, org.rascalmpl.ast.Expression condition) {
+	protected DoWhile(INode node, java.util.List<org.rascalmpl.ast.Statement> preStats, org.rascalmpl.ast.StringMiddle body, java.util.List<org.rascalmpl.ast.Statement> postStats, org.rascalmpl.ast.Expression condition) {
 		this.node = node;
 		this.preStats = preStats;
 		this.body = body;

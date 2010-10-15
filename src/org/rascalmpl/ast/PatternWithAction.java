@@ -5,7 +5,7 @@ public abstract class PatternWithAction extends AbstractAST {
 public boolean isReplacing() { return false; }
 static public class Replacing extends PatternWithAction {
 /** pattern:Expression "=>" replacement:Replacement -> PatternWithAction {cons("Replacing")} */
-	public Replacing(INode node, org.rascalmpl.ast.Expression pattern, org.rascalmpl.ast.Replacement replacement) {
+	protected Replacing(INode node, org.rascalmpl.ast.Expression pattern, org.rascalmpl.ast.Replacement replacement) {
 		this.node = node;
 		this.pattern = pattern;
 		this.replacement = replacement;
@@ -26,7 +26,7 @@ private final org.rascalmpl.ast.Expression pattern;
 }
 static public class Ambiguity extends PatternWithAction {
   private final java.util.List<org.rascalmpl.ast.PatternWithAction> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PatternWithAction> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PatternWithAction> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -41,7 +41,7 @@ static public class Ambiguity extends PatternWithAction {
 public boolean isArbitrary() { return false; }
 static public class Arbitrary extends PatternWithAction {
 /** pattern:Expression ":" statement:Statement -> PatternWithAction {cons("Arbitrary")} */
-	public Arbitrary(INode node, org.rascalmpl.ast.Expression pattern, org.rascalmpl.ast.Statement statement) {
+	protected Arbitrary(INode node, org.rascalmpl.ast.Expression pattern, org.rascalmpl.ast.Statement statement) {
 		this.node = node;
 		this.pattern = pattern;
 		this.statement = statement;

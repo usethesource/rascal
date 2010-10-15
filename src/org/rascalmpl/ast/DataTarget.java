@@ -4,7 +4,7 @@ public abstract class DataTarget extends AbstractAST {
   public boolean isEmpty() { return false; }
 static public class Empty extends DataTarget {
 /**  -> DataTarget {cons("Empty")} */
-	public Empty(INode node) {
+	protected Empty(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Empty extends DataTarget {
 }
 static public class Ambiguity extends DataTarget {
   private final java.util.List<org.rascalmpl.ast.DataTarget> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DataTarget> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DataTarget> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -32,7 +32,7 @@ public boolean hasLabel() { return false; }
 public boolean isLabeled() { return false; }
 static public class Labeled extends DataTarget {
 /** label:Name ":" -> DataTarget {cons("Labeled")} */
-	public Labeled(INode node, org.rascalmpl.ast.Name label) {
+	protected Labeled(INode node, org.rascalmpl.ast.Name label) {
 		this.node = node;
 		this.label = label;
 	}

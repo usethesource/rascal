@@ -8,7 +8,7 @@ public boolean hasType() { return false; }
 public boolean isTypeArguments() { return false; }
 static public class TypeArguments extends FunctionType {
 /** type:Type "(" arguments:{TypeArg ","}* ")" -> FunctionType {cons("TypeArguments")} */
-	public TypeArguments(INode node, org.rascalmpl.ast.Type type, java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
+	protected TypeArguments(INode node, org.rascalmpl.ast.Type type, java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
 		this.node = node;
 		this.type = type;
 		this.arguments = arguments;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.Type type;
 }
 static public class Ambiguity extends FunctionType {
   private final java.util.List<org.rascalmpl.ast.FunctionType> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionType> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionType> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

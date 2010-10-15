@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class Mapping extends AbstractAST { 
   public org.rascalmpl.ast.Expression getFrom() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Expression getTo() { throw new UnsupportedOperationException(); } public boolean hasFrom() { return false; } public boolean hasTo() { return false; } public boolean isDefault() { return false; } static public class Default extends Mapping {
 /** from:Expression ":" to:Expression -> Mapping {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Expression from, org.rascalmpl.ast.Expression to) {
+	protected Default(INode node, org.rascalmpl.ast.Expression from, org.rascalmpl.ast.Expression to) {
 		this.node = node;
 		this.from = from;
 		this.to = to;
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.Expression from;
 	public org.rascalmpl.ast.Expression getTo() { return to; }	
 } static public class Ambiguity extends Mapping {
   private final java.util.List<org.rascalmpl.ast.Mapping> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Mapping> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Mapping> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

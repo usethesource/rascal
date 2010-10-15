@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class Backslash extends AbstractAST { 
 static public class Lexical extends Backslash {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -17,7 +17,7 @@ static public class Lexical extends Backslash {
 }
 static public class Ambiguity extends Backslash {
   private final java.util.List<org.rascalmpl.ast.Backslash> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Backslash> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Backslash> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

@@ -8,7 +8,7 @@ public boolean hasName() { return false; }
 public boolean isNamedType() { return false; }
 static public class NamedType extends Alternative {
 /** name:Name type:Type -> Alternative {cons("NamedType")} */
-	public NamedType(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Type type) {
+	protected NamedType(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Type type) {
 		this.node = node;
 		this.name = name;
 		this.type = type;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.Name name;
 }
 static public class Ambiguity extends Alternative {
   private final java.util.List<org.rascalmpl.ast.Alternative> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Alternative> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Alternative> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

@@ -4,7 +4,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
   public org.rascalmpl.ast.Start getStart() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Sym getDefined() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Prod getProduction() { throw new UnsupportedOperationException(); } public boolean hasStart() { return false; } public boolean hasDefined() { return false; } public boolean hasProduction() { return false; } public boolean isLanguage() { return false; }
 static public class Language extends SyntaxDefinition {
 /** start:Start "syntax" defined:Sym "=" production:Prod ";" -> SyntaxDefinition {cons("Language")} */
-	public Language(INode node, org.rascalmpl.ast.Start start, org.rascalmpl.ast.Sym defined, org.rascalmpl.ast.Prod production) {
+	protected Language(INode node, org.rascalmpl.ast.Start start, org.rascalmpl.ast.Sym defined, org.rascalmpl.ast.Prod production) {
 		this.node = node;
 		this.start = start;
 		this.defined = defined;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.Start start;
 }
 static public class Ambiguity extends SyntaxDefinition {
   private final java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -43,7 +43,7 @@ static public class Ambiguity extends SyntaxDefinition {
 } public boolean isLayout() { return false; }
 static public class Layout extends SyntaxDefinition {
 /** "layout" defined:Sym "=" production:Prod ";" -> SyntaxDefinition {cons("Layout")} */
-	public Layout(INode node, org.rascalmpl.ast.Sym defined, org.rascalmpl.ast.Prod production) {
+	protected Layout(INode node, org.rascalmpl.ast.Sym defined, org.rascalmpl.ast.Prod production) {
 		this.node = node;
 		this.defined = defined;
 		this.production = production;

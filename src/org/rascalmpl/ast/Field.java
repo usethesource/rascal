@@ -6,7 +6,7 @@ public boolean hasFieldName() { return false; }
 public boolean isName() { return false; }
 static public class Name extends Field {
 /** fieldName:Name -> Field {cons("Name")} */
-	public Name(INode node, org.rascalmpl.ast.Name fieldName) {
+	protected Name(INode node, org.rascalmpl.ast.Name fieldName) {
 		this.node = node;
 		this.fieldName = fieldName;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.Name fieldName;
 }
 static public class Ambiguity extends Field {
   private final java.util.List<org.rascalmpl.ast.Field> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Field> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Field> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ public boolean hasFieldIndex() { return false; }
 public boolean isIndex() { return false; }
 static public class Index extends Field {
 /** fieldIndex:IntegerLiteral -> Field {cons("Index")} */
-	public Index(INode node, org.rascalmpl.ast.IntegerLiteral fieldIndex) {
+	protected Index(INode node, org.rascalmpl.ast.IntegerLiteral fieldIndex) {
 		this.node = node;
 		this.fieldIndex = fieldIndex;
 	}

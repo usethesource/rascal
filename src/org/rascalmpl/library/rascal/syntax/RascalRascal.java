@@ -19,6 +19,7 @@ import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.IntegerList;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IParserInfo;
 
@@ -55,7 +56,7 @@ public class RascalRascal extends SGLL implements IParserInfo {
         _putDontNest(((IInteger) t.get(0)).intValue(), ((IInteger) t.get(1)).intValue());
       }
       
-      ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
+      ASTBuilder astBuilder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
       _languageActions = new java.util.HashMap<IConstructor, org.rascalmpl.ast.LanguageAction>();
       for (IValue key : _actions) {
         _languageActions.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(_actions.get(key)));

@@ -4,7 +4,7 @@ public abstract class StringTail extends AbstractAST {
   public org.rascalmpl.ast.MidStringChars getMid() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.StringTail getTail() { throw new UnsupportedOperationException(); } public boolean hasMid() { return false; } public boolean hasExpression() { return false; } public boolean hasTail() { return false; } public boolean isMidInterpolated() { return false; }
 static public class MidInterpolated extends StringTail {
 /** mid:MidStringChars expression:Expression tail:StringTail -> StringTail {cons("MidInterpolated")} */
-	public MidInterpolated(INode node, org.rascalmpl.ast.MidStringChars mid, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.StringTail tail) {
+	protected MidInterpolated(INode node, org.rascalmpl.ast.MidStringChars mid, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.StringTail tail) {
 		this.node = node;
 		this.mid = mid;
 		this.expression = expression;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.MidStringChars mid;
 }
 static public class Ambiguity extends StringTail {
   private final java.util.List<org.rascalmpl.ast.StringTail> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringTail> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringTail> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -43,7 +43,7 @@ static public class Ambiguity extends StringTail {
 } public org.rascalmpl.ast.StringTemplate getTemplate() { throw new UnsupportedOperationException(); } public boolean hasTemplate() { return false; } public boolean isMidTemplate() { return false; }
 static public class MidTemplate extends StringTail {
 /** mid:MidStringChars template:StringTemplate tail:StringTail -> StringTail {cons("MidTemplate")} */
-	public MidTemplate(INode node, org.rascalmpl.ast.MidStringChars mid, org.rascalmpl.ast.StringTemplate template, org.rascalmpl.ast.StringTail tail) {
+	protected MidTemplate(INode node, org.rascalmpl.ast.MidStringChars mid, org.rascalmpl.ast.StringTemplate template, org.rascalmpl.ast.StringTail tail) {
 		this.node = node;
 		this.mid = mid;
 		this.template = template;
@@ -70,7 +70,7 @@ public boolean hasPost() { return false; }
 public boolean isPost() { return false; }
 static public class Post extends StringTail {
 /** post:PostStringChars -> StringTail {cons("Post")} */
-	public Post(INode node, org.rascalmpl.ast.PostStringChars post) {
+	protected Post(INode node, org.rascalmpl.ast.PostStringChars post) {
 		this.node = node;
 		this.post = post;
 	}

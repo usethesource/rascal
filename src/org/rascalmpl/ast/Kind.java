@@ -4,7 +4,7 @@ public abstract class Kind extends AbstractAST {
   public boolean isModule() { return false; }
 static public class Module extends Kind {
 /** "module" -> Kind {cons("Module")} */
-	public Module(INode node) {
+	protected Module(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Module extends Kind {
 }
 static public class Ambiguity extends Kind {
   private final java.util.List<org.rascalmpl.ast.Kind> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Kind> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Kind> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -30,7 +30,7 @@ static public class Ambiguity extends Kind {
 public boolean isFunction() { return false; }
 static public class Function extends Kind {
 /** "function" -> Kind {cons("Function")} */
-	public Function(INode node) {
+	protected Function(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -41,7 +41,7 @@ static public class Function extends Kind {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isRule() { return false; }
 static public class Rule extends Kind {
 /** "rule" -> Kind {cons("Rule")} */
-	public Rule(INode node) {
+	protected Rule(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -53,7 +53,7 @@ static public class Rule extends Kind {
 public boolean isVariable() { return false; }
 static public class Variable extends Kind {
 /** "variable" -> Kind {cons("Variable")} */
-	public Variable(INode node) {
+	protected Variable(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -65,7 +65,7 @@ static public class Variable extends Kind {
 public boolean isData() { return false; }
 static public class Data extends Kind {
 /** "data" -> Kind {cons("Data")} */
-	public Data(INode node) {
+	protected Data(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -77,7 +77,7 @@ static public class Data extends Kind {
 public boolean isView() { return false; }
 static public class View extends Kind {
 /** "view" -> Kind {cons("View")} */
-	public View(INode node) {
+	protected View(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -89,7 +89,7 @@ static public class View extends Kind {
 public boolean isAlias() { return false; }
 static public class Alias extends Kind {
 /** "alias" -> Kind {cons("Alias")} */
-	public Alias(INode node) {
+	protected Alias(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -101,7 +101,7 @@ static public class Alias extends Kind {
 public boolean isAnno() { return false; }
 static public class Anno extends Kind {
 /** "anno" -> Kind {cons("Anno")} */
-	public Anno(INode node) {
+	protected Anno(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -113,7 +113,7 @@ static public class Anno extends Kind {
 public boolean isTag() { return false; }
 static public class Tag extends Kind {
 /** "tag" -> Kind {cons("Tag")} */
-	public Tag(INode node) {
+	protected Tag(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -125,7 +125,7 @@ static public class Tag extends Kind {
 public boolean isAll() { return false; }
 static public class All extends Kind {
 /** "all" -> Kind {cons("All")} */
-	public All(INode node) {
+	protected All(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

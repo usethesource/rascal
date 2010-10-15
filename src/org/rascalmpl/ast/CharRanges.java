@@ -6,7 +6,7 @@ public boolean hasRange() { return false; }
 public boolean isRange() { return false; }
 static public class Range extends CharRanges {
 /** range:CharRange -> CharRanges {cons("Range")} */
-	public Range(INode node, org.rascalmpl.ast.CharRange range) {
+	protected Range(INode node, org.rascalmpl.ast.CharRange range) {
 		this.node = node;
 		this.range = range;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.CharRange range;
 }
 static public class Ambiguity extends CharRanges {
   private final java.util.List<org.rascalmpl.ast.CharRanges> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.CharRanges> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.CharRanges> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -42,7 +42,7 @@ public boolean hasLhs() { return false; }
 public boolean isConcatenate() { return false; }
 static public class Concatenate extends CharRanges {
 /** lhs:CharRanges rhs:CharRanges -> CharRanges {cons("Concatenate"), right, memo} */
-	public Concatenate(INode node, org.rascalmpl.ast.CharRanges lhs, org.rascalmpl.ast.CharRanges rhs) {
+	protected Concatenate(INode node, org.rascalmpl.ast.CharRanges lhs, org.rascalmpl.ast.CharRanges rhs) {
 		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -65,7 +65,7 @@ public boolean hasRanges() { return false; }
 public boolean isBracket() { return false; }
 static public class Bracket extends CharRanges {
 /** "(" ranges:CharRanges ")" -> CharRanges {bracket, cons("Bracket")} */
-	public Bracket(INode node, org.rascalmpl.ast.CharRanges ranges) {
+	protected Bracket(INode node, org.rascalmpl.ast.CharRanges ranges) {
 		this.node = node;
 		this.ranges = ranges;
 	}

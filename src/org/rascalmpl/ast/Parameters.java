@@ -4,7 +4,7 @@ public abstract class Parameters extends AbstractAST {
   public org.rascalmpl.ast.Formals getFormals() { throw new UnsupportedOperationException(); } public boolean hasFormals() { return false; } public boolean isDefault() { return false; }
 static public class Default extends Parameters {
 /** "(" formals:Formals ")" -> Parameters {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Formals formals) {
+	protected Default(INode node, org.rascalmpl.ast.Formals formals) {
 		this.node = node;
 		this.formals = formals;
 	}
@@ -21,7 +21,7 @@ private final org.rascalmpl.ast.Formals formals;
 }
 static public class Ambiguity extends Parameters {
   private final java.util.List<org.rascalmpl.ast.Parameters> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Parameters> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Parameters> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -35,7 +35,7 @@ static public class Ambiguity extends Parameters {
 } public boolean isVarArgs() { return false; }
 static public class VarArgs extends Parameters {
 /** "(" formals:Formals "..." ")" -> Parameters {cons("VarArgs")} */
-	public VarArgs(INode node, org.rascalmpl.ast.Formals formals) {
+	protected VarArgs(INode node, org.rascalmpl.ast.Formals formals) {
 		this.node = node;
 		this.formals = formals;
 	}

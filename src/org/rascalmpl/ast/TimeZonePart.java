@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class TimeZonePart extends AbstractAST { 
   static public class Lexical extends TimeZonePart {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -16,7 +16,7 @@ public abstract class TimeZonePart extends AbstractAST {
   	}
 } static public class Ambiguity extends TimeZonePart {
   private final java.util.List<org.rascalmpl.ast.TimeZonePart> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TimeZonePart> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TimeZonePart> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

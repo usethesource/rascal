@@ -4,7 +4,7 @@ public abstract class Prod extends AbstractAST {
   public boolean isOthers() { return false; }
 static public class Others extends Prod {
 /** "..." -> Prod {cons("Others")} */
-	public Others(INode node) {
+	protected Others(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Others extends Prod {
 }
 static public class Ambiguity extends Prod {
   private final java.util.List<org.rascalmpl.ast.Prod> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Prod> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Prod> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -32,7 +32,7 @@ public boolean hasReferenced() { return false; }
 public boolean isReference() { return false; }
 static public class Reference extends Prod {
 /** ":" referenced:Name -> Prod {cons("Reference")} */
-	public Reference(INode node, org.rascalmpl.ast.Name referenced) {
+	protected Reference(INode node, org.rascalmpl.ast.Name referenced) {
 		this.node = node;
 		this.referenced = referenced;
 	}
@@ -49,7 +49,7 @@ private final org.rascalmpl.ast.Name referenced;
 } public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.rascalmpl.ast.ProdModifier> getModifiers() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Name getName() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Sym> getArgs() { throw new UnsupportedOperationException(); } public boolean hasModifiers() { return false; } public boolean hasName() { return false; } public boolean hasArgs() { return false; } public boolean isLabeled() { return false; }
 static public class Labeled extends Prod {
 /** modifiers:ProdModifier* name:Name ":" args:Sym* -> Prod {cons("Labeled")} */
-	public Labeled(INode node, java.util.List<org.rascalmpl.ast.ProdModifier> modifiers, org.rascalmpl.ast.Name name, java.util.List<org.rascalmpl.ast.Sym> args) {
+	protected Labeled(INode node, java.util.List<org.rascalmpl.ast.ProdModifier> modifiers, org.rascalmpl.ast.Name name, java.util.List<org.rascalmpl.ast.Sym> args) {
 		this.node = node;
 		this.modifiers = modifiers;
 		this.name = name;
@@ -74,7 +74,7 @@ private final java.util.List<org.rascalmpl.ast.ProdModifier> modifiers;
 } public boolean isUnlabeled() { return false; }
 static public class Unlabeled extends Prod {
 /** modifiers:ProdModifier* args:Sym* -> Prod {cons("Unlabeled")} */
-	public Unlabeled(INode node, java.util.List<org.rascalmpl.ast.ProdModifier> modifiers, java.util.List<org.rascalmpl.ast.Sym> args) {
+	protected Unlabeled(INode node, java.util.List<org.rascalmpl.ast.ProdModifier> modifiers, java.util.List<org.rascalmpl.ast.Sym> args) {
 		this.node = node;
 		this.modifiers = modifiers;
 		this.args = args;
@@ -100,7 +100,7 @@ public boolean hasProd() { return false; }
 public boolean isAction() { return false; }
 static public class Action extends Prod {
 /** prod:Prod action:LanguageAction -> Prod {cons("Action"), non-assoc} */
-	public Action(INode node, org.rascalmpl.ast.Prod prod, org.rascalmpl.ast.LanguageAction action) {
+	protected Action(INode node, org.rascalmpl.ast.Prod prod, org.rascalmpl.ast.LanguageAction action) {
 		this.node = node;
 		this.prod = prod;
 		this.action = action;
@@ -121,7 +121,7 @@ private final org.rascalmpl.ast.Prod prod;
 } public org.rascalmpl.ast.Prod getLhs() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Prod getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isReject() { return false; }
 static public class Reject extends Prod {
 /** lhs:Prod "-" rhs:Prod -> Prod {cons("Reject"), left} */
-	public Reject(INode node, org.rascalmpl.ast.Prod lhs, org.rascalmpl.ast.Prod rhs) {
+	protected Reject(INode node, org.rascalmpl.ast.Prod lhs, org.rascalmpl.ast.Prod rhs) {
 		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -142,7 +142,7 @@ private final org.rascalmpl.ast.Prod lhs;
 } public boolean isFollow() { return false; }
 static public class Follow extends Prod {
 /** lhs:Prod "#" rhs:Prod -> Prod {cons("Follow"), left} */
-	public Follow(INode node, org.rascalmpl.ast.Prod lhs, org.rascalmpl.ast.Prod rhs) {
+	protected Follow(INode node, org.rascalmpl.ast.Prod lhs, org.rascalmpl.ast.Prod rhs) {
 		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -160,31 +160,10 @@ private final org.rascalmpl.ast.Prod lhs;
 	public org.rascalmpl.ast.Prod getLhs() { return lhs; }
 	private final org.rascalmpl.ast.Prod rhs;
 	public org.rascalmpl.ast.Prod getRhs() { return rhs; }	
-} public boolean isFirst() { return false; }
-static public class First extends Prod {
-/** lhs:Prod ">" rhs:Prod -> Prod {cons("First"), left} */
-	public First(INode node, org.rascalmpl.ast.Prod lhs, org.rascalmpl.ast.Prod rhs) {
-		this.node = node;
-		this.lhs = lhs;
-		this.rhs = rhs;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitProdFirst(this);
-	}
-
-	public boolean isFirst() { return true; }
-
-	public boolean hasLhs() { return true; }
-	public boolean hasRhs() { return true; }
-
-private final org.rascalmpl.ast.Prod lhs;
-	public org.rascalmpl.ast.Prod getLhs() { return lhs; }
-	private final org.rascalmpl.ast.Prod rhs;
-	public org.rascalmpl.ast.Prod getRhs() { return rhs; }	
 } public boolean isAll() { return false; }
 static public class All extends Prod {
 /** lhs:Prod "|" rhs:Prod -> Prod {cons("All"), left} */
-	public All(INode node, org.rascalmpl.ast.Prod lhs, org.rascalmpl.ast.Prod rhs) {
+	protected All(INode node, org.rascalmpl.ast.Prod lhs, org.rascalmpl.ast.Prod rhs) {
 		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -202,6 +181,27 @@ private final org.rascalmpl.ast.Prod lhs;
 	public org.rascalmpl.ast.Prod getLhs() { return lhs; }
 	private final org.rascalmpl.ast.Prod rhs;
 	public org.rascalmpl.ast.Prod getRhs() { return rhs; }	
+} public boolean isFirst() { return false; }
+static public class First extends Prod {
+/** lhs:Prod ">" rhs:Prod -> Prod {cons("First"), left} */
+	protected First(INode node, org.rascalmpl.ast.Prod lhs, org.rascalmpl.ast.Prod rhs) {
+		this.node = node;
+		this.lhs = lhs;
+		this.rhs = rhs;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitProdFirst(this);
+	}
+
+	public boolean isFirst() { return true; }
+
+	public boolean hasLhs() { return true; }
+	public boolean hasRhs() { return true; }
+
+private final org.rascalmpl.ast.Prod lhs;
+	public org.rascalmpl.ast.Prod getLhs() { return lhs; }
+	private final org.rascalmpl.ast.Prod rhs;
+	public org.rascalmpl.ast.Prod getRhs() { return rhs; }	
 } 
 public org.rascalmpl.ast.Assoc getAssociativity() { throw new UnsupportedOperationException(); }
 	public org.rascalmpl.ast.Prod getGroup() { throw new UnsupportedOperationException(); }
@@ -210,7 +210,7 @@ public boolean hasAssociativity() { return false; }
 public boolean isAssociativityGroup() { return false; }
 static public class AssociativityGroup extends Prod {
 /** associativity:Assoc "(" group:Prod ")" -> Prod {cons("AssociativityGroup")} */
-	public AssociativityGroup(INode node, org.rascalmpl.ast.Assoc associativity, org.rascalmpl.ast.Prod group) {
+	protected AssociativityGroup(INode node, org.rascalmpl.ast.Assoc associativity, org.rascalmpl.ast.Prod group) {
 		this.node = node;
 		this.associativity = associativity;
 		this.group = group;

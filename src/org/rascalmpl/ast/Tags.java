@@ -6,7 +6,7 @@ public boolean hasTags() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Tags {
 /** tags:Tag* -> Tags {cons("Default")} */
-	public Default(INode node, java.util.List<org.rascalmpl.ast.Tag> tags) {
+	protected Default(INode node, java.util.List<org.rascalmpl.ast.Tag> tags) {
 		this.node = node;
 		this.tags = tags;
 	}
@@ -23,7 +23,7 @@ private final java.util.List<org.rascalmpl.ast.Tag> tags;
 }
 static public class Ambiguity extends Tags {
   private final java.util.List<org.rascalmpl.ast.Tags> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Tags> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Tags> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

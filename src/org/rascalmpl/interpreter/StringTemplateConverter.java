@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.BooleanLiteral;
 import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Expression;
@@ -32,18 +34,19 @@ public class StringTemplateConverter {
 	private static int labelCounter = 0;
 	
 	private static Statement surroundWithSingleIterForLoop(INode src, Name label, Statement body) {
-		Name dummy = new Name.Lexical(src, "_");
-		Expression var = new Expression.QualifiedName(src, new QualifiedName.Default(src, Arrays.asList(dummy)));
-		Expression truth = new Expression.Literal(src, new org.rascalmpl.ast.Literal.Boolean(src, new BooleanLiteral.Lexical(src, "true")));
-		Expression list = new Expression.List(src, Arrays.asList(truth));
-		Expression enumerator = new Expression.Enumerator(src, var, list);
-		Statement stat = new Statement.For(src, new Label.Default(src, label), Arrays.asList(enumerator), body);
+		ASTFactory factory = ASTFactoryFactory.getASTFactory();
+		Name dummy = factory.makeNameLexical(src, "_");
+		Expression var = factory.makeExpressionQualifiedName(src, factory.makeQualifiedNameDefault(src, Arrays.asList(dummy)));
+		Expression truth = factory.makeExpressionLiteral(src, factory.makeLiteralBoolean(src, factory.makeBooleanLiteralLexical(src, "true")));
+		Expression list = factory.makeExpressionList(src, Arrays.asList(truth));
+		Expression enumerator = factory.makeExpressionEnumerator(src, var, list);
+		Statement stat = factory.makeStatementFor(src, factory.makeLabelDefault(src, label), Arrays.asList(enumerator), body);
 		return stat;
 	}
 
 
 	public static Statement convert(org.rascalmpl.ast.StringLiteral str) {
-		final Name label= new Name.Lexical(null, "#" + labelCounter);
+		final Name label= ASTFactoryFactory.getASTFactory().makeNameLexical(null, "#" + labelCounter);
 		labelCounter++;
 		return surroundWithSingleIterForLoop(str.getTree(), label, str.accept(new Visitor(label)));
 	}
@@ -61,14 +64,16 @@ public class StringTemplateConverter {
 		}
 		
 		private static Statement makeBlock(INode src, List<Statement> stats) {
-			return new Statement.NonEmptyBlock(src, new Label.Empty(src),
+			ASTFactory factory = ASTFactoryFactory.getASTFactory();
+			return factory.makeStatementNonEmptyBlock(src, factory.makeLabelEmpty(src),
 					stats);
 		}
 
 		
 		private Statement makeAppend(Expression exp) {
-			return new Statement.Append(exp.getTree(), new DataTarget.Labeled(null, label),
-					new Statement.Expression(exp.getTree(), exp)); 
+			ASTFactory factory = ASTFactoryFactory.getASTFactory();
+			return factory.makeStatementAppend(exp.getTree(), factory.makeDataTargetLabeled(null, label),
+					factory.makeStatementExpression(exp.getTree(), exp)); 
 		}
 		
 		private static Statement combinePreBodyPost(INode src, List<Statement> pre, Statement body, List<Statement> post) {
@@ -84,10 +89,11 @@ public class StringTemplateConverter {
 			// Note: we don't unescape here this happens
 			// in the main evaluator; also, we pretend 
 			// "...< etc. to be "..." stringliterals...
-			return new Expression.Literal(src, 
-					new org.rascalmpl.ast.Literal.String(src, 
-							new StringLiteral.NonInterpolated(src, 
-									new StringConstant.Lexical(src, str))));
+			ASTFactory factory = ASTFactoryFactory.getASTFactory();
+			return factory.makeExpressionLiteral(src, 
+					factory.makeLiteralString(src, 
+							factory.makeStringLiteralNonInterpolated(src, 
+									factory.makeStringConstantLexical(src, str))));
 		}
 		
 		
@@ -117,31 +123,35 @@ public class StringTemplateConverter {
 	
 		@Override
 		public Statement visitStringTemplateDoWhile(DoWhile x) {
+			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement body = x.getBody().accept(this);
-			return new Statement.DoWhile(x.getTree(), new Label.Empty(x.getTree()), 
+			return factory.makeStatementDoWhile(x.getTree(), factory.makeLabelEmpty(x.getTree()), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()) , x.getCondition());
 		}
 
 
 		@Override
 		public Statement visitStringTemplateFor(For x) {
+			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement body = x.getBody().accept(this);
-			return new Statement.For(x.getTree(), new Label.Empty(x.getTree()), x.getGenerators(), 
+			return factory.makeStatementFor(x.getTree(), factory.makeLabelEmpty(x.getTree()), x.getGenerators(), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThen(IfThen x) {
+			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement body = x.getBody().accept(this);
-			return new Statement.IfThen(x.getTree(), new Label.Empty(x.getTree()), x.getConditions(), 
+			return factory.makeStatementIfThen(x.getTree(), factory.makeLabelEmpty(x.getTree()), x.getConditions(), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()), null);
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThenElse(IfThenElse x) {
+			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement t = x.getThenString().accept(this);
 			Statement e = x.getElseString().accept(this);
-			return new Statement.IfThenElse(x.getTree(), new Label.Empty(x.getTree()), 
+			return factory.makeStatementIfThenElse(x.getTree(), factory.makeLabelEmpty(x.getTree()), 
 					x.getConditions(), 
 						combinePreBodyPost(x.getTree(), x.getPreStatsThen(), t, x.getPostStatsThen()),
 						combinePreBodyPost(x.getTree(), x.getPreStatsElse(), e, x.getPostStatsElse()));
@@ -149,8 +159,9 @@ public class StringTemplateConverter {
 
 		@Override
 		public Statement visitStringTemplateWhile(While x) {
+			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement body = x.getBody().accept(this);
-			return new Statement.While(x.getTree(), new Label.Empty(x.getTree()), Collections.singletonList(x.getCondition()), 
+			return factory.makeStatementWhile(x.getTree(), factory.makeLabelEmpty(x.getTree()), Collections.singletonList(x.getCondition()), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 

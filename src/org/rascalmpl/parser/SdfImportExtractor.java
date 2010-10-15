@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Module;
@@ -23,7 +23,7 @@ import org.rascalmpl.interpreter.utils.Names;
 public class SdfImportExtractor {
 	
 	Set<String> extractImports(IConstructor parseTree, List<String> searchPath) {
-		Module module = new ASTBuilder(new ASTFactory()).buildModule(parseTree);
+		Module module = new ASTBuilder(ASTFactoryFactory.getASTFactory()).buildModule(parseTree);
 		return extractImports(module, searchPath);
 	}
 	

@@ -4,7 +4,7 @@ public abstract class StrChar extends AbstractAST {
   public boolean isnewline() { return false; }
 static public class newline extends StrChar {
 /** "\\n" -> StrChar {cons("newline")} */
-	public newline(INode node) {
+	protected newline(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class newline extends StrChar {
 }
 static public class Ambiguity extends StrChar {
   private final java.util.List<org.rascalmpl.ast.StrChar> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StrChar> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StrChar> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -28,7 +28,7 @@ static public class Ambiguity extends StrChar {
   }
 } static public class Lexical extends StrChar {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}

@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class Declarator extends AbstractAST { 
   public org.rascalmpl.ast.Type getType() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Variable> getVariables() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasVariables() { return false; } public boolean isDefault() { return false; } static public class Default extends Declarator {
 /** type:Type variables:{Variable ","}+ -> Declarator {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Type type, java.util.List<org.rascalmpl.ast.Variable> variables) {
+	protected Default(INode node, org.rascalmpl.ast.Type type, java.util.List<org.rascalmpl.ast.Variable> variables) {
 		this.node = node;
 		this.type = type;
 		this.variables = variables;
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.Type type;
 	public java.util.List<org.rascalmpl.ast.Variable> getVariables() { return variables; }	
 } static public class Ambiguity extends Declarator {
   private final java.util.List<org.rascalmpl.ast.Declarator> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Declarator> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Declarator> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

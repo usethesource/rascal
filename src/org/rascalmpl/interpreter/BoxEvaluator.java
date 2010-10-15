@@ -235,8 +235,6 @@ import org.rascalmpl.ast.StringTail.MidInterpolated;
 import org.rascalmpl.ast.StringTail.MidTemplate;
 import org.rascalmpl.ast.Sym.Column;
 import org.rascalmpl.ast.Sym.EndOfLine;
-import org.rascalmpl.ast.Sym.NonEagerIterSep;
-import org.rascalmpl.ast.Sym.NonEagerIterStarSep;
 import org.rascalmpl.ast.Sym.Nonterminal;
 import org.rascalmpl.ast.Sym.Parameter;
 import org.rascalmpl.ast.Sym.Parametrized;
@@ -3642,16 +3640,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitSymParameter(Parameter x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitSymNonEagerIterSep(NonEagerIterSep x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitSymNonEagerIterStarSep(NonEagerIterStarSep x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
