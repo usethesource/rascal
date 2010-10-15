@@ -176,7 +176,7 @@ public class ASTBuilder {
 		}
 		
 		if (sortName(tree).equals("FunctionBody") && TreeAdapter.getConstructorName(tree).equals("Java")) {
-			JavaFunctionBody javaAST = new JavaFunctionBody((INode) arg, TreeAdapter.yield(tree));
+			JavaFunctionBody javaAST = factory.makeJavaFunctionBody((INode) arg, TreeAdapter.yield(tree));
 			javaAST.getStats().setAvoided(true);
 			return javaAST;
 		}
