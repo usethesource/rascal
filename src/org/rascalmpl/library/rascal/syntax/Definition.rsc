@@ -4,7 +4,7 @@
  It also implements a part of the semantics of Rascal's syntax definition formalism,
  i.e. by interspersing symbols with layout nodes and expanding literals.
 }
-@bootstrapParser{org.rascalmpl.library.rascal.syntax.MetaRascalRascal}  
+@bootstrapParser
 module rascal::syntax::Definition
    
 import rascal::syntax::RascalForImportExtraction;

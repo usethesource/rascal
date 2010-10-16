@@ -1,5 +1,5 @@
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
-@bootstrapParser{org.rascalmpl.library.rascal.syntax.MetaRascalRascal}  
+@bootstrapParser
 module rascal::syntax::RascalRascal
 
 syntax BooleanLiteral
@@ -28,7 +28,11 @@ syntax Marker =
               # "layout"
               ;
 
-syntax Rest = ![]* # ![];          
+syntax Rest = Word*;
+
+syntax Word = lex ![\ \t\n\r]+
+            # ![\ \t\n\r]
+            ;          
                    
 syntax Alternative
 	= NamedType: Name name Type type ;

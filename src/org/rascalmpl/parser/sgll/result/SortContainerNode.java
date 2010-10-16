@@ -17,6 +17,11 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class SortContainerNode extends AbstractContainerNode{
 	private IConstructor cachedResult;
+	private static ISourceLocation lastRejected = null; 
+	
+	public static ISourceLocation getLastRejectedLocation() {
+		return lastRejected;
+	}
 	
 	public SortContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
@@ -77,7 +82,12 @@ public class SortContainerNode extends AbstractContainerNode{
 			return cachedResult;
 		}
 		
-		if(rejected) return null;
+		if(rejected) {
+			int beginLine = positionStore.findLine(offset) + 1;
+			int endLine = positionStore.findLine(endOffset) + 1;
+			lastRejected = vf.sourceLocation(input, offset, endOffset - offset, beginLine, endLine, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
+			return null;
+		}
 		
 		ISourceLocation sourceLocation = null;
 		if(!(isLayout || input == null)){

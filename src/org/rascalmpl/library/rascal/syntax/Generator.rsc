@@ -203,7 +203,7 @@ public class <name> extends <super> implements IParserInfo {
 ";
 }  
 
-private Production unmeta(Production p) {
+public &T <: value unmeta(&T <: value p) {
   return visit(p) {
     case meta(s) => s
   }

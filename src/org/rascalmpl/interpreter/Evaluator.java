@@ -254,6 +254,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Utils;
+import org.rascalmpl.library.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.ActionExecutor;
@@ -1434,62 +1435,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				return exec.execute(rp.parseModule(sdfSearchPath, Collections.<java.lang.String>emptySet(), location, data, env));
 			}
 			else {
-				IGLL bootParser = getBootstrapParser(preModule);
-				
-				if (bootParser == null) {
-					// generate a parser and use it
-					IGLL mp = getRascalParser(env);
-					IConstructor tree = mp.parse(NewRascalParser.START_MODULE, location, NewRascalParser.bytesToChars(data));
-					return exec.execute(tree);
-				}
-				else {
-					// using a stored, previously constructed, bootstrap parser
-					IConstructor tree = bootParser.parse(NewRascalParser.START_MODULE, location, NewRascalParser.bytesToChars(data));
-					return exec.execute(tree); 
-				}
+				IGLL mp = needBootstrapParser(preModule) ? new MetaRascalRascal() : getRascalParser(env);
+				IConstructor tree = mp.parse(NewRascalParser.START_MODULE, location, NewRascalParser.bytesToChars(data));
+				return exec.execute(tree);
 			}
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private IGLL getBootstrapParser(Module preModule) {
-		String className = getBootstrapParserName(preModule);
-		
-		if (className == null) {
-			return null;
-		}
-		
-		try{
-			ClassLoader classLoader = getClass().getClassLoader();
-			Class<IGLL> clazz = (Class<IGLL>) classLoader.loadClass(className);
-			return clazz.newInstance();
-		}
-		catch(ClassNotFoundException e){
-			throw new ImplementationError("could not find class for bootstrap parser: " + className, e);
-		} 
-		catch (InstantiationException e) {
-			throw new ImplementationError("could not instantiate class for bootstrap parser: " + className, e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError("could not access class for bootstrap parser: " + className, e);
-		} catch (SecurityException e) {
-			throw new ImplementationError("security violation during creation or initialization of bootstrap parser: " + className, e);
-		} 
-	}
-
-	private String getBootstrapParserName(Module preModule) {
+	private boolean needBootstrapParser(Module preModule) {
 		for (org.rascalmpl.ast.Tag tag : preModule.getHeader().getTags().getTags()) {
 			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
-				String contents = tag.getContents().toString();
-				
-				if (contents.length() > 2 && contents.startsWith("{")) {
-					contents = contents.substring(1, contents.length() - 1);
-				}
-				
-				return contents;
+				return true;
 			}
 		}
 		
-		return null;
+		return false;
 	}
 
 	public IConstructor parseModuleExperimental(InputStream stream, URI location) {
