@@ -10086,7 +10086,7 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
                 
                }
           }
-	
+	/*
       public void RascalReservedKeywords() {
             super.RascalReservedKeywords();
             if ((lookAheadChar == 60)) {
@@ -10098,7 +10098,7 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
 		RascalReservedKeywords.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_4);
                 
                }
-          }
+          } */
 	
       public void Marker() {
             super.Marker();

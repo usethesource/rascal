@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -614,7 +615,10 @@ public abstract class SGLL implements IGLL{
 		HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 		IConstructor result = levelResultStoreMap.get(startNode.getName()).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
 		
-		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation(inputURI));
+		if(result == null) {
+			ISourceLocation lastLoc = SortContainerNode.getLastRejectedLocation();
+			throw new SyntaxError("Parse Error: all trees were filtered.", (lastLoc != null) ? lastLoc : vf.sourceLocation(inputURI));
+		}
 		
 		return makeParseTree(result);
 	}

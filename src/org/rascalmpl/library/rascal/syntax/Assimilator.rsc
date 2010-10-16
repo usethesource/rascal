@@ -1,6 +1,7 @@
 @doc{
   This module provides functionality for merging the Rascal grammar and arbitrary user-defined grammars
 }
+@bootstrapParser
 module rascal::syntax::Assimilator
 
 import ValueIO;
