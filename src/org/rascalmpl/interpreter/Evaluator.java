@@ -255,6 +255,7 @@ import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Utils;
 import org.rascalmpl.library.rascal.syntax.MetaRascalRascal;
+import org.rascalmpl.library.rascal.syntax.ObjectRascalRascal;
 import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.ActionExecutor;
@@ -471,12 +472,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * Parse an object string using the imported SDF modules from the current context.
 	 */
 	public IConstructor parseObject(IConstructor startSort, URI input) {
-		try {
-			return filterStart(startSort, parser.parseStream(sdf.getSdfSearchPath(), ((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), resolverRegistry.getInputStream(input)));
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getCurrentAST(), getStackTrace());
-		} catch (SyntaxError e) {
-			throw RuntimeExceptionFactory.parseError(e.getLocation(), getCurrentAST(), getStackTrace());
+		if (parser instanceof LegacyRascalParser) {
+			try {
+				return filterStart(startSort, parser.parseStream(sdf.getSdfSearchPath(), ((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), resolverRegistry.getInputStream(input)));
+			} catch (IOException e) {
+				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getCurrentAST(), getStackTrace());
+			} catch (SyntaxError e) {
+				throw RuntimeExceptionFactory.parseError(e.getLocation(), getCurrentAST(), getStackTrace());
+			}
+		}
+		else {
+			try {
+				return (IConstructor) parseObjectExperimental(startSort, input);
+			} catch (IOException e) {
+				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getCurrentAST(), getStackTrace());
+			}
 		}
 	}
 	
@@ -484,12 +494,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * Parse an object string using the imported SDF modules from the current context.
 	 */
 	public IConstructor parseObject(IConstructor startSort, java.lang.String input) {
-		try {
-			return filterStart(startSort, parser.parseString(sdf.getSdfSearchPath(), ((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), input));
-		} catch (IOException e) {
-			throw new ImplementationError("unexpected io exception", e);
-		} catch (SyntaxError e) {
-			throw RuntimeExceptionFactory.parseError(e.getLocation(), getCurrentAST(), getStackTrace());
+		if (parser instanceof LegacyRascalParser) {
+			try {
+				return filterStart(startSort, parser.parseString(sdf.getSdfSearchPath(), ((ModuleEnvironment) getCurrentEnvt().getRoot()).getSDFImports(), input));
+			} catch (IOException e) {
+				throw new ImplementationError("unexpected io exception", e);
+			} catch (SyntaxError e) {
+				throw RuntimeExceptionFactory.parseError(e.getLocation(), getCurrentAST(), getStackTrace());
+			}
+		}
+		else {
+			return (IConstructor) parseObjectExperimental(startSort, getCurrentAST().getLocation().getURI(), input);
 		}
 	}
 	
@@ -508,7 +523,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			name += SymbolAdapter.getName(startSort);
 		}
 		System.err.println("Calling the parser");
-		IConstructor forest = parser.parse(name, inputURI, resolver.getInputStream(inputURI));
+		IConstructor forest = parser.parse(name, inputURI, resolverRegistry.getInputStream(inputURI));
 		
 		System.err.println("Executing actions");
 		ActionExecutor exec = new ActionExecutor(this, (IParserInfo) parser);
@@ -542,6 +557,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	private IGLL getObjectParser(ModuleEnvironment currentModule) {
+		if (currentModule.getBootstrap()) {
+			return new ObjectRascalRascal();
+		}
 		ParserGenerator pg = getParserGenerator();
 		ISet productions = currentModule.getProductions();
 		Class<IGLL> parser = getHeap().getObjectParser(currentModule.getName(), productions);
@@ -1563,6 +1581,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		String name = getModuleName(x);
 
 		ModuleEnvironment env = heap.getModule(name);
+		
+		env.setBootstrap(needBootstrapParser(x));
 
 		if (env == null) {
 			env = new ModuleEnvironment(name);

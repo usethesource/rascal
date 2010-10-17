@@ -132,13 +132,27 @@ public class ActionExecutor {
 		IListWriter newChildren = eval.getValueFactory().listWriter(Factory.Tree);
 		boolean oneChanged = false;
 		changed = false;
+		boolean isList = TreeAdapter.isList(forest);
+		IConstructor prod = TreeAdapter.getProduction(forest);
 		
 		for (IValue child : children) {
 			IConstructor newChild = rec((IConstructor) child);
 			if (newChild == filtered) {
 				return filtered;
 			}
-			newChildren.append(newChild);
+			
+			if (!isList) {
+				newChildren.append(newChild);
+			}
+			else {
+				if (TreeAdapter.isList(newChild) && ProductionAdapter.shouldFlatten(prod,TreeAdapter.getProduction(newChild))) {
+					newChildren.appendAll(TreeAdapter.getArgs(newChild));
+				}
+				else {
+					newChildren.append(newChild);
+				}
+			}
+			
 			if (changed) {
 				oneChanged = true;
 			}
@@ -147,7 +161,6 @@ public class ActionExecutor {
 		
 		changed = oneChanged;
 		
-		IConstructor prod = TreeAdapter.getProduction(forest);
 		LanguageAction action = info.getAction(prod);
 		
 		if (action != null) {

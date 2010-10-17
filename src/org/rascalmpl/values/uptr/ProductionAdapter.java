@@ -208,4 +208,33 @@ public class ProductionAdapter {
 		}
 		return false;
 	}
+
+	public static boolean shouldFlatten(IConstructor surrounding, IConstructor nested) {
+		if (ProductionAdapter.isList(nested)) {
+			IConstructor nestedRhs = ProductionAdapter.getRhs(nested);
+			IConstructor surroundingRhs = ProductionAdapter.getRhs(surrounding);
+			
+			if (SymbolAdapter.isEqual(surroundingRhs,nestedRhs)) {
+				return true;
+			}
+			
+			if ((SymbolAdapter.isCf(surroundingRhs) && SymbolAdapter.isCf(nestedRhs)) || (SymbolAdapter.isLex(surroundingRhs) && SymbolAdapter.isLex(nestedRhs))) {
+				nestedRhs = SymbolAdapter.getSymbol(nestedRhs);
+				surroundingRhs = SymbolAdapter.getSymbol(surroundingRhs);
+			}
+			
+			if ((SymbolAdapter.isIterPlusSep(surroundingRhs) && SymbolAdapter.isIterStarSep(nestedRhs)) || (SymbolAdapter.isIterStarSep(surroundingRhs) && SymbolAdapter.isIterPlusSep(nestedRhs))) {
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs),SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.isEqual(SymbolAdapter.getSeparator(surroundingRhs),SymbolAdapter.getSeparator(nestedRhs));
+			}
+
+			if ((SymbolAdapter.isIterPlus(surroundingRhs) && SymbolAdapter.isIterStar(nestedRhs)) || (SymbolAdapter.isIterStar(surroundingRhs) && SymbolAdapter.isIterPlus(nestedRhs))) {
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs),SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparators(surroundingRhs).isEqual(SymbolAdapter.getSeparators(nestedRhs));
+			}
+			
+			if ((SymbolAdapter.isIterPlusSeps(surroundingRhs) && SymbolAdapter.isIterStarSeps(nestedRhs)) || (SymbolAdapter.isIterStarSeps(surroundingRhs) && SymbolAdapter.isIterPlusSeps(nestedRhs))) {
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs),SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparators(surroundingRhs).isEqual(SymbolAdapter.getSeparators(nestedRhs));
+			}
+		}
+		return false;
+	}
 }
