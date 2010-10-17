@@ -50,6 +50,7 @@ public class ModuleEnvironment extends Environment {
 	protected List<Test> tests;
 	private Set<String> importedSDFModules = new HashSet<String>();
 	private boolean initialized;
+	private boolean bootstrap;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -476,5 +477,13 @@ public class ModuleEnvironment extends Environment {
 		this.tests = new LinkedList<Test>();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
+	}
+
+	public void setBootstrap(boolean needBootstrapParser) {
+		this.bootstrap = needBootstrapParser;
+	}
+	
+	public boolean getBootstrap() {
+		return bootstrap;
 	}
 }

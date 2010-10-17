@@ -68,8 +68,8 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   return grammar(starts, \layouts(prods, layoutName) 
                        + {layoutProd, prod([],layouts("EMPTY_LAYOUT"),\no-attrs())}  
                        + {prod([\layouts(layoutName), top,\layouts(layoutName)],start(top),\no-attrs()) | start(top) <- starts} 
-                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods+{layoutProd}}
-                       + {prod(cistr2syms(s),cilit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods+{layoutProd}}
+                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- (prods+{layoutProd})}
+                       + {prod(cistr2syms(s),cilit(s),attrs([term("ciliteral"())])) | /cilit(s) <- (prods+{layoutProd})}
                 );
 } 
    

@@ -1,10 +1,13 @@
+@bootstrapParser
 module rascal::syntax::Bootstrap
 
 import rascal::syntax::Grammar2Rascal;
 import rascal::syntax::Definition;
 import rascal::syntax::Grammar;
 import rascal::syntax::Generator;
-import rascal::syntax::RascalForImportExtraction;
+import rascal::syntax::RascalForImportExtraction; // for old parser
+import rascal::syntax::RascalRascal; // for new parser
+import ParseTree;
 import IO;
 import ValueIO;
 

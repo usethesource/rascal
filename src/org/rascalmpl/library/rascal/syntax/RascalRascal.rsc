@@ -226,10 +226,7 @@ syntax Expression
 	| Map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| It             : "it" 
 	| QualifiedName  : QualifiedName qualifiedName 
-	> non-assoc ( NoMatch: Pattern pattern "!:=" Expression expression  
-		        | Match: Pattern pattern ":=" Expression expression 
-		        | /*prefer()*/ Enumerator: Pattern pattern "\<-" Expression expression 
-	            )
+	
 	>  Subscript  : Expression expression "[" {Expression ","}+ subscripts "]" 
 	| FieldAccess : Expression expression "." Name field 
 	| FieldUpdate : Expression expression "[" Name key "=" Expression replacement "]" 
@@ -262,13 +259,18 @@ syntax Expression
 		        | GreaterThan    : Expression lhs "\>" Expression rhs 
 		        | NonEquals      : Expression lhs "!=" Expression rhs 
 	            )
-	> non-assoc IfDefinedOtherwise: Expression lhs "?" Expression rhs 
+	> non-assoc IfDefinedOtherwise: Expression lhs "?" Expression rhs
+	> non-assoc ( NoMatch: Pattern pattern "!:=" Expression expression  
+		        | Match: Pattern pattern ":=" Expression expression 
+		        | /*prefer()*/ Enumerator: Pattern pattern "\<-" Expression expression 
+	            ) 
 	> non-assoc ( Implication: Expression lhs "==\>" Expression rhs  
 		        | Equivalence: Expression lhs "\<==\>" Expression rhs 
 	            )
 	> left And: Expression lhs "&&" Expression rhs 
 	> left Or: Expression lhs "||" Expression rhs 
 	> left IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp
+	
 	; 
 
 syntax UserType

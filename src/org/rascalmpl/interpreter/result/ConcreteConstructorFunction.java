@@ -50,7 +50,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		for (int i = 0; i < args.length(); i+=(delta + 1)) {
 			IConstructor tree = (IConstructor) args.get(i);
 			if (TreeAdapter.isList(tree) && TreeAdapter.isAppl(tree)) {
-				if (shouldFlatten(TreeAdapter.getProduction(tree), prod)) {
+				if (ProductionAdapter.shouldFlatten(prod, TreeAdapter.getProduction(tree))) {
 					IList nestedArgs = TreeAdapter.getArgs(tree);
 					if (nestedArgs.length() > 0) {
 						appendSeparators(args, result, delta, i);
@@ -81,34 +81,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 		}
 	}
 
-	private boolean shouldFlatten(IConstructor nested, IConstructor surrounding) {
-		if (ProductionAdapter.isList(nested)) {
-			IConstructor nestedRhs = ProductionAdapter.getRhs(nested);
-			IConstructor surroundingRhs = ProductionAdapter.getRhs(surrounding);
-			
-			if (SymbolAdapter.isEqual(surroundingRhs,nestedRhs)) {
-				return true;
-			}
-			
-			if ((SymbolAdapter.isCf(surroundingRhs) && SymbolAdapter.isCf(nestedRhs)) || (SymbolAdapter.isLex(surroundingRhs) && SymbolAdapter.isLex(nestedRhs))) {
-				nestedRhs = SymbolAdapter.getSymbol(nestedRhs);
-				surroundingRhs = SymbolAdapter.getSymbol(surroundingRhs);
-			}
-			
-			if ((SymbolAdapter.isIterPlusSep(surroundingRhs) && SymbolAdapter.isIterStarSep(nestedRhs)) || (SymbolAdapter.isIterStarSep(surroundingRhs) && SymbolAdapter.isIterPlusSep(nestedRhs))) {
-				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs),SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.isEqual(SymbolAdapter.getSeparator(surroundingRhs),SymbolAdapter.getSeparator(nestedRhs));
-			}
-
-			if ((SymbolAdapter.isIterPlus(surroundingRhs) && SymbolAdapter.isIterStar(nestedRhs)) || (SymbolAdapter.isIterStar(surroundingRhs) && SymbolAdapter.isIterPlus(nestedRhs))) {
-				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs),SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparators(surroundingRhs).isEqual(SymbolAdapter.getSeparators(nestedRhs));
-			}
-			
-			if ((SymbolAdapter.isIterPlusSeps(surroundingRhs) && SymbolAdapter.isIterStarSeps(nestedRhs)) || (SymbolAdapter.isIterStarSeps(surroundingRhs) && SymbolAdapter.isIterPlusSeps(nestedRhs))) {
-				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs),SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparators(surroundingRhs).isEqual(SymbolAdapter.getSeparators(nestedRhs));
-			}
-		}
-		return false;
-	}
+	
 
 	private int getDelta(IConstructor prod) {
 		IConstructor rhs = ProductionAdapter.getRhs(prod);
