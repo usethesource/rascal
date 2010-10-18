@@ -18,25 +18,25 @@ The Figure library uses the following model for dimensions and alignment:
 ![Box Model](BoxModel.png|400px|center)
 
 The ingredients are:
-* __width__ determines the horizontal size.
-* __height__ determines vertical size.
-* __anchor__ determines the connection point in figure compositions.
-* __hanchor__ determines the horizontal position of the anchor and plays a role in the vertical alignment of a figure.
-* __ vanchor__ determines the vertical position of the anchor and plays a role in the horizontal alignment of a figure.
+* [width] determines the horizontal size.
+* [height] determines vertical size.
+* [anchor] determines the connection point in figure compositions.
+* [hanchor] determines the horizontal position of the anchor and plays a role in the vertical alignment of a figure.
+* [vanchor] determines the vertical position of the anchor and plays a role in the horizontal alignment of a figure.
 
 
 A number of shorthands is provided for common anchor values:
 
 
-| Shorthand   | Corresponds to     |
-|:------------|:-------------------|
-| `left()`    | `hanchor(0.0)`     |
-| `hcenter()` | `hanchor(0.5)`     |
-| `right()`   | `hanchor(1.0)`     |
-| `top()`     | `vanchor(0.0)`     |
-| `vcenter()` | `vanchor(0.5)`     |
-| `bottom()`  | `vanchor(1.0)`     |
-| `center()`  | `anchor(0.5, 0.5)` |
+| Shorthand   | Corresponds to     | See                  |
+|:------------|:-------------------|:---------------------|
+| `left()`    | `hanchor(0.0)`     | [Properties/left]    |
+| `hcenter()` | `hanchor(0.5)`     | [Properties/hcenter] |
+| `right()`   | `hanchor(1.0)`     | [Properties/right]   |
+| `top()`     | `vanchor(0.0)`     | [Properties/top]     |
+| `vcenter()` | `vanchor(0.5)`     | [Properties/vcenter] |
+| `bottom()`  | `vanchor(1.0)`     | [Properties/bottom]  |
+| `center()`  | `anchor(0.5, 0.5)` | [Properties/center]  |
 
 
 

@@ -1,0 +1,29 @@
+Name: Angles
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+Various properties use angles.
+Angles are measured in degrees and, using an analog clock as metaphor, 0 degrees is at 3:00 hours and degrees go clockwise: 
+
+![Angles](Angles.png|300px)
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+There is at the moment no support for angles expressed in radians.
+
+Questions:
+

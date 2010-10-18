@@ -1,0 +1,30 @@
+Name: bottom
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`FProperty bottom()`
+
+Synopsis:
+
+Description:
+`bottom` defines __bottom alignment__.
+It sets the vertical anchor to 100% of the height of the current figure.
+`bottom()` is equivalent to `vanchor(1.0)`.
+
+Also see [BoxModel] and [vanchor].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

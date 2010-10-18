@@ -18,17 +18,23 @@ Description: Sets the color of lines and figure boundaries:
 # Set color to `c`.
 # Set color to color with name `cname`.
 
+
+Also see [ColorModel]
+
 Examples:
-<figure h1.png>
-b1 = box([size(50), lineWidth(1)]);
-b2 = box([size(50), lineWidth(2)]);
-b3 = box([size(50), lineWidth(3)]);
-b4 = box([size(50), lineWidth(4)]);
+
+<figure lc1.png>
+b1 = box([size(50), lineColor("Red")]);
+b2 = box([size(50), lineColor("Blue")]);
+b3 = box([size(50), lineColor("Green")]);
+b4 = box([size(50), lineColor("Purple")]);
 boxes = [b1, b2, b3, b4];
 render(hcat(boxes));
 </figure>
 gives:
-![h1](h1.png)
+![h1](lc1.png)
+
+
 
 Benefits:
 

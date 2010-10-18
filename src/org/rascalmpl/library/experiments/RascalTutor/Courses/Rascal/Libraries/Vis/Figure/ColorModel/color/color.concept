@@ -17,7 +17,9 @@ Synopsis:
 Description:
 Returns color with given name. 
 All [HTML/X11 Color Names](http://en.wikipedia.org/wiki/Web_colors#X11_color_names) are supported.
-When the transparency `alpha` is given, the color is adjusted acordingly.
+When the transparency `alpha` is given, the color is adjusted accordingly.
+
+The list of available color names is given by [colorNames].
 
 Examples:
 

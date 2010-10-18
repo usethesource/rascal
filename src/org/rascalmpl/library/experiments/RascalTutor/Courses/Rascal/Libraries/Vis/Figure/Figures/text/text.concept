@@ -1,0 +1,59 @@
+Name: text
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `Figure text(FProperties props, str s)`
+# `Figure text(str s)`
+
+Synopsis:
+
+Description:
+Creates a text string. The following properties are relevant for text:
+* [font]: determines the name of the font to be used. The default font is "Helvetica".
+* [fontSize]: determines the point size (in typographic points) of the font. Default is 12.
+* [fontColor]: determines the color of the font. Default is "Black",
+* [textAngle]: determines the angle at which text is draw (also see [Angles]). Default is 0.
+
+Examples:
+
+<figure t1.png>
+render(text("Rascal"));
+</figure>
+![text 1](t1.png)
+
+<figure t2.png>
+render(text([fontSize(20), fontColor("blue")], "Rascal"));
+</figure>
+![text 2](t2.png)
+
+<figure t3.png>
+render(box([gap(5)], text([fontSize(20), fontColor("blue")], "Rascal")));
+</figure>
+![text 3](t3.png)
+
+<figure t4.png>
+t1 = text([fontSize(20), fontColor("black")], "Rascal");
+t2 = text([fontSize(40), fontColor("blue")], "Rascal");
+t3 = text([fontSize(60), fontColor("red")], "Rascal");
+render(box([gap(10)], hcat([bottom()], [t1, t2, t3])));
+</figure>
+![text 4](t4.png)
+
+<figure t5.png>
+render(text([fontSize(60), fontColor("red"), textAngle(90)], "Rascal"));
+</figure>
+![text 5](t5.png)
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,26 @@
+Name: areaPlot
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`ChartProperty areaPlot()`
+
+Synopsis:
+
+Description:
+Property of [xyChart] that fills the area below the plot of each function.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -13,8 +13,7 @@ Function: `FProperty textAngle(num a)`
 Synopsis:
 
 Description:
-<warning> explain angle</warning>
-Place text at `a` degrees (starting at ... clockwise).
+Place text at `a` degrees. Also see [Angles].
 
 Examples:
 

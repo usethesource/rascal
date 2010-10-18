@@ -1,0 +1,29 @@
+Name: left
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`FProperty left()`
+
+Synopsis:
+
+Description:
+
+`left` defines __left horizontal alignment__. It sets the horizontal anchor at 0% and is equivalent to `hanchor(0.0)`.
+
+Also see [BoxModel] and [hanchor].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

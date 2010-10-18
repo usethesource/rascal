@@ -13,9 +13,15 @@ Function: `FProperty font(str fname)`
 Synopsis:
 
 Description: Sets the font to be used for text.
-<warning>Give list of fonts</warning>
+See [fontNames] for a list of available fonts.
 
 Examples:
+<figure f1.png>
+t1 = text([font("Serif"), fontSize(20), fontColor("Blue")], "Rascal");
+t2 = text([font("Monospaced"), fontSize(20), fontColor("Red")], "Rascal");
+render(hcat([hgap(10), fontSize(20)], [t1, t2]));
+</figure>
+![font 1](f1.png)
 
 Benefits:
 

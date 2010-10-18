@@ -32,7 +32,7 @@ data FProperty =
    | vanchor(num v)
    
 /* line and border properties */
-   | lineWidth(int w)	           // line width
+   | lineWidth(num w)	           // line width
    | lineColor(Color c)	           // line color
    | lineColor(str cname)          // named line color
    
@@ -54,10 +54,10 @@ data FProperty =
    | fontSize(int s)               // font size
    | fontColor(Color c)            // font color
    | fontColor(str cname)
-   | textAngle(num a)             // text rotation
+   | textAngle(num a)              // text rotation
    
 /* interaction properties */  
-   | mouseOver(Figure inner)       // add figure when mouse is over current figure
+   | mouseOver(Figure fig)         // add figure when mouse is over current figure
 **   | contentsHidden()              // contents of container is hidden
 **   | contentsVisible()             // contents of container is visible
 **   | pinned()                      // position pinned-down, cannot be dragged

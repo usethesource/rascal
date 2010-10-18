@@ -1,0 +1,96 @@
+Name: shape
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+# `Figure shape(list[Vertex] points)`
+# `Figure shape(FProperties props,list[Vertex] points)`
+ 
+
+Synopsis:
+
+Description:
+
+A shape is defined by a list of points, each point is a [vertex] and contains and x and a y coordinate.
+All coordinates are relative to the left/bottom corner of the shape. The left bottom corner also acts as 
+anchor point for the shape. This makes it easy to [overlay] different shapes.
+
+The following properties are relevent for shapes:
+
+* [shapeConnected]: connects the points with a straight line.
+* [shapeClosed]: implies `shapeConnected` and closes the area below the shape.
+* [shapeCurved]: implies `shapeConnected` and connects the points by fitting a 
+  Bezier curve through the points.
+
+
+Examples:
+
+<figure s1.png>
+points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+vertices =  [ vertex(x, y, ellipse([size(10), fillColor("Red")])) | <x, y> <- points ];
+s = shape(vertices);
+render(s);
+</figure>
+![shape 1](s1.png)
+
+<figure s2.png>
+points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+vertices =  [ vertex(x, y, ellipse([size(10), fillColor("Red")])) | <x, y> <- points ];
+s = shape([shapeConnected()], vertices);
+render(s);
+</figure>
+![shape 2](s2.png)
+
+<figure s3.png>
+points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+vertices =  [ vertex(x, y, ellipse([size(10), fillColor("Red")])) | <x, y> <- points ];
+s = shape([shapeClosed(), fillColor("LightCoral")], vertices);
+render(s);
+</figure>
+![shape 3](s3.png)
+
+<figure s4.png>
+points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+vertices =  [ vertex(x, y, ellipse([size(10), fillColor("Red")])) | <x, y> <- points ];
+s = shape([shapeCurved()], vertices);
+render(s);
+</figure>
+![shape 4](s4.png)
+
+<figure s5.png>
+points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+vertices =  [ vertex(x, y, ellipse([size(10), fillColor("Red")])) | <x, y> <- points ];
+s = shape([shapeCurved(), shapeClosed(), fillColor("LightCoral")], vertices);
+render(s);
+</figure>
+![shape 5](s5.png)
+
+<figure s6.png>
+points1 = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+vertices1 =  [ vertex(x, y, ellipse([size(10), fillColor("Red")])) | <x, y> <- points1 ];
+s1 = shape([shapeCurved(), shapeClosed(), 
+            fillColor(color("LightCoral", 0.5)), lineColor("Red")], 
+           vertices1);
+points2 = [<10, 130>, <60, 50>, <110, 120>, <160, 100>];
+vertices2 =  [ vertex(x, y, ellipse([size(10), fillColor("Green")])) | <x, y> <- points2 ];
+s2 = shape([shapeCurved(), shapeClosed(), 
+            fillColor(color("LightGreen", 0.5)), lineColor("Green")], 
+           vertices2);
+render(overlay([s1, s2]));
+</figure>
+
+![shape 6](s6.png)
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

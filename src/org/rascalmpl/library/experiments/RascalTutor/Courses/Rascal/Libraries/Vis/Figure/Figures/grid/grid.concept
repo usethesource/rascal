@@ -1,0 +1,79 @@
+Name: grid
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `grid(Figures figs)`
+# `grid(FProperties props, Figures figs)`
+
+Synopsis:
+
+Description: Place figures on a fixed grid. The [width] property determines the horizontal size of the grid
+while the vertical size is determined automatically.
+The [hgap] and [vgap] properties determine the distance between grid points.
+
+Examples:
+<figure g1.png>
+b1 = box([size(50,50), fillColor("Red")]);
+b2 = box([size(50,50), fillColor("Blue")]);
+b3 = box([size(50,50), fillColor("Yellow")]);
+b4 = box([size(50,50), fillColor("Green")]);
+b5 = box([size(50,50), fillColor("Purple")]);
+b6 = box([size(50,50), fillColor("Orange")]);
+b7 = box([size(50,50), fillColor("Silver")]);
+render(grid([width(200), gap(100)], [b1, b2, b3, b4, b5, b6, b7]));
+</figure>
+
+gives:
+
+
+![grid1](g1.png)
+
+Varying the sizes of `b2` and `b5`:
+<figure g2.png>
+b1 = box([size(50,50), fillColor("Red")]);
+b2 = box([size(60,30), fillColor("Blue")]);
+b3 = box([size(50,50), fillColor("Yellow")]);
+b4 = box([size(50,50), fillColor("Green")]);
+b5 = box([size(80,80), fillColor("Purple")]);
+b6 = box([size(50,50), fillColor("Orange")]);
+b7 = box([size(50,50), fillColor("Silver")]);
+render(grid([width(200), gap(100)], [b1, b2, b3, b4, b5, b6, b7]));
+</figure>
+
+gives:
+
+
+![grid2](g2.png)
+
+Varying the alignment of `b2` and `b5` gives:
+<figure g3.png>
+b1 = box([size(50,50), fillColor("Red")]);
+b2 = box([size(50,50), fillColor("Blue"), left(), top()]);
+b3 = box([size(50,50), fillColor("Yellow")]);
+b4 = box([size(50,50), fillColor("Green")]);
+b5 = box([size(50,50), fillColor("Purple"), bottom(), right()]);
+b6 = box([size(50,50), fillColor("Orange")]);
+b7 = box([size(50,50), fillColor("Silver")]);
+render(grid([width(200), gap(100)], [b1, b2, b3, b4, b5, b6, b7]));
+</figure>
+
+gives:
+
+
+![grid3](g3.png)
+
+Benefits:
+
+Pittfalls: The distance between grid points does not include the size of the figures that are placed
+on the grid points. If overlaps of figures are not desired, then the horizontal (or vertical) gap size 
+should be larger than the largest width (height) of the figures to be placed on the grid.
+
+Questions:
+

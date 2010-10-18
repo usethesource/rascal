@@ -1,0 +1,26 @@
+Name: vgap
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`FProperty vgap(num v)`
+
+Synopsis:
+
+Description:
+Sets the vertical gap between figures to `v`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
