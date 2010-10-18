@@ -1,4 +1,4 @@
-module vis::Render
+module vis::Rendering
 
 import vis::Figure;
 

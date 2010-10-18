@@ -76,8 +76,7 @@ public class HVCat extends Compose {
 	void draw(float left, float top){
 		this.left = left;
 		this.top = top;
-		left += leftDragged;
-		top += topDragged;
+		
 		applyProperties();
 
 		for(int i = 0; i < figures.length; i++){

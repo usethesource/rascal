@@ -91,8 +91,8 @@ public class Wedge extends Container {
 			toAngle += 2 * PConstants.PI;
 		
 		
-		if(inside != null)	// Compute bounding box of inside object.
-			inside.bbox();
+		if(inner != null)	// Compute bounding box of inside object.
+			inner.bbox();
 		
 		float sinFrom = PApplet.sin(fromAngle);
 		float cosFrom = PApplet.cos(fromAngle);
@@ -255,7 +255,7 @@ public class Wedge extends Container {
 	@Override 
 	boolean insideFits(){
 		if(debug)System.err.printf("Wedge.insideFits\n");
-		return inside.height < radius - innerRadius && inside.width < WI;
+		return inner.height < radius - innerRadius && inner.width < WI;
 	}
 	
 	/**
@@ -263,7 +263,7 @@ public class Wedge extends Container {
 	 */
 	@Override
 	void insideDraw(){
-		inside.draw(centerX + IX - inside.width/2, centerY + IY -inside.height/2);
+		inner.draw(centerX + IX - inner.width/2, centerY + IY -inner.height/2);
 	}
 	
 	@Override

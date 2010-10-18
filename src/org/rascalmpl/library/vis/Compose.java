@@ -50,11 +50,11 @@ public abstract class Compose extends Figure {
 		return super.mousePressed(mousex, mousey);
 	}
 	
-	@Override
-	public boolean mouseDragged(int mousex, int mousey){
-		for(Figure fig : figures)
-			if(fig.mouseDragged(mousex, mousey))
-				return true;
-		return super.mouseDragged(mousex, mousey);
-	}
+//	@Override
+//	public boolean mouseDragged(int mousex, int mousey){
+//		for(Figure fig : figures)
+//			if(fig.mouseDragged(mousex, mousey))
+//				return true;
+//		return super.mouseDragged(mousex, mousey);
+//	}
 }

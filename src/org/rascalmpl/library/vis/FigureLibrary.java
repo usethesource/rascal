@@ -1,5 +1,7 @@
 package org.rascalmpl.library.vis;
 
+import java.awt.Font;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -7,15 +9,18 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Processing.SketchSWT;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
+import processing.core.PFont;
 
 /**
  * 
@@ -30,6 +35,8 @@ public class FigureLibrary extends PApplet {
 	private  static final long serialVersionUID = 1L;
 	
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	
+	private static IList fontNames;
 	
 	public FigureLibrary(IValueFactory factory){
 		vf = factory;
@@ -211,6 +218,8 @@ public class FigureLibrary extends PApplet {
 			pa.setup();
 			pa.draw();
 			pa.flush();
+			//pa.stop();
+			//pa.exit();
 			pa.destroy();
 		}
 	}
@@ -244,14 +253,14 @@ public class FigureLibrary extends PApplet {
 	}
 	
 	public  IInteger color(IString colorName, IEvaluatorContext ctx){
-		IInteger c = colorNames.get(colorName.getValue());
+		IInteger c = colorNames.get(colorName.getValue().toLowerCase());
 		if(c != null)
 			return c;
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
 	public  IInteger color(IString colorName, IReal alpha, IEvaluatorContext ctx){
-		IInteger c = colorNames.get(colorName.getValue());
+		IInteger c = colorNames.get(colorName.getValue().toLowerCase());
 		if(c != null){
 			int ci = c.intValue();
 			return vf.integer(figureColor(ci, alpha.floatValue()));
@@ -259,7 +268,18 @@ public class FigureLibrary extends PApplet {
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	  public static int figureColor(int r, int g, int b) {
+	public IList colorNames(){
+		TypeFactory types = TypeFactory.getInstance();
+		IListWriter w = vf.listWriter(types.stringType());
+		String strings[] = new String[colorNames.size()];
+		Arrays.sort(colorNames.keySet().toArray(strings));
+		for(String s : strings){
+			w.append(vf.string(s));
+		}
+		return w.done();
+	}
+	
+	public static int figureColor(int r, int g, int b) {
 		 return figureColor(r, g, b, 1.0f);
 	 }
 	
@@ -308,7 +328,7 @@ public class FigureLibrary extends PApplet {
 	 
 	 public  IInteger interpolateColor(IInteger from, IInteger to, IReal amt){
 		int fromColor = from.intValue();
-		int toColor =to.intValue();
+		int toColor   = to.intValue();
 		float percentage = amt.floatValue();
 		return vf.integer(myLerpColor(fromColor, toColor, percentage));
 	 }
@@ -325,6 +345,20 @@ public class FigureLibrary extends PApplet {
 	 	return w.done();
 	}
 	
+	public IList fontNames(){
+		if(fontNames == null){
+			TypeFactory types = TypeFactory.getInstance();
+			IListWriter w = vf.listWriter(types.stringType());
+			//PApplet pa = new PApplet();
+			//pa.createFont("Helvetica", 12);
+			for(String s : PFont.list()){
+				w.append(vf.string(s));
+			}
+			//pa.destroy();
+			fontNames = w.done();
+		}
+		return fontNames;
+	}
+	
 }
-
 

@@ -42,6 +42,10 @@ public Color java color(str colorName);
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
 public Color java color(str colorName, real alpha);
 
+@doc{Sorted list of all color names}
+@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+public list[str] java colorNames();
+
 @doc{RGB color}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
 public Color java rgb(int r, int g, int b);
@@ -52,7 +56,7 @@ public Color java rgb(int r, int g, int b, real alpha);
 
 @doc{Interpolate two colors (in RGB space)}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
-public list[Color] java interpolateColor(Color from, Color to, real percentage);
+public int java interpolateColor(Color from, Color to, real percentage);
 
 @doc{Create a list of interpolated colors}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
@@ -78,6 +82,10 @@ public str palette(int n){
   catch:
     return "black";
 }
+
+@doc{Create a list of font names}
+@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+public list[str] java fontNames();
 
 /*
  * FProperty -- visual properties of visual elements
@@ -121,7 +129,8 @@ data FProperty =
    | size(num hor, num vert)            // sets width and height to separate values
    | gap(num amount)                    // sets hor and vert gap between elements in composition to same value
    | gap(num hor, num vert) 			// sets hor and vert gap between elements in composition to separate values
-
+   | hgap(num hor)                      // sets hor gap
+   | vgap(num vert)                     // set vert gap
    
 /* alignment */
    | anchor(num h, num v)				// horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
@@ -129,7 +138,7 @@ data FProperty =
    | vanchor(num v)
    
 /* line and border properties */
-   | lineWidth(int lineWidth)			// line width
+   | lineWidth(num lineWidth)			// line width
    | lineColor(Color lineColor)		    // line color
    | lineColor(str colorName)           // named line color
    
@@ -140,7 +149,12 @@ data FProperty =
    | fromAngle(num angle)
    | toAngle(num angle)
    | innerRadius(num radius)
-   
+
+/* shape properties */
+   | shapeConnected()                   // shapes consist of connected points
+   | shapeClosed()    		 		    // closed shapes
+   | shapeCurved()                      // use curves instead of straight lines
+ 
 /* font and text properties */
    | font(str fontName)             	// named font
    | fontSize(int isize)                // font size
@@ -153,12 +167,10 @@ data FProperty =
    | contentsHidden()                   // contents of container is hidden
    | contentsVisible()                  // contents of container is visible
    | pinned()                           // position pinned-down, cannot be dragged
+   | doi(int d)                        // limit visibility to nesting level d
    
 /* other properties */
    | id(str name)                       // name of elem (used in edges and various layouts)
-   | connectedShape()                   // shapes consist of connected points
-   | closedShape()    		 		    // closed shapes
-   | curvedShape()                      // use curves instead of straight lines
    ;
 
 /*
@@ -236,15 +248,15 @@ data Figure =
    | graph(FProperties, Figures nodes, list[Edge] edges)
    
                 							    // composition of nodes and edges as tree
-   | tree(Figures nodes, list[Edge] edges, str root) 
-   | tree(FProperties, Figures nodes, list[Edge] edges, str root)
+   | tree(Figures nodes, list[Edge] edges) 
+   | tree(FProperties, Figures nodes, list[Edge] edges)
    
-   | treemap(Figures nodes, list[Edge] edges, str root) 
-   | treemap(FProperties, Figures nodes, list[Edge] edges, str root)
+   | treemap(Figures nodes, list[Edge] edges) 
+   | treemap(FProperties, Figures nodes, list[Edge] edges)
    
 /* transformation */
 
-   | rotate(num angle, Figure elem)			    // Rotate element around its anchor point
+   | rotate(num angle, Figure fig)			    // Rotate element around its anchor point
    | scale(num perc, Figure)					// Scale element (same for h and v)
    | scale(num xperc, num yperc, Figure elem)	// Scale element (different for h and v)
    ;

@@ -19,12 +19,12 @@ public class GraphEdge extends Figure {
 	
 	public GraphEdge(Graph G, FigurePApplet fpa, PropertyManager inheritedProps, IList props, IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(fpa, inheritedProps, props, ctx);
-		from = fpa.getRegistered(fromName.getValue());
+		from = G.getRegistered(fromName.getValue());
 		// TODO Generate exceptions for null cases
 		if(from == null){
 			System.err.println("No node " + fromName.getValue());
 		}
-		to = fpa.getRegistered(toName.getValue());
+		to = G.getRegistered(toName.getValue());
 		if(to == null){
 			System.err.println("No node " + toName.getValue());
 		}

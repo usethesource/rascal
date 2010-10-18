@@ -32,7 +32,7 @@ private void reset(){
 public Figure parsetree(Tree p){
   reset();
   root = viewTree1(p);
-  return tree([gap(4)], nodes, edges, root);
+  return tree([gap(4)], nodes, edges);
 }
 
 private FProperty popup(str s){
@@ -54,17 +54,17 @@ private str viewTree1(Tree t){
     case appl(Production prod, list[Tree] args):
      if(prod.rhs == \cf(\opt(\layout()))){
         root = newId();
-        nodes += ellipse([size(4), vis::Core::id(root), fillColor("grey"), popup("LAYOUT?")]);
+        nodes += ellipse([size(4), vis::Figure::id(root), fillColor("grey"), popup("LAYOUT?")]);
         return root;
      } else if(\layouts(_) := prod.rhs){
         root = newId();
-        nodes += ellipse([size(4), vis::Core::id(root), fillColor("grey"), popup("LAYOUTLIST")]);
+        nodes += ellipse([size(4), vis::Figure::id(root), fillColor("grey"), popup("LAYOUTLIST")]);
         return root;
      } else {
 	     FProperty p = popup(viewProduction(prod));
 	     root = newId();
 	     viewTrees(root, args);
-	     nodes += ellipse([vis::Core::id(root), size(4), p]);
+	     nodes += ellipse([vis::Figure::id(root), size(4), p]);
 	     return root;
      }
      
@@ -72,7 +72,7 @@ private str viewTree1(Tree t){
          FProperty p = popup("Ambiguous");
          root = newId();
          viewTrees(root, toList(alternatives));
-         nodes += ellipse([vis::Core::id(root), size(10), fillColor("red"), p]);
+         nodes += ellipse([vis::Figure::id(root), size(10), fillColor("red"), p]);
 	     return root; 
       }
   }

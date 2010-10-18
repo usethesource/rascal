@@ -18,6 +18,6 @@ public class Box extends Container {
 
 	@Override
 	void drawContainer(){
-		fpa.rect(left + leftDragged, top + topDragged, width, height);
+		fpa.rect(left, top, width, height);
 	}
 }

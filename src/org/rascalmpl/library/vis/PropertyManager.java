@@ -22,11 +22,9 @@ public class PropertyManager {
 
 	enum Property {
 		ANCHOR,
-		CLOSEDSHAPE, 
-		CONNECTEDSHAPE,
 		CONTENTSHIDDEN,
 		CONTENTSVISIBLE,
-		CURVEDSHAPE,
+		DOI,
 		FILLCOLOR, 
 		FONT, 
 		FONTCOLOR, 
@@ -42,6 +40,9 @@ public class PropertyManager {
 		LINEWIDTH, 
 		MOUSEOVER, 
 		PINNED,
+		SHAPECLOSED, 
+		SHAPECONNECTED,
+		SHAPECURVED,
 		SIZE, 
 		TEXTANGLE, 
 		TOANGLE,
@@ -53,11 +54,9 @@ public class PropertyManager {
 	static final HashMap<String, Property> propertyNames = new HashMap<String, Property>() {
 		{
 			put("anchor", Property.ANCHOR);
-			put("closedShape", Property.CLOSEDSHAPE);
-			put("connectedShape", Property.CONNECTEDSHAPE);
 			put("contentsHidden", Property.CONTENTSHIDDEN);
 			put("contentsVisible", Property.CONTENTSVISIBLE);
-			put("curvedShape", Property.CURVEDSHAPE);
+			put("doi",       Property.DOI);
 			put("fillColor", Property.FILLCOLOR);
 			put("font", Property.FONT);
 			put("fontColor", Property.FONTCOLOR);
@@ -73,6 +72,9 @@ public class PropertyManager {
 			put("lineWidth", Property.LINEWIDTH);
 			put("mouseOver", Property.MOUSEOVER);
 			put("pinned", Property.PINNED);
+			put("shapeClosed", Property.SHAPECLOSED);
+			put("shapeConnected", Property.SHAPECONNECTED);
+			put("shapeCurved", Property.SHAPECURVED);
 			put("size", Property.SIZE);
 			put("textAngle", Property.TEXTANGLE);
 			put("toAngle", Property.TOANGLE);
@@ -82,10 +84,8 @@ public class PropertyManager {
 		}
 	};
 	
-	boolean closedShape;
-	boolean connectedShape;
 	boolean contentsVisible;
-	boolean curvedShape;
+	int doi;
 	int fillColor;
 	String font;
 	int fontColor;
@@ -97,8 +97,11 @@ public class PropertyManager {
 	String id;
 	float innerRadius; 
 	int lineColor;
-	int lineWidth;
+	float lineWidth;
 	boolean pinned;
+	boolean shapeClosed;
+	boolean shapeConnected;
+	boolean shapeCurved;
 	float textAngle; 
 	float toAngle;
 	float vanchor;
@@ -133,7 +136,7 @@ public class PropertyManager {
 	private int getColorArg(IConstructor c, IEvaluatorContext ctx) {
 		IValue arg = c.get(0);
 		if (arg.getType().isStringType()) {
-			IInteger cl = FigureLibrary.colorNames.get(((IString) arg).getValue());
+			IInteger cl = FigureLibrary.colorNames.get(((IString) arg).getValue().toLowerCase());
 			if (cl != null)
 				return cl.intValue();
 			
@@ -164,20 +167,14 @@ public class PropertyManager {
 				System.err.printf("anchor: %f, %f\n", hanchor, vanchor);
 				break;
 				
-			case CLOSEDSHAPE:
-				closedShape = true; break;
-				
-			case CONNECTEDSHAPE:
-				connectedShape = true; break;
-				
 			case CONTENTSHIDDEN:
 				contentsVisible = false; break;
 				
 			case CONTENTSVISIBLE:
 				contentsVisible = true; break;
 				
-			case CURVEDSHAPE:
-				curvedShape = true; break;
+			case DOI:
+				doi = getIntArg(c); break;
 			
 			case FILLCOLOR:
 				fillColor = getColorArg(c, ctx); break;
@@ -193,7 +190,7 @@ public class PropertyManager {
 				
 			case FROMANGLE:
 				fromAngle = getIntOrRealArg(c, 0); break;
-				
+			
 			case GAP:
 				if(c.arity() == 1){
 					hgap =  vgap = getIntOrRealArg(c, 0);
@@ -212,6 +209,9 @@ public class PropertyManager {
 			case HEIGHT:
 				height =  getIntOrRealArg(c, 0); break;
 				
+			case HGAP:
+				hgap = getIntOrRealArg(c, 0); break;
+				
 			case ID:
 				id = getStrArg(c); break;
 				
@@ -222,7 +222,7 @@ public class PropertyManager {
 				lineColor = getColorArg(c, ctx); break;
 				
 			case LINEWIDTH:
-				lineWidth = getIntArg(c); break;
+				lineWidth = getIntOrRealArg(c, 0); break;
 
 			case MOUSEOVER:
 				//origMouseOverProperties = (IList) c.get(0);
@@ -235,6 +235,15 @@ public class PropertyManager {
 			case PINNED:
 				pinned = true; break;
 				
+			case SHAPECLOSED:
+				shapeClosed = true; break;
+				
+			case SHAPECONNECTED:
+				shapeConnected = true; break;	
+				
+			case SHAPECURVED:
+				shapeCurved = true; break;
+			
 			case SIZE:
 				if(c.arity() == 1){
 					width = height =  getIntOrRealArg(c, 0);
@@ -254,6 +263,9 @@ public class PropertyManager {
 				vanchor = getRealArg(c, 0);
 				vanchor = vanchor < 0 ? 0 : (vanchor > 1 ? 1 : vanchor);
 				break;
+				
+			case VGAP:
+				vgap = getIntOrRealArg(c, 0); break;
 			
 			case WIDTH:
 				width = getIntOrRealArg(c, 0); break;
@@ -268,10 +280,8 @@ public class PropertyManager {
 	}
 	
 	private void importProperties(PropertyManager inh) {
-		closedShape = inh.closedShape;
-		connectedShape = inh.connectedShape;
 		contentsVisible = inh.contentsVisible;
-		curvedShape = inh.curvedShape;
+		doi = inh.doi;
 		fillColor = inh.fillColor;
 		font = inh.font;
 		fontColor = inh.fontColor;
@@ -285,6 +295,9 @@ public class PropertyManager {
 		lineColor = inh.lineColor;
 		lineWidth = inh.lineWidth;
 		pinned = inh.pinned;
+		shapeClosed = inh.shapeClosed;
+		shapeConnected = inh.shapeConnected;
+		shapeCurved = inh.shapeCurved;
 		textAngle = inh.textAngle;
 		toAngle = inh.toAngle;
 		vanchor = inh.vanchor;
@@ -293,10 +306,8 @@ public class PropertyManager {
 	}
 	
 	private void setDefaults() {
-		closedShape = false;
-		connectedShape = false;
 		contentsVisible = true;
-		curvedShape = false;
+		doi = 1000000;
 		fillColor = 255;
 		font = "Helvetica";
 		fontColor = 0;
@@ -310,6 +321,9 @@ public class PropertyManager {
 		lineColor = 0;
 		lineWidth = 1;
 		pinned = false;
+		shapeClosed = false;
+		shapeConnected = false;
+		shapeCurved = false;
 		textAngle = 0;
 		toAngle = 0;
 		vanchor = 0.5f;

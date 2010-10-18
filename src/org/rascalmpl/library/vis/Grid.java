@@ -39,7 +39,7 @@ public class Grid extends Compose {
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
 		
-		int lastRow = (hgap == 0) ? 0 : figures.length / (1 + (int) (width / hgap));
+		int lastRow = (hgap == 0) ? 0 : figures.length / (1 + (int) (width / hgap)) - 1;
 		if(debug)System.err.printf("lastRow = %d\n", lastRow);
 		
 		extTop = 0;
@@ -83,8 +83,7 @@ public class Grid extends Compose {
 	void draw(float left, float top){
 		this.left = left;
 		this.top = top;
-		left += leftDragged;
-		top  += topDragged;
+	
 		applyProperties();
 
 		for(int i = 0; i < figures.length; i++){
