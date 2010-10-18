@@ -445,14 +445,14 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     }
     
     generalizations = invert(baseRefinements);
-    println("baseRefinements = <baseRefinements>");
-    println("fullRefinements = <fullRefinements>");
+    //println("baseRefinements = <baseRefinements>");
+    //println("fullRefinements = <fullRefinements>");
     
     allBaseConcepts = carrier(baseRefinements);
     allFullConcepts = carrier(fullRefinements);
     
-    println("allBaseConcepts=<allBaseConcepts>");
-     println("allFullConcepts=<allFullConcepts>");
+    //println("allBaseConcepts=<allBaseConcepts>");
+    // println("allFullConcepts=<allFullConcepts>");
     
     undefinedFullConcepts =  allFullConcepts - domain(conceptMap);
     
