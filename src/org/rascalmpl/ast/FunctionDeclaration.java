@@ -5,7 +5,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
 public boolean isDefault() { return false; }
 static public class Default extends FunctionDeclaration {
 /** tags:Tags visibility:Visibility signature:Signature body:FunctionBody -> FunctionDeclaration {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Signature signature, org.rascalmpl.ast.FunctionBody body) {
+	protected Default(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Signature signature, org.rascalmpl.ast.FunctionBody body) {
 		this.node = node;
 		this.tags = tags;
 		this.visibility = visibility;
@@ -34,7 +34,7 @@ private final org.rascalmpl.ast.Tags tags;
 }
 static public class Ambiguity extends FunctionDeclaration {
   private final java.util.List<org.rascalmpl.ast.FunctionDeclaration> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionDeclaration> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionDeclaration> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -48,7 +48,7 @@ static public class Ambiguity extends FunctionDeclaration {
 } public boolean isAbstract() { return false; }
 static public class Abstract extends FunctionDeclaration {
 /** tags:Tags visibility:Visibility signature:Signature ";" -> FunctionDeclaration {cons("Abstract")} */
-	public Abstract(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Signature signature) {
+	protected Abstract(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility, org.rascalmpl.ast.Signature signature) {
 		this.node = node;
 		this.tags = tags;
 		this.visibility = visibility;

@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.Expression;
@@ -483,7 +484,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		IMatchingResult pat = x.getPattern().accept(this);
 		LinkedList<Name> names = new LinkedList<Name>();
 		names.add(x.getName());
-		IMatchingResult var = new QualifiedNamePattern(ctx, x, new org.rascalmpl.ast.QualifiedName.Default(x.getTree(), names));
+		IMatchingResult var = new QualifiedNamePattern(ctx, x, ASTFactoryFactory.getASTFactory().makeQualifiedNameDefault(x.getTree(), names));
 		return new VariableBecomesPattern(ctx, x, var, pat);
 	}
 

@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class RealLiteral extends AbstractAST { 
   static public class Lexical extends RealLiteral {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -16,7 +16,7 @@ public abstract class RealLiteral extends AbstractAST {
   	}
 } static public class Ambiguity extends RealLiteral {
   private final java.util.List<org.rascalmpl.ast.RealLiteral> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.RealLiteral> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.RealLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

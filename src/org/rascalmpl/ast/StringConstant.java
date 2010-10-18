@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class StringConstant extends AbstractAST { 
 static public class Lexical extends StringConstant {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -17,7 +17,7 @@ static public class Lexical extends StringConstant {
 }
 static public class Ambiguity extends StringConstant {
   private final java.util.List<org.rascalmpl.ast.StringConstant> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringConstant> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringConstant> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

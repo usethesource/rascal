@@ -4,7 +4,7 @@ public abstract class TypeVar extends AbstractAST {
   public org.rascalmpl.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isFree() { return false; }
 static public class Free extends TypeVar {
 /** "&" name:Name -> TypeVar {cons("Free")} */
-	public Free(INode node, org.rascalmpl.ast.Name name) {
+	protected Free(INode node, org.rascalmpl.ast.Name name) {
 		this.node = node;
 		this.name = name;
 	}
@@ -21,7 +21,7 @@ private final org.rascalmpl.ast.Name name;
 }
 static public class Ambiguity extends TypeVar {
   private final java.util.List<org.rascalmpl.ast.TypeVar> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TypeVar> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TypeVar> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -36,7 +36,7 @@ static public class Ambiguity extends TypeVar {
 public boolean isBounded() { return false; }
 static public class Bounded extends TypeVar {
 /** "&" name:Name "<:" bound:Type -> TypeVar {cons("Bounded")} */
-	public Bounded(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Type bound) {
+	protected Bounded(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Type bound) {
 		this.node = node;
 		this.name = name;
 		this.bound = bound;

@@ -513,13 +513,6 @@ public Box V(int space,list[Box] bs) {
      return r;
      }
 
-public str baseName(str input) {
-     if (/^<pre:.*>\.<post:.*?>$/:=input) {
-          return "<pre>";
-          }
-     return input;
-     }
-
 public void writeData(loc asf,text r,str suffix) {
      str s=baseName(asf.path);
      loc g=|file://<s><suffix>|;
@@ -527,3 +520,5 @@ public void writeData(loc asf,text r,str suffix) {
      writeFile(g);
      for (str q<-r) appendToFile(g,"<q>\n");
      }
+     
+

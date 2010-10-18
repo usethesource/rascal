@@ -6,7 +6,7 @@ public boolean hasFormals() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Formals {
 /** formals:{Formal ","}* -> Formals {cons("Default")} */
-	public Default(INode node, java.util.List<org.rascalmpl.ast.Formal> formals) {
+	protected Default(INode node, java.util.List<org.rascalmpl.ast.Formal> formals) {
 		this.node = node;
 		this.formals = formals;
 	}
@@ -23,7 +23,7 @@ private final java.util.List<org.rascalmpl.ast.Formal> formals;
 }
 static public class Ambiguity extends Formals {
   private final java.util.List<org.rascalmpl.ast.Formals> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Formals> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Formals> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

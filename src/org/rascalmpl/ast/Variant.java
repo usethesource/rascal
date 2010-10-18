@@ -8,7 +8,7 @@ public boolean hasName() { return false; }
 public boolean isNAryConstructor() { return false; }
 static public class NAryConstructor extends Variant {
 /** name:Name "(" arguments:{TypeArg ","}* ")" -> Variant {cons("NAryConstructor")} */
-	public NAryConstructor(INode node, org.rascalmpl.ast.Name name, java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
+	protected NAryConstructor(INode node, org.rascalmpl.ast.Name name, java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
 		this.node = node;
 		this.name = name;
 		this.arguments = arguments;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.Name name;
 }
 static public class Ambiguity extends Variant {
   private final java.util.List<org.rascalmpl.ast.Variant> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Variant> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Variant> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

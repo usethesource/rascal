@@ -4,7 +4,7 @@ public abstract class Test extends AbstractAST {
   public org.rascalmpl.ast.Tags getTags() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasTags() { return false; } public boolean hasExpression() { return false; } public boolean isUnlabeled() { return false; }
 static public class Unlabeled extends Test {
 /** tags:Tags "test" expression:Expression -> Test {cons("Unlabeled")} */
-	public Unlabeled(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Expression expression) {
+	protected Unlabeled(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Expression expression) {
 		this.node = node;
 		this.tags = tags;
 		this.expression = expression;
@@ -25,7 +25,7 @@ private final org.rascalmpl.ast.Tags tags;
 }
 static public class Ambiguity extends Test {
   private final java.util.List<org.rascalmpl.ast.Test> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Test> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Test> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ static public class Ambiguity extends Test {
 public boolean isLabeled() { return false; }
 static public class Labeled extends Test {
 /** tags:Tags "test" expression:Expression ":" labeled:StringLiteral -> Test {cons("Labeled")} */
-	public Labeled(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.StringLiteral labeled) {
+	protected Labeled(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.StringLiteral labeled) {
 		this.node = node;
 		this.tags = tags;
 		this.expression = expression;

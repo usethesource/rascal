@@ -6,7 +6,7 @@ public boolean hasDecimal() { return false; }
 public boolean isDecimalIntegerLiteral() { return false; }
 static public class DecimalIntegerLiteral extends IntegerLiteral {
 /** decimal:DecimalIntegerLiteral -> IntegerLiteral {prefer, cons("DecimalIntegerLiteral")} */
-	public DecimalIntegerLiteral(INode node, org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
+	protected DecimalIntegerLiteral(INode node, org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
 		this.node = node;
 		this.decimal = decimal;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.DecimalIntegerLiteral decimal;
 }
 static public class Ambiguity extends IntegerLiteral {
   private final java.util.List<org.rascalmpl.ast.IntegerLiteral> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.IntegerLiteral> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.IntegerLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ public boolean hasHex() { return false; }
 public boolean isHexIntegerLiteral() { return false; }
 static public class HexIntegerLiteral extends IntegerLiteral {
 /** hex:HexIntegerLiteral -> IntegerLiteral {prefer, cons("HexIntegerLiteral")} */
-	public HexIntegerLiteral(INode node, org.rascalmpl.ast.HexIntegerLiteral hex) {
+	protected HexIntegerLiteral(INode node, org.rascalmpl.ast.HexIntegerLiteral hex) {
 		this.node = node;
 		this.hex = hex;
 	}
@@ -59,7 +59,7 @@ public boolean hasOctal() { return false; }
 public boolean isOctalIntegerLiteral() { return false; }
 static public class OctalIntegerLiteral extends IntegerLiteral {
 /** octal:OctalIntegerLiteral -> IntegerLiteral {prefer, cons("OctalIntegerLiteral")} */
-	public OctalIntegerLiteral(INode node, org.rascalmpl.ast.OctalIntegerLiteral octal) {
+	protected OctalIntegerLiteral(INode node, org.rascalmpl.ast.OctalIntegerLiteral octal) {
 		this.node = node;
 		this.octal = octal;
 	}

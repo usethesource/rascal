@@ -4,7 +4,7 @@ public abstract class Strategy extends AbstractAST {
   public boolean isTopDown() { return false; }
 static public class TopDown extends Strategy {
 /** "top-down" -> Strategy {cons("TopDown")} */
-	public TopDown(INode node) {
+	protected TopDown(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class TopDown extends Strategy {
 }
 static public class Ambiguity extends Strategy {
   private final java.util.List<org.rascalmpl.ast.Strategy> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Strategy> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Strategy> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -30,7 +30,7 @@ static public class Ambiguity extends Strategy {
 public boolean isTopDownBreak() { return false; }
 static public class TopDownBreak extends Strategy {
 /** "top-down-break" -> Strategy {cons("TopDownBreak")} */
-	public TopDownBreak(INode node) {
+	protected TopDownBreak(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -41,7 +41,7 @@ static public class TopDownBreak extends Strategy {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isBottomUp() { return false; }
 static public class BottomUp extends Strategy {
 /** "bottom-up" -> Strategy {cons("BottomUp")} */
-	public BottomUp(INode node) {
+	protected BottomUp(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -53,7 +53,7 @@ static public class BottomUp extends Strategy {
 public boolean isBottomUpBreak() { return false; }
 static public class BottomUpBreak extends Strategy {
 /** "bottom-up-break" -> Strategy {cons("BottomUpBreak")} */
-	public BottomUpBreak(INode node) {
+	protected BottomUpBreak(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -65,7 +65,7 @@ static public class BottomUpBreak extends Strategy {
 public boolean isOutermost() { return false; }
 static public class Outermost extends Strategy {
 /** "outermost" -> Strategy {cons("Outermost")} */
-	public Outermost(INode node) {
+	protected Outermost(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -77,7 +77,7 @@ static public class Outermost extends Strategy {
 public boolean isInnermost() { return false; }
 static public class Innermost extends Strategy {
 /** "innermost" -> Strategy {cons("Innermost")} */
-	public Innermost(INode node) {
+	protected Innermost(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

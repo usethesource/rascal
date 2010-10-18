@@ -6,7 +6,7 @@ public abstract class Statement extends AbstractAST {
 	public boolean hasBound() { return false; } public boolean hasBody() { return false; } public boolean isSolve() { return false; }
 static public class Solve extends Statement {
 /** "solve" "(" variables:{QualifiedName ","}+ bound:Bound ")" body:Statement -> Statement {cons("Solve")} */
-	public Solve(INode node, java.util.List<org.rascalmpl.ast.QualifiedName> variables, org.rascalmpl.ast.Bound bound, org.rascalmpl.ast.Statement body) {
+	protected Solve(INode node, java.util.List<org.rascalmpl.ast.QualifiedName> variables, org.rascalmpl.ast.Bound bound, org.rascalmpl.ast.Statement body) {
 		this.node = node;
 		this.variables = variables;
 		this.bound = bound;
@@ -31,7 +31,7 @@ private final java.util.List<org.rascalmpl.ast.QualifiedName> variables;
 }
 static public class Ambiguity extends Statement {
   private final java.util.List<org.rascalmpl.ast.Statement> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Statement> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Statement> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -45,7 +45,7 @@ static public class Ambiguity extends Statement {
 } public org.rascalmpl.ast.Label getLabel() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasLabel() { return false; } public boolean hasGenerators() { return false; } public boolean isFor() { return false; }
 static public class For extends Statement {
 /** label:Label "for" "(" generators:{Expression ","}+ ")" body:Statement -> Statement {cons("For")} */
-	public For(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Expression> generators, org.rascalmpl.ast.Statement body) {
+	protected For(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Expression> generators, org.rascalmpl.ast.Statement body) {
 		this.node = node;
 		this.label = label;
 		this.generators = generators;
@@ -70,7 +70,7 @@ private final org.rascalmpl.ast.Label label;
 } public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.rascalmpl.ast.Expression> getConditions() { throw new UnsupportedOperationException(); } public boolean hasConditions() { return false; } public boolean isWhile() { return false; }
 static public class While extends Statement {
 /** label:Label "while" "(" conditions:{Expression ","}+ ")" body:Statement -> Statement {cons("While")} */
-	public While(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Expression> conditions, org.rascalmpl.ast.Statement body) {
+	protected While(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Expression> conditions, org.rascalmpl.ast.Statement body) {
 		this.node = node;
 		this.label = label;
 		this.conditions = conditions;
@@ -96,7 +96,7 @@ private final org.rascalmpl.ast.Label label;
 public boolean isDoWhile() { return false; }
 static public class DoWhile extends Statement {
 /** label:Label "do" body:Statement "while" "(" condition:Expression ")" ";" -> Statement {cons("DoWhile")} */
-	public DoWhile(INode node, org.rascalmpl.ast.Label label, org.rascalmpl.ast.Statement body, org.rascalmpl.ast.Expression condition) {
+	protected DoWhile(INode node, org.rascalmpl.ast.Label label, org.rascalmpl.ast.Statement body, org.rascalmpl.ast.Expression condition) {
 		this.node = node;
 		this.label = label;
 		this.body = body;
@@ -122,7 +122,7 @@ private final org.rascalmpl.ast.Label label;
 public boolean isIfThenElse() { return false; }
 static public class IfThenElse extends Statement {
 /** label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement "else" elseStatement:Statement -> Statement {cons("IfThenElse")} */
-	public IfThenElse(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Expression> conditions, org.rascalmpl.ast.Statement thenStatement, org.rascalmpl.ast.Statement elseStatement) {
+	protected IfThenElse(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Expression> conditions, org.rascalmpl.ast.Statement thenStatement, org.rascalmpl.ast.Statement elseStatement) {
 		this.node = node;
 		this.label = label;
 		this.conditions = conditions;
@@ -152,7 +152,7 @@ private final org.rascalmpl.ast.Label label;
 public boolean isIfThen() { return false; }
 static public class IfThen extends Statement {
 /** label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement noElseMayFollow:NoElseMayFollow -> Statement {cons("IfThen")} */
-	public IfThen(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Expression> conditions, org.rascalmpl.ast.Statement thenStatement, org.rascalmpl.ast.NoElseMayFollow noElseMayFollow) {
+	protected IfThen(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Expression> conditions, org.rascalmpl.ast.Statement thenStatement, org.rascalmpl.ast.NoElseMayFollow noElseMayFollow) {
 		this.node = node;
 		this.label = label;
 		this.conditions = conditions;
@@ -182,7 +182,7 @@ private final org.rascalmpl.ast.Label label;
 public boolean isSwitch() { return false; }
 static public class Switch extends Statement {
 /** label:Label "switch" "(" expression:Expression ")" "{" cases:Case+ "}" -> Statement {cons("Switch")} */
-	public Switch(INode node, org.rascalmpl.ast.Label label, org.rascalmpl.ast.Expression expression, java.util.List<org.rascalmpl.ast.Case> cases) {
+	protected Switch(INode node, org.rascalmpl.ast.Label label, org.rascalmpl.ast.Expression expression, java.util.List<org.rascalmpl.ast.Case> cases) {
 		this.node = node;
 		this.label = label;
 		this.expression = expression;
@@ -208,7 +208,7 @@ private final org.rascalmpl.ast.Label label;
 public boolean isVisit() { return false; }
 static public class Visit extends Statement {
 /** label:Label visit:Visit -> Statement {cons("Visit")} */
-	public Visit(INode node, org.rascalmpl.ast.Label label, org.rascalmpl.ast.Visit visit) {
+	protected Visit(INode node, org.rascalmpl.ast.Label label, org.rascalmpl.ast.Visit visit) {
 		this.node = node;
 		this.label = label;
 		this.visit = visit;
@@ -230,7 +230,7 @@ private final org.rascalmpl.ast.Label label;
 public boolean isEmptyStatement() { return false; }
 static public class EmptyStatement extends Statement {
 /** ";" -> Statement {cons("EmptyStatement")} */
-	public EmptyStatement(INode node) {
+	protected EmptyStatement(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -240,7 +240,7 @@ static public class EmptyStatement extends Statement {
 	public boolean isEmptyStatement() { return true; }	
 } public boolean isExpression() { return false; } static public class Expression extends Statement {
 /** expression:Expression ";" -> Statement {cons("Expression")} */
-	public Expression(INode node, org.rascalmpl.ast.Expression expression) {
+	protected Expression(INode node, org.rascalmpl.ast.Expression expression) {
 		this.node = node;
 		this.expression = expression;
 	}
@@ -256,7 +256,7 @@ private final org.rascalmpl.ast.Expression expression;
 	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
 } public org.rascalmpl.ast.Assignable getAssignable() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Assignment getOperator() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Statement getStatement() { throw new UnsupportedOperationException(); } public boolean hasAssignable() { return false; } public boolean hasOperator() { return false; } public boolean hasStatement() { return false; } public boolean isAssignment() { return false; } static public class Assignment extends Statement {
 /** assignable:Assignable operator:Assignment statement:Statement -> Statement {cons("Assignment")} */
-	public Assignment(INode node, org.rascalmpl.ast.Assignable assignable, org.rascalmpl.ast.Assignment operator, org.rascalmpl.ast.Statement statement) {
+	protected Assignment(INode node, org.rascalmpl.ast.Assignable assignable, org.rascalmpl.ast.Assignment operator, org.rascalmpl.ast.Statement statement) {
 		this.node = node;
 		this.assignable = assignable;
 		this.operator = operator;
@@ -281,7 +281,7 @@ private final org.rascalmpl.ast.Assignable assignable;
 } public boolean isAssert() { return false; }
 static public class Assert extends Statement {
 /** "assert" expression:Expression ";" -> Statement {cons("Assert")} */
-	public Assert(INode node, org.rascalmpl.ast.Expression expression) {
+	protected Assert(INode node, org.rascalmpl.ast.Expression expression) {
 		this.node = node;
 		this.expression = expression;
 	}
@@ -299,7 +299,7 @@ private final org.rascalmpl.ast.Expression expression;
 public boolean isAssertWithMessage() { return false; }
 static public class AssertWithMessage extends Statement {
 /** "assert" expression:Expression ":" message:Expression ";" -> Statement {cons("AssertWithMessage")} */
-	public AssertWithMessage(INode node, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.Expression message) {
+	protected AssertWithMessage(INode node, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.Expression message) {
 		this.node = node;
 		this.expression = expression;
 		this.message = message;
@@ -319,7 +319,7 @@ private final org.rascalmpl.ast.Expression expression;
 	public org.rascalmpl.ast.Expression getMessage() { return message; }	
 } public boolean isReturn() { return false; } static public class Return extends Statement {
 /** "return" statement:Statement -> Statement {cons("Return")} */
-	public Return(INode node, org.rascalmpl.ast.Statement statement) {
+	protected Return(INode node, org.rascalmpl.ast.Statement statement) {
 		this.node = node;
 		this.statement = statement;
 	}
@@ -335,7 +335,7 @@ private final org.rascalmpl.ast.Statement statement;
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
 } public boolean isThrow() { return false; } static public class Throw extends Statement {
 /** "throw" statement:Statement -> Statement {cons("Throw")} */
-	public Throw(INode node, org.rascalmpl.ast.Statement statement) {
+	protected Throw(INode node, org.rascalmpl.ast.Statement statement) {
 		this.node = node;
 		this.statement = statement;
 	}
@@ -351,7 +351,7 @@ private final org.rascalmpl.ast.Statement statement;
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
 } public org.rascalmpl.ast.DataTarget getDataTarget() { throw new UnsupportedOperationException(); } public boolean hasDataTarget() { return false; } public boolean isInsert() { return false; } static public class Insert extends Statement {
 /** "insert" dataTarget:DataTarget statement:Statement -> Statement {non-assoc, cons("Insert")} */
-	public Insert(INode node, org.rascalmpl.ast.DataTarget dataTarget, org.rascalmpl.ast.Statement statement) {
+	protected Insert(INode node, org.rascalmpl.ast.DataTarget dataTarget, org.rascalmpl.ast.Statement statement) {
 		this.node = node;
 		this.dataTarget = dataTarget;
 		this.statement = statement;
@@ -371,7 +371,7 @@ private final org.rascalmpl.ast.DataTarget dataTarget;
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
 } public boolean isAppend() { return false; } static public class Append extends Statement {
 /** "append" dataTarget:DataTarget statement:Statement -> Statement {non-assoc, cons("Append")} */
-	public Append(INode node, org.rascalmpl.ast.DataTarget dataTarget, org.rascalmpl.ast.Statement statement) {
+	protected Append(INode node, org.rascalmpl.ast.DataTarget dataTarget, org.rascalmpl.ast.Statement statement) {
 		this.node = node;
 		this.dataTarget = dataTarget;
 		this.statement = statement;
@@ -391,7 +391,7 @@ private final org.rascalmpl.ast.DataTarget dataTarget;
 	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
 } public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() { throw new UnsupportedOperationException(); } public boolean hasFunctionDeclaration() { return false; } public boolean isFunctionDeclaration() { return false; } static public class FunctionDeclaration extends Statement {
 /** functionDeclaration:FunctionDeclaration -> Statement {cons("FunctionDeclaration")} */
-	public FunctionDeclaration(INode node, org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
+	protected FunctionDeclaration(INode node, org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
 		this.node = node;
 		this.functionDeclaration = functionDeclaration;
 	}
@@ -407,7 +407,7 @@ private final org.rascalmpl.ast.FunctionDeclaration functionDeclaration;
 	public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() { return functionDeclaration; }	
 } public org.rascalmpl.ast.LocalVariableDeclaration getDeclaration() { throw new UnsupportedOperationException(); } public boolean hasDeclaration() { return false; } public boolean isVariableDeclaration() { return false; } static public class VariableDeclaration extends Statement {
 /** declaration:LocalVariableDeclaration ";" -> Statement {cons("VariableDeclaration")} */
-	public VariableDeclaration(INode node, org.rascalmpl.ast.LocalVariableDeclaration declaration) {
+	protected VariableDeclaration(INode node, org.rascalmpl.ast.LocalVariableDeclaration declaration) {
 		this.node = node;
 		this.declaration = declaration;
 	}
@@ -424,7 +424,7 @@ private final org.rascalmpl.ast.LocalVariableDeclaration declaration;
 } public org.rascalmpl.ast.Target getTarget() { throw new UnsupportedOperationException(); } public boolean hasTarget() { return false; } public boolean isBreak() { return false; }
 static public class Break extends Statement {
 /** "break" target:Target ";" -> Statement {cons("Break")} */
-	public Break(INode node, org.rascalmpl.ast.Target target) {
+	protected Break(INode node, org.rascalmpl.ast.Target target) {
 		this.node = node;
 		this.target = target;
 	}
@@ -441,7 +441,7 @@ private final org.rascalmpl.ast.Target target;
 } public boolean isFail() { return false; }
 static public class Fail extends Statement {
 /** "fail" target:Target  ";" -> Statement {cons("Fail")} */
-	public Fail(INode node, org.rascalmpl.ast.Target target) {
+	protected Fail(INode node, org.rascalmpl.ast.Target target) {
 		this.node = node;
 		this.target = target;
 	}
@@ -458,7 +458,7 @@ private final org.rascalmpl.ast.Target target;
 } public boolean isContinue() { return false; }
 static public class Continue extends Statement {
 /** "continue" target:Target ";" -> Statement {cons("Continue")} */
-	public Continue(INode node, org.rascalmpl.ast.Target target) {
+	protected Continue(INode node, org.rascalmpl.ast.Target target) {
 		this.node = node;
 		this.target = target;
 	}
@@ -475,7 +475,7 @@ private final org.rascalmpl.ast.Target target;
 } public java.util.List<org.rascalmpl.ast.Catch> getHandlers() { throw new UnsupportedOperationException(); } public boolean hasHandlers() { return false; } public boolean isTry() { return false; }
 static public class Try extends Statement {
 /** "try" body:Statement handlers:Catch+ -> Statement {non-assoc, cons("Try")} */
-	public Try(INode node, org.rascalmpl.ast.Statement body, java.util.List<org.rascalmpl.ast.Catch> handlers) {
+	protected Try(INode node, org.rascalmpl.ast.Statement body, java.util.List<org.rascalmpl.ast.Catch> handlers) {
 		this.node = node;
 		this.body = body;
 		this.handlers = handlers;
@@ -497,7 +497,7 @@ private final org.rascalmpl.ast.Statement body;
 public boolean isTryFinally() { return false; }
 static public class TryFinally extends Statement {
 /** "try" body:Statement handlers:Catch+ "finally" finallyBody:Statement -> Statement {cons("TryFinally")} */
-	public TryFinally(INode node, org.rascalmpl.ast.Statement body, java.util.List<org.rascalmpl.ast.Catch> handlers, org.rascalmpl.ast.Statement finallyBody) {
+	protected TryFinally(INode node, org.rascalmpl.ast.Statement body, java.util.List<org.rascalmpl.ast.Catch> handlers, org.rascalmpl.ast.Statement finallyBody) {
 		this.node = node;
 		this.body = body;
 		this.handlers = handlers;
@@ -523,7 +523,7 @@ private final org.rascalmpl.ast.Statement body;
 public boolean isNonEmptyBlock() { return false; }
 static public class NonEmptyBlock extends Statement {
 /** label:Label "{" statements:Statement+ "}" -> Statement {cons("NonEmptyBlock")} */
-	public NonEmptyBlock(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Statement> statements) {
+	protected NonEmptyBlock(INode node, org.rascalmpl.ast.Label label, java.util.List<org.rascalmpl.ast.Statement> statements) {
 		this.node = node;
 		this.label = label;
 		this.statements = statements;
@@ -549,7 +549,7 @@ public boolean hasType() { return false; }
 public boolean isGlobalDirective() { return false; }
 static public class GlobalDirective extends Statement {
 /** "global" type:Type names:{QualifiedName ","}+ ";" -> Statement {cons("GlobalDirective")} */
-	public GlobalDirective(INode node, org.rascalmpl.ast.Type type, java.util.List<org.rascalmpl.ast.QualifiedName> names) {
+	protected GlobalDirective(INode node, org.rascalmpl.ast.Type type, java.util.List<org.rascalmpl.ast.QualifiedName> names) {
 		this.node = node;
 		this.type = type;
 		this.names = names;

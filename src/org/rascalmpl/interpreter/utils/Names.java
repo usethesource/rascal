@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.INode;
-import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.IASTVisitor;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
@@ -114,7 +114,7 @@ public class Names {
 	static public QualifiedName toQualifiedName(String name) {
 		List<Name> list = new LinkedList<Name>();
 		list.add(toName(name));
-		return new ASTFactory().makeQualifiedNameDefault(null, list);
+		return ASTFactoryFactory.getASTFactory().makeQualifiedNameDefault(null, list);
 	}
 	
 	static class InventedName extends Name {

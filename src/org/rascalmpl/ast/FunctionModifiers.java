@@ -6,7 +6,7 @@ public boolean hasModifiers() { return false; }
 public boolean isList() { return false; }
 static public class List extends FunctionModifiers {
 /** modifiers:FunctionModifier* -> FunctionModifiers {cons("List")} */
-	public List(INode node, java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
+	protected List(INode node, java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
 		this.node = node;
 		this.modifiers = modifiers;
 	}
@@ -23,7 +23,7 @@ private final java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers;
 }
 static public class Ambiguity extends FunctionModifiers {
   private final java.util.List<org.rascalmpl.ast.FunctionModifiers> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionModifiers> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionModifiers> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

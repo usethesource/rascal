@@ -4,7 +4,7 @@ public abstract class Target extends AbstractAST {
   public boolean isEmpty() { return false; }
 static public class Empty extends Target {
 /**  -> Target {cons("Empty")} */
-	public Empty(INode node) {
+	protected Empty(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Empty extends Target {
 }
 static public class Ambiguity extends Target {
   private final java.util.List<org.rascalmpl.ast.Target> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Target> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Target> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -32,7 +32,7 @@ public boolean hasName() { return false; }
 public boolean isLabeled() { return false; }
 static public class Labeled extends Target {
 /** name:Name -> Target {cons("Labeled")} */
-	public Labeled(INode node, org.rascalmpl.ast.Name name) {
+	protected Labeled(INode node, org.rascalmpl.ast.Name name) {
 		this.node = node;
 		this.name = name;
 	}

@@ -6,7 +6,7 @@ public boolean hasQualifiedName() { return false; }
 public boolean isVariable() { return false; }
 static public class Variable extends Assignable {
 /** qualifiedName:QualifiedName -> Assignable {cons("Variable")} */
-	public Variable(INode node, org.rascalmpl.ast.QualifiedName qualifiedName) {
+	protected Variable(INode node, org.rascalmpl.ast.QualifiedName qualifiedName) {
 		this.node = node;
 		this.qualifiedName = qualifiedName;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.QualifiedName qualifiedName;
 }
 static public class Ambiguity extends Assignable {
   private final java.util.List<org.rascalmpl.ast.Assignable> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assignable> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assignable> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -38,7 +38,7 @@ static public class Ambiguity extends Assignable {
 public boolean isSubscript() { return false; }
 static public class Subscript extends Assignable {
 /** receiver:Assignable "[" subscript:Expression "]" -> Assignable {cons("Subscript")} */
-	public Subscript(INode node, org.rascalmpl.ast.Assignable receiver, org.rascalmpl.ast.Expression subscript) {
+	protected Subscript(INode node, org.rascalmpl.ast.Assignable receiver, org.rascalmpl.ast.Expression subscript) {
 		this.node = node;
 		this.receiver = receiver;
 		this.subscript = subscript;
@@ -60,7 +60,7 @@ private final org.rascalmpl.ast.Assignable receiver;
 public boolean isFieldAccess() { return false; }
 static public class FieldAccess extends Assignable {
 /** receiver:Assignable "." field:Name -> Assignable {cons("FieldAccess")} */
-	public FieldAccess(INode node, org.rascalmpl.ast.Assignable receiver, org.rascalmpl.ast.Name field) {
+	protected FieldAccess(INode node, org.rascalmpl.ast.Assignable receiver, org.rascalmpl.ast.Name field) {
 		this.node = node;
 		this.receiver = receiver;
 		this.field = field;
@@ -82,7 +82,7 @@ private final org.rascalmpl.ast.Assignable receiver;
 public boolean isIfDefinedOrDefault() { return false; }
 static public class IfDefinedOrDefault extends Assignable {
 /** receiver:Assignable "?" defaultExpression:Expression -> Assignable {cons("IfDefinedOrDefault")} */
-	public IfDefinedOrDefault(INode node, org.rascalmpl.ast.Assignable receiver, org.rascalmpl.ast.Expression defaultExpression) {
+	protected IfDefinedOrDefault(INode node, org.rascalmpl.ast.Assignable receiver, org.rascalmpl.ast.Expression defaultExpression) {
 		this.node = node;
 		this.receiver = receiver;
 		this.defaultExpression = defaultExpression;
@@ -104,7 +104,7 @@ private final org.rascalmpl.ast.Assignable receiver;
 public boolean isAnnotation() { return false; }
 static public class Annotation extends Assignable {
 /** receiver:Assignable "@" annotation:Name -> Assignable {non-assoc, cons("Annotation")} */
-	public Annotation(INode node, org.rascalmpl.ast.Assignable receiver, org.rascalmpl.ast.Name annotation) {
+	protected Annotation(INode node, org.rascalmpl.ast.Assignable receiver, org.rascalmpl.ast.Name annotation) {
 		this.node = node;
 		this.receiver = receiver;
 		this.annotation = annotation;
@@ -128,7 +128,7 @@ public boolean hasElements() { return false; }
 public boolean isTuple() { return false; }
 static public class Tuple extends Assignable {
 /** "<" elements:{Assignable ","}+ ">" -> Assignable {cons("Tuple")} */
-	public Tuple(INode node, java.util.List<org.rascalmpl.ast.Assignable> elements) {
+	protected Tuple(INode node, java.util.List<org.rascalmpl.ast.Assignable> elements) {
 		this.node = node;
 		this.elements = elements;
 	}
@@ -150,7 +150,7 @@ public boolean hasName() { return false; }
 public boolean isConstructor() { return false; }
 static public class Constructor extends Assignable {
 /** name:Name "(" arguments:{Assignable ","}+ ")" -> Assignable {non-assoc, cons("Constructor")} */
-	public Constructor(INode node, org.rascalmpl.ast.Name name, java.util.List<org.rascalmpl.ast.Assignable> arguments) {
+	protected Constructor(INode node, org.rascalmpl.ast.Name name, java.util.List<org.rascalmpl.ast.Assignable> arguments) {
 		this.node = node;
 		this.name = name;
 		this.arguments = arguments;

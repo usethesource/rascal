@@ -4,7 +4,7 @@ public abstract class Start extends AbstractAST {
   public boolean isAbsent() { return false; }
 static public class Absent extends Start {
 /**  -> Start {cons("Absent")} */
-	public Absent(INode node) {
+	protected Absent(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Absent extends Start {
 }
 static public class Ambiguity extends Start {
   private final java.util.List<org.rascalmpl.ast.Start> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Start> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Start> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -30,7 +30,7 @@ static public class Ambiguity extends Start {
 public boolean isPresent() { return false; }
 static public class Present extends Start {
 /** "start" -> Start {cons("Present")} */
-	public Present(INode node) {
+	protected Present(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

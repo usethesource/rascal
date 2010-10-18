@@ -4,7 +4,7 @@ public abstract class Label extends AbstractAST {
   public boolean isEmpty() { return false; }
 static public class Empty extends Label {
 /**  -> Label {cons("Empty")} */
-	public Empty(INode node) {
+	protected Empty(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Empty extends Label {
 }
 static public class Ambiguity extends Label {
   private final java.util.List<org.rascalmpl.ast.Label> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Label> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Label> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -32,7 +32,7 @@ public boolean hasName() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Label {
 /** name:Name ":" -> Label {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Name name) {
+	protected Default(INode node, org.rascalmpl.ast.Name name) {
 		this.node = node;
 		this.name = name;
 	}

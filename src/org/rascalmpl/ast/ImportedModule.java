@@ -4,7 +4,7 @@ public abstract class ImportedModule extends AbstractAST {
   public org.rascalmpl.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.ModuleActuals getActuals() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Renamings getRenamings() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasActuals() { return false; } public boolean hasRenamings() { return false; } public boolean isActualsRenaming() { return false; }
 static public class ActualsRenaming extends ImportedModule {
 /** name:QualifiedName actuals:ModuleActuals renamings:Renamings -> ImportedModule {cons("ActualsRenaming")} */
-	public ActualsRenaming(INode node, org.rascalmpl.ast.QualifiedName name, org.rascalmpl.ast.ModuleActuals actuals, org.rascalmpl.ast.Renamings renamings) {
+	protected ActualsRenaming(INode node, org.rascalmpl.ast.QualifiedName name, org.rascalmpl.ast.ModuleActuals actuals, org.rascalmpl.ast.Renamings renamings) {
 		this.node = node;
 		this.name = name;
 		this.actuals = actuals;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.QualifiedName name;
 }
 static public class Ambiguity extends ImportedModule {
   private final java.util.List<org.rascalmpl.ast.ImportedModule> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ImportedModule> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ImportedModule> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -43,7 +43,7 @@ static public class Ambiguity extends ImportedModule {
 } public boolean isActuals() { return false; }
 static public class Actuals extends ImportedModule {
 /** name:QualifiedName actuals:ModuleActuals -> ImportedModule {cons("Actuals")} */
-	public Actuals(INode node, org.rascalmpl.ast.QualifiedName name, org.rascalmpl.ast.ModuleActuals actuals) {
+	protected Actuals(INode node, org.rascalmpl.ast.QualifiedName name, org.rascalmpl.ast.ModuleActuals actuals) {
 		this.node = node;
 		this.name = name;
 		this.actuals = actuals;
@@ -64,7 +64,7 @@ private final org.rascalmpl.ast.QualifiedName name;
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isRenamings() { return false; }
 static public class Renamings extends ImportedModule {
 /** name:QualifiedName renamings:Renamings -> ImportedModule {cons("Renamings")} */
-	public Renamings(INode node, org.rascalmpl.ast.QualifiedName name, org.rascalmpl.ast.Renamings renamings) {
+	protected Renamings(INode node, org.rascalmpl.ast.QualifiedName name, org.rascalmpl.ast.Renamings renamings) {
 		this.node = node;
 		this.name = name;
 		this.renamings = renamings;
@@ -85,7 +85,7 @@ private final org.rascalmpl.ast.QualifiedName name;
 } public boolean isDefault() { return false; }
 static public class Default extends ImportedModule {
 /** name:QualifiedName -> ImportedModule {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.QualifiedName name) {
+	protected Default(INode node, org.rascalmpl.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
 	}

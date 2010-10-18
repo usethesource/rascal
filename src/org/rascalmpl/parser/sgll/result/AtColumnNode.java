@@ -25,7 +25,7 @@ public class AtColumnNode extends AbstractNode{
 		return false;
 	}
 	
-	public boolean isNullable(){
+	public boolean isEmpty(){
 		return true;
 	}
 	

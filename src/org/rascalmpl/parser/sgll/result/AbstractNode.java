@@ -24,7 +24,7 @@ public abstract class AbstractNode{
 	
 	public abstract boolean isEpsilon();
 	
-	public abstract boolean isNullable();
+	public abstract boolean isEmpty();
 	
 	public abstract boolean isSeparator();
 	

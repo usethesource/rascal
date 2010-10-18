@@ -8,7 +8,7 @@ public boolean hasFrom() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Renaming {
 /** from:Name "=>" to:Name -> Renaming {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Name from, org.rascalmpl.ast.Name to) {
+	protected Default(INode node, org.rascalmpl.ast.Name from, org.rascalmpl.ast.Name to) {
 		this.node = node;
 		this.from = from;
 		this.to = to;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.Name from;
 }
 static public class Ambiguity extends Renaming {
   private final java.util.List<org.rascalmpl.ast.Renaming> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Renaming> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Renaming> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

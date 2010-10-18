@@ -6,7 +6,7 @@ public boolean hasCharacter() { return false; }
 public boolean isCharacter() { return false; }
 static public class Character extends Range {
 /** character:Char -> Range {cons("Character")} */
-	public Character(INode node, org.rascalmpl.ast.Char character) {
+	protected Character(INode node, org.rascalmpl.ast.Char character) {
 		this.node = node;
 		this.character = character;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.Char character;
 }
 static public class Ambiguity extends Range {
   private final java.util.List<org.rascalmpl.ast.Range> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Range> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Range> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -42,7 +42,7 @@ public boolean hasStart() { return false; }
 public boolean isFromTo() { return false; }
 static public class FromTo extends Range {
 /** start:Char "-" end:Char -> Range {cons("FromTo")} */
-	public FromTo(INode node, org.rascalmpl.ast.Char start, org.rascalmpl.ast.Char end) {
+	protected FromTo(INode node, org.rascalmpl.ast.Char start, org.rascalmpl.ast.Char end) {
 		this.node = node;
 		this.start = start;
 		this.end = end;
