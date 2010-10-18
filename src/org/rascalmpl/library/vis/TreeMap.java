@@ -23,7 +23,7 @@ public class TreeMap extends Figure {
 	private HashSet<TreeMapNode> hasParent;
 	TreeMapNode root = null;
 	
-	TreeMap(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
+	TreeMap(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, inheritedProps, props, ctx);		
 		nodeMap = new HashMap<String,TreeMapNode>();
 		hasParent = new HashSet<TreeMapNode>();
@@ -34,7 +34,7 @@ public class TreeMap extends Figure {
 			Figure fig = FigureFactory.make(fpa, c, properties, ctx);
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
-				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("TreeMap: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
 			TreeMapNode tn = new TreeMapNode(fpa, this, inheritedProps, props, fig, ctx);
 			nodeMap.put(name, tn);
 		}
@@ -61,39 +61,48 @@ public class TreeMap extends Figure {
 
 			TreeMapNode fromNode = nodeMap.get(from);
 			if(fromNode == null)
-				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("TreeMap: edge uses non-existing node id " + from, v, ctx.getCurrentAST(), ctx.getStackTrace());
 			String to = ((IString)c.get(iTo)).getValue();
 			TreeMapNode toNode = nodeMap.get(to);
 			if(toNode == null)
-				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("TreeMap: edge uses non-existing node id " + to, v, ctx.getCurrentAST(), ctx.getStackTrace());
 			if(hasParent.contains(toNode))
-				System.err.println("NOT A TREE");
+				throw RuntimeExceptionFactory.figureException("TreeMap: node " + to + " has multiple parents", v, ctx.getCurrentAST(), ctx.getStackTrace());
 			hasParent.add(toNode);
 			fromNode.addChild(properties, edgeProperties, toNode, ctx);
 		}
 		
-		root = nodeMap.get(rootName.getValue());
-		
+		root = null;
+		for(TreeMapNode n : nodeMap.values())
+			if(!hasParent.contains(n)){
+				if(root != null)
+				 throw RuntimeExceptionFactory.figureException("TreeMap: multiple roots found: " + root.rootFigure.getIdProperty() + " and " + n.rootFigure.getIdProperty(),
+						  edges, ctx.getCurrentAST(), ctx.getStackTrace());
+				root = n;
+			}
 		if(root == null)
-			throw RuntimeExceptionFactory.illegalArgument(rootName, ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.figureException("TreeMap: no root found", edges, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
 	@Override
 	void bbox() {
 		System.err.printf("TreeMapNode.bbox(), left=%f, top=%f\n", left, top);
 		width = getWidthProperty();
-		if(width == 0) width = 400;
+		if(width == 0) 
+			width = 400;
 		height = getHeightProperty();
-		if(height == 0) height = 400;
-		root.place(0, 0, width, height, true);
+		if(height == 0)
+			height = 400;
+		root.place(width, height, true);
 	}
 	
 	@Override
 	void draw(float left, float top) {
+		if(!isVisible())
+			return;
 		this.left = left;
 		this.top = top;
-		left += leftDragged;
-		top += topDragged;
+		
 		System.err.printf("Tree.draw(%f,%f)\n", left, top);
 		applyProperties();
 		root.draw(left, top);
@@ -120,9 +129,9 @@ public class TreeMap extends Figure {
 		return false;
 	}
 	
-	@Override
-	public boolean mouseDragged(int mousex, int mousey){
-		return root.mouseDragged(mousex, mousey) ||
-		        super.mouseDragged(mousex, mousey);
-	}
+//	@Override
+//	public boolean mouseDragged(int mousex, int mousey){
+//		return root.mouseDragged(mousex, mousey) ||
+//		        super.mouseDragged(mousex, mousey);
+//	}
 }

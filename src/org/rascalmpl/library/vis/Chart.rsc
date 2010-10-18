@@ -1,7 +1,7 @@
 module vis::Chart
 
 import vis::Figure;
-import vis::Render;
+import vis::Rendering;
 import Map;
 import IO;
 import Number;
@@ -9,7 +9,7 @@ import List;
 
 // Settings for the various chart types (not all implemented yet)
 
-data ChartSetting =            //             supported by
+data ChartProperty =           //             supported by
                                // barChart pieChart xyChart
      areaPlot()                //                     x
                                
@@ -20,7 +20,7 @@ data ChartSetting =            //             supported by
    | linePlot()                //                     x
    | ring(num h)               //              x 
    | stackedBars()             //    x  
-   | subtitle(str txt)         //    x         x      x
+   | subTitle(str txt)         //    x         x      x
    | vertical()                //    x                x 
    | xLabel(str txt)           //    x                x
    | yLabel(str txt)           //    x                x
@@ -28,7 +28,7 @@ data ChartSetting =            //             supported by
  
 private num chartWidth = 400;
 private num chartHeight = 400;
-private str subtitle = "";
+private str subTitle = "";
 private str xTitle = "";
 private str yTitle = "";
 private bool isAreaPlot = false;
@@ -45,14 +45,14 @@ private str rasterColor = "lightgray";
 
 // read and apply all settings for a chart
 
-private void applySettings(list[ChartSetting] settings){
+private void applySettings(list[ChartProperty] settings){
    chartWidth = chartHeight = 400;
    ringHeight = 0;
-   subtitle = xTitle = yTitle = "";
+   subTitle = xTitle = yTitle = "";
    isAreaPlot = isLinePlot = isCurvePlot = isStackedBars = false;
    isVertical = true;
    
-   for(ChartSetting setting <- settings){
+   for(ChartProperty setting <- settings){
         
        switch(setting){
        
@@ -63,7 +63,7 @@ private void applySettings(list[ChartSetting] settings){
    	     case linePlot(): isLinePlot = true;
    	     case ring(num h): ringHeight = h;
    	     case stackedBars() : isStackedBars = true;
-         case subtitle(str s): subtitle = s;
+         case subTitle(str s): subTitle = s;
          case vertical(): isVertical = true;
          case xLabel(str s): xTitle = s;
          case yLabel(str s): yTitle = s;
@@ -76,7 +76,7 @@ private void applySettings(list[ChartSetting] settings){
 private Figure raster(str title){
    return vcat([hcenter(), gap(0,20)],
                    [ text([fontSize(titleFontSize)], title),
-                     (subtitle == "") ? space([size(0,-20)]) : text([fontSize(subTitleFontSize)], subtitle),
+                     (subTitle == "") ? space([size(0,-20)]) : text([fontSize(subTitleFontSize)], subTitle),
                      box([size(chartWidth,chartHeight), fillColor(rasterColor)])
                    ]);
 }
@@ -138,7 +138,7 @@ private Figure legend(list[tuple[str, Color]] funColors, num w){
 public alias NamedPairSeries  = 
        tuple[str name,list[tuple[num xval, num yval]]  values];
 
-public Figure xyChart(str title, list[NamedPairSeries] facts, ChartSetting settings ... ){
+public Figure xyChart(str title, list[NamedPairSeries] facts, ChartProperty settings ... ){
 
    applySettings(settings);
    
@@ -172,12 +172,12 @@ public Figure xyChart(str title, list[NamedPairSeries] facts, ChartSetting setti
   //println("xscale=<xscale>, yscale=<yscale>, xshift=<xshift>, yshift=<yshift>");
   
   // Add vertical axis at x=0
-  funPlots += shape([lineColor("darkgrey"), lineWidth(1), connectedShape()],
+  funPlots += shape([lineColor("darkgrey"), lineWidth(1), shapeConnected()],
                      [ vertex((xshift + 0) * xscale, 0),
                        vertex((xshift + 0) * xscale, chartHeight)
                      ]);
   // Add horizontal axis at y=0
-  funPlots+= shape([lineColor("darkgrey"), lineWidth(1), connectedShape()],
+  funPlots+= shape([lineColor("darkgrey"), lineWidth(1), shapeConnected()],
                      [ vertex(0,          (yshift + 0) * yscale),
                        vertex(chartWidth, (xshift + 0) * yscale)
                      ]);  
@@ -188,15 +188,15 @@ public Figure xyChart(str title, list[NamedPairSeries] facts, ChartSetting setti
    		list[FProperty] shapeProps = [lineColor(fcolorName), lineWidth(2)];
    		
    		if(isAreaPlot)
-   		   shapeProps += [fillColor(color(fcolorName, 0.7)), closedShape(), connectedShape()];
+   		   shapeProps += [fillColor(color(fcolorName, 0.7)), shapeClosed(), shapeConnected()];
    		else
    		   shapeProps += [fillColor(fcolorName)];
    		   
    		if(isCurvePlot)
-   		   shapeProps += [curvedShape(), connectedShape()];
+   		   shapeProps += [shapeCurved(), shapeConnected()];
    		   
    		if(isLinePlot)
-   		   shapeProps += [connectedShape()];
+   		   shapeProps += [shapeConnected()];
    		   
         funPlots += shape(shapeProps,
                           [vertex((xshift + x) * xscale, (yshift + y) * yscale, ellipse([size(5), fillColor(fcolorName), lineWidth(0)])) | <num x, num y> <- values]);
@@ -221,73 +221,6 @@ public Figure xyChart(str title, list[NamedPairSeries] facts, ChartSetting setti
    return plot;
 }
 
-private list[NamedPairSeries] pdata =
-        [ <"f", [<0, 50>, <10,50>, <20,50>, <30, 50>, <40, 50>, <50, 50>, <60,50>]>, 
-          <"g", [<50,0>, <50,50>, <50,100>]>,
-          <"h", [<0,0>, <10,10>, <20,20>, <30,30>, <40,40>, <50,50>, <60,60>]>,
-          <"i", [<0, 60>, <10, 50>, <20, 40>, <30, 30>, <40, 20>, <50, 10>, <60, 0>]>,
-          <"j", [< -20, 20>, < -10, 10>, <0,0>, <10, -10>, <20, -20>]>,
-          <"k", [< -20, 40>, < -10, 10>, <0, 0>, <10, 10>, <20, 40>, <30, 90>]>                
-        ];
-        
-public void p0(){
-     mydata = [
-               <"h", [<0,0>, <10,10>, <20,20>, <30,30>, <40,40>, <50,50>, <60,60>]>
-               ];
-     render(xyChart("P0", 
-	                 mydata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis")
-                  )
-           );
-}
-
-// Scatter plot
-
-public void p1(){
-	render(xyChart("P1", 
-	                 pdata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis")
-                  )
-           );
-}
-
-// Line plot
-
-public void p2(){
-	render(xyChart("P2", 
-	                 pdata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis"),
-	                 linePlot()
-                  )
-           );
-}
-
-// Curve plot
-
-public void p3(){
-	render(xyChart("P3", 
-	                 pdata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis"),
-	                 linePlot(), curvePlot()
-                  )
-           );
-}
-
-// Line/area plot
-
-public void p4(){
-	render(xyChart("Test Title P4", 
-	                 pdata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis"),
-	                 linePlot(), areaPlot()
-                  )
-           );
-}
-
-// Curve/area plot
-
-public void p5(){
-	render(xyChart("Test Title P5", 
-	                 pdata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis"),
-	                 linePlot(), curvePlot(), areaPlot()
-                  )
-           );
-}
 
 //----------------------------------  barChart -----------------------------------------------
 
@@ -299,9 +232,19 @@ public alias NamedNumbers  =
 public alias NamedNumberSeries =
        list[tuple[str name, list[num] values]];
 
-// barChart with map argument
+public Figure barChart(str title, map[str,num] facts, ChartProperty settings...){
+  categories = [];
+  ifacts = [];
+  for(k <- facts){
+  	categories += [k];
+  	v = facts[k];
+  	ifacts += <k, [v]>;
+  }
+  //println("categories=<categories>\nifacts=<ifacts>");
+  return barChart(title, categories, ifacts, settings);
+}
 
-public Figure barChart(str title, NamedNumbers facts, ChartSetting settings...){
+public Figure barChart(str title, NamedNumbers facts, ChartProperty settings...){
   categories = [];
   ifacts = [];
   for(<k, v> <- facts){
@@ -312,7 +255,7 @@ public Figure barChart(str title, NamedNumbers facts, ChartSetting settings...){
   return barChart(title, categories, ifacts, settings);
 }
 
-public Figure barChart(str title, list[str] categories, NamedNumberSeries facts, ChartSetting settings...){
+public Figure barChart(str title, list[str] categories, NamedNumberSeries facts, ChartProperty settings...){
    
    applySettings(settings);
  
@@ -440,76 +383,10 @@ public Figure barChart(str title, list[str] categories, NamedNumberSeries facts,
 }
 
 
-public void b0(){
-  render(barChart("Sales Prognosis 0", [<"a", 10>, <"b", 20>, <"c", 30>],
-                 xLabel("Item"), 
-                  yLabel("Value")
-            ));
-}
-
-
-public void b1a(){
-  render(barChart("Sales Prognosis 1", 
-                  ["First Quarter", "Second Quarter"],
-                  [ <"2009", [20]>,
-                    <"2010", [40]>
-                  ],
-                  xLabel("Quarters"), 
-                  yLabel("Sales")
-            ));
-}
-
-public void b1(){
-  render(barChart("Sales Prognosis 1", 
-                  ["First Quarter", "Second Quarter"],
-                  [ <"2009", [20,              25]>,
-                    <"2010", [40,              60]>
-                  ],
-                  xLabel("Quarters"), 
-                  yLabel("Sales")
-            ));
-}
-
-public void b2(){
-  render(barChart("Sales Prognosis 1", 
-                  ["First Quarter", "Second Quarter"],
-                  [ <"2009", [20,              25]>,
-                    <"2010", [40,              60]>
-                  ],
-                  xLabel("Quarters"), 
-                  yLabel("Sales"),
-                  stackedBars()
-            ));
-}
-
-public void b3(){
-  render(barChart("Sales Prognosis 1", 
-                  ["First Quarter", "Second Quarter"],
-                  [ <"2009", [20,              25]>,
-                    <"2010", [40,              60]>
-                  ],
-                  xLabel("Quarters"), 
-                  yLabel("Sales"),
-                  horizontal()
-            ));
-}
-
-public void b4(){
-  render(barChart("Sales Prognosis 1", 
-                  ["First Quarter", "Second Quarter"],
-                  [ <"2009", [20,              25]>,
-                    <"2010", [40,              60]>
-                  ],
-                  xLabel("Quarters"), 
-                  yLabel("Sales"),
-                  stackedBars(),
-                  horizontal()
-            ));
-}
 
 //-------------------------------- pieChart ------------------------------------
 
-public Figure pieChart(str title, map[str, int] facts, ChartSetting settings...){
+public Figure pieChart(str title, map[str, int] facts, ChartProperty settings...){
 
 	applySettings(settings);
  	funColors = [];
@@ -539,7 +416,7 @@ public Figure pieChart(str title, map[str, int] facts, ChartSetting settings...)
     return vcat([hcenter(), gap(20)],
     
                 [ text([fontSize(20)], title),
-                  (subtitle == "") ? space([size(0,-20)]) : text([fontSize(10)], subtitle),
+                  (subTitle == "") ? space([size(0,-20)]) : text([fontSize(10)], subTitle),
                    overlay([center()], [ box([size(chartWidth,chartHeight), fillColor("lightgray")]),
                                          p
                                        ]),
@@ -547,28 +424,7 @@ public Figure pieChart(str title, map[str, int] facts, ChartSetting settings...)
                 ]);
 }
 
-public void pie0(){
- 	render(pieChart("pie0", ("a" : 1, "b" : 1, "c" : 1, "z": 1)));
-}
 
-public void pie1(){
- 	render(pieChart("pie1", ("a" : 1, "b" : 2, "c" : 10, "z": 50)));
-}
-
-public void pie2(){
- 	render(pieChart("pie2", ("a" : 1, "b" : 2, "c" : 10, "z": 50),
- 	         subtitle("A very, very, very long subtitle don\'t you think?"))
- 	
- 	);
-}
-
-public void pie3(){
- 	render(pieChart("pie3", ("a" : 1, "b" : 2, "c" : 10, "z": 50),
- 					ring(20)
- 	));
-}
-
-  
 /*
  * Data formats used in JFreeChart chart functions
  * (Temporary reminder for other chart functions)
@@ -594,58 +450,58 @@ public alias realSeriesMultipleData =
 
 @doc{draw a bar chart}
 @javaClass{org.rascalmpl.library.viz.BarChart}
-public void java barChart(str title, map[str,int] facts, ChartSetting settings...);
+public void java barChart(str title, map[str,int] facts, ChartProperty settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.rascalmpl.library.viz.BarChart}
-public void java barChart(str title, map[str,real] facts, ChartSetting settings...);
+public void java barChart(str title, map[str,real] facts, ChartProperty settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.rascalmpl.library.viz.BarChart}
-public void java barChart(str title, list[str] categories, list[intSeries] facts, ChartSetting settings...);
+public void java barChart(str title, list[str] categories, list[intSeries] facts, ChartProperty settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.rascalmpl.library.viz.BarChart}
-public void java barChart(str title, list[str] categories, list[realSeries] facts, ChartSetting settings...);
+public void java barChart(str title, list[str] categories, list[realSeries] facts, ChartProperty settings...);
 
 // boxPlot aka BoxAndWiskerPlot
 
 @doc{draw a boxPlot}
 @javaClass{org.rascalmpl.library.viz.BoxPlot}
-public void java boxplot(str title, list[intSeriesMultipleData] facts, ChartSetting settings...);
+public void java boxplot(str title, list[intSeriesMultipleData] facts, ChartProperty settings...);
 
 @doc{draw a boxplot}
 @javaClass{org.rascalmpl.library.viz.BoxPlot}
-public void java boxplot(str title, list[realSeriesMultipleData] facts, ChartSetting settings...);
+public void java boxplot(str title, list[realSeriesMultipleData] facts, ChartProperty settings...);
 
 // histogram
 
 @doc{draw a histogram}
 @javaClass{org.rascalmpl.library.viz.Histogram}
-public void java histogram(str title, list[intSeries] facts, int nbins, ChartSetting settings...);
+public void java histogram(str title, list[intSeries] facts, int nbins, ChartProperty settings...);
 
 @doc{draw a histogram}
 @javaClass{org.rascalmpl.library.viz.Histogram}
-public void java histogram(str title, list[realSeries] facts, int nbins, ChartSetting settings...);
+public void java histogram(str title, list[realSeries] facts, int nbins, ChartProperty settings...);
 
 // piechart
 
 @doc{draw a pie chart}
 @javaClass{org.rascalmpl.library.viz.PieChart}
-public void java pieChart(str title, map[str,int] facts, ChartSetting settings...);  
+public void java pieChart(str title, map[str,int] facts, ChartProperty settings...);  
 
 @doc{draw a pie chart}
 @javaClass{org.rascalmpl.library.viz.PieChart}
-public void java pieChart(str title, map[str,real] facts, ChartSetting settings...);   
+public void java pieChart(str title, map[str,real] facts, ChartProperty settings...);   
 
 // xyChart
 
 @doc{draw an xy chart}
 @javaClass{org.rascalmpl.library.viz.XYChart}
-public void java xyChart(str title, list[intSeries] facts, ChartSetting settings...);
+public void java xyChart(str title, list[intSeries] facts, ChartProperty settings...);
 
 @doc{draw an xy chart}
 @javaClass{org.rascalmpl.library.viz.XYChart}
-public void java xyChart(str title, list[realSeries] facts, ChartSetting settings...);
+public void java xyChart(str title, list[realSeries] facts, ChartProperty settings...);
 
 ***/

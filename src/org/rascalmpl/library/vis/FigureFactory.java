@@ -163,16 +163,16 @@ public class FigureFactory {
 			return new Text(fpa, inheritedProps,  (IList) c.get(0), (IString) c.get(1), ctx);
 			
 		case TREE: 
-			if(c.arity() == 4)
-				return new Tree(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), (IString) c.get(3), ctx);
+			if(c.arity() == 3)
+				return new Tree(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
 			
-			return new Tree(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), (IString) c.get(2), ctx);
+			return new Tree(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
 
 		case TREEMAP: 
-			if(c.arity() == 4)
-				return new TreeMap(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), (IString) c.get(3), ctx);
+			if(c.arity() == 3)
+				return new TreeMap(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
 			
-			return new TreeMap(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), (IString) c.get(2), ctx);
+			return new TreeMap(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
 
 			
 		case USE:

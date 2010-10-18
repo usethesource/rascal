@@ -15,7 +15,7 @@ public class Rotate extends Figure {
 	private float rightAnchor;
 	private float topAnchor;
 	private float bottomAnchor;
-	private static boolean debug = false;
+	private static boolean debug = true;
 	
 	Rotate(FigurePApplet fpa, PropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
 		super(fpa, ctx);
@@ -32,24 +32,30 @@ public class Rotate extends Figure {
 		
 		float sa = abs(PApplet.sin(angle));
 		float ca = abs(PApplet.cos(angle));
-//		
-//		width = velem.width * ca + velem.height * sa;
-//		height = velem.height * ca + velem.width * sa;
-//		
-//		leftAnchor = velem.bottomAnchor() *sa + velem.leftAnchor()*ca;
-//		rightAnchor = width - leftAnchor;
-//		
-//		topAnchor = velem.topAnchor()*ca + velem.leftAnchor()*sa;
-//		bottomAnchor = height - topAnchor;
 		
-		leftAnchor = figure.leftAnchor() * ca + figure.bottomAnchor() * sa;
-		rightAnchor = figure.topAnchor() * sa + figure.rightAnchor() * ca;
-		width = leftAnchor + rightAnchor;
+		float la = figure.properties.hanchor;
+		float va = figure.properties.vanchor;
 		
-		topAnchor = figure.leftAnchor() * sa + figure.topAnchor() * ca;
-		bottomAnchor = figure.rightAnchor() * sa + figure.bottomAnchor() * ca;
+		float w = figure.width;
+		float h = figure.height;
 		
-		height = topAnchor + bottomAnchor;
+		width  = h * sa + w * ca;
+		height = h * ca + w * sa;
+		leftAnchor = la * width;
+		rightAnchor = (1-la) * width;
+		
+		topAnchor = va * height;
+		bottomAnchor = (1-va) * height;
+		
+//		leftAnchor = figure.leftAnchor() * ca + figure.bottomAnchor() * sa;
+//		rightAnchor = figure.topAnchor() * sa + figure.rightAnchor() * ca;
+		
+//		width = leftAnchor + rightAnchor;
+		
+//		topAnchor = figure.leftAnchor() * sa + figure.topAnchor() * ca;
+//		bottomAnchor = figure.rightAnchor() * sa + figure.bottomAnchor() * ca;
+		
+//		height = topAnchor + bottomAnchor;
 		
 		if(debug)System.err.printf("rotate.bbox: width=%f (%f, %f), height=%f (%f, %f)\n", 
 				   width, leftAnchor, rightAnchor, height, topAnchor, bottomAnchor);
@@ -57,17 +63,29 @@ public class Rotate extends Figure {
 
 	@Override
 	void draw(float left, float top) {
+		if(debug)System.err.printf("rotate.draw: %f, %f\n", left, top);
 		fpa.pushMatrix();
+		if(debug)System.err.printf("rotate.translate: %f, %f\n", (left + figure.leftAnchor()), (top + figure.topAnchor()));
 		fpa.translate((left + figure.leftAnchor()), (top + figure.topAnchor()));
-		//vlp.translate(-left, -top);
+		if(debug)System.err.printf("rotate.translate: %f\n",angle);
 		fpa.rotate(angle);
-		//vlp.translate(left, top);
-		fpa.translate(-(left + figure.leftAnchor()), -(top + figure.topAnchor()));
-		//vlp.translate(-leftAnchor, -topAnchor);
-		figure.draw(-figure.leftAnchor(), -figure.topAnchor());
-		//velem.draw(0,0);
-		
+		//if(debug)System.err.printf("rotate.translate: %f, %f\n", -(left + figure.leftAnchor()), -(top + figure.topAnchor()));
+		//fpa.translate( -(left + figure.leftAnchor()), -(top + figure.topAnchor()));
+		if(debug)System.err.printf("rotate.drawing at: %f, %f\n", -(left + figure.leftAnchor()), -(top + figure.topAnchor()));
+		figure.draw( -(left + figure.leftAnchor()), -(top + figure.topAnchor()));
 		fpa.popMatrix();
+		
+//		fpa.pushMatrix();
+//		fpa.translate((left + figure.leftAnchor()), (top + figure.topAnchor()));
+//		//vlp.translate(-left, -top);
+//		fpa.rotate(angle);
+//		//vlp.translate(left, top);
+//		fpa.translate(-(left + figure.leftAnchor()), -(top + figure.topAnchor()));
+//		//vlp.translate(-leftAnchor, -topAnchor);
+//		figure.draw(-figure.leftAnchor(), -figure.topAnchor());
+//		//velem.draw(0,0);
+		
+		
 	}
 	
 	@Override
@@ -88,5 +106,14 @@ public class Rotate extends Figure {
 	@Override
 	public float bottomAnchor(){
 		return bottomAnchor;
+	}
+	
+	@Override
+	public void drawFocus(){
+		if(isVisible()){
+			fpa.stroke(255, 0,0);
+			fpa.noFill();
+			fpa.rect(left, top, width, height);
+		}
 	}
 }

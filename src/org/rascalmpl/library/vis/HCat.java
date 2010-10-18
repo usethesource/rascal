@@ -14,7 +14,7 @@ public class HCat extends Compose {
 	float hgap;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
-	private static boolean debug = true;
+	private static boolean debug = false;
 
 	HCat(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
 		super(fpa, inheritedProps, props, elems, ctx);
@@ -44,8 +44,7 @@ public class HCat extends Compose {
 	void draw(float left, float top){
 		this.left = left;
 		this.top =  top;
-		left += leftDragged;
-		top  += topDragged;
+	
 		applyProperties();
 
 		// Draw from left to right

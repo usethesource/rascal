@@ -55,7 +55,7 @@ public class Shape extends Compose {
 		float bottom = top + height - bottomAnchor;
 		boolean closed = isClosed();
 		boolean curved = isCurved();
-		boolean connected = isConnected() || curved;
+		boolean connected = isClosed() || isConnected() || curved;
 		
 		if(connected){
 			fpa.noFill();

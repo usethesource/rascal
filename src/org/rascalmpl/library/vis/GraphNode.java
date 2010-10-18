@@ -134,11 +134,11 @@ public class GraphNode {
 	}
 	
 	public float figX(){
-		return x + figure.leftDragged;
+		return x;
 	}
 	
 	public float figY(){
-		return y + figure.topDragged;
+		return y;
 	}
 
 	void draw(float left, float top) {

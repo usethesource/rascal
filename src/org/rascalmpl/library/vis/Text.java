@@ -28,8 +28,7 @@ public class Text extends Figure {
 	
 	@Override
 	void bbox(){
-	
-		fpa.textSize(getFontSizeProperty());
+		applyFontProperties();
 		topAnchor = fpa.textAscent() ;
 		bottomAnchor = fpa.textDescent();
 		
@@ -61,12 +60,10 @@ public class Text extends Figure {
 		this.left = left;
 		this.top = top;
 		
-		left += leftDragged;
-		top += topDragged;
 		applyProperties();
-		applyFontColorProperty();
+		applyFontProperties();
 	
-		if(debug)System.err.printf("text.draw: %s, left=%f, top=%f, width=%f, height=%f\n", txt, left, top, width, height);
+		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, width, height);
 		if(height > 0 && width > 0){
 			float angle = getTextAngleProperty();
 

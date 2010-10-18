@@ -31,7 +31,7 @@ public class Tree extends Figure {
 	private TreeNodeRaster raster;
 	TreeNode root = null;
 	
-	Tree(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IString rootName, IEvaluatorContext ctx) {
+	Tree(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, inheritedProps, props, ctx);		
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();
@@ -43,8 +43,8 @@ public class Tree extends Figure {
 			Figure fig = FigureFactory.make(fpa, c, properties, ctx);
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
-				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
-			TreeNode tn = new TreeNode(fpa, this, inheritedProps, props, fig, ctx);
+				throw RuntimeExceptionFactory.figureException("Tree: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
+			TreeNode tn = new TreeNode(fpa, inheritedProps, props, fig, ctx);
 			nodeMap.put(name, tn);
 		}
 		
@@ -70,38 +70,45 @@ public class Tree extends Figure {
 
 			TreeNode fromNode = nodeMap.get(from);
 			if(fromNode == null)
-				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Tree: edge uses non-existing node id " + from, v, ctx.getCurrentAST(), ctx.getStackTrace());
 			String to = ((IString)c.get(iTo)).getValue();
 			TreeNode toNode = nodeMap.get(to);
 			if(toNode == null)
-				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Tree: edge uses non-existing node id " + to, v, ctx.getCurrentAST(), ctx.getStackTrace());
 			if(hasParent.contains(toNode))
-				System.err.println("NOT A TREE");
+				throw RuntimeExceptionFactory.figureException("Tree: node " + to + " has multiple parents", v, ctx.getCurrentAST(), ctx.getStackTrace());
 			hasParent.add(toNode);
 			fromNode.addChild(properties, edgeProperties, toNode, ctx);
 		}
 		
-		root = nodeMap.get(rootName.getValue());
-		
+		root = null;
+		for(TreeNode n : nodeMap.values())
+			if(!hasParent.contains(n)){
+				if(root != null)
+					throw RuntimeExceptionFactory.figureException("Tree: multiple roots found: " + root.rootFigure.getIdProperty() + " and " + n.rootFigure.getIdProperty(),
+																  edges, ctx.getCurrentAST(), ctx.getStackTrace());
+				root = n;
+			}
 		if(root == null)
-			throw RuntimeExceptionFactory.illegalArgument(rootName, ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.figureException("Tree: no root found", edges, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
 	@Override
 	void bbox() {
-		System.err.printf("Tree.bbox(), left=%f, top=%f\n", left, top);
+		System.err.printf("Tree.bbox()\n");
 		raster.clear();
-		root.shapeTree(left, top, raster);
+		root.shapeTree(0, 0, raster);
 		width = root.width;
 		height = root.height;
 	}
 	
 	@Override
 	void draw(float left, float top) {
+		if(!isNextVisible())
+			return;
 		this.left = left;
 		this.top = top;
-		left += leftDragged;
-		top += topDragged;
+		
 		System.err.printf("Tree.draw(%f,%f)\n", left, top);
 		applyProperties();
 		root.draw(left, top);
@@ -110,27 +117,25 @@ public class Tree extends Figure {
 	@Override
 	public boolean mouseInside(int mousex, int mousey){
 		return root.mouseInside(mousex, mousey) || 
-		        super.mouseInside(mousex, mousey);
+		       super.mouseInside(mousex, mousey);
 	}
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
 		return root.mouseOver(mousex, mousey) ||
-		        super.mouseOver(mousex, mousey);
+		       super.mouseOver(mousex, mousey);
 	}
 	
 	@Override
 	public boolean mousePressed(int mousex, int mousey){
-		if(root.mousePressed(mousex, mousey)){
-			bbox();
-			return true;
-		}
-		return false;
+		System.err.printf("Tree.mousePressed: %s, %d, %d\n", root.rootFigure.getIdProperty(), mousex, mousey);
+		return root.mousePressed(mousex, mousey) ||
+			   super.mousePressed(mousex, mousey);
 	}
 	
-	@Override
-	public boolean mouseDragged(int mousex, int mousey){
-		return root.mouseDragged(mousex, mousey) ||
-		        super.mouseDragged(mousex, mousey);
-	}
+//	@Override
+//	public boolean mouseDragged(int mousex, int mousey){
+//		return root.mouseDragged(mousex, mousey) ||
+//		       super.mouseDragged(mousex, mousey);
+//	}
 }

@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -24,6 +25,7 @@ import processing.core.PApplet;
 public class Graph extends Figure {
 	protected ArrayList<GraphNode> nodes;
 	protected ArrayList<GraphEdge> edges;
+	private HashMap<String,GraphNode> registered;
 	protected float springConstant;
 	protected float springConstant2;
 	protected int temperature;
@@ -34,6 +36,7 @@ public class Graph extends Figure {
 		this.nodes = new ArrayList<GraphNode>();
 		width = getWidthProperty();
 		height = getHeightProperty();
+		registered = new HashMap<String,GraphNode>();
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
 			Figure ve = FigureFactory.make(fpa, c, properties, ctx);
@@ -42,7 +45,7 @@ public class Graph extends Figure {
 				throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
 			GraphNode node = new GraphNode(this, name, ve);
 			this.nodes.add(node);
-			fpa.register(name, node);
+			register(name, node);
 		}
 	
 		this.edges = new ArrayList<GraphEdge>();
@@ -60,6 +63,15 @@ public class Graph extends Figure {
 		if(debug)System.err.printf("springConstant = %f\n", springConstant);
 		springConstant2 = springConstant * springConstant;
 		initialPlacement();
+	}
+	
+	//TODO move these methods to Graph
+	public void register(String name, GraphNode nd){
+		registered.put(name, nd);
+	}
+	
+	public GraphNode getRegistered(String name){
+		return registered.get(name);
 	}
 	
 	
@@ -142,8 +154,7 @@ public class Graph extends Figure {
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;
-		left += leftDragged;
-		top  += topDragged;
+		
 		applyProperties();
 		for(GraphEdge e : edges)
 			e.draw(left, top);

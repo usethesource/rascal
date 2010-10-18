@@ -26,7 +26,7 @@ public class Outline extends Figure {
 
 	@Override
 	void bbox(){
-		int lw = getLineWidthProperty();
+		float lw = getLineWidthProperty();
 		width = getWidthProperty();
 		height = getHeightProperty();
 		width += 2*lw;
@@ -39,9 +39,7 @@ public class Outline extends Figure {
 		this.left = left;
 		this.top = top;
 		
-		left += leftDragged;
-		top += topDragged;
-		int lw = getLineWidthProperty();
+		float lw = getLineWidthProperty();
 		applyProperties();
 		if(debug) System.err.println("Outline.draw => " + width + ", " + height);
 		if(height > 0 && width > 0){

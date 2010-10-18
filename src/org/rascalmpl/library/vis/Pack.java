@@ -40,12 +40,12 @@ public class Pack extends Compose {
 		float maxw = 0;
 		float maxh = 0;
 		float ratio = 1;
-		for(Figure ve : figures){
-			ve.bbox();
-			maxw = max(maxw, ve.width);
-			maxh = max(maxh, ve.height);
-			surface += ve.width * ve.height;
-			ratio = (ratio +ve.height/ve.width)/2;
+		for(Figure fig : figures){
+			fig.bbox();
+			maxw = max(maxw, fig.width);
+			maxh = max(maxh, fig.height);
+			surface += fig.width * fig.height;
+			ratio = (ratio +fig.height/fig.width)/2;
 		}
 		float opt = PApplet.sqrt(surface);
 		width = opt;
@@ -70,14 +70,14 @@ public class Pack extends Compose {
 			height *= 1.2f;
 			root = new Node(0, 0, width, height);
 			
-			for(Figure ve : figures){
-				Node nd = root.insert(ve);
+			for(Figure fig : figures){
+				Node nd = root.insert(fig);
 				if(nd == null){
 					//System.err.println("**** PACK: NOT ENOUGH ROOM *****");
 					fits = false;
 					break;
 				}
-				nd.figure = ve;
+				nd.figure = fig;
 			}
 		}
 		initialized = true;
@@ -86,11 +86,10 @@ public class Pack extends Compose {
 	@Override
 	void draw(float left, float top) {
 		if(debug)System.err.printf("pack.draw: %f, %f\n", left, top);
-		
+		if(!isNextVisible())
+			return;
 		this.left = left;
 		this.top = top;
-		left += leftDragged;
-		top  += topDragged;
 		
 		applyProperties();
 
@@ -129,20 +128,20 @@ class Node {
 		return (lnode == null);
 	}
 	
-	public Node insert(Figure v){
-		String id = v.getIdProperty();
-		if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, v.width, v.height);
+	public Node insert(Figure fig){
+		String id = fig.getIdProperty();
+		if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, fig.width, fig.height);
 		if(!leaf()){
 			// Not a leaf, try to insert in left child
 			if(Pack.debug)System.err.printf("insert:%s in left child\n", id);
-			Node newNode = lnode.insert(v);
+			Node newNode = lnode.insert(fig);
 			if(newNode != null){
 				if(Pack.debug)System.err.printf("insert: %s in left child succeeded\n", id);
 				return newNode;
 			}
 			// No room, try it in right child
 			if(Pack.debug)System.err.printf("insert: %s in left child failed, try right child\n", id);
-			return rnode.insert(v);
+			return rnode.insert(fig);
 		}
 		
 		// We are a leaf, if there is already a velem return
@@ -159,8 +158,8 @@ class Node {
 		if(width <= 0.01f || height <= 0.01f)
 			return null;
 		
-		float dw = width - v.width;
-        float dh = height - v.height;
+		float dw = width - fig.width;
+        float dh = height - fig.height;
         
        if(Pack.debug)System.err.printf("%s: dw=%f, dh=%f\n", id, dw, dh);
 		
@@ -177,22 +176,17 @@ class Node {
 
         if(dw > dh) {
         	if(Pack.debug)System.err.printf("%s: case dw > dh\n", id);
-//        	lnode = new Node(left,                 top, left + v.width + hgap, bottom);
-//        	rnode = new Node(left + v.width + hgap, top, right,                bottom);
-        	lnode = new Node(left,                 top, left + v.width + hgap, bottom);
-        	rnode = new Node(left + v.width + hgap, top, right,                bottom);
+        	lnode = new Node(left,                 top, left + fig.width + hgap, bottom);
+        	rnode = new Node(left + fig.width + hgap, top, right,                bottom);
         } else {
         	if(Pack.debug)System.err.printf("%s: case dw <= dh\n", id);
-        	
-//        	lnode = new Node(left, top,                  right, top + v.height + vgap);
-//        	rnode = new Node(left, top + v.height + vgap, right, bottom);
-           	lnode = new Node(left, top,                  right, top + v.height + vgap);
-        	rnode = new Node(left, top + v.height + vgap, right, bottom);
+           	lnode = new Node(left, top,                  right, top + fig.height + vgap);
+        	rnode = new Node(left, top + fig.height + vgap, right, bottom);
         }
         
-        // insert the velem in left most child
+        // insert the figure in left most child
         
-        return lnode.insert(v);
+        return lnode.insert(fig);
 	}
 	
 	void draw(float left, float top){

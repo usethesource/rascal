@@ -23,8 +23,6 @@ public class Ellipse extends Container {
 	@Override
 	void drawContainer(){
 		fpa.ellipseMode(PConstants.CORNERS);
-		float l = left + leftDragged;
-		float t = top + topDragged;
-		fpa.ellipse(l, t, l + width, t + height);
+		fpa.ellipse(left, top, left + width, top + height);
 	}
 }
