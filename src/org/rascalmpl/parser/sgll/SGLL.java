@@ -596,9 +596,12 @@ public abstract class SGLL implements IGLL{
 		
 		HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 		if(levelResultStoreMap != null){
-			IConstructor result = levelResultStoreMap.get(startNode.getName()).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
+			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName());
 			if(result != null){
-				return makeParseTree(result); // Success.
+				IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
+					if(resultTree != null){
+						return makeParseTree(resultTree); // Success.
+					}
 			}
 		}
 		
