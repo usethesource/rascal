@@ -42,7 +42,7 @@ public abstract class SGLL implements IGLL{
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private URI inputURI;
-	protected char[] input;
+	private char[] input;
 	private final PositionStore positionStore;
 	
 	private final ArrayList<AbstractStackNode> todoList;
@@ -64,8 +64,6 @@ public abstract class SGLL implements IGLL{
 	private int location;
 	
 	protected char lookAheadChar;
-	
-	private AbstractStackNode root;
 	
 	private final HashMap<String, Method> methodCache;
 	
@@ -267,17 +265,11 @@ public abstract class SGLL implements IGLL{
 				resultStore.addAlternative(production, resultLink);
 				
 				stacksWithNonTerminalsToReduce.put(edge, resultStore);
-				if(location == input.length && !edge.hasEdges()){
-					root = edge; // Root reached.
-				}
 				
 				for(int j = edgeList.size() - 1; j >= 1; --j){
 					edge = edgeList.get(j);
 					
 					stacksWithNonTerminalsToReduce.put(edge, resultStore);
-					if(location == input.length && !edge.hasEdges()){
-						root = edge; // Root reached.
-					}
 				}
 			}
 		}
@@ -307,19 +299,12 @@ public abstract class SGLL implements IGLL{
 				levelResultStoreMap.putUnsafe(nodeName, resultStore);
 				resultStore.setRejected();
 				
-				
 				stacksWithNonTerminalsToReduce.put(edge, resultStore);
-				if(location == input.length && !edge.hasEdges()){
-					root = edge; // Root reached.
-				}
 				
 				for(int j = edgeList.size() - 1; j >= 1; --j){
 					edge = edgeList.get(j);
 					
 					stacksWithNonTerminalsToReduce.put(edge, resultStore);
-					if(location == input.length && !edge.hasEdges()){
-						root = edge; // Root reached.
-					}
 				}
 			}
 		}
@@ -609,19 +594,24 @@ public abstract class SGLL implements IGLL{
 			expand();
 		}while(todoList.size() > 0);
 		
-		if(root == null){
-			int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
+		HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
+		if(levelResultStoreMap != null){
+			IConstructor result = levelResultStoreMap.get(startNode.getName()).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
+			if(result != null){
+				return makeParseTree(result); // Success.
+			}
+		}
+		
+		// Parse error.
+		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
+		if(errorLocation != input.length){
 			int line = positionStore.findLine(errorLocation);
 			int column = positionStore.getColumn(errorLocation, line);
 			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
 		}
 		
-		HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
-		IConstructor result = levelResultStoreMap.get(startNode.getName()).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
-		
-		if(result == null) throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation(inputURI));
-		
-		return makeParseTree(result);
+		// Filtering error.
+		throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation(inputURI));
 	}
 	
 	private IConstructor makeParseTree(IConstructor tree){
