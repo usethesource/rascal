@@ -6,7 +6,7 @@ public boolean hasPatternWithAction() { return false; }
 public boolean isPatternWithAction() { return false; }
 static public class PatternWithAction extends Case {
 /** "case" patternWithAction:PatternWithAction -> Case {cons("PatternWithAction")} */
-	public PatternWithAction(INode node, org.rascalmpl.ast.PatternWithAction patternWithAction) {
+	protected PatternWithAction(INode node, org.rascalmpl.ast.PatternWithAction patternWithAction) {
 		this.node = node;
 		this.patternWithAction = patternWithAction;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.PatternWithAction patternWithAction;
 }
 static public class Ambiguity extends Case {
   private final java.util.List<org.rascalmpl.ast.Case> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Case> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Case> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ public boolean hasStatement() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Case {
 /** "default" ":" statement:Statement -> Case {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Statement statement) {
+	protected Default(INode node, org.rascalmpl.ast.Statement statement) {
 		this.node = node;
 		this.statement = statement;
 	}

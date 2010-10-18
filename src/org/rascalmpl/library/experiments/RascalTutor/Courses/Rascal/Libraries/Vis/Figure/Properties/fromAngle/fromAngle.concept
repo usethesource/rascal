@@ -1,0 +1,24 @@
+Name: fromAngle
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty fromAngle(num a)`
+
+Synopsis:
+
+Description: Set the starting angle of a [wedge].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

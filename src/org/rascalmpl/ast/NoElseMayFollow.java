@@ -4,7 +4,7 @@ public abstract class NoElseMayFollow extends AbstractAST {
 public boolean isDefault() { return false; }
 static public class Default extends NoElseMayFollow {
 /**  -> NoElseMayFollow {cons("Default")} */
-	public Default(INode node) {
+	protected Default(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Default extends NoElseMayFollow {
 }
 static public class Ambiguity extends NoElseMayFollow {
   private final java.util.List<org.rascalmpl.ast.NoElseMayFollow> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.NoElseMayFollow> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.NoElseMayFollow> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

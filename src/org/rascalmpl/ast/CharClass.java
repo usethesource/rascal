@@ -6,7 +6,7 @@ public boolean hasOptionalCharRanges() { return false; }
 public boolean isSimpleCharclass() { return false; }
 static public class SimpleCharclass extends CharClass {
 /** "[" optionalCharRanges:OptCharRanges "]" -> CharClass {cons("SimpleCharclass")} */
-	public SimpleCharclass(INode node, org.rascalmpl.ast.OptCharRanges optionalCharRanges) {
+	protected SimpleCharclass(INode node, org.rascalmpl.ast.OptCharRanges optionalCharRanges) {
 		this.node = node;
 		this.optionalCharRanges = optionalCharRanges;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.OptCharRanges optionalCharRanges;
 }
 static public class Ambiguity extends CharClass {
   private final java.util.List<org.rascalmpl.ast.CharClass> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.CharClass> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.CharClass> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -37,7 +37,7 @@ static public class Ambiguity extends CharClass {
 } public org.rascalmpl.ast.CharClass getCharClass() { throw new UnsupportedOperationException(); } public boolean hasCharClass() { return false; } public boolean isBracket() { return false; }
 static public class Bracket extends CharClass {
 /** "(" charClass:CharClass ")" -> CharClass {bracket, cons("Bracket"), avoid} */
-	public Bracket(INode node, org.rascalmpl.ast.CharClass charClass) {
+	protected Bracket(INode node, org.rascalmpl.ast.CharClass charClass) {
 		this.node = node;
 		this.charClass = charClass;
 	}
@@ -54,7 +54,7 @@ private final org.rascalmpl.ast.CharClass charClass;
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isComplement() { return false; }
 static public class Complement extends CharClass {
 /** "~" charClass:CharClass -> CharClass {cons("Complement")} */
-	public Complement(INode node, org.rascalmpl.ast.CharClass charClass) {
+	protected Complement(INode node, org.rascalmpl.ast.CharClass charClass) {
 		this.node = node;
 		this.charClass = charClass;
 	}
@@ -71,7 +71,7 @@ private final org.rascalmpl.ast.CharClass charClass;
 } public org.rascalmpl.ast.CharClass getLhs() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.CharClass getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isDifference() { return false; }
 static public class Difference extends CharClass {
 /** lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"), left, memo} */
-	public Difference(INode node, org.rascalmpl.ast.CharClass lhs, org.rascalmpl.ast.CharClass rhs) {
+	protected Difference(INode node, org.rascalmpl.ast.CharClass lhs, org.rascalmpl.ast.CharClass rhs) {
 		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -92,7 +92,7 @@ private final org.rascalmpl.ast.CharClass lhs;
 } public boolean isIntersection() { return false; }
 static public class Intersection extends CharClass {
 /** lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"), left, memo} */
-	public Intersection(INode node, org.rascalmpl.ast.CharClass lhs, org.rascalmpl.ast.CharClass rhs) {
+	protected Intersection(INode node, org.rascalmpl.ast.CharClass lhs, org.rascalmpl.ast.CharClass rhs) {
 		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -113,7 +113,7 @@ private final org.rascalmpl.ast.CharClass lhs;
 } public boolean isUnion() { return false; }
 static public class Union extends CharClass {
 /** lhs:CharClass "\\/" rhs:CharClass -> CharClass {cons("Union"), left} */
-	public Union(INode node, org.rascalmpl.ast.CharClass lhs, org.rascalmpl.ast.CharClass rhs) {
+	protected Union(INode node, org.rascalmpl.ast.CharClass lhs, org.rascalmpl.ast.CharClass rhs) {
 		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;

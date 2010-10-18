@@ -6,7 +6,7 @@ public boolean hasNumChar() { return false; }
 public boolean isNumeric() { return false; }
 static public class Numeric extends Character {
 /** numChar:NumChar -> Character {cons("Numeric")} */
-	public Numeric(INode node, org.rascalmpl.ast.NumChar numChar) {
+	protected Numeric(INode node, org.rascalmpl.ast.NumChar numChar) {
 		this.node = node;
 		this.numChar = numChar;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.NumChar numChar;
 }
 static public class Ambiguity extends Character {
   private final java.util.List<org.rascalmpl.ast.Character> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Character> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Character> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ public boolean hasShortChar() { return false; }
 public boolean isShort() { return false; }
 static public class Short extends Character {
 /** shortChar:ShortChar -> Character {cons("Short")} */
-	public Short(INode node, org.rascalmpl.ast.ShortChar shortChar) {
+	protected Short(INode node, org.rascalmpl.ast.ShortChar shortChar) {
 		this.node = node;
 		this.shortChar = shortChar;
 	}
@@ -57,7 +57,7 @@ private final org.rascalmpl.ast.ShortChar shortChar;
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isTop() { return false; }
 static public class Top extends Character {
 /** "\\TOP" -> Character {cons("Top")} */
-	public Top(INode node) {
+	protected Top(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -69,7 +69,7 @@ static public class Top extends Character {
 public boolean isEOF() { return false; }
 static public class EOF extends Character {
 /** "\\EOF" -> Character {cons("EOF")} */
-	public EOF(INode node) {
+	protected EOF(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -81,7 +81,7 @@ static public class EOF extends Character {
 public boolean isBottom() { return false; }
 static public class Bottom extends Character {
 /** "\\BOT" -> Character {cons("Bottom")} */
-	public Bottom(INode node) {
+	protected Bottom(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

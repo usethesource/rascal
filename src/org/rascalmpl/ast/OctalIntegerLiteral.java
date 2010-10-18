@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class OctalIntegerLiteral extends AbstractAST { 
 static public class Lexical extends OctalIntegerLiteral {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -17,7 +17,7 @@ static public class Lexical extends OctalIntegerLiteral {
 }
 static public class Ambiguity extends OctalIntegerLiteral {
   private final java.util.List<org.rascalmpl.ast.OctalIntegerLiteral> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.OctalIntegerLiteral> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.OctalIntegerLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

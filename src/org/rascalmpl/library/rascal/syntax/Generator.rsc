@@ -155,10 +155,8 @@ public class <name> extends <super> implements IParserInfo {
     	donts.add(j);
     }
     
-    protected boolean isPrioFiltered(int parentItem, int child) {
-		IntegerList donts = _dontNest.get(parentItem);
-		if(donts == null) return false;
-		return donts.contains(child);
+	protected IntegerList getFilteredChildren(int parentId) {
+		return _dontNest.get(parentId);
 	}
 	
     public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
@@ -315,7 +313,7 @@ public str generateExpect(Items items, Production p, bool reject){
 
 str generateClassConditional(set[Symbol] classes) {
   if (eoi() in classes) {
-    return ("location == input.length" 
+    return ("lookAheadChar == 0" 
            | it + " || <generateRangeConditional(r)>"
            | \char-class(list[CharRange] ranges) <- classes, r <- ranges);
   }

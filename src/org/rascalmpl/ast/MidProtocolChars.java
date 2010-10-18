@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class MidProtocolChars extends AbstractAST { 
 static public class Lexical extends MidProtocolChars {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -17,7 +17,7 @@ static public class Lexical extends MidProtocolChars {
 }
 static public class Ambiguity extends MidProtocolChars {
   private final java.util.List<org.rascalmpl.ast.MidProtocolChars> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.MidProtocolChars> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.MidProtocolChars> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

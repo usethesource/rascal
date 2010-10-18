@@ -350,9 +350,9 @@ public str save(ConceptName cn, str text, bool newConcept){
      fullName = cn + "/" + cname;
 
      // Does the file for this concept already exist as main concept?
-     file = directory[file = directory.file + "/" + fullName + suffix];
-     if(exists(file))
-     	return saveFeedback("File <file> exists already", "");
+     //file = directory[file = directory.file + "/" + fullName + suffix];
+     //if(exists(file))
+     //	return saveFeedback("File <file> exists already", "");
      	
      // Does the file for this concept already exist as a subconcept?
      file = directory[file = directory.file + "/" + fullName + "/" + cname + suffix];

@@ -235,8 +235,6 @@ import org.rascalmpl.ast.StringTail.MidInterpolated;
 import org.rascalmpl.ast.StringTail.MidTemplate;
 import org.rascalmpl.ast.Sym.Column;
 import org.rascalmpl.ast.Sym.EndOfLine;
-import org.rascalmpl.ast.Sym.NonEagerIterSep;
-import org.rascalmpl.ast.Sym.NonEagerIterStarSep;
 import org.rascalmpl.ast.Sym.Nonterminal;
 import org.rascalmpl.ast.Sym.Parameter;
 import org.rascalmpl.ast.Sym.Parametrized;
@@ -946,7 +944,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		 */
 		if (x._getType() != null && x._getType() instanceof NonTerminalType) {
 			// System.err.println("Backquote! " + x);
-			return STRING("`" + x.toString() + "`");
+			return ESC("`" + x.toString() + "`");
 		}
 		isFunctionName = true;
 		IValue t = H(0, eX(x.getExpression()), BoxADT.LPAR);
@@ -1294,12 +1292,10 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		 * tags:Tags visibility:Visibility signature:Signature body:FunctionBody
 		 */
 		IValue r = eX(x.getSignature());
-		IList b;
-		if (x.hasBody() && (b = (IList) x.getBody().accept(this)) != null) {
+		IList b = (IList) eX(x.getBody());
 			b = b.append(I(BoxADT.RBLOCK));
-			r = V(0, eX(x.getTags()), H(0, H(1, eX(x.getVisibility()), r),
-					BoxADT.LBLOCK), V(b));
-		}
+			r = V(0, eX(x.getTags()), H(0, H(1, eX(x.getVisibility()), r,
+					BoxADT.LBLOCK)), V(b));
 		return r;
 	}
 
@@ -2835,6 +2831,12 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 			return null;
 		return BoxADT.TAG.COMM.create(BoxADT.TAG.L.create(s));
 	}
+	
+	static IValue ESC(String s) {
+		if (s == null)
+			return null;
+		return BoxADT.TAG.ESC.create(BoxADT.TAG.L.create(s));
+	}
 
 	static IValue KW(IValue s) {
 		return BoxADT.TAG.KW.create(s);
@@ -2854,6 +2856,10 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	static IValue COMM(IValue s) {
 		return BoxADT.TAG.COMM.create(s);
+	}
+	
+	static IValue ESC(IValue s) {
+		return BoxADT.TAG.ESC.create(s);
 	}
 
 	static IValue L(String s) {
@@ -3131,7 +3137,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 			String s = TreeAdapter.yield((IConstructor) t);
 			if (s.endsWith("\n") && r.length() == c.length() - 1)
 				s = s.substring(0, s.length() - 1);
-			r = r.append(STRING(s));
+			r = r.append(COMM(s));
 		}
 		if (c.length() >= 2)
 			return list(H(0, r));
@@ -3236,8 +3242,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		if (exs != null || left != null)
 			t = list((name != null && left == null ? BoxADT.SPACE : left),
 					exs != null ? HV(exs) : null, right);
-		return HOV(0, name != null, H(1, KW(name), H(0,
-				t == null ? BoxADT.EMPTY : t, head(body, false))), tail(body,
+		return HOV(1, name != null, H(1, KW(name), 
+				t == null ? BoxADT.EMPTY : H(0, t), head(body, false)), tail(body,
 				false));
 	}
 
@@ -3634,16 +3640,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitSymParameter(Parameter x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitSymNonEagerIterSep(NonEagerIterSep x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IValue visitSymNonEagerIterStarSep(NonEagerIterStarSep x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

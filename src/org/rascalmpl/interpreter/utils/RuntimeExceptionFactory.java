@@ -62,6 +62,7 @@ public class RuntimeExceptionFactory {
 	public static Type DateTimeParsingError = TF.constructor(TS, Exception, "DateTimeParsingError", TF.stringType(), "message");
 	public static Type DateTimePrintingError = TF.constructor(TS, Exception, "DateTimePrintingError", TF.stringType(), "message");
 	public static Type Timeout = TF.constructor(TS, Exception, "Timeout");
+	public static Type Figure = TF.constructor(TS, Exception, "Figure", TF.stringType(), "message", TF.valueType(), "figure");
 	
     public static Throw indexOutOfBounds(IInteger i, AbstractAST ast, String trace) {
     	return new Throw(IndexOutOfBounds.make(VF, i), ast, trace);
@@ -200,4 +201,8 @@ public class RuntimeExceptionFactory {
 	public static Throw timeout(AbstractAST ast, String trace) {
     	return new Throw(Timeout.make(VF), ast, trace);
     }
+	
+	public static Throw figureException(String message, IValue v, AbstractAST ast, String trace) {
+		return new Throw(Figure.make(VF, VF.string(message), v), ast, trace);
+	}
 }

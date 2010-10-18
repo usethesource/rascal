@@ -50,6 +50,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.Bound;
@@ -332,7 +333,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.parser = parser;
 		this.stderr = stderr;
 		this.stdout = stdout;
-		this.builder = new ASTBuilder(new ASTFactory());
+		this.builder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
 		this.resolverRegistry = new URIResolverRegistry();
 
 		updateProperties();
@@ -1528,7 +1529,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				writeBinary(name, tree);
 			}
 			
-			ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
+			ASTBuilder astBuilder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
 			Module moduleAst = astBuilder.buildModule(tree);
 			
 			if (moduleAst == null) {
@@ -2060,7 +2061,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		return new Statement.NonEmptyBlock(x.getTree(), new Label.Empty(x.getTree()), x.getStatements()).accept(this);
+		ASTFactory factory = ASTFactoryFactory.getASTFactory();
+		return factory.makeStatementNonEmptyBlock(x.getTree(), factory.makeLabelEmpty(x.getTree()), x.getStatements()).accept(this);
 	}
 
 	@Override
@@ -3960,7 +3962,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 
-	public static final Name IT = new Name.Lexical(null, "<it>");
+	public static final Name IT = ASTFactoryFactory.getASTFactory().makeNameLexical(null, "<it>");
 	private ParserGenerator parserGenerator;
 	
 	@Override

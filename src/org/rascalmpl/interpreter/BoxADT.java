@@ -34,7 +34,7 @@ public class BoxADT {
 	enum TAG {
 		H(boxlst), V(boxlst), HOV(boxlst), HV(boxlst), I(boxlst), WD(boxlst), R(
 				boxlst), A(boxlst), L(str), KW(box), VAR(box), NM(box), STRING(box),
-				COMM(box);
+				COMM(box), ESC(box);
 		Type tag;
 
 		TAG(Type tp) {

@@ -116,16 +116,6 @@ public text toLatex(loc asf){
      str s = getRascalFileContent(asf);
      // println("toLatex: <s>");
      Tree a = parse(#Module, s);
-     /*
-     Tree a =  parseModule(asf, true).top;
-     // println("toLatex: parsed");
-     //Don't work
-     a = visit (a) {
-         // case (Symbol) \cf(\sort(/_<v:\w*>/))=> \cf(\sort("<v>"))
-         case (Symbol) \cf(\sort(str V))=> \cf(\sort("aap"))
-         }
-     rawPrintln(a);
-     */
      setUserRules();
      // println("start:");
      text r =[];
@@ -150,6 +140,7 @@ public text toHtml(loc asf){
      return r;
      }
      
+         
 public Box getDefault(Tree q) {
 if (LocationLiteral a:=q) 
 switch(a) {

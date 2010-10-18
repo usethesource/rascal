@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class NumChar extends AbstractAST { 
 static public class Lexical extends NumChar {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -17,7 +17,7 @@ static public class Lexical extends NumChar {
 }
 static public class Ambiguity extends NumChar {
   private final java.util.List<org.rascalmpl.ast.NumChar> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.NumChar> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.NumChar> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

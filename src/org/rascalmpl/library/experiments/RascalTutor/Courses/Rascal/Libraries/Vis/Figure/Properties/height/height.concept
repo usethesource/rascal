@@ -1,0 +1,24 @@
+Name: height
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty height(num h)`
+
+Synopsis:
+
+Description: Sets the height of a figure to `h`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

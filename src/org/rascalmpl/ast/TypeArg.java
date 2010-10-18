@@ -4,7 +4,7 @@ public abstract class TypeArg extends AbstractAST {
   public org.rascalmpl.ast.Type getType() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean isDefault() { return false; }
 static public class Default extends TypeArg {
 /** type:Type -> TypeArg {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Type type) {
+	protected Default(INode node, org.rascalmpl.ast.Type type) {
 		this.node = node;
 		this.type = type;
 	}
@@ -21,7 +21,7 @@ private final org.rascalmpl.ast.Type type;
 }
 static public class Ambiguity extends TypeArg {
   private final java.util.List<org.rascalmpl.ast.TypeArg> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TypeArg> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TypeArg> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -36,7 +36,7 @@ static public class Ambiguity extends TypeArg {
 public boolean isNamed() { return false; }
 static public class Named extends TypeArg {
 /** type:Type name:Name -> TypeArg {cons("Named")} */
-	public Named(INode node, org.rascalmpl.ast.Type type, org.rascalmpl.ast.Name name) {
+	protected Named(INode node, org.rascalmpl.ast.Type type, org.rascalmpl.ast.Name name) {
 		this.node = node;
 		this.type = type;
 		this.name = name;

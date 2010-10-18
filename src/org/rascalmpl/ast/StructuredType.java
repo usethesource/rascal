@@ -8,7 +8,7 @@ public boolean hasBasicType() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends StructuredType {
 /** basicType:BasicType "[" arguments:{TypeArg ","}+ "]" -> StructuredType {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.BasicType basicType, java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
+	protected Default(INode node, org.rascalmpl.ast.BasicType basicType, java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
 		this.node = node;
 		this.basicType = basicType;
 		this.arguments = arguments;
@@ -29,7 +29,7 @@ private final org.rascalmpl.ast.BasicType basicType;
 }
 static public class Ambiguity extends StructuredType {
   private final java.util.List<org.rascalmpl.ast.StructuredType> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StructuredType> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StructuredType> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

@@ -4,7 +4,7 @@ public abstract class Assoc extends AbstractAST {
   public boolean isLeft() { return false; }
 static public class Left extends Assoc {
 /** "left" -> Assoc {cons("Left")} */
-	public Left(INode node) {
+	protected Left(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Left extends Assoc {
 }
 static public class Ambiguity extends Assoc {
   private final java.util.List<org.rascalmpl.ast.Assoc> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assoc> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assoc> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -30,7 +30,7 @@ static public class Ambiguity extends Assoc {
 public boolean isRight() { return false; }
 static public class Right extends Assoc {
 /** "right" -> Assoc {cons("Right")} */
-	public Right(INode node) {
+	protected Right(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -41,7 +41,7 @@ static public class Right extends Assoc {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isNonAssociative() { return false; }
 static public class NonAssociative extends Assoc {
 /** "non-assoc" -> Assoc {cons("NonAssociative")} */
-	public NonAssociative(INode node) {
+	protected NonAssociative(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -53,7 +53,7 @@ static public class NonAssociative extends Assoc {
 public boolean isAssociative() { return false; }
 static public class Associative extends Assoc {
 /** "assoc" -> Assoc {cons("Associative")} */
-	public Associative(INode node) {
+	protected Associative(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

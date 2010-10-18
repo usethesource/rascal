@@ -6,7 +6,7 @@ public boolean hasRegExpLiteral() { return false; }
 public boolean isRegExp() { return false; }
 static public class RegExp extends Literal {
 /** regExpLiteral:RegExpLiteral -> Literal {cons("RegExp")} */
-	public RegExp(INode node, org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
+	protected RegExp(INode node, org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
 		this.node = node;
 		this.regExpLiteral = regExpLiteral;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.RegExpLiteral regExpLiteral;
 }
 static public class Ambiguity extends Literal {
   private final java.util.List<org.rascalmpl.ast.Literal> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Literal> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Literal> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ public boolean hasBooleanLiteral() { return false; }
 public boolean isBoolean() { return false; }
 static public class Boolean extends Literal {
 /** booleanLiteral:BooleanLiteral -> Literal {cons("Boolean")} */
-	public Boolean(INode node, org.rascalmpl.ast.BooleanLiteral booleanLiteral) {
+	protected Boolean(INode node, org.rascalmpl.ast.BooleanLiteral booleanLiteral) {
 		this.node = node;
 		this.booleanLiteral = booleanLiteral;
 	}
@@ -59,7 +59,7 @@ public boolean hasIntegerLiteral() { return false; }
 public boolean isInteger() { return false; }
 static public class Integer extends Literal {
 /** integerLiteral:IntegerLiteral -> Literal {cons("Integer")} */
-	public Integer(INode node, org.rascalmpl.ast.IntegerLiteral integerLiteral) {
+	protected Integer(INode node, org.rascalmpl.ast.IntegerLiteral integerLiteral) {
 		this.node = node;
 		this.integerLiteral = integerLiteral;
 	}
@@ -79,7 +79,7 @@ public boolean hasRealLiteral() { return false; }
 public boolean isReal() { return false; }
 static public class Real extends Literal {
 /** realLiteral:RealLiteral -> Literal {cons("Real")} */
-	public Real(INode node, org.rascalmpl.ast.RealLiteral realLiteral) {
+	protected Real(INode node, org.rascalmpl.ast.RealLiteral realLiteral) {
 		this.node = node;
 		this.realLiteral = realLiteral;
 	}
@@ -99,7 +99,7 @@ public boolean hasStringLiteral() { return false; }
 public boolean isString() { return false; }
 static public class String extends Literal {
 /** stringLiteral:StringLiteral -> Literal {cons("String")} */
-	public String(INode node, org.rascalmpl.ast.StringLiteral stringLiteral) {
+	protected String(INode node, org.rascalmpl.ast.StringLiteral stringLiteral) {
 		this.node = node;
 		this.stringLiteral = stringLiteral;
 	}
@@ -119,7 +119,7 @@ public boolean hasLocationLiteral() { return false; }
 public boolean isLocation() { return false; }
 static public class Location extends Literal {
 /** locationLiteral:LocationLiteral -> Literal {cons("Location")} */
-	public Location(INode node, org.rascalmpl.ast.LocationLiteral locationLiteral) {
+	protected Location(INode node, org.rascalmpl.ast.LocationLiteral locationLiteral) {
 		this.node = node;
 		this.locationLiteral = locationLiteral;
 	}
@@ -139,7 +139,7 @@ public boolean hasDateTimeLiteral() { return false; }
 public boolean isDateTime() { return false; }
 static public class DateTime extends Literal {
 /** dateTimeLiteral:DateTimeLiteral -> Literal {cons("DateTime")} */
-	public DateTime(INode node, org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral) {
+	protected DateTime(INode node, org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral) {
 		this.node = node;
 		this.dateTimeLiteral = dateTimeLiteral;
 	}

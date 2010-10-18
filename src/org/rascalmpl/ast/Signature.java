@@ -4,7 +4,7 @@ public abstract class Signature extends AbstractAST {
   public org.rascalmpl.ast.Type getType() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.FunctionModifiers getModifiers() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Name getName() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Parameters getParameters() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasModifiers() { return false; } public boolean hasName() { return false; } public boolean hasParameters() { return false; } public boolean isNoThrows() { return false; }
 static public class NoThrows extends Signature {
 /** type:Type modifiers:FunctionModifiers name:Name parameters:Parameters -> Signature {cons("NoThrows")} */
-	public NoThrows(INode node, org.rascalmpl.ast.Type type, org.rascalmpl.ast.FunctionModifiers modifiers, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Parameters parameters) {
+	protected NoThrows(INode node, org.rascalmpl.ast.Type type, org.rascalmpl.ast.FunctionModifiers modifiers, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Parameters parameters) {
 		this.node = node;
 		this.type = type;
 		this.modifiers = modifiers;
@@ -33,7 +33,7 @@ private final org.rascalmpl.ast.Type type;
 }
 static public class Ambiguity extends Signature {
   private final java.util.List<org.rascalmpl.ast.Signature> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Signature> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Signature> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -49,7 +49,7 @@ public boolean isWithThrows() { return false; }
 static public class WithThrows extends Signature {
 /** type:Type modifiers:FunctionModifiers name:Name parameters:Parameters 
             "throws" exceptions:{Type ","}+ -> Signature {cons("WithThrows")} */
-	public WithThrows(INode node, org.rascalmpl.ast.Type type, org.rascalmpl.ast.FunctionModifiers modifiers, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Parameters parameters, java.util.List<org.rascalmpl.ast.Type> exceptions) {
+	protected WithThrows(INode node, org.rascalmpl.ast.Type type, org.rascalmpl.ast.FunctionModifiers modifiers, org.rascalmpl.ast.Name name, org.rascalmpl.ast.Parameters parameters, java.util.List<org.rascalmpl.ast.Type> exceptions) {
 		this.node = node;
 		this.type = type;
 		this.modifiers = modifiers;

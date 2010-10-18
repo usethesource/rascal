@@ -1,0 +1,24 @@
+Name: shapeClosed
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty shapeClosed()`
+
+Synopsis:
+
+Description: Connect the first and the last point of a [shape].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

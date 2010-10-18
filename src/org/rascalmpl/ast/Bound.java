@@ -4,7 +4,7 @@ public abstract class Bound extends AbstractAST {
   public boolean isEmpty() { return false; }
 static public class Empty extends Bound {
 /**  -> Bound {cons("Empty")} */
-	public Empty(INode node) {
+	protected Empty(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Empty extends Bound {
 }
 static public class Ambiguity extends Bound {
   private final java.util.List<org.rascalmpl.ast.Bound> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Bound> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Bound> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -32,7 +32,7 @@ public boolean hasExpression() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Bound {
 /** ";" expression:Expression -> Bound {cons("Default")} */
-	public Default(INode node, org.rascalmpl.ast.Expression expression) {
+	protected Default(INode node, org.rascalmpl.ast.Expression expression) {
 		this.node = node;
 		this.expression = expression;
 	}

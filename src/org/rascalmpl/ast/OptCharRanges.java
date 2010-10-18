@@ -4,7 +4,7 @@ public abstract class OptCharRanges extends AbstractAST {
   public boolean isAbsent() { return false; }
 static public class Absent extends OptCharRanges {
 /**  -> OptCharRanges {cons("Absent")} */
-	public Absent(INode node) {
+	protected Absent(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Absent extends OptCharRanges {
 }
 static public class Ambiguity extends OptCharRanges {
   private final java.util.List<org.rascalmpl.ast.OptCharRanges> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.OptCharRanges> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.OptCharRanges> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -32,7 +32,7 @@ public boolean hasRanges() { return false; }
 public boolean isPresent() { return false; }
 static public class Present extends OptCharRanges {
 /** ranges:CharRanges -> OptCharRanges {cons("Present")} */
-	public Present(INode node, org.rascalmpl.ast.CharRanges ranges) {
+	protected Present(INode node, org.rascalmpl.ast.CharRanges ranges) {
 		this.node = node;
 		this.ranges = ranges;
 	}

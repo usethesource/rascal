@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class PostStringChars extends AbstractAST { 
 static public class Lexical extends PostStringChars {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -17,7 +17,7 @@ static public class Lexical extends PostStringChars {
 }
 static public class Ambiguity extends PostStringChars {
   private final java.util.List<org.rascalmpl.ast.PostStringChars> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PostStringChars> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PostStringChars> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

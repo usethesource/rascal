@@ -1,0 +1,1 @@
+concept("mouseOver",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/mouseOver/mouseOver.concept|,[],[],{"Library"},{},"","",""," \<code\>FProperty mouseOver(Figure fig)\</code\>\n",{}," Show figure \<code\>fig\</code\> when the mouse hovers over the current figure.\n","","","",[])

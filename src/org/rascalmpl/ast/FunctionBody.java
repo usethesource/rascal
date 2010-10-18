@@ -6,7 +6,7 @@ public boolean hasStatements() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends FunctionBody {
 /** "{" statements:Statement* "}" -> FunctionBody {cons("Default")} */
-	public Default(INode node, java.util.List<org.rascalmpl.ast.Statement> statements) {
+	protected Default(INode node, java.util.List<org.rascalmpl.ast.Statement> statements) {
 		this.node = node;
 		this.statements = statements;
 	}
@@ -23,7 +23,7 @@ private final java.util.List<org.rascalmpl.ast.Statement> statements;
 }
 static public class Ambiguity extends FunctionBody {
   private final java.util.List<org.rascalmpl.ast.FunctionBody> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionBody> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionBody> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

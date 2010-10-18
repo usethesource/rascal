@@ -6,7 +6,7 @@ public boolean hasDeclaration() { return false; }
 public boolean isGivenVisibility() { return false; }
 static public class GivenVisibility extends Toplevel {
 /** declaration:Declaration -> Toplevel {cons("GivenVisibility")} */
-	public GivenVisibility(INode node, org.rascalmpl.ast.Declaration declaration) {
+	protected GivenVisibility(INode node, org.rascalmpl.ast.Declaration declaration) {
 		this.node = node;
 		this.declaration = declaration;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.Declaration declaration;
 }
 static public class Ambiguity extends Toplevel {
   private final java.util.List<org.rascalmpl.ast.Toplevel> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Toplevel> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Toplevel> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class JustDate extends AbstractAST { 
 static public class Lexical extends JustDate {
 	private final String string;
-         public Lexical(INode node, String string) {
+         protected Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}
@@ -17,7 +17,7 @@ static public class Lexical extends JustDate {
 }
 static public class Ambiguity extends JustDate {
   private final java.util.List<org.rascalmpl.ast.JustDate> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.JustDate> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.JustDate> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

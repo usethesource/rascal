@@ -4,7 +4,7 @@ public abstract class ShellCommand extends AbstractAST {
   public boolean isHelp() { return false; }
 static public class Help extends ShellCommand {
 /** "help" -> ShellCommand {cons("Help")} */
-	public Help(INode node) {
+	protected Help(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Help extends ShellCommand {
 }
 static public class Ambiguity extends ShellCommand {
   private final java.util.List<org.rascalmpl.ast.ShellCommand> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ShellCommand> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ShellCommand> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -30,7 +30,7 @@ static public class Ambiguity extends ShellCommand {
 public boolean isQuit() { return false; }
 static public class Quit extends ShellCommand {
 /** "quit" -> ShellCommand {cons("Quit")} */
-	public Quit(INode node) {
+	protected Quit(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -41,7 +41,7 @@ static public class Quit extends ShellCommand {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isEdit() { return false; }
 static public class Edit extends ShellCommand {
 /** "edit" name:QualifiedName -> ShellCommand {cons("Edit")} */
-	public Edit(INode node, org.rascalmpl.ast.QualifiedName name) {
+	protected Edit(INode node, org.rascalmpl.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
 	}
@@ -59,7 +59,7 @@ private final org.rascalmpl.ast.QualifiedName name;
 public boolean isListModules() { return false; }
 static public class ListModules extends ShellCommand {
 /** "modules" -> ShellCommand {cons("ListModules")} */
-	public ListModules(INode node) {
+	protected ListModules(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -71,7 +71,7 @@ static public class ListModules extends ShellCommand {
 public boolean isListDeclarations() { return false; }
 static public class ListDeclarations extends ShellCommand {
 /** "declarations" -> ShellCommand {cons("ListDeclarations")} */
-	public ListDeclarations(INode node) {
+	protected ListDeclarations(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -83,7 +83,7 @@ static public class ListDeclarations extends ShellCommand {
 public boolean isTest() { return false; }
 static public class Test extends ShellCommand {
 /** "test" -> ShellCommand {cons("Test")} */
-	public Test(INode node) {
+	protected Test(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -94,7 +94,7 @@ static public class Test extends ShellCommand {
 } public boolean isUnimport() { return false; }
 static public class Unimport extends ShellCommand {
 /** "unimport" name:QualifiedName -> ShellCommand {cons("Unimport")} */
-	public Unimport(INode node, org.rascalmpl.ast.QualifiedName name) {
+	protected Unimport(INode node, org.rascalmpl.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
 	}
@@ -111,7 +111,7 @@ private final org.rascalmpl.ast.QualifiedName name;
 } public boolean isUndeclare() { return false; }
 static public class Undeclare extends ShellCommand {
 /** "undeclare" name:QualifiedName -> ShellCommand {cons("Undeclare")} */
-	public Undeclare(INode node, org.rascalmpl.ast.QualifiedName name) {
+	protected Undeclare(INode node, org.rascalmpl.ast.QualifiedName name) {
 		this.node = node;
 		this.name = name;
 	}
@@ -129,7 +129,7 @@ private final org.rascalmpl.ast.QualifiedName name;
 public boolean isHistory() { return false; }
 static public class History extends ShellCommand {
 /** "history" -> ShellCommand {cons("History")} */
-	public History(INode node) {
+	protected History(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -141,7 +141,7 @@ static public class History extends ShellCommand {
 public boolean isSetOption() { return false; }
 static public class SetOption extends ShellCommand {
 /** "set" name:QualifiedName expression:Expression -> ShellCommand {cons("SetOption")} */
-	public SetOption(INode node, org.rascalmpl.ast.QualifiedName name, org.rascalmpl.ast.Expression expression) {
+	protected SetOption(INode node, org.rascalmpl.ast.QualifiedName name, org.rascalmpl.ast.Expression expression) {
 		this.node = node;
 		this.name = name;
 		this.expression = expression;

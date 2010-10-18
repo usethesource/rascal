@@ -6,7 +6,7 @@ public boolean hasNames() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends QualifiedName {
 /** names:{Name "::"}+ -> QualifiedName {cons("Default")} */
-	public Default(INode node, java.util.List<org.rascalmpl.ast.Name> names) {
+	protected Default(INode node, java.util.List<org.rascalmpl.ast.Name> names) {
 		this.node = node;
 		this.names = names;
 	}
@@ -23,7 +23,7 @@ private final java.util.List<org.rascalmpl.ast.Name> names;
 }
 static public class Ambiguity extends QualifiedName {
   private final java.util.List<org.rascalmpl.ast.QualifiedName> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.QualifiedName> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.QualifiedName> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

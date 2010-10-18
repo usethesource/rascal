@@ -4,7 +4,7 @@ public abstract class Visit extends AbstractAST {
   public org.rascalmpl.ast.Expression getSubject() { throw new UnsupportedOperationException(); } public java.util.List<org.rascalmpl.ast.Case> getCases() { throw new UnsupportedOperationException(); } public boolean hasSubject() { return false; } public boolean hasCases() { return false; } public boolean isDefaultStrategy() { return false; }
 static public class DefaultStrategy extends Visit {
 /** "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit {cons("DefaultStrategy")} */
-	public DefaultStrategy(INode node, org.rascalmpl.ast.Expression subject, java.util.List<org.rascalmpl.ast.Case> cases) {
+	protected DefaultStrategy(INode node, org.rascalmpl.ast.Expression subject, java.util.List<org.rascalmpl.ast.Case> cases) {
 		this.node = node;
 		this.subject = subject;
 		this.cases = cases;
@@ -25,7 +25,7 @@ private final org.rascalmpl.ast.Expression subject;
 }
 static public class Ambiguity extends Visit {
   private final java.util.List<org.rascalmpl.ast.Visit> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Visit> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Visit> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -40,7 +40,7 @@ static public class Ambiguity extends Visit {
 public org.rascalmpl.ast.Strategy getStrategy() { throw new UnsupportedOperationException(); } public boolean hasStrategy() { return false; } public boolean isGivenStrategy() { return false; }
 static public class GivenStrategy extends Visit {
 /** strategy:Strategy "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit {cons("GivenStrategy")} */
-	public GivenStrategy(INode node, org.rascalmpl.ast.Strategy strategy, org.rascalmpl.ast.Expression subject, java.util.List<org.rascalmpl.ast.Case> cases) {
+	protected GivenStrategy(INode node, org.rascalmpl.ast.Strategy strategy, org.rascalmpl.ast.Expression subject, java.util.List<org.rascalmpl.ast.Case> cases) {
 		this.node = node;
 		this.strategy = strategy;
 		this.subject = subject;

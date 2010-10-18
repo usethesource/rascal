@@ -4,7 +4,7 @@ public abstract class Assignment extends AbstractAST {
   public boolean isDefault() { return false; }
 static public class Default extends Assignment {
 /** "=" -> Assignment {cons("Default")} */
-	public Default(INode node) {
+	protected Default(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -15,7 +15,7 @@ static public class Default extends Assignment {
 }
 static public class Ambiguity extends Assignment {
   private final java.util.List<org.rascalmpl.ast.Assignment> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assignment> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assignment> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -30,7 +30,7 @@ static public class Ambiguity extends Assignment {
 public boolean isAddition() { return false; }
 static public class Addition extends Assignment {
 /** "+=" -> Assignment {cons("Addition")} */
-	public Addition(INode node) {
+	protected Addition(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -41,7 +41,7 @@ static public class Addition extends Assignment {
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isSubtraction() { return false; }
 static public class Subtraction extends Assignment {
 /** "-=" -> Assignment {cons("Subtraction")} */
-	public Subtraction(INode node) {
+	protected Subtraction(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -53,7 +53,7 @@ static public class Subtraction extends Assignment {
 public boolean isProduct() { return false; }
 static public class Product extends Assignment {
 /** "*=" -> Assignment {cons("Product")} */
-	public Product(INode node) {
+	protected Product(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -65,7 +65,7 @@ static public class Product extends Assignment {
 public boolean isDivision() { return false; }
 static public class Division extends Assignment {
 /** "/=" -> Assignment {cons("Division")} */
-	public Division(INode node) {
+	protected Division(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -77,7 +77,7 @@ static public class Division extends Assignment {
 public boolean isIntersection() { return false; }
 static public class Intersection extends Assignment {
 /** "&=" -> Assignment {cons("Intersection")} */
-	public Intersection(INode node) {
+	protected Intersection(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -89,7 +89,7 @@ static public class Intersection extends Assignment {
 public boolean isIfDefined() { return false; }
 static public class IfDefined extends Assignment {
 /** "?=" -> Assignment {cons("IfDefined")} */
-	public IfDefined(INode node) {
+	protected IfDefined(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

@@ -6,7 +6,7 @@ public boolean hasParameters() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends ModuleParameters {
 /** "[" parameters:{TypeVar ","}+ "]" -> ModuleParameters {cons("Default")} */
-	public Default(INode node, java.util.List<org.rascalmpl.ast.TypeVar> parameters) {
+	protected Default(INode node, java.util.List<org.rascalmpl.ast.TypeVar> parameters) {
 		this.node = node;
 		this.parameters = parameters;
 	}
@@ -23,7 +23,7 @@ private final java.util.List<org.rascalmpl.ast.TypeVar> parameters;
 }
 static public class Ambiguity extends ModuleParameters {
   private final java.util.List<org.rascalmpl.ast.ModuleParameters> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ModuleParameters> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ModuleParameters> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }

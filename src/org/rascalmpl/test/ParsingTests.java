@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Module.Default;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -42,7 +42,7 @@ public class ParsingTests extends TestCase {
 				IConstructor tree = parser.parseModule(Collections.<String>emptyList(), Collections.<String>emptySet(),file.getAbsoluteFile().toURI(), fis, new ModuleEnvironment("***dummy***"));
 				
 				if (tree.getConstructorType() == Factory.ParseTree_Top) {
-					Module.Default module = (Default) new ASTBuilder(new ASTFactory()).buildModule(tree);
+					Module.Default module = (Default) new ASTBuilder(ASTFactoryFactory.getASTFactory()).buildModule(tree);
 					System.err.println("SUCCEEDED: " + module.getHeader());
 				} else {
 					System.err.println("FAILED: " + file + "\n\t" + tree);

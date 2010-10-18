@@ -505,6 +505,8 @@ str selectTag(str tg, str key) {
    if (tg=="KW") return "\<B\><key>\</B\>";
    if (tg=="CT") return "\<I\><key>\</I\>";
    if (tg=="SG") return "\<FONT color=\"blue\"\><key>\</FONT\>";
+   if (tg=="NM") return "\<FONT color=\"blue\"\><key>\</FONT\>";
+   if (tg=="SC") return "\<I\><key>\</I\>";
    return key;
 }
 
@@ -512,6 +514,8 @@ str selectBeginTag(str tg, str key) {
    if (tg=="KW") return "\<B\><key>";
    if (tg=="CT") return "\<I\><key>";
    if (tg=="SG") return "\<FONT color=\"blue\"\><key>";
+   if (tg=="NM") return "\<FONT color=\"blue\"\><key>";
+   if (tg=="SC") return "\<I\><key>";
    return key;
 }
 
@@ -519,6 +523,8 @@ str selectEndTag(str tg) {
    if (tg=="KW") return "\</B\>";
    if (tg=="CT") return "\</I\>";
    if (tg=="SG") return "\</FONT\>";
+   if (tg=="NM") return "\</FONT\>";
+   if (tg=="SC") return "\</I\>";
    return "";
 }
    
@@ -581,7 +587,7 @@ public text box2latex(Box b) {
     }
     
 public text box2html(Box b) {
-    println("Start box2latex");
+    println("Start box2html");
     decorated =  true;
     text q = [];
     if (aux[b]?) q = aux[b];
@@ -590,7 +596,7 @@ public text box2html(Box b) {
         aux+=(b:q);
         }
     text t = getFileContent("box/Start.html")+text2html(q)+getFileContent("box/End.html");    
-    println("End box2latex");
+    println("End box2html");
     return t;
     }
     
@@ -616,6 +622,24 @@ public value toList(Box b) {
   return t;
 }
 
+public value toText(Box b, loc src, loc dest) {
+     text t = box2text(b);
+     writeData(src, dest, t, ".txt");
+     return t;
+     }
+     
+public value toLatex(Box b, loc src, loc dest) {
+     text t = box2latex(b);
+     writeData(src, dest, t, ".tex");
+     return t;
+     }
+     
+public value toHtml(Box b, loc src, loc dest) {
+     text t = box2html(b);
+     writeData(src, dest, t, ".html");
+     return t;
+     } 
+        
 void tst() {
   Box  b1 = R([L("ab"), L("c")]);
   Box  b2 = R([L("def"), L("hg")]);
@@ -623,3 +647,21 @@ void tst() {
   Box b = A([b1, b2, b3]);
   b@format=["c","c"];
 } 
+
+public str baseName(str input) {
+     if (/^<pre:.*>\.<post:.*?>$/:=input) {
+          return "<pre>";
+          }
+     return input;
+     }
+
+public void writeData(loc asf,loc dest, text r,str suffix) {
+     str s=baseName(asf.path);
+     str find = "/";
+     if(/^<pre:.*><find><post:.*?>$/ := s) {	
+       loc g=|file://<dest.path><find><post><suffix>|;
+       println("Written <suffix> content in file:\"<g>\"");
+       writeFile(g);
+       for (str q<-r) appendToFile(g,"<q>\n");
+       }
+     }

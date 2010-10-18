@@ -26,8 +26,6 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private IConstructor production;
 	private final ITuple tupleSubject;
 	private final Type myType;
-	private String patternSort;
-	private String patternCons;
 	private boolean isLiteral;
 
 	public ConcreteApplicationPattern(
@@ -36,10 +34,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern
-//		this.production = (IConstructor) ctx.getEvaluator().eval(x.getArguments().get(0)).getValue();
 		this.production = TreeAdapter.getProduction((IConstructor) getAST().getTree());
-		this.patternSort = ProductionAdapter.getSortName(production);
-		this.patternCons = ProductionAdapter.getConstructorName(production);
 		
 		// use a tuple pattern to match the children of this pattern
 		this.tupleMatcher = new TuplePattern(ctx, x, list);
@@ -209,7 +204,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	public boolean next(){
 		checkInitialized();
 		
-		if (!isLiteral) {
+		if (hasNext && !isLiteral) {
 			return tupleMatcher.next();
 		}
 		else if (hasNext){

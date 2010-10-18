@@ -6,7 +6,7 @@ public boolean hasCharacter() { return false; }
 public boolean isCharacter() { return false; }
 static public class Character extends CharRange {
 /** character:Character -> CharRange {cons("Character")} */
-	public Character(INode node, org.rascalmpl.ast.Character character) {
+	protected Character(INode node, org.rascalmpl.ast.Character character) {
 		this.node = node;
 		this.character = character;
 	}
@@ -23,7 +23,7 @@ private final org.rascalmpl.ast.Character character;
 }
 static public class Ambiguity extends CharRange {
   private final java.util.List<org.rascalmpl.ast.CharRange> alternatives;
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.CharRange> alternatives) {
+  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.CharRange> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          this.node = node;
   }
@@ -42,7 +42,7 @@ public boolean hasStart() { return false; }
 public boolean isRange() { return false; }
 static public class Range extends CharRange {
 /** start:Character "-" end:Character -> CharRange {cons("Range")} */
-	public Range(INode node, org.rascalmpl.ast.Character start, org.rascalmpl.ast.Character end) {
+	protected Range(INode node, org.rascalmpl.ast.Character start, org.rascalmpl.ast.Character end) {
 		this.node = node;
 		this.start = start;
 		this.end = end;
