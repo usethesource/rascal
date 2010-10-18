@@ -260,10 +260,10 @@ public str navLeft(ConceptName cn){
 
 public str category(map[str,str] categories){
   initialize();
-  println("category(<categories>)");
+  //println("category(<categories>)");
   cn = categories["concept"];
   enabledCategories = { cat | cat <- categories, cat != "concept", categories[cat] == "true"};
-  println("enabledCategories = <enabledCategories>");
+  //println("enabledCategories = <enabledCategories>");
   return showConcept(cn);
 }
 
@@ -415,7 +415,7 @@ public bool contains(str subject, str key){
 public list[str] doSearch(str term){
   if(size(term) == 0)
     return [];
-  println("conceptNames=<conceptNames>");
+  //println("conceptNames=<conceptNames>");
   return [name | name <- conceptNames,
           
                 ( /^[A-Za-z0-9]+$/ := term 

@@ -356,11 +356,11 @@ private str markupFigure(list[str] lines, str file){
 	  out = shell(["import vis::Figure;", 
 	               "import vis::Rendering;"] + 
 	              lines, 
-	              5000);
+	              10000);
 	  println("**** shell output ****\n<out>");
 	  errors = "";
 	  for(line <- out)
-	     if(/.*[Ee]rror/ := line)
+	     if(/.*[Ee]rror/ := line || /.*[Ee]xception/ := line || /.*cancelled/ := line)
 	       errors += line;
 	  println("errors = <errors>");
 	  // Restore original call for listing
@@ -381,7 +381,7 @@ private str markupRascalPrompt(list[str] lines){
 
 private str markupScreen(list[str] lines){
    stripped_code = "<for(line <- lines){><(startsWith(line, "//")) ? "" : (line + "\n")><}>";
-   result_lines = shell(stripped_code);
+   result_lines = shell(stripped_code, 5000);
    
    int i = 0; int upbi = size(lines);
    int j = 0; int upbj = size(result_lines);
