@@ -5,10 +5,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import processing.core.PConstants;
-
-import com.sun.xml.internal.rngom.binary.RefPattern;
-
 /**
  * Visual elements are the foundation of Rascal visualization. They are based on a bounding box + anchor model. 
  * The bounding box defines the maximal dimensions of the element. The anchor defines its alignment properties.
