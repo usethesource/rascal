@@ -356,7 +356,7 @@ private str markupFigure(list[str] lines, str file){
 	  out = shell(["import vis::Figure;", 
 	               "import vis::Rendering;"] + 
 	              lines, 
-	              10000);
+	              20000);
 	  println("**** shell output ****\n<out>");
 	  errors = "";
 	  for(line <- out)

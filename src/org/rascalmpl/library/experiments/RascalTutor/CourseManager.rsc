@@ -20,6 +20,8 @@ import Scripting;
 
 loc courseRoot = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
 
+private str server = "localhost:8081";
+
 public Course thisCourse = course("",|file://X/|,"",[], (),{},[],(),{});
 
 public ConceptName root = "";
@@ -70,7 +72,8 @@ private void reinitialize(Course c, set[str] enabled){
 // Start a new course
 // *** called from servlet Start in RascalTutor
 
-public str start(str name){
+public str start(str serverName, str name){
+ server = serverName;
  if(name in courses){
    reinitialize(courses[name], {});
    return showConcept(name);
@@ -141,7 +144,7 @@ public str showConcept(ConceptName cn, Concept C){
   return html(
   	head(title(C.name) + prelude()),
   	body(
-  	  "[\<a id=\"tutorAction\" href=\"http://localhost:8081/Courses/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]" +
+  	  "[\<a id=\"tutorAction\" href=\"http://<server>/Courses/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]" +
   	  section("Name", showConceptPath(cn)) + navigationMenu(cn) + categoryMenu(cn) +
   	  searchBox(cn) + 
   	  ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
@@ -272,8 +275,8 @@ private bool isEnabled(ConceptName cn){
   if(isEmpty(cats))
     cats = categories;
     
-  if("Beginner" in enabledCategories && "Beginner" notin cats)
-     return false;
+ // if("Beginner" in enabledCategories && "Beginner" notin cats)
+ //    return false;
 
   return !isEmpty(cats & enabledCategories);
 }
@@ -283,7 +286,7 @@ public str editMenu(ConceptName cn){
               [\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false&check=false\"\>\<b\>Edit\</b\>\</a\>] | 
               [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true&check=true\"\>\<b\>New\</b\>\</a\>] |
               [\<a id=\"checkAction\" href=\"/edit?concept=<cn>&new=false&check=true\"\>\<b\>Check\</b\>\</a\>] |
-              [\<a id=\"tutorAction\" href=\"http://localhost:8081/Courses/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]
+              [\<a id=\"tutorAction\" href=\"http://<server>/Courses/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]
             \</div\>\n";
 }
 
