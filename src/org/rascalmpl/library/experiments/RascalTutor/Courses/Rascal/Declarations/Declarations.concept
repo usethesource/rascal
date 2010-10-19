@@ -2,7 +2,7 @@ Name: Declarations
 
 Details: StaticTyping
 
-Categories: Language Beginner
+Categories: Language
 
 Syntax:
 
@@ -13,6 +13,7 @@ Function:
 Synopsis:
 
 Description:
+All entities that can be declared in Rascal programs.
 
 Examples:
 

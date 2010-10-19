@@ -2,7 +2,7 @@ Name: Variable
 
 Details:
 
-Categories: Language Beginner
+Categories: Language
 
 Syntax: 
 # `$Type$ $Name$ = $Exp$;`
