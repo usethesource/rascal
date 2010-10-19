@@ -24,57 +24,65 @@ public class RascalTutor {
 		return eval;
 	}
 	
-	final static String BASE = System.getProperty("user.dir") +
-	                           "/src/org/rascalmpl/library/experiments/RascalTutor/";
+	final static String BASE = // System.getProperty("user.dir") +
+	                           "/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library/experiments/RascalTutor/";
+	private Server server;
 	
-	public static void main(String[] args) throws Exception
-	    {
-		 	try {
-		 		Evaluator evaluator = getRascalEvaluator("experiments::RascalTutor::CourseManager");
-		        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		        context.setAttribute("RascalEvaluator", evaluator);
-		        context.addServlet(DefaultServlet.class, "/");
-		        context.addServlet(Show.class, "/show");
-		        context.addServlet(Validate.class, "/validate");
-		        context.addServlet(Eval.class, "/eval");
-		        context.addServlet(Search.class, "/search");
-		        context.addServlet(Category.class, "/category");
-		        context.addServlet(Edit.class, "/edit");
-		        context.addServlet(Save.class, "/save");
-		        context.addServlet(Start.class, "/start");
+	public void start(final int port) throws Exception {
+		server = new Server(port);
+		server.setHandler(getTutorHandler());
+		server.start();
+	}
+	
+	public void stop() throws Exception {
+		if (server != null) {
+			server.stop();
+		}
+	}
+	
+	public static void main(String[] args) {
+		RascalTutor tutor = new RascalTutor();
+		try {
+			tutor.start(8081);
+		}
+		catch (Exception e) {
+			System.err.println("Cannot set up RascalTutor: " + e.getMessage());
+		}
+	}
 
-		        System.err.println("BASE = " + BASE);
-		        context.setResourceBase(BASE); 
-		      
-		        String welcome[] = { BASE + "index.html"};
-		        context.setWelcomeFiles(welcome);
-		        
+	private static ServletContextHandler getTutorHandler() {
+		Evaluator evaluator = getRascalEvaluator("experiments::RascalTutor::CourseManager");
+		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		context.setAttribute("RascalEvaluator", evaluator);
+		context.addServlet(DefaultServlet.class, "/");
+		context.addServlet(Show.class, "/show");
+		context.addServlet(Validate.class, "/validate");
+		context.addServlet(Eval.class, "/eval");
+		context.addServlet(Search.class, "/search");
+		context.addServlet(Category.class, "/category");
+		context.addServlet(Edit.class, "/edit");
+		context.addServlet(Save.class, "/save");
+		context.addServlet(Start.class, "/start");
+
+		System.err.println("BASE = " + BASE);
+		context.setResourceBase(BASE); 
+     
+		String welcome[] = { BASE + "index.html"};
+		context.setWelcomeFiles(welcome);
+		
 /*		        
-		        WebAppContext wac = new WebAppContext();
-		        
-		        wac.setAttribute("RascalEvaluator", evaluator);
-		        wac.addServlet(DefaultServlet.class, "/");
-		        wac.addServlet(ShowConcept.class, "/concept");
-		        wac.addServlet(ValidateAnswer.class, "/ValidateAnswer");
-		        wac.setResourceBase(BASE); 
-		        
-		        MimeTypes mimeTypes = new MimeTypes();
-		        mimeTypes.addMimeMapping(".css", "text/css");
-				wac.setMimeTypes(mimeTypes);
+		WebAppContext wac = new WebAppContext();
+		
+		wac.setAttribute("RascalEvaluator", evaluator);
+		wac.addServlet(DefaultServlet.class, "/");
+		wac.addServlet(ShowConcept.class, "/concept");
+		wac.addServlet(ValidateAnswer.class, "/ValidateAnswer");
+		wac.setResourceBase(BASE); 
+		
+		MimeTypes mimeTypes = new MimeTypes();
+		mimeTypes.addMimeMapping(".css", "text/css");
+		wac.setMimeTypes(mimeTypes);
 */
-		        
-		        System.err.println("context path = " + context.getContextPath());
-		        System.err.println("resource base = " + context.getResourceBase());
-		        
-		        //We will create our server running at http://localhost:8081
-		        Server server = new Server(8081);
-		        server.setHandler(context);
-		        //server.setHandler(wac);
-		        server.start();
-			} catch (Exception e) {
-				System.err.println("Cannot set up RascalTutor: " + e.getMessage());
-			}
-		 	
-
-	    }
+		return context;
+	}
 }

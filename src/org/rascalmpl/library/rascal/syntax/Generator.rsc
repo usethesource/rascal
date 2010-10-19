@@ -88,7 +88,10 @@ public str generate(str package, str name, str super, int () newItem, bool callS
     newItems = generateNewItems(gr, newItem);
    
     println("computing priority and associativity filter");
-    dontNest = computeDontNests(newItems, gr);
+    rel[parent, child] dontNest = computeDontNests(newItems, gr);
+    // this creates groups of children that forbidden below certain parents
+    rel[set[int] parents, set[int] children] dontNestGroups = 
+      {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
    
     println("computing lookahead sets");
     gr = computeLookaheads(gr, extraLookaheads);
@@ -136,6 +139,7 @@ public class <name> extends <super> implements IParserInfo {
 	
 	protected static final TypeFactory _tf = TypeFactory.getInstance();
 	protected static final IntegerKeyedHashMap\<IntegerList\> _dontNest = new IntegerKeyedHashMap\<IntegerList\>();
+	protected static final IRelation _dontNestGroups;
 	protected static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions = new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>();
 	
 	protected static java.lang.String _concat(String ...args) {

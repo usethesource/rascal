@@ -18,7 +18,7 @@ import ValueIO;
 import IO;
 import Scripting;
 
-loc courseRoot = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
+loc courseRoot = |stdlib:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
 
 public Course thisCourse = course("",|file://X/|,"",[], (),{},[],(),{});
 
