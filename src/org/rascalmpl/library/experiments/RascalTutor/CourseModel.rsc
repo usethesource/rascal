@@ -108,8 +108,6 @@ alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
 public str suffix = ".concept";
 
 public str getFullConceptName(str path, str coursePath){
-println("path <path>");
-println("coursep <coursePath>");
    if(/^.*<coursePath><cpath:.*$>/ := path && /^<full:.*>\.concept$/ := cpath){
       base = basename(full);
       bb = "<base>/<base>";
