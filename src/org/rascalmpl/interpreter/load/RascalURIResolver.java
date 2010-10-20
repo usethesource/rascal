@@ -12,6 +12,7 @@ import java.util.List;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.BadURIException;
+import org.rascalmpl.uri.IURIInputOutputResolver;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.uri.UnsupportedSchemeException;
@@ -20,7 +21,7 @@ import org.rascalmpl.uri.UnsupportedSchemeException;
  * This class implements the rascal:// scheme. If the path component of a given URI represents a module name, then
  * this resolver will look through the Rascal search path and find the proper input stream if it exists.
  */
-public class RascalURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver {
+public class RascalURIResolver implements IURIInputOutputResolver {
 	private final ArrayList<IRascalSearchPathContributor> contributors;
 	private final IEvaluatorContext ctx;
 	

@@ -2,7 +2,7 @@ Name: Match
 
 Details:
 
-Categories: Language Beginner
+Categories: Language
 
 Syntax: `$Pat$ := $Exp$`
 

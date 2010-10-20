@@ -2,7 +2,7 @@ Name: AlgebraicDataType
 
 Details:
 
-Categories: Language Beginner
+Categories: Language
 
 Syntax:  `data $Name$ = $Alt_1$ | $Alt_1$ | ... ;`
 

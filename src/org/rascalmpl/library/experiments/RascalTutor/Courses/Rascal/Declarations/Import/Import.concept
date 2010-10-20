@@ -2,7 +2,7 @@ Name: Import
 
 Details:
 
-Categories: Language Beginner
+Categories: Language
 
 Syntax: `import $QualifiedName$;`
 

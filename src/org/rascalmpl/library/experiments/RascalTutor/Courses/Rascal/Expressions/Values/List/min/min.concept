@@ -1,6 +1,6 @@
 Name:min
 
-Categories: Library Beginner
+Categories: Library
 
 Function: `&T min(list[&T] s)`
 

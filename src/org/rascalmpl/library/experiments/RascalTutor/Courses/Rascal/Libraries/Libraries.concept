@@ -2,7 +2,7 @@ Name: Libraries
 
 Details:
 
-Categories:  Library Beginner
+Categories:  Library
 
 Syntax:
 
@@ -13,6 +13,7 @@ Function:
 Synopsis:
 
 Description:
+All Rascal libraries.
 
 Examples:
 
