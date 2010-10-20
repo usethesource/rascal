@@ -198,18 +198,19 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void updatePrefixes(AbstractStackNode next, AbstractStackNode node, AbstractNode resultStore){
+	private void updatePrefixes(AbstractStackNode next, AbstractStackNode node, AbstractNode nextResultStore){
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		
 		ArrayList<AbstractStackNode> edgesPart = edgesMap.findValue(location);
 		if(edgesPart != null){
 			IConstructor production = next.getParentProduction();
 			
-			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
-			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), resultStore, location);
-			edgePrefixes.add(prefix);
-			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+			
+			AbstractContainerNode nodeResultStore = levelResultStoreMap.get(node.getName(), getResultStoreId(node.getId()));
+			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), nodeResultStore, location);
+			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
+			edgePrefixes.add(prefix);
 			
 			ArrayList<String> firstTimeReductions = new ArrayList<String>();
 			for(int j = edgesPart.size() - 1; j >= 0; --j){
@@ -220,7 +221,7 @@ public abstract class SGLL implements IGLL{
 				if(!firstTimeReductions.contains(nodeName)){
 					firstTimeReductions.add(nodeName);
 					
-					levelResultStoreMap.get(nodeName, resultStoreId).addAlternative(production, new Link(edgePrefixes, resultStore));
+					levelResultStoreMap.get(nodeName, resultStoreId).addAlternative(production, new Link(edgePrefixes, nextResultStore));
 				}
 			}
 		}
