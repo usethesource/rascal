@@ -98,7 +98,7 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		return null;
 	}
 	
-	public void unsafePut(K key, int key2, V value){
+	public void putUnsafe(K key, int key2, V value){
 		ensureCapacity();
 		
 		int hash = key.hashCode() ^ (key2 << 5);

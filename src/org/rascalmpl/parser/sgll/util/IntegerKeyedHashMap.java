@@ -99,14 +99,12 @@ public class IntegerKeyedHashMap<V>{
 		return null;
 	}
 	
-	public V putUnsafe(int key, V value){
+	public void putUnsafe(int key, V value){
 		ensureCapacity();
 		
 		int position = key & hashMask;
 		entries[position] = new Entry<V>(key, value, entries[position]);
 		++load;
-		
-		return null;
 	}
 	
 	public V get(int key){
