@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.RascalTutor;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -28,8 +29,7 @@ public class RascalTutor {
 		return new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, new LegacyRascalParser(), root, heap);
 	}
 	
-	final static String BASE = System.getProperty("user.dir") +
-	                           "/src/org/rascalmpl/library/experiments/RascalTutor/";
+	final static String BASE = "std:///experiments/RascalTutor/";
 	private Server server;
 	
 	public void start(final int port) throws Exception {
@@ -59,7 +59,7 @@ public class RascalTutor {
 		}
 	}
 
-	private ServletContextHandler getTutorHandler() {
+	private ServletContextHandler getTutorHandler() throws IOException {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setAttribute("RascalEvaluator", eval);
 		context.addServlet(DefaultServlet.class, "/");
@@ -73,7 +73,8 @@ public class RascalTutor {
 		context.addServlet(Start.class, "/start");
 
 		System.err.println("BASE = " + BASE);
-		context.setResourceBase(BASE); 
+		
+		context.setResourceBase(getResolverRegistry().absolutePath(URI.create(BASE))); 
      
 		String welcome[] = { BASE + "Courses/index.html"};
 		context.setWelcomeFiles(welcome);
