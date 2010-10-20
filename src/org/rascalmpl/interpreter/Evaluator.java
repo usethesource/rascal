@@ -264,7 +264,7 @@ import org.rascalmpl.parser.NewRascalParser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.uri.CWDURIResolver;
-import org.rascalmpl.uri.ClassResourceInputStreamResolver;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -308,7 +308,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private ITestResultListener testReporter;
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
-	private final RascalURIResolver resolver;
+	private final RascalURIResolver rascalPathResolver;
 	private final SDFSearchPath sdf;
 	private final ASTBuilder builder;
 	
@@ -325,7 +325,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.heap.addModule(scope);
 		this.classLoaders = new ArrayList<ClassLoader>();
 		this.javaBridge = new JavaBridge(stderr, classLoaders, vf);
-		this.resolver = new RascalURIResolver(this);
+		this.rascalPathResolver = new RascalURIResolver(this);
 		this.sdf = new SDFSearchPath();
 		this.parser = parser;
 		this.stderr = stderr;
@@ -342,12 +342,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new NullPointerException();
 		}
 
-		resolver.addPathContributor(new IRascalSearchPathContributor() {
+		rascalPathResolver.addPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(java.util.List<URI> l) {
 				l.add(URI.create("cwd:///"));
-				l.add(URI.create("stdlib:///org/rascalmpl/library"));
-				l.add(URI.create("stdlib:///"));
-				l.add(URI.create("stdlib:///org/rascalmpl/test/data"));
+				l.add(URI.create("std:///"));
+				l.add(URI.create("testdata:///"));
 
 				String property = System.getProperty("rascal.path");
 
@@ -386,25 +385,25 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		// register some schemes
 		FileURIResolver files = new FileURIResolver(); 
-		resolverRegistry.registerInput(files.scheme(), files);
-		resolverRegistry.registerOutput(files.scheme(), files);
+		resolverRegistry.registerInput(files);
+		resolverRegistry.registerOutput(files);
 
 		HttpURIResolver http = new HttpURIResolver();
-		resolverRegistry.registerInput(http.scheme(), http);
+		resolverRegistry.registerInput(http);
 		
 		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerInput(cwd.scheme(), cwd);
-		resolverRegistry.registerOutput(cwd.scheme(), cwd);
+		resolverRegistry.registerInput(cwd);
+		resolverRegistry.registerOutput(cwd);
 		
-		ClassResourceInputStreamResolver library = new ClassResourceInputStreamResolver("stdlib", this.getClass());
-		resolverRegistry.registerInput(library.scheme(), library);
+		ClassResourceInputOutput library = new ClassResourceInputOutput(resolverRegistry, "std", this.getClass(), "/org/rascalmpl/library");
+		resolverRegistry.registerInput(library);
+		resolverRegistry.registerOutput(library); // do not remove
 		
-		// Allow writing via stdlib scheme
-		FileURIResolver stdlib = new FileURIResolver(); 
-		resolverRegistry.registerOutput(library.scheme(), stdlib);
-
-		resolverRegistry.registerInput(resolver.scheme(), resolver);
-		resolverRegistry.registerOutput(resolver.scheme(), resolver);
+		ClassResourceInputOutput testdata = new ClassResourceInputOutput(resolverRegistry, "test", this.getClass(), "/org/rascalmpl/test/data");
+		resolverRegistry.registerInput(testdata);
+		
+		resolverRegistry.registerInput(rascalPathResolver);
+		resolverRegistry.registerOutput(rascalPathResolver);
 	}  
 	
 	public void interrupt() {
@@ -440,7 +439,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public RascalURIResolver getRascalResolver() {
-		return resolver;
+		return rascalPathResolver;
 	}
 	
 	public IValue call(String name, IValue...args) {
@@ -503,7 +502,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			name += SymbolAdapter.getName(startSort);
 		}
 		System.err.println("Calling the parser");
-		IConstructor forest = parser.parse(name, inputURI, resolver.getInputStream(inputURI));
+		IConstructor forest = parser.parse(name, inputURI, rascalPathResolver.getInputStream(inputURI));
 		
 		System.err.println("Executing actions");
 		ActionExecutor exec = new ActionExecutor(this, (IParserInfo) parser);
@@ -628,11 +627,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
-		resolver.addPathContributor(contrib);
+		rascalPathResolver.addPathContributor(contrib);
 	}
 	
 	public void addRascalSearchPath(final URI uri) {
-		resolver.addPathContributor(new IRascalSearchPathContributor() {
+		rascalPathResolver.addPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(java.util.List<URI> path) {
 				path.add(0, uri);
 			}
@@ -1293,7 +1292,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		InputStream inputStream = null;
 		
 		try {
-			inputStream = resolver.getBinaryInputStream(URI.create("rascal:///" + name));
+			inputStream = rascalPathResolver.getBinaryInputStream(URI.create("rascal:///" + name));
 			if(inputStream == null) {
 				return null;
 			}
@@ -1321,7 +1320,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		PBFWriter pbfWriter = new PBFWriter();
 		
 		try{
-			outputStream = new BufferedOutputStream(resolver.getBinaryOutputStream(URI.create("rascal:///" + name)));
+			outputStream = new BufferedOutputStream(rascalPathResolver.getBinaryOutputStream(URI.create("rascal:///" + name)));
 			pbfWriter.write(tree, outputStream);
 		}
 		finally{
@@ -1350,7 +1349,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 		}
 
-		URI resolved = resolver.resolve(location);
+		URI resolved = rascalPathResolver.resolve(location);
 		if (resolved != null) {
 			location = resolved;
 		}
