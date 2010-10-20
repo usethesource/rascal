@@ -201,14 +201,16 @@ public abstract class SGLL implements IGLL{
 	private void updatePrefixes(AbstractStackNode next, AbstractStackNode node, AbstractNode nextResultStore){
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		
-		ArrayList<AbstractStackNode> edgesPart = edgesMap.findValue(location);
-		if(edgesPart != null){
-			IConstructor production = next.getParentProduction();
+		IConstructor production = next.getParentProduction();
+		
+		for(int i = edgesMap.size() - 1; i >= 0; --i){
+			int startPosition = edgesMap.getKey(i);
+			ArrayList<AbstractStackNode> edgesPart = edgesMap.getValue(i);
 			
-			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-			
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startPosition);
 			AbstractContainerNode nodeResultStore = levelResultStoreMap.get(node.getName(), getResultStoreId(node.getId()));
-			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), nodeResultStore, location);
+			
+			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), nodeResultStore, startPosition);
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
 			edgePrefixes.add(prefix);
 			
