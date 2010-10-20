@@ -18,7 +18,7 @@ import ValueIO;
 import IO;
 import Scripting;
 
-loc courseRoot = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
+loc courseRoot = |std:///experiments/RascalTutor/Courses/|;
 
 private str server = "localhost:8081";
 
@@ -98,7 +98,7 @@ public set[QuestionName] badAnswer = {};
 // In the mean time we just paste prelude.css in the generated html-page.
 
 public str prelude(){
-  css = readFile(|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/prelude.css|);
+  css = readFile(|std:///experiments/RascalTutor/prelude.css|);
   nbc = size(baseConcepts) - 1;
   //println("prelude: <baseConcepts>");
  

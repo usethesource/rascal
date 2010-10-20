@@ -16,12 +16,12 @@ public class URIResolverRegistry {
 		this.outputResolvers = new HashMap<String, IURIOutputStreamResolver>();
 	}
 	
-	public void registerInput(String scheme, IURIInputStreamResolver resolver) {
-		inputResolvers.put(scheme, resolver);
+	public void registerInput(IURIInputStreamResolver resolver) {
+		inputResolvers.put(resolver.scheme(), resolver);
 	}
 	
-	public void registerOutput(String scheme, IURIOutputStreamResolver resolver) {
-		outputResolvers.put(scheme, resolver);
+	public void registerOutput(IURIOutputStreamResolver resolver) {
+		outputResolvers.put(resolver.scheme(), resolver);
 	}
 	
 	public boolean exists(URI uri) {
@@ -35,12 +35,10 @@ public class URIResolverRegistry {
 	}
 	
 	public String absolutePath(URI uri) throws IOException {
-		IURIInputStreamResolver iresolver = inputResolvers.get(uri.getScheme());
-		if(iresolver != null)
-			return iresolver.absolutePath(uri);
 		IURIOutputStreamResolver oresolver = outputResolvers.get(uri.getScheme());
-		if(oresolver != null)
+		if (oresolver != null) {
 			return oresolver.absolutePath(uri);
+		}
 		throw new UnsupportedSchemeException(uri.getScheme());
 	}
 	

@@ -24,8 +24,9 @@ import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.LegacyRascalParser;
-import org.rascalmpl.uri.ClassResourceInputStreamResolver;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -104,8 +105,9 @@ public class TestFramework {
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
 		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  new LegacyRascalParser(), root, heap);
-
-		eval.getResolverRegistry().registerInput("rascal-test", new ClassResourceInputStreamResolver("rascal-test", getClass()));
+		URIResolverRegistry resolverRegistry = eval.getResolverRegistry();
+		
+		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "rascal-test", getClass(), "/"));
 		
 		// to load modules from benchmarks
 		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
@@ -136,7 +138,7 @@ public class TestFramework {
 	private void reset() {
 		evaluator = getTestEvaluator();
 		this.modules = new TestModuleResolver();
-		evaluator.getResolverRegistry().registerInput(this.modules.scheme(), this.modules);
+		evaluator.getResolverRegistry().registerInput(this.modules);
 		evaluator.addRascalSearchPath(URI.create("test-modules:///"));
 	}
 

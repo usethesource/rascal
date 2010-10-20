@@ -6,7 +6,7 @@ import IO;
 import String;
 import Exception;
 
-public loc courseRoot = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
+public loc courseRoot = |std:///experiments/RascalTutor/Courses/|;
 
 // A ConceptName is the "pathname" of a concept in the concept hierarchy, e.g., "Rascal/Datastructure/Set"
 
@@ -108,6 +108,8 @@ alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
 public str suffix = ".concept";
 
 public str getFullConceptName(str path, str coursePath){
+println("path <path>");
+println("coursep <coursePath>");
    if(/^.*<coursePath><cpath:.*$>/ := path && /^<full:.*>\.concept$/ := cpath){
       base = basename(full);
       bb = "<base>/<base>";
