@@ -298,7 +298,7 @@ public abstract class SGLL implements IGLL{
 				
 				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
 				if(resultStore == null){
-					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
+					resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					
 					if(resultStore != null){
 						resultStore.setRejected();
