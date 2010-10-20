@@ -1,6 +1,5 @@
 package org.rascalmpl.library.vis;
 
-import java.awt.Font;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -9,7 +8,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -211,7 +209,7 @@ public class FigureLibrary extends PApplet {
 		new SketchSWT(pa);
 	}
 	
-	public void renderSave(IConstructor velem, ISourceLocation file, IEvaluatorContext ctx){
+	public synchronized void renderSave(IConstructor velem, ISourceLocation file, IEvaluatorContext ctx){
 		PApplet pa = new FigurePApplet(velem, file, ctx);
 		pa.init();
 		synchronized(pa){

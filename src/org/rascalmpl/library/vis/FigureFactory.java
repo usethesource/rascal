@@ -49,27 +49,27 @@ public class FigureFactory {
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     {
-    	put("box",			Primitives.BOX);
-    	put("edge",			Primitives.EDGE);
-    	put("ellipse",		Primitives.ELLIPSE);
-    	put("graph",		Primitives.GRAPH);
-    	put("grid",			Primitives.GRID);
-    	put("hcat",			Primitives.HCAT);
-    	put("hvcat",		Primitives.HVCAT);	
-      	put("outline",		Primitives.OUTLINE);	
-    	put("overlay",		Primitives.OVERLAY);	
-    	put("pack",			Primitives.PACK);	
+    	put("Fbox",			Primitives.BOX);
+    	put("Fedge",			Primitives.EDGE);
+    	put("Fellipse",		Primitives.ELLIPSE);
+    	put("Fgraph",		Primitives.GRAPH);
+    	put("Fgrid",			Primitives.GRID);
+    	put("Fhcat",			Primitives.HCAT);
+    	put("Fhvcat",		Primitives.HVCAT);	
+      	put("Foutline",		Primitives.OUTLINE);	
+    	put("Foverlay",		Primitives.OVERLAY);	
+    	put("Fpack",			Primitives.PACK);	
     	put("rotate",       Primitives.ROTATE);
     	put("scale",		Primitives.SCALE);
-    	put("shape",		Primitives.SHAPE);
-    	put("space",		Primitives.SPACE);
-    	put("text",			Primitives.TEXT);	    		
-    	put("tree",			Primitives.TREE);
-       	put("treemap",		Primitives.TREEMAP);
-    	put("use",			Primitives.USE);
-    	put("vcat",			Primitives.VCAT);
+    	put("Fshape",		Primitives.SHAPE);
+    	put("Fspace",		Primitives.SPACE);
+    	put("Ftext",			Primitives.TEXT);	    		
+    	put("Ftree",			Primitives.TREE);
+       	put("Ftreemap",		Primitives.TREEMAP);
+    	put("Fuse",			Primitives.USE);
+    	put("Fvcat",			Primitives.VCAT);
     	put("vertex",		Primitives.VERTEX);
-    	put("wedge",		Primitives.WEDGE);
+    	put("Fwedge",		Primitives.WEDGE);
     }};
     
     static IList props;
