@@ -210,15 +210,19 @@ public abstract class SGLL implements IGLL{
 			
 			HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 			
+			IntegerList filteredParents = getFilteredParents(next.getId());
+			
 			ArrayList<String> firstTimeReductions = new ArrayList<String>();
 			for(int j = edgesPart.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgesPart.get(0);
 				String nodeName = edge.getName();
 				
-				if(!firstTimeReductions.contains(nodeName)){
-					firstTimeReductions.add(nodeName);
-					
-					levelResultStoreMap.get(nodeName).addAlternative(production, new Link(edgePrefixes, resultStore));
+				if(filteredParents == null || !filteredParents.contains(edge.getId())){
+					if(!firstTimeReductions.contains(nodeName)){
+						firstTimeReductions.add(nodeName);
+						
+						levelResultStoreMap.get(nodeName).addAlternative(production, new Link(edgePrefixes, resultStore));
+					}
 				}
 			}
 		}
@@ -229,6 +233,8 @@ public abstract class SGLL implements IGLL{
 		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
+		
+		IntegerList filteredParents = getFilteredParents(node.getId());
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startLocation = edgesMap.getKey(i);
@@ -248,24 +254,26 @@ public abstract class SGLL implements IGLL{
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
 				
-				if(!firstTimeReductions.contains(nodeName)){
-					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
-					
-					if(resultStore != null){
-						if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
+				if(filteredParents == null || !filteredParents.contains(edge.getId())){
+					if(!firstTimeReductions.contains(nodeName)){
+						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
+						
+						if(resultStore != null){
+							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
+						}else{
+							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+							levelResultStoreMap.putUnsafe(nodeName, resultStore);
+							resultStore.addAlternative(production, resultLink);
+							
+							stacksWithNonTerminalsToReduce.put(edge, resultStore);
+							
+							firstTimeReductions.add(nodeName);
+						}
 					}else{
-						resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-						levelResultStoreMap.putUnsafe(nodeName, resultStore);
-						resultStore.addAlternative(production, resultLink);
+						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
 						
 						stacksWithNonTerminalsToReduce.put(edge, resultStore);
-						
-						firstTimeReductions.add(nodeName);
 					}
-				}else{
-					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
-					
-					stacksWithNonTerminalsToReduce.put(edge, resultStore);
 				}
 			}
 		}
@@ -273,6 +281,8 @@ public abstract class SGLL implements IGLL{
 	
 	private void updateRejects(AbstractStackNode node){ // TODO Fix priority system incompatibility
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
+		
+		IntegerList filteredParents = getFilteredParents(node.getId());
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startLocation = edgesMap.getKey(i);
@@ -290,24 +300,26 @@ public abstract class SGLL implements IGLL{
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
 				
-				if(!firstTimeReductions.contains(nodeName)){
-					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
-					
-					if(resultStore != null){
-						resultStore.setRejected();
+				if(filteredParents == null || !filteredParents.contains(edge.getId())){
+					if(!firstTimeReductions.contains(nodeName)){
+						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
+						
+						if(resultStore != null){
+							resultStore.setRejected();
+						}else{
+							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+							levelResultStoreMap.putUnsafe(nodeName, resultStore);
+							resultStore.setRejected();
+							
+							stacksWithNonTerminalsToReduce.put(edge, resultStore);
+							
+							firstTimeReductions.add(nodeName);
+						}
 					}else{
-						resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-						levelResultStoreMap.putUnsafe(nodeName, resultStore);
-						resultStore.setRejected();
+						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
 						
 						stacksWithNonTerminalsToReduce.put(edge, resultStore);
-						
-						firstTimeReductions.add(nodeName);
 					}
-				}else{
-					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
-					
-					stacksWithNonTerminalsToReduce.put(edge, resultStore);
 				}
 			}
 		}
@@ -483,7 +495,7 @@ public abstract class SGLL implements IGLL{
 		cachedExpectEdges.put(stackBeingWorkedOn.getName(), cachedEdges);
 	}
 	
-	protected IntegerList getFilteredChildren(int parentId){
+	protected IntegerList getFilteredParents(int childId){
 		return null; // Default implementation; intended to be overwritten in sub-classes.
 	}
 	
