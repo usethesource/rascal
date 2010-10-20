@@ -14,8 +14,7 @@ import java.net.URL;
  * some functionality may or may not work. Typically, the user will eventually get a "SchemeNotSupportedException" 
  * if an operation is not provided. 
  */
-public class ClassResourceInputOutput implements
-		IURIInputStreamResolver, IURIOutputStreamResolver {
+public class ClassResourceInputOutput implements IURIInputOutputResolver {
 	protected final Class<?> clazz;
 	protected final String scheme;
 	protected final URIResolverRegistry registry;

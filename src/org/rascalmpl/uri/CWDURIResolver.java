@@ -11,8 +11,7 @@ import java.net.URI;
 /**
  * For reading and writing files relative to the current working directory.
  */
-public class CWDURIResolver implements IURIInputStreamResolver,
-		IURIOutputStreamResolver {
+public class CWDURIResolver implements IURIInputOutputResolver {
 
 	public InputStream getInputStream(URI uri) throws IOException {
 		return new FileInputStream(getAbsolutePath(uri));

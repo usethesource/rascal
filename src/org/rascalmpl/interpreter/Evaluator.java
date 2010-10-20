@@ -266,6 +266,7 @@ import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -385,25 +386,24 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		// register some schemes
 		FileURIResolver files = new FileURIResolver(); 
-		resolverRegistry.registerInput(files);
-		resolverRegistry.registerOutput(files);
+		resolverRegistry.registerInputOutput(files);
 
 		HttpURIResolver http = new HttpURIResolver();
 		resolverRegistry.registerInput(http);
 		
 		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerInput(cwd);
-		resolverRegistry.registerOutput(cwd);
+		resolverRegistry.registerInputOutput(cwd);
 		
 		ClassResourceInputOutput library = new ClassResourceInputOutput(resolverRegistry, "std", this.getClass(), "/org/rascalmpl/library");
-		resolverRegistry.registerInput(library);
-		resolverRegistry.registerOutput(library); // do not remove
+		resolverRegistry.registerInputOutput(library);
 		
 		ClassResourceInputOutput testdata = new ClassResourceInputOutput(resolverRegistry, "test", this.getClass(), "/org/rascalmpl/test/data");
 		resolverRegistry.registerInput(testdata);
 		
-		resolverRegistry.registerInput(rascalPathResolver);
-		resolverRegistry.registerOutput(rascalPathResolver);
+		resolverRegistry.registerInputOutput(rascalPathResolver);
+		
+		HomeURIResolver home = new HomeURIResolver();
+		resolverRegistry.registerInputOutput(home);
 	}  
 	
 	public void interrupt() {
