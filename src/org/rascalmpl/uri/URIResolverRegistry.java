@@ -7,6 +7,8 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.rascalmpl.interpreter.load.RascalURIResolver;
+
 public class URIResolverRegistry {
 	private final Map<String,IURIInputStreamResolver> inputResolvers;
 	private final Map<String,IURIOutputStreamResolver> outputResolvers;
@@ -22,6 +24,11 @@ public class URIResolverRegistry {
 	
 	public void registerOutput(IURIOutputStreamResolver resolver) {
 		outputResolvers.put(resolver.scheme(), resolver);
+	}
+	
+	public void registerInputOutput(IURIInputOutputResolver resolver) {
+		registerInput(resolver);
+		registerOutput(resolver);
 	}
 	
 	public boolean exists(URI uri) {
@@ -106,4 +113,6 @@ public class URIResolverRegistry {
 		
 		return resolver.getOutputStream(uri, append);
 	}
+
+	
 }
