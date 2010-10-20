@@ -83,16 +83,16 @@ public class SortContainerNode extends AbstractContainerNode{
 		}
 		
 		if(rejected) {
-			int beginLine = positionStore.findLine(offset) + 1;
-			int endLine = positionStore.findLine(endOffset) + 1;
-			lastRejected = vf.sourceLocation(input, offset, endOffset - offset, beginLine, endLine, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
+			int beginLine = positionStore.findLine(offset);
+			int endLine = positionStore.findLine(endOffset);
+			lastRejected = vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 			return null;
 		}
 		
 		ISourceLocation sourceLocation = null;
 		if(!(isLayout || input == null)){
-			int beginLine = positionStore.findLine(offset) + 1;
-			int endLine = positionStore.findLine(endOffset) + 1;
+			int beginLine = positionStore.findLine(offset);
+			int endLine = positionStore.findLine(endOffset);
 			sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 		}
 		

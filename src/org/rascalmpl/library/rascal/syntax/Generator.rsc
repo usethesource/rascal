@@ -88,16 +88,16 @@ public str generate(str package, str name, str super, int () newItem, bool callS
     newItems = generateNewItems(gr, newItem);
    
     println("computing priority and associativity filter");
-    rel[parent, child] dontNest = computeDontNests(newItems, gr);
+    rel[int parent, int child] dontNest = computeDontNests(newItems, gr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] parents, set[int] children] dontNestGroups = 
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
    
     println("computing lookahead sets");
-    gr = computeLookaheads(gr, extraLookaheads);
+    // gr = computeLookaheads(gr, extraLookaheads);
     
     println("optimizing lookahead automaton");
-    gr = compileLookaheads(gr);
+    // gr = compileLookaheads(gr);
    
     println("printing the source code of the parser class");
     
@@ -112,6 +112,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -120,6 +121,7 @@ import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.sgll.stack.*;
 import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.IntegerList;
+import org.rascalmpl.parser.sgll.util.IntegerMap;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.parser.ASTBuilder;
@@ -138,9 +140,6 @@ public class <name> extends <super> implements IParserInfo {
 	}
 	
 	protected static final TypeFactory _tf = TypeFactory.getInstance();
-	protected static final IntegerKeyedHashMap\<IntegerList\> _dontNest = new IntegerKeyedHashMap\<IntegerList\>();
-	protected static final IRelation _dontNestGroups;
-	protected static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions = new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>();
 	
 	protected static java.lang.String _concat(String ...args) {
 	  java.lang.StringBuilder b = new java.lang.StringBuilder();
@@ -150,36 +149,81 @@ public class <name> extends <super> implements IParserInfo {
 	  return b.toString();
 	}
 	
-    protected static void _putDontNest(int i, int j) {
-    	IntegerList donts = _dontNest.get(i);
+   
+    <}>
+
+    private static final IntegerMap _resultStoreIdMappings;
+    private static final IntegerKeyedHashMap\<IntegerList\> _dontNest;
+	private static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions;
+	
+	private static void _putDontNest(IntegerKeyedHashMap\<IntegerList\> result, int i, int j) {
+    	IntegerList donts = result.get(i);
     	if(donts == null){
     		donts = new IntegerList();
-    		_dontNest.put(i, donts);
+    		result.put(i, donts);
     	}
     	donts.add(j);
     }
     
-	protected IntegerList getFilteredChildren(int parentId) {
+    protected static void _putResultStoreIdMapping(IntegerMap result, int parentId, int resultStoreId){
+       result.putUnsafe(parentId, resultStoreId);
+    }
+    
+    protected int getResultStoreId(int parentId){
+       return _resultStoreIdMappings.get(parentId);
+    }
+    
+    protected static IntegerKeyedHashMap\<IntegerList\> _initDontNest() {
+      IntegerKeyedHashMap\<IntegerList\> result = <if (!isRoot) {><super>._initDontNest()<} else {>new IntegerKeyedHashMap\<IntegerList\>()<}>; 
+    
+      for (IValue e : (IRelation) _read(_concat(<split("<dontNest>")>), _tf.relType(_tf.integerType(),_tf.integerType()))) {
+        ITuple t = (ITuple) e;
+        _putDontNest(result, ((IInteger) t.get(0)).intValue(), ((IInteger) t.get(1)).intValue());
+      }
+      
+      return result;
+    }
+    
+    protected static IntegerMap _initDontNestGroups() {
+      IntegerMap result = <if (!isRoot) {><super>._initDontNestGroups()<} else {>new IntegerMap()<}>;
+      int resultStoreId = result.size();
+    
+      for (IValue t : (IRelation) _read(_concat(<split("<dontNestGroups>")>), _tf.relType(_tf.setType(_tf.integerType()),_tf.setType(_tf.integerType())))) {
+        ++resultStoreId;
+
+        ISet parentIds = (ISet) ((ITuple) t).get(1);
+        for (IValue pid : parentIds) {
+          _putResultStoreIdMapping(result, ((IInteger) pid).intValue(), resultStoreId);
+        }
+      }
+      
+      return result;
+    }
+    
+    protected IntegerList getFilteredChildren(int parentId) {
 		return _dontNest.get(parentId);
 	}
-	
+    
     public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
       return _languageActions.get(prod);
     }
-    <}>
-
-    // initialize priorities and actions    
-    static {
-      for (IValue e : (IRelation) _read(_concat(<split("<dontNest>")>), _tf.relType(_tf.integerType(),_tf.integerType()))) {
-        ITuple t = (ITuple) e;
-        _putDontNest(((IInteger) t.get(0)).intValue(), ((IInteger) t.get(1)).intValue());
-      }
-      
+    
+    protected static java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _initLanguageActions() {
+      java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> result = <if (!isRoot) {><super>._initLanguageActions()<} else {>new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>()<}>;
       ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
       IMap tmp = (IMap) _read(_concat(<split("<actions>")>), _tf.mapType(Factory.Production, Factory.Tree));
       for (IValue key : tmp) {
-        _languageActions.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(tmp.get(key)));
+        result.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(tmp.get(key)));
       }
+      
+      return result;
+    }
+    
+    // initialize priorities and actions    
+    static {
+      _languageActions = _initLanguageActions();
+      _dontNest = _initDontNest();
+      _resultStoreIdMappings = _initDontNestGroups();
     }
     
     // Production declarations

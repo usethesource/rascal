@@ -48,7 +48,7 @@ public void bootObjectParser(Grammar gr) {
 
 public void bootMetaParser(Grammar gr) {
   println("generating assimilated rascal for rascal parser");
-  gr.rules[sort("RascalReservedKeywords")] = choice(sort("RascalReservedKeywords"),{});
+  gr.rules[sort("RascalReservedKeywords")] = {};
   source = generateMetaParser(package, metaName, objectName, gr);
   println("writing assimilated parser");
   writeFile(folder + "/<metaName>.java", source);

@@ -46,7 +46,7 @@ public class PositionStore{
 	}
 	
 	private void add(int offset){
-		if(size == offsets.length - 1){
+		if(size == offsets.length){
 			enlarge();
 		}
 		
