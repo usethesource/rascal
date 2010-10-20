@@ -10,8 +10,7 @@ Types:
 
 Function:
 
-# `Edge edge(str from, str to)`
-# `Edge edge(FProperties, str from, str to)`
+`Edge edge(str from, str to, FProperty props...)`
 
 Synopsis:
 

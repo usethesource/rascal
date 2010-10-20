@@ -9,8 +9,8 @@ Syntax:
 Types:
 
 Function:
-# `Figure treemap(Figures nodes, list[Edge] edges)`
-# `Figure treemap(FProperties, Figures nodes, list[Edge] edges)`
+
+`Figure treemap(FProperties, Figures nodes, list[Edge] edges, FProperty props...)`
 
 Synopsis:
 
@@ -35,23 +35,23 @@ Examples:
 
 <figure tm1.png>
 nodes = [
- box([id("A"), size(30), fillColor("green")]),
- box([id("B"), size(30), fillColor("red")]),
- box([id("C"), size(30), fillColor("blue")]),
- box([id("D"), size(30), fillColor("purple")]),
- box([id("E"), size(30), fillColor("lightblue")]),
- box([id("F"), size(30), fillColor("orange")]),
- box([id("G"), size(30), fillColor("brown")]),
- box([id("H"), size(30), fillColor("black")]),
- box([id("I"), size(30), fillColor("grey")]),
- box([id("J"), size(30), fillColor("white")])
+  box(id("A"), size(30), fillColor("green")),
+  box(id("B"), size(30), fillColor("red")),
+  box(id("C"), size(30), fillColor("blue")),
+  box(id("D"), size(30), fillColor("purple")),
+  box(id("E"), size(30), fillColor("lightblue")),
+  box(id("F"), size(30), fillColor("orange")),
+  box(id("G"), size(30), fillColor("brown")),
+  box(id("H"), size(30), fillColor("black")),
+  box(id("I"), size(30), fillColor("grey")),
+  box(id("J"), size(30), fillColor("white"))
 ];
 edges = [ 
   edge("A", "B"),  edge("B", "C"),  edge("B", "D"),
   edge("A", "E"),  edge("A", "H"),  edge("E", "F"),
   edge("E", "G"),  edge("E", "I"),  edge("E", "J")
 ];		
-render(treemap([gap(8), top(), fillColor("Black")], nodes, edges));    
+render(treemap(nodes, edges, gap(8), top(), fillColor("Black")));    
 </figure>
 ![treemap 1](tm1.png)
 

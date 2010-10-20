@@ -9,8 +9,8 @@ Syntax:
 Types:
 
 Function:
-# `hvcat(Figures figs)`
-# `hvcat(FProperties props, Figures figs)`
+
+`Figure hvcat(Figures figs, FProperty props...)`
 
 Synopsis:
 
@@ -29,35 +29,35 @@ The distance between rows is controlled by the vertical gap and rows are aligned
 
 Examples:
 <figure h1.png>
-b1 = box([size(20,30), fillColor("Red")]);
-b2 = box([size(40,20), fillColor("Blue")]);
-b3 = box([size(40,40), fillColor("Yellow")]);
-b4 = box([size(10,20), fillColor("Green")]);
-b5 = box([size(10,20), fillColor("Purple")]);
-b6 = box([size(60,20), fillColor("Orange")]);
-render(hvcat([width(100), gap(5), left(), bottom()], [b1, b2, b3, b4, b5, b6]));
+b1 = box(size(20,30), fillColor("Red"));
+b2 = box(size(40,20), fillColor("Blue"));
+b3 = box(size(40,40), fillColor("Yellow"));
+b4 = box(size(10,20), fillColor("Green"));
+b5 = box(size(10,20), fillColor("Purple"));
+b6 = box(size(60,20), fillColor("Orange"));
+render(hvcat([b1, b2, b3, b4, b5, b6], width(100), gap(5), left(), bottom()));
 </figure>
 gives: ![h1](h1.png)
 
 <figure h2.png>
-b1 = box([size(20,30), fillColor("Red")]);
-b2 = box([size(40,20), fillColor("Blue")]);
-b3 = box([size(40,40), fillColor("Yellow")]);
-b4 = box([size(10,20), fillColor("Green")]);
-b5 = box([size(10,20), fillColor("Purple")]);
-b6 = box([size(60,20), fillColor("Orange")]);
-render(hvcat([width(100), gap(5), right(), bottom()], [b1, b2, b3, b4, b5, b6]));
+b1 = box(size(20,30), fillColor("Red"));
+b2 = box(size(40,20), fillColor("Blue"));
+b3 = box(size(40,40), fillColor("Yellow"));
+b4 = box(size(10,20), fillColor("Green"));
+b5 = box(size(10,20), fillColor("Purple"));
+b6 = box(size(60,20), fillColor("Orange"));
+render(hvcat([b1, b2, b3, b4, b5, b6], width(100), gap(5), right(), bottom()));
 </figure>
 gives: ![h2](h2.png)
 
 <figure h3.png>
-b1 = box([size(20,30), fillColor("Red")]);
-b2 = box([size(40,20), fillColor("Blue")]);
-b3 = box([size(40,40), fillColor("Yellow")]);
-b4 = box([size(10,20), fillColor("Green")]);
-b5 = box([size(10,20), fillColor("Purple")]);
-b6 = box([size(60,20), fillColor("Orange")]);
-render(hvcat([width(100), gap(5), right(), top()], [b1, b2, b3, b4, b5, b6]));
+b1 = box(size(20,30), fillColor("Red"));
+b2 = box(size(40,20), fillColor("Blue"));
+b3 = box(size(40,40), fillColor("Yellow"));
+b4 = box(size(10,20), fillColor("Green"));
+b5 = box(size(10,20), fillColor("Purple"));
+b6 = box(size(60,20), fillColor("Orange"));
+render(hvcat([b1, b2, b3, b4, b5, b6], width(100), gap(5), right(), top()));
 </figure>
 gives: ![h3](h3.png)
 

@@ -9,8 +9,7 @@ Syntax:
 Types:
 
 Function:
-# `Figure space(FProperties props)`
-# `Figure space(FProperties props, Figure inner)`
+`Figure space(Figure inner, FProperty props...)`
 
 Synopsis:
 
@@ -21,9 +20,9 @@ A space is an invisible placeholder and acts like an invisible box.
 Examples:
 A space can only be observed indirectly by placing it between two visible figures:
 <figure s1.png>
-b1 = box([size(100, 50), fillColor("red")]);
-b2 = box([size(50, 50), fillColor("yellow")]);
-s1 = space([size(20,20)]);
+b1 = box(size(100, 50), fillColor("red"));
+b2 = box(size(50, 50), fillColor("yellow"));
+s1 = space(size(20,20));
 render(hcat([b1, s1, b2]));
 </figure>
 

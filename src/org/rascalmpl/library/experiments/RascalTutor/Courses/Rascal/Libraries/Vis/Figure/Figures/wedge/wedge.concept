@@ -9,8 +9,8 @@ Syntax:
 Types:
 
 Function:
-# `Figure box(FProperties props)`
-# `Figure box(FProperties props, Figure fig)`
+
+`Figure wedge(Figure fig, FProperty props...)`
 
 Synopsis:
 
@@ -35,51 +35,51 @@ wedges with [overlay].
 Examples:
 
 <figure w1.png>
-  render(wedge([fromAngle(10), toAngle(90), fillColor("Blue"), height(100), innerRadius(20)]));
+  render(wedge(fromAngle(10), toAngle(90), fillColor("Blue"), height(100), innerRadius(20)));
 </figure>
 ![wedge 1](w1.png)
 
 <figure w2.png>
- render(wedge([fromAngle(10), toAngle(260), fillColor("Red"), height(100), innerRadius(20)]));
+ render(wedge(fromAngle(10), toAngle(260), fillColor("Red"), height(100), innerRadius(20)));
 </figure>
 ![wedge 2](w2.png)
 
 <figure w3.png>
 wedges = [
-  wedge([fromAngle(0), toAngle(90), fillColor("blue"), innerRadius(20)]),
-  wedge([fromAngle(90), toAngle(180), fillColor("green"), innerRadius(20)]),
-  wedge([fromAngle(180), toAngle(270), fillColor("red"), innerRadius(20)]),
-  wedge([fromAngle(270), toAngle(360), fillColor("yellow"), innerRadius(20)])
+  wedge(fromAngle(0), toAngle(90), fillColor("blue"), innerRadius(20)),
+  wedge(fromAngle(90), toAngle(180), fillColor("green"), innerRadius(20)),
+  wedge(fromAngle(180), toAngle(270), fillColor("red"), innerRadius(20)),
+  wedge(fromAngle(270), toAngle(360), fillColor("yellow"), innerRadius(20))
 ];
-render(overlay([height(100)], wedges));
+render(overlay(wedges, height(100)));
 </figure>
 
 ![wedge 3](w3.png)
 
 <figure w4.png>
 wedges = [
-  wedge([fromAngle(0), toAngle(90), fillColor("blue"), innerRadius(90)]),
-  wedge([fromAngle(90), toAngle(180), fillColor("green"), innerRadius(90)]),
-  wedge([fromAngle(180), toAngle(270), fillColor("red"), innerRadius(90)]),
-  wedge([fromAngle(270), toAngle(360), fillColor("yellow"), innerRadius(90)])
+  wedge(fromAngle(0), toAngle(90), fillColor("blue"), innerRadius(90)),
+  wedge(fromAngle(90), toAngle(180), fillColor("green"), innerRadius(90)),
+  wedge(fromAngle(180), toAngle(270), fillColor("red"), innerRadius(90)),
+  wedge(fromAngle(270), toAngle(360), fillColor("yellow"), innerRadius(90))
 ];
-render(overlay([height(100)], wedges));
+render(overlay(wedges, height(100)));
 </figure>
 
 ![wedge 4](w4.png)
 
 <figure w5.png>
 wedges = [
-  wedge([fromAngle(0), toAngle(90), fillColor("blue"), innerRadius(90)]),
-  wedge([fromAngle(90), toAngle(180), fillColor("green"), innerRadius(90)]),
-  wedge([fromAngle(180), toAngle(270), fillColor("red"), innerRadius(90)]),
-  wedge([fromAngle(270), toAngle(360), fillColor("yellow"), innerRadius(90)]),
-  wedge([fromAngle(0), toAngle(90), fillColor("lightblue"), height(80), innerRadius(70)]),
-  wedge([fromAngle(90), toAngle(180), fillColor("lightgreen"), height(80), innerRadius(70)]),
-  wedge([fromAngle(180), toAngle(270), fillColor("lightcoral"), height(80), innerRadius(70)]),
-  wedge([fromAngle(270), toAngle(360), fillColor("lightyellow"), height(80), innerRadius(70)])
+  wedge(fromAngle(0), toAngle(90), fillColor("blue"), innerRadius(90)),
+  wedge(fromAngle(90), toAngle(180), fillColor("green"), innerRadius(90)),
+  wedge(fromAngle(180), toAngle(270), fillColor("red"), innerRadius(90)),
+  wedge(fromAngle(270), toAngle(360), fillColor("yellow"), innerRadius(90)),
+  wedge(fromAngle(0), toAngle(90), fillColor("lightblue"), height(80), innerRadius(70)),
+  wedge(fromAngle(90), toAngle(180), fillColor("lightgreen"), height(80), innerRadius(70)),
+  wedge(fromAngle(180), toAngle(270), fillColor("lightcoral"), height(80), innerRadius(70)),
+  wedge(fromAngle(270), toAngle(360), fillColor("lightyellow"), height(80), innerRadius(70))
 ];
-render(overlay([height(100)], wedges));
+render(overlay(wedges, height(100)));
 </figure>
 
 ![wedge 5](w5.png)

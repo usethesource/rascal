@@ -9,8 +9,7 @@ Syntax:
 Types:
 
 Function:
-# `Figure outline(FProperties props, map[int,Color] coloredLines)`
-# `Figure outline(map[int,Color] coloredLines)`
+`Figure outline(, map[int,Color] coloredLines, FProperty props...)`
 
 Synopsis:
 
@@ -25,7 +24,7 @@ Examples:
 <figure o1.png>
 r = color("Red");
 g = color("Green");
-render(outline([size(50, 200)], (100 : r, 125 : g, 190 : r)));
+render(outline((100 : r, 125 : g, 190 : r), size(50, 200)));
 </figure>
 
 ![outline 1](o1.png)

@@ -9,8 +9,7 @@ Syntax:
 Types:
 
 Function:
-# `hcat(Figures figs)`
-# `hcat(FProperties props, Figures figs)`
+`Figure hcat(Figures figs, FProperty props...)`
 
 Synopsis:
 
@@ -21,31 +20,31 @@ When a horizontal gap property is available, this will be used as gap between th
 
 Examples:
 <figure h1.png>
-b1 = box([size(50,100), fillColor("Red")]);
-b2 = box([size(80,20), fillColor("Blue")]);
+b1 = box(size(50,100), fillColor("Red"));
+b2 = box(size(80,20), fillColor("Blue"));
 render(hcat([b1, b2]));
 </figure>
 gives: ![h1](h1.png)
 
 <figure h2.png>
-b1 = box([size(50,100), fillColor("Red")]);
-b2 = box([size(80,20), fillColor("Blue")]);
-render(hcat([top()], [b1, b2]));
+b1 = box(size(50,100), fillColor("Red"));
+b2 = box(size(80,20), fillColor("Blue"));
+render(hcat([b1, b2], top()));
 </figure>
 gives: ![h2](h2.png)
 
 <figure h3.png>
-b1 = box([size(50,100), fillColor("Red")]);
-b2 = box([size(80,20), fillColor("Blue")]);
-render(hcat([bottom()], [b1, b2]));
+b1 = box(size(50,100), fillColor("Red"));
+b2 = box(size(80,20), fillColor("Blue"));
+render(hcat([b1, b2], bottom()));
 </figure>
 gives: ![h3](h3.png)
 
 <figure h4.png>
-b1 = box([size(50,100), fillColor("Red")]);
-b2 = box([size(80,20), fillColor("Blue")]);
-b3 = box([size(80,20), fillColor("Yellow")]);
-render(hcat([bottom(), hgap(10)], [b1, b2, b3]));
+b1 = box(size(50,100), fillColor("Red"));
+b2 = box(size(80,20), fillColor("Blue"));
+b3 = box(size(80,20), fillColor("Yellow"));
+render(hcat([b1, b2, b3], bottom(), hgap(10)));
 </figure>
 gives: ![h4](h4.png)
 

@@ -41,7 +41,7 @@ alias NamedNumberSeries =
 </listing>
 
 Examples:
-<figure b1.png>
+<figure xb1.png>
 import vis::Chart;
 chart = barChart("Fruit Inventory (using vertical bars)", 
                  [<"apple", 10>, <"pear", 20>, <"kiwi", 30>],
@@ -50,7 +50,7 @@ render(chart);
 </figure>
 ![bar chart 1](b1.png)
 
-<figure b2.png>
+<figure xb2.png>
 import vis::Chart;
 chart = barChart("Fruit Inventory (using horizontal bars)", 
                  [<"apple", 10>, <"pear", 20>, <"kiwi", 30>],
@@ -59,7 +59,7 @@ render(chart);
 </figure>
 ![bar chart 2](b2.png)
 
-<figure b3.png>
+<figure xb3.png>
 import vis::Chart;
 chart = barChart("Fruit Inventory (using map)", 
                   ("apple": 10, "pear": 20, "kiwi": 30),
@@ -68,7 +68,7 @@ render(chart);
 </figure>
 ![bar chart 3](b3.png)
 
-<figure b4.png>
+<figure xb4.png>
 import vis::Chart;
 chart = barChart("Sales Prognosis", 
                   ["First Quarter", "Second Quarter"],
@@ -82,7 +82,7 @@ render(chart);
 </figure>
 ![bar chart 4](b4.png)
 
-<figure b5.png>
+<figure xb5.png>
 import vis::Chart;
 chart = barChart("Sales Prognosis (multiple bars/category)", 
                   ["First Quarter", "Second Quarter"],
@@ -96,7 +96,7 @@ render(chart);
 </figure>
 ![bar chart 5](b5.png)
 
-<figure b6.png>
+<figure xb6.png>
 import vis::Chart;
 chart = barChart("Sales Prognosis (stacked bars)", 
                   ["First Quarter", "Second Quarter"],
@@ -110,7 +110,7 @@ render(chart);
 </figure>
 ![bar chart 6](b6.png)
 
-<figure b7.png>
+<figure xb7.png>
 import vis::Chart;
 chart = barChart("Sales Prognosis (horizontal bars)", 
                   ["First Quarter", "Second Quarter"],
@@ -124,7 +124,7 @@ render(chart);
 </figure>
 ![bar chart 7](b7.png)
 
-<figure b8.png>
+<figure xb8.png>
 import vis::Chart;
 chart = barChart("Sales Prognosis (horizontal/stacked bars)", 
                   ["First Quarter", "Second Quarter"],

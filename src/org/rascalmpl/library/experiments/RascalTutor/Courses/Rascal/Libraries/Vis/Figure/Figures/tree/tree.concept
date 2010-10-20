@@ -9,8 +9,8 @@ Syntax:
 Types:
 
 Function:
-# `Figure tree(Figures nodes, list[Edge] edges)`
-# `Figure tree(FProperties, Figures nodes, list[Edge] edges)`
+
+`Figure tree(Figures nodes, list[Edge] edges, FProperty props...)`
 
 Synopsis:
 
@@ -26,28 +26,28 @@ The following constraints apply:
 Examples:
 
 <figure t1.png>
-nodes = [ box([id("A"), fillColor("green")]),
-     	  box([id("B"), fillColor("red")]),
-     	  box([id("C"), fillColor("blue")])
+nodes = [ box(id("A"), fillColor("green")),
+     	  box(id("B"), fillColor("red")),
+     	  box(id("C"), fillColor("blue"))
      	];
 edges = [ edge("A", "B"),
           edge("A", "C")
     	];
-render(tree([gap(20), size(50)], nodes, edges));
+render(tree(nodes, edges, gap(20), size(50)));
 </figure>
 ![tree 1](t1.png)
 
 <figure t2.png>
-nodes = [ ellipse([id("A"), size(30), fillColor("green")]),
-     	  ellipse([id("B"), size(45), fillColor("red")]),
-     	  ellipse([id("C"), size(60), fillColor("blue")]),
-     	  ellipse([id("D"), size(75), fillColor("purple")]),
-     	  ellipse([id("E"), size(90), fillColor("lightblue")]),
-     	  box([id("F"), size(30), fillColor("orange")]),
-     	  box([id("G"), size(30), fillColor("brown")]),
-     	  box([id("H"), size(30), fillColor("black")]),
-     	  box([id("I"), size(30), fillColor("grey")]),
-     	  ellipse([id("J"), size(30), fillColor("white")])
+nodes = [ ellipse(id("A"), size(30), fillColor("green")),
+     	  ellipse(id("B"), size(45), fillColor("red")),
+     	  ellipse(id("C"), size(60), fillColor("blue")),
+     	  ellipse(id("D"), size(75), fillColor("purple")),
+     	  ellipse(id("E"), size(90), fillColor("lightblue")),
+     	  box(id("F"), size(30), fillColor("orange")),
+     	  box(id("G"), size(30), fillColor("brown")),
+     	  box(id("H"), size(30), fillColor("black")),
+     	  box(id("I"), size(30), fillColor("grey")),
+     	  ellipse(id("J"), size(30), fillColor("white"))
      	];
 edges = [ edge("A", "B"),
     	  edge("B", "C"),
@@ -59,7 +59,7 @@ edges = [ edge("A", "B"),
     	  edge("E", "I"),
     	  edge("E", "J")
     	];	    
-render(tree([gap(30)], nodes, edges));
+render(tree(nodes, edges, gap(30)));
 </figure>
 ![tree 2](t2.png)
 
