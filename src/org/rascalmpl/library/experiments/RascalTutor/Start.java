@@ -22,7 +22,11 @@ public class Start extends TutorHttpServlet {
 		String name = escapeForRascal(getStringParameter(request, "name"));
 		PrintWriter out = response.getWriter();
 		
-		Result<IValue> result = evaluator.eval("start(\"" + name + "\")", URI.create("stdin:///"));
+		String serverName = request.getServerName() + ":" + request.getLocalPort();
+		
+		System.err.println("Start, localName = " + request.getServerName() + ", port = " + request.getLocalPort());
+		
+		Result<IValue> result = evaluator.eval("start(\"" + serverName  + "\", \"" + name + "\")", URI.create("stdin:///"));
 		out.println(((IString) result.getValue()).getValue());
 		out.close();
 		//System.err.println("ShowConcept, " + ((IString) result.getValue()).getValue());

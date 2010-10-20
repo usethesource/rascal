@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.RascalTutor;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -10,25 +11,29 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.parser.LegacyRascalParser;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalTutor {
+	private final Evaluator eval;
+
+	public RascalTutor() {
+		this.eval = getRascalEvaluator();
+	}
 	
-	private static org.rascalmpl.interpreter.Evaluator getRascalEvaluator(String tutorModule){
+	private org.rascalmpl.interpreter.Evaluator getRascalEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("*** TUTOR ***"));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
-		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, new LegacyRascalParser(), root, heap);
-		eval.eval("import " + tutorModule + ";", URI.create("stdin:///"));
-		return eval;
+		return new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, new LegacyRascalParser(), root, heap);
 	}
 	
-	final static String BASE = // System.getProperty("user.dir") +
-	                           "/Users/jurgenv/Sources/Rascal/rascal/src/org/rascalmpl/library/experiments/RascalTutor/";
+	final static String BASE = "std:///experiments/RascalTutor/";
 	private Server server;
 	
 	public void start(final int port) throws Exception {
+		eval.eval("import " + "experiments::RascalTutor::CourseManager" + ";", URI.create("stdin:///"));
 		server = new Server(port);
 		server.setHandler(getTutorHandler());
 		server.start();
@@ -38,6 +43,10 @@ public class RascalTutor {
 		if (server != null) {
 			server.stop();
 		}
+	}
+	
+	public URIResolverRegistry getResolverRegistry() {
+		return eval.getResolverRegistry();
 	}
 	
 	public static void main(String[] args) {
@@ -50,10 +59,9 @@ public class RascalTutor {
 		}
 	}
 
-	private static ServletContextHandler getTutorHandler() {
-		Evaluator evaluator = getRascalEvaluator("experiments::RascalTutor::CourseManager");
+	private ServletContextHandler getTutorHandler() throws IOException {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setAttribute("RascalEvaluator", evaluator);
+		context.setAttribute("RascalEvaluator", eval);
 		context.addServlet(DefaultServlet.class, "/");
 		context.addServlet(Show.class, "/show");
 		context.addServlet(Validate.class, "/validate");
@@ -65,9 +73,9 @@ public class RascalTutor {
 		context.addServlet(Start.class, "/start");
 
 		System.err.println("BASE = " + BASE);
-		context.setResourceBase(BASE); 
+		context.setResourceBase(eval.getResolverRegistry().absolutePath(URI.create(BASE)));
      
-		String welcome[] = { BASE + "index.html"};
+		String welcome[] = { BASE + "Courses/index.html"};
 		context.setWelcomeFiles(welcome);
 		
 /*		        

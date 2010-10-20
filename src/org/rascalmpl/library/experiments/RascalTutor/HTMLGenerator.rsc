@@ -352,11 +352,11 @@ private str markupFigure(list[str] lines, str file){
       // replace the render call by a call to renderSave
 	  absPath = courseRoot.path + "../<conceptPath>/<file>";
 	  println("absPath = <absPath>; conceptPath=<conceptPath>; file=<file>");
-	  lines[n-1] = "renderSave(<arg>, |cwd://<absPath>|);";
+	  lines[n-1] = "renderSave(<arg>, <courseRoot + "/" + conceptPath + "/" + file>);";
 	  out = shell(["import vis::Figure;", 
 	               "import vis::Rendering;"] + 
 	              lines, 
-	              5000);
+	              20000);
 	  println("**** shell output ****\n<out>");
 	  errors = "";
 	  for(line <- out)

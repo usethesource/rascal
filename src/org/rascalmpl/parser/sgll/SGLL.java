@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -32,6 +31,7 @@ import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.IntegerList;
 import org.rascalmpl.parser.sgll.util.LinearIntegerKeyedMap;
+import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -59,7 +59,7 @@ public abstract class SGLL implements IGLL{
 	
 	private final IntegerKeyedHashMap<AbstractStackNode> sharedNextNodes;
 
-	private final IntegerKeyedHashMap<HashMap<String, AbstractContainerNode>> resultStoreCache;
+	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> resultStoreCache;
 	
 	private int previousLocation;
 	private int location;
@@ -86,7 +86,7 @@ public abstract class SGLL implements IGLL{
 		
 		sharedNextNodes = new IntegerKeyedHashMap<AbstractStackNode>();
 		
-		resultStoreCache = new IntegerKeyedHashMap<HashMap<String, AbstractContainerNode>>();
+		resultStoreCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>>();
 		
 		previousLocation = -1;
 		location = 0;
@@ -161,8 +161,8 @@ public abstract class SGLL implements IGLL{
 			if(alternative.isEndNode()){
 				if(result.isEmpty() && !node.isMatchable() && !next.isMatchable() && node.getName() == next.getName()){
 					if(alternative.getId() != node.getId()){ // List cycle fix.
-						HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName());
+						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
 						if(resultStore != null){
 							// Encountered self recursive epsilon cycle; update the prefixes.
 							updatePrefixes(alternative, node, resultStore);
@@ -176,16 +176,6 @@ public abstract class SGLL implements IGLL{
 		next = next.getCleanCopy();
 		next.setStartLocation(location);
 		next.updateNode(node, result);
-		
-		if(!next.isMatchable()){ // Is non-terminal or list.
-			HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-			if(levelResultStoreMap != null){
-				AbstractContainerNode resultStore = levelResultStoreMap.get(next.getName());
-				if(resultStore != null){ // Is nullable, queue for reduction.
-					stacksWithNonTerminalsToReduce.put(next, resultStore);
-				}
-			}
-		}
 		
 		sharedNextNodes.putUnsafe(id, next);
 		stacksToExpand.add(next);
@@ -203,37 +193,39 @@ public abstract class SGLL implements IGLL{
 			next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 			next.setStartLocation(location);
 			
-			if(!next.isMatchable()){ // Is non-terminal or list.
-				HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-				if(levelResultStoreMap != null){
-					AbstractContainerNode resultStore = levelResultStoreMap.get(next.getName());
-					if(resultStore != null){ // Is nullable, add the known results.
-						stacksWithNonTerminalsToReduce.put(next, resultStore);
-					}
-				}
-			}
-			
 			sharedNextNodes.putUnsafe(id, next);
 			stacksToExpand.add(next);
 		}
 	}
 	
-	private void updatePrefixes(AbstractStackNode next, AbstractStackNode node, AbstractNode resultStore){
+	private void updatePrefixes(AbstractStackNode next, AbstractStackNode node, AbstractNode nextResultStore){
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		
-		ArrayList<AbstractStackNode> edgesPart = edgesMap.findValue(location);
-		if(edgesPart != null){
-			IConstructor production = next.getParentProduction();
+		IConstructor production = next.getParentProduction();
+		
+		for(int i = edgesMap.size() - 1; i >= 0; --i){
+			int startPosition = edgesMap.getKey(i);
+			ArrayList<AbstractStackNode> edgesPart = edgesMap.getValue(i);
 			
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startPosition);
+			AbstractContainerNode nodeResultStore = levelResultStoreMap.get(node.getName(), getResultStoreId(node.getId()));
+			
+			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), nodeResultStore, startPosition);
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
-			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), resultStore, location);
 			edgePrefixes.add(prefix);
 			
-			// Update one (because of sharing all will be updated).
-			AbstractStackNode edge = edgesPart.get(0);
-			
-			HashMap<String, AbstractContainerNode>  levelResultStoreMap = resultStoreCache.get(location);
-			levelResultStoreMap.get(edge.getName()).addAlternative(production, new Link(edgePrefixes, resultStore));
+			ArrayList<String> firstTimeReductions = new ArrayList<String>();
+			for(int j = edgesPart.size() - 1; j >= 0; --j){
+				AbstractStackNode edge = edgesPart.get(0);
+				String nodeName = edge.getName();
+				int resultStoreId = getResultStoreId(edge.getId());
+				
+				if(!firstTimeReductions.contains(nodeName)){
+					firstTimeReductions.add(nodeName);
+					
+					levelResultStoreMap.get(nodeName, resultStoreId).addAlternative(production, new Link(edgePrefixes, nextResultStore));
+				}
+			}
 		}
 	}
 	
@@ -247,29 +239,37 @@ public abstract class SGLL implements IGLL{
 			int startLocation = edgesMap.getKey(i);
 			ArrayList<AbstractStackNode> edgeList = edgesMap.getValue(i);
 			
-			AbstractStackNode edge = edgeList.get(0);
-			String nodeName = edge.getName();
-			HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
-			AbstractContainerNode resultStore = null;
-			if(levelResultStoreMap != null){
-				resultStore = levelResultStoreMap.get(nodeName);
-			}else{
-				levelResultStoreMap = new HashMap<String, AbstractContainerNode>();
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
+			
+			if(levelResultStoreMap == null){
+				levelResultStoreMap = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
 				resultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
 			}
+			
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
-			if(resultStore != null){
-				if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
-			}else{
-				resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-				levelResultStoreMap.putUnsafe(nodeName, resultStore);
-				resultStore.addAlternative(production, resultLink);
+			
+			ArrayList<String> firstTimeReductions = new ArrayList<String>();
+			for(int j = edgeList.size() - 1; j >= 0; --j){
+				AbstractStackNode edge = edgeList.get(j);
+				String nodeName = edge.getName();
+				int resultStoreId = getResultStoreId(edge.getId());
 				
-				stacksWithNonTerminalsToReduce.put(edge, resultStore);
-				
-				for(int j = edgeList.size() - 1; j >= 1; --j){
-					edge = edgeList.get(j);
+				if(!firstTimeReductions.contains(nodeName)){
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					
+					if(resultStore != null){
+						if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
+					}else{
+						resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+						levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
+						resultStore.addAlternative(production, resultLink);
+						
+						stacksWithNonTerminalsToReduce.put(edge, resultStore);
+						
+						firstTimeReductions.add(nodeName);
+					}
+				}else{
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					stacksWithNonTerminalsToReduce.put(edge, resultStore);
 				}
 			}
@@ -283,28 +283,35 @@ public abstract class SGLL implements IGLL{
 			int startLocation = edgesMap.getKey(i);
 			ArrayList<AbstractStackNode> edgeList = edgesMap.getValue(i);
 			
-			AbstractStackNode edge = edgeList.get(0);
-			String nodeName = edge.getName();
-			HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
-			AbstractContainerNode resultStore = null;
-			if(levelResultStoreMap != null){
-				resultStore = levelResultStoreMap.get(nodeName);
-			}else{
-				levelResultStoreMap = new HashMap<String, AbstractContainerNode>();
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
+			
+			if(levelResultStoreMap == null){
+				levelResultStoreMap = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
 				resultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
 			}
-			if(resultStore != null){
-				resultStore.setRejected();
-			}else{
-				resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-				levelResultStoreMap.putUnsafe(nodeName, resultStore);
-				resultStore.setRejected();
+			
+			ArrayList<String> firstTimeReductions = new ArrayList<String>();
+			for(int j = edgeList.size() - 1; j >= 0; --j){
+				AbstractStackNode edge = edgeList.get(j);
+				String nodeName = edge.getName();
+				int resultStoreId = getResultStoreId(edge.getId());
 				
-				stacksWithNonTerminalsToReduce.put(edge, resultStore);
-				
-				for(int j = edgeList.size() - 1; j >= 1; --j){
-					edge = edgeList.get(j);
+				if(!firstTimeReductions.contains(nodeName)){
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					
+					if(resultStore != null){
+						resultStore.setRejected();
+					}else{
+						resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+						levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
+						resultStore.setRejected();
+						
+						stacksWithNonTerminalsToReduce.put(edge, resultStore);
+						
+						firstTimeReductions.add(nodeName);
+					}
+				}else{
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					stacksWithNonTerminalsToReduce.put(edge, resultStore);
 				}
 			}
@@ -489,6 +496,10 @@ public abstract class SGLL implements IGLL{
 		return null; // Default implementation; intended to be overwritten in sub-classes.
 	}
 	
+	protected int getResultStoreId(int parentId){
+		return -1; // Default implementation; intended to be overwritten in sub-classes.
+	}
+	
 	private void expandStack(AbstractStackNode stack){
 		if(stack.isMatchable()){
 			if((location + stack.getLength()) <= input.length) todoList.add(stack);
@@ -496,6 +507,14 @@ public abstract class SGLL implements IGLL{
 		}
 		
 		if(!stack.isList()){
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+			if(levelResultStoreMap != null){
+				AbstractContainerNode resultStore = levelResultStoreMap.get(stack.getName(), getResultStoreId(stack.getId()));
+				if(resultStore != null){ // Is nullable, add the known results.
+					stacksWithNonTerminalsToReduce.put(stack, resultStore);
+				}
+			}
+			
 			LinearIntegerKeyedMap<AbstractStackNode> expects = cachedExpects.get(stack.getName());
 			if(expects != null){
 				int parentId = stack.getId();
@@ -589,31 +608,35 @@ public abstract class SGLL implements IGLL{
 		do{
 			findStacksToReduce();
 			
-			reduce();
-
 			lookAheadChar = (location < input.length) ? input[location] : 0;
-			expand();
+			do{
+				reduce();
+				
+				expand();
+			}while(!stacksWithNonTerminalsToReduce.isEmpty());
 		}while(todoList.size() > 0);
 		
-		HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
+		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 		if(levelResultStoreMap != null){
-			IConstructor result = levelResultStoreMap.get(startNode.getName()).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
+			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 			if(result != null){
-				return makeParseTree(result); // Success.
+				IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
+					if(resultTree != null){
+						return makeParseTree(resultTree); // Success.
+					}
 			}
 		}
 		
 		// Parse error.
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 		if(errorLocation != input.length){
-			int line = positionStore.findLine(errorLocation) + 1;
+			int line = positionStore.findLine(errorLocation);
 			int column = positionStore.getColumn(errorLocation, line);
 			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
 		}
 		
 		// Filtering error.
-		ISourceLocation lastLoc = SortContainerNode.getLastRejectedLocation();
-		throw new SyntaxError("Parse Error: all trees were filtered.", (lastLoc != null) ? lastLoc : vf.sourceLocation(inputURI));
+		throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation(inputURI));
 	}
 	
 	private IConstructor makeParseTree(IConstructor tree){

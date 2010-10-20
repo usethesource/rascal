@@ -104,11 +104,11 @@ public class StaticChecker {
 	}
 	
 	public void registerInputResolver(IURIInputStreamResolver resolver) {
-		eval.getResolverRegistry().registerInput(resolver.scheme(), resolver);
+		eval.getResolverRegistry().registerInput(resolver);
 	}
 	
 	public void registerOutputResolver(IURIOutputStreamResolver resolver) {
-		eval.getResolverRegistry().registerOutput(resolver.scheme(), resolver);
+		eval.getResolverRegistry().registerOutput(resolver);
 	}
 	
 	public void addSDFResolver(ISdfSearchPathContributor resolver) {
