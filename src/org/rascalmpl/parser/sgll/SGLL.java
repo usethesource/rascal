@@ -54,7 +54,7 @@ public abstract class SGLL implements IGLL{
 	private final ArrayList<AbstractStackNode[]> lastExpects;
 	private final LinearIntegerKeyedMap<AbstractStackNode> sharedLastExpects;
 	private final LinearIntegerKeyedMap<AbstractStackNode> sharedPrefixNext;
-	private final HashMap<String, ArrayList<AbstractStackNode>> cachedExpectEdges;
+	private final HashMap<String, LinearIntegerKeyedMap<AbstractStackNode>> cachedExpects;
 	
 	private final IntegerKeyedHashMap<AbstractStackNode> sharedNextNodes;
 
@@ -81,7 +81,7 @@ public abstract class SGLL implements IGLL{
 		lastExpects = new ArrayList<AbstractStackNode[]>();
 		sharedLastExpects = new LinearIntegerKeyedMap<AbstractStackNode>();
 		sharedPrefixNext = new LinearIntegerKeyedMap<AbstractStackNode>();
-		cachedExpectEdges = new HashMap<String, ArrayList<AbstractStackNode>>();
+		cachedExpects = new HashMap<String, LinearIntegerKeyedMap<AbstractStackNode>>();
 		
 		sharedNextNodes = new IntegerKeyedHashMap<AbstractStackNode>();
 		
@@ -210,19 +210,15 @@ public abstract class SGLL implements IGLL{
 			
 			HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 			
-			IntegerList filteredParents = getFilteredParents(next.getId());
-			
 			ArrayList<String> firstTimeReductions = new ArrayList<String>();
 			for(int j = edgesPart.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgesPart.get(0);
 				String nodeName = edge.getName();
 				
-				if(filteredParents == null || !filteredParents.contains(edge.getId())){
-					if(!firstTimeReductions.contains(nodeName)){
-						firstTimeReductions.add(nodeName);
-						
-						levelResultStoreMap.get(nodeName).addAlternative(production, new Link(edgePrefixes, resultStore));
-					}
+				if(!firstTimeReductions.contains(nodeName)){
+					firstTimeReductions.add(nodeName);
+					
+					levelResultStoreMap.get(nodeName).addAlternative(production, new Link(edgePrefixes, resultStore));
 				}
 			}
 		}
@@ -233,8 +229,6 @@ public abstract class SGLL implements IGLL{
 		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
-		
-		IntegerList filteredParents = getFilteredParents(node.getId());
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startLocation = edgesMap.getKey(i);
@@ -254,26 +248,24 @@ public abstract class SGLL implements IGLL{
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
 				
-				if(filteredParents == null || !filteredParents.contains(edge.getId())){
-					if(!firstTimeReductions.contains(nodeName)){
-						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
-						
-						if(resultStore != null){
-							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
-						}else{
-							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-							levelResultStoreMap.putUnsafe(nodeName, resultStore);
-							resultStore.addAlternative(production, resultLink);
-							
-							stacksWithNonTerminalsToReduce.put(edge, resultStore);
-							
-							firstTimeReductions.add(nodeName);
-						}
+				if(!firstTimeReductions.contains(nodeName)){
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
+					
+					if(resultStore != null){
+						if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 					}else{
-						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
+						resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+						levelResultStoreMap.putUnsafe(nodeName, resultStore);
+						resultStore.addAlternative(production, resultLink);
 						
 						stacksWithNonTerminalsToReduce.put(edge, resultStore);
+						
+						firstTimeReductions.add(nodeName);
 					}
+				}else{
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
+					
+					stacksWithNonTerminalsToReduce.put(edge, resultStore);
 				}
 			}
 		}
@@ -281,8 +273,6 @@ public abstract class SGLL implements IGLL{
 	
 	private void updateRejects(AbstractStackNode node){ // TODO Fix priority system incompatibility
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
-		
-		IntegerList filteredParents = getFilteredParents(node.getId());
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startLocation = edgesMap.getKey(i);
@@ -300,26 +290,24 @@ public abstract class SGLL implements IGLL{
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
 				
-				if(filteredParents == null || !filteredParents.contains(edge.getId())){
-					if(!firstTimeReductions.contains(nodeName)){
-						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
-						
-						if(resultStore != null){
-							resultStore.setRejected();
-						}else{
-							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-							levelResultStoreMap.putUnsafe(nodeName, resultStore);
-							resultStore.setRejected();
-							
-							stacksWithNonTerminalsToReduce.put(edge, resultStore);
-							
-							firstTimeReductions.add(nodeName);
-						}
+				if(!firstTimeReductions.contains(nodeName)){
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
+					
+					if(resultStore != null){
+						resultStore.setRejected();
 					}else{
-						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
+						resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+						levelResultStoreMap.putUnsafe(nodeName, resultStore);
+						resultStore.setRejected();
 						
 						stacksWithNonTerminalsToReduce.put(edge, resultStore);
+						
+						firstTimeReductions.add(nodeName);
 					}
+				}else{
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName);
+					
+					stacksWithNonTerminalsToReduce.put(edge, resultStore);
 				}
 			}
 		}
@@ -453,11 +441,14 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void handleExpects(AbstractStackNode stackBeingWorkedOn){
+		int parentId = stackBeingWorkedOn.getId();
+		
 		sharedLastExpects.dirtyClear();
 		
 		int nrOfExpects = lastExpects.size();
-		ArrayList<AbstractStackNode> cachedEdges = null;
+		LinearIntegerKeyedMap<AbstractStackNode> expects = new LinearIntegerKeyedMap<AbstractStackNode>(nrOfExpects);
 		
+		IntegerList filteredChildren = getFilteredChildren(parentId);
 		for(int i = nrOfExpects - 1; i >= 0; --i){
 			AbstractStackNode[] expectedNodes = lastExpects.get(i);
 			
@@ -481,21 +472,22 @@ public abstract class SGLL implements IGLL{
 			first.setStartLocation(location);
 			first.setNext(expectedNodes);
 			first.initEdges();
-			if(cachedEdges == null){
-				cachedEdges = first.addEdge(stackBeingWorkedOn);
-			}else{
-				first.addEdges(cachedEdges, location);
-			}
+			
+			if(filteredChildren == null || !filteredChildren.contains(last.getId())){
+				first.addEdge(stackBeingWorkedOn);
 				
-			stacksToExpand.add(first);
+				stacksToExpand.add(first);
+			}
 			
 			sharedLastExpects.add(firstId, first);
+			
+			expects.add(last.getId(), first);
 		}
 		
-		cachedExpectEdges.put(stackBeingWorkedOn.getName(), cachedEdges);
+		cachedExpects.put(stackBeingWorkedOn.getName(), expects);
 	}
 	
-	protected IntegerList getFilteredParents(int childId){
+	protected IntegerList getFilteredChildren(int parentId){
 		return null; // Default implementation; intended to be overwritten in sub-classes.
 	}
 	
@@ -518,9 +510,20 @@ public abstract class SGLL implements IGLL{
 				}
 			}
 			
-			ArrayList<AbstractStackNode> cachedEdges = cachedExpectEdges.get(stack.getName());
-			if(cachedEdges != null){
-				cachedEdges.add(stack);
+			LinearIntegerKeyedMap<AbstractStackNode> expects = cachedExpects.get(stack.getName());
+			if(expects != null){
+				int parentId = stack.getId();
+				IntegerList filteredChildren = getFilteredChildren(parentId);
+				
+				for(int i = expects.size() - 1; i >= 0; --i){
+					if(filteredChildren == null || !filteredChildren.contains(expects.getKey(i))){
+						AbstractStackNode expect = expects.getValue(i);
+						if(!expect.hasEdges()){
+							stacksToExpand.add(expect);
+						}
+						expect.addEdge(stack);
+					}
+				}
 			}else{
 				invokeExpects(stack);
 				
@@ -557,7 +560,7 @@ public abstract class SGLL implements IGLL{
 	
 	private void expand(){
 		if(previousLocation != location){
-			cachedExpectEdges.clear();
+			cachedExpects.clear();
 		}
 		while(stacksToExpand.size() > 0){
 			lastExpects.dirtyClear();
