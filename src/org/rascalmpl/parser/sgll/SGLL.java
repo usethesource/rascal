@@ -229,7 +229,7 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void updateEdges(AbstractStackNode node, AbstractNode result){ // TODO Fix priority system incompatibility
+	private void updateEdges(AbstractStackNode node, AbstractNode result){
 		IConstructor production = node.getParentProduction();
 		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
@@ -248,14 +248,15 @@ public abstract class SGLL implements IGLL{
 			
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
-			ArrayList<String> firstTimeReductions = new ArrayList<String>();
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> firstTimeReductions = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
 			for(int j = edgeList.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
 				int resultStoreId = getResultStoreId(edge.getId());
 				
-				if(!firstTimeReductions.contains(nodeName)){
-					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
+				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
+				if(resultStore == null){
+					resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					
 					if(resultStore != null){
 						if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
@@ -266,17 +267,16 @@ public abstract class SGLL implements IGLL{
 						
 						stacksWithNonTerminalsToReduce.put(edge, resultStore);
 						
-						firstTimeReductions.add(nodeName);
+						firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 					}
 				}else{
-					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					stacksWithNonTerminalsToReduce.put(edge, resultStore);
 				}
 			}
 		}
 	}
 	
-	private void updateRejects(AbstractStackNode node){ // TODO Fix priority system incompatibility
+	private void updateRejects(AbstractStackNode node){
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
@@ -290,13 +290,14 @@ public abstract class SGLL implements IGLL{
 				resultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
 			}
 			
-			ArrayList<String> firstTimeReductions = new ArrayList<String>();
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> firstTimeReductions = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
 			for(int j = edgeList.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
 				int resultStoreId = getResultStoreId(edge.getId());
 				
-				if(!firstTimeReductions.contains(nodeName)){
+				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
+				if(resultStore == null){
 					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					
 					if(resultStore != null){
@@ -308,10 +309,9 @@ public abstract class SGLL implements IGLL{
 						
 						stacksWithNonTerminalsToReduce.put(edge, resultStore);
 						
-						firstTimeReductions.add(nodeName);
+						firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 					}
 				}else{
-					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					stacksWithNonTerminalsToReduce.put(edge, resultStore);
 				}
 			}
