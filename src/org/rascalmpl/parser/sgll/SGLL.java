@@ -208,11 +208,19 @@ public abstract class SGLL implements IGLL{
 			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), resultStore, location);
 			edgePrefixes.add(prefix);
 			
-			// Update one (because of sharing all will be updated).
-			AbstractStackNode edge = edgesPart.get(0);
+			HashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 			
-			HashMap<String, AbstractContainerNode>  levelResultStoreMap = resultStoreCache.get(location);
-			levelResultStoreMap.get(edge.getName()).addAlternative(production, new Link(edgePrefixes, resultStore));
+			ArrayList<String> firstTimeReductions = new ArrayList<String>();
+			for(int j = edgesPart.size() - 1; j >= 0; --j){
+				AbstractStackNode edge = edgesPart.get(0);
+				String nodeName = edge.getName();
+				
+				if(!firstTimeReductions.contains(nodeName)){
+					firstTimeReductions.add(nodeName);
+					
+					levelResultStoreMap.get(nodeName).addAlternative(production, new Link(edgePrefixes, resultStore));
+				}
+			}
 		}
 	}
 	
@@ -477,6 +485,10 @@ public abstract class SGLL implements IGLL{
 	
 	protected IntegerList getFilteredChildren(int parentId){
 		return null; // Default implementation; intended to be overwritten in sub-classes.
+	}
+	
+	protected int getResultStoreId(int parentId){
+		return -1; // Default implementation; intended to be overwritten in sub-classes.
 	}
 	
 	private void expandStack(AbstractStackNode stack){
