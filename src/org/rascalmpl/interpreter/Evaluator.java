@@ -4224,14 +4224,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			AbstractFunction.setCallTracing(false);
 		}
 		
-		String sound = System.getProperty("rascal.config.soundTracing");
-		if (sound != null) {
-			AbstractFunction.setSoundCallTracing(sound.equals("true"));
-		}
-		else {
-			AbstractFunction.setSoundCallTracing(false);
-		}
-		
 		String binaryWriting = System.getProperty("rascal.config.saveBinaries");
 	    if (binaryWriting != null) {
 	    	saveParsedModules = binaryWriting.equals("true");
