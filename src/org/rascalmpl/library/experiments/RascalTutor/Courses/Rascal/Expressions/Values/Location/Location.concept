@@ -42,8 +42,12 @@ The elements of a location value can be accessed and modified using the standard
 
 * `uri`: the URI of the location. Also subfields of the URI can be accessed:
 
-  **`scheme`: the scheme (or protocol) like `http` or `file`. 
-     Also supported is `cwd`: for current working directory (the directory from which Rascal was started).
+  **`scheme`: the scheme (or protocol) to be used. Supported protocols are:
+     *** `http`: access remote file via the web.
+     *** `file`: access local file on the file system.
+     *** `cwd`: access the current working directory (the directory from which Rascal was started).
+     *** `home`: access the home directory of the user.
+     *** `std`: access the Rascal standard library.
 
   **`authority`: the domain where the data are located.
 

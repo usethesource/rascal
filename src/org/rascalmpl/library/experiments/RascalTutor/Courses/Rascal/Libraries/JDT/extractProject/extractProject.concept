@@ -1,0 +1,26 @@
+Name: extractProject
+
+Details:
+
+Categories: Library Eclipse
+
+Syntax:
+
+Types:
+
+Function:
+`Resource extractProject(loc project)`
+
+Synopsis:
+
+Description:
+Import facts from a Java project.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

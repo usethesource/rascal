@@ -1,0 +1,26 @@
+Name: extractResource
+
+Details:
+
+Categories: Library Eclipse
+
+Syntax:
+
+Types:
+
+Function:
+`Resource extractResource(Resource res)`
+
+Synopsis:
+
+Description:
+Extract Java facts from a project, file or folder
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
