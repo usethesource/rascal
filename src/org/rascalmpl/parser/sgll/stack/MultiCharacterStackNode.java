@@ -1,5 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import java.net.URI;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
@@ -33,7 +35,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(char[] input){
+	public boolean match(URI inputURI, char[] input){
 		int nrOfCharacters = characters.length;
 		char[] resultArray = new char[nrOfCharacters];
 		
@@ -51,7 +53,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 			return false;
 		}
 		
-		result = new LiteralNode(production, resultArray);
+		result = new LiteralNode(inputURI, startLocation, startLocation + nrOfCharacters, production, resultArray);
 		
 		return true;
 	}

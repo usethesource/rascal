@@ -1,5 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import java.net.URI;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.LiteralNode;
@@ -7,29 +9,29 @@ import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 
 public final class LiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final char[] literal;
+	private final IConstructor production;
 	
-	private final LiteralNode result;
+	private LiteralNode result;
 	
 	public LiteralStackNode(int id, int dot, IConstructor production, char[] literal){
 		super(id, dot);
 		
 		this.literal = literal;
-		
-		result = new LiteralNode(production, literal);
+		this.production = production;
 	}
 	
 	public LiteralStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, char[] literal){
 		super(id, dot, followRestrictions);
 		
 		this.literal = literal;
-		
-		result = new LiteralNode(production, literal);
+		this.production = production;
 	}
 	
 	private LiteralStackNode(LiteralStackNode original){
 		super(original);
 		
 		literal = original.literal;
+		production = original.production;
 		
 		result = original.result;
 	}
@@ -42,10 +44,13 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(char[] input){
+	public boolean match(URI inputURI, char[] input){
 		for(int i = literal.length - 1; i >= 0; --i){
 			if(literal[i] != input[startLocation + i]) return false; // Did not match.
 		}
+		
+		result = new LiteralNode(inputURI, startLocation, startLocation + literal.length, production, literal);
+		
 		return true;
 	}
 	

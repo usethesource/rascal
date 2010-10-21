@@ -1,5 +1,7 @@
 package org.rascalmpl.parser.sgll.result;
 
+import java.net.URI;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -12,11 +14,19 @@ import org.rascalmpl.values.uptr.Factory;
 public class LiteralNode extends AbstractNode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
+	protected final URI input;
+	protected final int offset;
+	protected final int endOffset;
+	
 	private final IConstructor production;
 	private final char[] content;
 	
-	public LiteralNode(IConstructor production, char[] content){
+	public LiteralNode(URI input, int offset, int endOffset, IConstructor production, char[] content){
 		super();
+		
+		this.input = input;
+		this.offset = offset;
+		this.endOffset = endOffset;
 		
 		this.production = production;
 		this.content = content;

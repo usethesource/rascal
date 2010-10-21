@@ -1,5 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import java.net.URI;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.struct.Link;
@@ -115,7 +117,7 @@ public abstract class AbstractStackNode{
 	
 	public abstract void setPositionStore(PositionStore positionStore);
 	
-	public abstract boolean match(char[] input);
+	public abstract boolean match(URI inputURI, char[] input);
 	
 	// Last node specific stuff.
 	public void setParentProduction(IConstructor parentProduction){
