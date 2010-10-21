@@ -1,1 +1,0 @@
-concept("font",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/font/font.concept|,["Give list of fonts"],[],{"Library"},{},"","",""," \<code\>FProperty font(str fname)\</code\>\n",{}," Sets the font to be used for text.\n \<warning\>Give list of fonts\</warning\>","","","",[])

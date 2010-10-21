@@ -1,1 +1,0 @@
-concept("Rendering",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Rendering/Rendering.concept|,[],[],{"Library"},{}," import vis::Rendering;\n","","","",{}," Rendering of figures.\n","","","",[])

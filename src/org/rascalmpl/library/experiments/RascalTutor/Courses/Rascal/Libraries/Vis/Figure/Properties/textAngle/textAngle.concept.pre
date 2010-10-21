@@ -1,1 +1,0 @@
-concept("textAngle",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/textAngle/textAngle.concept|,[" explain angle"],[],{"Library"},{},"","",""," \<code\>FProperty textAngle(num a)\</code\>\n",{}," \<warning\> explain angle\</warning\> Place text at \<code\>a\</code\> degrees (starting at ... clockwise).\n","","","",[])

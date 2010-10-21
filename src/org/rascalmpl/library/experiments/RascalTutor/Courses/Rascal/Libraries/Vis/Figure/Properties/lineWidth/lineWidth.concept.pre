@@ -1,1 +1,0 @@
-concept("lineWidth",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/lineWidth/lineWidth.concept|,[],[],{"Library"},{},"","",""," \<code\>FProperty lineWidth(int w)\</code\>\n",{}," Set the width of lines and borders of figures to \<code\>w\</code\>.\n","","","",[])
