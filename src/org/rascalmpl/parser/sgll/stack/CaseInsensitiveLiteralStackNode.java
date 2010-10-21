@@ -76,7 +76,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 			return false; // Did not match.
 		}
 		
-		result = new LiteralNode(inputURI, startLocation, startLocation + literalLength, production, resultLiteral);
+		result = new LiteralNode(inputURI, startLocation, startLocation + literalLength, isLayout, production, resultLiteral);
 		return true;
 	}
 	
