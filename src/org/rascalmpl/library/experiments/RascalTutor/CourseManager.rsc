@@ -44,6 +44,8 @@ set[str] enabledCategories = {};
 
 map[str, Course] courses = ();
 
+bool editingAllowed = false;
+
 // Initialize CourseManager. 
 // ** Be aware that this function should be called at the beginning of each function that can be
 // ** called from a servlet to ensure proper initialisation.
@@ -67,6 +69,7 @@ private void reinitialize(Course c, set[str] enabled){
      related = c.related;
      categories = c.categories;
      enabledCategories = isEmpty(enabled) ? categories : enabled;
+     editingAllowed = writingAllowed();
 }
 
 // Start a new course
@@ -105,8 +108,8 @@ public str prelude(){
   return "\n\<script type=\"text/javascript\" src=\"jquery-1.4.2.min.js\"\>\</script\>\n" +
          "\n\<script type=\"text/javascript\" src=\"prelude.js\"\>\</script\>\n" +
   
-        // "\<link type=\"text/css\" rel=\"stylesheet\" href=\"prelude.css\"/\>\n";
-         "\<style type=\"text/css\"\><css>\</style\>" +
+         "\<link type=\"text/css\" rel=\"stylesheet\" href=\"prelude.css\"/\>\n" +
+         //"\<style type=\"text/css\"\><css>\</style\>" +
           "\n\<script type=\"text/javascript\"\>var baseConcepts = new Array(<for(int i <- [0 .. nbc]){><(i==0)?"":",">\"<escapeForJavascript(baseConcepts[i])>\"<}>);
           \</script\>\n";
 }
@@ -282,11 +285,14 @@ private bool isEnabled(ConceptName cn){
 }
 
 public str editMenu(ConceptName cn){
-  return "\n\<div id=\"editMenu\"\>
-              [\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false&check=false\"\>\<b\>Edit\</b\>\</a\>] | 
+  return "\n\<div id=\"editMenu\"\>" +
+         (editingAllowed ?
+              "[\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false&check=false\"\>\<b\>Edit\</b\>\</a\>] | 
               [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true&check=true\"\>\<b\>New\</b\>\</a\>] |
-              [\<a id=\"checkAction\" href=\"/edit?concept=<cn>&new=false&check=true\"\>\<b\>Check\</b\>\</a\>] |
-              [\<a id=\"tutorAction\" href=\"http://<server>/Courses/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]
+              [\<a id=\"checkAction\" href=\"/edit?concept=<cn>&new=false&check=true\"\>\<b\>Check\</b\>\</a\>] | "
+              : "")
+          +
+          "[\<a id=\"tutorAction\" href=\"http://<server>/Courses/index.html\"\>\<b\>RascalTutor Home\</b\>\</a\>]
             \</div\>\n";
 }
 

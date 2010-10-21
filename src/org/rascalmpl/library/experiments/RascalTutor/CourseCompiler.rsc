@@ -99,7 +99,7 @@ public Concept parseConcept(loc file, list[str] script, str coursePath){
 
 public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePath){
 
-   //println("parseConcept: file=<file>, coursePath=<coursePath>");
+   println("parseConcept: file=<file>, coursePath=<coursePath>");
    
    if(!(sections["Name"]?))
       throw ConceptError("<file>: Missing section \"Name\"");
@@ -139,6 +139,7 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	                       syntaxSynopsis, typesSynopsis, functionSynopsis, 
 	                       searchTerms, description, examples, benefits, pittfalls, questions);
 	   binFile = file[extension = compiledExtension];
+	   println("parseConcept: binFile = <binFile>, uri = <binFile.uri>");
 	   writeTextValueFile(binFile, C);
 	   return C;
 	} catch NoSuchKey(e):
@@ -419,8 +420,10 @@ public Course recompileCourse(Course course){
    
 public Course compileCourse(ConceptName rootConcept, str title, loc courseDir){
     map[ConceptName,Concept] conceptMap = ();
+    
     coursePath = courseRoot.path;
     courseFiles = crawl(catenate(courseDir, rootConcept), suffix);
+    println(courseFiles);
     for(file <- courseFiles){
        cpt = parseConcept(file, coursePath);
        fullName = getFullConceptName(file.path, coursePath);
@@ -547,11 +550,4 @@ public Concept tst(){
 
 public void cc(){
    c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
-}
-
-public str tst2(){
-   l = |cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/xxx|;
-   writeTextValueFile(l, "a b c d");
-   s = readTextValueFile(#str, l);
-   return s;
 }

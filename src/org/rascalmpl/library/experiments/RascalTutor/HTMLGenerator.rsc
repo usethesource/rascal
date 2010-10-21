@@ -32,6 +32,10 @@ public list[str] getAndClearWarnings(){
   return w;
 }
 
+private void addWarning(str txt){
+  warnings += txt;
+}
+
 // Path of current concept, used to get file URLs right.
 private str conceptPath = "";
 
@@ -132,11 +136,15 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     
     // listing from file
     case /^\<listing\s*<name:.+>\>$/: {
-      loc L = |stdlib:///|[path = name];
+      loc L = |std:///|[path = name];
       try {
       	codeLines = readFileLines(L);
       	return < markupListing(codeLines), skipOneNL(lines, i+1, n) >;
-      } catch: return <"\<warning\>File <name> not found.\</warning\>", i + 1>;
+      } catch: {
+            msg = "File <name> not found.";
+            addWarning(msg);
+      		return <"\<warning\><msg>\</warning\>", i + 1>;
+      }
     }
     
     // inline listing  
@@ -163,7 +171,7 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     
     // warning
     case /^\<warning\><txt:.*>\<\/warning\><rest:.*>$/:{
-      warnings += txt;
+      addWarning(txt);
       return <"\<warning\><txt>\</warning\>" + markupRestLine(rest), i + 1>;
     }
     
@@ -350,11 +358,20 @@ private str markupFigure(list[str] lines, str file){
   errors = "";
   if(/\s*render\(<arg:.*>\);/ := renderCall){
       // replace the render call by a call to renderSave
-	  absPath = courseRoot.path + "../<conceptPath>/<file>";
-	  println("absPath = <absPath>; conceptPath=<conceptPath>; file=<file>");
-	  lines[n-1] = "renderSave(<arg>, <courseRoot + "/" + conceptPath + "/" + file>);";
+  
+	  // lines[n-1] = "renderSave(<arg>, <courseRoot + "/" + conceptPath + "/" + file>);";
+	  
+	  //path = courseRoot[path = "///" + courseRoot.path + "../<conceptPath>/<file>"];
+	  
+	  path = courseRoot[path = courseRoot.path + "../<conceptPath>/<file>"];
+	  
+	  println("path = <path>");
+	  lines[n-1] = "renderSave(<arg>, <path>);";
+	  
+	  for(line <- lines)
+	    println("shell input: <line>");
 	  out = shell(["import vis::Figure;", 
-	               "import vis::Rendering;"] + 
+	               "import vis::Render;"] + 
 	              lines, 
 	              20000);
 	  println("**** shell output ****\n<out>");
@@ -368,8 +385,10 @@ private str markupFigure(list[str] lines, str file){
   } else
     errors = "Last line should be a call to \"render\"";
     
-  if(errors != "")
+  if(errors != ""){
     errors = "\<warning\>" + errors + "\</warning\>";
+    addWarning(errors);
+   }
   return errors + markupListing(lines);
 }
 
