@@ -49,7 +49,7 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 			if(literal[i] != input[startLocation + i]) return false; // Did not match.
 		}
 		
-		result = new LiteralNode(inputURI, startLocation, startLocation + literal.length, production, literal);
+		result = new LiteralNode(inputURI, startLocation, startLocation + literal.length, isLayout, production, literal);
 		
 		return true;
 	}
