@@ -15,7 +15,7 @@ Our trees can have red and black nodes and we want to perform the following oper
 
 Examples:
 The definition of ColoredTrees is as follows:
-<listing org/rascalmpl/library/demo/ColoredTrees.rsc>
+<listing demo/ColoredTrees.rsc>
 
 First (/*1*/) we define the data type of `ColoredTrees` with constructors
 `leaf`, `red` and `black`.

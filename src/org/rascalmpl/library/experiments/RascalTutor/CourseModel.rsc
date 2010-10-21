@@ -152,3 +152,12 @@ public str compose(list[str] names, int from, int to){
 public str compose(list[str] names){
   return compose(names, 0, size(names)-1);
 }
+
+public bool writingAllowed(){
+    svn = courseRoot[path = courseRoot.path + "/.svn"];
+    
+    bool writingAllowed = exists(svn);
+    
+    println("writingAllowed: svn = <svn>, wa = <writingAllowed>");
+    return writingAllowed;
+}

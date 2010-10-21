@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.net.URI;
 
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -62,7 +61,7 @@ public class RascalTutor {
 	private ServletContextHandler getTutorHandler() throws IOException {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setAttribute("RascalEvaluator", eval);
-		context.addServlet(DefaultServlet.class, "/");
+		context.addServlet(TutorDefaultHttpServlet.class, "/");
 		context.addServlet(Show.class, "/show");
 		context.addServlet(Validate.class, "/validate");
 		context.addServlet(Eval.class, "/eval");

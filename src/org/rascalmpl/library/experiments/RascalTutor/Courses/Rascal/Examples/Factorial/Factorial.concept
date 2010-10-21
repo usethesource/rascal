@@ -9,7 +9,7 @@ Compute the factorial function.
 
 Examples:
 
-<listing org/rascalmpl/library/demo/Factorial.rsc>
+<listing demo/Factorial.rsc>
 
 It uses a conditional statement to distinguish cases and here is how to use it:
 <screen>

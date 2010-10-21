@@ -20,7 +20,7 @@ Examples:
 <figure h1.png>
 observed = [10, 20, -50, 13, -40, 25];
 cscale = colorScale(observed, color("green", 0.5), color("red", 0.8));
-boxes = [ box([size(50), fillColor(cscale(v))], text("<v>")) | v <- observed ];
+boxes = [ box( text("<v>"), size(50), fillColor(cscale(v))) | v <- observed ];
 render(hcat(boxes));
 </figure>
 gives ![h1](h1.png)
