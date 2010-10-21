@@ -80,7 +80,8 @@ public class Scripting {
 				System.err.println("Timeout");
 				// Remove stack trace due to killing the shell
 				int k = result.lastIndexOf("Unexpected exception");
-				result = result.substring(0, k);
+				if(k >= 0)
+					result = result.substring(0, k);
 			    result = result.concat("\n*** Rascal killed after timeout ***\n");
 			}
 			java.lang.String lines[] = result.split("[\r\n]+");
