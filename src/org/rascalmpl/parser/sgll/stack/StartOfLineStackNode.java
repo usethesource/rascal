@@ -1,5 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import java.net.URI;
+
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.StartOfLineNode;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
@@ -25,7 +27,7 @@ public class StartOfLineStackNode extends AbstractStackNode implements IMatchabl
 		this.positionStore = positionStore;
 	}
 	
-	public boolean match(char[] input){
+	public boolean match(URI inputURI, char[] input){
 		return positionStore.startsLine(startLocation);
 	}
 	

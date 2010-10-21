@@ -1,5 +1,7 @@
 package org.rascalmpl.parser.sgll.stack;
 
+import java.net.URI;
+
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.EpsilonNode;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
@@ -23,7 +25,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(char[] input){
+	public boolean match(URI inputURI, char[] input){
 		return true;
 	}
 	

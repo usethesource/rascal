@@ -382,7 +382,7 @@ public abstract class SGLL implements IGLL{
 	private void reduceTerminal(AbstractStackNode terminal){
 		if(terminal.isLocatable()) terminal.setPositionStore(positionStore); // Ugly, but necessary.
 		
-		if(!terminal.match(input)) return;
+		if(!terminal.match(inputURI, input)) return;
 		
 		// Filtering
 		if(terminal.isReductionFiltered(input, location)) return;
