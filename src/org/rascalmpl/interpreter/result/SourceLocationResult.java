@@ -166,6 +166,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 		}
 	}
+	
+	private URI newURI(String scheme,
+            String userInfo, String host, int port,
+            String path, String query, String fragment)
+	throws URISyntaxException{
+		String h  = host == null ? "" : host;
+		return new URI(scheme, userInfo, h, port, path, query, fragment);
+	}
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
@@ -193,7 +201,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 
-				uri = new URI(((IString) repl.getValue()).getValue(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+				uri = newURI(((IString) repl.getValue()).getValue(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
 			}
 			else if (name.equals("authority")) {
 				if (!replType.isStringType()) {
@@ -205,7 +213,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = new URI(uri.getScheme(), uri.getUserInfo(), ((IString) repl.getValue()).getValue(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+				uri = newURI(uri.getScheme(), uri.getUserInfo(), ((IString) repl.getValue()).getValue(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
 			}
 			else if (name.equals("path")) {
 				if (!replType.isStringType()) {
@@ -214,7 +222,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				String path = ((IString) repl.getValue()).getValue();
 				if(!path.startsWith("/"))
 					path = "/" + path;
-				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
+				uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
 			}
 			else if (name.equals("file")) {
 				if (!replType.isStringType()) {
@@ -225,10 +233,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				int i = path.lastIndexOf("/");
 				
 				if (i != -1) {
-					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path.substring(0, i) + "/" + ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());
+					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path.substring(0, i) + "/" + ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());
 				}
 				else {
-					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path + "/" + ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());	
+					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path + "/" + ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());	
 				}
 			}
 			else if (name.equals("parent")) {
@@ -244,10 +252,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					parent = "/" + parent;
 				}
 				if (i != -1) {
-					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent + path.substring(i), uri.getQuery(), uri.getFragment());
+					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent + path.substring(i), uri.getQuery(), uri.getFragment());
 				}
 				else {
-					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent, uri.getQuery(), uri.getFragment());	
+					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent, uri.getQuery(), uri.getFragment());	
 				}
 			}
 			else if (name.equals("children")) {
@@ -270,20 +278,20 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 						path = path.substring(0, index) + '.' + ext;
 					}
 					
-					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
+					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
 				}
 			}
 			else if (name.equals("fragment")) {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), ((IString) repl.getValue()).getValue());
+				uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("query")) {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), ((IString) repl.getValue()).getValue(), uri.getFragment());
+				uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), ((IString) repl.getValue()).getValue(), uri.getFragment());
 			}
 			else if (name.equals("user")) {
 				if (!replType.isStringType()) {
@@ -291,7 +299,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 				
 				if (uri.getHost() != null) {
-					uri = new URI(uri.getScheme(), ((IString) repl.getValue()).getValue(),  uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+					uri = newURI(uri.getScheme(), ((IString) repl.getValue()).getValue(),  uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
 				}
 			}
 			else if (name.equals("port")) {
@@ -301,7 +309,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				
 				if (uri.getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl.getValue()).getStringRepresentation());
-					uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), port, uri.getPath(), uri.getQuery(), uri.getFragment());
+					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), port, uri.getPath(), uri.getQuery(), uri.getFragment());
 				}
 			}
 			else if (name.equals("length")){
