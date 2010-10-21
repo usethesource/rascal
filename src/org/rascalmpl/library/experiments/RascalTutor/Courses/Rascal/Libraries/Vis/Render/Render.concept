@@ -1,4 +1,4 @@
-Name: Rendering
+Name: Render
 
 Details:
 
@@ -10,7 +10,7 @@ Types:
 
 Function:
 
-Synopsis: import vis::Rendering;
+Synopsis: import vis::Render;
 
 Description: Rendering of figures.
 
