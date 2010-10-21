@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -598,6 +599,8 @@ public abstract class SGLL implements IGLL{
 		this.input = input;
 		positionStore.index(input);
 
+		SortContainerNode.resetLastRejectedLocation();
+		
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		rootNode.initEdges();
@@ -632,11 +635,19 @@ public abstract class SGLL implements IGLL{
 		if(errorLocation != input.length){
 			int line = positionStore.findLine(errorLocation);
 			int column = positionStore.getColumn(errorLocation, line);
-			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
+			throw new SyntaxError("before character '" +input[errorLocation] + "'", vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
 		}
 		
 		// Filtering error.
-		throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation(inputURI));
+		ISourceLocation lastRejectedLocation = SortContainerNode.getLastRejectedLocation();
+		if (lastRejectedLocation != null) {
+			throw new SyntaxError("all trees were filtered before character '" + input[lastRejectedLocation.getOffset()] + "'", lastRejectedLocation);
+		}
+		else {
+			int line = positionStore.findLine(errorLocation);
+			int column = positionStore.getColumn(errorLocation, line);
+			throw new SyntaxError("all trees were filtered", vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
+		}
 	}
 	
 	private IConstructor makeParseTree(IConstructor tree){

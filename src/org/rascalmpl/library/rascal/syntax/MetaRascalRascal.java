@@ -3761,7 +3761,14 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
 		public static final AbstractStackNode prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Declarator_attrs___term__cons_MetaVariable_1 = new NonTerminalStackNode(6321, 1 , "layouts_$QUOTES");
 		public static final AbstractStackNode prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Declarator_attrs___term__cons_MetaVariable_0 = new LiteralStackNode(6319, 0, prod___char_class___range__60_60_lit___60_attrs___term__literal , new char[] {60});
 	}
-	
+	private static class RascalReservedKeywords {
+		
+		public static final AbstractStackNode prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_4 = new LiteralStackNode(6337, 4, prod___char_class___range__62_62_lit___62_attrs___term__literal , new char[] {62});
+		public static final AbstractStackNode prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_3 = new NonTerminalStackNode(6335, 3 , "layouts_$QUOTES");
+		public static final AbstractStackNode prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_2 = new NonTerminalStackNode(6333, 2 , "$Pattern");
+		public static final AbstractStackNode prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_1 = new NonTerminalStackNode(6331, 1 , "layouts_$QUOTES");
+		public static final AbstractStackNode prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_0 = new LiteralStackNode(6329, 0, prod___char_class___range__60_60_lit___60_attrs___term__literal , new char[] {60});
+	}
 	private static class Marker {
 		
 		public static final AbstractStackNode prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Marker_attrs___term__cons_MetaVariable_4 = new LiteralStackNode(6347, 4, prod___char_class___range__62_62_lit___62_attrs___term__literal , new char[] {62});
@@ -9915,8 +9922,6 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
                 
           }
 	
-   
-	
       public void Formal() {
             super.Formal();
             // prod([lit("\<"),layouts("$QUOTES"),meta(sort("Pattern")),layouts("$QUOTES"),lit("\>")],sort("Formal"),attrs([term(cons("MetaVariable"))]))
@@ -10103,6 +10108,17 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
 		Declarator.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Declarator_attrs___term__cons_MetaVariable_4);
                 
           }
+	
+//      public void RascalReservedKeywords() {
+//            super.RascalReservedKeywords();
+//            // prod([lit("\<"),layouts("$QUOTES"),meta(sort("Pattern")),layouts("$QUOTES"),lit("\>")],sort("RascalReservedKeywords"),attrs([term(cons("MetaVariable"))]))
+//	expect(prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable, RascalReservedKeywords.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_0,
+//		RascalReservedKeywords.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_1,
+//		RascalReservedKeywords.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_2,
+//		RascalReservedKeywords.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_3,
+//		RascalReservedKeywords.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_RascalReservedKeywords_attrs___term__cons_MetaVariable_4);
+//                
+//          }
 	
       public void Marker() {
             super.Marker();

@@ -15,6 +15,8 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseTree {
@@ -30,7 +32,13 @@ public class ParseTree {
 		IConstructor startSort = checkPreconditions(start, reified);
 		
 		IConstructor pt = ctx.getEvaluator().parseObject(startSort, input.getURI());
-		return ((IList) ParsetreeAdapter.getTop(pt).get("args")).get(1);
+		pt = ParsetreeAdapter.getTop(pt);
+		if (TreeAdapter.isAppl(pt)) {
+			if (SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))) {
+				pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+			}
+		}
+		return pt;
 	}
 	
 	public IValue parse(IConstructor start, IString input, IEvaluatorContext ctx) {

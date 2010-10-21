@@ -23,6 +23,10 @@ public class SortContainerNode extends AbstractContainerNode{
 		return lastRejected;
 	}
 	
+	public static void resetLastRejectedLocation() {
+		lastRejected = null;
+	}
+	
 	public SortContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
 	}
@@ -82,7 +86,8 @@ public class SortContainerNode extends AbstractContainerNode{
 			return cachedResult;
 		}
 		
-		if(rejected) {
+		if (rejected) {
+			// TODO: return a "error(Symbol sym, str message, loc location)" tree to get rid of the static field and make error reporting more precise
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
 			lastRejected = vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
@@ -150,4 +155,6 @@ public class SortContainerNode extends AbstractContainerNode{
 		
 		return (depth <= cycleMark.depth) ? (cachedResult = result) : result;
 	}
+
+	
 }
