@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
@@ -88,6 +89,16 @@ public class LiteralNode extends AbstractNode{
 			listWriter.append(vf.constructor(Factory.Tree_Char, vf.integer(CharNode.getNumericCharValue(content[i]))));
 		}
 		
-		return vf.constructor(Factory.Tree_Appl, production, listWriter.done());
+		IConstructor result = vf.constructor(Factory.Tree_Appl, production, listWriter.done());
+		
+		if(input != null){
+			int beginLine = positionStore.findLine(offset);
+			int endLine = positionStore.findLine(endOffset);
+			ISourceLocation sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
+			
+			return result.setAnnotation(Factory.Location, sourceLocation);
+		}
+		
+		return result;
 	}
 }
