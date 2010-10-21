@@ -1,0 +1,1 @@
+concept("error",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Message/error/error.concept|,[],[],{"Library"},{},"","",""," \<code\>Message error(loc source, str msg)\</code\>\n",{}," Creates an error message.\n","","","",[])

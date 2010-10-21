@@ -1,0 +1,24 @@
+Name: mouseOver
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty mouseOver(Figure fig)`
+
+Synopsis:
+
+Description: Show figure `fig` when the mouse hovers over the current figure.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

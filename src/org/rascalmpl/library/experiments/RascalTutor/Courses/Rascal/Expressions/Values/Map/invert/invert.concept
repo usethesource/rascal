@@ -1,0 +1,30 @@
+Name: invert
+
+Details:
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function: `map[&V, set[&K]] invert(map[&K, &V] M)`
+
+Synopsis:
+
+Description:
+Returns inverted map in which each value in the old map `M` is associated with a set of key values from the old map.
+Also see [invertUnique].
+
+Examples:
+<screen>
+import Map;
+invert(("apple": 1, "pear": 2, "ananas": 1));
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

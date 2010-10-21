@@ -1,0 +1,28 @@
+Name: endsWith
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`bool endsWith(str s, str suffix)`
+
+Synopsis:
+
+Description: Yields `true` if string `s` ends with the string `suffix`.
+
+Examples:
+<screen>
+import String;
+endsWith("Hello.rsc", ".rsc");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

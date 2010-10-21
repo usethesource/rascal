@@ -1,0 +1,31 @@
+Name: GreaterThan
+
+Details:
+
+Categories: Language
+
+Syntax: `$Exp_1$ > $Exp_2$`
+
+Types:
+| `$Exp_1$`      | `$Exp_2$`      | `$Exp_1$ > $Exp_2$` |
+|:---------------|:---------------|:--------------------|
+| `datetime`     |  `datetime`    | `bool`              |
+
+Function:
+
+Synopsis:
+
+Description: Yields `true` if the `datetime` value of $Exp_1$ is later in time than the `datetime` value
+of $Exp_2$, and `false` otherwise.
+
+Examples:
+<screen>
+$2010-07-15 > $2010-07-14;
+$2011-07-15 > $2010-07-15;
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

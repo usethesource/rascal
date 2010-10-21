@@ -1,0 +1,26 @@
+Name: Replacement
+
+Details:
+
+Categories: Language
+
+Syntax: `$Exp_1$[@$Name$ = $Exp_2$]`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+Expression that sets the value of annotation $Name$ of the value $Exp_1$ to the value of $Exp_2$
+and returns the value with the new annotation value as result.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

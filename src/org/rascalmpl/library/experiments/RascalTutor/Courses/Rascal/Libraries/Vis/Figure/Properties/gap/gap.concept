@@ -1,0 +1,32 @@
+Name: gap
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `FProperty gap(num g)`
+# `FProperty gap(num h, num v)`
+
+Synopsis:
+
+Description:
+Set the gap between figures:
+# Set the horizontal and vertical gap to `g`. Equivalent to `hgap(g)` and `vgap(g)`.
+# Set the horizontal gap to `h` and the vertical gap to `v`. Equivalent to `hgap(h)` and `vgap(v)`.
+
+
+Also see [hgap] and [vgap].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

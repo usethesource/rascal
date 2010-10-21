@@ -1,0 +1,1 @@
+concept("writeBinaryValueFile",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/ValueIO/writeBinaryValueFile/writeBinaryValueFile.concept|,[],[],{"Library"},{},"","",""," \<code\>void writeBinaryValueFile(loc file, value val)\</code\>\n",{}," Write a value to a file using an efficient binary file format.\n","","","",[])

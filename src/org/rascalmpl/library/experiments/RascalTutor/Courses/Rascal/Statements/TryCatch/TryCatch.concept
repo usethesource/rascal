@@ -1,0 +1,50 @@
+Name: TryCatch
+
+Details:
+
+Categories: Language
+
+Syntax:
+<listing>
+try
+   $Statement_1$;
+catch $PatternWithAction_1$;
+catch $PatternWithAction_2$;
+...
+catch: $Statement_2$;
+finally: $Statement_3$;
+</listing>
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+A try catch statement has as purpose to catch any [Exception]s that are raised during the execution of $Statement_1$.
+These exceptions may caused by:
+
+* The execution of an explicit [Throw] statement.
+
+* The Rascal system that discovers an abnormal condition, e.g., an out of bounds error when accessing a list element.
+
+
+Note that all elements of the try catch statement are optional but that at least one has to be present. 
+Their meaning is as follows:
+
+* If a pattern of some $PatternWithAction_i$ matches, the corresponding action is executed.
+
+* Otherwise, $Statement_2$ is executed (when present).
+
+* Before leaving the try catch statement $Statement_3$ is always executed (when present).
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

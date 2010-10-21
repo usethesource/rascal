@@ -1,0 +1,28 @@
+Name: reverse
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `str reverse(str s)`
+
+Synopsis:
+
+Description: Returns string with all characters of string `s` in reverse order.
+
+Examples:
+<screen>
+import String;
+reverse("abc");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

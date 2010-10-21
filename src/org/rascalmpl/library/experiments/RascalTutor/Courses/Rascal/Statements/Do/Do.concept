@@ -1,0 +1,40 @@
+Name: Do
+
+Details:
+
+Categories: Language
+
+Syntax:
+`do $Statement$ while ( $Exp$ );`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+$Statement$ is executed repeatedly, as long as the Boolean expression $Exp$ yields true. 
+Expression $Exp$ is executed from scratch in each repetition and only the first true value (if any) is used.
+
+By default, the value of a do statement is the empty list. 
+In general, the value of a do statement consists of all values contributed by [Append] statements 
+that are executed during the repeated execution of its body Statement.
+
+Examples:
+<screen>
+import IO;
+int n = 3;
+do { println("n = <n>"); n -= 1; } while (n > 0);
+// Now build a list result using the `append` statement:
+n = 3;
+do { append n * n; n -= 1; } while (n > 0);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

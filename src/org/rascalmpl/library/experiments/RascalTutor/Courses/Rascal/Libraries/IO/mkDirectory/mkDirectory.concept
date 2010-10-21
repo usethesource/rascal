@@ -1,0 +1,25 @@
+Name: mkDirectory
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`bool mkDirectory(loc file)`
+
+Synopsis:
+
+Description:
+Create a directory at location `file`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

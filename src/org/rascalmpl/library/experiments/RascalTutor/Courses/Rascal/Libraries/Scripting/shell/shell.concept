@@ -1,0 +1,33 @@
+Name: shell
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `list[str] shell(str commands)`
+# `list[str] shell(str commands, int duration)`
+# `list[str] shell(list[str] commands)`
+# `list[str] shell(list[str] commands, int duration)`
+
+Synopsis:
+
+Description:
+Given a single string containing command, or a list of strings containing
+successive lines with commands, the commands are fed into the RascalShell
+and the output is returned as a list of strings.
+An optional `duration` argument may be present to limit the time
+(in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

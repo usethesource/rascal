@@ -1,0 +1,24 @@
+Name: shapeCurved
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty shapeCurved()`
+
+Synopsis:
+
+Description: Connect the points in s [shape] by a curve rather than by a straight line.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

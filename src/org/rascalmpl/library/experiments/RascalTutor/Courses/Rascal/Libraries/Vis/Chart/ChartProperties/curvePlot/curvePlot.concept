@@ -1,0 +1,26 @@
+Name: curvePlot
+
+Details:
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function:
+`ChartProperty curvePlot()`
+
+Synopsis:
+
+Description:
+Property of [xyChart] that fits a curve through the data points of a function.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

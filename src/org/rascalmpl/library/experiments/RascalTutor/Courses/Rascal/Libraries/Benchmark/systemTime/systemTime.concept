@@ -1,0 +1,27 @@
+Name: systemTime
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: 
+# `int systemTime()`
+# `int systemTime(void () block)`
+
+Synopsis:
+
+Description:
+# Current system time in nanoseconds since the start of the thread that runs the code that calls this function.
+# System time in nanoseconds needed to execute the code `block`.
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

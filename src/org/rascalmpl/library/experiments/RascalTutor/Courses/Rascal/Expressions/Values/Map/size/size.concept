@@ -1,0 +1,28 @@
+Name: size
+
+Details:
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function: `int size(map[&K, &V] M)`
+
+Synopsis:
+
+Description: Returns the number of pairs in map `M`.
+
+Examples:
+<screen>
+import Map;
+size(("apple": 1, "pear": 2, "ananas": 3));
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

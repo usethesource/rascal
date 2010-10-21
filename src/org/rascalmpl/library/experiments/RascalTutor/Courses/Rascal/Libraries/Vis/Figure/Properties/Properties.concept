@@ -1,0 +1,83 @@
+Name: Properties
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types: 
+* `FProperty`
+* `alias FProperties = list[FProperty];`
+
+Function:
+
+Synopsis:
+<listing>
+data FProperty =
+/* sizes */
+     width(num w)                  // width of figure
+   | height(num h)                 // height of figure
+   | size(num s)		   // width and height (same value)
+   | size(num h, num v)            // width and height (separate values)
+   | gap(num g)                    // same hor. and vert. gap between figures
+   | gap(num h, num v)             // different hor. and vert. gap between figures
+   | hgap(num h)                   // horizontal gap between figures
+   | vgap(num v)                   // vertical gap between figures
+
+   
+/* alignment */
+   | anchor(num h, num v)	   // horizontal (0=left; 1=right) and
+   | hanchor(num h)                // vertical anchor (0=top,1=bottom)
+   | vanchor(num v)
+   
+/* line and border properties */
+   | lineWidth(num w)	           // line width
+   | lineColor(Color c)	           // line color
+   | lineColor(str cname)          // named line color
+   
+   | fillColor(Color c)	           // fill color of shapes and text
+   | fillColor(str cname)          // named fill color
+   
+/* wedge properties */
+   | fromAngle(num a)
+   | toAngle(num a)
+   | innerRadius(num r)
+
+/* shape properties */
+   | shapeConnected()              // shapes consist of connected points
+   | shapeClosed()    		   // closed shapes
+   | shapeCurved()                 // use curves instead of straight lines
+   
+/* font and text properties */
+   | font(str fname)               // named font
+   | fontSize(int s)               // font size
+   | fontColor(Color c)            // font color
+   | fontColor(str cname)
+   | textAngle(num a)              // text rotation
+   
+/* interaction properties */  
+   | mouseOver(Figure fig)         // add figure when mouse is over current figure
+**   | contentsHidden()              // contents of container is hidden
+**   | contentsVisible()             // contents of container is visible
+**   | pinned()                      // position pinned-down, cannot be dragged
+   | doi(int d)                    // limit degree-of-interest to nesting level d
+   
+/* other properties */
+   | id(str name)                  // name of figure (used in edges and various layouts)
+   ;
+</listing>
+
+Description: An `FProperty` describes a property of a figure. Figures may be nested and a given property
+value applies to all nested figures until it is overruled by a new declaration in a nested figure for the same property.
+
+All figures may have an (optional) list of properties which is represented by the type `FProperties`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

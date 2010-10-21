@@ -1,0 +1,26 @@
+Name: reach
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`set[&T] reach(LGraph[&T] G, set[&T] Start)`
+
+Synopsis:
+
+Description:
+Returns the set of nodes in LabeledGraph `G` that are reachable from any of the nodes
+in the set `Start`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

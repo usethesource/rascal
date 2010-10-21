@@ -1,0 +1,28 @@
+Name: domainR
+
+Details:
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function: `map[&K, &V] domainR(map[&K, &V] M, set[&K] S)`
+
+Synopsis:
+
+Description: Return the map `M` restricted to pairs with key in `S`.
+
+Examples:
+<screen>
+import Map;
+domainR(("apple": 1, "pear": 2, "ananas": 3), {"apple", "pear"});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

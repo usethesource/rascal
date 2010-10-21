@@ -1,0 +1,1 @@
+concept("isFile",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/IO/isFile/isFile.concept|,[],[],{"Library"},{},"","",""," \<code\>bool isFile(loc file)\</code\>\n",{}," Check whether location \<code\>file\</code\> is a file.\n","","","",[])

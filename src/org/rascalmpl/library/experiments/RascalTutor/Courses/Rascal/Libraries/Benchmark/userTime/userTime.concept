@@ -1,0 +1,28 @@
+Name: userTime
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `int userTime()`
+# `int userTime(void () block)`
+
+Synopsis:
+
+Description:
+# Current time in nanoseconds since the start of the thread that runs the code that calls this function.
+# User time in nanoseconds needed to execute the code `block`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

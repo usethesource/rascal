@@ -1,0 +1,1 @@
+concept("Benchmark",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Benchmark/Benchmark.concept|,[],[],{"Library"},{}," \<code\>import Benchmark;\</code\>\n","","","",{}," Functions for time measurement and benchmarking.\n","","","",[])

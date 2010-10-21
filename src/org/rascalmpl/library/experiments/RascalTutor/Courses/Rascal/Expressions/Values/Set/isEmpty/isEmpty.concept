@@ -1,0 +1,21 @@
+Name:isEmpty
+
+Categories: Library
+
+Function: `bool isEmpty(set[&T] s)`
+
+Description: Yields `true` if `s` is empty, and `false` otherwise.
+
+Examples:
+<screen>
+import Set;
+isEmpty({1, 2, 3});
+isEmpty({});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

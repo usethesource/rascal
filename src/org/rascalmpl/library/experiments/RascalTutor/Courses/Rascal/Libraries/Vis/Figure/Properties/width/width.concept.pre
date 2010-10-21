@@ -1,0 +1,1 @@
+concept("width",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/width/width.concept|,[],[],{"Library"},{},"","",""," \<code\>FProperty width(num w)\</code\>\n",{}," Sets the width of a figure to \<code\>w\</code\>.\n","","","",[])

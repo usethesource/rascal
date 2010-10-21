@@ -1,0 +1,22 @@
+Name:arbReal
+
+Categories: Library
+
+Function: `real arbReal( )`
+
+Description: Returns an arbitrary real value in the interval [0.0, 1.0].
+
+Examples:
+<screen>
+import Number;
+arbReal();
+arbReal();
+arbReal();
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

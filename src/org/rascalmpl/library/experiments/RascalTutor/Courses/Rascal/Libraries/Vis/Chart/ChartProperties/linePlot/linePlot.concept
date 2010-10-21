@@ -1,0 +1,26 @@
+Name: linePlot
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`ChartProperty linePlot()`
+
+Synopsis:
+
+Description:
+Connect the data points in an [xyChart] by straight lines.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

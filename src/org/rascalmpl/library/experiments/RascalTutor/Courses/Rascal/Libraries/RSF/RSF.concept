@@ -1,0 +1,40 @@
+Name: RSF
+
+Details:
+
+Categories: Library
+
+Syntax: 
+
+Types:
+
+Function:
+
+Synopsis:`import RSF;`
+
+Description:
+Rigi Standard Format (RSF) is a textual format to represent binary relations and is 
+used to exchange relaional facts between different tools. 
+
+An RSF file consists of triples of the form
+<listing>
+$RelName$ $Elem_1$ $Elem_2$
+</listing>
+where $RelName$ is the name of a relation and $Elem_1$ and $Elem_2$ are element values.
+
+Examples:
+<listing>
+call    main          printf  
+call    main          listcreate  
+data    main          FILE  
+data    listcreate    List
+</listing>
+
+defines two relations named `call` and `data`.
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

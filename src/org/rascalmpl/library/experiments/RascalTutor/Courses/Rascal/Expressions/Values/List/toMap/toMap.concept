@@ -1,0 +1,29 @@
+Name: toMap
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `map[&A,set[&B]] toMap(list[tuple[&A, &B]] lst) throws DuplicateKey`
+
+Synopsis:
+<Warning> Why duplicate key?</warning>
+Description: Convert a list of tuples to a map in which the first element of each tuple is 
+associated with the set of second elements from all tuples with the same first element. Keys should be unique.
+
+Examples:
+<screen>
+import List;
+toMap([<1,10>, <1, 11>, <2, 20>, <3, 30>, <3, 31>]);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

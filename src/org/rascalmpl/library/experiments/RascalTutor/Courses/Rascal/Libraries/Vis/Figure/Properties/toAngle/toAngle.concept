@@ -1,0 +1,24 @@
+Name: toAngle
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty toAngle(num a)`
+
+Synopsis:
+
+Description: Set the end angle of a [wedge] to `a`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

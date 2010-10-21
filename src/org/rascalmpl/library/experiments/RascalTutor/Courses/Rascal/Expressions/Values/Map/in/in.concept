@@ -1,0 +1,29 @@
+Name:in
+
+Categories: Language
+
+Syntax: `$Exp_1$ in $Exp_2$`
+
+Types:
+
+
+| `$Exp_1$`           |  `$Exp_2$`         | `$Exp_1$ in $Exp_2$` |
+|:--------------------|:-------------------|:---------------------|
+| `$T_1$`  <: `$TK$`  |  `map[$TK$, $TV$]` | `bool`               |
+
+
+Description: Yields `true` if the value of $Exp_1$ occurs as key in the map value of $Exp_2$ and `false` otherwise. 
+The type of $Exp_1$ should be compatible with the key type $TK$ of $Exp_2$.
+
+Examples:
+<screen>
+"pear" in ("apple": 1, "pear": 2);
+"ananas" in ("apple": 1, "pear": 2);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

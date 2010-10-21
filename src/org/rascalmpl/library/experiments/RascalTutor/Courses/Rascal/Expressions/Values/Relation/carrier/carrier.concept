@@ -1,0 +1,28 @@
+Name: carrier
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `set[&T] carrier (rel[&T,&T] R)`
+
+Synopsis:
+
+Description: Returns all elements in any tuple in a relation.
+
+Examples:
+<screen>
+import Relation;
+carrier({<1,10>, <2,20>});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

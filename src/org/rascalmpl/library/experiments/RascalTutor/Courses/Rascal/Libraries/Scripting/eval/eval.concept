@@ -1,0 +1,31 @@
+Name: eval
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `value eval(str command) throws Timeout`
+# `value eval(str command, int duration) throws Timeout`
+# `value eval(list[str] commands) throws Timeout`
+# `value eval(list[str] commands, int duration) throws Timeout`
+
+Synopsis:
+
+Description:
+Evaluate a command or a list of commands and return the value of the last command that is executed.
+An optional `duration` argument may be present to limit the time
+(in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

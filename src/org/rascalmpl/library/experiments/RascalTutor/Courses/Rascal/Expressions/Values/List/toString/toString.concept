@@ -1,0 +1,28 @@
+Name: toString
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `str toString(list[&T] lst)`
+
+Synopsis:
+
+Description: Convert `lst` to a string.
+
+Examples:
+<screen>
+import List;
+toString([10, 20, 30]);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

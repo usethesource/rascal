@@ -1,0 +1,33 @@
+Name:Negation
+
+Categories: Language
+
+Syntax: `- $Exp$`
+
+Types:
+
+| `$Exp$`  |  `- $Exp$` |
+|:---------|:-----------|
+| `int`    |  `int`     |
+| `real`   |  `real`    |
+
+
+Description: Yields the negated values of $Exp$.
+
+Examples:
+<screen>
+-12
+-13.5
+- -12
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+QType:  -<A:int>
+QType:  -<A:real>
+QValue: -<A:num>
+

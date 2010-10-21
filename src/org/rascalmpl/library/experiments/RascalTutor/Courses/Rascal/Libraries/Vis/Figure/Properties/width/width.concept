@@ -1,0 +1,24 @@
+Name: width
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty width(num w)`
+
+Synopsis:
+
+Description: Sets the width of a figure to `w`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

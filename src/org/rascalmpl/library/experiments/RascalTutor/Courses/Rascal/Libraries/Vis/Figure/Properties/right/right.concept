@@ -1,0 +1,30 @@
+Name: right
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`FProperty right()`
+
+Synopsis:
+
+Description:
+`right` defines __right horizontal alignment__. 
+It sets the horizontal anchor at 100% of the width of the current figure.
+`right()` is equivalent to `hanchor(1.0)`.
+
+Also see [BoxModel], [hanchor].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

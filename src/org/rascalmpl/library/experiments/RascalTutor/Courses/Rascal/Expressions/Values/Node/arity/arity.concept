@@ -1,0 +1,28 @@
+Name: arity
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: int arity(node T)
+
+Synopsis:
+
+Description: Returns the number of children of a node.
+
+Examples:
+<screen>
+import Node;
+arity("f"(10, "abc"));
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

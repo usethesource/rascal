@@ -1,0 +1,29 @@
+Name: isEmpty
+
+Details:
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function: `bool isEmpty(map[&K, &V] M)`
+
+Synopsis:
+
+Description: Returns `true` if map `M` is empty, and `false` otherwise.
+
+Examples:
+<screen>
+import Map;
+isEmpty(());
+isEmpty(("apple": 1, "pear": 2, "ananas": 3));
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

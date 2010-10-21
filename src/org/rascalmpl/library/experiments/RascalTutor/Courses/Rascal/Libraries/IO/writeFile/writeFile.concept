@@ -1,0 +1,30 @@
+Name: writeFile
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`void writeFile(loc file, value V...) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)`
+
+Synopsis:
+
+Description:
+Write a textual representation of some values to a file:
+* If a value is a simple string, the quotes are removed and the contents are de-escaped.
+* If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+* All other values are printed as-is.
+* Each value is terminated by a newline character.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,1 @@
+concept("vgap",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/vgap/vgap.concept|,[],[],{"Library"},{},"","",""," \<code\>FProperty vgap(num v)\</code\>\n",{}," Sets the vertical gap between figures to \<code\>v\</code\>.\n","","","",[])

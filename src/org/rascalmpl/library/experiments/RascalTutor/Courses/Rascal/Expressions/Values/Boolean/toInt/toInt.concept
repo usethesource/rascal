@@ -1,0 +1,29 @@
+Name: toInt
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: int toInt(bool b)
+
+Synopsis:
+
+Description: Maps `true` to `1` and `false` to 0.
+
+Examples:
+<screen>
+import Boolean;
+toInt(true);
+toInt(false);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

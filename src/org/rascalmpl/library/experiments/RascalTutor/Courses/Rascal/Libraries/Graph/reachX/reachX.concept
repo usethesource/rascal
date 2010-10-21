@@ -1,0 +1,29 @@
+Name: reachX
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`set[&T] reachX(Graph[&T] G, set[&T] Start, set[&T] Excl)`
+
+Synopsis:
+
+Description:
+Returns set of nodes in Graph `G` that are reachable from any of the nodes
+in `Start` via path that exclude nodes in `Excl`.
+Examples:
+<screen>
+import Graph;
+reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

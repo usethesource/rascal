@@ -1,0 +1,108 @@
+Name: Visit
+
+Details:
+
+Categories:
+
+Syntax:
+<listing>
+Strategy visit ( $Exp$ ) {
+case $PatternWithAction_1$;
+case $PatternWithAction_2$;
+...
+default: ...
+}
+</listing>
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+Visiting the nodes in a tree is a very common task in the [EASY] domain. 
+In many cases (but certainly not all) the tree is a syntax tree of some source code file 
+and the nodes correspond to expressions or statements. 
+Computing metrics or refactoring are examples of tasks that require a tree visit. 
+In object-oriented programming, the _visitor pattern_ is in common use for this,
+see [Visitor Pattern](http://en.wikipedia.org/wiki/Visitor_pattern).
+There are three frequently occurring scenarios:
+
+* Accumulator: traverse the tree and collect information.
+
+* Transformer: traverse the tree and transform it into another tree.
+
+* Accumulating Transformer: traverse the tree, collect information and also transform the tree.
+
+
+The visit expression in Rascal can accommodate all these (and more) use cases.
+
+Given a subject term (the current value of $Exp$) and a list of cases 
+(consisting of a sequence of [PatternWithAction]s, it traverses the term. 
+Depending on the precise actions it may perform replacement (mimicking a transformer), 
+update local variables (mimicking an accumulator) or a combination of these two (accumulating transformer). 
+If __any__ of the actions contains an [Insert] statement, 
+the value of the visit expression is a new value that is obtained by successive insertions in the subject 
+term by executing one or more cases. Otherwise, the original value of the subject term is returned.
+
+
+The visit expression is optionally preceded by one of the following strategy indications that 
+determine the traversal order of the subject:
+
+* `top-down`: visit the subject from root to leaves.
+
+* `top-down-break`: visit the subject from root to leaves, but stop at the current path when a case matches.
+
+* `bottom-up`: visit the subject from leaves to root (this is the default).
+
+* `bottom-up-break`: visit the subject from leaves to root, but stop at the current path when a case matches.
+
+* `innermost`: repeat a bottom-up traversal as long as the traversal changes the resulting value (compute a fixed-point).
+
+* `outermost`: repeat a top-down traversal as long as the traversal changes the resulting value (compute a fixed-point).
+
+
+The execution of the cases has the following effect:
+
+* A PatternWithAction of the form `$Pattern$ => $Exp$` replaces the current subtree of the subject by the value of $Exp$. 
+Note that a copy of the subject is created at the start of the visit statement and all replacements are made in this copy. 
+As a consequence, modifcations made during the visit cannot influence matches later on.
+The modified copy of the subject is ultimately returned by the visit expression.
+
+* A PatternWithAction of the form `$Pattern$ : $Statement$` executes `Statement` and this should lead to one of the following:
+
+** Execution of an Insert statement of the form `insert $Exp_2$`.
+The value of $Exp_2$ replaces the subtree of the subject that is currently being visited. 
+Once again, this modification takes place in a copy of the original subject (see above).
+Note that:
+
+*** An insert statement may only occur in a PatternWithAction in a visit expression or a rule.
+
+*** `$Pattern$ => $Exp$` is equivalent to `$Pattern$ : insert $Exp$;`.
+
+** Execution of a [Fail] statement: all side effects of $Statement$ are undone, no insertion is made, and the next case is tried.
+
+** Execution of a [Return] statement that returns a value from the enclosing function.
+
+
+The precise behaviour of the visit expression depends on the type of the subject:
+
+* For type node or ADT, all nodes of the tree are visited (in the order determined by the strategy). 
+Concrete patterns and abstract patterns directly match tree nodes. 
+Regular expression patterns match only values of type string.
+
+* For other structured types (list, set, map, tuple, rel), the elements of the structured type are visited and 
+matched against the cases. 
+When inserts are made, a new structured value is created. In these cases a stragegy does not have any effect.
+
+
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

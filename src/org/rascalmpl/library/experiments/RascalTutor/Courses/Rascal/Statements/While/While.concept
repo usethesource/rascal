@@ -1,0 +1,42 @@
+Name: While
+
+Details:
+
+Categories: Language
+
+Syntax:
+`while ( $Exp$ ) $Statement$;`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+The Boolean expression $Exp$ is evaluated repeatedly and $Statement$ is executed when the test is true. 
+Execution ends the first time that the test yields false. 
+The test $Exp$ is executed from scratch in each repetition and only the first `true` value (if any) is used.
+This is relevant when $Exp$ contains a [Match] or [NoMatch] operator.
+
+By default, the value of a while statement is the empty list. In general, the value of a while statement 
+consists of all values contributed by [Append] statements that are executed during the repeated execution 
+of its body $Statement$.
+
+Examples:
+<screen>
+import IO;
+int n = 3;
+while( n > 0 ) { println("n = <n>"); n -= 1; }
+// Now build a list result using the `append` statement:
+n = 3;
+while (n > 0) { append n * n; n -= 1; }
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,27 @@
+Name: TypeConstraints
+
+Details:
+
+Categories: Language
+
+Syntax: `&$Name$ <: $Type$`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+Constraints can be imposed on the actual types to which a type parameter may be bound. 
+This is expressed by a subtype constraint which expresses that 
+actual types bound to $Name$ should be a subtype of $Type$. 
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

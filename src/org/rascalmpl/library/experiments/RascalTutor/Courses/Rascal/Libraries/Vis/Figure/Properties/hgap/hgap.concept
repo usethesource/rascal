@@ -1,0 +1,26 @@
+Name: hgap
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`FProperty hgap(num h)`
+
+Synopsis:
+
+Description:
+Set the horizontal gap between figures to `h`.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

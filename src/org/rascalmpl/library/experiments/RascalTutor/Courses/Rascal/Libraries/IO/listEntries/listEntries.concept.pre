@@ -1,0 +1,1 @@
+concept("listEntries",|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Libraries/IO/listEntries/listEntries.concept|,[],[],{"Library"},{},"","",""," \<code\>list[str] listEntries(loc file)\</code\>\n",{}," List the entries in a directory.\n","","","",[])

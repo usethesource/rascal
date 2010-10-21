@@ -1,0 +1,29 @@
+Name: size
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `int size(str s)`
+
+Synopsis:
+
+Description: Returns the length (number of characters) in string `s`.
+
+Examples:
+<screen>
+import String;
+size("abc");
+size("");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

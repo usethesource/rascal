@@ -1,0 +1,25 @@
+Name: warning
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `Message warning(loc source, str msg)`
+
+Synopsis:
+
+Description:
+Created a warning message.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,34 @@
+Name: right
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `str right(str s, int n)`
+# `str right(str s, int n, str pad)`
+
+Synopsis:
+
+Description:
+# Right align string `s` in string of length `n` using spaces.
+# Right align string `s` in string of length `n` using `pad` as pad character.
+
+Examples:
+<screen>
+import String;
+right("abc", 10);
+right("abc", 10, "x");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+
