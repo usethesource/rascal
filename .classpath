@@ -28,5 +28,6 @@
 	<classpathentry kind="lib" path="lib/itext.jar"/>
 	<classpathentry kind="lib" path="lib/javagit.jar"/>
 	<classpathentry kind="lib" path="lib/svnkitsrc.zip"/>
+	<classpathentry kind="lib" path="lib/org-netbeans-lib-cvsclient-RELEASE61.jar"/>
 	<classpathentry kind="output" path="src"/>
 </classpath>
