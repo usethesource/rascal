@@ -1,0 +1,217 @@
+equations
+
+%% Boolean equations
+[B1]   or(true, Bool)   = true
+[B2]   or(false, Bool)  = Bool
+
+[B3]   and(true, Bool)  = Bool
+[B4]   and(false, Bool) = false
+
+[B5]   not ( false ) = true
+[B6]   not ( true )  = false
+
+%% Normal operations on naturals
+[nat-1] plus(X,z) = X
+[nat-2] plus(X,s(Y)) = s(plus(X,Y))
+
+[nat-3] mult(X,z) = z
+[nat-4] mult(X,s(Y)) = plus(mult(X,Y),X)
+
+[nat-5] exp(X,z) = s(z)
+[nat-6] exp(X,s(Y)) = mult(X,exp(X,Y))
+
+[nat-7] equal(X, X) = true
+[default-8] equal(X, Y) = false
+
+[nat-9] less(z, X) = true
+[nat-10] less(s(X),s(Y)) = less(X,Y)
+[default-9] less(X,Y) = false
+
+%% We are working modulo 17
+[mod-1] succ17(s(s(s(s(s(s(s(s(s(s(s(s(
+                   s(s(s(s(z))))))))))))))))) = z
+[default-mod-2] succ17(X) = s(X)
+
+[pred-1] pred17(s(X)) = X
+[pred-2] pred17(z) = s(s(s(s(s(s(s(s(s(s(s(s(
+                   s(s(s(s(z))))))))))))))))
+
+%% Operations on naturals modulo 17
+[mod-3] plus17(X,z) = X
+[mod-4] plus17(X,s(Y)) = succ17(plus17(X,Y))
+
+[mod-5] mult17(X,z) = z
+[mod-6] mult17(X,s(Y)) = plus17(X,mult17(X,Y))
+
+[mod-7] exp17(X,z) = succ17(z)
+[mod-8] exp17(X,s(Y)) = mult17(X,exp17(X,Y))
+
+%% Complete evaluation of expressions
+[eval-1] eval(exz) = z
+[eval-2] eval(exs(Xs)) = s(eval(Xs))
+[eval-3] eval(explus(Xs,Ys)) = plus(eval(Xs), eval(Ys))
+[eval-4] eval(exmult(Xs,Ys)) = mult(eval(Xs), eval(Ys))
+[eval-5] eval(exexp(Xs,Ys))  = exp(eval(Xs), eval(Ys))
+
+%% Fast evaluation modulo 17
+[mod17-1] eval17(exz) = z
+[mod17-2] eval17(exs(Xs)) = succ17(eval17(Xs))
+[mod17-3] eval17(explus(Xs,Ys)) = plus17(eval17(Xs),eval17(Ys))
+[mod17-4] eval17(exmult(Xs,Ys)) = mult17(eval17(Xs),eval17(Ys))
+[mod17-5] eval17(exexp(Xs,Ys))  = exp17(eval17(Xs),eval(Ys))
+
+%% Some symbolic natural constants
+[const-1] one = exs(exz)
+[const-2] two = exs(one)
+[const-3] three = exs(two)
+[const-4] four = exs(three)
+[const-5] five = exs(four)
+[const-6] six = exs(five)
+[const-7] seven = exs(six)
+[const-8] eight = exs(seven)
+[const-9] nine = exs(eight)
+[const-10] ten = exs(nine)
+[const-11] eleven = exs(ten)
+[const-12] twelve = exs(eleven)
+[const-13] thirteen = exs(twelve)
+[const-14] fourteen = exs(thirteen)
+[const-15] fifteen = exs(fourteen)
+[const-16] sixteen = exs(fifteen)
+[const-17] seventeen = exs(sixteen)
+[const-18] eighteen = exs(seventeen)
+[const-19] nineteen = exs(eighteen)
+[const-20] twenty = exs(nineteen)
+[const-21] twentyone = exs(twenty)
+[const-22] twentytwo = exs(twentyone)
+[const-23] twentythree = exs(twentytwo)
+[const-24] twentyfour = exs(twentythree)
+[const-25] twentyfive = exs(twentyfour)
+[const-26] twentysix = exs(twentyfive)
+[const-27] twentyseven = exs(twentysix)
+[const-28] twentyeight = exs(twentyseven)
+[const-29] twentynine = exs(twentyeight)
+[const-30] thirty = exs(twentynine)
+[const-31] thirtyone = exs(thirty)
+[const-32] thirtytwo = exs(thirtyone)
+[const-33] thirtythree = exs(thirtytwo)
+[const-34] thirtyfour = exs(thirtythree)
+[const-35] thirtyfive = exs(thirtyfour)
+
+%% Translation from naturals to symbolic naturals
+[n2s-0] nat2sym(z) = exz
+[n2s-1] nat2sym(s(X)) = exs(nat2sym(X))
+
+%% Some natural constants
+[n-0] 0 = z
+[n-1] 1 = s(0)
+[n-2] 2 = s(1)
+[n-3] 3 = s(2)
+[n-4] 4 = s(3)
+[n-5] 5 = s(4)
+[n-6] 6 = s(5)
+[n-7] 7 = s(6)
+[n-8] 8 = s(7)
+[n-9] 9 = s(8)
+[n-10] 10 = s(9)
+[n-11] 11 = s(10)
+[n-12] 12 = s(11)
+[n-13] 13 = s(12)
+[n-14] 14 = s(13)
+[n-15] 15 = s(14)
+[n-16] 16 = s(15)
+[n-17] 17 = s(16)
+
+%% Symbolic evaluation of expressions modulo 17
+[evalsym-1] evalsym17(exz) = z
+[evalsym-2] evalsym17(exs(Xs)) = succ17(evalsym17(Xs))
+
+[evalsym-3] evalsym17(explus(Xs,Ys)) = plus17(evalsym17(Xs),evalsym17(Ys))
+
+[evalsym-4] evalsym17(exmult(Xs,exz)) = z
+[evalsym-5] evalsym17(exmult(Xs,exs(Ys))) =
+                evalsym17(explus(exmult(Xs,Ys),Xs))
+[evalsym-6] evalsym17(exmult(Xs,explus(Ys,Zs))) =
+                evalsym17(explus(exmult(Xs,Ys),exmult(Xs,Zs)))
+[evalsym-7] evalsym17(exmult(Xs,exmult(Ys,Zs))) =
+                evalsym17(exmult(exmult(Xs,Ys),Zs))
+[evalsym-8] evalsym17(exmult(Xs,exexp(Ys,Zs))) =
+                evalsym17(exmult(Xs,dec(exexp(Ys,Zs))))
+
+[evalsym-9]  dec(exexp(Xs,exz)) = exs(exz)
+[evalsym-10] dec(exexp(Xs,exs(Ys))) = exmult(exexp(Xs,Ys),Xs)
+[evalsym-11] dec(exexp(Xs,explus(Ys,Zs))) =
+                exmult(exexp(Xs,Ys),exexp(Xs,Zs))
+[evalsym-11] dec(exexp(Xs,exmult(Ys,Zs))) =
+                dec(exexp(exexp(Xs,Ys),Zs))
+[evalsym-12] dec(exexp(Xs,exexp(Ys,Zs))) =
+                dec(exexp(Xs, dec(exexp(Ys,Zs))))
+
+[evalsym-13] evalsym17(exexp(Xs,exz)) = succ17(z)
+[evalsym-14] evalsym17(exexp(Xs,exs(Ys))) =
+                evalsym17(exmult(exexp(Xs,Ys),Xs))
+[evalsym-15] evalsym17(exexp(Xs,explus(Ys,Zs))) =
+                evalsym17(exmult(exexp(Xs,Ys),exexp(Xs,Zs)))
+[evalsym-16] evalsym17(exexp(Xs,exmult(Ys,Zs))) =
+                evalsym17(exexp(exexp(Xs,Ys),Zs))
+[evalsym-17] evalsym17(exexp(Xs,exexp(Ys,Zs))) =
+                evalsym17(exexp(Xs,dec(exexp(Ys,Zs))))
+
+%% Symbolic evaluation after expansion
+[evalexp-1] evalexp17(Xs) = eval17(expand(Xs))
+
+[expand-1] expand(exz) = exz
+[expand-3] expand(exs(Xs)) = explus(exs(exz),expand(Xs))
+
+[expand-6] expand(explus(Xs2,Ys2)) = explus(expand(Xs2),expand(Ys2))
+
+[expand-7] expand(exmult(Xs,exz)) = exz
+[expand-8] expand(exmult(Xs,exs(exz))) = expand(Xs)
+[expand-9] expand(exmult(Xs,explus(Ys,Zs))) =
+                expand(explus(exmult(Xs,Ys),exmult(Xs,Zs)))
+[default-expand-9]
+        expand(exmult(Xs1,Ys1)) = expand(exmult(Xs1,expand(Ys1)))
+
+[expand-10] expand(exexp(Xs,exz)) = exs(exz)
+[expand-11] expand(exexp(Xs,exs(exz))) = expand(Xs)
+[expand-12] expand(exexp(Xs,explus(Ys,Zs))) =
+                expand(exmult(exexp(Xs,Ys),exexp(Xs,Zs)))
+[default-expand-13]
+        expand(exexp(Xs,Ys)) = expand(exexp(Xs, expand(Ys)))
+
+%% Tree benchmark
+[getval-1] getval(leaf(Val)) = Val
+[getval-2] getval(node(Val,Max,Left,Right)) = Val
+
+[getmax-1] getmax(leaf(Val)) = Val
+[getmax-2] getmax(node(Val,Max,Left,Right)) = Max
+
+[buildtree-1] buildtree(z, Val) = leaf(Val)
+[buildtree-2] Left = buildtree(X, Y),
+              Max' = getmax(Left),
+              Right = buildtree(X, succ17(Max')),
+              Val' = getval(Left),
+              Val'' = getval(Right),
+              Val = plus17(Val', Val''),
+              Max = getmax(Right)
+              ================================================
+              buildtree(s(X), Y) = node(Val, Max, Left, Right)
+
+[calctree-1]
+  I = exp17(s(s(z)), pred17(X)),
+  J = pred17(exp17(s(s(z)),X))
+  ============================
+  calctree17(X) = mult17(I,J)
+
+%% Benchmark equations
+[bench-1] Zs = exexp(two,Xs)
+          =====================================================
+          bench-evalsym17(Xs) = equal(eval17(Zs),evalsym17(Zs))
+
+[bench-2] Zs = exexp(two,Xs)
+          =====================================================
+          bench-evalexp17(Xs) = equal(eval17(Zs),evalexp17(Zs))
+
+[bench-3] X = eval(Xs)
+          =====================================================
+          bench-evaltree17(Xs) = equal(calctree17(X),
+                                       getval(buildtree(X, z)))

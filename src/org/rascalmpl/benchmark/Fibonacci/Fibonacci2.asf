@@ -1,0 +1,5 @@
+equations
+
+[1] fib(0) = 0
+[2] fib(1) = 1
+[3] fib(N) = fib(N - 1) + fib(N - 2)

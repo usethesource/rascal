@@ -1,0 +1,50 @@
+type BSh
+type bool
+type int
+type array
+
+dda bitonic is
+  points BSh
+  branch bool
+  request(p,b) = 
+   if (((sbf(p)>1) and (0<=row(p)<=sbf(p)-2)) or
+      ((sbf(p)=1) and (row(p)=0))) then
+     if (b=0) then 
+       BS(sbf(p),row(p)+1,col(p))
+     else 
+       BS(sbf(p),row(p)+1,flip(row(p),col(p))) 
+     end
+   else if ((sbf(p)>1) and (row(p)=sbf(p)-1)) then
+       if (b=0) then
+         BS(sbf(p)-1,0,col(p))
+       else 
+         BS(sbf(p)-1,0,flip(row(p),col(p))) 
+       end
+     end
+   end
+  supply(p, b) =
+    if (!(sbf(p)=h) and (row(p)=0)) then
+           if (b=0) then 
+               BS(sbf(p)+1,sbf(p),col(p))
+           else 
+               BS(sbf(p)+1,sbf(p),flip(sbf(p),col(p))) 
+           end
+    else if (((sbf(p)=1) and (row(p)=1)) or
+            (sbf(p)>1) and (1<=row(p)<=sbf(p)-1)) then
+        if (b=0) then 
+          BS(sbf(p),row(p)-1,col(p))
+        else 
+          BS(sbf(p),row(p)-1,flip(row(p)-1,col(p)))
+        end
+      end
+    end
+end
+var myarray : array;
+
+compute p : BSh along bitonic from myarray in
+  if cond(p) then
+    min(V[rp(p,0)],V[rp(p,1)])
+  else 
+    max(V[rp(p,0)],V[rp(p,1)])
+  end
+end
