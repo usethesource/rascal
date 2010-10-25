@@ -1,0 +1,30 @@
+Name: toInt
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `int toInt(str s) throws IllegalArgument(value v)`
+
+Synopsis:
+
+Description:
+Converts string `s` to integer. Throws `IllegalArgument` when `s` cannot be converted.
+
+Examples:
+<screen>
+import String;
+toInt("2010");
+toInt("abc");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

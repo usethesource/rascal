@@ -1,0 +1,30 @@
+Name:notin
+
+Categories: Language
+
+Syntax: `$Exp_1$ notin $Exp_2$`
+
+Types:
+
+
+| `$Exp_1$`           |  `$Exp_2$`         | `$Exp_1$ notin $Exp_2$` |
+|:--------------------|:-------------------|:---------------------|
+| `$T_1$`  <: `$TK$`  |  `map[$TK$, $TV$]` | `bool`               |
+
+
+Description: Yields `true` if the value of $Exp_1$ does not occur as key in the map value of $Exp_2$ and `false` otherwise. 
+The type of $Exp_1$ should be compatible with the key type $TK$ of $Exp_2$.
+
+Examples:
+<screen>
+"ananas" notin ("apple": 1, "pear": 2);
+"pear" notin ("apple": 1, "pear": 2);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+

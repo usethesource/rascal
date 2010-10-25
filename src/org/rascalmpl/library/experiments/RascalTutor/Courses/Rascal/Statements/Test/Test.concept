@@ -1,0 +1,51 @@
+Name: Test
+
+Details:
+
+Categories: Language
+
+Syntax:
+# `test $Exp_1$`
+# `test $Exp_1$ : $Exp_2$
+
+Types:
+| `$Exp_1$` | `$Exp_2$` |
+|:----------|:----------|
+| `bool`    | `str`     |
+
+Function:
+
+Synopsis:
+
+Description:
+
+A test statement forms the basis for Rascal's unit-testing framework and may occur everywhere where a declaration is allowed.
+where $Exp_1$ is a boolean-value expression and $Exp_2$ is an optional string-valued expression that 
+serves as a identifying message for this test.
+
+During normal execution tests are ignored and the test statement has no affect. 
+When the script is executed as a test suite all tests in the current module and all 
+its imported modules are executed and a summary of succeeded/failed tests is shown to the user.
+
+There are two ways to execute as test suite:
+
+* By executing the `:test` directive of the Rascal shell, or
+*  by setting the option `rascal.options.testsuite` (not yet implemented).
+
+
+Examples:
+
+<screen>
+//First observe how a failing test is ignored during standard execution:
+test 1==2;
+// Next we execute it via the test framework:   
+:test           
+</screen>
+
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

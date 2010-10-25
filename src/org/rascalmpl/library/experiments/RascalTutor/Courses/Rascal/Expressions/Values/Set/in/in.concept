@@ -1,0 +1,28 @@
+Name:in
+
+Categories: Language
+
+Syntax: `$Exp_1$ in $Exp_2$`
+
+Types:
+
+
+| `$Exp_1$`           |  `$Exp_2$`     | `$Exp_1$ in $Exp_2$` |
+|:--------------------|:---------------|:---------------------|
+| `$T_1$`  <: `$T_2$` |  `set[$T_2$]`  | `bool`               |
+
+
+Description: Yields `true` if the value of $Exp_1$ occurs as element in the value of $Exp_2$ and `false` otherwise. The type of $Exp_1$ should be compatible with the element type of $Exp_2$.
+
+Examples:
+<screen>
+2 in {1, 2, 3};
+4 in {1, 2, 3};
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

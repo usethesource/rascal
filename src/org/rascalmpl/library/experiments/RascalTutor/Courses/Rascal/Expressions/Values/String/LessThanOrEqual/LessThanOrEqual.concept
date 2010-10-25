@@ -1,0 +1,34 @@
+Name: LessThanOrEqual
+
+Details:
+
+Categories: Language
+
+Syntax:`$Exp_1$ <= $Exp_2$`
+
+Types:
+| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ <= $Exp_2$` |
+|:----------|:----------|:---------------------|
+| `str`     |  `str`    | `bool`               |
+
+Function:
+
+Synopsis:
+
+Description: Yields `true` if the string value of $Exp_1$ is lexicographically less
+than the string value of $Exp_2$ or if both string are equal, and `false` otherwise.
+
+Examples:
+<screen>
+"abc" <= "abc";
+"abc" <= "abcdef";
+"abc" <= "defghi";
+"abc" <= "a";
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

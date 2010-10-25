@@ -1,0 +1,25 @@
+Name: info
+
+Details:
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function:`Message info(loc source, str msg)`
+
+Synopsis:
+
+Description:
+Creates an info message.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

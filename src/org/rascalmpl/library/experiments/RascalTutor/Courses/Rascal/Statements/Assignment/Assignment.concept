@@ -1,0 +1,122 @@
+Name: Assignment
+
+Details:
+
+Categories: Language
+
+Syntax: `$Assignable$ $AssignmentOp$ $Exp$`
+
+
+where $AssignmentOp$ may be one of `=`, `+=`, `-=`, `*=`, `/=`, or `?=`.
+
+
+An $Assignable$ is one of the following:
+#  `$Var$`
+#  `$Assignable$ [ $Exp$ ]`
+# `$Assignable$ . $Name$` 
+# `< $Assignable_1$, $Assignable_2$, ..., $Assignable_n$ >`
+# `$Assignable$ ? $Exp$` 
+# `$Assignable$ @ $Name$`
+# `$Name$ ( $Assignable_1$, $Assignable_2$, ... )`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+The purpose of an assignment is to assign a new value to a simple variable or to an element of a more complex data structure. 
+
+The standard assignment operator is `=`. 
+The other assignment operators can be expressed as abbreviations for the standard assignment operator.
+
+| Assignment Operator     | Equivalent to                          |
+|:------------------------|:---------------------------------------|
+| `$Assignable$ += $Exp$` | `$Assignable$ = $Assignable$ + $Exp$` |
+| `$Assignable$ -= $Exp$` | `$Assignable$ = $Assignable$ - $Exp$`  |
+| `$Assignable$ *= $Exp$` | `$Assignable$ = $Assignable$ * $Exp$`  |
+| `$Assignable$ /= $Exp$` | `$Assignable$ = $Assignable$ / $Exp$`  |
+| `$Assignable$ &= $Exp$` | `$Assignable$ = $Assignable$ & $Exp$`  |
+| `$Assignable$ ?= $Exp$` | `$Assignable$ = $Assignable$ ? $Exp$`  |
+
+An assignable is either a single variable, (the base variable), optionally followed by subscriptions or field selections.
+The assignment statement always results in assigning a completely new value to the base variable. 
+We distinguish the following forms of assignment:
+
+# __Variable assignable__ `$Var$ = $Exp$`:
+  The expression $Exp$ is evaluated and its value is assigned to the base variable $Var$.
+
+# __Subscription assignable__ `$Assignable$ [ $Exp_1$] = $Exp_2$`: 
+  First the value $V$ of $Assignable$ is determined. Next the value of $Exp_1$ is used as index in $V$ and 
+  the value of $Exp_2$ replaces the original value at that index position. 
+  The result is a new value $V$' that is assigned to the $Assignable$.
+
+# __Field assignable__ `$Assignable$ . $Name$ = $Exp$`:
+  The value `V` of $Assignable$ is determined and should be of a type that has a field $Name$.
+  The value of that field is replaced in $V$ by the value of $Exp$ resulting in a new value $V$' that is assigned to $Assignable$.
+
+# __Multiple assignable__ `< $Assignable_1$, $Assignable_2$, ..., $Assignable_n$ > = $Exp$`:
+  First the value $Exp$ is determined and should be a tuple of the form `<$V_1$, $V_2$, ..., $V_n$>`.
+  Next the assignments `$Assignable_i$ = $V_i$` are performed for 1 <= i <= n.
+
+# __IsDefined Assignable__ `$Assignable$ ? $Exp_1$ = $Exp_2$`:
+  First the value of $Exp_2$ is determined and if that is defined it is assigned to $Assignable$. 
+  Otherwise, the value of $Exp_1$ is assigned to $Assignable$.
+
+# __Annotation assignable__ `$Assignable$ @ $Name$ = $Exp$`:
+  The value $V$ of $Assignable$ is determined and should be of a type that has an annotation $Name$.
+  The value of that annotation is replaced in $V$ by the value of $Exp$ resulting in a new value $V$' that is assigned to $Assignable$.
+  See [Annotation].
+
+# __Constructor assignable__ `$Name$ ( $Assignable_1$, $Assignable_2$, ..., $Assignable_n$) = $Exp$`:
+  First the value $Exp$ is determined and should be a data value of the form `$Name$($V_1$, $V_2$, ..., $V_n$). 
+  Next the assignments `$Assignable_i$ = $V_i$` are performed for 1 <= i <= n.
+
+
+
+
+Examples:
+<screen>
+// 1. Variable assignable:
+N = 3;
+N;
+// 2. Subscription assignable with a list:
+L = [10,20,30];
+P = L;
+L[1] = 200;
+//Observe that `P` is unchanged:
+P;
+//  2. Subscription assignable with a map:
+M = ("abc": 1, "def" : 2);
+M["def"] = 3;
+// 2. Subscription assignable to a tuple:
+T = <1, "abc", true>;
+T[1] = "def";
+// 3. Field assignable:
+data FREQ = wf(str word, int freq);
+W = wf("rascal", 1000);
+W.freq = 100000;
+// 4. Multiple assignable:
+<A, B, C> = <"abc", 2.5, [1,2,3]>;
+A;
+B;
+C;
+// 5. isDefined assignable (recall that earlier we assigned a table value to $M$):
+M["x"] ? 1 += 5;
+// 6. Annotation assignable:
+anno str FREQ@color;
+W @ color = "red";
+
+// 7. Constructor assignable:
+wf(S, I) = W;
+S;
+I;
+</screen>
+
+
+Benefits:
+
+Pittfalls:
+
+Questions:

@@ -1,0 +1,28 @@
+Name: domain
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `set[&K] domain(map[&K, &V] M)`
+
+Synopsis:
+
+Description: Returns the domain (set of keys) of map `M`.
+
+Examples:
+<screen>
+import Map;
+domain(("apple": 1, "pear": 2));
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,31 @@
+Name: Negation
+
+Details:
+
+Categories: Language
+
+Syntax: `! $Exp$`
+
+Types:
+| ` $Exp$` | `! $Exp$` |
+|:---------|:----------|
+| `bool`   | `bool`    |
+
+Description:
+
+The _not_ operator on Boolean values defined as follows:
+
+| `$Exp$`  | `! $Exp$` |
+|:---------|:----------|
+| `true`   | `false`   |
+| `false`  | `true`    |
+
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

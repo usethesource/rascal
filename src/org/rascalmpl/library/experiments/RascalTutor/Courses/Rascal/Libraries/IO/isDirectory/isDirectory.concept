@@ -1,0 +1,25 @@
+Name: isDirectory
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`bool isDirectory(loc file)`
+
+Synopsis:
+
+Description:
+Check whether the location `file` is a directory.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

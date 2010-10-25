@@ -1,0 +1,25 @@
+Name: listEntries
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `list[str] listEntries(loc file)`
+
+Synopsis:
+
+Description:
+List the entries in a directory.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

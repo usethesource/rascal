@@ -1,0 +1,24 @@
+module Factorial2
+
+imports basic/Whitespace basic/Integers
+
+exports
+   sorts NUM
+
+   context-free syntax
+        "z"        -> NUM
+        s(NUM)     -> NUM
+
+   context-free syntax
+        add(NUM,NUM) -> NUM
+        mul(NUM,NUM) -> NUM
+
+        fac1(NUM)    -> NUM
+        fac2(Integer) -> Integer
+ 
+    context-free start-symbols
+	NUM Integer
+    variables
+         [NM] [0-9]*   -> NUM
+         "I" [0-9]*   -> Integer
+

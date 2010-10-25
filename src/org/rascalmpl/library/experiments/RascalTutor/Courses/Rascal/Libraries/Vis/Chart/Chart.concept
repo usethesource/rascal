@@ -1,0 +1,25 @@
+Name: Chart
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis:  `import vis::Chart;`
+
+Description:
+Library of chart drawing functions.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

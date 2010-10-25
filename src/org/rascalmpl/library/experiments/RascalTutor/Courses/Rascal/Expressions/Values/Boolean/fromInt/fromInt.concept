@@ -1,0 +1,29 @@
+Name: fromInt
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `bool fromInt( )`
+
+Synopsis:
+
+Description: Convert an integer to a Boolean value: all non-zero integers are mapped to `true`, zero is mapped to `false`.
+
+Examples:
+<screen>
+import Boolean;
+fromInt(13);
+fromInt(0);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

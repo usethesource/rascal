@@ -1,0 +1,1 @@
+concept("toAngle",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/toAngle/toAngle.concept|,[],[],{"Library"},{"wedge"},"","",""," \<code\>FProperty toAngle(num a)\</code\>\n",{}," Set the end angle of a \<a href=\"/show?concept=wedge\"\>wedge\</a\> to \<code\>a\</code\>.\n","","","",[])

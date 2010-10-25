@@ -1,0 +1,30 @@
+Name: vcenter
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`FProperty vcenter()`
+
+Synopsis:
+
+Description:
+`vcenter` defines __vertical centered alignment__.
+It sets the vertical anchor to 50% of the height of the current figure.
+`vcenter()` is equivalent to `vanchor(0.5)`.
+
+Also see [BoxModel] and [vanchor].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

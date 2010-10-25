@@ -1,0 +1,29 @@
+Name: domain
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `set[&T0] domain (rel[&T0,&T1] R)`
+
+Synopsis:
+
+Description: Returns a set consisting of the first element of each tuple in binary relation.
+
+Examples:
+<screen>
+import Relation;
+domain({<1,10>, <2,20>});
+domain({<"mon", 1>, <"tue", 2>});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

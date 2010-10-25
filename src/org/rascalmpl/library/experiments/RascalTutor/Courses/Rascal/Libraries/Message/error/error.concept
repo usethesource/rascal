@@ -1,0 +1,24 @@
+Name: error
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`Message error(loc source, str msg)`
+
+Synopsis:
+
+Description: Creates an error message.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

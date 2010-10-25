@@ -1,0 +1,28 @@
+Name: charAt
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `int charAt(str s, int i) throws IndexOutOfBounds(int index)`
+
+Synopsis:
+
+Description: Returns the character at position `i` in string `s`.
+
+Examples:
+<screen>
+import String;
+charAt("abc", 0);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

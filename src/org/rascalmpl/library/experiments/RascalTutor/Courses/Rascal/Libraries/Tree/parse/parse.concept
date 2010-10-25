@@ -1,0 +1,28 @@
+Name: parse
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `&T<:Tree java parse(type[&T<:Tree] start, str input)`
+# `public &T<:Tree java parse(type[&T<:Tree] start, loc input)`
+
+Synopsis:
+
+Description:
+# Parse a string and return a parse tree.
+# Parse the contents of resource `input` and return a parse tree.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,29 @@
+Name: toString
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Maps `true` to `"true"` and `false` to `"false"`.
+
+Examples:
+<screen>
+import Boolean;
+toString(true);
+toString(false);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

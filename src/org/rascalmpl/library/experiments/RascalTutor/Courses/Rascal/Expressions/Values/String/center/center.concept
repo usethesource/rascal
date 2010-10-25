@@ -1,0 +1,33 @@
+Name: center
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function
+# `str center(str s, int n)`
+# `str center(str s, int n, str pad)`
+
+Synopsis:
+
+Description: 
+# Center string `s` in string of length `n` using spaces.
+# Center string `s` in string of length `n` using `pad` as padding character.
+
+Examples:
+<screen>
+import String;
+center("abc", 10);
+center("abc", 10, "x");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

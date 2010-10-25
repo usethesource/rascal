@@ -1,0 +1,1 @@
+concept("doi",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/doi/doi.concept|,[],[],{"Library"},{},"","",""," \<code\>FProperty doi(int d)\</code\>\n",{}," Limit the degree-of-interest of complex figures by restricting the visibility of nested figures to a depth \<code\>d\</code\>.\n","","","",[])

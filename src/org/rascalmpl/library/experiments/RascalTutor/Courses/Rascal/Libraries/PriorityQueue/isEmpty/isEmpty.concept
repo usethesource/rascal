@@ -1,0 +1,25 @@
+Name: isEmpty
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `bool isEmpty(PriorityQueue Q)`
+
+Synopsis:
+
+Description:
+Returns `true` if PriorityQueue `Q` does not contain any (priority, value) pairs.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

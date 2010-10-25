@@ -1,0 +1,29 @@
+Name: isEmpty
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`bool isEmpty(str s)`
+
+Synopsis:
+
+Description: Returns `true` if string `s` is empty.
+
+Examples:
+<screen>
+import String;
+isEmpty("");
+isEmpty("abc");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

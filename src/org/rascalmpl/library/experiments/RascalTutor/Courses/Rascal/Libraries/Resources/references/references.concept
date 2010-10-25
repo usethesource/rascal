@@ -1,0 +1,26 @@
+Name: references
+
+Details:
+
+Categories: Library Eclipse
+
+Syntax:
+
+Types:
+
+Function:
+`set[loc] references(loc project)`
+
+Synopsis:
+
+Description:
+Find out which other projects this project references (depends on).
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

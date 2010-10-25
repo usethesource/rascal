@@ -1,0 +1,24 @@
+Name: Render
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis: import vis::Render;
+
+Description: Rendering of figures.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

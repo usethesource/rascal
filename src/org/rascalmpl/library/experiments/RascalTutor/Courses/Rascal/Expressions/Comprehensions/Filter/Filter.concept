@@ -1,0 +1,43 @@
+Name: Filter
+
+Details:
+
+Categories:
+
+Syntax: `$Exp$`
+
+Types:
+
+| `$Exp$` |
+|:--------|
+| `bool`  |
+
+Function:
+
+Synopsis:
+
+Description:
+A  filter is a boolean-valued expression. 
+If the evaluation of the filter gives `true` this indicates that the current combination of generated values up 
+to this filter is still desired and execution continues with subsequent generators. 
+If the evaluation gives `false` this indicates that the current combination of values is undesired, 
+and that another combination should be tried by going back to the previous generator.
+
+Examples:
+
+* `N >= 3` tests whether `N` has a value greater than or equal `3`.
+
+* `S == "coffee"` tests whether S is equal to the string "coffee".
+
+
+In both examples, the variable (`N`, respectively, `S`) should have been introduced by a generator that 
+occurs earlier in the comprehension.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

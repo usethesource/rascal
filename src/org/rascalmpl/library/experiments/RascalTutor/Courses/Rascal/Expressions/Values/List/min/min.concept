@@ -1,0 +1,19 @@
+Name:min
+
+Categories: Library
+
+Function: `&T min(list[&T] s)`
+
+Description: Returns the smallest element from a list.
+
+Examples:
+<screen>
+import List;
+min([1, 3, 5, 2, 4]);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

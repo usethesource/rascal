@@ -1,0 +1,28 @@
+Name: Difference
+
+Categories: Language
+
+Syntax: `$Exp_1$ - $Exp_2$`
+
+Types:
+
+
+| `$Exp_1$`             |  `$Exp_2$`             | `$Exp_1$ - $Exp_2$`                            |
+|:----------------------|:-----------------------|:-----------------------------------------------|
+| `map[$TK_1$, $TV_1$]` |  `map[$TK_2$, $TV_2$]` | `map[lub($TK_1$,$TK_2$),lub($TK_1$,$TK_2$)]`  |
+
+Description:
+The result is the difference of the two map values of $Exp_1$ and $Exp_2$,
+i.e. a map with all pairs in $Exp_1$ that do have a key that does not occur in $Exp_2$.
+
+Examples:
+<screen>
+("apple": 1, "pear": 2) - ("banana": 3, "apple": 4);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

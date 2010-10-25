@@ -1,0 +1,29 @@
+Name: edge
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+`Edge edge(str from, str to, FProperty props...)`
+
+Synopsis:
+
+Description:
+An edge connects nodes in [tree]s, [graph]s, and [treemap]s.
+The arguments `from` and `to` are node [id]s.
+
+Examples:
+See [tree], [graph], or [treemap].
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

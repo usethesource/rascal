@@ -1,0 +1,30 @@
+Name: center
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`FProperty center()`
+
+Synopsis:
+
+Description:
+`center` defines __horizontal and vertical centered alignment__.
+It sets the horzontal and vertical anchor to 50% of the width, respectively, the height of the current figure.
+`center()` is equivalent to `anchor(0.5, 0.5)`.
+
+Also see [BoxModel] and [anchor].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

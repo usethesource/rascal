@@ -1,0 +1,27 @@
+Name: startsWith
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`bool startsWith(str s, str prefix)`
+
+Synopsis:
+
+Description: Yields `true` if string `s` starts with the string `prefix`.
+
+Examples:
+<screen>
+import String;
+startsWith("Hello.rsc", "Hell");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

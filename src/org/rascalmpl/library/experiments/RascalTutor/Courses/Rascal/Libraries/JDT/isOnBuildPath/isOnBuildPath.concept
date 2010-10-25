@@ -1,0 +1,26 @@
+Name: isOnBuildPath
+
+Details:
+
+Categories: Library Eclipse
+
+Syntax:
+
+Types:
+
+Function:
+`bool isOnBuildPath(loc file)`
+
+Synopsis:
+
+Description:
+Check if a Resource is on its project's build path.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

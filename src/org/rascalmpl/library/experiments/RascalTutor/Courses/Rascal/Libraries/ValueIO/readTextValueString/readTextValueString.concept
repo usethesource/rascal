@@ -1,0 +1,28 @@
+Name: readTextValueString
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `value readTextValueString(str input)`
+# `&T readTextValueString(type[&T] result, str input)`
+
+Synopsis:
+
+Description:
+# Read a text representation of a value from a string.
+# Read a text representation of a typed value from a string.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

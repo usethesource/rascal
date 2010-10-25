@@ -1,0 +1,30 @@
+Name: reachR
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`set[&T] reachR(LGraph[&T] G, set[&T] Start, set[&T] Restr)`
+
+Synopsis:
+
+Description:
+Returns the set of nodes in LabeledGraph `G` that are reachable from any of the nodes
+in set `Start` using path that only use nodes in the set `Restr`.
+
+Examples:
+<screen>
+import LabeledGraph;
+reachR({<1,"A",2>, <1,"B",3>, <2,"C",4>, <3,"D",4>}, {1}, {1, 2, 3});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

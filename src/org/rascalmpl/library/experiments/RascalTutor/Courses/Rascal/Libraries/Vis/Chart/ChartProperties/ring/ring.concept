@@ -1,0 +1,28 @@
+Name: ring
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+`ChartProperty ring(num r)`
+
+Synopsis:
+
+Description:
+
+Property of a [pieChart]: draw a ring with inner radius `r` rather than a full circle.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

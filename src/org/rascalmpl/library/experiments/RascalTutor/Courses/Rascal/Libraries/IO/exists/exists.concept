@@ -1,0 +1,25 @@
+Name: exists
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:`bool exists(loc file)`
+
+Synopsis:
+
+Description:
+Check whether a certain location exists, i.e., whether an actual file is associated with it.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

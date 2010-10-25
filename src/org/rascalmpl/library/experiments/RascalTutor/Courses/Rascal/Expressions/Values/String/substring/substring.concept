@@ -1,0 +1,33 @@
+Name: substring
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `str substring(str s, int begin) throws IndexOutOfBounds(int index)`
+# `str substring(str s, int begin, int end) throws IndexOutOfBounds(int index)`
+
+Synopsis:
+
+Description:
+# Yields substring of string `s` from index `begin` to the end of the string.
+# Yields substring of string `s` from index `begin` to (but not including) index `end`.
+
+Examples:
+<screen>
+import String;
+substring("abcdef", 2);
+substring("abcdef", 2, 4);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

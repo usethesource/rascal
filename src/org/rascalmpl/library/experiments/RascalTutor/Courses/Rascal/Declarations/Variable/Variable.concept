@@ -1,0 +1,70 @@
+Name: Variable
+
+Details:
+
+Categories: Language
+
+Syntax: 
+# `$Type$ $Name$ = $Exp$;`
+# `$Type$ $Name$;`
+
+Types:
+
+|`$Type$`  | `$Exp$`     |
+|:---------|:------------|
+| `$Type$` | `<: $Type$` |
+
+Function:
+
+Synopsis:
+
+Description:
+The effect of a variable declaration is to introduce a new variable $Name$ and
+to assign the value of expression $Exp$ to $Name$. A mention of $Name$ later on in the same scope
+will be replaced by this value, provided that $Name$\s value has not been changed by an intermediate assignment. 
+
+When a variable is declared, it has as scope the nearest enclosing block, or the module when declared at the module level.
+
+The following rules apply:
+
+* Double declarations in the same scope are not allowed.
+
+* The type of $Exp$ should be compatible with $Type$, i.e., it should be a subtype of $Type$.
+
+
+As a convenience, also declarations without an initialization expression are permitted inside functions (but not at the module level)
+ and have the form
+<listing>
+$Type$ $Name$; 
+</listing>
+and only introduce the variable $Name$.
+
+Rascal provides local type inference, which allows the implicit declaration of variables that are used locally in functions. The following rules apply:
+
+* An implicitly declared variable is declared at the level of the current scope, this may the whole function body or a block nested in it.
+
+* An implicitly declared variable gets as type the type of the first value that is assignment to it.
+
+* If a variable is implicitly declared in different execution path of a function, all these implicit declarations should result in the same type.
+
+* All uses of an implicitly declared variable must be compatible with its implicit type.
+
+Examples:
+
+<screen>
+// Two explicit variable declarations:
+int max = 100;
+min = 0;
+// An implicit variable declaration
+day = {<"mon", 1>, <"tue", 2>, <"wed",3>, 
+       <"thu", 4>, <"fri", 5>, <"sat",6>, <"sun",7>};
+// Variable declaration and assignment leading to type error
+int month = 12;
+month ="December";
+</screen>
+Benefits:
+
+Pittfalls:
+
+Questions:
+

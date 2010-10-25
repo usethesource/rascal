@@ -1,0 +1,47 @@
+Name: colorNames
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `list[str] colorNames()`
+
+Synopsis:
+
+Description: Gives a sorted list of available color names that can be used by the [color] function.
+
+Examples:
+<screen>
+import vis::Figure;
+colorNames();
+</screen>
+
+This functions can be used to create color tables.
+<figure c1.png>
+boxes = [ box([size(10, 10), fillColor(c)]) | c <- colorNames() ];
+render(hvcat(boxes, width(500), left()));
+</figure>
+
+![colors](c1.png)
+
+Or a color table with the color names attached to the boxes:
+<figure c2.png>
+boxes = [ hcat([text(c), box([size(20, 20), fillColor(c)])],
+               gap(5), center(), right())
+        | c <- colorNames() 
+        ];
+render(grid(boxes, gap(200, 25), size(500)));
+</figure>
+
+![colors](c2.png)
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

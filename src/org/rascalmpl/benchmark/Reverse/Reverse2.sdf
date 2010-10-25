@@ -1,0 +1,15 @@
+module Reverse2
+
+imports basic/Whitespace basic/Integers
+
+exports
+  context-free syntax
+	rev1( {Integer ","}* )     -> {Integer ","}*
+	rev2( {Integer ","}* )     -> {Integer ","}*
+	rev3( {Integer ","}* )     -> {Integer ","}*
+  context-free start-symbols
+	{Integer ","}*
+  variables
+	[XY]     -> Integer
+         [L]      -> {Integer ","}*
+

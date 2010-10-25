@@ -1,0 +1,39 @@
+Name: outline
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`Figure outline(, map[int,Color] coloredLines, FProperty props...)`
+
+Synopsis:
+
+Description:
+An outline is a rectangle with colored horizontal lines and is primarily used to summarize
+information related to a source file. Colored lines indicate different findings in the file.
+Dimension are determined by the [width] and [height] properties. `coloredLines` maps
+line numbers to a desired color.
+
+Examples:
+
+<figure o1.png>
+r = color("Red");
+g = color("Green");
+render(outline((100 : r, 125 : g, 190 : r), size(50, 200)));
+</figure>
+
+![outline 1](o1.png)
+
+Benefits:
+In combination with [pack] or [hvcat] information amount large amounts of files can
+be summarized densely.
+
+Pittfalls:
+
+Questions:
+

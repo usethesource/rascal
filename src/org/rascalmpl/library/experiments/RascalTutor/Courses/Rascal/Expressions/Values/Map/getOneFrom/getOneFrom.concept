@@ -1,0 +1,29 @@
+Name: getOneFrom
+
+Details:
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function: `&K getOneFrom(map[&K, &V] M) throws emptyMap`
+
+Synopsis:
+
+Description: Returns an arbitrary key of map `M`.
+
+Examples:
+<screen>
+import Map;
+getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
+getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
+getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
+</screen>
+Benefits:
+
+Pittfalls:
+
+Questions:
+

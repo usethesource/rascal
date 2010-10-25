@@ -1,0 +1,24 @@
+Name: shapeConnected
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty shapeConnected()`
+
+Synopsis:
+
+Description: Connect the points in a [shape].
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

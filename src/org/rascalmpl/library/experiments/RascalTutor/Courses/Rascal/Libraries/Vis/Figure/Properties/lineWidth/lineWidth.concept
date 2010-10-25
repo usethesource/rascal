@@ -1,0 +1,34 @@
+Name: lineWidth
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty lineWidth(num w)`
+
+Synopsis:
+
+Description: Set the width of lines and borders of figures to `w`.
+
+Examples:
+<figure lw1.png>
+b1 = box([size(50), lineWidth(1)]);
+b2 = box([size(50), lineWidth(2)]);
+b3 = box([size(50), lineWidth(3)]);
+b4 = box([size(50), lineWidth(4)]);
+boxes = [b1, b2, b3, b4];
+render(hcat(boxes));
+</figure>
+gives:
+![h1](lw1.png)
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

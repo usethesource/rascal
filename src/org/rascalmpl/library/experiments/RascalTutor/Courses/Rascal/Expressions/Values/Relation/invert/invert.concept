@@ -1,0 +1,28 @@
+Name: invert
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `rel[&T1, &T0] invert (rel[&T0, &T1] R)`
+
+Synopsis:
+
+Description: Invert the tuples in relation `R`.
+
+Examples:
+<screen>
+import Relation;
+invert({<1,10>, <2,20>});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,31 @@
+Name: invertUnique
+
+Details:
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function:`map[&V, &K] invertUnique(map[&K, &V] M) throws MultipleKey`
+
+Synopsis:
+
+Description: Returns a map with key and value inverted; result should be a map.
+
+Also see [Map/invert] and [Exception].
+
+Examples:
+<screen>
+import Map;
+invertUnique(("apple": 1, "pear": 2, "ananas": 3));
+invertUnique(("apple": 1, "pear": 2, "ananas": 1));
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

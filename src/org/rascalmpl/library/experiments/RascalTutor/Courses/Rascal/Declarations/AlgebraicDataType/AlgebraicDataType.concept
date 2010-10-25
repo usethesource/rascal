@@ -1,0 +1,38 @@
+Name: AlgebraicDataType
+
+Details:
+
+Categories: Language
+
+Syntax:  `data $Name$ = $Alt_1$ | $Alt_1$ | ... ;`
+
+Types: Introduces the type $Name$ and constructor functions for each alternative.
+
+Function:
+
+Synopsis:
+
+Description:
+
+In ordinary programming languages record types or classes exist to introduce a new type name for a collection of related, 
+named, values and to provide access to the elements of such a collection through their name. 
+
+In Rascal, algebraic data types provide this facility. They have to be declared, and
+then values can be declared using calls to the declared constructor functions,
+see [Constructor].
+
+Examples:
+<screen>
+// The following data declaration defines the datatype `Bool` that contains various constants (`tt()` and `ff()`
+// and constructor functions `conj` and `disj`.
+data Bool = tt() | ff() | conj(Bool L, Bool R)  | disj(Bool L, Bool R);
+// terms of type `Bool` can be constructed using the defined constructors:
+conj(tt(),ff());
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

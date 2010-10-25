@@ -1,0 +1,28 @@
+Name: PriorityQueue
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis: `import PriorityQueue;`
+
+Description:
+Priority queues maintain (priority, value) pairs in sorted order. They are implemented using a
+[Binomial Heap](http://en.wikipedia.org/wiki/Binomial_heap). Priority queue are, for instance, used to implement shortest path algorithms.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Currently, both priority and associated value ("payload") have to be integers. This will be generalized.
+
+Questions:
+

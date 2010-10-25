@@ -1,0 +1,30 @@
+Name: toUpperCase
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `str toUpperCase(str s)`
+
+Synopsis:
+
+Description: Converts all characters in string `s` to uppercase.
+
+Also see [toLowerCase].
+
+Examples:
+<screen>
+import String;
+toUpperCase("AaBbCc123");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

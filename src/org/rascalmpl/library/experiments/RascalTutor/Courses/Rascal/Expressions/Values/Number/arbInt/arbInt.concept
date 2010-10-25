@@ -1,0 +1,24 @@
+Name:arbInt
+
+Categories: Library
+
+Function:
+* `int arbInt( )`
+* `int arbInt(int limit)`
+
+Description: Return an arbitrary integer value. When the argument `limit` is given, the generated value is in the interval [0, `limit`].
+
+Examples:
+<screen>
+import Integer;
+arbInt()
+arbInt()
+arbInt()
+</screen>
+
+Benefits: <tt>arbInt</tt> is a convenient generator for pseudo-random integers.
+
+Pittfalls:
+
+Questions:
+

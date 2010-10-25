@@ -1,0 +1,30 @@
+Name: mapper
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G)`
+
+Synopsis:
+
+Description: 
+Apply the functions `F` and `G` to each key/value pair in a map and return the transformed map.
+
+Examples:
+<screen>
+import Map;
+str prefix(str s) { return "X" + s; }
+int incr(int x) { return x + 1; }
+mapper(("apple": 1, "pear": 2, "ananas": 3), prefix, incr);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:

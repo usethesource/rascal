@@ -1,0 +1,26 @@
+Name: subTitle
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`ChartProperty subTitle(str txt)`
+
+Synopsis:
+
+Description:
+Use `txt` as subtitle of the chart.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

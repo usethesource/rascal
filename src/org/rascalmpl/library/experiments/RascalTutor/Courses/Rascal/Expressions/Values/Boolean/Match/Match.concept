@@ -1,0 +1,24 @@
+Name: Match
+
+Details:
+
+Categories: Language
+
+Syntax: `$Pat$ := $Exp$`
+
+Types:
+| `$Pat$`   | `$Exp$` |`$Pat$ := $Exp$`|
+|:----------|:--------|:---------------|
+| [Patterns] | `value` | `bool`         |
+
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

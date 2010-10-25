@@ -1,0 +1,31 @@
+Name: NotEqual
+
+Details:
+
+Categories: Language
+
+Syntax: `$Exp_1$ != $Exp_2$`
+
+Types:
+| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ != $Exp_2$` |
+|:----------|:----------|:---------------------|
+| `str`     |  `str`    | `bool`               |
+
+Function:
+
+Synopsis:
+
+Description: Yields `true` if both arguments are not identical and `false` otherwise.
+
+Examples:
+<screen>
+"abc" != "defghi";
+"abc" != "abc";
+</screen>
+
+
+Benefits:
+
+Pittfalls:
+
+Questions:

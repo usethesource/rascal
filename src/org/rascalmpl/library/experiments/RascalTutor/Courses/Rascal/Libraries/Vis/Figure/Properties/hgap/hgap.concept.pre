@@ -1,0 +1,1 @@
+concept("hgap",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/hgap/hgap.concept|,[],[],{"Library"},{},"","",""," \<code\>FProperty hgap(num h)\</code\>\n",{}," Set the horizontal gap between figures to \<code\>h\</code\>.\n","","","",[])

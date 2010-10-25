@@ -1,0 +1,29 @@
+Name: GreaterThanOrEqual
+
+Details:
+
+Categories: Language
+
+Syntax:`$Exp_1$ >= $Exp_2$`
+
+Types:
+| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ >= $Exp_2$` |
+|:----------|:----------|:---------------------|
+| `loc`     |  `loc`    | `bool`               |
+
+Function:
+
+Synopsis:
+
+Description: Yields `true` if the location value of $Exp_1$ textually encloses
+the location value of $Exp_2$, and `false` otherwise.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
+

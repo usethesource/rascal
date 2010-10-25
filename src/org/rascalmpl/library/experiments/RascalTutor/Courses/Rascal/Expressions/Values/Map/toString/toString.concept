@@ -1,0 +1,28 @@
+Name: toString
+
+Details:
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function:`str toString(map[&K, &V] M)`
+
+Synopsis:
+
+Description: Convert map `M` to a string.
+
+Examples:
+<screen>
+import Map;
+toString(("apple": 1, "pear": 2, "ananas": 3));
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

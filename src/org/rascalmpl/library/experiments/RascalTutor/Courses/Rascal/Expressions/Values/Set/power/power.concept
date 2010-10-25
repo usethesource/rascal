@@ -1,0 +1,20 @@
+Name:power
+
+Categories: Library
+
+Function: `set[set[&T]] power(set[&T] s)`
+
+Description: Returns a set with all subsets of `s`.
+
+Examples:
+<screen>
+import Set;
+power({1,2,3,4});
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

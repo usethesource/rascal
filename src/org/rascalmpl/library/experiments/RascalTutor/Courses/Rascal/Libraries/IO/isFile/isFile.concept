@@ -1,0 +1,25 @@
+Name: isFile
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `bool isFile(loc file)`
+
+Synopsis:
+
+Description:
+Check whether location `file` is a file.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

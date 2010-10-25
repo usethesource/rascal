@@ -1,0 +1,37 @@
+Name: head
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+* `&T head(list[&T] lst) throws EmptyList`
+* `list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds(int index)`
+
+Synopsis:
+
+Description:
+* Returns the first element of a list or throws `EmptyList` when the list is empty.
+* Returns the first `n` elements of a list or throws `IndexOutOfBounds` when the list is too short.
+
+Examples:
+<screen>
+import List;
+// Get the first element:
+head([1, 2, 3]);
+head([]);
+// Get the first n elements:
+head([1, 2, 3, 4], 2);
+head([1, 2, 3, 5], 5);
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

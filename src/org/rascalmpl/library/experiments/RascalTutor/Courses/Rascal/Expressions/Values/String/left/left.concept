@@ -1,0 +1,33 @@
+Name: left
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `str left(str s, int n)`
+# `str left(str s, int n, str pad)`
+
+Synopsis:
+
+Description:
+# Left align string `s` in string of length `n` using spaces.
+# Left align string `s` in string of length `n` using `pad` as pad character.
+
+Examples:
+<screen>
+import String;
+left("abc", 10);
+left("abc", 10, "x");
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

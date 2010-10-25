@@ -1,0 +1,25 @@
+Name: id
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function: `FProperty id(str name)`
+
+Synopsis:
+
+Description: Assign the identity `name` to the current figure. Identities are used in
+compositions like [graph], [tree] and [treemap] to define the [edge]s between figures.
+
+Examples:
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+

@@ -1,0 +1,68 @@
+Name: Annotation
+
+Details:
+
+Categories:
+
+Syntax: `anno $AnnoType$ $OnType$ @ $Name$`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+An annotation may be associated with any node value, be it a pure node or some [AlgebraicDataType] derived from it.
+
+Annotations are intended to attach application data to values,
+like adding position information or control flow information to source code or adding visualization information to a graph.
+
+An annotation declaration defines:
+
+* $AnnoType$, the type of the annotation values,
+* $OnTYpe$, the type of the values that are being annotated,
+* $Name$, the name of the annotation.
+
+
+Any value of any named type can be annotated and the type of these annotations can be declared precisely.
+
+The following constructs are provided for handling annotations:
+
+* `$Val$ @ $Anno$`: is an expression that retrieves the value of annotation $Anno$ of value $Val$ (may be undefined!).
+
+* `$Val_1$[@$Anno$ = $Val_2$]`: is an expression that sets the value of annotation $Anno$ of the value $Val_1$ to $Val_2$
+   and returns $Val_1$ with the new annotation value as result.
+
+* `$Var$ @ $Anno$ = $Val$`: is an assignment statement that sets the value of annotation $Anno$ of the value of variable $Var$ to $Val$.
+
+Examples:
+
+Here is a declaration of an annotation that attaches location information to certain syntactic constructs of 
+programs (e.g., `EXPRESSION`) with name `posinfo`:
+
+<listing>
+anno loc EXPRESSION @ posinfo;
+</listing>
+
+One can also add such location information to all syntax trees:
+
+<listing>
+anno loc Tree @ posinfo;
+</listing>
+
+Given a graph datatype, one can define an annotation with name `LayoutStrategy` that defines which 
+graph layout algorithm to apply to a particular graph, e.g.,
+<screen>
+data Graph = vertex(str name, int x, int y) | edge(str from, str to);
+data LayoutStrategy = dot() | tree() | force() | hierarchy() | fisheye();
+anno LayoutStrategy Graph @ strategy;
+</screen>
+
+Benefits:
+
+Pittfalls:
+
+Questions:
+
