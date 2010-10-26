@@ -1,10 +1,7 @@
 package org.rascalmpl.library.experiments.RascalTutor;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.net.URI;
 
 import javax.servlet.ServletException;

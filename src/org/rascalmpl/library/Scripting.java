@@ -34,7 +34,7 @@ public class Scripting {
 		duration = values.integer(1000); // default duration for eval and shell
 	}
 
-	public IValue shell(IList lines, IInteger duration) throws IOException {
+	public IValue shell(IList lines, IInteger duration) {
 		StringBuffer sb = new StringBuffer();
 		for(IValue line : lines){
 			sb.append(((IString)line).getValue());
@@ -43,11 +43,11 @@ public class Scripting {
 		return shell(values.string(sb.toString()), duration);
 	}
 	
-	public IValue shell(IList lines) throws IOException {
+	public IValue shell(IList lines) {
 		return shell(lines, duration);
 	}
 	
-	public IValue shell(IString input, IInteger duration) throws IOException {
+	public IValue shell(IString input, IInteger duration) {
 	
 		java.lang.String is = input.getValue();
 		
@@ -93,46 +93,46 @@ public class Scripting {
 		} 
 	}
 	
-	public IValue shell(IString input) throws IOException {
+	public IValue shell(IString input) {
 		return shell(input, duration);
 	}
 
-	public IValue eval (IString input, IInteger duration) throws IOException {
+	public IValue eval (IString input, IInteger duration) {
 		return doEval(ValueFactoryFactory.getValueFactory().list(input), duration).getValue();
 	}
 	
-	public IValue eval (IString input) throws IOException {
+	public IValue eval (IString input) {
 		return eval(input, duration);
 	}
 
-	public IValue eval (IList commands, IInteger duration) throws IOException {
+	public IValue eval (IList commands, IInteger duration) {
 		return doEval(commands, duration).getValue();
 	}
 	
-	public IValue eval (IList commands) throws IOException {
+	public IValue eval (IList commands) {
 		return eval(commands, duration);
 	}
 	
-	public IValue evalType (IString input, IInteger duration) throws IOException {
+	public IValue evalType (IString input, IInteger duration) {
 		Result<IValue> result =  doEval(values.list(input), duration);
 		// Make sure redundant spaces are removed from the type.
 		return values.string(result.getType().toString().replaceAll(" ", ""));
 	}
 	
-	public IValue evalType (IString input) throws IOException {
+	public IValue evalType (IString input) {
 		return evalType(input, duration);
 	}
 	
-	public IValue evalType (IList commands, IInteger duration) throws IOException {
+	public IValue evalType (IList commands, IInteger duration) {
 		Result<IValue> result = doEval(commands, duration);
 		return values.string(result.getType().toString());
 	}
 	
-	public IValue evalType (IList commands) throws IOException {
+	public IValue evalType (IList commands) {
 		return evalType(commands, duration);
 	}
 	
-	private Result<IValue> doEval (IList commands, IInteger duration) throws IOException {
+	private Result<IValue> doEval (IList commands, IInteger duration) {
 		PrintWriter err = new PrintWriter(System.err);
 		PrintWriter out = new PrintWriter(System.out);
 		
