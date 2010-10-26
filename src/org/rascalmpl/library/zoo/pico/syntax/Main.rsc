@@ -1,36 +1,36 @@
 module zoo::pico::syntax::Main
 
-start syntax Program = program: "begin" Decls decls {Statement  ";"}* body "end" ;
+start syntax PROGRAM = program: "begin" DECLS decls {STATEMENT  ";"}* body "end" ;
 
-syntax Decls = "declare" {IdType ","}* decls ";" ;  
+syntax DECLS = "declare" {IDTYPE ","}* decls ";" ;  
  
-syntax Statement = assign: Id var ":="  Exp val 
-                 | cond:   "if" Exp cond "then" {Statement ";"}*  thenPart "else" {Statement ";"}* elsePart
-                 | cond:   "if" Exp cond "then" {Statement ";"}*  thenPart
-                 | loop:   "while" Exp cond "do" {Statement ";"}* body "od"
+syntax STATEMENT = assign: ID var ":="  EXP val 
+                 | cond:   "if" EXP cond "then" {STATEMENT ";"}*  thenPart "else" {STATEMENT ";"}* elsePart "fi"
+                 | cond:   "if" EXP cond "then" {STATEMENT ";"}*  thenPart "fi"
+                 | loop:   "while" EXP cond "do" {STATEMENT ";"}* body "od"
                  ;  
 
-syntax IdType = Id id ":" Type type;
+syntax IDTYPE = ID id ":" TYPE type;
      
-syntax Type = natural:"natural" 
+syntax TYPE = natural:"natural" 
             | string:"string" 
             | nil:"nil-type"
             ;
 
-syntax Exp = id: Id name
-           | strcon: Str string
-           | natcon: Nat natcon
-           | bracket "(" Exp e ")"
-           > concat: Exp lhs "||" Exp rhs
-           > left (add: Exp lhs "+" Exp rhs
-                  |min: Exp lhs "-" Exp rhs
+syntax EXP = id: ID name
+           | strcon: STR string
+           | natcon: NAT natcon
+           | bracket "(" EXP e ")"
+           > concat: EXP lhs "||" EXP rhs
+           > left (add: EXP lhs "+" EXP rhs
+                  |min: EXP lhs "-" EXP rhs
                   )
            ;
 
            
-syntax Id  = lex [a-z][a-z0-9]* # [a-z0-9];
-syntax Nat = lex [0-9]+ ;
-syntax Str = lex "\"" ![\"]*  "\"";
+syntax ID  = lex [a-z][a-z0-9]* # [a-z0-9];
+syntax NAT = lex [0-9]+ ;
+syntax STR = lex "\"" ![\"]*  "\"";
 
 layout Pico = WhitespaceAndComment*  
             # [\ \t\n\r]
@@ -43,4 +43,4 @@ syntax WhitespaceAndComment
    | lex "%%" ![\n]* "\n"
    ;
 
-public Program p = (Program) `begin declare; end`;
+public PROGRAM p = (PROGRAM) `begin declare; end`;
