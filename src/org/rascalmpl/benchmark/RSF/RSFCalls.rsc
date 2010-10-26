@@ -27,10 +27,10 @@ public bool measure(list[str] names){
 		nTop = size(top(CALL));
 		println("<name>: size top <nTop>");
 	
-		time0 = currentTimeMillis();
-		res1 = trans(CALL);          time1 = currentTimeMillis();
-		res2  = reachFromTop1(CALL); time2 = currentTimeMillis();
-		res3 = reachFromTop2(CALL);  time3 = currentTimeMillis();
+		time0 = realTime();
+		res1 = trans(CALL);          time1 = realTime();
+		res2  = reachFromTop1(CALL); time2 = realTime();
+		res3 = reachFromTop2(CALL);  time3 = realTime();
 		
 		d1 = time1 - time0;
 		d2 = time2 - time1;

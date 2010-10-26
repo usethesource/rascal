@@ -18,9 +18,9 @@ rule Bubble bubble([list[int] Nums1, int P, int Q, list[int] Nums2]) => bubble([
        		when P > Q;
        
  public bool measure(){
-		start = currentTimeMillis();
+		start = realTime();
 		result = bubble([10,9,8,7,6,5,4,3,2,1]);
-		used = currentTimeMillis() - start;
+		used = realTime() - start;
 		println("bubble = <result>  (<used> millis)");
 		return true;
  }

@@ -41,7 +41,7 @@ public void measure1(int N)
 {
 	NUM result;
 	
-	start = currentTimeMillis();
+	start = realTime();
 	switch(N){
 		case 1:  result = fac1(s(z()));
 		case 2:  result = fac1(s(s(z())));
@@ -54,7 +54,7 @@ public void measure1(int N)
 		case 9:  result = fac1(s(s(s(s(s(s(s(s(s(z()))))))))));
 		case 10: result = fac1(s(s(s(s(s(s(s(s(s(s(z())))))))))));
 	}
-	used = currentTimeMillis() - start;
+	used = realTime() - start;
 		
 	println("fac1(<N>) = <result>  (<used> millis)");
 
@@ -71,9 +71,9 @@ rule f2 fac2(number(int N))            => number(N * M) when number(int M) := fa
 
 public void measure2(int N)
 {
-	start = currentTimeMillis();
+	start = realTime();
 	result = fac2(number(N));
-	used = currentTimeMillis() - start;
+	used = realTime() - start;
 		
 	println("fac2(<N>) = <result>  (<used> millis)");
 
@@ -93,9 +93,9 @@ public int fac3(int N)
 
 public void measure3(int N)
 {
-	start = currentTimeMillis();
+	start = realTime();
 	result = fac3(N);
-	used = currentTimeMillis() - start;
+	used = realTime() - start;
 		
 	println("fac3(<N>) = <result>  (<used> millis)");
 
