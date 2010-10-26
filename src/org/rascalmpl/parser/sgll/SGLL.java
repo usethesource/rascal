@@ -222,7 +222,9 @@ public abstract class SGLL implements IGLL{
 				if(!firstTimeReductions.contains(nodeName)){
 					firstTimeReductions.add(nodeName);
 					
-					levelResultStoreMap.get(nodeName, resultStoreId).addAlternative(production, new Link(edgePrefixes, nextResultStore));
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
+					if(resultStore == null) return;
+					resultStore.addAlternative(production, new Link(edgePrefixes, nextResultStore));
 				}
 			}
 		}
