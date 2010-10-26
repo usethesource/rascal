@@ -306,4 +306,3 @@ test range2rascal(range(97,97))  == "a";
 test range2rascal(range(97,122)) == "a-z";
 test range2rascal(range(10,10))  == "\\n";
 test range2rascal(range(34,34))  == "\\\"";
-

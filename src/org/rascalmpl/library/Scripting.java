@@ -1,9 +1,9 @@
 package org.rascalmpl.library;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.StringBufferInputStream;
 import java.io.StringWriter;
 import java.net.URI;
 
@@ -20,7 +20,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Scripting {
@@ -55,7 +54,7 @@ public class Scripting {
 		if(is.charAt(is.length()-1) != '\n'){
 			is = is + "\n";
 		}
-		InputStream in = new StringBufferInputStream(is);
+		InputStream in = new ByteArrayInputStream(is.getBytes());
 		
 		StringWriter os = new StringWriter();
 		PrintWriter out = new PrintWriter(os);
@@ -80,8 +79,7 @@ public class Scripting {
 				System.err.println("Timeout");
 				// Remove stack trace due to killing the shell
 				int k = result.lastIndexOf("Unexpected exception");
-				if(k >= 0)
-					result = result.substring(0, k);
+				result = result.substring(0, k);
 			    result = result.concat("\n*** Rascal killed after timeout ***\n");
 			}
 			java.lang.String lines[] = result.split("[\r\n]+");
@@ -140,7 +138,7 @@ public class Scripting {
 		
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***scripting***"));
-		Evaluator evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, new LegacyRascalParser(), root, heap);
+		Evaluator evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, root, heap);
 		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
 		timer.start();
 		

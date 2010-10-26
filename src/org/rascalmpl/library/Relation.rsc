@@ -1,23 +1,5 @@
 module Relation
 
-/*
- * Library functions on relations
- * - carrier
- * - carrierR
- * - carrierX
- * - complement
- * - domain
- * - domainR
- * - domainX
- * - ident
- * - invert
- * - rangeR
- * - rangeX
- *
- * Note: some of these operations are defined for arities 2, ..., 5
- * but their their status is unclear. probably only the versions for arity 2 will survive.
- */
-
 import Set;
 
 @doc{All elements in any tuple in a binary relation}

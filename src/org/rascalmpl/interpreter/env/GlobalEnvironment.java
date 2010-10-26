@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.PatternWithAction;
@@ -15,6 +15,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.values.uptr.Factory;
 
 
@@ -34,6 +35,10 @@ public class GlobalEnvironment {
 	/** Keeping track of module locations */
 	private final Map<String, URI> moduleLocations = new HashMap<String,URI>();
 	private final Map<URI, String> locationModules = new HashMap<URI,String>();
+	
+	/** Keeping track of generated parsers */
+	private final Map<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
+	private final Map<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
 	
 	public void clear() {
 		moduleEnvironment.clear();
@@ -146,5 +151,94 @@ public class GlobalEnvironment {
 	
 	public String getModuleForURI(URI location) {
 		return locationModules.get(location);
+	}
+	
+	public Class<IGLL> getObjectParser(String module, ISet productions) {
+		return getParser(objectParsersForModules, module, productions);
+	}
+	
+	public Class<IGLL> getRascalParser(String module, ISet productions) {
+		return getParser(rascalParsersForModules, module, productions);
+	}
+	
+	/**
+	 * Retrieves a parser for a module. If a similar parser exists for another module,
+	 * based on an equal set of productions, this parser is returned instead.
+	 * 
+	 * @param module
+	 * @param productions
+	 */
+	private Class<IGLL> getParser(Map<String,ParserTuple> store, String module, ISet productions) {
+		ParserTuple parser = store.get(module);
+		if (parser == null) {
+			for (ParserTuple g : store.values()) {
+				if (g.getProductions().isEqual(productions)) {
+					// there is a parser for the same syntax, but stored with a different module
+					store.put(module, g);
+					return g.getParser();
+				}
+			}
+			
+			// there is no parser, not even for another module with the same productions
+			return null;
+		}
+		else if (!parser.getProductions().isEqual(productions)) {
+			// there is a parser, but it is not for the same syntax
+			return null;
+		}
+		
+		// there is a parser and its for the same syntax
+		return parser.getParser();
+	}
+	
+	public void clearParsers(String module) {
+		objectParsersForModules.remove(module);
+		rascalParsersForModules.remove(module);
+	}
+	
+	public void storeObjectParser(String module, ISet productions, Class<IGLL> parser) {
+		storeParser(objectParsersForModules, module, productions, parser);
+	}
+	
+	private void storeParser(Map<String,ParserTuple> store, String module, ISet productions, Class<IGLL> parser) {
+		ParserTuple newT = new ParserTuple(productions, parser);
+		ParserTuple old = store.get(module);
+		
+		if (old != null) {
+			// all modules for the old production set can be updated now
+			for (String m : store.keySet()) {
+				ParserTuple mt = store.get(m);
+				
+				if (mt != null && mt.getProductions().isEqual(old.getProductions())) {
+					// there is a parser for the same syntax, but stored with a different module
+					store.put(m, newT);
+				}
+			}
+		}
+		else {
+			store.put(module, newT);
+		}
+	}
+	
+	public void storeRascalParser(String module, ISet productions, Class<IGLL> parser) {
+		storeParser(rascalParsersForModules, module, productions, parser);
+	}
+	
+	private class ParserTuple {
+		private ISet production;
+		private Class<IGLL> parser;
+
+		public ParserTuple(ISet productions, Class<IGLL> parser) {
+			this.production = productions;
+			this.parser = parser;
+		}
+		
+		public ISet getProductions() {
+			return production;
+		}
+		
+		public Class<IGLL> getParser() {
+			return parser;
+		}
 	}
 }

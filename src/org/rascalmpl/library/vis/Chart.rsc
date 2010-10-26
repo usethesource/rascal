@@ -1,7 +1,7 @@
 module vis::Chart
 
 import vis::Figure;
-import vis::Render;
+import vis::Rendering;
 import Map;
 import IO;
 import Number;

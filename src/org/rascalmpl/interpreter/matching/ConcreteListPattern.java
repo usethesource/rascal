@@ -36,23 +36,11 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 		if (type instanceof NonTerminalType) {
 			IConstructor rhs = ((NonTerminalType) type).getSymbol();
 
-			if (SymbolAdapter.isCf(rhs)) {	
-				IConstructor cfSym = SymbolAdapter.getSymbol(rhs);
-				if (SymbolAdapter.isIterPlus(cfSym) || SymbolAdapter.isIterStar(cfSym)) {
-					pat = new ListPattern(ctx, callOrTree, list, 2);
-				}
-				else if (SymbolAdapter.isIterPlusSep(cfSym) || SymbolAdapter.isIterStarSep(cfSym)) {
-					pat = new ListPattern(ctx, callOrTree, list, 4);
-				}
+		   if (SymbolAdapter.isIterPlus(rhs) || SymbolAdapter.isIterStar(rhs)) {
+				pat = new ListPattern(ctx, callOrTree, list, 1);
 			}
-			else if (SymbolAdapter.isLex(rhs)){
-				IConstructor lexSym = SymbolAdapter.getSymbol(rhs);
-				if (SymbolAdapter.isIterPlus(lexSym) || SymbolAdapter.isIterStar(lexSym)) {
-					pat = new ListPattern(ctx, callOrTree, list, 1);
-				}
-				else if (SymbolAdapter.isIterPlusSep(lexSym) || SymbolAdapter.isIterStarSep(lexSym)) {
-					pat = new ListPattern(ctx, callOrTree, list, 2);
-				}
+			else if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
+				pat = new ListPattern(ctx, callOrTree, list, SymbolAdapter.getSeparators(rhs).length() + 1);
 			}
 			else {
 				throw new ImplementationError("crooked production: non (cf or lex) list symbol: " + rhs);

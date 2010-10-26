@@ -1,62 +1,55 @@
 @doc{
   This module provides functionality for merging the Rascal grammar and arbitrary user-defined grammars
 }
+@bootstrapParser
 module rascal::syntax::Assimilator
 
 import ValueIO;
 import List;
-import rascal::syntax::Grammar;
+import IO;
 import ParseTree;
+import rascal::syntax::Grammar;
+import rascal::syntax::Definition;
 import rascal::syntax::Normalization;
 import rascal::syntax::Escape;
 
-private Grammar rg = grammar({},{});
-private Symbol  rl = layouts("LAYOUTLIST");
+public data Symbol = meta(Symbol wrapped);
 
-@doc{
-  It is assumed both the Rascal grammar and the object grammar have been normalized
-}
-public Grammar assimilate(Grammar object) {
-  set[Production] emptySet = {};
-   
-  if (rg == grammar({},{})) {
-    rg = readBinaryValueFile(#Grammar, |stdlib:///org/rascalmpl/library/rascal/parser/Rascal.grammar|);
-    
-    // here we rename all sorts in the grammar to start with an underscore
-    // and we wrap all literals to prevent interference with the object grammar's follow restrictions
-    newLiterals = {};
-    rg = visit(rg) {
-      case sort(str n) => sort("_<n>")
-      case lit(str l) : {
-        newLiterals += prod([lit(l)],\parameterized-sort("_WrappedLiteral", [lit(l)]),\no-attrs());
-        insert \parameterized-sort("_WrappedLiteral", [lit(l)]);
-      }
-      case cilit(str l) : {
-        newLiterals += prod([lit(l)],\parameterized-sort("_WrappedLiteral", [cilit(l)]),\no-attrs());
-        insert \parameterized-sort("_WrappedLiteral", [cilit(l)]);
-      }
-    }
-    
-    rg = compose(rg, grammar({}, newLiterals));
-  }  
-  
-  bool isNonterminal(Symbol x) { 
+bool isNonterminal(Symbol x) { 
     return lit(_) !:= x 
        && cilit(_) !:= x 
        && \char-class(_) !:= x 
        && \layouts(_) !:= x
-       && \start(_) !:= x; 
-  }
+       && \start(_) !:= x
+       && \parametrized-sort(_,[\parameter(_),_*]) !:= x;
+}
   
-  set[Production] glue = 
-      { prod([lit("`"),rl,nont,rl,lit("`")],sort("Expression"),attrs([term("cons"("ConcreteQuoted"))])),
-        prod([lit("("),rl,symbolLiterals(nont),rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],sort("Expression"),attrs([term("cons"("ConcreteTypedQuoted"))])),
-        prod([lit("`"),rl,nont,rl,lit("`")],sort("Pattern"),attrs([term("cons"("ConcreteQuoted"))])),
-        prod([lit("("),rl,symbolLiterals(nont),rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],sort("Pattern"),attrs([term("cons"("ConcreteTypedQuoted"))])),
-        prod([lit("\<"),rl,sort("Pattern"),rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
-      | /Symbol nont <- object.rules, isNonterminal(nont) };
-  
-  return compose(rg, compose(object, grammar({}, glue)));
+@doc{
+  It is assumed both the Rascal grammar and the object grammar have been normalized
+}
+
+public set[Production] quotes() {
+  return {prod(str2syms(q),lit(q),\attrs([term("literal"())])) | q <- ["`","(",")","\<","\>"] };
+}
+
+public set[Production] layoutProductions(Grammar object) {
+  return {prod([\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],layouts("$QUOTES"),attrs([term("lex"())]))};
+}
+
+private Symbol rl = layouts("$QUOTES");
+
+public set[Production] fromRascal(Grammar object) {
+  return  { prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteQuoted"))])),
+        prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteTypedQuoted"))])),
+        prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteQuoted"))])),
+        prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteTypedQuoted"))])),
+        { prod(str2syms(L),l,attrs([term("literal"())])) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
+      | Symbol nont <- object.rules, isNonterminal(nont), symLits := symbolLiterals(nont) };
+}
+
+public set[Production] toRascal(Grammar object) {
+  return  { prod([lit("\<"),rl,meta(sort("Pattern")),rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
+          | Symbol nont <- object.rules, isNonterminal(nont) };
 }
 
 private list[Symbol] symbolLiterals(Symbol sym) {

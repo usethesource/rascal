@@ -169,4 +169,8 @@ public class IntegerMap{
 			this.next = next;
 		}
 	}
+
+	public int size() {
+		return load;
+	}
 }

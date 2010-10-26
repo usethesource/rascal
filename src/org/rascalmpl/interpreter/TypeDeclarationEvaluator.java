@@ -78,8 +78,7 @@ public class TypeDeclarationEvaluator {
 		if (type.isNonterminal()) {
 			String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
 		
-			// TODO: at some point the cf wrapper needs to be dropped here...
-			env.concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Cf.make(vf, Factory.Symbol_Sort.make(vf, vf.string(nt))));
+			env.concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
 		}
 		// do nothing
 	}
@@ -143,22 +142,23 @@ public class TypeDeclarationEvaluator {
 		List<Alias> todo = new LinkedList<Alias>();
 		todo.addAll(aliasDecls);
 		
-		int countdown = todo.size();
+		int len = todo.size();
+		int i = 0;
 		while (!todo.isEmpty()) {
 			Alias trial = todo.remove(0);
-			--countdown;
 			try {
 				declareAlias(trial, env);
-				countdown = todo.size();
+				i--;
 			}
 			catch (UndeclaredTypeError e) {
-				if (countdown == 0) {	
+				if (i >= len) {
 					// Cycle
 					throw e;
 				}
 				// Put at end of queue
 				todo.add(trial);
 			}
+			i++;
 		}
 	}
 	

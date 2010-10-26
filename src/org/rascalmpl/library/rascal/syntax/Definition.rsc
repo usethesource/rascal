@@ -3,26 +3,25 @@
  
  It also implements a part of the semantics of Rascal's syntax definition formalism,
  i.e. by interspersing symbols with layout nodes and expanding literals.
-}  
+}
+@bootstrapParser
 module rascal::syntax::Definition
-   
-import rascal::syntax::RascalForImportExtraction;
+     
 import rascal::syntax::Grammar;
-import List;
-import String;
+import rascal::syntax::RascalRascal;
+import List; 
+import String;    
 import ParseTree;
 import IO;  
 import Integer;
-   
-
-
+     
 @doc{
   Converts the syntax definitions of a module to a grammar.
   Note that this function does not implement the imports of a module
 } 
 public Grammar module2grammar(Module mod) {
   return syntax2grammar(collect(mod));
-}
+} 
   
 public Grammar imports2grammar(set[Import] imports) {
   return syntax2grammar({ s | (Import) `<SyntaxDefinition s>` <- imports});
@@ -41,31 +40,35 @@ private set[SyntaxDefinition] collect(Module mod) {
 private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] prods = {};
   set[Symbol] starts = {};
-  str layoutName = "*no-layout*";
+  str layoutName = "EMPTY_LAYOUT";
   Production layoutProd = prod([],\layouts(layoutName),\no-attrs());
     
   // first we need to find the layout definition, because it affects all other productions
-  // NOTE: this implies only one layout definition per scope is allowed, which needs to be checked  
+  // NOTE: this implies only one layout definition per scope is allowed, which needs to be checked
+  println("locating layout definition");  
   if ((SyntaxDefinition) `layout <Nonterminal u> = <Prod p>;` <- defs) {
       layoutName = "<u>"; 
       layoutProd = prod2prod(\layouts(layoutName), p, layoutName, true);
   }
     
+    
+  println("locating start defs");
   for ((SyntaxDefinition) `start syntax <Sym u> = <Prod p>;` <- defs) {
     Symbol top = arg2symbol(u, false, layoutName);
     starts += start(top);
     prods += prod2prod(top, p, layoutName, false);
   }
   
+  println("locating normal synax definitions");
   for ((SyntaxDefinition) `syntax <Sym u> = <Prod p>;` <- defs) {
      prods += prod2prod(arg2symbol(u, false, layoutName), p, layoutName, false);
   }
 
   return grammar(starts, \layouts(prods, layoutName) 
-                       + {layoutProd}  
+                       + {layoutProd, prod([],layouts("EMPTY_LAYOUT"),\no-attrs())}  
                        + {prod([\layouts(layoutName), top,\layouts(layoutName)],start(top),\no-attrs()) | start(top) <- starts} 
-                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- prods+{layoutProd}}
-                       + {prod(cistr2syms(s),cilit(s),attrs([term("ciliteral"())])) | /cilit(s) <- prods+{layoutProd}}
+                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- (prods+{layoutProd})}
+                       + {prod(cistr2syms(s),cilit(s),attrs([term("ciliteral"())])) | /cilit(s) <- (prods+{layoutProd})}
                 );
 } 
    
@@ -123,8 +126,8 @@ private Production prod2prod(Symbol nt, Prod p, str layoutName, bool inLayout) {
       return \assoc(nt, \left(), {attribute(prod2prod(nt, q, layoutName, inLayout),\assoc(\assoc()))});
     case (Prod) `<Prod q> <LanguageAction a>` :
       return \action(nt, prod2prod(nt, q, layoutName, inLayout), a);
-    case `...`: return \others(nt);
-    case `: <Name n>`: throw "prod referencing is not yet implemented";
+    case (Prod) `...`: return \others(nt);
+    case (Prod) `: <Name n>`: throw "prod referencing is not yet implemented";
     default: throw "missed a case <p>";
   } 
 }

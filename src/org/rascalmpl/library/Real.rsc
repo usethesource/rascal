@@ -1,14 +1,5 @@
 module Real
 
-/*
- * Functions on reals:
- * - arbReal
- * - max
- * - min
- * - toInt
- * - toString
- */
-
 @doc{Returns an arbitrary real value in the interval [0.0,1.0).}
 @javaClass{org.rascalmpl.library.Real}
 public real java arbReal();

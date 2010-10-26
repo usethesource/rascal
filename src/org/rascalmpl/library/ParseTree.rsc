@@ -2,10 +2,6 @@ module ParseTree
 
 import Message;
 
- /*
-  * The universal parse tree format. Parse functions always return values of type Tree.
-  */
- 
 data ParseTree = 
      parsetree(Tree top, int amb_cnt);
 
@@ -24,6 +20,9 @@ data Production = \list(Symbol rhs);
 
 data Attributes = 
      \no-attrs() | \attrs(list[Attr] attrs);
+
+@deprecated{for bootstrapping purposes}
+data TempAttr = \lex() | \literal();
 
 data Attr =
      \assoc(Associativity \assoc) | 
@@ -51,8 +50,6 @@ data Symbol =
      \label(str name, Symbol symbol) |
      \lit(str string) |
      \cilit(str string) | 
-     \cf(Symbol symbol)  |
-     \lex(Symbol symbol)  |
      \empty()  |
      \opt(Symbol symbol)  |
      \sort (str string)  | 
@@ -71,17 +68,9 @@ data Symbol =
 @deprecated{Used in SDF2, but not used in Rascal anymore}
 data Symbol =
      \layout()  | 
-     \iter-sep(Symbol symbol, Symbol separator) |
-     \iter-star-sep(Symbol symbol, Symbol separator)  | 
      \alt(Symbol lhs, Symbol rhs)  |
      \tuple(Symbol head, list[Symbol] rest)  |
-     \seq(list[Symbol] symbols)  |                                // <=== stil used!
-     \func(list[Symbol] symbols, Symbol symbol)  | 
-    
-     \strategy(Symbol lhs, Symbol rhs)  |
-     \var-sym(Symbol symbol) | 
-     \iter-n(Symbol symbol, int number)  | 
-     \iter-sep-n(Symbol symbol, Symbol separator, int number)  ; 
+     \seq(list[Symbol] symbols);
      
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
@@ -96,15 +85,6 @@ public &T<:Tree java parse(type[&T<:Tree] start, loc input);
 @reflect{uses information about imported SDF modules at call site}
 public &T<:Tree java parse(type[&T<:Tree] start, str input);
 
-@doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree.}
-@javaClass{org.rascalmpl.library.ParseTree}
-@reflect{uses information about imported SDF modules at call site}
-public &T<:Tree java parseExperimental(type[&T<:Tree] start, loc input);
-
-@doc{Parse a string and return a parse tree.}
-@javaClass{org.rascalmpl.library.ParseTree}
-@reflect{uses information about imported SDF modules at call site}
-public &T<:Tree java parseExperimental(type[&T<:Tree] start, str input);
 
 @doc{Yields the string of characters that form the leafs of the given parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}

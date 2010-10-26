@@ -8,8 +8,6 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.LanguageAction;
 import org.rascalmpl.ast.Statement;
@@ -23,7 +21,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.sgll.util.HashMap;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -38,8 +35,6 @@ public class ActionExecutor {
 	private final Evaluator eval;
 	private final IParserInfo info;
 	private final HashMap<IConstructor, IConstructor> cache;
-	private boolean changed = false;
-	private static IConstructor filtered = (IConstructor) TypeFactory.getInstance().constructor(new TypeStore(Factory.uptr), Factory.Tree, "filtered").make(ValueFactoryFactory.getValueFactory());
 	
 	public ActionExecutor(Evaluator eval, IParserInfo info) {
 		this.eval = eval;
@@ -51,39 +46,23 @@ public class ActionExecutor {
 	 * Executes all actions on a forest, possibly filtering it and/or having effect on the given scope.
 	 */
 	public IConstructor execute(IConstructor forest) {
-		if (forest.getConstructorType() == Factory.ParseTree_Top) {
-			IConstructor result = (IConstructor) forest.get("top");
-			result = rec(result);
-			if (result == filtered) {
-				// TODO: proper error messaging
-				throw new ImplementationError("all trees where filtered");
-			}
-			return forest.set("top", result);
+		IConstructor result = rec(forest);
+		if (result == null) {
+			// TODO: proper error messaging
+			throw new ImplementationError("all trees where filtered");
 		}
-		else {
-			IConstructor result = rec(forest);
-			if (result == filtered) {
-				// TODO: proper error messaging
-				throw new ImplementationError("all trees where filtered");
-			}
-			return result;
-		}
+		return result;
 	}
 	
 	private IConstructor rec(IConstructor forest) {
 		IConstructor result = cache.get(forest);
+		if(result != null) return result;
 		
-		if (result != null) {
-			return cache.get(forest);
-		}
-		
-		if (forest.getConstructorType() == Factory.Tree_Appl) {
+		if(forest.getConstructorType() == Factory.Tree_Appl){
 			result = recAppl(forest);
-		}
-		else if (forest.getConstructorType() == Factory.Tree_Amb) {
+		}else if (forest.getConstructorType() == Factory.Tree_Amb){
 			result = recAmb(forest);
-		}
-		else {
+		}else{
 			result = forest;
 		}
 		
@@ -93,73 +72,75 @@ public class ActionExecutor {
 
 	private IConstructor recAmb(IConstructor forest) {
 		ISetWriter newAlternatives = eval.getValueFactory().setWriter(Factory.Tree);
-		boolean oneChanged = false;
-		changed = false;
+		IConstructor only = null;
+		boolean changed = false;
 		
 		for (IValue alt : TreeAdapter.getAlternatives(forest)) {
 			IConstructor newAlt = rec((IConstructor) alt);
-			if (changed) {
-				oneChanged = true;
+			
+			if(newAlt != alt){
+				changed = true;
 			}
-			if (newAlt != filtered) {
+			
+			if(newAlt != null){
 				newAlternatives.insert(newAlt);
+				only = newAlt;
 			}
-			changed = false;
 		}
 		
-		changed = oneChanged;
+		if(changed){
+			switch(newAlternatives.size()){
+				case 0: return null;
+				case 1: return only;
+				default:
+					return forest.set("alternatives", newAlternatives.done());
+			}
+		}
 		
-		if (changed) {
-			if (newAlternatives.size() != 0) {
-				return forest.set("alternatives", newAlternatives.done());
-			}
-			else {
-				return filtered;
-			}
-		}
-		else {
-			return forest;
-		}
+		return forest;
 	}
 
 	private IConstructor recAppl(IConstructor forest) {
 		IConstructor result;
 		IList children = TreeAdapter.getArgs(forest);
 		IListWriter newChildren = eval.getValueFactory().listWriter(Factory.Tree);
-		boolean oneChanged = false;
-		changed = false;
+		boolean changed = false;
+		boolean isList = TreeAdapter.isList(forest);
+		IConstructor prod = TreeAdapter.getProduction(forest);
 		
 		for (IValue child : children) {
 			IConstructor newChild = rec((IConstructor) child);
-			if (newChild == filtered) {
-				return filtered;
+			
+			if(newChild != child){
+				if(newChild == null){
+					return null;
+				}
+				
+				changed = true;
 			}
-			newChildren.append(newChild);
-			if (changed) {
-				oneChanged = true;
+			
+			if(!isList){
+				newChildren.append(newChild);
+			}else{
+				if(TreeAdapter.isList(newChild) && ProductionAdapter.shouldFlatten(prod,TreeAdapter.getProduction(newChild))){
+					newChildren.appendAll(TreeAdapter.getArgs(newChild));
+				}else{
+					newChildren.append(newChild);
+				}
 			}
-			changed = false;
 		}
 		
-		changed = oneChanged;
-		
-		IConstructor prod = TreeAdapter.getProduction(forest);
 		LanguageAction action = info.getAction(prod);
 		
-		if (action != null) {
-			if (changed) {
-				result = call(forest.set("args", newChildren.done()), action);
-			}
-			else {
-				result = call(forest, action);
-			}
-		}
-		else if (changed) {
+		result = forest;
+		if(changed){
 			result = forest.set("args", newChildren.done());
 		}
-		else {
-			result = forest;
+		
+		if(action != null){
+			result = call(result, action);
 		}
+		
 		return result;
 	}
 
@@ -179,7 +160,7 @@ public class ActionExecutor {
 			}
 			else {
 				// TODO: see above, this should be fixed if every action knows to which module it belongs
-				System.err.println("WARNING: could not retrieve a module environment for action for " + TreeAdapter.getProduction(tree));
+//				System.err.println("WARNING: could not retrieve a module environment for action for " + TreeAdapter.getProduction(tree));
 				scope = new ModuleEnvironment("***no module environment for action***");
 			}
 			
@@ -193,11 +174,9 @@ public class ActionExecutor {
 				eval.setCurrentAST(action.getExpression());
 				return (IConstructor) action.getExpression().accept(eval).getValue();
 			}
-			else {
-				for (Statement s : action.getStatements()) {
-					eval.setCurrentAST(s);
-					s.accept(eval);
-				}
+			for (Statement s : action.getStatements()) {
+				eval.setCurrentAST(s);
+				s.accept(eval);
 			}
 			
 			// nothing happens to the tree, but side-effects may have occurred
@@ -205,17 +184,14 @@ public class ActionExecutor {
 		}
 		catch (Insert e) {
 			// TODO add type checking!
-			changed = true;
 			return (IConstructor) e.getValue().getValue();
 		}
 		catch (Return e) {
 			// TODO add type checking!
-			changed = true;
 		    return (IConstructor) e.getValue().getValue();	
 		}
 		catch (Failure e) {
-			changed = true;
-			return filtered;
+			return null;
 		}
 		finally {
 			eval.setCurrentEnvt(old);

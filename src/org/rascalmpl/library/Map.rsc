@@ -1,23 +1,5 @@
 module Map
 
-/*
- * Functions on maps:
- * - domain
- * - domainR
- * - domainX
- * - getOneFrom
- * - invert
- * - invertUnique
- * - isEmpty
- * - range
- * - rangeR
- * - rangeX
- * - size 
- * - toList
- * - toRel
- * - toString
- */
- 
 @doc{ return the domain (keys) of a map}
 @javaClass{org.rascalmpl.library.Map}
 public set[&K] java domain(map[&K, &V] M);

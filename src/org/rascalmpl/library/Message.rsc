@@ -19,5 +19,3 @@ public Message warning(loc source, str msg) {
 public Message info(loc source, str msg) {
   return info(msg,source);
 }
-
-

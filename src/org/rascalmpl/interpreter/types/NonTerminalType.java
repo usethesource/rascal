@@ -106,15 +106,12 @@ public class NonTerminalType extends ExternalType {
 		if (other.isParameterType()) {
 			return isSubtypeOf(other.getBound());
 		}
-
-		
-		
 		
 		return super.isSubtypeOf(other);
 	}
 	
 	public boolean isConcreteCFList() {
-		return SymbolAdapter.isCf(symbol) && (SymbolAdapter.isPlusList(symbol) || SymbolAdapter.isStarList(symbol));
+		return false;
 	}
 	
 	@Override

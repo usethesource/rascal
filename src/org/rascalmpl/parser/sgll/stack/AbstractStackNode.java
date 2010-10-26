@@ -25,7 +25,7 @@ public abstract class AbstractStackNode{
 
 	protected boolean isEndNode;
 	private boolean isSeparator;
-	protected boolean isLayout;
+	private boolean isLayout;
 	
 	// Last node specific filter stuff
 	private IConstructor parentProduction;

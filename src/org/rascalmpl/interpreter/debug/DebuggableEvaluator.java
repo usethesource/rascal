@@ -99,7 +99,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.parser.LegacyRascalParser;
 
 public class DebuggableEvaluator extends Evaluator {
 	protected final IDebugger debugger;
@@ -111,7 +110,7 @@ public class DebuggableEvaluator extends Evaluator {
 
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout,
 			ModuleEnvironment moduleEnvironment, IDebugger debugger) {
-		super(vf, stderr, stdout, new LegacyRascalParser(), moduleEnvironment, new GlobalEnvironment());
+		super(vf, stderr, stdout, moduleEnvironment, new GlobalEnvironment());
 		this.patternEvaluator = new DebuggingDecorator<IMatchingResult>(patternEvaluator, debugger);
 		this.debugger = debugger;
 	}

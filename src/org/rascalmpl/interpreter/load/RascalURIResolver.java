@@ -13,8 +13,6 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputOutputResolver;
-import org.rascalmpl.uri.IURIInputStreamResolver;
-import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.uri.UnsupportedSchemeException;
 
 /**

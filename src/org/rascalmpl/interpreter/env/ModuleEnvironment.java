@@ -30,7 +30,6 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -49,9 +48,8 @@ public class ModuleEnvironment extends Environment {
 	protected Set<IValue> productions;
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
 	protected List<Test> tests;
-	private Set<String> importedSDFModules = new HashSet<String>();
 	private boolean initialized;
-	protected Class<IGLL> parser;
+	private boolean bootstrap;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -64,11 +62,23 @@ public class ModuleEnvironment extends Environment {
 		this.typeStore = new TypeStore();
 		this.tests = new LinkedList<Test>();
 		this.initialized = false;
+		this.bootstrap = false;
+	}
+	
+	public void reset() {
+		super.reset();
+		this.importedModules = new HashMap<String, ModuleEnvironment>();
+		this.extensions = new HashMap<Type, List<Type>>();
+		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
+		this.typeStore = new TypeStore();
+		this.tests = new LinkedList<Test>();
+		this.productions = new HashSet<IValue>();
+		this.initialized = false;
+		this.bootstrap = false;
 	}
 	
 	@Override
 	public void declareProduction(Syntax x) {
-		clearParser();
 		productions.add(x.getTree());
 	}
 	
@@ -91,7 +101,6 @@ public class ModuleEnvironment extends Environment {
 	public void addImport(String name, ModuleEnvironment env) {
 		importedModules.put(name, env);
 		typeStore.importStore(env.typeStore);
-		clearParser();
 	}
 	
 	public void addTest(Test test) {
@@ -100,14 +109,6 @@ public class ModuleEnvironment extends Environment {
 	
 	public List<Test> getTests() {
 		return Collections.unmodifiableList(tests);
-	}
-	
-	public void addSDFImport(String name) {
-		importedSDFModules.add(name);
-	}
-	
-	public Set<String> getSDFImports() {
-		return importedSDFModules;
 	}
 	
 	@Override
@@ -267,14 +268,12 @@ public class ModuleEnvironment extends Environment {
 	public Type concreteSyntaxType(String name, org.rascalmpl.ast.Type type) {
 		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(type);
 		concreteSyntaxTypes.put(name, sort);
-		clearParser();
 		return sort;
 	}
 	
 	public Type concreteSyntaxType(String name, IConstructor symbol) {
 		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(symbol);
 		concreteSyntaxTypes.put(name, sort);
-		clearParser();
 		return sort;
 	}
 	
@@ -418,7 +417,8 @@ public class ModuleEnvironment extends Environment {
 			for (String i : getImports()) {
 				ModuleEnvironment mod = getImport(i);
 				
-				type = mod.lookupConcreteSyntaxType(name);
+				// don't recurse here (cyclic imports!)
+				type = mod.concreteSyntaxTypes.get(name);
 				
 				if (type != null) {
 					return type;
@@ -467,28 +467,18 @@ public class ModuleEnvironment extends Environment {
 	public void setInitialized() {
 		this.initialized = true;
 	}
-
-	public void reset() {
-		super.reset();
-		this.importedModules = new HashMap<String, ModuleEnvironment>();
-		this.extensions = new HashMap<Type, List<Type>>();
-		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
-		this.typeStore = new TypeStore();
-		this.tests = new LinkedList<Test>();
-		this.productions = new HashSet<IValue>();
-		this.initialized = false;
-		this.parser = null;
+	
+	public void setInitialized(boolean init) {
+		this.initialized = init;
 	}
 
-	public Class<IGLL> getParser() {
-		return parser;
-	}
+	
 
-	public void safeParser(Class<IGLL> parser) {
-		this.parser = parser;
+	public void setBootstrap(boolean needBootstrapParser) {
+		this.bootstrap = needBootstrapParser;
 	}
 	
-	private void clearParser() {
-		this.parser = null;
+	public boolean getBootstrap() {
+		return bootstrap;
 	}
 }

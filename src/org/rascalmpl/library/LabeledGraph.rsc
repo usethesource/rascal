@@ -1,16 +1,5 @@
 module LabeledGraph
 
-/*
- * Functions for manipulating labeled graphs:
- * - bottom
- * - predecessors
- * - reach
- * - reachR
- * - reachX
- * - successors
- * - top
- */
-
 import Graph;
 import Set;
 import Relation;
