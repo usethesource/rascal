@@ -43,15 +43,15 @@ public bool measure(){
 	for(int i <- [0 .. size]){
 		L = L + arbInt();
 	}
-	start = currentTimeMillis();
+	start = realTime();
 	rev1(L);
-	end1 = currentTimeMillis();
+	end1 = realTime();
 	rev2(L);
-	end2 = currentTimeMillis();
+	end2 = realTime();
 	rev3(L);
-	end3 = currentTimeMillis();
+	end3 = realTime();
 	reverse(L);
-	end4 = currentTimeMillis();
+	end4 = realTime();
 	
 	used1 = end1 - start;
 	used2 = end2 - end1;

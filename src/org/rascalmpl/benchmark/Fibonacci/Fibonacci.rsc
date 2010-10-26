@@ -19,10 +19,10 @@ public bool testFibonacci()
 
 public bool measure()
 {
-	start = currentTimeMillis();
+	start = realTime();
 	n = 15;
 	result = fib(n);
-	used = currentTimeMillis() - start;
+	used = realTime() - start;
 		
 	println("fib(<n>) = <result>  (<used> millis)");
 	return true;
