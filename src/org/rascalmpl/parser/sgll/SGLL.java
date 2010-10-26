@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -159,7 +158,7 @@ public abstract class SGLL implements IGLL{
 			alternative.updateNode(node, result);
 			
 			if(alternative.isEndNode()){
-				if(result.isEmpty() && !node.isMatchable() && !next.isMatchable() && node.getName() == next.getName()){
+				if(result.isEmpty() && !node.isMatchable() && !next.isMatchable()){
 					if(alternative.getId() != node.getId()){ // List cycle fix.
 						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
@@ -597,8 +596,6 @@ public abstract class SGLL implements IGLL{
 		this.inputURI = inputURI;
 		this.input = input;
 		positionStore.index(input);
-
-		SortContainerNode.resetLastRejectedLocation();
 		
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
@@ -626,27 +623,17 @@ public abstract class SGLL implements IGLL{
 				if(resultTree != null){
 					return resultTree; // Success.
 				}
+				
+				// Filtering error.
+				throw new SyntaxError("All trees were filtered.", null);
 			}
 		}
 		
 		// Parse error.
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
-		if(errorLocation != input.length){
-			int line = positionStore.findLine(errorLocation);
-			int column = positionStore.getColumn(errorLocation, line);
-			throw new SyntaxError("before character '" +input[errorLocation] + "'", vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
-		}
-		
-		// Filtering error.
-		ISourceLocation lastRejectedLocation = SortContainerNode.getLastRejectedLocation();
-		if (lastRejectedLocation != null) {
-			throw new SyntaxError("all trees were filtered before character '" + input[lastRejectedLocation.getOffset()] + "'", lastRejectedLocation);
-		}
-		
-		// Parse error.
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
-		throw new SyntaxError("all trees were filtered", vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
+		throw new SyntaxError("Parse error.", vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
 	}
 	
 	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString){
