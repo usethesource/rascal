@@ -365,7 +365,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		ClassResourceInputOutput library = new ClassResourceInputOutput(resolverRegistry, "std", this.getClass(), "/org/rascalmpl/library");
 		resolverRegistry.registerInputOutput(library);
 		
-		ClassResourceInputOutput testdata = new ClassResourceInputOutput(resolverRegistry, "test", this.getClass(), "/org/rascalmpl/test/data");
+		ClassResourceInputOutput testdata = new ClassResourceInputOutput(resolverRegistry, "testdata", this.getClass(), "/org/rascalmpl/test/data");
 		resolverRegistry.registerInput(testdata);
 		
 		resolverRegistry.registerInputOutput(rascalPathResolver);
@@ -741,29 +741,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 		}
 	}
-	
-//	protected void evalSDFModule(Default x) {
-//		// TODO: find out what this is for
-//		if (currentEnvt == rootScope) {
-//			parser.addSdfImportForImportDefault(x);
-//		}
-////		super.evalSDFModule(x);
-//	}
-	
-//	private IConstructor parseModule(String contents, ModuleEnvironment env) throws IOException{
-//		URI uri = URI.create("stdin:///");
-//		java.util.List<String> sdfSearchPath = sdf.getSdfSearchPath();
-//		java.util.Set<String> sdfImports = parser.getSdfImports(sdfSearchPath, uri, contents.getBytes());
-//
-//		IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, uri, contents.getBytes(), env);
-//		
-//		if(tree.getConstructorType() == Factory.ParseTree_Summary){
-//			throw parseError(tree, uri);
-//		}
-//		
-//		return tree;
-//	}
-
 	
 	/**
 	 * Evaluate a declaration
