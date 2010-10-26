@@ -3,7 +3,6 @@ module StrategyTests
 import IO;
 import Strategy;
 import TopologicalStrategy;
-import UnitTest;
 
 data A = f(B I, B J)
        | a()
