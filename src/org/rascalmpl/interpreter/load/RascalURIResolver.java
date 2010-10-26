@@ -112,16 +112,6 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		return path;
 	}
 	
-	private String getBinaryPath(URI uri) {
-		String path = getPath(uri);
-		
-		if (!path.endsWith(Configuration.RASCAL_BIN_FILE_EXT)) {
-			path = path.concat(Configuration.RASCAL_BIN_FILE_EXT);
-		}
-		
-		return path;
-	}
-	
 	public InputStream getInputStream(URI uri) throws IOException {
 		try {
 			if (uri.getScheme().equals(scheme())) {
@@ -131,25 +121,6 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 					URI full = getFullURI(path, dir);
 					if (ctx.getResolverRegistry().exists(full)) {
 						return ctx.getResolverRegistry().getInputStream(full);
-					}
-				}
-			}
-			throw new IOException("Module " + uri.getPath() + " not found");
-		} 
-		catch (URISyntaxException e) {
-			throw new IOException(e.getMessage(), e);
-		}
-	}
-	
-	public InputStream getBinaryInputStream(URI uri) throws IOException {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (ctx.getResolverRegistry().exists(full)) {
-						return ctx.getResolverRegistry().getInputStream(getFullURI(getBinaryPath(uri), dir));
 					}
 				}
 			}
@@ -174,25 +145,6 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 					URI full = getFullURI(path, dir);
 					if (ctx.getResolverRegistry().exists(full)) {
 						return ctx.getResolverRegistry().getOutputStream(full, append);
-					}
-				}
-			}
-			throw new IOException("Module " + uri.getPath() + " not found");
-		} 
-		catch (URISyntaxException e) {
-			throw new IOException(e.getMessage(), e);
-		}
-	}
-	
-	public OutputStream getBinaryOutputStream(URI uri) throws IOException {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (ctx.getResolverRegistry().exists(full)) {
-						return ctx.getResolverRegistry().getOutputStream(getFullURI(getBinaryPath(uri), dir), false);
 					}
 				}
 			}
