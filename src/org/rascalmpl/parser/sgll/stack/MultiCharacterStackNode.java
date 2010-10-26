@@ -53,7 +53,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 			return false;
 		}
 		
-		result = new LiteralNode(inputURI, startLocation, startLocation + nrOfCharacters, isLayout, production, resultArray);
+		result = new LiteralNode(inputURI, startLocation, startLocation + nrOfCharacters, production, resultArray);
 		
 		return true;
 	}

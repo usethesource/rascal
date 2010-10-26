@@ -249,24 +249,24 @@ public class FigurePApplet extends PApplet {
 	public float textWidth(String txt){
 		if(saveFigure)
 			return canvas.textWidth(txt);
-		else
-			return super.textWidth(txt);
+		
+		return super.textWidth(txt);
 	}
 	
 	@Override
 	public float textAscent(){
 		if(saveFigure)
 			return canvas.textAscent();
-		else
-			return super.textAscent();
+		
+		return super.textAscent();
 	}
 	
 	@Override
 	public float textDescent(){
 		if(saveFigure)
 			return canvas.textDescent();
-		else
-			return super.textDescent();
+		
+		return super.textDescent();
 	}
 	
 	@Override

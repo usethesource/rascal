@@ -1,15 +1,5 @@
 module Integer
 
-/*
- * Library functions for integers:
- * - abs
- * - arbInt
- * - max
- * - min
- * - toReal
- * - toString
- */
-
 @doc{Absolute value of integer.}
 public int abs(int N)
 {

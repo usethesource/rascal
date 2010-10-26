@@ -1,3 +1,5 @@
+@doc{The syntax definition of Rascal, excluding concrete syntax fragments}
+@bootstrapParser
 module rascal::syntax::RascalRascal
 
 syntax BooleanLiteral
@@ -23,9 +25,14 @@ syntax Marker =
               # "import"
               # "syntax"
               # "start"
+              # "layout"
               ;
 
-syntax Rest = lex {![\n]* "\n"}+;              
+syntax Rest = Word*;
+
+syntax Word = lex ![\ \t\n\r]+
+            # ![\ \t\n\r]
+            ;          
                    
 syntax Alternative
 	= NamedType: Name name Type type ;
@@ -192,7 +199,8 @@ syntax Symbol
 	| CharacterClass: CharClass charClass 
 	| Optional: Symbol symbol "?" 
 	| Iter: Symbol symbol "+" 
-	| IterStar: Symbol symbol "*" 
+	| IterStar: Symbol symbol "*"
+	| Sort: QualifiedName name 
 	> right Alternative: Symbol lhs "|" Symbol rhs
     ;
     
@@ -218,10 +226,7 @@ syntax Expression
 	| Map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| It             : "it" 
 	| QualifiedName  : QualifiedName qualifiedName 
-	> non-assoc ( NoMatch: Pattern pattern "!:=" Expression expression  
-		        | Match: Pattern pattern ":=" Expression expression 
-		        | /*prefer()*/ Enumerator: Pattern pattern "\<-" Expression expression 
-	            )
+	
 	>  Subscript  : Expression expression "[" {Expression ","}+ subscripts "]" 
 	| FieldAccess : Expression expression "." Name field 
 	| FieldUpdate : Expression expression "[" Name key "=" Expression replacement "]" 
@@ -247,20 +252,25 @@ syntax Expression
 	> non-assoc (  NotIn: Expression lhs "notin" Expression rhs  
 		        |  In: Expression lhs "in" Expression rhs 
 	)
-	> non-assoc ( Equals         : Expression lhs "==" Expression rhs   
-	            | GreaterThanOrEq: Expression lhs "\>=" Expression rhs  
+	> non-assoc ( GreaterThanOrEq: Expression lhs "\>=" Expression rhs  
 		        | LessThanOrEq   : Expression lhs "\<=" Expression rhs 
 		        | LessThan       : Expression lhs "\<" Expression rhs 
 		        | GreaterThan    : Expression lhs "\>" Expression rhs 
-		        | NonEquals      : Expression lhs "!=" Expression rhs 
 	            )
-	> non-assoc IfDefinedOtherwise: Expression lhs "?" Expression rhs 
+	> left IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp
+	> non-assoc ( Equals         : Expression lhs "==" Expression rhs
+	            | NonEquals      : Expression lhs "!=" Expression rhs 
+	            )
+	> non-assoc IfDefinedOtherwise: Expression lhs "?" Expression rhs
+	> non-assoc ( NoMatch: Pattern pattern "!:=" Expression expression  
+		        | Match: Pattern pattern ":=" Expression expression 
+		        | /*prefer()*/ Enumerator: Pattern pattern "\<-" Expression expression 
+	            ) 
 	> non-assoc ( Implication: Expression lhs "==\>" Expression rhs  
 		        | Equivalence: Expression lhs "\<==\>" Expression rhs 
 	            )
 	> left And: Expression lhs "&&" Expression rhs 
 	> left Or: Expression lhs "||" Expression rhs 
-	> left IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp
 	; 
 
 syntax UserType
@@ -537,8 +547,12 @@ syntax Visit
 	| DefaultStrategy: "visit" "(" Expression subject ")" "{" Case+ cases "}" ;
 
 start syntax Command
-	= /*prefer()*/ Expression: Expression expression 
-	| /*avoid()*/ Declaration: Declaration declaration 
+	= Expression: Expression expression {
+	  if (appl(prod(_,sort("Expression"),attrs([term(cons("NonEmptyBlock"))])),_) := expression) { 
+	    fail;
+	  }
+	}
+	| Declaration: Declaration declaration 
 	| Shell: ":" ShellCommand command 
 	| Statement: Statement statement {
 	  // local variable declarations would be ambiguous with the "global" declarations defined above
@@ -607,14 +621,12 @@ syntax Start
 syntax Statement
 	= Assert: "assert" Expression expression ";" 
 	| Expression: Expression expression ";" {
-	   if (appl(prod(_,_,attrs([_*,term(cons("NonEmptyBlock")),_*])),_) := expression
-	     ||appl(prod(_,_,attrs([_*,term(cons("Visit")),_*])),_) := expression ) { 
+	   if (appl(prod(_,sort("Expression"),attrs([_*,term(cons("NonEmptyBlock")),_*])),_) := expression
+	     ||appl(prod(_,sort("Expression"),attrs([_*,term(cons("Visit")),_*])),_) := expression ) { 
 	    fail;
 	  }
 	}
 	| AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
-	| FunctionDeclaration: FunctionDeclaration functionDeclaration 
-	| VariableDeclaration: LocalVariableDeclaration declaration ";" 
 	| Visit: Label label Visit visit 
 	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
 	| DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
@@ -637,7 +649,10 @@ syntax Statement
 		        | Assignment: Assignable assignable Assignment operator Statement statement 
 		        | Append    : "append" DataTarget dataTarget Statement statement 
 	            )
-    ;
+    > FunctionDeclaration: FunctionDeclaration functionDeclaration 
+	| VariableDeclaration: LocalVariableDeclaration declaration ";"
+	; 
+	
     
 syntax StructuredType
 	= Default: BasicType basicType "[" {TypeArg ","}+ arguments "]" ;
@@ -745,7 +760,13 @@ syntax Type
 	| Basic: BasicType basic 
 	| Selector: DataTypeSelector selector 
 	| Variable: TypeVar typeVar 
-	| Symbol: Symbol symbol ;
+	| Symbol: Symbol symbol {
+	   if (appl(prod(_,sort("Symbol"),attrs([_*,term(cons("Sort")),_*])),_) := symbol
+	     ||appl(prod(_,sort("Symbol"),attrs([_*,term(cons("Alternative")),_*])),_) := symbol) {
+	    fail;
+	   }
+	} 
+	;
 
 syntax Declaration
 	= Variable    : Tags tags Visibility visibility Type type {Variable ","}+ variables ";" 
@@ -885,7 +906,7 @@ syntax PrePathChars
 
 syntax Mapping[&T]
 	= Default: &T from ":" &T to {
-	  if (prod(_,sort("Expression"),attrs([_*,term(cons("IfDefinedOtherwise")),_*])) := from) {
+	  if (appl(prod(_,sort("Expression"),attrs([_*,term(cons("IfDefinedOtherwise")),_*])),_) := from) {
 	    fail;
 	  }
 	} 
@@ -900,20 +921,20 @@ syntax MidPathChars
 	= lex "\>" URLChars "\<" ;
 
 syntax Pattern
-	= Set: "{" {Pattern ","}* elements "}" 
-	| List: "[" {Pattern ","}* elements "]" 
-	| QualifiedName: QualifiedName qualifiedName 
-	| MultiVariable: QualifiedName qualifiedName "*" 
-	| Literal: Literal literal 
-	| Tuple: "\<" {Pattern ","}+ elements "\>" 
-	| TypedVariable: Type type Name name 
-	| Map: "(" {Mapping[Pattern] ","}* mappings ")" 
-	| ReifiedType: BasicType basicType "(" {Pattern ","}* arguments ")" 
-	| CallOrTree: Pattern expression "(" {Pattern ","}* arguments ")" 
-	> VariableBecomes: Name name ":" Pattern pattern
-	| Guarded: "[" Type type "]" Pattern pattern 
-	| Descendant: "/" Pattern pattern 
-	| Anti: "!" Pattern pattern 
+	= Set                 : "{" {Pattern ","}* elements "}" 
+	| List                : "[" {Pattern ","}* elements "]" 
+	| QualifiedName       : QualifiedName qualifiedName 
+	| MultiVariable       : QualifiedName qualifiedName "*" 
+	| Literal             : Literal literal 
+	| Tuple               : "\<" {Pattern ","}+ elements "\>" 
+	| TypedVariable       : Type type Name name 
+	| Map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
+	| ReifiedType         : BasicType basicType "(" {Pattern ","}* arguments ")" 
+	| CallOrTree          : Pattern expression "(" {Pattern ","}* arguments ")" 
+	> VariableBecomes     : Name name ":" Pattern pattern
+	| Guarded             : "[" Type type "]" Pattern pattern 
+	| Descendant          : "/" Pattern pattern 
+	| Anti                : "!" Pattern pattern 
 	| TypedVariableBecomes: Type type Name name ":" Pattern pattern 
     ;
     

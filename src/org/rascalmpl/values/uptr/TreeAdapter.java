@@ -3,22 +3,17 @@ package org.rascalmpl.values.uptr;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.parser.MappingsCache;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
@@ -57,10 +52,6 @@ public class TreeAdapter {
 		return (IConstructor) tree.get("prod");
 	}
 
-	public static boolean hasSortName(IConstructor tree) {
-		return ProductionAdapter.hasSortName(getProduction(tree));
-	}
-
 	public static String getSortName(IConstructor tree)
 			throws FactTypeUseException {
 		return ProductionAdapter.getSortName(getProduction(tree));
@@ -75,11 +66,6 @@ public class TreeAdapter {
 		IConstructor prod = getProduction(tree);
 		return ProductionAdapter.getSortName(prod).equals(sortName)
 				&& ProductionAdapter.getConstructorName(prod).equals(consName);
-	}
-
-	public static boolean isLexToCf(IConstructor tree) {
-		return isAppl(tree) ? ProductionAdapter.isLexToCf(getProduction(tree))
-				: false;
 	}
 
 	public static boolean isContextFree(IConstructor tree) {
@@ -158,13 +144,12 @@ public class TreeAdapter {
 	}
 
 	public static IList getASTArgs(IConstructor tree) {
-		if (getSortName(tree).equals("<START>")) {
+		if (SymbolAdapter.isStartSort(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)))) {
 			return getArgs(tree).delete(0).delete(1);
 		}
 		
-		if (!isContextFree(tree)) {
-			throw new ImplementationError(
-					"This is not a context-free production: " + tree);
+		if (isLexical(tree)) {
+			throw new ImplementationError("This is not a context-free production: " + tree);
 		}
 
 		IList children = getArgs(tree);
@@ -201,210 +186,6 @@ public class TreeAdapter {
 
 	public static int getCharacter(IConstructor tree) {
 		return ((IInteger) tree.get("character")).intValue();
-	}
-
-	protected static class PositionAnnotator {
-		private final IConstructor tree;
-		private final MappingsCache<PositionNode, IConstructor> cache;
-		private final boolean windowsOS = System.getProperty("os.name")
-				.toLowerCase().indexOf("win") != -1;
-		private boolean inLayout = false;
-		private boolean labelLayout = false;
-
-		public PositionAnnotator(IConstructor tree) {
-			super();
-
-			this.tree = tree;
-			this.cache = new MappingsCache<PositionNode, IConstructor>();
-		}
-
-		public IConstructor addPositionInformation(URI location) {
-			Factory.getInstance(); // make sure everything is declared
-			try {
-				return addPosInfo(tree, location, new Position()); // Fix
-																	// filename
-																	// so URI's
-																	// work.
-			} catch (MalformedURLException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		private IConstructor addPosInfo(IConstructor tree, URI location,
-				Position cur) throws MalformedURLException {
-			IValueFactory factory = ValueFactoryFactory.getValueFactory();
-			int startLine = cur.line;
-			int startCol = cur.col;
-			int startOffset = cur.offset;
-			PositionNode positionNode = new PositionNode(tree, cur.offset);
-			IConstructor result = cache.get(positionNode);
-			
-			if (result != null) {
-				ISourceLocation loc = getLocation(result);
-				cur.col = loc.getEndColumn();
-				cur.line = loc.getEndLine();
-				cur.offset += loc.getLength();
-				return result;
-			}
-
-			if (isChar(tree)) {
-				cur.offset++;
-				char character = ((char) getCharacter(tree));
-
-				if (character == '\r') {
-					cur.col++;
-					cur.sawCR = true;
-				} else if (character == '\n') {
-					cur.col = 0;
-					cur.line++;
-
-					// Workaround to funny stuff in Eclipse editors
-					if (windowsOS && !cur.sawCR) {
-						cur.offset++;
-					}
-					cur.sawCR = false;
-				} else {
-					cur.col++;
-					cur.sawCR = false;
-				}
-				return tree;
-			}
-
-			if (isAppl(tree)) {
-				boolean outermostLayout = false;
-				IList args = getArgs(tree);
-
-				if (isLayout(tree)) {
-					inLayout = true;
-					outermostLayout = true;
-				}
-
-				// TODO: Talk to Jurgen about this
-//				if (!TreeAdapter.isLexToCf(tree)) {
-					IListWriter newArgs = factory.listWriter(Factory.Tree);
-					for (IValue arg : args) {
-						newArgs
-						.append(addPosInfo((IConstructor) arg, location,
-								cur));
-					}
-					tree = tree.set("args", newArgs.done());
-//				}
-				
-				if (!labelLayout && outermostLayout) {
-					inLayout = false;
-					if (! isComment(tree))
-						return tree;
-				} else if (!labelLayout && inLayout) {
-					if (! isComment(tree))
-						return tree;
-				}
-			} else if (isAmb(tree)) {
-				ISet alts = getAlternatives(tree);
-				ISetWriter newAlts = ValueFactoryFactory.getValueFactory()
-						.setWriter(Factory.Tree);
-				Position save = cur;
-				Position newPos = save;
-				ISetWriter cycles = ValueFactoryFactory.getValueFactory()
-						.setWriter(Factory.Tree);
-
-				for (IValue arg : alts) {
-					cur = save.clone();
-
-					IValue newArg = addPosInfo((IConstructor) arg, location,
-							cur);
-
-					if (cur.offset != save.offset) {
-						newPos = cur;
-						newAlts.insert(newArg);
-					} else if (newPos.offset == save.offset) {
-						cycles.insert(arg);
-					} else {
-						newAlts.insert(newArg);
-					}
-				}
-
-				cur = save;
-				cur.col = newPos.col;
-				cur.line = newPos.line;
-				cur.offset = newPos.offset;
-				cur.sawCR = newPos.sawCR;
-
-				for (IValue arg : cycles.done()) {
-					IValue newArg = addPosInfo((IConstructor) arg, location,
-							cur);
-					newAlts.insert(newArg);
-				}
-				
-				tree = tree.set("alternatives", newAlts.done());
-			} else if (!isCycle(tree)) {
-				throw new ImplementationError("unhandled tree: " + tree + "\n");
-			}
-
-			ISourceLocation loc = factory.sourceLocation(location, startOffset,
-					cur.offset - startOffset, startLine, cur.line, startCol,
-					cur.col);
-			result = tree.setAnnotation(Factory.Location, loc);
-
-			cache.putUnsafe(positionNode, result);
-
-			return result;
-		}
-
-		private static class Position {
-			public int col = 0;
-			public int line = 1;
-			public int offset = 0;
-			public boolean sawCR = false;
-
-			public Position clone() {
-				Position tmp = new Position();
-				tmp.col = col;
-				tmp.line = line;
-				tmp.offset = offset;
-				tmp.sawCR = sawCR;
-				return tmp;
-			}
-
-			@Override
-			public String toString() {
-				return "offset: " + offset + ", line: " + line + ", col:" + col
-						+ ", sawCR:" + sawCR;
-
-			}
-		}
-
-		private static class PositionNode {
-			private final IConstructor tree;
-			private final int offset;
-
-			public PositionNode(IConstructor tree, int offset) {
-				super();
-
-				this.tree = tree;
-				this.offset = offset;
-			}
-
-			public int hashCode() {
-				return ((offset << 32) ^ tree.hashCode());
-			}
-
-			public boolean equals(Object o) {
-				if (o.getClass() != getClass())
-					return false;
-
-				PositionNode other = (PositionNode) o;
-
-				return (offset == other.offset && tree == other.tree); // NOTE:
-																		// trees
-																		// are
-																		// shared,
-																		// so
-																		// they
-																		// are
-																		// pointer
-																		// equal.
-			}
-		}
 	}
 
 	private static class Unparser extends IdentityTreeVisitor {
@@ -452,7 +233,7 @@ public class TreeAdapter {
 					"locate assumes position information on the tree");
 		}
 
-		if (TreeAdapter.isLexToCf(tree)) {
+		if (TreeAdapter.isLexical(tree)) {
 			if (l.getOffset() <= offset
 					&& offset < l.getOffset() + l.getLength()) {
 				return tree;
@@ -505,7 +286,7 @@ public class TreeAdapter {
 					"locate assumes position information on the tree");
 		}
 
-		if (TreeAdapter.isLexToCf(tree)) {
+		if (TreeAdapter.isLexical(tree)) {
 			if (l.getOffset() <= offset
 					&& offset < l.getOffset() + l.getLength()) {
 				if (tree.hasAnnotation(label)) {
@@ -565,9 +346,7 @@ public class TreeAdapter {
 	public static void unparse(IConstructor tree, OutputStream stream)
 			throws IOException, FactTypeUseException {
 		try {
-			if (tree.getConstructorType() == Factory.ParseTree_Top) {
-				tree.get("top").accept(new Unparser(stream));
-			} else if (tree.getType() == Factory.Tree) {
+			if (tree.getType() == Factory.Tree) {
 				tree.accept(new Unparser(stream));
 			} else {
 				throw new ImplementationError("Can not unparse this "
@@ -595,23 +374,14 @@ public class TreeAdapter {
 		}
 	}
 
-	public static boolean isContextFreeInjectionOrSingleton(IConstructor tree) {
+	public static boolean isInjectionOrSingleton(IConstructor tree) {
 		IConstructor prod = getProduction(tree);
 		if (isAppl(tree)) {
-			if (!ProductionAdapter.isList(prod)
-					&& ProductionAdapter.getLhs(prod).length() == 1) {
-				IConstructor rhs = ProductionAdapter.getRhs(prod);
-				if (SymbolAdapter.isCf(rhs)) {
-					rhs = SymbolAdapter.getSymbol(rhs);
-					if (SymbolAdapter.isSort(rhs)) {
-						return true;
-					}
-				}
+			if (ProductionAdapter.isDefault(prod)) {
+			   return ProductionAdapter.getLhs(prod).length() == 1;
 			}
-		} else if (isList(tree)
-				&& SymbolAdapter.isCf(ProductionAdapter.getRhs(prod))) {
-			if (getArgs(tree).length() == 1) {
-				return true;
+			else if (ProductionAdapter.isList(prod)) {
+				return getArgs(tree).length() == 1;
 			}
 		}
 		return false;
@@ -635,12 +405,7 @@ public class TreeAdapter {
 			if (ProductionAdapter.isList(prod)) {
 				IConstructor sym = ProductionAdapter.getRhs(prod);
 
-				if (SymbolAdapter.isCf(sym) || SymbolAdapter.isLex(sym)) {
-					sym = SymbolAdapter.getSymbol(sym);
-				}
-
-				if (SymbolAdapter.isIterStar(sym)
-						|| SymbolAdapter.isIterStarSep(sym)) {
+				if (SymbolAdapter.isIterStar(sym) || SymbolAdapter.isIterStarSeps(sym)) {
 					return getArgs(tree).length() > 0;
 				}
 			}
@@ -655,14 +420,7 @@ public class TreeAdapter {
 			if (ProductionAdapter.isList(prod)) {
 				IConstructor sym = ProductionAdapter.getRhs(prod);
 
-				if (SymbolAdapter.isCf(sym) || SymbolAdapter.isLex(sym)) {
-					sym = SymbolAdapter.getSymbol(sym);
-				}
-
-				if (SymbolAdapter.isIterPlus(sym)
-						|| SymbolAdapter.isIterPlusSep(sym) 
-						|| SymbolAdapter.isIterPlusSeps(sym)
-						|| SymbolAdapter.isIterStarSeps(sym)) {
+				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSeps(sym)) { 
 					return true;
 				}
 			}
@@ -710,14 +468,6 @@ public class TreeAdapter {
 		return false;
 	}
 
-	public static boolean hasPreferAttribute(IConstructor tree) {
-		return ProductionAdapter.hasPreferAttribute(getProduction(tree));
-	}
-
-	public static boolean hasAvoidAttribute(IConstructor tree) {
-		return ProductionAdapter.hasAvoidAttribute(getProduction(tree));
-	}
-
 	public static IList searchCategory(IConstructor tree, String category) {
 		IListWriter writer = Factory.Args.writer(ValueFactoryFactory
 				.getValueFactory());
@@ -740,5 +490,12 @@ public class TreeAdapter {
 
 	public static boolean isRascalLexical(IConstructor tree) {
 		return ProductionAdapter.hasLexAttribute(getProduction(tree)); 
+	}
+
+	public static boolean hasLexAttribute(IConstructor tree) {
+		if (isAppl(tree)) {
+			return ProductionAdapter.hasLexAttribute(getProduction(tree));
+		}
+		return false;
 	}
 }

@@ -53,8 +53,8 @@ public class AmbiguousNestedPlusList extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(appl(prod([iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[amb({appl(regular(iter(sort(\"A\")),\\no-attrs()),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(\\char-class([single(97)])),\\no-attrs()),[char(97)])]),appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(\\char-class([single(97)])),\\no-attrs()),[char(97)])])]),appl(regular(iter(sort(\"A\")),\\no-attrs()),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(\\char-class([single(97)])),\\no-attrs()),[char(97),char(97)])])])})]),-1)";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
+		String expectedInput = "appl(prod([iter(sort(\"A\"))],sort(\"S\"),\\no-attrs()),[amb({appl(regular(iter(sort(\"A\")),\\no-attrs()),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(\\char-class([single(97)])),\\no-attrs()),[char(97)])]),appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(\\char-class([single(97)])),\\no-attrs()),[char(97)])])]),appl(regular(iter(sort(\"A\")),\\no-attrs()),[appl(prod([iter(\\char-class([single(97)]))],sort(\"A\"),\\no-attrs()),[appl(regular(iter(\\char-class([single(97)])),\\no-attrs()),[char(97),char(97)])])])})])";
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

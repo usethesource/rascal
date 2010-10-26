@@ -9,7 +9,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -25,7 +24,7 @@ public class RascalTutor {
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("*** TUTOR ***"));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
-		return new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, new LegacyRascalParser(), root, heap);
+		return new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 	}
 	
 	final static String BASE = "std:///experiments/RascalTutor/";

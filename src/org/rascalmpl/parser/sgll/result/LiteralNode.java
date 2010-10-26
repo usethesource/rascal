@@ -15,23 +15,19 @@ import org.rascalmpl.values.uptr.Factory;
 public class LiteralNode extends AbstractNode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	private final URI input;
-	private final int offset;
-	private final int endOffset;
-	
-	private final boolean isLayout;
+	protected final URI input;
+	protected final int offset;
+	protected final int endOffset;
 	
 	private final IConstructor production;
 	private final char[] content;
 	
-	public LiteralNode(URI input, int offset, int endOffset, boolean isLayout, IConstructor production, char[] content){
+	public LiteralNode(URI input, int offset, int endOffset, IConstructor production, char[] content){
 		super();
 		
 		this.input = input;
 		this.offset = offset;
 		this.endOffset = endOffset;
-		
-		this.isLayout = isLayout;
 		
 		this.production = production;
 		this.content = content;
@@ -95,7 +91,7 @@ public class LiteralNode extends AbstractNode{
 		
 		IConstructor result = vf.constructor(Factory.Tree_Appl, production, listWriter.done());
 		
-		if(!(isLayout || input == null)){
+		if(input != null){
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
 			ISourceLocation sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));

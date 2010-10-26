@@ -1,13 +1,11 @@
 package org.rascalmpl.test;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,10 +18,8 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
-import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -104,7 +100,7 @@ public class TestFramework {
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***test***"));
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
-		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  new LegacyRascalParser(), root, heap);
+		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		URIResolverRegistry resolverRegistry = eval.getResolverRegistry();
 		
 		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "rascal-test", getClass(), "/"));
@@ -119,16 +115,6 @@ public class TestFramework {
 			@Override
 			public String toString() {
 				return "[test library]";
-			}
-		});
-
-		// to find sdf modules in the test directory
-		eval.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
-			public List<String> contributePaths() {
-				List<String> result = new LinkedList<String>();
-				File srcDir = new File(System.getProperty("user.dir"), "src/org/rascalmpl/test/data");
-				result.add(srcDir.getAbsolutePath());
-				return result;
 			}
 		});
 

@@ -310,7 +310,9 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		if (!prod.getExpression().isQualifiedName()) {
 			return false;
 		}
-		return Names.name(Names.lastName(prod.getExpression().getQualifiedName())).equals("list");
+		java.lang.String name = Names.name(Names.lastName(prod.getExpression().getQualifiedName()));
+		// TODO: note how this code breaks if we start using regular for other things besides lists...
+		return name.equals("list") || name.equals("regular"); 
 	}
 
 	@Override
@@ -334,9 +336,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 			if (TreeAdapter.isLexical((IConstructor) x.getTree())) {
 				return new ConcreteApplicationPattern(ctx, x, visitConcreteLexicalArguments(x));
 			}
-			else {
-				return new ConcreteApplicationPattern(ctx, x, visitConcreteArguments(x));
-			}
+			
+			return new ConcreteApplicationPattern(ctx, x, visitConcreteArguments(x));
 		}
 		if (isConcreteSyntaxAmb(x)) {
 			new Ambiguous((IConstructor) x.getTree());

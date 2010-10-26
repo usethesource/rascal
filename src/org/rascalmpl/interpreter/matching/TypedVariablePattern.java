@@ -82,8 +82,9 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 			Type subjectType = subject.getValue().getType(); 
 			if (subjectType.isSubtypeOf(Factory.Tree) && ((IConstructor)subject.getValue()).getConstructorType() == Factory.Tree_Appl) {
 				IConstructor tree = (IConstructor)subject.getValue();
+
 				if (((NonTerminalType)declaredType).getSymbol().isEqual(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)))) {
-					if(anonymous) {
+					if(anonymous) { 
 						return true;
 					}				
 					ctx.getCurrentEnvt().storeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));

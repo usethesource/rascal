@@ -42,8 +42,8 @@ public class CharPlusList extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(appl(prod([iter(\\char-class([range(97,122)]))],sort(\"S\"),\\no-attrs()),[appl(regular(iter(\\char-class([range(97,122)])),\\no-attrs()),[char(97),char(98),char(99)])]),-1)";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
+		String expectedInput = "appl(prod([iter(\\char-class([range(97,122)]))],sort(\"S\"),\\no-attrs()),[appl(regular(iter(\\char-class([range(97,122)])),\\no-attrs()),[char(97),char(98),char(99)])])";
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 
 	public static void main(String[] args){

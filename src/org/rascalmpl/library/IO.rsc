@@ -12,8 +12,7 @@ public bool print(value V...)
   println(V);
   return true;
 }
-
-
+    
 @doc{Print a list of values on the output stream, but do not convert parse trees or remove quotes from strings}
 @javaClass{org.rascalmpl.library.IO}
 public void java rawPrintln(value V...);

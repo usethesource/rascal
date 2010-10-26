@@ -20,23 +20,13 @@ import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.ASTStatistics;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
-import org.rascalmpl.ast.DecimalIntegerLiteral;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.IntegerLiteral;
-import org.rascalmpl.ast.JavaFunctionBody;
+import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.LanguageAction;
-import org.rascalmpl.ast.Literal;
-import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.PathChars;
-import org.rascalmpl.ast.PathPart;
-import org.rascalmpl.ast.ProtocolChars;
-import org.rascalmpl.ast.ProtocolPart;
-import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.StringConstant;
-import org.rascalmpl.ast.StringLiteral;
+import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -46,7 +36,6 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -58,6 +47,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class ASTBuilder {
 	private static final String RASCAL_SORT_PREFIX = "_";
 	private static final String MODULE_SORT = "Module";
+	private static final String PRE_MODULE_SORT = "PreModule";
 	private ASTFactory factory;
     private Class<? extends ASTFactory> clazz;
     
@@ -87,8 +77,20 @@ public class ASTBuilder {
 	}
 	
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
-		IConstructor tree = ParsetreeAdapter.getTop(parseTree);
+		IConstructor tree =  parseTree;
+		
 		if (TreeAdapter.isAppl(tree)) {
+			if (sortName(tree).equals(MODULE_SORT)) {
+				// t must be an appl so call buildValue directly
+				return (Module) buildValue(tree);
+			}
+			else if (sortName(tree).equals(PRE_MODULE_SORT)) {
+				// TODO temporary solution while bootstrapping (if we regenerate the ast hierarchy this can be solved more elegantly)
+				IList moduleArgs = (IList) tree.get(1);
+				IConstructor headerTree = (IConstructor) moduleArgs.get(0);
+				Header header = (Header) buildValue(headerTree);
+				return factory.makeModuleDefault(tree, header, factory.makeBodyToplevels((INode) moduleArgs.get(2), Collections.<Toplevel>emptyList())); 
+			}
 			return buildSort(parseTree, MODULE_SORT);
 		}
 		if (TreeAdapter.isAmb(tree)) {
@@ -101,6 +103,18 @@ public class ASTBuilder {
 				if (sortName(t).equals(MODULE_SORT)) {
 					// t must be an appl so call buildValue directly
 					return (Module) buildValue(t);
+				}
+				else if (sortName(t).equals(PRE_MODULE_SORT)) {
+					// TODO temporary solution while bootstrapping (if we regenerate the ast hierarchy this can be solved more elegantly)
+					throw new Ambiguous(parseTree);
+//					IList startArgs = (IList) ((IConstructor) val).get(1);
+//					IConstructor moduleTop = (IConstructor) startArgs.get(1);
+//					IList moduleArgs = (IList) moduleTop.get(1);
+//					IConstructor headerTree = (IConstructor) moduleArgs.get(0);
+//					Header header = (Header) buildValue(headerTree);
+//					return new Module.Default(tree, header, 
+//							new Body.Toplevels((INode) moduleArgs.get(2), 
+//									Collections.<Toplevel>emptyList()));
 				}
 			}
 		}
@@ -125,7 +139,7 @@ public class ASTBuilder {
 	
 	@SuppressWarnings("unchecked")
 	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
-		IConstructor top = (IConstructor) parseTree.get("top");
+		IConstructor top = parseTree;
 		
 		if (TreeAdapter.isAppl(top)) {
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(top).get(1);
@@ -170,23 +184,17 @@ public class ASTBuilder {
 			if (TreeAdapter.isRascalLexical(tree)) {
 				return buildLexicalNode(tree);
 			}
-			else {
-				return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
-			}
+			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
 		}
 		
-		if (sortName(tree).equals("FunctionBody") && TreeAdapter.getConstructorName(tree).equals("Java")) {
-			JavaFunctionBody javaAST = factory.makeJavaFunctionBody((INode) arg, TreeAdapter.yield(tree));
-			javaAST.getStats().setAvoided(true);
-			return javaAST;
-		}
-
 		if (sortName(tree).equals("Pattern") && isEmbedding(tree)) {
 			return lift(tree, true);
 		}
 
-		if (sortName(tree).equals("Expression") && isEmbedding(tree)) {
-			return lift(tree, false);
+		if (sortName(tree).equals("Expression")) {
+			if (isEmbedding(tree)) {
+				return lift(tree, false);
+			}
 		}
 		
 		return buildContextFreeNode((IConstructor) arg);
@@ -290,9 +298,6 @@ public class ASTBuilder {
 
 				ASTStatistics stats = ((AbstractAST) actuals[i]).getStats();
 				total.add(stats);
-				total.setAvoided(stats.isAvoided());
-				total.setPreferred(stats.isPreferred());
-					
 			}
 			i++;
 		}
@@ -309,20 +314,6 @@ public class ASTBuilder {
 			if (astExp.hasPattern() && astExp.getPattern()._getType() != null) {
 				astExp._setType(astExp.getPattern()._getType());
 			}
-		}
-		
-		if (arity > 2) { // is not an injection so kill accumulation of prefer and avoid
-			total.setAvoided(false);
-			total.setPreferred(false);
-		}
-		
-		if (TreeAdapter.hasPreferAttribute(tree)) {
-			total.setAvoided(false);
-			total.setPreferred(true);
-		}
-		if (TreeAdapter.hasAvoidAttribute(tree)) {
-			total.setAvoided(true);
-			total.setPreferred(false);
 		}
 		
 		ast.setStats(total);
@@ -587,7 +578,7 @@ public class ASTBuilder {
 						return result;
 					}
 					
-					if (TreeAdapter.isContextFreeInjectionOrSingleton(tree)) {
+					if (!TreeAdapter.isLexical(tree) || TreeAdapter.isInjectionOrSingleton(tree)) {
 						stats.setInjections(1);
 					}
 					else if (TreeAdapter.isNonEmptyStarList(tree)) {
@@ -843,8 +834,14 @@ public class ASTBuilder {
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" Pattern ">" -> STAT in the grammar and "<STAT t>" in the pattern. STAT == STAT.
-			if (type.equals(expected)) {
+			if (type.equals(expected) ) {
 				return true;
+			}
+			
+			if (SymbolAdapter.isAnyList((IConstructor) type)) {
+				
+				IConstructor elem = SymbolAdapter.getSymbol((IConstructor) type);
+				return elem.equals(expected);
 			}
 			return false;
 		}
@@ -854,7 +851,7 @@ public class ASTBuilder {
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" [Type] Pattern ">" -> STAT in the grammar and "<[STAT] pattern>" in the pattern. STAT == STAT.
-			if (type.equals(expected)) {
+			if (type.equals(expected) ) {
 				return true;
 			}
 			return false;
@@ -946,9 +943,6 @@ public class ASTBuilder {
 	}
 
 	private boolean isLexical(IConstructor tree) {
-		if (TreeAdapter.isLexToCf(tree)) {
-			return !isRascalLiteral(tree);
-		}
 		if (TreeAdapter.isRascalLexical(tree)) {
 			return true;
 		}
@@ -960,9 +954,6 @@ public class ASTBuilder {
 			IConstructor prod = TreeAdapter.getProduction(tree);
 			IConstructor rhs = ProductionAdapter.getRhs(prod);
 			
-			if (SymbolAdapter.isCf(rhs)) {
-				rhs = SymbolAdapter.getSymbol(rhs);
-			}
 			if (SymbolAdapter.isParameterizedSort(rhs) && SymbolAdapter.getName(rhs).equals("_WrappedLiteral")) {
 				return true;
 			}

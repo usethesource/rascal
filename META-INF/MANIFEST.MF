@@ -56,8 +56,7 @@ Export-Package: org.jdom,
  org.rascalmpl.values.locations,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors
-Require-Bundle: sglr_invoker,
- org.eclipse.imp.pdb.values,
+Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt
 Import-Package: javax.servlet,
  javax.servlet.http,

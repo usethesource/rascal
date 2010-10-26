@@ -17,6 +17,15 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class SortContainerNode extends AbstractContainerNode{
 	private IConstructor cachedResult;
+	private static ISourceLocation lastRejected = null; 
+	
+	public static ISourceLocation getLastRejectedLocation() {
+		return lastRejected;
+	}
+	
+	public static void resetLastRejectedLocation() {
+		lastRejected = null;
+	}
 	
 	public SortContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
@@ -77,7 +86,13 @@ public class SortContainerNode extends AbstractContainerNode{
 			return cachedResult;
 		}
 		
-		if(rejected) return null;
+		if (rejected) {
+			// TODO: return a "error(Symbol sym, str message, loc location)" tree to get rid of the static field and make error reporting more precise
+			int beginLine = positionStore.findLine(offset);
+			int endLine = positionStore.findLine(endOffset);
+			lastRejected = vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
+			return null;
+		}
 		
 		ISourceLocation sourceLocation = null;
 		if(!(isLayout || input == null)){
@@ -140,4 +155,6 @@ public class SortContainerNode extends AbstractContainerNode{
 		
 		return (depth <= cycleMark.depth) ? (cachedResult = result) : result;
 	}
+
+	
 }

@@ -125,8 +125,8 @@ public class Reject2 extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(appl(prod([sort(\"ABp\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"AB\"),iter(\\char-class([single(97)]))],sort(\"ABp\"),\\no-attrs()),[appl(prod([lit(\"a\"),sort(\"AB\"),lit(\"b\")],sort(\"AB\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(prod([lit(\"a\"),sort(\"AB\"),lit(\"b\")],sort(\"AB\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(prod([empty()],sort(\"AB\"),\\no-attrs()),[]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])]),appl(regular(iter(\\char-class([single(99)])),\\no-attrs()),[char(99),char(99)])])]),-1)";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
+		String expectedInput = "appl(prod([sort(\"ABp\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"AB\"),iter(\\char-class([single(97)]))],sort(\"ABp\"),\\no-attrs()),[appl(prod([lit(\"a\"),sort(\"AB\"),lit(\"b\")],sort(\"AB\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(prod([lit(\"a\"),sort(\"AB\"),lit(\"b\")],sort(\"AB\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(prod([empty()],sort(\"AB\"),\\no-attrs()),[]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])]),appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])]),appl(regular(iter(\\char-class([single(99)])),\\no-attrs()),[char(99),char(99)])])])";
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 	
 	public static void main(String[] args){

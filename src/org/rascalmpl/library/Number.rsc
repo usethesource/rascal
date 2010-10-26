@@ -1,17 +1,5 @@
 module Number
 
-/*
- * Library functions for numbers:
- * - abs
- * - arbInt
- * - arbReal
- * - max
- * - min
- * - toInt
- * - toReal
- * - toString
- */
-
 @doc{Absolute value of integer.}
 public &T <: num abs(&T <: num N)
 {

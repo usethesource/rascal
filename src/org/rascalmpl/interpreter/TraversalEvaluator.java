@@ -33,7 +33,6 @@ import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
@@ -195,8 +194,7 @@ public class TraversalEvaluator {
 					// Constructor is "appl": we are dealing with a syntax tree
 					// - Lexical or literal are returned immediately
 										
-					IConstructor symbol = SymbolAdapter.getRhs(TreeAdapter.getProduction(cons));
-					if(SymbolAdapter.isLex(symbol) || SymbolAdapter.isLiteral(symbol)){
+					if (TreeAdapter.isLexical(cons)|| TreeAdapter.isLiteral(cons)){
 						//System.err.println("Layout or Literal found");
 						return TraverseResultFactory.makeTraverseResult(subject);
 					}

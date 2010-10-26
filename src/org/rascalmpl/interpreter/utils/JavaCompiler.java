@@ -98,7 +98,7 @@ public class JavaCompiler<T> {
     * @throws IllegalStateException
     *            if the Java compiler cannot be loaded.
     */
-   public JavaCompiler(ClassLoader loader, Iterable<String> options) {
+   public JavaCompiler(ClassLoader loader, JavaFileManager parentFileManager, Iterable<String> options) {
       compiler = ToolProvider.getSystemJavaCompiler();
       if (compiler == null) {
          throw new IllegalStateException("Cannot find the system Java compiler. "
@@ -106,8 +106,13 @@ public class JavaCompiler<T> {
       }
       classLoader = new ClassLoaderImpl(loader);
       diagnostics = new DiagnosticCollector<JavaFileObject>();
-      final JavaFileManager fileManager = compiler.getStandardFileManager(diagnostics,
-            null, null);
+      final JavaFileManager fileManager;
+      if (parentFileManager == null) {
+    	  fileManager = compiler.getStandardFileManager(diagnostics, null, null);
+      }
+      else {
+    	  fileManager = parentFileManager;
+      }
       // create our FileManager which chains to the default file manager
       // and our ClassLoader
       javaFileManager = new FileManagerImpl(fileManager, classLoader);
@@ -294,6 +299,10 @@ public class JavaCompiler<T> {
     */
    public ClassLoader getClassLoader() {
       return javaFileManager.getClassLoader();
+   }
+
+   public JavaFileManager getFileManager() {
+	  return javaFileManager;
    }
 }
 

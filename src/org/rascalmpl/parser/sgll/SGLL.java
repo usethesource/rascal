@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -35,7 +36,6 @@ import org.rascalmpl.parser.sgll.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.RotatingQueue;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
 
 public abstract class SGLL implements IGLL{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
@@ -598,6 +598,8 @@ public abstract class SGLL implements IGLL{
 		this.input = input;
 		positionStore.index(input);
 
+		SortContainerNode.resetLastRejectedLocation();
+		
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		rootNode.initEdges();
@@ -621,9 +623,9 @@ public abstract class SGLL implements IGLL{
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 			if(result != null){
 				IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
-					if(resultTree != null){
-						return makeParseTree(resultTree); // Success.
-					}
+				if(resultTree != null){
+					return resultTree; // Success.
+				}
 			}
 		}
 		
@@ -632,15 +634,19 @@ public abstract class SGLL implements IGLL{
 		if(errorLocation != input.length){
 			int line = positionStore.findLine(errorLocation);
 			int column = positionStore.getColumn(errorLocation, line);
-			throw new SyntaxError("Parse Error before: "+errorLocation, vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
+			throw new SyntaxError("before character '" +input[errorLocation] + "'", vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
 		}
 		
 		// Filtering error.
-		throw new SyntaxError("Parse Error: all trees were filtered.", vf.sourceLocation(inputURI));
-	}
-	
-	private IConstructor makeParseTree(IConstructor tree){
-		return vf.constructor(Factory.ParseTree_Top, tree, vf.integer(-1)); // Amb counter is unsupported.
+		ISourceLocation lastRejectedLocation = SortContainerNode.getLastRejectedLocation();
+		if (lastRejectedLocation != null) {
+			throw new SyntaxError("all trees were filtered before character '" + input[lastRejectedLocation.getOffset()] + "'", lastRejectedLocation);
+		}
+		
+		// Parse error.
+		int line = positionStore.findLine(errorLocation);
+		int column = positionStore.getColumn(errorLocation, line);
+		throw new SyntaxError("all trees were filtered", vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
 	}
 	
 	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString){

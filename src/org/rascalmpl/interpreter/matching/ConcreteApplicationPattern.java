@@ -17,6 +17,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteApplicationPattern extends AbstractMatchingResult {
@@ -25,6 +26,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private IConstructor production;
 	private final ITuple tupleSubject;
 	private final Type myType;
+	private boolean isLiteral;
 
 	public ConcreteApplicationPattern(
 			IEvaluatorContext ctx, CallOrTree x,
@@ -32,7 +34,6 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern
-//		this.production = (IConstructor) ctx.getEvaluator().eval(x.getArguments().get(0)).getValue();
 		this.production = TreeAdapter.getProduction((IConstructor) getAST().getTree());
 		
 		// use a tuple pattern to match the children of this pattern
@@ -166,16 +167,23 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				return;
 			}
 
-			if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
-				// fail early if the subject's production is not the same
-				hasNext = false;
-				return;
+			if (!SymbolAdapter.isLiteral(ProductionAdapter.getRhs(production))) {
+				if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
+					// fail early if the subject's production is not the same
+					hasNext = false;
+					return;
+				}
+				
+				this.subjectArgs = TreeAdapter.getArgs(treeSubject);
+				tupleMatcher.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
+			
+				hasNext = tupleMatcher.hasNext();
+				isLiteral = false;
 			}
-			
-			this.subjectArgs = TreeAdapter.getArgs(treeSubject);
-			tupleMatcher.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
-			
-			hasNext = tupleMatcher.hasNext();
+			else {
+				isLiteral = true;
+				hasNext = true;
+			}
 		}
 	}
 	
@@ -185,15 +193,25 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			return false;
 		}
 		
-		return tupleMatcher.hasNext();
+		if (!isLiteral) {
+			return tupleMatcher.hasNext();
+		}
+		
+		return true;
 	}
 	
 	@Override
 	public boolean next(){
 		checkInitialized();
-		if (hasNext) {
+		
+		if (hasNext && !isLiteral) {
 			return tupleMatcher.next();
 		}
+		else if (hasNext){
+			hasNext = false;
+			return true;
+		}
+		
 		return false;
 	}
 	

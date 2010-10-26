@@ -1,15 +1,5 @@
 module Node
 
-/* Functions for nodes:
- * - arity
- * - getAnnotations
- * - getChildren
- * - getName
- * - makeNode
- * - setAnnotations
- * - toString
- */
-
 @doc{Number of children of a node}
 @javaClass{org.rascalmpl.library.Node}
 public int java arity(node T);

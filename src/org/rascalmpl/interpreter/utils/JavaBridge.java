@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.tools.JavaFileManager;
 import javax.tools.ToolProvider;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -56,31 +57,39 @@ public class JavaBridge {
 	private final IValueFactory vf;
 	
 	private final HashMap<Class<?>, Object> instanceCache;
+	
+	private final HashMap<Class<?>, JavaFileManager> fileManagerCache;
 
 	public JavaBridge(PrintWriter outputStream, List<ClassLoader> classLoaders, IValueFactory valueFactory) {
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
+		this.fileManagerCache = new HashMap<Class<?>, JavaFileManager>();
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 	}
 
-	public Class<?> compileJava(ISourceLocation loc, String className, String source) {
+	public <T> Class<T> compileJava(Class<T> iface, ISourceLocation loc, String className, String source) {
+		return compileJava(iface, loc, className, getClass(), source);
+	}
+	
+	public <T> Class<T> compileJava(Class<T> iface, ISourceLocation loc, String className, Class<?> parent, String source) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
-			ClassLoader loader = getClass().getClassLoader();
 			List<String> commandline = Arrays.asList(new String[] {"-cp", Configuration.getRascalJavaClassPathProperty()});
-			JavaCompiler<Object> javaCompiler = new JavaCompiler<Object>(loader, commandline);
-			return javaCompiler.compile(className, source, null, Object.class);
+			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), fileManagerCache.get(parent), commandline);
+			Class<T> result = (Class<T>) javaCompiler.compile(className, source, null, Object.class);
+			fileManagerCache.put(result, javaCompiler.getFileManager());
+			return result;
 		} catch (ClassCastException e) {
 			throw new JavaCompilationError(e.getMessage(), loc);
 		} catch (JavaCompilerException e) {
 			throw new JavaCompilationError(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), loc);
 		}
 	}
-	
+
 	private String getClassName(FunctionDeclaration declaration) {
 		Tags tags = declaration.getTags();
 		

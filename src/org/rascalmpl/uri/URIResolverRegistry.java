@@ -7,8 +7,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.interpreter.load.RascalURIResolver;
-
 public class URIResolverRegistry {
 	private final Map<String,IURIInputStreamResolver> inputResolvers;
 	private final Map<String,IURIOutputStreamResolver> outputResolvers;

@@ -56,8 +56,8 @@ public class ListOverlap extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "parsetree(appl(prod([\\iter-star(layout()),label(\"elems\",\\iter-star-seps(sort(\"Id\"),[\\iter-star(layout())])),\\iter-star(layout())],sort(\"Decl\"),\\no-attrs()),[appl(regular(\\iter-star(layout()),\\no-attrs()),[appl(prod([\\char-class([range(32,32)])],sort(\"Whitespace\"),\\no-attrs()),[char(32)]),appl(prod([\\char-class([range(32,32)])],sort(\"Whitespace\"),\\no-attrs()),[char(32)])]),appl(regular(\\iter-star(sort(\"Id\")),\\no-attrs()),[appl(prod([\\char-class([range(97,97)])],sort(\"Id\"),\\no-attrs()),[char(97)])]),appl(regular(\\iter-star(layout()),\\no-attrs()),[])]),-1)";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.ParseTree, new ByteArrayInputStream(expectedInput.getBytes()));
+		String expectedInput = "appl(prod([\\iter-star(layout()),label(\"elems\",\\iter-star-seps(sort(\"Id\"),[\\iter-star(layout())])),\\iter-star(layout())],sort(\"Decl\"),\\no-attrs()),[appl(regular(\\iter-star(layout()),\\no-attrs()),[appl(prod([\\char-class([range(32,32)])],sort(\"Whitespace\"),\\no-attrs()),[char(32)]),appl(prod([\\char-class([range(32,32)])],sort(\"Whitespace\"),\\no-attrs()),[char(32)])]),appl(regular(\\iter-star(sort(\"Id\")),\\no-attrs()),[appl(prod([\\char-class([range(97,97)])],sort(\"Id\"),\\no-attrs()),[char(97)])]),appl(regular(\\iter-star(layout()),\\no-attrs()),[])])";
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 	
 	public static void main(String[] args){

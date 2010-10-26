@@ -84,7 +84,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 		if (subject.getType().isSubtypeOf(Factory.Args)) {
 			if (((IList)subject.getValue()).isEmpty()) {
 				IConstructor sym = SymbolAdapter.getSymbol(declaredType.getSymbol());
-				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSep(sym)) {
+				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSeps(sym)) {
 					return false;
 				}
 			}
@@ -101,7 +101,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 		if (TreeAdapter.isList(subjectTree)) {
 			if ((TreeAdapter.getArgs(subjectTree)).isEmpty()) {
 				IConstructor sym = SymbolAdapter.getSymbol(declaredType.getSymbol());
-				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSep(sym)) {
+				if (SymbolAdapter.isIterPlus(sym)  || (SymbolAdapter.isIterPlusSeps(sym) && SymbolAdapter.getSeparators(sym).length() > 1) || (SymbolAdapter.isIterStarSeps(sym) && SymbolAdapter.getSeparators(sym).length() > 1)) {
 					return false;
 				}
 			}
@@ -122,12 +122,12 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 
 	private IValue wrapWithListProd(IValue subject) {
 		IList args = (IList) subject;
-		IValue prod = Factory.Production_List.make(ctx.getValueFactory(), declaredType.getSymbol());
+		IValue prod = Factory.Production_Regular.make(ctx.getValueFactory(), declaredType.getSymbol());
 		
 		if (args.length() == 1) {
 			IConstructor arg = (IConstructor) args.get(0);
 			
-			if (TreeAdapter.isList(arg) && ProductionAdapter.getTree(TreeAdapter.getProduction(arg)).isEqual(prod)) {
+			if (TreeAdapter.isList(arg) && TreeAdapter.getProduction(arg).isEqual(((IConstructor) prod))) {
 				return arg;
 			}
 		}
