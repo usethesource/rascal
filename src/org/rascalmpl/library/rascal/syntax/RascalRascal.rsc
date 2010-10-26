@@ -643,10 +643,10 @@ syntax Statement
 	| NonEmptyBlock: Label label "{" Statement+ statements "}" 
 	| EmptyStatement: ";" 
 	| GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
+	| Assignment: Assignable assignable Assignment operator Statement statement
 	| non-assoc ( Return    : "return" Statement statement  
 		        | Throw     : "throw" Statement statement 
 		        | Insert    : "insert" DataTarget dataTarget Statement statement 
-		        | Assignment: Assignable assignable Assignment operator Statement statement 
 		        | Append    : "append" DataTarget dataTarget Statement statement 
 	            )
     > FunctionDeclaration: FunctionDeclaration functionDeclaration 
