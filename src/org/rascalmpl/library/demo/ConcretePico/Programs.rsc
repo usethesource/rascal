@@ -1,6 +1,7 @@
 module demo::ConcretePico::Programs
 
-import languages::pico::syntax::Pico;
+import zoo::pico::syntax::Main;
+import ParseTree;
 import IO;
 
 /*
@@ -8,7 +9,7 @@ import IO;
  */
  
 
-public PROGRAM small = `
+public PROGRAM small = (PROGRAM) `
 begin
   declare x : natural,
           s : string;
@@ -21,7 +22,7 @@ begin
 end
 `;
 
-public PROGRAM exampleTypeErrors = `
+public PROGRAM exampleTypeErrors = (PROGRAM) `
 begin
   declare x : natural,
           s : string;
@@ -33,7 +34,7 @@ end
 
 /*********************************************/
 
-public PROGRAM smallUninit =`
+public PROGRAM smallUninit = (PROGRAM) `
 begin
   declare x : natural,
           s : string;
@@ -47,7 +48,7 @@ end
        
 /*********************************************/
 /* do not change this program (regression tests!) */
-public PROGRAM fac = `
+public PROGRAM fac = (PROGRAM) `
 begin
   declare
     input : natural,
@@ -72,7 +73,7 @@ end
 
 /*********************************************/
        
-public PROGRAM facUninit = `
+public PROGRAM facUninit = (PROGRAM) `
 begin
   declare
     input : natural,
@@ -97,7 +98,7 @@ end
 
 /*********************************************/
 
-public PROGRAM big = `
+public PROGRAM big = (PROGRAM) `
 begin
   declare
     input: natural,
