@@ -1,6 +1,7 @@
 module Test2
 import IO;
 import zoo::pico::syntax::Main;
+import ParseTree;
 
 public void test(){
   if(`declare <{\ID-TYPE "," }* decls>;` := `declare x: natural, y : string;`){
