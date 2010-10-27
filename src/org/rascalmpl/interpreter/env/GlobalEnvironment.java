@@ -191,11 +191,6 @@ public class GlobalEnvironment {
 		return parser.getParser();
 	}
 	
-	public void clearParsers(String module) {
-		objectParsersForModules.remove(module);
-		rascalParsersForModules.remove(module);
-	}
-	
 	public void storeObjectParser(String module, ISet productions, Class<IGLL> parser) {
 		storeParser(objectParsersForModules, module, productions, parser);
 	}
