@@ -627,7 +627,9 @@ public abstract class SGLL implements IGLL{
 				}
 				
 				// Filtering error.
-				throw new SyntaxError("All trees were filtered.", null);
+				int line = positionStore.findLine(input.length);
+				int column = positionStore.getColumn(input.length, line);
+				throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, input.length, 0, 0, line + 1, 0, column));
 			}
 		}
 		
