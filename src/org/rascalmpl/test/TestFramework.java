@@ -14,7 +14,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
@@ -27,10 +26,13 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class TestFramework {
-	private Evaluator evaluator;
-	private PrintWriter stderr;
-	private PrintWriter stdout;
-	private TestModuleResolver modules;
+	private final Evaluator evaluator;
+	private final GlobalEnvironment heap;
+	private final ModuleEnvironment root;
+	private final TestModuleResolver modules;
+	
+	private final PrintWriter stderr;
+	private final PrintWriter stdout;
 
 	/**
 	 * This class allows us to load modules from string values.
@@ -60,53 +62,51 @@ public class TestFramework {
 			}
 			return null;
 		}
+		
+		public void reset(){
+			modules = new HashMap<String,String>();
+		}
 
 		public String scheme() {
 			return "test-modules";
 		}
-		
-		public String absolutePath(URI uri) {
-			// TODO Auto-generated method stub
-			return null;
-		}
 
 		public boolean isDirectory(URI uri) {
-			// TODO Auto-generated method stub
 			return false;
 		}
 
 		public boolean isFile(URI uri) {
-			// TODO Auto-generated method stub
 			return false;
 		}
 
 		public long lastModified(URI uri) {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		public String[] listEntries(URI uri) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 	}
 	
 	public TestFramework() {
-		reset();
-	}
+		super();
 
-	protected Evaluator getTestEvaluator() {
-		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***test***"));
+		heap = new GlobalEnvironment();
+		root = heap.addModule(new ModuleEnvironment("***test***"));
+		modules = new TestModuleResolver();
+		
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
-		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-		URIResolverRegistry resolverRegistry = eval.getResolverRegistry();
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
+		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
 		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "rascal-test", getClass(), "/"));
+		resolverRegistry.registerInput(modules);
+		
+		evaluator.addRascalSearchPath(URI.create("test-modules:///"));
 		
 		// to load modules from benchmarks
-		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
+		evaluator.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(List<URI> path) {
 				path.add(URI.create("rascal-test:///org/rascalmpl/benchmark"));
 				path.add(URI.create("rascal-test:///org/rascalmpl/test/data"));
@@ -117,24 +117,13 @@ public class TestFramework {
 				return "[test library]";
 			}
 		});
-
-		return eval;
 	}
-
+	
 	private void reset() {
-		evaluator = getTestEvaluator();
-		this.modules = new TestModuleResolver();
-		evaluator.getResolverRegistry().registerInput(this.modules);
-		evaluator.addRascalSearchPath(URI.create("test-modules:///"));
-	}
-
-	public TestFramework(String command) {
-		try {
-			prepare(command);
-		} catch (Exception e) {
-			throw new ImplementationError(
-					"Exception while creating TestFramework", e);
-		}
+		heap.clear();
+		root.reset();
+		
+		modules.reset();
 	}
 
 	public boolean runTest(String command) {
@@ -174,8 +163,7 @@ public class TestFramework {
 			throw e;
 		}
 		catch (Exception e) {
-			System.err
-					.println("Unhandled exception while preparing test: " + e);
+			System.err.println("Unhandled exception while preparing test: " + e);
 			e.printStackTrace();
 			throw new AssertionError(e.getMessage());
 		}
