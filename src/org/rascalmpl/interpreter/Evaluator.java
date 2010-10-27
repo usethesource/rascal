@@ -5,7 +5,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import static org.rascalmpl.interpreter.result.ResultFactory.nothing;
 import static org.rascalmpl.interpreter.utils.Utils.unescape;
 
-import java.io.ByteArrayInputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -684,7 +683,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @return
 	 */
 	public Result<IValue> eval(String command, URI location) {
-		IConstructor tree = parser.parseCommand(location, command);
+		IConstructor tree;
+		if (!command.contains("`")) {
+			tree = parser.parseCommand(location, command);
+		}
+		else {
+			IGLL rp = getRascalParser(getCurrentModuleEnvironment());
+			tree = rp.parse("start__$Command", location, command);
+		}
 		
 		tree = new ActionExecutor(this, parser.getInfo()).execute(tree);
 		
@@ -707,19 +713,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			tree = rp.parse("start__$Command", location, command);
 		}
 		
-		tree = new ActionExecutor(this, ((Parser) parser).getInfo()).execute(tree);
+		tree = new ActionExecutor(this, parser.getInfo()).execute(tree);
 		
 		return tree;
-	}
-	
-	public IConstructor parseCommandExperimental(String command, URI location) {
-		IGLL parser = new RascalRascal();
-		try {
-			return parser.parse("Command", location, new ByteArrayInputStream(command.getBytes()));
-		} catch (IOException e) {
-			// TODO
-			throw new ImplementationError("TODO: " + e.getMessage());
-		}
 	}
 
 	public Result<IValue> eval(Command command) {
