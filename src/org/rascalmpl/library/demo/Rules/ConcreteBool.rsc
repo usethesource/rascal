@@ -14,15 +14,15 @@ import demo::Rules::BoolSyntax;
 
 Bool b = `btrue`;
 
-rule a1 ` btrue & <Bool B2> `   => B2;
-rule a2 ` bfalse & <Bool B2> `  => `bfalse`;
+rule a1 `btrue & <Bool B2>`   => B2;
+rule a2 `bfalse & <Bool B2>`  => `bfalse`;
 
-rule o1 ` btrue | btrue `       => `btrue`;
-rule o2 ` btrue | bfalse `      =>` btrue`;
-rule o3 ` bfalse | btrue `      => `btrue`;
-rule o4 ` bfalse | bfalse `     => `bfalse`;
+rule o1 `btrue | btrue`       => `btrue`;
+rule o2 `btrue | bfalse`      =>` btrue`;
+rule o3 `bfalse | btrue`      => `btrue`;
+rule o4 `bfalse | bfalse`     => `bfalse`;
 
-test  `btrue` == `btrue`;
+test `btrue` == `btrue`;
 test `btrue | btrue` == `btrue`; 
 test `bfalse | btrue` == `btrue`;
 test `bfalse & bfalse` == `bfalse`;
