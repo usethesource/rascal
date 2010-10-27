@@ -21,10 +21,10 @@ public map[str, set[str]] canReach(FSM fsm){
 // Examples and tests
 
 public FSM example0 =
-	   finite-state machine
+	   `finite-state machine
 	      state S1;
     	  state S2;
-	      trans a: S1 -> S2;
+	      trans a: S1 -> S2`;
 
 public FSM example = 
        `finite-state machine
