@@ -526,7 +526,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			else {
 				parserName = env.getName().replaceAll("::", ".");
 			}
-
+			
 			parser = pg.getRascalParser(getCurrentAST().getLocation(), parserName, productions, objectParser);
 			getHeap().storeRascalParser(env.getName(), productions, parser);
 		}

@@ -1,5 +1,5 @@
 module Test3
-import languages::pico::syntax::Pico;
+import zoo::pico::syntax::Main;
 
 str f(str s) { return s; }
 
