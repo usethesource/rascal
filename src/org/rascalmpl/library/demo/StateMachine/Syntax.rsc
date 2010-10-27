@@ -1,7 +1,7 @@
 module demo::StateMachine::Syntax
 
-%% Concrete syntax for a simple state machine as suggested by Gorel Hedin at GTTSE09
-%% A State machine consists of a series of declarations for states and transitions
+// Concrete syntax for a simple state machine as suggested by Gorel Hedin at GTTSE09
+// A State machine consists of a series of declarations for states and transitions
 
 layout Whitespace = [\ \t\n]*;
 
