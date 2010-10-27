@@ -315,7 +315,6 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<D+ Xs>` := `d d`; }"));
 	}
-
 	
 	@Test
 	public void DvarsTypedInsert4UnTyped(){
@@ -330,7 +329,6 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("(DS)`d <D+ Xs>` := (DS)`d d` && (DS)` d <D+ Xs> ` == (DS)` d d `;"));
 	}
-	
 	
 	@Test
 	public void DvarsTypedInsert5Untyped(){
@@ -588,49 +586,49 @@ public class ConcreteSyntaxTests extends TestFramework {
 
 	@Test
 	public void Pico1(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{t1 = `begin declare x: natural; x := 10 end`;true;}"));
 	}
 	
 	@Test
 	public void Pico2(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{PROGRAM P := `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	public void Pico3(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{`<PROGRAM P>` := `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	public void Pico4(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{`begin <decls> <stats> end` := `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	public void Pico5(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{`begin <DECLS decls> <{STATEMENT \";\"}* stats> end` := `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	public void Pico6(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{DECLS decls; {STATEMENT \";\"}* stats; `begin <decls> <stats> end` := `begin declare x: natural; x := 10 end`;}"));
 	}
 	
 	@Test
 	public void Pico7a(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{`begin <DECLS decls> <{STATEMENT \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
 				                          "(decls == `declare x: natural;`);}"));
@@ -638,7 +636,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void Pico7b(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{`begin <DECLS decls> <{STATEMENT \";\"}+ stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
 				                          "(decls == `declare x: natural;`) && (stats == ({STATEMENT \";\"}+)`x := 1; x := 2`);}"));
@@ -646,7 +644,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void Pico7c(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{`begin <DECLS decls> <{STATEMENT \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end` &&" +
 				                          "(decls == `declare x: natural;`) && (stats == ({STATEMENT \";\"}*)`x := 1; x := 2`);}"));
@@ -654,7 +652,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void Pico8(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ bool B;" +
 				                          "  if(`begin <DECLS decls> <{STATEMENT \";\"}* stats> end` := `begin declare x: natural; x := 1; x := 2 end`){" +
@@ -666,7 +664,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	private String QmoduleM = "module M\n" +
-	                         "import languages::pico::syntax::Pico;\n" +
+	                         "import zoo::pico::syntax::Main;\n" +
 	                         "import ParseTree;\n" +
 	                         "public Tree t1 = `begin declare x: natural; x := 10 end`;\n" +
 	                         "public Tree t2 = `declare x : natural;`;\n";
@@ -741,7 +739,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	private String UQmoduleM = "module M\n" +
-    "import languages::pico::syntax::Pico;\n" +
+    "import zoo::pico::syntax::Main;\n" +
     "import ParseTree;" +
     "public Tree t1 = begin declare x: natural; x := 10 end;\n";
 
@@ -795,91 +793,91 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void enumeratorPicoStatement1Untyped(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `a:=1` ]; L == [ `a:=1` ];}"));
 	}
 	
 	@Test
 	public void enumeratorPicoStatement1Typed(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- `a:=1` ]; L == [ `a:=1` ];}"));
 	}
 	
 	@Test
 	public void enumeratorPicoStatementsUntyped(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
 	
 	@Test
 	public void enumeratorPicoStatementsTyped(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | STATEMENT X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
 	
 	@Test
 	public void enumeratorPicoStatementsConcretePattern1(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | `<\\PICO-ID X>:=1` <- `a:=1;b:=2;c:=1` ]; L == [ `a`, `c` ];}"));
 	}
 	
 	@Test
 	public void enumeratorPicoStatementsConcretePattern2(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | /`b:=<EXP X>` <- `a:=1;b:=2;c:=3` ]; L == [ (EXP)`2` ];}"));
 	}
 	
 	@Test
 	public void enumeratorPicoStatementsConcretePattern3(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [Id | /`<\\PICO-ID Id> : <TYPE Tp>` <- `x : natural, y : string` ]; L == [ `x`, `y` ];}"));
 	}
 	
 	@Test
 	public void enumeratorPicoStatementsConcretePattern4(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = []; for(/`<\\PICO-ID Id> : <TYPE Tp>` <- `x : natural, y : string`){L += Id;} L == [ `x`, `y` ];}"));
 	}
 	
 	@Test
 	public void forPicoStatementsTyped1(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | /STATEMENT X <- `a:=1;a:=2;a:=3` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
 	
 	@Test
 	public void forPicoStatementsTyped2(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 //		assertTrue(runTestInSameEvaluator("{L = [X | /STATEMENT X <- `begin declare a : natural; a:=1;a:=2;a:=3 end` ]; L == [`a:=1`, `a:=2`, `a:=3`];}"));
 	}
 	
 	@Test
 	public void forPicoStatementsTyped3(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{L = [X | /EXP X <- `begin declare a : natural; a:=1;b:=2;c:=3 end` ]; L == [(EXP)`1`, (EXP)`2`, (EXP)`3` ];}"));
 	}
 	
 	@Test
 	public void PicoStringDoesNotOverrideRascalString1(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{str s = \"abc\"; s == \"abc\";}"));
 	}
 	
 	@Test
 	public void PicoStringDoesNotOverrideRascalString2(){
-		prepare("import languages::pico::syntax::Pico;");
+		prepare("import zoo::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{int n = 3; s = \"abc<n>\"; s == \"abc3\";}"));
 	}

@@ -26,18 +26,18 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class TestFramework {
-	private final Evaluator evaluator;
-	private final GlobalEnvironment heap;
-	private final ModuleEnvironment root;
-	private final TestModuleResolver modules;
+	private final static Evaluator evaluator;
+	private final static GlobalEnvironment heap;
+	private final static ModuleEnvironment root;
+	private final static TestModuleResolver modules;
 	
-	private final PrintWriter stderr;
-	private final PrintWriter stdout;
+	private final static PrintWriter stderr;
+	private final static PrintWriter stdout;
 
 	/**
 	 * This class allows us to load modules from string values.
 	 */
-	private class TestModuleResolver implements IURIInputStreamResolver {
+	private static class TestModuleResolver implements IURIInputStreamResolver {
 		private Map<String,String> modules = new HashMap<String,String>();
 
 		public void addModule(String name, String contents) {
@@ -88,9 +88,7 @@ public class TestFramework {
 		}
 	}
 	
-	public TestFramework() {
-		super();
-
+	static{
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("***test***"));
 		modules = new TestModuleResolver();
@@ -100,7 +98,7 @@ public class TestFramework {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
-		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "rascal-test", getClass(), "/"));
+		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "rascal-test", TestFramework.class, "/"));
 		resolverRegistry.registerInput(modules);
 		
 		evaluator.addRascalSearchPath(URI.create("test-modules:///"));
@@ -117,6 +115,10 @@ public class TestFramework {
 				return "[test library]";
 			}
 		});
+	}
+	
+	public TestFramework() {
+		super();
 	}
 	
 	private void reset() {
@@ -179,8 +181,7 @@ public class TestFramework {
 			throw e;
 		}
 		catch (Exception e) {
-			System.err
-					.println("Unhandled exception while preparing test: " + e);
+			System.err.println("Unhandled exception while preparing test: " + e);
 			throw new AssertionError(e.getMessage());
 		}
 		return this;
