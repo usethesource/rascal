@@ -122,7 +122,7 @@ public class Reject3 extends SGLL implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		return vf.string("Syntax error: All trees were filtered.");
+		return vf.string(":0,0: Syntax error: All trees were filtered.");
 	}
 	
 	public static void main(String[] args){
