@@ -19,7 +19,7 @@ public class RascalTutor {
 		this.eval = getRascalEvaluator();
 	}
 	
-	private org.rascalmpl.interpreter.Evaluator getRascalEvaluator() {
+	public org.rascalmpl.interpreter.Evaluator getRascalEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("*** TUTOR ***"));
 		PrintWriter stderr = new PrintWriter(System.err);
