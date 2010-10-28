@@ -454,12 +454,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	/**
-	 * Parse an object string using the imported SDF modules from the current context.
-	 */
 	public IConstructor parseObject(IConstructor startSort, java.lang.String input) {
 		URI inputURI = getCurrentAST().getLocation().getURI();
-		System.err.println("Generating a parser");
 		IGLL parser = getObjectParser();
 		String name = "";
 		if (SymbolAdapter.isStart(startSort)) {

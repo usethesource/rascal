@@ -95,6 +95,7 @@ public class Factory {
 
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	public static final IValue Attribute_Lex = Attr_Term.make(vf, vf.node("lex"));
+	public static final IValue Attribute_Literal = Attr_Term.make(vf, vf.node("literal"));
 	public static final IValue Attribute_Assoc_Left = Attr_Assoc.make(vf, Associativity_Left.make(vf));
 	public static final IValue Attribute_Assoc_Right = Attr_Assoc.make(vf, Associativity_Right.make(vf));
 	public static final IValue Attribute_Assoc_Non_Assoc = Attr_Assoc.make(vf, Associativity_NonAssoc.make(vf));
