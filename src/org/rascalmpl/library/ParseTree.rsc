@@ -2,9 +2,6 @@ module ParseTree
 
 import Message;
 
-data ParseTree = 
-     parsetree(Tree top, int amb_cnt);
-
 data Tree =
      appl(Production prod, list[Tree] args) |
 	 cycle(Symbol symbol, int cycleLength) |
@@ -15,28 +12,17 @@ data Production =
      prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) | 
      regular(Symbol rhs, Attributes attributes);
 
-@deprecated{replaced by regular}
-data Production = \list(Symbol rhs);
+data Attributes = \no-attrs() | \attrs(list[Attr] attrs);
 
-data Attributes = 
-     \no-attrs() | \attrs(list[Attr] attrs);
-
-@deprecated{for bootstrapping purposes}
-data TempAttr = \lex() | \literal();
+data Term = \lex() | \literal() | \cons(value \constructor);
 
 data Attr =
      \assoc(Associativity \assoc) | 
      \term(value \term) |  
      \bracket() | \reject();
-          
-@deprecrated{only supported by SDF2}
-data Attr = \prefer() | \avoid() | id(str moduleName) | memo();  // <== memo in use!
 
 data Associativity =
      \left() | \right() | \assoc() | \non-assoc();
-
-@deprecated{use range(start,start) instead}
-data CharRange = single(int start); 
 
 data CharRange = range(int start, int end);
 
@@ -84,7 +70,6 @@ public &T<:Tree java parse(type[&T<:Tree] start, loc input);
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about imported SDF modules at call site}
 public &T<:Tree java parse(type[&T<:Tree] start, str input);
-
 
 @doc{Yields the string of characters that form the leafs of the given parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
