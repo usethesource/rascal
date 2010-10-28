@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteSyntaxResult extends ConstructorResult {
@@ -50,7 +49,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			IConstructor p2 = TreeAdapter.getProduction(right);
 			
 			// NB: using ordinary equals here...
-			if (!ProductionAdapter.getTree(p1).equals(ProductionAdapter.getTree(p2))) {
+			if (!p1.equals(p2)) {
 				return bool(false, ctx);
 			}
 			

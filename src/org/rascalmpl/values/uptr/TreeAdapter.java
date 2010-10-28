@@ -97,18 +97,16 @@ public class TreeAdapter {
 					"This is not a context-free list production: " + tree);
 		}
 		IList children = getArgs(tree);
-		IListWriter writer = Factory.Args.writer(ValueFactoryFactory
-				.getValueFactory());
+		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
 
-		for (int i = 0; i < children.length(); i++) {
+		for (int i = 0; i < children.length(); ++i) {
 			IValue kid = children.get(i);
 			writer.append(kid);
 			// skip layout and/or separators
-			if (isNewSeparatedList(tree)) {
+			if (isSeparatedList(tree)) {
 				i += getSeparatorCount(tree);
-			}
-			else {
-				i += (isSeparatedList(tree) ? 3 : 1);
+			} else {
+				++i;
 			}
 		}
 		return writer.done();
@@ -118,18 +116,9 @@ public class TreeAdapter {
 		return SymbolAdapter.getSeparators(ProductionAdapter.getRhs(getProduction(tree))).length();
 	}
 
-	private static boolean isNewSeparatedList(IConstructor tree) {
-		return ProductionAdapter.isNewSeparatedList(getProduction(tree));
-	}
-
 	public static boolean isLexical(IConstructor tree) {
 		return isAppl(tree) ? ProductionAdapter.isLexical(getProduction(tree))
 				: false;
-	}
-
-	public static boolean isCfOptLayout(IConstructor tree) {
-		return isAppl(tree) ? ProductionAdapter
-				.isCfOptLayout(getProduction(tree)) : false;
 	}
 
 	public static boolean isLayout(IConstructor tree) {
@@ -427,15 +416,6 @@ public class TreeAdapter {
 		}
 		return false;
 
-	}
-
-	public static boolean isCFList(IConstructor tree) {
-		return isAppl(tree)
-				&& isContextFree(tree)
-				&& (SymbolAdapter.isPlusList(ProductionAdapter
-						.getRhs(getProduction(tree))) || SymbolAdapter
-						.isStarList(ProductionAdapter
-								.getRhs(getProduction(tree))));
 	}
 
 	/**

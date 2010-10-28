@@ -37,10 +37,6 @@ public class ProductionAdapter {
 		return false;
 	}
 	
-	public static boolean isCfOptLayout(IConstructor tree) {
-		return SymbolAdapter.isCfOptLayout(getRhs(tree));
-	}
-	
 	public static boolean isLayout(IConstructor tree) {
 		return SymbolAdapter.isLayouts(getRhs(tree));
 	}
@@ -127,14 +123,6 @@ public class ProductionAdapter {
 	
 	public static boolean hasLexAttribute(IConstructor tree) {
 		return hasAttribute(tree, Factory.Attribute_Lex);
-	}
-
-	public static boolean isNewSeparatedList(IConstructor production) {
-		if (isRegular(production)) {
-			IConstructor rhs = getRhs(production);
-			return rhs.getConstructorType() == Factory.Symbol_IterStarSepX || rhs.getConstructorType() == Factory.Symbol_IterSepX;
-		}
-		return false;
 	}
 
 	public static boolean shouldFlatten(IConstructor surrounding, IConstructor nested) {

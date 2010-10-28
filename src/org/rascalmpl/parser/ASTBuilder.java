@@ -238,7 +238,7 @@ public class ASTBuilder {
 		
 		String constructorName = TreeAdapter.getConstructorName(tree);
 		if (constructorName == null) {
-			throw new ImplementationError("All Rascal productions should have a constructor name: " + ProductionAdapter.getTree(TreeAdapter.getProduction(tree)));
+			throw new ImplementationError("All Rascal productions should have a constructor name: " + TreeAdapter.getProduction(tree));
 		}
 		
 		String cons = capitalize(constructorName);
