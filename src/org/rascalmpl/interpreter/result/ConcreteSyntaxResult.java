@@ -48,8 +48,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			IConstructor p1 = TreeAdapter.getProduction(left);
 			IConstructor p2 = TreeAdapter.getProduction(right);
 			
-			// NB: using ordinary equals here...
-			if (!p1.equals(p2)) {
+			if (!p1.isEqual(p2)) {
 				return bool(false, ctx);
 			}
 			
