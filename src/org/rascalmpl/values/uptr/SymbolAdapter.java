@@ -115,14 +115,11 @@ public class SymbolAdapter {
 	public static String toString(IConstructor symbol) {
 		return symbol.toString();
 	}
-
-
-
+	
 	public static IConstructor getRhs(IConstructor symbol) {
 		return (IConstructor) symbol.get("rhs");
 	}
-
-
+	
 	public static boolean isIterStarSeps(IConstructor rhs) {
 		return rhs.getConstructorType() == Factory.Symbol_IterStarSepX;
 	}
