@@ -9,8 +9,8 @@ Syntax:
 Types:
 
 Function:
-# `Color java rgb(int red, int green, int blue)`
-# `Color java rgb(int red, int green, int blue, real alpha)`
+# `Color rgb(int red, int green, int blue)`
+# `Color rgb(int red, int green, int blue, real alpha)`
 
 Synopsis:
 

@@ -13,7 +13,7 @@ Function:
 # `Color gray(int g)`
 # `Color gray(int g, real alpha)`
 # `Color gray(real perc)`
-# `Color gray(real prec, real alpha)`
+# `Color gray(real perc, real alpha)`
 
 Synopsis:
 
