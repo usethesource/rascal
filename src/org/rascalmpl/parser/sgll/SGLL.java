@@ -155,8 +155,6 @@ public abstract class SGLL implements IGLL{
 		int id = next.getId();
 		AbstractStackNode alternative = sharedNextNodes.get(id);
 		if(alternative != null){
-			alternative.updateNode(node, result);
-			
 			if(alternative.isEndNode()){
 				if(result.isEmpty() && !node.isMatchable() && !next.isMatchable()){
 					if(alternative.getId() != node.getId()){ // List cycle fix.
@@ -164,11 +162,16 @@ public abstract class SGLL implements IGLL{
 						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
 						if(resultStore != null){
 							// Encountered self recursive epsilon cycle; update the prefixes.
-							updatePrefixes(alternative, node, resultStore);
+							updatePrefixes(alternative.getParentProduction(), node, resultStore);
+							
+							return alternative;
 						}
 					}
 				}
 			}
+			
+			alternative.updateNode(node, result);
+			
 			return alternative;
 		}
 		
@@ -197,10 +200,8 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void updatePrefixes(AbstractStackNode next, AbstractStackNode node, AbstractNode nextResultStore){
+	private void updatePrefixes(IConstructor production, AbstractStackNode node, AbstractNode nextResultStore){
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
-		
-		IConstructor production = next.getParentProduction();
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startPosition = edgesMap.getKey(i);
