@@ -129,12 +129,14 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{A someA; (A)`<someA>` := `a`;}"));
 	}
 	
+	@Test
 	public void VarATypedInsertAmbiguous(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `<A someA>` := `a` && someA == `a`; }"));
 	}
-	
+
+	@Test
 	public void VarATypedInsert(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -161,7 +163,8 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("`<someA> <someB>` := `a b`;"));
 	}
-	
+
+	@Test
 	public void ABvars2Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -245,12 +248,14 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("`d d` := `d d`;"));
 	}
 
+	@Test
 	public void D3(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
 		assertFalse(runTestInSameEvaluator("(DS)`d d` := `d d`;"));
 	}
 
+	@Test
 	public void D4(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -400,6 +405,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertFalse(runTestInSameEvaluator("{E \",\"}+ Xs := ({E \",\"}*) ` `;"));
 	}
 	
+	@Test
 	public void plusListShouldNotMatchEmptyList() {
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
