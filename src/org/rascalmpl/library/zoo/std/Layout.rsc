@@ -1,4 +1,4 @@
-module Layout
+module zoo::std::Layout
 
 import zoo::std::Whitespace;
 import zoo::std::Comment;
