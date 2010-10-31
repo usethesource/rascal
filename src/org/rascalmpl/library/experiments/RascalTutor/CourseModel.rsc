@@ -7,6 +7,10 @@ import String;
 import Exception;
 
 public loc courseRoot = |std:///experiments/RascalTutor/Courses/|;
+public loc courseRootSVN = |std:///experiments/RascalTutor/Courses/.svn|;
+
+//public loc courseRoot = |file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
+//public loc courseRootSVN =|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses.svn/|;
 
 // A ConceptName is the "pathname" of a concept in the concept hierarchy, e.g., "Rascal/Datastructure/Set"
 
@@ -45,7 +49,7 @@ data Concept =
 			str description,
 			str examples,
 			str benefits,
-			str pittfalls,
+			str pitfalls,
 			list[Question] questions              	// List of Questions 
 	);
         		
@@ -154,10 +158,9 @@ public str compose(list[str] names){
 }
 
 public bool writingAllowed(){
-    svn = courseRoot[path = courseRoot.path + "/.svn"];
+    //svn = courseRoot[file = courseRoot.file + ".svn"];
+    bool writingAllowed = exists(courseRootSVN);
     
-    bool writingAllowed = exists(svn);
-    
-    println("writingAllowed: svn = <svn>, wa = <writingAllowed>");
+    println("writingAllowed: svn = <courseRootSVN>, wa = <writingAllowed>");
     return writingAllowed;
 }

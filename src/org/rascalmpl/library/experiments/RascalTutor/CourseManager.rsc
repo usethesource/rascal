@@ -18,7 +18,7 @@ import ValueIO;
 import IO;
 import Scripting;
 
-loc courseRoot = |std:///experiments/RascalTutor/Courses/|;
+//loc courseRoot = |std:///experiments/RascalTutor/Courses/|;
 
 private str server = "localhost:8081";
 
@@ -103,15 +103,17 @@ public set[QuestionName] badAnswer = {};
 public str prelude(){
   css = readFile(|std:///experiments/RascalTutor/prelude.css|);
   nbc = size(baseConcepts) - 1;
-  //println("prelude: <baseConcepts>");
+  println("prelude: <baseConcepts>");
  
   return "\n\<script type=\"text/javascript\" src=\"jquery-1.4.2.min.js\"\>\</script\>\n" +
          "\n\<script type=\"text/javascript\" src=\"prelude.js\"\>\</script\>\n" +
   
          "\<link type=\"text/css\" rel=\"stylesheet\" href=\"prelude.css\"/\>\n" +
-         //"\<style type=\"text/css\"\><css>\</style\>" +
-          "\n\<script type=\"text/javascript\"\>var baseConcepts = new Array(<for(int i <- [0 .. nbc]){><(i==0)?"":",">\"<escapeForJavascript(baseConcepts[i])>\"<}>);
-          \</script\>\n";
+         //"\<style type=\"text/css\"\><css>\</style\>" + 
+         "\n\<script type=\"text/javascript\"\>" + 
+         ((nbc > 0) ? "var baseConcepts = new Array(<for(int i <- [0 .. nbc]){><(i==0)?"":",">\"<escapeForJavascript(baseConcepts[i])>\"<}>);"
+                    : "var baseConcepts = new Array();"
+          ) + "\</script\>\n";
 }
 
 // Present a concept
@@ -158,7 +160,7 @@ public str showConcept(ConceptName cn, Concept C){
   	  section("Description", C.description) +
   	  section("Examples", C.examples) +
   	  section("Benefits", C.benefits) +
-  	  section("Pittfalls", C.pittfalls) +
+  	  section("Pitfalls", C.pitfalls) +
   	  ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(cn,quest)> <}>") +
   	  editMenu(cn)
   	)
@@ -488,6 +490,7 @@ private str anotherQuestionForm(ConceptName cpid, QuestionName qid){
 }
 
 private str cheatForm(ConceptName cpid, QuestionName qid, str expr){
+    return "";
 	return answerFormBegin(cpid, qid, "cheatForm") + 
 	       "\<input type=\"hidden\" name=\"expr\" value=\"<expr>\"\>\n" +
            "\<input type=\"hidden\" name=\"cheat\" value=\"yes\"\>\n" +

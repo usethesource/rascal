@@ -14,14 +14,14 @@ import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 
 public str mkConceptTemplate(ConceptName cn){
-return "Name: <cn>\n\nDetails:\n\nCategories:\n\nSyntax:\n\nTypes:\n\nFunction:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPittfalls:\n\nQuestions:\n\n";
+return "Name: <cn>\n\nDetails:\n\nCategories:\n\nSyntax:\n\nTypes:\n\nFunction:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPitfalls:\n\nQuestions:\n\n";
 }
 
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
 // Questions is the last section and is treated special: it contains questions that are analyzed later
 
 public set[str] sectionKeywords = {"Name", "Details", "Categories", "Syntax", "Types", "Function", "Synopsis", "Description",
-                                   "Examples", "Benefits", "Pittfalls", "Questions"};
+                                   "Examples", "Benefits", "Pitfalls", "Questions"};
 
 private str conceptPath = "";
 
@@ -129,7 +129,7 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	   description		= markup1(sections["Description"]);
 	   examples 		= markup1(sections["Examples"]);
 	   benefits 		= markup1(sections["Benefits"]);
-	   pittfalls 		= markup1(sections["Pittfalls"]);
+	   pitfalls 		= markup1(sections["Pitfalls"]);
 	   questions 		= getAllQuestions(name, sections["Questions"]);
 	   
 	   related = getAndClearRelated();
@@ -137,7 +137,7 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	   
 	   Concept C = concept(name, file, warnings, optDetails, optCategories, related, synopsis,
 	                       syntaxSynopsis, typesSynopsis, functionSynopsis, 
-	                       searchTerms, description, examples, benefits, pittfalls, questions);
+	                       searchTerms, description, examples, benefits, pitfalls, questions);
 	   binFile = file[extension = compiledExtension];
 	   println("parseConcept: binFile = <binFile>, uri = <binFile.uri>");
 	   writeTextValueFile(binFile, C);
