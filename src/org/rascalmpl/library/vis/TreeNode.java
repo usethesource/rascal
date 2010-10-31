@@ -20,7 +20,7 @@ public class TreeNode extends Figure {
 	private ArrayList<PropertyManager> edgeProperties;
 	private float[] childRoot;                // Root position of each child
 	private float rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
-	private static boolean debug = true;
+	private static boolean debug = false;
 	
 	public TreeNode(FigurePApplet fpa, PropertyManager inheritedProps, IList props,
 			Figure fig, IEvaluatorContext ctx) {
@@ -62,7 +62,7 @@ public class TreeNode extends Figure {
 	 */
 	float shapeTree(float rootMidX, float rootTop, TreeNodeRaster raster) {
         String id = rootFigure.getIdProperty();
-		System.err.printf("shapeTree: id=%s, rootMidX=%f, rootTop=%f\n", id, rootMidX, rootTop);
+		if(debug)System.err.printf("shapeTree: id=%s, rootMidX=%f, rootTop=%f\n", id, rootMidX, rootTop);
 		rootFigure.bbox();
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
@@ -128,7 +128,7 @@ public class TreeNode extends Figure {
 	
 		// After placing all children, we can finally add the current root figure to the raster.
 		raster.add(position, rootTop, rootFigure.width, rootFigure.height);
-		System.err.printf("shapeTree(%s, %f, %f) => position=%f, left=%f, top=%f, width=%f, height=%f\n", id, rootMidX, rootTop, position, left, top, width, height);
+		if(debug)System.err.printf("shapeTree(%s, %f, %f) => position=%f, left=%f, top=%f, width=%f, height=%f\n", id, rootMidX, rootTop, position, left, top, width, height);
 		return position;
 	}
 	

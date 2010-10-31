@@ -95,7 +95,7 @@ public class Tree extends Figure {
 	
 	@Override
 	void bbox() {
-		System.err.printf("Tree.bbox()\n");
+		//System.err.printf("Tree.bbox()\n");
 		raster.clear();
 		root.shapeTree(0, 0, raster);
 		width = root.width;
@@ -109,7 +109,7 @@ public class Tree extends Figure {
 		this.left = left;
 		this.top = top;
 		
-		System.err.printf("Tree.draw(%f,%f)\n", left, top);
+		//System.err.printf("Tree.draw(%f,%f)\n", left, top);
 		applyProperties();
 		root.draw(left, top);
 	}
@@ -128,7 +128,7 @@ public class Tree extends Figure {
 	
 	@Override
 	public boolean mousePressed(int mousex, int mousey){
-		System.err.printf("Tree.mousePressed: %s, %d, %d\n", root.rootFigure.getIdProperty(), mousex, mousey);
+		//System.err.printf("Tree.mousePressed: %s, %d, %d\n", root.rootFigure.getIdProperty(), mousex, mousey);
 		return root.mousePressed(mousex, mousey) ||
 			   super.mousePressed(mousex, mousey);
 	}

@@ -27,9 +27,11 @@ public class FigurePApplet extends PApplet {
 	private int width = 1000;
 	private int height = 1000;
 	private Figure  figure;
+	private Figure rootFigure;
 	private Figure focus = null;
 	private boolean focusSelected = false;
-	private LinkedList<Figure> zoomStack = null;
+	private LinkedList<ZoomEntry> zoomStack = null;
+	private boolean zoomingIn = true;
 
 	private static boolean debug = true;
 	private boolean saveFigure = true;
@@ -48,11 +50,15 @@ public class FigurePApplet extends PApplet {
 	
 	private int depth = 0;
 
+	private int focusLeft;
+
+	private int focusTop;
+
 	public FigurePApplet(IConstructor elem, ISourceLocation sloc, IEvaluatorContext ctx){
 		saveFigure = true;
 		try {
 			this.file = ctx.getResolverRegistry().absolutePath(sloc.getURI());
-			this.figure = FigureFactory.make(this, elem, null, ctx);
+			rootFigure = this.figure = FigureFactory.make(this, elem, null, ctx);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -61,8 +67,8 @@ public class FigurePApplet extends PApplet {
 	
 	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
 		saveFigure = false;
-		this.figure = FigureFactory.make(this, elem, null, ctx);
-		zoomStack = new LinkedList<Figure>();
+		rootFigure = this.figure = FigureFactory.make(this, elem, null, ctx);
+		zoomStack = new LinkedList<ZoomEntry>();
 		//zoomStack.push(figure);
 	}
 
@@ -88,14 +94,7 @@ public class FigurePApplet extends PApplet {
 	
 	@Override
 	public void draw(){
-		stdFont = createFont("Helvetica", 15);
-//		System.err.printf("postscriptName %s\n", stdFont.getPostScriptName());
-//		System.err.printf("Available fonts: ");
-//		for(String s : stdFont.list()){
-//			System.err.printf("%s ", s);
-//		}
-//		System.err.printf("\n");
-		
+		stdFont = createFont("Helvetica", 15);		
 		textFont(stdFont);
 		if(saveFigure){
 			canvas = createGraphics(round(rootWidth + 2), round(rootHeight + 2), JAVA2D);
@@ -117,18 +116,39 @@ public class FigurePApplet extends PApplet {
 			strokeJoin(MITER);
 			depth = 0;
 			int deltah = 0;
+//			
+//			if(false){ // !zoomStack.isEmpty()){
+//				deltah = 20;
+//				fill(255);
+//				rect(left, top, left + rootWidth, top + deltah);
+//				textAlign(CENTER, CENTER);
+//				fill(0);
+//				text("Zoom level = " + zoomStack.size(), left + rootWidth/2, top + deltah/2);
+//			}
 			
-			if(true){ // !zoomStack.isEmpty()){
-				deltah = 20;
-				fill(255);
-				rect(left, top, left + rootWidth, top + deltah);
-				textAlign(CENTER, CENTER);
-				fill(0);
-				text("Zoom level = " + zoomStack.size(), left + rootWidth/2, top + deltah/2);
+			if(!zoomStack.isEmpty()){
+				rootFigure.draw(left, top);
+				float alpha = 0.6f +  0.1f*zoomStack.size();
+				if(alpha > 0.9)
+					alpha = 0.9f;
+				
+				fill(FigureLibrary.figureColor(192,192,192,alpha));
+				stroke(192,192,192);
+				rect(left, top, rootWidth, rootHeight);
+			} else
+				rootFigure.draw(left,top);
+			if(!zoomStack.isEmpty()){
+				float rescale = (zoomingIn) ? (scale - 0.5f) / scale : scale / (scale - 0.5f) ;
+				float shift = zoomingIn ? 0.2f : 0.6f;
+				float l = max(left + focusLeft * rescale - shift *(scale - 1) *figure.width, 0);
+				float t = max(top + focusTop * rescale - shift * (scale - 1) *figure.height, 0);
+
+				System.err.printf("focusLeft=%d, focusTop=%d, scale=%f, l=%f, t=%f\n", 
+									focusLeft, focusTop, scale, l, t);
+				pushMatrix();
+				scale(scale);
+				figure.draw(l,t) ;
 			}
-			pushMatrix();
-			scale(scale);
-			figure.draw(left, top + deltah/scale);
 				
 			if(focus != null){
 				if(focusSelected)
@@ -136,7 +156,9 @@ public class FigurePApplet extends PApplet {
 				else
 					focus.drawMouseOverFigure();
 			}	
-			popMatrix();
+			if(!zoomStack.isEmpty()){
+				popMatrix();
+			}
 		}
 	}
 	
@@ -507,21 +529,22 @@ public class FigurePApplet extends PApplet {
 				if(mouseButton == LEFT){
 					if(debug)System.err.println("mousePressed: zoomin, focus=" + focus);
 					if(focus != figure){
-						zoomStack.push(figure);
+						zoomStack.push(new ZoomEntry(figure, figure.left, figure.top, scale));
 						figure = focus;
-						if(focus.width > focus.height)
-							scale = rootWidth/focus.width;
-						else
-							scale = rootHeight/focus.height;
-					}
+						focusLeft = round(figure.left);
+						focusTop = round(figure.top);
+						scale += 0.5;	
+						zoomingIn = true;
+						}
 				} else if(mouseButton == RIGHT){
 					if(debug)System.err.println("mousePressed: zoomout");
 					if(!zoomStack.isEmpty()){
-						focus = figure = zoomStack.pop();
-						if(focus.width > focus.height)
-							scale = rootWidth/focus.width;
-						else
-							scale = rootHeight/focus.height;
+						ZoomEntry ze = zoomStack.pop();
+						focus = figure = ze.figure;
+						focusLeft = round(ze.left);
+						focusTop = round(ze.top);
+						scale = ze.scale;
+						zoomingIn = false;
 					}
 				}
 			}
@@ -529,5 +552,19 @@ public class FigurePApplet extends PApplet {
 			unRegisterFocus();
 		
 		redraw();
+	}
+}
+
+class ZoomEntry {
+	Figure figure;
+	float left;
+	float top;
+	float scale;
+
+	ZoomEntry(Figure f,  float l,  float t,float s){
+		figure = f;
+		left = l;
+		top = t;
+		scale = s;
 	}
 }
