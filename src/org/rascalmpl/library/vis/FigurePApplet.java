@@ -42,8 +42,6 @@ public class FigurePApplet extends PApplet {
 
 	private PGraphics canvas;
 	private PFont stdFont;
-	private int lastMouseX;
-	private int lastMouseY;
 
 	private float rootWidth;
 	private float rootHeight;
@@ -115,7 +113,7 @@ public class FigurePApplet extends PApplet {
 			smooth();
 			strokeJoin(MITER);
 			depth = 0;
-			int deltah = 0;
+//			int deltah = 0;
 //			
 //			if(false){ // !zoomStack.isEmpty()){
 //				deltah = 20;
@@ -521,8 +519,8 @@ public class FigurePApplet extends PApplet {
 	@Override
 	public void mousePressed(){
 		if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
-		lastMouseX = mouseX;
-		lastMouseY = mouseY;
+//		lastMouseX = mouseX;
+//		lastMouseY = mouseY;
 		if(figure.mousePressed(round(mouseX/scale), round(mouseY/scale))){
 			focusSelected = true;
 			if(keyPressed && key == CODED && keyCode == SHIFT){
