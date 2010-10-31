@@ -507,15 +507,15 @@ public class FigurePApplet extends PApplet {
 	
 	@Override
 	public void mouseMoved(){
-//		
-//		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
-//		if(focus != null && focusSelected)
-//				focus.drag(mouseX/scale, mouseY/scale);
-//		else if(figure.mouseOver(round(mouseX/scale), round(mouseY/scale))){
-//			/* do nothing */
-//		} else
-//			unRegisterFocus();
-//		redraw();
+		
+		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
+		if(focus != null && focusSelected)
+				focus.drag(mouseX/scale, mouseY/scale);
+		else if(figure.mouseOver(round(mouseX/scale), round(mouseY/scale))){
+			/* do nothing */
+		} else
+			unRegisterFocus();
+		redraw();
 	}
 	
 	@Override
