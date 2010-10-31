@@ -1,7 +1,7 @@
 module vis::Chart
 
 import vis::Figure;
-import vis::Rendering;
+import vis::Render;
 import Map;
 import IO;
 import Number;
@@ -46,10 +46,16 @@ private str rasterColor = "lightgray";
 // read and apply all settings for a chart
 
 private void applySettings(list[ChartProperty] settings){
-   chartWidth = chartHeight = 400;
+   chartWidth = 400;
+   chartHeight = 400;
    ringHeight = 0;
-   subTitle = xTitle = yTitle = "";
-   isAreaPlot = isLinePlot = isCurvePlot = isStackedBars = false;
+   subTitle = "";
+   xTitle = "";
+   yTitle = "";
+   isAreaPlot = false;
+   isLinePlot = false;
+   isCurvePlot = false;
+   isStackedBars = false;
    isVertical = true;
    
    for(ChartProperty setting <- settings){
