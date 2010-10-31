@@ -26,5 +26,5 @@
 	<classpathentry kind="lib" path="lib/jetty-xml-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/mail.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="src"/>
 </classpath>
