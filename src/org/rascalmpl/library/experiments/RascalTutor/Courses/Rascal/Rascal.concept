@@ -41,7 +41,7 @@ Benefits:
 * __Generic types__ allow writing functions that are applicable for many different types.
 * __Eclipse integration__ makes Rascal programming a breeze. All familiar tools are at your fingertips.
 
-Pittfalls:
+Pitfalls:
 * Rascal programs are not yet highly optimized so execution maybe slow for some programs.
 * At the time of writing, this checking is done during execution, but we are working on this.
 

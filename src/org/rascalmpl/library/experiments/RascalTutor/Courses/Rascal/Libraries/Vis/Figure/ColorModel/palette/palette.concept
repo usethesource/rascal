@@ -25,7 +25,7 @@ gives:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 Arguments outside the interval [0,11] are mapped to `"black"`.
 
 Questions:

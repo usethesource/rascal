@@ -37,7 +37,7 @@ render(hcat([b1, rotate(45, b2)]));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

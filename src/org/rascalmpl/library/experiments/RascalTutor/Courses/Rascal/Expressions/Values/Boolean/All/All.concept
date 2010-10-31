@@ -28,7 +28,7 @@ all(int n <- [0, 2 .. 10], n % 2 == 0);
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 When one of the $Exp_i$ enumerates the elements of an empty list, `all` always returns `false`:
 <screen>
 all(int n <- [], n > 0);

@@ -92,7 +92,7 @@ Examples:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 We are cheating a bit with the above data declaration for Figure. 
 The current version of Rascal does not yet support data constructors with a variable number of arguments as needed
 for the properties. At the moment, the above constructors are provided as Rascal functions that can

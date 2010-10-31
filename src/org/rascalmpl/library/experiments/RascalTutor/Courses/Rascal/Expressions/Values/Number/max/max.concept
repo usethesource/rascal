@@ -16,7 +16,7 @@ max(12, 11.5);
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 QType: max(<A:int>, <B:int>)

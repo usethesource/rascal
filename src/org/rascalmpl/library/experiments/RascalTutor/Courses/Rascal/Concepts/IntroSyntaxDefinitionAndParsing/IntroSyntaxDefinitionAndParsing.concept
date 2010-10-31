@@ -15,6 +15,12 @@ There are two main approaches to this:
    in the form of a syntax tree.
 
 
+<warning>The current release of Rascal has switched to a new syntax definition notation -- inspired by SDF --
+that is both simpler and more general and flexible.
+This new syntax notation is not yet described here.
+The following text will be adjusted.
+The examples will, however, be unchanged.
+</warning>
 In Rascal, we reuse the Syntax Definition Formalism (SDF) and its tooling. 
 See [](http://www.meta-environment.org/Meta-Environment/Documentation) for tutorials and manuals for SDF.
 
@@ -62,7 +68,7 @@ Next, a match for embedded `MethodDeclaration`s is done in the enumerator of the
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 This example ignores many potential error conditions but does illustrate some of Rascal's syntax and 
 parsing features.
 

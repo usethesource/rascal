@@ -32,7 +32,7 @@ render(hcat([b, scale(0.5, b), scale(0.25, b), scale(2, b)]));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 Other properties than dimensions are scaled as well. For instance, lineWidth 
 is scaled (as can be seen in the above example). When this effect is undesired,
 these properties have to be scaled inversely before `scale` is applied.

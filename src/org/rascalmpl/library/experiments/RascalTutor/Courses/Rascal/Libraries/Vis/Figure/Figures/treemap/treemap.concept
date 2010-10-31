@@ -57,7 +57,7 @@ render(treemap(nodes, edges, gap(8), top(), fillColor("Black")));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

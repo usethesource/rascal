@@ -17,7 +17,7 @@ arbBool();
 
 Benefits: <tt>arbInt</tt> is a convenient generator for arbitrary binary choices.
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

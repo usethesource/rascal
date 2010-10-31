@@ -5,12 +5,12 @@ Categories:
 Synopsis:
 
 Description:
-![Easy Wokflow](easy-workflow.png|300px|right)
+![Easy Workflow](easy-workflow.png|300px|right)
 Many meta-programming problems follow a fixed pattern. 
 Starting with some input system (a black box that we usually call _system-of-interest_), 
 first relevant information is extracted from it and stored in an internal representation. 
 This internal representation is then analyzed and used to synthesize results.
- If the synthesis indicates this, these steps can be repeated over and over again. These steps are shown in the following figure.
+ If the synthesis indicates this, these steps can be repeated over and over again. These steps are shown in the figure.
 This is an abstract view on solving meta-programming problems, but is rather common.
 
 We give some typical use cases in the details.
@@ -19,7 +19,7 @@ Examples:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

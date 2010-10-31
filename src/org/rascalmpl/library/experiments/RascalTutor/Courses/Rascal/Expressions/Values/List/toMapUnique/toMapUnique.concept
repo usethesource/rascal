@@ -24,7 +24,7 @@ toMapUnique([<1,10>, <1, 11>, <2, 20>, <3, 30>]);
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

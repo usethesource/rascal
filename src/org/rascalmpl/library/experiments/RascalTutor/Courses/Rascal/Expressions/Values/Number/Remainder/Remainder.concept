@@ -20,7 +20,7 @@ Examples:
 
 Benefits:
 
-Pittfalls: Remainder is only defined on integers:
+Pitfalls: Remainder is only defined on integers:
 <screen>
 13.5 % 6
 </screen>

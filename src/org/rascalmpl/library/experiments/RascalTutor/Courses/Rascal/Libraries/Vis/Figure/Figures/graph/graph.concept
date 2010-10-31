@@ -76,7 +76,7 @@ render(graph(nodes, edges, size(300)));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

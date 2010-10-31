@@ -27,7 +27,7 @@ import Relation;
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 We use the letter `o` as operator and this may conflict other defined names.
 
 Questions:

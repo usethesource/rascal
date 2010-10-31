@@ -52,7 +52,7 @@ render(text("Rascal", fontSize(60), fontColor("red"), textAngle(90)));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

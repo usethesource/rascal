@@ -73,6 +73,6 @@ data STAT = asgStat(Id name, EXP exp)
 </listing>
 
 Benefits:
-Pittfalls:
+Pitfalls:
 Questions:
 

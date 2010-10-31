@@ -29,7 +29,7 @@ print(S, L);
 Benefits:
 This function is handy when debugging complicated expressions.
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

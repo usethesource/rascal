@@ -41,7 +41,7 @@ render(grid(boxes, gap(200, 25), size(500)));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

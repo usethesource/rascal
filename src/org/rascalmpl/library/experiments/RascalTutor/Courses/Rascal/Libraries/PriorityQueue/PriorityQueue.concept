@@ -20,7 +20,7 @@ Examples:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Currently, both priority and associated value ("payload") have to be integers. This will be generalized.
 

@@ -38,7 +38,7 @@ render(pieChart("Pie2", ("a" : 5, "b" : 10, "c" : 20, "z": 50), ring(20)));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

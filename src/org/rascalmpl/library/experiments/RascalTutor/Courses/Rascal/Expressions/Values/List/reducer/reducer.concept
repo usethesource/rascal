@@ -15,6 +15,6 @@ reducer([10, 20, 30, 40], add, 0);
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:

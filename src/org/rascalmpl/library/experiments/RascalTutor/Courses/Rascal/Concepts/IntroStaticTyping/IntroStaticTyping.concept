@@ -5,7 +5,7 @@ Categories: Language
 Synopsis:
 
 Description:
-Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called _type lattice_ shown in the following figure.
+Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called _type lattice_ shown in the figure.
 ![Type Lattice](type-lattice.png|right|400px)
 
 The arrows describe a _subtype-of_ relation between types. The type `void` is the _smallest_ type and 
@@ -21,7 +21,7 @@ Examples:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

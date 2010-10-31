@@ -23,7 +23,7 @@ Examples:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 Rendering to file is not yet perfect:
 * In some cases the screen picture and the picture that is written
 to fileare not 100% identical.

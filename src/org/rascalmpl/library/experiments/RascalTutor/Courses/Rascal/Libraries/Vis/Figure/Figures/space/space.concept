@@ -30,7 +30,7 @@ render(hcat([b1, s1, b2]));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

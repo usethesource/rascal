@@ -59,7 +59,7 @@ Benefits:
 String interpolation enables very flexible template-based text generation as used in generators for
 source code, markup and the like.
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

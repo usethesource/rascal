@@ -25,7 +25,7 @@ render(hcat([t1, t2], hgap(10), fontSize(20)));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

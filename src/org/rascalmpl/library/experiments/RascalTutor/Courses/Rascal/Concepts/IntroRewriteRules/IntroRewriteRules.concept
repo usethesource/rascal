@@ -36,7 +36,7 @@ to that expression and all its subexpressions and when a pattern at the left-han
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Rewrite rules are _Turing complete_, in other words any computable function can be defined using rewrite rules, 
 including functions that do not terminate. This is a point of attention when using rewrite rules.

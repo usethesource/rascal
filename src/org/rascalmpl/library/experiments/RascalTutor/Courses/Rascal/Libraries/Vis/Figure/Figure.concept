@@ -52,7 +52,7 @@ Examples:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 One of the functions [render] or [renderSave] are needed to actually view a Figure.
 

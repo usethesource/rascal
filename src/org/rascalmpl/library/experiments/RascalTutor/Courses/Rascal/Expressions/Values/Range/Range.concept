@@ -30,7 +30,7 @@ Examples:
 Benefits:
 Ranges are mostly used to loop over ranges of integers.
 
-Pittfalls:
+Pitfalls:
 In some cases ranges are empty where one could have expected at least one element:
 <screen>
 [1, 3 .. -10];

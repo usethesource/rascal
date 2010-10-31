@@ -25,7 +25,7 @@ any(int n <- [1 .. 10], n % 2 == 0);
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

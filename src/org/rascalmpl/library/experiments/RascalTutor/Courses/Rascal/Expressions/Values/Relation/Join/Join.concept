@@ -25,11 +25,11 @@ Examples:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 
-QType:  <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb,str,int]]>
-QValue: <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb,str,int]]>
+//QType:  <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb[str,int]]>
+//QValue: <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb[str,int]]>
 
 

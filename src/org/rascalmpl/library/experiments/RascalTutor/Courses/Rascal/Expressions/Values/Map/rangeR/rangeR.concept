@@ -22,6 +22,6 @@ rangeR(("apple": 1, "pear": 2, "ananas": 3), {2, 3});
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:

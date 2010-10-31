@@ -69,7 +69,7 @@ gives:
 
 Benefits:
 
-Pittfalls: The distance between grid points does not include the size of the figures that are placed
+Pitfalls: The distance between grid points does not include the size of the figures that are placed
 on the grid points. If overlaps of figures are not desired, then the horizontal (or vertical) gap size 
 should be larger than the largest width (height) of the figures to be placed on the grid.
 

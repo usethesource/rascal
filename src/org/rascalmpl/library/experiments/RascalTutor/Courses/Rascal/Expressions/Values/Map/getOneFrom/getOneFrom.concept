@@ -23,7 +23,7 @@ getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
 </screen>
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

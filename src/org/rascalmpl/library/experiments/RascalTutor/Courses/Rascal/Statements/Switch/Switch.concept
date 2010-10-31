@@ -34,7 +34,7 @@ Examples:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 The switch statement does not yet return a value, this will be changed.
 
 Questions:

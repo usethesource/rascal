@@ -22,7 +22,7 @@ domainX(("apple": 1, "pear": 2, "ananas": 3), {"apple", "pear"});
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

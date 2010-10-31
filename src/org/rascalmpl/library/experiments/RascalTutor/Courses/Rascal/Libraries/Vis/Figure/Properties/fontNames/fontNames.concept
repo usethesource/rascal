@@ -31,7 +31,7 @@ render(grid(samples, size(700), gap(350, 20), left(), bottom()));
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 The available fonts are system and installation dependent.
 
 Questions:

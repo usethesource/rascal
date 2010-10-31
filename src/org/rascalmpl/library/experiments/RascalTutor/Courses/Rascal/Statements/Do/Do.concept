@@ -34,7 +34,7 @@ do { append n * n; n -= 1; } while (n > 0);
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 

@@ -32,7 +32,7 @@ for(int n <- [1 .. 5]) append n * n;
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 
