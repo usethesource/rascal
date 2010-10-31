@@ -291,7 +291,7 @@ private str markupRestLine(str line){
     
     case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"images/<dig>.png\"\>"
     
-    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img <getImgOpts(opts)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
+    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
     
    };
 }
@@ -319,16 +319,19 @@ public str link(str url, str text){
 
 // Get options for image
 
-private str getImgOpts(str txt){
+private str getImgOpts(str txt, str alt){
   opts = "";
   visit(txt){
     case /^\s*\|\s*left/: {opts += "style=\"float: left;\" "; insert "";}
     case /^\s*\|\s*right/: {opts += "style=\"float: right;\" "; insert "";}
     case /^\s*\|\s*center/: {opts += "style=\"float: center;\" "; insert "";}
-    case /^\s*\|\s*<N:[0-9]+>\s*px/: {opts += "width=\"<N>px\" height=\"<N>px\" "; insert ""; }
+    case /^\s*\|\s*<N:[0-9]+>\s*px/: {opts += "width=\"<N>px\" "; insert ""; }
+    case /^\s*\|\s*border\s*<N:[0-9]+>\s*px/: {opts += "border=\"<N>px\" "; insert ""; }
+    case /^\s*\|\s*border/: {opts += "border=\"1px\" "; insert ""; }
+    case /^\s*\|\s*space\s*<N:[0-9]+>\s*px/: {opts += "hspace=\"<N>px\" vspace=\"<N>px\" "; insert ""; }
   }
   println("getImgOpts(<txt>) returns <opts>");
-  return opts;
+  return opts + " title=\"<alt>\"";
 }
 
 // Do the markup for listings
