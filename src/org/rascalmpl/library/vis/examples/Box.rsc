@@ -1,5 +1,7 @@
 module vis::examples::Box
 
+// WARNING: outdated code that needs to be removed or fixed!
+
 import vis::Figure;
 import vis::Render;
 import Number;
@@ -10,27 +12,27 @@ import IO;
 
 // Unfilled box of 100x200
 public void box1(){
-	render(box([ width(100), height(200) ]));
+	render(box(width(100), height(200)));
 }
 
 // Unfilled box of 100x200
 public void box2(){
-	render(box([ size(100,200) ]));
+	render(box(size(100,200)));
 }
 
 // Green box of 100x200
 public void box3(){
-	render(box([ size(100,200), fillColor("green") ]));
+	render(box(size(100,200), fillColor("green")));
 }
 
 // Green box of 100x200 with red border
 public void box4(){
-	render(box([ size(100,200), fillColor("green"), lineColor("red")]));
+	render(box(size(100,200), fillColor("green"), lineColor("red")));
 }
 
 // Unsized blue outer box with white inner box of 40x40
 public void box5(){
-	render(box([fillColor("mediumblue"), gap(10)], box([size(40), fillColor("white")])));
+	render(box([fillColor("mediumblue"), gap(10)], box(size(40), fillColor("white"))));
 }
 
 // Unsized blue outer box with white inner ellipse of 40x60
