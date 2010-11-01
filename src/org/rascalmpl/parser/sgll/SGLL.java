@@ -162,7 +162,7 @@ public abstract class SGLL implements IGLL{
 						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
 						if(resultStore != null){
 							// Encountered self recursive epsilon cycle; update the prefixes.
-							updatePrefixes(alternative.getParentProduction(), node, resultStore);
+							updatePrefixes(alternative.getParentProduction(), node, result, resultStore);
 							
 							return alternative;
 						}
@@ -200,7 +200,8 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void updatePrefixes(IConstructor production, AbstractStackNode node, AbstractNode nextResultStore){
+	// TODO Fix properly.
+	private void updatePrefixes(IConstructor production, AbstractStackNode node, AbstractNode nodeResultStore, AbstractNode nextResultStore){
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
@@ -208,8 +209,6 @@ public abstract class SGLL implements IGLL{
 			ArrayList<AbstractStackNode> edgesPart = edgesMap.getValue(i);
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startPosition);
-			AbstractContainerNode nodeResultStore = levelResultStoreMap.get(node.getName(), getResultStoreId(node.getId()));
-			
 			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), nodeResultStore, startPosition);
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
 			edgePrefixes.add(prefix);
