@@ -200,7 +200,6 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	// TODO Fix properly.
 	private void updatePrefixes(IConstructor production, AbstractStackNode node, AbstractNode nodeResultStore, AbstractNode nextResultStore){
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		
