@@ -34,7 +34,7 @@ th, td {
 th { background-color: silver; }
 
 
-img {
+#TutorImg {
     padding: 5px 5px;
 }
 
@@ -133,7 +133,7 @@ img {
 
 #navigationMenu {
     top: 1.8em;
-    right: 10em;
+    right: 15em;
     float right;
     margin-right: 20px;
 

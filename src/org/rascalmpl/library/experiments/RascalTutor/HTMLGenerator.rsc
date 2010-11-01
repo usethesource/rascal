@@ -291,7 +291,7 @@ private str markupRestLine(str line){
     
     case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"images/<dig>.png\"\>"
     
-    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
+    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img class=\"TutorImg\" <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
     
    };
 }
