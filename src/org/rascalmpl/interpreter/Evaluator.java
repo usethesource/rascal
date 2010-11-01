@@ -507,7 +507,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	private IGLL getRascalParser(ModuleEnvironment env) {
+	private IGLL getRascalParser(ModuleEnvironment env, URI input) {
 		ParserGenerator pg = getParserGenerator();
 		IGLL objectParser = getObjectParser(env);
 		ISet productions = env.getProductions();
@@ -522,7 +522,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parserName = env.getName().replaceAll("::", ".");
 			}
 			
-			parser = pg.getRascalParser(getCurrentAST().getLocation(), parserName, productions, objectParser);
+			parser = pg.getRascalParser(vf.sourceLocation(input), parserName, productions, objectParser);
 			getHeap().storeRascalParser(env.getName(), productions, parser);
 		}
 			
@@ -684,7 +684,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			tree = parser.parseCommand(location, command);
 		}
 		else {
-			IGLL rp = getRascalParser(getCurrentModuleEnvironment());
+			IGLL rp = getRascalParser(getCurrentModuleEnvironment(), location);
 			tree = rp.parse("start__$Command", location, command);
 		}
 		
@@ -705,7 +705,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			tree = parser.parseCommand(location, command);
 		}
 		else {
-			IGLL rp = getRascalParser(getCurrentModuleEnvironment());
+			IGLL rp = getRascalParser(getCurrentModuleEnvironment(), location);
 			tree = rp.parse("start__$Command", location, command);
 		}
 		
@@ -1202,7 +1202,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			return exec.execute(parser.parseModule(location, data, env));
 		}
 		
-		IGLL mp = needBootstrapParser(preModule) ? new MetaRascalRascal() : getRascalParser(env);
+		IGLL mp = needBootstrapParser(preModule) ? new MetaRascalRascal() : getRascalParser(env, location);
 		IConstructor tree = mp.parse(Parser.START_MODULE, location, data);
 		return exec.execute(tree);
 	}
