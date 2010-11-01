@@ -1,5 +1,5 @@
 module vis::examples::Tree
-
+// WARNING: outdated code that needs to be removed or fixed!
 import vis::Figure;
 import vis::Render;
 
