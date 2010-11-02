@@ -162,9 +162,7 @@ public abstract class SGLL implements IGLL{
 						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
 						if(resultStore != null){
 							// Encountered self recursive epsilon cycle; update the prefixes.
-							updatePrefixes(alternative.getParentProduction(), node, result, resultStore);
-							
-							return alternative;
+							if(updatePrefixes(alternative.getParentProduction(), node, result, resultStore)) return alternative;
 						}
 					}
 				}
@@ -200,33 +198,37 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void updatePrefixes(IConstructor production, AbstractStackNode node, AbstractNode nodeResultStore, AbstractNode nextResultStore){
+	private boolean updatePrefixes(IConstructor production, AbstractStackNode node, AbstractNode nodeResultStore, AbstractNode nextResultStore){
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
+		ArrayList<Link>[] prefixes = node.getPrefixesMap();
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startPosition = edgesMap.getKey(i);
 			ArrayList<AbstractStackNode> edgesPart = edgesMap.getValue(i);
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startPosition);
-			Link prefix = constructPrefixesFor(edgesMap, node.getPrefixesMap(), nodeResultStore, startPosition);
+			if(levelResultStoreMap == null) return false;
+			Link prefix = constructPrefixesFor(edgesMap, prefixes, nodeResultStore, startPosition);
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
 			edgePrefixes.add(prefix);
 			
 			ArrayList<String> firstTimeReductions = new ArrayList<String>();
 			for(int j = edgesPart.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgesPart.get(0);
-				String nodeName = edge.getName();
+				String edgeName = edge.getName();
 				int resultStoreId = getResultStoreId(edge.getId());
 				
-				if(!firstTimeReductions.contains(nodeName)){
-					firstTimeReductions.add(nodeName);
+				if(!firstTimeReductions.contains(edgeName)){
+					firstTimeReductions.add(edgeName);
 					
-					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
-					if(resultStore == null) return;
+					AbstractContainerNode resultStore = levelResultStoreMap.get(edgeName, resultStoreId);
+					if(resultStore == null) return false;
 					resultStore.addAlternative(production, new Link(edgePrefixes, nextResultStore));
 				}
 			}
 		}
+		
+		return true;
 	}
 	
 	private void updateEdges(AbstractStackNode node, AbstractNode result){
