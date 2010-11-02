@@ -682,6 +682,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @return
 	 */
 	public Result<IValue> eval(String command, URI location) {
+		interrupt = false;
 		IConstructor tree;
 		if (!command.contains("`")) {
 			tree = parser.parseCommand(location, command);
