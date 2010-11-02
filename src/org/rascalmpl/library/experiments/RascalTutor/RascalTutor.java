@@ -72,7 +72,10 @@ public class RascalTutor {
 
 		System.err.println("BASE = " + BASE);
 		
-		context.setResourceBase(getResolverRegistry().absolutePath(URI.create(BASE))); 
+		URI baseURI = getResolverRegistry().getResourceURI(URI.create(BASE));
+		
+		System.err.println("resourceBase = " + baseURI);
+		context.setResourceBase(baseURI.toASCIIString()); 
      
 		String welcome[] = { BASE + "Courses/index.html"};
 		context.setWelcomeFiles(welcome);

@@ -19,8 +19,8 @@ public class StandardOutputURIResolver implements IURIOutputStreamResolver {
 		return false;
 	}
 
-	public String absolutePath(URI uri) {
-		return "stdout";
+	public URI getResourceURI(URI uri) {
+		return URI.create("file://-");
 	}
 
 }

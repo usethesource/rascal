@@ -8,5 +8,5 @@ public interface IURIOutputStreamResolver {
 	OutputStream getOutputStream(URI uri, boolean append) throws IOException;
 	String scheme();
 	boolean mkDirectory(URI uri) throws IOException;
-	String absolutePath(URI uri) throws IOException;
+	URI getResourceURI(URI uri) throws IOException;
 }

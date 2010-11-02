@@ -100,12 +100,12 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 		}
 	}
 
-	public String absolutePath(URI uri) throws IOException {
+	public URI getResourceURI(URI uri) throws IOException {
 		try {
 			URL res = clazz.getResource(getPath(uri));
 			if(res == null)
 				throw new FileNotFoundException(getPath(uri));
-			return registry.absolutePath(res.toURI());
+			return res.toURI();
 		} catch (URISyntaxException e) {
 			throw new IOException(e.getMessage(), e);
 		}
