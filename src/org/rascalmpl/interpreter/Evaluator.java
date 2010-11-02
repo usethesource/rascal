@@ -259,6 +259,7 @@ import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
+import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.errors.SubjectAdapter;
@@ -366,6 +367,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		ClassResourceInputOutput testdata = new ClassResourceInputOutput(resolverRegistry, "testdata", this.getClass(), "/org/rascalmpl/test/data");
 		resolverRegistry.registerInput(testdata);
+		
+		resolverRegistry.registerInput(new JarURIResolver(this.getClass()));
 		
 		resolverRegistry.registerInputOutput(rascalPathResolver);
 		
