@@ -21,6 +21,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -99,6 +100,7 @@ public class TestFramework {
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
 		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "rascal-test", TestFramework.class, "/"));
+		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));
 		resolverRegistry.registerInput(modules);
 		
 		evaluator.addRascalSearchPath(URI.create("test-modules:///"));
