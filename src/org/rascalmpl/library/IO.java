@@ -133,14 +133,6 @@ public class IO {
 		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
 	}
 	
-	public IValue absolutePath(ISourceLocation sloc, IEvaluatorContext ctx) {
-		try {
-			return values.string(ctx.getResolverRegistry().absolutePath(sloc.getURI()));
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
-		}
-	}
-	
 	public IValue mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) throws IOException {
 		//File f = new File(sloc.getURI().getPath());
 		//System.err.println("mkDirectory: " + sloc.getURI().getPath());

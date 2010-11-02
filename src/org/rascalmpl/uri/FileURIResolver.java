@@ -66,7 +66,7 @@ public class FileURIResolver implements IURIInputOutputResolver {
 		return new File(getPath(uri)).mkdir();
 	}
 
-	public String absolutePath(URI uri) {
-		return getPath(uri);
+	public URI getResourceURI(URI uri) {
+		return URI.create("file://" + getPath(uri));
 	}
 }

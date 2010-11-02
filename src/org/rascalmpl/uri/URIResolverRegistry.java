@@ -39,10 +39,10 @@ public class URIResolverRegistry {
 		return resolver.exists(uri);
 	}
 	
-	public String absolutePath(URI uri) throws IOException {
+	public URI getResourceURI(URI uri) throws IOException {
 		IURIOutputStreamResolver oresolver = outputResolvers.get(uri.getScheme());
 		if (oresolver != null) {
-			return oresolver.absolutePath(uri);
+			return oresolver.getResourceURI(uri);
 		}
 		throw new UnsupportedSchemeException(uri.getScheme());
 	}

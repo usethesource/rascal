@@ -55,7 +55,7 @@ public class FigurePApplet extends PApplet {
 	public FigurePApplet(IConstructor elem, ISourceLocation sloc, IEvaluatorContext ctx){
 		saveFigure = true;
 		try {
-			this.file = ctx.getResolverRegistry().absolutePath(sloc.getURI());
+			this.file = ctx.getResolverRegistry().getResourceURI(sloc.getURI()).toASCIIString();
 			rootFigure = this.figure = FigureFactory.make(this, elem, null, ctx);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

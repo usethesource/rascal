@@ -252,9 +252,9 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		}
 	}
 
-	public String absolutePath(URI uri) {
+	public URI getResourceURI(URI uri) {
 		try {
-			return ctx.getResolverRegistry().absolutePath(uri);
+			return ctx.getResolverRegistry().getResourceURI(uri);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
