@@ -142,23 +142,22 @@ public class TypeDeclarationEvaluator {
 		List<Alias> todo = new LinkedList<Alias>();
 		todo.addAll(aliasDecls);
 		
-		int len = todo.size();
-		int i = 0;
+		int countdown = todo.size();
 		while (!todo.isEmpty()) {
 			Alias trial = todo.remove(0);
+			--countdown;
 			try {
 				declareAlias(trial, env);
-				i--;
+				countdown = todo.size();
 			}
 			catch (UndeclaredTypeError e) {
-				if (i >= len) {
+				if (countdown == 0) {	
 					// Cycle
 					throw e;
 				}
 				// Put at end of queue
 				todo.add(trial);
 			}
-			i++;
 		}
 	}
 	
