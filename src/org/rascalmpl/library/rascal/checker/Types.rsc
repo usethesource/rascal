@@ -1,3 +1,4 @@
+@bootstrapParser
 module rascal::checker::Types
 
 import List;
@@ -7,9 +8,9 @@ import ParseTree;
 import String;
 import Map;
 
-import rascal::checker::ListUtils;
+import rascal::syntax::RascalRascal;
 
-import rascal::\old-syntax::Rascal;
+import rascal::checker::ListUtils;
 
 //
 // Abstract syntax for names 
@@ -132,42 +133,42 @@ data RTypeVar =
 //
 public RType convertBasicType(BasicType t) {
 	switch(t) {
-		case `bool` : return RBoolType();
-		case `int` : return RIntType();
-		case `real` : return RRealType();
-		case `num` : return RNumType();
-		case `str` : return RStrType();
-		case `value` : return RValueType();
-		case `node` : return RNodeType();
-		case `void` : return RVoidType();
-		case `loc` : return RLocType();
-		case `lex` : return RLexType();
-		case `datetime` : return RDateTimeType();
-		case `non-terminal` : return RNonTerminalType();
+		case (BasicType)`bool` : return RBoolType();
+		case (BasicType)`int` : return RIntType();
+		case (BasicType)`real` : return RRealType();
+		case (BasicType)`num` : return RNumType();
+		case (BasicType)`str` : return RStrType();
+		case (BasicType)`value` : return RValueType();
+		case (BasicType)`node` : return RNodeType();
+		case (BasicType)`void` : return RVoidType();
+		case (BasicType)`loc` : return RLocType();
+		case (BasicType)`lex` : return RLexType();
+		case (BasicType)`datetime` : return RDateTimeType();
+		case (BasicType)`non-terminal` : return RNonTerminalType();
 
-		case `list` : 
+		case (BasicType)`list` : 
                         return RListType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
-		case `set` : 
+		case (BasicType)`set` : 
                         return RSetType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
-		case `bag` : 
+		case (BasicType)`bag` : 
                         return RBagType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
-		case `map` : 
+		case (BasicType)`map` : 
                         return RMapType(RUnnamedType(RVoidType()),RUnnamedType(RVoidType()))[@errinfo = <"Non-well-formed type, type should have two type arguments", t@\loc>];
-		case `rel` : 
+		case (BasicType)`rel` : 
                         return RRelType([])[@errinfo = <"Non-well-formed type, type should have one or more type arguments", t@\loc>];
-		case `tuple` : 
+		case (BasicType)`tuple` : 
                         return RTupleType([])[@errinfo = <"Non-well-formed type, type should have one or more type arguments", t@\loc>];
-		case `type` : 
+		case (BasicType)`type` : 
                         return RReifiedType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
-		case `adt` : 
+		case (BasicType)`adt` : 
                         return RADTType(RUserType(RSimpleName("unnamedADT")))[@errinfo = <"Non-well-formed type", t@\loc>];
-		case `parameter` : 
+		case (BasicType)`parameter` : 
                         return RTypeVar(RFreeTypeVar(RSimpleName("unnamedVar")))[@errinfo = <"Non-well-formed type", t@\loc>];
-		case `constructor` : 
+		case (BasicType)`constructor` : 
                         return RConstructorType(RSimpleName("unnamedConstructor"),RUserType(RSimpleName("unnamedADT")),[])[@errinfo = <"Non-well-formed type", t@\loc>];
-		case `fun` : 
+		case (BasicType)`fun` : 
                         return RFunctionType(RVoidType,[])[@errinfo = <"Non-well-formed type", t@\loc>];
-		case `reified` : 
+		case (BasicType)`reified` : 
                         return RReifiedType(RVoidType())[@errinfo = <"Non-well-formed type", t@\loc>];
 	}
 }
@@ -330,7 +331,6 @@ public RType convertType(Type t) {
 		case (Type) `<StructuredType st>` : return convertStructuredType(st);
 		case (Type) `<FunctionType ft>` : return convertFunctionType(ft);
 		case (Type) `<TypeVar tv>` : return RTypeVar(convertTypeVar(tv));
-		case `<UserType ut>` : return convertUserType(ut);
 		case (Type) `<UserType ut>` : return convertUserType(ut);
 		case (Type) `<DataTypeSelector dts>` : return convertDataTypeSelector(dts);
 		case (Type) `( <Type tp> )` : return convertType(tp);
@@ -842,7 +842,7 @@ public bool adtHasTypeParameters(RType t) {
         if (RAliasType(_,at) := t) return adtHasTypeParameters(at);
         if (RTypeVar(_) := t) return adtHasTypeParameters(getTypeVarBound(t));
         if (RADTType(ut) := t) return userTypeHasParameters(ut);
-        if (RConstructorType(_,RADTType(ut),_)) return userTypeHasParameters(ut);
+        if (RConstructorType(_,RADTType(ut),_) := t) return userTypeHasParameters(ut);
         throw "ADTHasTypeParameters given non-ADT type <prettyPrintType(t)>";
 }
 
@@ -850,7 +850,7 @@ public list[RType] getADTTypeParameters(RType t) {
         if (RAliasType(_,at) := t) return getADTTypeParameters(at);
         if (RTypeVar(_) := t) return getADTTypeParameters(getTypeVarBound(t));
         if (RADTType(ut) := t) return getUserTypeParameters(ut);
-        if (RConstructorType(_,RADTType(ut),_)) return getUserTypeParameters(ut);
+        if (RConstructorType(_,RADTType(ut),_) := t) return getUserTypeParameters(ut);
         throw "getADTTypeParameters given non-ADT type <prettyPrintType(t)>";
 }
 
@@ -1043,6 +1043,10 @@ public bool isOverloadedType(RType t) {
 public set[ROverloadedType] getOverloadOptions(RType t) {
 	if (ROverloadedType(s) := t) return s;
 	throw "Error: Cannot get overloaded options from non-overloaded type <prettyPrintType(t)>";
+}
+
+public RType makeOverloadedType(set[RType] options) {
+        return ROverloadedType({ ((o@at)?) ? ROverloadedTypeWithLoc(o,o@at) : ROverloadedType(o) | o <- options });
 }
 
 //
@@ -1259,3 +1263,40 @@ public RName getTypeName(RNamedType t) {
        if (RNamedType(_,n) := t) return n;
        throw "Cannot get type name on an unnamed type";
 }
+
+//
+// Given a list of (possibly named) field types, and a list of fields, return the mapping from the field to the
+// offset in the field types list. This is used for (for instance) subscript resolution.
+//
+// TODO: Would it be better to return a map?
+//
+// TODO: Is this the best place for this? It was moved out of the type checker module, but there may
+// be a better place for it than here.
+//
+private list[tuple[Field field, int offset]] getFieldOffsets(list[RNamedType] fieldTypes, list[Field] fields) {
+	list[tuple[Field field, int offset]] result = [ ];
+	map[RName, int] namedFields = size(fieldTypes) > 0 ? ( n : i | i <-  [0..size(fieldTypes)-1], RNamedType(_,n) := fieldTypes[i]) : ( );
+	
+	for (f <- fields) {
+		switch(f) {
+			case (Field) `<Name n>` : {
+				RName fName = convertName(n);
+				if (fName in namedFields) 
+					result += < f, namedFields[fName] >;
+				else
+					result += < f, -1 >;				
+			}
+
+			case (Field) `<IntegerLiteral il>` : {
+				int ival = toInt("<il>");
+				if (ival >= size(fieldTypes))
+					result += <f, -1 >;
+				else
+					result += <f, ival >;
+			} 
+		}
+	}
+
+	return result;
+}
+

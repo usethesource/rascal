@@ -1,3 +1,4 @@
+@bootstrapParser
 module rascal::checker::TypeRules
 
 import rascal::checker::SubTypes;
@@ -9,19 +10,19 @@ import List;
 import Set;
 import IO;
 
-import rascal::\old-syntax::Rascal;
+import rascal::syntax::RascalRascal;
 
 data RAssignmentOp = RADefault() | RAAddition() | RASubtraction() | RAProduct() | RADivision() | RAIntersection() | RAIfDefined() ;
 
 public RAssignmentOp convertAssignmentOp(Assignment a) {
 	switch(a) {
-		case `=` : return RADefault();
-		case `+=` : return RAAddition();
-		case `-=` : return RASubtraction();
-		case `*=` : return RAProduct();
-		case `/=` : return RADivision();
-		case `&=` : return RAIntersection();
-		case `?=` : return RAIfDefined();
+		case (Assignment)`=` : return RADefault();
+		case (Assignment)`+=` : return RAAddition();
+		case (Assignment)`-=` : return RASubtraction();
+		case (Assignment)`*=` : return RAProduct();
+		case (Assignment)`/=` : return RADivision();
+		case (Assignment)`&=` : return RAIntersection();
+		case (Assignment)`?=` : return RAIfDefined();
 	}
 }
 
@@ -469,9 +470,10 @@ private map[RType,map[str,RType]] fieldMap =
 	);
 
 public RType typeForField(RType source, str fieldName) {
-	if (source in fieldMap)
+	if (source in fieldMap) {
 		if (fieldName in fieldMap[source])
 			return fieldMap[source][fieldName];
+	}
 	throw "Invalid looking: field <fieldName> for type <prettyPrintType(source)> not in field type map.";
 }
 

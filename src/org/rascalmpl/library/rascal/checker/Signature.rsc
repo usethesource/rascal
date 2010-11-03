@@ -1,9 +1,12 @@
+@bootstrapParser
 module rascal::checker::Signature
 
 import rascal::checker::Types;
-import rascal::\old-syntax::Rascal;
+import rascal::syntax::RascalRascal;
 import List;
 import Set;
+import ParseTree;
+import Reflective;
 
 // Each signature item represents an item visible at the module level.
 data RSignatureItem =
@@ -40,13 +43,13 @@ private RSignature addSignatureItem(RSignature sig, RSignatureItem item) {
 private RSignature createRSignature(Tree t) {
 	if ((Module) `<Header h> <Body b>` := t) {
 		switch(h) {
-			case `<Tags t> module <QualifiedName n> <Import* i>` : {
+			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` : {
 				RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
 				sig = createModuleBodySignature(b,sig);
 				return sig;
 			}
 
-			case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
+			case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
 				RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
 				sig = createModuleBodySignature(b,sig);
 				return sig;
@@ -67,7 +70,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 			switch(t) {
 				// Variable declaration
 				case (Toplevel) `<Tags tgs> <Visibility vis> <Type typ> <{Variable ","}+ vs> ;` : {
-					if (`public` := vis) { 
+					if ((Visibility)`public` := vis) { 
 						for (v <- vs) {
 							switch(v) {
 								case (Variable)`<Name n>` : sig = addSignatureItem(sig, VariableSigItem(convertName(n), convertType(typ), t@\loc));
@@ -79,11 +82,11 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 	
 				// Abstract (i.e., without a body) function declaration
 				case (Toplevel) `<Tags tgs> <Visibility vis> <Signature s> ;` : {
-					if (`public` := vis) { 
+					if ((Visibility)`public` := vis) { 
 						switch(s) {
-							case `<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
+							case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
 								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps)), t@\loc));
-							case `<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
+							case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
 								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps)), t@\loc));
 						}
 					}
@@ -91,11 +94,11 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 	 
 	 			// Concrete (i.e., with a body) function declaration
 				case (Toplevel) `<Tags tgs> <Visibility vis> <Signature s> <FunctionBody fb>` : {
-					if (`public` := vis) {
+					if ((Visibility)`public` := vis) {
 						switch(s) {
-							case `<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
+							case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
 								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps)), t@\loc));
-							case `<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
+							case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
 								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps)), t@\loc));
 						}
 					}
@@ -224,4 +227,41 @@ public Tree addModuleSignature(Tree t) {
 // Given a module, return its signature.
 public RSignature getModuleSignature(Tree t) {
 	return markUndefinedTypes(createRSignature(t));
+}
+
+//
+// Signature maps: maps from the imported module to the module signature
+//
+public alias SignatureMap = map[Import importedModule, RSignature moduleSignature];
+
+public SignatureMap populateSignatureMap(list[Import] imports) {
+
+	str getNameOfImportedModule(ImportedModule im) {
+		switch(im) {
+			case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` : {
+				return prettyPrintName(convertName(qn));
+			}
+			case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma>` : {
+				return prettyPrintName(convertName(qn));
+			}
+			case (ImportedModule)`<QualifiedName qn> <Renamings rn>` : {
+				return prettyPrintName(convertName(qn));
+			}
+			case (ImportedModule)`<QualifiedName qn>` : {
+				return prettyPrintName(convertName(qn));
+			}
+		}
+		throw "getNameOfImportedModule: invalid syntax for ImportedModule <im>, cannot get name";
+	}
+
+
+	SignatureMap sigMap = ( );
+	for (i <- imports) {
+		if ((Import)`import <ImportedModule im> ;` := i || (Import)`extend <ImportedModule im> ;` := i) {
+			Tree importTree = getModuleParseTree(getNameOfImportedModule(im));
+			sigMap[i] = getModuleSignature(importTree);
+		} 
+	}
+
+	return sigMap;
 }

@@ -1,15 +1,17 @@
+@bootstrapParser
 module rascal::checker::SymbolTable
 
 import rascal::checker::Types;
 import rascal::checker::Signature;
 import rascal::checker::SubTypes;
-import rascal::\old-syntax::Rascal;
+import rascal::syntax::RascalRascal;
 
 import List;
 import IO;
 import Set;
 import Relation;
 import Map;
+import ParseTree;
 
 // Unique identifiers for scope items
 alias STItemId = int;
@@ -41,12 +43,13 @@ data STItem =
 	| AnnotationItem(RName annotationName, RType annoType, RType onType, bool isPublic, STItemId parentId) 
 	| RuleItem(RName ruleName, STItemId parentId)
 	| TypeVariableItem(RType typeVar, STItemId parentId)
+	| FieldItem(RName fieldName, STItemId parentId)
 ;
 
 public bool itemHasName(STItem item) {
         return ( ModuleItem(_,_) := item || FunctionItem(_,_,_,_,_,_) := item || VariableItem(_,_,_) := item || FormalParameterItem(_,_,_) := item ||
        	         LabelItem(_,_) := item || AliasItem(_,_,_,_) := item || ConstructorItem(_,_,_,_) := item || ADTItem(_,_,_) := item ||
-		 AnnotationItem(_,_,_,_,_) := item || RuleItem(_,_) := item || TypeVariableItem(_,_) := item);
+		 AnnotationItem(_,_,_,_,_) := item || RuleItem(_,_) := item || TypeVariableItem(_,_) := item || FieldItem(_,_) := item );
 }
 
 public RName getItemName(STItem item) {
@@ -63,6 +66,7 @@ public RName getItemName(STItem item) {
 		case RuleItem(n,_) : return n;
 		case TypeVariableItem(RTypeVar(RFreeTypeVar(n)),_) : return n;
 		case TypeVariableItem(RTypeVar(RBoundTypeVar(n,_)),_) : return n;
+		case FieldItem(n,_) : return n;
 		default : throw "Item does not have a name, use itemHasHame(STItem item) to check first to ensure the item has a name";
 	}
 }
@@ -106,6 +110,7 @@ data Namespace =
 	| RuleName()
 	| TagName()
 	| TypeVarName()
+	| FieldName()
 ;
 
 // TODO: Should be able to use STItemMap here, but if I try it doesn't work, something must be
@@ -135,30 +140,32 @@ alias ItemLocationRel = rel[loc,STItemId];
 // adtItems: map from the ADT name to the related ADT and constructor symbol table items
 alias SymbolTable = 
 	tuple[
-		  STItemId topSTItemId,	
-          rel[STItemId scopeId, STItemId itemId] scopeRel,
-	  rel[STItemId scopeId, RName itemName, STItemId itemId] scopeNames,
-		  ItemUses itemUses, 
-		  STItemId nextScopeId, 
-		  map[STItemId, STItem] scopeItemMap, 
-          rel[loc, STItemId] itemLocations, 
-          STItemId currentScope, 
-          int freshType,
-          map[loc, set[str]] scopeErrorMap, 
-          map[int, RType] inferredTypeMap,
-          map[int, RType] typeVarMap, 
-          map[loc, RType] returnTypeMap,
-		  map[loc, RType] itBinder, 
-		  list[STItemId] scopeStack, 
-		  map[RName adtName,tuple[set[STItemId] adtItems,set[STItemId] consItems] adtInfo] adtMap
-		 ];
+                STItemId topSTItemId,
+		STItemId currentModule,	
+                rel[STItemId scopeId, STItemId itemId] scopeRel,
+	        rel[STItemId scopeId, RName itemName, STItemId itemId] scopeNames,
+		ItemUses itemUses, 
+		STItemId nextScopeId, 
+		map[STItemId, STItem] scopeItemMap, 
+                rel[loc, STItemId] itemLocations, 
+                STItemId currentScope, 
+                int freshType,
+                map[loc, set[str]] scopeErrorMap, 
+                map[int, RType] inferredTypeMap,
+                map[int, RType] typeVarMap, 
+                map[loc, RType] returnTypeMap,
+		map[loc, RType] itBinder, 
+		list[STItemId] scopeStack, 
+		map[RName adtName,tuple[set[STItemId] adtItems,set[STItemId] consItems] adtInfo] adtMap,
+		rel[RName annName, RType annType, RType annOn] annRel
+        ];
 
 alias AddedItemPair = tuple[SymbolTable symbolTable, STItemId addedId];
 alias ScopeUpdatePair = tuple[SymbolTable symbolTable, STItemId oldScopeId];
                         
 // Create an empty symbol table                        
 public SymbolTable createNewSymbolTable() {
-	return < -1, { }, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), [ ], ( )>;
+	return < -1, -1, { }, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), [ ], ( ), { }>;
 }                    
 
 // Given a number of different OR scope layers in the symbol table, find the subset of
@@ -316,31 +323,33 @@ public str prettyPrintSI(STItem si) {
 		
 		case BlockLayer(_) : return "BlockLayer";
 
-		case ModuleItem(x,_) : return "ModuleItem: " + prettyPrintName(x);
+		case ModuleItem(x,_) : return "ModuleItem: <prettyPrintName(x)>";
 		
-		case FunctionItem(x,t,ags,_,_,_) : return "FunctionItem: " + prettyPrintType(t) + " " + prettyPrintName(x) + "(" + joinList(ags,prettyPrintSI,",","") + ")";
+		case FunctionItem(x,t,ags,_,_,_) : return "FunctionItem: <prettyPrintType(t)> <prettyPrintName(x)>(<joinList(ags,prettyPrintSI,",","")>)";
 
-		case ClosureItem(t,ags,_,_) : return "ClosureItem: " + prettyPrintType(t) + " (" + joinList(ags,prettyPrintSI,",","") + ")";
+		case ClosureItem(t,ags,_,_) : return "ClosureItem: <prettyPrintType(t)> (<joinList(ags,prettyPrintSI,",","")>)";
 		
-		case VoidClosureItem(ags,_,_) : return "VoidClosureItem: (" + joinList(ags,prettyPrintSI,",","") + ")";
+		case VoidClosureItem(ags,_,_) : return "VoidClosureItem: (<joinList(ags,prettyPrintSI,",","")>)";
 
-		case VariableItem(x,t,_) : return "VariableItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
+		case VariableItem(x,t,_) : return "VariableItem: <prettyPrintType(t)> <prettyPrintName(x)>";
 
-		case TypeVariableItem(t,_) : return "TypeVariableItem: " + prettyPrintType(t);
+		case TypeVariableItem(t,_) : return "TypeVariableItem: <prettyPrintType(t)>";
 		
-		case FormalParameterItem(x,t,_) : return "FormalParameterItem: " + prettyPrintType(t) + " " + prettyPrintName(x);
+		case FormalParameterItem(x,t,_) : return "FormalParameterItem: <prettyPrintType(t)> <prettyPrintName(x)>";
 		
-		case LabelItem(x,_) : return "LabelItem: " + prettyPrintName(x);
+		case LabelItem(x,_) : return "LabelItem: <prettyPrintName(x)>";
 
-		case AliasItem(tn,ta,_,_) : return "AliasItem: " + prettyPrintType(tn) + " = " + prettyPrintType(ta);
+		case AliasItem(tn,ta,_,_) : return "AliasItem: <prettyPrintType(tn)> = <prettyPrintType(ta)>";
 			
-		case ConstructorItem(cn,tas,_,_) : 	return "Constructor: " + prettyPrintName(cn) + "(" + prettyPrintNamedTypeList(tas) + ")";
+		case ConstructorItem(cn,tas,_,_) : 	return "Constructor: <prettyPrintName(cn)>(<prettyPrintNamedTypeList(tas)>)";
 		
-		case ADTItem(ut,_,_) : return "ADT: " + prettyPrintType(ut);
+		case ADTItem(ut,_,_) : return "ADT: <prettyPrintType(ut)>";
 		 			
 		case AnnotationItem(x,atyp,otyp,_,_) : return "Annotation: <prettyPrintType(atyp)> <prettyPrintType(otyp)>@<prettyPrintName(x)>";
 		
-		case RuleItem(x,_) : return "Rule: " + prettyPrintName(x);
+		case RuleItem(x,_) : return "Rule: <prettyPrintName(x)>";
+
+		case FieldItem(x,_) : return "Field: <prettyPrintName(x)>";
 	}
 }
 
@@ -360,6 +369,8 @@ public set[STItemId] filterNamesForNamespace(SymbolTable symbolTable, set[STItem
 	  case AnnotationName() : return { i | i <- scopeItems, AnnotationItem(_,_,_,_) := symbolTable.scopeItemMap[i] };
 
 	  case RuleName() : return { i | i <- scopeItems, RuleItem(_,_) := symbolTable.scopeItemMap[i] };
+
+	  case FieldName() : return { i | i <- scopeItems, FieldItem(_,_) := symbolTable.scopeItemMap[i] };
 	}
 
 	throw "Unmatched namespace in filterNamesForNamespace: <namespace>";
@@ -999,6 +1010,15 @@ public ResultTuple addVariableToTopScope(RName varName, RType varType, bool isPu
 	return addVariableToScopeAt(varName, varType, isPublic, l, symbolTable, symbolTable.topSTItemId);
 }
 
+public ResultTuple addFieldToScopeAt(RName fieldName, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
+	AddedItemPair aip = addSTItemWithParent(FieldItem(fieldName, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
+	return <aip.symbolTable,[aip.addedId]>;
+}
+
+public ResultTuple addFieldToScope(RName fieldName, loc l, SymbolTable symbolTable) {
+	return addFieldToScopeAt(fieldName, l, symbolTable, symbolTable.currentScope);
+}
+
 public ResultTuple addTypeVariableToScopeAt(RType varType, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
 	AddedItemPair aip = addSTItemWithParent(TypeVariableItem(varType, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
 	return <aip.symbolTable,[aip.addedId]>;
@@ -1083,6 +1103,12 @@ public ResultTuple addLabelToTopScope(RName labelName, loc l, SymbolTable symbol
 // Projectors/combinators to work with result tuples
 public SymbolTable justSymbolTable(ResultTuple result) {
 	return result.symbolTable;
+}
+
+public ResultTuple setCurrentModule(ResultTuple result) {
+        SymbolTable symbolTable = result.symbolTable;
+	symbolTable.currentModule = result.addedItems[0];
+	return <symbolTable, result.addedItems>;
 }
 
 public ResultTuple addSTItemUses(ResultTuple result, list[tuple[bool flagUse, loc useloc]] useLocs) {
@@ -1420,6 +1446,7 @@ public ResultTuple checkForDuplicateAnnotationsBounded(ResultTuple result, loc n
 	SymbolTable symbolTable = result.symbolTable;
 	STItemId annotationId = result.addedItems[0];
 	RName annotationName = symbolTable.scopeItemMap[annotationId].annotationName;
+	RType onType = symbolTable.scopeItemMap[annotationId].onType;
 	set[STItemId] otherItems = { };
 	if (modBounded) {
 		otherItems = getAnnotationItemsForNameMB(symbolTable, symbolTable.currentScope, annotationName) - annotationId;
@@ -1427,7 +1454,9 @@ public ResultTuple checkForDuplicateAnnotationsBounded(ResultTuple result, loc n
 		otherItems = getAnnotationItemsForName(symbolTable, symbolTable.currentScope, annotationName) - annotationId;
 	}
 	if (size(otherItems) > 0) {
-		symbolTable = addScopeError(symbolTable, nloc, "Scope Error: Definition of annotation <prettyPrintName(annotationName)> conflicts with another annotation of the same name");	
+	        // See if the other items overlap
+		if (size({ oi | oi <- otherItems, comparable(onType,symbolTable.scopeItemMap[oi].onType) }) > 1)
+		        symbolTable = addScopeError(symbolTable, nloc, "Scope Error: Definition of annotation <prettyPrintName(annotationName)> conflicts with another annotation of the same name");	
 	}
 	return <symbolTable, result.addedItems>;
 }
@@ -1440,29 +1469,14 @@ public ResultTuple checkForDuplicateAnnotationsInModule(ResultTuple result, loc 
 	return checkForDuplicateAnnotationsBounded(result, nloc, true);
 }
 
-public ResultTuple checkForDuplicateRulesBounded(ResultTuple result, loc nloc, bool modBounded) {
-	SymbolTable symbolTable = result.symbolTable;
-	STItemId ruleId = result.addedItems[0];
-	RName ruleName = symbolTable.scopeItemMap[ruleId].ruleName;
-	set[STItemId] otherItems = { };
-	if (modBounded) {
-		otherItems = getRuleItemsForNameMB(symbolTable, symbolTable.currentScope, ruleName) - ruleId;
-	} else {
-		otherItems = getRuleItemsForName(symbolTable, symbolTable.currentScope, ruleName) - ruleId;
-	}
-	// NOTE: Rules can share names, disabling this check for now...
-	//if (size(otherItems) > 0) {
-	//	symbolTable = addScopeError(symbolTable, nloc, "Scope Error: Definition of rule <prettyPrintName(ruleName)> conflicts with another rule of the same name");	
-	//}
-	return <symbolTable, result.addedItems>;
-}
+public ResultTuple registerAnnotation(ResultTuple result, loc nloc) {
+        STItemId annotationId = result.addedItems[0];
+	RName annotationName = symbolTable.scopeItemMap[annotationId].annotationName;
+	RType annotationType = symbolTable.scopeItemMap[annotationId].annoType;
+	RType onType = symbolTable.scopeItemMap[annotationId].onType;
+	symbolTable = aip.symbolTable;
+	symbolTable.annRel += < annotationName, annotationType, onType >;
 
-public ResultTuple checkForDuplicateRules(ResultTuple result, loc nloc) {
-	return checkForDuplicateRulesBounded(result, nloc, false);
-}
-
-public ResultTuple checkForDuplicateRulesInModule(ResultTuple result, loc nloc) {
-	return checkForDuplicateRulesBounded(result, nloc, true);
 }
 
 public bool inBoolLayer(SymbolTable symbolTable) {
