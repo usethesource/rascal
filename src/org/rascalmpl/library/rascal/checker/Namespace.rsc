@@ -1,3 +1,4 @@
+@bootstrapParser
 module rascal::checker::Namespace
 
 import rascal::checker::Types;
@@ -12,8 +13,9 @@ import Graph;
 import IO;
 import Set;
 import Map;
+import ParseTree;
 
-import rascal::\old-syntax::Rascal;
+import rascal::syntax::RascalRascal;
 
 // 
 // TODOs
@@ -78,7 +80,7 @@ import rascal::\old-syntax::Rascal;
 //
 // 13. DONE: Add support for the Reducer expression
 //
-// 14. Add alias expansion (since we have all the name information here) -- maybe add
+// 14. DONE: Add alias expansion (since we have all the name information here) -- maybe add
 //       as an Alias type, so we can keep track of the original type name used as well,
 //       which would make more sense to the user than the expanded form.
 //
@@ -101,7 +103,7 @@ import rascal::\old-syntax::Rascal;
 //
 // 20. DONE: Add support for rules.
 //
-// 21. Add support for tests.
+// 21. DONE: Add support for tests.
 //
 // 22. Add checking to ensure that insert, append, fail, break, and continue are all used in the
 //     correct contexts.
@@ -123,8 +125,8 @@ list[STItemId] mkEmptySIList() { return tail([3]); }
 public list[Import] getImports(Tree t) {
 	if ((Module) `<Header h> <Body b>` := t) {
 		switch(h) {
-			case `<Tags t> module <QualifiedName n> <Import* i>` : return [il | il <- i];
-			case `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : return [il | il <- i];
+			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` : return [il | il <- i];
+			case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : return [il | il <- i];
 			default : throw "Unexpected module format";
 		}
 	}
@@ -144,11 +146,6 @@ public RName getModuleName(Tree t) {
 }
 
 //
-// Signature maps: maps from the imported module to the module signature
-//
-alias SignatureMap = map[Import importedModule, RSignature moduleSignature];
-
-//
 // Given a tree representing a module, build the namespace. Note that
 // we only process one module at a time, although this code can
 // trigger the processing of other modules that are imported.
@@ -161,9 +158,9 @@ public SymbolTable buildNamespace(Tree t, SignatureMap signatures) {
 	// modules imported by this module. Each module is attached under the
 	// top layer.
 	if ((Module) `<Header h> <Body b>` := t) {
-		if (`<Tags t> module <QualifiedName n> <Import* i>` := h || `<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` := h) {
+		if ((Header)`<Tags t> module <QualifiedName n> <Import* i>` := h || (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` := h) {
 			symbolTable = handleModuleImports(i, signatures, symbolTable);
-			symbolTable = justSymbolTable(pushNewModuleScope(convertName(n), t@\loc, symbolTable));
+			symbolTable = justSymbolTable(setCurrentModule(pushNewModuleScope(convertName(n), t@\loc, symbolTable)));
 			symbolTable = handleModuleBodyFull(b, handleModuleBodyNamesOnly(b, symbolTable));
 			symbolTable = popScope(symbolTable);
 		} else {
@@ -177,6 +174,39 @@ public SymbolTable buildNamespace(Tree t, SignatureMap signatures) {
 	return symbolTable;
 }		
 
+anno set[STItemId] Tree@nameIds;
+
+//
+// TODO: Add more cases
+//
+public Tree addNamesToTree(SymbolTable symbolTable, Tree t) {
+	return visit(t) {
+		case (Expression)`<Name n>` : {
+			if (n@\loc in symbolTable.itemUses) {
+				insert(n[@nameIds = (symbolTable.itemUses)[n@\loc]]);
+			}	
+		}
+		
+		case (Expression)`<QualifiedName qn>` : {
+			if (qn@\loc in symbolTable.itemUses) {
+				insert(qn[@nameIds = (symbolTable.itemUses)[qn@\loc]]);
+			}
+		}
+
+		case (Pattern)`<Name n>` : {
+			if (n@\loc in symbolTable.itemUses) {
+				insert(n[@nameIds = (symbolTable.itemUses)[n@\loc]]);
+			}	
+		}
+		
+		case (Pattern)`<QualifiedName qn>` : {
+			if (qn@\loc in symbolTable.itemUses) {
+				insert(qn[@nameIds = (symbolTable.itemUses)[qn@\loc]]);
+			}
+		}
+	};
+}
+
 //
 // Load information from the imported modules. Note that the import list is reversed before processing;
 // this is because the last module loaded "wins" in conflicts, but it's easier to model this by starting
@@ -185,7 +215,7 @@ public SymbolTable buildNamespace(Tree t, SignatureMap signatures) {
 public SymbolTable handleModuleImports(Import* il, SignatureMap signatures, SymbolTable symbolTable) {
 	list[Import] impList = reverse([imp | imp <- il]); 
 	for (imp <- impList) {
-		if (`import <ImportedModule im> ;` := imp || `extend <ImportedModule im> ;` := imp) {
+		if ((Import)`import <ImportedModule im> ;` := imp || (Import)`extend <ImportedModule im> ;` := imp) {
 			if (imp in signatures)
 				symbolTable = handleImportedModuleStep1(im, signatures[imp], imp@\loc, symbolTable);
 			else
@@ -193,7 +223,7 @@ public SymbolTable handleModuleImports(Import* il, SignatureMap signatures, Symb
 		}
 	}
 	for (imp <- impList) {
-		if (`import <ImportedModule im> ;` := imp || `extend <ImportedModule im> ;` := imp) {
+		if ((Import)`import <ImportedModule im> ;` := imp || (Import)`extend <ImportedModule im> ;` := imp) {
 			if (imp in signatures)
 				symbolTable = handleImportedModuleStep2(im, signatures[imp], imp@\loc, symbolTable);
 			else
@@ -201,7 +231,7 @@ public SymbolTable handleModuleImports(Import* il, SignatureMap signatures, Symb
 		}
 	}
 	for (imp <- impList) {
-		if (`import <ImportedModule im> ;` := imp || `extend <ImportedModule im> ;` := imp) {
+		if ((Import)`import <ImportedModule im> ;` := imp || (Import)`extend <ImportedModule im> ;` := imp) {
 			if (imp in signatures)
 				symbolTable = handleImportedModuleStep3(im, signatures[imp], imp@\loc, symbolTable);
 			else
@@ -218,32 +248,32 @@ public SymbolTable handleModuleImports(Import* il, SignatureMap signatures, Symb
 //
 public SymbolTable handleImportedModuleStep1(ImportedModule im, RSignature signature, loc l, SymbolTable symbolTable) {
 	switch(im) {
-		case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
+		case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
 			return addImportedAliasesToScope(qn, signature, l, symbolTable);
 			
-		case `<QualifiedName qn> <ModuleActuals ma>` :
+		case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma>` :
 			return addImportedAliasesToScope(qn, signature, l, symbolTable);
 			
-		case `<QualifiedName qn> <Renamings rn>` :
+		case (ImportedModule)`<QualifiedName qn> <Renamings rn>` :
 			return addImportedAliasesToScope(qn, signature, l, symbolTable);
 			
 		case (ImportedModule)`<QualifiedName qn>` :
 			return addImportedAliasesToScope(qn, signature, l, symbolTable);
 			
-		default :
+		default:
 			throw "Error in handleImportedModuleStep1, case not handled: <im>";
 	}
 }
 
 public SymbolTable handleImportedModuleStep2(ImportedModule im, RSignature signature, loc l, SymbolTable symbolTable) {
 	switch(im) {
-		case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
+		case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
 			return addImportedADTsToScope(qn, signature, l, symbolTable);
 			
-		case `<QualifiedName qn> <ModuleActuals ma>` :
+		case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma>` :
 			return addImportedADTsToScope(qn, signature, l, symbolTable);
 			
-		case `<QualifiedName qn> <Renamings rn>` :
+		case (ImportedModule)`<QualifiedName qn> <Renamings rn>` :
 			return addImportedADTsToScope(qn, signature, l, symbolTable);
 			
 		case (ImportedModule)`<QualifiedName qn>` :
@@ -256,13 +286,13 @@ public SymbolTable handleImportedModuleStep2(ImportedModule im, RSignature signa
 
 public SymbolTable handleImportedModuleStep3(ImportedModule im, RSignature signature, loc l, SymbolTable symbolTable) {
 	switch(im) {
-		case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
+		case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` :
 			return addImportedItemsToScope(qn, signature, l, symbolTable);
 			
-		case `<QualifiedName qn> <ModuleActuals ma>` :
+		case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma>` :
 			return addImportedItemsToScope(qn, signature, l, symbolTable);
 			
-		case `<QualifiedName qn> <Renamings rn>` :
+		case (ImportedModule)`<QualifiedName qn> <Renamings rn>` :
 			return addImportedItemsToScope(qn, signature, l, symbolTable);
 			
 		case (ImportedModule)`<QualifiedName qn>` :
@@ -560,7 +590,7 @@ public SymbolTable handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Varia
 	RType varType = ct.rtype; symbolTable = ct.symbolTable;
 
 	for (vb <- vs) {
-		if (`<Name n>` := vb || `<Name n> = <Expression e>` := vb) {
+		if ((Variable)`<Name n>` := vb || (Variable)`<Name n> = <Expression e>` := vb) {
 			if (size(getItemsForNameMB(symbolTable, symbolTable.currentScope, convertName(n))) > 0) {		
 				symbolTable = addScopeError(symbolTable, n@\loc, "Duplicate declaration of name <n>");
 			} 
@@ -571,11 +601,11 @@ public SymbolTable handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Varia
 }
 
 //
-// Identify any names used inside variable declarations
+// Process the initializer expressions given inside the variable declaration.
 //
 public SymbolTable handleVarItems(Tags ts, Visibility v, Type t, {Variable ","}+ vs, SymbolTable symbolTable) {
 	symbolTable = handleTags(ts, symbolTable);
-	for (`<Name n> = <Expression e>` <- vs) symbolTable = handleExpression(e, symbolTable);
+	for ((Variable)`<Name n> = <Expression e>` <- vs) symbolTable = handleExpression(e, symbolTable);
 	return symbolTable;
 }
 
@@ -612,15 +642,15 @@ public SymbolTable handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signat
 	symbolTable = handleTagsNamesOnly(ts, symbolTable);
 	
 	switch(s) {
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
-	                ConvertTuple ct = convertRascalType(symbolTable, t);
-	                RType retType = ct.rtype; symbolTable = ct.symbolTable;
+		case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
+			ConvertTuple ct = convertRascalType(symbolTable, t);
+			RType retType = ct.rtype; symbolTable = ct.symbolTable;
 			symbolTable = addFunction(n, retType, ps, mkEmptyList(), isPublic(v), symbolTable);
 		}
 
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
-	                ConvertTuple ct = convertRascalType(symbolTable, t);
-	                RType retType = ct.rtype; symbolTable = ct.symbolTable;
+		case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
+	    	ConvertTuple ct = convertRascalType(symbolTable, t);
+	        RType retType = ct.rtype; symbolTable = ct.symbolTable;
 			list[RType] throwsTypes = [ ];
 			for (thrsi <- thrs) { ct = convertRascalType(symbolTable, thrsi); throwsTypes = throwsTypes + ct.rtype; symbolTable = ct.symbolTable; }
 			symbolTable = addFunction(n, retType, ps, throwsTypes, isPublic(v), symbolTable);
@@ -643,7 +673,7 @@ public SymbolTable handleAbstractFunction(Tags ts, Visibility v, Signature s, lo
 public tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] handleParametersNamesOnly(Parameters p, SymbolTable symbolTable) {
 	list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = [];
 
-	if (`( <Formals f> )` := p) {
+	if ((Parameters)`( <Formals f> )` := p) {
 		if ((Formals)`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if ((Formal)`<Type t> <Name n>` := fp) {
@@ -653,7 +683,7 @@ public tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc p
 				} 					
 			}
 		}
-	} else if (`( <Formals f> ... )` := p) {
+	} else if ((Parameters)`( <Formals f> ... )` := p) {
 		if ((Formals)`<{Formal ","}* fs>` := f) {
 			for (fp <- fs) {
 				if ((Formal)`<Type t> <Name n>` := fp) {
@@ -682,11 +712,11 @@ public SymbolTable handleFunction(Tags ts, Visibility v, Signature s, FunctionBo
 	
 	// Now, process the function body
 	switch(s) {
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
+		case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
 			symbolTable = handleFunctionBody(b,symbolTable);
 		}
 
-		case `<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ tts> ` : {
+		case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ tts> ` : {
 			symbolTable = handleFunctionBody(b,symbolTable);
 		}
 	}
@@ -698,7 +728,7 @@ public SymbolTable handleFunction(Tags ts, Visibility v, Signature s, FunctionBo
 // Handle function bodies
 //
 public SymbolTable handleFunctionBody(FunctionBody fb, SymbolTable symbolTable) {
-	if (`{ <Statement* ss> }` := fb) {
+	if ((FunctionBody)`{ <Statement* ss> }` := fb) {
 		for (s <- ss) symbolTable = handleStatement(s, symbolTable);
 	} else {
 		throw "handleFunctionBody, unexpected syntax for body <fb>";
@@ -710,7 +740,7 @@ public SymbolTable handleFunctionBody(FunctionBody fb, SymbolTable symbolTable) 
 // Check is visibility represents public or private
 //
 private bool isPublic(Visibility v) {
-	return (`public` := v);
+	return ((Visibility)`public` := v);
 }
 
 //
@@ -734,8 +764,7 @@ public SymbolTable handleAnnotationDeclarationNamesOnly(Tags t, Visibility v, Ty
 }
 
 //
-// TODO: The annotation name was handled above, here we just check to make sure the types used are actually
-// in scope.
+// All checks were done above specifically for annotations, so just handle the tags here.
 //
 public SymbolTable handleAnnotationDeclaration(Tags t, Visibility v, Type ty, Type ot, Name n, loc l, SymbolTable symbolTable) {
 	return handleTags(t, symbolTable);
@@ -745,28 +774,22 @@ public SymbolTable handleAnnotationDeclaration(Tags t, Visibility v, Type ty, Ty
 // TODO: Implement
 //
 public SymbolTable handleTagDeclaration(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, SymbolTable symbolTable) {
-	symbolTable = handleTags(t, symbolTable);
-	//throw "handleTagDeclaration not yet implemented";
-	return symbolTable;
+	return handleTags(t, symbolTable);
 }
 
 //
 // TODO: Implement
 //
 public SymbolTable handleTagDeclarationNamesOnly(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, SymbolTable symbolTable) {
-	symbolTable = handleTagsNamesOnly(t, symbolTable);
-	//throw "handleTagDeclarationNamesOnly not yet implemented";
-	return symbolTable;
+	return handleTagsNamesOnly(t, symbolTable);
 }
 
 //
 // In this first pass we just worry about the name of the rule, we don't yet descend into the pattern.
 //
-// TODO: Is it proper to have the same rule name on multiple rules? If so, change the logic for checkForDuplicateRules
-//
 public SymbolTable handleRuleDeclarationNamesOnly(Tags t, Name n, PatternWithAction p, loc l, SymbolTable symbolTable) {
         symbolTable = handleTagsNamesOnly(t, symbolTable);
-	return justSymbolTable(checkForDuplicateRules(addRuleToScope(convertName(n), l, handleTagsNamesOnly(t, symbolTable)), n@\loc));
+	return justSymbolTable(addRuleToScope(convertName(n), l, handleTagsNamesOnly(t, symbolTable)));
 }
 
 //
@@ -780,7 +803,7 @@ public SymbolTable handleRuleDeclaration(Tags t, Name n, PatternWithAction p, lo
 // Tests don't introduce any top-level names, so we only need to handle the test tag on this first pass.
 //
 public SymbolTable handleTestNamesOnly(Test t, loc l, SymbolTable symbolTable) {
-        if (`<Tags tgs> test <Expression exp>` := t || `<Tags tgs> test <Expression exp> : <StringLiteral sl>` := t) {
+        if ((Test)`<Tags tgs> test <Expression exp>` := t || (Test)`<Tags tgs> test <Expression exp> : <StringLiteral sl>` := t) {
 	        return handleTagsNamesOnly(tgs, symbolTable);
         }
         throw "Unexpected syntax for test: <t>";
@@ -791,7 +814,7 @@ public SymbolTable handleTestNamesOnly(Test t, loc l, SymbolTable symbolTable) {
 // on the second pass.
 //
 public SymbolTable handleTest(Test t, loc l, SymbolTable symbolTable) {
-        if (`<Tags tgs> test <Expression exp>` := t || `<Tags tgs> test <Expression exp> : <StringLiteral sl>` := t) {
+        if ((Test)`<Tags tgs> test <Expression exp>` := t || (Test)`<Tags tgs> test <Expression exp> : <StringLiteral sl>` := t) {
 	        return handleExpression(exp,handleTags(tgs, symbolTable));
 	}
         throw "Unexpected syntax for test: <t>";
@@ -828,7 +851,7 @@ public SymbolTable handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {
 
 	// Process each given variant, adding it into scope	
 	for (var <- vars) {
-		if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
+		if ((Variant)`<Name n> ( <{TypeArg ","}* args> )` := var) {
 		        list[RNamedType] cparams = [ ];
 		        for (targ <- args) { ConvertTupleN ct = convertRascalTypeArg(symbolTable, targ); cparams = cparams + ct.rtype; symbolTable = ct.symbolTable; }
 			symbolTable = justSymbolTable(checkConstructorOverlap(addSTItemUses(addConstructorToScope(convertName(n), cparams, adtId, true, l, symbolTable),[<true,n@\loc>]),n@\loc));
@@ -896,19 +919,19 @@ public SymbolTable handleView(Tags ts, Visibility v, Name n, Name sn, {Alternati
 public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 	switch(s) {
                 // solve statement; note that the names are not binders, they should already be in scope
-		case `solve (<{QualifiedName ","}+ vs> <Bound b>) <Statement sb>` : {
+		case (Statement)`solve (<{QualifiedName ","}+ vs> <Bound b>) <Statement sb>` : {
 			
 			for (v <- vs)
 				symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, convertName(v)), v@\loc);
 			
-			if (`; <Expression e>` := b)
+			if ((Bound)`; <Expression e>` := b)
 				symbolTable = handleExpression(e, symbolTable);
 			
 			symbolTable = handleStatement(sb, symbolTable);		
 		}
 
                 // for statement; this opens a boolean scope, ensuring bindings in the for expression are visible just in the body
-		case `<Label l> for (<{Expression ","}+ es>) <Statement b>` : {
+		case (Statement)`<Label l> for (<{Expression ","}+ es>) <Statement b>` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
 			for (e <- es) symbolTable = handleExpression(e, symbolTable);
@@ -917,7 +940,7 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 		}
 
                 // while statement; this opens a boolean scope, ensuring bindings in the while expression are visible just in the body
-		case `<Label l> while (<{Expression ","}+ es>) <Statement b>` : {
+		case (Statement)`<Label l> while (<{Expression ","}+ es>) <Statement b>` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
 			for (e <- es) symbolTable = handleExpression(e, symbolTable);
@@ -926,11 +949,11 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 		}
 
 		// do statement; in this case the expression is not a binder, since it comes after the first iteration
-		case `<Label l> do <Statement b> while (<Expression e>);` :
+		case (Statement)`<Label l> do <Statement b> while (<Expression e>);` :
 			symbolTable = handleExpression(e, handleStatement(b, handleLabel(l,symbolTable)));			
 
                 // if statement; this opens a boolean scope, ensuring bindings in the if guard expression are visible just in the body		
-		case `<Label l> if (<{Expression ","}+ es>) <Statement bt> else <Statement bf>` : {
+		case (Statement)`<Label l> if (<{Expression ","}+ es>) <Statement bt> else <Statement bf>` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
 			for (e <- es) symbolTable = handleExpression(e, symbolTable);
@@ -939,7 +962,7 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 		}
 
                 // if statement with no else; this opens a boolean scope, ensuring bindings in the if guard expression are visible just in the body
-		case `<Label l> if (<{Expression ","}+ es>) <Statement bt>` : {
+		case (Statement)`<Label l> if (<{Expression ","}+ es>) <Statement bt> <NoElseMayFollow _>` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
 			for (e <- es) symbolTable = handleExpression(e, symbolTable);
@@ -948,7 +971,7 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 		}
 
 		// switch statement
-		case `<Label l> switch (<Expression e>) { <Case+ cs> }` : {
+		case (Statement)`<Label l> switch (<Expression e>) { <Case+ cs> }` : {
 			symbolTable = handleExpression(e,handleLabel(l,symbolTable));						
 			for (c <- cs) symbolTable = handleCase(c, symbolTable);
 		}
@@ -958,37 +981,37 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 			symbolTable = handleVisit(v, handleLabel(l,symbolTable));						
 			
 		// expression statement
-		case `<Expression e> ;` :
+		case (Statement)`<Expression e> ;` :
 			symbolTable = handleExpression(e, symbolTable);
 
 		// assignment statement
-		case `<Assignable a> <Assignment op> <Statement b>` :
+		case (Statement)`<Assignable a> <Assignment op> <Statement b>` :
 			symbolTable = handleStatement(b, handleAssignable(a, symbolTable));
 		
 		// assert statement
-		case `assert <Expression e> ;` :
+		case (Statement)`assert <Expression e> ;` :
 			symbolTable = handleExpression(e, symbolTable);
 
 		// assert statement with guard
-		case `assert <Expression e> : <Expression em> ;` :
+		case (Statement)`assert <Expression e> : <Expression em> ;` :
 			symbolTable = handleExpression(em, handleExpression(e, symbolTable));
 		
 		// return statement; we mark the return type here so we can find it during checking
-		case `return <Statement b>` : {
+		case (Statement)`return <Statement b>` : {
 			symbolTable = handleStatement(b, symbolTable);
 			symbolTable = markReturnType(getEnclosingFunctionType(symbolTable), s, symbolTable);
 		}
 		
 		// throw statement
-		case `throw <Statement b>` :
+		case (Statement)`throw <Statement b>` :
 			symbolTable = handleStatement(b, symbolTable);
 		
 		// insert statement
-		case `insert <DataTarget dt> <Statement b>` :
+		case (Statement)`insert <DataTarget dt> <Statement b>` :
 			symbolTable = handleStatement(b, handleDataTarget(dt, symbolTable));
 		
 		// append statement
-		case `append <DataTarget dt> <Statement b>` :
+		case (Statement)`append <DataTarget dt> <Statement b>` :
 			symbolTable = handleStatement(b, handleDataTarget(dt, symbolTable));
 		
 		// local function declaration; the called functions handle the scoping so we don't have to here
@@ -1009,32 +1032,32 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
 			symbolTable = handleLocalVarItems(t,vs,symbolTable);
 
 		// break statement		
-		case `break <Target t> ;` :
+		case (Statement)`break <Target t> ;` :
 			symbolTable = handleTarget(t, symbolTable);
 		
 		// fail statement
-		case `fail <Target t> ;` :
+		case (Statement)`fail <Target t> ;` :
 			symbolTable = handleTarget(t, symbolTable);
 		
 		// continue statement
-		case `continue <Target t> ;` :
+		case (Statement)`continue <Target t> ;` :
 			symbolTable = handleTarget(t, symbolTable);
 		
 		// try/catch statement
-		case `try <Statement b> <Catch+ cs>` : {
+		case (Statement)`try <Statement b> <Catch+ cs>` : {
 			symbolTable = handleStatement(b, symbolTable);
 			for (ct <- cs) symbolTable = handleCatch(ct, symbolTable);
 		}
 		
 		// try/catch/finally statement
-		case `try <Statement b> <Catch+ cs> finally <Statement bf>` : {
+		case (Statement)`try <Statement b> <Catch+ cs> finally <Statement bf>` : {
 			symbolTable = handleStatement(b, symbolTable);
 			for (ct <- cs) symbolTable = handleCatch(ct, symbolTable);
 			symbolTable = handleStatement(bf, symbolTable);
 		}
 		
 		// labeled statement block
-		case `<Label l> { <Statement+ bs> }` : {
+		case (Statement)`<Label l> { <Statement+ bs> }` : {
 			symbolTable = handleLabel(l,symbolTable);			
 			symbolTable = justSymbolTable(pushNewBlockScope(s@\loc, symbolTable));
 			for (b <- bs) symbolTable = handleStatement(b,symbolTable);
@@ -1076,7 +1099,7 @@ public list[Tree] getMapMappings(Tree t) {
 }
 
 //
-// Return domain : range expression pairs as a list of tuples for a map
+// Return domain : range expression pairs as a list of tuples for a map expression
 //
 public list[tuple[Expression mapDomain, Expression mapRange]] getMapExpressionContents(Expression exp) {
 	list[Tree] mm = getMapMappings(exp);
@@ -1088,7 +1111,7 @@ public list[tuple[Expression mapDomain, Expression mapRange]] getMapExpressionCo
 }
 
 //
-// Return domain : range pattern pairs as a list of tuples for a map
+// Return domain : range pattern pairs as a list of tuples for a map pattern
 //
 public list[tuple[Pattern mapDomain, Pattern mapRange]] getMapPatternContents(Pattern pat) {
 	list[Tree] mm = getMapMappings(pat);
@@ -1118,7 +1141,6 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 
 	SymbolTable handleExpName(RName n, loc l, SymbolTable symbolTable) {
 		if (size(getItemsForName(symbolTable, symbolTable.currentScope, n)) > 0) {
-			//if (RSimpleName("showConceptURL") := n) println("Found IDs <getItemsForName(symbolTable, symbolTable.currentScope, n)>");
 			symbolTable = addItemUses(symbolTable, getItemsForName(symbolTable, symbolTable.currentScope, n), l);
 		} else {
 			symbolTable = addScopeError(symbolTable, l, "<prettyPrintName(n)> not defined before use");
@@ -1158,11 +1180,11 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 			symbolTable = handleExpName(convertName(qn),qn@\loc,symbolTable);
 
 		// ReifiedType
-		case `<BasicType t> ( <{Expression ","}* el> )` :
+		case (Expression)`<BasicType t> ( <{Expression ","}* el> )` :
 			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
 
 		// CallOrTree
-		case `<Expression e1> ( <{Expression ","}* el> )` : {
+		case (Expression)`<Expression e1> ( <{Expression ","}* el> )` : {
 			symbolTable = handleExpression(e1, symbolTable);
 
 			// Parameters maintain their own scope for backtracking purposes
@@ -1172,11 +1194,11 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// List
-		case `[<{Expression ","}* el>]` :
+		case (Expression)`[<{Expression ","}* el>]` :
 			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
 
 		// Set
-		case `{<{Expression ","}* el>}` :
+		case (Expression)`{<{Expression ","}* el>}` :
 			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
 
 		// Tuple, just one expression
@@ -1184,13 +1206,13 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 			symbolTable = handleExpression(ei, symbolTable);
 
 		// Tuple, more than one expression
-		case `<<Expression ei>, <{Expression ","}* el>>` : {
+		case (Expression)`<<Expression ei>, <{Expression ","}* el>>` : {
 			symbolTable = handleExpression(ei,symbolTable);
 			for (eli <- el) symbolTable = handleExpression(eli, symbolTable);
 		}
 
 		// Closure
-		case `<Type t> <Parameters p> { <Statement+ ss> }` : {
+		case (Expression)`<Type t> <Parameters p> { <Statement+ ss> }` : {
 			tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] paramsI = handleParametersNamesOnly(p, symbolTable);
 			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = paramsI.params;
 			symbolTable = paramsI.symbolTable;
@@ -1204,7 +1226,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// VoidClosure
-		case `<Parameters p> { <Statement* ss> }` : {
+		case (Expression)`<Parameters p> { <Statement* ss> }` : {
 			tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] paramsI = handleParametersNamesOnly(p, symbolTable);
 			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = paramsI.params;
 			symbolTable = paramsI.symbolTable;
@@ -1215,7 +1237,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// NonEmptyBlock
-		case `{ <Statement+ ss> }` : {
+		case (Expression)`{ <Statement+ ss> }` : {
 			symbolTable = justSymbolTable(pushNewBlockScope(s@\loc, symbolTable));
 			for (s <- ss) symbolTable = handleStatement(s, symbolTable);
 			symbolTable = popScope(symbolTable);
@@ -1226,46 +1248,54 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 			symbolTable = handleVisit(v, handleLabel(l,symbolTable));						
 		
 		// ParenExp
-		case `(<Expression e>)` :
+		case (Expression)`(<Expression e>)` :
 			symbolTable = handleExpression(e, symbolTable);
 
 		// Range
-		case `[ <Expression e1> .. <Expression e2> ]` :
+		case (Expression)`[ <Expression e1> .. <Expression e2> ]` :
 			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// StepRange
-		case `[ <Expression e1>, <Expression e2> .. <Expression e3> ]` :
+		case (Expression)`[ <Expression e1>, <Expression e2> .. <Expression e3> ]` :
 			symbolTable = handleExpression(e3, handleExpression(e2, handleExpression(e1, symbolTable)));
 
 		// FieldUpdate
 		// NOTE: Here we do not add uses for n, since n should be the name of a field
 		// on the type e1. We will instead check this inside the type checker, since we
 		// need to know the type first before we can do this.
-		case `<Expression e1> [<Name n> = <Expression e2>]` :
+		case (Expression)`<Expression e1> [<Name n> = <Expression e2>]` : {
 			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
+			symbolTable = justSymbolTable(addSTItemUses(addFieldToScope(convertName(n), exp@\loc, symbolTable), [<true,n@\loc>]));
+		}
 
 		// FieldAccess
 		// NOTE: Here we do not add uses for n, since n should be the name of a field
 		// on the type e1. We will instead check this inside the type checker, since we
 		// need to know the type first before we can do this.
-		case `<Expression e1> . <Name n>` :
+		case (Expression)`<Expression e1> . <Name n>` : {
 			symbolTable = handleExpression(e1, symbolTable);
+			symbolTable = justSymbolTable(addSTItemUses(addFieldToScope(convertName(n), exp@\loc, symbolTable), [<true,n@\loc>]));
+		}
 
 		// FieldProject
 		// NOTE: Here we do not add uses for the fields, since we need to know the type of e1
 		// to check this (these are not uses of names defined in local scope). We will instead 
 		// check this inside the type checker. A field must be either a name or a number.
-		case `<Expression e1> < <{Field ","}+ fl> >` :
-			symbolTable = handleExpression(e1, symbolTable);			
+		case (Expression)`<Expression e1> < <{Field ","}+ fl> >` : {
+			symbolTable = handleExpression(e1, symbolTable);
+			for ((Field)`<Name n>` <- fl) 
+                                symbolTable = justSymbolTable(addSTItemUses(addFieldToScope(convertName(n), exp@\loc, symbolTable), [<true,n@\loc>]));
+		}
+
 
 		// Subscript
-		case `<Expression e1> [ <{Expression ","}+ el> ]` : {
+		case (Expression)`<Expression e1> [ <{Expression ","}+ el> ]` : {
 			symbolTable = handleExpression(e1, symbolTable);
 			for (e <- el) symbolTable = handleExpression(e, symbolTable);
 		}
 
 		// IsDefined
-		case `<Expression e> ?` : {
+		case (Expression)`<Expression e> ?` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1276,7 +1306,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// Negation
-		case `! <Expression e>` : {
+		case (Expression)`! <Expression e>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1287,63 +1317,63 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// Negative
-		case `- <Expression e> ` :
+		case (Expression)`- <Expression e> ` :
 			symbolTable = handleExpression(e, symbolTable);
 
 		// TransitiveReflexiveClosure
-		case `<Expression e> * ` :
+		case (Expression)`<Expression e> * ` :
 			symbolTable = handleExpression(e, symbolTable);
 
 		// TransitiveClosure
-		case `<Expression e> + ` :
+		case (Expression)`<Expression e> + ` :
 			symbolTable = handleExpression(e, symbolTable);
 
 		// GetAnnotation
-		case `<Expression e> @ <Name n>` : {
+		case (Expression)`<Expression e> @ <Name n>` : {
 			symbolTable = handleExpression(e, symbolTable);
 			symbolTable = addItemUses(symbolTable, getAnnotationItemsForName(symbolTable, symbolTable.currentScope, convertName(n)), n@\loc);
 		}
 
 		// SetAnnotation
-		case `<Expression e1> [@ <Name n> = <Expression e2>]` : {
+		case (Expression)`<Expression e1> [@ <Name n> = <Expression e2>]` : {
 			symbolTable = handleExpression(e2,handleExpression(e1, symbolTable));
 			symbolTable = addItemUses(symbolTable, getAnnotationItemsForName(symbolTable, symbolTable.currentScope, convertName(n)), n@\loc);
 		}
 
 		// Composition
-		case `<Expression e1> o <Expression e2>` :
+		case (Expression)`<Expression e1> o <Expression e2>` :
 			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Product
-		case `<Expression e1> * <Expression e2>` :
+		case (Expression)`<Expression e1> * <Expression e2>` :
 			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Join
-		case `<Expression e1> join <Expression e2>` :
+		case (Expression)`<Expression e1> join <Expression e2>` :
 			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Div
-		case `<Expression e1> / <Expression e2>` :
+		case (Expression)`<Expression e1> / <Expression e2>` :
 			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Mod
-		case `<Expression e1> % <Expression e2>` :
+		case (Expression)`<Expression e1> % <Expression e2>` :
 			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 
 		// Intersection
-		case `<Expression e1> & <Expression e2>` :
+		case (Expression)`<Expression e1> & <Expression e2>` :
 			symbolTable = handleExpression(e2, handleExpression(e1, symbolTable));
 		
 		// Plus
-		case `<Expression e1> + <Expression e2>` :
+		case (Expression)`<Expression e1> + <Expression e2>` :
 			symbolTable = handleExpression(e2,handleExpression(e1, symbolTable));
 
 		// Minus
-		case `<Expression e1> - <Expression e2>` :
+		case (Expression)`<Expression e1> - <Expression e2>` :
 			symbolTable = handleExpression(e2,handleExpression(e1, symbolTable));
 
 		// NotIn
-		case `<Expression e1> notin <Expression e2>` : {
+		case (Expression)`<Expression e1> notin <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1354,7 +1384,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// In
-		case `<Expression e1> in <Expression e2>` : {
+		case (Expression)`<Expression e1> in <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1365,7 +1395,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// LessThan
-		case `<Expression e1> < <Expression e2>` : {
+		case (Expression)`<Expression e1> < <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1376,7 +1406,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// LessThanOrEq
-		case `<Expression e1> <= <Expression e2>` : {
+		case (Expression)`<Expression e1> <= <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1387,7 +1417,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// GreaterThan
-		case `<Expression e1> > <Expression e2>` : {
+		case (Expression)`<Expression e1> > <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1398,7 +1428,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// GreaterThanOrEq
-		case `<Expression e1> >= <Expression e2>` : {
+		case (Expression)`<Expression e1> >= <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1409,7 +1439,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// Equals
-		case `<Expression e1> == <Expression e2>` : {
+		case (Expression)`<Expression e1> == <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1420,7 +1450,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// NotEquals
-		case `<Expression e1> != <Expression e2>` : {
+		case (Expression)`<Expression e1> != <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1431,7 +1461,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// IfThenElse (Ternary)
-		case `<Expression e1> ? <Expression e2> : <Expression e3>` : {
+		case (Expression)`<Expression e1> ? <Expression e2> : <Expression e3>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1442,7 +1472,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// IfDefinedOtherwise
-		case `<Expression e1> ? <Expression e2>` : {
+		case (Expression)`<Expression e1> ? <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1453,7 +1483,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// Implication
-		case `<Expression e1> ==> <Expression e2>` : {
+		case (Expression)`<Expression e1> ==> <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1480,7 +1510,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// Equivalence
-		case `<Expression e1> <==> <Expression e2>` : {
+		case (Expression)`<Expression e1> <==> <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1507,7 +1537,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// And
-		case `<Expression e1> && <Expression e2>` : {
+		case (Expression)`<Expression e1> && <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1518,7 +1548,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// Or
-		case `<Expression e1> || <Expression e2>` : {
+		case (Expression)`<Expression e1> || <Expression e2>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1545,7 +1575,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 		
 		// Match
-		case `<Pattern p> := <Expression e>` : {
+		case (Expression)`<Pattern p> := <Expression e>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1556,7 +1586,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// NoMatch
-		case `<Pattern p> !:= <Expression e>` : {
+		case (Expression)`<Pattern p> !:= <Expression e>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1567,7 +1597,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// Enumerator
-		case `<Pattern p> <- <Expression e>` : {
+		case (Expression)`<Pattern p> <- <Expression e>` : {
 			bool popAtTheEnd = false;
 			if (! inBoolLayer (symbolTable)) {
 				symbolTable = justSymbolTable(pushNewBooleanScope(exp@\loc, symbolTable));
@@ -1614,7 +1644,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 
 		// Reducer
-		case `( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )` : {
+		case (Expression)`( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )` : {
 			symbolTable = handleExpression(ei, symbolTable);
 			
 			// Open a new boolean scope for the generators, this makes them available in the reducer
@@ -1630,15 +1660,15 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 		}
 		
 		// It
-		case `it` :
+		case (Expression)`it` :
 			symbolTable = handleExpName(RSimpleName("it"),exp@\loc,symbolTable);
 			
 		// All 
-		case `all ( <{Expression ","}+ egs> )` :
+		case (Expression)`all ( <{Expression ","}+ egs> )` :
 			for (e <- egs) symbolTable = handleExpression(e, symbolTable);
 
 		// Any 
-		case `all ( <{Expression ","}+ egs> )` :
+		case (Expression)`all ( <{Expression ","}+ egs> )` :
 			for (e <- egs) symbolTable = handleExpression(e, symbolTable);
 	}
 
@@ -1657,7 +1687,7 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 //
 public SymbolTable handleStringTemplate(StringTemplate s, SymbolTable symbolTable) {
 	switch(s) {
-		case `for (<{Expression ","}+ gens>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
+		case (StringTemplate)`for (<{Expression ","}+ gens>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
 			for (e <- gens) symbolTable = handleExpression(e, symbolTable);
 			for (st <- pre) symbolTable = handleStatement(st, symbolTable);
@@ -1673,7 +1703,7 @@ public SymbolTable handleStringTemplate(StringTemplate s, SymbolTable symbolTabl
 			symbolTable = popScope(symbolTable);		
 		}
 
-		case `if (<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
+		case (StringTemplate)`if (<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
 			for (e <- conds) symbolTable = handleExpression(e, symbolTable);
 			for (st <- pre) symbolTable = handleStatement(st, symbolTable);
@@ -1689,7 +1719,7 @@ public SymbolTable handleStringTemplate(StringTemplate s, SymbolTable symbolTabl
 			symbolTable = popScope(symbolTable);		
 		}
 
-		case `if (<{Expression ","}+ conds>) { <Statement* preThen> <StringMiddle bodyThen> <Statement* postThen> } else { <Statement* preElse> <StringMiddle bodyElse> <Statement* postElse> }` : {
+		case (StringTemplate)`if (<{Expression ","}+ conds>) { <Statement* preThen> <StringMiddle bodyThen> <Statement* postThen> } else { <Statement* preElse> <StringMiddle bodyElse> <Statement* postElse> }` : {
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
 			for (e <- conds) symbolTable = handleExpression(e, symbolTable);
 			for (st <- preThen) symbolTable = handleStatement(st, symbolTable);
@@ -1715,7 +1745,7 @@ public SymbolTable handleStringTemplate(StringTemplate s, SymbolTable symbolTabl
 			symbolTable = popScope(symbolTable);		
 		}
 
-		case `while (<Expression cond>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
+		case (StringTemplate)`while (<Expression cond>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
 			symbolTable = handleExpression(cond, symbolTable);
 			for (st <- pre) symbolTable = handleStatement(st, symbolTable);
@@ -1731,7 +1761,7 @@ public SymbolTable handleStringTemplate(StringTemplate s, SymbolTable symbolTabl
 			symbolTable = popScope(symbolTable);		
 		}
 
-		case `do { <Statement* pre> <StringMiddle body> <Statement* post> } while (<Expression cond>)` : {
+		case (StringTemplate)`do { <Statement* pre> <StringMiddle body> <Statement* post> } while (<Expression cond>)` : {
 			symbolTable = justSymbolTable(pushNewBooleanScope(s@\loc, symbolTable));
 			for (st <- pre) symbolTable = handleStatement(st, symbolTable);
 		        list[Tree] ipl = prodFilter(body, 
@@ -1756,10 +1786,10 @@ public SymbolTable handleStringTemplate(StringTemplate s, SymbolTable symbolTabl
 //
 public SymbolTable handleCase(Case c, SymbolTable symbolTable) {
 	switch(c) {
-		case `case <PatternWithAction p>` :
+		case (Case)`case <PatternWithAction p>` :
 			symbolTable = handlePatternWithAction(p, symbolTable);
 		
-		case `default : <Statement b>` :
+		case (Case)`default : <Statement b>` :
 			symbolTable = handleStatement(b, symbolTable);
 	}
 	
@@ -1782,19 +1812,22 @@ public SymbolTable handleAssignable(Assignable a, SymbolTable symbolTable) {
 		}
 		
 		// Subscript assignment
-		case `<Assignable al> [ <Expression e> ]` :
+		case (Assignable)`<Assignable al> [ <Expression e> ]` :
 			symbolTable = handleExpression(e, handleAssignable(al, symbolTable));			
 
 		// Field assignment, since the field name is part of the type, not a declared variable, we don't mark it here
-		case `<Assignable al> . <Name n>` :
+		case (Assignable)`<Assignable al> . <Name n>` : {
 			symbolTable = handleAssignable(al, symbolTable);
+			symbolTable = justSymbolTable(addSTItemUses(addFieldToScope(convertName(n), a@\loc, symbolTable), [<true,n@\loc>]));
+		}
+
 		
 		// If-defined assignment
-		case `<Assignable al> ? <Expression e>` :
+		case (Assignable)`<Assignable al> ? <Expression e>` :
 			symbolTable = handleExpression(e, handleAssignable(al, symbolTable));			
 		
 		// Annotation assignment
-		case `<Assignable al> @ <Name n>` : {
+		case (Assignable)`<Assignable al> @ <Name n>` : {
 			symbolTable = handleAssignable(al, symbolTable);
 			symbolTable = addItemUses(symbolTable, getAnnotationItemsForName(symbolTable, symbolTable.currentScope, convertName(n)), n@\loc);
 		}
@@ -1840,11 +1873,14 @@ public SymbolTable handleLocalVarItems(Type t, {Variable ","}+ vs, SymbolTable s
 
 public SymbolTable handleCatch(Catch c, SymbolTable symbolTable) {
 	switch(c) {
-		case `catch : <Statement b>` :
+		case (Catch)`catch : <Statement b>` :
 			symbolTable = handleStatement(b, symbolTable);
 		
-		case `catch <Pattern p> : <Statement b>` :
+		case (Catch)`catch <Pattern p> : <Statement b>` : {
+		        symbolTable = justSymbolTable(pushNewBooleanScope(c@\loc, symbolTable));
 			symbolTable = handleStatement(b, handlePattern(p, symbolTable));
+			symbolTable = popScope(symbolTable);
+		}
 	}
 	
 	return symbolTable;
@@ -1862,7 +1898,7 @@ public SymbolTable handleLabel(Label l, SymbolTable symbolTable) {
 }
 
 public SymbolTable handleVisit(Visit v, SymbolTable symbolTable) {
-	if (`visit (<Expression se>) { <Case+ cs> }` := v || `<Strategy st> visit (<Expression se>) { <Case+ cs> }` := v) {
+	if ((Visit)`visit (<Expression se>) { <Case+ cs> }` := v || (Visit)`<Strategy st> visit (<Expression se>) { <Case+ cs> }` := v) {
 		symbolTable = handleExpression(se, symbolTable);
 		for (c <- cs) symbolTable = handleCase(c, symbolTable);
 	}
@@ -2097,7 +2133,8 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 		// Guarded
 		case (Pattern) `[ <Type t> ] <Pattern p>` : {
 			// println("NAMESPACE: Handling guarded pattern <pat>");
-			symbolTable = handlePattern(p, symbolTable);
+			ConvertTuple ct = convertRascalType(symbolTable, t); // Just to check the type, we don't use it here
+			symbolTable = handlePattern(p, ct.symbolTable);
 		}
 		
 		// Anti
@@ -2145,6 +2182,11 @@ public SymbolTable handlePatternConstructorName(Pattern pat, SymbolTable symbolT
 			symbolTable = handlePatternName(convertName(qn), qn@\loc, symbolTable);
 		}
 
+		// String (for node construction)
+		case (Pattern)`<StringLiteral sl>` : {
+		        symbolTable = symbolTable; // no-op, we get no new names, just avoid the default below
+		}
+
 		default : {
 			symbolTable = addScopeError(symbolTable, pat@\loc, "Illegal pattern for constructor or node name");
 		}
@@ -2158,13 +2200,13 @@ public SymbolTable handlePatternConstructorName(Pattern pat, SymbolTable symbolT
 //
 public SymbolTable handlePatternWithAction(PatternWithAction pwa, SymbolTable symbolTable) {
 	switch(pwa) {
-		case `<Pattern p> => <Expression e>` : {
+		case (PatternWithAction)`<Pattern p> => <Expression e>` : {
 			symbolTable = justSymbolTable(pushNewPatternMatchScope(pwa@\loc, symbolTable));
 			symbolTable = handleExpression(e, handlePattern(p, symbolTable));
 			symbolTable = popScope(symbolTable);
 		}
 		
-		case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
+		case (PatternWithAction)`<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
 			symbolTable = justSymbolTable(pushNewPatternMatchScope(pwa@\loc, symbolTable));
 			symbolTable = handlePattern(p, symbolTable);
 			for (e <- es) symbolTable = handleExpression(e, symbolTable);
@@ -2172,7 +2214,7 @@ public SymbolTable handlePatternWithAction(PatternWithAction pwa, SymbolTable sy
 			symbolTable = popScope(symbolTable);
 		}
 		
-		case `<Pattern p> : <Statement s>` : {
+		case (PatternWithAction)`<Pattern p> : <Statement s>` : {
 			symbolTable = justSymbolTable(pushNewPatternMatchScope(pwa@\loc, symbolTable));
 			symbolTable = handleStatement(s, handlePattern(p, symbolTable));			
 			symbolTable = popScope(symbolTable);
