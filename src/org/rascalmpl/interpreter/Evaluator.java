@@ -6,6 +6,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.nothing;
 import static org.rascalmpl.interpreter.utils.Utils.unescape;
 
 import java.io.CharArrayWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -339,7 +340,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 				if (property != null) {
 					for (String path : property.split(":")) {
-						l.add(URI.create("file://" + path));
+						l.add(new File(path).toURI());
 					}
 				}
 			}
