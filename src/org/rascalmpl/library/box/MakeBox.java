@@ -46,11 +46,16 @@ public class MakeBox {
 
 	
 	final private GlobalEnvironment heap = new GlobalEnvironment();
-	final private ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***makeBox***"));
+	final private ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***MakeBox***"));
 	final PrintWriter stderr = new PrintWriter(System.err);
 	final PrintWriter stdout = new PrintWriter(System.out);
 	final private Evaluator commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
 			stderr, stdout, root, heap);
+	
+	public Evaluator getCommandEvaluator() {
+		return commandEvaluator;
+	}
+
 	private Data data;
 	private TypeStore ts = BoxEvaluator.getTypeStore();
 	private Type adt = BoxEvaluator.getType();
@@ -59,8 +64,7 @@ public class MakeBox {
 		Object ioInstance = commandEvaluator.getJavaBridge()
 		.getJavaClassInstance(IO.class);
 // Set output collector.
-       ((IO) ioInstance).setOutputStream(p);
-		
+       ((IO) ioInstance).setOutputStream(p);		
 	}
 
 	void store(IValue v, String varName) {
@@ -75,24 +79,11 @@ public class MakeBox {
 	}
 
 	private void start() { 
-		// commandEvaluator
-		// .addSdfSearchPathContributor(new ISdfSearchPathContributor() {
-		// public List<String> contributePaths() {
-		// List<String> result = new LinkedList<String>();
-		// File srcDir = new File(
-		// "/ufs/bertl/glt/build/rascal-fragment",
-		// "installed/share/sdf-library/library");
-		// result.add(srcDir.getAbsolutePath());
-		// return result;
-		// }
-		// });
 		commandEvaluator.addClassLoader(getClass().getClassLoader());
-		// setPrintStream(new PrintStream(System.out));
-		// ((IO) ioInstance).setErrorStream(new PrintStream(System.out));
 	}
 
 	private void execute(String s) {
-		System.err.println("execute:" + s);
+		// System.err.println("execute:" + s);
 		commandEvaluator.eval(s, URI.create("box:///"));
 	}
 
@@ -186,15 +177,18 @@ public class MakeBox {
 	}
 
 	private IValue computeBox(URI uri) {
-		ModuleEnvironment currentModule = (ModuleEnvironment) commandEvaluator
-				.getCurrentEnvt().getRoot();
 		try {
+			// System.err.println("computeBox: start parsing");
 			IConstructor moduleTree = commandEvaluator.parseModule(uri,
-					currentModule);
+				  null);
+			// System.err.println("computeBox: parsed");
 			ASTBuilder astBuilder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
 			Module moduleAst = astBuilder.buildModule(moduleTree);
+			// System.err.println("computeBox: build");
+			commandEvaluator.getHeap().clear();
 			if (moduleAst != null)
-				return eval.evalRascalModule(moduleAst);
+				return eval.evalRascalModule(moduleAst);	
+			// System.err.println("computeBox: evalled");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
