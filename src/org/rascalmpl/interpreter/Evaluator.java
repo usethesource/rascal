@@ -250,7 +250,8 @@ import org.rascalmpl.library.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.rascal.syntax.ObjectRascalRascal;
 import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.ActionExecutor;
+import org.rascalmpl.parser.RascalActionExecutor;
+import org.rascalmpl.parser.IActionExecutor;
 import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
@@ -448,11 +449,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				name += SymbolAdapter.getName(startSort);
 			}
 			System.err.println("Calling the parser");
-			IConstructor forest = parser.parse(name, input, resolverRegistry.getInputStream(input));
-			
-			System.err.println("Executing actions");
-			ActionExecutor exec = new ActionExecutor(this, (IParserInfo) parser);
-			return exec.execute(forest);
+
+			IActionExecutor exec = new RascalActionExecutor(this, (IParserInfo) parser);
+			return parser.parse(name, input, resolverRegistry.getInputStream(input), exec);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getCurrentAST(), getStackTrace());
 		}
@@ -470,11 +469,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			name += SymbolAdapter.getName(startSort);
 		}
 		System.err.println("Calling the parser");
-		IConstructor forest = parser.parse(name, inputURI, input);
-		
-		System.err.println("Executing actions");
-		ActionExecutor exec = new ActionExecutor(this, (IParserInfo) parser);
-		return exec.execute(forest);
+		IActionExecutor exec = new RascalActionExecutor(this, (IParserInfo) parser);
+		return parser.parse(name, inputURI, input, exec);
 	}
 	
 	private IGLL getObjectParser() {
@@ -682,22 +678,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param command
 	 * @return
 	 */
-	public Result<IValue> eval(String command, URI location) {
+	public Result<IValue> eval(String command, URI location){
 		interrupt = false;
 		IConstructor tree;
-		if (!command.contains("`")) {
-			tree = parser.parseCommand(location, command);
-		}
-		else {
-			IGLL rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			tree = rp.parse("start__$Command", location, command);
-		}
 		
-		tree = new ActionExecutor(this, parser.getInfo()).execute(tree);
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
+		
+		if(!command.contains("`")){
+			tree = parser.parseCommand(location, command, actionExecutor);
+		}else{
+			IGLL rp = getRascalParser(getCurrentModuleEnvironment(), location);
+			tree = rp.parse("start__$Command", location, command, actionExecutor);
+		}
 		
 		Command stat = builder.buildCommand(tree);
-		
-		if (stat == null) {
+		if(stat == null){
 			throw new ImplementationError("Disambiguation failed: it removed all alternatives");
 		}
 		
@@ -705,18 +700,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public IConstructor parseCommand(String command, URI location) {
-		IConstructor tree;
-		if (!command.contains("`")) {
-			tree = parser.parseCommand(location, command);
-		}
-		else {
-			IGLL rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			tree = rp.parse("start__$Command", location, command);
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
+		
+		if(!command.contains("`")){
+			return parser.parseCommand(location, command, actionExecutor);
 		}
 		
-		tree = new ActionExecutor(this, parser.getInfo()).execute(tree);
-		
-		return tree;
+		IGLL rp = getRascalParser(getCurrentModuleEnvironment(), location);
+		return rp.parse("start__$Command", location, command, actionExecutor);
 	}
 
 	public Result<IValue> eval(Command command) {
@@ -1191,9 +1182,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
-		IConstructor prefix = parser.preParseModule(location, data);
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, new RascalRascal());
+		
+		IConstructor prefix = parser.preParseModule(location, data, actionExecutor);
 		Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
-		ActionExecutor exec = new ActionExecutor(this, new RascalRascal());
 
 		// take care of imports and declare syntax
 		Result<IValue> name = preModule.accept(this);
@@ -1204,12 +1196,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		ISet prods = env.getProductions();
 		if (prods.isEmpty() || !preModule.toString().contains("`")) {
-			return exec.execute(parser.parseModule(location, data, env));
+			return parser.parseModule(location, data, env, actionExecutor);
 		}
 		
 		IGLL mp = needBootstrapParser(preModule) ? new MetaRascalRascal() : getRascalParser(env, location);
-		IConstructor tree = mp.parse(Parser.START_MODULE, location, data);
-		return exec.execute(tree);
+		return mp.parse(Parser.START_MODULE, location, data, actionExecutor);
 	}
 	
 	private boolean needBootstrapParser(Module preModule) {
@@ -1220,16 +1211,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		
 		return false;
-	}
-
-	public IConstructor parseModuleExperimental(InputStream stream, URI location) {
-		IGLL parser = new RascalRascal();
-		try {
-			return parser.parse("Module", location, stream);
-		} catch (IOException e) {
-			// TODO
-			throw new ImplementationError("TODO");
-		}
 	}
 		
 	private char[] readModule(InputStream inputStream) throws IOException{
@@ -2734,7 +2715,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// TODO: clean up this hack
 		if (expected instanceof NonTerminalType && result.getType().isSubtypeOf(tf.stringType())) {
 			String command = '(' + expected.toString() + ')' + '`' + ((IString) result.getValue()).getValue() + '`';
-			IConstructor tree = parser.parseCommand(x.getLocation().getURI(), command);
+			IConstructor tree = parser.parseCommand(x.getLocation().getURI(), command, new RascalActionExecutor(this, parser.getInfo()));
 
 			tree = (IConstructor) TreeAdapter.getArgs(tree).get(1); // top command expression
 			tree = (IConstructor) TreeAdapter.getArgs(tree).get(0); // typed quoted embedded fragment

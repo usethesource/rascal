@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.sgll.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.parser.IActionExecutor;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.util.IndexedStack;
 import org.rascalmpl.parser.sgll.util.specific.PositionStore;
@@ -42,7 +43,7 @@ public class EndOfLineNode extends AbstractNode{
 		return ENDOFLINE;
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
 		return result; 
 	}
 }
