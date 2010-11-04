@@ -1,7 +1,6 @@
 module vis::examples::Chart
-// WARNING: outdated code that needs to be removed or fixed!
-import vis::Figure;
-import vis::Rendering;
+
+import vis::Render;
 import vis::Chart;
 
 import Number;
