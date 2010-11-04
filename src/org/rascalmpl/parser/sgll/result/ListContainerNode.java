@@ -140,7 +140,7 @@ public class ListContainerNode extends AbstractContainerNode{
 				}
 				
 				IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore, actionExecutor);
-				if(result == null) return; // Rejected.
+				if(result == null) continue; // Rejected.
 				
 				if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
 					IConstructor[] cycle = gatherCycle(prefix, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList, actionExecutor);
@@ -289,7 +289,7 @@ public class ListContainerNode extends AbstractContainerNode{
 					IConstructor[] newPostFix = new IConstructor[length + 1];
 					System.arraycopy(postFix, 0, newPostFix, 1, length);
 					IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore, actionExecutor);
-					if(result == null) return null; // Rejected.
+					if(result == null) continue; // Rejected.
 					newPostFix[0] = result;
 					
 					child = prefix;

@@ -28,7 +28,7 @@ public class SortContainerNode extends AbstractContainerNode{
 		
 		if(!(resultNode.isEpsilon() && child.prefixes == null)){
 			IConstructor result = resultNode.toTerm(stack, depth, cycleMark, positionStore, actionExecutor);
-			if(result == null) return; // Rejected.
+			if(result == null) return;
 			
 			IConstructor[] postFix = new IConstructor[]{result};
 			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, actionExecutor);
@@ -50,7 +50,7 @@ public class SortContainerNode extends AbstractContainerNode{
 			AbstractNode resultNode = prefix.node;
 			if(!resultNode.isRejected()){
 				IConstructor result = resultNode.toTerm(stack, depth, cycleMark, positionStore, actionExecutor);
-				if(result == null) return; // Rejected.
+				if(result == null) continue;
 				
 				int length = postFix.length;
 				IConstructor[] newPostFix = new IConstructor[length + 1];
