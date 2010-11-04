@@ -1,5 +1,5 @@
 module vis::examples::Misc
-// WARNING: outdated code that needs to be removed or fixed!
+
 import vis::Figure;
 import vis::Render;
 
@@ -30,13 +30,14 @@ rel[str,str] inherits =
 
 public void class1() {
    cscale = colorScale(toList(classes.sloc), color("green"), color("red"));
-   render(hcat([top()], [ box([width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes]));
+   boxes = [ box(width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))) | CI c <- classes];
+   render(hcat(boxes, top()));
 }
 
 public void class2() {
    cscale = colorScale(toList(classes.sloc), color("green"), color("red"));
-   nodes = [ box([id(c.name), width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))]) | CI c <- classes];
+   nodes = [ box(id(c.name), width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))) | CI c <- classes];
    edges = [ edge([], from,to) | <str from, str to> <- inherits ];
    
-   render(graph([width(400), height(400)], nodes, edges));      
+   render(graph(nodes, edges, size(400)));      
 }
