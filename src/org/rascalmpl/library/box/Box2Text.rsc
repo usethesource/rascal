@@ -10,6 +10,7 @@ tools".
 
 */
 
+
 import List;
 import String;
 import IO;
@@ -132,10 +133,12 @@ text vv_(text a, text b) {
 
 text LL(str s ) { 
    // println(s);
+   /*
    if (startsWith(s,"\"<backquote>") && endsWith(s,"<backquote>\"")) {
        s = substring(s, 1, size(s)-1);
        s = replaceAll(s, "\\\\\"", "\"");
        }
+   */
    return [s];
    }
 
@@ -465,11 +468,11 @@ public str format(Box b) {
 
 
 public text box2data(Box b) {
-    println("BEGIN box2data");
+    println("BEGIN box2dat");
     b = removeHV(b);
     b = removeHOV(b);
     text t = O(b, V([]), oDefault, maxWidth);
-    println("END box2data");
+    println("END box2dat");
     return t;
     }
     
@@ -581,7 +584,7 @@ public text box2latex(Box b) {
         q = box2data(b);
         aux+=(b:q);
         }
-    text t = getFileContent("box/Start.tex")+text2latex(q)+getFileContent("box/End.tex");    
+    text t = readFileLines(|std:///box/Start.tex|)+text2latex(q)+readFileLines(|std:///box/End.tex|);    
     // println("End box2latex");
     return t;
     }
@@ -595,7 +598,7 @@ public text box2html(Box b) {
         q = box2data(b);
         aux+=(b:q);
         }
-    text t = getFileContent("box/Start.html")+text2html(q)+getFileContent("box/End.html");    
+    text t = readFileLines(|std:///box/Start.html|)+text2html(q)+readFileLines(|std:///box/End.html|);    
     println("End box2html");
     return t;
     }
