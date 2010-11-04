@@ -22,8 +22,7 @@ public class Factory {
 			org.rascalmpl.values.errors.Factory.getStore(), 
 			org.rascalmpl.values.locations.Factory.getStore());
 	private static TypeFactory tf = TypeFactory.getInstance();
-
-
+	
 	public static final Type Tree = tf.abstractDataType(uptr, "Tree");
 	public static final Type Production = tf.abstractDataType(uptr, "Production");
 	public static final Type Attributes = tf.abstractDataType(uptr, "Attributes");
@@ -101,7 +100,6 @@ public class Factory {
 	public static final IValue Attribute_Assoc_Non_Assoc = Attr_Assoc.make(vf, Associativity_NonAssoc.make(vf));
 	public static final IValue Attribute_Assoc_Assoc =  Attr_Assoc.make(vf, Associativity_Assoc.make(vf));
 	public static final IValue Attribute_Bracket = Attr_Bracket.make(vf);
-	
 	
 	private static final class InstanceHolder {
 		public final static Factory factory = new Factory();

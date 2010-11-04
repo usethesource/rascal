@@ -24,7 +24,7 @@ public anno str Symbol@prefix;
 @doc{Used in bootstrapping only, to generate a parser for Rascal modules without concrete syntax.}
 public str generateRootParser(str package, str name, Grammar gr) {
   // we annotate the grammar to generate identifiers that are different from object grammar identifiers
-  gr = visit (gr) { case s:sort(_) => meta(s) case s:layouts(_) => meta(s) }; 
+  gr = visit (gr) { case s:sort(_) => meta(s) case s:layouts(_) => meta(s) }
   int uniqueItem = -3; // -1 and -2 are reserved by the SGLL implementation
   int newItem() { uniqueItem -= 1; return uniqueItem; };
   // make sure the ` sign is expected for expressions and every non-terminal which' first set is governed by Pattern or Expression, even though ` not in the language yet

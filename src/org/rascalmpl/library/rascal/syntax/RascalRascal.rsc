@@ -620,13 +620,13 @@ syntax Start
 
 syntax Statement
 	= Assert: "assert" Expression expression ";" 
+	| AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
 	| Expression: Expression expression ";" {
 	   if (appl(prod(_,sort("Expression"),attrs([_*,term(cons("NonEmptyBlock")),_*])),_) := expression
 	     ||appl(prod(_,sort("Expression"),attrs([_*,term(cons("Visit")),_*])),_) := expression ) { 
 	    fail;
 	  }
 	}
-	| AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
 	| Visit: Label label Visit visit 
 	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
 	| DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
