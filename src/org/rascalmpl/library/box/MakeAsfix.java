@@ -8,14 +8,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.rascalmpl.parser.Parser;
-import org.rascalmpl.values.uptr.Factory;
 
 public class MakeAsfix {
 
@@ -68,11 +64,12 @@ public class MakeAsfix {
 		FileInputStream f;
 		try {
 			f = new FileInputStream(new File(fileName));
-			IConstructor t = new Parser().parseStream(f);
+			// TODO Use the right parse method.
+			/*IConstructor t = new Parser().parseStream(f, new VoidActionExecutor());
 			String outputName = fileName.substring(0, fileName.lastIndexOf('.'))+".asf";
 			System.err.println("Result:"+outputName);
 			File output = new File(outputName);
-			PBFWriter.writeValueToFile(t, output, Factory.getStore());
+			PBFWriter.writeValueToFile(t, output, Factory.getStore());*/
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

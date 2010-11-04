@@ -9,7 +9,6 @@ import org.junit.runners.Suite;
 	AccumulatingTests.class,
 	InterpolationTests.class,
 	IOTests.class,
-//	ParsingTests.class,
 	PatternTests.class,
 	RecoveryTests.class,
 	RegExpTests.class,

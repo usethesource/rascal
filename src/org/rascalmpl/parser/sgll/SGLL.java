@@ -15,6 +15,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.parser.IActionExecutor;
+import org.rascalmpl.parser.VoidActionExecutor;
 import org.rascalmpl.parser.sgll.result.AbstractContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ListContainerNode;
@@ -595,6 +597,10 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input){
+		return parse(startNode, inputURI, input, new VoidActionExecutor());
+	}
+	
+	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input, IActionExecutor actionExecutor){
 		// Initialize.
 		this.inputURI = inputURI;
 		this.input = input;
@@ -622,7 +628,7 @@ public abstract class SGLL implements IGLL{
 		if(levelResultStoreMap != null){
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 			if(result != null){
-				IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore);
+				IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor);
 				if(resultTree != null){
 					return resultTree; // Success.
 				}
@@ -641,11 +647,11 @@ public abstract class SGLL implements IGLL{
 		throw new SyntaxError("Parse error.", vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
 	}
 	
-	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString){
-		return parse(startNode, inputURI, inputString.toCharArray());
+	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString, IActionExecutor actionExecutor){
+		return parse(startNode, inputURI, inputString.toCharArray(), actionExecutor);
 	}
 	
-	protected IConstructor parseFromFile(AbstractStackNode startNode, URI inputURI, File inputFile) throws IOException{
+	protected IConstructor parseFromFile(AbstractStackNode startNode, URI inputURI, File inputFile, IActionExecutor actionExecutor) throws IOException{
 		int inputFileLength = (int) inputFile.length();
 		char[] input = new char[inputFileLength];
 		Reader in = new BufferedReader(new FileReader(inputFile));
@@ -655,11 +661,11 @@ public abstract class SGLL implements IGLL{
 			in.close();
 		}
 		
-		return parse(startNode, inputURI, input);
+		return parse(startNode, inputURI, input, actionExecutor);
 	}
 	
 	// This is kind of ugly.
-	protected IConstructor parseFromReader(AbstractStackNode startNode, URI inputURI, Reader in) throws IOException{
+	protected IConstructor parseFromReader(AbstractStackNode startNode, URI inputURI, Reader in, IActionExecutor actionExecutor) throws IOException{
 		ArrayList<char[]> segments = new ArrayList<char[]>();
 		
 		// Gather segments.
@@ -687,11 +693,37 @@ public abstract class SGLL implements IGLL{
 			System.arraycopy(segment, 0, input, (i * STREAM_READ_SEGMENT_SIZE), STREAM_READ_SEGMENT_SIZE);
 		}
 		
-		return parse(startNode, inputURI, input);
+		return parse(startNode, inputURI, input, actionExecutor);
 	}
 	
+	// With post parse filtering.
+	public IConstructor parseFromStream(AbstractStackNode startNode, URI inputURI, InputStream in, IActionExecutor actionExecutor) throws IOException{
+		return parseFromReader(startNode, inputURI, new InputStreamReader(in), actionExecutor);
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor){
+		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, actionExecutor);
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, String input, IActionExecutor actionExecutor){
+		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, actionExecutor);
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, InputStream in, IActionExecutor actionExecutor) throws IOException{
+		return parseFromStream(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in, actionExecutor);
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, Reader in, IActionExecutor actionExecutor) throws IOException{
+		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in, actionExecutor);
+	}
+	
+	public IConstructor parse(String nonterminal, URI inputURI, File inputFile, IActionExecutor actionExecutor) throws IOException{
+		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, inputFile, actionExecutor);
+	}
+	
+	// Without post parse filtering.
 	public IConstructor parseFromStream(AbstractStackNode startNode, URI inputURI, InputStream in) throws IOException{
-		return parseFromReader(startNode, inputURI, new InputStreamReader(in));
+		return parseFromReader(startNode, inputURI, new InputStreamReader(in), new VoidActionExecutor());
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, char[] input){
@@ -699,7 +731,7 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, String input){
-		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
+		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, new VoidActionExecutor());
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, InputStream in) throws IOException{
@@ -707,10 +739,10 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, Reader in) throws IOException{
-		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in);
+		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in, new VoidActionExecutor());
 	}
 	
 	public IConstructor parse(String nonterminal, URI inputURI, File inputFile) throws IOException{
-		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, inputFile);
+		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, inputFile, new VoidActionExecutor());
 	}
 }
