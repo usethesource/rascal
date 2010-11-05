@@ -89,7 +89,7 @@ public Tree updateOverloadedCall(Tree t, RType ty) {
 	// TODO: Handle qualified names as well	
 	Tree updateCallName(Tree t, RType ty) {
 		return top-down-break visit(t) {
-			case (Expression) `<Name n>` : {
+			case  `<Name n>` : {
 				if ( (ty@at)? )
 					insert n[@rtype = ty][@link = ty@at];
 				else
@@ -119,12 +119,15 @@ public Tree check(Tree t) {
 			// Handle types for functions and constructors, which are the function or constructor
 			// type; we need to extract the return/result type and save the function or constructor
 			// type for later use
-			if ((Expression)`<Expression e1> ( <{Expression ","}* el> )` := e) {
+			if ((Expression)`<Expression e1bbb> ( <{Expression ","}* elbbb> )` := e) {
 				if (isConstructorType(expType)) {
+				    println("Found a constructor on call or tree, type <expType>");
 					insert e[@rtype = getConstructorResultType(expType)][@fctype = expType];
 				} else if (isFunctionType(expType)) { 
+                    println("Found a function on call or tree, type <expType>");
 					insert e[@rtype = getFunctionReturnType(expType)][@fctype = expType];
 				} else {
+                    println("Found something else on call or tree, type <expType>");
 					insert e[@rtype = expType]; // Probably a failure type
 				}
 			} else {
