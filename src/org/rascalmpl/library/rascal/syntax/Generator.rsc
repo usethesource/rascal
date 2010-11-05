@@ -94,10 +94,10 @@ public str generate(str package, str name, str super, int () newItem, bool callS
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
    
     println("computing lookahead sets");
-    gr = computeLookaheads(gr, extraLookaheads);
+    //gr = computeLookaheads(gr, extraLookaheads);
     
     println("optimizing lookahead automaton");
-    gr = compileLookaheads(gr);
+    //gr = compileLookaheads(gr);
    
     println("printing the source code of the parser class");
     
