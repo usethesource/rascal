@@ -17,10 +17,14 @@ public abstract class AbstractAST implements IVisitable {
 	}
 	
 	public void _setType(Type nonterminalType) {
-	  if (_type != null) {
-	    throw new ImplementationError("why set a type twice?");
-	  }
-	  this._type = nonterminalType;
+//	  if (_type != null) {
+//	    throw new ImplementationError("why set a type twice?");
+//	  }
+		if (_type != null && (! _type.equals(nonterminalType))) {
+			// For debugging purposes
+			System.err.println("In _setType, found two unequal types: " + _type.toString() + " and " + nonterminalType.toString());
+		}
+		this._type = nonterminalType;
 	}
 	
 	abstract public <T> T accept(IASTVisitor<T> v);
