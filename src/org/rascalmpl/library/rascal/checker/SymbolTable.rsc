@@ -138,34 +138,36 @@ alias ItemLocationRel = rel[loc,STItemId];
 //           inside the proper scope
 // scopeStack: a stack of scope layers, allows entering and leaving scopes by pushing and popping
 // adtItems: map from the ADT name to the related ADT and constructor symbol table items
-alias SymbolTable = 
-	tuple[
-                STItemId topSTItemId,
-		STItemId currentModule,	
-                rel[STItemId scopeId, STItemId itemId] scopeRel,
-	        rel[STItemId scopeId, RName itemName, STItemId itemId] scopeNames,
-		ItemUses itemUses, 
-		STItemId nextScopeId, 
-		map[STItemId, STItem] scopeItemMap, 
-                rel[loc, STItemId] itemLocations, 
-                STItemId currentScope, 
-                int freshType,
-                map[loc, set[str]] scopeErrorMap, 
-                map[int, RType] inferredTypeMap,
-                map[int, RType] typeVarMap, 
-                map[loc, RType] returnTypeMap,
-		map[loc, RType] itBinder, 
-		list[STItemId] scopeStack, 
-		map[RName adtName,tuple[set[STItemId] adtItems,set[STItemId] consItems] adtInfo] adtMap,
-		rel[RName annName, RType annType, RType annOn] annRel
-        ];
+alias SymbolTable = tuple[
+    STItemId topSTItemId,
+    STItemId currentModule,	
+    rel[STItemId scopeId, STItemId itemId] scopeRel,
+    rel[STItemId scopeId, RName itemName, STItemId itemId] scopeNames,
+    ItemUses itemUses, 
+    STItemId nextScopeId, 
+    map[STItemId, STItem] scopeItemMap, 
+    rel[loc, STItemId] itemLocations, 
+    STItemId currentScope, 
+    int freshType,
+    map[loc, set[str]] scopeErrorMap, 
+    map[int, RType] inferredTypeMap,
+    map[int, RType] typeVarMap, 
+    map[loc, RType] returnTypeMap,
+    map[loc, RType] itBinder, 
+    list[STItemId] scopeStack, 
+    map[RName adtName,tuple[set[STItemId] adtItems,set[STItemId] consItems] adtInfo] adtMap,
+    rel[RName annName, RType annType, RType annOn] annRel,
+    list[RType] functionReturnStack,
+    list[Tree] visitSubjectStack,
+    list[Tree] switchSubjectStack
+];
 
 alias AddedItemPair = tuple[SymbolTable symbolTable, STItemId addedId];
 alias ScopeUpdatePair = tuple[SymbolTable symbolTable, STItemId oldScopeId];
                         
 // Create an empty symbol table                        
 public SymbolTable createNewSymbolTable() {
-	return < -1, -1, { }, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), [ ], ( ), { }>;
+	return < -1, -1, { }, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), [ ], ( ), { }, [], [], []>;
 }                    
 
 // Given a number of different OR scope layers in the symbol table, find the subset of
