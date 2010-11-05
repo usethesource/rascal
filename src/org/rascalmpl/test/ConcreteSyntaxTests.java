@@ -42,35 +42,35 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void singleA(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("(A)`a` := (A)`a`;"));
+		assertTrue(runTestInSameEvaluator("`a` := `a`;"));
 	}
 	
 	@Test
 	public void singleAspaces1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("(A)` a ` := (A)`a`;"));
+		assertTrue(runTestInSameEvaluator("` a ` := `a`;"));
 	}
 	
 	@Test
 	public void singleAspaces2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("(A)`a` := (A)` a `;"));
+		assertTrue(runTestInSameEvaluator("`a` := ` a `;"));
 	}
 	
 	@Test
 	public void singleATyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("(A)`a` := (A)`a`;"));
+		assertTrue(runTestInSameEvaluator("(A)`a` := `a`;"));
 	}
 	
 	@Test
 	public void singleAUnquoted1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("a := (A)`a`;"));
+		assertTrue(runTestInSameEvaluator("a := `a`;"));
 	}
 	
 	@Test(expected=UndeclaredVariableError.class)
