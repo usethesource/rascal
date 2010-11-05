@@ -12,6 +12,7 @@ import String;
 import List;
 import Node;
 import Set;
+import Map;
 import IO;
 import Exception;
 
@@ -148,8 +149,6 @@ public class <name> extends <super> implements IParserInfo {
 	  }
 	  return b.toString();
 	}
-	
-   
     <}>
 
     private static final IntegerMap _resultStoreIdMappings;
@@ -231,10 +230,26 @@ public class <name> extends <super> implements IParserInfo {
 	private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<unmeta(p)>")>\", Factory.Production);<}>
     
 	// Item declarations
-	<for (Symbol s <- newItems, isNonterminal(s)) { items = newItems[s]; >
+	<for (Symbol s <- newItems, isNonterminal(s)) {
+	items = newItems[s];
+	map[Production, list[Item]] alts = ();
+	for(Item item <- items){
+		Production prod = item.production;
+		if(prod in alts){
+			alts[prod] = alts[prod] + item;
+		}else{
+			alts[prod] = [item];
+		}
+	}
+	>
+	
 	private static class <value2id(s)> {
-		<for (Item i <- items) {>
-		public static final AbstractStackNode <value2id(i.production)>_<value2id(i.index)> = <items[i].new>;<}>
+		<for(Production alt <- alts){
+		list[Item] lhses = alts[alt];>
+		public final static AbstractStackNode[] <value2id(alt)> = new AbstractStackNode[<size(lhses)>];
+		static{<for (Item i <- lhses) {>
+			<value2id(i.production)>[<((i.index != -1) ? i.index : 0)>] = <items[i].new>;<}>
+		}<}>
 	}<}>
 	
 	public <name>(){
@@ -326,7 +341,7 @@ public str generateExpect(Items items, Production p, bool reject){
     switch (p) {
       case prod(_,_,_) : 
         if (restricted(_) !:= p.rhs) 
-	       return "// <p>\n\texpect<reject ? "Reject" : "">(<value2id(p)>, <generateSymbolItemExpects(p)>);";
+	       return "// <p>\n\texpect<reject ? "Reject" : "">(<value2id(p)>, <sym2name(p.rhs)>.<value2id(p)>);";
 	    else 
 	       return ""; 
       case lookahead(_, classes, Production q) :
@@ -547,14 +562,6 @@ public str generateRestrictions(set[Production] restrictions) {
   
   result += "}";
   return result;
-}
-
-public str generateSymbolItemExpects(Production prod){
-    if(prod.lhs == []){
-        return value2id(item(prod, -1));
-    }
-    
-    return ("<value2id(item(prod, 0))>" | it + ",\n\t\t" + value2id(item(prod, i+1)) | int i <- index(tail(prod.lhs)));
 }
 
 public str generateSeparatorExpects(Grammar grammar, int() id, list[Symbol] seps) {
