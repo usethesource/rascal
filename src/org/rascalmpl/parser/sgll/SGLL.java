@@ -22,6 +22,7 @@ import org.rascalmpl.parser.sgll.result.AbstractNode;
 import org.rascalmpl.parser.sgll.result.ListContainerNode;
 import org.rascalmpl.parser.sgll.result.SortContainerNode;
 import org.rascalmpl.parser.sgll.result.AbstractNode.CycleMark;
+import org.rascalmpl.parser.sgll.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.sgll.result.struct.Link;
 import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
 import org.rascalmpl.parser.sgll.stack.IMatchableStackNode;
@@ -139,6 +140,7 @@ public abstract class SGLL implements IGLL{
 					// Ignore this if it happens.
 				}
 			}catch(NoSuchMethodException nsmex){
+				nsmex.printStackTrace(); // Necessary because Implementation errors are useless.
 				throw new ImplementationError(nsmex.getMessage(), nsmex);
 			}
 			methodCache.putUnsafe(name, method);
@@ -628,15 +630,16 @@ public abstract class SGLL implements IGLL{
 		if(levelResultStoreMap != null){
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 			if(result != null){
-				IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor);
+				FilteringTracker filteringTracker = new FilteringTracker();
+				IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
 				if(resultTree != null){
 					return resultTree; // Success.
 				}
 				
 				// Filtering error.
-				int line = positionStore.findLine(input.length);
-				int column = positionStore.getColumn(input.length, line);
-				throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, input.length, 0, 0, line + 1, 0, column));
+				int line = positionStore.findLine(filteringTracker.offset);
+				int column = positionStore.getColumn(filteringTracker.offset, line);
+				throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, filteringTracker.offset, (filteringTracker.endOffset - filteringTracker.offset), 0, line + 1, 0, column));
 			}
 		}
 		

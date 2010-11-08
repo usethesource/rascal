@@ -24,37 +24,37 @@ public class ListContainerNode extends AbstractContainerNode{
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
 	}
 	
-	private void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, IActionExecutor actionExecutor){
+	private void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		AbstractNode childNode = child.node;
 		
 		if(!(childNode.isEpsilon() && child.prefixes == null)){
-			IConstructor result = childNode.toTerm(stack, depth, cycleMark, positionStore, actionExecutor);
+			IConstructor result = childNode.toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
 			if(result == null) return; // Rejected.
 			
 			ArrayList<AbstractNode> blackList = new ArrayList<AbstractNode>();
 			if(childNode.isEmpty()){
-				IConstructor[] cycle = gatherCycle(child, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList, actionExecutor);
+				IConstructor[] cycle = gatherCycle(child, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList, filteringTracker, actionExecutor);
 				if(cycle != null){
 					IConstructor cycleNode = buildCycle(cycle, production, actionExecutor);
 					if(cycleNode == null){
-						gatherProduction(child, new IConstructor[]{result}, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, actionExecutor);
+						gatherProduction(child, new IConstructor[]{result}, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor);
 					}else{
 						if(cycle.length == 1){
-							gatherProduction(child, new IConstructor[]{cycleNode}, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, actionExecutor);
+							gatherProduction(child, new IConstructor[]{cycleNode}, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor);
 						}else{
-							gatherProduction(child, new IConstructor[]{result, cycleNode}, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, actionExecutor);
+							gatherProduction(child, new IConstructor[]{result, cycleNode}, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor);
 						}
 					}
 					return;
 				}
 			}
-			gatherProduction(child, new IConstructor[]{result}, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, actionExecutor);
+			gatherProduction(child, new IConstructor[]{result}, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor);
 		}else{
 			gatheredAlternatives.add(new IConstructor[]{}, production);
 		}
 	}
 	
-	private void gatherProduction(Link child, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, IActionExecutor actionExecutor){
+	private void gatherProduction(Link child, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		do{
 			ArrayList<Link> prefixes = child.prefixes;
 			if(prefixes == null){
@@ -75,11 +75,11 @@ public class ListContainerNode extends AbstractContainerNode{
 					return;
 				}
 				
-				IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore, actionExecutor);
+				IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
 				if(result == null) return; // Rejected.
 				
 				if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
-					IConstructor[] cycle = gatherCycle(prefix, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList, actionExecutor);
+					IConstructor[] cycle = gatherCycle(prefix, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList, filteringTracker, actionExecutor);
 					if(cycle != null){
 						IConstructor[] newPostFix = buildCycle(cycle, postFix, result, production, actionExecutor);
 						
@@ -99,13 +99,13 @@ public class ListContainerNode extends AbstractContainerNode{
 				continue;
 			}
 			
-			gatherAmbiguousProduction(prefixes, postFix, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, actionExecutor);
+			gatherAmbiguousProduction(prefixes, postFix, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor);
 			
 			break;
 		}while(true);
 	}
 	
-	private void gatherAmbiguousProduction(ArrayList<Link> prefixes, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, IActionExecutor actionExecutor){
+	private void gatherAmbiguousProduction(ArrayList<Link> prefixes, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		IConstructor[] cachedPrefixResult = sharedPrefixCache.get(prefixes);
 		if(cachedPrefixResult != null){
 			int prefixResultLength = cachedPrefixResult.length;
@@ -139,20 +139,20 @@ public class ListContainerNode extends AbstractContainerNode{
 					continue;
 				}
 				
-				IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore, actionExecutor);
+				IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
 				if(result == null) continue; // Rejected.
 				
 				if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
-					IConstructor[] cycle = gatherCycle(prefix, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList, actionExecutor);
+					IConstructor[] cycle = gatherCycle(prefix, new IConstructor[]{result}, stack, depth, cycleMark, positionStore, blackList, filteringTracker, actionExecutor);
 					if(cycle != null){
 						IConstructor[] newPostFix = buildCycle(cycle, postFix, result, production, actionExecutor);
 						
-						gatherProduction(prefix, newPostFix, gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, actionExecutor);
+						gatherProduction(prefix, newPostFix, gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor);
 						continue;
 					}
 				}
 				
-				gatherProduction(prefix, new IConstructor[]{result}, gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, actionExecutor);
+				gatherProduction(prefix, new IConstructor[]{result}, gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor);
 			}
 		}
 		
@@ -262,7 +262,7 @@ public class ListContainerNode extends AbstractContainerNode{
 		return newPostFix;
 	}
 	
-	private IConstructor[] gatherCycle(Link child, IConstructor[] postFix, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ArrayList<AbstractNode> blackList, IActionExecutor actionExecutor){
+	private IConstructor[] gatherCycle(Link child, IConstructor[] postFix, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ArrayList<AbstractNode> blackList, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		AbstractNode originNode = child.node;
 		
 		blackList.add(originNode);
@@ -288,7 +288,7 @@ public class ListContainerNode extends AbstractContainerNode{
 					int length = postFix.length;
 					IConstructor[] newPostFix = new IConstructor[length + 1];
 					System.arraycopy(postFix, 0, newPostFix, 1, length);
-					IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore, actionExecutor);
+					IConstructor result = prefixNode.toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
 					if(result == null) continue; // Rejected.
 					newPostFix[0] = result;
 					
@@ -312,7 +312,7 @@ public class ListContainerNode extends AbstractContainerNode{
 		return vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		if(cachedResult != null && (depth <= cycleMark.depth)){
 			if(depth == cycleMark.depth){
 				cycleMark.reset();
@@ -320,7 +320,10 @@ public class ListContainerNode extends AbstractContainerNode{
 			return cachedResult;
 		}
 		
-		if(rejected) return null;
+		if(rejected){
+			filteringTracker.setLastFilered(offset, endOffset);
+			return null;
+		}
 		
 		ISourceLocation sourceLocation = null;
 		if(!(isLayout || input == null)){
@@ -347,15 +350,15 @@ public class ListContainerNode extends AbstractContainerNode{
 		// Gather
 		HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache = new HashMap<ArrayList<Link>, IConstructor[]>();
 		DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives = new DoubleArrayList<IConstructor[], IConstructor>();
-		gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, sharedPrefixCache, positionStore, actionExecutor);
+		gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, sharedPrefixCache, positionStore, filteringTracker, actionExecutor);
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
-				gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, actionExecutor);
+				gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, filteringTracker, actionExecutor);
 			}
 		}
 		
 		// Output.
-		IConstructor result;
+		IConstructor result = null;
 		
 		int nrOfAlternatives = gatheredAlternatives.size();
 		if(nrOfAlternatives == 1){ // Not ambiguous.
@@ -364,9 +367,7 @@ public class ListContainerNode extends AbstractContainerNode{
 			result = buildAlternative(production, alternative);
 			result = actionExecutor.filterAppl(result);
 			if(result != null && sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
-		}else if(nrOfAlternatives == 0){ // Filtered.
-			result = null;
-		}else{ // Ambiguous.
+		}else if(nrOfAlternatives > 0){ // Ambiguous.
 			ISetWriter ambSetWriter = vf.setWriter(Factory.Tree);
 			IConstructor lastAlternative = null;
 			
@@ -385,13 +386,17 @@ public class ListContainerNode extends AbstractContainerNode{
 			
 			if(ambSetWriter.size() == 1){
 				result = lastAlternative;
-			}else{
+			}else if(ambSetWriter.size() > 0){
 				result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
 				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 			}
 		}
 		
 		stack.dirtyPurge(); // Pop.
+		
+		if(result == null){
+			filteringTracker.setLastFilered(offset, endOffset);
+		}
 		
 		return (depth <= cycleMark.depth) ? (cachedResult = result) : result;
 	}
