@@ -366,8 +366,12 @@ public class ListContainerNode extends AbstractContainerNode{
 			IValue[] alternative = gatheredAlternatives.getFirst(0);
 			result = buildAlternative(production, alternative);
 			result = actionExecutor.filterAppl(result);
-			if(result != null && sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
-		}else if(nrOfAlternatives > 0){ // Ambiguous.
+			if(result != null){
+				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
+			}else{
+				filteringTracker.setLastFilered(offset, endOffset);
+			}
+		}else if(nrOfAlternatives > 0){// Ambiguous.
 			ISetWriter ambSetWriter = vf.setWriter(Factory.Tree);
 			IConstructor lastAlternative = null;
 			
@@ -386,17 +390,15 @@ public class ListContainerNode extends AbstractContainerNode{
 			
 			if(ambSetWriter.size() == 1){
 				result = lastAlternative;
-			}else if(ambSetWriter.size() > 0){
+			}else if(ambSetWriter.size() == 0){
+				filteringTracker.setLastFilered(offset, endOffset);
+			}else{
 				result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
 				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 			}
 		}
 		
 		stack.dirtyPurge(); // Pop.
-		
-		if(result == null){
-			filteringTracker.setLastFilered(offset, endOffset);
-		}
 		
 		return (depth <= cycleMark.depth) ? (cachedResult = result) : result;
 	}
