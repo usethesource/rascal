@@ -93,7 +93,7 @@ public class RascalShell {
 			}
 			catch (SyntaxError e) {
 				ISourceLocation loc = e.getLocation();
-				if(loc != null) console.printString("Parse error in command at line " + loc.getBeginLine() + ", column " + loc.getBeginColumn() + "\n");
+				if(loc != null) console.printString("Parse error in command at from <"+loc.getBeginLine()+","+loc.getBeginColumn()+"> to <"+loc.getEndLine()+","+loc.getEndColumn()+">\n");
 				else console.printString("Parse error in command\n");
 			}
 			catch (StaticError e) {
