@@ -41,7 +41,7 @@ public class EpsilonNode extends AbstractNode{
 		return EPSILON_STRING;
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		throw new UnsupportedOperationException(); // This should never be called.
 	}
 }

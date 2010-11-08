@@ -33,7 +33,7 @@ public abstract class AbstractNode{
 	
 	public abstract boolean isRejected();
 	
-	public abstract IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor);
+	public abstract IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor);
 	
 	public static class CycleMark{
 		public int depth = Integer.MAX_VALUE;
@@ -50,6 +50,20 @@ public abstract class AbstractNode{
 		
 		public void reset(){
 			depth = Integer.MAX_VALUE;
+		}
+	}
+	
+	public static class FilteringTracker{
+		public int offset;
+		public int endOffset;
+		
+		public FilteringTracker(){
+			super();
+		}
+		
+		public void setLastFilered(int offset, int endOffset){
+			this.offset = offset;
+			this.endOffset = endOffset;
 		}
 	}
 }
