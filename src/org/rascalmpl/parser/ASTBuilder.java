@@ -139,17 +139,14 @@ public class ASTBuilder {
 	
 	@SuppressWarnings("unchecked")
 	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
-		IConstructor top = parseTree;
-		
-		if (TreeAdapter.isAppl(top)) {
-			IConstructor tree = (IConstructor) TreeAdapter.getArgs(top).get(1);
+		if (TreeAdapter.isAppl(parseTree)) {
+			IConstructor tree = (IConstructor) TreeAdapter.getArgs(parseTree).get(1);
 			
 			if (sortName(tree).equals(sort)) {
 				return (T) buildValue(tree);
 			}
-		}
-		else if (TreeAdapter.isAmb(top)) {
-			for (IValue alt : TreeAdapter.getAlternatives(top)) {
+		} else if (TreeAdapter.isAmb(parseTree)) {
+			for (IValue alt : TreeAdapter.getAlternatives(parseTree)) {
 				IConstructor tree = (IConstructor) alt;
 
 				if (sortName(tree).equals(sort)) {
@@ -159,10 +156,10 @@ public class ASTBuilder {
 					}
 				}
 			}
-			throw new SyntaxError(sort, TreeAdapter.getLocation(top)); // TODO Always @ offset = 0?
+			throw new SyntaxError(sort, TreeAdapter.getLocation(parseTree)); // TODO Always @ offset = 0?
 		}
 		
-		throw new ImplementationError("This is not a " + sort +  ": " + top);
+		throw new ImplementationError("This is not a " + sort +  ": " + parseTree);
 	}
 	
 	public AbstractAST buildValue(IValue arg)  {
