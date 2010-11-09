@@ -314,7 +314,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.rootScope = scope;
 		this.heap.addModule(scope);
 		this.classLoaders = new ArrayList<ClassLoader>();
-		this.javaBridge = new JavaBridge(stderr, classLoaders, vf);
+		this.javaBridge = new JavaBridge(classLoaders, vf);
 		this.rascalPathResolver = new RascalURIResolver(this);
 		this.parser = new Parser();
 		this.stderr = stderr;

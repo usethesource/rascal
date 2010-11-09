@@ -1,6 +1,5 @@
 package org.rascalmpl.interpreter.utils;
 
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -60,7 +59,7 @@ public class JavaBridge {
 	
 	private final HashMap<Class<?>, JavaFileManager> fileManagerCache;
 
-	public JavaBridge(PrintWriter outputStream, List<ClassLoader> classLoaders, IValueFactory valueFactory) {
+	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory) {
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
@@ -79,8 +78,9 @@ public class JavaBridge {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
 			List<String> commandline = Arrays.asList(new String[] {"-cp", Configuration.getRascalJavaClassPathProperty()});
+			
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), fileManagerCache.get(parent), commandline);
-			Class<T> result = (Class<T>) javaCompiler.compile(className, source, null, Object.class);
+			Class<T> result = javaCompiler.compile(className, source, null, Object.class);
 			fileManagerCache.put(result, javaCompiler.getFileManager());
 			return result;
 		} catch (ClassCastException e) {
