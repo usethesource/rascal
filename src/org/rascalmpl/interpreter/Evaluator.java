@@ -250,11 +250,11 @@ import org.rascalmpl.library.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.rascal.syntax.ObjectRascalRascal;
 import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.RascalActionExecutor;
 import org.rascalmpl.parser.IActionExecutor;
 import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.parser.RascalActionExecutor;
 import org.rascalmpl.parser.sgll.IGLL;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputOutput;
@@ -439,7 +439,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IConstructor parseObject(IConstructor startSort, URI input) {
 		try {
 			System.err.println("Generating a parser");
-			IGLL parser = getObjectParser();
+			IGLL parser = getObjectParser(vf.sourceLocation(input));
 			String name = "";
 			if (SymbolAdapter.isStart(startSort)) {
 				name = "start__";
@@ -458,8 +458,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public IConstructor parseObject(IConstructor startSort, java.lang.String input) {
-		URI inputURI = getCurrentAST().getLocation().getURI();
-		IGLL parser = getObjectParser();
+		URI inputURI = URI.create("file://-");
+		IGLL parser = getObjectParser(vf.sourceLocation(inputURI));
 		String name = "";
 		if (SymbolAdapter.isStart(startSort)) {
 			name = "start__";
@@ -473,11 +473,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return parser.parse(name, inputURI, input, exec);
 	}
 	
-	private IGLL getObjectParser() {
-		return getObjectParser( (ModuleEnvironment) getCurrentEnvt().getRoot());
+	private IGLL getObjectParser(ISourceLocation loc) {
+		return getObjectParser( (ModuleEnvironment) getCurrentEnvt().getRoot(), loc);
 	}
 	
-	private IGLL getObjectParser(ModuleEnvironment currentModule) {
+	private IGLL getObjectParser(ModuleEnvironment currentModule, ISourceLocation loc) {
 		if (currentModule.getBootstrap()) {
 			return new ObjectRascalRascal();
 		}
@@ -494,7 +494,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parserName = currentModule.getName().replaceAll("::", ".");
 			}
 
-			parser = pg.getParser(getCurrentAST().getLocation(), parserName, productions);
+			parser = pg.getParser(loc, parserName, productions);
 			getHeap().storeObjectParser(currentModule.getName(), productions, parser);
 		}
 	
@@ -509,7 +509,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	private IGLL getRascalParser(ModuleEnvironment env, URI input) {
 		ParserGenerator pg = getParserGenerator();
-		IGLL objectParser = getObjectParser(env);
+		ISourceLocation loc = vf.sourceLocation(input);
+		IGLL objectParser = getObjectParser(env, loc);
 		ISet productions = env.getProductions();
 		Class<IGLL> parser = getHeap().getRascalParser(env.getName(), productions);
 
@@ -522,7 +523,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parserName = env.getName().replaceAll("::", ".");
 			}
 			
-			parser = pg.getRascalParser(vf.sourceLocation(input), parserName, productions, objectParser);
+			parser = pg.getRascalParser(loc, parserName, productions, objectParser);
 			getHeap().storeRascalParser(env.getName(), productions, parser);
 		}
 			
@@ -1195,7 +1196,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		ISet prods = env.getProductions();
-		if (prods.isEmpty() || !preModule.toString().contains("`")) {
+		if (prods.isEmpty() || !new String(data).contains("`")) {
 			return parser.parseModule(location, data, env, actionExecutor);
 		}
 		
