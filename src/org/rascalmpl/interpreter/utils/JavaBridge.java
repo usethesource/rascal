@@ -71,11 +71,11 @@ public class JavaBridge {
 		}
 	}
 
-	public <T> Class<T> compileJava(Class<T> iface, ISourceLocation loc, String className, String source) {
-		return compileJava(iface, loc, className, getClass(), source);
+	public <T> Class<T> compileJava(ISourceLocation loc, String className, String source) {
+		return compileJava(loc, className, getClass(), source);
 	}
 	
-	public <T> Class<T> compileJava(Class<T> iface, ISourceLocation loc, String className, Class<?> parent, String source) {
+	public <T> Class<T> compileJava(ISourceLocation loc, String className, Class<?> parent, String source) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
 			List<String> commandline = Arrays.asList(new String[] {"-cp", Configuration.getRascalJavaClassPathProperty()});

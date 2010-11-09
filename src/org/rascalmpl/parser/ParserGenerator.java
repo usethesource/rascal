@@ -54,7 +54,7 @@ public class ParserGenerator {
 			IString classString = (IString) evaluator.call("generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
 			debugOutput(classString, "/tmp/parser.java");
 			System.err.println("compiling generated java code");
-			return bridge.compileJava(IGLL.class, loc, packageName + "." + normName, classString.getValue());
+			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		}  catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (Throw e) {
@@ -78,7 +78,7 @@ public class ParserGenerator {
 			IString classString = (IString) evaluator.call("generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
 			debugOutput(classString, "/tmp/metaParser.java");
 			System.err.println("compiling generated java code");
-			return bridge.compileJava(IGLL.class, loc, packageName + ".$Rascal_" + normName, objectParser.getClass(), classString.getValue());
+			return bridge.compileJava(loc, packageName + ".$Rascal_" + normName, objectParser.getClass(), classString.getValue());
 		}  catch (ClassCastException e) {
 			throw new ImplementationError("meta parser generator:" + e.getMessage(), e);
 		} catch (Throw e) {
