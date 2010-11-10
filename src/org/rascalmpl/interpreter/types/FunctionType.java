@@ -154,6 +154,9 @@ public class FunctionType extends ExternalType {
 	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
 //		super.match(matched, bindings); match calls isSubTypeOf which calls match, watch out for infinite recursion
+		// Fix for cases where we have aliases to function types, aliases to aliases to function types, etc
+		while (matched.isAliasType()) matched = matched.getAliased();
+
 		if (matched.isVoidType()) {
 			returnType.match(matched, bindings);
 		}
