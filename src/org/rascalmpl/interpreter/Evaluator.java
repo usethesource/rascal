@@ -701,6 +701,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public IConstructor parseCommand(String command, URI location) {
+		interrupt = false;
+
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
 		
 		if(!command.contains("`")){
