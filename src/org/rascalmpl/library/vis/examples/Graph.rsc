@@ -303,7 +303,7 @@ public void graphn(){
      	];
      
     edges = 
-    	[ edge(A", "B"),
+    	[ edge("A", "B"),
     	  edge("B", "C"),
     	  edge("C", "D"),
     	  edge("D", "E"),

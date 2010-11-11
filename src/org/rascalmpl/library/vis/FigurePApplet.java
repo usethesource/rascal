@@ -439,7 +439,7 @@ public class FigurePApplet extends PApplet {
 	
 	public void registerFocus(Figure f){
 		focus = f;
-		System.err.println("registerFocus:" + f);
+		if (debug) System.err.println("registerFocus:" + f);
 	}
 	
 	public void unRegisterFocus(){
@@ -506,7 +506,7 @@ public class FigurePApplet extends PApplet {
 	@Override
 	public void mouseMoved(){
 		
-		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY);
+		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY+" "+figure.getClass());
 		if(focus != null && focusSelected)
 				focus.drag(mouseX/scale, mouseY/scale);
 		else if(figure.mouseOver(round(mouseX/scale), round(mouseY/scale))){
