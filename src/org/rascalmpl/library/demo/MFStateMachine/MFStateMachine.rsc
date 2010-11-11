@@ -68,25 +68,25 @@ public void ppMachine(MachineDef m) {
 	case commandDef(cmds): {
 		println("commands");
 		for(str s <- cmds)
-		  println("  ", s);
+		  println("  <s>");
 		println("end\n");
   	}
 	case eventDef(evts): {
 		println("events");
 		for(str s <- evts)
-		  println("  ", s);
+		  println("  <s>");
 		println("end\n");
   	}
 	case stateDef(n, acts, trns): {
 		println("state ", n);
 		if(acts != [])
-		  println("  actions ", acts);
+		  println("  actions <acts>");
 		for(trans(evt, stt) <- trns)
-		  println("  ", evt, " => ", stt);
+		  println("  <evt> => <stt>");
 		println("end\n");
 	}
         case initialDef(n):
-		println("initial ", n);
+		println("initial <n>");
   }
   return;
 }
@@ -121,11 +121,11 @@ public Machine compileMachine(MachineDef md) {
   top-down visit(md) {
     case trans(evt, st): {
 	if(!(evt in validEvts)) {
-	  println("Error: Event ", evt, " in transition from ", currentState, " to ", st, " not declared.");
+	  println("Error: Event <evt> in transition from <currentState> to <st> not declared.");
 	  errors += 1;
         }
 	if(!(st in validStts)) {
-	  println("Error: State ", st, " in transition from ", currentState, " on ", evt, " not declared.");
+	  println("Error: State <st> in transition from <currentState> on <evt> not declared.");
 	  errors += 1;
         }
 	transitions += {<currentState, evt, st>}; 
@@ -134,7 +134,7 @@ public Machine compileMachine(MachineDef md) {
  	currentState = name;
 	if(cmds != []) for(str c <- cmds)
 	  if(!(c in validCmds)) {
-	    println("Error: Command ", c, " in state ", name, " not declared.");
+	    println("Error: Command <c> in state <name> not declared.");
             errors += 1;
           }
 	  else
@@ -146,7 +146,7 @@ public Machine compileMachine(MachineDef md) {
 		errors += 1;
 	}
 	if(!(name in validStts)) {
-		println("State ", name, " not declared.");
+		println("State <name> not declared.");
 		errors += 1;
 	}
 	else
@@ -173,7 +173,7 @@ public Machine compileMachine(MachineDef md) {
     if(nd != {}) {
       println("Error: Non-deterministic events:");
       for(<state s, event e> <- nd)
-         println("<s>:<e> => ", transitionsOf(m)[s,e]);
+         println("<s>:<e> => <transitionsOf(m)[s,e]>");
       println(" ");
       errors += 1;
     }
@@ -223,7 +223,7 @@ public Machine compileMachine2(MachineDef md) {
     init = "";
   }
   else {
-    println("Multiple initial states declared: ", is);
+    println("Multiple initial states declared: <is>");
     errors += 1;
     init = is[0];
   }
@@ -237,11 +237,11 @@ public Machine compileMachine2(MachineDef md) {
              <"commands", commandsOf(m), validCommands>];
   for(<str n,set[str] us, set[str] ds> <- toCheck) {
     if((us - ds) != {}) {
-      println("Error: The following <n> were not declared: ", us - ds);
+      println("Error: The following <n> were not declared: <us - ds>");
       errors += 1;
     }
     if((ds - us) != {})
-      println("Warning: The following <n> were declared but not used: ", ds - us);
+      println("Warning: The following <n> were declared but not used: <ds - us>");
   }
  
   // final semantic checking of state machine
@@ -256,7 +256,7 @@ public Machine compileMachine2(MachineDef md) {
   if(nd != {}) {
     println("Error: Non-deterministic events:");
     for(<state s, event e> <- nd)
-       println("<s>:<e> => ", transitionsOf(m)[s,e]);
+       println("<s>:<e> => <transitionsOf(m)[s,e]>");
     println(" ");
     errors += 1;
   }

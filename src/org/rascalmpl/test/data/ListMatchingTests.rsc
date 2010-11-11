@@ -8,7 +8,7 @@ public bool hasOrderedElement(list[int] L)
    switch(L){
    
    case [list[int] L1, int I, list[int] L2, int J, list[int] L3]: {
-        println("I:", I," J:", J);
+        println("I: <I> J: <J>");
         if(I > J){
         println("ordered");
         	return true;

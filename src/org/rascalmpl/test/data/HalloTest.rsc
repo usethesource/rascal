@@ -20,8 +20,8 @@ end;
 
 public bool test() {
   if ([| begin declare <decls>; <stats> end |] := simple) {
-    println("decls:", decls);
-    println("stats:", stats);
+    println("decls: <decls>");
+    println("stats: <stats>");
     return true;
   }
   return false;
