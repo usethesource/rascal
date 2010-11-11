@@ -4,10 +4,10 @@ import Exception;
 
 @doc{Print a list of values on the output stream.}
 @javaClass{org.rascalmpl.library.IO}
-public void java println(value V...);
+public void java println(value arg);
 
 @doc{Print and return true, for debugging complex expressions}
-public bool print(value V...) 
+public bool print(value arg) 
 {
   println(V);
   return true;
@@ -15,7 +15,7 @@ public bool print(value V...)
     
 @doc{Print a list of values on the output stream, but do not convert parse trees or remove quotes from strings}
 @javaClass{org.rascalmpl.library.IO}
-public void java rawPrintln(value V...);
+public void java rawPrintln(value arg);
 
 @doc{Read a named file as list of strings.}
 @deprecated{Use @see str readFile(loc file)}
