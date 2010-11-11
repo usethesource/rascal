@@ -6,10 +6,10 @@ import ParseTree;
 public void test(){
   if(`declare <{\ID-TYPE "," }* decls>;` := `declare x: natural, y : string;`){
      
-       println("decls: ", decls);
+       println("decls: <decls>");
       
        L = [Id | ` <\PICO-ID Id> : <TYPE Type> ` <- decls];
        
-      println("L =", L);
+      println("L = <L>");
   }
 }

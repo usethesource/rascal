@@ -49,7 +49,7 @@ public map[Symbol, set[Symbol]] first(Grammar G){
 	        		nonterm = nt(name);
 	        		if(!FIRST[nonterm]?)
 	        			FIRST[nonterm] = {};
-	        		println("G.rules=", G.rules);
+	        		println("G.rules=<G.rules>");
 	        		println(G.rules[name]);
 					for(list[Symbol] symbols <- G.rules[name]){
 					    if(isEmpty(symbols))
