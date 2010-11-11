@@ -175,6 +175,29 @@ public class String {
 		}
 	}
 	
+	public IValue toInt(IString s, IInteger r)
+	{
+		try {
+			java.lang.String sval = s.getValue();
+			boolean isNegative = false;
+			int radix = r.intValue();
+			
+			if (sval.equals("0")) {
+				return values.integer(0);
+			}
+			
+			if (sval.startsWith("-")) {
+				isNegative = true;
+				sval = sval.substring(1);
+			}
+			BigInteger bi = new BigInteger(isNegative ? "-" + sval : sval, radix);
+			return values.integer(bi.toString());
+		}
+		catch (NumberFormatException e){
+			throw RuntimeExceptionFactory.illegalArgument(null, null);
+		}
+	}
+	
 	public IValue toReal(IString s)
 	//@doc{toReal -- convert a string s to a real}
 	{

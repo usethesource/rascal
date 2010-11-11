@@ -111,6 +111,10 @@ public str java substring(str s, int begin, int end);
 @javaClass{org.rascalmpl.library.String}
 public int java toInt(str s);
 
+@doc{Convert a string s to integer using radix r}
+@javaClass{org.rascalmpl.library.String}
+public int java toInt(str s, int r);
+
 @doc{Convert all characters in string s to lowercase.}
 @javaClass{org.rascalmpl.library.String}
 public str java toLowerCase(str s);
