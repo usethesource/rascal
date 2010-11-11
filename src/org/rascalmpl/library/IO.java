@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
-import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -42,22 +41,17 @@ public class IO {
 		this.out = out;
 	}
 	
-	public void println(IList V){
+	public void println(IValue arg){
 		PrintStream currentOutStream = out;
 		
 		synchronized(currentOutStream){
 			try{
-				Iterator<IValue> valueIterator = V.iterator();
-				while(valueIterator.hasNext()){
-					IValue arg = valueIterator.next();
-					
-					if(arg.getType().isStringType()){
-						currentOutStream.print(((IString) arg).getValue().toString());
-					}else if(arg.getType().isSubtypeOf(Factory.Tree)){
-						currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-					}else{
-						currentOutStream.print(arg.toString());
-					}
+				if(arg.getType().isStringType()){
+					currentOutStream.print(((IString) arg).getValue().toString());
+				}else if(arg.getType().isSubtypeOf(Factory.Tree)){
+					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+				}else{
+					currentOutStream.print(arg.toString());
 				}
 				currentOutStream.println();
 			}finally{
@@ -66,15 +60,12 @@ public class IO {
 		}
 	}
 	
-	public void rawPrintln(IList V){
+	public void rawPrintln(IValue arg){
 		PrintStream currentOutStream = out;
 		
 		synchronized(currentOutStream){
 			try{
-				Iterator<IValue> valueIterator = V.iterator();
-				while(valueIterator.hasNext()){
-					currentOutStream.print(valueIterator.next().toString());
-				}
+				currentOutStream.print(arg.toString());
 				currentOutStream.println();
 			}finally{
 				currentOutStream.flush();
