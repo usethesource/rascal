@@ -450,6 +450,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			System.err.println("Calling the parser");
 
+			interrupt = false;
 			IActionExecutor exec = new RascalActionExecutor(this, (IParserInfo) parser);
 			return parser.parse(name, input, resolverRegistry.getInputStream(input), exec);
 		} catch (IOException e) {
@@ -469,6 +470,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			name += SymbolAdapter.getName(startSort);
 		}
 		System.err.println("Calling the parser");
+		interrupt = false;
 		IActionExecutor exec = new RascalActionExecutor(this, (IParserInfo) parser);
 		return parser.parse(name, inputURI, input, exec);
 	}
@@ -702,7 +704,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public IConstructor parseCommand(String command, URI location) {
 		interrupt = false;
-
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
 		
 		if(!command.contains("`")){
@@ -1185,6 +1186,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
+		interrupt = false;
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, new RascalRascal());
 		
 		IConstructor prefix = parser.preParseModule(location, data, actionExecutor);
@@ -2718,6 +2720,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		// TODO: clean up this hack
 		if (expected instanceof NonTerminalType && result.getType().isSubtypeOf(tf.stringType())) {
 			String command = '(' + expected.toString() + ')' + '`' + ((IString) result.getValue()).getValue() + '`';
+			interrupt = false;
 			IConstructor tree = parser.parseCommand(x.getLocation().getURI(), command, new RascalActionExecutor(this, parser.getInfo()));
 
 			tree = (IConstructor) TreeAdapter.getArgs(tree).get(1); // top command expression
