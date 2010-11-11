@@ -16,6 +16,10 @@ public class GraphNode {
 	protected Figure figure;
 	protected float x;
 	protected float y;
+	protected float z;
+	protected int rankTop = 0;
+	protected int rankBottom = 0;
+	protected int rank = 0;
 	protected float dispx = 0f;
 	protected float dispy = 0f;
 	
