@@ -3996,21 +3996,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	private void updateProperties(){
-		String profiling = System.getProperty("rascal.config.profiling");
-		if(profiling != null) {
-			doProfiling = profiling.equals("true");
-		}
-		else {
-			doProfiling = false;
-		}
+		doProfiling = Configuration.getProfilingProperty();
 
-		String tracing = System.getProperty("rascal.config.tracing");
-		if(tracing != null) {
-			AbstractFunction.setCallTracing(tracing.equals("true"));
-		}
-		else {
-			AbstractFunction.setCallTracing(false);
-		}
+		AbstractFunction.setCallTracing(Configuration.getTracingProperty());
 	}
 
 	public Stack<Environment> getCallStack() {

@@ -21,7 +21,7 @@ public class Configuration {
 	private static final String SDF2TABLE_PROPERTY = "rascal.sdf.sdf2table.command";
 	private static final String RASCAL_JAVA_COMPILER_CLASSPATH = "rascal.java.classpath";
 	private final static String PROFILING_PROPERTY = "rascal.profiling";
-	
+	private final static String TRACING_PROPERTY = "rascal.tracing";
 	
 	private volatile static String basePath = null;
 	
@@ -192,5 +192,13 @@ public class Configuration {
 		System.setProperty(PROFILING_PROPERTY, "false");
 		return false;
 	}
-
+	
+	public static boolean getTracingProperty(){
+		String profiling = System.getProperty(TRACING_PROPERTY);
+		if(profiling != null){
+			return profiling.equals("true") ? true : false;
+		}
+		System.setProperty(TRACING_PROPERTY, "false");
+		return false;
+	}
 }
