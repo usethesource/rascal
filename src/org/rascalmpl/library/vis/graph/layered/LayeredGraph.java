@@ -21,19 +21,12 @@ import processing.core.PApplet;
 
 /**
 
- * Graph layout. Given a list of nodes and edges a graph layout is computed with given size.
+ * Layered Graph layout. Given a list of nodes and edges a graph layout is computed with given size.
  * 
- * We use two different methods (triggered by the hint attribute):
- * 
- * hint("spring"): We use a spring layout approach as described in 
- * 
- * 		Fruchterman, T. M. J., & Reingold, E. M. (1991). 
- * 		Graph Drawing by Force-Directed Placement. 
- * 		Software: Practice and Experience, 21(11).
- * 
- * hint("lattice"): we use a layered drawing method as described in
+ * We use a layered drawing method as described in
  * 		Battista, et. al Graph Drawing, Prentice Hall, 1999
  * 
+ * This is the default graph layout
  * 
  * @author paulk
  * 
@@ -44,7 +37,7 @@ public class LayeredGraph extends Figure {
 	protected HashMap<String, LayeredGraphNode> registered;
 	IEvaluatorContext ctx;
 	
-	private static boolean debug = false;
+//	private static boolean debug = false;
 	public LayeredGraph(FigurePApplet fpa, PropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
@@ -62,7 +55,7 @@ public class LayeredGraph extends Figure {
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, ctx.getCurrentAST(), ctx.getStackTrace());
 
-			LayeredGraphNode node = new LayeredGraphNode(this, name, ve);
+			LayeredGraphNode node = new LayeredGraphNode(name, ve);
 			this.nodes.add(node);
 			register(name, node);
 		}
@@ -92,7 +85,7 @@ public class LayeredGraph extends Figure {
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, ctx.getCurrentAST(), ctx.getStackTrace());
 
-			LayeredGraphNode node = new LayeredGraphNode(this, name, ve);
+			LayeredGraphNode node = new LayeredGraphNode(name, ve);
 			this.nodes.add(node);
 			register(name, node);
 		}
@@ -354,7 +347,7 @@ public class LayeredGraph extends Figure {
 			// Create virtual node
 			String vname =  from.name + "_" + to.name + "[" + (from.layer + 1) + "]";
 			System.err.println("Creating virtual node " + vname + " between " + from.name + " and " + to.name);
-			LayeredGraphNode v = new LayeredGraphNode(this, vname, null);
+			LayeredGraphNode v = new LayeredGraphNode(vname, null);
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();
 			IString vfVname = vf.string(vname);
 			nodes.add(v);
@@ -454,7 +447,6 @@ public class LayeredGraph extends Figure {
 
 		// Iteratively exchange in each layer nodes until no more crossings can be removed.
 		
-		boolean reducingLayers = true;
 		boolean down = false;
 		
         int mincrossings = 1000000;
@@ -464,7 +456,6 @@ public class LayeredGraph extends Figure {
 			crossings = 0;
 			down = iter % 2 == 0;
 			System.err.println("down = " + down + " mincrossings = " + mincrossings);
-			reducingLayers = false;
 			
 			for(int i = down ? 0 : layers.size()-1; down ? (i < layers.size()-2) : (i > 0); i += (down ? 1 : -1)){
 				System.err.println("i = " + i);

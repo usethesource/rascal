@@ -14,7 +14,6 @@ public class LatticeGraphNode {
 	
 	int  label = -1;
 	int layer = -1;
-	private LatticeGraph G;
 	String name;
 	Figure figure;
 	LinkedList<LatticeGraphNode> in;
@@ -24,44 +23,14 @@ public class LatticeGraphNode {
 	public int rank;
 	public int rankTop;
 	public int rankBottom;
+
 	
-//	protected float force[];
-	
-	LatticeGraphNode(LatticeGraph latticeGraph, String name, Figure fig){
-		this.G = latticeGraph;
+	LatticeGraphNode(String name, Figure fig){
 		this.name = name;
 		this.figure = fig;
 		in = new LinkedList<LatticeGraphNode>();
 		out = new LinkedList<LatticeGraphNode>();
 	}
-	
-	public boolean isVirtual(){
-		return figure == null;
-	}
-	
-	public float xdistance(LatticeGraphNode other){
-		float vx = x - other.x;
-		return vx;
-//		if(vx > 0){
-//			return PApplet.max(vx - (velem.width/2 + other.velem.width/2), 0.01f);
-//		} else {
-//			return PApplet.min(vx + (velem.width/2 + other.velem.width/2), -0.01f);
-//		}
-	}
-	
-	public float ydistance(LatticeGraphNode other){
-		float vy = y - other.y ;
-		return vy;
-//		if(vy > 0){
-//			return PApplet.max(vy - (velem.height/2 + other.velem.height/2), 0.01f);
-//		} else {
-//			return PApplet.min(vy + (velem.height/2 + other.velem.height/2), -0.01f);
-//		}
-	}
-	
-//	public float getMass(){
-//		return 1.0f;
-//	}
 	
 	public float figX(){
 		return x;

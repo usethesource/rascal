@@ -18,6 +18,8 @@ import org.rascalmpl.library.vis.PropertyManager;
 
  * Lattice layout.
  * 
+ * This layout is activated by by the property: hint("lattice").
+ * 
  * 
  * @author paulk
  * 
@@ -28,14 +30,8 @@ public class LatticeGraph extends Figure {
 	protected ArrayList<LatticeGraphEdge> edges;
 	private HashMap<String, LatticeGraphNode> registered;
 	IEvaluatorContext ctx;
-	IList props;
 	
-	// Fields for force layout
-	protected float springConstant;
-	protected float springConstant2;
-	protected int temperature;
-	private static boolean debug = false;
-	private final boolean lattice;
+//	private static boolean debug = false;
 	private LatticeGraphNode topNode = null, bottomNode = null;
 	private HashSet<LatticeGraphNode> visit = new HashSet<LatticeGraphNode>();
 	
@@ -57,7 +53,7 @@ public class LatticeGraph extends Figure {
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, ctx.getCurrentAST(), ctx.getStackTrace());
 
-			LatticeGraphNode node = new LatticeGraphNode(this, name, ve);
+			LatticeGraphNode node = new LatticeGraphNode(name, ve);
 			this.nodes.add(node);
 			register(name, node);
 		}
@@ -72,9 +68,10 @@ public class LatticeGraph extends Figure {
 			e.getTo().addIn(e.getFrom());
 		}
 		
-		lattice = isLattice();
-		if (lattice)
-			assignRank();
+		if(!isLattice())
+			throw RuntimeExceptionFactory.figureException("Not a lattice", null, ctx.getCurrentAST(), ctx.getStackTrace());
+
+		assignRank();
 	}
 	
 	public void register(String name, LatticeGraphNode nd){
@@ -87,35 +84,16 @@ public class LatticeGraph extends Figure {
 	
 	private void initialPlacement(){
 		
-/*		
-		LatticeGraphNode root = null;
-		// for(LatticeGraphNode n : nodes){
-		// if(n.in.isEmpty()){
-		// root = n;
-		// break;
-		// }
-		// }
-		// if(root != null){
-		// root.x = width/2;
-		// root.y = height/2;
-		// }
-		for (LatticeGraphNode n : nodes) {
-			if (n != root) {
-				n.x = fpa.random(width);
-				n.y = fpa.random(height);
-			}
-		}
-*/
+	// TODO: Do placement for Lattice
 	}
 
 	@Override
 	public
 	void bbox() {
-
 		initialPlacement();
 
-
 		// Now scale (back or up) to the desired width x height frame
+		// TODO: this can be removed for latttices
 		float minx = Float.MAX_VALUE;
 		float maxx = Float.MIN_VALUE;
 		float miny = Float.MAX_VALUE;
@@ -145,14 +123,13 @@ public class LatticeGraph extends Figure {
 			n.y = n.y - miny;
 			n.y *= scaley;
 		}
-		if (lattice) {
-			// To y coordinate is assigned rank 
-			for (LatticeGraphNode n : nodes) {
-				n.x = (float) (n.x*Math.cos(phi)+n.y*Math.sin(phi));		
-				n.y = (n.rank*height)/bottomNode.rankTop;
-			}
-
+	
+		// To y coordinate is assigned rank 
+		for (LatticeGraphNode n : nodes) {
+			n.x = (float) (n.x*Math.cos(phi)+n.y*Math.sin(phi));		
+			n.y = (n.rank*height)/bottomNode.rankTop;
 		}
+
 	}
 
 	@Override
