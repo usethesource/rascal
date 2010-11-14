@@ -34,6 +34,7 @@ public class PropertyManager {
 		HANCHOR,
 		HEIGHT, 
 		HGAP, 
+		HINT,
 		ID, 
 		INNERRADIUS, 
 		LINECOLOR, 
@@ -66,6 +67,7 @@ public class PropertyManager {
 			put("hanchor", Property.HANCHOR);
 			put("height", Property.HEIGHT);
 			put("hgap", Property.HGAP);                  // Only used internally
+			put("hint", Property.HINT);
 			put("id", Property.ID);
 			put("innerRadius", Property.INNERRADIUS);
 			put("lineColor", Property.LINECOLOR);
@@ -93,7 +95,8 @@ public class PropertyManager {
 	float fromAngle;
 	float hanchor;	
 	float height;
-	float hgap; 
+	float hgap;
+	String hint;
 	String id;
 	float innerRadius; 
 	int lineColor;
@@ -212,6 +215,9 @@ public class PropertyManager {
 			case HGAP:
 				hgap = getIntOrRealArg(c, 0); break;
 				
+			case HINT:
+				hint = getStrArg(c).toLowerCase(); break;
+				
 			case ID:
 				id = getStrArg(c); break;
 				
@@ -290,6 +296,7 @@ public class PropertyManager {
 		hanchor = inh.hanchor;
 		height = inh.height;
 		hgap = inh.hgap;
+		hint = inh.hint;
 		id = inh.id;
 		innerRadius = inh.innerRadius;
 		lineColor = inh.lineColor;
@@ -316,6 +323,7 @@ public class PropertyManager {
 		hanchor = 0.5f;
 		height = 0;
 		hgap = 0;
+		hint = "";
 		id = "";
 		innerRadius = 0;
 		lineColor = 0;

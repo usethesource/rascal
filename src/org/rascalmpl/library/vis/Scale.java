@@ -24,6 +24,7 @@ public class Scale extends Figure {
 	}
 
 	@Override
+	public
 	void bbox() {
 		figure.bbox();
 		width = xscale * figure.width;
@@ -31,6 +32,7 @@ public class Scale extends Figure {
 	}
 
 	@Override
+	public
 	void draw(float left, float top) {
 		fpa.pushMatrix();
 		fpa.translate(left, top);

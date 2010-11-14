@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 /**
@@ -19,15 +18,16 @@ public class Use extends Figure {
 	private Figure inside;
 	private static boolean debug = false;
 
-	public Use(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, ctx);
+	public Use(FigurePApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);
 		if(inside != null){
 			this.inside = FigureFactory.make(fpa, inside, this.properties, ctx);
 		}
 		if(debug)System.err.println("use.init: width=" + width + ", height=" + height);
 	}
 
-	@Override 
+	@Override
+	public 
 	void bbox(){
 		
 		inside.bbox();
@@ -37,6 +37,7 @@ public class Use extends Figure {
 	}
 
 	@Override
+	public
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;

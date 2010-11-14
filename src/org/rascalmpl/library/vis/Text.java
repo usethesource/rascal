@@ -1,6 +1,5 @@
 package org.rascalmpl.library.vis;
 
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
@@ -20,13 +19,14 @@ public class Text extends Figure {
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
 
-	public Text(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IString text, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, ctx);
+	public Text(FigurePApplet fpa, PropertyManager properties, IString text, IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);
 		this.txt = text.getValue();
 		if(debug)System.err.printf("Text: %s\n", txt);
 	}
 	
 	@Override
+	public
 	void bbox(){
 		applyFontProperties();
 		topAnchor = fpa.textAscent() ;
@@ -56,6 +56,7 @@ public class Text extends Figure {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;

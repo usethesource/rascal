@@ -9,6 +9,12 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.vis.graph.lattice.LatticeGraph;
+import org.rascalmpl.library.vis.graph.lattice.LatticeGraphEdge;
+import org.rascalmpl.library.vis.graph.layered.LayeredGraph;
+import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
+import org.rascalmpl.library.vis.graph.spring.SpringGraph;
+import org.rascalmpl.library.vis.graph.spring.SpringGraphEdge;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -49,163 +55,130 @@ public class FigureFactory {
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     {
-    	put("Fbox",			Primitives.BOX);
-    	put("Fedge",			Primitives.EDGE);
-    	put("Fellipse",		Primitives.ELLIPSE);
-    	put("Fgraph",		Primitives.GRAPH);
-    	put("Fgrid",			Primitives.GRID);
-    	put("Fhcat",			Primitives.HCAT);
-    	put("Fhvcat",		Primitives.HVCAT);	
-      	put("Foutline",		Primitives.OUTLINE);	
-    	put("Foverlay",		Primitives.OVERLAY);	
-    	put("Fpack",			Primitives.PACK);	
-    	put("rotate",       Primitives.ROTATE);
-    	put("scale",		Primitives.SCALE);
-    	put("Fshape",		Primitives.SHAPE);
-    	put("Fspace",		Primitives.SPACE);
-    	put("Ftext",			Primitives.TEXT);	    		
-    	put("Ftree",			Primitives.TREE);
-       	put("Ftreemap",		Primitives.TREEMAP);
-    	put("Fuse",			Primitives.USE);
-    	put("Fvcat",			Primitives.VCAT);
-    	put("vertex",		Primitives.VERTEX);
-    	put("Fwedge",		Primitives.WEDGE);
+    	put("_box",			Primitives.BOX);
+    	put("_edge",			Primitives.EDGE);
+    	put("_ellipse",		Primitives.ELLIPSE);
+    	put("_graph",		Primitives.GRAPH);
+    	put("_grid",			Primitives.GRID);
+    	put("_hcat",			Primitives.HCAT);
+    	put("_hvcat",		Primitives.HVCAT);	
+      	put("_outline",		Primitives.OUTLINE);	
+    	put("_overlay",		Primitives.OVERLAY);	
+    	put("_pack",			Primitives.PACK);	
+    	put("_rotate",       Primitives.ROTATE);
+    	put("_scale",		Primitives.SCALE);
+    	put("_shape",		Primitives.SHAPE);
+    	put("_space",		Primitives.SPACE);
+    	put("_text",			Primitives.TEXT);	    		
+    	put("_tree",			Primitives.TREE);
+       	put("_treemap",		Primitives.TREEMAP);
+    	put("_use",			Primitives.USE);
+    	put("_vcat",			Primitives.VCAT);
+    	put("_vertex",		Primitives.VERTEX);
+    	put("_wedge",		Primitives.WEDGE);
     }};
-    
-    static IList props;
-	static IList elems;
 	
-	private static void getOneOrTwoArgs(IConstructor c){
-		if(c.arity() >= 2){
-			props = (IList) c.get(0);
-			elems = (IList) c.get(1);
-		} else {
-			props = emptyList;
-			elems = (IList) c.get(0);
-		}
+	private static PropertyManager extendProperties(FigurePApplet fpa, IConstructor c, PropertyManager pm, IEvaluatorContext ctx){		
+		IList props = (IList) c.get(c.arity()-1);
+		return pm == null ? new PropertyManager(fpa, pm, props, ctx)
+		                  : ((props == null || props.equals(emptyList)) ? pm
+								                          : new PropertyManager(fpa, pm, props, ctx));
 	}
-	public static Figure make(FigurePApplet fpa, IConstructor c, PropertyManager inheritedProps, IEvaluatorContext ctx){
-		String ename = c.getName();
 	
+	public static Figure make(FigurePApplet fpa, IConstructor c, PropertyManager properties, IEvaluatorContext ctx){
+		String ename = c.getName();
+		properties = extendProperties(fpa, c, properties, ctx);
+		
 		switch(pmap.get(ename)){
 			
 		case BOX:
-			if(c.arity() == 2)
-				return new Box(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			
-			return new Box(fpa, inheritedProps, (IList) c.get(0), null, ctx);
+			return new Box(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 		
-		case EDGE:
-			if(c.arity() == 3)
-				return new GraphEdge(null,fpa, inheritedProps, (IList) c.get(0), (IString)c.get(1), (IString)c.get(2), ctx);
-			
-			return new GraphEdge(null,fpa, inheritedProps, emptyList, (IString)c.get(0), (IString)c.get(1), ctx);
+//		case EDGE:			
+//			return new GraphEdge(null,fpa, properties, (IString)c.get(0), (IString)c.get(1), ctx);
 		
 		case ELLIPSE:
-			if(c.arity() == 2)
-				return new Ellipse(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			
-			return new Ellipse(fpa, inheritedProps, (IList) c.get(0), null, ctx);
+			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 		
-		case GRAPH: 
-			if(c.arity() == 3)
-				return new Graph(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
-			
-			return new Graph(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
+		case GRAPH:		
+			if(properties.hint.contains("spring"))
+				return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
+
+			if(properties.hint.contains("lattice"))
+				return new LatticeGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
+
+			return new LayeredGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
 		case GRID: 
-			getOneOrTwoArgs(c); 
-			return new Grid(fpa, inheritedProps, props, elems, ctx);
+			return new Grid(fpa, properties, (IList) c.get(0), ctx);
 
 		case HCAT:
-			getOneOrTwoArgs(c);
-			return new HCat(fpa, inheritedProps, props, elems, ctx);
+			return new HCat(fpa, properties, (IList) c.get(0), ctx);
 			
 		case HVCAT: 
-			getOneOrTwoArgs(c); 
-			return new HVCat(fpa, inheritedProps, props, elems, ctx);
+			return new HVCat(fpa, properties, (IList) c.get(0), ctx);
 			
 		case OUTLINE: 
-			if(c.arity() == 2)
-				return new Outline(fpa, inheritedProps, (IList) c.get(0), (IMap)c.get(1), ctx);
-			return new Outline(fpa, inheritedProps, emptyList, (IMap)c.get(0), ctx);
+			return new Outline(fpa, properties, (IMap)c.get(0), ctx);
 			
 		case OVERLAY: 
-			getOneOrTwoArgs(c); 
-			return new Overlay(fpa, inheritedProps, props, elems, ctx);
+			return new Overlay(fpa, properties, (IList) c.get(0), ctx);
 			
-		case PACK: 
-			getOneOrTwoArgs(c); 
-			return new Pack(fpa, inheritedProps, props, elems, ctx);
+		case PACK:  
+			return new Pack(fpa, properties, (IList) c.get(0), ctx);
 			
 		case ROTATE:
-			return new Rotate(fpa, inheritedProps, c.get(0), (IConstructor) c.get(1), ctx);
+			return new Rotate(fpa, properties, c.get(0), (IConstructor) c.get(1), ctx);
 			
 		case SCALE:
-			if(c.arity() == 2)
-				return new Scale(fpa, inheritedProps, c.get(0), c.get(0), (IConstructor) c.get(1), ctx);
+			if(c.arity() == 3)
+				return new Scale(fpa, properties, c.get(0), c.get(0), (IConstructor) c.get(1), ctx);
 			
-			return new Scale(fpa, inheritedProps, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
+			return new Scale(fpa, properties, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
+			
 		case SHAPE: 
-			getOneOrTwoArgs(c); 
-			return new Shape(fpa, inheritedProps, props, elems, ctx);
+			return new Shape(fpa, properties, (IList) c.get(0), ctx);
 			
 		case SPACE:
-			if(c.arity() == 2)
-				return new Space(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			
-			return new Space(fpa, inheritedProps, (IList) c.get(0), null, ctx);
+			return new Space(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 			
 		case TEXT:
-			if(c.arity() == 1)
-				return new Text(fpa, inheritedProps, emptyList, (IString) c.get(0), ctx);
+			return new Text(fpa, properties,  (IString) c.get(0), ctx);
 			
-			return new Text(fpa, inheritedProps,  (IList) c.get(0), (IString) c.get(1), ctx);
-			
-		case TREE: 
-			if(c.arity() == 3)
-				return new Tree(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
-			
-			return new Tree(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
+		case TREE: 			
+			return new Tree(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);
 
-		case TREEMAP: 
-			if(c.arity() == 3)
-				return new TreeMap(fpa,inheritedProps, (IList) c.get(0), (IList) c.get(1), (IList)c.get(2), ctx);
+		case TREEMAP: 			
+			return new TreeMap(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
-			return new TreeMap(fpa,inheritedProps, emptyList, (IList) c.get(0), (IList)c.get(1), ctx);
-
-			
-		case USE:
-			if(c.arity() == 2)
-				return new Use(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			
-			return new Use(fpa, inheritedProps, emptyList, (IConstructor) c.get(0), ctx);
+		case USE:			
+			return new Use(fpa, properties, (IConstructor) c.get(0), ctx);
 			
 		case VCAT:
-			getOneOrTwoArgs(c);
-			return new VCat(fpa, inheritedProps, props, elems, ctx);
+			return new VCat(fpa, properties, (IList) c.get(0), ctx);
 			
-		case VERTEX:
-			if(c.arity() == 3)
-				return new Vertex(fpa, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
+		case VERTEX:			
+			return new Vertex(fpa, properties, c.get(0), c.get(1), c.arity() == 4 ? (IConstructor) c.get(2) : null, ctx);
 			
-			return new Vertex(fpa, c.get(0), c.get(1), ctx);
-			
-		case WEDGE:
-			if(c.arity() == 2)
-				return new Wedge(fpa, inheritedProps, (IList) c.get(0), (IConstructor) c.get(1), ctx);
-			
-			return new Wedge(fpa, inheritedProps, (IList) c.get(0), null, ctx);
-									
+		case WEDGE:			
+			return new Wedge(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);						
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	public static GraphEdge makeGraphEdge(Graph G, FigurePApplet vlp, IConstructor c,
+	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, FigurePApplet fpa, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
-		if(c.arity() == 3)
-			return new GraphEdge(G, vlp, properties, (IList) c.get(0), (IString)c.get(1), (IString)c.get(2), ctx);
-		return new GraphEdge(G, vlp, properties, emptyList, (IString)c.get(0), (IString)c.get(1), ctx);
+		return new SpringGraphEdge(G, fpa, properties, (IString)c.get(0), (IString)c.get(1), ctx);
+	}
+	
+	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IConstructor c,
+			PropertyManager properties, IEvaluatorContext ctx) {
+		return new LayeredGraphEdge(G, fpa, properties, (IString)c.get(0), (IString)c.get(1), ctx);
+	}
+	
+	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, FigurePApplet fpa, IConstructor c,
+			PropertyManager properties, IEvaluatorContext ctx) {
+		return new LatticeGraphEdge(G, fpa, properties, (IString)c.get(0), (IString)c.get(1), ctx);
 	}
 
 }

@@ -22,13 +22,14 @@ public class Grid extends Compose {
 	float extRight = 0;
 	private static boolean debug = false;
 
-	Grid(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, elems, ctx);
+	Grid(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+		super(fpa, properties, elems, ctx);
 		xElem = new float[elems.length()];
 		yElem = new float[elems.length()];
 	}
 	
 	@Override
+	public
 	void bbox(){
 		
 		width = getWidthProperty();
@@ -80,6 +81,7 @@ public class Grid extends Compose {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top){
 		this.left = left;
 		this.top = top;

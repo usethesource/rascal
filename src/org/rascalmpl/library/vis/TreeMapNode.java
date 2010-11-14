@@ -21,9 +21,9 @@ public class TreeMapNode extends Figure {
 	private float[] childTop;
 	private static boolean debug = true;
 	
-	public TreeMapNode(FigurePApplet fpa, TreeMap treeMap, PropertyManager inheritedProps,
-			IList props, Figure fig, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, ctx);
+	public TreeMapNode(FigurePApplet fpa, TreeMap treeMap, PropertyManager properties,
+			Figure fig, IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);
 		this.treemap = treeMap;
 		rootFigure = fig;
 		children = new ArrayList<TreeMapNode>();
@@ -87,6 +87,7 @@ public class TreeMapNode extends Figure {
 	}
 	
 	@Override
+	public
 	void bbox() {
 		rootFigure.bbox();
 		width = rootFigure.width;
@@ -94,6 +95,7 @@ public class TreeMapNode extends Figure {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top){
 		this.left = left;
 		this.top = top;

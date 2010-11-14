@@ -22,8 +22,8 @@ public class HVCat extends Compose {
 	int inRow[];
 	static boolean debug = false;
 
-	HVCat(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, elems, ctx);
+	HVCat(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+		super(fpa, properties, elems, ctx);
 		leftElem = new float[elems.length()];
 		topRowElem = new float[elems.length()];
 		rowHeight = new float[elems.length()];
@@ -32,6 +32,7 @@ public class HVCat extends Compose {
 	}
 	
 	@Override
+	public
 	void bbox(){
 		
 		width = getWidthProperty();
@@ -73,6 +74,7 @@ public class HVCat extends Compose {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top){
 		this.left = left;
 		this.top = top;

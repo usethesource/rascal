@@ -21,7 +21,7 @@ public void K2(){
      	  box(text("B"), id("B"), size(20), fillColor("red"))
      	];
     edges = 
-    	[ edge([lineWidth(1)], "A", "B")   	 
+    	[ edge("A", "B")   	 
     	];
     	    
     render(graph(nodes, edges, size(400)));
@@ -38,7 +38,7 @@ public void K3(){
     edges = 
     	[ edge("A", "B"),
     	  edge("B", "C"),
-    	  edge("C", "A")
+    	  edge("A", "C")
     	];
     	    
     render(graph(nodes, edges, size(400)));
@@ -315,8 +315,8 @@ public void graphn(){
     	  edge("J", "K"),
     	  edge("K", "A")
     	  
-    	  //edge([lineWidth(1)], "A", "D")
-    	  // edge([lineWidth(1)], "G", "K")  
+    	  //edge("A", "D")
+    	  // edge("G", "K")  
     	];
     	    
     render(graph(nodes, edges, size(400)));

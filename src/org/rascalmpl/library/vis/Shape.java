@@ -24,11 +24,12 @@ public class Shape extends Compose {
 	float topAnchor;
 	float bottomAnchor;
 
-	Shape(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, elems, ctx);
+	Shape(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+		super(fpa, properties, elems, ctx);
 	}
 	
 	@Override
+	public
 	void bbox(){
 		leftAnchor = rightAnchor = topAnchor = bottomAnchor = 0;
 
@@ -46,6 +47,7 @@ public class Shape extends Compose {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top){
 		
 		this.left = left;

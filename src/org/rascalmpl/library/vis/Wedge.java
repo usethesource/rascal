@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 import processing.core.PApplet;
@@ -55,8 +54,8 @@ public class Wedge extends Container {
 	
 	private static boolean debug = false;
 
-	public Wedge(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, inside, ctx);
+	public Wedge(FigurePApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+		super(fpa, properties, inside, ctx);
 	}
 	
 	// Determine quadrant of angle according to numbering scheme:
@@ -79,6 +78,7 @@ public class Wedge extends Container {
 	}
 
 	@Override
+	public
 	void bbox(){
 		radius = getHeightProperty();
 		float lw = getLineWidthProperty();
