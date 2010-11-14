@@ -1,7 +1,9 @@
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.containers;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.PropertyManager;
 
 /**
  * Rectangular box that can act as container
