@@ -1,7 +1,10 @@
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.compose;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.PropertyManager;
 
 
 /**
@@ -22,7 +25,7 @@ public class HVCat extends Compose {
 	int inRow[];
 	static boolean debug = false;
 
-	HVCat(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public HVCat(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 		leftElem = new float[elems.length()];
 		topRowElem = new float[elems.length()];
@@ -83,12 +86,12 @@ public class HVCat extends Compose {
 
 		for(int i = 0; i < figures.length; i++){
 			
-			Figure ve = figures[i];
+			Figure fig = figures[i];
 			float hrow = rowHeight[inRow[i]];
 			float rfiller = width - rowWidth[inRow[i]];
 			
-			ve.draw(left + leftElem[i] + ve.properties.hanchor*rfiller,
-                    top + topRowElem[i] + ve.properties.vanchor *(hrow - ve.height));                  
+			fig.draw(left + leftElem[i] + fig.properties.hanchor*rfiller,
+                    top + topRowElem[i] + fig.properties.vanchor *(hrow - fig.height));                  
 		}
 	}
 }

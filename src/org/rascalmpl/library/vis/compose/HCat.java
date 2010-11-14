@@ -1,7 +1,10 @@
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.compose;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.PropertyManager;
 
 /**
  * Horizontal composition of elements, using their vertical anchor for alignment
@@ -16,7 +19,7 @@ public class HCat extends Compose {
 	float bottomAnchor = 0;
 	private static boolean debug = false;
 
-	HCat(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public HCat(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	
@@ -28,11 +31,11 @@ public class HCat extends Compose {
 		topAnchor = 0;
 		bottomAnchor = 0;
 		hgap = getHGapProperty();
-		for(Figure ve : figures){
-			ve.bbox();
-			width += ve.width;
-			topAnchor = max(topAnchor, ve.topAnchor());
-			bottomAnchor = max(bottomAnchor, ve.bottomAnchor());
+		for(Figure fig : figures){
+			fig.bbox();
+			width += fig.width;
+			topAnchor = max(topAnchor, fig.topAnchor());
+			bottomAnchor = max(bottomAnchor, fig.bottomAnchor());
 		} 
 		int ngaps = (figures.length - 1);
 		width += ngaps * hgap;

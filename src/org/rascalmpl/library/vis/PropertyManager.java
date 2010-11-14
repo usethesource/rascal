@@ -93,7 +93,7 @@ public class PropertyManager {
 	int fontColor;
 	int fontSize;
 	float fromAngle;
-	float hanchor;	
+	public float hanchor;	
 	float height;
 	float hgap;
 	String hint;
@@ -107,7 +107,7 @@ public class PropertyManager {
 	boolean shapeCurved;
 	float textAngle; 
 	float toAngle;
-	float vanchor;
+	public float vanchor;
 	float vgap;
 	float width;
 	
@@ -149,7 +149,7 @@ public class PropertyManager {
 		return ((IInteger) arg).intValue();
 	}
 
-	PropertyManager(FigurePApplet fpa, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
+	public PropertyManager(FigurePApplet fpa, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
 		if(inherited != null)
 			importProperties(inherited);
 		else

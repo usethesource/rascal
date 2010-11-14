@@ -1,7 +1,10 @@
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.compose;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.PropertyManager;
 
 
 /**
@@ -19,7 +22,7 @@ public class Overlay extends Compose {
 	float leftAnchor = 0;
 	float rightAnchor = 0;
 
-	Overlay(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public Overlay(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	
