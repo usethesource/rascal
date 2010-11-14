@@ -1,6 +1,5 @@
 package org.rascalmpl.library.vis;
 
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -17,26 +16,26 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class Figure implements Comparable<Figure> {
 	
-	protected FigurePApplet fpa;
+	public FigurePApplet fpa;
 	protected IValueFactory vf;
 	
 	protected PropertyManager properties;
 	
 	protected float left;         // coordinates of top left corner of
 	protected float top; 			// the element's bounding box
-	protected float width;		// width of element
-	protected float height;		// height of element
+	public float width;		// width of element
+	public float height;		// height of element
 	
 //	protected float leftDragged;  // deplacement of left due to dragging
 //	protected float topDragged;	// deplacement of top due to dragging
 	
 	Figure(FigurePApplet vlp, IEvaluatorContext ctx){
-		this(vlp, null,ValueFactoryFactory.getValueFactory().list(), ctx);
+		this(vlp, null,ctx);
 	}
 	
-	Figure(FigurePApplet vlp, PropertyManager inheritedProps, IList props, IEvaluatorContext ctx){
+	protected Figure(FigurePApplet vlp, PropertyManager properties, IEvaluatorContext ctx){
 		this.fpa = vlp;
-		properties = new PropertyManager(vlp, inheritedProps, props, ctx);
+		this.properties = properties;
 		vf = ValueFactoryFactory.getValueFactory();
 //		leftDragged = topDragged = 0;
 	}
@@ -181,7 +180,11 @@ public abstract class Figure implements Comparable<Figure> {
 		return properties.innerRadius;
 	}
 	
-	protected String getIdProperty(){
+	protected boolean getHint(String txt){
+		return properties.hint.contains(txt);
+	}
+	
+	public String getIdProperty(){
 		return properties.id;
 	}
 	
@@ -260,7 +263,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 * the computed width and height are stored in the element itself.
 	 */
 	
-	abstract void bbox();
+	public abstract void bbox();
 
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box
@@ -268,7 +271,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @param top	y-coordinate of corner
 	 */
 	
-	abstract void draw(float left, float top);
+	public abstract void draw(float left, float top);
 	
 	/**
 	 * Draw focus around this figure
@@ -292,7 +295,7 @@ public abstract class Figure implements Comparable<Figure> {
 		}
 	}
 	
-	protected boolean mouseInside(int mousex, int mousey){
+	public boolean mouseInside(int mousex, int mousey){
 		boolean cond = (mousex > left  && mousex < left + width) &&
 		        (mousey > top  && mousey < top + height);
 		//System.err.printf("mouseInside(%d,%d), hor=%f-%f, ver=%f-%f => %s\n", mousex, mousey, left, left+width,top, top+height,cond?"true":"false");

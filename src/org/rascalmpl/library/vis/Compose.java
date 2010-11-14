@@ -16,8 +16,8 @@ public abstract class Compose extends Figure {
 	protected Figure[] figures;
 	private static boolean debug = false;
 
-	Compose(FigurePApplet fpa,PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, ctx);	
+	Compose(FigurePApplet fpa,PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);	
 		int n = elems.length();
 		figures = new Figure[n];
 		for(int i = 0; i < n; i++){

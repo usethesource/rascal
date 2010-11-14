@@ -171,6 +171,7 @@ data FProperty =
    
 /* other properties */
    | id(str name)                       // name of elem (used in edges and various layouts)
+   | hint(str name)                     // hint for various compositions
    ;
 
 /*
@@ -178,14 +179,27 @@ data FProperty =
  */
 
 data Vertex = 
-     vertex(num x, num y)             	// vertex in a shape          
-   | vertex(num x, num y, Figure marker)  // vertex with marker
+     _vertex(num x, num y, FProperties props)             	    // vertex in a shape          
+   | _vertex(num x, num y, Figure marker, FProperties props)    // vertex with marker
    ;
    
-data Edge =
-     edge(str from, str to) 			 	// edge between between two elements in complex shapes like tree or graph
-   | edge(FProperties, str from, str to) 	// 
+public Vertex vertex(num x, num y, FProperty props ...){
+   return _vertex(x, y, props);
+}
+
+public Vertex vertex(num x, num y, Figure marker, FProperty props ...){
+   return _vertex(x, y, marker, props);
+}
+   
+data Edge =			 							// edge between between two elements in complex shapes like tree or graph
+     _edge(str from, str to, FProperties prop) 	
    ;
+   
+public alias Edges = list[Edge];
+   
+public Edge edge(str from, str to, FProperty props ...){
+  return _edge(from, to, props);
+}
 
 /*
  * Figure: a visual element, the principal visualization datatype
@@ -196,153 +210,157 @@ public alias Figures = list[Figure];
 data Figure = 
 /* atomic primitives */
 
-     Ftext(FProperties props, str s)		  		// text label
-   | Ftext(str s)			              		// text label
+     _text(str s, FProperties props)		    // text label
    
    												// file outline
-   | Foutline(FProperties props, map[int,Color] coloredLines)
-   | Foutline(map[int,Color] coloredLines)
+   | _outline(map[int,Color] coloredLines, FProperties props)
    
    
 /* primitives/containers */
 
-   | Fbox(FProperties props)			          	// rectangular box
-   | Fbox(FProperties props, Figure inner)       // rectangular box with inner element
+   | _box(FProperties props)			          	// rectangular box
+   | _box(Figure inner, FProperties props)       // rectangular box with inner element
    
-   | Fellipse(FProperties props)			      	// ellipse
-   | Fellipse(FProperties props, Figure inner)   // ellipse with inner element
+   | _ellipse(FProperties props)                 // ellipse with inner element
+   | _ellipse(Figure inner, FProperties props)   // ellipse with inner element
    
-   | Fwedge(FProperties props)			      	// wedge
-   | Fwedge(FProperties props, Figure inner)     // wedge with inner element
+   | _wedge(FProperties props)			      	// wedge
+   | _wedge(Figure inner, FProperties props)     // wedge with inner element
    
-   | Fspace(FProperties props)			      	// invisible box (used for spacing)
-   | Fspace(FProperties props, Figure inner)     // invisible box with visible inner element
+   | _space(FProperties props)			      	// invisible box (used for spacing)
+   | _space(Figure inner, FProperties props)     // invisible box with visible inner element
  
 /* composition */
    
-   | Fuse(Figure elem)                           // use another elem
-   | Fuse(FProperties props, Figure elem)
- 
-   | Fhcat(Figures figs)                        // horizontal concatenation
-   | Fhcat(FProperties props, Figures figs)
+   | _use(Figure elem)                           // use another elem
+   | _use(Figure elem, FProperties props)
+                       
+   | _hcat(Figures figs, FProperties props)     // horizontal concatenation
+                     
+   | _vcat(Figures figs, FProperties props)     // vertical concatenation
+                   
+   | _hvcat(Figures figs, FProperties props) // horizontal and vertical concatenation
+                   
+   | _overlay(Figures figs, FProperties props)// overlay (stacked) composition
    
-   | Fvcat(Figures figs)                        // vertical concatenation
-   | Fvcat(FProperties props, Figures figs)
+                								// shape of to be connected vertices
+   | _shape(list[Vertex] points, FProperties props)
+                         
+   | _grid(Figures figs, FProperties props)// placement on fixed grid
    
-   | Fhvcat(Figures figs)                       // horizontal and vertical concatenation
-   | Fhvcat(FProperties props, Figures figs)
+  								                // composition by 2D packing
+   | _pack(Figures figs, FProperties props)
    
-   | Foverlay(Figures figs)                     // overlay (stacked) composition
-   | Foverlay(FProperties props, Figures figs)
-   
-   | Fshape(list[Vertex] points)                 // shape of to be connected vertices
-   | Fshape(FProperties props,list[Vertex] points)
-   
-   | Fgrid(Figures figs)                        // placement on fixed grid
-   | Fgrid(FProperties props, Figures figs)
-   
-   | Fpack(Figures figs)                        // composition by 2D packing
-   | Fpack(FProperties props, Figures figs)
-   
-   | Fgraph(Figures nodes, list[Edge] edges)     // composition of nodes and edges as graph
-   | Fgraph(FProperties, Figures nodes, list[Edge] edges)
+  												 // composition of nodes and edges as graph
+   | _graph(Figures nodes, Edges edges, FProperties props)
    
                 							    // composition of nodes and edges as tree
-   | Ftree(Figures nodes, list[Edge] edges) 
-   | Ftree(FProperties, Figures nodes, list[Edge] edges)
+   | _tree(Figures nodes, Edges edges, FProperties props)
    
-   | Ftreemap(Figures nodes, list[Edge] edges) 
-   | Ftreemap(FProperties, Figures nodes, list[Edge] edges)
+   | _treemap(Figures nodes, Edges edges, FProperties props)
    
 /* transformation */
 
-   | rotate(num angle, Figure fig)			    // Rotate element around its anchor point
-   | scale(num perc, Figure fig)	   		    // Scale element (same for h and v)
-   | scale(num xperc, num yperc, Figure fig)	// Scale element (different for h and v)
+   | _rotate(num angle, Figure fig, FProperties props)			    // Rotate element around its anchor point
+   | _scale(num perc, Figure fig, FProperties props)	   		    // Scale element (same for h and v)
+   | _scale(num xperc, num yperc, Figure fig, FProperties props)	// Scale element (different for h and v)
    ;
-   
+
+
 public Figure text(str s, FProperty props ...){
-  return Ftext(props, s);
+  return _text(s, props);
 }
 
 public Figure outline (map[int,Color] coloredLines, FProperty props ...){
-  return Foutline(props, coloredLines);
+  return _outline(coloredLines, props);
 }
 
 public Figure box(FProperty props ...){
-  return Fbox(props);
+  return _box(props);
 }
 
 public Figure box(Figure fig, FProperty props ...){
-  return Fbox(props, fig);
+  return _box(fig, props);
 }
 
 public Figure ellipse(FProperty props ...){
-  return Fellipse(props);
+  return _ellipse(props);
 }
 
 public Figure ellipse(Figure fig, FProperty props ...){
-  return Fellipse(props, fig);
+  return _ellipse(fig, props);
 }
 
 public Figure wedge(FProperty props ...){
-  return Fwedge(props);
+  return _wedge(props);
 }
 
 public Figure wedge(Figure fig, FProperty props ...){
-  return Fwedge(props, fig);
+  return _wedge(fig, props);
 }  
 
 public Figure space(FProperty props ...){
-  return Fspace(props);
+  return _space(props);
 }
 
 public Figure space(Figure fig, FProperty props ...){
-  return Fspace(props, fig);
+  return _space(fig, props);
 }
 
 public Figure use(Figure fig, FProperty props ...){
-  return Fuse(props, fig);
+  return _use(fig, props);
 }
 
 public Figure hcat(Figures figs, FProperty props ...){
-  return Fhcat(props, figs);
+  return _hcat(figs, props);
 }
 
 public Figure vcat(Figures figs, FProperty props ...){
-  return Fvcat(props, figs);
+  return _vcat(figs, props);
 }
 
 public Figure hvcat(Figures figs, FProperty props ...){
-  return Fhvcat(props, figs);
+  return _hvcat(figs, props);
 }
 
 public Figure overlay(Figures figs, FProperty props ...){
-  return Foverlay(props, figs);
+  return _overlay(figs, props);
 }
 
 public Figure shape(list[Vertex] points, FProperty props ...){
-  return Fshape(props, points);
+  return _shape(points, props);
 }
 
 public Figure grid(Figures figs, FProperty props ...){
-  return Fgrid(props, figs);
+  return _grid(figs, props);
 }
 
 public Figure pack(Figures figs, FProperty props ...){
-  return Fpack(props, figs);
+  return _pack(figs, props);
 }
 
-public Figure graph(Figures nodes, list[Edge] edges, FProperty props...){
-  return Fgraph(props, nodes, edges);
+public Figure graph(Figures nodes, Edges edges, FProperty props...){
+  return _graph(nodes, edges, props);
 }
 
-public Figure tree(Figures nodes, list[Edge] edges, FProperty props...){
-  return Ftree(props, nodes, edges);
+public Figure tree(Figures nodes, Edges edges, FProperty props...){
+  return _tree(nodes, edges, props);
 }
 
-public Figure treemap(Figures nodes, list[Edge] edges, FProperty props...){
-  return Ftreemap(props, nodes, edges);
+public Figure treemap(Figures nodes, Edges edges, FProperty props...){
+  return _treemap(nodes, edges, props);
+}
+
+public Figure rotate(num angle, Figure fig, FProperty props...){
+  return _rotate(angle, fig, props);
+}
+
+public Figure scale(num perc, Figure fig, FProperty props...){
+  return _scale(perc, fig, props);
+}
+
+public Figure scale(num xperc, num yperc, Figure fig, FProperty props...){
+  return _scale(xperc, yperc, fig, props);
 }
    
 /*

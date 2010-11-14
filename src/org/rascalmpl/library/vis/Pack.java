@@ -22,12 +22,13 @@ public class Pack extends Compose {
 	static protected boolean debug = false;
 	boolean initialized = false;
 
-	Pack(FigurePApplet fpa, PropertyManager inheritedProps, IList props,
-			IList elems, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, elems, ctx);
+	Pack(FigurePApplet fpa, PropertyManager properties, IList elems,
+			IEvaluatorContext ctx) {
+		super(fpa, properties, elems, ctx);
 	}
 
 	@Override
+	public
 	void bbox() {
 		if(initialized)
 			return;
@@ -84,6 +85,7 @@ public class Pack extends Compose {
 	}
 
 	@Override
+	public
 	void draw(float left, float top) {
 		if(debug)System.err.printf("pack.draw: %f, %f\n", left, top);
 		if(!isNextVisible())

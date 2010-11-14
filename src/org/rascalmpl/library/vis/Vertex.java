@@ -31,22 +31,23 @@ public class Vertex extends Figure {
 		return 0;
 		
 	}
-	public Vertex(FigurePApplet fpa, IValue dx, IValue dy, IEvaluatorContext ctx) {
-		super(fpa, ctx);
+	public Vertex(FigurePApplet fpa, PropertyManager properties, IValue dx, IValue dy, IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 	}
 	
-	public Vertex(FigurePApplet vlp, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
-		super(vlp, ctx);
+	public Vertex(FigurePApplet fpa, PropertyManager properties, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 		if(marker != null)
-			this.marker = FigureFactory.make(vlp, marker, properties, ctx);
+			this.marker = FigureFactory.make(fpa, marker, properties, ctx);
 		if(debug)System.err.printf("Vertex at %f, %f\n", deltax, deltay);
 	}
 
 	@Override
+	public
 	void bbox(){
 
 		if(marker != null){
@@ -86,6 +87,7 @@ public class Vertex extends Figure {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;

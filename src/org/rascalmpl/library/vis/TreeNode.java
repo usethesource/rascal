@@ -22,9 +22,9 @@ public class TreeNode extends Figure {
 	private float rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
 	private static boolean debug = false;
 	
-	public TreeNode(FigurePApplet fpa, PropertyManager inheritedProps, IList props,
-			Figure fig, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, ctx);
+	public TreeNode(FigurePApplet fpa, PropertyManager properties, Figure fig,
+			IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);
 		rootFigure = fig;
 		children = new ArrayList<TreeNode>();
 		edgeProperties = new ArrayList<PropertyManager>();
@@ -133,11 +133,13 @@ public class TreeNode extends Figure {
 	}
 	
 	@Override
+	public
 	void bbox() {
 		// TODO Auto-generated method stub
 	}
 	
 	@Override
+	public
 	void draw(float left, float top){
 		
 		this.left = left;

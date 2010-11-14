@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 /**
@@ -12,7 +11,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
  */
 public class Space extends Container {
 
-	public Space(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IConstructor inside,IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, inside, ctx);
+	public Space(FigurePApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+		super(fpa, properties, inside, ctx);
 	}
 }

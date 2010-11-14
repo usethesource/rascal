@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -19,12 +18,13 @@ public class Outline extends Figure {
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
 
-	public Outline(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IMap coloredLines, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, ctx);
+	public Outline(FigurePApplet fpa, PropertyManager properties, IMap coloredLines, IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);
 		this.coloredLines = coloredLines;
 	}
 
 	@Override
+	public
 	void bbox(){
 		float lw = getLineWidthProperty();
 		width = getWidthProperty();
@@ -35,6 +35,7 @@ public class Outline extends Figure {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;

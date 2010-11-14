@@ -17,11 +17,12 @@ public class VCat extends Compose {
 	float rightAnchor = 0;
 	private static boolean debug = false;
 
-	VCat(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, elems, ctx);
+	VCat(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+		super(fpa, properties, elems, ctx);
 	}
 	
 	@Override
+	public
 	void bbox(){
 
 		width = 0;
@@ -45,6 +46,7 @@ public class VCat extends Compose {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top){
 		this.left = left;
 		this.top = top;

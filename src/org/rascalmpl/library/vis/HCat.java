@@ -16,11 +16,12 @@ public class HCat extends Compose {
 	float bottomAnchor = 0;
 	private static boolean debug = false;
 
-	HCat(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, elems, ctx);
+	HCat(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+		super(fpa, properties, elems, ctx);
 	}
 	
 	@Override
+	public
 	void bbox(){
 		width = 0;
 		height = 0;
@@ -41,6 +42,7 @@ public class HCat extends Compose {
 	}	
 	
 	@Override
+	public
 	void draw(float left, float top){
 		this.left = left;
 		this.top =  top;

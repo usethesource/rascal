@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 import processing.core.PConstants;
@@ -16,8 +15,8 @@ import processing.core.PConstants;
  */
 public class Ellipse extends Container {
 
-	public Ellipse(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IConstructor inside, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, inside, ctx);
+	public Ellipse(FigurePApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+		super(fpa, properties, inside, ctx);
 	}
 	
 	@Override

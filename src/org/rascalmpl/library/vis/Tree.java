@@ -31,8 +31,8 @@ public class Tree extends Figure {
 	private TreeNodeRaster raster;
 	TreeNode root = null;
 	
-	Tree(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, ctx);		
+	Tree(FigurePApplet fpa, PropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);		
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();
 		raster = new TreeNodeRaster();
@@ -44,7 +44,7 @@ public class Tree extends Figure {
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("Tree: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
-			TreeNode tn = new TreeNode(fpa, inheritedProps, props, fig, ctx);
+			TreeNode tn = new TreeNode(fpa, properties, fig, ctx);
 			nodeMap.put(name, tn);
 		}
 		
@@ -54,18 +54,10 @@ public class Tree extends Figure {
 
 		for(IValue v : edges){
 			IConstructor c = (IConstructor) v;
-			int iFrom;
-			int iTo;
-			IList edgeProperties;
-			if(c.arity() == 3){
-				edgeProperties = (IList) c.get(0);
-				iFrom = 1;
-				iTo = 2;
-			} else {
-				edgeProperties = emptyList;
-				iFrom = 0;
-				iTo = 1;
-			}
+			int iFrom = 0;
+			int iTo = 1;
+			IList edgeProperties = c.arity() == 3 ?  (IList) c.get(2) : emptyList;
+		
 			String from = ((IString)c.get(iFrom)).getValue();
 
 			TreeNode fromNode = nodeMap.get(from);
@@ -94,6 +86,7 @@ public class Tree extends Figure {
 	}
 	
 	@Override
+	public
 	void bbox() {
 		//System.err.printf("Tree.bbox()\n");
 		raster.clear();
@@ -103,6 +96,7 @@ public class Tree extends Figure {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top) {
 		if(!isNextVisible())
 			return;

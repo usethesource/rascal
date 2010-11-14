@@ -19,11 +19,12 @@ public class Overlay extends Compose {
 	float leftAnchor = 0;
 	float rightAnchor = 0;
 
-	Overlay(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList elems, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, elems, ctx);
+	Overlay(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+		super(fpa, properties, elems, ctx);
 	}
 	
 	@Override
+	public
 	void bbox(){
 		
 		topAnchor = bottomAnchor = leftAnchor = rightAnchor = 0;
@@ -41,6 +42,7 @@ public class Overlay extends Compose {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;

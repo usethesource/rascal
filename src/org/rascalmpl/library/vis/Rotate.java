@@ -28,6 +28,7 @@ public class Rotate extends Figure {
 	}
 
 	@Override
+	public
 	void bbox() {
 		
 		figure.bbox();
@@ -55,6 +56,7 @@ public class Rotate extends Figure {
 	}
 
 	@Override
+	public
 	void draw(float left, float top) {
 		this.left = left;
 		this.top = top;

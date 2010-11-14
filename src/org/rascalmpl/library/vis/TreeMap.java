@@ -23,8 +23,8 @@ public class TreeMap extends Figure {
 	private HashSet<TreeMapNode> hasParent;
 	TreeMapNode root = null;
 	
-	TreeMap(FigurePApplet fpa, PropertyManager inheritedProps, IList props, IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(fpa, inheritedProps, props, ctx);		
+	TreeMap(FigurePApplet fpa, PropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
+		super(fpa, properties, ctx);		
 		nodeMap = new HashMap<String,TreeMapNode>();
 		hasParent = new HashSet<TreeMapNode>();
 		
@@ -35,7 +35,7 @@ public class TreeMap extends Figure {
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("TreeMap: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
-			TreeMapNode tn = new TreeMapNode(fpa, this, inheritedProps, props, fig, ctx);
+			TreeMapNode tn = new TreeMapNode(fpa, this, properties, fig, ctx);
 			nodeMap.put(name, tn);
 		}
 		
@@ -85,6 +85,7 @@ public class TreeMap extends Figure {
 	}
 	
 	@Override
+	public
 	void bbox() {
 		System.err.printf("TreeMapNode.bbox(), left=%f, top=%f\n", left, top);
 		width = getWidthProperty();
@@ -97,6 +98,7 @@ public class TreeMap extends Figure {
 	}
 	
 	@Override
+	public
 	void draw(float left, float top) {
 		if(!isVisible())
 			return;
