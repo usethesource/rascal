@@ -9,12 +9,20 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.vis.compose.Grid;
+import org.rascalmpl.library.vis.compose.HCat;
+import org.rascalmpl.library.vis.compose.HVCat;
+import org.rascalmpl.library.vis.compose.Overlay;
+import org.rascalmpl.library.vis.compose.Pack;
+import org.rascalmpl.library.vis.compose.VCat;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraph;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraphEdge;
 import org.rascalmpl.library.vis.graph.layered.LayeredGraph;
 import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
 import org.rascalmpl.library.vis.graph.spring.SpringGraph;
 import org.rascalmpl.library.vis.graph.spring.SpringGraphEdge;
+import org.rascalmpl.library.vis.tree.Tree;
+import org.rascalmpl.library.vis.tree.TreeMap;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**

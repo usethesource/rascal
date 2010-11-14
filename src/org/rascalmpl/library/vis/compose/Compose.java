@@ -1,9 +1,13 @@
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.compose;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureFactory;
+import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.PropertyManager;
 
 /**
  * Abstract class for the composition of a list of visual elements.
@@ -16,7 +20,7 @@ public abstract class Compose extends Figure {
 	protected Figure[] figures;
 	private static boolean debug = false;
 
-	Compose(FigurePApplet fpa,PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	protected Compose(FigurePApplet fpa,PropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);	
 		int n = elems.length();
 		figures = new Figure[n];

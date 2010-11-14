@@ -1,10 +1,13 @@
 
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.tree;
 
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.PropertyManager;
 
 /**
  * A TreeNode is created for each "node" constructor that occurs in a Tree.

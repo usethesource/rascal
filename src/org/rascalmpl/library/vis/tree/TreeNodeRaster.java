@@ -1,4 +1,4 @@
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.tree;
 
 import processing.core.PApplet;
 

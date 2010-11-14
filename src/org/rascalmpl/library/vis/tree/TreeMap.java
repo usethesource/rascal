@@ -1,4 +1,4 @@
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.tree;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +10,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureFactory;
+import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -23,7 +27,7 @@ public class TreeMap extends Figure {
 	private HashSet<TreeMapNode> hasParent;
 	TreeMapNode root = null;
 	
-	TreeMap(FigurePApplet fpa, PropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
+	public TreeMap(FigurePApplet fpa, PropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);		
 		nodeMap = new HashMap<String,TreeMapNode>();
 		hasParent = new HashSet<TreeMapNode>();

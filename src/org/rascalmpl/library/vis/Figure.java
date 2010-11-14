@@ -19,7 +19,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public FigurePApplet fpa;
 	protected IValueFactory vf;
 	
-	protected PropertyManager properties;
+	public PropertyManager properties;
 	
 	protected float left;         // coordinates of top left corner of
 	protected float top; 			// the element's bounding box
@@ -140,23 +140,23 @@ public abstract class Figure implements Comparable<Figure> {
 		return properties.vanchor;
 	}
 	
-	protected float leftAnchor(){
+	public float leftAnchor(){
 		return (properties.hanchor * width);
 	}
 	
-	protected float rightAnchor(){
+	public float rightAnchor(){
 		return (width - properties.hanchor * width);
 	}
 	
-	protected float topAnchor(){
+	public float topAnchor(){
 		return (properties.vanchor * height);
 	}
 	
-	protected float bottomAnchor(){
+	public float bottomAnchor(){
 		return (height - properties.vanchor * height);
 	}
 	
-	protected boolean isClosed(){
+	public boolean isClosed(){
 		return properties.shapeClosed;
 	}
 	
