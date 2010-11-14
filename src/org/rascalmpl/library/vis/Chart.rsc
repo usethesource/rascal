@@ -80,11 +80,12 @@ private void applySettings(list[ChartProperty] settings){
 // Background raster with title and subtitle
   
 private Figure raster(str title){
-   return Fvcat([hcenter(), gap(0,20)],
-                   [ Ftext([fontSize(titleFontSize)], title),
-                     (subTitle == "") ? Fspace([size(0,-20)]) : Ftext([fontSize(subTitleFontSize)], subTitle),
-                     Fbox([size(chartWidth,chartHeight), fillColor(rasterColor)])
-                   ]);
+   return vcat( [ text(title, fontSize(titleFontSize)),
+                  (subTitle == "") ? space(size(0,-20)) : Ftext(subTitle, fontSize(subTitleFontSize)),
+                  box(size(chartWidth,chartHeight), fillColor(rasterColor))
+                ],
+                hcenter(), gap(0,20)
+              );
 }
 
 // Draw: |
@@ -92,51 +93,72 @@ private Figure raster(str title){
 // for x-axis
 
 private Figure xtick(num n){
-  return Fvcat([gap(2), left()], [Fbox([size(1,10), lineWidth(0)]), Ftext([fontSize(axisFontSize)], "<n>")]);
+  return vcat( [ box(size(1,10), lineWidth(0)), 
+                 text("<n>", fontSize(axisFontSize))
+               ],
+               gap(2), left()
+             );
 }
 
 // Draw: n --
 // for y-axis
 
 private Figure ytick(num n){
-  return Fhcat([gap(2), bottom()], [Ftext([fontSize(axisFontSize)], "<n>"), Fbox([size(10,1), lineWidth(0)])]);
+  return hcat( [ text("<n>", fontSize(axisFontSize)), 
+                 box(size(10,1), lineWidth(0))
+               ],
+               gap(2), bottom()
+             );
 }
-
-
 
 // X-axis
 
 public Figure xaxis(str title, num length, num start, num incr, num end, num scale){
-   ticks = Fgrid([gap(incr * scale), width(length), vcenter()], [xtick(n) | num n <- [start, (start + incr) .. end]]);
+   ticks = grid( [ xtick(n) | num n <- [start, (start + incr) .. end]],
+                 gap(incr * scale), width(length), vcenter() 
+               );
    
-   return Fvcat([gap(20), hcenter()], 
-                   [ ticks,
-                     Ftext([fontSize(subTitleFontSize)], title)
-                   ]);
+   return vcat( [ ticks,
+                  text(title, fontSize(subTitleFontSize))
+                ],
+                gap(20), hcenter()
+              );
 }
 
 // Y-axis
 
 public Figure yaxis(str title, num length, num start, num incr, num end, num scale){
 
-   ticks = Fgrid([gap(incr * scale), width(1), right()], [ytick(n) | num n <- [end, (end - incr) .. start]]);
-   return Fhcat([gap(20), vcenter()], 
-                   [ Ftext([fontSize(subTitleFontSize), textAngle(-90)], title),
-                     ticks
-                   ]);
+   ticks = grid( [ ytick(n) | num n <- [end, (end - incr) .. start]],
+                 gap(incr * scale), width(1), right()
+               );
+   
+   
+   return hcat( [ text(title, fontSize(subTitleFontSize), textAngle(-90)),
+                  ticks
+                ],
+                gap(20), vcenter()
+              );
 }
 
 // One item (name + colored box) in legend
 
 private Figure legendItem(str name, Color c){
-  return Fhcat([gap(2), vcenter()], [Ftext([fontSize(10)], "<name> = "), Fbox([size(20,10), lineWidth(0), fillColor(c)])]);
+  return hcat( [ text("<name> = ", fontSize(10)), 
+                 box(size(20,10), lineWidth(0), fillColor(c))
+               ],
+               gap(2), vcenter()
+             );
 }
 
 // A complete legend
 
 private Figure legend(list[tuple[str, Color]] funColors, num w){
-   return Fbox([center(), gap(10,10), fillColor("lightgray")], 
-               Fhvcat([width(w), gap(10), center()], [legendItem(name, col) | <name, col> <- funColors]));
+   return box( hvcat( [legendItem(name, col) | <name, col> <- funColors],
+                      width(w), gap(10), center()
+                    ),
+               center(), gap(10,10), fillColor("lightgray")
+             );
 }
 
 // Data for xyChart
@@ -178,15 +200,17 @@ public Figure xyChart(str title, list[NamedPairSeries] facts, ChartProperty sett
   //println("xscale=<xscale>, yscale=<yscale>, xshift=<xshift>, yshift=<yshift>");
   
   // Add vertical axis at x=0
-  funPlots += Fshape([lineColor("darkgrey"), lineWidth(1), shapeConnected()],
-                     [ vertex((xshift + 0) * xscale, 0),
+  funPlots += shape( [ vertex((xshift + 0) * xscale, 0),
                        vertex((xshift + 0) * xscale, chartHeight)
-                     ]);
+                     ],
+                     lineColor("darkgrey"), lineWidth(1), shapeConnected()
+                   );
   // Add horizontal axis at y=0
-  funPlots+= Fshape([lineColor("darkgrey"), lineWidth(1), shapeConnected()],
-                     [ vertex(0,          (yshift + 0) * yscale),
-                       vertex(chartWidth, (xshift + 0) * yscale)
-                     ]);  
+  funPlots+= shape( [ vertex(0,          (yshift + 0) * yscale),
+                      vertex(chartWidth, (xshift + 0) * yscale)
+                    ],
+                    lineColor("darkgrey"), lineWidth(1), shapeConnected()
+                  );  
   // Add function plots                            
    for(<str fname, list[tuple[num, num]] values> <- facts){
    		fcolorName = palette(size(funColors));
@@ -204,8 +228,9 @@ public Figure xyChart(str title, list[NamedPairSeries] facts, ChartProperty sett
    		if(isLinePlot)
    		   shapeProps += [shapeConnected()];
    		   
-        funPlots += Fshape(shapeProps,
-                          [vertex((xshift + x) * xscale, (yshift + y) * yscale, Fellipse([size(5), fillColor(fcolorName), lineWidth(0)])) | <num x, num y> <- values]);
+        funPlots += shape( [ vertex((xshift + x) * xscale, (yshift + y) * yscale, ellipse(size(5), fillColor(fcolorName), lineWidth(0))) | <num x, num y> <- values],
+                           shapeProps
+                         );
    }
            
    // Superimpose on the same grid point (with different allignments):
@@ -214,13 +239,20 @@ public Figure xyChart(str title, list[NamedPairSeries] facts, ChartProperty sett
    // - raster
    // - function plots
    
-   plot = Foverlay(
-               [ Fuse([bottom(), right()], yaxis(yTitle, chartHeight, ymin, 10, ymax, yscale)),
-                 Fuse([top(), left()],     Fvcat([hcenter(), gap(20)],
-                                               [ xaxis(xTitle, chartWidth,  xmin, 10, xmax, xscale),
-                                                 legend(funColors, chartWidth)
-                                               ])),      
-                 Fuse([bottom(), left()], raster(title)),
+   plot = overlay(
+               [ use( yaxis(yTitle, chartHeight, ymin, 10, ymax, yscale),
+                      bottom(), right()
+                    ),
+               
+               
+                 use( vcat( [ xaxis(xTitle, chartWidth,  xmin, 10, xmax, xscale),
+                              legend(funColors, chartWidth)
+                            ],
+                            hcenter(), gap(20)
+                          ),
+                      top(), left()
+                     ),      
+                 use(raster(title), bottom(), left()),
                  funPlots
                ]);
    
@@ -319,72 +351,96 @@ public Figure barChart(str title, list[str] categories, NamedNumberSeries facts,
         num bh = values[i] * yscale;
         if(!isVertical)
            <bw, bh> = <bh, bw>;
-     	fns[i] = (fns[i] ? []) + Fbox([size(bw, bh), lineWidth(0), fillColor(funColorsMap[fname])]);
+     	fns[i] = (fns[i] ? []) + box(size(bw, bh), lineWidth(0), fillColor(funColorsMap[fname]));
      }
   }
   for(num i <- [0 .. size(categories)-1]){
     if(fns[i]?)
-  	   funPlots += isStackedBars ? (isVertical ? Fvcat([bottom(), gap(0)], reverse(fns[i]))
-  	                                    : Fhcat([bottom(), gap(0)], fns[i]))
-  	                             : (isVertical ? Fhcat([left(), hcenter(), gap(barGap)], fns[i])
-  	                                    : Fvcat([bottom(), left(), gap(barGap)], fns[i]));
+  	   funPlots += isStackedBars ? (isVertical ? vcat(reverse(fns[i]), bottom(), gap(0))
+  	                                           : hcat(fns[i], bottom(), gap(0)))
+  	                             : (isVertical ? hcat(fns[i], left(), hcenter(), gap(barGap))
+  	                                           : vcat(fns[i], bottom(), left(), gap(barGap)));
   }
   
   if(isVertical)
  
- 	return Fgrid([bottom(), left(), gap(0)],
-                [ Fuse([bottom(), right()], yaxis(yTitle, chartHeight, 0, 10, isStackedBars ? ysummax : ymax, yscale)),
+ 	return grid([ use( yaxis(yTitle, chartHeight, 0, 10, isStackedBars ? ysummax : ymax, yscale),
+ 	                   bottom(), right()
+ 	                 ),
                                                        
-                  Fuse([bottom(), left()], raster(title)),
+                  use( raster(title),
+                       bottom(), left() 
+                     ),
                  
-                  Fhcat([ Fspace([size(groupGap,20)]), 
-                               Fgrid([bottom(), width(chartWidth), gap(groupWidth + groupGap)], funPlots)
-                             ]),
+                  hcat([ space(size(groupGap,20)), 
+                         grid(funPlots,
+                              bottom(), width(chartWidth), gap(groupWidth + groupGap)
+                             )
+                       ]),
                  
-                  Fhcat([top()], [ Fspace([size(groupGap,20)]), 
-                                        Fgrid([ top(), width(chartWidth), gap(groupWidth + groupGap)], 
-                                             [ Fspace([size(groupWidth,20), gap(2)], 
-                                                     Ftext([hcenter(), fontSize(axisFontSize)], cat)) | cat <- categories]
-                                            )
-                                       ]),
+                  hcat([ space(size(groupGap,20)), 
+                         grid( [ space(text(cat, hcenter(), fontSize(axisFontSize)), size(groupWidth,20), gap(2)) | cat <- categories],
+                               top(), width(chartWidth), gap(groupWidth + groupGap) 
+                             )
+                       ],
+                       top()             
+                      ),
               
-                  Fuse([top(), left()], Fvcat([ gap(20), hcenter()],
-                                                [ Fspace([size(chartWidth, 20)]),
-                                                  Ftext([fontSize(subTitleFontSize)], xTitle),
-                                                  legend(funColors, chartWidth)
-                                                ]))
-               ]);
+                  use( vcat( [ space(size(chartWidth, 20)),
+                               text(xTitle, fontSize(subTitleFontSize)),
+                               legend(funColors, chartWidth)
+                             ],
+                             gap(20), hcenter()            
+                           ),
+                       top(), left()                       
+                     )
+                ],
+                bottom(), left(), gap(0)
+               );
    else
    
-   	return Fgrid([bottom(), left(), gap(0)],
-                [ Fuse([top(), left()], xaxis(yTitle, chartHeight, 0, 10, isStackedBars ? ysummax : ymax, yscale)),
+   	return grid([ use(xaxis(yTitle, chartHeight, 0, 10, isStackedBars ? ysummax : ymax, yscale),
+   	                  top(), left()
+   	                 ),
                                                        
-                  Fuse([bottom(), left()], raster(title)),
+                  use(raster(title),
+                      bottom(), left()
+                     ),
                  
-                  Fvcat([ 
-                             Fgrid([bottom(), width(100), gap(groupWidth + groupGap)], funPlots),
-                             Fspace([size(20,groupGap)])
-                           ]),
+                  vcat([ grid(funPlots,
+                              bottom(), width(100), gap(groupWidth + groupGap)
+                             ),
+                         space(size(20,groupGap))
+                       ]),
                  
-                 Fuse([bottom(), right()], 
-                      Fvcat([right()],[ Fgrid([bottom(), width(10), gap(groupWidth + groupGap)], 
-                                                [ Fspace([size(20,groupWidth), gap(2)], 
-                                                       Ftext([vcenter(), fontSize(axisFontSize), textAngle(-90)], cat)) | cat <- categories]
-                                               ), 
-                                          Fspace([size(10,groupGap)])       
-                                                 
-                                         ])),
+                  use(vcat([ grid([ space(text(cat, vcenter(), fontSize(axisFontSize), textAngle(-90)), size(20,groupWidth), gap(2)) | cat <- categories],
+                                  bottom(), width(10), gap(groupWidth + groupGap)
+                                 ), 
+                             space(size(10,groupGap))                 
+                           ],
+                           right()        
+                          ),
+                       bottom(), right()                 
+                      ),
               
-                  Fuse([top(), left()], Fvcat([gap(20), hcenter()],
-                                                [ Fspace([size(chartWidth, 40)]),
-                                                  legend(funColors, chartWidth)
-                                                ])),
+                   use(vcat([ space(size(chartWidth, 40)),
+                              legend(funColors, chartWidth)
+                            ],
+                            gap(20), hcenter()           
+                           ),
+                       top(), left()                    
+                      ),
                                                 
-                  Fuse([bottom(), right()], Fhcat([gap(20), vcenter()],
-                                                [ Ftext([fontSize(subTitleFontSize), textAngle(-90)], xTitle),
-                                                  Fspace([size(20, chartHeight)])
-                                                ]))
-               ]);
+                   use(hcat([ text(xTitle, fontSize(subTitleFontSize), textAngle(-90)),
+                              space(size(20, chartHeight))
+                            ],
+                            gap(20), vcenter()           
+                           ),
+                       bottom(), right()        
+                      )
+                ],
+                bottom(), left(), gap(0)
+               );
    
 }
 
@@ -410,24 +466,26 @@ public Figure pieChart(str title, map[str, int] facts, ChartProperty settings...
  		funColors += <fname, color(fcolorName, 0.6)>;
    		funColorsMap[fname] = color(fcolorName, 0.6);
    		delta = facts[fname] * 360 / total;
-    	elems += Fwedge([fromAngle(angle), toAngle(angle + delta),
-						height(radius), innerRadius(ir), fillColor(funColorsMap[fname])],
-						text("<facts[fname]>")
-						);
+    	elems += wedge(text("<facts[fname]>"),
+    	               fromAngle(angle), toAngle(angle + delta),
+					   height(radius), innerRadius(ir), fillColor(funColorsMap[fname])
+					  );
 	    angle += delta;
     }
  
-    p = Foverlay([lineWidth(0), lineColor(0)], elems);
+    p = overlay(elems, lineWidth(0), lineColor(0));
     
-    return Fvcat([hcenter(), gap(20)],
-    
-                [ Ftext([fontSize(20)], title),
-                  (subTitle == "") ? Fspace([size(0,-20)]) : Ftext([fontSize(10)], subTitle),
-                   Foverlay([center()], [ Fbox([size(chartWidth,chartHeight), fillColor("lightgray")]),
-                                         p
-                                       ]),
+    return vcat( [ text(title, fontSize(20)),
+                   (subTitle == "") ? space(size(0,-20)) : text(subTitle, fontSize(10)),
+                   overlay( [ box(size(chartWidth,chartHeight), fillColor("lightgray")),
+                              p
+                            ],
+                            center()      
+                          ),
                   legend(funColors, chartWidth)
-                ]);
+                ],
+                hcenter(), gap(20)
+               );
 }
 
 
