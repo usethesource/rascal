@@ -13,7 +13,6 @@ import org.rascalmpl.library.vis.Figure;
  */
 public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
-	private LayeredGraph G;
 	protected String name;
 	protected Figure figure;
 	protected float x;
@@ -21,15 +20,11 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	protected LinkedList<LayeredGraphNode> in;
 	protected LinkedList<LayeredGraphNode> out;
-	private static boolean debug = false;
-	int distanceFromRoot = -1;
+//	private static boolean debug = false;
 	int  label = -1;
 	int layer = -1;
 	
-//	protected float force[];
-	
-	LayeredGraphNode(LayeredGraph layeredGraph, String name, Figure fig){
-		this.G = layeredGraph;
+	LayeredGraphNode(String name, Figure fig){
 		this.name = name;
 		this.figure = fig;
 		in = new LinkedList<LayeredGraphNode>();

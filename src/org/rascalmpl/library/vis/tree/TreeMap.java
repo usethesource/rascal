@@ -49,18 +49,9 @@ public class TreeMap extends Figure {
 
 		for(IValue v : edges){
 			IConstructor c = (IConstructor) v;
-			int iFrom;
-			int iTo;
-			IList edgeProperties;
-			if(c.arity() == 3){
-				edgeProperties = (IList) c.get(0);
-				iFrom = 1;
-				iTo = 2;
-			} else {
-				edgeProperties = emptyList;
-				iFrom = 0;
-				iTo = 1;
-			}
+			int iFrom = 0;
+			int iTo = 1;
+			IList edgeProperties = c.arity() == 3 ?  (IList) c.get(2) : emptyList;
 			String from = ((IString)c.get(iFrom)).getValue();
 
 			TreeMapNode fromNode = nodeMap.get(from);

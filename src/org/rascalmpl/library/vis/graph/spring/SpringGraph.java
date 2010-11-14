@@ -17,19 +17,15 @@ import processing.core.PApplet;
 
 /**
 
- * Graph layout. Given a list of nodes and edges a graph layout is computed with given size.
+ * Force-directed (spring) Graph layout. Given a list of nodes and edges a graph layout is computed with given size.
  * 
- * We use two different methods (triggered by the hint attribute):
- * 
- * hint("spring"): We use a spring layout approach as described in 
+ * We use a spring layout approach as described in 
  * 
  * 		Fruchterman, T. M. J., & Reingold, E. M. (1991). 
  * 		Graph Drawing by Force-Directed Placement. 
  * 		Software: Practice and Experience, 21(11).
  * 
- * hint("lattice"): we use a layered drawing method as described in
- * 		Battista, et. al Graph Drawing, Prentice Hall, 1999
- * 
+ *  Spring layout is activated by the property: hint("spring")
  * 
  * @author paulk
  * 
@@ -39,7 +35,6 @@ public class SpringGraph extends Figure {
 	protected ArrayList<SpringGraphEdge> edges;
 	private HashMap<String, SpringGraphNode> registered;
 	IEvaluatorContext ctx;
-	IList props;
 	
 	// Fields for force layout
 	protected float springConstant;
@@ -83,7 +78,7 @@ public class SpringGraph extends Figure {
 
 		// float connectivity = edges.length()/nodes.length();
 		springConstant = // (connectivity > 1 ? 0.5f : 0.3f) *
-		PApplet.sqrt((width * height) / nodes.length());
+		                 PApplet.sqrt((width * height) / nodes.length());
 		if (debug)
 			System.err.printf("springConstant = %f\n", springConstant);
 		springConstant2 = springConstant * springConstant;
@@ -96,8 +91,6 @@ public class SpringGraph extends Figure {
 	public SpringGraphNode getRegistered(String name) {
 		return registered.get(name);
 	}
-	
-
 	
 	private void initialPlacement(){
 

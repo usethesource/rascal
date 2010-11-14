@@ -6,9 +6,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.PropertyManager;
-import org.rascalmpl.library.vis.graph.spring.SpringGraph;
-
-import processing.core.PApplet;
 
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
@@ -19,7 +16,6 @@ import processing.core.PApplet;
 public class LatticeGraphEdge extends Figure {
 	private LatticeGraphNode from;
 	private LatticeGraphNode to;
-	private boolean inverted = false;
 	private static boolean debug = false;
 	
 	public LatticeGraphEdge(LatticeGraph G, FigurePApplet fpa, PropertyManager properties, IString fromName, IString toName, IEvaluatorContext ctx) {
@@ -40,19 +36,11 @@ public class LatticeGraphEdge extends Figure {
 	
 
 	LatticeGraphNode getFrom() {
-		return inverted ? to : from;
+		return from;
 	}
 
 	LatticeGraphNode getTo() {
-		return inverted? from : to;
-	}
-
-	void invert(){
-		inverted = true;
-	}
-	
-	boolean isInverted(){
-		return inverted;
+		return to;
 	}
 
 	@Override
