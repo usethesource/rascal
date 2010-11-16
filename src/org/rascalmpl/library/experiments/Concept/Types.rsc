@@ -5,6 +5,12 @@ import List;
 import String;
 import IO;
 import Relation;
+import vis::Figure;
+import vis::Render; 
+
+public FProperty tip(str S){ 
+	return mouseOver(box([fillColor("lightgrey")], text([fontColor("green")], S)));
+}
 
 alias property_table = tuple[map[str, set[str]] item, map[str, set[str]]feature ];
 
@@ -21,29 +27,21 @@ map[str, set[str]]  rinv1(rel[str dom, str ran] input) {
 public map[str, set[str]] rinv( map[str, set[str]] a) {
     return rinv1(rinv1(a)); 
     }
-    
-@doc{Read object attribute in .cxt format.}   
-public property_table readCxt(loc input)  {
-    list[str] d = readFileLines(input);
-    map[str, set[str]] vb1 = ();
-    int nRows = toInt(d[2]);
-    int nCols = toInt(d[3]);
-    int start = 5+nRows+nCols;
-    list[str] e = tail(d, size(d)-start);
-    int idx = 5;
-    for (str f <- e) {
-         set[str] b = {d[5+nRows+i]|int i<-[0, 1..(size(f)-1)], charAt(f,i)==88};
-         vb1[d[idx]] = b;
-         idx = idx+1;
-         }
-    return <vb1, rinv(vb1)>;
-    }
-    
-public set[str] intersection(set[set[str]] st)
+      
+public set[&T] intersection(set[set[&T]] st)
 {
   set[str] result = isEmpty(st)?{}:getOneFrom(st);
   for(set[str] elm <- st){
     result = result & elm;
+  }
+  return result;
+}
+
+public set[&T] union(set[set[&T]] st)
+{
+  set[&T] result = {};
+  for(set[&T] elm <- st){
+    result += elm;
   }
   return result;
 }
@@ -76,7 +74,7 @@ bool isConcept(property_table t, concept_t c) {
    
 set[set[str]] maxincl(set[set[str]] c) {return {{s}|set[str] s <- c, !isSubset(c, s)};}
 
-@doc{Retrun Attribute lattice.}  
+@doc{Return Attribute lattice.}  
 public rel[set[str], set[str]] createAttributeLattice(property_table vb) {
      set[str] G = domain(vb[0]);
      set[str] M = domain(vb[1]);
@@ -106,33 +104,27 @@ public rel[set[str], set[str]] createAttributeLattice(property_table vb) {
      return {<<tau(vb, c1), c1>, <tau(vb, c2), c2>>|<set[str] c1, set[str] c2><-lat};
      }
      
- map[concept_t, int] makeNodes(rel[concept_t, concept_t] q) {
-     set[concept_t] c = carrier(q);
-     int i = 0;
-     map[concept_t, int] r = ();
-     for (concept_t b<-c) {
-          if (!(r[b])?) {
-              r[b] = i;
-              i=i+1;
-              }
-          }
-     return r;
-     }
-     
 str lab(map[concept_t, int] z, concept_t c) {
      set[str] c0 = c[0];
      set[str] c1 = c[1];
-     set[str] r = {};
-     if (size(c0)==1) return getOneFrom(c0);
-     if (size(c1)==1) return getOneFrom(c1);
-     return "n<z[c]>";
+     // str r = "n<z[c]>";
+     str r = "";
+     if (size(c0)==1) r = getOneFrom(c0);
+     else if (size(c1)==1) r = getOneFrom(c1);
+     // println(r);
+     return r;
      }
+          
+ str baseName(loc s) {
+     str r = s.path;
+     if (/<q:\w+>\.dot$/:=r) return q;
+     return r;
+     }       
  
  @doc{Write relation in .dot format}    
  public int writeDot(loc output, rel[concept_t, concept_t] q) {
      map[concept_t, int] z = makeNodes(q);
-     str r = "digraph G {
-     ";
+     str r = "digraph <baseName(output)> {";
      r += "<for (x <- q) {><lab(z,x[0])>-\><lab(z, x[1])>;
      <}>";
      r+="}";

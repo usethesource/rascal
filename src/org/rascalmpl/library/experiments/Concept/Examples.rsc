@@ -1,8 +1,15 @@
 module experiments::Concept::Examples
+import experiments::Concept::Fca;
 import experiments::Concept::Types;
+import vis::Render; 
+import vis::Figure; 
 
-public property_table vb = readCxt(|file:///ufs/bertl/concept/tealady.cxt|);
+str base = "tealady";
+
+
+public property_table vb = readCxt(|file:///ufs/bertl/concept/<base>.cxt|);
  
-public rel[concept_t, concept_t] lat = createLattice(vb);
+Figure lat = createLatticeFigure(vb);
 
-public int q = writeDot(|file:///ufs/bertl/aap.dot|, lat);
+
+public void r() {render(box(lat, [height(600), width(600)]));}
