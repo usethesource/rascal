@@ -3,6 +3,7 @@ package org.rascalmpl.library.vis.graph.lattice;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -15,43 +16,47 @@ import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.PropertyManager;
 
 /**
-
+ * 
  * Lattice layout.
  * 
  * This layout is activated by by the property: hint("lattice").
  * 
  * 
- * @author paulk
+ * @author bertl
  * 
  */
 public class LatticeGraph extends Figure {
-	private final Double phi = 0.4*Math.PI;
+	// private final Double phi = 0.4 * Math.PI;
 	protected ArrayList<LatticeGraphNode> nodes;
 	protected ArrayList<LatticeGraphEdge> edges;
 	private HashMap<String, LatticeGraphNode> registered;
+	private LinkedList<LatticeGraphNode> nextLayer = new LinkedList<LatticeGraphNode>();
 	IEvaluatorContext ctx;
-	
-//	private static boolean debug = false;
+	ArrayList<LatticeGraphNode>[] layers;
+
+	// private static boolean debug = false;
 	private LatticeGraphNode topNode = null, bottomNode = null;
-	private HashSet<LatticeGraphNode> visit = new HashSet<LatticeGraphNode>();
-	
-	public LatticeGraph(FigurePApplet fpa, PropertyManager properties, IList nodes,
-			IList edges, IEvaluatorContext ctx) {
+	private HashMap<LatticeGraphNode, LatticeGraphNode> visit = new HashMap<LatticeGraphNode, LatticeGraphNode>();
+
+	public LatticeGraph(FigurePApplet fpa, PropertyManager properties,
+			IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		this.nodes = new ArrayList<LatticeGraphNode>();
 		this.ctx = ctx;
 		width = getWidthProperty();
 		height = getHeightProperty();
 
-		registered = new HashMap<String,LatticeGraphNode>();
-		for(IValue v : nodes){
+		registered = new HashMap<String, LatticeGraphNode>();
+		for (IValue v : nodes) {
 
 			IConstructor c = (IConstructor) v;
 			Figure ve = FigureFactory.make(fpa, c, properties, ctx);
 			String name = ve.getIdProperty();
 
-			if(name.length() == 0)
-				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, ctx.getCurrentAST(), ctx.getStackTrace());
+			if (name.length() == 0)
+				throw RuntimeExceptionFactory.figureException(
+						"Id property should be defined", v,
+						ctx.getCurrentAST(), ctx.getStackTrace());
 
 			LatticeGraphNode node = new LatticeGraphNode(name, ve);
 			this.nodes.add(node);
@@ -61,83 +66,57 @@ public class LatticeGraph extends Figure {
 		this.edges = new ArrayList<LatticeGraphEdge>();
 		for (IValue v : edges) {
 			IConstructor c = (IConstructor) v;
-			LatticeGraphEdge e = FigureFactory.makeLatticeGraphEdge(this, fpa, c, properties,
-					ctx);
+			LatticeGraphEdge e = FigureFactory.makeLatticeGraphEdge(this, fpa,
+					c, properties, ctx);
 			this.edges.add(e);
 			e.getFrom().addOut(e.getTo());
 			e.getTo().addIn(e.getFrom());
 		}
-		
-		if(!isLattice())
-			throw RuntimeExceptionFactory.figureException("Not a lattice", null, ctx.getCurrentAST(), ctx.getStackTrace());
+
+		if (!isLattice())
+			throw RuntimeExceptionFactory.figureException("Not a lattice",
+					null, ctx.getCurrentAST(), ctx.getStackTrace());
 
 		assignRank();
 	}
-	
-	public void register(String name, LatticeGraphNode nd){
+
+	public void register(String name, LatticeGraphNode nd) {
 		registered.put(name, nd);
 	}
 
 	public LatticeGraphNode getRegistered(String name) {
 		return registered.get(name);
 	}
-	
-	private void initialPlacement(){
-		
-	// TODO: Do placement for Lattice
-	}
+
 
 	@Override
-	public
-	void bbox() {
-		initialPlacement();
-
-		// Now scale (back or up) to the desired width x height frame
-		// TODO: this can be removed for latttices
-		float minx = Float.MAX_VALUE;
-		float maxx = Float.MIN_VALUE;
-		float miny = Float.MAX_VALUE;
-		float maxy = Float.MIN_VALUE;
-
-		for(LatticeGraphNode n : nodes){
-			float w2 = n.width()/2;
-			float h2 = n.height()/2;
-			if(n.x - w2 < minx)
-
-				minx = n.x - w2;
-			if (n.x + w2 > maxx)
-				maxx = n.x + w2;
-
-			if (n.y - h2 < miny)
-				miny = n.y - h2;
-			if (n.y + h2 > maxy)
-				maxy = n.y + h2;
-		}
-
-		float scalex = width / (maxx - minx);
-		float scaley = height / (maxy - miny);
-
-		for (LatticeGraphNode n : nodes) {
-			n.x = n.x - minx;
-			n.x *= scalex;
-			n.y = n.y - miny;
-			n.y *= scaley;
-		}
-	
-		// To y coordinate is assigned rank 
-		for (LatticeGraphNode n : nodes) {
-			n.x = (float) (n.x*Math.cos(phi)+n.y*Math.sin(phi));		
-			n.y = (n.rank*height)/bottomNode.rankTop;
+	public void bbox() {
+		int i = 0;
+		for (ArrayList<LatticeGraphNode> layer : layers) {
+			int s = layer.size();
+			// System.err.println("layer.size:"+s);
+			if (s > 0) {
+				float step = width / (s + 1);
+				// System.err.println("width:"+width);
+				// System.err.println("step:"+step);
+				float x = i % 2 == 0 ? step / 2 : (width - step / 2);
+				for (LatticeGraphNode n : layer) {
+					// n.x = (float) (n.x*Math.cos(phi)+n.y*Math.sin(phi));
+					n.x = x;
+					x += (i % 2 == 0 ? step : -step);
+					n.y = (n.rank * height) / layers.length;
+					// System.err.println("y:"+n.y);
+				}
+				i++;
+			}
 		}
 
 	}
 
 	@Override
-	public
-	void draw(float left, float top) {
+	public void draw(float left, float top) {
 		this.left = left;
 		this.top = top;
-
 		applyProperties();
 		for (LatticeGraphEdge e : edges)
 			e.draw(left, top);
@@ -186,41 +165,53 @@ public class LatticeGraph extends Figure {
 		return topNode != null && bottomNode != null;
 	}
 
-	private int assignRankTop(LatticeGraphNode node) {
-		visit.add(node);
-		int rank = node.rankTop;
-		for (LatticeGraphNode n : node.out)
-			if (!visit.contains(n)) {
-				n.rankTop = node.rankTop + 1;
-				int r = assignRankTop(n);
-				if (r > rank)
-					rank = r;
+	
+
+	private int assignRank(final boolean top) {
+		LatticeGraphNode first = top ? topNode : bottomNode;
+		nextLayer.add(first);
+		visit.put(first, first);
+		do {
+			LinkedList<LatticeGraphNode> newLayer = new LinkedList<LatticeGraphNode>();
+			while (!nextLayer.isEmpty()) {
+				LatticeGraphNode node = nextLayer.remove();
+				for (LatticeGraphNode n : (top ? node.out : node.in)) {
+					LatticeGraphNode oldNode = visit.put(n, n);
+					if (oldNode == null) {
+						newLayer.add(n);
+						if (top)
+							n.rankTop = node.rankTop + 1;
+						else
+							n.rankBottom = node.rankBottom + 1;
+					} else {
+						if (top)
+							oldNode.rankTop = node.rankTop + 1;
+						else
+							oldNode.rankBottom = node.rankBottom + 1;
+					}
+				}
 			}
-		return rank;
+			nextLayer = newLayer;
+		} while (!nextLayer.isEmpty());
+		return top ? bottomNode.rankTop : topNode.rankBottom;
 	}
 
-	private int assignRankBottom(LatticeGraphNode node) {
-		visit.add(node);
-		int rank = node.rankBottom;
-		for (LatticeGraphNode n : node.in) {
-			if (!visit.contains(n)) {
-				n.rankBottom = node.rankBottom + 1;
-				int r = assignRankBottom(n);
-				if (r > rank)
-					rank = r;
-			}
-		}
-		return rank;
-	}
-
+	@SuppressWarnings("unchecked")
 	private void assignRank() {
 		visit.clear();
-		int maxTop = assignRankTop(topNode);
+		int maxTop = assignRank(true);
+		// System.err.println("maxTop:"+maxTop);
 		visit.clear();
-		assignRankBottom(bottomNode);
+		int maxBottom = assignRank(false);
+		// System.err.println("maxBottom:"+maxBottom);
+		int len = maxBottom + maxTop + 1;
+		layers = new ArrayList[len];
+		for (int i = 0; i < len; i++)
+			layers[i] = new ArrayList<LatticeGraphNode>();
 		for (LatticeGraphNode n : nodes) {
 			// n.rank = n.rankTop - n.rankBottom + maxBottom;
 			n.rank = n.rankBottom - n.rankTop + maxTop;
+			layers[n.rank].add(n);
 		}
 	}
 
