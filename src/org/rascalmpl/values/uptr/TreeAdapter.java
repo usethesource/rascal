@@ -335,7 +335,7 @@ public class TreeAdapter {
 	public static void unparse(IConstructor tree, OutputStream stream)
 			throws IOException, FactTypeUseException {
 		try {
-			if (tree.getType() == Factory.Tree) {
+			if (tree.getType().isSubtypeOf(Factory.Tree)) { // == Factory.Tree) {
 				tree.accept(new Unparser(stream));
 			} else {
 				throw new ImplementationError("Can not unparse this "
