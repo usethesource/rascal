@@ -12,12 +12,12 @@ import Reflective;
 import String;
 
 import rascal::checker::ListUtils;
-import rascal::checker::Types;
-import rascal::checker::SubTypes;
-import rascal::checker::Signature;
-import rascal::checker::SymbolTable;
+import rascal::types::Types;
+import rascal::types::SubTypes;
+import rascal::types::TypeSignatures;
+import rascal::scoping::SymbolTable;
 import rascal::checker::TypeRules;
-import rascal::checker::Namespace;
+import rascal::scoping::ResolveNames;
 import rascal::checker::TreeUtils;
 
 import rascal::syntax::RascalRascal;

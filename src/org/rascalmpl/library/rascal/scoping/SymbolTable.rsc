@@ -1,10 +1,5 @@
 @bootstrapParser
-module rascal::checker::SymbolTable
-
-import rascal::checker::Types;
-import rascal::checker::Signature;
-import rascal::checker::SubTypes;
-import rascal::syntax::RascalRascal;
+module rascal::scoping::SymbolTable
 
 import List;
 import IO;
@@ -13,7 +8,24 @@ import Relation;
 import Map;
 import ParseTree;
 
-// Unique identifiers for scope items
+import rascal::types::Types;
+import rascal::types::TypeSignatures;
+import rascal::types::SubTypes;
+import rascal::syntax::RascalRascal;
+
+// Rascal Namespaces
+data Namespace =
+      Modules()
+    | Labels()
+    | FCVs() 
+    | Types()
+    | Annotations()
+    | Rules()
+    | Tags()
+    | Fields()
+;
+
+// Unique identifiers for scope layers and symbol table items
 alias STItemId = int;
 
 // Items representing identifiable parts of scope, including scope layers (modules, 
@@ -100,18 +112,6 @@ public bool isFunctionOrConstructorItem(STItem si) {
 // Symbol table items can have an associated location
 anno loc STItem@at;
 
-// The various namespaces available in Rascal.
-data Namespace =
-	  ModuleName()
-	| LabelName()
-	| FCVName()
-	| TypeName()
-	| AnnotationName()
-	| RuleName()
-	| TagName()
-	| TypeVarName()
-	| FieldName()
-;
 
 // TODO: Should be able to use STItemMap here, but if I try it doesn't work, something must be
 // wrong with the current alias expansion algorithm; this is the same with ItemLocationMap as well
@@ -357,22 +357,22 @@ public str prettyPrintSI(STItem si) {
 
 public set[STItemId] filterNamesForNamespace(SymbolTable symbolTable, set[STItemId] scopeItems, Namespace namespace) {
        switch(namespace) {
-          case ModuleName() : return { i | i <- scopeItems, ModuleItem(_,_) := symbolTable.scopeItemMap[i] };
+          case Modules() : return { i | i <- scopeItems, ModuleItem(_,_) := symbolTable.scopeItemMap[i] };
 	  
-	  case LabelName() : return { i | i <- scopeItems, LabelItem(_,_) := symbolTable.scopeItemMap[i] };
+	  case Labels() : return { i | i <- scopeItems, LabelItem(_,_) := symbolTable.scopeItemMap[i] };
 	         			       
-          case FCVName() : return { i | i <- scopeItems, si := symbolTable.scopeItemMap[i], FunctionItem(_,_,_,_,_,_) := si || VariableItem(_,_,_) := si || 
+          case FCVs() : return { i | i <- scopeItems, si := symbolTable.scopeItemMap[i], FunctionItem(_,_,_,_,_,_) := si || VariableItem(_,_,_) := si || 
 	       		   	        FormalParameterItem(_,_,_) := si || ConstructorItem(_,_,_,_) := si };
 					
-	  case TypeName() : return { i | i <- scopeItems, si := symbolTable.scopeItemMap[i], ADTItem(_,_,_) := si || AliasItem(_,_,_,_) := si };
+	  case Types() : return { i | i <- scopeItems, si := symbolTable.scopeItemMap[i], ADTItem(_,_,_) := si || AliasItem(_,_,_,_) := si };
 
-	  case TypeVarName() : return { i | i <- scopeItems, TypeVariableItem(_,_) := symbolTable.scopeItemMap[i] };
+	  case TypeVars() : return { i | i <- scopeItems, TypeVariableItem(_,_) := symbolTable.scopeItemMap[i] };
 			
-	  case AnnotationName() : return { i | i <- scopeItems, AnnotationItem(_,_,_,_) := symbolTable.scopeItemMap[i] };
+	  case Annotations() : return { i | i <- scopeItems, AnnotationItem(_,_,_,_) := symbolTable.scopeItemMap[i] };
 
-	  case RuleName() : return { i | i <- scopeItems, RuleItem(_,_) := symbolTable.scopeItemMap[i] };
+	  case Rules() : return { i | i <- scopeItems, RuleItem(_,_) := symbolTable.scopeItemMap[i] };
 
-	  case FieldName() : return { i | i <- scopeItems, FieldItem(_,_) := symbolTable.scopeItemMap[i] };
+	  case Fields() : return { i | i <- scopeItems, FieldItem(_,_) := symbolTable.scopeItemMap[i] };
 	}
 
 	throw "Unmatched namespace in filterNamesForNamespace: <namespace>";
@@ -394,13 +394,13 @@ public set[STItemId] getItemsForNameWBound(SymbolTable symbolTable, STItemId cur
 
 	// First, if we are looking up module names (and other names) split this off into two lookups, one for module names, one for
 	// the other names.
-	if (ModuleName() in containingNamespaces && size(containingNamespaces) > 1)
-		return getItemsForNameWBound(symbolTable, currentScopeId, x, { ModuleName() }, funBounded, modBounded) +
-				getItemsForNameWBound(symbolTable, currentScopeId, x, containingNamespaces - ModuleName(), funBounded, modBounded);
+	if (Modules() in containingNamespaces && size(containingNamespaces) > 1)
+		return getItemsForNameWBound(symbolTable, currentScopeId, x, { Modules() }, funBounded, modBounded) +
+				getItemsForNameWBound(symbolTable, currentScopeId, x, containingNamespaces - Modules(), funBounded, modBounded);
 
 	// Now, handle qualified names. Module names can be qualified names, and are stored as such, but other names aren't, so if we
 	// encounter a qualified name and are not looking up a module name change into the module scope and just lookup the simple name.
-	if (ModuleName() notin containingNamespaces && RCompoundName(nl) := x) {
+	if (Modules() notin containingNamespaces && RCompoundName(nl) := x) {
 		RName moduleName = (size(nl) == 2) ? RSimpleName(nl[0]) : RCompoundName(head(nl,size(nl)-1)); 
 		x = RSimpleName(nl[size(nl)-1]);
 		set[STItemId] mods = getModuleItemsForName(symbolTable, moduleName);
@@ -454,79 +454,79 @@ public set[STItemId] getItemsForNameWBound(SymbolTable symbolTable, STItemId cur
 // right names.
 //
 public set[STItemId] getItemsForName(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { FCVName() }, false, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { FCVs() }, false, false);
 }
 
 public set[STItemId] getItemsForNameFB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { FCVName() }, true, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { FCVs() }, true, false);
 }
 
 public set[STItemId] getItemsForNameMB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { FCVName() }, false, true);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { FCVs() }, false, true);
 }
 
 public set[STItemId] getAnnotationItemsForName(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { AnnotationName() }, false, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Annotations() }, false, false);
 }
 
 public set[STItemId] getAnnotationItemsForNameFB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { AnnotationName() }, true, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Annotations() }, true, false);
 }
 
 public set[STItemId] getAnnotationItemsForNameMB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { AnnotationName() }, false, true);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Annotations() }, false, true);
 }
 
 public set[STItemId] getRuleItemsForName(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { RuleName() }, false, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Rules() }, false, false);
 }
 
 public set[STItemId] getRuleItemsForNameFB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { RuleName() }, true, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Rules() }, true, false);
 }
 
 public set[STItemId] getRuleItemsForNameMB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { RuleName() }, false, true);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Rules() }, false, true);
 }
 
 public set[STItemId] getLabelItemsForName(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { LabelName() }, false, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Labels() }, false, false);
 }
 
 public set[STItemId] getLabelItemsForNameFB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { LabelName() }, true, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Labels() }, true, false);
 }
 
 public set[STItemId] getLabelItemsForNameMB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { LabelName() }, false, true);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Labels() }, false, true);
 }
 
 public set[STItemId] getTypeItemsForName(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeName() }, false, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Types() }, false, false);
 }
 
 public set[STItemId] getTypeItemsForNameFB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeName() }, true, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Types() }, true, false);
 }
 
 public set[STItemId] getTypeItemsForNameMB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeName() }, false, true);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { Types() }, false, true);
 }
 
 public set[STItemId] getTypeVarItemsForName(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeVarName() }, false, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeVars() }, false, false);
 }
 
 public set[STItemId] getTypeVarItemsForNameFB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeVarName() }, true, false);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeVars() }, true, false);
 }
 
 public set[STItemId] getTypeVarItemsForNameMB(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeVarName() }, false, true);
+	return getItemsForNameWBound(symbolTable, currentScopeId, x, { TypeVars() }, false, true);
 }
 
 public set[STItemId] getModuleItemsForName(SymbolTable symbolTable, RName x) {
-	return getItemsForNameWBound(symbolTable, symbolTable.topSTItemId, x, { ModuleName() }, false, false);
+	return getItemsForNameWBound(symbolTable, symbolTable.topSTItemId, x, { Modules() }, false, false);
 }
 
 // Get the function item that encloses a point in the code. This will navigate up to the function layer
@@ -1119,8 +1119,12 @@ public ResultTuple addSTItemUses(ResultTuple result, list[tuple[bool flagUse, lo
 	return <symbolTable, result.addedItems>;
 }
 
+//
 // TODO: Extend this to also account for type parameters
 // TODO: Add locations of conflicting types
+// TODO: Should change to just use the code to get the type for the item, more sure way of
+// making sure this is correct (or at least consistent)
+//
 public ResultTuple checkForDuplicateAliasesBounded(ResultTuple result, loc nloc, bool modBounded) {
 	SymbolTable symbolTable = result.symbolTable;
 	STItemId aliasId = result.addedItems[0];
@@ -1673,6 +1677,9 @@ public ConvertTupleN convertRascalTypeArg(SymbolTable symbolTable, TypeArg t) {
 //
 // TODO: Not sure if this is sufficient for parameterized ADTs, need
 // to verify that this works for them as well.
+//
+// TODO: Remember to account for subtyping; for instance, all ADTs are
+// reachable from node
 //
 public set[RType] reachableTypes(SymbolTable symbolTable, RType t) {
         set[RType] foundSet = {  };

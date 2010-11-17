@@ -1,12 +1,13 @@
 @bootstrapParser
-module rascal::checker::Signature
+module rascal::types::TypeSignatures
 
-import rascal::checker::Types;
-import rascal::syntax::RascalRascal;
 import List;
 import Set;
 import ParseTree;
 import Reflective;
+
+import rascal::types::Types;
+import rascal::syntax::RascalRascal;
 
 // Each signature item represents an item visible at the module level.
 data RSignatureItem =
