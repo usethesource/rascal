@@ -77,6 +77,11 @@ public class ProductionAdapter {
 		    && SymbolAdapter.isAnyList(getRhs(tree)); 
 	}
 	
+	public static boolean isOpt(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Production_Regular
+			&& SymbolAdapter.isOpt(getRhs(tree));
+	}
+	
 	public static boolean isDefault(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Production_Default;
 	}
@@ -91,7 +96,7 @@ public class ProductionAdapter {
 	}
 
 	public static boolean isLexical(IConstructor tree) {
-		return TreeAdapter.hasLexAttribute(tree);
+		return hasLexAttribute(tree);
 	}
  
 	public static String getCategory(IConstructor tree) {
@@ -115,6 +120,10 @@ public class ProductionAdapter {
 	public static boolean hasAttribute(IConstructor tree, IValue wanted) {
 		for (IValue attr : getAttributes(tree)) {
 			if (attr.isEqual(wanted)) {
+				return true;
+			}
+			// TODO: quick hack to work around the fact that attrs are sometimes "nodes" and sometimes constructors
+			if (attr.toString().equals(wanted.toString())) {
 				return true;
 			}
 		}

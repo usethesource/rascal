@@ -108,7 +108,8 @@ public class SymbolAdapter {
 	public static boolean isCfOptLayout(IConstructor tree) {
 		return false;
 	}
-	private static boolean isOpt(IConstructor tree) {
+	
+	public static boolean isOpt(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Opt;
 	}
 
