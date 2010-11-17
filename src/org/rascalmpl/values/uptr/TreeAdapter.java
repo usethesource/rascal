@@ -77,6 +77,11 @@ public class TreeAdapter {
 		return isAppl(tree) ? ProductionAdapter.isList(getProduction(tree))
 				: false;
 	}
+	
+	public static boolean isOpt(IConstructor tree) {
+		return isAppl(tree) ? ProductionAdapter.isOpt(getProduction(tree))
+				: false;
+	}
 
 	public static IList getArgs(IConstructor tree) {
 		if (isAppl(tree)) {
@@ -338,8 +343,8 @@ public class TreeAdapter {
 			if (tree.getType().isSubtypeOf(Factory.Tree)) { // == Factory.Tree) {
 				tree.accept(new Unparser(stream));
 			} else {
-				throw new ImplementationError("Can not unparse this "
-						+ tree.getType());
+				throw new ImplementationError("Can not unparse this " + tree + " (type = "
+						+ tree.getType() + ")") ;
 			}
 		} catch (VisitorException e) {
 			Throwable cause = e.getCause();
