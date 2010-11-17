@@ -75,6 +75,10 @@ public &T<:Tree java parse(type[&T<:Tree] start, str input);
 @javaClass{org.rascalmpl.library.ParseTree}
 public str java unparse(Tree tree);
 
+@doc{Implodes the given parse tree into an AST of the provided type.}
+@javaClass{org.rascalmpl.library.ParseTree}
+public &T<:node java implode(type[&T<:node] t, Tree tree);
+
 @doc{introduces a (error) message related to a certain sub-tree}
 public anno Message Tree@message;
 
