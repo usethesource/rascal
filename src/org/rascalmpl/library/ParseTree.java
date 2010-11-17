@@ -177,7 +177,9 @@ public class ParseTree {
 				// It find the first with suitable arity, so this is inaccurate
 				// if there are overloaded constructors with the same arity
 				if (length == candidate.getArity()) {
-					return values.constructor(candidate, implodeArgs(store, candidate, args));
+					ISourceLocation loc = TreeAdapter.getLocation(tree);
+					IConstructor ast = values.constructor(candidate, implodeArgs(store, candidate, args));
+					return ast.setAnnotation("location", loc);
 				}
 			}
 			
