@@ -2,8 +2,8 @@
 module rascal::checker::ParserHelper
 
 import IO;
-import rascal::syntax::RascalRascal;
 import ParseTree;
+import rascal::syntax::RascalRascal;
 
 public Tree parseType(str toParse) {
 	return parse(#Type,toParse);

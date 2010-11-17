@@ -1,14 +1,14 @@
 @bootstrapParser
 module rascal::checker::TypeRules
 
-import rascal::checker::SubTypes;
-import rascal::checker::Types;
-import rascal::checker::ListUtils;
-import rascal::checker::SymbolTable;
-
 import List;
 import Set;
 import IO;
+
+import rascal::checker::ListUtils;
+import rascal::types::Types;
+import rascal::types::SubTypes;
+import rascal::scoping::SymbolTable;
 
 import rascal::syntax::RascalRascal;
 

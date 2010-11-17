@@ -1,5 +1,5 @@
 @bootstrapParser
-module rascal::checker::Types
+module rascal::types::Types
 
 import List;
 import Set;
@@ -8,9 +8,9 @@ import ParseTree;
 import String;
 import Map;
 
+import rascal::checker::ListUtils;
 import rascal::syntax::RascalRascal;
 
-import rascal::checker::ListUtils;
 
 //
 // Abstract syntax for names 
@@ -81,7 +81,6 @@ data RType =
   	| RListType(RType elementType)
   	| RSetType(RType elementType)
   	| RBagType(RType elementType)
-	| RContainerType(RType elementType)
   	| RMapType(RNamedType domainType, RNamedType rangeType)
   	| RRelType(list[RNamedType] elementTypes) 
   	| RTupleType(list[RNamedType] elementTypes) 
@@ -125,6 +124,21 @@ data RTypeVar =
 	  RFreeTypeVar(RName varName)
 	| RBoundTypeVar(RName varName, RType varTypeBound)
 ;
+
+//
+// Annotation for adding types to trees
+//
+anno RType Tree@rtype; 
+
+//
+// Annotation for adding locations to types
+//
+anno loc RType@at;
+
+//
+// Annotation for adding error information to types
+//
+anno tuple[str msg, loc at] RType@errinfo;
 
 //
 // Convert basic types into their Rascal analogs. Add error information
@@ -363,7 +377,6 @@ public str prettyPrintType(RType t) {
 		case RLocType() : return "loc";
 		case RListType(et) : return "list[<prettyPrintType(et)>]";
 		case RSetType(et) : return "set[<prettyPrintType(et)>]";
-		case RContainerType(et) : return "container[<prettyPrintType(et)>]";
 		case RBagType(et) : return "bag[<prettyPrintType(et)>]";
 		case RMapType(dt,rt) : return "map[<prettyPrintNamedType(dt)>,<prettyPrintNamedType(rt)>]";
 		case RRelType(nts) : return "rel[<prettyPrintNamedTypeList(nts)>]";
@@ -409,25 +422,6 @@ public str prettyPrintTypeVar(RTypeVar tv) {
 		case RBoundTypeVar(vn,vtb) : return "&" + prettyPrintName(vn) + " \<: " + prettyPrintType(vtb);
 	}
 }
-
-//
-// Annotation for adding types to expressions
-//
-anno RType Tree@rtype; 
-
-//
-// Annotation for adding an alternate type to expressions
-anno RType Tree@fctype;
-
-//
-// Annotation for adding locations to types
-//
-anno loc RType@at;
-
-//
-// Annotation for adding error information to types
-//
-anno tuple[str msg, loc at] RType@errinfo;
 
 //
 // Routines for dealing with bool types
@@ -979,20 +973,6 @@ public bool isDateTimeType(RType t) {
 public RType makeDateTimeType() { return RDateTimeType(); }
 
 //
-// Routines for dealing with container types
-//
-public bool isContainerType(RType t) {
-	return RContainerType(_) := t;
-}
-
-public RType makeContainerType(RType itemType) { return RContainerType(itemType); }
-
-public RType getContainerElementType(RType t) {
-	if (RContainerType(et) := t) return et;
-	throw "Error: Cannot get container element type from type <prettyPrintType(t)>";
-}
-
-//
 // Routines for dealing with fail types
 //
 public bool isFailType(RType t) {
@@ -1036,18 +1016,18 @@ public bool hasDeferredTypes(RType rt) {
 //
 // Routines for dealing with overloaded types
 //
-public bool isOverloadedType(RType t) {
-	return ROverloadedType(_) := t;
-}
+//public bool isOverloadedType(RType t) {
+//	return ROverloadedType(_) := t;
+//}
 
-public set[ROverloadedType] getOverloadOptions(RType t) {
-	if (ROverloadedType(s) := t) return s;
-	throw "Error: Cannot get overloaded options from non-overloaded type <prettyPrintType(t)>";
-}
+//public set[ROverloadedType] getOverloadOptions(RType t) {
+//	if (ROverloadedType(s) := t) return s;
+//	throw "Error: Cannot get overloaded options from non-overloaded type <prettyPrintType(t)>";
+//}
 
-public RType makeOverloadedType(set[RType] options) {
-        return ROverloadedType({ ((o@at)?) ? ROverloadedTypeWithLoc(o,o@at) : ROverloadedType(o) | o <- options });
-}
+//public RType makeOverloadedType(set[RType] options) {
+//        return ROverloadedType({ ((o@at)?) ? ROverloadedTypeWithLoc(o,o@at) : ROverloadedType(o) | o <- options });
+//}
 
 //
 // Routines for dealing with varargs types
