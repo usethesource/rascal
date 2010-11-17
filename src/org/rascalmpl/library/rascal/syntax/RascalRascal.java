@@ -50,13 +50,13 @@ public class RascalRascal extends org.rascalmpl.parser.sgll.SGLL implements IPar
     private static final IntegerKeyedHashMap<IntegerList> _dontNest;
 	private static final java.util.HashMap<IConstructor, org.rascalmpl.ast.LanguageAction> _languageActions;
 	
-	private static void _putDontNest(IntegerKeyedHashMap<IntegerList> result, int i, int j) {
-    	IntegerList donts = result.get(i);
+	private static void _putDontNest(IntegerKeyedHashMap<IntegerList> result, int parentId, int childId) {
+    	IntegerList donts = result.get(childId);
     	if(donts == null){
     		donts = new IntegerList();
-    		result.put(i, donts);
+    		result.put(childId, donts);
     	}
-    	donts.add(j);
+    	donts.add(parentId);
     }
     
     protected static void _putResultStoreIdMapping(IntegerMap result, int parentId, int resultStoreId){
@@ -94,8 +94,8 @@ public class RascalRascal extends org.rascalmpl.parser.sgll.SGLL implements IPar
       return result;
     }
     
-    protected IntegerList getFilteredChildren(int parentId) {
-		return _dontNest.get(parentId);
+    protected IntegerList getFilteredParents(int childId) {
+		return _dontNest.get(childId);
 	}
     
     public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
