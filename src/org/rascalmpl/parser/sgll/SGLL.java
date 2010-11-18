@@ -48,10 +48,12 @@ public abstract class SGLL implements IGLL{
 	private char[] input;
 	private final PositionStore positionStore;
 	
-	private final ArrayList<AbstractStackNode> todoList;
+	//private final ArrayList<AbstractStackNode> todoList;
+	
+	private RotatingQueue<AbstractStackNode>[] todoLists;
 	
 	private final ArrayList<AbstractStackNode> stacksToExpand;
-	private final RotatingQueue<AbstractStackNode> stacksWithTerminalsToReduce;
+	private RotatingQueue<AbstractStackNode> stacksWithTerminalsToReduce;
 	private final DoubleRotatingQueue<AbstractStackNode, AbstractNode> stacksWithNonTerminalsToReduce;
 	
 	private final ArrayList<AbstractStackNode[]> lastExpects;
@@ -76,7 +78,7 @@ public abstract class SGLL implements IGLL{
 		
 		positionStore = new PositionStore();
 		
-		todoList = new ArrayList<AbstractStackNode>();
+		//todoList = new ArrayList<AbstractStackNode>();
 		
 		stacksToExpand = new ArrayList<AbstractStackNode>();
 		stacksWithTerminalsToReduce = new RotatingQueue<AbstractStackNode>();
@@ -422,8 +424,6 @@ public abstract class SGLL implements IGLL{
 		while(!stacksWithTerminalsToReduce.isEmpty()){
 			AbstractStackNode terminal = stacksWithTerminalsToReduce.getDirtyUnsafe();
 			reduceTerminal(terminal);
-
-			todoList.remove(terminal);
 		}
 		
 		// Reduce non-terminals.
@@ -432,23 +432,39 @@ public abstract class SGLL implements IGLL{
 		}
 	}
 	
-	private void findStacksToReduce(){
-		// Find the stacks that will progress the least.
-		int closestNextLocation = Integer.MAX_VALUE;
-		for(int i = todoList.size() - 1; i >= 0; --i){
-			AbstractStackNode node = todoList.get(i);
-			int nextLocation = node.getStartLocation() + node.getLength();
-			if(nextLocation < closestNextLocation){
-				stacksWithTerminalsToReduce.dirtyClear();
-				stacksWithTerminalsToReduce.put(node);
-				closestNextLocation = nextLocation;
-			}else if(nextLocation == closestNextLocation){
-				stacksWithTerminalsToReduce.put(node);
+	private boolean findFirstStackToReduce(){
+		for(int i = location; i < todoLists.length; ++i){
+			RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[i];
+			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
+				stacksWithTerminalsToReduce = terminalsTodo;
+				
+				previousLocation = location;
+				location = i;
+				return true;
 			}
 		}
+		return false;
+	}
+	
+	private boolean findStacksToReduce(){
+		RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[location];
+		if(!terminalsTodo.isEmpty()){
+			previousLocation = location;
+			return true;
+		}
 		
-		previousLocation = location;
-		location = closestNextLocation;
+		for(int i = location + 1; i < todoLists.length; ++i){
+			terminalsTodo = todoLists[i];
+			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
+				stacksWithTerminalsToReduce = terminalsTodo;
+				
+				previousLocation = location;
+				location = i;
+				todoLists[previousLocation] = null;
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private boolean shareListNode(int id, AbstractStackNode stack){
@@ -513,7 +529,15 @@ public abstract class SGLL implements IGLL{
 	
 	private void expandStack(AbstractStackNode stack){
 		if(stack.isMatchable()){
-			if((location + stack.getLength()) <= input.length) todoList.add(stack);
+			int endLocation = location + stack.getLength();
+			if(endLocation <= input.length){
+				RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[endLocation];
+				if(terminalsTodo == null){
+					terminalsTodo = new RotatingQueue<AbstractStackNode>();
+					todoLists[endLocation] = terminalsTodo;
+				}
+				terminalsTodo.put(stack);
+			}
 			return;
 		}
 		
@@ -601,6 +625,8 @@ public abstract class SGLL implements IGLL{
 		this.input = input;
 		positionStore.index(input);
 		
+		todoLists = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[input.length + 1];
+		
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		rootNode.initEdges();
@@ -608,16 +634,15 @@ public abstract class SGLL implements IGLL{
 		lookAheadChar = (input.length > 0) ? input[0] : 0;
 		expand();
 		
+		findFirstStackToReduce();
 		do{
-			findStacksToReduce();
-			
 			lookAheadChar = (location < input.length) ? input[location] : 0;
 			do{
 				reduce();
 				
 				expand();
 			}while(!stacksWithNonTerminalsToReduce.isEmpty());
-		}while(todoList.size() > 0);
+		}while(findStacksToReduce());
 		
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 		if(levelResultStoreMap != null){
