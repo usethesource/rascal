@@ -62,6 +62,10 @@ public class ParseTree {
 	}
 	
 	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing) {
+		while (type.isAliasType()) {
+			type = type.getAliased();
+		}
+		
 		if (TreeAdapter.isLexical(tree)) {
 			java.lang.String yield = TreeAdapter.yield(tree);
 			if (type.isIntegerType()) {
