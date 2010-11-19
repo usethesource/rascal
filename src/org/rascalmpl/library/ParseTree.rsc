@@ -148,7 +148,7 @@ reified ADT and the parse tree. Meanwhile, an AST is constructed as follows:
   
 - Lexicals are imploded to str, int, real, bool depending on the expected type in
   the ADT. To implode lexical into types other than str, the standard Java parse
-  functions Integer.parseInt and Double.parseDouble. Boolean lexicals should match
+  functions Integer.parseInt and Double.parseDouble are used. Boolean lexicals should match
   "true" or "false". NB: lexicals are imploded this way, even if they are ambiguous.
   
 
@@ -159,8 +159,8 @@ to production labels. Labels of production arguments do not have to match with l
  in ADT constructors.
 
 Finally, source location annotations are propagated as annotations on constructor ASTs. 
-To access them, the use is required to explicitly declare a location annotation on all
-ADTs used in implosion. In other words, for all ADT type T, add:
+To access them, the user is required to explicitly declare a location annotation on all
+ADTs used in implosion. In other words, for every ADT type T, add:
 
 anno loc T@location;
 
