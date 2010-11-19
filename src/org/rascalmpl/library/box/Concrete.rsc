@@ -6,7 +6,7 @@ import List;
 import String;
 import box::Box;
 import box::Box2Text;
-Symbol skip=\cf(\opt(\layout())) ;
+
 
 alias pairs = list[tuple[Symbol,Tree]] ;
 
@@ -107,9 +107,9 @@ bool isTerminal(Symbol s) {
      return ((\lit(_):=s))||(\char-class(_):=s);
      }
 
-str getName(Symbol s) {
-     if (\lit(str q):=s) return q;
-     return "";
+str getName(list[Symbol] b) {
+     list[str] r = [q| \lit(str q) <- b];
+     return "<for (x <- r) {><x><}>";
      }
 
 bool isTerminal(Symbol s,str c) {
@@ -122,7 +122,7 @@ bool isTerminal(Symbol s,str c) {
      
 bool isNonTerminal(Symbol s,str c) {
      // println(s);
-     if (\sort(str a):=s || \cf(\sort(str a)):=s) {
+     if (\sort(str a):=s) {
           // println("<a> <c>");
           if (a==c) return true;
           }
@@ -130,9 +130,10 @@ bool isNonTerminal(Symbol s,str c) {
      }
      
 public bool isScheme(list[Symbol] q,list[str] b) {
-     // println("<size(b)>==<(size(q)+1)/2>");
-     if (size(b)!=(size(q)+1)/2) return false;
-     list[tuple[Symbol,str]] r=[<q[2*i],b[i]>|int i<-[0..size(b)-1]];
+     // println("<size(b)>==<(size(q)+1)/2>"); 
+     list[Symbol] f = [p|Symbol p<-q, layouts(_)!:=p];
+     if (size(b)!=size(f)) return false;
+     list[tuple[Symbol,str]] r=[<f[i],b[i]>|int i<-[0..size(b)-1]];
      for (<Symbol s,str z><-r) {
           if (!isTerminal(s)) {
                if (z!="N"&&!isNonTerminal(s,z)) return false;
@@ -152,8 +153,9 @@ bool isBody(list[Symbol] q) {
      return isScheme(q,[startEndBlock[0],"N",startEndBlock[1]]);
      }
 
-public list[int] isBody(list[Tree] t,int idx) {
-     Tree g=t[idx*2];
+public list[int] isBody(list[Symbol] q, list[Tree] t,int idx) {
+     list[Tree] b = [t[i]|int i<-[0,1..size(t)-1], layouts(_)!:=q[i]];
+     Tree g=b[idx];
      return (isBody(g)&&userDefined(g)==NULL())?[idx]:[];
      }
 
@@ -165,24 +167,14 @@ public bool isBlock(Tree c) {
      return false;
      }
 
-public list[int] isBlock(list[Tree] t,int idx) {
-     Tree g=t[idx*2];
+public list[int] isBlock(list[Symbol] q, list[Tree] t,int idx) {
+     list[Tree] b = [t[i]|int i<-[0,1..size(t)-1], layouts(_)!:=q[i]];
      list[int] r =  (isBlock(g)&&userDefined(g)==NULL())?[idx]:[];
      return r;
      }
 
 public bool isBody(Tree c) {
      if (appl(prod(list[Symbol] s,_,Attributes att),_):=c) {
-          /*
-          if (size(s)>=1) {
-                c = getFirst(c);
-                 if (appl(prod(list[Symbol] s,_,Attributes att),_):=c) {
-                    // println("<s> <isBody(s)>" );
-                    if (isBody(s)) return true;
-                    }
-                }
-          r=isBody(s);
-          */
           return isBody(s);
           }
      return false;
@@ -193,21 +185,6 @@ str toString(Attributes att) {
           return (""|it+"_<a[i]>"|i<-[0..size(a)-1]);
           }
      return "<att>";
-     }
-
-Box toValue(Attributes att) {
-     if (\attrs(list[Attr] a):=att) {
-          list[value] vs=[v|\term(\box(value v))<-a];
-          if (size(vs)>0) {
-               Box r=readTextValueString(#Box,"<vs[0]>");
-               return r;
-               }
-          }
-     return NULL();
-     }
-
-Box boxArgs(pairs u,bool doIndent,int space) {
-     return walkThroughSymbols(u,false,doIndent,space);
      }
 
 public list[Tree] getA(Tree q) {
@@ -229,56 +206,52 @@ public Box evPt(Tree q) {
      return evPt(q,false);
      }
 
-str getSep(Tree q) {
-     switch (q) {
-          case appl ( \list(\cf(\iter-star-sep(_,Symbol sep))),_ ) : {
-                    return getName(sep);
-                    }
-          case appl ( \list(\cf(\iter-sep(_,Symbol sep))),_ ) : {
-                    return getName(sep);
-                    }
-          }
-     return "?";
-     }
-
 bool isLayout(Tree q) {
      if (appl(prod(_,Symbol s,_),_):=q) {
-          return s:=skip;
+          return layouts(_):=s;
           }
      return false;
      }
-
-bool isLit(Tree q) {
-     if (appl(prod(_,Symbol s,_),_):=q) return \lit(_):=s;
-     return false;
-     }
+     
+Box makeString(Symbol a, Tree t, Attributes att) {
+      Box b = NULL();
+      if (isString(a)) {
+               b=STRING(L("<t>"));
+               }
+      else if (/term(lex()):=att || /term(literal()):=att) {
+                    str s="<t>";
+                    if (endsWith(s,"\n")) s=replaceLast(s,"\n","");
+                    b=(isKeyword(a)?KW(L(s)):L(s));
+                }
+      return b;
+      }
 
 public Box evPt(Tree q,bool doIndent) {
      Box b=userDefined(q);
      if (b!=NULL()) return b;
      switch (q) {
-          case appl ( prod(list[Symbol] s,_,Attributes att),list[Tree] t ) : {
-                       pairs u=[<s[i],t[i]>|int i<-[0,1..(size(t)-1)]];
-                       return walkThroughSymbols(u,true,doIndent,-1);        
+          case appl ( prod(list[Symbol] s, Symbol r, Attributes att),list[Tree] t ) : {
+                       if (layouts(_):=r) return NULL();
+                       Box b = makeString(r, q, att);
+                       if (b!=NULL()) {
+                             // println("BINGO: <b>");
+                             return b;
+                             }
+                       return walkThroughSymbols(s, t,true,doIndent,-1);        
                     }
-          case appl ( \list(\cf(\iter-star-sep(Symbol s,Symbol sep))),list[Tree] t ) : {
-                    return HV(0,getIterSep(q));
+          case appl ( \regular(\iter-star-seps(Symbol s,list[Symbol] sep), Attributes att),list[Tree] t) : {
+                    return HV(0,getArgs(q));
                     }
-          case appl ( \list(\cf(\iter-sep(Symbol s,Symbol sep))),list[Tree] t ) : {
-                    return HV(0,getIterSep(q));
+          case appl ( \regular(\iter-seps(Symbol s, list[Symbol] sep), Attributes att),list[Tree] t) : {
+                    return HV(0,getArgs(q));
                     }
-          case appl ( \list(\cf(\iter-star(Symbol s))),list[Tree] t ) : {
-                    pairs u=[<s,t[i]>|int i<-[0,1..(size(t)-1)]];
-                    return boxArgs(u,doIndent,-1);
+          case appl ( \regular(\iter-star(Symbol s), Attributes att),list[Tree] t) : {
+                    // return HV(0,getArgs(q));
+                    return walkThroughSymbols([], t,false,doIndent,-1);
                     }
-          case appl ( \list(\cf(\iter(Symbol s))),list[Tree] t ) : {
-                    pairs u=[<s,t[i]>|int i<-[0,1..(size(t)-1)]];
-                    return boxArgs(u,doIndent,-1);
-                    }
-          case appl ( \list(\lex(\iter(\layout()))),list[Tree] t ) : {
-                    list[Box] g=[b|Tree z<-t,Box b:=evPt(z),b!=NULL()];
-                    Box r=isEmpty(g)?NULL():COMM(V(0,g));
-                    return r;
+          case appl ( \regular(\iter(Symbol s), Attributes att),list[Tree] t) : {
+                    // return HV(0,getArgs(q));
+                    return walkThroughSymbols([], t,false,doIndent,-1);
                     }
           }
      return NULL();
@@ -291,6 +264,7 @@ list[Box] addTree(list[Box] out,Tree t) {
      }
 
 Box defaultBox(Box b) {
+     if (b==NULL()) return NULL();
      if (H(list[Box] c):=b) {
           if (size(c)>0) return b;
           }
@@ -311,7 +285,7 @@ Box defaultBox(Box b) {
                                    }
                               else
                               return b;
-     return NULL();
+     // return NULL();
      }
 
 tuple[Box,Box] compactStyle(Box b) {
@@ -329,35 +303,26 @@ list[Tree] proj1(list[tuple[Symbol,Tree]] t) {
      return [q[1]|tuple[Symbol, Tree] q <- t];
      }
 
-Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
+
+
+Box walkThroughSymbols(list[Symbol] y, list[Tree] z,bool hv,bool doIndent,int space) {
      list[Box] out=[],collectList=[],compactList=[];
-     list[Symbol] y=proj0(u);
-     list[Tree] z=proj1(u);
      // println(y);
-     list[int] block = [2*q| int q <-isBlok(y,z)];
+     list[int] block = isEmpty(y)?[]:isBlok(y,z);
      // if (size(block)>0) println(block);
-     list[int] indent = [2*q| int q<-isIndent(y)];
-     list[segment] compact=[<2*q[0], 2*q[1]> | segment q<-isCompact(y)];
+     list[int] indent = isIndent(y);
+     list[segment] compact= isCompact(y);
      bool collect=false;
      segment q=isEmpty(compact)?<1000,1000>:head(compact);
      if (!isEmpty(compact)) compact=tail(compact);
      bool first=true;
-     for (int i<-[0,1..(size(u)-1)])
-     if (<Symbol a,Tree t>:=u[i]&&!(\char-class(_):=a)) {
-          Box b=NULL();
-          if (isString(a)) {
-               b=STRING(L("<t>"));
-               }
-          else if (\lex(\sort(_)):=a||\lit(_):=a) {
-                    str s="<t>";
-                    if (endsWith(s,"\n")) s=replaceLast(s,"\n","");
-                    b=(isKeyword(a)?KW(L(s)):L(s));
-                    }
-               else
-               b=defaultBox(evPt(t,(i in block)));
-          if (b!=NULL())
+     int i = 0;
+     // println(u);
+     for (Tree t <- z) {
+          Box b=defaultBox(evPt(t,(i in block)));
+          if (b!=NULL()) {
           if (i>=q[0]&&i<=q[1]) {
-               if (b!=NULL()) compactList+=b;
+               compactList+=b;
                if (i==q[1]) {
                     out+=H(0,compactList);
                     compactList=[];
@@ -402,7 +367,10 @@ Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
                           }
                       else out+=b;
                     }
+           // println("i=<i>");
+           i=i+1;
            }
+          }
      if (!isEmpty(collectList)) {
           out += I([V(collectList)]);
           }
@@ -420,35 +388,27 @@ Box walkThroughSymbols(pairs u,bool hv,bool doIndent,int space) {
 
 map[Tree,Box] aux=() ;
 
-public text toLatex(Tree a) {
+public Box toBox(Tree a) {
      Box q=NULL();
-     if (aux[a]?) q=aux[a]; else {
-          q=evPt(a);
+     if (aux[a]?) q=aux[a]; 
+     else {
+          q = evPt(a);
           println("End evPt");
           aux+=(a:q);
           }
-     return box2latex(q);
+      return q;
+      }
+
+public text toLatex(Tree a) {
+     return box2latex(toBox(a));
      }
      
 public text toHtml(Tree a) {
-     // println("toHtml Concrete");
-     Box q=NULL();
-     if (aux[a]?) q=aux[a]; else {
-          q=evPt(a);
-          println("End evPt");
-          aux+=(a:q);
-          }
-     return box2html(q);
+     return box2html(toBox(a));
      }
 
 public text toText(Tree a) {
-     Box q=NULL();
-     if (aux[a]?) q=aux[a]; else {
-          q=evPt(a);
-          println("End evPt");
-          aux+=(a:q);
-          }
-     return box2text(q);
+     return box2text(toBox(a));
      }
 
 public void concrete(Tree a) {
@@ -460,30 +420,14 @@ public void concrete(Tree a) {
      println(out);
      }
 
-public list[Box] getArgs(Tree g,bool filter) {
-     list[Tree] tl=getA(g);
-     list[Box] r=[evPt(t)|Tree t<-tl,(!filter||(!isLayout(t)&&!isLit(t)))];
-     return r;
-     }
-
 public list[Box] getArgs(Tree g) {
-     return getArgs(g,false);
-     }
-
-public list[Box] getIterSep(Tree g) {
-     list[Box] bs=getArgs(g,true);
-     if (isEmpty(bs)) return bs;
-     Box sep=L(getSep(g));
-     list[Box] ts=[head(bs)]+[H(0,[sep,b])|b<-tail(bs)];
-     return ts;
-     }
-
-public Box getArgsSep(Tree g) {
-     return HV(0,getIterSep(g));
+     list[Tree] tl=getA(g);
+     list[Box] r=[evPt(t)|Tree t<-tl];
+     return [b|Box b<-r, b!=NULL()];
      }
 
 public Box getConstructor(Tree g,str h1,str h2) {
-     list[Box] bs=getIterSep(g);
+     list[Box] bs=getArgs(g);
      Box r=HV(0,[L(h1)]+bs+L(h2));
      return r;
      }
