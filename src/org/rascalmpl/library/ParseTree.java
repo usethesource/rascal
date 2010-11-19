@@ -121,7 +121,7 @@ public class ParseTree {
 				else {
 					w.append(implodedArg);
 				}
-				// opts should have one argument
+				// opts should have one argument (if any at all)
 				break;
 			}
 			return w.done();
@@ -174,7 +174,7 @@ public class ParseTree {
 			}
 
 			for (Type candidate: store.lookupConstructor(type, constructorName)) {
-				// It find the first with suitable arity, so this is inaccurate
+				// It finds the first with suitable arity, so this is inaccurate
 				// if there are overloaded constructors with the same arity
 				if (length == candidate.getArity()) {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);

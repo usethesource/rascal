@@ -75,7 +75,90 @@ public &T<:Tree java parse(type[&T<:Tree] start, str input);
 @javaClass{org.rascalmpl.library.ParseTree}
 public str java unparse(Tree tree);
 
-@doc{Implodes the given parse tree into an AST of the provided type.}
+@doc{
+Parsetree Implosion
+===================
+
+This function implodes a parsetree by simulataneously traversing the 
+reified ADT and the parse tree. Meanwhile, an AST is constructed as follows:
+
+- Literals and layout nodes are skipped.
+
+- Regular */+ lists are imploded to list[]s or set[]s depending on what is 
+  expected in the ADT.
+
+- Ambiguities are imploded to set[]s.
+
+- If a tree's production has no label and a single AST (i.e. non-layout, non-literal) argument
+  (for instance, and injection), the tree node is skipped, and implosion continues 
+  with the lone argument. The same applies to bracket productions, even if they
+  are labeled.
+
+- If a tree's production has no label, but more than one argument, the tree is imploded 
+  to a tuple (provided this conforms to the ADT).
+  
+  Example
+  
+    syntax IDTYPE = Id ":" Type;
+    
+    syntax Decls = decls: "declare" \{IDTYPE ","\}* ";";
+    
+  Hence, Decls will be imploded as:
+    
+    data Decls = decls(list[tuple[str,Type]]);
+    
+  (assuming Id is a lexical non-terminal).   
+
+- Optionals are imploded to booleans if this is expected in the ADT.
+  This also works for optional literals, as shown in the following
+  example:
+  
+    syntax Formal = formal: "VAR"? \{Id ","\}+ ":" Type;
+  
+  The corresponding ADT could be:
+  
+    data Formal = formal(bool, list[str], Type);
+    
+
+- An optional is imploded to a list with zero or one argument, iff a list
+  type is expected.
+
+- If the argument of an optional tree has a production with no label, containing
+  a single list, then this list is spliced into the optional list.
+  
+  Example:
+  
+    syntax Tag = "[" \{Modifier ","\}* "]";
+    syntax Decl = decl: Tag? Signature Body;
+  
+  In this case, a Decl is imploded into the following ADT:
+  
+    data Decl = decl(list[Modifier], Signature, Body);  
+  
+- For trees with (cons-)labeled productions, the corresponding constructor
+  in the ADT corresponding to the non-terminal of the production is found in
+  order to make the AST.
+  
+  Typical example:
+  
+    syntax Exp = left add: Exp "+" Exp;
+  
+  Can be imploded into:
+    data Exp = add(Exp, Exp);
+  
+- Lexicals are imploded to str, int, real, bool depending on the expected type in
+  the ADT. To implode lexical into types other than str, the standard Java parse
+  functions Integer.parseInt and Double.parseDouble. Boolean lexicals should match
+  "true" or "false". NB: lexicals are imploded this way, even if they are ambiguous.
+  
+
+IllegalArgument is thrown if during implosion a tree is encountered that cannot be
+imploded to the expected type in the ADT. As explained above, this routine assumes the
+ADT type names correspond to syntax non-terminal names, and constructor names correspond 
+to production labels. Labels of production arguments do not have to match with labels
+ in ADT constructors.
+
+}
 @javaClass{org.rascalmpl.library.ParseTree}
 public &T<:node java implode(type[&T<:node] t, Tree tree);
 
