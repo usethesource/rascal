@@ -173,6 +173,14 @@ public list[&T] sort(list[&T] lst, bool (&T a, &T b) lessThanOrEqual)
   return sort(less, lessThanOrEqual) + pivot + sort(greater, lessThanOrEqual);
 }
 
+@doc{Join list of values into string separated by sep}
+public str intercalate(str sep, list[value] l) {
+  if (l == []) {
+     return "";
+  }
+  return ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
+}
+
 @doc{All but the first element of a list}
 @javaClass{org.rascalmpl.library.List}
 public list[&T] java tail(list[&T] lst);
