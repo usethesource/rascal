@@ -158,6 +158,12 @@ ADT type names correspond to syntax non-terminal names, and constructor names co
 to production labels. Labels of production arguments do not have to match with labels
  in ADT constructors.
 
+Finally, source location annotations are propagated as annotations on constructor ASTs. 
+To access them, the use is required to explicitly declare a location annotation on all
+ADTs used in implosion. In other words, for all ADT type T, add:
+
+anno loc T@location;
+
 }
 @javaClass{org.rascalmpl.library.ParseTree}
 public &T<:node java implode(type[&T<:node] t, Tree tree);
