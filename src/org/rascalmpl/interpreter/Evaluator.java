@@ -1187,7 +1187,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
 		interrupt = false;
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, new RascalRascal());
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
 		
 		IConstructor prefix = parser.preParseModule(location, data, actionExecutor);
 		Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
@@ -1201,7 +1201,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		ISet prods = env.getProductions();
 		if (prods.isEmpty() || !new String(data).contains("`")) {
-			return parser.parseModule(location, data, env, actionExecutor);
+			return parser.parseModule(location, data, actionExecutor);
 		}
 		
 		IGLL mp = needBootstrapParser(preModule) ? new MetaRascalRascal() : getRascalParser(env, location);
