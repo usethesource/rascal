@@ -42,6 +42,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public abstract class SGLL implements IGLL{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
 	
+	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
+	
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private URI inputURI;
@@ -49,6 +51,7 @@ public abstract class SGLL implements IGLL{
 	private final PositionStore positionStore;
 	
 	private RotatingQueue<AbstractStackNode>[] todoLists;
+	private RotatingQueue<AbstractStackNode>[] todoListsTemporaryHolder;
 	
 	private final ArrayList<AbstractStackNode> stacksToExpand;
 	private RotatingQueue<AbstractStackNode> stacksWithTerminalsToReduce;
@@ -77,7 +80,6 @@ public abstract class SGLL implements IGLL{
 		positionStore = new PositionStore();
 		
 		stacksToExpand = new ArrayList<AbstractStackNode>();
-		stacksWithTerminalsToReduce = new RotatingQueue<AbstractStackNode>();
 		stacksWithNonTerminalsToReduce = new DoubleRotatingQueue<AbstractStackNode, AbstractNode>();
 		
 		lastExpects = new ArrayList<AbstractStackNode[]>();
@@ -422,13 +424,16 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private boolean findFirstStackToReduce(){
-		for(int i = location; i < todoLists.length; ++i){
+		for(int i = 0; i < todoLists.length; ++i){
 			RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[i];
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
 				stacksWithTerminalsToReduce = terminalsTodo;
 				
 				previousLocation = location;
-				location = i;
+				location += i;
+				
+				System.arraycopy(todoLists, i, todoLists, 0, todoLists.length - i);
+				
 				return true;
 			}
 		}
@@ -436,20 +441,24 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private boolean findStacksToReduce(){
-		RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[location];
-		if(!terminalsTodo.isEmpty()){
+		if(!stacksWithTerminalsToReduce.isEmpty()){
 			previousLocation = location;
 			return true;
 		}
 		
-		for(int i = location + 1; i < todoLists.length; ++i){
-			terminalsTodo = todoLists[i];
+		for(int i = 1; i < todoLists.length; ++i){
+			RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[i];
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
 				stacksWithTerminalsToReduce = terminalsTodo;
 				
 				previousLocation = location;
-				location = i;
-				todoLists[previousLocation] = null;
+				location += i;
+				
+				// Cycle the queues.
+				System.arraycopy(todoLists, 0, todoListsTemporaryHolder, 0, i);
+				System.arraycopy(todoLists, i, todoLists, 0, todoLists.length - i);
+				System.arraycopy(todoListsTemporaryHolder, 0, todoLists, todoLists.length - i, i);
+				
 				return true;
 			}
 		}
@@ -518,7 +527,8 @@ public abstract class SGLL implements IGLL{
 	
 	private void expandStack(AbstractStackNode stack){
 		if(stack.isMatchable()){
-			int endLocation = location + stack.getLength();
+			int length = stack.getLength();
+			int endLocation = location + length;
 			if(endLocation <= input.length){
 				if(stack.isLocatable()) stack.setPositionStore(positionStore); // Ugly, but necessary.
 				
@@ -527,13 +537,21 @@ public abstract class SGLL implements IGLL{
 				// Filtering
 				if(stack.isReductionFiltered(input, endLocation)) return;
 				
-				RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[endLocation];
+				if(length >= todoLists.length){
+					RotatingQueue<AbstractStackNode>[] oldTodoLists = todoLists;
+					todoLists = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[length + 1];
+					todoListsTemporaryHolder = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[length + 1];
+					System.arraycopy(oldTodoLists, 0, todoLists, 0, oldTodoLists.length);
+				}
+				
+				RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[length];
 				if(terminalsTodo == null){
 					terminalsTodo = new RotatingQueue<AbstractStackNode>();
-					todoLists[endLocation] = terminalsTodo;
+					todoLists[length] = terminalsTodo;
 				}
 				terminalsTodo.put(stack);
 			}
+			
 			return;
 		}
 		
@@ -621,7 +639,8 @@ public abstract class SGLL implements IGLL{
 		this.input = input;
 		positionStore.index(input);
 		
-		todoLists = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[input.length + 1];
+		todoLists = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[DEFAULT_TODOLIST_CAPACITY];
+		todoListsTemporaryHolder = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[DEFAULT_TODOLIST_CAPACITY];
 		
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
