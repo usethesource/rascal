@@ -67,8 +67,8 @@ public abstract class SGLL implements IGLL{
 
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> resultStoreCache;
 	
-	private int previousLocation;
 	private int location;
+	private boolean shiftedLevel;
 	
 	protected char lookAheadChar;
 	
@@ -91,8 +91,8 @@ public abstract class SGLL implements IGLL{
 		
 		resultStoreCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>>();
 		
-		previousLocation = -1;
 		location = 0;
+		shiftedLevel = false;
 		
 		methodCache = new HashMap<String, Method>();
 	}
@@ -406,7 +406,7 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void reduce(){
-		if(previousLocation != location){ // Epsilon fix.
+		if(shiftedLevel){ // Epsilon fix.
 			sharedNextNodes.clear();
 			resultStoreCache.clear();
 		}
@@ -429,8 +429,8 @@ public abstract class SGLL implements IGLL{
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
 				stacksWithTerminalsToReduce = terminalsTodo;
 				
-				previousLocation = location;
 				location += i;
+				shiftedLevel = (location != 0);
 				
 				System.arraycopy(todoLists, i, todoLists, 0, todoLists.length - i);
 				
@@ -442,7 +442,7 @@ public abstract class SGLL implements IGLL{
 	
 	private boolean findStacksToReduce(){
 		if(!stacksWithTerminalsToReduce.isEmpty()){
-			previousLocation = location;
+			shiftedLevel = false;
 			return true;
 		}
 		
@@ -451,7 +451,7 @@ public abstract class SGLL implements IGLL{
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
 				stacksWithTerminalsToReduce = terminalsTodo;
 				
-				previousLocation = location;
+				shiftedLevel = true;
 				location += i;
 				
 				// Cycle the queues.
@@ -601,7 +601,7 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void expand(){
-		if(previousLocation != location){
+		if(shiftedLevel){
 			cachedEdgesForExpect.clear();
 		}
 		while(stacksToExpand.size() > 0){
