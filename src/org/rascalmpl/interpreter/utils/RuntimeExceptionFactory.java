@@ -55,7 +55,8 @@ public class RuntimeExceptionFactory {
 
 	public static Type Java = TF.constructor(TS, Exception, "Java", TF.stringType(), "message");
 	public static Type Subversion = TF.constructor(TS, Exception, "Subversion", TF.stringType(), "message");
-	
+	public static Type JavaBytecodeError = TF.constructor(TS, Exception, "JavaBytecodeError", TF.stringType(), "message");
+
 	public static Type InvalidUseOfDate = TF.constructor(TS, Exception, "InvalidUseOfDate", TF.dateTimeType(), "msg");
 	public static Type InvalidUseOfTime = TF.constructor(TS, Exception, "InvalidUseOfTime", TF.dateTimeType(), "msg");
 	public static Type InvalidUseOfDateTime = TF.constructor(TS, Exception, "InvalidUseOfDateTime", TF.dateTimeType(), "msg");
@@ -166,6 +167,10 @@ public class RuntimeExceptionFactory {
 		return new Throw(Subversion.make(VF, VF.string(message)), ast, trace);
 	}
 	
+	public static Throw javaBytecodeError(String message, AbstractAST ast, String trace) {
+		return new Throw(JavaBytecodeError.make(VF, VF.string(message)), ast, trace);
+	}
+
 	public static Throw invalidUseOfDateException(String message, AbstractAST ast, String trace) {
 		return new Throw(InvalidUseOfDate.make(VF, VF.string(message)), ast, trace);
 	}
