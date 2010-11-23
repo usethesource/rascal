@@ -48,8 +48,6 @@ public abstract class SGLL implements IGLL{
 	private char[] input;
 	private final PositionStore positionStore;
 	
-	//private final ArrayList<AbstractStackNode> todoList;
-	
 	private RotatingQueue<AbstractStackNode>[] todoLists;
 	
 	private final ArrayList<AbstractStackNode> stacksToExpand;
@@ -77,8 +75,6 @@ public abstract class SGLL implements IGLL{
 		super();
 		
 		positionStore = new PositionStore();
-		
-		//todoList = new ArrayList<AbstractStackNode>();
 		
 		stacksToExpand = new ArrayList<AbstractStackNode>();
 		stacksWithTerminalsToReduce = new RotatingQueue<AbstractStackNode>();
@@ -397,13 +393,6 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void reduceTerminal(AbstractStackNode terminal){
-		if(terminal.isLocatable()) terminal.setPositionStore(positionStore); // Ugly, but necessary.
-		
-		if(!terminal.match(inputURI, input)) return;
-		
-		// Filtering
-		if(terminal.isReductionFiltered(input, location)) return;
-		
 		move(terminal, terminal.getResult());
 	}
 	
@@ -531,6 +520,13 @@ public abstract class SGLL implements IGLL{
 		if(stack.isMatchable()){
 			int endLocation = location + stack.getLength();
 			if(endLocation <= input.length){
+				if(stack.isLocatable()) stack.setPositionStore(positionStore); // Ugly, but necessary.
+				
+				if(!stack.match(inputURI, input)) return;
+				
+				// Filtering
+				if(stack.isReductionFiltered(input, endLocation)) return;
+				
 				RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[endLocation];
 				if(terminalsTodo == null){
 					terminalsTodo = new RotatingQueue<AbstractStackNode>();
