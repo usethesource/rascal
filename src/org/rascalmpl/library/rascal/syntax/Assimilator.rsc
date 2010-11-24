@@ -21,7 +21,7 @@ bool isNonterminal(Symbol x) {
        && \char-class(_) !:= x 
        && \layouts(_) !:= x
        && \start(_) !:= x
-       && \parametrized-sort(_,[\parameter(_),_*]) !:= x;
+       && \parameterized-sort(_,[\parameter(_),_*]) !:= x;
 }
   
 @doc{
