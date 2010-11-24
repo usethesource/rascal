@@ -154,37 +154,38 @@ public class FunctionType extends ExternalType {
 	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
 //		super.match(matched, bindings); match calls isSubTypeOf which calls match, watch out for infinite recursion
-		// Fix for cases where we have aliases to function types, aliases to aliases to function types, etc
-		while (matched.isAliasType()) matched = matched.getAliased();
-
 		if (matched.isVoidType()) {
 			returnType.match(matched, bindings);
-		}
-		else if (matched instanceof OverloadedFunctionType) {
-			OverloadedFunctionType of = (OverloadedFunctionType) matched;
-			// at least one needs to match (also at most one can match)
-			FactTypeUseException ex = null;
-			
-			for (Type f : of.getAlternatives()) {
-				try {
-					this.match(f, bindings);
-					return;
+		} else {
+			// Fix for cases where we have aliases to function types, aliases to aliases to function types, etc
+			while (matched.isAliasType()) matched = matched.getAliased();
+	
+			if (matched instanceof OverloadedFunctionType) {
+				OverloadedFunctionType of = (OverloadedFunctionType) matched;
+				// at least one needs to match (also at most one can match)
+				FactTypeUseException ex = null;
+				
+				for (Type f : of.getAlternatives()) {
+					try {
+						this.match(f, bindings);
+						return;
+					}
+					catch (FactMatchException e) {
+						ex = e;
+					}
 				}
-				catch (FactMatchException e) {
-					ex = e;
+				
+				if (ex != null) {
+					throw ex;
 				}
 			}
-			
-			if (ex != null) {
-				throw ex;
+			else if (matched instanceof FunctionType) {
+				argumentTypes.match(((FunctionType) matched).getArgumentTypes(), bindings);
+				returnType.match(((FunctionType) matched).getReturnType(), bindings);
 			}
-		}
-		else if (matched instanceof FunctionType) {
-			argumentTypes.match(((FunctionType) matched).getArgumentTypes(), bindings);
-			returnType.match(((FunctionType) matched).getReturnType(), bindings);
-		}
-		else {
-			throw new FactMatchException(matched, this);
+			else {
+				throw new FactMatchException(matched, this);
+			}
 		}
 	}
 }
