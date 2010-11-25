@@ -21,13 +21,11 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -101,7 +99,7 @@ public class SerializeClass {
 		classNode.version = _javaMinorVersions.get(minorVersion);
 		classNode.access = ((IInteger)c.get(1)).intValue();
 		classNode.name = ((IString)c.get(2)).getValue();
-		classNode.signature = ((IString)c.get(3)).getValue();
+		classNode.signature = emptyIsNull(((IString)c.get(3)).getValue());
 		classNode.superName = ((IString)c.get(4)).getValue();
 
 		ArrayList<String> interfaces = new ArrayList<String>();
@@ -110,45 +108,27 @@ public class SerializeClass {
 		}
 		classNode.interfaces = interfaces;
 		
-		classNode.sourceFile = ((IString)c.get(6)).getValue();
-		classNode.sourceDebug = ((IString)c.get(7)).getValue();
-		classNode.outerClass = ((IString)c.get(8)).getValue();
-		classNode.outerMethod = ((IString)c.get(9)).getValue();
-		classNode.outerMethodDesc = ((IString)c.get(10)).getValue();
+		classNode.sourceFile = emptyIsNull(((IString)c.get(6)).getValue());
+		classNode.sourceDebug = emptyIsNull(((IString)c.get(7)).getValue());
+		classNode.outerClass = emptyIsNull(((IString)c.get(8)).getValue());
+		classNode.outerMethod = emptyIsNull(((IString)c.get(9)).getValue());
+		classNode.outerMethodDesc = emptyIsNull(((IString)c.get(10)).getValue());
 		
-		classNode.visibleAnnotations = buildAnnotations(((IList)c.get(11)));
-		classNode.invisibleAnnotations = buildAnnotations(((IList)c.get(12)));
+		classNode.innerClasses = buildInnerClasses(((IList)c.get(11)));
 		
-		classNode.innerClasses = buildInnerClasses(((IList)c.get(13)));
+		classNode.fields = buildFields(((IList)c.get(12)));
 		
-		classNode.fields = buildFields(((IList)c.get(14)));
-		
-		classNode.methods = buildMethods(((IList)c.get(15)));
+		classNode.methods = buildMethods(((IList)c.get(13)));
 		
 		return classNode;
-	}
-
-	@SuppressWarnings("unchecked")
-	private static List<AnnotationNode> buildAnnotations(IList iList) {
-		ArrayList<AnnotationNode> al = new ArrayList<AnnotationNode>();
-		for (IValue v : iList) {
-			AnnotationNode a = new AnnotationNode(((IString)((IConstructor)v).get(0)).getValue());
-			for (IValue w : ((IList)((IConstructor)v).get(1))) {
-				for (IValue x : ((ISet)w)) {
-					a.values.add(x);
-				}
-			}
-			al.add(a);
-		}
-		return al;
 	}
 
 	private static List<InnerClassNode> buildInnerClasses(IList iList) {
 		ArrayList<InnerClassNode> al = new ArrayList<InnerClassNode>();
 		for (IValue v : iList) {
 			al.add(new InnerClassNode(((IString)((IConstructor)v).get(0)).getValue(),
-									  ((IString)((IConstructor)v).get(1)).getValue(),
-									  ((IString)((IConstructor)v).get(2)).getValue(),
+									  emptyIsNull(((IString)((IConstructor)v).get(1)).getValue()),
+									  emptyIsNull(((IString)((IConstructor)v).get(2)).getValue()),
 									  ((IInteger)((IConstructor)v).get(3)).intValue()));
 		}
 		return al;
@@ -175,7 +155,7 @@ public class SerializeClass {
 			al.add(new FieldNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 								 ((IString)((IConstructor)v).get(1)).getValue(),
 								 ((IString)((IConstructor)v).get(2)).getValue(),
-								 ((IString)((IConstructor)v).get(3)).getValue(),
+								 emptyIsNull(((IString)((IConstructor)v).get(3)).getValue()),
 								 initialValue));
 		}
 		return al;
@@ -192,14 +172,12 @@ public class SerializeClass {
 			MethodNode mn = new MethodNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 										   ((IString)((IConstructor)v).get(1)).getValue(),
 										   ((IString)((IConstructor)v).get(2)).getValue(),
-										   ((IString)((IConstructor)v).get(3)).getValue(),
+										   emptyIsNull(((IString)((IConstructor)v).get(3)).getValue()),
 										   ea);
 			
-			mn.visibleAnnotations = buildAnnotations((IList)((IConstructor)v).get(5));
-			mn.invisibleAnnotations = buildAnnotations((IList)((IConstructor)v).get(6));
-			mn.instructions = buildInstructions((IList)((IConstructor)v).get(7));
-			mn.tryCatchBlocks = buildTryCatchBlocks((IList)((IConstructor)v).get(8));
-			mn.localVariables = buildLocalVariables((IList)((IConstructor)v).get(9));
+			mn.instructions = buildInstructions((IList)((IConstructor)v).get(5));
+			mn.tryCatchBlocks = buildTryCatchBlocks((IList)((IConstructor)v).get(6));
+			mn.localVariables = buildLocalVariables((IList)((IConstructor)v).get(7));
 		}
 		return ml;
 	}
@@ -284,10 +262,14 @@ public class SerializeClass {
 	private static List<TryCatchBlockNode> buildTryCatchBlocks(IList iList) {
 		ArrayList<TryCatchBlockNode> al = new ArrayList<TryCatchBlockNode>();
 		for (IValue v : iList) {
+			String type = null;
+			if (iList.length() > 3) {
+				type = ((IString)((IConstructor)v).get(3)).getValue();
+			}
 			al.add(new TryCatchBlockNode(getLabel(((IInteger)((IConstructor)v).get(0)).intValue()),
 										 getLabel(((IInteger)((IConstructor)v).get(1)).intValue()),
 										 getLabel(((IInteger)((IConstructor)v).get(2)).intValue()),
-										 ((IString)((IConstructor)v).get(3)).getValue()));
+										 type));
 		}
 		return al;
 	}
@@ -304,12 +286,20 @@ public class SerializeClass {
 		for (IValue v : iList) {
 			al.add(new LocalVariableNode(((IString)((IConstructor)v).get(0)).getValue(),
 										 ((IString)((IConstructor)v).get(1)).getValue(),
-										 ((IString)((IConstructor)v).get(2)).getValue(),
+										 emptyIsNull(((IString)((IConstructor)v).get(2)).getValue()),
 										 getLabel(((IInteger)((IConstructor)v).get(3)).intValue()),
 										 getLabel(((IInteger)((IConstructor)v).get(4)).intValue()),
 										 ((IInteger)((IConstructor)v).get(5)).intValue()));
 		}
 		return al;
+	}
+	
+	private static String emptyIsNull(String s) {
+		if (s == "") {
+			return null;
+		} else {
+			return s;
+		}
 	}
 
 }
