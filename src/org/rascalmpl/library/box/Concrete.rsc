@@ -132,6 +132,7 @@ bool isNonTerminal(Symbol s,str c) {
 public bool isScheme(list[Symbol] q,list[str] b) {
      // println("<size(b)>==<(size(q)+1)/2>"); 
      list[Symbol] f = [p|Symbol p<-q, layouts(_)!:=p];
+     // println("b=<b>  f=<f>");
      if (size(b)!=size(f)) return false;
      list[tuple[Symbol,str]] r=[<f[i],b[i]>|int i<-[0..size(b)-1]];
      for (<Symbol s,str z><-r) {
@@ -229,9 +230,12 @@ Box makeString(Symbol a, Tree t, Attributes att) {
 public Box evPt(Tree q,bool doIndent) {
      Box b=userDefined(q);
      if (b!=NULL()) return b;
+     // rawPrintln(q);
      switch (q) {
-          case appl ( prod(list[Symbol] s, Symbol r, Attributes att),list[Tree] t ) : {
-                       if (layouts(_):=r) return NULL();
+          case appl ( prod(list[Symbol] s, Symbol r, Attributes att),list[Tree] t ) : {  
+                       // println(q);
+                       if (layouts(_):=r) return COMM(L(""));
+                       // println("r=<r>");
                        Box b = makeString(r, q, att);
                        if (b!=NULL()) {
                              // println("BINGO: <b>");
@@ -250,6 +254,10 @@ public Box evPt(Tree q,bool doIndent) {
                     return walkThroughSymbols([], t,false,doIndent,-1);
                     }
           case appl ( \regular(\iter(Symbol s), Attributes att),list[Tree] t) : {
+                    // return HV(0,getArgs(q));
+                    return walkThroughSymbols([], t,false,doIndent,-1);
+                    }
+          case appl (\regular(_, _),list[Tree] t) : {
                     // return HV(0,getArgs(q));
                     return walkThroughSymbols([], t,false,doIndent,-1);
                     }
@@ -285,7 +293,7 @@ Box defaultBox(Box b) {
                                    }
                               else
                               return b;
-     // return NULL();
+     return NULL();  //Problem with counting LAYOUT must be added
      }
 
 tuple[Box,Box] compactStyle(Box b) {
@@ -317,10 +325,9 @@ Box walkThroughSymbols(list[Symbol] y, list[Tree] z,bool hv,bool doIndent,int sp
      if (!isEmpty(compact)) compact=tail(compact);
      bool first=true;
      int i = 0;
-     // println(u);
      for (Tree t <- z) {
           Box b=defaultBox(evPt(t,(i in block)));
-          if (b!=NULL()) {
+          if (COMM(_)!:=b) {
           if (i>=q[0]&&i<=q[1]) {
                compactList+=b;
                if (i==q[1]) {
