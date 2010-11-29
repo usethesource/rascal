@@ -162,7 +162,7 @@ public abstract class SGLL implements IGLL{
 		if(alternative != null){
 			if(alternative.isEndNode()){
 				if(result.isEmpty() && !node.isMatchable() && !next.isMatchable()){
-					if(alternative.getId() != next.getId()){ // List cycle fix.
+					if(alternative.getId() != node.getId() && !(alternative.isSeparator() || node.isSeparator())){ // (Separated) list cycle fix.
 						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
 						if(resultStore != null){
@@ -406,11 +406,6 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void reduce(){
-		if(shiftedLevel){ // Epsilon fix.
-			sharedNextNodes.clear();
-			resultStoreCache.clear();
-		}
-		
 		// Reduce terminals.
 		while(!stacksWithTerminalsToReduce.isEmpty()){
 			AbstractStackNode terminal = stacksWithTerminalsToReduce.getDirtyUnsafe();
@@ -601,9 +596,6 @@ public abstract class SGLL implements IGLL{
 	}
 	
 	private void expand(){
-		if(shiftedLevel){
-			cachedEdgesForExpect.clear();
-		}
 		while(stacksToExpand.size() > 0){
 			lastExpects.dirtyClear();
 			expandStack(stacksToExpand.remove(stacksToExpand.size() - 1));
@@ -653,6 +645,12 @@ public abstract class SGLL implements IGLL{
 		do{
 			lookAheadChar = (location < input.length) ? input[location] : 0;
 			do{
+				if(shiftedLevel){ // Nullable fix.
+					sharedNextNodes.clear();
+					resultStoreCache.clear();
+					cachedEdgesForExpect.clear();
+				}
+				
 				reduce();
 				
 				expand();
