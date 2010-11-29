@@ -34,6 +34,16 @@ module experiments::JVMBytecode::Opcodes
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+    // versions
+
+    public int V1_1 = 196653;
+    public int V1_2 = 46;
+    public int V1_3 = 47;
+    public int V1_4 = 48;
+    public int V1_5 = 49;
+    public int V1_6 = 50;
+    public int V1_7 = 51;
+
     // access flags
 
     public int ACC_PUBLIC = 0x0001; // class, field, method

@@ -8,18 +8,17 @@ module experiments::JVMBytecode::SerializeClass
  * - Deserialize
 */
 
-rule expandClass class(Version version, int access, str name, str signature, str superName, list[str] interfaces,
+rule expandClass class(int version, int access, str name, str signature, str superName, list[str] interfaces,
 				   list[InnerClass] innerClasses, list[Field] fields, list[Method] methods) =>
 				 class(version, access, name, signature, superName, interfaces, "", "", "", "", "",
 				   innerClasses, fields, methods);
 rule expandInnerClass innerClass(str name, int access) => innerClass(name, "", "", access);
 
-data Class = class(Version version, int access, str name, str signature, str superName, list[str] interfaces,
+data Class = class(int version, int access, str name, str signature, str superName, list[str] interfaces,
 				   str sourceFile, str sourceDebug, str outerClass, str outerMethod, str outerMethodDescription,
 				   list[InnerClass] innerClasses, list[Field] fields, list[Method] methods)
-		   | class(Version version, int access, str name, str signature, str superName, list[str] interfaces,
+		   | class(int version, int access, str name, str signature, str superName, list[str] interfaces,
 				   list[InnerClass] innerClasses, list[Field] fields, list[Method] methods);
-data Version = version(int major, int minor);
 data InnerClass = innerClass(str name, str outerName, str innerName, int access)
 				| innerClass(str name, int access);
 data Field = field(int access, str name, str description, str signature, value \value)
@@ -27,7 +26,7 @@ data Field = field(int access, str name, str description, str signature, value \
 data Method = method(int access, str name, str description, str signature, list[str] exceptions,
 					 list[Instruction] instructions, list[TryCatchBlock] tryCatchBlocks,
 					 list[LocalVariable] localVariables);
-data Instruction = field(int opcode, str owner, str name, str description)
+data Instruction = fieldRef(int opcode, str owner, str name, str description)
 				 | increment(int index, int amount)
 				 | instruction(int opcode)
 				 | integer(int opcode, int operand)
@@ -35,11 +34,11 @@ data Instruction = field(int opcode, str owner, str name, str description)
 				 | label(int index)
 				 | lineNumber(int line, int labelIndex)
 				 | localVariable(int opcode, int index)
-				 | loadConstantString(str \value)
-				 | loadConstantInteger(int \value)
-				 | loadConstantLong(int \value)
-				 | loadConstantFloat(real \value)
-				 | loadConstantDouble(real \value)
+				 | loadConstantString(str stringValue)
+				 | loadConstantInteger(int integerValue)
+				 | loadConstantLong(int longValue)
+				 | loadConstantFloat(real floatValue)
+				 | loadConstantDouble(real doubleValue)
 				 | lookupSwitch(int defaultLabelIndex, list[int] keys, list[int] cases)
 				 | method(int opcode, str owner, str name, str description)
 				 | multiANewArray(str description, int dimensions)
