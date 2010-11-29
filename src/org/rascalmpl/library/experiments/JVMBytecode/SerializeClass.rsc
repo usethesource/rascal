@@ -47,7 +47,7 @@ data Instruction = field(int opcode, str owner, str name, str description)
 				 | \type(int opcode, str description);
 data TryCatchBlock = tryCatchBlock(int startLabelIndex, int endLabelIndex, int handlerLabelIndex, str \type)
 				   | finallyBlock(int startLabelIndex, int endLabelIndex, int handlerLabelIndex);
-data LocalVariable = localVariableDeclaration(str name, str description, str signature, int startLabelIndex, int endLabelIndex, int index);
+data LocalVariable = localVariable(str name, str description, str signature, int startLabelIndex, int endLabelIndex, int index);
 
 @javaClass{org.rascalmpl.library.experiments.JVMBytecode.SerializeClass}
 public void java serialize(Class class, loc path)
