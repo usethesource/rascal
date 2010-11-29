@@ -1,13 +1,6 @@
 package org.rascalmpl.library.experiments.JVMBytecode;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.V1_1;
-import static org.objectweb.asm.Opcodes.V1_2;
-import static org.objectweb.asm.Opcodes.V1_3;
-import static org.objectweb.asm.Opcodes.V1_4;
-import static org.objectweb.asm.Opcodes.V1_5;
-import static org.objectweb.asm.Opcodes.V1_6;
-import static org.objectweb.asm.Opcodes.V1_7;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,19 +45,9 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SerializeClass {
 	
-	private final static HashMap<Integer, Integer> _javaMinorVersions;
 	private final static HashMap<Integer, LabelNode> _labels;
 	
 	static {
-		_javaMinorVersions = new HashMap<Integer, Integer>();
-		_javaMinorVersions.put(1, V1_1);
-		_javaMinorVersions.put(2, V1_2);
-		_javaMinorVersions.put(3, V1_3);
-		_javaMinorVersions.put(4, V1_4);
-		_javaMinorVersions.put(5, V1_5);
-		_javaMinorVersions.put(6, V1_6);
-		_javaMinorVersions.put(7, V1_7);
-		
 		_labels = new HashMap<Integer, LabelNode>();
 	}
 
@@ -91,12 +74,7 @@ public class SerializeClass {
 	private static ClassNode buildClass(IConstructor c) {
 		ClassNode classNode = new ClassNode();
 
-		int majorVersion = ((IInteger)((IConstructor)c.get(0)).get(0)).intValue();
-		int minorVersion = ((IInteger)((IConstructor)c.get(0)).get(1)).intValue();
-		if (majorVersion != 1 || !_javaMinorVersions.containsKey(minorVersion)) {
-			RuntimeExceptionFactory.javaBytecodeError("Only supported versions are 1.1 to 1.7.", null, null);
-		}
-		classNode.version = _javaMinorVersions.get(minorVersion);
+		classNode.version = ((IInteger)c.get(0)).intValue();
 		classNode.access = ((IInteger)c.get(1)).intValue();
 		classNode.name = ((IString)c.get(2)).getValue();
 		classNode.signature = emptyIsNull(((IString)c.get(3)).getValue());
@@ -139,16 +117,16 @@ public class SerializeClass {
 		for (IValue v : iList) {
 			String desc = ((IString)((IConstructor)v).get(2)).getValue();
 			Object initialValue = null;
-			if (iList.length() > 4) {
-				if (desc == "I") {
+			if (((IConstructor)v).arity() > 4) {
+				if (desc.equals("I")) {
 					initialValue = new Integer(((IInteger)((IConstructor)v).get(4)).intValue());
-				} else if (desc == "J") {
+				} else if (desc.equals("J")) {
 					initialValue = new Long(((IInteger)((IConstructor)v).get(4)).longValue());
-				} else if (desc == "F") {
+				} else if (desc.equals("F")) {
 					initialValue = new Float(((IReal)((IConstructor)v).get(4)).floatValue());
-				} else if (desc == "D") {
+				} else if (desc.equals("D")) {
 					initialValue = new Double(((IReal)((IConstructor)v).get(4)).doubleValue());
-				} else if (desc == "Ljava/lang/String") {
+				} else if (desc.equals("Ljava/lang/String")) {
 					initialValue = ((IString)((IConstructor)v).get(4)).getValue();
 				}
 			}
@@ -178,6 +156,7 @@ public class SerializeClass {
 			mn.instructions = buildInstructions((IList)((IConstructor)v).get(5));
 			mn.tryCatchBlocks = buildTryCatchBlocks((IList)((IConstructor)v).get(6));
 			mn.localVariables = buildLocalVariables((IList)((IConstructor)v).get(7));
+			ml.add(mn);
 		}
 		return ml;
 	}
@@ -185,41 +164,41 @@ public class SerializeClass {
 	private static InsnList buildInstructions(IList iList) {
 		InsnList il = new InsnList();
 		for (IValue v : iList) {
-			if (((IConstructor)v).getName() == "field") {
+			if (((IConstructor)v).getName().equals("fieldRef")) {
 				il.add(new FieldInsnNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 										 ((IString)((IConstructor)v).get(1)).getValue(),
 										 ((IString)((IConstructor)v).get(2)).getValue(),
 										 ((IString)((IConstructor)v).get(3)).getValue()));
-			} else if (((IConstructor)v).getName() == "increment") {
+			} else if (((IConstructor)v).getName().equals("increment")) {
 				il.add(new IincInsnNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 										((IInteger)((IConstructor)v).get(1)).intValue()));
-			} else if (((IConstructor)v).getName() == "instruction") {
+			} else if (((IConstructor)v).getName().equals("instruction")) {
 				il.add(new InsnNode(((IInteger)((IConstructor)v).get(0)).intValue()));
-			} else if (((IConstructor)v).getName() == "integer") {
+			} else if (((IConstructor)v).getName().equals("integer")) {
 				il.add(new IntInsnNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 									   ((IInteger)((IConstructor)v).get(1)).intValue()));
-			} else if (((IConstructor)v).getName() == "jump") {
+			} else if (((IConstructor)v).getName().equals("jump")) {
 				il.add(new JumpInsnNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 										getLabel(((IInteger)((IConstructor)v).get(1)).intValue())));
-			} else if (((IConstructor)v).getName() == "label") {
-				il.add(getLabel(((IInteger)((IConstructor)v).get(1)).intValue()));
-			} else if (((IConstructor)v).getName() == "lineNumber") {
+			} else if (((IConstructor)v).getName().equals("label")) {
+				il.add(getLabel(((IInteger)((IConstructor)v).get(0)).intValue()));
+			} else if (((IConstructor)v).getName().equals("lineNumber")) {
 				il.add(new LineNumberNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 										  getLabel(((IInteger)((IConstructor)v).get(1)).intValue())));
-			} else if (((IConstructor)v).getName() == "localVariable") {
+			} else if (((IConstructor)v).getName().equals("localVariable")) {
 				il.add(new VarInsnNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 									   ((IInteger)((IConstructor)v).get(1)).intValue()));
-			} else if (((IConstructor)v).getName() == "loadConstantString") {
+			} else if (((IConstructor)v).getName().equals("loadConstantString")) {
 				il.add(new LdcInsnNode(((IString)((IConstructor)v).get(0)).getValue()));
-			} else if (((IConstructor)v).getName() == "loadConstantInteger") {
+			} else if (((IConstructor)v).getName().equals("loadConstantInteger")) {
 				il.add(new LdcInsnNode(((IInteger)((IConstructor)v).get(0)).intValue()));
-			} else if (((IConstructor)v).getName() == "loadConstantLong") {
+			} else if (((IConstructor)v).getName().equals("loadConstantLong")) {
 				il.add(new LdcInsnNode(((IInteger)((IConstructor)v).get(0)).longValue()));
-			} else if (((IConstructor)v).getName() == "loadConstantFloat") {
+			} else if (((IConstructor)v).getName().equals("loadConstantFloat")) {
 				il.add(new LdcInsnNode(((IReal)((IConstructor)v).get(0)).floatValue()));
-			} else if (((IConstructor)v).getName() == "loadConstantDouble") {
+			} else if (((IConstructor)v).getName().equals("loadConstantDouble")) {
 				il.add(new LdcInsnNode(((IReal)((IConstructor)v).get(0)).doubleValue()));
-			} else if (((IConstructor)v).getName() == "lookupSwitch") {
+			} else if (((IConstructor)v).getName().equals("lookupSwitch")) {
 				IList kl = (IList)((IConstructor)v).get(1);
 				int ka[] = new int[kl.length()];
 				for (int i = 0; i < kl.length(); i++) {
@@ -233,15 +212,15 @@ public class SerializeClass {
 				il.add(new LookupSwitchInsnNode(getLabel(((IInteger)((IConstructor)v).get(0)).intValue()),
 												ka,
 												la));
-			} else if (((IConstructor)v).getName() == "method") {
+			} else if (((IConstructor)v).getName().equals("method")) {
 				il.add(new MethodInsnNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 										  ((IString)((IConstructor)v).get(1)).getValue(),
 										  ((IString)((IConstructor)v).get(2)).getValue(),
 										  ((IString)((IConstructor)v).get(3)).getValue()));
-			} else if (((IConstructor)v).getName() == "multiANewArray") {
+			} else if (((IConstructor)v).getName().equals("multiANewArray")) {
 				il.add(new MultiANewArrayInsnNode(((IString)((IConstructor)v).get(0)).getValue(),
 												  ((IInteger)((IConstructor)v).get(1)).intValue()));
-			} else if (((IConstructor)v).getName() == "tableSwitch") {
+			} else if (((IConstructor)v).getName().equals("tableSwitch")) {
 				IList ll = (IList)((IConstructor)v).get(3);
 				LabelNode la[] = new LabelNode[ll.length()];
 				for (int i = 0; i < ll.length(); i++) {
@@ -251,7 +230,7 @@ public class SerializeClass {
 											   ((IInteger)((IConstructor)v).get(1)).intValue(),
 											   getLabel(((IInteger)((IConstructor)v).get(2)).intValue()),
 											   la));
-			} else if (((IConstructor)v).getName() == "type") {
+			} else if (((IConstructor)v).getName().equals("type")) {
 				il.add(new TypeInsnNode(((IInteger)((IConstructor)v).get(0)).intValue(),
 						  				  ((IString)((IConstructor)v).get(1)).getValue()));
 			}
@@ -295,7 +274,7 @@ public class SerializeClass {
 	}
 	
 	private static String emptyIsNull(String s) {
-		if (s == "") {
+		if (s.equals("")) {
 			return null;
 		} else {
 			return s;
