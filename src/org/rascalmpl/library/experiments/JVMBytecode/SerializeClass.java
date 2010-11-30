@@ -4,6 +4,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -49,6 +51,7 @@ public class SerializeClass {
 	
 	static {
 		_resolver = new URIResolverRegistry();
+		_resolver.registerInputOutput(new FileURIResolver());
 		_labels = new HashMap<Integer, LabelNode>();
 	}
 
@@ -63,7 +66,9 @@ public class SerializeClass {
 		ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
 		cn.accept(cw);
 		try {
-			_resolver.getOutputStream(path.getURI(), false).write(cw.toByteArray());
+			OutputStream output = _resolver.getOutputStream(path.getURI(), false);
+			output.write(cw.toByteArray());
+			output.close();
 		} catch (FileNotFoundException e) {
 			throw RuntimeExceptionFactory.pathNotFound(path, null, null);
 		} catch (IOException e) {
