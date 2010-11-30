@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -33,15 +33,22 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Rascalify {
 
-	private static final URIResolverRegistry _resolver = new URIResolverRegistry();
-	private static final ArrayList<LabelNode> _labels = new ArrayList<LabelNode>();
+	private static final URIResolverRegistry _resolver;
+	private static final ArrayList<LabelNode> _labels;
 	
-	public Rascalify(ValueFactory values) {
+	static {
+		_resolver = new URIResolverRegistry();
+		_resolver.registerInputOutput(new FileURIResolver());
+		_labels = new ArrayList<LabelNode>();
+	}
+	
+	public Rascalify(IValueFactory values) {
 		super();
 	}
 
@@ -193,7 +200,7 @@ public class Rascalify {
 				boolean firstCase = true;
 				for (LabelNode l : (List<LabelNode>)n.labels) {
 					if (firstCase) { firstCase = false; } else { writer.write(", "); }
-					writer.write(getLabelIndex(l));
+					writer.write("" + getLabelIndex(l));
 				}
 				writer.write("])");
 			} else if (ai instanceof MethodInsnNode) {
@@ -208,7 +215,7 @@ public class Rascalify {
 				boolean firstCase = true;
 				for (LabelNode l : (List<LabelNode>)n.labels) {
 					if (firstCase) { firstCase = false; } else { writer.write(", "); }
-					writer.write(getLabelIndex(l));
+					writer.write("" + getLabelIndex(l));
 				}
 				writer.write("])");
 			} else if (ai instanceof TypeInsnNode) {
