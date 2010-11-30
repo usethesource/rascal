@@ -51,3 +51,7 @@ data LocalVariable = localVariable(str name, str description, str signature, int
 @javaClass{org.rascalmpl.library.experiments.JVMBytecode.SerializeClass}
 public void java serialize(Class class, loc path)
 throws PathNotFound(loc), IOError(str msg), JavaBytecodeError(str msg);
+
+@javaClass{org.rascalmpl.library.experiments.JVMBytecode.Rascalify}
+public void java deserializeToDisk(loc source, loc destination, str moduleName)
+throws PathNotFound(loc), IOError(str msg), JavaBytecodeError(str msg);

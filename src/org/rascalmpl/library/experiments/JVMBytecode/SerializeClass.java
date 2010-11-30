@@ -2,9 +2,7 @@ package org.rascalmpl.library.experiments.JVMBytecode;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,13 +39,16 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SerializeClass {
-	
+
+	private final static URIResolverRegistry _resolver;
 	private final static HashMap<Integer, LabelNode> _labels;
 	
 	static {
+		_resolver = new URIResolverRegistry();
 		_labels = new HashMap<Integer, LabelNode>();
 	}
 
@@ -62,12 +63,11 @@ public class SerializeClass {
 		ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
 		cn.accept(cw);
 		try {
-			FileOutputStream f = new FileOutputStream(new File(path.getURI()));
-			f.write(cw.toByteArray());
+			_resolver.getOutputStream(path.getURI(), false).write(cw.toByteArray());
 		} catch (FileNotFoundException e) {
-			RuntimeExceptionFactory.pathNotFound(path, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(path, null, null);
 		} catch (IOException e) {
-			RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
 		}
 	}
 
