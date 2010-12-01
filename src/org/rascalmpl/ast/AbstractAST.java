@@ -4,13 +4,16 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
 	protected INode node;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
+	
+	AbstractAST(INode node) {
+		this.node = node;
+	}
 	
 	public Type _getType() {
 	  return _type;
